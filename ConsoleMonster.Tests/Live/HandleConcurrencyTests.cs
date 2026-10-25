@@ -40,7 +40,7 @@ namespace ConsoleMonster.Tests.Live {
                 Assert.Same(all, await Task.WhenAny(all, Task.Delay(TimeSpan.FromSeconds(30))));
                 await all;
                 counting.SetProgress(producers * updates, producers * updates);
-                counting.SetProgress(done: producers * updates + 1);
+                counting.SetProgress(value: producers * updates + 1);
                 counting.SetProgress(total: producers * updates * 2);
                 session.Stop();
                 Assert.Equal(producers * updates * 5 + 3, session.EventsApplied);
@@ -53,7 +53,7 @@ namespace ConsoleMonster.Tests.Live {
                 Assert.Equal(producers * updates, progress.Value);
                 Assert.Equal(producers, values.Items.Count);
                 Assert.All(values.Items, item => Assert.Equal("63", item.Value));
-                Assert.Equal(producers * updates + 1, summary.Done);
+                Assert.Equal(producers * updates + 1, summary.Value);
                 Assert.Equal(producers * updates * 2, summary.Total);
                 string counters = summary.Line(1000, Terminal.CreateContext(TerminalProfile.Fixed(1000, 10, ColorDepth.None))).PlainText;
                 foreach (int producer in Enumerable.Range(0, producers)) { Assert.Contains("63 worker" + producer.ToString("D2"), counters); }

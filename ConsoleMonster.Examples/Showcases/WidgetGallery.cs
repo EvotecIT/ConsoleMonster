@@ -90,19 +90,19 @@ namespace ConsoleMonster.Examples.Showcases {
             return Rows(
                 logo,
                 Panel("Progress", Rows(build, tests, docs)),
-                Panel("Lanes", lanes).WithCaption("2 running"),
+                Panel("Lanes", lanes).Caption("2 running"),
                 Panel("Phases", phases),
                 Columns(
                     Panel("Stacked bar", results),
-                    Panel("Bar chart", categories).WithCaption("failures")),
+                    Panel("Bar chart", categories).Caption("failures")),
                 Columns(
-                    Panel("Sparkline", Rows(spark, area).WithGap(1)),
-                    Panel("Line chart", chart).WithCaption("braille"),
+                    Panel("Sparkline", Rows(spark, area).Gap(1)),
+                    Panel("Line chart", chart).Caption("braille"),
                     Panel("Histogram", histogram)),
                 Columns(
                     Panel("Spinner", Rows(resolving, synced)),
                     Panel("Align", new Align(new TextBlock("[muted]centred with Align[/]"))),
-                    Panel("Stack", overlay).WithCaption("badge over a chart")),
+                    Panel("Stack", overlay).Caption("badge over a chart")),
                 Panel("Log region", log));
         }
     }

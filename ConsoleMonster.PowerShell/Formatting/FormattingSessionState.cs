@@ -30,13 +30,13 @@ namespace ConsoleMonster.PowerShell {
         internal ConsoleFormattingFeature Features { get; set; }
         internal bool DetailedErrors { get; set; }
         internal ScriptBlock? SavedOutDefault { get; set; }
-        internal string? SavedWriteProgressAlias { get; set; }
         internal bool ProgressEnabled { get; set; }
         internal RunspaceProgressState Progress { get; }
         internal ScriptBlock? ProgressCleanupHook { get; set; }
         internal ScriptBlock? PreviousModuleOnRemove { get; set; }
 
         internal FormatCommandInstallation? FormatCommands { get; set; }
+        internal FormatCommandInstallation? NativeProgress { get; set; }
         internal FormatCommandInstallation? Help { get; set; }
         internal GridViewInstallation? GridView { get; set; }
         internal StreamFormattingInstallation Streams { get; } = new StreamFormattingInstallation();
@@ -57,7 +57,6 @@ namespace ConsoleMonster.PowerShell {
             ProgressEnabled = false;
             TakeOverBuiltIns = true;
             SavedOutDefault = null;
-            SavedWriteProgressAlias = null;
             ProgressCleanupHook = null;
             PreviousModuleOnRemove = null;
         }

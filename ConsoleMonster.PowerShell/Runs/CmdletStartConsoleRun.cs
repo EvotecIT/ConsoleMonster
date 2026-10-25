@@ -45,7 +45,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Enable optional p/f/g/? keys when keyboard input is available.</para></summary>
         [Parameter] public SwitchParameter InteractiveKeys { get; set; }
         /// <summary><para type="description">Show the throughput trend next to its rate.</para></summary>
-        [Parameter] public SwitchParameter Trend { get; set; }
+        [Parameter] public SwitchParameter ShowTrend { get; set; }
         /// <summary><para type="description">Maximum terminal height percentage used by the live dashboard (default 40).</para></summary>
         [Parameter] [ValidateRange(1, 100)] public int HeightPercent { get; set; } = 40;
         /// <summary><para type="description">Print CI progress after this many items (default 25). Zero disables the count trigger.</para></summary>
@@ -67,8 +67,8 @@ namespace ConsoleMonster.PowerShell {
             LiveSessionOptions session = new LiveSessionOptions { CaptureConsole = !host, Discoverable = false };
             if (host) { session.Profile = profile.WithMode(OutputMode.Plain); session.Output = new LineOutput(queue!, session.Profile); }
             LiveRun run = new LiveRun(items, new LiveRunOptions {
-                Title = Title, Live = !(NoLive.IsPresent || host), HeightFraction = HeightPercent / 100.0,
-                InteractiveKeys = InteractiveKeys.IsPresent, ShowTrend = Trend.IsPresent, ProgressEvery = ProgressEvery,
+                Title = Title, Live = !(NoLive.IsPresent || host), HeightPercent = HeightPercent,
+                InteractiveKeys = InteractiveKeys.IsPresent, ShowTrend = ShowTrend.IsPresent, ProgressEvery = ProgressEvery,
                 ProgressInterval = TimeSpan.FromSeconds(ProgressIntervalSeconds), ReportPath = ReportPath, Session = session
             });
             try {

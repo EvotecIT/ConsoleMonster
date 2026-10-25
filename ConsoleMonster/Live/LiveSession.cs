@@ -14,7 +14,7 @@ namespace ConsoleMonster.Live {
     /// Single-use live renderer. Producers only enqueue; one background thread owns widget updates.
     /// Stop closes admission, joins that thread, drains accepted events and restores the terminal.
     /// </summary>
-    public sealed partial class LiveSession : ILiveDispatcher, IDisposable {
+    public sealed partial class LiveSession : IWidgetUpdateDispatcher, IDisposable {
         private static readonly object CurrentGate = new object();
         private static readonly List<LiveSession> Running = new List<LiveSession>();
         private static LiveSession? _captureOwner;
@@ -75,6 +75,8 @@ namespace ConsoleMonster.Live {
             _root = root ?? throw new ArgumentNullException(nameof(root));
             _options = options ?? new LiveSessionOptions();
             Discover(root);
+            _updateTargets = new Dictionary<string, ILiveTarget>(_targets, StringComparer.Ordinal);
+            _discovered = true;
         }
 
         /// <summary>The root widget the session renders.</summary>
@@ -185,6 +187,7 @@ namespace ConsoleMonster.Live {
                 if (string.IsNullOrEmpty(target.WidgetId) || target.WidgetId == "$log" || !_targets.TryAdd(target.WidgetId, target)) {
                     throw new ArgumentException("Target names must be unique, nonempty, and must not be '$log'.", nameof(target));
                 }
+                if (_discovered) { lock (_updateGate) { _additionalTargets[target.WidgetId] = target; _updateTargets[target.WidgetId] = target; } }
                 if (target is ILogTarget) { lock (_logTargets) { _logTargets.Add(target); } }
                 if (_logTarget == null && target is ILogTarget && (_options.LogTarget == null || _options.LogTarget == target.WidgetId)) {
                     Volatile.Write(ref _logTarget, target);
@@ -201,7 +204,7 @@ namespace ConsoleMonster.Live {
         /// <exception cref="ArgumentException">No slot has that name.</exception>
         public Widgets.RegionHandle Region(string widgetId) {
             if (widgetId == null) { throw new ArgumentNullException(nameof(widgetId)); }
-            if (!_targets.TryGetValue(widgetId, out ILiveTarget? target) || !(target is Widgets.RegionWidget slot)) {
+            if (!TryGetUpdateTarget(widgetId, out ILiveTarget? target) || !(target is Widgets.RegionWidget slot)) {
                 throw new ArgumentException("The session has no region (RegionWidget) named '" + widgetId + "'.", nameof(widgetId));
             }
             return slot.Handle(this);
@@ -242,6 +245,9 @@ namespace ConsoleMonster.Live {
             return _targets.TryGetValue(widgetId, out target);
         }
 
+        /// <inheritdoc />
+        public void Update(string widgetId, WidgetUpdate update) => ConsoleUpdate.Apply(this, widgetId, update);
+
         /// <summary>Enqueues without locks or per-event signaling. Events may be queued before Start.</summary>
         /// <param name="liveEvent">Event; zero timestamps are stamped relative to Start.</param>
         public void Post(LiveEvent liveEvent) {
@@ -257,7 +263,9 @@ namespace ConsoleMonster.Live {
                 if (Interlocked.CompareExchange(ref _admission, admission + 1, admission) == admission) { break; }
             }
             try {
-                Enqueue(liveEvent);
+                if ((liveEvent.Operation == "set" && liveEvent.Payload is IWidget) || liveEvent.Operation == "clear") {
+                    lock (_updateGate) { ProjectContent(liveEvent); Enqueue(liveEvent); }
+                } else { Enqueue(liveEvent); }
             } finally { Interlocked.Decrement(ref _admission); }
             return true;
         }

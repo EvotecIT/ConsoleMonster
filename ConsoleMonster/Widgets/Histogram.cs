@@ -26,6 +26,9 @@ namespace ConsoleMonster.Widgets {
             }
             _edges = new double[edges.Count];
             for (int i = 0; i < edges.Count; i++) {
+                if (!NumberFormat.IsFinite(edges[i]) || i > 0 && edges[i] <= edges[i - 1]) {
+                    throw new ArgumentException("Edges must be finite and strictly increasing.", nameof(edges));
+                }
                 _edges[i] = edges[i];
             }
             _counts = new int[edges.Count - 1];

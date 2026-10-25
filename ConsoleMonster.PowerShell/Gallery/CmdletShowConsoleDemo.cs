@@ -12,7 +12,7 @@ namespace ConsoleMonster.PowerShell {
     [Cmdlet(VerbsCommon.Show, "ConsoleDemo")]
     [OutputType(typeof(PSObject))]
     public sealed class CmdletShowConsoleDemo : PSCmdlet {
-        /// <summary><para type="description">Exact demo slug from Get-ConsoleDemo.</para></summary>
+        /// <summary><para type="description">Exact demo slug from Get-ConsolePresentation.</para></summary>
         [Parameter(Position = 0, Mandatory = true)]
         [ValidateNotNullOrEmpty]
         public string Slug { get; set; } = string.Empty;

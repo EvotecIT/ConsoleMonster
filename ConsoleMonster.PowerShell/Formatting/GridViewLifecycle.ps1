@@ -25,7 +25,6 @@ if ($Action -eq 'Save') {
     return
 }
 if ($Action -eq 'Install') {
-    if ($Saved.Alias) { Microsoft.PowerShell.Management\Remove-Item -LiteralPath Alias:\Out-GridView -Force -ErrorAction Stop }
     $options = [System.Management.Automation.ScopedItemOptions]::None
     if ($Saved.Function) { $options = $Saved.Function.Options -band [System.Management.Automation.ScopedItemOptions]::AllScope }
     Microsoft.PowerShell.Management\Set-Item -LiteralPath Function:\global:Out-GridView -Value $Body -Options $options -Force -ErrorAction Stop
@@ -41,11 +40,6 @@ if ($Action -eq 'Restore' -or $Action -eq 'Rollback') {
             $restored.Visibility = $Saved.Function.Visibility
         } else {
             Microsoft.PowerShell.Management\Remove-Item -LiteralPath Function:\Out-GridView -Force -ErrorAction Stop
-        }
-        $alias = Microsoft.PowerShell.Utility\Get-Alias -Name Out-GridView -Scope Global -ErrorAction Ignore
-        if ($Saved.Alias -and -not $alias) {
-            Microsoft.PowerShell.Utility\Set-Alias -Name Out-GridView -Value $Saved.Alias.Definition -Description $Saved.Alias.Description -Option $Saved.Alias.Options -Scope Global -Force -ErrorAction Stop
-            (Microsoft.PowerShell.Utility\Get-Alias -Name Out-GridView -Scope Global).Visibility = $Saved.Alias.Visibility
         }
     }
 }

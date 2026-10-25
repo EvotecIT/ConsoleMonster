@@ -8,7 +8,7 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example><para>Choose initial values.</para><code>New-ConsoleSelect -Key Environment -Choices 'Production', 'Staging' -Value Staging</code></example>
     [Cmdlet(VerbsCommon.New, "ConsoleSelect")]
-    [OutputType(typeof(Select))]
+    [OutputType(typeof(Select), typeof(MultiSelect))]
     public sealed class CmdletNewConsoleSelect : AppChoiceCmdlet {
         /// <summary><para type="description">Initial selected value from the supplied choices. Omit to retain the core default selection.</para></summary>
         [Parameter]
@@ -16,11 +16,17 @@ namespace ConsoleMonster.PowerShell {
         [AllowEmptyCollection]
         public object? Value { get; set; }
 
+        /// <summary><para type="description">Allows multiple selected values.</para></summary>
+        [Parameter] public SwitchParameter Multiple { get; set; }
+
         /// <inheritdoc />
         protected override void EndProcessing() {
-            Select control = new Select(Key, BuildChoices());
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(Value))) { control.Value = Value; }
-            Emit(control);
+            var options = new SelectInputOptions { Key = Key, Multiple = Multiple.IsPresent };
+            foreach (Choice choice in BuildChoices()) { options.Choices.Add(choice); }
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(Value))) {
+                options.Value = Multiple.IsPresent && Value != null ? LanguagePrimitives.ConvertTo<object[]>(Value) : Value;
+            }
+            Emit(AppInput.Select(options));
         }
     }
 }

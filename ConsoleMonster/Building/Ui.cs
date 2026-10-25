@@ -10,7 +10,7 @@ namespace ConsoleMonster {
     /// <code>
     /// Terminal.Write(Rows(
     ///     Columns(
-    ///         Panel("Servers", Table(servers).Column(s => s.Name, c => c.WithIsKey()).WithTotals()),
+    ///         Panel("Servers", Table(servers).Column(s => s.Name, c => c.IsKey()).Totals()),
     ///         Panel("Summary", KeyValue(("Servers", 3), ("Failed", 1)))),
     ///     Text("[muted]updated 10:02[/]")));
     /// </code>

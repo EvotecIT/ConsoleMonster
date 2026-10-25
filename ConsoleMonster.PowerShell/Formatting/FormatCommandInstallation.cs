@@ -34,6 +34,25 @@ namespace ConsoleMonster.PowerShell {
             return true;
         }
 
+        internal static bool InstallProgress(PSCmdlet cmdlet, bool force) {
+            FormattingSessionState state = FormattingSessionState.Current;
+            if (state.NativeProgress != null) { return true; }
+            CommandInfo? existing = cmdlet.InvokeCommand.GetCommand("Write-Progress", CommandTypes.Function | CommandTypes.Alias);
+            if (existing is AliasInfo || (existing != null && !force)) {
+                cmdlet.WriteWarning("Write-Progress already has a custom function or alias; Progress was not enabled. Remove the alias or use -Force for a function.");
+                return false;
+            }
+            state.NativeProgress = InstallCommands(cmdlet, new[] { "Write-Progress" }, "Formatting.NativeProgressProxy.ps1",
+                name => cmdlet.InvokeCommand.GetCommand("Microsoft.PowerShell.Utility\\" + name, CommandTypes.Cmdlet));
+            SessionProgress.Enabled = true;
+            return true;
+        }
+
+        internal static void RemoveProgress(FormattingSessionState state) {
+            state.NativeProgress?.Restore();
+            state.NativeProgress = null;
+        }
+
         internal static bool InstallHelp(PSCmdlet cmdlet, bool force) {
             FormattingSessionState state = FormattingSessionState.Current;
             if (state.Help != null) { return true; }

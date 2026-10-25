@@ -22,10 +22,11 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleColumns")]
     [OutputType(typeof(IWidget))]
-    public sealed class CmdletNewConsoleColumns : PSCmdlet {
+    public sealed class CmdletNewConsoleColumns : ContainerCmdlet {
         /// <summary><para type="description">Scriptblock that emits the child widgets.</para></summary>
-        [Parameter(Position = 0, Mandatory = true)]
-        public ScriptBlock Content { get; set; } = null!;
+        [Parameter(Position = 0, ValueFromPipeline = true)]
+        [AllowNull, AllowEmptyCollection]
+        public override object? Content { get; set; }
 
         /// <summary><para type="description">Blank columns between children (default 1).</para></summary>
         [Parameter]
@@ -48,9 +49,8 @@ namespace ConsoleMonster.PowerShell {
         public SwitchParameter Fill { get; set; }
 
         /// <inheritdoc />
-        protected override void ProcessRecord() {
+        protected override IWidget Build(List<IWidget> children) {
             Columns columns = new Columns { Gap = Gap, CollapseBelow = CollapseBelow < 0 ? -1 : CollapseBelow };
-            List<IWidget> children = PSWidgets.Collect(Content);
             for (int i = 0; i < children.Count; i++) {
                 int width = FixedWidth != null && i < FixedWidth.Length ? FixedWidth[i] : 0;
                 if (width > 0) {
@@ -61,7 +61,7 @@ namespace ConsoleMonster.PowerShell {
                     columns.Add(children[i]);
                 }
             }
-            WriteObject(PSWidgets.WithSize(columns, 0, Height, Fill.IsPresent));
+            return PSWidgets.WithSize(columns, 0, Height, Fill.IsPresent);
         }
     }
 }

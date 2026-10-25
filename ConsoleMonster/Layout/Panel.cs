@@ -11,23 +11,25 @@ namespace ConsoleMonster.Layout {
     /// and an optional footer in the bottom edge. Borders follow the glyph tier (rounded on Full, single on Basic,
     /// <c>+-|</c> on Ascii). Inside a <see cref="Columns"/> row, panels stretch to the row height.
     /// </summary>
-    public sealed class Panel : IContainer {
+    public sealed class Panel : IContainer, IContentOwner {
         /// <summary>Creates a panel with a multicolour title.</summary>
-        /// <param name="child">The content.</param>
+        /// <param name="content">The content.</param>
         /// <param name="title">The title.</param>
-        public Panel(IWidget child, Text.RichText title) : this(child, (title ?? throw new ArgumentNullException(nameof(title))).ToMarkup()) {
+        public Panel(IWidget content, Text.RichText title) : this(content, (title ?? throw new ArgumentNullException(nameof(title))).ToMarkup()) {
         }
 
-        /// <summary>Creates a panel around a child with an optional title (markup).</summary>
-        /// <param name="child">The child.</param>
+        /// <summary>Creates a panel around a content with an optional title (markup).</summary>
+        /// <param name="content">The content.</param>
         /// <param name="title">The title, or null.</param>
-        public Panel(IWidget child, string? title = null) {
-            Child = child ?? throw new ArgumentNullException(nameof(child));
+        public Panel(IWidget? content = null, string? title = null) {
+            Content = content ?? new Rows();
             Title = title;
         }
 
         /// <summary>The content.</summary>
-        public IWidget Child { get; }
+        public IWidget Content { get; set; }
+
+        void IContentOwner.ReplaceContent(IWidget[] content) => Content = ContentBuilder.Compose(content);
 
         /// <summary>The title shown in the top edge (markup).</summary>
         public string? Title { get; set; }
@@ -69,7 +71,7 @@ namespace ConsoleMonster.Layout {
         public int? Height { get; set; }
 
         /// <inheritdoc />
-        public IReadOnlyList<IWidget> Children => new[] { Child };
+        public IReadOnlyList<IWidget> Children => new[] { Content };
 
         private bool HasBorder => Border != BoxStyle.None;
 
@@ -77,7 +79,7 @@ namespace ConsoleMonster.Layout {
         public Size Measure(Constraints constraints, RenderContext context) {
             int horizontal = (HasBorder ? 2 : 0) + PaddingLeft + PaddingRight;
             int vertical = (HasBorder ? 2 : (string.IsNullOrEmpty(Title) ? 0 : 1)) + PaddingTop + PaddingBottom;
-            Size inner = Child.Measure(constraints.Shrink(horizontal, vertical), context);
+            Size inner = Content.Measure(constraints.Shrink(horizontal, vertical), context);
             int titleWidth = string.IsNullOrEmpty(Title) ? 0 : context.Markup(Title!).Width + 4 + (Verdict && Status.HasValue ? DisplayWidth.Measure(context.Glyphs.StatusSymbol(Status.Value)) + 1 : 0);
             int width = Expand ? constraints.MaxWidth : Math.Min(constraints.MaxWidth, Math.Max(inner.Width + horizontal, titleWidth + 2));
             int height = Height ?? inner.Height + vertical;
@@ -96,15 +98,15 @@ namespace ConsoleMonster.Layout {
                     region.Write(PaddingLeft, 0, title);
                     top = 1;
                 }
-                Child.Render(region.Sub(PaddingLeft, top + PaddingTop, region.Width - PaddingLeft - PaddingRight, region.Height - top - PaddingTop - PaddingBottom), context);
+                Content.Render(region.Sub(PaddingLeft, top + PaddingTop, region.Width - PaddingLeft - PaddingRight, region.Height - top - PaddingTop - PaddingBottom), context);
                 return;
             }
             if (region.Width < 4 || region.Height < 2) {
-                Child.Render(region, context);
+                Content.Render(region, context);
                 return;
             }
             DrawBorder(region, context);
-            Child.Render(region.Sub(1 + PaddingLeft, 1 + PaddingTop, region.Width - 2 - PaddingLeft - PaddingRight, region.Height - 2 - PaddingTop - PaddingBottom), context);
+            Content.Render(region.Sub(1 + PaddingLeft, 1 + PaddingTop, region.Width - 2 - PaddingLeft - PaddingRight, region.Height - 2 - PaddingTop - PaddingBottom), context);
         }
 
         private void DrawBorder(Region region, RenderContext context) {

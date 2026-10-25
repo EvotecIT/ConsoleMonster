@@ -12,17 +12,21 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>Marks a phase as running (its duration is measured until the next state change).</summary>
         /// <param name="key">The phase.</param>
-        public void Start(string key) => Post("state", key, state: "running");
+        public void Start(string key) => Update(new WidgetUpdate { Key = key, Status = StatusKind.Running });
 
         /// <summary>Finishes a phase.</summary>
         /// <param name="key">The phase.</param>
         /// <param name="status">The final status.</param>
         /// <param name="detail">A detail (default: the measured duration).</param>
-        public void Complete(string key, StatusKind status = StatusKind.Pass, string? detail = null) => Post("state", key, detail, status.ToString());
+        public void Complete(string key, StatusKind status = StatusKind.Pass, string? detail = null) {
+            var update = new WidgetUpdate { Key = key, Status = status };
+            if (detail != null) { update.Detail = detail; }
+            Update(update);
+        }
 
         /// <summary>Sets a phase's detail (for example a percentage).</summary>
         /// <param name="key">The phase.</param>
         /// <param name="detail">The detail.</param>
-        public void Detail(string key, string detail) => Post("detail", key, detail);
+        public void Detail(string key, string detail) => Update(new WidgetUpdate { Key = key, Detail = detail });
     }
 }

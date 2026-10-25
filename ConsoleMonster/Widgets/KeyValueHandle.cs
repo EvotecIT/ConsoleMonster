@@ -15,7 +15,9 @@ namespace ConsoleMonster.Widgets {
         /// <param name="value">The value (markup).</param>
         /// <param name="status">An optional status.</param>
         public void Set(string key, string value, StatusKind? status = null) {
-            Post("set", key, value, status.HasValue ? status.Value.ToString() : null);
+            var update = new WidgetUpdate { Key = key, Value = ConsoleMonster.Text.RichText.FromMarkup(value) };
+            if (status.HasValue) { update.Status = status.Value; }
+            Update(update);
         }
     }
 }

@@ -36,7 +36,7 @@ namespace ConsoleMonster.Interactive {
         public string Title { get; set; }
 
         /// <summary>What the grid returns (default <see cref="GridSelection.Multiple"/>).</summary>
-        public GridSelection Selection { get; set; } = GridSelection.Multiple;
+        public GridSelection OutputMode { get; set; } = GridSelection.Multiple;
 
         /// <summary>Culture and display options for the presenters.</summary>
         public PresentationOptions Presentation { get; set; } = new PresentationOptions();

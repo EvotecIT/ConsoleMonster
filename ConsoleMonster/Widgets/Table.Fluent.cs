@@ -9,7 +9,7 @@ namespace ConsoleMonster.Widgets {
         /// <param name="table">The table.</param>
         /// <param name="label">The label of the totals row, or null for the built-in word.</param>
         /// <returns>The same table.</returns>
-        public static TSelf WithTotals<TSelf>(this TSelf table, string? label = null) where TSelf : Table {
+        public static TSelf Totals<TSelf>(this TSelf table, string? label = null) where TSelf : Table {
             table.ShowTotals = true;
             table.AutoTotals = true;
             if (label != null) {

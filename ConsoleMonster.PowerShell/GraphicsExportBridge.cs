@@ -23,9 +23,9 @@ namespace ConsoleMonster.PowerShell {
             GraphicsExportOptions settings = Settings(preset, font, fit, background, backgroundColor, backgroundEndColor, options);
             byte[] bytes;
             object raw = items.Count == 1 ? PSObject.AsPSObject(items[0]).BaseObject : new object();
-            if (raw is Canvas.CellBuffer frame) { bytes = frame.ToPng(settings); }
-            else if (raw is LiveSession session) { bytes = session.ToPng(settings); }
-            else { bytes = PSOutputExport.Widget(items, cmdlet).ToPng(settings); }
+            if (raw is Canvas.CellBuffer frame) { bytes = FrameExporter.Export(frame, "Png", options, new PngFrameExportProvider(settings)); }
+            else if (raw is LiveSession session) { bytes = FrameExporter.Export(session.Snapshot() ?? throw new PSInvalidOperationException("The session has not drawn a frame yet."), "Png", options, new PngFrameExportProvider(settings)); }
+            else { bytes = FrameExporter.Export(PSOutputExport.Widget(items, cmdlet), "Png", options, new PngFrameExportProvider(settings)); }
             if (path == null) { return bytes; }
             File.WriteAllBytes(path, bytes); return new FileInfo(path);
         }

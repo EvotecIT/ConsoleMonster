@@ -10,19 +10,34 @@ using ConsoleMonster.Interactive;
 using ConsoleMonster.Styling;
 using Xunit;
 
-namespace ConsoleMonster.Tests.Interactive {
+namespace ConsoleMonster.Tests.Interactive
+{
     [Collection("Live sessions")]
-    public sealed class FormsPresetRegressionTests {
-        private sealed class Target {
+    public sealed class FormsPresetRegressionTests
+    {
+        private sealed class Target
+        {
             public override string ToString() => "same";
         }
 
-        private sealed class Host : IViewHost {
+        private sealed class Host : IViewHost
+        {
             public PromptLabels Labels { get; } = new PromptLabels();
             public List<Action> Calls { get; } = new List<Action>();
-            public void ShowModal(Modal modal) { }
-            public void ShowToast(Toast toast) { }
-            public bool TryPost(Action call) { Calls.Add(call); return true; }
+
+            public void ShowModal(Modal modal)
+            {
+            }
+
+            public void ShowToast(Toast toast)
+            {
+            }
+
+            public bool TryPost(Action call)
+            {
+                Calls.Add(call);
+                return true;
+            }
         }
 
         [Theory]
@@ -34,25 +49,47 @@ namespace ConsoleMonster.Tests.Interactive {
         [InlineData(true, false, true)]
         [InlineData(false, true, true)]
         [InlineData(true, true, true)]
-        public void Apply_RawChoices_PreservesIdentityAcrossOverloadsAndLoading(bool formValues, bool loaded, bool shown) {
+        public void Apply_RawChoices_PreservesIdentityAcrossOverloadsAndLoading(bool formValues, bool loaded, bool shown)
+        {
             Target first = new Target();
             Target second = new Target();
-            Choice[] options = { new Choice(first, "First"), new Choice(second, "Second") };
+            Choice[] options =
+            {
+                new Choice(first, "First"),
+                new Choice(second, "Second")
+            };
             Form form = new Form("Identity");
             ChoiceField single = form.Select("Single", choices: loaded ? null : options);
             ChoiceField multi = form.MultiSelect("Multi", choices: loaded ? null : options);
-            if (loaded) {
+            if (loaded)
+            {
                 single.Loader = multi.Loader = (v, t) => Task.FromResult<IEnumerable<Choice>>(options);
             }
+
             FormView? view = shown ? new FormView(form, new Host(), null, false) : null;
-            Dictionary<string, object?> values = new Dictionary<string, object?> { ["Single"] = second, ["Multi"] = new[] { second } };
-            if (formValues) {
+            Dictionary<string, object?> values = new Dictionary<string, object?>
+            {
+                ["Single"] = second,
+                ["Multi"] = new[]
+                {
+                    second
+                }
+            };
+            if (formValues)
+            {
                 FormValues earlier = new FormValues();
-                foreach (KeyValuePair<string, object?> pair in values) { earlier.Set(pair.Key, pair.Value, true); }
+                foreach (KeyValuePair<string, object?> pair in values)
+                {
+                    earlier.Set(pair.Key, pair.Value, true);
+                }
+
                 form.Apply(earlier);
-            } else {
+            }
+            else
+            {
                 form.Apply(values);
             }
+
             view = view ?? new FormView(form, new Host(), null, false);
             view.Poll(TimeSpan.Zero);
             Assert.Same(second, single.Value);
@@ -61,9 +98,16 @@ namespace ConsoleMonster.Tests.Interactive {
         }
 
         [Fact]
-        public void Apply_SingleChoiceWhoseValueIsACollection_PreservesItsIdentityAndInvalidatesDependents() {
-            object[] first = { "same" };
-            object[] second = { "same" };
+        public void Apply_SingleChoiceWhoseValueIsACollection_PreservesItsIdentityAndInvalidatesDependents()
+        {
+            object[] first =
+            {
+                "same"
+            };
+            object[] second =
+            {
+                "same"
+            };
             Form form = new Form("Collection values");
             ChoiceField field = form.Select("Target", choices: new[] { new Choice(first, "First"), new Choice(second, "Second") });
             field.Value = first;
@@ -76,10 +120,14 @@ namespace ConsoleMonster.Tests.Interactive {
         }
 
         [Fact]
-        public void FormPreset_RawPendingChoices_PreservesIdentityInAccessibleMode() {
+        public void FormPreset_RawPendingChoices_PreservesIdentityInAccessibleMode()
+        {
             Target first = new Target();
             Target second = new Target();
-            Form form = new Form("Identity") { Review = false };
+            Form form = new Form("Identity")
+            {
+                Review = false
+            };
             ChoiceField multi = form.MultiSelect("Targets");
             multi.Loader = (v, t) => Task.FromResult<IEnumerable<Choice>>(new[] { new Choice(first, "First"), new Choice(second, "Second") });
             form.Preset("Second", p => p.Value("Targets", new[] { second }));
@@ -90,7 +138,8 @@ namespace ConsoleMonster.Tests.Interactive {
         }
 
         [Fact]
-        public void BuiltInMenuPreset_SelectsOnlyTheRequestedRawObject() {
+        public void BuiltInMenuPreset_SelectsOnlyTheRequestedRawObject()
+        {
             Target first = new Target();
             Target second = new Target();
             Menu menu = new Menu("Identity");
@@ -104,7 +153,8 @@ namespace ConsoleMonster.Tests.Interactive {
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
-        public void Apply_DependencyChain_StartsTheNextLoaderAfterRestoringItsParent(bool beforeShowing) {
+        public void Apply_DependencyChain_StartsTheNextLoaderAfterRestoringItsParent(bool beforeShowing)
+        {
             Form form = new Form("Chain");
             form.Text("Domain").Value = "east";
             ChoiceField server = form.Select("Server", choices: new[] { new Choice("E1") });
@@ -115,22 +165,41 @@ namespace ConsoleMonster.Tests.Interactive {
             check.Value = "old";
             check.DependsOn.Add("Server");
             List<string?> loadedFor = new List<string?>();
-            check.Loader = (v, t) => {
+            check.Loader = (v, t) =>
+            {
                 loadedFor.Add(v.Get<string>("Server"));
                 return Task.FromResult<IEnumerable<Choice>>(new[] { new Choice("new") });
             };
-            Dictionary<string, object?> values = new Dictionary<string, object?> { ["Domain"] = "west", ["Server"] = "W1", ["Check"] = "new" };
-            if (beforeShowing) { form.Apply(values); }
+            Dictionary<string, object?> values = new Dictionary<string, object?>
+            {
+                ["Domain"] = "west",
+                ["Server"] = "W1",
+                ["Check"] = "new"
+            };
+            if (beforeShowing)
+            {
+                form.Apply(values);
+            }
+
             FormView view = new FormView(form, new Host(), null, false);
-            if (!beforeShowing) { form.Apply(values); }
-            for (int i = 0; i < 3; i++) { view.Poll(TimeSpan.Zero); }
+            if (!beforeShowing)
+            {
+                form.Apply(values);
+            }
+
+            for (int i = 0; i < 3; i++)
+            {
+                view.Poll(TimeSpan.Zero);
+            }
+
             Assert.Equal(new[] { "W1" }, loadedFor);
             Assert.Equal("new", check.Value);
             view.Detach();
         }
 
         [Fact]
-        public void Apply_EmptyDependentSelection_ClosesTheObsoleteChoiceEditor() {
+        public void Apply_EmptyDependentSelection_ClosesTheObsoleteChoiceEditor()
+        {
             Form form = new Form("Scope");
             form.Text("Domain").Value = "east";
             ChoiceField servers = form.MultiSelect("Servers", choices: new[] { new Choice("E1") });
@@ -147,7 +216,8 @@ namespace ConsoleMonster.Tests.Interactive {
             view.Detach();
         }
 
-        private static void Press(FormView view, ViewFrame frame, ConsoleKey key) {
+        private static void Press(FormView view, ViewFrame frame, ConsoleKey key)
+        {
             List<KeyBinding> bindings = new List<KeyBinding>();
             view.AddBindings(bindings, frame);
             bindings.First(b => b.Matches(InputEvent.Press(key))).Action();
@@ -156,7 +226,8 @@ namespace ConsoleMonster.Tests.Interactive {
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
-        public void Apply_SecretChange_InvalidatesDependentsWithoutPersistingTheSecret(bool shown) {
+        public void Apply_SecretChange_InvalidatesDependentsWithoutPersistingTheSecret(bool shown)
+        {
             Form form = new Form("Credentials");
             form.Secret("Password").Value = "old";
             TextField dependent = form.Text("Result");
@@ -172,16 +243,24 @@ namespace ConsoleMonster.Tests.Interactive {
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
-        public void Apply_AcceptedBeforeDetach_SurvivesWithoutAnotherPoll(bool standalone) {
+        public void Apply_AcceptedBeforeDetach_SurvivesWithoutAnotherPoll(bool standalone)
+        {
             Form form = new Form("Closing");
             form.Text("Name").Value = "old";
             Host host = new Host();
             FormHostView? standaloneHost = standalone ? new FormHostView(form, new PromptLabels(), null, false) : null;
             FormView view = standaloneHost?.Pane ?? new FormView(form, host, null, false);
             Exception? error = null;
-            Thread worker = new Thread(() => {
-                try { form.Apply(new Dictionary<string, object?> { ["Name"] = "accepted" }); }
-                catch (Exception ex) { error = ex; }
+            Thread worker = new Thread(() =>
+            {
+                try
+                {
+                    form.Apply(new Dictionary<string, object?> { ["Name"] = "accepted" });
+                }
+                catch (Exception ex)
+                {
+                    error = ex;
+                }
             });
             worker.Start();
             Assert.True(worker.Join(TimeSpan.FromSeconds(5)));
@@ -189,55 +268,89 @@ namespace ConsoleMonster.Tests.Interactive {
             view.Detach();
             Assert.Equal("accepted", form.GetValues()["Name"]);
             form.Apply(new Dictionary<string, object?> { ["Name"] = "newer" });
-            foreach (Action call in host.Calls) { call(); }
+            foreach (Action call in host.Calls)
+            {
+                call();
+            }
+
             standaloneHost?.Poll(TimeSpan.Zero);
             Assert.Equal("newer", form.GetValues()["Name"]);
         }
 
         [Fact]
-        public void Apply_QueuedOnTheLastMenuTurn_SurvivesShutdown() {
+        public void Apply_QueuedOnTheLastMenuTurn_SurvivesShutdown()
+        {
             Form form = new Form("Closing");
             form.Text("Name").Value = "old";
             Menu menu = new Menu("Closing app");
             menu.Item("Form", i => i.Hotkey('f').Form(form));
-            menu.Item("Apply and exit", i => i.Hotkey('a').Action(ctx => {
-                Exception? error = null;
-                Thread worker = new Thread(() => {
-                    try { form.Apply(new Dictionary<string, object?> { ["Name"] = "accepted" }); }
-                    catch (Exception ex) { error = ex; }
-                });
-                worker.Start();
-                Assert.True(worker.Join(TimeSpan.FromSeconds(5)));
-                Assert.Null(error);
-                ctx.Exit();
-            }));
+            menu.Item("Apply and exit", i =>
+            {
+                i.Hotkey = 'a';
+                i.Action = ctx =>
+                {
+                    Exception? error = null;
+                    Thread worker = new Thread(() =>
+                    {
+                        try
+                        {
+                            form.Apply(new Dictionary<string, object?> { ["Name"] = "accepted" });
+                        }
+                        catch (Exception ex)
+                        {
+                            error = ex;
+                        }
+                    });
+                    worker.Start();
+                    Assert.True(worker.Join(TimeSpan.FromSeconds(5)));
+                    Assert.Null(error);
+                    ctx.Exit();
+                };
+            });
             string root = Path.Combine(Path.GetTempPath(), "cm-apply-exit-" + Guid.NewGuid().ToString("N"));
-            try {
+            try
+            {
                 RecordingSurface surface = new RecordingSurface(100, 26, false);
-                PromptHarness.Guard(surface, () => {
+                PromptHarness.Guard(surface, () =>
+                {
                     menu.Run(new MenuOptions { Layout = MenuLayout.Shell, StorageRoot = root, Interactive = PromptHarness.Options("f Escape a", surface) });
                     return 0;
                 });
                 Assert.Equal("accepted", form.GetValues()["Name"]);
-            } finally {
-                if (Directory.Exists(root)) { Directory.Delete(root, true); }
+            }
+            finally
+            {
+                if (Directory.Exists(root))
+                {
+                    Directory.Delete(root, true);
+                }
             }
         }
 
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
-        public void Poll_EmptyOrFailedLoader_DoesNotRetryWithoutInvalidation(bool fail) {
+        public void Poll_EmptyOrFailedLoader_DoesNotRetryWithoutInvalidation(bool fail)
+        {
             Form form = new Form("Load once");
             ChoiceField field = form.Select("Choices");
             int calls = 0;
-            field.Loader = (v, t) => {
+            field.Loader = (v, t) =>
+            {
                 calls++;
-                if (fail) { throw new IOException("Unavailable"); }
+                if (fail)
+                {
+                    throw new IOException("Unavailable");
+                }
+
                 return Task.FromResult<IEnumerable<Choice>>(Array.Empty<Choice>());
             };
             FormView view = new FormView(form, new Host(), null, false);
-            for (int i = 0; i < 3; i++) { view.Poll(TimeSpan.Zero); }
+            for (int i = 0; i < 3; i++)
+            {
+                view.Poll(TimeSpan.Zero);
+            }
+
             Assert.Equal(1, calls);
             view.Detach();
         }

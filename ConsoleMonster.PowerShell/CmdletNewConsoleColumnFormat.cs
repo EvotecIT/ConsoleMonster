@@ -19,6 +19,6 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Allows the column to shrink when its current content becomes shorter.</para></summary>
         [Parameter] public SwitchParameter AllowShrink { get; set; }
         /// <inheritdoc />
-        protected override void EndProcessing() => WriteObject(new ColumnFormat(Alignment, MinWidth, ReserveDigits) { NeverShrink = !AllowShrink.IsPresent });
+        protected override void EndProcessing() => WriteObject(new ColumnFormat(Alignment, MinWidth, ReserveDigits) { AllowShrink = AllowShrink.IsPresent });
     }
 }

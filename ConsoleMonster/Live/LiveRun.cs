@@ -38,7 +38,7 @@ namespace ConsoleMonster.Live {
             _tracker = new RunTracker(items, _options.Clock);
             Dashboard = new RunDashboard(_tracker) { Title = _options.Title, ShowGroups = _options.ShowGroups, ShowTrend = _options.ShowTrend };
             LiveSessionOptions session = _options.Session ?? new LiveSessionOptions();
-            session.Mode = LiveMode.Inline; session.InlineHeightFraction = _options.HeightFraction;
+            session.Mode = LiveMode.Inline; session.InlineHeightFraction = _options.HeightPercent / 100.0;
             session.StopOnCancellation = false;
             session.FramesPerSecond = 10; session.StreamHeartbeat = TimeSpan.Zero;
             session.Summary = new RunSummary(_tracker) { Title = _options.Title, ReportPath = _options.ReportPath };

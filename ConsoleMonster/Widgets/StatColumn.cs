@@ -31,7 +31,7 @@ namespace ConsoleMonster.Widgets {
             if (Format.ReserveDigits > 0) {
                 width = Math.Max(width, fixedPart + Format.ReserveDigits);
             }
-            if (Format.NeverShrink) {
+            if (!Format.AllowShrink) {
                 width = Math.Max(width, _highWater);
                 _highWater = width;
             }

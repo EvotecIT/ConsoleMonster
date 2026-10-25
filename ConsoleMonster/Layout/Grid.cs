@@ -8,7 +8,7 @@ namespace ConsoleMonster.Layout {
     /// become narrower than <see cref="MinColumnWidth"/>, the grid uses fewer columns. In a live frame with spare height,
     /// rows grow equally so the grid fills its region.
     /// </summary>
-    public sealed class Grid : IContainer {
+    public sealed class Grid : IContainer, IContentOwner {
         private readonly List<IWidget> _children = new List<IWidget>();
 
         /// <summary>Creates a grid.</summary>
@@ -48,6 +48,8 @@ namespace ConsoleMonster.Layout {
             _children.Add(child ?? throw new ArgumentNullException(nameof(child)));
             return this;
         }
+
+        void IContentOwner.ReplaceContent(IWidget[] content) { _children.Clear(); foreach (IWidget widget in content) { Add(widget); } }
 
         /// <inheritdoc />
         public Size Measure(Constraints constraints, RenderContext context) {

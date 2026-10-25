@@ -9,7 +9,7 @@ using Xunit;
 
 namespace ConsoleMonster.Tests.Building {
     /// <summary>
-    /// Every public widget property has its generated fluent counterpart: <c>WithX</c> for a settable property and
+    /// Every public widget property has its generated fluent counterpart: <c>X</c> for a settable property and
     /// <c>AddX</c> for a mutable collection, on the widgets and on the option types they hold. A new property without one
     /// means the generator skipped it; mark it <c>[NoFluent]</c> only when a setter or Add would bypass the widget.
     /// </summary>
@@ -30,8 +30,8 @@ namespace ConsoleMonster.Tests.Building {
             Type type = Core.GetType(typeName, true)!;
             List<string> missing = new List<string>();
             foreach (PropertyInfo property in Properties(type)) {
-                if (IsSettable(property) && !Has(type, "With" + property.Name, property.PropertyType)) {
-                    missing.Add("With" + property.Name + "(" + property.PropertyType.Name + ")");
+                if (IsSettable(property) && !Has(type, property.Name, property.PropertyType)) {
+                    missing.Add(property.Name + "(" + property.PropertyType.Name + ")");
                 }
                 Type? item = CollectionItem(property.PropertyType);
                 if (item != null) {
@@ -52,6 +52,8 @@ namespace ConsoleMonster.Tests.Building {
             Assert.Contains(typeof(Table), types);
             Assert.Contains(typeof(TableColumn), types);
             Assert.Contains(typeof(Panel), types);
+            Assert.Contains(typeof(ConsoleMonster.Interactive.TextQuestionOptions), types);
+            Assert.Contains(typeof(ConsoleMonster.Live.LiveRunOptions), types);
             Assert.Contains(typeof(Dashboard), types);
             Assert.True(types.Count >= 35, "Only " + types.Count + " fluent types were found.");
         }
@@ -59,16 +61,16 @@ namespace ConsoleMonster.Tests.Building {
         [Fact]
         public void GeneratedMethods_SetAndAddAndReturnTheSameInstance() {
             HeaderBar header = new HeaderBar("Build");
-            Assert.Same(header, header.WithSubtitle("nightly").WithShowElapsed().AddCrumb("Tasks").AddCrumbs("Review", "Run"));
+            Assert.Same(header, header.Subtitle("nightly").ShowElapsed().AddCrumb("Tasks").AddCrumbs("Review", "Run"));
             Assert.Equal("nightly", header.Subtitle);
             Assert.True(header.ShowElapsed);
             Assert.Equal(new[] { "Tasks", "Review", "Run" }, header.Crumbs);
-            Assert.False(header.WithShowElapsed(false).ShowElapsed);
+            Assert.False(header.ShowElapsed(false).ShowElapsed);
         }
 
         [Fact]
         public void GeneratedMethods_ConfigureNestedOptionsAndCreateNullableCollections() {
-            Table table = new Table().WithPresentation(p => p.Culture = System.Globalization.CultureInfo.InvariantCulture);
+            Table table = new Table().Presentation(p => p.Culture = System.Globalization.CultureInfo.InvariantCulture);
             Assert.Same(System.Globalization.CultureInfo.InvariantCulture, table.Presentation.Culture);
             ProgressBar bar = new ProgressBar("copy").AddColumns(ProgressColumns.Percent(), ProgressColumns.Elapsed());
             Assert.Equal(2, bar.Columns!.Count);
@@ -76,18 +78,18 @@ namespace ConsoleMonster.Tests.Building {
 
         [Fact]
         public void GeneratedMethods_OnATypedTable_KeepItsType() {
-            Table<int> table = Table.For(new[] { 1, 2 }).WithTitle("Numbers").WithShowHeader(false);
+            Table<int> table = Table.For(new[] { 1, 2 }).Title("Numbers").ShowHeader(false);
             Assert.Equal("Numbers", table.Title);
             Assert.IsType<Table<int>>(table.Column("Value", n => n));
         }
 
         // Widgets, then the option types their properties hold or their Add/Set methods take, as the generator walks them.
         private static IEnumerable<Type> Types() {
-            List<Type> widgets = Core.GetExportedTypes().Where(t => IsCandidate(t) && typeof(IWidget).IsAssignableFrom(t)).OrderBy(t => t.FullName, StringComparer.Ordinal).ToList();
+            List<Type> widgets = Core.GetExportedTypes().Where(t => IsCandidate(t) && (typeof(IWidget).IsAssignableFrom(t) || t.Name.EndsWith("Options", StringComparison.Ordinal) || new[] { "MenuItem", "FormPreset", "MenuPreset", "ObjectExplorer", "Grid", "WidgetUpdate", "RunUpdate" }.Contains(t.Name))).OrderBy(t => t.FullName, StringComparer.Ordinal).ToList();
             HashSet<Type> seen = new HashSet<Type>(widgets);
             List<Type> result = new List<Type>(widgets);
             List<Type> frontier = widgets;
-            for (int depth = 0; depth < 3 && frontier.Count > 0; depth++) {
+            while (frontier.Count > 0) {
                 List<Type> next = new List<Type>();
                 foreach (Type type in frontier) {
                     IEnumerable<Type> reached = Properties(type).SelectMany(p => new[] { p.PropertyType, CollectionItem(p.PropertyType) }).Where(t => t != null).Select(t => t!)
@@ -106,7 +108,7 @@ namespace ConsoleMonster.Tests.Building {
             return result;
         }
 
-        private static bool IsCandidate(Type type) => type.IsClass && type.IsPublic && !type.IsAbstract && !type.IsGenericType && !NoFluent(type) && !typeof(Delegate).IsAssignableFrom(type);
+        private static bool IsCandidate(Type type) => type.IsClass && type.IsPublic && !type.IsAbstract && !type.IsGenericType && !type.IsGenericParameter && !NoFluent(type) && !typeof(Delegate).IsAssignableFrom(type);
 
         private static bool IsOptionType(Type type) => type.Assembly == Core && IsCandidate(type) && Properties(type).Any(p => IsSettable(p) || CollectionItem(p.PropertyType) != null);
 

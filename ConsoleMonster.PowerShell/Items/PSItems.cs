@@ -13,13 +13,7 @@ namespace ConsoleMonster.PowerShell {
     /// a widget. Containers use it for their script block and pipeline input; Add-ConsoleItem uses it for a widget made
     /// earlier. No rendering or layout logic lives here: every item ends in one of the widget's own public methods.
     /// </summary>
-    internal static class PSItems {
-        // Series made by New-ConsoleChartSeries without -Role: the chart picks their colour (status words take their tone).
-        private static readonly ConditionalWeakTable<ChartSeries, object> AutomaticRole = new ConditionalWeakTable<ChartSeries, object>();
-
-        /// <summary>Remembers that a series has no chosen role.</summary>
-        internal static void MarkAutomaticRole(ChartSeries series) => AutomaticRole.Add(series, true);
-
+    internal static partial class PSItems {
         /// <summary>What a widget accepts, for error messages and help.</summary>
         internal static string Accepted(object widget) {
             switch (widget) {
@@ -27,22 +21,22 @@ namespace ConsoleMonster.PowerShell {
                     return "New-ConsoleFlowNode, New-ConsoleFlowEdge, New-ConsoleFlowBranch or rows with Kind";
                 case Tree _:
                 case TreeNode _:
-                    return "New-ConsoleTreeNode objects or strings";
+                    return "records with Label and Children, typed TreeNode values or strings";
                 case KeyValueList _:
-                    return "New-ConsoleKeyValueItem objects or hashtables";
+                    return "records with Key and Value, typed KeyValueItem values or dictionaries";
                 case StatusList _:
-                    return "New-ConsoleStatusItem objects, hashtables or objects with Label, Status and Detail";
+                    return "records with Key, Label, Status and Detail, or typed StatusItem values";
                 case Phases _:
-                    return "New-ConsoleStatusItem objects, hashtables or phase names";
+                    return "status records, typed StatusItem values or phase names";
                 case BarChart _:
                 case StackedBar _:
-                    return "New-ConsoleBarItem objects or hashtables";
+                    return "records with Label, Value and Role, or typed ChartItem values";
                 case LineChart _:
-                    return "New-ConsoleChartSeries objects";
+                    return "records with Key, Label, Values and Role, or typed ChartSeries values";
                 case LogRegion _:
-                    return "New-ConsoleLogEntry objects or strings";
+                    return "records with Message, Level and AtSeconds, typed LogEntry values or strings";
                 case Lanes _:
-                    return "New-ConsoleLane objects or strings";
+                    return "records with Key, Label and Value, typed Lane values or strings";
                 case CellMap _:
                     return "status words (Pass, Fail, Warn, Skip, Running, Pending)";
                 case Sparkline _:
@@ -158,8 +152,9 @@ namespace ConsoleMonster.PowerShell {
                     }
                     return false;
                 case LineChart chart:
+                    if (TryAddSeriesRecord(chart, item)) { return true; }
                     if (item is ChartSeries series) {
-                        ThemeToken? token = AutomaticRole.TryGetValue(series, out _) ? (ThemeToken?)null : series.Role;
+                        ThemeToken? token = series.Role;
                         ChartSeries attached = chart.AddSeries(series.Key, token);
                         attached.Label = series.Label;
                         attached.LabelText = series.LabelText;
@@ -170,6 +165,7 @@ namespace ConsoleMonster.PowerShell {
                     }
                     return false;
                 case LogRegion log:
+                    if (TryAddLogRecord(log, item)) { return true; }
                     if (item is LogEntry entry) {
                         log.Write(entry);
                         return true;
@@ -212,6 +208,7 @@ namespace ConsoleMonster.PowerShell {
         }
 
         private static bool TryAddNode(TreeNode parent, object item) {
+            if (TryAddNodeRecord(parent, item)) { return true; }
             if (item is TreeNode node) {
                 parent.Add(node);
                 return true;
@@ -229,6 +226,7 @@ namespace ConsoleMonster.PowerShell {
         }
 
         private static bool TryAddPair(KeyValueList list, object item) {
+            if (TryAddPairRecord(list, item)) { return true; }
             if (item is KeyValueItem pair) {
                 list.Add(pair);
                 return true;
@@ -251,6 +249,7 @@ namespace ConsoleMonster.PowerShell {
         }
 
         private static bool TryAddLane(Lanes lanes, object item) {
+            if (TryAddLaneRecord(lanes, item)) { return true; }
             if (item is Lane spec) {
                 lanes.Add(spec);
                 return true;
@@ -271,6 +270,7 @@ namespace ConsoleMonster.PowerShell {
                 return statusItem;
             }
             if (IsRecord(item)) {
+                RecordFields(item, "Key Label Status Detail");
                 // @{ Label = 'Restore'; Status = 'Pass'; Detail = '1.6 s' } (or such an object) reads like the item cmdlet's parameters.
                 string label = PSWidgets.ToText(Field(item, "Label") ?? Field(item, "Key"));
                 if (label.Length == 0) {
@@ -287,7 +287,7 @@ namespace ConsoleMonster.PowerShell {
                 }
                 object? detail = Field(item, "Detail");
                 string key = PSWidgets.ToText(Field(item, "Key") ?? label);
-                return new StatusItem(key, Text.Markup.Escape(label), status, detail == null ? null : PSWidgets.ToText(detail));
+                return new StatusItem(key, RecordLabel(Field(item, "Label") ?? label), status, detail == null ? null : PSWidgets.ToText(detail));
             }
             return null;
         }
@@ -297,6 +297,7 @@ namespace ConsoleMonster.PowerShell {
                 return chartItem;
             }
             if (IsRecord(item)) {
+                RecordFields(item, "Key Label Value Role");
                 object? label = Field(item, "Label");
                 object? value = Field(item, "Value");
                 if (label == null || value == null || !TryNumber(value, out double number)) {
@@ -313,7 +314,7 @@ namespace ConsoleMonster.PowerShell {
                     }
                     token = parsed;
                 }
-                return new ChartItem(PSWidgets.ToText(label), number, token, Field(item, "Key") as string);
+                return new ChartItem(PSText.PlainText(label), number, token, Field(item, "Key") as string) { LabelText = label as Text.RichText };
             }
             return null;
         }
@@ -344,7 +345,8 @@ namespace ConsoleMonster.PowerShell {
                 return null;
             }
             try {
-                return PSText.Unwrap(property.Value);
+                object? value = property.Value;
+                return value == null ? null : Binding.PSObjectMemberSource.Identity(value);
             } catch (GetValueException) {
                 return null;
             }
@@ -354,7 +356,7 @@ namespace ConsoleMonster.PowerShell {
         private static bool IsRecord(object item) => item is IDictionary || item is PSObject || !(item is string || item is IConvertible || item is Layout.IWidget);
 
         // A value from a hashtable key or an object property, case-insensitively.
-        private static object? Field(object item, string name) {
+        internal static object? Field(object item, string name) {
             if (item is IDictionary dictionary) {
                 return Lookup(dictionary, name);
             }
@@ -365,26 +367,12 @@ namespace ConsoleMonster.PowerShell {
         private static object? Lookup(IDictionary dictionary, string name) {
             foreach (DictionaryEntry entry in dictionary) {
                 if (string.Equals(PSWidgets.ToText(entry.Key), name, StringComparison.OrdinalIgnoreCase)) {
-                    return PSText.Unwrap(entry.Value);
+                    return entry.Value == null ? null : Binding.PSObjectMemberSource.Identity(entry.Value);
                 }
             }
             return null;
         }
 
-        private static bool TryNumber(object item, out double value) {
-            value = 0;
-            if (item is string text) {
-                return double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out value);
-            }
-            if (item is IConvertible) {
-                try {
-                    value = LanguagePrimitives.ConvertTo<double>(item);
-                    return true;
-                } catch (PSInvalidCastException) {
-                    return false;
-                }
-            }
-            return false;
-        }
+        private static bool TryNumber(object item, out double value) => PipelineChart.TryNumber(PSText.Unwrap(item), out value);
     }
 }

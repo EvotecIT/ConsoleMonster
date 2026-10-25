@@ -42,7 +42,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsLifecycle.Enable, "ConsoleFormatting")]
     public sealed class CmdletEnableConsoleFormatting : PSCmdlet {
-        /// <summary><para type="description">What to turn on: Output (the default: registered and built-in types as ConsoleMonster views), ErrorView (errors that reach the console in ConsoleMonster's error view, following $ErrorView: DetailedView adds the stack, CategoryView keeps PowerShell's), Progress (Write-Progress drawn as ConsoleMonster's progress area; Write-Progress becomes an alias of Write-ConsoleProgress), Streams (native stream and progress colours), ReadLine (syntax, selection and available inline prediction colours for already loaded PSReadLine), or All (Output, ErrorView, Streams and ReadLine). Streams sets PSStyle.Formatting Warning, Verbose, Debug and Error on PowerShell 7.2+, and PSStyle.Progress.Style, or available Host.PrivateData warning, verbose, debug and progress foreground/background colours on older hosts. Native progress keeps its View and layout. ReadLine never imports PSReadLine and does nothing when it is absent; unsupported colour properties are skipped. PowerShell keeps its prefixes, records, preferences, redirection and transcript behaviour. Streams and ReadLine never replace Write-* commands or install an Out-Default function. Progress is the separate legacy alias feature, excluded from All; All keeps Write-Progress native and styles it through Streams. Re-enable Streams or ReadLine after changing themes; Shared native properties follow the most recently applied installation. Disabling its owner restores the latest surviving installation; the last owner restores the first original values, including later user edits. Use Show-ConsoleStatusLine or Write-ConsoleLogEntry for rich script messages. FormatCommands explicitly opts Format-Table, Format-List and Format-Wide into direct-host-only rendering, preserving native captures, jobs, remoting and transcripts; it is excluded from All. Help and Errors are separate direct-host opt-ins, excluded from All. Help renders native Get-Help, help and -? with paging. Errors uses the compact view; -Detailed includes stacks. GridView supplies the terminal grid only where Out-GridView is unavailable; a working native command is kept. Prompt adds a minimal shell prompt while preserving native fallback; oh-my-posh and Starship need Force. Features add up across calls; Disable-ConsoleFormatting turns them off.</para></summary>
+        /// <summary><para type="description">What to turn on: Output (the default: registered and built-in types as ConsoleMonster views), ErrorView (errors that reach the console in ConsoleMonster's error view, following $ErrorView: DetailedView adds the stack, CategoryView keeps PowerShell's), Progress (Write-Progress drawn as ConsoleMonster's progress area; Write-Progress uses a reversible native-parameter function proxy), Streams (native stream and progress colours), ReadLine (syntax, selection and available inline prediction colours for already loaded PSReadLine), or All (Output, ErrorView, Streams and ReadLine). Streams sets PSStyle.Formatting Warning, Verbose, Debug and Error on PowerShell 7.2+, and PSStyle.Progress.Style, or available Host.PrivateData warning, verbose, debug and progress foreground/background colours on older hosts. Native progress keeps its View and layout. ReadLine never imports PSReadLine and does nothing when it is absent; unsupported colour properties are skipped. PowerShell keeps its prefixes, records, preferences, redirection and transcript behaviour. Streams and ReadLine never replace Write-* commands or install an Out-Default function. Progress is the separate native-progress rendering feature, excluded from All; All keeps Write-Progress native and styles it through Streams. Re-enable Streams or ReadLine after changing themes; Shared native properties follow the most recently applied installation. Disabling its owner restores the latest surviving installation; the last owner restores the first original values, including later user edits. Use Show-ConsoleStatusLine or Write-ConsoleLogEntry for rich script messages. FormatCommands explicitly opts Format-Table, Format-List and Format-Wide into direct-host-only rendering, preserving native captures, jobs, remoting and transcripts; it is excluded from All. Help and Errors are separate direct-host opt-ins, excluded from All. Help renders native Get-Help, help and -? with paging. Errors uses the compact view; -Detailed includes stacks. GridView supplies the terminal grid only where Out-GridView is unavailable; a working native command is kept. Prompt adds a minimal shell prompt while preserving native fallback; oh-my-posh and Starship need Force. Features add up across calls; Disable-ConsoleFormatting turns them off.</para></summary>
         [Parameter]
         public ConsoleFormattingFeature[]? Feature { get; set; }
 
@@ -110,7 +110,7 @@ namespace ConsoleMonster.PowerShell {
                 }
                 ConsoleFormatting.SavedOutDefault = existing;
             }
-            if ((wanted & ConsoleFormattingFeature.Progress) != 0 && !InstallProgressAlias()) {
+            if ((wanted & ConsoleFormattingFeature.Progress) != 0 && !FormatCommandInstallation.InstallProgress(this, Force.IsPresent)) {
                 wanted &= ~ConsoleFormattingFeature.Progress;
                 if (wanted == ConsoleFormattingFeature.None) {
                     return;
@@ -146,31 +146,12 @@ namespace ConsoleMonster.PowerShell {
             if ((wanted & ConsoleFormattingFeature.ReadLine) != 0) { state.ReadLine.Apply(this); }
         }
 
-        // Write-Progress as a global alias of Write-ConsoleProgress: an alias wins over the cmdlet everywhere, also inside
-        // modules, and the cmdlet reads $ProgressPreference in its caller's scope as Write-Progress does.
-        private bool InstallProgressAlias() {
-            if (InvokeCommand.GetCommand("Write-Progress", CommandTypes.Function) != null && !Force.IsPresent) {
-                // The alias would win over the user's own Write-Progress function everywhere.
-                WriteWarning("A Write-Progress function exists in this session; the Progress feature would hide it and was not turned on. Use -Force to turn it on anyway.");
-                return false;
-            }
-            AliasInfo? alias = InvokeCommand.GetCommand("Write-Progress", CommandTypes.Alias) as AliasInfo;
-            if (alias != null && !string.Equals(alias.Definition, ConsoleFormatting.ProgressCommand, StringComparison.OrdinalIgnoreCase)) {
-                if (!Force.IsPresent) {
-                    WriteWarning("A Write-Progress alias already exists in this session; it was kept and the Progress feature was not turned on. Use -Force to replace it.");
-                    return false;
-                }
-                ConsoleFormatting.SavedWriteProgressAlias = alias.Definition;
-            }
-            InvokeCommand.InvokeScript("Microsoft.PowerShell.Utility\\Set-Alias -Name Write-Progress -Value " + ConsoleFormatting.ProgressCommand + " -Scope Global -Force");
-            SessionProgress.Enabled = true;
-            return true;
-        }
+
     }
 
     /// <summary>
     /// <para type="synopsis">Turns off the ConsoleMonster default formatting (Enable-ConsoleFormatting), all of it or some features.</para>
-    /// <para type="description">Without -Feature everything Enable-ConsoleFormatting turned on is turned off and the session is as it was: the Out-Default function goes (or the user's own function replaced with -Force comes back), the Write-Progress alias goes (or the user's own alias comes back), and $ErrorView was never changed. With -Feature only those parts are turned off. Streams and ReadLine release their native colour settings. Shared properties keep the latest surviving installation; the last owner restores the first exact baseline, including subsequent edits to owned properties. The Out-Default function stays while any feature that uses it is on; Streams and ReadLine alone need no function. Registrations stay for the next Enable-ConsoleFormatting.</para>
+    /// <para type="description">Without -Feature everything Enable-ConsoleFormatting turned on is turned off and the session is as it was: the Out-Default function goes (or the user's own function replaced with -Force comes back), the Write-Progress function is restored, and $ErrorView was never changed. With -Feature only those parts are turned off. Streams and ReadLine release their native colour settings. Shared properties keep the latest surviving installation; the last owner restores the first exact baseline, including subsequent edits to owned properties. The Out-Default function stays while any feature that uses it is on; Streams and ReadLine alone need no function. Registrations stay for the next Enable-ConsoleFormatting.</para>
     /// </summary>
     /// <example>
     ///   <para>Back to PowerShell's formatting</para>
@@ -197,7 +178,7 @@ namespace ConsoleMonster.PowerShell {
                 GridViewInstallation.Remove(FormattingSessionState.Current);
             }
             if ((off & ConsoleFormattingFeature.Progress) != 0) {
-                ConsoleFormatting.RemoveProgressAlias(InvokeCommand);
+                ConsoleFormatting.RemoveProgress();
             }
             if ((off & ConsoleFormattingFeature.FormatCommands) != 0) {
                 FormatCommandInstallation.Remove(FormattingSessionState.Current);

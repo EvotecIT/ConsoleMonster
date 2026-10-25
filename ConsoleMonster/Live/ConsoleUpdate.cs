@@ -16,11 +16,7 @@ namespace ConsoleMonster.Live {
         public static void Apply(LiveSession session, string widgetId, WidgetUpdate update) {
             if (session == null) { throw new ArgumentNullException(nameof(session)); }
             if (update == null) { throw new ArgumentNullException(nameof(update)); }
-            if (!session.TryGetTarget(widgetId, out ILiveTarget? target)) {
-                throw new ConsoleUpdateException("ConsoleMonsterUnknownWidget", "Unknown WidgetId '" + widgetId + "'. Available targets: " + string.Join(", ", session.TargetNames.OrderBy(x => x, StringComparer.Ordinal)) + ".");
-            }
-            IReadOnlyList<LiveEvent> events = Events(target!, update);
-            foreach (LiveEvent item in events) { session.Post(item); }
+            session.ApplyUpdate(widgetId, update);
         }
 
         /// <summary>Updates one caller-managed run item through the same operation used by PowerShell.</summary>
@@ -61,8 +57,8 @@ namespace ConsoleMonster.Live {
             if (target is ProgressBar) { return "Value Total Increment Label Status"; }
             if (target is Spinner) { return "Label Detail Restart Status"; }
             if (target is StatusList) { return "Key Label Detail Status"; }
-            if (target is SummaryBar) { return "Value Total Counter"; }
-            if (target is KeyValueList) { return "Key Value"; }
+            if (target is SummaryBar) { return "Value Total Counter Status"; }
+            if (target is KeyValueList) { return "Key Value Status"; }
             if (target is BarChart || target is StackedBar) { return "Key Value Increment"; }
             if (target is LineChart || target is Sparkline || target is Histogram) { return "Append Key Value"; }
             if (target is RegionWidget) { return "Content"; }
@@ -106,6 +102,8 @@ namespace ConsoleMonster.Live {
             if (target is LineChart || target is Sparkline || target is Histogram) {
                 if (!u.Append || !u.Has(nameof(u.Value))) { throw new ArgumentException("A sample requires Append and Value."); }
             }
+            if (target is SummaryBar && u.Has(nameof(u.Status)) && (u.Counter == null || u.Counter.Count == 0)) { throw new ArgumentException("Status requires at least one Counter."); }
+            if (target is KeyValueList && !u.Has(nameof(u.Value))) { throw new ArgumentException("A key/value update requires Value."); }
             if (u.Counter != null) {
                 foreach (KeyValuePair<string, int> counter in u.Counter) {
                     RequireKey(counter.Key);
@@ -119,7 +117,10 @@ namespace ConsoleMonster.Live {
         private static void Nonnegative(double value, string name) { Number(value, name); if (value < 0) { throw new ArgumentOutOfRangeException(name); } }
         private static double Numeric(object? value) {
             if (value == null || value is bool || value is DateTime) { throw new ArgumentException("A numeric Value is required."); }
-            return Convert.ToDouble(value, CultureInfo.InvariantCulture);
+            try { return Convert.ToDouble(value, CultureInfo.InvariantCulture); }
+            catch (Exception error) when (error is FormatException || error is InvalidCastException || error is OverflowException) {
+                throw new ArgumentException("A finite numeric Value is required.", nameof(value), error);
+            }
         }
     }
 

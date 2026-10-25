@@ -82,30 +82,20 @@ namespace ConsoleMonster.PowerShell {
                 return widgets;
             }
             List<PSObject> items = new List<PSObject>();
-            if (raw is ScriptBlock script) {
-                foreach (PSObject emitted in script.Invoke()) {
-                    // An array emitted as one object is its items, as the other containers read it.
-                    if (emitted?.BaseObject is object[] array) {
-                        foreach (object element in array) {
-                            if (element != null) {
-                                items.Add(PSObject.AsPSObject(element));
-                            }
-                        }
-                    } else if (emitted != null) {
-                        items.Add(emitted);
-                    }
-                }
-            } else if (raw is IWidget || raw is string) {
-                items.Add(PSObject.AsPSObject(raw));
-            } else if (LanguagePrimitives.GetEnumerable(raw) is System.Collections.IEnumerable list) {
-                foreach (object? element in list) {
-                    if (element != null) {
-                        items.Add(PSObject.AsPSObject(element));
-                    }
-                }
-            } else {
-                items.Add(content is PSObject ps ? ps : PSObject.AsPSObject(raw));
+            List<object>? path = null;
+            void Append(object? value) {
+                if (value == null) { return; }
+                object? item = PSText.Unwrap(value);
+                if (item is object[] array) {
+                    PSCollectionPath.Enter(ref path, array);
+                    try { foreach (object? element in array) { Append(element); } }
+                    finally { path!.RemoveAt(path.Count - 1); }
+                } else if (item != null) { items.Add(value is PSObject wrapped ? wrapped : PSObject.AsPSObject(item)); }
             }
+            if (raw is ScriptBlock script) { foreach (PSObject emitted in script.Invoke()) { Append(emitted); } }
+            else if (!(raw is string) && !(raw is IWidget) && LanguagePrimitives.GetEnumerable(raw) is System.Collections.IEnumerable list) {
+                foreach (object? element in list) { Append(element); }
+            } else { Append(raw); }
             List<PSObject> objects = new List<PSObject>();
             foreach (PSObject item in items) {
                 if (item == null) {

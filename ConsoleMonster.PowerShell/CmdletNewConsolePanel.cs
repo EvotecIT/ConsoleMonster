@@ -14,14 +14,11 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsolePanel")]
     [OutputType(typeof(IWidget))]
-    public sealed class CmdletNewConsolePanel : PSCmdlet {
+    public sealed class CmdletNewConsolePanel : ContainerCmdlet {
         /// <summary><para type="description">The panel content: a scriptblock that emits widgets, text or objects, a widget, a string, or objects (one object is shown as labelled fields, several as a table, through the same rules as Show-ConsoleList and Show-ConsoleTable).</para></summary>
-        [Parameter(Position = 0)]
-        public object? Content { get; set; }
-
-        /// <summary><para type="description">A widget to use as content instead of a scriptblock.</para></summary>
-        [Parameter(ValueFromPipeline = true)]
-        public IWidget? Widget { get; set; }
+        [Parameter(Position = 0, ValueFromPipeline = true)]
+        [AllowNull, AllowEmptyCollection]
+        public override object? Content { get; set; }
 
         /// <summary><para type="description">The title shown in the top border (Spectre-style markup allowed).</para></summary>
         [Parameter]
@@ -58,14 +55,10 @@ namespace ConsoleMonster.PowerShell {
         public ConsoleMonster.Styling.StatusKind? Status { get; set; }
 
         /// <inheritdoc />
-        protected override void ProcessRecord() {
-            List<IWidget> children = PSWidgets.CollectAny(Content, this);
-            if (Widget != null) {
-                children.Add(Widget);
-            }
+        protected override IWidget Build(List<IWidget> children) {
             IWidget content = children.Count == 1 ? children[0] : new Rows(children.ToArray());
             Panel panel = new Panel(content, PSText.Markup(Title)) { HeaderRight = PSText.Markup(HeaderRight), Caption = PSText.Markup(Caption), Border = Border, Verdict = Verdict.IsPresent, Status = Status };
-            WriteObject(PSWidgets.WithSize(panel, Weight, Height, Fill.IsPresent));
+            return PSWidgets.WithSize(panel, Weight, Height, Fill.IsPresent);
         }
     }
 }

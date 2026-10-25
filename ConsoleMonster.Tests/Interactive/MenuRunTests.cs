@@ -12,21 +12,28 @@ using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
 using Xunit;
 
-namespace ConsoleMonster.Tests.Interactive {
+namespace ConsoleMonster.Tests.Interactive
+{
     /// <summary>
     /// A run started from a menu (or after a form shown on its own) draws inside the app's frame: the breadcrumb says
     /// "Running", a dashboard names the content panel with its title and shows its subtitle, status and clock as the panel
     /// caption; a run of any other widget is called "Run".
     /// </summary>
     [Collection("Live sessions")]
-    public sealed class MenuRunTests {
+    public sealed class MenuRunTests
+    {
         private const int Width = 90;
         private const int Height = 24;
-
-        private static InteractiveOptions Options(ScreenCapture capture, string keys, GlyphTier tier = GlyphTier.Full) {
-            return new InteractiveOptions {
+        private static InteractiveOptions Options(ScreenCapture capture, string keys, GlyphTier tier = GlyphTier.Full)
+        {
+            return new InteractiveOptions
+            {
                 Mode = InteractionMode.Rich,
-                Input = new ScriptedInput(keys) { Paced = true, RealTime = true },
+                Input = new ScriptedInput(keys)
+                {
+                    Paced = true,
+                    RealTime = true
+                },
                 Capture = capture,
                 Theme = Theme.Dark,
                 Profile = TerminalProfile.Fixed(capture.Width, capture.Height, ColorDepth.TrueColor, tier),
@@ -35,22 +42,31 @@ namespace ConsoleMonster.Tests.Interactive {
         }
 
         private static string Storage() => Path.Combine(Path.GetTempPath(), "cm-menu-run-" + Guid.NewGuid().ToString("N").Substring(0, 6));
-
         // A frame drawn while the run lasts: the footer offers ctrl+c and the caption shows the given text.
-        private static CellBuffer RunFrame(ScreenCapture capture, string text) {
+        private static CellBuffer RunFrame(ScreenCapture capture, string text)
+        {
             CellBuffer? frame = capture.Frames.FirstOrDefault(f => f.ToPlainText().Contains("ctrl+c") && f.ToPlainText().Contains(text));
             Assert.True(frame != null, "No run frame shows '" + text + "'. Last frame:\n" + capture.LastFrame?.ToPlainText());
             return frame!;
         }
 
-        private static Menu Patching(IWidget shown, Action<RunContext>? during = null) {
-            Menu menu = new Menu("Toolbox") { Subtitle = "lab" };
-            menu.Item("Patch", i => i.Hotkey('p').Action(ctx => ctx.Run(shown, run => {
-                Thread.Sleep(350);
-                during?.Invoke(run);
-                Thread.Sleep(350);
-                return new MenuRunResult("Done");
-            })));
+        private static Menu Patching(IWidget shown, Action<RunContext>? during = null)
+        {
+            Menu menu = new Menu("Toolbox")
+            {
+                Subtitle = "lab"
+            };
+            menu.Item("Patch", i =>
+            {
+                i.Hotkey = 'p';
+                i.Action = ctx => ctx.Run(shown, run =>
+                {
+                    Thread.Sleep(350);
+                    during?.Invoke(run);
+                    Thread.Sleep(350);
+                    return new MenuRunResult("Done");
+                });
+            });
             menu.Exit("Quit");
             return menu;
         }
@@ -58,11 +74,16 @@ namespace ConsoleMonster.Tests.Interactive {
         [Theory]
         [InlineData(GlyphTier.Full, "›", "·")]
         [InlineData(GlyphTier.Ascii, ">", "|")]
-        public void ShellRun_Dashboard_TitlesThePanelSaysRunningInTheBreadcrumbAndCaptionsSubtitleStatusAndClock(GlyphTier tier, string crumb, string separator) {
-            Dashboard dashboard = new Dashboard("[bold]Patching[/]", new ProgressBar("Overall", "overall") { Total = 2 }) { Subtitle = "4 servers", Detail = "copying files", Status = StatusKind.Running };
+        public void ShellRun_Dashboard_TitlesThePanelSaysRunningInTheBreadcrumbAndCaptionsSubtitleStatusAndClock(GlyphTier tier, string crumb, string separator)
+        {
+            Dashboard dashboard = new Dashboard("[bold]Patching[/]", new ProgressBar("Overall", "overall") { Total = 2 })
+            {
+                Subtitle = "4 servers",
+                Detail = "copying files",
+                Status = StatusKind.Running
+            };
             ScreenCapture capture = new ScreenCapture(Width, Height);
             Patching(dashboard, run => run.Session.Post(new LiveEvent("dashboard", "status", text: "verifying"))).Run(new MenuOptions { Layout = MenuLayout.Shell, Interactive = Options(capture, "Enter wait:1100 Escape Ctrl+Q", tier), StorageRoot = Storage() });
-
             CellBuffer running = RunFrame(capture, "4 servers  " + separator + "  copying files  " + separator + "  00:0");
             Assert.Contains("Toolbox " + crumb + " Patch " + crumb + " Running", running.GetRowText(0));
             // The dashboard's title is said once, on the panel, not again in the breadcrumb.
@@ -76,11 +97,11 @@ namespace ConsoleMonster.Tests.Interactive {
         }
 
         [Fact]
-        public void ShellRun_DashboardWithoutSubtitleOrStatus_CaptionsOnlyTheClock() {
+        public void ShellRun_DashboardWithoutSubtitleOrStatus_CaptionsOnlyTheClock()
+        {
             Dashboard dashboard = new Dashboard("Patching", new ProgressBar("Overall", "overall") { Total = 2 });
             ScreenCapture capture = new ScreenCapture(Width, Height);
             Patching(dashboard).Run(new MenuOptions { Layout = MenuLayout.Shell, Interactive = Options(capture, "Enter wait:1100 Escape Ctrl+Q"), StorageRoot = Storage() });
-
             CellBuffer running = RunFrame(capture, "00:0");
             Assert.Contains("Toolbox › Patch › Running", running.GetRowText(0));
             Assert.DoesNotContain("·  00:0", running.ToPlainText());
@@ -89,38 +110,52 @@ namespace ConsoleMonster.Tests.Interactive {
         [Theory]
         [InlineData(MenuLayout.Shell)]
         [InlineData(MenuLayout.Classic)]
-        public void MenuRun_DashboardTitle_FollowsTitleEventsAndKeepsTheRunningBreadcrumb(MenuLayout layout) {
-            Dashboard dashboard = new Dashboard("Initial check", new ProgressBar("Overall", "overall") { Total = 2 }) { Subtitle = "title test" };
+        public void MenuRun_DashboardTitle_FollowsTitleEventsAndKeepsTheRunningBreadcrumb(MenuLayout layout)
+        {
+            Dashboard dashboard = new Dashboard("Initial check", new ProgressBar("Overall", "overall") { Total = 2 })
+            {
+                Subtitle = "title test"
+            };
             ScreenCapture capture = new ScreenCapture(Width, Height);
-            Patching(dashboard, run => run.Session.Post(new LiveEvent("dashboard", "title", text: "Updated check"))).Run(new MenuOptions {
-                Layout = layout,
-                Interactive = Options(capture, "Enter wait:1100 Escape Ctrl+Q"),
-                StorageRoot = Storage()
-            });
-
+            Patching(dashboard, run => run.Session.Post(new LiveEvent("dashboard", "title", text: "Updated check"))).Run(new MenuOptions { Layout = layout, Interactive = Options(capture, "Enter wait:1100 Escape Ctrl+Q"), StorageRoot = Storage() });
             CellBuffer initial = RunFrame(capture, "Initial check");
             CellBuffer updated = RunFrame(capture, "Updated check");
-            foreach (CellBuffer frame in new[] { initial, updated }) {
+            foreach (CellBuffer frame in new[]
+            {
+                initial,
+                updated
+            }
+
+            )
+            {
                 Assert.Contains("Toolbox › Patch › Running", frame.ToPlainText());
                 Assert.DoesNotContain("Patch › Patch", frame.ToPlainText());
                 Assert.DoesNotContain("Running › Running", frame.ToPlainText());
             }
+
             Assert.DoesNotContain("Initial check", updated.ToPlainText());
         }
 
         // A menu whose run moves a simulated clock 83 s and returns a result without a duration.
-        private static Menu Clocked(SimulatedClock clock, LiveSessionOptions options, Action<MenuRunResult> done) {
+        private static Menu Clocked(SimulatedClock clock, LiveSessionOptions options, Action<MenuRunResult> done)
+        {
             Menu menu = new Menu("Toolbox");
-            menu.Item("Patch", i => i.Hotkey('p').Action(ctx => done(ctx.Run(new ProgressBar("Overall", "overall") { Total = 2 }, run => {
-                clock.Advance(83);
-                return new MenuRunResult("Done");
-            }, options))));
+            menu.Item("Patch", i =>
+            {
+                i.Hotkey = 'p';
+                i.Action = ctx => done(ctx.Run(new ProgressBar("Overall", "overall") { Total = 2 }, run =>
+                {
+                    clock.Advance(83);
+                    return new MenuRunResult("Done");
+                }, options));
+            });
             menu.Exit("Quit");
             return menu;
         }
 
         [Fact]
-        public void ShellRun_SimulatedClock_GivesTheResultTheClocksTime() {
+        public void ShellRun_SimulatedClock_GivesTheResultTheClocksTime()
+        {
             SimulatedClock clock = new SimulatedClock();
             MenuRunResult? result = null;
             ScreenCapture capture = new ScreenCapture(Width, Height);
@@ -131,13 +166,15 @@ namespace ConsoleMonster.Tests.Interactive {
         }
 
         [Fact]
-        public void InlineRun_SimulatedClock_GivesTheResultTheClocksTime() {
+        public void InlineRun_SimulatedClock_GivesTheResultTheClocksTime()
+        {
             SimulatedClock clock = new SimulatedClock();
             LiveSessionOptions options = ConsoleMonster.Tests.Live.LiveSessionTests.Options(new ConsoleMonster.Tests.Live.FakeOutput(false));
             options.Clock = clock.Read;
             MenuRunResult? result = null;
             RecordingSurface surface = new RecordingSurface(80, 20, true);
-            PromptHarness.Guard(surface, () => {
+            PromptHarness.Guard(surface, () =>
+            {
                 Clocked(clock, options, r => result = r).Run(new MenuOptions { Layout = MenuLayout.Inline, Interactive = PromptHarness.Options("p End Enter", surface) });
                 return 0;
             });
@@ -146,31 +183,40 @@ namespace ConsoleMonster.Tests.Interactive {
         }
 
         [Fact]
-        public void ShellRun_PlainWidget_IsTitledWithTheRunLabel() {
+        public void ShellRun_PlainWidget_IsTitledWithTheRunLabel()
+        {
             ScreenCapture capture = new ScreenCapture(Width, Height);
             Patching(new ProgressBar("Overall", "overall") { Total = 2 }).Run(new MenuOptions { Layout = MenuLayout.Shell, Interactive = Options(capture, "Enter wait:1100 Escape Ctrl+Q"), StorageRoot = Storage() });
-
             CellBuffer running = RunFrame(capture, "00:0");
             Assert.Contains("Toolbox › Patch › Running", running.GetRowText(0));
             Assert.Contains("Run", running.GetRowText(1));
         }
 
         [Fact]
-        public void FormRun_AfterSubmit_TitlesThePanelWithTheDashboard() {
-            Form form = new Form("Settings") { Review = false };
+        public void FormRun_AfterSubmit_TitlesThePanelWithTheDashboard()
+        {
+            Form form = new Form("Settings")
+            {
+                Review = false
+            };
             form.Page("General").Text("Name", "Name");
-            Dashboard dashboard = new Dashboard("Applying settings", new ProgressBar("Overall", "overall") { Total = 1 }) { Subtitle = "lab-east", Detail = "saving" };
+            Dashboard dashboard = new Dashboard("Applying settings", new ProgressBar("Overall", "overall") { Total = 1 })
+            {
+                Subtitle = "lab-east",
+                Detail = "saving"
+            };
             ScreenCapture capture = new ScreenCapture(Width, Height);
             FormResult result;
-            try {
-                result = form.Show(new FormOptions {
-                    Interactive = Options(capture, "Enter Enter wait:1100 Enter"),
-                    AfterSubmit = ctx => ctx.Run(dashboard, run => {
-                        Thread.Sleep(700);
-                        return new MenuRunResult("Saved");
-                    })
-                });
-            } catch (InputClosedException) {
+            try
+            {
+                result = form.Show(new FormOptions { Interactive = Options(capture, "Enter Enter wait:1100 Enter"), AfterSubmit = ctx => ctx.Run(dashboard, run =>
+                {
+                    Thread.Sleep(700);
+                    return new MenuRunResult("Saved");
+                }) });
+            }
+            catch (InputClosedException)
+            {
                 throw new Xunit.Sdk.XunitException("The script ended at this frame:\n" + capture.LastFrame?.ToPlainText());
             }
 

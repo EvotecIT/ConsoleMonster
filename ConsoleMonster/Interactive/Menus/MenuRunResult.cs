@@ -72,7 +72,7 @@ namespace ConsoleMonster.Interactive {
         /// <param name="action">The action.</param>
         /// <returns>The result.</returns>
         public MenuRunResult Next(string title, Action<MenuContext> action) {
-            NextActions.Add(new MenuItem(title).Action(action));
+            NextActions.Add(new MenuItem(title) { Action = action });
             return this;
         }
     }

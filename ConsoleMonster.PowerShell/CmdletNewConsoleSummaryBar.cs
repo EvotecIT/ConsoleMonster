@@ -18,7 +18,7 @@ namespace ConsoleMonster.PowerShell {
     public sealed class CmdletNewConsoleSummaryBar : PSCmdlet {
         /// <summary><para type="description">Items done.</para></summary>
         [Parameter(Position = 1)]
-        public double Done { get; set; }
+        public double Value { get; set; }
 
         /// <summary><para type="description">Items in total (0 = unknown: no bar, percentage or time left).</para></summary>
         [Parameter(Position = 2)]
@@ -44,7 +44,7 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void ProcessRecord() {
             SummaryBar bar = new SummaryBar(WidgetId) { BarWidth = BarWidth, Elapsed = Elapsed };
-            bar.SetProgress(Done, Total);
+            bar.SetProgress(Value, Total);
             if (Counter != null) {
                 foreach (DictionaryEntry entry in Counter) {
                     string label = PSWidgets.ToText(entry.Key);

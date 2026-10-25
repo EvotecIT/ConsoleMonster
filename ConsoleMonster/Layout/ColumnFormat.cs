@@ -43,7 +43,7 @@ namespace ConsoleMonster.Layout {
             set => _reserveDigits = Math.Max(0, value);
         }
 
-        /// <summary>When false, the column follows its current values and may shrink; defaults to true.</summary>
-        public bool NeverShrink { get; set; } = true;
+        /// <summary>When true, the column follows its current values and may shrink; defaults to false.</summary>
+        public bool AllowShrink { get; set; }
     }
 }

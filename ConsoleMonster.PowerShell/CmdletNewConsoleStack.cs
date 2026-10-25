@@ -17,14 +17,11 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleStack")]
     [OutputType(typeof(IWidget))]
-    public sealed class CmdletNewConsoleStack : PSCmdlet {
+    public sealed class CmdletNewConsoleStack : ContainerCmdlet {
         /// <summary><para type="description">Scriptblock that emits the layers, bottom first.</para></summary>
-        [Parameter(Position = 0)]
-        public ScriptBlock? Content { get; set; }
-
-        /// <summary><para type="description">Layers to use instead of, or after, the scriptblock output.</para></summary>
-        [Parameter(ValueFromPipeline = true)]
-        public IWidget[]? Widget { get; set; }
+        [Parameter(Position = 0, ValueFromPipeline = true)]
+        [AllowNull, AllowEmptyCollection]
+        public override object? Content { get; set; }
 
         /// <summary><para type="description">Share of the width (in columns) or height (in a live dashboard) this widget takes.</para></summary>
         [Parameter]
@@ -38,23 +35,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter Fill { get; set; }
 
-        private readonly List<IWidget> _layers = new List<IWidget>();
-
         /// <inheritdoc />
-        protected override void BeginProcessing() {
-            _layers.AddRange(PSWidgets.Collect(Content));
-        }
-
-        /// <inheritdoc />
-        protected override void ProcessRecord() {
-            if (Widget != null) {
-                _layers.AddRange(Widget);
-            }
-        }
-
-        /// <inheritdoc />
-        protected override void EndProcessing() {
-            WriteObject(PSWidgets.WithSize(new Stack(_layers.ToArray()), Weight, Height, Fill.IsPresent));
-        }
+        protected override IWidget Build(List<IWidget> children) => PSWidgets.WithSize(new Stack(children.ToArray()), Weight, Height, Fill.IsPresent);
     }
 }

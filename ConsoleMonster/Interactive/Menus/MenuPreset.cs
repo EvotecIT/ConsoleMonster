@@ -35,21 +35,9 @@ namespace ConsoleMonster.Interactive {
         /// <summary>The forms whose values the preset sets, with those values.</summary>
         internal IReadOnlyList<KeyValuePair<Form, IDictionary<string, object?>>> FormValues => _forms;
 
-        /// <summary>Sets the description.</summary>
-        /// <param name="text">The text.</param>
-        /// <returns>The preset.</returns>
-        public MenuPreset Describe(string text) {
-            Description = text;
-            return this;
-        }
 
-        /// <summary>Sets the preview (see <see cref="Preview"/>).</summary>
-        /// <param name="preview">The content.</param>
-        /// <returns>The preset.</returns>
-        public MenuPreset WithPreview(IWidget preview) {
-            Preview = preview;
-            return this;
-        }
+
+
 
         /// <summary>Selects values in a selection item (single or multi) of the menu; values it does not list are skipped.</summary>
         /// <param name="item">The item.</param>
@@ -91,7 +79,7 @@ namespace ConsoleMonster.Interactive {
             foreach (MenuItem item in menu.Items) {
                 foreach (KeyValuePair<MenuItem, List<object?>> pair in _selections) {
                     if (ReferenceEquals(pair.Key, item)) {
-                        if (item.Choices.Count == 0 && item.ChoicesLoader != null) {
+                        if (item.Choices.Count == 0 && item.LoadChoices != null) {
                             item.SetSelection(pair.Value);
                             continue;
                         }
@@ -107,8 +95,8 @@ namespace ConsoleMonster.Interactive {
                         item.SetSelection(selected);
                     }
                 }
-                if (item.SubmenuDefinition != null) {
-                    ApplySelections(item.SubmenuDefinition);
+                if (item.Submenu != null) {
+                    ApplySelections(item.Submenu);
                 }
             }
         }

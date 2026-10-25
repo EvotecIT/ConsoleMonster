@@ -89,7 +89,7 @@ namespace ConsoleMonster.Interactive {
 
         private Table BuildTable(RenderContext context) {
             Table table = new Table { Border = TableBorder.Minimal, CardsBelow = 0, RecordViewRows = 0, Presentation = _grid.Presentation, StableWidths = false };
-            bool marks = _grid.Selection == GridSelection.Multiple;
+            bool marks = _grid.OutputMode == GridSelection.Multiple;
             if (marks) {
                 table.AddColumn(new TableColumn(_actions?.HasCommands == true ? context.Glyphs.Get(Glyph.Check) : " ") { IsKey = true, Width = 1, Alignment = HorizontalAlignment.Left });
             }
@@ -341,13 +341,13 @@ namespace ConsoleMonster.Interactive {
                 choices.Add(new Choice(row.Item, string.Join(" | ", parts)));
             }
             List<object?> items = new List<object?>();
-            if (grid.Selection == GridSelection.Multiple) {
+            if (grid.OutputMode == GridSelection.Multiple) {
                 foreach (int index in lines.MultiSelect(grid.Title, null, choices, null, null, cancellationToken)) {
                     items.Add(grid.Rows[index].Item);
                 }
             } else {
                 int index = lines.Select(grid.Title, null, choices, 0, cancellationToken);
-                if (grid.Selection == GridSelection.Single && index >= 0) {
+                if (grid.OutputMode == GridSelection.Single && index >= 0) {
                     items.Add(grid.Rows[index].Item);
                 }
             }

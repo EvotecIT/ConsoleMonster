@@ -60,8 +60,8 @@ namespace ConsoleMonster.Interactive {
         // The built-in presets of forms not opened yet (opened forms list theirs above, saved ones included).
         private void AddUnopenedFormPresets(Menu menu, List<PaletteCommand> commands) {
             foreach (MenuItem item in menu.Items) {
-                if (item.FormDefinition != null && !_panes.ContainsKey(item)) {
-                    foreach (FormPreset preset in item.FormDefinition.Presets) {
+                if (item.Form != null && !_panes.ContainsKey(item)) {
+                    foreach (FormPreset preset in item.Form.Presets) {
                         MenuItem target = item;
                         string name = preset.Name;
                         commands.Add(new PaletteCommand(name, _ => {
@@ -73,8 +73,8 @@ namespace ConsoleMonster.Interactive {
                         });
                     }
                 }
-                if (item.SubmenuDefinition != null) {
-                    AddUnopenedFormPresets(item.SubmenuDefinition, commands);
+                if (item.Submenu != null) {
+                    AddUnopenedFormPresets(item.Submenu, commands);
                 }
             }
         }

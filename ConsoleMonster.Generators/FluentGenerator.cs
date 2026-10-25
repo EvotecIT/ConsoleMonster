@@ -11,8 +11,8 @@ namespace ConsoleMonster.Generators {
     /// Writes the fluent methods of every public widget (a class implementing <c>ConsoleMonster.Layout.IWidget</c>) and of
     /// the option types they hold (column definitions, items, presentation options) from their public properties:
     /// <list type="bullet">
-    /// <item><c>WithX(value)</c> for every settable property (<c>WithX()</c> sets a bool to true);</item>
-    /// <item><c>WithX(Action&lt;T&gt;)</c> for a property holding an option object, configuring it in place;</item>
+    /// <item><c>X(value)</c> for every settable property (<c>X()</c> sets a bool to true);</item>
+    /// <item><c>X(Action&lt;T&gt;)</c> for a property holding an option object, configuring it in place;</item>
     /// <item><c>AddX(item)</c>, <c>AddXs(params items)</c> and <c>AddXs(IEnumerable)</c> for every mutable collection.</item>
     /// </list>
     /// The methods are extension methods in the widget's namespace, return the same instance (typed as the receiver, so a
@@ -29,7 +29,7 @@ namespace ConsoleMonster.Generators {
         /// <inheritdoc />
         public void Initialize(IncrementalGeneratorInitializationContext context) {
             context.RegisterSourceOutput(context.CompilationProvider, (output, compilation) => {
-                if (compilation.AssemblyName != "ConsoleMonster") {
+                if (compilation.AssemblyName != "ConsoleMonster" && compilation.AssemblyName != "ConsoleMonster.Graphics" && compilation.AssemblyName != "ConsoleMonster.Markdown") {
                     return;
                 }
                 INamedTypeSymbol? widget = compilation.GetTypeByMetadataName(WidgetInterface);
@@ -45,16 +45,24 @@ namespace ConsoleMonster.Generators {
             });
         }
 
-        /// <summary>The widgets, then the option types reachable from their properties (three levels deep).</summary>
+        /// <summary>The widgets, then the option types reachable from their properties (with cycle detection).</summary>
         internal static List<INamedTypeSymbol> FluentTypes(IAssemblySymbol assembly, INamedTypeSymbol widget) {
             List<INamedTypeSymbol> widgets = AllTypes(assembly.GlobalNamespace)
                 .Where(t => IsCandidate(t) && t.AllInterfaces.Contains(widget, SymbolEqualityComparer.Default))
                 .OrderBy(t => t.ToDisplayString(), StringComparer.Ordinal)
                 .ToList();
+            foreach (string name in new[] { "ConsoleMonster.Interactive.MenuItem", "ConsoleMonster.Interactive.FormPreset", "ConsoleMonster.Interactive.MenuPreset", "ConsoleMonster.Interactive.ObjectExplorer", "ConsoleMonster.Interactive.Grid", "ConsoleMonster.Interactive.SelectQuestionOptions", "ConsoleMonster.Interactive.SelectInputOptions", "ConsoleMonster.Interactive.TextInputOptions", "ConsoleMonster.Interactive.TextQuestionOptions", "ConsoleMonster.Widgets.ProgressOptions", "ConsoleMonster.Widgets.ChartOptions", "ConsoleMonster.Live.WidgetUpdate", "ConsoleMonster.Live.RunUpdate", "ConsoleMonster.Live.LiveRunOptions", "ConsoleMonster.Live.LiveSessionOptions", "ConsoleMonster.Export.ExportOptions", "ConsoleMonster.Export.RecordingExportOptions" }) {
+                INamedTypeSymbol? option = AllTypes(assembly.GlobalNamespace).FirstOrDefault(t => t.ToDisplayString() == name);
+                if (option != null && IsCandidate(option)) { widgets.Add(option); }
+            }
+            // Standalone operation options are roots too, including the add-ons' own options.
+            foreach (INamedTypeSymbol option in AllTypes(assembly.GlobalNamespace).Where(t => IsCandidate(t) && t.Name.EndsWith("Options", StringComparison.Ordinal))) {
+                if (!widgets.Contains(option, SymbolEqualityComparer.Default)) { widgets.Add(option); }
+            }
             HashSet<INamedTypeSymbol> seen = new HashSet<INamedTypeSymbol>(widgets, SymbolEqualityComparer.Default);
             List<INamedTypeSymbol> result = new List<INamedTypeSymbol>(widgets);
             List<INamedTypeSymbol> frontier = widgets;
-            for (int depth = 0; depth < 3 && frontier.Count > 0; depth++) {
+            while (frontier.Count > 0) {
                 List<INamedTypeSymbol> next = new List<INamedTypeSymbol>();
                 foreach (INamedTypeSymbol type in frontier) {
                     foreach (IPropertySymbol property in Properties(type)) {
@@ -151,16 +159,32 @@ namespace ConsoleMonster.Generators {
             string generic = open ? "<TSelf>" : string.Empty;
             string constraint = open ? " where TSelf : " + typeName : string.Empty;
             string receiver = Camel(type.Name);
-            // Names the type already has, and the hand-written half of its Fluent class (TableFluent.WithTotals).
-            HashSet<string> taken = new HashSet<string>(type.GetMembers().OfType<IMethodSymbol>().Select(m => m.Name), StringComparer.Ordinal);
+            // Compare complete value-parameter signatures, including inherited instance methods.
+            var existing = new List<IMethodSymbol>();
+            for (INamedTypeSymbol? current = type; current != null; current = current.BaseType) { existing.AddRange(current.GetMembers().OfType<IMethodSymbol>()); }
             INamedTypeSymbol? handWritten = compilation.GetTypeByMetadataName(type.ContainingNamespace.ToDisplayString() + "." + type.Name + "Fluent");
-            if (handWritten != null) {
-                taken.UnionWith(handWritten.GetMembers().OfType<IMethodSymbol>().Select(m => m.Name));
-            }
+            if (handWritten != null) { existing.AddRange(handWritten.GetMembers().OfType<IMethodSymbol>()); }
+            bool Taken(string name, params ITypeSymbol[] parameters) => existing.Any(m => {
+                int offset = m.IsExtensionMethod ? 1 : 0;
+                return m.Name == name && m.Parameters.Length == parameters.Length + offset
+                    && parameters.Select((parameter, index) => SymbolEqualityComparer.Default.Equals(parameter, m.Parameters[index + offset].Type)).All(equal => equal);
+            });
             HashSet<string> generated = new HashSet<string>(StringComparer.Ordinal);
             StringBuilder body = new StringBuilder();
             int methods = 0;
+            bool ownsContent = type.AllInterfaces.Any(i => i.ToDisplayString() == "ConsoleMonster.Layout.IContentOwner");
+            if (ownsContent) {
+                foreach (string parameterType in new[] { "global::ConsoleMonster.Layout.IWidget", "global::System.Action<global::ConsoleMonster.Layout.ContentBuilder>" }) {
+                    body.Append(Doc("Configures this container's content before session ownership.", receiver, "The widget or nested content builder.", "content"));
+                    body.Append("        public static ").Append(self).Append(" Content").Append(generic).Append("(this ").Append(self).Append(' ').Append(receiver)
+                        .Append(", ").Append(parameterType).Append(" content)").Append(constraint).Append(" {\n")
+                        .Append("            global::ConsoleMonster.Layout.ContentBuilder.Replace(").Append(receiver).Append(", content);\n")
+                        .Append("            return ").Append(receiver).Append(";\n        }\n\n");
+                    methods++;
+                }
+            }
             foreach (IPropertySymbol property in Properties(type)) {
+                if (ownsContent && property.Name == "Content") { continue; }
                 // An inherited property of a base that can be derived from is covered by the base's generic methods;
                 // generating it again would make every call ambiguous.
                 if (!SymbolEqualityComparer.Default.Equals(property.ContainingType, type) && !property.ContainingType.IsSealed && IsCandidate(property.ContainingType)
@@ -170,9 +194,9 @@ namespace ConsoleMonster.Generators {
                 string propertyType = property.Type.ToDisplayString(TypeFormat);
                 string propertyDoc = property.GetDocumentationCommentId() ?? property.Name;
                 string summary = Summary(property);
-                string with = "With" + property.Name;
+                string with = property.Name;
                 ITypeSymbol? item = CollectionItem(property.Type);
-                if (IsSettable(property) && !taken.Contains(with) && generated.Add(with + "(" + propertyType + ")")) {
+                if (IsSettable(property) && !Taken(with, property.Type) && generated.Add(with + "(" + propertyType + ")")) {
                     bool flag = property.Type.SpecialType == SpecialType.System_Boolean;
                     body.Append(Doc("Sets <see cref=\"" + propertyDoc + "\"/>" + summary, receiver, flag ? "The value (default true)." : "The value.", "value"));
                     body.Append("        public static ").Append(self).Append(' ').Append(with).Append(generic).Append("(this ").Append(self).Append(' ').Append(receiver)
@@ -181,7 +205,7 @@ namespace ConsoleMonster.Generators {
                         .Append("            return ").Append(receiver).Append(";\n        }\n\n");
                     methods++;
                 }
-                if (property.Type is INamedTypeSymbol option && IsOptionType(option, compilation.Assembly) && item == null && !taken.Contains(with) && generated.Add(with + "(Action)")) {
+                if (property.Type is INamedTypeSymbol option && IsOptionType(option, compilation.Assembly) && item == null && !Taken(with, compilation.GetTypeByMetadataName("System.Action`1")!.Construct(option)) && generated.Add(with + "(Action)")) {
                     body.Append(Configure(property, option, receiver, self, generic, constraint, with, propertyDoc, summary));
                     methods++;
                 }
@@ -191,7 +215,7 @@ namespace ConsoleMonster.Generators {
                     string itemType = item.ToDisplayString(TypeFormat);
                     string add = "Add" + singular;
                     string addAll = "Add" + plural;
-                    if (!taken.Contains(add) && generated.Add(add + "(" + itemType + ")")) {
+                    if (!Taken(add, item) && generated.Add(add + "(" + itemType + ")")) {
                         body.Append(Doc("Adds an item to <see cref=\"" + propertyDoc + "\"/>" + summary, receiver, "The item.", "item"));
                         body.Append("        public static ").Append(self).Append(' ').Append(add).Append(generic).Append("(this ").Append(self).Append(' ').Append(receiver)
                             .Append(", ").Append(itemType).Append(" item)").Append(constraint).Append(" {\n")
@@ -200,11 +224,17 @@ namespace ConsoleMonster.Generators {
                             .Append("            return ").Append(receiver).Append(";\n        }\n\n");
                         methods++;
                     }
-                    if (!taken.Contains(addAll) && generated.Add(addAll + "(params " + itemType + ")")) {
+                    if (!Taken(addAll, compilation.CreateArrayTypeSymbol(item)) && generated.Add(addAll + "(params " + itemType + ")")) {
                         body.Append(Doc("Adds items to <see cref=\"" + propertyDoc + "\"/>" + summary, receiver, "The items, in order.", "items"));
                         body.Append("        public static ").Append(self).Append(' ').Append(addAll).Append(generic).Append("(this ").Append(self).Append(' ').Append(receiver)
                             .Append(", params ").Append(itemType).Append("[] items)").Append(constraint).Append(" {\n")
-                            .Append("            return ").Append(addAll).Append("(").Append(receiver).Append(", (global::System.Collections.Generic.IEnumerable<").Append(itemType).Append(">)items);\n        }\n\n");
+                            .Append("            if (items == null) { throw new global::System.ArgumentNullException(nameof(items)); }\n")
+                            .Append(Ensure(property, receiver, itemType))
+                            .Append("            foreach (var item in items) { ").Append(receiver).Append('.').Append(property.Name).Append(".Add(item); }\n")
+                            .Append("            return ").Append(receiver).Append(";\n        }\n\n");
+                        methods++;
+                    }
+                    if (!Taken(addAll, compilation.GetTypeByMetadataName("System.Collections.Generic.IEnumerable`1")!.Construct(item)) && generated.Add(addAll + "(IEnumerable<" + itemType + ">)")) {
                         body.Append(Doc("Adds items to <see cref=\"" + propertyDoc + "\"/>" + summary, receiver, "The items, in order.", "items"));
                         body.Append("        public static ").Append(self).Append(' ').Append(addAll).Append(generic).Append("(this ").Append(self).Append(' ').Append(receiver)
                             .Append(", global::System.Collections.Generic.IEnumerable<").Append(itemType).Append("> items)").Append(constraint).Append(" {\n")
@@ -213,7 +243,7 @@ namespace ConsoleMonster.Generators {
                             .Append("            foreach (").Append(itemType).Append(" item in items) {\n")
                             .Append("                ").Append(receiver).Append('.').Append(property.Name).Append(".Add(item);\n            }\n")
                             .Append("            return ").Append(receiver).Append(";\n        }\n\n");
-                        methods += 2;
+                        methods++;
                     }
                 }
             }
@@ -225,7 +255,7 @@ namespace ConsoleMonster.Generators {
                 .Append(type.ToDisplayString()).Append(".\n// Do not edit: change the properties instead.\n// </auto-generated>\n")
                 .Append("#nullable enable\n\n")
                 .Append("namespace ").Append(type.ContainingNamespace.ToDisplayString()).Append(" {\n")
-                .Append("    /// <summary>The fluent methods of <see cref=\"").Append(docId).Append("\"/>, generated from its public properties: <c>With...</c> sets a property and <c>Add...</c> adds to a collection, both returning the same instance.</summary>\n")
+                .Append("    /// <summary>The fluent methods of <see cref=\"").Append(docId).Append("\"/>, generated from its public properties: A property-named method sets a property and <c>Add...</c> adds to a collection, both returning the same instance.</summary>\n")
                 .Append("    [global::System.CodeDom.Compiler.GeneratedCode(\"ConsoleMonster.Generators\", \"1.0.0\")]\n")
                 .Append("    public static partial class ").Append(type.Name).Append("Fluent {\n")
                 .Append(body.ToString().TrimEnd('\n')).Append('\n')
@@ -233,7 +263,7 @@ namespace ConsoleMonster.Generators {
             return source.ToString();
         }
 
-        // WithX(Action<T>): configures the option object in place, creating it first when it is not set and can be.
+        // X(Action<T>): configures the option object in place, creating it first when it is not set and can be.
         private static string Configure(IPropertySymbol property, INamedTypeSymbol option, string receiver, string self, string generic, string constraint, string with, string propertyDoc, string summary) {
             string optionType = option.WithNullableAnnotation(NullableAnnotation.NotAnnotated).ToDisplayString(TypeFormat);
             bool canCreate = IsSettable(property) && option.InstanceConstructors.Any(c => c.Parameters.Length == 0 && c.DeclaredAccessibility == Accessibility.Public);

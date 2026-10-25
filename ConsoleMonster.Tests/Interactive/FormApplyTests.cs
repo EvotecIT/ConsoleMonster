@@ -9,34 +9,44 @@ using ConsoleMonster.Input;
 using ConsoleMonster.Interactive;
 using Xunit;
 
-namespace ConsoleMonster.Tests.Interactive {
+namespace ConsoleMonster.Tests.Interactive
+{
     /// <summary>
     /// Form.Apply sets values whether or not the form is shown: the fields take them, the shown text of every field
     /// follows (text and number boxes too), and choice fields whose options load from a changed field load again, choosing
     /// a value given for them once the options arrive.
     /// </summary>
     [Collection("Live sessions")]
-    public sealed class FormApplyTests {
+    public sealed class FormApplyTests
+    {
         // A domain whose servers load for it, a name and a count.
         private static Form Scope(List<string> loads) => Scope(loads, new List<int>());
-
         // The same form; threads records the thread each load of the "west" servers starts on.
-        private static Form Scope(List<string> loads, List<int> threads) {
-            Form form = new Form("Scope") { Command = "Invoke-Scope", Review = false };
+        private static Form Scope(List<string> loads, List<int> threads)
+        {
+            Form form = new Form("Scope")
+            {
+                Command = "Invoke-Scope",
+                Review = false
+            };
             ChoiceField domain = form.Select("Domain", "Domain", new[] { new Choice("east", "East"), new Choice("west", "West") });
             domain.Default = "east";
             domain.ParameterName = "Domain";
             ChoiceField servers = form.MultiSelect("Servers", "Servers");
             servers.DependsOn.Add("Domain");
             servers.ParameterName = "ComputerName";
-            servers.Loader = (values, token) => {
+            servers.Loader = (values, token) =>
+            {
                 string chosen = values.Get<string>("Domain") ?? "none";
-                lock (loads) {
+                lock (loads)
+                {
                     loads.Add(chosen);
-                    if (chosen == "west") {
+                    if (chosen == "west")
+                    {
                         threads.Add(Environment.CurrentManagedThreadId);
                     }
                 }
+
                 string prefix = chosen == "west" ? "W" : "E";
                 return Task.FromResult<IEnumerable<Choice>>(new[] { new Choice(prefix + "1"), new Choice(prefix + "2") });
             };
@@ -49,22 +59,25 @@ namespace ConsoleMonster.Tests.Interactive {
             return form;
         }
 
-        private static Dictionary<string, object?> West() => new Dictionary<string, object?> {
+        private static Dictionary<string, object?> West() => new Dictionary<string, object?>
+        {
             ["Domain"] = "west",
-            ["Servers"] = new[] { "W2" },
+            ["Servers"] = new[]
+            {
+                "W2"
+            },
             ["Name"] = "night run",
             ["Count"] = 7
         };
-
         [Fact]
-        public void Apply_BeforeShowing_SetsValuesAndChoosesLoadedOptionsWhenTheyArrive() {
+        public void Apply_BeforeShowing_SetsValuesAndChoosesLoadedOptionsWhenTheyArrive()
+        {
             List<string> loads = new List<string>();
             Form form = Scope(loads);
             form.Apply(West());
             Assert.Equal("west", form.Find("Domain")!.Value);
             Assert.Equal("night run", form.Find("Name")!.Value);
             Assert.Equal(7m, form.Find("Count")!.Value);
-
             RecordingSurface surface = new RecordingSurface(80, 24, false);
             FormResult result = PromptHarness.Guard(surface, () => form.Show(new FormOptions { Interactive = PromptHarness.Options("Down Down Down Down Enter", surface) }));
             string first = surface.Frames[0].ToPlainText();
@@ -77,13 +90,13 @@ namespace ConsoleMonster.Tests.Interactive {
         }
 
         [Fact]
-        public void Apply_ChangedDependencyBeforeShowing_LoadsTheOptionsAgain() {
+        public void Apply_ChangedDependencyBeforeShowing_LoadsTheOptionsAgain()
+        {
             List<string> loads = new List<string>();
             Form form = Scope(loads);
             RecordingSurface surface = new RecordingSurface(80, 24, false);
             PromptHarness.Guard(surface, () => form.Show(new FormOptions { Interactive = PromptHarness.Options("Escape", surface) }));
             Assert.Equal(new[] { "E1", "E2" }, ((ChoiceField)form.Find("Servers")!).Choices.Select(c => (string)c.Value!).ToArray());
-
             // The form has closed: the old options are dropped and the wanted servers wait for the next showing.
             form.Apply(new Dictionary<string, object?> { ["Domain"] = "west", ["Servers"] = new[] { "W1" } });
             Assert.Empty(((ChoiceField)form.Find("Servers")!).Choices);
@@ -93,17 +106,23 @@ namespace ConsoleMonster.Tests.Interactive {
         }
 
         [Fact]
-        public void Apply_WhileOpenInAMenu_RefreshesTheShownTextAndReloadsDependentOptions() {
+        public void Apply_WhileOpenInAMenu_RefreshesTheShownTextAndReloadsDependentOptions()
+        {
             List<string> loads = new List<string>();
             Form form = Scope(loads);
             Menu menu = new Menu("Toolbox");
             menu.Item("Scope", i => i.Hotkey('s').Form(form));
-            menu.Item("Night", i => i.Hotkey('n').Action(ctx => form.Apply(West())));
+            menu.Item("Night", i =>
+            {
+                i.Hotkey = 'n';
+                i.Action = ctx => form.Apply(West());
+            });
             menu.Exit("Quit");
             RecordingSurface surface = new RecordingSurface(100, 26, false);
             // Open the form, go back, run the action that applies the values, then look at the form again and quit:
             // the applied values are the form's saved state, so quitting does not ask about unsaved changes.
-            PromptHarness.Guard(surface, () => {
+            PromptHarness.Guard(surface, () =>
+            {
                 menu.Run(new MenuOptions { Layout = MenuLayout.Shell, Interactive = PromptHarness.Options("s Escape n Up Ctrl+Q", surface), StorageRoot = Path.Combine(Path.GetTempPath(), "cm-apply-" + Guid.NewGuid().ToString("N").Substring(0, 6)) });
                 return 0;
             });
@@ -113,12 +132,13 @@ namespace ConsoleMonster.Tests.Interactive {
             Assert.Contains("W2", shown);
             Assert.Contains("7", shown.Split('\n').First(l => l.Contains("Retries")));
             Assert.Equal(new[] { "east", "west" }, loads.ToArray());
-            Assert.Equal(new object?[] { "W2" }, ((IEnumerable<object?>)form.Find("Servers")!.Value!).ToArray());
+            Assert.Equal(new object? [] { "W2" }, ((IEnumerable<object?>)form.Find("Servers")!.Value!).ToArray());
             Assert.DoesNotContain(surface.Frames, f => f.ToPlainText().Contains("Discard unsaved changes"));
         }
 
         [Fact]
-        public void Apply_ValuesOfAnEarlierRun_PutsEveryFieldBack() {
+        public void Apply_ValuesOfAnEarlierRun_PutsEveryFieldBack()
+        {
             List<string> loads = new List<string>();
             Form first = Scope(loads);
             first.Apply(West());
@@ -131,7 +151,8 @@ namespace ConsoleMonster.Tests.Interactive {
         }
 
         [Fact]
-        public void Apply_FromAnAsyncAction_IsCarriedOutOnTheMenuThread() {
+        public void Apply_FromAnAsyncAction_IsCarriedOutOnTheMenuThread()
+        {
             List<string> loads = new List<string>();
             List<int> threads = new List<int>();
             Form form = Scope(loads, threads);
@@ -140,78 +161,126 @@ namespace ConsoleMonster.Tests.Interactive {
             TaskCompletionSource<bool> release = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             Menu menu = new Menu("Toolbox");
             menu.Item("Scope", i => i.Hotkey('s').Form(form));
-            menu.Item("Night", i => i.Hotkey('n').ActionAsync(async (ctx, token) => {
-                await release.Task.ConfigureAwait(false);
-                token.ThrowIfCancellationRequested();
-                actionThread = Environment.CurrentManagedThreadId;
-                form.Apply(West());
-            }));
+            menu.Item("Night", i =>
+            {
+                i.Hotkey = 'n';
+                i.ActionAsync = async (ctx, token) =>
+                {
+                    await release.Task.ConfigureAwait(false);
+                    token.ThrowIfCancellationRequested();
+                    actionThread = Environment.CurrentManagedThreadId;
+                    form.Apply(West());
+                };
+            });
             menu.Exit("Quit");
             RecordingSurface surface = new RecordingSurface(100, 26, false);
             InteractiveOptions options = PromptHarness.Options(string.Empty, surface);
-            options.Input = new ApplyBarrierInput(() => release.TrySetResult(true), () =>
-                threads.Count == 1 && form.GetValues().GetList<string>("Servers").SequenceEqual(new[] { "W2" }));
-            PromptHarness.Guard(surface, () => {
+            options.Input = new ApplyBarrierInput(() => release.TrySetResult(true), () => threads.Count == 1 && form.GetValues().GetList<string>("Servers").SequenceEqual(new[] { "W2" }));
+            PromptHarness.Guard(surface, () =>
+            {
                 menu.Run(new MenuOptions { Layout = MenuLayout.Shell, Interactive = options, StorageRoot = Path.Combine(Path.GetTempPath(), "cm-apply-" + Guid.NewGuid().ToString("N").Substring(0, 6)) });
                 return 0;
             });
             Assert.NotEqual(menuThread, actionThread);
             // The reload the values started ran on the menu's thread, not on the action's worker.
             Assert.Equal(new[] { menuThread }, threads.ToArray());
-            Assert.Equal(new object?[] { "W2" }, ((IEnumerable<object?>)form.Find("Servers")!.Value!).ToArray());
+            Assert.Equal(new object? [] { "W2" }, ((IEnumerable<object?>)form.Find("Servers")!.Value!).ToArray());
             Assert.Contains("night run", surface.Frames.Select(f => f.ToPlainText()).Last(f => f.Contains("Run name")));
         }
 
         // Keep the menu polling until the queued apply has really run, rather than navigating after a fixed delay.
-        private sealed class ApplyBarrierInput : IInputSource {
-            private readonly ScriptedInput _before = new ScriptedInput("s Escape n") { Paced = true };
-            private readonly ScriptedInput _after = new ScriptedInput("Up Ctrl+Q") { Paced = true };
+        private sealed class ApplyBarrierInput : IInputSource
+        {
+            private readonly ScriptedInput _before = new ScriptedInput("s Escape n")
+            {
+                Paced = true
+            };
+            private readonly ScriptedInput _after = new ScriptedInput("Up Ctrl+Q")
+            {
+                Paced = true
+            };
             private readonly Action _release;
             private readonly Func<bool> _applied;
             private readonly Stopwatch _watchdog = new Stopwatch();
+            public ApplyBarrierInput(Action release, Func<bool> applied)
+            {
+                _release = release;
+                _applied = applied;
+            }
 
-            public ApplyBarrierInput(Action release, Func<bool> applied) { _release = release; _applied = applied; }
             public string Name => "form apply barrier";
 
-            public InputEvent? Read(TimeSpan timeout, CancellationToken cancellationToken) {
+            public InputEvent? Read(TimeSpan timeout, CancellationToken cancellationToken)
+            {
                 cancellationToken.ThrowIfCancellationRequested();
-                if (timeout == TimeSpan.Zero) { return null; }
-                if (_before.Remaining > 0) { return _before.Read(timeout, cancellationToken); }
-                if (!_watchdog.IsRunning) { _watchdog.Start(); _release(); }
-                if (_applied()) { return _after.Read(timeout, cancellationToken); }
-                if (_watchdog.Elapsed > TimeSpan.FromSeconds(30)) {
+                if (timeout == TimeSpan.Zero)
+                {
+                    return null;
+                }
+
+                if (_before.Remaining > 0)
+                {
+                    return _before.Read(timeout, cancellationToken);
+                }
+
+                if (!_watchdog.IsRunning)
+                {
+                    _watchdog.Start();
+                    _release();
+                }
+
+                if (_applied())
+                {
+                    return _after.Read(timeout, cancellationToken);
+                }
+
+                if (_watchdog.Elapsed > TimeSpan.FromSeconds(30))
+                {
                     throw new TimeoutException("The menu never applied the worker's values and reloaded the selected servers.");
                 }
+
                 cancellationToken.WaitHandle.WaitOne(timeout);
                 cancellationToken.ThrowIfCancellationRequested();
                 return null;
             }
 
-            public void Dispose() { _before.Dispose(); _after.Dispose(); }
+            public void Dispose()
+            {
+                _before.Dispose();
+                _after.Dispose();
+            }
         }
 
         // A host that cannot take calls from other threads.
-        private sealed class ClosedHost : IViewHost {
+        private sealed class ClosedHost : IViewHost
+        {
             public PromptLabels Labels { get; } = new PromptLabels();
 
-            public void ShowModal(Modal modal) {
+            public void ShowModal(Modal modal)
+            {
             }
 
-            public void ShowToast(Toast toast) {
+            public void ShowToast(Toast toast)
+            {
             }
 
             public bool TryPost(Action call) => false;
         }
 
         [Fact]
-        public void Apply_FromAnotherThreadWithoutAQueue_FailsClearly() {
+        public void Apply_FromAnotherThreadWithoutAQueue_FailsClearly()
+        {
             Form form = Scope(new List<string>());
             FormView view = new FormView(form, new ClosedHost(), null, false);
             Exception? error = null;
-            System.Threading.Thread stray = new System.Threading.Thread(() => {
-                try {
+            System.Threading.Thread stray = new System.Threading.Thread(() =>
+            {
+                try
+                {
                     form.Apply(West());
-                } catch (Exception ex) {
+                }
+                catch (Exception ex)
+                {
                     error = ex;
                 }
             });
@@ -222,9 +291,11 @@ namespace ConsoleMonster.Tests.Interactive {
         }
 
         [Fact]
-        public void Apply_BeforeShowing_WinsOverRememberedChoicesAndThePreset() {
+        public void Apply_BeforeShowing_WinsOverRememberedChoicesAndThePreset()
+        {
             string root = Path.Combine(Path.GetTempPath(), "cm-apply-last-" + Guid.NewGuid().ToString("N").Substring(0, 6));
-            try {
+            try
+            {
                 new ChoiceStore("Scope app", root).SaveLast("Scope", new Dictionary<string, object?> { ["Name"] = "remembered", ["Count"] = "3", ["Domain"] = "east" });
                 Form form = Scope(new List<string>());
                 form.Preset("Quick", p => p.Value("Name", "preset").Value("Count", 5));
@@ -237,19 +308,27 @@ namespace ConsoleMonster.Tests.Interactive {
                 Assert.Equal("west", result.Values["Domain"]);
                 Assert.Equal(new[] { "W1" }, result.Values.GetList<string>("Servers").ToArray());
                 Assert.Equal("Quick", result.Preset);
-            } finally {
-                if (Directory.Exists(root)) {
+            }
+            finally
+            {
+                if (Directory.Exists(root))
+                {
                     Directory.Delete(root, true);
                 }
             }
         }
 
         [Fact]
-        public void Apply_BeforeShowingInLineMode_WinsOverRememberedChoicesAndThePreset() {
+        public void Apply_BeforeShowingInLineMode_WinsOverRememberedChoicesAndThePreset()
+        {
             string root = Path.Combine(Path.GetTempPath(), "cm-apply-line-" + Guid.NewGuid().ToString("N").Substring(0, 6));
-            try {
+            try
+            {
                 new ChoiceStore("Line app", root).SaveLast("Run", new Dictionary<string, object?> { ["Name"] = "remembered", ["Count"] = "3" });
-                Form form = new Form("Run") { Review = false };
+                Form form = new Form("Run")
+                {
+                    Review = false
+                };
                 form.Text("Name", "Run name");
                 NumberField count = form.Number("Count", "Retries");
                 count.Integer = true;
@@ -261,33 +340,43 @@ namespace ConsoleMonster.Tests.Interactive {
                 Assert.Equal("applied", result.Values["Name"]);
                 Assert.Equal(5m, result.Values["Count"]);
                 Assert.Equal("Quick", result.Preset);
-            } finally {
-                if (Directory.Exists(root)) {
+            }
+            finally
+            {
+                if (Directory.Exists(root))
+                {
                     Directory.Delete(root, true);
                 }
             }
         }
 
         [Fact]
-        public void Apply_ThenDiscard_KeepsTheValuesThatArrivedWithTheOptions() {
+        public void Apply_ThenDiscard_KeepsTheValuesThatArrivedWithTheOptions()
+        {
             Form form = Scope(new List<string>());
             Menu menu = new Menu("Toolbox");
             menu.Item("Scope", i => i.Hotkey('s').Form(form));
-            menu.Item("Night", i => i.Hotkey('n').Action(ctx => form.Apply(West())));
+            menu.Item("Night", i =>
+            {
+                i.Hotkey = 'n';
+                i.Action = ctx => form.Apply(West());
+            });
             menu.Exit("Quit");
             RecordingSurface surface = new RecordingSurface(100, 26, false);
             // Apply (the servers arrive with the reload), then edit the name and leave with Discard.
-            PromptHarness.Guard(surface, () => {
+            PromptHarness.Guard(surface, () =>
+            {
                 menu.Run(new MenuOptions { Layout = MenuLayout.Shell, Interactive = PromptHarness.Options("s Escape n Up Enter Down Down \"x\" Escape y Ctrl+Q", surface), StorageRoot = Path.Combine(Path.GetTempPath(), "cm-apply-" + Guid.NewGuid().ToString("N").Substring(0, 6)) });
                 return 0;
             });
             Assert.Contains(surface.Frames, f => f.ToPlainText().Contains("Discard the changes to Scope?"));
             Assert.Equal("night run", form.Find("Name")!.Value);
-            Assert.Equal(new object?[] { "W2" }, ((IEnumerable<object?>)form.Find("Servers")!.Value!).ToArray());
+            Assert.Equal(new object? [] { "W2" }, ((IEnumerable<object?>)form.Find("Servers")!.Value!).ToArray());
         }
 
         [Fact]
-        public void Apply_ChangedField_ResetsItsOtherDependentsUnlessGiven() {
+        public void Apply_ChangedField_ResetsItsOtherDependentsUnlessGiven()
+        {
             Form form = new Form("Modes");
             form.Select("Mode", "Mode", new[] { new Choice("a"), new Choice("b") }).Default = "a";
             TextField detail = form.Text("Detail", "Detail");
@@ -300,7 +389,8 @@ namespace ConsoleMonster.Tests.Interactive {
         }
 
         [Fact]
-        public void Apply_UnknownNamesAndOptions_AreIgnored() {
+        public void Apply_UnknownNamesAndOptions_AreIgnored()
+        {
             Form form = Scope(new List<string>());
             form.Apply(new Dictionary<string, object?> { ["Missing"] = "x", ["Domain"] = "north", ["Name"] = "kept" });
             Assert.Equal("east", form.Find("Domain")!.Value);

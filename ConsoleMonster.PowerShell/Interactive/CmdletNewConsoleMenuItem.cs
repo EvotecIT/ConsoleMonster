@@ -159,8 +159,8 @@ namespace ConsoleMonster.PowerShell {
             MenuItem item = new MenuItem(Label ?? (Exit.IsPresent ? PromptLabels.Default.Exit : string.Empty)) {
                 Description = Description,
                 Icon = Icon,
-                IconGlyph = IconName,
-                HotkeyChar = Hotkey
+                IconName = IconName,
+                Hotkey = Hotkey
             };
             ApplyDynamic(item);
             if (Separator.IsPresent) {
@@ -203,22 +203,23 @@ namespace ConsoleMonster.PowerShell {
                         "ConsoleMonsterChoiceLoaderSelector", ErrorCategory.InvalidArgument, Label));
                     return;
                 }
-                item.LoadChoices(PSInteractive.MenuLoader(LoadChoices, new ChoiceSelectors {
+                item.LoadChoices = PSInteractive.MenuLoader(LoadChoices, new ChoiceSelectors {
                     Display = Display, Group = GroupBy, Description = Describe, Badge = ChoiceBadge, Disabled = ChoiceDisabledReason,
                     Selected = Selected, MutedBadge = true
-                }, ArgumentList), !Single.IsPresent);
+                }, ArgumentList);
+                item.Kind = Single.IsPresent ? MenuItemKind.Select : MenuItemKind.MultiSelect;
                 ApplyChoiceSettings(item);
             } else if (Page != null) {
                 ScriptBlock page = Page;
-                item.Page(context => PSInteractive.ToWidget(PSInteractive.InvokeWith(page, context, new KeyValuePair<string, object?>("MenuContext", context))) ?? new Widgets.TextBlock(string.Empty));
+                item.Page = context => PSInteractive.ToWidget(PSInteractive.InvokeWith(page, context, new KeyValuePair<string, object?>("MenuContext", context))) ?? new Widgets.TextBlock(string.Empty);
             } else if (Review != null) {
                 ScriptBlock review = Review;
-                item.Review(context => PSForms.ToReview(PSInteractive.Last(PSInteractive.InvokeWith(review, context, new KeyValuePair<string, object?>("MenuContext", context)))));
+                item.Review = context => PSForms.ToReview(PSInteractive.Last(PSInteractive.InvokeWith(review, context, new KeyValuePair<string, object?>("MenuContext", context))));
             } else if (Presets.IsPresent) {
                 item.Presets();
             } else if (Action != null) {
                 ScriptBlock action = Action;
-                item.Action(context => PSMenus.Invoke(action, context));
+                item.Action = context => PSMenus.Invoke(action, context);
             }
             WriteObject(item);
         }
@@ -232,36 +233,36 @@ namespace ConsoleMonster.PowerShell {
             }
             if (OnChange != null) {
                 ScriptBlock change = OnChange;
-                item.SelectionChanged = context => PSMenus.Invoke(change, context);
+                item.OnChange = context => PSMenus.Invoke(change, context);
             }
         }
 
         private void ApplyDynamic(MenuItem item) {
             object? badge = PSText.Unwrap(Badge);
             if (badge is ScriptBlock badgeScript) {
-                item.BadgeSource = () => {
+                item.Badge = () => {
                     object? result = PSText.Unwrap(PSInteractive.Last(badgeScript.Invoke()));
                     return result is RichText rich ? rich : result == null || PSInteractive.Text(result).Length == 0 ? null : RichText.Plain(PSInteractive.Text(result));
                 };
             } else if (badge is RichText richBadge) {
-                item.BadgeSource = () => richBadge;
+                item.Badge = () => richBadge;
             } else if (badge != null) {
                 string text = PSInteractive.Text(badge);
-                item.BadgeSource = () => RichText.Plain(text);
+                item.Badge = () => RichText.Plain(text);
             }
             object? state = PSText.Unwrap(Detail);
             if (state is ScriptBlock stateScript) {
-                item.DetailSource = () => {
+                item.Detail = () => {
                     string text = PSInteractive.Text(PSInteractive.Last(stateScript.Invoke()));
                     return text.Length == 0 ? null : text;
                 };
             } else if (state != null) {
                 string text = PSInteractive.Text(state);
-                item.DetailSource = () => text;
+                item.Detail = () => text;
             }
             object? disabled = PSText.Unwrap(DisabledReason);
             if (disabled is ScriptBlock disabledScript) {
-                item.DisabledReasonSource = () => {
+                item.DisabledReason = () => {
                     object? result = PSText.Unwrap(PSInteractive.Last(disabledScript.Invoke()));
                     if (result == null || result is false) {
                         return null;
@@ -270,7 +271,7 @@ namespace ConsoleMonster.PowerShell {
                 };
             } else if (disabled != null) {
                 string reason = PSInteractive.Text(disabled);
-                item.DisabledReasonSource = () => reason;
+                item.DisabledReason = () => reason;
             }
         }
     }

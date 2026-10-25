@@ -153,7 +153,7 @@ namespace ConsoleMonster.Widgets {
                 : Add(snapshot.Key, snapshot.Label, snapshot.Total);
             if (snapshot.LabelText == null) { lane.Label = snapshot.Label; }
             lane.Total = snapshot.Total;
-            lane.Done = snapshot.Done;
+            lane.Value = snapshot.Value;
             lane.Status = snapshot.Status;
             lane.Passed = snapshot.Passed;
             lane.Failed = snapshot.Failed;
@@ -195,7 +195,7 @@ namespace ConsoleMonster.Widgets {
                 open |= !lane.IsFinished;
                 if (lane.Total > 0) {
                     total += lane.Total;
-                    done += lane.IsFinished ? lane.Total : Math.Min(lane.Total, lane.Done);
+                    done += lane.IsFinished ? lane.Total : Math.Min(lane.Total, lane.Value);
                 }
             }
             if (!open && !failed && !warned) {
@@ -295,10 +295,10 @@ namespace ConsoleMonster.Widgets {
         private static void ApplyAdvance(Lane lane, LiveEvent liveEvent, TimeSpan now) {
             double amount = liveEvent.Value == 0 ? 1 : liveEvent.Value;
             if (!lane.Started.HasValue) {
-                lane.Meter.Record(now, lane.Done);
+                lane.Meter.Record(now, lane.Value);
             }
-            lane.Done += amount;
-            lane.Meter.Record(now, lane.Done);
+            lane.Value += amount;
+            lane.Meter.Record(now, lane.Value);
             if (liveEvent.Status != null && StatusKinds.TryParse(liveEvent.Status, out StatusKind result)) {
                 int steps = (int)Math.Max(1, Math.Round(amount));
                 switch (result) {
@@ -334,7 +334,7 @@ namespace ConsoleMonster.Widgets {
             lane.Status = status;
             if (status == StatusKind.Running && !lane.Started.HasValue) {
                 lane.Started = now;
-                lane.Meter.Record(now, lane.Done);
+                lane.Meter.Record(now, lane.Value);
             }
             if (lane.IsFinished) {
                 lane.Finished = now;
@@ -342,7 +342,7 @@ namespace ConsoleMonster.Widgets {
                     lane.Started = now;
                 }
                 if (lane.Total > 0) {
-                    lane.Done = lane.Total;
+                    lane.Value = lane.Total;
                 }
             }
             if (!string.IsNullOrEmpty(text)) {

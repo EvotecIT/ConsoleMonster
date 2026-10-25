@@ -13,17 +13,17 @@ namespace ThreeStylesSample {
             return Rows(
                 Columns(
                     Panel("Servers", Table(servers)
-                        .Column(s => s.Name, c => c.WithIsKey())
+                        .Column(s => s.Name, c => c.IsKey())
                         .Column(s => s.Role)
-                        .Column(s => s.Ram, c => c.WithPresenter(CellPresenters.Bytes))
+                        .Column(s => s.Ram, c => c.Presenter(CellPresenters.Bytes))
                         .Column(s => s.Status)
-                        .WithTotals()),
+                        .Totals()),
                     Panel("Summary", Rows(
                         KeyValue(("Servers", 3), ("Failed", 1)),
-                        Sparkline(cpu).WithLabel("CPU")))
-                ).WithGap(1),
+                        Sparkline(cpu).Label("CPU")))
+                ).Gap(1),
                 Text("[muted]Updated 10:02[/]")
-            ).WithGap(1);
+            ).Gap(1);
         }
     }
 }

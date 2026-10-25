@@ -108,10 +108,10 @@ namespace ConsoleMonster.Interactive {
         /// <summary>The objects of the chosen rows.</summary>
         public List<object?> ChosenItems() {
             List<object?> items = new List<object?>();
-            if (_grid.Selection == GridSelection.None) {
+            if (_grid.OutputMode == GridSelection.None) {
                 return items;
             }
-            if (_grid.Selection == GridSelection.Multiple && _marked.Count > 0) {
+            if (_grid.OutputMode == GridSelection.Multiple && _marked.Count > 0) {
                 foreach (int index in Sorted(AllRows())) {
                     if (_marked.Contains(index)) {
                         items.Add(_grid.Rows[index].Item);
@@ -144,7 +144,7 @@ namespace ConsoleMonster.Interactive {
             Refresh();
             _modals.RemoveAll(m => m.IsClosed);
             string right = PromptLabels.Format(Labels.GridRows, _visible.Count, _grid.Rows.Count);
-            if (_grid.Selection == GridSelection.Multiple && _marked.Count > 0) {
+            if (_grid.OutputMode == GridSelection.Multiple && _marked.Count > 0) {
                 right += " " + InteractiveGlyphs.For(frame.Context).Separator + " " + PromptLabels.Format(Labels.GridSelected, _marked.Count);
             }
             Rows rows = new Rows();
@@ -203,7 +203,7 @@ namespace ConsoleMonster.Interactive {
             bindings.Add(new KeyBinding(string.Empty, () => Move(_pageRows), new KeyChord(ConsoleKey.PageDown)) { InFooter = false });
             bindings.Add(new KeyBinding(string.Empty, () => Move(-_visible.Count), new KeyChord(ConsoleKey.Home, KeyModifiers.Control)) { InFooter = false });
             bindings.Add(new KeyBinding(string.Empty, () => Move(_visible.Count), new KeyChord(ConsoleKey.End, KeyModifiers.Control)) { InFooter = false });
-            if (_grid.Selection == GridSelection.Multiple) {
+            if (_grid.OutputMode == GridSelection.Multiple) {
                 bindings.Add(new KeyBinding(Labels.KeySelect, ToggleMark, new KeyChord(ConsoleKey.Spacebar), new KeyChord(' ')) { KeyText = "space", Order = 15 });
                 bindings.Add(new KeyBinding(Labels.KeyAll, MarkAll, new KeyChord(ConsoleKey.A, KeyModifiers.Control)) { KeyText = "ctrl+a", Order = 16, InFooter = false });
             }
@@ -212,7 +212,7 @@ namespace ConsoleMonster.Interactive {
             bindings.Add(new KeyBinding(string.Empty, () => CycleSort(-1), new KeyChord(ConsoleKey.F3, KeyModifiers.Shift)) { InFooter = false });
             bindings.Add(new KeyBinding(Labels.KeyOrder, ReverseSort, new KeyChord(ConsoleKey.F4)) { KeyText = "f4", Order = 33, InFooter = false });
             bindings.Add(new KeyBinding(Labels.KeyColumns, () => ShowModal(new GridColumnsModal(this)), new KeyChord(ConsoleKey.F2)) { KeyText = "f2", Order = 34 });
-            if (_grid.Selection != GridSelection.None) {
+            if (_grid.OutputMode != GridSelection.None) {
                 bindings.Add(new KeyBinding(Labels.KeyDone, Done, new KeyChord(ConsoleKey.Enter, KeyModifiers.Control), new KeyChord(ConsoleKey.F10)) { KeyText = "ctrl+enter", Order = 20 });
             }
             bindings.Add(new KeyBinding(_filter.IsEmpty ? Labels.KeyCancel : Labels.KeyClearFilter, Escape, new KeyChord(ConsoleKey.Escape)) { Order = 25 });

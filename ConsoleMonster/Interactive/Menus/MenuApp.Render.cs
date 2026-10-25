@@ -115,7 +115,7 @@ namespace ConsoleMonster.Interactive {
                 if (!string.IsNullOrEmpty(state)) {
                     width += DisplayWidth.Measure(state) + 2;
                 }
-                if (item.HotkeyChar.HasValue) {
+                if (item.Hotkey.HasValue) {
                     width += 3;
                 }
                 widest = Math.Max(widest, width);

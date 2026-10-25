@@ -8,7 +8,7 @@ namespace ConsoleMonster.Layout {
     /// <see cref="LayoutSize.Fraction(double, int)"/> rows share the height left after fixed and auto rows (for example a
     /// log region that fills the bottom of the screen).
     /// </summary>
-    public sealed class Rows : IContainer {
+    public sealed class Rows : IContainer, IContentOwner {
         private readonly List<IWidget> _children = new List<IWidget>();
         private readonly List<LayoutSize> _sizes = new List<LayoutSize>();
 
@@ -40,6 +40,8 @@ namespace ConsoleMonster.Layout {
             _sizes.Add(size ?? (child is Sized sized ? sized.LayoutSize : LayoutSize.Auto));
             return this;
         }
+
+        void IContentOwner.ReplaceContent(IWidget[] content) { _children.Clear(); _sizes.Clear(); foreach (IWidget widget in content) { Add(widget); } }
 
         /// <inheritdoc />
         public Size Measure(Constraints constraints, RenderContext context) {

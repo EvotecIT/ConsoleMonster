@@ -298,14 +298,14 @@ namespace ConsoleMonster.Replay {
         public IReadOnlyList<IWidget> Children => new IWidget[] { Dashboard };
 
         public Size Measure(Constraints constraints, RenderContext context) {
-            Size body = Dashboard.Body.Measure(constraints.Shrink(0, 1), context);
+            Size body = Dashboard.Content.Measure(constraints.Shrink(0, 1), context);
             int height = body.Height + 1;
             return new Size(constraints.MaxWidth, constraints.IsHeightUnbounded ? height : Math.Min(height, constraints.MaxHeight));
         }
 
         public void Render(Region region, RenderContext context) {
             if (region.Height > 1) {
-                Dashboard.Body.Render(region.Sub(0, 1, region.Width, region.Height - 1), context);
+                Dashboard.Content.Render(region.Sub(0, 1, region.Width, region.Height - 1), context);
             }
         }
     }

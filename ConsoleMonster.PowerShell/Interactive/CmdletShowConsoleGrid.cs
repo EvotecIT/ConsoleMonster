@@ -98,7 +98,7 @@ namespace ConsoleMonster.PowerShell {
             Values.ShapeBudget budget = Values.ShapeBudget.For(shape);
             IReadOnlyList<PSObject> items = PSFormatting.Expand(_items, shape);
             IReadOnlyList<BoundColumn> columns = PropertyBinder.Bind(items, Property, shape, this);
-            Grid grid = new Grid(Title) { Selection = OutputMode };
+            Grid grid = new Grid(Title) { OutputMode = OutputMode };
             if (Culture != null) {
                 grid.Presentation = new PresentationOptions { Culture = Culture };
             }

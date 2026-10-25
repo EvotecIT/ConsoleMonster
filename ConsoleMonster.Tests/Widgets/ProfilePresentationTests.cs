@@ -51,7 +51,7 @@ namespace ConsoleMonster.Tests.Widgets {
             RenderContext polish = Context("pl");
             Tree cycle = new Tree();
             object item = new object();
-            TreeHierarchy.Add(cycle.Root, new[] { item }, value => new TreeNode("node") { Note = "owner note" }, value => new[] { item });
+            TreeHierarchy.Add(cycle.Root, new[] { item }, value => new TreeNode("node") { Detail = "owner note" }, value => new[] { item });
             Assert.Contains("owner note (cykl)", Render(cycle, polish));
             Tree depth = new Tree();
             TreeHierarchy.Add(depth.Root, new[] { 1 }, value => new TreeNode("node"), value => new[] { value + 1 }, new TreeHierarchyOptions { Depth = 0 });
@@ -59,7 +59,7 @@ namespace ConsoleMonster.Tests.Widgets {
             Tree nodes = new Tree();
             TreeHierarchy.Add(nodes.Root, new[] { 1, 2 }, value => new TreeNode("node"), value => null, new TreeHierarchyOptions { MaxNodes = 1 });
             Assert.Contains("osiągnięto limit węzłów", Render(nodes, polish));
-            Assert.Equal("custom note", new TreeNode("literal") { Note = "custom note" }.Note);
+            Assert.Equal("custom note", new TreeNode("literal") { Detail = "custom note" }.Detail);
         }
 
         [Theory]

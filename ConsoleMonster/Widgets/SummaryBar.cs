@@ -49,7 +49,7 @@ namespace ConsoleMonster.Widgets {
         public const double Keep = -1;
 
         /// <summary>Items done.</summary>
-        public double Done { get; private set; }
+        public double Value { get; private set; }
 
         /// <summary>Items in total (0 = unknown: no bar, percentage or time left).</summary>
         public double Total { get; private set; }
@@ -76,20 +76,20 @@ namespace ConsoleMonster.Widgets {
         public string? DoneLabel { get; set; }
 
         /// <summary>Sets the progress.</summary>
-        /// <param name="done">Items done.</param>
+        /// <param name="value">Items value.</param>
         /// <param name="total">Items in total (0 = unknown).</param>
         /// <returns>This instance.</returns>
-        public SummaryBar SetProgress(double done, double total) {
-            // A new run on the same bar (done going back) starts the clock again.
-            if (!_clock.IsRunning || done < Done) {
+        public SummaryBar SetProgress(double value, double total) {
+            // A new run on the same bar (value going back) starts the clock again.
+            if (!_clock.IsRunning || value < Value) {
                 _clock.Restart();
                 _startedAt = null;
                 _startPending = true;
                 _sessionElapsed = null;
             }
-            Done = Math.Max(0, done);
+            Value = Math.Max(0, value);
             Total = Math.Max(0, total);
-            if (Total > 0 && Done >= Total) {
+            if (Total > 0 && Value >= Total) {
                 _finishPending = !_finishedAt.HasValue;
             } else {
                 _finishedAt = null;
@@ -137,10 +137,10 @@ namespace ConsoleMonster.Widgets {
         public TimeSpan? Remaining {
             get {
                 TimeSpan elapsed = Effective ?? _clock.Elapsed;
-                if (Total <= 0 || Done <= 0 || Done >= Total || elapsed <= TimeSpan.Zero) {
+                if (Total <= 0 || Value <= 0 || Value >= Total || elapsed <= TimeSpan.Zero) {
                     return null;
                 }
-                double seconds = elapsed.TotalSeconds * (Total - Done) / Done;
+                double seconds = elapsed.TotalSeconds * (Total - Value) / Value;
                 return seconds < TimeSpan.MaxValue.TotalSeconds / 2 ? TimeSpan.FromSeconds(Math.Ceiling(seconds)) : (TimeSpan?)null;
             }
         }
@@ -151,7 +151,7 @@ namespace ConsoleMonster.Widgets {
                 return;
             }
             if (liveEvent.Operation == "progress") {
-                SetProgress(Kept(liveEvent.Value, Done), Kept(liveEvent.Total, Total));
+                SetProgress(Kept(liveEvent.Value, Value), Kept(liveEvent.Total, Total));
                 // Zero is also a valid recording/session time. Remember it until a frame resolves an unstamped
                 // update, or a later timed event resolves the start before the first frame.
                 if (liveEvent.Time > 0) {
@@ -187,7 +187,7 @@ namespace ConsoleMonster.Widgets {
             int x = 0;
             int bar = BarCells(region.Width);
             if (bar > 0) {
-                BarDrawer.Draw(region, 0, 0, bar, Math.Min(1, Done / Total), context.Style(ThemeToken.Running), context, true, BarShape.Line);
+                BarDrawer.Draw(region, 0, 0, bar, Math.Min(1, Value / Total), context.Style(ThemeToken.Running), context, true, BarShape.Line);
                 x = bar + 2;
             }
             region.Write(x, 0, Line(region.Width - x, context));
@@ -209,7 +209,7 @@ namespace ConsoleMonster.Widgets {
             List<TextSpan> spans = new List<TextSpan>();
             int used = 0;
             if (Total > 0) {
-                string counts = Done.ToString("N0", context.Culture) + "/" + Total.ToString("N0", context.Culture) + "  " + NumberFormat.Percent(Math.Min(1, Done / Total));
+                string counts = Value.ToString("N0", context.Culture) + "/" + Total.ToString("N0", context.Culture) + "  " + NumberFormat.Percent(Math.Min(1, Value / Total));
                 spans.Add(new TextSpan(counts, text));
                 used += DisplayWidth.Measure(counts);
                 TimeSpan? left = Remaining;
@@ -218,9 +218,9 @@ namespace ConsoleMonster.Widgets {
                     spans.Add(new TextSpan(eta, muted));
                     used += DisplayWidth.Measure(eta);
                 }
-            } else if (Done > 0) {
+            } else if (Value > 0) {
                 // The total is not known yet: "9 done".
-                string counts = Localization.WidgetLabels.Format(DoneLabel ?? context.Labels.DoneCount, Done.ToString("N0", context.Culture));
+                string counts = Localization.WidgetLabels.Format(DoneLabel ?? context.Labels.DoneCount, Value.ToString("N0", context.Culture));
                 spans.Add(new TextSpan(counts, text));
                 used += DisplayWidth.Measure(counts);
             }
@@ -246,7 +246,7 @@ namespace ConsoleMonster.Widgets {
                 first = false;
             }
             TimeSpan? elapsed = Effective;
-            if (ShowDuration && allShown && Total > 0 && Done >= Total && elapsed.HasValue && elapsed.Value > TimeSpan.Zero) {
+            if (ShowDuration && allShown && Total > 0 && Value >= Total && elapsed.HasValue && elapsed.Value > TimeSpan.Zero) {
                 // Finished: how long the run took, after the counters when they all fit and it fits too.
                 string took = "  " + separator.Trim() + " " + Localization.WidgetLabels.Format(context.Labels.TookDuration, NumberFormat.Duration(elapsed.Value));
                 if (used + DisplayWidth.Measure(took) <= width) {

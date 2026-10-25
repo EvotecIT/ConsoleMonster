@@ -218,7 +218,7 @@ namespace ConsoleMonster.TestRuns {
             int done = 0;
             foreach (TestContainerState container in snapshot.Containers) {
                 Lane lane = lanes.Add(container.Key, container.Name, container.Tests);
-                lane.Done = container.Done;
+                lane.Value = container.Done;
                 lane.Passed = container.Passed;
                 lane.Failed = container.Failed;
                 lane.Skipped = container.Skipped + container.NotRun;

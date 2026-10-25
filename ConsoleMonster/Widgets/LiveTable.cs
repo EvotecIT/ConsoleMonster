@@ -247,17 +247,17 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>Removes the row with that key.</summary>
         /// <param name="key">The row key.</param>
-        public void RemoveRow(string key) => Post("remove", key ?? throw new ArgumentNullException(nameof(key)));
+        public void RemoveRow(string key) => Update(new WidgetUpdate { Key = key, RemoveRow = true });
 
         /// <summary>Removes every row; the column widths stay.</summary>
-        public void Clear() => Post("clear");
+        public void Clear() => Update(new WidgetUpdate { ClearRows = true });
 
         private void Send(string operation, string key, object?[] values) {
             if (key == null) {
                 throw new ArgumentNullException(nameof(key));
             }
             object?[] copy = values == null ? new object?[0] : (object?[])values.Clone();
-            PostPayload(operation, copy, key, LiveTable.TextOf(copy));
+            Update(new WidgetUpdate { Row = new ConsoleTableRow { Key = key, Values = copy } });
         }
     }
 }

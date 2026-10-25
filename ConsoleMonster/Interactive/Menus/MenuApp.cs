@@ -196,16 +196,16 @@ namespace ConsoleMonster.Interactive {
             IPane pane;
             switch (item.Kind) {
                 case MenuItemKind.Submenu:
-                    pane = ListFor(item.SubmenuDefinition!);
+                    pane = ListFor(item.Submenu!);
                     break;
                 case MenuItemKind.Form:
-                    FormView form = new FormView(item.FormDefinition!, this, _store, _options.RememberLastChoices, _copy);
+                    FormView form = new FormView(item.Form!, this, _store, _options.RememberLastChoices, _copy);
                     form.Submitted = result => OnFormSubmitted(item, result);
                     pane = form;
                     break;
                 case MenuItemKind.Select:
                 case MenuItemKind.MultiSelect:
-                    pane = new ChoiceItemPane(item, Labels, () => SelectionChanged(item), Back, () => Context(item));
+                    pane = new ChoiceItemPane(item, Labels, () => OnChange(item), Back, () => Context(item));
                     break;
                 case MenuItemKind.Page:
                     pane = new PagePane(item, () => Context(item));
@@ -301,14 +301,14 @@ namespace ConsoleMonster.Interactive {
         // ---- actions ---------------------------------------------------------------------------------------------
 
         private void RunAction(MenuItem item) {
-            if (item.AsyncHandler != null) {
+            if (item.ActionAsync != null) {
                 StartAsync(item);
                 return;
             }
-            if (item.Handler == null) {
+            if (item.Action == null) {
                 return;
             }
-            Invoke(item, ctx => item.Handler(ctx), null);
+            Invoke(item, ctx => item.Action(ctx), null);
         }
 
         private void Invoke(MenuItem? item, Action<MenuContext> action, FormResult? form) {
@@ -346,7 +346,7 @@ namespace ConsoleMonster.Interactive {
             MenuContext context = Context(item);
             CancellationToken token = _asyncCancel.Token;
             BeginOutput(item.Label);
-            _asyncAction = Task.Run(() => item.AsyncHandler!(context, token), token);
+            _asyncAction = Task.Run(() => item.ActionAsync!(context, token), token);
         }
 
         private bool PollAsync() {
@@ -371,16 +371,16 @@ namespace ConsoleMonster.Interactive {
         }
 
         private void OnFormSubmitted(MenuItem item, FormResult result) {
-            if (item.FormSubmitted == null) {
+            if (item.OnSubmit == null) {
                 ShowToast(new Toast(item.Label));
                 return;
             }
-            Invoke(item, ctx => item.FormSubmitted(ctx, result), result);
+            Invoke(item, ctx => item.OnSubmit(ctx, result), result);
         }
 
-        private void SelectionChanged(MenuItem item) {
-            if (item.SelectionChanged != null) {
-                Invoke(item, item.SelectionChanged, null);
+        private void OnChange(MenuItem item) {
+            if (item.OnChange != null) {
+                Invoke(item, item.OnChange, null);
             }
             SaveSelections();
         }
@@ -463,11 +463,11 @@ namespace ConsoleMonster.Interactive {
                 commands.Add(new PaletteCommand(item.Label, _ => NavigateTo(target)) {
                     Category = path.Count == 0 ? Labels.GoTo : Labels.GoTo + separator + string.Join(separator, path.ToArray()),
                     Description = item.Description,
-                    Keys = item.HotkeyChar.HasValue ? item.HotkeyChar.Value.ToString() : null
+                    Keys = item.Hotkey.HasValue ? item.Hotkey.Value.ToString() : null
                 });
-                if (item.SubmenuDefinition != null) {
+                if (item.Submenu != null) {
                     path.Add(item.Label);
-                    AddNavigation(item.SubmenuDefinition, path, commands);
+                    AddNavigation(item.Submenu, path, commands);
                     path.RemoveAt(path.Count - 1);
                 }
             }
@@ -509,7 +509,7 @@ namespace ConsoleMonster.Interactive {
         private static bool FindPath(Menu menu, MenuItem target, List<MenuItem> path) {
             foreach (MenuItem item in menu.Items) {
                 path.Add(item);
-                if (ReferenceEquals(item, target) || (item.SubmenuDefinition != null && FindPath(item.SubmenuDefinition, target, path))) {
+                if (ReferenceEquals(item, target) || (item.Submenu != null && FindPath(item.Submenu, target, path))) {
                     return true;
                 }
                 path.RemoveAt(path.Count - 1);

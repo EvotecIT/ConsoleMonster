@@ -71,7 +71,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Presets the form comes with (New-ConsoleFormPreset), listed before the saved ones; presets emitted in the scriptblock are added too.</para></summary>
         [Parameter]
-        public FormPreset[]? Preset { get; set; }
+        public object[]? Preset { get; set; }
 
         /// <inheritdoc />
         protected override void EndProcessing() {
@@ -89,14 +89,14 @@ namespace ConsoleMonster.PowerShell {
                 fields.AddRange(Field);
             }
             if (Preset != null) {
-                presets.AddRange(Preset);
+                foreach (object preset in Preset) { presets.Add(PSPresets.Form(preset, this)); }
             }
             if (Content != null) {
                 foreach (PSObject output in Content.Invoke()) {
                     if (output?.BaseObject is Field field) {
                         fields.Add(field);
-                    } else if (output?.BaseObject is FormPreset preset) {
-                        presets.Add(preset);
+                    } else if (output != null && (output.BaseObject is FormPreset || PSPresets.IsRecord(output))) {
+                        presets.Add(PSPresets.Form(output, this));
                     }
                 }
             }

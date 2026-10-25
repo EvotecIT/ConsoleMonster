@@ -64,18 +64,18 @@ namespace ConsoleMonster.Tests.Building {
         // 2. Fluent: the generated With/Add methods, and a typed table.
         private static IWidget Fluent() {
             return new Rows()
-                .WithGap(1)
+                .Gap(1)
                 .Add(new Columns()
-                    .WithGap(1)
+                    .Gap(1)
                     .Add(new Panel(Table.For(Servers)
-                        .Column(s => s.Name, c => c.WithIsKey())
+                        .Column(s => s.Name, c => c.IsKey())
                         .Column(s => s.Role)
-                        .Column(s => s.Ram, c => c.WithPresenter(CellPresenters.Bytes))
+                        .Column(s => s.Ram, c => c.Presenter(CellPresenters.Bytes))
                         .Column(s => s.Status)
-                        .WithTotals(), "Servers"))
+                        .Totals(), "Servers"))
                     .Add(new Panel(new Rows()
                         .Add(new KeyValueList().AddValue("Servers", 3).AddValue("Failed", 1))
-                        .Add(new Sparkline().WithLabel("CPU").AddRange(Cpu)), "Summary")))
+                        .Add(new Sparkline().Label("CPU").AddRange(Cpu)), "Summary")))
                 .Add(new TextBlock("[muted]Updated 10:02[/]"));
         }
 
@@ -138,7 +138,7 @@ namespace ConsoleMonster.Tests.Building {
 
         [Fact]
         public void WithTotals_SumsNumericColumnsButNotKeysOrIdentifiersAndLeavesTheColumnsAlone() {
-            Table<Server> table = Table.For(Servers).Column(s => s.Name).Column("Id", s => 7).Column("Disks", s => 2).WithTotals("All");
+            Table<Server> table = Table.For(Servers).Column(s => s.Name).Column("Id", s => 7).Column("Disks", s => 2).Totals("All");
             string total = TotalLine(table);
             Assert.Contains("6", total);
             Assert.DoesNotContain("21", total);
@@ -150,7 +150,7 @@ namespace ConsoleMonster.Tests.Building {
         [Fact]
         public void WithTotals_StopsSummingWhenAColumnNoLongerHoldsOnlyNumbers() {
             List<Reading> readings = new List<Reading> { new Reading("a", 1), new Reading("b", 2) };
-            Table<Reading> table = Table.For(readings).Column(r => r.Name).Column(r => r.Value).WithTotals("All");
+            Table<Reading> table = Table.For(readings).Column(r => r.Name).Column(r => r.Value).Totals("All");
             Assert.Contains("3", TotalLine(table));
             readings.Add(new Reading("c", "n/a"));
             Assert.Equal(string.Empty, TotalLine(table.Refresh()));

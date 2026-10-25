@@ -31,13 +31,13 @@ namespace ConsoleMonster.Live {
             } else if (target is Lanes) {
                 if (u.Has(nameof(u.Label))) { Add("add", u.Key, u.Label); }
                 if (u.Has(nameof(u.Total))) { Add("total", u.Key, total: u.Total); }
-                if (u.Has(nameof(u.Status))) { Add("state", u.Key, u.Detail, u.Status.ToString()); }
+                if (u.Has(nameof(u.Status)) && !u.Complete) { Add("state", u.Key, u.Detail, u.Status.ToString()); }
                 else if (u.Has(nameof(u.Result))) {
                     double steps = u.Has(nameof(u.Increment)) ? u.Increment : 1;
                     if (steps != 0) { Add("advance", u.Key, u.Detail, u.Result.ToString(), steps); }
                     else if (u.Has(nameof(u.Detail))) { Add("detail", u.Key, u.Detail); }
                 } else if (u.Has(nameof(u.Detail))) { Add("detail", u.Key, u.Detail); }
-                if (u.Complete) { Add("complete", u.Key); }
+                if (u.Complete) { Add("complete", u.Key, u.Detail, u.Has(nameof(u.Status)) ? u.Status.ToString() : null); }
             } else if (target is LiveTable) {
                 if (u.ClearRows) { Add("clear"); }
                 else if (u.RemoveRow) { Add("remove", u.Key); }
@@ -70,11 +70,11 @@ namespace ConsoleMonster.Live {
                 }
                 if (u.Counter != null) {
                     foreach (KeyValuePair<string, int> counter in u.Counter) {
-                        Add("counter", counter.Key, status: StatusKinds.TryParse(counter.Key, out StatusKind status) ? status.ToString() : null, value: counter.Value);
+                        Add("counter", counter.Key, status: u.Has(nameof(u.Status)) ? u.Status.ToString() : StatusKinds.TryParse(counter.Key, out StatusKind status) ? status.ToString() : null, value: counter.Value);
                     }
                 }
             } else if (target is KeyValueList) {
-                if (u.Has(nameof(u.Value))) { Add("set", u.Key, Markup.Escape(Convert.ToString(u.Value, CultureInfo.InvariantCulture))); }
+                if (u.Has(nameof(u.Value))) { Add("set", u.Key, u.Value is RichText rich ? rich.ToMarkup() : Markup.Escape(Convert.ToString(u.Value, CultureInfo.InvariantCulture)), u.Has(nameof(u.Status)) ? u.Status.ToString() : null); }
             } else if (target is BarChart || target is StackedBar) {
                 if (u.Has(nameof(u.Value))) { Add("set", u.Key, value: Numeric(u.Value)); }
                 else if (u.Has(nameof(u.Increment)) && u.Increment != 0) { Add("add", u.Key, value: u.Increment); }

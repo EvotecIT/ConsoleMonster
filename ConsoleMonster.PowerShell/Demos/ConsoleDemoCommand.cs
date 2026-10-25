@@ -54,8 +54,8 @@ namespace ConsoleMonster.PowerShell {
                 Task<string>? run = null;
                 try {
                     if (presenter) { try { title = Host.UI.RawUI.WindowTitle; } catch (NotImplementedException) { } }
-                    run = Task.Run(() => presenter ? ConsoleDemo.Present(script, options, () => keys.Take(linked.Token),
-                        (current, total) => { Volatile.Write(ref count, total); Volatile.Write(ref step, current); }, linked.Token) : ConsoleDemo.Record(script, options, linked.Token));
+                    run = Task.Run(() => presenter ? ConsolePresentation.Present(script, options, () => keys.Take(linked.Token),
+                        (current, total) => { Volatile.Write(ref count, total); Volatile.Write(ref step, current); }, linked.Token) : ConsolePresentation.Record(script, options, linked.Token));
                     int last = 0;
                     bool quit = false;
                     while (!run.IsCompleted) {

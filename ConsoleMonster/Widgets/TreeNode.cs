@@ -28,8 +28,8 @@ namespace ConsoleMonster.Widgets {
         /// <summary>An optional status marker shown before the label.</summary>
         public StatusKind? Status { get; set; }
 
-        /// <summary>A muted note shown after the label (counts, values), or <c>null</c>.</summary>
-        public string? Note {
+        /// <summary>A muted detail shown after the label (counts, values), or <c>null</c>.</summary>
+        public string? Detail {
             get => LocalizedNote?.Invoke(Localization.WidgetLabels.Current) ?? _note;
             set {
                 _note = value;
@@ -57,10 +57,10 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Adds a child and returns it.</summary>
         /// <param name="label">The label (markup).</param>
         /// <param name="status">An optional status.</param>
-        /// <param name="note">An optional muted note.</param>
+        /// <param name="detail">An optional muted detail.</param>
         /// <returns>The new child.</returns>
-        public TreeNode Add(string label, StatusKind? status = null, string? note = null) {
-            TreeNode node = new TreeNode(label, status) { Note = note };
+        public TreeNode Add(string label, StatusKind? status = null, string? detail = null) {
+            TreeNode node = new TreeNode(label, status) { Detail = detail };
             _children.Add(node);
             return node;
         }
@@ -68,10 +68,10 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Adds a child with a multicolour label.</summary>
         /// <param name="label">The label.</param>
         /// <param name="status">An optional status.</param>
-        /// <param name="note">An optional muted note.</param>
+        /// <param name="detail">An optional muted detail.</param>
         /// <returns>The new child.</returns>
-        public TreeNode Add(Text.RichText label, StatusKind? status = null, string? note = null) {
-            return Add((label ?? throw new ArgumentNullException(nameof(label))).ToMarkup(), status, note);
+        public TreeNode Add(Text.RichText label, StatusKind? status = null, string? detail = null) {
+            return Add((label ?? throw new ArgumentNullException(nameof(label))).ToMarkup(), status, detail);
         }
 
         /// <summary>Adds an existing node as a child.</summary>

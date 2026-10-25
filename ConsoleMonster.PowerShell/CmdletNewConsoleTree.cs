@@ -99,7 +99,7 @@ namespace ConsoleMonster.PowerShell {
         protected override void ProcessRecord() {
             if (ParameterSetName == ObjectsSet) {
                 if (InputObject != null) {
-                    Collect(_objects, InputObject);
+                    PSTree.Collect(_objects, InputObject);
                 }
                 return;
             }
@@ -113,118 +113,11 @@ namespace ConsoleMonster.PowerShell {
             if (ParameterSetName != ObjectsSet) {
                 return;
             }
-            if (ChildrenProperty != null && Children != null) {
-                ThrowTerminatingError(new ErrorRecord(new PSArgumentException("Give the children with -ChildrenProperty or -Children, not both."), "ConsoleMonsterTreeChildren", ErrorCategory.InvalidArgument, null));
-            }
-            Tree tree = new Tree(PSText.Markup(Title));
-            if (_objects.Count == 1 && PSText.Unwrap(_objects[0]) is IDictionary dictionary && ChildrenProperty == null && Children == null && LabelProperty == null && StatusProperty == null && DetailProperty == null) {
-                Fill(tree.Root, dictionary);
-                Emit(tree);
-                return;
-            }
-            Values.ShapeOptions shape = Binding.PSShaping.Options();
-            TreeHierarchy.Add(tree.Root, _objects, Node, ChildrenOf, new TreeHierarchyOptions {
-                Depth = System.Math.Max(0, Depth),
-                MaxItems = MaxItems,
-                MaxNodes = MaxNodes,
-                Identity = Identity
+            Tree tree = PSTree.Build(_objects, new PSTreeOptions {
+                Title = Title, ChildrenProperty = ChildrenProperty, Children = Children, LabelProperty = LabelProperty,
+                StatusProperty = StatusProperty, DetailProperty = DetailProperty, Depth = Depth, MaxItems = MaxItems, MaxNodes = MaxNodes
             });
             Emit(tree);
-
-            TreeNode Node(object item) {
-                // Nodes made by New-ConsoleTreeNode (and strings) piped in go in as they are.
-                switch (PSText.Unwrap(item)) {
-                    case TreeNode made:
-                        return made;
-                    case Text.RichText richLabel:
-                        return new TreeNode(richLabel.ToMarkup());
-                }
-                PSObject ps = PSObject.AsPSObject(item);
-                object? label = LabelProperty != null ? Read(ps, LabelProperty) : null;
-                string text = label != null ? PSWidgets.ToText(label) : Binding.PSShaping.Title(ps, shape);
-                Text.RichText? rich = PSText.Rich(label);
-                StatusKind? status = null;
-                if (StatusProperty != null) {
-                    object? state = Read(ps, StatusProperty);
-                    if (state is StatusKind kind) {
-                        status = kind;
-                    } else if (state != null && StatusKinds.TryParse(PSWidgets.ToText(state), out StatusKind parsed)) {
-                        status = parsed;
-                    }
-                }
-                object? detail = DetailProperty != null ? Read(ps, DetailProperty) : null;
-                return new TreeNode(rich != null ? rich.ToMarkup() : Markup.Escape(text), status) { Note = detail == null ? null : PSWidgets.ToText(detail) };
-            }
-
-            IEnumerable<object>? ChildrenOf(object item) {
-                if (PSText.Unwrap(item) is TreeNode || PSText.Unwrap(item) is Text.RichText) {
-                    return null;
-                }
-                object? children;
-                if (Children != null) {
-                    List<PSVariable> variables = new List<PSVariable> { new PSVariable("_", item), new PSVariable("PSItem", item) };
-                    children = Children.InvokeWithContext(null, variables);
-                } else if (ChildrenProperty != null) {
-                    children = Read(PSObject.AsPSObject(item), ChildrenProperty, raw: true);
-                } else {
-                    return null;
-                }
-                List<object> list = new List<object>();
-                Collect(list, children);
-                return list.Count == 0 ? null : list;
-            }
-        }
-
-
-        // Children keep their PowerShell wrapper: the properties of a [pscustomobject] live on it, not on its base object.
-        private static void Collect(List<object> list, object? value, List<object>? path = null) {
-            if (value == null) {
-                return;
-            }
-            object? raw = PSText.Unwrap(value);
-            if (raw == null) {
-                return;
-            }
-            if (raw is string || raw is IDictionary || !(raw is IEnumerable enumerable)) {
-                list.Add(PSObject.AsPSObject(value));
-                return;
-            }
-            PSCollectionPath.Enter(ref path, raw);
-            try {
-                foreach (object? element in enumerable) { Collect(list, element, path); }
-            } finally { path!.RemoveAt(path.Count - 1); }
-        }
-
-        // The identity for cycle detection: the wrapped object, except for [pscustomobject], whose base object is shared.
-        private static object Identity(object item) {
-            object? raw = PSText.Unwrap(item);
-            return raw == null || raw is PSCustomObject ? item : raw;
-        }
-
-        // A property (or dictionary key) of an item. With raw, the value keeps its PowerShell wrapper: a single
-        // [pscustomobject] child has its properties on the wrapper, not on its base object.
-        private static object? Read(PSObject item, string name, bool raw = false) {
-            object? value = null;
-            object? baseObject = PSText.Unwrap(item);
-            if (baseObject is IDictionary dictionary) {
-                foreach (DictionaryEntry entry in dictionary) {
-                    if (string.Equals(PSWidgets.ToText(entry.Key), name, System.StringComparison.OrdinalIgnoreCase)) {
-                        value = entry.Value;
-                        break;
-                    }
-                }
-            } else {
-                PSPropertyInfo? property = item.Properties[name];
-                if (property == null) {
-                    return null;
-                }
-                try {
-                    value = property.Value;
-                } catch (GetValueException) {
-                    return null;
-                }
-            }
-            return raw ? value : PSText.Unwrap(value);
         }
 
         /// <summary>Emits the tree (Show-ConsoleTree overrides this to write it).</summary>
