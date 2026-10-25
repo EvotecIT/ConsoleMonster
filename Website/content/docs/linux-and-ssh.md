@@ -22,6 +22,8 @@ The module runs on PowerShell 7 on Linux and macOS, and the .NET library on ever
 
 The script prints host facts, health checks and disk use once and exits, so login stays fast. Every collector is cheap and falls back quietly, so a missing tool never blocks a login, and `-Sample` uses invented data so the layout can be tried anywhere.
 
+> Want the same facts on the desktop too? [PowerBGInfo](https://powerbginfo.com/) draws them onto the wallpaper and lock screen of Windows machines, with macOS and Linux in preview.
+
 ## Why the login guards look like that
 
 Step 4 above runs the overview only for interactive SSH sessions with a terminal. `ssh host command` also loads the pwsh profile, so the pwsh guard checks for a terminal (`SSH_TTY`) and output that is not redirected, not only `SSH_CONNECTION`, and `CM_OVERVIEW_SHOWN` keeps nested shells from printing it twice. Bash reads `~/.bash_profile` instead of `~/.profile` when the first exists, so add the bash block there in that case.
