@@ -131,14 +131,18 @@ namespace ConsoleMonster.Widgets {
 
         // Month numbers in this widget are Gregorian even when the culture's default calendar is not.
         private static string GregorianMonthName(CultureInfo culture, int month) {
+            GregorianCalendar? selected = null;
             foreach (System.Globalization.Calendar calendar in culture.OptionalCalendars) {
-                if (calendar is GregorianCalendar) {
-                    DateTimeFormatInfo format = (DateTimeFormatInfo)culture.DateTimeFormat.Clone();
-                    format.Calendar = calendar;
-                    return format.GetMonthName(month);
+                if (calendar is GregorianCalendar gregorian) {
+                    if (selected == null) { selected = gregorian; }
+                    // Classic .NET can list US English before the culture's localized Gregorian variant.
+                    if (gregorian.CalendarType == GregorianCalendarTypes.Localized) { selected = gregorian; break; }
                 }
             }
-            return CultureInfo.InvariantCulture.DateTimeFormat.GetMonthName(month);
+            if (selected == null) { return CultureInfo.InvariantCulture.DateTimeFormat.GetMonthName(month); }
+            DateTimeFormatInfo format = (DateTimeFormatInfo)culture.DateTimeFormat.Clone();
+            format.Calendar = selected;
+            return format.GetMonthName(month);
         }
     }
 }
