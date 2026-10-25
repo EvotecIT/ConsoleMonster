@@ -553,7 +553,7 @@ at 120×30. The separate SSH capture includes two resizes; it ran from in-memory
 assemblies without installing files or changing the remote host.
 
 Local builds cover net472, net8.0 and net10.0. The net8.0/net10.0 core suites each
-pass 2,763 tests with eight skips. The en-US Pester run exposed two regressions
+pass 2,909 tests with eight skips after rebasing the recorder fix. The en-US Pester run exposed two regressions
 (format registration and callback ordering); both are fixed and the affected
 app/menu/grid/explorer/output suites pass on rerun. Windows PowerShell 5.1
 syntax remains supported; a Mac build cannot prove its native console behavior.
