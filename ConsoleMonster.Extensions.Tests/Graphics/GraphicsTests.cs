@@ -28,7 +28,7 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
                             string title = "Capture " + index.ToString("D2");
                             var dashboard = Ui.Dashboard(title, Ui.Text(string.Join("\n", Enumerable.Range(0, 34)
                                 .Select(row => "[accent]" + title + " row " + row.ToString("D2") + " " + new string('x', 90) + "[/]"))));
-                            dashboard.ShowClock = false;
+                            dashboard.ShowElapsed = false;
                             CellBuffer frame = ConsoleExporter.Render(dashboard, new ExportOptions { Width = 120, Height = 40 }, ConsoleMonster.Styling.Theme.Dark);
                             recorder.AddMarker(title);
                             terminal.Invalidate(); terminal.RenderFrame(frame);
