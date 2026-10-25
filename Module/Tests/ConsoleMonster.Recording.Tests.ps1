@@ -71,7 +71,7 @@
         $data = Export-ConsoleRecording -Path $cast -Format PlayerData | ConvertFrom-Json
         $data.width | Should -Be 40
         $data.markers[0][1] | Should -Be 'Native program'
-        [ConsoleMonster.Sessions.SessionRecording]::Read($cast).Markers[0].Hold.TotalSeconds | Should -Be 3
+        ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Sessions.SessionRecording'))::Read($cast).Markers[0].Hold.TotalSeconds | Should -Be 3
         Export-ConsoleRecording -Path $cast -Format Text | Should -Match 'Session complete'
         Export-ConsoleRecording -Path $cast -Format Markdown | Should -Match '```'
         Export-ConsoleRecording -Path $cast -Format Svg | Should -Match '@keyframes cm-play'

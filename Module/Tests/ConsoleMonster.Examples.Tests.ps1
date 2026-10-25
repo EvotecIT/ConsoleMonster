@@ -305,9 +305,9 @@ BeforeAll {
         'Website/examples/recording/record-command.ps1' = @{ TemporaryWorkingDirectory = $true }
         'Website/examples/recording/record-session.ps1' = @{
             RequiresCore = $true
-            # Recording plus GIF, chapter slides and optional MP4 needs a separate deadlock watchdog under parallel CI load.
+            # Use natural-size exports for this smoke; graphics contracts cover native slide dimensions.
             TimeoutSeconds = 300
-            Arguments = "-OutputDirectory '$($TestDrive.Replace("'", "''"))/recording-demo'"
+            Arguments = "-Preset Docs -OutputDirectory '$($TestDrive.Replace("'", "''"))/recording-demo'"
             Expect = @('Build succeeded. 24 tests passed.', 'Build report', 'API_TOKEN=')
         }
         'Website/examples/app/live-filter.ps1' = @{ Arguments = '-AppOptions @{ StaticSnapshot = $true }'; Expect = @('6 of 6 hosts', 'SQL01', 'SQL02') }

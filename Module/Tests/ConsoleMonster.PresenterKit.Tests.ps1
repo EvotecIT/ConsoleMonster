@@ -75,7 +75,7 @@ Write-Host ('answer=' + (6 * 7))
         $text = Export-ConsoleRecording $cast -Format Text
         $text | Should -Match 'answer=42'
         $text | Should -Match '任意>'
-        $markers = [ConsoleMonster.Sessions.SessionRecording]::Read($cast).Markers
+        $markers = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Sessions.SessionRecording'))::Read($cast).Markers
         @($markers | Where-Object { $_.Hold.TotalSeconds -eq 3 }).Count | Should -Be 1
         @($markers | Where-Object { $_.Pace -eq 'Slow' }).Count | Should -Be 1
         Get-Content $cast -Raw | Should -Not -Match 'do-not-record-setup'

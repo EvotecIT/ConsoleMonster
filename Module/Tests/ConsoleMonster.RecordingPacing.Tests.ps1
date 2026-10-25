@@ -55,13 +55,13 @@
             Add-ConsoleRecordingMarker -HoldSeconds 3
             Write-Host 'Continue'
         } -Destination $cast -InProcess -WarningAction SilentlyContinue | Out-Null
-        $recording = [ConsoleMonster.Sessions.SessionRecording]::Read($cast)
+        $recording = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Sessions.SessionRecording'))::Read($cast)
         $recording.Chapters.Count | Should -Be 0
         $recording.Markers.Count | Should -Be 1
         $recording.Markers[0].Hold.TotalSeconds | Should -Be 3
         $data = Export-ConsoleRecording $cast -Format PlayerData -Pace Source -IdleLimitSeconds 0.01 -HoldLastFrameSeconds 0 | ConvertFrom-Json
         $data.duration | Should -BeGreaterOrEqual 3000
-        $roundTrip = [ConsoleMonster.Sessions.SessionRecording]::Read([IO.StringReader]::new($recording.ToAsciicast()))
+        $roundTrip = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Sessions.SessionRecording'))::Read([IO.StringReader]::new($recording.ToAsciicast()))
         $roundTrip.Markers[0].Hold.TotalSeconds | Should -Be 3
     }
 }
