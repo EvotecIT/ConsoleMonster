@@ -8,12 +8,11 @@ action and watch its output without leaving the app. The first useful result is
 a coherent application layer over the rendering and interaction code I already
 have.
 
-This inventory uses master at `83b8fbe`. API names follow the decisions and
-source on `feature/api-consistency` at `5e4857c` in
-[#55](https://github.com/EvotecIT/ConsoleMonster/pull/55), including its
-[API proposal](https://github.com/EvotecIT/ConsoleMonster/blob/feature/api-consistency/Docs/api-consistency-proposal.md).
-Those names are the design baseline, even where this checkout still has the old
-spelling. The public action contract and phase 2 examples are implemented on
+I started this inventory at master `83b8fbe` and rebased the implementation onto
+merged [#55](https://github.com/EvotecIT/ConsoleMonster/pull/55), master `3846758`.
+API names follow its
+[API proposal](https://github.com/EvotecIT/ConsoleMonster/blob/3846758/Docs/api-consistency-proposal.md).
+The public action contract and phase 2 examples are implemented on
 `feature/fullscreen-apps`; later controls remain proposals.
 
 ## Decisions — 25 October 2026
@@ -439,7 +438,7 @@ value/scale contract; status colours alone do not imply a contribution count.
 
 ## API sketches
 
-These are the phase 2 APIs I am building. I keep one command definition for a
+These are the phase 2 APIs I use. I keep one command definition for a
 button, the palette and grid actions. The PowerShell service example targets
 Windows; the portable gallery twin uses fictional service snapshots.
 
@@ -552,8 +551,12 @@ published Mac capture uses scripted keys and SGR reports through the recorder,
 at 120×30. The separate SSH capture includes two resizes; it ran from in-memory
 assemblies without installing files or changing the remote host.
 
-Local builds cover net472, net8.0 and net10.0. The net8.0/net10.0 core suites each
-pass 2,898 tests with eight skips after rebasing #55 and the recorder fix. The en-US Pester run exposed two regressions
+Local builds cover net472, net8.0 and net10.0. Before the final narrow-screen
+adjustment, the net8.0/net10.0 core suites each passed 2,898 tests with eight
+skips after rebasing #55 and the recorder fix. The final 18 focused action
+contracts pass, including wrapped buttons. Broad reruns during severe shared-host
+contention hit unchanged recorder regex timeouts; I keep those failures separate
+from a clean full-matrix claim. The en-US Pester run exposed two regressions
 (format registration and callback ordering); both are fixed and the affected
 app/menu/grid/explorer/output suites pass on rerun. Windows PowerShell 5.1
 syntax remains supported; a Mac build cannot prove its native console behavior.
