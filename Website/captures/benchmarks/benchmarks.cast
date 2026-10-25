@@ -1,5 +1,5 @@
 {"version":2,"width":110,"height":20,"title":"ConsoleMonster.Benchmarks 600"}
-[0.063,"o","\u001B[?9001h\u001B[?1004h"]
-[3.065,"o","\u001B[?25l\u001B[2J\u001B[m\u001B[HConsoleMonster benchmark (.NET 8.0.32, 140x45, 32 lanes)\r\n\u001B]0;C:\\Support\\GitHub\\_worktrees\\ConsoleMonster-best\\ConsoleMonster.Benchmarks\\bin\\Release\\net8.0\\ConsoleMonster.Benchmarks.exe\u0007\u001B[?25h"]
-[3.079,"o","  event apply:        4,178,638 events/s on one thread\r\n  compose per frame:  2.617 ms\r\n  diff\u002BVT per frame:  0.447 ms\r\n  chars per frame:    2,915 (diffed, 5,000 updates between frames)\r\n  alloc per frame:    206,988 bytes\r\n  render CPU at 15 fps: 4.6% of one core (\u002B apply cost 1.9% at 80k updates/s)\r\n"]
-[3.518,"o","\u001B[?9001l\u001B[?1004l"]
+[0.007,"o","\u001B[?9001h\u001B[?1004h"]
+[1.605,"o","\u001B[?25l\u001B[2J\u001B[m\u001B[HConsoleMonster benchmark (.NET 8.0.32, 140x45, 32 lanes)\r\n\u001B]0;D:\\a\\ConsoleMonster\\ConsoleMonster\\ConsoleMonster.Benchmarks\\bin\\Release\\net8.0\\ConsoleMonster.Benchmarks.exe\u0007\u001B[?25h"]
+[1.616,"o","  event apply:        4,510,256 events/s on one thread\r\n  compose per frame:  1.123 ms\r\n  diff\u002BVT per frame:  0.227 ms\r\n  chars per frame:    2,915 (diffed, 5,000 updates between frames)\r\n  alloc per frame:    239,291 bytes\r\n  render CPU at 15 fps: 2.0% of one core (\u002B apply cost 1.8% at 80k updates/s)\r\n"]
+[2.034,"o","\u001B[?9001l\u001B[?1004l"]

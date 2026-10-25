@@ -22,12 +22,12 @@
 [0;38;2;75;80;96m╰─────────────────────────────────────────────────────────────────────────────────╯[0m [0;38;2;75;80;96m╰──────────────────────────────────────────────────────╯[0m
 [0;38;2;75;80;96m╭─[0m [0;1mOutput[0m [0;38;2;75;80;96m─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮[0m
 [0;38;2;75;80;96m│[0m Compile ConsoleMonster (net472)...                                                                                                       [0;38;2;75;80;96m│[0m
-[0;38;2;75;80;96m│[0m ConsoleMonster -> bin/Release/net472/ConsoleMonster.dll                                                                                  [0;38;2;75;80;96m│[0m
+[0;38;2;75;80;96m│[0m ConsoleMonster -> bin\Release\net472\ConsoleMonster.dll                                                                                  [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m│[0m Compile ConsoleMonster (net8.0)...                                                                                                       [0;38;2;75;80;96m│[0m
-[0;38;2;75;80;96m│[0m ConsoleMonster -> bin/Release/net8.0/ConsoleMonster.dll                                                                                  [0;38;2;75;80;96m│[0m
+[0;38;2;75;80;96m│[0m ConsoleMonster -> bin\Release\net8.0\ConsoleMonster.dll                                                                                  [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m│[0m Compile ConsoleMonster.PowerShell...                                                                                                     [0;38;2;75;80;96m│[0m
-[0;38;2;75;80;96m│[0m ConsoleMonster.PowerShell -> bin/Release/net472/ConsoleMonster.PowerShell.dll                                                            [0;38;2;75;80;96m│[0m
-[0;38;2;75;80;96m│[0m ConsoleMonster.PowerShell -> bin/Release/net8.0/ConsoleMonster.PowerShell.dll                                                            [0;38;2;75;80;96m│[0m
+[0;38;2;75;80;96m│[0m ConsoleMonster.PowerShell -> bin\Release\net472\ConsoleMonster.PowerShell.dll                                                            [0;38;2;75;80;96m│[0m
+[0;38;2;75;80;96m│[0m ConsoleMonster.PowerShell -> bin\Release\net8.0\ConsoleMonster.PowerShell.dll                                                            [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m│[0m Run xUnit tests (net472, net8.0)...                                                                                                      [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯[0m
 [0m [0;38;2;139;143;154mPrepare ·[11G Restore ·[21G Build ·[29G Test ·[36G Docs ·[43G Sign ·[50G Package ·[60G Publish    Ctrl+C stop[0m

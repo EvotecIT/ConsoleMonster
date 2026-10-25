@@ -1,11 +1,11 @@
-[?9001h[?1004h[?25l[2J[m[1m[HThis console[38;2;139;143;154m[22m
-Mode             [mInteractive[38;2;139;143;154m
+[?9001h[?1004h[?25l[2J[m[H]0;Administrator: C:\Program Files\PowerShell\7\pwsh.exe[?25h[?25l[1mThis console[38;2;139;143;154m[22m
+Mode[13X[m[13CInteractive[38;2;139;143;154m
 ColorDepth       [mTrueColor[38;2;139;143;154m
-Glyphs           [mFull[38;2;139;143;154m
-Width            [m100[38;2;139;143;154m
-Height           [m40[38;2;139;143;154m
+Glyphs[11X[m[11CFull[38;2;139;143;154m
+Width[12X[m[12C100[38;2;139;143;154m
+Height[11X[m[11C40[38;2;139;143;154m
 ThemePreference  [mDark[38;2;139;143;154m
-FontFace         [mConsolas[10;1H]0;C:\Program Files\PowerShell\7\pwsh.exe[?25h  hyperlinks: False (terminal/CONSOLEMONSTER_HYPERLINKS; requires interactive VT, never redirected or CI)
+FontFace[9X[m[9CConsolas[10;1H[?25h  hyperlinks: False (terminal/CONSOLEMONSTER_HYPERLINKS; requires interactive VT, never redirected or CI)
   mode: Interactive (VT terminal)
   colour: TrueColor (CONSOLEMONSTER_COLOR)
   glyphs: Full (CONSOLEMONSTER_GLYPHS)

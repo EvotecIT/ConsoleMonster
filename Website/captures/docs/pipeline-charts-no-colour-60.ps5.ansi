@@ -1,4 +1,4 @@
-[?9001h[?1004h[?25l[2J[m[HCPU time - highest first
+[?9001h[?1004h[?25l[2J[m[H]0;Administrator: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe[?25h[?25lCPU time - highest first
 jobs: 72 s
 web: 34 s
 api: 18 s[6;1HResponse-time distribution
@@ -10,4 +10,4 @@ api: 18 s[6;1HResponse-time distribution
 [82 ms, 96 ms]: 3[14;1HLatency over time (ms) - one line per host
 api-west: 12, 18, 16, 22, 19, 25, 24, 28
 api-east: 8, 9, 12, 10, 15, 14, 13, 18
-]0;C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe[?25h[?9001l[?1004l
+[?25h[?9001l[?1004l
