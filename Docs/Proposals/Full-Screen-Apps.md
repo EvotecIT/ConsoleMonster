@@ -1,6 +1,6 @@
 # Full-screen apps
 
-Status: approved on 25 October 2026 with the dated decisions below. Phase 2 preview implemented; native Windows interaction and visual review remain release gates.
+Status: approved on 25 October 2026 with the dated decisions below. Phase 2 preview is in review; visual corrections and native Windows interaction remain before release.
 
 I want ConsoleMonster to build full-screen administration tools: browse services,
 inspect objects, filter a large result set, choose a maintenance window, run an
@@ -41,8 +41,9 @@ I am proceeding with this design and four amendments:
 
 The calendar PR opens first. Phase 2 stays in one PR on
 `feature/fullscreen-apps`, with logical commits and one complete push. Neither
-PR merges as part of this work. API vocabulary follows #55; whichever change
-lands second rebases and revalidates the affected paths.
+PR merges as part of this work. API vocabulary follows merged round 1 in #55.
+Round 2 lands after the open feature PRs and rebases onto them; I keep its
+proposed consolidation and names out of this implementation.
 
 ### Public action contract
 
@@ -560,17 +561,21 @@ assemblies without installing files or changing the remote host.
 Local builds cover net472, net8.0 and net10.0. On the merged round 1 baseline,
 the net8.0/net10.0 core suites each pass 2,899 tests with eight platform skips,
 including the final narrow-screen arrangement and modal keyboard burst checks.
-The en-US Pester run exposed two regressions
-(format registration and callback ordering); both are fixed and the affected
-app/menu/grid/explorer/output suites pass on rerun. Windows PowerShell 5.1
-syntax remains supported; a Mac build cannot prove its native console behavior.
+The full en-US Pester suite passes 1,417 tests with 19 platform skips, including
+the existing app, menu, grid, explorer and output paths and round 1 vocabulary
+contracts. All 110 gallery twin states match. The 21-step website build passes
+with 173 renderer tests, two native Windows skips and no generated-asset drift.
+Windows PowerShell 5.1 syntax remains supported; a Mac build cannot prove its
+native console behavior.
 
 Before release I still need native conhost and Windows Terminal click, wheel,
 drag, window-origin handling and input-mode restoration, including Quick Edit.
 Physical Windows mouse recording also needs the relay work described above.
 tmux mouse routing and older conhost degradation remain unobserved. Visual
-review of the calendar captures, service browser and paced preview is required
-before either PR merges.
+re-review requests staged log arrival, clearer confirmation/ending pacing with
+refreshed details, and an 80-column scroll cue in the service preview. The
+calendar captures also remain in review. I need those corrections and visual
+acceptance before either PR merges.
 
 ## Phases and size
 
