@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using ConsoleMonster.Input;
 using ConsoleMonster.Interop;
 using Xunit;
@@ -37,6 +38,15 @@ namespace ConsoleMonster.Tests.Input {
                 AssertMouse(events[i + 3], i + 1, false);
             }
             Assert.All(events, e => Assert.Equal(KeyModifiers.Shift | KeyModifiers.Alt | KeyModifiers.Control, e.Modifiers));
+        }
+
+        [Fact]
+        public void Translate_ButtonChordsKeepTheFullHeldMaskOnEveryTransition() {
+            char high = '\0'; uint buttons = 0;
+            List<InputEvent> events = new List<InputEvent>();
+            Translate(new[] { Mouse(1), Mouse(3), Mouse(1), Mouse(0) }, events, ref high, ref buttons);
+            Assert.Equal(new[] { 1, 5, 1, 0 }, events.Select(input => input.HeldButtons));
+            Assert.Equal(new[] { 1, 3, 3, 1 }, events.Select(input => input.MouseButton));
         }
 
         [Fact]

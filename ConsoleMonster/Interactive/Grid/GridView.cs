@@ -69,6 +69,7 @@ namespace ConsoleMonster.Interactive {
         public override bool Poll(TimeSpan now) => base.Poll(now) | (_actions?.Poll() ?? false);
 
         private IReadOnlyList<object?> ActionRows() {
+            Refresh();
             if (_marked.Count > 0) {
                 List<object?> rows = new List<object?>();
                 foreach (int index in Sorted(AllRows())) { if (_marked.Contains(index)) { rows.Add(_grid.Rows[index].Item); } }

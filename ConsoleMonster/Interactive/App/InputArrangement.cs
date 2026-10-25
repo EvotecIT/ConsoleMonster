@@ -18,6 +18,7 @@ namespace ConsoleMonster.Interactive {
             return parent == null ? null : new Scope(parent.Owner, parent.X + x, parent.Y + y,
                 Move(viewport, parent.X, parent.Y).Intersect(parent.Clip));
         }
+        internal static InputControl? CurrentFocus => _current?.Owner.Focused;
         internal static Rect? FocusWithin(IWidget content) {
             Scope? scope = _current;
             if (scope == null || scope.Owner.Focused == null) { return null; }

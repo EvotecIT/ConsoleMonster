@@ -23,6 +23,22 @@ namespace ConsoleMonster.Tests.Interactive.App {
         }
 
         [Fact]
+        public void WheelScroll_PreservesManualPositionUntilKeyboardNavigationRevealsFocus() {
+            TextInput first = new TextInput("first");
+            ScrollView view = new ScrollView(new Rows().Add(first, LayoutSize.Fixed(3)).Add(new TextBlock("lower content"), LayoutSize.Fixed(12)));
+            using AppController app = new AppController(view, new AppState(), Context, 60);
+            app.PrepareFrame(40, 7);
+            app.Handle(InputEvent.Pointer(5, 4, MouseAction.Wheel, wheelDelta: -1), true);
+            app.PrepareFrame(40, 7);
+            Assert.Equal(3, view.ScrollOffset);
+            Assert.True(first.Focused);
+            app.Handle(InputEvent.Character('x'), true);
+            app.PrepareFrame(40, 7);
+            Assert.Equal(0, view.ScrollOffset);
+            Assert.Equal("x", first.Value);
+        }
+
+        [Fact]
         public void NestedViewport_RevealsFocusedControlAndMapsPointerToItsBuffer() {
             TextInput first = new TextInput("first");
             TextInput last = new TextInput("last");

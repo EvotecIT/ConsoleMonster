@@ -116,6 +116,54 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Assert.False(dispatcher.TryPost(() => calls.Add(4)));
         }
 
+        [Theory]
+        [InlineData("Two", "two")]
+        [InlineData("missing", null)]
+        public void GridAction_CapturesTheLatestFilterBeforeAnotherPaint(string filter, string? expected) {
+            Grid grid = new Grid("Services"); grid.AddColumn("Name"); grid.AddRow("one", "One"); grid.AddRow("two", "Two");
+            IReadOnlyList<object?>? captured = null;
+            AppCommand command = new AppCommand("run", "Run", (_, __) => Task.CompletedTask) { Shortcut = new KeyChord(ConsoleKey.F5), ConfirmPrompt = "Run selected?" };
+            command.CaptureRows = rows => { captured = rows.ToArray(); return captured; };
+            GridOptions options = new GridOptions(); options.Commands.Add(command);
+            using GridView view = new GridView(grid, options, new PromptLabels());
+            FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, 100, 30, false, TimeSpan.Zero)), 100, 30, Context);
+            foreach (char key in filter) { view.Handle(InputEvent.Character(key)); }
+            view.Handle(InputEvent.Press(ConsoleKey.F5));
+            Assert.NotNull(captured);
+            if (expected == null) { Assert.Empty(captured); }
+            else { Assert.Equal(expected, Assert.Single(captured)); }
+        }
+
+        [Fact]
+        public void BodyClick_ReturnsKeyboardFocusFromTheActionBar() {
+            AppCommand command = new AppCommand("run", "Run", (_, __) => Task.CompletedTask);
+            using AppCommandHost host = new AppCommandHost(new[] { command }, () => Array.Empty<object?>(), new PromptLabels(), default, commandBar: true);
+            FrameComposer.Compose(host.Wrap(new TextBlock("body")), 100, 29, Context);
+            host.Handle(InputEvent.Mouse(5, 20, 1, true));
+            host.Handle(InputEvent.Mouse(5, 20, 1, false));
+            Assert.True(host.HasBarFocus);
+            Assert.False(host.Handle(InputEvent.Mouse(5, 5, 1, true)));
+            Assert.False(host.HasBarFocus);
+            Assert.False(host.Handle(InputEvent.Press(ConsoleKey.Enter)));
+        }
+
+        [Fact]
+        public void GridResize_CancelsAPressedActionThroughTheProductionLoop() {
+            int calls = 0;
+            Grid grid = new Grid("Services"); grid.AddColumn("Name"); grid.AddRow("one", "One");
+            GridOptions options = new GridOptions();
+            options.Commands.Add(new AppCommand("run", "Run", (_, __) => { Interlocked.Increment(ref calls); return Task.CompletedTask; }));
+            RecordingSurface surface = new RecordingSurface(100, 30, false);
+            options.Interactive = PromptHarness.Options("", surface);
+            options.Interactive.Profile = TerminalProfile.Fixed(100, 30);
+            options.Interactive.Input = new ScriptedInput(new[] {
+                InputEvent.Mouse(5, 20, 1, true), InputEvent.Resized(100, 30), InputEvent.Mouse(5, 20, 1, false),
+                InputEvent.Press(ConsoleKey.Escape), InputEvent.Press(ConsoleKey.Escape)
+            }) { Paced = true };
+            PromptHarness.Guard(surface, () => grid.Show(options));
+            Assert.Equal(0, Volatile.Read(ref calls));
+        }
+
         [Fact]
         public void GridAction_UsesMarkedRowsAndReturnsToGridAfterCompletion() {
             Grid grid = new Grid("Services"); grid.AddColumn("Name"); grid.AddRow("one", "One"); grid.AddRow("two", "Two");

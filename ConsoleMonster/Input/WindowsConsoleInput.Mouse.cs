@@ -41,7 +41,9 @@ namespace ConsoleMonster.Input {
         private static void AddMouseTransition(uint mask, int button, ConsoleInputRecord record, uint changed, uint buttons,
             KeyModifiers modifiers, List<InputEvent> output) {
             if ((changed & mask) != 0) {
-                output.Add(InputEvent.Mouse(record.MouseX, record.MouseY, button, (buttons & mask) != 0, modifiers));
+                int held = ((buttons & 1) != 0 ? 1 : 0) | ((buttons & 4) != 0 ? 2 : 0) | ((buttons & 2) != 0 ? 4 : 0);
+                output.Add(InputEvent.Pointer(record.MouseX, record.MouseY, (buttons & mask) != 0 ? MouseAction.Down : MouseAction.Up,
+                    button, heldButtons: held, modifiers: modifiers));
             }
         }
     }

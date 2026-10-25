@@ -11,6 +11,9 @@ namespace ConsoleMonster.Interactive {
         private readonly FocusManager _focus;
         private int _scroll;
         private Rect _bounds;
+        private InputControl? _lastFocus;
+        private bool _revealRequested = true;
+        private Size _lastSize;
         private readonly InputArrangement _arrangement = new InputArrangement();
 
         internal AppViewport(IWidget content, FocusManager focus) { _content = content; _focus = focus; }
@@ -35,7 +38,9 @@ namespace ConsoleMonster.Interactive {
                 using (_arrangement.Begin(region.Bounds.X, region.Bounds.Y - _scroll, region.Bounds)) { _content.Render(new Region(canvas), context); }
                 int before = _scroll;
                 Rect? focused = _arrangement.FocusBounds;
-                if (focused.HasValue) {
+                bool reveal = _revealRequested || _focus.Current != _lastFocus || _lastSize.Width != region.Width || _lastSize.Height != region.Height;
+                _lastFocus = _focus.Current; _lastSize = new Size(region.Width, region.Height); _revealRequested = false;
+                if (reveal && focused.HasValue) {
                     if (focused.Value.Y < region.Bounds.Y) { _scroll += focused.Value.Y - region.Bounds.Y; }
                     else if (focused.Value.Bottom > region.Bounds.Bottom) { _scroll += focused.Value.Bottom - region.Bounds.Bottom; }
                 }
@@ -66,6 +71,13 @@ namespace ConsoleMonster.Interactive {
             }
         }
 
+        internal void RevealFocus() {
+            lock (_gate) { _revealRequested = true; RevealNested(_content); }
+        }
+        private static void RevealNested(IWidget widget) {
+            if (widget is Widgets.ScrollView scroll) { scroll.RevealFocus(); }
+            if (widget is IContainer container) { foreach (IWidget child in container.Children) { RevealNested(child); } }
+        }
         internal void Reset() { lock (_gate) { ConstrainInputs(Constraints.Unbounded); } }
 
         private static void ConstrainScrollViews(IWidget content, int height) {

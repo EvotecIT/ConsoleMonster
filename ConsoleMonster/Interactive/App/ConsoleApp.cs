@@ -69,9 +69,11 @@ namespace ConsoleMonster.Interactive {
                 using (MouseReporting? mouse = MouseReporting.Open(settings.Mouse, interactive, profile, lease!.Source, live.Output != null))
                 using (LiveSession session = new LiveSession(app.Root, live)) {
                     session.Start();
+                    bool eventsProcessed = false;
                     try {
                         AppEventLoop.Run(lease.Source, () => values.ExitRequested || !session.IsRunning, () => {
-                            settings.ProcessEvents?.Invoke(values);
+                            if (!eventsProcessed) { settings.ProcessEvents?.Invoke(values); }
+                            eventsProcessed = false;
                             app.Refresh(session);
                         }, input => {
 
@@ -79,9 +81,13 @@ namespace ConsoleMonster.Interactive {
                                     Interlocked.Exchange(ref captureWindow, new[] { 0, 0, input.Width, input.Height });
                                 }
                                 app.Handle(input, settings.Mouse);
+                                // Drain pipeline-owned callbacks before another event can capture an action's selection.
+                                settings.ProcessEvents?.Invoke(values);
+                                app.Refresh(session);
+                                eventsProcessed = true;
                         }, cancellationToken, endOnInputClosed: true);
                         if (session.Failure == null) {
-                            settings.ProcessEvents?.Invoke(values);
+                            if (!eventsProcessed) { settings.ProcessEvents?.Invoke(values); }
                             app.Refresh(session);
                         }
                     } finally {

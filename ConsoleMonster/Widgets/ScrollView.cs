@@ -10,6 +10,9 @@ namespace ConsoleMonster.Widgets {
         private readonly object _gate = new object();
         private int _offset;
         private int _maximum;
+        private InputControl? _lastFocus;
+        private bool _revealRequested = true;
+        private Size _lastSize;
         internal int ViewportHeight { get; set; } = Constraints.Unbounded;
         /// <summary>Creates a viewport over one stable content tree.</summary>
         /// <param name="content">The content to clip and scroll.</param>
@@ -25,6 +28,7 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Moves the viewport by a number of rows.</summary>
         /// <param name="rows">Positive values move down.</param>
         public void ScrollBy(int rows) { lock (_gate) { _offset = (int)Math.Max(0, Math.Min(_maximum, (long)_offset + rows)); } }
+        internal void RevealFocus() { lock (_gate) { _revealRequested = true; } }
         /// <inheritdoc />
         public Size Measure(Constraints constraints, RenderContext context) {
             Validate();
@@ -44,7 +48,10 @@ namespace ConsoleMonster.Widgets {
                 using (InputArrangement.Translate(region.Bounds.X, region.Bounds.Y - _offset, region.Bounds)) {
                     Content.Render(new Region(content), context);
                     Rect? focus = InputArrangement.FocusWithin(Content);
-                    if (focus.HasValue) {
+                    InputControl? current = InputArrangement.CurrentFocus;
+                    bool reveal = _revealRequested || current != _lastFocus || _lastSize.Width != region.Width || _lastSize.Height != region.Height;
+                    _lastFocus = current; _lastSize = new Size(region.Width, region.Height); _revealRequested = false;
+                    if (reveal && focus.HasValue) {
                         if (focus.Value.Y < _offset) { _offset = focus.Value.Y; }
                         else if (focus.Value.Bottom > _offset + region.Height) { _offset = focus.Value.Bottom - region.Height; }
                         _offset = Math.Max(0, Math.Min(_maximum, _offset));

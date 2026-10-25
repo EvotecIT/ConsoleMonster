@@ -109,6 +109,8 @@ namespace ConsoleMonster.Interactive {
                     if (input.Kind == InputEventKind.Mouse) {
                         if (input.MouseAction == MouseAction.Down && input.MouseButton == 1 && _barFocus.FocusAt(input.Column, input.Row)) {
                             _barActive = true; _barCapture = _barFocus.Current as Button;
+                        } else if (input.MouseAction == MouseAction.Down) {
+                            _barActive = false; _barCapture?.CancelPointer(); _barCapture = null; SetBarFocus();
                         }
                         if (_barCapture != null) {
                             _barCapture.HandleInput(input, _frame.Context);

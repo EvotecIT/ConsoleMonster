@@ -32,7 +32,7 @@ namespace ConsoleMonster.Interactive {
                 }
             }, e => {
                 if (e.Kind == InputEventKind.Resize) { surface.Refresh(); }
-                else { view.Handle(e); }
+                view.Handle(e);
                 dirty = true;
             }, cancellationToken, () => view.IsAnimating || view.CurrentToast != null ? AnimatedWait : IdleWait);
         }
