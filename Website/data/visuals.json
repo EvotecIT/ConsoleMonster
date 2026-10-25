@@ -303,11 +303,19 @@
     "threads-live": {
       "src": "/site/cards/threads-live.svg"
     },
+    "migration-report-100": {
+      "dark": "/site/cards/migration-report-100-dark.svg",
+      "light": "/site/cards/migration-report-100-light.svg"
+    },
     "format-consoletable": {
       "src": "/site/cards/format-consoletable.svg"
     },
     "threads-ci": {
       "src": "/site/cards/threads-ci.svg"
+    },
+    "migration-form": {
+      "dark": "/site/cards/migration-form-dark.svg",
+      "light": "/site/cards/migration-form-light.svg"
     }
   }
 }

@@ -748,6 +748,11 @@
   },
   "guidesIndex": [
     {
+      "title": "Coming from another tool",
+      "url": "/guides/coming-from/",
+      "body": "Choose Spectre.Console, PwshSpectreConsole, Microsoft grid tools, Show-Command or System.CommandLine.Rendering."
+    },
+    {
       "title": "Everyday PowerShell output",
       "url": "/guides/everyday-powershell/",
       "body": "Enable-ConsoleFormatting before and after: files, processes, dictionaries, arrays in cells and groups."
@@ -760,7 +765,7 @@
     {
       "title": "Coming from Spectre.Console",
       "url": "/guides/spectre-console/",
-      "body": "Spectre.Console concepts and their ConsoleMonster counterparts, and the markup dialect they share."
+      "body": "C# widgets, markup, prompts, charts and live output, with side-by-side examples and known gaps."
     },
     {
       "title": "Coming from Format-Table",
