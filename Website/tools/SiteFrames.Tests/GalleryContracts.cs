@@ -74,6 +74,27 @@ namespace SiteFrames.Tests {
             if (slug == "setup") Assert.DoesNotContain("Toolbox Agent installed", target.Text);
         }
 
+        [Theory]
+        [InlineData(120, 0, "portal.example.test", "TRUSTED")]
+        [InlineData(120, 1, "legacy.example.test", "UNTRUSTED")]
+        [InlineData(48, 0, "portal.example.test", "TRUSTED")]
+        [InlineData(48, 1, "legacy.example.test", "UNTRUSTED")]
+        public void TlsScenariosRetainTheirVerdictAndEvidence(int width, int step, string host, string verdict) {
+            GalleryPage.Demo demo = GalleryPage.Read(Repository()).Single(d => d.Slug == "tls-verdict");
+            var profile = CSharpRunner.Profile(width, 140, ColorDepth.TrueColor, GlyphTier.Full);
+            var target = CSharpRunner.Execute(demo.CSharp, profile, Theme.Dark, null,
+                new[] { step == 0 ? "Healthy" : "ExpiredIntermediate" });
+            string text = target.Text;
+            Assert.Contains(host, text);
+            Assert.Contains(verdict, text);
+            Assert.Contains("184 ms", text);
+            Assert.Contains("[05/05]", text);
+            if (step == 1) {
+                Assert.Contains("2026-09-30", text);
+                Assert.Contains("Renew the intermediate", text);
+            }
+        }
+
         [Fact]
         public void PublishedDetailPagesMatchTheCatalogueMetadata() {
             Site site = Repository();

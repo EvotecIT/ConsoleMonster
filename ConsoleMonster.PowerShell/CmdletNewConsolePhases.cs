@@ -42,6 +42,9 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(Position = 0)]
         public string WidgetId { get; set; } = "phases";
 
+        /// <summary><para type="description">Draws [01/05] counters with a right-aligned result column from each item's Detail.</para></summary>
+        [Parameter] public SwitchParameter StepCounter { get; set; }
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (InputObject != null) {
@@ -51,20 +54,4 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void EndProcessing() {
-            Phases phases = new Phases(WidgetId);
-            ScriptBlock? content = Content;
-            if (Phase != null) {
-                foreach (object phase in Phase) {
-                    if (PSText.Unwrap(phase) is ScriptBlock script) {
-                        content = script;
-                    } else {
-                        phases.Set(PSWidgets.ToText(phase));
-                    }
-                }
-            }
-            PSItems.AddAll(this, phases, PSItems.Items(content));
-            PSItems.AddAll(this, phases, _piped);
-            WriteObject(phases);
-        }
-    }
-}
+            Phases phases = new Phases(WidgetId) { StepCounter = StepCounter.IsPresent };

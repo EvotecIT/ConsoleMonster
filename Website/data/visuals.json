@@ -84,6 +84,12 @@
       "dark": "/site/nav/demos/stress-dark.svg",
       "light": "/site/nav/demos/stress-light.svg"
     },
+    "demos/tls-verdict": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/tls-verdict-dark.svg",
+      "light": "/site/nav/demos/tls-verdict-light.svg"
+    },
     "demos/backup-runner": {
       "w": 96,
       "h": 60,

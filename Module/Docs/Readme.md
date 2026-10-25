@@ -190,6 +190,20 @@ Creates a reusable footer with key hints, messages and linked segments.
 
 Hint maps key names to their labels. Segment accepts FooterSegment values or hashtables with Text, Link and Role. The footer is a widget and does not read input or start a session.
 
+### [New-ConsoleFlow](New-ConsoleFlow.md)
+Builds a native flow strip of nodes, labelled edges and one side branch.
+
+Emit nodes first, then edges and an optional branch. Pipeline rows use Kind (Node, Edge or Branch) and the item command's property names. Labels are literal. The strip becomes vertical in a narrow terminal.
+
+### [New-ConsoleFlowBranch](New-ConsoleFlowBranch.md)
+Creates the single side branch below a flow strip.
+
+### [New-ConsoleFlowEdge](New-ConsoleFlowEdge.md)
+Creates a labelled connection between adjacent flow nodes.
+
+### [New-ConsoleFlowNode](New-ConsoleFlowNode.md)
+Creates a labelled flow node with an optional status glyph and colour.
+
 ### [New-ConsoleForm](New-ConsoleForm.md)
 Creates a form or wizard from fields (New-ConsoleField) for Read-ConsoleForm or a menu item.
 
@@ -610,6 +624,9 @@ Starts, updates or finishes an activity of an activity list (New-ConsoleActivity
 Sets the state of cells of a cell map (New-ConsoleCellMap) in the running dashboard.
 
 -Index names the cells by position, from 0 (in a grid with -Columns, row * columns + column); -Status is their new state: Pass, Fail, Warn, Skip, Info, Running or Pending (PowerShell's words such as Success and Error work too). An index past the end grows the map. -Add appends cells in the -Status state instead, and -Count sets the number of cells (new ones are pending). Safe to call from any runspace or thread.
+
+### [Update-ConsoleFlow](Update-ConsoleFlow.md)
+Updates a node or edge in a live dashboard's flow strip.
 
 ### [Update-ConsoleLane](Update-ConsoleLane.md)
 Updates a lane of a running dashboard: progress, step results, status and detail.

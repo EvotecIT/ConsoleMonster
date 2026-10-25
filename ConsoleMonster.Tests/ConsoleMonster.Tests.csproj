@@ -16,6 +16,7 @@
         </PackageReference>
     </ItemGroup>
     <ItemGroup>
+        <None Update="Golden/flow-*.txt" CopyToOutputDirectory="PreserveNewest" />
         <EmbeddedResource Include="Input/Fixtures/unix_input_pty.py" />
         <EmbeddedResource Include="Input/Fixtures/background_pty.py" />
         <ProjectReference Include="..\ConsoleMonster\ConsoleMonster.csproj" />

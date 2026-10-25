@@ -44,6 +44,12 @@ namespace ConsoleMonster.Layout {
         /// <summary>The theme token for the border (default <see cref="ThemeToken.Border"/>).</summary>
         public ThemeToken BorderRole { get; set; } = ThemeToken.Border;
 
+        /// <summary>Uses a double border and a centred title for a verdict.</summary>
+        public bool Verdict { get; set; }
+
+        /// <summary>Optional status colour for a verdict border and title.</summary>
+        public StatusKind? Status { get; set; }
+
         /// <summary>Cells between the left border and the content (default 1).</summary>
         public int PaddingLeft { get; set; } = 1;
 
@@ -102,55 +108,5 @@ namespace ConsoleMonster.Layout {
         }
 
         private void DrawBorder(Region region, RenderContext context) {
-            BoxGlyphs box = context.Glyphs.GetBox(Border);
-            Style border = context.Style(BorderRole);
-            int w = region.Width;
-            int h = region.Height;
-            region.Put(0, 0, box.TopLeft, border);
-            region.HorizontalLine(1, 0, w - 2, box.Horizontal, border);
-            region.Put(w - 1, 0, box.TopRight, border);
-            region.VerticalLine(0, 1, h - 2, box.Vertical, border);
-            region.VerticalLine(w - 1, 1, h - 2, box.Vertical, border);
-            region.Put(0, h - 1, box.BottomLeft, border);
-            region.HorizontalLine(1, h - 1, w - 2, box.Horizontal, border);
-            region.Put(w - 1, h - 1, box.BottomRight, border);
-
-            int captionWidth = 0;
-            if (!string.IsNullOrEmpty(HeaderRight)) {
-                StyledLine caption = TextWrapper.Truncate(context.Markup(HeaderRight!).Lines[0].WithBaseStyle(context.Style(ThemeToken.Muted)), Math.Max(0, w - 8), context.Ellipsis);
-                captionWidth = caption.Width + 2;
-                int x = w - 2 - caption.Width - 1;
-                if (x > 2) {
-                    region.Put(x - 1, 0, " ", Style.Plain);
-                    region.Write(x, 0, caption);
-                    region.Put(x + caption.Width, 0, " ", Style.Plain);
-                } else {
-                    captionWidth = 0;
-                }
-            }
-            if (!string.IsNullOrEmpty(Title)) {
-                int available = w - 6 - (captionWidth > 0 ? captionWidth + 1 : 0);
-                if (available > 0) {
-                    StyledLine title = TitleLine(context, available);
-                    region.Put(2, 0, " ", Style.Plain);
-                    int end = region.Write(3, 0, title);
-                    region.Put(end, 0, " ", Style.Plain);
-                }
-            }
-            if (!string.IsNullOrEmpty(Caption)) {
-                StyledLine footer = TextWrapper.Truncate(context.Markup(Caption!).Lines[0].WithBaseStyle(context.Style(ThemeToken.Muted)), Math.Max(0, w - 8), context.Ellipsis);
-                int x = w - 2 - footer.Width - 1;
-                if (x > 2) {
-                    region.Put(x - 1, h - 1, " ", Style.Plain);
-                    region.Write(x, h - 1, footer);
-                    region.Put(x + footer.Width, h - 1, " ", Style.Plain);
-                }
-            }
-        }
-
-        private StyledLine TitleLine(RenderContext context, int width) {
-            StyledLine line = context.Markup(Title!).Lines[0].WithBaseStyle(context.Style(ThemeToken.Title));
-            return TextWrapper.Truncate(line, width, context.Ellipsis);
-        }
-    }
-}
+            BoxGlyphs box = context.Glyphs.GetBox(Verdict ? BoxStyle.Double : Border);
+            Style border = context.Style(Verdict && Status.HasValue ? Status.Value.ToToken() : BorderRole);

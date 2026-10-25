@@ -110,7 +110,7 @@ namespace ConsoleMonster.Widgets {
                 int visual = CellRendering.VisualCells(content, valueWidth, Math.Min(textWidth, valueWidth - 4));
                 int textRoom = Math.Max(1, valueWidth - visual - (visual > 0 ? 1 : 0));
                 List<StyledLine> lines = new List<StyledLine>();
-                foreach (StyledLine line in content.Lines) {
+                foreach (StyledLine line in content.LinesAtWidth(textRoom, context)) {
                     if (line.Width <= textRoom) {
                         lines.Add(line);
                     } else {

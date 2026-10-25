@@ -51,6 +51,12 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter Fill { get; set; }
 
+        /// <summary><para type="description">Double-bordered verdict with a centred title.</para></summary>
+        [Parameter] public SwitchParameter Verdict { get; set; }
+        /// <summary><para type="description">Status colour for a verdict border and title.</para></summary>
+        [Parameter, Binding.StatusKindTransformation, ArgumentCompleter(typeof(Binding.StatusKindCompleter))]
+        public ConsoleMonster.Styling.StatusKind? Status { get; set; }
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
             List<IWidget> children = PSWidgets.CollectAny(Content, this);
@@ -58,8 +64,4 @@ namespace ConsoleMonster.PowerShell {
                 children.Add(Widget);
             }
             IWidget content = children.Count == 1 ? children[0] : new Rows(children.ToArray());
-            Panel panel = new Panel(content, PSText.Markup(Title)) { HeaderRight = PSText.Markup(HeaderRight), Caption = PSText.Markup(Caption), Border = Border };
-            WriteObject(PSWidgets.WithSize(panel, Weight, Height, Fill.IsPresent));
-        }
-    }
-}
+            Panel panel = new Panel(content, PSText.Markup(Title)) { HeaderRight = PSText.Markup(HeaderRight), Caption = PSText.Markup(Caption), Border = Border, Verdict = Verdict.IsPresent, Status = Status };

@@ -27,6 +27,22 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Cells between the key column and the values (default 2).</summary>
         public int Gap { get; set; } = 2;
 
+        /// <summary>Preferred number of pairs per row; narrow layouts reduce the count automatically.</summary>
+        public int Columns { get; set; } = 1;
+
+        /// <summary>Theme colour for keys.</summary>
+        public ThemeToken KeyToken { get; set; } = ThemeToken.Muted;
+
+        private IWidget? MultiColumn(int width) {
+            int count = Math.Min(Math.Max(1, Columns), Math.Max(1, width / 32));
+            if (count <= 1) return null;
+            var children = new List<IWidget>();
+            foreach (KeyValueItem item in _items) {
+                children.Add(new KeyValueList { Gap = Gap, MaxKeyFraction = MaxKeyFraction, KeyToken = KeyToken, Presentation = Presentation }.Add(item));
+            }
+            return new Grid(count, children.ToArray());
+        }
+
         /// <summary>Preferred key fraction when the natural label and value widths cannot both fit (default 0.4).</summary>
         public double MaxKeyFraction { get; set; } = 0.4;
 
@@ -120,6 +136,8 @@ namespace ConsoleMonster.Widgets {
 
         /// <inheritdoc />
         public override Size Measure(Constraints constraints, RenderContext context) {
+            IWidget? multi = MultiColumn(constraints.MaxWidth);
+            if (multi != null) return multi.Measure(constraints, context);
             int keyWidth = KeyWidth(constraints.MaxWidth, context);
             int valueWidth = Math.Max(1, constraints.MaxWidth - keyWidth - Gap);
             int height = 0;
@@ -137,9 +155,11 @@ namespace ConsoleMonster.Widgets {
 
         /// <inheritdoc />
         public override void Render(Region region, RenderContext context) {
+            IWidget? multi = MultiColumn(region.Width);
+            if (multi != null) { multi.Render(region, context); return; }
             int keyWidth = KeyWidth(region.Width, context);
             int valueWidth = Math.Max(1, region.Width - keyWidth - Gap);
-            Style keyStyle = context.Style(ThemeToken.Muted);
+            Style keyStyle = context.Style(KeyToken);
             int numberWidth = NumberWidth(context, region.Width);
             int y = 0;
             foreach (KeyValueItem item in _items) {

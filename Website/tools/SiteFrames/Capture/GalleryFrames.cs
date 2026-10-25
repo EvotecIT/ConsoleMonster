@@ -27,7 +27,7 @@ namespace SiteFrames.Capture {
                 CSharpRunner.Execute(demo.CSharp, profile, Theme.Dark, new InteractiveOptions {
                     Target = target, Input = target.Input, Capture = target.Screens, Profile = profile, Theme = Theme.Dark,
                     Mode = target.Input == null ? InteractionMode.None : InteractionMode.Rich
-                }, recording: target, allowIncompleteInput: state["incomplete"]?.GetValue<bool>() ?? false);
+                }, arguments: state["arguments"]?.AsArray().Select(a => a!.GetValue<string>()).ToArray(), recording: target, allowIncompleteInput: state["incomplete"]?.GetValue<bool>() ?? false);
             } finally {
                 Environment.SetEnvironmentVariable("CONSOLEMONSTER_STORAGE_ROOT", previousStorage);
                 Site.RemoveTemporary(storage);

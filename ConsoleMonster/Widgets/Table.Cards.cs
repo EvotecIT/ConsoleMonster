@@ -85,7 +85,7 @@ namespace ConsoleMonster.Widgets {
 
         private void AddFields(RecordView view, TableCell[] row, int key, PresenterContext[] contexts) {
             for (int c = 0; c < _columns.Count; c++) {
-                if (c == key && !ShowKeyField) {
+                if (c == key && !ShowKeyField && !(row[c].Value is Layout.IWidget)) {
                     continue;
                 }
                 TableColumn column = _columns[c];
@@ -97,6 +97,7 @@ namespace ConsoleMonster.Widgets {
             RowTitles != null && index < RowTitles.Count && !string.IsNullOrEmpty(RowTitles[index]) ? RowTitles[index]! : KeyText(_rows[index], key, contexts);
 
         private string KeyText(TableCell[] row, int key, PresenterContext[] contexts) {
+            if (row[key].Value is Layout.IWidget) return Markup.Strip(_columns[key].Header);
             CellContent content = CellRendering.Content(row[key], _columns[key].Presenter, null, contexts[key]);
             return content.Lines.Count > 0 ? content.Lines[0].PlainText : string.Empty;
         }

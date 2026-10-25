@@ -1,0 +1,26 @@
+{
+  "slug": "tls-verdict",
+  "title": "TLS verdict",
+  "pitch": "Follow a certificate chain from connection to proof, then act on a clear trust verdict.",
+  "category": "Reports",
+  "tags": ["TLS", "flow", "phases", "verdict"],
+  "terminal": { "width": 120, "height": 52 },
+  "runtime": { "powershell": "5.1+", "dotnet": "8.0+" },
+  "addons": [],
+  "makeItYours": [
+    "Map your TLS checker's output to the connection and certificate rows.",
+    "Replace the simulated dates and revocation result with measured evidence.",
+    "Choose the action and exit code from your own trust policy."
+  ],
+  "mode": "live",
+  "steps": 2,
+  "tier": "showcase",
+  "useCase": "Use it when operators need to see where certificate trust breaks and what to repair.",
+  "featured": true,
+  "capture": {
+    "states": [
+      { "arguments": ["Healthy"] },
+      { "arguments": ["ExpiredIntermediate"] }
+    ]
+  }
+}
