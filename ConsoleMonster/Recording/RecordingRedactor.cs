@@ -6,7 +6,6 @@ using System.Text.RegularExpressions;
 namespace ConsoleMonster.Sessions {
     /// <summary>Redacts complete output records; never persists partial secret-bearing tokens.</summary>
     internal sealed partial class RecordingRedactor {
-        private static readonly Regex Ansi = new Regex(@"\x1b(?:\[[0-?]*[ -/]*[@-~]|\][^\a]*?(?:\a|\x1b\\)|[PX^_][\s\S]*?\x1b\\|(?![\[\]PX^_])[ -/]*[0-~])", RegexOptions.CultureInvariant, TimeSpan.FromMilliseconds(100));
         private readonly List<Regex> _patterns = new List<Regex>();
         private readonly string _replacement;
         public RecordingRedactor(IEnumerable<string> patterns, string replacement = "[REDACTED]") {
@@ -23,17 +22,7 @@ namespace ConsoleMonster.Sessions {
         /// <summary>Redacts the complete lookahead, committing only a prefix that cannot split a replacement.</summary>
         internal RedactedOutput ApplyPrefix(string text, int sourceLength, int startAt = 0) {
             try {
-                MatchCollection controls = Ansi.Matches(text);
-                StringBuilder visible = new StringBuilder();
-                List<int> positions = new List<int>();
-                int controlIndex = 0;
-                for (int i = 0; i < text.Length; i++) {
-                    if (controlIndex < controls.Count && i == controls[controlIndex].Index) {
-                        i += controls[controlIndex++].Length - 1; continue;
-                    }
-                    visible.Append(text[i]); positions.Add(i);
-                }
-                string plain = visible.ToString();
+                string plain = VisibleText(text, stopAtIncomplete: false, out List<int> positions, out _);
                 int visibleStart = 0;
                 while (visibleStart < positions.Count && positions[visibleStart] < startAt) { visibleStart++; }
                 bool[] masked = new bool[text.Length];

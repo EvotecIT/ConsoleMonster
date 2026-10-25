@@ -65,7 +65,7 @@ namespace ConsoleMonster.Tests.Sessions {
             using (SessionCastWriter writer = new SessionCastWriter(options, "test")) {
                 writer.Append(prefix + secret.Substring(0, half));
                 Assert.True(new FileInfo(options.Path!).Length > 1000);
-                Assert.DoesNotContain(secret.Substring(0, half), File.ReadAllText(options.Path!));
+                Assert.DoesNotContain(secret.Substring(0, half), ReadLiveCast(options.Path!));
                 writer.Append(secret.Substring(half) + " safe\n");
             }
             Assert.Equal(prefix + "[REDACTED] safe\n", Output(options.Path!));
@@ -95,10 +95,23 @@ namespace ConsoleMonster.Tests.Sessions {
             string prefix = new string('a', 70000) + " ";
             using (SessionCastWriter writer = new SessionCastWriter(options, "test")) {
                 writer.Append(prefix + "password='" + new string('x', 70000));
-                Assert.DoesNotContain(new string('x', 100), File.ReadAllText(options.Path!));
+                Assert.DoesNotContain(new string('x', 100), ReadLiveCast(options.Path!));
                 writer.Append("'; visible\n");
             }
             Assert.Equal(prefix + "[REDACTED]; visible\n", Output(options.Path!));
+        }
+
+        [Fact]
+        public void LiveCastReader_DoesNotPermitAnotherWriterOnWindows() {
+            if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)) { return; }
+            SessionRecordingOptions options = Options();
+            using (SessionCastWriter writer = new SessionCastWriter(options, "test"))
+            using (FileStream reader = new FileStream(options.Path!, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)) {
+                Assert.Equal((int)'{', reader.ReadByte());
+                Assert.Throws<IOException>(() => {
+                    using (FileStream other = new FileStream(options.Path!, FileMode.Open, FileAccess.Write, FileShare.ReadWrite)) { }
+                });
+            }
         }
 
         [Theory]
@@ -126,10 +139,62 @@ namespace ConsoleMonster.Tests.Sessions {
             string control = start + new string('x', 70000) + end;
             using (SessionCastWriter writer = new SessionCastWriter(options, "test")) {
                 writer.Append(prefix + "synthe" + control.Substring(0, control.Length - end.Length));
-                Assert.DoesNotContain("synthe", File.ReadAllText(options.Path!));
+                Assert.DoesNotContain("synthe", ReadLiveCast(options.Path!));
                 writer.Append(end + "tic-secret safe\n");
             }
             Assert.Equal(prefix + "[REDACTED]" + control + " safe\n", Output(options.Path!));
+        }
+
+        [Theory]
+        [InlineData("\u001b]0;", "\a", 4093, "")]
+        [InlineData("\u001b]0;", "\u001b\\", 65536, "\n")]
+        [InlineData("\u001bP", "\u001b\\", 997, "\r\n")]
+        [InlineData("\u001bX", "\u001b\\", 70000, "")]
+        [InlineData("\u001b^", "\u001b\\", 32768, "\n")]
+        [InlineData("\u001b_", "\u001b\\", 8191, "\r\n")]
+        public void LongTerminalStrings_RedactAcrossSplitIntroducersBodiesAndTerminators(string start, string end, int chunkSize, string lineEnding) {
+            SessionRecordingOptions options = Options(); options.Redact.Add("synthetic-secret");
+            string prefix = new string('a', 65500) + " ";
+            string body = new string('x', 70000);
+            using (SessionCastWriter writer = new SessionCastWriter(options, "test")) {
+                writer.Append(prefix + "synthe");
+                foreach (char c in start) { writer.Append(c.ToString()); }
+                for (int at = 0; at < body.Length; at += chunkSize) {
+                    writer.Append(body.Substring(at, Math.Min(chunkSize, body.Length - at)));
+                }
+                Assert.DoesNotContain("synthe", ReadLiveCast(options.Path!));
+                foreach (char c in end) { writer.Append(c.ToString()); }
+                writer.Append("tic-");
+                Assert.DoesNotContain("synthe", ReadLiveCast(options.Path!));
+                writer.Append("secret safe" + lineEnding);
+            }
+            Assert.Equal(prefix + "[REDACTED]" + start + body + end + " safe" + lineEnding, Output(options.Path!));
+        }
+
+        [Theory]
+        [InlineData("\u001b]0;", "\a")]
+        [InlineData("\u001bP", "\u001b\\")]
+        public void LongTerminalStrings_RedactSecretsInsideTheirNonPrintingBodies(string start, string end) {
+            SessionRecordingOptions options = Options(); options.Redact.Add("synthetic-secret");
+            string body = new string('x', 70000) + " ";
+            using (SessionCastWriter writer = new SessionCastWriter(options, "test")) {
+                writer.Append("visible" + start + body + "synthetic-");
+                writer.Append("secret" + end + "tail");
+            }
+            Assert.Equal("visible" + start + body + "[REDACTED]" + end + "tail", Output(options.Path!));
+        }
+
+        [Theory]
+        [InlineData("\u001b]0;")]
+        [InlineData("\u001bP")]
+        public void UnterminatedControlBodies_DoNotRestartAtNestedEscapeIntroducers(string start) {
+            RecordingRedactor redactor = new RecordingRedactor(new[] { "synthetic-secret" });
+            // Each nested ESC P used to restart an unsuccessful search for the missing terminator.
+            string body = string.Concat(Enumerable.Repeat("\u001bP", 35000));
+            string text = "left synthe" + start + body;
+            Assert.Equal(0, redactor.PrefixLength(text));
+            Assert.Equal("left [REDACTED]" + start + body + "\u001b\\ right",
+                redactor.Apply(text + "\u001b\\tic-secret right"));
         }
 
         [Theory]
@@ -230,6 +295,13 @@ namespace ConsoleMonster.Tests.Sessions {
         private static List<List<object?>> Events(string path) => File.ReadAllLines(path).Skip(1)
             .Select(line => (List<object?>)MiniJson.Read(line)!).ToList();
         private static string Output(string path) => string.Concat(Events(path).Where(e => (string)e[1]! == "o").Select(e => (string)e[2]!));
+        private static string ReadLiveCast(string path) {
+            // Permit the existing writer on Windows; its FileShare.Read still denies other writers.
+            using (FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (StreamReader reader = new StreamReader(stream, Encoding.UTF8)) {
+                return reader.ReadToEnd();
+            }
+        }
         public void Dispose() { if (Directory.Exists(_folder)) { Directory.Delete(_folder, true); } }
     }
 }
