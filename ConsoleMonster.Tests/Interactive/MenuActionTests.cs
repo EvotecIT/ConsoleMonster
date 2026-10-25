@@ -52,17 +52,65 @@ namespace ConsoleMonster.Tests.Interactive {
         public void AsyncAction_AsksThroughTheMenuThread() {
             Menu menu = new Menu("Tools");
             List<string> log = new List<string>();
+            TaskCompletionSource<bool> ready = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            int menuThread = Thread.CurrentThread.ManagedThreadId, actionThread = menuThread;
             menu.Item("Deploy", i => i.Hotkey('d').ActionAsync(async (ctx, token) => {
-                await Task.Delay(30, token).ConfigureAwait(false);
+                using (token.Register(() => ready.TrySetCanceled())) {
+                    await ready.Task.ConfigureAwait(false);
+                }
+                actionThread = Thread.CurrentThread.ManagedThreadId;
                 bool yes = ctx.Confirm("Deploy to staging?", false);
                 log.Add(yes ? "deployed" : "stopped");
                 ctx.Toast(yes ? "Deployed" : "Stopped");
             }));
             menu.Exit("Quit");
-            RecordingSurface surface = Run(menu, "d wait:600 y wait:600 Ctrl+Q", MenuLayout.Classic, realTime: true);
+            RecordingSurface surface = new RecordingSurface(100, 26, false);
+            using (AsyncQuestionInput input = new AsyncQuestionInput(surface, () => ready.TrySetResult(true))) {
+                InteractiveOptions options = PromptHarness.Options(string.Empty, surface);
+                options.Input = input;
+                PromptHarness.Guard(surface, () => {
+                    menu.Run(new MenuOptions {
+                        Layout = MenuLayout.Classic, Interactive = options,
+                        StorageRoot = Path.Combine(Path.GetTempPath(), "cm-menu-none-" + Guid.NewGuid().ToString("N").Substring(0, 6))
+                    });
+                    return 0;
+                });
+            }
+            Assert.NotEqual(menuThread, actionThread);
             Assert.Contains(surface.Frames, f => f.ToPlainText().Contains("Deploy to staging?"));
             Assert.Equal(new[] { "deployed" }, log.ToArray());
             Assert.Contains(surface.Frames, f => f.ToPlainText().Contains("Deployed"));
+        }
+
+        // Input follows observed UI states; the deadline only detects a stuck interaction.
+        private sealed class AsyncQuestionInput : IInputSource {
+            private readonly RecordingSurface _surface;
+            private readonly Action _release;
+            private readonly ScriptedInput _keys = new ScriptedInput("d y Ctrl+Q") { Paced = true };
+            private readonly System.Diagnostics.Stopwatch _watchdog = System.Diagnostics.Stopwatch.StartNew();
+            private int _step;
+
+            public AsyncQuestionInput(RecordingSurface surface, Action release) { _surface = surface; _release = release; }
+            public string Name => "async menu question and toast";
+
+            public InputEvent? Read(TimeSpan timeout, CancellationToken cancellationToken) {
+                cancellationToken.ThrowIfCancellationRequested();
+                if (timeout == TimeSpan.Zero) { return null; }
+                if (_step == 1) { _release(); }
+                string expected = _step == 1 ? "Deploy to staging?" : "Deployed";
+                if (_step == 0 || _step >= 3 || _surface.LastText().Contains(expected)) {
+                    _step++;
+                    return _keys.Read(timeout, cancellationToken);
+                }
+                if (_watchdog.Elapsed > TimeSpan.FromSeconds(30)) {
+                    throw new TimeoutException("The menu never rendered " + expected + ".\n" + _surface.LastText());
+                }
+                cancellationToken.WaitHandle.WaitOne(timeout);
+                cancellationToken.ThrowIfCancellationRequested();
+                return null;
+            }
+
+            public void Dispose() { _keys.Dispose(); }
         }
 
         [Fact]
