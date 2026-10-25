@@ -1349,8 +1349,8 @@
     "csharpFull": "using ConsoleMonster.Interactive;\n\nvar server = new {\n    Name = \"web-01\",\n    Owner = new OwnerInfo(\"Ada\", new[] { \"Operators\", \"Readers\" }),\n    Services = new[] {\n        new { Name = \"web\", Status = \"Running\", Port = 443 },\n        new { Name = \"metrics\", Status = \"Running\", Port = 9090 }\n    },\n    Enabled = true\n};\nnew ObjectExplorer(server, rootPath: \"$server\")\n    .WithTitle(\"Server configuration\")\n    .Show();\n\nsealed record OwnerInfo(string Name, string[] Groups);",
     "script": "Import-Module ConsoleMonster\n\n$server = [pscustomobject]@{\n    Name = 'web-01'\n    Owner = [pscustomobject]@{\n        PSTypeName = 'OwnerInfo'\n        Name = 'Ada'\n        Groups = @('Operators', 'Readers')\n    }\n    Services = @(\n        [pscustomobject]@{ Name = 'web'; Status = 'Running'; Port = 443 }\n        [pscustomobject]@{ Name = 'metrics'; Status = 'Running'; Port = 9090 }\n    )\n    Enabled = $true\n}\n$server | Show-ConsoleObject -Title 'Server configuration' -RootPath '$server'\n",
     "parity": {
-      "dark": false,
-      "light": false
+      "dark": true,
+      "light": true
     }
   },
   "object-explorer-60": {
@@ -1371,8 +1371,8 @@
     "csharpFull": "using ConsoleMonster.Interactive;\n\nvar server = new {\n    Name = \"web-01\",\n    Owner = new OwnerInfo(\"Ada\", new[] { \"Operators\", \"Readers\" }),\n    Services = new[] {\n        new { Name = \"web\", Status = \"Running\", Port = 443 },\n        new { Name = \"metrics\", Status = \"Running\", Port = 9090 }\n    },\n    Enabled = true\n};\nnew ObjectExplorer(server, rootPath: \"$server\")\n    .WithTitle(\"Server configuration\")\n    .Show();\n\nsealed record OwnerInfo(string Name, string[] Groups);",
     "script": "Import-Module ConsoleMonster\n\n$server = [pscustomobject]@{\n    Name = 'web-01'\n    Owner = [pscustomobject]@{\n        PSTypeName = 'OwnerInfo'\n        Name = 'Ada'\n        Groups = @('Operators', 'Readers')\n    }\n    Services = @(\n        [pscustomobject]@{ Name = 'web'; Status = 'Running'; Port = 443 }\n        [pscustomobject]@{ Name = 'metrics'; Status = 'Running'; Port = 9090 }\n    )\n    Enabled = $true\n}\n$server | Show-ConsoleObject -Title 'Server configuration' -RootPath '$server'\n",
     "parity": {
-      "dark": false,
-      "light": false
+      "dark": true,
+      "light": true
     }
   },
   "large-run-example": {

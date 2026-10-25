@@ -457,7 +457,7 @@ The accompanying source type catalogue at the end inventories the public type de
 | Export, replay, sessions and demos | ConsoleExporter/Recording, SessionRecorder, ReplayPlayer, ConsoleDemo/DemoScript; retain shared engines, explicit recording format and output destinations. |
 | Help, overview, localization, testing and test runs | CommandLineHelp/HelpTopic, OverviewCollector/registry, WidgetLabels/PromptLabels, TestTerminal/GoldenFile, TestRun/TestRunView; retain typed extension points and fixtures. |
 | Markdown add-on | MarkdownConsole, MarkdownExporter and MarkdownView with the existing OfficeIMO boundary; Markdown serialization and parsing stay outside core and cmdlets. |
-| Graphics add-on | ConsoleGraphicsExtensions and GraphicsExportOptions, existing ChartForgeX/ffmpeg boundary; no new renderer/tool dependency. |
+| Graphics add-on | ConsoleGraphicsExtensions and GraphicsExportOptions, existing ChartForgeX boundary; no new renderer/tool dependency. |
 | Hosting and logging add-ons | IConsoleDashboard/options, DI/logging extensions/providers; retain C# host integrations, apply shared options vocabulary where exposed. |
 
 ## Module type exposure

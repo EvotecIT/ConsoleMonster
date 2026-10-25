@@ -21,15 +21,17 @@ namespace ConsoleMonster.Export {
 
         internal static void AppendTokens(StringBuilder css, string scope, ExportOptions options, bool light) {
             ITheme theme = light ? options.LightTheme ?? Theme.Light : options.DarkTheme ?? Theme.Dark;
-            string surface = ExportPalette.ToCss(theme.Resolve(ThemeToken.Surface, ColorDepth.TrueColor).Background) ?? (light ? "#e5e7eb" : "#1f2a3c");
-            string muted = ExportPalette.ToCss(theme.Resolve(ThemeToken.Muted, ColorDepth.TrueColor).Foreground) ?? (light ? "#6b7280" : "#8b8f9a");
-            string title = options.EffectiveChrome == WindowChromeStyle.Windows ? (light ? ExportPalette.Light.Foreground : ExportPalette.Dark.Foreground) : muted;
-            string border = ExportPalette.ToCss(theme.Resolve(ThemeToken.Border, ColorDepth.TrueColor).Foreground) ?? (light ? "#8a8a94" : "#4b5060");
-            string accent = ExportPalette.ToCss(theme.Resolve(ThemeToken.Accent, ColorDepth.TrueColor).Foreground) ?? (light ? "#2563eb" : "#60a5fa");
-            string tab = ExportPalette.ToCss(theme.Resolve(ThemeToken.Text, ColorDepth.TrueColor).Background) ?? (light ? ExportPalette.Light.Background : ExportPalette.Dark.Background);
-            css.Append(scope).Append("{--cm-chrome:").Append(surface).Append(";--cm-chrome-fg:").Append(muted).Append(";--cm-chrome-title:").Append(title).Append(";--cm-tab:").Append(tab)
-                .Append(";--cm-border:").Append(border).Append(";--cm-accent:").Append(accent)
-                .Append(";--cm-desk:").Append(light ? "#c9c9cf" : "#3a3a3f").Append(";--cm-close:").Append(light ? "#ff5f57" : "#ce534c")
+            string surface = ExportPalette.ToCss(theme.Resolve(ThemeToken.Surface, ColorDepth.TrueColor).BackgroundColor) ?? (light ? "#e5e7eb" : "#1f2a3c");
+            string muted = ExportPalette.ToCss(theme.Resolve(ThemeToken.Muted, ColorDepth.TrueColor).Color) ?? (light ? "#6b7280" : "#8b8f9a");
+            string title = options.EffectiveChrome == WindowChromeStyle.None
+                ? ExportPalette.ToCss(theme.Resolve(ThemeToken.Surface, ColorDepth.TrueColor).Color) ?? (light ? ExportPalette.Light.Foreground : ExportPalette.Dark.Foreground)
+                : options.EffectiveChrome == WindowChromeStyle.Windows ? (light ? ExportPalette.Light.Foreground : ExportPalette.Dark.Foreground) : muted;
+            string border = ExportPalette.ToCss(theme.Resolve(ThemeToken.Border, ColorDepth.TrueColor).Color) ?? (light ? "#8a8a94" : "#4b5060");
+            string accent = ExportPalette.ToCss(theme.Resolve(ThemeToken.Accent, ColorDepth.TrueColor).Color) ?? (light ? "#2563eb" : "#60a5fa");
+            string tab = ExportPalette.ToCss(theme.Resolve(ThemeToken.Text, ColorDepth.TrueColor).BackgroundColor) ?? (light ? ExportPalette.Light.Background : ExportPalette.Dark.Background);
+            css.Append(scope).Append("{--cm-chrome:").Append(surface).Append(";--cm-chrome-fg:").Append(muted).Append(";--cm-chrome-title:").Append(title).Append(";--cm-tab:").Append(tab);
+            if (options.EffectiveChrome != WindowChromeStyle.None) { css.Append(";--cm-border:").Append(border).Append(";--cm-accent:").Append(accent); }
+            css.Append(";--cm-desk:").Append(light ? "#c9c9cf" : "#3a3a3f").Append(";--cm-close:").Append(light ? "#ff5f57" : "#ce534c")
                 .Append(";--cm-minimise:").Append(light ? "#febc2e" : "#c59a2a").Append(";--cm-zoom:").Append(light ? "#28c840" : "#26a443").Append("}\n");
         }
 

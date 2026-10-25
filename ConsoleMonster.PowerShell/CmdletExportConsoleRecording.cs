@@ -8,7 +8,7 @@ using ConsoleMonster.Sessions;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Exports a terminal session or dashboard recording to slide images, animations, video, a player or asciicast.</para>
-    /// <para type="description">PNG selects the final frame, -AtSeconds a source time, -Chapter a completed chapter, or -PerChapter numbered slides. GIF and APNG are managed animations; MP4 needs ffmpeg on PATH. Without -Dashboard, reads a whole-session asciicast v2 from Invoke-ConsoleRecording -Interactive or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Invoke-ConsoleDashboard widget updates into the same definition, preserving the dashboard HTML, SVG and asciicast v3 exports; Markdown writes timestamped fenced frames through the bundled add-on. Add #t=30000 to an HTML address to open at 30 seconds.</para>
+    /// <para type="description">PNG selects the final frame, -AtSeconds a source time, -Chapter a completed chapter, or -PerChapter numbered slides. GIF and APNG are managed animations without an external executable. Without -Dashboard, reads a whole-session asciicast v2 from Invoke-ConsoleRecording -Interactive or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Invoke-ConsoleDashboard widget updates into the same definition, preserving the dashboard HTML, SVG and asciicast v3 exports; Markdown writes timestamped fenced frames through the bundled add-on. Add #t=30000 to an HTML address to open at 30 seconds.</para>
     /// </summary>
     /// <example>
     ///   <para>An animated SVG and an HTML player of the same run</para>
@@ -127,7 +127,7 @@ namespace ConsoleMonster.PowerShell {
                 string selected = Format ?? System.IO.Path.GetExtension(Destination!).TrimStart('.');
                 bool png = string.Equals(selected, "Png", System.StringComparison.OrdinalIgnoreCase);
                 int selectors = (MyInvocation.BoundParameters.ContainsKey(nameof(AtSeconds)) ? 1 : 0) + (Chapter == null ? 0 : 1) + (PerChapter.IsPresent ? 1 : 0) + (FinalFrame.IsPresent ? 1 : 0);
-                if (selectors > 1 || (!png && selectors > 0)) { throw new System.ArgumentException("Choose one PNG selector: -At, -Chapter, -PerChapter or -FinalFrame."); }
+                if (selectors > 1 || (!png && selectors > 0)) { throw new System.ArgumentException("Choose one PNG selector: -AtSeconds, -Chapter, -PerChapter or -FinalFrame."); }
                 if (Destination == null) { throw new System.ArgumentException("Graphics recording exports need -Destination."); }
                 string graphicsTarget = SessionState.Path.GetUnresolvedProviderPathFromPSPath(Destination);
                 bool chrome = MyInvocation.BoundParameters.ContainsKey(nameof(WindowChrome)) ? WindowChrome.IsPresent : MyInvocation.BoundParameters.ContainsKey(nameof(ChromeStyle));

@@ -873,7 +873,7 @@
         },
         {
           "name": "Export-ConsoleRecording",
-          "synopsis": "Exports a terminal session or dashboard recording to slide images, animations, a player or asciicast.",
+          "synopsis": "Exports a terminal session or dashboard recording to slide images, animations, video, a player or asciicast.",
           "url": "/powershell/commands/export-consolerecording/"
         },
         {

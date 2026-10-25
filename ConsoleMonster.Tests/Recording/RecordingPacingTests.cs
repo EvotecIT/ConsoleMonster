@@ -38,12 +38,35 @@ namespace ConsoleMonster.Tests.Sessions {
                 + Event(.1, "o", Draw("Two")) + Event(.1, "m", "End") + Event(.1, "o", Draw("Three")));
             var options = Source(); options.FramesPerSecond = 10; options.ChapterSpeeds.Add("Start", 2);
             var all = recording.CaptureFrames(options);
-            Assert.Equal(100, all.Single(f => ConsoleExporter.ToText(f.Frame).Trim() == "One").Duration);
-            Assert.Equal(50, all.Single(f => ConsoleExporter.ToText(f.Frame).Trim() == "Two").Duration);
+            Assert.Equal(50, all.Single(f => ConsoleExporter.ToText(f.Frame).Trim() == "One").Duration);
+            Assert.Equal(100, all.Single(f => ConsoleExporter.ToText(f.Frame).Trim() == "Two").Duration);
             options.TrimStartChapter = "Start"; options.TrimEndChapter = "End";
             var trimmed = recording.CaptureFrames(options);
             Assert.Equal(new[] { "One", "Two" }, trimmed.Select(f => ConsoleExporter.ToText(f.Frame).Trim()));
             Assert.DoesNotContain("Three", recording.ExportPlayerData(options));
+        }
+
+        [Theory]
+        [InlineData(0, 4, 2000)]
+        [InlineData(.1, 2, 4050)]
+        public void ChapterSpeedAppliesWhenItsMarkerDoesNotChangeTheScreen(double at, double speed, long expected) {
+            var recording = Read(Event(0, "o", "A") + Event(at, "m", "Install") + Event(8, "m", "End"));
+            var options = Source(); options.ChapterSpeeds.Add("Install", speed);
+            Assert.Equal(expected, Total(recording.CaptureFrames(options)));
+        }
+
+        [Fact]
+        public void ChapterTrimExcludesEarlierHoldsAtTheSameTimestamp() {
+            string Draw(string text) => "\u001b[?2026h\u001b[2J\u001b[H" + text + "\u001b[?2026l";
+            var recording = Read(Event(.1, "o", Draw("One"))
+                + Event(.1, "cm", SessionMarkerData.Write("Before", TimeSpan.FromSeconds(3), null, true))
+                + Event(.1, "m", "Start") + Event(.1, "o", Draw("Two"))
+                + Event(.1, "m", "End") + Event(.1, "o", Draw("Three")));
+            var options = Source(); options.TrimStartChapter = "Start"; options.TrimEndChapter = "End"; options.FramesPerSecond = 60;
+            var frames = recording.CaptureFrames(options);
+            Assert.Equal(34, Total(frames));
+            Assert.All(frames, f => Assert.Equal(TimeSpan.Zero, f.ExplicitHold));
+            Assert.DoesNotContain("\"Before\"", recording.ExportPlayerData(options));
         }
 
         [Fact]

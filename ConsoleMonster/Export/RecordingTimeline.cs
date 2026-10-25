@@ -40,7 +40,8 @@ namespace ConsoleMonster.Export {
             options.PlaybackMarkers = chapters;
             double clock = 0, idleBudget = double.PositiveInfinity;
             int markerIndex = 0;
-            while (markerIndex < markers.Count && markers[markerIndex].Time.TotalMilliseconds < from) { markerIndex++; }
+            while (markerIndex < markers.Count && (markers[markerIndex].Time.TotalMilliseconds < from
+                || (markers[markerIndex].Time.TotalMilliseconds == from && fromSequence.HasValue && markers[markerIndex].SourceSequence < fromSequence))) { markerIndex++; }
             CellBuffer? previous = null;
             CellBuffer finalScreen = source[0].Frame;
             int newCharacters = 0, newLines = 0;
@@ -73,6 +74,7 @@ namespace ConsoleMonster.Export {
                     position = at;
                     if (marker.IsChapter) { chapters.Add(new RecordingMarker(TimeSpan.FromMilliseconds(Round(clock)), marker.Label)); }
                     Append(marker.Snapshot ?? frame.Frame, marker.Hold.TotalMilliseconds + (marker.IsChapter ? options.ChapterHold.TotalMilliseconds : 0), true);
+                    if (marker.SourceSequence.HasValue) { currentSequence = Math.Max(currentSequence, marker.SourceSequence.Value); }
                     markerIndex++;
                 }
                 dwell += AppendSource(frame.Frame, position, stop);
