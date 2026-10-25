@@ -38,7 +38,7 @@ namespace ConsoleMonster.Widgets {
             if (count <= 1) return null;
             var children = new List<IWidget>();
             foreach (KeyValueItem item in _items) {
-                children.Add(new KeyValueList { Gap = Gap, MaxKeyFraction = MaxKeyFraction, KeyRole = KeyRole, Presentation = Presentation }.Add(item));
+                children.Add(new KeyValueList { Gap = Gap, MaxKeyFraction = MaxKeyFraction, KeyRole = KeyRole, Presentation = Presentation, NumberColumn = NumberColumn }.Add(item));
             }
             return new Grid(count, children.ToArray());
         }
