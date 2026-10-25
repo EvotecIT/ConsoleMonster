@@ -1,0 +1,125 @@
+using System;
+using System.Globalization;
+using ConsoleMonster.Dates;
+using ConsoleMonster.Styling;
+using ConsoleMonster.Testing;
+using ConsoleMonster.Widgets;
+using ConsoleMonster.Layout;
+using Xunit;
+using Calendar = ConsoleMonster.Widgets.Calendar;
+
+namespace ConsoleMonster.Tests.Widgets {
+    public sealed class CalendarTests {
+        [Theory]
+        [InlineData(2020, 12, 31, 2020, 53)]
+        [InlineData(2021, 1, 1, 2020, 53)]
+        [InlineData(2021, 1, 4, 2021, 1)]
+        [InlineData(2024, 12, 30, 2025, 1)]
+        [InlineData(1, 1, 1, 1, 1)]
+        [InlineData(9999, 12, 31, 9999, 52)]
+        public void IsoWeek_UsesWeekYear(int year, int month, int day, int expectedYear, int expectedWeek) {
+            Assert.Equal(expectedWeek, CalendarDate.IsoWeek(new DateTime(year, month, day), out int actualYear));
+            Assert.Equal(expectedYear, actualYear);
+        }
+
+        [Fact]
+        public void MarkedDate_DropsTimeAndKindWithoutConversion() {
+            DateTime stamp = new DateTime(2026, 10, 25, 23, 50, 0, DateTimeKind.Utc);
+            CalendarMark mark = new CalendarMark(stamp, StatusKind.Pass, "Backup");
+            Assert.Equal(new DateTime(2026, 10, 25), mark.Date);
+            Assert.Equal(DateTimeKind.Unspecified, mark.Date.Kind);
+            CalendarData data = new CalendarData(new[] { mark });
+            Assert.Equal(StatusKind.Pass, data.GetStatus(DateTime.SpecifyKind(stamp, DateTimeKind.Local)));
+        }
+
+        [Fact]
+        public void DuplicateDates_RetainLabelsAndUseDocumentedPrecedence() {
+            DateTime date = new DateTime(2026, 10, 25);
+            object row = new object();
+            CalendarData data = new CalendarData(new[] {
+                new CalendarMark(date, StatusKind.Pass, "Backup", row),
+                new CalendarMark(date.AddHours(10), StatusKind.Warn, "Expiry"),
+                new CalendarMark(date, StatusKind.Fail, "Verification failed")
+            });
+            Assert.Equal(StatusKind.Fail, data.GetStatus(date));
+            Assert.Equal(3, data.GetMarks(date).Count);
+            Assert.Equal("Expiry", data.GetMarks(date)[1].Label);
+            Assert.Same(row, data.GetMarks(date)[0].Source);
+            Assert.Null(data.GetStatus(date.AddDays(1)));
+        }
+
+        [Theory]
+        [InlineData(2024, "29")]
+        [InlineData(2023, "28")]
+        public void February_RendersOnlyValidDays(int year, string lastDay) {
+            string text = TestTerminal.RenderText(new Calendar(year, 2) { ShowLegend = false }, width: 40);
+            Assert.Contains(lastDay, text);
+            Assert.DoesNotContain("30 ", text);
+            if (year == 2023) { Assert.DoesNotContain("29 ", text); }
+        }
+
+        [Fact]
+        public void CultureAndOverride_ChangeDayPositionsWithoutChangingIsoWeeks() {
+            Calendar calendar = new Calendar(2026, 10) { ShowLegend = false };
+            string sunday = TestTerminal.RenderText(calendar, width: 40, culture: CultureInfo.GetCultureInfo("en-US"));
+            string monday = TestTerminal.RenderText(calendar, width: 40, culture: CultureInfo.GetCultureInfo("pl-PL"));
+            Assert.Contains("October 2026", sunday);
+            Assert.Contains("październik 2026", monday);
+            Assert.Contains("2026-40", sunday);
+            Assert.Contains("2026-40", monday);
+            calendar.FirstDayOfWeek = DayOfWeek.Monday;
+            string overridden = TestTerminal.RenderText(calendar, width: 40, culture: CultureInfo.GetCultureInfo("en-US"));
+            Assert.NotEqual(sunday, overridden);
+            Assert.Contains("Mo  Tu  We", overridden);
+        }
+
+        [Fact]
+        public void Year_WrapsMonthsAndHasOneLegend() {
+            Calendar calendar = new Calendar(2024, 1) { View = CalendarView.Year };
+            string wide = TestTerminal.RenderText(calendar, width: 120, culture: CultureInfo.GetCultureInfo("en-US"));
+            string narrow = TestTerminal.RenderText(calendar, width: 40, culture: CultureInfo.GetCultureInfo("en-US"));
+            Assert.Contains("January 2024", wide);
+            Assert.Contains("December 2024", narrow);
+            Assert.True(narrow.Split('\n').Length > wide.Split('\n').Length);
+            Assert.Equal(1, wide.Split(new[] { "x Fail" }, StringSplitOptions.None).Length - 1);
+        }
+
+        [Fact]
+        public void StatusIsVisibleWithoutColour_AndUnmarkedDayIsNeutral() {
+            Calendar calendar = new Calendar(2026, 10, new[] { new CalendarMark(new DateTime(2026, 10, 2), StatusKind.Fail, "Backup") });
+            string text = TestTerminal.RenderText(calendar, width: 40);
+            Assert.Contains("02x", text);
+            Assert.Contains("03", text);
+            Assert.Contains("x Fail", text);
+        }
+
+        [Fact]
+        public void AlignedCalendar_MeasuresItsWrappedLegendAtItsActualWidth() {
+            string text = TestTerminal.RenderText(new Align(new Calendar(2026, 10)), width: 100);
+            Assert.Contains("+ Pass", text);
+            Assert.Contains("- Skip", text);
+        }
+
+        [Fact]
+        public void NonGregorianCulture_UsesGregorianMonthNamesWithoutChangingTheCulture() {
+            CultureInfo culture = CultureInfo.GetCultureInfo("ar-SA");
+            Type original = culture.DateTimeFormat.Calendar.GetType();
+            Calendar calendar = new Calendar(2026, 1) { Culture = culture };
+            string text = TestTerminal.RenderText(calendar, width: 40);
+            DateTimeFormatInfo expected = (DateTimeFormatInfo)culture.DateTimeFormat.Clone();
+            expected.Calendar = new GregorianCalendar();
+            Assert.Contains(expected.GetMonthName(1) + " 2026", text);
+            Assert.Equal(original, culture.DateTimeFormat.Calendar.GetType());
+        }
+
+        [Theory]
+        [InlineData(1, 1)]
+        [InlineData(9999, 12)]
+        public void SupportedDateEdges_RenderWithoutOverflow(int year, int month) {
+            foreach (DayOfWeek first in Enum.GetValues(typeof(DayOfWeek))) {
+                string text = TestTerminal.RenderText(new Calendar(year, month) { FirstDayOfWeek = first }, width: 36);
+                Assert.Contains("01", text);
+            }
+        }
+    }
+}

@@ -7900,6 +7900,330 @@ Invoke-ConsoleDashboard $dashboard {
   </command:command>
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
     <command:details>
+      <command:name>New-ConsoleCalendar</command:name>
+      <command:verb>New</command:verb>
+      <command:noun>ConsoleCalendar</command:noun>
+      <maml:description>
+        <maml:para>Creates a month or year calendar with dated operational outcomes.</maml:para>
+        <maml:para>Returns a passive widget. Pipeline rows provide Date, Status and Label properties, with explicit property overrides. Duplicate dates retain every row; the displayed status uses Fail, Warn, Running, Pending, Pass, Info, Skip precedence. Dates retain calendar components without time-zone conversion. ISO week labels describe the Monday in each row, including with a Sunday-first display.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Creates a month or year calendar with dated operational outcomes.</maml:para>
+      <maml:para>Returns a passive widget. Pipeline rows provide Date, Status and Label properties, with explicit property overrides. Duplicate dates retain every row; the displayed status uses Fail, Warn, Running, Pending, Pass, Info, Skip precedence. Dates retain calendar components without time-zone conversion. ISO week labels describe the Monday in each row, including with a Sunday-first display.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>New-ConsoleCalendar</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Culture</maml:name>
+          <maml:description>
+            <maml:para>Culture for month and weekday labels and the default week start.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">CultureInfo</command:parameterValue>
+          <dev:type>
+            <maml:name>CultureInfo</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>DateProperty</maml:name>
+          <maml:description>
+            <maml:para>Date member (default Date). Convert timestamps to your business time zone before binding.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>FirstDayOfWeek</maml:name>
+          <maml:description>
+            <maml:para>Override the culture's first weekday.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">DayOfWeek</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Sunday</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Monday</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Tuesday</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Wednesday</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Thursday</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Friday</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Saturday</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>DayOfWeek</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="True (ByValue)" position="named" aliases="None">
+          <maml:name>InputObject</maml:name>
+          <maml:description>
+            <maml:para>Rows to mark, retaining their original values for day details.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">PSObject[]</command:parameterValue>
+          <dev:type>
+            <maml:name>PSObject[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>LabelProperty</maml:name>
+          <maml:description>
+            <maml:para>Description member (default Label).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Month</maml:name>
+          <maml:description>
+            <maml:para>Gregorian month, required in Month view.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>NoLegend</maml:name>
+          <maml:description>
+            <maml:para>Omit the status symbol legend.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>StatusProperty</maml:name>
+          <maml:description>
+            <maml:para>Semantic outcome member (default Status).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>View</maml:name>
+          <maml:description>
+            <maml:para>Month (default) or Year.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">CalendarView</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Month</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Year</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>CalendarView</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Year</maml:name>
+          <maml:description>
+            <maml:para>Gregorian year to display.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Culture</maml:name>
+        <maml:description>
+          <maml:para>Culture for month and weekday labels and the default week start.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">CultureInfo</command:parameterValue>
+        <dev:type>
+          <maml:name>CultureInfo</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>DateProperty</maml:name>
+        <maml:description>
+          <maml:para>Date member (default Date). Convert timestamps to your business time zone before binding.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>FirstDayOfWeek</maml:name>
+        <maml:description>
+          <maml:para>Override the culture's first weekday.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">DayOfWeek</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Sunday</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Monday</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Tuesday</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Wednesday</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Thursday</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Friday</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Saturday</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>DayOfWeek</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="True (ByValue)" position="named" aliases="None">
+        <maml:name>InputObject</maml:name>
+        <maml:description>
+          <maml:para>Rows to mark, retaining their original values for day details.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">PSObject[]</command:parameterValue>
+        <dev:type>
+          <maml:name>PSObject[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>LabelProperty</maml:name>
+        <maml:description>
+          <maml:para>Description member (default Label).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Month</maml:name>
+        <maml:description>
+          <maml:para>Gregorian month, required in Month view.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>NoLegend</maml:name>
+        <maml:description>
+          <maml:para>Omit the status symbol legend.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>StatusProperty</maml:name>
+        <maml:description>
+          <maml:para>Semantic outcome member (default Status).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>View</maml:name>
+        <maml:description>
+          <maml:para>Month (default) or Year.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">CalendarView</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Month</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Year</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>CalendarView</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Year</maml:name>
+        <maml:description>
+          <maml:para>Gregorian year to display.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>System.Management.Automation.PSObject[]</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>ConsoleMonster.Widgets.Calendar</maml:name>
+        </dev:type>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>$calendar = $backups | New-ConsoleCalendar -Year 2026 -Month 10; [ConsoleMonster.Terminal]::Write($calendar)</dev:code>
+        <dev:remarks>
+          <maml:para>Display backup outcomes for October.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 2</maml:title>
+        <dev:code>New-ConsoleCalendar -Year 2026 -View Year -FirstDayOfWeek Monday</dev:code>
+        <dev:remarks>
+          <maml:para>Build a year view with Monday-first weeks.</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
       <command:name>New-ConsoleCellMap</command:name>
       <command:verb>New</command:verb>
       <command:noun>ConsoleCellMap</command:noun>

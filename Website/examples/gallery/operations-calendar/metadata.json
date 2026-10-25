@@ -1,0 +1,35 @@
+{
+  "slug": "operations-calendar",
+  "title": "Operations calendar",
+  "pitch": "Review daily backups, change windows and certificate expiries in a marked monthly calendar.",
+  "category": "Reports",
+  "tags": [
+    "calendar",
+    "backups",
+    "changes"
+  ],
+  "terminal": {
+    "width": 100,
+    "height": 20
+  },
+  "runtime": {
+    "powershell": "5.1+",
+    "dotnet": "8.0+"
+  },
+  "addons": [],
+  "makeItYours": [
+    "Bind dated backup or change records using Date, Status and Label.",
+    "Use -View Year for annual planning, or override the first day of the week.",
+    "Keep warning and failure meanings consistent with your backup and certificate reports."
+  ],
+  "mode": "static",
+  "steps": 1,
+  "tier": "starter",
+  "useCase": "Use it when daily operational outcomes need a date-aware overview.",
+  "featured": false,
+  "capture": {
+    "states": [
+      {}
+    ]
+  }
+}
