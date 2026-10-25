@@ -19,7 +19,7 @@ namespace SiteFrames.Tests {
                 var environment = PowerShellRunner.Environment("Dark", color: "none", mode: "interactive");
                 environment["CONSOLEMONSTER_COLOR"] = null;
                 environment["NO_COLOR"] = "1";
-                environment["CONSOLEMONSTER_DEVELOPMENT_CONFIGURATION"] = "Debug";
+                environment["CONSOLEMONSTER_DEVELOPMENT_CONFIGURATION"] = NativeEditorTheoryAttribute.Configuration;
                 string script = Path.Combine(root, "Website", "tools", "SiteFrames", "Capture", "NativeColourSuppression.ps1");
                 string module = Path.Combine(root, "Module", "ConsoleMonster.psd1");
                 var chunks = PseudoConsole.Run(host.Executable + " -NoLogo -NoProfile -File \"" + script + "\" -ModulePath \"" + module + "\"" + (enabled ? " -Enabled" : ""),
