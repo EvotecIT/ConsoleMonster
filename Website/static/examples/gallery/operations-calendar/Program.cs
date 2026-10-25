@@ -12,22 +12,23 @@ var days = new[] {
     new CalendarMark(new DateTime(2026, 10, 9), StatusKind.Pass, "Backup verified"),
     new CalendarMark(new DateTime(2026, 10, 16), StatusKind.Pass, "Backup verified"),
     new CalendarMark(new DateTime(2026, 10, 23), StatusKind.Warn, "Certificate expires"),
-    new CalendarMark(new DateTime(2026, 10, 23), StatusKind.Pass, "Backup verified"),
+    new CalendarMark(new DateTime(2026, 10, 23), StatusKind.Pending, "Backup scheduled"),
     new CalendarMark(new DateTime(2026, 10, 28), StatusKind.Info, "Change window"),
     new CalendarMark(new DateTime(2026, 10, 14), StatusKind.Fail, "Backup verification failed"),
     new CalendarMark(new DateTime(2026, 10, 26), StatusKind.Pending, "Restore drill scheduled"),
-    new CalendarMark(new DateTime(2026, 10, 30), StatusKind.Pass, "Backup verified"),
+    new CalendarMark(new DateTime(2026, 10, 30), StatusKind.Pending, "Backup scheduled"),
 };
 
-// Behaviour: group upcoming labels and use the shared status precedence.
+// Behaviour: group dates while keeping each event's own status.
 var calendar = new Calendar(2026, 10, days) { FirstDayOfWeek = DayOfWeek.Monday, Today = today };
-var upcoming = days.Where(day => day.Date >= today && day.Date <= today.AddDays(14)).GroupBy(day => day.Date).OrderBy(group => group.Key)
-    .Select(group => new { Date = group.Key.ToString("ddd dd MMM", System.Globalization.CultureInfo.GetCultureInfo("en-US")), Status = calendar.Data.GetStatus(group.Key), Label = string.Join(" · ", group.Select(day => day.Label)) });
+var upcoming = days.Where(day => day.Date >= today && day.Date <= today.AddDays(14)).GroupBy(day => day.Date).OrderBy(group => group.Key);
 
 // Layout: a month overview beside the next two weeks from the same rows.
 var events = new Rows();
-foreach (var day in upcoming) {
-    events.Add(new StatusList().Add(day.Date, day.Status!.Value));
-    events.Add(new Padding(TextBlock.Plain(day.Label), 2, 0, 0, 1));
+foreach (var group in upcoming) {
+    events.Add(TextBlock.Plain(group.Key.ToString("ddd dd MMM", System.Globalization.CultureInfo.GetCultureInfo("en-US"))));
+    var items = new StatusList();
+    foreach (var day in group) { items.Add(day.Label, day.Status); }
+    events.Add(new Padding(items, 2, 0, 0, 1));
 }
-Terminal.Write(new Columns(new Panel(calendar, "Operations · October"), new Panel(events, "Upcoming · next 14 days")));
+Terminal.Write(new Columns(new Panel(calendar, "Operations"), new Panel(events, "Upcoming · next 14 days")));

@@ -827,7 +827,7 @@ omits the legend. These widgets never acquire input or start an app.
 
 Coloured marked days use a status chip; ASCII and monochrome keep an aligned
 marker column. The legend includes only statuses present in the displayed
-period. ISO week-years appear only when they differ from the displayed year.
+period. ISO week-years appear only when they differ from the displayed year. `Today` is named with its civil date in the legend; ASCII and monochrome output reserve `@` for an unmarked today cell.
 Use `-Today ([datetime]'2026-10-20')` (C#: `Today`) to highlight a fixed report
 date without consulting the machine clock.
 

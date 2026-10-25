@@ -121,6 +121,21 @@ namespace ConsoleMonster.Tests.Widgets {
             Assert.DoesNotContain("Warn", text);
         }
 
+        [Theory]
+        [InlineData(false, "20@")]
+        [InlineData(true, "20!")]
+        public void Today_IsNamedInPlainOutputWithoutHidingAnOutcome(bool marked, string day) {
+            DateTime today = new DateTime(2026, 10, 20);
+            Calendar calendar = new Calendar(2026, 10, marked ? new[] { new CalendarMark(today, StatusKind.Warn, "Expiry") } : Array.Empty<CalendarMark>()) {
+                Today = today, FirstDayOfWeek = DayOfWeek.Monday
+            };
+            string text = TestTerminal.RenderText(calendar, width: 40, glyphs: ConsoleMonster.Capabilities.GlyphTier.Ascii, culture: CultureInfo.GetCultureInfo("en-US"));
+            Assert.Contains(day, text);
+            Assert.Contains("@ Today 20 Oct", text);
+            calendar.Today = today.AddYears(1);
+            Assert.DoesNotContain("Today", TestTerminal.RenderText(calendar, width: 40));
+        }
+
         [Fact]
         public void NonGregorianCulture_UsesGregorianMonthNamesWithoutChangingTheCulture() {
             CultureInfo culture = CultureInfo.GetCultureInfo("ar-SA");

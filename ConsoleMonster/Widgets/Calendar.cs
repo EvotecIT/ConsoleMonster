@@ -66,7 +66,7 @@ namespace ConsoleMonster.Widgets {
             int columns = Columns(constraints.MaxWidth);
             int rows = View == CalendarView.Year ? (12 + columns - 1) / columns : 1;
             int width = Math.Min(constraints.MaxWidth, columns * (MonthWidth + 2) - 2);
-            return new Size(width, Math.Min(constraints.MaxHeight, rows * MonthHeight + (ShowLegend ? Legend(width, context).Count : 0)));
+            return new Size(width, Math.Min(constraints.MaxHeight, rows * HeightPerMonth(context) + (ShowLegend ? Legend(width, context).Count : 0)));
         }
 
         /// <inheritdoc />
@@ -76,14 +76,22 @@ namespace ConsoleMonster.Widgets {
             int count = View == CalendarView.Year ? 12 : 1;
             CultureInfo culture = Culture ?? context.Culture;
             DayOfWeek first = FirstDayOfWeek ?? culture.DateTimeFormat.FirstDayOfWeek;
+            int monthHeight = HeightPerMonth(context);
             for (int index = 0; index < count; index++) {
-                RenderMonth(region.Sub((index % columns) * (MonthWidth + 2), (index / columns) * MonthHeight, MonthWidth, MonthHeight),
+                RenderMonth(region.Sub((index % columns) * (MonthWidth + 2), (index / columns) * monthHeight, MonthWidth, monthHeight),
                     View == CalendarView.Year ? index + 1 : Month, first, culture, context);
             }
             if (ShowLegend) {
-                int y = ((count + columns - 1) / columns) * MonthHeight;
+                int y = ((count + columns - 1) / columns) * monthHeight;
                 foreach (string line in Legend(region.Width, context)) { region.Write(0, y++, line, context.Style(ThemeToken.Muted)); }
             }
+        }
+
+        private int HeightPerMonth(RenderContext context) {
+            if (View == CalendarView.Year) { return MonthHeight; }
+            DayOfWeek first = FirstDayOfWeek ?? (Culture ?? context.Culture).DateTimeFormat.FirstDayOfWeek;
+            int offset = ((int)new DateTime(Year, Month, 1).DayOfWeek - (int)first + 7) % 7;
+            return 3 + (offset + DateTime.DaysInMonth(Year, Month) + 6) / 7;
         }
 
         private int Columns(int width) => View == CalendarView.Year ? Math.Max(1, (Math.Min(width, 112) + 2) / (MonthWidth + 2)) : 1;
@@ -123,7 +131,7 @@ namespace ConsoleMonster.Widgets {
                         if (context.HasColor && context.Glyphs.Tier != GlyphTier.Ascii) { style = style.With(TextDecoration.Reverse | TextDecoration.Bold); }
                         else { marker = Symbol(status.Value, context); }
                     }
-                    if (Today.HasValue && Today.Value.Date == date) { style = style.With(TextDecoration.Underline | TextDecoration.Bold); if (!status.HasValue) { style = context.Style(ThemeToken.Focus).With(TextDecoration.Bold | TextDecoration.Underline); } }
+                    if (Today.HasValue && Today.Value.Date == date) { style = style.With(TextDecoration.Underline | TextDecoration.Bold); if (!status.HasValue) { style = context.Style(ThemeToken.Focus).With(TextDecoration.Bold | TextDecoration.Underline); if (!context.HasColor || context.Glyphs.Tier == GlyphTier.Ascii) { marker = "@"; } } }
                     region.Write(8 + col * 4, row + 3, number.ToString("00", CultureInfo.InvariantCulture), style);
                     region.Write(10 + col * 4, row + 3, marker, context.Style(status.HasValue ? status.Value.ToToken() : ThemeToken.Text));
                 }
@@ -136,6 +144,11 @@ namespace ConsoleMonster.Widgets {
             foreach (StatusKind status in Statuses) {
                 if (!HasStatus(status)) { continue; }
                 string item = Symbol(status, context) + " " + status;
+                if (current.Length > 0 && ConsoleMonster.Text.DisplayWidth.Measure(current) + 2 + ConsoleMonster.Text.DisplayWidth.Measure(item) > width) { lines.Add(current); current = string.Empty; }
+                current += (current.Length == 0 ? "" : "  ") + item;
+            }
+            if (Today.HasValue && Today.Value.Year == Year && (View == CalendarView.Year || Today.Value.Month == Month)) {
+                string item = (context.HasColor && context.Glyphs.Tier != GlyphTier.Ascii ? "Today " : "@ Today ") + Today.Value.ToString("dd MMM", Culture ?? context.Culture);
                 if (current.Length > 0 && ConsoleMonster.Text.DisplayWidth.Measure(current) + 2 + ConsoleMonster.Text.DisplayWidth.Measure(item) > width) { lines.Add(current); current = string.Empty; }
                 current += (current.Length == 0 ? "" : "  ") + item;
             }
