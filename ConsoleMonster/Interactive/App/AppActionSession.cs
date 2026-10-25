@@ -44,7 +44,7 @@ namespace ConsoleMonster.Interactive {
                         Write(command.Label + ": completed", "pass");
                         succeeded = true;
                     } catch (OperationCanceledException) when (token.IsCancellationRequested) { Write(command.Label + ": cancelled", "warn"); }
-                    catch (Exception error) { Write(command.Label + ": " + error.Message, "err"); }
+                    catch (Exception error) { WriteFailure(command.Label, error); }
                     finally { lock (_gate) { _completedCommand = succeeded ? command : null; _completionRevision++; } }
                 });
                 return true;
@@ -55,6 +55,13 @@ namespace ConsoleMonster.Interactive {
             CancellationTokenSource? operation;
             lock (_gate) { operation = _closed ? null : _operation; }
             try { operation?.Cancel(); } catch (ObjectDisposedException) { }
+        }
+
+        internal void WriteFailure(string label, Exception error) {
+            // AggregateException.Message omits the individual failures on .NET Framework.
+            if (error is AggregateException aggregate && aggregate.InnerExceptions.Count > 0) {
+                foreach (Exception cause in aggregate.Flatten().InnerExceptions) { Write(label + ": " + cause.Message, "err"); }
+            } else { Write(label + ": " + error.Message, "err"); }
         }
 
         internal void Write(string text, string level) {

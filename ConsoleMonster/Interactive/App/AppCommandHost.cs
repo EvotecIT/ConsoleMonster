@@ -71,7 +71,7 @@ namespace ConsoleMonster.Interactive {
             if (completion != _completionRevision && !_session.IsBusy) {
                 _completionRevision = completion;
                 try { if (_session.CompletedCommand is AppCommand command) { _completed?.Invoke(command); } }
-                catch (Exception error) { _session.Write("Refresh: " + error.Message, "err"); }
+                catch (Exception error) { _session.WriteFailure("Refresh", error); }
                 changed = true;
             }
             long revision = _session.Revision;

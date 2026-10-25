@@ -94,6 +94,22 @@ namespace ConsoleMonster.Tests.Interactive.App {
         }
 
         [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void AggregatedActionFailure_LogsEveryCauseAndAllowsAnotherAction(bool empty) {
+            Exception failure = empty ? new AggregateException("Backend unavailable") : new AggregateException(
+                new InvalidOperationException("First service unavailable"), new AggregateException(new InvalidOperationException("Second service unavailable")));
+            AppCommand command = new AppCommand("query", "Query", (_, __) => Task.FromException(failure));
+            using AppActionSession session = new AppActionSession(default);
+            Assert.True(session.Start(command, Array.Empty<object?>()));
+            Assert.True(SpinWait.SpinUntil(() => !session.IsBusy, TimeSpan.FromSeconds(5)));
+            Assert.Contains(session.Output, entry => entry.Text == (empty ? "Query: Backend unavailable" : "Query: First service unavailable") && entry.Level == "err");
+            if (!empty) { Assert.Contains(session.Output, entry => entry.Text == "Query: Second service unavailable" && entry.Level == "err"); }
+            Assert.Null(session.CompletedCommand);
+            Assert.True(session.Start(new AppCommand("next", "Next", (_, __) => Task.CompletedTask), Array.Empty<object?>()));
+        }
+
+        [Theory]
         [InlineData("Ctrl+C")]
         [InlineData("Ctrl+K")]
         [InlineData("Escape")]
@@ -271,27 +287,31 @@ namespace ConsoleMonster.Tests.Interactive.App {
         }
 
         [Fact]
-        public void GridRefresh_ContinuesAfterOneMarkedRowFails() {
+        public void GridRefresh_ReportsEachFailureAndContinuesRefreshingMarkedRows() {
             Grid grid = new Grid("Services"); grid.AddColumn("Name").AddColumn("ProcessId");
-            grid.AddRow("one", "One", 2456); grid.AddRow("two", "Two", 1000);
+            grid.AddRow("one", "One", 2456); grid.AddRow("two", "Two", 1000); grid.AddRow("three", "Three", 3000);
             GridOptions options = new GridOptions();
             options.Commands.Add(new AppCommand("restart", "Restart", (_, __) => Task.CompletedTask) { Shortcut = new KeyChord(ConsoleKey.F5) });
             int calls = 0;
             options.RefreshRow = (_, row) => {
                 calls++;
                 if (Equals(row.Item, "one")) { throw new InvalidOperationException("First row unavailable"); }
+                if (Equals(row.Item, "two")) { throw new InvalidOperationException("Second row unavailable"); }
                 return new GridRow(row.Item, row.Values[0], 2556);
             };
             using GridView view = new GridView(grid, options, new PromptLabels());
             FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, 100, 30, false, TimeSpan.Zero)), 100, 30, Context);
             view.Handle(InputEvent.Press(ConsoleKey.Spacebar)); view.Handle(InputEvent.Press(ConsoleKey.DownArrow)); view.Handle(InputEvent.Press(ConsoleKey.Spacebar));
+            view.Handle(InputEvent.Press(ConsoleKey.DownArrow)); view.Handle(InputEvent.Press(ConsoleKey.Spacebar));
             view.Handle(InputEvent.Press(ConsoleKey.F5));
             Assert.True(SpinWait.SpinUntil(() => { view.Poll(TimeSpan.Zero); return calls > 0; }, TimeSpan.FromSeconds(10)));
-            Assert.Equal(2, calls);
+            Assert.Equal(3, calls);
             Assert.Equal(2456, grid.Rows[0].Values[1]);
-            Assert.Equal(2556, grid.Rows[1].Values[1]);
+            Assert.Equal(1000, grid.Rows[1].Values[1]);
+            Assert.Equal(2556, grid.Rows[2].Values[1]);
             string frame = FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, 100, 30, false, TimeSpan.Zero)), 100, 30, Context).ToPlainText();
-            Assert.Contains("First row unavailable", frame);
+            Assert.Contains("Refresh: First row unavailable", frame);
+            Assert.Contains("Refresh: Second row unavailable", frame);
             Assert.False(view.IsDone);
         }
 
