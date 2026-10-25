@@ -368,7 +368,7 @@ Show-ConsoleMenu $menu -Layout Inline
 
         It 'rejects calculated selectors for loaded choices instead of silently dropping their metadata' {
             { New-ConsoleField -Key Server -Type Select -LoadChoices { 'api' } -Describe { "Server $_" } -ErrorAction Stop } | Should -Throw '*property names*'
-            { New-ConsoleMenuItem -Title Targets -LoadChoices { 'api' } -Describe { "Server $_" } -ErrorAction Stop } | Should -Throw '*property names*'
+            { New-ConsoleMenuItem -Label Targets -LoadChoices { 'api' } -Describe { "Server $_" } -ErrorAction Stop } | Should -Throw '*property names*'
         }
 
         It 'omits an unchanged loaded command value from the equivalent command' {
