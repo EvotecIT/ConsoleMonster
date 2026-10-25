@@ -566,18 +566,19 @@ selection through confirmation, action and refresh, including filtered marks
 and rows with shared or null source objects.
 
 Local builds cover net472, net8.0 and net10.0 with zero warnings on master
-`a5ec30a`, including round 1. The net8.0/net10.0 core suites each pass 2,946 tests
-with eight platform skips. The full en-US Pester suite passes 1,449 tests with
-19 platform skips; the final four action/refresh integration checks pass again
+`c73ff2c1`, including round 1 and the recorder PTY hardening. The
+net8.0/net10.0 core suites each pass 2,958 tests with eight platform skips.
+The full en-US Pester suite passes 1,502 tests with 28 platform skips; the final four action/refresh integration checks pass again
 after the last grid fix. All 112 gallery twin states match. Five preview
 contracts verify the staged output, refreshed details, transport events and
 capture/export freshness. PowerShell scripts parse without PowerShell 7-only
 syntax; native Windows PowerShell 5.1 behavior remains a separate proof gate.
 
-The fresh website render has no asset drift. The full website pipeline remains
-held by PowerForge's template output budget: the larger gallery index is
-truncated, leaving its last demo unlinked. I need the shared renderer fix and
-a passing full pipeline before calling the website validation complete.
+The website pins PowerForge commit `75f768480343f79cf2884259e58eb05ed54080ec`,
+which contains the shared renderer fix for the truncated gallery index.
+The index renders its final demo and footer. The CI-mode website pipeline checks
+that pin, regenerates the terminal assets and rejects capture drift before
+building the site and running its link, SEO and page audits.
 
 I corrected the requested visual findings: output arrives over several seconds,
 confirmation holds on Yes, the ending shows the refreshed PID, and the compact
