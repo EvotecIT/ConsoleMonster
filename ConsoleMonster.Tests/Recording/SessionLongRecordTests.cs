@@ -9,6 +9,9 @@ using ConsoleMonster.Sessions;
 using Xunit;
 
 namespace ConsoleMonster.Tests.Sessions {
+    // Long-record correctness checks keep the production regex deadline and must not race
+    // other allocation-heavy collections for that budget. Exact content/leak assertions remain active.
+    [Collection("Live sessions")]
     public sealed class SessionLongRecordTests : IDisposable {
         private readonly string _folder = Path.Combine(Path.GetTempPath(), "ConsoleMonster-long-record-" + Guid.NewGuid().ToString("N"));
         private SessionRecordingOptions Options() => new SessionRecordingOptions {

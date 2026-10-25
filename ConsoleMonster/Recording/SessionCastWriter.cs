@@ -32,6 +32,8 @@ namespace ConsoleMonster.Sessions {
         private bool _disposed;
         private bool _suppressRecord;
         private bool _suppressLongControl;
+        private RecordingRedactor.TerminalControlState _terminalState;
+        private RecordingRedactor.TerminalControlState _replayTerminalState;
         private int _contextLength;
         private int _nextFlush = FlushThreshold;
         private int _redactionFallbacks;
@@ -97,12 +99,15 @@ namespace ConsoleMonster.Sessions {
         private void AppendCharacter(char c, Arrival arrival) {
             _relay.Append(c);
             if (LimitReached) { return; }
+            bool wasControl = _terminalState.IsPending || _replayTerminalState.IsPending;
+            _terminalState.Append(c); _replayTerminalState.Append(c, replay: true);
+            bool lineBoundary = !wasControl && !_terminalState.IsPending && !_replayTerminalState.IsPending && (c == '\r' || c == '\n');
             if (_suppressRecord) {
-                if (c == '\r' || c == '\n') { _suppressRecord = false; }
+                if (lineBoundary) { _suppressRecord = false; }
                 return;
             }
             _pending.Append(c); _arrivals.Add(arrival);
-            if (c == '\r' || c == '\n') { FlushPending(); }
+            if (lineBoundary) { FlushPending(); }
             else if (_pending.Length >= _nextFlush) {
                 if (!_redactor.RequiresCompleteRecord) {
                     try { FlushPrefix(); }

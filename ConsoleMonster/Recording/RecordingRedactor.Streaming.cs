@@ -23,7 +23,11 @@ namespace ConsoleMonster.Sessions {
 
         /// <summary>Keeps visible and raw pattern lookahead, incomplete controls and unfinished built-in credentials.</summary>
         internal int PrefixLength(string text) {
-            string visible = VisibleText(text, stopAtIncomplete: true, out List<int> positions, out List<SourceRange> controls);
+            return Math.Min(ProjectionPrefixLength(text, replay: false), ProjectionPrefixLength(text, replay: true));
+        }
+
+        private int ProjectionPrefixLength(string text, bool replay) {
+            string visible = VisibleText(text, stopAtIncomplete: true, out List<int> positions, out List<SourceRange> controls, replay);
             if (positions.Count <= _overlap) { return 0; }
             int boundary = Math.Min(positions[positions.Count - _overlap], text.Length - _overlap);
             foreach (SourceRange control in controls) {
@@ -39,8 +43,12 @@ namespace ConsoleMonster.Sessions {
 
         /// <summary>Retains a previous visible character and following controls for word-boundary context.</summary>
         internal static int ContextStart(string text, int consumed) {
+            return Math.Min(ProjectionContextStart(text, consumed, replay: false), ProjectionContextStart(text, consumed, replay: true));
+        }
+
+        private static int ProjectionContextStart(string text, int consumed, bool replay) {
             string prefix = text.Substring(0, consumed);
-            List<SourceRange> controls = TerminalControls(prefix, out _);
+            List<SourceRange> controls = TerminalControls(prefix, out _, replay);
             int lastVisible = -1, lastControl = consumed, controlIndex = 0;
             for (int i = 0; i < prefix.Length; i++) {
                 if (controlIndex < controls.Count && i == controls[controlIndex].Start) {

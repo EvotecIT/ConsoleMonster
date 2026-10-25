@@ -22,21 +22,24 @@ namespace ConsoleMonster.Sessions {
         /// <summary>Redacts the complete lookahead, committing only a prefix that cannot split a replacement.</summary>
         internal RedactedOutput ApplyPrefix(string text, int sourceLength, int startAt = 0) {
             try {
-                string plain = VisibleText(text, stopAtIncomplete: false, out List<int> positions, out _);
-                int visibleStart = 0;
-                while (visibleStart < positions.Count && positions[visibleStart] < startAt) { visibleStart++; }
                 bool[] masked = new bool[text.Length];
                 List<SourceRange> ranges = new List<SourceRange>();
-                // Retained context informs word boundaries but is never a new match start.
-                // Every rule sees the original output. Replacement labels must not shorten a later
-                // rule's input or hide an overlapping secret from another configured rule.
-                foreach (Regex pattern in _patterns) {
-                    foreach (Match match in pattern.Matches(plain, visibleStart)) {
-                        if (match.Length == 0) { continue; }
-                        ranges.Add(new SourceRange(positions[match.Index], positions[match.Index + match.Length - 1] + 1));
-                        for (int i = match.Index; i < match.Index + match.Length; i++) { masked[positions[i]] = true; }
+                // Native terminal OSC/DCS handling and VtScreen replay differ for unexpected ESCs.
+                // Protect credentials under both interpretations, as well as raw control payloads.
+                // Every rule sees the original output, never earlier replacement labels.
+                foreach (bool replay in new[] { false, true }) {
+                    string plain = VisibleText(text, stopAtIncomplete: false, out List<int> positions, out _, replay);
+                    int visibleStart = 0;
+                    while (visibleStart < positions.Count && positions[visibleStart] < startAt) { visibleStart++; }
+                    foreach (Regex pattern in _patterns) {
+                        foreach (Match match in pattern.Matches(plain, visibleStart)) {
+                            if (match.Length == 0) { continue; }
+                            ranges.Add(new SourceRange(positions[match.Index], positions[match.Index + match.Length - 1] + 1));
+                            for (int i = match.Index; i < match.Index + match.Length; i++) { masked[positions[i]] = true; }
+                        }
                     }
-                    // Also cover secrets inside non-printing controls, such as a window title.
+                }
+                foreach (Regex pattern in _patterns) {
                     foreach (Match match in pattern.Matches(text, startAt)) {
                         if (match.Length == 0) { continue; }
                         ranges.Add(new SourceRange(match.Index, match.Index + match.Length));
