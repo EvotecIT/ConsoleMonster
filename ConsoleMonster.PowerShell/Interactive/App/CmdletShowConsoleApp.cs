@@ -84,6 +84,9 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public LiveSessionOptions? Live { get; set; }
 
+        /// <summary><para type="description">Default width below which columns stack; explicit column thresholds take precedence.</para></summary>
+        [Parameter, ValidateRange(0, int.MaxValue)] public int ReflowBelow { get; set; } = 60;
+
         /// <inheritdoc />
         protected override void EndProcessing() {
             CancellationTokenSource stop;
@@ -110,6 +113,7 @@ namespace ConsoleMonster.PowerShell {
                         Interactive = interactive,
                         Live = Live,
                         Mouse = !NoMouse.IsPresent,
+                        ReflowBelow = ReflowBelow,
                         StaticSnapshot = StaticSnapshot.IsPresent,
                         ProcessEvents = callbacks.Drain,
                         Selection = state => {

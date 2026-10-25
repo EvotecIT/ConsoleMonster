@@ -48,10 +48,9 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public BarShape Shape { get; set; } = BarShape.Line;
 
-        /// <summary><para type="description">The columns of each row, in order: Standard (spinner, description, bar, percent, count, elapsed, remaining time, status), or any of Spinner, Description, Bar, Percent, Count, Elapsed, Remaining, Rate, ByteRate, Results and Status. Without it the classic layout shows the label, bar, percentage, pass/fail/warning counts and detail.</para></summary>
+        /// <summary><para type="description">Builtin names, Type/Alignment/Priority/MaxWidth records or typed columns, in order: Standard (spinner, description, bar, percent, count, elapsed, remaining time, status), or any of Spinner, Description, Bar, Percent, Count, Elapsed, Remaining, Rate, ByteRate, Results and Status. Without it the classic layout shows the label, bar, percentage, pass/fail/warning counts and detail.</para></summary>
         [Parameter]
-        [ValidateSet("Standard", "Spinner", "Description", "Bar", "Percent", "Count", "Elapsed", "Remaining", "Rate", "ByteRate", "Results", "Status", IgnoreCase = true)]
-        public string[]? Columns { get; set; }
+        public object[]? Columns { get; set; }
 
         /// <summary><para type="description">Finished lanes leave the display and are counted in the summary line.</para></summary>
         [Parameter]
@@ -70,6 +69,23 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Shared PercentColumn layout settings from New-ConsoleColumnFormat.</para></summary>
         [Parameter] public Layout.ColumnFormat? PercentColumn { get; set; }
 
+        /// <summary><para type="description">Maximum lane label width in cells; default 28.</para></summary>
+        [Parameter, ValidateRange(1, int.MaxValue)] public int MaxLabelWidth { get; set; } = 28;
+        /// <summary><para type="description">Hides each lane's detail text.</para></summary>
+        [Parameter] public SwitchParameter NoDetail { get; set; }
+        /// <summary><para type="description">Includes skipped work in the completed count.</para></summary>
+        [Parameter] public SwitchParameter CountSkipped { get; set; }
+        /// <summary><para type="description">Uses normal text instead of dimming pending lanes.</para></summary>
+        [Parameter] public SwitchParameter NoDimPending { get; set; }
+        /// <summary><para type="description">Emphasizes active lane labels.</para></summary>
+        [Parameter] public SwitchParameter BoldActive { get; set; }
+        /// <summary><para type="description">Shows a separate count of running lanes.</para></summary>
+        [Parameter] public SwitchParameter ShowRunningCount { get; set; }
+        /// <summary><para type="description">Collapses lanes with this status into a summary.</para></summary>
+        [Parameter] public Styling.StatusKind? CollapseWhen { get; set; }
+        /// <summary><para type="description">Rate-estimation window in seconds; default 10.</para></summary>
+        [Parameter, ValidateRange(0.001, 86400)] public double RateWindowSeconds { get; set; } = 10;
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (InputObject != null) {
@@ -81,8 +97,11 @@ namespace ConsoleMonster.PowerShell {
         protected override void EndProcessing() {
             ScriptBlock? content = Content;
             Lanes lanes = new Lanes(WidgetId) {
-                Shape = Shape,
-                Columns = Columns == null ? null : ProgressColumns.FromNames(Columns),
+                Shape = Shape, MaxLabelWidth = MaxLabelWidth, ShowDetail = !NoDetail.IsPresent,
+                CountSkipped = CountSkipped.IsPresent, DimPending = !NoDimPending.IsPresent,
+                BoldActive = BoldActive.IsPresent, ShowRunningCount = ShowRunningCount.IsPresent,
+                CollapseWhen = CollapseWhen, RateWindow = System.TimeSpan.FromSeconds(RateWindowSeconds),
+                Columns = PSProgressColumns.Build(Columns),
                 HideCompleted = HideCompleted.IsPresent,
                 CollapseWhenFinished = CollapseWhenFinished.IsPresent,
                 Transient = Transient.IsPresent

@@ -65,14 +65,14 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public HorizontalAlignment Alignment { get; set; } = HorizontalAlignment.Left;
 
-        /// <summary><para type="description">Kept for compatibility: text is literal by default; use -Markup for markup.</para></summary>
-        [Parameter]
-        public SwitchParameter Plain { get; set; }
+        /// <summary><para type="description">Overflow policy when rendered in constrained cells.</para></summary>
+        [Parameter] public Widgets.TextOverflow Overflow { get; set; } = Widgets.TextOverflow.Wrap;
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
             RichText text = PSRichText.Build(Text, Color, BackgroundColor, Markup, Decoration, Link, Role, Gradient);
             text.Alignment = Alignment;
+            text.Overflow = Overflow;
             WriteObject(text);
         }
     }

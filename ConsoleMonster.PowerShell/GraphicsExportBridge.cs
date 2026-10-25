@@ -19,8 +19,8 @@ namespace ConsoleMonster.PowerShell {
                 || string.Equals(name, "Apng", StringComparison.OrdinalIgnoreCase);
         }
         [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static object Frame(IReadOnlyList<object> items, string? path, string preset, string? font, string fit, string background, string? backgroundColor, string? backgroundEndColor, ExportOptions options, PSCmdlet cmdlet) {
-            GraphicsExportOptions settings = Settings(preset, font, fit, background, backgroundColor, backgroundEndColor, options);
+        internal static object Frame(IReadOnlyList<object> items, string? path, string preset, string? font, string fit, string background, string? backgroundColor, string? backgroundEndColor, ExportOptions options, PSCmdlet cmdlet, double maxFontSize, string[]? fontFallbacks) {
+            GraphicsExportOptions settings = Settings(preset, font, fit, background, backgroundColor, backgroundEndColor, options, maxFontSize, fontFallbacks);
             byte[] bytes;
             object raw = items.Count == 1 ? PSObject.AsPSObject(items[0]).BaseObject : new object();
             if (raw is Canvas.CellBuffer frame) { bytes = FrameExporter.Export(frame, "Png", options, new PngFrameExportProvider(settings)); }
@@ -31,8 +31,8 @@ namespace ConsoleMonster.PowerShell {
         }
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static IReadOnlyList<string> Recording(string source, string target, string? format, string preset, string? font, string fit, string background, string? backgroundColor, string? backgroundEndColor,
-            ExportOptions frame, RecordingExportOptions playback, int loops, IWidget? dashboard, TimeSpan? at, string? chapter, bool perChapter, System.Threading.CancellationToken cancellationToken) {
-            GraphicsExportOptions settings = Settings(preset, font, fit, background, backgroundColor, backgroundEndColor, frame);
+            ExportOptions frame, RecordingExportOptions playback, int loops, IWidget? dashboard, TimeSpan? at, string? chapter, bool perChapter, System.Threading.CancellationToken cancellationToken, double maxFontSize, string[]? fontFallbacks) {
+            GraphicsExportOptions settings = Settings(preset, font, fit, background, backgroundColor, backgroundEndColor, frame, maxFontSize, fontFallbacks);
             settings.Playback = playback; settings.LoopCount = loops;
             GraphicsFormat selected = (GraphicsFormat)Enum.Parse(typeof(GraphicsFormat), format ?? System.IO.Path.GetExtension(target).TrimStart('.'), true);
             if (dashboard != null) {
@@ -54,10 +54,14 @@ namespace ConsoleMonster.PowerShell {
             }
             return new[] { target };
         }
-        private static GraphicsExportOptions Settings(string preset, string? font, string fit, string background, string? color, string? endColor, ExportOptions frame) => new GraphicsExportOptions {
+        private static GraphicsExportOptions Settings(string preset, string? font, string fit, string background, string? color, string? endColor, ExportOptions frame, double maxFontSize, string[]? fontFallbacks) {
+            var settings = new GraphicsExportOptions {
             Preset = (GraphicsPreset)Enum.Parse(typeof(GraphicsPreset), preset, true), FontFamily = font, Frame = frame,
             Fit = (GraphicsFit)Enum.Parse(typeof(GraphicsFit), fit, true), Background = (GraphicsBackground)Enum.Parse(typeof(GraphicsBackground), background, true),
-            BackgroundColor = color, BackgroundEndColor = endColor
-        };
+            BackgroundColor = color, BackgroundEndColor = endColor, MaxFontSize = maxFontSize
+            };
+            foreach (string fallback in fontFallbacks ?? Array.Empty<string>()) { settings.FontFallbacks.Add(fallback); }
+            return settings;
+        }
     }
 }

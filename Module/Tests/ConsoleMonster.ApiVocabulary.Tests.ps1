@@ -49,6 +49,99 @@ Describe 'ConsoleMonster public API vocabulary' {
         }
     }
 
+    It 'keeps exporting in Export-ConsoleFrame and the default sink limited to routing' {
+        (Get-Command Out-ConsoleDefault).Parameters.ContainsKey('Format') | Should -BeFalse
+        (Get-Command Out-ConsoleDefault).Parameters.ContainsKey('Width') | Should -BeFalse
+        (Get-Command Export-ConsoleFrame).Parameters.Keys | Should -Contain Format
+    }
+
+    It 'uses the shared presentation options and removes the literal-text compatibility switch' {
+        (Get-Command New-ConsoleText).Parameters.ContainsKey('Plain') | Should -BeFalse
+        $lanes = New-ConsoleLanes -NoDetail -NoDimPending -CountSkipped -BoldActive -ShowRunningCount -MaxLabelWidth 17 -CollapseWhen Pass -RateWindowSeconds 0.5
+        $lanes.ShowDetail | Should -BeFalse
+        $lanes.DimPending | Should -BeFalse
+        $lanes.CountSkipped | Should -BeTrue
+        $lanes.BoldActive | Should -BeTrue
+        $lanes.ShowRunningCount | Should -BeTrue
+        $lanes.MaxLabelWidth | Should -Be 17
+        $lanes.CollapseWhen.ToString() | Should -Be Pass
+        $lanes.RateWindow.TotalSeconds | Should -Be 0.5
+        $cells = New-ConsoleCellMap -Gap 2 -Window Active -NoSpinRunning
+        $cells.Gap | Should -Be 2
+        $cells.Window.ToString() | Should -Be Active
+        $cells.SpinRunning | Should -BeFalse
+        (New-ConsoleSummaryBar -NoElapsed -DoneLabel 'Checked').ShowElapsed | Should -BeFalse
+        (New-ConsoleSummaryBar -DoneLabel 'Checked').DoneLabel | Should -Be Checked
+        (New-ConsoleText 'literal [pass]value[/]' -Overflow Ellipsis).PlainText | Should -Be 'literal [pass]value[/]'
+        foreach ($command in 'New-ConsoleProgress', 'New-ConsoleLanes') {
+            $widget = & $command -Columns @{ Type = 'Percent'; Alignment = 'Right'; Priority = 17; MaxWidth = 6 }
+            $widget.Columns.Count | Should -Be 1
+            $widget.Columns[0].Alignment.ToString() | Should -Be Right
+            $widget.Columns[0].Priority | Should -Be 17
+            $widget.Columns[0].MaxWidth | Should -Be 6
+            { & $command -Columns @{ Type = 'Percent'; Width = 6 } } | Should -Throw '*Unknown item field*'
+            { & $command -Columns @{ Type = 'Percent'; MaxWidth = -1 } } | Should -Throw '*MaxWidth*'
+        }
+        $spinner = New-ConsoleProgress -Indeterminate -StartedSeconds 0.25 -FinishedSeconds 1.5 -Status Pass
+        $spinner.Started.TotalSeconds | Should -Be 0.25
+        $spinner.Finished.TotalSeconds | Should -Be 1.5
+        { New-ConsoleProgress -Value 1 -StartedSeconds 0.25 } | Should -Throw
+        $rule = New-ConsoleRule 'Build' -LineRole Accent -LineStyle Double
+        $rule.LineRole.ToString() | Should -Be Accent
+        $rule.LineStyle.ToString() | Should -Be Double
+        (Show-Console -View Rule -Title Build -LineRole Accent -LineStyle Double -AsWidget).LineStyle | Should -Be $rule.LineStyle
+        { Show-Console -View Json -LineRole Accent -InputObject '{}' } | Should -Throw '*does not support LineRole*'
+    }
+
+    It 'passes typed export options through the same C# serializers without changing the request' {
+        $options = [Activator]::CreateInstance((Get-Command Export-ConsoleFrame).Parameters['Options'].ParameterType)
+        $options.Width = 0
+        $options.Padding = 7
+        $options.Fragment = $true
+        $options.LineHeight = 1.5
+        $widget = New-ConsolePanel -Title Build -Content { New-ConsoleText Ready }
+        $actual = $widget | Export-ConsoleFrame -Format Html -Options $options
+        $exporter = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Export.ConsoleExporter')
+        $expected = $exporter::ToHtml($widget, $options)
+        $actual | Should -BeExactly $expected
+        $options.Width | Should -Be 0
+        ($widget | Export-ConsoleFrame -Format Text -Options @{ Width = 25 }) | Should -Match Ready
+        $options.Padding | Should -Be 7
+        { $widget | Export-ConsoleFrame -Format Html -Options $options -Width 40 } | Should -Throw '*Width*cannot be combined*'
+        $cast = Join-Path $TestDrive 'sample.cast'
+        [IO.File]::WriteAllText($cast, "{`"version`":2,`"width`":10,`"height`":2}`n[0,`"o`",`"Ready`"]`n")
+        $playback = [Activator]::CreateInstance((Get-Command Export-ConsoleRecording).Parameters['Options'].ParameterType)
+        $playback.Width = 0
+        $playback.MaxFrames = 10
+        $playback.FontSize = 12
+        $actual = Export-ConsoleRecording -Path $cast -Format Svg -Options $playback
+        $recordingType = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Sessions.SessionRecording')
+        $recording = $recordingType::Read($cast)
+        $format = [Enum]::Parse([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Export.ExportFormat'), 'Svg')
+        $expected = $recording.Export($format, $playback)
+        $actual | Should -BeExactly $expected
+        $playback.Width | Should -Be 0
+        { Export-ConsoleRecording -Path $cast -Options $playback -Speed 2 } | Should -Throw '*Speed*cannot be combined*'
+        $form = New-ConsoleForm 'Build'
+        { Read-ConsoleForm $form -Options ([Activator]::CreateInstance((Get-Command Read-ConsoleForm).Parameters['Options'].ParameterType)) -Inline } | Should -Throw '*Inline*cannot be combined*'
+        $menu = New-ConsoleMenu 'Build'
+        { Show-ConsoleMenu $menu -Options ([Activator]::CreateInstance((Get-Command Show-ConsoleMenu).Parameters['Options'].ParameterType)) -NoCommandPalette } | Should -Throw '*NoCommandPalette*cannot be combined*'
+    }
+
+    It 'uses the same chart controls and rejects them for mismatched kinds' {
+        $bar = New-ConsoleChart -Type Bar -NoValues -Signed
+        $bar.ShowValues | Should -BeFalse
+        $bar.Signed | Should -BeTrue
+        $stacked = New-ConsoleChart -Type Stacked -NoLegend -MaxLegendColumns 2
+        $stacked.ShowLegend | Should -BeFalse
+        $stacked.MaxLegendColumns | Should -Be 2
+        (New-ConsoleChart -Type Line -Capacity 7).Capacity | Should -Be 7
+        (New-ConsoleChart -Type Sparkline -Capacity 9).Capacity | Should -Be 9
+        { New-ConsoleChart -Type Line -NoValues } | Should -Throw '*does not support ShowValues*'
+        { New-ConsoleChart -Type Bar -NoLegend } | Should -Throw '*does not support ShowLegend*'
+        { New-ConsoleChart -Type Bar -Capacity 7 } | Should -Throw '*does not support Capacity*'
+    }
+
     It 'keeps shortcut metadata limited to the selected representation' {
         foreach ($name in 'Language', 'LineNumbers', 'PlaybackMode', 'Bins', 'ChildrenProperty', 'NoStack') {
             (Get-Command Show-ConsoleTable).Parameters.ContainsKey($name) | Should -BeFalse

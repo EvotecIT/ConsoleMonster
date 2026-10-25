@@ -78,6 +78,22 @@ namespace ConsoleMonster.Widgets {
         private ColumnFormat? _labelColumn;
         /// <summary>The stacked legend-label format.</summary>
         public ColumnFormat? LabelColumn { get => _labelColumn; set { _labelColumn = value; _bound.Add(nameof(LabelColumn)); } }
+        private bool _showValues = true;
+        /// <summary>Whether Bar charts show each numeric value.</summary>
+        public bool ShowValues { get => _showValues; set { _showValues = value; _bound.Add(nameof(ShowValues)); } }
+        private bool _signed;
+        /// <summary>Whether Bar charts reserve space on both sides of zero.</summary>
+        public bool Signed { get => _signed; set { _signed = value; _bound.Add(nameof(Signed)); } }
+        private bool _showLegend = true;
+        /// <summary>Whether Stacked charts show their legend.</summary>
+        public bool ShowLegend { get => _showLegend; set { _showLegend = value; _bound.Add(nameof(ShowLegend)); } }
+        private int _maxLegendColumns;
+        /// <summary>Maximum Stacked legend columns; zero fits the available width.</summary>
+        public int MaxLegendColumns { get => _maxLegendColumns; set { _maxLegendColumns = value; _bound.Add(nameof(MaxLegendColumns)); } }
+        private int? _capacity;
+        /// <summary>Retained Line, Scatter or Sparkline samples; null keeps that kind's default.</summary>
+        public int? Capacity { get => _capacity; set { _capacity = value; _bound.Add(nameof(Capacity)); } }
+
         /// <summary>Labelled bars or stacked segments.</summary>
         public IList<ChartItem> Items { get; } = new List<ChartItem>();
         /// <summary>Typed line/scatter series, retaining per-series colors.</summary>

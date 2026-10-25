@@ -117,6 +117,10 @@ namespace ConsoleMonster.PowerShell {
         public virtual SwitchParameter NoPager { get; set; }
         /// <summary><para type="description">The rule title alignment; default Left.</para></summary>
         public virtual HorizontalAlignment Alignment { get; set; }
+        /// <summary><para type="description">Theme role for a rule line; default Border.</para></summary>
+        public virtual Styling.ThemeToken LineRole { get; set; } = Styling.ThemeToken.Border;
+        /// <summary><para type="description">Optional rule line glyph style.</para></summary>
+        public virtual Glyphs.BoxStyle? LineStyle { get; set; }
         /// <inheritdoc />
         protected override void BeginProcessing() { PSOutputExport.Validate(this); ValidateView(RequestedView); }
         /// <inheritdoc />

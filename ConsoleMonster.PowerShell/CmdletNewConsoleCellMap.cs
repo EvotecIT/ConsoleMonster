@@ -60,6 +60,13 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(Position = 0)]
         public string WidgetId { get; set; } = "cells";
 
+        /// <summary><para type="description">Space between cells; default one column.</para></summary>
+        [Parameter, ValidateRange(0, int.MaxValue)] public int Gap { get; set; } = 1;
+        /// <summary><para type="description">Chooses which cells remain visible when MaxRows limits the map.</para></summary>
+        [Parameter] public CellMap.CellWindow Window { get; set; }
+        /// <summary><para type="description">Uses a fixed running marker instead of a spinner.</para></summary>
+        [Parameter] public SwitchParameter NoSpinRunning { get; set; }
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (Status != null) {
@@ -71,7 +78,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void EndProcessing() {
-            CellMap map = new CellMap(WidgetId) { MaxRows = MaxRows, ShowLegend = !NoLegend.IsPresent, Columns = Math.Max(0, Columns), LegendLines = Math.Max(1, LegendLines) };
+            CellMap map = new CellMap(WidgetId) { Gap = Gap, Window = Window, SpinRunning = !NoSpinRunning.IsPresent, MaxRows = MaxRows, ShowLegend = !NoLegend.IsPresent, Columns = Math.Max(0, Columns), LegendLines = Math.Max(1, LegendLines) };
             if (RowLabels != null) {
                 foreach (string label in RowLabels) {
                     map.RowLabels.Add(label ?? string.Empty);

@@ -65,6 +65,16 @@ namespace ConsoleMonster.Tests.Building {
         }
 
         [Fact]
+        public void SelectionFactoryAppliesTheSamePageSizeToBothKinds() {
+            var options = new SelectInputOptions { Key = "Targets", PageSize = 3 };
+            Assert.Equal(3, Assert.IsType<Select>(AppInput.Select(options)).PageSize);
+            options.Multiple = true;
+            Assert.Equal(3, Assert.IsType<MultiSelect>(AppInput.Select(options)).PageSize);
+            options.PageSize = 0;
+            Assert.Throws<ArgumentOutOfRangeException>(() => AppInput.Select(options));
+        }
+
+        [Fact]
         public void MultipleSelectionKeepsChoiceIdentityAndOmittedInitialSelection() {
             object first = new object();
             object second = new object();

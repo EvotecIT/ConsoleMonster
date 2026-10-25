@@ -18,7 +18,7 @@ namespace ConsoleMonster.Tests.Live {
             LogRegion log = new LogRegion { Capacity = producers * updates };
             ProgressBar progress = new ProgressBar("Progress", "progress") { Total = producers * updates };
             KeyValueList values = new KeyValueList();
-            SummaryBar summary = new SummaryBar { ShowDuration = false };
+            SummaryBar summary = new SummaryBar { ShowElapsed = false };
             RegionWidget slot = new RegionWidget("result");
             using (LiveSession session = new LiveSession(new Rows(log, progress, values, summary, slot), LiveSessionTests.Options(new FakeOutput()))) {
                 var logging = log.Handle(session);

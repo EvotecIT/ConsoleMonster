@@ -76,6 +76,17 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Initial Line/Scatter series names, or records with Key, Label, Role and Values.</para></summary>
         [Parameter] public object[]? Series { get; set; }
 
+        /// <summary><para type="description">Hides Bar-chart numeric value labels.</para></summary>
+        [Parameter] public SwitchParameter NoValues { get; set; }
+        /// <summary><para type="description">Shows signed Bar values on both sides of zero.</para></summary>
+        [Parameter] public SwitchParameter Signed { get; set; }
+        /// <summary><para type="description">Hides the Stacked-chart legend.</para></summary>
+        [Parameter] public SwitchParameter NoLegend { get; set; }
+        /// <summary><para type="description">Maximum Stacked legend columns; zero fits the available width.</para></summary>
+        [Parameter, ValidateRange(0, int.MaxValue)] public int MaxLegendColumns { get; set; }
+        /// <summary><para type="description">Retained Line, Scatter or Sparkline samples; omitted uses the selected kind default.</para></summary>
+        [Parameter, ValidateRange(1, int.MaxValue)] public int? Capacity { get; set; }
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (InputObject != null) { _items.AddRange(PSItems.Items(InputObject)); }
@@ -84,6 +95,11 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void EndProcessing() {
             var options = new ChartOptions { Type = Type };
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(NoValues))) { options.ShowValues = !NoValues.IsPresent; }
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(Signed))) { options.Signed = Signed.IsPresent; }
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(NoLegend))) { options.ShowLegend = !NoLegend.IsPresent; }
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(MaxLegendColumns))) { options.MaxLegendColumns = MaxLegendColumns; }
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(Capacity))) { options.Capacity = Capacity; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(WidgetId))) { options.WidgetId = WidgetId; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Unit))) { options.Unit = Unit; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Label))) { options.Label = PSText.Markup(Label); }

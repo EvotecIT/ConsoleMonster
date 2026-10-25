@@ -56,22 +56,27 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public InteractionMode? Mode { get; set; }
 
+        /// <summary><para type="description">Typed C# FormOptions configuration. Use this instead of individual interaction settings; omitted host devices use the owning PowerShell runspace and the supplied object is not modified.</para></summary>
+        [Parameter, ValidateNotNull] public FormOptions? Options { get; set; }
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (Form == null) {
                 return;
             }
-            _stop = new CancellationTokenSource();
-            FormResult result;
-            try {
-                result = Form.Show(new FormOptions {
+            FormOptions options = PSOptions.Resolve(this, Options, () => new FormOptions {
                     Interactive = PSInteractive.Options(this, Mode),
                     AppName = AppName,
                     RememberLastChoices = RememberLastChoices.IsPresent,
                     StorageRoot = StorageRoot,
                     Inline = Inline.IsPresent,
                     Preset = Preset
-                }, _stop.Token);
+                }, nameof(AppName), nameof(RememberLastChoices), nameof(StorageRoot), nameof(Inline), nameof(Preset), nameof(Mode)).Clone();
+            options.Interactive ??= PSInteractive.Options(this, null);
+            _stop = new CancellationTokenSource();
+            FormResult result;
+            try {
+                result = Form.Show(options, _stop.Token);
             } catch (Exception ex) when (ex is PromptCanceledException || ex is PromptUnavailableException || ex is Input.InputClosedException) {
                 PSInteractive.Fail(this, ex, Form.Title);
                 return;

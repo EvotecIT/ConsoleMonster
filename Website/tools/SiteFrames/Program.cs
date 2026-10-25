@@ -220,6 +220,7 @@ namespace SiteFrames {
 
         private static int Render(Site site, string? only) {
             JsonObject hosts = (JsonObject)JsonNode.Parse(File.ReadAllText(Path.Combine(site.Captures, "hosts.json")))!;
+            ApiParityPage.Render(site);
             Figures.Render(site);
             OverviewFigures.Render(site);
             CommandLineHelpFigures.Render(site);

@@ -31,7 +31,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleKeyValue")]
     [OutputType(typeof(KeyValueList))]
-    public class CmdletNewConsoleKeyValue : PSCmdlet {
+    public sealed class CmdletNewConsoleKeyValue : PSCmdlet {
         private readonly List<object> _input = new List<object>();
         /// <summary><para type="description">A hashtable or an object whose properties become the pairs (a script block here is taken as -Content).</para></summary>
         [Parameter(Position = 1, ValueFromPipeline = true)]
@@ -61,6 +61,8 @@ namespace ConsoleMonster.PowerShell {
         [Parameter, ValidateRange(1, 12)] public int Columns { get; set; } = 1;
         /// <summary><para type="description">Theme role for keys.</para></summary>
         [Parameter] public ConsoleMonster.Styling.ThemeToken KeyRole { get; set; } = ConsoleMonster.Styling.ThemeToken.Muted;
+        /// <summary><para type="description">Shared value-formatting culture, clock and time zone.</para></summary>
+        [Parameter] public Presenters.PresentationOptions? Presentation { get; set; }
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
@@ -91,12 +93,10 @@ namespace ConsoleMonster.PowerShell {
             }
             PSItems.AddAll(this, list, PSItems.Items(Content));
             if (NumberColumn != null) { list.NumberColumn = NumberColumn; }
-            Emit(list);
+            if (Presentation != null) { list.Presentation = Presentation; }
+            WriteObject(list);
         }
 
-        /// <summary>Emits the list (Show-ConsoleList overrides this to write it).</summary>
-        /// <param name="list">The list.</param>
-        protected virtual void Emit(KeyValueList list) => WriteObject(list);
 
         private string Value(object? value) {
             string text = PSWidgets.ToText(value);

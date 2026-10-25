@@ -133,10 +133,13 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter Force { get; set; }
 
+        /// <summary><para type="description">Keeps a yes/no confirmation for removals instead of requiring the removal count. An explicit TypedConfirmation still takes precedence.</para></summary>
+        [Parameter] public SwitchParameter NoTypedWhenDestructive { get; set; }
+
         /// <inheritdoc />
         protected override void EndProcessing() {
             ChangeSet changes = PSChanges.Compare(ReferenceObject, DifferenceObject, Property, null, Ignore, 3, false);
-            ChangePreviewOptions options = new ChangePreviewOptions { Title = PSText.Markup(Title), Mode = View, Question = Question, TypedConfirmation = TypedConfirmation };
+            ChangePreviewOptions options = new ChangePreviewOptions { Title = PSText.Markup(Title), Mode = View, Question = Question, TypedConfirmation = TypedConfirmation, TypedWhenDestructive = !NoTypedWhenDestructive.IsPresent };
             PSFormatting.Write(this, new ChangeView(changes, View) { Title = options.Title, MoreHint = "-View SideBySide" }, 0);
             if (!changes.HasChanges) {
                 HostOutput.WriteMarkup(this, "[muted]" + Text.Markup.Escape(Localization.WidgetLabels.Current.ChangesNone) + "[/]");

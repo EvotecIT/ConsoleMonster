@@ -210,6 +210,11 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public override HorizontalAlignment Alignment { get; set; }
 
+        /// <summary><para type="description">Theme role for a rule line; default Border.</para></summary>
+        [Parameter] public override Styling.ThemeToken LineRole { get; set; } = Styling.ThemeToken.Border;
+        /// <summary><para type="description">Optional rule line glyph style.</para></summary>
+        [Parameter] public override Glyphs.BoxStyle? LineStyle { get; set; }
+
         /// <summary><para type="description">Optional title indentation in cells.</para></summary>
         [Parameter]
         public override int? TitleIndent { get; set; }

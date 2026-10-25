@@ -164,6 +164,7 @@ namespace SiteFrames.Pages {
                 entry["powershell"] = powershell["text"]!.GetValue<string>();
                 entry["csharp"] = csharp["text"]!.GetValue<string>();
                 entry["csharpFluent"] = fluent["text"]!.GetValue<string>();
+                entry["apiMap"] = ApiMappingNotes.For(site, demo.CSharp, demo.CSharpFluent);
                 entry["powershellRepo"] = powershell["repo"]!.GetValue<string>();
                 entry["csharpRepo"] = csharp["repo"]!.GetValue<string>();
                 entry["csharpFluentRepo"] = fluent["repo"]!.GetValue<string>();

@@ -14,8 +14,9 @@ namespace ConsoleMonster.PowerShell {
         /// <param name="widget">The complete help view when resolution succeeds.</param>
         /// <param name="error">The native or descriptive lookup error when resolution fails.</param>
         /// <param name="noExamples">Suppresses default-on help examples.</param>
+        /// <param name="noParameters">Suppresses the detailed parameter reference.</param>
         /// <returns>Whether a help view was found.</returns>
-        public static bool TryCreate(string name, CommandInvocationIntrinsics invokeCommand, out IWidget? widget, out ErrorRecord? error, bool noExamples = false) {
+        public static bool TryCreate(string name, CommandInvocationIntrinsics invokeCommand, out IWidget? widget, out ErrorRecord? error, bool noExamples = false, bool noParameters = false) {
             if (invokeCommand == null) { throw new ArgumentNullException(nameof(invokeCommand)); }
             if (name == null) { throw new ArgumentNullException(nameof(name)); }
             widget = null;
@@ -73,6 +74,7 @@ namespace ConsoleMonster.PowerShell {
             } else {
                 view = PSHelp.CreateView(help, command, noExamples);
             }
+            if (view is HelpView helpView) { helpView.ShowParameters = !noParameters; }
             widget = view;
             return true;
         }

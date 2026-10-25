@@ -47,9 +47,14 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Hides the default elapsed clock in the dashboard header.</para></summary>
         [Parameter] public SwitchParameter NoElapsed { get; set; }
 
+        /// <summary><para type="description">Additional header detail, including markup.</para></summary>
+        [Parameter] public object? Detail { get; set; }
+        /// <summary><para type="description">Initial header status.</para></summary>
+        [Parameter] public Styling.StatusKind? Status { get; set; }
+
         /// <inheritdoc />
         protected override IWidget Build(List<IWidget> children) {
-            Dashboard dashboard = new Dashboard(PSText.Markup(Title) ?? string.Empty, new Rows(children.ToArray()) { Gap = Gap }, WidgetId) { Subtitle = PSText.Markup(Subtitle), ShowElapsed = !NoElapsed.IsPresent };
+            Dashboard dashboard = new Dashboard(PSText.Markup(Title) ?? string.Empty, new Rows(children.ToArray()) { Gap = Gap }, WidgetId) { Subtitle = PSText.Markup(Subtitle), Detail = PSText.Markup(Detail), Status = Status, ShowElapsed = !NoElapsed.IsPresent };
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Footer))) {
                 dashboard.Footer = PSText.Markup(Footer);
             }

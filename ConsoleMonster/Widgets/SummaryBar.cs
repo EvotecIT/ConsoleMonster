@@ -67,7 +67,7 @@ namespace ConsoleMonster.Widgets {
         /// Whether a finished run shows how long it took ("in 12s") after the counters (default true; needs
         /// <see cref="Elapsed"/> or a live session's clock).
         /// </summary>
-        public bool ShowDuration { get; set; } = true;
+        public bool ShowElapsed { get; set; } = true;
 
         // The elapsed time the line uses: the explicit one, else the session's, else real time (null when unknown here).
         private TimeSpan? Effective => Elapsed ?? _sessionElapsed;
@@ -246,7 +246,7 @@ namespace ConsoleMonster.Widgets {
                 first = false;
             }
             TimeSpan? elapsed = Effective;
-            if (ShowDuration && allShown && Total > 0 && Value >= Total && elapsed.HasValue && elapsed.Value > TimeSpan.Zero) {
+            if (ShowElapsed && allShown && Total > 0 && Value >= Total && elapsed.HasValue && elapsed.Value > TimeSpan.Zero) {
                 // Finished: how long the run took, after the counters when they all fit and it fits too.
                 string took = "  " + separator.Trim() + " " + Localization.WidgetLabels.Format(context.Labels.TookDuration, NumberFormat.Duration(elapsed.Value));
                 if (used + DisplayWidth.Measure(took) <= width) {

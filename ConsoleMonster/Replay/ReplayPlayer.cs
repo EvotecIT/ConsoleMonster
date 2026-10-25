@@ -67,6 +67,10 @@ namespace ConsoleMonster.Replay {
 
         /// <summary>Input, target, language and other interactive settings, or null for the defaults.</summary>
         public InteractiveOptions? Interactive { get; set; }
+        /// <summary>Copies the replay request; explicitly supplied session and device objects remain shared.</summary>
+        /// <returns>A separate replay-options object.</returns>
+        public ReplayOptions Clone() => (ReplayOptions)MemberwiseClone();
+
     }
 
     /// <summary>

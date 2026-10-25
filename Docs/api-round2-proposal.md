@@ -508,6 +508,10 @@ The 97-command target is the merged #55 baseline. I inspected the open feature b
 
 If #58 and #59 both land first with their present command lists, the expanded starting count is 142 and the same treatment leaves **99** (97 plus Flow and Calendar). That does not justify retaining their passive item/update commands or changing another branch from this worktree.
 
+### Implementation clarification — 2026-10-25
+
+I keep document export in `Export-ConsoleFrame`, including ordinary objects and registered views. The existing `Out-ConsoleDefault -Format` export branch duplicates that job, so I remove its `Format` and export-only `Width` parameters. `Out-ConsoleDefault` remains the shell output router. This changes no command count and adds no compatibility shim.
+
 ## 8. Complete command disposition
 
 The following inventory is the count check for this proposal. A kept name can still receive parity changes described above. Retired names have no alias or obsolete replacement.
@@ -658,3 +662,11 @@ The following inventory is the count check for this proposal. A kept name can st
 - Current code: `ConsoleMonster.PowerShell`, `ConsoleMonster/Live/LiveSession.cs`, `ConsoleMonster/Interactive`, `ConsoleMonster/Widgets`, `ConsoleMonster.Generators/FluentGenerator.cs`, and `ConsoleMonster.Tests/Building`.
 - [PowerShell parameter sets](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_parameter_sets): sets are distinguished by parameter combinations and are limited to 32. A Type/View enum's value does not choose a static set.
 - [Spectre.Console table border API](https://spectreconsole.net/console/reference/table-border-reference/) and [table construction](https://spectreconsole.net/console/how-to/displaying-tabular-data/): familiar Border/AddColumn/AddRow method shapes, used here as an API comparison rather than a dependency or a rendering specification.
+
+### Implementation record — 2026-10-25
+
+The parity fixture is `Tests/Api/round2-parity.json`. It records each parameter’s member or argument, conversion, default and parameter-set metadata. The reverse scan follows nested configuration and item types without a depth limit. [The generated member decisions](Api-Parity.md) distinguish native host hooks, runtime models and equivalent representations; a namespace is never an exemption.
+
+Export, form, menu and replay operations accept their shared C# configuration through `Options`. A PowerShell hashtable binds to that typed object. Mixing Options with individual settings is rejected, and the supplied request is not modified. Ordinary presentation controls remain named parameters, including progress-column records and numeric start/finish times for indeterminate progress.
+
+LiveEvent remains a recording-protocol DTO: its integer timestamp argument is already milliseconds. `Send-ConsoleEvent -TimeMilliseconds` therefore maps directly to that wire value, with an explicit exception rather than a TimeSpan conversion. The recording keys stay unchanged. The unused New-ConsoleText Plain switch is removed; literal Text and explicit Markup already cover the two input jobs.

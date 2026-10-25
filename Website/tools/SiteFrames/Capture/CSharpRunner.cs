@@ -27,7 +27,7 @@ namespace SiteFrames.Capture {
     /// a warning or an unused <c>using</c>, fails the render.
     /// </para>
     /// </summary>
-    internal static class CSharpRunner {
+    internal static partial class CSharpRunner {
         private static readonly Dictionary<string, Assembly> Compiled = new Dictionary<string, Assembly>(StringComparer.Ordinal);
 
         // The global usings a `dotnet new console` project gets from ImplicitUsings, so a shown program compiles here exactly
@@ -93,7 +93,7 @@ namespace SiteFrames.Capture {
             return dll;
         }
 
-        private static byte[] Emit(string path, string code, string? assemblyName = null, string[]? companions = null) {
+        private static CSharpCompilation CreateCompilation(string path, string code, string? assemblyName = null, string[]? companions = null) {
             // C# 12 with the .NET 8 SDK's warning level: what a reader's `dotnet new console` project on .NET 8 compiles.
             CSharpParseOptions parse = new CSharpParseOptions(LanguageVersion.CSharp12);
             SyntaxTree tree = CSharpSyntaxTree.ParseText(code, parse, path);
@@ -102,11 +102,16 @@ namespace SiteFrames.Capture {
             foreach (string companion in companions ?? Array.Empty<string>()) {
                 trees.Add(CSharpSyntaxTree.ParseText(Site.ReadText(companion), parse, companion));
             }
-            CSharpCompilation compilation = CSharpCompilation.Create(
+            return CSharpCompilation.Create(
                 assemblyName ?? "SiteExample_" + Path.GetFileNameWithoutExtension(path).Replace('-', '_'),
                 trees,
                 References,
                 new CSharpCompilationOptions(OutputKind.ConsoleApplication, nullableContextOptions: NullableContextOptions.Enable, optimizationLevel: OptimizationLevel.Release, warningLevel: 8));
+        }
+
+        private static byte[] Emit(string path, string code, string? assemblyName = null, string[]? companions = null) {
+            CSharpCompilation compilation = CreateCompilation(path, code, assemblyName, companions);
+            SyntaxTree tree = compilation.SyntaxTrees.First();
             using (MemoryStream stream = new MemoryStream()) {
                 Microsoft.CodeAnalysis.Emit.EmitResult result = compilation.Emit(stream);
                 // An unused using (CS8019) is reported by the compilation, not the emit; a reader should not copy dead lines.

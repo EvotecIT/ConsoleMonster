@@ -15,16 +15,18 @@ namespace ConsoleMonster.Widgets {
             string common = o.Type == ChartType.Stacked ? "Type WidgetId" : "Type WidgetId Unit";
             string specific;
             switch (o.Type) {
-                case ChartType.Bar: specific = "Role Shape Maximum Warning Critical ValueColumn"; break;
-                case ChartType.Stacked: specific = "CountColumn PercentColumn LabelColumn"; break;
-                case ChartType.Line: case ChartType.Scatter: specific = "Height Minimum Maximum"; break;
+                case ChartType.Bar: specific = "Role Shape Maximum Warning Critical ValueColumn ShowValues Signed"; break;
+                case ChartType.Stacked: specific = "CountColumn PercentColumn LabelColumn ShowLegend MaxLegendColumns"; break;
+                case ChartType.Line: case ChartType.Scatter: specific = "Height Minimum Maximum Capacity"; break;
                 case ChartType.Histogram: specific = "Height Role Edges Values"; break;
-                default: specific = "Height Role Label Maximum ShowLatest Values"; break;
+                default: specific = "Height Role Label Maximum ShowLatest Values Capacity"; break;
             }
             var allowed = new HashSet<string>((common + " " + specific).Split(' '), StringComparer.Ordinal);
             foreach (string field in o.Bound) {
                 if (!allowed.Contains(field)) { throw new ArgumentException(o.Type + " does not support " + field + ". Supported options: " + common + " " + specific + "."); }
             }
+            if (o.Capacity.HasValue && o.Capacity < 1) { throw new ArgumentOutOfRangeException(nameof(o.Capacity)); }
+            if (o.MaxLegendColumns < 0) { throw new ArgumentOutOfRangeException(nameof(o.MaxLegendColumns)); }
             if (o.Height.HasValue && o.Height < 1) { throw new ArgumentOutOfRangeException(nameof(o.Height)); }
             if (o.Minimum.HasValue && o.Maximum.HasValue && o.Minimum >= o.Maximum) { throw new ArgumentException("Minimum must be less than Maximum."); }
             if (o.Items.Count > 0 && o.Type != ChartType.Bar && o.Type != ChartType.Stacked) { throw new ArgumentException("Items apply to Bar and Stacked charts."); }
@@ -41,7 +43,7 @@ namespace ConsoleMonster.Widgets {
             string id = o.WidgetId ?? DefaultId(o.Type);
             switch (o.Type) {
                 case ChartType.Bar:
-                    var bars = new BarChart(id) { Unit = o.Unit, Shape = o.Shape, Maximum = o.Maximum, Warning = o.Warning, Critical = o.Critical };
+                    var bars = new BarChart(id) { Unit = o.Unit, Shape = o.Shape, ShowValues = o.ShowValues, Signed = o.Signed, Maximum = o.Maximum, Warning = o.Warning, Critical = o.Critical };
                     if (o.Role.HasValue) { bars.Role = o.Role.Value; }
                     if (o.ValueColumn != null) { bars.ValueColumn = o.ValueColumn; }
                     foreach (ChartItem item in o.Items) {
@@ -50,7 +52,7 @@ namespace ConsoleMonster.Widgets {
                     }
                     return bars;
                 case ChartType.Stacked:
-                    var stacked = new StackedBar(id);
+                    var stacked = new StackedBar(id) { ShowLegend = o.ShowLegend, MaxLegendColumns = o.MaxLegendColumns };
                     if (o.CountColumn != null) { stacked.CountColumn = o.CountColumn; }
                     if (o.PercentColumn != null) { stacked.PercentColumn = o.PercentColumn; }
                     if (o.LabelColumn != null) { stacked.LabelColumn = o.LabelColumn; }
@@ -60,7 +62,7 @@ namespace ConsoleMonster.Widgets {
                     }
                     return stacked;
                 case ChartType.Line: case ChartType.Scatter:
-                    var line = new LineChart(id) { Unit = o.Unit, Height = o.Height ?? 8, Minimum = o.Minimum, Maximum = o.Maximum, Scatter = o.Type == ChartType.Scatter };
+                    var line = new LineChart(id) { Unit = o.Unit, Height = o.Height ?? 8, Minimum = o.Minimum, Maximum = o.Maximum, Scatter = o.Type == ChartType.Scatter, Capacity = o.Capacity ?? 512 };
                     foreach (ChartSeries source in o.Series) {
                         ChartSeries series = line.AddSeries(source.Key, source.AutomaticRole ? (Styling.ThemeToken?)null : source.Role);
                         series.Label = source.Label;
@@ -75,7 +77,7 @@ namespace ConsoleMonster.Widgets {
                     foreach (double value in o.Values ?? Array.Empty<double>()) { histogram.Add(value); }
                     return histogram;
                 default:
-                    var sparkline = new Sparkline(id) { Unit = o.Unit, Label = o.Label, Height = o.Height ?? 1, Maximum = o.Maximum, ShowLatest = o.ShowLatest };
+                    var sparkline = new Sparkline(id) { Unit = o.Unit, Label = o.Label, Height = o.Height ?? 1, Maximum = o.Maximum, ShowLatest = o.ShowLatest, Capacity = o.Capacity ?? 1024 };
                     if (o.Role.HasValue) { sparkline.Role = o.Role.Value; }
                     sparkline.AddRange(o.Values ?? Array.Empty<double>());
                     return sparkline;

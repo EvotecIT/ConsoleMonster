@@ -19,9 +19,12 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Allows multiple selected values.</para></summary>
         [Parameter] public SwitchParameter Multiple { get; set; }
 
+        /// <summary><para type="description">Visible choice rows; omitted retains the control default.</para></summary>
+        [Parameter, ValidateRange(1, int.MaxValue)] public int? PageSize { get; set; }
+
         /// <inheritdoc />
         protected override void EndProcessing() {
-            var options = new SelectInputOptions { Key = Key, Multiple = Multiple.IsPresent };
+            var options = new SelectInputOptions { Key = Key, Multiple = Multiple.IsPresent, PageSize = PageSize };
             foreach (Choice choice in BuildChoices()) { options.Choices.Add(choice); }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Value))) {
                 options.Value = Multiple.IsPresent && Value != null ? LanguagePrimitives.ConvertTo<object[]>(Value) : Value;

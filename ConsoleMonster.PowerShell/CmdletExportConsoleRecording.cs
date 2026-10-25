@@ -111,6 +111,14 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Total animation plays: zero repeats forever, one plays once.</para></summary>
         [Parameter, ValidateRange(0, 65536)] public int LoopCount { get; set; }
 
+        /// <summary><para type="description">Typed C# RecordingExportOptions, including sampling limits, markers, custom themes and playback settings. Use this instead of individual playback settings; the object is not modified.</para></summary>
+        [Parameter, ValidateNotNull] public RecordingExportOptions? Options { get; set; }
+
+        /// <summary><para type="description">Maximum raster font size in pixels; default 72.</para></summary>
+        [Parameter, ValidateRange(0.01, 4096)] public double MaxFontSize { get; set; } = 72;
+        /// <summary><para type="description">Additional raster font-family fallbacks, in preferred order.</para></summary>
+        [Parameter] public string[]? FontFallbacks { get; set; }
+
         /// <inheritdoc />
         protected override void EndProcessing() {
             try { ExportRecording(); } finally { _exportStop.Dispose(); }
@@ -121,6 +129,9 @@ namespace ConsoleMonster.PowerShell {
             if (Destination != null && string.Equals(System.IO.Path.GetExtension(Destination), ".mp4", System.StringComparison.OrdinalIgnoreCase)) {
                 throw new System.ArgumentException("MP4 export isn't available yet; use GIF for slides (see https://consolemonster.dev/docs/talks-and-demos/).");
             }
+            RecordingExportOptions options = PSOptions.Resolve(this, Options, PlaybackOptions,
+                nameof(Width), nameof(Height), nameof(FramesPerSecond), nameof(Speed), nameof(Theme), nameof(Title), nameof(WindowChrome), nameof(ChromeStyle),
+                nameof(IdleLimitSeconds), nameof(Pace), nameof(ChapterHoldSeconds), nameof(HoldLastFrameSeconds), nameof(TrimStartSeconds), nameof(TrimEndSeconds), nameof(TrimStartChapter), nameof(TrimEndChapter), nameof(ChapterSpeed));
             string source = SessionState.Path.GetUnresolvedProviderPathFromPSPath(Path);
             bool graphics = GraphicsExportBridge.IsGraphics(Format, Destination);
             if (graphics) {
@@ -130,12 +141,10 @@ namespace ConsoleMonster.PowerShell {
                 if (selectors > 1 || (!png && selectors > 0)) { throw new System.ArgumentException("Choose one PNG selector: -AtSeconds, -Chapter, -PerChapter or -FinalFrame."); }
                 if (Destination == null) { throw new System.ArgumentException("Graphics recording exports need -Destination."); }
                 string graphicsTarget = SessionState.Path.GetUnresolvedProviderPathFromPSPath(Destination);
-                bool chrome = MyInvocation.BoundParameters.ContainsKey(nameof(WindowChrome)) ? WindowChrome.IsPresent : MyInvocation.BoundParameters.ContainsKey(nameof(ChromeStyle));
                 var paths = GraphicsExportBridge.Recording(source, graphicsTarget, selected, Preset, FontFamily, Fit, Background, BackgroundColor, BackgroundEndColor,
-                    new ExportOptions { Theme = Theme, Title = Title, WindowChrome = chrome, ChromeStyle = ChromeStyle },
-                    PlaybackOptions(),
+                    options.ToFrameOptions(), options,
                     LoopCount, ParameterSetName == "Dashboard" ? Dashboard : null,
-                    MyInvocation.BoundParameters.ContainsKey(nameof(AtSeconds)) ? (System.TimeSpan?)At : null, Chapter, PerChapter.IsPresent, _exportStop.Token);
+                    MyInvocation.BoundParameters.ContainsKey(nameof(AtSeconds)) ? (System.TimeSpan?)At : null, Chapter, PerChapter.IsPresent, _exportStop.Token, MaxFontSize, FontFallbacks);
                 if (PassThru.IsPresent) { foreach (string path in paths) { WriteObject(new FileInfo(path)); } }
                 return;
             }
@@ -150,12 +159,12 @@ namespace ConsoleMonster.PowerShell {
             bool markdown = PSOutputExport.IsMarkdown(selectedFormat);
             ExportFormat format = markdown ? ExportFormat.Html : PSOutputExport.CoreFormat(selectedFormat);
             if (ParameterSetName == "Dashboard" && format == ExportFormat.Text) { format = ExportFormat.Html; }
-            RecordingExportOptions options = PlaybackOptions();
+
             string document;
             using (StreamReader reader = new StreamReader(source, Encoding.UTF8)) {
                 if (ParameterSetName == "Session") {
                     SessionRecording session = SessionRecording.Read(reader);
-                    document = FinalFrame.IsPresent ? session.ExportFinalSvg(new ExportOptions { Theme = Theme, Title = Title, WindowChrome = (MyInvocation.BoundParameters.ContainsKey(nameof(WindowChrome)) ? WindowChrome.IsPresent : MyInvocation.BoundParameters.ContainsKey(nameof(ChromeStyle))), ChromeStyle = ChromeStyle })
+                    document = FinalFrame.IsPresent ? session.ExportFinalSvg(options.ToFrameOptions())
                         : playerData ? session.ExportPlayerData(options) : markdown ? MarkdownExportBridge.Recording(session) : session.Export(format, options);
                 } else {
                     document = playerData ? Export.Recording.ExportPlayerData(Dashboard, reader, options)

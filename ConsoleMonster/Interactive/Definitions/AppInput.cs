@@ -8,6 +8,7 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Creates a scalar Select or collection-valued MultiSelect without changing choice metadata.</summary>
         public static InputControl Select(SelectInputOptions options) {
             if (options == null) { throw new ArgumentNullException(nameof(options)); }
+            if (options.PageSize < 1) { throw new ArgumentOutOfRangeException(nameof(options.PageSize)); }
             InputControl control;
             if (options.Multiple) {
                 var select = new MultiSelect(options.Key, options.Choices);
@@ -23,6 +24,7 @@ namespace ConsoleMonster.Interactive {
                 if (options.Has(nameof(options.Value))) { select.Value = options.Value; }
                 control = select;
             }
+            if (options.PageSize.HasValue) { ((SelectionInputBase)control).PageSize = options.PageSize.Value; }
             Configure(control, options.Label, options.Disabled, options.TabIndex, options.ValidationMessage, options.OnChange);
             return control;
         }

@@ -44,10 +44,13 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter AsWidget { get; set; }
 
+        /// <summary><para type="description">Leaves out the detailed parameter reference.</para></summary>
+        [Parameter] public SwitchParameter NoParameters { get; set; }
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
             PSOutputExport.Validate(this);
-            if (!ConsoleHostHelp.TryCreate(Name, InvokeCommand, out IWidget? widget, out ErrorRecord? error, NoExamples.IsPresent)) {
+            if (!ConsoleHostHelp.TryCreate(Name, InvokeCommand, out IWidget? widget, out ErrorRecord? error, NoExamples.IsPresent, NoParameters.IsPresent)) {
                 WriteError(error!);
                 return;
             }

@@ -4,12 +4,14 @@ using ConsoleMonster.Live;
 namespace ConsoleMonster.PowerShell {
     public sealed partial class CmdletShowConsoleReplay {
         // Automatic playback retains the existing event engine and host-thread relay.
-        private void PlayAutomatic(string path) {
+        private void PlayAutomatic(string path, Replay.ReplayOptions replay) {
 
-            LiveSessionOptions options = new LiveSessionOptions();
+            LiveSessionOptions options = replay.Session ?? new LiveSessionOptions();
+            bool suppliedSession = replay.Session != null;
+            replay.Session = options;
             HostQueueWriter? queue = null;
             Capabilities.TerminalProfile profile = Terminal.GetCurrentProfile();
-            if (HostOutput.UseHost(this, profile)) {
+            if (!suppliedSession && HostOutput.UseHost(this, profile)) {
                 // Outside a real console the replay narrates through the host; the waits between events run here, on the
                 // pipeline thread, and flush the queued lines as they go.
                 queue = new HostQueueWriter();
@@ -30,13 +32,13 @@ namespace ConsoleMonster.PowerShell {
             }
             try {
                 using (StreamReader reader = new StreamReader(path, Encoding.UTF8)) {
-                    Replay.ReplayPlayer.Play(Dashboard, reader, new Replay.ReplayOptions { PlaybackMode = PlaybackMode, Session = options, Speed = Speed }, (_stop ??= new System.Threading.CancellationTokenSource()).Token);
+                    Replay.ReplayPlayer.Play(Dashboard, reader, replay, (_stop ??= new System.Threading.CancellationTokenSource()).Token);
                 }
             } catch (System.OperationCanceledException) when (_stop?.IsCancellationRequested == true) {
                 // A stopped PowerShell pipeline ends automatic playback too.
             } finally {
                 queue?.Drain(this, true);
-                options.Output?.Dispose();
+                if (!suppliedSession) { options.Output?.Dispose(); }
                 _stop?.Dispose();
             }
         }

@@ -78,7 +78,9 @@ namespace ConsoleMonster.Export {
             return copy;
         }
 
-        internal ExportOptions ToFrameOptions() {
+        /// <summary>Resolves and validates the frame geometry shared by recording serializers and graphics providers.</summary>
+        /// <returns>A new frame-options object; the recording configuration is not modified.</returns>
+        public ExportOptions ToFrameOptions() {
             ExportOptions o = new ExportOptions {
                 Width = Terminal.ResolveWidth(Width),
                 Height = Height,

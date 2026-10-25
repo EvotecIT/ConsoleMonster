@@ -12,7 +12,7 @@ using ConsoleMonster.Replay;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Rewinds a recorded run: an in-terminal player with a timeline, markers, failures, warnings and log search.</para>
-    /// <para type="description">Plays a recording (written by Invoke-ConsoleDashboard -RecordPath or -AutoRecord) into the same dashboard and lets you move through it: space plays and pauses, left and right step frame by frame, + and - change the speed, PgUp and PgDn scrub, Home and End jump to the ends, n/p jump to the next or previous marker, f/F to failures, w/W to warnings, l/L to log entries, and / searches the log text (Enter for the next match). Markers are added while recording with Send-ConsoleEvent -Target '$marker' -Operation mark -Text 'label'. Without -Path the newest automatic recording is played. Without an interactive console the markers are printed as lines.</para>
+    /// <para type="description">Plays a recording (written by Invoke-ConsoleDashboard -RecordPath or -AutoRecord) into the same dashboard and lets you move through it: space plays and pauses, left and right step frame by frame, + and - change the speed, PgUp and PgDn scrub, Home and End jump to the ends, n/p jump to the next or previous marker, f/F to failures, w/W to warnings, l/L to log entries, and / searches the log text (Enter for the next match). Markers are added while recording with Send-ConsoleEvent -WidgetId '$marker' -Operation mark -Text 'label'. Without -Path the newest automatic recording is played. Without an interactive console the markers are printed as lines.</para>
     /// </summary>
     /// <example>
     ///   <para>Rewind the last automatically recorded run</para>
@@ -68,29 +68,32 @@ namespace ConsoleMonster.PowerShell {
         [Parameter, ValidateRange(1, int.MaxValue)]
         public int MaxFrames { get; set; } = 3000;
 
+        /// <summary><para type="description">Typed C# ReplayOptions, including input, capture and session configuration. Use this instead of individual player settings; the request is not modified. Omit Session to retain PowerShell's native host relay.</para></summary>
+        [Parameter, ValidateNotNull] public ReplayOptions? Options { get; set; }
+
         /// <inheritdoc />
         protected override void EndProcessing() {
             string path = Path == null ? Newest() : SessionState.Path.GetUnresolvedProviderPathFromPSPath(Path);
-            if (PlaybackMode == Replay.PlaybackMode.Automatic) {
-                PlayAutomatic(path);
-                return;
-            }
-            InteractiveOptions interactive = PSInteractive.Options(this, null);
-            if (interactive.ResolveMode() != InteractionMode.Rich && interactive.LineConsole == null && Host?.UI != null) {
-                interactive.LineConsole = new HostLineConsole(Host.UI);
-            }
-            ReplayOptions options = new ReplayOptions {
-                // A dashboard's own (recorded) title names the run; other widget trees use the file name.
-                Title = Title ?? (Dashboard is Widgets.Dashboard ? null : System.IO.Path.GetFileNameWithoutExtension(path)),
+            ReplayOptions options = PSOptions.Resolve(this, Options, () => new ReplayOptions {
+                Title = Title,
                 Speed = Speed,
                 PlaybackMode = PlaybackMode,
                 FramesPerSecond = FramesPerSecond,
                 MaxFrames = MaxFrames,
                 Inline = Inline.IsPresent,
                 AutoPlay = !Paused.IsPresent,
-                Height = Height > 0 ? Height : (int?)null,
-                Interactive = interactive
-            };
+                Height = Height > 0 ? Height : (int?)null
+            }, nameof(Title), nameof(Speed), nameof(PlaybackMode), nameof(FramesPerSecond), nameof(MaxFrames), nameof(Inline), nameof(Paused), nameof(Height)).Clone();
+            options.Title ??= Dashboard is Widgets.Dashboard ? null : System.IO.Path.GetFileNameWithoutExtension(path);
+            if (options.PlaybackMode == Replay.PlaybackMode.Automatic) {
+                PlayAutomatic(path, options);
+                return;
+            }
+            InteractiveOptions interactive = options.Interactive?.Clone() ?? PSInteractive.Options(this, null);
+            if (interactive.ResolveMode() != InteractionMode.Rich && interactive.LineConsole == null && Host?.UI != null) {
+                interactive.LineConsole = new HostLineConsole(Host.UI);
+            }
+            options.Interactive = interactive;
             try {
                 using (StreamReader reader = new StreamReader(path, Encoding.UTF8)) {
                     ReplayPlayer.Play(Dashboard, reader, options, (_stop ??= new CancellationTokenSource()).Token);

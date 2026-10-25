@@ -50,5 +50,11 @@ namespace ConsoleMonster.Widgets {
         private bool _showElapsed = true;
         /// <summary>Whether an indeterminate indicator shows elapsed time.</summary>
         public bool ShowElapsed { get => _showElapsed; set { _showElapsed = value; _bound.Add(nameof(ShowElapsed)); } }
+        private TimeSpan? _started;
+        /// <summary>Initial indeterminate start time on the session clock; null leaves it unstarted.</summary>
+        public TimeSpan? Started { get => _started; set { _started = value; _bound.Add(nameof(Started)); } }
+        private TimeSpan? _finished;
+        /// <summary>Initial indeterminate completion time on the session clock; null leaves it unfinished.</summary>
+        public TimeSpan? Finished { get => _finished; set { _finished = value; _bound.Add(nameof(Finished)); } }
     }
 }

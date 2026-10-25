@@ -43,7 +43,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">The progress bar shape; default Line.</para></summary>
         [Parameter(ParameterSetName = "Bar")]
         public BarShape Shape { get; set; } = BarShape.Line;
-        /// <summary><para type="description">Ordered built-in column names or typed ProgressColumn objects.</para></summary>
+        /// <summary><para type="description">Ordered builtin column names, Type/Alignment/Priority/MaxWidth records or typed ProgressColumn objects.</para></summary>
         [Parameter(ParameterSetName = "Bar")]
         public object[]? Columns { get; set; }
         /// <summary><para type="description">The shared count column format.</para></summary>
@@ -58,9 +58,15 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Rate smoothing window in seconds; default ten.</para></summary>
         [Parameter(ParameterSetName = "Bar"), ValidateRange(0, double.MaxValue)]
         public double RateWindowSeconds { get; set; } = 10;
+        /// <summary><para type="description">Initial indeterminate start time on the session clock, in seconds.</para></summary>
+        [Parameter(ParameterSetName = "Indeterminate")] public double? StartedSeconds { get; set; }
+        /// <summary><para type="description">Initial indeterminate completion time on the session clock, in seconds.</para></summary>
+        [Parameter(ParameterSetName = "Indeterminate")] public double? FinishedSeconds { get; set; }
         /// <inheritdoc />
         protected override void ProcessRecord() {
             var options = new ProgressOptions { Indeterminate = Indeterminate.IsPresent };
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(StartedSeconds))) { options.Started = StartedSeconds.HasValue ? (TimeSpan?)TimeSpan.FromSeconds(StartedSeconds.Value) : null; }
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(FinishedSeconds))) { options.Finished = FinishedSeconds.HasValue ? (TimeSpan?)TimeSpan.FromSeconds(FinishedSeconds.Value) : null; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(WidgetId))) { options.WidgetId = WidgetId; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Label))) { options.Label = PSText.Markup(Label) ?? string.Empty; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Status))) { options.Status = Status; }
@@ -69,7 +75,7 @@ namespace ConsoleMonster.PowerShell {
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Value))) { options.Value = Value; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Total))) { options.Total = Total; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Shape))) { options.Shape = Shape; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(Columns))) { options.Columns = ProgressColumnValues(Columns); }
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(Columns))) { options.Columns = PSProgressColumns.Build(Columns); }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(CountColumn))) { options.CountColumn = CountColumn; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(NoCount))) { options.ShowCount = !NoCount.IsPresent; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(LabelWidth))) { options.LabelWidth = LabelWidth; }
@@ -77,14 +83,5 @@ namespace ConsoleMonster.PowerShell {
             WriteObject(Widgets.Progress.Create(options));
         }
 
-        private static IList<ProgressColumn>? ProgressColumnValues(object[]? values) {
-            if (values == null) { return null; }
-            var columns = new List<ProgressColumn>();
-            foreach (object value in values) {
-                if (PSText.Unwrap(value) is ProgressColumn column) { columns.Add(column); }
-                else { columns.AddRange(ProgressColumns.FromNames(new[] { PSWidgets.ToText(value) })); }
-            }
-            return columns;
-        }
     }
 }

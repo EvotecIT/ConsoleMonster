@@ -20,6 +20,21 @@ namespace ConsoleMonster.Tests.Building {
         }
 
         [Fact]
+        public void PresentationAndRetentionOptionsApplyOnlyToTheirChartKinds() {
+            var bars = Assert.IsType<BarChart>(Chart.Create(new ChartOptions { Type = ChartType.Bar, ShowValues = false, Signed = true }));
+            Assert.False(bars.ShowValues);
+            Assert.True(bars.Signed);
+            var stacked = Assert.IsType<StackedBar>(Chart.Create(new ChartOptions { Type = ChartType.Stacked, ShowLegend = false, MaxLegendColumns = 2 }));
+            Assert.False(stacked.ShowLegend);
+            Assert.Equal(2, stacked.MaxLegendColumns);
+            Assert.Equal(7, Assert.IsType<LineChart>(Chart.Create(new ChartOptions { Type = ChartType.Line, Capacity = 7 })).Capacity);
+            Assert.Equal(9, Assert.IsType<Sparkline>(Chart.Create(new ChartOptions { Type = ChartType.Sparkline, Capacity = 9 })).Capacity);
+            Assert.Throws<ArgumentException>(() => Chart.Create(new ChartOptions { Type = ChartType.Line, ShowValues = false }));
+            Assert.Throws<ArgumentException>(() => Chart.Create(new ChartOptions { Type = ChartType.Bar, ShowLegend = false }));
+            Assert.Throws<ArgumentOutOfRangeException>(() => Chart.Create(new ChartOptions { Type = ChartType.Line, Capacity = 0 }));
+        }
+
+        [Fact]
         public void RejectsMismatchedOptionsEvenWhenTheirValueIsZeroOrFalse() {
             Assert.Throws<ArgumentException>(() => Chart.Create(new ChartOptions { Type = ChartType.Bar, ShowLatest = false }));
             Assert.Throws<ArgumentException>(() => Chart.Create(new ChartOptions { Type = ChartType.Stacked, Maximum = 0 }));

@@ -22,7 +22,7 @@ namespace ConsoleMonster.PowerShell {
                 case "json": specific = "Path Depth LineNumbers FirstLine MaxLines Highlight Wrap NoTitle"; break;
                 case "error": specific = "ShowFrameworkFrames MaxFrames NoStack Compact MaxInner NoSource"; break;
                 case "markdown": specific = "Path NoPager"; break;
-                case "rule": specific = "Alignment"; break;
+                case "rule": specific = "Alignment LineRole LineStyle"; break;
                 default: throw new PSArgumentException("Unknown View '" + view + "'.");
             }
             var allowed = new HashSet<string>((common + " " + specific).Split(' '), StringComparer.OrdinalIgnoreCase);
@@ -43,7 +43,7 @@ namespace ConsoleMonster.PowerShell {
                 case "code": case "json": return BuildCodeView(items, view.Equals("Json", StringComparison.OrdinalIgnoreCase));
                 case "error": return BuildErrorView(items);
                 case "markdown": return MarkdownExportBridge.Parse(string.Join("\n", items.Select(PSText.PlainText)));
-                case "rule": return new Rule(PSText.Markup(Title) ?? (items.Count == 0 ? null : PSText.Markup(items[0]))) { Alignment = Alignment };
+                case "rule": return new Rule(PSText.Markup(Title) ?? (items.Count == 0 ? null : PSText.Markup(items[0]))) { Alignment = Alignment, LineRole = LineRole, LineStyle = LineStyle };
                 default:
                     if (ChildrenProperty != null) { return BuildTreeView(items); }
                     return PSOutputExport.Widget(items.Cast<object>().ToList(), this, Property, PSText.Markup(Title), Depth);
