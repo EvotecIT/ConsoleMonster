@@ -40,7 +40,7 @@ List<Exception> attemptErrors = new List<Exception>();
 IWidget Summary()
 {
     Table table = new Table().Expand(true);
-    table.AddColumn("Job").AddColumn("Size").AddColumn("Attempts").AddColumn("Status", column => column.Presenter = CellPresenters.StatusWord);
+    table.AddColumn("Job").AddColumn("Size").AddColumn("Attempts").AddColumn("Status", column => column.Presenter(CellPresenters.StatusWord));
     foreach (var job in jobs)
     {
         int count = attempts.GetValueOrDefault(job.Name);

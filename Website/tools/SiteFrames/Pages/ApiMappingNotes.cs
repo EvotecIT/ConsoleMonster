@@ -38,9 +38,6 @@ namespace SiteFrames.Pages {
                 foreach (JsonNode? bindingNode in command["Bindings"]!.AsArray().Concat(command["SetBindings"]?.AsArray() ?? new JsonArray())) {
                     JsonObject binding = bindingNode!.AsObject();
                     if (binding["MemberKind"]!.GetValue<string>() != "Property") { continue; }
-                    // Delegate properties shadow property-named extension calls; their grammar is a separate decision.
-                    string valueType = binding["CSharpTypeName"]?.GetValue<string>() ?? string.Empty;
-                    if (valueType.StartsWith("System.Action", StringComparison.Ordinal) || valueType.StartsWith("System.Func", StringComparison.Ordinal)) { continue; }
                     string member = binding["Member"]!.GetValue<string>();
                     string key = binding["CSharpType"]!.GetValue<string>() + "." + member;
                     if (!used.Contains(key)) { continue; }
@@ -80,6 +77,9 @@ namespace SiteFrames.Pages {
                 string recordKind = binding["RecordKind"] == null ? string.Empty : "Kind = '" + binding["RecordKind"]!.GetValue<string>() + "'; ";
                 string? note = conversion == "Identity" ? null : binding["Reason"]?.GetValue<string>() ?? conversion;
                 string? valueType = binding["CSharpTypeName"]?.GetValue<string>();
+                bool callback = valueType?.StartsWith("System.Action", StringComparison.Ordinal) == true || valueType?.StartsWith("System.Func", StringComparison.Ordinal) == true;
+                JsonObject? callbackRule = callback ? map["FluentExceptions"]!.AsArray().Single(rule => rule!["Kind"]!.GetValue<string>() == "DelegateProperty")!.AsObject() : null;
+                if (callbackRule != null) { note = (note == null ? string.Empty : note + " ") + callbackRule["Reason"]!.GetValue<string>(); }
                 if (valueType != null && typeof(ConsoleMonster.Terminal).Assembly.GetType(valueType)?.IsEnum == true) {
                     string owner = binding["CSharpType"]!.GetValue<string>();
                     string typedNote = owner.Substring(owner.LastIndexOf('.') + 1) + "." + member + " uses " + valueType + ".";
@@ -89,7 +89,7 @@ namespace SiteFrames.Pages {
                     ["powershell"] = recordField == null ? row.Value.Command + (binding["ParameterSet"]?.GetValue<string>() == "Run" ? " -Run …" : string.Empty) + " -" + parameter + (isSwitch ? string.Empty : " …")
                         : "@{ " + recordKind + recordField + " = … } | " + row.Value.Command,
                     ["csharp"] = member + " = " + value,
-                    ["fluent"] = "." + member + "(" + value + ")",
+                    ["fluent"] = callbackRule == null ? "." + member + "(" + value + ")" : callbackRule["Pattern"]!.GetValue<string>().Replace("{Member}", member, StringComparison.Ordinal),
                     ["memberId"] = row.Key,
                     ["note"] = note
                 });

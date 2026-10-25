@@ -64,6 +64,6 @@ foreach (var repo in repositories)
 }
 
 StatusList next = new StatusList().Add("orbit-api", StatusKind.Info, "Review the staged diff before committing").Add("orbit-cli", StatusKind.Warn, "Working tree clean; inspect four incoming commits").Add("orbit-docs", StatusKind.Info, "Two local edits need review").Add("orbit-tests", StatusKind.Pass, "Clean and up to date");
-Rows report = new Rows(new Rule("[bold]Repository workspace[/] [muted]· ./work[/]"), table, new Panel().Title("Suggested next steps").Content(c => c.Add(next))).Gap(1);
+Rows report = new Rows(new Rule("[bold]Repository workspace[/] [muted]· ./work[/]"), table, new Panel().Title("Suggested next steps").Content(next)).Gap(1);
 // Behaviour: print once. Keep cached summaries fresh in a separate local collection step.
 report.Show();

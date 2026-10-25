@@ -20,6 +20,8 @@ Every demo has three tabs: **PowerShell | C# | C# fluent**. They use the same wi
 
 A parameter keeps its domain name: `-Title 'Build'` becomes `Title = "Build"` or `.Title("Build")`. Panel's `-Border Rounded` maps to `Border = BoxStyle.Rounded` and `.Border(BoxStyle.Rounded)`; Table uses its own `TableBorder` enum with the same property name. Each demo's generated **How it maps** note names its actual owning members.
 
+Callback properties use `.Configure(item => item.Action = callback)`. C# treats `.Action(...)` as invoking the delegate property, so a property-named extension cannot assign it. Configure returns the same object and runs the assignments in order; it does not invoke the callback. The generated mapping notes show this exception for each affected parameter.
+
 ```powershell
 New-ConsolePanel -Title 'Build' -Border Rounded -Content {
     New-ConsoleText 'All checks passed'

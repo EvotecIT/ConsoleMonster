@@ -35,6 +35,9 @@ internal static class Program {
         Require(ConsoleExporter.ToHtml(table), "web-01");
         Require(ConsoleExporter.ToSvg(table), "web-01");
         GraphicsSmoke.Run();
+        int previews = 0;
+        var question = new ConsoleMonster.Interactive.SelectQuestionOptions().Configure(options => options.Preview = _ => { previews++; return new TextBlock("Preview"); });
+        if (previews != 0 || question.Preview == null) { throw new InvalidOperationException("Fluent callback configuration invoked or lost the delegate."); }
         var progress = new ProgressBar("Build", "build");
         using (var session = new LiveSession(progress)) {
             ConsoleUpdate.Apply(session, "build", new WidgetUpdate { Value = 5, Total = 10, Label = "Compile" });
@@ -44,6 +47,14 @@ internal static class Program {
                 throw new InvalidOperationException("The native update path accepted an unsupported field.");
             } catch (ConsoleUpdateException) { }
             if (session.EventsPosted != 2) { throw new InvalidOperationException("The native update path partially published an invalid batch."); }
+        }
+        using (var session = new LiveSession(new CellMap("cells"))) {
+            ConsoleUpdate.Apply(session, "cells", new WidgetUpdate { CellCount = CellMap.MaxItems - 1 });
+            try {
+                ConsoleUpdate.Apply(session, "cells", new WidgetUpdate { AppendCells = true, Count = 2 });
+                throw new InvalidOperationException("The native update path exceeded queued cell capacity.");
+            } catch (ArgumentOutOfRangeException) { }
+            if (session.EventsPosted != 1) { throw new InvalidOperationException("The native update path partially published an oversized append."); }
         }
         Panel panel = new Panel().Title("Build").Content(content => content.Text("All checks passed"));
         Require(ConsoleExporter.ToText(panel), "Build", "All checks passed");
@@ -56,7 +67,7 @@ internal static class Program {
             panel.Export(path, "Text", new ExportOptions { Width = 60 });
             Require(File.ReadAllText(path), "Build", "All checks passed");
         } finally { File.Delete(path); }
-        Console.WriteLine("Native AOT smoke passed: typed and inferred tables, inspection, fluent content, Show/Export endings and text/HTML/SVG exports.");
+        Console.WriteLine("Native AOT smoke passed: typed and inferred tables, inspection, validated live updates, queued cell capacity, fluent content, Show/Export endings and text/HTML/SVG exports.");
         return 0;
     }
 

@@ -2,7 +2,7 @@ Describe 'PowerShell and C# API parity' {
     BeforeAll {
         Import-Module (Join-Path $PSScriptRoot '../ConsoleMonster.psd1') -Force
         . (Join-Path $PSScriptRoot 'Support/Get-ConsoleApiMetadata.ps1')
-        $script:Parity = Get-Content (Join-Path $PSScriptRoot '../../Tests/Api/round2-parity.json') -Raw | ConvertFrom-Json
+        $script:Parity = Get-Content (Join-Path $PSScriptRoot '../../Tests/Api/round2-parity.json') -Raw -Encoding UTF8 | ConvertFrom-Json
         $script:ApiCommands = @(Get-Command -Module ConsoleMonster -CommandType Cmdlet)
         $assemblies = @([ConsoleMonster.Terminal].Assembly, (Get-Command Show-Console).ImplementingType.Assembly)
         foreach ($name in 'ConsoleMonster.Markdown', 'ConsoleMonster.Graphics') {
@@ -175,6 +175,25 @@ Describe 'PowerShell and C# API parity' {
             $fluent.Count | Should -BeGreaterThan 0
             if ($ending.FluentArgument) {
                 @($fluent | ForEach-Object { $_.GetParameters() } | Where-Object Name -EQ $ending.FluentArgument).Count | Should -BeGreaterThan 0
+            }
+        }
+    }
+
+    It 'records and enforces the delegate-property fluent exception' {
+        $rules = @($script:Parity.FluentExceptions)
+        $rules.Count | Should -Be 1
+        $rules[0].Kind | Should -BeExactly DelegateProperty
+        $rules[0].Method | Should -BeExactly Configure
+        $rules[0].Pattern | Should -Match '^\.Configure\(item => item\.\{Member\} = .+\)$'
+        $rules[0].Reason | Should -Not -BeNullOrEmpty
+        foreach ($name in 'ConsoleMonster.Interactive.MenuItem', 'ConsoleMonster.Interactive.SelectQuestionOptions') {
+            $type = $script:ApiTypes[$name]
+            $methods = @($script:ApiTypes[($name + 'Fluent')].GetMethods())
+            @($methods | Where-Object Name -EQ Configure).Count | Should -Be 1
+            foreach ($property in $type.GetProperties()) {
+                if ($null -ne $property.GetSetMethod($false) -and [Delegate].IsAssignableFrom($property.PropertyType)) {
+                    @($methods | Where-Object Name -EQ $property.Name).Count | Should -Be 0
+                }
             }
         }
     }

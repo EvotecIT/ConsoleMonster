@@ -17,6 +17,9 @@ namespace SiteFrames.Pages {
             body.AppendLine("The contract covers **" + commands.Count + " commands**, **" + commands.Sum(command => command!["Bindings"]!.AsArray().Count) + " parameters** and **" + map["ConfigurableTypes"]!.AsArray().Count + " reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.\n");
             body.AppendLine("Table and List remain named shortcuts to Show-Console’s shared view implementation. Read-* returns answers; New-ConsoleForm/Menu defines a question workflow; Show-ConsoleApp runs a persistent reactive application.\n");
             body.AppendLine("Typed Options on export, form, menu and replay operations expose the corresponding C# configuration. I can pass a PowerShell hashtable, for example `Export-ConsoleFrame -Format Html -Options @{ Width = 100; Padding = 8 }`. Options and individual settings are mutually exclusive; the supplied request is not modified.\n");
+            foreach (JsonNode? rule in map["FluentExceptions"]!.AsArray()) {
+                body.AppendLine("Callback properties use `" + rule!["Pattern"]!.GetValue<string>().Replace("{Member}", "Action", StringComparison.Ordinal) + "`. " + rule["Reason"]!.GetValue<string>() + "\n");
+            }
             body.AppendLine("## Parameter-set mappings\n");
             body.AppendLine("A structural parameter set can select a different request model. The metadata gate checks these mappings separately and includes both update requests in its public-member coverage.\n");
             body.AppendLine("| Command and parameter | Set | C# member | Conversion |\n| --- | --- | --- | --- |");

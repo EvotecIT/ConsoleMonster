@@ -10,7 +10,8 @@ using Xunit;
 
 namespace ConsoleMonster.Tests.Building {
     /// <summary>
-    /// Every public widget property has its generated fluent counterpart: <c>X</c> for a settable property and
+    /// Every public widget property has its generated fluent counterpart: <c>X</c> for an ordinary setter,
+    /// <c>Configure</c> for callbacks and
     /// <c>AddX</c> for a mutable collection, on the widgets and on the option types they hold. A new property without one
     /// means the generator skipped it; mark it <c>[NoFluent]</c> only when a setter or Add would bypass the widget.
     /// </summary>
@@ -31,6 +32,11 @@ namespace ConsoleMonster.Tests.Building {
             Type type = Core.GetType(typeName, true)!;
             List<string> missing = new List<string>();
             foreach (PropertyInfo property in Properties(type)) {
+                if (IsSettable(property) && typeof(Delegate).IsAssignableFrom(property.PropertyType)) {
+                    Assert.True(Extensions.Any(method => method.Name == "Configure" && Receives(method, type)), type.Name + " needs Configure for " + property.Name);
+                    Assert.DoesNotContain(Extensions, method => method.Name == property.Name && Receives(method, type));
+                    continue;
+                }
                 if (IsSettable(property) && !Has(type, property.Name, property.PropertyType)) {
                     missing.Add(property.Name + "(" + property.PropertyType.Name + ")");
                 }
@@ -67,6 +73,18 @@ namespace ConsoleMonster.Tests.Building {
             Assert.True(header.ShowElapsed);
             Assert.Equal(new[] { "Tasks", "Review", "Run" }, header.Crumbs);
             Assert.False(header.ShowElapsed(false).ShowElapsed);
+        }
+
+        [Fact]
+        public void ConfigureAssignsCallbacksWithoutInvokingThemAndRetainsGenericReceivers() {
+            int calls = 0;
+            var options = new SelectQuestionOptions().Configure(value => value.Preview = _ => { calls++; return new TextBlock("Ready"); });
+            Assert.Equal(0, calls);
+            Assert.NotNull(options.Preview!(null));
+            Assert.Equal(1, calls);
+            var prompt = new SelectPrompt<int>("Number", new[] { 1, 2 }).Configure(value => value.Preview = number => new TextBlock(number.ToString()));
+            Assert.IsType<SelectPrompt<int>>(prompt);
+            Assert.NotNull(prompt.Preview);
         }
 
         [Fact]

@@ -36,11 +36,11 @@ IWidget Summary(IReadOnlyList<RunResult<Host, string>> outcomes)
     {
         bool hasResult = byHost.TryGetValue(host.Name, out var result);
         Lane lane = lanes.Add(host.Name, host.Name, 4);
-        lane.Value = hasResult ? 4 : 0;
-        lane.Status = State(host.Name);
-        lane.Passed = hasResult ? result!.Succeeded ? 4 : 3 : 0;
-        lane.Failed = hasResult && !result!.Succeeded ? 1 : 0;
-        lane.Detail = !hasResult ? "Waiting for a worker" : result!.Succeeded ? "Health verified" : result.TimedOut ? "4s timeout · retry separately" : "Restart verification failed";
+        lane.Value(hasResult ? 4 : 0);
+        lane.Status(State(host.Name));
+        lane.Passed(hasResult ? result!.Succeeded ? 4 : 3 : 0);
+        lane.Failed(hasResult && !result!.Succeeded ? 1 : 0);
+        lane.Detail(!hasResult ? "Waiting for a worker" : result!.Succeeded ? "Health verified" : result.TimedOut ? "4s timeout · retry separately" : "Restart verification failed");
     }
 
     StatusList failures = new StatusList();
@@ -50,7 +50,7 @@ IWidget Summary(IReadOnlyList<RunResult<Host, string>> outcomes)
     }
 
     IWidget failureContent = failures.Items.Count == 0 ? new TextBlock("[muted]No failures recorded[/]") : failures;
-    return new Rows(new Rule("[bold]Patching the web farm[/]"), new TextBlock("40 hosts · throttle 8 · per-host timeout 4s"), summary, new Panel().Title("Host outcomes").Content(c => c.Add(map)), new Panel().Title(finished ? "Last eight hosts" : "Worker lanes").Content(c => c.Add(lanes)), new Panel().Title("Retained failures").Content(c => c.Add(failureContent)), new TextBlock(finished ? "[bold]Wave finished[/] · failed hosts remain available for a separate retry" : "[muted]Ctrl+C cancels active work and skips queued hosts[/]")).Gap(1);
+    return new Rows(new Rule("[bold]Patching the web farm[/]"), new TextBlock("40 hosts · throttle 8 · per-host timeout 4s"), summary, new Panel().Title("Host outcomes").Content(map), new Panel().Title(finished ? "Last eight hosts" : "Worker lanes").Content(lanes), new Panel().Title("Retained failures").Content(failureContent), new TextBlock(finished ? "[bold]Wave finished[/] · failed hosts remain available for a separate retry" : "[muted]Ctrl+C cancels active work and skips queued hosts[/]")).Gap(1);
 }
 
 // Behaviour: the native run monitor owns scheduling, cancellation and the live UI.
@@ -63,7 +63,7 @@ IReadOnlyList<RunResult<Host, string>> results = await ConsoleRun.ForEachAsync(s
     if (server.TimesOut)
         await Task.Delay(TimeSpan.FromSeconds(10), cancel);
     return server.Name + " patched";
-}, new RunOptions() { Label = item => ((Host)item!).Name }.ThrottleLimit(throttle).Timeout(TimeSpan.FromSeconds(timeoutSeconds)).Title("Patching the web farm").Live(true));
+}, new RunOptions().ThrottleLimit(throttle).Timeout(TimeSpan.FromSeconds(timeoutSeconds)).Title("Patching the web farm").Live(true).Configure(configured => configured.Label = item => ((Host)item!).Name));
 // Keep the structured outcomes; never retry automatically after a failure.
 Summary(results).Show();
 record Host(string Name, int DelayMilliseconds, bool RestartFailure, bool TimesOut);

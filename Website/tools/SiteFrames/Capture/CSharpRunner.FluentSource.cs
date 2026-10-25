@@ -49,13 +49,11 @@ namespace SiteFrames.Capture {
                 if (node.Expression is AssignmentExpressionSyntax { RawKind: (int)SyntaxKind.SimpleAssignmentExpression } assignment
                     && assignment.Left is MemberAccessExpressionSyntax member
                     && model.GetSymbolInfo(member).Symbol is IPropertySymbol property
-                    && property.SetMethod?.DeclaredAccessibility == Accessibility.Public && property.Type.TypeKind != TypeKind.Delegate
+                    && property.SetMethod?.DeclaredAccessibility == Accessibility.Public
                     && model.GetTypeInfo(member.Expression).Type is INamedTypeSymbol receiver && Owned(receiver)
-                    && HasSetter(receiver, property.Name)
+                    && HasSetter(receiver, property.Type.TypeKind == TypeKind.Delegate ? "Configure" : property.Name)
                     && visited.Expression is AssignmentExpressionSyntax { Left: MemberAccessExpressionSyntax rewrittenMember } rewritten) {
-                    Namespaces.Add(property.ContainingNamespace.ToDisplayString());
-                    return visited.WithExpression(SyntaxFactory.InvocationExpression(rewrittenMember,
-                        SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.Argument(rewritten.Right)))));
+                    return visited.WithExpression(Setter(rewrittenMember.Expression, receiver, property, rewritten.Right));
                 }
                 return visited;
             }
@@ -64,13 +62,11 @@ namespace SiteFrames.Capture {
                 if (node.ExpressionBody is AssignmentExpressionSyntax { Left: MemberAccessExpressionSyntax member } assignment
                     && assignment.IsKind(SyntaxKind.SimpleAssignmentExpression)
                     && model.GetTypeInfo(node).ConvertedType is INamedTypeSymbol { DelegateInvokeMethod.ReturnsVoid: true }
-                    && model.GetSymbolInfo(member).Symbol is IPropertySymbol property && property.Type.TypeKind != TypeKind.Delegate
+                    && model.GetSymbolInfo(member).Symbol is IPropertySymbol property
                     && model.GetTypeInfo(member.Expression).Type is INamedTypeSymbol receiver && Owned(receiver)
-                    && HasSetter(receiver, property.Name)
+                    && HasSetter(receiver, property.Type.TypeKind == TypeKind.Delegate ? "Configure" : property.Name)
                     && visited.ExpressionBody is AssignmentExpressionSyntax { Left: MemberAccessExpressionSyntax rewrittenMember } rewritten) {
-                    Namespaces.Add(property.ContainingNamespace.ToDisplayString());
-                    return visited.WithExpressionBody(SyntaxFactory.InvocationExpression(rewrittenMember,
-                        SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.Argument(rewritten.Right)))));
+                    return visited.WithExpressionBody(Setter(rewrittenMember.Expression, receiver, property, rewritten.Right));
                 }
                 return visited;
             }
@@ -94,24 +90,23 @@ namespace SiteFrames.Capture {
                 if (original.Initializer.DescendantTrivia().Any(trivia => trivia.ToString().Contains("<more>", StringComparison.Ordinal)
                     || trivia.ToString().Contains("</more>", StringComparison.Ordinal) || trivia.ToString().Contains("<hidden>", StringComparison.Ordinal)
                     || trivia.ToString().Contains("</hidden>", StringComparison.Ordinal))) { return visited; }
-                var setters = new List<(string Name, ExpressionSyntax Value)>();
+                var setters = new List<(IPropertySymbol Property, ExpressionSyntax Value)>();
                 for (int i = 0; i < original.Initializer.Expressions.Count; i++) {
                     if (original.Initializer.Expressions[i] is not AssignmentExpressionSyntax assignment
                         || model.GetSymbolInfo(assignment.Left).Symbol is not IPropertySymbol property
-                        || property.SetMethod?.DeclaredAccessibility != Accessibility.Public || property.Type.TypeKind == TypeKind.Delegate
+                        || property.SetMethod?.DeclaredAccessibility != Accessibility.Public
                         || property.GetAttributes().Any(attribute => attribute.AttributeClass?.ToDisplayString() == "ConsoleMonster.NoFluentAttribute")
                         || visited.Initializer!.Expressions[i] is not AssignmentExpressionSyntax converted
-                        || converted.Right is InitializerExpressionSyntax || !HasSetter(type, property.Name)) {
+                        || converted.Right is InitializerExpressionSyntax || !HasSetter(type, property.Type.TypeKind == TypeKind.Delegate ? "Configure" : property.Name)) {
                         // Moving only some members would reorder callback/kind setters or collection initialization.
                         return visited;
                     }
                     Namespaces.Add(property.ContainingNamespace.ToDisplayString());
-                    setters.Add((property.Name, converted.Right));
+                    setters.Add((property, converted.Right));
                 }
                 ExpressionSyntax result = visited.WithInitializer(null).WithArgumentList(visited.ArgumentList ?? SyntaxFactory.ArgumentList());
                 foreach (var setter in setters) {
-                    result = SyntaxFactory.InvocationExpression(SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
-                        result, SyntaxFactory.IdentifierName(setter.Name)), SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.Argument(setter.Value))));
+                    result = Setter(result, type, setter.Property, setter.Value);
                 }
                 return result.WithTriviaFrom(original);
             }
@@ -129,12 +124,31 @@ namespace SiteFrames.Capture {
                 return visited;
             }
 
-            private bool HasSetter(INamedTypeSymbol type, string member) {
+            private ExpressionSyntax Setter(ExpressionSyntax receiver, INamedTypeSymbol type, IPropertySymbol property, ExpressionSyntax value) {
+                bool callback = property.Type.TypeKind == TypeKind.Delegate;
+                string method = callback ? "Configure" : property.Name;
+                Namespaces.Add(SetterNamespace(type, method)!);
+                if (callback) {
+                    var used = new HashSet<string>(model.SyntaxTree.GetRoot().DescendantTokens().Concat(value.DescendantTokens())
+                        .Where(token => token.IsKind(SyntaxKind.IdentifierToken)).Select(token => token.ValueText), StringComparer.Ordinal);
+                    string name = "configured";
+                    for (int suffix = 2; used.Contains(name); suffix++) { name = "configured" + suffix; }
+                    value = SyntaxFactory.SimpleLambdaExpression(SyntaxFactory.Parameter(SyntaxFactory.Identifier(name)),
+                        SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression,
+                            SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.IdentifierName(name), SyntaxFactory.IdentifierName(property.Name)), value));
+                }
+                return SyntaxFactory.InvocationExpression(SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
+                    receiver, SyntaxFactory.IdentifierName(method)), SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.Argument(value))));
+            }
+
+            private bool HasSetter(INamedTypeSymbol type, string member) => SetterNamespace(type, member) != null;
+
+            private string? SetterNamespace(INamedTypeSymbol type, string member) {
                 for (INamedTypeSymbol? current = type; current != null; current = current.BaseType) {
                     INamedTypeSymbol? fluent = compilation.GetTypeByMetadataName(current.ContainingNamespace.ToDisplayString() + "." + current.Name + "Fluent");
-                    if (fluent?.GetMembers(member).OfType<IMethodSymbol>().Any(method => method.Parameters.Length >= 2) == true) { return true; }
+                    if (fluent?.GetMembers(member).OfType<IMethodSymbol>().Any(method => method.Parameters.Length >= 2) == true) { return current.ContainingNamespace.ToDisplayString(); }
                 }
-                return false;
+                return null;
             }
 
             public override SyntaxNode? VisitInvocationExpression(InvocationExpressionSyntax node) {

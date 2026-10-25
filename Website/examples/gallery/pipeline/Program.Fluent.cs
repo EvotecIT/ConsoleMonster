@@ -67,10 +67,10 @@ Lanes compilers = new Lanes("compilers");
 for (int i = 0; i < compilerNames.Length; i++)
 {
     Lane lane = compilers.Add("c" + i, compilerNames[i], 1);
-    lane.Status = completed > i + 3 ? StatusKind.Pass : completed == i + 3 ? StatusKind.Running : StatusKind.Pending;
-    lane.Value = completed > i + 3 ? 1 : 0;
-    lane.Passed = (int)lane.Value;
-    lane.Detail = lane.Value > 0 ? "compiled" : lane.Status == StatusKind.Running ? "compiling" : "queued";
+    lane.Status(completed > i + 3 ? StatusKind.Pass : completed == i + 3 ? StatusKind.Running : StatusKind.Pending);
+    lane.Value(completed > i + 3 ? 1 : 0);
+    lane.Passed((int)lane.Value);
+    lane.Detail(lane.Value > 0 ? "compiled" : lane.Status == StatusKind.Running ? "compiling" : "queued");
 }
 
 LogRegion log = new LogRegion().PreferredHeight(8).ShowElapsed(false);
@@ -80,8 +80,8 @@ foreach (BuildStep item in steps.Take(completed))
         log.Write(PathText(line), item.Result == StatusKind.Warn ? "warn" : item.Result == StatusKind.Skip ? "skip" : "info");
 if (completed < steps.Length)
     log.Write(PathText(steps[completed].Label) + "...");
-Rows body = new Rows(new Padding().Bottom(1).Right(1).Top(0).Left(1).Content(c => c.Add(phases)), new Columns().Add(new Panel().Title("Steps").Content(c => c.Add(status)), LayoutSize.Fraction(1.5)).Add(new Panel().Title("Module").Content(c => c.Add(new Rows(module, new Rule(), progress, new Rule("Compiler workers"), compilers))))).Add(new Panel().Title("Output").Content(c => c.Add(log)), LayoutSize.Fraction());
-Dashboard dashboard = new Dashboard().Content(c => c.Add(body)).Title("[bold]Module build[/]").Subtitle("Build-Module ConsoleMonster").ShowElapsed(false).Footer("[muted]Prepare · Restore · Build · Test · Docs · Sign · Package · Publish    Ctrl+C stop[/]");
+Rows body = new Rows(new Padding().Bottom(1).Right(1).Top(0).Left(1).Content(phases), new Columns().Add(new Panel().Title("Steps").Content(status), LayoutSize.Fraction(1.5)).Add(new Panel().Title("Module").Content(new Rows(module, new Rule(), progress, new Rule("Compiler workers"), compilers)))).Add(new Panel().Title("Output").Content(log), LayoutSize.Fraction());
+Dashboard dashboard = new Dashboard().Content(body).Title("[bold]Module build[/]").Subtitle("Build-Module ConsoleMonster").ShowElapsed(false).Footer("[muted]Prepare · Restore · Build · Test · Docs · Sign · Package · Publish    Ctrl+C stop[/]");
 // Behaviour: native handles update each region while ordinary tool output is captured by the live session.
 using LiveSession session = new LiveSession(dashboard);
 try

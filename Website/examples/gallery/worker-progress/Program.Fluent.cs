@@ -20,7 +20,7 @@ IWidget Frame(int tick)
     KeyValueList stats = new KeyValueList().Add("Updates", (800 + tick * 320).ToString(System.Globalization.CultureInfo.InvariantCulture)).Add("Queue", (24 - tick * 5).ToString(System.Globalization.CultureInfo.InvariantCulture)).Add("Workers", "8").Add("Dropped", "[pass]0[/]");
     Sparkline trend = new Sparkline().Label("updates/s");
     trend.AddRange(new double[] { 120, 180, 160, 240, 210, 220 + tick * 15 });
-    return new Rows(new TextBlock("[bold]Worker stress dashboard[/] [muted]· worker pool[/]"), new Columns(new Panel().Title("Workers").Content(c => c.Add(workers)), new Panel().Title("Session").Content(c => c.Add(new Rows(stats, trend)))), new TextBlock("[muted]Ctrl+C stops the live run.[/]")).Gap(1);
+    return new Rows(new TextBlock("[bold]Worker stress dashboard[/] [muted]· worker pool[/]"), new Columns(new Panel().Title("Workers").Content(workers), new Panel().Title("Session").Content(new Rows(stats, trend))), new TextBlock("[muted]Ctrl+C stops the live run.[/]")).Gap(1);
 }
 
 // Behaviour: update each frame in a bounded live run.

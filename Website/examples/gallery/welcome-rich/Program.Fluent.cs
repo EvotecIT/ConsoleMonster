@@ -19,6 +19,6 @@ string git = "[accent]main[/]   [warn]2 modified[/]   [pass]1 staged[/]   [muted
 KeyValueList hostSummary = new KeyValueList();
 foreach (var item in hostData)
     hostSummary.Add(item.Label, item.Value);
-Rows layout = new Rows(new Logo("HELLO", "[muted]A little context before your next command.[/]"), new Panel().Title("Host summary").Content(c => c.Add(hostSummary)).HeaderRight("local workspace"), new Panel().Title("Git | comet-notes").Content(c => c.Add(new TextBlock(git))), new TextBlock("[bold]Tip[/] Get-Help New-ConsoleTable -Examples"), new TextBlock("[muted]Ready when you are.[/]")).Gap(1);
+Rows layout = new Rows(new Logo("HELLO", "[muted]A little context before your next command.[/]"), new Panel().Title("Host summary").Content(hostSummary).HeaderRight("local workspace"), new Panel().Title("Git | comet-notes").Content(new TextBlock(git)), new TextBlock("[bold]Tip[/] Get-Help New-ConsoleTable -Examples"), new TextBlock("[muted]Ready when you are.[/]")).Gap(1);
 // Behaviour: print the screen once and return.
 layout.Show();

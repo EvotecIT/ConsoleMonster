@@ -123,7 +123,7 @@ using (LiveSession session = new LiveSession(dashboard)) {
 
 Every widget can be written in three equivalent styles. They build the same objects and render the same output (a
 golden test checks it), so use whichever reads best for the case, and mix them freely.
-Each style as a complete program, with the frame all three print: [Three ways to write it in C#](https://consolemonster.dev/docs/csharp-styles/).
+Each style as a complete program, with the frame all three print: [Three ways to write it](https://consolemonster.dev/docs/csharp-styles/). Callback properties use `.Configure(item => item.Action = callback)` because C# otherwise invokes the delegate property instead of selecting an extension setter.
 
 1. Object initializers are the canonical model, and the clearest when you set many options at once or fill rows in a loop:
 
@@ -547,7 +547,7 @@ Show-ConsoleMenu $menu -Layout Classic
 
 ```csharp
 Menu menu = new Menu("Server toolbox")
-    .Item("Targets", i => i.Hotkey('t').LoadChoices(LoadServersAsync))
+    .Item("Targets", i => i.Hotkey('t').Configure(item => item.LoadChoices = LoadServersAsync))
     .Item("Tasks", i => i.Hotkey('k').MultiSelect(tasks, t => t.Name, t => t.Category, TaskPreview))
     .Item("Options", i => i.Form(optionsForm))
     .Item("Presets", i => i.Presets())

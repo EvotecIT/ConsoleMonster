@@ -42,7 +42,7 @@ Table TableOf(string[] headers)
 IWidget Findings(IEnumerable<Work> work)
 {
     Table table = TableOf(new[] { "Server", "Task", "Expected", "Actual" });
-    table.Columns[3].Flexible = true;
+    table.Columns[3].Flexible(true);
     foreach (Work w in work.Where(w => w.Status != StatusKind.Pass))
         table.AddRow(w.Node.Name, w.Check.Name, w.Check.Expected, TableCell.FromValue(RichText.Plain(w.Actual, new RichStyle(w.Status == StatusKind.Fail ? ThemeToken.Fail : ThemeToken.Warn))));
     return table;
@@ -79,12 +79,12 @@ IWidget Body(List<Work> work, int done, int phase)
         Work[] planned = work.Where(w => w.Node == node).ToArray();
         Work[] ready = finished.Where(w => w.Node == node).ToArray();
         Lane lane = lanes.Add(node.Name, RichText.Plain(node.Name + "  " + node.Site), planned.Length);
-        lane.Value = ready.Length;
-        lane.Passed = ready.Count(w => w.Status == StatusKind.Pass);
-        lane.Warned = ready.Count(w => w.Status == StatusKind.Warn);
-        lane.Failed = ready.Count(w => w.Status == StatusKind.Fail);
-        lane.Status = ready.Length == planned.Length ? Verdict(ready) : active.Any(w => w.Node == node) ? StatusKind.Running : StatusKind.Pending;
-        lane.Detail = active.FirstOrDefault(w => w.Node == node)?.Check.Name ?? ready.LastOrDefault()?.Check.Name;
+        lane.Value(ready.Length);
+        lane.Passed(ready.Count(w => w.Status == StatusKind.Pass));
+        lane.Warned(ready.Count(w => w.Status == StatusKind.Warn));
+        lane.Failed(ready.Count(w => w.Status == StatusKind.Fail));
+        lane.Status(ready.Length == planned.Length ? Verdict(ready) : active.Any(w => w.Node == node) ? StatusKind.Running : StatusKind.Pending);
+        lane.Detail(active.FirstOrDefault(w => w.Node == node)?.Check.Name ?? ready.LastOrDefault()?.Check.Name);
     }
 
     LogRegion log = new LogRegion().ShowElapsed(false).PreferredHeight(7);
@@ -98,15 +98,15 @@ IWidget Body(List<Work> work, int done, int phase)
     if (phase >= 4)
         log.Write(notify ? "Report ready · recipient " + email : "Report ready · " + finished.Count(w => w.Status != StatusKind.Pass) + " findings to review");
     KeyValueList facts = new KeyValueList().Add("Targets", targets.Length + " servers").Add("Tasks", checks.Length + " per server").Add("Parallel", parallel.ToString()).Add("Report", format.ToUpperInvariant()).Add("Dry run", dryRun ? "yes" : "no");
-    Columns info = new Columns(new Panel().Title("Servers").Content(c => c.Add(lanes)), new Panel().Title("Run options").Content(c => c.Add(facts))).CollapseBelow(90);
-    return new Rows(summary, phases, info, new Panel().Title("Findings").Content(c => c.Add(Findings(finished))), new Panel().Title("Log").Content(c => c.Add(log)));
+    Columns info = new Columns(new Panel().Title("Servers").Content(lanes), new Panel().Title("Run options").Content(facts)).CollapseBelow(90);
+    return new Rows(summary, phases, info, new Panel().Title("Findings").Content(Findings(finished)), new Panel().Title("Log").Content(log));
 }
 
 // Behaviour: native form/menu navigation, then a bounded run with cancellation and history.
 void Execute(MenuContext context, List<Work> work)
 {
     RegionWidget body = new RegionWidget(widgetId: "body", content: Body(work, 0, 0));
-    Dashboard dashboard = new Dashboard().Content(c => c.Add(body)).Title("[bold]Server toolbox[/]").Subtitle(domain).Footer("Ctrl+C cancel · results keep the findings");
+    Dashboard dashboard = new Dashboard().Content(body).Title("[bold]Server toolbox[/]").Subtitle(domain).Footer("Ctrl+C cancel · results keep the findings");
     bool completed = false;
     MenuRunResult outcome = context.Run(dashboard, run =>
     {
@@ -195,24 +195,21 @@ void ApplyOptions(FormValues values)
 }
 
 Menu menu = new Menu("Server toolbox").Layout(MenuLayout.Shell).Subtitle("Tue 20 Oct 2026 · 09:30");
-MenuItem targetItem = new MenuItem("Targets")
+MenuItem targetItem = new MenuItem("Targets").Hotkey('t').IconName(GlyphIcon.Targets).Description("Inventory grouped by site; unavailable servers stay visible.").Configure(configured => configured.LoadChoices = async (_, token) =>
 {
-    LoadChoices = async (_, token) =>
-    {
-        await Task.Delay(700, token);
-        return Choice.From(inventory, n => n.Name, n => n.Site, describe: n => n.Detail, badge: n => RichText.Plain(n.Role, new RichStyle(ThemeToken.Muted)), disabledReason: n => n.Offline);
-    }
-}.Hotkey('t').IconName(GlyphIcon.Targets).Description("Inventory grouped by site; unavailable servers stay visible.");
+    await Task.Delay(700, token);
+    return Choice.From(inventory, n => n.Name, n => n.Site, describe: n => n.Detail, badge: n => RichText.Plain(n.Role, new RichStyle(ThemeToken.Muted)), disabledReason: n => n.Offline);
+});
 targetItem.SetSelection(targets.Cast<object?>());
-targetItem.Minimum = 1;
-targetItem.Preview = c =>
+targetItem.Minimum(1);
+targetItem.Configure(configured => configured.Preview = c =>
 {
     Node n = (Node)c.Value!;
     return new KeyValueList().Add("Server", n.Name).Add("Site", n.Site).Add("Role", n.Role).Add("OS", n.Detail);
-};
+});
 MenuItem taskItem = new MenuItem("Tasks").Hotkey('k').IconName(GlyphIcon.Tasks).MultiSelect(catalog.Select(c => new Choice(c.Id, c.Name).Group(c.Category).Description(c.Description).Badge(RichText.Plain((c.Changes ? "changes · " : "") + "~" + c.Minutes + " min", new RichStyle(c.Changes ? ThemeToken.Warn : ThemeToken.Muted))).Selected(checks.Contains(c))));
-taskItem.Minimum = 1;
-taskItem.Preview = c => Preview(catalog.First(k => k.Id == (string)c.Value!));
+taskItem.Minimum(1);
+taskItem.Configure(configured => configured.Preview = c => Preview(catalog.First(k => k.Id == (string)c.Value!)));
 menu.Add(targetItem);
 menu.Add(taskItem);
 MenuItem optionItem = new MenuItem("Options").Hotkey('o').IconName(GlyphIcon.Settings).Form(options, (_, result) => ApplyOptions(result.Values));
@@ -223,9 +220,9 @@ menu.Item("Presets", i => i.Hotkey('p').IconName(GlyphIcon.Favorite).Presets());
 menu.Separator();
 menu.Item("Review & run", i =>
 {
-    i.Hotkey = 'r';
-    i.IconName = GlyphIcon.Run;
-    i.Review = _ =>
+    i.Hotkey('r');
+    i.IconName(GlyphIcon.Run);
+    i.Configure(configured2 => configured2.Review = _ =>
     {
         targets = inventory.Where(n => targetItem.GetSelection<Node>().Contains(n) && n.Offline == "").ToArray();
         checks = catalog.Where(c => taskItem.GetSelection<string>().Contains(c.Id)).ToArray();
@@ -248,17 +245,17 @@ menu.Item("Review & run", i =>
             ["ComputerName"] = targets.Select(n => n.Name).ToArray(),
             ["Task"] = checks.Select(c => c.Id).ToArray()
         };
-        review.Command = CommandLine.Build("Invoke-ServerToolbox", commandArguments) + " " + options.BuildCommand();
-        review.Run = ctx => Execute(ctx, Plan());
+        review.Command(CommandLine.Build("Invoke-ServerToolbox", commandArguments) + " " + options.BuildCommand());
+        review.Configure(configured => configured.Run = ctx => Execute(ctx, Plan()));
         return review;
-    };
+    });
 });
 menu.Item("History", i =>
 {
-    i.Hotkey = 'h';
-    i.IconName = GlyphIcon.List;
-    i.Page = _ => History();
-    i.Detail = () => history.Count + " runs";
+    i.Hotkey('h');
+    i.IconName(GlyphIcon.List);
+    i.Configure(configured => configured.Page = _ => History());
+    i.Configure(configured => configured.Detail = () => history.Count + " runs");
 });
 menu.Separator();
 menu.Exit("Quit");

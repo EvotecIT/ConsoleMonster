@@ -264,6 +264,16 @@ namespace SiteFrames.Pages {
             }
         }
 
+        /// <summary>Regenerates every fluent program from its initializer source and checks the translated compilation.</summary>
+        internal static void WriteFluentSources(Site site) {
+            foreach (Demo demo in Read(site)) {
+                string source = CSharpRunner.FluentSource(demo.CSharp);
+                CSharpRunner.Check(demo.CSharp, source);
+                File.WriteAllText(demo.CSharpFluent, source, new UTF8Encoding(false));
+                Console.WriteLine("gallery " + demo.Slug + ": fluent source regenerated");
+            }
+        }
+
         /// <summary>Compiles both C# styles independently, without needing terminal captures.</summary>
         internal static void CheckSources(Site site) {
             var failures = new List<string>();

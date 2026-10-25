@@ -44,7 +44,7 @@ Table TableOf(string[] headers)
 IWidget Findings(IEnumerable<Work> work)
 {
     Table table = TableOf(new[] { "Server", "Check", "Expected", "Actual" });
-    table.Columns[3].Flexible = true;
+    table.Columns[3].Flexible(true);
     foreach (Work w in work.Where(w => w.Status != StatusKind.Pass))
         table.AddRow(w.Node.Name, w.Check.Name, w.Check.Expected, TableCell.FromValue(RichText.Plain(w.Actual, new RichStyle(w.Status == StatusKind.Fail ? ThemeToken.Fail : ThemeToken.Warn))));
     return table;
@@ -81,11 +81,11 @@ IWidget Body(List<Work> work, int done, int phase)
         Work[] planned = work.Where(w => w.Check.Category == category).ToArray();
         Work[] ready = finished.Where(w => w.Check.Category == category).ToArray();
         Lane lane = lanes.Add(category, category, planned.Length);
-        lane.Value = ready.Length;
-        lane.Passed = ready.Count(w => w.Status == StatusKind.Pass);
-        lane.Warned = ready.Count(w => w.Status == StatusKind.Warn);
-        lane.Failed = ready.Count(w => w.Status == StatusKind.Fail);
-        lane.Status = ready.Length == planned.Length ? Verdict(ready) : active.Any(w => w.Check.Category == category) ? StatusKind.Running : StatusKind.Pending;
+        lane.Value(ready.Length);
+        lane.Passed(ready.Count(w => w.Status == StatusKind.Pass));
+        lane.Warned(ready.Count(w => w.Status == StatusKind.Warn));
+        lane.Failed(ready.Count(w => w.Status == StatusKind.Fail));
+        lane.Status(ready.Length == planned.Length ? Verdict(ready) : active.Any(w => w.Check.Category == category) ? StatusKind.Running : StatusKind.Pending);
     }
 
     LogRegion log = new LogRegion().ShowElapsed(false).PreferredHeight(7);
@@ -121,18 +121,18 @@ IWidget Body(List<Work> work, int done, int phase)
     Histogram durations = new Histogram(new double[] { 0, 2, 4, 8, 16 }, "durations").Height(5);
     foreach (Work w in finished)
         durations.Add(w.Seconds);
-    Columns top = new Columns().Add(new Panel().Title("Check map").Content(c => c.Add(map))).Add(new Panel().Title("Categories").Content(c => c.Add(new Rows(lanes, new Rule(), facts))), LayoutSize.Fraction(1.15)).Add(new Panel().Title("Running").Content(c => c.Add(running)), LayoutSize.Fraction(.95));
-    top.CollapseBelow = 100;
-    Columns bottom = new Columns().Add(new Panel().Title("Findings").Content(c => c.Add(Findings(finished))), LayoutSize.Fraction(1.5)).Add(new Panel().Title("Slowest checks").Content(c => c.Add(slow))).Add(new Panel().Title("Durations").Content(c => c.Add(durations)), LayoutSize.Fixed(20));
-    bottom.CollapseBelow = 100;
-    return new Rows(summary, phases, top, bottom, new Panel().Title("Log").Content(c => c.Add(log)));
+    Columns top = new Columns().Add(new Panel().Title("Check map").Content(map)).Add(new Panel().Title("Categories").Content(new Rows(lanes, new Rule(), facts)), LayoutSize.Fraction(1.15)).Add(new Panel().Title("Running").Content(running), LayoutSize.Fraction(.95));
+    top.CollapseBelow(100);
+    Columns bottom = new Columns().Add(new Panel().Title("Findings").Content(Findings(finished)), LayoutSize.Fraction(1.5)).Add(new Panel().Title("Slowest checks").Content(slow)).Add(new Panel().Title("Durations").Content(durations), LayoutSize.Fixed(20));
+    bottom.CollapseBelow(100);
+    return new Rows(summary, phases, top, bottom, new Panel().Title("Log").Content(log));
 }
 
 // Behaviour: native form/menu navigation, then a bounded run with cancellation and history.
 void Execute(MenuContext context, List<Work> work)
 {
     RegionWidget body = new RegionWidget(widgetId: "body", content: Body(work, 0, 0));
-    Dashboard dashboard = new Dashboard().Content(c => c.Add(body)).Title("[bold]Fleet health check[/]").Subtitle(domain).Footer("Ctrl+C cancel · results keep the findings");
+    Dashboard dashboard = new Dashboard().Content(body).Title("[bold]Fleet health check[/]").Subtitle(domain).Footer("Ctrl+C cancel · results keep the findings");
     bool completed = false;
     MenuRunResult outcome = context.Run(dashboard, run =>
     {
@@ -255,10 +255,10 @@ menu.Item("New check", i => i.Hotkey('n').IconName(GlyphIcon.Run).Description("C
 }));
 menu.Item("History", i =>
 {
-    i.Hotkey = 'h';
-    i.IconName = GlyphIcon.List;
-    i.Page = _ => History();
-    i.Detail = () => history.Count + " runs";
+    i.Hotkey('h');
+    i.IconName(GlyphIcon.List);
+    i.Configure(configured => configured.Page = _ => History());
+    i.Configure(configured => configured.Detail = () => history.Count + " runs");
 });
 menu.Separator();
 menu.Exit("Quit");

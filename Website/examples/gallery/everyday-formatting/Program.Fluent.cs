@@ -32,7 +32,7 @@ var tasks = new[]
 string baseline = "";
 Table table = new Table().Expand(true);
 table.AddColumn("Task");
-table.AddColumn("State", column => column.Presenter = CellPresenters.StatusWord);
+table.AddColumn("State", column => column.Presenter(CellPresenters.StatusWord));
 table.AddColumn("Minutes");
 foreach (var task in tasks)
 {

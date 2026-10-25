@@ -24170,5 +24170,13 @@
       "Member": "AddConsoleMonster",
       "Reason": "The .NET logging provider is configured through its logging builder; PowerShell launches the same project with dotnet."
     }
+  ],
+  "FluentExceptions": [
+    {
+      "Kind": "DelegateProperty",
+      "Method": "Configure",
+      "Pattern": ".Configure(item => item.{Member} = \u2026)",
+      "Reason": "C# invokes a delegate-valued property before considering an extension with that name; Configure assigns the callback without invoking it."
+    }
   ]
 }

@@ -1,7 +1,7 @@
 # Copyable demos
 
-Each folder contains one complete `<slug>.ps1` script, one complete `Program.cs`,
-and `metadata.json`. Starters keep the first useful version small. Showcases
+Each folder contains a complete `<slug>.ps1`, `Program.cs` with initializers,
+`Program.Fluent.cs` with fluent calls, and `metadata.json`. Starters keep the first useful version small. Showcases
 carry the full workflow: richer dashboards, menus, forms, live progress, and
 results. Both tiers use fictional inline data and never contact hosts, install
 software, patch machines, or publish artifacts. These limits live in the source
@@ -38,8 +38,9 @@ cd FleetConsole
 dotnet run
 ```
 
-The generated project contains the gallery's `Program.cs` and needs only the
-ConsoleMonster package. Set `CONSOLEMONSTER_SNAPSHOT=1` to initialize an app without
+The generated project contains both C# programs and needs only the
+ConsoleMonster package. `dotnet run` selects initializers; `dotnet run --property:DemoStyle=Fluent`
+selects the fluent file. The project compiles one style at a time. Set `CONSOLEMONSTER_SNAPSHOT=1` to initialize an app without
 reading input and skip dashboard pauses. `CONSOLEMONSTER_INPUT` supplies scripted
 keys for native menus, forms and prompts. Omitting `--demo` creates the full
 menu/logging/hosting starter as before. The PowerShell assembly embeds the canonical scripts and
@@ -67,7 +68,7 @@ SiteFrames generates `Website/data/gallery.json` as:
 ```
 
 Each demo keeps its metadata and adds `id`, a `source` object with `powershell`
-and `csharp` entries, `lines` with each file's line count, download URLs, run
+`csharp` and `csharpFluent` entries, `lines` with each file's line count, download URLs, run
 commands, a `frame`, a `thumbnail` SVG URL, and per-state cell parity results.
 Featured entries come first, followed by slug order. Live entries also carry
 `url`, `duration` in milliseconds, `frames`, `fps`, and `start` for the existing
@@ -91,8 +92,8 @@ exactly one UTF-8 BOM for Windows PowerShell 5.1. `repo` is its repository-relat
 The existing flat source and repository-path fields remain available.
 
 Readers can copy `fleet.ps1` after `Install-Module ConsoleMonster`, or copy
-`Program.cs` into `dotnet new console` after `dotnet add package ConsoleMonster`.
-Neither file needs other gallery files. Both explain their data, layout, and live
+either C# program into a new console project's `Program.cs` after `dotnet add package ConsoleMonster`.
+Each program stands alone. All three explain their data, layout, and live
 updates in comments; static screens print once and return.
 
 Frames use the site's existing `frames.css`; replays use its existing player.
@@ -101,6 +102,11 @@ metadata. Each page uses the Demos detail layout. Validation rejects missing,
 orphaned or stale pages, and website CI rejects uncommitted generated changes.
 
 ## Refresh captures
+
+After editing an initializer program, regenerate the fluent source with
+`dotnet run --project Website/tools/SiteFrames -c Release -- write-gallery-fluent Website`.
+The translator resolves actual properties and preserves setter order. Callback
+properties use Configure; mixed collection initializers retain their original order.
 
 Build the module, capture its PowerShell output on any platform with PowerShell
 7, then regenerate site assets:
@@ -111,8 +117,9 @@ dotnet run --project Website/tools/SiteFrames -c Release -- capture Website gall
 dotnet run --project Website/tools/SiteFrames -c Release -- render Website
 ```
 
-The renderer compiles and runs every C# source, compares all snapshot cells and
-styles with the PowerShell output, and rejects missing or stale captures.
+The renderer compiles and runs both C# styles, compares all three programs' snapshot cells and
+styles byte for byte, and rejects missing or stale captures. Each demo page has three
+tabs in its initial HTML and a How it maps note generated from the parity contract.
 `gallery-review Website <output-directory>` exports standalone HTML and text
 for inspection. The normal website CI build includes the same parity check.
 

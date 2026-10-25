@@ -67,6 +67,9 @@ namespace SiteFrames {
                 case "verify-gallery-sources":
                     GalleryPage.CheckSources(new Site(website));
                     return 0;
+                case "write-gallery-fluent":
+                    GalleryPage.WriteFluentSources(new Site(website));
+                    return 0;
                 case "verify-gallery":
                     GalleryPage.Verify(new Site(website), only);
                     return 0;

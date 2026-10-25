@@ -21,9 +21,9 @@ SelectPrompt<Server> ServerPrompt()
     foreach (Choice choice in prompt.Choices)
     {
         Server server = (Server)choice.Value!;
-        choice.Badge = RichText.Plain(server.Role, new RichStyle(ThemeToken.Muted));
-        choice.DisabledReason = server.Offline;
-        choice.Description = server.Role + " server · " + server.OS;
+        choice.Badge(RichText.Plain(server.Role, new RichStyle(ThemeToken.Muted)));
+        choice.DisabledReason(server.Offline);
+        choice.Description(server.Role + " server · " + server.OS);
     }
 
     return prompt;
@@ -32,10 +32,7 @@ SelectPrompt<Server> ServerPrompt()
 MultiSelectPrompt<Job> TaskPrompt()
 {
     Choice[] choices = tasks.Select(t => new Choice(t, t.Name).Group(t.Category).Description(t.Description).Badge(new RichTextBuilder().Append(t.Changes ? "changes " : "", ThemeToken.Warn).Append($"~{t.Minutes} min", ThemeToken.Muted).Build()).Selected(t.Id is "PatchStatus" or "DiskSpace")).ToArray();
-    return new MultiSelectPrompt<Job>("Tasks", choices)
-    {
-        Preview = Preview
-    }.Minimum(1).Default(tasks.Where(t => t.Id is "PatchStatus" or "DiskSpace").ToArray());
+    return new MultiSelectPrompt<Job>("Tasks", choices).Minimum(1).Configure(configured => configured.Preview = Preview).Default(tasks.Where(t => t.Id is "PatchStatus" or "DiskSpace").ToArray());
 }
 
 // Behaviour: each native prompt returns an answer; the tour performs no external action.

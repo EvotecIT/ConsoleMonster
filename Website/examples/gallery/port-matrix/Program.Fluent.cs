@@ -44,6 +44,6 @@ foreach (string host in hosts)
 foreach (StatusKind state in states)
     map.Add(state);
 StatusList exceptions = new StatusList().Add("api-01 → SQL 5432", StatusKind.Fail, "Connection refused · check listener and access policy").Add("api-01 → Cache 6379", StatusKind.Warn, "180 ms · expected under 50 ms");
-Rows report = new Rows(new Rule("[bold]Application connectivity[/] [muted]· core services[/]"), new Panel().Title(string.Join("   |   ", ports)).Content(c => c.Add(map)), new Panel().Title("Exceptions to investigate").Content(c => c.Add(exceptions)), new TextBlock("[muted]Skipped cells are ports that host does not need.[/]")).Gap(1);
+Rows report = new Rows(new Rule("[bold]Application connectivity[/] [muted]· core services[/]"), new Panel().Title(string.Join("   |   ", ports)).Content(map), new Panel().Title("Exceptions to investigate").Content(exceptions), new TextBlock("[muted]Skipped cells are ports that host does not need.[/]")).Gap(1);
 // Behaviour: print the collected observations once; collectors belong before the layout.
 report.Show();

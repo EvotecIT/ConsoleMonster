@@ -281,8 +281,8 @@ foreach (string category in new[]
     findings.Add(category, 0);
 Lanes lanes = new Lanes().MaxLabelWidth(28);
 LogRegion log = new LogRegion().PreferredHeight(6);
-Rows body = new Rows(new Padding().Bottom(1).Right(1).Top(0).Left(1).Content(c => c.Add(phases)), new Columns().Add(new Panel().Title("Targets").Content(c => c.Add(lanes)).HeaderRight("6 workers"), LayoutSize.Fraction(2.3)).Add(new Panel().Title("Results").Content(c => c.Add(new Rows(results, new Rule(), summary)))), new Columns().Add(new Panel().Title("Throughput").Content(c => c.Add(throughput)).HeaderRight("rules/s"), LayoutSize.Fraction(1.2)).Add(new Panel().Title("Rule duration").Content(c => c.Add(durations))).Add(new Panel().Title("Failures by category").Content(c => c.Add(findings)))).Add(new Panel().Title("Log").Content(c => c.Add(log)), LayoutSize.Fraction());
-Dashboard dashboard = new Dashboard().Content(c => c.Add(body)).Title("[bold]Nightly checks[/]").Subtitle("ad.adatum.com forest assessment · 12 targets · 332 rules").ShowElapsed(false).Footer("[muted]Discover · Collect · Evaluate · Report    Ctrl+C stop[/]");
+Rows body = new Rows(new Padding().Bottom(1).Right(1).Top(0).Left(1).Content(phases), new Columns().Add(new Panel().Title("Targets").Content(lanes).HeaderRight("6 workers"), LayoutSize.Fraction(2.3)).Add(new Panel().Title("Results").Content(new Rows(results, new Rule(), summary))), new Columns().Add(new Panel().Title("Throughput").Content(throughput).HeaderRight("rules/s"), LayoutSize.Fraction(1.2)).Add(new Panel().Title("Rule duration").Content(durations)).Add(new Panel().Title("Failures by category").Content(findings))).Add(new Panel().Title("Log").Content(log), LayoutSize.Fraction());
+Dashboard dashboard = new Dashboard().Content(body).Title("[bold]Nightly checks[/]").Subtitle("ad.adatum.com forest assessment · 12 targets · 332 rules").ShowElapsed(false).Footer("[muted]Discover · Collect · Evaluate · Report    Ctrl+C stop[/]");
 // Behaviour: post each synthetic event in a bounded live run, paced at 4x.
 using LiveSession session = new LiveSession(dashboard);
 try

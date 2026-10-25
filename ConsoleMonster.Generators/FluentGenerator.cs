@@ -11,7 +11,8 @@ namespace ConsoleMonster.Generators {
     /// Writes the fluent methods of every public widget (a class implementing <c>ConsoleMonster.Layout.IWidget</c>) and of
     /// the option types they hold (column definitions, items, presentation options) from their public properties:
     /// <list type="bullet">
-    /// <item><c>X(value)</c> for every settable property (<c>X()</c> sets a bool to true);</item>
+    /// <item><c>X(value)</c> for ordinary settable properties (<c>X()</c> sets a bool to true);</item>
+    /// <item><c>Configure(value =&gt; value.Callback = callback)</c> for delegate-valued properties;</item>
     /// <item><c>X(Action&lt;T&gt;)</c> for a property holding an option object, configuring it in place;</item>
     /// <item><c>AddX(item)</c>, <c>AddXs(params items)</c> and <c>AddXs(IEnumerable)</c> for every mutable collection.</item>
     /// </list>
@@ -36,8 +37,9 @@ namespace ConsoleMonster.Generators {
                 if (widget == null) {
                     return;
                 }
-                foreach (INamedTypeSymbol type in FluentTypes(compilation.Assembly, widget)) {
-                    string? source = Generate(type, compilation);
+                List<INamedTypeSymbol> types = FluentTypes(compilation.Assembly, widget);
+                foreach (INamedTypeSymbol type in types) {
+                    string? source = Generate(type, compilation, types);
                     if (source != null) {
                         output.AddSource(type.ToDisplayString().Replace("ConsoleMonster.", string.Empty).Replace('<', '_').Replace('>', '_').Replace(',', '_').Replace(' ', '_') + ".Fluent.g.cs", source);
                     }
@@ -160,7 +162,7 @@ namespace ConsoleMonster.Generators {
 
         private static bool HasNoFluent(ISymbol symbol) => symbol.GetAttributes().Any(a => a.AttributeClass?.ToDisplayString() == NoFluentAttribute);
 
-        private static string? Generate(INamedTypeSymbol type, Compilation compilation) {
+        private static string? Generate(INamedTypeSymbol type, Compilation compilation, IReadOnlyList<INamedTypeSymbol> types) {
             string typeName = type.ToDisplayString(TypeFormat);
             string docId = type.GetDocumentationCommentId() ?? type.Name;
             bool open = !type.IsSealed;
@@ -182,6 +184,22 @@ namespace ConsoleMonster.Generators {
             HashSet<string> generated = new HashSet<string>(StringComparer.Ordinal);
             StringBuilder body = new StringBuilder();
             int methods = 0;
+            bool delegateProperties = Properties(type).Any(property => IsSettable(property) && property.Type.TypeKind == TypeKind.Delegate);
+            bool inheritedConfigure = false;
+            for (INamedTypeSymbol? parent = type.BaseType; parent != null; parent = parent.BaseType) {
+                if (types.Contains(parent, SymbolEqualityComparer.Default) && Properties(parent).Any(property => IsSettable(property) && property.Type.TypeKind == TypeKind.Delegate)) { inheritedConfigure = true; break; }
+            }
+            if (delegateProperties && !inheritedConfigure && !Taken("Configure", compilation.GetTypeByMetadataName("System.Action`1")!.Construct(type))) {
+                body.Append(Doc("Assigns callbacks and related configuration without invoking delegate-valued properties.", receiver, "Assignments applied in order.", "configure"));
+                foreach (IPropertySymbol property in Properties(type).Where(property => IsSettable(property) && property.Type.TypeKind == TypeKind.Delegate)) {
+                    body.Append(PropertyExample(type, property, receiver));
+                }
+                body.Append("        public static ").Append(self).Append(" Configure").Append(generic).Append("(this ").Append(self).Append(' ').Append(receiver)
+                    .Append(", global::System.Action<").Append(self).Append("> configure)").Append(constraint).Append(" {\n")
+                    .Append("            if (configure == null) { throw new global::System.ArgumentNullException(nameof(configure)); }\n")
+                    .Append("            configure(").Append(receiver).Append(");\n            return ").Append(receiver).Append(";\n        }\n\n");
+                methods++;
+            }
             bool ownsContent = type.AllInterfaces.Any(i => i.ToDisplayString() == "ConsoleMonster.Layout.IContentOwner");
             if (ownsContent) {
                 foreach (string parameterType in new[] { "global::ConsoleMonster.Layout.IWidget", "global::System.Action<global::ConsoleMonster.Layout.ContentBuilder>" }) {
@@ -205,6 +223,8 @@ namespace ConsoleMonster.Generators {
                 string propertyDoc = property.GetDocumentationCommentId() ?? property.Name;
                 string summary = Summary(property);
                 string with = property.Name;
+                // C# invokes a delegate property before considering an extension with the same name.
+                if (property.Type.TypeKind == TypeKind.Delegate) { continue; }
                 ITypeSymbol? item = CollectionItem(property.Type);
                 if (IsSettable(property) && !Taken(with, property.Type) && generated.Add(with + "(" + propertyType + ")")) {
                     bool flag = property.Type.SpecialType == SpecialType.System_Boolean;
@@ -311,7 +331,8 @@ namespace ConsoleMonster.Generators {
             bool constructible = type.InstanceConstructors.Any(ctor => ctor.DeclaredAccessibility == Accessibility.Public && ctor.Parameters.All(parameter => parameter.IsOptional));
             string creation = "new " + type.ToDisplayString(TypeFormat);
             string initializer = constructible ? creation + " { " + property.Name + " = value }" : receiver + "." + property.Name + " = value;";
-            string fluent = (constructible ? creation + "()" : receiver) + "." + property.Name + "(value)";
+            string fluent = (constructible ? creation + "()" : receiver) + (property.Type.TypeKind == TypeKind.Delegate
+                ? ".Configure(configured => configured." + property.Name + " = value)" : "." + property.Name + "(value)");
             return "        /// <example><list type=\"table\"><listheader><term>C# initializer or property</term><description>C# fluent</description></listheader>\n"
                 + "        /// <item><term><code>" + new XText(initializer) + "</code></term><description><code>" + new XText(fluent) + "</code></description></item></list></example>\n";
         }

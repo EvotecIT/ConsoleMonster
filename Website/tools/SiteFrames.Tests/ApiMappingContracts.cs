@@ -43,6 +43,17 @@ namespace SiteFrames.Tests {
         }
 
         [Fact]
+        public void CallbackNotesShowConfigureFromTheSameClassifiedExceptionAsTheParityGate() {
+            string source = Source("callback", "using ConsoleMonster.Interactive;\nusing ConsoleMonster.Widgets;\nvar options = new SelectQuestionOptions { Preview = value => new TextBlock(\"Ready\") };\n");
+            string fluent = CSharpRunner.FluentSource(source);
+            Assert.Contains(".Configure(", fluent, StringComparison.Ordinal);
+            CSharpRunner.Check(source, fluent);
+            var note = Assert.Single(ApiMappingNotes.FromSource(Repository(), source, fluent), row => row!["memberId"]!.GetValue<string>() == "ConsoleMonster.Interactive.SelectQuestionOptions.Preview")!;
+            Assert.Equal(".Configure(item => item.Preview = …)", note["fluent"]!.GetValue<string>());
+            Assert.Contains("without invoking", note["note"]!.GetValue<string>());
+        }
+
+        [Fact]
         public void RunRequestNotesUseTheRunSetAndItsScalarIndex() {
             string source = Source("run", "using ConsoleMonster.Live;\nvar update = new RunUpdate { Index = 0, Label = \"Compile\" };\n");
             var notes = ApiMappingNotes.FromSource(Repository(), source, CSharpRunner.FluentSource(source));

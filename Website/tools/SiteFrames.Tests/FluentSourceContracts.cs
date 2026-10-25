@@ -35,8 +35,22 @@ namespace SiteFrames.Tests {
             string fluent = CSharpRunner.FluentSource(path);
             Assert.Contains("Detail = () => \"Ready\"", fluent, StringComparison.Ordinal);
             Assert.Contains("Action = _ =>", fluent, StringComparison.Ordinal);
+            Assert.Contains(".Configure(", fluent, StringComparison.Ordinal);
+            Assert.True(fluent.IndexOf("Detail =", StringComparison.Ordinal) < fluent.IndexOf("Action =", StringComparison.Ordinal));
+            Assert.True(fluent.IndexOf("Action =", StringComparison.Ordinal) < fluent.IndexOf(".Description(", StringComparison.Ordinal));
             Assert.DoesNotContain(".Detail(\"Ready\")", fluent, StringComparison.Ordinal);
             CSharpRunner.Check(path, fluent);
+        }
+
+        [Fact]
+        public void NestedCallbacksCompileWithoutCapturingEachOthersConfigurationParameter() {
+            string path = Source("using ConsoleMonster;\nusing ConsoleMonster.Interactive;\nusing ConsoleMonster.Widgets;\nvar item = new MenuItem(\"Build\") { Action = context => { var child = new MenuItem(\"Child\") { Action = childContext => Terminal.Write(new TextBlock(\"Ran\")) }; child.Action!(null!); } };\nitem.Action!(null!);\n");
+            string fluent = CSharpRunner.FluentSource(path);
+            CSharpRunner.Check(path, fluent);
+            var profile = CSharpRunner.Profile(60, 20, ColorDepth.TrueColor, GlyphTier.Full);
+            string original = CSharpRunner.Execute(path, profile, Theme.Dark, null).Output;
+            Assert.Contains("Ran", original, StringComparison.Ordinal);
+            Assert.Equal(original, CSharpRunner.Execute(path, profile, Theme.Dark, null, fluent: true).Output);
         }
 
         [Fact]
