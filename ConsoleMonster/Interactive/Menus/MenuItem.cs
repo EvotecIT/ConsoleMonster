@@ -10,7 +10,7 @@ namespace ConsoleMonster.Interactive {
     /// <summary>
     /// An entry of a <see cref="Menu"/>: title, description, hotkey, icon, badge, state text, a disabled reason, and what it
     /// opens (an action, a submenu, a form, a selection, a page). Configure it with the chainable methods:
-    /// <c>item.Hotkey('r').Form(form).Badge(() =&gt; "24 tasks")</c>.
+    /// <c>item.Hotkey('r').Form(form).Configure(value =&gt; value.Badge = () =&gt; RichText.Plain("24 tasks"))</c>.
     /// </summary>
     public sealed class MenuItem {
         private readonly List<Choice> _choices = new List<Choice>();
