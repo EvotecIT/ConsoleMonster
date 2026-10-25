@@ -97,7 +97,7 @@ Add export instructions to the demo without slowing the recording itself:
 # demo: hold 3
 ```
 
-The pace and hold survive in the cast. Explicit `-Pace` at export overrides recorded pace directives. Use `-ChapterHoldSeconds`, time/chapter trims and `-ChapterSpeed @{ Install = 4; Results = 1 }` to tune an existing run. See [make it readable](/docs/recording/#make-it-readable) for the timing rules and examples.
+The pace and hold survive in the cast. Explicit `-Pace` at export overrides recorded pace directives. Use `-ChapterHoldSeconds`, time/chapter trims and `-ChapterSpeeds @{ Install = 4; Results = 1 }` to tune an existing run. See [make it readable](/docs/recording/#make-it-readable) for the timing rules and examples.
 
 ## Export still slides
 

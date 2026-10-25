@@ -82,14 +82,33 @@
       "CSharpType": "ConsoleMonster.Sessions.SessionRecorder",
       "Bindings": [
         {
+          "Parameter": "HoldSeconds",
+          "ParameterType": "System.Double",
+          "Default": 0.0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Sessions.SessionRecorder",
+          "Member": "AddMarker",
+          "Argument": "hold",
+          "MemberKind": "Method",
+          "Conversion": "SecondsToTimeSpan",
+          "CSharpTypeName": "System.TimeSpan",
+          "Reason": "An explicit numeric hold becomes the shared recorder export-hold duration, without sleeping during capture."
+        },
+        {
           "Parameter": "Label",
           "ParameterType": "System.String",
-          "Default": "",
+          "Default": null,
           "Sets": [
             {
               "Name": "__AllParameterSets",
               "Position": 0,
-              "Mandatory": true
+              "Mandatory": false
             }
           ],
           "CSharpType": "ConsoleMonster.Sessions.SessionRecorder",
@@ -1505,6 +1524,47 @@
           "Reason": "Resolves the chapter label to its recording chapter index."
         },
         {
+          "Parameter": "ChapterHoldSeconds",
+          "ParameterType": "System.Double",
+          "Default": 0.0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Export.RecordingExportOptions",
+          "Member": "ChapterHold",
+          "MemberKind": "Property",
+          "Conversion": "SecondsToTimeSpan",
+          "CSharpTypeName": "System.TimeSpan",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "ChapterSpeeds",
+          "ParameterType": "System.Collections.Hashtable",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Export.RecordingExportOptions",
+          "Member": "ChapterSpeeds",
+          "MemberKind": "Property",
+          "Conversion": "Collection",
+          "CSharpTypeName": "System.Collections.Generic.IDictionary`2[System.String,System.Double]",
+          "Nullable": "Unknown",
+          "Writable": false,
+          "Static": false,
+          "Reason": "A hashtable of chapter labels and numeric multipliers fills the shared ChapterSpeeds dictionary using invariant numeric conversion."
+        },
+        {
           "Parameter": "ChromeStyle",
           "ParameterType": "ConsoleMonster.Export.WindowChromeStyle",
           "Default": "MacOS",
@@ -1696,6 +1756,26 @@
           "Static": false
         },
         {
+          "Parameter": "HoldLastFrameSeconds",
+          "ParameterType": "System.Double",
+          "Default": 2.0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Export.RecordingExportOptions",
+          "Member": "HoldLastFrame",
+          "MemberKind": "Property",
+          "Conversion": "SecondsToTimeSpan",
+          "CSharpTypeName": "System.TimeSpan",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
           "Parameter": "IdleLimitSeconds",
           "ParameterType": "System.Double",
           "Default": 2.0,
@@ -1706,7 +1786,7 @@
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.Graphics.GraphicsExportOptions",
+          "CSharpType": "ConsoleMonster.Export.RecordingExportOptions",
           "Member": "IdleLimit",
           "MemberKind": "Property",
           "Conversion": "SecondsToTimeSpan",
@@ -1772,6 +1852,26 @@
           "Conversion": "Identity",
           "CSharpTypeName": "ConsoleMonster.Export.RecordingExportOptions",
           "Argument": "options"
+        },
+        {
+          "Parameter": "Pace",
+          "ParameterType": "ConsoleMonster.Export.RecordingPace",
+          "Default": "Normal",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Export.RecordingExportOptions",
+          "Member": "Pace",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "ConsoleMonster.Export.RecordingPace",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
         },
         {
           "Parameter": "PassThru",
@@ -1902,6 +2002,86 @@
           "MemberKind": "Property",
           "Conversion": "Identity",
           "CSharpTypeName": "System.String",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "TrimEndChapter",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Export.RecordingExportOptions",
+          "Member": "TrimEndChapter",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "TrimEndSeconds",
+          "ParameterType": "System.Double",
+          "Default": 0.0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Export.RecordingExportOptions",
+          "Member": "TrimEnd",
+          "MemberKind": "Property",
+          "Conversion": "SecondsToTimeSpan",
+          "CSharpTypeName": "System.Nullable`1[System.TimeSpan]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "TrimStartChapter",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Export.RecordingExportOptions",
+          "Member": "TrimStartChapter",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "TrimStartSeconds",
+          "ParameterType": "System.Double",
+          "Default": 0.0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Export.RecordingExportOptions",
+          "Member": "TrimStart",
+          "MemberKind": "Property",
+          "Conversion": "SecondsToTimeSpan",
+          "CSharpTypeName": "System.Nullable`1[System.TimeSpan]",
           "Nullable": "Nullable",
           "Writable": true,
           "Static": false
@@ -22021,6 +22201,7 @@
     "ConsoleMonster.Export.Recording",
     "ConsoleMonster.Export.RecordingExportOptions",
     "ConsoleMonster.Export.RecordingMarker",
+    "ConsoleMonster.Export.RecordingPace",
     "ConsoleMonster.Export.WindowChromeStyle",
     "ConsoleMonster.Glyphs.BoxStyle",
     "ConsoleMonster.Glyphs.GlyphIcon",
@@ -24083,6 +24264,15 @@
       "Parameter": "Row",
       "RecordField": "Values",
       "Reason": "The Row record supplies the stable Key and typed Values in column order."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Graphics.GraphicsExportOptions",
+      "Member": "IdleLimit",
+      "CSharpTypeName": "System.TimeSpan",
+      "Command": "Export-ConsoleRecording",
+      "Parameter": "IdleLimitSeconds",
+      "Reason": "Graphics playback shares RecordingExportOptions.IdleLimit; the graphics option reads the same value through Playback.",
+      "MemberId": "ConsoleMonster.Graphics.GraphicsExportOptions.IdleLimit"
     }
   ],
   "Endings": [

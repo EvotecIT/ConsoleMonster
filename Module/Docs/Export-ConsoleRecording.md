@@ -8,23 +8,23 @@ schema: 2.0.0
 ## SYNOPSIS
 Exports a terminal session or dashboard recording to slide images, animations, video, a player or asciicast.
 
-PNG selects the final frame, -AtSeconds a source time, -Chapter a completed chapter, or -PerChapter numbered slides. GIF and APNG are managed animations; MP4 needs ffmpeg on PATH. Without -Dashboard, reads a whole-session asciicast v2 from Invoke-ConsoleRecording -Interactive or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Invoke-ConsoleDashboard widget updates into the same definition, preserving the dashboard HTML, SVG and asciicast v3 exports; Markdown writes timestamped fenced frames through the bundled add-on. Add #t=30000 to an HTML address to open at 30 seconds.
+PNG selects the final frame, -AtSeconds a source time, -Chapter a completed chapter, or -PerChapter numbered slides. GIF and APNG are managed animations without an external executable. Without -Dashboard, reads a whole-session asciicast v2 from Invoke-ConsoleRecording -Interactive or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Invoke-ConsoleDashboard widget updates into the same definition, preserving the dashboard HTML, SVG and asciicast v3 exports; Markdown writes timestamped fenced frames through the bundled add-on. Add #t=30000 to an HTML address to open at 30 seconds.
 
 ## SYNTAX
 ### Session (Default)
 ```powershell
-Export-ConsoleRecording [-Path] <string> [[-Destination] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-FramesPerSecond <double>] [-Speed <double>] [-Theme <ExportTheme>] [-Title <string>] [-WindowChrome] [-ChromeStyle <WindowChromeStyle>] [-PassThru] [-FinalFrame] [-Preset <string>] [-Fit <string>] [-Background <string>] [-BackgroundColor <string>] [-BackgroundEndColor <string>] [-FontFamily <string>] [-AtSeconds <double>] [-Chapter <string>] [-PerChapter] [-IdleLimitSeconds <double>] [-LoopCount <int>] [-Options <RecordingExportOptions>] [-MaxFontSize <double>] [-FontFallbacks <string[]>] [<CommonParameters>]
+Export-ConsoleRecording [-Path] <string> [[-Destination] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-FramesPerSecond <double>] [-Speed <double>] [-Theme <ExportTheme>] [-Title <string>] [-WindowChrome] [-ChromeStyle <WindowChromeStyle>] [-PassThru] [-FinalFrame] [-Preset <string>] [-Fit <string>] [-Background <string>] [-BackgroundColor <string>] [-BackgroundEndColor <string>] [-FontFamily <string>] [-AtSeconds <double>] [-Chapter <string>] [-PerChapter] [-IdleLimitSeconds <double>] [-LoopCount <int>] [-Options <RecordingExportOptions>] [-MaxFontSize <double>] [-FontFallbacks <string[]>] [-Pace <RecordingPace>] [-ChapterHoldSeconds <double>] [-HoldLastFrameSeconds <double>] [-TrimStartSeconds <double>] [-TrimEndSeconds <double>] [-TrimStartChapter <string>] [-TrimEndChapter <string>] [-ChapterSpeeds <hashtable>] [<CommonParameters>]
 ```
 
 ### Dashboard
 ```powershell
-Export-ConsoleRecording [-Dashboard] <IWidget> [-Path] <string> [[-Destination] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-FramesPerSecond <double>] [-Speed <double>] [-Theme <ExportTheme>] [-Title <string>] [-WindowChrome] [-ChromeStyle <WindowChromeStyle>] [-PassThru] [-Preset <string>] [-Fit <string>] [-Background <string>] [-BackgroundColor <string>] [-BackgroundEndColor <string>] [-FontFamily <string>] [-IdleLimitSeconds <double>] [-LoopCount <int>] [-Options <RecordingExportOptions>] [-MaxFontSize <double>] [-FontFallbacks <string[]>] [<CommonParameters>]
+Export-ConsoleRecording [-Dashboard] <IWidget> [-Path] <string> [[-Destination] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-FramesPerSecond <double>] [-Speed <double>] [-Theme <ExportTheme>] [-Title <string>] [-WindowChrome] [-ChromeStyle <WindowChromeStyle>] [-PassThru] [-Preset <string>] [-Fit <string>] [-Background <string>] [-BackgroundColor <string>] [-BackgroundEndColor <string>] [-FontFamily <string>] [-IdleLimitSeconds <double>] [-LoopCount <int>] [-Options <RecordingExportOptions>] [-MaxFontSize <double>] [-FontFallbacks <string[]>] [-Pace <RecordingPace>] [-ChapterHoldSeconds <double>] [-HoldLastFrameSeconds <double>] [-TrimStartSeconds <double>] [-TrimEndSeconds <double>] [-TrimStartChapter <string>] [-TrimEndChapter <string>] [-ChapterSpeeds <hashtable>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Exports a terminal session or dashboard recording to slide images, animations, video, a player or asciicast.
 
-PNG selects the final frame, -AtSeconds a source time, -Chapter a completed chapter, or -PerChapter numbered slides. GIF and APNG are managed animations; MP4 needs ffmpeg on PATH. Without -Dashboard, reads a whole-session asciicast v2 from Invoke-ConsoleRecording -Interactive or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Invoke-ConsoleDashboard widget updates into the same definition, preserving the dashboard HTML, SVG and asciicast v3 exports; Markdown writes timestamped fenced frames through the bundled add-on. Add #t=30000 to an HTML address to open at 30 seconds.
+PNG selects the final frame, -AtSeconds a source time, -Chapter a completed chapter, or -PerChapter numbered slides. GIF and APNG are managed animations without an external executable. Without -Dashboard, reads a whole-session asciicast v2 from Invoke-ConsoleRecording -Interactive or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Invoke-ConsoleDashboard widget updates into the same definition, preserving the dashboard HTML, SVG and asciicast v3 exports; Markdown writes timestamped fenced frames through the bundled add-on. Add #t=30000 to an HTML address to open at 30 seconds.
 
 ## EXAMPLES
 
@@ -108,6 +108,38 @@ Exports the completed view of this chapter as PNG.
 ```yaml
 Type: String
 Parameter Sets: Session
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ChapterHoldSeconds
+Extra export hold at every chapter marker, unaffected by speed or idle capping.
+
+```yaml
+Type: Double
+Parameter Sets: Session, Dashboard
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ChapterSpeeds
+Hashtable of chapter labels to positive speed multipliers, for example @{ Install = 4; Results = 1 }. Multiplies Speed for source and reading delays; explicit holds retain their duration. Labels must be unique in the recording.
+
+```yaml
+Type: Hashtable
+Parameter Sets: Session, Dashboard
 Aliases: None
 Possible values:
 
@@ -231,13 +263,13 @@ Accept wildcard characters: False
 ```
 
 ### -Format
-Png, Gif, Apng, Mp4, Html, Svg, Asciicast, Text, Markdown, FencedText or PlayerData. The destination extension selects a default; .json means PlayerData. Text applies to terminal sessions; Markdown also exports dashboard recordings as timestamped fenced frames.
+Png, Gif, Apng, Html, Svg, Asciicast, Text, Markdown, FencedText or PlayerData. The destination extension selects a default; .json means PlayerData. Text applies to terminal sessions; Markdown also exports dashboard recordings as timestamped fenced frames.
 
 ```yaml
 Type: String
 Parameter Sets: Session, Dashboard
 Aliases: None
-Possible values: Html, Svg, Asciicast, PlayerData, Text, Markdown, FencedText, Png, Gif, Apng, Mp4
+Possible values: Html, Svg, Asciicast, PlayerData, Text, Markdown, FencedText, Png, Gif, Apng
 
 Required: False
 Position: named
@@ -278,8 +310,24 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -HoldLastFrameSeconds
+Final screen hold after the source timeline and reading holds (default 2 seconds).
+
+```yaml
+Type: Double
+Parameter Sets: Session, Dashboard
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -IdleLimitSeconds
-Maximum unchanged-frame delay in graphics exports; zero preserves timing.
+Maximum source delay on an unchanged screen; zero disables capping. Reading and explicit holds are never capped.
 
 ```yaml
 Type: Double
@@ -334,6 +382,22 @@ Type: RecordingExportOptions
 Parameter Sets: Session, Dashboard
 Aliases: None
 Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Pace
+Slow, Normal (default), Fast or Source. Adds reading time after output settles. Explicitly specifying Pace overrides recorded demo pace directives. Source adds no reading time; use IdleLimitSeconds 0 to retain all source delays.
+
+```yaml
+Type: RecordingPace
+Parameter Sets: Session, Dashboard
+Aliases: None
+Possible values: Source, Slow, Normal, Fast
 
 Required: False
 Position: named
@@ -443,6 +507,70 @@ The title (page title, title bar, asciicast title).
 
 ```yaml
 Type: String
+Parameter Sets: Session, Dashboard
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -TrimEndChapter
+End before this chapter marker. Its output and hold are excluded.
+
+```yaml
+Type: String
+Parameter Sets: Session, Dashboard
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -TrimEndSeconds
+Exclusive source position at which to end. Cannot be combined with TrimEndChapter.
+
+```yaml
+Type: Double
+Parameter Sets: Session, Dashboard
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -TrimStartChapter
+Begin at this chapter marker, retaining its hold and all later output.
+
+```yaml
+Type: String
+Parameter Sets: Session, Dashboard
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -TrimStartSeconds
+Inclusive source position at which to begin. Cannot be combined with TrimStartChapter.
+
+```yaml
+Type: Double
 Parameter Sets: Session, Dashboard
 Aliases: None
 Possible values:

@@ -68,7 +68,7 @@ internal static class Program {
             panel.Export(path, "Text", new ExportOptions { Width = 60 });
             Require(File.ReadAllText(path), "Build", "All checks passed");
         } finally { File.Delete(path); }
-        Console.WriteLine("Native AOT smoke passed: typed and inferred tables, inspection, validated live updates, queued cell capacity, fluent content, Show/Export endings and text/HTML/SVG exports.");
+        Console.WriteLine("Native AOT smoke passed: typed and inferred tables, inspection, validated live updates, queued cell capacity, fluent content, Show/Export endings and text/HTML/SVG and PNG/GIF/APNG exports.");
         return 0;
     }
 

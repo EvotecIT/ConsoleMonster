@@ -12,7 +12,7 @@ card: three-fluent
 
 I use the same domain names for cmdlet parameters, C# configuration and fluent calls. PowerShell keeps numeric duration parameters with units and default-off switches; C# keeps TimeSpan values and Boolean properties.
 
-The contract covers **98 commands**, **1029 parameters** and **284 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
+The contract covers **98 commands**, **1038 parameters** and **285 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
 
 Table and List remain named shortcuts to Show-Console’s shared view implementation. Read-* returns answers; New-ConsoleForm/Menu defines a question workflow; Show-ConsoleApp runs a persistent reactive application.
 

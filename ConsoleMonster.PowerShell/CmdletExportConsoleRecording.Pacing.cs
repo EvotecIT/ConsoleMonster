@@ -21,7 +21,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">End before this chapter marker. Its output and hold are excluded.</para></summary>
         [Parameter, ValidateNotNullOrEmpty] public string? TrimEndChapter { get; set; }
         /// <summary><para type="description">Hashtable of chapter labels to positive speed multipliers, for example @{ Install = 4; Results = 1 }. Multiplies Speed for source and reading delays; explicit holds retain their duration. Labels must be unique in the recording.</para></summary>
-        [Parameter] public Hashtable? ChapterSpeed { get; set; }
+        [Parameter] public Hashtable? ChapterSpeeds { get; set; }
 
         private RecordingExportOptions PlaybackOptions() {
             RecordingExportOptions options = new RecordingExportOptions {
@@ -35,9 +35,9 @@ namespace ConsoleMonster.PowerShell {
                 ChromeStyle = ChromeStyle
             };
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Pace))) { options.Pace = Pace; }
-            if (ChapterSpeed != null) {
-                foreach (DictionaryEntry entry in ChapterSpeed) {
-                    if (!(entry.Key is string label)) { throw new ArgumentException("ChapterSpeed keys must be chapter labels."); }
+            if (ChapterSpeeds != null) {
+                foreach (DictionaryEntry entry in ChapterSpeeds) {
+                    if (!(entry.Key is string label)) { throw new ArgumentException("ChapterSpeeds keys must be chapter labels."); }
                     options.ChapterSpeeds.Add(label, Convert.ToDouble(entry.Value, CultureInfo.InvariantCulture));
                 }
             }

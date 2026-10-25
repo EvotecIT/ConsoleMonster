@@ -131,7 +131,7 @@ namespace ConsoleMonster.PowerShell {
             }
             RecordingExportOptions options = PSOptions.Resolve(this, Options, PlaybackOptions,
                 nameof(Width), nameof(Height), nameof(FramesPerSecond), nameof(Speed), nameof(Theme), nameof(Title), nameof(WindowChrome), nameof(ChromeStyle),
-                nameof(IdleLimitSeconds), nameof(Pace), nameof(ChapterHoldSeconds), nameof(HoldLastFrameSeconds), nameof(TrimStartSeconds), nameof(TrimEndSeconds), nameof(TrimStartChapter), nameof(TrimEndChapter), nameof(ChapterSpeed));
+                nameof(IdleLimitSeconds), nameof(Pace), nameof(ChapterHoldSeconds), nameof(HoldLastFrameSeconds), nameof(TrimStartSeconds), nameof(TrimEndSeconds), nameof(TrimStartChapter), nameof(TrimEndChapter), nameof(ChapterSpeeds));
             string source = SessionState.Path.GetUnresolvedProviderPathFromPSPath(Path);
             bool graphics = GraphicsExportBridge.IsGraphics(Format, Destination);
             if (graphics) {

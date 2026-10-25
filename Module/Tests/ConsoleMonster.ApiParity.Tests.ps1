@@ -132,6 +132,7 @@ Describe 'PowerShell and C# API parity' {
             }
         }
         foreach ($route in $script:Parity.RelatedBindings) {
+            $route.MemberId | Should -BeExactly ($route.CSharpType + '.' + $route.Member) -Because 'generated translation notes resolve this exact property identity'
             $property = $script:ApiTypes[$route.CSharpType].GetProperty($route.Member)
             $property | Should -Not -BeNullOrEmpty
             (Get-ConsoleApiTypeName $property.PropertyType) | Should -BeExactly $route.CSharpTypeName
