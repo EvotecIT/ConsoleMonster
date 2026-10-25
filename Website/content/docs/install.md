@@ -77,10 +77,10 @@ PowerShell or PowerShell 7 and is not itself a standalone native executable.
 | Package | Job | Runtime dependency |
 | --- | --- | --- |
 | `ConsoleMonster` | Terminal rendering and text/HTML/SVG/asciicast output | None |
-| `ConsoleMonster.Markdown` | Markdown display and widget/frame/recording export | OfficeIMO.Markdown |
-| `ConsoleMonster.Graphics` | PNG, GIF and APNG rendering | ChartForgeX and ChartForgeX.Stories |
-| `ConsoleMonster.Hosting` | Hosted-service dashboard | Microsoft.Extensions.Hosting.Abstractions |
-| `ConsoleMonster.Extensions.Logging` | Dashboard logging provider | Microsoft.Extensions.Logging.Abstractions |
+| `ConsoleMonster.Markdown` | Markdown display and widget/frame/recording export | `OfficeIMO.Markdown` |
+| `ConsoleMonster.Graphics` | PNG, GIF and APNG rendering | `ChartForgeX` and `ChartForgeX.Stories` |
+| `ConsoleMonster.Hosting` | Hosted-service dashboard | `Microsoft.Extensions.Hosting.Abstractions` |
+| `ConsoleMonster.Extensions.Logging` | Dashboard logging provider | `Microsoft.Extensions.Logging.Abstractions` |
 
 The PowerShell module includes the Markdown and Graphics bridges and loads them on first use. C# applications add the package for the output they need. [Add-ons](/docs/add-ons/) describes these boundaries.
 
