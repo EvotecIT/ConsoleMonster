@@ -65,6 +65,40 @@ namespace ConsoleMonster.Tests.Widgets {
             Assert.Contains("fallback", ConsoleExporter.ToHtml(flow, new ExportOptions { Width = width }));
             Assert.Contains("fallback", ConsoleExporter.ToSvg(flow, new ExportOptions { Width = width }));
         }
+        [Theory]
+        [InlineData(GlyphTier.Full, false)] [InlineData(GlyphTier.Full, true)]
+        [InlineData(GlyphTier.Ascii, false)] [InlineData(GlyphTier.Ascii, true)]
+        public void VerticalEdgesJoinBothBordersAndKeepTheirLabels(GlyphTier tier, bool cut) {
+            var flow = new Flow().Add(new FlowNode("a", "client"))
+                .Add(new FlowNode("b", "host:443"))
+                .Add(new FlowEdge("tls", "a", "b", "TLS", Cut: cut))
+                .WithBranch(new FlowBranch("a", "retry"));
+            string[] lines = Frame(flow, 20, tier).ToPlainText().Split('\n');
+            int source = Array.FindIndex(lines, line => line.Contains("client"));
+            int destination = Array.FindIndex(lines, line => line.Contains("host:443"));
+            Assert.Equal(tier == GlyphTier.Ascii ? '|' : '┬', lines[source + 1][2]);
+            Assert.Equal(tier == GlyphTier.Ascii ? 'v' : '▼', lines[destination - 1][2]);
+            for (int i = source + 2; i < destination - 1; i++) {
+                Assert.Contains(lines[i][2], tier == GlyphTier.Ascii ? "|+x" : "│├✗");
+            }
+            Assert.Contains("TLS", string.Join("\n", lines));
+            Assert.Contains("retry", string.Join("\n", lines));
+            Assert.DoesNotContain("↓", string.Join("\n", lines));
+        }
+
+        [Theory]
+        [InlineData(GlyphTier.Full)] [InlineData(GlyphTier.Basic)] [InlineData(GlyphTier.Ascii)]
+        public void VerdictTitleIdentifiesStatusWithoutColour(GlyphTier tier) {
+            foreach (StatusKind status in new[] { StatusKind.Pass, StatusKind.Fail }) {
+                string title = status == StatusKind.Pass ? "TRUSTED" : "UNTRUSTED";
+                string marker = tier == GlyphTier.Ascii ? (status == StatusKind.Pass ? "+" : "x") : tier == GlyphTier.Basic ? (status == StatusKind.Pass ? "√" : "×") : (status == StatusKind.Pass ? "✓" : "✗");
+                var panel = new Panel(new TextBlock("Chain"), title) { Verdict = true, Status = status, Expand = false };
+                string text = Frame(panel, 48, tier).ToPlainText();
+                Assert.Contains(marker + " " + title, text);
+                if (tier == GlyphTier.Ascii) Assert.All(text, c => Assert.InRange((int)c, 0, 127));
+            }
+        }
+
         [Fact]
         public void LiveHandleChangesNodesAndCutsThenReconnectsEdges() {
             Flow flow = Chain();
@@ -133,11 +167,11 @@ namespace ConsoleMonster.Tests.Widgets {
         public void LedgerPairsAndVerdictComposeAtNarrowWidth() {
             var phases = new Phases { StepCounter = true };
             phases.Set("dns", StatusKind.Pass, "Resolve DNS", "resolved");
-            phases.Set("tls", StatusKind.Fail, "Validate certificate chain", "expired");
+            phases.Set("tls", StatusKind.Fail, "Validate certificate chain", "expired intermediate");
             var facts = new KeyValueList { Columns = 2 }.Add("Host", "portal.example.test").Add("Protocol", "TLS 1.3");
             string text = Frame(new Rows(new Panel(phases), facts, new Panel(new TextBlock("Repair chain"), "UNTRUSTED") { Verdict = true, Status = StatusKind.Fail }), 48).ToPlainText();
             Assert.Contains("[01/02]", text);
-            Assert.Contains("expired", text);
+            Assert.Contains("expired intermediate", text);
             Assert.Contains("UNTRUSTED", text);
             Assert.Contains("╔", text);
         }

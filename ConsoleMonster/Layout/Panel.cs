@@ -47,7 +47,7 @@ namespace ConsoleMonster.Layout {
         /// <summary>Uses a double border and a centred title for a verdict.</summary>
         public bool Verdict { get; set; }
 
-        /// <summary>Optional status colour for a verdict border and title.</summary>
+        /// <summary>Optional status colour and title glyph for a verdict.</summary>
         public StatusKind? Status { get; set; }
 
         /// <summary>Cells between the left border and the content (default 1).</summary>
@@ -78,7 +78,7 @@ namespace ConsoleMonster.Layout {
             int horizontal = (HasBorder ? 2 : 0) + PaddingLeft + PaddingRight;
             int vertical = (HasBorder ? 2 : (string.IsNullOrEmpty(Title) ? 0 : 1)) + PaddingTop + PaddingBottom;
             Size inner = Child.Measure(constraints.Shrink(horizontal, vertical), context);
-            int titleWidth = string.IsNullOrEmpty(Title) ? 0 : context.Markup(Title!).Width + 4;
+            int titleWidth = string.IsNullOrEmpty(Title) ? 0 : context.Markup(Title!).Width + 4 + (Verdict && Status.HasValue ? DisplayWidth.Measure(context.Glyphs.StatusSymbol(Status.Value)) + 1 : 0);
             int width = Expand ? constraints.MaxWidth : Math.Min(constraints.MaxWidth, Math.Max(inner.Width + horizontal, titleWidth + 2));
             int height = Height ?? inner.Height + vertical;
             return new Size(width, constraints.IsHeightUnbounded ? height : Math.Min(height, constraints.MaxHeight));
@@ -110,3 +110,58 @@ namespace ConsoleMonster.Layout {
         private void DrawBorder(Region region, RenderContext context) {
             BoxGlyphs box = context.Glyphs.GetBox(Verdict ? BoxStyle.Double : Border);
             Style border = context.Style(Verdict && Status.HasValue ? Status.Value.ToToken() : BorderRole);
+            int w = region.Width;
+            int h = region.Height;
+            region.Put(0, 0, box.TopLeft, border);
+            region.HorizontalLine(1, 0, w - 2, box.Horizontal, border);
+            region.Put(w - 1, 0, box.TopRight, border);
+            region.VerticalLine(0, 1, h - 2, box.Vertical, border);
+            region.VerticalLine(w - 1, 1, h - 2, box.Vertical, border);
+            region.Put(0, h - 1, box.BottomLeft, border);
+            region.HorizontalLine(1, h - 1, w - 2, box.Horizontal, border);
+            region.Put(w - 1, h - 1, box.BottomRight, border);
+
+            int captionWidth = 0;
+            if (!string.IsNullOrEmpty(HeaderRight)) {
+                StyledLine caption = TextWrapper.Truncate(context.Markup(HeaderRight!).Lines[0].WithBaseStyle(context.Style(ThemeToken.Muted)), Math.Max(0, w - 8), context.Ellipsis);
+                captionWidth = caption.Width + 2;
+                int x = w - 2 - caption.Width - 1;
+                if (x > 2) {
+                    region.Put(x - 1, 0, " ", Style.Plain);
+                    region.Write(x, 0, caption);
+                    region.Put(x + caption.Width, 0, " ", Style.Plain);
+                } else {
+                    captionWidth = 0;
+                }
+            }
+            if (!string.IsNullOrEmpty(Title)) {
+                int available = w - 6 - (captionWidth > 0 ? captionWidth + 1 : 0);
+                if (available > 0) {
+                    StyledLine title = TitleLine(context, available);
+                    int start = Verdict ? Math.Max(2, (w - captionWidth - title.Width) / 2) : 3;
+                    region.Put(start - 1, 0, " ", Style.Plain);
+                    int end = region.Write(start, 0, title);
+                    region.Put(end, 0, " ", Style.Plain);
+                }
+            }
+            if (!string.IsNullOrEmpty(Caption)) {
+                StyledLine footer = TextWrapper.Truncate(context.Markup(Caption!).Lines[0].WithBaseStyle(context.Style(ThemeToken.Muted)), Math.Max(0, w - 8), context.Ellipsis);
+                int x = w - 2 - footer.Width - 1;
+                if (x > 2) {
+                    region.Put(x - 1, h - 1, " ", Style.Plain);
+                    region.Write(x, h - 1, footer);
+                    region.Put(x + footer.Width, h - 1, " ", Style.Plain);
+                }
+            }
+        }
+
+        private StyledLine TitleLine(RenderContext context, int width) {
+            Style style = context.Style(Verdict && Status.HasValue ? Status.Value.ToToken() : ThemeToken.Title);
+            var spans = new List<TextSpan>();
+            if (Verdict && Status.HasValue) spans.Add(new TextSpan(context.Glyphs.StatusSymbol(Status.Value) + " ", style));
+            spans.AddRange(context.Markup(Title!).Lines[0].WithBaseStyle(style));
+            var line = new StyledLine(spans);
+            return TextWrapper.Truncate(line, width, context.Ellipsis);
+        }
+    }
+}

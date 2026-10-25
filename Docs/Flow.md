@@ -56,7 +56,9 @@ reconnects it. Omitting `-Cut` preserves connectivity. The C# equivalent is
 
 The [TLS verdict showcase](../Website/examples/gallery/tls-verdict/tls-verdict.ps1)
 adds a numbered `New-ConsolePhases -StepCounter` ledger, paired context with
-`New-ConsoleKeyValue -Columns 2`, and a double-bordered `New-ConsolePanel -Verdict`.
+`New-ConsoleKeyValue -Columns 2`, and a double-bordered `New-ConsolePanel -Verdict`. A verdict with `-Status`
+includes the theme's status glyph in its centred title, including in ASCII and
+without colour.
 Run its two fictional outcomes with `-Scenario Healthy` or
 `-Scenario ExpiredIntermediate`. Dates, duration and exit code are simulated;
 the program does not contact a host or change the process exit code.

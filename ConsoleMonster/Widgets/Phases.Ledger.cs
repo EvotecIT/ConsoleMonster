@@ -12,7 +12,7 @@ namespace ConsoleMonster.Widgets {
         private List<(StyledLine Line, string Result, StatusKind Status, bool First)> LedgerLines(int width, RenderContext context) {
             var result = new List<(StyledLine, string, StatusKind, bool)>();
             int digits = Math.Max(2, _phases.Count.ToString(CultureInfo.InvariantCulture).Length);
-            int resultWidth = Math.Min(Math.Max(0, width / 3), _phases.Select(p => DisplayWidth.Measure(p.Detail ?? p.Status.ToWord(context))).DefaultIfEmpty(0).Max());
+            int resultWidth = Math.Min(Math.Max(0, width / 2), _phases.Select(p => DisplayWidth.Measure(p.Detail ?? p.Status.ToWord(context))).DefaultIfEmpty(0).Max());
             for (int i = 0; i < _phases.Count; i++) {
                 StatusItem phase = _phases[i];
                 string prefix = "[" + (i + 1).ToString("D" + digits, CultureInfo.InvariantCulture) + "/" + _phases.Count.ToString("D" + digits, CultureInfo.InvariantCulture) + "] ";

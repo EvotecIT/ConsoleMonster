@@ -21,7 +21,7 @@ namespace ConsoleMonster.Widgets {
             if (_nodes.Count == 0 || width <= 0) return plan;
             bool ascii = context.Glyphs.Tier == Capabilities.GlyphTier.Ascii;
             BoxGlyphs box = context.Glyphs.GetBox(BoxStyle.Single);
-            string right = ascii ? ">" : "→", down = ascii ? "v" : "↓", cut = ascii ? "x" : "✗";
+            string right = ascii ? ">" : "→", down = ascii ? "v" : "▼", cut = ascii ? "x" : "✗";
             string[] labels = _nodes.Select(n => Marker(n.Status, context) + Literal(n.Label)).ToArray();
             int[] widths = labels.Select(l => DisplayWidth.Measure(l) + 4).ToArray();
             int[] gaps = Enumerable.Range(0, Math.Max(0, _nodes.Count - 1)).Select(i => Math.Max(5, DisplayWidth.Measure(EdgeText(Edge(i), context)) + 2)).ToArray();
@@ -37,6 +37,9 @@ namespace ConsoleMonster.Widgets {
                 xs[i] = x; ys[i] = y;
                 heights[i] = DrawNode(plan, x, y, nodeWidth, labels[i], _nodes[i].Status, box, context);
                 widths[i] = nodeWidth;
+                if (!horizontal && i > 0 && nodeWidth >= 5) {
+                    plan.Text(2, y, down, context.Style(Edge(i - 1).Status?.ToToken() ?? ThemeToken.Muted));
+                }
                 if (i < _nodes.Count - 1) {
                     FlowEdge edge = Edge(i);
                     Style style = context.Style(edge.Status?.ToToken() ?? ThemeToken.Muted);
@@ -49,16 +52,18 @@ namespace ConsoleMonster.Widgets {
                         plan.Text(edgeX + gaps[i] - 1, y + 1, right, style);
                         x += nodeWidth + gaps[i];
                     } else {
-                        y += heights[i];
+                        int bottom = y + heights[i] - 1;
+                        if (nodeWidth >= 5) plan.Text(2, bottom, ascii ? box.Vertical : box.TopJoint, style);
+                        y = bottom + 1;
+                        int connectorTop = y;
                         if (Branch?.From == _nodes[i].Key) {
-                            var branchLines = Words(Marker(Branch.Status, context) + Literal(Branch.Label), Math.Max(1, nodeWidth - 4));
-                            foreach (string line in branchLines) plan.Text(4, y++, line, context.Style(Branch.Status?.ToToken() ?? ThemeToken.Muted));
+                            var branchLines = Words(Marker(Branch.Status, context) + Literal(Branch.Label), Math.Max(1, nodeWidth - 6));
+                            foreach (string line in branchLines) plan.Text(6, y++, line, context.Style(Branch.Status?.ToToken() ?? ThemeToken.Muted));
                         }
                         List<string> edgeLines = Words(edgeLabel, Math.Max(1, nodeWidth - 4));
                         int edgeHeight = Math.Max(edge.Cut ? 3 : 2, edgeLines.Count);
-                        plan.Vertical(2, y, edgeHeight - 1, box.Vertical, style);
+                        plan.Vertical(2, connectorTop, y - connectorTop + edgeHeight, box.Vertical, style);
                         if (edge.Cut) plan.Text(2, y + 1, cut, context.Style(edge.Status?.ToToken() ?? ThemeToken.Fail));
-                        plan.Text(2, y + edgeHeight - 1, down, style);
                         for (int j = 0; j < edgeLines.Count; j++) plan.Text(4, y + j, edgeLines[j], style);
                         y += edgeHeight;
                     }
@@ -100,11 +105,13 @@ namespace ConsoleMonster.Widgets {
                     // The branch label has its own row below its source, before the main outgoing arrow.
                     int top = ys[source] + heights[source];
                     if (source == _nodes.Count - 1) {
-                        List<string> lines = Words(Marker(Branch.Status, context) + Literal(Branch.Label), Math.Max(1, widths[source] - 4));
-                        for (int j = 0; j < lines.Count; j++) plan.Text(4, top + j, lines[j], style);
+                        List<string> lines = Words(Marker(Branch.Status, context) + Literal(Branch.Label), Math.Max(1, widths[source] - 6));
+                        for (int j = 0; j < lines.Count; j++) plan.Text(6, top + j, lines[j], style);
                         plan.Height += lines.Count;
                     }
-                    plan.Text(0, top, box.BottomLeft + box.Horizontal + right, style);
+                    if (source == _nodes.Count - 1 && widths[source] >= 5)
+                        plan.Text(2, top - 1, ascii ? box.Vertical : box.TopJoint, style);
+                    plan.Text(2, top, (source == _nodes.Count - 1 ? box.BottomLeft : box.LeftJoint) + box.Horizontal + right, style);
                 }
             }
             return plan;

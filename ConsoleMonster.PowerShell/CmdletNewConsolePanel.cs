@@ -53,7 +53,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Double-bordered verdict with a centred title.</para></summary>
         [Parameter] public SwitchParameter Verdict { get; set; }
-        /// <summary><para type="description">Status colour for a verdict border and title.</para></summary>
+        /// <summary><para type="description">Status colour and title glyph for a verdict.</para></summary>
         [Parameter, Binding.StatusKindTransformation, ArgumentCompleter(typeof(Binding.StatusKindCompleter))]
         public ConsoleMonster.Styling.StatusKind? Status { get; set; }
 

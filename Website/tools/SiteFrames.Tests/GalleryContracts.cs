@@ -86,10 +86,14 @@ namespace SiteFrames.Tests {
                 new[] { step == 0 ? "Healthy" : "ExpiredIntermediate" });
             string text = target.Text;
             Assert.Contains(host, text);
-            Assert.Contains(verdict, text);
-            Assert.Contains("184 ms", text);
+            Assert.Contains((step == 0 ? "✓ " : "✗ ") + verdict, text);
+            Assert.Matches(@"Exit\s+" + step + " · 184 ms", text);
+            Assert.DoesNotContain("(simulated)", text);
             Assert.Contains("[05/05]", text);
             if (step == 1) {
+                Assert.Contains("expired intermediate", text);
+                Assert.Matches(@"\[05/05\] – [^\r\n]*skipped", text);
+                Assert.DoesNotContain("date failed", text);
                 Assert.Contains("2026-09-30", text);
                 Assert.Contains("Renew the intermediate", text);
             }

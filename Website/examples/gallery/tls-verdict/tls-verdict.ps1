@@ -1,4 +1,4 @@
-﻿# A deterministic TLS chain story. All values are fictional; no hosts are contacted.
+﻿# A deterministic TLS chain story. Data and timings are fictional; no hosts are contacted.
 param(
     [ValidateSet('Healthy', 'ExpiredIntermediate')]
     [string] $Scenario = 'Healthy'
@@ -16,8 +16,8 @@ $steps = @(
     [pscustomobject] @{ Key = 'dns'; Label = 'Resolve DNS'; Status = 'Pass'; Detail = '203.0.113.42' }
     [pscustomobject] @{ Key = 'connect'; Label = 'Connect :443'; Status = 'Pass'; Detail = 'connected' }
     [pscustomobject] @{ Key = 'handshake'; Label = 'TLS handshake'; Status = 'Pass'; Detail = 'TLS 1.3' }
-    [pscustomobject] @{ Key = 'chain'; Label = 'Validate chain'; Status = $chainStatus; Detail = $(if ($expired) { 'expired CA' } else { 'verified' }) }
-    [pscustomobject] @{ Key = 'expiry'; Label = 'Expiry and revocation'; Status = $chainStatus; Detail = $(if ($expired) { 'date failed' } else { 'valid / good' }) }
+    [pscustomobject] @{ Key = 'chain'; Label = 'Validate chain'; Status = $chainStatus; Detail = $(if ($expired) { 'expired intermediate' } else { 'verified' }) }
+    [pscustomobject] @{ Key = 'expiry'; Label = 'Expiry and revocation'; Status = $(if ($expired) { 'Skip' } else { 'Pass' }); Detail = $(if ($expired) { 'skipped' } else { 'valid / good' }) }
 )
 $context = @(
     [pscustomobject] @{ Key = 'Host'; Value = $hostName }
@@ -75,7 +75,7 @@ New-ConsoleRows -Gap 1 {
         New-ConsoleKeyValueItem -Key 'Cause' -Value $(if ($expired) { 'Expired intermediate certificate.' } else { 'Trusted root and complete chain.' })
         New-ConsoleKeyValueItem -Key 'Proof' -Value $proof
         New-ConsoleKeyValueItem -Key 'Action' -Value $action
-        New-ConsoleKeyValueItem -Key 'Exit' -Value "$exitCode / duration 184 ms (simulated)"
+        New-ConsoleKeyValueItem -Key 'Exit' -Value "$exitCode · 184 ms"
     }
 } | Write-ConsoleWidget
 # demo: pause 6

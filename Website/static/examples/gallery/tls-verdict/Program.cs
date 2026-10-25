@@ -1,4 +1,4 @@
-// A deterministic TLS chain story. All values are fictional; no hosts are contacted.
+// A deterministic TLS chain story. Data and timings are fictional; no hosts are contacted.
 using ConsoleMonster;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
@@ -16,8 +16,8 @@ Step[] steps = {
     new("dns", "Resolve DNS", StatusKind.Pass, "203.0.113.42"),
     new("connect", "Connect :443", StatusKind.Pass, "connected"),
     new("handshake", "TLS handshake", StatusKind.Pass, "TLS 1.3"),
-    new("chain", "Validate chain", chainStatus, expired ? "expired CA" : "verified"),
-    new("expiry", "Expiry and revocation", chainStatus, expired ? "date failed" : "valid / good")
+    new("chain", "Validate chain", chainStatus, expired ? "expired intermediate" : "verified"),
+    new("expiry", "Expiry and revocation", expired ? StatusKind.Skip : StatusKind.Pass, expired ? "skipped" : "valid / good")
 };
 Pair[] context = {
     new("Host", hostName), new("IP", "203.0.113.42"), new("Protocol", "TLS 1.3"),
@@ -49,7 +49,7 @@ Terminal.Write(new Rows(
     new Panel(new TextBlock(expired ? "Chain validation failed." : "Chain validation passed."), verdict) { Verdict = true, Status = chainStatus },
     new KeyValueList { KeyToken = chainStatus.ToToken() }
         .Add("Cause", expired ? "Expired intermediate certificate." : "Trusted root and complete chain.")
-        .Add("Proof", proof).Add("Action", action).Add("Exit", exitCode + " / duration 184 ms (simulated)")) { Gap = 1 });
+        .Add("Proof", proof).Add("Action", action).Add("Exit", exitCode + " · 184 ms")) { Gap = 1 });
 
 record Step(string Key, string Label, StatusKind Status, string Detail);
 record Pair(string Key, string Value);
