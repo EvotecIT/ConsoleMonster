@@ -64,7 +64,7 @@ namespace SiteFrames.Pages {
                     points.Add(p);
                 }
                 (string shortForm, string full) = SourceSnippets.Program(Site.ReadText(ProgramPath(site, section.Id)));
-                list.Add(new JsonObject {
+                JsonObject entry = new JsonObject {
                     ["id"] = section.Id,
                     ["title"] = section.Title,
                     ["summary"] = section.Summary,
@@ -73,7 +73,9 @@ namespace SiteFrames.Pages {
                     ["csharpFull"] = full,
                     ["csharpFile"] = "Program.cs",
                     ["frame"] = site.Frame(Run(site, section.Id, DefaultWidth, Theme.Dark), Run(site, section.Id, DefaultWidth, Theme.Light))
-                });
+                };
+                SourceStyles.Add(site, entry, ProgramPath(site, section.Id));
+                list.Add(entry);
                 foreach (int width in Widths) {
                     if (!bundles.TryGetValue(width, out JsonObject? bundle)) {
                         bundle = new JsonObject();

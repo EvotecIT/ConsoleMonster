@@ -9,7 +9,12 @@ namespace SiteFrames.Capture {
     internal static partial class CSharpRunner {
         /// <summary>Resolves configured properties from the same compilation used to execute a shown program.</summary>
         public static IReadOnlyCollection<string> ConfiguredMembers(string path, params string[] companions) {
-            var compilation = CreateCompilation(path, Site.ReadText(path), companions: companions);
+            return ConfiguredMembersFromSource(path, Site.ReadText(path), companions);
+        }
+
+        /// <summary>Resolves the generated variant without writing a temporary source file.</summary>
+        public static IReadOnlyCollection<string> ConfiguredMembersFromSource(string path, string code, params string[] companions) {
+            var compilation = CreateCompilation(path, code, companions: companions);
             var result = new HashSet<string>(StringComparer.Ordinal);
             foreach (SyntaxTree tree in compilation.SyntaxTrees.Where(t => t.FilePath != "GlobalUsings.g.cs")) {
                 SemanticModel model = compilation.GetSemanticModel(tree);

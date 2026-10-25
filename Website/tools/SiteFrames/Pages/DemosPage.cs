@@ -487,6 +487,7 @@ namespace SiteFrames.Pages {
                     entry["csharpFull"] = full;
                     entry["csharpRepo"] = ScriptFile(site, demo.CSharpProgram);
                     entry["csharpFile"] = "Program.cs";
+                    SourceStyles.Add(site, entry, program, Companions(site, demo));
                     // The recording ran the script; say so on the C# tab, whose program compiles here but did not draw it.
                     if (demo.Script != null) {
                         entry["csharpNote"] = "The recording ran the PowerShell script. This C# program does the same with the library and compiles as shown; its timings are its own.";

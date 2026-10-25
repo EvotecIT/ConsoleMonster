@@ -68,11 +68,11 @@ namespace SiteFrames.Pages {
             Capture.CSharpRunner.Compile(Path.Combine(folder, "RecordCommand.cs"));
             SessionRecording recording = SessionRecording.Read(Path.Combine(site.Captures, "recording", "command.cast"));
             var (frame, _) = Site.Fit(recording.FinalFrame(), null);
-            Figures.Add("session-command", new JsonObject {
+            Figures.Add("session-command", SourceStyles.Add(site, new JsonObject {
                 ["title"] = "Command review", ["label"] = "A native Git command and coloured PowerShell output",
                 ["meta"] = new JsonArray("Native output", "asciicast v2"), ["frame"] = site.Frame(frame, null),
                 ["file"] = "record-command.ps1", ["script"] = script, ["csharp"] = program
-            });
+            }, Path.Combine(folder, "RecordCommand.cs")));
             site.Write(site.Static("examples/recording/record-command.ps1"), script);
             site.Write(site.Static("examples/recording/RecordCommand.cs"), program);
         }

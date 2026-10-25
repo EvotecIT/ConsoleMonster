@@ -100,6 +100,7 @@ namespace SiteFrames.Pages {
                     ["powershellFile"] = example.Id + ".ps1",
                     ["frame"] = site.Frame(dark, Run(site, example, ColorDepth.TrueColor, GlyphTier.Full, Theme.Light))
                 };
+                SourceStyles.Add(site, entry, ProgramPath(site, example.Id));
                 foreach (ColorTier color in ColorTier.All) {
                     foreach (GlyphLevel glyphs in GlyphLevel.All) {
                         string key = color.Id + "-" + glyphs.Id;

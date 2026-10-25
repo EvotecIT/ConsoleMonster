@@ -71,7 +71,7 @@ namespace SiteFrames.Pages {
                 foreach (string state in new[] { "following", "paused", "resumed" }) {
                     string id = "tails-" + state + "-" + width;
                     string program = Example(site, state == "following" ? "file.cs" : "navigate.cs");
-                    JsonObject figure = Figures.WithProgram(new JsonObject {
+                    JsonObject figure = Figures.WithProgram(site, new JsonObject {
                         ["title"] = state == "following" ? "Following" : state == "paused" ? "PgUp · paused" : "End · following",
                         ["label"] = "Synthetic file tail, " + state + ", " + width + " columns",
                         ["meta"] = new JsonArray(width + " columns", "24-bit", "Full"),

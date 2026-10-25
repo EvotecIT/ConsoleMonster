@@ -77,7 +77,7 @@ namespace SiteFrames.Pages {
                 CellBuffer frame = Figures.Summary(site, 46, ColorDepth.TrueColor, GlyphTier.Full, theme);
                 DocCards.Offer(id, frame, screen);
                 JsonObject data = screen == Frames.Screen.Light ? LightOnly(site, frame) : site.Frame(frame, null);
-                Figures.Add(id, Figures.WithProgram(new JsonObject { ["title"] = ((Theme)theme).Name, ["label"] = "The assessment summary in the " + ((Theme)theme).Name + " theme", ["meta"] = new JsonArray("Theme." + ((Theme)theme).Name), ["frame"] = data }, Figures.SummaryProgram(site)));
+                Figures.Add(id, Figures.WithProgram(site, new JsonObject { ["title"] = ((Theme)theme).Name, ["label"] = "The assessment summary in the " + ((Theme)theme).Name + " theme", ["meta"] = new JsonArray("Theme." + ((Theme)theme).Name), ["frame"] = data }, Figures.SummaryProgram(site)));
             }
 
             // Three ways to write it in C#: three programs, one frame. Each runs, and each must print the fluent one's frame cell
@@ -96,7 +96,7 @@ namespace SiteFrames.Pages {
                     }
                 }
                 CellBuffer light = Site.Crop(CSharpRunner.Run(program, ThreeWidth, ColorDepth.TrueColor, GlyphTier.Full, Theme.Light));
-                Figures.Add("three-" + style, Figures.WithProgram(new JsonObject {
+                Figures.Add("three-" + style, Figures.WithProgram(site, new JsonObject {
                     ["title"] = "dotnet run",
                     ["label"] = "A servers table, a summary and a CPU sparkline in two panels",
                     ["meta"] = new JsonArray(ThreeWidth + " columns", "24-bit", "Full"),
@@ -117,14 +117,14 @@ namespace SiteFrames.Pages {
                     continue;
                 }
                 DocCards.Offer(id, midRun, Frames.Screen.Dark);
-                Figures.Add(id, new JsonObject {
+                Figures.Add(id, SourceStyles.Add(site, new JsonObject {
                     ["title"] = w + "×" + h,
                     ["label"] = "The assessment dashboard in a " + w + " by " + h + " window",
                     ["meta"] = new JsonArray(w + "×" + h),
                     ["frame"] = site.Frame(midRun, null),
                     ["csharp"] = replayShort,
                     ["csharpFull"] = replayFull
-                });
+                }, LivePage.ProgramPath(site, "replay")));
             }
 
             // PowerShell output used in the guides.

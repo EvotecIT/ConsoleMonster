@@ -29,13 +29,13 @@ namespace SiteFrames.Pages {
         internal static void Render(Site site) {
             JsonNode copy = JsonNode.Parse(Site.ReadText(site.Data("copy")))!["gridViewFallback"]!;
             foreach (int width in new[] { 120, 60 }) {
-                Figures.Add("gridview-fallback-" + width, new JsonObject {
+                Figures.Add("gridview-fallback-" + width, SourceStyles.Add(site, new JsonObject {
                     ["title"] = copy["title"]!.GetValue<string>(),
                     ["label"] = copy["label"]!.GetValue<string>(),
                     ["script"] = Site.ReadText(Path.Combine(site.Website, "examples", "interactive", "gridview-fallback.ps1")),
                     ["csharp"] = Site.ReadText(Path.Combine(site.Website, "examples", "interactive", "gridview-fallback.cs")),
                     ["frame"] = site.FrameAt(width, Capture(site, width, Theme.Dark).Frames[3], Capture(site, width, Theme.Light).Frames[3])
-                });
+                }, Path.Combine(site.Website, "examples", "interactive", "gridview-fallback.cs")));
             }
         }
 

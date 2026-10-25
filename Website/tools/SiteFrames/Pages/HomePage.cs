@@ -43,6 +43,7 @@ namespace SiteFrames.Pages {
                 ["narrow"] = site.Frame(Run(site, Narrow, Theme.Dark), Run(site, Narrow, Theme.Light)),
                 ["parity"] = Twins.Check(site, "home", "controllers", Wide, dark, hosts, problems)
             };
+            SourceStyles.Add(site, controllers, program);
             string manifest = File.ReadAllText(Path.Combine(site.Repository, "Module", "ConsoleMonster.psd1"));
             Match cmdlets = Regex.Match(manifest, @"CmdletsToExport\s*=\s*@\(([^)]*)\)");
             int count = cmdlets.Success ? Regex.Matches(cmdlets.Groups[1].Value, "'[^']+'").Count : 0;

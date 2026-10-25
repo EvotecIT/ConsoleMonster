@@ -61,8 +61,8 @@ namespace SiteFrames.Capture {
         }
 
         /// <summary>Compiles a program once per render; throws with the compiler's messages when it is not clean.</summary>
-        public static Assembly Compile(string path) {
-            string code = Site.ReadText(path);
+        public static Assembly Compile(string path, bool fluent = false) {
+            string code = fluent ? FluentSource(path) : Site.ReadText(path);
             if (Compiled.TryGetValue(path + "\n" + code, out Assembly? cached)) {
                 return cached;
             }
@@ -72,7 +72,7 @@ namespace SiteFrames.Capture {
         }
 
         /// <summary>Checks that program text (a code block on a page, named for messages) compiles cleanly; throws otherwise.</summary>
-        public static void Check(string name, string code) => Emit(name, code);
+        public static void Check(string name, string code, params string[] companions) => Emit(name, code, companions: companions);
 
         /// <summary>
         /// Builds a program into <paramref name="folder"/> as a framework-dependent app (the program, its runtimeconfig and
@@ -132,8 +132,8 @@ namespace SiteFrames.Capture {
         }
 
         /// <summary>Runs a program on a fixed terminal and returns the rows it printed.</summary>
-        public static CellBuffer Run(string path, int width, ColorDepth depth, GlyphTier glyphs, ITheme theme, int height = 80) {
-            RecordingTarget target = Execute(path, Profile(width, height, depth, glyphs), theme, null);
+        public static CellBuffer Run(string path, int width, ColorDepth depth, GlyphTier glyphs, ITheme theme, int height = 80, bool fluent = false) {
+            RecordingTarget target = Execute(path, Profile(width, height, depth, glyphs), theme, null, fluent: fluent);
             return Parity.Transcript(System.Text.Encoding.UTF8.GetBytes(target.Output), width, height);
         }
 
@@ -147,8 +147,8 @@ namespace SiteFrames.Capture {
         /// Optional <paramref name="arguments"/> are passed verbatim to its entry point; existing callers receive an empty array.
         /// </summary>
         public static RecordingTarget Execute(string path, TerminalProfile profile, ITheme theme, InteractiveOptions? interactive, string[]? arguments = null,
-            RecordingTarget? recording = null, bool allowIncompleteInput = false) {
-            Assembly assembly = Compile(path);
+            RecordingTarget? recording = null, bool allowIncompleteInput = false, bool fluent = false) {
+            Assembly assembly = Compile(path, fluent);
             MethodInfo entry = assembly.EntryPoint ?? throw new InvalidOperationException(path + " has no entry point.");
             RecordingTarget target = recording ?? new RecordingTarget(profile) { Theme = theme };
             InteractiveOptions previous = InteractiveOptions.Default;

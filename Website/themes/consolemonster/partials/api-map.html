@@ -1,0 +1,11 @@
+{{~ if api_map && api_map.size > 0 ~}}
+<aside class="cm-api-map" aria-label="How it maps">
+  <h3>How it maps</h3>
+  <div class="cm-table-wrap">
+    <table>
+      <thead><tr><th scope="col">PowerShell</th><th scope="col">C#</th><th scope="col">C# fluent</th></tr></thead>
+      <tbody>{{~ for row in api_map ~}}<tr><td><code>{{ row.powershell | html.escape }}</code></td><td><code>{{ row.csharp | html.escape }}</code></td><td><code>{{ row.fluent | html.escape }}</code>{{ if row.note }}<small>{{ row.note }}</small>{{ end }}</td></tr>{{~ end ~}}</tbody>
+    </table>
+  </div>
+</aside>
+{{~ end ~}}

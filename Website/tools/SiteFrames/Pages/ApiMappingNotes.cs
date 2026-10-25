@@ -10,10 +10,13 @@ namespace SiteFrames.Pages {
     internal static class ApiMappingNotes {
         private static readonly string[] Preferred = { "Title", "Border", "Content", "Label", "Value", "Total", "WidgetId", "HeaderRight", "Caption", "Role" };
 
-        public static JsonArray For(Site site, string initializer, string fluent, params string[] companions) {
+        public static JsonArray For(Site site, string initializer, string fluent, params string[] companions) =>
+            FromSource(site, initializer, Site.ReadText(fluent), companions);
+
+        public static JsonArray FromSource(Site site, string initializer, string fluentSource, params string[] companions) {
             JsonObject map = JsonNode.Parse(File.ReadAllText(Path.Combine(site.Repository, "Tests", "Api", "round2-parity.json")))!.AsObject();
             var used = new HashSet<string>(CSharpRunner.ConfiguredMembers(initializer, companions), StringComparer.Ordinal);
-            used.UnionWith(CSharpRunner.ConfiguredMembers(fluent, companions));
+            used.UnionWith(CSharpRunner.ConfiguredMembersFromSource(initializer, fluentSource, companions));
             var rows = new Dictionary<string, (string Command, JsonObject Binding)>(StringComparer.Ordinal);
             foreach (JsonNode? commandNode in map["Commands"]!.AsArray()) {
                 JsonObject command = commandNode!.AsObject();
@@ -81,6 +84,21 @@ namespace SiteFrames.Pages {
                     ["csharp"] = owner.Substring(owner.LastIndexOf('.') + 1) + "." + method + "(widget" + (argument == null ? string.Empty : ", …") + ")",
                     ["fluent"] = "." + fluentMethod + "(" + (argument == null ? string.Empty : "…") + ")",
                     ["memberId"] = used.Contains(key) ? key : "M:" + fluentOwner + "." + fluentMethod
+                });
+            }
+            foreach (JsonNode? operationNode in map["Operations"]?.AsArray() ?? new JsonArray()) {
+                JsonObject operation = operationNode!.AsObject();
+                string owner = operation["CSharpType"]!.GetValue<string>();
+                string member = operation["Member"]!.GetValue<string>();
+                string key = "M:" + owner + "." + member;
+                if (result.Count >= 6 || !used.Contains(key)) { continue; }
+                string shortOwner = owner.Substring(owner.LastIndexOf('.') + 1);
+                result.Add(new JsonObject {
+                    ["powershell"] = "… | " + operation["Command"]!.GetValue<string>() + " -" + operation["DiscriminatorParameter"]!.GetValue<string>() + " " + operation["DiscriminatorValue"]!.GetValue<string>(),
+                    ["csharp"] = shortOwner + "." + member + "(…)",
+                    ["fluent"] = shortOwner + "." + operation["FluentFactory"]!.GetValue<string>() + "(…)." + operation["FluentMember"]!.GetValue<string>() + "()",
+                    ["memberId"] = key,
+                    ["note"] = operation["Reason"]!.GetValue<string>()
                 });
             }
             if (result.Count == 0) { throw new InvalidDataException("No parity mapping is available for " + initializer + "."); }

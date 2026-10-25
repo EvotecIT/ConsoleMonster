@@ -50,7 +50,7 @@ namespace SiteFrames.Pages {
             foreach (int width in new[] { 120, 60 }) {
                 CellBuffer dark = CheckedFrame(site, width, "dark", Theme.Dark, ColorDepth.TrueColor, GlyphTier.Full);
                 CellBuffer light = CheckedFrame(site, width, "light", Theme.Light, ColorDepth.TrueColor, GlyphTier.Full);
-                JsonObject figure = Figures.WithProgram(new JsonObject {
+                JsonObject figure = Figures.WithProgram(site, new JsonObject {
                     ["title"] = "Compare-ConsoleText",
                     ["file"] = "text-diff.ps1",
                     ["label"] = "Before and After with numbered changes, word highlights and collapsed context",

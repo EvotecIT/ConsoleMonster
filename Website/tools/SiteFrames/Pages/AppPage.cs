@@ -116,7 +116,7 @@ namespace SiteFrames.Pages {
                     string key = state + "-" + width.ToString(Site.Culture);
                     frames[key] = site.FrameAt(width, darkFrame, lightFrame);
                     string figureId = "app-" + Id + "-" + key;
-                    Figures.Add(figureId, new JsonObject {
+                    Figures.Add(figureId, SourceStyles.Add(site, new JsonObject {
                         ["title"] = state == "initial" ? "Host inventory · initial" : "Host inventory · sql",
                         ["label"] = "Synthetic host inventory " + (state == "initial" ? "before typing" : "filtered by sql"),
                         ["meta"] = new JsonArray(width.ToString(Site.Culture) + " columns", "24-bit", "Full"),
@@ -126,7 +126,7 @@ namespace SiteFrames.Pages {
                         ["scriptFull"] = scriptFull,
                         ["csharp"] = csharp,
                         ["csharpFull"] = csharpFull
-                    });
+                    }, ExamplePath(site)));
                     DocCards.Offer(figureId, darkFrame, Frames.Screen.Dark);
                     JsonObject parity = new JsonObject();
                     foreach (string theme in Themes) {
@@ -164,7 +164,7 @@ namespace SiteFrames.Pages {
                 }
             }
             site.WriteJson(site.Static("frames/app/" + Id + ".json"), frames);
-            site.WriteJson(site.Data("app"), new JsonObject {
+            site.WriteJson(site.Data("app"), SourceStyles.Add(site, new JsonObject {
                 ["id"] = Id,
                 ["title"] = "Filter hosts as you type",
                 ["summary"] = "A Query input updates the matching count and table after every edit. All hosts are synthetic.",
@@ -175,7 +175,7 @@ namespace SiteFrames.Pages {
                 ["powershell"] = script,
                 ["powershellFull"] = scriptFull,
                 ["variants"] = variants
-            });
+            }, ExamplePath(site)));
             WidgetsPage.Report(problems, "app");
         }
 
