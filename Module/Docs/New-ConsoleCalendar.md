@@ -13,7 +13,7 @@ Returns a passive widget. Pipeline rows provide Date, Status and Label propertie
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleCalendar -Year <int> [-Month <int>] [-View <CalendarView>] [-InputObject <psobject[]>] [-DateProperty <string>] [-StatusProperty <string>] [-LabelProperty <string>] [-FirstDayOfWeek <DayOfWeek>] [-Culture <cultureinfo>] [-NoLegend] [<CommonParameters>]
+New-ConsoleCalendar -Year <int> [-Month <int>] [-View <CalendarView>] [-InputObject <psobject[]>] [-DateProperty <string>] [-StatusProperty <string>] [-LabelProperty <string>] [-FirstDayOfWeek <DayOfWeek>] [-Culture <cultureinfo>] [-Today <DateTime>] [-NoLegend] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -156,6 +156,22 @@ Semantic outcome member (default Status).
 
 ```yaml
 Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Today
+Civil date to emphasize as today, useful with a fixed report clock.
+
+```yaml
+Type: DateTime
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

@@ -825,6 +825,12 @@ Gregorian. A culture without Gregorian month names uses invariant month names.
 `View = CalendarView.Year` wraps up to three months per row; `ShowLegend = false`
 omits the legend. These widgets never acquire input or start an app.
 
+Coloured marked days use a status chip; ASCII and monochrome keep an aligned
+marker column. The legend includes only statuses present in the displayed
+period. ISO week-years appear only when they differ from the displayed year.
+Use `-Today ([datetime]'2026-10-20')` (C#: `Today`) to highlight a fixed report
+date without consulting the machine clock.
+
 ## Interactive grid
 
 ```powershell

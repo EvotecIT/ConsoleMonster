@@ -36,6 +36,8 @@ namespace ConsoleMonster.PowerShell {
         [Parameter] public DayOfWeek? FirstDayOfWeek { get; set; }
         /// <summary><para type="description">Culture for month and weekday labels and the default week start.</para></summary>
         [Parameter] public CultureInfo? Culture { get; set; }
+        /// <summary><para type="description">Civil date to emphasize as today, useful with a fixed report clock.</para></summary>
+        [Parameter] public DateTime? Today { get; set; }
         /// <summary><para type="description">Omit the status symbol legend.</para></summary>
         [Parameter] public SwitchParameter NoLegend { get; set; }
 
@@ -63,7 +65,7 @@ namespace ConsoleMonster.PowerShell {
         protected override void EndProcessing() {
             if (View == CalendarView.Month && Month == 0) { throw new ArgumentException("Month view requires -Month."); }
             if (View == CalendarView.Year && MyInvocation.BoundParameters.ContainsKey(nameof(Month))) { throw new ArgumentException("Use -Month for Month view or -View Year without -Month."); }
-            WriteObject(new Calendar(Year, Month == 0 ? 1 : Month, _marks) { View = View, FirstDayOfWeek = FirstDayOfWeek, Culture = Culture, ShowLegend = !NoLegend });
+            WriteObject(new Calendar(Year, Month == 0 ? 1 : Month, _marks) { View = View, FirstDayOfWeek = FirstDayOfWeek, Culture = Culture, ShowLegend = !NoLegend, Today = Today });
         }
     }
 }

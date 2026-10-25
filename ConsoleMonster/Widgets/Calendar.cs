@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using ConsoleMonster.Capabilities;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Dates;
 using ConsoleMonster.Layout;
@@ -18,7 +19,7 @@ namespace ConsoleMonster.Widgets {
     /// <summary>A Gregorian month or year with dated outcomes, ISO weeks and a status legend. Never reads input.</summary>
     public sealed class Calendar : IWidget {
         private const int MonthWidth = 36;
-        private const int MonthHeight = 9;
+        private const int MonthHeight = 10;
         private static readonly StatusKind[] Statuses = { StatusKind.Fail, StatusKind.Warn, StatusKind.Running, StatusKind.Pending, StatusKind.Pass, StatusKind.Info, StatusKind.Skip };
         private static readonly string[] Symbols = { "x", "!", ">", "?", "+", "i", "-" };
         private readonly int _year;
@@ -57,12 +58,15 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Whether the legend follows the displayed period. Defaults to true.</summary>
         public bool ShowLegend { get; set; } = true;
 
+        /// <summary>The civil date to emphasize as today; null leaves all dates neutral.</summary>
+        public DateTime? Today { get; set; }
+
         /// <inheritdoc />
         public Size Measure(Constraints constraints, RenderContext context) {
             int columns = Columns(constraints.MaxWidth);
             int rows = View == CalendarView.Year ? (12 + columns - 1) / columns : 1;
             int width = Math.Min(constraints.MaxWidth, columns * (MonthWidth + 2) - 2);
-            return new Size(width, Math.Min(constraints.MaxHeight, rows * MonthHeight + (ShowLegend ? Legend(width).Count : 0)));
+            return new Size(width, Math.Min(constraints.MaxHeight, rows * MonthHeight + (ShowLegend ? Legend(width, context).Count : 0)));
         }
 
         /// <inheritdoc />
@@ -78,7 +82,7 @@ namespace ConsoleMonster.Widgets {
             }
             if (ShowLegend) {
                 int y = ((count + columns - 1) / columns) * MonthHeight;
-                foreach (string line in Legend(region.Width)) { region.Write(0, y++, line, context.Style(ThemeToken.Muted)); }
+                foreach (string line in Legend(region.Width, context)) { region.Write(0, y++, line, context.Style(ThemeToken.Muted)); }
             }
         }
 
@@ -87,10 +91,10 @@ namespace ConsoleMonster.Widgets {
         private void RenderMonth(Region region, int month, DayOfWeek first, CultureInfo culture, RenderContext context) {
             string title = GregorianMonthName(culture, month) + " " + Year.ToString(CultureInfo.InvariantCulture);
             region.Write(0, 0, title, context.Style(ThemeToken.Title));
-            region.Write(0, 1, "ISO wk", context.Style(ThemeToken.Muted));
+            region.Write(0, 2, "Week", context.Style(ThemeToken.Muted));
             for (int col = 0; col < 7; col++) {
                 string label = culture.DateTimeFormat.GetShortestDayName((DayOfWeek)(((int)first + col) % 7));
-                region.Write(8 + col * 4, 1, label, context.Style(ThemeToken.Header), 3);
+                region.Write(8 + col * 4, 2, label, context.Style(ThemeToken.Header), 3);
             }
             DateTime start = new DateTime(Year, month, 1);
             int offset = ((int)start.DayOfWeek - (int)first + 7) % 7;
@@ -103,31 +107,54 @@ namespace ConsoleMonster.Widgets {
                 long ticks = start.Ticks + (monday - 1L) * TimeSpan.TicksPerDay;
                 if (ticks >= DateTime.MinValue.Ticks && ticks <= DateTime.MaxValue.Ticks) {
                     int week = CalendarDate.IsoWeek(new DateTime(ticks), out int weekYear);
-                    region.Write(0, row + 2, weekYear.ToString("0000", CultureInfo.InvariantCulture) + "-" + week.ToString("00", CultureInfo.InvariantCulture), context.Style(ThemeToken.Muted));
+                    string weekLabel = (weekYear == Year ? "W" : weekYear.ToString("0000", CultureInfo.InvariantCulture) + "-") + week.ToString("00", CultureInfo.InvariantCulture);
+                    region.Write(0, row + 3, weekLabel, context.Style(ThemeToken.Muted));
                 }
                 for (int col = 0; col < 7; col++) {
                     int number = firstNumber + col;
                     if (number < 1 || number > days) { continue; }
-                    StatusKind? status = Data.GetStatus(new DateTime(Year, month, number));
-                    string text = number.ToString("00", CultureInfo.InvariantCulture) + (status.HasValue ? Symbol(status.Value) : " ");
-                    region.Write(8 + col * 4, row + 2, text, context.Style(status.HasValue ? status.Value.ToToken() : ThemeToken.Text));
+                    DateTime date = new DateTime(Year, month, number);
+                    StatusKind? status = Data.GetStatus(date);
+                    bool weekend = date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
+                    Style style = context.Style(weekend ? ThemeToken.Muted : ThemeToken.Text);
+                    string marker = " ";
+                    if (status.HasValue) {
+                        style = context.Style(status.Value.ToToken());
+                        if (context.HasColor && context.Glyphs.Tier != GlyphTier.Ascii) { style = style.With(TextDecoration.Reverse | TextDecoration.Bold); }
+                        else { marker = Symbol(status.Value, context); }
+                    }
+                    if (Today.HasValue && Today.Value.Date == date) { style = style.With(TextDecoration.Underline | TextDecoration.Bold); if (!status.HasValue) { style = context.Style(ThemeToken.Focus).With(TextDecoration.Bold | TextDecoration.Underline); } }
+                    region.Write(8 + col * 4, row + 3, number.ToString("00", CultureInfo.InvariantCulture), style);
+                    region.Write(10 + col * 4, row + 3, marker, context.Style(status.HasValue ? status.Value.ToToken() : ThemeToken.Text));
                 }
             }
         }
 
-        private List<string> Legend(int width) {
+        private List<string> Legend(int width, RenderContext context) {
             List<string> lines = new List<string>();
             string current = string.Empty;
             foreach (StatusKind status in Statuses) {
-                string item = Symbol(status) + " " + status;
-                if (current.Length > 0 && current.Length + 2 + item.Length > width) { lines.Add(current); current = string.Empty; }
+                if (!HasStatus(status)) { continue; }
+                string item = Symbol(status, context) + " " + status;
+                if (current.Length > 0 && ConsoleMonster.Text.DisplayWidth.Measure(current) + 2 + ConsoleMonster.Text.DisplayWidth.Measure(item) > width) { lines.Add(current); current = string.Empty; }
                 current += (current.Length == 0 ? "" : "  ") + item;
             }
             if (current.Length > 0) { lines.Add(current); }
             return lines;
         }
 
-        private static string Symbol(StatusKind status) => Symbols[Array.IndexOf(Statuses, status)];
+        private bool HasStatus(StatusKind status) {
+            int firstMonth = View == CalendarView.Year ? 1 : Month;
+            int lastMonth = View == CalendarView.Year ? 12 : Month;
+            for (int month = firstMonth; month <= lastMonth; month++) {
+                for (int day = 1; day <= DateTime.DaysInMonth(Year, month); day++) {
+                    if (Data.GetStatus(new DateTime(Year, month, day)) == status) { return true; }
+                }
+            }
+            return false;
+        }
+
+        private static string Symbol(StatusKind status, RenderContext context) => context.Glyphs.Tier == GlyphTier.Ascii ? Symbols[Array.IndexOf(Statuses, status)] : context.Glyphs.StatusMarker(status);
 
         // Month numbers in this widget are Gregorian even when the culture's default calendar is not.
         private static string GregorianMonthName(CultureInfo culture, int month) {

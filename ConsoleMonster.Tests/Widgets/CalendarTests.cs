@@ -65,13 +65,13 @@ namespace ConsoleMonster.Tests.Widgets {
             string monday = TestTerminal.RenderText(calendar, width: 40, culture: CultureInfo.GetCultureInfo("pl-PL"));
             Assert.Contains("October 2026", sunday);
             Assert.Contains("październik 2026", monday);
-            Assert.Contains("2026-40", sunday);
-            Assert.Contains("2026-40", monday);
+            Assert.Contains("W40", sunday);
+            Assert.Contains("W40", monday);
             calendar.FirstDayOfWeek = DayOfWeek.Monday;
             string overridden = TestTerminal.RenderText(calendar, width: 40, culture: CultureInfo.GetCultureInfo("en-US"));
             Assert.NotEqual(sunday, overridden);
             DateTimeFormatInfo days = CultureInfo.GetCultureInfo("en-US").DateTimeFormat;
-            string header = overridden.Split('\n')[1];
+            string header = overridden.Split('\n')[2];
             Assert.Equal(days.GetShortestDayName(DayOfWeek.Monday), header.Substring(8, 3).Trim());
             Assert.Equal(days.GetShortestDayName(DayOfWeek.Tuesday), header.Substring(12, 3).Trim());
             Assert.Equal(days.GetShortestDayName(DayOfWeek.Wednesday), header.Substring(16, 3).Trim());
@@ -79,29 +79,46 @@ namespace ConsoleMonster.Tests.Widgets {
 
         [Fact]
         public void Year_WrapsMonthsAndHasOneLegend() {
-            Calendar calendar = new Calendar(2024, 1) { View = CalendarView.Year };
+            Calendar calendar = new Calendar(2024, 1, new[] { new CalendarMark(new DateTime(2024, 2, 29), StatusKind.Fail, "Backup") }) { View = CalendarView.Year };
             string wide = TestTerminal.RenderText(calendar, width: 120, culture: CultureInfo.GetCultureInfo("en-US"));
             string narrow = TestTerminal.RenderText(calendar, width: 40, culture: CultureInfo.GetCultureInfo("en-US"));
             Assert.Contains("January 2024", wide);
             Assert.Contains("December 2024", narrow);
             Assert.True(narrow.Split('\n').Length > wide.Split('\n').Length);
-            Assert.Equal(1, wide.Split(new[] { "x Fail" }, StringSplitOptions.None).Length - 1);
+            Assert.Equal(1, wide.Split(new[] { "✗ Fail" }, StringSplitOptions.None).Length - 1);
         }
 
         [Fact]
         public void StatusIsVisibleWithoutColour_AndUnmarkedDayIsNeutral() {
             Calendar calendar = new Calendar(2026, 10, new[] { new CalendarMark(new DateTime(2026, 10, 2), StatusKind.Fail, "Backup") });
             string text = TestTerminal.RenderText(calendar, width: 40);
-            Assert.Contains("02x", text);
+            Assert.Contains("02✗", text);
             Assert.Contains("03", text);
-            Assert.Contains("x Fail", text);
+            Assert.Contains("✗ Fail", text);
         }
 
         [Fact]
-        public void AlignedCalendar_MeasuresItsWrappedLegendAtItsActualWidth() {
+        public void UnmarkedCalendar_OmitsLegendAndFitsAlignment() {
             string text = TestTerminal.RenderText(new Align(new Calendar(2026, 10)), width: 100);
-            Assert.Contains("+ Pass", text);
-            Assert.Contains("- Skip", text);
+            Assert.DoesNotContain("Pass", text);
+            Assert.DoesNotContain("Skip", text);
+        }
+
+        [Fact]
+        public void IsoWeekGutter_OnlyShowsAWeekYearWhenItDiffers() {
+            string text = TestTerminal.RenderText(new Calendar(2021, 1), width: 40);
+            Assert.Contains("2020-53", text);
+            Assert.Contains("W01", text);
+            Assert.DoesNotContain("2021-01", text);
+        }
+
+        [Fact]
+        public void AsciiMarks_ReserveTheirOwnColumnAndLegendOnlyUsesVisibleStatuses() {
+            Calendar calendar = new Calendar(2026, 10, new[] { new CalendarMark(new DateTime(2026, 10, 2), StatusKind.Fail, "Backup") }) { FirstDayOfWeek = DayOfWeek.Monday };
+            string text = TestTerminal.RenderText(calendar, width: 40, glyphs: ConsoleMonster.Capabilities.GlyphTier.Ascii);
+            Assert.Contains("02x 03  04", text);
+            Assert.Contains("x Fail", text);
+            Assert.DoesNotContain("Warn", text);
         }
 
         [Fact]

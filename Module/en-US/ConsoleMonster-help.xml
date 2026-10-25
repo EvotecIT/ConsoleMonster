@@ -8021,6 +8021,18 @@ Invoke-ConsoleDashboard $dashboard {
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Today</maml:name>
+          <maml:description>
+            <maml:para>Civil date to emphasize as today, useful with a fixed report clock.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">DateTime</command:parameterValue>
+          <dev:type>
+            <maml:name>DateTime</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>View</maml:name>
           <maml:description>
             <maml:para>Month (default) or Year.</maml:para>
@@ -8152,6 +8164,18 @@ Invoke-ConsoleDashboard $dashboard {
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Today</maml:name>
+        <maml:description>
+          <maml:para>Civil date to emphasize as today, useful with a fixed report clock.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">DateTime</command:parameterValue>
+        <dev:type>
+          <maml:name>DateTime</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
