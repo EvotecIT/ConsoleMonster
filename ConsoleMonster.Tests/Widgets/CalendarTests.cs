@@ -70,7 +70,11 @@ namespace ConsoleMonster.Tests.Widgets {
             calendar.FirstDayOfWeek = DayOfWeek.Monday;
             string overridden = TestTerminal.RenderText(calendar, width: 40, culture: CultureInfo.GetCultureInfo("en-US"));
             Assert.NotEqual(sunday, overridden);
-            Assert.Contains("Mo  Tu  We", overridden);
+            DateTimeFormatInfo days = CultureInfo.GetCultureInfo("en-US").DateTimeFormat;
+            string header = overridden.Split('\n')[1];
+            Assert.Equal(days.GetShortestDayName(DayOfWeek.Monday), header.Substring(8, 3).Trim());
+            Assert.Equal(days.GetShortestDayName(DayOfWeek.Tuesday), header.Substring(12, 3).Trim());
+            Assert.Equal(days.GetShortestDayName(DayOfWeek.Wednesday), header.Substring(16, 3).Trim());
         }
 
         [Fact]
