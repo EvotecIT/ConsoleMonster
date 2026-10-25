@@ -27,6 +27,9 @@ namespace SiteFrames.Tests {
             Assert.Equal("New-ConsolePanel -Title …", title["powershell"]!.GetValue<string>());
             Assert.Equal("Title = …", title["csharp"]!.GetValue<string>());
             Assert.Equal(".Title(…)", title["fluent"]!.GetValue<string>());
+            string borderSource = Source("border", "using ConsoleMonster.Layout;\nusing ConsoleMonster.Glyphs;\nvar panel = new Panel { Border = BoxStyle.Rounded };\n");
+            var border = Assert.Single(ApiMappingNotes.FromSource(Repository(), borderSource, CSharpRunner.FluentSource(borderSource)), row => row!["memberId"]!.GetValue<string>() == "ConsoleMonster.Layout.Panel.Border")!;
+            Assert.Equal("Panel.Border uses ConsoleMonster.Glyphs.BoxStyle.", border["note"]!.GetValue<string>());
         }
 
         [Fact]

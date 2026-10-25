@@ -195,7 +195,7 @@ For a .NET application the same renderer is `ConsoleMonster.Interactive.Grid`:
 ```csharp
 using ConsoleMonster.Interactive;
 
-Grid grid = new Grid("Choose nodes") { Selection = GridSelection.Single };
+Grid grid = new Grid("Choose nodes") { OutputMode = GridSelection.Single };
 grid.AddColumn("Name").AddColumn("Region");
 grid.AddRow("api-east", "api-east", "eu-west");
 GridResult selected = grid.Show();

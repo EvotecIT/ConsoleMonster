@@ -11,6 +11,16 @@ namespace SiteFrames.Capture {
         // Read the module's existing reference contract; the site tool does not load a PowerShell runtime.
         private static bool IsHostSource(string path) => path.EndsWith(".host.cs", StringComparison.Ordinal);
 
+        /// <summary>Reads the actual compiled example's cmdlet name for its run instructions.</summary>
+        public static string HostCommand(string path) {
+            Compilation compilation = CreateCompilation(path, Site.ReadText(path));
+            var declaration = compilation.SyntaxTrees.First(tree => tree.FilePath == path).GetRoot().DescendantNodes()
+                .OfType<Microsoft.CodeAnalysis.CSharp.Syntax.ClassDeclarationSyntax>().Single();
+            INamedTypeSymbol type = (INamedTypeSymbol)compilation.GetSemanticModel(declaration.SyntaxTree).GetDeclaredSymbol(declaration)!;
+            AttributeData command = type.GetAttributes().Single(attribute => attribute.AttributeClass?.ToDisplayString() == "System.Management.Automation.CmdletAttribute");
+            return command.ConstructorArguments[0].Value + "-" + command.ConstructorArguments[1].Value;
+        }
+
         private static IReadOnlyList<MetadataReference> ReferencesFor(string path) {
             if (!IsHostSource(path)) { return References; }
             DirectoryInfo? repository = new FileInfo(path).Directory;

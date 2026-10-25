@@ -73,13 +73,20 @@ namespace SiteFrames.Pages {
                     : conversion == "MillisecondsToTimeSpan" ? "TimeSpan.FromMilliseconds(…)" : "…";
                 string? recordField = binding["RecordField"]?.GetValue<string>();
                 string recordKind = binding["RecordKind"] == null ? string.Empty : "Kind = '" + binding["RecordKind"]!.GetValue<string>() + "'; ";
+                string? note = conversion == "Identity" ? null : binding["Reason"]?.GetValue<string>() ?? conversion;
+                string? valueType = binding["CSharpTypeName"]?.GetValue<string>();
+                if (valueType != null && typeof(ConsoleMonster.Terminal).Assembly.GetType(valueType)?.IsEnum == true) {
+                    string owner = binding["CSharpType"]!.GetValue<string>();
+                    string typedNote = owner.Substring(owner.LastIndexOf('.') + 1) + "." + member + " uses " + valueType + ".";
+                    note = note == null ? typedNote : note + " " + typedNote;
+                }
                 result.Add(new JsonObject {
                     ["powershell"] = recordField == null ? row.Value.Command + " -" + parameter + (isSwitch ? string.Empty : " …")
                         : "@{ " + recordKind + recordField + " = … } | " + row.Value.Command,
                     ["csharp"] = member + " = " + value,
                     ["fluent"] = "." + member + "(" + value + ")",
                     ["memberId"] = row.Key,
-                    ["note"] = conversion == "Identity" ? null : binding["Reason"]?.GetValue<string>() ?? conversion
+                    ["note"] = note
                 });
             }
             foreach (JsonNode? commandNode in map["Commands"]!.AsArray()) {

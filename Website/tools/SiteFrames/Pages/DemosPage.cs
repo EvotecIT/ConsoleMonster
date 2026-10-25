@@ -472,6 +472,7 @@ namespace SiteFrames.Pages {
                     entry["powershellRepo"] = demo.PowerShellTwin.Replace('\\', '/');
                     entry["powershellFull"] = full.TrimEnd('\n');
                     entry["powershellNote"] = demo.Project == null ? "The recording ran the C# program. This script uses the same module capabilities."
+                        : demo.Id == "template" ? "PowerShell launches the same .NET application after Program.cs is saved from either C# tab."
                         : "PowerShell launches the same .NET project after Program.cs is saved from either C# tab. The generic host and ILogger provider have no separate cmdlet implementation.";
                     if (demo.Project != null) {
                         entry["projectLauncher"] = true;
@@ -500,14 +501,23 @@ namespace SiteFrames.Pages {
                     entry["csharpFile"] = "Program.cs";
                     SourceStyles.Add(site, entry, program, Companions(site, demo));
                     if (program.EndsWith(".host.cs", StringComparison.Ordinal)) {
+                        string projectTemplate = Path.Combine(site.Website, "examples", "demos", "HostExample.csproj.template");
+                        string projectDownload = site.Static("examples/HostExample.csproj");
+                        Directory.CreateDirectory(Path.GetDirectoryName(projectDownload)!);
+                        File.Copy(projectTemplate, projectDownload, true);
+                        site.Written.Add(Path.GetRelativePath(site.Website, projectDownload).Replace('\\', '/'));
+                        entry["hostProject"] = "/examples/HostExample.csproj";
+                        entry["hostBuild"] = "Import-Module ConsoleMonster\n$moduleBinary = Split-Path (Get-Command Show-Console).DLL\ndotnet build ./HostExample.csproj -c Release \"-p:ConsoleMonsterModuleDirectory=$moduleBinary\"";
+                        entry["hostRun"] = "Import-Module ./bin/Release/net8.0/HostExample.dll\n" + CSharpRunner.HostCommand(program);
                         entry["csharpFile"] = Path.GetFileName(program);
                         entry["csharpFluentFile"] = Path.GetFileName(program);
-                        entry["csharpNote"] = "This is a compiled PowerShell cmdlet class. Reference the installed module’s ConsoleMonster and ConsoleMonster.PowerShell assemblies in a PowerShell module project; ProcessRecord runs on the owning pipeline thread.";
+                        entry["csharpNote"] = "This is a compiled PowerShell cmdlet class. Reference the installed module’s ConsoleMonster and ConsoleMonster.PowerShell assemblies in a PowerShell module project; ProcessRecord runs on the owning pipeline thread. Download the project beside the source file and build/run it from PowerShell 7.";
                         entry["csharpFluentNote"] = entry["csharpNote"]!.DeepClone();
                     }
                     // The recording ran the script; say so on the C# tab, whose program compiles here but did not draw it.
                     if (demo.Script != null && !program.EndsWith(".host.cs", StringComparison.Ordinal)) {
                         entry["csharpNote"] = "The recording ran the PowerShell script. This C# program does the same with the library and compiles as shown; its timings are its own.";
+                        entry["csharpFluentNote"] = entry["csharpNote"]!.DeepClone();
                     }
                     // The other files of a multi-file program, each shown whole with its name.
                     JsonArray files = new JsonArray();

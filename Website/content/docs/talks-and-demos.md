@@ -164,13 +164,13 @@ var options = new DemoOptions {
     },
     Output = Console.Write
 };
-ConsoleDemo.Record(demo, options);
+ConsolePresentation.Record(demo, options);
 var recording = SessionRecording.Read("talk.cast");
 var slides = new GraphicsExportOptions { Preset = GraphicsPreset.Slide16x9 };
 recording.SaveGraphics("talk.gif", GraphicsFormat.Gif, slides);
 recording.SaveChapterPngs("slides", slides);
 ```
 
-For live presentation use `ConsoleDemo.Present(demo, options)`. Pass `stepChanged` to display a custom step counter and a cancellation token to stop the owned child.
+For live presentation use `ConsolePresentation.Present(demo, options)`. Pass `stepChanged` to display a custom step counter and a cancellation token to stop the owned child.
 
 The repository includes a complete [PowerShell recording example](https://github.com/EvotecIT/ConsoleMonster/tree/master/Website/examples/recording) and a [runnable C# example](https://github.com/EvotecIT/ConsoleMonster/tree/master/Website/examples/presenter-kit). Both use synthetic data. The recording example works from a neutral `demo:` filesystem drive, so genuine errors show `demo:/missing.json` instead of a machine's real working path. It pipes the error record through `Write-ConsoleText -Color Red` to show the message without PowerShell's source-location header. Its example token is labelled synthetic and needs no redaction.

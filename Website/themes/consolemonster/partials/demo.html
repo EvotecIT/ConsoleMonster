@@ -55,7 +55,9 @@
         {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = k.file; code_text = k.code; code_download = tr != null ~}}
         {{ include "code" }}
         {{~ end ~}}
-        {{~ if d.powershellRun || (tr && tr.run) ~}}<p class="cm-try__run"><span>Run:</span> <code>{{ (d.powershellRun ?? tr.run) | html.escape }}</code>{{ if tr && tr.runNote }} <span class="cm-try__note">· {{ tr.runNote }}</span>{{ end }}</p>{{~ end ~}}
+        {{~ ps_run = d.powershellRun; ps_run_note = null
+            if tr; ps_run = ps_run ?? tr.run; ps_run_note = tr.runNote; end ~}}
+        {{~ if ps_run ~}}<p class="cm-try__run"><span>Run:</span> <code>{{ ps_run | html.escape }}</code>{{ if ps_run_note }} <span class="cm-try__note">· {{ ps_run_note }}</span>{{ end }}</p>{{~ end ~}}
         {{~ if d.powershellNote ~}}<p class="cm-demo__refs cm-demo__refs--quiet">{{ d.powershellNote }}</p>{{~ end ~}}
       </div>
       {{~ end ~}}
@@ -77,6 +79,11 @@
         </details>
         {{~ end ~}}
         {{~ if tr && tr.project ~}}<p class="cm-try__run"><span>Run:</span> <code>{{ (tr.csrun ?? "dotnet run") | html.escape }}</code>{{ if tr.note }} <span class="cm-try__note">· {{ tr.note }}</span>{{ end }}</p>{{~ end ~}}
+        {{~ if d.hostProject ~}}
+        <p><a href="{{ d.hostProject }}" download="HostExample.csproj">Download HostExample.csproj</a> beside the source file.</p>
+        {{~ code_lang = "powershell"; code_label = "PowerShell 7"; code_text = d.hostBuild + "\n" + d.hostRun ~}}
+        {{ include "code" }}
+        {{~ end ~}}
         {{~ if d.csharpNote ~}}<p class="cm-demo__refs cm-demo__refs--quiet">{{ d.csharpNote }}</p>{{~ end ~}}
       </div>
       {{~ end ~}}
@@ -98,6 +105,11 @@
         </details>
         {{~ end ~}}
         {{~ if tr && tr.project ~}}<p class="cm-try__run"><span>Run:</span> <code>{{ (tr.csrun ?? "dotnet run") | html.escape }}</code>{{ if tr.note }} <span class="cm-try__note">· {{ tr.note }}</span>{{ end }}</p>{{~ end ~}}
+        {{~ if d.hostProject ~}}
+        <p><a href="{{ d.hostProject }}" download="HostExample.csproj">Download HostExample.csproj</a> beside the source file.</p>
+        {{~ code_lang = "powershell"; code_label = "PowerShell 7"; code_text = d.hostBuild + "\n" + d.hostRun ~}}
+        {{ include "code" }}
+        {{~ end ~}}
         {{~ if d.csharpFluentNote ~}}<p class="cm-demo__refs cm-demo__refs--quiet">{{ d.csharpFluentNote }}</p>{{~ end ~}}
       </div>
       {{~ end ~}}

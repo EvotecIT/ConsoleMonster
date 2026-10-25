@@ -66,6 +66,7 @@ namespace SiteFrames.Tests {
             Site site = new Site(website);
             foreach (string path in Directory.GetFiles(Path.Combine(website, "examples", "demos"), "*.host.cs")) {
                 CSharpRunner.Check(path, Site.ReadText(path));
+                Assert.StartsWith("Invoke-", CSharpRunner.HostCommand(path), StringComparison.Ordinal);
                 var entry = SourceStyles.Add(site, new JsonObject(), path);
                 Assert.NotEmpty(entry["apiMap"]!.AsArray());
             }

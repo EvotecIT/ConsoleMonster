@@ -43,7 +43,7 @@ new Panel()
     .Show();
 ```
 
-The C# snippets use `ConsoleMonster`, `ConsoleMonster.Layout` and `ConsoleMonster.Widgets`. `.Content(widget)` attaches an existing widget; `.Content(c => …)` builds nested content, like PowerShell's `-Content { … }`. Rows, Columns, Stack, LayoutGrid, Panel and dashboard regions use the same grammar.
+The C# snippets use `ConsoleMonster`, `ConsoleMonster.Layout`, `ConsoleMonster.Glyphs` and `ConsoleMonster.Widgets`. `.Content(widget)` attaches an existing widget; `.Content(c => …)` builds nested content, like PowerShell's `-Content { … }`. Rows, Columns, Stack, LayoutGrid, Panel and dashboard regions use the same grammar.
 
 A pipeline ending becomes a chain ending: `| Show-Console` maps to `.Show()`, and `| Export-ConsoleFrame -Path ./build.svg -Format Svg` maps to `.Export("./build.svg", "Svg")`. Export dispatches through the same registered format providers. Add `ConsoleMonster.Markdown` for Markdown display/export and `ConsoleMonster.Graphics` for raster formats; the core does not implement those formats.
 

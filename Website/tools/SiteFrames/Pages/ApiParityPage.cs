@@ -37,7 +37,7 @@ namespace SiteFrames.Pages {
             string markdown = body.ToString();
             site.Write(Path.Combine(site.Repository, "Docs", "Api-Parity.md"), markdown);
             site.Write(Path.Combine(site.Website, "content", "docs", "api-parity.md"),
-                "---\ntitle: PowerShell and C# API parity\ndescription: \"The shared parameter and fluent vocabulary, including every C# host-only member decision.\"\nslug: api-parity\norder: 16\ngroup: hosts\n---\n\n" + markdown);
+                "---\ntitle: PowerShell and C# API parity\ndescription: \"The shared parameter and fluent vocabulary, including every C# host-only member decision.\"\nslug: api-parity\norder: 16\ngroup: hosts\ncard: three-fluent\n---\n\n" + markdown);
         }
 
         private static string Cell(string value) => value.Replace("|", "\\|", StringComparison.Ordinal).Replace("\n", " ", StringComparison.Ordinal);

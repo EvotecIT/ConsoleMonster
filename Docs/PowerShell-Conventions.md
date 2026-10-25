@@ -27,7 +27,7 @@ Application controls (`New-ConsoleSelect` and friends inside `Show-ConsoleApp`) 
 | Play dashboard events | `Show-ConsoleReplay` | `-PlaybackMode Interactive` is the player; `Automatic` plays through the same event engine without keys. |
 | Export output | `Export-ConsoleFrame`, `Export-ConsoleRecording` | Frame export accepts ordinary objects as well as widgets and snapshots. `Copy-ConsoleOutput` uses the same `-Format` vocabulary. |
 | Browse embedded demos | `Get-ConsoleDemo`, `Show-ConsoleDemo` | `Export-ConsoleDemo <slug> -Path` writes the standalone script. |
-| Present a script | `Show-ConsolePresentation -Path talk.ps1` | `Invoke-ConsolePresentation -Path talk.ps1 -Destination talk.cast` records typed execution unattended. C# retains `ConsoleDemo.Present` and `ConsoleDemo.Record`. |
+| Present a script | `Show-ConsolePresentation -Path talk.ps1` | `Invoke-ConsolePresentation -Path talk.ps1 -Destination talk.cast` records typed execution unattended. C# retains `ConsolePresentation.Present` and `ConsolePresentation.Record`. |
 
 `New` returns a definition. `Show` renders or runs a viewer. `Read` returns an answer. `Invoke` waits for work, while `Start` returns an active handle. `Write` sends text or an update to its destination. `Format` returns formatting objects or text: `Format-ConsoleCommand` returns a command-invocation string. Display uses `Show`, and native `Format-*` adapters retain the formatting-record contract. `Out-ConsoleDefault` and `Out-ConsoleFormatCommand` are advanced native-formatting adapters.
 

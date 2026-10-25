@@ -149,7 +149,7 @@ The .NET equivalent uses `Grid`, the renderer behind `Show-ConsoleGrid`:
 ```csharp
 using ConsoleMonster.Interactive;
 
-Grid grid = new Grid("Choose nodes") { Selection = GridSelection.Single };
+Grid grid = new Grid("Choose nodes") { OutputMode = GridSelection.Single };
 grid.AddColumn("Name").AddRow("api-east", "api-east");
 GridResult selected = grid.Show();
 ```

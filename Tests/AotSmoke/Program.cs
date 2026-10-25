@@ -1,5 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using ConsoleMonster;
+using ConsoleMonster.Capabilities;
+using ConsoleMonster.Layout;
+using ConsoleMonster.Output;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using ConsoleMonster.Data;
@@ -29,7 +34,18 @@ internal static class Program {
         Require(ConsoleExporter.ToHtml(table), "web-01");
         Require(ConsoleExporter.ToSvg(table), "web-01");
         GraphicsSmoke.Run();
-        Console.WriteLine("Native AOT smoke passed: typed and inferred tables, JSON and dictionary inspection, text/HTML/SVG and PNG/GIF/APNG exports.");
+        Panel panel = new Panel().Title("Build").Content(content => content.Text("All checks passed"));
+        Require(ConsoleExporter.ToText(panel), "Build", "All checks passed");
+        var profile = TerminalProfile.Fixed(60, 12);
+        var target = new RecordingTarget(profile);
+        panel.Show(profile, target.Writer);
+        Require(target.Output, "Build", "All checks passed");
+        string path = Path.Combine(Path.GetTempPath(), "consolemonster-aot-" + Guid.NewGuid().ToString("N") + ".txt");
+        try {
+            panel.Export(path, "Text", new ExportOptions { Width = 60 });
+            Require(File.ReadAllText(path), "Build", "All checks passed");
+        } finally { File.Delete(path); }
+        Console.WriteLine("Native AOT smoke passed: typed and inferred tables, inspection, fluent content, Show/Export endings and text/HTML/SVG exports.");
         return 0;
     }
 

@@ -94,7 +94,7 @@ var chart = new PipelineChart()
 Terminal.Write(chart);
 
 var histogram = new PipelineChart()
-    .Type(PipelineChartType.Histogram)
+    .Type(ChartType.Histogram)
     .Bins(4)
     .Add(null, 12)
     .Add(null, 18)
