@@ -566,7 +566,7 @@ selection through confirmation, action and refresh, including filtered marks
 and rows with shared or null source objects.
 
 Local builds cover net472, net8.0 and net10.0 with zero warnings on master
-`c1f761d`, including round 1. The net8.0/net10.0 core suites each pass 2,946 tests
+`a5ec30a`, including round 1. The net8.0/net10.0 core suites each pass 2,946 tests
 with eight platform skips. The full en-US Pester suite passes 1,449 tests with
 19 platform skips; the final four action/refresh integration checks pass again
 after the last grid fix. All 112 gallery twin states match. Five preview
