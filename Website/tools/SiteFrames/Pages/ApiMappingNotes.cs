@@ -35,7 +35,7 @@ namespace SiteFrames.Pages {
             foreach (JsonNode? commandNode in map["Commands"]!.AsArray()) {
                 JsonObject command = commandNode!.AsObject();
                 string name = command["Command"]!.GetValue<string>();
-                foreach (JsonNode? bindingNode in command["Bindings"]!.AsArray()) {
+                foreach (JsonNode? bindingNode in command["Bindings"]!.AsArray().Concat(command["SetBindings"]?.AsArray() ?? new JsonArray())) {
                     JsonObject binding = bindingNode!.AsObject();
                     if (binding["MemberKind"]!.GetValue<string>() != "Property") { continue; }
                     // Delegate properties shadow property-named extension calls; their grammar is a separate decision.
@@ -86,7 +86,7 @@ namespace SiteFrames.Pages {
                     note = note == null ? typedNote : note + " " + typedNote;
                 }
                 result.Add(new JsonObject {
-                    ["powershell"] = recordField == null ? row.Value.Command + " -" + parameter + (isSwitch ? string.Empty : " …")
+                    ["powershell"] = recordField == null ? row.Value.Command + (binding["ParameterSet"]?.GetValue<string>() == "Run" ? " -Run …" : string.Empty) + " -" + parameter + (isSwitch ? string.Empty : " …")
                         : "@{ " + recordKind + recordField + " = … } | " + row.Value.Command,
                     ["csharp"] = member + " = " + value,
                     ["fluent"] = "." + member + "(" + value + ")",
@@ -96,7 +96,7 @@ namespace SiteFrames.Pages {
             }
             foreach (JsonNode? commandNode in map["Commands"]!.AsArray()) {
                 JsonObject command = commandNode!.AsObject();
-                foreach (JsonNode? bindingNode in command["Bindings"]!.AsArray()) {
+                foreach (JsonNode? bindingNode in command["Bindings"]!.AsArray().Concat(command["SetBindings"]?.AsArray() ?? new JsonArray())) {
                     JsonObject binding = bindingNode!.AsObject();
                     string? argument = binding["Argument"]?.GetValue<string>();
                     if (argument == null || binding["MemberKind"]!.GetValue<string>() is not ("Method" or "Constructor")) { continue; }

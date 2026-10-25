@@ -91,12 +91,23 @@ namespace ConsoleMonster.PowerShell {
             }
             if (Columns != null && Property != null) { throw new PSArgumentException("Use Columns or Property, not both."); }
             if (Columns != null && Table != null) { throw new PSArgumentException("Use Columns or Table, not both."); }
-            Table table = Table ?? BuildTable();
+            var boundRows = Live.IsPresent && Table == null ? new List<KeyValuePair<PSObject, object?[]>>() : null;
+            Table table = Table ?? BuildTable(_items, boundRows: boundRows);
             if (Live.IsPresent) {
                 if (table.Columns.Count == 0) { throw new PSArgumentException("Live tables require columns or input objects that define them."); }
                 var live = new LiveTable(table, WidgetId) { MaxRows = MaxRows, SortDescending = SortDescending.IsPresent, KeyProperty = KeyProperty };
                 if (SortColumn != null) { live.SortColumn = ResolveColumn(table, PSWidgets.ToText(SortColumn)); }
-                PSItems.AddAll(this, live, _items, KeyProperty);
+                if (boundRows == null) { PSItems.AddAll(this, live, _items, KeyProperty); }
+                else {
+                    foreach (KeyValuePair<PSObject, object?[]> row in boundRows) {
+                        object? key = row.Value[0];
+                        if (KeyProperty != null && (!Values.ValueShaper.TryGetField(row.Key, KeyProperty, out key, Binding.PSShaping.Options()) || key == null || key is Values.FieldError)) {
+                            throw new PSArgumentException("The row has no '" + KeyProperty + "' value to use as its key.");
+                        }
+                        if (key is TableCell cell) { key = cell.HasValue ? cell.Value : Text.Markup.Strip(cell.Markup); }
+                        live.Set(PSWidgets.ToText(key), row.Value);
+                    }
+                }
                 WriteObject(live);
             } else { Emit(table); }
         }
@@ -105,7 +116,7 @@ namespace ConsoleMonster.PowerShell {
         /// <returns>The table.</returns>
         protected Table BuildTable() => BuildTable(_items);
 
-        private Table BuildTable(IReadOnlyList<PSObject> items, PSCmdlet? cmdlet = null) {
+        private Table BuildTable(IReadOnlyList<PSObject> items, PSCmdlet? cmdlet = null, List<KeyValuePair<PSObject, object?[]>>? boundRows = null) {
             // The same columns and cell values as Show-ConsoleTable (registered views, PowerShell's table views, data keys,
             // shared value rules); -StatusProperty shows that column as status markers.
             object[]? property = Columns ?? (Property != null && Property.Length > 0 ? Property : null);
@@ -117,7 +128,8 @@ namespace ConsoleMonster.PowerShell {
                     object? column = PSText.Unwrap(descriptor);
                     table.AddColumn(column is System.Collections.IDictionary record ? Binding.PropertyBinder.ColumnFrom(record) : new TableColumn(Text.Markup.Escape(PSWidgets.ToText(column))));
                 }
-            } else { table = ConsoleHostViews.TableModel(items, new ConsoleTableViewOptions { Property = property }, cmdlet ?? this); }
+            } else { table = ConsoleHostViews.TableModelCore(items, new ConsoleTableViewOptions { Property = property }, cmdlet ?? this,
+                boundRows == null ? null : (row, values) => boundRows.Add(new KeyValuePair<PSObject, object?[]>(row, values))); }
             if (StatusProperty != null) {
                 foreach (TableColumn column in table.Columns) {
                     if (string.Equals(column.Key, StatusProperty, System.StringComparison.OrdinalIgnoreCase) || string.Equals(Text.Markup.Strip(column.Header), StatusProperty, System.StringComparison.OrdinalIgnoreCase)) {

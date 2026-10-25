@@ -29,15 +29,15 @@ namespace ConsoleMonster.Live {
                     foreach (int index in u.Index!) { Add("set", index.ToString(CultureInfo.InvariantCulture), status: u.Status.ToString()); }
                 }
             } else if (target is Lanes) {
-                if (u.Has(nameof(u.Label))) { Add("add", u.Key, u.Label); }
+                if (u.Has(nameof(u.Label))) { Add("label", u.Key, u.Label); }
                 if (u.Has(nameof(u.Total))) { Add("total", u.Key, total: u.Total); }
                 if (u.Has(nameof(u.Status)) && !u.Complete) { Add("state", u.Key, u.Detail, u.Status.ToString()); }
                 else if (u.Has(nameof(u.Result))) {
                     double steps = u.Has(nameof(u.Increment)) ? u.Increment : 1;
                     if (steps != 0) { Add("advance", u.Key, u.Detail, u.Result.ToString(), steps); }
-                    else if (u.Has(nameof(u.Detail))) { Add("detail", u.Key, u.Detail); }
-                } else if (u.Has(nameof(u.Detail))) { Add("detail", u.Key, u.Detail); }
+                }
                 if (u.Complete) { Add("complete", u.Key, u.Detail, u.Has(nameof(u.Status)) ? u.Status.ToString() : null); }
+                if (u.Has(nameof(u.Detail))) { Add("detail", u.Key, u.Detail); }
             } else if (target is LiveTable) {
                 if (u.ClearRows) { Add("clear"); }
                 else if (u.RemoveRow) { Add("remove", u.Key); }
@@ -47,7 +47,7 @@ namespace ConsoleMonster.Live {
                 }
             } else if (target is Phases) {
                 if (u.Has(nameof(u.Status))) { Add("state", u.Key, u.Detail, u.Status.ToString()); }
-                else if (u.Has(nameof(u.Detail))) { Add("detail", u.Key, u.Detail); }
+                if (u.Has(nameof(u.Detail))) { Add("detail", u.Key, u.Detail); }
             } else if (target is ProgressBar) {
                 if (u.Has(nameof(u.Value))) { Add("set", value: Numeric(u.Value), total: u.Has(nameof(u.Total)) ? u.Total : 0); }
                 // A distinct total operation preserves a queued value, including for unknown totals (zero).
@@ -56,10 +56,10 @@ namespace ConsoleMonster.Live {
                 if (u.Has(nameof(u.Label))) { Add("label", text: u.Label); }
                 if (u.Has(nameof(u.Status))) { Add("state", status: u.Status.ToString()); }
             } else if (target is Spinner) {
-                if (u.Restart) { Add("start", text: u.Label); }
-                else if (u.Has(nameof(u.Label))) { Add("label", text: u.Label); }
+                if (u.Restart) { Add("start"); }
+                if (u.Has(nameof(u.Label))) { Add("label", text: u.Label); }
                 if (u.Has(nameof(u.Status))) { Add("state", text: u.Detail, status: u.Status.ToString()); }
-                else if (u.Has(nameof(u.Detail))) { Add("detail", text: u.Detail); }
+                if (u.Has(nameof(u.Detail))) { Add("detail", text: u.Detail); }
             } else if (target is StatusList) {
                 if (u.Has(nameof(u.Status))) { Add("set", u.Key, status: u.Status.ToString()); }
                 if (u.Has(nameof(u.Label))) { Add("label", u.Key, u.Label); }

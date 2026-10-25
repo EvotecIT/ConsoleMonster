@@ -17,6 +17,18 @@ namespace SiteFrames.Pages {
             body.AppendLine("The contract covers **" + commands.Count + " commands**, **" + commands.Sum(command => command!["Bindings"]!.AsArray().Count) + " parameters** and **" + map["ConfigurableTypes"]!.AsArray().Count + " reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.\n");
             body.AppendLine("Table and List remain named shortcuts to Show-Console’s shared view implementation. Read-* returns answers; New-ConsoleForm/Menu defines a question workflow; Show-ConsoleApp runs a persistent reactive application.\n");
             body.AppendLine("Typed Options on export, form, menu and replay operations expose the corresponding C# configuration. I can pass a PowerShell hashtable, for example `Export-ConsoleFrame -Format Html -Options @{ Width = 100; Padding = 8 }`. Options and individual settings are mutually exclusive; the supplied request is not modified.\n");
+            body.AppendLine("## Parameter-set mappings\n");
+            body.AppendLine("A structural parameter set can select a different request model. The metadata gate checks these mappings separately and includes both update requests in its public-member coverage.\n");
+            body.AppendLine("| Command and parameter | Set | C# member | Conversion |\n| --- | --- | --- | --- |");
+            foreach (JsonNode? commandNode in commands) {
+                JsonObject command = commandNode!.AsObject();
+                foreach (JsonNode? node in command["SetBindings"]?.AsArray() ?? new JsonArray()) {
+                    JsonObject row = node!.AsObject();
+                    body.AppendLine("| `" + Cell(command["Command"]!.GetValue<string>() + " -" + row["Parameter"]!.GetValue<string>()) + "` | "
+                        + Cell(row["ParameterSet"]!.GetValue<string>()) + " | `" + Cell(row["CSharpType"]!.GetValue<string>() + "." + row["Member"]!.GetValue<string>())
+                        + "` | " + Cell(row["Reason"]?.GetValue<string>() ?? row["Conversion"]!.GetValue<string>()) + " |");
+                }
+            }
             body.AppendLine("## Individual member decisions\n");
             body.AppendLine("Native host hooks, runtime models and equivalent representations are listed individually. These decisions do not exempt a namespace or hide newly added options.\n");
             body.AppendLine("| C# member | Disposition and reason | PowerShell route or alternative |\n| --- | --- | --- |");

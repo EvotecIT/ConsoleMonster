@@ -78,6 +78,45 @@ namespace ConsoleMonster.Tests.Live {
         }
 
         [Fact]
+        public void CellCapacityErrorsRejectTheWholeBatchBeforePublication() {
+            var cells = new CellMap(widgetId: "cells");
+            using (var session = new LiveSession(cells)) {
+                Assert.Throws<ArgumentException>(() => ConsoleUpdate.Apply(session, "cells", new WidgetUpdate { Index = new[] { 0, CellMap.MaxItems }, Status = StatusKind.Pass }));
+                Assert.Throws<ArgumentOutOfRangeException>(() => ConsoleUpdate.Apply(session, "cells", new WidgetUpdate { CellCount = CellMap.MaxItems + 1 }));
+                Assert.Throws<ArgumentOutOfRangeException>(() => ConsoleUpdate.Apply(session, "cells", new WidgetUpdate { AppendCells = true, Count = CellMap.MaxItems + 1 }));
+                Assert.Throws<ArgumentException>(() => ConsoleUpdate.Apply(session, "cells", new WidgetUpdate { CellCount = 3, Status = StatusKind.Pass }));
+                Assert.Equal(0, session.EventsPosted);
+                Assert.Equal(0, cells.Count);
+                Assert.Single(ConsoleUpdate.Events(cells, new WidgetUpdate { Index = new[] { CellMap.MaxItems - 1 }, Status = StatusKind.Pass }));
+                Assert.Single(ConsoleUpdate.Events(cells, new WidgetUpdate { CellCount = CellMap.MaxItems }));
+            }
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        public void CombinedUpdatesPreserveExplicitClears(string? clear) {
+            var spinner = new Spinner("Old") { Detail = "Old detail" };
+            Apply(spinner, new WidgetUpdate { Restart = true, Label = clear, Status = StatusKind.Pass, Detail = clear });
+            Assert.Equal(string.Empty, spinner.Label);
+            Assert.Equal(clear, spinner.Detail);
+            Assert.Equal(StatusKind.Pass, spinner.Status);
+
+            var lanes = new Lanes();
+            lanes.Add("build", "Old").Detail = "Old detail";
+            Apply(lanes, new WidgetUpdate { Key = "build", Label = clear, Status = StatusKind.Pass, Detail = clear });
+            Assert.Equal(string.Empty, lanes.Items[0].Label);
+            Assert.Equal(clear, lanes.Items[0].Detail);
+            lanes.Items[0].Detail = "Old detail";
+            Apply(lanes, new WidgetUpdate { Key = "build", Result = StatusKind.Pass, Increment = 0, Complete = true, Detail = clear });
+            Assert.Equal(clear, lanes.Items[0].Detail);
+
+            var phases = new Phases().Set("build", StatusKind.Running, detail: "Old detail");
+            Apply(phases, new WidgetUpdate { Key = "build", Status = StatusKind.Pass, Detail = clear });
+            Assert.Equal(clear, phases.Items[0].Detail);
+        }
+
+        [Fact]
         public void RowPayloadRetainsTypedCellsAndIsCopiedBeforePublication() {
             var table = new LiveTable(new Table().AddColumn("Name").AddColumn("Count"));
             object?[] values = { "web01", 12 };

@@ -30,10 +30,15 @@ namespace ConsoleMonster.PowerShell {
         /// <param name="source">Optional owning cmdlet for native view discovery and diagnostics.</param>
         /// <returns>The reusable table model.</returns>
         public static Table TableModel(IReadOnlyList<PSObject> inputObject, ConsoleTableViewOptions? options = null, PSCmdlet? source = null) {
+            return TableModelCore(inputObject, options, source, null);
+        }
+
+        // Live tables retain these evaluated rows, including calculated expressions and FormatString results.
+        internal static Table TableModelCore(IReadOnlyList<PSObject> inputObject, ConsoleTableViewOptions? options, PSCmdlet? source, Action<PSObject, object?[]>? boundRow) {
             if (inputObject == null) { throw new ArgumentNullException(nameof(inputObject)); }
             options ??= new ConsoleTableViewOptions();
             Values.ShapeOptions shape = Binding.PSShaping.Options(options.Culture);
-            return PSFormatting.BuildTable(PSFormatting.Expand(inputObject, shape), options.Property, options.GroupBy, BuildOptions(options, source), shape);
+            return PSFormatting.BuildTable(PSFormatting.Expand(inputObject, shape), options.Property, options.GroupBy, BuildOptions(options, source), shape, boundRow);
         }
 
         /// <summary>Constructs the registered table view, preserving consecutive type groups and dictionary record views.</summary>

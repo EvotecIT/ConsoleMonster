@@ -61,6 +61,31 @@ check('all three styles honor the remembered choice', () => {
     same(langChoice('csharp-fluent', ['powershell', 'csharp']).lang, 'powershell', 'fallback keeps PowerShell first');
 });
 
+check('the first paint defaults to PowerShell when storage is empty, corrupt or denied', () => {
+    const head = fs.readFileSync(path.join(website, 'themes', 'consolemonster', 'partials', 'head.html'), 'utf8');
+    const preload = head.match(/<script>([\s\S]*?)<\/script>/)[1];
+    for (const saved of [null, 'invalid', 'csharp-fluent', 'denied']) {
+        const root = { classList: { add() {} }, dataset: {} };
+        vm.runInNewContext(preload, {
+            document: { documentElement: root }, matchMedia: () => ({ matches: false }),
+            localStorage: { getItem() { if (saved === 'denied') throw new Error('Storage denied'); return saved; } }
+        });
+        same(root.dataset.lang, saved === 'csharp-fluent' ? saved : 'powershell', 'initial style for ' + saved);
+    }
+});
+
+check('a denied storage write still switches styles on the current page', () => {
+    const begin = site.indexOf('var setLang = function');
+    const end = site.indexOf('\n  };', begin) + '\n  };'.length;
+    const root = { dataset: { lang: 'powershell' } };
+    let synced = 0, dispatched = 0;
+    const scope = { root, langs: { powershell: true, csharp: true, 'csharp-fluent': true },
+        localStorage: { setItem() { throw new Error('Storage denied'); } }, syncLang() { synced++; },
+        document: { dispatchEvent() { dispatched++; } }, CustomEvent: function () {} };
+    vm.runInNewContext(site.slice(begin, end) + '\nsetLang("csharp-fluent");', scope);
+    same([root.dataset.lang, synced, dispatched], ['csharp-fluent', 1, 1], 'current-page selection');
+});
+
 const failed = checks.filter(c => !c.pass);
 for (const c of checks) console.log((c.pass ? 'pass ' : 'FAIL ') + c.name + (c.error ? ': ' + c.error : ''));
 process.exitCode = failed.length ? 1 : 0;

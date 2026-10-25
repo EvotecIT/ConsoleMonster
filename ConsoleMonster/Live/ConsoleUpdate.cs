@@ -97,9 +97,11 @@ namespace ConsoleMonster.Live {
             if (target is CellMap) {
                 int modes = (u.Has(nameof(u.Index)) ? 1 : 0) + (u.AppendCells ? 1 : 0) + (u.Has(nameof(u.CellCount)) ? 1 : 0);
                 if (modes != 1) { throw new ArgumentException("Choose Index, AppendCells or CellCount."); }
-                if (u.Has(nameof(u.Index)) && (u.Index == null || u.Index.Length == 0 || u.Index.Any(x => x < 0) || !u.Has(nameof(u.Status)))) { throw new ArgumentException("Index requires nonnegative positions and Status."); }
+                if (u.Has(nameof(u.CellCount)) && u.Has(nameof(u.Status))) { throw new ArgumentException("Status applies to indexed or appended cells, not CellCount."); }
+                if (u.Has(nameof(u.Index)) && (u.Index == null || u.Index.Length == 0 || u.Index.Any(x => x < 0 || x >= CellMap.MaxItems) || !u.Has(nameof(u.Status)))) { throw new ArgumentException("Index requires positions below CellMap.MaxItems and Status."); }
                 if (u.Has(nameof(u.Count)) && !u.AppendCells) { throw new ArgumentException("Count requires AppendCells."); }
-                if (u.AppendCells && u.Count < 1 || u.Has(nameof(u.CellCount)) && u.CellCount < 1) { throw new ArgumentOutOfRangeException(nameof(u.Count)); }
+                if (u.AppendCells && (u.Count < 1 || u.Count > CellMap.MaxItems)) { throw new ArgumentOutOfRangeException(nameof(u.Count)); }
+                if (u.Has(nameof(u.CellCount)) && (u.CellCount < 1 || u.CellCount > CellMap.MaxItems)) { throw new ArgumentOutOfRangeException(nameof(u.CellCount)); }
             }
             if (target is LiveTable) {
                 if ((u.Has(nameof(u.Row)) ? 1 : 0) + (u.RemoveRow ? 1 : 0) + (u.ClearRows ? 1 : 0) != 1) { throw new ArgumentException("Choose Row, RemoveRow or ClearRows."); }

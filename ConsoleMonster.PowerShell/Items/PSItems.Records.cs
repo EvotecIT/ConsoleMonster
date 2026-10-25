@@ -61,8 +61,18 @@ namespace ConsoleMonster.PowerShell {
             return true;
         }
 
+        // Both reserved fields identify a descriptor; an ordinary property named Key is still ordinary data.
+        internal static bool IsPairRecord(object item) {
+            item = Item(item);
+            if (!IsRecord(item)) { return false; }
+            bool Has(string name) => item is IDictionary dictionary
+                ? System.Linq.Enumerable.Any(System.Linq.Enumerable.Cast<object>(dictionary.Keys), key => string.Equals(PSWidgets.ToText(key), name, StringComparison.OrdinalIgnoreCase))
+                : PSObject.AsPSObject(item).Properties[name] != null;
+            return Has("Key") && Has("Value");
+        }
+
         private static bool TryAddPairRecord(KeyValueList list, object item) {
-            if (item is KeyValueItem || !IsRecord(item) || Field(item, "Key") == null) { return false; }
+            if (item is KeyValueItem || !IsPairRecord(item)) { return false; }
             RecordFields(item, "Key Value Status Markup Presenter Unit");
             string key = PSText.PlainText(Field(item, "Key"));
             object? value = Field(item, "Value");

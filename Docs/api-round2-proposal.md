@@ -6,7 +6,7 @@ The approved #55 baseline remains **136 → 97**. With #58 now merged, the expan
 
 I recommend **136 → 97 exported cmdlets**, a reduction of 39 (28.7%). That retires 42 current names and introduces three: `Update-Console`, `New-ConsoleChart` and `New-ConsoleLayoutGrid`. The last is a clarifying rename with no effect on the total. There are no compatibility aliases, parameter aliases or obsolete forwarding methods. Show-ConsoleTable and Show-ConsoleList remain idiomatic shortcuts, sharing the Show-Console view implementation. Constructors and display remain separate operations.
 
-Round 1's other rules stay: no compatibility shims, American public spelling, 13 fully qualified accelerators with none added automatically, Width 0 resolved with a 100-cell fallback, distinct BarWidth/Weight, numeric PowerShell durations and non-default switches. Markdown display/export stays in ConsoleMonster.Markdown.
+Round 1's other rules stay: no compatibility shims, American public spelling, only the 13 fully qualified accelerators on import with no generic or automatically discovered additions, Width 0 resolved with a 100-cell fallback, distinct BarWidth/Weight, numeric PowerShell durations and non-default switches. Markdown display/export stays in ConsoleMonster.Markdown.
 
 The count applies to the 136-command round-1 surface. Commands introduced by other feature PRs need their own disposition against these rules; they are not silently included in this number.
 
@@ -119,6 +119,8 @@ Preserve existing live recording wire keys and operations. The new high-level up
 ### 2.2 Parent records replace passive item commands
 
 Parents take typed C# items, dictionaries where already meaningful, and `[pscustomobject]` rows with documented fields. A common PowerShell adapter reads properties and creates the existing core item types; it does not implement formatting or update rules. Conversion failures name the parent, row and property. Labels containing markup remain literal unless Markup or rich text is explicit.
+
+For KeyValue, both reserved properties Key and Value identify an item descriptor, including an explicit null Value. An ordinary object or dictionary with only a Key property remains ordinary key/value data. Descriptor records reject unknown fields.
 
 | Retired item command | Parent and proposed row schema | Behavior to retain |
 | --- | --- | --- |

@@ -15,7 +15,8 @@ namespace ConsoleMonster.Widgets {
     /// bar, the percentage, pass/fail/warning counts and what the lane is doing now. When there are more lanes than rows,
     /// running lanes are kept visible and the rest is summarised in a final line.
     /// Live operations (Key = lane): <c>add</c> (Text = label, Total), <c>advance</c> (Value = steps, State = step result,
-    /// Text = detail), <c>state</c> (State, Text), <c>detail</c> (Text), <c>total</c> (Total), <c>complete</c> (State).
+    /// Text = detail), <c>state</c> (State, Text), <c>label</c> and <c>detail</c> (Text, including explicit clears),
+    /// <c>total</c> (Total), <c>complete</c> (State).
     /// </summary>
     public sealed partial class Lanes : LiveWidget, ILiveSummary, Output.ITaskbarProgressSource {
         private readonly List<Lane> _lanes = new List<Lane>();
@@ -249,6 +250,9 @@ namespace ConsoleMonster.Widgets {
                 case "add":
                     Add(liveEvent.Key, liveEvent.Text, liveEvent.Total);
                     break;
+                case "label":
+                    Add(liveEvent.Key).Label = liveEvent.Text ?? string.Empty;
+                    break;
                 case "advance":
                     ApplyAdvance(Add(liveEvent.Key), liveEvent, now);
                     break;
@@ -269,7 +273,7 @@ namespace ConsoleMonster.Widgets {
             }
             if (liveEvent.IsMarkup && liveEvent.Text != null && _byKey.TryGetValue(liveEvent.Key, out Lane? rich)) {
                 // Rich text from New-ConsoleText: the label for "add", the detail for the operations that set one.
-                if (liveEvent.Operation == "add") {
+                if (liveEvent.Operation == "add" || liveEvent.Operation == "label") {
                     rich.LabelText = RichLines.FromEventText(liveEvent.Text, true);
                 } else if (liveEvent.Operation != "total" && rich.Detail == liveEvent.Text) {
                     rich.DetailText = RichLines.FromEventText(liveEvent.Text, true);

@@ -2,7 +2,7 @@
      kind, size and languages, a link to how it is built, and the line that runs it in the reader's language. Set reel to
      an entry of data.gallery.demos before including it; reel_wide = true gives a showcase card a larger picture. ## ~}}
 {{~ card_demo = reel; cat_id = card_demo.category | string.downcase | string.replace " " "-" ~}}
-{{~ langs = []; if card_demo.source.powershell; langs = langs | array.add "PowerShell"; end; if card_demo.source.csharp; langs = langs | array.add "C#"; end ~}}
+{{~ langs = []; if card_demo.source.powershell; langs = langs | array.add "PowerShell"; end; if card_demo.source.csharp; langs = langs | array.add "C#"; end; if card_demo.source.csharpFluent; langs = langs | array.add "C# fluent"; end ~}}
 <article class="cm-card cm-reel{{ if reel_wide }} cm-reel--wide{{ end }}" aria-labelledby="demo-{{ card_demo.slug }}">
   <a class="cm-card__thumb cm-reel__thumb" href="/demos/{{ card_demo.slug }}/" tabindex="-1" aria-hidden="true">
     {{~ screen_frame = card_demo.frame; screen_title = card_demo.title; screen_meta = null; screen_dark = true; screen_label = ""; screen_class = "cm-window--thumb" ~}}
@@ -24,6 +24,9 @@
     </div>
     <div class="cm-reel__cmd" data-lang="csharp">
       {{~ cmd_lang = "bash"; cmd_text = card_demo.run.csharp ~}}{{ include "command" }}
+    </div>
+    <div class="cm-reel__cmd" data-lang="csharp-fluent">
+      {{~ cmd_lang = "bash"; cmd_text = card_demo.run.csharpFluent ~}}{{ include "command" }}
     </div>
   </div>
 </article>

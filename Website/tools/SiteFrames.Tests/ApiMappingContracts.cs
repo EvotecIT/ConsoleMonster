@@ -43,6 +43,16 @@ namespace SiteFrames.Tests {
         }
 
         [Fact]
+        public void RunRequestNotesUseTheRunSetAndItsScalarIndex() {
+            string source = Source("run", "using ConsoleMonster.Live;\nvar update = new RunUpdate { Index = 0, Label = \"Compile\" };\n");
+            var notes = ApiMappingNotes.FromSource(Repository(), source, CSharpRunner.FluentSource(source));
+            var index = Assert.Single(notes, row => row!["memberId"]!.GetValue<string>() == "ConsoleMonster.Live.RunUpdate.Index")!;
+            Assert.Equal("Update-Console -Run … -Index …", index["powershell"]!.GetValue<string>());
+            Assert.Contains("exactly one index", index["note"]!.GetValue<string>());
+            Assert.Contains(notes, row => row!["memberId"]!.GetValue<string>() == "ConsoleMonster.Live.RunUpdate.Label");
+        }
+
+        [Fact]
         public void AnUnrelatedTitlePropertyCannotProduceAWidgetTranslation() {
             string source = Source("unrelated", "var panel = new LocalPanel { Title = \"Build\" };\nsealed class LocalPanel { public string? Title { get; set; } }\n");
             Assert.Empty(CSharpRunner.ConfiguredMembers(source));

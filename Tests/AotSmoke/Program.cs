@@ -5,6 +5,7 @@ using ConsoleMonster;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Output;
+using ConsoleMonster.Live;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using ConsoleMonster.Data;
@@ -34,6 +35,16 @@ internal static class Program {
         Require(ConsoleExporter.ToHtml(table), "web-01");
         Require(ConsoleExporter.ToSvg(table), "web-01");
         GraphicsSmoke.Run();
+        var progress = new ProgressBar("Build", "build");
+        using (var session = new LiveSession(progress)) {
+            ConsoleUpdate.Apply(session, "build", new WidgetUpdate { Value = 5, Total = 10, Label = "Compile" });
+            if (session.EventsPosted != 2) { throw new InvalidOperationException("The native update path did not publish its validated fields."); }
+            try {
+                ConsoleUpdate.Apply(session, "build", new WidgetUpdate { Label = "Invalid", Detail = "Unsupported" });
+                throw new InvalidOperationException("The native update path accepted an unsupported field.");
+            } catch (ConsoleUpdateException) { }
+            if (session.EventsPosted != 2) { throw new InvalidOperationException("The native update path partially published an invalid batch."); }
+        }
         Panel panel = new Panel().Title("Build").Content(content => content.Text("All checks passed"));
         Require(ConsoleExporter.ToText(panel), "Build", "All checks passed");
         var profile = TerminalProfile.Fixed(60, 12);

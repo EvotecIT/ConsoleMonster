@@ -18800,7 +18800,10 @@
           "CSharpTypeName": "System.String",
           "Nullable": "Nullable",
           "Writable": true,
-          "Static": false
+          "Static": false,
+          "AppliesToSets": [
+            "Fields"
+          ]
         },
         {
           "Parameter": "DurationSeconds",
@@ -18885,7 +18888,10 @@
           "CSharpTypeName": "System.Int32[]",
           "Nullable": "Nullable",
           "Writable": true,
-          "Static": false
+          "Static": false,
+          "AppliesToSets": [
+            "Cells"
+          ]
         },
         {
           "Parameter": "Key",
@@ -18940,7 +18946,10 @@
           "CSharpTypeName": "System.String",
           "Nullable": "Nullable",
           "Writable": true,
-          "Static": false
+          "Static": false,
+          "AppliesToSets": [
+            "Fields"
+          ]
         },
         {
           "Parameter": "NodeKey",
@@ -19211,7 +19220,14 @@
           "CSharpTypeName": "ConsoleMonster.Styling.StatusKind",
           "Nullable": "NotNull",
           "Writable": true,
-          "Static": false
+          "Static": false,
+          "AppliesToSets": [
+            "Fields",
+            "Cells",
+            "AppendCells",
+            "FlowNode",
+            "FlowEdge"
+          ]
         },
         {
           "Parameter": "Total",
@@ -19325,6 +19341,61 @@
           "MemberKind": "Method",
           "Conversion": "Identity",
           "CSharpTypeName": "System.String"
+        }
+      ],
+      "SetBindings": [
+        {
+          "Parameter": "Detail",
+          "ParameterType": "System.Object",
+          "CSharpType": "ConsoleMonster.Live.RunUpdate",
+          "Member": "Detail",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false,
+          "ParameterSet": "Run"
+        },
+        {
+          "Parameter": "Index",
+          "ParameterType": "System.Int32[]",
+          "CSharpType": "ConsoleMonster.Live.RunUpdate",
+          "Member": "Index",
+          "MemberKind": "Property",
+          "Conversion": "SingleIndex",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false,
+          "ParameterSet": "Run",
+          "Reason": "Run requires exactly one index; the cmdlet rejects zero or several elements before using the sole scalar position."
+        },
+        {
+          "Parameter": "Label",
+          "ParameterType": "System.Object",
+          "CSharpType": "ConsoleMonster.Live.RunUpdate",
+          "Member": "Label",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false,
+          "ParameterSet": "Run"
+        },
+        {
+          "Parameter": "Status",
+          "ParameterType": "ConsoleMonster.Styling.StatusKind",
+          "CSharpType": "ConsoleMonster.Live.RunUpdate",
+          "Member": "Status",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "ConsoleMonster.Styling.StatusKind",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false,
+          "ParameterSet": "Run"
         }
       ]
     },
@@ -21743,7 +21814,7 @@
       "Disposition": "CSharpOnly"
     }
   ],
-  "SchemaVersion": 1,
+  "SchemaVersion": 2,
   "BaselineCount": 141,
   "ExpectedCount": 98,
   "ConfigurableRoots": [
@@ -21826,11 +21897,13 @@
     "ConsoleMonster.Live.LiveSession",
     "ConsoleMonster.Live.LiveSessionOptions",
     "ConsoleMonster.Live.RunOptions",
+    "ConsoleMonster.Live.RunUpdate",
     "ConsoleMonster.Live.SimulatedClock",
     "ConsoleMonster.Live.Tails.LogTailOptions",
     "ConsoleMonster.Live.Tails.LogTailView",
     "ConsoleMonster.Live.WatchFrame",
     "ConsoleMonster.Live.WatchOptions",
+    "ConsoleMonster.Live.WidgetUpdate",
     "ConsoleMonster.Output.RecordingTarget",
     "ConsoleMonster.Output.StatusLine",
     "ConsoleMonster.Overview.OverviewCollector",
@@ -22047,6 +22120,7 @@
     "ConsoleMonster.Layout.Stack",
     "ConsoleMonster.Layout.VerticalAlignment",
     "ConsoleMonster.Live.ConsoleRun",
+    "ConsoleMonster.Live.ConsoleTableRow",
     "ConsoleMonster.Live.ConsoleUpdate",
     "ConsoleMonster.Live.ConsoleWatch",
     "ConsoleMonster.Live.ILiveDispatcher",
@@ -22057,11 +22131,13 @@
     "ConsoleMonster.Live.LiveSession",
     "ConsoleMonster.Live.LiveSessionOptions",
     "ConsoleMonster.Live.RunOptions",
+    "ConsoleMonster.Live.RunUpdate",
     "ConsoleMonster.Live.SimulatedClock",
     "ConsoleMonster.Live.Tails.LogTailOptions",
     "ConsoleMonster.Live.Tails.LogTailView",
     "ConsoleMonster.Live.WatchFrame",
     "ConsoleMonster.Live.WatchOptions",
+    "ConsoleMonster.Live.WidgetUpdate",
     "ConsoleMonster.Output.ITerminalTarget",
     "ConsoleMonster.Output.ITerminalWriter",
     "ConsoleMonster.Output.RecordingTarget",
@@ -23474,15 +23550,6 @@
       "Reason": "The owning runspace supplies the shared InteractiveOptions for the grid."
     },
     {
-      "CSharpType": "ConsoleMonster.Live.RunUpdate",
-      "Member": "Index",
-      "MemberId": "ConsoleMonster.Live.RunUpdate.Index",
-      "CSharpTypeName": "System.Int32",
-      "Command": "Update-Console",
-      "Parameter": "Index",
-      "Reason": "The Run parameter set requires exactly one index and converts the one-element array to the typed scalar index."
-    },
-    {
       "CSharpType": "ConsoleMonster.Widgets.RunSummary",
       "Member": "Title",
       "MemberId": "ConsoleMonster.Widgets.RunSummary.Title",
@@ -23996,6 +24063,26 @@
       "Command": "New-ConsoleFlow",
       "Parameter": "InputObject",
       "Reason": "A Kind=Branch record configures the single side branch through the same validated Branch property."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Live.ConsoleTableRow",
+      "Member": "Key",
+      "MemberId": "ConsoleMonster.Live.ConsoleTableRow.Key",
+      "CSharpTypeName": "System.String",
+      "Command": "Update-Console",
+      "Parameter": "Row",
+      "RecordField": "Key",
+      "Reason": "The Row record supplies the stable Key and typed Values in column order."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Live.ConsoleTableRow",
+      "Member": "Values",
+      "MemberId": "ConsoleMonster.Live.ConsoleTableRow.Values",
+      "CSharpTypeName": "System.Object[]",
+      "Command": "Update-Console",
+      "Parameter": "Row",
+      "RecordField": "Values",
+      "Reason": "The Row record supplies the stable Key and typed Values in column order."
     }
   ],
   "Endings": [

@@ -114,6 +114,37 @@ if ([regex]::Matches($text, 'leaf').Count -ne 2) { throw 'Shared content was rej
     }
 
     Context 'Item commands in their containers' {
+        It 'distinguishes ordinary Key properties from explicit Key and Value descriptors' {
+            foreach ($record in @([ordered] @{ Key = 'rsa'; Owner = 'build' }, [pscustomobject] @{ Key = 'rsa'; Owner = 'build' })) {
+                $list = $record | New-ConsoleKeyValue
+                $list.Items.Count | Should -Be 2
+                ($list | Get-WidgetText) | Should -Match 'Owner\s+build'
+                $list = New-ConsoleKeyValue -Content { $record }
+                $list.Items.Count | Should -Be 2
+                $list = New-ConsoleKeyValue | Add-ConsoleItem $record -PassThru
+                $list.Items.Count | Should -Be 2
+            }
+            $pair = [pscustomobject] @{ Key = 'Signing'; Value = $null } | New-ConsoleKeyValue
+            $pair.Items.Count | Should -Be 1
+            $pair.Items[0].Key | Should -Be Signing
+            { [pscustomobject] @{ Key = 'Size'; Value = 1; Tone = 'Accent' } | New-ConsoleKeyValue } | Should -Throw '*Unknown item field*Tone*'
+        }
+
+        It 'seeds live tables with the same evaluated calculated columns and formatting' {
+            $script:liveExpressionReads = 0
+            $rows = @([pscustomobject] @{ Id = 'first'; Size = 3 }, [pscustomobject] @{ Id = 'second'; Size = 5 })
+            $table = $rows | New-ConsoleTable -Live -WidgetId jobs -KeyProperty Id -Property @(
+                @{ Name = 'Doubled'; Expression = { $script:liveExpressionReads++; $_.Size * 2 }; FormatString = 'F1' }
+                @{ Name = 'Size'; Presenter = 'Number' }
+            )
+            $script:liveExpressionReads | Should -Be 2
+            $text = $table | Get-WidgetText
+            $table.Keys | Should -Be @('first', 'second')
+            $text | Should -Match '6\.0'
+            $text | Should -Match '10\.0'
+            $script:liveExpressionReads | Should -Be 2
+        }
+
         It 'keeps record values literal unless a presenter is explicit' {
             $literal = [pscustomobject]@{ Key = 'Install folder'; Value = './toolbox-agent' } | New-ConsoleKeyValue
             $literal.Items[0].Cell | Should -BeNullOrEmpty

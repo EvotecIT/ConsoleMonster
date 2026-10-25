@@ -33,7 +33,7 @@ namespace ConsoleMonster.PowerShell {
     [OutputType(typeof(KeyValueList))]
     public sealed class CmdletNewConsoleKeyValue : PSCmdlet {
         private readonly List<object> _input = new List<object>();
-        /// <summary><para type="description">A hashtable or an object whose properties become the pairs (a script block here is taken as -Content).</para></summary>
+        /// <summary><para type="description">A hashtable or an object whose properties become the pairs. A record containing both Key and Value is an item descriptor, even when Value is null; Key by itself is ordinary data. A script block here is taken as -Content.</para></summary>
         [Parameter(Position = 1, ValueFromPipeline = true)]
         public object? InputObject { get; set; }
 
@@ -78,7 +78,7 @@ namespace ConsoleMonster.PowerShell {
             KeyValueList list = new KeyValueList(WidgetId) { Gap = Gap, MaxKeyFraction = MaxKeyFraction, Columns = Columns, KeyRole = KeyRole };
             foreach (object input in _input) {
                 object? raw = PSText.Unwrap(input);
-                if (PSItems.Field(input, "Key") != null || raw is KeyValueItem) {
+                if (PSItems.IsPairRecord(input) || raw is KeyValueItem) {
                     PSItems.AddAll(this, list, new[] { input });
                 } else if (raw is IDictionary dictionary) {
                     foreach (DictionaryEntry entry in dictionary) { list.Add(PSWidgets.ToText(entry.Key), Value(entry.Value)); }

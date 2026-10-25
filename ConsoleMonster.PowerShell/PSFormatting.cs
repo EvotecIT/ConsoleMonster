@@ -116,7 +116,7 @@ namespace ConsoleMonster.PowerShell {
         internal static Table BuildTable(IReadOnlyList<PSObject> items, object[]? property, object? groupBy, bool total, bool autoPresenters = false, PSCmdlet? cmdlet = null, CultureInfo? culture = null) =>
             BuildTable(items, property, groupBy, new TableBuildOptions { Total = total, AutoPresenters = autoPresenters, Cmdlet = cmdlet, Culture = culture }, null);
 
-        internal static Table BuildTable(IReadOnlyList<PSObject> items, object[]? property, object? groupBy, TableBuildOptions options, ShapeOptions? shapeOptions) {
+        internal static Table BuildTable(IReadOnlyList<PSObject> items, object[]? property, object? groupBy, TableBuildOptions options, ShapeOptions? shapeOptions, Action<PSObject, object?[]>? boundRow = null) {
             ShapeOptions shape = shapeOptions ?? PSShaping.Options(options.Culture);
             ShapeBudget budget = ShapeBudget.For(shape);
             ConsoleViewRegistration? view = null;
@@ -150,7 +150,9 @@ namespace ConsoleMonster.PowerShell {
             }
             List<object?[]> rows = new List<object?[]>(items.Count);
             foreach (PSObject item in items) {
-                rows.Add(Values(columns, item, shape, budget));
+                object?[] values = Values(columns, item, shape, budget);
+                rows.Add(values);
+                boundRow?.Invoke(item, values);
             }
             ChoosePresenters(columns, rows, options.AutoPresenters);
             Table table = new Table { GroupHeadersAsRows = view?.GroupHeadersAsRows == true };

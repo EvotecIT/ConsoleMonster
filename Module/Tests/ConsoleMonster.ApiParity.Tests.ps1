@@ -35,6 +35,16 @@ Describe 'PowerShell and C# API parity' {
                     $actualSet.Position | Should -Be $set.Position
                     $actualSet.Mandatory | Should -Be $set.Mandatory
                 }
+                $scope = if ($binding.AppliesToSets) { @($binding.AppliesToSets) } else { @($binding.Sets.Name) }
+                $overrides = @($entry.SetBindings | Where-Object Parameter -EQ $binding.Parameter)
+                $effectiveSets = @($scope) + @($overrides.ParameterSet)
+                Compare-Object @($binding.Sets.Name | Sort-Object) @($effectiveSets | Sort-Object) | Should -BeNullOrEmpty -Because "$($entry.Command) -$($binding.Parameter) needs exactly one mapping per set"
+                @($effectiveSets | Group-Object | Where-Object Count -GT 1).Count | Should -Be 0
+            }
+            foreach ($override in $entry.SetBindings) {
+                $binding = @($entry.Bindings | Where-Object Parameter -EQ $override.Parameter)
+                $binding.Count | Should -Be 1
+                $override.ParameterSet | Should -BeIn @($binding.Sets.Name)
             }
         }
         foreach ($job in ($script:Parity.Commands | Group-Object Job | Where-Object Count -GT 1)) {
@@ -46,7 +56,7 @@ Describe 'PowerShell and C# API parity' {
     It 'resolves every mapped C# member and argument against the actual shipped assemblies' {
         foreach ($entry in $script:Parity.Commands) {
             $script:ApiTypes.ContainsKey($entry.CSharpType) | Should -BeTrue -Because "$($entry.Command) needs a C# owner"
-            foreach ($binding in $entry.Bindings) {
+            foreach ($binding in @($entry.Bindings) + @($entry.SetBindings | Where-Object { $null -ne $_ })) {
                 $label = "$($entry.Command) -$($binding.Parameter)"
                 if ($binding.MemberKind -eq 'HostPolicy') {
                     $binding.Reason | Should -Not -BeNullOrEmpty -Because $label
@@ -58,6 +68,11 @@ Describe 'PowerShell and C# API parity' {
                 }
                 if ($binding.Conversion -in @('SecondsToTimeSpan', 'MillisecondsToTimeSpan')) {
                     $binding.CSharpTypeName | Should -BeIn @('System.TimeSpan', 'System.Nullable`1[System.TimeSpan]') -Because "$label has an explicit unit conversion"
+                }
+                if ($binding.Conversion -eq 'SingleIndex') {
+                    $binding.CSharpTypeName | Should -BeExactly 'System.Int32'
+                    $binding.ParameterSet | Should -BeExactly 'Run'
+                    $binding.Reason | Should -Not -BeNullOrEmpty
                 }
                 $type = $script:ApiTypes[$binding.CSharpType]
                 $type | Should -Not -BeNullOrEmpty -Because $label
@@ -92,7 +107,7 @@ Describe 'PowerShell and C# API parity' {
         $seeds = @($script:ApiTypes.Values | Where-Object {
             -not [System.Management.Automation.PSCmdlet].IsAssignableFrom($_) -and
             -not $_.Name.EndsWith('Fluent', [StringComparison]::Ordinal) -and
-            (($_.FullName -ne 'ConsoleMonster.Layout.IWidget' -and $script:ApiTypes['ConsoleMonster.Layout.IWidget'].IsAssignableFrom($_)) -or $_.Name.EndsWith('Options', [StringComparison]::Ordinal) -or $_.FullName -in $owners -or (Test-ConsoleApiPromptType $_) -or $_.FullName -eq 'ConsoleMonster.Styling.ThemeFile')
+            (($_.FullName -ne 'ConsoleMonster.Layout.IWidget' -and $script:ApiTypes['ConsoleMonster.Layout.IWidget'].IsAssignableFrom($_)) -or $_.Name.EndsWith('Options', [StringComparison]::Ordinal) -or $_.FullName -in $owners -or (Test-ConsoleApiPromptType $_) -or $_.FullName -in @('ConsoleMonster.Styling.ThemeFile', 'ConsoleMonster.Live.WidgetUpdate', 'ConsoleMonster.Live.RunUpdate'))
         })
         Compare-Object @($seeds.FullName | Sort-Object) @($script:Parity.ConfigurableRoots | Sort-Object) | Should -BeNullOrEmpty
         $graph = Get-ConsoleApiTypeGraph $seeds $script:ApiTypes -IncludeItemMethods
@@ -109,7 +124,7 @@ Describe 'PowerShell and C# API parity' {
         $typed = Get-ConsoleApiTypeGraph $typedRoots $script:ApiTypes
         $covered = @{}
         foreach ($entry in $script:Parity.Commands) {
-            foreach ($binding in $entry.Bindings) {
+            foreach ($binding in @($entry.Bindings) + @($entry.SetBindings | Where-Object { $null -ne $_ })) {
                 if ($binding.MemberKind -eq 'Property') {
                     $property = $script:ApiTypes[$binding.CSharpType].GetProperty($binding.Member)
                     $covered[(Get-ConsoleApiOwnerName $property.DeclaringType) + '.' + $property.Name] = $true
