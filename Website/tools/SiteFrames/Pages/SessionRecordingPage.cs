@@ -2,10 +2,8 @@ using System.IO;
 using System;
 using System.Collections.Generic;
 using System.Text.Json.Nodes;
-using System.Text;
 using ConsoleMonster.Export;
 using ConsoleMonster.Sessions;
-using ConsoleMonster.Graphics;
 using SiteFrames.Replay;
 
 namespace SiteFrames.Pages {
@@ -49,40 +47,18 @@ namespace SiteFrames.Pages {
         }
 
         private static void RenderFullScreenPreview(Site site) {
-            SessionRecording recording = Preview(Path.Combine(site.Captures, "fullscreen", "service-browser.cast"));
-            RecordingExportOptions playback = new RecordingExportOptions {
-                Theme = ExportTheme.Dark, WindowChrome = true, Title = "Service browser",
-                FramesPerSecond = 10, HoldLastFrame = TimeSpan.FromSeconds(2)
-            };
+            SessionRecording recording = FullScreenPreview.Read(Path.Combine(site.Captures, "fullscreen", "service-browser.cast"));
+            RecordingExportOptions playback = FullScreenPreview.Playback();
             site.Write(site.Static("recordings/fullscreen/service-browser.html"), recording.Export(ExportFormat.Html, playback));
             site.Write(site.Static("recordings/fullscreen/service-browser.cast"), recording.ToAsciicast());
             string gif = site.Static("recordings/fullscreen/service-browser.gif");
-            recording.SaveGraphics(gif, GraphicsFormat.Gif, new GraphicsExportOptions {
-                Frame = new ExportOptions { Theme = ExportTheme.Dark, WindowChrome = true, Title = "Service browser" },
-                Playback = playback, IdleLimit = TimeSpan.FromSeconds(1.5)
-            });
+            string? problem = FullScreenPreview.CheckGif(site);
+            if (problem != null) { throw new InvalidOperationException(problem); }
+            File.Copy(FullScreenPreview.GifPath(site), gif, true);
             site.Written.Add(Path.GetRelativePath(site.Website, gif).Replace('\\', '/'));
-            SessionRecording ssh = Preview(Path.Combine(site.Captures, "fullscreen", "service-browser-ssh.cast"));
+            SessionRecording ssh = FullScreenPreview.Read(Path.Combine(site.Captures, "fullscreen", "service-browser-ssh.cast"));
             site.Write(site.Static("recordings/fullscreen/service-browser-ssh.cast"), ssh.ToAsciicast());
             site.Write(site.Static("recordings/fullscreen/service-browser-ssh.html"), ssh.Export(ExportFormat.Html, playback));
-        }
-
-        // Keep terminal initialization, but remove startup idle from this authored preview.
-        // The committed source cast remains the unedited native recording.
-        private static SessionRecording Preview(string path) {
-            string[] lines = File.ReadAllLines(path);
-            double start = 0;
-            foreach (string line in lines[1..]) {
-                JsonArray entry = (JsonArray)JsonNode.Parse(line)!;
-                if (entry[1]!.GetValue<string>() == "o" && entry[2]!.GetValue<string>().Contains("Service browser", StringComparison.Ordinal)) { start = entry[0]!.GetValue<double>(); break; }
-            }
-            StringBuilder cast = new StringBuilder(lines[0]).Append('\n');
-            foreach (string line in lines[1..]) {
-                JsonArray entry = (JsonArray)JsonNode.Parse(line)!;
-                entry[0] = Math.Max(0, entry[0]!.GetValue<double>() - start);
-                cast.Append(entry.ToJsonString()).Append('\n');
-            }
-            return SessionRecording.Read(new StringReader(cast.ToString()));
         }
 
         private static void RenderCommandExample(Site site) {

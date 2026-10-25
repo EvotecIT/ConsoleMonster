@@ -4,19 +4,47 @@ using System.Linq;
 using System.Text.Json.Nodes;
 using ConsoleMonster.Export;
 using ConsoleMonster.Sessions;
+using SiteFrames.Pages;
 using Xunit;
 
 namespace SiteFrames.Tests {
     /// <summary>The published preview must retain the real in-app action and transport evidence.</summary>
     public sealed class FullScreenPreviewContracts {
         [Theory]
+        [InlineData("captures/fullscreen/service-browser.cast")]
+        [InlineData("captures/fullscreen/service-browser.gif")]
+        [InlineData("tools/SiteFrames/Pages/FullScreenPreview.cs")]
+        public void Preview_RejectsChangedRecordingPixelsOrExportPolicy(string changed) {
+            string website = Path.Combine(Repository(), "Website");
+            Assert.Null(FullScreenPreview.CheckGif(new Site(website)));
+            string temporary = Path.Combine(Path.GetTempPath(), "cm-fullscreen-preview-" + Guid.NewGuid().ToString("N"));
+            try {
+                Directory.CreateDirectory(temporary);
+                File.WriteAllText(Path.Combine(temporary, "ConsoleMonster.sln"), string.Empty);
+                string copy = Path.Combine(temporary, "Website");
+                foreach (string relative in new[] {
+                    "captures/sources.json", "captures/fullscreen/service-browser.cast", "captures/fullscreen/service-browser.gif",
+                    "tools/SiteFrames/Pages/FullScreenPreview.cs"
+                }) {
+                    string target = Path.Combine(copy, relative);
+                    Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+                    File.Copy(Path.Combine(website, relative), target);
+                }
+                Site site = new Site(copy);
+                Assert.Null(FullScreenPreview.CheckGif(site));
+                File.AppendAllText(Path.Combine(copy, changed), "changed");
+                Assert.Contains("another version", FullScreenPreview.CheckGif(site));
+            } finally {
+                if (Directory.Exists(temporary)) { Directory.Delete(temporary, true); }
+            }
+        }
+
+        [Theory]
         [InlineData("service-browser.cast", 120, 0)]
         [InlineData("service-browser-ssh.cast", 100, 2)]
         public void Capture_KeepsConfirmationOutputAndTransportEvents(string name, int width, int resizes) {
-            DirectoryInfo? root = new DirectoryInfo(AppContext.BaseDirectory);
-            while (root != null && !File.Exists(Path.Combine(root.FullName, "ConsoleMonster.sln"))) { root = root.Parent; }
-            Assert.NotNull(root);
-            string path = Path.Combine(root!.FullName, "Website", "captures", "fullscreen", name);
+            string root = Repository();
+            string path = Path.Combine(root, "Website", "captures", "fullscreen", name);
             string[] lines = File.ReadAllLines(path);
             JsonObject header = (JsonObject)JsonNode.Parse(lines[0])!;
             Assert.Equal(width, header["width"]!.GetValue<int>());
@@ -34,8 +62,15 @@ namespace SiteFrames.Tests {
             Assert.Contains("Service browser", completed);
             Assert.Contains("Restart: completed", completed);
             Assert.Contains("WinRM", completed);
-            string preview = Path.Combine(root.FullName, "Website", "static", "recordings", "fullscreen", name);
+            string preview = Path.Combine(root, "Website", "static", "recordings", "fullscreen", name);
             Assert.Contains("Service browser", ConsoleExporter.ToText(SessionRecording.Read(preview).FrameAt(TimeSpan.Zero)));
+        }
+
+        private static string Repository() {
+            DirectoryInfo? root = new DirectoryInfo(AppContext.BaseDirectory);
+            while (root != null && !File.Exists(Path.Combine(root.FullName, "ConsoleMonster.sln"))) { root = root.Parent; }
+            Assert.NotNull(root);
+            return root!.FullName;
         }
     }
 }

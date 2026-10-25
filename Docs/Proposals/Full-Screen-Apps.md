@@ -544,19 +544,23 @@ fictional services make the demo safe to run on every supported platform.
 
 The source recording is `Website/captures/fullscreen/service-browser.cast`.
 The website generator exports its paced GIF and HTML player under
-`/recordings/fullscreen/`. I captured the same app in macOS Terminal and over an
+`/recordings/fullscreen/`. I export the GIF with
+`dotnet run --project Website/tools/SiteFrames -c Release -- capture-fullscreen-preview Website`
+and commit it under `Website/captures/fullscreen/`. Render checks its capture
+stamp against the source recording, export policy and GIF bytes, then copies
+the reviewed raster asset. This avoids platform rasterization changing the
+preview during CI; HTML and player data still regenerate from the recording.
+I captured the same app in macOS Terminal and over an
 SSH PTY. Physical Mac clicks selected a service, opened confirmation and ran the
 action; keyboard navigation, the palette and resize kept the app usable. The
 published Mac capture uses scripted keys and SGR reports through the recorder,
 at 120×30. The separate SSH capture includes two resizes; it ran from in-memory
 assemblies without installing files or changing the remote host.
 
-Local builds cover net472, net8.0 and net10.0. Before the final narrow-screen
-adjustment, the net8.0/net10.0 core suites each passed 2,898 tests with eight
-skips after rebasing #55 and the recorder fix. The final 18 focused action
-contracts pass, including wrapped buttons. Broad reruns during severe shared-host
-contention hit unchanged recorder regex timeouts; I keep those failures separate
-from a clean full-matrix claim. The en-US Pester run exposed two regressions
+Local builds cover net472, net8.0 and net10.0. On the merged round 1 baseline,
+the net8.0/net10.0 core suites each pass 2,899 tests with eight platform skips,
+including the final narrow-screen arrangement and modal keyboard burst checks.
+The en-US Pester run exposed two regressions
 (format registration and callback ordering); both are fixed and the affected
 app/menu/grid/explorer/output suites pass on rerun. Windows PowerShell 5.1
 syntax remains supported; a Mac build cannot prove its native console behavior.
