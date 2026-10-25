@@ -36,6 +36,8 @@ namespace ConsoleMonster.Interactive {
         private readonly AppCommandHost? _actions;
         private Rect _bodyBounds;
         private List<int> _rowLines = new List<int>();
+        private List<int> _rowEnds = new List<int>();
+        private int _positionLine = -1;
         private int _dragAnchor = -1;
         private int[] _actionIndices = Array.Empty<int>();
 
@@ -161,7 +163,7 @@ namespace ConsoleMonster.Interactive {
             if (_actions?.HasCommands == true) {
                 foreach (KeyBinding binding in bindings) { binding.InFooter = false; }
                 bindings.Add(new KeyBinding(Labels.KeyMove, () => Move(-1), new KeyChord(ConsoleKey.UpArrow)) { KeyText = "↑↓", Order = 10 });
-                bindings.Add(new KeyBinding("mark", ToggleMark, new KeyChord(ConsoleKey.Spacebar)) { KeyText = "Space", Order = 15 });
+                if (_grid.Selection == GridSelection.Multiple) { bindings.Add(new KeyBinding("mark", ToggleMark, new KeyChord(ConsoleKey.Spacebar)) { KeyText = "Space", Order = 15 }); }
                 bindings.Add(new KeyBinding("close", Escape, new KeyChord(ConsoleKey.Escape)) { KeyText = "Esc", Order = 20 });
             }
             _actions?.AddBindings(bindings);
@@ -238,7 +240,7 @@ namespace ConsoleMonster.Interactive {
             if (input.MouseAction == MouseAction.Wheel) { Move(-Math.Sign(input.WheelDelta) * 3); return true; }
             int relative = input.Row - _bodyBounds.Y;
             int hit = _rowLines.FindLastIndex(y => y <= relative);
-            if (hit < 0 || hit + _top >= _visible.Count) { return false; }
+            if (hit < 0 || hit + _top >= _visible.Count || relative >= _rowEnds[hit] || relative == _positionLine) { return false; }
             if (input.MouseAction == MouseAction.Down && input.MouseButton == 1) {
                 _cursor = hit + _top;
                 _dragAnchor = _cursor;

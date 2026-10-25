@@ -13,6 +13,7 @@ namespace ConsoleMonster.Widgets {
         private InputControl? _lastFocus;
         private bool _revealRequested = true;
         private Size _lastSize;
+        private bool _hasRendered;
         internal int ViewportHeight { get; set; } = Constraints.Unbounded;
         /// <summary>Creates a viewport over one stable content tree.</summary>
         /// <param name="content">The content to clip and scroll.</param>
@@ -22,7 +23,7 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Maximum rows composed for non-virtualized content. Use a list, grid or log for larger data.</summary>
         public int MaxContentHeight { get; set; } = 16384;
         /// <summary>The first visible content row, clamped after measurement.</summary>
-        public int ScrollOffset { get { lock (_gate) { return _offset; } } set { lock (_gate) { _offset = Math.Max(0, value); } } }
+        public int ScrollOffset { get { lock (_gate) { return _offset; } } set { lock (_gate) { _offset = Math.Max(0, value); _revealRequested = false; } } }
         /// <inheritdoc />
         public IReadOnlyList<IWidget> Children => new[] { Content };
         /// <summary>Moves the viewport by a number of rows.</summary>
@@ -49,7 +50,8 @@ namespace ConsoleMonster.Widgets {
                     Content.Render(new Region(content), context);
                     Rect? focus = InputArrangement.FocusWithin(Content);
                     InputControl? current = InputArrangement.CurrentFocus;
-                    bool reveal = _revealRequested || current != _lastFocus || _lastSize.Width != region.Width || _lastSize.Height != region.Height;
+                    bool reveal = _revealRequested || _hasRendered && (current != _lastFocus || _lastSize.Width != region.Width || _lastSize.Height != region.Height);
+                    _hasRendered = true;
                     _lastFocus = current; _lastSize = new Size(region.Width, region.Height); _revealRequested = false;
                     if (reveal && focus.HasValue) {
                         if (focus.Value.Y < _offset) { _offset = focus.Value.Y; }

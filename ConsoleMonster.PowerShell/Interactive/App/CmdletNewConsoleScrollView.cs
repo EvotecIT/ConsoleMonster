@@ -30,7 +30,8 @@ namespace ConsoleMonster.PowerShell {
         protected override void ProcessRecord() {
             List<IWidget> children = PSWidgets.CollectAny(Content, this);
             if (Widget != null) { children.Add(Widget); }
-            ScrollView scroll = new ScrollView(children.Count == 1 ? children[0] : new Rows(children.ToArray())) { ScrollOffset = ScrollOffset, MaxContentHeight = MaxContentHeight };
+            ScrollView scroll = new ScrollView(children.Count == 1 ? children[0] : new Rows(children.ToArray())) { MaxContentHeight = MaxContentHeight };
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(ScrollOffset))) { scroll.ScrollOffset = ScrollOffset; }
             WriteObject(PSWidgets.WithSize(scroll, Weight, Height, Fill.IsPresent));
         }
     }

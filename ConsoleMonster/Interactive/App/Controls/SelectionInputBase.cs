@@ -13,6 +13,7 @@ namespace ConsoleMonster.Interactive {
         private object? _value;
         private bool _pointerDown;
         private bool _dragged;
+        private Choice? _pointerOrigin;
 
         /// <summary>Creates a selection input backed by the canonical choice editor.</summary>
         /// <param name="key">The application-state key.</param>
@@ -107,8 +108,12 @@ namespace ConsoleMonster.Interactive {
         protected override bool HandlePointerCore(InputEvent input, RenderContext context) {
             Configure(context);
             bool handled = _list.HandlePointer(input);
-            if (input.MouseAction == MouseAction.Down && input.MouseButton == 1) { _pointerDown = handled; _dragged = false; }
+            if (input.MouseAction == MouseAction.Down && input.MouseButton == 1) {
+                _pointerDown = handled; _dragged = false;
+                _pointerOrigin = handled ? _list.FocusedChoice : null;
+            }
             if (_pointerDown && input.MouseAction == MouseAction.Move && (input.HeldButtons & 1) != 0 && handled) {
+                if (_multiple && !_dragged && _pointerOrigin != null) { _list.SetSelected(_pointerOrigin, true); }
                 _dragged = true;
                 if (_multiple && _list.FocusedChoice is Choice choice) { _list.SetSelected(choice, true); }
             }
@@ -117,12 +122,12 @@ namespace ConsoleMonster.Interactive {
                     if (_multiple) { if (!_dragged) { _list.ToggleFocused(); } }
                     else { Accept(_list.FocusedChoice); }
                 }
-                _pointerDown = false;
+                CancelPointer();
             }
             return handled;
         }
 
-        internal override void CancelPointer() { _pointerDown = false; _dragged = false; }
+        internal override void CancelPointer() { _pointerDown = false; _dragged = false; _pointerOrigin = null; }
 
         /// <inheritdoc />
         protected override Size MeasureContent(Constraints constraints, RenderContext context) {

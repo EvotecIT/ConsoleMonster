@@ -23,6 +23,18 @@ namespace ConsoleMonster.Tests.Interactive.App {
         }
 
         [Fact]
+        public void ExplicitInitialOffset_IsPreservedUntilFocusNavigation() {
+            TextInput first = new TextInput("first");
+            ScrollView view = new ScrollView(new Rows().Add(first, LayoutSize.Fixed(3)).Add(new TextBlock("lower content"), LayoutSize.Fixed(12))) { ScrollOffset = 3 };
+            using AppController app = new AppController(view, new AppState(), Context, 60);
+            app.PrepareFrame(40, 7);
+            Assert.Equal(3, view.ScrollOffset);
+            app.Handle(InputEvent.Press(ConsoleKey.Tab), true);
+            app.PrepareFrame(40, 7);
+            Assert.Equal(0, view.ScrollOffset);
+        }
+
+        [Fact]
         public void WheelScroll_PreservesManualPositionUntilKeyboardNavigationRevealsFocus() {
             TextInput first = new TextInput("first");
             ScrollView view = new ScrollView(new Rows().Add(first, LayoutSize.Fixed(3)).Add(new TextBlock("lower content"), LayoutSize.Fixed(12)));

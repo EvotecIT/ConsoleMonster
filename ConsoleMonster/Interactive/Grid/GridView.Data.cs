@@ -158,6 +158,9 @@ namespace ConsoleMonster.Interactive {
                 CellBuffer buffer = view._table.RenderWindow(region.Width, view._top, count, context, out int headHeight, out List<int> rowLines, out string? hidden);
                 view._bodyBounds = region.Bounds;
                 view._rowLines = rowLines;
+                view._rowEnds = new List<int>(rowLines.Count);
+                for (int index = 0; index < rowLines.Count; index++) { view._rowEnds.Add(index + 1 < rowLines.Count ? rowLines[index + 1] : buffer.Height); }
+                view._positionLine = -1;
                 for (int y = 0; y < buffer.Height && y < region.Height; y++) {
                     for (int x = 0; x < buffer.Width && x < region.Width; x++) {
                         Cell cell = buffer[x, y];
@@ -186,6 +189,7 @@ namespace ConsoleMonster.Interactive {
                     + " of " + view._visible.Count.ToString(view._culture) : null;
                 string? footer = position == null ? hidden : position + (hidden == null ? "" : " · " + hidden);
                 if (footer != null && region.Height > 0) {
+                    view._positionLine = region.Height - 1;
                     string note = TextWrapper.Truncate(footer, region.Width, context.Ellipsis);
                     region.Write(Math.Max(0, region.Width - DisplayWidth.Measure(note)), region.Height - 1, note, context.Style(ThemeToken.Muted));
                 }

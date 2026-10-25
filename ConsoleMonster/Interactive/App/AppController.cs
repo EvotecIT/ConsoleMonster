@@ -60,6 +60,7 @@ namespace ConsoleMonster.Interactive {
         internal CellBuffer PrepareFrame(int width, int height) => Rendering.FrameComposer.Compose(Root, width, height, _context);
 
         internal void Handle(InputEvent input, bool mouse) {
+            bool pointerHandled = false;
             if (input.Kind == InputEventKind.FocusLost || input.Kind == InputEventKind.Resize) { _pointerCapture?.CancelPointer(); _pointerCapture = null; }
             if (_actions.HasCommands && (input.Kind != InputEventKind.Mouse || mouse) && _actions.Handle(input)) { Invalidate(); return; }
             if (input.Kind != InputEventKind.Mouse && input.Kind != InputEventKind.FocusLost && input.Kind != InputEventKind.FocusGained) { _viewport.RevealFocus(); }
@@ -72,7 +73,7 @@ namespace ConsoleMonster.Interactive {
                     if (input.MouseAction == MouseAction.Down && input.MouseButton == 1 && _viewport.FocusAt(input.Column, input.Row)) { _pointerCapture = _focus.Current; }
                     InputControl? target = _pointerCapture ?? _focus.Current;
                     if (input.MouseAction == MouseAction.Wheel && _viewport.Scroll(input)) { Invalidate(); return; }
-                    if (target != null) { target.HandleInput(_viewport.TranslatePointer(target, input), _context); }
+                    if (target != null) { pointerHandled = target.HandleInput(_viewport.TranslatePointer(target, input), _context); }
                     if (input.MouseAction == MouseAction.Up) { _pointerCapture = null; }
                 }
             } else {
@@ -83,7 +84,7 @@ namespace ConsoleMonster.Interactive {
                 if (!handled && input.Is(ConsoleKey.Escape)) { _state.RequestExit(); }
                 else if (!handled && input.Is(ConsoleKey.Enter)) { _focus.MoveNext(); }
             }
-            Invalidate();
+            if (input.Kind != InputEventKind.Mouse || input.MouseAction != MouseAction.Move || input.HeldButtons != 0 || pointerHandled) { Invalidate(); }
         }
 
         internal void Refresh(LiveSession? session) {
