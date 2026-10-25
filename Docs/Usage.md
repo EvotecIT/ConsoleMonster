@@ -832,6 +832,9 @@ at a time; a PowerShell error stops the remaining rows. Cancellation is
 cooperative and does not roll back work already performed. `Get-Service` and
 `Restart-Service` in these examples target Windows.
 
+Use `-ConfirmPrompt 'Restart {Selection}?'` to name the focused row, or show the
+marked-row count for a batch. The host captures that target before work starts.
+
 The C# equivalent is `AppCommand` in `GridOptions.Commands`. Its asynchronous
 callback receives `AppActionContext.Rows`, `Write` and a cancellation token.
 `new Button(command)` and `ConsoleAppOptions.Commands` reuse that definition

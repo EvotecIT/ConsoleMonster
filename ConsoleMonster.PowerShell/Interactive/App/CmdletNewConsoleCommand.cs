@@ -18,7 +18,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter] public string? Label { get; set; }
         /// <summary><para type="description">Optional key chord, for example Ctrl+R or F5.</para></summary>
         [Parameter] public string? Shortcut { get; set; }
-        /// <summary><para type="description">Optional modal confirmation title. No is the initial answer.</para></summary>
+        /// <summary><para type="description">Optional modal confirmation text. {Selection} expands to the focused row label or marked-row count. No is the initial answer.</para></summary>
         [Parameter] public string? ConfirmPrompt { get; set; }
         /// <summary><para type="description">Operation source, receiving param($Row, ...explicit arguments). Closure variables are not inherited.</para></summary>
         [Parameter(Mandatory = true)] public ScriptBlock ScriptBlock { get; set; } = null!;

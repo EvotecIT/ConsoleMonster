@@ -2,26 +2,27 @@
   "format": "consolemonster-session",
   "version": 1,
   "recording": true,
-  "started": "2026-10-25T11:05:55.4612090+00:00",
+  "started": "2026-10-25T11:51:40.6664220+00:00",
   "host": "[REDACTED]",
   "mode": "openpty",
   "sizeLimitReached": false,
   "markers": [
     [
-      4543,
+      4254,
       "Browse services"
     ],
     [
-      5346,
+      5056,
       "Confirm restart"
     ],
     [
-      7374,
+      6802,
       "Output stays in the app"
     ],
     [
-      11082,
+      10506,
       "Ready for the next action"
     ]
-  ]
+  ],
+  "redactionFallbacks": 0
 }

@@ -3,6 +3,7 @@ using ConsoleMonster.Canvas;
 using ConsoleMonster.Input;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Text;
+using ConsoleMonster.Styling;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>A keyboard action button whose value counts activations.</summary>
@@ -22,12 +23,17 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Creates an action button.</summary>
         /// <param name="key">The application-state key.</param>
         /// <param name="label">The caption; null uses the name.</param>
-        public Button(string key, string? label = null) : base(key) {
+        public Button(string key, string? label = null) : this(key, label, true) { }
+
+        internal Button(string key, string? label, bool chrome) : base(key, chrome) {
+            _compact = !chrome;
             Label = label;
             // InputControl raises Changed after releasing its state lock. Forwarding here
             // keeps synchronous application callbacks safe to read or edit other controls.
             Changed += (_, __) => Clicked?.Invoke(this, EventArgs.Empty);
         }
+
+        private readonly bool _compact;
 
         /// <summary>The number of handled Enter or Space activations, initially zero.</summary>
         public int Value => Read(() => _value);
@@ -65,8 +71,15 @@ namespace ConsoleMonster.Interactive {
             new Size(constraints.MaxWidth, Math.Min(1, constraints.MaxHeight));
 
         /// <inheritdoc />
-        protected override void RenderContent(Region region, RenderContext context) =>
-            region.Write(0, 0, new StyledLine(Buttons.Spans(new[] { Label ?? Key }, 0, context,
-                Focused && Enabled, blocked: Enabled ? -1 : 0)));
+        protected override void RenderContent(Region region, RenderContext context) {
+            if (_compact) {
+                Style style = context.Style(Focused && Enabled ? ThemeToken.Focus : Enabled ? ThemeToken.Text : ThemeToken.Muted);
+                string pointer = Focused && Enabled ? InteractiveGlyphs.For(context).Pointer + " " : "  ";
+                region.Write(0, 0, pointer + "[ " + (Label ?? Key) + " ]", Focused ? style.With(TextDecoration.Bold) : style);
+            } else {
+                region.Write(0, 0, new StyledLine(Buttons.Spans(new[] { Label ?? Key }, 0, context,
+                    Focused && Enabled, blocked: Enabled ? -1 : 0)));
+            }
+        }
     }
 }

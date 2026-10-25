@@ -49,7 +49,7 @@ Accept wildcard characters: False
 ```
 
 ### -ConfirmPrompt
-Optional modal confirmation title. No is the initial answer.
+Optional modal confirmation text. {Selection} expands to the focused row label or marked-row count. No is the initial answer.
 
 ```yaml
 Type: String

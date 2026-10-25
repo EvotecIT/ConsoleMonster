@@ -89,7 +89,7 @@ namespace ConsoleMonster.Interactive {
             Table table = new Table { Border = TableBorder.Minimal, CardsBelow = 0, RecordViewRows = 0, Presentation = _grid.Presentation, StableWidths = false };
             bool marks = _grid.Selection == GridSelection.Multiple;
             if (marks) {
-                table.AddColumn(new TableColumn(" ") { IsKey = true, Width = 1, Alignment = HorizontalAlignment.Left });
+                table.AddColumn(new TableColumn(_actions?.HasCommands == true ? context.Glyphs.Get(Glyph.Check) : " ") { IsKey = true, Width = 1, Alignment = HorizontalAlignment.Left });
             }
             List<int> shown = ShownColumns();
             foreach (int c in shown) {
@@ -97,7 +97,7 @@ namespace ConsoleMonster.Interactive {
                 TableColumn column = new TableColumn(source.Header) {
                     Key = source.Key,
                     Alignment = source.Alignment,
-                    Presenter = source.Presenter,
+                    Presenter = source.Presenter ?? (_actions?.HasCommands == true && _grid.Rows.Count > 0 && c < _grid.Rows[0].Values.Count ? CellPresenters.ForStatus(source.Key ?? Markup.Strip(source.Header), _grid.Rows[0].Values[c]) : null),
                     Priority = source.Priority,
                     IsKey = source.IsKey,
                     Flexible = source.Flexible,

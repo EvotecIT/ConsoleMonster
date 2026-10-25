@@ -24,7 +24,7 @@ namespace SiteFrames.Tests {
             JsonArray[] events = lines.Skip(1).Select(line => (JsonArray)JsonNode.Parse(line)!).ToArray();
             Assert.Equal(resizes, events.Count(item => item[1]!.GetValue<string>() == "r"));
             string output = string.Concat(events.Where(item => item[1]!.GetValue<string>() == "o").Select(item => item[2]!.GetValue<string>()));
-            Assert.Contains("Restart the selected services?", output);
+            Assert.Contains("Restart WinRM?", output);
             Assert.Contains("Restart: completed", output);
             Assert.Contains("\u001b[?1006h", output);
             Assert.Contains("\u001b[?1049h", output);
@@ -34,6 +34,8 @@ namespace SiteFrames.Tests {
             Assert.Contains("Service browser", completed);
             Assert.Contains("Restart: completed", completed);
             Assert.Contains("WinRM", completed);
+            string preview = Path.Combine(root.FullName, "Website", "static", "recordings", "fullscreen", name);
+            Assert.Contains("Service browser", ConsoleExporter.ToText(SessionRecording.Read(preview).FrameAt(TimeSpan.Zero)));
         }
     }
 }

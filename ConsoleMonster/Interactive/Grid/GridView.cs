@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Glyphs;
 using ConsoleMonster.Input;
@@ -39,7 +40,7 @@ namespace ConsoleMonster.Interactive {
 
         public GridView(Grid grid, GridOptions options, PromptLabels labels, System.Threading.CancellationToken cancellationToken = default) : base(labels) {
             _grid = grid;
-            if (options.Commands.Count > 0 || options.Dispatcher != null) { _actions = new AppCommandHost(options.Commands, ActionRows, labels, cancellationToken, commandBar: true, requiresRows: true, dispatcher: options.Dispatcher); }
+            if (options.Commands.Count > 0 || options.Dispatcher != null) { _actions = new AppCommandHost(options.Commands, ActionRows, labels, cancellationToken, commandBar: true, requiresRows: true, dispatcher: options.Dispatcher, selectionLabel: ActionSelectionLabel); }
             _filter = new LineEditor(options.Filter);
             _hidden = new bool[grid.Columns.Count];
             for (int c = 0; c < grid.Columns.Count; c++) {
@@ -133,10 +134,18 @@ namespace ConsoleMonster.Interactive {
             rows.Add(new Padding(filter, 1, 1, 1, 0), LayoutSize.Fixed(2));
             Panel panel = new Panel(new GridBody(this), SortTitle()) { BorderRole = ThemeToken.Accent };
             if (_actions?.HasCommands == true) {
-                rows.Add(new Columns(panel, new Panel(new GridActionDetails(this), "Selected row")) { CollapseBelow = 70 }, LayoutSize.Fraction());
+                Columns panes = new Columns { CollapseBelow = 70 };
+                panes.Add(panel, LayoutSize.Fraction(3)).Add(new Panel(new GridActionDetails(this), "Selected row"), LayoutSize.Fraction(2));
+                rows.Add(panes, LayoutSize.Fraction());
             } else { rows.Add(panel, LayoutSize.Fraction()); }
             List<KeyBinding> bindings = new List<KeyBinding>();
             AddBindings(bindings, frame);
+            if (_actions?.HasCommands == true) {
+                foreach (KeyBinding binding in bindings) { binding.InFooter = false; }
+                bindings.Add(new KeyBinding(Labels.KeyMove, () => Move(-1), new KeyChord(ConsoleKey.UpArrow)) { KeyText = "↑↓", Order = 10 });
+                bindings.Add(new KeyBinding("mark", ToggleMark, new KeyChord(ConsoleKey.Spacebar)) { KeyText = "Space", Order = 15 });
+                bindings.Add(new KeyBinding("close", Escape, new KeyChord(ConsoleKey.Escape)) { KeyText = "Esc", Order = 20 });
+            }
             _actions?.AddBindings(bindings);
             IWidget body = rows;
             if (_actions != null) { body = new Rows().Add(_actions.Wrap(rows), LayoutSize.Fraction()).Add(new KeyFooter(bindings) { Toast = CurrentToast }, LayoutSize.Fixed(1)); }
@@ -146,6 +155,14 @@ namespace ConsoleMonster.Interactive {
                 return new Overlay(body, top.Build(frame, frame.Caret), dim: true) { Top = top.Top, MaxWidth = top.MaxWidth };
             }
             return body;
+        }
+
+        private string ActionSelectionLabel() {
+            Refresh();
+            int marked = _visible.Count(index => _marked.Contains(index));
+            if (marked > 1) { return marked.ToString(_culture) + " rows"; }
+            int index = marked == 1 ? _visible.Find(item => _marked.Contains(item)) : _visible.Count > 0 ? _visible[_cursor] : -1;
+            return index >= 0 && _grid.Rows[index].Values.Count > 0 ? PresenterValues.ToText(_grid.Rows[index].Values[0], _culture) : "selected row";
         }
 
         private string? SortTitle() {

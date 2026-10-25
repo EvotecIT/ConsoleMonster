@@ -15,11 +15,11 @@ namespace ConsoleMonster.Interactive {
 
         internal CommandModal(string title, Action accept, PromptLabels labels) {
             _labels = labels;
-            Button yes = new Button("Accept", labels.Yes);
-            Button no = new Button("Cancel", labels.No);
+            Button yes = new Button("Accept", labels.Yes, false);
+            Button no = new Button("Cancel", labels.No, false);
             yes.Clicked += (_, __) => { Close(); accept(); };
             no.Clicked += (_, __) => Close();
-            _content = DialogChrome.Frame(new Rows(TextBlock.Plain(title), new Columns(yes, no)), title);
+            _content = DialogChrome.Frame(new Rows(TextBlock.Plain(title), new Columns().Add(yes, LayoutSize.Fixed(12)).Add(no, LayoutSize.Fixed(12))), labels.KeyConfirm);
             _focus = new FocusManager(_content);
             _focus.Focus(no);
         }

@@ -3,23 +3,23 @@ Describe 'In-app command actions' {
         Import-Module (Join-Path $PSScriptRoot '../ConsoleMonster.psd1') -Force
         function Invoke-ActionGrid {
             param($Command, [string] $Keys)
-            $profile = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed(100, 30)
-            $capture = [ConsoleMonster.Interactive.ScreenCapture]::new(100, 30)
-            $inputSource = [ConsoleMonster.Input.ScriptedInput]::new($Keys)
+            $profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed(100, 30)
+            $capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(100, 30)
+            $inputSource = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new($Keys)
             $inputSource.Paced = $true
             $inputSource.RealTime = $true
-            $previous = [ConsoleMonster.Interactive.InteractiveOptions]::Default
+            $previous = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default
             $options = $previous.Clone()
             $options.Mode = 'Rich'
             $options.Profile = $profile
             $options.Input = $inputSource
             $options.Capture = $capture
             try {
-                [ConsoleMonster.Interactive.InteractiveOptions]::Default = $options
+                ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default = $options
                 $rows = @([pscustomobject] @{ Name = 'One' }, [pscustomobject] @{ Name = 'Two' })
                 $null = $rows | Show-ConsoleGrid -Property Name -Title Services -Action $Command -ErrorAction Stop
                 return ($capture.Frames | ForEach-Object { $_.ToPlainText() }) -join "`n"
-            } finally { [ConsoleMonster.Interactive.InteractiveOptions]::Default = $previous; $inputSource.Dispose() }
+            } finally { ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default = $previous; $inputSource.Dispose() }
         }
     }
 
@@ -38,7 +38,7 @@ Describe 'In-app command actions' {
         $text | Should -Match 'Streamed warning'
         $text | Should -Match 'Check: completed'
         $text | Should -Match 'Selected row'
-        [ConsoleMonster.Input.ConsoleInput]::IsAcquired | Should -BeFalse
+        ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::IsAcquired | Should -BeFalse
     }
 
     It 'confirms hashtable shorthand before running the selected row through the palette' {
@@ -57,6 +57,6 @@ Describe 'In-app command actions' {
         $text = Invoke-ActionGrid $command 'F5 wait:2500 F6 wait:1000 Escape'
         $text | Should -Match 'Operation started'
         $text | Should -Match 'Wait: cancelled'
-        [ConsoleMonster.Input.ConsoleInput]::IsAcquired | Should -BeFalse
+        ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::IsAcquired | Should -BeFalse
     }
 }

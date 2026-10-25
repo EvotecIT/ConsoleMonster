@@ -20,7 +20,7 @@ namespace ConsoleMonster.Interactive {
         public string Label { get; }
         /// <summary>Optional keyboard shortcut. Text editing retains precedence over plain character shortcuts.</summary>
         public KeyChord? Shortcut { get; set; }
-        /// <summary>Optional modal confirmation title. Its default answer is No.</summary>
+        /// <summary>Optional modal confirmation text. {Selection} expands to the captured row label or row count. Its default answer is No.</summary>
         public string? ConfirmPrompt { get; set; }
         /// <summary>The operation, which receives captured rows and cooperative cancellation.</summary>
         public Func<AppActionContext, CancellationToken, Task> Action { get; }

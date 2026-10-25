@@ -26,8 +26,10 @@ namespace ConsoleMonster.Interactive {
         private bool _barActive;
         private Button? _barCapture;
         private readonly List<Action> _detach = new List<Action>();
+        private readonly Func<string>? _selectionLabel;
 
-        internal AppCommandHost(IEnumerable<AppCommand> commands, Func<IReadOnlyList<object?>> selection, PromptLabels labels, CancellationToken token, bool commandBar = false, bool requiresRows = false, AppDispatcher? dispatcher = null) {
+        internal AppCommandHost(IEnumerable<AppCommand> commands, Func<IReadOnlyList<object?>> selection, PromptLabels labels, CancellationToken token, bool commandBar = false, bool requiresRows = false, AppDispatcher? dispatcher = null, Func<string>? selectionLabel = null) {
+            _selectionLabel = selectionLabel;
             _commands = new List<AppCommand>(commands).ToArray();
             HashSet<string> keys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             HashSet<KeyChord> shortcuts = new HashSet<KeyChord>();
@@ -40,9 +42,10 @@ namespace ConsoleMonster.Interactive {
             if (commandBar && _commands.Length > 0) {
                 Columns buttons = new Columns();
                 foreach (AppCommand command in _commands) {
-                    Button button = new Button(command);
+                    string caption = command.Label + (command.Shortcut.HasValue ? " " + command.Shortcut.Value.ToString().ToUpperInvariant() : "");
+                    Button button = new Button(command.Key, caption, false);
                     Bind(button, command);
-                    buttons.Add(button);
+                    buttons.Add(button, LayoutSize.Fixed(ConsoleMonster.Text.DisplayWidth.Measure(caption) + 6));
                 }
                 _commandBar = buttons;
                 _barFocus = new FocusManager(buttons);
@@ -74,7 +77,10 @@ namespace ConsoleMonster.Interactive {
                 IReadOnlyList<object?> rows = command.Capture(_selection());
                 if (_requiresRows && rows.Count == 0) { return; }
                 if (string.IsNullOrWhiteSpace(command.ConfirmPrompt)) { _session.Start(command, rows); }
-                else { ReplaceModal(new CommandModal(command.ConfirmPrompt!, () => _session.Start(command, rows), _labels)); }
+                else {
+                    string target = _selectionLabel?.Invoke() ?? (rows.Count == 1 ? Convert.ToString(rows[0]) ?? "1 item" : rows.Count + " items");
+                    ReplaceModal(new CommandModal(command.ConfirmPrompt!.Replace("{Selection}", target), () => _session.Start(command, rows), _labels));
+                }
             }
         }
 
@@ -137,12 +143,12 @@ namespace ConsoleMonster.Interactive {
         internal IWidget Wrap(IWidget content) => HasCommands ? new Surface(this, content) : content;
         internal void AddBindings(List<KeyBinding> bindings) {
             if (!HasCommands) { return; }
-            if (_commandBar != null) { bindings.Add(new KeyBinding("Focus actions", () => { _barActive = !_barActive; SetBarFocus(); }, new KeyChord(ConsoleKey.F8))); }
-            bindings.Add(new KeyBinding("Actions", () => { lock (_gate) { ReplaceModal(new CommandModal(_commands, Invoke, _labels)); } }, new KeyChord(ConsoleKey.K, KeyModifiers.Control)));
+            if (_commandBar != null) { bindings.Add(new KeyBinding("actions", () => { _barActive = !_barActive; SetBarFocus(); }, new KeyChord(ConsoleKey.F8)) { KeyText = "F8" }); }
+            bindings.Add(new KeyBinding("palette", () => { lock (_gate) { ReplaceModal(new CommandModal(_commands, Invoke, _labels)); } }, new KeyChord(ConsoleKey.K, KeyModifiers.Control)) { KeyText = "Ctrl+K", Order = 31 });
             foreach (AppCommand command in _commands) {
-                if (command.Shortcut.HasValue) { bindings.Add(new KeyBinding(command.Label, () => Invoke(command), command.Shortcut.Value)); }
+                if (command.Shortcut.HasValue) { bindings.Add(new KeyBinding(command.Label, () => Invoke(command), command.Shortcut.Value) { KeyText = command.Shortcut.Value.ToString().ToUpperInvariant(), Order = 30 }); }
             }
-            bindings.Add(new KeyBinding("Cancel action", _session.Cancel, new KeyChord(ConsoleKey.F6)) { InFooter = _session.IsBusy });
+            bindings.Add(new KeyBinding("cancel action", _session.Cancel, new KeyChord(ConsoleKey.F6)) { InFooter = _session.IsBusy, KeyText = "F6", Order = 32 });
         }
 
         internal void Bind(Button button, AppCommand command) {
@@ -165,15 +171,18 @@ namespace ConsoleMonster.Interactive {
             internal Surface(AppCommandHost host, IWidget content) { _host = host; _content = content; }
             public IReadOnlyList<IWidget> Children => new[] { _content };
             public Size Measure(Constraints constraints, RenderContext context) => new Size(constraints.MaxWidth,
-                constraints.IsHeightUnbounded ? _content.Measure(new Constraints(constraints.MaxWidth, 30), context).Height + 7 : constraints.MaxHeight);
+                constraints.IsHeightUnbounded ? _content.Measure(new Constraints(constraints.MaxWidth, 30), context).Height + 7 + (_host._commandBar?.Measure(new Constraints(constraints.MaxWidth, 30), context).Height ?? 0) : constraints.MaxHeight);
             public void Render(Region region, RenderContext context) {
                 lock (_host._gate) {
                     int logHeight = region.Height < 12 ? 3 : Math.Min(7, region.Height / 3);
                     _host._logBounds = new Rect(region.Bounds.X, region.Bounds.Y + region.Height - logHeight, region.Width, logHeight);
-                    LogRegion log = new LogRegion("actions") { ShowTime = false, ScrollOffset = _host._logScroll };
+                    LogRegion log = new LogRegion("actions") { ShowElapsed = true, LevelColumn = new ColumnFormat(HorizontalAlignment.Left, 4), ScrollOffset = _host._logScroll };
                     foreach (LogEntry entry in _host._session.Output) { log.Write(entry); }
                     Rows rows = new Rows().Add(_content, LayoutSize.Fraction());
-                    if (_host._commandBar != null) { rows.Add(_host._commandBar, LayoutSize.Fixed(3)); }
+                    if (_host._commandBar != null) {
+                        int height = _host._commandBar.Measure(new Constraints(region.Width, Math.Max(1, region.Height - logHeight - 1)), context).Height;
+                        rows.Add(_host._commandBar, LayoutSize.Fixed(height));
+                    }
                     IWidget body = rows.Add(new Panel(log, _host.IsBusy ? "Action running · F6 cancels" : "Action output · Alt+PgUp/PgDn scroll"), LayoutSize.Fixed(logHeight));
                     _host._frame = new ViewFrame(context, region.Width, region.Height, false, context.Elapsed);
                     if (_host._modal != null && !_host._modal.IsClosed) {

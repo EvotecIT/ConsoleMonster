@@ -36,7 +36,7 @@
       {
         "keys": "F5",
         "incomplete": true,
-        "contains": "Restart the selected services?"
+        "contains": "Restart Spooler?"
       },
       {
         "keys": "F5 Left Enter wait:2500 Escape",

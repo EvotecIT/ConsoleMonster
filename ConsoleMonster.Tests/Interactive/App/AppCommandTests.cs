@@ -26,13 +26,15 @@ namespace ConsoleMonster.Tests.Interactive.App {
             IReadOnlyList<object?>? received = null;
             AppCommand restart = new AppCommand("restart", "Restart", (context, token) => {
                 received = context.Rows; context.Write("Restarted " + context.Rows[0]); finished.Set(); return Task.CompletedTask;
-            }) { ConfirmPrompt = "Restart the selected service?", Shortcut = new KeyChord(ConsoleKey.F5) };
+            }) { ConfirmPrompt = "Restart {Selection}?", Shortcut = new KeyChord(ConsoleKey.F5) };
             using AppCommandHost host = new AppCommandHost(new[] { restart }, () => selected, new PromptLabels(), default);
             host.Invoke(restart);
             selected[0] = "WinRM";
             Assert.True(host.HasModal);
             Assert.False(host.IsBusy);
-            FrameComposer.Compose(host.Wrap(new TextBlock("Services remain open")), 100, 30, Context);
+            string confirmation = FrameComposer.Compose(host.Wrap(new TextBlock("Services remain open")), 100, 30, Context).ToPlainText();
+            Assert.Contains("Restart Spooler?", confirmation);
+            Assert.DoesNotContain("Restart WinRM?", confirmation);
             host.Handle(InputEvent.Press(ConsoleKey.LeftArrow));
             host.Handle(InputEvent.Press(ConsoleKey.Enter));
             Assert.True(finished.Wait(TimeSpan.FromSeconds(5)));
@@ -139,12 +141,20 @@ namespace ConsoleMonster.Tests.Interactive.App {
             AppCommand command = new AppCommand("run", "Run", (_, __) => Task.CompletedTask);
             using AppCommandHost host = new AppCommandHost(new[] { command }, () => Array.Empty<object?>(), new PromptLabels(), default, commandBar: true);
             FrameComposer.Compose(host.Wrap(new TextBlock("body")), 100, 29, Context);
-            host.Handle(InputEvent.Mouse(5, 20, 1, true));
-            host.Handle(InputEvent.Mouse(5, 20, 1, false));
+            host.Handle(InputEvent.Mouse(5, 21, 1, true));
+            host.Handle(InputEvent.Mouse(5, 21, 1, false));
             Assert.True(host.HasBarFocus);
             Assert.False(host.Handle(InputEvent.Mouse(5, 5, 1, true)));
             Assert.False(host.HasBarFocus);
             Assert.False(host.Handle(InputEvent.Press(ConsoleKey.Enter)));
+        }
+
+        [Fact]
+        public void NarrowActionBar_KeepsEveryWrappedPrimaryActionVisible() {
+            AppCommand[] commands = new[] { "Restart", "Stop", "Start" }.Select(label => new AppCommand(label, label, (_, __) => Task.CompletedTask)).ToArray();
+            using AppCommandHost host = new AppCommandHost(commands, () => Array.Empty<object?>(), new PromptLabels(), default, commandBar: true);
+            string frame = FrameComposer.Compose(host.Wrap(new TextBlock("Services")), 30, 12, Context).ToPlainText();
+            foreach (AppCommand command in commands) { Assert.Contains("[ " + command.Label + " ]", frame); }
         }
 
         [Fact]
@@ -159,7 +169,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
             options.Interactive = PromptHarness.Options("", surface);
             options.Interactive.Profile = TerminalProfile.Fixed(100, 30);
             options.Interactive.Input = new ScriptedInput(new[] {
-                InputEvent.Mouse(5, 20, 1, true), InputEvent.Resized(100, 30), InputEvent.Mouse(5, 20, 1, false),
+                InputEvent.Mouse(5, 21, 1, true), InputEvent.Resized(100, 30), InputEvent.Mouse(5, 21, 1, false),
                 InputEvent.Press(ConsoleKey.Escape), InputEvent.Press(ConsoleKey.Escape)
             }) { Paced = true };
             PromptHarness.Guard(surface, () => grid.Show(options));

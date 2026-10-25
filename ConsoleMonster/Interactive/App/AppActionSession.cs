@@ -30,7 +30,6 @@ namespace ConsoleMonster.Interactive {
                 _operation = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
                 CancellationToken token = _operation.Token;
                 var captured = Array.AsReadOnly(rows.ToArray());
-                Write(command.Label, "info");
                 _work = Task.Run(async () => {
                     try {
                         token.ThrowIfCancellationRequested();
