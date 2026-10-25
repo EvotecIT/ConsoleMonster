@@ -367,12 +367,12 @@ Show-ConsoleMenu $menu -Layout Inline
         }
 
         It 'rejects calculated selectors for loaded choices instead of silently dropping their metadata' {
-            { New-ConsoleField -Name Server -Type Select -LoadChoices { 'api' } -Describe { "Server $_" } -ErrorAction Stop } | Should -Throw '*property names*'
+            { New-ConsoleField -Key Server -Type Select -LoadChoices { 'api' } -Describe { "Server $_" } -ErrorAction Stop } | Should -Throw '*property names*'
             { New-ConsoleMenuItem -Title Targets -LoadChoices { 'api' } -Describe { "Server $_" } -ErrorAction Stop } | Should -Throw '*property names*'
         }
 
         It 'omits an unchanged loaded command value from the equivalent command' {
-            $field = New-ConsoleField -Name Server -Type Select -Default SRV01 -Display Name -CommandValue Name -Parameter ComputerName -LoadChoices {
+            $field = New-ConsoleField -Key Server -Type Select -Default SRV01 -Display Name -CommandValue Name -ParameterName ComputerName -LoadChoices {
                 [pscustomobject] @{ Name = 'SRV01'; Role = 'Web' }
                 [pscustomobject] @{ Name = 'SRV02'; Role = 'Database' }
             }
@@ -388,9 +388,9 @@ Show-ConsoleMenu $menu -Layout Inline
 
         It 'applies page descriptions while preserving the form description and defaults for other pages' {
             $fields = @(
-                New-ConsoleField -Name Domain -Label Domain -Page Scope
-                New-ConsoleField -Name Checks -Label Checks -Page Checks
-                New-ConsoleField -Name Parallel -Label Parallel -Page Options
+                New-ConsoleField -Key Domain -Label Domain -Page Scope
+                New-ConsoleField -Key Checks -Label Checks -Page Checks
+                New-ConsoleField -Key Parallel -Label Parallel -Page Options
             )
             $form = New-ConsoleForm -Title Fleet -Description 'Choose the scope, checks and run options.' -Field $fields -PageDescriptions @{
                 Scope = 'Which servers to check.'
