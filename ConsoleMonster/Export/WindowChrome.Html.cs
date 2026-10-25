@@ -44,6 +44,7 @@ namespace ConsoleMonster.Export {
             output.Append(".cm-export>.cm-window-shadow{position:absolute;left:8px;top:8px;width:calc(100% - 16px);height:calc(100% - 16px);overflow:visible;z-index:-1;pointer-events:none}\n.cm-export:has(>.cm-window-shadow)>.cm-window{filter:none}\n");
             output.Append(window).Append("{display:inline-block;position:relative;min-width:").Append(MinimumWidth(style)).Append("px;border-radius:").Append(radius)
                 .Append("px;overflow:hidden;outline:1.2px solid var(--cm-border);outline-offset:-.6px;background:var(--cm-bg);filter:drop-shadow(0px 12px 18px rgba(0,0,0,.28))}\n");
+            output.Append(window).Append(" .cm-screen{clip-path:inset(1px round 0 0 ").Append(radius - 1).Append("px ").Append(radius - 1).Append("px)}\n");
             output.Append(window).Append(" .cm-titlebar{position:relative;container-type:inline-size;min-width:").Append(MinimumWidth(style)).Append("px;height:").Append(bar)
                 .Append("px;background:var(--cm-chrome);color:var(--cm-chrome-fg);box-shadow:inset 0 -1px var(--cm-border)}\n");
             output.Append(window).Append(" .cm-title{position:absolute;left:").Append(reserve).Append("px;right:").Append(reserve)

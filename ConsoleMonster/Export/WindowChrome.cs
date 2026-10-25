@@ -12,7 +12,7 @@ namespace ConsoleMonster.Export {
             WindowChromeStyle.MacOS => 28, WindowChromeStyle.Windows => 32, WindowChromeStyle.Linux => 36, _ => 0
         };
         internal static double MinimumWidth(WindowChromeStyle style) => style switch {
-            WindowChromeStyle.MacOS => 76, WindowChromeStyle.Windows => 208, WindowChromeStyle.Linux => 96, _ => 0
+            WindowChromeStyle.MacOS => 76, WindowChromeStyle.Windows => 272, WindowChromeStyle.Linux => 96, _ => 0
         };
         internal static double Radius(WindowChromeStyle style) => style == WindowChromeStyle.Windows ? 8 : style == WindowChromeStyle.Linux ? 12 : 10;
         // A fitting budget only: the renderer retains each title's natural glyph advances.

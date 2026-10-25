@@ -57,6 +57,16 @@ namespace ConsoleMonster.Tests.Export {
         }
 
         [Fact]
+        public void NarrowWindowsExportsReserveSpaceForMenuAndWindowControls() {
+            var options = new ExportOptions { WindowChrome = true, ChromeStyle = WindowChromeStyle.Windows, FontSize = 4, Padding = 0 };
+            XElement root = XElement.Parse(ConsoleExporter.ToSvg(new CellBuffer(1, 1), options));
+            double width = N(root, "width");
+            double tabWidth = Math.Min(300, Math.Max(72, Math.Max(96, width - 230)));
+            Assert.True(16 + tabWidth + 60 + 8 <= width - 106);
+            Assert.Contains("min-width:272px", ConsoleExporter.ToHtml(new CellBuffer(1, 1), options));
+        }
+
+        [Fact]
         public void NativeSvgUsesPaintedShadowAndEmbeddedFontAscentWithoutMovingCellShapes() {
             var frame = new CellBuffer(75, 8);
             frame.Write(0, 0, "M█", Style.Plain);

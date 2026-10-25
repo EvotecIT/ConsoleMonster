@@ -177,10 +177,16 @@ namespace ConsoleMonster.Sessions {
             List<RecordingSourceFrame> samples = new List<RecordingSourceFrame>();
             List<RecordingMarker> capturedMarkers = new List<RecordingMarker>();
             TimeSpan eventTime = TimeSpan.Zero;
+            long sequence = 0;
             void ApplyEvent(CastEvent item) {
                 eventTime = item.At;
                 RecordingMarker? marker = Marker(item);
-                if (marker != null) { marker.Snapshot = Pad(screen.Snapshot(), options.Width, options.Height); capturedMarkers.Add(marker); }
+                if (marker != null) {
+                    marker.SourceSequence = ++sequence;
+                    marker.Snapshot = Pad(screen.Snapshot(), options.Width, options.Height);
+                    capturedMarkers.Add(marker);
+                    AddFrame(samples, marker.Snapshot, item.At, sequence);
+                }
                 Apply(screen, item);
             }
             double lastTime = _events.Count > 0 ? _events[_events.Count - 1].Time : 0;
@@ -193,17 +199,17 @@ namespace ConsoleMonster.Sessions {
                 int previous = completedIndex++;
                 // Retain an evenly distributed, bounded set of completed logical redraws.
                 if (completedBudget > 0 && (long)completedIndex * completedBudget / completedCount > (long)previous * completedBudget / completedCount) {
-                    AddFrame(samples, Pad(screen.Snapshot(), options.Width, options.Height), eventTime, completed: true);
+                    AddFrame(samples, Pad(screen.Snapshot(), options.Width, options.Height), eventTime, ++sequence, completed: true);
                 }
             };
             foreach (double milliseconds in RecordingTimeline.SampleTimes(lastTime * 1000, interval * 1000, regularBudget, options)) {
                 TimeSpan at = RecordingTimeline.FromMilliseconds(milliseconds);
                 while (eventIndex < _events.Count && _events[eventIndex].At <= at) { ApplyEvent(_events[eventIndex++]); }
-                if (!screen.SynchronizedOutput) { AddFrame(samples, Pad(screen.Snapshot(), options.Width, options.Height), at); }
+                if (!screen.SynchronizedOutput) { AddFrame(samples, Pad(screen.Snapshot(), options.Width, options.Height), at, ++sequence); }
             }
             while (eventIndex < _events.Count) { ApplyEvent(_events[eventIndex++]); }
             TimeSpan end = RecordingTimeline.FromMilliseconds(lastTime * 1000);
-            AddFrame(samples, Pad(screen.Snapshot(), options.Width, options.Height), end);
+            AddFrame(samples, Pad(screen.Snapshot(), options.Width, options.Height), end, ++sequence);
             for (int i = 0; i < samples.Count - 1; i++) { samples[i].Duration = samples[i + 1].Time - samples[i].Time; }
             samples[samples.Count - 1].Duration = end - samples[samples.Count - 1].Time;
             // Replace cast markers with copies carrying the exact screen at their arrival.
@@ -240,10 +246,10 @@ namespace ConsoleMonster.Sessions {
             trimmed.Blit(frame, 0, 0, frame.Width, height, 0, 0);
             return trimmed;
         }
-        private static void AddFrame(List<RecordingSourceFrame> frames, CellBuffer buffer, TimeSpan time, bool completed = false) {
+        private static void AddFrame(List<RecordingSourceFrame> frames, CellBuffer buffer, TimeSpan time, long sequence, bool completed = false) {
             if (frames.Count > 0 && RecordingFrames.Same(frames[frames.Count - 1].Frame, buffer)) { return; }
             if (frames.Count > 0 && frames[frames.Count - 1].Time == time && !frames[frames.Count - 1].Synchronized && !completed) { frames.RemoveAt(frames.Count - 1); }
-            frames.Add(new RecordingSourceFrame(buffer, time) { Synchronized = completed });
+            frames.Add(new RecordingSourceFrame(buffer, time) { Synchronized = completed, Sequence = sequence });
         }
         /// <summary>Replays sampled screens. Set trimEmptyRows to false to retain the complete terminal canvas.</summary>
         public List<RecordedFrame> CaptureFrames(RecordingExportOptions? options = null, bool trimEmptyRows = true) => Frames(Ready(options), trimEmptyRows);

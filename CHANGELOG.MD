@@ -13,6 +13,8 @@
 
 - Animated slide exports use managed GIF with a useful first frame, a final hold and native slide dimensions. External video export is removed; OS-provided video encoders remain on the roadmap.
 - Recording exports add Slow, Normal and Fast reading pace, persistent hold markers, chapter holds, source/chapter trims and chapter speeds across GIF, APNG, HTML and animated SVG. New casts preserve source timestamps so export idle compression stays reversible.
+- Terminal exports share centred regular titles, Windows Terminal tabs, rounded body clipping and an 8 px page inset across HTML, SVG and slide graphics.
+
 #### What's new
 - Whole-session recordings preserve long lines and cursor-positioned dashboard repaints beyond 64 KiB. Streaming redaction keeps secrets private across reads, colour codes, markers and resizes; complete-record patterns have an explicit, documented fallback. Playback keeps completed synchronized redraws instead of sampling halfway through a repaint. The total `MaxBytes` cap is unchanged. Explicit destinations no longer wait on default-folder availability checks.
 - Native flow strips show labelled hops, status glyphs, severed edges and one side branch, with a vertical layout in narrow terminals. PowerShell item commands and pipeline rows compose with live updates and exports. The TLS verdict showcase pairs the flow with a numbered ledger, multi-column context and a double-bordered verdict for healthy and expired certificate chains.

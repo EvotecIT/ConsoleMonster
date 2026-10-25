@@ -276,19 +276,21 @@ namespace ConsoleMonster.Tests.Sessions {
             Assert.Equal("1", metadata["redactionFallbacks"]);
         }
 
-        [Fact]
-        public void StreamingRedaction_PreservesMarkerAndResizeOrderAcrossASecret() {
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void StreamingRedaction_PreservesMarkerAndResizeOrderAcrossASecret(bool hold) {
             SessionRecordingOptions options = Options(); options.Redact.Add("synthetic-secret");
             using (SessionCastWriter writer = new SessionCastWriter(options, "test")) {
                 writer.Append(new string('a', 65530) + "synthe");
-                writer.Append("tic-" + SessionRecorder.MarkerSequence("Chapter") + "secret");
+                writer.Append("tic-" + (hold ? SessionRecorder.MarkerSequence(TimeSpan.FromSeconds(3), "Chapter") : SessionRecorder.MarkerSequence("Chapter")) + "secret");
                 writer.Resize(140, 40);
                 writer.Append("\nDone\n");
             }
             string cast = File.ReadAllText(options.Path!);
             Assert.DoesNotContain("synthe", cast); Assert.DoesNotContain("secret", cast);
             List<List<object?>> events = Events(options.Path!);
-            int marker = events.FindIndex(e => (string)e[1]! == "m");
+            int marker = events.FindIndex(e => (string)e[1]! == (hold ? "cm" : "m"));
             int resize = events.FindIndex(e => (string)e[1]! == "r");
             int done = events.FindIndex(e => (string)e[1]! == "o" && ((string)e[2]!).Contains("Done"));
             Assert.True(marker > 0 && marker < resize && resize < done);

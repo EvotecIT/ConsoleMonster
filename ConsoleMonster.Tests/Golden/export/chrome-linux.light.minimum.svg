@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="112" height="57" viewBox="0 0 112 57" role="img" aria-label="Build &lt;release&gt; &amp; verify / WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW">
 <title>Build &lt;release&gt; &amp; verify / WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW</title>
 <style>
-svg{--cm-fg:#cccccc;--cm-bg:#0c0c0c;--cm-chrome:#1f1f1f;--cm-chrome-fg:#a0a0a0}
+svg{--cm-fg:#24292f;--cm-bg:#ffffff;--cm-chrome:#1f1f1f;--cm-chrome-fg:#a0a0a0}
 svg{--cm-chrome:#e5e7eb;--cm-chrome-fg:#6b7280;--cm-chrome-title:#6b7280;--cm-tab:#ffffff;--cm-border:#8a8a94;--cm-accent:#2563eb;--cm-desk:#c9c9cf;--cm-close:#ff5f57;--cm-minimise:#febc2e;--cm-zoom:#28c840}
 .cm-t{font-family:'Cascadia Mono', 'Cascadia Code', 'DejaVu Sans Mono', Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;font-size:4px;text-anchor:middle;dominant-baseline:alphabetic;font-variant-ligatures:none}
 .cm-s{shape-rendering:crispEdges}

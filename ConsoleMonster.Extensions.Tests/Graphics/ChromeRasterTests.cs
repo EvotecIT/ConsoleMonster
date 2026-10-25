@@ -28,6 +28,21 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             // The far painted shadow reaches below the window at the centre of the canvas.
             Assert.True(Pixel(image, image.Width / 2, image.Height - 7).Item1 < 58);
         }
+
+        [Fact]
+        public void LightWindowsChromeUsesWhiteShellInkAndDarkWindowControls() {
+            var image = new CellBuffer(75, 8).ToRaster(new GraphicsExportOptions {
+                Frame = new ExportOptions { WindowChrome = true, ChromeStyle = WindowChromeStyle.Windows, Theme = ExportTheme.Light }
+            });
+            bool whiteShellInk = false;
+            for (int y = 21; y <= 30; y++) for (int x = 31; x <= 42; x++) {
+                var pixel = Pixel(image, x, y);
+                whiteShellInk |= pixel.Item1 > 220 && pixel.Item2 > 220 && pixel.Item3 > 220;
+            }
+            Assert.True(whiteShellInk);
+            Assert.True(Pixel(image, image.Width - 100, 26).Item1 < 180);
+            Assert.Equal((255, 255, 255), Pixel(image, 20, 44));
+        }
         private static (int, int, int) Pixel(RgbaImage image, int x, int y) {
             int p = 4 * (y * image.Width + x);
             Assert.Equal(255, image.Pixels[p + 3]);

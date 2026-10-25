@@ -53,7 +53,9 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
                 string gif = Path.Combine(folder, "dashboard.gif");
                 var settings = new GraphicsExportOptions { Frame = new ExportOptions { FontSize = 6, Padding = 0 }, Playback = playback, IdleLimit = TimeSpan.Zero };
                 recording.SaveGraphics(gif, GraphicsFormat.Gif, settings);
-                Assert.Equal(recording.CaptureFrames(playback).Count, GifDelays(File.ReadAllBytes(gif), out _).Count);
+                // Slide GIFs start on the first content poster rather than an empty opening screen.
+                int contentFrames = recording.CaptureFrames(playback).Count(frame => !string.IsNullOrWhiteSpace(ConsoleExporter.ToText(frame.Frame)));
+                Assert.Equal(contentFrames, GifDelays(File.ReadAllBytes(gif), out _).Count);
                 Assert.True(GifDelays(File.ReadAllBytes(gif), out _).Count >= sourceFrames.Count);
             } finally { Directory.Delete(folder, true); }
         }

@@ -18,6 +18,35 @@ namespace ConsoleMonster.Tests.Sessions {
         private static RecordingExportOptions Source() => new RecordingExportOptions { Pace = RecordingPace.Source, IdleLimit = TimeSpan.Zero, HoldLastFrame = TimeSpan.Zero };
 
         [Fact]
+        public void HoldBetweenSameArrivalRedrawsKeepsItsArrivalOrder() {
+            string Draw(string text) => "\u001b[?2026h\u001b[2J\u001b[H" + text + "\u001b[?2026l";
+            var recording = Read(Event(.1, "o", Draw("One"))
+                + Event(.1, "cm", SessionMarkerData.Write("Read One", TimeSpan.FromSeconds(3), null, true))
+                + Event(.1, "o", Draw("Two") + "\u001b[2J\u001b[HReady"));
+            var options = Source(); options.FramesPerSecond = 60;
+            options.Markers.Add(new RecordingMarker(TimeSpan.FromMilliseconds(100), "Custom"));
+            var frames = recording.CaptureFrames(options);
+            Assert.Equal(new[] { "One", "Two", "Ready" }, frames.Select(f => ConsoleExporter.ToText(f.Frame).Trim()).Where(t => t.Length > 0));
+            Assert.Equal(3000, frames.Single(f => ConsoleExporter.ToText(f.Frame).Trim() == "One").ExplicitHold.TotalMilliseconds);
+            Assert.Contains("[100,\"Read One\"]", recording.ExportPlayerData(options));
+        }
+
+        [Fact]
+        public void ChapterTrimAndSpeedDistinguishRedrawsWithTheSameSourceTime() {
+            string Draw(string text) => "\u001b[?2026h\u001b[2J\u001b[H" + text + "\u001b[?2026l";
+            var recording = Read(Event(.1, "o", Draw("One")) + Event(.1, "m", "Start")
+                + Event(.1, "o", Draw("Two")) + Event(.1, "m", "End") + Event(.1, "o", Draw("Three")));
+            var options = Source(); options.FramesPerSecond = 10; options.ChapterSpeeds.Add("Start", 2);
+            var all = recording.CaptureFrames(options);
+            Assert.Equal(100, all.Single(f => ConsoleExporter.ToText(f.Frame).Trim() == "One").Duration);
+            Assert.Equal(50, all.Single(f => ConsoleExporter.ToText(f.Frame).Trim() == "Two").Duration);
+            options.TrimStartChapter = "Start"; options.TrimEndChapter = "End";
+            var trimmed = recording.CaptureFrames(options);
+            Assert.Equal(new[] { "One", "Two" }, trimmed.Select(f => ConsoleExporter.ToText(f.Frame).Trim()));
+            Assert.DoesNotContain("Three", recording.ExportPlayerData(options));
+        }
+
+        [Fact]
         public void HoldsCapsTrimsAndChapterSpeedComposeOnTheSourceTimeline() {
             SessionRecording recording = Read(Event(0, "o", "A") + Event(0, "m", "Install")
                 + Event(4, "cm", SessionMarkerData.Write("", TimeSpan.FromSeconds(3), null, false))

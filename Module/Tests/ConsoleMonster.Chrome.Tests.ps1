@@ -1,4 +1,4 @@
-Describe 'ConsoleMonster window styles' {
+﻿Describe 'ConsoleMonster window styles' {
     BeforeAll {
         Import-Module (Join-Path $PSScriptRoot '..\ConsoleMonster.psd1') -Force
     }
@@ -17,7 +17,9 @@ Describe 'ConsoleMonster window styles' {
             Export-ConsoleFrame -Format Html -Width 36 -Theme $Scheme -ChromeStyle $Style -Title 'Build report'
         [xml] $svg = New-ConsolePanel -Title 'Build' -Content { New-ConsoleText '8 of 8 checks passed' } |
             Export-ConsoleFrame -Format Svg -Width 36 -Theme $Scheme -ChromeStyle $Style
-        [double] $svg.svg.height | Should -Be (3 * 16.8 + 24 + $Bar)
+        $expectedHeight = 3 * 16.8 + 24 + $Bar
+        if ($Style -ne 'None') { $expectedHeight = [Math]::Ceiling($expectedHeight + 16) }
+        [double] $svg.svg.height | Should -Be $expectedHeight
         if ($Style -eq 'None') {
             $html | Should -Not -Match 'cm-titlebar'
         } else {
@@ -46,7 +48,9 @@ Describe 'ConsoleMonster window styles' {
         $data.chromeStyle | Should -Be $Style.ToLowerInvariant()
         $data.chrome | Should -Be ($Style -ne 'None')
         [xml] $final = Export-ConsoleRecording -Path $cast -FinalFrame -ChromeStyle $Style
-        [double] $final.svg.height | Should -Be (16.8 + 24 + $Bar)
+        $expectedHeight = 16.8 + 24 + $Bar
+        if ($Style -ne 'None') { $expectedHeight = [Math]::Ceiling($expectedHeight + 16) }
+        [double] $final.svg.height | Should -Be $expectedHeight
         (Export-ConsoleRecording -Path $cast -Format PlayerData -ChromeStyle $Style -WindowChrome:$false | ConvertFrom-Json).chrome | Should -BeFalse
         $recording = Join-Path $TestDrive ($Style + '.jsonl')
         [IO.File]::WriteAllLines($recording, @('{"consolemonster":"recording","version":1}', '{"t":20,"target":"build","op":"advance","value":1}'))
@@ -55,7 +59,8 @@ Describe 'ConsoleMonster window styles' {
         $dashboardData.chromeStyle | Should -Be $Style.ToLowerInvariant()
         $dashboardData.chrome | Should -Be ($Style -ne 'None')
         $animated = Export-ConsoleRecording -Path $cast -Format Svg -ChromeStyle $Style
-        $animated | Should -Match ('<svg x="0" y="' + $Bar + '"')
+        $inset = if ($Style -eq 'None') { 0 } else { 8 }
+        $animated | Should -Match ('<svg x="' + $inset + '" y="' + ($Bar + $inset) + '"')
     }
 
     It 'invokes a recording and final frame with <Style> chrome' -ForEach @(
@@ -73,7 +78,9 @@ Describe 'ConsoleMonster window styles' {
         # Windows PowerShell can also emit module-initialization progress into the fallback recording.
         # Compare the same cast so this checks chrome geometry independently of the run's occupied rows.
         [xml] $plain = Export-ConsoleRecording -Path ([IO.Path]::ChangeExtension($finalPath, '.cast')) -FinalFrame -ChromeStyle None
-        [double] $svg.svg.height | Should -Be ([double] $plain.svg.height + $Bar)
+        $expectedHeight = [double] $plain.svg.height + $Bar
+        if ($Style -ne 'None') { $expectedHeight = [Math]::Ceiling($expectedHeight + 16) }
+        [double] $svg.svg.height | Should -Be $expectedHeight
     }
 
     It 'keeps Invoke chrome on by default and lets NoWindowChrome hide it' {

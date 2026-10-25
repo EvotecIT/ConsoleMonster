@@ -14,7 +14,7 @@ namespace ConsoleMonster.Tests.Sessions {
         public void Playback_DoesNotExportTheMiddleOfASynchronizedRepaint() {
             string cast = Header + Event(0.01, "\u001b[?2026h\u001b[HPartial")
                 + Event(0.08, "\u001b[HComplete\u001b[?20") + Event(0.09, "26l");
-            var frames = SessionRecording.Read(new StringReader(cast)).CaptureFrames(new RecordingExportOptions { FramesPerSecond = 60 });
+            var frames = SessionRecording.Read(new StringReader(cast)).CaptureFrames(new RecordingExportOptions { Pace = RecordingPace.Source, FramesPerSecond = 60 });
             Assert.DoesNotContain(frames, frame => ConsoleExporter.ToText(frame.Frame).Contains("Partial"));
             Assert.Contains(frames, frame => ConsoleExporter.ToText(frame.Frame).Contains("Complete"));
         }
@@ -24,7 +24,7 @@ namespace ConsoleMonster.Tests.Sessions {
             string output = string.Concat(new[] { "One", "Two", "Three" }.Select(text =>
                 "\u001b[?2026h\u001b[2J\u001b[H" + text + "\u001b[?2026l")) + "\u001b[2J\u001b[HReady";
             var recording = SessionRecording.Read(new StringReader(Header + Event(0.1, output)));
-            var frames = recording.CaptureFrames(new RecordingExportOptions { FramesPerSecond = 60 });
+            var frames = recording.CaptureFrames(new RecordingExportOptions { Pace = RecordingPace.Source, FramesPerSecond = 60 });
             string[] states = frames.Select(frame => ConsoleExporter.ToText(frame.Frame).Trim()).Where(text => text.Length > 0).ToArray();
             Assert.Equal(new[] { "One", "Two", "Three", "Ready" }, states);
             for (int i = 1; i < frames.Count; i++) { Assert.True(frames[i].Start > frames[i - 1].Start); }
@@ -39,7 +39,7 @@ namespace ConsoleMonster.Tests.Sessions {
             string output = string.Concat(new[] { "One", "Two", "Three" }.Select(text =>
                 "\u001b[?2026h\u001b[2J\u001b[H" + text + "\u001b[?2026l")) + "\u001b[2J\u001b[HReady";
             var frames = SessionRecording.Read(new StringReader(Header + Event(0.1, output)))
-                .CaptureFrames(new RecordingExportOptions { FramesPerSecond = fps, Speed = speed });
+                .CaptureFrames(new RecordingExportOptions { Pace = RecordingPace.Source, FramesPerSecond = fps, Speed = speed });
             foreach (var frame in frames.Where(frame => new[] { "One", "Two", "Three" }.Contains(ConsoleExporter.ToText(frame.Frame).Trim()))) {
                 Assert.True(frame.Duration >= minimum, "Completed redraws must be playable at the requested frame rate.");
             }
@@ -50,7 +50,7 @@ namespace ConsoleMonster.Tests.Sessions {
             string output = string.Concat(Enumerable.Range(0, 3000).Select(i =>
                 "\u001b[?2026h\u001b[2J\u001b[HFrame " + i + "\u001b[?2026l")) + "\u001b[2J\u001b[HReady";
             var frames = SessionRecording.Read(new StringReader(Header + Event(0.1, output)))
-                .CaptureFrames(new RecordingExportOptions { FramesPerSecond = 60, MaxFrames = 4096, HoldLastFrame = TimeSpan.FromSeconds(2) });
+                .CaptureFrames(new RecordingExportOptions { Pace = RecordingPace.Source, FramesPerSecond = 60, MaxFrames = 4096, HoldLastFrame = TimeSpan.FromSeconds(2) });
             Assert.True(frames.Last().Duration >= 2000);
         }
 
@@ -58,7 +58,7 @@ namespace ConsoleMonster.Tests.Sessions {
         public void Playback_ResumesOrdinarySamplingAfterTerminalReset() {
             string cast = Header + Event(0.01, "\u001b[?2026hHidden") + Event(0.02, "\u001bcReady")
                 + Event(0.2, "\rWorking") + Event(0.4, "\rDone   ");
-            var frames = SessionRecording.Read(new StringReader(cast)).CaptureFrames();
+            var frames = SessionRecording.Read(new StringReader(cast)).CaptureFrames(new RecordingExportOptions { Pace = RecordingPace.Source });
             Assert.Contains(frames, frame => ConsoleExporter.ToText(frame.Frame).Contains("Ready"));
             Assert.Contains(frames, frame => ConsoleExporter.ToText(frame.Frame).Contains("Working"));
         }
@@ -69,7 +69,7 @@ namespace ConsoleMonster.Tests.Sessions {
                 "\u001b[?2026h\u001b[2J\u001b[H" + text + "\u001b[?2026l"));
             string cast = Header + Event(0.1, output) + "[0.2,\"m\",\"Ready\"]\n" + Event(0.2, "\u001b[2J\u001b[HReady");
             var recording = SessionRecording.Read(new StringReader(cast));
-            var options = new RecordingExportOptions { FramesPerSecond = 60 };
+            var options = new RecordingExportOptions { Pace = RecordingPace.Source, FramesPerSecond = 60 };
             options.Markers.Add(new RecordingMarker(TimeSpan.FromMilliseconds(150), "Custom"));
             var data = (System.Collections.Generic.Dictionary<string, object?>)ConsoleMonster.Serialization.MiniJson.Read(recording.ExportPlayerData(options))!;
             var markers = (System.Collections.Generic.List<object?>)data["markers"]!;
@@ -88,8 +88,8 @@ namespace ConsoleMonster.Tests.Sessions {
             string output = string.Concat(new[] { "One", "Two", "Three" }.Select(text =>
                 "\u001b[?2026h\u001b[2J\u001b[H" + text + "\u001b[?2026l")) + "\u001b[2J\u001b[HReady";
             var recording = SessionRecording.Read(new StringReader(Header + Event(0.1, output) + (recorded ? "[0.1,\"m\",\"Completed\"]\n" : string.Empty)));
-            var options = new RecordingExportOptions { FramesPerSecond = 60, Speed = speed };
-            if (!recorded) { options.Markers.Add(new RecordingMarker(TimeSpan.FromTicks((long)(0.1 * TimeSpan.TicksPerSecond / speed)), "Completed")); }
+            var options = new RecordingExportOptions { Pace = RecordingPace.Source, FramesPerSecond = 60, Speed = speed };
+            if (!recorded) { options.Markers.Add(new RecordingMarker(TimeSpan.FromMilliseconds(100), "Completed")); }
             var data = (System.Collections.Generic.Dictionary<string, object?>)ConsoleMonster.Serialization.MiniJson.Read(recording.ExportPlayerData(options))!;
             var markers = (System.Collections.Generic.List<object?>)data["markers"]!;
             Assert.Equal(expected, ((System.Collections.Generic.List<object?>)markers[0]!)[0]);
@@ -103,7 +103,7 @@ namespace ConsoleMonster.Tests.Sessions {
             string output = string.Concat(Enumerable.Range(0, 20).Select(i =>
                 "\u001b[?2026h\u001b[2J\u001b[HFrame " + i + "\u001b[?2026l")) + "\u001b[2J\u001b[HReady";
             var frames = SessionRecording.Read(new StringReader(Header + Event(0.1, output)))
-                .CaptureFrames(new RecordingExportOptions { FramesPerSecond = 60, MaxFrames = maximum });
+                .CaptureFrames(new RecordingExportOptions { Pace = RecordingPace.Source, FramesPerSecond = 60, MaxFrames = maximum });
             Assert.InRange(frames.Count, 1, maximum);
             Assert.Contains("Ready", ConsoleExporter.ToText(frames[frames.Count - 1].Frame));
         }
@@ -113,7 +113,7 @@ namespace ConsoleMonster.Tests.Sessions {
             string output = string.Concat(new[] { "One", "Two", "Three" }.Select(text =>
                 "\u001b[?2026h\u001b[2J\u001b[H" + text + "\u001b[?2026l")) + "\u001b[2J\u001b[HReady";
             var recording = SessionRecording.Read(new StringReader(Header + Event(3600, output)));
-            string svg = recording.Export(ExportFormat.Svg, new RecordingExportOptions { FramesPerSecond = 60 });
+            string svg = recording.Export(ExportFormat.Svg, new RecordingExportOptions { Pace = RecordingPace.Source, FramesPerSecond = 60 });
             var matches = System.Text.RegularExpressions.Regex.Matches(svg, @"([0-9.]+)%\{transform:translateX");
             decimal[] positions = matches.Cast<System.Text.RegularExpressions.Match>().Select(match =>
                 decimal.Parse(match.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture)).ToArray();

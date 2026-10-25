@@ -132,7 +132,7 @@ namespace ConsoleMonster.Tests.Export {
         private static ExportOptions Options(WindowChromeStyle style, ExportTheme theme) => new ExportOptions { WindowChrome = true, ChromeStyle = style, Theme = theme, Title = "Build <release> & verify / " + new string('W', 40) };
         private static CellBuffer Frame() { CellBuffer frame = new CellBuffer(36, 2); frame.Write(0, 0, "Build complete", Style.Plain); return frame; }
         private static double Bar(WindowChromeStyle style) => style == WindowChromeStyle.MacOS ? 28 : style == WindowChromeStyle.Windows ? 32 : style == WindowChromeStyle.Linux ? 36 : 0;
-        private static double Minimum(WindowChromeStyle style) => style == WindowChromeStyle.Windows ? 208 : style == WindowChromeStyle.Linux ? 96 : 76;
+        private static double Minimum(WindowChromeStyle style) => style == WindowChromeStyle.Windows ? 272 : style == WindowChromeStyle.Linux ? 96 : 76;
         private static double Number(XElement element, string name) => double.Parse(element.Attribute(name)!.Value, CultureInfo.InvariantCulture);
     }
 }

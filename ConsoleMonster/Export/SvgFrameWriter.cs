@@ -60,7 +60,8 @@ namespace ConsoleMonster.Export {
         internal static void AppendCss(StringBuilder css, IReadOnlyList<ExportLayer> layers, ExportOptions options) {
             string font = ExportText.IsSafeFontFamily(options.FontFamily) ? options.FontFamily : ExportOptions.DefaultFontFamily;
             bool adaptive = layers.Count > 1 || layers[0].Palette.UseVariables;
-            css.Append("svg{--cm-fg:").Append(ExportPalette.Dark.Foreground).Append(";--cm-bg:").Append(ExportPalette.Dark.Background).Append(";--cm-chrome:#1f1f1f;--cm-chrome-fg:#a0a0a0}\n");
+            ExportPalette first = layers[0].Palette.UseVariables ? ExportPalette.Dark : layers[0].Palette;
+            css.Append("svg{--cm-fg:").Append(first.Foreground).Append(";--cm-bg:").Append(first.Background).Append(";--cm-chrome:#1f1f1f;--cm-chrome-fg:#a0a0a0}\n");
             WindowChrome.AppendTokens(css, "svg", options, !adaptive && layers[0].Palette == ExportPalette.Light);
             if (adaptive) {
                 css.Append("@media (prefers-color-scheme: light){");

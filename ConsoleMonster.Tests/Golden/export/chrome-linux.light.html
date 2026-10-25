@@ -17,6 +17,7 @@ body{padding:0}
 .cm-export>.cm-window-shadow{position:absolute;left:8px;top:8px;width:calc(100% - 16px);height:calc(100% - 16px);overflow:visible;z-index:-1;pointer-events:none}
 .cm-export:has(>.cm-window-shadow)>.cm-window{filter:none}
 .cm-export .cm-window.cm-chrome-linux{display:inline-block;position:relative;min-width:96px;border-radius:12px;overflow:hidden;outline:1.2px solid var(--cm-border);outline-offset:-.6px;background:var(--cm-bg);filter:drop-shadow(0px 12px 18px rgba(0,0,0,.28))}
+.cm-export .cm-window.cm-chrome-linux .cm-screen{clip-path:inset(1px round 0 0 11px 11px)}
 .cm-export .cm-window.cm-chrome-linux .cm-titlebar{position:relative;container-type:inline-size;min-width:96px;height:36px;background:var(--cm-chrome);color:var(--cm-chrome-fg);box-shadow:inset 0 -1px var(--cm-border)}
 .cm-export .cm-window.cm-chrome-linux .cm-title{position:absolute;left:48px;right:48px;top:calc(50% - 6.5px);display:block;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:var(--cm-chrome-title);text-align:center;font-family:var(--cm-font);font-size:13px;font-weight:400;line-height:13px}
 @container (width < 104px){.cm-export .cm-window.cm-chrome-linux .cm-title{visibility:hidden}}

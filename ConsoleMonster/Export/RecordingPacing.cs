@@ -75,5 +75,7 @@ namespace ConsoleMonster.Export {
         public bool IsChapter { get; }
         // Session casts preserve the screen at marker arrival, even if subsequent output shares its timestamp.
         internal CellBuffer? Snapshot { get; set; }
+        // Arrival order disambiguates metadata between logical redraws sharing one cast timestamp.
+        internal long? SourceSequence { get; set; }
     }
 }

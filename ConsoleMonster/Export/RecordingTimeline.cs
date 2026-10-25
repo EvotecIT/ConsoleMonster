@@ -23,11 +23,14 @@ namespace ConsoleMonster.Export {
 
         internal static List<RecordedFrame> Apply(IReadOnlyList<RecordingSourceFrame> source, RecordingExportOptions options) {
             options.ToFrameOptions();
-            List<RecordingMarker> markers = options.Markers.OrderBy(marker => marker.Time).ToList();
+            List<RecordingMarker> markers = options.Markers.OrderBy(marker => marker.Time).ThenBy(marker => marker.SourceSequence ?? long.MaxValue).ToList();
             double end = source[source.Count - 1].Time.TotalMilliseconds + source[source.Count - 1].Duration.TotalMilliseconds;
             double from = Boundary(options.TrimStart, options.TrimStartChapter, 0, markers);
             double until = Boundary(options.TrimEnd, options.TrimEndChapter, end, markers);
-            if (from > end || until > end || until < from || (until == from && (options.TrimEnd.HasValue || options.TrimEndChapter != null))) {
+            long? fromSequence = options.TrimStartChapter == null ? null : FindChapter(options.TrimStartChapter, markers).SourceSequence;
+            long? untilSequence = options.TrimEndChapter == null ? null : FindChapter(options.TrimEndChapter, markers).SourceSequence;
+            bool logicalRange = untilSequence.HasValue && (fromSequence ?? long.MinValue) < untilSequence.Value;
+            if (from > end || until > end || until < from || (until == from && (options.TrimEnd.HasValue || options.TrimEndChapter != null) && !logicalRange)) {
                 throw new ArgumentException("The trim range must contain part of the source recording.");
             }
             foreach (string label in options.ChapterSpeeds.Keys) { FindChapter(label, markers); }
@@ -41,11 +44,16 @@ namespace ConsoleMonster.Export {
             CellBuffer? previous = null;
             CellBuffer finalScreen = source[0].Frame;
             int newCharacters = 0, newLines = 0;
+            long currentSequence = 0;
             for (int i = 0; i < source.Count; i++) {
                 RecordingSourceFrame frame = source[i];
+                currentSequence = frame.Sequence;
                 double frameStart = frame.Time.TotalMilliseconds;
+                double frameClock = clock;
                 double next = i + 1 < source.Count ? source[i + 1].Time.TotalMilliseconds : end;
-                if (next < from || (next == from && i + 1 < source.Count) || frameStart > until || (exclusiveEnd && frameStart == until)) { continue; }
+                bool beforeStart = next == from && i + 1 < source.Count && (fromSequence.HasValue ? source[i + 1].Sequence <= fromSequence.Value : frameStart < from);
+                bool afterEnd = exclusiveEnd && frameStart == until && (!untilSequence.HasValue || frame.Sequence >= untilSequence.Value);
+                if (next < from || beforeStart || frameStart > until || afterEnd) { continue; }
                 double start = Math.Max(from, frameStart), stop = Math.Min(until, next);
                 CountNewText(previous, frame.Frame, out int characters, out int lines);
                 newCharacters = Math.Min(1000000, newCharacters + characters);
@@ -57,8 +65,10 @@ namespace ConsoleMonster.Export {
                 while (markerIndex < markers.Count && markers[markerIndex].Time.TotalMilliseconds <= stop) {
                     RecordingMarker marker = markers[markerIndex];
                     double at = marker.Time.TotalMilliseconds;
-                    // A marker at the next frame is handled with that frame, except at the included source end.
-                    if ((at == stop && stop == next && i + 1 < source.Count) || (exclusiveEnd && at == until)) { break; }
+                    // Recorded arrival order can place a marker before the next logical redraw at this same time.
+                    bool beforeNext = i + 1 < source.Count && marker.SourceSequence.HasValue && marker.SourceSequence.Value < source[i + 1].Sequence;
+                    bool atExcludedEnd = exclusiveEnd && at == until && (!untilSequence.HasValue || !marker.SourceSequence.HasValue || marker.SourceSequence.Value >= untilSequence.Value);
+                    if ((at == stop && stop == next && i + 1 < source.Count && !beforeNext) || atExcludedEnd) { break; }
                     dwell += AppendSource(frame.Frame, position, at);
                     position = at;
                     if (marker.IsChapter) { chapters.Add(new RecordingMarker(TimeSpan.FromMilliseconds(Round(clock)), marker.Label)); }
@@ -72,6 +82,11 @@ namespace ConsoleMonster.Export {
                     double reading = ReadingMilliseconds(pace, newCharacters, newLines) / SpeedAt(start);
                     Append(frame.Frame, Math.Max(0, reading - dwell));
                     newCharacters = newLines = 0;
+                }
+                if (frame.Synchronized) {
+                    // Retained logical redraws need a playable interval even when they share an arrival.
+                    double rate = Math.Max(1, Math.Min(60, options.FramesPerSecond * SpeedAt(start)));
+                    Append(frame.Frame, Math.Max(0, Math.Ceiling(1000 / rate) - (clock - frameClock)));
                 }
                 // Keep a final screen even when the recording has no positive source duration.
                 if (result.Count == 0) { result.Add(new RecordedFrame(frame.Frame, 0)); }
@@ -102,6 +117,7 @@ namespace ConsoleMonster.Export {
                 string? chapter = null;
                 foreach (RecordingMarker marker in markers) {
                     if (marker.Time.TotalMilliseconds > at) { break; }
+                    if (marker.Time.TotalMilliseconds == at && marker.SourceSequence > currentSequence) { continue; }
                     if (marker.IsChapter) { chapter = marker.Label; }
                 }
                 double combined = options.Speed * (chapter != null && options.ChapterSpeeds.TryGetValue(chapter, out double speed) ? speed : 1);
@@ -113,6 +129,7 @@ namespace ConsoleMonster.Export {
                 if (!options.PaceSpecified) {
                     foreach (RecordingMarker marker in markers) {
                         if (marker.Time.TotalMilliseconds > at) { break; }
+                        if (marker.Time.TotalMilliseconds == at && marker.SourceSequence > currentSequence) { continue; }
                         if (marker.Pace.HasValue) { pace = marker.Pace.Value; }
                     }
                 }
@@ -167,6 +184,8 @@ namespace ConsoleMonster.Export {
         internal CellBuffer Frame { get; }
         internal TimeSpan Time { get; }
         internal TimeSpan Duration { get; set; }
+        internal bool Synchronized { get; set; }
+        internal long Sequence { get; set; }
     }
 
 }
