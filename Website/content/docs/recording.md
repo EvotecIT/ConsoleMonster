@@ -94,7 +94,11 @@ Invoke-ConsoleRecording {
     -IdleLimit 2 -MaxBytes 10485760 -TimeoutSeconds 600
 ```
 
-Redaction runs before writing the cast or chapter metadata, including secrets split across reads or colour codes. A record ends at a newline, carriage return or recording control. Records longer than 64 KiB without a boundary are suppressed; a pattern timeout masks the record. Review a recording before sharing it because patterns cannot recognize every secret.
+Resolving the default recording folder does not check Documents access. An explicit destination can record without touching that folder.
+
+Redaction runs before writing the cast or chapter metadata, including secrets split across reads or colour codes. Long lines and cursor-positioned repaints stream without a 64 KiB record cutoff. The recorder keeps raw and visible overlap for built-in credentials and custom patterns whose maximum match span can be proved, up to 8,192 UTF-16 characters. Rules match the original output, so overlapping patterns cannot hide a secret by replacing part of it first. Chapter markers and resizes preserve their ordering without breaking redaction across them. Playback honours synchronized redraw boundaries, keeping completed frames within the export frame budget. When redraws arrive together, it spaces them at the requested frame rate and moves later frames and chapters with them; the final hold stays intact.
+
+Patterns with unbounded quantifiers, anchors, lookarounds, backreferences or unsupported syntax use complete-record matching. A record ends at a newline, carriage return, stop control or end of capture. If uncommitted redaction or terminal context reaches 1,048,576 UTF-16 characters, the cast shows an explicit omission message and resumes after the next line break. A pattern timeout also fails closed with a visible message. The companion `.cast.json` counts these cases in `redactionFallbacks`. This buffer safeguard is separate from `-MaxBytes`, which caps the total cast bytes. Review a recording before sharing it because patterns cannot recognize every secret.
 
 `-RedactionText` chooses a replacement such as seven bullets; the default is `[REDACTED]`. Match only the value when surrounding context should stay visible. Replacement text cannot contain control characters. In C#, set `SessionRecordingOptions.RedactionText`.
 

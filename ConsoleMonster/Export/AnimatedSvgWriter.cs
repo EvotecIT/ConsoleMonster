@@ -47,8 +47,8 @@ namespace ConsoleMonster.Export {
             total = Math.Max(1, total);
             StringBuilder keyframes = new StringBuilder("@keyframes cm-play{");
             for (int f = 0; f < frames.Count; f++) {
-                double percent = 100.0 * frames[f].Start / total;
-                keyframes.Append(percent.ToString("0.###", CultureInfo.InvariantCulture)).Append("%{transform:translateX(").Append(ExportText.Num(-f * frameWidth)).Append("px)}");
+                decimal percent = 100m * frames[f].Start / total;
+                keyframes.Append(percent.ToString("0.####################", CultureInfo.InvariantCulture)).Append("%{transform:translateX(").Append(ExportText.Num(-f * frameWidth)).Append("px)}");
             }
             keyframes.Append("100%{transform:translateX(").Append(ExportText.Num(-(frames.Count - 1) * frameWidth)).Append("px)}}\n");
 

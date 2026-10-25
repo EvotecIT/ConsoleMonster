@@ -13,6 +13,52 @@ using Xunit;
 namespace ConsoleMonster.Extensions.Tests.Graphics {
     public sealed class GraphicsTests {
         [Fact]
+        public void DashboardRecordingKeepsLongVtRepaintsInEveryChapterAndAnimation() {
+            string folder = Path.Combine(Path.GetTempPath(), "cm-dashboard-recording-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(folder);
+            try {
+                string path = Path.Combine(folder, "dashboard.cast");
+                var sourceFrames = new List<CellBuffer>();
+                var sink = new ConsoleMonster.Output.StringTerminalWriter();
+                int characters = 0;
+                using (var terminal = new ConsoleMonster.Rendering.VtOutput(sink, ConsoleMonster.Capabilities.TerminalProfile.Fixed(120, 40))) {
+                    terminal.BeginLive();
+                    using (var recorder = SessionRecorder.Start(new SessionRecordingOptions { Path = path, Width = 120, Height = 40, InProcess = true })) {
+                        for (int index = 0; index < 16; index++) {
+                            string title = "Capture " + index.ToString("D2");
+                            var dashboard = Ui.Dashboard(title, Ui.Text(string.Join("\n", Enumerable.Range(0, 34)
+                                .Select(row => "[accent]" + title + " row " + row.ToString("D2") + " " + new string('x', 90) + "[/]"))));
+                            dashboard.ShowClock = false;
+                            CellBuffer frame = ConsoleExporter.Render(dashboard, new ExportOptions { Width = 120, Height = 40 }, ConsoleMonster.Styling.Theme.Dark);
+                            recorder.AddMarker(title);
+                            terminal.Invalidate(); terminal.RenderFrame(frame);
+                            string repaint = sink.ToString(); sink.Clear(); characters += repaint.Length;
+                            recorder.CapturePowerShellOutput(repaint);
+                            // VT deliberately leaves the physical terminal's bottom-right cell unwritten.
+                            frame.Set(119, 39, " ", ConsoleMonster.Styling.Style.Plain);
+                            sourceFrames.Add(frame);
+                            System.Threading.Thread.Sleep(30); // The recorded program's frame cadence.
+                        }
+                    }
+                }
+                Assert.True(characters > 65536, "The real dashboard fixture must cross the former record limit.");
+                SessionRecording recording = SessionRecording.Read(path);
+                Assert.Equal(sourceFrames.Count, recording.Chapters.Count);
+                for (int index = 0; index < sourceFrames.Count; index++) {
+                    Assert.Equal(ConsoleExporter.ToText(sourceFrames[index]), ConsoleExporter.ToText(recording.ChapterFrame(index)));
+                }
+                var playback = new RecordingExportOptions { Width = 120, Height = 40, FramesPerSecond = 60, MaxFrames = 4096, HoldLastFrame = TimeSpan.Zero };
+                string html = recording.Export(ExportFormat.Html, playback);
+                foreach (var chapter in recording.Chapters) { Assert.Contains(chapter.Label, html); }
+                string gif = Path.Combine(folder, "dashboard.gif");
+                var settings = new GraphicsExportOptions { Frame = new ExportOptions { FontSize = 6, Padding = 0 }, Playback = playback, IdleLimit = TimeSpan.Zero };
+                recording.SaveGraphics(gif, GraphicsFormat.Gif, settings);
+                Assert.Equal(recording.CaptureFrames(playback).Count, GifDelays(File.ReadAllBytes(gif), out _).Count);
+                Assert.True(GifDelays(File.ReadAllBytes(gif), out _).Count >= sourceFrames.Count);
+            } finally { Directory.Delete(folder, true); }
+        }
+
+        [Fact]
         public void TextKeepsItsCellPositionsAndSpacesWhenRasterised() {
             var frame = new CellBuffer(7, 1);
             frame.Write(0, 0, "M  M  M", ConsoleMonster.Styling.Style.Plain);

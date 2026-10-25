@@ -165,25 +165,74 @@ namespace ConsoleMonster.Sessions {
             result.Width = width; result.Height = height;
             result.ToFrameOptions();
             foreach (RecordingMarker marker in source.Markers) { result.Markers.Add(marker); }
-            foreach (CastEvent item in _events) { if (item.Kind == "m") { result.Markers.Add(new RecordingMarker(TimeSpan.FromSeconds(item.Time / result.Speed), item.Data)); } }
+            foreach (CastEvent item in _events) { if (item.Kind == "m") { result.Markers.Add(new RecordingMarker(TimeSpan.FromTicks(PlaybackTicks(item.Time, result.Speed)), item.Data)); } }
             return result;
         }
         private List<RecordedFrame> Frames(RecordingExportOptions options, bool trimEmptyRows = true) {
             VtScreen screen = new VtScreen(Width, Height, false);
             List<RecordedFrame> frames = new List<RecordedFrame>();
             double lastTime = _events.Count > 0 ? _events[_events.Count - 1].Time : 0;
-            double interval = Math.Max(1.0 / options.FramesPerSecond, lastTime / (options.MaxFrames - 1));
-            int eventIndex = 0;
-            for (int sample = 0; sample < options.MaxFrames - 1 && sample * interval < lastTime; sample++) {
-                double at = sample * interval;
-                while (eventIndex < _events.Count && _events[eventIndex].Time <= at) { Apply(screen, _events[eventIndex++]); }
-                AddFrame(frames, Pad(screen.Snapshot(), options.Width, options.Height), (long)(at * 1000 / options.Speed));
+            int completedCount = CountSynchronizedFrames();
+            int completedBudget = Math.Min(completedCount, options.MaxFrames - 2);
+            int regularBudget = options.MaxFrames - completedBudget;
+            double interval = Math.Max(1.0 / options.FramesPerSecond, lastTime / (regularBudget - 1));
+            int eventIndex = 0, completedIndex = 0;
+            double eventTime = 0;
+            long timelineShift = 0;
+            bool previousCompleted = false;
+            // Match the HTML player's effective cadence, including baked speed and its 1-60 fps bounds.
+            double playbackRate = Math.Max(1, Math.Min(60, options.FramesPerSecond * options.Speed));
+            long repaintInterval = (long)Math.Ceiling(1000 / playbackRate);
+            List<PlaybackAdjustment> adjustments = new List<PlaybackAdjustment>();
+            void Capture(double sourceSeconds, bool completed = false) {
+                CellBuffer buffer = Pad(screen.Snapshot(), options.Width, options.Height);
+                if (frames.Count > 0 && RecordingFrames.Same(frames[frames.Count - 1].Frame, buffer)) { return; }
+                long sourceTicks = PlaybackTicks(sourceSeconds, options.Speed);
+                long time = sourceTicks / TimeSpan.TicksPerMillisecond + timelineShift;
+                if (frames.Count > 0) {
+                    long earliest = frames[frames.Count - 1].Start + (completed || previousCompleted ? repaintInterval : 1);
+                    if (time < earliest) {
+                        timelineShift += earliest - time; time = earliest;
+                        adjustments.Add(new PlaybackAdjustment(sourceTicks, timelineShift));
+                    }
+                }
+                frames.Add(new RecordedFrame(buffer, time)); previousCompleted = completed;
             }
-            while (eventIndex < _events.Count) { Apply(screen, _events[eventIndex++]); }
-            long end = (long)(lastTime * 1000 / options.Speed);
-            AddFrame(frames, Pad(screen.Snapshot(), options.Width, options.Height), end);
+            void ApplyEvent(CastEvent item) {
+                eventTime = item.Time;
+                Apply(screen, item);
+            }
+            screen.SynchronizedFrameCompleted = () => {
+                int previous = completedIndex++;
+                // Reserve a bounded, evenly distributed selection for logical frames before sampling idle output.
+                if (completedBudget > 0 && (long)completedIndex * completedBudget / completedCount > (long)previous * completedBudget / completedCount) {
+                    Capture(eventTime, completed: true);
+                }
+            };
+            for (int sample = 0; sample < regularBudget - 1 && sample * interval < lastTime; sample++) {
+                double at = sample * interval;
+                while (eventIndex < _events.Count && _events[eventIndex].Time <= at) {
+                    ApplyEvent(_events[eventIndex++]);
+                }
+                if (!screen.SynchronizedOutput) {
+                    Capture(at);
+                }
+            }
+            while (eventIndex < _events.Count) {
+                ApplyEvent(_events[eventIndex++]);
+            }
+            long end = PlaybackTicks(lastTime, options.Speed) / TimeSpan.TicksPerMillisecond;
+            Capture(lastTime);
+            for (int i = 0; i < options.Markers.Count; i++) {
+                RecordingMarker marker = options.Markers[i]; long shift = 0;
+                foreach (PlaybackAdjustment adjustment in adjustments) {
+                    if (adjustment.SourceTicks > marker.Time.Ticks) { break; }
+                    shift = adjustment.Shift;
+                }
+                options.Markers[i] = new RecordingMarker(marker.Time + TimeSpan.FromMilliseconds(shift), marker.Label);
+            }
             for (int i = 0; i < frames.Count - 1; i++) { frames[i].Duration = frames[i + 1].Start - frames[i].Start; }
-            frames[frames.Count - 1].Duration = Math.Max(1, end - frames[frames.Count - 1].Start + (long)options.HoldLastFrame.TotalMilliseconds);
+            frames[frames.Count - 1].Duration = Math.Max(1, Math.Max(0, end + timelineShift - frames[frames.Count - 1].Start) + (long)options.HoldLastFrame.TotalMilliseconds);
             if (trimEmptyRows) {
                 int usedHeight = 1;
                 foreach (RecordedFrame frame in frames) { usedHeight = Math.Max(usedHeight, UsedHeight(frame.Frame)); }
@@ -195,6 +244,14 @@ namespace ConsoleMonster.Sessions {
             }
             return frames;
         }
+        // Count without retaining snapshots, so even a large input cannot bypass the export frame budget.
+        private int CountSynchronizedFrames() {
+            int count = 0;
+            VtScreen screen = new VtScreen(Width, Height, false);
+            screen.SynchronizedFrameCompleted = () => count++;
+            foreach (CastEvent item in _events) { Apply(screen, item); }
+            return count;
+        }
         // Only export geometry is trimmed. The raw cast and terminal replay retain their recorded size and wrapping.
         private static int UsedHeight(CellBuffer frame) {
             return ConsoleExporter.MeasureContentRows(frame);
@@ -205,10 +262,12 @@ namespace ConsoleMonster.Sessions {
             trimmed.Blit(frame, 0, 0, frame.Width, height, 0, 0);
             return trimmed;
         }
-        private static void AddFrame(List<RecordedFrame> frames, CellBuffer buffer, long time) {
-            if (frames.Count > 0 && RecordingFrames.Same(frames[frames.Count - 1].Frame, buffer)) { return; }
-            if (frames.Count > 0 && frames[frames.Count - 1].Start == time) { frames.RemoveAt(frames.Count - 1); }
-            frames.Add(new RecordedFrame(buffer, time));
+        // Use the same integral time unit for frames and chapters on every supported runtime.
+        private static long PlaybackTicks(double seconds, double speed) => (long)(seconds * TimeSpan.TicksPerSecond / speed);
+        private readonly struct PlaybackAdjustment {
+            internal PlaybackAdjustment(long sourceTicks, long shift) { SourceTicks = sourceTicks; Shift = shift; }
+            internal long SourceTicks { get; }
+            internal long Shift { get; }
         }
         /// <summary>Replays sampled screens. Set trimEmptyRows to false to retain the complete terminal canvas.</summary>
         public List<RecordedFrame> CaptureFrames(RecordingExportOptions? options = null, bool trimEmptyRows = true) => Frames(Ready(options), trimEmptyRows);
