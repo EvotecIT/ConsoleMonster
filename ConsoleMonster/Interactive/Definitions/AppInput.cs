@@ -41,6 +41,27 @@ namespace ConsoleMonster.Interactive {
             return control;
         }
 
+        /// <summary>Constructs a button and attaches typed callbacks after initialization.</summary>
+        /// <param name="options">Key, label, state and callback configuration.</param>
+        /// <returns>The persistent button.</returns>
+        public static Button Button(ButtonInputOptions options) {
+            if (options == null) { throw new ArgumentNullException(nameof(options)); }
+            var button = new Button(options.Key, options.Label);
+            Configure(button, options.Label, options.Disabled, options.TabIndex, options.ValidationMessage, options.OnChange);
+            if (options.OnClick != null) { button.Clicked += options.OnClick; }
+            return button;
+        }
+
+        /// <summary>Constructs a Boolean control using the same definition as New-ConsoleToggle.</summary>
+        /// <param name="options">Key, label, initial state and callback configuration.</param>
+        /// <returns>The persistent toggle.</returns>
+        public static Toggle Toggle(ToggleInputOptions options) {
+            if (options == null) { throw new ArgumentNullException(nameof(options)); }
+            var toggle = new Toggle(options.Key, options.Value) { OnText = options.OnText, OffText = options.OffText };
+            Configure(toggle, options.Label, options.Disabled, options.TabIndex, options.ValidationMessage, options.OnChange);
+            return toggle;
+        }
+
         private static void Configure(InputControl control, string? label, bool disabled, int tabIndex, string? validationMessage, EventHandler<AppValueChangedEventArgs>? onChange) {
             control.Label = label; control.Disabled = disabled; control.TabIndex = tabIndex; control.ValidationMessage = validationMessage;
             if (onChange != null) { control.Changed += onChange; }

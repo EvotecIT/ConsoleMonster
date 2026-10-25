@@ -63,7 +63,7 @@ namespace ConsoleMonster.Tests.Interactive
             ChoiceField multi = form.MultiSelect("Multi", choices: loaded ? null : options);
             if (loaded)
             {
-                single.Loader = multi.Loader = (v, t) => Task.FromResult<IEnumerable<Choice>>(options);
+                single.LoadChoices = multi.LoadChoices = (v, t) => Task.FromResult<IEnumerable<Choice>>(options);
             }
 
             FormView? view = shown ? new FormView(form, new Host(), null, false) : null;
@@ -129,7 +129,7 @@ namespace ConsoleMonster.Tests.Interactive
                 Review = false
             };
             ChoiceField multi = form.MultiSelect("Targets");
-            multi.Loader = (v, t) => Task.FromResult<IEnumerable<Choice>>(new[] { new Choice(first, "First"), new Choice(second, "Second") });
+            multi.LoadChoices = (v, t) => Task.FromResult<IEnumerable<Choice>>(new[] { new Choice(first, "First"), new Choice(second, "Second") });
             form.Preset("Second", p => p.Value("Targets", new[] { second }));
             PromptModeTests.FakeLines lines = new PromptModeTests.FakeLines(string.Empty, "y");
             FormResult result = form.Show(new FormOptions { Preset = "Second", Interactive = new InteractiveOptions { Mode = InteractionMode.Accessible, LineConsole = lines } });
@@ -160,12 +160,12 @@ namespace ConsoleMonster.Tests.Interactive
             ChoiceField server = form.Select("Server", choices: new[] { new Choice("E1") });
             server.Value = "E1";
             server.DependsOn.Add("Domain");
-            server.Loader = (v, t) => Task.FromResult<IEnumerable<Choice>>(new[] { new Choice("W1") });
+            server.LoadChoices = (v, t) => Task.FromResult<IEnumerable<Choice>>(new[] { new Choice("W1") });
             ChoiceField check = form.Select("Check", choices: new[] { new Choice("old") });
             check.Value = "old";
             check.DependsOn.Add("Server");
             List<string?> loadedFor = new List<string?>();
-            check.Loader = (v, t) =>
+            check.LoadChoices = (v, t) =>
             {
                 loadedFor.Add(v.Get<string>("Server"));
                 return Task.FromResult<IEnumerable<Choice>>(new[] { new Choice("new") });
@@ -204,7 +204,7 @@ namespace ConsoleMonster.Tests.Interactive
             form.Text("Domain").Value = "east";
             ChoiceField servers = form.MultiSelect("Servers", choices: new[] { new Choice("E1") });
             servers.DependsOn.Add("Domain");
-            servers.Loader = (v, t) => new TaskCompletionSource<IEnumerable<Choice>>().Task;
+            servers.LoadChoices = (v, t) => new TaskCompletionSource<IEnumerable<Choice>>().Task;
             FormView view = new FormView(form, new Host(), null, false);
             ViewFrame frame = new ViewFrame(Terminal.CreateContext(TerminalProfile.Fixed(80, 24, ColorDepth.None, GlyphTier.Full), Theme.Dark), 80, 24, false, TimeSpan.Zero);
             Press(view, frame, ConsoleKey.DownArrow);
@@ -335,7 +335,7 @@ namespace ConsoleMonster.Tests.Interactive
             Form form = new Form("Load once");
             ChoiceField field = form.Select("Choices");
             int calls = 0;
-            field.Loader = (v, t) =>
+            field.LoadChoices = (v, t) =>
             {
                 calls++;
                 if (fail)

@@ -14,12 +14,15 @@ namespace ConsoleMonster.Interactive {
         private readonly Func<AppState, IWidget> _build;
 
         /// <summary>Creates a dependent display view.</summary>
-        /// <param name="build">Creates a fresh display widget from the current state; inputs belong in the stable outer layout.</param>
-        /// <param name="name">An optional stable live-region name.</param>
-        public AppBinding(Func<AppState, IWidget> build, string? name = null) {
-            _build = build ?? throw new ArgumentNullException(nameof(build));
-            _slot = new RegionWidget(name ?? nameof(AppBinding) + Interlocked.Increment(ref _next));
+        /// <param name="content">Creates a fresh display widget from the current state; inputs belong in the stable outer layout.</param>
+        /// <param name="widgetId">An optional stable live-region name.</param>
+        public AppBinding(Func<AppState, IWidget> content, string? widgetId = null) {
+            _build = content ?? throw new ArgumentNullException(nameof(content));
+            _slot = new RegionWidget(widgetId ?? nameof(AppBinding) + Interlocked.Increment(ref _next));
         }
+
+        /// <summary>The stable live-region identifier.</summary>
+        public string WidgetId => _slot.WidgetId;
 
         /// <summary>The backing live region.</summary>
         public IReadOnlyList<IWidget> Children => new IWidget[] { _slot };

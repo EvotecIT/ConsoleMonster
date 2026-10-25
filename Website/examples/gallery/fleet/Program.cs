@@ -270,7 +270,7 @@ ChoiceField servers = scope.MultiSelect("Servers", "Servers");
 servers.Minimum = 1;
 servers.ParameterName = "ComputerName";
 servers.DependsOn.Add("Domain");
-servers.Loader = async (values, token) =>
+servers.LoadChoices = async (values, token) =>
 {
     await Task.Delay(350, token);
     return inventory.Where(n => n.Domain == values.Get<string>("Domain")).Select(n => new Choice(n.Name) { Label = n.Name, Group = n.Site, Badge = RichText.Plain(n.Role, new RichStyle(ThemeToken.Muted)), Description = n.Detail, DisabledReason = n.Offline == "" ? null : n.Offline, Selected = n.Offline == "" });

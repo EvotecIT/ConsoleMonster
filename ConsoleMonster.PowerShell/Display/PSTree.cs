@@ -7,21 +7,9 @@ using ConsoleMonster.Text;
 using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell {
-    internal sealed class PSTreeOptions {
-        internal object? Title { get; set; }
-        internal string? ChildrenProperty { get; set; }
-        internal ScriptBlock? Children { get; set; }
-        internal string? LabelProperty { get; set; }
-        internal string? StatusProperty { get; set; }
-        internal string? DetailProperty { get; set; }
-        internal int Depth { get; set; } = 3;
-        internal int MaxItems { get; set; } = 100;
-        internal int MaxNodes { get; set; } = 1000;
-    }
-
     /// <summary>PowerShell property/child adaptation into the bounded core hierarchy walker.</summary>
     internal static partial class PSTree {
-        internal static Tree Build(IReadOnlyList<object> objects, PSTreeOptions options) {
+        internal static Tree Build(IReadOnlyList<object> objects, ConsoleTreeOptions options) {
             if (options.ChildrenProperty != null && options.Children != null) {
                 throw new PSArgumentException("Give children with ChildrenProperty or Children, not both.");
             }

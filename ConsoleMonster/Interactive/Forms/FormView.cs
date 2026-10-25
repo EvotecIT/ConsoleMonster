@@ -188,7 +188,7 @@ namespace ConsoleMonster.Interactive {
             foreach (Field dependent in stale) {
                 FieldState state = _states[dependent];
                 bool given = Form.TryGet(values, dependent.Key, out object? wanted);
-                if (dependent is ChoiceField choice && choice.Loader != null) {
+                if (dependent is ChoiceField choice && choice.LoadChoices != null) {
                     state.CancelLoad();
                     state.LoadAttempted = false;
                     state.LoadError = null;
@@ -329,7 +329,7 @@ namespace ConsoleMonster.Interactive {
                 other.Value = other is ChoiceField c && c.Multiple ? new List<object?>() : null;
                 state.SyncEditor();
                 state.Error = null;
-                if (other is ChoiceField choice && choice.Loader != null) {
+                if (other is ChoiceField choice && choice.LoadChoices != null) {
                     choice.Choices.Clear();
                     state.CancelLoad();
                     state.LoadAttempted = false;
@@ -363,7 +363,7 @@ namespace ConsoleMonster.Interactive {
         private void StartPendingLoads() {
             foreach (Field field in _form.Fields) {
                 // A load that finished but is not taken up yet (Load still set) counts too, so it never starts twice.
-                if (field is ChoiceField choice && choice.Loader != null && choice.Choices.Count == 0 && !_states[field].LoadAttempted && DependenciesSatisfied(field)) {
+                if (field is ChoiceField choice && choice.LoadChoices != null && choice.Choices.Count == 0 && !_states[field].LoadAttempted && DependenciesSatisfied(field)) {
                     StartLoad(choice);
                 }
             }
@@ -374,7 +374,7 @@ namespace ConsoleMonster.Interactive {
             state.CancelLoad();
             CancellationTokenSource cts = new CancellationTokenSource();
             FormValues values = _form.GetValues();
-            Func<FormValues, CancellationToken, Task<IEnumerable<Choice>>> loader = field.Loader!;
+            Func<FormValues, CancellationToken, Task<IEnumerable<Choice>>> loader = field.LoadChoices!;
             state.Cts = cts;
             state.LoadAttempted = true;
             state.LoadError = null;
@@ -607,7 +607,7 @@ namespace ConsoleMonster.Interactive {
                         bindings.Add(new KeyBinding(Labels.KeyCancel, () => Back(), new KeyChord(ConsoleKey.Escape)) { Order = 20, Group = "Form" });
                         break;
                     }
-                    if (state.LoadError != null && choice.Loader != null) {
+                    if (state.LoadError != null && choice.LoadChoices != null) {
                         bindings.Add(new KeyBinding("retry", () => StartLoad(choice), new KeyChord(ConsoleKey.R, KeyModifiers.Control), new KeyChord(ConsoleKey.Enter)) { KeyText = "ctrl+r", Order = 20, Group = "Form" });
                         break;
                     }

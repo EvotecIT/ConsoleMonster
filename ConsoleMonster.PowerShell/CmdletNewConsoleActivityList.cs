@@ -12,9 +12,9 @@ namespace ConsoleMonster.PowerShell {
     ///   <code>
     /// $dashboard = New-ConsoleDashboard -Title 'Checks' -Content { New-ConsolePanel -Title 'Running' -Content { New-ConsoleActivityList -WidgetId running -MaxVisible 4 } }
     /// Invoke-ConsoleDashboard $dashboard {
-    ///     Update-Console -WidgetId running -Id 1 -Activity 'SRV01 · Free space'
+    ///     Update-Console -WidgetId running -Key 1 -Label 'SRV01 · Free space'
     ///     Start-Sleep -Seconds 1
-    ///     Update-Console -WidgetId running -Id 1 -Completed
+    ///     Update-Console -WidgetId running -Key 1 -Complete
     /// }</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleActivityList")]

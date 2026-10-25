@@ -128,7 +128,7 @@ namespace ConsoleMonster.PowerShell {
         protected override void BeginProcessing() {
             LiveSessionOptions options = new LiveSessionOptions {
                 FramesPerSecond = FramesPerSecond,
-                AppendOnly = NoLive.IsPresent,
+                Live = !NoLive.IsPresent,
                 Mode = Inline.IsPresent ? LiveMode.Inline : LiveMode.FullScreen,
                 PrintFinalState = !Transient.IsPresent,
                 Summary = Summary,

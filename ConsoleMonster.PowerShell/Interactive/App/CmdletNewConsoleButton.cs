@@ -22,7 +22,7 @@ namespace ConsoleMonster.PowerShell {
         protected override void EndProcessing() {
             if (Command != null && OnClick != null) { throw new System.ArgumentException("Use Command or OnClick, not both."); }
             if (Command != null && Label == null) { Label = Command.Label; }
-            Emit(Command == null ? new Button(Key, Label) : new Button(Command, Key), OnClick);
+            Emit(Command == null ? AppInput.Button(new ButtonInputOptions { Key = Key, Label = Label }) : new Button(Command, Key), OnClick);
         }
     }
 }

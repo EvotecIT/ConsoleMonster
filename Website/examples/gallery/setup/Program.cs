@@ -93,7 +93,7 @@ Form BuildForm()
     server.DependsOn.Add("Region");
     server.Required = true;
     server.ParameterName = "Server";
-    server.Loader = async (values, token) =>
+    server.LoadChoices = async (values, token) =>
     {
         await Task.Delay(300, token);
         return Servers(values.Get<string>("Region"));

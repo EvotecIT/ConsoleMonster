@@ -1,11 +1,69 @@
 using System;
 using System.Linq;
+using System.Collections.Generic;
+using ConsoleMonster.Input;
+using ConsoleMonster.Testing;
 using ConsoleMonster.Interactive;
 using ConsoleMonster.Styling;
 using Xunit;
 
 namespace ConsoleMonster.Tests.Building {
     public sealed class SharedInputDefinitionTests {
+        [Fact]
+        public void ChoiceSelectorsPreserveStoredMetadataAndExistingChoiceIdentity() {
+            var row = new { Name = "web-01", Site = "Warsaw", Detail = "Ready", Reason = "Maintenance" };
+            Choice choice = Assert.Single(Choice.From(new[] { row }, display: item => item.Name,
+                groupBy: item => item.Site, describe: item => item.Detail, disabledReason: item => item.Reason));
+            Assert.Same(row, choice.Value);
+            Assert.Equal("web-01", choice.Label);
+            Assert.Equal("Warsaw", choice.Group);
+            Assert.Equal("Ready", choice.Description);
+            Assert.Equal("Maintenance", choice.DisabledReason);
+            Assert.Same(choice, Assert.Single(Choice.From(new[] { choice }, display: _ => "Ignored")));
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task ChoiceFieldUsesTheSameLoadChoicesNameAsTheMenuAndPowerShell() {
+            var field = new ChoiceField("Site") {
+                LoadChoices = (_, __) => System.Threading.Tasks.Task.FromResult<IEnumerable<Choice>>(new[] { new Choice("Warsaw") })
+            };
+            Assert.Equal("Warsaw", Assert.Single(await field.LoadChoices!(new FormValues(), default)).Value);
+        }
+
+        [Fact]
+        public void ButtonDefinition_UsesTypedCallbacksAfterInitializationAndOutsideTheControlLock() {
+            var calls = new List<string>();
+            Button? button = null;
+            button = AppInput.Button(new ButtonInputOptions {
+                Key = "Deploy", Label = "Run", TabIndex = 2,
+                OnChange = (_, change) => calls.Add("change:" + change.Value),
+                OnClick = (_, __) => calls.Add("click:" + button!.Value)
+            });
+            Assert.Empty(calls);
+            Assert.Equal("Run", button.Label);
+            Assert.Equal(2, button.TabIndex);
+            Assert.True(button.HandleInput(InputEvent.Press(ConsoleKey.Enter), Terminal.CreateContext(TestTerminal.Profile())));
+            Assert.Equal(new[] { "click:1", "change:1" }, calls);
+            button.Disabled = true;
+            Assert.False(button.HandleInput(InputEvent.Press(ConsoleKey.Enter), Terminal.CreateContext(TestTerminal.Profile())));
+            Assert.Equal(2, calls.Count);
+        }
+
+        [Fact]
+        public void ToggleDefinition_KeepsInheritedFluentNamesAndInitialValueWithoutCallingBack() {
+            int changed = 0;
+            var options = new ToggleInputOptions().Key("Trace").Label("Tracing").Value(true).OnText("Enabled").OffText("Disabled");
+            options.OnChange = (_, __) => changed++;
+            Toggle toggle = AppInput.Toggle(options);
+            Assert.True(toggle.Value);
+            Assert.Equal("Enabled", toggle.OnText);
+            Assert.Equal("Disabled", toggle.OffText);
+            Assert.Equal(0, changed);
+            toggle.HandleInput(InputEvent.Press(ConsoleKey.Spacebar), Terminal.CreateContext(TestTerminal.Profile()));
+            Assert.False(toggle.Value);
+            Assert.Equal(1, changed);
+        }
+
         [Fact]
         public void MultipleSelectionKeepsChoiceIdentityAndOmittedInitialSelection() {
             object first = new object();

@@ -263,7 +263,7 @@ namespace ConsoleMonster.Tests.Interactive
             path.ParameterName = "Path";
             ChoiceField site = page.MultiSelect("Site", "Sites");
             site.ParameterName = "Site";
-            site.Loader = (values, token) => Task.FromResult<IEnumerable<Choice>>(new[] { new Choice("waw", "Warsaw"), new Choice("ber", "Berlin") });
+            site.LoadChoices = (values, token) => Task.FromResult<IEnumerable<Choice>>(new[] { new Choice("waw", "Warsaw"), new Choice("ber", "Berlin") });
             form.Preset("Weekly", new Dictionary<string, object?> { ["Path"] = @"D:\Weekly", ["Site"] = new[] { "ber" } }, "The weekly install.");
             return form;
         }

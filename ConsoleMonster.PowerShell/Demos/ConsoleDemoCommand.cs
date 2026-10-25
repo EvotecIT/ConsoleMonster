@@ -21,7 +21,9 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Seed for repeatable character timing.</para></summary>
         [Parameter] public int Seed { get; set; } = 42;
         /// <summary><para type="description">Maximum wait for a semantic prompt or output pattern.</para></summary>
-        [Parameter, ValidateRange(1, 3600)] public int StepTimeoutSeconds { get; set; } = 30;
+        [Parameter, ValidateRange(0.001, 3600)] public double StepTimeoutSeconds { get; set; } = 30;
+        /// <summary><para type="description">Fractional character-delay variation from zero to one; default 0.2.</para></summary>
+        [Parameter, ValidateRange(0.0, 1.0)] public double Jitter { get; set; } = 0.2;
         /// <summary><para type="description">Asciicast player idle-limit hint in seconds. Source timestamps are always preserved; zero disables the hint.</para></summary>
         [Parameter, ValidateRange(0, 86400)] public double IdleLimitSeconds { get; set; } = 2;
         /// <summary><para type="description">Output patterns redacted before recording.</para></summary>
@@ -44,7 +46,7 @@ namespace ConsoleMonster.PowerShell {
                         Width = Width, Height = Height, WorkingDirectory = SessionState.Path.CurrentFileSystemLocation.Path,
                         IdleLimit = TimeSpan.FromSeconds(IdleLimitSeconds), Title = System.IO.Path.GetFileNameWithoutExtension(source)
                     },
-                    Seed = Seed, StepTimeout = TimeSpan.FromSeconds(StepTimeoutSeconds), Output = relay.Receive
+                    Seed = Seed, Jitter = Jitter, StepTimeout = TimeSpan.FromSeconds(StepTimeoutSeconds), Output = relay.Receive
                 };
                 foreach (string pattern in Redact) { options.Recording.Redact.Add(pattern); }
                 // The module is imported only inside this dedicated child, using its actual installed entrypoint.

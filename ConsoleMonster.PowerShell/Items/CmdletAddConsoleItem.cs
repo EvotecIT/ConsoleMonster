@@ -1,3 +1,4 @@
+using System;
 using System.Management.Automation;
 
 namespace ConsoleMonster.PowerShell {
@@ -47,7 +48,10 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void ProcessRecord() {
             object widget = PSText.Unwrap(InputObject) ?? InputObject;
-            PSItems.AddAll(this, widget, PSItems.Items(Item), KeyProperty);
+            try { ConsoleHostItems.Add(widget, Item, KeyProperty); }
+            catch (ArgumentException error) {
+                ThrowTerminatingError(new ErrorRecord(error, "ConsoleMonsterItemNotAccepted", ErrorCategory.InvalidArgument, Item));
+            }
             if (PassThru.IsPresent) {
                 WriteObject(InputObject);
             }

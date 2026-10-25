@@ -117,7 +117,7 @@ namespace ConsoleMonster.PowerShell {
                     object? column = PSText.Unwrap(descriptor);
                     table.AddColumn(column is System.Collections.IDictionary record ? Binding.PropertyBinder.ColumnFrom(record) : new TableColumn(Text.Markup.Escape(PSWidgets.ToText(column))));
                 }
-            } else { table = PSFormatting.BuildTable(PSFormatting.Expand(items, shape), property, null, new TableBuildOptions { Cmdlet = cmdlet ?? this }, shape); }
+            } else { table = ConsoleHostViews.TableModel(items, new ConsoleTableViewOptions { Property = property }, cmdlet ?? this); }
             if (StatusProperty != null) {
                 foreach (TableColumn column in table.Columns) {
                     if (string.Equals(column.Key, StatusProperty, System.StringComparison.OrdinalIgnoreCase) || string.Equals(Text.Markup.Strip(column.Header), StatusProperty, System.StringComparison.OrdinalIgnoreCase)) {

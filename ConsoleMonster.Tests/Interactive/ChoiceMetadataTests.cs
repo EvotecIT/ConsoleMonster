@@ -147,7 +147,7 @@ namespace ConsoleMonster.Tests.Interactive
                     Offline = "maintenance"
                 }
             };
-            var choices = Choice.From(values, item => item.Name, _ => "Primary", description: item => item.Role + " service", badge: item => ConsoleMonster.Text.RichText.Plain(item.Role), disabled: item => item.Offline);
+            var choices = Choice.From(values, item => item.Name, _ => "Primary", describe: item => item.Role + " service", badge: item => ConsoleMonster.Text.RichText.Plain(item.Role), disabledReason: item => item.Offline);
             Assert.Same(values[0], choices[0].Value);
             Assert.Equal("Primary", choices[0].Group);
             Assert.Equal("Web service", choices[0].Description);

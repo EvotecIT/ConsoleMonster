@@ -55,6 +55,11 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Optional report location shown in the final summary.</para></summary>
         [Parameter] public string? ReportPath { get; set; }
 
+        /// <summary><para type="description">Hides default-on category progress.</para></summary>
+        [Parameter] public SwitchParameter NoGroups { get; set; }
+        /// <summary><para type="description">Exclusive typed session configuration. The run owns its output lifetime and applies run-specific layout and cancellation settings.</para></summary>
+        [Parameter] public LiveSessionOptions? Session { get; set; }
+
         /// <inheritdoc />
         protected override void EndProcessing() {
             List<RunItem> items = new List<RunItem>();
@@ -64,11 +69,13 @@ namespace ConsoleMonster.PowerShell {
             TerminalProfile profile = Terminal.GetCurrentProfile();
             bool host = HostOutput.UseHost(this, profile);
             HostQueueWriter? queue = host ? new HostQueueWriter() : null;
-            LiveSessionOptions session = new LiveSessionOptions { CaptureConsole = !host, Discoverable = false };
+            LiveSessionOptions session = Session ?? new LiveSessionOptions();
+            session.CaptureConsole = !host;
+            session.Discoverable = false;
             if (host) { session.Profile = profile.WithMode(OutputMode.Plain); session.Output = new LineOutput(queue!, session.Profile); }
             LiveRun run = new LiveRun(items, new LiveRunOptions {
                 Title = Title, Live = !(NoLive.IsPresent || host), HeightPercent = HeightPercent,
-                InteractiveKeys = InteractiveKeys.IsPresent, ShowTrend = ShowTrend.IsPresent, ProgressEvery = ProgressEvery,
+                ShowGroups = !NoGroups.IsPresent, InteractiveKeys = InteractiveKeys.IsPresent, ShowTrend = ShowTrend.IsPresent, ProgressEvery = ProgressEvery,
                 ProgressInterval = TimeSpan.FromSeconds(ProgressIntervalSeconds), ReportPath = ReportPath, Session = session
             });
             try {

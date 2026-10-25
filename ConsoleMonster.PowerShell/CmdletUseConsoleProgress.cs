@@ -93,7 +93,7 @@ $__cmProgressBridge.Host((@($Object | ForEach-Object { if ($_ -is [System.Collec
             ActivityList activities = new ActivityList();
             LiveSessionOptions options = new LiveSessionOptions {
                 Mode = LiveMode.Inline,
-                AppendOnly = NoLive.IsPresent,
+                Live = !NoLive.IsPresent,
                 PrintFinalState = Keep.IsPresent,
                 FramesPerSecond = FramesPerSecond,
                 // Ctrl+C stops the script the PowerShell way; the session is stopped (and the area cleared) in finally.

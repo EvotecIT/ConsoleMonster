@@ -31,6 +31,9 @@ namespace ConsoleMonster.Live {
         // A monitor can require append-only output after the host's scoped profile policy is applied.
         internal bool AppendOnly { get; set; }
 
+        /// <summary>Allows live rendering when the terminal supports it; false selects append-only output.</summary>
+        public bool Live { get => !AppendOnly; set => AppendOnly = !value; }
+
         private double _inlineHeightFraction = 1;
         /// <summary>Maximum fraction of the current terminal height occupied by inline output, between zero (exclusive) and one. Default one.</summary>
         public double InlineHeightFraction {

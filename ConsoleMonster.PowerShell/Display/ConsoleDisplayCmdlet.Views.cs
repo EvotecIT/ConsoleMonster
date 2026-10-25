@@ -34,10 +34,10 @@ namespace ConsoleMonster.PowerShell {
             }
         }
 
-        private IWidget BuildView(string view, IReadOnlyList<PSObject> items) {
+        private IWidget? BuildView(string view, IReadOnlyList<PSObject> items) {
             switch (view.ToLowerInvariant()) {
                 case "table": return BuildTableView(items);
-                case "list": return PSFormatting.BuildList(items, Property, GroupBy, ShowEmpty.IsPresent, Depth, PSText.Markup(Title), Culture, this);
+                case "list": return ConsoleHostViews.List(items, Property, GroupBy, ShowEmpty.IsPresent, Depth, PSText.Markup(Title), Culture, this);
                 case "tree": return BuildTreeView(items);
                 case "chart": return BuildChartView(items);
                 case "code": case "json": return BuildCodeView(items, view.Equals("Json", StringComparison.OrdinalIgnoreCase));

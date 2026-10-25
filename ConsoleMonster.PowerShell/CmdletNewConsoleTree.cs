@@ -95,6 +95,13 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(ParameterSetName = ObjectsSet)]
         public int MaxNodes { get; set; } = 5000;
 
+        /// <summary><para type="description">Wraps node labels and values with hanging indentation.</para></summary>
+        [Parameter] public SwitchParameter WrapLabels { get; set; }
+        /// <summary><para type="description">Hides the default-on root when a title was supplied.</para></summary>
+        [Parameter] public SwitchParameter NoRoot { get; set; }
+        /// <summary><para type="description">Typed culture, time-zone and value presentation configuration.</para></summary>
+        [Parameter] public Presenters.PresentationOptions? Presentation { get; set; }
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (ParameterSetName == ObjectsSet) {
@@ -113,7 +120,7 @@ namespace ConsoleMonster.PowerShell {
             if (ParameterSetName != ObjectsSet) {
                 return;
             }
-            Tree tree = PSTree.Build(_objects, new PSTreeOptions {
+            Tree tree = ConsoleHostViews.Tree(_objects, new ConsoleTreeOptions {
                 Title = Title, ChildrenProperty = ChildrenProperty, Children = Children, LabelProperty = LabelProperty,
                 StatusProperty = StatusProperty, DetailProperty = DetailProperty, Depth = Depth, MaxItems = MaxItems, MaxNodes = MaxNodes
             });
@@ -122,7 +129,12 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary>Emits the tree (Show-Console -View Tree overrides this to write it).</summary>
         /// <param name="tree">The tree.</param>
-        protected virtual void Emit(Tree tree) => WriteObject(tree);
+        protected virtual void Emit(Tree tree) {
+            tree.WrapLabels = WrapLabels.IsPresent;
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(NoRoot))) { tree.ShowRoot = !NoRoot.IsPresent; }
+            if (Presentation != null) { tree.Presentation = Presentation; }
+            WriteObject(tree);
+        }
 
     }
 }

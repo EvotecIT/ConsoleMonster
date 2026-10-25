@@ -356,7 +356,7 @@ Show-ConsoleMenu $menu -Layout Inline
                 [pscustomobject] @{ Name = 'SRV02'; Role = 'File'; Offline = 'offline since 07:12'; Online = $false; Domain = $Values.Domain }
             } -Display Name -CommandValue Name -Badge Role -DisabledReason Offline -Selected Online
             $form = New-ConsoleForm 'Fleet' -Field $domain, $servers
-            $loaded = @($servers.Loader.Invoke($form.GetValues(), [System.Threading.CancellationToken]::None).GetAwaiter().GetResult())
+            $loaded = @($servers.LoadChoices.Invoke($form.GetValues(), [System.Threading.CancellationToken]::None).GetAwaiter().GetResult())
             $loaded.Count | Should -Be 2
             $loaded[0].Badge.PlainText | Should -Be 'Web'
             $loaded[0].Selected | Should -BeTrue
@@ -377,9 +377,9 @@ Show-ConsoleMenu $menu -Layout Inline
                 [pscustomobject] @{ Name = 'SRV02'; Role = 'Database' }
             }
             $form = New-ConsoleForm -Title Fleet -Command Invoke-FleetCheck -Field $field
-            $loaded = @($field.Loader.Invoke($form.GetValues(), [Threading.CancellationToken]::None).GetAwaiter().GetResult())
+            $loaded = @($field.LoadChoices.Invoke($form.GetValues(), [Threading.CancellationToken]::None).GetAwaiter().GetResult())
             foreach ($choice in $loaded) { $field.Choices.Add($choice) }
-            $field.Loader = $null
+            $field.LoadChoices = $null
             # Applying a preset resolves its scalar key to the loaded value, retaining its properties.
             Set-ConsoleFormValue -Form $form -Value @{ Server = 'SRV01' }
             $form.BuildCommand() | Should -BeExactly 'Invoke-FleetCheck'

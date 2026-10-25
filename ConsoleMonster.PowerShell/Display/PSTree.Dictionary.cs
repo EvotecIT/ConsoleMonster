@@ -6,7 +6,7 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     internal static partial class PSTree {
         // Adapt the dictionary definition grammar to the same bounded core hierarchy walker used by object selectors.
-        private static void Fill(TreeNode parent, IDictionary data, PSTreeOptions options) {
+        private static void Fill(TreeNode parent, IDictionary data, ConsoleTreeOptions options) {
             TreeHierarchy.Add(parent, DictionaryEntries(data), DictionaryNode, DictionaryChildren, new TreeHierarchyOptions {
                 Depth = System.Math.Max(0, options.Depth), MaxItems = options.MaxItems, MaxNodes = options.MaxNodes,
                 Identity = item => item is DictionaryItem entry && IsCollection(entry.Value) ? entry.Value! : item

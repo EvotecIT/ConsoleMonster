@@ -47,7 +47,7 @@ namespace ConsoleMonster.Hosting {
             HeaderBar header = new HeaderBar(title) {
                 Subtitle = _environment?.EnvironmentName,
                 ShowElapsed = true,
-                Right = "ctrl+c stops"
+                HeaderRight = "ctrl+c stops"
             };
             List<IWidget> parts = new List<IWidget> { header };
             if (_options.ShowServices) {

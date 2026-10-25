@@ -128,7 +128,7 @@ namespace ConsoleMonster.Tests.Interactive {
             ChoiceField field = form.Select("Target", choices: source == "loaded" ? null : choices);
             if (source == "default") { field.Default = second; }
             else if (source == "applied") { field.Value = first; }
-            else { field.Loader = (v, t) => Task.FromResult<IEnumerable<Choice>>(choices); }
+            else { field.LoadChoices = (v, t) => Task.FromResult<IEnumerable<Choice>>(choices); }
             form.Text("Name").Value = "saved";
             FormView view = new FormView(form, new Host(), null, false);
             if (source != "default") { form.Apply(new Dictionary<string, object?> { ["Target"] = second }); }
@@ -174,7 +174,7 @@ namespace ConsoleMonster.Tests.Interactive {
             checks.DependsOn.Add("Server");
             TaskCompletionSource<IEnumerable<Choice>> east = new TaskCompletionSource<IEnumerable<Choice>>();
             List<string?> loadedFor = new List<string?>();
-            checks.Loader = (v, t) => {
+            checks.LoadChoices = (v, t) => {
                 string? selected = v.Get<string>("Server");
                 loadedFor.Add(selected);
                 return selected == "E1" ? east.Task : Task.FromResult<IEnumerable<Choice>>(new[] { new Choice("Ping") });

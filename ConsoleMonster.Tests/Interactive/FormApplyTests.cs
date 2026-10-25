@@ -35,7 +35,7 @@ namespace ConsoleMonster.Tests.Interactive
             ChoiceField servers = form.MultiSelect("Servers", "Servers");
             servers.DependsOn.Add("Domain");
             servers.ParameterName = "ComputerName";
-            servers.Loader = (values, token) =>
+            servers.LoadChoices = (values, token) =>
             {
                 string chosen = values.Get<string>("Domain") ?? "none";
                 lock (loads)

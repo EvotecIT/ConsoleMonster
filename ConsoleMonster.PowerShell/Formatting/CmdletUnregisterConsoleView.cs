@@ -18,14 +18,13 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void EndProcessing() {
             foreach (string path in Path) {
-                foreach (ConsoleViewRegistration view in ConsoleModuleViews.Read(this, SessionState.Path.GetUnresolvedProviderPathFromPSPath(path))) { Remove(view.TypeName); }
+                foreach (ConsoleViewRegistration view in ConsoleHostViews.Read(this, SessionState.Path.GetUnresolvedProviderPathFromPSPath(path))) { Remove(view.TypeName); }
             }
             foreach (string type in TypeName) { Remove(type); }
         }
         private void Remove(string type) {
             if (!ShouldProcess(type, "Unregister ConsoleMonster view and shaper")) { return; }
-            ConsoleFormatting.Unregister(type);
-            Values.ValueShaper.Unregister(type);
+            ConsoleHostViews.Unregister(type);
         }
     }
 }

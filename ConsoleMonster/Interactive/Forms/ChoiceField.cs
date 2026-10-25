@@ -30,7 +30,7 @@ namespace ConsoleMonster.Interactive {
         public IList<Choice> Choices { get; } = new List<Choice>();
 
         /// <summary>Loads the choices from the current values (dependent fields).</summary>
-        public Func<FormValues, CancellationToken, Task<IEnumerable<Choice>>>? Loader { get; set; }
+        public Func<FormValues, CancellationToken, Task<IEnumerable<Choice>>>? LoadChoices { get; set; }
 
         /// <summary>The fewest values (multiple).</summary>
         public int? Minimum { get; set; }

@@ -10,7 +10,7 @@ namespace ConsoleMonster.PowerShell {
         private IWidget BuildTreeView(IReadOnlyList<PSObject> items) {
             bool hierarchy = ChildrenProperty != null || Children != null || LabelProperty != null || StatusProperty != null || DetailProperty != null;
             if (hierarchy || items.All(item => PSText.Unwrap(item) is TreeNode)) {
-                return PSTree.Build(items.Cast<object>().ToList(), new PSTreeOptions {
+                return ConsoleHostViews.Tree(items.Cast<object>().ToList(), new ConsoleTreeOptions {
                     Title = Title, ChildrenProperty = ChildrenProperty, Children = Children, LabelProperty = LabelProperty,
                     StatusProperty = StatusProperty, DetailProperty = DetailProperty, Depth = Depth, MaxItems = MaxItems, MaxNodes = MaxNodes
                 });

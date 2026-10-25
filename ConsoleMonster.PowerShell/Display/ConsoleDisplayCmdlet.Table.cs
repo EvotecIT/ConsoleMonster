@@ -8,9 +8,9 @@ namespace ConsoleMonster.PowerShell {
     public abstract partial class ConsoleDisplayCmdlet {
         private IWidget BuildTableView(IReadOnlyList<PSObject> items) {
             bool first = true;
-            TableBuildOptions options = new TableBuildOptions { Total = ShowTotals.IsPresent, Cmdlet = this, Culture = Culture, ShowGroupColumn = ShowGroupColumn.IsPresent, NoSort = NoSort.IsPresent };
+            ConsoleTableViewOptions options = new ConsoleTableViewOptions { Property = Property, GroupBy = GroupBy, ShowTotals = ShowTotals.IsPresent, Culture = Culture, ShowGroupColumn = ShowGroupColumn.IsPresent, NoSort = NoSort.IsPresent };
             // Objects of different kinds get one table each (as Format-Table switches format); the title heads the first.
-            System.Collections.Generic.List<Layout.IWidget> tables = PSFormatting.BuildTables(items, Property, GroupBy, options, table => {
+            IWidget view = ConsoleHostViews.Table(items, options, table => {
                 if (Title != null) {
                     table.Title = first ? PSText.Markup(Title) : null;
                 }
@@ -34,8 +34,8 @@ namespace ConsoleMonster.PowerShell {
                 }
                 ApplyTableConfiguration(table);
                 first = false;
-            });
-            return PSFormatting.Combine(tables);
+            }, this);
+            return view;
         }
     }
 }

@@ -118,23 +118,28 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">The rule title alignment; default Left.</para></summary>
         public virtual HorizontalAlignment Alignment { get; set; }
         /// <inheritdoc />
-        protected override void BeginProcessing() => PSOutputExport.Validate(this);
+        protected override void BeginProcessing() { PSOutputExport.Validate(this); ValidateView(RequestedView); }
         /// <inheritdoc />
-        protected override void ProcessRecord() { if (InputObject != null) { _items.Add(InputObject); } }
+        protected override void ProcessRecord() {
+            if (InputObject != null) { _items.Add(InputObject); }
+            else if (string.Equals(RequestedView, "Chart", StringComparison.OrdinalIgnoreCase) && MyInvocation.BoundParameters.ContainsKey(nameof(InputObject))) {
+                WriteError(new ErrorRecord(new ArgumentException("A chart sample must contain a finite number; null is not a sample."), "ConsoleMonsterChartValue", ErrorCategory.InvalidData, null));
+            }
+        }
         /// <inheritdoc />
         protected override void EndProcessing() {
             if (Path != null) {
                 string path = SessionState.Path.GetUnresolvedProviderPathFromPSPath(Path, out ProviderInfo provider, out PSDriveInfo _);
-                if (!string.Equals(provider.Name, "FileSystem", StringComparison.OrdinalIgnoreCase)) { throw new PSArgumentException("Path must name a file system path."); }
+                if (!string.Equals(provider.Name, "FileSystem", StringComparison.OrdinalIgnoreCase)) { throw new PSArgumentException("Path must name a FileSystem path."); }
                 _items.Add(PSObject.AsPSObject(File.ReadAllText(path)));
             }
             if (Content != null) {
                 foreach (object item in PSItems.Items(Content)) { _items.Add(PSObject.AsPSObject(item)); }
             }
             string view = RequestedView;
-            ValidateView(view);
             if (_items.Count == 0 && !string.Equals(view, "Rule", StringComparison.OrdinalIgnoreCase)) { return; }
-            IWidget widget = BuildView(view, _items);
+            IWidget? widget = BuildView(view, _items);
+            if (widget == null) { return; }
             if (AsWidget.IsPresent) { WriteObject(Culture == null ? widget : (IWidget)new CultureScope(widget, Culture)); return; }
             using (var stop = new CancellationTokenSource()) {
                 _paging = stop;

@@ -29,7 +29,7 @@ namespace ConsoleMonster.Generators {
         /// <inheritdoc />
         public void Initialize(IncrementalGeneratorInitializationContext context) {
             context.RegisterSourceOutput(context.CompilationProvider, (output, compilation) => {
-                if (compilation.AssemblyName != "ConsoleMonster" && compilation.AssemblyName != "ConsoleMonster.Graphics" && compilation.AssemblyName != "ConsoleMonster.Markdown") {
+                if (compilation.AssemblyName != "ConsoleMonster" && compilation.AssemblyName != "ConsoleMonster.Graphics" && compilation.AssemblyName != "ConsoleMonster.Markdown" && compilation.AssemblyName != "ConsoleMonster.PowerShell") {
                     return;
                 }
                 INamedTypeSymbol? widget = compilation.GetTypeByMetadataName(WidgetInterface);

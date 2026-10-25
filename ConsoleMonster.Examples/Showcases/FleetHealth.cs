@@ -153,7 +153,7 @@ namespace ConsoleMonster.Examples.Showcases
             servers.DependsOn.Add("Domain");
             servers.Minimum = 1;
             servers.ParameterName = "ComputerName";
-            servers.Loader = (values, token) => FleetData.LoadServersAsync(values.Get<string>("Domain"), loadDelay, token);
+            servers.LoadChoices = (values, token) => FleetData.LoadServersAsync(values.Get<string>("Domain"), loadDelay, token);
             servers.Help = "Grouped by site; offline servers cannot be picked. Space toggles, Ctrl+A selects all.";
             FormPage checks = form.Page("Checks", "What to check on every server.");
             List<Choice> checkChoices = FleetData.CheckChoices();

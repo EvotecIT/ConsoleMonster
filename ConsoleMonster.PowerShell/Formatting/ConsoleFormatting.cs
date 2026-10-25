@@ -6,7 +6,22 @@ using ConsoleMonster.Views;
 namespace ConsoleMonster.PowerShell {
     /// <summary>How objects of a registered type are shown by Enable-ConsoleFormatting (Register-ConsoleView).</summary>
     public sealed class ConsoleViewRegistration {
-        internal ConsoleViewRegistration(string typeName, ConsoleViewKind view, object[]? property, object? groupBy, string group, ScriptBlock? title = null, bool builtIn = false, bool nativePresentation = false, bool groupHeadersAsRows = false, int groupMinimumRows = 0, bool groupRepeatedOnly = false, bool structuredData = false) {
+        /// <summary>Describes the view of a registered PowerShell type.</summary>
+        /// <param name="typeName">The PowerShell type name.</param>
+        /// <param name="view">The representation to construct.</param>
+        /// <param name="property">Member selectors or calculated column records.</param>
+        /// <param name="groupBy">Optional grouping selector.</param>
+        /// <param name="group">Types sharing this group are displayed together; null uses the type name.</param>
+        /// <param name="title">Optional owning-runspace title selector.</param>
+        public ConsoleViewRegistration(string typeName, ConsoleViewKind view = ConsoleViewKind.Table, object[]? property = null, object? groupBy = null, string? group = null, ScriptBlock? title = null)
+            : this(typeName, view, property, groupBy, group ?? typeName, title, false, false, false, 0, false, false) {
+            if (string.IsNullOrWhiteSpace(typeName)) { throw new ArgumentException("A type name is required.", nameof(typeName)); }
+        }
+
+        internal static ConsoleViewRegistration Define(string typeName, ConsoleViewKind view, object[]? property, object? groupBy, string group, ScriptBlock? title = null, bool builtIn = false, bool nativePresentation = false, bool groupHeadersAsRows = false, int groupMinimumRows = 0, bool groupRepeatedOnly = false, bool structuredData = false) =>
+            new ConsoleViewRegistration(typeName, view, property, groupBy, group, title, builtIn, nativePresentation, groupHeadersAsRows, groupMinimumRows, groupRepeatedOnly, structuredData);
+
+        private ConsoleViewRegistration(string typeName, ConsoleViewKind view, object[]? property, object? groupBy, string group, ScriptBlock? title, bool builtIn, bool nativePresentation, bool groupHeadersAsRows, int groupMinimumRows, bool groupRepeatedOnly, bool structuredData) {
             TypeName = typeName;
             View = view;
             Property = property;
@@ -248,23 +263,23 @@ namespace ConsoleMonster.PowerShell {
                 "Name"
             };
             foreach (string type in new[] { "System.IO.FileInfo", "System.IO.DirectoryInfo" }) {
-                AddBuiltIn(new ConsoleViewRegistration(type, ConsoleViewKind.Table, files, null, "FileSystem", directory, true));
+                AddBuiltIn(ConsoleViewRegistration.Define(type, ConsoleViewKind.Table, files, null, "FileSystem", directory, true));
             }
             {
-                AddBuiltIn(new ConsoleViewRegistration("System.Diagnostics.Process", ConsoleViewKind.Table, new object[] {
+                AddBuiltIn(ConsoleViewRegistration.Define("System.Diagnostics.Process", ConsoleViewKind.Table, new object[] {
                     "Id", "ProcessName",
                     Hashtable("CPU (s)", ScriptBlock.Create("if ($null -ne $_.CPU) { [math]::Round($_.CPU, 1) }"), null),
                     Hashtable("Memory", ScriptBlock.Create("$_.WorkingSet64"), "Bytes"),
                     unix ? (object)Hashtable("Threads", ScriptBlock.Create("$_.Threads.Count"), null) : "Handles"
                 }, null, "System.Diagnostics.Process", null, true));
             }
-            AddBuiltIn(new ConsoleViewRegistration("System.ServiceProcess.ServiceController", ConsoleViewKind.Table, new object[] {
+            AddBuiltIn(ConsoleViewRegistration.Define("System.ServiceProcess.ServiceController", ConsoleViewKind.Table, new object[] {
                 Hashtable("Status", ScriptBlock.Create("[string] $_.Status"), "StatusWord"),
                 "Name", "DisplayName"
             }, null, "System.ServiceProcess.ServiceController", null, true));
             RegisterEverydayBuiltIns();
             // Get-WinEvent: time, id, the level as a status word, the source and the message's first line.
-            AddBuiltIn(new ConsoleViewRegistration("System.Diagnostics.Eventing.Reader.EventLogRecord", ConsoleViewKind.Table, new object[] {
+            AddBuiltIn(ConsoleViewRegistration.Define("System.Diagnostics.Eventing.Reader.EventLogRecord", ConsoleViewKind.Table, new object[] {
                 Hashtable("TimeCreated", ScriptBlock.Create("$_.TimeCreated"), "Date"),
                 Hashtable("Id", ScriptBlock.Create("$_.Id"), "Identifier"),
                 Hashtable("Level", ScriptBlock.Create("[string] $_.LevelDisplayName"), "StatusWord"),
@@ -279,7 +294,7 @@ namespace ConsoleMonster.PowerShell {
                 Hashtable("Size", ScriptBlock.Create("$_.Size"), "Bytes")
             };
             foreach (string type in new[] { "Microsoft.Management.Infrastructure.CimInstance#ROOT/Microsoft/Windows/Storage/MSFT_Volume", "Microsoft.Management.Infrastructure.CimInstance#MSFT_Volume" }) {
-                AddBuiltIn(new ConsoleViewRegistration(type, ConsoleViewKind.Table, volumes, null, "Volume", null, true));
+                AddBuiltIn(ConsoleViewRegistration.Define(type, ConsoleViewKind.Table, volumes, null, "Volume", null, true));
             }
             // Ready only once every built-in is in: a concurrent lookup never sees half of them.
             lock (Gate) {

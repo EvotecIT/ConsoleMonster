@@ -9,7 +9,7 @@ using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell {
     public abstract partial class ConsoleDisplayCmdlet {
-        private IWidget BuildChartView(IReadOnlyList<PSObject> input) {
+        private IWidget? BuildChartView(IReadOnlyList<PSObject> input) {
             IReadOnlyList<PSObject> items = PSFormatting.Expand(input, PSShaping.Options());
             object property = Property == null || Property.Length == 0 ? "Value" : Property.Length == 1 ? Property[0] : throw new PSArgumentException("Chart requires exactly one Property.");
             BoundColumn value = BindChartColumn(items, property);
@@ -29,7 +29,7 @@ namespace ConsoleMonster.PowerShell {
                 if (text.Length == 0 && Type == ChartType.Bar) { text = row.ToString(CultureInfo.InvariantCulture); }
                 chart.Add(text, number);
             }
-            return chart;
+            return chart.Samples.Count == 0 ? null : chart;
         }
 
         private static BoundColumn BindChartColumn(IReadOnlyList<PSObject> items, object property) {
