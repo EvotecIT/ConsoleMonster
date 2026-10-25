@@ -358,9 +358,9 @@ namespace ConsoleMonster.PowerShell {
         }
 
         /// <summary>
-        /// The output of a Format-Console* command, so every PowerShell consumer gets it:
+        /// The output of a structured Show-Console command, so every PowerShell consumer gets it:
         /// <list type="bullet">
-        /// <item>-AsString: one string of plain text (colour only with $PSStyle.OutputRendering Ansi);</item>
+        /// <item>-AsString: one string of plain text;</item>
         /// <item>followed by another command (| Out-String, | Out-File, | Set-Content, | more): the rendered lines as strings;</item>
         /// <item>PowerShell 7.2+ on a local console, typed at the prompt (or run by -Command) and last in its pipeline: a
         /// <see cref="ConsoleRendering"/> object that ConsoleMonster's format view draws in colour, while $x = ..., &gt; file,

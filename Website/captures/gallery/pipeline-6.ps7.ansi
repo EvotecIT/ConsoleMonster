@@ -26,8 +26,8 @@
 [0;38;2;75;80;96m│[0m [0;38;2;251;191;36m▴[4G WARN[0m Tests completed in 1.8s                                                                                                           [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m│[0m [0;38;2;251;191;36m▴[4G WARN[0m Tests Passed: 40, Failed: 0, Skipped: 1 (requires conhost)                                                                        [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m│[0m        Generate markdown help (38 commands)...                                                                                           [0;38;2;75;80;96m│[0m
-[0;38;2;75;80;96m│[0m        Docs\Readme.md updated                                                                                                            [0;38;2;75;80;96m│[0m
-[0;38;2;75;80;96m│[0m        Docs\Show-ConsoleTable.md ... Docs\Invoke-ConsoleDashboard.md                                                                     [0;38;2;75;80;96m│[0m
+[0;38;2;75;80;96m│[0m        Docs/Readme.md updated                                                                                                            [0;38;2;75;80;96m│[0m
+[0;38;2;75;80;96m│[0m        Docs/Show-ConsoleTable.md ... Docs/Invoke-ConsoleDashboard.md                                                                     [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m│[0m        Generate en-US MAML help...                                                                                                       [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯[0m
 [0m [0;38;2;139;143;154mPrepare ·[11G Restore ·[21G Build ·[29G Test ·[36G Docs ·[43G Sign ·[50G Package ·[60G Publish    Ctrl+C stop[0m

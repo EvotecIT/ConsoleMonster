@@ -167,6 +167,14 @@ Describe 'ConsoleMonster public API vocabulary' {
         (New-ConsoleDashboard -Title Test -FooterHints $hints -Content { New-ConsoleText ready }).FooterHints.Count | Should -Be 1
     }
 
+    It 'writes consecutive rules with the same one-line geometry as the C# writer' {
+        $first = New-ConsoleRule 'Section'
+        $second = New-ConsoleRule
+        $actual = Use-ConsoleTarget -Width 60 { Show-ConsoleRule 'Section'; Show-ConsoleRule }
+        $expected = Use-ConsoleTarget -Width 60 { [ConsoleMonster.Terminal]::Write($first); [ConsoleMonster.Terminal]::Write($second) }
+        $actual | Should -Be $expected
+    }
+
     It 'captures a dictionary in one call and exports ordinary rows with the automatic view' {
         $pairs = [ordered] @{ Zulu = 3; Alpha = 1 }
         $text = Show-ConsoleList $pairs -AsString -Width 60

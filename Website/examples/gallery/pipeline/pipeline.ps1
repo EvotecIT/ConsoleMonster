@@ -29,7 +29,7 @@ function Format-PipelinePath {
     param(
         $Text
     )
-    $Text.Replace([char]92, [IO.Path]::DirectorySeparatorChar)
+    $Text.Replace([char]92, [char]47)
 }
 function Format-PipelineDuration {
     param(
@@ -144,10 +144,10 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ArgumentList (, $steps) -ScriptBl
         if ($i -ge 3 -and $i -le 6) {
             Update-ConsoleLane -WidgetId compilers -Key ('c' + ($i - 3)) -Status Running -Detail compiling
         }
-        Write-Host -Object ($item.Label.Replace([char]92, [IO.Path]::DirectorySeparatorChar) + '...')
+        Write-Host -Object ($item.Label.Replace([char]92, [char]47) + '...')
         Wait-ConsoleDashboard -Milliseconds ([int]($item.Seconds * 400))
         foreach ($line in $item.Output) {
-            $text = $line.Replace([char]92, [IO.Path]::DirectorySeparatorChar)
+            $text = $line.Replace([char]92, [char]47)
             if ($item.Result -eq 'Warn') {
                 Write-Warning -Message $text
             }

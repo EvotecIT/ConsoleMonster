@@ -24,9 +24,9 @@
 [0;38;2;75;80;96m│[0m        Sign module files...                                                                                                              [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m│[0m        SignModule is $false for this build; skipping Authenticode signing                                                                [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m│[0m        Pack ConsoleMonster.2.0.0.nupkg...                                                                                                [0;38;2;75;80;96m│[0m
-[0;38;2;75;80;96m│[0m        Successfully created package 'Artefacts\ProjectBuild\ConsoleMonster.2.0.0.nupkg'.                                                 [0;38;2;75;80;96m│[0m
+[0;38;2;75;80;96m│[0m        Successfully created package 'Artefacts/ProjectBuild/ConsoleMonster.2.0.0.nupkg'.                                                 [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m│[0m        Create module archive...                                                                                                          [0;38;2;75;80;96m│[0m
-[0;38;2;75;80;96m│[0m        Artefacts\Packed\ConsoleMonster-v2.0.0.zip (1.1 MB)                                                                               [0;38;2;75;80;96m│[0m
+[0;38;2;75;80;96m│[0m        Artefacts/Packed/ConsoleMonster-v2.0.0.zip (1.1 MB)                                                                               [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m│[0m        Publish to PowerShell Gallery...                                                                                                  [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m│[0m        RunMode is Build; publishing is disabled                                                                                          [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯[0m

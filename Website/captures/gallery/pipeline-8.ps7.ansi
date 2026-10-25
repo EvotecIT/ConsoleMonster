@@ -21,13 +21,13 @@
 [0;38;2;75;80;96m│[0m [0;38;2;96;165;250m⠋[0m Publish to PowerShell Gallery                                                 [0;38;2;75;80;96m│[0m [0;38;2;75;80;96m│[0m                                                      [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m╰─────────────────────────────────────────────────────────────────────────────────╯[0m [0;38;2;75;80;96m╰──────────────────────────────────────────────────────╯[0m
 [0;38;2;75;80;96m╭─[0m [0;1mOutput[0m [0;38;2;75;80;96m─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮[0m
-[0;38;2;75;80;96m│[0m en-US\ConsoleMonster.PowerShell.dll-Help.xml (412 KB)                                                                                    [0;38;2;75;80;96m│[0m
+[0;38;2;75;80;96m│[0m en-US/ConsoleMonster.PowerShell.dll-Help.xml (412 KB)                                                                                    [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m│[0m Sign module files...                                                                                                                     [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m│[0m SignModule is $false for this build; skipping Authenticode signing                                                                       [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m│[0m Pack ConsoleMonster.2.0.0.nupkg...                                                                                                       [0;38;2;75;80;96m│[0m
-[0;38;2;75;80;96m│[0m Successfully created package 'Artefacts\ProjectBuild\ConsoleMonster.2.0.0.nupkg'.                                                        [0;38;2;75;80;96m│[0m
+[0;38;2;75;80;96m│[0m Successfully created package 'Artefacts/ProjectBuild/ConsoleMonster.2.0.0.nupkg'.                                                        [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m│[0m Create module archive...                                                                                                                 [0;38;2;75;80;96m│[0m
-[0;38;2;75;80;96m│[0m Artefacts\Packed\ConsoleMonster-v2.0.0.zip (1.1 MB)                                                                                      [0;38;2;75;80;96m│[0m
+[0;38;2;75;80;96m│[0m Artefacts/Packed/ConsoleMonster-v2.0.0.zip (1.1 MB)                                                                                      [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m│[0m Publish to PowerShell Gallery...                                                                                                         [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯[0m
 [0m [0;38;2;139;143;154mPrepare ·[11G Restore ·[21G Build ·[29G Test ·[36G Docs ·[43G Sign ·[50G Package ·[60G Publish    Ctrl+C stop[0m

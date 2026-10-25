@@ -27,7 +27,7 @@ BuildStep[] steps = {
 string[] phaseNames = { "Prepare", "Restore", "Build", "Test", "Docs", "Sign", "Package", "Publish" };
 string[] compilerNames = { "netstandard2.0", "net472", "net8.0", "PowerShell" };
 int completed = 0;
-string PathText(string text) => text.Replace('\\', Path.DirectorySeparatorChar);
+string PathText(string text) => text.Replace('\\', '/');
 string Duration(double seconds) => seconds.ToString("0.0", CultureInfo.InvariantCulture) + "s";
 StatusKind Worst(IEnumerable<BuildStep> items) => items.Any(item => item.Result == StatusKind.Warn) ? StatusKind.Warn
     : items.All(item => item.Result == StatusKind.Skip) ? StatusKind.Skip : StatusKind.Pass;
