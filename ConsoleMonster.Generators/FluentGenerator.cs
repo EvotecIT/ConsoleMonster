@@ -333,8 +333,13 @@ namespace ConsoleMonster.Generators {
             string initializer = constructible ? creation + " { " + property.Name + " = value }" : receiver + "." + property.Name + " = value;";
             string fluent = (constructible ? creation + "()" : receiver) + (property.Type.TypeKind == TypeKind.Delegate
                 ? ".Configure(configured => configured." + property.Name + " = value)" : "." + property.Name + "(value)");
-            return "        /// <example><list type=\"table\"><listheader><term>C# initializer or property</term><description>C# fluent</description></listheader>\n"
-                + "        /// <item><term><code>" + new XText(initializer) + "</code></term><description><code>" + new XText(fluent) + "</code></description></item></list></example>\n";
+            if (!initializer.EndsWith(";", StringComparison.Ordinal)) { initializer += ";"; }
+            const string leftHeading = "// C# initializer or property";
+            int column = Math.Max(leftHeading.Length, initializer.Length) + 4;
+            return "        /// <example><code>\n"
+                + "        /// " + leftHeading.PadRight(column) + "// C# fluent\n"
+                + "        /// " + new XText(initializer.PadRight(column) + fluent + ";") + "\n"
+                + "        /// </code></example>\n";
         }
 
         private static string Doc(string summary, string receiver, string parameter, string parameterName) {
