@@ -325,8 +325,10 @@ html:not(.cm-js) .cm-paths [role="tablist"], html:not(.cm-js) .cm-demo [role="ta
 .cm-reels__note { margin: 0; color: var(--cm-muted); font-size: 14px; }
 .cm-reels__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: var(--cm-space-5); margin: 0; padding: 0; list-style: none; }
 .cm-reels__grid > li[hidden] { display: none; }
-.cm-reel { grid-template-rows: auto auto 1fr auto auto auto; }
+/* minmax(0, 1fr): the card's column is the card's width, never its widest child's, so nothing runs past its right edge. */
+.cm-reel { grid-template-rows: auto auto 1fr auto auto auto; grid-template-columns: minmax(0, 1fr); }
 .cm-reel__thumb { height: 196px; padding: 10px 10px 0; text-decoration: none; }
+.cm-reel__thumb .cm-window__body { overflow: hidden; }
 .cm-reel__thumb .cm-window { margin: 0; pointer-events: none; }
 .cm-reel__thumb .cm-window__bar { display: none; }
 .cm-reel__thumb::before { content: ""; position: absolute; inset: auto 0 3px; height: 36px; background: linear-gradient(transparent, var(--cm-term-bg)); z-index: 1; }
@@ -358,10 +360,11 @@ html:not(.cm-js) .cm-paths [role="tablist"], html:not(.cm-js) .cm-demo [role="ta
 .cm-reel__media { display: flex; flex-wrap: wrap; gap: var(--cm-space-3); margin: 0; padding: 0; list-style: none; }
 .cm-reel__media span { color: var(--cm-muted); font-size: 13px; }
 .cm-reel__all { margin-top: var(--cm-space-4); font: 500 14px/1.4 var(--cm-mono); }
-.cm-reel__build { position: relative; z-index: 2; display: flex; align-items: baseline; gap: 8px; margin: 0 12px 8px; padding: 9px 12px; border-radius: 8px; background: var(--cm-accent); color: var(--cm-accent-ink); font: 600 14px/1.3 var(--cm-mono); text-decoration: none; }
+.cm-reel__build { position: relative; z-index: 2; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; margin: 0 12px 8px; padding: 9px 12px; border-radius: 8px; background: var(--cm-accent); color: var(--cm-accent-ink); font: 600 14px/1.3 var(--cm-mono); text-decoration: none; }
 .cm-reel__build:hover, .cm-reel__build:focus-visible { filter: brightness(1.08); }
-.cm-reel__langs { margin-left: auto; font-weight: 500; font-size: 12px; opacity: .85; }
-.cm-reel__run .cm-code--line pre { padding: 7px 12px; font-size: 12.5px; }
+.cm-reel__langs { margin-left: auto; white-space: nowrap; font-weight: 500; font-size: 12px; opacity: .85; }
+/* A long run command wraps inside its box rather than scrolling: Windows draws a visible scrollbar under it. */
+.cm-reel__run .cm-code--line pre { padding: 7px 12px; font-size: 12.5px; overflow: visible; white-space: pre-wrap; overflow-wrap: anywhere; }
 .cm-reel__shortcut { margin-top: var(--cm-space-5); padding-top: var(--cm-space-4); border-top: 1px dashed var(--cm-line); }
 .cm-reel__shortcut > p { margin: 0 0 var(--cm-space-3); color: var(--cm-ink-2); }
 .cm-reel-page .cm-showcase { grid-template-columns: minmax(0, 1fr); }
