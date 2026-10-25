@@ -12,7 +12,7 @@ using SiteFrames.Pages;
 namespace SiteFrames.Capture {
     /// <summary>Drives ordinary programs using capture recipes kept outside the copyable source.</summary>
     internal static class GalleryFrames {
-        internal static CellBuffer Run(GalleryPage.Demo demo, int step) {
+        internal static CellBuffer Run(GalleryPage.Demo demo, int step, bool fluent = false) {
             JsonNode state = demo.Metadata["capture"]!["states"]![step]!;
             var profile = CSharpRunner.Profile(demo.Width, demo.Height, ColorDepth.TrueColor, GlyphTier.Full);
             var target = new RecordingTarget(profile, state["keys"]?.GetValue<string>()) {
@@ -24,7 +24,7 @@ namespace SiteFrames.Capture {
             string storage = Path.Combine(Path.GetTempPath(), "cm-gallery-presets-" + Guid.NewGuid().ToString("N"));
             Environment.SetEnvironmentVariable("CONSOLEMONSTER_STORAGE_ROOT", storage);
             try {
-                CSharpRunner.Execute(demo.CSharp, profile, Theme.Dark, new InteractiveOptions {
+                CSharpRunner.Execute(fluent ? demo.CSharpFluent : demo.CSharp, profile, Theme.Dark, new InteractiveOptions {
                     Target = target, Input = target.Input, Capture = target.Screens, Profile = profile, Theme = Theme.Dark,
                     Mode = target.Input == null ? InteractionMode.None : InteractionMode.Rich
                 }, arguments: state["arguments"]?.AsArray().Select(a => a!.GetValue<string>()).ToArray(), recording: target, allowIncompleteInput: state["incomplete"]?.GetValue<bool>() ?? false);

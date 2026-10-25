@@ -24,7 +24,7 @@ namespace SiteFrames.Pages {
             "Dashboards", "Wizards", "Terminal apps", "Everyday", "Welcome screens", "Reports"
         };
 
-        /// <summary>Validated metadata paired with its two canonical source files.</summary>
+        /// <summary>Validated metadata paired with its three canonical source files.</summary>
         internal sealed class Demo {
             public Demo(string folder) {
                 Folder = folder;
@@ -49,7 +49,7 @@ namespace SiteFrames.Pages {
                     Metadata["capture"]?["states"] is not JsonArray states || states.Count != Steps) {
                     throw new InvalidDataException("Invalid gallery metadata: " + Slug);
                 }
-                foreach (string path in new[] { PowerShell, CSharp }) {
+                foreach (string path in new[] { PowerShell, CSharp, CSharpFluent }) {
                     int limit = Tier == "showcase" ? 450 : 250;
                     if (!File.Exists(path) || File.ReadAllLines(path).Length > limit) {
                         throw new InvalidDataException(Slug + " needs a complete source of at most " + limit + " lines: " + path);
@@ -65,6 +65,7 @@ namespace SiteFrames.Pages {
             public int Steps { get; }
             public string PowerShell => Path.Combine(Folder, Slug + ".ps1");
             public string CSharp => Path.Combine(Folder, "Program.cs");
+            public string CSharpFluent => Path.Combine(Folder, "Program.Fluent.cs");
             public string Title => Metadata["title"]!.GetValue<string>();
             public string Tier => Metadata["tier"]!.GetValue<string>();
         }
@@ -82,8 +83,8 @@ namespace SiteFrames.Pages {
 
         // Pin only portable inputs. Host versions and machine paths do not belong in deterministic data.
         private static string Stamp(Site site, Demo demo) => Replays.Fingerprint(
-            Site.ReadText(demo.PowerShell), Site.ReadText(Path.Combine(site.Website, "..", "ConsoleMonster.PowerShell", "Gallery", "DemoCapture.ps1")), demo.Width.ToString(CultureInfo.InvariantCulture), demo.Height.ToString(CultureInfo.InvariantCulture),
-            demo.Metadata["capture"]!.ToJsonString(), "en-US/dark/truecolor/full/gallery-v2");
+            Site.ReadText(demo.PowerShell), Site.ReadText(demo.CSharp), Site.ReadText(demo.CSharpFluent), Site.ReadText(Path.Combine(site.Website, "..", "ConsoleMonster.PowerShell", "Gallery", "DemoCapture.ps1")), demo.Width.ToString(CultureInfo.InvariantCulture), demo.Height.ToString(CultureInfo.InvariantCulture),
+            demo.Metadata["capture"]!.ToJsonString(), "en-US/dark/truecolor/full/gallery-v3");
 
         /// <summary>Captures every snapshot on PowerShell 7, on macOS, Linux or Windows; no pseudo-console is required.</summary>
         public static int Capture(Site site) {
@@ -125,7 +126,7 @@ namespace SiteFrames.Pages {
             return 0;
         }
 
-        /// <summary>Checks both source programs cell by cell, then generates gallery data and downloadable sources.</summary>
+        /// <summary>Checks all three source programs cell by cell and by encoded frame bytes, then generates gallery data and downloadable sources.</summary>
         public static void Render(Site site, string? review = null) {
             Demo[] demos = Read(site);
             Site.Clean(site.Static("examples/gallery"));
@@ -142,9 +143,9 @@ namespace SiteFrames.Pages {
                     if (pause != null) holdMilliseconds = Math.Max(900, (int)(double.Parse(pause.Text, CultureInfo.InvariantCulture) * 1000));
                 }
                 for (int step = 0; step < demo.Steps; step++) {
-                    CellBuffer frame = TwinFrame(site, demo, step);
+                    CellBuffer frame = TripletFrame(site, demo, step);
                     timeline.Add(new TimedFrame(step * (long)holdMilliseconds, frame));
-                    parity.Add(new JsonObject { ["step"] = step, ["identical"] = true });
+                    parity.Add(new JsonObject { ["step"] = step, ["identical"] = true, ["styles"] = 3, ["encoding"] = "UTF-8 SVG" });
                     if (review != null) {
                         ExportOptions options = new ExportOptions { Title = demo.Title, Theme = ExportTheme.Dark, WindowChrome = true };
                         site.Write(Path.Combine(review, demo.Slug + "-" + step + ".html"), ConsoleExporter.ToHtml(frame, options));
@@ -158,33 +159,43 @@ namespace SiteFrames.Pages {
                 entry["id"] = demo.Slug;
                 JsonObject powershell = Source(demo.PowerShell, demo.Slug);
                 JsonObject csharp = Source(demo.CSharp, demo.Slug);
-                entry["source"] = new JsonObject { ["powershell"] = powershell, ["csharp"] = csharp };
+                JsonObject fluent = Source(demo.CSharpFluent, demo.Slug);
+                entry["source"] = new JsonObject { ["powershell"] = powershell, ["csharp"] = csharp, ["csharpFluent"] = fluent };
                 entry["powershell"] = powershell["text"]!.GetValue<string>();
                 entry["csharp"] = csharp["text"]!.GetValue<string>();
+                entry["csharpFluent"] = fluent["text"]!.GetValue<string>();
                 entry["powershellRepo"] = powershell["repo"]!.GetValue<string>();
                 entry["csharpRepo"] = csharp["repo"]!.GetValue<string>();
+                entry["csharpFluentRepo"] = fluent["repo"]!.GetValue<string>();
                 entry["powershellFile"] = demo.Slug + ".ps1";
                 entry["csharpFile"] = "Program.cs";
+                entry["csharpFluentFile"] = "Program.Fluent.cs";
                 entry["thumbnail"] = "/" + thumbnail;
                 entry["frame"] = site.Frame(poster, null);
                 entry["parity"] = parity;
                 entry["lines"] = new JsonObject {
                     ["powershell"] = File.ReadAllLines(demo.PowerShell).Length,
-                    ["csharp"] = File.ReadAllLines(demo.CSharp).Length
+                    ["csharp"] = File.ReadAllLines(demo.CSharp).Length,
+                    ["csharpFluent"] = File.ReadAllLines(demo.CSharpFluent).Length
                 };
                 entry["featured"] = demo.Metadata["featured"]?.GetValue<bool>() ?? false;
                 entry["replay"] = null;
-                foreach (string file in new[] { demo.Slug + ".ps1", "Program.cs" }) {
+                foreach (string file in new[] { demo.Slug + ".ps1", "Program.cs", "Program.Fluent.cs" }) {
                     string target = site.Static("examples/gallery/" + demo.Slug + "/" + file);
                     Directory.CreateDirectory(Path.GetDirectoryName(target)!);
                     File.Copy(Path.Combine(demo.Folder, file), target, true);
                 }
                 entry["powershellDownload"] = "/examples/gallery/" + demo.Slug + "/" + demo.Slug + ".ps1";
                 entry["csharpDownload"] = "/examples/gallery/" + demo.Slug + "/Program.cs";
+                entry["csharpFluentDownload"] = "/examples/gallery/" + demo.Slug + "/Program.Fluent.cs";
+                string projectTarget = site.Static("examples/gallery/" + demo.Slug + "/GalleryDemo.csproj");
+                File.Copy(Path.Combine(site.Website, "examples", "gallery", "GalleryDemo.csproj.template"), projectTarget, true);
+                entry["projectDownload"] = "/examples/gallery/" + demo.Slug + "/GalleryDemo.csproj";
                 entry["run"] = new JsonObject {
                     ["powershell"] = "Show-ConsoleDemo " + demo.Slug,
                     ["export"] = "Export-ConsoleDemo " + demo.Slug + " -Path ./" + demo.Slug + ".ps1",
-                    ["csharp"] = "dotnet new consolemonster --demo " + demo.Slug
+                    ["csharp"] = "dotnet new consolemonster --demo " + demo.Slug,
+                    ["csharpFluent"] = "dotnet new consolemonster --demo " + demo.Slug + " --DemoStyle Fluent"
                 };
                 if (demo.Steps > 1) {
                     string replay = PlayerData.Write(site, timeline, demo.Title, 10, Math.Max(1800, holdMilliseconds), out long duration, out int count);
@@ -205,7 +216,7 @@ namespace SiteFrames.Pages {
                     };
                 }
                 entries.Add(entry);
-                Console.WriteLine("gallery " + demo.Slug + ": " + demo.Steps + " twin states identical");
+                Console.WriteLine("gallery " + demo.Slug + ": " + demo.Steps + " triplet states byte-identical");
             }
             site.WriteJson(site.Data("gallery"), new JsonObject { ["schemaVersion"] = 1, ["demos"] = entries });
             WriteDetailPages(site, demos);
@@ -252,24 +263,49 @@ namespace SiteFrames.Pages {
             }
         }
 
+        /// <summary>Compiles both C# styles independently, without needing terminal captures.</summary>
+        internal static void CheckSources(Site site) {
+            var failures = new List<string>();
+            foreach (Demo demo in Read(site)) {
+                foreach (string path in new[] { demo.CSharp, demo.CSharpFluent }) {
+                    try { CSharpRunner.Compile(path); }
+                    catch (InvalidOperationException error) { failures.Add(demo.Slug + "/" + Path.GetFileName(path) + ": " + error.Message); }
+                }
+            }
+            if (failures.Count != 0) { throw new InvalidDataException(string.Join("\n\n", failures)); }
+            Console.WriteLine("All gallery initializer and fluent programs compile independently.");
+        }
+
         /// <summary>Checks recorded PowerShell against the ordinary C# programs without rewriting site assets.</summary>
         internal static void Verify(Site site, string? selected = null) {
             foreach (Demo demo in Read(site).Where(demo => selected == null || selected.Split(',').Contains(demo.Slug, StringComparer.Ordinal))) {
-                for (int step = 0; step < demo.Steps; step++) TwinFrame(site, demo, step);
-                Console.WriteLine(demo.Slug + ": " + demo.Steps + " twin states identical");
+                for (int step = 0; step < demo.Steps; step++) TripletFrame(site, demo, step);
+                Console.WriteLine(demo.Slug + ": " + demo.Steps + " triplet states byte-identical");
             }
         }
 
-        private static CellBuffer TwinFrame(Site site, Demo demo, int step) {
+        private static CellBuffer TripletFrame(Site site, Demo demo, int step) {
             CellBuffer frame = Frame(demo, step);
+            CellBuffer fluent = GalleryFrames.Run(demo, step, true);
+            AssertSame(demo, step, frame, fluent, "C# fluent");
             string path = CapturePath(site, demo, step);
             if (!File.Exists(path)) throw new InvalidDataException("Missing " + demo.Slug + " capture; run SiteFrames capture Website gallery.");
             string? stale = Stamps.Check(site, path, Stamp(site, demo), "gallery");
             if (stale != null) throw new InvalidDataException(stale);
             CellBuffer twin = Parity.Transcript(File.ReadAllBytes(path), demo.Width, demo.Height);
-            ParityResult result = Parity.Compare(frame, twin);
-            if (!result.Identical) throw new InvalidDataException(demo.Slug + " step " + step + ": " + result.Detail + "\nC#:\n" + Parity.Describe(frame) + "PowerShell:\n" + Parity.Describe(twin));
+            AssertSame(demo, step, frame, twin, "PowerShell");
             return frame;
+        }
+
+        // Compare cells (including styling and links), then the public export bytes for the same frame.
+        // Capture recipes select deterministic states; raw terminal timings and control transcripts are not a stable format.
+        private static void AssertSame(Demo demo, int step, CellBuffer expected, CellBuffer actual, string style) {
+            ParityResult result = Parity.Compare(expected, actual);
+            if (!result.Identical) { throw new InvalidDataException(demo.Slug + " step " + step + ": " + style + " " + result.Detail + "\nC#:\n" + Parity.Describe(expected) + style + ":\n" + Parity.Describe(actual)); }
+            var options = new ExportOptions { Theme = ExportTheme.Dark };
+            byte[] first = FrameExporter.Export(expected, "Svg", options);
+            byte[] second = FrameExporter.Export(actual, "Svg", options);
+            if (!first.SequenceEqual(second)) { throw new InvalidDataException(demo.Slug + " step " + step + ": " + style + " differs in encoded frame bytes."); }
         }
 
         // Display the whole UTF-8 program without the encoding marker; downloads retain the original bytes.

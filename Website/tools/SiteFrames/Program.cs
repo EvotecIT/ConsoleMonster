@@ -58,6 +58,9 @@ namespace SiteFrames {
                 case "capture-fullscreen-preview":
                     FullScreenPreview.CaptureGif(new Site(website));
                     return 0;
+                case "verify-gallery-sources":
+                    GalleryPage.CheckSources(new Site(website));
+                    return 0;
                 case "verify-gallery":
                     GalleryPage.Verify(new Site(website), only);
                     return 0;

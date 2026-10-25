@@ -7,24 +7,21 @@ using ConsoleMonster.Widgets;
 // Data: fictional inputs kept in memory.
 // Fictional host and git values keep the greeting independent of local probes.
 // Replace fixed strings with cached local data to keep profile startup fast.
-var hostData = new[] {
+var hostData = new[]
+{
     (Label: "Host", Value: "comet-devbox"),
     (Label: "Platform", Value: "Cross-platform development"),
     (Label: "Runtime", Value: "PowerShell 7.4+ / .NET 8+"),
     (Label: "Workspace", Value: "comet-notes")
 };
 string git = "[accent]main[/]   [warn]2 modified[/]   [pass]1 staged[/]   [muted]0 ahead / 0 behind[/]";
-
 // Layout: compose the screen from the data above.
 KeyValueList hostSummary = new KeyValueList();
-foreach (var item in hostData) hostSummary.Add(item.Label, item.Value);
-
-Rows layout = new Rows(
-    new Logo("HELLO", "[muted]A little context before your next command.[/]"),
-    new Panel(hostSummary, "Host summary") { HeaderRight = "local workspace" },
-    new Panel(new TextBlock(git), "Git | comet-notes"),
-    new TextBlock("[bold]Tip[/] Get-Help New-ConsoleTable -Examples"),
-    new TextBlock("[muted]Ready when you are.[/]")) { Gap = 1 };
-
+foreach (var item in hostData)
+    hostSummary.Add(item.Label, item.Value);
+Rows layout = new Rows(new Logo("HELLO", "[muted]A little context before your next command.[/]"), new Panel() { Title = "Host summary", Content = hostSummary, HeaderRight = "local workspace" }, new Panel() { Title = "Git | comet-notes", Content = new TextBlock(git) }, new TextBlock("[bold]Tip[/] Get-Help New-ConsoleTable -Examples"), new TextBlock("[muted]Ready when you are.[/]"))
+{
+    Gap = 1
+};
 // Behaviour: print the screen once and return.
 Terminal.Write(layout);

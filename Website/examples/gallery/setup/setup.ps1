@@ -165,22 +165,22 @@ $dashboard = New-ConsoleDashboard -Title 'Installing Toolbox Agent' -Subtitle $a
 Invoke-ConsoleDashboard -Dashboard $dashboard -ArgumentList (, $installSteps) -ScriptBlock {
     param($Steps)
     foreach ($label in $Steps) {
-        Update-ConsoleStatusItem -WidgetId steps -Key $label -Status Running
-        Update-ConsoleProgress -Label $label
+        Update-Console -WidgetId steps -Key $label -Status Running
+        Update-Console -Label $label -WidgetId 'progress'
         for ($i = 0; $i -lt 10; $i++) {
-            Update-ConsoleProgress -Increment 1
+            Update-Console -Increment 1 -WidgetId 'progress'
             Wait-ConsoleDashboard -Milliseconds 90
         }
-        Update-ConsoleStatusItem -WidgetId steps -Key $label -Status Pass
+        Update-Console -WidgetId steps -Key $label -Status Pass
     }
-    Update-ConsoleProgress -Status Pass
+    Update-Console -Status Pass -WidgetId 'progress'
 }
 New-ConsolePanel -Title 'Toolbox Agent installed' -Content {
     New-ConsoleKeyValue -Content {
-        New-ConsoleKeyValueItem -Key 'Install folder' -Value $answers.Path
-        New-ConsoleKeyValueItem -Key Components -Value ($answers.Components -join ', ')
-        New-ConsoleKeyValueItem -Key Server -Value $answers.Server
-        New-ConsoleKeyValueItem -Key 'Steps done' -Value '4' -Status Pass
-        New-ConsoleKeyValueItem -Key Launch -Value toolbox
+        [pscustomobject]@{ Key = 'Install folder'; Value = $answers.Path }
+        [pscustomobject]@{ Key = 'Components'; Value = ($answers.Components -join ', ') }
+        [pscustomobject]@{ Key = 'Server'; Value = $answers.Server }
+        [pscustomobject]@{ Key = 'Steps done'; Value = '4'; Status = 'Pass' }
+        [pscustomobject]@{ Key = 'Launch'; Value = 'toolbox' }
     }
 } | Show-Console

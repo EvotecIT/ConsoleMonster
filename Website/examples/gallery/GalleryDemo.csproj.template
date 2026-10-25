@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <DemoStyle Condition="'$(DemoStyle)' == ''">Initializer</DemoStyle>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="ConsoleMonster" Version="2.0.*" />
+    <Compile Include="Program.cs" Condition="'$(DemoStyle)' == 'Initializer'" />
+    <Compile Include="Program.Fluent.cs" Condition="'$(DemoStyle)' == 'Fluent'" />
+  </ItemGroup>
+  <Target Name="ValidateDemoStyle" BeforeTargets="CoreCompile" Condition="'$(DemoStyle)' != 'Initializer' and '$(DemoStyle)' != 'Fluent'">
+    <Error Text="DemoStyle must be Initializer or Fluent." />
+  </Target>
+</Project>

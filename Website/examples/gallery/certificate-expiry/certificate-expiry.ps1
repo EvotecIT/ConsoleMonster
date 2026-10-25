@@ -16,8 +16,8 @@ $report = New-ConsoleRows -Gap 1 -Content {
     New-ConsoleTable -InputObject $certificates -Property Name, Expires, Days, Owner, Status -Expand
     New-ConsolePanel -Title 'Renewal policy' -Content {
         New-ConsoleStatusList -Content {
-            New-ConsoleStatusItem -Label 'vpn.example.test' -Status Fail -Detail 'Network · renew before Monday'
-            New-ConsoleStatusItem -Label 'api.example.test' -Status Warn -Detail 'Platform · schedule renewal this week'
+            [pscustomobject]@{ Label = 'vpn.example.test'; Status = 'Fail'; Detail = 'Network · renew before Monday' }
+            [pscustomobject]@{ Label = 'api.example.test'; Status = 'Warn'; Detail = 'Platform · schedule renewal this week' }
         }
         '[muted]Urgent: 7 days or fewer · due soon: 30 days or fewer[/]'
     }
