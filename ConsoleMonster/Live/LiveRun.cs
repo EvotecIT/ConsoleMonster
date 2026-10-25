@@ -14,7 +14,7 @@ namespace ConsoleMonster.Live {
     /// Monitors an existing runner without scheduling its work or changing its results. Completed items are appended
     /// once to scrollback; a bounded dashboard shows active work and problems. All update methods are safe from worker threads.
     /// </summary>
-    public sealed class LiveRun : IDisposable {
+    public sealed partial class LiveRun : IDisposable {
         private readonly object _gate = new object();
         private readonly RunTracker _tracker;
         private readonly LiveSession _session;
