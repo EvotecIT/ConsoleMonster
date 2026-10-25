@@ -14,6 +14,8 @@ Enable-ConsoleFormatting
 
 Files and folders, processes, services, JSON and CSV records, commands, modules, history, network replies, event log records, IP addresses, volumes and dictionaries are then shown as ConsoleMonster tables and records when they reach the console. Objects stay the same: pipelines into other commands, `Out-String`, redirected output, transcripts, jobs and remoting keep PowerShell's behaviour. `Disable-ConsoleFormatting` turns it off.
 
+Typed records with their own PowerShell table view keep its columns and expressions. An explicit `Register-ConsoleView` registration takes precedence.
+
 > `Enable-ConsoleFormatting` changes only output that reaches the console without a format command: `Format-Table`, `Format-List` and `Format-Wide` stay PowerShell's own unless you also turn on `-Feature FormatCommands` (below). For ConsoleMonster's views on demand, use `Show-ConsoleTable` or `Show-ConsoleList`.
 
 To keep it on in every session, print the lines for your profile and paste them in (nothing is written for you):

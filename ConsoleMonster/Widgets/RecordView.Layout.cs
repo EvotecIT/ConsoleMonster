@@ -109,7 +109,9 @@ namespace ConsoleMonster.Widgets {
                 int textWidth = content.TextWidth;
                 int visual = CellRendering.VisualCells(content, valueWidth, Math.Min(textWidth, valueWidth - 4));
                 int textRoom = Math.Max(1, valueWidth - visual - (visual > 0 ? 1 : 0));
-                List<StyledLine> lines = CellRendering.FitLines(content.LinesAtWidth(textRoom, context), textRoom, fields[f].Overflow, fields[f].MaxLines, context);
+                List<StyledLine> lines = content.Widget != null
+                    ? content.LinesAtWidth(textRoom, context)
+                    : CellRendering.FitLines(content.Lines, textRoom, fields[f].Overflow, fields[f].MaxLines, context);
                 int used = 0;
                 foreach (StyledLine line in lines) {
                     used = Math.Max(used, line.Width);

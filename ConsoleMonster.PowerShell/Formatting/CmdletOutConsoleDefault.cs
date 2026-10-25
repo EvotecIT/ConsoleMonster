@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Management.Automation;
+using ConsoleMonster.PowerShell.Binding;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Views;
 using ConsoleMonster.Widgets;
@@ -134,6 +135,12 @@ namespace ConsoleMonster.PowerShell {
                 return;
             }
             ConsoleViewRegistration? view = _active && _types ? ConsoleFormatting.Find(item, Format != null || ConsoleFormatting.TakeOverBuiltIns) ?? DictionaryView(item) : null;
+            // The generic JSON/CSV fallback must not replace a typed record's own native table view.
+            // Explicit ConsoleMonster registrations still win, and document exports keep their selected renderer.
+            if (Format == null && view?.IsBuiltIn == true && view.IsStructuredData
+                && item.BaseObject is PSCustomObject && FormatViews.HasTypedTableView(item, this)) {
+                view = null;
+            }
             if (view != null) {
                 FlushExportObjects();
                 if (_batchView != null && (!string.Equals(_batchView.Group, view.Group, StringComparison.OrdinalIgnoreCase)

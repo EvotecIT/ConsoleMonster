@@ -103,6 +103,38 @@ $servers | Out-ConsoleDefault -Force
         $native | Should -Match 'Name\s+State\s*\n-+\s+-+'
     }
 
+    It 'preserves native table views for typed records unless a ConsoleMonster view is explicitly registered' {
+        $text = Invoke-ViewChild -Script @'
+$path = Join-Path ([IO.Path]::GetTempPath()) ([guid]::NewGuid().ToString() + '.format.ps1xml')
+$xml = '<Configuration><ViewDefinitions><View><Name>NativeRecord</Name><ViewSelectedBy><TypeName>Contoso.NativeRecord</TypeName></ViewSelectedBy><TableControl><TableHeaders><TableColumnHeader><Label>Native heading</Label></TableColumnHeader></TableHeaders><TableRowEntries><TableRowEntry><TableColumnItems><TableColumnItem><ScriptBlock>"native:" + $_.Name</ScriptBlock></TableColumnItem></TableColumnItems></TableRowEntry></TableRowEntries></TableControl></View></ViewDefinitions></Configuration>'
+try {
+    [IO.File]::WriteAllText($path, $xml)
+    $row = [pscustomobject] @{ Name = 'srv01'; Internal = 'private-data' }
+    $row.PSObject.TypeNames.Insert(0, 'Contoso.NativeRecord')
+    Enable-ConsoleFormatting -Feature Output
+    $row | Out-ConsoleDefault -Force
+    Update-FormatData -PrependPath $path -ErrorAction Stop
+    '== native'
+    $row | Out-ConsoleDefault -Force
+    Register-ConsoleView -TypeName System.Management.Automation.PSCustomObject -Property @{ Label = 'Chosen'; Expression = { 'explicit-view' } }
+    '== explicit'
+    $row | Out-ConsoleDefault -Force
+} finally {
+    Disable-ConsoleFormatting
+    Remove-Item -LiteralPath $path
+}
+'@
+        $fallback, $native = $text -split '== native'
+        $native, $explicit = $native -split '== explicit'
+        $fallback | Should -Match 'private-data'
+        $native | Should -Match 'Native heading\s*\n-+'
+        $native | Should -Match 'native:srv01'
+        $native | Should -Not -Match 'Internal|private-data'
+        $explicit | Should -Match 'Chosen'
+        $explicit | Should -Match 'explicit-view'
+        $explicit | Should -Not -Match 'native:srv01|private-data'
+    }
+
     It 'selects type-specific and default PowerShell table rows for every object' {
         $text = Invoke-ViewChild -Script @'
 $path = Join-Path ([IO.Path]::GetTempPath()) ([guid]::NewGuid().ToString() + '.format.ps1xml')

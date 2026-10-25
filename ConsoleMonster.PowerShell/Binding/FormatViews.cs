@@ -25,6 +25,21 @@ namespace ConsoleMonster.PowerShell.Binding {
 
         private const string Script = "param($TypeName) $parameters = @{ TypeName = $TypeName; ErrorAction = 'Ignore' }; if ((Get-Command -Name Get-FormatData).Parameters.ContainsKey('PowerShellVersion')) { $parameters.PowerShellVersion = $PSVersionTable.PSVersion }; Get-FormatData @parameters";
 
+        /// <summary>Whether a record's declared types currently supply a native table view in the calling session.</summary>
+        internal static bool HasTypedTableView(PSObject item, PSCmdlet cmdlet) {
+            foreach (string typeName in item.TypeNames) {
+                // Plain JSON/CSV records need no metadata lookup. Do not cache misses: a module imported after
+                // the first display, or Update-FormatData, can give a typed record its native view immediately.
+                if (typeName == typeof(PSCustomObject).FullName || typeName == typeof(object).FullName) {
+                    continue;
+                }
+                if (Load(typeName, cmdlet) != null) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         /// <summary>The table view columns for an object (as calculated-property hashtables), or null when its types have none.</summary>
         /// <param name="item">The object.</param>
         /// <param name="cmdlet">The calling cmdlet (Get-FormatData runs in its session), or null to skip the lookup.</param>
