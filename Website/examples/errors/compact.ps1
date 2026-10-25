@@ -5,6 +5,6 @@ try {
     # example-source-guard: intentional-error int.Parse production
     [int]::Parse('production')
 } catch {
-    $_ | Format-ConsoleError -Compact
+    $_ | Show-ConsoleError -Compact
 }
 Disable-ConsoleFormatting -Feature Errors

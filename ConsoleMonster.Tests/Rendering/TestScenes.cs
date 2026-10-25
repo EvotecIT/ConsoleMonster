@@ -36,7 +36,7 @@ namespace ConsoleMonster.Tests.Rendering {
                 new Rule("Report"),
                 kv,
                 table,
-                new Columns(new Panel(tree, "Tree"), new Panel(checks, "Checks") { Caption = "3 items" })) { Gap = 1 };
+                new Columns(new Panel(tree, "Tree"), new Panel(checks, "Checks") { HeaderRight = "3 items" })) { Gap = 1 };
         }
 
         public static IWidget Live() {

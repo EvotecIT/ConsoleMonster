@@ -120,22 +120,22 @@ namespace ConsoleMonster.Tests.Widgets {
             using (LiveSession session = new LiveSession(bar, options)) {
                 session.Start();
                 // Two frames at 0 s, so the bar knows the run started then.
-                session.Post(new LiveEvent("summary", "counter", key: "passed", value: 0, state: "Pass"));
+                session.Post(new LiveEvent("summary", "counter", key: "passed", value: 0, status: "Pass"));
                 Assert.True(SpinWait.SpinUntil(() => Volatile.Read(ref output.Frames) >= 2, 5000), "No frames were drawn.");
                 // 4 of 10 after 20 s on the simulated clock: 30 s left (real time would say almost nothing has passed).
                 Interlocked.Exchange(ref ticks, TimeSpan.FromSeconds(20).Ticks);
                 session.Post(new LiveEvent("summary", "progress", value: 4, total: 10));
-                session.Post(new LiveEvent("summary", "counter", key: "passed", value: 4, state: "Pass"));
+                session.Post(new LiveEvent("summary", "counter", key: "passed", value: 4, status: "Pass"));
                 Assert.True(SpinWait.SpinUntil(() => bar.Remaining == TimeSpan.FromSeconds(30), 5000), "The time left did not follow the clock: " + bar.Remaining);
 
                 // Done at 50 s; the clock moving on to 75 s while the screen stays does not change the duration.
                 Interlocked.Exchange(ref ticks, TimeSpan.FromSeconds(50).Ticks);
                 session.Post(new LiveEvent("summary", "progress", value: 10, total: 10));
-                session.Post(new LiveEvent("summary", "counter", key: "passed", value: 10, state: "Pass"));
+                session.Post(new LiveEvent("summary", "counter", key: "passed", value: 10, status: "Pass"));
                 Assert.True(SpinWait.SpinUntil(() => bar.Done >= 10 && bar.Remaining == null, 5000), "The end was not applied.");
                 Interlocked.Exchange(ref ticks, TimeSpan.FromSeconds(75).Ticks);
                 int frames = Volatile.Read(ref output.Frames);
-                session.Post(new LiveEvent("summary", "counter", key: "passed", value: 10, state: "Pass"));
+                session.Post(new LiveEvent("summary", "counter", key: "passed", value: 10, status: "Pass"));
                 SpinWait.SpinUntil(() => Volatile.Read(ref output.Frames) > frames + 1, 1000);
                 session.Stop();
             }

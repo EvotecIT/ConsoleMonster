@@ -39,11 +39,11 @@ namespace ConsoleMonster.Live {
             }
             StringBuilder json = new StringBuilder("{");
             if (liveEvent.Time != 0) { json.Append("\"t\":").Append(liveEvent.Time.ToString(CultureInfo.InvariantCulture)).Append(','); }
-            Field(json, "target", liveEvent.Target);
+            Field(json, "target", liveEvent.WidgetId);
             Field(json, "op", liveEvent.Operation);
             Field(json, "key", liveEvent.Key);
             Field(json, "text", liveEvent.Text);
-            Field(json, "state", liveEvent.State);
+            Field(json, "state", liveEvent.Status);
             if (liveEvent.Value != 0) { json.Append("\"value\":").Append(liveEvent.Value.ToString("R", CultureInfo.InvariantCulture)).Append(','); }
             if (liveEvent.Total != 0) { json.Append("\"total\":").Append(liveEvent.Total.ToString("R", CultureInfo.InvariantCulture)).Append(','); }
             if (liveEvent.IsMarkup) { json.Append("\"markup\":1,"); }

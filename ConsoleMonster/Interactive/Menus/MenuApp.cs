@@ -97,9 +97,9 @@ namespace ConsoleMonster.Interactive {
 
         // A run stays inside the app: the live session draws the app frame with a run pane as the content (same header,
         // sidebar and footer), on the app's own screen or capture, so nothing clears or jumps between choosing and running.
-        public RunResult Run(MenuContext context, IWidget dashboard, Func<RunContext, RunResult?> work, LiveSessionOptions? options) {
+        public MenuRunResult Run(MenuContext context, IWidget dashboard, Func<RunContext, MenuRunResult?> work, LiveSessionOptions? options) {
             Location? location = null;
-            RunResult result = RunHost.Run(this, _surface, _screen, _input, _context, context, dashboard, work, options, pane => {
+            MenuRunResult result = RunHost.Run(this, _surface, _screen, _input, _context, context, dashboard, work, options, pane => {
                 // The breadcrumb says the app is running; the dashboard's title names the panel, so it is not said twice.
                 location = new Location(Labels.Running, pane, context.Item);
                 Push(location);
@@ -107,11 +107,11 @@ namespace ConsoleMonster.Interactive {
                 if (location != null) {
                     _stack.Remove(location);
                 }
-            }, context.Item?.Title ?? _root.Title);
+            }, context.Item?.Label ?? _root.Title);
             ShowResult(result);
             return result;
         }
-        public void ShowResult(RunResult result) {
+        public void ShowResult(MenuRunResult result) {
             ResultPane pane = new ResultPane(result, Labels, Activate, Back);
             Push(new Location(Labels.Results, pane, null));
         }
@@ -186,7 +186,7 @@ namespace ConsoleMonster.Interactive {
             }
             _sidebarItem = item;
             _stack.Clear();
-            _stack.Add(new Location(item.Title, PaneFor(item), item));
+            _stack.Add(new Location(item.Label, PaneFor(item), item));
         }
 
         private IPane PaneFor(MenuItem item) {
@@ -268,7 +268,7 @@ namespace ConsoleMonster.Interactive {
                 _contentFocused = true;
                 return;
             }
-            Push(new Location(item.Title, PaneFor(item), item));
+            Push(new Location(item.Label, PaneFor(item), item));
         }
 
         /// <summary>
@@ -314,15 +314,15 @@ namespace ConsoleMonster.Interactive {
         private void Invoke(MenuItem? item, Action<MenuContext> action, FormResult? form) {
             Func<RenderContext, IPromptSurface?>? previous = PromptHost.Current;
             PromptHost.Current = ResolvePromptSurface;
-            bool collecting = BeginOutput(item?.Title ?? _root.Title);
+            bool collecting = BeginOutput(item?.Label ?? _root.Title);
             try {
                 MenuContext context = Context(item, form?.Values);
                 context.FormResult = form;
                 action(context);
-            } catch (PromptCancelledException) {
+            } catch (PromptCanceledException) {
                 // The user backed out of a prompt the action asked; nothing else to do.
             } catch (Exception ex) {
-                ShowResult(new RunResult(item?.Title ?? _root.Title, StatusKind.Fail) { Error = ex });
+                ShowResult(new MenuRunResult(item?.Label ?? _root.Title, StatusKind.Fail) { Error = ex });
             } finally {
                 PromptHost.Current = previous;
                 if (collecting) {
@@ -345,7 +345,7 @@ namespace ConsoleMonster.Interactive {
             }
             MenuContext context = Context(item);
             CancellationToken token = _asyncCancel.Token;
-            BeginOutput(item.Title);
+            BeginOutput(item.Label);
             _asyncAction = Task.Run(() => item.AsyncHandler!(context, token), token);
         }
 
@@ -360,10 +360,10 @@ namespace ConsoleMonster.Interactive {
                 _asyncPane.Cancel = null;
             }
             EndOutput();
-            if (task.IsCanceled || (task.IsFaulted && task.Exception!.GetBaseException() is PromptCancelledException)) {
-                ShowToast(new Toast(_asyncItem?.Title + ": " + Labels.Cancelled, StatusKind.Warn));
+            if (task.IsCanceled || (task.IsFaulted && task.Exception!.GetBaseException() is PromptCanceledException)) {
+                ShowToast(new Toast(_asyncItem?.Label + ": " + Labels.Canceled, StatusKind.Warn));
             } else if (task.IsFaulted) {
-                ShowResult(new RunResult(_asyncItem?.Title ?? _root.Title, StatusKind.Fail) { Error = task.Exception!.GetBaseException() });
+                ShowResult(new MenuRunResult(_asyncItem?.Label ?? _root.Title, StatusKind.Fail) { Error = task.Exception!.GetBaseException() });
             }
             _asyncCancel?.Dispose();
             _asyncCancel = null;
@@ -372,7 +372,7 @@ namespace ConsoleMonster.Interactive {
 
         private void OnFormSubmitted(MenuItem item, FormResult result) {
             if (item.FormSubmitted == null) {
-                ShowToast(new Toast(item.Title));
+                ShowToast(new Toast(item.Label));
                 return;
             }
             Invoke(item, ctx => item.FormSubmitted(ctx, result), result);
@@ -421,7 +421,7 @@ namespace ConsoleMonster.Interactive {
                             Activate(item);
                             form.ApplyPreset(name);
                         }) {
-                            Category = Labels.Presets + " " + InteractiveGlyphs.For(_context).Breadcrumb + " " + item.Title,
+                            Category = Labels.Presets + " " + InteractiveGlyphs.For(_context).Breadcrumb + " " + item.Label,
                             Description = form.IsBuiltInPreset(name) ? Labels.BuiltIn : null
                         });
                     }
@@ -460,13 +460,13 @@ namespace ConsoleMonster.Interactive {
                 }
                 MenuItem target = item;
                 List<MenuItem> chain = new List<MenuItem>();
-                commands.Add(new PaletteCommand(item.Title, _ => NavigateTo(target)) {
+                commands.Add(new PaletteCommand(item.Label, _ => NavigateTo(target)) {
                     Category = path.Count == 0 ? Labels.GoTo : Labels.GoTo + separator + string.Join(separator, path.ToArray()),
                     Description = item.Description,
                     Keys = item.HotkeyChar.HasValue ? item.HotkeyChar.Value.ToString() : null
                 });
                 if (item.SubmenuDefinition != null) {
-                    path.Add(item.Title);
+                    path.Add(item.Label);
                     AddNavigation(item.SubmenuDefinition, path, commands);
                     path.RemoveAt(path.Count - 1);
                 }
@@ -501,7 +501,7 @@ namespace ConsoleMonster.Interactive {
                     }
                     continue;
                 }
-                Push(new Location(step.Title, PaneFor(step), step));
+                Push(new Location(step.Label, PaneFor(step), step));
             }
             _contentFocused = true;
         }

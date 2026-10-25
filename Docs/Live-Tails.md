@@ -15,7 +15,7 @@ Watch-ConsoleLog -Path ./service.log -Highlight database
 For a finite snapshot, use `-Count 1`. This counts one **source poll**, not one line. Every matching completed line available in that poll is returned.
 
 ```powershell
-Watch-ConsoleLog -Path ./service.log -Tail 50 -Filter ERROR -Count 1 -Plain
+Watch-ConsoleLog -Path ./service.log -Tail 50 -Filter ERROR -Count 1 -NoLive
 ```
 
 `-Path` is a single literal FileSystem path; wildcards are not expanded. `-Filter` and `-Highlight` are literal, ordinal case-insensitive substrings, not regular expressions. A filter selects lines; a highlight changes only live presentation. Pipes and redirects preserve raw text, including timestamp and level prefixes and markup-like characters.
@@ -34,7 +34,7 @@ The Windows event-log command is a usage example. The website's captured evidenc
 | `-Tail` | `10` | Completed history lines or events loaded initially; `0` starts with subsequent entries. |
 | `-Encoding` | `utf8` | File fallback encoding; a recognized BOM takes precedence. |
 | `-Count` | `0` | Poll iterations; `0` follows until quit or cancellation, `1` processes one snapshot. |
-| `-Interval` | `0.25` | Seconds between source polls. |
+| `-PollIntervalSeconds` | `0.25` | Seconds between source polls. |
 | `-Capacity` | `1000` | Maximum retained history entries in the live view. |
 | `-Filter` | Empty | Required literal substring in each original line. |
 | `-Highlight` | Empty | Literal substring emphasized in the live view. |

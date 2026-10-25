@@ -3,14 +3,14 @@ param($Demo, $Metadata, [int] $Step)
 if ($Step -ge $Metadata.steps) { throw "Snapshot $Step does not exist for $($Metadata.slug)." }
 $state = $Metadata.capture.states[$Step]
 $culture = [Globalization.CultureInfo]::GetCultureInfo('en-US')
-$profile = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed($Metadata.terminal.width, $Metadata.terminal.height, 'TrueColor', 'Full').WithCulture($culture).WithLanguage($culture)
-$target = [ConsoleMonster.Output.RecordingTarget]::new($profile, $state.keys)
+$profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile', $true))::Fixed($Metadata.terminal.width, $Metadata.terminal.height, 'TrueColor', 'Full').WithCulture($culture).WithLanguage($culture)
+$target = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Output.RecordingTarget', $true))::new($profile, $state.keys)
 $target.SkipDelays = $true
 $target.Checkpoints = if ($null -ne $state.checkpoint) { [int[]] @($state.checkpoint) } else { [int[]] @() }
 $previousStorage = $env:CONSOLEMONSTER_STORAGE_ROOT
 $captureStorage = Join-Path ([IO.Path]::GetTempPath()) ('cm-demo-presets-' + [guid]::NewGuid().ToString('N'))
 $env:CONSOLEMONSTER_STORAGE_ROOT = $captureStorage
-$previous = [ConsoleMonster.Interactive.InteractiveOptions]::Default
+$previous = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions', $true))::Default
 $options = $previous.Clone()
 $options.Target = $target
 $options.Input = $target.Input
@@ -21,7 +21,7 @@ $options.Theme = $target.Theme
 $options.Mode = if ($null -ne $target.Input) { 'Rich' } else { 'None' }
 $options.NonInteractive = $false
 try {
-    [ConsoleMonster.Interactive.InteractiveOptions]::Default = $options
+    ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions', $true))::Default = $options
     Use-ConsoleTarget -Target $target -ScriptBlock {
         try { $null = & $Demo }
         catch {
@@ -30,7 +30,7 @@ try {
         }
     }
 } finally {
-    [ConsoleMonster.Interactive.InteractiveOptions]::Default = $previous
+    ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions', $true))::Default = $previous
     $env:CONSOLEMONSTER_STORAGE_ROOT = $previousStorage
     if ([IO.Directory]::Exists($captureStorage)) { [IO.Directory]::Delete($captureStorage, $true) }
 }
@@ -53,7 +53,7 @@ if ($state.outputStart) {
     if ($at -ge $starts.Count -or $at -lt 0) { throw "The output never reached '$($state.outputStart)'." }
     $start = $starts[$at]
     $height = if ($state.rows) { [int] $state.rows } else { $frame.Height - $start }
-    $selected = [ConsoleMonster.Canvas.CellBuffer]::new($frame.Width, $height)
+    $selected = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Canvas.CellBuffer', $true))::new($frame.Width, $height)
     $selected.Blit($frame, 0, $start, $frame.Width, $height, 0, 0)
     return $selected
 }

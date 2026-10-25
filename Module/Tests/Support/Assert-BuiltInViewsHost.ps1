@@ -65,7 +65,7 @@ function Assert-DisplayedFrame {
         $widget = Convert-TestNativeView -Rows $Rows -Arguments $Arguments
         $wanted = $widget | Export-ConsoleFrame -Format Text -Width $width
     } else {
-        $wanted = $Rows | Format-ConsoleTable -AsString -Width $width
+        $wanted = $Rows | Show-ConsoleTable -AsString -Width $width
     }
     $wanted = ($wanted -replace "`r", '').TrimEnd("`n") + "`n"
     $lineCount = @($wanted.TrimEnd("`n") -split "`n").Count

@@ -26,8 +26,8 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>Creates a live table.</summary>
         /// <param name="table">The table that defines the columns and options (its own rows are replaced).</param>
-        /// <param name="name">The live name (default <c>table</c>).</param>
-        public LiveTable(Table table, string name = "table") : base(name) {
+        /// <param name="widgetId">The live name (default <c>table</c>).</param>
+        public LiveTable(Table table, string widgetId = "table") : base(widgetId) {
             Table = table ?? throw new ArgumentNullException(nameof(table));
             // A live table keeps its grid shape: no record view for a single row, no cards in narrow windows.
             Table.StableWidths = true;
@@ -58,7 +58,7 @@ namespace ConsoleMonster.Widgets {
         /// <summary>A handle that changes rows through a dispatcher (a live session).</summary>
         /// <param name="dispatcher">The dispatcher.</param>
         /// <returns>The handle.</returns>
-        public LiveTableHandle Handle(ILiveDispatcher dispatcher) => new LiveTableHandle(dispatcher, Name);
+        public LiveTableHandle Handle(ILiveDispatcher dispatcher) => new LiveTableHandle(dispatcher, WidgetId);
 
         /// <summary>Adds or replaces a row directly (not thread-safe; use a handle while a session runs).</summary>
         /// <param name="key">The row key.</param>
@@ -231,8 +231,8 @@ namespace ConsoleMonster.Widgets {
     public sealed class LiveTableHandle : LiveHandle {
         /// <summary>Creates a handle.</summary>
         /// <param name="dispatcher">The dispatcher (a live session).</param>
-        /// <param name="target">The live table name.</param>
-        public LiveTableHandle(ILiveDispatcher dispatcher, string target) : base(dispatcher, target) {
+        /// <param name="widgetId">The live table name.</param>
+        public LiveTableHandle(ILiveDispatcher dispatcher, string widgetId) : base(dispatcher, widgetId) {
         }
 
         /// <summary>Adds a row (or replaces the row with that key).</summary>

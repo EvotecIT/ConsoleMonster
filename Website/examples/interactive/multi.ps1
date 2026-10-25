@@ -16,10 +16,10 @@ $allTasks = @(
     #endregion
 )
 
-$tasks = $allTasks | Read-ConsoleMultiSelection 'Tasks' -Display Name -GroupBy Category -Minimum 1 -Preview {
-    New-ConsoleRows -Gap 1 {
+$tasks = $allTasks | Read-ConsoleMultiSelect 'Tasks' -Display Name -GroupBy Category -Minimum 1 -Preview {
+    New-ConsoleRows -Gap 1 -Content {
         New-ConsoleText $_.Description
-        New-ConsoleKeyValue -Markup ([ordered] @{
+        New-ConsoleKeyValue -Markup -InputObject ([ordered] @{
             Group     = $_.Category
             Duration  = "about $($_.Minutes) min per server"
             Changes   = if ($_.Changes) { '[warn]yes[/], makes changes' } else { '[pass]no[/], read only' }
@@ -27,4 +27,4 @@ $tasks = $allTasks | Read-ConsoleMultiSelection 'Tasks' -Display Name -GroupBy C
         })
     }
 }
-Write-ConsoleMarkup "Running [bold]$($tasks.Count)[/] tasks"
+Write-ConsoleText -Markup "Running [bold]$($tasks.Count)[/] tasks"

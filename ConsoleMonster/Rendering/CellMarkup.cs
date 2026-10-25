@@ -40,7 +40,7 @@ namespace ConsoleMonster.Rendering {
                     x++;
                 }
                 string text = Text.Markup.Escape(run.ToString());
-                string tag = style.IsPlain ? string.Empty : new RichStyle(RichColor.From(style.Foreground), RichColor.From(style.Background), style.Decoration, style.Link).ToMarkup();
+                string tag = style.IsPlain ? string.Empty : new RichStyle(RichColor.From(style.Color), RichColor.From(style.BackgroundColor), style.Decoration, style.Link).ToMarkup();
                 if (tag.Length == 0) {
                     markup.Append(text);
                 } else {
@@ -58,6 +58,6 @@ namespace ConsoleMonster.Rendering {
             return true;
         }
 
-        private static bool IsBlankCell(Cell cell) => !cell.IsContinuation && cell.Glyph == " " && cell.Style.Background.IsDefault && (cell.Style.Decoration & (TextDecoration.Reverse | TextDecoration.Underline | TextDecoration.Strikethrough)) == 0;
+        private static bool IsBlankCell(Cell cell) => !cell.IsContinuation && cell.Glyph == " " && cell.Style.BackgroundColor.IsDefault && (cell.Style.Decoration & (TextDecoration.Reverse | TextDecoration.Underline | TextDecoration.Strikethrough)) == 0;
     }
 }

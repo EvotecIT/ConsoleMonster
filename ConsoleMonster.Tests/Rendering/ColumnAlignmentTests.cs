@@ -35,7 +35,7 @@ namespace ConsoleMonster.Tests.Rendering {
 
         private static void Step(Lanes lanes, string key, string state, int count) {
             for (int i = 0; i < count; i++) {
-                lanes.Apply(new LiveEvent("lanes", "advance", key, state: state, time: 1));
+                lanes.Apply(new LiveEvent("lanes", "advance", key, status: state, time: 1));
             }
         }
 

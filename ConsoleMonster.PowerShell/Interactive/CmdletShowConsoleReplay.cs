@@ -12,7 +12,7 @@ using ConsoleMonster.Replay;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Rewinds a recorded run: an in-terminal player with a timeline, markers, failures, warnings and log search.</para>
-    /// <para type="description">Plays a recording (written by Start-ConsoleDashboard -RecordPath or -AutoRecord) into the same dashboard and lets you move through it: space plays and pauses, left and right step frame by frame, + and - change the speed, PgUp and PgDn scrub, Home and End jump to the ends, n/p jump to the next or previous marker, f/F to failures, w/W to warnings, l/L to log entries, and / searches the log text (Enter for the next match). Markers are added while recording with Send-ConsoleEvent -Target '$marker' -Operation mark -Text 'label'. Without -Path the newest automatic recording is played. Without an interactive console the markers are printed as lines.</para>
+    /// <para type="description">Plays a recording (written by Invoke-ConsoleDashboard -RecordPath or -AutoRecord) into the same dashboard and lets you move through it: space plays and pauses, left and right step frame by frame, + and - change the speed, PgUp and PgDn scrub, Home and End jump to the ends, n/p jump to the next or previous marker, f/F to failures, w/W to warnings, l/L to log entries, and / searches the log text (Enter for the next match). Markers are added while recording with Send-ConsoleEvent -Target '$marker' -Operation mark -Text 'label'. Without -Path the newest automatic recording is played. Without an interactive console the markers are printed as lines.</para>
     /// </summary>
     /// <example>
     ///   <para>Rewind the last automatically recorded run</para>
@@ -23,7 +23,7 @@ namespace ConsoleMonster.PowerShell {
     ///   <code>Show-ConsoleReplay $dashboard .\deploy.jsonl -Inline -Paused</code>
     /// </example>
     [Cmdlet(VerbsCommon.Show, "ConsoleReplay")]
-    public sealed class CmdletShowConsoleReplay : PSCmdlet {
+    public sealed partial class CmdletShowConsoleReplay : PSCmdlet {
         private CancellationTokenSource? _stop;
 
         /// <summary><para type="description">The dashboard (or any widget tree) whose widget names match the recording.</para></summary>
@@ -56,9 +56,18 @@ namespace ConsoleMonster.PowerShell {
         [ValidateRange(1, 500)]
         public int Height { get; set; }
 
+        /// <summary><para type="description">Interactive player controls (default), or automatic playback without reading keys.</para></summary>
+        [Parameter]
+        [ValidateSet("Interactive", "Automatic")]
+        public string PlaybackMode { get; set; } = "Interactive";
+
         /// <inheritdoc />
         protected override void EndProcessing() {
             string path = Path == null ? Newest() : SessionState.Path.GetUnresolvedProviderPathFromPSPath(Path);
+            if (string.Equals(PlaybackMode, "Automatic", StringComparison.OrdinalIgnoreCase)) {
+                PlayAutomatic(path);
+                return;
+            }
             InteractiveOptions interactive = PSInteractive.Options(this, null);
             if (interactive.ResolveMode() != InteractionMode.Rich && interactive.LineConsole == null && Host?.UI != null) {
                 interactive.LineConsole = new HostLineConsole(Host.UI);
@@ -94,7 +103,7 @@ namespace ConsoleMonster.PowerShell {
             string folder = LiveSessionOptions.DefaultRecordingFolder;
             FileInfo? newest = Directory.Exists(folder) ? new DirectoryInfo(folder).GetFiles("*.jsonl").OrderByDescending(f => f.LastWriteTimeUtc).FirstOrDefault() : null;
             if (newest == null) {
-                ThrowTerminatingError(new ErrorRecord(new FileNotFoundException("No automatic recordings in '" + folder + "'. Record with Start-ConsoleDashboard -AutoRecord or pass -Path."), "NoRecording", ErrorCategory.ObjectNotFound, folder));
+                ThrowTerminatingError(new ErrorRecord(new FileNotFoundException("No automatic recordings in '" + folder + "'. Record with Invoke-ConsoleDashboard -AutoRecord or pass -Path."), "NoRecording", ErrorCategory.ObjectNotFound, folder));
             }
             return newest!.FullName;
         }

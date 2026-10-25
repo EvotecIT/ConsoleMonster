@@ -33,18 +33,18 @@ try {
 
     It 'uses an explicit session without writing output and returns safely after cancellation' {
         Invoke-DelayChild -Script @'
-$target = [ConsoleMonster.Testing.TestTerminal]::Target(32, 12)
+$target = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Testing.TestTerminal', $true))::Target(32, 12)
 $target.SkipDelays = $true
-$options = [ConsoleMonster.Live.LiveSessionOptions]::new()
+$options = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.LiveSessionOptions', $true))::new()
 $options.Target = $target
 $options.CaptureConsole = $false
 $options.HandleCancelKey = $false
 $options.PrintFinalState = $false
-$slot = [ConsoleMonster.Widgets.Slot]::new('body')
-$session = [ConsoleMonster.Live.LiveSession]::new($slot, $options)
+$slot = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Widgets.RegionWidget', $true))::new('body')
+$session = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.LiveSession', $true))::new($slot, $options)
 try {
     $session.Start()
-    $session.Region('body').Set([ConsoleMonster.Widgets.TextBlock]::Plain('explicit'))
+    $session.Region('body').Set(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Widgets.TextBlock', $true))::Plain('explicit'))
     if (@(Wait-ConsoleDashboard -Milliseconds 10000 -Session $session).Count) { throw 'The wait wrote pipeline output.' }
     if ($target.Screens.Frames.Count -ne 1 -or $target.Screens.LastFrame.ToPlainText() -ne 'explicit') { throw 'The explicit session was not captured.' }
     $session.Cancel()
@@ -57,16 +57,16 @@ try {
 
     It 'captures ordered updates from a dashboard child runspace using its session target' {
         Invoke-DelayChild -Script @'
-$target = [ConsoleMonster.Testing.TestTerminal]::Target(32, 12)
+$target = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Testing.TestTerminal', $true))::Target(32, 12)
 $target.SkipDelays = $true
 $previous = [ConsoleMonster.Terminal]::Target
 $scope = [ConsoleMonster.Terminal]::Use($target)
 try {
-    $slot = New-ConsoleRegion -Name body
-    $result = @(Start-ConsoleDashboard $slot -Transient {
-        Set-ConsoleRegion -Name body { New-ConsoleText 'first' }
+    $slot = New-ConsoleRegion -WidgetId body
+    $result = @(Invoke-ConsoleDashboard $slot -Transient {
+        Set-ConsoleRegion -WidgetId body -Content { New-ConsoleText 'first' }
         Wait-ConsoleDashboard -Milliseconds 10000
-        Set-ConsoleRegion -Name body { New-ConsoleText 'second' }
+        Set-ConsoleRegion -WidgetId body -Content { New-ConsoleText 'second' }
         Wait-ConsoleDashboard -Milliseconds 0
     })
     if ($result.Count) { throw 'The child wait wrote pipeline output.' }
@@ -80,13 +80,13 @@ if ($target.Screens.Frames[0].ToPlainText() -ne 'first' -or $target.Screens.Fram
 
     It 'preserves an explicit event time in the live log and its checkpoint' {
         Invoke-DelayChild -Script @'
-$target = [ConsoleMonster.Testing.TestTerminal]::Target(48, 12)
+$target = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Testing.TestTerminal', $true))::Target(48, 12)
 $target.SkipDelays = $true
 $scope = [ConsoleMonster.Terminal]::Use($target)
 try {
-    $log = New-ConsoleLog -Name log -Height 1
-    Start-ConsoleDashboard $log -Transient {
-        Send-ConsoleEvent -Target log -Operation write -Text 'source timestamp' -State info -TimeMilliseconds 123000
+    $log = New-ConsoleLogRegion -WidgetId log -Height 1
+    Invoke-ConsoleDashboard $log -Transient {
+        Send-ConsoleEvent -WidgetId log -Operation write -Text 'source timestamp' -Status info -TimeMilliseconds 123000
         Wait-ConsoleDashboard -Milliseconds 0
     }
 } finally { $scope.Dispose() }

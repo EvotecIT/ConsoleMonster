@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace ConsoleMonster.Styling {
     /// <summary>
-    /// Log levels for log regions and Write-ConsoleLog: info, warn, err, verbose, debug, pass and skip. PowerShell's own words
+    /// Log levels for log regions and Write-ConsoleLogEntry: info, warn, err, verbose, debug, pass and skip. PowerShell's own words
     /// (Information, Warning, Error, Verbose, Debug, Success...) and the status words map onto them, so one vocabulary works
     /// for statuses and logs.
     /// </summary>

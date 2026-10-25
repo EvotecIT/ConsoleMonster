@@ -43,7 +43,7 @@ namespace ConsoleMonster.PowerShell.Binding {
             "FailBelow",
             "WarnBelow",
             "PassBelow",
-            "Tone",
+            "Role",
             "FormatString",
         };
 
@@ -227,8 +227,8 @@ namespace ConsoleMonster.PowerShell.Binding {
         }
 
         /// <summary>
-        /// A table column from a column hashtable (Name or Label for the header, and the column options of Format-ConsoleTable:
-        /// Alignment, Width, MinWidth, MaxWidth, Flexible, Overflow, Presenter, Markup, tone rules...), for tables whose rows
+        /// A table column from a column hashtable (Name or Label for the header, and the column options of Show-ConsoleTable:
+        /// Alignment, Width, MinWidth, MaxWidth, Flexible, Overflow, Presenter, Markup, role rules...), for tables whose rows
         /// come later, such as live tables.
         /// </summary>
         /// <param name="spec">The hashtable.</param>
@@ -317,51 +317,51 @@ namespace ConsoleMonster.PowerShell.Binding {
             AddThreshold(options, "FailBelow", false, ThemeToken.Fail, column);
             AddThreshold(options, "WarnBelow", false, ThemeToken.Warn, column);
             AddThreshold(options, "PassBelow", false, ThemeToken.Pass, column);
-            if (TryOption(options, "Tone", out object? tone)) {
-                if (tone is IDictionary single)
-                    AddTone(column, single);
-                else if (tone is IEnumerable tones && !(tone is string))
-                    foreach (object? rule in tones) {
+            if (TryOption(options, "Role", out object? role)) {
+                if (role is IDictionary single)
+                    AddRole(column, single);
+                else if (role is IEnumerable roles && !(role is string))
+                    foreach (object? rule in roles) {
                         if (!(rule is IDictionary map))
                             throw new ArgumentException(
-                                "Tone must be a hashtable or an array of hashtables."
+                                "Role must be a hashtable or an array of hashtables."
                             );
-                        AddTone(column, map);
+                        AddRole(column, map);
                     }
                 else
                     throw new ArgumentException(
-                        "Tone must be a hashtable or an array of hashtables."
+                        "Role must be a hashtable or an array of hashtables."
                     );
             }
         }
 
-        private static void AddTone(TableColumn column, IDictionary rule) {
-            object? toneValue = Option(rule, "Tone");
-            if (toneValue == null)
-                throw new ArgumentException("Each Tone rule requires a Tone key.");
-            ThemeToken tone = ParseEnum<ThemeToken>(toneValue, "Tone");
+        private static void AddRole(TableColumn column, IDictionary rule) {
+            object? roleValue = Option(rule, "Role");
+            if (roleValue == null)
+                throw new ArgumentException("Each Role rule requires a Role key.");
+            ThemeToken role = ParseEnum<ThemeToken>(roleValue, "Role");
             if (TryOption(rule, "Above", out object? above))
-                column.ToneRules.Add(ToneRule.Above(Number(above, "Above"), tone));
+                column.RoleRules.Add(RoleRule.Above(Number(above, "Above"), role));
             else if (TryOption(rule, "Below", out object? below))
-                column.ToneRules.Add(ToneRule.Below(Number(below, "Below"), tone));
+                column.RoleRules.Add(RoleRule.Below(Number(below, "Below"), role));
             else if (TryOption(rule, "Equals", out object? equals))
-                column.ToneRules.Add(ToneRule.Equal(equals, tone));
+                column.RoleRules.Add(RoleRule.Equal(equals, role));
             else
-                throw new ArgumentException("Tone rule requires Above, Below or Equals.");
+                throw new ArgumentException("Role rule requires Above, Below or Equals.");
         }
 
         private static void AddThreshold(
             IDictionary options,
             string key,
             bool above,
-            ThemeToken tone,
+            ThemeToken role,
             TableColumn column
         ) {
             if (TryOption(options, key, out object? value))
-                column.ToneRules.Add(
+                column.RoleRules.Add(
                     above
-                        ? ToneRule.Above(Number(value, key), tone)
-                        : ToneRule.Below(Number(value, key), tone)
+                        ? RoleRule.Above(Number(value, key), role)
+                        : RoleRule.Below(Number(value, key), role)
                 );
         }
 

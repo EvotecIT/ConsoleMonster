@@ -8,31 +8,31 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates rich text: multicolour words for table cells, calculated properties, titles, labels, log lines or output on its own.
 
--Text takes pieces that are shown literally (data is never interpreted); -Color and -BackgroundColor take one colour per piece, and pieces beyond the colours use the first colour, as Write-Color does. Colours are ConsoleColor names exactly as Write-Host shows them, theme roles (Pass, Fail, Warn, Info, Muted, Accent) that follow the light or dark theme, #RRGGBB, rgb(r,g,b) or r,g,b. -Markup adds Spectre-compatible markup ([bold lime]Ready[/]); -Style adds Bold, Dim, Italic, Underline, Strikethrough or Invert; -Link makes the text a hyperlink where the terminal supports it; -Gradient colours the text from one colour to another. The result works as a cell value (also from a calculated property), as the title or label of any widget, with Write-ConsoleLog and Update-ConsoleLane, and with Write-ConsoleWidget. Without colour (NO_COLOR, redirected output) the text stays plain.
+-Text takes pieces that are shown literally (data is never interpreted); -Color and -BackgroundColor take one colour per piece, and pieces beyond the colours use the first colour, as Write-Color does. Colours are ConsoleColor names exactly as Write-Host shows them, theme roles (Pass, Fail, Warn, Info, Muted, Accent) that follow the light or dark theme, #RRGGBB, rgb(r,g,b) or r,g,b. -Markup adds Spectre-compatible markup ([bold lime]Ready[/]); -Decoration adds Bold, Dim, Italic, Underline, Strikethrough or Invert; -Link makes the text a hyperlink where the terminal supports it; -Gradient colours the text from one colour to another. The result works as a cell value (also from a calculated property), as the title or label of any widget, with Write-ConsoleLogEntry and Update-ConsoleLane, and with Show-Console. Without colour (NO_COLOR, redirected output) the text stays plain.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleText [[-Text] <Object[]>] [-Color <Object[]>] [-BackgroundColor <Object[]>] [-Markup <string>] [-Style <string[]>] [-Link <string>] [-Role <ThemeToken>] [-Gradient <Object[]>] [-Alignment <HorizontalAlignment>] [-Plain] [<CommonParameters>]
+New-ConsoleText [[-Text] <Object[]>] [-Color <Object[]>] [-BackgroundColor <Object[]>] [-Markup <string>] [-Decoration <string[]>] [-Link <string>] [-Role <ThemeToken>] [-Gradient <Object[]>] [-Alignment <HorizontalAlignment>] [-Plain] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Creates rich text: multicolour words for table cells, calculated properties, titles, labels, log lines or output on its own.
 
--Text takes pieces that are shown literally (data is never interpreted); -Color and -BackgroundColor take one colour per piece, and pieces beyond the colours use the first colour, as Write-Color does. Colours are ConsoleColor names exactly as Write-Host shows them, theme roles (Pass, Fail, Warn, Info, Muted, Accent) that follow the light or dark theme, #RRGGBB, rgb(r,g,b) or r,g,b. -Markup adds Spectre-compatible markup ([bold lime]Ready[/]); -Style adds Bold, Dim, Italic, Underline, Strikethrough or Invert; -Link makes the text a hyperlink where the terminal supports it; -Gradient colours the text from one colour to another. The result works as a cell value (also from a calculated property), as the title or label of any widget, with Write-ConsoleLog and Update-ConsoleLane, and with Write-ConsoleWidget. Without colour (NO_COLOR, redirected output) the text stays plain.
+-Text takes pieces that are shown literally (data is never interpreted); -Color and -BackgroundColor take one colour per piece, and pieces beyond the colours use the first colour, as Write-Color does. Colours are ConsoleColor names exactly as Write-Host shows them, theme roles (Pass, Fail, Warn, Info, Muted, Accent) that follow the light or dark theme, #RRGGBB, rgb(r,g,b) or r,g,b. -Markup adds Spectre-compatible markup ([bold lime]Ready[/]); -Decoration adds Bold, Dim, Italic, Underline, Strikethrough or Invert; -Link makes the text a hyperlink where the terminal supports it; -Gradient colours the text from one colour to another. The result works as a cell value (also from a calculated property), as the title or label of any widget, with Write-ConsoleLogEntry and Update-ConsoleLane, and with Show-Console. Without colour (NO_COLOR, redirected output) the text stays plain.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-Get-Service | Format-ConsoleTable -Property Name, @{ Name = 'Status'; Expression = { if ($_.Status -eq 'Running') { New-ConsoleText 'Running' -Color Green } else { New-ConsoleText $_.Status -Role Fail -Style Bold } } }
+Get-Service | Show-ConsoleTable -Property Name, @{ Name = 'Status'; Expression = { if ($_.Status -eq 'Running') { New-ConsoleText 'Running' -Color Green } else { New-ConsoleText $_.Status -Role Fail -Decoration Bold } } }
 ```
 
 A status cell from a calculated property
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleText 'SRV', '01', ' online' -Color Cyan, Yellow, Green | Write-ConsoleWidget
+New-ConsoleText 'SRV', '01', ' online' -Color Cyan, Yellow, Green | Show-Console
 ```
 
 Multicolour words, Write-Color style
@@ -68,7 +68,7 @@ Background colour per piece.
 ```yaml
 Type: Object[]
 Parameter Sets: __AllParameterSets
-Aliases: B, BGC
+Aliases: None
 Possible values:
 
 Required: False
@@ -84,7 +84,23 @@ Foreground colour per piece: ConsoleColor names (PowerShell mapping), theme role
 ```yaml
 Type: Object[]
 Parameter Sets: __AllParameterSets
-Aliases: C, ForegroundColor, FGC
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Decoration
+Decorations for the whole text: Bold, Dim, Italic, Underline, Strikethrough, Invert.
+
+```yaml
+Type: String[]
+Parameter Sets: __AllParameterSets
+Aliases: None
 Possible values:
 
 Required: False
@@ -164,24 +180,8 @@ A theme role for pieces without their own colour (Pass, Fail, Warn, Info, Muted,
 ```yaml
 Type: ThemeToken
 Parameter Sets: __AllParameterSets
-Aliases: Token, Tone
-Possible values: Text, Muted, Subtle, Accent, Accent2, Pass, Fail, Warn, Info, Skip, Running, Pending, Border, Title, Header, Highlight, Surface, SurfaceAccent, Series1, Series2, Series3, Series4, Series5, Series6, Focus
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Style
-Decorations for the whole text: Bold, Dim, Italic, Underline, Strikethrough, Invert.
-
-```yaml
-Type: String[]
-Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values:
+Possible values: Text, Muted, Subtle, Accent, Accent2, Pass, Fail, Warn, Info, Skip, Running, Pending, Border, Title, Header, Highlight, Surface, SurfaceAccent, Series1, Series2, Series3, Series4, Series5, Series6, Focus
 
 Required: False
 Position: named
@@ -196,7 +196,7 @@ The text pieces, shown literally (strings, or rich text from New-ConsoleText).
 ```yaml
 Type: Object[]
 Parameter Sets: __AllParameterSets
-Aliases: T
+Aliases: None
 Possible values:
 
 Required: False

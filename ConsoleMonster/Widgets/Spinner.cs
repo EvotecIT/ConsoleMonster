@@ -17,8 +17,8 @@ namespace ConsoleMonster.Widgets {
     public sealed class Spinner : LiveWidget, ILiveSummary, Output.ITaskbarProgressSource {
         /// <summary>Creates a spinner.</summary>
         /// <param name="label">The label (markup).</param>
-        /// <param name="name">The live name (default <c>spinner</c>).</param>
-        public Spinner(string label = "", string name = "spinner") : base(name) {
+        /// <param name="widgetId">The live name (default <c>spinner</c>).</param>
+        public Spinner(string label = "", string widgetId = "spinner") : base(widgetId) {
             Label = label ?? string.Empty;
         }
 
@@ -49,7 +49,7 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Returns a handle that updates this spinner through a dispatcher.</summary>
         /// <param name="dispatcher">The dispatcher.</param>
         /// <returns>The handle.</returns>
-        public SpinnerHandle Handle(ILiveDispatcher dispatcher) => new SpinnerHandle(dispatcher, Name);
+        public SpinnerHandle Handle(ILiveDispatcher dispatcher) => new SpinnerHandle(dispatcher, WidgetId);
 
         /// <inheritdoc />
         public bool TryGetTaskbarProgress(out Output.TaskbarState state, out double fraction) {
@@ -77,7 +77,7 @@ namespace ConsoleMonster.Widgets {
                     }
                     break;
                 case "state":
-                    if (!StatusKinds.TryParse(liveEvent.State, out StatusKind status)) {
+                    if (!StatusKinds.TryParse(liveEvent.Status, out StatusKind status)) {
                         break;
                     }
                     Status = status;

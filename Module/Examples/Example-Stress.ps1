@@ -12,11 +12,11 @@ Import-Module ConsoleMonster
 # Nothing may corrupt the screen: output is captured into the log region and the screen redraws ~15 times a second.
 
 $workers = 0..31 | ForEach-Object { 'w{0:00}' -f $_ }
-$dashboard = New-ConsoleDashboard -Title '[bold]Stress test[/]' -Subtitle "32 worker runspaces · Console.WriteLine · Write-Host · $Seconds s" {
-    New-ConsoleColumns {
-        New-ConsolePanel -Title 'Workers' -Weight 2.2 { New-ConsoleLanes -Name workers -Lane $workers -Total 250000 }
-        New-ConsolePanel -Title 'Session' {
-            New-ConsoleKeyValue -Name stats -Data ([ordered] @{
+$dashboard = New-ConsoleDashboard -Title '[bold]Stress test[/]' -Subtitle "32 worker runspaces · Console.WriteLine · Write-Host · $Seconds s" -Content {
+    New-ConsoleColumns -Content {
+        New-ConsolePanel -Title 'Workers' -Weight 2.2 -Content { New-ConsoleLanes -WidgetId workers -Lane $workers -Total 250000 }
+        New-ConsolePanel -Title 'Session' -Content {
+            New-ConsoleKeyValue -WidgetId stats -InputObject ([ordered] @{
                     'Updates posted' = 0
                     'Update rate'    = '-'
                     'Frames'         = 0
@@ -24,14 +24,14 @@ $dashboard = New-ConsoleDashboard -Title '[bold]Stress test[/]' -Subtitle "32 wo
                     'Dropped/errors' = '0 / 0'
                 })
             New-ConsoleRule 'updates/s'
-            New-ConsoleSparkline -Name rate -Height 3
+            New-ConsoleSparkline -WidgetId rate -Height 3
         }
     }
-    New-ConsolePanel -Title 'Captured output' -Fill { New-ConsoleLog }
+    New-ConsolePanel -Title 'Captured output' -Fill -Content { New-ConsoleLogRegion }
 }
 
 $roles = @('coordinator') + $workers + @('library1', 'library2', 'host1', 'host2')
-$results = $roles | Start-ConsoleDashboard $dashboard -Parallel -ThrottleLimit $roles.Count -ArgumentList $Seconds {
+$results = $roles | Invoke-ConsoleDashboard $dashboard -Parallel -ThrottleLimit $roles.Count -ArgumentList $Seconds {
     param($Role, $Seconds)
     $end = [DateTime]::UtcNow.AddSeconds($Seconds)
     # One seed per role (the sum of its characters), so every run of the stress test makes the same choices.
@@ -57,12 +57,12 @@ $results = $roles | Start-ConsoleDashboard $dashboard -Parallel -ThrottleLimit $
             $lastPosted = $posted
             $lastCpu = $process.TotalProcessorTime
             $lastWall = $now
-            Set-ConsoleValue -Name stats -Key 'Updates posted' -Value ('{0:N0}' -f $posted)
-            Set-ConsoleValue -Name stats -Key 'Update rate' -Value ('{0:N0}/s' -f $rate)
-            Set-ConsoleValue -Name stats -Key 'Frames' -Value ('{0:N0}' -f $ConsoleSession.FramesRendered)
-            Set-ConsoleValue -Name stats -Key 'CPU' -Value (('{0:N0}% ({1:N1} cores)' -f $core, ($core / 100)))
-            Set-ConsoleValue -Name stats -Key 'Dropped/errors' -Value ('{0} / {1}' -f $ConsoleSession.EventsDropped, $ConsoleSession.ApplyErrors)
-            Add-ConsoleValue -Name rate -Value $rate
+            Set-ConsoleValue -WidgetId stats -Key 'Updates posted' -Value ('{0:N0}' -f $posted)
+            Set-ConsoleValue -WidgetId stats -Key 'Update rate' -Value ('{0:N0}/s' -f $rate)
+            Set-ConsoleValue -WidgetId stats -Key 'Frames' -Value ('{0:N0}' -f $ConsoleSession.FramesRendered)
+            Set-ConsoleValue -WidgetId stats -Key 'CPU' -Value (('{0:N0}% ({1:N1} cores)' -f $core, ($core / 100)))
+            Set-ConsoleValue -WidgetId stats -Key 'Dropped/errors' -Value ('{0} / {1}' -f $ConsoleSession.EventsDropped, $ConsoleSession.ApplyErrors)
+            Add-ConsoleValue -WidgetId rate -Value $rate
         }
         $process.Refresh()
         $elapsed = $wall.Elapsed.TotalSeconds
@@ -81,12 +81,12 @@ $results = $roles | Start-ConsoleDashboard $dashboard -Parallel -ThrottleLimit $
             ApplyErrors = $ConsoleSession.ApplyErrors
         }
     } elseif ($Role -like 'w*') {
-        Update-ConsoleLane -Name workers -Key $Role -Status Running
+        Update-ConsoleLane -WidgetId workers -Key $Role -Status Running
         while ([DateTime]::UtcNow -lt $end -and -not $ConsoleSession.Cancellation.IsCancellationRequested) {
             $result = if ((Get-Random -Maximum 100) -lt 4) { 'Fail' } else { 'Pass' }
-            Update-ConsoleLane -Name workers -Key $Role -Result $result
+            Update-ConsoleLane -WidgetId workers -Key $Role -Result $result
         }
-        Update-ConsoleLane -Name workers -Key $Role -Complete
+        Update-ConsoleLane -WidgetId workers -Key $Role -Complete
     } elseif ($Role -like 'library*') {
         while ([DateTime]::UtcNow -lt $end -and -not $ConsoleSession.Cancellation.IsCancellationRequested) {
             Start-Sleep -Milliseconds (Get-Random -Minimum 50 -Maximum 300)

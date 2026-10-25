@@ -7,7 +7,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Unique key in the application's state and final hashtable.</para></summary>
         [Parameter(Mandatory = true, Position = 0)]
         [ValidateNotNullOrEmpty]
-        public string Name { get; set; } = string.Empty;
+        public string Key { get; set; } = string.Empty;
 
         /// <summary><para type="description">Visible label; defaults to the name using the core control's labels.</para></summary>
         [Parameter(Position = 1)]

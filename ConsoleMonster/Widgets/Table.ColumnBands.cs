@@ -69,7 +69,7 @@ namespace ConsoleMonster.Widgets {
                 Priority = source.Priority, IsKey = source.IsKey, Flexible = source.Flexible,
                 MaxWidth = width, Presenter = source.Presenter, Aggregate = source.Aggregate
             };
-            foreach (var rule in source.ToneRules) column.ToneRules.Add(rule);
+            foreach (var rule in source.RoleRules) column.RoleRules.Add(rule);
             return column;
         }
     }

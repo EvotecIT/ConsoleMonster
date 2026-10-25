@@ -10,16 +10,16 @@ namespace ConsoleMonster.Interactive {
     /// <summary>A number with an optional range and step.</summary>
     public sealed class NumberField : Field {
         /// <summary>Creates a number field.</summary>
-        /// <param name="name">The key.</param>
+        /// <param name="key">The key.</param>
         /// <param name="label">The label.</param>
-        public NumberField(string name, string? label = null) : base(name, label) {
+        public NumberField(string key, string? label = null) : base(key, label) {
         }
 
         /// <inheritdoc />
         public override FieldKind Kind => FieldKind.Number;
 
         /// <summary>Whether only whole numbers are accepted.</summary>
-        public bool WholeNumber { get; set; }
+        public bool Integer { get; set; }
 
         /// <summary>The smallest value.</summary>
         public decimal? Minimum { get; set; }
@@ -31,9 +31,9 @@ namespace ConsoleMonster.Interactive {
         public decimal Step { get; set; } = 1;
 
         /// <summary>Lossless editable text; compact display formatting must never change a submitted value.</summary>
-        internal string FormatInput(decimal value) => DecimalInput.Format(value, WholeNumber, CultureInfo.CurrentCulture);
+        internal string FormatInput(decimal value) => DecimalInput.Format(value, Integer, CultureInfo.CurrentCulture);
 
-        internal string Format(decimal value) => value.ToString(WholeNumber ? "0" : "0.############", CultureInfo.CurrentCulture);
+        internal string Format(decimal value) => value.ToString(Integer ? "0" : "0.############", CultureInfo.CurrentCulture);
 
         /// <inheritdoc />
         public override string Display(object? value, PromptLabels labels) => Normalize(value) is decimal d ? Format(d) : base.Display(value, labels);
@@ -44,8 +44,8 @@ namespace ConsoleMonster.Interactive {
             if (trimmed.Length == 0) {
                 return null;
             }
-            if (!DecimalInput.TryParse(trimmed, WholeNumber, CultureInfo.CurrentCulture, out decimal parsed)) {
-                return WholeNumber ? labels.NotAWholeNumber : labels.NotANumber;
+            if (!DecimalInput.TryParse(trimmed, Integer, CultureInfo.CurrentCulture, out decimal parsed)) {
+                return Integer ? labels.NotAWholeNumber : labels.NotANumber;
             }
             value = parsed;
             return null;

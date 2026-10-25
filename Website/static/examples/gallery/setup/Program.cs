@@ -52,44 +52,44 @@ Form BuildForm() {
     };
     FormPage location = form.Page("Location");
     PathField path = location.Path("Path", "Install folder");
-    path.PathKind = PathKind.Folder; path.Default = installFolder; path.Required = true; path.Parameter = "Path";
+    path.PathKind = PathKind.Folder; path.Default = installFolder; path.Required = true; path.ParameterName = "Path";
     path.Help = "Created during installation. Tab completes folder names.";
     PathField data = location.Path("Data", "Data folder");
-    data.PathKind = PathKind.Folder; data.Default = dataFolder; data.Parameter = "DataPath";
+    data.PathKind = PathKind.Folder; data.Default = dataFolder; data.ParameterName = "DataPath";
     data.Help = "Logs, reports and the local queue.";
     ToggleField launcher = location.Toggle("Launcher", "Launcher entry");
-    launcher.Default = true; launcher.Parameter = "Launcher";
+    launcher.Default = true; launcher.ParameterName = "Launcher";
     FormPage parts = form.Page("Components");
     ChoiceField selection = parts.MultiSelect("Components", "Components", Parts());
-    selection.Minimum = 1; selection.Parameter = "Component";
+    selection.Minimum = 1; selection.ParameterName = "Component";
     selection.Help = "Space toggles, Ctrl+A selects all, Enter closes the list.";
     FormPage service = form.Page("Service");
     ChoiceField account = service.Select("Account", "Service account", accounts);
-    account.Default = "ServiceUser"; account.Parameter = "Account";
+    account.Default = "ServiceUser"; account.ParameterName = "Account";
     TextField user = service.Text("UserName", "User name");
     user.VisibleWhen = v => Equals(v["Account"], "Custom"); user.Required = true;
-    user.Placeholder = "toolbox-agent"; user.Parameter = "UserName";
+    user.Placeholder = "toolbox-agent"; user.ParameterName = "UserName";
     SecretField password = service.Secret("Password", "Password");
-    password.VisibleWhen = v => Equals(v["Account"], "Custom"); password.Parameter = "Password";
+    password.VisibleWhen = v => Equals(v["Account"], "Custom"); password.ParameterName = "Password";
     password.CommandPlaceholder = "(Read-Host -AsSecureString)";
     ToggleField automatic = service.Toggle("AutoStart", "Start automatically");
-    automatic.Default = true; automatic.Parameter = "AutoStart";
+    automatic.Default = true; automatic.ParameterName = "AutoStart";
     FormPage connection = form.Page("Connection");
     ChoiceField region = connection.Select("Region", "Region", new[] {
         new Choice("eu", "Europe"), new Choice("us", "Americas"), new Choice("ap", "Asia Pacific")
     });
-    region.Default = "eu"; region.Required = true; region.Parameter = "Region";
+    region.Default = "eu"; region.Required = true; region.ParameterName = "Region";
     region.Help = "Choosing a region loads its servers.";
     ChoiceField server = connection.Select("Server", "Server");
-    server.DependsOn.Add("Region"); server.Required = true; server.Parameter = "Server";
+    server.DependsOn.Add("Region"); server.Required = true; server.ParameterName = "Server";
     server.Loader = async (values, token) => { await Task.Delay(300, token); return Servers(values.Get<string>("Region")); };
     server.Help = "Loaded for the chosen region; Esc cancels loading.";
     NumberField port = connection.Number("Port", "Port");
-    port.WholeNumber = true; port.Minimum = 1; port.Maximum = 65535; port.Default = 443m; port.Parameter = "Port";
-    ToggleField proxy = connection.Toggle("UseProxy", "Use a proxy"); proxy.Parameter = "UseProxy";
+    port.Integer = true; port.Minimum = 1; port.Maximum = 65535; port.Default = 443m; port.ParameterName = "Port";
+    ToggleField proxy = connection.Toggle("UseProxy", "Use a proxy"); proxy.ParameterName = "UseProxy";
     TextField address = connection.Text("Proxy", "Proxy address");
     address.VisibleWhen = v => v.Get<bool>("UseProxy"); address.Required = true;
-    address.Placeholder = "http://proxy.example.test:8080"; address.Parameter = "Proxy";
+    address.Placeholder = "http://proxy.example.test:8080"; address.ParameterName = "Proxy";
     return form;
 }
 

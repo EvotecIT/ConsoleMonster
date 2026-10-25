@@ -10,14 +10,14 @@ namespace ConsoleMonster.PowerShell {
     /// <example>
     ///   <para>A spinner inside a dashboard, finished from the script</para>
     ///   <code>
-    /// $d = New-ConsoleDashboard -Title 'Sync' { New-ConsoleSpinner -Label 'Resolving DNS' }
-    /// Start-ConsoleDashboard $d { Start-Sleep 2; Update-ConsoleSpinner -Status Pass -Detail '42 zones' }</code>
+    /// $d = New-ConsoleDashboard -Title 'Sync' -Content { New-ConsoleSpinner -Label 'Resolving DNS' }
+    /// Invoke-ConsoleDashboard $d { Start-Sleep 2; Update-ConsoleSpinner -Status Pass -Detail '42 zones' }</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleSpinner")]
     [OutputType(typeof(Spinner))]
     public sealed class CmdletNewConsoleSpinner : PSCmdlet {
         /// <summary><para type="description">The label (markup allowed).</para></summary>
-        [Parameter(Position = 0)]
+        [Parameter(Position = 1)]
         public object Label { get; set; } = string.Empty;
 
         /// <summary><para type="description">Muted detail after the label, for example the current item.</para></summary>
@@ -31,8 +31,8 @@ namespace ConsoleMonster.PowerShell {
         public StatusKind Status { get; set; } = StatusKind.Running;
 
         /// <summary><para type="description">The live name (default spinner).</para></summary>
-        [Parameter]
-        public string Name { get; set; } = "spinner";
+        [Parameter(Position = 0)]
+        public string WidgetId { get; set; } = "spinner";
 
         /// <summary><para type="description">Hide the elapsed time.</para></summary>
         [Parameter]
@@ -40,7 +40,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            WriteObject(new Spinner(PSText.Markup(Label) ?? string.Empty, Name) { Detail = PSText.Markup(Detail), Status = Status, ShowElapsed = !NoElapsed.IsPresent });
+            WriteObject(new Spinner(PSText.Markup(Label) ?? string.Empty, WidgetId) { Detail = PSText.Markup(Detail), Status = Status, ShowElapsed = !NoElapsed.IsPresent });
         }
     }
 }

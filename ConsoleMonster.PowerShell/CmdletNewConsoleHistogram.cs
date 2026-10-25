@@ -8,7 +8,7 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example>
     ///   <para>Request durations in seconds</para>
-    ///   <code>New-ConsoleHistogram -Edge 0, 0.25, 0.5, 1, 2, 4 -Unit s -Value (1..200 | ForEach-Object { Get-Random -Maximum 4.0 }) | Write-ConsoleWidget</code>
+    ///   <code>New-ConsoleHistogram -Edge 0, 0.25, 0.5, 1, 2, 4 -Unit s -Value (1..200 | ForEach-Object { Get-Random -Maximum 4.0 }) | Show-Console</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleHistogram")]
     [OutputType(typeof(Histogram))]
@@ -31,17 +31,17 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">The colour as a theme role: Series1 (default), Accent, Pass, Fail, Warn and the other series colours.</para></summary>
         [Parameter]
-        public Styling.ThemeToken? Tone { get; set; }
+        public Styling.ThemeToken? Role { get; set; }
 
         /// <summary><para type="description">The live name (default histogram).</para></summary>
-        [Parameter]
-        public string Name { get; set; } = "histogram";
+        [Parameter(Position = 0)]
+        public string WidgetId { get; set; } = "histogram";
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            Histogram histogram = new Histogram(Edge, Name) { Height = Height, Unit = Unit };
-            if (Tone.HasValue) {
-                histogram.Token = Tone.Value;
+            Histogram histogram = new Histogram(Edge, WidgetId) { Height = Height, Unit = Unit };
+            if (Role.HasValue) {
+                histogram.Role = Role.Value;
             }
             if (Value != null) {
                 foreach (double value in Value) {

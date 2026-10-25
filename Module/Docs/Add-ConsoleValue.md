@@ -13,7 +13,7 @@ Appends to a sparkline or line-chart series (-Key names the series), counts a va
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Add-ConsoleValue [-Name] <string> [-Value] <double> [-Key <string>] [-Session <LiveSession>] [<CommonParameters>]
+Add-ConsoleValue [-WidgetId] <string> [-Value] <double> [-Key <string>] [-Session <LiveSession>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,7 +25,7 @@ Appends to a sparkline or line-chart series (-Key names the series), counts a va
 
 ### EXAMPLE 1
 ```powershell
-Add-ConsoleValue -Name throughput -Key completed -Value 42
+Add-ConsoleValue -WidgetId throughput -Key completed -Value 42
 ```
 
 Append a throughput sample
@@ -43,22 +43,6 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Name
-The chart name.
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: True
-Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -93,6 +77,22 @@ Required: True
 Position: 1
 Default value: None
 Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -WidgetId
+The chart name.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: True
+Position: 0
+Default value: None
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 

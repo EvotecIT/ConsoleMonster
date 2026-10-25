@@ -6,8 +6,8 @@ namespace ConsoleMonster.Widgets {
     public sealed class ProgressHandle : LiveHandle {
         /// <summary>Creates a handle.</summary>
         /// <param name="dispatcher">The dispatcher.</param>
-        /// <param name="target">The bar name.</param>
-        public ProgressHandle(ILiveDispatcher dispatcher, string target) : base(dispatcher, target) {
+        /// <param name="widgetId">The bar name.</param>
+        public ProgressHandle(ILiveDispatcher dispatcher, string widgetId) : base(dispatcher, widgetId) {
         }
 
         /// <summary>Sets the value (and optionally the total).</summary>

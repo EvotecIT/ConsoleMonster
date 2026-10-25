@@ -20,7 +20,7 @@ Terminal.Write(Table.For(controllers)
     .Column(c => c.Latency, c => c
         .WithPresenter(new NumberPresenter("ms"))
         .WithPriority(5)
-        .AddToneRules(ToneRule.Above(100, ThemeToken.Warn)))
+        .AddRoleRules(RoleRule.Above(100, ThemeToken.Warn)))
     .Column(c => c.LastSync, c => c
         .WithHeader("Last sync")
         .WithPresenter(CellPresenters.Duration)

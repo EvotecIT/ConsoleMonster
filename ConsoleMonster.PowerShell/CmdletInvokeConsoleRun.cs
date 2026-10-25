@@ -17,26 +17,26 @@ using ConsoleMonster.Styling;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Runs a script block for every input item, optionally in parallel, with a live view of the run.</para>
-    /// <para type="description">ForEach-ConsoleItem is its alias. $_ is the item, as in ForEach-Object. While it runs, a live view shows a summary line (done of total, percentage, time left, counts), one cell per item, the running items with their elapsed time and the failures; without an interactive console (redirected output, CI, a job) it prints one line per finished item and a summary instead. The output is the script block's ordinary output, in input order (or as each item finishes with -Unordered); an item's errors are written as error records and mark it as failed. While the live view is showing, ordinary output and native stream records are delivered when it ends. With -Parallel, while the live view is showing, host messages, warnings, information, verbose and debug messages, and errors also appear immediately in its log; Write-Progress appears in an activity list, with independent parent and child activities per worker. Without -Parallel, progress bars from the script block are hidden while the live view is showing. Without -Parallel the items run one at a time in the caller's scope, as with ForEach-Object, so variables set in the script block stay. -Parallel runs up to -ThrottleLimit items at a time in their own runspaces on Windows PowerShell 5.1 and PowerShell 7: variables of the caller are passed with $using:name, and -TimeoutSeconds stops an item that runs too long. -Name (or -Label) sets each item's label: a property name or a script block. Ctrl+C stops the run: running items are stopped and the rest are counted as skipped.</para>
+    /// <para type="description">Invoke-ConsoleRun is its alias. $_ is the item, as in ForEach-Object. While it runs, a live view shows a summary line (done of total, percentage, time left, counts), one cell per item, the running items with their elapsed time and the failures; without an interactive console (redirected output, CI, a job) it prints one line per finished item and a summary instead. The output is the script block's ordinary output, in input order (or as each item finishes with -Unordered); an item's errors are written as error records and mark it as failed. While the live view is showing, ordinary output and native stream records are delivered when it ends. With -Parallel, while the live view is showing, host messages, warnings, information, verbose and debug messages, and errors also appear immediately in its log; Write-Progress appears in an activity list, with independent parent and child activities per worker. Without -Parallel, progress bars from the script block are hidden while the live view is showing. Without -Parallel the items run one at a time in the caller's scope, as with ForEach-Object, so variables set in the script block stay. -Parallel runs up to -ThrottleLimit items at a time in their own runspaces on Windows PowerShell 5.1 and PowerShell 7: variables of the caller are passed with $using:name, and -TimeoutSeconds stops an item that runs too long. -Label (or -Label) sets each item's label: a property name or a script block. Ctrl+C stops the run: running items are stopped and the rest are counted as skipped.</para>
     /// </summary>
     /// <example>
     ///   <para>Check servers in parallel</para>
-    ///   <code>$port = 443; $servers | ForEach-ConsoleItem -Parallel -ThrottleLimit 8 -Name Name { Test-NetConnection $_.Name -Port $using:port -InformationLevel Quiet }</code>
+    ///   <code>$port = 443; $servers | Invoke-ConsoleRun -Parallel -ThrottleLimit 8 -Label Name { Test-NetConnection $_.Name -Port $using:port -InformationLevel Quiet }</code>
     /// </example>
     /// <example>
     ///   <para>One at a time, in the current scope</para>
-    ///   <code>Get-ChildItem *.log | ForEach-ConsoleItem { Compress-Archive $_ "$($_.BaseName).zip" -Force }</code>
+    ///   <code>Get-ChildItem *.log | Invoke-ConsoleRun { Compress-Archive $_ "$($_.BaseName).zip" -Force }</code>
     /// </example>
     /// <example>
     ///   <para>Forty items in parallel with a title and a time limit: items that throw or run past 10 seconds are failures, listed when the run ends</para>
     ///   <code>
-    /// 1..40 | Invoke-ConsoleRun -Parallel -ThrottleLimit 8 -TimeoutSeconds 10 -Title 'Patching web farm' -Name { "web$('{0:d2}' -f $_)" } {
+    /// 1..40 | Invoke-ConsoleRun -Parallel -ThrottleLimit 8 -TimeoutSeconds 10 -Title 'Patching web farm' -Label { "web$('{0:d2}' -f $_)" } {
     ///     Start-Sleep -Milliseconds (Get-Random -Minimum 200 -Maximum 1500)
     ///     if ($_ % 13 -eq 0) { throw "web$_ did not come back after the reboot" }
     /// }</code>
     /// </example>
     [Cmdlet(VerbsLifecycle.Invoke, "ConsoleRun")]
-    [Alias("ForEach-ConsoleItem")]
+
     public sealed class CmdletInvokeConsoleRun : PSCmdlet {
         private readonly List<PSObject> _items = new List<PSObject>();
         private volatile bool _stopping;
@@ -70,12 +70,15 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Each item's label in the view: a property name or a script block ($_ is the item). Default a name-like property, or the item's text.</para></summary>
         [Parameter]
-        [Alias("Label")]
-        public object? Name { get; set; }
+
+        public object? Label { get; set; }
 
         /// <summary><para type="description">A title above the live view (markup).</para></summary>
         [Parameter]
         public object? Title { get; set; }
+
+        /// <summary><para type="description">Disables live redraws and uses append-only output.</para></summary>
+        [Parameter] public SwitchParameter NoLive { get; set; }
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
@@ -93,7 +96,7 @@ namespace ConsoleMonster.PowerShell {
                 WriteWarning("-TimeoutSeconds applies to -Parallel runs only; the items run without a time limit.");
             }
             Capabilities.TerminalProfile profile = Terminal.GetCurrentProfile();
-            bool live = !HostOutput.UseHost(this, profile) && profile.Mode == Capabilities.OutputMode.Interactive;
+            bool live = !NoLive.IsPresent && !HostOutput.UseHost(this, profile) && profile.Mode == Capabilities.OutputMode.Interactive;
             // Built before the view starts, so an unsupported $using: fails without drawing a run first.
             Hashtable usings = new Hashtable(StringComparer.OrdinalIgnoreCase);
             string? parallelScript = Parallel.IsPresent ? ParallelScript(usings) : null;
@@ -102,7 +105,7 @@ namespace ConsoleMonster.PowerShell {
             bool hold = live;
             RunOptions options = new RunOptions {
                 Title = Title != null ? PSText.Markup(Title) : null,
-                Interactive = live,
+                Live = live,
                 Session = new LiveSessionOptions { Mode = LiveMode.Inline, PrintFinalState = true, HandleCancelKey = false },
                 Print = line => HostOutput.WriteHostLine(this, line)
             };
@@ -133,7 +136,7 @@ namespace ConsoleMonster.PowerShell {
         }
 
         private string LabelOf(PSObject item) {
-            object? name = Name is PSObject wrapped ? wrapped.BaseObject : Name;
+            object? name = Label is PSObject wrapped ? wrapped.BaseObject : Label;
             try {
                 if (name is ScriptBlock script) {
                     Collection<PSObject> result = script.InvokeWithContext(null, new List<PSVariable> { new PSVariable("_", item) });

@@ -31,7 +31,7 @@ namespace ConsoleMonster.Widgets {
         /// <summary>The optional throughput trend beside the rate.</summary>
         public bool ShowTrend { get; set; }
         /// <summary>Captured output and completion events. Entries stream to scrollback while its retained history stays bounded.</summary>
-        public LogRegion Log { get; } = new LogRegion("run-log") { ShowTime = false, Scrollback = true, Capacity = 1000 };
+        public LogRegion Log { get; } = new LogRegion("run-log") { ShowElapsed = false, Scrollback = true, Capacity = 1000 };
         /// <inheritdoc />
         public IReadOnlyList<IWidget> Children => new IWidget[] { Log };
         /// <inheritdoc />
@@ -45,9 +45,9 @@ namespace ConsoleMonster.Widgets {
             }
             RunSnapshot snapshot = _tracker.Snapshot();
             List<IWidget> rows = Header(snapshot, context, region.Width);
-            RunItemSnapshot[] problems = snapshot.Items.Where(i => i.State == StatusKind.Fail || i.State == StatusKind.Warn).OrderBy(i => i.CompletionOrder).ToArray();
-            RunItemSnapshot[] running = snapshot.Items.Where(i => i.State == StatusKind.Running).ToArray();
-            RunItemSnapshot[] next = snapshot.Items.Where(i => i.State == StatusKind.Pending).ToArray();
+            RunItemSnapshot[] problems = snapshot.Items.Where(i => i.Status == StatusKind.Fail || i.Status == StatusKind.Warn).OrderBy(i => i.CompletionOrder).ToArray();
+            RunItemSnapshot[] running = snapshot.Items.Where(i => i.Status == StatusKind.Running).ToArray();
+            RunItemSnapshot[] next = snapshot.Items.Where(i => i.Status == StatusKind.Pending).ToArray();
             if (region.Height <= 3) {
                 string totals = snapshot.Done + "/" + snapshot.Total + " · " + CountMarkup(StatusKind.Fail, snapshot.Failed, snapshot.Failed + " fail") + " · " + CountMarkup(StatusKind.Warn, snapshot.Warned, snapshot.Warned + " warn");
                 if (region.Height == 1) { new TextBlock(totals) { Overflow = TextOverflow.Ellipsis }.Render(region, context); return; }
@@ -132,9 +132,9 @@ namespace ConsoleMonster.Widgets {
             return new TextBlock(text) { Overflow = TextOverflow.Ellipsis };
         }
         private static string CountMarkup(StatusKind state, int count, string text) => "[" + (count > 0 ? state.ToString().ToLowerInvariant() : "muted") + "]" + Markup.Escape(text) + "[/]";
-        internal static IWidget Label(string text) => new TextBlock("[bold]" + Markup.Escape(text) + "[/]") { Token = ThemeToken.Muted, Overflow = TextOverflow.Ellipsis };
-        internal static IWidget Line(string text, ThemeToken token = ThemeToken.Text) => new TextBlock(Markup.Escape(text)) { Token = token, Overflow = TextOverflow.Ellipsis };
+        internal static IWidget Label(string text) => new TextBlock("[bold]" + Markup.Escape(text) + "[/]") { Role = ThemeToken.Muted, Overflow = TextOverflow.Ellipsis };
+        internal static IWidget Line(string text, ThemeToken role = ThemeToken.Text) => new TextBlock(Markup.Escape(text)) { Role = role, Overflow = TextOverflow.Ellipsis };
         internal static string ItemName(RunItemSnapshot item) => item.Item.DisplayName;
-        internal static IWidget Problem(RunItemSnapshot item, RenderContext context) => Line(context.Glyphs.StatusSymbol(item.State) + " " + ItemName(item) + (item.Message.Length > 0 ? ": " + item.Message : ""), item.State == StatusKind.Fail ? ThemeToken.Fail : ThemeToken.Warn);
+        internal static IWidget Problem(RunItemSnapshot item, RenderContext context) => Line(context.Glyphs.StatusSymbol(item.Status) + " " + ItemName(item) + (item.Message.Length > 0 ? ": " + item.Message : ""), item.Status == StatusKind.Fail ? ThemeToken.Fail : ThemeToken.Warn);
     }
 }

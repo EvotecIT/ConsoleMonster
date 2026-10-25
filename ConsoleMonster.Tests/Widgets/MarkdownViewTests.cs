@@ -37,7 +37,7 @@ namespace ConsoleMonster.Tests.Widgets {
             CellBuffer buffer = Render(Sample(), tier: tier);
             Golden.Match("markdown/document." + tier.ToString().ToLowerInvariant() + ".txt", buffer.ToPlainText().TrimEnd() + "\n");
             Assert.Contains("Deployment [literal]", buffer.ToPlainText());
-            Assert.Equal(Theme.Dark.Resolve(ThemeToken.Accent, ColorDepth.TrueColor).Foreground, buffer[0, 0].Style.Foreground);
+            Assert.Equal(Theme.Dark.Resolve(ThemeToken.Accent, ColorDepth.TrueColor).Color, buffer[0, 0].Style.Color);
             Assert.True((buffer[0, 0].Style.Decoration & TextDecoration.Bold) != 0);
         }
 
@@ -60,7 +60,7 @@ namespace ConsoleMonster.Tests.Widgets {
                         Assert.True((frame[0, 0].Style.Decoration & TextDecoration.Bold) != 0);
                     }
                     ThemeToken token = level <= 2 ? ThemeToken.Accent : level == 3 ? ThemeToken.Text : ThemeToken.Muted;
-                    Assert.Equal(Theme.Dark.Resolve(token, profile.ColorDepth).Foreground, frame[0, 0].Style.Foreground);
+                    Assert.Equal(Theme.Dark.Resolve(token, profile.ColorDepth).Color, frame[0, 0].Style.Color);
                     if (level <= 2) {
                         string expected = level == 1
                             ? (profile.Glyphs == GlyphTier.Ascii ? "=" : "═")
@@ -84,7 +84,7 @@ namespace ConsoleMonster.Tests.Widgets {
             CellBuffer fallback = Render(view);
             Assert.Equal("Read more (https://example.org)", fallback.ToPlainText());
             Assert.Null(fallback[0, 0].Style.Link);
-            Assert.Equal(Theme.Dark.Resolve(ThemeToken.Muted, ColorDepth.TrueColor).Foreground, fallback[10, 0].Style.Foreground);
+            Assert.Equal(Theme.Dark.Resolve(ThemeToken.Muted, ColorDepth.TrueColor).Color, fallback[10, 0].Style.Color);
             string wrapped = Render(view, 12).ToPlainText().Replace("\n", string.Empty).Replace(" ", string.Empty);
             Assert.Equal("Readmore(https://example.org)", wrapped);
             RichText address = new RichTextBuilder().AppendLink("https://example.org", "https://example.org").Build();

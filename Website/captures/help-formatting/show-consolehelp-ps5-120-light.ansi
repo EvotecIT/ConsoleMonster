@@ -1,19 +1,19 @@
-[?9001h[?1004h[?25l[2J[m[38;2;17;24;39m[1m[HGet-ConsoleCapability[m
+[?9001h[?1004h[?25l[2J[m[H]0;Administrator: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe[?25h[?25l[38;2;17;24;39m[1mGet-ConsoleCapability[m
 Shows what ConsoleMonster detected about the current terminal.[38;2;37;99;235m[1m[4;1HSyntax[m
-[38;2;17;24;39m[1m[2CGet-ConsoleCapability[m[38;2;212;212;216m[1C[[38;2;124;58;237m-Refresh[38;2;212;212;216m] [<CommonParameters>][38;2;37;99;235m[1m[7;1HDescription[m
+  [38;2;17;24;39m[1mGet-ConsoleCapability[m [38;2;212;212;216m[[38;2;124;58;237m-Refresh[38;2;212;212;216m] [<CommonParameters>][38;2;37;99;235m[1m[7;1HDescription[m
   Shows what ConsoleMonster detected about the current terminal.[10;1H  Returns the terminal profile: kind, mode (Interactive, Stream, Plain), colour depth, glyph tier, size, VT support,
   console font and the reasons behind each decision. -Refresh detects again (after a resize or font change).[38;2;37;99;235m[1m[13;1HParameters[m
-[38;2;138;138;148m[2C╭───────────┬────────┬──────────┬──────────┬──────────┬───────────────────────────────────────────────────────╮[m
-[38;2;138;138;148m[2C│ [38;2;55;65;81m[1mParameter[m[38;2;138;138;148m[1C│ [38;2;55;65;81m[1mType[m[38;2;138;138;148m[3C│ [38;2;55;65;81m[1mRequired[m[38;2;138;138;148m[1C│ [38;2;55;65;81m[1mPosition[m[38;2;138;138;148m[1C│ [38;2;55;65;81m[1mPipeline[m[38;2;138;138;148m[1C│ [38;2;55;65;81m[1mDescription[m[38;2;138;138;148m[43C│[m
-[38;2;138;138;148m[2C├───────────┼────────┼──────────┼──────────┼──────────┼───────────────────────────────────────────────────────┤[m
-[38;2;138;138;148m[2C│ [38;2;124;58;237m-Refresh  [38;2;138;138;148m│ [38;2;107;114;128mswitch [38;2;138;138;148m│ [38;2;107;114;128mno       [38;2;138;138;148m│ [38;2;107;114;128mnamed    [38;2;138;138;148m│ [38;2;107;114;128mno       [38;2;138;138;148m│ [mDetect again instead of returning the cached profile.[38;2;138;138;148m[1C│[m
-[38;2;138;138;148m[2C╰───────────┴────────┴──────────┴──────────┴──────────┴───────────────────────────────────────────────────────╯[m
-[38;2;107;114;128m[2CCommon parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -OutVariable, -Verbose, -WarningAction[m
-[38;2;107;114;128m[2Cand the others (about_CommonParameters).[38;2;37;99;235m[1m[22;1HExamples[m
-[1m[2CExample 1[22m
-[38;2;13;148;136m[5CGet-ConsoleCapability [m|[38;2;13;148;136m[1CSelect-Object [38;2;37;99;235m-ExpandProperty [mDecisions
+  [38;2;138;138;148m╭───────────┬────────┬──────────┬──────────┬──────────┬───────────────────────────────────────────────────────╮[m
+  [38;2;138;138;148m│ [38;2;55;65;81m[1mParameter[m [38;2;138;138;148m│ [38;2;55;65;81m[1mType[m   [38;2;138;138;148m│ [38;2;55;65;81m[1mRequired[m [38;2;138;138;148m│ [38;2;55;65;81m[1mPosition[m [38;2;138;138;148m│ [38;2;55;65;81m[1mPipeline[m [38;2;138;138;148m│ [38;2;55;65;81m[1mDescription[m[43X[38;2;138;138;148m[43C│[m
+  [38;2;138;138;148m├───────────┼────────┼──────────┼──────────┼──────────┼───────────────────────────────────────────────────────┤[m
+  [38;2;138;138;148m│ [38;2;124;58;237m-Refresh  [38;2;138;138;148m│ [38;2;107;114;128mswitch [38;2;138;138;148m│ [38;2;107;114;128mno       [38;2;138;138;148m│ [38;2;107;114;128mnamed    [38;2;138;138;148m│ [38;2;107;114;128mno       [38;2;138;138;148m│ [mDetect again instead of returning the cached profile. [38;2;138;138;148m│[m
+  [38;2;138;138;148m╰───────────┴────────┴──────────┴──────────┴──────────┴───────────────────────────────────────────────────────╯[m
+  [38;2;107;114;128mCommon parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -OutVariable, -Verbose, -WarningAction[m
+  [38;2;107;114;128mand the others (about_CommonParameters).[38;2;37;99;235m[1m[22;1HExamples[m
+  [1mExample 1[22m
+     [38;2;13;148;136mGet-ConsoleCapability [m| [38;2;13;148;136mSelect-Object [38;2;37;99;235m-ExpandProperty [mDecisions
      Show the profile and the decisions[38;2;37;99;235m[1m[27;1HInputs[m
-[38;2;124;58;237m[2CNone[38;2;37;99;235m[1m[30;1HOutputs[m
-[38;2;124;58;237m[2CConsoleMonster.Capabilities.TerminalProfile
-]0;C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe[?25h[m
+  [38;2;124;58;237mNone[38;2;37;99;235m[1m[30;1HOutputs[m
+  [38;2;124;58;237mConsoleMonster.Capabilities.TerminalProfile
+[?25h[m
 [?9001l[?1004l

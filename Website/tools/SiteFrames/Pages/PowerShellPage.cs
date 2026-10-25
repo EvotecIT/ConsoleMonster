@@ -53,7 +53,7 @@ namespace SiteFrames.Pages {
             Dictionary<string, string?> ascii = PowerShellRunner.Environment("dark", "16", "ascii");
             yield return new Run("format-consoletable", "16-ascii", ascii, new[] { PowerShellHost.Desktop });
             yield return new Run("format-consoletable", "narrow", PowerShellRunner.Environment("dark"), new[] { PowerShellHost.Core }, NarrowWidth);
-            // -As Markdown returns a document instead of drawing; the console shows that text as it is.
+            // Export-ConsoleFrame returns a document instead of drawing; the console shows that text as it is.
             yield return new Run("export-markdown", "rich", PowerShellRunner.Environment("dark"), new[] { PowerShellHost.Core });
             yield return new Run("relative-dates", "rich", PowerShellRunner.Environment("dark"), new[] { PowerShellHost.Core });
             yield return new Run("files", "rich", PowerShellRunner.Environment("dark"), new[] { PowerShellHost.Core });

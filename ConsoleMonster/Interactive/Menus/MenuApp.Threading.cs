@@ -32,11 +32,11 @@ namespace ConsoleMonster.Interactive {
 
         T IMenuHost.Ask<T>(Prompt<T> prompt, CancellationToken cancellationToken) => OnLoop(() => Ask(prompt, cancellationToken), cancellationToken);
 
-        RunResult IMenuHost.Run(MenuContext context, IWidget dashboard, Func<RunContext, RunResult?> work, LiveSessionOptions? options) {
+        MenuRunResult IMenuHost.Run(MenuContext context, IWidget dashboard, Func<RunContext, MenuRunResult?> work, LiveSessionOptions? options) {
             return OnLoop(() => Run(context, dashboard, work, options), context.CancellationToken);
         }
 
-        void IMenuHost.ShowResult(RunResult result) => Post(() => ShowResult(result));
+        void IMenuHost.ShowResult(MenuRunResult result) => Post(() => ShowResult(result));
 
         void IMenuHost.Open(MenuItem item) => Post(() => Open(item));
 

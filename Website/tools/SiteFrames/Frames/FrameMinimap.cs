@@ -26,13 +26,13 @@ namespace SiteFrames.Frames {
                 while (x < w) {
                     Cell cell = frame[x, y];
                     Style style = FrameHtml.Reduce(cell.Style, depth);
-                    string fg = Color(style.Foreground, screen.Foreground, style);
-                    if (!style.Background.IsDefault) {
+                    string fg = Color(style.Color, screen.Foreground, style);
+                    if (!style.BackgroundColor.IsDefault) {
                         int end = x + 1;
-                        while (end < w && FrameHtml.Reduce(frame[end, y].Style, depth).Background.Equals(style.Background)) {
+                        while (end < w && FrameHtml.Reduce(frame[end, y].Style, depth).BackgroundColor.Equals(style.BackgroundColor)) {
                             end++;
                         }
-                        Rect(sb, x * CellW, y * CellH, (end - x) * CellW, CellH, Color(style.Background, screen.Background, Style.Plain), 1);
+                        Rect(sb, x * CellW, y * CellH, (end - x) * CellW, CellH, Color(style.BackgroundColor, screen.Background, Style.Plain), 1);
                     }
                     string glyph = cell.Glyph ?? " ";
                     char c = glyph.Length == 1 ? glyph[0] : '\0';
@@ -73,11 +73,11 @@ namespace SiteFrames.Frames {
                         if (next.IsContinuation) { runEnd++; continue; }
                         if (ng == " " && runEnd + 1 < w && (frame[runEnd + 1, y].Glyph ?? " ") != " " && !IsShape(frame[runEnd + 1, y].Glyph)) {
                             Style ns = FrameHtml.Reduce(frame[runEnd + 1, y].Style, depth);
-                            if (Color(ns.Foreground, screen.Foreground, ns) == fg) { runEnd++; continue; }
+                            if (Color(ns.Color, screen.Foreground, ns) == fg) { runEnd++; continue; }
                         }
                         if (ng == " " || IsShape(ng)) { break; }
                         Style s2 = FrameHtml.Reduce(next.Style, depth);
-                        if (Color(s2.Foreground, screen.Foreground, s2) != fg) { break; }
+                        if (Color(s2.Color, screen.Foreground, s2) != fg) { break; }
                         runEnd++;
                     }
                     bool bold = (style.Decoration & TextDecoration.Bold) != 0;

@@ -38,21 +38,21 @@ namespace ConsoleMonster.Building {
         /// <param name="widget">The content.</param>
         /// <param name="added">The content, typed.</param>
         /// <param name="weight">Relative width (default 1).</param>
-        /// <param name="caption">Text on the right of the top edge.</param>
+        /// <param name="headerRight">Text on the right of the top edge.</param>
         /// <returns>This builder.</returns>
-        public ColumnsBuilder Panel<T>(string title, T widget, out T added, double weight = 1, string? caption = null) where T : IWidget {
+        public ColumnsBuilder Panel<T>(string title, T widget, out T added, double weight = 1, string? headerRight = null) where T : IWidget {
             added = widget;
-            return Add(new Panel(widget, title) { Caption = caption }, weight);
+            return Add(new Panel(widget, title) { HeaderRight = headerRight }, weight);
         }
 
         /// <summary>Adds a panel around any content (for example a <see cref="Rows"/> of several widgets).</summary>
         /// <param name="title">The panel title (markup).</param>
         /// <param name="content">The content.</param>
         /// <param name="weight">Relative width.</param>
-        /// <param name="caption">Text on the right of the top edge.</param>
+        /// <param name="headerRight">Text on the right of the top edge.</param>
         /// <returns>This builder.</returns>
-        public ColumnsBuilder Panel(string title, IWidget content, double weight = 1, string? caption = null) {
-            return Add(new Panel(content, title) { Caption = caption }, weight);
+        public ColumnsBuilder Panel(string title, IWidget content, double weight = 1, string? headerRight = null) {
+            return Add(new Panel(content, title) { HeaderRight = headerRight }, weight);
         }
 
         /// <summary>Builds the layout.</summary>

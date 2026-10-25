@@ -14,7 +14,7 @@ namespace ConsoleMonster.Tests.Interactive {
             try {
                 CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(culture);
                 Form form = new Form("Options") { Review = false };
-                form.Number("Count").WholeNumber = true;
+                form.Number("Count").Integer = true;
                 string grouped = "1" + CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator + "234";
                 FormResult result = form.Show(new FormOptions { Interactive = new InteractiveOptions {
                     Mode = InteractionMode.Line, LineConsole = new PromptModeTests.FakeLines(grouped, "y"), Labels = new PromptLabels()
@@ -35,8 +35,8 @@ namespace ConsoleMonster.Tests.Interactive {
                 Form form = new Form("Options") { Review = false, Command = "tool" };
                 NumberField field = form.Number("Count");
                 field.Default = 4.000m;
-                field.WholeNumber = true;
-                field.Parameter = "Count";
+                field.Integer = true;
+                field.ParameterName = "Count";
                 FormResult result;
                 if (lineMode) {
                     result = form.Show(new FormOptions { Interactive = new InteractiveOptions {
@@ -64,7 +64,7 @@ namespace ConsoleMonster.Tests.Interactive {
                 Form form = new Form("Options") { Review = false };
                 NumberField field = form.Number("Count");
                 field.Default = 4m;
-                field.WholeNumber = true;
+                field.Integer = true;
                 PromptLabels labels = new PromptLabels();
                 PromptModeTests.FakeLines lines = new PromptModeTests.FakeLines(4.5m.ToString(CultureInfo.CurrentCulture), "4", "y");
                 FormResult result = form.Show(new FormOptions { Interactive = new InteractiveOptions {
@@ -91,7 +91,7 @@ namespace ConsoleMonster.Tests.Interactive {
                 Form form = new Form("Options") { Review = false, Command = "tool" };
                 NumberField field = form.Number("Rate");
                 field.Default = initial;
-                field.Parameter = "Rate";
+                field.ParameterName = "Rate";
                 FormResult result;
                 if (lineMode) {
                     result = form.Show(new FormOptions { Interactive = new InteractiveOptions {

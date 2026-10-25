@@ -43,7 +43,7 @@ namespace ConsoleMonster.Widgets {
             CellContent[] contents = new CellContent[_columns.Count];
             for (int c = 0; c < _columns.Count; c++) {
                 TableColumn column = _columns[c];
-                contents[c] = CellRendering.Content(cells[c], column.Presenter, (IReadOnlyList<ToneRule>)column.ToneRules, contexts[c]);
+                contents[c] = CellRendering.Content(cells[c], column.Presenter, (IReadOnlyList<RoleRule>)column.RoleRules, contexts[c]);
             }
             return contents;
         }
@@ -175,9 +175,9 @@ namespace ConsoleMonster.Widgets {
                     PresenterContext context = contexts[c].ColumnDecimals.HasValue
                         ? contexts[c].WithColumn(contexts[c].ColumnMaximum, Math.Max(contexts[c].ColumnDecimals!.Value, PresenterContext.DecimalsNeeded(value)))
                         : contexts[c];
-                    PresentedValue presented = CellPresenters.Present(value, presenter, (IReadOnlyList<ToneRule>)column.ToneRules, context);
+                    PresentedValue presented = CellPresenters.Present(value, presenter, (IReadOnlyList<RoleRule>)column.RoleRules, context);
                     // Totals show the number only; a data bar of a sum would not share the rows' scale.
-                    PresentedValue plain = new PresentedValue(presented.Line, presented.Alignment) { Number = presented.Number, Tone = presented.Tone };
+                    PresentedValue plain = new PresentedValue(presented.Line, presented.Alignment) { Number = presented.Number, Role = presented.Role };
                     content = new CellContent(new List<StyledLine> { Restyle(plain.Line, tone, bold) }, plain);
                 }
                 cells[c] = content;
@@ -197,7 +197,7 @@ namespace ConsoleMonster.Widgets {
         private static StyledLine Restyle(StyledLine line, Style tone, bool bold) {
             List<TextSpan> spans = new List<TextSpan>();
             foreach (TextSpan span in line) {
-                Style style = bold ? span.Style.With(TextDecoration.Bold) : span.Style.WithForeground(tone.Foreground);
+                Style style = bold ? span.Style.With(TextDecoration.Bold) : span.Style.WithColor(tone.Color);
                 spans.Add(new TextSpan(span.Text, style));
             }
             return new StyledLine(spans);

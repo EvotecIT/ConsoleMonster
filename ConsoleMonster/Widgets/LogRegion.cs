@@ -17,8 +17,8 @@ namespace ConsoleMonster.Widgets {
         private readonly Queue<LogEntry> _entries = new Queue<LogEntry>();
 
         /// <summary>Creates a log region.</summary>
-        /// <param name="name">The live name (default <c>log</c>).</param>
-        public LogRegion(string name = "log") : base(name) {
+        /// <param name="widgetId">The live name (default <c>log</c>).</param>
+        public LogRegion(string widgetId = "log") : base(widgetId) {
         }
 
         /// <summary>How many lines are kept (default 1000).</summary>
@@ -31,7 +31,7 @@ namespace ConsoleMonster.Widgets {
         public int PreferredHeight { get; set; } = 8;
 
         /// <summary>Whether entries show their session time (default true).</summary>
-        public bool ShowTime { get; set; } = true;
+        public bool ShowElapsed { get; set; } = true;
 
         /// <summary>Entries skipped from the newest end while scrolling; zero follows the newest entries.</summary>
         public int ScrollOffset { get; set; }
@@ -137,16 +137,16 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Returns a handle that writes through a dispatcher.</summary>
         /// <param name="dispatcher">The dispatcher.</param>
         /// <returns>The handle.</returns>
-        public LogHandle Handle(ILiveDispatcher dispatcher) => new LogHandle(dispatcher, Name);
+        public LogHandle Handle(ILiveDispatcher dispatcher) => new LogHandle(dispatcher, WidgetId);
 
         /// <inheritdoc />
         public override void Apply(LiveEvent liveEvent) {
             if (liveEvent.Operation == "write") {
                 string text = liveEvent.Text ?? string.Empty;
                 if (liveEvent.IsMarkup) {
-                    Write(RichLines.FromEventText(text, true), liveEvent.State ?? "info", TimeSpan.FromMilliseconds(liveEvent.Time));
+                    Write(RichLines.FromEventText(text, true), liveEvent.Status ?? "info", TimeSpan.FromMilliseconds(liveEvent.Time));
                 } else {
-                    Write(text, liveEvent.State ?? "info", TimeSpan.FromMilliseconds(liveEvent.Time));
+                    Write(text, liveEvent.Status ?? "info", TimeSpan.FromMilliseconds(liveEvent.Time));
                 }
             }
         }
@@ -156,7 +156,7 @@ namespace ConsoleMonster.Widgets {
             if (liveEvent.Operation != "write") {
                 return null;
             }
-            string tag = Tag(Level(liveEvent.State ?? "info"));
+            string tag = Tag(Level(liveEvent.Status ?? "info"));
             // Rich text narrates as its plain text: stream and plain output never show markup tags.
             string text = liveEvent.Text ?? string.Empty;
             if (liveEvent.IsMarkup) {
@@ -167,13 +167,13 @@ namespace ConsoleMonster.Widgets {
 
         // Scrollback keeps the same semantic tags and literal fallback as the retained log, without clipping messages.
         internal StyledText ScrollbackText(LiveEvent liveEvent, RenderContext context) {
-            string level = Level(liveEvent.State ?? "info");
+            string level = Level(liveEvent.Status ?? "info");
             string tag = Tag(level, context);
             StyledText body = RichLines.FromEventText(liveEvent.Text ?? string.Empty, liveEvent.IsMarkup).ToStyledText(context);
             List<StyledLine> lines = new List<StyledLine>();
             foreach (StyledLine line in body.Lines) {
                 List<TextSpan> spans = new List<TextSpan>();
-                if (ShowTime) { spans.Add(new TextSpan(NumberFormat.Clock(TimeSpan.FromMilliseconds(liveEvent.Time), true) + " ", context.Style(ThemeToken.Muted))); }
+                if (ShowElapsed) { spans.Add(new TextSpan(NumberFormat.Clock(TimeSpan.FromMilliseconds(liveEvent.Time), true) + " ", context.Style(ThemeToken.Muted))); }
                 if (tag.Length > 0) { spans.Add(new TextSpan(tag + " ", TagStyle(level, context))); }
                 spans.AddRange(line);
                 lines.Add(new StyledLine(spans));
@@ -259,7 +259,7 @@ namespace ConsoleMonster.Widgets {
                     region.Write(0, y, SourceTime(entry), muted, _timestampWidth);
                     x = _timestampWidth + 1;
                 }
-            } else if (ShowTime) {
+            } else if (ShowElapsed) {
                 x = region.Write(0, y, NumberFormat.Clock(entry.Time, true), muted) + 1;
             }
             if (levelWidth > 0) {
@@ -270,7 +270,7 @@ namespace ConsoleMonster.Widgets {
         }
 
         private int PrefixWidth(LogEntry entry, int levelWidth) {
-            int x = ShowTimestamp ? (_timestampWidth > 0 ? _timestampWidth + 1 : 0) : ShowTime ? DisplayWidth.Measure(NumberFormat.Clock(entry.Time, true)) + 1 : 0;
+            int x = ShowTimestamp ? (_timestampWidth > 0 ? _timestampWidth + 1 : 0) : ShowElapsed ? DisplayWidth.Measure(NumberFormat.Clock(entry.Time, true)) + 1 : 0;
             return levelWidth > 0 ? x + levelWidth + 1 : x;
         }
 
@@ -359,7 +359,7 @@ namespace ConsoleMonster.Widgets {
     }
 
     /// <summary>
-    /// How log levels look in ConsoleMonster (the log region, Write-ConsoleLog, the logging provider of
+    /// How log levels look in ConsoleMonster (the log region, Write-ConsoleLogEntry, the logging provider of
     /// ConsoleMonster.Extensions.Logging): the tag word with a status marker when glyphs allow ("✗ ERR", "▴ WARN",
     /// "✓ OK"), its style, and which levels are quiet (verbose and debug text is muted).
     /// </summary>

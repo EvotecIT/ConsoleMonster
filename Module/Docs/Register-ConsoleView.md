@@ -8,17 +8,12 @@ schema: 2.0.0
 ## SYNOPSIS
 Registers how a type is shown by Enable-ConsoleFormatting and Out-ConsoleDefault.
 
-Objects whose type names include -TypeName are shown in the given view when they reach the console. -Property picks the columns as in Format-ConsoleTable (names, calculated properties with Presenter options), -GroupBy groups rows under headings, and types with the same -Group are shown together (files and folders). -Remove deletes a registration. Modules can register their own types when they load, or ship a data-only ModuleName.consoleviews.psd1 file without a dependency on ConsoleMonster. Use -Path to import a view file explicitly.
+Objects whose type names include -TypeName are shown in the given view when they reach the console. -Property picks the columns as in Show-ConsoleTable (names, calculated properties with Presenter options), -GroupBy groups rows under headings, and types with the same -Group are shown together (files and folders). Unregister-ConsoleView removes a registration. Modules can register their own types when they load, or ship a data-only ModuleName.consoleviews.psd1 file without a dependency on ConsoleMonster. Use -Path to import a view file explicitly.
 
 ## SYNTAX
 ### Register (Default)
 ```powershell
 Register-ConsoleView [-TypeName] <string[]> [-View <ConsoleViewKind>] [-Property <Object[]>] [-GroupBy <Object>] [-Title <scriptblock>] [-Group <string>] [-Shaper <scriptblock>] [<CommonParameters>]
-```
-
-### Remove
-```powershell
-Register-ConsoleView [-TypeName] <string[]> -Remove [<CommonParameters>]
 ```
 
 ### File
@@ -29,7 +24,7 @@ Register-ConsoleView [-Path] <string[]> [<CommonParameters>]
 ## DESCRIPTION
 Registers how a type is shown by Enable-ConsoleFormatting and Out-ConsoleDefault.
 
-Objects whose type names include -TypeName are shown in the given view when they reach the console. -Property picks the columns as in Format-ConsoleTable (names, calculated properties with Presenter options), -GroupBy groups rows under headings, and types with the same -Group are shown together (files and folders). -Remove deletes a registration. Modules can register their own types when they load, or ship a data-only ModuleName.consoleviews.psd1 file without a dependency on ConsoleMonster. Use -Path to import a view file explicitly.
+Objects whose type names include -TypeName are shown in the given view when they reach the console. -Property picks the columns as in Show-ConsoleTable (names, calculated properties with Presenter options), -GroupBy groups rows under headings, and types with the same -Group are shown together (files and folders). Unregister-ConsoleView removes a registration. Modules can register their own types when they load, or ship a data-only ModuleName.consoleviews.psd1 file without a dependency on ConsoleMonster. Use -Path to import a view file explicitly.
 
 ## EXAMPLES
 
@@ -91,7 +86,7 @@ Accept wildcard characters: False
 ```
 
 ### -Property
-The properties, as in Format-ConsoleTable.
+The properties, as in Show-ConsoleTable.
 
 ```yaml
 Type: Object[]
@@ -106,25 +101,9 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Remove
-Removes the registrations instead.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: Remove
-Aliases: None
-Possible values:
-
-Required: True
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -Shaper
 A script block that turns each object of the type into what is shown instead ($_ is the object), for example an
-ordered dictionary of the fields worth showing. It applies in every command (Format-ConsoleTable, -List, -Tree,
+ordered dictionary of the fields worth showing. It applies in every command (Show-ConsoleTable, -List, -Tree,
 Show-Console, Show-ConsoleGrid, Compare-ConsoleObject, Out-ConsoleDefault), also to deserialized objects whose type
 names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group), only the shaper is registered.
 
@@ -162,7 +141,7 @@ The type names (as in PSObject.TypeNames).
 
 ```yaml
 Type: String[]
-Parameter Sets: Register, Remove
+Parameter Sets: Register
 Aliases: None
 Possible values:
 

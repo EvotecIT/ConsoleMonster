@@ -7,7 +7,7 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// The parameters every Read-Console* prompt shares: the question, help text, the parameter that supplies the value
     /// non-interactively, and an interaction mode override. Esc and Ctrl+C end the prompt with a terminating
-    /// PromptCancelled error; without a user (CI, redirected input, -NonInteractive) the default is returned, or a
+    /// PromptCanceled error; without a user (CI, redirected input, -NonInteractive) the default is returned, or a
     /// PromptNeedsValue error names the parameter to pass.
     /// </summary>
     public abstract class PromptCmdlet : PSCmdlet {
@@ -15,7 +15,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">The question.</para></summary>
         [Parameter(Mandatory = true, Position = 0)]
-        [Alias("Prompt", "Question")]
+
         public string Title { get; set; } = string.Empty;
 
         /// <summary><para type="description">Help text under the question.</para></summary>
@@ -24,7 +24,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">The parameter of your script that supplies this value without a prompt (named in the non-interactive error, for example -Domain).</para></summary>
         [Parameter]
-        [Alias("Parameter")]
+
         public string? ParameterName { get; set; }
 
         /// <summary><para type="description">Forces how to ask: Rich (in-place prompt), Line (question and typed answer), Accessible (numbered, no redraws) or None (use the default or fail).</para></summary>
@@ -64,7 +64,7 @@ namespace ConsoleMonster.PowerShell {
                     WriteVerbose("'" + Title + "': no interactive user, using the default.");
                 }
                 return prompt.Show(options, Token);
-            } catch (Exception ex) when (ex is PromptCancelledException || ex is PromptUnavailableException || ex is Input.InputClosedException) {
+            } catch (Exception ex) when (ex is PromptCanceledException || ex is PromptUnavailableException || ex is Input.InputClosedException) {
                 PSInteractive.Fail(this, ex, Title);
                 throw;
             }

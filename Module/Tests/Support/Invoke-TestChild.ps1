@@ -50,12 +50,24 @@ function Invoke-TestChild {
         # error records join the output; information, progress and verbose records are dropped.
         $errorText = $stderr.Result
         if ($errorText.StartsWith('#< CLIXML')) {
-            $errors = foreach ($document in [regex]::Split($errorText.Substring($errorText.IndexOf("`n") + 1), '(?=<Objs )')) {
-                if (-not $document.Trim()) { continue }
-                foreach ($item in @([System.Management.Automation.PSSerializer]::Deserialize($document))) {
-                    if ($item.PSObject.TypeNames -match 'ErrorRecord') { "$item" }
+            $payload = $errorText -replace '(?m)^#< CLIXML\r?\n', ''
+            $errors = @()
+            $offset = 0
+            foreach ($document in [regex]::Matches($payload, '(?s)<Objs\b[^>]*>.*?</Objs>')) {
+                $plain = $payload.Substring($offset, $document.Index - $offset)
+                if ($plain.Trim()) { $errors += $plain.Trim() }
+                try {
+                    foreach ($item in @([System.Management.Automation.PSSerializer]::Deserialize($document.Value))) {
+                        if ($item.PSObject.TypeNames -match 'ErrorRecord') { $errors += "$item" }
+                    }
+                } catch {
+                    # A raw stderr write can interrupt serialized progress; preserve the original diagnostic.
+                    $errors += $document.Value
                 }
+                $offset = $document.Index + $document.Length
             }
+            $plain = $payload.Substring($offset)
+            if ($plain.Trim()) { $errors += $plain.Trim() }
             $errorText = if ($errors) { (@($errors) -join "`n") + "`n" } else { '' }
         }
         $all = ($stdout.Result + $errorText) -replace "`r", ''

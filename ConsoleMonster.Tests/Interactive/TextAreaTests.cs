@@ -80,7 +80,7 @@ namespace ConsoleMonster.Tests.Interactive {
         public void FormField_OpensADialog_AndTheValueReachesTheResult() {
             Form form = new Form("Change") { Command = "New-Change" };
             TextAreaField reason = form.Page("Details").TextArea("Reason", "Reason");
-            reason.Parameter = "Reason";
+            reason.ParameterName = "Reason";
             reason.Required = true;
             RecordingSurface surface = new RecordingSurface(80, 24, false);
             FormOptions options = new FormOptions { Interactive = PromptHarness.Options("Enter \"Patch\" Enter \"approved\" Ctrl+Enter PageDown Enter", surface) };

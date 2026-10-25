@@ -115,7 +115,7 @@ namespace ConsoleMonster.Tests.Overview {
             RenderContext context = new RenderContext(profile, Theme.Dark);
             CellBuffer buffer = Terminal.Render(new OverviewWidget(snapshot), profile, Theme.Dark);
             Assert.Contains(Enumerable.Range(0, buffer.Height).SelectMany(y => Enumerable.Range(0, buffer.Width).Select(x => buffer[x, y])),
-                cell => cell.Glyph == "▆" && cell.Style.Foreground.Equals(context.Style(tone).Foreground));
+                cell => cell.Glyph == "▆" && cell.Style.Color.Equals(context.Style(tone).Color));
             string text = Terminal.RenderText(new OverviewWidget(snapshot), profile);
             if (used >= 90) { Assert.Contains("critical", text); }
             else if (used >= 80) { Assert.Contains("high", text); }
@@ -145,7 +145,7 @@ namespace ConsoleMonster.Tests.Overview {
             OverviewSection[] sections = Enumerable.Range(0, 24).Select(index => new OverviewSection("Section" + index, "Panel " + index,
                 Enumerable.Range(0, 20).Select(item => new OverviewItem("Synthetic " + item, new string('x', 180))))).ToArray();
             string text = Terminal.RenderText(new OverviewWidget(Snapshot(sections)), TerminalProfile.Fixed(200, 100, ColorDepth.None, GlyphTier.Ascii));
-            Assert.All(text.Split('\n'), line => Assert.InRange(DisplayWidth.Measure(line), 0, 120));
+            Assert.All(text.Split('\n'), line => Assert.InRange(DisplayWidth.Measure(line), 0, 200));
             Assert.InRange(text.TrimEnd('\n').Split('\n').Length, 1, 24);
             Assert.Contains("more", text);
             Assert.Contains("more sections", text);

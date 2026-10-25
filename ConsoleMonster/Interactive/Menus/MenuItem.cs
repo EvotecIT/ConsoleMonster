@@ -18,13 +18,13 @@ namespace ConsoleMonster.Interactive {
         private readonly List<object?> _selection = new List<object?>();
 
         /// <summary>Creates an item.</summary>
-        /// <param name="title">The title.</param>
-        public MenuItem(string title) {
-            Title = title ?? throw new ArgumentNullException(nameof(title));
+        /// <param name="label">The title.</param>
+        public MenuItem(string label) {
+            Label = label ?? throw new ArgumentNullException(nameof(label));
         }
 
         /// <summary>The title.</summary>
-        public string Title { get; set; }
+        public string Label { get; set; }
 
         /// <summary>A sentence shown with the item.</summary>
         public string? Description { get; set; }
@@ -45,10 +45,10 @@ namespace ConsoleMonster.Interactive {
         public Func<RichText?>? BadgeSource { get; set; }
 
         /// <summary>Computes the state text ("24 selected") each time the menu is drawn.</summary>
-        public Func<string?>? StateSource { get; set; }
+        public Func<string?>? DetailSource { get; set; }
 
         /// <summary>Computes why the item is unavailable (null when available).</summary>
-        public Func<string?>? DisabledSource { get; set; }
+        public Func<string?>? DisabledReasonSource { get; set; }
 
         /// <summary>The action of an action item.</summary>
         public Action<MenuContext>? Handler { get; set; }
@@ -101,10 +101,10 @@ namespace ConsoleMonster.Interactive {
         public RichText? CurrentBadge => Safe(BadgeSource);
 
         /// <summary>The state text now.</summary>
-        public string? CurrentState => Safe(StateSource) ?? DefaultState();
+        public string? CurrentDetail => Safe(DetailSource) ?? DefaultState();
 
         /// <summary>The disabled reason now, or null.</summary>
-        public string? CurrentDisabledReason => Safe(DisabledSource);
+        public string? CurrentDisabledReason => Safe(DisabledReasonSource);
 
         private string? DefaultState() {
             if (Kind == MenuItemKind.MultiSelect) {
@@ -119,7 +119,7 @@ namespace ConsoleMonster.Interactive {
             if (Kind == MenuItemKind.Select && _selection.Count > 0) {
                 foreach (Choice c in _choices) {
                     if (Equals(c.Value, _selection[0])) {
-                        return c.Title;
+                        return c.Label;
                     }
                 }
             }
@@ -216,16 +216,16 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Sets computed state text.</summary>
         /// <param name="state">Returns the state.</param>
         /// <returns>The item.</returns>
-        public MenuItem State(Func<string?> state) {
-            StateSource = state;
+        public MenuItem Detail(Func<string?> state) {
+            DetailSource = state;
             return this;
         }
 
         /// <summary>Makes the item unavailable while the function returns a reason.</summary>
         /// <param name="reason">Returns the reason, or null when available.</param>
         /// <returns>The item.</returns>
-        public MenuItem Disabled(Func<string?> reason) {
-            DisabledSource = reason;
+        public MenuItem DisabledReason(Func<string?> reason) {
+            DisabledReasonSource = reason;
             return this;
         }
 
@@ -260,7 +260,7 @@ namespace ConsoleMonster.Interactive {
         /// <param name="configure">Adds the submenu's items.</param>
         /// <returns>The item.</returns>
         public MenuItem Submenu(Action<Menu> configure) {
-            Menu menu = new Menu(Title);
+            Menu menu = new Menu(Label);
             configure?.Invoke(menu);
             return Submenu(menu);
         }
@@ -375,6 +375,6 @@ namespace ConsoleMonster.Interactive {
         }
 
         /// <inheritdoc />
-        public override string ToString() => Title;
+        public override string ToString() => Label;
     }
 }

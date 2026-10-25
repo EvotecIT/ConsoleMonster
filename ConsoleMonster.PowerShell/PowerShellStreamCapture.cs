@@ -49,7 +49,7 @@ namespace ConsoleMonster.PowerShell {
             }
         }
 
-        // Write-Progress becomes an activity in the session's activity list (added by Start-ConsoleDashboard when the
+        // Write-Progress becomes an activity in the session's activity list (added by Invoke-ConsoleDashboard when the
         // dashboard has none), nested by ParentActivityId.
         private void OnProgress(object? sender, DataAddedEventArgs e) {
             ProgressRecord record = _shell.Streams.Progress[e.Index];
@@ -79,7 +79,7 @@ namespace ConsoleMonster.PowerShell {
             if (record.MessageData is HostInformationMessage message && (message.ForegroundColor.HasValue || message.BackgroundColor.HasValue)) {
                 // Write-Host colours are kept: the line travels as markup to the log region or above an inline area.
                 string markup = HostColors.Markup(message.Message, message.ForegroundColor, message.BackgroundColor);
-                _session.Post(new LiveEvent("$log", "write", text: _prefix == null ? markup : Text.Markup.Escape(_prefix) + markup, state: "host", isMarkup: true));
+                _session.Post(new LiveEvent("$log", "write", text: _prefix == null ? markup : Text.Markup.Escape(_prefix) + markup, status: "host", isMarkup: true));
                 return;
             }
             string text = record.MessageData is HostInformationMessage plain ? plain.Message : PSWidgets.ToText(record.MessageData);
@@ -95,7 +95,7 @@ namespace ConsoleMonster.PowerShell {
         private void OnError(object? sender, DataAddedEventArgs e) => Write(_shell.Streams.Error[e.Index].ToString(), "err");
 
         private void Write(string text, string level) {
-            _session.Post(new LiveEvent("$log", "write", text: _prefix == null ? text : _prefix + text, state: level));
+            _session.Post(new LiveEvent("$log", "write", text: _prefix == null ? text : _prefix + text, status: level));
         }
     }
 }

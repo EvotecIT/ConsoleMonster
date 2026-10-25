@@ -25,9 +25,9 @@ Each widget the scriptblock emits is a layer, bottom first; later layers paint o
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleStack {
-    New-ConsoleLineChart -Name latency
-    New-ConsoleAlign -Horizontal Right { New-ConsoleText -Markup '[pass]LIVE[/]' }
+New-ConsoleStack -Content {
+    New-ConsoleLineChart -WidgetId latency
+    New-ConsoleAlign -Horizontal Right -Content { New-ConsoleText -Markup '[pass]LIVE[/]' }
 }
 ```
 

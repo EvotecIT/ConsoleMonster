@@ -10,11 +10,11 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example>
     ///   <para>Services as a table with a status column</para>
-    ///   <code>Get-Service | Select-Object -First 8 Name, Status, StartType | New-ConsoleTable -Title 'Services' | Write-ConsoleWidget</code>
+    ///   <code>Get-Service | Select-Object -First 8 Name, Status, StartType | New-ConsoleTable -Title 'Services' | Show-Console</code>
     /// </example>
     /// <example>
     ///   <para>Filter objects from current application state.</para>
-    ///   <code>Show-ConsoleApp { New-ConsoleTextInput -Name Query; New-ConsoleTable -Bind { $items | Where-Object Name -Like "*$($State.Query)*" } -Property Name, Status -StatusProperty Status }</code>
+    ///   <code>Show-ConsoleApp -Content { New-ConsoleTextInput -Key Query; New-ConsoleTable -Bind { $items | Where-Object Name -Like "*$($State.Query)*" } -Property Name, Status -StatusProperty Status }</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleTable", DefaultParameterSetName = "Objects")]
     [OutputType(typeof(Table), typeof(AppBinding))]
@@ -31,7 +31,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Properties to show, in order.</para></summary>
         [Parameter]
-        public string[]? Property { get; set; }
+        public object[]? Property { get; set; }
 
         /// <summary><para type="description">A property whose values are statuses (pass/fail/warn/skip/running).</para></summary>
         [Parameter]
@@ -67,11 +67,6 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void EndProcessing() {
             if (Bind != null) {
-                if (this is CmdletWriteConsoleTable) {
-                    ThrowTerminatingError(new ErrorRecord(new System.InvalidOperationException(
-                        PSAppMessages.BindingRequiresFactory),
-                        "AppBindingRequiresFactory", ErrorCategory.InvalidArgument, Bind));
-                }
                 PSAppScript script = new PSAppScript(Bind);
                 WriteObject(script.CreateBinding(state => BuildTable(script.Invoke(state), script.Cmdlet)));
                 return;
@@ -84,7 +79,7 @@ namespace ConsoleMonster.PowerShell {
         protected Table BuildTable() => BuildTable(_items);
 
         private Table BuildTable(IReadOnlyList<PSObject> items, PSCmdlet? cmdlet = null) {
-            // The same columns and cell values as Format-ConsoleTable (registered views, PowerShell's table views, data keys,
+            // The same columns and cell values as Show-ConsoleTable (registered views, PowerShell's table views, data keys,
             // shared value rules); -StatusProperty shows that column as status markers.
             object[]? property = Property != null && Property.Length > 0 ? Property : null;
             Values.ShapeOptions shape = Binding.PSShaping.Options();
@@ -106,7 +101,7 @@ namespace ConsoleMonster.PowerShell {
             return table;
         }
 
-        /// <summary>Emits the built table (Write-ConsoleTable overrides this to write it).</summary>
+        /// <summary>Emits the built table (Show-ConsoleTable overrides this to write it).</summary>
         /// <param name="table">The table.</param>
         protected virtual void Emit(Table table) => WriteObject(table);
     }

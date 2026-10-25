@@ -18,4 +18,4 @@ $picked = $services | Show-ConsoleGrid -Title 'Services on FS01' -Property @(
     @{ Name = 'StartType'; Header = 'Start type' }
     @{ Name = 'Memory'; Presenter = 'Bytes' }
 )
-Write-ConsoleMarkup "Picked [bold]$(@($picked).Count)[/] services"
+Write-ConsoleText -Markup "Picked [bold]$(@($picked).Count)[/] services"

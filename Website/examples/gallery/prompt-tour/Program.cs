@@ -93,7 +93,7 @@ new SecretPrompt("Password for svc-backup") {
 }.Show();
 
 Terminal.Write(new Rule("[bold]6 / 9 · Number[/]"));
-new NumberPrompt("Port") { WholeNumber = true, Minimum = 1, Maximum = 65535, Default = 443 }.Show();
+new NumberPrompt("Port") { Integer = true, Minimum = 1, Maximum = 65535, Default = 443 }.Show();
 
 Terminal.Write(new Rule("[bold]7 / 9 · Path[/]"));
 new PathPrompt("Report folder") { Kind = PathKind.Folder, Default = reportFolder }.Show();

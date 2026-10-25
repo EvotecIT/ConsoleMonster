@@ -16,5 +16,5 @@ $servers = @(
     #endregion
 )
 
-$server = Read-ConsoleSelection 'Target server' -Choices $servers -Display Name -GroupBy Site -Badge Role -Disabled { $_.Offline } -Description 'Type to filter; offline servers show why they cannot be picked.'
-Write-ConsoleMarkup "Connecting to [bold]$($server.Name)[/]"
+$server = Read-ConsoleSelect 'Target server' -Choices $servers -Display Name -GroupBy Site -Badge Role -DisabledReason { $_.Offline } -Description 'Type to filter; offline servers show why they cannot be picked.'
+Write-ConsoleText -Markup "Connecting to [bold]$($server.Name)[/]"

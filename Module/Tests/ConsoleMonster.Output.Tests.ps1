@@ -34,15 +34,15 @@ Describe 'Format-Console output reaches every PowerShell consumer' {
 
     It 'writes text to a pipeline consumer: Out-String, Out-File, Set-Content, more and -OutVariable' {
         $out = Invoke-OutputChild @'
-$text = $svc | Format-ConsoleTable | Out-String
+$text = $svc | Show-ConsoleTable | Out-String
 "OUTSTRING=$($text -match 'alpha' -and $text -match 'Status')"
-$svc | Format-ConsoleTable | Out-File (Join-Path $folder 'outfile.txt')
+$svc | Show-ConsoleTable | Out-File (Join-Path $folder 'outfile.txt')
 "OUTFILE=$((Get-Content (Join-Path $folder 'outfile.txt') -Raw) -match 'beta')"
-$svc | Format-ConsoleTable | Set-Content (Join-Path $folder 'setcontent.txt')
+$svc | Show-ConsoleTable | Set-Content (Join-Path $folder 'setcontent.txt')
 "SETCONTENT=$((Get-Content (Join-Path $folder 'setcontent.txt') -Raw) -match 'beta')"
-$paged = @($svc | Format-ConsoleTable | more) -join "`n"
+$paged = @($svc | Show-ConsoleTable | more) -join "`n"
 "MORE=$($paged -match 'alpha')"
-$svc | Format-ConsoleTable -OutVariable captured | Out-Null
+$svc | Show-ConsoleTable -OutVariable captured | Out-Null
 "OUTVARIABLE=$((@($captured) -join "`n") -match 'alpha')"
 "ESCAPES=$($text.Contains([char] 27))"
 '@
@@ -56,12 +56,12 @@ $svc | Format-ConsoleTable -OutVariable captured | Out-Null
 
     It 'captures -AsString on every PowerShell version' {
         $out = Invoke-OutputChild @'
-$text = $svc | Format-ConsoleTable -AsString
+$text = $svc | Show-ConsoleTable -AsString
 "TYPE=$($text.GetType().Name)"
 "TABLE=$($text -match 'alpha' -and $text -match 'beta')"
-$list = $svc | Format-ConsoleList -AsString
+$list = $svc | Show-ConsoleList -AsString
 "LIST=$($list -match 'Running')"
-$json = $svc | Format-ConsoleJson -AsString
+$json = $svc | Show-ConsoleJson -AsString
 "JSON=$($json -match '"Name": "alpha"')"
 '@
         Get-Result $out 'TYPE' | Should -Be 'String'
@@ -72,13 +72,13 @@ $json = $svc | Format-ConsoleJson -AsString
 
     It 'captures assignment, > file and *> on PowerShell 7.2+, and draws through the host on 5.1' {
         $out = Invoke-OutputChild @'
-$x = $svc | Format-ConsoleTable
+$x = $svc | Show-ConsoleTable
 "ASSIGNED=$("$x" -match 'alpha')"
-$svc | Format-ConsoleTable > (Join-Path $folder 'redirect.txt')
+$svc | Show-ConsoleTable > (Join-Path $folder 'redirect.txt')
 $redirected = Get-Content (Join-Path $folder 'redirect.txt') -Raw
 "REDIRECT=$([bool] ($redirected -match 'alpha'))"
 "REDIRECTESC=$([bool] ($redirected -and $redirected.Contains([char] 27)))"
-$svc | Format-ConsoleTable *> (Join-Path $folder 'all.txt')
+$svc | Show-ConsoleTable *> (Join-Path $folder 'all.txt')
 "ALL=$((Get-Content (Join-Path $folder 'all.txt') -Raw) -match 'alpha')"
 '@
         Get-Result $out 'ALL' | Should -Be 'True'
@@ -112,7 +112,7 @@ $x = $svc | Show-Console
     It 'records the table in a transcript' {
         $out = Invoke-OutputChild @'
 Start-Transcript -Path (Join-Path $folder 'transcript.txt') | Out-Null
-$svc | Format-ConsoleTable
+$svc | Show-ConsoleTable
 Stop-Transcript | Out-Null
 $t = Get-Content (Join-Path $folder 'transcript.txt') -Raw
 "TRANSCRIPT=$($t -match 'alpha' -and $t -match 'beta')"
@@ -124,9 +124,9 @@ $t = Get-Content (Join-Path $folder 'transcript.txt') -Raw
 
     It 'keeps -PassThru writing the input objects, and refuses -AsString with -PassThru' {
         $out = Invoke-OutputChild @'
-$passed = @($svc | Format-ConsoleTable -PassThru | Where-Object Status -eq 'Running')
+$passed = @($svc | Show-ConsoleTable -PassThru | Where-Object Status -eq 'Running')
 "PASSED=$($passed.Count) $($passed[0].Name)"
-try { $svc | Format-ConsoleTable -AsString -PassThru | Out-Null; 'BOTH=accepted' } catch { "BOTH=$($_.FullyQualifiedErrorId -like 'AsStringWithPassThru*')" }
+try { $svc | Show-ConsoleTable -AsString -PassThru | Out-Null; 'BOTH=accepted' } catch { "BOTH=$($_.FullyQualifiedErrorId -like 'AsStringWithPassThru*')" }
 '@
         Get-Result $out 'PASSED' | Should -Be '1 alpha'
         Get-Result $out 'BOTH' | Should -Be 'True'
@@ -134,11 +134,11 @@ try { $svc | Format-ConsoleTable -AsString -PassThru | Out-Null; 'BOTH=accepted'
 
     It 'leaves the output of a function or script block alone: the view is drawn, not returned' {
         $out = Invoke-OutputChild @'
-function Get-Data { $svc | Format-ConsoleTable; 'done' }
+function Get-Data { $svc | Show-ConsoleTable; 'done' }
 $result = @(Get-Data)
 "RESULT=$($result.Count) $($result[-1])"
 $null = Get-Data
-$block = @(& { $svc | Format-ConsoleTable })
+$block = @(& { $svc | Show-ConsoleTable })
 "BLOCK=$($block.Count)"
 '@
         Get-Result $out 'RESULT' | Should -Be '1 done'
@@ -149,7 +149,7 @@ $block = @(& { $svc | Format-ConsoleTable })
 
     It 'shows a rendering that crossed a serialization boundary as its text' {
         $out = Invoke-OutputChild @'
-$x = $svc | Format-ConsoleTable
+$x = $svc | Show-ConsoleTable
 if ($x) {
     $copy = [System.Management.Automation.PSSerializer]::Deserialize([System.Management.Automation.PSSerializer]::Serialize($x))
     $text = $copy | Out-String
@@ -185,7 +185,7 @@ Describe 'Widgets draw themselves' {
             "'== shown'"
             '$t'
             "'== aswidget'"
-            "[pscustomobject] @{ Name = 'gamma' } | Format-ConsoleTable -AsWidget"
+            "[pscustomobject] @{ Name = 'gamma' } | Show-ConsoleTable -AsWidget"
             "'== outstring'"
             '($t | Out-String).Trim()'
             "'== list'"
@@ -203,7 +203,7 @@ Describe 'Widgets draw themselves' {
     It 'keeps ConsoleMonster.format.ps1xml in step with the widget types' {
         Import-Module $script:ModulePath -Force
         $file = Join-Path $PSScriptRoot '..\ConsoleMonster.format.ps1xml'
-        $expected = [ConsoleMonster.PowerShell.WidgetFormatData]::Generate()
+        $expected = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.WidgetFormatData'))::Generate()
         ([System.IO.File]::ReadAllText($file) -replace "`r`n", "`n") | Should -Be ($expected -replace "`r`n", "`n") -Because 'Module/Build/Update-ConsoleFormatData.ps1 regenerates it'
     }
 }

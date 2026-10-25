@@ -53,7 +53,7 @@ namespace ConsoleMonster.Tests.Live {
             Assert.DoesNotContain("4 categories", frame.ToPlainText());
             var style = frame[0, title].Style;
             Assert.True((style.Decoration & TextDecoration.Bold) != 0);
-            Assert.Equal(new RenderContext(TerminalProfile.Fixed(120, 50), Theme.Dark).Style(ThemeToken.Muted).Foreground, style.Foreground);
+            Assert.Equal(new RenderContext(TerminalProfile.Fixed(120, 50), Theme.Dark).Style(ThemeToken.Muted).Color, style.Color);
         }
 
         [Fact]

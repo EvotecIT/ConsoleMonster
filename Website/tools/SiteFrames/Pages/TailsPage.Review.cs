@@ -53,17 +53,17 @@ namespace SiteFrames.Pages {
             LogTailView view = new LogTailView();
             DateTimeOffset source = new DateTimeOffset(2026, 10, 22, 23, 59, 59, TimeSpan.Zero);
             Append(new TailedLogEntry("2026-10-22T23:59:59Z INFO database ready", "info", source, "database ready"));
-            view.Apply(new LiveEvent(view.Name, "home"));
+            view.Apply(new LiveEvent(view.WidgetId, "home"));
             Append(new TailedLogEntry("2026-10-22T23:59:59Z WARN database retry", "warn", source, "database retry\nretry scheduled"));
             frames.Add("paused-new-lines", Draw());
-            view.Apply(new LiveEvent(view.Name, "follow"));
+            view.Apply(new LiveEvent(view.WidgetId, "follow"));
             Append(new TailedLogEntry("2026-10-23T00:00:00Z INFO database connected", "info", source.AddSeconds(1), "database connected"));
             frames.Add("source-days", Draw());
             view.TimestampFormat = "yyyy-MM-dd HH:mm:ss zzz";
             frames.Add("timestamp-override", Draw());
             return frames;
 
-            void Append(TailedLogEntry entry) => view.Apply(new LiveEvent(view.Name, "append") { Payload = entry });
+            void Append(TailedLogEntry entry) => view.Apply(new LiveEvent(view.WidgetId, "append") { Payload = entry });
             CellBuffer Draw() {
                 CellBuffer frame = new CellBuffer(width, 6);
                 view.Render(new Region(frame), new RenderContext(TerminalProfile.Fixed(width, 6), theme));

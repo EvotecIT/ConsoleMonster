@@ -36,7 +36,7 @@ namespace ConsoleMonster.Tests.Interactive {
                 review.Run = c => log.Add("run " + targets.Selection.Count);
                 return review;
             }));
-            menu.Item("Clean", i => i.Hotkey('c').Action(ctx => log.Add("clean")).Disabled(() => log.Contains("lock") ? "locked" : null));
+            menu.Item("Clean", i => i.Hotkey('c').Action(ctx => log.Add("clean")).DisabledReason(() => log.Contains("lock") ? "locked" : null));
             menu.Exit("Quit");
             return menu;
         }

@@ -3,6 +3,31 @@ Describe 'Markdown reader adapter contracts' {
         Import-Module (Join-Path $PSScriptRoot '../ConsoleMonster.psd1') -Force
     }
 
+    It 'loads the bundled Markdown exporter only when a Markdown operation is requested' {
+        . (Join-Path $PSScriptRoot 'Support/Invoke-TestChild.ps1')
+        $module = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../ConsoleMonster.psd1'))
+        $script = @'
+$ErrorActionPreference = 'Stop'
+Import-Module '__MODULE__' -Force
+function Assert-MarkdownNotLoaded {
+    if (@([AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.GetName().Name -in 'ConsoleMonster.Markdown', 'OfficeIMO.Markdown' }).Count) { throw 'A core operation eagerly loaded Markdown.' }
+}
+Assert-MarkdownNotLoaded
+$rows = @([pscustomobject]@{ Host = 'first'; Count = 2 }, [pscustomobject]@{ Host = 'second'; Count = 3 })
+$null = $rows | Export-ConsoleFrame -Format Text
+Assert-MarkdownNotLoaded
+$markdown = $rows | Export-ConsoleFrame -Format Markdown
+if ($markdown -notmatch '\| first \| 2 \|' -or $markdown -notmatch '\| second \| 3 \|') { throw 'The lazy exporter lost ordinary object rows.' }
+if (@([AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.GetName().Name -eq 'ConsoleMonster.Markdown' }).Count -ne 1) { throw 'The bundled add-on was not loaded exactly once.' }
+$fenced = $rows | Export-ConsoleFrame -Format FencedText
+if ($fenced -notmatch '^```text') { throw 'FencedText did not use the add-on.' }
+'LAZY-MARKDOWN-OK'
+'@
+        $output = Invoke-TestChild -Runtime ([Diagnostics.Process]::GetCurrentProcess().Path) -Script ($script.Replace('__MODULE__', $module.Replace("'", "''")))
+        $LASTEXITCODE | Should -Be 0 -Because ($output -join "`n")
+        ($output -join "`n") | Should -Match LAZY-MARKDOWN-OK
+    }
+
     It 'renders inline content and literal markup without interpreting document text as console markup' {
         $text = Show-ConsoleMarkdown -Content '# Notes' -AsString -Width 60
         $text | Should -Match 'Notes'
@@ -25,7 +50,7 @@ Describe 'Markdown reader adapter contracts' {
             $expected = Show-ConsoleMarkdown -Content '# Saved notes' -AsString -Width 60
             Show-ConsoleMarkdown -Path './notes [final].md' -AsString -Width 60 | Should -BeExactly $expected
             Show-ConsoleMarkdown -Path 'TestDrive:/notes [final].md' -AsString -Width 60 | Should -BeExactly $expected
-            Show-ConsoleMarkdown -LiteralPath ('Microsoft.PowerShell.Core\FileSystem::' + $path) -AsString -Width 60 | Should -BeExactly $expected
+            Show-ConsoleMarkdown -Path ('Microsoft.PowerShell.Core\FileSystem::' + $path) -AsString -Width 60 | Should -BeExactly $expected
         } finally {
             Pop-Location
         }
@@ -55,7 +80,7 @@ Get-Service | Select-Object Name
         $actual | Should -Match 'powershell'
         $actual | Should -Match 'Get-Service'
         foreach ($line in ($actual -split '\r?\n')) {
-            [ConsoleMonster.Text.DisplayWidth]::Measure($line) | Should -BeLessOrEqual 60
+            ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Text.DisplayWidth'))::Measure($line) | Should -BeLessOrEqual 60
         }
     }
 
@@ -82,7 +107,7 @@ Get-Service | Select-Object Name
         $core | Should -Not -Contain 'OfficeIMO.Markdown'
         $core | Should -Not -Contain 'OfficeIMO.Core'
         $core | Should -Not -Contain 'ConsoleMonster.Markdown'
-        [ConsoleMonster.Markdown.MarkdownConsole].Assembly.GetReferencedAssemblies().Name | Should -Contain 'OfficeIMO.Markdown'
+        ([AppDomain]::CurrentDomain.GetAssemblies().Where({ $_.GetName().Name -eq 'ConsoleMonster.Markdown' })[0].GetType('ConsoleMonster.Markdown.MarkdownConsole')).Assembly.GetReferencedAssemblies().Name | Should -Contain 'OfficeIMO.Markdown'
     }
 
     It 'uses the same reader for explicit about-topic help' {

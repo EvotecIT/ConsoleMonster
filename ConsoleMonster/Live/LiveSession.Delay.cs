@@ -32,8 +32,7 @@ namespace ConsoleMonster.Live {
             if (Thread.CurrentThread == _thread) {
                 throw new InvalidOperationException("A render callback cannot wait for the render thread.");
             }
-            Cancellation.ThrowIfCancellationRequested();
-            if (!IsRunning) { throw new InvalidOperationException("The live session is not running."); }
+            EnsureDelayAvailable();
 
             bool selected = _recordingTarget?.SelectCheckpoint() == true;
             if (_recordingTarget?.SkipDelays == true) {
@@ -43,7 +42,7 @@ namespace ConsoleMonster.Live {
                 }
                 TaskCompletionSource<bool> checkpoint = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
                 if (!TryPost(new LiveEvent("$checkpoint", "capture") { Payload = checkpoint })) {
-                    Cancellation.ThrowIfCancellationRequested();
+                    EnsureDelayAvailable();
                     throw new InvalidOperationException("The live session has stopped accepting updates.");
                 }
                 checkpoint.Task.Wait(Cancellation);
@@ -60,6 +59,21 @@ namespace ConsoleMonster.Live {
                 || string.Equals(snapshot, "yes", StringComparison.OrdinalIgnoreCase);
             if (!skip) { Cancellation.WaitHandle.WaitOne(delay); }
             Cancellation.ThrowIfCancellationRequested();
+        }
+
+        // Stop closes admission before signalling its token. Synchronize with that transition, then
+        // complete cancellation outside the lifecycle lock so cancellation callbacks can safely reenter.
+        private void EnsureDelayAvailable() {
+            bool stopping;
+            lock (_lifecycle) {
+                Cancellation.ThrowIfCancellationRequested();
+                if (_state == 0) { throw new InvalidOperationException("The live session is not running."); }
+                stopping = _state >= 2;
+            }
+            if (stopping) {
+                CancelWork();
+                Cancellation.ThrowIfCancellationRequested();
+            }
         }
 
         private void AdvanceDelayClock(TimeSpan delay) {

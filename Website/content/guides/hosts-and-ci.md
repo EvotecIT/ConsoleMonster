@@ -44,7 +44,7 @@ To use it in a pipeline:
 
 3. For logs with ASCII glyphs and no escape sequences, also set `CONSOLEMONSTER_MODE: plain` under the step's `env:`.
 
-{{< cm-frame id="plain" caption="`Format-ConsoleTable` with `CONSOLEMONSTER_MODE=plain`: ASCII glyphs and no escape sequences, for logs that keep every byte." >}}
+{{< cm-frame id="plain" caption="`Show-ConsoleTable` with `CONSOLEMONSTER_MODE=plain`: ASCII glyphs and no escape sequences, for logs that keep every byte." >}}
 
 Text that reaches stream and plain output is sanitised: escape sequences and control characters in log messages, captured lines or data are removed, so plain mode never emits an escape sequence.
 

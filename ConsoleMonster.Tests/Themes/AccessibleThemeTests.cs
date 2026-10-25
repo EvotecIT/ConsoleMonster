@@ -17,7 +17,7 @@ namespace ConsoleMonster.Tests.Themes {
         [InlineData(ColorDepth.Ansi16)]
         public void ColorBlindSafe_ChartSeriesHaveDistinctForegrounds(ColorDepth depth) {
             ThemeToken[] series = { ThemeToken.Series1, ThemeToken.Series2, ThemeToken.Series3, ThemeToken.Series4, ThemeToken.Series5, ThemeToken.Series6 };
-            Color[] colours = series.Select(token => Theme.ColorBlindSafe.Resolve(token, depth).Foreground).ToArray();
+            Color[] colours = series.Select(token => Theme.ColorBlindSafe.Resolve(token, depth).Color).ToArray();
             Assert.All(colours, colour => Assert.False(colour.IsDefault));
             Assert.Equal(series.Length, colours.Distinct().Count());
         }
@@ -36,7 +36,7 @@ namespace ConsoleMonster.Tests.Themes {
                 Assert.Equal(Style.Plain, pass);
                 Assert.Equal(Style.Plain, fail);
             } else {
-                Assert.NotEqual(pass.Foreground, fail.Foreground);
+                Assert.NotEqual(pass.Color, fail.Color);
                 Assert.Equal(TextDecoration.Bold, pass.Decoration);
                 Assert.True((fail.Decoration & TextDecoration.Underline) != 0);
             }

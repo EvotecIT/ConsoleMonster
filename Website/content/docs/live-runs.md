@@ -5,12 +5,12 @@ slug: live-runs
 order: 9
 group: live
 card: parallel
-apis: [ForEach-ConsoleItem, Watch-Console]
+apis: [Invoke-ConsoleRun, Watch-Console]
 chips: [Pester]
-summary: "ForEach-ConsoleItem in parallel, Watch-Console and Pester runs, recorded."
+summary: "Invoke-ConsoleRun in parallel, Watch-Console and Pester runs, recorded."
 ---
 
-Three commands turn long-running work into a live view on an interactive console and into plain lines everywhere else: `ForEach-ConsoleItem` (`Invoke-ConsoleRun`) for many items, `Watch-Console` for a command you want to see change, and `Invoke-ConsolePester` for tests. Each writes ordinary PowerShell output when it ends, so it fits into a script like the commands it replaces.
+Three commands turn long-running work into a live view on an interactive console and into plain lines everywhere else: `Invoke-ConsoleRun` (`Invoke-ConsoleRun`) for many items, `Watch-Console` for a command you want to see change, and `Invoke-ConsolePester` for tests. Each writes ordinary PowerShell output when it ends, so it fits into a script like the commands it replaces.
 
 {{< cm-demo id="parallel" heading="h2" autoplay="true" >}}
 
@@ -27,17 +27,17 @@ The summary bar and the cell map are widgets of their own, for your own views:
 
 ```powershell
 $states = @('Pass') * 28 + @('Fail') * 2 + @('Warn') + @('Running') * 4
-New-ConsoleRows -Gap 1 {
-    New-ConsoleSummaryBar -Done 31 -Total 40 -Elapsed 42s -Counter ([ordered] @{ passed = 28; failed = 2; warnings = 1 })
+New-ConsoleRows -Gap 1 -Content {
+    New-ConsoleSummaryBar -Done 31 -Total 40 -ElapsedSeconds 42 -Counter ([ordered] @{ passed = 28; failed = 2; warnings = 1 })
     New-ConsoleCellMap -Status $states -Count 40
-} | Write-ConsoleWidget
+} | Show-Console
 ```
 
 In C#, `ConsoleRun.ForEachAsync` runs the same view around any async work, and `SummaryBar` and `CellMap` are in `ConsoleMonster.Widgets`.
 
 {{< cm-demo id="watch" heading="h2" >}}
 
-`Watch-Console` runs the script block every `-Interval` seconds and replaces the view with its latest output, shaped as `Format-ConsoleTable` shapes it. `-Differences` marks the cells that changed since the previous run, a run that fails shows its error and the watch goes on, and `-Count` ends it after that many runs. Ctrl+C ends it and leaves the last frame in the scrollback. Piped on, or without an interactive console, every run is printed instead.
+`Watch-Console` runs the script block every `-PollIntervalSeconds` seconds and replaces the view with its latest output, shaped as `Show-ConsoleTable` shapes it. `-Differences` marks the cells that changed since the previous run, a run that fails shows its error and the watch goes on, and `-Count` ends it after that many runs. Ctrl+C ends it and leaves the last frame in the scrollback. Piped on, or without an interactive console, every run is printed instead.
 
 {{< cm-demo id="pester" heading="h2" >}}
 

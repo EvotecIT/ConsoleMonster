@@ -95,7 +95,7 @@ namespace ConsoleMonster.Styling {
         }
 
         private void Add(RenderContext context, ThemeToken token, ConsoleColor? color) {
-            Color foreground = context.Style(token).Foreground;
+            Color foreground = context.Style(token).Color;
             if (!foreground.IsDefault && !_roles.ContainsKey(foreground)) {
                 _roles[foreground] = color;
             }

@@ -11,7 +11,7 @@ $Host.UI.RawUI.BackgroundColor = if ($Theme -eq 'Light') { 'White' } else { 'Bla
 $Host.UI.RawUI.ForegroundColor = if ($Theme -eq 'Light') { 'Black' } else { 'Gray' }
 Import-Module $ModulePath -ErrorAction Stop
 Import-Module PSReadLine -ErrorAction Stop
-Set-ConsoleTheme -Name $Theme
+Set-ConsoleTheme -Theme $Theme
 $resolvedTheme = [ConsoleMonster.Terminal]::Theme.Name
 if ($resolvedTheme -cne $Theme) { throw "Native capture resolved $resolvedTheme instead of $Theme." }
 Set-PSReadLineOption -HistorySaveStyle SaveNothing -HistorySavePath ($EvidencePath + '.history.txt') -EditMode Windows -BellStyle None
@@ -48,7 +48,7 @@ try {
     $applied = @{}
     foreach ($entry in @{ CommandColor = 'Series6'; SelectionColor = 'Focus'; InlinePredictionColor = 'Muted' }.GetEnumerator()) {
         if (-not $options.PSObject.Properties[$entry.Key]) { continue }
-        $expected = [ConsoleMonster.Rendering.SgrEncoder]::Encode([ConsoleMonster.Terminal]::Theme.Resolve($entry.Value, 'TrueColor'), 'TrueColor')
+        $expected = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Rendering.SgrEncoder'))::Encode([ConsoleMonster.Terminal]::Theme.Resolve($entry.Value, 'TrueColor'), 'TrueColor')
         $applied[$entry.Key] = $options.PSObject.Properties[$entry.Key].Value
         if ($applied[$entry.Key] -cne $expected) { throw "Wrong native capture colour: $($entry.Key)" }
     }

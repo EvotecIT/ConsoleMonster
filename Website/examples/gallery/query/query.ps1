@@ -60,7 +60,7 @@ $report = New-ConsoleRows -Gap 1 -Content {
                 }
             }
         }
-        New-ConsolePanel -Title 'Mail security' -Caption $domain -Content {
+        New-ConsolePanel -Title 'Mail security' -HeaderRight $domain -Content {
             New-ConsoleRows -Gap 0 -Content {
                 New-ConsoleStatusList -Content {
                     foreach ($check in $checks) {
@@ -68,11 +68,11 @@ $report = New-ConsoleRows -Gap 1 -Content {
                     }
                 }
                 New-ConsoleRule
-                New-ConsoleBarChart -Name latency -Unit ' ms' -Data $resolvers
+                New-ConsoleBarChart -WidgetId latency -Unit ' ms' -InputObject $resolvers
             }
         }
     }
 }
 
 # Behaviour: print the report once to the terminal or redirected output.
-$report | Write-ConsoleWidget
+$report | Show-Console

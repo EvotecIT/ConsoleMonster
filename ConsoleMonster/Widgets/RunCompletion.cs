@@ -20,11 +20,11 @@ namespace ConsoleMonster.Widgets {
         public void Render(Region region, RenderContext context) {
             if (region.Width == 0 || region.Height == 0) { return; }
             Style muted = context.Style(ThemeToken.Muted);
-            Style state = context.Style(_item.State.ToToken());
-            string tag = context.Glyphs.StatusSymbol(_item.State);
+            Style state = context.Style(_item.Status.ToToken());
+            string tag = context.Glyphs.StatusSymbol(_item.Status);
             bool plain = context.Depth == ColorDepth.None || context.Profile.Mode == OutputMode.Plain;
             if (plain) {
-                tag += " " + (_item.State == StatusKind.Pass ? "OK" : _item.State == StatusKind.Fail ? "ERR" : _item.State == StatusKind.Warn ? "WARN" : "SKIP");
+                tag += " " + (_item.Status == StatusKind.Pass ? "OK" : _item.Status == StatusKind.Fail ? "ERR" : _item.Status == StatusKind.Warn ? "WARN" : "SKIP");
             }
             string duration = NumberFormat.Duration(_item.Duration);
             int durationWidth = Math.Min(region.Width, Math.Max(7, DisplayWidth.Measure(duration)));
@@ -36,7 +36,7 @@ namespace ConsoleMonster.Widgets {
             int nameWidth = Math.Min(40, Math.Max(0, available * 11 / 20));
             int targetWidth = Math.Min(18, Math.Max(0, available / 5));
             string target = OneLine(_item.Item.Target);
-            region.Write(x, 0, TextWrapper.Truncate(OneLine(_item.Item.Name), nameWidth, context.Ellipsis), _item.State == StatusKind.Fail || _item.State == StatusKind.Warn ? state : context.Style(ThemeToken.Text));
+            region.Write(x, 0, TextWrapper.Truncate(OneLine(_item.Item.Label), nameWidth, context.Ellipsis), _item.Status == StatusKind.Fail || _item.Status == StatusKind.Warn ? state : context.Style(ThemeToken.Text));
             x += nameWidth + 3;
             if (target.Length > 0) {
                 region.Write(x, 0, TextWrapper.Truncate(target, targetWidth, context.Ellipsis), muted);

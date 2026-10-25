@@ -23,16 +23,16 @@ This example reports two illustrative outcomes without contacting either target.
 Declare the items, report state changes, then complete the run in `finally`. The monitor leaves your script's output and exit code alone:
 
 ```powershell
-$run = New-ConsoleRun -Items $checks -Name Name -Target Target -Group { $_.Category }
+$run = Start-ConsoleRun -Items $checks -Label Name -Target Target -Group { $_.Category }
 try {
-    Update-ConsoleRun $run -Index 0 -State Running -Phase 'collecting'
-    Update-ConsoleRun $run -Index 0 -State Pass
+    Update-ConsoleRun $run -Index 0 -Status Running -Phase 'collecting'
+    Update-ConsoleRun $run -Index 0 -Status Pass
 } finally {
     $summary = Complete-ConsoleRun $run -PassThru
 }
 ```
 
-`-Name`, `-Target` and `-Group` accept property names or script blocks. Item positions start at zero. `Running` updates can change the phase without restarting elapsed time. `Pass`, `Fail`, `Warn` and `Skip` finish an item once. In C#, the handle's `Started` and `Finished` methods accept calls from worker threads.
+`-Label`, `-Target` and `-Group` accept property names or script blocks. Item positions start at zero. `Running` updates can change the phase without restarting elapsed time. `Pass`, `Fail`, `Warn` and `Skip` finish an item once. In C#, the handle's `Started` and `Finished` methods accept calls from worker threads.
 
 The larger previews below show 214 illustrative checks with eight active workers partway through a run. Their [C# scene](https://github.com/EvotecIT/ConsoleMonster/blob/master/ConsoleMonster.Examples/LargeRunScene.cs) is also used by the golden-frame tests:
 
@@ -44,7 +44,7 @@ The header shows the progress bar, counts, elapsed time, smoothed ETA and throug
 
 At completion, the dashboard is removed and the full summary prints into scrollback: totals, groups, every problem with wrapped detail, and the optional report path. Terminal scrollback retention is controlled by the terminal application.
 
-CI and redirected output use append-only lines. `-NoLive` forces this mode. `-ProgressEvery` and `-ProgressSeconds` control compact progress updates. C# exposes the same settings through `LiveRunOptions`. `-HeightPercent` changes the dashboard limit.
+CI and redirected output use append-only lines. `-NoLive` forces this mode. `-ProgressEvery` and `-ProgressIntervalSeconds` control compact progress updates. C# exposes the same settings through `LiveRunOptions`. `-HeightPercent` changes the dashboard limit.
 
 Background workers can call `$run.Started($index, $phase)` and `$run.Finished($index, $state, $message)` directly. Use `Wait-ConsoleRun $run` on the calling pipeline while those workers run: PowerShell hosts receive timed progress through that command's output pump. Join workers before `Complete-ConsoleRun`, including during cancellation. In C#, observe `run.Cancellation`, let workers report their last outcomes, then call `Complete`.
 

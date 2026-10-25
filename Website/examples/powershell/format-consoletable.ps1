@@ -10,7 +10,7 @@ $artifacts = @(
 #endregion
 )
 
-$artifacts | Format-ConsoleTable -Title '[bold]Build artifacts[/]' -GroupBy Kind -Total -Property @(
+$artifacts | Show-ConsoleTable -Title '[bold]Build artifacts[/]' -GroupBy Kind -Total -Property @(
     @{ Name = 'Name'; Key = $true; Overflow = 'Never' }
     @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes'; Priority = 9; Aggregate = 'Sum' }
     @{ Name = 'Time'; Header = 'Built in'; Presenter = 'Duration'; Priority = 6; Aggregate = 'Sum' }

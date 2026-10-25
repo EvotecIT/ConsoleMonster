@@ -57,7 +57,7 @@ namespace ConsoleMonster.Interactive {
 
         public void Render(Region region, RenderContext context) {
             Panel panel = DialogChrome.Frame(new Body(this), _labels.Keys);
-            panel.Footer = "[muted]" + Markup.Escape(_labels.AnyKeyCloses) + "[/]";
+            panel.Caption = "[muted]" + Markup.Escape(_labels.AnyKeyCloses) + "[/]";
             panel.Render(region, context);
         }
 

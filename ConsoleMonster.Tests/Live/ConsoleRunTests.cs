@@ -23,7 +23,7 @@ namespace ConsoleMonster.Tests.Live {
             IReadOnlyList<RunResult<int, int>> results = await ConsoleRun.ForEachAsync(Enumerable.Range(1, 20), async (n, token) => {
                 await Task.Delay((20 - n) * 3, token);
                 return n * 10;
-            }, new RunOptions { ThrottleLimit = 5, Interactive = false, Print = line => { lock (lines) { lines.Add(line); } } });
+            }, new RunOptions { ThrottleLimit = 5, Live = false, Print = line => { lock (lines) { lines.Add(line); } } });
             Assert.Equal(Enumerable.Range(1, 20).Select(n => n * 10), results.Select(r => r.Value));
             Assert.All(results, r => Assert.True(r.Succeeded));
             Assert.Equal(21, lines.Count);
@@ -34,7 +34,7 @@ namespace ConsoleMonster.Tests.Live {
         public async Task ForEachAsync_ALabelThatThrows_FallsBackToTheItemTitle() {
             List<string> lines = new List<string>();
             IReadOnlyList<RunResult<int, int>> results = await ConsoleRun.ForEachAsync(new[] { 7, 8 }, (n, token) => Task.FromResult(n), new RunOptions {
-                Interactive = false,
+                Live = false,
                 Label = item => throw new InvalidOperationException("bad label"),
                 Print = line => { lock (lines) { lines.Add(line); } }
             });
@@ -46,7 +46,7 @@ namespace ConsoleMonster.Tests.Live {
         [Fact]
         public async Task ForEachAsync_NoItems_PrintsNothing() {
             List<string> lines = new List<string>();
-            IReadOnlyList<RunResult<int, int>> results = await ConsoleRun.ForEachAsync(Array.Empty<int>(), (n, token) => Task.FromResult(n), new RunOptions { Interactive = false, Title = "empty", Print = lines.Add });
+            IReadOnlyList<RunResult<int, int>> results = await ConsoleRun.ForEachAsync(Array.Empty<int>(), (n, token) => Task.FromResult(n), new RunOptions { Live = false, Title = "empty", Print = lines.Add });
             Assert.Empty(results);
             Assert.Empty(lines);
         }
@@ -62,7 +62,7 @@ namespace ConsoleMonster.Tests.Live {
                     await Task.Delay(5000, token);
                 }
                 return n;
-            }, new RunOptions { Timeout = TimeSpan.FromMilliseconds(200), Interactive = false, Print = line => { lock (lines) { lines.Add(line); } } });
+            }, new RunOptions { Timeout = TimeSpan.FromMilliseconds(200), Live = false, Print = line => { lock (lines) { lines.Add(line); } } });
             Assert.True(results[0].Succeeded);
             Assert.Equal("two broke", results[1].Error!.Message);
             Assert.True(results[2].TimedOut);
@@ -80,7 +80,7 @@ namespace ConsoleMonster.Tests.Live {
                     }
                     await Task.Delay(10, token);
                     return n;
-                }, new RunOptions { ThrottleLimit = 2, Interactive = false, Print = line => { } }, stop.Token);
+                }, new RunOptions { ThrottleLimit = 2, Live = false, Print = line => { } }, stop.Token);
                 Assert.True(results.Count < 50);
             }
         }
@@ -95,7 +95,7 @@ namespace ConsoleMonster.Tests.Live {
                 token.ThrowIfCancellationRequested();
                 return Task.FromResult(true);
             }, new RunOptions {
-                Interactive = true,
+                Live = true,
                 ThrottleLimit = 1,
                 Session = new LiveSessionOptions {
                     Profile = profile, Mode = LiveMode.Inline, HandleCancelKey = false, CaptureConsole = false,

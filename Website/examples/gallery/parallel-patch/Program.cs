@@ -102,7 +102,7 @@ IReadOnlyList<RunResult<Host, string>> results = await ConsoleRun.ForEachAsync(s
     return server.Name + " patched";
 }, new RunOptions {
     ThrottleLimit = throttle, Timeout = TimeSpan.FromSeconds(timeoutSeconds),
-    Title = "Patching the web farm", Interactive = true, Label = item => ((Host)item!).Name
+    Title = "Patching the web farm", Live = true, Label = item => ((Host)item!).Name
 });
 // Keep the structured outcomes; never retry automatically after a failure.
 Terminal.Write(Summary(results));

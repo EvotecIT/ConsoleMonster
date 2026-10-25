@@ -17,8 +17,8 @@ namespace ConsoleMonster.Widgets {
         private readonly List<double> _values = new List<double>();
 
         /// <summary>Creates a sparkline.</summary>
-        /// <param name="name">The live name (default <c>sparkline</c>).</param>
-        public Sparkline(string name = "sparkline") : base(name) {
+        /// <param name="widgetId">The live name (default <c>sparkline</c>).</param>
+        public Sparkline(string widgetId = "sparkline") : base(widgetId) {
         }
 
         /// <summary>The values, oldest first.</summary>
@@ -33,8 +33,8 @@ namespace ConsoleMonster.Widgets {
         /// <summary>How many values are kept (default 1024).</summary>
         public int Capacity { get; set; } = 1024;
 
-        /// <summary>The colour token (default <see cref="ThemeToken.Accent"/>).</summary>
-        public ThemeToken Token { get; set; } = ThemeToken.Accent;
+        /// <summary>The colour role (default <see cref="ThemeToken.Accent"/>).</summary>
+        public ThemeToken Role { get; set; } = ThemeToken.Accent;
 
         /// <summary>Whether the latest value is shown on the right (default true).</summary>
         public bool ShowLatest { get; set; } = true;
@@ -43,7 +43,7 @@ namespace ConsoleMonster.Widgets {
         public string? Unit { get; set; }
 
         /// <summary>A fixed maximum, or <c>null</c> to scale to the visible values.</summary>
-        public double? Max { get; set; }
+        public double? Maximum { get; set; }
 
         /// <summary>Appends a value.</summary>
         /// <param name="value">The value.</param>
@@ -74,7 +74,7 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Returns a handle that appends values through a dispatcher.</summary>
         /// <param name="dispatcher">The dispatcher.</param>
         /// <returns>The handle.</returns>
-        public SparklineHandle Handle(ILiveDispatcher dispatcher) => new SparklineHandle(dispatcher, Name);
+        public SparklineHandle Handle(ILiveDispatcher dispatcher) => new SparklineHandle(dispatcher, WidgetId);
 
         /// <inheritdoc />
         public override void Apply(LiveEvent liveEvent) {
@@ -108,14 +108,14 @@ namespace ConsoleMonster.Widgets {
             }
             int start = Math.Max(0, _values.Count - width);
             // A non-finite fixed maximum would make every fraction NaN; use the data maximum instead.
-            bool fixedMax = Max.HasValue && NumberFormat.IsFinite(Max.Value);
-            double max = fixedMax ? Max!.Value : 0;
+            bool fixedMax = Maximum.HasValue && NumberFormat.IsFinite(Maximum.Value);
+            double max = fixedMax ? Maximum!.Value : 0;
             if (!fixedMax) {
                 for (int i = start; i < _values.Count; i++) {
                     max = Math.Max(max, _values[i]);
                 }
             }
-            Style style = context.Style(Token);
+            Style style = context.Style(Role);
             IGlyphSet glyphs = context.Glyphs;
             int offset = width - (_values.Count - start);
             for (int i = start; i < _values.Count; i++) {

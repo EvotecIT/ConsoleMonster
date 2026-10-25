@@ -29,7 +29,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
             string output = target.Output;
             var frame = target.Transcript();
             Assert.Equal("sample", frame.GetRowText(0).TrimEnd());
-            Assert.False(frame[0, 0].Style.Foreground.IsDefault);
+            Assert.False(frame[0, 0].Style.Color.IsDefault);
             Assert.Empty(target.Screens.Frames);
             Assert.Equal(output, target.Output);
         }

@@ -10,7 +10,7 @@ namespace ConsoleMonster.PowerShell {
             if (completed) {
                 return new LiveEvent(ActivityList.ProgressTarget, "complete", key: key, time: time);
             }
-            return new LiveEvent(ActivityList.ProgressTarget, "update", key: key, text: activity ?? string.Empty, state: string.IsNullOrEmpty(status) ? null : status, value: percent < 0 ? -1 : percent, total: secondsRemaining < 0 ? -1 : secondsRemaining, time: time);
+            return new LiveEvent(ActivityList.ProgressTarget, "update", key: key, text: activity ?? string.Empty, status: string.IsNullOrEmpty(status) ? null : status, value: percent < 0 ? -1 : percent, total: secondsRemaining < 0 ? -1 : secondsRemaining, time: time);
         }
     }
 }

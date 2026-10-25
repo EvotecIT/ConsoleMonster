@@ -22,23 +22,23 @@ namespace ConsoleMonster.Tests.Interactive {
             TextField path = location.Text("Path", "Install folder");
             path.Default = @"C:\Agent";
             path.Required = true;
-            path.Parameter = "Path";
+            path.ParameterName = "Path";
             path.Help = "Created when missing.";
             ChoiceField edition = location.Select("Edition", "Edition", new[] { new Choice("std", "Standard"), new Choice("pro", "Professional") });
             edition.Default = "std";
-            edition.Parameter = "Edition";
+            edition.ParameterName = "Edition";
             FormPage service = form.Page("Service");
             ToggleField custom = service.Toggle("Custom", "Custom account");
-            custom.Parameter = "CustomAccount";
+            custom.ParameterName = "CustomAccount";
             TextField user = service.Text("User", "User name");
             user.VisibleWhen = v => v.Get<bool>("Custom");
             user.Required = true;
-            user.Parameter = "UserName";
+            user.ParameterName = "UserName";
             SecretField password = service.Secret("Password", "Password");
             password.VisibleWhen = v => v.Get<bool>("Custom");
-            password.Parameter = "Password";
+            password.ParameterName = "Password";
             ChoiceField site = service.MultiSelect("Site", "Sites");
-            site.Parameter = "Site";
+            site.ParameterName = "Site";
             site.Loader = loader ?? ((values, token) => Task.FromResult<IEnumerable<Choice>>(new[] { new Choice("waw", "Warsaw"), new Choice("ber", "Berlin") }));
             return form;
         }
@@ -73,7 +73,7 @@ namespace ConsoleMonster.Tests.Interactive {
                 new Choice("b", "B"),
                 new Choice("c", "C") { Selected = true, DisabledReason = "not licensed" }
             });
-            parts.Parameter = "Part";
+            parts.ParameterName = "Part";
             FormResult result = form.Show(new FormOptions { Interactive = new InteractiveOptions { NonInteractive = true } });
             Assert.True(result.Submitted);
             Assert.Equal(new[] { "a" }, result.Values.GetList<string>("Parts"));
@@ -95,10 +95,10 @@ namespace ConsoleMonster.Tests.Interactive {
             NumberField count = form.Number("Count", "Concurrent rules");
             count.Default = initial;
             count.Required = true;
-            count.WholeNumber = true;
+            count.Integer = true;
             count.Minimum = 1;
             count.Maximum = 8;
-            count.Parameter = "--count";
+            count.ParameterName = "--count";
 
             RecordingSurface surface = Show(form, "Down Enter", out FormResult result, width: width);
 
@@ -179,20 +179,20 @@ namespace ConsoleMonster.Tests.Interactive {
         public void BuildCommand_QuotesPerStyleAndLeavesDefaultsOut() {
             Form form = new Form("t") { Command = "Do-Thing" };
             TextField name = form.Text("Name");
-            name.Parameter = "Name";
+            name.ParameterName = "Name";
             name.Value = "two words";
             ToggleField force = form.Toggle("Force");
-            force.Parameter = "Force";
+            force.ParameterName = "Force";
             force.Value = true;
             ToggleField verify = form.Toggle("Verify");
-            verify.Parameter = "Verify";
+            verify.ParameterName = "Verify";
             verify.Default = true;
             verify.Value = false;
             NumberField port = form.Number("Port");
-            port.Parameter = "Port";
+            port.ParameterName = "Port";
             port.Default = 443m;
             ChoiceField servers = form.MultiSelect("Servers", null, new[] { new Choice("a"), new Choice("b c") });
-            servers.Parameter = "Server";
+            servers.ParameterName = "Server";
             servers.Value = new List<object?> { "a", "b c" };
             Assert.Equal("Do-Thing -Name 'two words' -Force -Verify:$false -Server a,'b c'", form.BuildCommand());
             form.CommandStyle = CommandStyle.Posix;

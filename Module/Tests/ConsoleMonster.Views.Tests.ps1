@@ -29,11 +29,11 @@
 '== many'
 1..3 | ForEach-Object { [pscustomobject] @{ Name = "srv0$_"; Count = $_ } } | Show-Console -Width 60
 '== tree'
-[pscustomobject] @{ Name = 'root'; Children = @([pscustomobject] @{ Name = 'leaf'; Children = @() }) } | Show-Console -ChildProperty Children -Width 60
+[pscustomobject] @{ Name = 'root'; Children = @([pscustomobject] @{ Name = 'leaf'; Children = @() }) } | Show-ConsoleTree -ChildrenProperty Children -Width 60
 '== numbers'
 3, 9 | Show-Console -Width 40
 '== cards'
-1..2 | ForEach-Object { [pscustomobject] @{ Name = "srv0$_"; Count = $_ } } | Show-Console -View Cards -Width 60
+1..2 | ForEach-Object { [pscustomobject] @{ Name = "srv0$_"; Count = $_ } } | Show-ConsoleList -Width 60
 '@
         # One object is a record: its title (Name) and its other fields.
         $text | Should -Match 'srv01\s*\n\s+Up\s+(?:.\s+)?yes'
@@ -87,7 +87,7 @@ Enable-ConsoleFormatting -WarningVariable w -WarningAction SilentlyContinue
 Register-ConsoleView -TypeName 'Contoso.Server' -View Table -Property Name, @{ Name = 'State'; Expression = { $_.State }; Presenter = 'StatusWord' }
 $servers = 1..2 | ForEach-Object { $o = [pscustomobject] @{ Name = "srv0$_"; State = 'Running' }; $o.PSObject.TypeNames.Insert(0, 'Contoso.Server'); $o }
 @($servers) + @('a plain string') | Out-ConsoleDefault -Force
-Register-ConsoleView -TypeName 'Contoso.Server' -Remove
+Unregister-ConsoleView -TypeName 'Contoso.Server'
 $servers | Out-ConsoleDefault -Force
 '@
         $text | Should -Match 'srv01.+Running'
@@ -112,7 +112,7 @@ try {
     '== native'
     $values | Format-Table | Out-String
     '== console'
-    $values | Format-ConsoleTable -AsString
+    $values | Show-ConsoleTable -AsString
 } finally {
     Remove-Item -LiteralPath $path
 }
@@ -132,12 +132,12 @@ $data = [System.Collections.Generic.Dictionary[string, object]]::new([StringComp
 $data.Add('Name', 'first')
 $data.Add('name', 'second')
 '== both'
-Format-ConsoleTable -InputObject $data -Property Name, name -AsString
+Show-ConsoleTable -InputObject $data -Property Name, name -AsString
 '== lower'
-Format-ConsoleTable -InputObject $data -Property name -AsString
+Show-ConsoleTable -InputObject $data -Property name -AsString
 '== grouped'
 $data.Add('Size', 7)
-Format-ConsoleTable -InputObject $data -Property Name, name, Size -GroupBy Name -AsString
+Show-ConsoleTable -InputObject $data -Property Name, name, Size -GroupBy Name -AsString
 '@
         $sections = $text -split '== lower'
         $sections[0] | Should -Match 'Name.+name'
@@ -166,15 +166,15 @@ $value | Out-ConsoleDefault -Force
         $text | Should -Match 'kept'
     }
 
-    It 'exports the fct and fcl aliases and prints a profile snippet without changing anything' {
+    It 'omits shortcut aliases and prints a profile snippet without changing anything' {
         $text = Invoke-ViewChild -Script @'
-"FCT=$((Get-Alias fct).Definition) FCL=$((Get-Alias fcl).Definition)"
+"FCT=$((Get-Alias fct -ErrorAction Ignore).Definition) FCL=$((Get-Alias fcl -ErrorAction Ignore).Definition)"
 $snippet = @(Enable-ConsoleFormatting -ProfileSnippet -NoBuiltIn)
 "LINES=$($snippet.Count)"
 $snippet
 "SHIM=$([bool] (Get-Command Out-Default -CommandType Function -ErrorAction Ignore))"
 '@
-        $text | Should -Match 'FCT=Format-ConsoleTable FCL=Format-ConsoleList'
+        $text | Should -Match 'FCT= FCL='
         $text | Should -Match 'LINES=3'
         $text | Should -Match '(?m)^Import-Module ConsoleMonster$'
         $text | Should -Match '(?m)^Enable-ConsoleFormatting -NoBuiltIn$'
@@ -183,8 +183,8 @@ $snippet
 
     It 'shows commands and modules with the built-in views' {
         $text = Invoke-ViewChild -Script @'
-Get-Command Get-Item, Get-ChildItem, gci | Format-ConsoleTable -Width 120
-Get-Module ConsoleMonster | Format-ConsoleTable -Width 120
+Get-Command Get-Item, Get-ChildItem, gci | Show-ConsoleTable -Width 120
+Get-Module ConsoleMonster | Show-ConsoleTable -Width 120
 '@
         $text | Should -Match 'CommandType\s+\S\s+Name\s+\S\s+Version\s+\S\s+Source'
         $text | Should -Match '\[Cmdlet\]\s+\S\s+Get-Item\s'
@@ -194,8 +194,8 @@ Get-Module ConsoleMonster | Format-ConsoleTable -Width 120
 
     It 'shows events, addresses and volumes with the built-in views on Windows' -Skip:(-not ($IsWindows -or $PSVersionTable.PSEdition -eq 'Desktop')) {
         $text = Invoke-ViewChild -Script @'
-Get-WinEvent -LogName System -MaxEvents 2 -ErrorAction Ignore | Format-ConsoleTable -Width 140
-Get-Volume -ErrorAction Ignore | Where-Object DriveLetter | Select-Object -First 1 | Format-ConsoleTable -Width 140
+Get-WinEvent -LogName System -MaxEvents 2 -ErrorAction Ignore | Show-ConsoleTable -Width 140
+Get-Volume -ErrorAction Ignore | Where-Object DriveLetter | Select-Object -First 1 | Show-ConsoleTable -Width 140
 '@
         $text | Should -Match 'TimeCreated\s+\S\s+Id\s+\S\s+Level\s+\S\s+ProviderName\s+\S\s+Message'
         $text | Should -Match 'DriveLetter\s+\S.*Health\s+\S\s+Free\s+\S\s+Size'
@@ -204,7 +204,7 @@ Get-Volume -ErrorAction Ignore | Where-Object DriveLetter | Select-Object -First
     It 'Watch-Console prints every run without a console, and a failed run does not stop it' {
         $text = Invoke-ViewChild -Script @'
 $script:n = 0
-Watch-Console { $script:n++; if ($script:n -eq 2) { throw 'second run failed' }; [pscustomobject] @{ Run = $script:n } } -Count 3 -Interval 0.1 -Title 'demo'
+Watch-Console { $script:n++; if ($script:n -eq 2) { throw 'second run failed' }; [pscustomobject] @{ Run = $script:n } } -Count 3 -PollIntervalSeconds 0.1 -Title 'demo'
 'END'
 '@
         $text | Should -Match 'demo\s+#1'
@@ -225,7 +225,7 @@ Watch-Console { Get-Item -LiteralPath $missing -ErrorAction Stop } -Count 1 -Tit
 
     It 'Watch-Console piped into another command prints into the pipeline and collects the other streams' {
         $text = Invoke-ViewChild -Script @'
-$text = Watch-Console { Write-Host 'host text'; Write-Warning 'careful'; Write-Error 'broken'; 42 } -Count 2 -Interval 0.1 -Title 'demo' | Out-String
+$text = Watch-Console { Write-Host 'host text'; Write-Warning 'careful'; Write-Error 'broken'; 42 } -Count 2 -PollIntervalSeconds 0.1 -Title 'demo' | Out-String
 "RUNS=$(([regex]::Matches($text, 'demo\s+#\d')).Count)"
 "ERRORS=$($text -match '1 error')"
 "NOTES=$($text -match 'host text' -and $text -match 'careful' -and $text -match 'broken')"
@@ -246,8 +246,8 @@ Write-Output -NoEnumerate @(5, 6) | Out-ConsoleDefault -Force
 
     It 'never writes the taskbar sequence in redirected output, even in Windows Terminal' {
         $text = Invoke-ViewChild -Environment @{ WT_SESSION = 'test' } -Script @'
-Write-ConsoleStatus 'working' -Spinner
-Write-ConsoleStatus 'done' -Status Pass -Complete
+Show-ConsoleStatusLine 'working' -Spinner
+Show-ConsoleStatusLine 'done' -Status Pass -Complete
 '@
         $text | Should -Not -Match ([regex]::Escape([char] 27 + ']9;4'))
         $text | Should -Match 'done'

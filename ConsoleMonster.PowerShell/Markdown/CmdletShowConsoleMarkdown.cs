@@ -36,18 +36,18 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">The Markdown source. Pipeline strings are joined with newlines before parsing.</para></summary>
         [Parameter(Mandatory = true, Position = 0, ValueFromPipeline = true, ParameterSetName = "Content")]
         [AllowEmptyString]
-        [Alias("Text", "InputObject")]
+
         public string Content { get; set; } = string.Empty;
 
         /// <summary><para type="description">A literal file path, resolved relative to the current PowerShell FileSystem location.</para></summary>
         [Parameter(Mandatory = true, ParameterSetName = "Path")]
         [ValidateNotNullOrEmpty]
-        [Alias("FullName", "LiteralPath")]
+
         public string Path { get; set; } = string.Empty;
 
         /// <summary><para type="description">The layout width in terminal cells. Omit it to use the current terminal width.</para></summary>
         [Parameter]
-        [ValidateRange(1, 32767)]
+        [ValidateRange(0, 32767)]
         public int Width { get; set; }
 
         /// <summary><para type="description">Prints the entire document without acquiring interactive input.</para></summary>
@@ -58,8 +58,13 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter AsString { get; set; }
 
+        /// <summary><para type="description">Returns the view widget without drawing or acquiring input.</para></summary>
+        [Parameter]
+        public SwitchParameter AsWidget { get; set; }
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
+            PSOutputExport.Validate(this);
             if (ParameterSetName != "Content") { return; }
             if (_hasLine) { _content.Append('\n'); }
             _content.Append(Content);
@@ -74,6 +79,7 @@ namespace ConsoleMonster.PowerShell {
             try {
                 if (_stopped) { stop.Cancel(); }
                 MarkdownView view = MarkdownConsole.Parse(ReadContent());
+                if (AsWidget.IsPresent) { WriteObject(view); return; }
                 if (!NoPager && !AsString && FormatCommandRouter.IsDirectHostOutput(this)) {
                     InteractiveOptions options = PSInteractive.Options(this, null);
                     if (WidgetPager.TryShow(view, PSMarkdownMessages.Get("Title"), options, stop.Token,

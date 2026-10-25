@@ -84,11 +84,11 @@ namespace ConsoleMonster.PowerShell {
 
     /// <summary>
     /// <para type="synopsis">Shows the changes an action would make and asks before making them: the what-if pattern.</para>
-    /// <para type="description">Compares -Before with -After (as Compare-ConsoleObject does), shows the preview, then asks for confirmation and returns $true or $false; act only on $true. Changes that remove objects need the number of removals typed (or the -TypedConfirmation text). It honours the caller's -WhatIf: the preview is shown and $false returned without asking. -Force (or -Confirm:$false) skips the question and returns $true when there are changes. Use it inside your own functions: if (Show-ConsoleChanges -Before $current -After $planned -Property Name) { apply }.</para>
+    /// <para type="description">Compares -ReferenceObject with -DifferenceObject (as Compare-ConsoleObject does), shows the preview, then asks for confirmation and returns $true or $false; act only on $true. Changes that remove objects need the number of removals typed (or the -TypedConfirmation text). It honours the caller's -WhatIf: the preview is shown and $false returned without asking. -Force (or -Confirm:$false) skips the question and returns $true when there are changes. Use it inside your own functions: if (Show-ConsoleChanges -ReferenceObject $current -DifferenceObject $planned -Property Name) { apply }.</para>
     /// </summary>
     /// <example>
     ///   <para>Preview a group membership change</para>
-    ///   <code>if (Show-ConsoleChanges -Before $members -After $planned -Property SamAccountName -Title 'Domain Admins') { Set-Members $planned }</code>
+    ///   <code>if (Show-ConsoleChanges -ReferenceObject $members -DifferenceObject $planned -Property SamAccountName -Title 'Domain Admins') { Set-Members $planned }</code>
     /// </example>
     [Cmdlet(VerbsCommon.Show, "ConsoleChanges", SupportsShouldProcess = true, ConfirmImpact = ConfirmImpact.Medium)]
     [OutputType(typeof(bool))]
@@ -97,13 +97,13 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(Position = 0, Mandatory = true)]
         [AllowEmptyCollection]
         [AllowNull]
-        public object[]? Before { get; set; }
+        public object[]? ReferenceObject { get; set; }
 
         /// <summary><para type="description">The objects after the change.</para></summary>
         [Parameter(Position = 1, Mandatory = true)]
         [AllowEmptyCollection]
         [AllowNull]
-        public object[]? After { get; set; }
+        public object[]? DifferenceObject { get; set; }
 
         /// <summary><para type="description">The properties that identify an object (matching key).</para></summary>
         [Parameter]
@@ -135,7 +135,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void EndProcessing() {
-            ChangeSet changes = PSChanges.Compare(Before, After, Property, null, Ignore, 3, false);
+            ChangeSet changes = PSChanges.Compare(ReferenceObject, DifferenceObject, Property, null, Ignore, 3, false);
             ChangePreviewOptions options = new ChangePreviewOptions { Title = PSText.Markup(Title), Mode = View, Question = Question, TypedConfirmation = TypedConfirmation };
             PSFormatting.Write(this, new ChangeView(changes, View) { Title = options.Title, MoreHint = "-View SideBySide" }, 0);
             if (!changes.HasChanges) {

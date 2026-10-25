@@ -35,16 +35,16 @@
     }
 
     Context 'Write-ConsoleText with Write-Color parameters' {
-        It 'writes the pieces on one line and supports the Write-Color aliases' {
+        It 'writes the pieces on one line with literal foreground and background colors' {
             $text = Invoke-TextChild -Script @'
 Write-ConsoleText -Text 'Red ', 'Green ', 'Yellow' -Color Red, Green, Yellow
-Write-ConsoleText -T 'alias ', 'pieces' -C Yellow -B Blue
-Write-ConsoleText -Text 'fgc' -FGC Cyan -BGC DarkGray
-Write-ConsoleText 'indent' -Indent 1
+Write-ConsoleText -Text 'color ', 'pieces' -Color Yellow -BackgroundColor Blue
+Write-ConsoleText -Text 'foreground' -Color Cyan -BackgroundColor DarkGray
+Write-ConsoleText 'indent' -StartTab 1
 '@
             $text | Should -Match '(?m)^Red Green Yellow$'
-            $text | Should -Match '(?m)^alias pieces$'
-            $text | Should -Match '(?m)^fgc$'
+            $text | Should -Match '(?m)^color pieces$'
+            $text | Should -Match '(?m)^foreground$'
             $text | Should -Match '(?m)^ {8}indent$'
         }
 
@@ -68,11 +68,11 @@ Write-ConsoleText 'newline'
             $lines | Should -Contain 'no newline'
         }
 
-        It 'shows the time with -ShowTime and -DateTimeFormat (and its aliases)' {
+        It 'shows the time with ShowTimestamp and TimestampFormat' {
             $text = Invoke-TextChild -Script @'
-Write-ConsoleText 'timed' -ShowTime -DateTimeFormat 'yyyy'
-Write-ConsoleText 'alias' -ShowTime -TimeFormat 'MM'
-Write-ConsoleText 'alias2' -ShowTime -DateFormat 'dd'
+Write-ConsoleText 'timed' -ShowTimestamp -TimestampFormat 'yyyy'
+Write-ConsoleText 'alias' -ShowTimestamp -TimestampFormat 'MM'
+Write-ConsoleText 'alias2' -ShowTimestamp -TimestampFormat 'dd'
 '@
             $text | Should -Match ('(?m)^\[' + (Get-Date).ToString('yyyy') + '\] timed$')
             $text | Should -Match ('(?m)^\[' + (Get-Date).ToString('MM') + '\] alias$')
@@ -90,12 +90,12 @@ Write-ConsoleText ([string] [char] 0x4E2D + [char] 0x6587 + [char]::ConvertFromU
             $lines[1] | Should -BeExactly ((' ' * 7) + [string] [char] 0x4E2D + [char] 0x6587 + [char]::ConvertFromUtf32(0x1F98A))
         }
 
-        It 'writes only the log with -NoConsoleOutput (and -HideConsole), with LogTime on by default' {
+        It 'writes only the log with NoConsoleOutput and includes its timestamp by default' {
             $log = Join-Path $TestDrive 'quiet.log'
             $text = Invoke-TextChild -Script @"
 Write-ConsoleText 'hidden one' -LogFile '$log' -NoConsoleOutput
-Write-ConsoleText 'hidden two' -L '$log' -HideConsole -LogTime `$false
-Write-ConsoleText 'hidden three' -LogFile '$log' -HideConsole -LogTimeStamp `$false
+Write-ConsoleText 'hidden two' -LogFile '$log' -NoConsoleOutput -LogTimestamp `$false
+Write-ConsoleText 'hidden three' -LogFile '$log' -NoConsoleOutput -LogTimestamp `$false
 'visible'
 "@
             $text | Should -Not -Match 'hidden'
@@ -110,9 +110,9 @@ Write-ConsoleText 'hidden three' -LogFile '$log' -HideConsole -LogTimeStamp `$fa
             $unicode = Join-Path $TestDrive 'unicode.log'
             $bom = Join-Path $TestDrive 'utf8bom.log'
             $null = Invoke-TextChild -Script @"
-Write-ConsoleText 'zażółć' -LogFile '$default' -NoConsoleOutput -LogTime `$false
-Write-ConsoleText 'zażółć' -LogFile '$unicode' -Encoding unicode -NoConsoleOutput -LogTime `$false
-Write-ConsoleText 'zażółć' -LogFile '$bom' -Encoding utf8BOM -NoConsoleOutput -LogTime `$false
+Write-ConsoleText 'zażółć' -LogFile '$default' -NoConsoleOutput -LogTimestamp `$false
+Write-ConsoleText 'zażółć' -LogFile '$unicode' -Encoding unicode -NoConsoleOutput -LogTimestamp `$false
+Write-ConsoleText 'zażółć' -LogFile '$bom' -Encoding utf8BOM -NoConsoleOutput -LogTimestamp `$false
 "@
             $first = [System.IO.File]::ReadAllBytes($default)[0..2]
             ($first -join ',') | Should -Not -Be '239,187,191'
@@ -127,8 +127,8 @@ Write-ConsoleText 'zażółć' -LogFile '$bom' -Encoding utf8BOM -NoConsoleOutpu
             $old = "[2026-09-30 08:00:00] $([char]0x0141)od$([char]0x017A) start"
             [System.IO.File]::WriteAllText($log, $old + [Environment]::NewLine, [System.Text.UnicodeEncoding]::new($false, $true))
             $text = Invoke-TextChild -Script @"
-Write-ConsoleText "next `$([char]0x0105)" -LogFile '$log' -NoConsoleOutput -LogTime `$false
-Write-ConsoleText 'forced' -LogFile '$log' -Encoding utf8 -NoConsoleOutput -LogTime `$false -WarningVariable w -WarningAction SilentlyContinue; `$w | ForEach-Object { 'W: ' + `$_ }
+Write-ConsoleText "next `$([char]0x0105)" -LogFile '$log' -NoConsoleOutput -LogTimestamp `$false
+Write-ConsoleText 'forced' -LogFile '$log' -Encoding utf8 -NoConsoleOutput -LogTimestamp `$false -WarningVariable w -WarningAction SilentlyContinue; `$w | ForEach-Object { 'W: ' + `$_ }
 "@
             $bytes = [System.IO.File]::ReadAllBytes($log)
             ($bytes[0..1] -join ',') | Should -Be '255,254'
@@ -154,19 +154,19 @@ Write-ConsoleText 'forced' -LogFile '$log' -Encoding utf8 -NoConsoleOutput -LogT
         }
 
         It 'maps ConsoleColor names exactly as Write-Host shows them' {
-            (New-ConsoleText 'x' -Color Red).Segments[0].Style.Foreground.ToMarkup() | Should -Be 'red'
-            (New-ConsoleText 'x' -Color DarkRed).Segments[0].Style.Foreground.ToMarkup() | Should -Be 'maroon'
-            (New-ConsoleText 'x' -Color Green).Segments[0].Style.Foreground.ToMarkup() | Should -Be 'lime'
-            (New-ConsoleText 'x' -Color Gray).Segments[0].Style.Foreground.ToMarkup() | Should -Be 'silver'
-            (New-ConsoleText 'x' -Color DarkGray).Segments[0].Style.Foreground.ToMarkup() | Should -Be 'grey'
-            (New-ConsoleText 'x' -Color '#ff8800').Segments[0].Style.Foreground.ToMarkup() | Should -Be '#ff8800'
-            (New-ConsoleText 'x' -Role Pass).Segments[0].Style.Foreground.ToMarkup() | Should -Be 'pass'
+            (New-ConsoleText 'x' -Color Red).Segments[0].Style.Color.ToMarkup() | Should -Be 'red'
+            (New-ConsoleText 'x' -Color DarkRed).Segments[0].Style.Color.ToMarkup() | Should -Be 'maroon'
+            (New-ConsoleText 'x' -Color Green).Segments[0].Style.Color.ToMarkup() | Should -Be 'lime'
+            (New-ConsoleText 'x' -Color Gray).Segments[0].Style.Color.ToMarkup() | Should -Be 'silver'
+            (New-ConsoleText 'x' -Color DarkGray).Segments[0].Style.Color.ToMarkup() | Should -Be 'grey'
+            (New-ConsoleText 'x' -Color '#ff8800').Segments[0].Style.Color.ToMarkup() | Should -Be '#ff8800'
+            (New-ConsoleText 'x' -Role Pass).Segments[0].Style.Role.ToString() | Should -Be 'Pass'
             { New-ConsoleText 'x' -Color 'NotAColour' } | Should -Throw '*is not a colour*'
         }
 
         It 'gives extra pieces the first colour, as Write-Color does' {
             $text = New-ConsoleText 'a', 'b', 'c' -Color Yellow, Green
-            ($text.Segments | ForEach-Object { $_.Style.Foreground.ToMarkup() }) -join ',' | Should -Be 'yellow,lime,yellow'
+            ($text.Segments | ForEach-Object { $_.Style.Color.ToMarkup() }) -join ',' | Should -Be 'yellow,lime,yellow'
         }
 
         It 'carries the piece colours to Receive-Job as Write-Host colours' {
@@ -182,7 +182,7 @@ Write-ConsoleText 'forced' -LogFile '$log' -Encoding utf8 -NoConsoleOutput -LogT
     Context 'Write-ConsoleText beyond Write-Color' {
         It 'aligns -SplitLines under the first line after the time stamp' {
             $text = Invoke-TextChild -Script @'
-Write-ConsoleText '[info] ', "Execution Path exists`n2. Line`n3. Line" -Color Yellow, White -ShowTime -DateTimeFormat 'HH:mm' -SplitLines "`n"
+Write-ConsoleText '[info] ', "Execution Path exists`n2. Line`n3. Line" -Color Yellow, White -ShowTimestamp -TimestampFormat 'HH:mm' -SplitLines "`n"
 '@
             $lines = $text -split "`n"
             $lines[0] | Should -Match '^\[\d\d:\d\d\] \[info\] Execution Path exists$'
@@ -222,11 +222,11 @@ Write-ConsoleText ([string] [char] 0x4E2D + [char] 0x6587) -PadLeft 8 -PadCharac
             $csv = Join-Path $TestDrive 'log.csv'
             $json = Join-Path $TestDrive 'log.jsonl'
             $null = Invoke-TextChild -Script @"
-Write-ConsoleText 'started ', 'job' -LogFile '$text' -Level Info -Category Backup -NoConsoleOutput -DateTimeFormat 'HH'
+Write-ConsoleText 'started ', 'job' -LogFile '$text' -Level Info -Category Backup -NoConsoleOutput -TimestampFormat 'HH'
 Write-ConsoleText 'first' -LogFile '$csv' -LogFormat Csv -LogSeparator ';' -Level Warning -NoConsoleOutput
 Write-ConsoleText 'second; with separator' -LogFile '$csv' -LogFormat Csv -LogSeparator ';' -NoConsoleOutput
 Write-ConsoleText 'say "hi"' -LogFile '$json' -LogFormat JsonLines -Level Error -Category Mail -NoConsoleOutput
-Write-ConsoleText 'line one', 'line two' -SplitLines '|' -LogFile '$text' -NoConsoleOutput -LogTime `$false
+Write-ConsoleText 'line one', 'line two' -SplitLines '|' -LogFile '$text' -NoConsoleOutput -LogTimestamp `$false
 "@
             $textLines = @(Get-Content -LiteralPath $text -Encoding UTF8)
             $textLines[0] | Should -Match '^\[\d\d\] \[Info\] \[Backup\] started job$'
@@ -245,7 +245,7 @@ Write-ConsoleText 'line one', 'line two' -SplitLines '|' -LogFile '$text' -NoCon
             $text = Invoke-TextChild -Script @'
 $esc = [char] 27
 Write-ConsoleText ('[red]alert[/] ' + $esc + ']0;PWNED' + [char] 7 + ' end')
-[pscustomobject] @{ Name = '[bold]x[/]' + $esc + '[2J' } | Format-ConsoleTable -Width 40
+[pscustomobject] @{ Name = '[bold]x[/]' + $esc + '[2J' } | Show-ConsoleTable -Width 40
 '@
             $text | Should -Match '\[red\]alert\[/\]'
             $text | Should -Match '\[bold\]x\[/\]'
@@ -255,12 +255,12 @@ Write-ConsoleText ('[red]alert[/] ' + $esc + ']0;PWNED' + [char] 7 + ' end')
     }
 
     Context 'New-ConsoleText in widgets' {
-        It 'works in Format-ConsoleTable cells through calculated properties, with a rich header' {
+        It 'works in Show-ConsoleTable cells through calculated properties, with a rich header' {
             $text = Invoke-TextChild -Script @'
 @(
     [pscustomobject] @{ Name = 'SPF'; Status = 'pass' }
     [pscustomobject] @{ Name = 'DKIM'; Status = 'fail' }
-) | Format-ConsoleTable -Width 50 -Title (New-ConsoleText 'Checks' -Color Cyan) -Property @{ Name = 'Name'; Header = (New-ConsoleText 'Na', 'me' -Color Cyan, Magenta) }, @{ Name = 'Result'; Expression = { if ($_.Status -eq 'pass') { New-ConsoleText 'PASS' -Role Pass } else { New-ConsoleText 'FAIL' -Role Fail -Style Bold } } }
+) | Show-ConsoleTable -Width 50 -Title (New-ConsoleText 'Checks' -Color Cyan) -Property @{ Name = 'Name'; Header = (New-ConsoleText 'Na', 'me' -Color Cyan, Magenta) }, @{ Name = 'Result'; Expression = { if ($_.Status -eq 'pass') { New-ConsoleText 'PASS' -Role Pass } else { New-ConsoleText 'FAIL' -Role Fail -Decoration Bold } } }
 '@
             $text | Should -Match 'Checks'
             $text | Should -Match 'Name\s+.\s+Result'
@@ -271,13 +271,13 @@ Write-ConsoleText ('[red]alert[/] ' + $esc + ']0;PWNED' + [char] 7 + ' end')
         It 'keeps the cell colours on the coloured host route' {
             $records = Invoke-TextJob -ScriptBlock {
                 # The table is the last command of its own pipeline, so it is drawn through the job's host (piped on, it would be text).
-                & { [pscustomobject] @{ Name = 'SPF' } | Format-ConsoleTable -Property Name, @{ Name = 'Result'; Expression = { New-ConsoleText 'PASS' -Color Green } } } 6>&1 | ForEach-Object { $_.MessageData.Message.Trim() + '|' + $_.MessageData.ForegroundColor }
+                & { [pscustomobject] @{ Name = 'SPF' } | Show-ConsoleTable -Property Name, @{ Name = 'Result'; Expression = { New-ConsoleText 'PASS' -Color Green } } } 6>&1 | ForEach-Object { $_.MessageData.Message.Trim() + '|' + $_.MessageData.ForegroundColor }
             }
             ($records -join "`n") | Should -Match 'PASS\|Green'
         }
 
         It 'opts a string column into markup with Markup = $true only' {
-            $text = Invoke-TextChild -Script "[pscustomobject] @{ Literal = '[bold]a[/]'; Rich = '[bold]b[/]' } | Format-ConsoleTable -Width 40 -Property Literal, @{ Name = 'Rich'; Markup = `$true }"
+            $text = Invoke-TextChild -Script "[pscustomobject] @{ Literal = '[bold]a[/]'; Rich = '[bold]b[/]' } | Show-ConsoleTable -Width 40 -Property Literal, @{ Name = 'Rich'; Markup = `$true }"
             $text | Should -Match '\[bold\]a\[/\]'
             $text | Should -Match '(?m)\bb\s'
             $text | Should -Not -Match '\[bold\]b'
@@ -285,14 +285,14 @@ Write-ConsoleText ('[red]alert[/] ' + $esc + ']0;PWNED' + [char] 7 + ' end')
 
         It 'accepts rich text for panel titles, lanes and log lines' {
             $text = Invoke-TextChild -Script @'
-$d = New-ConsoleDashboard -Title (New-ConsoleText 'Rich ', 'dashboard' -Color Cyan, Yellow) { New-ConsoleLanes -Name lanes -Lane (New-ConsoleText 'SRV', '01' -Color Cyan, Yellow); New-ConsoleLog }
-Start-ConsoleDashboard $d {
+$d = New-ConsoleDashboard -Title (New-ConsoleText 'Rich ', 'dashboard' -Color Cyan, Yellow) -Content { New-ConsoleLanes -WidgetId lanes -Lane (New-ConsoleText 'SRV', '01' -Color Cyan, Yellow); New-ConsoleLogRegion }
+Invoke-ConsoleDashboard $d {
     Update-ConsoleLane -Key SRV01 -Status Running -Detail (New-ConsoleText 'copying ', 'files' -Color Gray, Green)
-    Write-ConsoleLog -Message (New-ConsoleText 'rich ', 'log' -Color Yellow, Red)
+    Write-ConsoleLogEntry -Message (New-ConsoleText 'rich ', 'log' -Color Yellow, Red)
     Update-ConsoleLane -Key SRV01 -Result Pass
     Update-ConsoleLane -Key SRV01 -Complete
 }
-New-ConsolePanel -Title (New-ConsoleText 'Panel ', 'title' -Color Cyan, Green) { New-ConsoleText 'body' } | Write-ConsoleWidget -Width 40
+New-ConsolePanel -Title (New-ConsoleText 'Panel ', 'title' -Color Cyan, Green) -Content { New-ConsoleText 'body' } | Show-Console -Width 40
 '@
             $text | Should -Match 'rich log'
             $text | Should -Match 'SRV01'
@@ -301,13 +301,13 @@ New-ConsolePanel -Title (New-ConsoleText 'Panel ', 'title' -Color Cyan, Green) {
         }
     }
 
-    Context 'Write-ConsoleStatus outside a console' {
+    Context 'Show-ConsoleStatusLine outside a console' {
         It 'writes one line per change and the final line, without the spinner' {
             $text = Invoke-TextChild -Script @'
-Write-ConsoleStatus 'step one' -Spinner
-Write-ConsoleStatus 'step one' -Spinner
-Write-ConsoleStatus 'step two' -Spinner
-Write-ConsoleStatus 'finished' -Status Pass -Complete
+Show-ConsoleStatusLine 'step one' -Spinner
+Show-ConsoleStatusLine 'step one' -Spinner
+Show-ConsoleStatusLine 'step two' -Spinner
+Show-ConsoleStatusLine 'finished' -Status Pass -Complete
 '@
             $lines = @($text -split "`n" | Where-Object { $_ })
             @($lines | Where-Object { $_ -eq 'step one' }).Count | Should -Be 1
@@ -319,11 +319,11 @@ Write-ConsoleStatus 'finished' -Status Pass -Complete
     Context 'One status vocabulary' {
         It 'accepts PowerShell''s status words for -Status and lists the vocabulary for an unknown one' {
             $text = Invoke-TextChild -Script @'
-Write-ConsoleStatus 'deployed' -Status Success -Complete
-Write-ConsoleStatus 'slow' -Status Warning -Complete
-Write-ConsoleStatus 'broken' -Status Failure -Complete
-Write-ConsoleStatus 'noted' -Status Information -Complete
-try { Write-ConsoleStatus 'x' -Status Bogus } catch { 'ERROR=' + $_.Exception.Message }
+Show-ConsoleStatusLine 'deployed' -Status Success -Complete
+Show-ConsoleStatusLine 'slow' -Status Warning -Complete
+Show-ConsoleStatusLine 'broken' -Status Failure -Complete
+Show-ConsoleStatusLine 'noted' -Status Information -Complete
+try { Show-ConsoleStatusLine 'x' -Status Bogus } catch { 'ERROR=' + $_.Exception.Message }
 '@
             # Each line carries its status marker (the glyphs depend on the console's tier).
             $lines = @($text -split "`n")
@@ -336,36 +336,36 @@ try { Write-ConsoleStatus 'x' -Status Bogus } catch { 'ERROR=' + $_.Exception.Me
             $text | Should -Match "ERROR=.*'Bogus' is not a status\. Use one of: .*Success.*Warning"
         }
 
-        It 'maps PowerShell''s words to log levels for Write-ConsoleLog and completes them' {
-            $transform = [ConsoleMonster.PowerShell.Binding.LogLevelTransformationAttribute]::new()
+        It 'maps PowerShell''s words to log levels for Write-ConsoleLogEntry and completes them' {
+            $transform = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.LogLevelTransformationAttribute'))::new()
             $transform.Transform($null, 'Information') | Should -Be 'info'
             $transform.Transform($null, 'Warning') | Should -Be 'warn'
             $transform.Transform($null, 'Error') | Should -Be 'err'
             $transform.Transform($null, 'Verbose') | Should -Be 'verbose'
             { $transform.Transform($null, 'loud') } | Should -Throw
-            $completions = (TabExpansion2 -inputScript 'Write-ConsoleLog x -Level Wa' -cursorColumn 28).CompletionMatches.CompletionText
+            $completions = (TabExpansion2 -inputScript 'Write-ConsoleLogEntry x -Level Wa' -cursorColumn 'Write-ConsoleLogEntry x -Level Wa'.Length).CompletionMatches.CompletionText
             $completions | Should -Contain 'warn'
             $completions | Should -Contain 'Warning'
         }
     }
 
     Context 'Spectre markup compatibility and screen helpers' {
-        It 'renders the xterm colour names, drops closed unknown tags and keeps an unclosed one literal' {
+        It 'renders palette names and escaped literal tags' {
             $text = Invoke-TextChild -Script @'
-Write-ConsoleMarkup '[cadetblue]cadet[/] [grey50]grey[/] [deepskyblue3]sky[/]'
-Write-ConsoleMarkup '[nosuchcolour]kept text[/] and [x] stays'
-Write-ConsoleMarkup ('[pass]' + [ConsoleMonster.Text.Markup]::Escape('[literal]') + '[/]')
+Write-ConsoleText -Markup '[cadetblue]cadet[/] [grey50]grey[/] [deepskyblue3]sky[/]'
+Write-ConsoleText -Markup '[[nosuchcolour]]kept text[[/]] and [[x]] stays'
+Write-ConsoleText -Markup ('[pass]' + ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Text.Markup'))::Escape('[literal]') + '[/]')
 '@
             $lines = @($text -split "`n")
             $lines | Should -Contain 'cadet grey sky'
-            $lines | Should -Contain 'kept text and [x] stays'
+            $lines | Should -Contain '[nosuchcolour]kept text[/] and [x] stays'
             $lines | Should -Contain '[literal]'
         }
 
-        It 'leaves the line open with Write-ConsoleMarkup -NoNewLine' {
+        It 'leaves the line open with Write-ConsoleText -Markup -NoNewLine' {
             $text = Invoke-TextChild -Script @'
-Write-ConsoleMarkup '[cadetblue]Checking[/] ' -NoNewLine
-Write-ConsoleMarkup '[pass]done[/]'
+Write-ConsoleText -Markup '[cadetblue]Checking[/] ' -NoNewLine
+Write-ConsoleText -Markup '[pass]done[/]'
 '@
             @($text -split "`n") | Should -Contain 'Checking done'
         }

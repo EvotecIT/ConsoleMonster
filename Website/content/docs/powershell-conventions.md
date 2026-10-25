@@ -9,88 +9,98 @@ chips: [Cmdlets, Script blocks]
 summary: "One grammar for every widget, and each widget's .NET methods."
 ---
 
-Every widget is a `New-Console*` command, and they read the same way, so a widget you have not used yet works like the last one.
+I use the same vocabulary in PowerShell and C#, with small translations where the hosts differ. A command should tell me whether it creates a definition, shows it, asks a question or runs work.
 
-- **Containers take a script block of children.** `New-ConsoleRows`, `New-ConsoleColumns`, `New-ConsoleGrid`, `New-ConsolePanel`, `New-ConsoleStack`, `New-ConsoleAlign`, `New-ConsolePadding` and `New-ConsoleRegion` lay out what their script block emits; strings are markup text.
-- **Widgets with items take a script block of item commands**, with the same parameter names everywhere: `New-ConsoleTreeNode` for `New-ConsoleTree`, `New-ConsoleKeyValueItem` for `New-ConsoleKeyValue`, `New-ConsoleStatusItem` for `New-ConsoleStatusList` and `New-ConsolePhases`, `New-ConsoleBarItem` for `New-ConsoleBarChart`, `New-ConsoleChartSeries` for `New-ConsoleLineChart`, `New-ConsoleLogEntry` for `New-ConsoleLog` and `New-ConsoleLane` for `New-ConsoleLanes`. Items can also come from the pipeline, and simple data still works with `-Data` hashtables and `-Value` arrays.
-- **Hierarchical objects become a tree.** `New-ConsoleTree` follows children with `-ChildrenProperty` or a `-Children` script block and keeps a large or cyclic hierarchy bounded with `-Depth`, `-MaxItems` and `-MaxNodes`.
-- **A widget made earlier grows with `Add-ConsoleItem`**, which takes the same item commands; a widget in a running dashboard changes through the live commands (`Update-ConsoleStatus`, `Write-ConsoleLog`, `Add-ConsoleValue`...).
+## Commands by job
+
+| Job | Primary command | Composition or lifecycle |
+| --- | --- | --- |
+| Show ordinary objects or a widget | `Show-Console` | Automatic view selection; accepts an `IWidget` directly. |
+| Show a table, record or hierarchy | `Show-ConsoleTable`, `Show-ConsoleList`, `Show-ConsoleTree` | `New-ConsoleTable`, `New-ConsoleKeyValue`, `New-ConsoleTree` build definitions. `Show-ConsoleList` accepts a hashtable or ordered dictionary directly. |
+| Inspect an object | `Show-ConsoleObject` | Keyboard explorer, or `-StaticSnapshot`, `-AsString` or `-AsWidget`. |
+| Show a separator | `Show-ConsoleRule 'Section'` | `New-ConsoleRule` builds the same widget for a layout. |
+| Show data as a chart | `Show-ConsoleChart` | `New-ConsoleBarChart`, `New-ConsoleLineChart`, `New-ConsoleSparkline` and `New-ConsoleHistogram` build reusable charts. |
+| Write text | `Write-ConsoleText` | `New-ConsoleText` creates rich text for another widget. |
+| Show an error | `Show-ConsoleError` | Displays the supplied exception or error record; does not emit another PowerShell error record. |
+| Show a one-line status | `Show-ConsoleStatusLine` | `-Complete` finishes it. A dashboard status-list item uses `Update-ConsoleStatusItem`. |
+| Follow a log source | `Watch-ConsoleLog` | `New-ConsoleLogRegion` builds a dashboard destination; `Write-ConsoleLogEntry` sends a message to it. |
+| Run a dashboard | `Invoke-ConsoleDashboard` | Creates the live session, waits for the script and restores the terminal. |
+| Run items | `Invoke-ConsoleRun` | `Start-ConsoleRun` returns a handle; `Wait-ConsoleRun` waits and `Complete-ConsoleRun` finalizes it. |
+| Adapt native progress | `Use-ConsoleProgress` | Scopes existing `Write-Progress` calls. `New-ConsoleProgress` builds a dashboard bar; `Update-ConsoleProgress` addresses it. |
+| Ask for an answer | `Read-ConsoleText`, `Read-ConsoleNumber`, `Read-ConsoleConfirm`, `Read-ConsoleSelect`, `Read-ConsoleMultiSelect`, `Read-ConsolePath`, `Read-ConsoleSecret` | `New-ConsoleForm` builds a form; `Read-ConsoleForm` collects its answers. |
+| Run an action menu or app | `Show-ConsoleMenu`, `Show-ConsoleApp` | `New-ConsoleMenuItem` defines an action. `New-ConsoleSelect` and the other application controls persist in app state. |
+| Record a child terminal | `Invoke-ConsoleRecording` | Supply a script and `-Destination`, or use `-Interactive`. Stop and marker commands apply inside the recorded child. |
+| Play dashboard events | `Show-ConsoleReplay` | `-PlaybackMode Interactive` is the player; `Automatic` plays through the same event engine without keys. |
+| Export output | `Export-ConsoleFrame`, `Export-ConsoleRecording` | Frame export accepts ordinary objects as well as widgets and snapshots. `Copy-ConsoleOutput` uses the same `-Format` vocabulary. |
+| Browse embedded demos | `Get-ConsoleDemo`, `Show-ConsoleDemo` | `Export-ConsoleDemo <slug> -Path` writes the standalone script. |
+| Present a script | `Show-ConsolePresentation -Path talk.ps1` | `Invoke-ConsolePresentation -Path talk.ps1 -Destination talk.cast` records typed execution unattended. C# retains `ConsoleDemo.Present` and `ConsoleDemo.Record`. |
+
+`New` returns a definition. `Show` renders or runs a viewer. `Read` returns an answer. `Invoke` waits for work, while `Start` returns an active handle. `Write` sends text or an update to its destination. `Format` remains PowerShell's formatting-record contract; ConsoleMonster exports no `Format-*` commands. `Out-ConsoleDefault` and `Out-ConsoleFormatCommand` are advanced native-formatting adapters.
+
+## Composition and output
+
+Containers take `-Content` blocks. Item widgets take item objects from `-Content`, `-InputObject` or the pipeline. A dictionary maps visible labels to values or statuses; item specifications use the same `Key`, `Label`, `Value`, `Status`, `Detail` and `Role` names as the cmdlets. A constructed widget grows through `Add-ConsoleItem`.
 
 ```powershell
-Import-Module ConsoleMonster
-
-New-ConsoleTree '[bold]evotec.xyz[/]' {
-    New-ConsoleTreeNode 'MX' -Status Pass -Detail '2 records' {
-        New-ConsoleTreeNode 'evotec-xyz.mail.protection.outlook.com' -Detail 'priority 0'
-    }
-    New-ConsoleTreeNode 'SPF' -Status Warn -Detail '9 of 10 DNS lookups'
-    New-ConsoleTreeNode 'DMARC' -Status Fail -Detail 'p=none'
-} | Write-ConsoleWidget
-
-# Objects with children: each group's Members become its branches.
-$groups = @(
-    [pscustomobject]@{ Name = 'Domain Admins'; Health = 'Warn'; Members = @(
-        [pscustomobject]@{ Name = 'admin.jane'; Health = 'Pass' }
-        [pscustomobject]@{ Name = 'svc.backup'; Health = 'Warn' }
-    ) }
-    [pscustomobject]@{ Name = 'Enterprise Admins'; Health = 'Pass'; Members = @(
-        [pscustomobject]@{ Name = 'admin.jane'; Health = 'Pass' }
-    ) }
+$rows = @(
+    [pscustomobject] @{ Server = 'web-01'; Checks = 12 }
+    [pscustomobject] @{ Server = 'web-02'; Checks = 9 }
 )
-$groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusProperty Health -Depth 3 | Write-ConsoleWidget
+$rows | Show-ConsoleTable
+Show-ConsoleList ([ordered] @{ Region = 'west'; Servers = 2 })
+Show-ConsoleRule 'Summary'
+$rows | Export-ConsoleFrame -Format Markdown
+$rows | Show-ConsoleTable -AsWidget | Export-ConsoleFrame -Format Svg -Path ./servers.svg
 ```
 
-## Shared parameters
+Display commands return no success output by default. `-AsString` returns plain text; `-AsWidget` returns a composable view. Both capture without drawing. Where supported, `-PassThru` draws and returns the original input. Choose one mode. Interchange formats belong to exporters: `Text` is plain text, `FencedText` is a Markdown text fence, and `Markdown` preserves supported table/tree semantics. Interactive viewers document their selection or result separately.
 
-| Parameter | Meaning everywhere |
-|---|---|
-| `-Status` | `Pass`, `Fail`, `Warn`, `Skip`, `Info`, `Running`, `Pending`, plus PowerShell's words (`Success`, `Warning`, `Error`, `Failed`, `Skipped`...), with tab completion. |
-| `-Level` | Log levels: `Information`, `Warning`, `Error`, `Verbose`, `Debug`, `Success`, or `info`, `warn`, `err`. |
-| `-Detail` | A muted note beside the label: a duration, a count, a short reason. |
-| `-Tone` | A colour as a theme role: `Accent`, `Pass`, `Fail`, `Warn`, `Muted`, `Series1` to `Series6`. |
-| `-Value` and `-Presenter` | What an item shows, and how: `Bytes`, `Duration`, `Date`, `Number`, `Boolean`... |
-| `-Markup` | Opt-in markup for data values; titles and labels take markup without it. |
-| `-At` | A time: a `TimeSpan`, seconds, or `500ms`, `2s`, `1.5m`, `1h`. |
+## Parameter vocabulary
 
-## Every widget, both ways
+| Idea | Name and meaning |
+| --- | --- |
+| Live widget address | `WidgetId`, position 0 on live updates, setters, adders and addressed builders. |
+| Stored identity | `Key`: field answer, application state, chart series or keyed item. |
+| Visible item text | `Label`; defaults to the key where appropriate. |
+| View heading | `Title`; `Subtitle` qualifies it below the heading. |
+| Below-content explanation | `Caption`; panels use `HeaderRight` for top-right border text. |
+| Semantic outcome | `Status`; free text explaining it is `Detail`. |
+| Theme or colors | `Theme` selects a theme, `Role` selects a theme role, and `Color`/`BackgroundColor` are literal colors. `Decoration` adds text decorations. |
+| Wall-clock formatting | `TimestampFormat`; `ShowTimestamp` opts into display timestamps, while the Boolean `LogTimestamp` controls log-file inclusion (default true). |
+| Durations in PowerShell | Numeric `TimeoutSeconds`, `StepTimeoutSeconds`, `PollIntervalSeconds`, `IdleLimitSeconds`, `ProgressIntervalSeconds`, `ElapsedSeconds`, `DurationSeconds`, `AtSeconds`, `StartedSeconds`, `FinishedSeconds`, or `BudgetMilliseconds`. C# keeps `TimeSpan` properties such as `Timeout` and `PollInterval`. |
+| Rendering cadence | `FramesPerSecond`; distinct from the source polling delay. |
+| Overall width | `Width = 0` resolves the current target/terminal; unknown width falls back to 100 cells. Positive widths are explicit. Recorded frames retain their geometry. |
+| Component sizing | `BarWidth` is a bar's cells; `Weight` is a share of remaining layout space. |
 
-The cmdlet form is what the documentation shows first. Each widget is also an ordinary .NET object, so a script can keep it in a variable and call its methods, the way C# code does.
-
-| Widget | Cmdlet form | Grow it later | In a dashboard | .NET methods |
-|---|---|---|---|---|
-| Tree | `New-ConsoleTree` + `New-ConsoleTreeNode` | `Add-ConsoleItem` | | `Add(label, status, note)` returns the node |
-| Key/value list | `New-ConsoleKeyValue` + `New-ConsoleKeyValueItem` | `Add-ConsoleItem` | `Set-ConsoleValue` | `Add(key, value, status)`, `AddValue(key, value, presenter)` |
-| Status list | `New-ConsoleStatusList` + `New-ConsoleStatusItem` | `Add-ConsoleItem` | `Update-ConsoleStatus` | `Add(label, status, detail)` |
-| Phases | `New-ConsolePhases` + `New-ConsoleStatusItem` | `Add-ConsoleItem` | `Update-ConsolePhase` | `Set(key, status, label, detail)` |
-| Bar chart, stacked bar | `New-ConsoleBarChart` + `New-ConsoleBarItem` | `Add-ConsoleItem` | `Add-ConsoleValue`, `Set-ConsoleValue` | `Add(label, value, token)` |
-| Line and scatter chart | `New-ConsoleLineChart` + `New-ConsoleChartSeries` | `Add-ConsoleItem` | `Add-ConsoleValue -Key` | `AddSeries(name, token)`, `Add(series, value)` |
-| Sparkline, histogram | `New-ConsoleSparkline`, `New-ConsoleHistogram` | `Add-ConsoleItem` | `Add-ConsoleValue` | `Add(value)` |
-| Log | `New-ConsoleLog` + `New-ConsoleLogEntry` | `Add-ConsoleItem` | `Write-ConsoleLog` | `Write(text, level, time)` |
-| Lanes | `New-ConsoleLanes` + `New-ConsoleLane` | `Add-ConsoleItem` | `Update-ConsoleLane` | `Add(key, label, total)` returns the lane |
-| Progress, spinner | `New-ConsoleProgress`, `New-ConsoleSpinner` | | `Update-ConsoleProgress`, `Update-ConsoleSpinner` | `Value`, `Status`, `Detail` |
-| Live table | `New-ConsoleLiveTable` | `Add-ConsoleItem` | `Update-ConsoleTable` | `Set(key, values)`, `Remove(key)` |
-| Cell map, summary bar | `New-ConsoleCellMap`, `New-ConsoleSummaryBar` | `Add-ConsoleItem` (cell map) | drawn by `Invoke-ConsoleRun` | `Add(state)`, `SetProgress`, `SetCounter` |
-| Region | `New-ConsoleRegion` | | `Set-ConsoleRegion` | `session.Region(name).Set(widget)` |
-
-The same log written both ways:
+A switch selects non-default behavior. Default-on behavior opts out through `NoMouse`, `NoReview`, `NoPager`, `NoLegend`, `NoElapsed` or `NoLive`. Default-off behavior opts in through `ShowElapsed` or `ShowTimestamp`. Switches never default to true. C# uses positive Boolean properties such as `Mouse`, `Review` and `Live`; the cmdlet maps an opt-out to `false`.
 
 ```powershell
-Import-Module ConsoleMonster
-
-New-ConsoleLog -Height 5 {
-    New-ConsoleLogEntry 'Discovered 4 domain controllers in 2 domains' -Level Info -At 2s
-    New-ConsoleLogEntry 'DC02: USN rollback check failed (event 2095)' -Level Error -At 44s
-} | Write-ConsoleWidget
+$dashboard = New-ConsoleDashboard -Title 'Build' -Content {
+    New-ConsoleProgress build -Label 'Packages' -Total 10
+}
+Invoke-ConsoleDashboard $dashboard {
+    Update-ConsoleProgress build -Value 5
+    Update-ConsoleProgress build -Status Pass -Value 10
+}
+Watch-ConsoleLog -Path ./service.log -Count 1 -PollIntervalSeconds 0.25 -NoLive
 ```
+
+The native progress adapter keeps `Activity`, `Status`, `Id`, `ParentId`, `PercentComplete`, `SecondsRemaining`, `CurrentOperation`, `Completed` and `SourceId` exactly as PowerShell defines them. Its `Id` is never a `WidgetId`, and its native descriptive `Status` is the explicit exception to semantic outcomes. Native `Write-Host`/`Format-*` integration likewise preserves native binding. `NoNewLine` follows the familiar PowerShell spelling.
+
+## Using the object directly
+
+Builders return ordinary typed objects, so their methods remain available. C# uses American API spelling, including `Color`, `Center`, `PromptCanceledException` and `IsCanceled`. `RegionWidget` names a replaceable region, `MenuRunResult` names a menu result, and numeric ranges use `Minimum`/`Maximum`.
+
+The module registers only 13 fully qualified type accelerators: `ConsoleMonster.Terminal`, `ConsoleMonster.Layout.IWidget`, `ConsoleMonster.Styling.Color`, `RichColor`, `Style`, `RichStyle`, `Theme`, `ThemeToken`, `StatusKind`, `ConsoleMonster.Text.RichText`, `ConsoleMonster.Interactive.InteractionMode`, `ConsoleMonster.Capabilities.GlyphTier` and `ColorDepth` (the unqualified entries in this sentence share their preceding namespace). It registers no generic `[Table]`, `[Color]` or `[Grid]` names and leaves foreign registrations alone.
+
+Advanced interop can look up another core type from the loaded assembly without changing global accelerator state:
 
 ```powershell
 # Using the object directly
-Import-Module ConsoleMonster
-
-$log = New-ConsoleLog -Height 5
-$log.Write('Discovered 4 domain controllers in 2 domains', 'info', [timespan]::FromSeconds(2))
-$log.Write('DC02: USN rollback check failed (event 2095)', 'err', [timespan]::FromSeconds(44))
-$log | Write-ConsoleWidget
+$profileType = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile', $true)
+$profile = $profileType::Fixed(100, 24)
 ```
 
-Every command, with its parameters and examples, is in the [command reference](/powershell/commands/), and the [widget gallery](/widgets/) shows each widget's script beside what it draws. The repository keeps the full conventions document as well ([view on GitHub](https://github.com/EvotecIT/ConsoleMonster/blob/master/Docs/PowerShell-Conventions.md)).
+Prefer cmdlets for ordinary scripts. Use `New-ConsoleHeaderBar`, `New-ConsoleFooterBar` and `New-ConsoleColumnFormat` for header/footer composition and shared numeric-column layout. Canvas remains a C# capability. Recording JSONL keeps its existing `target` and `state` wire keys while the public API uses `WidgetId` and `Status`.
+
+Try [live sessions](/docs/live-sessions/) next.

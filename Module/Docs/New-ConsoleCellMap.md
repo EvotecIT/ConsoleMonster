@@ -13,7 +13,7 @@ The map Invoke-ConsoleRun shows for many items, as a widget of its own: each ite
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleCellMap [[-Status] <Object[]>] [-Count <int>] [-MaxRows <int>] [-NoLegend] [-Columns <int>] [-RowLabels <string[]>] [-LegendLines <int>] [-Name <string>] [<CommonParameters>]
+New-ConsoleCellMap [[-WidgetId] <string>] [[-Status] <Object[]>] [-Count <int>] [-MaxRows <int>] [-NoLegend] [-Columns <int>] [-RowLabels <string[]>] [-LegendLines <int>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -26,21 +26,21 @@ The map Invoke-ConsoleRun shows for many items, as a widget of its own: each ite
 ### EXAMPLE 1
 ```powershell
 $states = @('Pass') * 28 + @('Fail') * 2 + @('Warn') + @('Running') * 4
-New-ConsoleCellMap -Status $states -Count 40 | Write-ConsoleWidget
+New-ConsoleCellMap -Status $states -Count 40 | Show-Console
 ```
 
 Forty items part-way through a run
 
 ### EXAMPLE 2
 ```powershell
-$results | ForEach-Object Result | New-ConsoleCellMap | Write-ConsoleWidget
+$results | ForEach-Object Result | New-ConsoleCellMap | Show-Console
 ```
 
 States from objects
 
 ### EXAMPLE 3
 ```powershell
-New-ConsoleCellMap -Name checks -Count 12 -Columns 4 -RowLabels 'SRV01', 'SRV02', 'SRV03' -LegendLines 2 -Status Pass, Pass, Fail, Warn, Pass | Write-ConsoleWidget
+New-ConsoleCellMap -WidgetId checks -Count 12 -Columns 4 -RowLabels 'SRV01', 'SRV02', 'SRV03' -LegendLines 2 -Status Pass, Pass, Fail, Warn, Pass | Show-Console
 ```
 
 A grid of three servers by four checks, with the server names beside the rows
@@ -111,22 +111,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Name
-The live name (default cells).
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -NoLegend
 Hide the legend line with each state's count.
 
@@ -169,9 +153,25 @@ Aliases: None
 Possible values:
 
 Required: False
-Position: 0
+Position: 1
 Default value: None
 Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -WidgetId
+The live name (default cells).
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: 0
+Default value: None
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 

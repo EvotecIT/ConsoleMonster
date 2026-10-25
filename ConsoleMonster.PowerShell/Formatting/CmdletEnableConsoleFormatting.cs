@@ -22,7 +22,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Use a minimal themed shell prompt, separately from default output formatting</para>
-    ///   <code>Set-ConsoleTheme -Name Dark; Enable-ConsoleFormatting -Feature Prompt</code>
+    ///   <code>Set-ConsoleTheme -Theme Dark; Enable-ConsoleFormatting -Feature Prompt</code>
     /// </example>
     /// <example>
     ///   <para>The lines to keep it on in every session (printed, never written to the profile)</para>
@@ -42,7 +42,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsLifecycle.Enable, "ConsoleFormatting")]
     public sealed class CmdletEnableConsoleFormatting : PSCmdlet {
-        /// <summary><para type="description">What to turn on: Output (the default: registered and built-in types as ConsoleMonster views), ErrorView (errors that reach the console in ConsoleMonster's error view, following $ErrorView: DetailedView adds the stack, CategoryView keeps PowerShell's), Progress (Write-Progress drawn as ConsoleMonster's progress area; Write-Progress becomes an alias of Write-ConsoleProgress), Streams (native stream and progress colours), ReadLine (syntax, selection and available inline prediction colours for already loaded PSReadLine), or All (Output, ErrorView, Streams and ReadLine). Streams sets PSStyle.Formatting Warning, Verbose, Debug and Error on PowerShell 7.2+, and PSStyle.Progress.Style, or available Host.PrivateData warning, verbose, debug and progress foreground/background colours on older hosts. Native progress keeps its View and layout. ReadLine never imports PSReadLine and does nothing when it is absent; unsupported colour properties are skipped. PowerShell keeps its prefixes, records, preferences, redirection and transcript behaviour. Streams and ReadLine never replace Write-* commands or install an Out-Default function. Progress is the separate legacy alias feature, excluded from All; All keeps Write-Progress native and styles it through Streams. Re-enable Streams or ReadLine after changing themes; Shared native properties follow the most recently applied installation. Disabling its owner restores the latest surviving installation; the last owner restores the first original values, including later user edits. Use Write-ConsoleStatus or Write-ConsoleLog for rich script messages. FormatCommands explicitly opts Format-Table, Format-List and Format-Wide into direct-host-only rendering, preserving native captures, jobs, remoting and transcripts; it is excluded from All. Help and Errors are separate direct-host opt-ins, excluded from All. Help renders native Get-Help, help and -? with paging. Errors uses the compact view; -Detailed includes stacks. GridView supplies the terminal grid only where Out-GridView is unavailable; a working native command is kept. Prompt adds a minimal shell prompt while preserving native fallback; oh-my-posh and Starship need Force. Features add up across calls; Disable-ConsoleFormatting turns them off.</para></summary>
+        /// <summary><para type="description">What to turn on: Output (the default: registered and built-in types as ConsoleMonster views), ErrorView (errors that reach the console in ConsoleMonster's error view, following $ErrorView: DetailedView adds the stack, CategoryView keeps PowerShell's), Progress (Write-Progress drawn as ConsoleMonster's progress area; Write-Progress becomes an alias of Write-ConsoleProgress), Streams (native stream and progress colours), ReadLine (syntax, selection and available inline prediction colours for already loaded PSReadLine), or All (Output, ErrorView, Streams and ReadLine). Streams sets PSStyle.Formatting Warning, Verbose, Debug and Error on PowerShell 7.2+, and PSStyle.Progress.Style, or available Host.PrivateData warning, verbose, debug and progress foreground/background colours on older hosts. Native progress keeps its View and layout. ReadLine never imports PSReadLine and does nothing when it is absent; unsupported colour properties are skipped. PowerShell keeps its prefixes, records, preferences, redirection and transcript behaviour. Streams and ReadLine never replace Write-* commands or install an Out-Default function. Progress is the separate legacy alias feature, excluded from All; All keeps Write-Progress native and styles it through Streams. Re-enable Streams or ReadLine after changing themes; Shared native properties follow the most recently applied installation. Disabling its owner restores the latest surviving installation; the last owner restores the first original values, including later user edits. Use Show-ConsoleStatusLine or Write-ConsoleLogEntry for rich script messages. FormatCommands explicitly opts Format-Table, Format-List and Format-Wide into direct-host-only rendering, preserving native captures, jobs, remoting and transcripts; it is excluded from All. Help and Errors are separate direct-host opt-ins, excluded from All. Help renders native Get-Help, help and -? with paging. Errors uses the compact view; -Detailed includes stacks. GridView supplies the terminal grid only where Out-GridView is unavailable; a working native command is kept. Prompt adds a minimal shell prompt while preserving native fallback; oh-my-posh and Starship need Force. Features add up across calls; Disable-ConsoleFormatting turns them off.</para></summary>
         [Parameter]
         public ConsoleFormattingFeature[]? Feature { get; set; }
 
@@ -50,7 +50,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter Force { get; set; }
 
-        /// <summary><para type="description">Only takes over the types registered with Register-ConsoleView, not the built-in ones (files, processes, services, dictionaries). The built-in views still pick the columns of Format-ConsoleTable and the other commands.</para></summary>
+        /// <summary><para type="description">Only takes over the types registered with Register-ConsoleView, not the built-in ones (files, processes, services, dictionaries). The built-in views still pick the columns of Show-ConsoleTable and the other commands.</para></summary>
         [Parameter]
         public SwitchParameter NoBuiltIn { get; set; }
 
@@ -230,7 +230,7 @@ namespace ConsoleMonster.PowerShell {
 
     /// <summary>
     /// <para type="synopsis">Registers how a type is shown by Enable-ConsoleFormatting and Out-ConsoleDefault.</para>
-    /// <para type="description">Objects whose type names include -TypeName are shown in the given view when they reach the console. -Property picks the columns as in Format-ConsoleTable (names, calculated properties with Presenter options), -GroupBy groups rows under headings, and types with the same -Group are shown together (files and folders). -Remove deletes a registration. Modules can register their own types when they load, or ship a data-only ModuleName.consoleviews.psd1 file without a dependency on ConsoleMonster. Use -Path to import a view file explicitly.</para>
+    /// <para type="description">Objects whose type names include -TypeName are shown in the given view when they reach the console. -Property picks the columns as in Show-ConsoleTable (names, calculated properties with Presenter options), -GroupBy groups rows under headings, and types with the same -Group are shown together (files and folders). Unregister-ConsoleView removes a registration. Modules can register their own types when they load, or ship a data-only ModuleName.consoleviews.psd1 file without a dependency on ConsoleMonster. Use -Path to import a view file explicitly.</para>
     /// </summary>
     /// <example>
     ///   <para>Show a module's result objects as a table</para>
@@ -240,7 +240,6 @@ namespace ConsoleMonster.PowerShell {
     public sealed class CmdletRegisterConsoleView : PSCmdlet {
         /// <summary><para type="description">The type names (as in PSObject.TypeNames).</para></summary>
         [Parameter(Position = 0, Mandatory = true, ParameterSetName = "Register")]
-        [Parameter(Position = 0, Mandatory = true, ParameterSetName = "Remove")]
         public string[] TypeName { get; set; } = Array.Empty<string>();
 
         /// <summary><para type="description">Imports a data-only .consoleviews.psd1 file. Modules can ship a same-named file beside their manifest without depending on ConsoleMonster.</para></summary>
@@ -251,7 +250,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(ParameterSetName = "Register")]
         public ConsoleViewKind View { get; set; } = ConsoleViewKind.Table;
 
-        /// <summary><para type="description">The properties, as in Format-ConsoleTable.</para></summary>
+        /// <summary><para type="description">The properties, as in Show-ConsoleTable.</para></summary>
         [Parameter(ParameterSetName = "Register")]
         public object[]? Property { get; set; }
 
@@ -269,16 +268,12 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">
         /// A script block that turns each object of the type into what is shown instead ($_ is the object), for example an
-        /// ordered dictionary of the fields worth showing. It applies in every command (Format-ConsoleTable, -List, -Tree,
+        /// ordered dictionary of the fields worth showing. It applies in every command (Show-ConsoleTable, -List, -Tree,
         /// Show-Console, Show-ConsoleGrid, Compare-ConsoleObject, Out-ConsoleDefault), also to deserialized objects whose type
         /// names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group), only the shaper is registered.
         /// </para></summary>
         [Parameter(ParameterSetName = "Register")]
         public ScriptBlock? Shaper { get; set; }
-
-        /// <summary><para type="description">Removes the registrations instead.</para></summary>
-        [Parameter(Mandatory = true, ParameterSetName = "Remove")]
-        public SwitchParameter Remove { get; set; }
 
         /// <inheritdoc />
         protected override void EndProcessing() {
@@ -288,11 +283,6 @@ namespace ConsoleMonster.PowerShell {
             }
             bool viewGiven = MyInvocation.BoundParameters.ContainsKey(nameof(View)) || Property != null || GroupBy != null || Title != null || Group != null;
             foreach (string type in TypeName) {
-                if (Remove.IsPresent) {
-                    ConsoleFormatting.Unregister(type);
-                    Values.ValueShaper.Unregister(type);
-                    continue;
-                }
                 if (Shaper != null) {
                     Binding.PSShaping.RegisterShaper(type, Shaper);
                 }

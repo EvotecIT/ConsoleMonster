@@ -75,9 +75,9 @@ namespace ConsoleMonster.Tests.Widgets {
                 Environment.SetEnvironmentVariable("CONSOLEMONSTER_NOW", reference);
                 Assert.Equal(expected, new PresenterContext(Context("en")).Now);
                 Assert.Equal(expected, new PresentationOptions().CreateContext(Context("en")).Now);
-                Assert.Contains("3 h ago", ConsoleExporter.ToMarkdown(table, new ExportOptions { Culture = CultureInfo.InvariantCulture }));
+                Assert.Contains("3 h ago", ConsoleExporter.ToText(table, new ExportOptions { Culture = CultureInfo.InvariantCulture }));
                 table.Presentation.Now = expected.AddHours(1);
-                Assert.Contains("4 h ago", ConsoleExporter.ToMarkdown(table, new ExportOptions { Culture = CultureInfo.InvariantCulture }));
+                Assert.Contains("4 h ago", ConsoleExporter.ToText(table, new ExportOptions { Culture = CultureInfo.InvariantCulture }));
             } finally {
                 Environment.SetEnvironmentVariable("CONSOLEMONSTER_NOW", saved);
             }

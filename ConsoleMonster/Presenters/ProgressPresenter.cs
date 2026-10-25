@@ -47,7 +47,7 @@ namespace ConsoleMonster.Presenters {
                 Fraction = fraction,
                 VisualWidth = BarWidth,
                 Number = fraction,
-                Tone = tone
+                Role = tone
             };
         }
     }

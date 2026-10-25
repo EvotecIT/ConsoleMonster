@@ -4,9 +4,9 @@ begin {
     $cmCapture = $null
     $cmPipeline = $null
     $cmExplicitInput = $PSBoundParameters.ContainsKey('InputObject')
-    if ([ConsoleMonster.PowerShell.FormatCommandRouter]::IsDirectHost($PSCmdlet)) {
+    if (((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.FormatCommandRouter'))::IsDirectHost($PSCmdlet)) {
         if ('__COMMAND__' -ne 'Format-Wide') {
-            $cmCapture = [ConsoleMonster.PowerShell.NativeFormatCapture]::new($PSCmdlet, '__COMMAND__'.Substring(7), $PSBoundParameters)
+            $cmCapture = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.NativeFormatCapture'))::new($PSCmdlet, '__COMMAND__'.Substring(7), $PSBoundParameters)
         }
         $cmTarget = { & $cmNative @PSBoundParameters | ConsoleMonster\Out-ConsoleFormatCommand }
     } else {

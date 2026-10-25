@@ -5,24 +5,24 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates one key/value pair, with an optional status or presenter, for New-ConsoleKeyValue.</para>
-    /// <para type="description">Use it inside the script block of New-ConsoleKeyValue or Write-ConsoleKeyValue when a pair needs more than a hashtable gives: a status marker before the value (-Status), markup in the value (-Markup), or a value formatted by a presenter (-Presenter Bytes, Duration, Date...). Values are shown literally unless -Markup is used. To add pairs to a list made earlier, pipe the list to Add-ConsoleItem.</para>
+    /// <para type="description">Use it inside the script block of New-ConsoleKeyValue or Show-ConsoleList when a pair needs more than a hashtable gives: a status marker before the value (-Status), markup in the value (-Markup), or a value formatted by a presenter (-Presenter Bytes, Duration, Date...). Values are shown literally unless -Markup is used. To add pairs to a list made earlier, pipe the list to Add-ConsoleItem.</para>
     /// </summary>
     /// <example>
     ///   <para>Facts with status marks</para>
     ///   <code>
-    /// New-ConsoleKeyValue {
+    /// New-ConsoleKeyValue -Content {
     ///     New-ConsoleKeyValueItem 'Module' '[bold]ConsoleMonster[/]' -Markup
     ///     New-ConsoleKeyValueItem 'Signing' 'skipped' -Status Skip
     ///     New-ConsoleKeyValueItem 'Tests' '1 skipped on PowerShell 7' -Status Warn
-    /// } | Write-ConsoleWidget</code>
+    /// } | Show-Console</code>
     /// </example>
     /// <example>
     ///   <para>Values formatted by presenters</para>
     ///   <code>
-    /// New-ConsoleKeyValue {
+    /// New-ConsoleKeyValue -Content {
     ///     New-ConsoleKeyValueItem 'Package size' 1482113 -Presenter Bytes
     ///     New-ConsoleKeyValueItem 'Built in' (New-TimeSpan -Seconds 48) -Presenter Duration
-    /// } | Write-ConsoleWidget</code>
+    /// } | Show-Console</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleKeyValueItem")]
     [OutputType(typeof(KeyValueItem))]

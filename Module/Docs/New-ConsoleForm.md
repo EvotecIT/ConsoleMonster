@@ -25,10 +25,10 @@ The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page 
 
 ### EXAMPLE 1
 ```powershell
-$form = New-ConsoleForm 'New share' -Command 'New-AppShare' -PageDescriptions @{ Basics = 'Name and location of the share.'; Access = 'How people can use the share.' } {
-    New-ConsoleField Name 'Share name' -Page Basics -Required -Parameter Name
-    New-ConsoleField Path 'Folder' -Type Path -Kind Folder -MustExist -Page Basics -Parameter Path
-    New-ConsoleField ReadOnly 'Read only' -Type Toggle -Page Access -Parameter ReadOnly
+$form = New-ConsoleForm 'New share' -Command 'New-AppShare' -PageDescriptions @{ Basics = 'Name and location of the share.'; Access = 'How people can use the share.' } -Content {
+    New-ConsoleField Name 'Share name' -Page Basics -Required -ParameterName Name
+    New-ConsoleField Path 'Folder' -Type Path -Kind Folder -MustExist -Page Basics -ParameterName Path
+    New-ConsoleField ReadOnly 'Read only' -Type Toggle -Page Access -ParameterName ReadOnly
 }
 ```
 
@@ -36,9 +36,9 @@ A two-page wizard
 
 ### EXAMPLE 2
 ```powershell
-$form = New-ConsoleForm 'New share' -Command 'New-AppShare' {
-    New-ConsoleField Name 'Share name' -Required -Parameter Name
-    New-ConsoleField ReadOnly 'Read only' -Type Toggle -Parameter ReadOnly
+$form = New-ConsoleForm 'New share' -Command 'New-AppShare' -Content {
+    New-ConsoleField Name 'Share name' -Required -ParameterName Name
+    New-ConsoleField ReadOnly 'Read only' -Type Toggle -ParameterName ReadOnly
     New-ConsoleFormPreset 'Archive' -Values @{ Name = 'Archive'; ReadOnly = $true } -Description 'A read-only archive share.'
 }
 ```

@@ -11,7 +11,7 @@ using ConsoleMonster.Widgets;
 using Xunit;
 
 namespace ConsoleMonster.Tests.Live {
-    /// <summary>Replaceable regions (Slot) and keyed live tables.</summary>
+    /// <summary>Replaceable regions (RegionWidget) and keyed live tables.</summary>
     public sealed class LiveContentTests {
         [Theory]
         [InlineData(false)]
@@ -19,7 +19,7 @@ namespace ConsoleMonster.Tests.Live {
         public void Region_ReplacementAndClearReconcileLogRouting(bool explicitTarget) {
             LogRegion original = new LogRegion("log");
             LogRegion replacement = new LogRegion("log");
-            Slot slot = new Slot("main", original);
+            RegionWidget slot = new RegionWidget("main", original);
             RecordingTarget output = TestTerminal.Target(60);
             using (LiveSession session = new LiveSession(slot, new LiveSessionOptions {
                 Target = output, CaptureConsole = false, HandleCancelKey = false,
@@ -46,7 +46,7 @@ namespace ConsoleMonster.Tests.Live {
         [Fact]
         public void Region_CanIntroduceTheFirstLogTarget() {
             LogRegion log = new LogRegion("log");
-            Slot slot = new Slot("main", new TextBlock("waiting"));
+            RegionWidget slot = new RegionWidget("main", new TextBlock("waiting"));
             using (LiveSession session = Session(TestTerminal.Target(60), slot)) {
                 session.Region("main").Set(log);
                 session.Write("first log message");
@@ -64,7 +64,7 @@ namespace ConsoleMonster.Tests.Live {
 
         [Fact]
         public void Slot_SetReplacesTheContentInsideItsFrame() {
-            Slot slot = new Slot("main", new TextBlock("loading"));
+            RegionWidget slot = new RegionWidget("main", new TextBlock("loading"));
             Panel panel = new Panel(slot, "Result");
             Assert.Contains("loading", TestTerminal.RenderText(panel, 30, glyphs: GlyphTier.Ascii));
             slot.Apply(new LiveEvent("main", "set") { Payload = new TextBlock("[pass]done[/]") });
@@ -79,7 +79,7 @@ namespace ConsoleMonster.Tests.Live {
         [Fact]
         public void Region_SwapsThroughTheQueueAndAdoptsLiveWidgetsInTheNewContent() {
             RecordingTarget target = TestTerminal.Target(60);
-            Slot slot = new Slot("main", new TextBlock("waiting"));
+            RegionWidget slot = new RegionWidget("main", new TextBlock("waiting"));
             using (LiveSession session = Session(target, new Rows(slot))) {
                 session.Start();
                 Lanes lanes = new Lanes("servers");

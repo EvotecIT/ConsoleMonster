@@ -90,9 +90,9 @@ namespace ConsoleMonster.Text {
             }
             List<RichSegment> segments = new List<RichSegment>(texts.Count);
             for (int i = 0; i < texts.Count; i++) {
-                RichColor foreground = Pick(colors, i, style.Foreground);
-                RichColor background = Pick(backgrounds, i, style.Background);
-                segments.Add(new RichSegment(texts[i] ?? string.Empty, new RichStyle(foreground, background, style.Decoration, style.Link), false));
+                RichColor foreground = Pick(colors, i, style.Color);
+                RichColor background = Pick(backgrounds, i, style.BackgroundColor);
+                segments.Add(new RichSegment(texts[i] ?? string.Empty, new RichStyle(foreground, background, style.Decoration, style.Link, style.Role), false));
             }
             return new RichText(segments);
         }
@@ -112,7 +112,7 @@ namespace ConsoleMonster.Text {
             }
             List<RichText> parts = new List<RichText>(pieces.Count);
             for (int i = 0; i < pieces.Count; i++) {
-                RichStyle pieceStyle = new RichStyle(Pick(colors, i, style.Foreground), Pick(backgrounds, i, style.Background), style.Decoration, style.Link);
+                RichStyle pieceStyle = new RichStyle(Pick(colors, i, style.Color), Pick(backgrounds, i, style.BackgroundColor), style.Decoration, style.Link, style.Role);
                 object? piece = pieces[i];
                 parts.Add(piece is RichText rich ? rich.WithBaseStyle(pieceStyle) : Plain(Convert.ToString(piece, System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty, pieceStyle));
             }
@@ -164,7 +164,7 @@ namespace ConsoleMonster.Text {
         public static RichText Gradient(string? text, RichColor from, RichColor to, RichStyle style = default, ITheme? theme = null) {
             string value = text ?? string.Empty;
             if (!from.TryGetRgb(theme, out byte r1, out byte g1, out byte b1) || !to.TryGetRgb(theme, out byte r2, out byte g2, out byte b2)) {
-                return Plain(value, style.WithForeground(from.IsDefault ? to : from));
+                return Plain(value, style.WithColor(from.IsDefault ? to : from));
             }
             // Graphemes per line; line breaks are kept as their own glyphs (DisplayWidth.Cells skips control characters).
             List<string> glyphs = new List<string>();
@@ -186,7 +186,7 @@ namespace ConsoleMonster.Text {
                 double t = visible <= 1 ? 0 : (double)step / (visible - 1);
                 step++;
                 RichColor color = RichColor.FromRgb(Lerp(r1, r2, t), Lerp(g1, g2, t), Lerp(b1, b2, t));
-                segments.Add(new RichSegment(glyph, style.WithForeground(color), false));
+                segments.Add(new RichSegment(glyph, style.WithColor(color), false));
             }
             return new RichText(segments);
         }
@@ -304,10 +304,11 @@ namespace ConsoleMonster.Text {
 
         private static RichStyle Layer(RichStyle under, RichStyle over) {
             return new RichStyle(
-                over.Foreground.IsDefault ? under.Foreground : over.Foreground,
-                over.Background.IsDefault ? under.Background : over.Background,
+                over.Color.IsDefault ? under.Color : over.Color,
+                over.BackgroundColor.IsDefault ? under.BackgroundColor : over.BackgroundColor,
                 under.Decoration | over.Decoration,
-                over.Link ?? under.Link);
+                over.Link ?? under.Link,
+                over.Role ?? under.Role);
         }
 
         private static byte Lerp(byte a, byte b, double t) => (byte)Math.Round(a + ((b - a) * t));

@@ -13,7 +13,7 @@ Phases come from -Phase (names, all pending) or from a script block of New-Conso
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsolePhases [[-Phase] <Object[]>] [[-Content] <scriptblock>] [-InputObject <psobject>] [-Name <string>] [<CommonParameters>]
+New-ConsolePhases [[-WidgetId] <string>] [[-Phase] <Object[]>] [[-Content] <scriptblock>] [-InputObject <psobject>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,12 +25,12 @@ Phases come from -Phase (names, all pending) or from a script block of New-Conso
 
 ### EXAMPLE 1
 ```powershell
-New-ConsolePhases {
+New-ConsolePhases -Content {
     New-ConsoleStatusItem 'Discover' -Status Pass -Detail '2.1s'
     New-ConsoleStatusItem 'Collect' -Status Pass -Detail '14s'
     New-ConsoleStatusItem 'Evaluate' -Status Running -Detail '64%'
     New-ConsoleStatusItem 'Report'
-} | Write-ConsoleWidget
+} | Show-Console
 ```
 
 A run part-way through
@@ -54,7 +54,7 @@ Aliases: None
 Possible values:
 
 Required: False
-Position: 1
+Position: 2
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -76,27 +76,27 @@ Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
-### -Name
-The live name (default phases).
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -Phase
 The phase names in order, all pending (a script block here is taken as -Content).
 
 ```yaml
 Type: Object[]
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WidgetId
+The live name (default phases).
+
+```yaml
+Type: String
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

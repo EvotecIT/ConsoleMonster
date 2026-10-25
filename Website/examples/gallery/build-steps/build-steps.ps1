@@ -21,7 +21,7 @@ function New-DemoFrame {
             }
         }
         New-ConsoleProgress -Label Overall -Value $Tick -Total 4
-        New-ConsoleKeyValue -Data ([ordered] @{
+        New-ConsoleKeyValue -InputObject ([ordered] @{
                 'Project' = 'Orbit.Tools'
                 'Version' = '1.2.0'
                 'Artifacts' = './artifacts/'
@@ -33,14 +33,14 @@ function New-DemoFrame {
 
 # Behaviour: update each frame in a bounded live run.
 $frames = @(0..4 | ForEach-Object -Process { New-DemoFrame -Tick $_ })
-$screen = New-ConsoleRegion -Name demo -Widget $frames[0]
-Start-ConsoleDashboard -Dashboard $screen -ArgumentList (, $frames) -ScriptBlock {
+$screen = New-ConsoleRegion -WidgetId demo -Widget $frames[0]
+Invoke-ConsoleDashboard -Dashboard $screen -ArgumentList (, $frames) -ScriptBlock {
     param($Frames)
     foreach ($frame in $Frames) {
         if ($ConsoleSession.Cancellation.IsCancellationRequested) {
             break
         }
-        Set-ConsoleRegion -Name demo -Widget $frame
+        Set-ConsoleRegion -WidgetId demo -Widget $frame
         Wait-ConsoleDashboard -Milliseconds 650
     }
 }

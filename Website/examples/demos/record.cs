@@ -33,7 +33,7 @@ using (LiveSession session = new LiveSession(dashboard, new LiveSessionOptions {
                 Thread.Sleep(250);
                 status.Set(server, StatusKind.Pass);
             }
-            s.Post(new LiveEvent("log", "write", text: step + " done on 4 servers", state: "info"));
+            s.Post(new LiveEvent("log", "write", text: step + " done on 4 servers", status: "info"));
             phase.Complete(step, StatusKind.Pass);
         }
     });

@@ -27,7 +27,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Assert.Equal(2, button.Value);
             Assert.Equal(2, input.CurrentValue);
             Assert.Equal(2, changes.Count);
-            Assert.Equal("run", changes[0].Name);
+            Assert.Equal("run", changes[0].Key);
             Assert.Equal(0, changes[0].PreviousValue);
             Assert.Equal(1, changes[0].Value);
             Assert.Equal(1, changes[1].PreviousValue);

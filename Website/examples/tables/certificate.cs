@@ -13,7 +13,7 @@ view.AddField("Subject", "CN=mail.evotec.xyz");
 view.AddField("Issuer", "CN=R11, O=Let's Encrypt, C=US");
 view.AddField("Serial", "04:A1:7F:3C:9E:22:51:0B:6D:8E:F0:13:44:2A:BC:91");
 view.AddField("Valid from (UTC)", new DateTimeOffset(2026, 8, 9, 12, 0, 0, TimeSpan.Zero), new DatePresenter(DateDisplay.Both));
-view.AddField("Valid to (UTC)", new DateTimeOffset(2026, 11, 8, 12, 0, 0, TimeSpan.Zero), new DatePresenter(DateDisplay.Both), new[] { ToneRule.Below(0, ThemeToken.Fail), ToneRule.Below(30, ThemeToken.Warn) });
+view.AddField("Valid to (UTC)", new DateTimeOffset(2026, 11, 8, 12, 0, 0, TimeSpan.Zero), new DatePresenter(DateDisplay.Both), new[] { RoleRule.Below(0, ThemeToken.Fail), RoleRule.Below(30, ThemeToken.Warn) });
 view.AddField("Key", "ECDSA P-256");
 view.AddField("OCSP stapling", true);
 view.AddField("Revoked", false, new BooleanPresenter(trueIsProblem: true));
@@ -35,7 +35,7 @@ view.AddWidget(new Table()
     .AddColumn("Subject", c => c.WithIsKey())
     .AddColumn("Expires", c => c
         .WithPresenter(new DatePresenter(DateDisplay.Relative))
-        .AddToneRules(ToneRule.Below(30, ThemeToken.Warn)))
+        .AddRoleRules(RoleRule.Below(30, ThemeToken.Warn)))
     .AddColumn("Key", c => c.WithPriority(1))
     .AddValues("CN=mail.evotec.xyz", new DateTimeOffset(2026, 11, 8, 12, 0, 0, TimeSpan.Zero), "ECDSA P-256")
     .AddValues("CN=R11, O=Let's Encrypt", new DateTimeOffset(2027, 3, 12, 23, 59, 59, TimeSpan.Zero), "RSA 2048")

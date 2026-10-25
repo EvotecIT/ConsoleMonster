@@ -25,32 +25,32 @@ Use it inside the script block of New-ConsoleTree, or inside another New-Console
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleTree '[bold]evotec.xyz[/]' {
-    New-ConsoleTreeNode 'MX' -Status Pass -Detail '2 records' {
+New-ConsoleTree '[bold]evotec.xyz[/]' -Content {
+    New-ConsoleTreeNode 'MX' -Status Pass -Detail '2 records' -Content {
         New-ConsoleTreeNode 'evotec-xyz.mail.protection.outlook.com' -Detail 'priority 0'
     }
     New-ConsoleTreeNode 'DMARC' -Status Fail -Detail 'p=none'
-} | Write-ConsoleWidget
+} | Show-Console
 ```
 
 A mail domain with records and their state
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleTree 'Domain controllers' {
-    New-ConsoleTreeNode 'ad.adatum.com' { 'DC01', 'DC02' }
-    New-ConsoleTreeNode 'eu.ad.adatum.com' -Status Warn -Detail 'one offline' { 'DC07' }
-} | Write-ConsoleWidget
+New-ConsoleTree 'Domain controllers' -Content {
+    New-ConsoleTreeNode 'ad.adatum.com' -Content { 'DC01', 'DC02' }
+    New-ConsoleTreeNode 'eu.ad.adatum.com' -Status Warn -Detail 'one offline' -Content { 'DC07' }
+} | Show-Console
 ```
 
 Leaves from a list of names
 
 ### EXAMPLE 3
 ```powershell
-New-ConsoleTree 'Reports share' {
+New-ConsoleTree 'Reports share' -Content {
     New-ConsoleTreeNode 'Weekly' -Value 734003200 -Presenter Bytes
     New-ConsoleTreeNode 'Archive' -Value 9663676416 -Presenter Bytes -Status Warn
-} | Write-ConsoleWidget
+} | Show-Console
 ```
 
 A value shown through a presenter

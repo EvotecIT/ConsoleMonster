@@ -11,10 +11,10 @@ $wizard = [pscustomobject] @{ Page = 0 }
 $content = {
     New-ConsoleRows -Gap 1 -Content {
         '[bold]Install Toolbox Agent[/] [muted]· Toolbox Agent[/]'
-        New-ConsoleTextInput -Name Folder -Label 'Install folder' -Value $installFolder
-        New-ConsoleSelect -Name Component -Label Component -Choices $components -Value Core
-        New-ConsoleButton -Name Back -Label Back -OnClick { $wizard.Page = [Math]::Max(0, $wizard.Page - 1) }
-        New-ConsoleButton -Name Next -Label 'Next / preview' -OnClick { $wizard.Page = [Math]::Min(2, $wizard.Page + 1) }
+        New-ConsoleTextInput -Key Folder -Label 'Install folder' -Value $installFolder
+        New-ConsoleSelect -Key Component -Label Component -Choices $components -Value Core
+        New-ConsoleButton -Key Back -Label Back -OnClick { $wizard.Page = [Math]::Max(0, $wizard.Page - 1) }
+        New-ConsoleButton -Key Next -Label 'Next / preview' -OnClick { $wizard.Page = [Math]::Min(2, $wizard.Page + 1) }
         # Rebuild this section when an input or button changes state.
         New-ConsoleBinding -Content {
             param($State)

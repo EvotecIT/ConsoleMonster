@@ -33,16 +33,16 @@ namespace ConsoleMonster.Layout {
         public string? Title { get; set; }
 
         /// <summary>Text on the right of the top edge (markup), for example a count or a clock.</summary>
-        public string? Caption { get; set; }
+        public string? HeaderRight { get; set; }
 
         /// <summary>Text on the right of the bottom edge (markup), for example "+12 more".</summary>
-        public string? Footer { get; set; }
+        public string? Caption { get; set; }
 
         /// <summary>The border style (default rounded).</summary>
         public BoxStyle Border { get; set; } = BoxStyle.Rounded;
 
         /// <summary>The theme token for the border (default <see cref="ThemeToken.Border"/>).</summary>
-        public ThemeToken BorderToken { get; set; } = ThemeToken.Border;
+        public ThemeToken BorderRole { get; set; } = ThemeToken.Border;
 
         /// <summary>Cells between the left border and the content (default 1).</summary>
         public int PaddingLeft { get; set; } = 1;
@@ -103,7 +103,7 @@ namespace ConsoleMonster.Layout {
 
         private void DrawBorder(Region region, RenderContext context) {
             BoxGlyphs box = context.Glyphs.GetBox(Border);
-            Style border = context.Style(BorderToken);
+            Style border = context.Style(BorderRole);
             int w = region.Width;
             int h = region.Height;
             region.Put(0, 0, box.TopLeft, border);
@@ -116,8 +116,8 @@ namespace ConsoleMonster.Layout {
             region.Put(w - 1, h - 1, box.BottomRight, border);
 
             int captionWidth = 0;
-            if (!string.IsNullOrEmpty(Caption)) {
-                StyledLine caption = TextWrapper.Truncate(context.Markup(Caption!).Lines[0].WithBaseStyle(context.Style(ThemeToken.Muted)), Math.Max(0, w - 8), context.Ellipsis);
+            if (!string.IsNullOrEmpty(HeaderRight)) {
+                StyledLine caption = TextWrapper.Truncate(context.Markup(HeaderRight!).Lines[0].WithBaseStyle(context.Style(ThemeToken.Muted)), Math.Max(0, w - 8), context.Ellipsis);
                 captionWidth = caption.Width + 2;
                 int x = w - 2 - caption.Width - 1;
                 if (x > 2) {
@@ -137,8 +137,8 @@ namespace ConsoleMonster.Layout {
                     region.Put(end, 0, " ", Style.Plain);
                 }
             }
-            if (!string.IsNullOrEmpty(Footer)) {
-                StyledLine footer = TextWrapper.Truncate(context.Markup(Footer!).Lines[0].WithBaseStyle(context.Style(ThemeToken.Muted)), Math.Max(0, w - 8), context.Ellipsis);
+            if (!string.IsNullOrEmpty(Caption)) {
+                StyledLine footer = TextWrapper.Truncate(context.Markup(Caption!).Lines[0].WithBaseStyle(context.Style(ThemeToken.Muted)), Math.Max(0, w - 8), context.Ellipsis);
                 int x = w - 2 - footer.Width - 1;
                 if (x > 2) {
                     region.Put(x - 1, h - 1, " ", Style.Plain);

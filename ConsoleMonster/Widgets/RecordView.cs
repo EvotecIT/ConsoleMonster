@@ -45,10 +45,10 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>Adds a top-level section heading; following fields belong to it.</summary>
         /// <param name="title">The heading (markup).</param>
-        /// <param name="tone">An optional tone (for example the record's status), or null.</param>
+        /// <param name="role">An optional tone (for example the record's status), or null.</param>
         /// <param name="note">An optional muted note after the heading, or null.</param>
         /// <returns>This instance.</returns>
-        public RecordView AddSection(string title, ThemeToken? tone = null, string? note = null) => AddHeading(title, 0, tone, note);
+        public RecordView AddSection(string title, ThemeToken? role = null, string? note = null) => AddHeading(title, 0, role, note);
 
         /// <summary>Adds a group heading under the current section; following fields belong to it.</summary>
         /// <param name="title">The heading (markup).</param>
@@ -59,12 +59,12 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Adds a heading at a nesting level (0 = section, 1 = group, deeper for nested objects).</summary>
         /// <param name="title">The heading (markup).</param>
         /// <param name="level">The level.</param>
-        /// <param name="tone">An optional tone, or null.</param>
+        /// <param name="role">An optional tone, or null.</param>
         /// <param name="note">An optional muted note, or null.</param>
         /// <returns>This instance.</returns>
-        public RecordView AddHeading(string title, int level, ThemeToken? tone = null, string? note = null) {
+        public RecordView AddHeading(string title, int level, ThemeToken? role = null, string? note = null) {
             _level = Math.Max(0, level);
-            _items.Add(new RecordItem(RecordItemKind.Heading, _level) { Text = title ?? string.Empty, Tone = tone, Note = note });
+            _items.Add(new RecordItem(RecordItemKind.Heading, _level) { Text = title ?? string.Empty, Role = role, Note = note });
             return this;
         }
 
@@ -75,7 +75,7 @@ namespace ConsoleMonster.Widgets {
         /// <param name="presenter">The presenter, or null for automatic.</param>
         /// <param name="rules">Tone rules, or null.</param>
         /// <returns>This instance.</returns>
-        public RecordView AddField<T>(string label, T value, ICellPresenter? presenter = null, IReadOnlyList<ToneRule>? rules = null) =>
+        public RecordView AddField<T>(string label, T value, ICellPresenter? presenter = null, IReadOnlyList<RoleRule>? rules = null) =>
             AddField(label, (object?)value, presenter, rules);
 
         /// <summary>Adds a field with a raw value, formatted by a presenter.</summary>
@@ -84,7 +84,7 @@ namespace ConsoleMonster.Widgets {
         /// <param name="presenter">The presenter, or null for automatic.</param>
         /// <param name="rules">Tone rules, or null.</param>
         /// <returns>This instance.</returns>
-        public RecordView AddField(string label, object? value, ICellPresenter? presenter = null, IReadOnlyList<ToneRule>? rules = null) {
+        public RecordView AddField(string label, object? value, ICellPresenter? presenter = null, IReadOnlyList<RoleRule>? rules = null) {
             return AddField(label, TableCell.FromValue(value), presenter, rules);
         }
 
@@ -94,7 +94,7 @@ namespace ConsoleMonster.Widgets {
         /// <param name="presenter">The presenter for raw values, or null for automatic.</param>
         /// <param name="rules">Tone rules, or null.</param>
         /// <returns>This instance.</returns>
-        public RecordView AddField(string label, TableCell cell, ICellPresenter? presenter = null, IReadOnlyList<ToneRule>? rules = null) {
+        public RecordView AddField(string label, TableCell cell, ICellPresenter? presenter = null, IReadOnlyList<RoleRule>? rules = null) {
             _items.Add(new RecordItem(RecordItemKind.Field, _level + 1) {
                 Text = label ?? string.Empty,
                 Cell = cell ?? TableCell.FromValue(null),

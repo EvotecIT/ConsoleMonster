@@ -26,8 +26,8 @@ namespace ConsoleMonster.Live.Tails {
         /// <summary>Time between source reads (default 250 milliseconds; positive and at most Int32.MaxValue milliseconds).</summary>
         public TimeSpan PollInterval { get; set; } = TimeSpan.FromMilliseconds(250);
 
-        /// <summary>Forces literal line output without acquiring or reading keyboard input.</summary>
-        public bool Plain { get; set; }
+        /// <summary>Enables the live viewer when the host supports input; false writes literal lines without acquiring input.</summary>
+        public bool Live { get; set; } = true;
 
         /// <summary>Receives each original line in plain mode, without a terminator. Null uses the core terminal writer.</summary>
         public Action<string>? WriteLine { get; set; }

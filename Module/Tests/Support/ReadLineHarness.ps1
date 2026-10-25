@@ -63,8 +63,8 @@ function Assert-ReadLineTheme {
     if ($actual.Count -lt 11) { throw 'The native PSReadLine oracle did not expose syntax and selection colours.' }
     foreach ($name in $actual.Keys) {
         $style = [ConsoleMonster.Terminal]::Theme.Resolve([ConsoleMonster.Styling.ThemeToken] $roles[$name], 'TrueColor')
-        if ($name -eq 'CommentColor') { $style = $style.With([ConsoleMonster.Styling.TextDecoration]::Italic) }
-        $expected = [ConsoleMonster.Rendering.SgrEncoder]::Encode($style, 'TrueColor')
+        if ($name -eq 'CommentColor') { $style = $style.With(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Styling.TextDecoration'))::Italic) }
+        $expected = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Rendering.SgrEncoder'))::Encode($style, 'TrueColor')
         if ($actual[$name] -cne $expected) { throw "Wrong native syntax colour: $name" }
     }
     if ($actual.SelectionColor -notmatch '48;2;') { throw 'Selection has no theme background.' }

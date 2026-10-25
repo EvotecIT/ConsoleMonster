@@ -8,25 +8,25 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a form field for New-ConsoleForm.
 
-A field has a name (its key in the result), a label, help shown while it has focus, a default, validation (-Required, -Validate and the type's own checks) and the command-line parameter it supplies (-Parameter) for the equivalent command. -VisibleWhen shows it only while a condition on the other values holds ($Values). -DependsOn resets it when those fields change; with -LoadChoices its options are loaded again in their own runspace (a spinner shows, Esc cancels), from the current values ($Values). Choices are built from any objects: -Display, -GroupBy, -Describe, -Badge, -Disabled and -Selected read each object (a property name, or a scriptblock for choices given with -Choices; loaded choices take property names), and -CommandValue picks the text the equivalent command shows and the field returns.
+A field has a name (its key in the result), a label, help shown while it has focus, a default, validation (-Required, -Validator and the type's own checks) and the command-line parameter it supplies (-ParameterName) for the equivalent command. -VisibleWhen shows it only while a condition on the other values holds ($Values). -DependsOn resets it when those fields change; with -LoadChoices its options are loaded again in their own runspace (a spinner shows, Esc cancels), from the current values ($Values). Choices are built from any objects: -Display, -GroupBy, -Describe, -Badge, -DisabledReason and -Selected read each object (a property name, or a scriptblock for choices given with -Choices; loaded choices take property names), and -CommandValue picks the text the equivalent command shows and the field returns.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleField [-Name] <string> [[-Label] <string>] [-Type <ConsoleFieldType>] [-Page <string>] [-Help <string>] [-Parameter <string>] [-Required] [-Default <Object>] [-Placeholder <string>] [-Choices <Object[]>] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-Badge <Object>] [-Disabled <Object>] [-Selected <Object>] [-CommandValue <Object>] [-Preview <scriptblock>] [-LoadChoices <scriptblock>] [-ArgumentList <Object[]>] [-DependsOn <string[]>] [-VisibleWhen <scriptblock>] [-Validate <scriptblock>] [-Minimum <Decimal>] [-Maximum <Decimal>] [-Step <Decimal>] [-Integer] [-Kind <PathKind>] [-MustExist] [-Extension <string[]>] [-OnText <string>] [-OffText <string>] [-Pattern <string>] [-PatternMessage <string>] [-MinLength <int>] [-MaxLength <int>] [-MaxLines <int>] [-Height <int>] [-CommandPlaceholder <string>] [-NoRemember] [<CommonParameters>]
+New-ConsoleField [-Key] <string> [[-Label] <string>] [-Type <ConsoleFieldType>] [-Page <string>] [-Help <string>] [-ParameterName <string>] [-Required] [-Default <Object>] [-Placeholder <string>] [-Choices <Object[]>] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-Badge <Object>] [-DisabledReason <Object>] [-Selected <Object>] [-CommandValue <Object>] [-Preview <scriptblock>] [-LoadChoices <scriptblock>] [-ArgumentList <Object[]>] [-DependsOn <string[]>] [-VisibleWhen <scriptblock>] [-Validator <scriptblock>] [-Minimum <Decimal>] [-Maximum <Decimal>] [-Step <Decimal>] [-Integer] [-Kind <PathKind>] [-MustExist] [-Extension <string[]>] [-OnText <string>] [-OffText <string>] [-Pattern <string>] [-PatternMessage <string>] [-MinLength <int>] [-MaxLength <int>] [-MaxLines <int>] [-Height <int>] [-CommandPlaceholder <string>] [-NoRemember] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Creates a form field for New-ConsoleForm.
 
-A field has a name (its key in the result), a label, help shown while it has focus, a default, validation (-Required, -Validate and the type's own checks) and the command-line parameter it supplies (-Parameter) for the equivalent command. -VisibleWhen shows it only while a condition on the other values holds ($Values). -DependsOn resets it when those fields change; with -LoadChoices its options are loaded again in their own runspace (a spinner shows, Esc cancels), from the current values ($Values). Choices are built from any objects: -Display, -GroupBy, -Describe, -Badge, -Disabled and -Selected read each object (a property name, or a scriptblock for choices given with -Choices; loaded choices take property names), and -CommandValue picks the text the equivalent command shows and the field returns.
+A field has a name (its key in the result), a label, help shown while it has focus, a default, validation (-Required, -Validator and the type's own checks) and the command-line parameter it supplies (-ParameterName) for the equivalent command. -VisibleWhen shows it only while a condition on the other values holds ($Values). -DependsOn resets it when those fields change; with -LoadChoices its options are loaded again in their own runspace (a spinner shows, Esc cancels), from the current values ($Values). Choices are built from any objects: -Display, -GroupBy, -Describe, -Badge, -DisabledReason and -Selected read each object (a property name, or a scriptblock for choices given with -Choices; loaded choices take property names), and -CommandValue picks the text the equivalent command shows and the field returns.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleField Site 'Site' -Type Select -Choices 'Warsaw', 'Berlin' -Parameter Site
-New-ConsoleField Server 'Servers' -Type MultiSelect -DependsOn Site -LoadChoices { param($Values) Get-AppServer -Site $Values.Site } -Display Name -Parameter Server
+New-ConsoleField Site 'Site' -Type Select -Choices 'Warsaw', 'Berlin' -ParameterName Site
+New-ConsoleField Server 'Servers' -Type MultiSelect -DependsOn Site -LoadChoices { param($Values) Get-AppServer -Site $Values.Site } -Display Name -ParameterName Server
 ```
 
 Dependent fields: picking a site loads its servers
@@ -34,26 +34,26 @@ Dependent fields: picking a site loads its servers
 ### EXAMPLE 2
 ```powershell
 New-ConsoleField Notify 'Send an email' -Type Toggle
-New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validate { $_ -match '@' }
+New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -match '@' }
 ```
 
 A conditional field
 
 ### EXAMPLE 3
 ```powershell
-New-ConsoleField Servers 'Servers' -Type MultiSelect -DependsOn Domain -Parameter ComputerName -LoadChoices {
+New-ConsoleField Servers 'Servers' -Type MultiSelect -DependsOn Domain -ParameterName ComputerName -LoadChoices {
     param($Values)
     Get-AppServer -Domain $Values.Domain | ForEach-Object {
         [pscustomobject] @{ Name = $_.Name; Site = $_.Site; Role = $_.Role; Offline = $_.OfflineReason; Online = -not $_.OfflineReason }
     }
-} -Display Name -CommandValue Name -GroupBy Site -Badge Role -Disabled Offline -Selected Online
+} -Display Name -CommandValue Name -GroupBy Site -Badge Role -DisabledReason Offline -Selected Online
 ```
 
 Loaded servers grouped by site, with their role as a badge, offline ones disabled and online ones selected; the command shows their names
 
 ### EXAMPLE 4
 ```powershell
-New-ConsoleField Checks 'Checks' -Type MultiSelect -Choices $checks -Display Name -CommandValue Id -GroupBy Category -Badge { "~$($_.Seconds) s" } -Parameter Check
+New-ConsoleField Checks 'Checks' -Type MultiSelect -Choices $checks -Display Name -CommandValue Id -GroupBy Category -Badge { "~$($_.Seconds) s" } -ParameterName Check
 ```
 
 Checks offered by name, returned and shown in the command as their ids, with a typical time as a badge
@@ -188,7 +188,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Disabled
+### -DisabledReason
 Why a choice cannot be picked: a property name or a scriptblock returning the reason. Nothing, $false or an empty string leaves the choice available; $true disables it without a reason. Disabled choices are dimmed and show the reason while they have focus.
 
 ```yaml
@@ -295,6 +295,22 @@ Possible values:
 
 Required: False
 Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Key
+The key of the value in the result.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: True
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -444,22 +460,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Name
-The key of the value in the result.
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: True
-Position: 0
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -NoRemember
 Keeps the value out of presets and remembered choices.
 
@@ -524,8 +524,8 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Parameter
-The parameter the field supplies in the equivalent command (Name, -Name or --name).
+### -ParameterName
+The parameter the field supplies in the equivalent command (Name, -Key or --name).
 
 ```yaml
 Type: String
@@ -668,7 +668,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Validate
+### -Validator
 A validator: $_ is the value, $Values the other values; return $true (or nothing), $false or an error message.
 
 ```yaml

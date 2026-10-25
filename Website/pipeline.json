@@ -142,7 +142,7 @@
       "name": "ConsoleMonster",
       "packageId": "ConsoleMonster",
       "project": "../ConsoleMonster/ConsoleMonster.csproj",
-      "overview": "ConsoleMonster draws tables, trees, panels, charts and live dashboards for .NET and PowerShell 5.1 and 7. Its core has no package dependencies; the optional Markdown add-on uses OfficeIMO.Markdown, and Graphics uses ChartForgeX for image and animation exports.",
+      "overview": "ConsoleMonster draws tables, trees, panels, charts and live dashboards for .NET and PowerShell 5.1 and 7. Its core has no package dependencies; the optional Markdown add-on owns Markdown display and export through OfficeIMO.Markdown, and Graphics uses ChartForgeX for image and animation exports.",
       "packageFiles": ["../ConsoleMonster/ConsoleMonster.csproj", "../ConsoleMonster.Markdown/ConsoleMonster.Markdown.csproj", "../ConsoleMonster.Graphics/ConsoleMonster.Graphics.csproj", "../Module/ConsoleMonster.psd1"],
       "apiIndexes": ["./_site/api/index.json", "./_site/powershell/commands/index.json"],
       "discovery": "./config/llms-discovery.md",

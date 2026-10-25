@@ -15,7 +15,7 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>A table snapshot in a Pester test</para>
     ///   <code>
     /// It 'renders the report table' {
-    ///     $rows | Format-ConsoleTable -AsWidget | Assert-ConsoleOutput -GoldenPath "$PSScriptRoot\Golden\report.txt" -Width 80
+    ///     $rows | Show-ConsoleTable -AsWidget | Assert-ConsoleOutput -GoldenPath "$PSScriptRoot\Golden\report.txt" -Width 80
     /// }</code>
     /// </example>
     [Cmdlet(VerbsLifecycle.Assert, "ConsoleOutput")]
@@ -29,10 +29,10 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(Mandatory = true, Position = 1)]
         public string GoldenPath { get; set; } = string.Empty;
 
-        /// <summary><para type="description">Width in cells (default 80).</para></summary>
+        /// <summary><para type="description">Width in cells (default 0: terminal width, falling back to 100).</para></summary>
         [Parameter]
-        [ValidateRange(1, 1000)]
-        public int Width { get; set; } = 80;
+        [ValidateRange(0, 1000)]
+        public int Width { get; set; }
 
         /// <summary><para type="description">Height in cells (default: as tall as the widget measures).</para></summary>
         [Parameter]

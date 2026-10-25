@@ -54,7 +54,7 @@ namespace ConsoleMonster.Examples {
                 viewport.Blit(summary, 0, summary.Height - shown, width, shown, 0, 0);
                 return viewport;
             }
-            RunItemSnapshot[] completed = tracker.Snapshot().Items.Where(i => i.State != StatusKind.Running && i.State != StatusKind.Pending).OrderBy(i => i.CompletionOrder).ToArray();
+            RunItemSnapshot[] completed = tracker.Snapshot().Items.Where(i => i.Status != StatusKind.Running && i.Status != StatusKind.Pending).OrderBy(i => i.CompletionOrder).ToArray();
             void Log(int rows, bool progress = false) {
                 int itemRows = Math.Max(0, rows - (progress ? 1 : 0));
                 int y = 0;

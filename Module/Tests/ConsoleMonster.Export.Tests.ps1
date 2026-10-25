@@ -5,7 +5,7 @@ Describe 'ConsoleMonster exports' {
 
     It 'exports a widget to a self-contained HTML page with both themes' {
         $path = Join-Path $TestDrive 'panel.html'
-        New-ConsolePanel -Title 'Status' { New-ConsoleText 'All <good> & "fine"' } | Export-ConsoleFrame -Path $path -Width 40
+        New-ConsolePanel -Title 'Status' -Content { New-ConsoleText 'All <good> & "fine"' } | Export-ConsoleFrame -Path $path -Width 40
         $html = Get-Content -LiteralPath $path -Raw -Encoding UTF8
         $html | Should -Match '<!DOCTYPE html>'
         $screens = [regex]::Matches($html, '(?s)<pre\b[^>]*\bclass="([^"]*)"[^>]*>(.*?)</pre>')
@@ -25,20 +25,20 @@ Describe 'ConsoleMonster exports' {
 
     It 'exports SVG and text, and picks the format from the extension' {
         $svg = Join-Path $TestDrive 'bar.svg'
-        $file = New-ConsolePanel -Title 'Failures' { New-ConsoleBarChart -Data @{ DNS = 3; Kerberos = 1 } } | Export-ConsoleFrame -Path $svg -Width 50 -Theme Dark -Title 'Chart' -WindowChrome -PassThru
+        $file = New-ConsolePanel -Title 'Failures' -Content { New-ConsoleBarChart -InputObject @{ DNS = 3; Kerberos = 1 } } | Export-ConsoleFrame -Path $svg -Width 50 -Theme Dark -Title 'Chart' -WindowChrome -PassThru
         $file | Should -BeOfType System.IO.FileInfo
         $content = Get-Content -LiteralPath $svg -Raw -Encoding UTF8
         $content | Should -Match '^<svg xmlns="http://www.w3.org/2000/svg"'
         $content | Should -Match '<title>Chart</title>'
         $content | Should -Match 'class="cm-t'
-        $text = New-ConsolePanel -Title 'Failures' { New-ConsoleBarChart -Data @{ DNS = 3 } } | Export-ConsoleFrame -Format Text -Width 40
+        $text = New-ConsolePanel -Title 'Failures' -Content { New-ConsoleBarChart -InputObject @{ DNS = 3 } } | Export-ConsoleFrame -Format Text -Width 40
         $text | Should -Match 'Failures'
         $text | Should -Match 'DNS'
     }
 
-    It 'exports Format-ConsoleTable -AsWidget and plain objects as tables' {
+    It 'exports Show-ConsoleTable -AsWidget and plain objects as tables' {
         $rows = @([pscustomobject] @{ Name = 'FS01'; Free = 41 }, [pscustomobject] @{ Name = 'WEB01'; Free = 12 })
-        $widget = $rows | Format-ConsoleTable -AsWidget
+        $widget = $rows | Show-ConsoleTable -AsWidget
         $widget.GetType().Name | Should -Be 'Table'
         $text = $widget | Export-ConsoleFrame -Format Text -Width 40
         $text | Should -Match 'Name'
@@ -64,7 +64,7 @@ Describe 'ConsoleMonster exports' {
             '{"t":1200,"target":"build","op":"advance","value":5}'
         )
         [IO.File]::WriteAllLines($recording, $lines)
-        $dashboard = New-ConsoleDashboard -Title 'Build' { New-ConsoleProgress -Name build -Label 'Build' -Total 10 }
+        $dashboard = New-ConsoleDashboard -Title 'Build' -Content { New-ConsoleProgress -WidgetId build -Label 'Build' -Total 10 }
 
         $html = Export-ConsoleRecording -Dashboard $dashboard -Path $recording -Format Html -Width 60 -Height 8
         $html | Should -Match '<script>'
@@ -72,16 +72,25 @@ Describe 'ConsoleMonster exports' {
         $html | Should -Match 'ConsoleMonsterPlayer'
         $html | Should -Not -Match 'src="http'
 
-        # Markdown is a frame format. Recording destinations keep their existing HTML fallback for other extensions.
-        foreach ($extension in 'txt', 'md', 'markdown') {
+        # Text keeps its existing dashboard HTML fallback; Markdown is owned by the bundled add-on.
+        foreach ($extension in 'txt') {
             $fallbackPath = Join-Path $TestDrive ('run.' + $extension)
             Export-ConsoleRecording -Dashboard $dashboard -Path $recording -Destination $fallbackPath -Width 60 -Height 8
             Get-Content -LiteralPath $fallbackPath -Raw -Encoding UTF8 | Should -Match 'ConsoleMonsterPlayer'
         }
+        foreach ($extension in 'md', 'markdown') {
+            $markdownPath = Join-Path $TestDrive ('run.' + $extension)
+            Export-ConsoleRecording -Dashboard $dashboard -Path $recording -Destination $markdownPath -Width 60 -Height 16
+            $markdown = Get-Content -LiteralPath $markdownPath -Raw -Encoding UTF8
+            $markdown | Should -Match '^### 00:00:00'
+            $markdown | Should -Match '```text'
+            $markdown | Should -Match 'Build'
+            $markdown | Should -Not -Match '<html|ConsoleMonsterPlayer'
+        }
 
         $dataPath = Join-Path $TestDrive 'run.json'
         $fenced = Export-ConsoleRecording -Dashboard $dashboard -Path $recording -Format FencedText -Width 60 -Height 8
-        $fenced | Should -Be (Export-ConsoleRecording -Dashboard $dashboard -Path $recording -Format Html -Width 60 -Height 8)
+        $fenced | Should -Be (Export-ConsoleRecording -Dashboard $dashboard -Path $recording -Format Markdown -Width 60 -Height 8)
         Export-ConsoleRecording -Dashboard $dashboard -Path $recording -Destination $dataPath -Width 60 -Height 8
         $data = Get-Content -LiteralPath $dataPath -Raw -Encoding UTF8 | ConvertFrom-Json
         $data.format | Should -Be 'consolemonster-player'

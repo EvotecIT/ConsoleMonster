@@ -31,17 +31,13 @@ namespace ConsoleMonster.Export {
         Text = 2,
 
         /// <summary>An asciicast file for terminal players: v2 for terminal sessions, v3 for dashboard recordings.</summary>
-        Asciicast = 3,
+        Asciicast = 3
 
-        /// <summary>Semantic Markdown tables, records and trees; rendered frames retain a fenced fallback.</summary>
-        Markdown = 4,
 
-        /// <summary>The exact text layout inside a Markdown text fence.</summary>
-        FencedText = 5
     }
 
     /// <summary>
-    /// How a widget, a rendered frame or a live-session snapshot is exported to HTML, SVG, Markdown or text: the size in cells, the
+    /// How a widget, a rendered frame or a live-session snapshot is exported to HTML, SVG or text: the size in cells, the
     /// theme, the font, and an optional window frame with a title bar.
     /// </summary>
     public sealed class ExportOptions {
@@ -52,8 +48,8 @@ namespace ConsoleMonster.Export {
         /// </summary>
         public const string DefaultFontFamily = "'Cascadia Mono', 'Cascadia Code', 'DejaVu Sans Mono', Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace";
 
-        /// <summary>Width in cells for widgets (frames and snapshots keep their own size). Default 100.</summary>
-        public int Width { get; set; } = 100;
+        /// <summary>Width in cells for widgets (frames and snapshots keep their own size). Zero resolves the current target width, falling back to 100 cells.</summary>
+        public int Width { get; set; }
 
         /// <summary>Height in cells for widgets; 0 (default) uses the height the widget measures at <see cref="Width"/>.</summary>
         public int Height { get; set; }

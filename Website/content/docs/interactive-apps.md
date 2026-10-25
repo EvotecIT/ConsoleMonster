@@ -25,8 +25,8 @@ The input has a name, and that name is the key in the application's state. The b
 <div class="cm-lang" data-lang="powershell">
 
 ```powershell
-New-ConsoleTextInput -Name Query -Label Query -Placeholder 'Host, role, site or status'
-New-ConsoleBinding {
+New-ConsoleTextInput -Key Query -Label Query -Placeholder 'Host, role, site or status'
+New-ConsoleBinding -Content {
     param($State)
     $matches = @(& $matchingHosts $State)
     "[bold]$($matches.Count)[/] of $($hosts.Count) hosts"
@@ -47,7 +47,7 @@ new AppBinding(state => Results(state.Get<string>("Query", string.Empty)))
 
 </div>
 
-- **State.** `New-ConsoleTextInput -Name Query` stores the text in `$State.Query`; in C#, `TextInput("Query")` writes it to `AppState`, and `state.Get<string>("Query", string.Empty)` reads it.
+- **State.** `New-ConsoleTextInput -Key Query` stores the text in `$State.Query`; in C#, `TextInput("Query")` writes it to `AppState`, and `state.Get<string>("Query", string.Empty)` reads it.
 - **Dependent widgets.** The count and the table come from one snapshot of the query, so they always agree. The input stays where it is while the binding rebuilds what is below it, and the Status column uses the built-in status presenter.
 - **The loop.** `Show-ConsoleApp` and `ConsoleApp.Run` drive the existing live renderer: keys go to the focused control, the binding runs, the screen redraws only the cells that changed. The layout itself is ordinary composition (`New-ConsoleRows` or `Rows`).
 - **The result.** `ConsoleApp.Run` returns the final state when the application ends; in PowerShell, `Show-ConsoleApp -PassThru` returns the named values.

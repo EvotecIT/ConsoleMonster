@@ -13,7 +13,7 @@ The general form behind the Update-* cmdlets, for custom widgets and less common
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Send-ConsoleEvent [-Target] <string> [-Operation] <string> [-Key <string>] [-Text <string>] [-State <string>] [-Value <double>] [-Total <double>] [-TimeMilliseconds <long>] [-Session <LiveSession>] [<CommonParameters>]
+Send-ConsoleEvent [-WidgetId] <string> [-Operation] <string> [-Key <string>] [-Text <string>] [-Status <string>] [-Value <double>] [-Total <double>] [-TimeMilliseconds <long>] [-Session <LiveSession>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,7 +25,7 @@ The general form behind the Update-* cmdlets, for custom widgets and less common
 
 ### EXAMPLE 1
 ```powershell
-Send-ConsoleEvent -Target dashboard -Operation status -Text 'deploying wave 2' -State running
+Send-ConsoleEvent -WidgetId dashboard -Operation status -Text 'deploying wave 2' -Status running
 ```
 
 Change the dashboard status in the header
@@ -80,7 +80,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -State
+### -Status
 A state word.
 
 ```yaml
@@ -91,22 +91,6 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Target
-The widget name.
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: True
-Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -171,6 +155,22 @@ Possible values:
 
 Required: False
 Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WidgetId
+The widget name.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: True
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

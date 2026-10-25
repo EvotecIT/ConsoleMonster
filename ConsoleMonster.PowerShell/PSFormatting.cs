@@ -345,7 +345,7 @@ namespace ConsoleMonster.PowerShell {
             return culture ?? Terminal.Profile.Culture ?? CultureInfo.CurrentCulture;
         }
 
-        internal static void Write(PSCmdlet cmdlet, IWidget widget, int width, CultureInfo? culture = null) {
+        internal static void Write(PSCmdlet cmdlet, IWidget widget, int width, CultureInfo? culture = null, bool appendBlankLine = true) {
             TerminalProfile profile = Terminal.GetCurrentProfile();
             if (culture != null) {
                 profile = profile.WithCulture(culture);
@@ -354,13 +354,13 @@ namespace ConsoleMonster.PowerShell {
                 profile = profile.WithSize(width, profile.Height);
             }
             // A blank line after each block, as Format-Table does, so consecutive outputs stay apart.
-            HostOutput.Write(cmdlet, new Rows(widget, new TextBlock(string.Empty)), profile, width > 0);
+            HostOutput.Write(cmdlet, appendBlankLine ? new Rows(widget, new TextBlock(string.Empty)) : widget, profile, width > 0);
         }
 
         /// <summary>
-        /// The output of a Format-Console* command, so every PowerShell consumer gets it:
+        /// The output of a structured Show-Console command, so every PowerShell consumer gets it:
         /// <list type="bullet">
-        /// <item>-AsString: one string of plain text (colour only with $PSStyle.OutputRendering Ansi);</item>
+        /// <item>-AsString: one string of plain text;</item>
         /// <item>followed by another command (| Out-String, | Out-File, | Set-Content, | more): the rendered lines as strings;</item>
         /// <item>PowerShell 7.2+ on a local console, typed at the prompt (or run by -Command) and last in its pipeline: a
         /// <see cref="ConsoleRendering"/> object that ConsoleMonster's format view draws in colour, while $x = ..., &gt; file,
@@ -372,19 +372,14 @@ namespace ConsoleMonster.PowerShell {
         /// With -PassThru the view is drawn through the host and the input objects are written instead; -AsString and
         /// -PassThru together are refused, as one stream would mix text and objects.
         /// </summary>
-        internal static void Emit(PSCmdlet cmdlet, IWidget widget, int width, CultureInfo? culture, bool asString, bool passThru = false) {
-            if (cmdlet.MyInvocation.BoundParameters.TryGetValue("As", out object? requested) && requested is string format) {
-                PSOutputExport.Validate(cmdlet);
-                cmdlet.WriteObject(Export(widget, PSOutputExport.Format(format), width, culture));
-                return;
-            }
+        internal static void Emit(PSCmdlet cmdlet, IWidget widget, int width, CultureInfo? culture, bool asString, bool passThru = false, bool appendBlankLine = true) {
             if (asString && passThru) {
                 cmdlet.ThrowTerminatingError(new ErrorRecord(
                     new ArgumentException("-AsString and -PassThru cannot be used together: -AsString writes the view as text, -PassThru writes the input objects."),
                     "AsStringWithPassThru", ErrorCategory.InvalidArgument, null));
             }
             if (asString) {
-                cmdlet.WriteObject(CaptureText(cmdlet, widget, width, culture));
+                cmdlet.WriteObject(WidgetFormatter.Render(widget, cmdlet.Host, "PlainText", width, culture));
                 return;
             }
             if (!passThru && cmdlet.MyInvocation.PipelinePosition < cmdlet.MyInvocation.PipelineLength) {
@@ -399,15 +394,11 @@ namespace ConsoleMonster.PowerShell {
             bool fits = width <= 0 || hostWidth <= 0 || width <= hostWidth;
             if (!passThru && fits && EmitsRendering(cmdlet)) {
                 // A blank line after the block, as Format-Table and the host route print.
-                cmdlet.WriteObject(new ConsoleRendering(new Rows(widget, new TextBlock(string.Empty)), width, culture));
+                cmdlet.WriteObject(new ConsoleRendering(appendBlankLine ? new Rows(widget, new TextBlock(string.Empty)) : widget, width, culture));
                 return;
             }
-            Write(cmdlet, widget, width, culture);
+            Write(cmdlet, widget, width, culture, appendBlankLine);
         }
-
-        /// <summary>Exports an already-built view for Format-Console*, registered views or native-format adapters. No host output or ANSI rendering is involved.</summary>
-        internal static string Export(IWidget widget, ConsoleMonster.Export.ExportFormat format, int width = 0, CultureInfo? culture = null) =>
-            ConsoleMonster.Export.ConsoleExporter.Export(widget, format, new ConsoleMonster.Export.ExportOptions { Width = width > 0 ? width : 100, Culture = culture });
 
         // Text for a capturing consumer: plain unless $PSStyle.OutputRendering is Ansi.
         private static string CaptureText(PSCmdlet cmdlet, IWidget widget, int width, CultureInfo? culture) =>

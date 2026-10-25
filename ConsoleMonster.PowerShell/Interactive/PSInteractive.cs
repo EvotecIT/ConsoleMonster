@@ -272,7 +272,7 @@ namespace ConsoleMonster.PowerShell {
             }
             string text = Text(raw);
             foreach (Choice c in choices) {
-                if (string.Equals(c.Title, text, StringComparison.OrdinalIgnoreCase) || string.Equals(Text(c.Value), text, StringComparison.OrdinalIgnoreCase)) {
+                if (string.Equals(c.Label, text, StringComparison.OrdinalIgnoreCase) || string.Equals(Text(c.Value), text, StringComparison.OrdinalIgnoreCase)) {
                     return c;
                 }
             }
@@ -431,8 +431,8 @@ namespace ConsoleMonster.PowerShell {
         /// <summary>Turns the cancellation and unavailable errors of prompts into PowerShell errors.</summary>
         public static void Fail(PSCmdlet cmdlet, Exception ex, string title) {
             switch (ex) {
-                case PromptCancelledException cancelled:
-                    cmdlet.ThrowTerminatingError(new ErrorRecord(cancelled, "PromptCancelled", ErrorCategory.OperationStopped, title));
+                case PromptCanceledException cancelled:
+                    cmdlet.ThrowTerminatingError(new ErrorRecord(cancelled, "PromptCanceled", ErrorCategory.OperationStopped, title));
                     return;
                 case PromptUnavailableException unavailable:
                     cmdlet.ThrowTerminatingError(new ErrorRecord(unavailable, "PromptNeedsValue", ErrorCategory.InvalidOperation, title));

@@ -265,7 +265,7 @@ namespace ConsoleMonster.Interactive {
                             Style focus = context.Style(ThemeToken.Focus);
                             region.Fill(2, y, region.Width - 2, 1, " ", focus);
                             style = focus.With(TextDecoration.Bold);
-                            region.Put(2, y, g.FocusBar, context.Style(ThemeToken.Accent).WithBackground(focus.Background));
+                            region.Put(2, y, g.FocusBar, context.Style(ThemeToken.Accent).WithBackgroundColor(focus.BackgroundColor));
                         } else if (focused) {
                             region.Put(2, y, g.FocusBar, context.Style(ThemeToken.Accent));
                         }

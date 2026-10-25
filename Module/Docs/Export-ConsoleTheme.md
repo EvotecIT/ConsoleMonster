@@ -33,7 +33,7 @@ Export the current theme, edit its token definitions and apply it.
 
 ### EXAMPLE 2
 ```powershell
-Set-ConsoleTheme -Name ColorBlindSafe
+Set-ConsoleTheme -Theme ColorBlindSafe
             Export-ConsoleTheme -Path ./accessible.psd1 -PassThru
 ```
 

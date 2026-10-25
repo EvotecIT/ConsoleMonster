@@ -22,7 +22,7 @@ namespace ConsoleMonster.Interactive {
         public IList<Field> Fields { get; } = new List<Field>();
 
         /// <summary>Adds a field.</summary>
-        /// <typeparam name="T">The field type.</typeparam>
+        /// <typeparam key="T">The field type.</typeparam>
         /// <param name="field">The field.</param>
         /// <returns>The field.</returns>
         public T Add<T>(T field) where T : Field {
@@ -31,42 +31,42 @@ namespace ConsoleMonster.Interactive {
         }
 
         /// <summary>Adds a text field.</summary>
-        /// <param name="name">The key.</param>
+        /// <param name="key">The key.</param>
         /// <param name="label">The label.</param>
         /// <returns>The field.</returns>
-        public TextField Text(string name, string? label = null) => Add(new TextField(name, label));
+        public TextField Text(string key, string? label = null) => Add(new TextField(key, label));
 
         /// <summary>Adds a field for several lines of text.</summary>
-        /// <param name="name">The key.</param>
+        /// <param name="key">The key.</param>
         /// <param name="label">The label.</param>
         /// <returns>The field.</returns>
-        public TextAreaField TextArea(string name, string? label = null) => Add(new TextAreaField(name, label));
+        public TextAreaField TextArea(string key, string? label = null) => Add(new TextAreaField(key, label));
 
         /// <summary>Adds a secret field.</summary>
-        /// <param name="name">The key.</param>
+        /// <param name="key">The key.</param>
         /// <param name="label">The label.</param>
         /// <returns>The field.</returns>
-        public SecretField Secret(string name, string? label = null) => Add(new SecretField(name, label));
+        public SecretField Secret(string key, string? label = null) => Add(new SecretField(key, label));
 
         /// <summary>Adds a number field.</summary>
-        /// <param name="name">The key.</param>
+        /// <param name="key">The key.</param>
         /// <param name="label">The label.</param>
         /// <returns>The field.</returns>
-        public NumberField Number(string name, string? label = null) => Add(new NumberField(name, label));
+        public NumberField Number(string key, string? label = null) => Add(new NumberField(key, label));
 
         /// <summary>Adds a toggle.</summary>
-        /// <param name="name">The key.</param>
+        /// <param name="key">The key.</param>
         /// <param name="label">The label.</param>
         /// <returns>The field.</returns>
-        public ToggleField Toggle(string name, string? label = null) => Add(new ToggleField(name, label));
+        public ToggleField Toggle(string key, string? label = null) => Add(new ToggleField(key, label));
 
         /// <summary>Adds a single-choice field.</summary>
-        /// <param name="name">The key.</param>
+        /// <param name="key">The key.</param>
         /// <param name="label">The label.</param>
         /// <param name="choices">The choices.</param>
         /// <returns>The field.</returns>
-        public ChoiceField Select(string name, string? label = null, IEnumerable<Choice>? choices = null) {
-            ChoiceField field = Add(new ChoiceField(name, label, false));
+        public ChoiceField Select(string key, string? label = null, IEnumerable<Choice>? choices = null) {
+            ChoiceField field = Add(new ChoiceField(key, label, false));
             if (choices != null) {
                 foreach (Choice c in choices) {
                     field.Choices.Add(c);
@@ -76,12 +76,12 @@ namespace ConsoleMonster.Interactive {
         }
 
         /// <summary>Adds a multi-choice field.</summary>
-        /// <param name="name">The key.</param>
+        /// <param name="key">The key.</param>
         /// <param name="label">The label.</param>
         /// <param name="choices">The choices.</param>
         /// <returns>The field.</returns>
-        public ChoiceField MultiSelect(string name, string? label = null, IEnumerable<Choice>? choices = null) {
-            ChoiceField field = Add(new ChoiceField(name, label, true));
+        public ChoiceField MultiSelect(string key, string? label = null, IEnumerable<Choice>? choices = null) {
+            ChoiceField field = Add(new ChoiceField(key, label, true));
             if (choices != null) {
                 foreach (Choice c in choices) {
                     field.Choices.Add(c);
@@ -91,9 +91,9 @@ namespace ConsoleMonster.Interactive {
         }
 
         /// <summary>Adds a path field.</summary>
-        /// <param name="name">The key.</param>
+        /// <param name="key">The key.</param>
         /// <param name="label">The label.</param>
         /// <returns>The field.</returns>
-        public PathField Path(string name, string? label = null) => Add(new PathField(name, label));
+        public PathField Path(string key, string? label = null) => Add(new PathField(key, label));
     }
 }

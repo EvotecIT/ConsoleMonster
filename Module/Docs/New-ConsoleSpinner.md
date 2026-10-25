@@ -13,7 +13,7 @@ While running it animates (braille on modern fonts, | / - \ on Basic and ASCII) 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleSpinner [[-Label] <Object>] [-Detail <Object>] [-Status <StatusKind>] [-Name <string>] [-NoElapsed] [<CommonParameters>]
+New-ConsoleSpinner [[-WidgetId] <string>] [[-Label] <Object>] [-Detail <Object>] [-Status <StatusKind>] [-NoElapsed] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,8 +25,8 @@ While running it animates (braille on modern fonts, | / - \ on Basic and ASCII) 
 
 ### EXAMPLE 1
 ```powershell
-$d = New-ConsoleDashboard -Title 'Sync' { New-ConsoleSpinner -Label 'Resolving DNS' }
-Start-ConsoleDashboard $d { Start-Sleep 2; Update-ConsoleSpinner -Status Pass -Detail '42 zones' }
+$d = New-ConsoleDashboard -Title 'Sync' -Content { New-ConsoleSpinner -Label 'Resolving DNS' }
+Invoke-ConsoleDashboard $d { Start-Sleep 2; Update-ConsoleSpinner -Status Pass -Detail '42 zones' }
 ```
 
 A spinner inside a dashboard, finished from the script
@@ -59,23 +59,7 @@ Aliases: None
 Possible values:
 
 Required: False
-Position: 0
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Name
-The live name (default spinner).
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
+Position: 1
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -108,6 +92,22 @@ Possible values: Pending, Running, Pass, Fail, Warn, Skip, Info
 
 Required: False
 Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WidgetId
+The live name (default spinner).
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

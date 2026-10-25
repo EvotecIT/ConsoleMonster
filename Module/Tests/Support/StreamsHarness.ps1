@@ -1,4 +1,4 @@
-# Helpers run only in the isolated child process used by ConsoleMonster.Streams.Tests.ps1.
+﻿# Helpers run only in the isolated child process used by ConsoleMonster.Streams.Tests.ps1.
 function Get-StreamsProperties {
     <# .SYNOPSIS
     Returns the native properties owned by Streams on the current runtime.
@@ -63,18 +63,18 @@ function Get-StreamsExpected {
     if ($PSVersionTable.PSVersion -ge [version] '7.2') {
         foreach ($stream in 'Warning', 'Verbose', 'Debug', 'Error') {
             $style = $theme.Resolve([ConsoleMonster.Styling.ThemeToken] $roles[$stream], 'TrueColor')
-            $expected[$stream] = [ConsoleMonster.Rendering.SgrEncoder]::Encode($style, 'TrueColor')
+            $expected[$stream] = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Rendering.SgrEncoder'))::Encode($style, 'TrueColor')
         }
-        $expected.Style = [ConsoleMonster.Rendering.SgrEncoder]::Encode($theme.Resolve('Running', 'TrueColor'), 'TrueColor')
+        $expected.Style = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Rendering.SgrEncoder'))::Encode($theme.Resolve('Running', 'TrueColor'), 'TrueColor')
     } else {
         $profile = [ConsoleMonster.Terminal]::Profile.WithColorDepth('Ansi16')
-        $context = [ConsoleMonster.Canvas.RenderContext]::new($profile, $theme, $null, 0, [timespan]::Zero)
-        $map = [ConsoleMonster.Styling.ConsoleColorMap]::new($context)
+        $context = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Canvas.RenderContext'))::new($profile, $theme, $null, 0, [timespan]::Zero)
+        $map = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Styling.ConsoleColorMap'))::new($context)
         foreach ($stream in 'Warning', 'Verbose', 'Debug', 'Progress') {
             $style = $context.Style([ConsoleMonster.Styling.ThemeToken] $roles[$stream])
             # Stream preferences need concrete palette colours, including colours shared with text-like roles.
-            if ($expected.ContainsKey($stream + 'ForegroundColor')) { $expected[$stream + 'ForegroundColor'] = $map.Background($style.Foreground) }
-            $background = $map.Background($style.Background)
+            if ($expected.ContainsKey($stream + 'ForegroundColor')) { $expected[$stream + 'ForegroundColor'] = $map.Background($style.Color) }
+            $background = $map.Background($style.BackgroundColor)
             if ($null -eq $background) {
                 try { $background = $Host.UI.RawUI.BackgroundColor } catch [System.NotSupportedException] { }
             }

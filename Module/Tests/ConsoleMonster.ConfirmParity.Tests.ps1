@@ -8,23 +8,23 @@ Describe 'Typed confirmation warning parity' {
         @{ UseWarning = $false }
     ) {
         param($UseWarning)
-        $saved = [ConsoleMonster.Interactive.InteractiveOptions]::Default
+        $saved = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default
         try {
-            $target = [ConsoleMonster.Testing.TestTerminal]::Target(80, 16, 'Full', 'None', [cultureinfo]::InvariantCulture, "'inventory' Enter")
-            $options = [ConsoleMonster.Interactive.InteractiveOptions]::new()
+            $target = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Testing.TestTerminal'))::Target(80, 16, 'Full', 'None', [cultureinfo]::InvariantCulture, "'inventory' Enter")
+            $options = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::new()
             $options.Target = $target
             $options.Mode = 'Rich'
-            [ConsoleMonster.Interactive.InteractiveOptions]::Default = $options
+            ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default = $options
             $parameters = @{ Title = 'Remove inventory?'; TypedConfirmation = 'inventory'; Description = 'Description fallback'; Mode = 'Rich' }
             if ($UseWarning) { $parameters.Warning = 'Explicit warning' }
             $actual = Read-ConsoleConfirm @parameters
             $actualFrames = @($target.Screens.Frames | ForEach-Object { $_.ToPlainText() }) -join "`n"
 
-            $expectedTarget = [ConsoleMonster.Testing.TestTerminal]::Target(80, 16, 'Full', 'None', [cultureinfo]::InvariantCulture, "'inventory' Enter")
-            $expectedOptions = [ConsoleMonster.Interactive.InteractiveOptions]::new()
+            $expectedTarget = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Testing.TestTerminal'))::Target(80, 16, 'Full', 'None', [cultureinfo]::InvariantCulture, "'inventory' Enter")
+            $expectedOptions = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::new()
             $expectedOptions.Target = $expectedTarget
             $expectedOptions.Mode = 'Rich'
-            $prompt = [ConsoleMonster.Interactive.TypedConfirmPrompt]::new('Remove inventory?', 'inventory')
+            $prompt = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.TypedConfirmPrompt'))::new('Remove inventory?', 'inventory')
             $prompt.Warning = if ($UseWarning) { 'Explicit warning' } else { 'Description fallback' }
             $expected = $prompt.Show($expectedOptions)
             $expectedFrames = @($expectedTarget.Screens.Frames | ForEach-Object { $_.ToPlainText() }) -join "`n"
@@ -34,7 +34,7 @@ Describe 'Typed confirmation warning parity' {
             $actualFrames | Should -Match ([regex]::Escape($prompt.Warning))
             if ($UseWarning) { $actualFrames | Should -Not -Match 'Description fallback' }
         } finally {
-            [ConsoleMonster.Interactive.InteractiveOptions]::Default = $saved
+            ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default = $saved
         }
     }
 }

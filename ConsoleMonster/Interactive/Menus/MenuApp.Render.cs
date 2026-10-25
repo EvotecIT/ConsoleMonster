@@ -34,7 +34,7 @@ namespace ConsoleMonster.Interactive {
                     continue;
                 }
                 if (_stack[i].Pane is RunPane && _stack[i].Item is MenuItem runItem) {
-                    AddCrumb(crumbs, runItem.Title);
+                    AddCrumb(crumbs, runItem.Label);
                 }
                 AddCrumb(crumbs, _stack[i].Title);
             }
@@ -82,7 +82,7 @@ namespace ConsoleMonster.Interactive {
             if (!narrow) {
                 bool sidebarFocused = !_contentFocused && _modals.Count == 0;
                 Panel sidebar = new Panel(_sidebar.Build(frame, sidebarFocused), (string?)null) {
-                    BorderToken = sidebarFocused ? ThemeToken.Accent : ThemeToken.Border,
+                    BorderRole = sidebarFocused ? ThemeToken.Accent : ThemeToken.Border,
                     PaddingLeft = 0,
                     PaddingRight = 1,
                     PaddingTop = 1
@@ -110,8 +110,8 @@ namespace ConsoleMonster.Interactive {
             int widest = 0;
             foreach (MenuItem item in _root.Items) {
                 string? icon = item.IconText(frame.Context.Glyphs);
-                int width = DisplayWidth.Measure(item.Title) + (icon == null ? 0 : DisplayWidth.Measure(icon) + 1);
-                string? state = item.CurrentState;
+                int width = DisplayWidth.Measure(item.Label) + (icon == null ? 0 : DisplayWidth.Measure(icon) + 1);
+                string? state = item.CurrentDetail;
                 if (!string.IsNullOrEmpty(state)) {
                     width += DisplayWidth.Measure(state) + 2;
                 }
@@ -128,8 +128,8 @@ namespace ConsoleMonster.Interactive {
             string title = Current?.PanelTitle ?? Current?.Title ?? _root.Title;
             IWidget inner = pane == null ? (IWidget)UiLine.Empty : pane.Build(frame, focused);
             return new Panel(new Padding(inner, 1, 1, 1, 0), Markup.Escape(title)) {
-                Caption = pane?.Caption == null ? null : Markup.Escape(pane.Caption),
-                BorderToken = focused && UsesSidebar ? ThemeToken.Accent : ThemeToken.Border
+                HeaderRight = pane?.Caption == null ? null : Markup.Escape(pane.Caption),
+                BorderRole = focused && UsesSidebar ? ThemeToken.Accent : ThemeToken.Border
             };
         }
 
@@ -164,8 +164,8 @@ namespace ConsoleMonster.Interactive {
                 height = Math.Min(frame.Height - 2, Math.Max(8, measured.Height + 3));
             }
             Panel card = new Panel(new Padding(inner, 1, 1, 1, 0), Markup.Escape(title)) {
-                Caption = pane?.Caption == null ? null : Markup.Escape(pane.Caption),
-                BorderToken = ThemeToken.Accent,
+                HeaderRight = pane?.Caption == null ? null : Markup.Escape(pane.Caption),
+                BorderRole = ThemeToken.Accent,
                 Height = Math.Max(6, height)
             };
             Rows column = new Rows();

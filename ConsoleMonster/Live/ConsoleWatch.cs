@@ -10,7 +10,7 @@ namespace ConsoleMonster.Live {
         private TimeSpan _interval = TimeSpan.FromSeconds(2);
 
         /// <summary>The time between the end of one run and the start of the next (default 2 seconds, at least 50 ms).</summary>
-        public TimeSpan Interval {
+        public TimeSpan PollInterval {
             get => _interval;
             set => _interval = value < MinimumInterval ? MinimumInterval : value;
         }
@@ -31,7 +31,7 @@ namespace ConsoleMonster.Live {
         /// Whether to show a live view (true), print each run (false), or decide from the terminal (null, default): a live
         /// view only on an interactive terminal.
         /// </summary>
-        public bool? Interactive { get; set; }
+        public bool? Live { get; set; }
 
         /// <summary>The live session's options for the interactive view (inline with the final frame kept, by default).</summary>
         public LiveSessionOptions? Session { get; set; }
@@ -82,8 +82,8 @@ namespace ConsoleMonster.Live {
                 throw new ArgumentNullException(nameof(produce));
             }
             WatchOptions o = options ?? new WatchOptions();
-            WatchView view = new WatchView { Title = o.Title, Interval = o.Interval, Differences = o.Differences };
-            bool live = o.Interactive ?? Terminal.GetCurrentProfile().Mode == OutputMode.Interactive;
+            WatchView view = new WatchView { Title = o.Title, PollInterval = o.PollInterval, Differences = o.Differences };
+            bool live = o.Live ?? Terminal.GetCurrentProfile().Mode == OutputMode.Interactive;
             if (!live) {
                 return Loop(produce, o, view, null, cancellationToken);
             }
@@ -123,7 +123,7 @@ namespace ConsoleMonster.Live {
                     break;
                 }
                 if (session != null) {
-                    session.Post(new LiveEvent(view.Name, "update", value: runs, text: status) { Payload = content });
+                    session.Post(new LiveEvent(view.WidgetId, "update", value: runs, text: status) { Payload = content });
                 } else {
                     view.Update(content, runs, status);
                     if (o.Print != null) {
@@ -136,9 +136,9 @@ namespace ConsoleMonster.Live {
                     break;
                 }
                 if (o.Delay != null) {
-                    o.Delay(o.Interval, token);
+                    o.Delay(o.PollInterval, token);
                 } else {
-                    token.WaitHandle.WaitOne(o.Interval);
+                    token.WaitHandle.WaitOne(o.PollInterval);
                 }
             }
             return runs;

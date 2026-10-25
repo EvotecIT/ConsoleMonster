@@ -88,7 +88,7 @@ namespace SiteFrames.Capture {
             // this repository's build. The check stops a capture that would record an installed version instead.
             sb.Append("$env:PSModulePath = '").Append(modules.Replace("'", "''")).Append("' + [IO.Path]::PathSeparator + $env:PSModulePath\n");
             sb.Append("Import-Module ConsoleMonster -Force\n");
-            sb.Append("$cmdlets = (Get-Command Write-ConsoleWidget -ErrorAction SilentlyContinue).DLL\n");
+            sb.Append("$cmdlets = (Get-Command Show-Console -ErrorAction SilentlyContinue).DLL\n");
             sb.Append("if (@(Get-Module ConsoleMonster).Count -ne 1 -or -not $cmdlets -or -not $cmdlets.StartsWith('").Append(modules.Replace("'", "''")).Append("', [StringComparison]::OrdinalIgnoreCase)) { throw 'ConsoleMonster did not load from this repository (build ConsoleMonster.PowerShell first)' }\n");
             sb.Append("Set-Location -LiteralPath '").Append(directory.Replace("'", "''")).Append("'\n");
             if (prompt != null) {

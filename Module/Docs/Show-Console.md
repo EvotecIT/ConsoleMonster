@@ -13,7 +13,7 @@ One object becomes an inspector; objects of one shape a table (cards when the wi
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Show-Console [[-InputObject] <psobject>] [-View <ConsoleViewKind>] [-Property <Object[]>] [-ChildProperty <string>] [-Chart] [-Title <Object>] [-Width <int>] [-Depth <int>] [-AsString] [<CommonParameters>]
+Show-Console [[-InputObject] <psobject>] [-Property <Object[]>] [-Title <Object>] [-Width <int>] [-Depth <int>] [-AsString] [-AsWidget] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -55,27 +55,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Chart
-Shows objects as a bar chart (label from the first text property, value from the first number).
+### -AsWidget
+Returns the computed widget without drawing it.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -ChildProperty
-The property that holds each object's children, for a tree.
-
-```yaml
-Type: String
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -120,7 +104,7 @@ Accept wildcard characters: False
 ```
 
 ### -Property
-The properties for a table, as in Format-ConsoleTable (names, wildcards, calculated properties).
+The properties for a table, as in Show-ConsoleTable (names, wildcards, calculated properties).
 
 ```yaml
 Type: Object[]
@@ -143,22 +127,6 @@ Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -View
-The view instead of the automatic choice: Table, Cards, Tree, Inspector, Chart, Code, Text or Grid.
-
-```yaml
-Type: ConsoleViewKind
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values: Empty, Text, Code, Inspector, Table, Cards, Tree, Chart, Grid
 
 Required: False
 Position: named

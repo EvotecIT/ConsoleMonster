@@ -25,14 +25,14 @@ Adds empty space around console widgets.
 
 ### EXAMPLE 1
 ```powershell
-New-ConsolePanel -Title 'Padding' { New-ConsolePadding -Padding 2, 1 { 'two cells of padding' } } | Write-ConsoleWidget
+New-ConsolePanel -Title 'Padding' -Content { New-ConsolePadding -Padding 2, 1 -Content { 'two cells of padding' } } | Show-Console
 ```
 
 Two cells left and right, one row above and below
 
 ### EXAMPLE 2
 ```powershell
-New-ConsolePadding -Padding 4, 0, 0, 0 { New-ConsoleText -Markup '[muted]indented note[/]' } | Write-ConsoleWidget
+New-ConsolePadding -Padding 4, 0, 0, 0 -Content { New-ConsoleText -Markup '[muted]indented note[/]' } | Show-Console
 ```
 
 Indent a block by four cells

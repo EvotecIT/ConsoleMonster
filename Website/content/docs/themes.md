@@ -27,7 +27,7 @@ To switch for the rest of the session in PowerShell, or for every write that fol
 Import-Module ConsoleMonster
 
 Set-ConsoleTheme Light
-Write-ConsoleMarkup '[pass]√ 412 passed[/]  [warn]▲ 51 warnings[/]  [fail]✗ 23 failed[/]'
+Write-ConsoleText -Markup '[pass]√ 412 passed[/]  [warn]▲ 51 warnings[/]  [fail]✗ 23 failed[/]'
 ```
 
 </div>
@@ -70,14 +70,14 @@ Export a starting palette, edit its semantic tokens and load it for the session:
 ```powershell
 Import-Module ConsoleMonster
 
-Set-ConsoleTheme -Name Dark
+Set-ConsoleTheme -Theme Dark
 Export-ConsoleTheme -Path ./team-theme.json -PassThru
 # Edit the file, then apply it.
 Set-ConsoleTheme -Path ./team-theme.json
 Write-ConsoleText 'Deployment ready' -Role Pass
 ```
 
-Choose `Dark`, `Light`, `HighContrast` or `ColorBlindSafe` with `-Name`.
+Choose `Dark`, `Light`, `HighContrast` or `ColorBlindSafe` with `-Theme`.
 `ColorBlindSafe` uses blue/orange pass/fail colours and underlines failures on a
 dark background; status widgets retain their symbols and words. Export any preset
 as a starting file. Changing the widget theme does not change the terminal
@@ -121,7 +121,7 @@ Save [team-dark.json](/examples/themes/team-dark.json) and [team-light.json](/ex
 
 {{< cm-try key="theme-files" ids="theme-files-before-120,theme-files-after-120" project="ThemeReport" file="theme-files.ps1" run="pwsh ./theme-files.ps1 -BaseTheme Dark -Width 120" csrun="dotnet run -- ./team-dark.json" caption="The same report at 120 columns, before and after loading the team file. Switch the site theme to see the matching light palette." >}}
 
-On a light terminal use `-BaseTheme Light` and `team-light.json`. The script leaves the team theme active; `Set-ConsoleTheme -Name Dark` or `-Name Light` restores a built-in, and `-ExportDirectory ./presets` writes starting files for all four presets. Without an argument the C# program uses the current terminal theme; with a file it scopes the loaded palette to the report's output target with `Terminal.Use` and restores the target when the report finishes.
+On a light terminal use `-BaseTheme Light` and `team-light.json`. The script leaves the team theme active; `Set-ConsoleTheme -Theme Dark` or `-Theme Light` restores a built-in, and `-ExportDirectory ./presets` writes starting files for all four presets. Without an argument the C# program uses the current terminal theme; with a file it scopes the loaded palette to the report's output target with `Terminal.Use` and restores the target when the report finishes.
 
 {{< cm-frame ids="theme-files-before-60,theme-files-after-60" script="false" caption="The same programs at 60 columns. Status symbols, words and log levels stay visible in both palettes." >}}
 

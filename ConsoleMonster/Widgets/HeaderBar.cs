@@ -31,19 +31,19 @@ namespace ConsoleMonster.Widgets {
         public string? Subtitle { get; set; }
 
         /// <summary>Status text on the right (markup).</summary>
-        public string? Status { get; set; }
+        public string? Detail { get; set; }
 
         /// <summary>The status kind; its marker goes before the status text.</summary>
-        public StatusKind? StatusLevel { get; set; }
+        public StatusKind? Status { get; set; }
 
         /// <summary>Plain text on the right, before the clock (an app's subtitle, a step count).</summary>
         public string? Right { get; set; }
 
         /// <summary>Shows the elapsed clock on the right.</summary>
-        public bool ShowClock { get; set; }
+        public bool ShowElapsed { get; set; }
 
         /// <summary>The clock value; null uses the render context's elapsed time.</summary>
-        public TimeSpan? Clock { get; set; }
+        public TimeSpan? Elapsed { get; set; }
 
         /// <inheritdoc />
         public Size Measure(Constraints constraints, RenderContext context) => new Size(constraints.MaxWidth, Math.Min(1, constraints.MaxHeight));
@@ -55,7 +55,7 @@ namespace ConsoleMonster.Widgets {
             }
             Region bar = region.Sub(0, 0, region.Width, 1);
             Style surface = context.Style(ThemeToken.Surface);
-            bool hasSurface = context.HasColor && !surface.Background.IsDefault;
+            bool hasSurface = context.HasColor && !surface.BackgroundColor.IsDefault;
             if (hasSurface) {
                 bar.Fill(surface);
             }
@@ -67,19 +67,19 @@ namespace ConsoleMonster.Widgets {
             // The right side in parts; when the row is narrow they give way in this order: the free text, the clock, then
             // the status is shortened and finally dropped, so the title always stays.
             StyledLine? status = null;
-            if (!string.IsNullOrEmpty(Status)) {
+            if (!string.IsNullOrEmpty(Detail)) {
                 List<TextSpan> spans = new List<TextSpan>();
-                if (StatusLevel.HasValue) {
-                    Style marker = context.Style(StatusLevel.Value);
-                    spans.Add(new TextSpan(context.Glyphs.StatusMarker(StatusLevel.Value) + " ", hasSurface ? marker.WithBackground(surface.Background) : marker));
+                if (Status.HasValue) {
+                    Style marker = context.Style(Status.Value);
+                    spans.Add(new TextSpan(context.Glyphs.StatusMarker(Status.Value) + " ", hasSurface ? marker.WithBackgroundColor(surface.BackgroundColor) : marker));
                 }
-                foreach (TextSpan span in context.Markup(Status!).Lines[0]) {
+                foreach (TextSpan span in context.Markup(Detail!).Lines[0]) {
                     spans.Add(new TextSpan(span.Text, text.Combine(span.Style)));
                 }
                 status = new StyledLine(spans);
             }
             StyledLine? free = string.IsNullOrEmpty(Right) ? null : StyledLine.From(Right!, quiet);
-            StyledLine? clock = ShowClock ? StyledLine.From(NumberFormat.Clock(Clock ?? context.Elapsed), accent) : null;
+            StyledLine? clock = ShowElapsed ? StyledLine.From(NumberFormat.Clock(Elapsed ?? context.Elapsed), accent) : null;
             StyledLine titleOnly = context.Markup(Title).Lines[0];
             int available = Math.Max(0, bar.Width - 2);
             // The title keeps its full width whenever it fits; the right side takes what is left.

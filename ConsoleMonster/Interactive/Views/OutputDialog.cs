@@ -74,7 +74,7 @@ namespace ConsoleMonster.Interactive {
         public override IWidget Build(ViewFrame frame, CaretSlot caret) {
             int visible = Math.Max(3, Math.Min(_lines.Count, frame.Height - 8));
             Panel panel = DialogChrome.Frame(new Body(this, visible), _title);
-            panel.Footer = "[muted]" + Markup.Escape(_labels.AnyKeyCloses) + "[/]";
+            panel.Caption = "[muted]" + Markup.Escape(_labels.AnyKeyCloses) + "[/]";
             return panel;
         }
 

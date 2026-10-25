@@ -13,7 +13,7 @@ Emits a stable core TextInput widget. Place inputs in the outer layout, outside 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleTextInput [-Name] <string> [[-Label] <string>] [-Value <string>] [-Placeholder <string>] [-MaxLength <int>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [<CommonParameters>]
+New-ConsoleTextInput [-Key] <string> [[-Label] <string>] [-Value <string>] [-Placeholder <string>] [-MaxLength <int>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,7 +25,7 @@ Emits a stable core TextInput widget. Place inputs in the outer layout, outside 
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleTextInput -Name Query -Placeholder 'Filter' -OnChange { $State.Edits = 1 + $State.Edits }
+New-ConsoleTextInput -Key Query -Placeholder 'Filter' -OnChange { $State.Edits = 1 + $State.Edits }
 ```
 
 Create an application input.
@@ -43,6 +43,22 @@ Possible values:
 
 Required: False
 Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Key
+Unique key in the application's state and final hashtable.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: True
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -75,22 +91,6 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Name
-Unique key in the application's state and final hashtable.
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: True
-Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

@@ -41,7 +41,7 @@ try {
     $failureId = $null
     if ($Scenario -eq 'SourceConstructionFailure') {
         try {
-            Watch-ConsoleLog -Path $fixturePath -Count 1 -Plain -ErrorAction Stop
+            Watch-ConsoleLog -Path $fixturePath -Count 1 -NoLive -ErrorAction Stop
         } catch {
             $failed = $true
             $failureId = $_.FullyQualifiedErrorId
@@ -52,7 +52,7 @@ try {
     } else {
         [IO.File]::WriteAllText($fixturePath, "INFO literal [red]tail[/]`n", [Text.UTF8Encoding]::new($false))
         if ($Scenario -eq 'PlainCount') {
-            $lines = @(Watch-ConsoleLog -Path $fixturePath -Count 1 -Plain)
+            $lines = @(Watch-ConsoleLog -Path $fixturePath -Count 1 -NoLive)
             if ($lines.Count -ne 1 -or $lines[0] -cne 'INFO literal [red]tail[/]') {
                 throw 'The plain native host did not return the original line.'
             }

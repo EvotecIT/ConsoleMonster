@@ -8,24 +8,24 @@ schema: 2.0.0
 ## SYNOPSIS
 Sets field values of a form, whether or not it is shown.
 
-Each named field takes its value and shows it at once, text and number boxes included; fields not named keep theirs. -Value maps field names (ignoring case) to values: a string, a number, a bool, or a list for a multi-choice field; a value that names a choice (the object, its title or its text) takes that choice. Choice fields whose options load from a field that changed load again, and a value given for such a field is chosen once its options arrive. Unknown names and values a field cannot take are ignored. -Value also takes the result of an earlier run of the form (Read-ConsoleForm -PassThru, or $FormResult in -OnSubmit) to fill in every field again. Call it from a menu action or handler while the menu runs, or before the form is shown.
+Each named field takes its value and shows it at once, text and number boxes included; fields not named keep theirs. -Values maps field names (ignoring case) to values: a string, a number, a bool, or a list for a multi-choice field; a value that names a choice (the object, its title or its text) takes that choice. Choice fields whose options load from a field that changed load again, and a value given for such a field is chosen once its options arrive. Unknown names and values a field cannot take are ignored. -Values also takes the result of an earlier run of the form (Read-ConsoleForm -PassThru, or $FormResult in -OnSubmit) to fill in every field again. Call it from a menu action or handler while the menu runs, or before the form is shown.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Set-ConsoleFormValue [-Form] <Form> [-Value] <Object> [<CommonParameters>]
+Set-ConsoleFormValue [-Form] <Form> [-Values] <Object> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Sets field values of a form, whether or not it is shown.
 
-Each named field takes its value and shows it at once, text and number boxes included; fields not named keep theirs. -Value maps field names (ignoring case) to values: a string, a number, a bool, or a list for a multi-choice field; a value that names a choice (the object, its title or its text) takes that choice. Choice fields whose options load from a field that changed load again, and a value given for such a field is chosen once its options arrive. Unknown names and values a field cannot take are ignored. -Value also takes the result of an earlier run of the form (Read-ConsoleForm -PassThru, or $FormResult in -OnSubmit) to fill in every field again. Call it from a menu action or handler while the menu runs, or before the form is shown.
+Each named field takes its value and shows it at once, text and number boxes included; fields not named keep theirs. -Values maps field names (ignoring case) to values: a string, a number, a bool, or a list for a multi-choice field; a value that names a choice (the object, its title or its text) takes that choice. Choice fields whose options load from a field that changed load again, and a value given for such a field is chosen once its options arrive. Unknown names and values a field cannot take are ignored. -Values also takes the result of an earlier run of the form (Read-ConsoleForm -PassThru, or $FormResult in -OnSubmit) to fill in every field again. Call it from a menu action or handler while the menu runs, or before the form is shown.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleMenuItem 'Use the lab' -Action { Set-ConsoleFormValue -Form $form -Value @{ Domain = 'lab.example.test'; Parallel = 2 }; $MenuContext.Toast('Lab values applied') }
+New-ConsoleMenuItem 'Use the lab' -Action { Set-ConsoleFormValue -Form $form -Values @{ Domain = 'lab.example.test'; Parallel = 2 }; $MenuContext.Toast('Lab values applied') }
 ```
 
 A menu action that fills in the form opened from another item
@@ -57,7 +57,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Value
+### -Values
 Values by field name (a hashtable), or the result of an earlier run of the form (a form result or its Values).
 
 ```yaml

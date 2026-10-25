@@ -8,7 +8,7 @@ order: 3
 
 Spectre.Console is a widely used .NET library for rich console output, and its markup syntax is familiar to many .NET developers. ConsoleMonster is a separate library with its own parser and renderer. Its markup follows the same dialect, so a reader who knows one can read the other. This page maps the concepts from one to the other and notes where they behave differently.
 
-{{< cm-frame id="markup" script="true" caption="`Write-ConsoleMarkup` in PowerShell 7: palette names, hex and `rgb()` colours, theme roles as backgrounds, escaped brackets, an unknown tag and a link." >}}
+{{< cm-frame id="markup" script="true" caption="`Write-ConsoleText -Markup` in PowerShell 7: palette names, hex and `rgb()` colours, theme roles as backgrounds, escaped brackets, an unknown tag and a link." >}}
 
 ## Markup
 
@@ -65,7 +65,7 @@ Terminal.WriteMarkupLine(Markup.Interpolate($"[pass]{server}[/] answered in [mut
 | `Layout` | `Dashboard` and `DashboardBuilder` | Named panels in a header, body and footer, sized to the window. |
 | `FigletText` | `Logo` | Pixel lettering in a built-in font. |
 | `Canvas` | `PixelCanvas`, `BrailleCanvas`, `HalfBlockCanvas`, `CharacterCanvas` | |
-| `JsonText` (Spectre.Console.Json) | `CodeView` with `JsonHighlighter`, `Format-ConsoleJson` in PowerShell | |
+| `JsonText` (Spectre.Console.Json) | `CodeView` with `JsonHighlighter`, `Show-ConsoleJson` in PowerShell | |
 | `Calendar` | — | No counterpart. |
 
 The [widget gallery](/widgets/) shows each ConsoleMonster widget with its PowerShell and C# source. Its C# uses the fluent style (`new Table().WithTitle(...)`, `Table.For(items).Column(...)`); [Three ways to write it in C#](/docs/csharp-styles/) shows it next to object initializers and the `Ui` factories.
@@ -76,7 +76,7 @@ The [widget gallery](/widgets/) shows each ConsoleMonster widget with its PowerS
 |---|---|---|
 | `AnsiConsole.Status().Start(...)` | `Terminal.Status(text, action)`, `Terminal.StatusAsync` | |
 | `AnsiConsole.Progress().Start(...)` | `Lanes` and `ProgressBar`, usually in a `LiveSession` | Progress columns are a column model; see [live sessions](/docs/live-sessions/). |
-| `AnsiConsole.Live(renderable).Start(action)` | `LiveSession` | Updates are events addressed to widgets by name and can come from any thread. |
+| `AnsiConsole.Live(renderable).Start(action)` | `LiveSession` | Updates are events addressed to widgets by WidgetId and can come from any thread. |
 | `AnsiConsole.Record()` / `ExportHtml()` | `ConsoleExporter.ToHtml(...)`, `LiveRecorder` | Exports a frame, or records a session's events for [replay and export](/docs/recording/). |
 
 ```csharp

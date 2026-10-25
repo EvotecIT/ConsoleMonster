@@ -27,7 +27,7 @@ function New-StressFrame {
 
     $samples = $Tick * 8
     $posted = $Tick * 128000L
-    $lanes = New-ConsoleLanes -Name workers -Content {
+    $lanes = New-ConsoleLanes -WidgetId workers -Content {
         for ($id = 0; $id -lt $workers; $id++) {
             $lane = @{
                 Key = "w$id"
@@ -63,18 +63,18 @@ function New-StressFrame {
         New-ConsoleColumns -Content {
             New-ConsolePanel -Title Workers -Weight 2.2 -Content { $lanes }
             New-ConsolePanel -Title Session -Content {
-                New-ConsoleKeyValue -Name stats -Data $stats
+                New-ConsoleKeyValue -WidgetId stats -InputObject $stats
                 New-ConsoleRule -Title 'updates/s'
                 $values = @($sampleRates | Select-Object -First $samples)
-                New-ConsoleSparkline -Name rate -Height 3 -Unit '/s' -Value $values
+                New-ConsoleSparkline -WidgetId rate -Height 3 -Unit '/s' -Value $values
                 New-ConsoleRule -Title 'CPU % (100% = one core)'
-                New-ConsoleLineChart -Name cpu -Height 6 -Minimum 0 -Unit '%' -Content {
-                    New-ConsoleChartSeries -Name cpu -Tone Accent2 -Value @($sampleCpu | Select-Object -First $samples)
+                New-ConsoleLineChart -WidgetId cpu -Height 6 -Minimum 0 -Unit '%' -Content {
+                    New-ConsoleChartSeries -Key cpu -Role Accent2 -Value @($sampleCpu | Select-Object -First $samples)
                 }
             }
         }
         New-ConsolePanel -Title 'Captured output' -Fill -Content {
-            New-ConsoleLog -Height 6 -NoTime -Content {
+            New-ConsoleLogRegion -Height 6 -NoElapsed -Content {
                 for ($i = 0; $i -lt $tick * 4; $i++) {
                     $level = if ($i % 7 -eq 0) { 'err' } else { 'info' }
                     New-ConsoleLogEntry -Message ('stray-' + ($i % 4) + "-${i}: FakeLib: " + $messages[$i % 5]) -Level $level
@@ -82,17 +82,17 @@ function New-StressFrame {
             }
         }
     }
-    $dashboard.ShowClock = $false
+    $dashboard.ShowElapsed = $false
     $dashboard
 }
 
 # Behaviour: show seven samples through the ordinary live session.
 $frames = @(0..6 | ForEach-Object -Process { New-StressFrame -Tick $_ })
-$screen = New-ConsoleRegion -Name stress -Widget $frames[0]
-Start-ConsoleDashboard -Dashboard $screen -ArgumentList (, $frames) -ScriptBlock {
+$screen = New-ConsoleRegion -WidgetId stress -Widget $frames[0]
+Invoke-ConsoleDashboard -Dashboard $screen -ArgumentList (, $frames) -ScriptBlock {
     param($Frames)
     foreach ($frame in $Frames) {
-        Set-ConsoleRegion -Name stress -Widget $frame
+        Set-ConsoleRegion -WidgetId stress -Widget $frame
         Wait-ConsoleDashboard -Milliseconds 1000
     }
 }

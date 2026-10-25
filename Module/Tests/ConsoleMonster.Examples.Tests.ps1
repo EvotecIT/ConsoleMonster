@@ -305,6 +305,8 @@ BeforeAll {
         'Website/examples/recording/record-command.ps1' = @{ TemporaryWorkingDirectory = $true }
         'Website/examples/recording/record-session.ps1' = @{
             RequiresCore = $true
+            # Recording plus GIF, chapter slides and optional MP4 needs a separate deadlock watchdog under parallel CI load.
+            TimeoutSeconds = 300
             Arguments = "-OutputDirectory '$($TestDrive.Replace("'", "''"))/recording-demo'"
             Expect = @('Build succeeded. 24 tests passed.', 'Build report', 'API_TOKEN=')
         }
@@ -450,7 +452,7 @@ Describe 'Examples run headless' -Tag 'Examples' {
         $realTime = if ($case['RealTime']) { '$true' } else { '$false' }
         # Paced keys wait for the prompt to take the previous one, as the site's recordings do.
         $paced = if ($case['Paced']) { '$true' } else { '$false' }
-        $keys = if ($case['Input']) { "`$scriptedKeys = [ConsoleMonster.Input.ScriptedInput]::new('$($case['Input'])'); `$scriptedKeys.RealTime = $realTime; `$scriptedKeys.Paced = $paced; [ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = `$scriptedKeys" } else { '' }
+        $keys = if ($case['Input']) { "`$scriptedKeys = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('$($case['Input'])'); `$scriptedKeys.RealTime = $realTime; `$scriptedKeys.Paced = $paced; ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = `$scriptedKeys" } else { '' }
         $arguments = if ($case['Arguments']) { $case['Arguments'] } else { '' }
         $pager = if ($case['NoNativePager']) { "function global:Out-ConsoleExamplePager { param(`$PagerArguments) process { `$_ } }; `$env:PAGER = 'Out-ConsoleExamplePager'" } else { '' }
         $invoke = "& '$Path' $arguments | Out-String | Out-Null"
@@ -469,7 +471,7 @@ Describe 'Examples run headless' -Tag 'Examples' {
         $expect = ''
         if ($case['Screen']) {
             $width, $height = $case['Screen'] -split 'x'
-            $screen = "`$capture = [ConsoleMonster.Interactive.ScreenCapture]::new($width, $height, `$false); `$options = [ConsoleMonster.Interactive.InteractiveOptions]::Default; `$options.Mode = 'Rich'; `$options.Capture = `$capture; `$options.Profile = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed($width, $height, 'TrueColor', 'Full')"
+            $screen = "`$capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new($width, $height, `$false); `$options = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default; `$options.Mode = 'Rich'; `$options.Capture = `$capture; `$options.Profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed($width, $height, 'TrueColor', 'Full')"
             $phrases = @($case['Expect'] | ForEach-Object { "'" + ($_ -replace "'", "''") + "'" }) -join ', '
             $expect = "`$frames = @(`$capture.Frames | ForEach-Object { `$_.ToPlainText() }); foreach (`$phrase in @($phrases)) { if (`$frames | Where-Object { `$_.Contains(`$phrase) }) { 'EXAMPLE-SAW: ' + `$phrase } else { 'EXAMPLE-MISSING: ' + `$phrase } }"
         }
@@ -478,7 +480,7 @@ foreach (`$n in 'NO_COLOR', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_MODE', 'CONS
 `$ErrorActionPreference = '$(if ($case['ExpectErrors']) { 'Continue' } else { 'Stop' })'
 `$env:PSModulePath = '$($script:ModuleLinkRoot)' + [IO.Path]::PathSeparator + `$env:PSModulePath
 Import-Module ConsoleMonster -Force
-if (@(Get-Module ConsoleMonster).Count -ne 1 -or -not (Get-Command Write-ConsoleWidget).DLL.StartsWith('$($script:ModuleLinkRoot)', [StringComparison]::OrdinalIgnoreCase)) { throw 'ConsoleMonster did not load from this repository (build ConsoleMonster.PowerShell first)' }
+if (@(Get-Module ConsoleMonster).Count -ne 1 -or -not (Get-Command Show-Console).DLL.StartsWith('$($script:ModuleLinkRoot)', [StringComparison]::OrdinalIgnoreCase)) { throw 'ConsoleMonster did not load from this repository (build ConsoleMonster.PowerShell first)' }
 $keys
 $screen
 $(if ($case['Snapshot']) { '$env:CONSOLEMONSTER_SNAPSHOT = "1"' })
@@ -566,10 +568,10 @@ Describe 'Examples use the PowerShell cmdlet form' -Tag 'Examples' {
     }
 
     It 'flags the .NET form and accepts the labelled alternative' {
-        @(Get-NativeStyleViolation -Code "`$tree = [ConsoleMonster.Widgets.Tree]::new('x')").Count | Should -Be 2
+        @(Get-NativeStyleViolation -Code "`$tree = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Widgets.Tree'))::new('x')").Count | Should -Be 2
         @(Get-NativeStyleViolation -Code "`$mx.Add('a', `$null, 'b') | Out-Null").Count | Should -Be 2
         @(Get-NativeStyleViolation -Code "`$log.Write('text', 'info')").Count | Should -Be 1
-        @(Get-NativeStyleViolation -Code "New-ConsoleTree 'x' { New-ConsoleTreeNode 'MX' -Status Pass }").Count | Should -Be 0
+        @(Get-NativeStyleViolation -Code "New-ConsoleTree 'x' -Content { New-ConsoleTreeNode 'MX' -Status Pass }").Count | Should -Be 0
         @(Get-NativeStyleViolation -Code "#region Using the object directly`n`$log.Write('text')`n#endregion").Count | Should -Be 0
     }
 }
@@ -610,7 +612,7 @@ Describe 'Examples teach direct data and keep capture controls in the runner' -T
         @{ Label = 'gallery lookup dictionaries'; Name = 'Website/examples/gallery/example/example.ps1'; Code = "`$lookup = @{ Build = [pscustomobject]@{ Seconds = 0.4 } }" }
         @{ Label = 'gallery parameter splats'; Name = 'Website/examples/gallery/example/example.ps1'; Code = "`$options = @{ Title = 'Build'; Total = 16 }; New-ConsoleProgress @options" }
         @{ Label = 'gallery sort option dictionaries'; Name = 'Website/examples/gallery/example/example.ps1'; Code = "`$rows | Sort-Object -Property @{ Expression = 'Seconds'; Descending = `$true }, Name" }
-        @{ Label = 'gallery calculated-column option dictionaries'; Name = 'Website/examples/gallery/example/example.ps1'; Code = "`$columns = @(@{ Name = 'Duration'; Expression = { `$_.Seconds }; Presenter = 'Text' }); `$rows | Format-ConsoleTable -Property `$columns" }
+        @{ Label = 'gallery calculated-column option dictionaries'; Name = 'Website/examples/gallery/example/example.ps1'; Code = "`$columns = @(@{ Name = 'Duration'; Expression = { `$_.Seconds }; Presenter = 'Text' }); `$rows | Show-ConsoleTable -Property `$columns" }
         @{ Label = 'operating-system output parsing'; Name = 'example.ps1'; Code = "`$row = & systemctl --failed --no-legend --plain; `$row -split '\s+'" }
         @{ Label = 'runtime numeric parsing'; Name = 'example.ps1'; Code = '[double]::Parse($value, [cultureinfo]::InvariantCulture)' }
         @{ Label = 'C# runtime numeric parsing'; Name = 'example.cs'; Code = 'int number = int.Parse(server.AsSpan(3), CultureInfo.InvariantCulture);' }

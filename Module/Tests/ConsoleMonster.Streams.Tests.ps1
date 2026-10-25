@@ -32,7 +32,7 @@ Describe 'Native stream formatting ownership and parity' {
 Set-StreamsBaseline
 $baseline = Get-StreamsState
 $unowned = Get-StreamsUnownedState
-Set-ConsoleTheme -Name __THEME__
+Set-ConsoleTheme -Theme __THEME__
 $expected = Get-StreamsExpected
 Enable-ConsoleFormatting -Feature Streams
 Assert-StreamsState $expected
@@ -56,7 +56,7 @@ Assert-StreamsUnownedState $unowned
         $text = Invoke-StreamsChild @'
 Set-StreamsBaseline
 $baseline = Get-StreamsState
-Set-ConsoleTheme -Name Dark
+Set-ConsoleTheme -Theme Dark
 Enable-ConsoleFormatting -Feature All
 Assert-StreamsState (Get-StreamsExpected)
 if (-not (Get-Command Out-Default -CommandType Function -ErrorAction Ignore)) { throw 'All did not install output formatting.' }
@@ -72,7 +72,7 @@ if (Get-Command Out-Default -CommandType Function -ErrorAction Ignore) { throw '
         It 'uses true-colour PSStyle preferences even when the terminal profile has no colour' {
             $text = Invoke-StreamsChild @'
 [ConsoleMonster.Terminal]::Profile = [ConsoleMonster.Terminal]::Profile.WithColorDepth('None')
-Set-ConsoleTheme -Name HighContrast
+Set-ConsoleTheme -Theme HighContrast
 $baseline = Get-StreamsState
 Enable-ConsoleFormatting -Feature Streams
 Assert-StreamsState (Get-StreamsExpected)
@@ -90,7 +90,7 @@ Assert-StreamsState $baseline
 $global:streamsCustomCalls = 0
 function global:Out-Default { $global:streamsCustomCalls++; 'CUSTOM_OUTPUT' }
 $definition = (Get-Command Out-Default -CommandType Function).Definition
-Set-ConsoleTheme -Name Light
+Set-ConsoleTheme -Theme Light
 Enable-ConsoleFormatting -Feature Streams -WarningVariable enableWarnings
 Assert-StreamsState (Get-StreamsExpected)
 if (@($enableWarnings).Count) { throw 'A custom Out-Default blocked Streams.' }
@@ -107,7 +107,7 @@ if ($global:streamsCustomCalls -ne 0) { throw 'Streams invoked custom output for
         $text = Invoke-StreamsChild @'
 Set-StreamsBaseline
 $baseline = Get-StreamsState
-Set-ConsoleTheme -Name Light
+Set-ConsoleTheme -Theme Light
 Enable-ConsoleFormatting -Feature Streams
 Assert-StreamsState (Get-StreamsExpected)
 # A caller changes both an owned property and a neighbouring unowned property while Streams is active.
@@ -115,7 +115,7 @@ Set-StreamsBaseline -Variant 1
 if ($PSVersionTable.PSVersion -ge [version] '7.2') { $PSStyle.Formatting.TableHeader = "$([char]27)[32m" }
 else { $Host.PrivateData.ErrorForegroundColor = [ConsoleColor]::Blue }
 $unowned = Get-StreamsUnownedState
-Set-ConsoleTheme -Name HighContrast
+Set-ConsoleTheme -Theme HighContrast
 Enable-ConsoleFormatting -Feature Streams
 Assert-StreamsState (Get-StreamsExpected)
 Set-StreamsBaseline -Variant 2
@@ -144,7 +144,7 @@ Assert-StreamsState $afterDisable
         $text = Invoke-StreamsChild (@'
 Set-StreamsBaseline
 $baseline = Get-StreamsState
-Set-ConsoleTheme -Name Dark
+Set-ConsoleTheme -Theme Dark
 Enable-ConsoleFormatting -Feature Output, Streams
 $expected = Get-StreamsExpected
 Disable-ConsoleFormatting -Feature __FIRST__

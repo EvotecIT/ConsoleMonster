@@ -89,7 +89,7 @@ namespace ConsoleMonster.Widgets {
                     continue;
                 }
                 TableColumn column = _columns[c];
-                view.AddField(Markup.Strip(column.Header), row[c], column.Presenter, (IReadOnlyList<ToneRule>)column.ToneRules);
+                view.AddField(Markup.Strip(column.Header), row[c], column.Presenter, (IReadOnlyList<RoleRule>)column.RoleRules);
             }
         }
 
@@ -109,8 +109,8 @@ namespace ConsoleMonster.Widgets {
                 }
                 if (row[c].HasValue && (_columns[c].Presenter is StatusPresenter || row[c].Value is StatusKind)) {
                     PresentedValue presented = CellPresenters.Present(row[c].Value, _columns[c].Presenter, null, contexts[c]);
-                    if (presented.Tone.HasValue) {
-                        return presented.Tone;
+                    if (presented.Role.HasValue) {
+                        return presented.Role;
                     }
                 }
             }

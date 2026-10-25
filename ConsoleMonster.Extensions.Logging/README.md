@@ -23,7 +23,7 @@ using (log.BeginScope("order {Id}", 1042)) {
 
 ## What it does
 
-- Each entry gets the level tag and colour that `Write-ConsoleLog` and the dashboard log region use:
+- Each entry gets the level tag and colour that `Write-ConsoleLogEntry` and the dashboard log region use:
   - `✗ ERR` for Error and Critical;
   - `▴ WARN` for Warning;
   - `DBG` and `VERB` for Debug and Trace, with the text muted;

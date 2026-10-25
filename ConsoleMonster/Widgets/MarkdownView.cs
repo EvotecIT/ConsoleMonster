@@ -37,11 +37,11 @@ namespace ConsoleMonster.Widgets {
             if (text == null) {
                 throw new ArgumentNullException(nameof(text));
             }
-            ThemeToken token = level <= 2 ? ThemeToken.Accent : level == 3 ? ThemeToken.Text : ThemeToken.Muted;
+            ThemeToken role = level <= 2 ? ThemeToken.Accent : level == 3 ? ThemeToken.Text : ThemeToken.Muted;
             RichText content = level <= 2 ? text : new RichTextBuilder().Append(new string('#', level) + " ").Append(text).Build();
-            MarkdownText heading = new MarkdownText(content, new RichStyle(token, decoration: TextDecoration.Bold));
+            MarkdownText heading = new MarkdownText(content, new RichStyle(role, decoration: TextDecoration.Bold));
             return AddBlock(level <= 2
-                ? new Rows(heading, new Rule { LineToken = ThemeToken.Accent, LineStyle = level == 1 ? BoxStyle.Double : (BoxStyle?)null })
+                ? new Rows(heading, new Rule { LineRole = ThemeToken.Accent, LineStyle = level == 1 ? BoxStyle.Double : (BoxStyle?)null })
                 : (IWidget)heading);
         }
 

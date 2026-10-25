@@ -23,7 +23,7 @@ Then import it and print a first table:
 
 ```powershell
 Import-Module ConsoleMonster
-Get-Service | Select-Object -First 8 Name, Status, StartType | Write-ConsoleTable -Title 'Services' -StatusProperty Status
+Get-Service | Select-Object -First 8 Name, Status, StartType | Show-ConsoleTable -Title 'Services' -StatusProperty Status
 ```
 
 The module runs on Windows PowerShell 5.1 and PowerShell 7. On PowerShell 7 it loads in its own assembly load context. Version 2 replaces the Spectre.Console and Terminal.Gui based 0.0.x module, whose functions (`New-SpectreImage`, `New-SpectreRule`, `New-Terminal*`) are removed; 0.0.4 stays available on the PowerShell Gallery.
@@ -71,6 +71,18 @@ conditions. Inferred property columns use alphabetical order when native metadat
 
 This AOT support applies to applications consuming the .NET library. The PowerShell module runs inside Windows
 PowerShell or PowerShell 7 and is not itself a standalone native executable.
+
+## Optional add-ons and dependencies
+
+| Package | Job | Runtime dependency |
+| --- | --- | --- |
+| `ConsoleMonster` | Terminal rendering and text/HTML/SVG/asciicast output | None |
+| `ConsoleMonster.Markdown` | Markdown display and widget/frame/recording export | `OfficeIMO.Markdown` |
+| `ConsoleMonster.Graphics` | PNG, GIF and APNG rendering | `ChartForgeX` and `ChartForgeX.Stories` |
+| `ConsoleMonster.Hosting` | Hosted-service dashboard | `Microsoft.Extensions.Hosting.Abstractions` |
+| `ConsoleMonster.Extensions.Logging` | Dashboard logging provider | `Microsoft.Extensions.Logging.Abstractions` |
+
+The PowerShell module includes the Markdown and Graphics bridges and loads them on first use. C# applications add the package for the output they need. [Add-ons](/docs/add-ons/) describes these boundaries.
 
 ## One version per session
 

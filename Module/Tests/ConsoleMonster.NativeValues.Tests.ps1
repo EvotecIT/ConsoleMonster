@@ -10,9 +10,9 @@
         $script:NativeProperties = @('Name','State','Bytes','Date','Duration','Tags')
     }
 
-    It 'produces the same presented table cells as Format-ConsoleTable from raw values' {
+    It 'produces the same presented table cells as Show-ConsoleTable from raw values' {
         $native = Convert-TestNativeView -Rows $script:NativeRows -Arguments @{Property=$script:NativeProperties}
-        $console = $script:NativeRows | Format-ConsoleTable -Property $script:NativeProperties -AsWidget
+        $console = $script:NativeRows | Show-ConsoleTable -Property $script:NativeProperties -AsWidget
         $nativeText = $native | Export-ConsoleFrame -Format Text -Width 160
         $nativeText | Should -Be ($console | Export-ConsoleFrame -Format Text -Width 160)
         $nativeText | Should -Match '✓ Pass'
@@ -38,8 +38,8 @@
 
     It 'keeps automatic presenter alignment consistent in native plain and grouped Markdown tables' {
         $native = Convert-TestNativeView -Rows $script:NativeRows -Arguments @{Property=$script:NativeProperties}
-        $plain = $script:NativeRows | Format-ConsoleTable -Property $script:NativeProperties -As Markdown
-        $grouped = $script:NativeRows | Format-ConsoleTable -Property $script:NativeProperties -GroupBy State -ShowGroupColumn -As Markdown
+        $plain = $script:NativeRows | Show-ConsoleTable -Property $script:NativeProperties -AsWidget | Export-ConsoleFrame -Format Markdown
+        $grouped = $script:NativeRows | Show-ConsoleTable -Property $script:NativeProperties -GroupBy State -ShowGroupColumn -AsWidget | Export-ConsoleFrame -Format Markdown
         $alignment = '| :--- | :--- | ---: | :--- | ---: | :--- |'
         foreach ($markdown in @(($native | Export-ConsoleFrame -Format Markdown), $plain, $grouped)) {
             $markdown | Should -Match ([regex]::Escape($alignment))
@@ -58,7 +58,7 @@
             @{Label='Explicit';Expression='State';FormatString='[{0}]';Alignment='Right'}
         )
         $native = Convert-TestNativeView -Rows $rows -Arguments @{Property=$properties}
-        $console = $rows | Format-ConsoleTable -Property $properties -AsWidget
+        $console = $rows | Show-ConsoleTable -Property $properties -AsWidget
         foreach($widget in @($native,$console)) {
             ($widget | Export-ConsoleFrame -Format Markdown) | Should -Match '\| :--- \| :--- \| ---: \| ---: \| ---: \|'
         }
@@ -220,7 +220,7 @@
         function Invoke-TestCaptureRecords {
             [CmdletBinding()]
             param($Row, $View)
-            $capture = [ConsoleMonster.PowerShell.NativeFormatCapture]::new($PSCmdlet, 'Table', @{View=$View})
+            $capture = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.NativeFormatCapture'))::new($PSCmdlet, 'Table', @{View=$View})
             $parameters = $capture.Prepare($Row)
             $capture.BeginItem($Row)
             $Row | Microsoft.PowerShell.Utility\Format-Table @parameters

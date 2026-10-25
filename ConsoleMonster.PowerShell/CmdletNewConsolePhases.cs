@@ -10,12 +10,12 @@ namespace ConsoleMonster.PowerShell {
     /// <example>
     ///   <para>A run part-way through</para>
     ///   <code>
-    /// New-ConsolePhases {
+    /// New-ConsolePhases -Content {
     ///     New-ConsoleStatusItem 'Discover' -Status Pass -Detail '2.1s'
     ///     New-ConsoleStatusItem 'Collect' -Status Pass -Detail '14s'
     ///     New-ConsoleStatusItem 'Evaluate' -Status Running -Detail '64%'
     ///     New-ConsoleStatusItem 'Report'
-    /// } | Write-ConsoleWidget</code>
+    /// } | Show-Console</code>
     /// </example>
     /// <example>
     ///   <para>Build phases for a live dashboard</para>
@@ -27,11 +27,11 @@ namespace ConsoleMonster.PowerShell {
         private readonly List<object> _piped = new List<object>();
 
         /// <summary><para type="description">The phase names in order, all pending (a script block here is taken as -Content).</para></summary>
-        [Parameter(Position = 0)]
+        [Parameter(Position = 1)]
         public object[]? Phase { get; set; }
 
         /// <summary><para type="description">A script block that emits the phases: New-ConsoleStatusItem calls (or phase names).</para></summary>
-        [Parameter(Position = 1)]
+        [Parameter(Position = 2)]
         public ScriptBlock? Content { get; set; }
 
         /// <summary><para type="description">Phases from the pipeline: New-ConsoleStatusItem objects or names.</para></summary>
@@ -39,8 +39,8 @@ namespace ConsoleMonster.PowerShell {
         public PSObject? InputObject { get; set; }
 
         /// <summary><para type="description">The live name (default phases).</para></summary>
-        [Parameter]
-        public string Name { get; set; } = "phases";
+        [Parameter(Position = 0)]
+        public string WidgetId { get; set; } = "phases";
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
@@ -51,7 +51,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void EndProcessing() {
-            Phases phases = new Phases(Name);
+            Phases phases = new Phases(WidgetId);
             ScriptBlock? content = Content;
             if (Phase != null) {
                 foreach (object phase in Phase) {

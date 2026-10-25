@@ -8,45 +8,29 @@ schema: 2.0.0
 ## SYNOPSIS
 Copies widgets, frames, text or pipeline objects to the operating-system clipboard.
 
-Serializes input with ConsoleExporter as Text (default), Markdown or Html and copies the source as Unicode text. Markdown uses GFM tables, property/value lists and nested tree bullets, including the shared value presenters and totals. Text preserves the console layout inside a text fence. A rendered frame or live-session snapshot retains a fenced fallback. Windows uses its native clipboard, macOS uses pbcopy, and Linux uses wl-copy (Wayland) or xclip (X11). SSH, a missing desktop/provider or a failing provider produces a non-terminating error; use -ErrorAction Stop to catch it. No output is written unless -PassThru succeeds. -WhatIf exports without accessing the clipboard.
+Serializes input through the core or bundled Markdown add-on as Text (default), Markdown or Html and copies the source as Unicode text. Markdown uses GFM tables, property/value lists and nested tree bullets, including the shared value presenters and totals. Text is plain terminal output. A rendered frame or live-session snapshot retains a fenced fallback. Windows uses its native clipboard, macOS uses pbcopy, and Linux uses wl-copy (Wayland) or xclip (X11). SSH, a missing desktop/provider or a failing provider produces a non-terminating error; use -ErrorAction Stop to catch it. No output is written unless -PassThru succeeds. -WhatIf exports without accessing the clipboard.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Copy-ConsoleOutput [-InputObject] <Object> [-As <string>] [-Width <int>] [-Height <int>] [-Culture <cultureinfo>] [-PassThru] [-WhatIf] [-Confirm] [<CommonParameters>]
+Copy-ConsoleOutput [-InputObject] <Object> [-Format <string>] [-Width <int>] [-Height <int>] [-Culture <cultureinfo>] [-PassThru] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Copies widgets, frames, text or pipeline objects to the operating-system clipboard.
 
-Serializes input with ConsoleExporter as Text (default), Markdown or Html and copies the source as Unicode text. Markdown uses GFM tables, property/value lists and nested tree bullets, including the shared value presenters and totals. Text preserves the console layout inside a text fence. A rendered frame or live-session snapshot retains a fenced fallback. Windows uses its native clipboard, macOS uses pbcopy, and Linux uses wl-copy (Wayland) or xclip (X11). SSH, a missing desktop/provider or a failing provider produces a non-terminating error; use -ErrorAction Stop to catch it. No output is written unless -PassThru succeeds. -WhatIf exports without accessing the clipboard.
+Serializes input through the core or bundled Markdown add-on as Text (default), Markdown or Html and copies the source as Unicode text. Markdown uses GFM tables, property/value lists and nested tree bullets, including the shared value presenters and totals. Text is plain terminal output. A rendered frame or live-session snapshot retains a fenced fallback. Windows uses its native clipboard, macOS uses pbcopy, and Linux uses wl-copy (Wayland) or xclip (X11). SSH, a missing desktop/provider or a failing provider produces a non-terminating error; use -ErrorAction Stop to catch it. No output is written unless -PassThru succeeds. -WhatIf exports without accessing the clipboard.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-Get-Process | Select-Object -First 10 Name, Id | Format-ConsoleTable -AsWidget | Copy-ConsoleOutput -As Markdown
+Get-Process | Select-Object -First 10 Name, Id | Show-ConsoleTable -AsWidget | Copy-ConsoleOutput -Format Markdown
 ```
 
 Copy a process table into a Markdown report
 
 ## PARAMETERS
-
-### -As
-Copies Text, Markdown or Html source as clipboard text (default Text).
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values: Text, Markdown, Html
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
 
 ### -Culture
 The culture for values in objects and widgets.
@@ -56,6 +40,22 @@ Type: CultureInfo
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Format
+Copies Text, Markdown or Html source as clipboard text (default Text).
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: Text, Markdown, Html
 
 Required: False
 Position: named
@@ -113,7 +113,7 @@ Accept wildcard characters: False
 ```
 
 ### -Width
-Width in cells for rendering widgets and objects (default 100); single frames keep their own size.
+Width in cells for rendering widgets and objects (default 0: terminal width, falling back to 100); single frames keep their own size.
 
 ```yaml
 Type: Int32

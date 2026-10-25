@@ -8,18 +8,18 @@ schema: 2.0.0
 ## SYNOPSIS
 Writes multicolour text to the console and, optionally, to a log file: Write-Color compatible, with markup, styles, gradients, padding, wrapping and structured logs.
 
-The parameters and aliases of Write-Color (PSWriteColor) work the same way: -Text pieces get -Color and -BackGroundColor per piece (pieces beyond the colours use the first colour), -StartTab, -StartSpaces, -LinesBefore, -LinesAfter, -ShowTime with -DateTimeFormat, -NoNewLine, -HorizontalCenter, -LogFile with -LogTime, -LogRetry and -Encoding, and -NoConsoleOutput. ConsoleColor names render exactly as Write-Host shows them. Beyond Write-Color: -Markup, -Style, -Link, -Role, hex and RGB colours, -Gradient, -PadLeft/-PadRight/-PadCenter with -PadCharacter (measured in terminal cells, so emoji and CJK pad correctly), -Wrap with a hanging indent under the time and prefix, -SplitLines with the following lines aligned under the first, and -LogFormat Text, Csv or JsonLines with -LogSeparator, -Level and -Category. Differences: the default colour is the terminal's own (Write-Color uses White), and a new log file is UTF-8 without a byte order mark by default (Write-Color writes UTF-16); appending to an existing log keeps its encoding, so Write-Color's UTF-16 logs stay UTF-16. In transcripts each call is one line; in jobs and remoting the colours travel with the output; redirected output is plain text. There is deliberately no Write-Color or wc alias.
+Writes literal text pieces with Color and BackgroundColor, optional Role and Decoration, links, gradients and terminal-cell padding. ShowTimestamp adds a wall-clock timestamp formatted with TimestampFormat. NoNewLine continues the current line. LogFile records text, CSV or JSON Lines; LogTimestamp and LogFormat control that destination independently. Redirected output is plain text, and jobs and remoting retain the structured rendering. New log files use UTF-8 without a byte order mark; existing logs keep their encoding.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Write-ConsoleText [[-Text] <Object[]>] [-Color <Object[]>] [-BackGroundColor <Object[]>] [-StartTab <int>] [-LinesBefore <int>] [-LinesAfter <int>] [-StartSpaces <int>] [-LogFile <string>] [-DateTimeFormat <string>] [-LogTime <bool>] [-LogRetry <int>] [-Encoding <string>] [-ShowTime] [-NoNewLine] [-HorizontalCenter] [-NoConsoleOutput] [-Markup <string>] [-Style <string[]>] [-Link <string>] [-Role <ThemeToken>] [-Gradient <Object[]>] [-PadLeft <int>] [-PadRight <int>] [-PadCenter <int>] [-PadCharacter <char>] [-Wrap] [-Width <int>] [-SplitLines <string>] [-LogFormat <string>] [-LogSeparator <string>] [-Level <string>] [-Category <string>] [<CommonParameters>]
+Write-ConsoleText [[-Text] <Object[]>] [-Color <Object[]>] [-BackgroundColor <Object[]>] [-StartTab <int>] [-LinesBefore <int>] [-LinesAfter <int>] [-StartSpaces <int>] [-LogFile <string>] [-TimestampFormat <string>] [-LogTimestamp <bool>] [-LogRetry <int>] [-Encoding <string>] [-ShowTimestamp] [-NoNewLine] [-HorizontalCenter] [-NoConsoleOutput] [-Markup <string>] [-Decoration <string[]>] [-Link <string>] [-Role <ThemeToken>] [-Gradient <Object[]>] [-PadLeft <int>] [-PadRight <int>] [-PadCenter <int>] [-PadCharacter <char>] [-Wrap] [-Width <int>] [-SplitLines <string>] [-LogFormat <string>] [-LogSeparator <string>] [-Level <string>] [-Category <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Writes multicolour text to the console and, optionally, to a log file: Write-Color compatible, with markup, styles, gradients, padding, wrapping and structured logs.
 
-The parameters and aliases of Write-Color (PSWriteColor) work the same way: -Text pieces get -Color and -BackGroundColor per piece (pieces beyond the colours use the first colour), -StartTab, -StartSpaces, -LinesBefore, -LinesAfter, -ShowTime with -DateTimeFormat, -NoNewLine, -HorizontalCenter, -LogFile with -LogTime, -LogRetry and -Encoding, and -NoConsoleOutput. ConsoleColor names render exactly as Write-Host shows them. Beyond Write-Color: -Markup, -Style, -Link, -Role, hex and RGB colours, -Gradient, -PadLeft/-PadRight/-PadCenter with -PadCharacter (measured in terminal cells, so emoji and CJK pad correctly), -Wrap with a hanging indent under the time and prefix, -SplitLines with the following lines aligned under the first, and -LogFormat Text, Csv or JsonLines with -LogSeparator, -Level and -Category. Differences: the default colour is the terminal's own (Write-Color uses White), and a new log file is UTF-8 without a byte order mark by default (Write-Color writes UTF-16); appending to an existing log keeps its encoding, so Write-Color's UTF-16 logs stay UTF-16. In transcripts each call is one line; in jobs and remoting the colours travel with the output; redirected output is plain text. There is deliberately no Write-Color or wc alias.
+Writes literal text pieces with Color and BackgroundColor, optional Role and Decoration, links, gradients and terminal-cell padding. ShowTimestamp adds a wall-clock timestamp formatted with TimestampFormat. NoNewLine continues the current line. LogFile records text, CSV or JSON Lines; LogTimestamp and LogFormat control that destination independently. Redirected output is plain text, and jobs and remoting retain the structured rendering. New log files use UTF-8 without a byte order mark; existing logs keep their encoding.
 
 ## EXAMPLES
 
@@ -39,20 +39,20 @@ A menu with padding and a log file in CSV
 
 ### EXAMPLE 3
 ```powershell
-Write-ConsoleText '[info] ', "Path exists`n2. line`n3. line" -Color Yellow, White -ShowTime -SplitLines "`n"
+Write-ConsoleText '[info] ', "Path exists`n2. line`n3. line" -Color Yellow, White -ShowTimestamp -SplitLines "`n"
 ```
 
 A multi-line message aligned under the time stamp
 
 ## PARAMETERS
 
-### -BackGroundColor
+### -BackgroundColor
 Background colour per piece.
 
 ```yaml
 Type: Object[]
 Parameter Sets: __AllParameterSets
-Aliases: B, BGC
+Aliases: None
 Possible values:
 
 Required: False
@@ -84,7 +84,7 @@ Foreground colour per piece: ConsoleColor names (exactly as Write-Host shows the
 ```yaml
 Type: Object[]
 Parameter Sets: __AllParameterSets
-Aliases: C, ForegroundColor, FGC
+Aliases: None
 Possible values:
 
 Required: False
@@ -94,13 +94,13 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -DateTimeFormat
-The time format for -ShowTime and the log (default yyyy-MM-dd HH:mm:ss).
+### -Decoration
+Decorations for the whole text: Bold, Dim, Italic, Underline, Strikethrough, Invert.
 
 ```yaml
-Type: String
+Type: String[]
 Parameter Sets: __AllParameterSets
-Aliases: DateFormat, TimeFormat
+Aliases: None
 Possible values:
 
 Required: False
@@ -228,7 +228,7 @@ A log file the text is appended to (plain text, see -LogFormat).
 ```yaml
 Type: String
 Parameter Sets: __AllParameterSets
-Aliases: L
+Aliases: None
 Possible values:
 
 Required: False
@@ -286,13 +286,13 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -LogTime
+### -LogTimestamp
 Whether log lines start with the time (default $true).
 
 ```yaml
 Type: Boolean
 Parameter Sets: __AllParameterSets
-Aliases: LogTimeStamp
+Aliases: None
 Possible values:
 
 Required: False
@@ -324,7 +324,7 @@ Writes only to the log file.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: __AllParameterSets
-Aliases: HideConsole
+Aliases: None
 Possible values:
 
 Required: False
@@ -420,7 +420,7 @@ A theme role for pieces without their own colour (Pass, Fail, Warn, Info, Muted,
 ```yaml
 Type: ThemeToken
 Parameter Sets: __AllParameterSets
-Aliases: Tone
+Aliases: None
 Possible values: Text, Muted, Subtle, Accent, Accent2, Pass, Fail, Warn, Info, Skip, Running, Pending, Border, Title, Header, Highlight, Surface, SurfaceAccent, Series1, Series2, Series3, Series4, Series5, Series6, Focus
 
 Required: False
@@ -430,7 +430,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ShowTime
+### -ShowTimestamp
 Starts the line with the time in brackets.
 
 ```yaml
@@ -484,22 +484,6 @@ Tabs before the text (eight cells each).
 ```yaml
 Type: Int32
 Parameter Sets: __AllParameterSets
-Aliases: Indent
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Style
-Decorations for the whole text: Bold, Dim, Italic, Underline, Strikethrough, Invert.
-
-```yaml
-Type: String[]
-Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
 
@@ -516,13 +500,29 @@ Text pieces, shown literally (strings, or rich text from New-ConsoleText).
 ```yaml
 Type: Object[]
 Parameter Sets: __AllParameterSets
-Aliases: T
+Aliases: None
 Possible values:
 
 Required: False
 Position: 0
 Default value: None
 Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -TimestampFormat
+The time format for -ShowTimestamp and the log (default yyyy-MM-dd HH:mm:ss).
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 

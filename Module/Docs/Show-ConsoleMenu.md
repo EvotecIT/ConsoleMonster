@@ -118,7 +118,7 @@ Remembers selections and form answers between runs.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: __AllParameterSets
-Aliases: Remember
+Aliases: None
 Possible values:
 
 Required: False

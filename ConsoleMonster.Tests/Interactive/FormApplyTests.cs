@@ -25,10 +25,10 @@ namespace ConsoleMonster.Tests.Interactive {
             Form form = new Form("Scope") { Command = "Invoke-Scope", Review = false };
             ChoiceField domain = form.Select("Domain", "Domain", new[] { new Choice("east", "East"), new Choice("west", "West") });
             domain.Default = "east";
-            domain.Parameter = "Domain";
+            domain.ParameterName = "Domain";
             ChoiceField servers = form.MultiSelect("Servers", "Servers");
             servers.DependsOn.Add("Domain");
-            servers.Parameter = "ComputerName";
+            servers.ParameterName = "ComputerName";
             servers.Loader = (values, token) => {
                 string chosen = values.Get<string>("Domain") ?? "none";
                 lock (loads) {
@@ -41,11 +41,11 @@ namespace ConsoleMonster.Tests.Interactive {
                 return Task.FromResult<IEnumerable<Choice>>(new[] { new Choice(prefix + "1"), new Choice(prefix + "2") });
             };
             TextField name = form.Text("Name", "Run name");
-            name.Parameter = "Name";
+            name.ParameterName = "Name";
             NumberField count = form.Number("Count", "Retries");
-            count.WholeNumber = true;
+            count.Integer = true;
             count.Default = 2m;
-            count.Parameter = "Retry";
+            count.ParameterName = "Retry";
             return form;
         }
 
@@ -252,7 +252,7 @@ namespace ConsoleMonster.Tests.Interactive {
                 Form form = new Form("Run") { Review = false };
                 form.Text("Name", "Run name");
                 NumberField count = form.Number("Count", "Retries");
-                count.WholeNumber = true;
+                count.Integer = true;
                 form.Preset("Quick", p => p.Value("Name", "preset").Value("Count", 5));
                 form.Apply(new Dictionary<string, object?> { ["Name"] = "applied" });
                 PromptModeTests.FakeLines lines = new PromptModeTests.FakeLines(string.Empty, string.Empty, "y");

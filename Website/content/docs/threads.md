@@ -6,7 +6,7 @@ order: 7
 group: live
 card: threads-live
 chips: [Queue, Render thread, Runspaces]
-apis: [LiveSession, TerminalScope, Start-ConsoleDashboard -Parallel]
+apis: [LiveSession, TerminalScope, Invoke-ConsoleDashboard -Parallel]
 summary: "Any thread can update the screen; one thread draws it."
 ---
 
@@ -37,46 +37,46 @@ The smallest case: eight runspaces at once, each writing with `Write-Host`. The 
 ```powershell
 Import-Module ConsoleMonster
 
-$dashboard = New-ConsoleDashboard -Title 'Workers' {
-    New-ConsolePanel -Title 'Log' -Fill { New-ConsoleLog }
+$dashboard = New-ConsoleDashboard -Title 'Workers' -Content {
+    New-ConsolePanel -Title 'Log' -Fill -Content { New-ConsoleLogRegion }
 }
-1..8 | Start-ConsoleDashboard $dashboard -Parallel -ThrottleLimit 8 {
+1..8 | Invoke-ConsoleDashboard $dashboard -Parallel -ThrottleLimit 8 {
     param($Number)
     Start-Sleep -Milliseconds (Get-Random -Maximum 800)
     Write-Host "worker $Number finished"
 }
 ```
 
-`Start-ConsoleDashboard -Parallel` runs a script block per input item in a runspace pool (`-ThrottleLimit`). Each runspace gets `$ConsoleSession`, so `Update-ConsoleLane`, `Update-ConsoleStatus`, `Update-ConsoleTable`, `Write-ConsoleLog` and the other update commands reach the dashboard by widget name. `Write-Host`, warnings and errors from those runspaces (and verbose and debug messages when their preference is on) go to the dashboard's log (a `New-ConsoleLog`; without one they take the same path as console output: above an `-Inline` area, into the short tail at the bottom of a full-screen dashboard and the scrollback after it, or as lines in stream mode); progress records go to its activity list.
+`Invoke-ConsoleDashboard -Parallel` runs a script block per input item in a runspace pool (`-ThrottleLimit`). Each runspace gets `$ConsoleSession`, so `Update-ConsoleLane`, `Update-ConsoleStatusItem`, `Update-ConsoleLiveTable`, `Write-ConsoleLogEntry` and the other update commands reach the dashboard by WidgetId. `Write-Host`, warnings and errors from those runspaces (and verbose and debug messages when their preference is on) go to the dashboard's log (a `New-ConsoleLogRegion`; without one they take the same path as console output: above an `-Inline` area, into the short tail at the bottom of a full-screen dashboard and the scrollback after it, or as lines in stream mode); progress records go to its activity list.
 
 ```powershell
 Import-Module ConsoleMonster
 
 $servers = 'web01', 'web02', 'web03', 'web04'
-$dashboard = New-ConsoleDashboard -Title 'Patching' {
-    New-ConsolePanel -Title 'Servers' { New-ConsoleStatusList -Name servers -Item $servers }
-    New-ConsolePanel -Title 'Log' -Fill { New-ConsoleLog }
+$dashboard = New-ConsoleDashboard -Title 'Patching' -Content {
+    New-ConsolePanel -Title 'Servers' -Content { New-ConsoleStatusList -WidgetId servers -Item $servers }
+    New-ConsolePanel -Title 'Log' -Fill -Content { New-ConsoleLogRegion }
 }
 
-$servers | Start-ConsoleDashboard $dashboard -Parallel -ThrottleLimit 4 {
+$servers | Invoke-ConsoleDashboard $dashboard -Parallel -ThrottleLimit 4 {
     param($Server)
-    Update-ConsoleStatus -Name servers -Key $Server -Status Running -Detail 'patching'
+    Update-ConsoleStatusItem -WidgetId servers -Key $Server -Status Running -Detail 'patching'
     Start-Sleep -Milliseconds (Get-Random -Minimum 200 -Maximum 900)
     Write-Warning "$Server needs a reboot"
-    Update-ConsoleStatus -Name servers -Key $Server -Status Pass -Detail 'patched'
+    Update-ConsoleStatusItem -WidgetId servers -Key $Server -Status Pass -Detail 'patched'
 }
 ```
 
 - Variables of the calling script are not visible inside a runspace, and `$using:` does not work here: pass values with `-ArgumentList` and a `param()` block, or as the input items.
 - Change widgets through the update commands, never by calling a widget object's own methods from a runspace.
-- `Invoke-ConsoleRun` (also called `ForEach-ConsoleItem`) with `-Parallel` draws its own run view: a summary bar, a cell per item and the failures. While it shows, host messages, warnings, information, verbose and debug messages and errors from the workers appear in its log, and their `Write-Progress` in an activity list; each worker's progress IDs are its own, so every worker can use `-Id 0`. Results keep input order (unless `-Unordered`), and the native stream records (warnings, errors, information, verbose and debug messages) are also delivered when the view ends, so `-WarningVariable` and the pipeline still get them. Its workers receive the caller's variables with `$using:name`. Use `Start-ConsoleDashboard -Parallel` when workers should update widgets of your own.
+- `Invoke-ConsoleRun` (also called `Invoke-ConsoleRun`) with `-Parallel` draws its own run view: a summary bar, a cell per item and the failures. While it shows, host messages, warnings, information, verbose and debug messages and errors from the workers appear in its log, and their `Write-Progress` in an activity list; each worker's progress IDs are its own, so every worker can use `-Id 0`. Results keep input order (unless `-Unordered`), and the native stream records (warnings, errors, information, verbose and debug messages) are also delivered when the view ends, so `-WarningVariable` and the pipeline still get them. Its workers receive the caller's variables with `$using:name`. Use `Invoke-ConsoleDashboard -Parallel` when workers should update widgets of your own.
 
 ## In C#
 
 Workers update widgets through handles taken from the session. Everything below is safe from any thread while the session runs:
 
 - `LanesHandle`, `StatusListHandle`, `LiveTableHandle`, `ProgressHandle` and the other handles from `widget.Handle(session)`;
-- `session.Post`, `session.Write` (a log line) and `session.Region(name).Set(widget)`, which swaps a `Slot`'s content between two frames;
+- `session.Post`, `session.Write` (a log line) and `session.Region(name).Set(widget)`, which swaps a `RegionWidget`'s content between two frames;
 - `Console.WriteLine`, captured as described above;
 - the `ConsoleMonster.Extensions.Logging` provider, which writes into the log region of the running session (an entry with an exception is written as ordinary output instead: above an inline area, or after a full-screen view).
 
@@ -98,7 +98,7 @@ foreach (string server in servers) {
 using (LiveSession session = new LiveSession(dashboard)) {
     session.Run(s => Parallel.ForEach(servers, server => {
         // Patch knows nothing about the dashboard: the scope says where its reports go.
-        using (s.Scope(lanes.Name, server)) {
+        using (s.Scope(lanes.WidgetId, server)) {
             Patch(server);
         }
     }));
@@ -131,7 +131,7 @@ The stress test runs 32 workers posting updates in bursts while four more thread
 | `Console.WriteLine`, `Console.Error.WriteLine` and `Console.Write` fragments (kept per thread until the line ends) | One message split across several threads (send it as one `WriteLine`) |
 | `Terminal.Write`, `Terminal.WriteLines` and `Terminal.WriteMarkupLine` (each call one whole block) | Drawing your own `InlineArea` from several threads |
 | `TerminalScope` reports in any task or thread that inherited the scope | |
-| The `Update-Console*` commands in `Start-ConsoleDashboard -Parallel` runspaces | Widget objects changed from a runspace instead of through the update commands |
+| The `Update-Console*` commands in `Invoke-ConsoleDashboard -Parallel` runspaces | Widget objects changed from a runspace instead of through the update commands |
 
 Build a widget fully before the session starts, then change it only through handles or update commands while it runs. A handle used after the session stopped is harmless: the update is dropped and counted in `EventsDropped`.
 
@@ -143,7 +143,7 @@ Build a widget fully before the session starts, then change it only through hand
 - **No drops under load.** A normal run ends with every posted update applied and nothing dropped, even with dozens of workers and stray console output.
 - **Clean shutdown.** When the work ends or throws, queued updates and output are written exactly once and the terminal is restored (see [Stopping](#how-it-works) for a widget callback that blocks drawing).
 - **Ctrl+C.** The first Ctrl+C stops new updates and restores the terminal and the console writers.
-- **PowerShell workers.** Host messages, warnings and progress from `Start-ConsoleDashboard -Parallel` and `ForEach-ConsoleItem -Parallel` reach the view without changing what the script returns.
+- **PowerShell workers.** Host messages, warnings and progress from `Invoke-ConsoleDashboard -Parallel` and `Invoke-ConsoleRun -Parallel` reach the view without changing what the script returns.
 - **CI and redirected output.** Whole lines, in the order the updates were applied.
 
 Each guarantee is covered by automated tests on .NET Framework 4.7.2, .NET 8, .NET 10 and PowerShell 5.1 and 7 ([running the tests](https://github.com/EvotecIT/ConsoleMonster/blob/master/CONTRIBUTING.md#running-the-tests)).

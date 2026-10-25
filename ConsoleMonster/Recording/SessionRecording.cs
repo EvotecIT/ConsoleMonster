@@ -120,11 +120,10 @@ namespace ConsoleMonster.Sessions {
             if (item.Kind == "o") { screen.Feed(item.Data); }
             else if (item.Kind == "r") { ParseSize(item.Data, out int width, out int height); screen.Resize(width, height); }
         }
-        /// <summary>Exports an HTML player, animated SVG, v2 asciicast, or scrollback as text or fenced Markdown.</summary>
+        /// <summary>Exports an HTML player, animated SVG, v2 asciicast, or scrollback as plain text.</summary>
         public string Export(ExportFormat format, RecordingExportOptions? options = null) {
             if (format == ExportFormat.Asciicast) { return ToAsciicast(); }
             if (format == ExportFormat.Text) { return ConsoleExporter.ToText(Transcript()); }
-            if (format == ExportFormat.Markdown || format == ExportFormat.FencedText) { return ConsoleExporter.ToMarkdown(Transcript()); }
             RecordingExportOptions effective = Ready(options);
             List<RecordedFrame> frames = Frames(effective);
             if (format == ExportFormat.Html) { return HtmlPlayerWriter.Write(frames, effective); }

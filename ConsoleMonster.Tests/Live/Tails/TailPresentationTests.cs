@@ -23,7 +23,7 @@ namespace ConsoleMonster.Tests.Live.Tails {
             Assert.Equal(context.Style(ThemeToken.Accent), following[0, 3].Style);
             Assert.Equal(context.Style(ThemeToken.Muted), following[2, 3].Style);
             Assert.Equal(context.Style(ThemeToken.Accent), following[9, 3].Style);
-            view.Apply(new LiveEvent(view.Name, "home"));
+            view.Apply(new LiveEvent(view.WidgetId, "home"));
             CellBuffer paused = Render(view, 60, theme);
             Assert.Equal("⏸ Paused · viewing history", paused.GetRowText(2).TrimEnd());
             Assert.Equal(context.Style(ThemeToken.Warn), paused[0, 2].Style);
@@ -49,7 +49,7 @@ namespace ConsoleMonster.Tests.Live.Tails {
         [Fact]
         public void PausedCounterCountsAppliedMultilineRowsAndClearsOnEveryReturnToFollowing() {
             LogTailView view = new LogTailView(2);
-            view.Apply(new LiveEvent(view.Name, "home"));
+            view.Apply(new LiveEvent(view.WidgetId, "home"));
             Pending queue = new Pending();
             view.Post(queue, new TailedLogEntry("one\r\ntwo\nthree"));
             Assert.DoesNotContain("new lines", Render(view, 120).GetRowText(2));
@@ -57,18 +57,18 @@ namespace ConsoleMonster.Tests.Live.Tails {
             string paused = Render(view, 120).GetRowText(2);
             Assert.Contains("3 new lines", paused);
             Assert.Contains("1 history lines discarded", paused);
-            view.Apply(new LiveEvent(view.Name, "follow"));
+            view.Apply(new LiveEvent(view.WidgetId, "follow"));
             Assert.DoesNotContain("new lines", Render(view, 120).GetRowText(2));
-            view.Apply(new LiveEvent(view.Name, "home"));
+            view.Apply(new LiveEvent(view.WidgetId, "home"));
             Append(view, new TailedLogEntry("four"));
             Assert.Contains("1 new lines", Render(view, 120).GetRowText(2));
-            view.Apply(new LiveEvent(view.Name, "page-down"));
+            view.Apply(new LiveEvent(view.WidgetId, "page-down"));
             Assert.True(view.Following);
-            view.Apply(new LiveEvent(view.Name, "home"));
+            view.Apply(new LiveEvent(view.WidgetId, "home"));
             Assert.DoesNotContain("new lines", Render(view, 120).GetRowText(2));
         }
 
-        private static void Append(LogTailView view, TailedLogEntry entry) => view.Apply(new LiveEvent(view.Name, "append") { Payload = entry });
+        private static void Append(LogTailView view, TailedLogEntry entry) => view.Apply(new LiveEvent(view.WidgetId, "append") { Payload = entry });
 
         private static CellBuffer Render(LogTailView view, int width, ITheme? theme = null) {
             CellBuffer frame = new CellBuffer(width, 4);

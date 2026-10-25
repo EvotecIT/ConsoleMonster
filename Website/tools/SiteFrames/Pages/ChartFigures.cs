@@ -55,7 +55,7 @@ namespace SiteFrames.Pages {
                 string id = "pipeline-charts-" + width;
                 DocCards.Offer(id, dark, null);
                 Figures.Add(id, Figures.WithProgram(new JsonObject {
-                    ["title"] = "Out-ConsoleChart",
+                    ["title"] = "Show-ConsoleChart",
                     ["file"] = "pipeline-charts.ps1",
                     ["label"] = "Bars, a distribution and grouped trends from numeric samples",
                     ["meta"] = new JsonArray(width + " columns", "24-bit", "Full"),
@@ -86,7 +86,7 @@ namespace SiteFrames.Pages {
         private static void ReviewMinimumWindow(string output) {
             foreach (ExportTheme theme in new[] { ExportTheme.Light, ExportTheme.Dark }) {
                 foreach (int padding in new[] { 0, 4 }) {
-                    LogRegion log = new LogRegion("minimum") { ShowTime = false };
+                    LogRegion log = new LogRegion("minimum") { ShowElapsed = false };
                     log.Apply(new LiveEvent("minimum", "write", text: "x"));
                     string path = Path.Combine(output, "minimum-window-" + theme + "-padding-" + padding);
                     ExportOptions options = new ExportOptions {

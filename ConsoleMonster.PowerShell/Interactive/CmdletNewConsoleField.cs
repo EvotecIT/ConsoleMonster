@@ -7,40 +7,40 @@ using ConsoleMonster.Interactive;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates a form field for New-ConsoleForm.</para>
-    /// <para type="description">A field has a name (its key in the result), a label, help shown while it has focus, a default, validation (-Required, -Validate and the type's own checks) and the command-line parameter it supplies (-Parameter) for the equivalent command. -VisibleWhen shows it only while a condition on the other values holds ($Values). -DependsOn resets it when those fields change; with -LoadChoices its options are loaded again in their own runspace (a spinner shows, Esc cancels), from the current values ($Values). Choices are built from any objects: -Display, -GroupBy, -Describe, -Badge, -Disabled and -Selected read each object (a property name, or a scriptblock for choices given with -Choices; loaded choices take property names), and -CommandValue picks the text the equivalent command shows and the field returns.</para>
+    /// <para type="description">A field has a name (its key in the result), a label, help shown while it has focus, a default, validation (-Required, -Validator and the type's own checks) and the command-line parameter it supplies (-ParameterName) for the equivalent command. -VisibleWhen shows it only while a condition on the other values holds ($Values). -DependsOn resets it when those fields change; with -LoadChoices its options are loaded again in their own runspace (a spinner shows, Esc cancels), from the current values ($Values). Choices are built from any objects: -Display, -GroupBy, -Describe, -Badge, -DisabledReason and -Selected read each object (a property name, or a scriptblock for choices given with -Choices; loaded choices take property names), and -CommandValue picks the text the equivalent command shows and the field returns.</para>
     /// </summary>
     /// <example>
     ///   <para>Dependent fields: picking a site loads its servers</para>
     ///   <code>
-    /// New-ConsoleField Site 'Site' -Type Select -Choices 'Warsaw', 'Berlin' -Parameter Site
-    /// New-ConsoleField Server 'Servers' -Type MultiSelect -DependsOn Site -LoadChoices { param($Values) Get-AppServer -Site $Values.Site } -Display Name -Parameter Server</code>
+    /// New-ConsoleField Site 'Site' -Type Select -Choices 'Warsaw', 'Berlin' -ParameterName Site
+    /// New-ConsoleField Server 'Servers' -Type MultiSelect -DependsOn Site -LoadChoices { param($Values) Get-AppServer -Site $Values.Site } -Display Name -ParameterName Server</code>
     /// </example>
     /// <example>
     ///   <para>A conditional field</para>
     ///   <code>
     /// New-ConsoleField Notify 'Send an email' -Type Toggle
-    /// New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validate { $_ -match '@' }</code>
+    /// New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -match '@' }</code>
     /// </example>
     /// <example>
     ///   <para>Loaded servers grouped by site, with their role as a badge, offline ones disabled and online ones selected; the command shows their names</para>
     ///   <code>
-    /// New-ConsoleField Servers 'Servers' -Type MultiSelect -DependsOn Domain -Parameter ComputerName -LoadChoices {
+    /// New-ConsoleField Servers 'Servers' -Type MultiSelect -DependsOn Domain -ParameterName ComputerName -LoadChoices {
     ///     param($Values)
     ///     Get-AppServer -Domain $Values.Domain | ForEach-Object {
     ///         [pscustomobject] @{ Name = $_.Name; Site = $_.Site; Role = $_.Role; Offline = $_.OfflineReason; Online = -not $_.OfflineReason }
     ///     }
-    /// } -Display Name -CommandValue Name -GroupBy Site -Badge Role -Disabled Offline -Selected Online</code>
+    /// } -Display Name -CommandValue Name -GroupBy Site -Badge Role -DisabledReason Offline -Selected Online</code>
     /// </example>
     /// <example>
     ///   <para>Checks offered by name, returned and shown in the command as their ids, with a typical time as a badge</para>
-    ///   <code>New-ConsoleField Checks 'Checks' -Type MultiSelect -Choices $checks -Display Name -CommandValue Id -GroupBy Category -Badge { "~$($_.Seconds) s" } -Parameter Check</code>
+    ///   <code>New-ConsoleField Checks 'Checks' -Type MultiSelect -Choices $checks -Display Name -CommandValue Id -GroupBy Category -Badge { "~$($_.Seconds) s" } -ParameterName Check</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleField")]
     [OutputType(typeof(Field))]
     public sealed class CmdletNewConsoleField : PSCmdlet {
         /// <summary><para type="description">The key of the value in the result.</para></summary>
         [Parameter(Mandatory = true, Position = 0)]
-        public string Name { get; set; } = string.Empty;
+        public string Key { get; set; } = string.Empty;
 
         /// <summary><para type="description">The label (default: the name).</para></summary>
         [Parameter(Position = 1)]
@@ -58,9 +58,9 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public string? Help { get; set; }
 
-        /// <summary><para type="description">The parameter the field supplies in the equivalent command (Name, -Name or --name).</para></summary>
+        /// <summary><para type="description">The parameter the field supplies in the equivalent command (Name, -Key or --name).</para></summary>
         [Parameter]
-        public string? Parameter { get; set; }
+        public string? ParameterName { get; set; }
 
         /// <summary><para type="description">Refuses an empty value.</para></summary>
         [Parameter]
@@ -96,7 +96,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Why a choice cannot be picked: a property name or a scriptblock returning the reason. Nothing, $false or an empty string leaves the choice available; $true disables it without a reason. Disabled choices are dimmed and show the reason while they have focus.</para></summary>
         [Parameter]
-        public object? Disabled { get; set; }
+        public object? DisabledReason { get; set; }
 
         /// <summary><para type="description">Whether a choice starts selected: a property name or a scriptblock returning $true. With -LoadChoices, use a property name. Works for loaded choices too, so the choices a loader marks are chosen once they arrive (a preset's values take their place when one is applied).</para></summary>
         [Parameter]
@@ -128,7 +128,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">A validator: $_ is the value, $Values the other values; return $true (or nothing), $false or an error message.</para></summary>
         [Parameter]
-        public ScriptBlock? Validate { get; set; }
+        public ScriptBlock? Validator { get; set; }
 
         /// <summary><para type="description">The smallest number, or the fewest choices of a MultiSelect field.</para></summary>
         [Parameter]
@@ -202,7 +202,7 @@ namespace ConsoleMonster.PowerShell {
         protected override void EndProcessing() {
             Field field = Create();
             field.Help = Help;
-            field.Parameter = Parameter;
+            field.ParameterName = ParameterName;
             field.Required = Required.IsPresent || field.Required && Type == ConsoleFieldType.Secret;
             if (NoRemember.IsPresent) {
                 field.Remember = false;
@@ -216,8 +216,8 @@ namespace ConsoleMonster.PowerShell {
                 ScriptBlock visible = VisibleWhen;
                 field.VisibleWhen = values => LanguagePrimitives.IsTrue(PSInteractive.Last(PSInteractive.InvokeWith(visible, null, new KeyValuePair<string, object?>("Values", PSForms.ToHashtable(values, null)))));
             }
-            if (Validate != null) {
-                ScriptBlock validate = Validate;
+            if (Validator != null) {
+                ScriptBlock validate = Validator;
                 field.Validator = (value, values) => PSInteractive.Validation(validate, value, PromptLabels.Default, new KeyValuePair<string, object?>("Values", PSForms.ToHashtable(values, null)));
             }
             PSForms.SetPage(field, Page);
@@ -227,19 +227,19 @@ namespace ConsoleMonster.PowerShell {
         private Field Create() {
             switch (Type) {
                 case ConsoleFieldType.TextArea:
-                    TextAreaField area = new TextAreaField(Name, Label) { Placeholder = Placeholder, MinLength = MinLength, MaxLength = MaxLength, MaxLines = MaxLines, Height = Height };
+                    TextAreaField area = new TextAreaField(Key, Label) { Placeholder = Placeholder, MinLength = MinLength, MaxLength = MaxLength, MaxLines = MaxLines, Height = Height };
                     if (Default != null) {
                         area.Default = PSInteractive.Text(Default);
                     }
                     return area;
                 case ConsoleFieldType.Secret:
-                    SecretField secret = new SecretField(Name, Label) { MinLength = MinLength, Required = Required.IsPresent };
+                    SecretField secret = new SecretField(Key, Label) { MinLength = MinLength, Required = Required.IsPresent };
                     if (CommandPlaceholder != null) {
                         secret.CommandPlaceholder = CommandPlaceholder;
                     }
                     return secret;
                 case ConsoleFieldType.Number:
-                    NumberField number = new NumberField(Name, Label) { WholeNumber = Integer.IsPresent, Minimum = Minimum, Maximum = Maximum };
+                    NumberField number = new NumberField(Key, Label) { Integer = Integer.IsPresent, Minimum = Minimum, Maximum = Maximum };
                     if (Step.HasValue) {
                         number.Step = Step.Value;
                     }
@@ -248,13 +248,13 @@ namespace ConsoleMonster.PowerShell {
                     }
                     return number;
                 case ConsoleFieldType.Toggle:
-                    ToggleField toggle = new ToggleField(Name, Label) { OnText = OnText, OffText = OffText };
+                    ToggleField toggle = new ToggleField(Key, Label) { OnText = OnText, OffText = OffText };
                     if (Default != null) {
                         toggle.Default = LanguagePrimitives.IsTrue(PSText.Unwrap(Default));
                     }
                     return toggle;
                 case ConsoleFieldType.Path:
-                    PathField path = new PathField(Name, Label) { PathKind = Kind, MustExist = MustExist.IsPresent };
+                    PathField path = new PathField(Key, Label) { PathKind = Kind, MustExist = MustExist.IsPresent };
                     if (Extension != null) {
                         foreach (string e in Extension) {
                             path.Extensions.Add(e.StartsWith(".", StringComparison.Ordinal) ? e : "." + e);
@@ -267,7 +267,7 @@ namespace ConsoleMonster.PowerShell {
                 case ConsoleFieldType.Select:
                 case ConsoleFieldType.MultiSelect:
                     bool multiple = Type == ConsoleFieldType.MultiSelect;
-                    ChoiceField choice = new ChoiceField(Name, Label, multiple) {
+                    ChoiceField choice = new ChoiceField(Key, Label, multiple) {
                         Minimum = Minimum.HasValue ? (int)Minimum.Value : (int?)null,
                         Maximum = Maximum.HasValue ? (int)Maximum.Value : (int?)null
                     };
@@ -277,7 +277,7 @@ namespace ConsoleMonster.PowerShell {
                         Description = Describe,
                         Badge = Badge,
                         MutedBadge = true,
-                        Disabled = Disabled,
+                        Disabled = DisabledReason,
                         Selected = multiple ? Default : null,
                         SelectedBy = Selected,
                         CommandValue = CommandValue
@@ -309,7 +309,7 @@ namespace ConsoleMonster.PowerShell {
                     }
                     return choice;
                 default:
-                    TextField text = new TextField(Name, Label) { Placeholder = Placeholder, MinLength = MinLength, Pattern = Pattern, PatternMessage = PatternMessage };
+                    TextField text = new TextField(Key, Label) { Placeholder = Placeholder, MinLength = MinLength, Pattern = Pattern, PatternMessage = PatternMessage };
                     if (Default != null) {
                         text.Default = PSInteractive.Text(Default);
                     }

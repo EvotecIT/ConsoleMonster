@@ -56,7 +56,7 @@ namespace ConsoleMonster.Interactive {
             foreach (T v in value) {
                 foreach (Choice c in Choices) {
                     if (Equals(c.Value, v)) {
-                        titles.Add(c.Title);
+                        titles.Add(c.Label);
                         break;
                     }
                 }

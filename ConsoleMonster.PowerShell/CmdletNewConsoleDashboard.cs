@@ -6,17 +6,17 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Defines a live console dashboard: a header with title and clock, the body and a footer.</para>
-    /// <para type="description">The scriptblock emits the body widgets top to bottom. Pass the result to Start-ConsoleDashboard to run it live, or to Write-ConsoleWidget to print it once.</para>
+    /// <para type="description">The scriptblock emits the body widgets top to bottom. Pass the result to Invoke-ConsoleDashboard to run it live, or to Show-Console to print it once.</para>
     /// </summary>
     /// <example>
     ///   <para>A dashboard with lanes and a log that fills the rest of the screen</para>
-    ///   <code>$d = New-ConsoleDashboard -Title 'Deploy' { New-ConsolePanel -Title 'Servers' { New-ConsoleLanes -Name servers }; New-ConsolePanel -Title 'Log' -Fill { New-ConsoleLog } }</code>
+    ///   <code>$d = New-ConsoleDashboard -Title 'Deploy' -Content { New-ConsolePanel -Title 'Servers' -Content { New-ConsoleLanes -WidgetId servers }; New-ConsolePanel -Title 'Log' -Fill -Content { New-ConsoleLogRegion } }</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleDashboard")]
     [OutputType(typeof(Dashboard))]
     public sealed class CmdletNewConsoleDashboard : PSCmdlet {
         /// <summary><para type="description">Scriptblock that emits the body widgets.</para></summary>
-        [Parameter(Position = 0, Mandatory = true)]
+        [Parameter(Position = 1, Mandatory = true)]
         public ScriptBlock Content { get; set; } = null!;
 
         /// <summary><para type="description">The title shown in the header bar (markup allowed).</para></summary>
@@ -31,20 +31,31 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public object? Footer { get; set; }
 
-        /// <summary><para type="description">Live name of the dashboard (for Send-ConsoleEvent title/status updates).</para></summary>
+        /// <summary><para type="description">Key/label dictionaries or typed KeyHint values; replaces the default Ctrl+C hint. Used when Footer is unset.</para></summary>
         [Parameter]
-        public string Name { get; set; } = "dashboard";
+        public object[]? FooterHints { get; set; }
+
+        /// <summary><para type="description">Live name of the dashboard (for Send-ConsoleEvent title/status updates).</para></summary>
+        [Parameter(Position = 0)]
+        public string WidgetId { get; set; } = "dashboard";
 
         /// <summary><para type="description">Blank rows between the body widgets.</para></summary>
         [Parameter]
         public int Gap { get; set; }
 
+        /// <summary><para type="description">Hides the default elapsed clock in the dashboard header.</para></summary>
+        [Parameter] public SwitchParameter NoElapsed { get; set; }
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
             List<IWidget> children = PSWidgets.Collect(Content);
-            Dashboard dashboard = new Dashboard(PSText.Markup(Title) ?? string.Empty, new Rows(children.ToArray()) { Gap = Gap }, Name) { Subtitle = PSText.Markup(Subtitle) };
+            Dashboard dashboard = new Dashboard(PSText.Markup(Title) ?? string.Empty, new Rows(children.ToArray()) { Gap = Gap }, WidgetId) { Subtitle = PSText.Markup(Subtitle), ShowElapsed = !NoElapsed.IsPresent };
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Footer))) {
                 dashboard.Footer = PSText.Markup(Footer);
+            }
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(FooterHints))) {
+                dashboard.FooterHints.Clear();
+                foreach (KeyHint hint in PSFooterHints.Read(FooterHints)) { dashboard.FooterHints.Add(hint); }
             }
             WriteObject(dashboard);
         }

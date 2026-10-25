@@ -1,4 +1,4 @@
-[?9001h[?1004h[?25l[2J[m[1m[HBefore[22m ->[1m[1CAfter[92m[22m
+[?9001h[?1004h[?25l[2J[m[H]0;Administrator: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe[?25h[?25l[1mBefore[22m -> [1mAfter[92m[22m
 +2 added  [91m-2 removed[90m
 … 1 unchanged line (1-1 / 1-1)
  2  2   [mhost=web-01[90m
@@ -7,4 +7,4 @@
     3 [92m+ [mport=[92m[1m443[90m[22m
     4 [92m+ [mprotocol=[92m[1mhttps[90m[22m
  5  5   [mworkers=4[90m
-… 5 unchanged lines (6-10 / 6-10)[12;1H]0;C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe[?25h[m[?9001l[?1004l
+… 5 unchanged lines (6-10 / 6-10)[12;1H[?25h[m[?9001l[?1004l

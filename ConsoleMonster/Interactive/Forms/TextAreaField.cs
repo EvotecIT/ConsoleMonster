@@ -8,9 +8,9 @@ namespace ConsoleMonster.Interactive {
     /// </summary>
     public sealed class TextAreaField : Field {
         /// <summary>Creates the field.</summary>
-        /// <param name="name">The key.</param>
+        /// <param name="key">The key.</param>
         /// <param name="label">The label.</param>
-        public TextAreaField(string name, string? label = null) : base(name, label) {
+        public TextAreaField(string key, string? label = null) : base(key, label) {
         }
 
         /// <inheritdoc />

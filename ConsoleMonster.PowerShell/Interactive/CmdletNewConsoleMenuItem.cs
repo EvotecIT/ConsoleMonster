@@ -9,7 +9,7 @@ using ConsoleMonster.Text;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates a menu item: an action, a submenu, a form, a selection, a page, a review, the presets list, a separator or the exit.</para>
-    /// <para type="description">What the item does follows from the parameter you give: -Action (a scriptblock, run on the pipeline thread with $MenuContext), -Submenu (a menu or a scriptblock of items), -Form (with -OnSubmit, which gets $Values and $FormResult), -Select or -MultiSelect (the chosen objects stay on the item: $item.Selection), -LoadChoices (loaded in its own runspace with a spinner), -Page (content built each time it shows), -Review (a summary with the equivalent command and Run), -Presets, -Separator or -Exit. -Badge and -State can be scriptblocks, recomputed every time the menu draws; -Disabled returns why the item is unavailable.</para>
+    /// <para type="description">What the item does follows from the parameter you give: -Action (a scriptblock, run on the pipeline thread with $MenuContext), -Submenu (a menu or a scriptblock of items), -Form (with -OnSubmit, which gets $Values and $FormResult), -Select or -MultiSelect (the chosen objects stay on the item: $item.Selection), -LoadChoices (loaded in its own runspace with a spinner), -Page (content built each time it shows), -Review (a summary with the equivalent command and Run), -Presets, -Separator or -Exit. -Badge and -Detail can be scriptblocks, recomputed every time the menu draws; -DisabledReason returns why the item is unavailable.</para>
     /// </summary>
     /// <example>
     ///   <para>A multi-selection with a computed badge</para>
@@ -24,7 +24,7 @@ namespace ConsoleMonster.PowerShell {
     public sealed class CmdletNewConsoleMenuItem : PSCmdlet {
         /// <summary><para type="description">The title.</para></summary>
         [Parameter(Position = 0)]
-        public string? Title { get; set; }
+        public string? Label { get; set; }
 
         /// <summary><para type="description">The action, run on the pipeline thread; $MenuContext (also $_) offers Toast, Confirm, Ask, Run (a live dashboard) and ShowResult.</para></summary>
         [Parameter(Position = 1)]
@@ -52,11 +52,11 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">State text ("24 selected"): a string or a scriptblock recomputed whenever the menu draws.</para></summary>
         [Parameter]
-        public object? State { get; set; }
+        public object? Detail { get; set; }
 
         /// <summary><para type="description">Why the item is unavailable: a string, or a scriptblock returning the reason (nothing when available).</para></summary>
         [Parameter]
-        public object? Disabled { get; set; }
+        public object? DisabledReason { get; set; }
 
         /// <summary><para type="description">A submenu: a menu from New-ConsoleMenu, or a scriptblock of New-ConsoleMenuItem calls.</para></summary>
         [Parameter]
@@ -106,9 +106,9 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public object? ChoiceBadge { get; set; }
 
-        /// <summary><para type="description">Disabled reason for each selection choice: a property name or scriptblock; null or empty enables the choice. With -LoadChoices, use a property name. The item's own disabled reason remains -Disabled.</para></summary>
+        /// <summary><para type="description">Disabled reason for each selection choice: a property name or scriptblock; null or empty enables the choice. With -LoadChoices, use a property name. The item's own disabled reason remains -DisabledReason.</para></summary>
         [Parameter]
-        public object? ChoiceDisabled { get; set; }
+        public object? ChoiceDisabledReason { get; set; }
 
         /// <summary><para type="description">Preview content for the focused choice ($_ is the choice).</para></summary>
         [Parameter]
@@ -146,17 +146,17 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter Presets { get; set; }
 
-        /// <summary><para type="description">Makes a divider (with -Title as its heading, if given).</para></summary>
+        /// <summary><para type="description">Makes a divider (with -Label as its heading, if given).</para></summary>
         [Parameter]
         public SwitchParameter Separator { get; set; }
 
-        /// <summary><para type="description">Makes the exit item (-Title defaults to Exit).</para></summary>
+        /// <summary><para type="description">Makes the exit item (-Label defaults to Exit).</para></summary>
         [Parameter]
         public SwitchParameter Exit { get; set; }
 
         /// <inheritdoc />
         protected override void EndProcessing() {
-            MenuItem item = new MenuItem(Title ?? (Exit.IsPresent ? PromptLabels.Default.Exit : string.Empty)) {
+            MenuItem item = new MenuItem(Label ?? (Exit.IsPresent ? PromptLabels.Default.Exit : string.Empty)) {
                 Description = Description,
                 Icon = Icon,
                 IconGlyph = IconName,
@@ -168,7 +168,7 @@ namespace ConsoleMonster.PowerShell {
             } else if (Exit.IsPresent) {
                 item.Kind = MenuItemKind.Exit;
             } else if (Submenu != null) {
-                Menu submenu = PSText.Unwrap(Submenu) is Menu given ? given : new Menu(item.Title);
+                Menu submenu = PSText.Unwrap(Submenu) is Menu given ? given : new Menu(item.Label);
                 if (PSText.Unwrap(Submenu) is ScriptBlock items) {
                     foreach (MenuItem child in PSMenus.CollectItems(items)) {
                         submenu.Add(child);
@@ -185,7 +185,7 @@ namespace ConsoleMonster.PowerShell {
                 List<object?> values = new List<object?>(multiple ? MultiSelect! : Select!);
                 List<Choice> choices = PSInteractive.Choices(values, new ChoiceSelectors {
                     Display = Display, Group = GroupBy, Description = Describe, Badge = ChoiceBadge,
-                    Disabled = ChoiceDisabled, Selected = Selected, MutedBadge = true
+                    Disabled = ChoiceDisabledReason, Selected = Selected, MutedBadge = true
                 });
                 if (multiple) {
                     item.MultiSelect(choices);
@@ -198,13 +198,13 @@ namespace ConsoleMonster.PowerShell {
                 }
                 ApplyChoiceSettings(item);
             } else if (LoadChoices != null) {
-                if (PSText.Unwrap(ChoiceBadge) is ScriptBlock || PSText.Unwrap(ChoiceDisabled) is ScriptBlock || PSText.Unwrap(Selected) is ScriptBlock) {
+                if (PSText.Unwrap(ChoiceBadge) is ScriptBlock || PSText.Unwrap(ChoiceDisabledReason) is ScriptBlock || PSText.Unwrap(Selected) is ScriptBlock) {
                     ThrowTerminatingError(new ErrorRecord(new PSArgumentException("With -LoadChoices, -ChoiceBadge and -ChoiceDisabled take property names, and -Selected takes initial values rather than a scriptblock."),
-                        "ConsoleMonsterChoiceLoaderSelector", ErrorCategory.InvalidArgument, Title));
+                        "ConsoleMonsterChoiceLoaderSelector", ErrorCategory.InvalidArgument, Label));
                     return;
                 }
                 item.LoadChoices(PSInteractive.MenuLoader(LoadChoices, new ChoiceSelectors {
-                    Display = Display, Group = GroupBy, Description = Describe, Badge = ChoiceBadge, Disabled = ChoiceDisabled,
+                    Display = Display, Group = GroupBy, Description = Describe, Badge = ChoiceBadge, Disabled = ChoiceDisabledReason,
                     Selected = Selected, MutedBadge = true
                 }, ArgumentList), !Single.IsPresent);
                 ApplyChoiceSettings(item);
@@ -249,19 +249,19 @@ namespace ConsoleMonster.PowerShell {
                 string text = PSInteractive.Text(badge);
                 item.BadgeSource = () => RichText.Plain(text);
             }
-            object? state = PSText.Unwrap(State);
+            object? state = PSText.Unwrap(Detail);
             if (state is ScriptBlock stateScript) {
-                item.StateSource = () => {
+                item.DetailSource = () => {
                     string text = PSInteractive.Text(PSInteractive.Last(stateScript.Invoke()));
                     return text.Length == 0 ? null : text;
                 };
             } else if (state != null) {
                 string text = PSInteractive.Text(state);
-                item.StateSource = () => text;
+                item.DetailSource = () => text;
             }
-            object? disabled = PSText.Unwrap(Disabled);
+            object? disabled = PSText.Unwrap(DisabledReason);
             if (disabled is ScriptBlock disabledScript) {
-                item.DisabledSource = () => {
+                item.DisabledReasonSource = () => {
                     object? result = PSText.Unwrap(PSInteractive.Last(disabledScript.Invoke()));
                     if (result == null || result is false) {
                         return null;
@@ -270,7 +270,7 @@ namespace ConsoleMonster.PowerShell {
                 };
             } else if (disabled != null) {
                 string reason = PSInteractive.Text(disabled);
-                item.DisabledSource = () => reason;
+                item.DisabledReasonSource = () => reason;
             }
         }
     }

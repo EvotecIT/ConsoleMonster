@@ -44,35 +44,35 @@ namespace ConsoleMonster.Building {
         /// <param name="widget">The content.</param>
         /// <param name="added">The content, typed.</param>
         /// <param name="fill">Whether the panel takes the remaining height in a live frame.</param>
-        /// <param name="caption">Text on the right of the top edge.</param>
+        /// <param name="headerRight">Text on the right of the top edge.</param>
         /// <returns>This builder.</returns>
-        public TSelf Panel<T>(string title, T widget, out T added, bool fill = false, string? caption = null) where T : IWidget {
+        public TSelf Panel<T>(string title, T widget, out T added, bool fill = false, string? headerRight = null) where T : IWidget {
             added = widget;
-            return Add(new Panel(widget, title) { Caption = caption }, fill ? LayoutSize.Fraction() : (LayoutSize?)null);
+            return Add(new Panel(widget, title) { HeaderRight = headerRight }, fill ? LayoutSize.Fraction() : (LayoutSize?)null);
         }
 
         /// <summary>Adds any content inside a titled panel.</summary>
         /// <param name="title">The panel title (markup).</param>
         /// <param name="content">The content.</param>
         /// <param name="fill">Whether the panel takes the remaining height in a live frame.</param>
-        /// <param name="caption">Text on the right of the top edge.</param>
+        /// <param name="headerRight">Text on the right of the top edge.</param>
         /// <returns>This builder.</returns>
-        public TSelf Panel(string title, IWidget content, bool fill = false, string? caption = null) {
-            return Add(new Panel(content, title) { Caption = caption }, fill ? LayoutSize.Fraction() : (LayoutSize?)null);
+        public TSelf Panel(string title, IWidget content, bool fill = false, string? headerRight = null) {
+            return Add(new Panel(content, title) { HeaderRight = headerRight }, fill ? LayoutSize.Fraction() : (LayoutSize?)null);
         }
 
         /// <summary>
         /// Adds a panel whose content can be replaced while the session runs: the panel frame stays and the content is a
-        /// <see cref="Widgets.Slot"/> named <paramref name="name"/> (see <see cref="Live.LiveSession.Region"/>).
+        /// <see cref="Widgets.RegionWidget"/> named <paramref name="widgetId"/> (see <see cref="Live.LiveSession.Region"/>).
         /// </summary>
         /// <param name="title">The panel title.</param>
-        /// <param name="name">The region name.</param>
+        /// <param name="widgetId">The region name.</param>
         /// <param name="content">The first content, or null for an empty region.</param>
         /// <param name="fill">Whether the panel takes the remaining height.</param>
-        /// <param name="caption">A caption in the bottom border, or null.</param>
+        /// <param name="headerRight">Text on the right of the top edge, or null.</param>
         /// <returns>This builder.</returns>
-        public TSelf Region(string title, string name, IWidget? content = null, bool fill = false, string? caption = null) {
-            return Panel(title, new Widgets.Slot(name, content), fill, caption);
+        public TSelf Region(string title, string widgetId, IWidget? content = null, bool fill = false, string? headerRight = null) {
+            return Panel(title, new Widgets.RegionWidget(widgetId, content), fill, headerRight);
         }
 
         /// <summary>Adds a row of columns.</summary>

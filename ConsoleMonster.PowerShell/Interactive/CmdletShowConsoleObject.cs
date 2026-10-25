@@ -30,7 +30,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Value (default) or Path. The positional form supports -PassThru Path.</para></summary>
         [Parameter(Position = 0)]
         [ValidateSet("Value", "Path")]
-        public string Output { get; set; } = "Value";
+        public string SelectionOutput { get; set; } = "Value";
 
         /// <summary><para type="description">The variable expression at the start of returned paths; default $x. It is displayed, never evaluated.</para></summary>
         [Parameter]
@@ -46,7 +46,7 @@ namespace ConsoleMonster.PowerShell {
         [ValidateRange(0, 64)]
         public int Depth { get; set; } = 8;
 
-        /// <summary><para type="description">Maximum items read from each collection; default 100.</para></summary>
+        /// <summary><para type="description">Maximum items read from each collection (default 100).</para></summary>
         [Parameter]
         [ValidateRange(1, 10000)]
         public int MaxItems { get; set; } = 100;
@@ -73,22 +73,32 @@ namespace ConsoleMonster.PowerShell {
         [ValidateRange(0, 10000)]
         public int Width { get; set; }
 
+        /// <summary><para type="description">Prints a static inspector without reading keys.</para></summary>
+        [Parameter] public SwitchParameter StaticSnapshot { get; set; }
+        /// <summary><para type="description">Returns one plain-text static inspector.</para></summary>
+        [Parameter] public SwitchParameter AsString { get; set; }
+        /// <summary><para type="description">Returns the static inspector widget.</para></summary>
+        [Parameter] public SwitchParameter AsWidget { get; set; }
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
+            PSOutputExport.Validate(this);
             InspectorOptions options = PSFormatting.InspectorOptions(Depth, MaxItems, Include, Exclude, MaxNodes, InputObject);
             InteractiveOptions interactive = PSInteractive.Options(this, Mode);
-            if (interactive.ResolveMode() != InteractionMode.Rich) {
+            if (StaticSnapshot.IsPresent || AsString.IsPresent || AsWidget.IsPresent || interactive.ResolveMode() != InteractionMode.Rich) {
                 InspectNode root = ObjectInspector.Inspect(InputObject, options);
-                PSFormatting.Write(this, new InspectorView(root, Title), Width);
+                InspectorView view = new InspectorView(root, Title);
+                if (AsWidget.IsPresent) { WriteObject(view); }
+                else { PSFormatting.Emit(this, view, Width, null, AsString.IsPresent); }
                 return;
             }
             ObjectExplorer explorer = new ObjectExplorer(InputObject, options, RootPath) { Title = Title };
             try {
                 ExplorerNode? selected = explorer.Show(interactive, _stop.Token);
                 if (PassThru.IsPresent && selected != null && selected.Error == null) {
-                    WriteObject(string.Equals(Output, "Path", StringComparison.OrdinalIgnoreCase) ? selected.Path : selected.Value, false);
+                    WriteObject(string.Equals(SelectionOutput, "Path", StringComparison.OrdinalIgnoreCase) ? selected.Path : selected.Value, false);
                 }
-            } catch (Exception ex) when (ex is PromptUnavailableException || ex is PromptCancelledException || ex is Input.InputClosedException) {
+            } catch (Exception ex) when (ex is PromptUnavailableException || ex is PromptCanceledException || ex is Input.InputClosedException) {
                 PSInteractive.Fail(this, ex, Title);
             }
         }

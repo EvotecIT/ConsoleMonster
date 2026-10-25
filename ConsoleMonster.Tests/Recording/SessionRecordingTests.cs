@@ -31,7 +31,7 @@ namespace ConsoleMonster.Tests.Sessions {
             SessionRecording recording = SessionRecording.Read(options.Path!);
             Assert.DoesNotContain("synthetic-", File.ReadAllText(options.Path!));
             Assert.Contains("API_TOKEN=••••••• (redacted)", recording.Export(ExportFormat.Text));
-            Assert.Equal(ConsoleMonster.Styling.Color.FromAnsi16(8), recording.FinalFrame()[0, 0].Style.Foreground);
+            Assert.Equal(ConsoleMonster.Styling.Color.FromAnsi16(8), recording.FinalFrame()[0, 0].Style.Color);
             Assert.Contains("Report", recording.ExportPlayerData());
         }
 
@@ -50,7 +50,7 @@ namespace ConsoleMonster.Tests.Sessions {
             SessionRecordingOptions options = Options();
             options.Path = null;
             options.Folder = System.IO.Path.Combine(_folder, "automatic");
-            options.Name = "Automatic recording";
+            options.Title = "Automatic recording";
             options.Redact.Add("\\A" + System.Text.RegularExpressions.Regex.Escape(Environment.MachineName) + "\\z");
             long earliest = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             string first, second;
@@ -76,7 +76,7 @@ namespace ConsoleMonster.Tests.Sessions {
         public void Writer_RedactsAcrossReadsAndProtectsChapterMetadata() {
             SessionRecordingOptions options = Options();
             options.Redact.Add("private-project");
-            options.Name = "token=title-secret";
+            options.Title = "token=title-secret";
             using (SessionRecorder recorder = SessionRecorder.Start(options)) {
                 recorder.CapturePowerShellOutput("Bearer syn");
                 recorder.CapturePowerShellOutput("thetic-token\r\napi_key=sample-key\r\nprivate-");
@@ -118,7 +118,7 @@ namespace ConsoleMonster.Tests.Sessions {
             }
             var frame = SessionRecording.Read(options.Path!).FinalFrame();
             Assert.DoesNotContain("hidden-value", File.ReadAllText(options.Path!));
-            Assert.Equal(ConsoleMonster.Styling.Color.FromAnsi16(2), frame[0, 1].Style.Foreground);
+            Assert.Equal(ConsoleMonster.Styling.Color.FromAnsi16(2), frame[0, 1].Style.Color);
             Assert.Contains("Green next line", ConsoleExporter.ToText(frame));
         }
 
@@ -241,8 +241,7 @@ namespace ConsoleMonster.Tests.Sessions {
             Assert.Equal(16, frame.Width); Assert.Equal(5, frame.Height);
             Assert.StartsWith("OKady", ConsoleExporter.ToText(frame));
             Assert.Contains("Done", ConsoleExporter.ToText(frame));
-            Assert.Equal(ConsoleMonster.Styling.Color.FromAnsi16(2), frame[2, 0].Style.Foreground);
-            Assert.Contains("```", recording.Export(ExportFormat.Markdown));
+            Assert.Equal(ConsoleMonster.Styling.Color.FromAnsi16(2), frame[2, 0].Style.Color);
             Assert.Contains("Done", recording.Export(ExportFormat.Text));
             Assert.Contains("16x5", recording.ToAsciicast());
         }

@@ -37,7 +37,7 @@ namespace ConsoleMonster.Examples {
                 case "prompts":
                     try {
                         PromptTour.Run(args.Length > 1 ? args[1] : null);
-                    } catch (Interactive.PromptCancelledException) {
+                    } catch (Interactive.PromptCanceledException) {
                         return 130;
                     }
                     return 0;

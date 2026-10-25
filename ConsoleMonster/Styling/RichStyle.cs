@@ -10,13 +10,15 @@ namespace ConsoleMonster.Styling {
     /// </summary>
     public readonly struct RichStyle : IEquatable<RichStyle> {
         /// <summary>Creates a style.</summary>
-        /// <param name="foreground">The foreground colour.</param>
-        /// <param name="background">The background colour.</param>
+        /// <param name="color">The foreground colour.</param>
+        /// <param name="backgroundColor">The background colour.</param>
         /// <param name="decoration">Decorations.</param>
+        /// <param name="role">Theme style applied before literal colors and added decorations.</param>
         /// <param name="link">A hyperlink target (OSC 8 where supported), or null.</param>
-        public RichStyle(RichColor foreground = default, RichColor background = default, TextDecoration decoration = TextDecoration.None, string? link = null) {
-            Foreground = foreground;
-            Background = background;
+        public RichStyle(RichColor color = default, RichColor backgroundColor = default, TextDecoration decoration = TextDecoration.None, string? link = null, ThemeToken? role = null) {
+            Role = role;
+            Color = color;
+            BackgroundColor = backgroundColor;
             Decoration = decoration;
             Link = string.IsNullOrEmpty(link) ? null : link;
         }
@@ -24,11 +26,14 @@ namespace ConsoleMonster.Styling {
         /// <summary>No styling.</summary>
         public static RichStyle Plain => default;
 
+        /// <summary>Theme style applied first; literal colors override its colors and decorations are added.</summary>
+        public ThemeToken? Role { get; }
+
         /// <summary>The foreground colour.</summary>
-        public RichColor Foreground { get; }
+        public RichColor Color { get; }
 
         /// <summary>The background colour.</summary>
-        public RichColor Background { get; }
+        public RichColor BackgroundColor { get; }
 
         /// <summary>Decorations.</summary>
         public TextDecoration Decoration { get; }
@@ -37,27 +42,27 @@ namespace ConsoleMonster.Styling {
         public string? Link { get; }
 
         /// <summary>Whether the style changes nothing.</summary>
-        public bool IsPlain => Foreground.IsDefault && Background.IsDefault && Decoration == TextDecoration.None && Link == null;
+        public bool IsPlain => !Role.HasValue && Color.IsDefault && BackgroundColor.IsDefault && Decoration == TextDecoration.None && Link == null;
 
         /// <summary>Returns a copy with another foreground.</summary>
         /// <param name="color">The colour.</param>
         /// <returns>The copy.</returns>
-        public RichStyle WithForeground(RichColor color) => new RichStyle(color, Background, Decoration, Link);
+        public RichStyle WithColor(RichColor color) => new RichStyle(color, BackgroundColor, Decoration, Link, Role);
 
         /// <summary>Returns a copy with another background.</summary>
         /// <param name="color">The colour.</param>
         /// <returns>The copy.</returns>
-        public RichStyle WithBackground(RichColor color) => new RichStyle(Foreground, color, Decoration, Link);
+        public RichStyle WithBackgroundColor(RichColor color) => new RichStyle(Color, color, Decoration, Link, Role);
 
         /// <summary>Returns a copy with added decorations.</summary>
         /// <param name="decoration">The decorations.</param>
         /// <returns>The copy.</returns>
-        public RichStyle With(TextDecoration decoration) => new RichStyle(Foreground, Background, Decoration | decoration, Link);
+        public RichStyle With(TextDecoration decoration) => new RichStyle(Color, BackgroundColor, Decoration | decoration, Link, Role);
 
         /// <summary>Returns a copy with a hyperlink (null removes it).</summary>
         /// <param name="link">The target.</param>
         /// <returns>The copy.</returns>
-        public RichStyle WithLink(string? link) => new RichStyle(Foreground, Background, Decoration, link);
+        public RichStyle WithLink(string? link) => new RichStyle(Color, BackgroundColor, Decoration, link, Role);
 
         /// <summary>
         /// Parses decorations from names separated by commas or spaces: Bold, Dim, Italic, Underline, Strikethrough (Strike),
@@ -106,6 +111,7 @@ namespace ConsoleMonster.Styling {
         /// <returns>The specification.</returns>
         public string ToMarkup() {
             List<string> words = new List<string>();
+            if (Role.HasValue) { words.Add(Role.Value.ToString().ToLowerInvariant()); }
             if ((Decoration & TextDecoration.Bold) != 0) {
                 words.Add("bold");
             }
@@ -124,12 +130,12 @@ namespace ConsoleMonster.Styling {
             if ((Decoration & TextDecoration.Reverse) != 0) {
                 words.Add("reverse");
             }
-            if (!Foreground.IsDefault) {
-                words.Add(Foreground.ToMarkup());
+            if (!Color.IsDefault) {
+                words.Add(Color.ToMarkup());
             }
-            if (!Background.IsDefault) {
+            if (!BackgroundColor.IsDefault) {
                 words.Add("on");
-                words.Add(Background.ToMarkup());
+                words.Add(BackgroundColor.ToMarkup());
             }
             if (Link != null) {
                 words.Add("link=" + EncodeLink(Link));
@@ -168,13 +174,13 @@ namespace ConsoleMonster.Styling {
         }
 
         /// <inheritdoc />
-        public bool Equals(RichStyle other) => Foreground.Equals(other.Foreground) && Background.Equals(other.Background) && Decoration == other.Decoration && string.Equals(Link, other.Link, StringComparison.Ordinal);
+        public bool Equals(RichStyle other) => Role == other.Role && Color.Equals(other.Color) && BackgroundColor.Equals(other.BackgroundColor) && Decoration == other.Decoration && string.Equals(Link, other.Link, StringComparison.Ordinal);
 
         /// <inheritdoc />
         public override bool Equals(object? obj) => obj is RichStyle other && Equals(other);
 
         /// <inheritdoc />
-        public override int GetHashCode() => (Foreground.GetHashCode() * 397) ^ (Background.GetHashCode() * 31) ^ (int)Decoration ^ (Link == null ? 0 : StringComparer.Ordinal.GetHashCode(Link));
+        public override int GetHashCode() => (Role.GetHashCode() * 17) ^ (Color.GetHashCode() * 397) ^ (BackgroundColor.GetHashCode() * 31) ^ (int)Decoration ^ (Link == null ? 0 : StringComparer.Ordinal.GetHashCode(Link));
 
         /// <summary>Equality.</summary>
         /// <param name="left">Left.</param>

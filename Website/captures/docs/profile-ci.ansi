@@ -1,11 +1,11 @@
-[?9001h[?1004h[?25l[2J[m[HThis console
+[?9001h[?1004h[?25l[2J[m[H]0;Administrator: C:\Program Files\PowerShell\7\pwsh.exe[?25h[?25lThis console
 Mode             Stream
 ColorDepth       – None
 Glyphs           Basic
 Width            100
 Height           40
 ThemePreference  Dark
-FontFace         Consolas[10;1H]0;C:\Program Files\PowerShell\7\pwsh.exe[?25h  hyperlinks: False (terminal/CONSOLEMONSTER_HYPERLINKS; requires interactive VT, never redirected or CI)
+FontFace         Consolas[10;1H[?25h  hyperlinks: False (terminal/CONSOLEMONSTER_HYPERLINKS; requires interactive VT, never redirected or CI)
   mode: Stream (CI environment)
   colour: None (NO_COLOR)
   glyphs: Basic (stream/CI)

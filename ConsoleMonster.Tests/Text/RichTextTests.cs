@@ -17,6 +17,23 @@ namespace ConsoleMonster.Tests.Text {
             return Terminal.RenderEncoded(text, TerminalProfile.Fixed(40, 5, depth, GlyphTier.Full), Theme.Dark);
         }
 
+        [Fact]
+        public void RoleStylesSurviveLiteralColorOverridesAndPieceComposition() {
+            var red = Color.FromRgb(220, 10, 10);
+            var blue = Color.FromRgb(10, 10, 220);
+            var green = Color.FromRgb(10, 220, 10);
+            var theme = Theme.Dark.With(ThemeToken.Pass, new ThemeStyle(new ThemeColor(red, 1), new ThemeColor(blue, 4), TextDecoration.Bold));
+            var style = new RichStyle(color: RichColor.From(green), decoration: TextDecoration.Underline, role: ThemeToken.Pass);
+            var text = RichText.FromPieces(new[] { "ready" }, style: style.WithLink("https://example.test"));
+            var context = Terminal.CreateContext(TerminalProfile.Fixed(40, 5, ColorDepth.TrueColor, GlyphTier.Full), theme);
+            var actual = text.ToStyledText(context).Lines[0][0].Style;
+            Assert.Equal(green, actual.Color);
+            Assert.Equal(blue, actual.BackgroundColor);
+            Assert.Equal(TextDecoration.Bold | TextDecoration.Underline, actual.Decoration);
+            Assert.Equal("https://example.test", actual.Link);
+            Assert.NotEqual(style, new RichStyle(color: RichColor.From(green), decoration: TextDecoration.Underline));
+        }
+
         [Theory]
         [InlineData(ConsoleColor.Black, "30")]
         [InlineData(ConsoleColor.DarkRed, "31")]
@@ -102,17 +119,17 @@ namespace ConsoleMonster.Tests.Text {
         [Fact]
         public void FromPieces_FollowsWriteColor_ExtraPiecesTakeTheFirstColour() {
             RichText text = RichText.FromPieces(new[] { "a", "b", "c" }, new RichColor[] { ConsoleColor.Yellow, ConsoleColor.Green }, new RichColor[] { ConsoleColor.Blue, ConsoleColor.Red });
-            Assert.Equal(new RichColor[] { ConsoleColor.Yellow, ConsoleColor.Green, ConsoleColor.Yellow }, text.Segments.Select(s => s.Style.Foreground).ToArray());
-            Assert.Equal(new RichColor[] { ConsoleColor.Blue, ConsoleColor.Red, ConsoleColor.Blue }, text.Segments.Select(s => s.Style.Background).ToArray());
+            Assert.Equal(new RichColor[] { ConsoleColor.Yellow, ConsoleColor.Green, ConsoleColor.Yellow }, text.Segments.Select(s => s.Style.Color).ToArray());
+            Assert.Equal(new RichColor[] { ConsoleColor.Blue, ConsoleColor.Red, ConsoleColor.Blue }, text.Segments.Select(s => s.Style.BackgroundColor).ToArray());
         }
 
         [Fact]
         public void Gradient_InterpolatesPerGraphemeAndStepsOnSixteenColours() {
             RichText text = RichText.Gradient("ABCDE", RichColor.FromRgb(255, 0, 0), RichColor.FromRgb(0, 0, 255));
             Assert.Equal(5, text.Segments.Count);
-            Assert.Equal("#ff0000", text.Segments[0].Style.Foreground.ToMarkup());
-            Assert.Equal("#0000ff", text.Segments[4].Style.Foreground.ToMarkup());
-            Assert.Equal("#800080", text.Segments[2].Style.Foreground.ToMarkup());
+            Assert.Equal("#ff0000", text.Segments[0].Style.Color.ToMarkup());
+            Assert.Equal("#0000ff", text.Segments[4].Style.Color.ToMarkup());
+            Assert.Equal("#800080", text.Segments[2].Style.Color.ToMarkup());
             Assert.Contains(";38;2;255;0;0m", Encode(text));
             string sixteen = Encode(text, ColorDepth.Ansi16);
             Assert.DoesNotContain(";38;2;", sixteen);
@@ -136,15 +153,15 @@ namespace ConsoleMonster.Tests.Text {
             StyledLine cut = TextWrapper.TruncateMiddle(line, 9, "…");
             List<TextSpan> spans = new List<TextSpan>(cut);
             Assert.Equal("aaaa…bbbb", cut.PlainText);
-            Assert.Equal(Color.FromAnsi16(9), spans[0].Style.Foreground);
-            Assert.Equal(Color.FromAnsi16(10), spans[spans.Count - 1].Style.Foreground);
+            Assert.Equal(Color.FromAnsi16(9), spans[0].Style.Color);
+            Assert.Equal(Color.FromAnsi16(10), spans[spans.Count - 1].Style.Color);
         }
 
         [Fact]
         public void Wrap_CarriesStylesOntoTheNextLine() {
             RichText text = RichText.Plain("alpha beta gamma delta", new RichStyle(ThemeToken.Fail));
             string encoded = Terminal.RenderEncoded(new RichText(text.Segments) { Overflow = TextOverflow.Wrap }, TerminalProfile.Fixed(12, 5, ColorDepth.TrueColor, GlyphTier.Full), Theme.Dark);
-            string fail = Theme.Dark.Resolve(ThemeToken.Fail, ColorDepth.TrueColor).Foreground.R.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            string fail = Theme.Dark.Resolve(ThemeToken.Fail, ColorDepth.TrueColor).Color.R.ToString(System.Globalization.CultureInfo.InvariantCulture);
             Assert.True(encoded.Split(new[] { "38;2;" + fail + ";" }, StringSplitOptions.None).Length - 1 >= 2, "every wrapped line keeps the colour");
         }
 
@@ -188,7 +205,7 @@ namespace ConsoleMonster.Tests.Text {
             bars.Add(label, 5);
             StackedBar stacked = new StackedBar();
             stacked.Add(label, 3);
-            LogRegion log = new LogRegion { ShowTime = false };
+            LogRegion log = new LogRegion { ShowElapsed = false };
             log.Write(label, "warn");
             Tree tree = new Tree(label.ToMarkup());
             tree.Add(label, StatusKind.Pass);
@@ -212,7 +229,7 @@ namespace ConsoleMonster.Tests.Text {
             Assert.NotNull(lanes.Items.First(l => l.Key == "a").LabelText);
             Assert.Equal("[lime]SRV2[/]", lanes.Items.First(l => l.Key == "b").Label);
             LogRegion log = new LogRegion();
-            log.Apply(new ConsoleMonster.Live.LiveEvent("log", "write", text: "[fail]boom[/]", state: "err", isMarkup: true));
+            log.Apply(new ConsoleMonster.Live.LiveEvent("log", "write", text: "[fail]boom[/]", status: "err", isMarkup: true));
             Assert.Equal("boom", log.Entries.Single().Text);
         }
     }

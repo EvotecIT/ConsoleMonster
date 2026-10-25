@@ -23,7 +23,7 @@
 [0;38;2;75;80;96m╭─[0m [0;1mOutput[0m [0;38;2;75;80;96m─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮[0m
 [0;38;2;75;80;96m│[0m Generate markdown help (38 commands)...                                                                                                  [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m│[0m Docs/Readme.md updated                                                                                                                   [0;38;2;75;80;96m│[0m
-[0;38;2;75;80;96m│[0m Docs/Write-ConsoleTable.md ... Docs/Start-ConsoleDashboard.md                                                                            [0;38;2;75;80;96m│[0m
+[0;38;2;75;80;96m│[0m Docs/Show-ConsoleTable.md ... Docs/Invoke-ConsoleDashboard.md                                                                            [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m│[0m Generate en-US MAML help...                                                                                                              [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m│[0m en-US/ConsoleMonster.PowerShell.dll-Help.xml (412 KB)                                                                                    [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m│[0m Sign module files...                                                                                                                     [0;38;2;75;80;96m│[0m

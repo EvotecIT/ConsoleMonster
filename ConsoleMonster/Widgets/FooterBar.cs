@@ -28,11 +28,11 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Creates a segment.</summary>
         /// <param name="text">The text.</param>
         /// <param name="link">A link target (http, https, mailto, ftp), or null.</param>
-        /// <param name="tone">The tone, or null for muted text.</param>
-        public FooterSegment(string text, string? link = null, ThemeToken? tone = null) {
+        /// <param name="role">The tone, or null for muted text.</param>
+        public FooterSegment(string text, string? link = null, ThemeToken? role = null) {
             Text = text ?? string.Empty;
             Link = link;
-            Tone = tone;
+            Role = role;
         }
 
         /// <summary>The text.</summary>
@@ -42,7 +42,7 @@ namespace ConsoleMonster.Widgets {
         public string? Link { get; }
 
         /// <summary>The tone, or null for muted text.</summary>
-        public ThemeToken? Tone { get; }
+        public ThemeToken? Role { get; }
     }
 
     /// <summary>
@@ -117,7 +117,7 @@ namespace ConsoleMonster.Widgets {
                 if (spans.Count > 0) {
                     spans.Add(new TextSpan(dot, muted));
                 }
-                Style style = segment.Tone.HasValue ? context.Style(segment.Tone.Value) : muted;
+                Style style = segment.Role.HasValue ? context.Style(segment.Role.Value) : muted;
                 if (!string.IsNullOrEmpty(segment.Link)) {
                     style = style.With(TextDecoration.Underline).WithLink(segment.Link!);
                 }

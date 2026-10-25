@@ -95,11 +95,11 @@ namespace SiteFrames {
             // Get-ChildItem and a hashtable after Enable-ConsoleFormatting: the top 25 rows of the recording's last screen, which
             // end with the hashtable; recheck the crop when the formatting recording changes.
             Demo("formatting", "formatting", "Enable-ConsoleFormatting", 25);
-            Figure("files", "files", "Get-ChildItem | Format-ConsoleTable");
+            Figure("files", "files", "Get-ChildItem | Show-ConsoleTable");
             Widget("widgets", "bar", "New-ConsoleBarChart");
-            Demo("parallel", "parallel", "ForEach-ConsoleItem -Parallel");
+            Demo("parallel", "parallel", "Invoke-ConsoleRun -Parallel");
             Widget("csharp", "statuslist", "dotnet run");
-            Figure("markdown", "export-markdown", "Format-ConsoleTable -As Markdown");
+            Figure("markdown", "export-markdown", "Export-ConsoleFrame -Format Markdown");
             return images;
         }
 

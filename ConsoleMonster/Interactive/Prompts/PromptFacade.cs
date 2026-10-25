@@ -81,7 +81,7 @@ namespace ConsoleMonster.Interactive {
         /// <param name="cancellationToken">Cancels the prompt.</param>
         /// <returns>The number.</returns>
         public static int Integer(string title, int? defaultValue = null, int? minimum = null, int? maximum = null, InteractiveOptions? options = null, CancellationToken cancellationToken = default) {
-            NumberPrompt prompt = new NumberPrompt(title) { WholeNumber = true, Minimum = minimum, Maximum = maximum };
+            NumberPrompt prompt = new NumberPrompt(title) { Integer = true, Minimum = minimum, Maximum = maximum };
             if (defaultValue.HasValue) {
                 prompt.Default = defaultValue.Value;
             }

@@ -6,8 +6,8 @@ namespace ConsoleMonster.Widgets {
     public sealed class LanesHandle : LiveHandle {
         /// <summary>Creates a handle.</summary>
         /// <param name="dispatcher">The dispatcher.</param>
-        /// <param name="target">The lanes name.</param>
-        public LanesHandle(ILiveDispatcher dispatcher, string target) : base(dispatcher, target) {
+        /// <param name="widgetId">The lanes name.</param>
+        public LanesHandle(ILiveDispatcher dispatcher, string widgetId) : base(dispatcher, widgetId) {
         }
 
         /// <summary>Adds a lane.</summary>

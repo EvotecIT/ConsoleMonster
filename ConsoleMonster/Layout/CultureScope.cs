@@ -6,7 +6,7 @@ using ConsoleMonster.Canvas;
 namespace ConsoleMonster.Layout {
     /// <summary>
     /// Renders a widget with a fixed culture for numbers, dates and durations, whatever the terminal's culture is (used by
-    /// <c>Format-ConsoleTable -AsWidget -Culture</c>, so the culture travels with the widget into exports and dashboards).
+    /// <c>Show-ConsoleTable -AsWidget -Culture</c>, so the culture travels with the widget into exports and dashboards).
     /// </summary>
     public sealed class CultureScope : IContainer {
         /// <summary>Creates the scope.</summary>

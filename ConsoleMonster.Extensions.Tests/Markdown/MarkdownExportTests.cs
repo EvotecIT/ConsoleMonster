@@ -1,0 +1,194 @@
+using System;
+using System.Globalization;
+using System.IO;
+using ConsoleMonster.Canvas;
+using ConsoleMonster.Capabilities;
+using ConsoleMonster.Export;
+using ConsoleMonster.Markdown;
+using ConsoleMonster.Layout;
+using ConsoleMonster.Live;
+using ConsoleMonster.Sessions;
+using ConsoleMonster.Presenters;
+using ConsoleMonster.Styling;
+using ConsoleMonster.Widgets;
+using Xunit;
+
+namespace ConsoleMonster.Extensions.Tests.Markdown {
+    public sealed class MarkdownExportTests {
+        [Fact]
+        public void NullOrDefaultWidgetOptionsResolveWithoutSelectingTheRecordingOverload() {
+            var table = new Table().AddColumn("Host").AddRow("web-01");
+            Assert.Equal(MarkdownExporter.Export(table), MarkdownExporter.Export(table, null));
+            Assert.Equal(MarkdownExporter.Export(table), MarkdownExporter.Export(table, default));
+            Assert.Equal(MarkdownExporter.Export(table), MarkdownExporter.Export(table, null, default));
+        }
+
+        [Theory]
+        [InlineData(GlyphTier.Full)]
+        [InlineData(GlyphTier.Ascii)]
+        public void MarkdownUsesPipeTablesAndPreservesPresentedCulture(GlyphTier glyphs) {
+            Table table = new Table();
+            table.AddColumn("Host");
+            table.AddColumn("Status");
+            table.AddColumn("Amount");
+            table.Columns[2].Presenter = new NumberPresenter();
+            table.AddRow("日本", "[pass]Ready[/]", TableCell.FromValue(12.5));
+            IWidget widget = new Rows(table, new TextBlock("**literal** <script>\n```\n````") { IsMarkup = false });
+            ExportOptions options = new ExportOptions { Width = 35, Glyphs = glyphs, Culture = CultureInfo.GetCultureInfo("pl-PL") };
+            string text = ConsoleExporter.ToText(widget, options);
+            string markdown = MarkdownExporter.Export(widget, options);
+            Assert.Contains("| Host | Status | Amount |\n| :--- | :--- | ---: |", markdown);
+            Assert.Contains("| 日本 | Ready | 12,5 |", markdown);
+            Assert.Equal("~~~text\n" + text + "~~~\n", MarkdownExporter.Export(widget, options, fenced: true));
+            Assert.Contains("Ready", markdown);
+            Assert.Contains("12,5", markdown);
+            Assert.DoesNotContain("[pass]", markdown);
+            Assert.Equal(-1, markdown.IndexOf('\u001b'));
+        }
+
+        [Fact]
+        public void FrameMarkdownKeepsWideGlyphsLiteralTextAndSize() {
+            CellBuffer frame = new CellBuffer(30, 3);
+            frame.Write(0, 0, "日本 **bold** | <tag>", Style.Plain);
+            frame.Write(0, 1, "  ``` trailing", Style.Plain);
+            Assert.Equal("~~~text\n" + ConsoleExporter.ToText(frame) + "~~~\n", MarkdownExporter.Export(frame));
+        }
+
+        [Fact]
+        public void TableMarkdownEscapesCellsKeepsCollectionsAndDoesNotCropToConsoleWidth() {
+            Table table = new Table { RecordViewRows = 0 };
+            table.AddColumn(new TableColumn("Left|header") { Alignment = HorizontalAlignment.Left });
+            table.AddColumn(new TableColumn("Center") { Alignment = HorizontalAlignment.Center });
+            table.AddColumn(new TableColumn("Right") { Alignment = HorizontalAlignment.Right });
+            table.AddValues("a|b\r\n<script> & *literal*", new[] { "one", "two" }, 12);
+            string markdown = MarkdownExporter.Export(table, new ExportOptions { Width = 5, Culture = CultureInfo.InvariantCulture });
+            Assert.Equal("| Left\\|header | Center | Right |\n| :--- | :---: | ---: |\n| a\\|b<br>&lt;script&gt; &amp; \\*literal\\* | one, two | 12 |\n\n", markdown);
+        }
+
+        [Fact]
+        public void GroupedMarkdownUsesHeadingsAndBoldSubtotalsAndFinalTotal() {
+            Table table = new Table { Title = "Report", ShowTotals = true, ShowSubtotals = true };
+            table.AddColumn(new TableColumn("Name") { IsKey = true });
+            table.AddColumn(new TableColumn("Count") { Aggregate = ColumnAggregate.Sum });
+            table.AddGroup("East").AddValues("first", 2).AddValues("second", 3);
+            table.AddGroup("West").AddValues("third", 4);
+            string markdown = MarkdownExporter.Export(table, new ExportOptions { Culture = CultureInfo.InvariantCulture });
+            Assert.Contains("### East · 2\n\n| Name | Count |", markdown);
+            Assert.Contains("| **Subtotal** | **5** |", markdown);
+            Assert.EndsWith("\n\n### Total\n\n| Name | Count |\n| :--- | ---: |\n| **Total** | **9** |\n\n", markdown);
+            table.TotalLabel = "Grand total";
+            Assert.EndsWith("\n\n### Grand total\n\n| Name | Count |\n| :--- | ---: |\n| **Grand total** | **9** |\n\n",
+                MarkdownExporter.Export(table, new ExportOptions { Culture = CultureInfo.InvariantCulture }));
+        }
+
+        [Fact]
+        public void InspectedTreeUsesMemberPresentersAndOmitsOnlyScalarCollectionIndexes() {
+            Tree tree = InspectorTree.Build(ConsoleMonster.Data.ObjectInspector.Inspect(new {
+                State = "Pass", Bytes = 2048L, Duration = TimeSpan.FromSeconds(125),
+                Tags = new[] { "production", "web" }, Services = new[] { new { State = "Warning", Bytes = 4096L } }
+            }), "Service");
+            ExportOptions options = new ExportOptions { Culture = CultureInfo.InvariantCulture };
+            string markdown = MarkdownExporter.Export(tree, options);
+            Assert.Contains("  - State: ✓ Pass\n  - Bytes: 2 KB\n  - Duration: 2 m 05 s\n", markdown);
+            Assert.Contains("    - production\n    - web\n", markdown);
+            Assert.Contains("    - \\[0\\]", markdown);
+            Assert.Contains("      - State: ▴ Warning\n      - Bytes: 4 KB\n", markdown);
+            string console = ConsoleExporter.ToText(tree, options);
+            Assert.Contains("2 KB", console);
+            Assert.Contains("✓ Pass", console);
+            Assert.Contains("[0]", console);
+        }
+
+        [Fact]
+        public void RecordsAndTreesUseSemanticStructureAndExistingStatusPresenters() {
+            RecordView record = new RecordView("Server");
+            record.AddField("State", TableCell.FromValue("Pass"), CellPresenters.StatusWord);
+            record.AddField("Notes", TableCell.FromValue("first\nsecond"));
+            Tree tree = new Tree("Root");
+            tree.Add("Child", StatusKind.Warn).Add("Leaf");
+            string markdown = MarkdownExporter.Export(new Rows(record, tree));
+            Assert.Contains("| State | ✓ Pass |", markdown);
+            Assert.Contains("| Notes | first<br>second |", markdown);
+            Assert.Contains("- Root\n  - ▴ Child\n    - Leaf\n", markdown);
+        }
+
+        [Fact]
+        public void CultureScopesAndCustomPresentersAreKeptInMarkdown() {
+            Table table = new Table();
+            table.AddColumn(new TableColumn("Size") { Presenter = CellPresenters.Bytes });
+            table.AddValues(1536);
+            string markdown = MarkdownExporter.Export(new CultureScope(table, CultureInfo.GetCultureInfo("pl-PL")), new ExportOptions { Culture = CultureInfo.GetCultureInfo("en-US") });
+            Assert.Contains("| 1,5 KB |", markdown);
+        }
+
+        [Fact]
+        public void ContentBearingContainersKeepTitlesCaptionsStatusAndFooters() {
+            Panel panel = new Panel(new TextBlock("body"), "Deployment result") { HeaderRight = "3 hosts", Caption = "2 failures" };
+            Dashboard dashboard = new Dashboard("Run result", panel) { Subtitle = "Production", Detail = "Failed", Status = StatusKind.Fail, Footer = "Review failures" };
+            string markdown = MarkdownExporter.Export(dashboard, new ExportOptions { Width = 100 });
+            foreach (string value in new[] { "Run result", "Production", "Failed", "Deployment result", "3 hosts", "2 failures", "body", "Review failures" }) {
+                Assert.Contains(value, markdown);
+            }
+        }
+
+        [Fact]
+        public void UnsupportedWidgetFallbackKeepsTheEffectiveScopedCulture() {
+            IWidget widget = new CultureScope(new KeyValueList().AddValue("Amount", 12.5), CultureInfo.GetCultureInfo("pl-PL"));
+            string markdown = MarkdownExporter.Export(widget, new ExportOptions { Culture = CultureInfo.GetCultureInfo("en-US") });
+            Assert.Contains("12,5", markdown);
+            Assert.DoesNotContain("12.5", markdown);
+        }
+
+        [Fact]
+        public void SemanticMarkdownSanitizesTerminalSequencesWithoutLosingLineBreaks() {
+            string input = "\u001b[31mred\u001b[0m\r\n\u001b]8;;https://example.com\u0007link\u001b]8;;\u001b\\\u0001";
+            Table table = new Table();
+            table.AddColumn("Value");
+            table.AddValues(input);
+            string markdown = MarkdownExporter.Export(new Rows(table, new TextBlock(input) { IsMarkup = false }));
+            Assert.Contains("| red<br>link |", markdown);
+            Assert.EndsWith("red<br>link\n\n", markdown);
+            Assert.Equal(-1, markdown.IndexOf('\u001b'));
+            Assert.Equal(-1, markdown.IndexOf('\u0001'));
+            Assert.DoesNotContain("https://example.com", markdown);
+        }
+
+        [Fact]
+        public void LiteralProseAndTreeLabelsCannotBecomeMarkdownBlockSyntax() {
+            Tree tree = new Tree("# Service");
+            tree.Add("1. ordered").Add("---");
+            string markdown = MarkdownExporter.Export(new Rows(new TextBlock("---") { IsMarkup = false }, tree));
+            Assert.StartsWith("\\---\n\n", markdown);
+            Assert.Contains("- \\# Service\n  - 1\\. ordered\n    - \\---\n", markdown);
+            Assert.Equal("export-marker\n\n", MarkdownExporter.Export(new TextBlock("export-marker")));
+        }
+
+        [Fact]
+        public void EmptyFrameIsAClosedCodeBlock() =>
+            Assert.Equal("```text\n```\n", MarkdownExporter.Export(new CellBuffer(0, 0)));
+
+        [Fact]
+        public void RecordingExportKeepsScrollbackAndLiteralTranscriptContent() {
+            const string cast = "{\"version\":2,\"width\":20,\"height\":2}\n[0,\"o\",\"first\\r\\nsecond\\r\\nthird\\r\\nlast\"]\n";
+            SessionRecording recording = SessionRecording.Read(new StringReader(cast));
+            Assert.Equal("```text\nfirst\nsecond\nthird\nlast\n```\n", MarkdownExporter.ExportRecording(recording));
+        }
+
+        [Fact]
+        public void DashboardEventsExportMarkdownFramesInsteadOfAnHtmlFallback() {
+            LiveTable table = new LiveTable(new Table().AddColumn("Name"), "rows");
+            var events = new[] { new LiveEvent("rows", "add", key: "1", text: "first") };
+            string markdown = MarkdownExporter.ExportRecording(table, events, new RecordingExportOptions { Width = 40, Height = 5 });
+            Assert.Contains("### 00:00:00", markdown);
+            Assert.Contains("```text", markdown);
+            Assert.Contains("first", markdown);
+            Assert.DoesNotContain("<html", markdown);
+        }
+
+        [Fact]
+        public void NullWidgetAndFrameAreRejected() {
+            Assert.Throws<ArgumentNullException>(() => MarkdownExporter.Export((IWidget)null!));
+            Assert.Throws<ArgumentNullException>(() => MarkdownExporter.Export((CellBuffer)null!));
+        }
+    }
+}

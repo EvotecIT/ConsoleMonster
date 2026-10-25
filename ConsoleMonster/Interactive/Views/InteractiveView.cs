@@ -52,7 +52,7 @@ namespace ConsoleMonster.Interactive {
 
         public bool IsDone { get; protected set; }
 
-        public bool IsCancelled { get; protected set; }
+        public bool IsCanceled { get; protected set; }
 
         /// <summary>Whether the full key map is open.</summary>
         public bool KeyMapOpen { get; set; }
@@ -124,7 +124,7 @@ namespace ConsoleMonster.Interactive {
 
         /// <summary>Ctrl+C: ends the view as cancelled.</summary>
         public virtual void Cancel() {
-            IsCancelled = true;
+            IsCanceled = true;
             IsDone = true;
         }
 

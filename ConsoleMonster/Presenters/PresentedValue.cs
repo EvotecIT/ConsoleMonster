@@ -28,7 +28,7 @@ namespace ConsoleMonster.Presenters {
         public HorizontalAlignment? Alignment { get; }
 
         /// <summary>The tone the value carries (status, booleans, tone rules), or null.</summary>
-        public ThemeToken? Tone { get; set; }
+        public ThemeToken? Role { get; set; }
 
         /// <summary>The graphic kind drawn in the cell.</summary>
         public CellVisualKind Visual { get; set; }

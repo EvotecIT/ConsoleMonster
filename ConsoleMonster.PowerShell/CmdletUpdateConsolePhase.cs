@@ -14,7 +14,7 @@ namespace ConsoleMonster.PowerShell {
     [Cmdlet(VerbsData.Update, "ConsolePhase")]
     public sealed class CmdletUpdateConsolePhase : LiveCmdlet {
         /// <summary><para type="description">The phase key.</para></summary>
-        [Parameter(Position = 0, Mandatory = true)]
+        [Parameter(Position = 1, Mandatory = true)]
         public string Key { get; set; } = string.Empty;
 
         /// <summary><para type="description">The new status.</para></summary>
@@ -28,15 +28,15 @@ namespace ConsoleMonster.PowerShell {
         public string? Detail { get; set; }
 
         /// <summary><para type="description">The phases widget name (default phases).</para></summary>
-        [Parameter]
-        public string Name { get; set; } = "phases";
+        [Parameter(Position = 0)]
+        public string WidgetId { get; set; } = "phases";
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (Status.HasValue) {
-                Send(new LiveEvent(Name, "state", Key, Detail, Status.Value.ToString()));
+                Send(new LiveEvent(WidgetId, "state", Key, Detail, Status.Value.ToString()));
             } else if (Detail != null) {
-                Send(new LiveEvent(Name, "detail", Key, Detail));
+                Send(new LiveEvent(WidgetId, "detail", Key, Detail));
             }
         }
     }

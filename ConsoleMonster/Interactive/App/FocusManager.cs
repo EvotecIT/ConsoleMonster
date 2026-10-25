@@ -18,7 +18,7 @@ namespace ConsoleMonster.Interactive {
             _controls = Discover(layout).OrderBy(control => control.TabIndex).ToList();
             HashSet<string> names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (InputControl control in _controls) {
-                if (!names.Add(control.Name)) { throw new ArgumentException(PromptLabels.Format(AppMessages.Get("DuplicateInput"), control.Name), nameof(layout)); }
+                if (!names.Add(control.Key)) { throw new ArgumentException(PromptLabels.Format(AppMessages.Get("DuplicateInput"), control.Key), nameof(layout)); }
             }
             foreach (InputControl control in _controls) {
                 control.FocusRequested += Focus;

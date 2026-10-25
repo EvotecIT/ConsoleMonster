@@ -87,7 +87,7 @@ namespace ConsoleMonster.Examples.Showcases {
             menu.Item("Presets", i => i.Hotkey('p').WithIcon(GlyphIcon.Favorite).Describe("Saved combinations of targets, tasks and options. Save one from Review & run.").Presets());
             menu.Separator();
             menu.Item("Review & run", i => i.Hotkey('r').WithIcon(GlyphIcon.Run).Review(context => Review(context, targets, tasks, optionsItem, options)));
-            menu.Item("History", i => i.Hotkey('h').Page(context => HistoryPage()).State(() => History.Count.ToString(CultureInfo.CurrentCulture) + " runs"));
+            menu.Item("History", i => i.Hotkey('h').Page(context => HistoryPage()).Detail(() => History.Count.ToString(CultureInfo.CurrentCulture) + " runs"));
             menu.Separator();
             menu.Exit("Quit");
             menu.CommandProviders.Add(new CommandProvider("Task", () => ToolboxData.Tasks.Select(task => new PaletteCommand("Toggle " + task.Name, context => {
@@ -106,30 +106,30 @@ namespace ConsoleMonster.Examples.Showcases {
             Form form = new Form("Options") { Review = false, SubmitText = "Save", Command = string.Empty };
             FormPage page = form.Page("Options", "Saved with presets; used by Review & run.");
             NumberField parallel = page.Number("Parallel", "Servers at a time");
-            parallel.WholeNumber = true;
+            parallel.Integer = true;
             parallel.Minimum = 1;
             parallel.Maximum = 16;
             parallel.Default = 4m;
-            parallel.Parameter = "ThrottleLimit";
+            parallel.ParameterName = "ThrottleLimit";
             parallel.Help = "How many servers run their tasks at the same time.";
             PathField report = page.Path("Report", "Report folder");
             report.PathKind = PathKind.Folder;
             report.Default = System.IO.Path.Combine("Reports", "Toolbox");
-            report.Parameter = "ReportPath";
+            report.ParameterName = "ReportPath";
             report.Help = "Created when it does not exist. Tab completes folder names.";
             ChoiceField format = page.Select("Format", "Report format", new[] { new Choice("Html", "HTML"), new Choice("Csv", "CSV"), new Choice("Json", "JSON") });
             format.Default = "Html";
-            format.Parameter = "Format";
+            format.ParameterName = "Format";
             ToggleField notify = page.Toggle("Notify", "Email the report");
-            notify.Parameter = "Notify";
+            notify.ParameterName = "Notify";
             TextField email = page.Text("Email", "Recipient");
             email.VisibleWhen = v => v.Get<bool>("Notify");
             email.Required = true;
             email.Placeholder = "ops@example.org";
-            email.Parameter = "To";
+            email.ParameterName = "To";
             email.Validator = (value, values) => value is string s && s.Contains("@") ? null : "Enter an email address";
             ToggleField dryRun = page.Toggle("DryRun", "Dry run");
-            dryRun.Parameter = "WhatIf";
+            dryRun.ParameterName = "WhatIf";
             dryRun.Help = "Reports what would change without changing anything.";
             return form;
         }
@@ -181,7 +181,7 @@ namespace ConsoleMonster.Examples.Showcases {
             context.Run(dashboard, run => Work(run, lanes, overall, log, servers, tasks, throttle));
         }
 
-        private static RunResult Work(RunContext run, Lanes lanesWidget, ProgressBar overallWidget, LogRegion logWidget, List<ToolboxServer> servers, List<ToolboxTask> tasks, int throttle) {
+        private static MenuRunResult Work(RunContext run, Lanes lanesWidget, ProgressBar overallWidget, LogRegion logWidget, List<ToolboxServer> servers, List<ToolboxTask> tasks, int throttle) {
             LanesHandle lanes = lanesWidget.Handle(run.Session);
             ProgressHandle overall = overallWidget.Handle(run.Session);
             LogHandle log = logWidget.Handle(run.Session);
@@ -230,7 +230,7 @@ namespace ConsoleMonster.Examples.Showcases {
             overall.Complete(failed > 0 ? StatusKind.Fail : warnings > 0 ? StatusKind.Warn : StatusKind.Pass);
             Thread.Sleep(600);
             History.Add(new Run(DateTime.Now, servers.Count, tasks.Count, passed, warnings, failed, watch.Elapsed));
-            RunResult result = new RunResult("Run finished", failed > 0 ? StatusKind.Fail : warnings > 0 ? StatusKind.Warn : StatusKind.Pass) {
+            MenuRunResult result = new MenuRunResult("Run finished", failed > 0 ? StatusKind.Fail : warnings > 0 ? StatusKind.Warn : StatusKind.Pass) {
                 Summary = servers.Count + " servers checked. " + (failed > 0 ? failed + " findings need action." : warnings > 0 ? warnings + " warnings to review; nothing failed." : "Nothing needs action."),
                 Details = failed > 0 ? failures : null,
                 Elapsed = watch.Elapsed

@@ -148,7 +148,7 @@ namespace ConsoleMonster.Interactive {
                 }
                 string answer = line.Trim();
                 if (answer.Length == 0 && defaultIndex >= 0) {
-                    Confirmed(choices[defaultIndex].Title);
+                    Confirmed(choices[defaultIndex].Label);
                     return defaultIndex;
                 }
                 if (int.TryParse(answer, NumberStyles.Integer, CultureInfo.InvariantCulture, out int number) && number >= 1 && number <= order.Count) {
@@ -157,12 +157,12 @@ namespace ConsoleMonster.Interactive {
                         _io.WriteLine(PromptLabels.Format(_labels.Disabled, chosen.DisabledReason));
                         continue;
                     }
-                    Confirmed(chosen.Title);
+                    Confirmed(chosen.Label);
                     return order[number - 1];
                 }
                 int byTitle = FindByTitle(choices, answer);
                 if (byTitle >= 0) {
-                    Confirmed(choices[byTitle].Title);
+                    Confirmed(choices[byTitle].Label);
                     return byTitle;
                 }
                 _io.WriteLine(PromptLabels.Format(_labels.NotAChoice, answer));
@@ -213,7 +213,7 @@ namespace ConsoleMonster.Interactive {
                 List<int> list = Sorted(result);
                 List<string> titles = new List<string>();
                 foreach (int i in list) {
-                    titles.Add(choices[i].Title);
+                    titles.Add(choices[i].Label);
                 }
                 Confirmed(titles.Count == 0 ? _labels.KeyNone : string.Join(", ", titles.ToArray()));
                 return list;
@@ -305,7 +305,7 @@ namespace ConsoleMonster.Interactive {
             if (selected.HasValue) {
                 sb.Append(selected.Value ? "[x] " : "[ ] ");
             }
-            sb.Append(choice.Title);
+            sb.Append(choice.Label);
             if (choice.Badge != null) {
                 sb.Append(" (").Append(choice.Badge.PlainText).Append(')');
             }
@@ -319,7 +319,7 @@ namespace ConsoleMonster.Interactive {
 
         private static int FindByTitle(IReadOnlyList<Choice> choices, string answer) {
             for (int i = 0; i < choices.Count; i++) {
-                if (choices[i].IsEnabled && string.Equals(choices[i].Title, answer, StringComparison.OrdinalIgnoreCase)) {
+                if (choices[i].IsEnabled && string.Equals(choices[i].Label, answer, StringComparison.OrdinalIgnoreCase)) {
                     return i;
                 }
             }

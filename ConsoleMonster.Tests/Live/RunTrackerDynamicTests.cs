@@ -19,7 +19,7 @@ namespace ConsoleMonster.Tests.Live {
             Assert.Equal(items.Length, tracker.Total);
             Assert.Equal(items.Length, snapshot.States.Count);
             Assert.Equal(items.Length, snapshot.Items.Count);
-            if (!empty) { Assert.Equal("declared", snapshot.Items[0].Item.Name); }
+            if (!empty) { Assert.Equal("declared", snapshot.Items[0].Item.Label); }
         }
 
         [Fact]

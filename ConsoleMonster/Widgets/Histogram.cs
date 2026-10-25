@@ -19,8 +19,8 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>Creates a histogram.</summary>
         /// <param name="edges">Ascending bucket edges; values below the first edge go to the first bucket, values at or above the last edge to the last.</param>
-        /// <param name="name">The live name (default <c>histogram</c>).</param>
-        public Histogram(IReadOnlyList<double> edges, string name = "histogram") : base(name) {
+        /// <param name="widgetId">The live name (default <c>histogram</c>).</param>
+        public Histogram(IReadOnlyList<double> edges, string widgetId = "histogram") : base(widgetId) {
             if (edges == null || edges.Count < 2) {
                 throw new ArgumentException("At least two edges are required.", nameof(edges));
             }
@@ -37,8 +37,8 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Rows for the bars (default 6).</summary>
         public int Height { get; set; } = 6;
 
-        /// <summary>The bar colour token (default <see cref="ThemeToken.Series1"/>).</summary>
-        public ThemeToken Token { get; set; } = ThemeToken.Series1;
+        /// <summary>The bar colour role (default <see cref="ThemeToken.Series1"/>).</summary>
+        public ThemeToken Role { get; set; } = ThemeToken.Series1;
 
         /// <summary>A unit for bucket labels (for example <c>s</c>).</summary>
         public string? Unit { get; set; }
@@ -67,7 +67,7 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Returns a handle that adds values through a dispatcher.</summary>
         /// <param name="dispatcher">The dispatcher.</param>
         /// <returns>The handle.</returns>
-        public SparklineHandle Handle(ILiveDispatcher dispatcher) => new SparklineHandle(dispatcher, Name);
+        public SparklineHandle Handle(ILiveDispatcher dispatcher) => new SparklineHandle(dispatcher, WidgetId);
 
         /// <inheritdoc />
         public override void Apply(LiveEvent liveEvent) {
@@ -103,7 +103,7 @@ namespace ConsoleMonster.Widgets {
             int plotWidth = region.Width - plotX;
             int buckets = _counts.Length;
             int minimumSlot = Math.Max(1, plotWidth / buckets);
-            Style bar = context.Style(Token);
+            Style bar = context.Style(Role);
             IGlyphSet glyphs = context.Glyphs;
             for (int b = 0; b < buckets; b++) {
                 // Spread the plot width over the buckets so the bars fill the panel.

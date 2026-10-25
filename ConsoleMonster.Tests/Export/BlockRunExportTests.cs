@@ -39,7 +39,7 @@ namespace ConsoleMonster.Tests.Export {
         public void HtmlBlockRunsStopAtStyleSpacesAndNonrepeatingShapes() {
             CellBuffer frame = new CellBuffer(12, 1);
             frame.Write(0, 0, "██", Style.Plain);
-            frame.Write(2, 0, "██", Style.Plain.WithForeground(Color.FromRgb(255, 0, 0)));
+            frame.Write(2, 0, "██", Style.Plain.WithColor(Color.FromRgb(255, 0, 0)));
             frame.Write(5, 0, "██▐▐", Style.Plain);
             XElement screen = Screen(ConsoleExporter.ToHtml(frame, new ExportOptions { Theme = ExportTheme.Light }));
             XElement[] blocks = screen.Descendants().Where(e => (e.Attribute("class")?.Value.Split(' ') ?? Array.Empty<string>()).Contains("b")).ToArray();

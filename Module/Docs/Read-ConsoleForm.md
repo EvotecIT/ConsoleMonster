@@ -151,7 +151,7 @@ Remembers the submitted answers and offers them next time (needs -AppName).
 ```yaml
 Type: SwitchParameter
 Parameter Sets: __AllParameterSets
-Aliases: Remember
+Aliases: None
 Possible values:
 
 Required: False

@@ -63,7 +63,7 @@ In Windows Terminal, VS Code, iTerm2, WezTerm, VTE terminals and Konsole, URLs a
 ```powershell
 Import-Module ConsoleMonster
 
-Get-ChildItem -File | Format-ConsoleTable -Property Name, Length, @{ Name = 'FullName'; Header = 'Open'; Presenter = 'Link' }
+Get-ChildItem -File | Show-ConsoleTable -Property Name, Length, @{ Name = 'FullName'; Header = 'Open'; Presenter = 'Link' }
 Write-ConsoleText 'Project documentation' -Link 'https://consolemonster.dev/docs/'
 
 # Off for this session, then back to detection.

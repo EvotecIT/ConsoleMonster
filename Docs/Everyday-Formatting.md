@@ -40,7 +40,7 @@ Import-Module ConsoleMonster
 Enable-ConsoleFormatting -Feature Errors
 
 # At the prompt, errors use the compact view.
-try { [int]::Parse('production') } catch { $_ | Format-ConsoleError -Compact }
+try { [int]::Parse('production') } catch { $_ | Show-ConsoleError -Compact }
 
 # Include script and .NET stacks in subsequent host errors.
 Enable-ConsoleFormatting -Feature Errors -Detailed
@@ -50,7 +50,7 @@ Disable-ConsoleFormatting -Feature Errors
 The message comes first. Only its label uses the error tone; the invocation line uses the PowerShell highlighter and a
 caret marks the failing expression. The script, line and column come from `InvocationInfo`. Category and target stay
 visible; inner exceptions fold into a muted count. PowerShell 7 adds a muted `Get-Error for details` hint. `-Detailed`
-includes stacks and causes. `Format-ConsoleError -Compact` provides the same view explicitly, including `-AsWidget`
+includes stacks and causes. `Show-ConsoleError -Compact` provides the same view explicitly, including `-AsWidget`
 and exports.
 
 `$ErrorView` is never changed: disabling the feature returns display control to PowerShell;
@@ -122,7 +122,7 @@ captures for each of the six shapes and eight runtime/width/theme combinations.
 Use `Streams` to give PowerShell's own messages the active theme's warning, information, muted and failure tones. Choose the theme before enabling it, or re-enable `Streams` to apply a new theme.
 
 ```powershell
-Set-ConsoleTheme -Name Light
+Set-ConsoleTheme -Theme Light
 Enable-ConsoleFormatting -Feature Streams
 Write-Warning 'Disk space is low'
 Write-Verbose 'Checking backup' -Verbose
@@ -135,7 +135,7 @@ Disable-ConsoleFormatting -Feature Streams
 
 PowerShell 7.2 and later use `$PSStyle.Formatting.Warning`, `.Verbose`, `.Debug` and `.Error`. Windows PowerShell 5.1 uses the host's available `$Host.PrivateData` warning, verbose, debug and progress foreground/background colors. Theme tones with a transparent background use the host's current background. Hosts with missing or unwritable properties are left alone; this includes headless and remoting hosts. PowerShell controls when colors appear, including its own redirected-output and transcript rules.
 
-`Write-Warning`, `Write-Verbose`, `Write-Debug`, `Write-Information` and `Write-Progress` remain native cmdlets with Streams. Their records, preferences, `3>`, `-WarningVariable`, compiled-cmdlet warnings and transcripts retain PowerShell's behavior. The `WARNING:`, `VERBOSE:` and `DEBUG:` prefixes remain. Use `Write-ConsoleStatus` or `Write-ConsoleLog` for rich messages in your own scripts.
+`Write-Warning`, `Write-Verbose`, `Write-Debug`, `Write-Information` and `Write-Progress` remain native cmdlets with Streams. Their records, preferences, `3>`, `-WarningVariable`, compiled-cmdlet warnings and transcripts retain PowerShell's behavior. The `WARNING:`, `VERBOSE:` and `DEBUG:` prefixes remain. Use `Show-ConsoleStatusLine` or `Write-ConsoleLogEntry` for rich messages in your own scripts.
 
 The original values are saved once for each native object and property while any installation owns it. If runspaces share a native preference, the most recently applied installation supplies its color. Disabling or removing that owner restores the latest surviving installation's color; removing an older owner leaves the current one active. The last owner restores the exact original value, including after user edits. Independent host objects retain their own baselines. Other settings are untouched. Streams alone does not install an `Out-Default` function, and it is included in `-Feature All`.
 
@@ -145,7 +145,7 @@ The original values are saved once for each native object and property while any
 
 ```powershell
 Import-Module ConsoleMonster
-Set-ConsoleTheme -Name Light
+Set-ConsoleTheme -Theme Light
 Enable-ConsoleFormatting -Feature ReadLine, Streams
 
 # Type commands and select text in the normal PowerShell editor.
@@ -203,7 +203,7 @@ GridResult selected = grid.Show();
 
 ## Parameter mapping
 
-The proxies use the parameter metadata of the current PowerShell runtime. On the direct-host route they retain the native property expressions' raw values while the native formatter supplies labels, grouping and layout records. Those values pass through the same shaping budgets and presenters as `Format-ConsoleTable` and `Format-ConsoleList`: status glyphs and tones, byte units, dates, durations and joined collections. Calculated expressions and getters are read once. Conditional table views keep their selected row expressions.
+The proxies use the parameter metadata of the current PowerShell runtime. On the direct-host route they retain the native property expressions' raw values while the native formatter supplies labels, grouping and layout records. Those values pass through the same shaping budgets and presenters as `Show-ConsoleTable` and `Show-ConsoleList`: status glyphs and tones, byte units, dates, durations and joined collections. Calculated expressions and getters are read once. Conditional table views keep their selected row expressions.
 
 An explicit `FormatString` keeps the native cell text. Known status values still receive their status glyph and tone. Native views with custom controls or unsupported conditional list layouts keep native text and status tones rather than approximating their controls.
 
@@ -273,7 +273,7 @@ Terminal.Write(members);
 ## Export a native view explicitly
 
 Use the same adapter independently of session formatting when you need a widget for export or composition.
-Already-created native format records contain strings, so this explicit record-only route retains their cell text and status tones. Use `Format-ConsoleTable -As Markdown` or `-AsWidget` when exporting raw objects with their full value presenters.
+Already-created native format records contain strings, so this explicit record-only route retains their cell text and status tones. Use `$rows | Export-ConsoleFrame -Format Markdown` for automatic display, or `$rows | Show-ConsoleTable -AsWidget | Export-ConsoleFrame -Format Markdown` for an explicit table with its full value presenters.
 
 ```powershell
 Get-Process |

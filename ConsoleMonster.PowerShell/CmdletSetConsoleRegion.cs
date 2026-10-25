@@ -10,13 +10,13 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example>
     ///   <para>Show a table when the query finishes</para>
-    ///   <code>Set-ConsoleRegion -Name main { $rows | Format-ConsoleTable -AsWidget }</code>
+    ///   <code>Set-ConsoleRegion -WidgetId main -Content { $rows | Show-ConsoleTable -AsWidget }</code>
     /// </example>
     [Cmdlet(VerbsCommon.Set, "ConsoleRegion", DefaultParameterSetName = "Content")]
     public sealed class CmdletSetConsoleRegion : LiveCmdlet {
         /// <summary><para type="description">The region name.</para></summary>
         [Parameter(Position = 0, Mandatory = true)]
-        public string Name { get; set; } = string.Empty;
+        public string WidgetId { get; set; } = string.Empty;
 
         /// <summary><para type="description">A script block whose widgets become the content.</para></summary>
         [Parameter(Position = 1, ParameterSetName = "Content")]
@@ -33,7 +33,7 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (Clear.IsPresent) {
-                Send(new LiveEvent(Name, "clear"));
+                Send(new LiveEvent(WidgetId, "clear"));
                 return;
             }
             List<IWidget> children = PSWidgets.Collect(Content);
@@ -41,11 +41,11 @@ namespace ConsoleMonster.PowerShell {
                 children.Add(Widget);
             }
             if (children.Count == 0) {
-                Send(new LiveEvent(Name, "clear"));
+                Send(new LiveEvent(WidgetId, "clear"));
                 return;
             }
             IWidget content = children.Count == 1 ? children[0] : new Rows(children.ToArray());
-            Send(new LiveEvent(Name, "set") { Payload = content });
+            Send(new LiveEvent(WidgetId, "set") { Payload = content });
         }
     }
 }

@@ -98,7 +98,7 @@
             "url": "/tables/",
             "key": 6,
             "body": "Priority columns, cards, presenters and totals.",
-            "command": "Format-ConsoleTable"
+            "command": "Show-ConsoleTable"
           },
           {
             "title": "Arrays and groups",
@@ -112,7 +112,7 @@
             "url": "/guides/format-table/",
             "key": 1,
             "body": "Records, nested objects and hierarchies.",
-            "command": "Format-ConsoleTree"
+            "command": "Show-ConsoleTree"
           },
           {
             "title": "Errors, help and progress",
@@ -147,7 +147,7 @@
             "url": "/live/",
             "key": 1,
             "body": "Phases, lanes and logs updated from many threads.",
-            "command": "Start-ConsoleDashboard"
+            "command": "Invoke-ConsoleDashboard"
           },
           {
             "title": "Parallel fleet run",
@@ -239,7 +239,7 @@
           "url": "/powershell/",
           "visual": "powershell",
           "key": 3,
-          "body": "Format-ConsoleTable beside Format-Table, on 5.1 and 7."
+          "body": "Show-ConsoleTable beside Format-Table, on 5.1 and 7."
         },
         {
           "title": "Guides",
@@ -269,7 +269,7 @@
       "title": "Recorded once, replayed exactly",
       "body": "This program runs no rules: it replays a recording of {events} events into a dashboard that knows nothing about the recording, because every update is addressed to a widget by name. The same dashboard could be fed by a live run.",
       "recordTitle": "The recording",
-      "recordBody": "LiveRecorder writes one JSON object per applied event: the time in milliseconds, the target, the operation, the key and the values. LiveRecordingReader reads it back with no dependencies. Live sessions record with RecordPath or RecordWriter, and Start-ConsoleDashboard with -RecordPath.",
+      "recordBody": "LiveRecorder writes one JSON object per applied event: the time in milliseconds, the target, the operation, the key and the values. LiveRecordingReader reads it back with no dependencies. Live sessions record with RecordPath or RecordWriter, and Invoke-ConsoleDashboard with -RecordPath.",
       "layoutTitle": "The program",
       "layoutBody": "Phases, lanes for twelve targets, a stacked bar and a key/value list, a braille line chart, a histogram, a bar chart and a log region, replayed from the file at the speed you give. Below 60×20 the dashboard shows one status line plus the phases and the lanes that fit."
     },
@@ -292,8 +292,8 @@
   "powershell": {
     "lede": "{cmdlets} cmdlets with a plain Console noun, in one binary module for Windows PowerShell 5.1 and PowerShell 7. Every frame on this page was captured from both hosts running the script beside it.",
     "format": {
-      "title": "Format-ConsoleTable beside Format-Table",
-      "body": "The same four objects, formatted by the built-in cmdlet and by ConsoleMonster in a 100-column console. Format-ConsoleTable takes pipeline input and -Property as Format-Table does: names, wildcards and calculated properties, plus hashtables with column options.",
+      "title": "Show-ConsoleTable beside Format-Table",
+      "body": "The same four objects, formatted by the built-in cmdlet and by ConsoleMonster in a 100-column console. Show-ConsoleTable takes pipeline input and -Property as Format-Table does: names, wildcards and calculated properties, plus hashtables with column options.",
       "points": [
         "-GroupBy, -Total, -Top, -Width and -Culture",
         "Presenters for bytes, durations, dates, booleans and status",
@@ -303,11 +303,11 @@
     },
     "lists": {
       "title": "Lists and trees",
-      "body": "Format-ConsoleList shows one object as a record view. Format-ConsoleTree -AsInspector walks nested objects and collections, with depth, item and node limits."
+      "body": "Show-ConsoleList shows one object as a record view. Show-ConsoleObject -StaticSnapshot walks nested objects and collections, with depth, item and node limits."
     },
     "consoles": {
       "title": "The same command on other consoles",
-      "body": "Format-ConsoleTable from above, run again in a new session with the terminal profile overridden. The script does not change.",
+      "body": "Show-ConsoleTable from above, run again in a new session with the terminal profile overridden. The script does not change.",
       "variants": [
         {
           "id": "16-ascii",
@@ -515,14 +515,14 @@
     },
     "threads-live": {
       "title": "The same work through a dashboard",
-      "body": "Each runspace updates its own lane by name and Write-Host goes to the log panel. The session draws the screen about 15 times a second from one thread.",
+      "body": "Each runspace updates its own lane by key and Write-Host goes to the log panel. The session draws the screen about 15 times a second from one thread.",
       "label": "Twelve lanes updated by parallel workers, with a log panel",
       "try": { "run": "pwsh ./threads-dashboard.ps1", "project": "ThreadsDashboard" },
       "use": {
         "links": [
           {
-            "title": "Start-ConsoleDashboard",
-            "url": "/powershell/commands/start-consoledashboard/"
+            "title": "Invoke-ConsoleDashboard",
+            "url": "/powershell/commands/invoke-consoledashboard/"
           }
         ]
       }
@@ -535,14 +535,14 @@
     },
     "shaping": {
       "title": "Arrays in cells and groups",
-      "body": "Format-Table beside Format-ConsoleTable -GroupBy on the same objects: roles as a list, durations as durations, statuses with their symbol, one heading per site.",
-      "label": "Domain controllers in Format-Table and in Format-ConsoleTable grouped by site",
+      "body": "Format-Table beside Show-ConsoleTable -GroupBy on the same objects: roles as a list, durations as durations, statuses with their symbol, one heading per site.",
+      "label": "Domain controllers in Format-Table and in Show-ConsoleTable grouped by site",
       "try": { "run": "pwsh ./shaping.ps1" },
       "use": {
         "links": [
           {
-            "title": "Format-ConsoleTable",
-            "url": "/powershell/commands/format-consoletable/"
+            "title": "Show-ConsoleTable",
+            "url": "/powershell/commands/show-consoletable/"
           }
         ]
       }
@@ -563,12 +563,12 @@
     },
     "session": {
       "title": "A dashboard updated from three threads",
-      "body": "Each server is deployed in parallel and updates its own lane by name. The session applies the updates on its render thread about 15 times a second, and output written from any thread lands in the log panel.",
+      "body": "Each server is deployed in parallel and updates its own lane by key. The session applies the updates on its render thread about 15 times a second, and output written from any thread lands in the log panel.",
       "label": "Three servers deployed in parallel into one dashboard",
       "try": { "run": "pwsh ./session.ps1", "project": "Deploy" },
       "use": {
         "links": [
-          { "title": "Start-ConsoleDashboard", "url": "/powershell/commands/start-consoledashboard/" },
+          { "title": "Invoke-ConsoleDashboard", "url": "/powershell/commands/invoke-consoledashboard/" },
           { "title": "LiveSession (C#)", "url": "/api/consolemonster-live-livesession/" }
         ]
       }
@@ -585,7 +585,7 @@
           { "text": "To rewind it in the terminal instead, with markers, failures and log search, use `Show-ConsoleReplay`.", "code": [ { "lang": "powershell", "label": "PowerShell", "text": "Show-ConsoleReplay $dashboard (Join-Path ([IO.Path]::GetTempPath()) 'deploy.jsonl')" } ] }
         ],
         "links": [
-          { "title": "Start-ConsoleDashboard", "url": "/powershell/commands/start-consoledashboard/" },
+          { "title": "Invoke-ConsoleDashboard", "url": "/powershell/commands/invoke-consoledashboard/" },
           { "title": "Export-ConsoleRecording", "url": "/powershell/commands/export-consolerecording/" }
         ]
       }
@@ -600,8 +600,8 @@
         "install": "Install-Module ConsoleMonster -Scope CurrentUser\nEnable-ConsoleFormatting -Feature ErrorView",
         "links": [
           {
-            "title": "Format-ConsoleError",
-            "url": "/powershell/commands/format-consoleerror/"
+            "title": "Show-ConsoleError",
+            "url": "/powershell/commands/show-consoleerror/"
           }
         ]
       }
@@ -765,7 +765,7 @@
     {
       "title": "Coming from Format-Table",
       "url": "/guides/format-table/",
-      "body": "Format-ConsoleTable, Format-ConsoleList and Format-ConsoleTree beside the built-in Format cmdlets."
+      "body": "Show-ConsoleTable, Show-ConsoleList and Show-ConsoleTree beside the built-in Format cmdlets."
     },
     {
       "title": "Hosts, CI and transcripts",

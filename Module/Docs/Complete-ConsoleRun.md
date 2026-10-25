@@ -49,7 +49,7 @@ Accept wildcard characters: False
 ```
 
 ### -Run
-The handle returned by New-ConsoleRun.
+The handle returned by Start-ConsoleRun.
 
 ```yaml
 Type: LiveRun

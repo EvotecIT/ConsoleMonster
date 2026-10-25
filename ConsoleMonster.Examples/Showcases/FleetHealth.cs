@@ -95,7 +95,7 @@ namespace ConsoleMonster.Examples.Showcases {
             menu.Item("History", item => item.Hotkey('h').WithIcon(GlyphIcon.List)
                 .Describe("Earlier runs, newest first.")
                 .Page(context => history.Page())
-                .State(() => history.Count.ToString(CultureInfo.InvariantCulture) + " runs"));
+                .Detail(() => history.Count.ToString(CultureInfo.InvariantCulture) + " runs"));
             menu.Separator();
             menu.Exit("Quit");
             // </example>
@@ -142,12 +142,12 @@ namespace ConsoleMonster.Examples.Showcases {
             FormPage target = form.Page("Scope", "Which servers to check.");
             ChoiceField domain = target.Select("Domain", "Domain", FleetData.DomainChoices());
             domain.Required = true;
-            domain.Parameter = "Domain";
+            domain.ParameterName = "Domain";
             domain.Help = "Choosing a domain loads its servers from the inventory.";
             ChoiceField servers = target.MultiSelect("Servers", "Servers");
             servers.DependsOn.Add("Domain");
             servers.Minimum = 1;
-            servers.Parameter = "ComputerName";
+            servers.ParameterName = "ComputerName";
             servers.Loader = (values, token) => FleetData.LoadServersAsync(values.Get<string>("Domain"), loadDelay, token);
             servers.Help = "Grouped by site; offline servers cannot be picked. Space toggles, Ctrl+A selects all.";
 
@@ -158,37 +158,37 @@ namespace ConsoleMonster.Examples.Showcases {
             }
             ChoiceField list = checks.MultiSelect("Checks", "Checks", checkChoices);
             list.Minimum = 1;
-            list.Parameter = "Check";
+            list.ParameterName = "Check";
             list.Preview = c => FleetData.CheckPreview(FleetData.Check((string)c.Value!));
             list.Help = "Grouped by category; the preview shows what a healthy server reports.";
 
             FormPage run = form.Page("Options", "How the run behaves.");
             NumberField parallel = run.Number("Parallel", "Servers at a time");
-            parallel.WholeNumber = true;
+            parallel.Integer = true;
             parallel.Minimum = 1;
             parallel.Maximum = 16;
             parallel.Default = 4m;
-            parallel.Parameter = "ThrottleLimit";
+            parallel.ParameterName = "ThrottleLimit";
             ChoiceField format = run.Select("Format", "Report format", new[] { new Choice("Html", "HTML"), new Choice("Csv", "CSV"), new Choice("Json", "JSON") });
             format.Default = "Html";
-            format.Parameter = "Format";
+            format.ParameterName = "Format";
             PathField report = run.Path("Report", "Report folder");
             report.PathKind = PathKind.Folder;
             report.Default = Path.Combine("Reports", "Fleet");
-            report.Parameter = "ReportPath";
+            report.ParameterName = "ReportPath";
             ToggleField notify = run.Toggle("Notify", "Email the report");
-            notify.Parameter = "Notify";
+            notify.ParameterName = "Notify";
             TextField email = run.Text("Email", "Recipient");
             email.VisibleWhen = v => v.Get<bool>("Notify");
             email.Default = "ops@contoso.com";
-            email.Parameter = "To";
+            email.ParameterName = "To";
             email.Validator = (value, values) => value is string s && s.Contains("@") ? null : "Enter an email address";
             return form;
         }
 
         // ---- the run -----------------------------------------------------------------------------------------------
 
-        private static RunResult Check(RunContext run, FleetView view, FleetPlan plan, SimulatedClock clock, FleetHealthOptions settings, FleetTally tally) {
+        private static MenuRunResult Check(RunContext run, FleetView view, FleetPlan plan, SimulatedClock clock, FleetHealthOptions settings, FleetTally tally) {
             LiveSession session = run.Session;
             CancellationToken token = run.CancellationToken;
             // The clock moves at the options' speed; a stopped run (Ctrl+C) ends at the next wait.
@@ -203,8 +203,8 @@ namespace ConsoleMonster.Examples.Showcases {
             LiveTableHandle slowest = view.Slowest.Handle(session);
             SparklineHandle durations = view.Durations.Handle(session);
             ITextHighlighter highlighter = Highlighters.Smart;
-            void Log(string text, string level = "info") => session.Post(new LiveEvent("log", "write", text: HighlightStyles.ToMarkup(text, highlighter), state: level, isMarkup: true));
-            void Status(string text, StatusKind state) => session.Post(new LiveEvent("dashboard", "status", text: text, state: state.ToString()));
+            void Log(string text, string level = "info") => session.Post(new LiveEvent("log", "write", text: HighlightStyles.ToMarkup(text, highlighter), status: level, isMarkup: true));
+            void Status(string text, StatusKind state) => session.Post(new LiveEvent("dashboard", "status", text: text, status: state.ToString()));
             void Activity(string key, string text, double percent = -1) => session.Post(new LiveEvent("running", "update", key: key, text: text, value: percent, total: -1));
             void Done(string key) => session.Post(new LiveEvent("running", "complete", key: key));
             // Each activity has its own key: connecting a server, one check on one server, writing the report.
@@ -260,7 +260,7 @@ namespace ConsoleMonster.Examples.Showcases {
             double[] serverSeconds = new double[plan.Servers.Count];
             Schedule(clock, token, plan.Servers.Count, plan.Parallel, s => Enumerable.Range(0, plan.Checks.Count).Select(c => seconds[s, c]).ToArray(), (s, c) => {
                 FleetCheck check = plan.Checks[c];
-                session.Post(new LiveEvent("cells", "set", key: plan.Cell(s, c).ToString(CultureInfo.InvariantCulture), state: StatusKind.Running.ToString()));
+                session.Post(new LiveEvent("cells", "set", key: plan.Cell(s, c).ToString(CultureInfo.InvariantCulture), status: StatusKind.Running.ToString()));
                 Activity(CheckKey(s, c), plan.Servers[s].Name + " · " + check.Name);
                 if (!laneDone.ContainsKey(check.Category)) {
                     laneDone[check.Category] = 0;
@@ -275,7 +275,7 @@ namespace ConsoleMonster.Examples.Showcases {
                 done++;
                 serverSeconds[s] += took;
                 Done(CheckKey(s, c));
-                session.Post(new LiveEvent("cells", "set", key: plan.Cell(s, c).ToString(CultureInfo.InvariantCulture), state: status.ToString()));
+                session.Post(new LiveEvent("cells", "set", key: plan.Cell(s, c).ToString(CultureInfo.InvariantCulture), status: status.ToString()));
                 lanes.Advance(check.Category, status, server.Name + " · " + check.Name);
                 laneDone[check.Category]++;
                 if (status == StatusKind.Fail || (status == StatusKind.Warn && laneWorst[check.Category] == StatusKind.Pass)) {
@@ -300,9 +300,9 @@ namespace ConsoleMonster.Examples.Showcases {
                         break;
                 }
                 session.Post(new LiveEvent("summary", "progress", value: done, total: plan.Total));
-                session.Post(new LiveEvent("summary", "counter", key: "passed", value: passed, state: StatusKind.Pass.ToString()));
-                session.Post(new LiveEvent("summary", "counter", key: "warnings", value: warned, state: StatusKind.Warn.ToString()));
-                session.Post(new LiveEvent("summary", "counter", key: "failed", value: failed, state: StatusKind.Fail.ToString()));
+                session.Post(new LiveEvent("summary", "counter", key: "passed", value: passed, status: StatusKind.Pass.ToString()));
+                session.Post(new LiveEvent("summary", "counter", key: "warnings", value: warned, status: StatusKind.Warn.ToString()));
+                session.Post(new LiveEvent("summary", "counter", key: "failed", value: failed, status: StatusKind.Fail.ToString()));
                 durations.Add(took);
                 if (FleetSlowCheck.Offer(slow, new FleetSlowCheck(check.Name, server.Name, took), 5)) {
                     for (int i = 0; i < slow.Count; i++) {
@@ -340,7 +340,7 @@ namespace ConsoleMonster.Examples.Showcases {
             foreach (FleetFinding finding in findings) {
                 details.AddRow(finding.Server, Markup.Escape(finding.Check.Name), Markup.Escape(finding.Check.Expected), "[fail]" + Markup.Escape(finding.Outcome.Actual) + "[/]");
             }
-            RunResult result = new RunResult("Fleet check finished", overall) {
+            MenuRunResult result = new MenuRunResult("Fleet check finished", overall) {
                 Summary = plan.Total + " checks on " + plan.Servers.Count + " servers in " + plan.Domain + ". "
                     + (failed > 0 ? failed + " need action now; " + warned + " warnings to review." : warned > 0 ? warned + " warnings to review; nothing failed." : "Nothing needs action."),
                 Details = findings.Count > 0 ? details : null
@@ -532,7 +532,7 @@ namespace ConsoleMonster.Examples.Showcases {
 
             public LiveSessionOptions Options { get; }
 
-            public RunResult Execute(RunContext run) => Check(run, _view, _plan, _clock, _settings, _tally);
+            public MenuRunResult Execute(RunContext run) => Check(run, _view, _plan, _clock, _settings, _tally);
 
             // Called on the menu's thread once the run has returned; a stopped run leaves nothing.
             public void SaveTo(FleetHistory history) {

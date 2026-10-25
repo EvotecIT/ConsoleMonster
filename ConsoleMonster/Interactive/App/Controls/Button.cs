@@ -10,9 +10,9 @@ namespace ConsoleMonster.Interactive {
         private int _value;
 
         /// <summary>Creates an action button.</summary>
-        /// <param name="name">The application-state key.</param>
+        /// <param name="key">The application-state key.</param>
         /// <param name="label">The caption; null uses the name.</param>
-        public Button(string name, string? label = null) : base(name) {
+        public Button(string key, string? label = null) : base(key) {
             Label = label;
             // InputControl raises Changed after releasing its state lock. Forwarding here
             // keeps synchronous application callbacks safe to read or edit other controls.
@@ -41,7 +41,7 @@ namespace ConsoleMonster.Interactive {
 
         /// <inheritdoc />
         protected override void RenderContent(Region region, RenderContext context) =>
-            region.Write(0, 0, new StyledLine(Buttons.Spans(new[] { Label ?? Name }, 0, context,
+            region.Write(0, 0, new StyledLine(Buttons.Spans(new[] { Label ?? Key }, 0, context,
                 Focused && Enabled, blocked: Enabled ? -1 : 0)));
     }
 }

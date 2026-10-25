@@ -6,12 +6,17 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Creates an item.</summary>
         /// <param name="label">The label (plain text).</param>
         /// <param name="value">The value.</param>
-        /// <param name="token">The colour token, or <c>null</c> for the chart default.</param>
-        public ChartItem(string label, double value, ThemeToken? token = null) {
+        /// <param name="role">The colour role, or <c>null</c> for the chart default.</param>
+        /// <param name="key">Stable identity, or null to use the label.</param>
+        public ChartItem(string label, double value, ThemeToken? role = null, string? key = null) {
             Label = label;
+            Key = key ?? label;
             Value = value;
-            Token = token;
+            Role = role;
         }
+
+        /// <summary>The stable key used by live updates; defaults to the label.</summary>
+        public string Key { get; }
 
         /// <summary>The label.</summary>
         public string Label { get; }
@@ -22,7 +27,7 @@ namespace ConsoleMonster.Widgets {
         /// <summary>The value.</summary>
         public double Value { get; set; }
 
-        /// <summary>The colour token.</summary>
-        public ThemeToken? Token { get; set; }
+        /// <summary>The colour role.</summary>
+        public ThemeToken? Role { get; set; }
     }
 }

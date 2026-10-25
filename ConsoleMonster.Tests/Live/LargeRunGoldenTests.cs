@@ -32,8 +32,8 @@ namespace ConsoleMonster.Tests.Live {
             var profile = TerminalProfile.Fixed(width, 24, ColorDepth.None, GlyphTier.Ascii);
             string full = FrameComposer.RenderBlock(LargeRunScene.Summary(tracker), width, Terminal.CreateContext(profile)).ToPlainText();
             foreach (var item in tracker.Snapshot().Items) {
-                if (item.State != StatusKind.Fail && item.State != StatusKind.Warn) { continue; }
-                Assert.Contains(item.Item.Name, full);
+                if (item.Status != StatusKind.Fail && item.Status != StatusKind.Warn) { continue; }
+                Assert.Contains(item.Item.Label, full);
             }
             Assert.Contains("reports/fleet-checks.html", full);
             Assert.Contains("deadline", full); Assert.Contains("retry", full);

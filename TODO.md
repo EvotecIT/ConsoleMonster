@@ -3,26 +3,26 @@
 Granular tasks: validation, review follow-ups and small fixes. Decisions, the next rounds and the backlog are in
 [ROADMAP.md](ROADMAP.md).
 
-## Before the first 2.0.0 release
+## Before the first wide 2.0 release
 - Validate on Windows Server 2016 (16 colours), 2019, 2022, 2025, Server Core, VS Code, SSH (ConPTY) and the PowerShell ISE fallback.
-- Owner review of the prototype screenshots and the public API names.
-- Decide the package signing setup (`CertificateThumbprint` in `Build/project.build.json` is empty for local validation builds).
+- Owner review of the prototype screenshots.
+- Finish the package signing setup before public release. The module build has a configured signer; `Build/project.build.json` leaves package signing unconfigured for local validation.
 - Heat strip widget from the v1 widget list.
 - Per-widget narration options for stream mode.
 - Light background detection in Windows Terminal: needs an OSC 11 query that never consumes user input (today `CONSOLEMONSTER_THEME=light` is required there).
-- Table v2: column sorting and filtering in live tables and horizontal scrolling as an alternative to hiding columns.
+- Live-table filtering and horizontal scrolling as an alternative to hiding columns; column sorting already ships
+  through `New-ConsoleLiveTable -SortBy -Descending`.
 - Inspector: PowerShell format data (`*.format.ps1xml`) views as an input to column selection.
 
 ## Follow-ups from the pre-PR review (review.md, 2026-10-17)
 The review's high findings and M1-M4, M6 and M7 are fixed. Still open, with the review's labels:
 - M5: print-once memory grows with rows x width (50,000 rows used about 570 MB). Negotiate widths over all rows or a
   bounded sample, then render and emit in bands; or cap rows with a warning.
-- M7 (rest): add a Windows CI workflow that builds, runs xUnit and runs Pester on 5.1 and 7.
 - L1: the width re-probe after a resize or font change overwrites explicit `CONSOLEMONSTER_*_WIDTH` values and skips
   the ambiguous-width glyph downgrade; route it through the same method as the start-up probe.
 - L2: detection enables VT processing on stdout and never restores the mode the module found.
 - L3: live sessions without an explicit culture use the render thread's culture; capture the caller's culture and add
-  `Start-ConsoleDashboard -Culture`.
+  `Invoke-ConsoleDashboard -Culture`.
 - L5: with `-Parallel`, host writes from the main runspace draw over the live frame; without `-Parallel`, piped input
   is ignored silently.
 - L6: unbounded buffers (the live queue, the capture writer's partial line, runspace stream collections, dashboard
@@ -33,7 +33,7 @@ The review's high findings and M1-M4, M6 and M7 are fixed. Still open, with the 
 - L10: a custom glyph set with empty spinner frames divides by zero; `CellBuffer` width times height is unchecked;
   tabs in cell text are dropped.
 - L11: calculated-property errors (`BoundColumn.LastError`) are never shown; warn once per failing column.
-- L12: `Build-Module.ps1` signs by default with a hard-coded thumbprint, while the release note above says it is empty.
+- L12: reconcile the module and package signing configuration before the public release.
 - Rows measures auto-sized children without a height limit but lays them out with the remaining height, so a log region with fewer entries than `PreferredHeight` takes extra blank rows in print-once layouts (live dashboards rely on the stable height).
 - L13: brace-less bodies in `Binding/PSObjectMemberSource.cs` and `Binding/PropertyBinder.cs`; three-part
   `COLORFGBG` values are rejected.
@@ -44,13 +44,6 @@ The review's high findings and M1-M4, M6 and M7 are fixed. Still open, with the 
   replay on /live/ has) and use it below 700 px.
 
 ## v1.x (only with a real consumer)
-- ChartForgeX.Terminal: ChartForgeX scenes on the ConsoleMonster canvas.
-- Hyperlinks (OSC 8) in markup (`[link=...]` is parsed and shown as text today; the Link cell presenter already emits OSC 8).
-- Markdown-ish text.
 - Declarative JSON layouts with data binding.
 - Spectre.Console adapter (widgets as `IRenderable`).
-- `Microsoft.Extensions.Logging` provider writing into a log region.
 - Remote sources (named pipe or HTTP event stream) so a console can watch another process or service.
-
-## Later
-- Prompts and input, mouse, full interactive TUI applications.

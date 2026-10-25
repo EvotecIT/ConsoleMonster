@@ -13,7 +13,7 @@ Updates a progress bar in a running dashboard.
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Update-ConsoleProgress [[-Name] <string>] [-Value <Double>] [-Total <double>] [-Increment <double>] [-Label <Object>] [-Status <StatusKind>] [-Session <LiveSession>] [<CommonParameters>]
+Update-ConsoleProgress [[-WidgetId] <string>] [-Value <Double>] [-Total <double>] [-Increment <double>] [-Label <Object>] [-Status <StatusKind>] [-Session <LiveSession>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -33,8 +33,8 @@ Advance by one
 ### EXAMPLE 2
 ```powershell
 $files = Get-ChildItem C:\Reports -File
-$dashboard = New-ConsoleDashboard -Title 'Copy' { New-ConsoleProgress 'Reports' -Total $files.Count }
-Start-ConsoleDashboard $dashboard -ArgumentList (,$files) {
+$dashboard = New-ConsoleDashboard -Title 'Copy' -Content { New-ConsoleProgress -Label 'Reports' -Total $files.Count }
+Invoke-ConsoleDashboard $dashboard -ArgumentList (,$files) {
     param($Files)
     foreach ($file in $Files) {
         Copy-Item $file.FullName D:\Backup
@@ -74,22 +74,6 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Name
-The progress bar name (default progress).
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -154,6 +138,22 @@ Possible values:
 
 Required: False
 Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WidgetId
+The progress bar name (default progress).
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

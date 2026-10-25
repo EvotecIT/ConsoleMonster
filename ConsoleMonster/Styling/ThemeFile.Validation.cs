@@ -7,8 +7,8 @@ namespace ConsoleMonster.Styling {
     public sealed partial class ThemeFile {
         private static ThemeStyle ReadStyle(object? value, string path, ThemeStyle inherited) {
             Dictionary<string, object?> style = Map(value, path, "Foreground", "Background", "Decoration");
-            ThemeColor? foreground = style.TryGetValue("Foreground", out object? fg) ? ReadColor(fg, path + ".Foreground") : inherited.Foreground;
-            ThemeColor? background = style.TryGetValue("Background", out object? bg) ? ReadColor(bg, path + ".Background") : inherited.Background;
+            ThemeColor? foreground = style.TryGetValue("Foreground", out object? fg) ? ReadColor(fg, path + ".Foreground") : inherited.Color;
+            ThemeColor? background = style.TryGetValue("Background", out object? bg) ? ReadColor(bg, path + ".Background") : inherited.BackgroundColor;
             TextDecoration decoration = style.TryGetValue("Decoration", out object? flags) ? ReadDecoration(flags, path + ".Decoration") : inherited.Decoration;
             return new ThemeStyle(foreground, background, decoration);
         }

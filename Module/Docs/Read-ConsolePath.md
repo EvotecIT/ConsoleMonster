@@ -150,7 +150,7 @@ The parameter of your script that supplies this value without a prompt (named in
 ```yaml
 Type: String
 Parameter Sets: __AllParameterSets
-Aliases: Parameter
+Aliases: None
 Possible values:
 
 Required: False
@@ -182,7 +182,7 @@ The question.
 ```yaml
 Type: String
 Parameter Sets: __AllParameterSets
-Aliases: Prompt, Question
+Aliases: None
 Possible values:
 
 Required: True

@@ -21,19 +21,19 @@ namespace ConsoleMonster.Export {
         public string ScreenBackground {
             get {
                 if (Frame.Width == 0 || Frame.Height == 0) { return Palette.Background; }
-                Color background = Frame[0, Frame.Height - 1].Style.Background;
+                Color background = Frame[0, Frame.Height - 1].Style.BackgroundColor;
                 if (background.IsDefault) { return Palette.Background; }
                 for (int x = 0; x < Frame.Width; x++) {
                     Cell cell = Frame[x, Frame.Height - 1];
                     if ((!string.IsNullOrEmpty(cell.Glyph) && cell.Glyph != " ") || cell.IsContinuation
-                        || cell.Style.Decoration != TextDecoration.None || cell.Style.Background != background) {
+                        || cell.Style.Decoration != TextDecoration.None || cell.Style.BackgroundColor != background) {
                         return Palette.Background;
                     }
                 }
                 // A footer cannot redefine terminal-default backgrounds elsewhere in the frame.
                 for (int y = 0; y < Frame.Height; y++) {
                     for (int x = 0; x < Frame.Width; x++) {
-                        if (Frame[x, y].Style.Background.IsDefault) { return Palette.Background; }
+                        if (Frame[x, y].Style.BackgroundColor.IsDefault) { return Palette.Background; }
                     }
                 }
                 return ExportPalette.ToCss(background)!;
@@ -232,7 +232,7 @@ namespace ConsoleMonster.Export {
         internal static int ContentEnd(CellBuffer frame, int y) {
             for (int x = frame.Width - 1; x >= 0; x--) {
                 Cell cell = frame[x, y];
-                if (cell.IsContinuation || cell.Glyph != " " || !cell.Style.Background.IsDefault || cell.Style.Link != null
+                if (cell.IsContinuation || cell.Glyph != " " || !cell.Style.BackgroundColor.IsDefault || cell.Style.Link != null
                     || (cell.Style.Decoration & (TextDecoration.Underline | TextDecoration.Strikethrough | TextDecoration.Reverse)) != 0) {
                     return x + 1;
                 }

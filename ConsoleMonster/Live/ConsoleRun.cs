@@ -31,7 +31,7 @@ namespace ConsoleMonster.Live {
         public Func<object?, string>? Label { get; set; }
 
         /// <summary>Whether to show the live view (true), print a line per item (false) or decide from the terminal (null, default).</summary>
-        public bool? Interactive { get; set; }
+        public bool? Live { get; set; }
 
         /// <summary>The live session's options (inline with the final frame kept, by default).</summary>
         public LiveSessionOptions? Session { get; set; }
@@ -78,7 +78,7 @@ namespace ConsoleMonster.Live {
     /// <summary>
     /// Shows a run of many items while it happens: the live <see cref="RunView"/> on an interactive terminal, or one line per
     /// finished item (and a summary at the end) in redirected output and CI. Safe to call from any thread.
-    /// <see cref="ConsoleRun.ForEachAsync{TItem, TResult}"/> and ForEach-ConsoleItem use it; other runners can too.
+    /// <see cref="ConsoleRun.ForEachAsync{TItem, TResult}"/> and Invoke-ConsoleRun use it; other runners can too.
     /// </summary>
     public sealed class RunMonitor : IDisposable {
         private readonly RunOptions _options;
@@ -93,7 +93,7 @@ namespace ConsoleMonster.Live {
         public RunMonitor(int total, RunOptions? options = null) {
             _options = options ?? new RunOptions();
             Tracker = new RunTracker(total);
-            IsLive = _options.Interactive ?? Terminal.GetCurrentProfile().Mode == OutputMode.Interactive;
+            IsLive = _options.Live ?? Terminal.GetCurrentProfile().Mode == OutputMode.Interactive;
             if (IsLive) {
                 Rows view = new Rows().Add(new RunView(Tracker) { Title = _options.Title }, LayoutSize.Fraction(1, 1))
                     .Add(new ActivityList()).Add(new LogRegion { PreferredHeight = 5 });
@@ -192,7 +192,7 @@ namespace ConsoleMonster.Live {
         }
     }
 
-    /// <summary>Runs work over many items with a live view of the run (the C# side of ForEach-ConsoleItem).</summary>
+    /// <summary>Runs work over many items with a live view of the run (the C# side of Invoke-ConsoleRun).</summary>
     public static class ConsoleRun {
         /// <summary>
         /// Runs <paramref name="body"/> for every item, at most <see cref="RunOptions.ThrottleLimit"/> at a time, showing the run

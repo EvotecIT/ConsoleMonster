@@ -30,12 +30,12 @@ $screen = New-ConsoleRows -Gap 1 -Content {
             }
         }
     }
-    New-ConsolePanel -Title 'Readiness by area' -Caption 'score / 100' -Content {
-        New-ConsoleBarChart -Data $scores -Maximum 100 -Unit '%' -Warning 80 -Critical 50
+    New-ConsolePanel -Title 'Readiness by area' -HeaderRight 'score / 100' -Content {
+        New-ConsoleBarChart -InputObject $scores -Maximum 100 -Unit '%' -Warning 80 -Critical 50
     }
     New-ConsoleText -Markup '[bold]Next:[/] rehearse a restore, then add the two missing test scenarios.'
     New-ConsoleText -Markup '[muted]Review owner: Platform team · next review: Friday[/]'
 }
 
 # Behaviour: print the screen once and return.
-$screen | Write-ConsoleWidget
+$screen | Show-Console

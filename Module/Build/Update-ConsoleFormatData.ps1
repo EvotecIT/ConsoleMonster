@@ -4,7 +4,7 @@ Regenerates Module/ConsoleMonster.format.ps1xml from the widget types.
 
 .DESCRIPTION
 Imports the module from this repository (development binaries: build ConsoleMonster.PowerShell first) and writes
-[ConsoleMonster.PowerShell.WidgetFormatData]::Generate() to ConsoleMonster.format.ps1xml next to the manifest. The file lists
+((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.WidgetFormatData'))::Generate() to ConsoleMonster.format.ps1xml next to the manifest. The file lists
 every public widget type, so it changes when a widget is added or renamed; ConsoleMonster.Output.Tests.ps1 fails until it
 is regenerated.
 
@@ -21,5 +21,5 @@ if (-not (Test-Path -LiteralPath $target)) {
     [System.IO.File]::WriteAllText($target, '<Configuration><ViewDefinitions /></Configuration>', [System.Text.UTF8Encoding]::new($false))
 }
 Import-Module (Join-Path $moduleRoot 'ConsoleMonster.psd1') -Force -ErrorAction Stop
-[System.IO.File]::WriteAllText($target, [ConsoleMonster.PowerShell.WidgetFormatData]::Generate(), [System.Text.UTF8Encoding]::new($false))
+[System.IO.File]::WriteAllText($target, ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.WidgetFormatData'))::Generate(), [System.Text.UTF8Encoding]::new($false))
 Write-Host "Wrote $target"

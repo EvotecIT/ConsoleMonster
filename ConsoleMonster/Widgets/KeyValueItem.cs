@@ -42,6 +42,6 @@ namespace ConsoleMonster.Widgets {
         public Presenters.ICellPresenter? Presenter { get; internal set; }
 
         /// <summary>Tone rules for <see cref="Cell"/>, or null.</summary>
-        public System.Collections.Generic.IReadOnlyList<Presenters.ToneRule>? Rules { get; internal set; }
+        public System.Collections.Generic.IReadOnlyList<Presenters.RoleRule>? Rules { get; internal set; }
     }
 }

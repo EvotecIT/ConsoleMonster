@@ -12,7 +12,7 @@ using Xunit;
 namespace ConsoleMonster.Tests.Live {
     [Collection("Live sessions")]
     public sealed class RecordingPromptOverlayTests {
-        private static LiveSession Session(RecordingTarget target) => new LiveSession(new Slot("body"), new LiveSessionOptions {
+        private static LiveSession Session(RecordingTarget target) => new LiveSession(new RegionWidget("body"), new LiveSessionOptions {
             Target = target, CaptureConsole = false, HandleCancelKey = false, PrintFinalState = false,
             TaskbarProgress = false, StreamHeartbeat = TimeSpan.Zero
         });

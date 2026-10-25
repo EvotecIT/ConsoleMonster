@@ -16,7 +16,7 @@ namespace ConsoleMonster.Interactive {
     internal static class DialogChrome {
         /// <summary>Wraps dialog content in the dialog frame.</summary>
         public static Panel Frame(IWidget content, string? title, ThemeToken border = ThemeToken.Accent) {
-            return new Panel(new Padding(content, 0, 1, 0, 0), title == null ? null : Markup.Escape(title)) { BorderToken = border };
+            return new Panel(new Padding(content, 0, 1, 0, 0), title == null ? null : Markup.Escape(title)) { BorderRole = border };
         }
 
         /// <summary>Where a dialog of a size goes in an area: centred, a third of the way down (or near the top).</summary>

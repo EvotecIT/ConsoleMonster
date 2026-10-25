@@ -42,12 +42,12 @@ namespace ConsoleMonster.PowerShell.Pester {
 
         /// <summary><para type="description">Run only tests with these tags (Filter.Tag).</para></summary>
         [Parameter(ParameterSetName = "Simple")]
-        [Alias("Tag")]
+
         public string[]? TagFilter { get; set; }
 
         /// <summary><para type="description">Leave out tests with these tags (Filter.ExcludeTag).</para></summary>
         [Parameter(ParameterSetName = "Simple")]
-        [Alias("ExcludeTag")]
+
         public string[]? ExcludeTagFilter { get; set; }
 
         /// <summary><para type="description">Run only tests whose full name matches (Filter.FullName).</para></summary>
@@ -89,7 +89,7 @@ namespace ConsoleMonster.PowerShell.Pester {
 
         /// <summary><para type="description">Runs Pester unchanged with its own output, followed by the summary table (no adapter).</para></summary>
         [Parameter]
-        public SwitchParameter NoLiveView { get; set; }
+        public SwitchParameter NoLive { get; set; }
 
         /// <inheritdoc />
         protected override void EndProcessing() {
@@ -164,14 +164,14 @@ namespace ConsoleMonster.PowerShell.Pester {
             Hashtable options = new Hashtable {
                 ["Configuration"] = ParameterSetName == "Advanced" ? Configuration : null,
                 ["Simple"] = Simple(),
-                ["Fallback"] = NoLiveView.IsPresent
+                ["Fallback"] = NoLive.IsPresent
             };
             options["Stream"] = stream;
             Dictionary<string, ScriptBlock> functions = new Dictionary<string, ScriptBlock>();
             List<PSVariable> variables = new List<PSVariable>();
             if (!stream) {
                 HostLineDispatcher lines = new HostLineDispatcher(this);
-                bridge.OnRecord = (kind, text) => lines.Post(new LiveEvent("$log", "write", text: RecordMarkup(kind, text), state: "host", isMarkup: true));
+                bridge.OnRecord = (kind, text) => lines.Post(new LiveEvent("$log", "write", text: RecordMarkup(kind, text), status: "host", isMarkup: true));
                 // Write-Host from the tests goes above the inline area (or after the full screen), not over the dashboard.
                 functions["Write-Host"] = ScriptBlock.Create(CmdletUseConsoleProgress.HostProxy);
                 variables.Add(new PSVariable("__cmProgressBridge", new ProgressBridge(lines)));

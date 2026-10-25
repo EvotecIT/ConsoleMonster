@@ -17,7 +17,7 @@ BuildStep[] steps = {
     new("Test", "xunit", "Run xUnit tests (net472, net8.0)", 3.2, StatusKind.Pass, "Passed!  - Failed: 0, Passed: 286, Skipped: 0 - ConsoleMonster.Tests.dll (net472)", "Passed!  - Failed: 0, Passed: 286, Skipped: 0 - ConsoleMonster.Tests.dll (net8.0)"),
     new("Test", "compatibility", "Run compatibility tests", 2.4, StatusKind.Pass, "Tests completed in 2.1s", "Tests Passed: 41, Failed: 0, Skipped: 0"),
     new("Test", "pester7", "Run Pester tests (PowerShell 7.5)", 2.1, StatusKind.Warn, "Tests completed in 1.8s", "Tests Passed: 40, Failed: 0, Skipped: 1 (requires conhost)"),
-    new("Docs", "md", "Generate markdown help (38 commands)", 1.7, StatusKind.Pass, "Docs\\Readme.md updated", "Docs\\Write-ConsoleTable.md ... Docs\\Start-ConsoleDashboard.md"),
+    new("Docs", "md", "Generate markdown help (38 commands)", 1.7, StatusKind.Pass, "Docs\\Readme.md updated", "Docs\\Show-ConsoleTable.md ... Docs\\Invoke-ConsoleDashboard.md"),
     new("Docs", "maml", "Generate en-US MAML help", 0.9, StatusKind.Pass, "en-US\\ConsoleMonster.PowerShell.dll-Help.xml (412 KB)"),
     new("Sign", "sign", "Sign module files", 0.3, StatusKind.Skip, "SignModule is $false for this build; skipping Authenticode signing"),
     new("Package", "nupkg", "Pack ConsoleMonster.2.0.0.nupkg", 1.2, StatusKind.Pass, "Successfully created package 'Artefacts\\ProjectBuild\\ConsoleMonster.2.0.0.nupkg'."),
@@ -27,7 +27,7 @@ BuildStep[] steps = {
 string[] phaseNames = { "Prepare", "Restore", "Build", "Test", "Docs", "Sign", "Package", "Publish" };
 string[] compilerNames = { "netstandard2.0", "net472", "net8.0", "PowerShell" };
 int completed = 0;
-string PathText(string text) => text.Replace('\\', Path.DirectorySeparatorChar);
+string PathText(string text) => text.Replace('\\', '/');
 string Duration(double seconds) => seconds.ToString("0.0", CultureInfo.InvariantCulture) + "s";
 StatusKind Worst(IEnumerable<BuildStep> items) => items.Any(item => item.Result == StatusKind.Warn) ? StatusKind.Warn
     : items.All(item => item.Result == StatusKind.Skip) ? StatusKind.Skip : StatusKind.Pass;
@@ -58,7 +58,7 @@ for (int i = 0; i < compilerNames.Length; i++) {
     lane.Passed = (int)lane.Done;
     lane.Detail = lane.Done > 0 ? "compiled" : lane.Status == StatusKind.Running ? "compiling" : "queued";
 }
-LogRegion log = new LogRegion { PreferredHeight = 8, ShowTime = false };
+LogRegion log = new LogRegion { PreferredHeight = 8, ShowElapsed = false };
 log.Write("Build engine · release pipeline");
 foreach (BuildStep item in steps.Take(completed)) foreach (string line in item.Output) log.Write(PathText(line), item.Result == StatusKind.Warn ? "warn" : item.Result == StatusKind.Skip ? "skip" : "info");
 if (completed < steps.Length) log.Write(PathText(steps[completed].Label) + "...");
@@ -67,7 +67,7 @@ Rows body = new Rows(new Padding(phases, 1, 0, 1, 1),
         .Add(new Panel(new Rows(module, new Rule(), progress, new Rule("Compiler workers"), compilers), "Module")))
     .Add(new Panel(log, "Output"), LayoutSize.Fraction());
 Dashboard dashboard = new Dashboard("[bold]Module build[/]", body) {
-    Subtitle = "Build-Module ConsoleMonster", ShowClock = false,
+    Subtitle = "Build-Module ConsoleMonster", ShowElapsed = false,
     Footer = "[muted]Prepare · Restore · Build · Test · Docs · Sign · Package · Publish    Ctrl+C stop[/]"
 };
 

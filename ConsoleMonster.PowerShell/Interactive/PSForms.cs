@@ -40,14 +40,14 @@ namespace ConsoleMonster.PowerShell {
         public static PSObject ToObject(FormValues values, Form form, bool plainSecrets) {
             PSObject result = new PSObject();
             foreach (Field field in form.Fields) {
-                if (!values.IsVisible(field.Name)) {
+                if (!values.IsVisible(field.Key)) {
                     continue;
                 }
-                object? value = Normalize(values[field.Name]);
+                object? value = Normalize(values[field.Key]);
                 if (field.Kind == FieldKind.Secret && !plainSecrets && value is string secret) {
                     value = PSInteractive.ToSecureString(secret);
                 }
-                result.Properties.Add(new PSNoteProperty(field.Name, value));
+                result.Properties.Add(new PSNoteProperty(field.Key, value));
             }
             return result;
         }

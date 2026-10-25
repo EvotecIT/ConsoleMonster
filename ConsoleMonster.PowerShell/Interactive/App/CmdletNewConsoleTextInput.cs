@@ -6,7 +6,7 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="synopsis">Creates a named single-line text input for Show-ConsoleApp.</para>
     /// <para type="description">Emits a stable core TextInput widget. Place inputs in the outer layout, outside dependent bindings. The final state contains the input's committed value.</para>
     /// </summary>
-    /// <example><para>Create an application input.</para><code>New-ConsoleTextInput -Name Query -Placeholder 'Filter' -OnChange { $State.Edits = 1 + $State.Edits }</code></example>
+    /// <example><para>Create an application input.</para><code>New-ConsoleTextInput -Key Query -Placeholder 'Filter' -OnChange { $State.Edits = 1 + $State.Edits }</code></example>
     [Cmdlet(VerbsCommon.New, "ConsoleTextInput")]
     [OutputType(typeof(TextInput))]
     public sealed class CmdletNewConsoleTextInput : AppInputCmdlet {
@@ -25,7 +25,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void EndProcessing() {
-            Emit(new TextInput(Name, Value) { Placeholder = Placeholder, MaxLength = MaxLength });
+            Emit(new TextInput(Key, Value) { Placeholder = Placeholder, MaxLength = MaxLength });
         }
     }
 }

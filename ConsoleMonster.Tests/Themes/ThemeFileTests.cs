@@ -43,10 +43,10 @@ namespace ConsoleMonster.Tests.Themes {
             tokens.Clear();
             Theme actual = document.ToTheme();
             Assert.Equal("Team", actual.Name);
-            Assert.Equal(Theme.Light.Get(ThemeToken.SurfaceAccent).Background, actual.Get(ThemeToken.SurfaceAccent).Background);
-            Assert.Equal(Color.FromHex("#123456"), actual.Get(ThemeToken.SurfaceAccent).Foreground!.Value.TrueColor);
+            Assert.Equal(Theme.Light.Get(ThemeToken.SurfaceAccent).BackgroundColor, actual.Get(ThemeToken.SurfaceAccent).BackgroundColor);
+            Assert.Equal(Color.FromHex("#123456"), actual.Get(ThemeToken.SurfaceAccent).Color!.Value.TrueColor);
             Assert.Equal(TextDecoration.None, actual.Get(ThemeToken.SurfaceAccent).Decoration);
-            Assert.Null(actual.Get(ThemeToken.Focus).Background);
+            Assert.Null(actual.Get(ThemeToken.Focus).BackgroundColor);
             Assert.Equal(Theme.Light.Get(ThemeToken.Pass), actual.Get(ThemeToken.Pass));
             Assert.DoesNotContain("BaseTheme", document.ToJson());
         }
@@ -55,7 +55,7 @@ namespace ConsoleMonster.Tests.Themes {
         public void Import_WithoutBaseTheme_UsesTerminalDefaultsForOmissions() {
             Theme theme = ThemeFile.Import(Document(new Hashtable { ["Pass"] = new Hashtable { ["Decoration"] = "Bold" } })).ToTheme();
             Assert.Equal(Style.Plain, theme.Resolve(ThemeToken.Text, ColorDepth.TrueColor));
-            Assert.Null(theme.Get(ThemeToken.Pass).Foreground);
+            Assert.Null(theme.Get(ThemeToken.Pass).Color);
             Assert.Equal(TextDecoration.Bold, theme.Get(ThemeToken.Pass).Decoration);
         }
 
@@ -147,8 +147,8 @@ namespace ConsoleMonster.Tests.Themes {
             foreach (ThemeToken token in Enum.GetValues(typeof(ThemeToken))) {
                 ThemeStyle left = expected.Get(token);
                 ThemeStyle right = actual.Get(token);
-                Assert.Equal(left.Foreground, right.Foreground);
-                Assert.Equal(left.Background, right.Background);
+                Assert.Equal(left.Color, right.Color);
+                Assert.Equal(left.BackgroundColor, right.BackgroundColor);
                 Assert.Equal(left.Decoration, right.Decoration);
                 foreach (ColorDepth depth in Enum.GetValues(typeof(ColorDepth))) {
                     Assert.Equal(expected.Resolve(token, depth), actual.Resolve(token, depth));

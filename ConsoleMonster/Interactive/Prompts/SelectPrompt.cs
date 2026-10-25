@@ -44,7 +44,7 @@ namespace ConsoleMonster.Interactive {
         public override string Describe(T value) {
             foreach (Choice c in Choices) {
                 if (Equals(c.Value, value)) {
-                    return c.Title;
+                    return c.Label;
                 }
             }
             return Convert.ToString(value, System.Globalization.CultureInfo.CurrentCulture) ?? string.Empty;

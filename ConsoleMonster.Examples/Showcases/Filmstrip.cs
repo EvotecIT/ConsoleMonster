@@ -71,7 +71,7 @@ namespace ConsoleMonster.Examples.Showcases {
         private static void Drive(Action run) {
             try {
                 run();
-            } catch (Exception ex) when (ex is InputClosedException || ex is PromptCancelledException || ex is OperationCanceledException) {
+            } catch (Exception ex) when (ex is InputClosedException || ex is PromptCanceledException || ex is OperationCanceledException) {
             }
         }
 

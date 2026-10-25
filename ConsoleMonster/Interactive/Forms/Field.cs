@@ -10,15 +10,15 @@ namespace ConsoleMonster.Interactive {
     /// </summary>
     public abstract class Field {
         /// <summary>Creates a field.</summary>
-        /// <param name="name">The key in the form values.</param>
+        /// <param name="key">The key in the form values.</param>
         /// <param name="label">The label; null uses the name.</param>
-        protected Field(string name, string? label) {
-            Name = name ?? throw new ArgumentNullException(nameof(name));
-            Label = label ?? name;
+        protected Field(string key, string? label) {
+            Key = key ?? throw new ArgumentNullException(nameof(key));
+            Label = label ?? key;
         }
 
         /// <summary>The key in the form values.</summary>
-        public string Name { get; }
+        public string Key { get; }
 
         /// <summary>The label.</summary>
         public string Label { get; set; }
@@ -30,7 +30,7 @@ namespace ConsoleMonster.Interactive {
         /// The command-line parameter this field supplies (<c>Domain</c>, <c>-Domain</c>, <c>--domain</c>); null leaves the
         /// field out of the equivalent command.
         /// </summary>
-        public string? Parameter { get; set; }
+        public string? ParameterName { get; set; }
 
         /// <summary>Whether an empty value is refused.</summary>
         public bool Required { get; set; }

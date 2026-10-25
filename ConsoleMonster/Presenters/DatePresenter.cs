@@ -14,11 +14,11 @@ namespace ConsoleMonster.Presenters {
     public sealed class DatePresenter : ICellPresenter {
         /// <summary>Creates a date presenter.</summary>
         /// <param name="display">Absolute, relative or both (default absolute).</param>
-        /// <param name="format">The absolute format (default <c>yyyy-MM-dd HH:mm</c>).</param>
+        /// <param name="timestampFormat">The absolute format (default <c>yyyy-MM-dd HH:mm</c>).</param>
         /// <param name="timeZone">The time zone for absolute dates, or null for the context's.</param>
-        public DatePresenter(DateDisplay display = DateDisplay.Absolute, string? format = null, TimeZoneInfo? timeZone = null) {
+        public DatePresenter(DateDisplay display = DateDisplay.Absolute, string? timestampFormat = null, TimeZoneInfo? timeZone = null) {
             Display = display;
-            Format = format ?? DefaultFormat;
+            TimestampFormat = timestampFormat ?? DefaultFormat;
             TimeZone = timeZone;
         }
 
@@ -26,7 +26,7 @@ namespace ConsoleMonster.Presenters {
         public DateDisplay Display { get; }
 
         /// <summary>The absolute format.</summary>
-        public string Format { get; }
+        public string TimestampFormat { get; }
 
         /// <summary>The time zone override, or null.</summary>
         public TimeZoneInfo? TimeZone { get; }
@@ -47,7 +47,7 @@ namespace ConsoleMonster.Presenters {
                 // Within a day of the representable range the zone shift cannot be applied; show the value unshifted.
                 local = time;
             }
-            string absolute = local.ToString(Format, context.Culture);
+            string absolute = local.ToString(TimestampFormat, context.Culture);
             string relative = Relative(time - context.Now);
             Style text = context.Render.Style(ThemeToken.Text);
             Style muted = context.Render.Style(ThemeToken.Muted);

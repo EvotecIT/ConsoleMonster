@@ -29,11 +29,11 @@ namespace ConsoleMonster.Tests.Live {
                 Assert.Equal(2, events.Length);
                 LiveEvent actual = events[0];
                 Assert.Equal(expected.Time, actual.Time);
-                Assert.Equal(expected.Target, actual.Target);
+                Assert.Equal(expected.WidgetId, actual.WidgetId);
                 Assert.Equal(expected.Operation, actual.Operation);
                 Assert.Equal(expected.Key, actual.Key);
                 Assert.Equal(expected.Text, actual.Text);
-                Assert.Equal(expected.State, actual.State);
+                Assert.Equal(expected.Status, actual.Status);
                 Assert.Equal(expected.Value, actual.Value);
                 Assert.Equal(expected.Total, actual.Total);
                 Assert.Null(events[1].Text);

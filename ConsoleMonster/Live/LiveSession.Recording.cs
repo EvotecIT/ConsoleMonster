@@ -17,11 +17,11 @@ namespace ConsoleMonster.Live {
         private const long SnapshotInterval = 200; // Milliseconds between snapshots of a region whose live content changes.
         private const int MaxSnapshotHeight = 200;
 
-        // Render-thread state: the region (Slot) that shows each live widget adopted from swapped content, and the regions
+        // Render-thread state: the region (RegionWidget) that shows each live widget adopted from swapped content, and the regions
         // whose content changed since their last recorded snapshot.
-        private readonly Dictionary<string, Slot> _slotMembers = new Dictionary<string, Slot>(StringComparer.Ordinal);
-        private readonly Dictionary<Slot, long> _pendingSnapshots = new Dictionary<Slot, long>();
-        private readonly Dictionary<Slot, long> _lastSnapshot = new Dictionary<Slot, long>();
+        private readonly Dictionary<string, RegionWidget> _slotMembers = new Dictionary<string, RegionWidget>(StringComparer.Ordinal);
+        private readonly Dictionary<RegionWidget, long> _pendingSnapshots = new Dictionary<RegionWidget, long>();
+        private readonly Dictionary<RegionWidget, long> _lastSnapshot = new Dictionary<RegionWidget, long>();
 
         /// <summary>
         /// Adds a marker to the recording (a named point such as "Deploy started"), which <c>Show-ConsoleReplay</c> can jump
@@ -70,27 +70,27 @@ namespace ConsoleMonster.Live {
         // Records an applied event. Region swaps carry an in-process widget, which a recording cannot hold: the new content
         // is recorded as a picture (markup) instead, and so are later changes of live widgets inside it.
         private void RecordApplied(ILiveTarget target, LiveEvent liveEvent) {
-            if (target is Slot slot && (liveEvent.Operation == "set" || liveEvent.Operation == "clear")) {
+            if (target is RegionWidget slot && (liveEvent.Operation == "set" || liveEvent.Operation == "clear")) {
                 TrackMembers(slot);
                 if (liveEvent.Operation == "set" && liveEvent.Payload is IWidget) {
                     RecordSnapshot(slot, liveEvent.Time);
-                    MarkOwnerChanged(slot.Name, liveEvent.Time);
+                    MarkOwnerChanged(slot.WidgetId, liveEvent.Time);
                     return;
                 }
             }
             Record(liveEvent);
-            MarkOwnerChanged(target.Name, liveEvent.Time);
+            MarkOwnerChanged(target.WidgetId, liveEvent.Time);
         }
 
         private void MarkOwnerChanged(string name, long time) {
-            if (_slotMembers.TryGetValue(name, out Slot? owner) && !_pendingSnapshots.ContainsKey(owner)) {
+            if (_slotMembers.TryGetValue(name, out RegionWidget? owner) && !_pendingSnapshots.ContainsKey(owner)) {
                 _pendingSnapshots[owner] = time;
             }
         }
 
-        private void TrackMembers(Slot slot) {
+        private void TrackMembers(RegionWidget slot) {
             List<string> stale = new List<string>();
-            foreach (KeyValuePair<string, Slot> member in _slotMembers) {
+            foreach (KeyValuePair<string, RegionWidget> member in _slotMembers) {
                 if (ReferenceEquals(member.Value, slot)) {
                     stale.Add(member.Key);
                 }
@@ -101,9 +101,9 @@ namespace ConsoleMonster.Live {
             AddMembers(slot.Content, slot);
         }
 
-        private void AddMembers(IWidget widget, Slot owner) {
-            if (widget is ILiveTarget target && !string.IsNullOrEmpty(target.Name)) {
-                _slotMembers[target.Name] = owner;
+        private void AddMembers(IWidget widget, RegionWidget owner) {
+            if (widget is ILiveTarget target && !string.IsNullOrEmpty(target.WidgetId)) {
+                _slotMembers[target.WidgetId] = owner;
             }
             if (widget is IContainer container) {
                 foreach (IWidget child in container.Children) {
@@ -119,20 +119,20 @@ namespace ConsoleMonster.Live {
                 return;
             }
             long now = (long)Elapsed.TotalMilliseconds;
-            List<Slot> due = new List<Slot>();
-            foreach (KeyValuePair<Slot, long> pending in _pendingSnapshots) {
+            List<RegionWidget> due = new List<RegionWidget>();
+            foreach (KeyValuePair<RegionWidget, long> pending in _pendingSnapshots) {
                 if (force || !_lastSnapshot.TryGetValue(pending.Key, out long last) || now - last >= SnapshotInterval) {
                     due.Add(pending.Key);
                 }
             }
-            foreach (Slot slot in due) {
+            foreach (RegionWidget slot in due) {
                 _pendingSnapshots.Remove(slot);
                 RecordSnapshot(slot, Math.Max(now, 1));
-                MarkOwnerChanged(slot.Name, now);
+                MarkOwnerChanged(slot.WidgetId, now);
             }
         }
 
-        private void RecordSnapshot(Slot slot, long time) {
+        private void RecordSnapshot(RegionWidget slot, long time) {
             _lastSnapshot[slot] = time;
             _pendingSnapshots.Remove(slot);
             if (_context == null) {
@@ -140,7 +140,7 @@ namespace ConsoleMonster.Live {
             }
             Attempt(() => {
                 string markup = Snapshot(slot.Content, slot.RenderedWidth > 0 ? slot.RenderedWidth : _context.Profile.Width, slot.RenderedHeight, _context.WithClock(FramesRendered, Elapsed));
-                Record(new LiveEvent(slot.Name, "set", text: markup, state: "snapshot", time: time, isMarkup: true));
+                Record(new LiveEvent(slot.WidgetId, "set", text: markup, status: "snapshot", time: time, isMarkup: true));
             });
         }
 

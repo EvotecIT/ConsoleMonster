@@ -1,4 +1,4 @@
-Describe 'Invoke-ConsoleRun (ForEach-ConsoleItem)' {
+Describe 'Invoke-ConsoleRun (Invoke-ConsoleRun)' {
     BeforeAll {
         . (Join-Path $PSScriptRoot 'Support\Invoke-TestChild.ps1')
         $script:ModulePath = Join-Path $PSScriptRoot '..\ConsoleMonster.psd1'
@@ -19,7 +19,7 @@ Describe 'Invoke-ConsoleRun (ForEach-ConsoleItem)' {
     It 'returns the output in input order in parallel, passes $using: values and writes failures as errors' {
         $text = Invoke-RunChild @'
 $base = 10
-$out = 1..12 | ForEach-ConsoleItem -Parallel -ThrottleLimit 4 { Start-Sleep -Milliseconds ((13 - $_) * 15); if ($_ -eq 5) { throw 'five failed' }; $_ * $using:base } -ErrorVariable failures -ErrorAction SilentlyContinue
+$out = 1..12 | Invoke-ConsoleRun -Parallel -ThrottleLimit 4 { Start-Sleep -Milliseconds ((13 - $_) * 15); if ($_ -eq 5) { throw 'five failed' }; $_ * $using:base } -ErrorVariable failures -ErrorAction SilentlyContinue
 "OUT=$($out -join ',')"
 "ERRORS=$($failures.Count) $($failures[0].Exception.Message)"
 '@
@@ -32,7 +32,7 @@ $out = 1..12 | ForEach-ConsoleItem -Parallel -ThrottleLimit 4 { Start-Sleep -Mil
         $text = Invoke-RunChild @'
 $release = [System.Threading.ManualResetEventSlim]::new($false)
 try {
-    $out = @(1, 2 | ForEach-ConsoleItem -Parallel -ThrottleLimit 2 -Unordered {
+    $out = @(1, 2 | Invoke-ConsoleRun -Parallel -ThrottleLimit 2 -Unordered {
         $gate = $using:release
         if ($_ -eq 1 -and -not $gate.Wait(10000)) { throw 'Item 2 was not delivered while item 1 was waiting.' }
         $_
@@ -51,20 +51,20 @@ try {
 
     It 'keeps output and warnings emitted before a terminating error in both modes' {
         $text = Invoke-RunChild @'
-$out = 1 | ForEach-ConsoleItem { 'before'; Write-Warning 'detail'; throw 'failed' } -ErrorVariable failures -WarningVariable warnings -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+$out = 1 | Invoke-ConsoleRun { 'before'; Write-Warning 'detail'; throw 'failed' } -ErrorVariable failures -WarningVariable warnings -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
 "SEQ=$out ERRORS=$($failures.Count) WARNINGS=$($warnings -join ',')"
-$out = 1 | ForEach-ConsoleItem -Parallel { 'before'; Write-Warning 'detail'; throw 'failed' } -ErrorVariable failures -WarningVariable warnings -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+$out = 1 | Invoke-ConsoleRun -Parallel { 'before'; Write-Warning 'detail'; throw 'failed' } -ErrorVariable failures -WarningVariable warnings -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
 "PAR=$out ERRORS=$($failures.Count) WARNINGS=$($warnings -join ',')"
 '@
         $text | Should -Match 'SEQ=before ERRORS=1 WARNINGS=detail'
         $text | Should -Match 'PAR=before ERRORS=1 WARNINGS=detail'
     }
 
-    It 'runs one at a time in the caller''s scope without -Parallel, with labels from -Name' {
+    It 'runs one at a time in the caller''s scope without -Parallel, with labels from -Label' {
         $text = Invoke-RunChild @'
 $script:seen = [System.Collections.Generic.List[string]]::new()
 $items = @([pscustomobject] @{ Host = 'alpha' }, [pscustomobject] @{ Host = 'beta' })
-$out = $items | ForEach-ConsoleItem -Name Host { $script:seen.Add($_.Host); $_.Host.ToUpper() }
+$out = $items | Invoke-ConsoleRun -Label Host { $script:seen.Add($_.Host); $_.Host.ToUpper() }
 "OUT=$($out -join ',') SEEN=$($script:seen -join ',')"
 '@
         $text | Should -Match 'OUT=ALPHA,BETA SEEN=alpha,beta'
@@ -74,10 +74,10 @@ $out = $items | ForEach-ConsoleItem -Name Host { $script:seen.Add($_.Host); $_.H
 
     It 'keeps variables set in the body without -Parallel, as ForEach-Object does, and leaves no helper variables' {
         $text = Invoke-RunChild @'
-function Get-Total { $total = 0; 1..4 | ForEach-ConsoleItem { $total += $_ } | Out-Null; $total }
+function Get-Total { $total = 0; 1..4 | Invoke-ConsoleRun { $total += $_ } | Out-Null; $total }
 "TOTAL=$(Get-Total)"
 $progressBefore = $ProgressPreference
-1 | ForEach-ConsoleItem { $_ } | Out-Null
+1 | Invoke-ConsoleRun { $_ } | Out-Null
 "LEAKED=$(@(Get-Variable -Name '__cm*' -ErrorAction Ignore).Count) PROGRESS=$($ProgressPreference -eq $progressBefore)"
 '@
         $text | Should -Match 'TOTAL=10'
@@ -86,12 +86,12 @@ $progressBefore = $ProgressPreference
 
     It 'prints nothing for no input, warns about -TimeoutSeconds without -Parallel and rejects $using: expressions before the run' {
         $text = Invoke-RunChild @'
-$none = @() | ForEach-ConsoleItem -Title 'NOTHING' { $_ }
+$none = @() | Invoke-ConsoleRun -Title 'NOTHING' { $_ }
 "NONE=$(@($none).Count)"
-$out = 1 | ForEach-ConsoleItem -TimeoutSeconds 5 { $_ } -WarningVariable w -WarningAction SilentlyContinue
+$out = 1 | Invoke-ConsoleRun -TimeoutSeconds 5 { $_ } -WarningVariable w -WarningAction SilentlyContinue
 "WARNED=$($w.Count) OUT=$out"
 $items = @{ a = 1 }
-try { 1, 2 | ForEach-ConsoleItem -Parallel { $using:items['a'] } } catch { "REJECTED=$($_.Exception.Message -like '*$using:name*')" }
+try { 1, 2 | Invoke-ConsoleRun -Parallel { $using:items['a'] } } catch { "REJECTED=$($_.Exception.Message -like '*$using:name*')" }
 '@
         $text | Should -Match 'NONE=0'
         $text | Should -Not -Match 'NOTHING'
@@ -103,8 +103,8 @@ try { 1, 2 | ForEach-ConsoleItem -Parallel { $using:items['a'] } } catch { "REJE
     It 'shows a native program''s stderr lines as text without failing the item, in both modes' {
         $text = Invoke-RunChild @'
 $exe = [System.Diagnostics.Process]::GetCurrentProcess().Path
-$out = 1 | ForEach-ConsoleItem { & $exe -NoProfile -NonInteractive -Command "[Console]::Error.WriteLine('progress note'); 'native out'" } -ErrorVariable e1 -ErrorAction SilentlyContinue
-$par = 1 | ForEach-ConsoleItem -Parallel { & $using:exe -NoProfile -NonInteractive -Command "[Console]::Error.WriteLine('progress note'); 'native out'" } -ErrorVariable e2 -ErrorAction SilentlyContinue
+$out = 1 | Invoke-ConsoleRun { & $exe -NoProfile -NonInteractive -Command "[Console]::Error.WriteLine('progress note'); 'native out'" } -ErrorVariable e1 -ErrorAction SilentlyContinue
+$par = 1 | Invoke-ConsoleRun -Parallel { & $using:exe -NoProfile -NonInteractive -Command "[Console]::Error.WriteLine('progress note'); 'native out'" } -ErrorVariable e2 -ErrorAction SilentlyContinue
 "OUT=$out PAR=$par ERRORS=$($e1.Count + $e2.Count)"
 '@
         $text | Should -Match 'OUT=native out PAR=native out ERRORS=0'
@@ -114,7 +114,7 @@ $par = 1 | ForEach-ConsoleItem -Parallel { & $using:exe -NoProfile -NonInteracti
 
     It 'stops an item past -TimeoutSeconds and counts it as failed' {
         $text = Invoke-RunChild @'
-$out = 1..2 | ForEach-ConsoleItem -Parallel -TimeoutSeconds 1 { if ($_ -eq 2) { 'partial'; Start-Sleep -Seconds 30 }; $_ } -ErrorVariable failures -ErrorAction SilentlyContinue
+$out = 1..2 | Invoke-ConsoleRun -Parallel -TimeoutSeconds 1 { if ($_ -eq 2) { 'partial'; Start-Sleep -Seconds 30 }; $_ } -ErrorVariable failures -ErrorAction SilentlyContinue
 "OUT=$($out -join ',') TIMEOUT=$($failures[0].FullyQualifiedErrorId -like 'ItemTimedOut*')"
 '@
         $text | Should -Match 'OUT=1,partial TIMEOUT=True'

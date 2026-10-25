@@ -9,13 +9,13 @@ param($modulePath, [bool] $enable = $true)
 $global:ProgressPreference = 'Continue'
 Import-Module $modulePath
 if ($enable) { Enable-ConsoleFormatting -Feature Progress }
-$global:activities = [ConsoleMonster.Widgets.ActivityList]::new()
-$global:engine = [ConsoleMonster.PowerShell.ProgressBridge].Assembly.GetType('ConsoleMonster.PowerShell.SessionProgress', $true)
+$global:activities = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Widgets.ActivityList'))::new()
+$global:engine = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.ProgressBridge')).Assembly.GetType('ConsoleMonster.PowerShell.SessionProgress')
 $flags = [System.Reflection.BindingFlags] 'Static, NonPublic'
 $global:report = $engine.GetMethod('Report', $flags)
 $global:override = $engine.GetProperty('Override', $flags)
-$constructor = [ConsoleMonster.PowerShell.ProgressBridge].GetConstructor([System.Reflection.BindingFlags] 'Instance, NonPublic', $null, [type[]] @([ConsoleMonster.Live.ILiveDispatcher]), $null)
-$bridge = $constructor.Invoke(@([ConsoleMonster.Live.ImmediateDispatcher]::new($activities)))
+$constructor = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.ProgressBridge')).GetConstructor([System.Reflection.BindingFlags] 'Instance, NonPublic', $null, [type[]] @(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.ILiveDispatcher'))), $null)
+$bridge = $constructor.Invoke(@(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.ImmediateDispatcher'))::new($activities)))
 $override.SetValue($null, $bridge, $null)
 function global:Report-Progress {
     param([string] $Label, [bool] $Completed = $false)
@@ -101,7 +101,7 @@ Disable-ConsoleFormatting
     Invoke-Owner $first @'
 "FIRST_AFTER_SECOND=$($activities.Count)"
 "FIRST_UPDATED=$(Report-Progress AlphaUpdated)"
-"FIRST_LABEL=$([ConsoleMonster.Export.ConsoleExporter]::ToText($activities).Contains('AlphaUpdated'))"
+"FIRST_LABEL=$(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Export.ConsoleExporter'))::ToText($activities).Contains('AlphaUpdated'))"
 $null = Report-Progress AlphaUpdated -Completed $true
 "FIRST_COMPLETED=$($activities.Count)"
 $override.SetValue($null, $null, $null)
@@ -114,11 +114,11 @@ Enable-ConsoleFormatting -Feature Progress
 "SECOND_AFTER_RELEASE=$(Report-Progress BetaAfterRelease) SECOND_ACTIVITIES=$($activities.Count)"
 '@
     Invoke-Owner $first 'End-ProgressPipeline; Disable-ConsoleFormatting'
-    Invoke-Owner $second '"SECOND_SURVIVED=$($activities.Count) SECOND_LABEL=$([ConsoleMonster.Export.ConsoleExporter]::ToText($activities).Contains(''BetaAfterRelease''))"'
+    Invoke-Owner $second '"SECOND_SURVIVED=$($activities.Count) SECOND_LABEL=$(([ConsoleMonster.Terminal].Assembly.GetType(''ConsoleMonster.Export.ConsoleExporter''))::ToText($activities).Contains(''BetaAfterRelease''))"'
     Invoke-Owner $first @'
 Enable-ConsoleFormatting -Feature Progress
-$constructor = [ConsoleMonster.PowerShell.ProgressBridge].GetConstructor([System.Reflection.BindingFlags] 'Instance, NonPublic', $null, [type[]] @([ConsoleMonster.Live.ILiveDispatcher]), $null)
-$override.SetValue($null, $constructor.Invoke(@([ConsoleMonster.Live.ImmediateDispatcher]::new($activities))), $null)
+$constructor = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.ProgressBridge')).GetConstructor([System.Reflection.BindingFlags] 'Instance, NonPublic', $null, [type[]] @(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.ILiveDispatcher'))), $null)
+$override.SetValue($null, $constructor.Invoke(@(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.ImmediateDispatcher'))::new($activities))), $null)
 "NATIVE_STARTED=$(Report-Progress AlphaNative)"
 '@
     $first.Runspace.SessionStateProxy.SetVariable('nativeReady', $nativeReady)
@@ -132,16 +132,16 @@ $override.SetValue($null, $constructor.Invoke(@([ConsoleMonster.Live.ImmediateDi
     $nativePending = $null
     if ($first.HadErrors) { throw ($first.Streams.Error | Out-String) }
     Invoke-Owner $second @'
-$constructor = [ConsoleMonster.PowerShell.ProgressBridge].GetConstructor([System.Reflection.BindingFlags] 'Instance, NonPublic', $null, [type[]] @([ConsoleMonster.Live.ILiveDispatcher]), $null)
-$override.SetValue($null, $constructor.Invoke(@([ConsoleMonster.Live.ImmediateDispatcher]::new($activities))), $null)
+$constructor = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.ProgressBridge')).GetConstructor([System.Reflection.BindingFlags] 'Instance, NonPublic', $null, [type[]] @(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.ILiveDispatcher'))), $null)
+$override.SetValue($null, $constructor.Invoke(@(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.ImmediateDispatcher'))::new($activities))), $null)
 $null = Report-Progress BetaClosing
 '@
     # Closing the foreground owner also releases the terminal; an unrelated closed runspace must not clear its successor.
     $second.Dispose()
     Invoke-Owner $first @'
 Enable-ConsoleFormatting -Feature Progress
-$constructor = [ConsoleMonster.PowerShell.ProgressBridge].GetConstructor([System.Reflection.BindingFlags] 'Instance, NonPublic', $null, [type[]] @([ConsoleMonster.Live.ILiveDispatcher]), $null)
-$override.SetValue($null, $constructor.Invoke(@([ConsoleMonster.Live.ImmediateDispatcher]::new($activities))), $null)
+$constructor = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.ProgressBridge')).GetConstructor([System.Reflection.BindingFlags] 'Instance, NonPublic', $null, [type[]] @(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.ILiveDispatcher'))), $null)
+$override.SetValue($null, $constructor.Invoke(@(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.ImmediateDispatcher'))::new($activities))), $null)
 "AFTER_OWNER_CLOSED=$(Report-Progress AlphaAfterClose)"
 '@
     $oldLease = Invoke-Owner $first '$global:foregroundLease = $engine.GetMethod(''TryEnterForeground'', [System.Reflection.BindingFlags] ''Static, NonPublic'').Invoke($null, @()); $global:foregroundLease'

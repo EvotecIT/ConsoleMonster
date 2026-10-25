@@ -123,7 +123,7 @@ namespace ConsoleMonster.Tests.Interactive {
         [Fact]
         public void Number_LineMode_ParsesAndChecksTheRange() {
             FakeLines lines = new FakeLines("x", "100", "8");
-            Assert.Equal(8m, new NumberPrompt("Count") { WholeNumber = true, Minimum = 1, Maximum = 10 }.Show(Lines(lines, accessible: false)));
+            Assert.Equal(8m, new NumberPrompt("Count") { Integer = true, Minimum = 1, Maximum = 10 }.Show(Lines(lines, accessible: false)));
             Assert.Contains("Enter a whole number.", lines.Output);
             Assert.Contains("Enter 10 or less.", lines.Output);
         }

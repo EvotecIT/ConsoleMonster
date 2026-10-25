@@ -24,7 +24,7 @@ namespace ConsoleMonster.Examples.Showcases {
             table.AddColumn(new TableColumn("Type") { Priority = 9, Overflow = ColumnOverflow.Never });
             table.AddColumn(new TableColumn("TTL") { Priority = 2, Presenter = new DurationPresenter() });
             table.AddColumn(new TableColumn("Data") { Priority = 10, Overflow = ColumnOverflow.Wrap, MaxLines = 3, Flexible = true, MinWidth = 28 });
-            table.AddColumn(new TableColumn("Latency") { Priority = 3, Presenter = new NumberPresenter("ms"), ToneRules = { ToneRule.Above(100, ThemeToken.Warn) } });
+            table.AddColumn(new TableColumn("Latency") { Priority = 3, Presenter = new NumberPresenter("ms"), RoleRules = { RoleRule.Above(100, ThemeToken.Warn) } });
             table.AddColumn(new TableColumn("Cache file") { Priority = 1, Overflow = ColumnOverflow.TruncateMiddle, MinWidth = 20, MaxWidth = 36 });
             const string Cache = "/var/cache/dns/evotec.xyz/";
             table.AddValues("evotec.xyz", "A", 300, "104.21.48.12", 12, Cache + "A.json");
@@ -67,7 +67,7 @@ namespace ConsoleMonster.Examples.Showcases {
             view.AddField("Issuer", "CN=R11, O=Let's Encrypt, C=US");
             view.AddField("Serial", "04:A1:7F:3C:9E:22:51:0B:6D:8E:F0:13:44:2A:BC:91");
             view.AddField("Valid from (UTC)", new DateTimeOffset(2026, 8, 9, 12, 0, 0, TimeSpan.Zero), new DatePresenter(DateDisplay.Both));
-            view.AddField("Valid to (UTC)", new DateTimeOffset(2026, 11, 8, 12, 0, 0, TimeSpan.Zero), new DatePresenter(DateDisplay.Both), new[] { ToneRule.Below(0, ThemeToken.Fail), ToneRule.Below(30, ThemeToken.Warn) });
+            view.AddField("Valid to (UTC)", new DateTimeOffset(2026, 11, 8, 12, 0, 0, TimeSpan.Zero), new DatePresenter(DateDisplay.Both), new[] { RoleRule.Below(0, ThemeToken.Fail), RoleRule.Below(30, ThemeToken.Warn) });
             view.AddField("Key", "ECDSA P-256");
             view.AddField("OCSP stapling", true);
             view.AddField("Revoked", false, new BooleanPresenter(trueIsProblem: true));
@@ -84,7 +84,7 @@ namespace ConsoleMonster.Examples.Showcases {
             chain.Presentation.Now = Now;
             chain.Presentation.TimeZone = TimeZoneInfo.Utc;
             chain.AddColumn(new TableColumn("Subject") { IsKey = true });
-            chain.AddColumn(new TableColumn("Expires") { Presenter = new DatePresenter(DateDisplay.Relative), ToneRules = { ToneRule.Below(30, ThemeToken.Warn) } });
+            chain.AddColumn(new TableColumn("Expires") { Presenter = new DatePresenter(DateDisplay.Relative), RoleRules = { RoleRule.Below(30, ThemeToken.Warn) } });
             chain.AddColumn(new TableColumn("Key") { Priority = 1 });
             chain.AddValues("CN=mail.evotec.xyz", new DateTimeOffset(2026, 11, 8, 12, 0, 0, TimeSpan.Zero), "ECDSA P-256");
             chain.AddValues("CN=R11, O=Let's Encrypt", new DateTimeOffset(2027, 3, 12, 23, 59, 59, TimeSpan.Zero), "RSA 2048");
@@ -100,8 +100,8 @@ namespace ConsoleMonster.Examples.Showcases {
             table.AddColumn(new TableColumn("Target") { IsKey = true, Overflow = ColumnOverflow.TruncateMiddle, MinWidth = 12 });
             table.AddColumn(new TableColumn("Result") { Priority = 10, Presenter = CellPresenters.Status });
             table.AddColumn(new TableColumn("Passed") { Priority = 8, Presenter = CellPresenters.Number, Aggregate = ColumnAggregate.Sum });
-            table.AddColumn(new TableColumn("Failed") { Priority = 9, Presenter = CellPresenters.Number, Aggregate = ColumnAggregate.Sum, ToneRules = { ToneRule.Above(0, ThemeToken.Fail) } });
-            table.AddColumn(new TableColumn("Warnings") { Priority = 6, Presenter = CellPresenters.Number, Aggregate = ColumnAggregate.Sum, ToneRules = { ToneRule.Above(0, ThemeToken.Warn) } });
+            table.AddColumn(new TableColumn("Failed") { Priority = 9, Presenter = CellPresenters.Number, Aggregate = ColumnAggregate.Sum, RoleRules = { RoleRule.Above(0, ThemeToken.Fail) } });
+            table.AddColumn(new TableColumn("Warnings") { Priority = 6, Presenter = CellPresenters.Number, Aggregate = ColumnAggregate.Sum, RoleRules = { RoleRule.Above(0, ThemeToken.Warn) } });
             table.AddColumn(new TableColumn("Duration") { Priority = 4, Presenter = CellPresenters.Duration, Aggregate = ColumnAggregate.Sum });
             table.AddColumn(new TableColumn("Score") { Priority = 2, Presenter = new DataBarPresenter(100, new NumberPresenter("%")), Aggregate = ColumnAggregate.Average });
             table.AddGroup("Domains");

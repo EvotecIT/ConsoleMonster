@@ -33,7 +33,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">A validator: $_ is the secret; return $true, $false or an error message.</para></summary>
         [Parameter]
-        public ScriptBlock? Validate { get; set; }
+        public ScriptBlock? Validator { get; set; }
 
         /// <inheritdoc />
         protected override void EndProcessing() {
@@ -43,8 +43,8 @@ namespace ConsoleMonster.PowerShell {
                 MinLength = MinLength
             };
             Configure(prompt);
-            if (Validate != null) {
-                ScriptBlock validate = Validate;
+            if (Validator != null) {
+                ScriptBlock validate = Validator;
                 prompt.Validator = text => PSInteractive.Validation(validate, text, PromptLabels.Default);
             }
             if (TrySnapshot(prompt)) { return; }

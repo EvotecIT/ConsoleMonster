@@ -6,20 +6,25 @@ schema: 2.0.0
 ---
 # Invoke-ConsoleRecording
 ## SYNOPSIS
-Records a script in a child PowerShell terminal and exports the result.
+Records a script or an interactive child shell and saves the result.
 
-Runs the script in an isolated child process. Caller variables and functions are not inherited. The selected shell must be pwsh or powershell. Saves a local v2 cast plus metadata, then uses the existing renderer for an HTML player, animated SVG, text, Markdown or a final-frame SVG. -InProcess explicitly selects the limited PowerShell output fallback.
+Runs the script in an isolated child process, or opens a child shell with Interactive until it exits. Caller variables and functions are not inherited. The selected shell must be pwsh or powershell. Saves a local v2 cast plus metadata, then uses the existing renderer for an HTML player, animated SVG, text, Markdown or a final-frame SVG. -InProcess explicitly selects the limited PowerShell output fallback.
 
 ## SYNTAX
-### __AllParameterSets
+### Script (Default)
 ```powershell
-Invoke-ConsoleRecording [-ScriptBlock] <scriptblock> -Destination <string> [-Theme <ExportTheme>] [-WindowChrome] [-ChromeStyle <WindowChromeStyle>] [-FinalFrame] [-Path <string>] [-Folder <string>] [-Name <string>] [-Shell <string>] [-Width <int>] [-Height <int>] [-Redact <string[]>] [-RedactionText <string>] [-MaxBytes <long>] [-IdleLimit <double>] [-InProcess] [-TimeoutSeconds <int>] [<CommonParameters>]
+Invoke-ConsoleRecording [-ScriptBlock] <scriptblock> -Destination <string> [-Theme <ExportTheme>] [-NoWindowChrome] [-ChromeStyle <WindowChromeStyle>] [-FinalFrame] [-RecordingPath <string>] [-Folder <string>] [-Title <string>] [-Shell <string>] [-Width <int>] [-Height <int>] [-Redact <string[]>] [-RedactionText <string>] [-MaxBytes <long>] [-IdleLimitSeconds <double>] [-InProcess] [-TimeoutSeconds <double>] [<CommonParameters>]
+```
+
+### Interactive
+```powershell
+Invoke-ConsoleRecording -Interactive [-Destination <string>] [-Folder <string>] [-Title <string>] [-Shell <string>] [-Width <int>] [-Height <int>] [-Redact <string[]>] [-RedactionText <string>] [-MaxBytes <long>] [-IdleLimitSeconds <double>] [-InProcess] [-TimeoutSeconds <double>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Records a script in a child PowerShell terminal and exports the result.
+Records a script or an interactive child shell and saves the result.
 
-Runs the script in an isolated child process. Caller variables and functions are not inherited. The selected shell must be pwsh or powershell. Saves a local v2 cast plus metadata, then uses the existing renderer for an HTML player, animated SVG, text, Markdown or a final-frame SVG. -InProcess explicitly selects the limited PowerShell output fallback.
+Runs the script in an isolated child process, or opens a child shell with Interactive until it exits. Caller variables and functions are not inherited. The selected shell must be pwsh or powershell. Saves a local v2 cast plus metadata, then uses the existing renderer for an HTML player, animated SVG, text, Markdown or a final-frame SVG. -InProcess explicitly selects the limited PowerShell output fallback.
 
 ## EXAMPLES
 
@@ -30,34 +35,41 @@ Invoke-ConsoleRecording { Add-ConsoleRecordingMarker 'Build'; git --version; Wri
 
 Record native coloured output and a chapter
 
+### EXAMPLE 2
+```powershell
+Invoke-ConsoleRecording -Interactive -Destination ./session.cast
+```
+
+Record an interactive shell
+
 ## PARAMETERS
 
 ### -ChromeStyle
-MacOS (default), Windows, Linux or None. None or -WindowChrome:$false hides chrome.
+MacOS (default), Windows, Linux or None. None or -NoWindowChrome hides chrome.
 
 ```yaml
 Type: WindowChromeStyle
-Parameter Sets: __AllParameterSets
+Parameter Sets: Script
 Aliases: None
 Possible values: None, MacOS, Windows, Linux
 
 Required: False
 Position: named
-Default value: [ConsoleMonster.Export.WindowChromeStyle]::MacOS
+Default value: MacOS
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -Destination
-Export path. Extension selects HTML, SVG, cast, text or Markdown.
+Export path for a script; Interactive writes a cast here, or uses a timestamped name when omitted.
 
 ```yaml
 Type: String
-Parameter Sets: __AllParameterSets
+Parameter Sets: Script, Interactive
 Aliases: None
 Possible values:
 
-Required: True
+Required: False
 Position: named
 Default value: None
 Accept pipeline input: False
@@ -69,7 +81,7 @@ Export the final frame as a static SVG.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: __AllParameterSets
+Parameter Sets: Script
 Aliases: None
 Possible values:
 
@@ -85,7 +97,7 @@ Folder for automatic cast names.
 
 ```yaml
 Type: String
-Parameter Sets: __AllParameterSets
+Parameter Sets: Script, Interactive
 Aliases: None
 Possible values:
 
@@ -101,7 +113,7 @@ Initial terminal height in cells.
 
 ```yaml
 Type: Int32
-Parameter Sets: __AllParameterSets
+Parameter Sets: Script, Interactive
 Aliases: None
 Possible values:
 
@@ -112,12 +124,12 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -IdleLimit
+### -IdleLimitSeconds
 Longest playback idle gap in seconds; zero keeps original timing.
 
 ```yaml
 Type: Double
-Parameter Sets: __AllParameterSets
+Parameter Sets: Script, Interactive
 Aliases: None
 Possible values:
 
@@ -133,11 +145,27 @@ Explicit limited fallback: PowerShell host output in this process; no native ter
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: __AllParameterSets
+Parameter Sets: Script, Interactive
 Aliases: None
 Possible values:
 
 Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Interactive
+Records an interactive child shell until it exits or stops recording.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Interactive
+Aliases: None
+Possible values:
+
+Required: True
 Position: named
 Default value: None
 Accept pipeline input: False
@@ -149,7 +177,7 @@ Maximum cast bytes. At the cap recording stops with a warning.
 
 ```yaml
 Type: Int64
-Parameter Sets: __AllParameterSets
+Parameter Sets: Script, Interactive
 Aliases: None
 Possible values:
 
@@ -160,12 +188,12 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Name
-Recording title.
+### -NoWindowChrome
+Hides the default export title bar.
 
 ```yaml
-Type: String
-Parameter Sets: __AllParameterSets
+Type: SwitchParameter
+Parameter Sets: Script
 Aliases: None
 Possible values:
 
@@ -176,12 +204,12 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Path
+### -RecordingPath
 Local asciicast v2 output; omitted names are timestamped.
 
 ```yaml
 Type: String
-Parameter Sets: __AllParameterSets
+Parameter Sets: Script
 Aliases: None
 Possible values:
 
@@ -197,7 +225,7 @@ Additional regular expressions to redact from recorded output.
 
 ```yaml
 Type: String[]
-Parameter Sets: __AllParameterSets
+Parameter Sets: Script, Interactive
 Aliases: None
 Possible values:
 
@@ -213,7 +241,7 @@ Visible replacement for matched output (default [REDACTED]). No control characte
 
 ```yaml
 Type: String
-Parameter Sets: __AllParameterSets
+Parameter Sets: Script, Interactive
 Aliases: None
 Possible values:
 
@@ -229,7 +257,7 @@ Script to run in the recorded PowerShell child.
 
 ```yaml
 Type: ScriptBlock
-Parameter Sets: __AllParameterSets
+Parameter Sets: Script
 Aliases: None
 Possible values:
 
@@ -245,7 +273,7 @@ Shell executable. The default is the current PowerShell executable.
 
 ```yaml
 Type: String
-Parameter Sets: __AllParameterSets
+Parameter Sets: Script, Interactive
 Aliases: None
 Possible values:
 
@@ -261,7 +289,7 @@ Export colours.
 
 ```yaml
 Type: ExportTheme
-Parameter Sets: __AllParameterSets
+Parameter Sets: Script
 Aliases: None
 Possible values: Auto, Dark, Light, HighContrast
 
@@ -276,8 +304,24 @@ Accept wildcard characters: False
 Maximum child lifetime in seconds.
 
 ```yaml
-Type: Int32
-Parameter Sets: __AllParameterSets
+Type: Double
+Parameter Sets: Script, Interactive
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Title
+Recording title.
+
+```yaml
+Type: String
+Parameter Sets: Script, Interactive
 Aliases: None
 Possible values:
 
@@ -293,29 +337,13 @@ Initial terminal width in cells.
 
 ```yaml
 Type: Int32
-Parameter Sets: __AllParameterSets
+Parameter Sets: Script, Interactive
 Aliases: None
 Possible values:
 
 Required: False
 Position: named
 Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -WindowChrome
-Draws a title bar (default true). Use -WindowChrome:$false to hide it.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: $true
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

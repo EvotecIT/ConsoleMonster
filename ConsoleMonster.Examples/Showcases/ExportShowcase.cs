@@ -50,7 +50,7 @@ namespace ConsoleMonster.Examples.Showcases {
             MultiSelectPrompt<ToolboxTask> tasks = new MultiSelectPrompt<ToolboxTask>("Tasks", ToolboxTaskChoices()) { Preview = ToolboxData.TaskPreview };
             try {
                 tasks.Show(Options(prompt, "Down Space Down Down Down Escape"));
-            } catch (PromptCancelledException) {
+            } catch (PromptCanceledException) {
             }
             Frame(written, folder, "prompt-multiselect", prompt.FindFrame("Certificate expiry") != null ? Pick(prompt, "of 11 selected", "Certificate expiry") : prompt.LastFrame, "Multi-select with preview");
 
@@ -90,7 +90,7 @@ namespace ConsoleMonster.Examples.Showcases {
             Dictionary<string, ILiveTarget> targets = new Dictionary<string, ILiveTarget>(StringComparer.Ordinal);
             Collect(dashboard, targets);
             foreach (LiveEvent e in ParallelRunRecording.Generate()) {
-                if (targets.TryGetValue(e.Target, out ILiveTarget? target)) {
+                if (targets.TryGetValue(e.WidgetId, out ILiveTarget? target)) {
                     target.Apply(e);
                 }
             }
@@ -98,8 +98,8 @@ namespace ConsoleMonster.Examples.Showcases {
         }
 
         private static void Collect(IWidget widget, Dictionary<string, ILiveTarget> targets) {
-            if (widget is ILiveTarget target && !targets.ContainsKey(target.Name)) {
-                targets.Add(target.Name, target);
+            if (widget is ILiveTarget target && !targets.ContainsKey(target.WidgetId)) {
+                targets.Add(target.WidgetId, target);
             }
             if (widget is IContainer container) {
                 foreach (IWidget child in container.Children) {
@@ -122,7 +122,7 @@ namespace ConsoleMonster.Examples.Showcases {
             ScreenCapture capture = new ScreenCapture(width, height);
             try {
                 menu.Run(new MenuOptions { Layout = layout, Interactive = Options(capture, keys), StorageRoot = Path.Combine(Path.GetTempPath(), "cm-export-" + Guid.NewGuid().ToString("N").Substring(0, 8)) });
-            } catch (Exception ex) when (ex is InputClosedException || ex is PromptCancelledException || ex is OperationCanceledException) {
+            } catch (Exception ex) when (ex is InputClosedException || ex is PromptCanceledException || ex is OperationCanceledException) {
             }
             return capture;
         }
@@ -131,7 +131,7 @@ namespace ConsoleMonster.Examples.Showcases {
             ScreenCapture capture = new ScreenCapture(width, height);
             try {
                 form.Show(new FormOptions { Interactive = Options(capture, keys) });
-            } catch (Exception ex) when (ex is InputClosedException || ex is PromptCancelledException || ex is OperationCanceledException) {
+            } catch (Exception ex) when (ex is InputClosedException || ex is PromptCanceledException || ex is OperationCanceledException) {
             }
             return capture;
         }

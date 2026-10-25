@@ -10,7 +10,7 @@ namespace ConsoleMonster.PowerShell {
         [AllowEmptyCollection]
         public object[] Choices { get; set; } = new object[0];
 
-        /// <summary><para type="description">Display property name or scriptblock for object choices, as in Read-ConsoleSelection.</para></summary>
+        /// <summary><para type="description">Display property name or scriptblock for object choices, as in Read-ConsoleSelect.</para></summary>
         [Parameter]
         public object? Display { get; set; }
 

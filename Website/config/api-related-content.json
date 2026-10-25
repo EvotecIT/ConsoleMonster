@@ -8,6 +8,6 @@
     { "title": "Live dashboards", "url": "/live/", "kind": "sample", "summary": "Recorded runs of the stress test, the build pipeline and an assessment.", "targets": ["ConsoleMonster.Live.LiveSession", "ConsoleMonster.Building.DashboardBuilder"] },
     { "title": "Recording and replay", "url": "/docs/recording/", "kind": "guide", "summary": "JSON-lines recordings and exports to HTML, SVG, text and asciicast.", "targets": ["ConsoleMonster.Export.ConsoleExporter", "ConsoleMonster.Live.LiveSession"] },
     { "title": "Talks and demos", "url": "/docs/talks-and-demos/", "kind": "guide", "summary": "Typed PowerShell demos, live presentation and slide-ready PNG, GIF, APNG and MP4 exports.", "targets": ["ConsoleMonster.Demos.ConsoleDemo", "ConsoleMonster.Demos.DemoScript", "ConsoleMonster.Graphics.ConsoleGraphicsExtensions", "ConsoleMonster.Graphics.GraphicsExportOptions"] },
-    { "title": "Read Markdown", "url": "/docs/markdown/", "kind": "guide", "summary": "CommonMark, native tables, highlighted code, safe links and interactive paging.", "targets": ["ConsoleMonster.Markdown.MarkdownConsole", "ConsoleMonster.Widgets.MarkdownView", "ConsoleMonster.Interactive.WidgetPager"] }
+    { "title": "Markdown display and export", "url": "/docs/markdown/", "kind": "guide", "summary": "Markdown display, widget export, fenced recordings and interactive paging.", "targets": ["ConsoleMonster.Markdown.MarkdownConsole", "ConsoleMonster.Markdown.MarkdownExporter", "ConsoleMonster.Widgets.MarkdownView", "ConsoleMonster.Interactive.WidgetPager"] }
   ]
 }

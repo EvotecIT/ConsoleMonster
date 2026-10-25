@@ -25,7 +25,7 @@ Children emitted by the scriptblock are placed top to bottom. In a live dashboar
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleRows -Gap 1 { New-ConsoleRule -Title 'Summary'; New-ConsoleKeyValue -Data @{ Total = 12 } }
+New-ConsoleRows -Gap 1 -Content { New-ConsoleRule -Title 'Summary'; New-ConsoleKeyValue -InputObject @{ Total = 12 } }
 ```
 
 Two widgets stacked with a blank row between them

@@ -13,7 +13,7 @@ Emits a stable core TextArea widget. Place inputs in the outer layout, outside d
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleTextArea [-Name] <string> [[-Label] <string>] [-Value <string>] [-Placeholder <string>] [-MaxLength <int>] [-Height <int>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [<CommonParameters>]
+New-ConsoleTextArea [-Key] <string> [[-Label] <string>] [-Value <string>] [-Placeholder <string>] [-MaxLength <int>] [-Height <int>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,7 +25,7 @@ Emits a stable core TextArea widget. Place inputs in the outer layout, outside d
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleTextArea -Name Notes -Height 4 -Value 'Draft'
+New-ConsoleTextArea -Key Notes -Height 4 -Value 'Draft'
 ```
 
 Create an application input.
@@ -64,6 +64,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Key
+Unique key in the application's state and final hashtable.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: True
+Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Label
 Visible label; defaults to the name using the core control's labels.
 
@@ -91,22 +107,6 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Name
-Unique key in the application's state and final hashtable.
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: True
-Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

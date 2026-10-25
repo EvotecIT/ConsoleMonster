@@ -20,8 +20,8 @@ namespace ConsoleMonster.Widgets {
         private readonly Dictionary<string, TimeSpan> _started = new Dictionary<string, TimeSpan>(StringComparer.Ordinal);
 
         /// <summary>Creates a phases widget.</summary>
-        /// <param name="name">The live name (default <c>phases</c>).</param>
-        public Phases(string name = "phases") : base(name) {
+        /// <param name="widgetId">The live name (default <c>phases</c>).</param>
+        public Phases(string widgetId = "phases") : base(widgetId) {
         }
 
         /// <summary>The phases in order.</summary>
@@ -54,7 +54,7 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Returns a handle that updates the phases through a dispatcher.</summary>
         /// <param name="dispatcher">The dispatcher.</param>
         /// <returns>The handle.</returns>
-        public PhasesHandle Handle(ILiveDispatcher dispatcher) => new PhasesHandle(dispatcher, Name);
+        public PhasesHandle Handle(ILiveDispatcher dispatcher) => new PhasesHandle(dispatcher, WidgetId);
 
         /// <inheritdoc />
         public override void Apply(LiveEvent liveEvent) {
@@ -66,7 +66,7 @@ namespace ConsoleMonster.Widgets {
                     Set(liveEvent.Key, StatusKind.Pending, liveEvent.Text);
                     break;
                 case "state":
-                    StatusKinds.TryParse(liveEvent.State, out StatusKind status);
+                    StatusKinds.TryParse(liveEvent.Status, out StatusKind status);
                     TimeSpan now = TimeSpan.FromMilliseconds(liveEvent.Time);
                     string? detail = liveEvent.Text;
                     if (status == StatusKind.Running) {

@@ -13,8 +13,8 @@ namespace ConsoleMonster.Export {
     public sealed class RecordingExportOptions {
         /// <summary>Chapter labels and playback times, displayed by the HTML player.</summary>
         public IList<RecordingMarker> Markers { get; } = new List<RecordingMarker>();
-        /// <summary>Screen width in cells (default 100).</summary>
-        public int Width { get; set; } = 100;
+        /// <summary>Screen width in cells (zero detects, fallback 100).</summary>
+        public int Width { get; set; }
 
         /// <summary>Screen height in cells (default 30).</summary>
         public int Height { get; set; } = 30;
@@ -70,9 +70,16 @@ namespace ConsoleMonster.Export {
         /// <summary>Asciicast only: the recording time written to the header (default: none).</summary>
         public DateTimeOffset? Timestamp { get; set; }
 
+        // One resolved copy carries the same geometry through sampling and serialization.
+        internal RecordingExportOptions Ready() {
+            RecordingExportOptions copy = (RecordingExportOptions)MemberwiseClone();
+            copy.Width = Width == 0 && Context != null ? Context.Profile.Width : Terminal.ResolveWidth(Width);
+            return copy;
+        }
+
         internal ExportOptions ToFrameOptions() {
             ExportOptions o = new ExportOptions {
-                Width = Width,
+                Width = Terminal.ResolveWidth(Width),
                 Height = Height,
                 Theme = Theme == ExportTheme.Auto ? ExportTheme.Dark : Theme,
                 Title = Title,
@@ -264,8 +271,8 @@ namespace ConsoleMonster.Export {
         }
 
         private static void Discover(IWidget widget, Dictionary<string, ILiveTarget> targets, ref ILiveTarget? log) {
-            if (widget is ILiveTarget target && !string.IsNullOrEmpty(target.Name) && !targets.ContainsKey(target.Name)) {
-                targets.Add(target.Name, target);
+            if (widget is ILiveTarget target && !string.IsNullOrEmpty(target.WidgetId) && !targets.ContainsKey(target.WidgetId)) {
+                targets.Add(target.WidgetId, target);
                 if (log == null && target is ILogTarget) {
                     log = target;
                 }
@@ -278,7 +285,7 @@ namespace ConsoleMonster.Export {
         }
 
         private static void Apply(LiveEvent e, Dictionary<string, ILiveTarget> targets, ILiveTarget? log) {
-            ILiveTarget? target = e.Target == "$log" ? log : targets.TryGetValue(e.Target, out ILiveTarget? found) ? found : null;
+            ILiveTarget? target = e.WidgetId == "$log" ? log : targets.TryGetValue(e.WidgetId, out ILiveTarget? found) ? found : null;
             if (target == null) {
                 return;
             }

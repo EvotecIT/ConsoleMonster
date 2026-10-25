@@ -1,7 +1,7 @@
 Import-Module ConsoleMonster
 
 # PSReadLine is normally already loaded in an interactive PowerShell session.
-Set-ConsoleTheme -Name Light
+Set-ConsoleTheme -Theme Light
 Enable-ConsoleFormatting -Feature ReadLine, Streams
 
 # Type commands and select text in the normal editor. Prediction behavior stays as configured.

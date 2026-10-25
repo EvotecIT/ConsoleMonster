@@ -13,12 +13,12 @@ Reads CommonMark with pipe tables through the optional OfficeIMO-backed add-on. 
 ## SYNTAX
 ### Content (Default)
 ```powershell
-Show-ConsoleMarkdown [-Content] <string> [-Width <int>] [-NoPager] [-AsString] [<CommonParameters>]
+Show-ConsoleMarkdown [-Content] <string> [-Width <int>] [-NoPager] [-AsString] [-AsWidget] [<CommonParameters>]
 ```
 
 ### Path
 ```powershell
-Show-ConsoleMarkdown -Path <string> [-Width <int>] [-NoPager] [-AsString] [<CommonParameters>]
+Show-ConsoleMarkdown -Path <string> [-Width <int>] [-NoPager] [-AsString] [-AsWidget] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -67,13 +67,29 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -AsWidget
+Returns the view widget without drawing or acquiring input.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Content, Path
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Content
 The Markdown source. Pipeline strings are joined with newlines before parsing.
 
 ```yaml
 Type: String
 Parameter Sets: Content
-Aliases: Text, InputObject
+Aliases: None
 Possible values:
 
 Required: True
@@ -105,7 +121,7 @@ A literal file path, resolved relative to the current PowerShell FileSystem loca
 ```yaml
 Type: String
 Parameter Sets: Path
-Aliases: FullName, LiteralPath
+Aliases: None
 Possible values:
 
 Required: True

@@ -8,7 +8,7 @@ schema: 2.0.0
 ## SYNOPSIS
 Runs an embedded ConsoleMonster gallery demo in the current PowerShell runspace.
 
-Executes the same self-contained PowerShell source offered by Get-ConsoleDemo -Path. The demo runs in a child scope of the current runspace and uses the current host and loaded ConsoleMonster commands. No child process, download or temporary script file is used. Live demos can be interrupted normally. -StaticSnapshot selects a recorded state using scripted input or queued live updates controlled by the runner. The copied source has no capture parameters. Demo output and errors follow the normal PowerShell streams.
+Executes the same self-contained PowerShell source offered by Export-ConsoleDemo -Path. The demo runs in a child scope of the current runspace and uses the current host and loaded ConsoleMonster commands. No child process, download or temporary script file is used. Live demos can be interrupted normally. -StaticSnapshot selects a recorded state using scripted input or queued live updates controlled by the runner. The copied source has no capture parameters. Demo output and errors follow the normal PowerShell streams.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -19,7 +19,7 @@ Show-ConsoleDemo [-Slug] <string> [-StaticSnapshot] [-Step <int>] [<CommonParame
 ## DESCRIPTION
 Runs an embedded ConsoleMonster gallery demo in the current PowerShell runspace.
 
-Executes the same self-contained PowerShell source offered by Get-ConsoleDemo -Path. The demo runs in a child scope of the current runspace and uses the current host and loaded ConsoleMonster commands. No child process, download or temporary script file is used. Live demos can be interrupted normally. -StaticSnapshot selects a recorded state using scripted input or queued live updates controlled by the runner. The copied source has no capture parameters. Demo output and errors follow the normal PowerShell streams.
+Executes the same self-contained PowerShell source offered by Export-ConsoleDemo -Path. The demo runs in a child scope of the current runspace and uses the current host and loaded ConsoleMonster commands. No child process, download or temporary script file is used. Live demos can be interrupted normally. -StaticSnapshot selects a recorded state using scripted input or queued live updates controlled by the runner. The copied source has no capture parameters. Demo output and errors follow the normal PowerShell streams.
 
 ## EXAMPLES
 

@@ -51,9 +51,9 @@ namespace SiteFrames.Pages {
                 new Section("artifacts", "Bytes, relative dates and top N", "Build artifacts: sizes in bytes, build times, relative dates against a fixed clock, and the first five of 1,234 rows.",
                     new[] { "Bytes, Duration and Date presenters", "MaxRows with TotalRowCount prints Showing 5 of 1,234", "Numbers follow the culture; the site renders en-US" }),
                 new Section("certificate", "One record as a record view", "A certificate as sections, fields and nested tables. Empty fields are hidden and dates show both absolute and relative forms.",
-                    new[] { "Sections, groups and nested widgets", "Boolean presenters can mark either value as the problem", "A single record from Format-ConsoleTable renders this way" }),
+                    new[] { "Sections, groups and nested widgets", "Boolean presenters can mark either value as the problem", "A single record from Show-ConsoleTable renders this way" }),
                 new Section("inspector", "The object inspector", "Nested dictionaries and lists, shown as indented sections and nested tables. The inspector also reads .NET objects, PSObjects and JSON, with depth, item and node limits.",
-                    new[] { "MaxDepth, MaxItems and MaxNodes bound one inspection", "Cycles are detected and marked", "Format-ConsoleTree -AsInspector in PowerShell" })
+                    new[] { "MaxDepth, MaxItems and MaxNodes bound one inspection", "Cycles are detected and marked", "Show-ConsoleObject in PowerShell" })
             };
 
             JsonArray list = new JsonArray();

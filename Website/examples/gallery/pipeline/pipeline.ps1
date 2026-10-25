@@ -14,7 +14,7 @@ $steps = @(
     [pscustomobject] @{ Phase = 'Test'; Key = 'xunit'; Label = 'Run xUnit tests (net472, net8.0)'; Seconds = 3.2; Result = 'Pass'; Output = @('Passed!  - Failed: 0, Passed: 286, Skipped: 0 - ConsoleMonster.Tests.dll (net472)', 'Passed!  - Failed: 0, Passed: 286, Skipped: 0 - ConsoleMonster.Tests.dll (net8.0)') }
     [pscustomobject] @{ Phase = 'Test'; Key = 'compatibility'; Label = 'Run compatibility tests'; Seconds = 2.4; Result = 'Pass'; Output = @('Tests completed in 2.1s', 'Tests Passed: 41, Failed: 0, Skipped: 0') }
     [pscustomobject] @{ Phase = 'Test'; Key = 'pester7'; Label = 'Run Pester tests (PowerShell 7.5)'; Seconds = 2.1; Result = 'Warn'; Output = @('Tests completed in 1.8s', 'Tests Passed: 40, Failed: 0, Skipped: 1 (requires conhost)') }
-    [pscustomobject] @{ Phase = 'Docs'; Key = 'md'; Label = 'Generate markdown help (38 commands)'; Seconds = 1.7; Result = 'Pass'; Output = @('Docs\Readme.md updated', 'Docs\Write-ConsoleTable.md ... Docs\Start-ConsoleDashboard.md') }
+    [pscustomobject] @{ Phase = 'Docs'; Key = 'md'; Label = 'Generate markdown help (38 commands)'; Seconds = 1.7; Result = 'Pass'; Output = @('Docs\Readme.md updated', 'Docs\Show-ConsoleTable.md ... Docs\Invoke-ConsoleDashboard.md') }
     [pscustomobject] @{ Phase = 'Docs'; Key = 'maml'; Label = 'Generate en-US MAML help'; Seconds = 0.9; Result = 'Pass'; Output = @('en-US\ConsoleMonster.PowerShell.dll-Help.xml (412 KB)') }
     [pscustomobject] @{ Phase = 'Sign'; Key = 'sign'; Label = 'Sign module files'; Seconds = 0.3; Result = 'Skip'; Output = @('SignModule is $false for this build; skipping Authenticode signing') }
     [pscustomobject] @{ Phase = 'Package'; Key = 'nupkg'; Label = 'Pack ConsoleMonster.2.0.0.nupkg'; Seconds = 1.2; Result = 'Pass'; Output = @('Successfully created package ''Artefacts\ProjectBuild\ConsoleMonster.2.0.0.nupkg''.') }
@@ -29,7 +29,7 @@ function Format-PipelinePath {
     param(
         $Text
     )
-    $Text.Replace([char]92, [IO.Path]::DirectorySeparatorChar)
+    $Text.Replace([char]92, [char]47)
 }
 function Format-PipelineDuration {
     param(
@@ -68,7 +68,7 @@ $dashboard = New-ConsoleDashboard -Title '[bold]Module build[/]' -Subtitle 'Buil
     }
     New-ConsoleColumns -Content {
         New-ConsolePanel -Title Steps -Weight 1.5 -Content {
-            New-ConsoleStatusList -Name steps -Content {
+            New-ConsoleStatusList -WidgetId steps -Content {
                 for ($i = 0; $i -lt $steps.Count; $i++) {
                     $item = $steps[$i]
                     $state = if ($i -lt $completed) { $item.Result } elseif ($i -eq $completed) { 'Running' } else { 'Pending' }
@@ -83,7 +83,7 @@ $dashboard = New-ConsoleDashboard -Title '[bold]Module build[/]' -Subtitle 'Buil
             }
         }
         New-ConsolePanel -Title Module -Content {
-            New-ConsoleKeyValue -Name module -Markup -Data ([ordered]@{
+            New-ConsoleKeyValue -WidgetId module -Markup -InputObject ([ordered]@{
                     Module = '[bold]ConsoleMonster[/]'
                     Version = '0.0.4 [muted]→[/] [bold]2.0.0[/]'
                     Frameworks = 'netstandard2.0 · net472 · net8.0'
@@ -97,11 +97,11 @@ $dashboard = New-ConsoleDashboard -Title '[bold]Module build[/]' -Subtitle 'Buil
                     }
                 })
             New-ConsoleRule
-            $progress = New-ConsoleProgress -Name overall -Label Overall -Total $steps.Count -Value $completed
+            $progress = New-ConsoleProgress -WidgetId overall -Label Overall -Total $steps.Count -Value $completed
             $progress.LabelWidth = 8
             $progress
             New-ConsoleRule -Title 'Compiler workers'
-            New-ConsoleLanes -Name compilers -Content {
+            New-ConsoleLanes -WidgetId compilers -Content {
                 for ($i = 0; $i -lt $compilerNames.Count; $i++) {
                     $done = if ($completed -gt $i + 3) { 1 } else { 0 }
                     $state = if ($done) { 'Pass' } elseif ($completed -eq $i + 3) { 'Running' } else { 'Pending' }
@@ -112,7 +112,7 @@ $dashboard = New-ConsoleDashboard -Title '[bold]Module build[/]' -Subtitle 'Buil
         }
     }
     New-ConsolePanel -Title Output -Fill -Content {
-        New-ConsoleLog -Height 8 -NoTime -Content {
+        New-ConsoleLogRegion -Height 8 -NoElapsed -Content {
             New-ConsoleLogEntry -Message 'Build engine · release pipeline'
             foreach ($item in ($steps | Select-Object -First $completed)) {
                 $level = if ($item.Result -eq 'Warn') { 'warn' } elseif ($item.Result -eq 'Skip') { 'skip' } else { 'info' }
@@ -126,10 +126,10 @@ $dashboard = New-ConsoleDashboard -Title '[bold]Module build[/]' -Subtitle 'Buil
         }
     }
 }
-$dashboard.ShowClock = $false
+$dashboard.ShowElapsed = $false
 
 # Behaviour: native cmdlets post progress; Write-Host and Write-Warning land in the output region.
-Start-ConsoleDashboard -Dashboard $dashboard -ArgumentList (, $steps) -ScriptBlock {
+Invoke-ConsoleDashboard -Dashboard $dashboard -ArgumentList (, $steps) -ScriptBlock {
     param($Steps)
     $culture = [cultureinfo]::InvariantCulture
     $elapsed = 0.0
@@ -139,15 +139,15 @@ Start-ConsoleDashboard -Dashboard $dashboard -ArgumentList (, $steps) -ScriptBlo
         }
         $item = $Steps[$i]
         Update-ConsolePhase -Key $item.Phase -Status Running
-        Update-ConsoleStatus -Name steps -Key $item.Key -Status Running
-        Update-ConsoleProgress -Name overall -Label $item.Phase
+        Update-ConsoleStatusItem -WidgetId steps -Key $item.Key -Status Running
+        Update-ConsoleProgress -WidgetId overall -Label $item.Phase
         if ($i -ge 3 -and $i -le 6) {
-            Update-ConsoleLane -Name compilers -Key ('c' + ($i - 3)) -Status Running -Detail compiling
+            Update-ConsoleLane -WidgetId compilers -Key ('c' + ($i - 3)) -Status Running -Detail compiling
         }
-        Write-Host -Object ($item.Label.Replace([char]92, [IO.Path]::DirectorySeparatorChar) + '...')
+        Write-Host -Object ($item.Label.Replace([char]92, [char]47) + '...')
         Wait-ConsoleDashboard -Milliseconds ([int]($item.Seconds * 400))
         foreach ($line in $item.Output) {
-            $text = $line.Replace([char]92, [IO.Path]::DirectorySeparatorChar)
+            $text = $line.Replace([char]92, [char]47)
             if ($item.Result -eq 'Warn') {
                 Write-Warning -Message $text
             }
@@ -157,11 +157,11 @@ Start-ConsoleDashboard -Dashboard $dashboard -ArgumentList (, $steps) -ScriptBlo
         }
         $elapsed += $item.Seconds
         $detail = $item.Seconds.ToString('0.0', $culture) + 's'
-        Update-ConsoleStatus -Name steps -Key $item.Key -Status $item.Result -Detail $detail
-        Set-ConsoleValue -Name module -Key Elapsed -Value ($elapsed.ToString('0.0', $culture) + 's')
-        Update-ConsoleProgress -Name overall -Value ($i + 1)
+        Update-ConsoleStatusItem -WidgetId steps -Key $item.Key -Status $item.Result -Detail $detail
+        Set-ConsoleValue -WidgetId module -Key Elapsed -Value ($elapsed.ToString('0.0', $culture) + 's')
+        Update-ConsoleProgress -WidgetId overall -Value ($i + 1)
         if ($i -ge 3 -and $i -le 6) {
-            Update-ConsoleLane -Name compilers -Key ('c' + ($i - 3)) -Result Pass -Detail compiled -Complete
+            Update-ConsoleLane -WidgetId compilers -Key ('c' + ($i - 3)) -Result Pass -Detail compiled -Complete
         }
         if ($i -eq $Steps.Count - 1 -or $Steps[$i + 1].Phase -ne $item.Phase) {
             $group = @($Steps | Where-Object -Property Phase -EQ -Value $item.Phase)

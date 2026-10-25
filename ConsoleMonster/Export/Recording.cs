@@ -16,7 +16,7 @@ namespace ConsoleMonster.Export {
         /// <summary>Replays dashboard events into distinct timed cell grids for image add-ons and other consumers.</summary>
         public static List<RecordedFrame> CaptureFrames(IWidget root, IEnumerable<LiveEvent> events, RecordingExportOptions? options = null) {
             if (events == null) { throw new ArgumentNullException(nameof(events)); }
-            return RecordingFrames.Capture(root, new List<LiveEvent>(events), options ?? new RecordingExportOptions());
+            return RecordingFrames.Capture(root, new List<LiveEvent>(events), (options ?? new RecordingExportOptions()).Ready());
         }
         /// <summary>Exports a recording as an HTML player.</summary>
         /// <param name="root">The widget tree the recording was made with.</param>
@@ -51,7 +51,7 @@ namespace ConsoleMonster.Export {
             if (events == null) {
                 throw new ArgumentNullException(nameof(events));
             }
-            RecordingExportOptions o = options ?? new RecordingExportOptions();
+            RecordingExportOptions o = (options ?? new RecordingExportOptions()).Ready();
             return HtmlPlayerWriter.WriteData(RecordingFrames.Capture(root, new List<LiveEvent>(events), o), o);
         }
 
@@ -92,7 +92,7 @@ namespace ConsoleMonster.Export {
             if (events == null) {
                 throw new ArgumentNullException(nameof(events));
             }
-            RecordingExportOptions o = options ?? new RecordingExportOptions();
+            RecordingExportOptions o = (options ?? new RecordingExportOptions()).Ready();
             List<RecordedFrame> frames = RecordingFrames.Capture(root, new List<LiveEvent>(events), o);
             switch (format) {
                 case ExportFormat.Html:

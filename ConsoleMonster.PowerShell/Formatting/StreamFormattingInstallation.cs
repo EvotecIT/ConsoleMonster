@@ -59,8 +59,8 @@ namespace ConsoleMonster.PowerShell {
         private void SetHostStyle(PSObject target, string name, Style style, ConsoleColorMap colors, ConsoleColor? background) {
             // Stream roles need a concrete palette colour. The foreground mapper intentionally returns null for
             // text-like colours, which can share an ANSI16 entry with a HighContrast warning or information tone.
-            _properties.Set(target, name + "ForegroundColor", colors.Background(style.Foreground));
-            _properties.Set(target, name + "BackgroundColor", colors.Background(style.Background) ?? background);
+            _properties.Set(target, name + "ForegroundColor", colors.Background(style.Color));
+            _properties.Set(target, name + "BackgroundColor", colors.Background(style.BackgroundColor) ?? background);
         }
 
     }
