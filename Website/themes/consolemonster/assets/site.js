@@ -101,6 +101,12 @@
         p.languages.insertBefore('powershell', 'operator', {
           parameter: { pattern: /(^|[\s(\[{,;|=])-(?![ci]?(?:and|x?or|as|not(?:contains|in|like|match)?|contains|in|like|match|eq|ge|gt|le|lt|ne|is(?:not)?|band|bnot|bor|bxor|join|split|replace|f|shl|shr)\b)[a-z]\w*/i, lookbehind: true }
         });
+        // A keyword is a whole word: Prism's \b also matches inside hyphenated names, colouring filter in fleet-filter
+        // and process in process-monitor.
+        var keyword = p.languages.powershell.keyword;
+        if (keyword instanceof RegExp) {
+          p.languages.powershell.keyword = { pattern: new RegExp('(^|[^\\w$-])(?:' + keyword.source + ')(?![\\w-])', keyword.flags), lookbehind: true };
+        }
       }
     }
   };
