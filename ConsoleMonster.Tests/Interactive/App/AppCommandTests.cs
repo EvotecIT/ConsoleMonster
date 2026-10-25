@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using ConsoleMonster.Capabilities;
@@ -209,8 +210,15 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Assert.True(finished.Wait(TimeSpan.FromSeconds(5)));
             Assert.Equal(new object?[] { "one", "two" }, received);
             Assert.False(view.IsDone);
-            string frame = FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, 100, 30, false, TimeSpan.Zero)), 100, 30, Context).ToPlainText();
+            string frame = string.Empty;
+            Assert.True(SpinWait.SpinUntil(() => {
+                view.Poll(TimeSpan.Zero);
+                frame = FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, 100, 30, false, TimeSpan.Zero)), 100, 30, Context).ToPlainText();
+                return frame.Contains("Refresh: completed") && frame.Contains("Action output");
+            }, TimeSpan.FromSeconds(5)));
             Assert.Contains("Selected row", frame); Assert.Contains("Action output", frame); Assert.Contains("Refreshed", frame);
+            // This golden protects the layout, independently of the real action stopwatch.
+            frame = Regex.Replace(frame, @"(?<=│ )\d{2}:\d{2}(?= )", "00:00");
             Golden.Match("interactive/grid.actions.txt", frame.TrimEnd() + "\n");
         }
 
