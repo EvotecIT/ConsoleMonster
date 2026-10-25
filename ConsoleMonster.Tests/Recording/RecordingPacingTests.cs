@@ -146,6 +146,35 @@ namespace ConsoleMonster.Tests.Sessions {
             Assert.Equal(101, Total(recording.CaptureFrames(Source())));
         }
 
+        [Theory]
+        [InlineData(1)]
+        [InlineData(75)]
+        [InlineData(225)]
+        [InlineData(320)]
+        [InlineData(450)]
+        [InlineData(1900)]
+        public void SettledScreenPresetsKeepDistinctReadingBudgets(int characters) {
+            var recording = SessionRecording.Read(new StringReader("{\"version\":2,\"width\":100,\"height\":20}\n" + Event(0, "o", new string('x', characters))));
+            long ReadAt(RecordingPace pace) {
+                var options = Source(); options.Pace = pace;
+                return Total(recording.CaptureFrames(options));
+            }
+            long normal = ReadAt(RecordingPace.Normal);
+            // A presenter choosing Slow gets 1.5–2x the reading budget, including at saturation.
+            Assert.InRange((double)ReadAt(RecordingPace.Slow) / normal, 1.49, 2.01);
+            Assert.InRange((double)ReadAt(RecordingPace.Fast) / normal, 0.4, 0.65);
+        }
+
+        [Theory]
+        [InlineData(RecordingPace.Slow, 16000)]
+        [InlineData(RecordingPace.Normal, 8000)]
+        [InlineData(RecordingPace.Fast, 4000)]
+        public void DenseScreensKeepTheSelectedReadingMaximum(RecordingPace pace, long expected) {
+            var recording = SessionRecording.Read(new StringReader("{\"version\":2,\"width\":100,\"height\":20}\n" + Event(0, "o", new string('x', 1900))));
+            var options = Source(); options.Pace = pace; options.IdleLimit = TimeSpan.FromMilliseconds(10);
+            Assert.Equal(expected, Total(recording.CaptureFrames(options)));
+        }
+
         [Fact]
         public void MarkerRoundTripPreservesHoldPaceAndTheScreenBeforeSameTimeOutput() {
             string folder = Path.Combine(Path.GetTempPath(), "cm-hold-" + Guid.NewGuid().ToString("N"));

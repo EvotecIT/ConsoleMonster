@@ -158,11 +158,12 @@ namespace ConsoleMonster.Export {
         }
         private static double ReadingMilliseconds(RecordingPace pace, int characters, int lines) {
             if (pace == RecordingPace.Source || characters == 0) { return 0; }
-            // Stories' text rates, line delays and tab holds; bounded here for a whole settled terminal screen.
+            // Stories' text rates, line delays and tab holds, with whole-screen caps that retain
+            // the preset separation even when a dense screen exceeds the Normal reading budget.
             double cps = pace == RecordingPace.Slow ? 28 : pace == RecordingPace.Fast ? 72 : 42;
             double lineDelay = pace == RecordingPace.Slow ? 0.14 : pace == RecordingPace.Fast ? 0.04 : 0.08;
             double minimum = pace == RecordingPace.Slow ? 2 : pace == RecordingPace.Fast ? 0.55 : 1.2;
-            double maximum = pace == RecordingPace.Slow ? 10 : pace == RecordingPace.Fast ? 5 : 8;
+            double maximum = pace == RecordingPace.Slow ? 16 : pace == RecordingPace.Fast ? 4 : 8;
             return 1000 * Math.Max(minimum, Math.Min(maximum, characters / cps + lines * lineDelay));
         }
         private static void CountNewText(CellBuffer? previous, CellBuffer current, out int characters, out int lines) {
