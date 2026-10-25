@@ -37,10 +37,11 @@ namespace ConsoleMonster.Interactive {
         private Rect _bodyBounds;
         private List<int> _rowLines = new List<int>();
         private int _dragAnchor = -1;
+        private int[] _actionIndices = Array.Empty<int>();
 
         public GridView(Grid grid, GridOptions options, PromptLabels labels, System.Threading.CancellationToken cancellationToken = default) : base(labels) {
             _grid = grid;
-            if (options.Commands.Count > 0 || options.Dispatcher != null) { _actions = new AppCommandHost(options.Commands, ActionRows, labels, cancellationToken, commandBar: true, requiresRows: true, dispatcher: options.Dispatcher, selectionLabel: ActionSelectionLabel, completed: (command, rows) => RefreshActionRows(options, command, rows)); }
+            if (options.Commands.Count > 0 || options.Dispatcher != null) { _actions = new AppCommandHost(options.Commands, ActionRows, labels, cancellationToken, commandBar: true, requiresRows: true, dispatcher: options.Dispatcher, selectionLabel: ActionSelectionLabel, completed: command => RefreshActionRows(options, command)); }
             _filter = new LineEditor(options.Filter);
             _hidden = new bool[grid.Columns.Count];
             for (int c = 0; c < grid.Columns.Count; c++) {
@@ -63,17 +64,17 @@ namespace ConsoleMonster.Interactive {
             _table = null;
         }
 
-        private void RefreshActionRows(GridOptions options, AppCommand command, IReadOnlyList<object?> items) {
+        private void RefreshActionRows(GridOptions options, AppCommand command) {
             if (options.RefreshRow == null) { return; }
-            // Match the captured source objects, even if focus or marks changed while the action ran.
+            List<Exception> errors = new List<Exception>();
             try {
-                for (int i = 0; i < _grid.Rows.Count; i++) {
-                    GridRow row = _grid.Rows[i];
-                    if (items.Any(item => ReferenceEquals(item, row.Item))) {
-                        _grid.ReplaceRow(i, options.RefreshRow(command, row) ?? throw new InvalidOperationException("RefreshRow must return a row snapshot."));
-                    }
+                foreach (int index in _actionIndices) {
+                    try {
+                        _grid.ReplaceRow(index, options.RefreshRow(command, _grid.Rows[index]) ?? throw new InvalidOperationException("RefreshRow must return a row snapshot."));
+                    } catch (Exception error) { errors.Add(error); }
                 }
             } finally { RebuildSearch(); }
+            if (errors.Count > 0) { throw new AggregateException("Some rows could not be refreshed.", errors); }
         }
 
         public bool Accepted { get; private set; }
@@ -89,12 +90,11 @@ namespace ConsoleMonster.Interactive {
 
         private IReadOnlyList<object?> ActionRows() {
             Refresh();
-            if (_marked.Count > 0) {
-                List<object?> rows = new List<object?>();
-                foreach (int index in Sorted(AllRows())) { if (_marked.Contains(index)) { rows.Add(_grid.Rows[index].Item); } }
-                return rows;
-            }
-            return FocusedRow == null ? Array.Empty<object?>() : new[] { FocusedRow.Item };
+            // Row indices identify the acted-on entries independently of nullable/shared Item references.
+            _actionIndices = _marked.Count > 0
+                ? Sorted(AllRows()).Where(index => _marked.Contains(index)).ToArray()
+                : _visible.Count == 0 ? Array.Empty<int>() : new[] { _visible[_cursor] };
+            return _actionIndices.Select(index => _grid.Rows[index].Item).ToArray();
         }
 
         protected override bool HandlePriorityInput(InputEvent input) {

@@ -249,5 +249,50 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Assert.Contains("Service10", last);
             Assert.Matches("[2-9]–10 of 10", last);
         }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void GridRefresh_DoesNotRefreshASiblingWithTheSameItem(bool nullItem) {
+            object? item = nullItem ? null : new object();
+            Grid grid = new Grid("Services"); grid.AddColumn("Name").AddColumn("ProcessId");
+            grid.AddRow(item, "One", 2456); grid.AddRow(item, "Two", 1000);
+            GridOptions options = new GridOptions();
+            options.Commands.Add(new AppCommand("restart", "Restart", (_, __) => Task.CompletedTask) { Shortcut = new KeyChord(ConsoleKey.F5) });
+            int calls = 0;
+            options.RefreshRow = (_, row) => { calls++; return new GridRow(row.Item, row.Values[0], 2556); };
+            using GridView view = new GridView(grid, options, new PromptLabels());
+            FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, 100, 30, false, TimeSpan.Zero)), 100, 30, Context);
+            view.Handle(InputEvent.Press(ConsoleKey.F5));
+            Assert.True(SpinWait.SpinUntil(() => { view.Poll(TimeSpan.Zero); return calls > 0; }, TimeSpan.FromSeconds(10)));
+            Assert.Equal(1, calls);
+            Assert.Equal(2556, grid.Rows[0].Values[1]);
+            Assert.Equal(1000, grid.Rows[1].Values[1]);
+        }
+
+        [Fact]
+        public void GridRefresh_ContinuesAfterOneMarkedRowFails() {
+            Grid grid = new Grid("Services"); grid.AddColumn("Name").AddColumn("ProcessId");
+            grid.AddRow("one", "One", 2456); grid.AddRow("two", "Two", 1000);
+            GridOptions options = new GridOptions();
+            options.Commands.Add(new AppCommand("restart", "Restart", (_, __) => Task.CompletedTask) { Shortcut = new KeyChord(ConsoleKey.F5) });
+            int calls = 0;
+            options.RefreshRow = (_, row) => {
+                calls++;
+                if (Equals(row.Item, "one")) { throw new InvalidOperationException("First row unavailable"); }
+                return new GridRow(row.Item, row.Values[0], 2556);
+            };
+            using GridView view = new GridView(grid, options, new PromptLabels());
+            FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, 100, 30, false, TimeSpan.Zero)), 100, 30, Context);
+            view.Handle(InputEvent.Press(ConsoleKey.Spacebar)); view.Handle(InputEvent.Press(ConsoleKey.DownArrow)); view.Handle(InputEvent.Press(ConsoleKey.Spacebar));
+            view.Handle(InputEvent.Press(ConsoleKey.F5));
+            Assert.True(SpinWait.SpinUntil(() => { view.Poll(TimeSpan.Zero); return calls > 0; }, TimeSpan.FromSeconds(10)));
+            Assert.Equal(2, calls);
+            Assert.Equal(2456, grid.Rows[0].Values[1]);
+            Assert.Equal(2556, grid.Rows[1].Values[1]);
+            string frame = FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, 100, 30, false, TimeSpan.Zero)), 100, 30, Context).ToPlainText();
+            Assert.Contains("First row unavailable", frame);
+            Assert.False(view.IsDone);
+        }
     }
 }

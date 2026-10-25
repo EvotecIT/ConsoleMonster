@@ -27,11 +27,10 @@ namespace ConsoleMonster.Interactive {
         private Button? _barCapture;
         private readonly List<Action> _detach = new List<Action>();
         private readonly Func<string>? _selectionLabel;
-        private readonly Action<AppCommand, IReadOnlyList<object?>>? _completed;
-        private IReadOnlyList<object?> _activeRows = Array.Empty<object?>();
+        private readonly Action<AppCommand>? _completed;
         private long _completionRevision;
 
-        internal AppCommandHost(IEnumerable<AppCommand> commands, Func<IReadOnlyList<object?>> selection, PromptLabels labels, CancellationToken token, bool commandBar = false, bool requiresRows = false, AppDispatcher? dispatcher = null, Func<string>? selectionLabel = null, Action<AppCommand, IReadOnlyList<object?>>? completed = null) {
+        internal AppCommandHost(IEnumerable<AppCommand> commands, Func<IReadOnlyList<object?>> selection, PromptLabels labels, CancellationToken token, bool commandBar = false, bool requiresRows = false, AppDispatcher? dispatcher = null, Func<string>? selectionLabel = null, Action<AppCommand>? completed = null) {
             _completed = completed;
             _selectionLabel = selectionLabel;
             _commands = new List<AppCommand>(commands).ToArray();
@@ -71,7 +70,7 @@ namespace ConsoleMonster.Interactive {
             long completion = _session.CompletionRevision;
             if (completion != _completionRevision && !_session.IsBusy) {
                 _completionRevision = completion;
-                try { if (_session.CompletedCommand is AppCommand command) { _completed?.Invoke(command, _activeRows); } }
+                try { if (_session.CompletedCommand is AppCommand command) { _completed?.Invoke(command); } }
                 catch (Exception error) { _session.Write("Refresh: " + error.Message, "err"); }
                 changed = true;
             }
@@ -86,9 +85,8 @@ namespace ConsoleMonster.Interactive {
             lock (_gate) {
                 if (_session.IsBusy) { return; }
                 Poll();
-                IReadOnlyList<object?> originals = Array.AsReadOnly(new List<object?>(_selection()).ToArray());
-                IReadOnlyList<object?> rows = command.Capture(originals);
-                void Start() { if (_session.Start(command, rows)) { _activeRows = originals; } }
+                IReadOnlyList<object?> rows = command.Capture(_selection());
+                void Start() { _session.Start(command, rows); }
                 if (_requiresRows && rows.Count == 0) { return; }
                 if (string.IsNullOrWhiteSpace(command.ConfirmPrompt)) { Start(); }
                 else {
