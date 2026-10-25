@@ -16,9 +16,23 @@ using ConsoleMonster.Text;
 using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.Replay {
+    /// <summary>Whether to show player controls or play the recording straight into its widget tree.</summary>
+    public enum PlaybackMode {
+        /// <summary>Timeline, pause, search and navigation controls.</summary>
+        Interactive,
+        /// <summary>Apply recorded events with their scaled timing and no input loop.</summary>
+        Automatic
+    }
+
     /// <summary>Options for <see cref="ReplayPlayer.Play(IWidget, TextReader, ReplayOptions, CancellationToken)"/>.</summary>
     public sealed class ReplayOptions {
         private double _speed = 1;
+
+        /// <summary>The playback job; interactive controls by default.</summary>
+        public PlaybackMode PlaybackMode { get; set; }
+
+        /// <summary>Session configuration for automatic playback, including a deterministic delay or host output.</summary>
+        public LiveSessionOptions? Session { get; set; }
 
         /// <summary>
         /// The run name shown in the header (default the recorded dashboard title, or "Replay"). A recorded
@@ -88,6 +102,11 @@ namespace ConsoleMonster.Replay {
                 throw new ArgumentNullException(nameof(events));
             }
             options ??= new ReplayOptions();
+            if (!Enum.IsDefined(typeof(PlaybackMode), options.PlaybackMode)) { throw new ArgumentOutOfRangeException(nameof(options.PlaybackMode)); }
+            if (options.PlaybackMode == PlaybackMode.Automatic) {
+                LiveSession.Replay(root, events, options.Session, options.Speed, cancellationToken);
+                return;
+            }
             InteractiveOptions interactive = options.Interactive ?? InteractiveOptions.Default;
             IReadOnlyList<ReplayMarker> markers = ReplayMarker.From(events);
             // A recorded dashboard's own header and footer are not replayed: the player is the one frame, and its header

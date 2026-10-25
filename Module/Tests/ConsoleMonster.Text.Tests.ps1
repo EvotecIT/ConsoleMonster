@@ -287,10 +287,10 @@ Write-ConsoleText ('[red]alert[/] ' + $esc + ']0;PWNED' + [char] 7 + ' end')
             $text = Invoke-TextChild -Script @'
 $d = New-ConsoleDashboard -Title (New-ConsoleText 'Rich ', 'dashboard' -Color Cyan, Yellow) -Content { New-ConsoleLanes -WidgetId lanes -Lane (New-ConsoleText 'SRV', '01' -Color Cyan, Yellow); New-ConsoleLogRegion }
 Invoke-ConsoleDashboard $d {
-    Update-ConsoleLane -Key SRV01 -Status Running -Detail (New-ConsoleText 'copying ', 'files' -Color Gray, Green)
+    Update-Console -Key SRV01 -Status Running -Detail (New-ConsoleText 'copying ', 'files' -Color Gray, Green) -WidgetId 'lanes'
     Write-ConsoleLogEntry -Message (New-ConsoleText 'rich ', 'log' -Color Yellow, Red)
-    Update-ConsoleLane -Key SRV01 -Result Pass
-    Update-ConsoleLane -Key SRV01 -Complete
+    Update-Console -Key SRV01 -Result Pass -WidgetId 'lanes'
+    Update-Console -Key SRV01 -Complete -WidgetId 'lanes'
 }
 New-ConsolePanel -Title (New-ConsoleText 'Panel ', 'title' -Color Cyan, Green) -Content { New-ConsoleText 'body' } | Show-Console -Width 40
 '@

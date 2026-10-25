@@ -26,14 +26,14 @@ Describe 'Show-ConsoleCode, Show-ConsoleJson and smart highlighting' {
     }
 
     It 'returns a view with -AsWidget, detects the language and rejects unknown languages' {
-        $view = '{ "a": 1 }' | Show-ConsoleCode -AsWidget
+        $view = '{ "a": 1 }' | Show-Console -AsWidget -View Code
         $view.GetType().Name | Should -Be 'CodeView'
         $view.Highlighter.Name | Should -Be 'json'
-        { 'x' | Show-ConsoleCode -Language Klingon } | Should -Throw '*Unknown language*'
+        { 'x' | Show-Console -Language Klingon -View Code } | Should -Throw '*Unknown language*'
     }
 
     It 'converts objects to JSON with Show-ConsoleJson' {
-        $view = [pscustomobject] @{ Name = 'alpha'; Count = 7; Tags = @('a', 'b') } | Show-ConsoleJson -AsWidget
+        $view = [pscustomobject] @{ Name = 'alpha'; Count = 7; Tags = @('a', 'b') } | Show-Console -AsWidget -View Json
         $view.Text | Should -Match '"Name":\s+"alpha"'
         $view.Highlighter.Name | Should -Be 'json'
         $text = Invoke-HighlightChild "'{""ok"": true}' | Show-ConsoleJson"
@@ -42,11 +42,11 @@ Describe 'Show-ConsoleCode, Show-ConsoleJson and smart highlighting' {
 
     It 'writes JSON through the shared value rules: re-indented strings, mixed arrays, any key, cycles, no warnings' {
         $text = Invoke-HighlightChild @'
-'== string'; '{"a":1,"b":[1,2]}' | Show-ConsoleJson -AsString
-'== plain'; 'hello' | Show-ConsoleJson -AsString
-'== mixed'; Show-ConsoleJson -InputObject @(1, 'two', @{ k = 3 }, $null) -AsString
-'== keys'; @{ 1 = 'one'; [guid]::Empty = 2 } | Show-ConsoleJson -AsString
-'== cycle'; $a = [pscustomobject] @{ Name = 'a' }; $a | Add-Member -NotePropertyName Self -NotePropertyValue $a; $a | Show-ConsoleJson -AsString 3>&1
+'== string'; '{"a":1,"b":[1,2]}' | Show-Console -AsString -View Json
+'== plain'; 'hello' | Show-Console -AsString -View Json
+'== mixed'; Show-Console -InputObject @(1, 'two', @{ k = 3 }, $null) -AsString -View Json
+'== keys'; @{ 1 = 'one'; [guid]::Empty = 2 } | Show-Console -AsString -View Json
+'== cycle'; $a = [pscustomobject] @{ Name = 'a' }; $a | Add-Member -NotePropertyName Self -NotePropertyValue $a; $a | Show-Console -AsString -View Json
 '@
         $parts = $text -split '== \w+'
         $parts[1] | Should -Match '"b": \[\s*1,\s*2\s*\]'

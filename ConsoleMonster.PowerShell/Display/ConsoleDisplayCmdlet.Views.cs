@@ -14,13 +14,13 @@ namespace ConsoleMonster.PowerShell {
             string specific;
             switch (view.ToLowerInvariant()) {
                 case "auto": specific = "Property Depth ChildrenProperty"; break;
-                case "table": specific = "Property GroupBy ShowTotals MaxRows Border Caption CardsBelow NoHeaderSeparator Expand StatusProperty ShowGroupColumn NoSort Wrap"; break;
+                case "table": specific = "Property GroupBy ShowTotals MaxRows Border Caption CardsBelow NoHeaderSeparator Expand StatusProperty ShowGroupColumn NoSort Wrap TitleIndent WrapHeaders KeepAllColumns GroupHeadersAsRows RecordViewRows ShowKeyField NoHiddenColumns NoStableWidths NoHeader AlwaysCards RowTitles ShowSubtotals TotalLabel WrapLines TotalRowCount Presentation"; break;
                 case "list": specific = "Property GroupBy ShowEmpty Depth"; break;
                 case "tree": specific = "ChildrenProperty Children LabelProperty StatusProperty DetailProperty Depth MaxItems MaxNodes Include Exclude"; break;
                 case "chart": specific = "Property Label Type Sort MaxRows Bins Unit"; break;
                 case "code": specific = "Path Language LineNumbers FirstLine MaxLines Highlight Wrap NoTitle"; break;
                 case "json": specific = "Path Depth LineNumbers FirstLine MaxLines Highlight Wrap NoTitle"; break;
-                case "error": specific = "ShowFrameworkFrames MaxFrames NoStack Compact"; break;
+                case "error": specific = "ShowFrameworkFrames MaxFrames NoStack Compact MaxInner NoSource"; break;
                 case "markdown": specific = "Path NoPager"; break;
                 case "rule": specific = "Alignment"; break;
                 default: throw new PSArgumentException("Unknown View '" + view + "'.");
@@ -50,36 +50,24 @@ namespace ConsoleMonster.PowerShell {
             }
         }
 
-        private IWidget BuildCodeView(IReadOnlyList<PSObject> items, bool json) {
-            string text = string.Join("\n", items.Select(PSText.PlainText));
-            if (json) {
-                if (!items.All(item => PSText.Unwrap(item) is string) || !Values.ValueJson.TryReindent(text, out string indented)) {
-                    object value = items.Count == 1 ? (object)items[0] : items;
-                    text = Values.ValueJson.Serialize(value, Depth, Binding.PSShaping.Options());
-                } else { text = indented; }
-            }
-            var code = CodeView.For(text, json ? "Json" : Language, Path);
-            code.LineNumbers = LineNumbers.IsPresent;
-            code.FirstLine = FirstLine;
-            code.Wrap = Wrap.IsPresent;
-            code.MaxLines = Math.Max(1, MaxLines);
-            code.Title = NoTitle.IsPresent ? null : PSText.Markup(Title) ?? (Path == null ? null : System.IO.Path.GetFileName(Path));
-            foreach (string range in Highlight ?? Array.Empty<string>()) { code.HighlightLines(range); }
-            return code;
-        }
+        private IWidget BuildCodeView(IReadOnlyList<PSObject> items, bool json) => Views.ConsoleView.BuildCode(
+            items.Select(item => PSText.Unwrap(item) is string text ? (object?)text : item).ToArray(),
+            new Views.ConsoleViewOptions {
+                View = json ? Views.ConsoleViewKind.Json : Views.ConsoleViewKind.Code,
+                Language = Language, Path = Path, LineNumbers = LineNumbers.IsPresent, FirstLine = FirstLine,
+                Wrap = Wrap.IsPresent, MaxLines = MaxLines, Title = PSText.Markup(Title), NoTitle = NoTitle.IsPresent,
+                Highlight = Highlight, Depth = Depth, Shape = Binding.PSShaping.Options()
+            });
 
-        private IWidget BuildErrorView(IReadOnlyList<PSObject> items) {
-            var errors = new List<IWidget>();
-            foreach (PSObject item in items) {
-                errors.Add(new ExceptionView(PSErrors.Describe(PSText.Unwrap(item)!, Compact.IsPresent)) {
-                    ShowFrameworkFrames = ShowFrameworkFrames.IsPresent, MaxFrames = Math.Max(1, MaxFrames),
-                    ShowStack = !NoStack.IsPresent && (!Compact.IsPresent || ShowFrameworkFrames.IsPresent), Compact = Compact.IsPresent,
-                    DetailsHint = Compact.IsPresent && InvokeCommand.GetCommand("Get-Error", CommandTypes.Cmdlet) != null
-                        ? Localization.WidgetLabels.For(Terminal.GetCurrentProfile().Language).GetErrorDetails : null,
-                    BasePath = SessionState.Path.CurrentFileSystemLocation.ProviderPath
-                });
-            }
-            return errors.Count == 1 ? errors[0] : new Rows(errors.ToArray()) { Gap = 1 };
-        }
+        private IWidget BuildErrorView(IReadOnlyList<PSObject> items) => Views.ConsoleView.BuildErrors(
+            items.Select(item => (object?)PSErrors.Describe(PSText.Unwrap(item)!, Compact.IsPresent)).ToArray(),
+            new Views.ConsoleViewOptions {
+                ShowFrameworkFrames = ShowFrameworkFrames.IsPresent, MaxFrames = MaxFrames,
+                ShowStack = !NoStack.IsPresent, MaxInner = MaxInner, ShowSource = !NoSource.IsPresent,
+                Compact = Compact.IsPresent,
+                DetailsHint = Compact.IsPresent && InvokeCommand.GetCommand("Get-Error", CommandTypes.Cmdlet) != null
+                    ? Localization.WidgetLabels.For(Terminal.GetCurrentProfile().Language).GetErrorDetails : null,
+                BasePath = SessionState.Path.CurrentFileSystemLocation.ProviderPath
+            });
     }
 }

@@ -30,7 +30,7 @@ namespace ConsoleMonster.PowerShell {
             }
             try {
                 using (StreamReader reader = new StreamReader(path, Encoding.UTF8)) {
-                    LiveSession.Replay(Dashboard, reader, options, Speed, (_stop ??= new System.Threading.CancellationTokenSource()).Token);
+                    Replay.ReplayPlayer.Play(Dashboard, reader, new Replay.ReplayOptions { PlaybackMode = PlaybackMode, Session = options, Speed = Speed }, (_stop ??= new System.Threading.CancellationTokenSource()).Token);
                 }
             } catch (System.OperationCanceledException) when (_stop?.IsCancellationRequested == true) {
                 // A stopped PowerShell pipeline ends automatic playback too.

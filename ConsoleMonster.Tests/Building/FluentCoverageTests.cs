@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using ConsoleMonster.Layout;
+using ConsoleMonster.Interactive;
 using ConsoleMonster.Widgets;
 using Xunit;
 
@@ -77,6 +78,16 @@ namespace ConsoleMonster.Tests.Building {
         }
 
         [Fact]
+        public void GenericSelectionPromptsKeepTheirValueAndConcreteTypes() {
+            var single = new ConsoleMonster.Interactive.SelectPrompt<int>("Number", new[] { 1, 2 }).Description("Pick one").Default(2).PageSize(5);
+            Assert.IsType<ConsoleMonster.Interactive.SelectPrompt<int>>(single);
+            Assert.Equal(2, single.Default);
+            var multiple = new ConsoleMonster.Interactive.MultiSelectPrompt<int>("Numbers", new[] { 1, 2 }).Minimum(1).Maximum(2).PageSize(5);
+            Assert.IsType<ConsoleMonster.Interactive.MultiSelectPrompt<int>>(multiple);
+            Assert.Equal(1, multiple.Minimum);
+        }
+
+        [Fact]
         public void GeneratedMethods_OnATypedTable_KeepItsType() {
             Table<int> table = Table.For(new[] { 1, 2 }).Title("Numbers").ShowHeader(false);
             Assert.Equal("Numbers", table.Title);
@@ -85,7 +96,7 @@ namespace ConsoleMonster.Tests.Building {
 
         // Widgets, then the option types their properties hold or their Add/Set methods take, as the generator walks them.
         private static IEnumerable<Type> Types() {
-            List<Type> widgets = Core.GetExportedTypes().Where(t => IsCandidate(t) && (typeof(IWidget).IsAssignableFrom(t) || t.Name.EndsWith("Options", StringComparison.Ordinal) || new[] { "MenuItem", "FormPreset", "MenuPreset", "ObjectExplorer", "Grid", "WidgetUpdate", "RunUpdate" }.Contains(t.Name))).OrderBy(t => t.FullName, StringComparer.Ordinal).ToList();
+            List<Type> widgets = Core.GetExportedTypes().Where(t => IsCandidate(t) && (typeof(IWidget).IsAssignableFrom(t) || t.Name.EndsWith("Options", StringComparison.Ordinal) || IsPrompt(t) || new[] { "MenuItem", "MenuRunResult", "ReviewModel", "FormPreset", "MenuPreset", "ObjectExplorer", "Grid", "WidgetUpdate", "RunUpdate" }.Contains(t.Name))).OrderBy(t => t.FullName, StringComparer.Ordinal).ToList();
             HashSet<Type> seen = new HashSet<Type>(widgets);
             List<Type> result = new List<Type>(widgets);
             List<Type> frontier = widgets;
@@ -106,6 +117,13 @@ namespace ConsoleMonster.Tests.Building {
                 frontier = next;
             }
             return result;
+        }
+
+        private static bool IsPrompt(Type type) {
+            for (Type? current = type.BaseType; current != null; current = current.BaseType) {
+                if (current.IsGenericType && current.GetGenericTypeDefinition() == typeof(ConsoleMonster.Interactive.Prompt<>)) { return true; }
+            }
+            return false;
         }
 
         private static bool IsCandidate(Type type) => type.IsClass && type.IsPublic && !type.IsAbstract && !type.IsGenericType && !type.IsGenericParameter && !NoFluent(type) && !typeof(Delegate).IsAssignableFrom(type);

@@ -17,7 +17,7 @@ namespace ConsoleMonster.Tests.Findings {
         private static HeaderBar LongHeader() => new HeaderBar("Patching the production web farm") {
             Detail = "waiting for approval from the change board",
             Status = StatusKind.Warn,
-            Right = "wave 2 of 5",
+            HeaderRight = "wave 2 of 5",
             ShowElapsed = true,
             Elapsed = TimeSpan.FromSeconds(754)
         };

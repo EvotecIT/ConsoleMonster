@@ -33,9 +33,9 @@
     It 'shows a script stack and a .NET exception chain' {
         $text = Invoke-ErrorChild @'
 function Get-Inventory { [int]::Parse('abc') }
-try { Get-Inventory } catch { Show-ConsoleError $_ -Width 120 }
+try { Get-Inventory } catch { Show-Console -InputObject $_ -Width 120 -View Error }
 $inner = [System.InvalidOperationException]::new('Loading failed.', [System.FormatException]::new('Not a number.'))
-Show-ConsoleError $inner -Width 120
+Show-Console -InputObject $inner -Width 120 -View Error
 '@
         $text | Should -Match 'at Get-Inventory'
         $text | Should -Match 'InvalidOperationException'
@@ -44,7 +44,7 @@ Show-ConsoleError $inner -Width 120
     }
 
     It 'returns the views with -AsWidget' {
-        try { [int]::Parse('x') } catch { $views = @($_ | Show-ConsoleError -AsWidget) }
+        try { [int]::Parse('x') } catch { $views = @($_ | Show-Console -AsWidget -View Error) }
         $views.Count | Should -Be 1
         $views[0].GetType().Name | Should -Be 'ExceptionView'
     }

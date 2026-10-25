@@ -8,7 +8,7 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example><para>Display pipeline input</para><code>Get-Service | Show-Console</code></example>
     [Cmdlet(VerbsCommon.Show, "Console", DefaultParameterSetName = "Objects")]
-    public sealed class CmdletShowConsole : ConsoleDisplayCmdlet {
+    public sealed partial class CmdletShowConsole : ConsoleDisplayCmdlet {
         /// <summary><para type="description">Auto, Table, List, Tree, Chart, Code, Json, Error, Markdown or Rule.</para></summary>
         [Parameter, ValidateSet("Auto", "Table", "List", "Tree", "Chart", "Code", "Json", "Error", "Markdown", "Rule")]
         public string View { get; set; } = "Auto";

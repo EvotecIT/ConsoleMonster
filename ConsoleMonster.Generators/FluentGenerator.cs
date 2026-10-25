@@ -39,7 +39,7 @@ namespace ConsoleMonster.Generators {
                 foreach (INamedTypeSymbol type in FluentTypes(compilation.Assembly, widget)) {
                     string? source = Generate(type, compilation);
                     if (source != null) {
-                        output.AddSource(type.ToDisplayString().Replace("ConsoleMonster.", string.Empty) + ".Fluent.g.cs", source);
+                        output.AddSource(type.ToDisplayString().Replace("ConsoleMonster.", string.Empty).Replace('<', '_').Replace('>', '_').Replace(',', '_').Replace(' ', '_') + ".Fluent.g.cs", source);
                     }
                 }
             });
@@ -51,13 +51,16 @@ namespace ConsoleMonster.Generators {
                 .Where(t => IsCandidate(t) && t.AllInterfaces.Contains(widget, SymbolEqualityComparer.Default))
                 .OrderBy(t => t.ToDisplayString(), StringComparer.Ordinal)
                 .ToList();
-            foreach (string name in new[] { "ConsoleMonster.Interactive.MenuItem", "ConsoleMonster.Interactive.FormPreset", "ConsoleMonster.Interactive.MenuPreset", "ConsoleMonster.Interactive.ObjectExplorer", "ConsoleMonster.Interactive.Grid", "ConsoleMonster.Interactive.SelectQuestionOptions", "ConsoleMonster.Interactive.SelectInputOptions", "ConsoleMonster.Interactive.TextInputOptions", "ConsoleMonster.Interactive.TextQuestionOptions", "ConsoleMonster.Widgets.ProgressOptions", "ConsoleMonster.Widgets.ChartOptions", "ConsoleMonster.Live.WidgetUpdate", "ConsoleMonster.Live.RunUpdate", "ConsoleMonster.Live.LiveRunOptions", "ConsoleMonster.Live.LiveSessionOptions", "ConsoleMonster.Export.ExportOptions", "ConsoleMonster.Export.RecordingExportOptions" }) {
+            foreach (string name in new[] { "ConsoleMonster.Interactive.MenuItem", "ConsoleMonster.Interactive.MenuRunResult", "ConsoleMonster.Interactive.ReviewModel", "ConsoleMonster.Interactive.FormPreset", "ConsoleMonster.Interactive.MenuPreset", "ConsoleMonster.Interactive.ObjectExplorer", "ConsoleMonster.Interactive.Grid", "ConsoleMonster.Interactive.SelectQuestionOptions", "ConsoleMonster.Interactive.SelectInputOptions", "ConsoleMonster.Interactive.TextInputOptions", "ConsoleMonster.Interactive.TextQuestionOptions", "ConsoleMonster.Widgets.ProgressOptions", "ConsoleMonster.Widgets.ChartOptions", "ConsoleMonster.Live.WidgetUpdate", "ConsoleMonster.Live.RunUpdate", "ConsoleMonster.Live.LiveRunOptions", "ConsoleMonster.Live.LiveSessionOptions", "ConsoleMonster.Export.ExportOptions", "ConsoleMonster.Export.RecordingExportOptions" }) {
                 INamedTypeSymbol? option = AllTypes(assembly.GlobalNamespace).FirstOrDefault(t => t.ToDisplayString() == name);
                 if (option != null && IsCandidate(option)) { widgets.Add(option); }
             }
             // Standalone operation options are roots too, including the add-ons' own options.
             foreach (INamedTypeSymbol option in AllTypes(assembly.GlobalNamespace).Where(t => IsCandidate(t) && t.Name.EndsWith("Options", StringComparison.Ordinal))) {
                 if (!widgets.Contains(option, SymbolEqualityComparer.Default)) { widgets.Add(option); }
+            }
+            foreach (INamedTypeSymbol prompt in AllTypes(assembly.GlobalNamespace).Where(t => IsCandidate(t) && IsPrompt(t))) {
+                if (!widgets.Contains(prompt, SymbolEqualityComparer.Default)) { widgets.Add(prompt); }
             }
             HashSet<INamedTypeSymbol> seen = new HashSet<INamedTypeSymbol>(widgets, SymbolEqualityComparer.Default);
             List<INamedTypeSymbol> result = new List<INamedTypeSymbol>(widgets);
@@ -103,8 +106,15 @@ namespace ConsoleMonster.Generators {
             }
         }
 
+        private static bool IsPrompt(INamedTypeSymbol type) {
+            for (INamedTypeSymbol? current = type.BaseType; current != null; current = current.BaseType) {
+                if (current.OriginalDefinition.ToDisplayString() == "ConsoleMonster.Interactive.Prompt<T>") { return true; }
+            }
+            return false;
+        }
+
         private static bool IsCandidate(INamedTypeSymbol type) =>
-            type.TypeKind == TypeKind.Class && !type.IsAbstract && !type.IsStatic && !type.IsGenericType
+            type.TypeKind == TypeKind.Class && !type.IsAbstract && !type.IsStatic && (!type.IsGenericType || type.IsSealed && IsPrompt(type))
             && type.DeclaredAccessibility == Accessibility.Public && type.ContainingType == null && !HasNoFluent(type);
 
         // A public class of this assembly with something to set or add.
@@ -156,7 +166,7 @@ namespace ConsoleMonster.Generators {
             bool open = !type.IsSealed;
             // A type that can be derived from gets generic methods (TSelf : Type), so a chain keeps the derived type.
             string self = open ? "TSelf" : typeName;
-            string generic = open ? "<TSelf>" : string.Empty;
+            string generic = open ? "<TSelf>" : type.TypeParameters.Length == 0 ? string.Empty : "<" + string.Join(", ", type.TypeParameters.Select(parameter => parameter.Name)) + ">";
             string constraint = open ? " where TSelf : " + typeName : string.Empty;
             string receiver = Camel(type.Name);
             // Compare complete value-parameter signatures, including inherited instance methods.

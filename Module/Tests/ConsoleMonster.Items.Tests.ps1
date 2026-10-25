@@ -10,17 +10,24 @@ BeforeAll {
 
 Describe 'One grammar for every widget' {
     Context 'New-ConsoleTree' {
-        It 'builds nested nodes with statuses and details from New-ConsoleTreeNode' {
+        It 'builds nested nodes with statuses and details from records' {
             $text = New-ConsoleTree 'evotec.xyz' -Content {
-                New-ConsoleTreeNode 'MX' -Status Pass -Detail '2 records' -Content {
-                    New-ConsoleTreeNode 'mail.protection.outlook.com' -Detail 'priority 0'
-                }
-                New-ConsoleTreeNode 'DMARC' -Status Fail -Detail 'p=none'
+                [pscustomobject]@{ Label = 'MX'; Status = 'Pass'; Detail = '2 records'; Children = @(& {
+                    [pscustomobject]@{ Label = 'mail.protection.outlook.com'; Detail = 'priority 0' }
+                }) }
+                [pscustomobject]@{ Label = 'DMARC'; Status = 'Fail'; Detail = 'p=none' }
             } | Get-WidgetText
             $text | Should -Match 'evotec\.xyz'
             $text | Should -Match 'MX\s+2 records'
             $text | Should -Match 'mail\.protection\.outlook\.com\s+priority 0'
             $text | Should -Match 'DMARC\s+p=none'
+        }
+
+        It 'keeps a single nested custom-object child in a node record' {
+            $node = [pscustomobject]@{ Label = 'Root'; Children = [pscustomobject]@{ Label = 'Only child'; Detail = 'Ready' } }
+            $text = New-ConsoleTree -Content { $node } | Get-WidgetText
+            $text | Should -Match 'Root'
+            $text | Should -Match 'Only child\s+Ready'
         }
 
         It 'shows strings in the script block literally' {
@@ -80,11 +87,13 @@ Import-Module '__MODULE__'
 $array = [object[]]::new(1)
 $array[0] = $array
 $count = 0
-foreach ($command in 'New-ConsoleTree', 'Show-ConsoleTree', 'New-ConsoleRows') {
+foreach ($command in 'New-ConsoleTree', 'New-ConsoleRows') {
     try { & $command -Content { ,$array } -ErrorAction Stop | Out-Null }
     catch { if ($_.Exception.Message -notmatch 'recursive or excessively nested') { throw }; $count++ }
 }
-try { New-ConsoleTreeNode 'root' -Content { ,$array } -ErrorAction Stop | Out-Null }
+try { New-ConsoleTree -Content { [pscustomobject]@{ Label = 'root'; Children = $array } } -ErrorAction Stop | Out-Null }
+catch { if ($_.Exception.Message -notmatch 'recursive or excessively nested') { throw }; $count++ }
+try { Show-Console -View Tree -Content { ,$array } -ErrorAction Stop | Out-Null }
 catch { if ($_.Exception.Message -notmatch 'recursive or excessively nested') { throw }; $count++ }
 $shared = @('leaf')
 $tree = New-ConsoleTree -Content { ,@($shared, $shared) }
@@ -98,17 +107,25 @@ if ([regex]::Matches($text, 'leaf').Count -ne 2) { throw 'Shared content was rej
         }
 
         It 'takes nodes from the pipeline as they are' {
-            $text = New-ConsoleTreeNode 'MX' -Status Pass -Detail '2 records' -Content { 'child' } | New-ConsoleTree 'Piped' | Get-WidgetText
+            $text = [pscustomobject]@{ Label = 'MX'; Status = 'Pass'; Detail = '2 records'; Children = @(& { 'child' }) } | New-ConsoleTree 'Piped' | Get-WidgetText
             $text | Should -Match 'MX\s+2 records'
             $text | Should -Match 'child'
         }
     }
 
     Context 'Item commands in their containers' {
+        It 'keeps record values literal unless a presenter is explicit' {
+            $literal = [pscustomobject]@{ Key = 'Install folder'; Value = './toolbox-agent' } | New-ConsoleKeyValue
+            $literal.Items[0].Cell | Should -BeNullOrEmpty
+            $literal.Items[0].Value | Should -Be './toolbox-agent'
+            $typed = [pscustomobject]@{ Key = 'Size'; Value = 1024; Presenter = 'Bytes' } | New-ConsoleKeyValue
+            $typed.Items[0].Cell | Should -Not -BeNullOrEmpty
+        }
+
         It 'adds key/value items with a status and a presenter' {
             $text = New-ConsoleKeyValue -InputObject ([ordered] @{ Module = 'ConsoleMonster' }) -Content {
-                New-ConsoleKeyValueItem 'Signing' 'skipped' -Status Skip
-                New-ConsoleKeyValueItem 'Size' 1482113 -Presenter Bytes
+                [pscustomobject]@{ Key = 'Signing'; Value = 'skipped'; Status = 'Skip' }
+                [pscustomobject]@{ Key = 'Size'; Value = 1482113; Presenter = 'Bytes' }
             } | Get-WidgetText
             $text | Should -Match 'Module\s+ConsoleMonster'
             $text | Should -Match 'Signing'
@@ -116,7 +133,7 @@ if ([regex]::Matches($text, 'leaf').Count -ne 2) { throw 'Shared content was rej
         }
 
         It 'adds status items from a script block, hashtables and objects in the pipeline' {
-            $text = New-ConsoleStatusList -Content { New-ConsoleStatusItem 'Restore' -Status Pass -Detail '1.6 s' } | Get-WidgetText
+            $text = New-ConsoleStatusList -Content { [pscustomobject]@{ Label = 'Restore'; Status = 'Pass'; Detail = '1.6 s' } } | Get-WidgetText
             $text | Should -Match 'Restore\s+1\.6 s'
             $piped = @{ Label = 'Build'; Status = 'Warning' }, [pscustomobject] @{ Label = 'Test'; Status = 'Error'; Detail = '2 failed' } | New-ConsoleStatusList | Get-WidgetText
             $piped | Should -Match 'Build'
@@ -128,23 +145,23 @@ if ([regex]::Matches($text, 'leaf').Count -ne 2) { throw 'Shared content was rej
         }
 
         It 'builds phases from status items and keeps -Phase' {
-            $text = New-ConsolePhases -Content { New-ConsoleStatusItem 'Build' -Status Pass -Detail '14s'; New-ConsoleStatusItem 'Test' -Status Running } | Get-WidgetText
+            $text = New-ConsolePhases -Content { [pscustomobject]@{ Label = 'Build'; Status = 'Pass'; Detail = '14s' }; [pscustomobject]@{ Label = 'Test'; Status = 'Running' } } | Get-WidgetText
             $text | Should -Match 'Build 14s'
             (New-ConsolePhases -Phase 'Restore', 'Pack' | Get-WidgetText) | Should -Match 'Restore.*Pack'
         }
 
         It 'colours bars and stacked segments with -Role' {
-            $stacked = New-ConsoleBarChart -Stacked -Content { New-ConsoleBarItem 'Passed' 412 -Role Pass; New-ConsoleBarItem 'Failed' 23 -Role Fail }
+            $stacked = New-ConsoleChart -Content { [pscustomobject]@{ Label = 'Passed'; Value = 412; Role = 'Pass' }; [pscustomobject]@{ Label = 'Failed'; Value = 23; Role = 'Fail' } } -Type Stacked
             $stacked.Segments[0].Role | Should -Be 'Pass'
-            (New-ConsoleBarChart -Role Fail -InputObject ([ordered] @{ DNS = 4 })).Role | Should -Be 'Fail'
-            { @{ Label = 'DNS'; Value = 'four' } | New-ConsoleBarChart } | Should -Throw '*numeric Value*'
+            (New-ConsoleChart -Role Fail -InputObject ([ordered] @{ DNS = 4 }) -Type Bar).Role | Should -Be 'Fail'
+            { @{ Label = 'DNS'; Value = 'four' } | New-ConsoleChart -Type Bar } | Should -Throw '*numeric Value*'
         }
 
         It 'adds chart series with values and an automatic or chosen role' {
-            $chart = New-ConsoleLineChart -Content {
-                New-ConsoleChartSeries 'completed' -Value 1, 2, 3 -Role Accent
-                4, 5 | New-ConsoleChartSeries 'failed'
-            }
+            $chart = New-ConsoleChart -Content {
+                [pscustomobject]@{ Key = 'completed'; Role = 'Accent'; Values = 1, 2, 3 }
+                [pscustomobject]@{ Key = 'failed'; Values = 4, 5 }
+            } -Type Line
             $chart.Series.Count | Should -Be 2
             $chart.Series[0].Role | Should -Be 'Accent'
             $chart.Series[1].Values.Count | Should -Be 2
@@ -153,9 +170,9 @@ if ([regex]::Matches($text, 'leaf').Count -ne 2) { throw 'Shared content was rej
 
         It 'writes log entries with levels and fractional source-relative seconds' {
             $log = New-ConsoleLogRegion -Height 4 -Content {
-                New-ConsoleLogEntry 'first' -AtSeconds 2
-                New-ConsoleLogEntry 'second' -Level Warning -AtSeconds 90.0
-                New-ConsoleLogEntry 'third' -Level Error -AtSeconds 44
+                [pscustomobject]@{ Message = 'first'; AtSeconds = 2 }
+                [pscustomobject]@{ Message = 'second'; Level = 'Warning'; AtSeconds = 90.0 }
+                [pscustomobject]@{ Message = 'third'; Level = 'Error'; AtSeconds = 44 }
             }
             @($log.Entries).Count | Should -Be 3
             @($log.Entries)[1].Level | Should -Be 'warn'
@@ -163,15 +180,15 @@ if ([regex]::Matches($text, 'leaf').Count -ne 2) { throw 'Shared content was rej
         }
 
         It 'adds lanes with their own totals and progress' {
-            $lanes = New-ConsoleLanes -Content { New-ConsoleLane 'DC01' -Total 40 -Done 40 -Status Pass; New-ConsoleLane 'DC02' -Total 20 -Done 5 -Status Running }
+            $lanes = New-ConsoleLanes -Content { [pscustomobject]@{ Key = 'DC01'; Total = 40; Status = 'Pass'; Value = 40 }; [pscustomobject]@{ Key = 'DC02'; Total = 20; Status = 'Running'; Value = 5 } }
             $lanes.Items.Count | Should -Be 2
             $lanes.Items[1].Total | Should -Be 20
             (New-ConsoleLanes -WidgetId servers -Lane 'A', 'B' -Total 3).Items.Count | Should -Be 2
         }
 
         It 'preserves lane time boundaries through containers and Add-ConsoleItem' {
-            $lane = New-ConsoleLane build -Total 5 -Done 5 -Status Pass -Passed 5 -StartedSeconds 2 -FinishedSeconds 9
-            $lanes = $lane | New-ConsoleLanes -Column Description, Elapsed, Status
+            $lane = [pscustomobject]@{ Key = 'build'; Total = 5; Status = 'Pass'; Passed = 5; StartedSeconds = 2; FinishedSeconds = 9; Value = 5 }
+            $lanes = $lane | New-ConsoleLanes -Columns Description, Elapsed, Status
             $lanes.Items[0].Started.TotalSeconds | Should -Be 2
             $lanes.Items[0].Finished.TotalSeconds | Should -Be 9
             $lanes.Items[0].Passed | Should -Be 5
@@ -186,7 +203,7 @@ if ([regex]::Matches($text, 'leaf').Count -ne 2) { throw 'Shared content was rej
         It 'pads and sets progress status, sparkline role and latest value' {
             (New-ConsolePadding -Padding 2, 1 -Content { 'padded' } | Get-WidgetText -Width 20) | Should -Match '^\s*\n  padded'
             (New-ConsoleProgress -Label 'Docs' -Value 100 -Total 100 -Status Pass).Status | Should -Be 'Pass'
-            $spark = 1, 2, 3 | New-ConsoleSparkline -Role Fail -NoLatest
+            $spark = 1, 2, 3 | New-ConsoleChart -Role Fail -NoLatest -Type Sparkline
             $spark.Values.Count | Should -Be 3
             $spark.ShowLatest | Should -BeFalse
         }
@@ -194,7 +211,7 @@ if ([regex]::Matches($text, 'leaf').Count -ne 2) { throw 'Shared content was rej
         It 'draws a cell map and a summary bar' {
             $map = New-ConsoleCellMap -Status Pass, Pass, Fail -Count 5
             $map.Count | Should -Be 5
-            (New-ConsoleSummaryBar -Done 3 -Total 4 -Counter ([ordered] @{ passed = 2; failed = 1 }) | Get-WidgetText) | Should -Match '3/4'
+            (New-ConsoleSummaryBar -Total 4 -Counter ([ordered] @{ passed = 2; failed = 1 }) -Value 3 | Get-WidgetText) | Should -Match '3/4'
         }
 
         It 'draws a cell map as a labelled grid with a wrapping legend' {
@@ -228,11 +245,11 @@ if ([regex]::Matches($text, 'leaf').Count -ne 2) { throw 'Shared content was rej
         }
 
         It 'takes live table columns with options and an activity list with its settings' {
-            $table = New-ConsoleLiveTable -WidgetId slowest -Column 'Check', @{ Name = 'Took'; Alignment = 'Right' }, @{ Name = 'Actual'; Flexible = $true; Markup = $true }
+            $table = New-ConsoleTable -WidgetId slowest -Live -Columns 'Check', @{ Name = 'Took'; Alignment = 'Right' }, @{ Name = 'Actual'; Flexible = $true; Markup = $true }
             $table.Table.Columns[0].Alignment | Should -Not -Be 'Right'
             $table.Table.Columns[1].Alignment | Should -Be 'Right'
             $table.Table.Columns[2].Flexible | Should -BeTrue
-            { New-ConsoleLiveTable -WidgetId bad -Column @{ Name = 'Took'; Align = 'Right' } -ErrorAction Stop } | Should -Throw '*Align*'
+            { New-ConsoleTable -WidgetId bad -ErrorAction Stop -Live -Columns @{ Name = 'Took'; Align = 'Right' } } | Should -Throw '*Align*'
             $list = New-ConsoleActivityList -MaxVisible 3 -ShowIds -NoElapsed
             $list.WidgetId | Should -Be '$progress'
             $list.MaxVisible | Should -Be 3
@@ -254,23 +271,23 @@ if ([regex]::Matches($text, 'leaf').Count -ne 2) { throw 'Shared content was rej
             @($selected.Entries)[0].Text | Should -Be 'second'
             ($selected | Get-WidgetText) | Should -Match 'second'
             ($selected | Get-WidgetText) | Should -Not -Match 'first'
-            $message = New-ConsoleLogEntry "third`nfourth"
+            $message = [pscustomobject]@{ Message = "third`nfourth" }
             $expanded = New-ConsoleLogRegion | Add-ConsoleItem $message -PassThru
             (@($expanded.Entries).Text -join '|') | Should -Be 'third|fourth'
         }
 
         It 'grows widgets made earlier and passes them on with -PassThru' {
             $tree = New-ConsoleTree 'Shares'
-            $tree | Add-ConsoleItem { New-ConsoleTreeNode 'Reports' -Detail 'D:\Reports' }
+            $tree | Add-ConsoleItem { [pscustomobject]@{ Label = 'Reports'; Detail = 'D:\Reports' } }
             ($tree | Get-WidgetText) | Should -Match 'Reports\s+D:\\Reports'
-            $spark = New-ConsoleSparkline | Add-ConsoleItem ([double[]] (3, 5, 8)) -PassThru
+            $spark = New-ConsoleChart -Type Sparkline | Add-ConsoleItem ([double[]] (3, 5, 8)) -PassThru
             $spark.Values.Count | Should -Be 3
-            $table = New-ConsoleLiveTable -Column Job, State | Add-ConsoleItem @{ Job = 'nightly'; State = 'ok' }, ([pscustomobject] @{ Job = 'weekly'; State = 'running' }) -PassThru
+            $table = New-ConsoleTable -Live -Columns Job, State | Add-ConsoleItem @{ Job = 'nightly'; State = 'ok' }, ([pscustomobject] @{ Job = 'weekly'; State = 'running' }) -PassThru
             $table.Keys.Count | Should -Be 2
         }
 
         It 'explains what a widget takes when an item does not fit' {
-            { New-ConsoleTree 'x' | Add-ConsoleItem 42 } | Should -Throw '*New-ConsoleTreeNode*'
+            { New-ConsoleTree 'x' | Add-ConsoleItem 42 } | Should -Throw '*records with Label and Children*'
         }
     }
     Context 'Validation and plain objects' {
@@ -279,15 +296,15 @@ if ([regex]::Matches($text, 'leaf').Count -ne 2) { throw 'Shared content was rej
             ($root | New-ConsoleTree -ChildrenProperty Kids -MaxNodes 4 | Get-WidgetText) | Should -Match 'node limit'
         }
 
-        It 'rejects unknown roles and statuses, and non-numeric -Data values' {
-            { @{ Label = 'DNS'; Value = 4; Role = 'Pinkish' } | New-ConsoleBarChart } | Should -Throw '*not a role*'
+        It 'rejects unknown roles and statuses, and non-numeric values' {
+            { @{ Label = 'DNS'; Value = 4; Role = 'Pinkish' } | New-ConsoleChart -Type Bar } | Should -Throw '*not a role*'
             { New-ConsoleStatusList -InputObject ([ordered] @{ Build = 'Passs' }) } | Should -Throw '*not a status*'
-            { New-ConsoleBarChart -InputObject ([ordered] @{ DNS = 'four' }) } | Should -Throw '*not a number*'
+            { New-ConsoleChart -InputObject ([ordered] @{ DNS = 'four' }) -Type Bar } | Should -Throw '*finite numeric Value*'
         }
 
         It 'takes items from arrays emitted as one object and from plain objects' {
-            (New-ConsoleStatusList -Content { , @((New-ConsoleStatusItem 'a'), (New-ConsoleStatusItem 'b')) }).Items.Count | Should -Be 2
-            ([pscustomobject] @{ Label = 'DNS'; Value = 4; Role = 'Fail' } | New-ConsoleBarChart).Items[0].Role | Should -Be 'Fail'
+            (New-ConsoleStatusList -Content { , @(([pscustomobject]@{ Label = 'a' }), ([pscustomobject]@{ Label = 'b' })) }).Items.Count | Should -Be 2
+            ([pscustomobject] @{ Label = 'DNS'; Value = 4; Role = 'Fail' } | New-ConsoleChart -Type Bar).Items[0].Role | Should -Be 'Fail'
             $pairs = New-ConsoleKeyValue | Add-ConsoleItem ([pscustomobject] @{ Domain = 'evotec.xyz'; Records = 14 }) -PassThru
             ($pairs | Get-WidgetText) | Should -Match 'Records\s+14'
         }

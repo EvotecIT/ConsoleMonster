@@ -18,7 +18,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleTable", DefaultParameterSetName = "Objects")]
     [OutputType(typeof(Table), typeof(AppBinding))]
-    public class CmdletNewConsoleTable : PSCmdlet {
+    public partial class CmdletNewConsoleTable : TableConfigurationCmdlet {
         private readonly List<PSObject> _items = new List<PSObject>();
 
         /// <summary><para type="description">The objects to show, one row each.</para></summary>
@@ -69,7 +69,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">For Live, a table model supplying columns and presentation options.</para></summary>
         [Parameter(ParameterSetName = "Live")] public Table? Table { get; set; }
         /// <summary><para type="description">For Live, keeps this many recent rows; zero keeps all.</para></summary>
-        [Parameter(ParameterSetName = "Live"), ValidateRange(0, int.MaxValue)] public int MaxRows { get; set; }
+        [Parameter, ValidateRange(0, int.MaxValue)] public int MaxRows { get; set; }
         /// <summary><para type="description">For Live, the column index or header used for sorting.</para></summary>
         [Parameter(ParameterSetName = "Live")] public object? SortColumn { get; set; }
         /// <summary><para type="description">For Live, sorts larger values first.</para></summary>
@@ -94,7 +94,7 @@ namespace ConsoleMonster.PowerShell {
             Table table = Table ?? BuildTable();
             if (Live.IsPresent) {
                 if (table.Columns.Count == 0) { throw new PSArgumentException("Live tables require columns or input objects that define them."); }
-                var live = new LiveTable(table, WidgetId) { MaxRows = MaxRows, SortDescending = SortDescending.IsPresent };
+                var live = new LiveTable(table, WidgetId) { MaxRows = MaxRows, SortDescending = SortDescending.IsPresent, KeyProperty = KeyProperty };
                 if (SortColumn != null) { live.SortColumn = ResolveColumn(table, PSWidgets.ToText(SortColumn)); }
                 PSItems.AddAll(this, live, _items, KeyProperty);
                 WriteObject(live);
@@ -128,10 +128,12 @@ namespace ConsoleMonster.PowerShell {
             if (Title != null) {
                 table.Title = PSText.Markup(Title);
             }
+            table.MaxRows = MaxRows;
             table.Caption = PSText.Markup(Caption);
             table.Border = Border;
             table.Expand = Expand.IsPresent;
             table.HeaderSeparator = !NoHeaderSeparator.IsPresent;
+            ApplyTableConfiguration(table);
             return table;
         }
 
@@ -149,5 +151,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary>Emits the built table (Show-ConsoleTable overrides this to write it).</summary>
         /// <param name="table">The table.</param>
         protected virtual void Emit(Table table) => WriteObject(table);
+
+
     }
 }

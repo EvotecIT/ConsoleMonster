@@ -218,7 +218,7 @@ namespace ConsoleMonster.PowerShell {
                 return true;
             }
             if (item is string label) {
-                // Strings are data (member names, paths): shown literally. New-ConsoleTreeNode takes markup.
+                // Strings are data (member names, paths): shown literally. Label/Children records takes markup.
                 parent.Add(Text.Markup.Escape(label));
                 return true;
             }
@@ -320,20 +320,14 @@ namespace ConsoleMonster.PowerShell {
         }
 
         private static bool TryAddRow(LiveTable table, object item, string? keyProperty, out string? problem) {
-            problem = null;
-            PSObject row = PSObject.AsPSObject(item);
-            List<object?> values = new List<object?>();
-            foreach (TableColumn column in table.Table.Columns) {
-                values.Add(Property(row, item, Text.Markup.Strip(column.Header)));
-            }
-            string keyName = keyProperty ?? (table.Table.Columns.Count > 0 ? Text.Markup.Strip(table.Table.Columns[0].Header) : string.Empty);
-            object? key = Property(row, item, keyName);
-            if (key == null) {
-                problem = "The row has no '" + keyName + "' value to use as its key. Give -KeyProperty or a value for the first column.";
+            try {
+                table.Add(item, keyProperty, Binding.PSShaping.Options());
+                problem = null;
+                return true;
+            } catch (ArgumentException error) {
+                problem = error.Message;
                 return false;
             }
-            table.Set(PSWidgets.ToText(key), values.ToArray());
-            return true;
         }
 
         private static object? Property(PSObject row, object item, string name) {

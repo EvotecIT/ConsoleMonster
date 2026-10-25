@@ -4,7 +4,7 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates a lanes widget: one row per worker, server or item of a parallel workload.</para>
-    /// <para type="description">Each lane shows a status marker (a spinner while running), a progress bar, pass/fail/warning counts and what it is doing now. Lanes can be declared up front with -Lane (names sharing one -Total), with a script block of New-ConsoleLane calls (each with its own total, progress, status and counts), from the pipeline, or appear on their first Update-ConsoleLane in a live dashboard. To add lanes later, pipe the widget to Add-ConsoleItem.</para>
+    /// <para type="description">Each lane shows a status marker (a spinner while running), a progress bar, pass/fail/warning counts and what it is doing now. Lanes can be declared up front with -Lane (names sharing one -Total), with a script block of Key/Label records calls (each with its own total, progress, status and counts), from the pipeline, or appear on their first Update-Console in a live dashboard. To add lanes later, pipe the widget to Add-ConsoleItem.</para>
     /// </summary>
     /// <example>
     ///   <para>Lanes for three servers with 40 steps each</para>
@@ -14,9 +14,9 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>Lanes at different points, printed once</para>
     ///   <code>
     /// New-ConsoleLanes -Content {
-    ///     New-ConsoleLane 'DC01' -Total 40 -Done 40 -Status Pass -Passed 40
-    ///     New-ConsoleLane 'DC02' -Total 40 -Done 22 -Status Running -Passed 21 -Warned 1 -Detail 'replication'
-    ///     New-ConsoleLane 'DC03' -Total 40
+    ///     [pscustomobject]@{ Key = 'DC01'; Total = 40; Status = 'Pass'; Passed = 40; Value = 40 }
+    ///     [pscustomobject]@{ Key = 'DC02'; Total = 40; Status = 'Running'; Passed = 21; Warned = 1; Detail = 'replication'; Value = 22 }
+    ///     [pscustomobject]@{ Key = 'DC03'; Total = 40 }
     /// } | Show-Console</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleLanes")]
@@ -26,11 +26,11 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(Position = 0)]
         public string WidgetId { get; set; } = "lanes";
 
-        /// <summary><para type="description">A script block that emits the lanes: New-ConsoleLane calls, or names.</para></summary>
+        /// <summary><para type="description">A script block that emits the lanes: Key/Label records calls, or names.</para></summary>
         [Parameter(Position = 1)]
         public ScriptBlock? Content { get; set; }
 
-        /// <summary><para type="description">Lanes from the pipeline: New-ConsoleLane objects or names.</para></summary>
+        /// <summary><para type="description">Lanes from the pipeline: Key/Label records objects or names.</para></summary>
         [Parameter(ValueFromPipeline = true)]
         public PSObject? InputObject { get; set; }
 

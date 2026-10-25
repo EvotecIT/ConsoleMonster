@@ -9,7 +9,7 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example>
     ///   <para>Three charts in a row</para>
-    ///   <code>New-ConsoleLayoutGrid -Columns 3 -Content { New-ConsoleSparkline -WidgetId a; New-ConsoleSparkline -WidgetId b; New-ConsoleSparkline -WidgetId c }</code>
+    ///   <code>New-ConsoleLayoutGrid -Columns 3 -Content { New-ConsoleChart -WidgetId a -Type Sparkline; New-ConsoleChart -WidgetId b -Type Sparkline; New-ConsoleChart -WidgetId c -Type Sparkline }</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleLayoutGrid")]
     [OutputType(typeof(IWidget))]
@@ -23,9 +23,18 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public int Columns { get; set; } = 2;
 
+        /// <summary><para type="description">Blank columns between cells.</para></summary>
+        [Parameter, ValidateRange(0, int.MaxValue)] public int ColumnGap { get; set; } = 1;
+        /// <summary><para type="description">Blank rows between grid rows.</para></summary>
+        [Parameter, ValidateRange(0, int.MaxValue)] public int RowGap { get; set; }
+        /// <summary><para type="description">Minimum column width before reducing the column count.</para></summary>
+        [Parameter, ValidateRange(1, int.MaxValue)] public int MinColumnWidth { get; set; } = 24;
+        /// <summary><para type="description">Fits rows to content instead of the default-on height fill.</para></summary>
+        [Parameter] public SwitchParameter NoFillHeight { get; set; }
+
         /// <inheritdoc />
         protected override IWidget Build(List<IWidget> children) {
-            return new Grid(Columns, children.ToArray());
+            return new Grid(Columns, children.ToArray()) { ColumnGap = ColumnGap, RowGap = RowGap, MinColumnWidth = MinColumnWidth, FillHeight = !NoFillHeight.IsPresent };
         }
     }
 }

@@ -29,7 +29,7 @@
 '== many'
 1..3 | ForEach-Object { [pscustomobject] @{ Name = "srv0$_"; Count = $_ } } | Show-Console -Width 60
 '== tree'
-[pscustomobject] @{ Name = 'root'; Children = @([pscustomobject] @{ Name = 'leaf'; Children = @() }) } | Show-ConsoleTree -ChildrenProperty Children -Width 60
+[pscustomobject] @{ Name = 'root'; Children = @([pscustomobject] @{ Name = 'leaf'; Children = @() }) } | Show-Console -ChildrenProperty Children -Width 60 -View Tree
 '== numbers'
 3, 9 | Show-Console -Width 40
 '== cards'

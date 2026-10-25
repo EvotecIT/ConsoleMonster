@@ -11,6 +11,7 @@ namespace ConsoleMonster.PowerShell {
 
         internal static FormPreset Form(object source, PSCmdlet cmdlet) {
             if (PSText.Unwrap(source) is FormPreset typed) { return typed; }
+            PSItems.RecordFields(source, "Name Description Preview Values");
             string name = Name(source);
             if (!(Read(source, "Values") is IDictionary values)) { throw new PSArgumentException("Form preset '" + name + "' requires Values mapped by field key."); }
             return new FormPreset(name, PSForms.ToFieldValues(values, null)) {
@@ -20,6 +21,7 @@ namespace ConsoleMonster.PowerShell {
 
         internal static MenuPreset Menu(object source, PSCmdlet cmdlet) {
             if (PSText.Unwrap(source) is MenuPreset typed) { return typed; }
+            PSItems.RecordFields(source, "Name Description Preview Form Values Item Selection Selections");
             string name = Name(source);
             var preset = new MenuPreset(name) { Description = Read(source, "Description") as string, Preview = PSForms.Content(Read(source, "Preview"), cmdlet) };
             object? formValue = Read(source, "Form");
@@ -65,11 +67,12 @@ namespace ConsoleMonster.PowerShell {
             object? value = PSText.Unwrap(source);
             if (value is IDictionary dictionary) {
                 foreach (DictionaryEntry entry in dictionary) {
-                    if (string.Equals(PSText.PlainText(entry.Key), name, StringComparison.OrdinalIgnoreCase)) { return PSText.Unwrap(entry.Value); }
+                    if (string.Equals(PSText.PlainText(entry.Key), name, StringComparison.OrdinalIgnoreCase)) { return entry.Value == null ? null : Binding.PSObjectMemberSource.Identity(entry.Value); }
                 }
                 return null;
             }
-            return source == null ? null : PSText.Unwrap(PSObject.AsPSObject(source).Properties[name]?.Value);
+            object? property = source == null ? null : PSObject.AsPSObject(source).Properties[name]?.Value;
+            return property == null ? null : Binding.PSObjectMemberSource.Identity(property);
         }
     }
 }

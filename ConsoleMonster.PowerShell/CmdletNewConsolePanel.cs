@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Management.Automation;
 using ConsoleMonster.Glyphs;
 using ConsoleMonster.Layout;
+using ConsoleMonster.Styling;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>
@@ -48,16 +49,40 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter Fill { get; set; }
 
+        /// <summary><para type="description">The semantic border colour.</para></summary>
+        [Parameter]
+        public ThemeToken BorderRole { get; set; } = ThemeToken.Border;
+
+        /// <summary><para type="description">Cells between the left border and content.</para></summary>
+        [Parameter, ValidateRange(0, int.MaxValue)]
+        public int PaddingLeft { get; set; } = 1;
+
+        /// <summary><para type="description">Cells between content and the right border.</para></summary>
+        [Parameter, ValidateRange(0, int.MaxValue)]
+        public int PaddingRight { get; set; } = 1;
+
+        /// <summary><para type="description">Rows between the top border and content.</para></summary>
+        [Parameter, ValidateRange(0, int.MaxValue)]
+        public int PaddingTop { get; set; } = 0;
+
+        /// <summary><para type="description">Rows between content and the bottom border.</para></summary>
+        [Parameter, ValidateRange(0, int.MaxValue)]
+        public int PaddingBottom { get; set; } = 0;
+
+        /// <summary><para type="description">Fits the panel to content instead of filling its available width.</para></summary>
+        [Parameter]
+        public SwitchParameter NoExpand { get; set; }
+
         /// <summary><para type="description">Double-bordered verdict with a centred title.</para></summary>
         [Parameter] public SwitchParameter Verdict { get; set; }
         /// <summary><para type="description">Status colour and title glyph for a verdict.</para></summary>
         [Parameter, Binding.StatusKindTransformation, ArgumentCompleter(typeof(Binding.StatusKindCompleter))]
-        public ConsoleMonster.Styling.StatusKind? Status { get; set; }
+        public StatusKind? Status { get; set; }
 
         /// <inheritdoc />
         protected override IWidget Build(List<IWidget> children) {
             IWidget content = children.Count == 1 ? children[0] : new Rows(children.ToArray());
-            Panel panel = new Panel(content, PSText.Markup(Title)) { HeaderRight = PSText.Markup(HeaderRight), Caption = PSText.Markup(Caption), Border = Border, Verdict = Verdict.IsPresent, Status = Status };
+            Panel panel = new Panel(content, PSText.Markup(Title)) { HeaderRight = PSText.Markup(HeaderRight), Caption = PSText.Markup(Caption), Border = Border, BorderRole = BorderRole, PaddingLeft = PaddingLeft, PaddingRight = PaddingRight, PaddingTop = PaddingTop, PaddingBottom = PaddingBottom, Expand = !NoExpand.IsPresent, Verdict = Verdict.IsPresent, Status = Status };
             return PSWidgets.WithSize(panel, Weight, Height, Fill.IsPresent);
         }
     }

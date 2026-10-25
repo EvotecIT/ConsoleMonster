@@ -17,7 +17,7 @@ namespace ConsoleMonster.Widgets {
     /// Live operations (Key = row key): <c>add</c> and <c>update</c> (Payload = the values; both insert or replace),
     /// <c>remove</c>, <c>clear</c>. A recording replays the tab-separated text form of the values.
     /// </summary>
-    public sealed class LiveTable : LiveWidget {
+    public sealed partial class LiveTable : LiveWidget {
         private readonly List<string> _order = new List<string>();
         private readonly Dictionary<string, object?[]> _rows = new Dictionary<string, object?[]>(StringComparer.Ordinal);
         private readonly Dictionary<string, long> _inserted = new Dictionary<string, long>(StringComparer.Ordinal);
@@ -228,7 +228,7 @@ namespace ConsoleMonster.Widgets {
     }
 
     /// <summary>Changes the rows of a <see cref="LiveTable"/> through the live session's update queue (thread-safe).</summary>
-    public sealed class LiveTableHandle : LiveHandle {
+    public sealed partial class LiveTableHandle : LiveHandle {
         /// <summary>Creates a handle.</summary>
         /// <param name="dispatcher">The dispatcher (a live session).</param>
         /// <param name="widgetId">The live table name.</param>

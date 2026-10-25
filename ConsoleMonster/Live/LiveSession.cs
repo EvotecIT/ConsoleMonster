@@ -113,7 +113,7 @@ namespace ConsoleMonster.Live {
         public string? WidthDecision { get; private set; }
 
         /// <summary>
-        /// Time since Start, frozen after shutdown. During <see cref="Replay"/> it follows the recorded timeline
+        /// Time since Start, frozen after shutdown. During <see cref="Replay(IWidget, System.IO.TextReader, LiveSessionOptions, double, CancellationToken)"/> it follows the recorded timeline
         /// (real time multiplied by the replay speed), so the header clock agrees with recorded timestamps.
         /// With a recording target's SkipDelays enabled and no explicit clock, it advances only as <see cref="Delay"/> completes.
         /// </summary>

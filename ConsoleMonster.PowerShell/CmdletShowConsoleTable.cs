@@ -8,7 +8,7 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example><para>Display pipeline input</para><code>Get-Service | Show-ConsoleTable</code></example>
     [Cmdlet(VerbsCommon.Show, "ConsoleTable", DefaultParameterSetName = "Objects")]
-    public sealed class CmdletShowConsoleTable : ConsoleDisplayCmdlet {
+    public sealed partial class CmdletShowConsoleTable : ConsoleDisplayCmdlet {
         /// <inheritdoc />
         protected override string RequestedView => "Table";
     }

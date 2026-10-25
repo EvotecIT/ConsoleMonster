@@ -9,7 +9,7 @@ using ConsoleMonster.Rendering;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Starts a bounded run dashboard for work scheduled by your script.</para>
-    /// <para type="description">Declares the queued items and returns a LiveRun handle. Use Update-ConsoleRun as workers start or finish and Complete-ConsoleRun in a finally block. Finished items stream above the live dashboard; failures and warnings remain pinned. The dashboard uses at most 40 percent of terminal height by default. CI and redirected hosts use append-only lines with periodic totals. This command does not execute work or change its results or exit code. Name, Target and Group accept property names or script blocks evaluated once, before the session starts. Interactive keys are opt-in: p pauses the log, f filters it to problems, g toggles groups, and ? shows help.</para>
+    /// <para type="description">Declares the queued items and returns a LiveRun handle. Use Update-Console as workers start or finish and Complete-ConsoleRun in a finally block. Finished items stream above the live dashboard; failures and warnings remain pinned. The dashboard uses at most 40 percent of terminal height by default. CI and redirected hosts use append-only lines with periodic totals. This command does not execute work or change its results or exit code. Name, Target and Group accept property names or script blocks evaluated once, before the session starts. Interactive keys are opt-in: p pauses the log, f filters it to problems, g toggles groups, and ? shows help.</para>
     /// </summary>
     /// <example>
     /// <para>Track a script without changing its output</para>
@@ -18,9 +18,9 @@ namespace ConsoleMonster.PowerShell {
     /// $run = Start-ConsoleRun -Items $files -Title 'Archive logs' -Label Name -Target DirectoryName
     /// try {
     ///     for ($i = 0; $i -lt $files.Count; $i++) {
-    ///         Update-ConsoleRun $run -Index $i -Status Running -Phase 'archiving'
-    ///         try { Compress-Archive $files[$i].FullName "$($files[$i].FullName).zip" -ErrorAction Stop; Update-ConsoleRun $run -Index $i -Status Pass }
-    ///         catch { Update-ConsoleRun $run -Index $i -Status Fail -Message $_.Exception.Message }
+    ///         Update-Console -Run $run -Index $i -Status Running -Label 'archiving'
+    ///         try { Compress-Archive $files[$i].FullName "$($files[$i].FullName).zip" -ErrorAction Stop; Update-Console -Run $run -Index $i -Status Pass }
+    ///         catch { Update-Console -Run $run -Index $i -Status Fail -Detail $_.Exception.Message }
     ///     }
     /// } finally { Complete-ConsoleRun $run }
     /// </code>

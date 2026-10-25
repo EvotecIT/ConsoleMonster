@@ -93,10 +93,10 @@ $p = Get-ConsoleCapability
         $text = Invoke-ConsoleChild -Script @'
 $d = New-ConsoleDashboard -Title 'Test' -Content { New-ConsoleLanes -WidgetId lanes; New-ConsoleLogRegion }
 $result = Invoke-ConsoleDashboard $d {
-    Update-ConsoleLane -Key one -Status Running
+    Update-Console -Key one -Status Running -WidgetId 'lanes'
     Write-Host 'hello from the runspace'
-    Update-ConsoleLane -Key one -Result Pass
-    Update-ConsoleLane -Key one -Complete
+    Update-Console -Key one -Result Pass -WidgetId 'lanes'
+    Update-Console -Key one -Complete -WidgetId 'lanes'
     'script output'
 }
 "RESULT=$result"
@@ -113,7 +113,7 @@ $result = Invoke-ConsoleDashboard $d {
             Write-ConsoleText -Markup '[pass]from the job[/]'
             [pscustomobject] @{ Name = 'alpha'; Count = 7 } | Show-ConsoleTable -Border Minimal
             $d = New-ConsoleDashboard -Title 'Job dashboard' -Content { New-ConsoleLanes -WidgetId lanes }
-            Invoke-ConsoleDashboard $d { Update-ConsoleLane -Key srv1 -Result Pass; Update-ConsoleLane -Key srv1 -Complete }
+            Invoke-ConsoleDashboard $d { Update-Console -Key srv1 -Result Pass -WidgetId 'lanes'; Update-Console -Key srv1 -Complete -WidgetId 'lanes' }
             'pipeline output'
         }
         $null = Wait-Job $job -Timeout 180
@@ -206,7 +206,7 @@ Stop-Transcript | Out-Null
         $text = Invoke-ConsoleChild -Script @'
 $d = New-ConsoleDashboard -Title 'Typos' -Content { New-ConsoleLanes -WidgetId lanes; New-ConsoleLogRegion }
 Invoke-ConsoleDashboard $d -WarningVariable dashboardWarnings -WarningAction SilentlyContinue {
-    1..5 | ForEach-Object { Update-ConsoleLane -WidgetId lanez -Key one -Result Pass }
+    1..5 | ForEach-Object { Update-Console -WidgetId lanez -Key one -Result Pass }
 }
 "WARNINGS=$(@($dashboardWarnings).Count)"
 $dashboardWarnings | ForEach-Object { "W: $_" }
@@ -220,7 +220,7 @@ $dashboardWarnings | ForEach-Object { "W: $_" }
 $d = New-ConsoleDashboard -Title 'Parallel' -Content { New-ConsoleLanes }
 $results = 1..60 | Invoke-ConsoleDashboard $d -Parallel -ThrottleLimit 3 {
     param($Item)
-    Update-ConsoleLane -Key "item$Item" -Result Pass
+    Update-Console -Key "item$Item" -Result Pass -WidgetId 'lanes'
     $Item * 10
 }
 "SUM=$(($results | Measure-Object -Sum).Sum)"
@@ -264,6 +264,6 @@ Show-ConsoleReplay -PlaybackMode Automatic `$r -Path '$recording' -Speed 1000
 
     It 'reports an error when updating without a running dashboard' {
         Import-Module $script:ModulePath -Force
-        { Update-ConsoleLane -Key x -Result Pass -ErrorAction Stop } | Should -Throw '*No console dashboard is running*'
+        { Update-Console -Key x -Result Pass -ErrorAction Stop -WidgetId 'lanes' } | Should -Throw '*No console dashboard is running*'
     }
 }

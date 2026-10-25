@@ -68,13 +68,13 @@ Use-ConsoleTarget -Target $target {
     $answers = @(
         Read-ConsoleText 'Project' -Default orbit -StaticSnapshot
         Read-ConsoleText 'Notes' -Multiline -Default 'one' -StaticSnapshot
-        Read-ConsoleSecret 'Token' -StaticSnapshot
+        Read-ConsoleText -Title 'Token' -StaticSnapshot -AsSecret
         Read-ConsoleNumber 'Port' -Default 443 -Integer -StaticSnapshot
         Read-ConsolePath 'Folder' -Default './orbit' -StaticSnapshot
         Read-ConsoleConfirm 'Continue?' -Default $true -StaticSnapshot
         Read-ConsoleConfirm 'Remove?' -TypedConfirmation orbit -StaticSnapshot
         Read-ConsoleSelect 'Target' -Choices api, worker -StaticSnapshot
-        Read-ConsoleMultiSelect 'Checks' -Choices dns, tls -StaticSnapshot
+        Read-ConsoleSelect -Title 'Checks' -Choices dns, tls -StaticSnapshot -Multiple
     )
     if ($answers.Count) { throw 'A prompt snapshot returned an answer' }
 }
@@ -121,7 +121,7 @@ try {
         It 'returns the chosen objects themselves, not their text' {
             $text = Invoke-PromptChild -Script @'
 $items = @([pscustomobject] @{ Name = 'a'; Size = 1 }, [pscustomobject] @{ Name = 'b'; Size = 2 }, [pscustomobject] @{ Name = 'c'; Size = 3 })
-$picked = @(Read-ConsoleMultiSelect 'Items' -Choices $items -Display Name -Selected 'a', 'c')
+$picked = @(Read-ConsoleSelect -Title 'Items' -Choices $items -Display Name -Multiple -Default 'a', 'c')
 "count=$($picked.Count) sizes=$(($picked | ForEach-Object Size) -join ',') type=$($picked[0].GetType().Name)"
 $one = $items | Read-ConsoleSelect 'One' -Display Name -Default 'b'
 "one=$($one.Size)"
@@ -187,7 +187,7 @@ $v = Read-ConsoleText 'Reason' -Multiline -Mode Accessible
 
         It 'accepts several numbers for a multi-selection' {
             $text = Invoke-PromptChild -InputText "1,3`n" -Script @'
-$v = @(Read-ConsoleMultiSelect 'Pick' -Choices 'a', 'b', 'c' -Mode Accessible)
+$v = @(Read-ConsoleSelect -Title 'Pick' -Choices 'a', 'b', 'c' -Mode Accessible -Multiple)
 "value=$($v -join '+')"
 '@
             $text | Should -Match 'value=a\+c'
@@ -200,12 +200,12 @@ $v = @(Read-ConsoleMultiSelect 'Pick' -Choices 'a', 'b', 'c' -Mode Accessible)
 ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('Down Enter')
 $v = Read-ConsoleSelect 'Pick' -Choices 'alpha', 'beta', 'gamma'
 ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('Space Down Down Space Enter')
-$m = @(Read-ConsoleMultiSelect 'Pick' -Choices 'alpha', 'beta', 'gamma')
+$m = @(Read-ConsoleSelect -Title 'Pick' -Choices 'alpha', 'beta', 'gamma' -Multiple)
 $keys = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('"bad" Enter Ctrl+U "good" Enter'); $keys.Paced = $true
 ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = $keys
 $t = Read-ConsoleText 'Name' -Validator { if ($_ -eq 'bad') { 'not that one' } }
 ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('"s3cret" Enter')
-$s = Read-ConsoleSecret 'Token'
+$s = Read-ConsoleText -Title 'Token' -AsSecret
 "value=$v multi=$($m -join '+') text=$t secret=$($s.GetType().Name) length=$($s.Length)"
 '@
             $text | Should -Match 'value=beta multi=alpha\+gamma text=good secret=SecureString length=6'
@@ -266,8 +266,8 @@ $form = New-ConsoleForm 'Backup' -Command 'Start-AppBackup' -Content {
     New-ConsoleField Copies 'Copies' -Type Number -Integer -Default 1 -ParameterName Copies
 }
 $menu = New-ConsoleMenu 'Backup helper' -Content {
-    New-ConsoleMenuPreset 'Quick' -Form $form -Values @{ Copies = 2 } -Preview 'quick preview'
-    New-ConsoleMenuPreset 'Sunday' -Form $form -Values @{ Target = 'Weekly'; Copies = 4 } -Preview { New-ConsoleText 'sunday preview' }
+    [pscustomobject]@{ Name = 'Quick'; Form = $form; Values = @{ Copies = 2 }; Preview = 'quick preview' }
+    [pscustomobject]@{ Name = 'Sunday'; Form = $form; Values = @{ Target = 'Weekly'; Copies = 4 }; Preview = { New-ConsoleText 'sunday preview' } }
     New-ConsoleMenuItem 'Presets' -Presets
     New-ConsoleMenuItem 'Back up' -Form $form
     New-ConsoleMenuItem 'Quit' -Exit
@@ -294,9 +294,9 @@ $menu = New-ConsoleMenu 'Tool' -Content {
         $clock = New-ConsoleSimulatedClock -Speed 0
         $dashboard = New-ConsoleDashboard -Title 'Checks' -Content { New-ConsoleSummaryBar -Total 2; New-ConsoleActivityList -WidgetId running }
         $script:result = $MenuContext.Run($dashboard, {
-            Update-ConsoleActivity -WidgetId running -Id 1 -Activity 'first check'
+            Update-Console -WidgetId running -Id 1 -Activity 'first check'
             $clock.Wait(42)
-            Update-ConsoleSummaryBar -Done 2 -Counter @{ passed = 2 }
+            Update-Console -Counter @{ passed = 2 } -WidgetId 'summary' -Value 2
             New-ConsoleMenuRunResult 'Checks finished'
         }, $clock)
     }
@@ -408,11 +408,11 @@ Show-ConsoleMenu $menu -Layout Inline
         }
 
         It 'gives a form built-in presets from its scriptblock and -Preset, with values matched to its choices' {
-            $extra = New-ConsoleFormPreset 'Storage only' -Values @{ Checks = 'Free space' } -Description 'Only the storage check.'
+            $extra = [pscustomobject]@{ Name = 'Storage only'; Values = @{ Checks = 'Free space' }; Description = 'Only the storage check.' }
             $form = New-ConsoleForm 'Fleet' -Command 'Invoke-FleetCheck' -Preset $extra -Content {
                 New-ConsoleField Checks 'Checks' -Type MultiSelect -Choices $script:Checks -Display Name -CommandValue Id -ParameterName Check
                 New-ConsoleField Parallel 'Servers at a time' -Type Number -Integer -Default 4 -ParameterName ThrottleLimit
-                New-ConsoleFormPreset 'Nightly' -Values @{ Checks = 'TimeOffset', 'Cert chain'; Parallel = 8 } -Preview { 'two checks, eight at a time' }
+                [pscustomobject]@{ Name = 'Nightly'; Values = @{ Checks = 'TimeOffset', 'Cert chain'; Parallel = 8 }; Preview = { 'two checks, eight at a time' } }
             }
             ($form.Presets | ForEach-Object Name) -join ',' | Should -Be 'Storage only,Nightly'
             $form.Presets[0].Description | Should -Be 'Only the storage check.'
@@ -441,18 +441,18 @@ Show-ConsoleMenu $menu -Layout Inline
         It 'creates menu presets with form values, selections and a preview, and adds them to the menu' {
             $form = New-ConsoleForm 'Fleet' -Content { New-ConsoleField Checks 'Checks' -Type MultiSelect -Choices $script:Checks -Display Name -CommandValue Id }
             $targets = New-ConsoleMenuItem 'Targets' -MultiSelect ([pscustomobject] @{ Name = 'SRV01' }), ([pscustomobject] @{ Name = 'SRV02' }) -Display Name
-            $first = New-ConsoleMenuPreset 'First' -Form $form -Values @{ Checks = 'Time offset' } -Item $targets -Selection 'SRV02' -Description 'The first wave.' -Preview { New-ConsoleText 'preview' }
+            $first = [pscustomobject]@{ Name = 'First'; Form = $form; Values = @{ Checks = 'Time offset' }; Item = $targets; Selection = 'SRV02'; Description = 'The first wave.'; Preview = { New-ConsoleText 'preview' } }
             $first.Description | Should -Be 'The first wave.'
             $first.Preview | Should -Not -BeNullOrEmpty
-            $second = New-ConsoleMenuPreset 'Second' -Form $form -Values @{ Checks = 'FreeSpace' }
+            $second = [pscustomobject]@{ Name = 'Second'; Form = $form; Values = @{ Checks = 'FreeSpace' } }
             $menu = New-ConsoleMenu 'Fleet' -Item $targets -Preset $first -Content {
                 $second
                 New-ConsoleMenuItem 'Presets' -Presets
             }
             ($menu.Presets | ForEach-Object Name) -join ',' | Should -Be 'First,Second'
             $menu.Items.Count | Should -Be 2
-            { New-ConsoleMenuPreset 'Broken' -Values @{ Checks = 'x' } -ErrorAction Stop } | Should -Throw '*-Form*'
-            { New-ConsoleMenuPreset 'Broken' -Selection 'x' -ErrorAction Stop } | Should -Throw '*-Item*'
+            { New-ConsoleMenu 'Broken' -Preset @{ Name = 'Broken'; Values = @{ Checks = 'x' } } -ErrorAction Stop } | Should -Throw '*Form*'
+            { New-ConsoleMenu 'Broken' -Preset @{ Name = 'Broken'; Selection = 'x' } -ErrorAction Stop } | Should -Throw '*Item*'
         }
 
         It 'keeps choice badges and disabled reasons for static and asynchronously loaded menu items' {
@@ -468,7 +468,7 @@ Show-ConsoleMenu $menu -Layout Inline
                 [pscustomobject] @{ Name = 'api'; Role = 'Web'; Offline = '' }
                 [pscustomobject] @{ Name = 'db'; Role = 'Data'; Offline = 'maintenance' }
             } -Display Name -ChoiceBadge Role -ChoiceDisabledReason Offline -Selected api
-            $loaded = @($loadedItem.ChoicesLoader.Invoke($null, [threading.cancellationtoken]::None).GetAwaiter().GetResult())
+            $loaded = @($loadedItem.LoadChoices.Invoke($null, [threading.cancellationtoken]::None).GetAwaiter().GetResult())
             $loaded[0].Badge.PlainText | Should -Be 'Web'
             $loaded[0].Selected | Should -BeTrue
             $loaded[1].DisabledReason | Should -Be 'maintenance'
@@ -479,7 +479,7 @@ Show-ConsoleMenu $menu -Layout Inline
             $text = Invoke-PromptChild -Script @'
 $targets = New-ConsoleMenuItem Targets -MultiSelect 'api', 'db'
 $tasks = New-ConsoleMenuItem Tasks -MultiSelect 'health', 'logs'
-$preset = New-ConsoleMenuPreset Nightly -Selections @{ $targets = @('db'); $tasks = @('health', 'logs') }
+$preset = [pscustomobject]@{ Name = 'Nightly'; Selections = @{ $targets = @('db'); $tasks = @('health', 'logs') } }
 $menu = New-ConsoleMenu 'Multi-selection preset' -Item $targets, $tasks -Preset $preset -Content {
     New-ConsoleMenuItem Presets -Hotkey p -Presets
     New-ConsoleMenuItem Quit -Hotkey q -Exit
@@ -489,7 +489,7 @@ Show-ConsoleMenu $menu -Layout Inline
 "targets=$($targets.Selection -join ',') tasks=$($tasks.Selection -join ',')"
 '@
             $text | Should -Match 'targets=db tasks=health,logs'
-            { New-ConsoleMenuPreset Invalid -Selections @{ missing = @('db') } -ErrorAction Stop } | Should -Throw '*menu items*'
+            { New-ConsoleMenu Invalid -Preset @{ Name = 'Invalid'; Selections = @{ missing = @('db') } } -ErrorAction Stop } | Should -Throw '*MenuItem*'
         }
 
         It 'preserves original object answers and defaults instead of choosing the first custom object' {
@@ -508,12 +508,12 @@ Show-ConsoleMenu $menu -Layout Inline
         It 'keeps original custom objects through form and menu presets' {
             $text = Invoke-PromptChild -Script @'
 $targets = @([pscustomobject] @{ Name = 'SRV01' }, [pscustomobject] @{ Name = 'SRV02' })
-$preset = New-ConsoleFormPreset 'Second' -Values @{ Target = $targets[1] }
+$preset = [pscustomobject]@{ Name = 'Second'; Values = @{ Target = $targets[1] } }
 $form = New-ConsoleForm 'Deployment' -Preset $preset -Content { New-ConsoleField Target 'Target' -Type Select -Choices $targets -Display Name }
 Set-ConsoleFormValue $form $form.Presets[0].Values
 "form=$($form.GetValues()['Target'].Name)"
 $item = New-ConsoleMenuItem 'Targets' -MultiSelect $targets -Display Name
-$menuPreset = New-ConsoleMenuPreset 'Second' -Item $item -Selection $targets[1] -Form $form -Values @{ Target = $targets[1] }
+$menuPreset = [pscustomobject]@{ Name = 'Second'; Item = $item; Selection = $targets[1]; Form = $form; Values = @{ Target = $targets[1] } }
 $menu = New-ConsoleMenu 'Deployment' -Item $item -Preset $menuPreset -Content {
     New-ConsoleMenuItem 'Presets' -Hotkey p -Presets
     New-ConsoleMenuItem 'Quit' -Hotkey q -Exit

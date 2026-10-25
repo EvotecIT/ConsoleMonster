@@ -150,9 +150,9 @@ $p = Get-Process -Id $PID
         $text = Invoke-FormatChild -Script (@'
 Add-Type -Path '__FIXTURE__'
 $wide = [ConsoleMonsterWideTreeFixture]::new()
-"DEFAULT=$(($wide | Show-ConsoleTree -AsString).Split("`n").Count)"
-"DEEP=$(($wide | Show-ConsoleTree -Depth 3 -AsString).Split("`n").Count)"
-"SMALL=$(([pscustomobject] @{ a = 1; b = @{ c = @{ d = 1 } } } | Show-ConsoleTree -AsString).Split("`n").Count)"
+"DEFAULT=$(($wide | Show-Console -AsString -View Tree).Split("`n").Count)"
+"DEEP=$(($wide | Show-Console -Depth 3 -AsString -View Tree).Split("`n").Count)"
+"SMALL=$(([pscustomobject] @{ a = 1; b = @{ c = @{ d = 1 } } } | Show-Console -AsString -View Tree).Split("`n").Count)"
 '@.Replace('__FIXTURE__', $fixture))
         [int] ($text -replace '(?s).*DEFAULT=(\d+).*', '$1') | Should -BeLessThan 300
         [int] ($text -replace '(?s).*DEEP=(\d+).*', '$1') | Should -BeGreaterThan 300
@@ -193,7 +193,7 @@ $cert = [pscustomobject] @{
         [pscustomobject] @{ Subject = 'CN=R11'; Key = 'RSA 2048' }
     )
 }
-$cert | Show-ConsoleTree -MaxItems 2 -Title 'mail.evotec.xyz' -Width 80
+$cert | Show-Console -MaxItems 2 -Title 'mail.evotec.xyz' -Width 80 -View Tree
 '=====SPLIT====='
 $cert | Show-ConsoleObject -StaticSnapshot -Title 'mail.evotec.xyz' -Width 80
 '@
@@ -210,7 +210,7 @@ $cert | Show-ConsoleObject -StaticSnapshot -Title 'mail.evotec.xyz' -Width 80
         $script = @'
 $h = @{ Name = 'root'; Child = @{ A = 1 } }
 $h.Self = $h
-$h | Show-ConsoleTree -Depth 3 -Width 80
+$h | Show-Console -Depth 3 -Width 80 -View Tree
 '@
         $text = Invoke-FormatChild -Script $script
         $text | Should -Match 'Name\s+root'

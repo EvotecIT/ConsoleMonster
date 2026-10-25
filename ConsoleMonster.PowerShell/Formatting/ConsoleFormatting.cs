@@ -68,7 +68,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary>Registered and built-in types (files, processes, services, dictionaries) shown as ConsoleMonster views (the default).</summary>
         Output = 1,
 
-        /// <summary>Errors that reach the console shown with ConsoleMonster's error view (Show-ConsoleError), following $ErrorView.</summary>
+        /// <summary>Errors that reach the console shown with ConsoleMonster's error view (Show-Console -View Error), following $ErrorView.</summary>
         ErrorView = 2,
 
         /// <summary>Write-Progress drawn as ConsoleMonster's progress area (Write-Progress uses its native-parameter function proxy).</summary>

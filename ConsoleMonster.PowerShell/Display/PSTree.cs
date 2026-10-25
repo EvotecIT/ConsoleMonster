@@ -47,7 +47,7 @@ namespace ConsoleMonster.PowerShell {
             return tree;
 
             TreeNode Node(object item) {
-                // Nodes made by New-ConsoleTreeNode (and strings) piped in go in as they are.
+                // Nodes made by Label/Children records (and strings) piped in go in as they are.
                 switch (PSText.Unwrap(item)) {
                     case TreeNode made:
                         return made;

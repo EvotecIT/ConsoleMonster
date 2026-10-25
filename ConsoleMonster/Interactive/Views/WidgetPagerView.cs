@@ -32,7 +32,7 @@ namespace ConsoleMonster.Interactive {
             Move(0);
             Rows rows = new Rows();
             rows.Add(new HeaderBar(Text.Markup.Escape(_title)) {
-                Right = (_top + 1).ToString(CultureInfo.InvariantCulture) + "–"
+                HeaderRight = (_top + 1).ToString(CultureInfo.InvariantCulture) + "–"
                     + Math.Min(_document.Height, _top + _pageRows).ToString(CultureInfo.InvariantCulture)
                     + " / " + _document.Height.ToString(CultureInfo.InvariantCulture)
             }, LayoutSize.Fixed(1));

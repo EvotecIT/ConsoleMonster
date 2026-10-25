@@ -23,7 +23,7 @@ Describe 'Progress columns and translated labels' {
 
     It 'renders lanes through the chosen columns' {
         $text = Invoke-ProgressChild -Script @'
-$lanes = New-ConsoleLanes -Lane 'SRV01', 'SRV02' -Total 10 -Column Description, Percent, Count, Status
+$lanes = New-ConsoleLanes -Lane 'SRV01', 'SRV02' -Total 10 -Columns Description, Percent, Count, Status
 $lanes.Apply(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.LiveEvent'))::new('lanes', 'state', 'SRV01', 'copying', 'running', 0, 0, 0))
 $lanes.Apply(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.LiveEvent'))::new('lanes', 'advance', 'SRV01', 'copying', 'pass', 4, 0, 1000))
 $lanes | Show-Console -Width 60
@@ -34,7 +34,7 @@ $lanes | Show-Console -Width 60
     }
 
     It 'rejects an unknown column name' {
-        { New-ConsoleLanes -Column 'Nope' } | Should -Throw
+        { New-ConsoleLanes -Columns 'Nope' } | Should -Throw
     }
 
     It 'follows the UI culture for built-in labels' {

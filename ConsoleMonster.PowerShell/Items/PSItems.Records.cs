@@ -16,7 +16,7 @@ namespace ConsoleMonster.PowerShell {
             throw new PSArgumentException("'" + PSWidgets.ToText(value) + "' is not a status for " + name + ".");
         }
 
-        private static void RecordFields(object item, string names) {
+        internal static void RecordFields(object item, string names) {
             var allowed = new HashSet<string>(names.Split(' '), StringComparer.OrdinalIgnoreCase);
             IEnumerable<string> fields;
             if (item is IDictionary dictionary) {
@@ -72,7 +72,7 @@ namespace ConsoleMonster.PowerShell {
                 list.Add(KeyValueItem.ForValue(key, value, Presenters.CellPresenters.FromName(presenter!, Field(item, "Unit") as string), status));
             } else if (value is RichText rich) { list.Add(new KeyValueItem(key, rich.ToMarkup(), status)); }
             else if (LanguagePrimitives.IsTrue(Field(item, "Markup"))) { list.Add(new KeyValueItem(key, PSText.PlainText(value), status)); }
-            else { list.Add(KeyValueItem.ForValue(key, value, status: status)); }
+            else { list.Add(new KeyValueItem(key, Text.Markup.Escape(PSText.PlainText(value)), status)); }
             return true;
         }
 

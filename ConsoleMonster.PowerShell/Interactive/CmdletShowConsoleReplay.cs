@@ -58,13 +58,20 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Interactive player controls (default), or automatic playback without reading keys.</para></summary>
         [Parameter]
-        [ValidateSet("Interactive", "Automatic")]
-        public string PlaybackMode { get; set; } = "Interactive";
+        public PlaybackMode PlaybackMode { get; set; }
+
+        /// <summary><para type="description">Samples the interactive recording at this frame rate; default ten.</para></summary>
+        [Parameter, ValidateRange(0.01, 1000)]
+        public double FramesPerSecond { get; set; } = 10;
+
+        /// <summary><para type="description">Maximum sampled interactive frames; default 3000.</para></summary>
+        [Parameter, ValidateRange(1, int.MaxValue)]
+        public int MaxFrames { get; set; } = 3000;
 
         /// <inheritdoc />
         protected override void EndProcessing() {
             string path = Path == null ? Newest() : SessionState.Path.GetUnresolvedProviderPathFromPSPath(Path);
-            if (string.Equals(PlaybackMode, "Automatic", StringComparison.OrdinalIgnoreCase)) {
+            if (PlaybackMode == Replay.PlaybackMode.Automatic) {
                 PlayAutomatic(path);
                 return;
             }
@@ -76,6 +83,9 @@ namespace ConsoleMonster.PowerShell {
                 // A dashboard's own (recorded) title names the run; other widget trees use the file name.
                 Title = Title ?? (Dashboard is Widgets.Dashboard ? null : System.IO.Path.GetFileNameWithoutExtension(path)),
                 Speed = Speed,
+                PlaybackMode = PlaybackMode,
+                FramesPerSecond = FramesPerSecond,
+                MaxFrames = MaxFrames,
                 Inline = Inline.IsPresent,
                 AutoPlay = !Paused.IsPresent,
                 Height = Height > 0 ? Height : (int?)null,

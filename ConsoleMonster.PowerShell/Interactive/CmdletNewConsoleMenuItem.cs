@@ -19,7 +19,7 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>An action that asks first and shows a toast</para>
     ///   <code>New-ConsoleMenuItem 'Clear cache' -Action { if ($MenuContext.Confirm('Clear the cache?')) { Clear-AppCache; $MenuContext.Toast('Cache cleared') } }</code>
     /// </example>
-    [Cmdlet(VerbsCommon.New, "ConsoleMenuItem")]
+    [Cmdlet(VerbsCommon.New, "ConsoleMenuItem", DefaultParameterSetName = "Action")]
     [OutputType(typeof(MenuItem))]
     public sealed class CmdletNewConsoleMenuItem : PSCmdlet {
         /// <summary><para type="description">The title.</para></summary>
@@ -27,7 +27,7 @@ namespace ConsoleMonster.PowerShell {
         public string? Label { get; set; }
 
         /// <summary><para type="description">The action, run on the pipeline thread; $MenuContext (also $_) offers Toast, Confirm, Ask, Run (a live dashboard) and ShowResult.</para></summary>
-        [Parameter(Position = 1)]
+        [Parameter(ParameterSetName = "Action", Position = 1)]
         public ScriptBlock? Action { get; set; }
 
         /// <summary><para type="description">The key that opens the item directly.</para></summary>
@@ -59,79 +59,97 @@ namespace ConsoleMonster.PowerShell {
         public object? DisabledReason { get; set; }
 
         /// <summary><para type="description">A submenu: a menu from New-ConsoleMenu, or a scriptblock of New-ConsoleMenuItem calls.</para></summary>
-        [Parameter]
+        [Parameter(ParameterSetName = "Submenu", Mandatory = true)]
         public object? Submenu { get; set; }
 
         /// <summary><para type="description">A form from New-ConsoleForm.</para></summary>
-        [Parameter]
+        [Parameter(ParameterSetName = "Form", Mandatory = true)]
         public Form? Form { get; set; }
 
         /// <summary><para type="description">Runs when the form is submitted; $Values is a hashtable of the values, $FormResult the full result.</para></summary>
-        [Parameter]
+        [Parameter(ParameterSetName = "Form")]
         public ScriptBlock? OnSubmit { get; set; }
 
         /// <summary><para type="description">Choices for picking one value (any objects).</para></summary>
-        [Parameter]
+        [Parameter(ParameterSetName = "Select", Mandatory = true)]
         public object?[]? Select { get; set; }
 
         /// <summary><para type="description">Choices for picking several values (any objects).</para></summary>
-        [Parameter]
+        [Parameter(ParameterSetName = "MultiSelect", Mandatory = true)]
         public object?[]? MultiSelect { get; set; }
 
         /// <summary><para type="description">Loads the choices in its own runspace (a spinner shows meanwhile). Pair with -Single for one value.</para></summary>
-        [Parameter]
+        [Parameter(ParameterSetName = "LoadChoices", Mandatory = true)]
         public ScriptBlock? LoadChoices { get; set; }
 
         /// <summary><para type="description">Arguments for the -LoadChoices script.</para></summary>
-        [Parameter]
+        [Parameter(ParameterSetName = "LoadChoices")]
         public object?[]? ArgumentList { get; set; }
 
         /// <summary><para type="description">With -LoadChoices: pick one value instead of several.</para></summary>
-        [Parameter]
+        [Parameter(ParameterSetName = "LoadChoices")]
         public SwitchParameter Single { get; set; }
 
         /// <summary><para type="description">What to show for a choice: a property name or a scriptblock.</para></summary>
-        [Parameter]
+        [Parameter(ParameterSetName = "Select")]
+        [Parameter(ParameterSetName = "MultiSelect")]
+        [Parameter(ParameterSetName = "LoadChoices")]
         public object? Display { get; set; }
 
         /// <summary><para type="description">The group of a choice: a property name or a scriptblock.</para></summary>
-        [Parameter]
+        [Parameter(ParameterSetName = "Select")]
+        [Parameter(ParameterSetName = "MultiSelect")]
+        [Parameter(ParameterSetName = "LoadChoices")]
         public object? GroupBy { get; set; }
 
         /// <summary><para type="description">A sentence for the focused choice: a property name or a scriptblock.</para></summary>
-        [Parameter]
+        [Parameter(ParameterSetName = "Select")]
+        [Parameter(ParameterSetName = "MultiSelect")]
+        [Parameter(ParameterSetName = "LoadChoices")]
         public object? Describe { get; set; }
 
         /// <summary><para type="description">Badge for each selection choice: a property name or scriptblock. With -LoadChoices, use a property name from the loader's output. The item's own badge remains -Badge.</para></summary>
-        [Parameter]
+        [Parameter(ParameterSetName = "Select")]
+        [Parameter(ParameterSetName = "MultiSelect")]
+        [Parameter(ParameterSetName = "LoadChoices")]
         public object? ChoiceBadge { get; set; }
 
         /// <summary><para type="description">Disabled reason for each selection choice: a property name or scriptblock; null or empty enables the choice. With -LoadChoices, use a property name. The item's own disabled reason remains -DisabledReason.</para></summary>
-        [Parameter]
+        [Parameter(ParameterSetName = "Select")]
+        [Parameter(ParameterSetName = "MultiSelect")]
+        [Parameter(ParameterSetName = "LoadChoices")]
         public object? ChoiceDisabledReason { get; set; }
 
         /// <summary><para type="description">Preview content for the focused choice ($_ is the choice).</para></summary>
-        [Parameter]
+        [Parameter(ParameterSetName = "Select")]
+        [Parameter(ParameterSetName = "MultiSelect")]
+        [Parameter(ParameterSetName = "LoadChoices")]
         public ScriptBlock? Preview { get; set; }
 
         /// <summary><para type="description">Pre-selected choices: the objects or their texts, or a scriptblock returning $true for static choices. With -LoadChoices, pass initial values; they are matched when the choices arrive.</para></summary>
-        [Parameter]
+        [Parameter(ParameterSetName = "Select")]
+        [Parameter(ParameterSetName = "MultiSelect")]
+        [Parameter(ParameterSetName = "LoadChoices")]
         public object? Selected { get; set; }
 
         /// <summary><para type="description">The fewest values of a multi-selection.</para></summary>
-        [Parameter]
+        [Parameter(ParameterSetName = "MultiSelect")]
+        [Parameter(ParameterSetName = "LoadChoices")]
         public int? Minimum { get; set; }
 
         /// <summary><para type="description">The most values of a multi-selection.</para></summary>
-        [Parameter]
+        [Parameter(ParameterSetName = "MultiSelect")]
+        [Parameter(ParameterSetName = "LoadChoices")]
         public int? Maximum { get; set; }
 
         /// <summary><para type="description">Runs when the selection changes ($MenuContext and $_).</para></summary>
-        [Parameter]
+        [Parameter(ParameterSetName = "Select")]
+        [Parameter(ParameterSetName = "MultiSelect")]
+        [Parameter(ParameterSetName = "LoadChoices")]
         public ScriptBlock? OnChange { get; set; }
 
         /// <summary><para type="description">Page content, built each time it shows: text, rich text, widgets, or objects shown as a list.</para></summary>
-        [Parameter]
+        [Parameter(ParameterSetName = "Page", Mandatory = true)]
         public ScriptBlock? Page { get; set; }
 
         /// <summary><para type="description">
@@ -139,23 +157,24 @@ namespace ConsoleMonster.PowerShell {
         /// equivalent command line), Problems (strings that block running), Run (a scriptblock) and optionally Title,
         /// Description and RunText.
         /// </para></summary>
-        [Parameter]
+        [Parameter(ParameterSetName = "Review", Mandatory = true)]
         public ScriptBlock? Review { get; set; }
 
-        /// <summary><para type="description">Makes the item list the menu's presets: the ones it comes with (New-ConsoleMenu -Preset or New-ConsoleMenuPreset in its scriptblock) first, marked as built in, with their previews, then the saved ones. Enter applies one; Delete removes a saved one (Shell and Classic layouts; the Inline layout applies them only).</para></summary>
-        [Parameter]
+        /// <summary><para type="description">Makes the item list the menu's presets: the ones it comes with (New-ConsoleMenu -Preset) first, marked as built in, with their previews, then the saved ones. Enter applies one; Delete removes a saved one (Shell and Classic layouts; the Inline layout applies them only).</para></summary>
+        [Parameter(ParameterSetName = "Presets", Mandatory = true)]
         public SwitchParameter Presets { get; set; }
 
         /// <summary><para type="description">Makes a divider (with -Label as its heading, if given).</para></summary>
-        [Parameter]
+        [Parameter(ParameterSetName = "Separator", Mandatory = true)]
         public SwitchParameter Separator { get; set; }
 
         /// <summary><para type="description">Makes the exit item (-Label defaults to Exit).</para></summary>
-        [Parameter]
+        [Parameter(ParameterSetName = "Exit", Mandatory = true)]
         public SwitchParameter Exit { get; set; }
 
         /// <inheritdoc />
         protected override void EndProcessing() {
+            if (Single.IsPresent && (Minimum.HasValue || Maximum.HasValue)) { throw new PSArgumentException("Single selection does not support Minimum or Maximum."); }
             MenuItem item = new MenuItem(Label ?? (Exit.IsPresent ? PromptLabels.Default.Exit : string.Empty)) {
                 Description = Description,
                 Icon = Icon,

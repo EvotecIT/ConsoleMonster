@@ -131,7 +131,7 @@ namespace ConsoleMonster.Tests.Interactive
             Assert.Equal(new[] { "ran" }, log.ToArray());
             HeaderBar targets = new HeaderBar("Toolbox")
             {
-                Right = "lab"
+                HeaderRight = "lab"
             };
             targets.Crumbs.Add("Targets");
             SameRow(Bar(targets, tier), shell.FindFrame("Targets")!, 0, "shell");
@@ -139,7 +139,7 @@ namespace ConsoleMonster.Tests.Interactive
             CellBuffer running = shell.Frames.First(f => f.GetRowText(0).Contains("Running") && f.GetRowText(Height - 1).Contains("ctrl+c"));
             HeaderBar run = new HeaderBar("Toolbox")
             {
-                Right = "lab"
+                HeaderRight = "lab"
             };
             run.Crumbs.Add("Patch");
             run.Crumbs.Add("Running");

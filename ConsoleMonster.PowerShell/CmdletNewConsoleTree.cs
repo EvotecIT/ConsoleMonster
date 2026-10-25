@@ -7,21 +7,21 @@ using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>
-    /// <para type="synopsis">Creates a console tree from nested New-ConsoleTreeNode calls, hierarchical objects or nested hashtables.</para>
-    /// <para type="description">Three ways in, one tree out. Nodes: a script block of New-ConsoleTreeNode calls, each with its own status, detail and children (strings become leaves shown literally); nodes can also be piped in. Objects: pipe hierarchical objects (groups and members, folders and files) and name their children with -ChildrenProperty or a -Children script block ($_ is the parent); -LabelProperty, -StatusProperty and -DetailProperty pick what each node shows, and -Depth, -MaxItems and -MaxNodes keep a large or cyclic hierarchy bounded and mark what was left out (a repeated item is shown once with "(cycle)"). Hashtables: -InputObject maps keys to nested hashtables (child nodes), arrays (leaves) or other values (a muted note); use [ordered] to keep order. The title (markup allowed) is the root; without it the top-level nodes are the roots.</para>
+    /// <para type="synopsis">Creates a console tree from nested Label/Children records calls, hierarchical objects or nested hashtables.</para>
+    /// <para type="description">Three ways in, one tree out. Nodes: a script block of Label/Children records calls, each with its own status, detail and children (strings become leaves shown literally); nodes can also be piped in. Objects: pipe hierarchical objects (groups and members, folders and files) and name their children with -ChildrenProperty or a -Children script block ($_ is the parent); -LabelProperty, -StatusProperty and -DetailProperty pick what each node shows, and -Depth, -MaxItems and -MaxNodes keep a large or cyclic hierarchy bounded and mark what was left out (a repeated item is shown once with "(cycle)"). Hashtables: -InputObject maps keys to nested hashtables (child nodes), arrays (leaves) or other values (a muted note); use [ordered] to keep order. The title (markup allowed) is the root; without it the top-level nodes are the roots.</para>
     /// </summary>
     /// <example>
     ///   <para>A mail domain with records and their state</para>
     ///   <code>
     /// New-ConsoleTree '[bold]evotec.xyz[/]' -Content {
-    ///     New-ConsoleTreeNode 'MX' -Status Pass -Detail '2 records' -Content {
-    ///         New-ConsoleTreeNode 'evotec-xyz.mail.protection.outlook.com' -Detail 'priority 0'
-    ///     }
-    ///     New-ConsoleTreeNode 'SPF' -Status Warn -Detail '9 of 10 DNS lookups' -Content {
+    ///     [pscustomobject]@{ Label = 'MX'; Status = 'Pass'; Detail = '2 records'; Children = @(&amp; {
+    ///         [pscustomobject]@{ Label = 'evotec-xyz.mail.protection.outlook.com'; Detail = 'priority 0' }
+    ///     }) }
+    ///     [pscustomobject]@{ Label = 'SPF'; Status = 'Warn'; Detail = '9 of 10 DNS lookups'; Children = @(&amp; {
     ///         'include:spf.protection.outlook.com'
     ///         'include:_spf.salesforce.com'
-    ///     }
-    ///     New-ConsoleTreeNode 'DMARC' -Status Fail -Detail 'p=none'
+    ///     }) }
+    ///     [pscustomobject]@{ Label = 'DMARC'; Status = 'Fail'; Detail = 'p=none' }
     /// } | Show-Console</code>
     /// </example>
     /// <example>
@@ -55,11 +55,11 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(ParameterSetName = ObjectsSet, Position = 0)]
         public object? Title { get; set; }
 
-        /// <summary><para type="description">A script block that emits the nodes: New-ConsoleTreeNode calls, or strings for leaves (shown literally).</para></summary>
+        /// <summary><para type="description">A script block that emits the nodes: Label/Children records calls, or strings for leaves (shown literally).</para></summary>
         [Parameter(ParameterSetName = NodesSet, Position = 1)]
         public ScriptBlock? Content { get; set; }
 
-        /// <summary><para type="description">Hierarchical objects (pipeline input); each becomes a top-level node. Nodes from New-ConsoleTreeNode go in as they are.</para></summary>
+        /// <summary><para type="description">Hierarchical objects (pipeline input); each becomes a top-level node. Nodes from Label/Children records go in as they are.</para></summary>
         [Parameter(ParameterSetName = ObjectsSet, Mandatory = true, ValueFromPipeline = true)]
         public PSObject? InputObject { get; set; }
 
@@ -83,7 +83,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(ParameterSetName = ObjectsSet)]
         public string? DetailProperty { get; set; }
 
-        /// <summary><para type="description">Levels of children to follow: New-ConsoleTree defaults to 5. Show-ConsoleTree defaults to 3 for object graphs, or one for wide .NET objects when Depth is omitted.</para></summary>
+        /// <summary><para type="description">Levels of children to follow: New-ConsoleTree defaults to 5. Show-Console -View Tree defaults to 3 for object graphs, or one for wide .NET objects when Depth is omitted.</para></summary>
         [Parameter(ParameterSetName = ObjectsSet)]
         public int Depth { get; set; } = 5;
 
@@ -120,7 +120,7 @@ namespace ConsoleMonster.PowerShell {
             Emit(tree);
         }
 
-        /// <summary>Emits the tree (Show-ConsoleTree overrides this to write it).</summary>
+        /// <summary>Emits the tree (Show-Console -View Tree overrides this to write it).</summary>
         /// <param name="tree">The tree.</param>
         protected virtual void Emit(Tree tree) => WriteObject(tree);
 

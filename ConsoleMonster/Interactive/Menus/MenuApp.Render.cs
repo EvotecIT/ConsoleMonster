@@ -180,7 +180,7 @@ namespace ConsoleMonster.Interactive {
 
         // The same header bar as dashboards and runs: the app title, the breadcrumb, and the app's subtitle on the right.
         private HeaderBar Header() {
-            HeaderBar header = new HeaderBar(Markup.Escape(_root.Title)) { Right = _root.Subtitle };
+            HeaderBar header = new HeaderBar(Markup.Escape(_root.Title)) { HeaderRight = _root.Subtitle };
             foreach (string crumb in Crumbs()) {
                 header.Crumbs.Add(crumb);
             }

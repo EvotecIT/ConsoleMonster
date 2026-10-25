@@ -110,7 +110,7 @@ $__cmProgressBridge.Host((@($Object | ForEach-Object { if ($_ -is [System.Collec
                     ProgressBridge bridge = new ProgressBridge(session);
                     List<PSVariable> variables = new List<PSVariable> { new PSVariable("__cmProgressBridge", bridge) };
                     // With Enable-ConsoleFormatting -Feature Progress, Write-Progress is an alias, which wins over the
-                    // function above: Write-ConsoleProgress hands its calls to this area while the script runs.
+                    // function above: Update-Console hands its calls to this area while the script runs.
                     ProgressBridge? previous = SessionProgress.Override;
                     SessionProgress.Override = bridge;
                     try {

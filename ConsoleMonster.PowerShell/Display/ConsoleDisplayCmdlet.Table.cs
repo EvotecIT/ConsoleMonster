@@ -32,6 +32,7 @@ namespace ConsoleMonster.PowerShell {
                         if (string.Equals(column.Key, StatusProperty, System.StringComparison.OrdinalIgnoreCase)) { column.Presenter = Presenters.CellPresenters.StatusWord; }
                     }
                 }
+                ApplyTableConfiguration(table);
                 first = false;
             });
             return PSFormatting.Combine(tables);

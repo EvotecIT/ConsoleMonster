@@ -12,7 +12,7 @@ namespace ConsoleMonster.PowerShell {
     [Cmdlet(VerbsCommon.Show, "ConsoleDemo")]
     [OutputType(typeof(PSObject))]
     public sealed class CmdletShowConsoleDemo : PSCmdlet {
-        /// <summary><para type="description">Exact demo slug from Get-ConsolePresentation.</para></summary>
+        /// <summary><para type="description">Exact demo slug from Get-ConsoleDemo.</para></summary>
         [Parameter(Position = 0, Mandatory = true)]
         [ValidateNotNullOrEmpty]
         public string Slug { get; set; } = string.Empty;
@@ -36,27 +36,11 @@ namespace ConsoleMonster.PowerShell {
                 return;
             }
 
-            ScriptBlock demo = ScriptBlock.Create(PSDemoResources.Script(slug));
-            if (StaticSnapshot.IsPresent) {
-                ScriptBlock capture = ScriptBlock.Create(PSDemoResources.CaptureScript());
-                ScriptBlock invokeCapture = ScriptBlock.Create("param($capture, $demo, $json, $step) & $capture -Demo $demo -Metadata (Microsoft.PowerShell.Utility\\ConvertFrom-Json -InputObject $json) -Step $step");
-                foreach (PSObject result in InvokeCommand.InvokeScript(true, invokeCapture, null, capture, demo, PSDemoResources.Metadata(slug), Step)) {
-                    if (result.BaseObject is CellBuffer frame) {
-                        using (ITerminalOutput output = Terminal.CreateOutput(Terminal.GetCurrentProfile(), Terminal.Target.Writer)) {
-                            output.WriteBlock(frame);
-                        }
-                    }
-                }
-                return;
-            }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(Step))) {
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(Step)) && !StaticSnapshot.IsPresent) {
                 ThrowTerminatingError(new ErrorRecord(new PSArgumentException("Use -Step with -StaticSnapshot."),
                     "ConsoleDemoSnapshotRequired", ErrorCategory.InvalidArgument, Step));
             }
-            ScriptBlock invoke = ScriptBlock.Create("param($demo) & $demo");
-            foreach (PSObject output in InvokeCommand.InvokeScript(true, invoke, null, demo)) {
-                WriteObject(output);
-            }
+            foreach (PSObject result in ConsoleGallery.Show(slug, InvokeCommand, StaticSnapshot.IsPresent, Step)) { WriteObject(result); }
         }
     }
 }
