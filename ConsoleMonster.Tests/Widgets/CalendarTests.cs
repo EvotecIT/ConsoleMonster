@@ -137,14 +137,16 @@ namespace ConsoleMonster.Tests.Widgets {
         }
 
         [Fact]
-        public void NonGregorianCulture_UsesGregorianMonthNamesWithoutChangingTheCulture() {
+        public void NonGregorianCulture_UsesGregorianDatesWithoutChangingTheCulture() {
             CultureInfo culture = CultureInfo.GetCultureInfo("ar-SA");
             Type original = culture.DateTimeFormat.Calendar.GetType();
-            Calendar calendar = new Calendar(2026, 1) { Culture = culture };
+            DateTime today = new DateTime(2026, 1, 20);
+            Calendar calendar = new Calendar(2026, 1) { Culture = culture, Today = today };
             string text = TestTerminal.RenderText(calendar, width: 40);
             DateTimeFormatInfo expected = (DateTimeFormatInfo)culture.DateTimeFormat.Clone();
             expected.Calendar = new GregorianCalendar();
             Assert.Contains(expected.GetMonthName(1) + " 2026", text);
+            Assert.Contains("Today " + today.ToString("dd MMM", expected), text);
             Assert.Equal(original, culture.DateTimeFormat.Calendar.GetType());
         }
 

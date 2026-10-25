@@ -97,7 +97,7 @@ namespace ConsoleMonster.Widgets {
         private int Columns(int width) => View == CalendarView.Year ? Math.Max(1, (Math.Min(width, 112) + 2) / (MonthWidth + 2)) : 1;
 
         private void RenderMonth(Region region, int month, DayOfWeek first, CultureInfo culture, RenderContext context) {
-            string title = GregorianMonthName(culture, month) + " " + Year.ToString(CultureInfo.InvariantCulture);
+            string title = GregorianDateFormat(culture).GetMonthName(month) + " " + Year.ToString(CultureInfo.InvariantCulture);
             region.Write(0, 0, title, context.Style(ThemeToken.Title));
             region.Write(0, 2, "Week", context.Style(ThemeToken.Muted));
             for (int col = 0; col < 7; col++) {
@@ -148,7 +148,7 @@ namespace ConsoleMonster.Widgets {
                 current += (current.Length == 0 ? "" : "  ") + item;
             }
             if (Today.HasValue && Today.Value.Year == Year && (View == CalendarView.Year || Today.Value.Month == Month)) {
-                string item = (context.HasColor && context.Glyphs.Tier != GlyphTier.Ascii ? "Today " : "@ Today ") + Today.Value.ToString("dd MMM", Culture ?? context.Culture);
+                string item = (context.HasColor && context.Glyphs.Tier != GlyphTier.Ascii ? "Today " : "@ Today ") + Today.Value.ToString("dd MMM", GregorianDateFormat(Culture ?? context.Culture));
                 if (current.Length > 0 && ConsoleMonster.Text.DisplayWidth.Measure(current) + 2 + ConsoleMonster.Text.DisplayWidth.Measure(item) > width) { lines.Add(current); current = string.Empty; }
                 current += (current.Length == 0 ? "" : "  ") + item;
             }
@@ -169,8 +169,8 @@ namespace ConsoleMonster.Widgets {
 
         private static string Symbol(StatusKind status, RenderContext context) => context.Glyphs.Tier == GlyphTier.Ascii ? Symbols[Array.IndexOf(Statuses, status)] : context.Glyphs.StatusMarker(status);
 
-        // Month numbers in this widget are Gregorian even when the culture's default calendar is not.
-        private static string GregorianMonthName(CultureInfo culture, int month) {
+        // The grid and Today legend stay Gregorian even when the culture's default calendar is not.
+        private static DateTimeFormatInfo GregorianDateFormat(CultureInfo culture) {
             GregorianCalendar? selected = null;
             foreach (System.Globalization.Calendar calendar in culture.OptionalCalendars) {
                 if (calendar is GregorianCalendar gregorian) {
@@ -179,10 +179,10 @@ namespace ConsoleMonster.Widgets {
                     if (gregorian.CalendarType == GregorianCalendarTypes.Localized) { selected = gregorian; break; }
                 }
             }
-            if (selected == null) { return CultureInfo.InvariantCulture.DateTimeFormat.GetMonthName(month); }
+            if (selected == null) { return CultureInfo.InvariantCulture.DateTimeFormat; }
             DateTimeFormatInfo format = (DateTimeFormatInfo)culture.DateTimeFormat.Clone();
             format.Calendar = selected;
-            return format.GetMonthName(month);
+            return format;
         }
     }
 }
