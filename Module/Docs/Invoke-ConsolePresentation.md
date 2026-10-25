@@ -8,7 +8,7 @@ schema: 2.0.0
 ## SYNOPSIS
 Types a scripted PowerShell demo into a real terminal and records it.
 
-Runs plain PowerShell with optional chapter, pause, setup, type-only, narration, WPM and output-wait directives. Uses OSC 133 readiness marks independent of visible prompt text and operating system. Character jitter uses a fixed seed; use fixed data and environment for repeatable output.
+Runs plain PowerShell with optional chapter, export pace, export hold, recording pause, setup, type-only, narration, WPM and output-wait directives. Uses OSC 133 readiness marks independent of visible prompt text and operating system. Character jitter uses a fixed seed; use fixed data and environment for repeatable output.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -19,7 +19,7 @@ Invoke-ConsolePresentation [-Path] <string> [-Destination] <string> [-Width <int
 ## DESCRIPTION
 Types a scripted PowerShell demo into a real terminal and records it.
 
-Runs plain PowerShell with optional chapter, pause, setup, type-only, narration, WPM and output-wait directives. Uses OSC 133 readiness marks independent of visible prompt text and operating system. Character jitter uses a fixed seed; use fixed data and environment for repeatable output.
+Runs plain PowerShell with optional chapter, export pace, export hold, recording pause, setup, type-only, narration, WPM and output-wait directives. Uses OSC 133 readiness marks independent of visible prompt text and operating system. Character jitter uses a fixed seed; use fixed data and environment for repeatable output.
 
 ## EXAMPLES
 
@@ -65,7 +65,7 @@ Accept wildcard characters: False
 ```
 
 ### -IdleLimitSeconds
-Longest recorded idle gap in seconds; zero preserves actual timing.
+Asciicast player idle-limit hint in seconds. Source timestamps are always preserved; zero disables the hint.
 
 ```yaml
 Type: Double

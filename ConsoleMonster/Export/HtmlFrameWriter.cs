@@ -113,6 +113,7 @@ namespace ConsoleMonster.Export {
             double cell = options.CellHeight;
             bool adaptive = layers.Count > 1 || layers[0].Palette.UseVariables;
             ExportPalette first = layers[0].Palette.UseVariables ? ExportPalette.Dark : layers[0].Palette;
+            if (options.EffectiveChrome != WindowChromeStyle.None) { css.Append(".cm-export{--cm-font:").Append(font).Append("}\n"); }
             string scope = options.Fragment ? ".cm-export" : ":root,.cm-export";
             css.Append(scope).Append("{--cm-fg:").Append(first.Foreground).Append(";--cm-bg:").Append(first.Background)
                 .Append(";--cm-chrome:#2b2b2b;--cm-chrome-fg:#a8a8a8;--cm-desk:#3a3a3f;color-scheme:").Append(adaptive ? "dark light" : first.Name).Append("}\n.cm-export{display:inline-block}\n");
@@ -123,7 +124,7 @@ namespace ConsoleMonster.Export {
                 css.Append("}\n");
             }
             if (!options.Fragment) {
-                css.Append(options.EffectiveChrome != WindowChromeStyle.None ? "html,body{margin:0;background:var(--cm-desk)}\nbody{padding:20px}\n" : "html,body{margin:0;background:var(--cm-bg)}\nbody{padding:0}\n");
+                css.Append(options.EffectiveChrome != WindowChromeStyle.None ? "html,body{margin:0;background:var(--cm-desk)}\nbody{padding:0}\n" : "html,body{margin:0;background:var(--cm-bg)}\nbody{padding:0}\n");
             }
             WindowChrome.AppendHtmlCss(css, options.EffectiveChrome);
             css.Append(".cm-export .cm-screen{display:block;box-sizing:content-box;margin:0;padding:").Append(options.Padding).Append("px;width:").Append(columns).Append("ch;")

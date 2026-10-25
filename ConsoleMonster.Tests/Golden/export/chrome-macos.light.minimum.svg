@@ -1,12 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="76" height="32.8" viewBox="0 0 76 32.8" role="img" aria-label="Build &lt;release&gt; &amp; verify / WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="92" height="49" viewBox="0 0 92 49" role="img" aria-label="Build &lt;release&gt; &amp; verify / WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW">
 <title>Build &lt;release&gt; &amp; verify / WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW</title>
 <style>
-svg{--cm-fg:#cccccc;--cm-bg:#0c0c0c;--cm-chrome:#1f1f1f;--cm-chrome-fg:#a0a0a0}
-svg{--cm-chrome:#e5e7eb;--cm-chrome-fg:#6b7280;--cm-chrome-title:#111827;--cm-tab:#ffffff;--cm-desk:#c9c9cf;--cm-close:#ff5f57;--cm-minimise:#febc2e;--cm-zoom:#28c840}
-.cm-t{font-family:'Cascadia Mono', 'Cascadia Code', 'DejaVu Sans Mono', Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;font-size:4px;text-anchor:middle;dominant-baseline:central;font-variant-ligatures:none}
+svg{--cm-fg:#24292f;--cm-bg:#ffffff;--cm-chrome:#1f1f1f;--cm-chrome-fg:#a0a0a0}
+svg{--cm-chrome:#e5e7eb;--cm-chrome-fg:#6b7280;--cm-chrome-title:#6b7280;--cm-tab:#ffffff;--cm-border:#8a8a94;--cm-accent:#2563eb;--cm-desk:#c9c9cf;--cm-close:#ff5f57;--cm-minimise:#febc2e;--cm-zoom:#28c840}
+.cm-t{font-family:'Cascadia Mono', 'Cascadia Code', 'DejaVu Sans Mono', Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;font-size:4px;text-anchor:middle;dominant-baseline:alphabetic;font-variant-ligatures:none}
 .cm-s{shape-rendering:crispEdges}
-.cm-title{font:13px system-ui,-apple-system,'Segoe UI',sans-serif;fill:var(--cm-chrome-title);text-anchor:middle;dominant-baseline:central}
+.cm-title{font-family:'Cascadia Mono', 'Cascadia Code', 'DejaVu Sans Mono', Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;font-size:13px;font-weight:400;fill:var(--cm-chrome-title);text-anchor:middle;dominant-baseline:alphabetic}
 </style>
-<rect width="76" height="32.8" rx="10" style="fill:var(--cm-chrome)"/>
-<circle cx="18" cy="14" r="6" style="fill:var(--cm-close)"/><circle cx="38" cy="14" r="6" style="fill:var(--cm-minimise)"/><circle cx="58" cy="14" r="6" style="fill:var(--cm-zoom)"/><g class="cm-layer" transform="translate(0 28)"><rect width="76" height="4.8" x="0" y="0" fill="#ffffff"/></g>
+<rect x="0" y="0" width="92" height="49" rx="0" fill="var(--cm-desk)"/><defs><filter id="cm-shadow" x="-15%" y="-15%" width="130%" height="140%"><feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#000000" flood-opacity="0.28"/></filter></defs><g filter="url(#cm-shadow)"><rect x="8" y="8" width="76" height="33" rx="10" fill="var(--cm-bg)"/></g><rect x="8" y="8" width="76" height="33" rx="10" fill="var(--cm-bg)" stroke="var(--cm-border)" stroke-width="1.2"/><defs><clipPath id="cm-inner-clip"><rect x="9" y="9" width="74" height="31" rx="9" fill="#ffffff"/></clipPath><clipPath id="cm-bar-clip"><rect x="8" y="8" width="76" height="33" rx="10" fill="#ffffff"/></clipPath></defs><g clip-path="url(#cm-bar-clip)"><rect x="8" y="8" width="76" height="28" rx="0" fill="var(--cm-chrome)"/></g><path d="M8 36H84" fill="none" stroke="var(--cm-border)" stroke-width="1"/><circle cx="26" cy="22" r="6" style="fill:var(--cm-close)"/><circle cx="46" cy="22" r="6" style="fill:var(--cm-minimise)"/><circle cx="66" cy="22" r="6" style="fill:var(--cm-zoom)"/><g clip-path="url(#cm-inner-clip)"><g class="cm-layer" transform="translate(8 36)"><rect width="74" height="3" x="1" y="1" fill="#ffffff"/></g></g>
 </svg>

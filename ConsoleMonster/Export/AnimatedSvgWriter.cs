@@ -76,10 +76,13 @@ namespace ConsoleMonster.Export {
             svg.Append("@media (prefers-reduced-motion: reduce){.cm-strip{animation-play-state:paused}}\n");
             svg.Append("</style>\n<defs>\n").Append(defs).Append("</defs>\n");
             SvgFrameWriter.AppendChrome(svg, g, options);
-            svg.Append("<svg x=\"0\" y=\"").Append(ExportText.Num(g.ScreenY - options.Padding)).Append("\" width=\"").Append(ExportText.Num(frameWidth)).Append("\" height=\"").Append(ExportText.Num(g.GridHeight + (2 * options.Padding))).Append("\">");
+            if (options.EffectiveChrome != WindowChromeStyle.None) { svg.Append("<g clip-path=\"url(#cm-inner-clip)\">"); }
+            svg.Append("<svg x=\"").Append(ExportText.Num(g.ScreenX - options.Padding)).Append("\" y=\"").Append(ExportText.Num(g.ScreenY - options.Padding)).Append("\" width=\"").Append(ExportText.Num(g.Width - 2 * (g.ScreenX - options.Padding))).Append("\" height=\"").Append(ExportText.Num(g.Height - WindowChrome.BarHeight(options.EffectiveChrome) - 2 * (g.ScreenX - options.Padding))).Append("\">");
             svg.Append("<rect width=\"100%\" height=\"100%\"");
             ExportText.AppendPaint(svg, "fill", palette.Background);
-            svg.Append("/>\n<g class=\"cm-strip\">\n").Append(strip).Append("</g></svg>\n</svg>\n");
+            svg.Append("/>\n<g class=\"cm-strip\">\n").Append(strip).Append("</g></svg>");
+            if (options.EffectiveChrome != WindowChromeStyle.None) { svg.Append("</g>"); }
+            svg.Append("\n</svg>\n");
             return svg.ToString();
         }
     }

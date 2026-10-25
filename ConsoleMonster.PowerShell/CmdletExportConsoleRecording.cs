@@ -8,7 +8,7 @@ using ConsoleMonster.Sessions;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Exports a terminal session or dashboard recording to slide images, animations, video, a player or asciicast.</para>
-    /// <para type="description">PNG selects the final frame, -AtSeconds a source time, -Chapter a completed chapter, or -PerChapter numbered slides. GIF and APNG are managed animations; MP4 needs ffmpeg on PATH. Without -Dashboard, reads a whole-session asciicast v2 from Invoke-ConsoleRecording -Interactive or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Invoke-ConsoleDashboard widget updates into the same definition, preserving the dashboard HTML, SVG and asciicast v3 exports; Markdown writes timestamped fenced frames through the bundled add-on. Add #t=30000 to an HTML address to open at 30 seconds.</para>
+    /// <para type="description">PNG selects the final frame, -AtSeconds a source time, -Chapter a completed chapter, or -PerChapter numbered slides. GIF and APNG are managed animations without an external executable. Without -Dashboard, reads a whole-session asciicast v2 from Invoke-ConsoleRecording -Interactive or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Invoke-ConsoleDashboard widget updates into the same definition, preserving the dashboard HTML, SVG and asciicast v3 exports; Markdown writes timestamped fenced frames through the bundled add-on. Add #t=30000 to an HTML address to open at 30 seconds.</para>
     /// </summary>
     /// <example>
     ///   <para>An animated SVG and an HTML player of the same run</para>
@@ -18,7 +18,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsData.Export, "ConsoleRecording", DefaultParameterSetName = "Session")]
     [OutputType(typeof(string), typeof(FileInfo))]
-    public sealed class CmdletExportConsoleRecording : PSCmdlet {
+    public sealed partial class CmdletExportConsoleRecording : PSCmdlet {
         private readonly System.Threading.CancellationTokenSource _exportStop = new System.Threading.CancellationTokenSource();
         /// <summary><para type="description">The dashboard (or widget tree) the recording was made with.</para></summary>
         [Parameter(Mandatory = true, Position = 0, ParameterSetName = "Dashboard")]
@@ -29,9 +29,9 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(Mandatory = true, Position = 0, ParameterSetName = "Session")]
         public string Path { get; set; } = string.Empty;
 
-        /// <summary><para type="description">Png, Gif, Apng, Mp4, Html, Svg, Asciicast, Text, Markdown, FencedText or PlayerData. The destination extension selects a default; .json means PlayerData. Text applies to terminal sessions; Markdown also exports dashboard recordings as timestamped fenced frames.</para></summary>
+        /// <summary><para type="description">Png, Gif, Apng, Html, Svg, Asciicast, Text, Markdown, FencedText or PlayerData. The destination extension selects a default; .json means PlayerData. Text applies to terminal sessions; Markdown also exports dashboard recordings as timestamped fenced frames.</para></summary>
         [Parameter]
-        [ValidateSet("Html", "Svg", "Asciicast", "PlayerData", "Text", "Markdown", "FencedText", "Png", "Gif", "Apng", "Mp4")]
+        [ValidateSet("Html", "Svg", "Asciicast", "PlayerData", "Text", "Markdown", "FencedText", "Png", "Gif", "Apng")]
         public string? Format { get; set; }
 
         /// <summary><para type="description">The file to write, or a directory with -PerChapter. Graphics require a destination; text formats can go to the pipeline.</para></summary>
@@ -106,7 +106,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(ParameterSetName = "Session")] public string? Chapter { get; set; }
         /// <summary><para type="description">Writes numbered PNG slides to the destination directory, one per chapter.</para></summary>
         [Parameter(ParameterSetName = "Session")] public SwitchParameter PerChapter { get; set; }
-        /// <summary><para type="description">Maximum unchanged-frame delay in graphics exports; zero preserves timing.</para></summary>
+        /// <summary><para type="description">Maximum source delay on an unchanged screen; zero disables capping. Reading and explicit holds are never capped.</para></summary>
         [Parameter, ValidateRange(0, 86400)] public double IdleLimitSeconds { get; set; } = 2;
         /// <summary><para type="description">Total animation plays: zero repeats forever, one plays once.</para></summary>
         [Parameter, ValidateRange(0, 65536)] public int LoopCount { get; set; }
@@ -118,20 +118,23 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void StopProcessing() { try { _exportStop.Cancel(); } catch (System.ObjectDisposedException) { } }
         private void ExportRecording() {
+            if (Destination != null && string.Equals(System.IO.Path.GetExtension(Destination), ".mp4", System.StringComparison.OrdinalIgnoreCase)) {
+                throw new System.ArgumentException("MP4 export isn't available yet; use GIF for slides (see https://consolemonster.dev/docs/talks-and-demos/).");
+            }
             string source = SessionState.Path.GetUnresolvedProviderPathFromPSPath(Path);
             bool graphics = GraphicsExportBridge.IsGraphics(Format, Destination);
             if (graphics) {
                 string selected = Format ?? System.IO.Path.GetExtension(Destination!).TrimStart('.');
                 bool png = string.Equals(selected, "Png", System.StringComparison.OrdinalIgnoreCase);
                 int selectors = (MyInvocation.BoundParameters.ContainsKey(nameof(AtSeconds)) ? 1 : 0) + (Chapter == null ? 0 : 1) + (PerChapter.IsPresent ? 1 : 0) + (FinalFrame.IsPresent ? 1 : 0);
-                if (selectors > 1 || (!png && selectors > 0)) { throw new System.ArgumentException("Choose one PNG selector: -At, -Chapter, -PerChapter or -FinalFrame."); }
+                if (selectors > 1 || (!png && selectors > 0)) { throw new System.ArgumentException("Choose one PNG selector: -AtSeconds, -Chapter, -PerChapter or -FinalFrame."); }
                 if (Destination == null) { throw new System.ArgumentException("Graphics recording exports need -Destination."); }
                 string graphicsTarget = SessionState.Path.GetUnresolvedProviderPathFromPSPath(Destination);
                 bool chrome = MyInvocation.BoundParameters.ContainsKey(nameof(WindowChrome)) ? WindowChrome.IsPresent : MyInvocation.BoundParameters.ContainsKey(nameof(ChromeStyle));
                 var paths = GraphicsExportBridge.Recording(source, graphicsTarget, selected, Preset, FontFamily, Fit, Background, BackgroundColor, BackgroundEndColor,
                     new ExportOptions { Theme = Theme, Title = Title, WindowChrome = chrome, ChromeStyle = ChromeStyle },
-                    new RecordingExportOptions { Width = Width, Height = Height, Theme = Theme, FramesPerSecond = FramesPerSecond, Speed = Speed },
-                    IdleLimitSeconds, LoopCount, ParameterSetName == "Dashboard" ? Dashboard : null,
+                    PlaybackOptions(),
+                    LoopCount, ParameterSetName == "Dashboard" ? Dashboard : null,
                     MyInvocation.BoundParameters.ContainsKey(nameof(AtSeconds)) ? (System.TimeSpan?)At : null, Chapter, PerChapter.IsPresent, _exportStop.Token);
                 if (PassThru.IsPresent) { foreach (string path in paths) { WriteObject(new FileInfo(path)); } }
                 return;
@@ -147,15 +150,7 @@ namespace ConsoleMonster.PowerShell {
             bool markdown = PSOutputExport.IsMarkdown(selectedFormat);
             ExportFormat format = markdown ? ExportFormat.Html : PSOutputExport.CoreFormat(selectedFormat);
             if (ParameterSetName == "Dashboard" && format == ExportFormat.Text) { format = ExportFormat.Html; }
-            RecordingExportOptions options = new RecordingExportOptions {
-                Width = Width,
-                Height = Height,
-                FramesPerSecond = FramesPerSecond,
-                Speed = Speed,
-                Theme = Theme,
-                Title = Title,
-                WindowChrome = (MyInvocation.BoundParameters.ContainsKey(nameof(WindowChrome)) ? WindowChrome.IsPresent : MyInvocation.BoundParameters.ContainsKey(nameof(ChromeStyle))), ChromeStyle = ChromeStyle
-            };
+            RecordingExportOptions options = PlaybackOptions();
             string document;
             using (StreamReader reader = new StreamReader(source, Encoding.UTF8)) {
                 if (ParameterSetName == "Session") {

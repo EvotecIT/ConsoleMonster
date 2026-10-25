@@ -125,7 +125,7 @@ Accept wildcard characters: False
 ```
 
 ### -IdleLimitSeconds
-Longest playback idle gap in seconds; zero keeps original timing.
+Asciicast player idle-limit hint in seconds. Source timestamps are always preserved; zero disables the hint.
 
 ```yaml
 Type: Double

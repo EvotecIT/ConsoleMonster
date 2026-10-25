@@ -53,7 +53,9 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
                 string gif = Path.Combine(folder, "dashboard.gif");
                 var settings = new GraphicsExportOptions { Frame = new ExportOptions { FontSize = 6, Padding = 0 }, Playback = playback, IdleLimit = TimeSpan.Zero };
                 recording.SaveGraphics(gif, GraphicsFormat.Gif, settings);
-                Assert.Equal(recording.CaptureFrames(playback).Count, GifDelays(File.ReadAllBytes(gif), out _).Count);
+                // Slide GIFs start on the first content poster rather than an empty opening screen.
+                int contentFrames = recording.CaptureFrames(playback).Count(frame => !string.IsNullOrWhiteSpace(ConsoleExporter.ToText(frame.Frame)));
+                Assert.Equal(contentFrames, GifDelays(File.ReadAllBytes(gif), out _).Count);
                 Assert.True(GifDelays(File.ReadAllBytes(gif), out _).Count >= sourceFrames.Count);
             } finally { Directory.Delete(folder, true); }
         }
@@ -108,7 +110,7 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             var recording = SessionRecording.Read(new StringReader("{\"version\":2,\"width\":20,\"height\":3}\n[0,\"m\",\"First\"]\n[0.1,\"o\",\"one\"]\n[1,\"o\",\"\\r\\nfinished\"]\n[5,\"m\",\"Second\"]\n[5.1,\"o\",\"\\r\\ntwo\"]\n"));
             string folder = Path.Combine(Path.GetTempPath(), "cm-graphics-" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(folder);
             try {
-                var settings = new GraphicsExportOptions { LoopCount = 2, IdleLimit = TimeSpan.FromSeconds(0.5) };
+                var settings = new GraphicsExportOptions { LoopCount = 2, IdleLimit = TimeSpan.FromSeconds(0.5), Playback = new RecordingExportOptions { Pace = RecordingPace.Source } };
                 string gif = Path.Combine(folder, "demo.gif"), apng = Path.Combine(folder, "demo.apng");
                 recording.SaveGraphics(gif, GraphicsFormat.Gif, settings); recording.SaveGraphics(apng, GraphicsFormat.Apng, settings);
                 byte[] bytes = File.ReadAllBytes(gif);
@@ -141,7 +143,7 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             string path = Path.Combine(Path.GetTempPath(), "cm-idle-" + Guid.NewGuid().ToString("N") + ".gif");
             try {
                 recording.SaveGraphics(path, GraphicsFormat.Gif, new GraphicsExportOptions {
-                    IdleLimit = TimeSpan.FromSeconds(idle), Playback = new RecordingExportOptions { HoldLastFrame = TimeSpan.FromSeconds(hold) }
+                    IdleLimit = TimeSpan.FromSeconds(idle), Playback = new RecordingExportOptions { Pace = RecordingPace.Source, HoldLastFrame = TimeSpan.FromSeconds(hold) }
                 });
                 int last = GifDelays(File.ReadAllBytes(path), out _).Last();
                 if (idle == 0) { Assert.InRange(last, 6100, 6200); }
@@ -164,6 +166,65 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
                 Assert.True(GifDelays(bytes, out _).Count >= 2);
             } finally { Directory.Delete(folder, true); }
         }
+        [Fact]
+        public void GifStartsOnContentAndLoopsByDefaultWithItsFinalHold() {
+            var recording = SessionRecording.Read(new StringReader("{\"version\":2,\"width\":16,\"height\":3}\n[0,\"o\",\"\"]\n[1,\"o\",\"Ready\"]\n[2,\"o\",\"\\r\\nDone\"]\n"));
+            string folder = Path.Combine(Path.GetTempPath(), "cm-poster-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(folder);
+            try {
+                var settings = new GraphicsExportOptions { Preset = GraphicsPreset.Slide16x9, Playback = new RecordingExportOptions { Pace = RecordingPace.Source } };
+                string gif = Path.Combine(folder, "slides.gif");
+                recording.SaveGraphics(gif, GraphicsFormat.Gif, settings);
+                var bytes = File.ReadAllBytes(gif);
+                var delays = GifDelays(bytes, out int repetitions);
+                Assert.Equal(0, repetitions);
+                Assert.Equal(new[] { 100, 200 }, delays);
+                var poster = RasterImageDecoder.Decode(bytes);
+                Assert.Equal(1920, poster.Width); Assert.Equal(1080, poster.Height);
+                settings.LoopCount = 1;
+                recording.SaveGraphics(gif, GraphicsFormat.Gif, settings);
+                Assert.Equal(delays, GifDelays(File.ReadAllBytes(gif), out repetitions));
+                Assert.Equal(-1, repetitions);
+            } finally { Directory.Delete(folder, true); }
+        }
+
+        [Fact]
+        public void GifApngAndPlayerKeepTheSameExplicitHoldTimeline() {
+            var recording = SessionRecording.Read(new StringReader("{\"version\":2,\"width\":20,\"height\":3}\n"
+                + "[0,\"o\",\"Read\"]\n[1,\"cm\",\"{\\\"label\\\":\\\"\\\",\\\"hold\\\":3,\\\"pace\\\":null,\\\"chapter\\\":false}\"]\n[1,\"o\",\"\\rNext\"]\n"));
+            string folder = Path.Combine(Path.GetTempPath(), "cm-hold-formats-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(folder);
+            try {
+                var settings = new GraphicsExportOptions { Playback = new RecordingExportOptions { Pace = RecordingPace.Source } };
+                string gif = Path.Combine(folder, "hold.gif"), apng = Path.Combine(folder, "hold.apng");
+                recording.SaveGraphics(gif, GraphicsFormat.Gif, settings);
+                recording.SaveGraphics(apng, GraphicsFormat.Apng, settings);
+                Assert.Equal(new[] { 400, 200 }, GifDelays(File.ReadAllBytes(gif), out _));
+                var delays = new List<int>();
+                byte[] png = File.ReadAllBytes(apng);
+                for (int p = 8; p < png.Length; p += BigEndian(png, p) + 12) {
+                    if (Encoding.ASCII.GetString(png, p + 4, 4) != "fcTL") { continue; }
+                    int numerator = (png[p + 28] << 8) | png[p + 29], denominator = (png[p + 30] << 8) | png[p + 31];
+                    delays.Add(1000 * numerator / (denominator == 0 ? 100 : denominator));
+                }
+                Assert.Equal(new[] { 4000, 2000 }, delays);
+                Assert.Contains("\"duration\":6000", recording.ExportPlayerData(settings.Playback));
+            } finally { Directory.Delete(folder, true); }
+        }
+
+        [Fact]
+        public void ExplicitOpeningHoldStaysOnTheFirstContentPoster() {
+            var recording = SessionRecording.Read(new StringReader("{\"version\":2,\"width\":20,\"height\":3}\n"
+                + "[0,\"cm\",\"{\\\"label\\\":\\\"Start\\\",\\\"hold\\\":3,\\\"pace\\\":null,\\\"chapter\\\":true}\"]\n[1,\"o\",\"Ready\"]\n[2,\"o\",\"\\rDone \"]\n"));
+            string path = Path.Combine(Path.GetTempPath(), "cm-poster-hold-" + Guid.NewGuid().ToString("N") + ".gif");
+            try {
+                recording.SaveGraphics(path, GraphicsFormat.Gif, new GraphicsExportOptions {
+                    IdleLimit = TimeSpan.Zero, Playback = new RecordingExportOptions { Pace = RecordingPace.Source }
+                });
+                Assert.Equal(new[] { 400, 200 }, GifDelays(File.ReadAllBytes(path), out _));
+            } finally { File.Delete(path); }
+        }
+
         private static List<int> GifDelays(byte[] bytes, out int repetitions) {
             int position = 13;
             if ((bytes[10] & 0x80) != 0) { position += 3 * (1 << ((bytes[10] & 7) + 1)); }

@@ -3,16 +3,14 @@ using System.Collections.Generic;
 using ConsoleMonster.Export;
 
 namespace ConsoleMonster.Graphics {
-    /// <summary>Raster and video formats supplied by the graphics add-on.</summary>
+    /// <summary>Raster formats supplied by the graphics add-on.</summary>
     public enum GraphicsFormat {
         /// <summary>One lossless frame.</summary>
         Png,
         /// <summary>Palette-quantised animation.</summary>
         Gif,
         /// <summary>Lossless animated PNG.</summary>
-        Apng,
-        /// <summary>H.264 MP4, using ffmpeg on PATH.</summary>
-        Mp4
+        Apng
     }
     /// <summary>Output canvas presets.</summary>
     public enum GraphicsPreset {
@@ -64,7 +62,8 @@ namespace ConsoleMonster.Graphics {
         /// <summary>Additional installed fallback families, tried before platform emoji/CJK defaults.</summary>
         public IList<string> FontFallbacks { get; } = new List<string>();
         /// <summary>Maximum time one unchanged screen stays, excluding the final hold. Zero preserves source timing.</summary>
-        public TimeSpan IdleLimit { get; set; } = TimeSpan.FromSeconds(2);
+        public TimeSpan IdleLimit { get => _idleLimit ?? Playback.IdleLimit; set => _idleLimit = value; }
+        private TimeSpan? _idleLimit;
         /// <summary>Total plays: zero loops indefinitely, one plays once.</summary>
         public int LoopCount { get; set; }
         internal void Validate() {

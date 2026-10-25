@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
+using ConsoleMonster.Export;
 
 namespace ConsoleMonster.Sessions {
     /// <summary>
@@ -101,6 +102,10 @@ namespace ConsoleMonster.Sessions {
         }
         /// <summary>Adds a chapter without printing it to the terminal.</summary>
         public void AddMarker(string label) { lock (_gate) { _writer.Marker(label ?? throw new ArgumentNullException(nameof(label))); } }
+        /// <summary>Adds an export hold without waiting during capture. A label also starts a chapter.</summary>
+        public void AddMarker(TimeSpan hold, string? label = null) { lock (_gate) { _writer.Marker(label ?? string.Empty, hold, null, label != null); } }
+        /// <summary>Records the reading pace for subsequent exported output.</summary>
+        public void SetPace(RecordingPace pace) { lock (_gate) { _writer.Marker(string.Empty, TimeSpan.Zero, pace, false); } }
         /// <summary>Writes PowerShell host output into an explicitly selected in-process recording.</summary>
         public void CapturePowerShellOutput(string text) {
             if (!_options.InProcess) { throw new InvalidOperationException("Only the in-process PowerShell adapter can submit output."); }
@@ -124,6 +129,8 @@ namespace ConsoleMonster.Sessions {
         public void Stop() { _stopping = true; Dispose(); }
         /// <summary>Creates the private OSC chapter control for a child shell to write to its output.</summary>
         public static string MarkerSequence(string label) => SessionCastWriter.ControlPrefix + "marker;" + Convert.ToBase64String(Encoding.UTF8.GetBytes(label ?? throw new ArgumentNullException(nameof(label)))) + "\a";
+        /// <summary>Private OSC export-hold control for any recorded child script. A label also starts a chapter.</summary>
+        public static string MarkerSequence(TimeSpan hold, string? label = null) => SessionCastWriter.ControlPrefix + "timeline;" + Convert.ToBase64String(Encoding.UTF8.GetBytes(SessionMarkerData.Write(label ?? string.Empty, hold, null, label != null))) + "\a";
         /// <summary>Private OSC stop control for the recorded child shell.</summary>
         public static string StopSequence => SessionCastWriter.ControlPrefix + "stop\a";
         /// <summary>Stops and disposes this recorder's transport and files.</summary>

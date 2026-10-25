@@ -36,7 +36,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter, PSDefaultValue(Value = "[REDACTED]")] public string RedactionText { get; set; } = "[REDACTED]";
         /// <summary><para type="description">Maximum cast bytes. At the cap recording stops with a warning.</para></summary>
         [Parameter] [ValidateRange(1024, long.MaxValue)] public long MaxBytes { get; set; } = 64 * 1024 * 1024;
-        /// <summary><para type="description">Longest playback idle gap in seconds; zero keeps original timing.</para></summary>
+        /// <summary><para type="description">Asciicast player idle-limit hint in seconds. Source timestamps are always preserved; zero disables the hint.</para></summary>
         [Parameter] [ValidateRange(0, 86400)] public double IdleLimitSeconds { get; set; } = 2;
         /// <summary><para type="description">Explicit limited fallback: PowerShell host output in this process; no native terminal capture.</para></summary>
         [Parameter] public SwitchParameter InProcess { get; set; }

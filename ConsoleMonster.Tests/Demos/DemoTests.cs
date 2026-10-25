@@ -30,6 +30,15 @@ namespace ConsoleMonster.Tests.Demos {
             Assert.Equal(2, nextLine.Steps.Count);
             Assert.Contains("42", nextLine.Steps[0].Text);
         }
+        [Fact]
+        public void PaceAndHoldDirectivesAreExportInstructionsRatherThanRecordingSleeps() {
+            var script = DemoScript.Parse("# demo: pace slow\n'output'\n# demo: hold 3\n# demo: pause 1");
+            Assert.Equal(new[] { DemoStepKind.Pace, DemoStepKind.Command, DemoStepKind.Hold, DemoStepKind.Pause }, script.Steps.Select(step => step.Kind));
+            Assert.Equal("slow", script.Steps[0].Text);
+            Assert.Equal("3", script.Steps[2].Text);
+            Assert.Throws<FormatException>(() => DemoScript.Parse("# demo: pace turbo"));
+            Assert.Throws<FormatException>(() => DemoScript.Parse("# demo: hold -1"));
+        }
         [Theory]
         [InlineData("# keep this pipeline together")]
         [InlineData("")]

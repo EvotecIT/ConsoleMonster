@@ -168,23 +168,35 @@ $tree | Show-Console</dev:code>
       <command:verb>Add</command:verb>
       <command:noun>ConsoleRecordingMarker</command:noun>
       <maml:description>
-        <maml:para>Adds a named playback chapter to a recorded terminal session.</maml:para>
+        <maml:para>Adds a chapter or an export hold to a recorded terminal session.</maml:para>
         <maml:para>Inside a recorded child shell, sends an OSC marker to the parent recorder. The marker becomes an asciicast v2 event and an HTML chapter. In-process fallback records the chapter directly.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
-      <maml:para>Adds a named playback chapter to a recorded terminal session.</maml:para>
+      <maml:para>Adds a chapter or an export hold to a recorded terminal session.</maml:para>
       <maml:para>Inside a recorded child shell, sends an OSC marker to the parent recorder. The marker becomes an asciicast v2 event and an HTML chapter. In-process fallback records the chapter directly.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
         <maml:name>Add-ConsoleRecordingMarker</maml:name>
-        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>HoldSeconds</maml:name>
+          <maml:description>
+            <maml:para>Freezes the exported screen for this many seconds without sleeping during capture. The idle limit never trims this hold. Label is optional for a hold.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+          <dev:type>
+            <maml:name>Double</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>Label</maml:name>
           <maml:description>
             <maml:para>Chapter label.</maml:para>
           </maml:description>
-          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
             <maml:uri />
@@ -194,12 +206,24 @@ $tree | Show-Console</dev:code>
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
-      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>HoldSeconds</maml:name>
+        <maml:description>
+          <maml:para>Freezes the exported screen for this many seconds without sleeping during capture. The idle limit never trims this hold. Label is optional for a hold.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+        <dev:type>
+          <maml:name>Double</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
         <maml:name>Label</maml:name>
         <maml:description>
           <maml:para>Chapter label.</maml:para>
         </maml:description>
-        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
           <maml:uri />
@@ -226,6 +250,13 @@ $tree | Show-Console</dev:code>
         <dev:code>Add-ConsoleRecordingMarker 'Deploy'</dev:code>
         <dev:remarks>
           <maml:para>Mark a deployment step</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 2</maml:title>
+        <dev:code>Add-ConsoleRecordingMarker -HoldSeconds 3</dev:code>
+        <dev:remarks>
+          <maml:para>Hold this screen during export without waiting while recording</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>
@@ -2646,12 +2677,12 @@ $tree | Show-Console</dev:code>
       <command:noun>ConsoleRecording</command:noun>
       <maml:description>
         <maml:para>Exports a terminal session or dashboard recording to slide images, animations, video, a player or asciicast.</maml:para>
-        <maml:para>PNG selects the final frame, -AtSeconds a source time, -Chapter a completed chapter, or -PerChapter numbered slides. GIF and APNG are managed animations; MP4 needs ffmpeg on PATH. Without -Dashboard, reads a whole-session asciicast v2 from Invoke-ConsoleRecording -Interactive or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Invoke-ConsoleDashboard widget updates into the same definition, preserving the dashboard HTML, SVG and asciicast v3 exports; Markdown writes timestamped fenced frames through the bundled add-on. Add #t=30000 to an HTML address to open at 30 seconds.</maml:para>
+        <maml:para>PNG selects the final frame, -AtSeconds a source time, -Chapter a completed chapter, or -PerChapter numbered slides. GIF and APNG are managed animations without an external executable. Without -Dashboard, reads a whole-session asciicast v2 from Invoke-ConsoleRecording -Interactive or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Invoke-ConsoleDashboard widget updates into the same definition, preserving the dashboard HTML, SVG and asciicast v3 exports; Markdown writes timestamped fenced frames through the bundled add-on. Add #t=30000 to an HTML address to open at 30 seconds.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Exports a terminal session or dashboard recording to slide images, animations, video, a player or asciicast.</maml:para>
-      <maml:para>PNG selects the final frame, -AtSeconds a source time, -Chapter a completed chapter, or -PerChapter numbered slides. GIF and APNG are managed animations; MP4 needs ffmpeg on PATH. Without -Dashboard, reads a whole-session asciicast v2 from Invoke-ConsoleRecording -Interactive or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Invoke-ConsoleDashboard widget updates into the same definition, preserving the dashboard HTML, SVG and asciicast v3 exports; Markdown writes timestamped fenced frames through the bundled add-on. Add #t=30000 to an HTML address to open at 30 seconds.</maml:para>
+      <maml:para>PNG selects the final frame, -AtSeconds a source time, -Chapter a completed chapter, or -PerChapter numbered slides. GIF and APNG are managed animations without an external executable. Without -Dashboard, reads a whole-session asciicast v2 from Invoke-ConsoleRecording -Interactive or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Invoke-ConsoleDashboard widget updates into the same definition, preserving the dashboard HTML, SVG and asciicast v3 exports; Markdown writes timestamped fenced frames through the bundled add-on. Add #t=30000 to an HTML address to open at 30 seconds.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="Session">
@@ -2717,6 +2748,30 @@ $tree | Show-Console</dev:code>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>ChapterHoldSeconds</maml:name>
+          <maml:description>
+            <maml:para>Extra export hold at every chapter marker, unaffected by speed or idle capping.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+          <dev:type>
+            <maml:name>Double</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>ChapterSpeed</maml:name>
+          <maml:description>
+            <maml:para>Hashtable of chapter labels to positive speed multipliers, for example @{ Install = 4; Results = 1 }. Multiplies Speed for source and reading delays; explicit holds retain their duration. Labels must be unique in the recording.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Hashtable</command:parameterValue>
+          <dev:type>
+            <maml:name>Hashtable</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -2794,7 +2849,7 @@ $tree | Show-Console</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Format</maml:name>
           <maml:description>
-            <maml:para>Png, Gif, Apng, Mp4, Html, Svg, Asciicast, Text, Markdown, FencedText or PlayerData. The destination extension selects a default; .json means PlayerData. Text applies to terminal sessions; Markdown also exports dashboard recordings as timestamped fenced frames.</maml:para>
+            <maml:para>Png, Gif, Apng, Html, Svg, Asciicast, Text, Markdown, FencedText or PlayerData. The destination extension selects a default; .json means PlayerData. Text applies to terminal sessions; Markdown also exports dashboard recordings as timestamped fenced frames.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <command:parameterValueGroup>
@@ -2808,7 +2863,6 @@ $tree | Show-Console</dev:code>
             <command:parameterValue required="false" variableLength="false">Png</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Gif</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Apng</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Mp4</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>String</maml:name>
@@ -2841,9 +2895,21 @@ $tree | Show-Console</dev:code>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>HoldLastFrameSeconds</maml:name>
+          <maml:description>
+            <maml:para>Final screen hold after the source timeline and reading holds (default 2 seconds).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+          <dev:type>
+            <maml:name>Double</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>IdleLimitSeconds</maml:name>
           <maml:description>
-            <maml:para>Maximum unchanged-frame delay in graphics exports; zero preserves timing.</maml:para>
+            <maml:para>Maximum source delay on an unchanged screen; zero disables capping. Reading and explicit holds are never capped.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
           <dev:type>
@@ -2860,6 +2926,24 @@ $tree | Show-Console</dev:code>
           <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
           <dev:type>
             <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Pace</maml:name>
+          <maml:description>
+            <maml:para>Slow, Normal (default), Fast or Source. Adds reading time after output settles. Explicitly specifying Pace overrides recorded demo pace directives. Source adds no reading time; use IdleLimitSeconds 0 to retain all source delays.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">RecordingPace</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Source</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Slow</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Normal</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Fast</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>RecordingPace</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -2961,6 +3045,54 @@ $tree | Show-Console</dev:code>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>TrimEndChapter</maml:name>
+          <maml:description>
+            <maml:para>End before this chapter marker. Its output and hold are excluded.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>TrimEndSeconds</maml:name>
+          <maml:description>
+            <maml:para>Exclusive source position at which to end. Cannot be combined with TrimEndChapter.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+          <dev:type>
+            <maml:name>Double</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>TrimStartChapter</maml:name>
+          <maml:description>
+            <maml:para>Begin at this chapter marker, retaining its hold and all later output.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>TrimStartSeconds</maml:name>
+          <maml:description>
+            <maml:para>Inclusive source position at which to begin. Cannot be combined with TrimStartChapter.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+          <dev:type>
+            <maml:name>Double</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Width</maml:name>
           <maml:description>
             <maml:para>Dashboard playback width in cells (default 0: terminal width, falling back to 100). Session casts retain their recorded dimensions.</maml:para>
@@ -3024,6 +3156,30 @@ $tree | Show-Console</dev:code>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>ChapterHoldSeconds</maml:name>
+          <maml:description>
+            <maml:para>Extra export hold at every chapter marker, unaffected by speed or idle capping.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+          <dev:type>
+            <maml:name>Double</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>ChapterSpeed</maml:name>
+          <maml:description>
+            <maml:para>Hashtable of chapter labels to positive speed multipliers, for example @{ Install = 4; Results = 1 }. Multiplies Speed for source and reading delays; explicit holds retain their duration. Labels must be unique in the recording.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Hashtable</command:parameterValue>
+          <dev:type>
+            <maml:name>Hashtable</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -3101,7 +3257,7 @@ $tree | Show-Console</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Format</maml:name>
           <maml:description>
-            <maml:para>Png, Gif, Apng, Mp4, Html, Svg, Asciicast, Text, Markdown, FencedText or PlayerData. The destination extension selects a default; .json means PlayerData. Text applies to terminal sessions; Markdown also exports dashboard recordings as timestamped fenced frames.</maml:para>
+            <maml:para>Png, Gif, Apng, Html, Svg, Asciicast, Text, Markdown, FencedText or PlayerData. The destination extension selects a default; .json means PlayerData. Text applies to terminal sessions; Markdown also exports dashboard recordings as timestamped fenced frames.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <command:parameterValueGroup>
@@ -3115,7 +3271,6 @@ $tree | Show-Console</dev:code>
             <command:parameterValue required="false" variableLength="false">Png</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Gif</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Apng</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Mp4</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>String</maml:name>
@@ -3148,9 +3303,21 @@ $tree | Show-Console</dev:code>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>HoldLastFrameSeconds</maml:name>
+          <maml:description>
+            <maml:para>Final screen hold after the source timeline and reading holds (default 2 seconds).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+          <dev:type>
+            <maml:name>Double</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>IdleLimitSeconds</maml:name>
           <maml:description>
-            <maml:para>Maximum unchanged-frame delay in graphics exports; zero preserves timing.</maml:para>
+            <maml:para>Maximum source delay on an unchanged screen; zero disables capping. Reading and explicit holds are never capped.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
           <dev:type>
@@ -3167,6 +3334,24 @@ $tree | Show-Console</dev:code>
           <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
           <dev:type>
             <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Pace</maml:name>
+          <maml:description>
+            <maml:para>Slow, Normal (default), Fast or Source. Adds reading time after output settles. Explicitly specifying Pace overrides recorded demo pace directives. Source adds no reading time; use IdleLimitSeconds 0 to retain all source delays.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">RecordingPace</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Source</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Slow</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Normal</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Fast</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>RecordingPace</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -3251,6 +3436,54 @@ $tree | Show-Console</dev:code>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>TrimEndChapter</maml:name>
+          <maml:description>
+            <maml:para>End before this chapter marker. Its output and hold are excluded.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>TrimEndSeconds</maml:name>
+          <maml:description>
+            <maml:para>Exclusive source position at which to end. Cannot be combined with TrimEndChapter.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+          <dev:type>
+            <maml:name>Double</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>TrimStartChapter</maml:name>
+          <maml:description>
+            <maml:para>Begin at this chapter marker, retaining its hold and all later output.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>TrimStartSeconds</maml:name>
+          <maml:description>
+            <maml:para>Inclusive source position at which to begin. Cannot be combined with TrimStartChapter.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+          <dev:type>
+            <maml:name>Double</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -3348,6 +3581,30 @@ $tree | Show-Console</dev:code>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>ChapterHoldSeconds</maml:name>
+        <maml:description>
+          <maml:para>Extra export hold at every chapter marker, unaffected by speed or idle capping.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+        <dev:type>
+          <maml:name>Double</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>ChapterSpeed</maml:name>
+        <maml:description>
+          <maml:para>Hashtable of chapter labels to positive speed multipliers, for example @{ Install = 4; Results = 1 }. Multiplies Speed for source and reading delays; explicit holds retain their duration. Labels must be unique in the recording.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Hashtable</command:parameterValue>
+        <dev:type>
+          <maml:name>Hashtable</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>ChromeStyle</maml:name>
         <maml:description>
           <maml:para>MacOS (default), Windows, Linux or None. Specifying a style enables chrome unless -WindowChrome:$false is explicit. None always hides chrome.</maml:para>
@@ -3432,7 +3689,7 @@ $tree | Show-Console</dev:code>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Format</maml:name>
         <maml:description>
-          <maml:para>Png, Gif, Apng, Mp4, Html, Svg, Asciicast, Text, Markdown, FencedText or PlayerData. The destination extension selects a default; .json means PlayerData. Text applies to terminal sessions; Markdown also exports dashboard recordings as timestamped fenced frames.</maml:para>
+          <maml:para>Png, Gif, Apng, Html, Svg, Asciicast, Text, Markdown, FencedText or PlayerData. The destination extension selects a default; .json means PlayerData. Text applies to terminal sessions; Markdown also exports dashboard recordings as timestamped fenced frames.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <command:parameterValueGroup>
@@ -3446,7 +3703,6 @@ $tree | Show-Console</dev:code>
           <command:parameterValue required="false" variableLength="false">Png</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Gif</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Apng</command:parameterValue>
-          <command:parameterValue required="false" variableLength="false">Mp4</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>String</maml:name>
@@ -3479,9 +3735,21 @@ $tree | Show-Console</dev:code>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>HoldLastFrameSeconds</maml:name>
+        <maml:description>
+          <maml:para>Final screen hold after the source timeline and reading holds (default 2 seconds).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+        <dev:type>
+          <maml:name>Double</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>IdleLimitSeconds</maml:name>
         <maml:description>
-          <maml:para>Maximum unchanged-frame delay in graphics exports; zero preserves timing.</maml:para>
+          <maml:para>Maximum source delay on an unchanged screen; zero disables capping. Reading and explicit holds are never capped.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
         <dev:type>
@@ -3498,6 +3766,24 @@ $tree | Show-Console</dev:code>
         <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
         <dev:type>
           <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Pace</maml:name>
+        <maml:description>
+          <maml:para>Slow, Normal (default), Fast or Source. Adds reading time after output settles. Explicitly specifying Pace overrides recorded demo pace directives. Source adds no reading time; use IdleLimitSeconds 0 to retain all source delays.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">RecordingPace</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Source</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Slow</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Normal</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Fast</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>RecordingPace</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -3594,6 +3880,54 @@ $tree | Show-Console</dev:code>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>TrimEndChapter</maml:name>
+        <maml:description>
+          <maml:para>End before this chapter marker. Its output and hold are excluded.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>TrimEndSeconds</maml:name>
+        <maml:description>
+          <maml:para>Exclusive source position at which to end. Cannot be combined with TrimEndChapter.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+        <dev:type>
+          <maml:name>Double</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>TrimStartChapter</maml:name>
+        <maml:description>
+          <maml:para>Begin at this chapter marker, retaining its hold and all later output.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>TrimStartSeconds</maml:name>
+        <maml:description>
+          <maml:para>Inclusive source position at which to begin. Cannot be combined with TrimStartChapter.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+        <dev:type>
+          <maml:name>Double</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -4938,12 +5272,12 @@ $r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.htm
       <command:noun>ConsolePresentation</command:noun>
       <maml:description>
         <maml:para>Types a scripted PowerShell demo into a real terminal and records it.</maml:para>
-        <maml:para>Runs plain PowerShell with optional chapter, pause, setup, type-only, narration, WPM and output-wait directives. Uses OSC 133 readiness marks independent of visible prompt text and operating system. Character jitter uses a fixed seed; use fixed data and environment for repeatable output.</maml:para>
+        <maml:para>Runs plain PowerShell with optional chapter, export pace, export hold, recording pause, setup, type-only, narration, WPM and output-wait directives. Uses OSC 133 readiness marks independent of visible prompt text and operating system. Character jitter uses a fixed seed; use fixed data and environment for repeatable output.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Types a scripted PowerShell demo into a real terminal and records it.</maml:para>
-      <maml:para>Runs plain PowerShell with optional chapter, pause, setup, type-only, narration, WPM and output-wait directives. Uses OSC 133 readiness marks independent of visible prompt text and operating system. Character jitter uses a fixed seed; use fixed data and environment for repeatable output.</maml:para>
+      <maml:para>Runs plain PowerShell with optional chapter, export pace, export hold, recording pause, setup, type-only, narration, WPM and output-wait directives. Uses OSC 133 readiness marks independent of visible prompt text and operating system. Character jitter uses a fixed seed; use fixed data and environment for repeatable output.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
@@ -4975,7 +5309,7 @@ $r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.htm
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>IdleLimitSeconds</maml:name>
           <maml:description>
-            <maml:para>Longest recorded idle gap in seconds; zero preserves actual timing.</maml:para>
+            <maml:para>Asciicast player idle-limit hint in seconds. Source timestamps are always preserved; zero disables the hint.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
           <dev:type>
@@ -5086,7 +5420,7 @@ $r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.htm
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>IdleLimitSeconds</maml:name>
         <maml:description>
-          <maml:para>Longest recorded idle gap in seconds; zero preserves actual timing.</maml:para>
+          <maml:para>Asciicast player idle-limit hint in seconds. Source timestamps are always preserved; zero disables the hint.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
         <dev:type>
@@ -5284,7 +5618,7 @@ $r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.htm
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>IdleLimitSeconds</maml:name>
           <maml:description>
-            <maml:para>Longest playback idle gap in seconds; zero keeps original timing.</maml:para>
+            <maml:para>Asciicast player idle-limit hint in seconds. Source timestamps are always preserved; zero disables the hint.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
           <dev:type>
@@ -5485,7 +5819,7 @@ $r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.htm
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>IdleLimitSeconds</maml:name>
           <maml:description>
-            <maml:para>Longest playback idle gap in seconds; zero keeps original timing.</maml:para>
+            <maml:para>Asciicast player idle-limit hint in seconds. Source timestamps are always preserved; zero disables the hint.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
           <dev:type>
@@ -5674,7 +6008,7 @@ $r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.htm
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>IdleLimitSeconds</maml:name>
         <maml:description>
-          <maml:para>Longest playback idle gap in seconds; zero keeps original timing.</maml:para>
+          <maml:para>Asciicast player idle-limit hint in seconds. Source timestamps are always preserved; zero disables the hint.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
         <dev:type>
@@ -29782,7 +30116,7 @@ because the existing sparkline renderer scales from zero. Output uses the normal
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>IdleLimitSeconds</maml:name>
           <maml:description>
-            <maml:para>Longest recorded idle gap in seconds; zero preserves actual timing.</maml:para>
+            <maml:para>Asciicast player idle-limit hint in seconds. Source timestamps are always preserved; zero disables the hint.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
           <dev:type>
@@ -29893,7 +30227,7 @@ because the existing sparkline renderer scales from zero. Output uses the normal
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>IdleLimitSeconds</maml:name>
         <maml:description>
-          <maml:para>Longest recorded idle gap in seconds; zero preserves actual timing.</maml:para>
+          <maml:para>Asciicast player idle-limit hint in seconds. Source timestamps are always preserved; zero disables the hint.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
         <dev:type>

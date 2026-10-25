@@ -16,7 +16,7 @@ Adds items to a console widget made earlier: tree nodes, pairs, status items, ba
 The PowerShell way to grow a widget after it was created, instead of calling its .NET methods. Pipe the widget in and give the items as a script block or values; they are the same item commands the widget's own script block takes: New-ConsoleTreeNode for New-ConsoleTree, New-ConsoleKeyValueItem for New-ConsoleKeyValue, New-ConsoleStatusItem for New-ConsoleStatusList and New-ConsolePhases, New-ConsoleBarItem for New-ConsoleBarChart, New-ConsoleChartSeries for New-ConsoleLineChart, New-ConsoleLogEntry for New-ConsoleLogRegion and New-ConsoleLane for New-ConsoleLanes. Sparklines and histograms take numbers, a cell map takes status words, and a live table takes objects or hashtables with a property per column. -PassThru writes the widget on, so it can go straight to Show-Console. For a widget inside a running dashboard, use the live commands (Add-ConsoleValue, Set-ConsoleValue, Update-ConsoleStatusItem, Write-ConsoleLogEntry...) instead.
 
 ### [Add-ConsoleRecordingMarker](Add-ConsoleRecordingMarker.md)
-Adds a named playback chapter to a recorded terminal session.
+Adds a chapter or an export hold to a recorded terminal session.
 
 Inside a recorded child shell, sends an OSC marker to the parent recorder. The marker becomes an asciicast v2 event and an HTML chapter. In-process fallback records the chapter directly.
 
@@ -78,7 +78,7 @@ Pipe any New-Console* widget (or Show-ConsoleTable -AsWidget) and get a self-con
 ### [Export-ConsoleRecording](Export-ConsoleRecording.md)
 Exports a terminal session or dashboard recording to slide images, animations, video, a player or asciicast.
 
-PNG selects the final frame, -AtSeconds a source time, -Chapter a completed chapter, or -PerChapter numbered slides. GIF and APNG are managed animations; MP4 needs ffmpeg on PATH. Without -Dashboard, reads a whole-session asciicast v2 from Invoke-ConsoleRecording -Interactive or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Invoke-ConsoleDashboard widget updates into the same definition, preserving the dashboard HTML, SVG and asciicast v3 exports; Markdown writes timestamped fenced frames through the bundled add-on. Add #t=30000 to an HTML address to open at 30 seconds.
+PNG selects the final frame, -AtSeconds a source time, -Chapter a completed chapter, or -PerChapter numbered slides. GIF and APNG are managed animations without an external executable. Without -Dashboard, reads a whole-session asciicast v2 from Invoke-ConsoleRecording -Interactive or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Invoke-ConsoleDashboard widget updates into the same definition, preserving the dashboard HTML, SVG and asciicast v3 exports; Markdown writes timestamped fenced frames through the bundled add-on. Add #t=30000 to an HTML address to open at 30 seconds.
 
 ### [Export-ConsoleTheme](Export-ConsoleTheme.md)
 Exports the current ConsoleMonster theme as a starting file for a user or team.
@@ -113,7 +113,7 @@ Takes the parameters of Invoke-Pester (Path, ExcludePath, TagFilter, ExcludeTagF
 ### [Invoke-ConsolePresentation](Invoke-ConsolePresentation.md)
 Types a scripted PowerShell demo into a real terminal and records it.
 
-Runs plain PowerShell with optional chapter, pause, setup, type-only, narration, WPM and output-wait directives. Uses OSC 133 readiness marks independent of visible prompt text and operating system. Character jitter uses a fixed seed; use fixed data and environment for repeatable output.
+Runs plain PowerShell with optional chapter, export pace, export hold, recording pause, setup, type-only, narration, WPM and output-wait directives. Uses OSC 133 readiness marks independent of visible prompt text and operating system. Character jitter uses a fixed seed; use fixed data and environment for repeatable output.
 
 ### [Invoke-ConsoleRecording](Invoke-ConsoleRecording.md)
 Records a script or an interactive child shell and saves the result.

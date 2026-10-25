@@ -72,12 +72,13 @@ namespace ConsoleMonster.Export {
                 AppendScriptString(json, rows[i]);
             }
             json.Append("],\"frames\":").Append(frameData);
-            if (recording.Markers.Count > 0) {
+            IReadOnlyList<RecordingMarker> markers = recording.PlaybackMarkers ?? new List<RecordingMarker>(recording.Markers);
+            if (markers.Count > 0) {
                 json.Append(",\"markers\":[");
-                for (int i = 0; i < recording.Markers.Count; i++) {
+                for (int i = 0; i < markers.Count; i++) {
                     if (i > 0) { json.Append(','); }
-                    json.Append('[').Append(((long)recording.Markers[i].Time.TotalMilliseconds).ToString(CultureInfo.InvariantCulture)).Append(',');
-                    AppendScriptString(json, recording.Markers[i].Label);
+                    json.Append('[').Append(((long)markers[i].Time.TotalMilliseconds).ToString(CultureInfo.InvariantCulture)).Append(',');
+                    AppendScriptString(json, markers[i].Label);
                     json.Append(']');
                 }
                 json.Append(']');
@@ -97,7 +98,7 @@ namespace ConsoleMonster.Export {
             html.Append("</title>\n<style>\n");
             // The page itself: a neutral desk under a window frame, otherwise the terminal background.
             string background = palette == ExportPalette.Light ? (options.EffectiveChrome != WindowChromeStyle.None ? "#c9c9cf" : palette.Background) : (options.EffectiveChrome != WindowChromeStyle.None ? "#3a3a3f" : palette.Background);
-            html.Append("html,body{margin:0;background:").Append(background).Append("}\nbody{padding:").Append(options.EffectiveChrome != WindowChromeStyle.None ? "20px" : "0").Append("}\n");
+            html.Append("html,body{margin:0;background:").Append(background).Append("}\nbody{padding:0}\n");
             html.Append(ConsoleExporter.PlayerStyles);
             // The player measures the rendered terminal font and sets the natural width after fonts load.
             html.Append(".cm-export.cm-standalone{display:block;font-family:").Append(options.FontFamily)

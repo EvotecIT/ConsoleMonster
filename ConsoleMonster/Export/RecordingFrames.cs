@@ -10,9 +10,10 @@ using ConsoleMonster.Styling;
 
 namespace ConsoleMonster.Export {
     /// <summary>How a recording is exported: screen size, frame rate, speed, theme, font and window frame.</summary>
-    public sealed class RecordingExportOptions {
-        /// <summary>Chapter labels and playback times, displayed by the HTML player.</summary>
-        public IList<RecordingMarker> Markers { get; } = new List<RecordingMarker>();
+    public sealed partial class RecordingExportOptions {
+        private List<RecordingMarker> _markers = new List<RecordingMarker>();
+        /// <summary>Chapters and export instructions at source recording times.</summary>
+        public IList<RecordingMarker> Markers => _markers;
         /// <summary>Screen width in cells (zero detects, fallback 100).</summary>
         public int Width { get; set; }
 
@@ -46,7 +47,7 @@ namespace ConsoleMonster.Export {
         /// <summary>Frames per second sampled from the recording (default 10; identical frames are merged).</summary>
         public double FramesPerSecond { get; set; } = 10;
 
-        /// <summary>The most frames kept; a longer recording is sampled less often (default 900).</summary>
+        /// <summary>Regular sample limit; longer recordings are sampled less often (default 900). Exact marker and trim boundaries are also kept.</summary>
         public int MaxFrames { get; set; } = 900;
 
         /// <summary>Playback speed multiplier baked into the export (default 1).</summary>
@@ -110,6 +111,7 @@ namespace ConsoleMonster.Export {
             if (HoldLastFrame < TimeSpan.Zero) {
                 throw new ArgumentOutOfRangeException(nameof(HoldLastFrame));
             }
+            ValidateTimeline();
             return o;
         }
 
@@ -119,16 +121,6 @@ namespace ConsoleMonster.Export {
         internal RenderContext? Context { get; set; }
 
         internal ITheme RenderTheme => CustomTheme ?? (Theme == ExportTheme.HighContrast ? Styling.Theme.HighContrast : Theme == ExportTheme.Light ? Styling.Theme.Light : Styling.Theme.Dark);
-    }
-
-    /// <summary>A labelled chapter in a recording's playback timeline.</summary>
-    public sealed class RecordingMarker {
-        /// <summary>Creates a chapter at a playback time.</summary>
-        public RecordingMarker(TimeSpan time, string label) { Time = time; Label = label ?? throw new ArgumentNullException(nameof(label)); }
-        /// <summary>Time from the start of playback.</summary>
-        public TimeSpan Time { get; }
-        /// <summary>Chapter label.</summary>
-        public string Label { get; }
     }
 
     /// <summary>One distinct screen of a recording and how long it stays (after speed scaling).</summary>
@@ -147,6 +139,9 @@ namespace ConsoleMonster.Export {
 
         /// <summary>Milliseconds this frame stays.</summary>
         public long Duration { get; set; }
+
+        // Lets the GIF poster retain explicit opening holds when it removes empty source screens.
+        internal TimeSpan ExplicitHold { get; set; }
     }
 
     /// <summary>
@@ -156,22 +151,22 @@ namespace ConsoleMonster.Export {
     /// </summary>
     internal static class RecordingFrames {
         public static List<RecordedFrame> Capture(IWidget root, IReadOnlyList<LiveEvent> events, RecordingExportOptions options) {
-            List<RecordedFrame> frames = new List<RecordedFrame>();
-            Sample(root, events, options, (buffer, time) => Add(frames, buffer, time, options.Speed));
-            long hold = (long)options.HoldLastFrame.TotalMilliseconds;
-            RecordedFrame last = frames[frames.Count - 1];
-            last.Duration = Math.Max(last.Duration, hold);
+            List<RecordingSourceFrame> frames = new List<RecordingSourceFrame>();
+            TimeSpan end = TimeSpan.Zero;
+            Sample(root, events, options, (buffer, time) => { end = time; Add(frames, buffer, time); });
+            frames[frames.Count - 1].Duration = end - frames[frames.Count - 1].Time;
+
             for (int i = 0; i < frames.Count - 1; i++) {
-                frames[i].Duration = frames[i + 1].Start - frames[i].Start;
+                frames[i].Duration = frames[i + 1].Time - frames[i].Time;
             }
-            return frames;
+            return RecordingTimeline.Apply(frames, options);
         }
 
         /// <summary>
         /// Plays the events into the tree and hands every sampled frame (a new buffer each time) and its recorded time in
-        /// milliseconds to <paramref name="onFrame"/>, without merging.
+        /// source time to <paramref name="onFrame"/>, without merging.
         /// </summary>
-        public static void Sample(IWidget root, IReadOnlyList<LiveEvent> events, RecordingExportOptions options, Action<CellBuffer, long> onFrame) {
+        public static void Sample(IWidget root, IReadOnlyList<LiveEvent> events, RecordingExportOptions options, Action<CellBuffer, TimeSpan> onFrame) {
             if (root == null) {
                 throw new ArgumentNullException(nameof(root));
             }
@@ -190,32 +185,24 @@ namespace ConsoleMonster.Export {
             RenderContext context = options.Context ?? ConsoleExporter.CreateContext(frame, options.RenderTheme, options.Height);
             int index = 0;
             long tick = 0;
-            double next = 0;
-            while (true) {
-                long until = (long)Math.Round(next);
-                while (index < events.Count && events[index].Time <= until) {
+            foreach (double next in RecordingTimeline.SampleTimes(end, period, options.MaxFrames + 1, options)) {
+                TimeSpan until = RecordingTimeline.FromMilliseconds(next);
+                while (index < events.Count && events[index].Time <= until.TotalMilliseconds) {
                     Apply(events[index], targets, log);
                     index++;
                 }
                 onFrame(Render(root, frame, context, tick++, until), until);
-                if (index >= events.Count && until >= end) {
-                    break;
-                }
-                next += period;
             }
         }
 
-        private static CellBuffer Render(IWidget root, ExportOptions options, RenderContext context, long tick, long time) {
-            CellBuffer buffer = FrameComposer.Compose(root, options.Width, options.Height, context.WithClock(tick, TimeSpan.FromMilliseconds(time)));
+        private static CellBuffer Render(IWidget root, ExportOptions options, RenderContext context, long tick, TimeSpan time) {
+            CellBuffer buffer = FrameComposer.Compose(root, options.Width, options.Height, context.WithClock(tick, time));
             return StripUnsafeLinks(buffer);
         }
 
-        private static void Add(List<RecordedFrame> frames, CellBuffer buffer, long time, double speed) {
-            long start = (long)Math.Round(time / speed);
-            if (frames.Count > 0 && Same(frames[frames.Count - 1].Frame, buffer)) {
-                return;
-            }
-            frames.Add(new RecordedFrame(buffer, start));
+        private static void Add(List<RecordingSourceFrame> frames, CellBuffer buffer, TimeSpan time) {
+            if (frames.Count > 0 && Same(frames[frames.Count - 1].Frame, buffer)) { return; }
+            frames.Add(new RecordingSourceFrame(buffer, time));
         }
 
         internal static bool Same(CellBuffer a, CellBuffer b) {

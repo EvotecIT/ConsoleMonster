@@ -1,4 +1,4 @@
-Describe 'Talks and demos' {
+﻿Describe 'Talks and demos' {
     BeforeAll {
         Import-Module (Join-Path $PSScriptRoot '../ConsoleMonster.psd1') -Force
     }
@@ -16,12 +16,21 @@ Describe 'Talks and demos' {
         $png = Join-Path $TestDrive 'inferred.png'
         'Talk demo' | Export-ConsoleFrame -Path $png
         [Convert]::ToBase64String(([IO.File]::ReadAllBytes($png))[0..7]) | Should -Be 'iVBORw0KGgo='
-        foreach ($extension in 'gif', 'apng', 'mp4') {
+        foreach ($extension in 'gif', 'apng') {
             $path = Join-Path $TestDrive ('frame.' + $extension)
             'Talk demo' | Export-ConsoleFrame -Path $path
             [IO.File]::ReadAllText($path) | Should -Match 'Talk demo'
             [Convert]::ToBase64String(([IO.File]::ReadAllBytes($path))[0..7]) | Should -Not -Be 'iVBORw0KGgo='
         }
+    }
+
+    It 'rejects video extensions without touching an existing destination' {
+        $target = Join-Path $TestDrive 'unsupported.MP4'
+        [IO.File]::WriteAllText($target, 'keep existing output')
+        { Export-ConsoleRecording -Path (Join-Path $TestDrive 'unused.cast') -Destination $target } | Should -Throw "*MP4 export isn't available yet; use GIF for slides*"
+        { 'frame' | Export-ConsoleFrame -Path $target } | Should -Throw "*MP4 export isn't available yet; use GIF for slides*"
+        { Export-ConsoleRecording -Path (Join-Path $TestDrive 'unused.cast') -Format Mp4 -Destination $target } | Should -Throw '*Mp4*'
+        [IO.File]::ReadAllText($target) | Should -Be 'keep existing output'
     }
 
     It 'writes chapter slides, source-time PNG, GIF and APNG through the installed export surface' {
@@ -55,15 +64,20 @@ Describe 'Talks and demos' {
 # demo: setup
 function prompt { '任意> ' }; $secretSetup = 'do-not-record-setup'
 # demo: wpm 1000
+# demo: pace slow
 # demo: chapter Answer
 Write-Host ('answer=' + (6 * 7))
 # demo: wait answer=42
+# demo: hold 3
 '@)
         $cast = Join-Path $TestDrive 'typed.cast'
         Invoke-ConsolePresentation -Path $demo -Destination $cast -Width 50 -Height 8 | Should -BeOfType ([IO.FileInfo])
         $text = Export-ConsoleRecording $cast -Format Text
         $text | Should -Match 'answer=42'
         $text | Should -Match '任意>'
+        $markers = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Sessions.SessionRecording'))::Read($cast).Markers
+        @($markers | Where-Object { $_.Hold.TotalSeconds -eq 3 }).Count | Should -Be 1
+        @($markers | Where-Object { $_.Pace -eq 'Slow' }).Count | Should -Be 1
         Get-Content $cast -Raw | Should -Not -Match 'do-not-record-setup'
         { Show-ConsolePresentation -Path $demo } | Should -Throw '*needs a terminal*'
     }

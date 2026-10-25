@@ -1,7 +1,7 @@
 # ConsoleMonster.Graphics
 
 Export ConsoleMonster widgets, frames and recordings as PNG, GIF and APNG with
-ChartForgeX. MP4 uses an installed `ffmpeg`; it is never a package dependency.
+ChartForgeX. All three formats run in-process without an external executable.
 The core ConsoleMonster package stays dependency-free.
 
 Slide presets share a centred, rounded window on a theme, solid or gradient
@@ -22,6 +22,29 @@ recording.SavePng("slide.png", new GraphicsExportOptions {
     Preset = GraphicsPreset.Slide16x9
 });
 ```
+
+GIF is the animated slide format. `Slide16x9` renders directly at 1920×1080;
+insert it at the slide's size without enlarging a documentation capture. `Docs`
+uses the terminal's natural pixel size. Leading empty screens are skipped so the
+first frame works as a poster; explicit opening holds are retained on that poster. The final frame holds for two seconds by default
+(`Playback.HoldLastFrame`), and `LoopCount = 0` repeats forever; set it to `1` to
+play once. `Playback.Pace` defaults to `RecordingPace.Normal`, adding bounded
+reading time after output settles; `Slow` and `Fast` adjust that time. To keep
+source timing, choose `RecordingPace.Source` and set `IdleLimit = TimeSpan.Zero`.
+The idle cap never clips reading holds, marker holds or the final hold.
+
+`Playback` also accepts `ChapterHold`, `TrimStart` / `TrimEnd` (source positions),
+`TrimStartChapter` / `TrimEndChapter` (exclusive end), and `ChapterSpeeds` keyed by
+unique chapter labels. Speed scales source and reading delays; explicit holds
+keep their duration. These settings share the core timeline with HTML and SVG.
+A running `SessionRecorder.AddMarker(TimeSpan.FromSeconds(3))` records an export
+hold without sleeping. See the [recording guide](https://consolemonster.dev/docs/recording/#make-it-readable).
+
+The encoder preserves exact source colours when a frame fits in its palette.
+Richer frames reserve common colours and quantise without error diffusion, so
+text has no dither speckles; gradients can show gentle bands. Unchanged screens
+share a delay, and changed regions use GIF sub-frames with retained disposal.
+APNG remains available for full-colour playback in applications that support it.
 
 JetBrains Mono is embedded under the SIL Open Font License; see
 `licenses/JetBrainsMono-OFL.txt`. Installed font and emoji/CJK fallbacks depend

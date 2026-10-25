@@ -40,9 +40,12 @@ namespace ConsoleMonster.Graphics {
             options.Preset != GraphicsPreset.Docs && options.Fit == GraphicsFit.Content
                 ? Math.Min(frame.Width, ConsoleExporter.MeasureContentColumns(frame) + 2) : frame.Width;
         private static string Svg(CellBuffer frame, GraphicsExportOptions options, GraphicsLayout layout) {
-            XElement window = XElement.Parse(ConsoleExporter.ToSvg(layout.Grid(frame), layout.Frame));
+            ExportOptions ready = ConsoleExporter.Ready(layout.Frame);
+            // hhea.ascender / unitsPerEm for the embedded regular face. Other font stacks keep the SVG baseline.
+            double? ascent = options.FontFamily == null ? layout.Frame.FontSize * 1.02 : (double?)null;
+            XElement window = XElement.Parse(SvgFrameWriter.Write(ConsoleExporter.Layers(layout.Grid(frame), ready), ready, raster: true, ascent: ascent));
             XNamespace ns = window.Name.Namespace;
-            window.Add(new XElement(ns + "style", ".cm-title{font-family:" + layout.Frame.FontFamily + "}"));
+            window.Add(new XElement(ns + "style", ".cm-title{font-family:" + layout.Frame.FontFamily + ";font-size:13px;font-weight:400}"));
             return (layout.Width == 0 ? window : GraphicsComposition.Compose(window, layout, options)).ToString(SaveOptions.DisableFormatting);
         }
         internal static RgbaImage Render(CellBuffer frame, GraphicsExportOptions options) => Render(frame, options, Layout(frame, options));

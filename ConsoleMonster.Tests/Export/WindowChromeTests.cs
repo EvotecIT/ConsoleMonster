@@ -37,14 +37,16 @@ namespace ConsoleMonster.Tests.Export {
             double left = Number(area, "x");
             double available = Number(area, "width");
             double centre = left + Number(text, "x");
-            double textWidth = Number(text, "textLength");
+            double textWidth = ConsoleMonster.Text.DisplayWidth.Measure(string.Concat(text.Nodes().OfType<XText>().Select(n => n.Value)), ConsoleMonster.Text.TerminalWidthProfile.Standard) * 8;
             Assert.True(left >= dotsRight + 12);
-            Assert.Equal(Number(svg, "width") - 76, left + available, 2);
+            Assert.Equal(Number(svg, "width") - 84, left + available, 2);
             Assert.Equal(left + available / 2, centre, 2);
             Assert.True(centre - textWidth / 2 >= left);
             Assert.True(centre + textWidth / 2 <= left + available);
             Assert.Equal("hidden", (string?)area.Attribute("overflow"));
-            Assert.Equal("spacingAndGlyphs", (string?)text.Attribute("lengthAdjust"));
+            Assert.Null(text.Attribute("textLength"));
+            Assert.Null(text.Attribute("lengthAdjust"));
+            Assert.Equal("alphabetic", (string?)text.Attribute("dominant-baseline"));
             Assert.Equal(title, Assert.Single(svg.Elements(), e => e.Name.LocalName == "title").Value);
             Assert.Equal(title, Assert.Single(text.Elements()).Value);
             string visible = string.Concat(text.Nodes().OfType<XText>().Select(n => n.Value));
@@ -67,11 +69,12 @@ namespace ConsoleMonster.Tests.Export {
             // These CSS boxes remain disjoint regardless of the browser's installed monospace font.
             string dots = Rule(html, ".cm-export .cm-window.cm-chrome-macos .cm-dots");
             string dot = Rule(html, ".cm-export .cm-window.cm-chrome-macos .cm-dots i");
-            string layout = Rule(html, ".cm-export .cm-window.cm-chrome-macos .cm-titlebar .cm-title");
+            string layout = Rule(html, ".cm-export .cm-window.cm-chrome-macos .cm-title");
             double dotsRight = Pixels(dots, "left") + 3 * Pixels(dot, "width") + 2 * 8;
             Assert.True(Pixels(layout, "left") >= dotsRight + 12);
             Assert.Equal(76, Pixels(layout, "right"));
             Assert.Contains("text-align:center", layout);
+            Assert.Contains("font-size:13px;font-weight:400", layout);
             Assert.Contains("text-overflow:ellipsis", layout);
             Assert.Contains("overflow:hidden", layout);
             Assert.Contains("white-space:nowrap", layout);
@@ -112,17 +115,17 @@ namespace ConsoleMonster.Tests.Export {
             options.Padding = padding;
             options.Width = 1;
             XElement svg = XElement.Parse(ConsoleExporter.ToSvg(TextBlock.Plain("x"), options));
-            Assert.Equal(76, Number(svg, "width"));
-            XElement[] layers = svg.Elements().Where(e => ((string?)e.Attribute("class"))?.StartsWith("cm-layer", StringComparison.Ordinal) == true).ToArray();
+            Assert.Equal(92, Number(svg, "width"));
+            XElement[] layers = svg.Descendants().Where(e => ((string?)e.Attribute("class"))?.StartsWith("cm-layer", StringComparison.Ordinal) == true).ToArray();
             Assert.Equal(theme == ExportTheme.Auto ? 2 : 1, layers.Length);
             foreach (XElement layer in layers) {
-                Assert.Equal("translate(" + padding + " " + (padding + 28) + ")", (string?)layer.Attribute("transform"));
+                Assert.Equal("translate(" + (padding + 8) + " " + (padding + 36) + ")", (string?)layer.Attribute("transform"));
                 XElement background = layer.Elements().First();
                 Assert.Equal("rect", background.Name.LocalName);
-                Assert.Equal(-padding, Number(background, "x"));
-                Assert.Equal(-padding, Number(background, "y"));
-                Assert.Equal(Number(svg, "width"), Number(background, "width"));
-                Assert.Equal(Number(svg, "height") - 28, Number(background, "height"), 2);
+                Assert.Equal(1 - padding, Number(background, "x"));
+                Assert.Equal(1 - padding, Number(background, "y"));
+                Assert.Equal(Number(svg, "width") - 18, Number(background, "width"));
+                Assert.Equal(Number(svg, "height") - 46, Number(background, "height"), 2);
                 string scheme = (string?)layer.Attribute("class") ?? string.Empty;
                 Assert.Equal(theme == ExportTheme.Light || scheme.Contains("cm-light") ? "#ffffff" : "#0c0c0c", (string?)background.Attribute("fill"));
             }
@@ -136,12 +139,12 @@ namespace ConsoleMonster.Tests.Export {
             };
             LiveEvent[] events = { new LiveEvent("log", "write", text: "x", time: 20) };
             XElement svg = XElement.Parse(Recording.Export(new LogRegion("log"), events, ExportFormat.Svg, options));
-            Assert.Equal(76, Number(svg, "width"));
-            XElement viewport = Assert.Single(svg.Elements(), e => e.Name.LocalName == "svg");
-            Assert.Equal(0, Number(viewport, "x"));
-            Assert.Equal(28, Number(viewport, "y"));
-            Assert.Equal(Number(svg, "width"), Number(viewport, "width"));
-            Assert.Equal(Number(svg, "height") - 28, Number(viewport, "height"), 2);
+            Assert.Equal(92, Number(svg, "width"));
+            XElement viewport = Assert.Single(svg.Descendants(), e => e.Name.LocalName == "svg");
+            Assert.Equal(8, Number(viewport, "x"));
+            Assert.Equal(36, Number(viewport, "y"));
+            Assert.Equal(Number(svg, "width") - 16, Number(viewport, "width"));
+            Assert.Equal(Number(svg, "height") - 44, Number(viewport, "height"), 2);
             XElement background = viewport.Elements().First();
             Assert.Equal("rect", background.Name.LocalName);
             Assert.Equal("100%", (string?)background.Attribute("width"));
@@ -151,9 +154,9 @@ namespace ConsoleMonster.Tests.Export {
             XElement[] frames = strip.Elements().ToArray();
             Assert.True(frames.Length > 1);
             for (int i = 0; i < frames.Length; i++) {
-                Assert.Equal("translate(" + (i * 76).ToString(CultureInfo.InvariantCulture) + " 0)", (string?)frames[i].Attribute("transform"));
+                Assert.Equal("translate(" + (i * 92).ToString(CultureInfo.InvariantCulture) + " 0)", (string?)frames[i].Attribute("transform"));
             }
-            Assert.Contains("transform:translateX(-76px)", svg.Value, StringComparison.Ordinal);
+            Assert.Contains("transform:translateX(-92px)", svg.Value, StringComparison.Ordinal);
         }
 
         [Fact]
@@ -166,7 +169,7 @@ namespace ConsoleMonster.Tests.Export {
             XElement text = Assert.Single(area.Elements());
             Assert.Equal(8, Number(area, "width"));
             Assert.Equal("…", string.Concat(text.Nodes().OfType<XText>().Select(n => n.Value)));
-            Assert.Equal(8, Number(text, "textLength"));
+            Assert.Equal(8, ConsoleMonster.Text.DisplayWidth.Measure(string.Concat(text.Nodes().OfType<XText>().Select(n => n.Value)), ConsoleMonster.Text.TerminalWidthProfile.Standard) * 8);
         }
 
         [Fact]

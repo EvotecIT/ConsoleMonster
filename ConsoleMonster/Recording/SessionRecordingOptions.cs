@@ -24,7 +24,7 @@ namespace ConsoleMonster.Sessions {
         public int Height { get; set; } = 30;
         /// <summary>Maximum cast bytes, including its header. Capture stops at the limit; the child keeps running.</summary>
         public long MaxBytes { get; set; } = 64 * 1024 * 1024;
-        /// <summary>Longest playback gap. Zero preserves original timing.</summary>
+        /// <summary>Asciicast player idle-limit hint. Source timestamps are always preserved; zero disables the hint.</summary>
         public TimeSpan IdleLimit { get; set; } = TimeSpan.FromSeconds(2);
         /// <summary>Maximum time spent waiting for the child in WaitForExit.</summary>
         public TimeSpan Timeout { get; set; } = TimeSpan.FromHours(24);
