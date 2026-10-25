@@ -8207,7 +8207,7 @@ Invoke-ConsoleDashboard $dashboard {
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$calendar = $backups | New-ConsoleCalendar -Year 2026 -Month 10; [ConsoleMonster.Terminal]::Write($calendar)</dev:code>
+        <dev:code>$calendar = $backups | New-ConsoleCalendar -Year 2026 -Month 10; $calendar | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Display backup outcomes for October.</maml:para>
         </dev:remarks>

@@ -17,6 +17,12 @@
         $calendar.Data.GetMarks([datetime]'2026-10-26').Count | Should -Be 0
     }
 
+    It 'renders a calendar through Show-Console' {
+        $text = New-ConsoleCalendar -Year 2026 -Month 10 -Culture en-US | Show-Console -AsString -Width 40
+        $text | Should -Match 'October 2026'
+        $text | Should -Not -Match 'CalendarData'
+    }
+
     It 'creates a passive year view and rejects contradictory month input' {
         $calendar = New-ConsoleCalendar -Year 2026 -View Year
         $calendar.View.ToString() | Should -BeExactly 'Year'

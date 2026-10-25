@@ -17,4 +17,4 @@ $report = New-ConsoleRows -Content {
     $calendar
     foreach ($day in $days) { '{0:dd}  {1}' -f $day.Date, $day.Label }
 }
-[ConsoleMonster.Terminal]::Write($report)
+$report | Show-Console

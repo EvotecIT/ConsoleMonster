@@ -12,7 +12,7 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="synopsis">Creates a month or year calendar with dated operational outcomes.</para>
     /// <para type="description">Returns a passive widget. Pipeline rows provide Date, Status and Label properties, with explicit property overrides. Duplicate dates retain every row; the displayed status uses Fail, Warn, Running, Pending, Pass, Info, Skip precedence. Dates retain calendar components without time-zone conversion. ISO week labels describe the Monday in each row, including with a Sunday-first display.</para>
     /// </summary>
-    /// <example><para>Display backup outcomes for October.</para><code>$calendar = $backups | New-ConsoleCalendar -Year 2026 -Month 10; [ConsoleMonster.Terminal]::Write($calendar)</code></example>
+    /// <example><para>Display backup outcomes for October.</para><code>$calendar = $backups | New-ConsoleCalendar -Year 2026 -Month 10; $calendar | Show-Console</code></example>
     /// <example><para>Build a year view with Monday-first weeks.</para><code>New-ConsoleCalendar -Year 2026 -View Year -FirstDayOfWeek Monday</code></example>
     [Cmdlet(VerbsCommon.New, "ConsoleCalendar")]
     [OutputType(typeof(Calendar))]

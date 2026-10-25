@@ -25,7 +25,7 @@ Returns a passive widget. Pipeline rows provide Date, Status and Label propertie
 
 ### EXAMPLE 1
 ```powershell
-$calendar = $backups | New-ConsoleCalendar -Year 2026 -Month 10; [ConsoleMonster.Terminal]::Write($calendar)
+$calendar = $backups | New-ConsoleCalendar -Year 2026 -Month 10; $calendar | Show-Console
 ```
 
 Display backup outcomes for October.

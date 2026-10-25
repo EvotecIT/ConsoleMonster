@@ -803,7 +803,7 @@ $days = @(
     [pscustomobject] @{ Date = [datetime]'2026-10-23'; Status = 'Warn'; Label = 'Certificate expires' }
 )
 $calendar = $days | New-ConsoleCalendar -Year 2026 -Month 10 -FirstDayOfWeek Monday
-[ConsoleMonster.Terminal]::Write($calendar)
+$calendar | Show-Console
 # New-ConsoleCalendar -Year 2026 -View Year builds all twelve months.
 ```
 
