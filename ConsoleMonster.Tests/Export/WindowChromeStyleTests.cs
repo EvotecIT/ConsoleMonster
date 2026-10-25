@@ -31,7 +31,7 @@ namespace ConsoleMonster.Tests.Export {
             Golden.Match(stem + ".svg", svg);
             Golden.Match(stem + ".html", html);
             XElement root = XElement.Parse(svg);
-            Assert.Equal(16.8 * 2 + 24 + Bar(style), Number(root, "height"), 2);
+            Assert.Equal(style == WindowChromeStyle.None ? 57.6 : Math.Ceiling(16.8 * 2 + 40 + Bar(style)), Number(root, "height"), 2);
             if (style == WindowChromeStyle.None) {
                 Assert.DoesNotContain("cm-titlebar", html);
                 Assert.DoesNotContain(root.Elements(), e => (string?)e.Attribute("class") == "cm-title-area");
@@ -40,7 +40,8 @@ namespace ConsoleMonster.Tests.Export {
                 Assert.Contains("height:" + Bar(style) + "px", html);
                 XElement area = Assert.Single(root.Elements(), e => (string?)e.Attribute("class") == "cm-title-area");
                 XElement title = Assert.Single(area.Elements());
-                Assert.True(Number(title, "textLength") <= Number(area, "width"));
+                Assert.Null(title.Attribute("textLength"));
+                Assert.Null(title.Attribute("lengthAdjust"));
                 Assert.Equal(options.Title, Assert.Single(title.Elements()).Value);
             }
         }
@@ -52,13 +53,14 @@ namespace ConsoleMonster.Tests.Export {
             CellBuffer frame = new CellBuffer(1, 1);
             string markup = ConsoleExporter.ToSvg(frame, options);
             XElement svg = XElement.Parse(markup);
-            Assert.Equal(style == WindowChromeStyle.None ? 2.4 : Minimum(style), Number(svg, "width"));
+            Assert.Equal(style == WindowChromeStyle.None ? 2.4 : Minimum(style) + 16, Number(svg, "width"));
             XElement? area = svg.Elements().SingleOrDefault(e => (string?)e.Attribute("class") == "cm-title-area");
             if (style == WindowChromeStyle.Windows) {
                 Assert.NotNull(area);
                 XElement title = Assert.Single(area!.Elements());
                 Assert.Equal("Bu…", string.Concat(title.Nodes().OfType<XText>().Select(t => t.Value)));
-                Assert.True(Number(title, "textLength") <= Number(area, "width"));
+                Assert.Null(title.Attribute("textLength"));
+                Assert.Null(title.Attribute("lengthAdjust"));
             } else { Assert.Null(area); }
             string html = ConsoleExporter.ToHtml(frame, options);
             if (style != WindowChromeStyle.None) { Assert.Contains("min-width:" + Minimum(style) + "px", html); }
@@ -81,8 +83,8 @@ namespace ConsoleMonster.Tests.Export {
             }
             foreach (string markup in new[] { dashboardSvg, session.Export(ExportFormat.Svg, options) }) {
                 XElement svg = XElement.Parse(markup);
-                XElement viewport = Assert.Single(svg.Elements(), e => e.Name.LocalName == "svg" && (string?)e.Attribute("class") != "cm-title-area");
-                Assert.Equal(Bar(style), Number(viewport, "y"));
+                XElement viewport = Assert.Single(svg.Descendants(), e => e.Name.LocalName == "svg" && (string?)e.Attribute("class") != "cm-title-area");
+                Assert.Equal(Bar(style) + (style == WindowChromeStyle.None ? 0 : 8), Number(viewport, "y"));
             }
             Assert.Contains("chromeBar", session.Export(ExportFormat.Html, options));
             Assert.Equal(style, options.ChromeStyle);

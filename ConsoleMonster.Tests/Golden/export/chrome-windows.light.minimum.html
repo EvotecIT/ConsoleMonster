@@ -7,18 +7,25 @@
 <meta name="generator" content="ConsoleMonster">
 <title>Build &lt;release&gt; &amp; verify / WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW</title>
 <style>
+.cm-export{--cm-font:'Cascadia Mono', 'Cascadia Code', 'DejaVu Sans Mono', Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace}
 :root,.cm-export{--cm-fg:#24292f;--cm-bg:#ffffff;--cm-chrome:#2b2b2b;--cm-chrome-fg:#a8a8a8;--cm-desk:#3a3a3f;color-scheme:light}
 .cm-export{display:inline-block}
-:root,.cm-export{--cm-chrome:#e5e7eb;--cm-chrome-fg:#6b7280;--cm-chrome-title:#111827;--cm-tab:#ffffff;--cm-desk:#c9c9cf;--cm-close:#ff5f57;--cm-minimise:#febc2e;--cm-zoom:#28c840}
+:root,.cm-export{--cm-chrome:#e5e7eb;--cm-chrome-fg:#6b7280;--cm-chrome-title:#24292f;--cm-tab:#ffffff;--cm-border:#8a8a94;--cm-accent:#2563eb;--cm-desk:#c9c9cf;--cm-close:#ff5f57;--cm-minimise:#febc2e;--cm-zoom:#28c840}
 html,body{margin:0;background:var(--cm-desk)}
-body{padding:20px}
-.cm-export .cm-window.cm-chrome-windows{display:inline-block;min-width:208px;border-radius:8px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.35),0 0 0 1px rgba(127,127,127,.25);background:var(--cm-bg)}
-.cm-export .cm-window.cm-chrome-windows .cm-titlebar{position:relative;container-type:inline-size;min-width:208px;height:32px;background:var(--cm-chrome);color:var(--cm-chrome-fg)}
-.cm-export .cm-window.cm-chrome-windows .cm-titlebar .cm-title{position:absolute;left:40px;right:144px;top:0;display:block;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:var(--cm-chrome-title);text-align:left;font:13px/32px monospace}
-@container (width < 192px){.cm-export .cm-window.cm-chrome-windows .cm-titlebar .cm-title{visibility:hidden}}
-.cm-export .cm-window.cm-chrome-windows .cm-titlebar svg{position:absolute;top:0;color:var(--cm-chrome-fg)}
-.cm-export .cm-window.cm-chrome-windows .cm-left{left:0}.cm-export .cm-window.cm-chrome-windows .cm-right{right:0}
-.cm-export .cm-window.cm-chrome-windows .cm-tab{position:absolute;left:4px;right:140px;top:4px;bottom:0;border-radius:6px 6px 0 0;background:var(--cm-tab)}
+body{padding:0}
+.cm-export:has(>.cm-window){padding:8px;background:var(--cm-desk);position:relative;isolation:isolate}
+.cm-export>.cm-window-shadow{position:absolute;left:8px;top:8px;width:calc(100% - 16px);height:calc(100% - 16px);overflow:visible;z-index:-1;pointer-events:none}
+.cm-export:has(>.cm-window-shadow)>.cm-window{filter:none}
+.cm-export .cm-window.cm-chrome-windows{display:inline-block;position:relative;min-width:208px;border-radius:8px;overflow:hidden;outline:1.2px solid var(--cm-border);outline-offset:-.6px;background:var(--cm-bg);filter:drop-shadow(0px 12px 18px rgba(0,0,0,.28))}
+.cm-export .cm-window.cm-chrome-windows .cm-titlebar{position:relative;container-type:inline-size;min-width:208px;height:32px;background:var(--cm-chrome);color:var(--cm-chrome-fg);box-shadow:inset 0 -1px var(--cm-border)}
+.cm-export .cm-window.cm-chrome-windows .cm-title{position:absolute;left:48px;right:48px;top:calc(50% - 6.5px);display:block;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:var(--cm-chrome-title);text-align:center;font-family:var(--cm-font);font-size:13px;font-weight:400;line-height:13px}
+@container (width < 104px){.cm-export .cm-window.cm-chrome-windows .cm-title{visibility:hidden}}
+.cm-export .cm-window.cm-chrome-windows .cm-right{position:absolute;top:0;right:0}
+.cm-export .cm-window.cm-chrome-windows .cm-tab{position:absolute;left:8px;top:4px;width:clamp(96px,calc(100cqw - 214px),300px);height:28px;border-radius:6px;background:var(--cm-tab)}
+.cm-export .cm-window.cm-chrome-windows .cm-tab .cm-title{left:40px;right:32px;top:6px;text-align:left;visibility:visible}
+.cm-export .cm-window.cm-chrome-windows .cm-shell{position:absolute;left:12px;top:5px}
+.cm-export .cm-window.cm-chrome-windows .cm-tab-close{position:absolute;right:11px;top:6px}
+.cm-export .cm-window.cm-chrome-windows .cm-tab-actions{position:absolute;left:calc(8px + clamp(96px,calc(100cqw - 214px),300px));top:0}
 .cm-export .cm-screen{display:block;box-sizing:content-box;margin:0;padding:0px;width:1ch;font-family:'Cascadia Mono', 'Cascadia Code', 'DejaVu Sans Mono', Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;font-size:4px;line-height:4.8px;color:var(--cm-fg);background:var(--cm-bg);white-space:pre;overflow:hidden;font-variant-ligatures:none;font-kerning:none;-webkit-text-size-adjust:none;text-size-adjust:none;tab-size:1}
 .cm-export .cm-screen span,.cm-export .cm-screen a{display:inline-block;vertical-align:top;height:4.8px}
 .cm-export .cm-screen a{color:inherit;text-decoration:none}
@@ -34,6 +41,6 @@ body{padding:20px}
 </style>
 </head>
 <body>
-<div class="cm-export"><div class="cm-window cm-chrome-windows"><div class="cm-titlebar"><span class="cm-tab" aria-hidden="true"></span><svg class="cm-left" xmlns="http://www.w3.org/2000/svg" width="36" height="32" viewBox="0 0 36 32" aria-hidden="true"><path d="M13 11l5 5-5 5m8 0h6" fill="none" stroke="var(--cm-chrome-fg)" stroke-width="1.3"/></svg><svg class="cm-right" xmlns="http://www.w3.org/2000/svg" width="140" height="32" viewBox="0 0 140 32" aria-hidden="true"><g transform="translate(0 0)" fill="none" stroke="var(--cm-chrome-fg)" stroke-width="1.2"><path d="M11 11v10m-5-5h10M44 18h10M116 11l10 10m0-10l-10 10"/><rect x="80" y="11" width="10" height="10"/></g></svg><span class="cm-title" title="Build &lt;release&gt; &amp; verify / WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW">Build &lt;release&gt; &amp; verify / WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW</span></div><pre class="cm-screen cm-h1" aria-label="Build &lt;release&gt; &amp; verify / WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"><!-- Preserve leading blank frame rows. --></pre></div></div>
+<div class="cm-export"><svg class="cm-window-shadow" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><filter id="cm-html-shadow" x="-15%" y="-15%" width="130%" height="140%"><feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#000000" flood-opacity="0.28"/></filter></defs><rect width="100%" height="100%" rx="8" fill="var(--cm-bg)" filter="url(#cm-html-shadow)"/></svg><div class="cm-window cm-chrome-windows"><div class="cm-titlebar"><span class="cm-tab"><svg class="cm-shell" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><rect x="0" y="0" width="18" height="18" rx="3" fill="var(--cm-accent)"/><path d="M4 5l4 4-4 4M9.5 13h5" fill="none" stroke="var(--cm-bg)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="cm-title" title="Build &lt;release&gt; &amp; verify / WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW">Build &lt;release&gt; &amp; verify / WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW</span><svg class="cm-tab-close" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8m-8 0l8 -8" fill="none" stroke="var(--cm-chrome-fg)" stroke-width="1.4"/></svg></span><svg class="cm-tab-actions" width="68" height="32" viewBox="0 8 68 32" aria-hidden="true"><g transform="translate(0 0)" fill="none" stroke="var(--cm-chrome-fg)"><path d="M19 26h12M25 20v12" stroke-width="1.4"/><path d="M52 23l4 4 4-4" stroke-width="1.5"/></g></svg><svg class="cm-right" width="140" height="32" viewBox="0 8 140 32" aria-hidden="true"><g transform="translate(148 0)" fill="none" stroke="var(--cm-fg)" stroke-width="1.3"><path d="M-106 26h12"/><rect x="-66" y="21" width="12" height="12"/></g><path d="M117 20l12 12m-12 0l12 -12" fill="none" stroke="var(--cm-fg)" stroke-width="1.4"/></svg></div><pre class="cm-screen cm-h1" aria-label="Build &lt;release&gt; &amp; verify / WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"><!-- Preserve leading blank frame rows. --></pre></div></div>
 </body>
 </html>

@@ -98,7 +98,7 @@ namespace ConsoleMonster.Export {
             html.Append("</title>\n<style>\n");
             // The page itself: a neutral desk under a window frame, otherwise the terminal background.
             string background = palette == ExportPalette.Light ? (options.EffectiveChrome != WindowChromeStyle.None ? "#c9c9cf" : palette.Background) : (options.EffectiveChrome != WindowChromeStyle.None ? "#3a3a3f" : palette.Background);
-            html.Append("html,body{margin:0;background:").Append(background).Append("}\nbody{padding:").Append(options.EffectiveChrome != WindowChromeStyle.None ? "20px" : "0").Append("}\n");
+            html.Append("html,body{margin:0;background:").Append(background).Append("}\nbody{padding:").Append("0").Append("}\n");
             html.Append(ConsoleExporter.PlayerStyles);
             // The player measures the rendered terminal font and sets the natural width after fonts load.
             html.Append(".cm-export.cm-standalone{display:block;font-family:").Append(options.FontFamily)

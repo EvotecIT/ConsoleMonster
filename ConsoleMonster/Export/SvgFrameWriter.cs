@@ -13,7 +13,7 @@ namespace ConsoleMonster.Export {
     /// </summary>
     internal static class SvgFrameWriter {
 
-        public static string Write(IReadOnlyList<ExportLayer> layers, ExportOptions options) {
+        public static string Write(IReadOnlyList<ExportLayer> layers, ExportOptions options, bool raster = false, double? ascent = null) {
             SvgGeometry g = SvgGeometry.For(layers[0].Frame.Width, layers[0].Frame.Height, options);
             SvgStyles styles = new SvgStyles();
             StringBuilder content = new StringBuilder();
@@ -23,11 +23,11 @@ namespace ConsoleMonster.Export {
                     content.Append(" cm-").Append(layer.Scheme);
                 }
                 content.Append("\" transform=\"translate(").Append(ExportText.Num(g.ScreenX)).Append(' ').Append(ExportText.Num(g.ScreenY)).Append(")\">");
-                content.Append("<rect width=\"").Append(ExportText.Num(g.Width)).Append("\" height=\"").Append(ExportText.Num(g.GridHeight + (2 * options.Padding)))
-                    .Append("\" x=\"").Append(-options.Padding).Append("\" y=\"").Append(-options.Padding).Append('"');
+                content.Append("<rect width=\"").Append(ExportText.Num(g.BodyWidth)).Append("\" height=\"").Append(ExportText.Num(g.BodyHeight))
+                    .Append("\" x=\"").Append(ExportText.Num(g.BodyX - g.ScreenX)).Append("\" y=\"").Append(ExportText.Num(g.BodyY - g.ScreenY)).Append('"');
                 ExportText.AppendPaint(content, "fill", layer.ScreenBackground);
                 content.Append("/>");
-                AppendFrame(content, layer.Frame, layer.Palette, styles, (layer.Scheme ?? "s").Substring(0, 1), options);
+                AppendFrame(content, layer.Frame, layer.Palette, styles, (layer.Scheme ?? "s").Substring(0, 1), options, ascent);
                 content.Append("</g>");
             }
 
@@ -49,8 +49,10 @@ namespace ConsoleMonster.Export {
             AppendCss(svg, layers, options);
             styles.AppendCss(svg);
             svg.Append("</style>\n");
-            AppendChrome(svg, g, options);
+            AppendChrome(svg, g, options, raster, ascent.HasValue ? ascent.Value * 13 / options.FontSize : 13);
+            if (options.EffectiveChrome != WindowChromeStyle.None) { svg.Append("<g clip-path=\"url(#cm-inner-clip)\">"); }
             svg.Append(content);
+            if (options.EffectiveChrome != WindowChromeStyle.None) { svg.Append("</g>"); }
             svg.Append("\n</svg>\n");
             return svg.ToString();
         }
@@ -66,24 +68,24 @@ namespace ConsoleMonster.Export {
                 WindowChrome.AppendTokens(css, "svg", options, true);
                 css.Append("}\n");
             }
-            css.Append(".cm-t{font-family:").Append(font).Append(";font-size:").Append(ExportText.Num(options.FontSize)).Append("px;text-anchor:middle;dominant-baseline:central;font-variant-ligatures:none}\n");
-            css.Append(".cm-s{shape-rendering:crispEdges}\n.cm-title{font:13px system-ui,-apple-system,'Segoe UI',sans-serif;fill:var(--cm-chrome-title);text-anchor:middle;dominant-baseline:central}\n");
+            css.Append(".cm-t{font-family:").Append(font).Append(";font-size:").Append(ExportText.Num(options.FontSize)).Append("px;text-anchor:middle;dominant-baseline:alphabetic;font-variant-ligatures:none}\n");
+            css.Append(".cm-s{shape-rendering:crispEdges}\n.cm-title{font-family:").Append(font).Append(";font-size:13px;font-weight:400;fill:var(--cm-chrome-title);text-anchor:middle;dominant-baseline:alphabetic}\n");
             if (layers.Count > 1) {
                 css.Append(".cm-light{display:none}\n@media (prefers-color-scheme: light){.cm-dark{display:none}.cm-light{display:inline}}\n");
             }
         }
 
-        internal static void AppendChrome(StringBuilder svg, SvgGeometry g, ExportOptions options) {
+        internal static void AppendChrome(StringBuilder svg, SvgGeometry g, ExportOptions options, bool raster = false, double titleAscent = 13) {
             if (options.EffectiveChrome == WindowChromeStyle.None) {
                 return;
             }
-            WindowChrome.AppendSvg(svg, g.Width, g.Height, options.Title, options.EffectiveChrome);
+            WindowChrome.AppendSvg(svg, g.Width, g.Height, options.Title, options.EffectiveChrome, raster, titleAscent);
         }
 
         /// <summary>Appends a frame's rows at the origin of the current group.</summary>
-        internal static void AppendFrame(StringBuilder sb, CellBuffer frame, ExportPalette palette, SvgStyles styles, string prefix, ExportOptions options) {
+        internal static void AppendFrame(StringBuilder sb, CellBuffer frame, ExportPalette palette, SvgStyles styles, string prefix, ExportOptions options, double? ascent = null) {
             for (int y = 0; y < frame.Height; y++) {
-                AppendRow(sb, frame, y, y * options.CellHeight, palette, styles, prefix, options);
+                AppendRow(sb, frame, y, y * options.CellHeight, palette, styles, prefix, options, ascent);
             }
         }
 
@@ -91,7 +93,7 @@ namespace ConsoleMonster.Export {
         /// Appends one row at a vertical offset: background runs, then the shapes of box, block and braille characters (one
         /// path per colour), then text. Links wrap their text.
         /// </summary>
-        internal static void AppendRow(StringBuilder sb, CellBuffer frame, int y, double top, ExportPalette palette, SvgStyles styles, string prefix, ExportOptions options) {
+        internal static void AppendRow(StringBuilder sb, CellBuffer frame, int y, double top, ExportPalette palette, SvgStyles styles, string prefix, ExportOptions options, double? ascent = null) {
             double cw = options.CellWidth;
             double ch = options.CellHeight;
             int end = HtmlFrameWriter.ContentEnd(frame, y);
@@ -169,7 +171,7 @@ namespace ConsoleMonster.Export {
                         ExportText.AppendEscaped(chars, cell.Glyph);
                     } else {
                         // A grapheme made of several code units gets its own element, so its position cannot shift the rest.
-                        AppendText(separate, ExportText.Num(centre), ExportText.Escape(cell.Glyph), top + (ch / 2), cls, fg, palette);
+                        AppendText(separate, ExportText.Num(centre), ExportText.Escape(cell.Glyph), top + (ascent ?? options.FontSize), cls, fg, palette);
                     }
                 }
                 if (drawn) {
@@ -184,7 +186,7 @@ namespace ConsoleMonster.Export {
                 StringBuilder run2 = new StringBuilder();
                 run2.Append(separate);
                 if (chars.Length > 0) {
-                    AppendText(run2, xs.ToString(), chars.ToString(), top + (ch / 2), cls, fg, palette);
+                    AppendText(run2, xs.ToString(), chars.ToString(), top + (ascent ?? options.FontSize), cls, fg, palette);
                 }
                 if (run2.Length > 0) {
                     if (link != null) {
@@ -226,6 +228,11 @@ namespace ConsoleMonster.Export {
 
         public double ScreenY { get; private set; }
 
+        public double BodyX { get; private set; }
+        public double BodyY { get; private set; }
+        public double BodyWidth { get; private set; }
+        public double BodyHeight { get; private set; }
+
         public double Width { get; private set; }
 
         public double Height { get; private set; }
@@ -236,13 +243,19 @@ namespace ConsoleMonster.Export {
                 GridHeight = rows * options.CellHeight
             };
             double chrome = WindowChrome.BarHeight(options.EffectiveChrome);
-            g.ScreenX = options.Padding;
-            g.ScreenY = options.Padding + chrome;
-            g.Width = g.GridWidth + (2 * options.Padding);
-            if (options.EffectiveChrome != WindowChromeStyle.None) {
-                g.Width = Math.Max(g.Width, WindowChrome.MinimumWidth(options.EffectiveChrome));
+            double inset = options.EffectiveChrome == WindowChromeStyle.None ? 0 : WindowChrome.Inset;
+            g.ScreenX = inset + options.Padding;
+            g.ScreenY = inset + options.Padding + chrome;
+            g.Width = g.GridWidth + (2 * (options.Padding + inset));
+            if (inset > 0) {
+                g.Width = Math.Max(g.Width, WindowChrome.MinimumWidth(options.EffectiveChrome) + 2 * inset);
             }
-            g.Height = g.GridHeight + (2 * options.Padding) + chrome;
+            g.Height = g.GridHeight + (2 * (options.Padding + inset)) + chrome;
+            if (inset > 0) { g.Width = Math.Ceiling(g.Width); g.Height = Math.Ceiling(g.Height); }
+            g.BodyX = inset > 0 ? inset + 1 : 0;
+            g.BodyY = g.BodyX + chrome;
+            g.BodyWidth = g.Width - 2 * g.BodyX;
+            g.BodyHeight = Math.Max(0, g.Height - chrome - 2 * g.BodyX);
             return g;
         }
     }

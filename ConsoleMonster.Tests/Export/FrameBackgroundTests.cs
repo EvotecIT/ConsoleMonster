@@ -1,4 +1,5 @@
 using System.Xml.Linq;
+using System.Globalization;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Export;
 using ConsoleMonster.Styling;
@@ -19,7 +20,7 @@ namespace ConsoleMonster.Tests.Export {
             ExportOptions options = new ExportOptions { Theme = theme, Padding = 12 };
             XDocument svg = XDocument.Parse(ConsoleExporter.ToSvg(frame, options));
             XNamespace ns = "http://www.w3.org/2000/svg";
-            XElement body = Assert.Single(svg.Root!.Elements(ns + "g")).Element(ns + "rect")!;
+            XElement body = Assert.Single(svg.Root!.Descendants(ns + "g"), e => ((string?)e.Attribute("class"))?.StartsWith("cm-layer", System.StringComparison.Ordinal) == true).Element(ns + "rect")!;
             Assert.Equal(theme == ExportTheme.Dark ? "#0c0c0c" : "#ffffff", (string?)body.Attribute("fill"));
             Assert.Contains("#00ffff", svg.ToString());
             string html = ConsoleExporter.ToHtml(frame, options);
@@ -42,11 +43,11 @@ namespace ConsoleMonster.Tests.Export {
             ExportOptions options = new ExportOptions { Theme = theme, WindowChrome = true, Padding = 12 };
             XDocument svg = XDocument.Parse(ConsoleExporter.ToSvg(frame, options));
             XNamespace ns = "http://www.w3.org/2000/svg";
-            XElement body = Assert.Single(svg.Root!.Elements(ns + "g")).Element(ns + "rect")!;
+            XElement body = Assert.Single(svg.Root!.Descendants(ns + "g"), e => ((string?)e.Attribute("class"))?.StartsWith("cm-layer", System.StringComparison.Ordinal) == true).Element(ns + "rect")!;
             Assert.Equal(css, (string?)body.Attribute("fill"));
-            Assert.Equal("-12", (string?)body.Attribute("x"));
-            Assert.Equal("-12", (string?)body.Attribute("y"));
-            Assert.Equal((string?)svg.Root.Attribute("width"), (string?)body.Attribute("width"));
+            Assert.Equal("-11", (string?)body.Attribute("x"));
+            Assert.Equal("-11", (string?)body.Attribute("y"));
+            Assert.Equal(double.Parse(svg.Root.Attribute("width")!.Value, CultureInfo.InvariantCulture) - 18, double.Parse(body.Attribute("width")!.Value, CultureInfo.InvariantCulture));
             string html = ConsoleExporter.ToHtml(frame, options);
             if (theme == ExportTheme.Light) { Assert.Contains(".cm-export .cm-screen{background:" + css + "}", html); }
             else { Assert.Contains("color:var(--cm-fg);background:var(--cm-bg)", html); }
@@ -63,7 +64,7 @@ namespace ConsoleMonster.Tests.Export {
             frame.Set(3, 1, occupied ? "x" : " ", occupied ? panel : Style.Plain);
             XDocument svg = XDocument.Parse(ConsoleExporter.ToSvg(frame, new ExportOptions { Theme = ExportTheme.Light, WindowChrome = true }));
             XNamespace ns = "http://www.w3.org/2000/svg";
-            XElement body = Assert.Single(svg.Root!.Elements(ns + "g")).Element(ns + "rect")!;
+            XElement body = Assert.Single(svg.Root!.Descendants(ns + "g"), e => ((string?)e.Attribute("class"))?.StartsWith("cm-layer", System.StringComparison.Ordinal) == true).Element(ns + "rect")!;
             Assert.Equal("#ffffff", (string?)body.Attribute("fill"));
         }
     }
