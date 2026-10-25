@@ -28,4 +28,4 @@ $report = New-ConsoleRows -Gap 1 -Content {
 }
 
 # Behaviour: print the collected observations once; collectors belong before the layout.
-$report | Write-ConsoleWidget
+$report | Show-Console

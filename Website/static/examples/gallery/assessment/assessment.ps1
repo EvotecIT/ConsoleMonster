@@ -258,35 +258,35 @@ $dashboard = New-ConsoleDashboard -Title '[bold]Nightly checks[/]' -Subtitle 'ad
         }
     }
     New-ConsoleColumns -Content {
-        New-ConsolePanel -Title Targets -Caption '6 workers' -Weight 2.3 -Content { $lanes }
+        New-ConsolePanel -Title Targets -HeaderRight '6 workers' -Weight 2.3 -Content { $lanes }
         New-ConsolePanel -Title Results -Content {
-            New-ConsoleBarChart -Name results -Stacked -Data $results
+            New-ConsoleBarChart -WidgetId results -Stacked -InputObject $results
             New-ConsoleRule
-            New-ConsoleKeyValue -Name summary -Data $summary
+            New-ConsoleKeyValue -WidgetId summary -InputObject $summary
         }
     }
     New-ConsoleColumns -Content {
-        New-ConsolePanel -Title Throughput -Caption 'rules/s' -Weight 1.2 -Content {
-            New-ConsoleLineChart -Name throughput -Height 7 -Content {
-                New-ConsoleChartSeries -Name completed  -Tone Accent
-                New-ConsoleChartSeries -Name failed  -Tone Fail
+        New-ConsolePanel -Title Throughput -HeaderRight 'rules/s' -Weight 1.2 -Content {
+            New-ConsoleLineChart -WidgetId throughput -Height 7 -Content {
+                New-ConsoleChartSeries -Key completed  -Role Accent
+                New-ConsoleChartSeries -Key failed  -Role Fail
             }
         }
         New-ConsolePanel -Title 'Rule duration' -Content {
-            New-ConsoleHistogram -Name durations -Height 6 -Unit s -Edge 0, 0.25, 0.5, 1, 2, 4, 8
+            New-ConsoleHistogram -WidgetId durations -Height 6 -Unit s -Edge 0, 0.25, 0.5, 1, 2, 4, 8
         }
         New-ConsolePanel -Title 'Failures by category' -Content {
-            New-ConsoleBarChart -Name findings -Tone Fail -Data $findings
+            New-ConsoleBarChart -WidgetId findings -Role Fail -InputObject $findings
         }
     }
     New-ConsolePanel -Title Log -Fill -Content {
-        New-ConsoleLog -Height 6
+        New-ConsoleLogRegion -Height 6
     }
 }
-$dashboard.ShowClock = $false
+$dashboard.ShowElapsed = $false
 
 # Behaviour: native events update individual widgets; the complete run is bounded and paced at 4x.
-Start-ConsoleDashboard -Dashboard $dashboard -ArgumentList (, $events) -ScriptBlock {
+Invoke-ConsoleDashboard -Dashboard $dashboard -ArgumentList (, $events) -ScriptBlock {
     param($Events)
     $previous = 0
     foreach ($event in $Events) {
@@ -295,7 +295,7 @@ Start-ConsoleDashboard -Dashboard $dashboard -ArgumentList (, $events) -ScriptBl
         }
         $delay = [int][Math]::Truncate(($event.Time - $previous) / 4)
         $fields = @{
-            Target = $event.Target
+            WidgetId = $event.Target
             Operation = $event.Operation
             Value = $event.Value
             Total = $event.Total
@@ -308,7 +308,7 @@ Start-ConsoleDashboard -Dashboard $dashboard -ArgumentList (, $events) -ScriptBl
             $fields.Text = $event.Text
         }
         if ($null -ne $event.State) {
-            $fields.State = $event.State
+            $fields.Status = $event.State
         }
         Send-ConsoleEvent @fields
         Wait-ConsoleDashboard -Milliseconds $delay

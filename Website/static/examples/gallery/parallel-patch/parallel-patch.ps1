@@ -116,7 +116,7 @@ function New-PatchSummary {
 }
 
 # Behaviour: the native run monitor owns scheduling, cancellation and the live UI.
-New-PatchSummary -Outcomes @() | Write-ConsoleWidget
+New-PatchSummary -Outcomes @() | Show-Console
 $runOptions = @{
     Parallel = $true
     ThrottleLimit = $throttle
@@ -125,7 +125,7 @@ $runOptions = @{
     ErrorAction = 'SilentlyContinue'
     ErrorVariable = 'retainedErrors'
 }
-$successes = @($servers | Invoke-ConsoleRun @runOptions -Name Name -ScriptBlock {
+$successes = @($servers | Invoke-ConsoleRun @runOptions -Label Name -ScriptBlock {
         Start-Sleep -Milliseconds $_.DelayMilliseconds
         if ($_.RestartFailure) {
             throw "$($_.Name) restart verification failed"
@@ -140,4 +140,4 @@ $outcomes = foreach ($server in $servers) {
     $passed = $server.Name -in $successes
     [pscustomobject] @{ Host = $server.Name; Status = if ($passed) { 'Pass' } else { 'Fail' }; Detail = if ($passed) { 'Health verified' } elseif ($server.TimesOut) { '4s timeout · retry separately' } else { 'Restart verification failed' } }
 }
-New-PatchSummary -Outcomes @($outcomes) | Write-ConsoleWidget
+New-PatchSummary -Outcomes @($outcomes) | Show-Console

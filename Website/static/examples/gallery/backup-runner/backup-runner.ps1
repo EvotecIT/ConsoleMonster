@@ -37,7 +37,7 @@ function New-BackupSummary {
 }
 
 # Behaviour: run the queued jobs, retain errors, then retry only missing results.
-New-BackupSummary | Write-ConsoleWidget
+New-BackupSummary | Show-Console
 $pending = $jobs
 foreach ($attempt in 1..2) {
     if ($pending.Count -eq 0) {
@@ -49,7 +49,7 @@ foreach ($attempt in 1..2) {
     $runOptions = @{
         Parallel = $true
         ThrottleLimit = 2
-        Name = 'Name'
+        Label = 'Name'
         Title = "Backup attempt $attempt"
         ErrorAction = 'SilentlyContinue'
         ErrorVariable = 'failures'
@@ -68,6 +68,6 @@ foreach ($attempt in 1..2) {
         $attemptErrors += $failures
     }
     $pending = @($pending | Where-Object -FilterScript { -not $completed.ContainsKey($_.Name) })
-    New-BackupSummary | Write-ConsoleWidget
+    New-BackupSummary | Show-Console
 }
 # $completed holds archive results; $pending and $attemptErrors retain unresolved work and diagnostics.

@@ -31,7 +31,7 @@ IWidget Frame(int tick) {
 }
 
 // Behaviour: update each frame in a bounded live run.
-Slot screen = new Slot("processes", Frame(0));
+RegionWidget screen = new RegionWidget("processes", Frame(0));
 using LiveSession session = new LiveSession(screen);
 try {
     session.Run(live => {

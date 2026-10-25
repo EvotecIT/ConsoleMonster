@@ -52,22 +52,22 @@ $taskBadge = {
 }
 
 # Behaviour: each native prompt returns an answer; the tour performs no external action.
-Write-ConsoleRule -Title '[bold]1 / 9 · Typed selection[/]'
+Show-ConsoleRule -Title '[bold]1 / 9 · Typed selection[/]'
 $serverPrompt = @{
     Title = 'Target server'
     Choices = $servers
     Display = 'Name'
     GroupBy = 'Site'
     Badge = { New-ConsoleText -Text $_.Role -Role Muted }
-    Disabled = { $_.Offline }
+    DisabledReason = { $_.Offline }
     Describe = { "$($_.Role) server · $($_.OS)" }
     Description = 'Type to filter; offline servers show why they cannot be picked.'
     Default = $servers[0]
 }
-$server = Read-ConsoleSelection @serverPrompt
+$server = Read-ConsoleSelect @serverPrompt
 Write-ConsoleText -Text "returned: $($server.Name) (Server)"
 
-Write-ConsoleRule -Title '[bold]2 / 9 · Multiple selection[/]'
+Show-ConsoleRule -Title '[bold]2 / 9 · Multiple selection[/]'
 $taskPrompt = @{
     Title = 'Tasks'
     Choices = $tasks
@@ -79,13 +79,13 @@ $taskPrompt = @{
     Minimum = 1
     Preview = $taskPreview
 }
-$selected = @(Read-ConsoleMultiSelection @taskPrompt)
+$selected = @(Read-ConsoleMultiSelect @taskPrompt)
 Write-ConsoleText -Text "returned: $($selected.Id -join ', ')"
 
-Write-ConsoleRule -Title '[bold]3 / 9 · Confirmation[/]'
+Show-ConsoleRule -Title '[bold]3 / 9 · Confirmation[/]'
 $null = Read-ConsoleConfirm -Title 'Restart the report agent on FS01?' -Default $true
 
-Write-ConsoleRule -Title '[bold]4 / 9 · Text[/]'
+Show-ConsoleRule -Title '[bold]4 / 9 · Text[/]'
 $textPrompt = @{
     Title = 'Share name'
     Default = 'Reports'
@@ -95,7 +95,7 @@ $textPrompt = @{
 }
 $null = Read-ConsoleText @textPrompt
 
-Write-ConsoleRule -Title '[bold]5 / 9 · Secret[/]'
+Show-ConsoleRule -Title '[bold]5 / 9 · Secret[/]'
 $secretPrompt = @{
     Title = 'Password for svc-backup'
     MinLength = 8
@@ -103,13 +103,13 @@ $secretPrompt = @{
 }
 $null = Read-ConsoleSecret @secretPrompt
 
-Write-ConsoleRule -Title '[bold]6 / 9 · Number[/]'
+Show-ConsoleRule -Title '[bold]6 / 9 · Number[/]'
 $null = Read-ConsoleNumber -Title Port -Integer -Minimum 1 -Maximum 65535 -Default 443
 
-Write-ConsoleRule -Title '[bold]7 / 9 · Path[/]'
+Show-ConsoleRule -Title '[bold]7 / 9 · Path[/]'
 $null = Read-ConsolePath -Title 'Report folder' -Kind Folder -Default $reportFolder
 
-Write-ConsoleRule -Title '[bold]8 / 9 · Typed confirmation[/]'
+Show-ConsoleRule -Title '[bold]8 / 9 · Typed confirmation[/]'
 $confirmPrompt = @{
     Title = 'Remove FS01 from the inventory?'
     TypedConfirmation = 'FS01'
@@ -118,30 +118,30 @@ $confirmPrompt = @{
 }
 $null = Read-ConsoleConfirm @confirmPrompt
 
-Write-ConsoleRule -Title '[bold]9 / 9 · Dashboard pause[/]'
+Show-ConsoleRule -Title '[bold]9 / 9 · Dashboard pause[/]'
 $hosts = @($servers | Select-Object -First 5 -ExpandProperty Name)
 $dashboard = New-ConsoleDashboard -Title '[bold]Patching[/]' -Subtitle '5 servers' -Content {
     New-ConsolePanel -Title Servers -Content { New-ConsoleLanes -Lane $hosts -Total 6 }
-    New-ConsolePanel -Title Log -Fill -Content { New-ConsoleLog -Height 6 }
+    New-ConsolePanel -Title Log -Fill -Content { New-ConsoleLogRegion -Height 6 }
 }
-Start-ConsoleDashboard -Dashboard $dashboard -ArgumentList (, $hosts) -ScriptBlock {
+Invoke-ConsoleDashboard -Dashboard $dashboard -ArgumentList (, $hosts) -ScriptBlock {
     param($Hosts)
     for ($tick = 1; $tick -le 6; $tick++) {
         foreach ($hostName in $Hosts) {
             $status = if ($hostName -eq 'WEB01' -and $tick -eq 3) { 'Fail' } else { 'Pass' }
             Update-ConsoleLane -Key $hostName -Result $status -Detail "step $tick"
         }
-        Write-ConsoleLog -Message "step $tick done"
+        Write-ConsoleLogEntry -Message "step $tick done"
         Wait-ConsoleDashboard -Milliseconds 350
         if ($tick -eq 3) {
-            Write-ConsoleLog -Message 'WEB01: update verification failed' -Level Error
+            Write-ConsoleLogEntry -Message 'WEB01: update verification failed' -Level Error
             $pausePrompt = @{
                 Title = 'WEB01 failed. Continue with the other servers?'
                 Default = $true
                 Description = 'The patch dashboard pauses for your answer, then resumes.'
             }
             $go = Read-ConsoleConfirm @pausePrompt
-            Write-ConsoleLog -Message $(if ($go) { 'continuing' } else { 'stopping after this step' })
+            Write-ConsoleLogEntry -Message $(if ($go) { 'continuing' } else { 'stopping after this step' })
             if (-not $go) {
                 break
             }

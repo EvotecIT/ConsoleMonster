@@ -23,4 +23,4 @@ $screen = New-ConsoleRows -Gap 1 -Content {
 }
 
 # Behaviour: print the screen once and return.
-$screen | Write-ConsoleWidget
+$screen | Show-Console

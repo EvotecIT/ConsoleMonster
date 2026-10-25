@@ -27,7 +27,7 @@
             [pscustomobject]@{ Check = 'Compile'; Result = 'Passed'; Duration = '1.8 s' }
             [pscustomobject]@{ Check = 'Unit tests'; Result = '24 passed'; Duration = '2.4 s' }
             [pscustomobject]@{ Check = 'Package'; Result = 'Ready'; Duration = '0.6 s' }
-        ) | Format-ConsoleTable -Width 70
+        ) | Show-ConsoleTable -Width 70
     }
     function global:Invoke-DemoBuild {
         Use-ConsoleProgress {

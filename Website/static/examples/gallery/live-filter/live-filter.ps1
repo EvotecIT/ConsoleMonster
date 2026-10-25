@@ -16,7 +16,7 @@ $content = {
     New-ConsoleRows -Gap 1 -Content {
         '[bold]Live filter[/] [muted]· host inventory[/]'
 
-        New-ConsoleTextInput -Name Query -Label Filter -Value '' -Placeholder 'Host, role, site or status'
+        New-ConsoleTextInput -Key Query -Label Filter -Value '' -Placeholder 'Host, role, site or status'
         # Rebuild this section when an input or button changes state.
         New-ConsoleBinding -Content {
             param($State)

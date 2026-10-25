@@ -23,15 +23,15 @@
       }
     },
     "format-consoletable": {
-      "script": "# Build artifacts as a module build reports them.\n$artifacts = @(\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.nupkg'; Kind = 'NuGet'; Length = 1482113; Time = [timespan]::FromSeconds(48.2); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.nupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.snupkg'; Kind = 'NuGet'; Length = 402331; Time = [timespan]::FromSeconds(3.1); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.snupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster-2.0.0.zip'; Kind = 'Module'; Length = 2904576; Time = [timespan]::FromSeconds(11.7); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster-2.0.0.zip' }\n    [pscustomobject] @{ Name = 'Docs.zip'; Kind = 'Module'; Length = 51302; Time = [timespan]::FromSeconds(1.2); Signed = $false; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\Docs.zip' }\n)\n\n$artifacts | Format-ConsoleTable -Title '[bold]Build artifacts[/]' -GroupBy Kind -Total -Property @(\n    @{ Name = 'Name'; Key = $true; Overflow = 'Never' }\n    @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes'; Priority = 9; Aggregate = 'Sum' }\n    @{ Name = 'Time'; Header = 'Built in'; Presenter = 'Duration'; Priority = 6; Aggregate = 'Sum' }\n    @{ Name = 'Signed'; Presenter = 'Boolean'; Priority = 5 }\n    @{ Name = 'Path'; Overflow = 'TruncateMiddle'; Priority = 1; MinWidth = 20 }\n)",
-      "scriptFull": "Import-Module ConsoleMonster\n\n# Build artifacts as a module build reports them.\n$artifacts = @(\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.nupkg'; Kind = 'NuGet'; Length = 1482113; Time = [timespan]::FromSeconds(48.2); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.nupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.snupkg'; Kind = 'NuGet'; Length = 402331; Time = [timespan]::FromSeconds(3.1); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.snupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster-2.0.0.zip'; Kind = 'Module'; Length = 2904576; Time = [timespan]::FromSeconds(11.7); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster-2.0.0.zip' }\n    [pscustomobject] @{ Name = 'Docs.zip'; Kind = 'Module'; Length = 51302; Time = [timespan]::FromSeconds(1.2); Signed = $false; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\Docs.zip' }\n)\n\n$artifacts | Format-ConsoleTable -Title '[bold]Build artifacts[/]' -GroupBy Kind -Total -Property @(\n    @{ Name = 'Name'; Key = $true; Overflow = 'Never' }\n    @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes'; Priority = 9; Aggregate = 'Sum' }\n    @{ Name = 'Time'; Header = 'Built in'; Presenter = 'Duration'; Priority = 6; Aggregate = 'Sum' }\n    @{ Name = 'Signed'; Presenter = 'Boolean'; Priority = 5 }\n    @{ Name = 'Path'; Overflow = 'TruncateMiddle'; Priority = 1; MinWidth = 20 }\n)",
+      "script": "# Build artifacts as a module build reports them.\n$artifacts = @(\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.nupkg'; Kind = 'NuGet'; Length = 1482113; Time = [timespan]::FromSeconds(48.2); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.nupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.snupkg'; Kind = 'NuGet'; Length = 402331; Time = [timespan]::FromSeconds(3.1); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.snupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster-2.0.0.zip'; Kind = 'Module'; Length = 2904576; Time = [timespan]::FromSeconds(11.7); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster-2.0.0.zip' }\n    [pscustomobject] @{ Name = 'Docs.zip'; Kind = 'Module'; Length = 51302; Time = [timespan]::FromSeconds(1.2); Signed = $false; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\Docs.zip' }\n)\n\n$artifacts | Show-ConsoleTable -Title '[bold]Build artifacts[/]' -GroupBy Kind -Total -Property @(\n    @{ Name = 'Name'; Key = $true; Overflow = 'Never' }\n    @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes'; Priority = 9; Aggregate = 'Sum' }\n    @{ Name = 'Time'; Header = 'Built in'; Presenter = 'Duration'; Priority = 6; Aggregate = 'Sum' }\n    @{ Name = 'Signed'; Presenter = 'Boolean'; Priority = 5 }\n    @{ Name = 'Path'; Overflow = 'TruncateMiddle'; Priority = 1; MinWidth = 20 }\n)",
+      "scriptFull": "Import-Module ConsoleMonster\n\n# Build artifacts as a module build reports them.\n$artifacts = @(\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.nupkg'; Kind = 'NuGet'; Length = 1482113; Time = [timespan]::FromSeconds(48.2); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.nupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.snupkg'; Kind = 'NuGet'; Length = 402331; Time = [timespan]::FromSeconds(3.1); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.snupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster-2.0.0.zip'; Kind = 'Module'; Length = 2904576; Time = [timespan]::FromSeconds(11.7); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster-2.0.0.zip' }\n    [pscustomobject] @{ Name = 'Docs.zip'; Kind = 'Module'; Length = 51302; Time = [timespan]::FromSeconds(1.2); Signed = $false; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\Docs.zip' }\n)\n\n$artifacts | Show-ConsoleTable -Title '[bold]Build artifacts[/]' -GroupBy Kind -Total -Property @(\n    @{ Name = 'Name'; Key = $true; Overflow = 'Never' }\n    @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes'; Priority = 9; Aggregate = 'Sum' }\n    @{ Name = 'Time'; Header = 'Built in'; Presenter = 'Duration'; Priority = 6; Aggregate = 'Sum' }\n    @{ Name = 'Signed'; Presenter = 'Boolean'; Priority = 5 }\n    @{ Name = 'Path'; Overflow = 'TruncateMiddle'; Priority = 1; MinWidth = 20 }\n)",
       "rich": {
         "ps7": {
           "host": "PowerShell 7.6",
           "frame": {
             "w": 100,
             "h": 14,
-            "dark": "<span class=c1> </span><span class=B>Build artifacts</span>\n<span class=f4b5060><i class=g256d>╭</i><i class=\"g2500 c29\">─────────────────────────────</i><i class=g252c>┬</i><i class=\"g2500 c9\">─────────</i><i class=g252c>┬</i><i class=\"g2500 c10\">──────────</i><i class=g252c>┬</i><i class=\"g2500 c8\">────────</i><i class=g252c>┬</i><i class=\"g2500 c38\">──────────────────────────────────────</i><i class=g256e>╮</i></span>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c4\">Name</span><span class=c24>                        </span><span class=\"f4b5060 c5\"><i class=g2502>│</i>    </span><span class=\"B c4\">Size</span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c8\">Built in</span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c6\">Signed</span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c4\">Path</span><span class=c33>                                 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=g2500>─</i> </span><span class=\"B c6\">Module</span><span class=\"f8b8f9a c5\"> <i class=n>·</i> 2 </span><span class=f4b5060><i class=\"g2500 c16\">────────────────</i><i class=g253c>┼</i><i class=\"g2500 c9\">─────────</i><i class=g253c>┼</i><i class=\"g2500 c10\">──────────</i><i class=g253c>┼</i><i class=\"g2500 c8\">────────</i><i class=g253c>┼</i><i class=\"g2500 c38\">──────────────────────────────────────</i><i class=g2524>┤</i></span>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c28>ConsoleMonster-2.0.0.zip    </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c5>2.77 </span><span class=\"f8b8f9a c3\">MB </span><span class=\"f4b5060 c6\"><i class=g2502>│</i>     </span><span class=c5>12 s </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f4ade80 c7\"><i class=n>✓</i> yes  </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f60a5fa c37\">D:\\Builds\\ConsoleM<i class=n>…</i>Monster-2.0.0.zip </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c28>Docs.zip                    </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c5>50.1 </span><span class=\"f8b8f9a c3\">KB </span><span class=\"f4b5060 c5\"><i class=g2502>│</i>    </span><span class=c6>1.2 s </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c7\"><i class=n>–</i> no   </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f60a5fa c37\">D:\\Builds\\ConsoleM<i class=n>…</i>r\\Packed\\Docs.zip </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c28\">Subtotal                    </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c8\">2.82 MB </span><span class=\"f4b5060 c6\"><i class=g2502>│</i>     </span><span class=\"f8b8f9a c5\">13 s </span><span class=f4b5060><i class=g2502>│</i>        <i class=g2502>│</i>                                      <i class=g2502>│</i></span>\n<span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=g2500>─</i> </span><span class=\"B c5\">NuGet</span><span class=\"f8b8f9a c5\"> <i class=n>·</i> 2 </span><span class=f4b5060><i class=\"g2500 c17\">─────────────────</i><i class=g253c>┼</i><i class=\"g2500 c9\">─────────</i><i class=g253c>┼</i><i class=\"g2500 c10\">──────────</i><i class=g253c>┼</i><i class=\"g2500 c8\">────────</i><i class=g253c>┼</i><i class=\"g2500 c38\">──────────────────────────────────────</i><i class=g2524>┤</i></span>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c28>ConsoleMonster.2.0.0.nupkg  </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c5>1.41 </span><span class=\"f8b8f9a c3\">MB </span><span class=\"f4b5060 c6\"><i class=g2502>│</i>     </span><span class=c5>48 s </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f4ade80 c7\"><i class=n>✓</i> yes  </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f60a5fa c37\">D:\\Builds\\ConsoleM<i class=n>…</i>nster.2.0.0.nupkg </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c28>ConsoleMonster.2.0.0.snupkg </span><span class=\"f4b5060 c3\"><i class=g2502>│</i>  </span><span class=c4>393 </span><span class=\"f8b8f9a c3\">KB </span><span class=\"f4b5060 c5\"><i class=g2502>│</i>    </span><span class=c6>3.1 s </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f4ade80 c7\"><i class=n>✓</i> yes  </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f60a5fa c37\">D:\\Builds\\ConsoleM<i class=n>…</i>ster.2.0.0.snupkg </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c28\">Subtotal                    </span><span class=\"f4b5060 c3\"><i class=g2502>│</i>  </span><span class=\"f8b8f9a c7\">1.8 MB </span><span class=\"f4b5060 c6\"><i class=g2502>│</i>     </span><span class=\"f8b8f9a c5\">51 s </span><span class=f4b5060><i class=g2502>│</i>        <i class=g2502>│</i>                                      <i class=g2502>│</i></span>\n<span class=f4b5060><i class=g251c>├</i><i class=\"g2500 c29\">─────────────────────────────</i><i class=g253c>┼</i><i class=\"g2500 c9\">─────────</i><i class=g253c>┼</i><i class=\"g2500 c10\">──────────</i><i class=g253c>┼</i><i class=\"g2500 c8\">────────</i><i class=g253c>┼</i><i class=\"g2500 c38\">──────────────────────────────────────</i><i class=g2524>┤</i></span>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c28>Total                       </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c5\">4.62 </span><span class=\"f8b8f9a B c2\">MB</span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c8\">1 m 04 s</span><span class=c1> </span><span class=f4b5060><i class=g2502>│</i>        <i class=g2502>│</i>                                      <i class=g2502>│</i></span>\n<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c29\">─────────────────────────────</i><i class=g2534>┴</i><i class=\"g2500 c9\">─────────</i><i class=g2534>┴</i><i class=\"g2500 c10\">──────────</i><i class=g2534>┴</i><i class=\"g2500 c8\">────────</i><i class=g2534>┴</i><i class=\"g2500 c38\">──────────────────────────────────────</i><i class=g256f>╯</i></span>"
+            "dark": "<span class=c1> </span><span class=B>Build artifacts</span>\n<span class=f4b5060><i class=g256d>╭</i><i class=\"g2500 c29\">─────────────────────────────</i><i class=g252c>┬</i><i class=\"g2500 c9\">─────────</i><i class=g252c>┬</i><i class=\"g2500 c10\">──────────</i><i class=g252c>┬</i><i class=\"g2500 c8\">────────</i><i class=g252c>┬</i><i class=\"g2500 c38\">──────────────────────────────────────</i><i class=g256e>╮</i></span>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c4\">Name</span><span class=c24>                        </span><span class=\"f4b5060 c5\"><i class=g2502>│</i>    </span><span class=\"B c4\">Size</span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c8\">Built in</span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c6\">Signed</span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c4\">Path</span><span class=c33>                                 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=g2500>─</i> </span><span class=\"B c6\">Module</span><span class=\"f8b8f9a c5\"> <i class=n>·</i> 2 </span><span class=f4b5060><i class=\"g2500 c16\">────────────────</i><i class=g253c>┼</i><i class=\"g2500 c9\">─────────</i><i class=g253c>┼</i><i class=\"g2500 c10\">──────────</i><i class=g253c>┼</i><i class=\"g2500 c8\">────────</i><i class=g253c>┼</i><i class=\"g2500 c38\">──────────────────────────────────────</i><i class=g2524>┤</i></span>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c28>ConsoleMonster-2.0.0.zip    </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c5>2.77 </span><span class=\"f8b8f9a c3\">MB </span><span class=\"f4b5060 c6\"><i class=g2502>│</i>     </span><span class=c5>12 s </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f4ade80 c7\"><i class=n>✓</i> yes  </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f60a5fa c37\">D:\\Builds\\ConsoleM<i class=n>…</i>Monster-2.0.0.zip </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c28>Docs.zip                    </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c5>50.1 </span><span class=\"f8b8f9a c3\">KB </span><span class=\"f4b5060 c5\"><i class=g2502>│</i>    </span><span class=c6>1.2 s </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c7\"><i class=n>–</i> no   </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f60a5fa c37\">D:\\Builds\\ConsoleM<i class=n>…</i>r\\Packed\\Docs.zip </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c8\">Subtotal</span><span class=c20>                    </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c8\">2.82 MB </span><span class=\"f4b5060 c6\"><i class=g2502>│</i>     </span><span class=\"f8b8f9a c5\">13 s </span><span class=f4b5060><i class=g2502>│</i>        <i class=g2502>│</i>                                      <i class=g2502>│</i></span>\n<span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=g2500>─</i> </span><span class=\"B c5\">NuGet</span><span class=\"f8b8f9a c5\"> <i class=n>·</i> 2 </span><span class=f4b5060><i class=\"g2500 c17\">─────────────────</i><i class=g253c>┼</i><i class=\"g2500 c9\">─────────</i><i class=g253c>┼</i><i class=\"g2500 c10\">──────────</i><i class=g253c>┼</i><i class=\"g2500 c8\">────────</i><i class=g253c>┼</i><i class=\"g2500 c38\">──────────────────────────────────────</i><i class=g2524>┤</i></span>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c28>ConsoleMonster.2.0.0.nupkg  </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c5>1.41 </span><span class=\"f8b8f9a c3\">MB </span><span class=\"f4b5060 c6\"><i class=g2502>│</i>     </span><span class=c5>48 s </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f4ade80 c7\"><i class=n>✓</i> yes  </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f60a5fa c37\">D:\\Builds\\ConsoleM<i class=n>…</i>nster.2.0.0.nupkg </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c28>ConsoleMonster.2.0.0.snupkg </span><span class=\"f4b5060 c3\"><i class=g2502>│</i>  </span><span class=c4>393 </span><span class=\"f8b8f9a c3\">KB </span><span class=\"f4b5060 c5\"><i class=g2502>│</i>    </span><span class=c6>3.1 s </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f4ade80 c7\"><i class=n>✓</i> yes  </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f60a5fa c37\">D:\\Builds\\ConsoleM<i class=n>…</i>ster.2.0.0.snupkg </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c8\">Subtotal</span><span class=c20>                    </span><span class=\"f4b5060 c3\"><i class=g2502>│</i>  </span><span class=\"f8b8f9a c7\">1.8 MB </span><span class=\"f4b5060 c6\"><i class=g2502>│</i>     </span><span class=\"f8b8f9a c5\">51 s </span><span class=f4b5060><i class=g2502>│</i>        <i class=g2502>│</i>                                      <i class=g2502>│</i></span>\n<span class=f4b5060><i class=g251c>├</i><i class=\"g2500 c29\">─────────────────────────────</i><i class=g253c>┼</i><i class=\"g2500 c9\">─────────</i><i class=g253c>┼</i><i class=\"g2500 c10\">──────────</i><i class=g253c>┼</i><i class=\"g2500 c8\">────────</i><i class=g253c>┼</i><i class=\"g2500 c38\">──────────────────────────────────────</i><i class=g2524>┤</i></span>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c28>Total                       </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c5\">4.62 </span><span class=\"f8b8f9a B c2\">MB</span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c8\">1 m 04 s</span><span class=c1> </span><span class=f4b5060><i class=g2502>│</i>        <i class=g2502>│</i>                                      <i class=g2502>│</i></span>\n<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c29\">─────────────────────────────</i><i class=g2534>┴</i><i class=\"g2500 c9\">─────────</i><i class=g2534>┴</i><i class=\"g2500 c10\">──────────</i><i class=g2534>┴</i><i class=\"g2500 c8\">────────</i><i class=g2534>┴</i><i class=\"g2500 c38\">──────────────────────────────────────</i><i class=g256f>╯</i></span>"
           }
         },
         "ps5": {
@@ -39,7 +39,7 @@
           "frame": {
             "w": 100,
             "h": 14,
-            "dark": "<span class=c1> </span><span class=B>Build artifacts</span>\n<span class=f4b5060><i class=g256d>╭</i><i class=\"g2500 c29\">─────────────────────────────</i><i class=g252c>┬</i><i class=\"g2500 c9\">─────────</i><i class=g252c>┬</i><i class=\"g2500 c10\">──────────</i><i class=g252c>┬</i><i class=\"g2500 c8\">────────</i><i class=g252c>┬</i><i class=\"g2500 c38\">──────────────────────────────────────</i><i class=g256e>╮</i></span>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c4\">Name</span><span class=c24>                        </span><span class=\"f4b5060 c5\"><i class=g2502>│</i>    </span><span class=\"B c4\">Size</span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c8\">Built in</span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c6\">Signed</span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c4\">Path</span><span class=c33>                                 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=g2500>─</i> </span><span class=\"B c6\">Module</span><span class=\"f8b8f9a c5\"> <i class=n>·</i> 2 </span><span class=f4b5060><i class=\"g2500 c16\">────────────────</i><i class=g253c>┼</i><i class=\"g2500 c9\">─────────</i><i class=g253c>┼</i><i class=\"g2500 c10\">──────────</i><i class=g253c>┼</i><i class=\"g2500 c8\">────────</i><i class=g253c>┼</i><i class=\"g2500 c38\">──────────────────────────────────────</i><i class=g2524>┤</i></span>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c28>ConsoleMonster-2.0.0.zip    </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c5>2.77 </span><span class=\"f8b8f9a c3\">MB </span><span class=\"f4b5060 c6\"><i class=g2502>│</i>     </span><span class=c5>12 s </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f4ade80 c7\"><i class=n>✓</i> yes  </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f60a5fa c37\">D:\\Builds\\ConsoleM<i class=n>…</i>Monster-2.0.0.zip </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c28>Docs.zip                    </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c5>50.1 </span><span class=\"f8b8f9a c3\">KB </span><span class=\"f4b5060 c5\"><i class=g2502>│</i>    </span><span class=c6>1.2 s </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c7\"><i class=n>–</i> no   </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f60a5fa c37\">D:\\Builds\\ConsoleM<i class=n>…</i>r\\Packed\\Docs.zip </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c28\">Subtotal                    </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c8\">2.82 MB </span><span class=\"f4b5060 c6\"><i class=g2502>│</i>     </span><span class=\"f8b8f9a c5\">13 s </span><span class=f4b5060><i class=g2502>│</i>        <i class=g2502>│</i>                                      <i class=g2502>│</i></span>\n<span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=g2500>─</i> </span><span class=\"B c5\">NuGet</span><span class=\"f8b8f9a c5\"> <i class=n>·</i> 2 </span><span class=f4b5060><i class=\"g2500 c17\">─────────────────</i><i class=g253c>┼</i><i class=\"g2500 c9\">─────────</i><i class=g253c>┼</i><i class=\"g2500 c10\">──────────</i><i class=g253c>┼</i><i class=\"g2500 c8\">────────</i><i class=g253c>┼</i><i class=\"g2500 c38\">──────────────────────────────────────</i><i class=g2524>┤</i></span>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c28>ConsoleMonster.2.0.0.nupkg  </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c5>1.41 </span><span class=\"f8b8f9a c3\">MB </span><span class=\"f4b5060 c6\"><i class=g2502>│</i>     </span><span class=c5>48 s </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f4ade80 c7\"><i class=n>✓</i> yes  </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f60a5fa c37\">D:\\Builds\\ConsoleM<i class=n>…</i>nster.2.0.0.nupkg </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c28>ConsoleMonster.2.0.0.snupkg </span><span class=\"f4b5060 c3\"><i class=g2502>│</i>  </span><span class=c4>393 </span><span class=\"f8b8f9a c3\">KB </span><span class=\"f4b5060 c5\"><i class=g2502>│</i>    </span><span class=c6>3.1 s </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f4ade80 c7\"><i class=n>✓</i> yes  </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f60a5fa c37\">D:\\Builds\\ConsoleM<i class=n>…</i>ster.2.0.0.snupkg </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c28\">Subtotal                    </span><span class=\"f4b5060 c3\"><i class=g2502>│</i>  </span><span class=\"f8b8f9a c7\">1.8 MB </span><span class=\"f4b5060 c6\"><i class=g2502>│</i>     </span><span class=\"f8b8f9a c5\">51 s </span><span class=f4b5060><i class=g2502>│</i>        <i class=g2502>│</i>                                      <i class=g2502>│</i></span>\n<span class=f4b5060><i class=g251c>├</i><i class=\"g2500 c29\">─────────────────────────────</i><i class=g253c>┼</i><i class=\"g2500 c9\">─────────</i><i class=g253c>┼</i><i class=\"g2500 c10\">──────────</i><i class=g253c>┼</i><i class=\"g2500 c8\">────────</i><i class=g253c>┼</i><i class=\"g2500 c38\">──────────────────────────────────────</i><i class=g2524>┤</i></span>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c28>Total                       </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c5\">4.62 </span><span class=\"f8b8f9a B c2\">MB</span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c8\">1 m 04 s</span><span class=c1> </span><span class=f4b5060><i class=g2502>│</i>        <i class=g2502>│</i>                                      <i class=g2502>│</i></span>\n<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c29\">─────────────────────────────</i><i class=g2534>┴</i><i class=\"g2500 c9\">─────────</i><i class=g2534>┴</i><i class=\"g2500 c10\">──────────</i><i class=g2534>┴</i><i class=\"g2500 c8\">────────</i><i class=g2534>┴</i><i class=\"g2500 c38\">──────────────────────────────────────</i><i class=g256f>╯</i></span>"
+            "dark": "<span class=c1> </span><span class=B>Build artifacts</span>\n<span class=f4b5060><i class=g256d>╭</i><i class=\"g2500 c29\">─────────────────────────────</i><i class=g252c>┬</i><i class=\"g2500 c9\">─────────</i><i class=g252c>┬</i><i class=\"g2500 c10\">──────────</i><i class=g252c>┬</i><i class=\"g2500 c8\">────────</i><i class=g252c>┬</i><i class=\"g2500 c38\">──────────────────────────────────────</i><i class=g256e>╮</i></span>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c4\">Name</span><span class=c24>                        </span><span class=\"f4b5060 c5\"><i class=g2502>│</i>    </span><span class=\"B c4\">Size</span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c8\">Built in</span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c6\">Signed</span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c4\">Path</span><span class=c33>                                 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=g2500>─</i> </span><span class=\"B c6\">Module</span><span class=\"f8b8f9a c5\"> <i class=n>·</i> 2 </span><span class=f4b5060><i class=\"g2500 c16\">────────────────</i><i class=g253c>┼</i><i class=\"g2500 c9\">─────────</i><i class=g253c>┼</i><i class=\"g2500 c10\">──────────</i><i class=g253c>┼</i><i class=\"g2500 c8\">────────</i><i class=g253c>┼</i><i class=\"g2500 c38\">──────────────────────────────────────</i><i class=g2524>┤</i></span>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c28>ConsoleMonster-2.0.0.zip    </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c5>2.77 </span><span class=\"f8b8f9a c3\">MB </span><span class=\"f4b5060 c6\"><i class=g2502>│</i>     </span><span class=c5>12 s </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f4ade80 c7\"><i class=n>✓</i> yes  </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f60a5fa c37\">D:\\Builds\\ConsoleM<i class=n>…</i>Monster-2.0.0.zip </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c28>Docs.zip                    </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c5>50.1 </span><span class=\"f8b8f9a c3\">KB </span><span class=\"f4b5060 c5\"><i class=g2502>│</i>    </span><span class=c6>1.2 s </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c7\"><i class=n>–</i> no   </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f60a5fa c37\">D:\\Builds\\ConsoleM<i class=n>…</i>r\\Packed\\Docs.zip </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c8\">Subtotal</span><span class=c20>                    </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c8\">2.82 MB </span><span class=\"f4b5060 c6\"><i class=g2502>│</i>     </span><span class=\"f8b8f9a c5\">13 s </span><span class=f4b5060><i class=g2502>│</i>        <i class=g2502>│</i>                                      <i class=g2502>│</i></span>\n<span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=g2500>─</i> </span><span class=\"B c5\">NuGet</span><span class=\"f8b8f9a c5\"> <i class=n>·</i> 2 </span><span class=f4b5060><i class=\"g2500 c17\">─────────────────</i><i class=g253c>┼</i><i class=\"g2500 c9\">─────────</i><i class=g253c>┼</i><i class=\"g2500 c10\">──────────</i><i class=g253c>┼</i><i class=\"g2500 c8\">────────</i><i class=g253c>┼</i><i class=\"g2500 c38\">──────────────────────────────────────</i><i class=g2524>┤</i></span>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c28>ConsoleMonster.2.0.0.nupkg  </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c5>1.41 </span><span class=\"f8b8f9a c3\">MB </span><span class=\"f4b5060 c6\"><i class=g2502>│</i>     </span><span class=c5>48 s </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f4ade80 c7\"><i class=n>✓</i> yes  </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f60a5fa c37\">D:\\Builds\\ConsoleM<i class=n>…</i>nster.2.0.0.nupkg </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c28>ConsoleMonster.2.0.0.snupkg </span><span class=\"f4b5060 c3\"><i class=g2502>│</i>  </span><span class=c4>393 </span><span class=\"f8b8f9a c3\">KB </span><span class=\"f4b5060 c5\"><i class=g2502>│</i>    </span><span class=c6>3.1 s </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f4ade80 c7\"><i class=n>✓</i> yes  </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f60a5fa c37\">D:\\Builds\\ConsoleM<i class=n>…</i>ster.2.0.0.snupkg </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c8\">Subtotal</span><span class=c20>                    </span><span class=\"f4b5060 c3\"><i class=g2502>│</i>  </span><span class=\"f8b8f9a c7\">1.8 MB </span><span class=\"f4b5060 c6\"><i class=g2502>│</i>     </span><span class=\"f8b8f9a c5\">51 s </span><span class=f4b5060><i class=g2502>│</i>        <i class=g2502>│</i>                                      <i class=g2502>│</i></span>\n<span class=f4b5060><i class=g251c>├</i><i class=\"g2500 c29\">─────────────────────────────</i><i class=g253c>┼</i><i class=\"g2500 c9\">─────────</i><i class=g253c>┼</i><i class=\"g2500 c10\">──────────</i><i class=g253c>┼</i><i class=\"g2500 c8\">────────</i><i class=g253c>┼</i><i class=\"g2500 c38\">──────────────────────────────────────</i><i class=g2524>┤</i></span>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c28>Total                       </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c5\">4.62 </span><span class=\"f8b8f9a B c2\">MB</span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c8\">1 m 04 s</span><span class=c1> </span><span class=f4b5060><i class=g2502>│</i>        <i class=g2502>│</i>                                      <i class=g2502>│</i></span>\n<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c29\">─────────────────────────────</i><i class=g2534>┴</i><i class=\"g2500 c9\">─────────</i><i class=g2534>┴</i><i class=\"g2500 c10\">──────────</i><i class=g2534>┴</i><i class=\"g2500 c8\">────────</i><i class=g2534>┴</i><i class=\"g2500 c38\">──────────────────────────────────────</i><i class=g256f>╯</i></span>"
           }
         }
       },
@@ -107,8 +107,8 @@
       }
     },
     "format-consolelist": {
-      "script": "# Build artifacts as a module build reports them.\n$artifacts = @(\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.nupkg'; Kind = 'NuGet'; Length = 1482113; Time = [timespan]::FromSeconds(48.2); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.nupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.snupkg'; Kind = 'NuGet'; Length = 402331; Time = [timespan]::FromSeconds(3.1); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.snupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster-2.0.0.zip'; Kind = 'Module'; Length = 2904576; Time = [timespan]::FromSeconds(11.7); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster-2.0.0.zip' }\n    [pscustomobject] @{ Name = 'Docs.zip'; Kind = 'Module'; Length = 51302; Time = [timespan]::FromSeconds(1.2); Signed = $false; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\Docs.zip' }\n)\n\n$artifacts[0] | Format-ConsoleList -Property Name, Kind, @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes' }, @{ Name = 'Time'; Header = 'Built in'; Presenter = 'Duration' }, @{ Name = 'Signed'; Presenter = 'Boolean' }, Path",
-      "scriptFull": "Import-Module ConsoleMonster\n\n# Build artifacts as a module build reports them.\n$artifacts = @(\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.nupkg'; Kind = 'NuGet'; Length = 1482113; Time = [timespan]::FromSeconds(48.2); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.nupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.snupkg'; Kind = 'NuGet'; Length = 402331; Time = [timespan]::FromSeconds(3.1); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.snupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster-2.0.0.zip'; Kind = 'Module'; Length = 2904576; Time = [timespan]::FromSeconds(11.7); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster-2.0.0.zip' }\n    [pscustomobject] @{ Name = 'Docs.zip'; Kind = 'Module'; Length = 51302; Time = [timespan]::FromSeconds(1.2); Signed = $false; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\Docs.zip' }\n)\n\n$artifacts[0] | Format-ConsoleList -Property Name, Kind, @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes' }, @{ Name = 'Time'; Header = 'Built in'; Presenter = 'Duration' }, @{ Name = 'Signed'; Presenter = 'Boolean' }, Path",
+      "script": "# Build artifacts as a module build reports them.\n$artifacts = @(\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.nupkg'; Kind = 'NuGet'; Length = 1482113; Time = [timespan]::FromSeconds(48.2); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.nupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.snupkg'; Kind = 'NuGet'; Length = 402331; Time = [timespan]::FromSeconds(3.1); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.snupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster-2.0.0.zip'; Kind = 'Module'; Length = 2904576; Time = [timespan]::FromSeconds(11.7); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster-2.0.0.zip' }\n    [pscustomobject] @{ Name = 'Docs.zip'; Kind = 'Module'; Length = 51302; Time = [timespan]::FromSeconds(1.2); Signed = $false; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\Docs.zip' }\n)\n\n$artifacts[0] | Show-ConsoleList -Property Name, Kind, @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes' }, @{ Name = 'Time'; Header = 'Built in'; Presenter = 'Duration' }, @{ Name = 'Signed'; Presenter = 'Boolean' }, Path",
+      "scriptFull": "Import-Module ConsoleMonster\n\n# Build artifacts as a module build reports them.\n$artifacts = @(\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.nupkg'; Kind = 'NuGet'; Length = 1482113; Time = [timespan]::FromSeconds(48.2); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.nupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.snupkg'; Kind = 'NuGet'; Length = 402331; Time = [timespan]::FromSeconds(3.1); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.snupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster-2.0.0.zip'; Kind = 'Module'; Length = 2904576; Time = [timespan]::FromSeconds(11.7); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster-2.0.0.zip' }\n    [pscustomobject] @{ Name = 'Docs.zip'; Kind = 'Module'; Length = 51302; Time = [timespan]::FromSeconds(1.2); Signed = $false; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\Docs.zip' }\n)\n\n$artifacts[0] | Show-ConsoleList -Property Name, Kind, @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes' }, @{ Name = 'Time'; Header = 'Built in'; Presenter = 'Duration' }, @{ Name = 'Signed'; Presenter = 'Boolean' }, Path",
       "rich": {
         "ps7": {
           "host": "PowerShell 7.6",
@@ -129,8 +129,8 @@
       }
     },
     "format-consoletree": {
-      "script": "$certificate = [pscustomobject] @{\n    Subject                 = 'CN=mail.evotec.xyz'\n    Issuer                  = \"CN=R11, O=Let's Encrypt, C=US\"\n    KeyAlgorithm            = 'ECDSA P-256'\n    SubjectAlternativeNames = @('mail.evotec.xyz', 'autodiscover.evotec.xyz', 'mta-sts.evotec.xyz')\n    Chain                   = @(\n        [pscustomobject] @{ Subject = 'CN=mail.evotec.xyz'; Key = 'ECDSA P-256'; Revoked = $false }\n        [pscustomobject] @{ Subject = \"CN=R11, O=Let's Encrypt\"; Key = 'RSA 2048'; Revoked = $false }\n        [pscustomobject] @{ Subject = 'CN=ISRG Root X1'; Key = 'RSA 4096'; Revoked = $false }\n    )\n}\n$certificate | Format-ConsoleTree -AsInspector -Title 'mail.evotec.xyz certificate'",
-      "scriptFull": "Import-Module ConsoleMonster\n\n$certificate = [pscustomobject] @{\n    Subject                 = 'CN=mail.evotec.xyz'\n    Issuer                  = \"CN=R11, O=Let's Encrypt, C=US\"\n    KeyAlgorithm            = 'ECDSA P-256'\n    SubjectAlternativeNames = @('mail.evotec.xyz', 'autodiscover.evotec.xyz', 'mta-sts.evotec.xyz')\n    Chain                   = @(\n        [pscustomobject] @{ Subject = 'CN=mail.evotec.xyz'; Key = 'ECDSA P-256'; Revoked = $false }\n        [pscustomobject] @{ Subject = \"CN=R11, O=Let's Encrypt\"; Key = 'RSA 2048'; Revoked = $false }\n        [pscustomobject] @{ Subject = 'CN=ISRG Root X1'; Key = 'RSA 4096'; Revoked = $false }\n    )\n}\n$certificate | Format-ConsoleTree -AsInspector -Title 'mail.evotec.xyz certificate'",
+      "script": "$certificate = [pscustomobject] @{\n    Subject                 = 'CN=mail.evotec.xyz'\n    Issuer                  = \"CN=R11, O=Let's Encrypt, C=US\"\n    KeyAlgorithm            = 'ECDSA P-256'\n    SubjectAlternativeNames = @('mail.evotec.xyz', 'autodiscover.evotec.xyz', 'mta-sts.evotec.xyz')\n    Chain                   = @(\n        [pscustomobject] @{ Subject = 'CN=mail.evotec.xyz'; Key = 'ECDSA P-256'; Revoked = $false }\n        [pscustomobject] @{ Subject = \"CN=R11, O=Let's Encrypt\"; Key = 'RSA 2048'; Revoked = $false }\n        [pscustomobject] @{ Subject = 'CN=ISRG Root X1'; Key = 'RSA 4096'; Revoked = $false }\n    )\n}\n$certificate | Show-ConsoleObject -StaticSnapshot -Title 'mail.evotec.xyz certificate'",
+      "scriptFull": "Import-Module ConsoleMonster\n\n$certificate = [pscustomobject] @{\n    Subject                 = 'CN=mail.evotec.xyz'\n    Issuer                  = \"CN=R11, O=Let's Encrypt, C=US\"\n    KeyAlgorithm            = 'ECDSA P-256'\n    SubjectAlternativeNames = @('mail.evotec.xyz', 'autodiscover.evotec.xyz', 'mta-sts.evotec.xyz')\n    Chain                   = @(\n        [pscustomobject] @{ Subject = 'CN=mail.evotec.xyz'; Key = 'ECDSA P-256'; Revoked = $false }\n        [pscustomobject] @{ Subject = \"CN=R11, O=Let's Encrypt\"; Key = 'RSA 2048'; Revoked = $false }\n        [pscustomobject] @{ Subject = 'CN=ISRG Root X1'; Key = 'RSA 4096'; Revoked = $false }\n    )\n}\n$certificate | Show-ConsoleObject -StaticSnapshot -Title 'mail.evotec.xyz certificate'",
       "rich": {
         "ps7": {
           "host": "PowerShell 7.6",
@@ -151,23 +151,23 @@
       }
     },
     "markup": {
-      "script": "Write-ConsoleMarkup '[bold red]Markup[/] in the [italic]Spectre.Console[/] dialect: [cadetblue]cadetblue[/], [grey50]grey50[/], [deepskyblue3]deepskyblue3[/]'\nWrite-ConsoleMarkup '[#ff8800]#ff8800[/], [rgb(120,200,90)]rgb(120,200,90)[/], [color(208)]color(208)[/] and [white on fail] theme roles [/]'\nWrite-ConsoleMarkup '[[brackets]] are literal, [nosuchcolour]unknown tags[/] keep their text, and [link=https://consolemonster.dev]links[/] use OSC 8'",
-      "scriptFull": "Import-Module ConsoleMonster\n\nWrite-ConsoleMarkup '[bold red]Markup[/] in the [italic]Spectre.Console[/] dialect: [cadetblue]cadetblue[/], [grey50]grey50[/], [deepskyblue3]deepskyblue3[/]'\nWrite-ConsoleMarkup '[#ff8800]#ff8800[/], [rgb(120,200,90)]rgb(120,200,90)[/], [color(208)]color(208)[/] and [white on fail] theme roles [/]'\nWrite-ConsoleMarkup '[[brackets]] are literal, [nosuchcolour]unknown tags[/] keep their text, and [link=https://consolemonster.dev]links[/] use OSC 8'",
+      "script": "Write-ConsoleText -Markup '[bold red]Markup[/] in the [italic]Spectre.Console[/] dialect: [cadetblue]cadetblue[/], [grey50]grey50[/], [deepskyblue3]deepskyblue3[/]'\nWrite-ConsoleText -Markup '[#ff8800]#ff8800[/], [rgb(120,200,90)]rgb(120,200,90)[/], [color(208)]color(208)[/] and [white on fail] theme roles [/]'\nWrite-ConsoleText -Markup '[[brackets]] are literal, [[nosuchcolour]] is an escaped literal tag, and [link=https://consolemonster.dev]links[/] use OSC 8'",
+      "scriptFull": "Import-Module ConsoleMonster\n\nWrite-ConsoleText -Markup '[bold red]Markup[/] in the [italic]Spectre.Console[/] dialect: [cadetblue]cadetblue[/], [grey50]grey50[/], [deepskyblue3]deepskyblue3[/]'\nWrite-ConsoleText -Markup '[#ff8800]#ff8800[/], [rgb(120,200,90)]rgb(120,200,90)[/], [color(208)]color(208)[/] and [white on fail] theme roles [/]'\nWrite-ConsoleText -Markup '[[brackets]] are literal, [[nosuchcolour]] is an escaped literal tag, and [link=https://consolemonster.dev]links[/] use OSC 8'",
       "rich": {
         "ps7": {
           "host": "PowerShell 7.6",
           "frame": {
-            "w": 73,
+            "w": 85,
             "h": 3,
-            "dark": "<span class=\"fe74856 B c6\">Markup</span><span class=c8> in the </span><span class=\"I c15\">Spectre.Console</span><span class=c10> dialect: </span><span class=\"f5faf87 c9\">cadetblue</span><span class=c2>, </span><span class=\"f808080 c6\">grey50</span><span class=c2>, </span><span class=f0087af>deepskyblue3</span>\n<span class=\"fff8800 c7\">#ff8800</span><span class=c2>, </span><span class=\"f78c85a c15\">rgb(120,200,90)</span><span class=c2>, </span><span class=\"fff8700 c11\">color(208) </span><span class=c4>and </span><span class=\"ff2f2f2 kf87171\"> theme roles </span>\n[brackets] are literal, unknown tags keep their text, and links use OSC 8"
+            "dark": "<span class=\"fe74856 B c6\">Markup</span><span class=c8> in the </span><span class=\"I c15\">Spectre.Console</span><span class=c10> dialect: </span><span class=\"f5faf87 c9\">cadetblue</span><span class=c2>, </span><span class=\"f808080 c6\">grey50</span><span class=c2>, </span><span class=f0087af>deepskyblue3</span>\n<span class=\"fff8800 c7\">#ff8800</span><span class=c2>, </span><span class=\"f78c85a c15\">rgb(120,200,90)</span><span class=c2>, </span><span class=\"fff8700 c11\">color(208) </span><span class=c4>and </span><span class=\"ff2f2f2 kf87171\"> theme roles </span>\n[brackets] are literal, [nosuchcolour] is an escaped literal tag, and links use OSC 8"
           }
         },
         "ps5": {
           "host": "Windows PowerShell 5.1",
           "frame": {
-            "w": 73,
+            "w": 85,
             "h": 3,
-            "dark": "<span class=\"fe74856 B c6\">Markup</span><span class=c8> in the </span><span class=\"I c15\">Spectre.Console</span><span class=c10> dialect: </span><span class=\"f5faf87 c9\">cadetblue</span><span class=c2>, </span><span class=\"f808080 c6\">grey50</span><span class=c2>, </span><span class=f0087af>deepskyblue3</span>\n<span class=\"fff8800 c7\">#ff8800</span><span class=c2>, </span><span class=\"f78c85a c15\">rgb(120,200,90)</span><span class=c2>, </span><span class=\"fff8700 c11\">color(208) </span><span class=c4>and </span><span class=\"ff2f2f2 kf87171\"> theme roles </span>\n[brackets] are literal, unknown tags keep their text, and links use OSC 8"
+            "dark": "<span class=\"fe74856 B c6\">Markup</span><span class=c8> in the </span><span class=\"I c15\">Spectre.Console</span><span class=c10> dialect: </span><span class=\"f5faf87 c9\">cadetblue</span><span class=c2>, </span><span class=\"f808080 c6\">grey50</span><span class=c2>, </span><span class=f0087af>deepskyblue3</span>\n<span class=\"fff8800 c7\">#ff8800</span><span class=c2>, </span><span class=\"f78c85a c15\">rgb(120,200,90)</span><span class=c2>, </span><span class=\"fff8700 c11\">color(208) </span><span class=c4>and </span><span class=\"ff2f2f2 kf87171\"> theme roles </span>\n[brackets] are literal, [nosuchcolour] is an escaped literal tag, and links use OSC 8"
           }
         }
       }
@@ -195,8 +195,8 @@
       }
     },
     "job": {
-      "script": "$module = (Get-Module ConsoleMonster).Path\nStart-Job -ArgumentList $module {\n    param($Module)\n    Import-Module $Module\n    [pscustomobject] @{ Check = 'SPF'; Status = 'Pass' }, [pscustomobject] @{ Check = 'DMARC'; Status = 'Fail' } |\n        Write-ConsoleTable -Title 'From a background job' -StatusProperty Status\n} | Receive-Job -Wait -AutoRemoveJob",
-      "scriptFull": "Import-Module ConsoleMonster\n\n$module = (Get-Module ConsoleMonster).Path\nStart-Job -ArgumentList $module {\n    param($Module)\n    Import-Module $Module\n    [pscustomobject] @{ Check = 'SPF'; Status = 'Pass' }, [pscustomobject] @{ Check = 'DMARC'; Status = 'Fail' } |\n        Write-ConsoleTable -Title 'From a background job' -StatusProperty Status\n} | Receive-Job -Wait -AutoRemoveJob",
+      "script": "$module = (Get-Module ConsoleMonster).Path\nStart-Job -ArgumentList $module {\n    param($Module)\n    Import-Module $Module\n    [pscustomobject] @{ Check = 'SPF'; Status = 'Pass' }, [pscustomobject] @{ Check = 'DMARC'; Status = 'Fail' } |\n        Show-ConsoleTable -Title 'From a background job' -StatusProperty Status\n} | Receive-Job -Wait -AutoRemoveJob",
+      "scriptFull": "Import-Module ConsoleMonster\n\n$module = (Get-Module ConsoleMonster).Path\nStart-Job -ArgumentList $module {\n    param($Module)\n    Import-Module $Module\n    [pscustomobject] @{ Check = 'SPF'; Status = 'Pass' }, [pscustomobject] @{ Check = 'DMARC'; Status = 'Fail' } |\n        Show-ConsoleTable -Title 'From a background job' -StatusProperty Status\n} | Receive-Job -Wait -AutoRemoveJob",
       "rich": {
         "ps7": {
           "host": "PowerShell 7.6",
@@ -217,22 +217,22 @@
       }
     },
     "export-markdown": {
-      "script": "# The largest files in PowerShell's folder, as a Markdown table for a report.\nGet-ChildItem -Path $PSHOME -File |\n    Sort-Object -Property Length -Descending |\n    Select-Object -First 5 |\n    Format-ConsoleTable -Property Name, Length, LastWriteTime -As Markdown",
-      "scriptFull": "Import-Module ConsoleMonster\n\n# The largest files in PowerShell's folder, as a Markdown table for a report.\nGet-ChildItem -Path $PSHOME -File |\n    Sort-Object -Property Length -Descending |\n    Select-Object -First 5 |\n    Format-ConsoleTable -Property Name, Length, LastWriteTime -As Markdown",
+      "script": "# The largest files in PowerShell's folder, as a Markdown table for a report.\nGet-ChildItem -Path $PSHOME -File |\n    Sort-Object -Property Length -Descending |\n    Select-Object -Property Name, Length, LastWriteTime -First 5 |\n    Export-ConsoleFrame -Format Markdown",
+      "scriptFull": "Import-Module ConsoleMonster\n\n# The largest files in PowerShell's folder, as a Markdown table for a report.\nGet-ChildItem -Path $PSHOME -File |\n    Sort-Object -Property Length -Descending |\n    Select-Object -Property Name, Length, LastWriteTime -First 5 |\n    Export-ConsoleFrame -Format Markdown",
       "rich": {
         "ps7": {
           "host": "PowerShell 7.6",
           "frame": {
             "w": 66,
             "h": 7,
-            "dark": "| Name | Length | LastWriteTime |\n| :--- | ---: | :--- |\n| System.Management.Automation.dll | 18.7 MB | 2026-09-02 21:18 |\n| Microsoft.CodeAnalysis.CSharp.dll | 17.7 MB | 2026-09-02 21:18 |\n| System.Private.CoreLib.dll | 15.3 MB | 2026-09-02 21:18 |\n| PresentationFramework.dll | 15.1 MB | 2026-09-02 21:18 |\n| System.Windows.Forms.dll | 13.1 MB | 2026-09-02 21:18 |"
+            "dark": "| Name | Length | LastWriteTime |\n| :--- | ---: | :--- |\n| System.Management.Automation.dll | 18.8 MB | 2026-10-10 00:25 |\n| Microsoft.CodeAnalysis.CSharp.dll | 17.7 MB | 2026-10-10 00:25 |\n| System.Private.CoreLib.dll | 15.3 MB | 2026-10-10 00:25 |\n| PresentationFramework.dll | 15.1 MB | 2026-10-10 00:25 |\n| System.Windows.Forms.dll | 13.1 MB | 2026-10-10 00:25 |"
           }
         }
       }
     },
     "relative-dates": {
-      "script": "# Relative dates count from CONSOLEMONSTER_NOW instead of the clock, so a recording says the same thing every time.\n$env:CONSOLEMONSTER_NOW = '2026-10-21T12:00:00Z'\n\n$reports = @(\n    [pscustomobject] @{ Name = 'Mail flow'; Changed = [datetimeoffset] '2026-10-21T11:58:00Z' }\n    [pscustomobject] @{ Name = 'Replication'; Changed = [datetimeoffset] '2026-10-21T09:00:00Z' }\n    [pscustomobject] @{ Name = 'Certificates'; Changed = [datetimeoffset] '2026-10-18T12:00:00Z' }\n)\n$reports | Format-ConsoleTable -Property Name, @{ Name = 'Changed'; Presenter = 'DateRelative' }\n\nRemove-Item Env:CONSOLEMONSTER_NOW",
-      "scriptFull": "Import-Module ConsoleMonster\n\n# Relative dates count from CONSOLEMONSTER_NOW instead of the clock, so a recording says the same thing every time.\n$env:CONSOLEMONSTER_NOW = '2026-10-21T12:00:00Z'\n\n$reports = @(\n    [pscustomobject] @{ Name = 'Mail flow'; Changed = [datetimeoffset] '2026-10-21T11:58:00Z' }\n    [pscustomobject] @{ Name = 'Replication'; Changed = [datetimeoffset] '2026-10-21T09:00:00Z' }\n    [pscustomobject] @{ Name = 'Certificates'; Changed = [datetimeoffset] '2026-10-18T12:00:00Z' }\n)\n$reports | Format-ConsoleTable -Property Name, @{ Name = 'Changed'; Presenter = 'DateRelative' }\n\nRemove-Item Env:CONSOLEMONSTER_NOW",
+      "script": "# Relative dates count from CONSOLEMONSTER_NOW instead of the clock, so a recording says the same thing every time.\n$env:CONSOLEMONSTER_NOW = '2026-10-21T12:00:00Z'\n\n$reports = @(\n    [pscustomobject] @{ Name = 'Mail flow'; Changed = [datetimeoffset] '2026-10-21T11:58:00Z' }\n    [pscustomobject] @{ Name = 'Replication'; Changed = [datetimeoffset] '2026-10-21T09:00:00Z' }\n    [pscustomobject] @{ Name = 'Certificates'; Changed = [datetimeoffset] '2026-10-18T12:00:00Z' }\n)\n$reports | Show-ConsoleTable -Property Name, @{ Name = 'Changed'; Presenter = 'DateRelative' }\n\nRemove-Item Env:CONSOLEMONSTER_NOW",
+      "scriptFull": "Import-Module ConsoleMonster\n\n# Relative dates count from CONSOLEMONSTER_NOW instead of the clock, so a recording says the same thing every time.\n$env:CONSOLEMONSTER_NOW = '2026-10-21T12:00:00Z'\n\n$reports = @(\n    [pscustomobject] @{ Name = 'Mail flow'; Changed = [datetimeoffset] '2026-10-21T11:58:00Z' }\n    [pscustomobject] @{ Name = 'Replication'; Changed = [datetimeoffset] '2026-10-21T09:00:00Z' }\n    [pscustomobject] @{ Name = 'Certificates'; Changed = [datetimeoffset] '2026-10-18T12:00:00Z' }\n)\n$reports | Show-ConsoleTable -Property Name, @{ Name = 'Changed'; Presenter = 'DateRelative' }\n\nRemove-Item Env:CONSOLEMONSTER_NOW",
       "rich": {
         "ps7": {
           "host": "PowerShell 7.6",
@@ -245,22 +245,22 @@
       }
     },
     "files": {
-      "script": "# A few of PowerShell's own files, grouped by extension.\nGet-ChildItem -Path $PSHOME -File |\n    Where-Object Extension -in '.exe', '.json', '.ps1' |\n    Format-ConsoleTable -Property Name, Length, LastWriteTime -GroupBy Extension",
-      "scriptFull": "Import-Module ConsoleMonster\n\n# A few of PowerShell's own files, grouped by extension.\nGet-ChildItem -Path $PSHOME -File |\n    Where-Object Extension -in '.exe', '.json', '.ps1' |\n    Format-ConsoleTable -Property Name, Length, LastWriteTime -GroupBy Extension",
+      "script": "# A few of PowerShell's own files, grouped by extension.\nGet-ChildItem -Path $PSHOME -File |\n    Where-Object Extension -in '.exe', '.json', '.ps1' |\n    Show-ConsoleTable -Property Name, Length, LastWriteTime -GroupBy Extension",
+      "scriptFull": "Import-Module ConsoleMonster\n\n# A few of PowerShell's own files, grouped by extension.\nGet-ChildItem -Path $PSHOME -File |\n    Where-Object Extension -in '.exe', '.json', '.ps1' |\n    Show-ConsoleTable -Property Name, Length, LastWriteTime -GroupBy Extension",
       "rich": {
         "ps7": {
           "host": "PowerShell 7.6",
           "frame": {
             "w": 67,
             "h": 17,
-            "dark": "<span class=f4b5060><i class=g256d>╭</i><i class=\"g2500 c36\">────────────────────────────────────</i><i class=g252c>┬</i><i class=\"g2500 c9\">─────────</i><i class=g252c>┬</i><i class=\"g2500 c18\">──────────────────</i><i class=g256e>╮</i></span>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c4\">Name</span><span class=c31>                               </span><span class=\"f4b5060 c3\"><i class=g2502>│</i>  </span><span class=\"B c6\">Length</span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c13\">LastWriteTime</span><span class=c4>    </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=g2500>─</i> </span><span class=\"B c4\">.exe</span><span class=\"f8b8f9a c5\"> <i class=n>·</i> 2 </span><span class=f4b5060><i class=\"g2500 c25\">─────────────────────────</i><i class=g253c>┼</i><i class=\"g2500 c9\">─────────</i><i class=g253c>┼</i><i class=\"g2500 c18\">──────────────────</i><i class=g2524>┤</i></span>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c35>createdump.exe                     </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c5>69.8 </span><span class=\"f8b8f9a c3\">KB </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c17>2026-09-02 21:18 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c35>pwsh.exe                           </span><span class=\"f4b5060 c3\"><i class=g2502>│</i>  </span><span class=c4>294 </span><span class=\"f8b8f9a c3\">KB </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c17>2026-09-02 21:18 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=g2500>─</i> </span><span class=\"B c5\">.json</span><span class=\"f8b8f9a c5\"> <i class=n>·</i> 4 </span><span class=f4b5060><i class=\"g2500 c24\">────────────────────────</i><i class=g253c>┼</i><i class=\"g2500 c9\">─────────</i><i class=g253c>┼</i><i class=\"g2500 c18\">──────────────────</i><i class=g2524>┤</i></span>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c35>powershell.config.json             </span><span class=\"f4b5060 c4\"><i class=g2502>│</i>   </span><span class=c4>190 </span><span class=\"f8b8f9a c2\">B </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c17>2026-09-02 21:18 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c35>pwsh.deps.json                     </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c5>97.2 </span><span class=\"f8b8f9a c3\">KB </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c17>2026-09-02 21:18 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c35>pwsh.profile.dsc.resource.json     </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c5>4.91 </span><span class=\"f8b8f9a c3\">KB </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c17>2026-09-02 21:18 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c35>pwsh.runtimeconfig.json            </span><span class=\"f4b5060 c4\"><i class=g2502>│</i>   </span><span class=c4>790 </span><span class=\"f8b8f9a c2\">B </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c17>2026-09-02 21:18 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=g2500>─</i> </span><span class=\"B c4\">.ps1</span><span class=\"f8b8f9a c5\"> <i class=n>·</i> 5 </span><span class=f4b5060><i class=\"g2500 c25\">─────────────────────────</i><i class=g253c>┼</i><i class=\"g2500 c9\">─────────</i><i class=g253c>┼</i><i class=\"g2500 c18\">──────────────────</i><i class=g2524>┤</i></span>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c35>Install-PowerShellRemoting.ps1     </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c5>22.7 </span><span class=\"f8b8f9a c3\">KB </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c17>2026-09-02 21:18 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c35>InstallPSCorePolicyDefinitions.ps1 </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c5>16.8 </span><span class=\"f8b8f9a c3\">KB </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c17>2026-09-02 21:18 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c35>pwsh.profile.resource.ps1          </span><span class=\"f4b5060 c4\"><i class=g2502>│</i>   </span><span class=c3>20 </span><span class=\"f8b8f9a c3\">KB </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c17>2026-09-02 21:18 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c35>RegisterManifest.ps1               </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c5>17.1 </span><span class=\"f8b8f9a c3\">KB </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c17>2026-09-02 21:18 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c35>RegisterMicrosoftUpdate.ps1        </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c5>16.5 </span><span class=\"f8b8f9a c3\">KB </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c17>2026-09-02 21:18 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c36\">────────────────────────────────────</i><i class=g2534>┴</i><i class=\"g2500 c9\">─────────</i><i class=g2534>┴</i><i class=\"g2500 c18\">──────────────────</i><i class=g256f>╯</i></span>"
+            "dark": "<span class=f4b5060><i class=g256d>╭</i><i class=\"g2500 c36\">────────────────────────────────────</i><i class=g252c>┬</i><i class=\"g2500 c9\">─────────</i><i class=g252c>┬</i><i class=\"g2500 c18\">──────────────────</i><i class=g256e>╮</i></span>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c4\">Name</span><span class=c31>                               </span><span class=\"f4b5060 c3\"><i class=g2502>│</i>  </span><span class=\"B c6\">Length</span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c13\">LastWriteTime</span><span class=c4>    </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=g2500>─</i> </span><span class=\"B c4\">.exe</span><span class=\"f8b8f9a c5\"> <i class=n>·</i> 2 </span><span class=f4b5060><i class=\"g2500 c25\">─────────────────────────</i><i class=g253c>┼</i><i class=\"g2500 c9\">─────────</i><i class=g253c>┼</i><i class=\"g2500 c18\">──────────────────</i><i class=g2524>┤</i></span>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c35>createdump.exe                     </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c5>69.8 </span><span class=\"f8b8f9a c3\">KB </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c17>2026-10-10 00:25 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c35>pwsh.exe                           </span><span class=\"f4b5060 c3\"><i class=g2502>│</i>  </span><span class=c4>294 </span><span class=\"f8b8f9a c3\">KB </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c17>2026-10-10 00:25 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=g2500>─</i> </span><span class=\"B c5\">.json</span><span class=\"f8b8f9a c5\"> <i class=n>·</i> 4 </span><span class=f4b5060><i class=\"g2500 c24\">────────────────────────</i><i class=g253c>┼</i><i class=\"g2500 c9\">─────────</i><i class=g253c>┼</i><i class=\"g2500 c18\">──────────────────</i><i class=g2524>┤</i></span>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c35>powershell.config.json             </span><span class=\"f4b5060 c4\"><i class=g2502>│</i>   </span><span class=c4>190 </span><span class=\"f8b8f9a c2\">B </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c17>2026-10-10 00:25 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c35>pwsh.deps.json                     </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c5>97.2 </span><span class=\"f8b8f9a c3\">KB </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c17>2026-10-10 00:25 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c35>pwsh.profile.dsc.resource.json     </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c5>4.91 </span><span class=\"f8b8f9a c3\">KB </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c17>2026-10-10 00:25 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c35>pwsh.runtimeconfig.json            </span><span class=\"f4b5060 c4\"><i class=g2502>│</i>   </span><span class=c4>790 </span><span class=\"f8b8f9a c2\">B </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c17>2026-10-10 00:25 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=g2500>─</i> </span><span class=\"B c4\">.ps1</span><span class=\"f8b8f9a c5\"> <i class=n>·</i> 5 </span><span class=f4b5060><i class=\"g2500 c25\">─────────────────────────</i><i class=g253c>┼</i><i class=\"g2500 c9\">─────────</i><i class=g253c>┼</i><i class=\"g2500 c18\">──────────────────</i><i class=g2524>┤</i></span>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c35>Install-PowerShellRemoting.ps1     </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c5>22.7 </span><span class=\"f8b8f9a c3\">KB </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c17>2026-10-10 00:25 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c35>InstallPSCorePolicyDefinitions.ps1 </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c5>16.8 </span><span class=\"f8b8f9a c3\">KB </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c17>2026-10-10 00:25 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c35>pwsh.profile.resource.ps1          </span><span class=\"f4b5060 c4\"><i class=g2502>│</i>   </span><span class=c3>20 </span><span class=\"f8b8f9a c3\">KB </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c17>2026-10-10 00:25 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c35>RegisterManifest.ps1               </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c5>17.1 </span><span class=\"f8b8f9a c3\">KB </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c17>2026-10-10 00:25 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c35>RegisterMicrosoftUpdate.ps1        </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c5>16.5 </span><span class=\"f8b8f9a c3\">KB </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c17>2026-10-10 00:25 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c36\">────────────────────────────────────</i><i class=g2534>┴</i><i class=\"g2500 c9\">─────────</i><i class=g2534>┴</i><i class=\"g2500 c18\">──────────────────</i><i class=g256f>╯</i></span>"
           }
         }
       }
     },
     "streams": {
-      "script": "# Show every stream for this demo.\n$VerbosePreference = 'Continue'\n$DebugPreference = 'Continue'\n\nWrite-ConsoleRule \"PowerShell's own colours\"\nWrite-Warning 'Certificate for mail.evotec.xyz expires in 12 days'\nWrite-Verbose 'Queried 4 domain controllers in 2 domains'\nWrite-Debug 'Cache hit for evotec.xyz'\n\nEnable-ConsoleFormatting -Feature Streams\n\nWrite-ConsoleRule 'With -Feature Streams: the theme''s colours'\nWrite-Warning 'Certificate for mail.evotec.xyz expires in 12 days'\nWrite-Verbose 'Queried 4 domain controllers in 2 domains'\nWrite-Debug 'Cache hit for evotec.xyz'\n\nDisable-ConsoleFormatting -Feature Streams",
-      "scriptFull": "Import-Module ConsoleMonster\n\n# Show every stream for this demo.\n$VerbosePreference = 'Continue'\n$DebugPreference = 'Continue'\n\nWrite-ConsoleRule \"PowerShell's own colours\"\nWrite-Warning 'Certificate for mail.evotec.xyz expires in 12 days'\nWrite-Verbose 'Queried 4 domain controllers in 2 domains'\nWrite-Debug 'Cache hit for evotec.xyz'\n\nEnable-ConsoleFormatting -Feature Streams\n\nWrite-ConsoleRule 'With -Feature Streams: the theme''s colours'\nWrite-Warning 'Certificate for mail.evotec.xyz expires in 12 days'\nWrite-Verbose 'Queried 4 domain controllers in 2 domains'\nWrite-Debug 'Cache hit for evotec.xyz'\n\nDisable-ConsoleFormatting -Feature Streams",
+      "script": "# Show every stream for this demo.\n$VerbosePreference = 'Continue'\n$DebugPreference = 'Continue'\n\nShow-ConsoleRule \"PowerShell's own colours\"\nWrite-Warning 'Certificate for mail.evotec.xyz expires in 12 days'\nWrite-Verbose 'Queried 4 domain controllers in 2 domains'\nWrite-Debug 'Cache hit for evotec.xyz'\n\nEnable-ConsoleFormatting -Feature Streams\n\nShow-ConsoleRule 'With -Feature Streams: the theme''s colours'\nWrite-Warning 'Certificate for mail.evotec.xyz expires in 12 days'\nWrite-Verbose 'Queried 4 domain controllers in 2 domains'\nWrite-Debug 'Cache hit for evotec.xyz'\n\nDisable-ConsoleFormatting -Feature Streams",
+      "scriptFull": "Import-Module ConsoleMonster\n\n# Show every stream for this demo.\n$VerbosePreference = 'Continue'\n$DebugPreference = 'Continue'\n\nShow-ConsoleRule \"PowerShell's own colours\"\nWrite-Warning 'Certificate for mail.evotec.xyz expires in 12 days'\nWrite-Verbose 'Queried 4 domain controllers in 2 domains'\nWrite-Debug 'Cache hit for evotec.xyz'\n\nEnable-ConsoleFormatting -Feature Streams\n\nShow-ConsoleRule 'With -Feature Streams: the theme''s colours'\nWrite-Warning 'Certificate for mail.evotec.xyz expires in 12 days'\nWrite-Verbose 'Queried 4 domain controllers in 2 domains'\nWrite-Debug 'Cache hit for evotec.xyz'\n\nDisable-ConsoleFormatting -Feature Streams",
       "rich": {
         "ps7": {
           "host": "PowerShell 7.6",
@@ -302,27 +302,12 @@
   "families": [
     {
       "verb": "Write",
-      "count": 11,
+      "count": 3,
       "commands": [
         {
-          "name": "Write-ConsoleException",
-          "synopsis": "Writes an error or exception readably (Format-ConsoleError without -AsWidget).",
-          "url": "/powershell/commands/write-consoleexception/"
-        },
-        {
-          "name": "Write-ConsoleKeyValue",
-          "synopsis": "Writes an aligned key/value list.",
-          "url": "/powershell/commands/write-consolekeyvalue/"
-        },
-        {
-          "name": "Write-ConsoleLog",
+          "name": "Write-ConsoleLogEntry",
           "synopsis": "Writes a line to the log region of a running dashboard.",
-          "url": "/powershell/commands/write-consolelog/"
-        },
-        {
-          "name": "Write-ConsoleMarkup",
-          "synopsis": "Writes Spectre-compatible markup as styled text.",
-          "url": "/powershell/commands/write-consolemarkup/"
+          "url": "/powershell/commands/write-consolelogentry/"
         },
         {
           "name": "Write-ConsoleProgress",
@@ -330,81 +315,26 @@
           "url": "/powershell/commands/write-consoleprogress/"
         },
         {
-          "name": "Write-ConsoleRule",
-          "synopsis": "Writes a horizontal rule, optionally with a title.",
-          "url": "/powershell/commands/write-consolerule/"
-        },
-        {
-          "name": "Write-ConsoleStatus",
-          "synopsis": "Shows one status line that updates in place, with an optional spinner, clock and elapsed time.",
-          "url": "/powershell/commands/write-consolestatus/"
-        },
-        {
-          "name": "Write-ConsoleTable",
-          "synopsis": "Writes pipeline objects as a console table.",
-          "url": "/powershell/commands/write-consoletable/"
-        },
-        {
           "name": "Write-ConsoleText",
           "synopsis": "Writes multicolour text to the console and, optionally, to a log file: Write-Color compatible, with markup, styles, gradients, padding, wrapping and structured logs.",
           "url": "/powershell/commands/write-consoletext/"
-        },
-        {
-          "name": "Write-ConsoleTree",
-          "synopsis": "Writes a console tree from New-ConsoleTreeNode calls, hierarchical objects or nested hashtables.",
-          "url": "/powershell/commands/write-consoletree/"
-        },
-        {
-          "name": "Write-ConsoleWidget",
-          "synopsis": "Writes console widgets once (tables, trees, panels, charts, dashboards).",
-          "url": "/powershell/commands/write-consolewidget/"
         }
       ]
     },
     {
       "verb": "Format",
-      "count": 7,
+      "count": 1,
       "commands": [
-        {
-          "name": "Format-ConsoleCode",
-          "synopsis": "Shows source text with syntax highlighting, line numbers and highlighted lines.",
-          "url": "/powershell/commands/format-consolecode/"
-        },
         {
           "name": "Format-ConsoleCommand",
           "synopsis": "Builds a copyable command line from named values without executing it.",
           "url": "/powershell/commands/format-consolecommand/"
-        },
-        {
-          "name": "Format-ConsoleError",
-          "synopsis": "Shows errors and exceptions readably: type, message, position, script stack, frames and inner errors.",
-          "url": "/powershell/commands/format-consoleerror/"
-        },
-        {
-          "name": "Format-ConsoleJson",
-          "synopsis": "Shows JSON with syntax highlighting: JSON text re-indented, or objects written as JSON.",
-          "url": "/powershell/commands/format-consolejson/"
-        },
-        {
-          "name": "Format-ConsoleList",
-          "synopsis": "Formats pipeline objects as record views (labelled values) and writes them to the host.",
-          "url": "/powershell/commands/format-consolelist/"
-        },
-        {
-          "name": "Format-ConsoleTable",
-          "synopsis": "Formats pipeline objects as a width-aware table and writes it to the host.",
-          "url": "/powershell/commands/format-consoletable/"
-        },
-        {
-          "name": "Format-ConsoleTree",
-          "synopsis": "Shows the structure of pipeline objects as a tree (or an inspector view) and writes it to the host.",
-          "url": "/powershell/commands/format-consoletree/"
         }
       ]
     },
     {
       "verb": "New",
-      "count": 52,
+      "count": 54,
       "commands": [
         {
           "name": "New-ConsoleActivityList",
@@ -447,9 +377,9 @@
           "url": "/powershell/commands/new-consolechartseries/"
         },
         {
-          "name": "New-ConsoleClock",
-          "synopsis": "Creates a run clock (ConsoleMonster.Live.SimulatedClock) the script moves forward, for simulated runs whose screen shows simulated time.",
-          "url": "/powershell/commands/new-consoleclock/"
+          "name": "New-ConsoleColumnFormat",
+          "synopsis": "Creates shared numeric or detail-column layout settings.",
+          "url": "/powershell/commands/new-consolecolumnformat/"
         },
         {
           "name": "New-ConsoleColumns",
@@ -467,6 +397,11 @@
           "url": "/powershell/commands/new-consolefield/"
         },
         {
+          "name": "New-ConsoleFooterBar",
+          "synopsis": "Creates a reusable footer with key hints, messages and linked segments.",
+          "url": "/powershell/commands/new-consolefooterbar/"
+        },
+        {
           "name": "New-ConsoleForm",
           "synopsis": "Creates a form or wizard from fields (New-ConsoleField) for Read-ConsoleForm or a menu item.",
           "url": "/powershell/commands/new-consoleform/"
@@ -480,6 +415,11 @@
           "name": "New-ConsoleGrid",
           "synopsis": "Lays console widgets out in an equal-width grid.",
           "url": "/powershell/commands/new-consolegrid/"
+        },
+        {
+          "name": "New-ConsoleHeaderBar",
+          "synopsis": "Creates a header with a title, breadcrumbs, detail and optional elapsed time.",
+          "url": "/powershell/commands/new-consoleheaderbar/"
         },
         {
           "name": "New-ConsoleHistogram",
@@ -517,14 +457,14 @@
           "url": "/powershell/commands/new-consolelivetable/"
         },
         {
-          "name": "New-ConsoleLog",
-          "synopsis": "Creates a log region: the newest lines of a log, bottom-aligned.",
-          "url": "/powershell/commands/new-consolelog/"
+          "name": "New-ConsoleLogEntry",
+          "synopsis": "Creates one log line with a level and a time, for New-ConsoleLogRegion.",
+          "url": "/powershell/commands/new-consolelogentry/"
         },
         {
-          "name": "New-ConsoleLogEntry",
-          "synopsis": "Creates one log line with a level and a time, for New-ConsoleLog.",
-          "url": "/powershell/commands/new-consolelogentry/"
+          "name": "New-ConsoleLogRegion",
+          "synopsis": "Creates a log region: the newest lines of a log, bottom-aligned.",
+          "url": "/powershell/commands/new-consolelogregion/"
         },
         {
           "name": "New-ConsoleLogo",
@@ -545,6 +485,11 @@
           "name": "New-ConsoleMenuPreset",
           "synopsis": "Creates a preset a menu comes with: form values and selections under one name, with a description and a preview.",
           "url": "/powershell/commands/new-consolemenupreset/"
+        },
+        {
+          "name": "New-ConsoleMenuRunResult",
+          "synopsis": "Creates the result a menu run returns: a title, a status, a summary, figures and next actions.",
+          "url": "/powershell/commands/new-consolemenurunresult/"
         },
         {
           "name": "New-ConsoleMultiSelect",
@@ -587,19 +532,14 @@
           "url": "/powershell/commands/new-consolerule/"
         },
         {
-          "name": "New-ConsoleRun",
-          "synopsis": "Starts a bounded run dashboard for work scheduled by your script.",
-          "url": "/powershell/commands/new-consolerun/"
-        },
-        {
-          "name": "New-ConsoleRunResult",
-          "synopsis": "Creates the result a menu run returns: a title, a status, a summary, figures and next actions.",
-          "url": "/powershell/commands/new-consolerunresult/"
-        },
-        {
           "name": "New-ConsoleSelect",
           "synopsis": "Creates a named select input for Show-ConsoleApp.",
           "url": "/powershell/commands/new-consoleselect/"
+        },
+        {
+          "name": "New-ConsoleSimulatedClock",
+          "synopsis": "Creates a run clock (ConsoleMonster.Live.SimulatedClock) the script moves forward, for simulated runs whose screen shows simulated time.",
+          "url": "/powershell/commands/new-consolesimulatedclock/"
         },
         {
           "name": "New-ConsoleSparkline",
@@ -670,27 +610,12 @@
     },
     {
       "verb": "Start",
-      "count": 4,
+      "count": 1,
       "commands": [
         {
-          "name": "Start-ConsoleDashboard",
-          "synopsis": "Runs a console dashboard live while a script does the work.",
-          "url": "/powershell/commands/start-consoledashboard/"
-        },
-        {
-          "name": "Start-ConsoleDemo",
-          "synopsis": "Presents a scripted demo one command at a time in a real shell.",
-          "url": "/powershell/commands/start-consoledemo/"
-        },
-        {
-          "name": "Start-ConsoleRecording",
-          "synopsis": "Opens a recorded child shell in a pseudo-console.",
-          "url": "/powershell/commands/start-consolerecording/"
-        },
-        {
-          "name": "Start-ConsoleReplay",
-          "synopsis": "Replays a recorded dashboard session (JSON lines) into a dashboard.",
-          "url": "/powershell/commands/start-consolereplay/"
+          "name": "Start-ConsoleRun",
+          "synopsis": "Starts a bounded run dashboard for work scheduled by your script.",
+          "url": "/powershell/commands/start-consolerun/"
         }
       ]
     },
@@ -714,6 +639,11 @@
           "url": "/powershell/commands/update-consolelane/"
         },
         {
+          "name": "Update-ConsoleLiveTable",
+          "synopsis": "Adds, updates, removes or clears rows of a live table (New-ConsoleLiveTable) in the running dashboard.",
+          "url": "/powershell/commands/update-consolelivetable/"
+        },
+        {
           "name": "Update-ConsolePhase",
           "synopsis": "Updates a phase of a running dashboard's phase strip.",
           "url": "/powershell/commands/update-consolephase/"
@@ -734,19 +664,14 @@
           "url": "/powershell/commands/update-consolespinner/"
         },
         {
-          "name": "Update-ConsoleStatus",
+          "name": "Update-ConsoleStatusItem",
           "synopsis": "Updates an item of a status list in a running dashboard.",
-          "url": "/powershell/commands/update-consolestatus/"
+          "url": "/powershell/commands/update-consolestatusitem/"
         },
         {
           "name": "Update-ConsoleSummaryBar",
           "synopsis": "Updates a summary bar (New-ConsoleSummaryBar) in the running dashboard: progress and counters.",
           "url": "/powershell/commands/update-consolesummarybar/"
-        },
-        {
-          "name": "Update-ConsoleTable",
-          "synopsis": "Adds, updates, removes or clears rows of a live table (New-ConsoleLiveTable) in the running dashboard.",
-          "url": "/powershell/commands/update-consoletable/"
         }
       ]
     },
@@ -765,9 +690,9 @@
           "url": "/powershell/commands/read-consoleform/"
         },
         {
-          "name": "Read-ConsoleMultiSelection",
+          "name": "Read-ConsoleMultiSelect",
           "synopsis": "Asks the user to pick any number of the choices and returns the chosen objects.",
-          "url": "/powershell/commands/read-consolemultiselection/"
+          "url": "/powershell/commands/read-consolemultiselect/"
         },
         {
           "name": "Read-ConsoleNumber",
@@ -785,9 +710,9 @@
           "url": "/powershell/commands/read-consolesecret/"
         },
         {
-          "name": "Read-ConsoleSelection",
+          "name": "Read-ConsoleSelect",
           "synopsis": "Asks the user to pick one of the choices and returns the chosen object.",
-          "url": "/powershell/commands/read-consoleselection/"
+          "url": "/powershell/commands/read-consoleselect/"
         },
         {
           "name": "Read-ConsoleText",
@@ -798,7 +723,7 @@
     },
     {
       "verb": "Show",
-      "count": 11,
+      "count": 21,
       "commands": [
         {
           "name": "Show-Console",
@@ -816,9 +741,24 @@
           "url": "/powershell/commands/show-consolechanges/"
         },
         {
+          "name": "Show-ConsoleChart",
+          "synopsis": "Draws horizontal bars, a histogram or grouped sparklines from pipeline objects.",
+          "url": "/powershell/commands/show-consolechart/"
+        },
+        {
+          "name": "Show-ConsoleCode",
+          "synopsis": "Shows source text with syntax highlighting, line numbers and highlighted lines.",
+          "url": "/powershell/commands/show-consolecode/"
+        },
+        {
           "name": "Show-ConsoleDemo",
           "synopsis": "Runs an embedded ConsoleMonster gallery demo in the current PowerShell runspace.",
           "url": "/powershell/commands/show-consoledemo/"
+        },
+        {
+          "name": "Show-ConsoleError",
+          "synopsis": "Shows errors and exceptions readably: type, message, position, script stack, frames and inner errors.",
+          "url": "/powershell/commands/show-consoleerror/"
         },
         {
           "name": "Show-ConsoleGrid",
@@ -829,6 +769,16 @@
           "name": "Show-ConsoleHelp",
           "synopsis": "Shows a command's help: synopsis, highlighted syntax, a parameter table and highlighted examples.",
           "url": "/powershell/commands/show-consolehelp/"
+        },
+        {
+          "name": "Show-ConsoleJson",
+          "synopsis": "Shows JSON with syntax highlighting: JSON text re-indented, or objects written as JSON.",
+          "url": "/powershell/commands/show-consolejson/"
+        },
+        {
+          "name": "Show-ConsoleList",
+          "synopsis": "Formats pipeline objects as record views (labelled values) and writes them to the host.",
+          "url": "/powershell/commands/show-consolelist/"
         },
         {
           "name": "Show-ConsoleMarkdown",
@@ -851,16 +801,46 @@
           "url": "/powershell/commands/show-consoleoverview/"
         },
         {
+          "name": "Show-ConsolePresentation",
+          "synopsis": "Presents a scripted demo one command at a time in a real shell.",
+          "url": "/powershell/commands/show-consolepresentation/"
+        },
+        {
           "name": "Show-ConsoleReplay",
           "synopsis": "Rewinds a recorded run: an in-terminal player with a timeline, markers, failures, warnings and log search.",
           "url": "/powershell/commands/show-consolereplay/"
+        },
+        {
+          "name": "Show-ConsoleRule",
+          "synopsis": "Writes a horizontal rule, optionally with a title.",
+          "url": "/powershell/commands/show-consolerule/"
+        },
+        {
+          "name": "Show-ConsoleStatusLine",
+          "synopsis": "Shows one status line that updates in place, with an optional spinner, clock and elapsed time.",
+          "url": "/powershell/commands/show-consolestatusline/"
+        },
+        {
+          "name": "Show-ConsoleTable",
+          "synopsis": "Formats pipeline objects as a width-aware table and writes it to the host.",
+          "url": "/powershell/commands/show-consoletable/"
+        },
+        {
+          "name": "Show-ConsoleTree",
+          "synopsis": "Shows a hierarchy from objects, dictionaries or explicit tree nodes.",
+          "url": "/powershell/commands/show-consoletree/"
         }
       ]
     },
     {
       "verb": "Export",
-      "count": 3,
+      "count": 4,
       "commands": [
+        {
+          "name": "Export-ConsoleDemo",
+          "synopsis": "Exports one embedded demo as a copyable PowerShell script.",
+          "url": "/powershell/commands/export-consoledemo/"
+        },
         {
           "name": "Export-ConsoleFrame",
           "synopsis": "Exports a widget, a rendered frame or a live-session snapshot to PNG, HTML, SVG, Markdown or text.",
@@ -880,12 +860,12 @@
     },
     {
       "verb": "Invoke",
-      "count": 4,
+      "count": 5,
       "commands": [
         {
-          "name": "Invoke-ConsoleDemo",
-          "synopsis": "Types a scripted PowerShell demo into a real terminal and records it.",
-          "url": "/powershell/commands/invoke-consoledemo/"
+          "name": "Invoke-ConsoleDashboard",
+          "synopsis": "Runs a console dashboard live while a script does the work.",
+          "url": "/powershell/commands/invoke-consoledashboard/"
         },
         {
           "name": "Invoke-ConsolePester",
@@ -893,8 +873,13 @@
           "url": "/powershell/commands/invoke-consolepester/"
         },
         {
+          "name": "Invoke-ConsolePresentation",
+          "synopsis": "Types a scripted PowerShell demo into a real terminal and records it.",
+          "url": "/powershell/commands/invoke-consolepresentation/"
+        },
+        {
           "name": "Invoke-ConsoleRecording",
-          "synopsis": "Records a script in a child PowerShell terminal and exports the result.",
+          "synopsis": "Records a script or an interactive child shell and saves the result.",
           "url": "/powershell/commands/invoke-consolerecording/"
         },
         {
@@ -1018,20 +1003,15 @@
         },
         {
           "name": "Get-ConsoleDemo",
-          "synopsis": "Lists the copyable ConsoleMonster gallery demos or exports one PowerShell script.",
+          "synopsis": "Lists the copyable ConsoleMonster gallery demos .",
           "url": "/powershell/commands/get-consoledemo/"
         }
       ]
     },
     {
       "verb": "Out",
-      "count": 3,
+      "count": 2,
       "commands": [
-        {
-          "name": "Out-ConsoleChart",
-          "synopsis": "Draws horizontal bars, a histogram or grouped sparklines from pipeline objects.",
-          "url": "/powershell/commands/out-consolechart/"
-        },
         {
           "name": "Out-ConsoleDefault",
           "synopsis": "Shows objects of registered types through ConsoleMonster and passes everything else to PowerShell's Out-Default.",
@@ -1100,6 +1080,17 @@
           "name": "Stop-ConsoleRecording",
           "synopsis": "Stops recording from inside the recorded child shell.",
           "url": "/powershell/commands/stop-consolerecording/"
+        }
+      ]
+    },
+    {
+      "verb": "Unregister",
+      "count": 1,
+      "commands": [
+        {
+          "name": "Unregister-ConsoleView",
+          "synopsis": "Removes registered ConsoleMonster views and value shapers.",
+          "url": "/powershell/commands/unregister-consoleview/"
         }
       ]
     },
