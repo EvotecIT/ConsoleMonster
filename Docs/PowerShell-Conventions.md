@@ -4,6 +4,9 @@ I use the same vocabulary in PowerShell and C#, with small translations where th
 
 ## Commands by job
 
+Question workflows (`Read-Console*`, forms and action menus) acquire answers or run a selected action, then return control to the script.
+Application controls (`New-ConsoleSelect` and friends inside `Show-ConsoleApp`) retain focus, events and mutable state together in a persistent composed screen.
+
 | Job | Primary command | Composition or lifecycle |
 | --- | --- | --- |
 | Show ordinary objects or a widget | `Show-Console` | Automatic view selection; accepts an `IWidget` directly. |

@@ -1,5 +1,4 @@
 param(
-    [Alias('ConfigurationGateMode')]
     [ValidateSet('Manifest', 'Documentation', 'Build', 'Publish')]
     [string] $RunMode = 'Build',
 

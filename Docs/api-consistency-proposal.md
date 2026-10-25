@@ -711,6 +711,10 @@ I rebased this change onto the demo source cleanup in #53. That adds two command
 
 Gallery programs keep explicit object rows and ordinary execution. Scripted keys, snapshots and checkpoints stay in the capture driver; copied scripts have no `-StaticSnapshot` or `-Step` parameters. PowerShell scripts use UTF-8 with a BOM.
 
+The acceptance contract is one entry point for each operation, with definitions and lifecycle steps treated as different jobs: Show displays, New builds, and Update changes an addressed live widget. Question workflows acquire answers or run a selected action and return to the script; application controls retain focus, events and mutable state in a composed screen. Native progress submission (`Write-ConsoleProgress`) and scoped interception (`Use-ConsoleProgress`) are distinct from constructing and updating a dashboard bar. The automatic viewer chooses a view; the named viewers select a particular representation. Replay has one viewer and an explicit playback mode.
+
+The module exports no command aliases or compatibility parameter aliases. `Enable-ConsoleFormatting -Feature Progress` remains the explicit native `Write-Progress` integration: it preserves PowerShell's command name and parameter vocabulary, rather than reviving a retired ConsoleMonster name. The generated loader's generic alias re-export bridge receives no aliases from this module. Tests cover all 29 retired or renamed cmdlet names, exported aliases, declared parameter aliases and fresh-process accelerator registration. The only default accelerators are the 13 fully qualified names listed above; no unprefixed accelerator is added.
+
 ## Principles
 
 1. Give each job one primary command. Keep constructors, viewers and running-session updates distinct; share their implementation.

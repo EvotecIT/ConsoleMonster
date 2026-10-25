@@ -26,6 +26,8 @@ that product. Gaps are closed with general extension points, not per-product shi
 - Export to HTML, SVG, text and asciicast, with the HTML recording player as one native script and a data format that
   sites reuse; public test helpers (`TestTerminal`, `GoldenFile`, `ScreenCapture`,
   `Assert-ConsoleOutput`).
+- Raster/PNG export and the ChartForgeX renderer integration ship in the separate `ConsoleMonster.Graphics` package;
+  terminal rendering stays in the zero-dependency core.
 - `Write-ConsoleText` with the Write-Color parameters, log formats and correct log-file encoding handling.
 - Targets (`ITerminalTarget`): console, recording, writer and null targets behind every write, live session, prompt
   and status helper, with a scoped ambient default and a documented pattern for libraries.
@@ -33,7 +35,7 @@ that product. Gaps are closed with general extension points, not per-product shi
   hide-completed, collapse-when-finished and transient modes, and column summaries in stream output.
 - Built-in labels in English, Polish, German, Spanish, French and Italian, following the UI language, including the
   test-run view.
-- Replaceable regions (`Slot`, `LiveSession.Region`, `New-ConsoleRegion`, `Set-ConsoleRegion`) and keyed live tables
+- Replaceable regions (`RegionWidget`, `LiveSession.Region`, `New-ConsoleRegion`, `Set-ConsoleRegion`) and keyed live tables
   (`LiveTable`, `New-ConsoleLiveTable`, `Update-ConsoleLiveTable`) with stable widths, a recent-rows window and sorting.
 - Emoji and symbol fallback per glyph tier, extensible by apps, with opt-in `:shortcode:` emoji in markup and an
   `Emoji` cell presenter.

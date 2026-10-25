@@ -10,7 +10,8 @@ Granular tasks: validation, review follow-ups and small fixes. Decisions, the ne
 - Heat strip widget from the v1 widget list.
 - Per-widget narration options for stream mode.
 - Light background detection in Windows Terminal: needs an OSC 11 query that never consumes user input (today `CONSOLEMONSTER_THEME=light` is required there).
-- Table v2: column sorting and filtering in live tables and horizontal scrolling as an alternative to hiding columns.
+- Live-table filtering and horizontal scrolling as an alternative to hiding columns; column sorting already ships
+  through `New-ConsoleLiveTable -SortBy -Descending`.
 - Inspector: PowerShell format data (`*.format.ps1xml`) views as an input to column selection.
 
 ## Follow-ups from the pre-PR review (review.md, 2026-10-17)
@@ -43,7 +44,6 @@ The review's high findings and M1-M4, M6 and M7 are fixed. Still open, with the 
   replay on /live/ has) and use it below 700 px.
 
 ## v1.x (only with a real consumer)
-- ChartForgeX.Terminal: ChartForgeX scenes on the ConsoleMonster canvas.
 - Declarative JSON layouts with data binding.
 - Spectre.Console adapter (widgets as `IRenderable`).
 - Remote sources (named pipe or HTTP event stream) so a console can watch another process or service.

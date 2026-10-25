@@ -6,14 +6,30 @@ Describe 'ConsoleMonster public API vocabulary' {
 
     It 'exports one command for each approved job and removes the old names and aliases' {
         $names = $script:Commands.Name
-        foreach ($name in 'Show-ConsoleTable', 'Show-ConsoleList', 'Show-ConsoleRule', 'Export-ConsoleDemo', 'Show-ConsolePresentation', 'Invoke-ConsolePresentation', 'Unregister-ConsoleView', 'New-ConsoleHeaderBar', 'New-ConsoleFooterBar', 'New-ConsoleColumnFormat') {
+        foreach ($name in 'Show-Console', 'Show-ConsoleTable', 'Show-ConsoleList', 'Show-ConsoleTree', 'Show-ConsoleObject', 'Show-ConsoleError', 'Show-ConsoleChart', 'Show-ConsoleReplay', 'New-ConsoleProgress', 'Update-ConsoleProgress', 'Write-ConsoleProgress', 'Use-ConsoleProgress', 'Read-ConsoleSelect', 'Read-ConsoleMultiSelect', 'Read-ConsoleForm', 'New-ConsoleForm', 'Show-ConsoleMenu', 'Show-ConsoleApp', 'New-ConsoleSelect', 'New-ConsoleMultiSelect', 'Show-ConsoleRule', 'Export-ConsoleDemo', 'Show-ConsolePresentation', 'Invoke-ConsolePresentation', 'Unregister-ConsoleView', 'New-ConsoleHeaderBar', 'New-ConsoleFooterBar', 'New-ConsoleColumnFormat') {
             $names | Should -Contain $name
         }
-        foreach ($name in 'Format-ConsoleTable', 'Format-ConsoleList', 'Format-ConsoleTree', 'Format-ConsoleCode', 'Format-ConsoleJson', 'Format-ConsoleError', 'Write-ConsoleTable', 'Write-ConsoleTree', 'Write-ConsoleKeyValue', 'Write-ConsoleWidget', 'Write-ConsoleMarkup', 'Write-ConsoleException', 'Write-ConsoleRule', 'Start-ConsoleRecording', 'Start-ConsoleReplay', 'Start-ConsoleDemo', 'Invoke-ConsoleDemo') {
+        foreach ($name in 'Format-ConsoleTable', 'Format-ConsoleList', 'Format-ConsoleTree', 'Format-ConsoleCode', 'Format-ConsoleJson', 'Format-ConsoleError', 'Write-ConsoleTable', 'Write-ConsoleTree', 'Write-ConsoleKeyValue', 'Write-ConsoleWidget', 'Write-ConsoleMarkup', 'Write-ConsoleException', 'Write-ConsoleRule', 'Out-ConsoleChart', 'Start-ConsoleRecording', 'Start-ConsoleReplay', 'Start-ConsoleDemo', 'Invoke-ConsoleDemo', 'Update-ConsoleTable', 'New-ConsoleLog', 'Write-ConsoleLog', 'Write-ConsoleStatus', 'Update-ConsoleStatus', 'New-ConsoleRun', 'Start-ConsoleDashboard', 'Read-ConsoleSelection', 'Read-ConsoleMultiSelection', 'New-ConsoleClock', 'New-ConsoleRunResult') {
             $names | Should -Not -Contain $name
+            Get-Command -Module ConsoleMonster -Name $name -ErrorAction SilentlyContinue | Should -BeNullOrEmpty
         }
         foreach ($name in 'fct', 'fcl', 'ForEach-ConsoleItem') {
             Get-Alias $name -ErrorAction SilentlyContinue | Should -BeNullOrEmpty
+        }
+    }
+
+    It 'exports no aliases and declares no compatibility parameter aliases' {
+        $module = Get-Module ConsoleMonster
+        $module.ExportedAliases.Count | Should -Be 0
+        $manifest = Import-PowerShellDataFile (Join-Path $PSScriptRoot '../ConsoleMonster.psd1')
+        @($manifest.AliasesToExport).Count | Should -Be 0
+        foreach ($command in $script:Commands) {
+            foreach ($parameter in $command.Parameters.Values) {
+                # Common parameters belong to PowerShell, including its native aliases.
+                $property = $command.ImplementingType.GetProperty($parameter.Name)
+                if ($null -eq $property -or $property.DeclaringType.Namespace -notlike 'ConsoleMonster*') { continue }
+                $parameter.Aliases.Count | Should -Be 0 -Because "$($command.Name) -$($parameter.Name) has one public name"
+            }
         }
     }
 
@@ -113,7 +129,7 @@ Describe 'ConsoleMonster public API vocabulary' {
         }
     }
 
-    It 'owns only the explicit accelerator list and preserves foreign registrations in a fresh process' {
+    It 'registers no unprefixed accelerators and preserves foreign registrations in a fresh process' {
         . (Join-Path $PSScriptRoot 'Support/Invoke-TestChild.ps1')
         $proof = Join-Path $PSScriptRoot 'Support/Assert-TypeAccelerators.ps1'
         $module = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../ConsoleMonster.psd1'))
