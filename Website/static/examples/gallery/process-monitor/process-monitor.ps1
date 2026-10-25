@@ -24,7 +24,7 @@ function New-ProcessFrame {
         New-ConsoleText -Markup "[accent]CPU $((56 + $Tick * 5))%[/]   Memory $((1640 + $Tick * 64)) MiB   [muted]4 processes[/]"
         New-ConsoleTable -InputObject $rows -Property Name, Pid, 'CPU %', 'Memory MiB' -Expand
         New-ConsolePanel -Title 'CPU history' -Content {
-            New-ConsoleSparkline -Label 'CPU %' -Value @($cpuHistory + (56 + $Tick * 5))
+            New-ConsoleChart -Label 'CPU %' -Type Sparkline -Values @($cpuHistory + (56 + $Tick * 5))
         }
         '[muted]Ctrl+C stops monitoring. Final counters stay in scrollback.[/]'
     }
@@ -32,14 +32,14 @@ function New-ProcessFrame {
 
 # Behaviour: update each frame in a bounded live run.
 $frames = @(0..2 | ForEach-Object -Process { New-ProcessFrame -Tick $_ })
-$screen = New-ConsoleRegion -WidgetId processes -Widget $frames[0]
+$screen = New-ConsoleRegion -WidgetId processes -Content $frames[0]
 Invoke-ConsoleDashboard -Dashboard $screen -ArgumentList (, $frames) -ScriptBlock {
     param($Frames)
     foreach ($frame in $Frames) {
         if ($ConsoleSession.Cancellation.IsCancellationRequested) {
             break
         }
-        Set-ConsoleRegion -WidgetId processes -Widget $frame
+        Update-Console -WidgetId processes -Content $frame
         Wait-ConsoleDashboard -Milliseconds 1000
     }
 }

@@ -13,7 +13,7 @@ Type selects Bar, Stacked, Line, Scatter, Histogram or Sparkline. The shared C# 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleChart [[-WidgetId] <string>] [[-InputObject] <psobject>] -Type <ChartType> [-Unit <string>] [-Label <Object>] [-Height <Int32>] [-Minimum <Double>] [-Maximum <Double>] [-Role <ThemeToken>] [-Shape <BarShape>] [-Warning <Double>] [-Critical <Double>] [-NoLatest] [-Edges <double[]>] [-Values <double[]>] [-ValueColumn <ColumnFormat>] [-CountColumn <ColumnFormat>] [-PercentColumn <ColumnFormat>] [-LabelColumn <ColumnFormat>] [-Content <scriptblock>] [-Series <Object[]>] [<CommonParameters>]
+New-ConsoleChart [[-WidgetId] <string>] [[-InputObject] <psobject>] -Type <ChartType> [-Unit <string>] [-Label <Object>] [-Height <Int32>] [-Minimum <Double>] [-Maximum <Double>] [-Role <ThemeToken>] [-Shape <BarShape>] [-Warning <Double>] [-Critical <Double>] [-NoLatest] [-Edges <double[]>] [-Values <double[]>] [-ValueColumn <ColumnFormat>] [-CountColumn <ColumnFormat>] [-PercentColumn <ColumnFormat>] [-LabelColumn <ColumnFormat>] [-Content <scriptblock>] [-Series <Object[]>] [-NoValues] [-Signed] [-NoLegend] [-MaxLegendColumns <int>] [-Capacity <Int32>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -31,6 +31,22 @@ Type selects Bar, Stacked, Line, Scatter, Histogram or Sparkline. The shared C# 
 Show resolver latency
 
 ## PARAMETERS
+
+### -Capacity
+Retained Line, Scatter or Sparkline samples; omitted uses the selected kind default.
+
+```yaml
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -Content
 A script block emitting the same records accepted by InputObject.
@@ -176,6 +192,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -MaxLegendColumns
+Maximum Stacked legend columns; zero fits the available width.
+
+```yaml
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Minimum
 The lower numeric limit.
 
@@ -194,6 +226,38 @@ Accept wildcard characters: False
 
 ### -NoLatest
 Hides the latest Sparkline value.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NoLegend
+Hides the Stacked-chart legend.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NoValues
+Hides Bar-chart numeric value labels.
 
 ```yaml
 Type: SwitchParameter
@@ -264,6 +328,22 @@ Type: BarShape
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values: Block, Line
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Signed
+Shows signed Bar values on both sides of zero.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
 
 Required: False
 Position: named

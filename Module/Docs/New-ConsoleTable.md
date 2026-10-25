@@ -8,7 +8,7 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a console table from pipeline objects.
 
-Columns come from -Property or from the first object's properties (or hashtable keys). Columns size to their content, numbers are right-aligned, long values wrap. A -StatusProperty column shows status markers (pass, fail, warn...) as the row's one colour signal.
+Columns come from -Property or from the first object's properties (or hashtable keys). Property descriptors accept presenter names or configured C# ICellPresenter instances. Columns size to their content, numbers are right-aligned, long values wrap. A -StatusProperty column shows status markers (pass, fail, warn...) as the row's one colour signal.
 
 ## SYNTAX
 ### Objects (Default)
@@ -29,7 +29,7 @@ New-ConsoleTable -Bind <scriptblock> [-Property <Object[]>] [-StatusProperty <st
 ## DESCRIPTION
 Creates a console table from pipeline objects.
 
-Columns come from -Property or from the first object's properties (or hashtable keys). Columns size to their content, numbers are right-aligned, long values wrap. A -StatusProperty column shows status markers (pass, fail, warn...) as the row's one colour signal.
+Columns come from -Property or from the first object's properties (or hashtable keys). Property descriptors accept presenter names or configured C# ICellPresenter instances. Columns size to their content, numbers are right-aligned, long values wrap. A -StatusProperty column shows status markers (pass, fail, warn...) as the row's one colour signal.
 
 ## EXAMPLES
 

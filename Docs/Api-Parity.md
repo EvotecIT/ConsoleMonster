@@ -3,7 +3,7 @@
 
 I use the same domain names for cmdlet parameters, C# configuration and fluent calls. PowerShell keeps numeric duration parameters with units and default-off switches; C# keeps TimeSpan values and Boolean properties.
 
-The contract covers **97 commands**, **1018 parameters** and **266 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
+The contract covers **98 commands**, **1029 parameters** and **281 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
 
 Table and List remain named shortcuts to Show-Console’s shared view implementation. Read-* returns answers; New-ConsoleForm/Menu defines a question workflow; Show-ConsoleApp runs a persistent reactive application.
 
@@ -69,6 +69,8 @@ Native host hooks, runtime models and equivalent representations are listed indi
 | `ConsoleMonster.Interactive.MenuItem.ActionAsync` | CSharpOnly: A native asynchronous delegate may resume outside the owning PowerShell runspace; the cmdlet exposes a synchronous script-block adapter. | Use -Action for owning-runspace script execution or a compiled C# callback. |
 | `ConsoleMonster.Interactive.MenuRunResult.Error` | CSharpOnly: A native Exception retains the C# action failure/stack; the PowerShell adapter owns ErrorRecord handling and reports displayable failure details. | Use -Status Fail and -Summary/-Detail/-Transcript for a PowerShell result. |
 | `ConsoleMonster.Interactive.PromptLabels.Default` | CSharpOnly: This static label catalogue is host-wide localization state; PowerShell resolves labels from the active language. | Use the terminal language/profile and normal per-command question text. |
+| `ConsoleMonster.Interactive.SecretPrompt.AllowReveal` | CSharpOnly: Changing whether a secret can be revealed is a C# embedding-host policy; the PowerShell secret question retains its secure default. | Read-ConsoleText -AsSecret keeps the masked secret entry policy. |
+| `ConsoleMonster.Interactive.TypedConfirmPrompt.CaseSensitive` | CSharpOnly: A custom case-sensitive confirmation belongs to a C# host; the shell uses the conventional case-insensitive name comparison. | Read-ConsoleConfirm -TypedConfirmation uses the default case-insensitive comparison. |
 | `ConsoleMonster.Live.LiveEvent.Payload` | CSharpOnly: This in-process object is deliberately absent from the recording wire protocol; PowerShell uses validated widget updates rather than exposing an unrecordable raw payload. | Use Update-Console structured changes; custom C# ILiveTarget implementations may consume native payloads. |
 | `ConsoleMonster.Live.LiveRunOptions.Clock` | CSharpOnly: A native monotonic clock delegate belongs to the C# run host; a PowerShell script block cannot safely serve the background run clock. | Use the normal live clock or New-ConsoleSimulatedClock with a dashboard fixture. |
 | `ConsoleMonster.Live.RunOptions.Print` | CSharpOnly: The cmdlet owns the owning-thread stream relay; a C# embedding host supplies its own native printer. | Use Invoke-ConsoleRun -NoLive and normal PowerShell streams. |
@@ -146,3 +148,27 @@ Native host hooks, runtime models and equivalent representations are listed indi
 | `ConsoleMonster.Widgets.TextBlock.Overflow` | EquivalentRepresentation: TextBlock and RichText share overflow behavior; PowerShell exposes Overflow on its canonical RichText result. | Use New-ConsoleText -Text/-Markup/-Role/-Alignment/-Overflow; its RichText result is also a widget. |
 | `ConsoleMonster.Widgets.TextBlock.Role` | EquivalentRepresentation: TextBlock stores a block role; PowerShell applies the same Role through RichText’s base style. | Use New-ConsoleText -Text/-Markup/-Role/-Alignment/-Overflow; its RichText result is also a widget. |
 | `ConsoleMonster.Widgets.TreeHierarchyOptions.Identity` | CSharpOnly: A native graph identity delegate supports custom/AOT C# nodes; the PowerShell hierarchy adapter owns wrapped-object identity. | Use the canonical PSObject identity and bounded tree traversal. |
+
+## .NET host integrations
+
+The PowerShell formatting, help and progress examples run inside a compiled PSCmdlet on its owning pipeline thread. The generic-host and ILogger examples configure .NET lifetimes; their PowerShell tab launches the same project. These options remain explicit C# integration settings.
+
+| Package and C# member | PowerShell route and reason |
+| --- | --- |
+| `ConsoleMonster.Hosting.ConsoleDashboardOptions.Title` (ConsoleMonster.Hosting) | `dotnet run`: The .NET generic host owns service discovery, worker lifetimes and shutdown; PowerShell dashboard scripts use Invoke-ConsoleDashboard instead. |
+| `ConsoleMonster.Hosting.ConsoleDashboardOptions.Mode` (ConsoleMonster.Hosting) | `dotnet run`: The .NET generic host owns service discovery, worker lifetimes and shutdown; PowerShell dashboard scripts use Invoke-ConsoleDashboard instead. |
+| `ConsoleMonster.Hosting.ConsoleDashboardOptions.ShowServices` (ConsoleMonster.Hosting) | `dotnet run`: The .NET generic host owns service discovery, worker lifetimes and shutdown; PowerShell dashboard scripts use Invoke-ConsoleDashboard instead. |
+| `ConsoleMonster.Hosting.ConsoleDashboardOptions.ShowLog` (ConsoleMonster.Hosting) | `dotnet run`: The .NET generic host owns service discovery, worker lifetimes and shutdown; PowerShell dashboard scripts use Invoke-ConsoleDashboard instead. |
+| `ConsoleMonster.Hosting.ConsoleDashboardOptions.LogHeight` (ConsoleMonster.Hosting) | `dotnet run`: The .NET generic host owns service discovery, worker lifetimes and shutdown; PowerShell dashboard scripts use Invoke-ConsoleDashboard instead. |
+| `ConsoleMonster.Hosting.ConsoleDashboardOptions.KeepFinalState` (ConsoleMonster.Hosting) | `dotnet run`: The .NET generic host owns service discovery, worker lifetimes and shutdown; PowerShell dashboard scripts use Invoke-ConsoleDashboard instead. |
+| `ConsoleMonster.Hosting.ConsoleDashboardOptions.ServiceName` (ConsoleMonster.Hosting) | `dotnet run`: The .NET generic host owns service discovery, worker lifetimes and shutdown; PowerShell dashboard scripts use Invoke-ConsoleDashboard instead. |
+| `ConsoleMonster.Extensions.Logging.ConsoleMonsterLoggerOptions.MinimumLevel` (ConsoleMonster.Extensions.Logging) | `dotnet run`: The Microsoft.Extensions.Logging provider receives ILogger categories, scopes and event IDs; PowerShell uses its own stream and log-entry adapters. |
+| `ConsoleMonster.Extensions.Logging.ConsoleMonsterLoggerOptions.TimestampFormat` (ConsoleMonster.Extensions.Logging) | `dotnet run`: The Microsoft.Extensions.Logging provider receives ILogger categories, scopes and event IDs; PowerShell uses its own stream and log-entry adapters. |
+| `ConsoleMonster.Extensions.Logging.ConsoleMonsterLoggerOptions.UseUtcTimestamp` (ConsoleMonster.Extensions.Logging) | `dotnet run`: The Microsoft.Extensions.Logging provider receives ILogger categories, scopes and event IDs; PowerShell uses its own stream and log-entry adapters. |
+| `ConsoleMonster.Extensions.Logging.ConsoleMonsterLoggerOptions.Category` (ConsoleMonster.Extensions.Logging) | `dotnet run`: The Microsoft.Extensions.Logging provider receives ILogger categories, scopes and event IDs; PowerShell uses its own stream and log-entry adapters. |
+| `ConsoleMonster.Extensions.Logging.ConsoleMonsterLoggerOptions.IncludeScopes` (ConsoleMonster.Extensions.Logging) | `dotnet run`: The Microsoft.Extensions.Logging provider receives ILogger categories, scopes and event IDs; PowerShell uses its own stream and log-entry adapters. |
+| `ConsoleMonster.Extensions.Logging.ConsoleMonsterLoggerOptions.IncludeEventId` (ConsoleMonster.Extensions.Logging) | `dotnet run`: The Microsoft.Extensions.Logging provider receives ILogger categories, scopes and event IDs; PowerShell uses its own stream and log-entry adapters. |
+| `ConsoleMonster.Extensions.Logging.ConsoleMonsterLoggerOptions.MaxExceptionLines` (ConsoleMonster.Extensions.Logging) | `dotnet run`: The Microsoft.Extensions.Logging provider receives ILogger categories, scopes and event IDs; PowerShell uses its own stream and log-entry adapters. |
+| `ConsoleMonster.Extensions.Logging.ConsoleMonsterLoggerOptions.LogRegion` (ConsoleMonster.Extensions.Logging) | `dotnet run`: The Microsoft.Extensions.Logging provider receives ILogger categories, scopes and event IDs; PowerShell uses its own stream and log-entry adapters. |
+| `ConsoleMonster.Extensions.Logging.ConsoleMonsterLoggerOptions.Profile` (ConsoleMonster.Extensions.Logging) | `dotnet run`: The Microsoft.Extensions.Logging provider receives ILogger categories, scopes and event IDs; PowerShell uses its own stream and log-entry adapters. |
+| `ConsoleMonster.Extensions.Logging.ConsoleMonsterLoggerOptions.Writer` (ConsoleMonster.Extensions.Logging) | `dotnet run`: The Microsoft.Extensions.Logging provider receives ILogger categories, scopes and event IDs; PowerShell uses its own stream and log-entry adapters. |

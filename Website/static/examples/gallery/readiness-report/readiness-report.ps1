@@ -26,12 +26,12 @@ $screen = New-ConsoleRows -Gap 1 -Content {
     New-ConsolePanel -Title 'Checks' -Content {
         New-ConsoleStatusList -Content {
             foreach ($check in $checks) {
-                New-ConsoleStatusItem -Label $check.Name -Status $check.Status -Detail $check.Detail
+                [pscustomobject]@{ Label = $check.Name; Status = $check.Status; Detail = $check.Detail }
             }
         }
     }
     New-ConsolePanel -Title 'Readiness by area' -HeaderRight 'score / 100' -Content {
-        New-ConsoleBarChart -InputObject $scores -Maximum 100 -Unit '%' -Warning 80 -Critical 50
+        New-ConsoleChart -InputObject $scores -Maximum 100 -Unit '%' -Warning 80 -Critical 50 -Type Bar
     }
     New-ConsoleText -Markup '[bold]Next:[/] rehearse a restore, then add the two missing test scenarios.'
     New-ConsoleText -Markup '[muted]Review owner: Platform team · next review: Friday[/]'

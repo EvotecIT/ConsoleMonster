@@ -56,6 +56,16 @@ Update-Console [-WidgetId] <string> -CellCount <int> [-Session <LiveSession>] [<
 Update-Console [-WidgetId] <string> -Content <Object> [-Session <LiveSession>] [<CommonParameters>]
 ```
 
+### FlowNode
+```powershell
+Update-Console [-WidgetId] <string> -Status <StatusKind> -NodeKey <string> [-Session <LiveSession>] [<CommonParameters>]
+```
+
+### FlowEdge
+```powershell
+Update-Console [-WidgetId] <string> -Status <StatusKind> -EdgeKey <string> [-Session <LiveSession>] [-Cut] [<CommonParameters>]
+```
+
 ### Run
 ```powershell
 Update-Console [-Run] <LiveRun> -Status <StatusKind> -Index <int[]> [-Label <Object>] [-Detail <Object>] [-DurationSeconds <Double>] [<CommonParameters>]
@@ -212,6 +222,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Cut
+Severs the edge; Cut:$false reconnects it. Omission preserves connectivity.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: FlowEdge
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Detail
 The replacement detail.
 
@@ -238,6 +264,22 @@ Aliases: None
 Possible values:
 
 Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -EdgeKey
+The flow edge whose status or connectivity changes.
+
+```yaml
+Type: String
+Parameter Sets: FlowEdge
+Aliases: None
+Possible values:
+
+Required: True
 Position: named
 Default value: None
 Accept pipeline input: False
@@ -302,6 +344,22 @@ Aliases: None
 Possible values:
 
 Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NodeKey
+The flow node whose status changes.
+
+```yaml
+Type: String
+Parameter Sets: FlowNode
+Aliases: None
+Possible values:
+
+Required: True
 Position: named
 Default value: None
 Accept pipeline input: False
@@ -425,7 +483,7 @@ The session, otherwise ConsoleSession or the current session.
 
 ```yaml
 Type: LiveSession
-Parameter Sets: Fields, Append, Row, RemoveRow, ClearRows, Cells, AppendCells, ResizeCells, Content
+Parameter Sets: Fields, Append, Row, RemoveRow, ClearRows, Cells, AppendCells, ResizeCells, Content, FlowNode, FlowEdge
 Aliases: None
 Possible values:
 
@@ -441,7 +499,7 @@ The new state.
 
 ```yaml
 Type: StatusKind
-Parameter Sets: Fields, Cells, AppendCells, Run
+Parameter Sets: Fields, Cells, AppendCells, FlowNode, FlowEdge, Run
 Aliases: None
 Possible values: Pending, Running, Pass, Fail, Warn, Skip, Info
 
@@ -489,7 +547,7 @@ The live widget identifier.
 
 ```yaml
 Type: String
-Parameter Sets: Fields, Append, Row, RemoveRow, ClearRows, Cells, AppendCells, ResizeCells, Content
+Parameter Sets: Fields, Append, Row, RemoveRow, ClearRows, Cells, AppendCells, ResizeCells, Content, FlowNode, FlowEdge
 Aliases: None
 Possible values:
 

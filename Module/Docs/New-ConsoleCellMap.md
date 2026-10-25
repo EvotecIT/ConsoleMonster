@@ -13,7 +13,7 @@ The map Invoke-ConsoleRun shows for many items, as a widget of its own: each ite
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleCellMap [[-WidgetId] <string>] [[-Status] <Object[]>] [-Count <int>] [-MaxRows <int>] [-NoLegend] [-Columns <int>] [-RowLabels <string[]>] [-LegendLines <int>] [<CommonParameters>]
+New-ConsoleCellMap [[-WidgetId] <string>] [[-Status] <Object[]>] [-Count <int>] [-MaxRows <int>] [-NoLegend] [-Columns <int>] [-RowLabels <string[]>] [-LegendLines <int>] [-Gap <int>] [-Window <CellMap+CellWindow>] [-NoSpinRunning] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -79,6 +79,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Gap
+Space between cells; default one column.
+
+```yaml
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -LegendLines
 The most lines the legend wraps onto when it is wider than the map (default 1: it is cut off instead).
 
@@ -113,6 +129,22 @@ Accept wildcard characters: False
 
 ### -NoLegend
 Hide the legend line with each state's count.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NoSpinRunning
+Uses a fixed running marker instead of a spinner.
 
 ```yaml
 Type: SwitchParameter
@@ -170,6 +202,22 @@ Possible values:
 
 Required: False
 Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Window
+Chooses which cells remain visible when MaxRows limits the map.
+
+```yaml
+Type: CellWindow
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: Head, Active
+
+Required: False
+Position: named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

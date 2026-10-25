@@ -13,7 +13,7 @@ Creates rich text: multicolour words for table cells, calculated properties, tit
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleText [[-Text] <Object[]>] [-Color <Object[]>] [-BackgroundColor <Object[]>] [-Markup <string>] [-Decoration <string[]>] [-Link <string>] [-Role <ThemeToken>] [-Gradient <Object[]>] [-Alignment <HorizontalAlignment>] [-Plain] [<CommonParameters>]
+New-ConsoleText [[-Text] <Object[]>] [-Color <Object[]>] [-BackgroundColor <Object[]>] [-Markup <string>] [-Decoration <string[]>] [-Link <string>] [-Role <ThemeToken>] [-Gradient <Object[]>] [-Alignment <HorizontalAlignment>] [-Overflow <TextOverflow>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -158,14 +158,14 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Plain
-Kept for compatibility: text is literal by default; use -Markup for markup.
+### -Overflow
+Overflow policy when rendered in constrained cells.
 
 ```yaml
-Type: SwitchParameter
+Type: TextOverflow
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values:
+Possible values: Wrap, Ellipsis, Clip
 
 Required: False
 Position: named

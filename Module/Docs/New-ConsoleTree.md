@@ -13,12 +13,12 @@ Three ways in, one tree out. Nodes: a script block of Label/Children records cal
 ## SYNTAX
 ### Nodes (Default)
 ```powershell
-New-ConsoleTree [[-Title] <Object>] [[-Content] <scriptblock>] [<CommonParameters>]
+New-ConsoleTree [[-Title] <Object>] [[-Content] <scriptblock>] [-WrapLabels] [-NoRoot] [-Presentation <PresentationOptions>] [<CommonParameters>]
 ```
 
 ### Objects
 ```powershell
-New-ConsoleTree [[-Title] <Object>] -InputObject <psobject> [-ChildrenProperty <string>] [-Children <scriptblock>] [-LabelProperty <string>] [-StatusProperty <string>] [-DetailProperty <string>] [-Depth <int>] [-MaxItems <int>] [-MaxNodes <int>] [<CommonParameters>]
+New-ConsoleTree [[-Title] <Object>] -InputObject <psobject> [-ChildrenProperty <string>] [-Children <scriptblock>] [-LabelProperty <string>] [-StatusProperty <string>] [-DetailProperty <string>] [-Depth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-WrapLabels] [-NoRoot] [-Presentation <PresentationOptions>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -217,6 +217,38 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -NoRoot
+Hides the default-on root when a title was supplied.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Nodes, Objects
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Presentation
+Typed culture, time-zone and value presentation configuration.
+
+```yaml
+Type: PresentationOptions
+Parameter Sets: Nodes, Objects
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -StatusProperty
 The property whose value is the node status (pass, fail, warn, skip... or PowerShell's words).
 
@@ -244,6 +276,22 @@ Possible values:
 
 Required: False
 Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WrapLabels
+Wraps node labels and values with hanging indentation.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Nodes, Objects
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

@@ -13,7 +13,7 @@ Creates a bordered panel with a title around other console widgets.
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsolePanel [[-Content] <Object>] [-Title <Object>] [-HeaderRight <Object>] [-Caption <Object>] [-Border <BoxStyle>] [-Weight <double>] [-Height <int>] [-Fill] [-BorderRole <ThemeToken>] [-PaddingLeft <int>] [-PaddingRight <int>] [-PaddingTop <int>] [-PaddingBottom <int>] [-NoExpand] [<CommonParameters>]
+New-ConsolePanel [[-Content] <Object>] [-Title <Object>] [-HeaderRight <Object>] [-Caption <Object>] [-Border <BoxStyle>] [-Weight <double>] [-Height <int>] [-Fill] [-BorderRole <ThemeToken>] [-PaddingLeft <int>] [-PaddingRight <int>] [-PaddingTop <int>] [-PaddingBottom <int>] [-NoExpand] [-Verdict] [-Status <StatusKind>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -224,11 +224,43 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Status
+Status colour and title glyph for a verdict.
+
+```yaml
+Type: StatusKind
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: Pending, Running, Pass, Fail, Warn, Skip, Info
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Title
 The title shown in the top border (Spectre-style markup allowed).
 
 ```yaml
 Type: Object
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Verdict
+Double-bordered verdict with a centred title.
+
+```yaml
+Type: SwitchParameter
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

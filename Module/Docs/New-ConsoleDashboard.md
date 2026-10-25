@@ -13,7 +13,7 @@ The scriptblock emits the body widgets top to bottom. Pass the result to Invoke-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleDashboard [[-WidgetId] <string>] [[-Content] <Object>] -Title <Object> [-Subtitle <Object>] [-Footer <Object>] [-FooterHints <Object[]>] [-Gap <int>] [-NoElapsed] [<CommonParameters>]
+New-ConsoleDashboard [[-WidgetId] <string>] [[-Content] <Object>] -Title <Object> [-Subtitle <Object>] [-Footer <Object>] [-FooterHints <Object[]>] [-Gap <int>] [-NoElapsed] [-Detail <Object>] [-Status <StatusKind>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -45,6 +45,22 @@ Required: False
 Position: 1
 Default value: None
 Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -Detail
+Additional header detail, including markup.
+
+```yaml
+Type: Object
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
@@ -104,6 +120,22 @@ Type: SwitchParameter
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Status
+Initial header status.
+
+```yaml
+Type: StatusKind
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: Pending, Running, Pass, Fail, Warn, Skip, Info
 
 Required: False
 Position: named

@@ -13,7 +13,7 @@ Choices use the shared prompt conversion and retain original objects as values. 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleSelect [-Key] <string> [[-Label] <string>] -Choices <Object[]> [-Value <Object>] [-Multiple] [-Display <Object>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [-ValidationMessage <string>] [<CommonParameters>]
+New-ConsoleSelect [-Key] <string> [[-Label] <string>] -Choices <Object[]> [-Value <Object>] [-Multiple] [-PageSize <Int32>] [-Display <Object>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [-ValidationMessage <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -133,6 +133,22 @@ Runs once per committed edit on the owning input thread. Receives param($Value, 
 
 ```yaml
 Type: ScriptBlock
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -PageSize
+Visible choice rows; omitted retains the control default.
+
+```yaml
+Type: Int32
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

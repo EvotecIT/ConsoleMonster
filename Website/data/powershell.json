@@ -23,8 +23,8 @@
       }
     },
     "format-consoletable": {
-      "script": "# Build artifacts as a module build reports them.\n$artifacts = @(\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.nupkg'; Kind = 'NuGet'; Length = 1482113; Time = [timespan]::FromSeconds(48.2); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.nupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.snupkg'; Kind = 'NuGet'; Length = 402331; Time = [timespan]::FromSeconds(3.1); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.snupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster-2.0.0.zip'; Kind = 'Module'; Length = 2904576; Time = [timespan]::FromSeconds(11.7); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster-2.0.0.zip' }\n    [pscustomobject] @{ Name = 'Docs.zip'; Kind = 'Module'; Length = 51302; Time = [timespan]::FromSeconds(1.2); Signed = $false; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\Docs.zip' }\n)\n\n$artifacts | Show-ConsoleTable -Title '[bold]Build artifacts[/]' -GroupBy Kind -Total -Property @(\n    @{ Name = 'Name'; Key = $true; Overflow = 'Never' }\n    @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes'; Priority = 9; Aggregate = 'Sum' }\n    @{ Name = 'Time'; Header = 'Built in'; Presenter = 'Duration'; Priority = 6; Aggregate = 'Sum' }\n    @{ Name = 'Signed'; Presenter = 'Boolean'; Priority = 5 }\n    @{ Name = 'Path'; Overflow = 'TruncateMiddle'; Priority = 1; MinWidth = 20 }\n)",
-      "scriptFull": "Import-Module ConsoleMonster\n\n# Build artifacts as a module build reports them.\n$artifacts = @(\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.nupkg'; Kind = 'NuGet'; Length = 1482113; Time = [timespan]::FromSeconds(48.2); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.nupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.snupkg'; Kind = 'NuGet'; Length = 402331; Time = [timespan]::FromSeconds(3.1); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.snupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster-2.0.0.zip'; Kind = 'Module'; Length = 2904576; Time = [timespan]::FromSeconds(11.7); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster-2.0.0.zip' }\n    [pscustomobject] @{ Name = 'Docs.zip'; Kind = 'Module'; Length = 51302; Time = [timespan]::FromSeconds(1.2); Signed = $false; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\Docs.zip' }\n)\n\n$artifacts | Show-ConsoleTable -Title '[bold]Build artifacts[/]' -GroupBy Kind -Total -Property @(\n    @{ Name = 'Name'; Key = $true; Overflow = 'Never' }\n    @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes'; Priority = 9; Aggregate = 'Sum' }\n    @{ Name = 'Time'; Header = 'Built in'; Presenter = 'Duration'; Priority = 6; Aggregate = 'Sum' }\n    @{ Name = 'Signed'; Presenter = 'Boolean'; Priority = 5 }\n    @{ Name = 'Path'; Overflow = 'TruncateMiddle'; Priority = 1; MinWidth = 20 }\n)",
+      "script": "# Build artifacts as a module build reports them.\n$artifacts = @(\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.nupkg'; Kind = 'NuGet'; Length = 1482113; Time = [timespan]::FromSeconds(48.2); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.nupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.snupkg'; Kind = 'NuGet'; Length = 402331; Time = [timespan]::FromSeconds(3.1); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.snupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster-2.0.0.zip'; Kind = 'Module'; Length = 2904576; Time = [timespan]::FromSeconds(11.7); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster-2.0.0.zip' }\n    [pscustomobject] @{ Name = 'Docs.zip'; Kind = 'Module'; Length = 51302; Time = [timespan]::FromSeconds(1.2); Signed = $false; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\Docs.zip' }\n)\n\n$artifacts | Show-ConsoleTable -Title '[bold]Build artifacts[/]' -GroupBy Kind -Property @(\n    @{ Name = 'Name'; Key = $true; Overflow = 'Never' }\n    @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes'; Priority = 9; Aggregate = 'Sum' }\n    @{ Name = 'Time'; Header = 'Built in'; Presenter = 'Duration'; Priority = 6; Aggregate = 'Sum' }\n    @{ Name = 'Signed'; Presenter = 'Boolean'; Priority = 5 }\n    @{ Name = 'Path'; Overflow = 'TruncateMiddle'; Priority = 1; MinWidth = 20 }\n) -ShowTotals",
+      "scriptFull": "Import-Module ConsoleMonster\n\n# Build artifacts as a module build reports them.\n$artifacts = @(\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.nupkg'; Kind = 'NuGet'; Length = 1482113; Time = [timespan]::FromSeconds(48.2); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.nupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.snupkg'; Kind = 'NuGet'; Length = 402331; Time = [timespan]::FromSeconds(3.1); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.snupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster-2.0.0.zip'; Kind = 'Module'; Length = 2904576; Time = [timespan]::FromSeconds(11.7); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster-2.0.0.zip' }\n    [pscustomobject] @{ Name = 'Docs.zip'; Kind = 'Module'; Length = 51302; Time = [timespan]::FromSeconds(1.2); Signed = $false; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\Docs.zip' }\n)\n\n$artifacts | Show-ConsoleTable -Title '[bold]Build artifacts[/]' -GroupBy Kind -Property @(\n    @{ Name = 'Name'; Key = $true; Overflow = 'Never' }\n    @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes'; Priority = 9; Aggregate = 'Sum' }\n    @{ Name = 'Time'; Header = 'Built in'; Presenter = 'Duration'; Priority = 6; Aggregate = 'Sum' }\n    @{ Name = 'Signed'; Presenter = 'Boolean'; Priority = 5 }\n    @{ Name = 'Path'; Overflow = 'TruncateMiddle'; Priority = 1; MinWidth = 20 }\n) -ShowTotals",
       "rich": {
         "ps7": {
           "host": "PowerShell 7.6",
@@ -259,8 +259,8 @@
       }
     },
     "streams": {
-      "script": "# Show every stream for this demo.\n$VerbosePreference = 'Continue'\n$DebugPreference = 'Continue'\n\nShow-ConsoleRule \"PowerShell's own colours\"\nWrite-Warning 'Certificate for mail.evotec.xyz expires in 12 days'\nWrite-Verbose 'Queried 4 domain controllers in 2 domains'\nWrite-Debug 'Cache hit for evotec.xyz'\n\nEnable-ConsoleFormatting -Feature Streams\n\nShow-ConsoleRule 'With -Feature Streams: the theme''s colours'\nWrite-Warning 'Certificate for mail.evotec.xyz expires in 12 days'\nWrite-Verbose 'Queried 4 domain controllers in 2 domains'\nWrite-Debug 'Cache hit for evotec.xyz'\n\nDisable-ConsoleFormatting -Feature Streams",
-      "scriptFull": "Import-Module ConsoleMonster\n\n# Show every stream for this demo.\n$VerbosePreference = 'Continue'\n$DebugPreference = 'Continue'\n\nShow-ConsoleRule \"PowerShell's own colours\"\nWrite-Warning 'Certificate for mail.evotec.xyz expires in 12 days'\nWrite-Verbose 'Queried 4 domain controllers in 2 domains'\nWrite-Debug 'Cache hit for evotec.xyz'\n\nEnable-ConsoleFormatting -Feature Streams\n\nShow-ConsoleRule 'With -Feature Streams: the theme''s colours'\nWrite-Warning 'Certificate for mail.evotec.xyz expires in 12 days'\nWrite-Verbose 'Queried 4 domain controllers in 2 domains'\nWrite-Debug 'Cache hit for evotec.xyz'\n\nDisable-ConsoleFormatting -Feature Streams",
+      "script": "# Show every stream for this demo.\n$VerbosePreference = 'Continue'\n$DebugPreference = 'Continue'\n\nShow-Console -Title \"PowerShell's own colours\" -View Rule\nWrite-Warning 'Certificate for mail.evotec.xyz expires in 12 days'\nWrite-Verbose 'Queried 4 domain controllers in 2 domains'\nWrite-Debug 'Cache hit for evotec.xyz'\n\nEnable-ConsoleFormatting -Feature Streams\n\nShow-Console -Title 'With -Feature Streams: the theme''s colours' -View Rule\nWrite-Warning 'Certificate for mail.evotec.xyz expires in 12 days'\nWrite-Verbose 'Queried 4 domain controllers in 2 domains'\nWrite-Debug 'Cache hit for evotec.xyz'\n\nDisable-ConsoleFormatting -Feature Streams",
+      "scriptFull": "Import-Module ConsoleMonster\n\n# Show every stream for this demo.\n$VerbosePreference = 'Continue'\n$DebugPreference = 'Continue'\n\nShow-Console -Title \"PowerShell's own colours\" -View Rule\nWrite-Warning 'Certificate for mail.evotec.xyz expires in 12 days'\nWrite-Verbose 'Queried 4 domain controllers in 2 domains'\nWrite-Debug 'Cache hit for evotec.xyz'\n\nEnable-ConsoleFormatting -Feature Streams\n\nShow-Console -Title 'With -Feature Streams: the theme''s colours' -View Rule\nWrite-Warning 'Certificate for mail.evotec.xyz expires in 12 days'\nWrite-Verbose 'Queried 4 domain controllers in 2 domains'\nWrite-Debug 'Cache hit for evotec.xyz'\n\nDisable-ConsoleFormatting -Feature Streams",
       "rich": {
         "ps7": {
           "host": "PowerShell 7.6",
@@ -302,17 +302,12 @@
   "families": [
     {
       "verb": "Write",
-      "count": 3,
+      "count": 2,
       "commands": [
         {
           "name": "Write-ConsoleLogEntry",
           "synopsis": "Writes a line to the log region of a running dashboard.",
           "url": "/powershell/commands/write-consolelogentry/"
-        },
-        {
-          "name": "Write-ConsoleProgress",
-          "synopsis": "Writes a progress update, drawn by ConsoleMonster when Enable-ConsoleFormatting -Feature Progress is on.",
-          "url": "/powershell/commands/write-consoleprogress/"
         },
         {
           "name": "Write-ConsoleText",
@@ -334,7 +329,7 @@
     },
     {
       "verb": "New",
-      "count": 61,
+      "count": 39,
       "commands": [
         {
           "name": "New-ConsoleActivityList",
@@ -347,16 +342,6 @@
           "url": "/powershell/commands/new-consolealign/"
         },
         {
-          "name": "New-ConsoleBarChart",
-          "synopsis": "Creates a horizontal bar chart, or a stacked bar with -Stacked.",
-          "url": "/powershell/commands/new-consolebarchart/"
-        },
-        {
-          "name": "New-ConsoleBarItem",
-          "synopsis": "Creates one bar of a bar chart, or one segment of a stacked bar, with its own tone.",
-          "url": "/powershell/commands/new-consolebaritem/"
-        },
-        {
           "name": "New-ConsoleBinding",
           "synopsis": "Creates a display rebuilt from application state on the owning PowerShell input thread.",
           "url": "/powershell/commands/new-consolebinding/"
@@ -367,19 +352,14 @@
           "url": "/powershell/commands/new-consolebutton/"
         },
         {
-          "name": "New-ConsoleCalendar",
-          "synopsis": "Creates a month or year calendar with dated operational outcomes.",
-          "url": "/powershell/commands/new-consolecalendar/"
-        },
-        {
           "name": "New-ConsoleCellMap",
           "synopsis": "Creates a cell map: one status symbol per item of a run, with a legend of counts.",
           "url": "/powershell/commands/new-consolecellmap/"
         },
         {
-          "name": "New-ConsoleChartSeries",
-          "synopsis": "Creates one series of a line or scatter chart: a name, values and an optional tone.",
-          "url": "/powershell/commands/new-consolechartseries/"
+          "name": "New-ConsoleChart",
+          "synopsis": "Creates one numeric chart representation from records or samples.",
+          "url": "/powershell/commands/new-consolechart/"
         },
         {
           "name": "New-ConsoleColumnFormat",
@@ -390,11 +370,6 @@
           "name": "New-ConsoleColumns",
           "synopsis": "Places console widgets side by side.",
           "url": "/powershell/commands/new-consolecolumns/"
-        },
-        {
-          "name": "New-ConsoleCommand",
-          "synopsis": "Defines an in-app action for buttons, palettes and grid rows.",
-          "url": "/powershell/commands/new-consolecommand/"
         },
         {
           "name": "New-ConsoleDashboard",
@@ -412,21 +387,6 @@
           "url": "/powershell/commands/new-consoleflow/"
         },
         {
-          "name": "New-ConsoleFlowBranch",
-          "synopsis": "Creates the single side branch below a flow strip.",
-          "url": "/powershell/commands/new-consoleflowbranch/"
-        },
-        {
-          "name": "New-ConsoleFlowEdge",
-          "synopsis": "Creates a labelled connection between adjacent flow nodes.",
-          "url": "/powershell/commands/new-consoleflowedge/"
-        },
-        {
-          "name": "New-ConsoleFlowNode",
-          "synopsis": "Creates a labelled flow node with an optional status glyph and colour.",
-          "url": "/powershell/commands/new-consoleflownode/"
-        },
-        {
           "name": "New-ConsoleFooterBar",
           "synopsis": "Creates a reusable footer with key hints, messages and linked segments.",
           "url": "/powershell/commands/new-consolefooterbar/"
@@ -437,39 +397,14 @@
           "url": "/powershell/commands/new-consoleform/"
         },
         {
-          "name": "New-ConsoleFormPreset",
-          "synopsis": "Creates a preset a form comes with: field values under one name, with a description and a preview.",
-          "url": "/powershell/commands/new-consoleformpreset/"
-        },
-        {
-          "name": "New-ConsoleGrid",
-          "synopsis": "Lays console widgets out in an equal-width grid.",
-          "url": "/powershell/commands/new-consolegrid/"
-        },
-        {
           "name": "New-ConsoleHeaderBar",
           "synopsis": "Creates a header with a title, breadcrumbs, detail and optional elapsed time.",
           "url": "/powershell/commands/new-consoleheaderbar/"
         },
         {
-          "name": "New-ConsoleHistogram",
-          "synopsis": "Creates a histogram of values counted into buckets.",
-          "url": "/powershell/commands/new-consolehistogram/"
-        },
-        {
           "name": "New-ConsoleKeyValue",
-          "synopsis": "Creates an aligned key/value list from a hashtable, an object's properties or New-ConsoleKeyValueItem pairs.",
+          "synopsis": "Creates an aligned key/value list from a hashtable, an object's properties or Key/Value records pairs.",
           "url": "/powershell/commands/new-consolekeyvalue/"
-        },
-        {
-          "name": "New-ConsoleKeyValueItem",
-          "synopsis": "Creates one key/value pair, with an optional status or presenter, for New-ConsoleKeyValue.",
-          "url": "/powershell/commands/new-consolekeyvalueitem/"
-        },
-        {
-          "name": "New-ConsoleLane",
-          "synopsis": "Creates one lane (a worker, server or item of a parallel workload) for New-ConsoleLanes.",
-          "url": "/powershell/commands/new-consolelane/"
         },
         {
           "name": "New-ConsoleLanes",
@@ -477,19 +412,9 @@
           "url": "/powershell/commands/new-consolelanes/"
         },
         {
-          "name": "New-ConsoleLineChart",
-          "synopsis": "Creates a line or scatter chart (braille on modern fonts, half blocks on Consolas, characters in ASCII mode).",
-          "url": "/powershell/commands/new-consolelinechart/"
-        },
-        {
-          "name": "New-ConsoleLiveTable",
-          "synopsis": "Creates a table whose rows change while a dashboard runs.",
-          "url": "/powershell/commands/new-consolelivetable/"
-        },
-        {
-          "name": "New-ConsoleLogEntry",
-          "synopsis": "Creates one log line with a level and a time, for New-ConsoleLogRegion.",
-          "url": "/powershell/commands/new-consolelogentry/"
+          "name": "New-ConsoleLayoutGrid",
+          "synopsis": "Lays console widgets out in an equal-width grid.",
+          "url": "/powershell/commands/new-consolelayoutgrid/"
         },
         {
           "name": "New-ConsoleLogRegion",
@@ -512,19 +437,9 @@
           "url": "/powershell/commands/new-consolemenuitem/"
         },
         {
-          "name": "New-ConsoleMenuPreset",
-          "synopsis": "Creates a preset a menu comes with: form values and selections under one name, with a description and a preview.",
-          "url": "/powershell/commands/new-consolemenupreset/"
-        },
-        {
           "name": "New-ConsoleMenuRunResult",
           "synopsis": "Creates the result a menu run returns: a title, a status, a summary, figures and next actions.",
           "url": "/powershell/commands/new-consolemenurunresult/"
-        },
-        {
-          "name": "New-ConsoleMultiSelect",
-          "synopsis": "Creates a named multiselect input for Show-ConsoleApp.",
-          "url": "/powershell/commands/new-consolemultiselect/"
         },
         {
           "name": "New-ConsolePadding",
@@ -543,7 +458,7 @@
         },
         {
           "name": "New-ConsoleProgress",
-          "synopsis": "Creates a labelled progress bar.",
+          "synopsis": "Creates a progress bar or an indeterminate activity indicator.",
           "url": "/powershell/commands/new-consoleprogress/"
         },
         {
@@ -562,11 +477,6 @@
           "url": "/powershell/commands/new-consolerule/"
         },
         {
-          "name": "New-ConsoleScrollView",
-          "synopsis": "Creates a clipped vertical viewport for a small widget tree inside an app.",
-          "url": "/powershell/commands/new-consolescrollview/"
-        },
-        {
           "name": "New-ConsoleSelect",
           "synopsis": "Creates a named select input for Show-ConsoleApp.",
           "url": "/powershell/commands/new-consoleselect/"
@@ -577,24 +487,9 @@
           "url": "/powershell/commands/new-consolesimulatedclock/"
         },
         {
-          "name": "New-ConsoleSparkline",
-          "synopsis": "Creates a sparkline: a compact trend of recent values.",
-          "url": "/powershell/commands/new-consolesparkline/"
-        },
-        {
-          "name": "New-ConsoleSpinner",
-          "synopsis": "Creates a spinner: a one-line activity indicator for work without a known total.",
-          "url": "/powershell/commands/new-consolespinner/"
-        },
-        {
           "name": "New-ConsoleStack",
           "synopsis": "Layers console widgets on top of each other in the same space.",
           "url": "/powershell/commands/new-consolestack/"
-        },
-        {
-          "name": "New-ConsoleStatusItem",
-          "synopsis": "Creates one status item, a step with a status and a detail, for New-ConsoleStatusList and New-ConsolePhases.",
-          "url": "/powershell/commands/new-consolestatusitem/"
         },
         {
           "name": "New-ConsoleStatusList",
@@ -617,11 +512,6 @@
           "url": "/powershell/commands/new-consoletext/"
         },
         {
-          "name": "New-ConsoleTextArea",
-          "synopsis": "Creates a named multiline text input for Show-ConsoleApp.",
-          "url": "/powershell/commands/new-consoletextarea/"
-        },
-        {
           "name": "New-ConsoleTextInput",
           "synopsis": "Creates a named single-line text input for Show-ConsoleApp.",
           "url": "/powershell/commands/new-consoletextinput/"
@@ -633,13 +523,8 @@
         },
         {
           "name": "New-ConsoleTree",
-          "synopsis": "Creates a console tree from nested New-ConsoleTreeNode calls, hierarchical objects or nested hashtables.",
+          "synopsis": "Creates a console tree from nested Label/Children records calls, hierarchical objects or nested hashtables.",
           "url": "/powershell/commands/new-consoletree/"
-        },
-        {
-          "name": "New-ConsoleTreeNode",
-          "synopsis": "Creates a tree node with an optional status, a muted detail and child nodes, for New-ConsoleTree.",
-          "url": "/powershell/commands/new-consoletreenode/"
         }
       ]
     },
@@ -656,68 +541,18 @@
     },
     {
       "verb": "Update",
-      "count": 11,
+      "count": 1,
       "commands": [
         {
-          "name": "Update-ConsoleActivity",
-          "synopsis": "Starts, updates or finishes an activity of an activity list (New-ConsoleActivityList) in the running dashboard.",
-          "url": "/powershell/commands/update-consoleactivity/"
-        },
-        {
-          "name": "Update-ConsoleCell",
-          "synopsis": "Sets the state of cells of a cell map (New-ConsoleCellMap) in the running dashboard.",
-          "url": "/powershell/commands/update-consolecell/"
-        },
-        {
-          "name": "Update-ConsoleFlow",
-          "synopsis": "Updates a node or edge in a live dashboard's flow strip.",
-          "url": "/powershell/commands/update-consoleflow/"
-        },
-        {
-          "name": "Update-ConsoleLane",
-          "synopsis": "Updates a lane of a running dashboard: progress, step results, status and detail.",
-          "url": "/powershell/commands/update-consolelane/"
-        },
-        {
-          "name": "Update-ConsoleLiveTable",
-          "synopsis": "Adds, updates, removes or clears rows of a live table (New-ConsoleLiveTable) in the running dashboard.",
-          "url": "/powershell/commands/update-consolelivetable/"
-        },
-        {
-          "name": "Update-ConsolePhase",
-          "synopsis": "Updates a phase of a running dashboard's phase strip.",
-          "url": "/powershell/commands/update-consolephase/"
-        },
-        {
-          "name": "Update-ConsoleProgress",
-          "synopsis": "Updates a progress bar in a running dashboard.",
-          "url": "/powershell/commands/update-consoleprogress/"
-        },
-        {
-          "name": "Update-ConsoleRun",
-          "synopsis": "Reports an item's running phase or final outcome to a run dashboard.",
-          "url": "/powershell/commands/update-consolerun/"
-        },
-        {
-          "name": "Update-ConsoleSpinner",
-          "synopsis": "Updates a spinner in a running dashboard.",
-          "url": "/powershell/commands/update-consolespinner/"
-        },
-        {
-          "name": "Update-ConsoleStatusItem",
-          "synopsis": "Updates an item of a status list in a running dashboard.",
-          "url": "/powershell/commands/update-consolestatusitem/"
-        },
-        {
-          "name": "Update-ConsoleSummaryBar",
-          "synopsis": "Updates a summary bar (New-ConsoleSummaryBar) in the running dashboard: progress and counters.",
-          "url": "/powershell/commands/update-consolesummarybar/"
+          "name": "Update-Console",
+          "synopsis": "Updates a live widget or a caller-managed run through one validated operation.",
+          "url": "/powershell/commands/update-console/"
         }
       ]
     },
     {
       "verb": "Read",
-      "count": 8,
+      "count": 6,
       "commands": [
         {
           "name": "Read-ConsoleConfirm",
@@ -730,11 +565,6 @@
           "url": "/powershell/commands/read-consoleform/"
         },
         {
-          "name": "Read-ConsoleMultiSelect",
-          "synopsis": "Asks the user to pick any number of the choices and returns the chosen objects.",
-          "url": "/powershell/commands/read-consolemultiselect/"
-        },
-        {
           "name": "Read-ConsoleNumber",
           "synopsis": "Asks for a number.",
           "url": "/powershell/commands/read-consolenumber/"
@@ -743,11 +573,6 @@
           "name": "Read-ConsolePath",
           "synopsis": "Asks for a file or folder path, with completion.",
           "url": "/powershell/commands/read-consolepath/"
-        },
-        {
-          "name": "Read-ConsoleSecret",
-          "synopsis": "Asks for a secret and returns a SecureString (or a string with -AsPlainText).",
-          "url": "/powershell/commands/read-consolesecret/"
         },
         {
           "name": "Read-ConsoleSelect",
@@ -763,11 +588,11 @@
     },
     {
       "verb": "Show",
-      "count": 21,
+      "count": 14,
       "commands": [
         {
           "name": "Show-Console",
-          "synopsis": "Shows pipeline input in the view that fits it best.",
+          "synopsis": "Displays pipeline input in its automatic or explicit representation.",
           "url": "/powershell/commands/show-console/"
         },
         {
@@ -781,24 +606,9 @@
           "url": "/powershell/commands/show-consolechanges/"
         },
         {
-          "name": "Show-ConsoleChart",
-          "synopsis": "Draws horizontal bars, a histogram or grouped sparklines from pipeline objects.",
-          "url": "/powershell/commands/show-consolechart/"
-        },
-        {
-          "name": "Show-ConsoleCode",
-          "synopsis": "Shows source text with syntax highlighting, line numbers and highlighted lines.",
-          "url": "/powershell/commands/show-consolecode/"
-        },
-        {
           "name": "Show-ConsoleDemo",
           "synopsis": "Runs an embedded ConsoleMonster gallery demo in the current PowerShell runspace.",
           "url": "/powershell/commands/show-consoledemo/"
-        },
-        {
-          "name": "Show-ConsoleError",
-          "synopsis": "Shows errors and exceptions readably: type, message, position, script stack, frames and inner errors.",
-          "url": "/powershell/commands/show-consoleerror/"
         },
         {
           "name": "Show-ConsoleGrid",
@@ -811,19 +621,9 @@
           "url": "/powershell/commands/show-consolehelp/"
         },
         {
-          "name": "Show-ConsoleJson",
-          "synopsis": "Shows JSON with syntax highlighting: JSON text re-indented, or objects written as JSON.",
-          "url": "/powershell/commands/show-consolejson/"
-        },
-        {
           "name": "Show-ConsoleList",
-          "synopsis": "Formats pipeline objects as record views (labelled values) and writes them to the host.",
+          "synopsis": "Displays the list representation through the shared Show-Console implementation.",
           "url": "/powershell/commands/show-consolelist/"
-        },
-        {
-          "name": "Show-ConsoleMarkdown",
-          "synopsis": "Reads Markdown with native console tables, highlighted code and interactive paging.",
-          "url": "/powershell/commands/show-consolemarkdown/"
         },
         {
           "name": "Show-ConsoleMenu",
@@ -851,24 +651,14 @@
           "url": "/powershell/commands/show-consolereplay/"
         },
         {
-          "name": "Show-ConsoleRule",
-          "synopsis": "Writes a horizontal rule, optionally with a title.",
-          "url": "/powershell/commands/show-consolerule/"
-        },
-        {
           "name": "Show-ConsoleStatusLine",
           "synopsis": "Shows one status line that updates in place, with an optional spinner, clock and elapsed time.",
           "url": "/powershell/commands/show-consolestatusline/"
         },
         {
           "name": "Show-ConsoleTable",
-          "synopsis": "Formats pipeline objects as a width-aware table and writes it to the host.",
+          "synopsis": "Displays the table representation through the shared Show-Console implementation.",
           "url": "/powershell/commands/show-consoletable/"
-        },
-        {
-          "name": "Show-ConsoleTree",
-          "synopsis": "Shows a hierarchy from objects, dictionaries or explicit tree nodes.",
-          "url": "/powershell/commands/show-consoletree/"
         }
       ]
     },
@@ -931,7 +721,7 @@
     },
     {
       "verb": "Add",
-      "count": 3,
+      "count": 2,
       "commands": [
         {
           "name": "Add-ConsoleItem",
@@ -942,11 +732,6 @@
           "name": "Add-ConsoleRecordingMarker",
           "synopsis": "Adds a chapter or an export hold to a recorded terminal session.",
           "url": "/powershell/commands/add-consolerecordingmarker/"
-        },
-        {
-          "name": "Add-ConsoleValue",
-          "synopsis": "Adds a value to a chart in a running dashboard.",
-          "url": "/powershell/commands/add-consolevalue/"
         }
       ]
     },
@@ -1088,7 +873,7 @@
     },
     {
       "verb": "Set",
-      "count": 4,
+      "count": 2,
       "commands": [
         {
           "name": "Set-ConsoleFormValue",
@@ -1096,19 +881,9 @@
           "url": "/powershell/commands/set-consoleformvalue/"
         },
         {
-          "name": "Set-ConsoleRegion",
-          "synopsis": "Replaces the content of a region (New-ConsoleRegion) in the running dashboard.",
-          "url": "/powershell/commands/set-consoleregion/"
-        },
-        {
           "name": "Set-ConsoleTheme",
           "synopsis": "Selects the theme used by every ConsoleMonster widget.",
           "url": "/powershell/commands/set-consoletheme/"
-        },
-        {
-          "name": "Set-ConsoleValue",
-          "synopsis": "Sets a value in a running dashboard: a key/value pair, a bar or a stacked-bar segment.",
-          "url": "/powershell/commands/set-consolevalue/"
         }
       ]
     },
@@ -1152,17 +927,12 @@
     },
     {
       "verb": "Wait",
-      "count": 2,
+      "count": 1,
       "commands": [
         {
           "name": "Wait-ConsoleDashboard",
           "synopsis": "Pauses dashboard work, or captures its next checkpoint during a recording.",
           "url": "/powershell/commands/wait-consoledashboard/"
-        },
-        {
-          "name": "Wait-ConsoleRun",
-          "synopsis": "Waits for worker updates while pumping run progress to the PowerShell host.",
-          "url": "/powershell/commands/wait-consolerun/"
         }
       ]
     },

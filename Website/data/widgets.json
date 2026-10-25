@@ -76,6 +76,17 @@
         "dark": "<span class=\"B c8\">Deployed</span><span class=c4> in </span><span class=\"f60a5fa c4\">48 s</span><span class=c2>: </span><span class=\"f4ade80 c11\"><i class=n>√</i> 12 passed</span><span class=c1> </span><span class=\"ffbbf24 c10\"><i class=n>▲</i> 2 warned</span><span class=c1> </span><span class=ff87171><i class=n>✗</i> 1 failed</span>\n<span class=\"I c12\">Decorations:</span><span class=c1> </span><span class=\"B c4\">bold</span><span class=c1> </span><span class=\"f7f7f7f c3\">dim</span><span class=c1> </span><span class=\"U c9\">underline</span><span class=c1> </span><span class=\"S c6\">struck</span><span class=c1> </span><span class=rv> invert </span>",
         "light": "<span class=\"B c8\">Deployed</span><span class=c4> in </span><span class=\"f2563eb c4\">48 s</span><span class=c2>: </span><span class=\"f15803d c11\"><i class=n>√</i> 12 passed</span><span class=c1> </span><span class=\"fb45309 c10\"><i class=n>▲</i> 2 warned</span><span class=c1> </span><span class=fb91c1c><i class=n>✗</i> 1 failed</span>\n<span class=\"I c12\">Decorations:</span><span class=c1> </span><span class=\"B c4\">bold</span><span class=c1> </span><span class=\"f7c7f82 c3\">dim</span><span class=c1> </span><span class=\"U c9\">underline</span><span class=c1> </span><span class=\"S c6\">struck</span><span class=c1> </span><span class=rv> invert </span>"
       },
+      "csharpFluent": "new TextBlock(\"[bold]Deployed[/] in [accent]48 s[/]: \" + \"[pass]√ 12 passed[/] [warn]▲ 2 warned[/] [fail]✗ 1 failed[/]\").Show();\nnew TextBlock(\"[italic]Decorations:[/] [bold]bold[/] [dim]dim[/] [underline]underline[/] \" + \"[strikethrough]struck[/] [invert] invert [/]\").Show();\n",
+      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Widgets;\n\nnew TextBlock(\"[bold]Deployed[/] in [accent]48 s[/]: \" + \"[pass]√ 12 passed[/] [warn]▲ 2 warned[/] [fail]✗ 1 failed[/]\").Show();\nnew TextBlock(\"[italic]Decorations:[/] [bold]bold[/] [dim]dim[/] [underline]underline[/] \" + \"[strikethrough]struck[/] [invert] invert [/]\").Show();\n",
+      "csharpFluentFile": "Program.cs",
+      "apiMap": [
+        {
+          "powershell": "| Show-Console",
+          "csharp": "Terminal.Write(widget)",
+          "fluent": ".Show()",
+          "memberId": "M:ConsoleMonster.Terminal.Write"
+        }
+      ],
       "parity": {
         "ps7": {
           "host": "PowerShell 7.6",
@@ -98,8 +109,8 @@
       "csharp": "Terminal.Write(new Rule(\"[bold]Replication[/]\"));\nTerminal.Write(new Rule());",
       "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Widgets;\n\nTerminal.Write(new Rule(\"[bold]Replication[/]\"));\nTerminal.Write(new Rule());",
       "csharpFile": "Program.cs",
-      "powershell": "Show-ConsoleRule '[bold]Replication[/]'\nShow-ConsoleRule",
-      "powershellFull": "Import-Module ConsoleMonster\n\nShow-ConsoleRule '[bold]Replication[/]'\nShow-ConsoleRule",
+      "powershell": "Show-Console -Title '[bold]Replication[/]' -View Rule\nShow-Console -View Rule",
+      "powershellFull": "Import-Module ConsoleMonster\n\nShow-Console -Title '[bold]Replication[/]' -View Rule\nShow-Console -View Rule",
       "powershellFile": "rule.ps1",
       "frame": {
         "w": 60,
@@ -107,6 +118,24 @@
         "dark": "<i class=\"g2500 c2 f4b5060\">──</i><span class=c1> </span><span class=\"B c11\">Replication</span><span class=c1> </span><i class=\"g2500 c45 f4b5060\">─────────────────────────────────────────────</i>\n<i class=\"g2500 c60 f4b5060\">────────────────────────────────────────────────────────────</i>",
         "light": "<i class=\"g2500 c2 f8a8a94\">──</i><span class=c1> </span><span class=\"f111827 B c11\">Replication</span><span class=c1> </span><i class=\"g2500 c45 f8a8a94\">─────────────────────────────────────────────</i>\n<i class=\"g2500 c60 f8a8a94\">────────────────────────────────────────────────────────────</i>"
       },
+      "csharpFluent": "new Rule(\"[bold]Replication[/]\").Show();\nnew Rule().Show();\n",
+      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Widgets;\n\nnew Rule(\"[bold]Replication[/]\").Show();\nnew Rule().Show();\n",
+      "csharpFluentFile": "Program.cs",
+      "apiMap": [
+        {
+          "powershell": "New-ConsoleRule -Title …",
+          "csharp": "Title = …",
+          "fluent": ".Title(…)",
+          "memberId": "ConsoleMonster.Widgets.Rule.Title",
+          "note": null
+        },
+        {
+          "powershell": "| Show-Console",
+          "csharp": "Terminal.Write(widget)",
+          "fluent": ".Show()",
+          "memberId": "M:ConsoleMonster.Terminal.Write"
+        }
+      ],
       "parity": {
         "ps7": {
           "host": "PowerShell 7.6",
@@ -126,8 +155,8 @@
       "group": "layout",
       "summary": "A border around any widget, with a title, a caption on the right and a footer.",
       "width": 60,
-      "csharp": "Terminal.Write(new Panel(new TextBlock(\"Four controllers answered. [warn]DC02[/] lags by 42 minutes.\"), \"[bold]Forest[/]\")\n    .WithHeaderRight(\"ad.adatum.com\")\n    .WithCaption(\"[muted]checked 14:30[/]\"));",
-      "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\nTerminal.Write(new Panel(new TextBlock(\"Four controllers answered. [warn]DC02[/] lags by 42 minutes.\"), \"[bold]Forest[/]\")\n    .WithHeaderRight(\"ad.adatum.com\")\n    .WithCaption(\"[muted]checked 14:30[/]\"));",
+      "csharp": "Terminal.Write(new Panel(new TextBlock(\"Four controllers answered. [warn]DC02[/] lags by 42 minutes.\"), \"[bold]Forest[/]\") { HeaderRight = \"ad.adatum.com\", Caption = \"[muted]checked 14:30[/]\" });",
+      "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\nTerminal.Write(new Panel(new TextBlock(\"Four controllers answered. [warn]DC02[/] lags by 42 minutes.\"), \"[bold]Forest[/]\") { HeaderRight = \"ad.adatum.com\", Caption = \"[muted]checked 14:30[/]\" });",
       "csharpFile": "Program.cs",
       "powershell": "New-ConsolePanel -Title '[bold]Forest[/]' -HeaderRight 'ad.adatum.com' -Caption '[muted]checked 14:30[/]' -Content {\n    New-ConsoleText -Markup 'Four controllers answered. [warn]DC02[/] lags by 42 minutes.'\n} | Show-Console",
       "powershellFull": "Import-Module ConsoleMonster\n\nNew-ConsolePanel -Title '[bold]Forest[/]' -HeaderRight 'ad.adatum.com' -Caption '[muted]checked 14:30[/]' -Content {\n    New-ConsoleText -Markup 'Four controllers answered. [warn]DC02[/] lags by 42 minutes.'\n} | Show-Console",
@@ -138,6 +167,45 @@
         "dark": "<span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c6\">Forest</span><span class=c1> </span><i class=\"g2500 c33 f4b5060\">─────────────────────────────────</i><span class=c1> </span><span class=\"f8b8f9a c13\">ad.adatum.com</span><span class=c1> </span><span class=f4b5060><i class=g2500>─</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c28> Four controllers answered. </span><span class=\"ffbbf24 c4\">DC02</span><span class=c26> lags by 42 minutes.      </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c43\"><i class=g2570>╰</i><i class=\"g2500 c42\">──────────────────────────────────────────</i></span><span class=c1> </span><span class=\"f8b8f9a c13\">checked 14:30</span><span class=c1> </span><span class=f4b5060><i class=g2500>─</i><i class=g256f>╯</i></span>",
         "light": "<span class=\"f8a8a94 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"f111827 B c6\">Forest</span><span class=c1> </span><i class=\"g2500 c33 f8a8a94\">─────────────────────────────────</i><span class=c1> </span><span class=\"f6b7280 c13\">ad.adatum.com</span><span class=c1> </span><span class=f8a8a94><i class=g2500>─</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f8a8a94\">│</i><span class=c28> Four controllers answered. </span><span class=\"fb45309 c4\">DC02</span><span class=c26> lags by 42 minutes.      </span><i class=\"g2502 f8a8a94\">│</i>\n<span class=\"f8a8a94 c43\"><i class=g2570>╰</i><i class=\"g2500 c42\">──────────────────────────────────────────</i></span><span class=c1> </span><span class=\"f6b7280 c13\">checked 14:30</span><span class=c1> </span><span class=f8a8a94><i class=g2500>─</i><i class=g256f>╯</i></span>"
       },
+      "csharpFluent": "new Panel(new TextBlock(\"Four controllers answered. [warn]DC02[/] lags by 42 minutes.\"), \"[bold]Forest[/]\").HeaderRight(\"ad.adatum.com\").Caption(\"[muted]checked 14:30[/]\").Show();\n",
+      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\nnew Panel(new TextBlock(\"Four controllers answered. [warn]DC02[/] lags by 42 minutes.\"), \"[bold]Forest[/]\").HeaderRight(\"ad.adatum.com\").Caption(\"[muted]checked 14:30[/]\").Show();\n",
+      "csharpFluentFile": "Program.cs",
+      "apiMap": [
+        {
+          "powershell": "New-ConsolePanel -Title …",
+          "csharp": "Title = …",
+          "fluent": ".Title(…)",
+          "memberId": "ConsoleMonster.Layout.Panel.Title",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsolePanel -Content …",
+          "csharp": "Content = …",
+          "fluent": ".Content(…)",
+          "memberId": "ConsoleMonster.Layout.Panel.Content",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsolePanel -HeaderRight …",
+          "csharp": "HeaderRight = …",
+          "fluent": ".HeaderRight(…)",
+          "memberId": "ConsoleMonster.Layout.Panel.HeaderRight",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsolePanel -Caption …",
+          "csharp": "Caption = …",
+          "fluent": ".Caption(…)",
+          "memberId": "ConsoleMonster.Layout.Panel.Caption",
+          "note": null
+        },
+        {
+          "powershell": "| Show-Console",
+          "csharp": "Terminal.Write(widget)",
+          "fluent": ".Show()",
+          "memberId": "M:ConsoleMonster.Terminal.Write"
+        }
+      ],
       "parity": {
         "ps7": {
           "host": "PowerShell 7.6",
@@ -169,6 +237,38 @@
         "dark": "<span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c7\">Results</span><span class=c1> </span><span class=\"f4b5060 c18\"><i class=\"g2500 c17\">─────────────────</i><i class=g256e>╮</i></span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c8\">Problems</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c17\">─────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"n f4ade80\">√</i><span class=c25> 412 passed              </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"n ff87171\">✗</i><span class=c26> 23 failed                </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"n ffbbf24\">▲</i><span class=c25> 51 warnings             </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f8b8f9a c1\">-</span><span class=c26> 14 skipped               </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c29\"><i class=g2570>╰</i><i class=\"g2500 c27\">───────────────────────────</i><i class=g256f>╯</i></span><span class=c1> </span><span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c28\">────────────────────────────</i><i class=g256f>╯</i></span>\n<i class=\"g2500 c2 f4b5060\">──</i><span class=c1> </span><span class=\"f8b8f9a B c25\">2 domains, 10 controllers</span><span class=c1> </span><i class=\"g2500 c31 f4b5060\">───────────────────────────────</i>",
         "light": "<span class=\"f8a8a94 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"f111827 B c7\">Results</span><span class=c1> </span><span class=\"f8a8a94 c18\"><i class=\"g2500 c17\">─────────────────</i><i class=g256e>╮</i></span><span class=c1> </span><span class=\"f8a8a94 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"f111827 B c8\">Problems</span><span class=c1> </span><span class=f8a8a94><i class=\"g2500 c17\">─────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><i class=\"n f15803d\">√</i><span class=c25> 412 passed              </span><i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><i class=\"n fb91c1c\">✗</i><span class=c26> 23 failed                </span><i class=\"g2502 f8a8a94\">│</i>\n<i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><i class=\"n fb45309\">▲</i><span class=c25> 51 warnings             </span><i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><span class=\"f6b7280 c1\">-</span><span class=c26> 14 skipped               </span><i class=\"g2502 f8a8a94\">│</i>\n<span class=\"f8a8a94 c29\"><i class=g2570>╰</i><i class=\"g2500 c27\">───────────────────────────</i><i class=g256f>╯</i></span><span class=c1> </span><span class=f8a8a94><i class=g2570>╰</i><i class=\"g2500 c28\">────────────────────────────</i><i class=g256f>╯</i></span>\n<i class=\"g2500 c2 f8a8a94\">──</i><span class=c1> </span><span class=\"f6b7280 B c25\">2 domains, 10 controllers</span><span class=c1> </span><i class=\"g2500 c31 f8a8a94\">───────────────────────────────</i>"
       },
+      "csharpFluent": "Panel results = new Panel(new TextBlock(\"[pass]√[/] 412 passed\\n[warn]▲[/] 51 warnings\"), \"Results\");\nPanel problems = new Panel(new TextBlock(\"[fail]✗[/] 23 failed\\n[muted]-[/] 14 skipped\"), \"Problems\");\nnew Rows().Add(new Columns(results, problems)).Add(new Rule(\"[muted]2 domains, 10 controllers[/]\")).Show();\n",
+      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\nPanel results = new Panel(new TextBlock(\"[pass]√[/] 412 passed\\n[warn]▲[/] 51 warnings\"), \"Results\");\nPanel problems = new Panel(new TextBlock(\"[fail]✗[/] 23 failed\\n[muted]-[/] 14 skipped\"), \"Problems\");\nnew Rows().Add(new Columns(results, problems)).Add(new Rule(\"[muted]2 domains, 10 controllers[/]\")).Show();\n",
+      "csharpFluentFile": "Program.cs",
+      "apiMap": [
+        {
+          "powershell": "New-ConsolePanel -Title …",
+          "csharp": "Title = …",
+          "fluent": ".Title(…)",
+          "memberId": "ConsoleMonster.Layout.Panel.Title",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsoleRule -Title …",
+          "csharp": "Title = …",
+          "fluent": ".Title(…)",
+          "memberId": "ConsoleMonster.Widgets.Rule.Title",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsolePanel -Content …",
+          "csharp": "Content = …",
+          "fluent": ".Content(…)",
+          "memberId": "ConsoleMonster.Layout.Panel.Content",
+          "note": null
+        },
+        {
+          "powershell": "| Show-Console",
+          "csharp": "Terminal.Write(widget)",
+          "fluent": ".Show()",
+          "memberId": "M:ConsoleMonster.Terminal.Write"
+        }
+      ],
       "parity": {
         "ps7": {
           "host": "PowerShell 7.6",
@@ -191,8 +291,8 @@
       "csharp": "Terminal.Write(new Grid(3,\n    new Panel(new TextBlock(\"[pass]√ healthy[/]\"), \"DC01\"),\n    new Panel(new TextBlock(\"[warn]▲ lagging[/]\"), \"DC02\"),\n    new Panel(new TextBlock(\"[pass]√ healthy[/]\"), \"DC03\"),\n    new Panel(new TextBlock(\"[fail]✗ offline[/]\"), \"DC04\"),\n    new Panel(new TextBlock(\"[pass]√ healthy[/]\"), \"DC05\")));",
       "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\nTerminal.Write(new Grid(3,\n    new Panel(new TextBlock(\"[pass]√ healthy[/]\"), \"DC01\"),\n    new Panel(new TextBlock(\"[warn]▲ lagging[/]\"), \"DC02\"),\n    new Panel(new TextBlock(\"[pass]√ healthy[/]\"), \"DC03\"),\n    new Panel(new TextBlock(\"[fail]✗ offline[/]\"), \"DC04\"),\n    new Panel(new TextBlock(\"[pass]√ healthy[/]\"), \"DC05\")));",
       "csharpFile": "Program.cs",
-      "powershell": "New-ConsoleGrid -Columns 3 -Content {\n    New-ConsolePanel -Title 'DC01' -Content { '[pass]√ healthy[/]' }\n    New-ConsolePanel -Title 'DC02' -Content { '[warn]▲ lagging[/]' }\n    New-ConsolePanel -Title 'DC03' -Content { '[pass]√ healthy[/]' }\n    New-ConsolePanel -Title 'DC04' -Content { '[fail]✗ offline[/]' }\n    New-ConsolePanel -Title 'DC05' -Content { '[pass]√ healthy[/]' }\n} | Show-Console",
-      "powershellFull": "Import-Module ConsoleMonster\n\nNew-ConsoleGrid -Columns 3 -Content {\n    New-ConsolePanel -Title 'DC01' -Content { '[pass]√ healthy[/]' }\n    New-ConsolePanel -Title 'DC02' -Content { '[warn]▲ lagging[/]' }\n    New-ConsolePanel -Title 'DC03' -Content { '[pass]√ healthy[/]' }\n    New-ConsolePanel -Title 'DC04' -Content { '[fail]✗ offline[/]' }\n    New-ConsolePanel -Title 'DC05' -Content { '[pass]√ healthy[/]' }\n} | Show-Console",
+      "powershell": "New-ConsoleLayoutGrid -Columns 3 -Content {\n    New-ConsolePanel -Title 'DC01' -Content { '[pass]√ healthy[/]' }\n    New-ConsolePanel -Title 'DC02' -Content { '[warn]▲ lagging[/]' }\n    New-ConsolePanel -Title 'DC03' -Content { '[pass]√ healthy[/]' }\n    New-ConsolePanel -Title 'DC04' -Content { '[fail]✗ offline[/]' }\n    New-ConsolePanel -Title 'DC05' -Content { '[pass]√ healthy[/]' }\n} | Show-Console",
+      "powershellFull": "Import-Module ConsoleMonster\n\nNew-ConsoleLayoutGrid -Columns 3 -Content {\n    New-ConsolePanel -Title 'DC01' -Content { '[pass]√ healthy[/]' }\n    New-ConsolePanel -Title 'DC02' -Content { '[warn]▲ lagging[/]' }\n    New-ConsolePanel -Title 'DC03' -Content { '[pass]√ healthy[/]' }\n    New-ConsolePanel -Title 'DC04' -Content { '[fail]✗ offline[/]' }\n    New-ConsolePanel -Title 'DC05' -Content { '[pass]√ healthy[/]' }\n} | Show-Console",
       "powershellFile": "grid.ps1",
       "frame": {
         "w": 60,
@@ -200,6 +300,38 @@
         "dark": "<span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c4\">DC01</span><span class=c1> </span><span class=\"f4b5060 c22\"><i class=\"g2500 c21\">─────────────────────</i><i class=g256e>╮</i></span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c4\">DC02</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c20\">────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f4ade80 c9\"><i class=n>√</i> healthy</span><span class=c18>                  </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"ffbbf24 c9\"><i class=n>▲</i> lagging</span><span class=c17>                 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c30\"><i class=g2570>╰</i><i class=\"g2500 c28\">────────────────────────────</i><i class=g256f>╯</i></span><span class=c1> </span><span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c27\">───────────────────────────</i><i class=g256f>╯</i></span>\n<span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c4\">DC03</span><span class=c1> </span><span class=\"f4b5060 c22\"><i class=\"g2500 c21\">─────────────────────</i><i class=g256e>╮</i></span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c4\">DC04</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c20\">────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f4ade80 c9\"><i class=n>√</i> healthy</span><span class=c18>                  </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"ff87171 c9\"><i class=n>✗</i> offline</span><span class=c17>                 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c30\"><i class=g2570>╰</i><i class=\"g2500 c28\">────────────────────────────</i><i class=g256f>╯</i></span><span class=c1> </span><span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c27\">───────────────────────────</i><i class=g256f>╯</i></span>\n<span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c4\">DC05</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c21\">─────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f4ade80 c9\"><i class=n>√</i> healthy</span><span class=c18>                  </span><i class=\"g2502 f4b5060\">│</i>\n<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c28\">────────────────────────────</i><i class=g256f>╯</i></span>",
         "light": "<span class=\"f8a8a94 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"f111827 B c4\">DC01</span><span class=c1> </span><span class=\"f8a8a94 c22\"><i class=\"g2500 c21\">─────────────────────</i><i class=g256e>╮</i></span><span class=c1> </span><span class=\"f8a8a94 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"f111827 B c4\">DC02</span><span class=c1> </span><span class=f8a8a94><i class=\"g2500 c20\">────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><span class=\"f15803d c9\"><i class=n>√</i> healthy</span><span class=c18>                  </span><i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><span class=\"fb45309 c9\"><i class=n>▲</i> lagging</span><span class=c17>                 </span><i class=\"g2502 f8a8a94\">│</i>\n<span class=\"f8a8a94 c30\"><i class=g2570>╰</i><i class=\"g2500 c28\">────────────────────────────</i><i class=g256f>╯</i></span><span class=c1> </span><span class=f8a8a94><i class=g2570>╰</i><i class=\"g2500 c27\">───────────────────────────</i><i class=g256f>╯</i></span>\n<span class=\"f8a8a94 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"f111827 B c4\">DC03</span><span class=c1> </span><span class=\"f8a8a94 c22\"><i class=\"g2500 c21\">─────────────────────</i><i class=g256e>╮</i></span><span class=c1> </span><span class=\"f8a8a94 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"f111827 B c4\">DC04</span><span class=c1> </span><span class=f8a8a94><i class=\"g2500 c20\">────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><span class=\"f15803d c9\"><i class=n>√</i> healthy</span><span class=c18>                  </span><i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><span class=\"fb91c1c c9\"><i class=n>✗</i> offline</span><span class=c17>                 </span><i class=\"g2502 f8a8a94\">│</i>\n<span class=\"f8a8a94 c30\"><i class=g2570>╰</i><i class=\"g2500 c28\">────────────────────────────</i><i class=g256f>╯</i></span><span class=c1> </span><span class=f8a8a94><i class=g2570>╰</i><i class=\"g2500 c27\">───────────────────────────</i><i class=g256f>╯</i></span>\n<span class=\"f8a8a94 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"f111827 B c4\">DC05</span><span class=c1> </span><span class=f8a8a94><i class=\"g2500 c21\">─────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><span class=\"f15803d c9\"><i class=n>√</i> healthy</span><span class=c18>                  </span><i class=\"g2502 f8a8a94\">│</i>\n<span class=f8a8a94><i class=g2570>╰</i><i class=\"g2500 c28\">────────────────────────────</i><i class=g256f>╯</i></span>"
       },
+      "csharpFluent": "new Grid(3, new Panel(new TextBlock(\"[pass]√ healthy[/]\"), \"DC01\"), new Panel(new TextBlock(\"[warn]▲ lagging[/]\"), \"DC02\"), new Panel(new TextBlock(\"[pass]√ healthy[/]\"), \"DC03\"), new Panel(new TextBlock(\"[fail]✗ offline[/]\"), \"DC04\"), new Panel(new TextBlock(\"[pass]√ healthy[/]\"), \"DC05\")).Show();\n",
+      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\nnew Grid(3, new Panel(new TextBlock(\"[pass]√ healthy[/]\"), \"DC01\"), new Panel(new TextBlock(\"[warn]▲ lagging[/]\"), \"DC02\"), new Panel(new TextBlock(\"[pass]√ healthy[/]\"), \"DC03\"), new Panel(new TextBlock(\"[fail]✗ offline[/]\"), \"DC04\"), new Panel(new TextBlock(\"[pass]√ healthy[/]\"), \"DC05\")).Show();\n",
+      "csharpFluentFile": "Program.cs",
+      "apiMap": [
+        {
+          "powershell": "New-ConsolePanel -Title …",
+          "csharp": "Title = …",
+          "fluent": ".Title(…)",
+          "memberId": "ConsoleMonster.Layout.Panel.Title",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsolePanel -Content …",
+          "csharp": "Content = …",
+          "fluent": ".Content(…)",
+          "memberId": "ConsoleMonster.Layout.Panel.Content",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsoleLayoutGrid -Columns …",
+          "csharp": "new Grid(columns: …)",
+          "fluent": "new Grid(columns: …)",
+          "memberId": "A:ConsoleMonster.Layout.Grid..ctor.columns",
+          "note": null
+        },
+        {
+          "powershell": "| Show-Console",
+          "csharp": "Terminal.Write(widget)",
+          "fluent": ".Show()",
+          "memberId": "M:ConsoleMonster.Terminal.Write"
+        }
+      ],
       "parity": {
         "ps7": {
           "host": "PowerShell 7.6",
@@ -231,6 +363,53 @@
         "dark": "<span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c5\">Align</span><span class=c1> </span><span class=\"f4b5060 c20\"><i class=\"g2500 c19\">───────────────────</i><i class=g256e>╮</i></span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c7\">Padding</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c18\">──────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c10>          </span><span class=\"B c7\">centred</span><span class=c10>          </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c28>                            </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c27>                           </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c28>   two cells of padding     </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c27>                           </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c28>                            </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c29\"><i class=g2570>╰</i><i class=\"g2500 c27\">───────────────────────────</i><i class=g256f>╯</i></span><span class=c1> </span><span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c28\">────────────────────────────</i><i class=g256f>╯</i></span>",
         "light": "<span class=\"f8a8a94 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"f111827 B c5\">Align</span><span class=c1> </span><span class=\"f8a8a94 c20\"><i class=\"g2500 c19\">───────────────────</i><i class=g256e>╮</i></span><span class=c1> </span><span class=\"f8a8a94 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"f111827 B c7\">Padding</span><span class=c1> </span><span class=f8a8a94><i class=\"g2500 c18\">──────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f8a8a94\">│</i><span class=c10>          </span><span class=\"B c7\">centred</span><span class=c10>          </span><i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><i class=\"g2502 f8a8a94\">│</i><span class=c28>                            </span><i class=\"g2502 f8a8a94\">│</i>\n<i class=\"g2502 f8a8a94\">│</i><span class=c27>                           </span><i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><i class=\"g2502 f8a8a94\">│</i><span class=c28>   two cells of padding     </span><i class=\"g2502 f8a8a94\">│</i>\n<i class=\"g2502 f8a8a94\">│</i><span class=c27>                           </span><i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><i class=\"g2502 f8a8a94\">│</i><span class=c28>                            </span><i class=\"g2502 f8a8a94\">│</i>\n<span class=\"f8a8a94 c29\"><i class=g2570>╰</i><i class=\"g2500 c27\">───────────────────────────</i><i class=g256f>╯</i></span><span class=c1> </span><span class=f8a8a94><i class=g2570>╰</i><i class=\"g2500 c28\">────────────────────────────</i><i class=g256f>╯</i></span>"
       },
+      "csharpFluent": "Panel left = new Panel(new Align(new TextBlock(\"[bold]centred[/]\")), \"Align\");\nPanel right = new Panel(new Padding(new TextBlock(\"two cells of padding\"), 2, 1, 2, 1), \"Padding\");\nnew Columns(left, right).Show();\n",
+      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\nPanel left = new Panel(new Align(new TextBlock(\"[bold]centred[/]\")), \"Align\");\nPanel right = new Panel(new Padding(new TextBlock(\"two cells of padding\"), 2, 1, 2, 1), \"Padding\");\nnew Columns(left, right).Show();\n",
+      "csharpFluentFile": "Program.cs",
+      "apiMap": [
+        {
+          "powershell": "New-ConsolePanel -Title …",
+          "csharp": "Title = …",
+          "fluent": ".Title(…)",
+          "memberId": "ConsoleMonster.Layout.Panel.Title",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsoleAlign -Content …",
+          "csharp": "Content = …",
+          "fluent": ".Content(…)",
+          "memberId": "ConsoleMonster.Layout.Align.Content",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsolePadding -Content …",
+          "csharp": "Content = …",
+          "fluent": ".Content(…)",
+          "memberId": "ConsoleMonster.Layout.Padding.Content",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsolePanel -Content …",
+          "csharp": "Content = …",
+          "fluent": ".Content(…)",
+          "memberId": "ConsoleMonster.Layout.Panel.Content",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsolePadding -Padding …",
+          "csharp": "Bottom = …",
+          "fluent": ".Bottom(…)",
+          "memberId": "ConsoleMonster.Layout.Padding.Bottom",
+          "note": "The one/two/four-value Padding shorthand resolves Left, Top, Right and Bottom in the documented order."
+        },
+        {
+          "powershell": "New-ConsolePadding -Padding …",
+          "csharp": "Left = …",
+          "fluent": ".Left(…)",
+          "memberId": "ConsoleMonster.Layout.Padding.Left",
+          "note": "The one/two/four-value Padding shorthand resolves Left, Top, Right and Bottom in the documented order."
+        }
+      ],
       "parity": {
         "ps7": {
           "host": "PowerShell 7.6",
@@ -250,11 +429,11 @@
       "group": "layout",
       "summary": "Layers drawn on top of each other: a badge over a chart.",
       "width": 60,
-      "csharp": "Sparkline load = new Sparkline()\n    .WithHeight(3)\n    .WithShowLatest(false)\n    .AddRange(new double[] { 12, 14, 13, 18, 22, 26, 25, 31, 36, 34, 40, 44 })\n    .AddRange(new double[] { 41, 47, 52, 49, 55, 61, 58, 64, 70, 66, 73, 79 });\nAlign badge = new Align(new TextBlock(\"[pass] LIVE [/]\"), HorizontalAlignment.Right);\nTerminal.Write(new Panel(new Stack(load, badge), \"Stack\").WithHeaderRight(\"badge over a chart\"));",
-      "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\nSparkline load = new Sparkline()\n    .WithHeight(3)\n    .WithShowLatest(false)\n    .AddRange(new double[] { 12, 14, 13, 18, 22, 26, 25, 31, 36, 34, 40, 44 })\n    .AddRange(new double[] { 41, 47, 52, 49, 55, 61, 58, 64, 70, 66, 73, 79 });\nAlign badge = new Align(new TextBlock(\"[pass] LIVE [/]\"), HorizontalAlignment.Right);\nTerminal.Write(new Panel(new Stack(load, badge), \"Stack\").WithHeaderRight(\"badge over a chart\"));",
+      "csharp": "Sparkline load = new Sparkline()\n{\n    Height = 3,\n    ShowLatest = false\n}.AddRange(new double[] { 12, 14, 13, 18, 22, 26, 25, 31, 36, 34, 40, 44 }).AddRange(new double[] { 41, 47, 52, 49, 55, 61, 58, 64, 70, 66, 73, 79 });\nAlign badge = new Align(new TextBlock(\"[pass] LIVE [/]\"), HorizontalAlignment.Right);\nTerminal.Write(new Panel(new Stack(load, badge), \"Stack\") { HeaderRight = \"badge over a chart\" });",
+      "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\nSparkline load = new Sparkline()\n{\n    Height = 3,\n    ShowLatest = false\n}.AddRange(new double[] { 12, 14, 13, 18, 22, 26, 25, 31, 36, 34, 40, 44 }).AddRange(new double[] { 41, 47, 52, 49, 55, 61, 58, 64, 70, 66, 73, 79 });\nAlign badge = new Align(new TextBlock(\"[pass] LIVE [/]\"), HorizontalAlignment.Right);\nTerminal.Write(new Panel(new Stack(load, badge), \"Stack\") { HeaderRight = \"badge over a chart\" });",
       "csharpFile": "Program.cs",
-      "powershell": "$load = 12, 14, 13, 18, 22, 26, 25, 31, 36, 34, 40, 44, 41, 47, 52, 49, 55, 61, 58, 64, 70, 66, 73, 79\nNew-ConsolePanel -Title 'Stack' -HeaderRight 'badge over a chart' -Content {\n    New-ConsoleStack -Content {\n        New-ConsoleSparkline -Height 3 -Value $load -NoLatest\n        New-ConsoleAlign -Horizontal Right -Content { '[pass] LIVE [/]' }\n    }\n} | Show-Console",
-      "powershellFull": "Import-Module ConsoleMonster\n\n$load = 12, 14, 13, 18, 22, 26, 25, 31, 36, 34, 40, 44, 41, 47, 52, 49, 55, 61, 58, 64, 70, 66, 73, 79\nNew-ConsolePanel -Title 'Stack' -HeaderRight 'badge over a chart' -Content {\n    New-ConsoleStack -Content {\n        New-ConsoleSparkline -Height 3 -Value $load -NoLatest\n        New-ConsoleAlign -Horizontal Right -Content { '[pass] LIVE [/]' }\n    }\n} | Show-Console",
+      "powershell": "$load = 12, 14, 13, 18, 22, 26, 25, 31, 36, 34, 40, 44, 41, 47, 52, 49, 55, 61, 58, 64, 70, 66, 73, 79\nNew-ConsolePanel -Title 'Stack' -HeaderRight 'badge over a chart' -Content {\n    New-ConsoleStack -Content {\n        New-ConsoleChart -Height 3 -NoLatest -Type Sparkline -Values $load\n        New-ConsoleAlign -Horizontal Right -Content { '[pass] LIVE [/]' }\n    }\n} | Show-Console",
+      "powershellFull": "Import-Module ConsoleMonster\n\n$load = 12, 14, 13, 18, 22, 26, 25, 31, 36, 34, 40, 44, 41, 47, 52, 49, 55, 61, 58, 64, 70, 66, 73, 79\nNew-ConsolePanel -Title 'Stack' -HeaderRight 'badge over a chart' -Content {\n    New-ConsoleStack -Content {\n        New-ConsoleChart -Height 3 -NoLatest -Type Sparkline -Values $load\n        New-ConsoleAlign -Horizontal Right -Content { '[pass] LIVE [/]' }\n    }\n} | Show-Console",
       "powershellFile": "stack.ps1",
       "frame": {
         "w": 60,
@@ -262,6 +441,53 @@
         "dark": "<span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c5\">Stack</span><span class=c1> </span><i class=\"g2500 c29 f4b5060\">─────────────────────────────</i><span class=c1> </span><span class=\"f8b8f9a c18\">badge over a chart</span><span class=c1> </span><span class=f4b5060><i class=g2500>─</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c49>                                                 </span><span class=\"f60a5fa c2\"><i class=g2581>▁</i><i class=g2583>▃</i></span><span class=\"f4ade80 c6\"> LIVE </span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c40>                                        </span><span class=\"f60a5fa c17\"><i class=g2581>▁</i><i class=g2583>▃</i><i class=g2582>▂</i><i class=g2584>▄</i><i class=g2585>▅</i><i class=g2584>▄</i><i class=g2586>▆</i><i class=g2588>█</i><i class=g2587>▇</i><i class=\"g2588 c8\">████████</i></span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c33>                                 </span><span class=\"f60a5fa c24\"><i class=\"g2584 c3\">▄▄▄</i><i class=g2585>▅</i><i class=g2587>▇</i><i class=\"g2588 c19\">███████████████████</i></span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i>\n<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c58\">──────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>",
         "light": "<span class=\"f8a8a94 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"f111827 B c5\">Stack</span><span class=c1> </span><i class=\"g2500 c29 f8a8a94\">─────────────────────────────</i><span class=c1> </span><span class=\"f6b7280 c18\">badge over a chart</span><span class=c1> </span><span class=f8a8a94><i class=g2500>─</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f8a8a94\">│</i><span class=c49>                                                 </span><span class=\"f2563eb c2\"><i class=g2581>▁</i><i class=g2583>▃</i></span><span class=\"f15803d c6\"> LIVE </span><span class=c1> </span><i class=\"g2502 f8a8a94\">│</i>\n<i class=\"g2502 f8a8a94\">│</i><span class=c40>                                        </span><span class=\"f2563eb c17\"><i class=g2581>▁</i><i class=g2583>▃</i><i class=g2582>▂</i><i class=g2584>▄</i><i class=g2585>▅</i><i class=g2584>▄</i><i class=g2586>▆</i><i class=g2588>█</i><i class=g2587>▇</i><i class=\"g2588 c8\">████████</i></span><span class=c1> </span><i class=\"g2502 f8a8a94\">│</i>\n<i class=\"g2502 f8a8a94\">│</i><span class=c33>                                 </span><span class=\"f2563eb c24\"><i class=\"g2584 c3\">▄▄▄</i><i class=g2585>▅</i><i class=g2587>▇</i><i class=\"g2588 c19\">███████████████████</i></span><span class=c1> </span><i class=\"g2502 f8a8a94\">│</i>\n<span class=f8a8a94><i class=g2570>╰</i><i class=\"g2500 c58\">──────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>"
       },
+      "csharpFluent": "Sparkline load = new Sparkline().Height(3).ShowLatest(false).AddRange(new double[] { 12, 14, 13, 18, 22, 26, 25, 31, 36, 34, 40, 44 }).AddRange(new double[] { 41, 47, 52, 49, 55, 61, 58, 64, 70, 66, 73, 79 });\nAlign badge = new Align(new TextBlock(\"[pass] LIVE [/]\"), HorizontalAlignment.Right);\nnew Panel(new Stack(load, badge), \"Stack\").HeaderRight(\"badge over a chart\").Show();\n",
+      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\nSparkline load = new Sparkline().Height(3).ShowLatest(false).AddRange(new double[] { 12, 14, 13, 18, 22, 26, 25, 31, 36, 34, 40, 44 }).AddRange(new double[] { 41, 47, 52, 49, 55, 61, 58, 64, 70, 66, 73, 79 });\nAlign badge = new Align(new TextBlock(\"[pass] LIVE [/]\"), HorizontalAlignment.Right);\nnew Panel(new Stack(load, badge), \"Stack\").HeaderRight(\"badge over a chart\").Show();\n",
+      "csharpFluentFile": "Program.cs",
+      "apiMap": [
+        {
+          "powershell": "New-ConsolePanel -Title …",
+          "csharp": "Title = …",
+          "fluent": ".Title(…)",
+          "memberId": "ConsoleMonster.Layout.Panel.Title",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsoleAlign -Content …",
+          "csharp": "Content = …",
+          "fluent": ".Content(…)",
+          "memberId": "ConsoleMonster.Layout.Align.Content",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsolePanel -Content …",
+          "csharp": "Content = …",
+          "fluent": ".Content(…)",
+          "memberId": "ConsoleMonster.Layout.Panel.Content",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsolePanel -HeaderRight …",
+          "csharp": "HeaderRight = …",
+          "fluent": ".HeaderRight(…)",
+          "memberId": "ConsoleMonster.Layout.Panel.HeaderRight",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsoleAlign -Horizontal …",
+          "csharp": "Horizontal = …",
+          "fluent": ".Horizontal(…)",
+          "memberId": "ConsoleMonster.Layout.Align.Horizontal",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsoleChart -Height …",
+          "csharp": "Height = …",
+          "fluent": ".Height(…)",
+          "memberId": "ConsoleMonster.Widgets.Sparkline.Height",
+          "note": null
+        }
+      ],
       "parity": {
         "ps7": {
           "host": "PowerShell 7.6",
@@ -284,8 +510,8 @@
       "csharp": "Terminal.Write(new KeyValueList()\n    .Add(\"Module\", \"[bold]ConsoleMonster[/]\")\n    .Add(\"Version\", \"0.0.4 [muted]→[/] [bold]2.0.0[/]\")\n    .Add(\"Frameworks\", \"netstandard2.0, net472, net8.0\")\n    .Add(\"Signing\", \"skipped\", StatusKind.Skip)\n    .Add(\"Tests\", \"1 skipped on PowerShell 7\", StatusKind.Warn));",
       "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\nTerminal.Write(new KeyValueList()\n    .Add(\"Module\", \"[bold]ConsoleMonster[/]\")\n    .Add(\"Version\", \"0.0.4 [muted]→[/] [bold]2.0.0[/]\")\n    .Add(\"Frameworks\", \"netstandard2.0, net472, net8.0\")\n    .Add(\"Signing\", \"skipped\", StatusKind.Skip)\n    .Add(\"Tests\", \"1 skipped on PowerShell 7\", StatusKind.Warn));",
       "csharpFile": "Program.cs",
-      "powershell": "New-ConsoleKeyValue -Markup -InputObject ([ordered] @{\n    Module     = '[bold]ConsoleMonster[/]'\n    Version    = '0.0.4 [muted]→[/] [bold]2.0.0[/]'\n    Frameworks = 'netstandard2.0, net472, net8.0'\n}) -Content {\n    New-ConsoleKeyValueItem 'Signing' 'skipped' -Status Skip\n    New-ConsoleKeyValueItem 'Tests' '1 skipped on PowerShell 7' -Status Warn\n} | Show-Console",
-      "powershellFull": "Import-Module ConsoleMonster\n\nNew-ConsoleKeyValue -Markup -InputObject ([ordered] @{\n    Module     = '[bold]ConsoleMonster[/]'\n    Version    = '0.0.4 [muted]→[/] [bold]2.0.0[/]'\n    Frameworks = 'netstandard2.0, net472, net8.0'\n}) -Content {\n    New-ConsoleKeyValueItem 'Signing' 'skipped' -Status Skip\n    New-ConsoleKeyValueItem 'Tests' '1 skipped on PowerShell 7' -Status Warn\n} | Show-Console",
+      "powershell": "New-ConsoleKeyValue -Markup -InputObject ([ordered] @{\n    Module     = '[bold]ConsoleMonster[/]'\n    Version    = '0.0.4 [muted]→[/] [bold]2.0.0[/]'\n    Frameworks = 'netstandard2.0, net472, net8.0'\n}) -Content {\n    [pscustomobject]@{ Key = 'Signing'; Value = 'skipped'; Status = 'Skip' }\n    [pscustomobject]@{ Key = 'Tests'; Value = '1 skipped on PowerShell 7'; Status = 'Warn' }\n} | Show-Console",
+      "powershellFull": "Import-Module ConsoleMonster\n\nNew-ConsoleKeyValue -Markup -InputObject ([ordered] @{\n    Module     = '[bold]ConsoleMonster[/]'\n    Version    = '0.0.4 [muted]→[/] [bold]2.0.0[/]'\n    Frameworks = 'netstandard2.0, net472, net8.0'\n}) -Content {\n    [pscustomobject]@{ Key = 'Signing'; Value = 'skipped'; Status = 'Skip' }\n    [pscustomobject]@{ Key = 'Tests'; Value = '1 skipped on PowerShell 7'; Status = 'Warn' }\n} | Show-Console",
       "powershellFile": "keyvalue.ps1",
       "frame": {
         "w": 60,
@@ -293,6 +519,24 @@
         "dark": "<span class=\"f8b8f9a c6\">Module</span><span class=c6>      </span><span class=B>ConsoleMonster</span>\n<span class=\"f8b8f9a c7\">Version</span><span class=c11>     0.0.4 </span><i class=\"n f8b8f9a\">→</i><span class=c1> </span><span class=B>2.0.0</span>\n<span class=\"f8b8f9a c10\">Frameworks</span>  netstandard2.0, net472, net8.0\n<span class=\"f8b8f9a c7\">Signing</span><span class=c5>     </span><span class=\"fa1a1aa c2\"><i class=n>–</i> </span>skipped\n<span class=\"f8b8f9a c5\">Tests</span><span class=c7>       </span><span class=\"ffbbf24 c2\"><i class=n>▴</i> </span>1 skipped on PowerShell 7",
         "light": "<span class=\"f6b7280 c6\">Module</span><span class=c6>      </span><span class=B>ConsoleMonster</span>\n<span class=\"f6b7280 c7\">Version</span><span class=c11>     0.0.4 </span><i class=\"n f6b7280\">→</i><span class=c1> </span><span class=B>2.0.0</span>\n<span class=\"f6b7280 c10\">Frameworks</span>  netstandard2.0, net472, net8.0\n<span class=\"f6b7280 c7\">Signing</span><span class=c5>     </span><span class=\"f71717a c2\"><i class=n>–</i> </span>skipped\n<span class=\"f6b7280 c5\">Tests</span><span class=c7>       </span><span class=\"fb45309 c2\"><i class=n>▴</i> </span>1 skipped on PowerShell 7"
       },
+      "csharpFluent": "new KeyValueList().Add(\"Module\", \"[bold]ConsoleMonster[/]\").Add(\"Version\", \"0.0.4 [muted]→[/] [bold]2.0.0[/]\").Add(\"Frameworks\", \"netstandard2.0, net472, net8.0\").Add(\"Signing\", \"skipped\", StatusKind.Skip).Add(\"Tests\", \"1 skipped on PowerShell 7\", StatusKind.Warn).Show();\n",
+      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\nnew KeyValueList().Add(\"Module\", \"[bold]ConsoleMonster[/]\").Add(\"Version\", \"0.0.4 [muted]→[/] [bold]2.0.0[/]\").Add(\"Frameworks\", \"netstandard2.0, net472, net8.0\").Add(\"Signing\", \"skipped\", StatusKind.Skip).Add(\"Tests\", \"1 skipped on PowerShell 7\", StatusKind.Warn).Show();\n",
+      "csharpFluentFile": "Program.cs",
+      "apiMap": [
+        {
+          "powershell": "New-ConsoleKeyValue -Markup",
+          "csharp": "KeyValueList.Add(value: true)",
+          "fluent": "KeyValueList.Add(value: true)",
+          "memberId": "A:ConsoleMonster.Widgets.KeyValueList.Add.value",
+          "note": "Parses the supplied values as RichText instead of literal text."
+        },
+        {
+          "powershell": "| Show-Console",
+          "csharp": "Terminal.Write(widget)",
+          "fluent": ".Show()",
+          "memberId": "M:ConsoleMonster.Terminal.Write"
+        }
+      ],
       "parity": {
         "ps7": {
           "host": "PowerShell 7.6",
@@ -315,8 +559,8 @@
       "csharp": "Terminal.Write(new StatusList()\n    .Add(\"Restore NuGet packages\", StatusKind.Pass, \"1.6 s\")\n    .Add(\"Compile ConsoleMonster\", StatusKind.Pass, \"4.7 s\")\n    .Add(\"Run Pester on PowerShell 7\", StatusKind.Warn, \"1 skipped\")\n    .Add(\"Sign module files\", StatusKind.Skip, \"skipped\")\n    .Add(\"Pack ConsoleMonster.2.0.0.nupkg\", StatusKind.Running)\n    .Add(\"Publish to PowerShell Gallery\", StatusKind.Pending));",
       "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\nTerminal.Write(new StatusList()\n    .Add(\"Restore NuGet packages\", StatusKind.Pass, \"1.6 s\")\n    .Add(\"Compile ConsoleMonster\", StatusKind.Pass, \"4.7 s\")\n    .Add(\"Run Pester on PowerShell 7\", StatusKind.Warn, \"1 skipped\")\n    .Add(\"Sign module files\", StatusKind.Skip, \"skipped\")\n    .Add(\"Pack ConsoleMonster.2.0.0.nupkg\", StatusKind.Running)\n    .Add(\"Publish to PowerShell Gallery\", StatusKind.Pending));",
       "csharpFile": "Program.cs",
-      "powershell": "New-ConsoleStatusList -Content {\n    New-ConsoleStatusItem 'Restore NuGet packages' -Status Pass -Detail '1.6 s'\n    New-ConsoleStatusItem 'Compile ConsoleMonster' -Status Pass -Detail '4.7 s'\n    New-ConsoleStatusItem 'Run Pester on PowerShell 7' -Status Warn -Detail '1 skipped'\n    New-ConsoleStatusItem 'Sign module files' -Status Skip -Detail 'skipped'\n    New-ConsoleStatusItem 'Pack ConsoleMonster.2.0.0.nupkg' -Status Running\n    New-ConsoleStatusItem 'Publish to PowerShell Gallery' -Status Pending\n} | Show-Console",
-      "powershellFull": "Import-Module ConsoleMonster\n\nNew-ConsoleStatusList -Content {\n    New-ConsoleStatusItem 'Restore NuGet packages' -Status Pass -Detail '1.6 s'\n    New-ConsoleStatusItem 'Compile ConsoleMonster' -Status Pass -Detail '4.7 s'\n    New-ConsoleStatusItem 'Run Pester on PowerShell 7' -Status Warn -Detail '1 skipped'\n    New-ConsoleStatusItem 'Sign module files' -Status Skip -Detail 'skipped'\n    New-ConsoleStatusItem 'Pack ConsoleMonster.2.0.0.nupkg' -Status Running\n    New-ConsoleStatusItem 'Publish to PowerShell Gallery' -Status Pending\n} | Show-Console",
+      "powershell": "New-ConsoleStatusList -Content {\n    [pscustomobject]@{ Label = 'Restore NuGet packages'; Status = 'Pass'; Detail = '1.6 s' }\n    [pscustomobject]@{ Label = 'Compile ConsoleMonster'; Status = 'Pass'; Detail = '4.7 s' }\n    [pscustomobject]@{ Label = 'Run Pester on PowerShell 7'; Status = 'Warn'; Detail = '1 skipped' }\n    [pscustomobject]@{ Label = 'Sign module files'; Status = 'Skip'; Detail = 'skipped' }\n    [pscustomobject]@{ Label = 'Pack ConsoleMonster.2.0.0.nupkg'; Status = 'Running' }\n    [pscustomobject]@{ Label = 'Publish to PowerShell Gallery'; Status = 'Pending' }\n} | Show-Console",
+      "powershellFull": "Import-Module ConsoleMonster\n\nNew-ConsoleStatusList -Content {\n    [pscustomobject]@{ Label = 'Restore NuGet packages'; Status = 'Pass'; Detail = '1.6 s' }\n    [pscustomobject]@{ Label = 'Compile ConsoleMonster'; Status = 'Pass'; Detail = '4.7 s' }\n    [pscustomobject]@{ Label = 'Run Pester on PowerShell 7'; Status = 'Warn'; Detail = '1 skipped' }\n    [pscustomobject]@{ Label = 'Sign module files'; Status = 'Skip'; Detail = 'skipped' }\n    [pscustomobject]@{ Label = 'Pack ConsoleMonster.2.0.0.nupkg'; Status = 'Running' }\n    [pscustomobject]@{ Label = 'Publish to PowerShell Gallery'; Status = 'Pending' }\n} | Show-Console",
       "powershellFile": "statuslist.ps1",
       "frame": {
         "w": 60,
@@ -324,6 +568,17 @@
         "dark": "<i class=\"n f4ade80\">✓</i><span class=c54> Restore NuGet packages                               </span><span class=f8b8f9a>1.6 s</span>\n<i class=\"n f4ade80\">✓</i><span class=c54> Compile ConsoleMonster                               </span><span class=f8b8f9a>4.7 s</span>\n<i class=\"n ffbbf24\">▴</i><span class=c50> Run Pester on PowerShell 7                       </span><span class=f8b8f9a>1 skipped</span>\n<i class=\"n fa1a1aa\">–</i><span class=c52> Sign module files                                  </span><span class=f8b8f9a>skipped</span>\n<i class=\"g280b f60a5fa\">⠋</i> Pack ConsoleMonster.2.0.0.nupkg\n<i class=\"n f71717a\">○</i> Publish to PowerShell Gallery",
         "light": "<i class=\"n f15803d\">✓</i><span class=c54> Restore NuGet packages                               </span><span class=f6b7280>1.6 s</span>\n<i class=\"n f15803d\">✓</i><span class=c54> Compile ConsoleMonster                               </span><span class=f6b7280>4.7 s</span>\n<i class=\"n fb45309\">▴</i><span class=c50> Run Pester on PowerShell 7                       </span><span class=f6b7280>1 skipped</span>\n<i class=\"n f71717a\">–</i><span class=c52> Sign module files                                  </span><span class=f6b7280>skipped</span>\n<i class=\"g280b f2563eb\">⠋</i> Pack ConsoleMonster.2.0.0.nupkg\n<i class=\"n f858590\">○</i> Publish to PowerShell Gallery"
       },
+      "csharpFluent": "new StatusList().Add(\"Restore NuGet packages\", StatusKind.Pass, \"1.6 s\").Add(\"Compile ConsoleMonster\", StatusKind.Pass, \"4.7 s\").Add(\"Run Pester on PowerShell 7\", StatusKind.Warn, \"1 skipped\").Add(\"Sign module files\", StatusKind.Skip, \"skipped\").Add(\"Pack ConsoleMonster.2.0.0.nupkg\", StatusKind.Running).Add(\"Publish to PowerShell Gallery\", StatusKind.Pending).Show();\n",
+      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\nnew StatusList().Add(\"Restore NuGet packages\", StatusKind.Pass, \"1.6 s\").Add(\"Compile ConsoleMonster\", StatusKind.Pass, \"4.7 s\").Add(\"Run Pester on PowerShell 7\", StatusKind.Warn, \"1 skipped\").Add(\"Sign module files\", StatusKind.Skip, \"skipped\").Add(\"Pack ConsoleMonster.2.0.0.nupkg\", StatusKind.Running).Add(\"Publish to PowerShell Gallery\", StatusKind.Pending).Show();\n",
+      "csharpFluentFile": "Program.cs",
+      "apiMap": [
+        {
+          "powershell": "| Show-Console",
+          "csharp": "Terminal.Write(widget)",
+          "fluent": ".Show()",
+          "memberId": "M:ConsoleMonster.Terminal.Write"
+        }
+      ],
       "parity": {
         "ps7": {
           "host": "PowerShell 7.6",
@@ -343,11 +598,11 @@
       "group": "status",
       "summary": "Nested items with guides, status symbols and notes.",
       "width": 60,
-      "csharp": "Tree tree = new Tree(\"[bold]evotec.xyz[/]\");\nTreeNode mx = tree.Add(\"MX\", StatusKind.Pass, \"2 records\");\nmx.Add(\"evotec-xyz.mail.protection.outlook.com\", note: \"priority 0\");\nTreeNode spf = tree.Add(\"SPF\", StatusKind.Warn, \"9 of 10 DNS lookups\");\nspf.Add(\"include:spf.protection.outlook.com\");\nspf.Add(\"include:_spf.salesforce.com\");\ntree.Add(\"DMARC\", StatusKind.Fail, \"p=none\");\ntree.Add(\"DKIM\", StatusKind.Pass, \"selector1, selector2\");\nTerminal.Write(tree);",
-      "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\nTree tree = new Tree(\"[bold]evotec.xyz[/]\");\nTreeNode mx = tree.Add(\"MX\", StatusKind.Pass, \"2 records\");\nmx.Add(\"evotec-xyz.mail.protection.outlook.com\", note: \"priority 0\");\nTreeNode spf = tree.Add(\"SPF\", StatusKind.Warn, \"9 of 10 DNS lookups\");\nspf.Add(\"include:spf.protection.outlook.com\");\nspf.Add(\"include:_spf.salesforce.com\");\ntree.Add(\"DMARC\", StatusKind.Fail, \"p=none\");\ntree.Add(\"DKIM\", StatusKind.Pass, \"selector1, selector2\");\nTerminal.Write(tree);",
+      "csharp": "Tree tree = new Tree(\"[bold]evotec.xyz[/]\");\nTreeNode mx = tree.Add(\"MX\", StatusKind.Pass, \"2 records\");\nmx.Add(\"evotec-xyz.mail.protection.outlook.com\", detail: \"priority 0\");\nTreeNode spf = tree.Add(\"SPF\", StatusKind.Warn, \"9 of 10 DNS lookups\");\nspf.Add(\"include:spf.protection.outlook.com\");\nspf.Add(\"include:_spf.salesforce.com\");\ntree.Add(\"DMARC\", StatusKind.Fail, \"p=none\");\ntree.Add(\"DKIM\", StatusKind.Pass, \"selector1, selector2\");\nTerminal.Write(tree);",
+      "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\nTree tree = new Tree(\"[bold]evotec.xyz[/]\");\nTreeNode mx = tree.Add(\"MX\", StatusKind.Pass, \"2 records\");\nmx.Add(\"evotec-xyz.mail.protection.outlook.com\", detail: \"priority 0\");\nTreeNode spf = tree.Add(\"SPF\", StatusKind.Warn, \"9 of 10 DNS lookups\");\nspf.Add(\"include:spf.protection.outlook.com\");\nspf.Add(\"include:_spf.salesforce.com\");\ntree.Add(\"DMARC\", StatusKind.Fail, \"p=none\");\ntree.Add(\"DKIM\", StatusKind.Pass, \"selector1, selector2\");\nTerminal.Write(tree);",
       "csharpFile": "Program.cs",
-      "powershell": "New-ConsoleTree '[bold]evotec.xyz[/]' -Content {\n    New-ConsoleTreeNode 'MX' -Status Pass -Detail '2 records' -Content {\n        New-ConsoleTreeNode 'evotec-xyz.mail.protection.outlook.com' -Detail 'priority 0'\n    }\n    New-ConsoleTreeNode 'SPF' -Status Warn -Detail '9 of 10 DNS lookups' -Content {\n        'include:spf.protection.outlook.com'\n        'include:_spf.salesforce.com'\n    }\n    New-ConsoleTreeNode 'DMARC' -Status Fail -Detail 'p=none'\n    New-ConsoleTreeNode 'DKIM' -Status Pass -Detail 'selector1, selector2'\n} | Show-Console",
-      "powershellFull": "Import-Module ConsoleMonster\n\nNew-ConsoleTree '[bold]evotec.xyz[/]' -Content {\n    New-ConsoleTreeNode 'MX' -Status Pass -Detail '2 records' -Content {\n        New-ConsoleTreeNode 'evotec-xyz.mail.protection.outlook.com' -Detail 'priority 0'\n    }\n    New-ConsoleTreeNode 'SPF' -Status Warn -Detail '9 of 10 DNS lookups' -Content {\n        'include:spf.protection.outlook.com'\n        'include:_spf.salesforce.com'\n    }\n    New-ConsoleTreeNode 'DMARC' -Status Fail -Detail 'p=none'\n    New-ConsoleTreeNode 'DKIM' -Status Pass -Detail 'selector1, selector2'\n} | Show-Console",
+      "powershell": "New-ConsoleTree '[bold]evotec.xyz[/]' -Content {\n    [pscustomobject]@{ Label = 'MX'; Status = 'Pass'; Detail = '2 records'; Children = @(& {\n        [pscustomobject]@{ Label = 'evotec-xyz.mail.protection.outlook.com'; Detail = 'priority 0' }\n    }) }\n    [pscustomobject]@{ Label = 'SPF'; Status = 'Warn'; Detail = '9 of 10 DNS lookups'; Children = @(& {\n        'include:spf.protection.outlook.com'\n        'include:_spf.salesforce.com'\n    }) }\n    [pscustomobject]@{ Label = 'DMARC'; Status = 'Fail'; Detail = 'p=none' }\n    [pscustomobject]@{ Label = 'DKIM'; Status = 'Pass'; Detail = 'selector1, selector2' }\n} | Show-Console",
+      "powershellFull": "Import-Module ConsoleMonster\n\nNew-ConsoleTree '[bold]evotec.xyz[/]' -Content {\n    [pscustomobject]@{ Label = 'MX'; Status = 'Pass'; Detail = '2 records'; Children = @(& {\n        [pscustomobject]@{ Label = 'evotec-xyz.mail.protection.outlook.com'; Detail = 'priority 0' }\n    }) }\n    [pscustomobject]@{ Label = 'SPF'; Status = 'Warn'; Detail = '9 of 10 DNS lookups'; Children = @(& {\n        'include:spf.protection.outlook.com'\n        'include:_spf.salesforce.com'\n    }) }\n    [pscustomobject]@{ Label = 'DMARC'; Status = 'Fail'; Detail = 'p=none' }\n    [pscustomobject]@{ Label = 'DKIM'; Status = 'Pass'; Detail = 'selector1, selector2' }\n} | Show-Console",
       "powershellFile": "tree.ps1",
       "frame": {
         "w": 60,
@@ -355,6 +610,24 @@
         "dark": "<span class=B>evotec.xyz</span>\n<span class=\"f4b5060 c4\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i> </span><i class=\"n f4ade80\">✓</i><span class=c5> MX  </span><span class=f8b8f9a>2 records</span>\n<span class=\"f4b5060 c8\"><i class=g2502>│</i>   <i class=g2514>└</i><i class=\"g2500 c2\">──</i> </span><span class=c40>evotec-xyz.mail.protection.outlook.com  </span><span class=f8b8f9a>priority 0</span>\n<span class=\"f4b5060 c4\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i> </span><i class=\"n ffbbf24\">▴</i><span class=c6> SPF  </span><span class=f8b8f9a>9 of 10 DNS lookups</span>\n<span class=\"f4b5060 c8\"><i class=g2502>│</i>   <i class=g251c>├</i><i class=\"g2500 c2\">──</i> </span>include:spf.protection.outlook.com\n<span class=\"f4b5060 c8\"><i class=g2502>│</i>   <i class=g2514>└</i><i class=\"g2500 c2\">──</i> </span>include:_spf.salesforce.com\n<span class=\"f4b5060 c4\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i> </span><i class=\"n ff87171\">✗</i><span class=c8> DMARC  </span><span class=f8b8f9a>p=none</span>\n<span class=\"f4b5060 c4\"><i class=g2514>└</i><i class=\"g2500 c2\">──</i> </span><i class=\"n f4ade80\">✓</i><span class=c7> DKIM  </span><span class=f8b8f9a>selector1, selector2</span>",
         "light": "<span class=B>evotec.xyz</span>\n<span class=\"f8a8a94 c4\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i> </span><i class=\"n f15803d\">✓</i><span class=c5> MX  </span><span class=f6b7280>2 records</span>\n<span class=\"f8a8a94 c8\"><i class=g2502>│</i>   <i class=g2514>└</i><i class=\"g2500 c2\">──</i> </span><span class=c40>evotec-xyz.mail.protection.outlook.com  </span><span class=f6b7280>priority 0</span>\n<span class=\"f8a8a94 c4\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i> </span><i class=\"n fb45309\">▴</i><span class=c6> SPF  </span><span class=f6b7280>9 of 10 DNS lookups</span>\n<span class=\"f8a8a94 c8\"><i class=g2502>│</i>   <i class=g251c>├</i><i class=\"g2500 c2\">──</i> </span>include:spf.protection.outlook.com\n<span class=\"f8a8a94 c8\"><i class=g2502>│</i>   <i class=g2514>└</i><i class=\"g2500 c2\">──</i> </span>include:_spf.salesforce.com\n<span class=\"f8a8a94 c4\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i> </span><i class=\"n fb91c1c\">✗</i><span class=c8> DMARC  </span><span class=f6b7280>p=none</span>\n<span class=\"f8a8a94 c4\"><i class=g2514>└</i><i class=\"g2500 c2\">──</i> </span><i class=\"n f15803d\">✓</i><span class=c7> DKIM  </span><span class=f6b7280>selector1, selector2</span>"
       },
+      "csharpFluent": "Tree tree = new Tree(\"[bold]evotec.xyz[/]\");\nTreeNode mx = tree.Add(\"MX\", StatusKind.Pass, \"2 records\");\nmx.Add(\"evotec-xyz.mail.protection.outlook.com\", detail: \"priority 0\");\nTreeNode spf = tree.Add(\"SPF\", StatusKind.Warn, \"9 of 10 DNS lookups\");\nspf.Add(\"include:spf.protection.outlook.com\");\nspf.Add(\"include:_spf.salesforce.com\");\ntree.Add(\"DMARC\", StatusKind.Fail, \"p=none\");\ntree.Add(\"DKIM\", StatusKind.Pass, \"selector1, selector2\");\ntree.Show();\n",
+      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\nTree tree = new Tree(\"[bold]evotec.xyz[/]\");\nTreeNode mx = tree.Add(\"MX\", StatusKind.Pass, \"2 records\");\nmx.Add(\"evotec-xyz.mail.protection.outlook.com\", detail: \"priority 0\");\nTreeNode spf = tree.Add(\"SPF\", StatusKind.Warn, \"9 of 10 DNS lookups\");\nspf.Add(\"include:spf.protection.outlook.com\");\nspf.Add(\"include:_spf.salesforce.com\");\ntree.Add(\"DMARC\", StatusKind.Fail, \"p=none\");\ntree.Add(\"DKIM\", StatusKind.Pass, \"selector1, selector2\");\ntree.Show();\n",
+      "csharpFluentFile": "Program.cs",
+      "apiMap": [
+        {
+          "powershell": "New-ConsoleTree -Title …",
+          "csharp": "Title = …",
+          "fluent": ".Title(…)",
+          "memberId": "ConsoleMonster.Widgets.Tree.Title",
+          "note": null
+        },
+        {
+          "powershell": "| Show-Console",
+          "csharp": "Terminal.Write(widget)",
+          "fluent": ".Show()",
+          "memberId": "M:ConsoleMonster.Terminal.Write"
+        }
+      ],
       "parity": {
         "ps7": {
           "host": "PowerShell 7.6",
@@ -374,8 +647,8 @@
       "group": "status",
       "summary": "Labelled bars with a percentage and a count, in line or block shape.",
       "width": 60,
-      "csharp": "Terminal.Write(new Rows()\n    .Add(new ProgressBar(\"Build\").WithValue(64).WithTotal(100))\n    .Add(new ProgressBar(\"Tests\").WithValue(412).WithTotal(530))\n    .Add(new ProgressBar(\"Docs\").WithValue(100).WithTotal(100).WithStatus(StatusKind.Pass))\n    .Add(new ProgressBar(\"Upload\").WithValue(3).WithTotal(8).WithShape(BarShape.Block)));",
-      "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\nTerminal.Write(new Rows()\n    .Add(new ProgressBar(\"Build\").WithValue(64).WithTotal(100))\n    .Add(new ProgressBar(\"Tests\").WithValue(412).WithTotal(530))\n    .Add(new ProgressBar(\"Docs\").WithValue(100).WithTotal(100).WithStatus(StatusKind.Pass))\n    .Add(new ProgressBar(\"Upload\").WithValue(3).WithTotal(8).WithShape(BarShape.Block)));",
+      "csharp": "Terminal.Write(new Rows().Add(new ProgressBar(\"Build\") { Value = 64, Total = 100 }).Add(new ProgressBar(\"Tests\") { Value = 412, Total = 530 }).Add(new ProgressBar(\"Docs\") { Value = 100, Total = 100, Status = StatusKind.Pass }).Add(new ProgressBar(\"Upload\") { Value = 3, Total = 8, Shape = BarShape.Block }));",
+      "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\nTerminal.Write(new Rows().Add(new ProgressBar(\"Build\") { Value = 64, Total = 100 }).Add(new ProgressBar(\"Tests\") { Value = 412, Total = 530 }).Add(new ProgressBar(\"Docs\") { Value = 100, Total = 100, Status = StatusKind.Pass }).Add(new ProgressBar(\"Upload\") { Value = 3, Total = 8, Shape = BarShape.Block }));",
       "csharpFile": "Program.cs",
       "powershell": "New-ConsoleRows -Content {\n    New-ConsoleProgress -Label 'Build' -Value 64 -Total 100\n    New-ConsoleProgress -Label 'Tests' -Value 412 -Total 530\n    New-ConsoleProgress -Label 'Docs' -Value 100 -Total 100 -Status Pass\n    New-ConsoleProgress -Label 'Upload' -Value 3 -Total 8 -Shape Block\n} | Show-Console",
       "powershellFull": "Import-Module ConsoleMonster\n\nNew-ConsoleRows -Content {\n    New-ConsoleProgress -Label 'Build' -Value 64 -Total 100\n    New-ConsoleProgress -Label 'Tests' -Value 412 -Total 530\n    New-ConsoleProgress -Label 'Docs' -Value 100 -Total 100 -Status Pass\n    New-ConsoleProgress -Label 'Upload' -Value 3 -Total 8 -Shape Block\n} | Show-Console",
@@ -386,6 +659,52 @@
         "dark": "<span class=c7>Build  </span><span class=\"f60a5fa c25\"><i class=\"g2501 c24\">━━━━━━━━━━━━━━━━━━━━━━━━</i><i class=g257e>╾</i></span><i class=\"g2500 c13 f3a3d45\">─────────────</i><span class=c2>  </span><span class=f8b8f9a> 64%   64/100</span>\n<span class=c7>Tests  </span><span class=\"f60a5fa c30\"><i class=\"g2501 c29\">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</i><i class=g257e>╾</i></span><i class=\"g2500 c8 f3a3d45\">────────</i><span class=c2>  </span><span class=f8b8f9a> 77%  412/530</span>\n<span class=c6>Docs  </span><i class=\"g2501 c39 f4ade80\">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</i><span class=c2>  </span><span class=f8b8f9a>100%  100/100</span>\n<span class=c8>Upload  </span><i class=\"g2586 c15 f60a5fa\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><i class=\"g2586 c26 f3a3d45\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c2>  </span><span class=f8b8f9a> 37%  3/8</span>",
         "light": "<span class=c7>Build  </span><span class=\"f2563eb c25\"><i class=\"g2501 c24\">━━━━━━━━━━━━━━━━━━━━━━━━</i><i class=g257e>╾</i></span><i class=\"g2500 c13 fd4d4d8\">─────────────</i><span class=c2>  </span><span class=f6b7280> 64%   64/100</span>\n<span class=c7>Tests  </span><span class=\"f2563eb c30\"><i class=\"g2501 c29\">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</i><i class=g257e>╾</i></span><i class=\"g2500 c8 fd4d4d8\">────────</i><span class=c2>  </span><span class=f6b7280> 77%  412/530</span>\n<span class=c6>Docs  </span><i class=\"g2501 c39 f15803d\">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</i><span class=c2>  </span><span class=f6b7280>100%  100/100</span>\n<span class=c8>Upload  </span><i class=\"g2586 c15 f2563eb\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><i class=\"g2586 c26 fd4d4d8\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c2>  </span><span class=f6b7280> 37%  3/8</span>"
       },
+      "csharpFluent": "new Rows().Add(new ProgressBar(\"Build\").Value(64).Total(100)).Add(new ProgressBar(\"Tests\").Value(412).Total(530)).Add(new ProgressBar(\"Docs\").Value(100).Total(100).Status(StatusKind.Pass)).Add(new ProgressBar(\"Upload\").Value(3).Total(8).Shape(BarShape.Block)).Show();\n",
+      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\nnew Rows().Add(new ProgressBar(\"Build\").Value(64).Total(100)).Add(new ProgressBar(\"Tests\").Value(412).Total(530)).Add(new ProgressBar(\"Docs\").Value(100).Total(100).Status(StatusKind.Pass)).Add(new ProgressBar(\"Upload\").Value(3).Total(8).Shape(BarShape.Block)).Show();\n",
+      "csharpFluentFile": "Program.cs",
+      "apiMap": [
+        {
+          "powershell": "New-ConsoleProgress -Label …",
+          "csharp": "Label = …",
+          "fluent": ".Label(…)",
+          "memberId": "ConsoleMonster.Widgets.ProgressBar.Label",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsoleProgress -Value …",
+          "csharp": "Value = …",
+          "fluent": ".Value(…)",
+          "memberId": "ConsoleMonster.Widgets.ProgressBar.Value",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsoleProgress -Total …",
+          "csharp": "Total = …",
+          "fluent": ".Total(…)",
+          "memberId": "ConsoleMonster.Widgets.ProgressBar.Total",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsoleProgress -Shape …",
+          "csharp": "Shape = …",
+          "fluent": ".Shape(…)",
+          "memberId": "ConsoleMonster.Widgets.ProgressBar.Shape",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsoleProgress -Status …",
+          "csharp": "Status = …",
+          "fluent": ".Status(…)",
+          "memberId": "ConsoleMonster.Widgets.ProgressBar.Status",
+          "note": null
+        },
+        {
+          "powershell": "| Show-Console",
+          "csharp": "Terminal.Write(widget)",
+          "fluent": ".Show()",
+          "memberId": "M:ConsoleMonster.Terminal.Write"
+        }
+      ],
       "parity": {
         "ps7": {
           "host": "PowerShell 7.6",
@@ -408,8 +727,8 @@
       "csharp": "Terminal.Write(new Phases()\n    .Set(\"Discover\", StatusKind.Pass, detail: \"2.1s\")\n    .Set(\"Collect\", StatusKind.Pass, detail: \"14s\")\n    .Set(\"Evaluate\", StatusKind.Running, detail: \"64%\")\n    .Set(\"Report\", StatusKind.Pending));",
       "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\nTerminal.Write(new Phases()\n    .Set(\"Discover\", StatusKind.Pass, detail: \"2.1s\")\n    .Set(\"Collect\", StatusKind.Pass, detail: \"14s\")\n    .Set(\"Evaluate\", StatusKind.Running, detail: \"64%\")\n    .Set(\"Report\", StatusKind.Pending));",
       "csharpFile": "Program.cs",
-      "powershell": "New-ConsolePhases -Content {\n    New-ConsoleStatusItem 'Discover' -Status Pass -Detail '2.1s'\n    New-ConsoleStatusItem 'Collect' -Status Pass -Detail '14s'\n    New-ConsoleStatusItem 'Evaluate' -Status Running -Detail '64%'\n    New-ConsoleStatusItem 'Report'\n} | Show-Console",
-      "powershellFull": "Import-Module ConsoleMonster\n\nNew-ConsolePhases -Content {\n    New-ConsoleStatusItem 'Discover' -Status Pass -Detail '2.1s'\n    New-ConsoleStatusItem 'Collect' -Status Pass -Detail '14s'\n    New-ConsoleStatusItem 'Evaluate' -Status Running -Detail '64%'\n    New-ConsoleStatusItem 'Report'\n} | Show-Console",
+      "powershell": "New-ConsolePhases -Content {\n    [pscustomobject]@{ Label = 'Discover'; Status = 'Pass'; Detail = '2.1s' }\n    [pscustomobject]@{ Label = 'Collect'; Status = 'Pass'; Detail = '14s' }\n    [pscustomobject]@{ Label = 'Evaluate'; Status = 'Running'; Detail = '64%' }\n    [pscustomobject]@{ Label = 'Report' }\n} | Show-Console",
+      "powershellFull": "Import-Module ConsoleMonster\n\nNew-ConsolePhases -Content {\n    [pscustomobject]@{ Label = 'Discover'; Status = 'Pass'; Detail = '2.1s' }\n    [pscustomobject]@{ Label = 'Collect'; Status = 'Pass'; Detail = '14s' }\n    [pscustomobject]@{ Label = 'Evaluate'; Status = 'Running'; Detail = '64%' }\n    [pscustomobject]@{ Label = 'Report' }\n} | Show-Console",
       "powershellFile": "phases.ps1",
       "frame": {
         "w": 60,
@@ -417,6 +736,24 @@
         "dark": "<i class=\"n f4ade80\">✓</i><span class=c9> Discover</span><span class=\"f8b8f9a c8\"> 2.1s <i class=n>›</i> </span><i class=\"n f4ade80\">✓</i><span class=c8> Collect</span><span class=\"f8b8f9a c7\"> 14s <i class=n>›</i> </span><i class=\"g280b f60a5fa\">⠋</i><span class=c1> </span><span class=\"f60a5fa B c8\">Evaluate</span><span class=\"f8b8f9a c7\"> 64% <i class=n>›</i> </span><i class=\"n f71717a\">○</i><span class=c1> </span><span class=f8b8f9a>Report</span>",
         "light": "<i class=\"n f15803d\">✓</i><span class=c9> Discover</span><span class=\"f6b7280 c8\"> 2.1s <i class=n>›</i> </span><i class=\"n f15803d\">✓</i><span class=c8> Collect</span><span class=\"f6b7280 c7\"> 14s <i class=n>›</i> </span><i class=\"g280b f2563eb\">⠋</i><span class=c1> </span><span class=\"f2563eb B c8\">Evaluate</span><span class=\"f6b7280 c7\"> 64% <i class=n>›</i> </span><i class=\"n f858590\">○</i><span class=c1> </span><span class=f6b7280>Report</span>"
       },
+      "csharpFluent": "new Phases().Set(\"Discover\", StatusKind.Pass, detail: \"2.1s\").Set(\"Collect\", StatusKind.Pass, detail: \"14s\").Set(\"Evaluate\", StatusKind.Running, detail: \"64%\").Set(\"Report\", StatusKind.Pending).Show();\n",
+      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\nnew Phases().Set(\"Discover\", StatusKind.Pass, detail: \"2.1s\").Set(\"Collect\", StatusKind.Pass, detail: \"14s\").Set(\"Evaluate\", StatusKind.Running, detail: \"64%\").Set(\"Report\", StatusKind.Pending).Show();\n",
+      "csharpFluentFile": "Program.cs",
+      "apiMap": [
+        {
+          "powershell": "New-ConsolePhases -Phase …",
+          "csharp": "Phases.Set(key: …)",
+          "fluent": "Phases.Set(key: …)",
+          "memberId": "A:ConsoleMonster.Widgets.Phases.Set.key",
+          "note": "Each phase record supplies Key, Status, Label and Detail."
+        },
+        {
+          "powershell": "| Show-Console",
+          "csharp": "Terminal.Write(widget)",
+          "fluent": ".Show()",
+          "memberId": "M:ConsoleMonster.Terminal.Write"
+        }
+      ],
       "parity": {
         "ps7": {
           "host": "PowerShell 7.6",
@@ -436,11 +773,11 @@
       "group": "status",
       "summary": "An activity with a detail, or its final state once it has finished.",
       "width": 60,
-      "csharp": "Terminal.Write(new Rows()\n    .Add(new Spinner(\"Resolving DNS records\").WithDetail(\"zone 4 of 9\"))\n    .Add(new Spinner(\"Schema snapshot\").WithStatus(StatusKind.Pass).WithDetail(\"cached\"))\n    .Add(new Spinner(\"Certificate chain\").WithStatus(StatusKind.Fail).WithDetail(\"expired 3 days ago\")));",
-      "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\nTerminal.Write(new Rows()\n    .Add(new Spinner(\"Resolving DNS records\").WithDetail(\"zone 4 of 9\"))\n    .Add(new Spinner(\"Schema snapshot\").WithStatus(StatusKind.Pass).WithDetail(\"cached\"))\n    .Add(new Spinner(\"Certificate chain\").WithStatus(StatusKind.Fail).WithDetail(\"expired 3 days ago\")));",
+      "csharp": "Terminal.Write(new Rows().Add(new Spinner(\"Resolving DNS records\") { Detail = \"zone 4 of 9\" }).Add(new Spinner(\"Schema snapshot\") { Status = StatusKind.Pass, Detail = \"cached\" }).Add(new Spinner(\"Certificate chain\") { Status = StatusKind.Fail, Detail = \"expired 3 days ago\" }));",
+      "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\nTerminal.Write(new Rows().Add(new Spinner(\"Resolving DNS records\") { Detail = \"zone 4 of 9\" }).Add(new Spinner(\"Schema snapshot\") { Status = StatusKind.Pass, Detail = \"cached\" }).Add(new Spinner(\"Certificate chain\") { Status = StatusKind.Fail, Detail = \"expired 3 days ago\" }));",
       "csharpFile": "Program.cs",
-      "powershell": "New-ConsoleRows -Content {\n    New-ConsoleSpinner -Label 'Resolving DNS records' -Detail 'zone 4 of 9'\n    New-ConsoleSpinner -Label 'Schema snapshot' -Detail 'cached' -Status Pass\n    New-ConsoleSpinner -Label 'Certificate chain' -Detail 'expired 3 days ago' -Status Fail\n} | Show-Console",
-      "powershellFull": "Import-Module ConsoleMonster\n\nNew-ConsoleRows -Content {\n    New-ConsoleSpinner -Label 'Resolving DNS records' -Detail 'zone 4 of 9'\n    New-ConsoleSpinner -Label 'Schema snapshot' -Detail 'cached' -Status Pass\n    New-ConsoleSpinner -Label 'Certificate chain' -Detail 'expired 3 days ago' -Status Fail\n} | Show-Console",
+      "powershell": "New-ConsoleRows -Content {\n    New-ConsoleProgress -Label 'Resolving DNS records' -Detail 'zone 4 of 9' -Indeterminate -WidgetId 'spinner'\n    New-ConsoleProgress -Label 'Schema snapshot' -Detail 'cached' -Status Pass -Indeterminate -WidgetId 'spinner'\n    New-ConsoleProgress -Label 'Certificate chain' -Detail 'expired 3 days ago' -Status Fail -Indeterminate -WidgetId 'spinner'\n} | Show-Console",
+      "powershellFull": "Import-Module ConsoleMonster\n\nNew-ConsoleRows -Content {\n    New-ConsoleProgress -Label 'Resolving DNS records' -Detail 'zone 4 of 9' -Indeterminate -WidgetId 'spinner'\n    New-ConsoleProgress -Label 'Schema snapshot' -Detail 'cached' -Status Pass -Indeterminate -WidgetId 'spinner'\n    New-ConsoleProgress -Label 'Certificate chain' -Detail 'expired 3 days ago' -Status Fail -Indeterminate -WidgetId 'spinner'\n} | Show-Console",
       "powershellFile": "spinner.ps1",
       "frame": {
         "w": 60,
@@ -448,6 +785,38 @@
         "dark": "<i class=\"g280b f60a5fa\">⠋</i><span class=c24> Resolving DNS records  </span><span class=f8b8f9a>zone 4 of 9</span>\n<i class=\"n f4ade80\">✓</i><span class=c18> Schema snapshot  </span><span class=f8b8f9a>cached</span>\n<i class=\"n ff87171\">✗</i><span class=c20> Certificate chain  </span><span class=f8b8f9a>expired 3 days ago</span>",
         "light": "<i class=\"g280b f2563eb\">⠋</i><span class=c24> Resolving DNS records  </span><span class=f6b7280>zone 4 of 9</span>\n<i class=\"n f15803d\">✓</i><span class=c18> Schema snapshot  </span><span class=f6b7280>cached</span>\n<i class=\"n fb91c1c\">✗</i><span class=c20> Certificate chain  </span><span class=f6b7280>expired 3 days ago</span>"
       },
+      "csharpFluent": "new Rows().Add(new Spinner(\"Resolving DNS records\").Detail(\"zone 4 of 9\")).Add(new Spinner(\"Schema snapshot\").Status(StatusKind.Pass).Detail(\"cached\")).Add(new Spinner(\"Certificate chain\").Status(StatusKind.Fail).Detail(\"expired 3 days ago\")).Show();\n",
+      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\nnew Rows().Add(new Spinner(\"Resolving DNS records\").Detail(\"zone 4 of 9\")).Add(new Spinner(\"Schema snapshot\").Status(StatusKind.Pass).Detail(\"cached\")).Add(new Spinner(\"Certificate chain\").Status(StatusKind.Fail).Detail(\"expired 3 days ago\")).Show();\n",
+      "csharpFluentFile": "Program.cs",
+      "apiMap": [
+        {
+          "powershell": "New-ConsoleProgress -Label …",
+          "csharp": "Label = …",
+          "fluent": ".Label(…)",
+          "memberId": "ConsoleMonster.Widgets.Spinner.Label",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsoleProgress -Detail …",
+          "csharp": "Detail = …",
+          "fluent": ".Detail(…)",
+          "memberId": "ConsoleMonster.Widgets.Spinner.Detail",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsoleProgress -Status …",
+          "csharp": "Status = …",
+          "fluent": ".Status(…)",
+          "memberId": "ConsoleMonster.Widgets.Spinner.Status",
+          "note": null
+        },
+        {
+          "powershell": "| Show-Console",
+          "csharp": "Terminal.Write(widget)",
+          "fluent": ".Show()",
+          "memberId": "M:ConsoleMonster.Terminal.Write"
+        }
+      ],
       "parity": {
         "ps7": {
           "host": "PowerShell 7.6",
@@ -467,11 +836,11 @@
       "group": "status",
       "summary": "Timed log lines with levels; in a live session it collects Console and PowerShell output.",
       "width": 60,
-      "csharp": "LogRegion log = new LogRegion().WithPreferredHeight(5);\nlog.Write(\"Discovered 4 domain controllers in 2 domains\", \"info\", TimeSpan.FromSeconds(2));\nlog.Write(\"DC02: replication partner DC05 last success 3h ago\", \"warn\", TimeSpan.FromSeconds(31));\nlog.Write(\"DC02: USN rollback check failed (event 2095)\", \"err\", TimeSpan.FromSeconds(44));\nlog.Write(\"Collected 186 rule inputs from DC01\", \"info\", TimeSpan.FromSeconds(52));\nlog.Write(\"Using cached schema snapshot\", \"verbose\", TimeSpan.FromSeconds(53));\nTerminal.Write(log);",
-      "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Widgets;\n\nLogRegion log = new LogRegion().WithPreferredHeight(5);\nlog.Write(\"Discovered 4 domain controllers in 2 domains\", \"info\", TimeSpan.FromSeconds(2));\nlog.Write(\"DC02: replication partner DC05 last success 3h ago\", \"warn\", TimeSpan.FromSeconds(31));\nlog.Write(\"DC02: USN rollback check failed (event 2095)\", \"err\", TimeSpan.FromSeconds(44));\nlog.Write(\"Collected 186 rule inputs from DC01\", \"info\", TimeSpan.FromSeconds(52));\nlog.Write(\"Using cached schema snapshot\", \"verbose\", TimeSpan.FromSeconds(53));\nTerminal.Write(log);",
+      "csharp": "LogRegion log = new LogRegion()\n{\n    PreferredHeight = 5\n};\nlog.Write(\"Discovered 4 domain controllers in 2 domains\", \"info\", TimeSpan.FromSeconds(2));\nlog.Write(\"DC02: replication partner DC05 last success 3h ago\", \"warn\", TimeSpan.FromSeconds(31));\nlog.Write(\"DC02: USN rollback check failed (event 2095)\", \"err\", TimeSpan.FromSeconds(44));\nlog.Write(\"Collected 186 rule inputs from DC01\", \"info\", TimeSpan.FromSeconds(52));\nlog.Write(\"Using cached schema snapshot\", \"verbose\", TimeSpan.FromSeconds(53));\nTerminal.Write(log);",
+      "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Widgets;\n\nLogRegion log = new LogRegion()\n{\n    PreferredHeight = 5\n};\nlog.Write(\"Discovered 4 domain controllers in 2 domains\", \"info\", TimeSpan.FromSeconds(2));\nlog.Write(\"DC02: replication partner DC05 last success 3h ago\", \"warn\", TimeSpan.FromSeconds(31));\nlog.Write(\"DC02: USN rollback check failed (event 2095)\", \"err\", TimeSpan.FromSeconds(44));\nlog.Write(\"Collected 186 rule inputs from DC01\", \"info\", TimeSpan.FromSeconds(52));\nlog.Write(\"Using cached schema snapshot\", \"verbose\", TimeSpan.FromSeconds(53));\nTerminal.Write(log);",
       "csharpFile": "Program.cs",
-      "powershell": "New-ConsoleLogRegion -Height 5 -Content {\n    New-ConsoleLogEntry 'Discovered 4 domain controllers in 2 domains' -Level Info -AtSeconds 2\n    New-ConsoleLogEntry 'DC02: replication partner DC05 last success 3h ago' -Level Warning -AtSeconds 31\n    New-ConsoleLogEntry 'DC02: USN rollback check failed (event 2095)' -Level Error -AtSeconds 44\n    New-ConsoleLogEntry 'Collected 186 rule inputs from DC01' -Level Info -AtSeconds 52\n    New-ConsoleLogEntry 'Using cached schema snapshot' -Level Verbose -AtSeconds 53\n} | Show-Console",
-      "powershellFull": "Import-Module ConsoleMonster\n\nNew-ConsoleLogRegion -Height 5 -Content {\n    New-ConsoleLogEntry 'Discovered 4 domain controllers in 2 domains' -Level Info -AtSeconds 2\n    New-ConsoleLogEntry 'DC02: replication partner DC05 last success 3h ago' -Level Warning -AtSeconds 31\n    New-ConsoleLogEntry 'DC02: USN rollback check failed (event 2095)' -Level Error -AtSeconds 44\n    New-ConsoleLogEntry 'Collected 186 rule inputs from DC01' -Level Info -AtSeconds 52\n    New-ConsoleLogEntry 'Using cached schema snapshot' -Level Verbose -AtSeconds 53\n} | Show-Console",
+      "powershell": "New-ConsoleLogRegion -Height 5 -Content {\n    [pscustomobject]@{ Message = 'Discovered 4 domain controllers in 2 domains'; Level = 'Info'; AtSeconds = 2 }\n    [pscustomobject]@{ Message = 'DC02: replication partner DC05 last success 3h ago'; Level = 'Warning'; AtSeconds = 31 }\n    [pscustomobject]@{ Message = 'DC02: USN rollback check failed (event 2095)'; Level = 'Error'; AtSeconds = 44 }\n    [pscustomobject]@{ Message = 'Collected 186 rule inputs from DC01'; Level = 'Info'; AtSeconds = 52 }\n    [pscustomobject]@{ Message = 'Using cached schema snapshot'; Level = 'Verbose'; AtSeconds = 53 }\n} | Show-Console",
+      "powershellFull": "Import-Module ConsoleMonster\n\nNew-ConsoleLogRegion -Height 5 -Content {\n    [pscustomobject]@{ Message = 'Discovered 4 domain controllers in 2 domains'; Level = 'Info'; AtSeconds = 2 }\n    [pscustomobject]@{ Message = 'DC02: replication partner DC05 last success 3h ago'; Level = 'Warning'; AtSeconds = 31 }\n    [pscustomobject]@{ Message = 'DC02: USN rollback check failed (event 2095)'; Level = 'Error'; AtSeconds = 44 }\n    [pscustomobject]@{ Message = 'Collected 186 rule inputs from DC01'; Level = 'Info'; AtSeconds = 52 }\n    [pscustomobject]@{ Message = 'Using cached schema snapshot'; Level = 'Verbose'; AtSeconds = 53 }\n} | Show-Console",
       "powershellFile": "log.ps1",
       "frame": {
         "w": 60,
@@ -479,6 +848,17 @@
         "dark": "<span class=\"f8b8f9a c5\">00:02</span>        Discovered 4 domain controllers in 2 domains\n<span class=\"f8b8f9a c5\">00:31</span><span class=c1> </span><span class=\"ffbbf24 c6\"><i class=n>▴</i> WARN</span> DC02: replication partner DC05 last success 3h<i class=n>…</i>\n<span class=\"f8b8f9a c5\">00:44</span><span class=c1> </span><span class=\"ff87171 c5\"><i class=n>✗</i> ERR</span>  DC02: USN rollback check failed (event 2095)\n<span class=\"f8b8f9a c5\">00:52</span>        Collected 186 rule inputs from DC01\n<span class=\"f8b8f9a c5\">00:53</span><span class=c1> </span><span class=\"f8b8f9a c4\">VERB</span><span class=c3>   </span><span class=f8b8f9a>Using cached schema snapshot</span>",
         "light": "<span class=\"f6b7280 c5\">00:02</span>        Discovered 4 domain controllers in 2 domains\n<span class=\"f6b7280 c5\">00:31</span><span class=c1> </span><span class=\"fb45309 c6\"><i class=n>▴</i> WARN</span> DC02: replication partner DC05 last success 3h<i class=n>…</i>\n<span class=\"f6b7280 c5\">00:44</span><span class=c1> </span><span class=\"fb91c1c c5\"><i class=n>✗</i> ERR</span>  DC02: USN rollback check failed (event 2095)\n<span class=\"f6b7280 c5\">00:52</span>        Collected 186 rule inputs from DC01\n<span class=\"f6b7280 c5\">00:53</span><span class=c1> </span><span class=\"f6b7280 c4\">VERB</span><span class=c3>   </span><span class=f6b7280>Using cached schema snapshot</span>"
       },
+      "csharpFluent": "LogRegion log = new LogRegion().PreferredHeight(5);\nlog.Write(\"Discovered 4 domain controllers in 2 domains\", \"info\", TimeSpan.FromSeconds(2));\nlog.Write(\"DC02: replication partner DC05 last success 3h ago\", \"warn\", TimeSpan.FromSeconds(31));\nlog.Write(\"DC02: USN rollback check failed (event 2095)\", \"err\", TimeSpan.FromSeconds(44));\nlog.Write(\"Collected 186 rule inputs from DC01\", \"info\", TimeSpan.FromSeconds(52));\nlog.Write(\"Using cached schema snapshot\", \"verbose\", TimeSpan.FromSeconds(53));\nlog.Show();\n",
+      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Widgets;\n\nLogRegion log = new LogRegion().PreferredHeight(5);\nlog.Write(\"Discovered 4 domain controllers in 2 domains\", \"info\", TimeSpan.FromSeconds(2));\nlog.Write(\"DC02: replication partner DC05 last success 3h ago\", \"warn\", TimeSpan.FromSeconds(31));\nlog.Write(\"DC02: USN rollback check failed (event 2095)\", \"err\", TimeSpan.FromSeconds(44));\nlog.Write(\"Collected 186 rule inputs from DC01\", \"info\", TimeSpan.FromSeconds(52));\nlog.Write(\"Using cached schema snapshot\", \"verbose\", TimeSpan.FromSeconds(53));\nlog.Show();\n",
+      "csharpFluentFile": "Program.cs",
+      "apiMap": [
+        {
+          "powershell": "| Show-Console",
+          "csharp": "Terminal.Write(widget)",
+          "fluent": ".Show()",
+          "memberId": "M:ConsoleMonster.Terminal.Write"
+        }
+      ],
       "parity": {
         "ps7": {
           "host": "PowerShell 7.6",
@@ -498,11 +878,11 @@
       "group": "charts",
       "summary": "Labelled bars scaled to the largest value, with the values on the right.",
       "width": 60,
-      "csharp": "Terminal.Write(new BarChart()\n    .WithRole(ThemeToken.Fail)\n    .Add(\"Domain controllers\", 14)\n    .Add(\"Group Policy\", 9)\n    .Add(\"Kerberos\", 6)\n    .Add(\"DNS\", 4)\n    .Add(\"PKI\", 2));",
-      "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\nTerminal.Write(new BarChart()\n    .WithRole(ThemeToken.Fail)\n    .Add(\"Domain controllers\", 14)\n    .Add(\"Group Policy\", 9)\n    .Add(\"Kerberos\", 6)\n    .Add(\"DNS\", 4)\n    .Add(\"PKI\", 2));",
+      "csharp": "Terminal.Write(new BarChart() { Role = ThemeToken.Fail }.Add(\"Domain controllers\", 14).Add(\"Group Policy\", 9).Add(\"Kerberos\", 6).Add(\"DNS\", 4).Add(\"PKI\", 2));",
+      "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\nTerminal.Write(new BarChart() { Role = ThemeToken.Fail }.Add(\"Domain controllers\", 14).Add(\"Group Policy\", 9).Add(\"Kerberos\", 6).Add(\"DNS\", 4).Add(\"PKI\", 2));",
       "csharpFile": "Program.cs",
-      "powershell": "New-ConsoleBarChart -Role Fail -InputObject ([ordered] @{\n    'Domain controllers' = 14\n    'Group Policy'       = 9\n    'Kerberos'           = 6\n    'DNS'                = 4\n    'PKI'                = 2\n}) | Show-Console",
-      "powershellFull": "Import-Module ConsoleMonster\n\nNew-ConsoleBarChart -Role Fail -InputObject ([ordered] @{\n    'Domain controllers' = 14\n    'Group Policy'       = 9\n    'Kerberos'           = 6\n    'DNS'                = 4\n    'PKI'                = 2\n}) | Show-Console",
+      "powershell": "New-ConsoleChart -Role Fail -InputObject ([ordered] @{\n    'Domain controllers' = 14\n    'Group Policy'       = 9\n    'Kerberos'           = 6\n    'DNS'                = 4\n    'PKI'                = 2\n}) -Type Bar | Show-Console",
+      "powershellFull": "Import-Module ConsoleMonster\n\nNew-ConsoleChart -Role Fail -InputObject ([ordered] @{\n    'Domain controllers' = 14\n    'Group Policy'       = 9\n    'Kerberos'           = 6\n    'DNS'                = 4\n    'PKI'                = 2\n}) -Type Bar | Show-Console",
       "powershellFile": "bar.ps1",
       "frame": {
         "w": 60,
@@ -510,6 +890,24 @@
         "dark": "<span class=c19>Domain controllers </span><i class=\"g2586 c38 ff87171\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c1> </span><span class=f8b8f9a>14</span>\n<span class=c19>Group Policy       </span><i class=\"g2586 c24 ff87171\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c16>                </span><span class=f8b8f9a>9</span>\n<span class=c19>Kerberos           </span><i class=\"g2586 c16 ff87171\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c24>                        </span><span class=f8b8f9a>6</span>\n<span class=c19>DNS                </span><i class=\"g2586 c11 ff87171\">▆▆▆▆▆▆▆▆▆▆▆</i><span class=c29>                             </span><span class=f8b8f9a>4</span>\n<span class=c19>PKI                </span><i class=\"g2586 c5 ff87171\">▆▆▆▆▆</i><span class=c35>                                   </span><span class=f8b8f9a>2</span>",
         "light": "<span class=c19>Domain controllers </span><i class=\"g2586 c38 fb91c1c\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c1> </span><span class=f6b7280>14</span>\n<span class=c19>Group Policy       </span><i class=\"g2586 c24 fb91c1c\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c16>                </span><span class=f6b7280>9</span>\n<span class=c19>Kerberos           </span><i class=\"g2586 c16 fb91c1c\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c24>                        </span><span class=f6b7280>6</span>\n<span class=c19>DNS                </span><i class=\"g2586 c11 fb91c1c\">▆▆▆▆▆▆▆▆▆▆▆</i><span class=c29>                             </span><span class=f6b7280>4</span>\n<span class=c19>PKI                </span><i class=\"g2586 c5 fb91c1c\">▆▆▆▆▆</i><span class=c35>                                   </span><span class=f6b7280>2</span>"
       },
+      "csharpFluent": "new BarChart().Role(ThemeToken.Fail).Add(\"Domain controllers\", 14).Add(\"Group Policy\", 9).Add(\"Kerberos\", 6).Add(\"DNS\", 4).Add(\"PKI\", 2).Show();\n",
+      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\nnew BarChart().Role(ThemeToken.Fail).Add(\"Domain controllers\", 14).Add(\"Group Policy\", 9).Add(\"Kerberos\", 6).Add(\"DNS\", 4).Add(\"PKI\", 2).Show();\n",
+      "csharpFluentFile": "Program.cs",
+      "apiMap": [
+        {
+          "powershell": "New-ConsoleChart -Role …",
+          "csharp": "Role = …",
+          "fluent": ".Role(…)",
+          "memberId": "ConsoleMonster.Widgets.BarChart.Role",
+          "note": null
+        },
+        {
+          "powershell": "| Show-Console",
+          "csharp": "Terminal.Write(widget)",
+          "fluent": ".Show()",
+          "memberId": "M:ConsoleMonster.Terminal.Write"
+        }
+      ],
       "parity": {
         "ps7": {
           "host": "PowerShell 7.6",
@@ -532,8 +930,8 @@
       "csharp": "Terminal.Write(new StackedBar()\n    .Add(\"Passed\", 412, ThemeToken.Pass)\n    .Add(\"Warnings\", 51, ThemeToken.Warn)\n    .Add(\"Failed\", 23, ThemeToken.Fail)\n    .Add(\"Skipped\", 14, ThemeToken.Skip));",
       "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\nTerminal.Write(new StackedBar()\n    .Add(\"Passed\", 412, ThemeToken.Pass)\n    .Add(\"Warnings\", 51, ThemeToken.Warn)\n    .Add(\"Failed\", 23, ThemeToken.Fail)\n    .Add(\"Skipped\", 14, ThemeToken.Skip));",
       "csharpFile": "Program.cs",
-      "powershell": "New-ConsoleBarChart -Stacked -Content {\n    New-ConsoleBarItem 'Passed' 412 -Role Pass\n    New-ConsoleBarItem 'Warnings' 51 -Role Warn\n    New-ConsoleBarItem 'Failed' 23 -Role Fail\n    New-ConsoleBarItem 'Skipped' 14 -Role Skip\n} | Show-Console",
-      "powershellFull": "Import-Module ConsoleMonster\n\nNew-ConsoleBarChart -Stacked -Content {\n    New-ConsoleBarItem 'Passed' 412 -Role Pass\n    New-ConsoleBarItem 'Warnings' 51 -Role Warn\n    New-ConsoleBarItem 'Failed' 23 -Role Fail\n    New-ConsoleBarItem 'Skipped' 14 -Role Skip\n} | Show-Console",
+      "powershell": "New-ConsoleChart -Content {\n    [pscustomobject]@{ Label = 'Passed'; Value = 412; Role = 'Pass' }\n    [pscustomobject]@{ Label = 'Warnings'; Value = 51; Role = 'Warn' }\n    [pscustomobject]@{ Label = 'Failed'; Value = 23; Role = 'Fail' }\n    [pscustomobject]@{ Label = 'Skipped'; Value = 14; Role = 'Skip' }\n} -Type Stacked | Show-Console",
+      "powershellFull": "Import-Module ConsoleMonster\n\nNew-ConsoleChart -Content {\n    [pscustomobject]@{ Label = 'Passed'; Value = 412; Role = 'Pass' }\n    [pscustomobject]@{ Label = 'Warnings'; Value = 51; Role = 'Warn' }\n    [pscustomobject]@{ Label = 'Failed'; Value = 23; Role = 'Fail' }\n    [pscustomobject]@{ Label = 'Skipped'; Value = 14; Role = 'Skip' }\n} -Type Stacked | Show-Console",
       "powershellFile": "stacked.ps1",
       "frame": {
         "w": 60,
@@ -541,6 +939,17 @@
         "dark": "<i class=\"g2588 c49 f4ade80\">█████████████████████████████████████████████████</i><i class=\"g2588 c6 ffbbf24\">██████</i><i class=\"g2588 c3 ff87171\">███</i><i class=\"g2588 c2 fa1a1aa\">██</i>\n<i class=\"g2588 f4ade80\">█</i><span class=c13> Passed   412</span><span class=\"f8b8f9a c5\">  82%</span><span class=c3>   </span><i class=\"g2588 ffbbf24\">█</i><span class=c13> Warnings  51</span><span class=f8b8f9a>  10%</span>\n<i class=\"g2588 ff87171\">█</i><span class=c13> Failed    23</span><span class=\"f8b8f9a c5\">   4%</span><span class=c3>   </span><i class=\"g2588 fa1a1aa\">█</i><span class=c13> Skipped   14</span><span class=f8b8f9a>   2%</span>",
         "light": "<i class=\"g2588 c49 f15803d\">█████████████████████████████████████████████████</i><i class=\"g2588 c6 fb45309\">██████</i><i class=\"g2588 c3 fb91c1c\">███</i><i class=\"g2588 c2 f71717a\">██</i>\n<i class=\"g2588 f15803d\">█</i><span class=c13> Passed   412</span><span class=\"f6b7280 c5\">  82%</span><span class=c3>   </span><i class=\"g2588 fb45309\">█</i><span class=c13> Warnings  51</span><span class=f6b7280>  10%</span>\n<i class=\"g2588 fb91c1c\">█</i><span class=c13> Failed    23</span><span class=\"f6b7280 c5\">   4%</span><span class=c3>   </span><i class=\"g2588 f71717a\">█</i><span class=c13> Skipped   14</span><span class=f6b7280>   2%</span>"
       },
+      "csharpFluent": "new StackedBar().Add(\"Passed\", 412, ThemeToken.Pass).Add(\"Warnings\", 51, ThemeToken.Warn).Add(\"Failed\", 23, ThemeToken.Fail).Add(\"Skipped\", 14, ThemeToken.Skip).Show();\n",
+      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\nnew StackedBar().Add(\"Passed\", 412, ThemeToken.Pass).Add(\"Warnings\", 51, ThemeToken.Warn).Add(\"Failed\", 23, ThemeToken.Fail).Add(\"Skipped\", 14, ThemeToken.Skip).Show();\n",
+      "csharpFluentFile": "Program.cs",
+      "apiMap": [
+        {
+          "powershell": "| Show-Console",
+          "csharp": "Terminal.Write(widget)",
+          "fluent": ".Show()",
+          "memberId": "M:ConsoleMonster.Terminal.Write"
+        }
+      ],
       "parity": {
         "ps7": {
           "host": "PowerShell 7.6",
@@ -560,11 +969,11 @@
       "group": "charts",
       "summary": "A compact trend in one or more rows, with the latest value.",
       "width": 60,
-      "csharp": "double[] rate = { 18, 21, 19, 24, 27, 26, 31, 29, 34, 38, 36, 41, 39, 44, 47, 45, 50, 48, 53, 57, 54, 59, 62, 60 };\nTerminal.Write(new Rows()\n    .WithGap(1)\n    .Add(new Sparkline().WithLabel(\"rules/s\").WithUnit(\"/s\").AddRange(rate))\n    .Add(new Sparkline().WithHeight(3).WithUnit(\"/s\").AddRange(rate)));",
-      "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\ndouble[] rate = { 18, 21, 19, 24, 27, 26, 31, 29, 34, 38, 36, 41, 39, 44, 47, 45, 50, 48, 53, 57, 54, 59, 62, 60 };\nTerminal.Write(new Rows()\n    .WithGap(1)\n    .Add(new Sparkline().WithLabel(\"rules/s\").WithUnit(\"/s\").AddRange(rate))\n    .Add(new Sparkline().WithHeight(3).WithUnit(\"/s\").AddRange(rate)));",
+      "csharp": "double[] rate =\n{\n    18,\n    21,\n    19,\n    24,\n    27,\n    26,\n    31,\n    29,\n    34,\n    38,\n    36,\n    41,\n    39,\n    44,\n    47,\n    45,\n    50,\n    48,\n    53,\n    57,\n    54,\n    59,\n    62,\n    60\n};\nTerminal.Write(new Rows() { Gap = 1 }.Add(new Sparkline() { Label = \"rules/s\", Unit = \"/s\" }.AddRange(rate)).Add(new Sparkline() { Height = 3, Unit = \"/s\" }.AddRange(rate)));",
+      "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\ndouble[] rate =\n{\n    18,\n    21,\n    19,\n    24,\n    27,\n    26,\n    31,\n    29,\n    34,\n    38,\n    36,\n    41,\n    39,\n    44,\n    47,\n    45,\n    50,\n    48,\n    53,\n    57,\n    54,\n    59,\n    62,\n    60\n};\nTerminal.Write(new Rows() { Gap = 1 }.Add(new Sparkline() { Label = \"rules/s\", Unit = \"/s\" }.AddRange(rate)).Add(new Sparkline() { Height = 3, Unit = \"/s\" }.AddRange(rate)));",
       "csharpFile": "Program.cs",
-      "powershell": "$rate = 18, 21, 19, 24, 27, 26, 31, 29, 34, 38, 36, 41, 39, 44, 47, 45, 50, 48, 53, 57, 54, 59, 62, 60\nNew-ConsoleRows -Gap 1 -Content {\n    New-ConsoleSparkline -Label 'rules/s' -Unit '/s' -Value $rate\n    New-ConsoleSparkline -Height 3 -Unit '/s' -Value $rate\n} | Show-Console",
-      "powershellFull": "Import-Module ConsoleMonster\n\n$rate = 18, 21, 19, 24, 27, 26, 31, 29, 34, 38, 36, 41, 39, 44, 47, 45, 50, 48, 53, 57, 54, 59, 62, 60\nNew-ConsoleRows -Gap 1 -Content {\n    New-ConsoleSparkline -Label 'rules/s' -Unit '/s' -Value $rate\n    New-ConsoleSparkline -Height 3 -Unit '/s' -Value $rate\n} | Show-Console",
+      "powershell": "$rate = 18, 21, 19, 24, 27, 26, 31, 29, 34, 38, 36, 41, 39, 44, 47, 45, 50, 48, 53, 57, 54, 59, 62, 60\nNew-ConsoleRows -Gap 1 -Content {\n    New-ConsoleChart -Label 'rules/s' -Unit '/s' -Type Sparkline -Values $rate\n    New-ConsoleChart -Height 3 -Unit '/s' -Type Sparkline -Values $rate\n} | Show-Console",
+      "powershellFull": "Import-Module ConsoleMonster\n\n$rate = 18, 21, 19, 24, 27, 26, 31, 29, 34, 38, 36, 41, 39, 44, 47, 45, 50, 48, 53, 57, 54, 59, 62, 60\nNew-ConsoleRows -Gap 1 -Content {\n    New-ConsoleChart -Label 'rules/s' -Unit '/s' -Type Sparkline -Values $rate\n    New-ConsoleChart -Height 3 -Unit '/s' -Type Sparkline -Values $rate\n} | Show-Console",
       "powershellFile": "sparkline.ps1",
       "frame": {
         "w": 60,
@@ -572,6 +981,45 @@
         "dark": "<span class=\"f8b8f9a c7\">rules/s</span><span class=c24>                        </span><span class=\"f60a5fa c24\"><i class=g2582>▂</i><i class=g2583>▃</i><i class=g2582>▂</i><i class=\"g2583 c3\">▃▃▃</i><i class=\"g2584 c3\">▄▄▄</i><i class=\"g2585 c4\">▅▅▅▅</i><i class=\"g2586 c5\">▆▆▆▆▆</i><i class=\"g2587 c3\">▇▇▇</i><i class=\"g2588 c3\">███</i></span><span class=c1> </span><span class=B>60/s</span>\n\n<span class=c44>                                            </span><span class=f60a5fa><i class=g2581>▁</i><i class=g2582>▂</i><i class=g2581>▁</i><i class=\"g2583 c2\">▃▃</i><i class=g2585>▅</i><i class=g2586>▆</i><i class=g2585>▅</i><i class=g2587>▇</i><i class=g2588>█</i><i class=g2587>▇</i></span>\n<span class=c34>                                  </span><span class=f60a5fa><i class=g2581>▁</i><i class=\"g2582 c2\">▂▂</i><i class=g2584>▄</i><i class=g2583>▃</i><i class=g2585>▅</i><i class=g2587>▇</i><i class=g2586>▆</i><i class=g2588>█</i><i class=g2587>▇</i><i class=\"g2588 c11\">███████████</i></span>\n<span class=c31>                               </span><span class=\"f60a5fa c24\"><i class=g2587>▇</i><i class=g2588>█</i><i class=g2587>▇</i><i class=\"g2588 c21\">█████████████████████</i></span><span class=c1> </span><span class=B>60/s</span>",
         "light": "<span class=\"f6b7280 c7\">rules/s</span><span class=c24>                        </span><span class=\"f2563eb c24\"><i class=g2582>▂</i><i class=g2583>▃</i><i class=g2582>▂</i><i class=\"g2583 c3\">▃▃▃</i><i class=\"g2584 c3\">▄▄▄</i><i class=\"g2585 c4\">▅▅▅▅</i><i class=\"g2586 c5\">▆▆▆▆▆</i><i class=\"g2587 c3\">▇▇▇</i><i class=\"g2588 c3\">███</i></span><span class=c1> </span><span class=\"f111827 B\">60/s</span>\n\n<span class=c44>                                            </span><span class=f2563eb><i class=g2581>▁</i><i class=g2582>▂</i><i class=g2581>▁</i><i class=\"g2583 c2\">▃▃</i><i class=g2585>▅</i><i class=g2586>▆</i><i class=g2585>▅</i><i class=g2587>▇</i><i class=g2588>█</i><i class=g2587>▇</i></span>\n<span class=c34>                                  </span><span class=f2563eb><i class=g2581>▁</i><i class=\"g2582 c2\">▂▂</i><i class=g2584>▄</i><i class=g2583>▃</i><i class=g2585>▅</i><i class=g2587>▇</i><i class=g2586>▆</i><i class=g2588>█</i><i class=g2587>▇</i><i class=\"g2588 c11\">███████████</i></span>\n<span class=c31>                               </span><span class=\"f2563eb c24\"><i class=g2587>▇</i><i class=g2588>█</i><i class=g2587>▇</i><i class=\"g2588 c21\">█████████████████████</i></span><span class=c1> </span><span class=\"f111827 B\">60/s</span>"
       },
+      "csharpFluent": "double[] rate =\n{\n    18,\n    21,\n    19,\n    24,\n    27,\n    26,\n    31,\n    29,\n    34,\n    38,\n    36,\n    41,\n    39,\n    44,\n    47,\n    45,\n    50,\n    48,\n    53,\n    57,\n    54,\n    59,\n    62,\n    60\n};\nnew Rows().Gap(1).Add(new Sparkline().Label(\"rules/s\").Unit(\"/s\").AddRange(rate)).Add(new Sparkline().Height(3).Unit(\"/s\").AddRange(rate)).Show();\n",
+      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\ndouble[] rate =\n{\n    18,\n    21,\n    19,\n    24,\n    27,\n    26,\n    31,\n    29,\n    34,\n    38,\n    36,\n    41,\n    39,\n    44,\n    47,\n    45,\n    50,\n    48,\n    53,\n    57,\n    54,\n    59,\n    62,\n    60\n};\nnew Rows().Gap(1).Add(new Sparkline().Label(\"rules/s\").Unit(\"/s\").AddRange(rate)).Add(new Sparkline().Height(3).Unit(\"/s\").AddRange(rate)).Show();\n",
+      "csharpFluentFile": "Program.cs",
+      "apiMap": [
+        {
+          "powershell": "New-ConsoleChart -Label …",
+          "csharp": "Label = …",
+          "fluent": ".Label(…)",
+          "memberId": "ConsoleMonster.Widgets.Sparkline.Label",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsoleDashboard -Gap …",
+          "csharp": "Gap = …",
+          "fluent": ".Gap(…)",
+          "memberId": "ConsoleMonster.Layout.Rows.Gap",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsoleChart -Height …",
+          "csharp": "Height = …",
+          "fluent": ".Height(…)",
+          "memberId": "ConsoleMonster.Widgets.Sparkline.Height",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsoleChart -Unit …",
+          "csharp": "Unit = …",
+          "fluent": ".Unit(…)",
+          "memberId": "ConsoleMonster.Widgets.Sparkline.Unit",
+          "note": null
+        },
+        {
+          "powershell": "| Show-Console",
+          "csharp": "Terminal.Write(widget)",
+          "fluent": ".Show()",
+          "memberId": "M:ConsoleMonster.Terminal.Write"
+        }
+      ],
       "parity": {
         "ps7": {
           "host": "PowerShell 7.6",
@@ -591,11 +1039,11 @@
       "group": "charts",
       "summary": "Values counted into buckets with labelled edges.",
       "width": 60,
-      "csharp": "Histogram durations = new Histogram(new double[] { 0, 0.25, 0.5, 1, 2, 4, 8 }).WithHeight(5).WithUnit(\"s\");\nforeach (double seconds in new[] { 0.1, 0.2, 0.3, 0.3, 0.4, 0.6, 0.7, 0.7, 0.8, 0.9, 1.2, 1.4, 1.5, 1.9, 2.4, 3.1, 5.2 }) {\n    durations.Add(seconds);\n}\nTerminal.Write(durations);",
-      "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\nHistogram durations = new Histogram(new double[] { 0, 0.25, 0.5, 1, 2, 4, 8 }).WithHeight(5).WithUnit(\"s\");\nforeach (double seconds in new[] { 0.1, 0.2, 0.3, 0.3, 0.4, 0.6, 0.7, 0.7, 0.8, 0.9, 1.2, 1.4, 1.5, 1.9, 2.4, 3.1, 5.2 }) {\n    durations.Add(seconds);\n}\nTerminal.Write(durations);",
+      "csharp": "Histogram durations = new Histogram(new double[] { 0, 0.25, 0.5, 1, 2, 4, 8 })\n{\n    Height = 5,\n    Unit = \"s\"\n};\nforeach (double seconds in new[]\n{\n    0.1,\n    0.2,\n    0.3,\n    0.3,\n    0.4,\n    0.6,\n    0.7,\n    0.7,\n    0.8,\n    0.9,\n    1.2,\n    1.4,\n    1.5,\n    1.9,\n    2.4,\n    3.1,\n    5.2\n}\n\n)\n{\n    durations.Add(seconds);\n}\n\nTerminal.Write(durations);",
+      "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Widgets;\n\nHistogram durations = new Histogram(new double[] { 0, 0.25, 0.5, 1, 2, 4, 8 })\n{\n    Height = 5,\n    Unit = \"s\"\n};\nforeach (double seconds in new[]\n{\n    0.1,\n    0.2,\n    0.3,\n    0.3,\n    0.4,\n    0.6,\n    0.7,\n    0.7,\n    0.8,\n    0.9,\n    1.2,\n    1.4,\n    1.5,\n    1.9,\n    2.4,\n    3.1,\n    5.2\n}\n\n)\n{\n    durations.Add(seconds);\n}\n\nTerminal.Write(durations);",
       "csharpFile": "Program.cs",
-      "powershell": "$seconds = 0.1, 0.2, 0.3, 0.3, 0.4, 0.6, 0.7, 0.7, 0.8, 0.9, 1.2, 1.4, 1.5, 1.9, 2.4, 3.1, 5.2\nNew-ConsoleHistogram -Edge 0, 0.25, 0.5, 1, 2, 4, 8 -Value $seconds -Height 5 -Unit 's' | Show-Console",
-      "powershellFull": "Import-Module ConsoleMonster\n\n$seconds = 0.1, 0.2, 0.3, 0.3, 0.4, 0.6, 0.7, 0.7, 0.8, 0.9, 1.2, 1.4, 1.5, 1.9, 2.4, 3.1, 5.2\nNew-ConsoleHistogram -Edge 0, 0.25, 0.5, 1, 2, 4, 8 -Value $seconds -Height 5 -Unit 's' | Show-Console",
+      "powershell": "$seconds = 0.1, 0.2, 0.3, 0.3, 0.4, 0.6, 0.7, 0.7, 0.8, 0.9, 1.2, 1.4, 1.5, 1.9, 2.4, 3.1, 5.2\nNew-ConsoleChart -Height 5 -Unit 's' -Type Histogram -Values $seconds -Edges 0, 0.25, 0.5, 1, 2, 4, 8 | Show-Console",
+      "powershellFull": "Import-Module ConsoleMonster\n\n$seconds = 0.1, 0.2, 0.3, 0.3, 0.4, 0.6, 0.7, 0.7, 0.8, 0.9, 1.2, 1.4, 1.5, 1.9, 2.4, 3.1, 5.2\nNew-ConsoleChart -Height 5 -Unit 's' -Type Histogram -Values $seconds -Edges 0, 0.25, 0.5, 1, 2, 4, 8 | Show-Console",
       "powershellFile": "histogram.ps1",
       "frame": {
         "w": 60,
@@ -603,6 +1051,31 @@
         "dark": "<span class=\"f8b8f9a c1\">5</span><i class=\"g2502 f4b5060\">│</i><span class=c19>                   </span><i class=\"g2588 c9 f60a5fa\">█████████</i>\n<span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c19>                   </span><i class=\"g2588 c9 f60a5fa\">█████████</i><span class=c1> </span><i class=\"g2588 c8 f60a5fa\">████████</i>\n<span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c9>         </span><i class=\"g2588 c9 f60a5fa\">█████████</i><span class=c1> </span><i class=\"g2588 c9 f60a5fa\">█████████</i><span class=c1> </span><i class=\"g2588 c8 f60a5fa\">████████</i>\n<span class=c1> </span><i class=\"g2502 f4b5060\">│</i><i class=\"g2588 c8 f60a5fa\">████████</i><span class=c1> </span><i class=\"g2588 c9 f60a5fa\">█████████</i><span class=c1> </span><i class=\"g2588 c9 f60a5fa\">█████████</i><span class=c1> </span><i class=\"g2588 c8 f60a5fa\">████████</i><span class=c1> </span><i class=\"g2588 c9 f60a5fa\">█████████</i>\n<span class=\"f8b8f9a c1\">0</span><i class=\"g2502 f4b5060\">│</i><i class=\"g2588 c8 f60a5fa\">████████</i><span class=c1> </span><i class=\"g2588 c9 f60a5fa\">█████████</i><span class=c1> </span><i class=\"g2588 c9 f60a5fa\">█████████</i><span class=c1> </span><i class=\"g2588 c8 f60a5fa\">████████</i><span class=c1> </span><i class=\"g2588 c9 f60a5fa\">█████████</i><span class=c1> </span><i class=\"g2588 c9 f60a5fa\">█████████</i>\n<span class=c2>  </span><span class=\"f8b8f9a c2\">0s</span><span class=c7>       </span><span class=\"f8b8f9a c5\">0.25s</span><span class=c5>     </span><span class=\"f8b8f9a c4\">0.5s</span><span class=c6>      </span><span class=\"f8b8f9a c2\">1s</span><span class=c7>       </span><span class=\"f8b8f9a c2\">2s</span><span class=c8>        </span><span class=\"f8b8f9a c2\">4s</span><span class=c6>      </span><span class=f8b8f9a>8s</span>",
         "light": "<span class=\"f6b7280 c1\">5</span><i class=\"g2502 f8a8a94\">│</i><span class=c19>                   </span><i class=\"g2588 c9 f2563eb\">█████████</i>\n<span class=c1> </span><i class=\"g2502 f8a8a94\">│</i><span class=c19>                   </span><i class=\"g2588 c9 f2563eb\">█████████</i><span class=c1> </span><i class=\"g2588 c8 f2563eb\">████████</i>\n<span class=c1> </span><i class=\"g2502 f8a8a94\">│</i><span class=c9>         </span><i class=\"g2588 c9 f2563eb\">█████████</i><span class=c1> </span><i class=\"g2588 c9 f2563eb\">█████████</i><span class=c1> </span><i class=\"g2588 c8 f2563eb\">████████</i>\n<span class=c1> </span><i class=\"g2502 f8a8a94\">│</i><i class=\"g2588 c8 f2563eb\">████████</i><span class=c1> </span><i class=\"g2588 c9 f2563eb\">█████████</i><span class=c1> </span><i class=\"g2588 c9 f2563eb\">█████████</i><span class=c1> </span><i class=\"g2588 c8 f2563eb\">████████</i><span class=c1> </span><i class=\"g2588 c9 f2563eb\">█████████</i>\n<span class=\"f6b7280 c1\">0</span><i class=\"g2502 f8a8a94\">│</i><i class=\"g2588 c8 f2563eb\">████████</i><span class=c1> </span><i class=\"g2588 c9 f2563eb\">█████████</i><span class=c1> </span><i class=\"g2588 c9 f2563eb\">█████████</i><span class=c1> </span><i class=\"g2588 c8 f2563eb\">████████</i><span class=c1> </span><i class=\"g2588 c9 f2563eb\">█████████</i><span class=c1> </span><i class=\"g2588 c9 f2563eb\">█████████</i>\n<span class=c2>  </span><span class=\"f6b7280 c2\">0s</span><span class=c7>       </span><span class=\"f6b7280 c5\">0.25s</span><span class=c5>     </span><span class=\"f6b7280 c4\">0.5s</span><span class=c6>      </span><span class=\"f6b7280 c2\">1s</span><span class=c7>       </span><span class=\"f6b7280 c2\">2s</span><span class=c8>        </span><span class=\"f6b7280 c2\">4s</span><span class=c6>      </span><span class=f6b7280>8s</span>"
       },
+      "csharpFluent": "Histogram durations = new Histogram(new double[] { 0, 0.25, 0.5, 1, 2, 4, 8 }).Height(5).Unit(\"s\");\nforeach (double seconds in new[]\n{\n    0.1,\n    0.2,\n    0.3,\n    0.3,\n    0.4,\n    0.6,\n    0.7,\n    0.7,\n    0.8,\n    0.9,\n    1.2,\n    1.4,\n    1.5,\n    1.9,\n    2.4,\n    3.1,\n    5.2\n}\n\n)\n{\n    durations.Add(seconds);\n}\n\ndurations.Show();\n",
+      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Widgets;\n\nHistogram durations = new Histogram(new double[] { 0, 0.25, 0.5, 1, 2, 4, 8 }).Height(5).Unit(\"s\");\nforeach (double seconds in new[]\n{\n    0.1,\n    0.2,\n    0.3,\n    0.3,\n    0.4,\n    0.6,\n    0.7,\n    0.7,\n    0.8,\n    0.9,\n    1.2,\n    1.4,\n    1.5,\n    1.9,\n    2.4,\n    3.1,\n    5.2\n}\n\n)\n{\n    durations.Add(seconds);\n}\n\ndurations.Show();\n",
+      "csharpFluentFile": "Program.cs",
+      "apiMap": [
+        {
+          "powershell": "New-ConsoleChart -Height …",
+          "csharp": "Height = …",
+          "fluent": ".Height(…)",
+          "memberId": "ConsoleMonster.Widgets.Histogram.Height",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsoleChart -Unit …",
+          "csharp": "Unit = …",
+          "fluent": ".Unit(…)",
+          "memberId": "ConsoleMonster.Widgets.Histogram.Unit",
+          "note": null
+        },
+        {
+          "powershell": "| Show-Console",
+          "csharp": "Terminal.Write(widget)",
+          "fluent": ".Show()",
+          "memberId": "M:ConsoleMonster.Terminal.Write"
+        }
+      ],
       "parity": {
         "ps7": {
           "host": "PowerShell 7.6",
@@ -622,11 +1095,11 @@
       "group": "charts",
       "summary": "Braille line series with an axis and a legend.",
       "width": 60,
-      "csharp": "LineChart chart = new LineChart().WithHeight(7);\nchart.AddSeries(\"completed\", ThemeToken.Accent);\nchart.AddSeries(\"failed\", ThemeToken.Fail);\nfor (int i = 0; i < 48; i++) {\n    chart.Add(\"completed\", 20 + (9 * Math.Sin(i / 7.0)) + (i % 3));\n    chart.Add(\"failed\", 3 + (2 * Math.Cos(i / 5.0)));\n}\nTerminal.Write(chart);",
-      "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\nLineChart chart = new LineChart().WithHeight(7);\nchart.AddSeries(\"completed\", ThemeToken.Accent);\nchart.AddSeries(\"failed\", ThemeToken.Fail);\nfor (int i = 0; i < 48; i++) {\n    chart.Add(\"completed\", 20 + (9 * Math.Sin(i / 7.0)) + (i % 3));\n    chart.Add(\"failed\", 3 + (2 * Math.Cos(i / 5.0)));\n}\nTerminal.Write(chart);",
+      "csharp": "LineChart chart = new LineChart()\n{\n    Height = 7\n};\nchart.AddSeries(\"completed\", ThemeToken.Accent);\nchart.AddSeries(\"failed\", ThemeToken.Fail);\nfor (int i = 0; i < 48; i++)\n{\n    chart.Add(\"completed\", 20 + (9 * Math.Sin(i / 7.0)) + (i % 3));\n    chart.Add(\"failed\", 3 + (2 * Math.Cos(i / 5.0)));\n}\n\nTerminal.Write(chart);",
+      "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\nLineChart chart = new LineChart()\n{\n    Height = 7\n};\nchart.AddSeries(\"completed\", ThemeToken.Accent);\nchart.AddSeries(\"failed\", ThemeToken.Fail);\nfor (int i = 0; i < 48; i++)\n{\n    chart.Add(\"completed\", 20 + (9 * Math.Sin(i / 7.0)) + (i % 3));\n    chart.Add(\"failed\", 3 + (2 * Math.Cos(i / 5.0)));\n}\n\nTerminal.Write(chart);",
       "csharpFile": "Program.cs",
-      "powershell": "$completed = foreach ($i in 0..47) { 20 + 9 * [math]::Sin($i / 7) + $i % 3 }\n$failed = foreach ($i in 0..47) { 3 + 2 * [math]::Cos($i / 5) }\nNew-ConsoleLineChart -Height 7 -Content {\n    New-ConsoleChartSeries 'completed' -Value $completed -Role Accent\n    New-ConsoleChartSeries 'failed' -Value $failed -Role Fail\n} | Show-Console",
-      "powershellFull": "Import-Module ConsoleMonster\n\n$completed = foreach ($i in 0..47) { 20 + 9 * [math]::Sin($i / 7) + $i % 3 }\n$failed = foreach ($i in 0..47) { 3 + 2 * [math]::Cos($i / 5) }\nNew-ConsoleLineChart -Height 7 -Content {\n    New-ConsoleChartSeries 'completed' -Value $completed -Role Accent\n    New-ConsoleChartSeries 'failed' -Value $failed -Role Fail\n} | Show-Console",
+      "powershell": "$completed = foreach ($i in 0..47) { 20 + 9 * [math]::Sin($i / 7) + $i % 3 }\n$failed = foreach ($i in 0..47) { 3 + 2 * [math]::Cos($i / 5) }\nNew-ConsoleChart -Height 7 -Content {\n    [pscustomobject]@{ Key = 'completed'; Role = 'Accent'; Values = $completed }\n    [pscustomobject]@{ Key = 'failed'; Role = 'Fail'; Values = $failed }\n} -Type Line | Show-Console",
+      "powershellFull": "Import-Module ConsoleMonster\n\n$completed = foreach ($i in 0..47) { 20 + 9 * [math]::Sin($i / 7) + $i % 3 }\n$failed = foreach ($i in 0..47) { 3 + 2 * [math]::Cos($i / 5) }\nNew-ConsoleChart -Height 7 -Content {\n    [pscustomobject]@{ Key = 'completed'; Role = 'Accent'; Values = $completed }\n    [pscustomobject]@{ Key = 'failed'; Role = 'Fail'; Values = $failed }\n} -Type Line | Show-Console",
       "powershellFile": "line.ps1",
       "frame": {
         "w": 60,
@@ -634,6 +1107,24 @@
         "dark": "<span class=\"f8b8f9a c2\">31</span><i class=\"g2502 f4b5060\">│</i><span class=c5>     </span><span class=f60a5fa><i class=g2880>⢀</i><i class=g2884>⢄</i><i class=g28c0>⣀</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2822>⠢</i><i class=g2814>⠔</i><i class=g280a>⠊</i><i class=g2811>⠑</i><i class=g2822>⠢</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2822>⠢</i><i class=g2860>⡠</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2840>⡀</i></span>\n<span class=c2>  </span><i class=\"g2502 f4b5060\">│</i><span class=\"f60a5fa c6\"><i class=g2880>⢀</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g280a>⠊</i><i class=g2801>⠁</i></span><span class=c15>               </span><span class=\"f60a5fa c6\"><i class=g2811>⠑</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2822>⠢</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i></span><span class=c25>                         </span><span class=f60a5fa><i class=g2880>⢀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g2824>⠤</i><i class=g280a>⠊</i></span>\n<span class=c2>  </span><i class=\"g2502 f4b5060\">│</i><i class=\"g2801 f60a5fa\">⠁</i><span class=c26>                          </span><span class=\"f60a5fa c6\"><i class=g2809>⠉</i><i class=g2812>⠒</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2840>⡀</i></span><span class=c15>               </span><span class=f60a5fa><i class=g2860>⡠</i><i class=g2814>⠔</i><i class=g2824>⠤</i><i class=g280a>⠊</i><i class=g2801>⠁</i></span>\n<span class=c2>  </span><i class=\"g2502 f4b5060\">│</i><span class=c32>                                </span><span class=f60a5fa><i class=g2811>⠑</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2811>⠑</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2884>⢄</i><i class=g2860>⡠</i><i class=g2814>⠔</i><i class=g2812>⠒</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2809>⠉</i><i class=g2811>⠑</i><i class=g280a>⠊</i></span>\n<span class=c2>  </span><i class=\"g2502 f4b5060\">│</i><span class=\"ff87171 c3\"><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i></span><span class=c31>                               </span><span class=ff87171><i class=g2880>⢀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g2840>⡀</i></span>\n<span class=c1> </span><span class=\"f8b8f9a c1\">0</span><i class=\"g2502 f4b5060\">│</i><span class=c3>   </span><span class=\"ff87171 c32\"><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2822>⠢</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g280a>⠊</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2801>⠁</i></span><span class=c6>      </span><span class=ff87171><i class=g2808>⠈</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2811>⠑</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i></span>\n<span class=c2>  </span><span class=f4b5060><i class=g2514>└</i><i class=\"g2500 c57\">─────────────────────────────────────────────────────────</i></span>\n<span class=c3>   </span><i class=\"g2588 f60a5fa\">█</i><span class=\"f8b8f9a c10\"> completed</span><span class=c3>   </span><i class=\"g2588 ff87171\">█</i><span class=f8b8f9a> failed</span>",
         "light": "<span class=\"f6b7280 c2\">31</span><i class=\"g2502 f8a8a94\">│</i><span class=c5>     </span><span class=f2563eb><i class=g2880>⢀</i><i class=g2884>⢄</i><i class=g28c0>⣀</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2822>⠢</i><i class=g2814>⠔</i><i class=g280a>⠊</i><i class=g2811>⠑</i><i class=g2822>⠢</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2822>⠢</i><i class=g2860>⡠</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2840>⡀</i></span>\n<span class=c2>  </span><i class=\"g2502 f8a8a94\">│</i><span class=\"f2563eb c6\"><i class=g2880>⢀</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g280a>⠊</i><i class=g2801>⠁</i></span><span class=c15>               </span><span class=\"f2563eb c6\"><i class=g2811>⠑</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2822>⠢</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i></span><span class=c25>                         </span><span class=f2563eb><i class=g2880>⢀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g2824>⠤</i><i class=g280a>⠊</i></span>\n<span class=c2>  </span><i class=\"g2502 f8a8a94\">│</i><i class=\"g2801 f2563eb\">⠁</i><span class=c26>                          </span><span class=\"f2563eb c6\"><i class=g2809>⠉</i><i class=g2812>⠒</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2840>⡀</i></span><span class=c15>               </span><span class=f2563eb><i class=g2860>⡠</i><i class=g2814>⠔</i><i class=g2824>⠤</i><i class=g280a>⠊</i><i class=g2801>⠁</i></span>\n<span class=c2>  </span><i class=\"g2502 f8a8a94\">│</i><span class=c32>                                </span><span class=f2563eb><i class=g2811>⠑</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2811>⠑</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2884>⢄</i><i class=g2860>⡠</i><i class=g2814>⠔</i><i class=g2812>⠒</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2809>⠉</i><i class=g2811>⠑</i><i class=g280a>⠊</i></span>\n<span class=c2>  </span><i class=\"g2502 f8a8a94\">│</i><span class=\"fb91c1c c3\"><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i></span><span class=c31>                               </span><span class=fb91c1c><i class=g2880>⢀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g2840>⡀</i></span>\n<span class=c1> </span><span class=\"f6b7280 c1\">0</span><i class=\"g2502 f8a8a94\">│</i><span class=c3>   </span><span class=\"fb91c1c c32\"><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2822>⠢</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g280a>⠊</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2801>⠁</i></span><span class=c6>      </span><span class=fb91c1c><i class=g2808>⠈</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2811>⠑</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i></span>\n<span class=c2>  </span><span class=f8a8a94><i class=g2514>└</i><i class=\"g2500 c57\">─────────────────────────────────────────────────────────</i></span>\n<span class=c3>   </span><i class=\"g2588 f2563eb\">█</i><span class=\"f6b7280 c10\"> completed</span><span class=c3>   </span><i class=\"g2588 fb91c1c\">█</i><span class=f6b7280> failed</span>"
       },
+      "csharpFluent": "LineChart chart = new LineChart().Height(7);\nchart.AddSeries(\"completed\", ThemeToken.Accent);\nchart.AddSeries(\"failed\", ThemeToken.Fail);\nfor (int i = 0; i < 48; i++)\n{\n    chart.Add(\"completed\", 20 + (9 * Math.Sin(i / 7.0)) + (i % 3));\n    chart.Add(\"failed\", 3 + (2 * Math.Cos(i / 5.0)));\n}\n\nchart.Show();\n",
+      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\nLineChart chart = new LineChart().Height(7);\nchart.AddSeries(\"completed\", ThemeToken.Accent);\nchart.AddSeries(\"failed\", ThemeToken.Fail);\nfor (int i = 0; i < 48; i++)\n{\n    chart.Add(\"completed\", 20 + (9 * Math.Sin(i / 7.0)) + (i % 3));\n    chart.Add(\"failed\", 3 + (2 * Math.Cos(i / 5.0)));\n}\n\nchart.Show();\n",
+      "csharpFluentFile": "Program.cs",
+      "apiMap": [
+        {
+          "powershell": "New-ConsoleChart -Height …",
+          "csharp": "Height = …",
+          "fluent": ".Height(…)",
+          "memberId": "ConsoleMonster.Widgets.LineChart.Height",
+          "note": null
+        },
+        {
+          "powershell": "| Show-Console",
+          "csharp": "Terminal.Write(widget)",
+          "fluent": ".Show()",
+          "memberId": "M:ConsoleMonster.Terminal.Write"
+        }
+      ],
       "parity": {
         "ps7": {
           "host": "PowerShell 7.6",
@@ -653,11 +1144,11 @@
       "group": "charts",
       "summary": "The same braille canvas as points instead of lines.",
       "width": 60,
-      "csharp": "LineChart chart = new LineChart().WithHeight(7).WithScatter().WithUnit(\"ms\");\nchart.AddSeries(\"latency\", ThemeToken.Accent2);\nfor (int i = 0; i < 60; i++) {\n    chart.Add(\"latency\", 40 + ((i * 37) % 23) + (i % 7 == 0 ? 30 : 0));\n}\nTerminal.Write(chart);",
-      "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\nLineChart chart = new LineChart().WithHeight(7).WithScatter().WithUnit(\"ms\");\nchart.AddSeries(\"latency\", ThemeToken.Accent2);\nfor (int i = 0; i < 60; i++) {\n    chart.Add(\"latency\", 40 + ((i * 37) % 23) + (i % 7 == 0 ? 30 : 0));\n}\nTerminal.Write(chart);",
+      "csharp": "LineChart chart = new LineChart()\n{\n    Height = 7,\n    Scatter = true,\n    Unit = \"ms\"\n};\nchart.AddSeries(\"latency\", ThemeToken.Accent2);\nfor (int i = 0; i < 60; i++)\n{\n    chart.Add(\"latency\", 40 + ((i * 37) % 23) + (i % 7 == 0 ? 30 : 0));\n}\n\nTerminal.Write(chart);",
+      "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\nLineChart chart = new LineChart()\n{\n    Height = 7,\n    Scatter = true,\n    Unit = \"ms\"\n};\nchart.AddSeries(\"latency\", ThemeToken.Accent2);\nfor (int i = 0; i < 60; i++)\n{\n    chart.Add(\"latency\", 40 + ((i * 37) % 23) + (i % 7 == 0 ? 30 : 0));\n}\n\nTerminal.Write(chart);",
       "csharpFile": "Program.cs",
-      "powershell": "$latency = foreach ($i in 0..59) { 40 + ($i * 37) % 23 + $(if ($i % 7 -eq 0) { 30 } else { 0 }) }\nNew-ConsoleLineChart -Height 7 -Scatter -Unit 'ms' -Content {\n    New-ConsoleChartSeries 'latency' -Value $latency -Role Accent2\n} | Show-Console",
-      "powershellFull": "Import-Module ConsoleMonster\n\n$latency = foreach ($i in 0..59) { 40 + ($i * 37) % 23 + $(if ($i % 7 -eq 0) { 30 } else { 0 }) }\nNew-ConsoleLineChart -Height 7 -Scatter -Unit 'ms' -Content {\n    New-ConsoleChartSeries 'latency' -Value $latency -Role Accent2\n} | Show-Console",
+      "powershell": "$latency = foreach ($i in 0..59) { 40 + ($i * 37) % 23 + $(if ($i % 7 -eq 0) { 30 } else { 0 }) }\nNew-ConsoleChart -Height 7 -Unit 'ms' -Content {\n    [pscustomobject]@{ Key = 'latency'; Role = 'Accent2'; Values = $latency }\n} -Type Scatter | Show-Console",
+      "powershellFull": "Import-Module ConsoleMonster\n\n$latency = foreach ($i in 0..59) { 40 + ($i * 37) % 23 + $(if ($i % 7 -eq 0) { 30 } else { 0 }) }\nNew-ConsoleChart -Height 7 -Unit 'ms' -Content {\n    [pscustomobject]@{ Key = 'latency'; Role = 'Accent2'; Values = $latency }\n} -Type Scatter | Show-Console",
       "powershellFile": "scatter.ps1",
       "frame": {
         "w": 60,
@@ -665,6 +1156,38 @@
         "dark": "<span class=\"f8b8f9a c4\">89ms</span><i class=\"g2502 f4b5060\">│</i><span class=c6>      </span><i class=\"g2880 fc084fc\">⢀</i><span class=c6>      </span><i class=\"g2804 fc084fc\">⠄</i><span class=c5>     </span><i class=\"g2808 fc084fc\">⠈</i><span class=c12>            </span><i class=\"g2880 fc084fc\">⢀</i><span class=c6>      </span><i class=\"g2804 fc084fc\">⠄</i><span class=c5>     </span><i class=\"g2808 fc084fc\">⠈</i>\n<span class=c4>    </span><i class=\"g2502 f4b5060\">│</i><i class=\"g2802 fc084fc\">⠂</i><span class=c6>      </span><i class=\"g2880 fc084fc\">⢀</i><span class=c4>    </span><i class=\"g2840 fc084fc\">⡀</i><span class=c3>   </span><i class=\"g2880 fc084fc\">⢀</i><span class=c9>         </span><i class=\"g2802 fc084fc\">⠂</i><span class=c1> </span><i class=\"g2880 fc084fc\">⢀</i><span class=c4>    </span><i class=\"g2880 fc084fc\">⢀</i><span class=c4>    </span><i class=\"g2840 fc084fc\">⡀</i><span class=c11>           </span><span class=\"fc084fc c2\"><i class=g2840>⡀</i><i class=g2808>⠈</i></span><span class=c2>  </span><i class=\"g2880 fc084fc\">⢀</i>\n<span class=c4>    </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"fc084fc c3\"><i class=g2802>⠂</i><i class=g2840>⡀</i><i class=g2821>⠡</i></span><span class=c1> </span><i class=\"g2810 fc084fc\">⠐</i><span class=c2>  </span><i class=\"g2820 fc084fc\">⠠</i><span class=c1> </span><span class=\"fc084fc c2\"><i class=g2802>⠂</i><i class=g2840>⡀</i></span><span class=c3>   </span><i class=\"g2881 fc084fc\">⢁</i><span class=c1> </span><i class=\"g2810 fc084fc\">⠐</i><span class=c2>  </span><i class=\"g2820 fc084fc\">⠠</i><span class=c1> </span><span class=\"fc084fc c4\"><i class=g2802>⠂</i><i class=g2840>⡀</i><i class=g2801>⠁</i><i class=g2804>⠄</i></span><span class=c1> </span><i class=\"g2882 fc084fc\">⢂</i><span class=c1> </span><i class=\"g2820 fc084fc\">⠠</i><span class=c1> </span><i class=\"g2810 fc084fc\">⠐</i><span class=c2>  </span><i class=\"g2804 fc084fc\">⠄</i><span class=c1> </span><span class=\"fc084fc c2\"><i class=g2801>⠁</i><i class=g2840>⡀</i></span><span class=c2>  </span><span class=\"fc084fc c2\"><i class=g2808>⠈</i><i class=g2820>⠠</i></span><span class=c1> </span><span class=\"fc084fc c2\"><i class=g2810>⠐</i><i class=g2880>⢀</i></span><span class=c1> </span><i class=\"g2804 fc084fc\">⠄</i><span class=c1> </span><span class=\"fc084fc c2\"><i class=g2802>⠂</i><i class=g2840>⡀</i></span><span class=c1> </span><span class=fc084fc><i class=g2804>⠄</i><i class=g2810>⠐</i><i class=g2880>⢀</i></span>\n<span class=c4>    </span><i class=\"g2502 f4b5060\">│</i><span class=c4>    </span><i class=\"g2808 fc084fc\">⠈</i><span class=c4>    </span><i class=\"g2801 fc084fc\">⠁</i><span class=c4>    </span><i class=\"g2801 fc084fc\">⠁</i><span class=c3>   </span><i class=\"g2808 fc084fc\">⠈</i><span class=c2>  </span><i class=\"g2802 fc084fc\">⠂</i><span class=c8>        </span><i class=\"g2808 fc084fc\">⠈</i><span class=c4>    </span><i class=\"g2801 fc084fc\">⠁</i><span class=c3>   </span><i class=\"g2808 fc084fc\">⠈</i><span class=c2>  </span><i class=\"g2810 fc084fc\">⠐</i><span class=c4>    </span><i class=\"g2801 fc084fc\">⠁</i>\n<span class=c4>    </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c1> </span><span class=\"f8b8f9a c3\">0ms</span><i class=\"g2502 f4b5060\">│</i>\n<span class=c4>    </span><span class=f4b5060><i class=g2514>└</i><i class=\"g2500 c55\">───────────────────────────────────────────────────────</i></span>",
         "light": "<span class=\"f6b7280 c4\">89ms</span><i class=\"g2502 f8a8a94\">│</i><span class=c6>      </span><i class=\"g2880 f7c3aed\">⢀</i><span class=c6>      </span><i class=\"g2804 f7c3aed\">⠄</i><span class=c5>     </span><i class=\"g2808 f7c3aed\">⠈</i><span class=c12>            </span><i class=\"g2880 f7c3aed\">⢀</i><span class=c6>      </span><i class=\"g2804 f7c3aed\">⠄</i><span class=c5>     </span><i class=\"g2808 f7c3aed\">⠈</i>\n<span class=c4>    </span><i class=\"g2502 f8a8a94\">│</i><i class=\"g2802 f7c3aed\">⠂</i><span class=c6>      </span><i class=\"g2880 f7c3aed\">⢀</i><span class=c4>    </span><i class=\"g2840 f7c3aed\">⡀</i><span class=c3>   </span><i class=\"g2880 f7c3aed\">⢀</i><span class=c9>         </span><i class=\"g2802 f7c3aed\">⠂</i><span class=c1> </span><i class=\"g2880 f7c3aed\">⢀</i><span class=c4>    </span><i class=\"g2880 f7c3aed\">⢀</i><span class=c4>    </span><i class=\"g2840 f7c3aed\">⡀</i><span class=c11>           </span><span class=\"f7c3aed c2\"><i class=g2840>⡀</i><i class=g2808>⠈</i></span><span class=c2>  </span><i class=\"g2880 f7c3aed\">⢀</i>\n<span class=c4>    </span><i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><span class=\"f7c3aed c3\"><i class=g2802>⠂</i><i class=g2840>⡀</i><i class=g2821>⠡</i></span><span class=c1> </span><i class=\"g2810 f7c3aed\">⠐</i><span class=c2>  </span><i class=\"g2820 f7c3aed\">⠠</i><span class=c1> </span><span class=\"f7c3aed c2\"><i class=g2802>⠂</i><i class=g2840>⡀</i></span><span class=c3>   </span><i class=\"g2881 f7c3aed\">⢁</i><span class=c1> </span><i class=\"g2810 f7c3aed\">⠐</i><span class=c2>  </span><i class=\"g2820 f7c3aed\">⠠</i><span class=c1> </span><span class=\"f7c3aed c4\"><i class=g2802>⠂</i><i class=g2840>⡀</i><i class=g2801>⠁</i><i class=g2804>⠄</i></span><span class=c1> </span><i class=\"g2882 f7c3aed\">⢂</i><span class=c1> </span><i class=\"g2820 f7c3aed\">⠠</i><span class=c1> </span><i class=\"g2810 f7c3aed\">⠐</i><span class=c2>  </span><i class=\"g2804 f7c3aed\">⠄</i><span class=c1> </span><span class=\"f7c3aed c2\"><i class=g2801>⠁</i><i class=g2840>⡀</i></span><span class=c2>  </span><span class=\"f7c3aed c2\"><i class=g2808>⠈</i><i class=g2820>⠠</i></span><span class=c1> </span><span class=\"f7c3aed c2\"><i class=g2810>⠐</i><i class=g2880>⢀</i></span><span class=c1> </span><i class=\"g2804 f7c3aed\">⠄</i><span class=c1> </span><span class=\"f7c3aed c2\"><i class=g2802>⠂</i><i class=g2840>⡀</i></span><span class=c1> </span><span class=f7c3aed><i class=g2804>⠄</i><i class=g2810>⠐</i><i class=g2880>⢀</i></span>\n<span class=c4>    </span><i class=\"g2502 f8a8a94\">│</i><span class=c4>    </span><i class=\"g2808 f7c3aed\">⠈</i><span class=c4>    </span><i class=\"g2801 f7c3aed\">⠁</i><span class=c4>    </span><i class=\"g2801 f7c3aed\">⠁</i><span class=c3>   </span><i class=\"g2808 f7c3aed\">⠈</i><span class=c2>  </span><i class=\"g2802 f7c3aed\">⠂</i><span class=c8>        </span><i class=\"g2808 f7c3aed\">⠈</i><span class=c4>    </span><i class=\"g2801 f7c3aed\">⠁</i><span class=c3>   </span><i class=\"g2808 f7c3aed\">⠈</i><span class=c2>  </span><i class=\"g2810 f7c3aed\">⠐</i><span class=c4>    </span><i class=\"g2801 f7c3aed\">⠁</i>\n<span class=c4>    </span><i class=\"g2502 f8a8a94\">│</i>\n<span class=c1> </span><span class=\"f6b7280 c3\">0ms</span><i class=\"g2502 f8a8a94\">│</i>\n<span class=c4>    </span><span class=f8a8a94><i class=g2514>└</i><i class=\"g2500 c55\">───────────────────────────────────────────────────────</i></span>"
       },
+      "csharpFluent": "LineChart chart = new LineChart().Height(7).Scatter(true).Unit(\"ms\");\nchart.AddSeries(\"latency\", ThemeToken.Accent2);\nfor (int i = 0; i < 60; i++)\n{\n    chart.Add(\"latency\", 40 + ((i * 37) % 23) + (i % 7 == 0 ? 30 : 0));\n}\n\nchart.Show();\n",
+      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\nLineChart chart = new LineChart().Height(7).Scatter(true).Unit(\"ms\");\nchart.AddSeries(\"latency\", ThemeToken.Accent2);\nfor (int i = 0; i < 60; i++)\n{\n    chart.Add(\"latency\", 40 + ((i * 37) % 23) + (i % 7 == 0 ? 30 : 0));\n}\n\nchart.Show();\n",
+      "csharpFluentFile": "Program.cs",
+      "apiMap": [
+        {
+          "powershell": "New-ConsoleChart -Height …",
+          "csharp": "Height = …",
+          "fluent": ".Height(…)",
+          "memberId": "ConsoleMonster.Widgets.LineChart.Height",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsoleChart -Type …",
+          "csharp": "Scatter = …",
+          "fluent": ".Scatter(…)",
+          "memberId": "ConsoleMonster.Widgets.LineChart.Scatter",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsoleChart -Unit …",
+          "csharp": "Unit = …",
+          "fluent": ".Unit(…)",
+          "memberId": "ConsoleMonster.Widgets.LineChart.Unit",
+          "note": null
+        },
+        {
+          "powershell": "| Show-Console",
+          "csharp": "Terminal.Write(widget)",
+          "fluent": ".Show()",
+          "memberId": "M:ConsoleMonster.Terminal.Write"
+        }
+      ],
       "parity": {
         "ps7": {
           "host": "PowerShell 7.6",
@@ -696,6 +1219,31 @@
         "dark": "<i class=\"g2588 f38bdf8\">█</i><i class=\"g2584 f3bbcf8\">▄</i><span class=c1> </span><i class=\"g2584 f42b9f8\">▄</i><i class=\"g2588 f46b7f8\">█</i><span class=c1> </span><i class=\"g2584 f4cb4f9\">▄</i><i class=\"g2580 f50b3f9\">▀</i><i class=\"g2580 f53b2f9\">▀</i><i class=\"g2580 f57b0f9\">▀</i><i class=\"g2584 f5aaff9\">▄</i><span class=c1> </span><i class=\"g2588 f61acf9\">█</i><span class=c3>   </span><i class=\"g2588 f6ea6fa\">█</i><span class=c1> </span><i class=\"g2584 f75a3fa\">▄</i><i class=\"g2580 f79a2fa\">▀</i><i class=\"g2580 f7ca0fa\">▀</i><i class=\"g2580 f7f9ffa\">▀</i><i class=\"g2580 f839efa\">▀</i><span class=c1> </span><i class=\"g2580 f8a9bfa\">▀</i><i class=\"g2580 f8d99fa\">▀</i><i class=\"g2588 f9098fb\">█</i><i class=\"g2580 f9497fb\">▀</i><i class=\"g2580 f9795fb\">▀</i><span class=c1> </span><i class=\"g2588 f9e92fb\">█</i><i class=\"g2580 fa191fb\">▀</i><i class=\"g2580 fa58ffb\">▀</i><i class=\"g2580 fa88efb\">▀</i><i class=\"g2580 fac8dfb\">▀</i><span class=c1> </span><i class=\"g2588 fb28afc\">█</i><i class=\"g2580 fb688fc\">▀</i><i class=\"g2580 fb987fc\">▀</i><i class=\"g2580 fbd85fc\">▀</i><i class=\"g2584 fc084fc\">▄</i>\n<i class=\"g2588 f38bdf8\">█</i><span class=c1> </span><i class=\"g2588 f3fbaf8\">█</i><span class=c1> </span><i class=\"g2588 f46b7f8\">█</i><span class=c1> </span><i class=\"g2588 f4cb4f9\">█</i><span class=c3>   </span><i class=\"g2588 f5aaff9\">█</i><span class=c1> </span><i class=\"g2588 f61acf9\">█</i><i class=\"g2580 f64aaf9\">▀</i><i class=\"g2584 f68a9f9\">▄</i><span class=c1> </span><i class=\"g2588 f6ea6fa\">█</i><span class=c1> </span><i class=\"g2580 f75a3fa\">▀</i><i class=\"g2584 f79a2fa\">▄</i><i class=\"g2584 f7ca0fa\">▄</i><i class=\"g2584 f7f9ffa\">▄</i><span class=c4>    </span><i class=\"g2588 f9098fb\">█</i><span class=c3>   </span><i class=\"g2588 f9e92fb\">█</i><i class=\"g2584 fa191fb\">▄</i><i class=\"g2584 fa58ffb\">▄</i><i class=\"g2584 fa88efb\">▄</i><span class=c2>  </span><i class=\"g2588 fb28afc\">█</i><i class=\"g2584 fb688fc\">▄</i><i class=\"g2584 fb987fc\">▄</i><i class=\"g2584 fbd85fc\">▄</i><i class=\"g2580 fc084fc\">▀</i>\n<i class=\"g2588 f38bdf8\">█</i><span class=c3>   </span><i class=\"g2588 f46b7f8\">█</i><span class=c1> </span><i class=\"g2588 f4cb4f9\">█</i><span class=c3>   </span><i class=\"g2588 f5aaff9\">█</i><span class=c1> </span><i class=\"g2588 f61acf9\">█</i><span class=c2>  </span><i class=\"g2580 f6ba8fa\">▀</i><i class=\"g2588 f6ea6fa\">█</i><span class=c5>     </span><i class=\"g2588 f839efa\">█</i><span class=c3>   </span><i class=\"g2588 f9098fb\">█</i><span class=c3>   </span><i class=\"g2588 f9e92fb\">█</i><span class=c5>     </span><i class=\"g2588 fb28afc\">█</i><span class=c1> </span><i class=\"g2580 fb987fc\">▀</i><i class=\"g2584 fbd85fc\">▄</i>\n<i class=\"g2580 f38bdf8\">▀</i><span class=c3>   </span><i class=\"g2580 f46b7f8\">▀</i><span class=c2>  </span><i class=\"g2580 f50b3f9\">▀</i><i class=\"g2580 f53b2f9\">▀</i><i class=\"g2580 f57b0f9\">▀</i><span class=c2>  </span><i class=\"g2580 f61acf9\">▀</i><span class=c3>   </span><i class=\"g2580 f6ea6fa\">▀</i><span class=c1> </span><i class=\"g2580 f75a3fa\">▀</i><i class=\"g2580 f79a2fa\">▀</i><i class=\"g2580 f7ca0fa\">▀</i><i class=\"g2580 f7f9ffa\">▀</i><span class=c4>    </span><i class=\"g2580 f9098fb\">▀</i><span class=c3>   </span><i class=\"g2580 f9e92fb\">▀</i><i class=\"g2580 fa191fb\">▀</i><i class=\"g2580 fa58ffb\">▀</i><i class=\"g2580 fa88efb\">▀</i><i class=\"g2580 fac8dfb\">▀</i><span class=c1> </span><i class=\"g2580 fb28afc\">▀</i><span class=c3>   </span><i class=\"g2580 fc084fc\">▀</i>\n<span class=f8b8f9a>zero-dependency console rendering</span>",
         "light": "<i class=\"g2588 f38bdf8\">█</i><i class=\"g2584 f3bbcf8\">▄</i><span class=c1> </span><i class=\"g2584 f42b9f8\">▄</i><i class=\"g2588 f46b7f8\">█</i><span class=c1> </span><i class=\"g2584 f4cb4f9\">▄</i><i class=\"g2580 f50b3f9\">▀</i><i class=\"g2580 f53b2f9\">▀</i><i class=\"g2580 f57b0f9\">▀</i><i class=\"g2584 f5aaff9\">▄</i><span class=c1> </span><i class=\"g2588 f61acf9\">█</i><span class=c3>   </span><i class=\"g2588 f6ea6fa\">█</i><span class=c1> </span><i class=\"g2584 f75a3fa\">▄</i><i class=\"g2580 f79a2fa\">▀</i><i class=\"g2580 f7ca0fa\">▀</i><i class=\"g2580 f7f9ffa\">▀</i><i class=\"g2580 f839efa\">▀</i><span class=c1> </span><i class=\"g2580 f8a9bfa\">▀</i><i class=\"g2580 f8d99fa\">▀</i><i class=\"g2588 f9098fb\">█</i><i class=\"g2580 f9497fb\">▀</i><i class=\"g2580 f9795fb\">▀</i><span class=c1> </span><i class=\"g2588 f9e92fb\">█</i><i class=\"g2580 fa191fb\">▀</i><i class=\"g2580 fa58ffb\">▀</i><i class=\"g2580 fa88efb\">▀</i><i class=\"g2580 fac8dfb\">▀</i><span class=c1> </span><i class=\"g2588 fb28afc\">█</i><i class=\"g2580 fb688fc\">▀</i><i class=\"g2580 fb987fc\">▀</i><i class=\"g2580 fbd85fc\">▀</i><i class=\"g2584 fc084fc\">▄</i>\n<i class=\"g2588 f38bdf8\">█</i><span class=c1> </span><i class=\"g2588 f3fbaf8\">█</i><span class=c1> </span><i class=\"g2588 f46b7f8\">█</i><span class=c1> </span><i class=\"g2588 f4cb4f9\">█</i><span class=c3>   </span><i class=\"g2588 f5aaff9\">█</i><span class=c1> </span><i class=\"g2588 f61acf9\">█</i><i class=\"g2580 f64aaf9\">▀</i><i class=\"g2584 f68a9f9\">▄</i><span class=c1> </span><i class=\"g2588 f6ea6fa\">█</i><span class=c1> </span><i class=\"g2580 f75a3fa\">▀</i><i class=\"g2584 f79a2fa\">▄</i><i class=\"g2584 f7ca0fa\">▄</i><i class=\"g2584 f7f9ffa\">▄</i><span class=c4>    </span><i class=\"g2588 f9098fb\">█</i><span class=c3>   </span><i class=\"g2588 f9e92fb\">█</i><i class=\"g2584 fa191fb\">▄</i><i class=\"g2584 fa58ffb\">▄</i><i class=\"g2584 fa88efb\">▄</i><span class=c2>  </span><i class=\"g2588 fb28afc\">█</i><i class=\"g2584 fb688fc\">▄</i><i class=\"g2584 fb987fc\">▄</i><i class=\"g2584 fbd85fc\">▄</i><i class=\"g2580 fc084fc\">▀</i>\n<i class=\"g2588 f38bdf8\">█</i><span class=c3>   </span><i class=\"g2588 f46b7f8\">█</i><span class=c1> </span><i class=\"g2588 f4cb4f9\">█</i><span class=c3>   </span><i class=\"g2588 f5aaff9\">█</i><span class=c1> </span><i class=\"g2588 f61acf9\">█</i><span class=c2>  </span><i class=\"g2580 f6ba8fa\">▀</i><i class=\"g2588 f6ea6fa\">█</i><span class=c5>     </span><i class=\"g2588 f839efa\">█</i><span class=c3>   </span><i class=\"g2588 f9098fb\">█</i><span class=c3>   </span><i class=\"g2588 f9e92fb\">█</i><span class=c5>     </span><i class=\"g2588 fb28afc\">█</i><span class=c1> </span><i class=\"g2580 fb987fc\">▀</i><i class=\"g2584 fbd85fc\">▄</i>\n<i class=\"g2580 f38bdf8\">▀</i><span class=c3>   </span><i class=\"g2580 f46b7f8\">▀</i><span class=c2>  </span><i class=\"g2580 f50b3f9\">▀</i><i class=\"g2580 f53b2f9\">▀</i><i class=\"g2580 f57b0f9\">▀</i><span class=c2>  </span><i class=\"g2580 f61acf9\">▀</i><span class=c3>   </span><i class=\"g2580 f6ea6fa\">▀</i><span class=c1> </span><i class=\"g2580 f75a3fa\">▀</i><i class=\"g2580 f79a2fa\">▀</i><i class=\"g2580 f7ca0fa\">▀</i><i class=\"g2580 f7f9ffa\">▀</i><span class=c4>    </span><i class=\"g2580 f9098fb\">▀</i><span class=c3>   </span><i class=\"g2580 f9e92fb\">▀</i><i class=\"g2580 fa191fb\">▀</i><i class=\"g2580 fa58ffb\">▀</i><i class=\"g2580 fa88efb\">▀</i><i class=\"g2580 fac8dfb\">▀</i><span class=c1> </span><i class=\"g2580 fb28afc\">▀</i><span class=c3>   </span><i class=\"g2580 fc084fc\">▀</i>\n<span class=f6b7280>zero-dependency console rendering</span>"
       },
+      "csharpFluent": "new Logo(\"Monster\", \"[muted]zero-dependency console rendering[/]\").Show();\n",
+      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Widgets;\n\nnew Logo(\"Monster\", \"[muted]zero-dependency console rendering[/]\").Show();\n",
+      "csharpFluentFile": "Program.cs",
+      "apiMap": [
+        {
+          "powershell": "New-ConsoleLogo -Tagline …",
+          "csharp": "Tagline = …",
+          "fluent": ".Tagline(…)",
+          "memberId": "ConsoleMonster.Widgets.Logo.Tagline",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsoleLogo -Text …",
+          "csharp": "Text = …",
+          "fluent": ".Text(…)",
+          "memberId": "ConsoleMonster.Widgets.Logo.Text",
+          "note": null
+        },
+        {
+          "powershell": "| Show-Console",
+          "csharp": "Terminal.Write(widget)",
+          "fluent": ".Show()",
+          "memberId": "M:ConsoleMonster.Terminal.Write"
+        }
+      ],
       "parity": {
         "ps7": {
           "host": "PowerShell 7.6",

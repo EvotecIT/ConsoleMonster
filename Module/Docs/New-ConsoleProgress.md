@@ -18,7 +18,7 @@ New-ConsoleProgress [[-WidgetId] <string>] [[-Label] <Object>] [-Status <StatusK
 
 ### Indeterminate
 ```powershell
-New-ConsoleProgress [[-WidgetId] <string>] [[-Label] <Object>] -Indeterminate [-Status <StatusKind>] [-Detail <Object>] [-NoElapsed] [<CommonParameters>]
+New-ConsoleProgress [[-WidgetId] <string>] [[-Label] <Object>] -Indeterminate [-Status <StatusKind>] [-Detail <Object>] [-NoElapsed] [-StartedSeconds <Double>] [-FinishedSeconds <Double>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -45,7 +45,7 @@ Show work with no known total
 ## PARAMETERS
 
 ### -Columns
-Ordered built-in column names or typed ProgressColumn objects.
+Ordered builtin column names, Type/Alignment/Priority/MaxWidth records or typed ProgressColumn objects.
 
 ```yaml
 Type: Object[]
@@ -81,6 +81,22 @@ The muted indeterminate activity detail.
 
 ```yaml
 Type: Object
+Parameter Sets: Indeterminate
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -FinishedSeconds
+Initial indeterminate completion time on the session clock, in seconds.
+
+```yaml
+Type: Double
 Parameter Sets: Indeterminate
 Aliases: None
 Possible values:
@@ -196,6 +212,22 @@ Type: BarShape
 Parameter Sets: Bar
 Aliases: None
 Possible values: Block, Line
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -StartedSeconds
+Initial indeterminate start time on the session clock, in seconds.
+
+```yaml
+Type: Double
+Parameter Sets: Indeterminate
+Aliases: None
+Possible values:
 
 Required: False
 Position: named

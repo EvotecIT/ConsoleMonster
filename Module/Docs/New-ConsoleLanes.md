@@ -13,7 +13,7 @@ Each lane shows a status marker (a spinner while running), a progress bar, pass/
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleLanes [[-WidgetId] <string>] [[-Content] <scriptblock>] [-InputObject <psobject>] [-Lane <Object[]>] [-Total <double>] [-Shape <BarShape>] [-Columns <string[]>] [-HideCompleted] [-CollapseWhenFinished] [-Transient] [-CountColumn <ColumnFormat>] [-PercentColumn <ColumnFormat>] [<CommonParameters>]
+New-ConsoleLanes [[-WidgetId] <string>] [[-Content] <scriptblock>] [-InputObject <psobject>] [-Lane <Object[]>] [-Total <double>] [-Shape <BarShape>] [-Columns <Object[]>] [-HideCompleted] [-CollapseWhenFinished] [-Transient] [-CountColumn <ColumnFormat>] [-PercentColumn <ColumnFormat>] [-MaxLabelWidth <int>] [-NoDetail] [-CountSkipped] [-NoDimPending] [-BoldActive] [-ShowRunningCount] [-CollapseWhen <StatusKind>] [-RateWindowSeconds <double>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -43,6 +43,38 @@ Lanes at different points, printed once
 
 ## PARAMETERS
 
+### -BoldActive
+Emphasizes active lane labels.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -CollapseWhen
+Collapses lanes with this status into a summary.
+
+```yaml
+Type: StatusKind
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: Pending, Running, Pass, Fail, Warn, Skip, Info
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -CollapseWhenFinished
 Collapses the display to one summary line once every lane has finished.
 
@@ -60,13 +92,13 @@ Accept wildcard characters: False
 ```
 
 ### -Columns
-The columns of each row, in order: Standard (spinner, description, bar, percent, count, elapsed, remaining time, status), or any of Spinner, Description, Bar, Percent, Count, Elapsed, Remaining, Rate, ByteRate, Results and Status. Without it the classic layout shows the label, bar, percentage, pass/fail/warning counts and detail.
+Builtin names, Type/Alignment/Priority/MaxWidth records or typed columns, in order: Standard (spinner, description, bar, percent, count, elapsed, remaining time, status), or any of Spinner, Description, Bar, Percent, Count, Elapsed, Remaining, Rate, ByteRate, Results and Status. Without it the classic layout shows the label, bar, percentage, pass/fail/warning counts and detail.
 
 ```yaml
-Type: String[]
+Type: Object[]
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: Standard, Spinner, Description, Bar, Percent, Count, Elapsed, Remaining, Rate, ByteRate, Results, Status
+Possible values:
 
 Required: False
 Position: named
@@ -96,6 +128,22 @@ Shared CountColumn layout settings from New-ConsoleColumnFormat.
 
 ```yaml
 Type: ColumnFormat
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -CountSkipped
+Includes skipped work in the completed count.
+
+```yaml
+Type: SwitchParameter
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -155,11 +203,75 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -MaxLabelWidth
+Maximum lane label width in cells; default 28.
+
+```yaml
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NoDetail
+Hides each lane's detail text.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NoDimPending
+Uses normal text instead of dimming pending lanes.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -PercentColumn
 Shared PercentColumn layout settings from New-ConsoleColumnFormat.
 
 ```yaml
 Type: ColumnFormat
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -RateWindowSeconds
+Rate-estimation window in seconds; default 10.
+
+```yaml
+Type: Double
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -179,6 +291,22 @@ Type: BarShape
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values: Block, Line
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ShowRunningCount
+Shows a separate count of running lanes.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
 
 Required: False
 Position: named

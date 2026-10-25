@@ -13,17 +13,17 @@ Table and List are idiomatic shortcuts to the same view construction and output 
 ## SYNTAX
 ### Objects (Default)
 ```powershell
-Show-Console [[-InputObject] <psobject>] [-View <string>] [-Property <Object[]>] [-GroupBy <Object>] [-Title <Object>] [-Caption <Object>] [-Width <int>] [-Culture <cultureinfo>] [-AsString] [-AsWidget] [-PassThru] [-ShowTotals] [-MaxRows <int>] [-Border <TableBorder>] [-CardsBelow <int>] [-NoHeaderSeparator] [-Expand] [-StatusProperty <string>] [-ShowGroupColumn] [-NoSort] [-Wrap] [-ShowEmpty] [-Depth <int>] [-ChildrenProperty <string>] [-Children <scriptblock>] [-LabelProperty <string>] [-DetailProperty <string>] [-MaxItems <int>] [-MaxNodes <int>] [-Include <string[]>] [-Exclude <string[]>] [-Language <string>] [-LineNumbers] [-Highlight <string[]>] [-FirstLine <int>] [-MaxLines <int>] [-NoTitle] [-Type <ChartType>] [-Label <Object>] [-Sort <PipelineChartSort>] [-Bins <int>] [-Unit <string>] [-ShowFrameworkFrames] [-MaxFrames <int>] [-NoStack] [-Compact] [-MaxInner <int>] [-NoSource] [-NoPager] [-Alignment <HorizontalAlignment>] [-TitleIndent <Int32>] [-WrapHeaders] [-KeepAllColumns] [-GroupHeadersAsRows] [-RecordViewRows <int>] [-ShowKeyField] [-NoHiddenColumns] [-NoStableWidths] [-NoHeader] [-AlwaysCards] [-RowTitles <string[]>] [-ShowSubtotals] [-TotalLabel <string>] [-WrapLines <int>] [-TotalRowCount <Int32>] [-Presentation <PresentationOptions>] [<CommonParameters>]
+Show-Console [[-InputObject] <psobject>] [-View <string>] [-Property <Object[]>] [-GroupBy <Object>] [-Title <Object>] [-Caption <Object>] [-Width <int>] [-Culture <cultureinfo>] [-AsString] [-AsWidget] [-PassThru] [-ShowTotals] [-MaxRows <int>] [-Border <TableBorder>] [-CardsBelow <int>] [-NoHeaderSeparator] [-Expand] [-StatusProperty <string>] [-ShowGroupColumn] [-NoSort] [-Wrap] [-ShowEmpty] [-Depth <int>] [-ChildrenProperty <string>] [-Children <scriptblock>] [-LabelProperty <string>] [-DetailProperty <string>] [-MaxItems <int>] [-MaxNodes <int>] [-Include <string[]>] [-Exclude <string[]>] [-Language <string>] [-LineNumbers] [-Highlight <string[]>] [-FirstLine <int>] [-MaxLines <int>] [-NoTitle] [-Type <ChartType>] [-Label <Object>] [-Sort <PipelineChartSort>] [-Bins <int>] [-Unit <string>] [-ShowFrameworkFrames] [-MaxFrames <int>] [-NoStack] [-Compact] [-MaxInner <int>] [-NoSource] [-NoPager] [-Alignment <HorizontalAlignment>] [-LineRole <ThemeToken>] [-LineStyle <BoxStyle>] [-TitleIndent <Int32>] [-WrapHeaders] [-KeepAllColumns] [-GroupHeadersAsRows] [-RecordViewRows <int>] [-ShowKeyField] [-NoHiddenColumns] [-NoStableWidths] [-NoHeader] [-AlwaysCards] [-RowTitles <string[]>] [-ShowSubtotals] [-TotalLabel <string>] [-WrapLines <int>] [-TotalRowCount <Int32>] [-Presentation <PresentationOptions>] [<CommonParameters>]
 ```
 
 ### Path
 ```powershell
-Show-Console -Path <string> [-View <string>] [-Property <Object[]>] [-GroupBy <Object>] [-Title <Object>] [-Caption <Object>] [-Width <int>] [-Culture <cultureinfo>] [-AsString] [-AsWidget] [-PassThru] [-ShowTotals] [-MaxRows <int>] [-Border <TableBorder>] [-CardsBelow <int>] [-NoHeaderSeparator] [-Expand] [-StatusProperty <string>] [-ShowGroupColumn] [-NoSort] [-Wrap] [-ShowEmpty] [-Depth <int>] [-ChildrenProperty <string>] [-Children <scriptblock>] [-LabelProperty <string>] [-DetailProperty <string>] [-MaxItems <int>] [-MaxNodes <int>] [-Include <string[]>] [-Exclude <string[]>] [-Language <string>] [-LineNumbers] [-Highlight <string[]>] [-FirstLine <int>] [-MaxLines <int>] [-NoTitle] [-Type <ChartType>] [-Label <Object>] [-Sort <PipelineChartSort>] [-Bins <int>] [-Unit <string>] [-ShowFrameworkFrames] [-MaxFrames <int>] [-NoStack] [-Compact] [-MaxInner <int>] [-NoSource] [-NoPager] [-Alignment <HorizontalAlignment>] [-TitleIndent <Int32>] [-WrapHeaders] [-KeepAllColumns] [-GroupHeadersAsRows] [-RecordViewRows <int>] [-ShowKeyField] [-NoHiddenColumns] [-NoStableWidths] [-NoHeader] [-AlwaysCards] [-RowTitles <string[]>] [-ShowSubtotals] [-TotalLabel <string>] [-WrapLines <int>] [-TotalRowCount <Int32>] [-Presentation <PresentationOptions>] [<CommonParameters>]
+Show-Console -Path <string> [-View <string>] [-Property <Object[]>] [-GroupBy <Object>] [-Title <Object>] [-Caption <Object>] [-Width <int>] [-Culture <cultureinfo>] [-AsString] [-AsWidget] [-PassThru] [-ShowTotals] [-MaxRows <int>] [-Border <TableBorder>] [-CardsBelow <int>] [-NoHeaderSeparator] [-Expand] [-StatusProperty <string>] [-ShowGroupColumn] [-NoSort] [-Wrap] [-ShowEmpty] [-Depth <int>] [-ChildrenProperty <string>] [-Children <scriptblock>] [-LabelProperty <string>] [-DetailProperty <string>] [-MaxItems <int>] [-MaxNodes <int>] [-Include <string[]>] [-Exclude <string[]>] [-Language <string>] [-LineNumbers] [-Highlight <string[]>] [-FirstLine <int>] [-MaxLines <int>] [-NoTitle] [-Type <ChartType>] [-Label <Object>] [-Sort <PipelineChartSort>] [-Bins <int>] [-Unit <string>] [-ShowFrameworkFrames] [-MaxFrames <int>] [-NoStack] [-Compact] [-MaxInner <int>] [-NoSource] [-NoPager] [-Alignment <HorizontalAlignment>] [-LineRole <ThemeToken>] [-LineStyle <BoxStyle>] [-TitleIndent <Int32>] [-WrapHeaders] [-KeepAllColumns] [-GroupHeadersAsRows] [-RecordViewRows <int>] [-ShowKeyField] [-NoHiddenColumns] [-NoStableWidths] [-NoHeader] [-AlwaysCards] [-RowTitles <string[]>] [-ShowSubtotals] [-TotalLabel <string>] [-WrapLines <int>] [-TotalRowCount <Int32>] [-Presentation <PresentationOptions>] [<CommonParameters>]
 ```
 
 ### Content
 ```powershell
-Show-Console -Content <Object> [-View <string>] [-Property <Object[]>] [-GroupBy <Object>] [-Title <Object>] [-Caption <Object>] [-Width <int>] [-Culture <cultureinfo>] [-AsString] [-AsWidget] [-PassThru] [-ShowTotals] [-MaxRows <int>] [-Border <TableBorder>] [-CardsBelow <int>] [-NoHeaderSeparator] [-Expand] [-StatusProperty <string>] [-ShowGroupColumn] [-NoSort] [-Wrap] [-ShowEmpty] [-Depth <int>] [-ChildrenProperty <string>] [-Children <scriptblock>] [-LabelProperty <string>] [-DetailProperty <string>] [-MaxItems <int>] [-MaxNodes <int>] [-Include <string[]>] [-Exclude <string[]>] [-Language <string>] [-LineNumbers] [-Highlight <string[]>] [-FirstLine <int>] [-MaxLines <int>] [-NoTitle] [-Type <ChartType>] [-Label <Object>] [-Sort <PipelineChartSort>] [-Bins <int>] [-Unit <string>] [-ShowFrameworkFrames] [-MaxFrames <int>] [-NoStack] [-Compact] [-MaxInner <int>] [-NoSource] [-NoPager] [-Alignment <HorizontalAlignment>] [-TitleIndent <Int32>] [-WrapHeaders] [-KeepAllColumns] [-GroupHeadersAsRows] [-RecordViewRows <int>] [-ShowKeyField] [-NoHiddenColumns] [-NoStableWidths] [-NoHeader] [-AlwaysCards] [-RowTitles <string[]>] [-ShowSubtotals] [-TotalLabel <string>] [-WrapLines <int>] [-TotalRowCount <Int32>] [-Presentation <PresentationOptions>] [<CommonParameters>]
+Show-Console -Content <Object> [-View <string>] [-Property <Object[]>] [-GroupBy <Object>] [-Title <Object>] [-Caption <Object>] [-Width <int>] [-Culture <cultureinfo>] [-AsString] [-AsWidget] [-PassThru] [-ShowTotals] [-MaxRows <int>] [-Border <TableBorder>] [-CardsBelow <int>] [-NoHeaderSeparator] [-Expand] [-StatusProperty <string>] [-ShowGroupColumn] [-NoSort] [-Wrap] [-ShowEmpty] [-Depth <int>] [-ChildrenProperty <string>] [-Children <scriptblock>] [-LabelProperty <string>] [-DetailProperty <string>] [-MaxItems <int>] [-MaxNodes <int>] [-Include <string[]>] [-Exclude <string[]>] [-Language <string>] [-LineNumbers] [-Highlight <string[]>] [-FirstLine <int>] [-MaxLines <int>] [-NoTitle] [-Type <ChartType>] [-Label <Object>] [-Sort <PipelineChartSort>] [-Bins <int>] [-Unit <string>] [-ShowFrameworkFrames] [-MaxFrames <int>] [-NoStack] [-Compact] [-MaxInner <int>] [-NoSource] [-NoPager] [-Alignment <HorizontalAlignment>] [-LineRole <ThemeToken>] [-LineStyle <BoxStyle>] [-TitleIndent <Int32>] [-WrapHeaders] [-KeepAllColumns] [-GroupHeadersAsRows] [-RecordViewRows <int>] [-ShowKeyField] [-NoHiddenColumns] [-NoStableWidths] [-NoHeader] [-AlwaysCards] [-RowTitles <string[]>] [-ShowSubtotals] [-TotalLabel <string>] [-WrapLines <int>] [-TotalRowCount <Int32>] [-Presentation <PresentationOptions>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -482,6 +482,38 @@ Type: SwitchParameter
 Parameter Sets: Objects, Path, Content
 Aliases: None
 Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -LineRole
+Theme role for a rule line; default Border.
+
+```yaml
+Type: ThemeToken
+Parameter Sets: Objects, Path, Content
+Aliases: None
+Possible values: Text, Muted, Subtle, Accent, Accent2, Pass, Fail, Warn, Info, Skip, Running, Pending, Border, Title, Header, Highlight, Surface, SurfaceAccent, Series1, Series2, Series3, Series4, Series5, Series6, Focus
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -LineStyle
+Optional rule line glyph style.
+
+```yaml
+Type: BoxStyle
+Parameter Sets: Objects, Path, Content
+Aliases: None
+Possible values: Rounded, Single, Double, Heavy, Ascii, None
 
 Required: False
 Position: named
