@@ -214,7 +214,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Assert.True(SpinWait.SpinUntil(() => {
                 view.Poll(TimeSpan.Zero);
                 frame = FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, 100, 30, false, TimeSpan.Zero)), 100, 30, Context).ToPlainText();
-                return frame.Contains("Refresh: completed") && frame.Contains("Action output");
+                return frame.Contains("Refresh: completed") && frame.Contains("Action output") && !frame.Contains("F6 cancel action");
             }, TimeSpan.FromSeconds(5)));
             Assert.Contains("Selected row", frame); Assert.Contains("Action output", frame); Assert.Contains("Refreshed", frame);
             // This golden protects the layout, independently of the real action stopwatch.
