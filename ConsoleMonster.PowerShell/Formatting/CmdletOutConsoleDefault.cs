@@ -167,7 +167,7 @@ namespace ConsoleMonster.PowerShell {
             if (Format != null) {
                 FlushExportObjects();
                 if (_exportWidgets.Count > 0) {
-                    WriteObject(ConsoleMonster.Export.ConsoleExporter.Export(PSFormatting.Combine(_exportWidgets), PSOutputExport.Format(Format), new ConsoleMonster.Export.ExportOptions { Width = Width }));
+                    WriteObject(PSOutputExport.Export(PSFormatting.Combine(_exportWidgets), Format, new ConsoleMonster.Export.ExportOptions { Width = Width }));
                 }
             }
             _inner?.End();

@@ -1,3 +1,4 @@
+using ConsoleMonster.Export;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 using ConsoleMonster.Widgets;
 
-namespace ConsoleMonster.Export {
+namespace ConsoleMonster.Markdown {
     /// <summary>Serializes widget data using its existing presenters, without interpreting rendered box characters.</summary>
     internal static class MarkdownWidgetWriter {
         internal static string Write(IWidget widget, ExportOptions options) {

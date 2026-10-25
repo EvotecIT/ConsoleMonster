@@ -62,6 +62,7 @@ namespace ConsoleMonster.PowerShell {
                 SessionRecording recording = SessionRecording.Read(cast);
                 string document = FinalFrame.IsPresent ? recording.ExportFinalSvg(new ExportOptions { Theme = Theme, Title = recording.Title, WindowChrome = !NoWindowChrome.IsPresent, ChromeStyle = ChromeStyle })
                     : extension == ".json" ? recording.ExportPlayerData(new RecordingExportOptions { Theme = Theme, Title = recording.Title, WindowChrome = !NoWindowChrome.IsPresent, ChromeStyle = ChromeStyle })
+                    : PSOutputExport.IsMarkdown(PSOutputExport.FormatFor(null, destination)) ? MarkdownExportBridge.Recording(recording)
                     : recording.Export(ConsoleExporter.FormatFor(destination), new RecordingExportOptions { Theme = Theme, Title = recording.Title, WindowChrome = !NoWindowChrome.IsPresent, ChromeStyle = ChromeStyle });
                 File.WriteAllText(destination, document, new UTF8Encoding(false));
             }

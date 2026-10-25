@@ -72,6 +72,18 @@ conditions. Inferred property columns use alphabetical order when native metadat
 This AOT support applies to applications consuming the .NET library. The PowerShell module runs inside Windows
 PowerShell or PowerShell 7 and is not itself a standalone native executable.
 
+## Optional add-ons and dependencies
+
+| Package | Job | Runtime dependency |
+| --- | --- | --- |
+| `ConsoleMonster` | Terminal rendering and text/HTML/SVG/asciicast output | None |
+| `ConsoleMonster.Markdown` | Markdown display and widget/frame/recording export | OfficeIMO.Markdown |
+| `ConsoleMonster.Graphics` | PNG, GIF and APNG rendering | ChartForgeX and ChartForgeX.Stories |
+| `ConsoleMonster.Hosting` | Hosted-service dashboard | Microsoft.Extensions.Hosting.Abstractions |
+| `ConsoleMonster.Extensions.Logging` | Dashboard logging provider | Microsoft.Extensions.Logging.Abstractions |
+
+The PowerShell module includes the Markdown and Graphics bridges and loads them on first use. C# applications add the package for the output they need. [Add-ons](/docs/add-ons/) describes these boundaries.
+
 ## One version per session
 
 Windows PowerShell 5.1 loads only one version of an assembly per session, so two modules that need different ConsoleMonster versions cannot both load there; PowerShell 7 isolates binary modules in their own load context. Products that use ConsoleMonster ship and require the same, current version.

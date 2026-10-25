@@ -93,7 +93,7 @@ Next:
 
 ## Ownership
 
-ConsoleMonster owns terminal views and their text, Markdown, HTML and SVG exports. Markdown export preserves table and tree semantics where the view supplies them; HTML and SVG exports reproduce the terminal frame. OfficeIMO reads Markdown through the optional ConsoleMonster.Markdown package. Full document authoring belongs to OfficeIMO, and application HTML belongs to HtmlForgeX.
+ConsoleMonster owns terminal views and their text, HTML and SVG exports. The core never emits Markdown; the `ConsoleMonster.Markdown` add-on owns Markdown display and export. Markdown belongs to OfficeIMO: the add-on uses OfficeIMO.Markdown for reading and document blocks, with widget-specific presenter output kept in the bridge. Raster and PNG rendering live in `ConsoleMonster.Graphics`, backed by ChartForgeX. Full document authoring belongs to OfficeIMO, and application HTML belongs to HtmlForgeX.
 
 ## Decided: command-line parsing
 

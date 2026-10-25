@@ -242,7 +242,6 @@ namespace ConsoleMonster.Tests.Sessions {
             Assert.StartsWith("OKady", ConsoleExporter.ToText(frame));
             Assert.Contains("Done", ConsoleExporter.ToText(frame));
             Assert.Equal(ConsoleMonster.Styling.Color.FromAnsi16(2), frame[2, 0].Style.Color);
-            Assert.Contains("```", recording.Export(ExportFormat.Markdown));
             Assert.Contains("Done", recording.Export(ExportFormat.Text));
             Assert.Contains("16x5", recording.ToAsciicast());
         }

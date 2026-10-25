@@ -72,16 +72,25 @@ Describe 'ConsoleMonster exports' {
         $html | Should -Match 'ConsoleMonsterPlayer'
         $html | Should -Not -Match 'src="http'
 
-        # Markdown is a frame format. Recording destinations keep their existing HTML fallback for other extensions.
-        foreach ($extension in 'txt', 'md', 'markdown') {
+        # Text keeps its existing dashboard HTML fallback; Markdown is owned by the bundled add-on.
+        foreach ($extension in 'txt') {
             $fallbackPath = Join-Path $TestDrive ('run.' + $extension)
             Export-ConsoleRecording -Dashboard $dashboard -Path $recording -Destination $fallbackPath -Width 60 -Height 8
             Get-Content -LiteralPath $fallbackPath -Raw -Encoding UTF8 | Should -Match 'ConsoleMonsterPlayer'
         }
+        foreach ($extension in 'md', 'markdown') {
+            $markdownPath = Join-Path $TestDrive ('run.' + $extension)
+            Export-ConsoleRecording -Dashboard $dashboard -Path $recording -Destination $markdownPath -Width 60 -Height 16
+            $markdown = Get-Content -LiteralPath $markdownPath -Raw -Encoding UTF8
+            $markdown | Should -Match '^### 00:00:00'
+            $markdown | Should -Match '```text'
+            $markdown | Should -Match 'Build'
+            $markdown | Should -Not -Match '<html|ConsoleMonsterPlayer'
+        }
 
         $dataPath = Join-Path $TestDrive 'run.json'
         $fenced = Export-ConsoleRecording -Dashboard $dashboard -Path $recording -Format FencedText -Width 60 -Height 8
-        $fenced | Should -Be (Export-ConsoleRecording -Dashboard $dashboard -Path $recording -Format Html -Width 60 -Height 8)
+        $fenced | Should -Be (Export-ConsoleRecording -Dashboard $dashboard -Path $recording -Format Markdown -Width 60 -Height 8)
         Export-ConsoleRecording -Dashboard $dashboard -Path $recording -Destination $dataPath -Width 60 -Height 8
         $data = Get-Content -LiteralPath $dataPath -Raw -Encoding UTF8 | ConvertFrom-Json
         $data.format | Should -Be 'consolemonster-player'

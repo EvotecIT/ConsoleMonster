@@ -3,6 +3,31 @@ Describe 'Markdown reader adapter contracts' {
         Import-Module (Join-Path $PSScriptRoot '../ConsoleMonster.psd1') -Force
     }
 
+    It 'loads the bundled Markdown exporter only when a Markdown operation is requested' {
+        . (Join-Path $PSScriptRoot 'Support/Invoke-TestChild.ps1')
+        $module = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../ConsoleMonster.psd1'))
+        $script = @'
+$ErrorActionPreference = 'Stop'
+Import-Module '__MODULE__' -Force
+function Assert-MarkdownNotLoaded {
+    if (@([AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.GetName().Name -in 'ConsoleMonster.Markdown', 'OfficeIMO.Markdown' }).Count) { throw 'A core operation eagerly loaded Markdown.' }
+}
+Assert-MarkdownNotLoaded
+$rows = @([pscustomobject]@{ Host = 'first'; Count = 2 }, [pscustomobject]@{ Host = 'second'; Count = 3 })
+$null = $rows | Export-ConsoleFrame -Format Text
+Assert-MarkdownNotLoaded
+$markdown = $rows | Export-ConsoleFrame -Format Markdown
+if ($markdown -notmatch '\| first \| 2 \|' -or $markdown -notmatch '\| second \| 3 \|') { throw 'The lazy exporter lost ordinary object rows.' }
+if (@([AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.GetName().Name -eq 'ConsoleMonster.Markdown' }).Count -ne 1) { throw 'The bundled add-on was not loaded exactly once.' }
+$fenced = $rows | Export-ConsoleFrame -Format FencedText
+if ($fenced -notmatch '^```text') { throw 'FencedText did not use the add-on.' }
+'LAZY-MARKDOWN-OK'
+'@
+        $output = Invoke-TestChild -Runtime ([Diagnostics.Process]::GetCurrentProcess().Path) -Script ($script.Replace('__MODULE__', $module.Replace("'", "''")))
+        $LASTEXITCODE | Should -Be 0 -Because ($output -join "`n")
+        ($output -join "`n") | Should -Match LAZY-MARKDOWN-OK
+    }
+
     It 'renders inline content and literal markup without interpreting document text as console markup' {
         $text = Show-ConsoleMarkdown -Content '# Notes' -AsString -Width 60
         $text | Should -Match 'Notes'

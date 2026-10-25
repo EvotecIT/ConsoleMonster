@@ -1,15 +1,19 @@
 using System;
 using System.Globalization;
+using System.IO;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Export;
+using ConsoleMonster.Markdown;
 using ConsoleMonster.Layout;
+using ConsoleMonster.Live;
+using ConsoleMonster.Sessions;
 using ConsoleMonster.Presenters;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
 using Xunit;
 
-namespace ConsoleMonster.Tests.Export {
+namespace ConsoleMonster.Extensions.Tests.Markdown {
     public sealed class MarkdownExportTests {
         [Theory]
         [InlineData(GlyphTier.Full)]
@@ -24,10 +28,10 @@ namespace ConsoleMonster.Tests.Export {
             IWidget widget = new Rows(table, new TextBlock("**literal** <script>\n```\n````") { IsMarkup = false });
             ExportOptions options = new ExportOptions { Width = 35, Glyphs = glyphs, Culture = CultureInfo.GetCultureInfo("pl-PL") };
             string text = ConsoleExporter.ToText(widget, options);
-            string markdown = ConsoleExporter.Export(widget, ExportFormat.Markdown, options);
+            string markdown = MarkdownExporter.Export(widget, options);
             Assert.Contains("| Host | Status | Amount |\n| :--- | :--- | ---: |", markdown);
             Assert.Contains("| 日本 | Ready | 12,5 |", markdown);
-            Assert.Equal("`````text\n" + text + "`````\n", ConsoleExporter.Export(widget, ExportFormat.FencedText, options));
+            Assert.Equal("~~~text\n" + text + "~~~\n", MarkdownExporter.Export(widget, options, fenced: true));
             Assert.Contains("Ready", markdown);
             Assert.Contains("12,5", markdown);
             Assert.DoesNotContain("[pass]", markdown);
@@ -39,7 +43,7 @@ namespace ConsoleMonster.Tests.Export {
             CellBuffer frame = new CellBuffer(30, 3);
             frame.Write(0, 0, "日本 **bold** | <tag>", Style.Plain);
             frame.Write(0, 1, "  ``` trailing", Style.Plain);
-            Assert.Equal("````text\n" + ConsoleExporter.ToText(frame) + "````\n", ConsoleExporter.Export(frame, ExportFormat.Markdown));
+            Assert.Equal("~~~text\n" + ConsoleExporter.ToText(frame) + "~~~\n", MarkdownExporter.Export(frame));
         }
 
         [Fact]
@@ -49,7 +53,7 @@ namespace ConsoleMonster.Tests.Export {
             table.AddColumn(new TableColumn("Center") { Alignment = HorizontalAlignment.Center });
             table.AddColumn(new TableColumn("Right") { Alignment = HorizontalAlignment.Right });
             table.AddValues("a|b\r\n<script> & *literal*", new[] { "one", "two" }, 12);
-            string markdown = ConsoleExporter.ToMarkdown(table, new ExportOptions { Width = 5, Culture = CultureInfo.InvariantCulture });
+            string markdown = MarkdownExporter.Export(table, new ExportOptions { Width = 5, Culture = CultureInfo.InvariantCulture });
             Assert.Equal("| Left\\|header | Center | Right |\n| :--- | :---: | ---: |\n| a\\|b<br>&lt;script&gt; &amp; \\*literal\\* | one, two | 12 |\n\n", markdown);
         }
 
@@ -60,13 +64,13 @@ namespace ConsoleMonster.Tests.Export {
             table.AddColumn(new TableColumn("Count") { Aggregate = ColumnAggregate.Sum });
             table.AddGroup("East").AddValues("first", 2).AddValues("second", 3);
             table.AddGroup("West").AddValues("third", 4);
-            string markdown = ConsoleExporter.ToMarkdown(table, new ExportOptions { Culture = CultureInfo.InvariantCulture });
+            string markdown = MarkdownExporter.Export(table, new ExportOptions { Culture = CultureInfo.InvariantCulture });
             Assert.Contains("### East · 2\n\n| Name | Count |", markdown);
             Assert.Contains("| **Subtotal** | **5** |", markdown);
             Assert.EndsWith("\n\n### Total\n\n| Name | Count |\n| :--- | ---: |\n| **Total** | **9** |\n\n", markdown);
             table.TotalLabel = "Grand total";
             Assert.EndsWith("\n\n### Grand total\n\n| Name | Count |\n| :--- | ---: |\n| **Grand total** | **9** |\n\n",
-                ConsoleExporter.ToMarkdown(table, new ExportOptions { Culture = CultureInfo.InvariantCulture }));
+                MarkdownExporter.Export(table, new ExportOptions { Culture = CultureInfo.InvariantCulture }));
         }
 
         [Fact]
@@ -76,7 +80,7 @@ namespace ConsoleMonster.Tests.Export {
                 Tags = new[] { "production", "web" }, Services = new[] { new { State = "Warning", Bytes = 4096L } }
             }), "Service");
             ExportOptions options = new ExportOptions { Culture = CultureInfo.InvariantCulture };
-            string markdown = ConsoleExporter.ToMarkdown(tree, options);
+            string markdown = MarkdownExporter.Export(tree, options);
             Assert.Contains("  - State: ✓ Pass\n  - Bytes: 2 KB\n  - Duration: 2 m 05 s\n", markdown);
             Assert.Contains("    - production\n    - web\n", markdown);
             Assert.Contains("    - \\[0\\]", markdown);
@@ -94,7 +98,7 @@ namespace ConsoleMonster.Tests.Export {
             record.AddField("Notes", TableCell.FromValue("first\nsecond"));
             Tree tree = new Tree("Root");
             tree.Add("Child", StatusKind.Warn).Add("Leaf");
-            string markdown = ConsoleExporter.ToMarkdown(new Rows(record, tree));
+            string markdown = MarkdownExporter.Export(new Rows(record, tree));
             Assert.Contains("| State | ✓ Pass |", markdown);
             Assert.Contains("| Notes | first<br>second |", markdown);
             Assert.Contains("- Root\n  - ▴ Child\n    - Leaf\n", markdown);
@@ -105,7 +109,7 @@ namespace ConsoleMonster.Tests.Export {
             Table table = new Table();
             table.AddColumn(new TableColumn("Size") { Presenter = CellPresenters.Bytes });
             table.AddValues(1536);
-            string markdown = ConsoleExporter.ToMarkdown(new CultureScope(table, CultureInfo.GetCultureInfo("pl-PL")), new ExportOptions { Culture = CultureInfo.GetCultureInfo("en-US") });
+            string markdown = MarkdownExporter.Export(new CultureScope(table, CultureInfo.GetCultureInfo("pl-PL")), new ExportOptions { Culture = CultureInfo.GetCultureInfo("en-US") });
             Assert.Contains("| 1,5 KB |", markdown);
         }
 
@@ -113,7 +117,7 @@ namespace ConsoleMonster.Tests.Export {
         public void ContentBearingContainersKeepTitlesCaptionsStatusAndFooters() {
             Panel panel = new Panel(new TextBlock("body"), "Deployment result") { HeaderRight = "3 hosts", Caption = "2 failures" };
             Dashboard dashboard = new Dashboard("Run result", panel) { Subtitle = "Production", Detail = "Failed", Status = StatusKind.Fail, Footer = "Review failures" };
-            string markdown = ConsoleExporter.ToMarkdown(dashboard, new ExportOptions { Width = 100 });
+            string markdown = MarkdownExporter.Export(dashboard, new ExportOptions { Width = 100 });
             foreach (string value in new[] { "Run result", "Production", "Failed", "Deployment result", "3 hosts", "2 failures", "body", "Review failures" }) {
                 Assert.Contains(value, markdown);
             }
@@ -122,7 +126,7 @@ namespace ConsoleMonster.Tests.Export {
         [Fact]
         public void UnsupportedWidgetFallbackKeepsTheEffectiveScopedCulture() {
             IWidget widget = new CultureScope(new KeyValueList().AddValue("Amount", 12.5), CultureInfo.GetCultureInfo("pl-PL"));
-            string markdown = ConsoleExporter.ToMarkdown(widget, new ExportOptions { Culture = CultureInfo.GetCultureInfo("en-US") });
+            string markdown = MarkdownExporter.Export(widget, new ExportOptions { Culture = CultureInfo.GetCultureInfo("en-US") });
             Assert.Contains("12,5", markdown);
             Assert.DoesNotContain("12.5", markdown);
         }
@@ -133,7 +137,7 @@ namespace ConsoleMonster.Tests.Export {
             Table table = new Table();
             table.AddColumn("Value");
             table.AddValues(input);
-            string markdown = ConsoleExporter.ToMarkdown(new Rows(table, new TextBlock(input) { IsMarkup = false }));
+            string markdown = MarkdownExporter.Export(new Rows(table, new TextBlock(input) { IsMarkup = false }));
             Assert.Contains("| red<br>link |", markdown);
             Assert.EndsWith("red<br>link\n\n", markdown);
             Assert.Equal(-1, markdown.IndexOf('\u001b'));
@@ -145,25 +149,38 @@ namespace ConsoleMonster.Tests.Export {
         public void LiteralProseAndTreeLabelsCannotBecomeMarkdownBlockSyntax() {
             Tree tree = new Tree("# Service");
             tree.Add("1. ordered").Add("---");
-            string markdown = ConsoleExporter.ToMarkdown(new Rows(new TextBlock("---") { IsMarkup = false }, tree));
+            string markdown = MarkdownExporter.Export(new Rows(new TextBlock("---") { IsMarkup = false }, tree));
             Assert.StartsWith("\\---\n\n", markdown);
             Assert.Contains("- \\# Service\n  - 1\\. ordered\n    - \\---\n", markdown);
-            Assert.Equal("export-marker\n\n", ConsoleExporter.ToMarkdown(new TextBlock("export-marker")));
+            Assert.Equal("export-marker\n\n", MarkdownExporter.Export(new TextBlock("export-marker")));
         }
 
         [Fact]
         public void EmptyFrameIsAClosedCodeBlock() =>
-            Assert.Equal("```text\n```\n", ConsoleExporter.ToMarkdown(new CellBuffer(0, 0)));
+            Assert.Equal("```text\n```\n", MarkdownExporter.Export(new CellBuffer(0, 0)));
 
-        [Theory]
-        [InlineData("report.md")]
-        [InlineData("report.MARKDOWN")]
-        public void FileExtensionsSelectMarkdown(string path) => Assert.Equal(ExportFormat.Markdown, ConsoleExporter.FormatFor(path));
+        [Fact]
+        public void RecordingExportKeepsScrollbackAndLiteralTranscriptContent() {
+            const string cast = "{\"version\":2,\"width\":20,\"height\":2}\n[0,\"o\",\"first\\r\\nsecond\\r\\nthird\\r\\nlast\"]\n";
+            SessionRecording recording = SessionRecording.Read(new StringReader(cast));
+            Assert.Equal("```text\nfirst\nsecond\nthird\nlast\n```\n", MarkdownExporter.Export(recording));
+        }
+
+        [Fact]
+        public void DashboardEventsExportMarkdownFramesInsteadOfAnHtmlFallback() {
+            LiveTable table = new LiveTable(new Table().AddColumn("Name"), "rows");
+            var events = new[] { new LiveEvent("rows", "add", key: "1", text: "first") };
+            string markdown = MarkdownExporter.Export(table, events, new RecordingExportOptions { Width = 40, Height = 5 });
+            Assert.Contains("### 00:00:00", markdown);
+            Assert.Contains("```text", markdown);
+            Assert.Contains("first", markdown);
+            Assert.DoesNotContain("<html", markdown);
+        }
 
         [Fact]
         public void NullWidgetAndFrameAreRejected() {
-            Assert.Throws<ArgumentNullException>(() => ConsoleExporter.ToMarkdown((IWidget)null!));
-            Assert.Throws<ArgumentNullException>(() => ConsoleExporter.ToMarkdown((CellBuffer)null!));
+            Assert.Throws<ArgumentNullException>(() => MarkdownExporter.Export((IWidget)null!));
+            Assert.Throws<ArgumentNullException>(() => MarkdownExporter.Export((CellBuffer)null!));
         }
     }
 }

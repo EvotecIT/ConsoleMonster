@@ -8,9 +8,23 @@ using ConsoleMonster.Live;
 using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>Pipeline adaptation shared by frame export and clipboard copying; ConsoleExporter owns all serialization.</summary>
+    /// <summary>Pipeline adaptation shared by frame export and clipboard copying; core and add-on exporters own serialization.</summary>
     internal static class PSOutputExport {
-        internal static ExportFormat Format(string name) => (ExportFormat)Enum.Parse(typeof(ExportFormat), name, true);
+        internal static ExportFormat CoreFormat(string name) => (ExportFormat)Enum.Parse(typeof(ExportFormat), name, true);
+
+        internal static bool IsMarkdown(string format) => string.Equals(format, "Markdown", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(format, "FencedText", StringComparison.OrdinalIgnoreCase);
+
+        internal static string FormatFor(string? format, string? path = null) {
+            if (format != null) { return format; }
+            string extension = path == null ? "" : System.IO.Path.GetExtension(path);
+            if (string.Equals(extension, ".md", StringComparison.OrdinalIgnoreCase) || string.Equals(extension, ".markdown", StringComparison.OrdinalIgnoreCase)) { return "Markdown"; }
+            return path == null ? "Html" : ConsoleExporter.FormatFor(path).ToString();
+        }
+
+        internal static string Export(IWidget widget, string format, ExportOptions options) => IsMarkdown(format)
+            ? MarkdownExportBridge.Widget(widget, options, string.Equals(format, "FencedText", StringComparison.OrdinalIgnoreCase))
+            : ConsoleExporter.Export(widget, CoreFormat(format), options);
 
         /// <summary>Reject competing output modes before input is rendered, including an empty pipeline.</summary>
         internal static void Validate(PSCmdlet cmdlet) {
@@ -29,11 +43,11 @@ namespace ConsoleMonster.PowerShell {
             }
         }
 
-        internal static string Document(IReadOnlyList<object> items, ExportFormat format, ExportOptions options, PSCmdlet cmdlet) {
+        internal static string Document(IReadOnlyList<object> items, string format, ExportOptions options, PSCmdlet cmdlet) {
             if (items.Count == 1 && Frame(items[0]) is CellBuffer frame) {
-                return ConsoleExporter.Export(frame, format, options);
+                return IsMarkdown(format) ? MarkdownExportBridge.Frame(frame) : ConsoleExporter.Export(frame, CoreFormat(format), options);
             }
-            return ConsoleExporter.Export(Widget(items, cmdlet), format, options);
+            return Export(Widget(items, cmdlet), format, options);
         }
 
         internal static IWidget Widget(IReadOnlyList<object> items, PSCmdlet cmdlet, object[]? property = null, string? title = null, int depth = 3) {

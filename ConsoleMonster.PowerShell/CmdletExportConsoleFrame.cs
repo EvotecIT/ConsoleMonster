@@ -7,7 +7,7 @@ using ConsoleMonster.Export;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Exports a widget, a rendered frame or a live-session snapshot to PNG, HTML, SVG, Markdown or text.</para>
-    /// <para type="description">Pipe any New-Console* widget (or Show-ConsoleTable -AsWidget) and get a self-contained HTML page (inline CSS, selectable text, a dark and a light rendering that follow the viewer's prefers-color-scheme), an SVG image (box, block and braille characters drawn as shapes, selectable text, no external assets) or plain text. Cell geometry is kept exactly. OSC 8 links become links (web and mail links only; javascript: and other schemes are dropped). Other objects are shown as a table. Several widgets are stacked. Without -Path the document is written to the pipeline.</para>
+    /// <para type="description">Pipe any New-Console* widget (or Show-ConsoleTable -AsWidget) and get a self-contained HTML page (inline CSS, selectable text, a dark and a light rendering that follow the viewer's prefers-color-scheme), an SVG image (box, block and braille characters drawn as shapes, selectable text, no external assets) or plain text. Cell geometry is kept exactly. OSC 8 links become links (web and mail links only; javascript: and other schemes are dropped). Markdown uses the bundled ConsoleMonster.Markdown add-on lazily: tables, records and trees retain their semantics; FencedText preserves the terminal layout. Other objects use the automatic view. Several widgets are stacked. Without -Path the document is written to the pipeline.</para>
     /// </summary>
     /// <example>
     ///   <para>A table as an HTML page</para>
@@ -27,7 +27,7 @@ namespace ConsoleMonster.PowerShell {
         [AllowNull]
         public object? InputObject { get; set; }
 
-        /// <summary><para type="description">The format: Png, Html, Svg, Markdown (a fenced preformatted block) or Text (default: from the -Path extension, including .md/.markdown, else Html).</para></summary>
+        /// <summary><para type="description">The format: Png, Html, Svg, Markdown (semantic tables, records and trees), FencedText (a preformatted block) or Text (default: from the -Path extension, including .md/.markdown, else Html).</para></summary>
         [Parameter]
         [ValidateSet("Html", "Svg", "Text", "Markdown", "FencedText", "Png")]
         public string? Format { get; set; }
@@ -102,12 +102,8 @@ namespace ConsoleMonster.PowerShell {
             }
             string? requested = Format ?? (Path == null ? null : System.IO.Path.GetExtension(Path).TrimStart('.'));
             bool graphics = string.Equals(requested, "Png", System.StringComparison.OrdinalIgnoreCase);
-            ExportFormat format = graphics ? ExportFormat.Svg : Format != null
-                ? (ExportFormat)System.Enum.Parse(typeof(ExportFormat), Format, true)
-                : Path != null ? ConsoleExporter.FormatFor(Path) : ExportFormat.Html;
-            if (format == ExportFormat.Asciicast) {
-                format = ExportFormat.Text;
-            }
+            string format = graphics ? "Svg" : PSOutputExport.FormatFor(Format, Path);
+            if (format == "Asciicast") { format = "Text"; }
             ExportOptions options = new ExportOptions {
                 Width = Width,
                 Height = Height,

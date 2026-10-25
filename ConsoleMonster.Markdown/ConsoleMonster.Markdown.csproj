@@ -5,7 +5,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IsPackable>true</IsPackable>
     <PackageId>ConsoleMonster.Markdown</PackageId>
-    <Description>CommonMark and table rendering for ConsoleMonster, powered by OfficeIMO.Markdown.</Description>
+    <Description>Markdown display and widget, frame and recording export for ConsoleMonster, powered by OfficeIMO.Markdown.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/EvotecIT/ConsoleMonster</RepositoryUrl>

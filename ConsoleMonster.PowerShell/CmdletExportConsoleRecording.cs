@@ -8,7 +8,7 @@ using ConsoleMonster.Sessions;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Exports a terminal session or dashboard recording to slide images, animations, video, a player or asciicast.</para>
-    /// <para type="description">PNG selects the final frame, -AtSeconds a source time, -Chapter a completed chapter, or -PerChapter numbered slides. GIF and APNG are managed animations; MP4 needs ffmpeg on PATH. Without -Dashboard, reads a whole-session asciicast v2 from Invoke-ConsoleRecording -Interactive or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Invoke-ConsoleDashboard widget updates into the same definition, preserving the existing dashboard HTML, SVG and asciicast v3 exports. Add #t=30000 to an HTML address to open at 30 seconds.</para>
+    /// <para type="description">PNG selects the final frame, -AtSeconds a source time, -Chapter a completed chapter, or -PerChapter numbered slides. GIF and APNG are managed animations; MP4 needs ffmpeg on PATH. Without -Dashboard, reads a whole-session asciicast v2 from Invoke-ConsoleRecording -Interactive or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Invoke-ConsoleDashboard widget updates into the same definition, preserving the dashboard HTML, SVG and asciicast v3 exports; Markdown writes timestamped fenced frames through the bundled add-on. Add #t=30000 to an HTML address to open at 30 seconds.</para>
     /// </summary>
     /// <example>
     ///   <para>An animated SVG and an HTML player of the same run</para>
@@ -29,7 +29,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(Mandatory = true, Position = 0, ParameterSetName = "Session")]
         public string Path { get; set; } = string.Empty;
 
-        /// <summary><para type="description">Png, Gif, Apng, Mp4, Html, Svg, Asciicast, Text, Markdown, FencedText or PlayerData. The destination extension selects a default; .json means PlayerData. Text and Markdown apply to terminal sessions.</para></summary>
+        /// <summary><para type="description">Png, Gif, Apng, Mp4, Html, Svg, Asciicast, Text, Markdown, FencedText or PlayerData. The destination extension selects a default; .json means PlayerData. Text applies to terminal sessions; Markdown also exports dashboard recordings as timestamped fenced frames.</para></summary>
         [Parameter]
         [ValidateSet("Html", "Svg", "Asciicast", "PlayerData", "Text", "Markdown", "FencedText", "Png", "Gif", "Apng", "Mp4")]
         public string? Format { get; set; }
@@ -143,12 +143,10 @@ namespace ConsoleMonster.PowerShell {
             }
             bool playerData = string.Equals(Format, "PlayerData", System.StringComparison.OrdinalIgnoreCase)
                 || (Format == null && Destination != null && string.Equals(System.IO.Path.GetExtension(Destination), ".json", System.StringComparison.OrdinalIgnoreCase));
-            ExportFormat format = playerData ? ExportFormat.Html : Format != null
-                ? (ExportFormat)System.Enum.Parse(typeof(ExportFormat), Format, true)
-                : Destination != null ? ConsoleExporter.FormatFor(Destination) : ExportFormat.Html;
-            if (ParameterSetName == "Dashboard" && (format == ExportFormat.Text || format == ExportFormat.Markdown || format == ExportFormat.FencedText)) {
-                format = ExportFormat.Html;
-            }
+            string selectedFormat = PSOutputExport.FormatFor(playerData ? "Html" : Format, Destination);
+            bool markdown = PSOutputExport.IsMarkdown(selectedFormat);
+            ExportFormat format = markdown ? ExportFormat.Html : PSOutputExport.CoreFormat(selectedFormat);
+            if (ParameterSetName == "Dashboard" && format == ExportFormat.Text) { format = ExportFormat.Html; }
             RecordingExportOptions options = new RecordingExportOptions {
                 Width = Width,
                 Height = Height,
@@ -163,9 +161,10 @@ namespace ConsoleMonster.PowerShell {
                 if (ParameterSetName == "Session") {
                     SessionRecording session = SessionRecording.Read(reader);
                     document = FinalFrame.IsPresent ? session.ExportFinalSvg(new ExportOptions { Theme = Theme, Title = Title, WindowChrome = (MyInvocation.BoundParameters.ContainsKey(nameof(WindowChrome)) ? WindowChrome.IsPresent : MyInvocation.BoundParameters.ContainsKey(nameof(ChromeStyle))), ChromeStyle = ChromeStyle })
-                        : playerData ? session.ExportPlayerData(options) : session.Export(format, options);
+                        : playerData ? session.ExportPlayerData(options) : markdown ? MarkdownExportBridge.Recording(session) : session.Export(format, options);
                 } else {
-                    document = playerData ? Export.Recording.ExportPlayerData(Dashboard, reader, options) : Export.Recording.Export(Dashboard, reader, format, options);
+                    document = playerData ? Export.Recording.ExportPlayerData(Dashboard, reader, options)
+                        : markdown ? MarkdownExportBridge.Dashboard(Dashboard, reader, options) : Export.Recording.Export(Dashboard, reader, format, options);
                 }
             }
             if (Destination == null) {

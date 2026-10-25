@@ -31,7 +31,7 @@ namespace SiteFrames.Pages {
             site.Write(site.Static("recordings/session.html"), recording.Export(ExportFormat.Html, options));
             site.Write(site.Static("recordings/session.svg"), recording.Export(ExportFormat.Svg, options));
             site.Write(site.Static("recordings/session.txt"), recording.Export(ExportFormat.Text));
-            site.Write(site.Static("recordings/session.md"), recording.Export(ExportFormat.Markdown));
+            site.Write(site.Static("recordings/session.md"), ConsoleMonster.Markdown.MarkdownExporter.Export(recording));
             foreach (ExportTheme theme in new[] { ExportTheme.Dark, ExportTheme.Light }) {
                 site.Write(site.Static("recordings/session-final-" + theme.ToString().ToLowerInvariant() + ".svg"), recording.ExportFinalSvg(new ExportOptions { Theme = theme, WindowChrome = true, Title = "Console session" }));
             }

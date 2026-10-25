@@ -136,13 +136,14 @@ handling are reusable independently of PowerShell:
 ```csharp
 using ConsoleMonster.Clipboard;
 using ConsoleMonster.Export;
+using ConsoleMonster.Markdown;
 using ConsoleMonster.Widgets;
 
 var widget = new TextBlock("Deployment complete") { IsMarkup = false };
 var options = new ExportOptions { Width = 90 };
-string markdown = ConsoleExporter.ToMarkdown(widget, options);
+string markdown = MarkdownExporter.Export(widget, options);
 string html = ConsoleExporter.Export(widget, ExportFormat.Html, options);
-ConsoleExporter.Save(widget, "status.md", options: options);
+System.IO.File.WriteAllText("status.md", markdown);
 
 var clipboard = new ClipboardService();
 if (!clipboard.TryCopy(markdown, out string? error)) {
@@ -150,7 +151,6 @@ if (!clipboard.TryCopy(markdown, out string? error)) {
 }
 ```
 
-`ToMarkdown` accepts an `IWidget`, `CellBuffer` or `LiveSession`. The existing
-`Export` overloads accept `ExportFormat.Markdown`. `ClipboardService.TryCopy`
+`MarkdownExporter.Export` in the `ConsoleMonster.Markdown` package accepts an `IWidget`, `CellBuffer`, `LiveSession` or `SessionRecording`. Set `fenced: true` for a widget's exact terminal layout. The PowerShell module includes this add-on and loads it on first Markdown use. Core exports support Text, Html, Svg and recording Asciicast; `.md` requests made through core name the required add-on. `ClipboardService.TryCopy`
 returns `false` with an actionable diagnostic when no usable clipboard exists;
 it does not expose the copied content in error messages.

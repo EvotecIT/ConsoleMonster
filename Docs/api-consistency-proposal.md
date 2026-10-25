@@ -456,7 +456,7 @@ The accompanying source type catalogue at the end inventories the public type de
 | Canvas and rendering | PixelCanvas implementations, Cell/CellBuffer, Canvas.Region/Rect/RenderContext, FrameComposer and terminal encoders/outputs; retain C# rendering extension points. |
 | Export, replay, sessions and demos | ConsoleExporter/Recording, SessionRecorder, ReplayPlayer, ConsoleDemo/DemoScript; retain shared engines, explicit recording format and output destinations. |
 | Help, overview, localization, testing and test runs | CommandLineHelp/HelpTopic, OverviewCollector/registry, WidgetLabels/PromptLabels, TestTerminal/GoldenFile, TestRun/TestRunView; retain typed extension points and fixtures. |
-| Markdown add-on | MarkdownConsole and MarkdownView with the existing OfficeIMO boundary; no parsing moved into cmdlets/core. |
+| Markdown add-on | MarkdownConsole, MarkdownExporter and MarkdownView with the existing OfficeIMO boundary; Markdown serialization and parsing stay outside core and cmdlets. |
 | Graphics add-on | ConsoleGraphicsExtensions and GraphicsExportOptions, existing ChartForgeX/ffmpeg boundary; no new renderer/tool dependency. |
 | Hosting and logging add-ons | IConsoleDashboard/options, DI/logging extensions/providers; retain C# host integrations, apply shared options vocabulary where exposed. |
 
@@ -481,7 +481,7 @@ Phase 2 must prove this in fresh PowerShell processes on the development and pac
 
 | Before → after | Evidence and reason | Blast radius |
 | --- | --- | --- |
-| ROADMAP Ownership says the core never emits semantic HTML or Markdown → describe the implemented output boundary | ExportFormat.Markdown, Table.Export and the existing Output-Exports guide implement semantic Markdown; HTML frame export and Markdown reading/add-on ownership need separate explanations. | D |
+| ROADMAP Ownership → the core never emits Markdown; the Markdown add-on owns display and export | Final ownership decision: remove core Markdown writers, ToMarkdown overloads and Markdown/FencedText format values; ConsoleMonster.Markdown owns both directions using OfficeIMO.Markdown. PowerShell keeps its export vocabulary through the lazy bundled add-on. | D |
 | ROADMAP backlog lists a Markdown viewer → describe current Show-ConsoleMarkdown and keep only remaining gaps | ConsoleMonster.Markdown/MarkdownConsole and the cmdlet exist. | D,E |
 | ROADMAP mouse support as an unqualified future task → describe current input/app mouse support and any remaining widget-specific work | InputEvent.Mouse, native/VT input paths and ConsoleAppOptions.Mouse exist. | D |
 | ROADMAP raster export backlog → distinguish current graphics export from unimplemented chart/image bridges | ConsoleMonster.Graphics exports frames/recordings; it does not imply every ChartForgeX terminal integration exists. | D |
@@ -714,6 +714,8 @@ Gallery programs keep explicit object rows and ordinary execution. Scripted keys
 The acceptance contract is one entry point for each operation, with definitions and lifecycle steps treated as different jobs: Show displays, New builds, and Update changes an addressed live widget. Question workflows acquire answers or run a selected action and return to the script; application controls retain focus, events and mutable state in a composed screen. Native progress submission (`Write-ConsoleProgress`) and scoped interception (`Use-ConsoleProgress`) are distinct from constructing and updating a dashboard bar. The automatic viewer chooses a view; the named viewers select a particular representation. Replay has one viewer and an explicit playback mode.
 
 The module exports no command aliases or compatibility parameter aliases. `Enable-ConsoleFormatting -Feature Progress` remains the explicit native `Write-Progress` integration: it preserves PowerShell's command name and parameter vocabulary, rather than reviving a retired ConsoleMonster name. The generated loader's generic alias re-export bridge receives no aliases from this module. Tests cover all 29 retired or renamed cmdlet names, exported aliases, declared parameter aliases and fresh-process accelerator registration. The only default accelerators are the 13 fully qualified names listed above; no unprefixed accelerator is added.
+
+The final Markdown ownership amendment moves all Markdown export into `ConsoleMonster.Markdown`: the core has no `ToMarkdown`, `MarkdownWidgetWriter`, `MarkdownFrameWriter` or Markdown/FencedText format values. Core `.md` requests name the required package. The PowerShell module bundles the add-on and dispatches Markdown exports lazily. OfficeIMO document blocks serialize fenced frames and recordings; direct semantic table/record/tree text preserves existing presenters, escaping, grouping and totals. The goldens show OfficeIMO choosing shorter safe tilde fences when content contains backticks; ordinary semantic widget output is unchanged. Dashboard recording Markdown now exports timestamped frames instead of silently returning HTML.
 
 ## Principles
 

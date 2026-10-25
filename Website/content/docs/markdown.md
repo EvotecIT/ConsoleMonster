@@ -1,6 +1,6 @@
 ---
-title: Read Markdown in the terminal
-description: Read Markdown files with native tables, highlighted code, links and a pager that follows the terminal width.
+title: Markdown display and export
+description: Read Markdown in the terminal and export widgets, frames and recordings through the OfficeIMO.Markdown add-on.
 slug: markdown
 order: 17
 group: apps
@@ -36,8 +36,20 @@ Piped, redirected, transcribed, job, remoting, CI and non-interactive output nev
 
 Install the optional `ConsoleMonster.Markdown` package. `MarkdownConsole.Show(content)` writes with automatic interactive paging. `MarkdownConsole.Parse(content)` returns a `MarkdownView` that can be placed in a layout, written through `Terminal.Write`, exported, or passed to `WidgetPager.TryShow` with scripted input and screen capture options.
 
-The parser lives in the add-on and uses OfficeIMO.Markdown. The ConsoleMonster core stays dependency-free. Links follow the terminal capability profile: OSC 8 when supported, a muted URL otherwise. Unsupported or unsafe link schemes remain visible as text. Raw HTML is literal, images become labelled links, and neither scripts nor remote content are executed or fetched.
+Markdown display and export live in the add-on and use OfficeIMO.Markdown. The ConsoleMonster core stays dependency-free. Links follow the terminal capability profile: OSC 8 when supported, a muted URL otherwise. Unsupported or unsafe link schemes remain visible as text. Raw HTML is literal, images become labelled links, and neither scripts nor remote content are executed or fetched.
 
 ## Related
 
 See [PowerShell conventions](/docs/powershell-conventions/), [object exploration](/docs/object-explorer/) and [text comparison](/docs/text-diff/).
+
+## Export widgets and recordings
+
+The core never emits Markdown; the `ConsoleMonster.Markdown` add-on owns Markdown display and export. The PowerShell module bundles it and loads it on first use:
+
+```powershell
+$rows | Export-ConsoleFrame -Format Markdown
+$widget | Export-ConsoleFrame -Format FencedText
+Export-ConsoleRecording -Path ./talk.cast -Format Markdown -Destination ./talk.md
+```
+
+In C#, add the package and call `MarkdownExporter.Export(widget, options)`. Frames and live snapshots become fenced text; terminal recordings retain scrollback. Dashboard events export timestamped frames. Semantic tables, records and trees retain the existing cell presenters, groups and totals. OfficeIMO owns document blocks and safe fences; backtick-containing frames may use shorter tilde fences with identical literal content.
