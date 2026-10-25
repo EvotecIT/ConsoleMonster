@@ -11,6 +11,8 @@ namespace ConsoleMonster.Interactive {
         private readonly ChoicePane _pane;
         private readonly bool _multiple;
         private object? _value;
+        private bool _pointerDown;
+        private bool _dragged;
 
         /// <summary>Creates a selection input backed by the canonical choice editor.</summary>
         /// <param name="key">The application-state key.</param>
@@ -100,6 +102,27 @@ namespace ConsoleMonster.Interactive {
             if (handled) { _pane.InvalidatePreview(); }
             return handled;
         }
+
+        /// <inheritdoc />
+        protected override bool HandlePointerCore(InputEvent input, RenderContext context) {
+            Configure(context);
+            bool handled = _list.HandlePointer(input);
+            if (input.MouseAction == MouseAction.Down && input.MouseButton == 1) { _pointerDown = handled; _dragged = false; }
+            if (_pointerDown && input.MouseAction == MouseAction.Move && (input.HeldButtons & 1) != 0 && handled) {
+                _dragged = true;
+                if (_multiple && _list.FocusedChoice is Choice choice) { _list.SetSelected(choice, true); }
+            }
+            if (input.MouseAction == MouseAction.Up && input.MouseButton == 1) {
+                if (_pointerDown && handled) {
+                    if (_multiple) { if (!_dragged) { _list.ToggleFocused(); } }
+                    else { Accept(_list.FocusedChoice); }
+                }
+                _pointerDown = false;
+            }
+            return handled;
+        }
+
+        internal override void CancelPointer() { _pointerDown = false; _dragged = false; }
 
         /// <inheritdoc />
         protected override Size MeasureContent(Constraints constraints, RenderContext context) {

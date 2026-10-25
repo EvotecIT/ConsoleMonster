@@ -16,7 +16,7 @@ namespace ConsoleMonster.Interactive {
     /// each, the focused row on the Focus background, marked rows with a check), and the footer. Typing filters; dialogs
     /// show a row's details and the column chooser.
     /// </summary>
-    internal sealed partial class GridView : InteractiveView, IViewHost {
+    internal sealed partial class GridView : InteractiveView, IViewHost, IDisposable {
         private readonly Grid _grid;
         private readonly LineEditor _filter;
         private readonly bool[] _hidden;
@@ -32,9 +32,14 @@ namespace ConsoleMonster.Interactive {
         private int _pageRows = 10;
         private Table? _table;
         private Capabilities.GlyphTier _tableTier;
+        private readonly AppCommandHost? _actions;
+        private Rect _bodyBounds;
+        private List<int> _rowLines = new List<int>();
+        private int _dragAnchor = -1;
 
-        public GridView(Grid grid, GridOptions options, PromptLabels labels) : base(labels) {
+        public GridView(Grid grid, GridOptions options, PromptLabels labels, System.Threading.CancellationToken cancellationToken = default) : base(labels) {
             _grid = grid;
+            if (options.Commands.Count > 0 || options.Dispatcher != null) { _actions = new AppCommandHost(options.Commands, ActionRows, labels, cancellationToken, commandBar: true, requiresRows: true, dispatcher: options.Dispatcher); }
             _filter = new LineEditor(options.Filter);
             _hidden = new bool[grid.Columns.Count];
             for (int c = 0; c < grid.Columns.Count; c++) {
@@ -57,7 +62,26 @@ namespace ConsoleMonster.Interactive {
         public void ShowModal(Modal modal) => _modals.Add(modal);
 
         // A grid hosts no panes that take values from other threads.
-        public bool TryPost(Action call) => false;
+        public bool TryPost(Action call) => _actions?.TryPost(call) ?? false;
+
+        public void Dispose() => _actions?.Dispose();
+
+        public override bool Poll(TimeSpan now) => base.Poll(now) | (_actions?.Poll() ?? false);
+
+        private IReadOnlyList<object?> ActionRows() {
+            if (_marked.Count > 0) {
+                List<object?> rows = new List<object?>();
+                foreach (int index in Sorted(AllRows())) { if (_marked.Contains(index)) { rows.Add(_grid.Rows[index].Item); } }
+                return rows;
+            }
+            return FocusedRow == null ? Array.Empty<object?>() : new[] { FocusedRow.Item };
+        }
+
+        protected override bool HandlePriorityInput(InputEvent input) {
+            if (_modals.Count == 0 && (_actions?.Handle(input) ?? false)) { return true; }
+            if (input.Kind == InputEventKind.Resize || input.Kind == InputEventKind.FocusLost) { _dragAnchor = -1; }
+            return false;
+        }
 
         /// <summary>The objects of the chosen rows.</summary>
         public List<object?> ChosenItems() {
@@ -103,19 +127,24 @@ namespace ConsoleMonster.Interactive {
             }
             Rows rows = new Rows();
             rows.Add(new HeaderBar(_grid.Title) { Right = right }, LayoutSize.Fixed(1));
-            TextInput input = new TextInput(_filter, _modals.Count == 0 ? frame.Caret : null) { Placeholder = Labels.TypeToFilter, Focused = _modals.Count == 0 };
+            TextInput input = new TextInput(_filter, _modals.Count == 0 && !(_actions?.HasModal ?? false) && !(_actions?.HasBarFocus ?? false) ? frame.Caret : null) { Placeholder = Labels.TypeToFilter, Focused = _modals.Count == 0 && !(_actions?.HasModal ?? false) && !(_actions?.HasBarFocus ?? false) };
             Columns filter = new Columns(new Sized(new UiLine(context => new StyledLine(new[] { new TextSpan(InteractiveGlyphs.For(context).Pointer + " ", context.Style(ThemeToken.Accent)) })), LayoutSize.Fixed(2)), input) { Gap = 0 };
             rows.Add(new Padding(filter, 1, 1, 1, 0), LayoutSize.Fixed(2));
             Panel panel = new Panel(new GridBody(this), SortTitle()) { BorderRole = ThemeToken.Accent };
-            rows.Add(panel, LayoutSize.Fraction());
+            if (_actions?.HasCommands == true) {
+                rows.Add(new Columns(panel, new Panel(new GridActionDetails(this), "Selected row")) { CollapseBelow = 70 }, LayoutSize.Fraction());
+            } else { rows.Add(panel, LayoutSize.Fraction()); }
             List<KeyBinding> bindings = new List<KeyBinding>();
             AddBindings(bindings, frame);
-            rows.Add(new KeyFooter(bindings) { Toast = CurrentToast }, LayoutSize.Fixed(1));
+            _actions?.AddBindings(bindings);
+            IWidget body = rows;
+            if (_actions != null) { body = new Rows().Add(_actions.Wrap(rows), LayoutSize.Fraction()).Add(new KeyFooter(bindings) { Toast = CurrentToast }, LayoutSize.Fixed(1)); }
+            else { rows.Add(new KeyFooter(bindings) { Toast = CurrentToast }, LayoutSize.Fixed(1)); }
             if (_modals.Count > 0) {
                 Modal top = _modals[_modals.Count - 1];
-                return new Overlay(rows, top.Build(frame, frame.Caret), dim: true) { Top = top.Top, MaxWidth = top.MaxWidth };
+                return new Overlay(body, top.Build(frame, frame.Caret), dim: true) { Top = top.Top, MaxWidth = top.MaxWidth };
             }
-            return rows;
+            return body;
         }
 
         private string? SortTitle() {
@@ -162,10 +191,35 @@ namespace ConsoleMonster.Interactive {
             if (_modals.Count > 0) {
                 return _modals[_modals.Count - 1].HandleUnbound(input);
             }
+            if (input.Kind == InputEventKind.Mouse) { return HandlePointer(input); }
             if (input.Kind == InputEventKind.Key && input.IsText && input.Char == ' ') {
                 return false;
             }
             return _filter.Handle(input);
+        }
+
+        private bool HandlePointer(InputEvent input) {
+            if (input.MouseAction == MouseAction.Up) { _dragAnchor = -1; }
+            if (input.Column < _bodyBounds.X || input.Column >= _bodyBounds.Right || input.Row < _bodyBounds.Y || input.Row >= _bodyBounds.Bottom) { return false; }
+            if (input.MouseAction == MouseAction.Wheel) { Move(-Math.Sign(input.WheelDelta) * 3); return true; }
+            int relative = input.Row - _bodyBounds.Y;
+            int hit = _rowLines.FindLastIndex(y => y <= relative);
+            if (hit < 0 || hit + _top >= _visible.Count) { return false; }
+            if (input.MouseAction == MouseAction.Down && input.MouseButton == 1) {
+                _cursor = hit + _top;
+                _dragAnchor = _cursor;
+                if ((input.Modifiers & KeyModifiers.Control) != 0 && _grid.Selection == GridSelection.Multiple) { ToggleMark(); }
+                return true;
+            }
+            if (input.MouseAction == MouseAction.Move && _dragAnchor >= 0 && (input.HeldButtons & 1) != 0) {
+                _cursor = hit + _top;
+                if (_grid.Selection == GridSelection.Multiple) {
+                    for (int i = Math.Min(_dragAnchor, _cursor); i <= Math.Max(_dragAnchor, _cursor); i++) { _marked.Add(_visible[i]); }
+                    _table = null;
+                }
+                return true;
+            }
+            return false;
         }
 
         private void Escape() {

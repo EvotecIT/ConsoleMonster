@@ -1,9 +1,16 @@
 using System;
+using System.Collections.Generic;
 using ConsoleMonster.Live;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>Input, live rendering and fallback settings for one application run.</summary>
     public sealed class ConsoleAppOptions {
+        /// <summary>Passive commands shared by the app's buttons, palette and keyboard shortcuts.</summary>
+        public IList<AppCommand> Commands { get; } = new List<AppCommand>();
+        /// <summary>Captures action rows on the app thread before confirmation. Null supplies an empty row set.</summary>
+        public Func<AppState, IReadOnlyList<object?>>? Selection { get; set; }
+        /// <summary>Optional mailbox for this run. The host drains it on the input thread and closes it on exit; create a new dispatcher for another run.</summary>
+        public AppDispatcher? Dispatcher { get; set; }
         /// <summary>Shared prompt input, capture, capability, theme and language settings.</summary>
         public InteractiveOptions? Interactive { get; set; }
 

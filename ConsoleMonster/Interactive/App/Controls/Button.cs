@@ -8,6 +8,16 @@ namespace ConsoleMonster.Interactive {
     /// <summary>A keyboard action button whose value counts activations.</summary>
     public sealed class Button : InputControl {
         private int _value;
+        private bool _pressed;
+
+        /// <summary>Creates a button using the same definition as an app's palette and grid actions.</summary>
+        public Button(AppCommand command) : this(command?.Key ?? throw new ArgumentNullException(nameof(command)), command.Label) { Command = command; }
+
+        /// <summary>Creates another button for an existing command, with its own input-state key.</summary>
+        public Button(AppCommand command, string key) : this(key, command?.Label ?? throw new ArgumentNullException(nameof(command))) { Command = command; }
+
+        /// <summary>The command invoked by the containing app, when this button was constructed from a command.</summary>
+        public AppCommand? Command { get; }
 
         /// <summary>Creates an action button.</summary>
         /// <param name="key">The application-state key.</param>
@@ -34,6 +44,21 @@ namespace ConsoleMonster.Interactive {
             _value++;
             return true;
         }
+
+        /// <inheritdoc />
+        protected override bool HandlePointerCore(InputEvent input, RenderContext context) {
+            bool inside = input.Column >= Bounds.X && input.Column < Bounds.Right && input.Row >= Bounds.Y && input.Row < Bounds.Bottom;
+            if (input.MouseAction == MouseAction.Down && input.MouseButton == 1) { _pressed = inside; return inside; }
+            if (input.MouseAction == MouseAction.Up && input.MouseButton == 1) {
+                bool activate = _pressed && inside;
+                _pressed = false;
+                if (activate) { _value++; }
+                return activate;
+            }
+            return false;
+        }
+
+        internal override void CancelPointer() { _pressed = false; }
 
         /// <inheritdoc />
         protected override Size MeasureContent(Constraints constraints, RenderContext context) =>

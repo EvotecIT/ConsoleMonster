@@ -14,8 +14,8 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="description">An Out-GridView for the console, on Windows PowerShell 5.1 and PowerShell 7. Typing filters the rows (every word must appear in a shown column); Up/Down, PgUp/PgDn and Ctrl+Home/Ctrl+End move; F3 sorts by the next column (Shift+F3 the previous one) and F4 reverses the order; Space marks rows (Ctrl+A marks all shown rows); Enter shows the focused row with every column; F2 chooses the columns; Ctrl+Enter (or F10) returns the marked rows, or the focused row when none is marked; Esc clears the filter, then cancels. Columns come from -Property with the same options as Show-ConsoleTable (presenters, priorities, widths, tone rules); the original objects are returned. The screen has the same header bar, panel and footer as menus and forms. In line mode the rows are a numbered list. Without an interactive user (redirected output, a job, CI) the rows are printed as a table with a warning and nothing is returned; -Mode None fails with an error instead.</para>
     /// </summary>
     /// <example>
-    ///   <para>Pick services to restart</para>
-    ///   <code>Get-Service | Show-ConsoleGrid -Property Name, Status, StartType -Title 'Services' | Restart-Service -WhatIf</code>
+    ///   <para>Restart selected services with confirmation and embedded output</para>
+    ///   <code>Get-Service | Show-ConsoleGrid -Property Name, Status, StartType -Title 'Services' -Action @{ Restart = { param($Row) Restart-Service $Row.Name; "Restarted $($Row.Name)" } }</code>
     /// </example>
     /// <example>
     ///   <para>Browse processes sorted by memory</para>
@@ -58,6 +58,10 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Columns hidden at the start (F2 shows them again).</para></summary>
         [Parameter]
         public string[]? Hide { get; set; }
+
+        /// <summary><para type="description">In-app commands or a hashtable of action keys and script blocks. Use New-ConsoleCommand for shortcuts, optional confirmation and explicit arguments/modules. Ctrl+K opens actions; F6 cancels work.</para></summary>
+        [Parameter]
+        public object[]? Action { get; set; }
 
         /// <summary><para type="description">The culture for numbers and dates (default CONSOLEMONSTER_CULTURE, then the current culture).</para></summary>
         [Parameter]
@@ -109,6 +113,7 @@ namespace ConsoleMonster.PowerShell {
                 grid.AddRow(item, values);
             }
             GridOptions options = new GridOptions { Filter = Filter, SortDescending = Descending.IsPresent, Interactive = PSInteractive.Options(this, Mode) };
+            foreach (AppCommand command in PSCommandActions.Collect(Action)) { options.Commands.Add(command); }
             if (UnavailableFallback.IsPresent && options.Interactive.Input == null && options.Interactive.Capture == null
                 && (!ConsoleFormatting.Displayed(this) || FormatCommandRouter.IsTranscribing(this))) {
                 // A background job's host can offer line prompts by blocking the job. An unavailable-command fallback

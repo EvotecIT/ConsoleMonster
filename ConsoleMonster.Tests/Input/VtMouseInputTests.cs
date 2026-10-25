@@ -56,10 +56,27 @@ namespace ConsoleMonster.Tests.Input {
         }
 
         [Fact]
+        public void Feed_DragHoverAndWheel_KeepCellCoordinatesAndModifiers() {
+            VtInputDecoder decoder = new VtInputDecoder();
+            List<InputEvent> events = new List<InputEvent>();
+            decoder.Feed("\u001b[<48;4;5M\u001b[<35;5;6M\u001b[<64;5;6M\u001b[<65;5;6M\u001b[<66;5;6M", events);
+            Assert.Equal(5, events.Count);
+            Assert.Equal(MouseAction.Move, events[0].MouseAction);
+            Assert.Equal(1, events[0].HeldButtons);
+            Assert.Equal(KeyModifiers.Control, events[0].Modifiers);
+            Assert.Equal(3, events[0].Column);
+            Assert.Equal(4, events[0].Row);
+            Assert.Equal(0, events[1].HeldButtons);
+            Assert.Equal(1, events[2].WheelDelta);
+            Assert.Equal(-1, events[3].WheelDelta);
+            Assert.Equal(-1, events[4].HorizontalWheelDelta);
+        }
+
+        [Fact]
         public void Feed_UnsupportedOrMalformedMouseReports_DropsOnlyReports() {
             // Values stay in data rather than parameterized test names, including the overlong report.
             string[] reports = {
-                "<32;1;1M", "<35;1;1M", "<64;1;1M", "<65;1;1m", "<128;1;1M", "<3;1;1M",
+                "<65;1;1m", "<128;1;1M", "<3;1;1M",
                 "<0;0;1M", "<0;1;0M", "<0;-1;1M", "<-1;1;1M", "<0;2147483648;1M",
                 "<0;1;2147483648m", "<2147483648;1;1M", "<0;;1M", "<0;1M", "<0;1;1;1M",
                 "<0;1;1 M", "<0;1;1A", "<0;" + new string('9', 80) + ";1M"

@@ -154,6 +154,8 @@ namespace ConsoleMonster.Interactive {
                 }
                 view._top = Math.Max(0, Math.Min(view._top, Math.Max(0, view._visible.Count - count)));
                 CellBuffer buffer = view._table.RenderWindow(region.Width, view._top, count, context, out int headHeight, out List<int> rowLines, out string? hidden);
+                view._bodyBounds = region.Bounds;
+                view._rowLines = rowLines;
                 for (int y = 0; y < buffer.Height && y < region.Height; y++) {
                     for (int x = 0; x < buffer.Width && x < region.Width; x++) {
                         Cell cell = buffer[x, y];
@@ -184,6 +186,13 @@ namespace ConsoleMonster.Interactive {
         }
     }
 
+    internal sealed class GridActionDetails : IWidget {
+        private readonly GridDetailModal _details;
+        internal GridActionDetails(GridView view) { _details = new GridDetailModal(view); }
+        public Size Measure(Constraints constraints, RenderContext context) => _details.BuildRecord(out _).Measure(constraints, context);
+        public void Render(Region region, RenderContext context) => _details.BuildRecord(out _).Render(region, context);
+    }
+
     /// <summary>The focused row as a record (every column, including hidden ones); Up and Down move to the next row.</summary>
     internal sealed class GridDetailModal : Modal {
         private readonly GridView _view;
@@ -195,9 +204,19 @@ namespace ConsoleMonster.Interactive {
         public override int MaxWidth => 72;
 
         public override IWidget Build(ViewFrame frame, CaretSlot caret) {
+            RecordView record = BuildRecord(out string title);
+            Rows rows = new Rows();
+            rows.Add(record);
+            List<KeyBinding> bindings = new List<KeyBinding>();
+            AddBindings(bindings, frame);
+            rows.Add(new KeyFooter(bindings));
+            return DialogChrome.Frame(rows, title.Length == 0 ? _view.Grid.Title : title);
+        }
+
+        internal RecordView BuildRecord(out string title) {
             GridRow? row = _view.FocusedRow;
             RecordView record = new RecordView { Presentation = _view.Grid.Presentation, HideEmpty = false };
-            string title = string.Empty;
+            title = string.Empty;
             if (row != null) {
                 for (int c = 0; c < _view.Grid.Columns.Count; c++) {
                     TableColumn column = _view.Grid.Columns[c];
@@ -208,12 +227,7 @@ namespace ConsoleMonster.Interactive {
                     record.AddField(Markup.Strip(column.Header), TableCell.FromValue(value), column.Presenter, column.RoleRules.Count > 0 ? new List<RoleRule>(column.RoleRules) : null);
                 }
             }
-            Rows rows = new Rows();
-            rows.Add(record);
-            List<KeyBinding> bindings = new List<KeyBinding>();
-            AddBindings(bindings, frame);
-            rows.Add(new KeyFooter(bindings));
-            return DialogChrome.Frame(rows, title.Length == 0 ? _view.Grid.Title : title);
+            return record;
         }
 
         public override void AddBindings(List<KeyBinding> bindings, ViewFrame frame) {
@@ -290,7 +304,8 @@ namespace ConsoleMonster.Interactive {
                     owns = true;
                 }
                 try {
-                    GridView view = new GridView(grid, options, labels);
+                    using MouseReporting? mouse = MouseReporting.Open(true, interactive, profile, lease.Source, interactive.Surface != null);
+                    using GridView view = new GridView(grid, options, labels, cancellationToken);
                     InteractionLoop.Run(view, lease.Source, surface, context, cancellationToken);
                     surface.Complete(view.Summary(context));
                     return new GridResult(view.Accepted, view.Accepted ? view.ChosenItems() : new List<object?>());

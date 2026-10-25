@@ -95,6 +95,10 @@ namespace ConsoleMonster.Interactive {
 
     /// <summary>Options for <see cref="Grid.Show"/>.</summary>
     public sealed class GridOptions {
+        /// <summary>Commands available through the action palette and their shortcuts. Actions keep the grid open.</summary>
+        public IList<AppCommand> Commands { get; } = new List<AppCommand>();
+        /// <summary>Optional per-run mailbox, drained on the input thread and closed when the grid exits.</summary>
+        public AppDispatcher? Dispatcher { get; set; }
         /// <summary>Prompt options (input, capture, theme, labels); null for the defaults.</summary>
         public InteractiveOptions? Interactive { get; set; }
 

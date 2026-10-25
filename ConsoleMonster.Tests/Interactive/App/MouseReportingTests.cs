@@ -14,7 +14,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
             MouseReporting reporting = new MouseReporting(writer, false);
             reporting.Dispose();
             reporting.Dispose();
-            Assert.Equal("\u001b[?1000h\u001b[?1006h\u001b[?1000l\u001b[?1006l", writer.Text.ToString());
+            Assert.Equal("\u001b[?1002h\u001b[?1006h\u001b[?1002l\u001b[?1006l", writer.Text.ToString());
             Assert.False(writer.Disposed);
         }
 
@@ -23,7 +23,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
         public void SetupFailure_DisablesModesAndDisposesOwnedWriter() {
             Writer writer = new Writer { FailFirstFlush = true };
             Assert.Throws<InvalidOperationException>(() => new MouseReporting(writer, true));
-            Assert.EndsWith("\u001b[?1000l\u001b[?1006l", writer.Text.ToString());
+            Assert.EndsWith("\u001b[?1002l\u001b[?1006l", writer.Text.ToString());
             Assert.True(writer.Disposed);
         }
 

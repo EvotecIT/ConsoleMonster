@@ -23,36 +23,18 @@ namespace ConsoleMonster.Interactive {
             Stopwatch clock = Stopwatch.StartNew();
             long tick = 0;
             bool dirty = true;
-            while (!view.IsDone) {
-                cancellationToken.ThrowIfCancellationRequested();
-                if (surface.Refresh()) {
-                    dirty = true;
-                }
-                if (view.Poll(clock.Elapsed)) {
-                    dirty = true;
-                }
-                if (view.IsDone) {
-                    break;
-                }
-                if (dirty || view.IsAnimating) {
+            AppEventLoop.Run(input, () => view.IsDone, () => {
+                if (surface.Refresh()) { dirty = true; }
+                if (view.Poll(clock.Elapsed)) { dirty = true; }
+                if (!view.IsDone && (dirty || view.IsAnimating)) {
                     Draw(view, surface, context, tick++, clock.Elapsed);
                     dirty = false;
                 }
-                InputEvent? e = input.Read(view.IsAnimating || view.CurrentToast != null ? AnimatedWait : IdleWait, cancellationToken);
-                int burst = 0;
-                while (e != null) {
-                    if (e.Kind == InputEventKind.Resize) {
-                        surface.Refresh();
-                    } else if (e.Kind == InputEventKind.Key || e.Kind == InputEventKind.Paste) {
-                        view.Handle(e);
-                    }
-                    dirty = true;
-                    if (view.IsDone || ++burst >= 64) {
-                        break;
-                    }
-                    e = input.Read(TimeSpan.Zero, cancellationToken);
-                }
-            }
+            }, e => {
+                if (e.Kind == InputEventKind.Resize) { surface.Refresh(); }
+                else { view.Handle(e); }
+                dirty = true;
+            }, cancellationToken, () => view.IsAnimating || view.CurrentToast != null ? AnimatedWait : IdleWait);
         }
 
         public static void Draw(InteractiveView view, IPromptSurface surface, RenderContext context, long tick, TimeSpan elapsed) {
