@@ -1,0 +1,60 @@
+{
+  "slug": "service-browser",
+  "title": "Service browser",
+  "pitch": "Browse service details, confirm an action and watch its output while the grid stays open.",
+  "category": "Terminal apps",
+  "tags": [
+    "grid",
+    "actions",
+    "mouse",
+    "services"
+  ],
+  "terminal": {
+    "width": 100,
+    "height": 30
+  },
+  "runtime": {
+    "powershell": "7.4+",
+    "dotnet": "8.0+"
+  },
+  "addons": [],
+  "makeItYours": [
+    "Replace the fictional rows with Get-Service snapshots.",
+    "Replace the simulated action with Restart-Service in an explicitly imported management module.",
+    "Add a command with its own key, shortcut and confirmation prompt."
+  ],
+  "mode": "live",
+  "steps": 3,
+  "tier": "starter",
+  "useCase": "Use it when an operator needs service details and confirmed actions without leaving the terminal app.",
+  "featured": true,
+  "capture": {
+    "states": [
+      {
+        "keys": "Escape"
+      },
+      {
+        "keys": "F5",
+        "incomplete": true,
+        "contains": "Restart the selected services?"
+      },
+      {
+        "keys": "F5 Left Enter wait:2500 Escape",
+        "realTime": true,
+        "contains": "Restart: completed"
+      }
+    ]
+  },
+  "media": [
+    {
+      "url": "/recordings/fullscreen/service-browser.gif",
+      "label": "Paced GIF",
+      "note": "A full-screen recording with confirmation and streamed output."
+    },
+    {
+      "url": "/recordings/fullscreen/service-browser.html",
+      "label": "HTML player",
+      "note": "The same recording with chapters, scrubbing and playback speed."
+    }
+  ]
+}

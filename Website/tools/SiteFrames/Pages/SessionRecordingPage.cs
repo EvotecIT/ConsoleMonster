@@ -1,14 +1,17 @@
 using System.IO;
+using System;
 using System.Collections.Generic;
 using System.Text.Json.Nodes;
 using ConsoleMonster.Export;
 using ConsoleMonster.Sessions;
+using ConsoleMonster.Graphics;
 using SiteFrames.Replay;
 
 namespace SiteFrames.Pages {
     /// <summary>Deterministic exports from the real Invoke-ConsoleRecording demo capture.</summary>
     internal static class SessionRecordingPage {
         public static void Render(Site site) {
+            RenderFullScreenPreview(site);
             RenderCommandExample(site);
             string cast = Path.Combine(site.Captures, "recording", "session.cast");
             if (!File.Exists(cast)) { throw new FileNotFoundException("Run Website/examples/recording/record-session.ps1 and save its cast under captures/recording.", cast); }
@@ -42,6 +45,25 @@ namespace SiteFrames.Pages {
                 ["powershellRepo"] = "Website/examples/recording/record-session.ps1"
             };
             site.WriteJson(site.Data("session-recording"), new JsonObject { ["session"] = entry });
+        }
+
+        private static void RenderFullScreenPreview(Site site) {
+            SessionRecording recording = SessionRecording.Read(Path.Combine(site.Captures, "fullscreen", "service-browser.cast"));
+            RecordingExportOptions playback = new RecordingExportOptions {
+                Theme = ExportTheme.Dark, WindowChrome = true, Title = "Service browser",
+                FramesPerSecond = 10, HoldLastFrame = TimeSpan.FromSeconds(2)
+            };
+            site.Write(site.Static("recordings/fullscreen/service-browser.html"), recording.Export(ExportFormat.Html, playback));
+            site.Write(site.Static("recordings/fullscreen/service-browser.cast"), recording.ToAsciicast());
+            string gif = site.Static("recordings/fullscreen/service-browser.gif");
+            recording.SaveGraphics(gif, GraphicsFormat.Gif, new GraphicsExportOptions {
+                Frame = new ExportOptions { Theme = ExportTheme.Dark, WindowChrome = true, Title = "Service browser" },
+                Playback = playback, IdleLimit = TimeSpan.FromSeconds(1.5)
+            });
+            site.Written.Add(Path.GetRelativePath(site.Website, gif).Replace('\\', '/'));
+            SessionRecording ssh = SessionRecording.Read(Path.Combine(site.Captures, "fullscreen", "service-browser-ssh.cast"));
+            site.Write(site.Static("recordings/fullscreen/service-browser-ssh.cast"), ssh.ToAsciicast());
+            site.Write(site.Static("recordings/fullscreen/service-browser-ssh.html"), ssh.Export(ExportFormat.Html, playback));
         }
 
         private static void RenderCommandExample(Site site) {
