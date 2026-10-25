@@ -13,8 +13,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../ConsoleMonster/ConsoleMonster.csproj" />
-    <PackageReference Include="ChartForgeX" Version="3.0.2" />
-    <PackageReference Include="ChartForgeX.Stories" Version="3.0.2" />
+    <PackageReference Include="ChartForgeX" Version="3.1.0" />
     <EmbeddedResource Include="Fonts/OFL.txt" LogicalName="ConsoleMonster.Graphics.JetBrainsMono-OFL.txt" />
     <EmbeddedResource Include="Fonts/JetBrainsMono.ttf" LogicalName="ConsoleMonster.Graphics.JetBrainsMono.ttf" />
     <None Include="Fonts/OFL.txt" Pack="true" PackagePath="licenses/JetBrainsMono-OFL.txt" />

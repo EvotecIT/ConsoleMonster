@@ -149,7 +149,7 @@ See [Microsoft's GIF guide](https://support.microsoft.com/en-us/powerpoint/add-a
 
 ## C#
 
-Add the `ConsoleMonster` and `ConsoleMonster.Graphics` packages. The core package has no runtime package dependencies; the graphics add-on brings ChartForgeX and ChartForgeX.Stories. The PowerShell module includes the add-on and loads graphics assemblies on first use.
+Add the `ConsoleMonster` and `ConsoleMonster.Graphics` packages. The core package has no runtime package dependencies; the graphics add-on brings ChartForgeX 3.1.0. The PowerShell module includes the add-on and loads graphics assemblies on first use.
 
 ```csharp
 using ConsoleMonster.Demos;

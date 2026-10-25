@@ -78,7 +78,7 @@ PowerShell or PowerShell 7 and is not itself a standalone native executable.
 | --- | --- | --- |
 | `ConsoleMonster` | Terminal rendering and text/HTML/SVG/asciicast output | None |
 | `ConsoleMonster.Markdown` | Markdown display and widget/frame/recording export | `OfficeIMO.Markdown` |
-| `ConsoleMonster.Graphics` | PNG, GIF and APNG rendering | `ChartForgeX` and `ChartForgeX.Stories` |
+| `ConsoleMonster.Graphics` | PNG, GIF and APNG rendering | `ChartForgeX` 3.1.0 |
 | `ConsoleMonster.Hosting` | Hosted-service dashboard | `Microsoft.Extensions.Hosting.Abstractions` |
 | `ConsoleMonster.Extensions.Logging` | Dashboard logging provider | `Microsoft.Extensions.Logging.Abstractions` |
 
