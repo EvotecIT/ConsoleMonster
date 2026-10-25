@@ -1,6 +1,6 @@
 ---
 title: Guides
-description: How Write-Color, Spectre.Console and Format-Table concepts map to ConsoleMonster, and how output behaves in CI, jobs, remoting, SSH, the ISE and transcripts.
+description: Migrate familiar rendering, selection and form workflows to ConsoleMonster, and understand its behavior across hosts.
 slug: index
 card: help
 order: 0

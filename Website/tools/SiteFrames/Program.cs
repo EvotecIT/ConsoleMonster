@@ -220,6 +220,7 @@ namespace SiteFrames {
             TextDiffFigures.Render(site);
             MarkdownFigures.Render(site);
             ThemeFilesPage.Render(site);
+            MigrationFigures.Render(site);
             AppPage.Render(site, hosts);
             WidgetsPage.Render(site, hosts);
             LivePage.Render(site);

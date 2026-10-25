@@ -90,6 +90,8 @@ Windows PowerShell 5.1 loads only one version of an assembly per session, so two
 
 ## Next
 
+- [Coming from another tool](/guides/coming-from/) maps familiar APIs and commands to ConsoleMonster.
+
 - [Widgets](/widgets/) shows every widget with its PowerShell and C# source.
 - [Three ways to write it in C#](/docs/csharp-styles/) compares the fluent, object and `Ui` styles.
 - [Capability detection](/docs/capabilities/) explains what ConsoleMonster decides about your console.
