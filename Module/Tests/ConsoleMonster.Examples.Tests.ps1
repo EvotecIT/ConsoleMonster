@@ -305,6 +305,8 @@ BeforeAll {
         'Website/examples/recording/record-command.ps1' = @{ TemporaryWorkingDirectory = $true }
         'Website/examples/recording/record-session.ps1' = @{
             RequiresCore = $true
+            # Recording plus GIF, chapter slides and optional MP4 needs a separate deadlock watchdog under parallel CI load.
+            TimeoutSeconds = 300
             Arguments = "-OutputDirectory '$($TestDrive.Replace("'", "''"))/recording-demo'"
             Expect = @('Build succeeded. 24 tests passed.', 'Build report', 'API_TOKEN=')
         }
