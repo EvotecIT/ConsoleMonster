@@ -16,7 +16,7 @@ Adds items to a console widget made earlier: tree nodes, pairs, status items, ba
 The PowerShell way to grow a widget after it was created, instead of calling its .NET methods. Pipe the widget in and give the items as a script block or values; they are the same item commands the widget's own script block takes: New-ConsoleTreeNode for New-ConsoleTree, New-ConsoleKeyValueItem for New-ConsoleKeyValue, New-ConsoleStatusItem for New-ConsoleStatusList and New-ConsolePhases, New-ConsoleBarItem for New-ConsoleBarChart, New-ConsoleChartSeries for New-ConsoleLineChart, New-ConsoleLogEntry for New-ConsoleLogRegion and New-ConsoleLane for New-ConsoleLanes. Sparklines and histograms take numbers, a cell map takes status words, and a live table takes objects or hashtables with a property per column. -PassThru writes the widget on, so it can go straight to Show-Console. For a widget inside a running dashboard, use the live commands (Add-ConsoleValue, Set-ConsoleValue, Update-ConsoleStatusItem, Write-ConsoleLogEntry...) instead.
 
 ### [Add-ConsoleRecordingMarker](Add-ConsoleRecordingMarker.md)
-Adds a named playback chapter to a recorded terminal session.
+Adds a chapter or an export hold to a recorded terminal session.
 
 Inside a recorded child shell, sends an OSC marker to the parent recorder. The marker becomes an asciicast v2 event and an HTML chapter. In-process fallback records the chapter directly.
 

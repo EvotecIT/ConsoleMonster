@@ -61,14 +61,13 @@ namespace ConsoleMonster.Graphics {
         private static RecordingExportOptions Playback(GraphicsExportOptions settings) {
             settings.Validate();
             RecordingExportOptions source = settings.Playback;
-            return new RecordingExportOptions {
-                Width = source.Width, Height = source.Height, Theme = settings.Frame.Theme,
-                CustomTheme = settings.Frame.Theme == ExportTheme.Light ? settings.Frame.LightTheme : settings.Frame.DarkTheme,
-                // Speed-up must not turn a ten-fps export into a sixty-fps animation.
-                FramesPerSecond = source.FramesPerSecond / Math.Max(1, source.Speed), MaxFrames = source.MaxFrames,
-                Speed = source.Speed, HoldLastFrame = source.HoldLastFrame, Glyphs = source.Glyphs,
-                Culture = source.Culture, Title = source.Title
-            };
+            RecordingExportOptions playback = source.Clone();
+            playback.IdleLimit = settings.IdleLimit;
+            playback.Theme = settings.Frame.Theme;
+            playback.CustomTheme = settings.Frame.Theme == ExportTheme.Light ? settings.Frame.LightTheme : settings.Frame.DarkTheme;
+            // Speed-up must not turn a ten-fps export into a sixty-fps animation.
+            playback.FramesPerSecond = source.FramesPerSecond / Math.Max(1, source.Speed);
+            return playback;
         }
         private static CellBuffer Render(IWidget widget, GraphicsExportOptions settings) => ConsoleExporter.Render(widget, settings.Frame,
             settings.Frame.Theme == ExportTheme.Light ? settings.Frame.LightTheme ?? Theme.Light : settings.Frame.DarkTheme ?? (settings.Frame.Theme == ExportTheme.HighContrast ? Theme.HighContrast : Theme.Dark));
@@ -87,8 +86,16 @@ namespace ConsoleMonster.Graphics {
                 int start = 0;
                 while (start < frames.Count - 1 && IsEmpty(frames[start].Frame)) { start++; }
                 if (start > 0) {
+                    TimeSpan openingHold = TimeSpan.Zero;
+                    for (int i = 0; i < start; i++) { openingHold += frames[i].ExplicitHold; }
                     List<RecordedFrame> visible = new List<RecordedFrame>();
                     for (int i = start; i < frames.Count; i++) { visible.Add(frames[i]); }
+                    if (openingHold > TimeSpan.Zero) {
+                        RecordedFrame poster = visible[0];
+                        visible[0] = new RecordedFrame(poster.Frame, poster.Start) {
+                            Duration = checked(poster.Duration + (long)openingHold.TotalMilliseconds), ExplicitHold = poster.ExplicitHold + openingHold
+                        };
+                    }
                     frames = visible;
                 }
             }
@@ -104,10 +111,8 @@ namespace ConsoleMonster.Graphics {
             RgbaImage first = GraphicsRenderer.Render(frames[0].Frame, settings, layout);
             RasterAnimationSource source = new RasterAnimationSource(first.Width, first.Height, frames.Count, (index, cancellation) => {
                 cancellation.ThrowIfCancellationRequested();
-                double duration = frames[index].Duration;
-                double hold = index == frames.Count - 1 ? Math.Min(duration, settings.Playback.HoldLastFrame.TotalMilliseconds) : 0;
-                if (settings.IdleLimit > TimeSpan.Zero) { duration = Math.Min(duration - hold, settings.IdleLimit.TotalMilliseconds) + hold; }
-                return new RasterAnimationFrame(index == 0 ? first : GraphicsRenderer.Render(frames[index].Frame, settings, layout), TimeSpan.FromMilliseconds(Math.Max(10, duration)));
+                return new RasterAnimationFrame(index == 0 ? first : GraphicsRenderer.Render(frames[index].Frame, settings, layout),
+                    TimeSpan.FromMilliseconds(Math.Max(10, frames[index].Duration)));
             });
             if (format != GraphicsFormat.Gif && format != GraphicsFormat.Apng) { throw new ArgumentOutOfRangeException(nameof(format)); }
             GraphicsOutput.Write(path, stream => RasterAnimationEncoder.WriteTo(stream, source,

@@ -48,8 +48,13 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+<<<<<<< HEAD:Module/Docs/Show-ConsolePresentation.md
 ### -IdleLimitSeconds
 Longest recorded idle gap in seconds; zero preserves actual timing.
+=======
+### -IdleLimit
+Asciicast player idle-limit hint in seconds. Source timestamps are always preserved; zero disables the hint.
+>>>>>>> e231f0b (Add readable export pacing and persistent recording holds):Module/Docs/Start-ConsoleDemo.md
 
 ```yaml
 Type: Double

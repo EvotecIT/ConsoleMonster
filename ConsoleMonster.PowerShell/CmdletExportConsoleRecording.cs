@@ -18,7 +18,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsData.Export, "ConsoleRecording", DefaultParameterSetName = "Session")]
     [OutputType(typeof(string), typeof(FileInfo))]
-    public sealed class CmdletExportConsoleRecording : PSCmdlet {
+    public sealed partial class CmdletExportConsoleRecording : PSCmdlet {
         private readonly System.Threading.CancellationTokenSource _exportStop = new System.Threading.CancellationTokenSource();
         /// <summary><para type="description">The dashboard (or widget tree) the recording was made with.</para></summary>
         [Parameter(Mandatory = true, Position = 0, ParameterSetName = "Dashboard")]
@@ -106,7 +106,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(ParameterSetName = "Session")] public string? Chapter { get; set; }
         /// <summary><para type="description">Writes numbered PNG slides to the destination directory, one per chapter.</para></summary>
         [Parameter(ParameterSetName = "Session")] public SwitchParameter PerChapter { get; set; }
-        /// <summary><para type="description">Maximum unchanged-frame delay in graphics exports; zero preserves timing.</para></summary>
+        /// <summary><para type="description">Maximum source delay on an unchanged screen; zero disables capping. Reading and explicit holds are never capped.</para></summary>
         [Parameter, ValidateRange(0, 86400)] public double IdleLimitSeconds { get; set; } = 2;
         /// <summary><para type="description">Total animation plays: zero repeats forever, one plays once.</para></summary>
         [Parameter, ValidateRange(0, 65536)] public int LoopCount { get; set; }
@@ -133,8 +133,8 @@ namespace ConsoleMonster.PowerShell {
                 bool chrome = MyInvocation.BoundParameters.ContainsKey(nameof(WindowChrome)) ? WindowChrome.IsPresent : MyInvocation.BoundParameters.ContainsKey(nameof(ChromeStyle));
                 var paths = GraphicsExportBridge.Recording(source, graphicsTarget, selected, Preset, FontFamily, Fit, Background, BackgroundColor, BackgroundEndColor,
                     new ExportOptions { Theme = Theme, Title = Title, WindowChrome = chrome, ChromeStyle = ChromeStyle },
-                    new RecordingExportOptions { Width = Width, Height = Height, Theme = Theme, FramesPerSecond = FramesPerSecond, Speed = Speed },
-                    IdleLimitSeconds, LoopCount, ParameterSetName == "Dashboard" ? Dashboard : null,
+                    PlaybackOptions(),
+                    LoopCount, ParameterSetName == "Dashboard" ? Dashboard : null,
                     MyInvocation.BoundParameters.ContainsKey(nameof(AtSeconds)) ? (System.TimeSpan?)At : null, Chapter, PerChapter.IsPresent, _exportStop.Token);
                 if (PassThru.IsPresent) { foreach (string path in paths) { WriteObject(new FileInfo(path)); } }
                 return;
@@ -150,15 +150,7 @@ namespace ConsoleMonster.PowerShell {
             bool markdown = PSOutputExport.IsMarkdown(selectedFormat);
             ExportFormat format = markdown ? ExportFormat.Html : PSOutputExport.CoreFormat(selectedFormat);
             if (ParameterSetName == "Dashboard" && format == ExportFormat.Text) { format = ExportFormat.Html; }
-            RecordingExportOptions options = new RecordingExportOptions {
-                Width = Width,
-                Height = Height,
-                FramesPerSecond = FramesPerSecond,
-                Speed = Speed,
-                Theme = Theme,
-                Title = Title,
-                WindowChrome = (MyInvocation.BoundParameters.ContainsKey(nameof(WindowChrome)) ? WindowChrome.IsPresent : MyInvocation.BoundParameters.ContainsKey(nameof(ChromeStyle))), ChromeStyle = ChromeStyle
-            };
+            RecordingExportOptions options = PlaybackOptions();
             string document;
             using (StreamReader reader = new StreamReader(source, Encoding.UTF8)) {
                 if (ParameterSetName == "Session") {

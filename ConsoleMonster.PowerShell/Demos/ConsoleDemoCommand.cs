@@ -22,7 +22,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter] public int Seed { get; set; } = 42;
         /// <summary><para type="description">Maximum wait for a semantic prompt or output pattern.</para></summary>
         [Parameter, ValidateRange(1, 3600)] public int StepTimeoutSeconds { get; set; } = 30;
-        /// <summary><para type="description">Longest recorded idle gap in seconds; zero preserves actual timing.</para></summary>
+        /// <summary><para type="description">Asciicast player idle-limit hint in seconds. Source timestamps are always preserved; zero disables the hint.</para></summary>
         [Parameter, ValidateRange(0, 86400)] public double IdleLimitSeconds { get; set; } = 2;
         /// <summary><para type="description">Output patterns redacted before recording.</para></summary>
         [Parameter] public string[] Redact { get; set; } = Array.Empty<string>();

@@ -180,6 +180,44 @@ File.WriteAllText("build.svg", ConsoleExporter.ToSvg(TextBlock.Plain("8 of 8 che
 ```
 
 
+## Make it readable
+
+Pacing is applied when exporting, so the same cast can produce a quick preview and a readable presentation without another recording. `-Pace Normal` is the default; `Slow` leaves more reading time and `Fast` leaves less. New visible text is counted across a burst of output, then the settled screen gets a bounded reading hold. Short output gets at least 2 / 1.2 / 0.55 seconds for Slow / Normal / Fast; longer output can get up to 10 / 8 / 5 seconds before speed scaling. Colour-only changes add no reading time.
+
+```powershell
+Export-ConsoleRecording ./run.cast -Destination ./run.gif -Preset Slide16x9 -Pace Normal
+Export-ConsoleRecording ./run.cast -Destination ./run-slow.gif -Preset Slide16x9 -Pace Slow
+# Keep the cast's source delays, with no reading holds or idle compression.
+Export-ConsoleRecording ./run.cast -Destination ./run-source.html -Pace Source -IdleLimitSeconds 0
+```
+
+`-IdleLimitSeconds 2` caps source delays on an unchanged screen. It never shortens reading holds, explicit marker holds or the final hold (`-HoldLastFrameSeconds 2`). Source timestamps in new casts are preserved; the cast's `idle_time_limit` header is only a hint to other players. An older cast whose timestamps were already compressed cannot recover the lost pause.
+
+Use `-ChapterHoldSeconds 3` to freeze the screen at every chapter marker. Within any recorded script, add a hold without sleeping:
+
+```powershell
+Write-Host 'Read these results'
+Add-ConsoleRecordingMarker -HoldSeconds 3
+# A labelled hold also starts a chapter.
+Add-ConsoleRecordingMarker 'Results' -HoldSeconds 3
+```
+
+A hold freezes the screen as it was when the marker arrived, including when later output has the same timestamp. It adds time during export and does not wait during recording. The cast stores these instructions as `cm` metadata events alongside ordinary `m` chapter events; reading and writing a cast preserves both, with no sidecar required. Other asciicast players may ignore the extra metadata.
+
+Trim with source positions, or with unique chapter labels. The start is included and the end is excluded. `-TrimEndChapter Cleanup` stops before that chapter and its hold. Earlier output is still replayed to reconstruct the screen at the new start.
+
+```powershell
+Export-ConsoleRecording ./run.cast -Destination ./results.gif -Preset Slide16x9 `
+    -TrimStartChapter Install -TrimEndChapter Cleanup `
+    -ChapterSpeed @{ Install = 4; Results = 1 } -ChapterHoldSeconds 2
+# Time boundaries use positions in the original cast, before speed and holds.
+Export-ConsoleRecording ./run.cast -Destination ./excerpt.svg -TrimStartSeconds 4 -TrimEndSeconds 18
+```
+
+Chapter speed multiplies `-Speed` for source and reading delays; explicit holds keep their requested duration. GIF, APNG, HTML/player data and animated SVG share this timeline. Raw session asciicast, text/transcripts and still PNG/SVG exports retain their source content and positions.
+
+In C#, use `RecordingExportOptions.Pace`, `IdleLimit`, `ChapterHold`, `TrimStart`, `TrimEnd`, `TrimStartChapter`, `TrimEndChapter` and `ChapterSpeeds`. Durations are `TimeSpan` values. A running `SessionRecorder` accepts `AddMarker(TimeSpan.FromSeconds(3))` or `AddMarker(TimeSpan.FromSeconds(3), "Results")`; `SetPace(RecordingPace.Slow)` records a pace instruction. From a recorded child, write `SessionRecorder.MarkerSequence(TimeSpan.FromSeconds(3))` to its terminal output.
+
 ### Record dashboard updates
 
 A live dashboard can record the widget updates it applies instead of terminal bytes. Use `Invoke-ConsoleDashboard -RecordPath` in PowerShell, or `LiveSessionOptions.RecordPath` / `RecordWriter` in C#. Replay into the same dashboard with `Show-ConsoleReplay -PlaybackMode Automatic`, `Show-ConsoleReplay` or `LiveSession.Replay`. Dashboard recordings use JSON lines and export to asciicast v3; whole terminal sessions use asciicast v2.

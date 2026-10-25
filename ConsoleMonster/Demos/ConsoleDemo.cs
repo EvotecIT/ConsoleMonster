@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using ConsoleMonster.Sessions;
+using ConsoleMonster.Export;
 
 namespace ConsoleMonster.Demos {
     /// <summary>Types scripted demonstrations into a real PowerShell PTY and records its actual output.</summary>
@@ -123,6 +124,8 @@ namespace ConsoleMonster.Demos {
             if (!step.Hidden) { EnsureVisible(); }
             switch (step.Kind) {
                 case DemoStepKind.Chapter: _recorder.AddMarker(step.Text); return;
+                case DemoStepKind.Hold: _recorder.AddMarker(RecordingTimeline.FromMilliseconds(double.Parse(step.Text, CultureInfo.InvariantCulture) * 1000)); return;
+                case DemoStepKind.Pace: _recorder.SetPace((RecordingPace)Enum.Parse(typeof(RecordingPace), step.Text, true)); return;
                 case DemoStepKind.Pause:
                     Delay(TimeSpan.FromSeconds(double.Parse(step.Text, CultureInfo.InvariantCulture)));
                     long checkpoint; lock (_gate) { checkpoint = _prompts.PromptCount; }

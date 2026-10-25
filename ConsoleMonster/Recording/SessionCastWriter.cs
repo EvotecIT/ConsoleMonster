@@ -6,6 +6,7 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using ConsoleMonster.Serialization;
+using ConsoleMonster.Export;
 
 namespace ConsoleMonster.Sessions {
     /// <summary>Writes sanitized v2 events in arrival order, while keeping controls active after the byte cap.</summary>
@@ -83,10 +84,14 @@ namespace ConsoleMonster.Sessions {
                                 string label;
                                 try { label = Encoding.UTF8.GetString(Convert.FromBase64String(command.Substring(7))); }
                                 catch (FormatException) { label = "Chapter"; }
-                                // A marker is not a redaction boundary. Separate its sequence from output on either
-                                // side even when all three arrived in one native read.
                                 Marker(label, new Arrival(arrival.Time, ++_sequence));
                                 arrival = new Arrival(arrival.Time, ++_sequence);
+                            } else if (command.StartsWith("timeline;", StringComparison.Ordinal)) {
+                                try {
+                                    RecordingMarker marker = SessionMarkerData.Read(TimeSpan.Zero, Encoding.UTF8.GetString(Convert.FromBase64String(command.Substring(9))));
+                                    Marker(marker.Label, marker.Hold, marker.Pace, marker.IsChapter, new Arrival(arrival.Time, ++_sequence));
+                                    arrival = new Arrival(arrival.Time, ++_sequence);
+                                } catch (FormatException) { /* Malformed private controls are consumed, never exposed as output. */ }
                             }
                         } else if (_control.Length > 8192) { ClearControl(); _suppressLongControl = true; }
                     } else if (_suppressLongControl) {
@@ -204,6 +209,13 @@ namespace ConsoleMonster.Sessions {
             if (!_disposed && !StopRequested && !LimitReached) { Queue(new BufferedEvent(Now(), "r", width + "x" + height)); }
         }
         public void Marker(string label) => Marker(label, Now());
+        public void Marker(string label, TimeSpan hold, RecordingPace? pace, bool isChapter) => Marker(label, hold, pace, isChapter, Now());
+        private void Marker(string label, TimeSpan hold, RecordingPace? pace, bool isChapter, Arrival arrival) {
+            string data = SessionMarkerData.Write(_redactor.Apply(label.Replace('\r', ' ').Replace('\n', ' ')), hold, pace, isChapter);
+            if (_disposed || LimitReached || StopRequested) { return; }
+            // Metadata shares the same ordered queue as output and resize events.
+            Queue(new BufferedEvent(arrival, "cm", data));
+        }
         private void Marker(string label, Arrival arrival) {
             if (_disposed || LimitReached || StopRequested) { return; }
             Queue(new BufferedEvent(arrival, "m", _redactor.Apply(label.Replace('\r', ' ').Replace('\n', ' '))));
@@ -211,10 +223,17 @@ namespace ConsoleMonster.Sessions {
         private void Event(BufferedEvent item) {
             if (item.Value.Length == 0 || LimitReached || StopRequested) { return; }
             double gap = Math.Max(0, item.Arrival.Time - _lastReal);
-            _time += _options.IdleLimit > TimeSpan.Zero ? Math.Min(gap, _options.IdleLimit.TotalSeconds) : gap;
+            // Preserve source timestamps. The header idle limit is a player hint; export compression is reversible.
+            _time += gap;
             _lastReal = Math.Max(_lastReal, item.Arrival.Time);
             Write("[" + Seconds(_time) + "," + Json(item.Kind) + "," + Json(item.Value) + "]\n");
-            if (item.Kind == "m" && !LimitReached) { _markers.Add(new object?[] { (long)(_time * 1000), item.Value }); }
+            if (!LimitReached) {
+                if (item.Kind == "m") { _markers.Add(new object?[] { (long)(_time * 1000), item.Value }); }
+                else if (item.Kind == "cm") {
+                    RecordingMarker marker = SessionMarkerData.Read(TimeSpan.Zero, item.Value);
+                    if (marker.IsChapter) { _markers.Add(new object?[] { (long)(_time * 1000), marker.Label }); }
+                }
+            }
         }
         private void Write(string text) {
             byte[] bytes = Encoding.UTF8.GetBytes(text);

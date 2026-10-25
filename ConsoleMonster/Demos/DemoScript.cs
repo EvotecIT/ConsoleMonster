@@ -16,6 +16,10 @@ namespace ConsoleMonster.Demos {
         Pause,
         /// <summary>Print a narration line.</summary>
         Narration,
+        /// <summary>Freeze the exported screen without waiting during capture.</summary>
+        Hold,
+        /// <summary>Set the export reading pace for subsequent output.</summary>
+        Pace,
         /// <summary>Wait for a regular expression in command output.</summary>
         Wait
     }
@@ -81,6 +85,10 @@ namespace ConsoleMonster.Demos {
                             case "type-only": typeOnly = true; break;
                             case "wpm": wpm = Number(value, line, 1, 1000); break;
                             case "chapter": Add(DemoStepKind.Chapter); break;
+                            case "hold": Number(value, line, 0, 86400); Add(DemoStepKind.Hold); break;
+                            case "pace":
+                                if (value != "slow" && value != "normal" && value != "fast") { throw new FormatException("Invalid demo pace at line " + line + ". Use slow, normal or fast."); }
+                                Add(DemoStepKind.Pace); break;
                             case "pause": Number(value, line, 0, 3600); Add(DemoStepKind.Pause); break;
                             case "narrate": Add(DemoStepKind.Narration); break;
                             case "wait":

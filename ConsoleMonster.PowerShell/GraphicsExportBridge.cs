@@ -31,9 +31,9 @@ namespace ConsoleMonster.PowerShell {
         }
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static IReadOnlyList<string> Recording(string source, string target, string? format, string preset, string? font, string fit, string background, string? backgroundColor, string? backgroundEndColor,
-            ExportOptions frame, RecordingExportOptions playback, double idleLimit, int loops, IWidget? dashboard, TimeSpan? at, string? chapter, bool perChapter, System.Threading.CancellationToken cancellationToken) {
+            ExportOptions frame, RecordingExportOptions playback, int loops, IWidget? dashboard, TimeSpan? at, string? chapter, bool perChapter, System.Threading.CancellationToken cancellationToken) {
             GraphicsExportOptions settings = Settings(preset, font, fit, background, backgroundColor, backgroundEndColor, frame);
-            settings.Playback = playback; settings.IdleLimit = TimeSpan.FromSeconds(idleLimit); settings.LoopCount = loops;
+            settings.Playback = playback; settings.LoopCount = loops;
             GraphicsFormat selected = (GraphicsFormat)Enum.Parse(typeof(GraphicsFormat), format ?? System.IO.Path.GetExtension(target).TrimStart('.'), true);
             if (dashboard != null) {
                 using (StreamReader reader = new StreamReader(source, Encoding.UTF8)) {

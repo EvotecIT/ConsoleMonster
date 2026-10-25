@@ -34,7 +34,9 @@ Directives are comment lines beginning with `# demo:`. Ordinary PowerShell remai
 | Directive | Meaning |
 |---|---|
 | `chapter Inspect` | Add a chapter before the next command. |
-| `pause 1.5` | Pause for seconds, using a decimal point. |
+| `pause 1.5` | Wait during recording, using a decimal point. Export idle compression may shorten this pause. |
+| `hold 3` | Freeze the exported screen for three seconds, without waiting during recording. |
+| `pace slow` | Set subsequent export reading pace: `slow`, `normal` or `fast`. |
 | `setup` | Hide the next complete command and its output. Wrap several setup statements in `. { ... }`. |
 | `type-only` | Type the next command without running it. The following command replaces it. In presenter mode Enter can run it. |
 | `narrate What happens next` | Write a narration line into the child terminal and recording. |
@@ -55,7 +57,7 @@ Export-ConsoleRecording -Path ./talk.cast -Format Gif -Preset Slide16x9 -WindowC
 
 PNG, GIF and APNG run in-process without an external executable or a download. Use GIF for animated slides.
 
-`-FramesPerSecond` is the maximum sample rate (10 by default). Identical frames are merged; GIF preserves exact colours when a frame fits its palette and otherwise keeps common colours with no dither on glyphs. Changed rectangles use retained disposal; richer gradients can show gentle bands. `-IdleLimitSeconds 2` caps unchanged-frame delays while the final frame has its own hold. Use zero to keep original timing. `-LoopCount 0` loops indefinitely; one plays once. APNG preserves full-colour pixels for software that supports it.
+`-FramesPerSecond` is the maximum sample rate (10 by default). Identical frames are merged; GIF preserves exact colours when a frame fits its palette and otherwise keeps common colours with no dither on glyphs. Changed rectangles use retained disposal; richer gradients can show gentle bands. `-Pace Normal` adds reading holds after output settles. Use `Slow` for more time or `Fast` for a quick preview. `-IdleLimitSeconds 2` caps source idle delays; it never clips reading or explicit holds. `-Pace Source -IdleLimitSeconds 0` keeps source delays without reading holds. `-LoopCount 0` loops indefinitely; one plays once. APNG preserves full-colour pixels for software that supports it.
 
 | Preset | Canvas |
 |---|---|
@@ -68,7 +70,8 @@ For PowerPoint, choose `Slide16x9`: it renders directly at 1920×1080 with crisp
 glyphs at the slide's pixel size. Insert through **Insert → Pictures** and preview
 in Slide Show. Do not stretch a smaller `Docs` capture to fill the slide; `Docs`
 keeps natural terminal pixels for documentation. Leading empty screens are
-removed from GIF playback so the first frame is a useful poster. The final frame
+removed from GIF playback so the first frame is a useful poster. Explicit holds
+on those empty opening screens are retained on the first content poster. The final frame
 holds for two seconds before repeating; `-LoopCount 1` plays once and retains it.
 
 Every slide preset centres the complete window inside a safe inset of 6% of the canvas's short side. Opposite margins match; the extra space follows the window's aspect ratio. Rounded corners, a subtle shadow and a fine border keep the bottom edge visible. PNG, GIF and APNG share this composition.
@@ -82,6 +85,19 @@ Export-ConsoleRecording ./talk.cast -Format Png -Preset Slide16x9 -Fit Terminal 
 ```
 
 Use `-Theme Dark`, `Light` or `HighContrast`, and `-ChromeStyle MacOS`, `Windows`, `Linux` or `None`. The embedded JetBrains Mono font makes default text consistent across operating systems. `-FontFamily 'Consolas'` chooses an installed font; C# also accepts additional fallback families. Emoji and CJK coverage depends on installed fonts. Box drawing, blocks and braille use geometric cell shapes, so they join without font seams.
+
+## Make it readable
+
+Add export instructions to the demo without slowing the recording itself:
+
+```powershell
+# demo: pace slow
+# demo: chapter Results
+'Compile: passed', 'Tests: 24 passed', 'Package: ready'
+# demo: hold 3
+```
+
+The pace and hold survive in the cast. Explicit `-Pace` at export overrides recorded pace directives. Use `-ChapterHoldSeconds`, time/chapter trims and `-ChapterSpeed @{ Install = 4; Results = 1 }` to tune an existing run. See [make it readable](/docs/recording/#make-it-readable) for the timing rules and examples.
 
 ## Export still slides
 

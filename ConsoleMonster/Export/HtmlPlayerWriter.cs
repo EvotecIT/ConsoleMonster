@@ -72,12 +72,13 @@ namespace ConsoleMonster.Export {
                 AppendScriptString(json, rows[i]);
             }
             json.Append("],\"frames\":").Append(frameData);
-            if (recording.Markers.Count > 0) {
+            IReadOnlyList<RecordingMarker> markers = recording.PlaybackMarkers ?? new List<RecordingMarker>(recording.Markers);
+            if (markers.Count > 0) {
                 json.Append(",\"markers\":[");
-                for (int i = 0; i < recording.Markers.Count; i++) {
+                for (int i = 0; i < markers.Count; i++) {
                     if (i > 0) { json.Append(','); }
-                    json.Append('[').Append(((long)recording.Markers[i].Time.TotalMilliseconds).ToString(CultureInfo.InvariantCulture)).Append(',');
-                    AppendScriptString(json, recording.Markers[i].Label);
+                    json.Append('[').Append(((long)markers[i].Time.TotalMilliseconds).ToString(CultureInfo.InvariantCulture)).Append(',');
+                    AppendScriptString(json, markers[i].Label);
                     json.Append(']');
                 }
                 json.Append(']');

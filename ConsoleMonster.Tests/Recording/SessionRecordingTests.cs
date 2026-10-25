@@ -97,7 +97,7 @@ namespace ConsoleMonster.Tests.Sessions {
         }
 
         [Fact]
-        public void Writer_IdleLimitCapsPlaybackGaps() {
+        public void Writer_IdleLimitIsAPlayerHintAndPreservesSourceGaps() {
             SessionRecordingOptions options = Options(); options.IdleLimit = TimeSpan.FromMilliseconds(10);
             using (SessionRecorder recorder = SessionRecorder.Start(options)) {
                 recorder.CapturePowerShellOutput("first\n");
@@ -106,7 +106,8 @@ namespace ConsoleMonster.Tests.Sessions {
             }
             string[] lines = File.ReadAllLines(options.Path!);
             double last = double.Parse(lines[2].Substring(1, lines[2].IndexOf(',') - 1), System.Globalization.CultureInfo.InvariantCulture);
-            Assert.InRange(last, 0, 0.020001);
+            Assert.True(last >= 0.05, "Capture keeps the source pause for later export choices.");
+            Assert.Contains("\"idle_time_limit\":0.01", lines[0]);
             Assert.Contains("second", ConsoleExporter.ToText(SessionRecording.Read(options.Path!).FinalFrame()));
         }
 
@@ -380,7 +381,7 @@ namespace ConsoleMonster.Tests.Sessions {
             Assert.Contains("\\u003c/script\\u003e", recording.ExportPlayerData());
             Assert.Contains("Done", recording.ExportFinalSvg(new ExportOptions { Theme = ExportTheme.Light }));
         }
-        private static RecordingExportOptions ExportOptions() => new RecordingExportOptions { Theme = ExportTheme.Dark, Title = "Recorded session", WindowChrome = true, HoldLastFrame = TimeSpan.FromSeconds(1) };
+        private static RecordingExportOptions ExportOptions() => new RecordingExportOptions { Pace = RecordingPace.Source, IdleLimit = TimeSpan.Zero, Theme = ExportTheme.Dark, Title = "Recorded session", WindowChrome = true, HoldLastFrame = TimeSpan.FromSeconds(1) };
         private static SessionRecording GoldenRecording() => SessionRecording.Read(new StringReader(
             "{\"version\":2,\"width\":16,\"height\":4,\"title\":\"Recorded session\"}\n"
             + "[0,\"o\",\"\\u001b[32mBuild\\u001b[0m\\r\\n\"]\n"

@@ -18,7 +18,7 @@ Export-ConsoleRecording [-Path] <string> [[-Destination] <string>] [-Format <str
 
 ### Dashboard
 ```powershell
-Export-ConsoleRecording [-Dashboard] <IWidget> [-Path] <string> [[-Destination] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-FramesPerSecond <double>] [-Speed <double>] [-Theme <ExportTheme>] [-Title <string>] [-WindowChrome] [-ChromeStyle <WindowChromeStyle>] [-PassThru] [-Preset <string>] [-Fit <string>] [-Background <string>] [-BackgroundColor <string>] [-BackgroundEndColor <string>] [-FontFamily <string>] [-IdleLimitSeconds <double>] [-LoopCount <int>] [<CommonParameters>]
+Export-ConsoleRecording [-Dashboard] <IWidget> [-Path] <string> [[-Destination] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-FramesPerSecond <double>] [-Speed <double>] [-Theme <ExportTheme>] [-Title <string>] [-WindowChrome] [-ChromeStyle <WindowChromeStyle>] [-PassThru] [-Preset <string>] [-Fit <string>] [-Background <string>] [-BackgroundColor <string>] [-BackgroundEndColor <string>] [-FontFamily <string>] [-IdleLimitSeconds <double>] [-LoopCount <int>] [-Pace <RecordingPace>] [-ChapterHoldSeconds <double>] [-HoldLastFrameSeconds <double>] [-TrimStartSeconds <double>] [-TrimEndSeconds <double>] [-TrimStartChapter <string>] [-TrimEndChapter <string>] [-ChapterSpeed <hashtable>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -108,6 +108,38 @@ Exports the completed view of this chapter as PNG.
 ```yaml
 Type: String
 Parameter Sets: Session
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ChapterHoldSeconds
+Extra export hold at every chapter marker, unaffected by speed or idle capping.
+
+```yaml
+Type: Double
+Parameter Sets: Session, Dashboard
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ChapterSpeed
+Hashtable of chapter labels to positive speed multipliers, for example @{ Install = 4; Results = 1 }. Multiplies Speed for source and reading delays; explicit holds retain their duration. Labels must be unique in the recording.
+
+```yaml
+Type: Hashtable
+Parameter Sets: Session, Dashboard
 Aliases: None
 Possible values:
 
@@ -262,8 +294,24 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -HoldLastFrameSeconds
+Final screen hold after the source timeline and reading holds (default 2 seconds).
+
+```yaml
+Type: Double
+Parameter Sets: Session, Dashboard
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -IdleLimitSeconds
-Maximum unchanged-frame delay in graphics exports; zero preserves timing.
+Maximum source delay on an unchanged screen; zero disables capping. Reading and explicit holds are never capped.
 
 ```yaml
 Type: Double
@@ -286,6 +334,22 @@ Type: Int32
 Parameter Sets: Session, Dashboard
 Aliases: None
 Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Pace
+Slow, Normal (default), Fast or Source. Adds reading time after output settles. Explicitly specifying Pace overrides recorded demo pace directives. Source adds no reading time; use IdleLimitSeconds 0 to retain all source delays.
+
+```yaml
+Type: RecordingPace
+Parameter Sets: Session, Dashboard
+Aliases: None
+Possible values: Source, Slow, Normal, Fast
 
 Required: False
 Position: named
@@ -395,6 +459,70 @@ The title (page title, title bar, asciicast title).
 
 ```yaml
 Type: String
+Parameter Sets: Session, Dashboard
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -TrimEndChapter
+End before this chapter marker. Its output and hold are excluded.
+
+```yaml
+Type: String
+Parameter Sets: Session, Dashboard
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -TrimEndSeconds
+Exclusive source position at which to end. Cannot be combined with TrimEndChapter.
+
+```yaml
+Type: Double
+Parameter Sets: Session, Dashboard
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -TrimStartChapter
+Begin at this chapter marker, retaining its hold and all later output.
+
+```yaml
+Type: String
+Parameter Sets: Session, Dashboard
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -TrimStartSeconds
+Inclusive source position at which to begin. Cannot be combined with TrimStartChapter.
+
+```yaml
+Type: Double
 Parameter Sets: Session, Dashboard
 Aliases: None
 Possible values:

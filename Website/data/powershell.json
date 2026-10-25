@@ -925,7 +925,7 @@
         },
         {
           "name": "Add-ConsoleRecordingMarker",
-          "synopsis": "Adds a named playback chapter to a recorded terminal session.",
+          "synopsis": "Adds a chapter or an export hold to a recorded terminal session.",
           "url": "/powershell/commands/add-consolerecordingmarker/"
         },
         {

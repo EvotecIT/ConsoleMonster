@@ -46,8 +46,9 @@ namespace ConsoleMonster.Sessions {
                 if (item.Count != 3 || !(item[1] is string kind) || !(item[2] is string data) || !double.TryParse(item[0] as string, NumberStyles.Float, CultureInfo.InvariantCulture, out double seconds)
                     || double.IsNaN(seconds) || double.IsInfinity(seconds) || seconds < previous || seconds > 86400 * 365) { throw new FormatException("Invalid asciicast event time or payload."); }
                 previous = seconds;
+                if (kind == "cm") { SessionMarkerData.Read(TimeSpan.FromSeconds(seconds), data); }
                 if (kind == "r") { ParseSize(data, out int w, out int h); Dimensions(w, h); }
-                if (kind == "o" || kind == "r" || kind == "m") { recording._events.Add(new CastEvent(seconds, kind, data)); }
+                if (kind == "o" || kind == "r" || kind == "m" || kind == "cm") { recording._events.Add(new CastEvent(seconds, kind, data)); }
             }
             return recording;
         }
@@ -86,7 +87,7 @@ namespace ConsoleMonster.Sessions {
         public CellBuffer FrameAt(TimeSpan time) {
             if (time < TimeSpan.Zero) { throw new ArgumentOutOfRangeException(nameof(time)); }
             VtScreen screen = new VtScreen(Width, Height, false);
-            foreach (CastEvent item in _events) { if (item.Time > time.TotalSeconds) { break; } Apply(screen, item); }
+            foreach (CastEvent item in _events) { if (item.At > time) { break; } Apply(screen, item); }
             return screen.Snapshot();
         }
         /// <summary>Reconstructs a completed chapter, stopping before the next marker in source event order.</summary>
@@ -95,7 +96,7 @@ namespace ConsoleMonster.Sessions {
             VtScreen screen = new VtScreen(Width, Height, false);
             int chapter = -1;
             foreach (CastEvent item in _events) {
-                if (item.Kind == "m" && ++chapter > index) { return screen.Snapshot(); }
+                if (Marker(item)?.IsChapter == true && ++chapter > index) { return screen.Snapshot(); }
                 Apply(screen, item);
             }
             if (chapter < index) { throw new ArgumentOutOfRangeException(nameof(index)); }
@@ -105,10 +106,20 @@ namespace ConsoleMonster.Sessions {
         public IReadOnlyList<RecordingMarker> Chapters {
             get {
                 List<RecordingMarker> result = new List<RecordingMarker>();
-                foreach (CastEvent item in _events) { if (item.Kind == "m") { result.Add(new RecordingMarker(TimeSpan.FromSeconds(item.Time), item.Data)); } }
+                foreach (RecordingMarker marker in Markers) { if (marker.IsChapter) { result.Add(marker); } }
                 return result.AsReadOnly();
             }
         }
+        /// <summary>Chapters and export instructions in original event order and source time.</summary>
+        public IReadOnlyList<RecordingMarker> Markers {
+            get {
+                List<RecordingMarker> result = new List<RecordingMarker>();
+                foreach (CastEvent item in _events) { RecordingMarker? marker = Marker(item); if (marker != null) { result.Add(marker); } }
+                return result.AsReadOnly();
+            }
+        }
+        private static RecordingMarker? Marker(CastEvent item) => item.Kind == "m" ? new RecordingMarker(item.At, item.Data)
+            : item.Kind == "cm" ? SessionMarkerData.Read(item.At, item.Data) : null;
         /// <summary>Reconstructs print-once terminal scrollback and the final main screen.</summary>
         public CellBuffer Transcript() => Replay(true).Transcript();
         private VtScreen Replay(bool keepScrollback = false) {
@@ -150,100 +161,68 @@ namespace ConsoleMonster.Sessions {
         }
         private RecordingExportOptions Ready(RecordingExportOptions? options) {
             RecordingExportOptions source = options ?? new RecordingExportOptions();
-            RecordingExportOptions result = new RecordingExportOptions {
-                Theme = source.Theme, CustomTheme = source.CustomTheme, Title = source.Title ?? Title,
-                WindowChrome = source.WindowChrome, ChromeStyle = source.ChromeStyle, FontFamily = source.FontFamily, FontSize = source.FontSize,
-                LineHeight = source.LineHeight, FramesPerSecond = source.FramesPerSecond, MaxFrames = source.MaxFrames,
-                Speed = source.Speed, HoldLastFrame = source.HoldLastFrame, Glyphs = source.Glyphs,
-                Culture = source.Culture, Padding = source.Padding, Timestamp = source.Timestamp, Loop = source.Loop
-            };
+            RecordingExportOptions result = source.Clone();
+            result.Title = source.Title ?? Title;
             if (result.MaxFrames < 2) { throw new ArgumentOutOfRangeException(nameof(options), "Session playback needs at least two frames."); }
             int width = Width, height = Height;
             foreach (CastEvent item in _events) { if (item.Kind == "r") { ParseSize(item.Data, out int w, out int h); width = Math.Max(width, w); height = Math.Max(height, h); } }
             Dimensions(width, height);
             result.Width = width; result.Height = height;
             result.ToFrameOptions();
-            foreach (RecordingMarker marker in source.Markers) { result.Markers.Add(marker); }
-            foreach (CastEvent item in _events) { if (item.Kind == "m") { result.Markers.Add(new RecordingMarker(TimeSpan.FromTicks(PlaybackTicks(item.Time, result.Speed)), item.Data)); } }
+            foreach (RecordingMarker marker in Markers) { result.Markers.Add(marker); }
             return result;
         }
         private List<RecordedFrame> Frames(RecordingExportOptions options, bool trimEmptyRows = true) {
             VtScreen screen = new VtScreen(Width, Height, false);
-            List<RecordedFrame> frames = new List<RecordedFrame>();
+            List<RecordingSourceFrame> samples = new List<RecordingSourceFrame>();
+            List<RecordingMarker> capturedMarkers = new List<RecordingMarker>();
+            TimeSpan eventTime = TimeSpan.Zero;
+            void ApplyEvent(CastEvent item) {
+                eventTime = item.At;
+                RecordingMarker? marker = Marker(item);
+                if (marker != null) { marker.Snapshot = Pad(screen.Snapshot(), options.Width, options.Height); capturedMarkers.Add(marker); }
+                Apply(screen, item);
+            }
             double lastTime = _events.Count > 0 ? _events[_events.Count - 1].Time : 0;
             int completedCount = CountSynchronizedFrames();
             int completedBudget = Math.Min(completedCount, options.MaxFrames - 2);
             int regularBudget = options.MaxFrames - completedBudget;
             double interval = Math.Max(1.0 / options.FramesPerSecond, lastTime / (regularBudget - 1));
             int eventIndex = 0, completedIndex = 0;
-            double eventTime = 0;
-            long timelineShift = 0;
-            bool previousCompleted = false;
-            // Match the HTML player's effective cadence, including baked speed and its 1-60 fps bounds.
-            double playbackRate = Math.Max(1, Math.Min(60, options.FramesPerSecond * options.Speed));
-            long repaintInterval = (long)Math.Ceiling(1000 / playbackRate);
-            List<PlaybackAdjustment> adjustments = new List<PlaybackAdjustment>();
-            void Capture(double sourceSeconds, bool completed = false) {
-                CellBuffer buffer = Pad(screen.Snapshot(), options.Width, options.Height);
-                if (frames.Count > 0 && RecordingFrames.Same(frames[frames.Count - 1].Frame, buffer)) { return; }
-                long sourceTicks = PlaybackTicks(sourceSeconds, options.Speed);
-                long time = sourceTicks / TimeSpan.TicksPerMillisecond + timelineShift;
-                if (frames.Count > 0) {
-                    long earliest = frames[frames.Count - 1].Start + (completed || previousCompleted ? repaintInterval : 1);
-                    if (time < earliest) {
-                        timelineShift += earliest - time; time = earliest;
-                        adjustments.Add(new PlaybackAdjustment(sourceTicks, timelineShift));
-                    }
-                }
-                frames.Add(new RecordedFrame(buffer, time)); previousCompleted = completed;
-            }
-            void ApplyEvent(CastEvent item) {
-                eventTime = item.Time;
-                Apply(screen, item);
-            }
             screen.SynchronizedFrameCompleted = () => {
                 int previous = completedIndex++;
-                // Reserve a bounded, evenly distributed selection for logical frames before sampling idle output.
+                // Retain an evenly distributed, bounded set of completed logical redraws.
                 if (completedBudget > 0 && (long)completedIndex * completedBudget / completedCount > (long)previous * completedBudget / completedCount) {
-                    Capture(eventTime, completed: true);
+                    AddFrame(samples, Pad(screen.Snapshot(), options.Width, options.Height), eventTime, completed: true);
                 }
             };
-            for (int sample = 0; sample < regularBudget - 1 && sample * interval < lastTime; sample++) {
-                double at = sample * interval;
-                while (eventIndex < _events.Count && _events[eventIndex].Time <= at) {
-                    ApplyEvent(_events[eventIndex++]);
-                }
-                if (!screen.SynchronizedOutput) {
-                    Capture(at);
-                }
+            foreach (double milliseconds in RecordingTimeline.SampleTimes(lastTime * 1000, interval * 1000, regularBudget, options)) {
+                TimeSpan at = RecordingTimeline.FromMilliseconds(milliseconds);
+                while (eventIndex < _events.Count && _events[eventIndex].At <= at) { ApplyEvent(_events[eventIndex++]); }
+                if (!screen.SynchronizedOutput) { AddFrame(samples, Pad(screen.Snapshot(), options.Width, options.Height), at); }
             }
-            while (eventIndex < _events.Count) {
-                ApplyEvent(_events[eventIndex++]);
-            }
-            long end = PlaybackTicks(lastTime, options.Speed) / TimeSpan.TicksPerMillisecond;
-            Capture(lastTime);
-            for (int i = 0; i < options.Markers.Count; i++) {
-                RecordingMarker marker = options.Markers[i]; long shift = 0;
-                foreach (PlaybackAdjustment adjustment in adjustments) {
-                    if (adjustment.SourceTicks > marker.Time.Ticks) { break; }
-                    shift = adjustment.Shift;
-                }
-                options.Markers[i] = new RecordingMarker(marker.Time + TimeSpan.FromMilliseconds(shift), marker.Label);
-            }
-            for (int i = 0; i < frames.Count - 1; i++) { frames[i].Duration = frames[i + 1].Start - frames[i].Start; }
-            frames[frames.Count - 1].Duration = Math.Max(1, Math.Max(0, end + timelineShift - frames[frames.Count - 1].Start) + (long)options.HoldLastFrame.TotalMilliseconds);
+            while (eventIndex < _events.Count) { ApplyEvent(_events[eventIndex++]); }
+            TimeSpan end = RecordingTimeline.FromMilliseconds(lastTime * 1000);
+            AddFrame(samples, Pad(screen.Snapshot(), options.Width, options.Height), end);
+            for (int i = 0; i < samples.Count - 1; i++) { samples[i].Duration = samples[i + 1].Time - samples[i].Time; }
+            samples[samples.Count - 1].Duration = end - samples[samples.Count - 1].Time;
+            // Replace cast markers with copies carrying the exact screen at their arrival.
+            int castMarkerCount = Markers.Count;
+            for (int i = 0; i < castMarkerCount; i++) { options.Markers.RemoveAt(options.Markers.Count - 1); }
+            foreach (RecordingMarker marker in capturedMarkers) { options.Markers.Add(marker); }
+            List<RecordedFrame> frames = RecordingTimeline.Apply(samples, options);
             if (trimEmptyRows) {
                 int usedHeight = 1;
                 foreach (RecordedFrame frame in frames) { usedHeight = Math.Max(usedHeight, UsedHeight(frame.Frame)); }
                 options.Height = usedHeight;
                 for (int i = 0; i < frames.Count; i++) {
                     RecordedFrame frame = frames[i];
-                    frames[i] = new RecordedFrame(TrimRows(frame.Frame, usedHeight), frame.Start) { Duration = frame.Duration };
+                    frames[i] = new RecordedFrame(TrimRows(frame.Frame, usedHeight), frame.Start) { Duration = frame.Duration, ExplicitHold = frame.ExplicitHold };
                 }
             }
             return frames;
         }
-        // Count without retaining snapshots, so even a large input cannot bypass the export frame budget.
+        // Count without retaining snapshots, so a large input cannot bypass the frame budget.
         private int CountSynchronizedFrames() {
             int count = 0;
             VtScreen screen = new VtScreen(Width, Height, false);
@@ -261,12 +240,10 @@ namespace ConsoleMonster.Sessions {
             trimmed.Blit(frame, 0, 0, frame.Width, height, 0, 0);
             return trimmed;
         }
-        // Use the same integral time unit for frames and chapters on every supported runtime.
-        private static long PlaybackTicks(double seconds, double speed) => (long)(seconds * TimeSpan.TicksPerSecond / speed);
-        private readonly struct PlaybackAdjustment {
-            internal PlaybackAdjustment(long sourceTicks, long shift) { SourceTicks = sourceTicks; Shift = shift; }
-            internal long SourceTicks { get; }
-            internal long Shift { get; }
+        private static void AddFrame(List<RecordingSourceFrame> frames, CellBuffer buffer, TimeSpan time, bool completed = false) {
+            if (frames.Count > 0 && RecordingFrames.Same(frames[frames.Count - 1].Frame, buffer)) { return; }
+            if (frames.Count > 0 && frames[frames.Count - 1].Time == time && !frames[frames.Count - 1].Synchronized && !completed) { frames.RemoveAt(frames.Count - 1); }
+            frames.Add(new RecordingSourceFrame(buffer, time) { Synchronized = completed });
         }
         /// <summary>Replays sampled screens. Set trimEmptyRows to false to retain the complete terminal canvas.</summary>
         public List<RecordedFrame> CaptureFrames(RecordingExportOptions? options = null, bool trimEmptyRows = true) => Frames(Ready(options), trimEmptyRows);
@@ -276,8 +253,8 @@ namespace ConsoleMonster.Sessions {
             return frame;
         }
         private sealed class CastEvent {
-            public CastEvent(double time, string kind, string data) { Time = time; Kind = kind; Data = data; }
-            public double Time { get; } public string Kind { get; } public string Data { get; }
+            public CastEvent(double time, string kind, string data) { Time = time; At = RecordingTimeline.FromMilliseconds(time * 1000); Kind = kind; Data = data; }
+            public double Time { get; } public TimeSpan At { get; } public string Kind { get; } public string Data { get; }
         }
     }
 }

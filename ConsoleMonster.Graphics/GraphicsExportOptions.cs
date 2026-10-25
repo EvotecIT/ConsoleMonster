@@ -62,7 +62,8 @@ namespace ConsoleMonster.Graphics {
         /// <summary>Additional installed fallback families, tried before platform emoji/CJK defaults.</summary>
         public IList<string> FontFallbacks { get; } = new List<string>();
         /// <summary>Maximum time one unchanged screen stays, excluding the final hold. Zero preserves source timing.</summary>
-        public TimeSpan IdleLimit { get; set; } = TimeSpan.FromSeconds(2);
+        public TimeSpan IdleLimit { get => _idleLimit ?? Playback.IdleLimit; set => _idleLimit = value; }
+        private TimeSpan? _idleLimit;
         /// <summary>Total plays: zero loops indefinitely, one plays once.</summary>
         public int LoopCount { get; set; }
         internal void Validate() {

@@ -64,15 +64,20 @@
 # demo: setup
 function prompt { '任意> ' }; $secretSetup = 'do-not-record-setup'
 # demo: wpm 1000
+# demo: pace slow
 # demo: chapter Answer
 Write-Host ('answer=' + (6 * 7))
 # demo: wait answer=42
+# demo: hold 3
 '@)
         $cast = Join-Path $TestDrive 'typed.cast'
         Invoke-ConsolePresentation -Path $demo -Destination $cast -Width 50 -Height 8 | Should -BeOfType ([IO.FileInfo])
         $text = Export-ConsoleRecording $cast -Format Text
         $text | Should -Match 'answer=42'
         $text | Should -Match '任意>'
+        $markers = [ConsoleMonster.Sessions.SessionRecording]::Read($cast).Markers
+        @($markers | Where-Object { $_.Hold.TotalSeconds -eq 3 }).Count | Should -Be 1
+        @($markers | Where-Object { $_.Pace -eq 'Slow' }).Count | Should -Be 1
         Get-Content $cast -Raw | Should -Not -Match 'do-not-record-setup'
         { Show-ConsolePresentation -Path $demo } | Should -Throw '*needs a terminal*'
     }

@@ -217,8 +217,9 @@ namespace ConsoleMonster.Replay {
             Cell[][]? previous = null;
             ReplayChrome? previousChrome = null;
             Dashboard? dashboard = (root as DashboardBody)?.Dashboard;
-            RecordingFrames.Sample(root, events, export, (buffer, time) => {
-                ReplayChrome? chrome = dashboard == null ? null : new ReplayChrome(dashboard.Title, dashboard.Subtitle, dashboard.Detail, dashboard.Status);
+            RecordingFrames.Sample(root, events, export, (buffer, sourceTime) => {
+                long time = (long)Math.Round(sourceTime.TotalMilliseconds);
+                ReplayChrome? chrome = dashboard == null ? null : new ReplayChrome(dashboard.Title, dashboard.Subtitle, dashboard.Status);
                 Cell[][] rows = new Cell[buffer.Height][];
                 bool same = previous != null;
                 for (int y = 0; y < buffer.Height; y++) {
