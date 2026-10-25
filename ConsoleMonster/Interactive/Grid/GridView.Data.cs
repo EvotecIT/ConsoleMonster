@@ -146,6 +146,8 @@ namespace ConsoleMonster.Interactive {
                 }
                 int head = 2;
                 int count = Math.Max(1, region.Height - head);
+                bool showPosition = view._actions?.HasCommands == true && (view._top > 0 || view._visible.Count > count);
+                if (showPosition) { count = Math.Max(1, count - 1); }
                 view._pageRows = Math.Max(1, count - 1);
                 if (view._cursor < view._top) {
                     view._top = view._cursor;
@@ -178,8 +180,13 @@ namespace ConsoleMonster.Interactive {
                         region.SetStyle(x, y, style);
                     }
                 }
-                if (hidden != null && region.Height > 0) {
-                    string note = TextWrapper.Truncate(hidden, region.Width, context.Ellipsis);
+                string? position = showPosition ? (view._top + 1).ToString(view._culture)
+                    + (context.Glyphs.Tier == ConsoleMonster.Capabilities.GlyphTier.Ascii ? "-" : "–")
+                    + Math.Min(view._top + rowLines.Count, view._visible.Count).ToString(view._culture)
+                    + " of " + view._visible.Count.ToString(view._culture) : null;
+                string? footer = position == null ? hidden : position + (hidden == null ? "" : " · " + hidden);
+                if (footer != null && region.Height > 0) {
+                    string note = TextWrapper.Truncate(footer, region.Width, context.Ellipsis);
                     region.Write(Math.Max(0, region.Width - DisplayWidth.Measure(note)), region.Height - 1, note, context.Style(ThemeToken.Muted));
                 }
             }

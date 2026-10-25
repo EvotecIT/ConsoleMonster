@@ -197,5 +197,57 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Assert.Contains("Selected row", frame); Assert.Contains("Action output", frame); Assert.Contains("Refreshed", frame);
             Golden.Match("interactive/grid.actions.txt", frame.TrimEnd() + "\n");
         }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void GridRefresh_UpdatesOnlyTheActedOnRowOnTheInputThread(bool succeeds) {
+            Grid grid = new Grid("Services"); grid.AddColumn("Name").AddColumn("ProcessId");
+            grid.AddRow("one", "One", 2456); grid.AddRow("two", "Two", 1000);
+            TaskCompletionSource<bool> finish = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            GridOptions options = new GridOptions();
+            options.Commands.Add(new AppCommand("restart", "Restart", (_, __) => finish.Task) { Shortcut = new KeyChord(ConsoleKey.F5) });
+            int refreshes = 0;
+            int inputThread = Thread.CurrentThread.ManagedThreadId;
+            options.RefreshRow = (command, row) => {
+                Assert.Equal(Thread.CurrentThread.ManagedThreadId, inputThread);
+                Assert.Equal("restart", command.Key);
+                Assert.Equal("one", row.Item);
+                refreshes++;
+                return new GridRow(row.Item, "One", 2556);
+            };
+            using GridView view = new GridView(grid, options, new PromptLabels());
+            FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, 100, 30, false, TimeSpan.Zero)), 100, 30, Context);
+            view.Handle(InputEvent.Press(ConsoleKey.F5));
+            view.Handle(InputEvent.Press(ConsoleKey.DownArrow));
+            if (succeeds) { finish.SetResult(true); } else { finish.SetException(new InvalidOperationException("Backend failed")); }
+            Assert.True(SpinWait.SpinUntil(() => {
+                view.Poll(TimeSpan.Zero);
+                string text = FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, 100, 30, false, TimeSpan.Zero)), 100, 30, Context).ToPlainText();
+                return text.Contains(succeeds ? "Restart: completed" : "Backend failed") && (!succeeds || refreshes == 1);
+            }, TimeSpan.FromSeconds(10)));
+            view.Poll(TimeSpan.Zero);
+            Assert.Equal(succeeds ? 1 : 0, refreshes);
+            Assert.Equal(succeeds ? 2556 : 2456, grid.Rows[0].Values[1]);
+            Assert.Equal(1000, grid.Rows[1].Values[1]);
+            Assert.Equal("two", Assert.Single(view.ChosenItems()));
+            Assert.False(view.IsDone);
+
+        }
+
+        [Fact]
+        public void CompactActionGrid_ShowsItsVisibleRowRangeWhilePaging() {
+            Grid grid = new Grid("Services"); grid.AddColumn("Name");
+            for (int i = 1; i <= 10; i++) { grid.AddRow(i, "Service" + i.ToString("00")); }
+            GridOptions options = new GridOptions();
+            options.Commands.Add(new AppCommand("restart", "Restart", (_, __) => Task.CompletedTask));
+            using GridView view = new GridView(grid, options, new PromptLabels());
+            string Draw() => FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, 80, 24, false, TimeSpan.Zero)), 80, 24, Context).ToPlainText();
+            Assert.Matches("1–[1-9] of 10", Draw());
+            view.Handle(InputEvent.Press(ConsoleKey.End, KeyModifiers.Control));
+            string last = Draw();
+            Assert.Contains("Service10", last);
+            Assert.Matches("[2-9]–10 of 10", last);
+        }
     }
 }

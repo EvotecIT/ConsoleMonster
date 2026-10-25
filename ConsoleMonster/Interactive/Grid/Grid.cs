@@ -70,6 +70,8 @@ namespace ConsoleMonster.Interactive {
             return this;
         }
 
+        internal void ReplaceRow(int index, GridRow row) => _rows[index] = row;
+
         /// <summary>Shows the grid and returns the chosen rows.</summary>
         /// <param name="options">The options, or null for the defaults.</param>
         /// <param name="cancellationToken">Cancels the grid.</param>
@@ -79,9 +81,10 @@ namespace ConsoleMonster.Interactive {
 
     /// <summary>One row of a <see cref="Grid"/>.</summary>
     public sealed class GridRow {
-        internal GridRow(object? item, object?[] values) {
+        /// <summary>Creates a row snapshot for a grid refresh, with its original object and raw column values.</summary>
+        public GridRow(object? item, params object?[] values) {
             Item = item;
-            Values = values;
+            Values = values ?? Array.Empty<object?>();
         }
 
         /// <summary>The object the row stands for.</summary>
@@ -97,6 +100,8 @@ namespace ConsoleMonster.Interactive {
     public sealed class GridOptions {
         /// <summary>Commands available through the action palette and their shortcuts. Actions keep the grid open.</summary>
         public IList<AppCommand> Commands { get; } = new List<AppCommand>();
+        /// <summary>Refreshes each acted-on row on the input thread after successful completion. Return a new snapshot in the same column order; selection and row position are retained. Keep this callback short.</summary>
+        public Func<AppCommand, GridRow, GridRow>? RefreshRow { get; set; }
         /// <summary>Optional per-run mailbox, drained on the input thread and closed when the grid exits.</summary>
         public AppDispatcher? Dispatcher { get; set; }
         /// <summary>Prompt options (input, capture, theme, labels); null for the defaults.</summary>

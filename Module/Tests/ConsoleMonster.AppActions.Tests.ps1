@@ -2,7 +2,7 @@ Describe 'In-app command actions' {
     BeforeAll {
         Import-Module (Join-Path $PSScriptRoot '../ConsoleMonster.psd1') -Force
         function Invoke-ActionGrid {
-            param($Command, [string] $Keys)
+            param($Command, [string] $Keys, [scriptblock] $Refresh)
             $profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed(100, 30)
             $capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(100, 30)
             $inputSource = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new($Keys)
@@ -17,7 +17,7 @@ Describe 'In-app command actions' {
             try {
                 ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default = $options
                 $rows = @([pscustomobject] @{ Name = 'One' }, [pscustomobject] @{ Name = 'Two' })
-                $null = $rows | Show-ConsoleGrid -Property Name -Title Services -Action $Command -ErrorAction Stop
+                $null = $rows | Show-ConsoleGrid -Property Name -Title Services -Action $Command -Refresh $Refresh -ErrorAction Stop
                 return ($capture.Frames | ForEach-Object { $_.ToPlainText() }) -join "`n"
             } finally { ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default = $previous; $inputSource.Dispose() }
         }
@@ -58,5 +58,26 @@ Describe 'In-app command actions' {
         $text | Should -Match 'Operation started'
         $text | Should -Match 'Wait: cancelled'
         ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::IsAcquired | Should -BeFalse
+    }
+
+    It 'refreshes the acted-on row on the caller thread after successful isolated work' {
+        $script:RefreshCalls = 0
+        $script:RefreshThread = 0
+        $script:RefreshKey = ''
+        $thread = [Threading.Thread]::CurrentThread.ManagedThreadId
+        $command = New-ConsoleCommand -Key Restart -Shortcut F5 -ScriptBlock { param($Row) "Restarted $($Row.Name)" }
+        $text = Invoke-ActionGrid $command 'F5 wait:4000 Escape' {
+            param($Row, $CommandKey)
+            $script:RefreshCalls++
+            $script:RefreshThread = [Threading.Thread]::CurrentThread.ManagedThreadId
+            $script:RefreshKey = $CommandKey
+            $Row.Name = $Row.Name + '-refreshed'
+            $Row
+        }
+        $text | Should -Match 'Restarted One'
+        $text | Should -Match 'One-refreshed'
+        $script:RefreshCalls | Should -Be 1
+        $script:RefreshThread | Should -Be $thread
+        $script:RefreshKey | Should -Be Restart
     }
 }

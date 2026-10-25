@@ -27,8 +27,12 @@ namespace ConsoleMonster.Interactive {
         private Button? _barCapture;
         private readonly List<Action> _detach = new List<Action>();
         private readonly Func<string>? _selectionLabel;
+        private readonly Action<AppCommand, IReadOnlyList<object?>>? _completed;
+        private IReadOnlyList<object?> _activeRows = Array.Empty<object?>();
+        private long _completionRevision;
 
-        internal AppCommandHost(IEnumerable<AppCommand> commands, Func<IReadOnlyList<object?>> selection, PromptLabels labels, CancellationToken token, bool commandBar = false, bool requiresRows = false, AppDispatcher? dispatcher = null, Func<string>? selectionLabel = null) {
+        internal AppCommandHost(IEnumerable<AppCommand> commands, Func<IReadOnlyList<object?>> selection, PromptLabels labels, CancellationToken token, bool commandBar = false, bool requiresRows = false, AppDispatcher? dispatcher = null, Func<string>? selectionLabel = null, Action<AppCommand, IReadOnlyList<object?>>? completed = null) {
+            _completed = completed;
             _selectionLabel = selectionLabel;
             _commands = new List<AppCommand>(commands).ToArray();
             HashSet<string> keys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -64,6 +68,13 @@ namespace ConsoleMonster.Interactive {
 
         internal bool Poll() {
             bool changed = _session.Dispatcher.Drain() != 0;
+            long completion = _session.CompletionRevision;
+            if (completion != _completionRevision && !_session.IsBusy) {
+                _completionRevision = completion;
+                try { if (_session.CompletedCommand is AppCommand command) { _completed?.Invoke(command, _activeRows); } }
+                catch (Exception error) { _session.Write("Refresh: " + error.Message, "err"); }
+                changed = true;
+            }
             long revision = _session.Revision;
             if (revision != _revision) { _revision = revision; changed = true; }
             bool busy = _session.IsBusy;
@@ -74,12 +85,15 @@ namespace ConsoleMonster.Interactive {
         internal void Invoke(AppCommand command) {
             lock (_gate) {
                 if (_session.IsBusy) { return; }
-                IReadOnlyList<object?> rows = command.Capture(_selection());
+                Poll();
+                IReadOnlyList<object?> originals = Array.AsReadOnly(new List<object?>(_selection()).ToArray());
+                IReadOnlyList<object?> rows = command.Capture(originals);
+                void Start() { if (_session.Start(command, rows)) { _activeRows = originals; } }
                 if (_requiresRows && rows.Count == 0) { return; }
-                if (string.IsNullOrWhiteSpace(command.ConfirmPrompt)) { _session.Start(command, rows); }
+                if (string.IsNullOrWhiteSpace(command.ConfirmPrompt)) { Start(); }
                 else {
                     string target = _selectionLabel?.Invoke() ?? (rows.Count == 1 ? Convert.ToString(rows[0]) ?? "1 item" : rows.Count + " items");
-                    ReplaceModal(new CommandModal(command.ConfirmPrompt!.Replace("{Selection}", target), () => _session.Start(command, rows), _labels));
+                    ReplaceModal(new CommandModal(command.ConfirmPrompt!.Replace("{Selection}", target), Start, _labels));
                 }
             }
         }

@@ -17,9 +17,13 @@ namespace ConsoleMonster.Interactive {
         private Task? _work;
         private bool _closed;
         private long _revision;
+        private long _completionRevision;
+        private AppCommand? _completedCommand;
         internal AppDispatcher Dispatcher { get; }
         internal AppActionSession(CancellationToken token, AppDispatcher? dispatcher = null) { Dispatcher = dispatcher ?? new AppDispatcher(); _lifetime = CancellationTokenSource.CreateLinkedTokenSource(token); }
         internal bool IsBusy { get { lock (_gate) { return _work != null && !_work.IsCompleted; } } }
+        internal long CompletionRevision { get { lock (_gate) { return _completionRevision; } } }
+        internal AppCommand? CompletedCommand { get { lock (_gate) { return _completedCommand; } } }
         internal long Revision { get { lock (_gate) { return _revision; } } }
         internal IReadOnlyList<LogEntry> Output { get { lock (_gate) { return _output.ToArray(); } } }
 
@@ -29,15 +33,19 @@ namespace ConsoleMonster.Interactive {
                 _operation?.Dispose();
                 _operation = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
                 CancellationToken token = _operation.Token;
+                _clock.Restart();
                 var captured = Array.AsReadOnly(rows.ToArray());
                 _work = Task.Run(async () => {
+                    bool succeeded = false;
                     try {
                         token.ThrowIfCancellationRequested();
                         await command.Action(new AppActionContext(captured, Write), token).ConfigureAwait(false);
                         token.ThrowIfCancellationRequested();
                         Write(command.Label + ": completed", "pass");
+                        succeeded = true;
                     } catch (OperationCanceledException) when (token.IsCancellationRequested) { Write(command.Label + ": cancelled", "warn"); }
                     catch (Exception error) { Write(command.Label + ": " + error.Message, "err"); }
+                    finally { lock (_gate) { _completedCommand = succeeded ? command : null; _completionRevision++; } }
                 });
                 return true;
             }
@@ -49,7 +57,7 @@ namespace ConsoleMonster.Interactive {
             try { operation?.Cancel(); } catch (ObjectDisposedException) { }
         }
 
-        private void Write(string text, string level) {
+        internal void Write(string text, string level) {
             lock (_gate) {
                 if (_closed) { return; }
                 if (text.Length > 16384) { text = text.Substring(0, 16384) + " [truncated]"; }

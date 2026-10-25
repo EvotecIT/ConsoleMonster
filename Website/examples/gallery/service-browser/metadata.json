@@ -39,7 +39,7 @@
         "contains": "Restart Spooler?"
       },
       {
-        "keys": "F5 Left Enter wait:2500 Escape",
+        "keys": "F5 Left Enter wait:4000 Escape",
         "realTime": true,
         "contains": "Restart: completed"
       }

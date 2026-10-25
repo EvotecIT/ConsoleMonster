@@ -63,6 +63,10 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public object[]? Action { get; set; }
 
+        /// <summary><para type="description">Refreshes each acted-on row on the caller's input thread after successful completion. Receives param($Row, $CommandKey) and returns one replacement object. Keep the callback short; action work belongs in New-ConsoleCommand.</para></summary>
+        [Parameter]
+        public ScriptBlock? Refresh { get; set; }
+
         /// <summary><para type="description">The culture for numbers and dates (default CONSOLEMONSTER_CULTURE, then the current culture).</para></summary>
         [Parameter]
         public CultureInfo? Culture { get; set; }
@@ -101,19 +105,28 @@ namespace ConsoleMonster.PowerShell {
             foreach (BoundColumn column in columns) {
                 grid.AddColumn(column.Column);
             }
-            foreach (PSObject item in items) {
+            object?[] ValuesFor(PSObject item, Values.ShapeBudget readBudget) {
                 object?[] values = new object?[columns.Count];
                 for (int c = 0; c < columns.Count; c++) {
-                    object? value = PSFormatting.Read(columns[c], item, budget);
+                    object? value = PSFormatting.Read(columns[c], item, readBudget);
                     object? prepared = value is Values.FieldError || value is Values.BudgetExceeded ? value : Values.ValueShaper.Prepare(value, shape);
                     object? cell = columns[c].Column.Presenter != null && PSShaping.IsPresentable(prepared) ? prepared : PSShaping.Cell(value, columns[c].Column, shape, Values.ShapeBudget.For(shape));
                     // The grid sorts and filters cell values: marked cells (empty collections, failed getters) become their text.
                     values[c] = cell is ConsoleMonster.Widgets.TableCell marked ? Markup.Strip(marked.Markup) : cell;
                 }
-                grid.AddRow(item, values);
+                return values;
             }
+            foreach (PSObject item in items) { grid.AddRow(item, ValuesFor(item, budget)); }
             GridOptions options = new GridOptions { Filter = Filter, SortDescending = Descending.IsPresent, Interactive = PSInteractive.Options(this, Mode) };
             foreach (AppCommand command in PSCommandActions.Collect(Action)) { options.Commands.Add(command); }
+            if (Refresh != null) {
+                options.RefreshRow = (command, row) => {
+                    System.Collections.ObjectModel.Collection<PSObject> output = Refresh.Invoke(row.Item, command.Key);
+                    if (output.Count != 1) { throw new InvalidOperationException("Refresh must return exactly one row object."); }
+                    PSObject item = output[0];
+                    return new GridRow(item, ValuesFor(item, Values.ShapeBudget.For(shape)));
+                };
+            }
             if (UnavailableFallback.IsPresent && options.Interactive.Input == null && options.Interactive.Capture == null
                 && (!ConsoleFormatting.Displayed(this) || FormatCommandRouter.IsTranscribing(this))) {
                 // A background job's host can offer line prompts by blocking the job. An unavailable-command fallback

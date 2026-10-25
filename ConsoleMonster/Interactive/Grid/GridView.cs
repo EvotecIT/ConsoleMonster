@@ -40,7 +40,7 @@ namespace ConsoleMonster.Interactive {
 
         public GridView(Grid grid, GridOptions options, PromptLabels labels, System.Threading.CancellationToken cancellationToken = default) : base(labels) {
             _grid = grid;
-            if (options.Commands.Count > 0 || options.Dispatcher != null) { _actions = new AppCommandHost(options.Commands, ActionRows, labels, cancellationToken, commandBar: true, requiresRows: true, dispatcher: options.Dispatcher, selectionLabel: ActionSelectionLabel); }
+            if (options.Commands.Count > 0 || options.Dispatcher != null) { _actions = new AppCommandHost(options.Commands, ActionRows, labels, cancellationToken, commandBar: true, requiresRows: true, dispatcher: options.Dispatcher, selectionLabel: ActionSelectionLabel, completed: (command, rows) => RefreshActionRows(options, command, rows)); }
             _filter = new LineEditor(options.Filter);
             _hidden = new bool[grid.Columns.Count];
             for (int c = 0; c < grid.Columns.Count; c++) {
@@ -49,13 +49,31 @@ namespace ConsoleMonster.Interactive {
             _sortColumn = options.SortColumn >= 0 && options.SortColumn < grid.Columns.Count ? options.SortColumn : -1;
             _descending = options.SortDescending;
             _culture = grid.Presentation.Culture ?? CultureInfo.CurrentCulture;
-            foreach (GridRow row in grid.Rows) {
-                string[] search = new string[grid.Columns.Count];
-                for (int c = 0; c < search.Length; c++) {
-                    search[c] = c < row.Values.Count ? PresenterValues.ToText(row.Values[c], _culture) : string.Empty;
+            RebuildSearch();
+        }
+
+        private void RebuildSearch() {
+            foreach (GridRow row in _grid.Rows) {
+                row.Search = new string[_grid.Columns.Count];
+                for (int c = 0; c < row.Search.Length; c++) {
+                    row.Search[c] = c < row.Values.Count ? PresenterValues.ToText(row.Values[c], _culture) : string.Empty;
                 }
-                row.Search = search;
             }
+            _appliedFilter = "\0";
+            _table = null;
+        }
+
+        private void RefreshActionRows(GridOptions options, AppCommand command, IReadOnlyList<object?> items) {
+            if (options.RefreshRow == null) { return; }
+            // Match the captured source objects, even if focus or marks changed while the action ran.
+            try {
+                for (int i = 0; i < _grid.Rows.Count; i++) {
+                    GridRow row = _grid.Rows[i];
+                    if (items.Any(item => ReferenceEquals(item, row.Item))) {
+                        _grid.ReplaceRow(i, options.RefreshRow(command, row) ?? throw new InvalidOperationException("RefreshRow must return a row snapshot."));
+                    }
+                }
+            } finally { RebuildSearch(); }
         }
 
         public bool Accepted { get; private set; }
