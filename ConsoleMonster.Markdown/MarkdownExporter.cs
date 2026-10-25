@@ -37,7 +37,7 @@ namespace ConsoleMonster.Markdown {
         /// <summary>Exports terminal scrollback and the final main screen as a fenced text block.</summary>
         /// <param name="recording">The recorded terminal session.</param>
         /// <returns>The complete transcript as Markdown.</returns>
-        public static string Export(SessionRecording recording) {
+        public static string ExportRecording(SessionRecording recording) {
             if (recording == null) { throw new ArgumentNullException(nameof(recording)); }
             return Export(recording.Transcript());
         }
@@ -47,7 +47,7 @@ namespace ConsoleMonster.Markdown {
         /// <param name="events">Recorded updates, in order.</param>
         /// <param name="options">Replay dimensions, sampling and timing.</param>
         /// <returns>A document containing each distinct replayed frame.</returns>
-        public static string Export(IWidget root, IEnumerable<LiveEvent> events, RecordingExportOptions? options = null) {
+        public static string ExportRecording(IWidget root, IEnumerable<LiveEvent> events, RecordingExportOptions? options = null) {
             if (root == null) { throw new ArgumentNullException(nameof(root)); }
             MarkdownDoc document = MarkdownDoc.Create();
             foreach (RecordedFrame frame in Recording.CaptureFrames(root, events, options)) {

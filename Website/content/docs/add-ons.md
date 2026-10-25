@@ -13,7 +13,7 @@ The core never emits Markdown; the `ConsoleMonster.Markdown` add-on owns Markdow
 
 ## Markdown
 
-Add `ConsoleMonster.Markdown` to a C# application. `MarkdownConsole.Parse` and `Show` read and display documents; `MarkdownExporter.Export` writes widgets, frames, live snapshots and recordings. The add-on uses OfficeIMO.Markdown's document model for fenced blocks and recording documents. Semantic widget output retains its cell presenters, groups and totals. See [Markdown display and export](/docs/markdown/).
+Add `ConsoleMonster.Markdown` to a C# application. `MarkdownConsole.Parse` and `Show` read and display documents; `MarkdownExporter.Export` writes widgets, frames and live snapshots; `ExportRecording` writes recordings. The add-on uses OfficeIMO.Markdown's document model for fenced blocks and recording documents. Semantic widget output retains its cell presenters, groups and totals. See [Markdown display and export](/docs/markdown/).
 
 The PowerShell module includes the add-on and loads it when Markdown is requested. `$rows | Export-ConsoleFrame -Format Markdown` and `Export-ConsoleRecording -Format Markdown` keep the same command names.
 

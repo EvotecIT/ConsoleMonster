@@ -17,10 +17,10 @@ namespace ConsoleMonster.PowerShell {
         internal static string Frame(CellBuffer frame) => global::ConsoleMonster.Markdown.MarkdownExporter.Export(frame);
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static string Recording(SessionRecording recording) => global::ConsoleMonster.Markdown.MarkdownExporter.Export(recording);
+        internal static string Recording(SessionRecording recording) => global::ConsoleMonster.Markdown.MarkdownExporter.ExportRecording(recording);
 
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static string Dashboard(IWidget root, TextReader reader, RecordingExportOptions options) =>
-            global::ConsoleMonster.Markdown.MarkdownExporter.Export(root, LiveRecordingReader.Read(reader), options);
+            global::ConsoleMonster.Markdown.MarkdownExporter.ExportRecording(root, LiveRecordingReader.Read(reader), options);
     }
 }

@@ -8,6 +8,7 @@
 - Display capture uses `AsString` or `AsWidget`; `Export-ConsoleFrame` accepts ordinary objects as well as widgets. `Show-ConsoleRule` and dictionary input to `Show-ConsoleList` preserve convenient one-line scripts.
 - Embedded demos keep `Get-ConsoleDemo` and `Show-ConsoleDemo`, with script export moved to `Export-ConsoleDemo`. Stage delivery and unattended recording use `Show-ConsolePresentation` and `Invoke-ConsolePresentation`. Interactive session recording uses `Invoke-ConsoleRecording -Interactive`; replay mode uses `Show-ConsoleReplay -PlaybackMode`.
 - Added `Unregister-ConsoleView`, `New-ConsoleHeaderBar`, `New-ConsoleFooterBar` and `New-ConsoleColumnFormat`. Imports register only the documented 13 fully qualified type accelerators and remove only registrations they still own. Recording wire keys remain unchanged.
+- Markdown display and export belong to `ConsoleMonster.Markdown`, outside the core. C# uses `MarkdownExporter.Export` and `ExportRecording`; core `.md` requests name the required package. PowerShell keeps its export commands and loads the bundled add-on lazily. OfficeIMO supplies document blocks and safe fences; dashboard Markdown recordings now contain timestamped frames instead of an HTML fallback.
 - The complete before/after record is in [the API consistency decisions](Docs/api-consistency-proposal.md).
 
 #### What's new

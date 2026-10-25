@@ -15,6 +15,14 @@ using Xunit;
 
 namespace ConsoleMonster.Extensions.Tests.Markdown {
     public sealed class MarkdownExportTests {
+        [Fact]
+        public void NullOrDefaultWidgetOptionsResolveWithoutSelectingTheRecordingOverload() {
+            var table = new Table().AddColumn("Host").AddRow("web-01");
+            Assert.Equal(MarkdownExporter.Export(table), MarkdownExporter.Export(table, null));
+            Assert.Equal(MarkdownExporter.Export(table), MarkdownExporter.Export(table, default));
+            Assert.Equal(MarkdownExporter.Export(table), MarkdownExporter.Export(table, null, default));
+        }
+
         [Theory]
         [InlineData(GlyphTier.Full)]
         [InlineData(GlyphTier.Ascii)]
@@ -163,14 +171,14 @@ namespace ConsoleMonster.Extensions.Tests.Markdown {
         public void RecordingExportKeepsScrollbackAndLiteralTranscriptContent() {
             const string cast = "{\"version\":2,\"width\":20,\"height\":2}\n[0,\"o\",\"first\\r\\nsecond\\r\\nthird\\r\\nlast\"]\n";
             SessionRecording recording = SessionRecording.Read(new StringReader(cast));
-            Assert.Equal("```text\nfirst\nsecond\nthird\nlast\n```\n", MarkdownExporter.Export(recording));
+            Assert.Equal("```text\nfirst\nsecond\nthird\nlast\n```\n", MarkdownExporter.ExportRecording(recording));
         }
 
         [Fact]
         public void DashboardEventsExportMarkdownFramesInsteadOfAnHtmlFallback() {
             LiveTable table = new LiveTable(new Table().AddColumn("Name"), "rows");
             var events = new[] { new LiveEvent("rows", "add", key: "1", text: "first") };
-            string markdown = MarkdownExporter.Export(table, events, new RecordingExportOptions { Width = 40, Height = 5 });
+            string markdown = MarkdownExporter.ExportRecording(table, events, new RecordingExportOptions { Width = 40, Height = 5 });
             Assert.Contains("### 00:00:00", markdown);
             Assert.Contains("```text", markdown);
             Assert.Contains("first", markdown);

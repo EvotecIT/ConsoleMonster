@@ -22,7 +22,7 @@ MarkdownConsole.Show("# Deployment notes\n\nRead the [guide](https://example.org
 
 ## Export
 
-Add the package in C# and use `MarkdownExporter.Export(widget, options)`. The overloads accept rendered `CellBuffer` frames, live sessions and terminal `SessionRecording` transcripts. For dashboard event recordings, pass the dashboard definition, events and replay options; each distinct frame gets a timestamp heading. `fenced: true` on a widget keeps its exact terminal layout.
+Add the package in C# and use `MarkdownExporter.Export(widget, options)`. The overloads accept rendered `CellBuffer` frames and live sessions. `MarkdownExporter.ExportRecording(recording)` exports a terminal transcript. For dashboard event recordings, call `ExportRecording` with the dashboard definition, events and replay options; each distinct frame gets a timestamp heading. `fenced: true` on a widget keeps its exact terminal layout.
 
 ```csharp
 using ConsoleMonster.Export;

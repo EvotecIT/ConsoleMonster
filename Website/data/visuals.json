@@ -233,6 +233,9 @@
     "size-100x30": {
       "src": "/site/cards/size-100x30.svg"
     },
+    "formatting": {
+      "src": "/site/cards/formatting.svg"
+    },
     "profile-detected": {
       "src": "/site/cards/profile-detected.svg"
     },
@@ -251,9 +254,6 @@
     },
     "hosting": {
       "src": "/site/cards/hosting.svg"
-    },
-    "formatting": {
-      "src": "/site/cards/formatting.svg"
     },
     "app-live-filter-filtered-60": {
       "src": "/site/cards/app-live-filter-filtered-60.svg"

@@ -151,6 +151,6 @@ if (!clipboard.TryCopy(markdown, out string? error)) {
 }
 ```
 
-`MarkdownExporter.Export` in the `ConsoleMonster.Markdown` package accepts an `IWidget`, `CellBuffer`, `LiveSession` or `SessionRecording`. Set `fenced: true` for a widget's exact terminal layout. The PowerShell module includes this add-on and loads it on first Markdown use. Core exports support Text, Html, Svg and recording Asciicast; `.md` requests made through core name the required add-on. `ClipboardService.TryCopy`
+`MarkdownExporter.Export` in the `ConsoleMonster.Markdown` package accepts an `IWidget`, `CellBuffer` or `LiveSession`; `ExportRecording` accepts terminal recordings or a dashboard definition and recorded events. Set `fenced: true` for a widget's exact terminal layout. The PowerShell module includes this add-on and loads it on first Markdown use. Core exports support Text, Html, Svg and recording Asciicast; `.md` requests made through core name the required add-on. `ClipboardService.TryCopy`
 returns `false` with an actionable diagnostic when no usable clipboard exists;
 it does not expose the copied content in error messages.
