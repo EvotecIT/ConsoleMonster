@@ -178,7 +178,7 @@ Children share the width equally unless they were created with -Weight. -FixedWi
 ### [New-ConsoleCommand](New-ConsoleCommand.md)
 Defines an in-app action for buttons, palettes and grid rows.
 
-Creates a passive command definition. Work runs in an isolated runspace with explicit arguments and module imports, not the defining closure. The first script parameter receives a deserialized row snapshot. Selected or marked rows are captured before optional modal confirmation and run in order. Output, host messages, warnings, errors and progress stream into the app's log. F6 cancels work while the app stays open.
+Creates a passive command definition. Work runs in an isolated runspace with explicit arguments and module imports, not the defining closure. The first script parameter receives a deserialized row snapshot. Selected or marked rows are captured before optional modal confirmation and run in order. Output, host messages, warnings, errors and progress stream into the app's log. F6 requests cancellation while the app stays open. After a two-second grace period the app becomes available even when a native call is still stopping. That command cannot start again until its previous runspace exits; other commands remain available. Cancellation cannot undo effects already performed by an external operation.
 
 ### [New-ConsoleDashboard](New-ConsoleDashboard.md)
 Defines a live console dashboard: a header with title and clock, the body and a footer.

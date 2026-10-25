@@ -23,6 +23,11 @@ Describe 'In-app command actions' {
         }
     }
 
+    It 'treats an explicit null module list as no imports' {
+        $command = New-ConsoleCommand -Key NoImports -ImportModule $null -ScriptBlock { 'Done' }
+        $command.Key | Should -Be NoImports
+    }
+
     It 'runs explicit arguments and modules in isolation for marked rows and keeps the grid open' {
         $CallerOnly = 'must not cross runspaces'
         $command = New-ConsoleCommand -Key Check -Label Check -Shortcut F5 -ConfirmPrompt 'Check services?' `
@@ -57,6 +62,26 @@ Describe 'In-app command actions' {
         $text = Invoke-ActionGrid $command 'F5 wait:2500 F6 wait:1000 Escape'
         $text | Should -Match 'Operation started'
         $text | Should -Match 'Wait: cancelled'
+        ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::IsAcquired | Should -BeFalse
+    }
+
+    It 'bounds cancellation of a native call and prevents another runspace for that command until it exits' {
+        $command = New-ConsoleCommand -Key Native -Shortcut F5 -ScriptBlock {
+            param($Row)
+            if ($Row.Name -eq 'One') {
+                'Native operation started'
+                [Threading.Thread]::Sleep(8000)
+                'Late native output must stay suppressed'
+            } else { 'Second row completed' }
+        }
+        $text = Invoke-ActionGrid $command 'F5 wait:2500 F6 wait:2500 F5 wait:4500 Down F5 wait:1000 Escape'
+        $text | Should -Match 'Native operation started'
+        $text | Should -Match 'native operation is still stopping'
+        $text | Should -Match 'Native: cancelled'
+        $text | Should -Match 'previous invocation of this command is still stopping'
+        $text | Should -Match 'Second row completed'
+        $text | Should -Match 'Native: completed'
+        $text | Should -Not -Match 'Late native output must stay suppressed'
         ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::IsAcquired | Should -BeFalse
     }
 
