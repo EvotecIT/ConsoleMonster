@@ -478,7 +478,7 @@
           "csharp": "Horizontal = …",
           "fluent": ".Horizontal(…)",
           "memberId": "ConsoleMonster.Layout.Align.Horizontal",
-          "note": null
+          "note": "Align.Horizontal uses ConsoleMonster.Layout.HorizontalAlignment."
         },
         {
           "powershell": "New-ConsoleChart -Height …",
@@ -689,14 +689,14 @@
           "csharp": "Shape = …",
           "fluent": ".Shape(…)",
           "memberId": "ConsoleMonster.Widgets.ProgressBar.Shape",
-          "note": null
+          "note": "ProgressOptions.Shape uses ConsoleMonster.Widgets.BarShape."
         },
         {
           "powershell": "New-ConsoleProgress -Status …",
           "csharp": "Status = …",
           "fluent": ".Status(…)",
           "memberId": "ConsoleMonster.Widgets.ProgressBar.Status",
-          "note": null
+          "note": "ProgressOptions.Status uses ConsoleMonster.Styling.StatusKind."
         },
         {
           "powershell": "| Show-Console",
@@ -808,7 +808,7 @@
           "csharp": "Status = …",
           "fluent": ".Status(…)",
           "memberId": "ConsoleMonster.Widgets.Spinner.Status",
-          "note": null
+          "note": "ProgressOptions.Status uses ConsoleMonster.Styling.StatusKind."
         },
         {
           "powershell": "| Show-Console",
@@ -899,7 +899,7 @@
           "csharp": "Role = …",
           "fluent": ".Role(…)",
           "memberId": "ConsoleMonster.Widgets.BarChart.Role",
-          "note": null
+          "note": "ChartOptions.Role uses ConsoleMonster.Styling.ThemeToken."
         },
         {
           "powershell": "| Show-Console",
@@ -993,7 +993,7 @@
           "note": null
         },
         {
-          "powershell": "New-ConsoleDashboard -Gap …",
+          "powershell": "New-ConsoleRows -Gap …",
           "csharp": "Gap = …",
           "fluent": ".Gap(…)",
           "memberId": "ConsoleMonster.Layout.Rows.Gap",

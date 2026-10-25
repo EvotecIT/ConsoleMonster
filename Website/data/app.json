@@ -118,7 +118,7 @@
       "note": null
     },
     {
-      "powershell": "New-ConsoleDashboard -Gap …",
+      "powershell": "New-ConsoleRows -Gap …",
       "csharp": "Gap = …",
       "fluent": ".Gap(…)",
       "memberId": "ConsoleMonster.Layout.Rows.Gap",

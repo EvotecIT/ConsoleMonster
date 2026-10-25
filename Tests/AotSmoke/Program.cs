@@ -6,6 +6,7 @@ using ConsoleMonster.Capabilities;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Output;
 using ConsoleMonster.Live;
+using ConsoleMonster.Interactive;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using ConsoleMonster.Data;
@@ -36,7 +37,7 @@ internal static class Program {
         Require(ConsoleExporter.ToSvg(table), "web-01");
         GraphicsSmoke.Run();
         int previews = 0;
-        var question = new ConsoleMonster.Interactive.SelectQuestionOptions().Configure(options => options.Preview = _ => { previews++; return new TextBlock("Preview"); });
+        var question = new SelectQuestionOptions().Configure(options => options.Preview = _ => { previews++; return new TextBlock("Preview"); });
         if (previews != 0 || question.Preview == null) { throw new InvalidOperationException("Fluent callback configuration invoked or lost the delegate."); }
         var progress = new ProgressBar("Build", "build");
         using (var session = new LiveSession(progress)) {
