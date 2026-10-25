@@ -78,12 +78,6 @@
       "dark": "/site/nav/demos/fleet-dark.svg",
       "light": "/site/nav/demos/fleet-light.svg"
     },
-    "demos/service-browser": {
-      "w": 96,
-      "h": 60,
-      "dark": "/site/nav/demos/service-browser-dark.svg",
-      "light": "/site/nav/demos/service-browser-light.svg"
-    },
     "demos/stress": {
       "w": 96,
       "h": 60,
@@ -191,6 +185,12 @@
       "h": 60,
       "dark": "/site/nav/demos/repository-status-dark.svg",
       "light": "/site/nav/demos/repository-status-light.svg"
+    },
+    "demos/service-browser": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/service-browser-dark.svg",
+      "light": "/site/nav/demos/service-browser-light.svg"
     },
     "demos/setup": {
       "w": 96,

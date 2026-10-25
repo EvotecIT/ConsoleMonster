@@ -27,7 +27,7 @@
   "steps": 3,
   "tier": "starter",
   "useCase": "Use it when an operator needs service details and confirmed actions without leaving the terminal app.",
-  "featured": true,
+  "featured": false,
   "capture": {
     "states": [
       {
