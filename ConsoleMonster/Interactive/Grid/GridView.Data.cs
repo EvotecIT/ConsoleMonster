@@ -28,6 +28,8 @@ namespace ConsoleMonster.Interactive {
                     rows.Add(i);
                 }
             }
+            // A filter, sort or column change replaces the row-index mapping used by pointer drags.
+            _dragAnchor = -1;
             _visible = Sorted(rows);
             int keep = focused < 0 ? -1 : _visible.IndexOf(focused);
             _cursor = keep >= 0 ? keep : Math.Min(Math.Max(0, _cursor), Math.Max(0, _visible.Count - 1));
