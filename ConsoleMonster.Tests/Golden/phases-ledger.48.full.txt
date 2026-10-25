@@ -1,0 +1,10 @@
+╭─ Connection ledger ──────────────────────────╮
+│ [01/05] ✓ Resolve DNS           203.0.113.42 │
+│ [02/05] ✓ Connect :443                       │
+│             connected through fallback route │
+│ [03/05] ✓ TLS handshake              TLS 1.3 │
+│ [04/05] ✗ Validate certificate chain and     │
+│           issuer trust                       │
+│                         expired intermediate │
+│ [05/05] – Expiry and revocation      skipped │
+╰──────────────────────────────────────────────╯

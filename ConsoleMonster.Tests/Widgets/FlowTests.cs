@@ -82,7 +82,10 @@ namespace ConsoleMonster.Tests.Widgets {
                 Assert.Contains(lines[i][2], tier == GlyphTier.Ascii ? "|+x" : "│├✗");
             }
             Assert.Contains("TLS", string.Join("\n", lines));
-            Assert.Contains("retry", string.Join("\n", lines));
+            int branch = Array.FindIndex(lines, line => line.Contains("retry"));
+            Assert.True(branch >= 0);
+            Assert.Equal(tier == GlyphTier.Ascii ? "|" : "│", lines[branch + 1].Trim());
+            Assert.Contains("TLS", lines[branch + 2]);
             Assert.DoesNotContain("↓", string.Join("\n", lines));
         }
 

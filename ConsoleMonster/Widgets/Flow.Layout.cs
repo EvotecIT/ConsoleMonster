@@ -59,6 +59,8 @@ namespace ConsoleMonster.Widgets {
                         if (Branch?.From == _nodes[i].Key) {
                             var branchLines = Words(Marker(Branch.Status, context) + Literal(Branch.Label), Math.Max(1, nodeWidth - 6));
                             foreach (string line in branchLines) plan.Text(6, y++, line, context.Style(Branch.Status?.ToToken() ?? ThemeToken.Muted));
+                            // Finish the side branch before the next main-edge label begins.
+                            y++;
                         }
                         List<string> edgeLines = Words(edgeLabel, Math.Max(1, nodeWidth - 4));
                         int edgeHeight = Math.Max(edge.Cut ? 3 : 2, edgeLines.Count);

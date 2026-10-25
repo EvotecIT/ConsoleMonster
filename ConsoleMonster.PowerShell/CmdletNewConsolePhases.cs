@@ -42,7 +42,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(Position = 0)]
         public string WidgetId { get; set; } = "phases";
 
-        /// <summary><para type="description">Draws [01/05] counters with a right-aligned result column from each item's Detail.</para></summary>
+        /// <summary><para type="description">Draws [01/05] counters with right-aligned results from each item's Detail. Wrapped labels hang under the label text; results move below when the complete label and result cannot share a row.</para></summary>
         [Parameter] public SwitchParameter StepCounter { get; set; }
 
         /// <inheritdoc />

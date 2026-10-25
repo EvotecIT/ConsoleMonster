@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
@@ -9,21 +8,30 @@ using ConsoleMonster.Text;
 
 namespace ConsoleMonster.Widgets {
     public sealed partial class Phases {
-        private List<(StyledLine Line, string Result, StatusKind Status, bool First)> LedgerLines(int width, RenderContext context) {
-            var result = new List<(StyledLine, string, StatusKind, bool)>();
+        // Keep the full label area before deciding whether the detail can share its row.
+        private List<(StyledLine Line, string Result, StatusKind Status)> LedgerLines(int width, RenderContext context) {
+            var result = new List<(StyledLine, string, StatusKind)>();
+            if (width <= 0) return result;
             int digits = Math.Max(2, _phases.Count.ToString(CultureInfo.InvariantCulture).Length);
-            int resultWidth = Math.Min(Math.Max(0, width / 2), _phases.Select(p => DisplayWidth.Measure(p.Detail ?? p.Status.ToWord(context))).DefaultIfEmpty(0).Max());
             for (int i = 0; i < _phases.Count; i++) {
                 StatusItem phase = _phases[i];
-                string prefix = "[" + (i + 1).ToString("D" + digits, CultureInfo.InvariantCulture) + "/" + _phases.Count.ToString("D" + digits, CultureInfo.InvariantCulture) + "] ";
-                var spans = new List<TextSpan> { new TextSpan(prefix + context.Glyphs.StatusMarker(phase.Status) + " ", context.Style(phase.Status)) };
-                spans.AddRange(context.Markup(phase.Label).Lines[0].WithBaseStyle(context.Style(ThemeToken.Text)));
-                var full = new StyledLine(spans);
-                var wrapped = TextWrapper.Wrap(full, Math.Max(1, width - resultWidth - 1));
-                bool first = true;
-                foreach (StyledLine line in wrapped) {
-                    result.Add((line, first ? TextWrapper.Truncate(phase.Detail ?? phase.Status.ToWord(context), resultWidth, context.Ellipsis) : string.Empty, phase.Status, first));
-                    first = false;
+                string counter = "[" + (i + 1).ToString("D" + digits, CultureInfo.InvariantCulture) + "/" + _phases.Count.ToString("D" + digits, CultureInfo.InvariantCulture) + "] ";
+                Style statusStyle = context.Style(phase.Status);
+                StyledLine prefix = TextWrapper.Truncate(StyledLine.From(counter + context.Glyphs.StatusMarker(phase.Status) + " ", statusStyle), Math.Max(0, width - 1), context.Ellipsis);
+                int labelWidth = Math.Max(1, width - prefix.Width);
+                StyledLine label = context.Markup(phase.Label).Lines[0].WithBaseStyle(context.Style(ThemeToken.Text));
+                string detail = phase.Detail ?? phase.Status.ToWord(context);
+                bool inline = prefix.Width + label.Width + 1 + DisplayWidth.Measure(detail) <= width;
+                IReadOnlyList<StyledLine> labels = inline ? new[] { label } : TextWrapper.Wrap(label, labelWidth);
+                for (int j = 0; j < labels.Count; j++) {
+                    var spans = new List<TextSpan> { new TextSpan(j == 0 ? prefix.PlainText : new string(' ', prefix.Width), statusStyle) };
+                    spans.AddRange(labels[j]);
+                    result.Add((new StyledLine(spans), inline ? detail : string.Empty, phase.Status));
+                }
+                if (!inline && detail.Length > 0) {
+                    foreach (StyledLine line in TextWrapper.Wrap(StyledLine.From(detail), labelWidth)) {
+                        result.Add((StyledLine.Empty, line.PlainText, phase.Status));
+                    }
                 }
             }
             return result;

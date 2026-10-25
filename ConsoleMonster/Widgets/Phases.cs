@@ -92,7 +92,7 @@ namespace ConsoleMonster.Widgets {
             return null;
         }
 
-        /// <summary>Draws a vertical numbered ledger with a right-aligned detail column.</summary>
+        /// <summary>Draws a numbered ledger with hanging labels and right-aligned details, placing a detail below its label when they cannot share a row.</summary>
         public bool StepCounter { get; set; }
 
         /// <inheritdoc />

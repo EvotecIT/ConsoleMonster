@@ -59,6 +59,10 @@ adds a numbered `New-ConsolePhases -StepCounter` ledger, paired context with
 `New-ConsoleKeyValue -Columns 2`, and a double-bordered `New-ConsolePanel -Verdict`. A verdict with `-Status`
 includes the theme's status glyph in its centred title, including in ASCII and
 without colour.
+The numbered ledger gives labels the full available width, with wrapped lines
+indented under the label. A result shares the row only when the whole label and
+result fit; otherwise it appears below, right-aligned. In a vertical flow, a
+connector-only row separates a side branch from the next edge label.
 Run its two fictional outcomes with `-Scenario Healthy` or
 `-Scenario ExpiredIntermediate`. Dates, duration and exit code are simulated;
 the program does not contact a host or change the process exit code.

@@ -37,9 +37,10 @@
         "realTime": true
       },
       {
-        "keys": "t wait:1000",
+        "keys": "t wait:2000",
         "incomplete": true,
-        "realTime": true
+        "realTime": true,
+        "contains": "4 of 9 selected"
       },
       {
         "keys": "wait:1000 k",
