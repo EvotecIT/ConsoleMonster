@@ -63,6 +63,36 @@ namespace ConsoleMonster.Widgets {
 
     /// <summary>Turns cells into content and draws visuals; one implementation for every widget that shows cells.</summary>
     internal static class CellRendering {
+        /// <summary>Fits presented cell lines consistently in tables, record views and narrow cards.</summary>
+        internal static List<StyledLine> FitLines(List<StyledLine> lines, int width, ColumnOverflow overflow, int maxLines, RenderContext context) {
+            List<StyledLine> result = new List<StyledLine>();
+            foreach (StyledLine line in lines) {
+                if (line.Width <= width) {
+                    result.Add(line);
+                } else if (overflow == ColumnOverflow.Wrap) {
+                    result.AddRange(TextWrapper.Wrap(line, width));
+                } else if (overflow == ColumnOverflow.TruncateMiddle) {
+                    result.Add(TextWrapper.TruncateMiddle(line, width, context.Ellipsis));
+                } else {
+                    result.Add(TextWrapper.Truncate(line, width, context.Ellipsis));
+                }
+            }
+            if (maxLines > 0 && result.Count > maxLines) {
+                // Keep MaxLines lines; the last one ends with an ellipsis so the cut is visible.
+                StyledLine last = result[maxLines - 1];
+                int room = Math.Max(0, width - DisplayWidth.Measure(context.Ellipsis));
+                StyledLine kept = last.Width <= room ? last : TextWrapper.Truncate(last, room, string.Empty);
+                List<TextSpan> spans = new List<TextSpan>(kept);
+                spans.Add(new TextSpan(context.Ellipsis, context.Style(ThemeToken.Muted)));
+                result.RemoveRange(maxLines - 1, result.Count - maxLines + 1);
+                result.Add(new StyledLine(spans));
+            }
+            if (result.Count == 0) {
+                result.Add(StyledLine.Empty);
+            }
+            return result;
+        }
+
         /// <summary>Presents a cell: raw values through the column presenter and tone rules, markup as written, status cells with marker.</summary>
         internal static CellContent Content(TableCell cell, ICellPresenter? presenter, IReadOnlyList<RoleRule>? rules, PresenterContext context) {
             if (cell.HasValue && WidgetCellLayout.GetWidget(cell.Value) is IWidget widget) {

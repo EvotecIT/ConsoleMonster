@@ -15,7 +15,10 @@ namespace ConsoleMonster.PowerShell {
                     foreach (object type in NativeFormatDefinition.Sequence(data["TypeName"])) {
                         AddBuiltIn(new ConsoleViewRegistration((string)type, ConsoleViewKind.Table,
                             (object[])data["Property"]!, data["GroupBy"], (string)data["Group"]!, data["Title"] as ScriptBlock, true, true,
-                            data["GroupHeadersAsRows"] is bool section && section));
+                            data["GroupHeadersAsRows"] is bool section && section,
+                            data["GroupMinimumRows"] is int minimum ? minimum : 0,
+                            data["GroupRepeatedOnly"] is bool repeated && repeated,
+                            data["StructuredData"] is bool structured && structured));
                     }
                 }
             }

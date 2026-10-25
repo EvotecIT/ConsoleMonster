@@ -58,6 +58,72 @@ namespace ConsoleMonster.Tests.Rendering {
             Assert.DoesNotContain("columns (", text);
         }
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void CardsAndRecords_KeepExplicitTruncationAndOmissionHint(bool cards) {
+            Table table = new Table { Caption = "+3 more rows", AlwaysCards = cards };
+            table.AddColumn(new TableColumn("Name") { IsKey = true });
+            table.AddColumn(new TableColumn("Command") { Overflow = ColumnOverflow.Truncate, MaxLines = 1 });
+            table.AddColumn(new TableColumn("Notes") { MaxLines = 2 });
+            table.AddValues("api-01", "Get-Inventory -ComputerName api-01 -OutputPath /reports/very-long-file.json", "one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen");
+            string text = Render(table, 40);
+            Assert.Contains("+3 more rows", text);
+            Assert.Contains("Get-Inventory", text);
+            Assert.DoesNotContain("very-long-file.json", text);
+            Assert.Contains("…", text);
+            Assert.True(text.Split('\n').Length < 10);
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void SparseCardsAndRecords_KeepTheirIdentity(bool cards) {
+            Table table = new Table { AlwaysCards = cards };
+            table.AddColumn(new TableColumn("Name") { IsKey = true });
+            table.AddColumn("Owner").AddColumn("Note");
+            table.AddValues("api-01", null, null);
+            Assert.Contains("api-01", Render(table, 48));
+        }
+
+        [Theory]
+        [InlineData(false, 0)]
+        [InlineData(true, 0)]
+        [InlineData(false, 1)]
+        [InlineData(true, 1)]
+        public void CardsAndRecords_NeverOverflow_PreservesTheCompleteValue(bool cards, int maxLines) {
+            const string identifier = "https://example.test/a-long-identifier-that-must-survive/";
+            Table table = new Table { AlwaysCards = cards };
+            table.AddColumn(new TableColumn("Name") { IsKey = true });
+            table.AddColumn(new TableColumn("Identifier") { Overflow = ColumnOverflow.Never, MaxLines = maxLines });
+            table.AddColumn("Note");
+            table.AddValues("api-01", identifier, "Ready");
+            string text = Render(table, 40);
+            Assert.DoesNotContain("…", text);
+            Assert.Contains(identifier, text.Replace("\n", string.Empty).Replace(" ", string.Empty));
+        }
+
+        [Theory]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public void CardsAndRecords_WrappedValues_UseTheTableLimitUnlessExplicitlyUnlimited(bool cards, bool unlimited) {
+            Table table = new Table { AlwaysCards = cards, WrapLines = 2 };
+            table.AddColumn(new TableColumn("Name") { IsKey = true });
+            table.AddColumn(new TableColumn("Notes") { MaxLines = unlimited ? TableColumn.Unlimited : 0 });
+            table.AddColumn("State");
+            table.AddValues("api-01", string.Concat(Enumerable.Repeat("one two three four five six seven eight nine ten ", 4)) + "TAIL", "Ready");
+            string text = Render(table, 40);
+            if (unlimited) {
+                Assert.Contains("TAIL", text);
+                Assert.DoesNotContain("…", text);
+            } else {
+                Assert.DoesNotContain("TAIL", text);
+                Assert.Contains("…", text);
+            }
+        }
+
         [Fact]
         public void Negotiation_SingleRow_RendersRecordView() {
             Table table = new Table { Title = "dc01" };

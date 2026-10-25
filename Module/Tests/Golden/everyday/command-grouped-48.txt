@@ -1,0 +1,53 @@
+12 records
+
+Demo.Backup  6
+  Get-Item7
+    CommandType  [Function]
+    Version      1.2.0
+    Source       Demo.Backup
+  Get-Item8
+    CommandType  [Function]
+    Version      1.2.0
+    Source       Demo.Backup
+  Get-Item9
+    CommandType  [Function]
+    Version      1.2.0
+    Source       Demo.Backup
+  Get-Item10
+    CommandType  [Function]
+    Version      1.2.0
+    Source       Demo.Backup
+  Get-Item11
+    CommandType  [Function]
+    Version      1.2.0
+    Source       Demo.Backup
+  Get-Item12
+    CommandType  [Function]
+    Version      1.2.0
+    Source       Demo.Backup
+
+Demo.Inventory  6
+  Get-Item1
+    CommandType  [Function]
+    Version      1.2.0
+    Source       Demo.Inventory
+  Get-Item2
+    CommandType  [Function]
+    Version      1.2.0
+    Source       Demo.Inventory
+  Get-Item3
+    CommandType  [Function]
+    Version      1.2.0
+    Source       Demo.Inventory
+  Get-Item4
+    CommandType  [Function]
+    Version      1.2.0
+    Source       Demo.Inventory
+  Get-Item5
+    CommandType  [Function]
+    Version      1.2.0
+    Source       Demo.Inventory
+  Get-Item6
+    CommandType  [Function]
+    Version      1.2.0
+    Source       Demo.Inventory

@@ -6,7 +6,7 @@ using ConsoleMonster.Views;
 namespace ConsoleMonster.PowerShell {
     /// <summary>How objects of a registered type are shown by Enable-ConsoleFormatting (Register-ConsoleView).</summary>
     public sealed class ConsoleViewRegistration {
-        internal ConsoleViewRegistration(string typeName, ConsoleViewKind view, object[]? property, object? groupBy, string group, ScriptBlock? title = null, bool builtIn = false, bool nativePresentation = false, bool groupHeadersAsRows = false) {
+        internal ConsoleViewRegistration(string typeName, ConsoleViewKind view, object[]? property, object? groupBy, string group, ScriptBlock? title = null, bool builtIn = false, bool nativePresentation = false, bool groupHeadersAsRows = false, int groupMinimumRows = 0, bool groupRepeatedOnly = false, bool structuredData = false) {
             TypeName = typeName;
             View = view;
             Property = property;
@@ -16,6 +16,9 @@ namespace ConsoleMonster.PowerShell {
             IsBuiltIn = builtIn;
             NativePresentation = nativePresentation;
             GroupHeadersAsRows = groupHeadersAsRows;
+            GroupMinimumRows = groupMinimumRows;
+            GroupRepeatedOnly = groupRepeatedOnly;
+            IsStructuredData = structuredData;
         }
 
         // These registrations also decorate native-selected columns; user property/view overrides stay engine-owned.
@@ -23,6 +26,13 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary>Uses the table's full-width group section rows.</summary>
         internal bool GroupHeadersAsRows { get; }
+
+        // Built-in grouping stays quiet for small results and single-version module lists.
+        internal int GroupMinimumRows { get; }
+        internal bool GroupRepeatedOnly { get; }
+
+        // Presentation policy is independent of the caller-controlled batching group.
+        internal bool IsStructuredData { get; }
 
         /// <summary>Whether this is one of ConsoleMonster's own views (files and folders, processes, services).</summary>
         public bool IsBuiltIn { get; }
@@ -277,11 +287,7 @@ namespace ConsoleMonster.PowerShell {
                 "ProviderName",
                 Hashtable("Message", ScriptBlock.Create("if ($_.Message) { ($_.Message -split '\r?\n')[0] }"), null)
             }, null, "EventLogRecord", null, true));
-            // Get-NetIPAddress and Get-Volume (CIM objects).
-            object[] addresses = { "InterfaceAlias", Hashtable("ifIndex", ScriptBlock.Create("$_.ifIndex"), "Identifier"), "IPAddress", "PrefixLength", Hashtable("AddressFamily", ScriptBlock.Create("[string] $_.AddressFamily"), null), Hashtable("AddressState", ScriptBlock.Create("[string] $_.AddressState"), null) };
-            foreach (string type in new[] { "Microsoft.Management.Infrastructure.CimInstance#ROOT/StandardCimv2/MSFT_NetIPAddress", "Microsoft.Management.Infrastructure.CimInstance#MSFT_NetIPAddress" }) {
-                AddBuiltIn(new ConsoleViewRegistration(type, ConsoleViewKind.Table, addresses, null, "NetIPAddress", null, true));
-            }
+            // Windows storage objects keep their existing view. Network registrations are platform-gated in EverydayBuiltInViews.
             object[] volumes = {
                 "DriveLetter", "FriendlyName", "FileSystemType",
                 Hashtable("Health", ScriptBlock.Create("[string] $_.HealthStatus"), "StatusWord"),

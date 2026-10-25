@@ -1,0 +1,7 @@
+1 record
+
+Ethernet
+  Address  192.0.2.10
+  Prefix   24
+  Family   IPv4
+  State    Preferred

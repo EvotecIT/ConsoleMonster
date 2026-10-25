@@ -1,0 +1,12 @@
+api-01
+Settings  Region=west, Retry={Count=3}
+Tags      blue, ready
+Empty     (none)
+
+Checks
+  ╭──────╮
+  │ Name │
+  ├──────┤
+  │ dns  │
+  │ http │
+  ╰──────╯

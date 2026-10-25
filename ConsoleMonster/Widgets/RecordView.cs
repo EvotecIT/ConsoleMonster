@@ -85,7 +85,7 @@ namespace ConsoleMonster.Widgets {
         /// <param name="label">The label (plain text).</param>
         /// <param name="value">The raw value.</param>
         /// <param name="presenter">The presenter, or null for automatic.</param>
-        /// <param name="rules">Tone rules, or null.</param>
+        /// <param name="rules">Role rules, or null.</param>
         /// <returns>This instance.</returns>
         public RecordView AddField<T>(string label, T value, ICellPresenter? presenter = null, IReadOnlyList<RoleRule>? rules = null) =>
             AddField(label, (object?)value, presenter, rules);
@@ -94,7 +94,7 @@ namespace ConsoleMonster.Widgets {
         /// <param name="label">The label (plain text).</param>
         /// <param name="value">The value.</param>
         /// <param name="presenter">The presenter, or null for automatic.</param>
-        /// <param name="rules">Tone rules, or null.</param>
+        /// <param name="rules">Role rules, or null.</param>
         /// <returns>This instance.</returns>
         public RecordView AddField(string label, object? value, ICellPresenter? presenter = null, IReadOnlyList<RoleRule>? rules = null) {
             return AddField(label, TableCell.FromValue(value), presenter, rules);
@@ -104,7 +104,7 @@ namespace ConsoleMonster.Widgets {
         /// <param name="label">The label (plain text).</param>
         /// <param name="cell">The cell.</param>
         /// <param name="presenter">The presenter for raw values, or null for automatic.</param>
-        /// <param name="rules">Tone rules, or null.</param>
+        /// <param name="rules">Role rules, or null.</param>
         /// <returns>This instance.</returns>
         public RecordView AddField(string label, TableCell cell, ICellPresenter? presenter = null, IReadOnlyList<RoleRule>? rules = null) {
             _items.Add(new RecordItem(RecordItemKind.Field, _level + 1) {
@@ -114,6 +114,16 @@ namespace ConsoleMonster.Widgets {
                 Rules = rules
             });
             return this;
+        }
+
+        /// <summary>Keeps a table column's effective overflow and line limits when its row becomes a record or narrow card.</summary>
+        internal void AddTableField(string label, TableCell cell, TableColumn column, int defaultMaxLines) {
+            AddField(label, cell, column.Presenter, (IReadOnlyList<RoleRule>)column.RoleRules);
+            RecordItem item = _items[_items.Count - 1];
+            // Never keeps a table column wide. In a record, preserve the complete value by wrapping it instead.
+            item.Overflow = column.Overflow == ColumnOverflow.Never ? ColumnOverflow.Wrap : column.Overflow;
+            item.MaxLines = column.Overflow == ColumnOverflow.Never ? TableColumn.Unlimited
+                : column.MaxLines > 0 ? column.MaxLines : defaultMaxLines;
         }
 
         /// <summary>Adds a nested widget (a table, a list) under the current heading.</summary>

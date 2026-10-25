@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Management.Automation;
+using ConsoleMonster.PowerShell.Binding;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Views;
 using ConsoleMonster.Widgets;
@@ -18,6 +19,7 @@ namespace ConsoleMonster.PowerShell {
     public sealed class CmdletOutConsoleDefault : PSCmdlet {
         private readonly List<PSObject> _batch = new List<PSObject>();
         private ConsoleViewRegistration? _batchView;
+        private int _omittedRows;
         private SteppablePipeline? _inner;
         private bool _active;
         private readonly List<IWidget> _exportWidgets = new List<IWidget>();
@@ -133,13 +135,24 @@ namespace ConsoleMonster.PowerShell {
                 return;
             }
             ConsoleViewRegistration? view = _active && _types ? ConsoleFormatting.Find(item, Format != null || ConsoleFormatting.TakeOverBuiltIns) ?? DictionaryView(item) : null;
+            // The generic JSON/CSV fallback must not replace a typed record's own native table view.
+            // Explicit ConsoleMonster registrations still win, and document exports keep their selected renderer.
+            if (Format == null && view?.IsBuiltIn == true && view.IsStructuredData
+                && item.BaseObject is PSCustomObject && FormatViews.HasTypedTableView(item, this)) {
+                view = null;
+            }
             if (view != null) {
                 FlushExportObjects();
-                if (_batchView != null && !string.Equals(_batchView.Group, view.Group, StringComparison.OrdinalIgnoreCase)) {
+                if (_batchView != null && (!string.Equals(_batchView.Group, view.Group, StringComparison.OrdinalIgnoreCase)
+                    || _batchView.IsStructuredData != view.IsStructuredData)) {
                     Flush();
                 }
                 _batchView ??= view;
-                _batch.Add(item);
+                if (view.IsStructuredData && _batch.Count >= EverydayDataView.RowLimit) {
+                    _omittedRows++;
+                } else {
+                    _batch.Add(item);
+                }
                 return;
             }
             System.Collections.IEnumerable? elements = unroll ? LanguagePrimitives.GetEnumerable(item.BaseObject) : null;
@@ -230,6 +243,14 @@ namespace ConsoleMonster.PowerShell {
 
         private void Flush() {
             if (_batch.Count == 0 || _batchView == null) {
+                return;
+            }
+            if (_batchView.IsStructuredData) {
+                IWidget data = EverydayDataView.Build(_batch, _omittedRows);
+                if (Format != null) { _exportWidgets.Add(data); } else { PSFormatting.Write(this, data, 0); }
+                _batch.Clear();
+                _omittedRows = 0;
+                _batchView = null;
                 return;
             }
             IWidget widget;

@@ -1,0 +1,17 @@
+3 records
+
+api-01
+  Reply         1
+  Address       192.0.2.10
+  Latency (ms)  12
+  Status        Success
+
+api-01
+  Reply    1
+  Address  192.0.2.10
+  Status   Timed out
+
+api-01
+  Reply    1
+  Address  192.0.2.10
+  Status   Host unreachable

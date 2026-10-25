@@ -1,0 +1,8 @@
+╭─────────────────────┬───────────────┬─────────┬──────────────────────────────╮
+│ Name                │ CommandType   │ Version │ Source                       │
+├─────────────────────┼───────────────┼─────────┼──────────────────────────────┤
+│ Get-Inventory       │ [Function]    │ 1.2.0   │ Demo.Inventory               │
+│ Get-Date            │ [Cmdlet]      │ 7.0.0.0 │ Microsoft.PowerShell.Utility │
+│ gi -> Get-Inventory │ [Alias]       │         │                              │
+│ tool                │ [Application] │         │ /usr/bin/tool                │
+╰─────────────────────┴───────────────┴─────────┴──────────────────────────────╯

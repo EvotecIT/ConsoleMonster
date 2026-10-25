@@ -124,6 +124,11 @@ namespace ConsoleMonster.PowerShell {
             if (resolved == null || resolved.Length == 0) {
                 resolved = ColumnResolver.Resolve(items, options.Cmdlet, shape, out view);
             }
+            // Repeated module names belong in the group heading. Decide this before removing the matching column.
+            if (property == null && groupBy == null && view?.GroupRepeatedOnly == true && view.GroupBy != null
+                && items.Count >= view.GroupMinimumRows && GroupBinder.Group(items, view.GroupBy, false, shape).Any(group => group.Value.Count > 1)) {
+                groupBy = view.GroupBy;
+            }
             List<BoundColumn> columns = PropertyBinder.Bind(items, resolved, shape, options.Cmdlet).ToList();
             string? groupSource = options.ShowGroupColumn || columns.Count <= 1 ? null : PropertyBinder.SourceProperty(groupBy, items.Count > 0 ? items[0] : null);
             if (groupSource != null) {
@@ -166,7 +171,8 @@ namespace ConsoleMonster.PowerShell {
                     grouping = view.Title;
                 }
             }
-            if (view?.GroupBy != null && property == null && grouping == null) {
+            if (view?.GroupBy != null && property == null && grouping == null && items.Count >= view.GroupMinimumRows
+                && (!view.GroupRepeatedOnly || GroupBinder.Group(items, view.GroupBy, false, shape).Any(group => group.Value.Count > 1))) {
                 grouping = view.GroupBy;
             }
             // Record and card headings: the key column's value (a name-like column picked by the title rule) with an Id
@@ -447,7 +453,7 @@ namespace ConsoleMonster.PowerShell {
         }
 
         /// <summary>
-        /// The view of a script's output, shaped as the Format-Console commands shape it: widgets as they are, text as lines,
+        /// The view of a script's output, shaped as the Show-Console commands shape it: widgets as they are, text as lines,
         /// objects as tables (one object stays a one-row table, so a watched view keeps its shape), one dictionary as a
         /// record; an empty output is an empty line.
         /// </summary>

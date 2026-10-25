@@ -1,0 +1,15 @@
+3 records
+
+Demo.Inventory  3
+  1.2.0
+    ModuleType  Script
+    Commands    2
+    Path        System /opt/powe….Inventory.psm1
+  2.0.0
+    ModuleType  Script
+    Commands    2
+    Path        System /opt/powe….Inventory.psm1
+  2.1.0
+    ModuleType  Script
+    Commands    2
+    Path        User ~/Documents….Inventory.psm1

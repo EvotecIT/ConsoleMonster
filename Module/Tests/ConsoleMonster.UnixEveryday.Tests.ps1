@@ -13,6 +13,8 @@
         New-Item -ItemType SymbolicLink -Path (Join-Path $files 'link-directory-row') -Target $directory.FullName | Out-Null
         $source = @'
 $ErrorActionPreference = 'Stop'
+[Threading.Thread]::CurrentThread.CurrentCulture = [cultureinfo]'en-US'
+[Threading.Thread]::CurrentThread.CurrentUICulture = [cultureinfo]'en-US'
 Import-Module '__MODULE__'
 Enable-ConsoleFormatting -Feature All, FormatCommands
 '--- registered'

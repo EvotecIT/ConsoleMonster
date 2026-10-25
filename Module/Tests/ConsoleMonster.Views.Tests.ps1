@@ -88,12 +88,51 @@ Register-ConsoleView -TypeName 'Contoso.Server' -View Table -Property Name, @{ N
 $servers = 1..2 | ForEach-Object { $o = [pscustomobject] @{ Name = "srv0$_"; State = 'Running' }; $o.PSObject.TypeNames.Insert(0, 'Contoso.Server'); $o }
 @($servers) + @('a plain string') | Out-ConsoleDefault -Force
 Unregister-ConsoleView -TypeName 'Contoso.Server'
+'== built-in'
+$servers | Out-ConsoleDefault -Force
+Enable-ConsoleFormatting -Feature Output -NoBuiltIn
+'== native'
 $servers | Out-ConsoleDefault -Force
 '@
         $text | Should -Match 'srv01.+Running'
         $text | Should -Match 'a plain string'
-        # After -Remove the objects get PowerShell's default output again.
-        $text | Should -Match 'Name\s+State\s*\n-+\s+-+'
+        $builtIn, $native = ($text -split '== built-in')[1] -split '== native'
+        # Removing a custom view restores the generic record view; opting out restores PowerShell's native table.
+        $builtIn | Should -Match '[|│] srv01\s+[|│] Running\s+[|│]'
+        $builtIn | Should -Not -Match '\[PASS\]'
+        $native | Should -Match 'Name\s+State\s*\n-+\s+-+'
+    }
+
+    It 'preserves native table views for typed records unless a ConsoleMonster view is explicitly registered' {
+        $text = Invoke-ViewChild -Script @'
+$path = Join-Path ([IO.Path]::GetTempPath()) ([guid]::NewGuid().ToString() + '.format.ps1xml')
+$xml = '<Configuration><ViewDefinitions><View><Name>NativeRecord</Name><ViewSelectedBy><TypeName>Contoso.NativeRecord</TypeName></ViewSelectedBy><TableControl><TableHeaders><TableColumnHeader><Label>Native heading</Label></TableColumnHeader></TableHeaders><TableRowEntries><TableRowEntry><TableColumnItems><TableColumnItem><ScriptBlock>"native:" + $_.Name</ScriptBlock></TableColumnItem></TableColumnItems></TableRowEntry></TableRowEntries></TableControl></View></ViewDefinitions></Configuration>'
+try {
+    [IO.File]::WriteAllText($path, $xml)
+    $row = [pscustomobject] @{ Name = 'srv01'; Internal = 'private-data' }
+    $row.PSObject.TypeNames.Insert(0, 'Contoso.NativeRecord')
+    Enable-ConsoleFormatting -Feature Output
+    $row | Out-ConsoleDefault -Force
+    Update-FormatData -PrependPath $path -ErrorAction Stop
+    '== native'
+    $row | Out-ConsoleDefault -Force
+    Register-ConsoleView -TypeName System.Management.Automation.PSCustomObject -Property @{ Label = 'Chosen'; Expression = { 'explicit-view' } }
+    '== explicit'
+    $row | Out-ConsoleDefault -Force
+} finally {
+    Disable-ConsoleFormatting
+    Remove-Item -LiteralPath $path
+}
+'@
+        $fallback, $native = $text -split '== native'
+        $native, $explicit = $native -split '== explicit'
+        $fallback | Should -Match 'private-data'
+        $native | Should -Match 'Native heading\s*\n-+'
+        $native | Should -Match 'native:srv01'
+        $native | Should -Not -Match 'Internal|private-data'
+        $explicit | Should -Match 'Chosen'
+        $explicit | Should -Match 'explicit-view'
+        $explicit | Should -Not -Match 'native:srv01|private-data'
     }
 
     It 'selects type-specific and default PowerShell table rows for every object' {
@@ -186,10 +225,10 @@ $snippet
 Get-Command Get-Item, Get-ChildItem, gci | Show-ConsoleTable -Width 120
 Get-Module ConsoleMonster | Show-ConsoleTable -Width 120
 '@
-        $text | Should -Match 'CommandType\s+\S\s+Name\s+\S\s+Version\s+\S\s+Source'
-        $text | Should -Match '\[Cmdlet\]\s+\S\s+Get-Item\s'
-        $text | Should -Match '\[Alias\]\s+\S\s+gci -> Get-ChildItem'
-        $text | Should -Match 'ModuleType\s+\S\s+Version\s+\S\s+Name\s+\S\s+Path\s+\S\s+Commands\s+\S\s+Variables'
+        $text | Should -Match 'Name\s+\S\s+CommandType\s+\S\s+Version\s+\S\s+Source'
+        $text | Should -Match 'Get-Item\s+\S\s+\[Cmdlet\]'
+        $text | Should -Match 'gci -> Get-ChildItem\s+\S\s+\[Alias\]'
+        $text | Should -Match 'Name\s+\S\s+Version\s+\S\s+ModuleType\s+\S\s+Commands\s+\S\s+Path'
     }
 
     It 'shows events, addresses and volumes with the built-in views on Windows' -Skip:(-not ($IsWindows -or $PSVersionTable.PSEdition -eq 'Desktop')) {

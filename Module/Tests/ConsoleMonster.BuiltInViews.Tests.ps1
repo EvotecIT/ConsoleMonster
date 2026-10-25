@@ -70,24 +70,24 @@
         }
     }
 
-    It 'groups command kinds together by module with literal type chips' {
+    It 'shows small command results without module groups and keeps literal type chips' {
         $text = $script:commands | Show-ConsoleTable -AsString -Width 120
-        $text | Should -Match 'Demo.Inventory'
+        $text | Should -Not -Match 'Demo.Inventory ·'
         $text | Should -Match '\[Function\]'
         $text | Should -Match '\[Alias\]'
         $text | Should -Match 'Get-DemoItem'
     }
 
-    It 'shows module versions paths and exported counts using the link presenter' {
+    It 'shows module versions shortened paths and exported command counts' {
         $value = [psobject]::AsPSObject($script:demoModule)
         $value | Add-Member -NotePropertyName Path -NotePropertyValue 'C:\Demo\Inventory\Demo.Inventory.psm1' -Force
         $widget = $value | Show-ConsoleTable -AsWidget
         $text = $widget | Export-ConsoleFrame -Format Text -Width 160
         $text | Should -Match 'Version'
-        $text | Should -Match 'C:\\Demo\\Inventory\\Demo.Inventory.psm1'
+        $text | Should -Match 'Inventory\\Demo.Inventory.psm1'
         $text | Should -Match 'Commands'
         $text | Should -Match '\s3\s'
-        $widget.Columns[3].Presenter | Should -BeOfType (([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Presenters.LinkPresenter')))
+        $widget.Columns[4].Overflow | Should -Be 'TruncateMiddle'
     }
 
     It 'shows history identifiers durations statuses and literal command text' {

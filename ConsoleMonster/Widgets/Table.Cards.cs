@@ -81,16 +81,26 @@ namespace ConsoleMonster.Widgets {
                         ? TableCell.FromValue(widget) : new TableCell(Markup.Escape(total.Cells[c].Lines[0].PlainText)));
                 }
             }
+            if (summary && !string.IsNullOrEmpty(Caption)) {
+                string caption = Markup.Strip(Caption!);
+                view.Summary = string.IsNullOrEmpty(view.Summary) ? caption : view.Summary + " · " + caption;
+            }
             return view;
         }
 
         private void AddFields(RecordView view, TableCell[] row, int key, PresenterContext[] contexts) {
+            bool visible = false;
             for (int c = 0; c < _columns.Count; c++) {
                 if (c == key && !ShowKeyField && WidgetCellLayout.GetWidget(row[c].Value) == null) {
                     continue;
                 }
                 TableColumn column = _columns[c];
-                view.AddField(Markup.Strip(column.Header), row[c], column.Presenter, (IReadOnlyList<RoleRule>)column.RoleRules);
+                view.AddTableField(Markup.Strip(column.Header), row[c], column, WrapLines);
+                visible |= !CellRendering.Content(row[c], column.Presenter, (IReadOnlyList<RoleRule>)column.RoleRules, contexts[c]).IsEmpty;
+            }
+            // RecordView hides headings with no visible fields. Retain the identity of sparse rows and cards.
+            if (!visible && key >= 0 && !ShowKeyField) {
+                view.AddTableField(Markup.Strip(_columns[key].Header), row[key], _columns[key], WrapLines);
             }
         }
 
