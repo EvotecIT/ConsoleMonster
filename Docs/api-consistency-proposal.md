@@ -700,18 +700,6 @@ This catalogue covers public type declarations in the shipped core and four add-
 | `ConsoleMonster.Views` | `ConsoleView`, `ConsoleViewKind`, `ConsoleViewOptions` |
 | `ConsoleMonster.Widgets` | `ActivityList`, `BarChart`, `BarShape`, `CellMap`, `CellWindow`, `ChartItem`, `ChartSeries`, `CodeView`, `ColumnAggregate`, `ColumnOverflow`, `Dashboard`, `ExceptionFrame`, `ExceptionInfo`, `ExceptionView`, `FooterBar`, `FooterSegment`, `HeaderBar`, `HelpView`, `Histogram`, `InspectorTree`, `InspectorView`, `KeyHint`, `KeyValueHandle`, `KeyValueItem`, `KeyValueList`, `Lane`, `Lanes`, `LanesHandle`, `LineChart`, `LiveTable`, `LiveTableHandle`, `LiveWidget`, `LogEntry`, `LogHandle`, `LogRegion`, `LogTags`, `Logo`, `MarkdownView`, `NumberFormat`, `Phases`, `PhasesHandle`, `PipelineChart`, `PipelineChartSort`, `PipelineChartType`, `ProgressBar`, `ProgressColumn`, `ProgressColumns`, `ProgressHandle`, `ProgressRow`, `RecordItem`, `RecordItemKind`, `RecordView`, `Rule`, `RunCompletion`, `RunDashboard`, `RunProgress`, `RunSummary`, `RunView`, `ShellPrompt`, `Slot`, `SlotHandle`, `Sparkline`, `SparklineHandle`, `Spinner`, `SpinnerHandle`, `StackedBar`, `StatusItem`, `StatusList`, `StatusListHandle`, `SummaryBar`, `SummaryBarHandle`, `Table`, `Table<T>`, `TableBorder`, `TableCell`, `TableColumn`, `TableFluent`, `TextBlock`, `TextOverflow`, `Tree`, `TreeHierarchy`, `TreeHierarchyOptions`, `TreeNode`, `WatchView` |
 
-## Principles
-
-1. Give each job one primary command. Keep constructors, viewers and running-session updates distinct; share their implementation.
-2. Use approved verbs for observable behavior. New creates definitions; Show displays; Invoke waits for work; Start returns an active handle.
-3. Use WidgetId for a live address, Key for stored identity, Label for visible item text and Title for a view heading.
-4. Use Color/BackgroundColor for literal colors, Role for semantic theme styling and Decoration for text decoration. Public identifiers use American spelling and .NET cancellation conventions.
-5. Give each timing and sizing concept its own name and units. PowerShell durations are numbers with units in their names; C# durations are TimeSpan. Switches select non-default behavior. Width 0 resolves available width, with a 100-cell fallback; BarWidth and Weight retain their separate meanings.
-6. Preserve ordinary pipeline objects until an explicit display/export boundary. Make string/widget capture deterministic and keep native PowerShell adapters narrowly documented.
-7. Keep PowerShell, C#, fluent builders, help, module exports and examples in step. Expose only deliberate module types and useful thin cmdlet adapters.
-8. Remove superseded names and aliases before release, update generated sources and every real caller, and keep documentation aligned with implemented behavior.
-
-
 ## Merged gallery additions
 
 I rebased this change onto the demo source cleanup in #53. That adds two commands after the original inventory, bringing the exported surface to **136 cmdlets**.
@@ -722,3 +710,14 @@ I rebased this change onto the demo source cleanup in #53. That adds two command
 | `Wait-ConsoleDashboard -Milliseconds` → same | Pauses the active dashboard cancellably; the numeric parameter states its unit, and the capture driver owns checkpoints. | P,D,E,T |
 
 Gallery programs keep explicit object rows and ordinary execution. Scripted keys, snapshots and checkpoints stay in the capture driver; copied scripts have no `-StaticSnapshot` or `-Step` parameters. PowerShell scripts use UTF-8 with a BOM.
+
+## Principles
+
+1. Give each job one primary command. Keep constructors, viewers and running-session updates distinct; share their implementation.
+2. Use approved verbs for observable behavior. New creates definitions; Show displays; Invoke waits for work; Start returns an active handle.
+3. Use WidgetId for a live address, Key for stored identity, Label for visible item text and Title for a view heading.
+4. Use Color/BackgroundColor for literal colors, Role for semantic theme styling and Decoration for text decoration. Public identifiers use American spelling and .NET cancellation conventions.
+5. Give each timing and sizing concept its own name and units. PowerShell durations are numbers with units in their names; C# durations are TimeSpan. Switches select non-default behavior. Width 0 resolves available width, with a 100-cell fallback; BarWidth and Weight retain their separate meanings.
+6. Preserve ordinary pipeline objects until an explicit display/export boundary. Make string/widget capture deterministic and keep native PowerShell adapters narrowly documented.
+7. Keep PowerShell, C#, fluent builders, help, module exports and examples in step. Expose only deliberate module types and useful thin cmdlet adapters.
+8. Remove superseded names and aliases before release, update generated sources and every real caller, and keep documentation aligned with implemented behavior.
