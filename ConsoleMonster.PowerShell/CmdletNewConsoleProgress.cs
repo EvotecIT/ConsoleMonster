@@ -30,7 +30,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public double Value { get; set; }
 
-        /// <summary><para type="description">The total (default 0: terminal width, falling back to 100).</para></summary>
+        /// <summary><para type="description">The total value represented by a full bar (default 100).</para></summary>
         [Parameter]
         public double Total { get; set; } = 100;
 

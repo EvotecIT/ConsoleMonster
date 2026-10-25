@@ -15916,7 +15916,7 @@ $menu = New-ConsoleMenu 'Patch' -Item $targets -Preset (New-ConsoleMenuPreset 'F
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Total</maml:name>
           <maml:description>
-            <maml:para>The total (default 0: terminal width, falling back to 100).</maml:para>
+            <maml:para>The total value represented by a full bar (default 100).</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
           <dev:type>
@@ -16042,7 +16042,7 @@ $menu = New-ConsoleMenu 'Patch' -Item $targets -Preset (New-ConsoleMenuPreset 'F
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Total</maml:name>
         <maml:description>
-          <maml:para>The total (default 0: terminal width, falling back to 100).</maml:para>
+          <maml:para>The total value represented by a full bar (default 100).</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
         <dev:type>
@@ -28313,7 +28313,7 @@ because the existing sparkline renderer scales from zero. Output uses the normal
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>MaxItems</maml:name>
           <maml:description>
-            <maml:para>Maximum items read from each collection; default 0: terminal width, falling back to 100.</maml:para>
+            <maml:para>Maximum items read from each collection (default 100).</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
           <dev:type>
@@ -28506,7 +28506,7 @@ because the existing sparkline renderer scales from zero. Output uses the normal
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>MaxItems</maml:name>
         <maml:description>
-          <maml:para>Maximum items read from each collection; default 0: terminal width, falling back to 100.</maml:para>
+          <maml:para>Maximum items read from each collection (default 100).</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
         <dev:type>

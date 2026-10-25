@@ -124,7 +124,7 @@ Accept wildcard characters: False
 ```
 
 ### -Total
-The total (default 0: terminal width, falling back to 100).
+The total value represented by a full bar (default 100).
 
 ```yaml
 Type: Double

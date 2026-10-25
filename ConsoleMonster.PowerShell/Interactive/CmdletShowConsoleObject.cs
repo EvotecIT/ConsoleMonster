@@ -46,7 +46,7 @@ namespace ConsoleMonster.PowerShell {
         [ValidateRange(0, 64)]
         public int Depth { get; set; } = 8;
 
-        /// <summary><para type="description">Maximum items read from each collection; default 0: terminal width, falling back to 100.</para></summary>
+        /// <summary><para type="description">Maximum items read from each collection (default 100).</para></summary>
         [Parameter]
         [ValidateRange(1, 10000)]
         public int MaxItems { get; set; } = 100;

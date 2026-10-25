@@ -143,7 +143,7 @@ Accept wildcard characters: False
 ```
 
 ### -MaxItems
-Maximum items read from each collection; default 0: terminal width, falling back to 100.
+Maximum items read from each collection (default 100).
 
 ```yaml
 Type: Int32
