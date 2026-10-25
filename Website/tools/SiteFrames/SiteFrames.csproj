@@ -14,6 +14,7 @@
     </PropertyGroup>
     <ItemGroup>
         <InternalsVisibleTo Include="SiteFrames.Tests" />
+        <None Update="Capture/Read-PowerShellCommands.ps1" CopyToOutputDirectory="PreserveNewest" />
         <ProjectReference Include="..\..\..\ConsoleMonster\ConsoleMonster.csproj" />
         <ProjectReference Include="..\..\..\ConsoleMonster.Markdown\ConsoleMonster.Markdown.csproj" />
         <ProjectReference Include="../../../ConsoleMonster.Graphics/ConsoleMonster.Graphics.csproj" />

@@ -15,7 +15,7 @@ namespace SiteFrames.Capture {
     /// site's code has to run on both: syntax only 7 knows (<c>??</c>, <c>&amp;&amp;</c>, the ternary) fails on 5.1. The tool does
     /// not reference the PowerShell SDK; the hosts are already needed to capture the frames.
     /// </summary>
-    internal static class PowerShellSyntax {
+    internal static partial class PowerShellSyntax {
         // Reads the blocks, parses each one and prints one line per error (index, line within the block, message), then
         // "parsed <count>", so a run that stopped early can never pass for a clean one.
         private const string Parser =

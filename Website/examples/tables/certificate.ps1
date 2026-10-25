@@ -1,5 +1,8 @@
 ﻿Import-Module ConsoleMonster
 
+#region Using the object directly
+# RecordView's sections are a C# composition API. Use its ordinary object from PowerShell, then Show-Console.
+
 # Resolve advanced C# types without registering global type accelerators.
 $DatePresenterType = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Presenters.DatePresenter', $true)
 $RecordViewType = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Widgets.RecordView', $true)
@@ -44,4 +47,5 @@ $chain = @(
     @{ Name = 'Key'; Priority = 1 }
 )
 $null = $view.AddWidget($chain)
+#endregion
 $view | Show-Console

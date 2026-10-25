@@ -39,7 +39,11 @@ namespace SiteFrames.Pages {
             entry["csharpFluent"] = shortForm;
             entry["csharpFluentFull"] = full;
             entry["csharpFluentFile"] = "Program.cs";
-            entry["apiMap"] = project == null ? ApiMappingNotes.FromSource(site, path, generated[path], companions) : ApiMappingNotes.ForProject(site, path, project, generated[path]);
+            string? powerShell = entry["powershellRepo"]?.GetValue<string>();
+            if (powerShell != null) { powerShell = Path.Combine(site.Repository, powerShell.Replace('/', Path.DirectorySeparatorChar)); }
+            else if (File.Exists(script)) { powerShell = script; }
+            HashSet<string> commands = ApiMappingNotes.CommandsFor(site, powerShell);
+            entry["apiMap"] = project == null ? ApiMappingNotes.FromSource(site, path, generated[path], companions, commands) : ApiMappingNotes.ForProject(site, path, project, generated[path], commands);
             if (companions.Length > 0) {
                 var files = new JsonArray();
                 foreach (string companion in companions) {

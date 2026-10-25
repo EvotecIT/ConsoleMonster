@@ -1,15 +1,18 @@
 ﻿Import-Module ConsoleMonster
 
-# Resolve advanced C# types without registering global type accelerators.
-$CellPresentersType = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Presenters.CellPresenters', $true)
-$DataBarPresenterType = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Presenters.DataBarPresenter', $true)
-$NumberPresenterType = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Presenters.NumberPresenter', $true)
+#region Using the object directly
+# A custom presenter fixes the bar scale at 100 and adds a percent unit.
+$dataBarType = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Presenters.DataBarPresenter', $true)
+$numberType = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Presenters.NumberPresenter', $true)
+$scorePresenter = $dataBarType::new(100, $numberType::new('%'))
+#endregion
+
 
 $rows = @(
     [pscustomobject] @{
         Group = 'Domains'
         Target = 'ad.adatum.com'
-        Result = [ConsoleMonster.Styling.StatusKind]::Fail
+        Result = 'Fail'
         Passed = 9
         Failed = 2
         Warnings = 5
@@ -19,7 +22,7 @@ $rows = @(
     [pscustomobject] @{
         Group = 'Domains'
         Target = 'eu.ad.adatum.com'
-        Result = [ConsoleMonster.Styling.StatusKind]::Fail
+        Result = 'Fail'
         Passed = 13
         Failed = 1
         Warnings = 1
@@ -29,7 +32,7 @@ $rows = @(
     [pscustomobject] @{
         Group = 'Domain controllers'
         Target = 'DC01.ad.adatum.com'
-        Result = [ConsoleMonster.Styling.StatusKind]::Warn
+        Result = 'Warn'
         Passed = 26
         Failed = 0
         Warnings = 3
@@ -39,7 +42,7 @@ $rows = @(
     [pscustomobject] @{
         Group = 'Domain controllers'
         Target = 'DC02.ad.adatum.com'
-        Result = [ConsoleMonster.Styling.StatusKind]::Warn
+        Result = 'Warn'
         Passed = 23
         Failed = 0
         Warnings = 6
@@ -49,7 +52,7 @@ $rows = @(
     [pscustomobject] @{
         Group = 'Domain controllers'
         Target = 'DC03.ad.adatum.com'
-        Result = [ConsoleMonster.Styling.StatusKind]::Fail
+        Result = 'Fail'
         Passed = 23
         Failed = 3
         Warnings = 4
@@ -59,7 +62,7 @@ $rows = @(
     [pscustomobject] @{
         Group = 'Domain controllers'
         Target = 'DC07.eu.ad.adatum.com'
-        Result = [ConsoleMonster.Styling.StatusKind]::Fail
+        Result = 'Fail'
         Passed = 21
         Failed = 4
         Warnings = 4
@@ -69,7 +72,7 @@ $rows = @(
     [pscustomobject] @{
         Group = 'Domain controllers'
         Target = 'DC09.eu.ad.adatum.com'
-        Result = [ConsoleMonster.Styling.StatusKind]::Pass
+        Result = 'Pass'
         Passed = 30
         Failed = 0
         Warnings = 0
@@ -80,10 +83,10 @@ $rows = @(
 
 $rows | Show-ConsoleTable -Title '[bold]Nightly checks[/] [muted]· run summary[/]' -GroupBy Group -ShowSubtotals -ShowTotals -NoSort -Property @(
     @{ Name = 'Target'; Key = $true; Overflow = 'TruncateMiddle'; MinWidth = 12 }
-    @{ Name = 'Result'; Priority = 10; Presenter = $CellPresentersType::Status }
+    @{ Name = 'Result'; Priority = 10; Presenter = 'Status' }
     @{ Name = 'Passed'; Priority = 8; Presenter = 'Number'; Aggregate = 'Sum' }
     @{ Name = 'Failed'; Priority = 9; Presenter = 'Number'; Aggregate = 'Sum'; FailAbove = 0 }
     @{ Name = 'Warnings'; Priority = 6; Presenter = 'Number'; Aggregate = 'Sum'; WarnAbove = 0 }
     @{ Name = 'Duration'; Priority = 4; Presenter = 'Duration'; Aggregate = 'Sum' }
-    @{ Name = 'Score'; Priority = 2; Presenter = $DataBarPresenterType::new(100, $NumberPresenterType::new('%')); Aggregate = 'Average' }
+    @{ Name = 'Score'; Priority = 2; Presenter = $scorePresenter; Aggregate = 'Average' }
 )

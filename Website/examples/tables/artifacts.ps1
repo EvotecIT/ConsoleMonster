@@ -1,10 +1,8 @@
 ﻿Import-Module ConsoleMonster
 
-# Resolve advanced C# types without registering global type accelerators.
-$DatePresenterType = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Presenters.DatePresenter', $true)
 
 # Relative dates use a fixed clock, matching both C# styles.
-$now = [datetimeoffset]::new(2026, 10, 16, 14, 30, 0, [timespan]::FromHours(2))
+$now = [datetimeoffset] '2026-10-16T14:30:00+02:00'
 $root = 'D:\Builds\ConsoleMonster\Packed\'
 
 $rows = @(
@@ -69,7 +67,7 @@ $rows | Show-ConsoleTable -Title '[bold]Build artifacts[/] [muted]· ConsoleMons
     @{ Name = 'Kind'; Priority = 3 }
     @{ Name = 'Size'; Priority = 9; Presenter = 'Bytes'; Aggregate = 'Sum' }
     @{ Name = 'Built'; Header = 'Built in'; Priority = 6; Presenter = 'Duration'; Aggregate = 'Sum' }
-    @{ Name = 'Created'; Priority = 4; Presenter = $DatePresenterType::new('Relative') }
+    @{ Name = 'Created'; Priority = 4; Presenter = 'DateRelative' }
     @{ Name = 'Path'; Priority = 1; Overflow = 'TruncateMiddle'; MinWidth = 20; MaxWidth = 40 }
     @{ Name = 'SHA256'; Priority = 0; Overflow = 'Truncate'; MaxWidth = 14 }
 )

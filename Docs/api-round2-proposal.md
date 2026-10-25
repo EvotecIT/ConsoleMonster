@@ -680,3 +680,11 @@ I rebased onto master at `01da6e3f`, including #54 and #58. The expanded startin
 Flow’s three passive item constructors become `Kind = Node | Edge | Branch` records accepted by New-ConsoleFlow and Add-ConsoleItem. The single branch uses the C# Branch property and generated `.Branch(…)` method. Update-ConsoleFlow becomes Update-Console’s FlowNode/FlowEdge sets, with NodeKey or EdgeKey, Status, and optional Cut. This preserves separate node/edge key spaces and rejects mismatched fields or unknown keys before enqueueing. Omitted Cut preserves connectivity; explicit false reconnects. Recording operation names stay unchanged.
 
 The directly constructible C# prompt types are also parity roots, alongside question options. Their public configuration receives explicit parameter routes or individual C# host decisions; generic owner IDs use stable definitions rather than runtime assembly-qualified names.
+
+### Host and consumer proof clarification — 2026-10-25
+
+The generic-host and ILogger integrations keep their .NET lifetimes. Their PowerShell examples launch the same project; the parity record lists every integration option individually. Native formatting, help, progress and Pester examples use compiled PSCmdlet hosts and the same public services as the cmdlets, rather than a console program that starts another PowerShell implementation.
+
+Custom RecordView sections and a fixed-scale data-bar presenter use the labelled direct-object form in PowerShell. Ordinary table examples use presenter names and pipeline records. This keeps the advanced C# composition available without adding another item or display cmdlet, or registering more type accelerators.
+
+The packaged-template check compiles both gallery C# files against actual locally packed libraries in an isolated NuGet consumer cache. Generated reader projects keep their package references. The check covers all28 gallery demos, including the merged TLS verdict, and source-folder installation; it does not replace a reader's package references with project references. Native AOT proof covers nested Content and the Show/Export endings. Project-launcher tests pass an ordinary finite .NET project through the documented Project parameter, while the site's real captures exercise the generic host's service lifetime.

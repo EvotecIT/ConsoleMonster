@@ -137,6 +137,9 @@
         },
         {
           "choice": "backup-runner"
+        },
+        {
+          "choice": "tls-verdict"
         }
       ],
       "defaultValue": "none"
@@ -613,6 +616,22 @@
         "backup-runner/Program.Fluent.cs": "Program.Fluent.cs"
       },
       "condition": "(demo == \"backup-runner\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "tls-verdict/Program.cs",
+        "tls-verdict/Program.Fluent.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "tls-verdict/Program.cs": "Program.cs",
+        "tls-verdict/Program.Fluent.cs": "Program.Fluent.cs"
+      },
+      "condition": "(demo == \"tls-verdict\")"
     }
   ]
 }

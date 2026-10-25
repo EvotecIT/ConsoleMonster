@@ -1,7 +1,5 @@
 ﻿Import-Module ConsoleMonster
 
-# Resolve advanced C# types without registering global type accelerators.
-$DurationPresenterType = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Presenters.DurationPresenter', $true)
 
 $root = '/var/cache/dns/evotec.xyz/'
 
@@ -67,7 +65,7 @@ $rows = @(
 $rows | Show-ConsoleTable -Title '[bold]evotec.xyz[/] [muted]· DNS records via Cloudflare DoH[/]' -Property @(
     @{ Name = 'Name'; Key = $true; Overflow = 'TruncateMiddle'; MinWidth = 10 }
     @{ Name = 'Type'; Priority = 9; Overflow = 'Never' }
-    @{ Name = 'TTL'; Priority = 2; Presenter = $DurationPresenterType::new() }
+    @{ Name = 'TTL'; Priority = 2; Presenter = 'Duration' }
     @{ Name = 'Data'; Priority = 10; Overflow = 'Wrap'; MaxLines = 3; Flexible = $true; MinWidth = 28 }
     @{ Name = 'Latency'; Priority = 3; Presenter = 'Number'; Unit = 'ms'; WarnAbove = 100 }
     @{ Name = 'Cache'; Header = 'Cache file'; Priority = 1; Overflow = 'TruncateMiddle'; MinWidth = 20; MaxWidth = 36 }

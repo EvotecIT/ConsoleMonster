@@ -7,25 +7,29 @@ using SiteFrames.Capture;
 
 namespace SiteFrames.Pages {
     /// <summary>Generates the three-style translation aid from resolved program symbols and the parity contract.</summary>
-    internal static class ApiMappingNotes {
+    internal static partial class ApiMappingNotes {
         private static readonly string[] Preferred = { "Title", "Border", "Content", "Label", "Value", "Total", "WidgetId", "HeaderRight", "Caption", "Role" };
 
         public static JsonArray For(Site site, string initializer, string fluent, params string[] companions) =>
             FromSource(site, initializer, Site.ReadText(fluent), companions);
 
-        public static JsonArray FromSource(Site site, string initializer, string fluentSource, params string[] companions) {
+        public static JsonArray ForPair(Site site, string initializer, string fluent, string powerShell, params string[] companions) =>
+            FromSource(site, initializer, Site.ReadText(fluent), companions, CommandsFor(site, powerShell));
+
+        public static JsonArray FromSource(Site site, string initializer, string fluentSource, string[]? companions = null, HashSet<string>? commands = null) {
+            companions ??= Array.Empty<string>();
             var used = new HashSet<string>(CSharpRunner.ConfiguredMembers(initializer, companions), StringComparer.Ordinal);
             used.UnionWith(CSharpRunner.ConfiguredMembersFromSource(initializer, fluentSource, companions));
-            return FromMembers(site, initializer, used);
+            return FromMembers(site, initializer, used, commands);
         }
 
-        public static JsonArray ForProject(Site site, string initializer, string project, string fluent) {
+        public static JsonArray ForProject(Site site, string initializer, string project, string fluent, HashSet<string>? commands = null) {
             var used = new HashSet<string>(CSharpRunner.ConfiguredProjectMembers(initializer, project, Site.ReadText(initializer)), StringComparer.Ordinal);
             used.UnionWith(CSharpRunner.ConfiguredProjectMembers(initializer, project, fluent));
-            return FromMembers(site, initializer, used);
+            return FromMembers(site, initializer, used, commands);
         }
 
-        private static JsonArray FromMembers(Site site, string initializer, HashSet<string> used) {
+        private static JsonArray FromMembers(Site site, string initializer, HashSet<string> used, HashSet<string>? commands) {
             JsonObject map = JsonNode.Parse(File.ReadAllText(Path.Combine(site.Repository, "Tests", "Api", "round2-parity.json")))!.AsObject();
             var rows = new Dictionary<string, (string Command, JsonObject Binding)>(StringComparer.Ordinal);
             foreach (JsonNode? commandNode in map["Commands"]!.AsArray()) {
@@ -40,7 +44,8 @@ namespace SiteFrames.Pages {
                     string member = binding["Member"]!.GetValue<string>();
                     string key = binding["CSharpType"]!.GetValue<string>() + "." + member;
                     if (!used.Contains(key)) { continue; }
-                    if (!rows.TryGetValue(key, out var existing) || name.StartsWith("New-", StringComparison.Ordinal) && !existing.Command.StartsWith("New-", StringComparison.Ordinal)) {
+                    int score = Preference(name, binding, commands);
+                    if (!rows.TryGetValue(key, out var existing) || score > Preference(existing.Command, existing.Binding, commands)) {
                         rows[key] = (name, binding);
                     }
                 }
@@ -187,6 +192,11 @@ namespace SiteFrames.Pages {
             if (result.Count == 0) { throw new InvalidDataException("No parity mapping is available for " + initializer + "."); }
             return result;
         }
+
+        private static int Preference(string command, JsonObject binding, HashSet<string>? commands) =>
+            (commands?.Contains(command + " -" + binding["Parameter"]!.GetValue<string>()) == true ? 4 : 0)
+            + (commands?.Contains(command) == true ? 2 : 0)
+            + (command.StartsWith("New-", StringComparison.Ordinal) ? 1 : 0);
 
         private static int Rank(string member) {
             int index = Array.IndexOf(Preferred, member);

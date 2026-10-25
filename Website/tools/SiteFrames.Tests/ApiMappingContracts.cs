@@ -33,6 +33,16 @@ namespace SiteFrames.Tests {
         }
 
         [Fact]
+        public void SharedPropertiesPreferTheCommandAndParameterUsedByThePowerShellDemo() {
+            string initializer = Source("rows", "using ConsoleMonster.Layout;\nvar rows = new Rows { Gap = 1 };\n");
+            string script = Path.Combine(_folder, "rows.ps1");
+            File.WriteAllText(script, "# New-ConsoleDashboard -Gap 99 is a comment, not the example.\nNew-ConsoleDashboard -Title Demo\nNew-ConsoleRows -Gap 1\n");
+            var rows = ApiMappingNotes.ForPair(Repository(), initializer, initializer, script);
+            var gap = Assert.Single(rows, row => row!["memberId"]!.GetValue<string>() == "ConsoleMonster.Layout.Rows.Gap")!;
+            Assert.Equal("New-ConsoleRows -Gap …", gap["powershell"]!.GetValue<string>());
+        }
+
+        [Fact]
         public void AnUnrelatedTitlePropertyCannotProduceAWidgetTranslation() {
             string source = Source("unrelated", "var panel = new LocalPanel { Title = \"Build\" };\nsealed class LocalPanel { public string? Title { get; set; } }\n");
             Assert.Empty(CSharpRunner.ConfiguredMembers(source));
@@ -43,7 +53,7 @@ namespace SiteFrames.Tests {
         public void EveryGalleryDemoHasNotesForItsOwnResolvedWidgetMembers() {
             Site site = Repository();
             foreach (var demo in GalleryPage.Read(site)) {
-                var notes = ApiMappingNotes.For(site, demo.CSharp, demo.CSharpFluent);
+                var notes = ApiMappingNotes.ForPair(site, demo.CSharp, demo.CSharpFluent, demo.PowerShell);
                 Assert.InRange(notes.Count, 1, 6);
                 var members = CSharpRunner.ConfiguredMembers(demo.CSharp)
                     .Concat(CSharpRunner.ConfiguredMembers(demo.CSharpFluent)).ToHashSet(StringComparer.Ordinal);
