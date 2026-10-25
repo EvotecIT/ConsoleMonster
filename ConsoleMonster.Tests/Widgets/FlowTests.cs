@@ -99,6 +99,29 @@ namespace ConsoleMonster.Tests.Widgets {
             Assert.Contains("consolemonster-player", data);
         }
 
+        [Theory]
+        [InlineData(true)] [InlineData(false)]
+        public void WidgetFootersSurviveCardsAndRecordFieldsReceiveReplay(bool keyCell) {
+            Flow footer = Chain();
+            var table = new Table { AlwaysCards = true };
+            table.AddColumn("Name"); table.AddColumn("Path");
+            table.AddRow("Certificate", "finished");
+            table.SetFooter(keyCell ? new[] { TableCell.FromValue(footer), new TableCell("") }
+                : new[] { new TableCell(""), TableCell.FromValue(footer) });
+            string text = Frame(table, 48).ToPlainText();
+            Assert.Contains("client", text);
+            Assert.Contains("intermediate", text);
+            var record = new RecordView("Trust").AddField("Path", footer);
+            Assert.Contains(footer, record.Children);
+            Recording.ExportPlayerData(record, new[] { new LiveEvent("chain", "node", "issuer", state: "Fail", time: 100) },
+                new RecordingExportOptions { Width = 48, Height = 80 });
+            Assert.Equal(StatusKind.Fail, footer.Nodes[3].Status);
+            var rich = RichText.Plain("label");
+            var richTable = new Table(); richTable.AddColumn("Name"); richTable.AddRow(TableCell.FromValue(rich));
+            Assert.Empty(richTable.Children);
+            Assert.Empty(new RecordView().AddField("Name", rich).Children);
+        }
+
         [Fact]
         public void InvalidTopologyFailsBeforeDrawing() {
             Flow flow = Chain();

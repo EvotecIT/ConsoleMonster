@@ -65,6 +65,4 @@ namespace ConsoleMonster.Widgets {
     internal static class CellRendering {
         /// <summary>Presents a cell: raw values through the column presenter and tone rules, markup as written, status cells with marker.</summary>
         internal static CellContent Content(TableCell cell, ICellPresenter? presenter, IReadOnlyList<RoleRule>? rules, PresenterContext context) {
-            if (cell.HasValue && cell.Value is IWidget widget) {
-                return new CellContent(WidgetCellLayout.Lines(widget, context.Render.Profile.Width, context.Render), null, widget: widget);
-            }
+            if (cell.HasValue && WidgetCellLayout.GetWidget(cell.Value) is IWidget widget) {

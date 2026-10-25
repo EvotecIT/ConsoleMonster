@@ -12,9 +12,21 @@ namespace ConsoleMonster.Widgets {
     /// that hide when empty, and nested widgets such as tables. It is the console counterpart of a record drawer, the
     /// fallback a table uses for a single row, the layout of record cards, and the view of the object inspector.
     /// </summary>
-    public sealed partial class RecordView : IWidget {
+    public sealed partial class RecordView : IContainer {
         private readonly List<RecordItem> _items = new List<RecordItem>();
         private int _level = -1;
+
+        /// <summary>Embedded widgets, including value fields, for live discovery and recording replay.</summary>
+        public IReadOnlyList<IWidget> Children {
+            get {
+                var children = new List<IWidget>();
+                foreach (RecordItem item in _items) {
+                    IWidget? widget = item.Widget ?? WidgetCellLayout.GetWidget(item.Cell?.Value);
+                    if (widget != null) children.Add(widget);
+                }
+                return children;
+            }
+        }
 
         /// <summary>Creates a record view.</summary>
         /// <param name="title">The title (markup) shown on the summary header line, or null.</param>

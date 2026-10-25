@@ -28,8 +28,8 @@ namespace ConsoleMonster.Widgets {
             get {
                 Prepare();
                 var widgets = new List<IWidget>();
-                foreach (TableCell[] row in _rows) foreach (TableCell cell in row) if (cell.Value is IWidget widget) widgets.Add(widget);
-                if (_footer != null) foreach (TableCell cell in _footer) if (cell.Value is IWidget widget) widgets.Add(widget);
+                foreach (TableCell[] row in _rows) foreach (TableCell cell in row) if (WidgetCellLayout.GetWidget(cell.Value) is IWidget widget) widgets.Add(widget);
+                if (_footer != null) foreach (TableCell cell in _footer) if (WidgetCellLayout.GetWidget(cell.Value) is IWidget widget) widgets.Add(widget);
                 return widgets;
             }
         }

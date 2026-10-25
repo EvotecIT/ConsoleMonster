@@ -16,7 +16,7 @@
   "steps": 2,
   "tier": "showcase",
   "useCase": "Use it when operators need to see where certificate trust breaks and what to repair.",
-  "featured": true,
+  "featured": false,
   "capture": {
     "states": [
       { "arguments": ["Healthy"] },

@@ -9,6 +9,9 @@ using ConsoleMonster.Text;
 namespace ConsoleMonster.Widgets {
     /// <summary>Renders embedded widgets at the cell's allocated width, preserving glyphs and styles.</summary>
     internal static class WidgetCellLayout {
+        // RichText deliberately keeps the text-cell overflow, key and line-limit semantics.
+        internal static IWidget? GetWidget(object? value) => value is RichText ? null : value as IWidget;
+
         internal static List<StyledLine> Lines(IWidget widget, int width, RenderContext context) {
             CellBuffer frame = FrameComposer.RenderBlock(widget, Math.Max(1, width), context);
             var lines = new List<StyledLine>();
