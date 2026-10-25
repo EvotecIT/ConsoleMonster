@@ -130,7 +130,7 @@ Accept wildcard characters: False
 ```
 
 ### -Preset
-A preset to apply first: a built-in one (New-ConsoleFormPreset) or one saved under -AppName.
+A preset to apply first: a built-in one (New-ConsoleForm -Preset) or one saved under -AppName.
 
 ```yaml
 Type: String

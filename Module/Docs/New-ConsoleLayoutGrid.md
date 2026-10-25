@@ -4,52 +4,36 @@ Module Name: ConsoleMonster
 online version: https://github.com/EvotecIT/ConsoleMonster
 schema: 2.0.0
 ---
-# New-ConsoleHistogram
+# New-ConsoleLayoutGrid
 ## SYNOPSIS
-Creates a histogram of values counted into buckets.
+Lays console widgets out in an equal-width grid.
 
--Edge defines ascending bucket edges. Bars grow with eighth-block precision on modern fonts. Add values live with Add-ConsoleValue.
+Children fill the grid row by row. When columns would become narrower than 24 cells the grid uses fewer columns.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleHistogram [[-WidgetId] <string>] -Edge <double[]> [-Value <double[]>] [-Height <int>] [-Unit <string>] [-Role <ThemeToken>] [<CommonParameters>]
+New-ConsoleLayoutGrid [[-Content] <Object>] [-Columns <int>] [-ColumnGap <int>] [-RowGap <int>] [-MinColumnWidth <int>] [-NoFillHeight] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Creates a histogram of values counted into buckets.
+Lays console widgets out in an equal-width grid.
 
--Edge defines ascending bucket edges. Bars grow with eighth-block precision on modern fonts. Add values live with Add-ConsoleValue.
+Children fill the grid row by row. When columns would become narrower than 24 cells the grid uses fewer columns.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleHistogram -Edge 0, 0.25, 0.5, 1, 2, 4 -Unit s -Value (1..200 | ForEach-Object { Get-Random -Maximum 4.0 }) | Show-Console
+New-ConsoleLayoutGrid -Columns 3 -Content { New-ConsoleChart -WidgetId a -Type Sparkline; New-ConsoleChart -WidgetId b -Type Sparkline; New-ConsoleChart -WidgetId c -Type Sparkline }
 ```
 
-Request durations in seconds
+Three charts in a row
 
 ## PARAMETERS
 
-### -Edge
-Ascending bucket edges (at least two).
-
-```yaml
-Type: Double[]
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: True
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Height
-Rows for the bars (default 6).
+### -ColumnGap
+Blank columns between cells.
 
 ```yaml
 Type: Int32
@@ -64,27 +48,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Role
-The colour as a theme role: Series1 (default), Accent, Pass, Fail, Warn and the other series colours.
+### -Columns
+Number of columns (default 2).
 
 ```yaml
-Type: ThemeToken
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values: Text, Muted, Subtle, Accent, Accent2, Pass, Fail, Warn, Info, Skip, Running, Pending, Border, Title, Header, Highlight, Surface, SurfaceAccent, Series1, Series2, Series3, Series4, Series5, Series6, Focus
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Unit
-A unit for bucket labels.
-
-```yaml
-Type: String
+Type: Int32
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -96,33 +64,65 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Value
-Values to count.
+### -Content
+Scriptblock that emits the cells.
 
 ```yaml
-Type: Double[]
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -WidgetId
-The live name (default histogram).
-
-```yaml
-Type: String
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
 
 Required: False
 Position: 0
+Default value: None
+Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -MinColumnWidth
+Minimum column width before reducing the column count.
+
+```yaml
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NoFillHeight
+Fits rows to content instead of the default-on height fill.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -RowGap
+Blank rows between grid rows.
+
+```yaml
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -133,11 +133,11 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Object`
 
 ## OUTPUTS
 
-- `ConsoleMonster.Widgets.Histogram`
+- `ConsoleMonster.Layout.IWidget`
 
 ## RELATED LINKS
 

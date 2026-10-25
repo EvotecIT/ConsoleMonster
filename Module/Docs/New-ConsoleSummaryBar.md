@@ -13,7 +13,7 @@ The line Invoke-ConsoleRun ends its view with, as a widget of its own: a thin ba
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleSummaryBar [[-WidgetId] <string>] [[-Done] <double>] [[-Total] <double>] [-Counter <IDictionary>] [-ElapsedSeconds <Double>] [-BarWidth <int>] [<CommonParameters>]
+New-ConsoleSummaryBar [[-WidgetId] <string>] [[-Value] <double>] [[-Total] <double>] [-Counter <IDictionary>] [-ElapsedSeconds <Double>] [-BarWidth <int>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -64,22 +64,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Done
-Items done.
-
-```yaml
-Type: Double
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: 1
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -ElapsedSeconds
 Elapsed seconds used to estimate remaining time. Fractional seconds are accepted.
 
@@ -107,6 +91,22 @@ Possible values:
 
 Required: False
 Position: 2
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Value
+Items done.
+
+```yaml
+Type: Double
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: 1
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

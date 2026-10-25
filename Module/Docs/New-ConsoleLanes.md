@@ -8,18 +8,18 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a lanes widget: one row per worker, server or item of a parallel workload.
 
-Each lane shows a status marker (a spinner while running), a progress bar, pass/fail/warning counts and what it is doing now. Lanes can be declared up front with -Lane (names sharing one -Total), with a script block of New-ConsoleLane calls (each with its own total, progress, status and counts), from the pipeline, or appear on their first Update-ConsoleLane in a live dashboard. To add lanes later, pipe the widget to Add-ConsoleItem.
+Each lane shows a status marker (a spinner while running), a progress bar, pass/fail/warning counts and what it is doing now. Lanes can be declared up front with -Lane (names sharing one -Total), with a script block of Key/Label records calls (each with its own total, progress, status and counts), from the pipeline, or appear on their first Update-Console in a live dashboard. To add lanes later, pipe the widget to Add-ConsoleItem.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleLanes [[-WidgetId] <string>] [[-Content] <scriptblock>] [-InputObject <psobject>] [-Lane <Object[]>] [-Total <double>] [-Shape <BarShape>] [-Column <string[]>] [-HideCompleted] [-CollapseWhenFinished] [-Transient] [-CountColumn <ColumnFormat>] [-PercentColumn <ColumnFormat>] [<CommonParameters>]
+New-ConsoleLanes [[-WidgetId] <string>] [[-Content] <scriptblock>] [-InputObject <psobject>] [-Lane <Object[]>] [-Total <double>] [-Shape <BarShape>] [-Columns <string[]>] [-HideCompleted] [-CollapseWhenFinished] [-Transient] [-CountColumn <ColumnFormat>] [-PercentColumn <ColumnFormat>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Creates a lanes widget: one row per worker, server or item of a parallel workload.
 
-Each lane shows a status marker (a spinner while running), a progress bar, pass/fail/warning counts and what it is doing now. Lanes can be declared up front with -Lane (names sharing one -Total), with a script block of New-ConsoleLane calls (each with its own total, progress, status and counts), from the pipeline, or appear on their first Update-ConsoleLane in a live dashboard. To add lanes later, pipe the widget to Add-ConsoleItem.
+Each lane shows a status marker (a spinner while running), a progress bar, pass/fail/warning counts and what it is doing now. Lanes can be declared up front with -Lane (names sharing one -Total), with a script block of Key/Label records calls (each with its own total, progress, status and counts), from the pipeline, or appear on their first Update-Console in a live dashboard. To add lanes later, pipe the widget to Add-ConsoleItem.
 
 ## EXAMPLES
 
@@ -33,9 +33,9 @@ Lanes for three servers with 40 steps each
 ### EXAMPLE 2
 ```powershell
 New-ConsoleLanes -Content {
-    New-ConsoleLane 'DC01' -Total 40 -Done 40 -Status Pass -Passed 40
-    New-ConsoleLane 'DC02' -Total 40 -Done 22 -Status Running -Passed 21 -Warned 1 -Detail 'replication'
-    New-ConsoleLane 'DC03' -Total 40
+    [pscustomobject]@{ Key = 'DC01'; Total = 40; Status = 'Pass'; Passed = 40; Value = 40 }
+    [pscustomobject]@{ Key = 'DC02'; Total = 40; Status = 'Running'; Passed = 21; Warned = 1; Detail = 'replication'; Value = 22 }
+    [pscustomobject]@{ Key = 'DC03'; Total = 40 }
 } | Show-Console
 ```
 
@@ -59,7 +59,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Column
+### -Columns
 The columns of each row, in order: Standard (spinner, description, bar, percent, count, elapsed, remaining time, status), or any of Spinner, Description, Bar, Percent, Count, Elapsed, Remaining, Rate, ByteRate, Results and Status. Without it the classic layout shows the label, bar, percentage, pass/fail/warning counts and detail.
 
 ```yaml
@@ -76,7 +76,7 @@ Accept wildcard characters: False
 ```
 
 ### -Content
-A script block that emits the lanes: New-ConsoleLane calls, or names.
+A script block that emits the lanes: Key/Label records calls, or names.
 
 ```yaml
 Type: ScriptBlock
@@ -124,7 +124,7 @@ Accept wildcard characters: False
 ```
 
 ### -InputObject
-Lanes from the pipeline: New-ConsoleLane objects or names.
+Lanes from the pipeline: Key/Label records objects or names.
 
 ```yaml
 Type: PSObject

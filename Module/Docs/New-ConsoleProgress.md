@@ -6,20 +6,25 @@ schema: 2.0.0
 ---
 # New-ConsoleProgress
 ## SYNOPSIS
-Creates a labelled progress bar.
+Creates a progress bar or an indeterminate activity indicator.
 
-Shows a bar with sub-cell precision for the glyph tier, the percentage and value/total. -Status marks a finished bar (Pass, Fail, Warn, Skip) with its status colour. Update it live with Update-ConsoleProgress.
+The default bar represents a known total. Indeterminate creates a spinner. Update either through Update-Console. Structural parameter sets reject bar-only options on a spinner and spinner-only options on a bar; the shared C# Progress factory validates the same contract.
 
 ## SYNTAX
-### __AllParameterSets
+### Bar (Default)
 ```powershell
-New-ConsoleProgress [[-WidgetId] <string>] [[-Label] <Object>] [-Value <double>] [-Total <double>] [-Status <StatusKind>] [-Shape <BarShape>] [-Column <string[]>] [-CountColumn <ColumnFormat>] [<CommonParameters>]
+New-ConsoleProgress [[-WidgetId] <string>] [[-Label] <Object>] [-Status <StatusKind>] [-Value <double>] [-Total <double>] [-Shape <BarShape>] [-Columns <Object[]>] [-CountColumn <ColumnFormat>] [-NoCount] [-LabelWidth <Int32>] [-RateWindowSeconds <double>] [<CommonParameters>]
+```
+
+### Indeterminate
+```powershell
+New-ConsoleProgress [[-WidgetId] <string>] [[-Label] <Object>] -Indeterminate [-Status <StatusKind>] [-Detail <Object>] [-NoElapsed] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Creates a labelled progress bar.
+Creates a progress bar or an indeterminate activity indicator.
 
-Shows a bar with sub-cell precision for the glyph tier, the percentage and value/total. -Status marks a finished bar (Pass, Fail, Warn, Skip) with its status colour. Update it live with Update-ConsoleProgress.
+The default bar represents a known total. Indeterminate creates a spinner. Update either through Update-Console. Structural parameter sets reject bar-only options on a spinner and spinner-only options on a bar; the shared C# Progress factory validates the same contract.
 
 ## EXAMPLES
 
@@ -28,43 +33,23 @@ Shows a bar with sub-cell precision for the glyph tier, the percentage and value
 New-ConsoleProgress -Label 'Upload' -Value 64 -Total 100 | Show-Console
 ```
 
-A static progress bar
+Show completed work
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleRows -Content {
-    New-ConsoleProgress -Label 'Build' -Value 64 -Total 100
-    New-ConsoleProgress -Label 'Docs' -Value 100 -Total 100 -Status Pass
-    New-ConsoleProgress -Label 'Upload' -Value 3 -Total 8 -Shape Block
-} | Show-Console
+New-ConsoleProgress resolve -Indeterminate -Label 'Resolving DNS' -Detail 'zone 4' | Show-Console
 ```
 
-Several bars, one of them finished
+Show work with no known total
 
 ## PARAMETERS
 
-### -Column
-The columns of the row, in order: Standard, or any of Spinner, Description, Bar, Percent, Count, Elapsed, Remaining, Rate, ByteRate, Results and Status. Rate and Remaining are smoothed over the last 10 seconds. Without it the classic label, bar, percentage and count show.
+### -Columns
+Ordered built-in column names or typed ProgressColumn objects.
 
 ```yaml
-Type: String[]
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values: Standard, Spinner, Description, Bar, Percent, Count, Elapsed, Remaining, Rate, ByteRate, Results, Status
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -CountColumn
-Shared count-column settings from New-ConsoleColumnFormat.
-
-```yaml
-Type: ColumnFormat
-Parameter Sets: __AllParameterSets
+Type: Object[]
+Parameter Sets: Bar
 Aliases: None
 Possible values:
 
@@ -75,12 +60,60 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Label
-The label (markup allowed).
+### -CountColumn
+The shared count column format.
+
+```yaml
+Type: ColumnFormat
+Parameter Sets: Bar
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Detail
+The muted indeterminate activity detail.
 
 ```yaml
 Type: Object
-Parameter Sets: __AllParameterSets
+Parameter Sets: Indeterminate
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Indeterminate
+Creates a spinner for work without a known total.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Indeterminate
+Aliases: None
+Possible values:
+
+Required: True
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Label
+The activity label, including markup.
+
+```yaml
+Type: Object
+Parameter Sets: Bar, Indeterminate
 Aliases: None
 Possible values:
 
@@ -91,12 +124,76 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -LabelWidth
+The fixed label width.
+
+```yaml
+Type: Int32
+Parameter Sets: Bar
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NoCount
+Hides the default-on count in the classic bar layout.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Bar
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NoElapsed
+Hides the default-on indeterminate elapsed time.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Indeterminate
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -RateWindowSeconds
+Rate smoothing window in seconds; default ten.
+
+```yaml
+Type: Double
+Parameter Sets: Bar
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Shape
-Bar shape: Line (thin stroke) or Block (solid blocks). Default Line.
+The progress bar shape; default Line.
 
 ```yaml
 Type: BarShape
-Parameter Sets: __AllParameterSets
+Parameter Sets: Bar
 Aliases: None
 Possible values: Block, Line
 
@@ -108,11 +205,11 @@ Accept wildcard characters: False
 ```
 
 ### -Status
-The status (default Running): Pass, Fail, Warn or Skip mark a finished bar in that colour (PowerShell's words such as Success and Error work too).
+The initial state; default Running.
 
 ```yaml
 Type: StatusKind
-Parameter Sets: __AllParameterSets
+Parameter Sets: Bar, Indeterminate
 Aliases: None
 Possible values: Pending, Running, Pass, Fail, Warn, Skip, Info
 
@@ -124,11 +221,11 @@ Accept wildcard characters: False
 ```
 
 ### -Total
-The total value represented by a full bar (default 100).
+The planned total; default 100.
 
 ```yaml
 Type: Double
-Parameter Sets: __AllParameterSets
+Parameter Sets: Bar
 Aliases: None
 Possible values:
 
@@ -140,11 +237,11 @@ Accept wildcard characters: False
 ```
 
 ### -Value
-The current value.
+The completed value; default zero.
 
 ```yaml
 Type: Double
-Parameter Sets: __AllParameterSets
+Parameter Sets: Bar
 Aliases: None
 Possible values:
 
@@ -156,11 +253,11 @@ Accept wildcard characters: False
 ```
 
 ### -WidgetId
-The live name (default progress).
+The live identifier; default progress, or spinner with Indeterminate.
 
 ```yaml
 Type: String
-Parameter Sets: __AllParameterSets
+Parameter Sets: Bar, Indeterminate
 Aliases: None
 Possible values:
 
@@ -181,6 +278,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 - `ConsoleMonster.Widgets.ProgressBar`
+- `ConsoleMonster.Widgets.Spinner`
 
 ## RELATED LINKS
 

@@ -8,7 +8,7 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a log region: the newest lines of a log, bottom-aligned.
 
-Printed once, the lines come from a script block of New-ConsoleLogEntry calls (each with a level and a time) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry. To add lines to a log made earlier, pipe it to Add-ConsoleItem.
+Printed once, the lines come from a script block of Message/Level records calls (each with a level and a time) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry. To add lines to a log made earlier, pipe it to Add-ConsoleItem.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -19,16 +19,16 @@ New-ConsoleLogRegion [[-WidgetId] <string>] [[-Content] <scriptblock>] [-InputOb
 ## DESCRIPTION
 Creates a log region: the newest lines of a log, bottom-aligned.
 
-Printed once, the lines come from a script block of New-ConsoleLogEntry calls (each with a level and a time) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry. To add lines to a log made earlier, pipe it to Add-ConsoleItem.
+Printed once, the lines come from a script block of Message/Level records calls (each with a level and a time) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry. To add lines to a log made earlier, pipe it to Add-ConsoleItem.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
 New-ConsoleLogRegion -Height 5 -Content {
-    New-ConsoleLogEntry 'Discovered 4 domain controllers in 2 domains' -Level Info -AtSeconds 2
-    New-ConsoleLogEntry 'DC02: USN rollback check failed (event 2095)' -Level Error -AtSeconds 44
-    New-ConsoleLogEntry 'Using cached schema snapshot' -Level Verbose -AtSeconds 53
+    [pscustomobject]@{ Message = 'Discovered 4 domain controllers in 2 domains'; Level = 'Info'; AtSeconds = 2 }
+    [pscustomobject]@{ Message = 'DC02: USN rollback check failed (event 2095)'; Level = 'Error'; AtSeconds = 44 }
+    [pscustomobject]@{ Message = 'Using cached schema snapshot'; Level = 'Verbose'; AtSeconds = 53 }
 } | Show-Console
 ```
 
@@ -60,7 +60,7 @@ Accept wildcard characters: False
 ```
 
 ### -Content
-A script block that emits the lines: New-ConsoleLogEntry calls, or strings for info lines.
+A script block that emits the lines: Message/Level records calls, or strings for info lines.
 
 ```yaml
 Type: ScriptBlock
@@ -92,7 +92,7 @@ Accept wildcard characters: False
 ```
 
 ### -InputObject
-Lines from the pipeline: New-ConsoleLogEntry objects or strings.
+Lines from the pipeline: Message/Level records objects or strings.
 
 ```yaml
 Type: PSObject

@@ -13,7 +13,7 @@ The scriptblock emits the body widgets top to bottom. Pass the result to Invoke-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleDashboard [[-WidgetId] <string>] [-Content] <scriptblock> -Title <Object> [-Subtitle <Object>] [-Footer <Object>] [-FooterHints <Object[]>] [-Gap <int>] [-NoElapsed] [<CommonParameters>]
+New-ConsoleDashboard [[-WidgetId] <string>] [[-Content] <Object>] -Title <Object> [-Subtitle <Object>] [-Footer <Object>] [-FooterHints <Object[]>] [-Gap <int>] [-NoElapsed] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -36,15 +36,15 @@ A dashboard with lanes and a log that fills the rest of the screen
 Scriptblock that emits the body widgets.
 
 ```yaml
-Type: ScriptBlock
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
 
-Required: True
+Required: False
 Position: 1
 Default value: None
-Accept pipeline input: False
+Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
@@ -165,7 +165,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Object`
 
 ## OUTPUTS
 

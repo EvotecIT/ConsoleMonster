@@ -13,7 +13,7 @@ Plays a recording (written by Invoke-ConsoleDashboard -RecordPath or -AutoRecord
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Show-ConsoleReplay [-Dashboard] <IWidget> [[-Path] <string>] [-Title <string>] [-Speed <double>] [-Inline] [-Paused] [-Height <int>] [-PlaybackMode <string>] [<CommonParameters>]
+Show-ConsoleReplay [-Dashboard] <IWidget> [[-Path] <string>] [-Title <string>] [-Speed <double>] [-Inline] [-Paused] [-Height <int>] [-PlaybackMode <PlaybackMode>] [-FramesPerSecond <double>] [-MaxFrames <int>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -55,6 +55,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -FramesPerSecond
+Samples the interactive recording at this frame rate; default ten.
+
+```yaml
+Type: Double
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Height
 The height of the recorded screen in rows (default the window, or the dashboard's own height inline).
 
@@ -76,6 +92,22 @@ Plays below the cursor instead of on the whole window.
 
 ```yaml
 Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -MaxFrames
+Maximum sampled interactive frames; default 3000.
+
+```yaml
+Type: Int32
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -123,7 +155,7 @@ Accept wildcard characters: False
 Interactive player controls (default), or automatic playback without reading keys.
 
 ```yaml
-Type: String
+Type: PlaybackMode
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values: Interactive, Automatic

@@ -13,7 +13,7 @@ Children share the width equally unless they were created with -Weight. -FixedWi
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleColumns [-Content] <scriptblock> [-Gap <int>] [-FixedWidth <int[]>] [-CollapseBelow <int>] [-Height <int>] [-Fill] [<CommonParameters>]
+New-ConsoleColumns [[-Content] <Object>] [-Gap <int>] [-FixedWidth <int[]>] [-CollapseBelow <int>] [-Height <int>] [-Fill] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -33,9 +33,9 @@ Two panels, the first twice as wide
 ### EXAMPLE 2
 ```powershell
 New-ConsoleColumns -FixedWidth 0, 0, 17 -CollapseBelow 90 -Content {
-    New-ConsolePanel -Title 'Failures' -Weight 1.5 -Content { New-ConsoleLiveTable -WidgetId failures -Column 'Server', 'Check' }
-    New-ConsolePanel -Title 'Slowest' -Content { New-ConsoleLiveTable -WidgetId slowest -Column 'Check', 'Took' }
-    New-ConsolePanel -Title 'Durations' -Content { New-ConsoleHistogram -WidgetId durations -Edge 0, 2, 4, 8 -Height 5 }
+    New-ConsolePanel -Title 'Failures' -Weight 1.5 -Content { New-ConsoleTable -WidgetId failures -Live -Columns 'Server', 'Check' }
+    New-ConsolePanel -Title 'Slowest' -Content { New-ConsoleTable -WidgetId slowest -Live -Columns 'Check', 'Took' }
+    New-ConsolePanel -Title 'Durations' -Content { New-ConsoleChart -WidgetId durations -Height 5 -Type Histogram -Edges 0, 2, 4, 8 }
 }
 ```
 
@@ -63,15 +63,15 @@ Accept wildcard characters: False
 Scriptblock that emits the child widgets.
 
 ```yaml
-Type: ScriptBlock
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
 
-Required: True
+Required: False
 Position: 0
 Default value: None
-Accept pipeline input: False
+Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
@@ -144,7 +144,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Object`
 
 ## OUTPUTS
 

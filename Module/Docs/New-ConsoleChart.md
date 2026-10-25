@@ -4,116 +4,36 @@ Module Name: ConsoleMonster
 online version: https://github.com/EvotecIT/ConsoleMonster
 schema: 2.0.0
 ---
-# Read-ConsoleMultiSelect
+# New-ConsoleChart
 ## SYNOPSIS
-Asks the user to pick any number of the choices and returns the chosen objects.
+Creates one numeric chart representation from records or samples.
 
-Everything Read-ConsoleSelect does, plus checkboxes: Space toggles (on a group it toggles the whole group, shown as [–] when partly selected; Left and Right collapse and expand groups), Ctrl+A selects all shown, Ctrl+N none, Ctrl+T inverts, Ctrl+O shows only the selected ones. -Minimum and -Maximum are enforced, and a live count shows how many are selected. The chosen objects are written to the pipeline in list order.
+Type selects Bar, Stacked, Line, Scatter, Histogram or Sparkline. The shared C# Chart factory rejects options that do not apply to the selected kind. InputObject accepts ordinary records; Content emits the same records. Use Update-Console for live changes.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Read-ConsoleMultiSelect [-Title] <string> [[-Choices] <Object[]>] [-Selected <Object>] [-Minimum <Int32>] [-Maximum <Int32>] [-Collapsed] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-Badge <Object>] [-Hotkey <Object>] [-DisabledReason <scriptblock>] [-Preview <scriptblock>] [-PageSize <int>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
+New-ConsoleChart [[-WidgetId] <string>] [[-InputObject] <psobject>] -Type <ChartType> [-Unit <string>] [-Label <Object>] [-Height <Int32>] [-Minimum <Double>] [-Maximum <Double>] [-Role <ThemeToken>] [-Shape <BarShape>] [-Warning <Double>] [-Critical <Double>] [-NoLatest] [-Edges <double[]>] [-Values <double[]>] [-ValueColumn <ColumnFormat>] [-CountColumn <ColumnFormat>] [-PercentColumn <ColumnFormat>] [-LabelColumn <ColumnFormat>] [-Content <scriptblock>] [-Series <Object[]>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Asks the user to pick any number of the choices and returns the chosen objects.
+Creates one numeric chart representation from records or samples.
 
-Everything Read-ConsoleSelect does, plus checkboxes: Space toggles (on a group it toggles the whole group, shown as [–] when partly selected; Left and Right collapse and expand groups), Ctrl+A selects all shown, Ctrl+N none, Ctrl+T inverts, Ctrl+O shows only the selected ones. -Minimum and -Maximum are enforced, and a live count shows how many are selected. The chosen objects are written to the pipeline in list order.
+Type selects Bar, Stacked, Line, Scatter, Histogram or Sparkline. The shared C# Chart factory rejects options that do not apply to the selected kind. InputObject accepts ordinary records; Content emits the same records. Use Update-Console for live changes.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-$tasks = Read-ConsoleMultiSelect 'Tasks' -Choices $tasks -Display Name -GroupBy Category -Preview { $_.Description } -Minimum 1
+[pscustomobject] @{ Label = 'Cloudflare'; Value = 12 } | New-ConsoleChart -Type Bar -Unit ' ms' | Show-Console
 ```
 
-Grouped tasks with a preview
+Show resolver latency
 
 ## PARAMETERS
 
-### -Badge
-Short right-aligned text per choice: a property name or a scriptblock.
-
-```yaml
-Type: Object
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Choices
-The choices: any objects (strings, services, records). The chosen objects themselves are returned.
-
-```yaml
-Type: Object[]
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: 1
-Default value: None
-Accept pipeline input: True (ByValue)
-Accept wildcard characters: False
-```
-
-### -Collapsed
-Starts with every group collapsed.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Describe
-A sentence for the focused choice: a property name or a scriptblock.
-
-```yaml
-Type: Object
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Description
-Help text under the question.
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -DisabledReason
-Returns why a choice is unavailable ($_ is the choice), or nothing when it is available.
+### -Content
+A script block emitting the same records accepted by InputObject.
 
 ```yaml
 Type: ScriptBlock
@@ -128,8 +48,88 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Display
-What to show for a choice: a property name or a scriptblock ($_ is the choice). Default: the choice as text.
+### -CountColumn
+Stacked count-column settings.
+
+```yaml
+Type: ColumnFormat
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Critical
+The critical threshold for Bar.
+
+```yaml
+Type: Double
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Edges
+Strictly ascending Histogram bucket edges.
+
+```yaml
+Type: Double[]
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Height
+Plot rows; omitted uses the selected kind default.
+
+```yaml
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -InputObject
+Records, numeric samples or a dictionary of labels to values/series.
+
+```yaml
+Type: PSObject
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: 1
+Default value: None
+Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -Label
+The sparkline label.
 
 ```yaml
 Type: Object
@@ -144,27 +144,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -GroupBy
-The group heading of a choice: a property name or a scriptblock.
+### -LabelColumn
+Stacked legend-label settings.
 
 ```yaml
-Type: Object
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Hotkey
-A key that picks a choice directly: a property name or a scriptblock returning a letter.
-
-```yaml
-Type: Object
+Type: ColumnFormat
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -177,10 +161,10 @@ Accept wildcard characters: False
 ```
 
 ### -Maximum
-The most choices accepted.
+The upper numeric limit.
 
 ```yaml
-Type: Int32
+Type: Double
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -193,10 +177,10 @@ Accept wildcard characters: False
 ```
 
 ### -Minimum
-The fewest choices accepted.
+The lower numeric limit.
 
 ```yaml
-Type: Int32
+Type: Double
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -208,88 +192,8 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Mode
-Forces how to ask: Rich (in-place prompt), Line (question and typed answer), Accessible (numbered, no redraws) or None (use the default or fail).
-
-```yaml
-Type: InteractionMode
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values: Rich, Line, Accessible, None
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -PageSize
-The preferred number of visible rows.
-
-```yaml
-Type: Int32
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -ParameterName
-The parameter of your script that supplies this value without a prompt (named in the non-interactive error, for example -Domain).
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Preview
-Content for the preview pane ($_ is the focused choice): text, rich text, a widget, or an object shown as a list.
-
-```yaml
-Type: ScriptBlock
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Selected
-Pre-selected choices: the objects or their displayed texts, or a scriptblock returning $true for selected ones.
-
-```yaml
-Type: Object
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -StaticSnapshot
-Prints the initialized rich prompt without reading input or returning an answer. Useful for documentation and unattended previews.
+### -NoLatest
+Hides the latest Sparkline value.
 
 ```yaml
 Type: SwitchParameter
@@ -304,8 +208,88 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Title
-The question.
+### -PercentColumn
+Stacked percent-column settings.
+
+```yaml
+Type: ColumnFormat
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Role
+The chart theme role.
+
+```yaml
+Type: ThemeToken
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: Text, Muted, Subtle, Accent, Accent2, Pass, Fail, Warn, Info, Skip, Running, Pending, Border, Title, Header, Highlight, Surface, SurfaceAccent, Series1, Series2, Series3, Series4, Series5, Series6, Focus
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Series
+Initial Line/Scatter series names, or records with Key, Label, Role and Values.
+
+```yaml
+Type: Object[]
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Shape
+The bar shape, Block by default.
+
+```yaml
+Type: BarShape
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: Block, Line
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Type
+The numeric chart kind: Bar, Stacked, Line, Scatter, Histogram or Sparkline.
+
+```yaml
+Type: ChartType
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: Bar, Stacked, Line, Scatter, Histogram, Sparkline
+
+Required: True
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Unit
+The unit on numeric labels.
 
 ```yaml
 Type: String
@@ -313,7 +297,71 @@ Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
 
-Required: True
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ValueColumn
+Bar numeric-column settings.
+
+```yaml
+Type: ColumnFormat
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Values
+Initial numeric samples for Histogram or Sparkline.
+
+```yaml
+Type: Double[]
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Warning
+The warning threshold for Bar.
+
+```yaml
+Type: Double
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WidgetId
+The live identifier; omitted uses the selected kind default.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
 Position: 0
 Default value: None
 Accept pipeline input: False
@@ -325,11 +373,11 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `System.Object[]`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 
-- `None`
+- `ConsoleMonster.Layout.IWidget`
 
 ## RELATED LINKS
 
