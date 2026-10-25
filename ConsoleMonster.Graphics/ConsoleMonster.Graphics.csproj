@@ -5,7 +5,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IsPackable>true</IsPackable>
     <PackageId>ConsoleMonster.Graphics</PackageId>
-    <Description>Portable PNG, GIF, APNG and optional ffmpeg MP4 exports for ConsoleMonster, powered by ChartForgeX.</Description>
+    <Description>Portable PNG, GIF and APNG exports for ConsoleMonster, powered by ChartForgeX.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/EvotecIT/ConsoleMonster</RepositoryUrl>
@@ -13,8 +13,8 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../ConsoleMonster/ConsoleMonster.csproj" />
-    <PackageReference Include="ChartForgeX" Version="3.0.1" />
-    <PackageReference Include="ChartForgeX.Stories" Version="3.0.1" />
+    <PackageReference Include="ChartForgeX" Version="3.0.2" />
+    <PackageReference Include="ChartForgeX.Stories" Version="3.0.2" />
     <EmbeddedResource Include="Fonts/OFL.txt" LogicalName="ConsoleMonster.Graphics.JetBrainsMono-OFL.txt" />
     <EmbeddedResource Include="Fonts/JetBrainsMono.ttf" LogicalName="ConsoleMonster.Graphics.JetBrainsMono.ttf" />
     <None Include="Fonts/OFL.txt" Pack="true" PackagePath="licenses/JetBrainsMono-OFL.txt" />

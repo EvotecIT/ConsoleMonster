@@ -44,9 +44,10 @@ namespace ConsoleMonster.Graphics {
             }
             return paths.AsReadOnly();
         }
-        /// <summary>Encodes a terminal recording to GIF, APNG or optional ffmpeg MP4. PNG selects the final frame.</summary>
+        /// <summary>Encodes a terminal recording to GIF or APNG. PNG selects the final frame.</summary>
         public static void SaveGraphics(this SessionRecording recording, string path, GraphicsFormat format, GraphicsExportOptions? options = null, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
+            GraphicsOutput.ValidatePath(path);
             GraphicsExportOptions settings = options ?? new GraphicsExportOptions();
             if (format == GraphicsFormat.Png) { recording.SavePng(path, settings); return; }
             SaveFrames(recording.CaptureFrames(Playback(settings), trimEmptyRows: settings.Preset == GraphicsPreset.Docs), path, format, settings, cancellationToken);
@@ -71,8 +72,26 @@ namespace ConsoleMonster.Graphics {
         }
         private static CellBuffer Render(IWidget widget, GraphicsExportOptions settings) => ConsoleExporter.Render(widget, settings.Frame,
             settings.Frame.Theme == ExportTheme.Light ? settings.Frame.LightTheme ?? Theme.Light : settings.Frame.DarkTheme ?? (settings.Frame.Theme == ExportTheme.HighContrast ? Theme.HighContrast : Theme.Dark));
+        private static bool IsEmpty(CellBuffer frame) {
+            for (int y = 0; y < frame.Height; y++) {
+                for (int x = 0; x < frame.Width; x++) {
+                    if (!string.IsNullOrWhiteSpace(frame[x, y].Glyph)) { return false; }
+                }
+            }
+            return true;
+        }
         private static void SaveFrames(IReadOnlyList<RecordedFrame> frames, string path, GraphicsFormat format, GraphicsExportOptions settings, CancellationToken token) {
             settings.Validate(); token.ThrowIfCancellationRequested();
+            GraphicsOutput.ValidatePath(path);
+            if (format == GraphicsFormat.Gif) {
+                int start = 0;
+                while (start < frames.Count - 1 && IsEmpty(frames[start].Frame)) { start++; }
+                if (start > 0) {
+                    List<RecordedFrame> visible = new List<RecordedFrame>();
+                    for (int i = start; i < frames.Count; i++) { visible.Add(frames[i]); }
+                    frames = visible;
+                }
+            }
             if (frames.Count == 0) { throw new ArgumentException("The recording has no frames."); }
             if (format == GraphicsFormat.Png) { frames[frames.Count - 1].Frame.SavePng(path, settings); return; }
             // Render on demand: GIF's palette and encoding passes retain only bounded RGBA working buffers.
@@ -90,7 +109,6 @@ namespace ConsoleMonster.Graphics {
                 if (settings.IdleLimit > TimeSpan.Zero) { duration = Math.Min(duration - hold, settings.IdleLimit.TotalMilliseconds) + hold; }
                 return new RasterAnimationFrame(index == 0 ? first : GraphicsRenderer.Render(frames[index].Frame, settings, layout), TimeSpan.FromMilliseconds(Math.Max(10, duration)));
             });
-            if (format == GraphicsFormat.Mp4) { FfmpegWriter.Write(path, source, settings.Playback.FramesPerSecond, token); return; }
             if (format != GraphicsFormat.Gif && format != GraphicsFormat.Apng) { throw new ArgumentOutOfRangeException(nameof(format)); }
             GraphicsOutput.Write(path, stream => RasterAnimationEncoder.WriteTo(stream, source,
                 format == GraphicsFormat.Gif ? RasterAnimationFormat.Gif : RasterAnimationFormat.Apng,

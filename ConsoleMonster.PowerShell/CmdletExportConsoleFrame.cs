@@ -100,6 +100,9 @@ namespace ConsoleMonster.PowerShell {
             if (_items.Count == 0) {
                 return;
             }
+            if (Path != null && string.Equals(System.IO.Path.GetExtension(Path), ".mp4", System.StringComparison.OrdinalIgnoreCase)) {
+                throw new System.ArgumentException("MP4 export isn't available yet; use GIF for slides (see https://consolemonster.dev/docs/talks-and-demos/).");
+            }
             string? requested = Format ?? (Path == null ? null : System.IO.Path.GetExtension(Path).TrimStart('.'));
             bool graphics = string.Equals(requested, "Png", System.StringComparison.OrdinalIgnoreCase);
             string format = graphics ? "Svg" : PSOutputExport.FormatFor(Format, Path);

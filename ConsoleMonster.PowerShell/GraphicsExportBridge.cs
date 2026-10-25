@@ -16,7 +16,7 @@ namespace ConsoleMonster.PowerShell {
         internal static bool IsGraphics(string? format, string? path) {
             string name = format ?? (path == null ? "" : System.IO.Path.GetExtension(path).TrimStart('.'));
             return string.Equals(name, "Png", StringComparison.OrdinalIgnoreCase) || string.Equals(name, "Gif", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(name, "Apng", StringComparison.OrdinalIgnoreCase) || string.Equals(name, "Mp4", StringComparison.OrdinalIgnoreCase);
+                || string.Equals(name, "Apng", StringComparison.OrdinalIgnoreCase);
         }
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static object Frame(IReadOnlyList<object> items, string? path, string preset, string? font, string fit, string background, string? backgroundColor, string? backgroundEndColor, ExportOptions options, PSCmdlet cmdlet) {

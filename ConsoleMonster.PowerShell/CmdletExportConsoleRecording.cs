@@ -29,9 +29,9 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(Mandatory = true, Position = 0, ParameterSetName = "Session")]
         public string Path { get; set; } = string.Empty;
 
-        /// <summary><para type="description">Png, Gif, Apng, Mp4, Html, Svg, Asciicast, Text, Markdown, FencedText or PlayerData. The destination extension selects a default; .json means PlayerData. Text applies to terminal sessions; Markdown also exports dashboard recordings as timestamped fenced frames.</para></summary>
+        /// <summary><para type="description">Png, Gif, Apng, Html, Svg, Asciicast, Text, Markdown, FencedText or PlayerData. The destination extension selects a default; .json means PlayerData. Text applies to terminal sessions; Markdown also exports dashboard recordings as timestamped fenced frames.</para></summary>
         [Parameter]
-        [ValidateSet("Html", "Svg", "Asciicast", "PlayerData", "Text", "Markdown", "FencedText", "Png", "Gif", "Apng", "Mp4")]
+        [ValidateSet("Html", "Svg", "Asciicast", "PlayerData", "Text", "Markdown", "FencedText", "Png", "Gif", "Apng")]
         public string? Format { get; set; }
 
         /// <summary><para type="description">The file to write, or a directory with -PerChapter. Graphics require a destination; text formats can go to the pipeline.</para></summary>
@@ -118,6 +118,9 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void StopProcessing() { try { _exportStop.Cancel(); } catch (System.ObjectDisposedException) { } }
         private void ExportRecording() {
+            if (Destination != null && string.Equals(System.IO.Path.GetExtension(Destination), ".mp4", System.StringComparison.OrdinalIgnoreCase)) {
+                throw new System.ArgumentException("MP4 export isn't available yet; use GIF for slides (see https://consolemonster.dev/docs/talks-and-demos/).");
+            }
             string source = SessionState.Path.GetUnresolvedProviderPathFromPSPath(Path);
             bool graphics = GraphicsExportBridge.IsGraphics(Format, Destination);
             if (graphics) {

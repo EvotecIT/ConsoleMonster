@@ -164,6 +164,28 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
                 Assert.True(GifDelays(bytes, out _).Count >= 2);
             } finally { Directory.Delete(folder, true); }
         }
+        [Fact]
+        public void GifStartsOnContentAndLoopsByDefaultWithItsFinalHold() {
+            var recording = SessionRecording.Read(new StringReader("{\"version\":2,\"width\":16,\"height\":3}\n[0,\"o\",\"\"]\n[1,\"o\",\"Ready\"]\n[2,\"o\",\"\\r\\nDone\"]\n"));
+            string folder = Path.Combine(Path.GetTempPath(), "cm-poster-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(folder);
+            try {
+                var settings = new GraphicsExportOptions { Preset = GraphicsPreset.Slide16x9 };
+                string gif = Path.Combine(folder, "slides.gif");
+                recording.SaveGraphics(gif, GraphicsFormat.Gif, settings);
+                var bytes = File.ReadAllBytes(gif);
+                var delays = GifDelays(bytes, out int repetitions);
+                Assert.Equal(0, repetitions);
+                Assert.Equal(new[] { 100, 200 }, delays);
+                var poster = RasterImageDecoder.Decode(bytes);
+                Assert.Equal(1920, poster.Width); Assert.Equal(1080, poster.Height);
+                settings.LoopCount = 1;
+                recording.SaveGraphics(gif, GraphicsFormat.Gif, settings);
+                Assert.Equal(delays, GifDelays(File.ReadAllBytes(gif), out repetitions));
+                Assert.Equal(-1, repetitions);
+            } finally { Directory.Delete(folder, true); }
+        }
+
         private static List<int> GifDelays(byte[] bytes, out int repetitions) {
             int position = 13;
             if ((bytes[10] & 0x80) != 0) { position += 3 * (1 << ((bytes[10] & 7) + 1)); }

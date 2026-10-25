@@ -3,16 +3,14 @@ using System.Collections.Generic;
 using ConsoleMonster.Export;
 
 namespace ConsoleMonster.Graphics {
-    /// <summary>Raster and video formats supplied by the graphics add-on.</summary>
+    /// <summary>Raster formats supplied by the graphics add-on.</summary>
     public enum GraphicsFormat {
         /// <summary>One lossless frame.</summary>
         Png,
         /// <summary>Palette-quantised animation.</summary>
         Gif,
         /// <summary>Lossless animated PNG.</summary>
-        Apng,
-        /// <summary>H.264 MP4, using ffmpeg on PATH.</summary>
-        Mp4
+        Apng
     }
     /// <summary>Output canvas presets.</summary>
     public enum GraphicsPreset {

@@ -6,7 +6,7 @@ schema: 2.0.0
 ---
 # Export-ConsoleRecording
 ## SYNOPSIS
-Exports a terminal session or dashboard recording to slide images, animations, video, a player or asciicast.
+Exports a terminal session or dashboard recording to slide images, animations, a player or asciicast.
 
 PNG selects the final frame, -AtSeconds a source time, -Chapter a completed chapter, or -PerChapter numbered slides. GIF and APNG are managed animations; MP4 needs ffmpeg on PATH. Without -Dashboard, reads a whole-session asciicast v2 from Invoke-ConsoleRecording -Interactive or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Invoke-ConsoleDashboard widget updates into the same definition, preserving the dashboard HTML, SVG and asciicast v3 exports; Markdown writes timestamped fenced frames through the bundled add-on. Add #t=30000 to an HTML address to open at 30 seconds.
 
@@ -22,7 +22,7 @@ Export-ConsoleRecording [-Dashboard] <IWidget> [-Path] <string> [[-Destination] 
 ```
 
 ## DESCRIPTION
-Exports a terminal session or dashboard recording to slide images, animations, video, a player or asciicast.
+Exports a terminal session or dashboard recording to slide images, animations, a player or asciicast.
 
 PNG selects the final frame, -AtSeconds a source time, -Chapter a completed chapter, or -PerChapter numbered slides. GIF and APNG are managed animations; MP4 needs ffmpeg on PATH. Without -Dashboard, reads a whole-session asciicast v2 from Invoke-ConsoleRecording -Interactive or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Invoke-ConsoleDashboard widget updates into the same definition, preserving the dashboard HTML, SVG and asciicast v3 exports; Markdown writes timestamped fenced frames through the bundled add-on. Add #t=30000 to an HTML address to open at 30 seconds.
 
@@ -221,7 +221,7 @@ Png, Gif, Apng, Mp4, Html, Svg, Asciicast, Text, Markdown, FencedText or PlayerD
 Type: String
 Parameter Sets: Session, Dashboard
 Aliases: None
-Possible values: Html, Svg, Asciicast, PlayerData, Text, Markdown, FencedText, Png, Gif, Apng, Mp4
+Possible values: Html, Svg, Asciicast, PlayerData, Text, Markdown, FencedText, Png, Gif, Apng
 
 Required: False
 Position: named

@@ -111,7 +111,12 @@ Grouped under the step they would join; the rest stays unscheduled.
 - With better defaults (step 3): collapsing long JSON arrays; one shared highlighting engine for tools that keep their
   own today (PSPublishModule could consume ConsoleMonster's).
 - With .NET (step 4): an AOT-compiled `cmon` command-line tool.
-- Raster output is available through the optional ConsoleMonster.Graphics package: PNG, GIF, APNG and optional ffmpeg MP4. Further ChartForgeX integration remains a separate proposal.
+- Raster output is available through the optional ConsoleMonster.Graphics package: PNG, GIF and APNG. Further ChartForgeX integration remains a separate proposal.
+
+- With export/raster work: **MP4 without dependencies.** `-Format Mp4` through Media Foundation on Windows and
+  AVFoundation on macOS, using the encoders shipped by the OS: no external program or download. Linux reports
+  that MP4 is unavailable and suggests GIF. Revisit a managed H.264 encoder in 2027: Proxeno.Kiln is pre-release,
+  and US H.264 patents run to about November 2027.
 - Unscheduled, terminal work:
   - images drawn into the cell grid through ChartForgeX, in the same separate package as raster export;
   - QR codes and barcodes in the terminal through CodeGlyphX;

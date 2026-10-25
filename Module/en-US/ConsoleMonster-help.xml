@@ -2808,7 +2808,6 @@ $tree | Show-Console</dev:code>
             <command:parameterValue required="false" variableLength="false">Png</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Gif</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Apng</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Mp4</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>String</maml:name>
@@ -3115,7 +3114,6 @@ $tree | Show-Console</dev:code>
             <command:parameterValue required="false" variableLength="false">Png</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Gif</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Apng</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Mp4</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>String</maml:name>
@@ -3446,7 +3444,6 @@ $tree | Show-Console</dev:code>
           <command:parameterValue required="false" variableLength="false">Png</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Gif</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Apng</command:parameterValue>
-          <command:parameterValue required="false" variableLength="false">Mp4</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>String</maml:name>

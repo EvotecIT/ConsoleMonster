@@ -1,6 +1,6 @@
 ---
 title: Talks and demos
-description: Write a typed PowerShell demo, present it live, and export PNG slides, animated GIF, APNG or MP4.
+description: Write a typed PowerShell demo, present it live, and export PNG slides, animated GIF or APNG.
 slug: talks-and-demos
 toc: true
 order: 9
@@ -51,12 +51,11 @@ The driver wraps the shell's actual prompt in OSC 133 semantic marks. It never s
 Import-Module ConsoleMonster
 Invoke-ConsolePresentation -Path ./demo.ps1 -Destination ./talk.cast -Seed 42
 Export-ConsoleRecording -Path ./talk.cast -Format Gif -Preset Slide16x9 -WindowChrome -Destination ./talk.gif
-Export-ConsoleRecording -Path ./talk.cast -Format Mp4 -Preset Slide16x9 -WindowChrome -Destination ./talk.mp4
 ```
 
-PNG, GIF and APNG run without an external executable. MP4 pipes RGBA frames to `ffmpeg` on PATH and writes H.264 with `yuv420p` pixels and fast-start metadata; it has no audio track. If ffmpeg is missing, use GIF or install ffmpeg separately. It is never a package dependency.
+PNG, GIF and APNG run in-process without an external executable or a download. Use GIF for animated slides.
 
-`-FramesPerSecond` is the maximum sample rate (10 by default). Identical frames are merged; GIF uses a shared quantised palette. `-IdleLimitSeconds 2` caps unchanged-frame delays while the final frame has its own hold. Use zero to keep original timing. `-LoopCount 0` loops indefinitely; one plays once. MP4 is a single pass; choose repetition in your slide tool. APNG preserves full-colour pixels for software that supports it.
+`-FramesPerSecond` is the maximum sample rate (10 by default). Identical frames are merged; GIF preserves exact colours when a frame fits its palette and otherwise keeps common colours with no dither on glyphs. Changed rectangles use retained disposal; richer gradients can show gentle bands. `-IdleLimitSeconds 2` caps unchanged-frame delays while the final frame has its own hold. Use zero to keep original timing. `-LoopCount 0` loops indefinitely; one plays once. APNG preserves full-colour pixels for software that supports it.
 
 | Preset | Canvas |
 |---|---|
@@ -65,7 +64,14 @@ PNG, GIF and APNG run without an external executable. MP4 pipes RGBA frames to `
 | `Social` | 1200 × 630. |
 | `Docs` | Natural size. |
 
-Every slide preset centres the complete window inside a safe inset of 6% of the canvas's short side. Opposite margins match; the extra space follows the window's aspect ratio. Rounded corners, a subtle shadow and a fine border keep the bottom edge visible. PNG, GIF, APNG and MP4 share this composition.
+For PowerPoint, choose `Slide16x9`: it renders directly at 1920×1080 with crisp
+glyphs at the slide's pixel size. Insert through **Insert → Pictures** and preview
+in Slide Show. Do not stretch a smaller `Docs` capture to fill the slide; `Docs`
+keeps natural terminal pixels for documentation. Leading empty screens are
+removed from GIF playback so the first frame is a useful poster. The final frame
+holds for two seconds before repeating; `-LoopCount 1` plays once and retains it.
+
+Every slide preset centres the complete window inside a safe inset of 6% of the canvas's short side. Opposite margins match; the extra space follows the window's aspect ratio. Rounded corners, a subtle shadow and a fine border keep the bottom edge visible. PNG, GIF and APNG share this composition.
 
 `-Fit Content` is the slide default: stills trim trailing empty rows and columns, keeping two columns of padding after the content. Animations reserve the widest and tallest content used anywhere in the clip. The window stays in one place as commands type. `-Fit Terminal` keeps the complete grid, including empty rows and columns. In both modes, the font grows until width or height reaches the inset, up to 72 pixels. `Docs` keeps its natural-size layout.
 
@@ -73,7 +79,6 @@ The surrounding background uses the theme colour by default. Choose a solid colo
 
 ```powershell
 Export-ConsoleRecording ./talk.cast -Format Png -Preset Slide16x9 -Fit Terminal -Background Solid -BackgroundColor '#1b2638' -Destination ./terminal.png
-Export-ConsoleRecording ./talk.cast -Format Mp4 -Preset Slide16x9 -Background Gradient -BackgroundColor '#192332' -BackgroundEndColor '#0c0c0c' -Destination ./talk.mp4
 ```
 
 Use `-Theme Dark`, `Light` or `HighContrast`, and `-ChromeStyle MacOS`, `Windows`, `Linux` or `None`. The embedded JetBrains Mono font makes default text consistent across operating systems. `-FontFamily 'Consolas'` chooses an installed font; C# also accepts additional fallback families. Emoji and CJK coverage depends on installed fonts. Box drawing, blocks and braille use geometric cell shapes, so they join without font seams.
@@ -118,8 +123,8 @@ Use a terminal such as Terminal.app, iTerm2 or Windows Terminal. Keep the window
 
 | Slide tool | Use |
 |---|---|
-| PowerPoint desktop | GIF through Insert → Pictures, or MP4 through Insert → Video. Preview GIF animation in Slide Show. |
-| Keynote | GIF as an image, or MOV/MP4 as a movie. Set playback in the media controls. |
+| PowerPoint desktop | GIF through Insert → Pictures. Preview GIF animation in Slide Show. |
+| Keynote | GIF as an image. Set playback in the media controls. |
 | Google Slides | GIF through Insert → Image. Video uses its separate YouTube/Drive insertion flow. |
 
 PNG works for stills in all three. Animated SVG commonly appears as a still in slide tools; use GIF or video when the typing needs to move. APNG support varies, so GIF is the portable animated-image choice. PowerPoint for the web has different GIF playback limitations from the desktop app.
