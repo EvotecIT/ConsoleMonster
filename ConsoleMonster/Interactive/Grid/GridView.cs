@@ -176,10 +176,8 @@ namespace ConsoleMonster.Interactive {
         }
 
         private string ActionSelectionLabel() {
-            Refresh();
-            int marked = _visible.Count(index => _marked.Contains(index));
-            if (marked > 1) { return marked.ToString(_culture) + " rows"; }
-            int index = marked == 1 ? _visible.Find(item => _marked.Contains(item)) : _visible.Count > 0 ? _visible[_cursor] : -1;
+            if (_actionIndices.Length > 1) { return _actionIndices.Length.ToString(_culture) + " rows"; }
+            int index = _actionIndices.Length == 1 ? _actionIndices[0] : -1;
             return index >= 0 && _grid.Rows[index].Values.Count > 0 ? PresenterValues.ToText(_grid.Rows[index].Values[0], _culture) : "selected row";
         }
 

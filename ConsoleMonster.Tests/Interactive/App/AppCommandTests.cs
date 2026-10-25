@@ -294,5 +294,29 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Assert.Contains("First row unavailable", frame);
             Assert.False(view.IsDone);
         }
+
+        [Theory]
+        [InlineData(false, "One")]
+        [InlineData(true, "2 rows")]
+        public void Confirmation_NamesCapturedMarksEvenWhenTheyAreFilteredOut(bool twoMarks, string target) {
+            Grid grid = new Grid("Services"); grid.AddColumn("Name");
+            grid.AddRow("one", "One"); grid.AddRow("two", "Two"); grid.AddRow("three", "Three");
+            IReadOnlyList<object?>? captured = null;
+            AppCommand command = new AppCommand("restart", "Restart", (_, __) => Task.CompletedTask) {
+                Shortcut = new KeyChord(ConsoleKey.F5), ConfirmPrompt = "Restart {Selection}?"
+            };
+            command.CaptureRows = rows => { captured = rows; return rows; };
+            GridOptions options = new GridOptions(); options.Commands.Add(command);
+            using GridView view = new GridView(grid, options, new PromptLabels());
+            FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, 100, 30, false, TimeSpan.Zero)), 100, 30, Context);
+            view.Handle(InputEvent.Press(ConsoleKey.Spacebar));
+            if (twoMarks) { view.Handle(InputEvent.Press(ConsoleKey.DownArrow)); view.Handle(InputEvent.Press(ConsoleKey.Spacebar)); }
+            foreach (char key in "Three") { view.Handle(InputEvent.Character(key)); }
+            view.Handle(InputEvent.Press(ConsoleKey.F5));
+            Assert.Equal(twoMarks ? new object?[] { "one", "two" } : new object?[] { "one" }, captured);
+            string frame = FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, 100, 30, false, TimeSpan.Zero)), 100, 30, Context).ToPlainText();
+            Assert.Contains("Restart " + target + "?", frame);
+            Assert.DoesNotContain("Restart Three?", frame);
+        }
     }
 }
