@@ -92,7 +92,7 @@ Describe 'PowerShell and C# API parity' {
         $seeds = @($script:ApiTypes.Values | Where-Object {
             -not [System.Management.Automation.PSCmdlet].IsAssignableFrom($_) -and
             -not $_.Name.EndsWith('Fluent', [StringComparison]::Ordinal) -and
-            (($_.FullName -ne 'ConsoleMonster.Layout.IWidget' -and $script:ApiTypes['ConsoleMonster.Layout.IWidget'].IsAssignableFrom($_)) -or $_.Name.EndsWith('Options', [StringComparison]::Ordinal) -or $_.FullName -in $owners -or (Test-ConsoleApiPromptType $_))
+            (($_.FullName -ne 'ConsoleMonster.Layout.IWidget' -and $script:ApiTypes['ConsoleMonster.Layout.IWidget'].IsAssignableFrom($_)) -or $_.Name.EndsWith('Options', [StringComparison]::Ordinal) -or $_.FullName -in $owners -or (Test-ConsoleApiPromptType $_) -or $_.FullName -eq 'ConsoleMonster.Styling.ThemeFile')
         })
         Compare-Object @($seeds.FullName | Sort-Object) @($script:Parity.ConfigurableRoots | Sort-Object) | Should -BeNullOrEmpty
         $graph = Get-ConsoleApiTypeGraph $seeds $script:ApiTypes -IncludeItemMethods
@@ -174,6 +174,15 @@ Describe 'PowerShell and C# API parity' {
             @($methods | ForEach-Object { $_.GetParameters() } | Where-Object Name -EQ $operation.Argument).Count | Should -BeGreaterThan 0
             @($type.GetMethods() | Where-Object Name -EQ $operation.FluentFactory).Count | Should -BeGreaterThan 0
             @($script:Parity.Endings | Where-Object FluentMember -EQ $operation.FluentMember).Count | Should -Be 1
+        }
+    }
+
+    It 'validates the explicitly mapped native baseline without counting it as a module command' {
+        foreach ($operation in $script:Parity.ExternalOperations) {
+            (Get-Command $operation.Command -CommandType Cmdlet).ModuleName | Should -Not -Be ConsoleMonster
+            $operation.CSharpType | Should -BeExactly 'System.Console'
+            @([Console].GetMethods() | Where-Object Name -EQ $operation.Member).Count | Should -BeGreaterThan 0
+            $operation.Reason | Should -Not -BeNullOrEmpty
         }
     }
 

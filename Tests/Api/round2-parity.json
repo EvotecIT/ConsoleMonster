@@ -653,11 +653,12 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Live.LiveRun",
-          "Member": "Flush",
-          "Argument": "timeout",
+          "Member": "Wait",
           "MemberKind": "Method",
           "Conversion": "SecondsToTimeSpan",
-          "CSharpTypeName": "System.TimeSpan"
+          "CSharpTypeName": "System.Nullable`1[System.TimeSpan]",
+          "Argument": "timeout",
+          "Reason": "Bounds the non-finalizing wait before Complete; a timeout leaves the run open."
         },
         {
           "Parameter": "Wait",
@@ -858,12 +859,14 @@
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.PowerShell.ConsoleHostFormatting",
-          "Member": "Disable",
-          "Argument": "feature",
-          "MemberKind": "Method",
+          "CSharpType": "ConsoleMonster.PowerShell.ConsoleFormattingOptions",
+          "Member": "Feature",
+          "MemberKind": "Property",
           "Conversion": "Identity",
-          "CSharpTypeName": "ConsoleMonster.PowerShell.ConsoleFormattingFeature[]"
+          "CSharpTypeName": "ConsoleMonster.PowerShell.ConsoleFormattingFeature[]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
         },
         {
           "Parameter": "Force",
@@ -995,11 +998,11 @@
             }
           ],
           "CSharpType": "ConsoleMonster.PowerShell.ConsoleGallery",
-          "Member": "List",
-          "Argument": "slug",
+          "Member": "Export",
           "MemberKind": "Method",
           "Conversion": "Identity",
-          "CSharpTypeName": "System.String"
+          "CSharpTypeName": "System.String",
+          "Argument": "slug"
         }
       ]
     },
@@ -1289,11 +1292,12 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Export.FrameExporter",
-          "Member": "ResolveFormat",
-          "Argument": "path",
+          "Member": "Save",
           "MemberKind": "Method",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.String"
+          "Conversion": "ProviderPath",
+          "CSharpTypeName": "System.String",
+          "Argument": "path",
+          "Reason": "The resolved destination is passed to the shared frame export operation."
         },
         {
           "Parameter": "Preset",
@@ -1763,11 +1767,11 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Export.Recording",
-          "Member": "CaptureFrames",
-          "Argument": "options",
+          "Member": "Export",
           "MemberKind": "Method",
           "Conversion": "Identity",
-          "CSharpTypeName": "ConsoleMonster.Export.RecordingExportOptions"
+          "CSharpTypeName": "ConsoleMonster.Export.RecordingExportOptions",
+          "Argument": "options"
         },
         {
           "Parameter": "PassThru",
@@ -1947,7 +1951,7 @@
     {
       "Command": "Export-ConsoleTheme",
       "Job": "Export-ConsoleTheme",
-      "CSharpType": "ConsoleMonster.Styling.ThemeFile",
+      "CSharpType": "ConsoleMonster.PowerShell.ConsoleThemeDataFile",
       "Bindings": [
         {
           "Parameter": "PassThru",
@@ -1975,12 +1979,13 @@
               "Mandatory": true
             }
           ],
-          "CSharpType": "ConsoleMonster.Styling.ThemeFile",
-          "Member": "Load",
-          "Argument": "path",
+          "CSharpType": "ConsoleMonster.PowerShell.ConsoleThemeDataFile",
+          "Member": "Save",
           "MemberKind": "Method",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.String"
+          "Conversion": "ProviderPath",
+          "CSharpTypeName": "System.String",
+          "Argument": "path",
+          "Reason": "Uses the shared JSON/PSD1 writer; ThemeFile.Save alone writes JSON."
         }
       ]
     },
@@ -2959,12 +2964,14 @@
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.Sessions.SessionRecorder",
-          "Member": "Resize",
-          "Argument": "height",
-          "MemberKind": "Method",
+          "CSharpType": "ConsoleMonster.Sessions.SessionRecordingOptions",
+          "Member": "Height",
+          "MemberKind": "Property",
           "Conversion": "Identity",
-          "CSharpTypeName": "System.Int32"
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
         },
         {
           "Parameter": "IdleLimitSeconds",
@@ -3228,12 +3235,14 @@
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.Sessions.SessionRecorder",
-          "Member": "Resize",
-          "Argument": "width",
-          "MemberKind": "Method",
+          "CSharpType": "ConsoleMonster.Sessions.SessionRecordingOptions",
+          "Member": "Width",
+          "MemberKind": "Property",
           "Conversion": "Identity",
-          "CSharpTypeName": "System.Int32"
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
         }
       ]
     },
@@ -13527,12 +13536,13 @@
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.PowerShell.ConsoleHostViews",
-          "Member": "List",
+          "CSharpType": "ConsoleMonster.PowerShell.ConsoleViewRegistration",
+          "Member": ".ctor",
+          "MemberKind": "Constructor",
+          "Conversion": "RegistrationDefinition",
+          "CSharpTypeName": "System.Object",
           "Argument": "groupBy",
-          "MemberKind": "Method",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Object"
+          "Reason": "Builds each registration before ConsoleHostViews.Register; it does not invoke a display or removal operation."
         },
         {
           "Parameter": "Path",
@@ -13563,12 +13573,13 @@
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.PowerShell.ConsoleHostViews",
-          "Member": "List",
+          "CSharpType": "ConsoleMonster.PowerShell.ConsoleViewRegistration",
+          "Member": ".ctor",
+          "MemberKind": "Constructor",
+          "Conversion": "RegistrationDefinition",
+          "CSharpTypeName": "System.Object[]",
           "Argument": "property",
-          "MemberKind": "Method",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Object[]"
+          "Reason": "Builds each registration before ConsoleHostViews.Register; it does not invoke a display or removal operation."
         },
         {
           "Parameter": "Shaper",
@@ -13599,12 +13610,13 @@
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.PowerShell.ConsoleHostViews",
-          "Member": "List",
+          "CSharpType": "ConsoleMonster.PowerShell.ConsoleViewRegistration",
+          "Member": ".ctor",
+          "MemberKind": "Constructor",
+          "Conversion": "RegistrationDefinition",
+          "CSharpTypeName": "System.Management.Automation.ScriptBlock",
           "Argument": "title",
-          "MemberKind": "Method",
-          "Conversion": "ScriptBlockCallback",
-          "CSharpTypeName": "System.String"
+          "Reason": "Builds each registration before ConsoleHostViews.Register; it does not invoke a display or removal operation."
         },
         {
           "Parameter": "TypeName",
@@ -13617,12 +13629,13 @@
               "Mandatory": true
             }
           ],
-          "CSharpType": "ConsoleMonster.PowerShell.ConsoleHostViews",
-          "Member": "Unregister",
+          "CSharpType": "ConsoleMonster.PowerShell.ConsoleViewRegistration",
+          "Member": ".ctor",
+          "MemberKind": "Constructor",
+          "Conversion": "RegistrationDefinition",
+          "CSharpTypeName": "System.String",
           "Argument": "typeName",
-          "MemberKind": "Method",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.String"
+          "Reason": "Builds each registration before ConsoleHostViews.Register; it does not invoke a display or removal operation."
         },
         {
           "Parameter": "View",
@@ -13846,18 +13859,19 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Interactive.Form",
-          "Member": "Preset",
-          "Argument": "values",
+          "Member": "Apply",
           "MemberKind": "Method",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Collections.Generic.IDictionary`2[System.String,System.Object]"
+          "Conversion": "FormValueAdaptation",
+          "CSharpTypeName": "System.Collections.Generic.IDictionary`2[System.String,System.Object]",
+          "Argument": "values",
+          "Reason": "Applies supplied values to the existing form; it does not create a named stored preset."
         }
       ]
     },
     {
       "Command": "Set-ConsoleTheme",
       "Job": "Set-ConsoleTheme",
-      "CSharpType": "ConsoleMonster.Styling.ThemeFile",
+      "CSharpType": "ConsoleMonster.Terminal",
       "Bindings": [
         {
           "Parameter": "Path",
@@ -13870,12 +13884,13 @@
               "Mandatory": true
             }
           ],
-          "CSharpType": "ConsoleMonster.Styling.ThemeFile",
+          "CSharpType": "ConsoleMonster.PowerShell.ConsoleThemeDataFile",
           "Member": "Load",
-          "Argument": "path",
           "MemberKind": "Method",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.String"
+          "Conversion": "ProviderPath",
+          "CSharpTypeName": "System.String",
+          "Argument": "path",
+          "Reason": "Uses the shared JSON/restricted-PSD1 reader before assigning Terminal.Theme."
         },
         {
           "Parameter": "Theme",
@@ -13888,12 +13903,13 @@
               "Mandatory": true
             }
           ],
-          "CSharpType": "ConsoleMonster.Styling.ThemeFile",
-          "Member": "FromTheme",
-          "Argument": "theme",
+          "CSharpType": "ConsoleMonster.Styling.Theme",
+          "Member": "FromName",
           "MemberKind": "Method",
-          "Conversion": "Identity",
-          "CSharpTypeName": "ConsoleMonster.Styling.ITheme"
+          "Conversion": "ThemePresetSelector",
+          "CSharpTypeName": "System.String",
+          "Argument": "name",
+          "Reason": "The Theme parameter selects a built-in preset through Theme.FromName before assigning Terminal.Theme."
         }
       ]
     },
@@ -14338,12 +14354,13 @@
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.PowerShell.ConsoleHostViews",
-          "Member": "TableModel",
-          "Argument": "inputObject",
+          "CSharpType": "ConsoleMonster.Views.ConsoleView",
+          "Member": "Auto",
           "MemberKind": "Method",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Collections.Generic.IReadOnlyList`1[System.Management.Automation.PSObject]"
+          "Conversion": "WidgetAdaptation",
+          "CSharpTypeName": "System.Collections.Generic.IReadOnlyList`1[System.Object]",
+          "Argument": "items",
+          "Reason": "The selected view uses the shared view builders; PowerShell supplies native member sources and explicit table/list binding where needed."
         },
         {
           "Parameter": "KeepAllColumns",
@@ -15711,11 +15728,11 @@
             }
           ],
           "CSharpType": "ConsoleMonster.PowerShell.ConsoleGallery",
-          "Member": "List",
-          "Argument": "slug",
+          "Member": "Show",
           "MemberKind": "Method",
           "Conversion": "Identity",
-          "CSharpTypeName": "System.String"
+          "CSharpTypeName": "System.String",
+          "Argument": "slug"
         },
         {
           "Parameter": "StaticSnapshot",
@@ -16204,11 +16221,12 @@
             }
           ],
           "CSharpType": "ConsoleMonster.PowerShell.ConsoleHostViews",
-          "Member": "TableModel",
-          "Argument": "inputObject",
+          "Member": "List",
           "MemberKind": "Method",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Collections.Generic.IReadOnlyList`1[System.Management.Automation.PSObject]"
+          "Conversion": "PipelineCollection",
+          "CSharpTypeName": "System.Collections.Generic.IReadOnlyList`1[System.Management.Automation.PSObject]",
+          "Argument": "inputObject",
+          "Reason": "Collects the list input before the shared list view operation."
         },
         {
           "Parameter": "PassThru",
@@ -18547,11 +18565,12 @@
             }
           ],
           "CSharpType": "ConsoleMonster.PowerShell.ConsoleHostViews",
-          "Member": "Import",
-          "Argument": "path",
+          "Member": "Read",
           "MemberKind": "Method",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.String"
+          "Conversion": "RegistrationSource",
+          "CSharpTypeName": "System.String",
+          "Argument": "path",
+          "Reason": "Reads type names from the data file, then unregisters them; importing would install the views."
         },
         {
           "Parameter": "TypeName",
@@ -19508,12 +19527,12 @@
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.Terminal",
-          "Member": "RenderChunks",
-          "Argument": "width",
-          "MemberKind": "Method",
+          "CSharpType": "ConsoleMonster.Output.WriterTarget",
+          "Member": ".ctor",
+          "MemberKind": "Constructor",
           "Conversion": "Identity",
-          "CSharpTypeName": "System.Int32"
+          "CSharpTypeName": "System.Int32",
+          "Argument": "width"
         },
         {
           "Parameter": "Writer",
@@ -19526,12 +19545,12 @@
               "Mandatory": true
             }
           ],
-          "CSharpType": "ConsoleMonster.Terminal",
-          "Member": "Write",
-          "Argument": "writer",
-          "MemberKind": "Method",
+          "CSharpType": "ConsoleMonster.Output.WriterTarget",
+          "Member": ".ctor",
+          "MemberKind": "Constructor",
           "Conversion": "Identity",
-          "CSharpTypeName": "ConsoleMonster.Output.ITerminalWriter"
+          "CSharpTypeName": "System.IO.TextWriter",
+          "Argument": "writer"
         }
       ]
     },
@@ -19940,7 +19959,7 @@
     {
       "Command": "Write-ConsoleLogEntry",
       "Job": "Write-ConsoleLogEntry",
-      "CSharpType": "ConsoleMonster.Widgets.LogRegion",
+      "CSharpType": "ConsoleMonster.Widgets.LogHandle",
       "Bindings": [
         {
           "Parameter": "Highlight",
@@ -19973,7 +19992,7 @@
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.Widgets.LogRegion",
+          "CSharpType": "ConsoleMonster.Widgets.LogHandle",
           "Member": "Write",
           "Argument": "level",
           "MemberKind": "Method",
@@ -20027,12 +20046,12 @@
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.Widgets.LogRegion",
+          "CSharpType": "ConsoleMonster.Widgets.LogHandle",
           "Member": ".ctor",
-          "Argument": "widgetId",
           "MemberKind": "Constructor",
           "Conversion": "Identity",
-          "CSharpTypeName": "System.String"
+          "CSharpTypeName": "System.String",
+          "Argument": "widgetId"
         }
       ]
     },
@@ -21826,6 +21845,7 @@
     "ConsoleMonster.PowerShell.ConsoleHostItems",
     "ConsoleMonster.PowerShell.ConsoleHostViews",
     "ConsoleMonster.PowerShell.ConsoleTableViewOptions",
+    "ConsoleMonster.PowerShell.ConsoleThemeDataFile",
     "ConsoleMonster.PowerShell.ConsoleTreeOptions",
     "ConsoleMonster.PowerShell.NativeFormatCapture",
     "ConsoleMonster.PowerShell.Pester.ConsolePester",
@@ -21861,6 +21881,7 @@
     "ConsoleMonster.Widgets.LineChart",
     "ConsoleMonster.Widgets.LiveTable",
     "ConsoleMonster.Widgets.LiveWidget",
+    "ConsoleMonster.Widgets.LogHandle",
     "ConsoleMonster.Widgets.LogRegion",
     "ConsoleMonster.Widgets.Logo",
     "ConsoleMonster.Widgets.MarkdownView",
@@ -22028,6 +22049,7 @@
     "ConsoleMonster.Live.ConsoleRun",
     "ConsoleMonster.Live.ConsoleUpdate",
     "ConsoleMonster.Live.ConsoleWatch",
+    "ConsoleMonster.Live.ILiveDispatcher",
     "ConsoleMonster.Live.LiveEvent",
     "ConsoleMonster.Live.LiveMode",
     "ConsoleMonster.Live.LiveRun",
@@ -22060,6 +22082,7 @@
     "ConsoleMonster.PowerShell.ConsoleHostItems",
     "ConsoleMonster.PowerShell.ConsoleHostViews",
     "ConsoleMonster.PowerShell.ConsoleTableViewOptions",
+    "ConsoleMonster.PowerShell.ConsoleThemeDataFile",
     "ConsoleMonster.PowerShell.ConsoleTreeOptions",
     "ConsoleMonster.PowerShell.NativeFormatCapture",
     "ConsoleMonster.PowerShell.Pester.ConsolePester",
@@ -22131,6 +22154,7 @@
     "ConsoleMonster.Widgets.LiveTable",
     "ConsoleMonster.Widgets.LiveWidget",
     "ConsoleMonster.Widgets.LogEntry",
+    "ConsoleMonster.Widgets.LogHandle",
     "ConsoleMonster.Widgets.LogRegion",
     "ConsoleMonster.Widgets.Logo",
     "ConsoleMonster.Widgets.MarkdownView",
@@ -22889,15 +22913,6 @@
       "Command": "Show-ConsoleTable",
       "Parameter": "ShowTotals",
       "Reason": "The shared factory/view adapter applies this option to the resulting ConsoleTableViewOptions."
-    },
-    {
-      "CSharpType": "ConsoleMonster.PowerShell.ConsoleFormattingOptions",
-      "Member": "Feature",
-      "MemberId": "ConsoleMonster.PowerShell.ConsoleFormattingOptions.Feature",
-      "CSharpTypeName": "ConsoleMonster.PowerShell.ConsoleFormattingFeature[]",
-      "Command": "Enable-ConsoleFormatting",
-      "Parameter": "Feature",
-      "Reason": "The shared factory/view adapter applies this option to the resulting ConsoleFormattingOptions."
     },
     {
       "CSharpType": "ConsoleMonster.Live.Tails.LogTailOptions",
@@ -24014,6 +24029,59 @@
       "FluentFactory": "Parse",
       "FluentMember": "Show",
       "Reason": "MarkdownConsole parses through the Markdown add-on; the resulting widget uses the shared Show ending."
+    }
+  ],
+  "ExternalOperations": [
+    {
+      "Command": "Write-Host",
+      "CSharpType": "System.Console",
+      "Member": "WriteLine",
+      "Reason": "This baseline writes directly to the native console. It does not configure a ConsoleMonster widget or coordinate concurrent output."
+    }
+  ],
+  "IntegrationOptions": [
+    {
+      "CSharpType": "ConsoleMonster.Hosting.ConsoleDashboardOptions",
+      "Package": "ConsoleMonster.Hosting",
+      "Reason": "The .NET generic host owns service discovery, worker lifetimes and shutdown; PowerShell dashboard scripts use Invoke-ConsoleDashboard instead.",
+      "Members": [
+        "Title",
+        "Mode",
+        "ShowServices",
+        "ShowLog",
+        "LogHeight",
+        "KeepFinalState",
+        "ServiceName"
+      ]
+    },
+    {
+      "CSharpType": "ConsoleMonster.Extensions.Logging.ConsoleMonsterLoggerOptions",
+      "Package": "ConsoleMonster.Extensions.Logging",
+      "Reason": "The Microsoft.Extensions.Logging provider receives ILogger categories, scopes and event IDs; PowerShell uses its own stream and log-entry adapters.",
+      "Members": [
+        "MinimumLevel",
+        "TimestampFormat",
+        "UseUtcTimestamp",
+        "Category",
+        "IncludeScopes",
+        "IncludeEventId",
+        "MaxExceptionLines",
+        "LogRegion",
+        "Profile",
+        "Writer"
+      ]
+    }
+  ],
+  "IntegrationOperations": [
+    {
+      "CSharpType": "ConsoleMonster.Hosting.ConsoleDashboardServiceCollectionExtensions",
+      "Member": "AddConsoleDashboard",
+      "Reason": "PowerShell launches the same .NET host project with dotnet; there is no second cmdlet implementation of the generic-host lifecycle."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Extensions.Logging.ConsoleMonsterLoggingExtensions",
+      "Member": "AddConsoleMonster",
+      "Reason": "The .NET logging provider is configured through its logging builder; PowerShell launches the same project with dotnet."
     }
   ]
 }

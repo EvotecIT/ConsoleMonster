@@ -10,8 +10,11 @@ using ConsoleMonster.Styling;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>Adapts restricted PowerShell data and PSD1 syntax to the core theme-file model.</summary>
-    internal static class ConsoleThemeDataFile {
-        internal static ThemeFile Load(string path) {
+    public static class ConsoleThemeDataFile {
+        /// <summary>Loads a JSON theme or restricted PSD1 data using the same validation as Set-ConsoleTheme.</summary>
+        /// <param name="path">The resolved filesystem path.</param>
+        /// <remarks>PSD1 loading runs in the caller's current PowerShell runspace; it never executes the data file.</remarks>
+        public static ThemeFile Load(string path) {
             if (string.Equals(System.IO.Path.GetExtension(path), ".json", StringComparison.OrdinalIgnoreCase)) { return ThemeFile.Load(path); }
             CheckExtension(path);
             using (System.Management.Automation.PowerShell reader = System.Management.Automation.PowerShell.Create(RunspaceMode.CurrentRunspace)) {
@@ -24,7 +27,10 @@ namespace ConsoleMonster.PowerShell {
             }
         }
 
-        internal static void Save(ThemeFile document, string path) {
+        /// <summary>Saves a canonical theme as JSON or PSD1, as Export-ConsoleTheme does.</summary>
+        /// <param name="document">The validated theme document.</param>
+        /// <param name="path">The resolved filesystem path, ending in .json or .psd1.</param>
+        public static void Save(ThemeFile document, string path) {
             CheckExtension(path);
             if (string.Equals(System.IO.Path.GetExtension(path), ".json", StringComparison.OrdinalIgnoreCase)) {
                 document.Save(path);
