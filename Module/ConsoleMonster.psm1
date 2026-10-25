@@ -109,6 +109,11 @@ namespace ConsoleMonster.DevelopmentModuleLoadContext
             if (assemblyName == null || string.IsNullOrWhiteSpace(assemblyName.Name))
                 return null;
 
+            // Cmdlet and attribute types must come from the PowerShell host. Development
+            // outputs can include SDK runtime copies that have a different ALC identity.
+            if (string.Equals(assemblyName.Name, "System.Management.Automation", StringComparison.OrdinalIgnoreCase))
+                return null;
+
             var loaderAssembly = typeof(ModuleAssemblyLoadContext).Assembly.GetName();
             if (AssemblyName.ReferenceMatchesDefinition(loaderAssembly, assemblyName))
                 return typeof(ModuleAssemblyLoadContext).Assembly;
@@ -861,3 +866,11 @@ namespace ConsoleMonster.DevelopmentModuleLoadContext
 $FunctionsToExport = @()
 $CmdletsToExport = @('Add-ConsoleItem', 'Add-ConsoleRecordingMarker', 'Add-ConsoleValue', 'Assert-ConsoleOutput', 'Clear-ConsoleScreen', 'Compare-ConsoleObject', 'Compare-ConsoleText', 'Complete-ConsoleRun', 'Copy-ConsoleOutput', 'Disable-ConsoleFormatting', 'Enable-ConsoleFormatting', 'Export-ConsoleDemo', 'Export-ConsoleFrame', 'Export-ConsoleRecording', 'Export-ConsoleTheme', 'Format-ConsoleCommand', 'Get-ConsoleCapability', 'Get-ConsoleDemo', 'Invoke-ConsoleDashboard', 'Invoke-ConsolePester', 'Invoke-ConsolePresentation', 'Invoke-ConsoleRecording', 'Invoke-ConsoleRun', 'New-ConsoleActivityList', 'New-ConsoleAlign', 'New-ConsoleBarChart', 'New-ConsoleBarItem', 'New-ConsoleBinding', 'New-ConsoleButton', 'New-ConsoleCellMap', 'New-ConsoleChartSeries', 'New-ConsoleColumnFormat', 'New-ConsoleColumns', 'New-ConsoleDashboard', 'New-ConsoleField', 'New-ConsoleFlow', 'New-ConsoleFlowBranch', 'New-ConsoleFlowEdge', 'New-ConsoleFlowNode', 'New-ConsoleFooterBar', 'New-ConsoleForm', 'New-ConsoleFormPreset', 'New-ConsoleGrid', 'New-ConsoleHeaderBar', 'New-ConsoleHistogram', 'New-ConsoleKeyValue', 'New-ConsoleKeyValueItem', 'New-ConsoleLane', 'New-ConsoleLanes', 'New-ConsoleLineChart', 'New-ConsoleLiveTable', 'New-ConsoleLogEntry', 'New-ConsoleLogo', 'New-ConsoleLogRegion', 'New-ConsoleMenu', 'New-ConsoleMenuItem', 'New-ConsoleMenuPreset', 'New-ConsoleMenuRunResult', 'New-ConsoleMultiSelect', 'New-ConsolePadding', 'New-ConsolePanel', 'New-ConsolePhases', 'New-ConsoleProgress', 'New-ConsoleRegion', 'New-ConsoleRows', 'New-ConsoleRule', 'New-ConsoleSelect', 'New-ConsoleSimulatedClock', 'New-ConsoleSparkline', 'New-ConsoleSpinner', 'New-ConsoleStack', 'New-ConsoleStatusItem', 'New-ConsoleStatusList', 'New-ConsoleSummaryBar', 'New-ConsoleTable', 'New-ConsoleText', 'New-ConsoleTextArea', 'New-ConsoleTextInput', 'New-ConsoleToggle', 'New-ConsoleTree', 'New-ConsoleTreeNode', 'Out-ConsoleDefault', 'Out-ConsoleFormatCommand', 'Read-ConsoleConfirm', 'Read-ConsoleForm', 'Read-ConsoleMultiSelect', 'Read-ConsoleNumber', 'Read-ConsolePath', 'Read-ConsoleSecret', 'Read-ConsoleSelect', 'Read-ConsoleText', 'Register-ConsoleView', 'Send-ConsoleEvent', 'Set-ConsoleFormValue', 'Set-ConsoleRegion', 'Set-ConsoleTheme', 'Set-ConsoleValue', 'Show-Console', 'Show-ConsoleApp', 'Show-ConsoleChanges', 'Show-ConsoleChart', 'Show-ConsoleCode', 'Show-ConsoleDemo', 'Show-ConsoleError', 'Show-ConsoleGrid', 'Show-ConsoleHelp', 'Show-ConsoleJson', 'Show-ConsoleList', 'Show-ConsoleMarkdown', 'Show-ConsoleMenu', 'Show-ConsoleObject', 'Show-ConsoleOverview', 'Show-ConsolePresentation', 'Show-ConsoleReplay', 'Show-ConsoleRule', 'Show-ConsoleStatusLine', 'Show-ConsoleTable', 'Show-ConsoleTree', 'Start-ConsoleRun', 'Stop-ConsoleRecording', 'Unregister-ConsoleView', 'Update-ConsoleActivity', 'Update-ConsoleCell', 'Update-ConsoleFlow', 'Update-ConsoleLane', 'Update-ConsoleLiveTable', 'Update-ConsolePhase', 'Update-ConsoleProgress', 'Update-ConsoleRun', 'Update-ConsoleSpinner', 'Update-ConsoleStatusItem', 'Update-ConsoleSummaryBar', 'Use-ConsoleProgress', 'Use-ConsoleTarget', 'Wait-ConsoleDashboard', 'Wait-ConsoleRun', 'Watch-Console', 'Watch-ConsoleLog', 'Write-ConsoleLogEntry', 'Write-ConsoleProgress', 'Write-ConsoleText')
 $AliasesToExport = @()
+Export-ModuleMember -Function $FunctionsToExport -Alias $AliasesToExport -Cmdlet $CmdletsToExport
+# PowerForge exports end
+    $PowerForgeModuleImportCompleted = $true
+} finally {
+    if (-not $PowerForgeModuleImportCompleted -and $null -ne $UnregisterPowerForgeDesktopAssemblyResolver) {
+        & $UnregisterPowerForgeDesktopAssemblyResolver
+    }
+}

@@ -13,7 +13,7 @@ Emit nodes first, then edges and an optional branch. Pipeline rows use Kind (Nod
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleFlow [[-Content] <scriptblock>] [-InputObject <psobject>] [-WidgetId <string>] [<CommonParameters>]
+New-ConsoleFlow [[-WidgetId] <string>] [[-Content] <scriptblock>] [-InputObject <psobject>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,7 +25,7 @@ Emit nodes first, then edges and an optional branch. Pipeline rows use Kind (Nod
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleFlow {
+New-ConsoleFlow -Content {
     New-ConsoleFlowNode -Key leaf -Label 'Leaf' -Status Pass
     New-ConsoleFlowNode -Key issuer -Label 'Intermediate' -Status Fail
     New-ConsoleFlowEdge -Key chain -From leaf -To issuer -Label 'expired' -Status Fail -Cut
@@ -46,7 +46,7 @@ Aliases: None
 Possible values:
 
 Required: False
-Position: 0
+Position: 1
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -78,7 +78,7 @@ Aliases: None
 Possible values:
 
 Required: False
-Position: named
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

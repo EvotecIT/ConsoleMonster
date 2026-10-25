@@ -65,3 +65,7 @@ namespace ConsoleMonster.PowerShell {
             }
             IWidget content = children.Count == 1 ? children[0] : new Rows(children.ToArray());
             Panel panel = new Panel(content, PSText.Markup(Title)) { HeaderRight = PSText.Markup(HeaderRight), Caption = PSText.Markup(Caption), Border = Border, Verdict = Verdict.IsPresent, Status = Status };
+            WriteObject(PSWidgets.WithSize(panel, Weight, Height, Fill.IsPresent));
+        }
+    }
+}

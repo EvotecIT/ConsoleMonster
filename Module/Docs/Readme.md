@@ -185,11 +185,6 @@ Creates a form field for New-ConsoleForm.
 
 A field has a name (its key in the result), a label, help shown while it has focus, a default, validation (-Required, -Validator and the type's own checks) and the command-line parameter it supplies (-ParameterName) for the equivalent command. -VisibleWhen shows it only while a condition on the other values holds ($Values). -DependsOn resets it when those fields change; with -LoadChoices its options are loaded again in their own runspace (a spinner shows, Esc cancels), from the current values ($Values). Choices are built from any objects: -Display, -GroupBy, -Describe, -Badge, -DisabledReason and -Selected read each object (a property name, or a scriptblock for choices given with -Choices; loaded choices take property names), and -CommandValue picks the text the equivalent command shows and the field returns.
 
-### [New-ConsoleFooterBar](New-ConsoleFooterBar.md)
-Creates a reusable footer with key hints, messages and linked segments.
-
-Hint maps key names to their labels. Segment accepts FooterSegment values or hashtables with Text, Link and Role. The footer is a widget and does not read input or start a session.
-
 ### [New-ConsoleFlow](New-ConsoleFlow.md)
 Builds a native flow strip of nodes, labelled edges and one side branch.
 
@@ -209,6 +204,11 @@ Builds an edge after its source and destination nodes have been added to a flow.
 Creates a labelled flow node with an optional status glyph and colour.
 
 Builds a node for New-ConsoleFlow or Add-ConsoleItem. Key is its stable identity for live updates; Label is literal text. Status uses the shared vocabulary and remains readable through a glyph when colour is disabled.
+
+### [New-ConsoleFooterBar](New-ConsoleFooterBar.md)
+Creates a reusable footer with key hints, messages and linked segments.
+
+Hint maps key names to their labels. Segment accepts FooterSegment values or hashtables with Text, Link and Role. The footer is a widget and does not read input or start a session.
 
 ### [New-ConsoleForm](New-ConsoleForm.md)
 Creates a form or wizard from fields (New-ConsoleField) for Read-ConsoleForm or a menu item.

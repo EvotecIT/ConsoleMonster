@@ -14,7 +14,7 @@ $flow | Add-ConsoleItem {
     New-ConsoleFlowEdge -Key trust -From client -To issuer -Label 'issuer' -Status Fail -Cut
     New-ConsoleFlowBranch -From issuer -Label 'expired 2026-09-30' -Status Fail
 }
-New-ConsolePanel -Title 'Certificate path' { $flow } | Write-ConsoleWidget
+New-ConsolePanel -Title 'Certificate path' { $flow } | Show-Console
 ```
 
 Item commands and pipeline rows use the same properties. Rows need `Kind` set to

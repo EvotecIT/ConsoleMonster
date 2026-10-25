@@ -13,7 +13,7 @@ Pairs come from a hashtable (use [ordered] to keep order), from an object's prop
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleKeyValue [[-WidgetId] <string>] [[-InputObject] <Object>] [[-Content] <scriptblock>] [-Markup] [-NumberColumn <ColumnFormat>] [<CommonParameters>]
+New-ConsoleKeyValue [[-WidgetId] <string>] [[-InputObject] <Object>] [[-Content] <scriptblock>] [-Markup] [-NumberColumn <ColumnFormat>] [-Columns <int>] [-KeyRole <ThemeToken>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -52,6 +52,22 @@ A hashtable and pairs together
 
 ## PARAMETERS
 
+### -Columns
+Preferred pairs per row; reduces automatically in narrow terminals.
+
+```yaml
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Content
 A script block that emits New-ConsoleKeyValueItem pairs (or hashtables), added after -InputObject.
 
@@ -81,6 +97,22 @@ Required: False
 Position: 1
 Default value: None
 Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -KeyRole
+Theme role for keys.
+
+```yaml
+Type: ThemeToken
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: Text, Muted, Subtle, Accent, Accent2, Pass, Fail, Warn, Info, Skip, Running, Pending, Border, Title, Header, Highlight, Surface, SurfaceAccent, Series1, Series2, Series3, Series4, Series5, Series6, Focus
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 

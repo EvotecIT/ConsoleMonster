@@ -38,7 +38,7 @@ foreach (FlowEdge edge in edges) flow.Add(edge);
 if (expired) flow.WithBranch(new FlowBranch("intermediate", "expired 2026-09-30", Status: StatusKind.Fail));
 var phases = new Phases { StepCounter = true };
 foreach (Step step in steps) phases.Set(step.Key, step.Status, step.Label, step.Detail);
-var facts = new KeyValueList { Columns = 2, KeyToken = ThemeToken.Accent };
+var facts = new KeyValueList { Columns = 2, KeyRole = ThemeToken.Accent };
 foreach (Pair pair in context) facts.Add(pair.Key, pair.Value);
 string proof = expired ? "Intermediate expired before 2026-10-25." : "All three certificates valid on 2026-10-25.";
 string action = expired ? "Renew the intermediate; serve the full chain." : "No repair needed; keep expiry monitoring on.";
@@ -47,7 +47,7 @@ Terminal.Write(new Rows(
     new TextBlock("[bold accent]TLS verdict[/]  [muted]Follow the chain. Verify the trust.[/]"),
     new Panel(phases, "Connection ledger"), facts, flow, new Rule("Trust decision"),
     new Panel(new TextBlock(expired ? "Chain validation failed." : "Chain validation passed."), verdict) { Verdict = true, Status = chainStatus },
-    new KeyValueList { KeyToken = chainStatus.ToToken() }
+    new KeyValueList { KeyRole = chainStatus.ToToken() }
         .Add("Cause", expired ? "Expired intermediate certificate." : "Trusted root and complete chain.")
         .Add("Proof", proof).Add("Action", action).Add("Exit", exitCode + " · 184 ms")) { Gap = 1 });
 

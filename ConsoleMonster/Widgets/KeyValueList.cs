@@ -31,14 +31,14 @@ namespace ConsoleMonster.Widgets {
         public int Columns { get; set; } = 1;
 
         /// <summary>Theme colour for keys.</summary>
-        public ThemeToken KeyToken { get; set; } = ThemeToken.Muted;
+        public ThemeToken KeyRole { get; set; } = ThemeToken.Muted;
 
         private IWidget? MultiColumn(int width) {
             int count = Math.Min(Math.Max(1, Columns), Math.Max(1, width / 32));
             if (count <= 1) return null;
             var children = new List<IWidget>();
             foreach (KeyValueItem item in _items) {
-                children.Add(new KeyValueList { Gap = Gap, MaxKeyFraction = MaxKeyFraction, KeyToken = KeyToken, Presentation = Presentation }.Add(item));
+                children.Add(new KeyValueList { Gap = Gap, MaxKeyFraction = MaxKeyFraction, KeyRole = KeyRole, Presentation = Presentation }.Add(item));
             }
             return new Grid(count, children.ToArray());
         }
@@ -159,7 +159,7 @@ namespace ConsoleMonster.Widgets {
             if (multi != null) { multi.Render(region, context); return; }
             int keyWidth = KeyWidth(region.Width, context);
             int valueWidth = Math.Max(1, region.Width - keyWidth - Gap);
-            Style keyStyle = context.Style(KeyToken);
+            Style keyStyle = context.Style(KeyRole);
             int numberWidth = NumberWidth(context, region.Width);
             int y = 0;
             foreach (KeyValueItem item in _items) {

@@ -52,10 +52,47 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Preferred pairs per row; reduces automatically in narrow terminals.</para></summary>
         [Parameter, ValidateRange(1, 12)] public int Columns { get; set; } = 1;
-        /// <summary><para type="description">Theme colour for keys.</para></summary>
-        [Parameter] public ConsoleMonster.Styling.ThemeToken KeyTone { get; set; } = ConsoleMonster.Styling.ThemeToken.Muted;
+        /// <summary><para type="description">Theme role for keys.</para></summary>
+        [Parameter] public ConsoleMonster.Styling.ThemeToken KeyRole { get; set; } = ConsoleMonster.Styling.ThemeToken.Muted;
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            KeyValueList list = new KeyValueList(WidgetId) { Columns = Columns, KeyToken = KeyTone };
+            KeyValueList list = new KeyValueList(WidgetId) { Columns = Columns, KeyRole = KeyRole };
             object? raw = InputObject is PSObject ps ? ps.BaseObject : InputObject;
+            ScriptBlock? content = Content;
+            if (raw is ScriptBlock script) {
+                content = script;
+                raw = null;
+            }
+            if (raw is IDictionary dictionary) {
+                foreach (DictionaryEntry entry in dictionary) {
+                    list.Add(PSWidgets.ToText(entry.Key), Value(entry.Value));
+                }
+            } else if (raw != null) {
+                foreach (PSPropertyInfo property in PSObject.AsPSObject(raw).Properties) {
+                    if (property.IsGettable) {
+                        object? value;
+                        try {
+                            value = property.Value;
+                        } catch (GetValueException) {
+                            value = null;
+                        }
+                        list.Add(property.Name, Value(value));
+                    }
+                }
+            }
+            PSItems.AddAll(this, list, PSItems.Items(content));
+            if (NumberColumn != null) { list.NumberColumn = NumberColumn; }
+            Emit(list);
+        }
+
+        /// <summary>Emits the list (Show-ConsoleList overrides this to write it).</summary>
+        /// <param name="list">The list.</param>
+        protected virtual void Emit(KeyValueList list) => WriteObject(list);
+
+        private string Value(object? value) {
+            string text = PSWidgets.ToText(value);
+            return Markup.IsPresent ? text : Text.Markup.Escape(text);
+        }
+    }
+}

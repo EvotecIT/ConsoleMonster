@@ -59,11 +59,11 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>Returns a handle that posts state changes through the live dispatcher.</summary>
         /// <param name="dispatcher">The dispatcher.</param><returns>The handle.</returns>
-        public FlowHandle Handle(ILiveDispatcher dispatcher) => new FlowHandle(dispatcher, Name);
+        public FlowHandle Handle(ILiveDispatcher dispatcher) => new FlowHandle(dispatcher, WidgetId);
 
         /// <inheritdoc />
         public override void Apply(LiveEvent liveEvent) {
-            if (!StatusKinds.TryParse(liveEvent.State, out StatusKind status)) return;
+            if (!StatusKinds.TryParse(liveEvent.Status, out StatusKind status)) return;
             if (liveEvent.Operation == "node") {
                 int index = Index(liveEvent.Key ?? string.Empty);
                 if (index >= 0) _nodes[index] = _nodes[index] with { Status = status };

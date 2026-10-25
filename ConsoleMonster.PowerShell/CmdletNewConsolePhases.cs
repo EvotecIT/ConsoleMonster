@@ -55,3 +55,19 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void EndProcessing() {
             Phases phases = new Phases(WidgetId) { StepCounter = StepCounter.IsPresent };
+            ScriptBlock? content = Content;
+            if (Phase != null) {
+                foreach (object phase in Phase) {
+                    if (PSText.Unwrap(phase) is ScriptBlock script) {
+                        content = script;
+                    } else {
+                        phases.Set(PSWidgets.ToText(phase));
+                    }
+                }
+            }
+            PSItems.AddAll(this, phases, PSItems.Items(content));
+            PSItems.AddAll(this, phases, _piped);
+            WriteObject(phases);
+        }
+    }
+}

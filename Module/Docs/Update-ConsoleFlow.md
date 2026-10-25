@@ -13,12 +13,12 @@ Posts a status change to an existing flow in a running dashboard. WidgetId selec
 ## SYNTAX
 ### Node
 ```powershell
-Update-ConsoleFlow -NodeKey <string> -Status <StatusKind> [-WidgetId <string>] [-Session <LiveSession>] [<CommonParameters>]
+Update-ConsoleFlow [[-WidgetId] <string>] -NodeKey <string> -Status <StatusKind> [-Session <LiveSession>] [<CommonParameters>]
 ```
 
 ### Edge
 ```powershell
-Update-ConsoleFlow -EdgeKey <string> -Status <StatusKind> [-WidgetId <string>] [-Cut] [-Session <LiveSession>] [<CommonParameters>]
+Update-ConsoleFlow [[-WidgetId] <string>] -EdgeKey <string> -Status <StatusKind> [-Cut] [-Session <LiveSession>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -128,7 +128,7 @@ Aliases: None
 Possible values:
 
 Required: False
-Position: named
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

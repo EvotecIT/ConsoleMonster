@@ -12,7 +12,7 @@ namespace ConsoleMonster.PowerShell {
     [Cmdlet(VerbsData.Update, "ConsoleFlow")]
     public sealed class CmdletUpdateConsoleFlow : LiveCmdlet {
         /// <summary><para type="description">Flow widget identifier.</para></summary>
-        [Parameter] public string WidgetId { get; set; } = "flow";
+        [Parameter(Position = 0)] public string WidgetId { get; set; } = "flow";
         /// <summary><para type="description">Node to update.</para></summary>
         [Parameter(Mandatory = true, ParameterSetName = "Node")] public string NodeKey { get; set; } = string.Empty;
         /// <summary><para type="description">Edge to update.</para></summary>
@@ -24,7 +24,7 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void ProcessRecord() {
             string operation = ParameterSetName == "Node" ? "node" : MyInvocation.BoundParameters.ContainsKey(nameof(Cut)) ? (Cut.IsPresent ? "cut" : "connect") : "edge";
-            Send(new LiveEvent(WidgetId, operation, ParameterSetName == "Node" ? NodeKey : EdgeKey, state: Status.ToString()));
+            Send(new LiveEvent(WidgetId, operation, ParameterSetName == "Node" ? NodeKey : EdgeKey, status: Status.ToString()));
         }
     }
 }

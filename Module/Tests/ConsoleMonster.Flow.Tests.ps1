@@ -18,10 +18,10 @@ Describe 'Native flow strip' {
         $text | Should -Match 'expired 2026-09-30'
         $flow.Nodes.Count | Should -Be 2
         $flow.Edges[0].Cut | Should -BeTrue
-        $flow.Name | Should -Be 'path'
+        $flow.WidgetId | Should -Be 'path'
     }
     It 'accepts item commands and composes inside a panel' {
-        $flow = New-ConsoleFlow {
+        $flow = New-ConsoleFlow -Content {
             New-ConsoleFlowNode -Key a -Label '東京' -Status Pass
             New-ConsoleFlowNode -Key b -Label 'root' -Status Pending
             New-ConsoleFlowEdge -Key trust -From a -To b -Label 'trust'
@@ -32,7 +32,7 @@ Describe 'Native flow strip' {
         $text | Should -Match 'Certificate path'
     }
     It 'renders a flow stored in a table cell' {
-        $flow = New-ConsoleFlow {
+        $flow = New-ConsoleFlow -Content {
             New-ConsoleFlowNode -Key a -Label 'client' -Status Pass
             New-ConsoleFlowNode -Key b -Label 'issuer' -Status Fail
         }
@@ -44,7 +44,7 @@ Describe 'Native flow strip' {
     }
     It 'rejects unknown statuses and nonadjacent edges' {
         { [pscustomobject] @{ Kind = 'Node'; Key = 'a'; Label = 'a'; Status = 'not-a-status' } | New-ConsoleFlow } | Should -Throw
-        { New-ConsoleFlow {
+        { New-ConsoleFlow -Content {
             New-ConsoleFlowNode -Key a -Label a
             New-ConsoleFlowNode -Key b -Label b
             New-ConsoleFlowNode -Key c -Label c

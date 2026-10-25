@@ -56,7 +56,7 @@ New-ConsoleRows -Gap 1 {
     New-ConsolePanel -Title 'Connection ledger' {
         $steps | New-ConsolePhases -StepCounter
     }
-    New-ConsoleKeyValue -Columns 2 -KeyTone Accent {
+    New-ConsoleKeyValue -Columns 2 -KeyRole Accent -Content {
         foreach ($pair in $context) {
             New-ConsoleKeyValueItem -Key $pair.Key -Value $pair.Value
         }
@@ -71,11 +71,11 @@ New-ConsoleRows -Gap 1 {
     New-ConsolePanel @verdictOptions {
         New-ConsoleText -Text $(if ($expired) { 'Chain validation failed.' } else { 'Chain validation passed.' })
     }
-    New-ConsoleKeyValue -KeyTone $chainStatus {
+    New-ConsoleKeyValue -KeyRole $chainStatus -Content {
         New-ConsoleKeyValueItem -Key 'Cause' -Value $(if ($expired) { 'Expired intermediate certificate.' } else { 'Trusted root and complete chain.' })
         New-ConsoleKeyValueItem -Key 'Proof' -Value $proof
         New-ConsoleKeyValueItem -Key 'Action' -Value $action
         New-ConsoleKeyValueItem -Key 'Exit' -Value "$exitCode · 184 ms"
     }
-} | Write-ConsoleWidget
+} | Show-Console
 # demo: pause 6
