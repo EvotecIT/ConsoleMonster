@@ -6,33 +6,33 @@ using ConsoleMonster.Widgets;
 DateTimeOffset now = new DateTimeOffset(2026, 10, 16, 14, 30, 0, TimeSpan.FromHours(2));
 const string Root = @"D:\Builds\ConsoleMonster\Packed\";
 Table table = new Table()
-    .WithTitle("[bold]Build artifacts[/] [muted]· ConsoleMonster 2.0.0[/]")
-    .WithShowTotals()
-    .WithMaxRows(5)
-    .WithTotalRowCount(1234)
-    .WithPresentation(p => p.Now = now)
-    .AddColumn("Artifact", c => c.WithIsKey().WithOverflow(ColumnOverflow.Never))
-    .AddColumn("Kind", c => c.WithPriority(3))
+    .Title("[bold]Build artifacts[/] [muted]· ConsoleMonster 2.0.0[/]")
+    .ShowTotals()
+    .MaxRows(5)
+    .TotalRowCount(1234)
+    .Presentation(p => p.Now = now)
+    .AddColumn("Artifact", c => c.IsKey().Overflow(ColumnOverflow.Never))
+    .AddColumn("Kind", c => c.Priority(3))
     .AddColumn("Size", c => c
-        .WithPriority(9)
-        .WithPresenter(CellPresenters.Bytes)
-        .WithAggregate(ColumnAggregate.Sum))
+        .Priority(9)
+        .Presenter(CellPresenters.Bytes)
+        .Aggregate(ColumnAggregate.Sum))
     .AddColumn("Built in", c => c
-        .WithPriority(6)
-        .WithPresenter(CellPresenters.Duration)
-        .WithAggregate(ColumnAggregate.Sum))
+        .Priority(6)
+        .Presenter(CellPresenters.Duration)
+        .Aggregate(ColumnAggregate.Sum))
     .AddColumn("Created", c => c
-        .WithPriority(4)
-        .WithPresenter(new DatePresenter(DateDisplay.Relative)))
+        .Priority(4)
+        .Presenter(new DatePresenter(DateDisplay.Relative)))
     .AddColumn("Path", c => c
-        .WithPriority(1)
-        .WithOverflow(ColumnOverflow.TruncateMiddle)
-        .WithMinWidth(20)
-        .WithMaxWidth(40))
+        .Priority(1)
+        .Overflow(ColumnOverflow.TruncateMiddle)
+        .MinWidth(20)
+        .MaxWidth(40))
     .AddColumn("SHA256", c => c
-        .WithPriority(0)
-        .WithOverflow(ColumnOverflow.Truncate)
-        .WithMaxWidth(14));
+        .Priority(0)
+        .Overflow(ColumnOverflow.Truncate)
+        .MaxWidth(14));
 table.AddValues("ConsoleMonster.2.0.0.nupkg", "NuGet", 1_482_113L, TimeSpan.FromSeconds(48.2), now.AddMinutes(-12), Root + "ConsoleMonster.2.0.0.nupkg", "9f2c4e81a7d03b6e");
 // <more>
 table.AddValues("ConsoleMonster.2.0.0.snupkg", "Symbols", 402_331L, TimeSpan.FromSeconds(3.1), now.AddMinutes(-12), Root + "ConsoleMonster.2.0.0.snupkg", "41ab09cd77e2f310");

@@ -9,13 +9,13 @@ Describe 'ConsoleMonster pipeline charts' {
         Import-Module $module -Force -ErrorAction Stop
     }
 
-    It 'binds object values and labels then sorts before taking Top' {
+    It 'binds object values and labels then sorts before taking MaxRows' {
         $items = @(
             [pscustomobject]@{ Name = 'a'; CPU = 1 }
             [pscustomobject]@{ Name = 'b'; CPU = 3 }
             [pscustomobject]@{ Name = 'c'; CPU = 2 }
         )
-        $text = $items | Show-Console -Property CPU -Label Name -Sort Descending -Top 2 -AsString -View Chart
+        $text = $items | Show-Console -Property CPU -Label Name -Sort Descending -MaxRows 2 -AsString -View Chart
         $text.Trim() | Should -Be "b: 3`nc: 2"
     }
 
@@ -101,7 +101,7 @@ Describe 'ConsoleMonster pipeline charts' {
         $result = @(Show-Console -InputObject $null -AsWidget -ErrorAction SilentlyContinue -ErrorVariable errors -View Chart)
         $result.Count | Should -Be 0
         $errors.Count | Should -Be 1
-        $errors[0].FullyQualifiedErrorId | Should -Be 'ConsoleMonsterChartValue,ConsoleMonster.PowerShell.CmdletShowConsoleChart'
+        $errors[0].FullyQualifiedErrorId | Should -Be 'ConsoleMonsterChartValue,ConsoleMonster.PowerShell.CmdletShowConsole'
         $errors[0].CategoryInfo.Category | Should -Be ([System.Management.Automation.ErrorCategory]::InvalidData)
     }
 
@@ -109,7 +109,7 @@ Describe 'ConsoleMonster pipeline charts' {
         $errors = @()
         $chart = 1, $null, 2 | Show-Console -AsWidget -ErrorAction SilentlyContinue -ErrorVariable errors -View Chart
         $errors.Count | Should -Be 1
-        $errors[0].FullyQualifiedErrorId | Should -Be 'ConsoleMonsterChartValue,ConsoleMonster.PowerShell.CmdletShowConsoleChart'
+        $errors[0].FullyQualifiedErrorId | Should -Be 'ConsoleMonsterChartValue,ConsoleMonster.PowerShell.CmdletShowConsole'
         $chart.Samples.Count | Should -Be 2
         $chart.Samples[0].Value | Should -Be 1
         $chart.Samples[1].Value | Should -Be 2
@@ -122,7 +122,7 @@ Describe 'ConsoleMonster pipeline charts' {
     }
 
     It 'counts every histogram observation including the last edge' {
-        $text = -2, -1, 0, 1, 2 | Show-Console -Type Histogram -Bins 4 -Top 1 -AsString -View Chart
+        $text = -2, -1, 0, 1, 2 | Show-Console -Type Histogram -Bins 4 -MaxRows 1 -AsString -View Chart
         $text.Trim() | Should -Be "[-2, -1): 1`n[-1, 0): 1`n[0, 1): 1`n[1, 2]: 2"
     }
 

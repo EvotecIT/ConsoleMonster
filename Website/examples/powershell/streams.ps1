@@ -4,14 +4,14 @@
 $VerbosePreference = 'Continue'
 $DebugPreference = 'Continue'
 
-Show-ConsoleRule "PowerShell's own colours"
+Show-Console -Title "PowerShell's own colours" -View Rule
 Write-Warning 'Certificate for mail.evotec.xyz expires in 12 days'
 Write-Verbose 'Queried 4 domain controllers in 2 domains'
 Write-Debug 'Cache hit for evotec.xyz'
 
 Enable-ConsoleFormatting -Feature Streams
 
-Show-ConsoleRule 'With -Feature Streams: the theme''s colours'
+Show-Console -Title 'With -Feature Streams: the theme''s colours' -View Rule
 Write-Warning 'Certificate for mail.evotec.xyz expires in 12 days'
 Write-Verbose 'Queried 4 domain controllers in 2 domains'
 Write-Debug 'Cache hit for evotec.xyz'

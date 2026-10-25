@@ -11,10 +11,10 @@ $dashboard = New-ConsoleDashboard -Title 'Deploy' -Content {
     param($Server)
     $null = Get-Random -SetSeed ([int] $Server[-1])
     foreach ($step in 'copying files', 'stopping the site', 'swapping folders', 'starting the site') {
-        Update-ConsoleLane -WidgetId servers -Key $Server -Status Running -Detail $step
+        Update-Console -WidgetId servers -Key $Server -Status Running -Detail $step
         Start-Sleep -Milliseconds (400 + (Get-Random -Minimum 0 -Maximum 500))
-        Update-ConsoleLane -WidgetId servers -Key $Server -Result Pass
+        Update-Console -WidgetId servers -Key $Server -Result Pass
     }
     Write-Host "$Server done"
-    Update-ConsoleLane -WidgetId servers -Key $Server -Complete
+    Update-Console -WidgetId servers -Key $Server -Complete
 }

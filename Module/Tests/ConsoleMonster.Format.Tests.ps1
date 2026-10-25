@@ -26,11 +26,11 @@
 
     It 'exports the structured Show cmdlets' {
         Import-Module $script:ModulePath -Force
-        (Get-Command -Module ConsoleMonster -Name Show-ConsoleCode,Show-ConsoleError,Show-ConsoleJson,Show-ConsoleList,Show-ConsoleTable,Show-ConsoleTree).Name | Sort-Object | Should -Be @('Show-ConsoleCode', 'Show-ConsoleError', 'Show-ConsoleJson', 'Show-ConsoleList', 'Show-ConsoleTable', 'Show-ConsoleTree')
+        (Get-Command -Module ConsoleMonster -Name Show-Console,Show-ConsoleList,Show-ConsoleTable).Name | Sort-Object | Should -Be @('Show-Console', 'Show-ConsoleList', 'Show-ConsoleTable')
     }
 
     It 'formats a table with presenters and a totals row as plain text' {
-        $text = Invoke-FormatChild -Script "`$artifacts | Show-ConsoleTable -Total -Width 100 -Property Name, Kind, @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes' }, @{ Name = 'Time'; Presenter = 'Duration' }"
+        $text = Invoke-FormatChild -Script "`$artifacts | Show-ConsoleTable -ShowTotals -Width 100 -Property Name, Kind, @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes' }, @{ Name = 'Time'; Presenter = 'Duration' }"
         $text | Should -Match 'Size'
         $text | Should -Match '1\.41 MB'
         $text | Should -Match 'Total\s+\|\s+\|\s+4\.23 MB\s+\|\s+1 m 01 s'
@@ -63,7 +63,7 @@
     }
 
     It 'evaluates calculated properties, groups with subtotals and limits to the top rows' {
-        $text = Invoke-FormatChild -Script "`$artifacts | Show-ConsoleTable -GroupBy Kind -Total -Top 2 -Width 90 -Property Name, @{ Name = 'KB'; Expression = { [math]::Round(`$_.Length / 1KB) }; Aggregate = 'Sum' }"
+        $text = Invoke-FormatChild -Script "`$artifacts | Show-ConsoleTable -GroupBy Kind -ShowTotals -MaxRows 2 -Width 90 -Property Name, @{ Name = 'KB'; Expression = { [math]::Round(`$_.Length / 1KB) }; Aggregate = 'Sum' }"
         # Groups are sorted by key: the two Module rows come first and -Top 2 shows only them.
         $text | Should -Match 'Module\D{1,8}2'
         $text | Should -Not -Match 'nupkg'
@@ -72,7 +72,7 @@
     }
 
     It 'keeps the input order of groups with -NoSort' {
-        $text = Invoke-FormatChild -Script "`$artifacts | Show-ConsoleTable -GroupBy Kind -NoSort -Total -Top 2 -Width 90 -Property Name, @{ Name = 'KB'; Expression = { [math]::Round(`$_.Length / 1KB) }; Aggregate = 'Sum' }"
+        $text = Invoke-FormatChild -Script "`$artifacts | Show-ConsoleTable -GroupBy Kind -NoSort -ShowTotals -MaxRows 2 -Width 90 -Property Name, @{ Name = 'KB'; Expression = { [math]::Round(`$_.Length / 1KB) }; Aggregate = 'Sum' }"
         $text | Should -Match 'NuGet\D{1,8}1'
         $text | Should -Match 'Subtotal\s+\|\s+1,447'
         $text | Should -Match 'Showing 2 of 3'
@@ -145,17 +145,17 @@ $p = Get-Process -Id $PID
         $parts[3] | Should -Match 'Port\s+8080'
     }
 
-    It 'opens one level of a wide object in Show-ConsoleTree unless -Depth is given' {
+    It 'uses the shared tree depth by default and honors an explicit shallow depth' {
         $fixture = (Join-Path $PSScriptRoot 'Support/WideTreeFixture.cs').Replace("'", "''")
         $text = Invoke-FormatChild -Script (@'
 Add-Type -Path '__FIXTURE__'
 $wide = [ConsoleMonsterWideTreeFixture]::new()
 "DEFAULT=$(($wide | Show-Console -AsString -View Tree).Split("`n").Count)"
-"DEEP=$(($wide | Show-Console -Depth 3 -AsString -View Tree).Split("`n").Count)"
+"SHALLOW=$(($wide | Show-Console -Depth 1 -AsString -View Tree).Split("`n").Count)"
 "SMALL=$(([pscustomobject] @{ a = 1; b = @{ c = @{ d = 1 } } } | Show-Console -AsString -View Tree).Split("`n").Count)"
 '@.Replace('__FIXTURE__', $fixture))
-        [int] ($text -replace '(?s).*DEFAULT=(\d+).*', '$1') | Should -BeLessThan 300
-        [int] ($text -replace '(?s).*DEEP=(\d+).*', '$1') | Should -BeGreaterThan 300
+        [int] ($text -replace '(?s).*DEFAULT=(\d+).*', '$1') | Should -BeGreaterThan 300
+        [int] ($text -replace '(?s).*SHALLOW=(\d+).*', '$1') | Should -BeLessThan 300
         [int] ($text -replace '(?s).*SMALL=(\d+).*', '$1') | Should -Be 5
     }
 

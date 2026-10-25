@@ -13,17 +13,17 @@ DomainController[] controllers = {
 };
 
 Terminal.Write(Table.For(controllers)
-    .WithTitle("[bold]Domain controllers[/]")
-    .Column(c => c.Name, c => c.WithIsKey())
-    .Column(c => c.Site, c => c.WithPriority(2))
-    .Column(c => c.Status, c => c.WithPresenter(CellPresenters.Status).WithPriority(9))
+    .Title("[bold]Domain controllers[/]")
+    .Column(c => c.Name, c => c.IsKey())
+    .Column(c => c.Site, c => c.Priority(2))
+    .Column(c => c.Status, c => c.Presenter(CellPresenters.Status).Priority(9))
     .Column(c => c.Latency, c => c
-        .WithPresenter(new NumberPresenter("ms"))
-        .WithPriority(5)
+        .Presenter(new NumberPresenter("ms"))
+        .Priority(5)
         .AddRoleRules(RoleRule.Above(100, ThemeToken.Warn)))
     .Column(c => c.LastSync, c => c
-        .WithHeader("Last sync")
-        .WithPresenter(CellPresenters.Duration)
-        .WithPriority(4)));
+        .Header("Last sync")
+        .Presenter(CellPresenters.Duration)
+        .Priority(4)));
 
 record DomainController(string Name, string Site, StatusKind Status, int Latency, TimeSpan LastSync);

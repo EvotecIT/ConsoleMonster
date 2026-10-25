@@ -71,7 +71,7 @@ $captured
 
     It 'writes to a file with Use-ConsoleTarget -Path' {
         $file = Join-Path $TestDrive 'report.txt'
-        $null = Invoke-ContentChild -Script "Use-ConsoleTarget -Path '$file' -Width 40 { Show-ConsoleRule -Title 'Report'; Write-ConsoleText -Markup '[muted]end[/]' }"
+        $null = Invoke-ContentChild -Script "Use-ConsoleTarget -Path '$file' -Width 40 { Show-Console -View Rule -Title 'Report'; Write-ConsoleText -Markup '[muted]end[/]' }"
         $content = Get-Content -LiteralPath $file
         $content[0] | Should -Match 'Report'
         $content[0].Length | Should -Be 40
@@ -92,14 +92,14 @@ $bar = New-ConsoleSummaryBar -Total 4 -Counter ([ordered] @{ passed = 0; failed 
 $list = New-ConsoleActivityList -WidgetId running
 $d = New-ConsoleDashboard -Title 'Fleet' -Content { $bar; $map; $list }
 Invoke-ConsoleDashboard $d {
-    Update-Console -WidgetId running -Id 1 -Activity 'SRV01 check'
-    Update-Console -WidgetId running -Id 2 -Activity 'SRV02 check' -PercentComplete 50 -Detail 'second try'
+    Update-Console -WidgetId running -Key 1 -Label 'SRV01 check'
+    Update-Console -WidgetId running -Key 2 -Label 'SRV02 check' -Value 50 -Detail 'second try'
     Update-Console -WidgetId checks -Index 0, 1 -Status Pass
     Update-Console -WidgetId checks -Index 3 -Status Error
     Update-Console -WidgetId checks -Status Warn -AppendCells
     Update-Console -Counter ([ordered] @{ passed = 1 }) -WidgetId 'summary' -Value 1
     Update-Console -Counter ([ordered] @{ passed = 2; failed = 1 }) -WidgetId 'summary' -Value 3
-    Update-Console -WidgetId running -Id 1 -Completed
+    Update-Console -WidgetId running -Key 1 -Complete
 }
 "map=$($map[0]),$($map[1]),$($map[2]),$($map[3]),$($map[4])"
 "bar=$($bar.Value)/$($bar.Total)"

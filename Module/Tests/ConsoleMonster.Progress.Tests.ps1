@@ -39,21 +39,21 @@ $lanes | Show-Console -Width 60
 
     It 'follows the UI culture for built-in labels' {
         $text = Invoke-ProgressChild -UICulture 'pl-PL' -Script @'
-1..5 | ForEach-Object { [pscustomobject]@{ Server = "SRV0$_"; State = 'ok' } } | Show-ConsoleTable -Top 2 -Width 60
+1..5 | ForEach-Object { [pscustomobject]@{ Server = "SRV0$_"; State = 'ok' } } | Show-ConsoleTable -MaxRows 2 -Width 60
 '@
         $text | Should -Match 'Pokazano 2 z 5'
     }
 
     It 'takes the language from CONSOLEMONSTER_LANGUAGE over the UI culture' {
         $text = Invoke-ProgressChild -UICulture 'pl-PL' -Language 'de' -Script @'
-1..5 | ForEach-Object { [pscustomobject]@{ Server = "SRV0$_" } } | Show-ConsoleTable -Top 2 -Width 60
+1..5 | ForEach-Object { [pscustomobject]@{ Server = "SRV0$_" } } | Show-ConsoleTable -MaxRows 2 -Width 60
 '@
         $text | Should -Match '2 von 5 angezeigt'
     }
 
     It 'keeps English for languages without a translation' {
         $text = Invoke-ProgressChild -UICulture 'ja-JP' -Script @'
-1..5 | ForEach-Object { [pscustomobject]@{ Server = "SRV0$_" } } | Show-ConsoleTable -Top 2 -Width 60
+1..5 | ForEach-Object { [pscustomobject]@{ Server = "SRV0$_" } } | Show-ConsoleTable -MaxRows 2 -Width 60
 '@
         $text | Should -Match 'Showing 2 of 5'
     }

@@ -4,17 +4,17 @@ using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
 
 Table table = new Table()
-    .WithTitle("[bold]evotec.xyz[/] [muted]· mail security checks[/]")
-    .AddColumn("Check", c => c.WithIsKey().WithOverflow(ColumnOverflow.Never))
-    .AddColumn("Status", c => c.WithPriority(10).WithPresenter(CellPresenters.Status))
+    .Title("[bold]evotec.xyz[/] [muted]· mail security checks[/]")
+    .AddColumn("Check", c => c.IsKey().Overflow(ColumnOverflow.Never))
+    .AddColumn("Status", c => c.Priority(10).Presenter(CellPresenters.Status))
     .AddColumn("Detail", c => c
-        .WithPriority(5)
-        .WithOverflow(ColumnOverflow.Wrap)
-        .WithMaxLines(2)
-        .WithFlexible()
-        .WithMinWidth(18))
-    .AddColumn("Took", c => c.WithPriority(1).WithPresenter(CellPresenters.Duration))
-    .AddColumn("RFC", c => c.WithPriority(0).WithOverflow(ColumnOverflow.Never));
+        .Priority(5)
+        .Overflow(ColumnOverflow.Wrap)
+        .MaxLines(2)
+        .Flexible()
+        .MinWidth(18))
+    .AddColumn("Took", c => c.Priority(1).Presenter(CellPresenters.Duration))
+    .AddColumn("RFC", c => c.Priority(0).Overflow(ColumnOverflow.Never));
 table.AddValues("SPF", StatusKind.Pass, "9 DNS lookups (limit 10); ends with -all", TimeSpan.FromMilliseconds(84), "7208");
 // <more>
 table.AddValues("DMARC", StatusKind.Pass, "p=reject, aggregate and forensic reports configured", TimeSpan.FromMilliseconds(41), "7489");

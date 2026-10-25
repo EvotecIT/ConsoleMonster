@@ -200,7 +200,7 @@ MenuItem targetItem = new MenuItem("Targets")
     LoadChoices = async (_, token) =>
     {
         await Task.Delay(700, token);
-        return Choice.From(inventory, n => n.Name, n => n.Site, description: n => n.Detail, badge: n => RichText.Plain(n.Role, new RichStyle(ThemeToken.Muted)), disabled: n => n.Offline);
+        return Choice.From(inventory, n => n.Name, n => n.Site, describe: n => n.Detail, badge: n => RichText.Plain(n.Role, new RichStyle(ThemeToken.Muted)), disabledReason: n => n.Offline);
     }
 }.Hotkey('t').IconName(GlyphIcon.Targets).Description("Inventory grouped by site; unavailable servers stay visible.");
 targetItem.SetSelection(targets.Cast<object?>());

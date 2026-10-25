@@ -25,8 +25,8 @@ Declare the items, report state changes, then complete the run in `finally`. The
 ```powershell
 $run = Start-ConsoleRun -Items $checks -Label Name -Target Target -Group { $_.Category }
 try {
-    Update-ConsoleRun $run -Index 0 -Status Running -Phase 'collecting'
-    Update-ConsoleRun $run -Index 0 -Status Pass
+    Update-Console -Run $run -Index 0 -Status Running -Label 'collecting'
+    Update-Console -Run $run -Index 0 -Status Pass
 } finally {
     $summary = Complete-ConsoleRun $run -PassThru
 }

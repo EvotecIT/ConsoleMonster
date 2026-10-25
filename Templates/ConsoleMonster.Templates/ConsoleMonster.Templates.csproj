@@ -41,6 +41,11 @@
         </GalleryDemo>
         <!-- Pack the website's canonical programs without maintaining template copies. -->
         <Content Include="@(GalleryDemo->'../../Website/examples/gallery/%(Identity)/Program.cs')" />
+        <GalleryFluentDemo Include="@(GalleryDemo)">
+            <Link>content/ConsoleMonsterApp/gallery/%(Identity)/Program.Fluent.cs</Link>
+            <PackagePath>content/content/ConsoleMonsterApp/gallery/%(Identity)/</PackagePath>
+        </GalleryFluentDemo>
+        <Content Include="@(GalleryFluentDemo->'../../Website/examples/gallery/%(Identity)/Program.Fluent.cs')" />
     </ItemGroup>
 
     <!-- Stage the same linked content for folder installation with dotnet new install. -->

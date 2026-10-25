@@ -20,7 +20,7 @@
         # A path that cannot exist under the temp directory, so every platform reports ItemNotFound (on Unix a C:\ path
         # would be DriveNotFound instead).
         $missing = Join-Path ([System.IO.Path]::GetTempPath()) ('cm-' + [guid]::NewGuid().ToString('N').Substring(0, 8))
-        $text = Invoke-ErrorChild ("try { Get-Item '" + $missing + "' -ErrorAction Stop } catch { `$_ | Show-ConsoleError -Width 200 }")
+        $text = Invoke-ErrorChild ("try { Get-Item '" + $missing + "' -ErrorAction Stop } catch { `$_ | Show-Console -View Error -Width 200 }")
         $text | Should -Match 'ItemNotFoundException'
         $text | Should -Match ("Cannot find path '" + [regex]::Escape($missing) + "'")
         # The facts line only adds what the message does not say: the category and the short error id, no target path.

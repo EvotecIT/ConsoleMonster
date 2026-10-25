@@ -27,11 +27,11 @@ KeyValueList summary = new KeyValueList("summary")
     .Add("Remaining", "-")
     .Add("Targets done", "0 / 12")
     .Add("Targets failing", "0");
-LineChart throughput = new LineChart("throughput").WithHeight(7);
+LineChart throughput = new LineChart("throughput").Height(7);
 throughput.AddSeries("completed", ThemeToken.Accent);
 throughput.AddSeries("failed", ThemeToken.Fail);
-Histogram durations = new Histogram(new double[] { 0, 0.25, 0.5, 1, 2, 4, 8 }, "durations").WithHeight(6).WithUnit("s");
-BarChart findings = new BarChart("findings").WithRole(ThemeToken.Fail);
+Histogram durations = new Histogram(new double[] { 0, 0.25, 0.5, 1, 2, 4, 8 }, "durations").Height(6).Unit("s");
+BarChart findings = new BarChart("findings").Role(ThemeToken.Fail);
 foreach (string category in new[] { "Domain controllers", "Replication", "DNS", "Kerberos", "Security", "Group Policy", "Accounts", "PKI" }) {
     findings.Add(category, 0);
 }
@@ -74,9 +74,9 @@ sealed class RunSummary : IWidget {
 
     private IWidget Content() {
         Table table = new Table()
-            .WithBorder(TableBorder.Minimal)
-            .WithTitle("[bold]Run summary[/]")
-            .AddColumn("Target", c => c.WithWrap(false))
+            .Border(TableBorder.Minimal)
+            .Title("[bold]Run summary[/]")
+            .AddColumn("Target", c => c.Wrap(false))
             .AddColumn("Status")
             .AddColumn("Passed")
             .AddColumn("Failed")

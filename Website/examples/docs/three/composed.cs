@@ -16,16 +16,16 @@ double[] load = { 12, 18, 31, 64, 47, 38, 55, 70, 72, 41 };
 Terminal.Write(Rows(
     Columns(
         Panel("Servers", Table(servers)
-            .Column(s => s.Name, c => c.WithIsKey())
+            .Column(s => s.Name, c => c.IsKey())
             .Column(s => s.Role)
-            .Column(s => s.Ram, c => c.WithPresenter(CellPresenters.Bytes))
+            .Column(s => s.Ram, c => c.Presenter(CellPresenters.Bytes))
             .Column(s => s.Status)
-            .WithTotals()),
+            .Totals()),
         Panel("Summary", Rows(
             KeyValue(("Servers", 3), ("Failed", 1)),
-            Sparkline(load).WithLabel("CPU")))
-    ).WithGap(1),
+            Sparkline(load).Label("CPU")))
+    ).Gap(1),
     Text("[muted]Updated 10:02[/]")
-).WithGap(1));
+).Gap(1));
 
 record Server(string Name, string Role, long Ram, StatusKind Status);

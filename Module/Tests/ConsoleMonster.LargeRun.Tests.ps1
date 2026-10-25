@@ -51,7 +51,7 @@ try {
 } finally { Complete-ConsoleRun $run }
 '@
         $output = (Invoke-TestChild -Runtime $script:Runtime -Script $code.Replace('__MODULE__', $script:ModulePath).Replace('__STATE__', $State)) -join "`n"
-        $output | Should -Match 'STATE_ERROR=InvalidRunState'
+        $output | Should -Match 'STATE_ERROR=ConsoleMonsterInvalidUpdate'
         $output | Should -Match 'UNCHANGED=0,0'
         $output | Should -Match 'VALID=1'
     }
@@ -126,7 +126,7 @@ try {
 }
 '@
         $output = (Invoke-TestChild -Runtime $script:Runtime -Script $code.Replace('__MODULE__', $script:ModulePath)) -join "`n"
-        $output | Should -Match '(?s)0/1.*?worker done.*?WAIT_DONE.*?1 / 1 finished'
+        $output | Should -Match '(?s)0/1.*?worker done.*?1 / 1 finished.*?WAIT_DONE'
         $output | Should -Not -Match ([char]27)
     }
 

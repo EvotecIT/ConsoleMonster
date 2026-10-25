@@ -16,11 +16,11 @@ $samples = for ($i = 0; $i -lt $west.Count; $i++) {
 
 New-ConsoleRows -Content {
     New-ConsoleText -Markup '[bold]CPU time - highest first[/]'
-    $processes | Show-ConsoleChart -Property CPU -Sort Descending -Top 3 -Unit ' s' -AsWidget
+    $processes | Show-Console -Property CPU -Sort Descending -MaxRows 3 -Unit ' s' -AsWidget -View Chart
     New-ConsoleText ''
     New-ConsoleText -Markup '[bold]Response-time distribution[/]'
-    $latency | Show-ConsoleChart -Type Histogram -Bins 6 -Unit ' ms' -AsWidget
+    $latency | Show-Console -Type Histogram -Bins 6 -Unit ' ms' -AsWidget -View Chart
     New-ConsoleText ''
     New-ConsoleText -Markup '[bold]Latency over time (ms) - one line per host[/]'
-    $samples | Show-ConsoleChart -Property Latency -Label Host -Type Sparkline -AsWidget
+    $samples | Show-Console -Property Latency -Label Host -Type Sparkline -AsWidget -View Chart
 } | Show-Console

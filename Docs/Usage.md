@@ -33,10 +33,10 @@ $dashboard = New-ConsoleDashboard -Title 'Patch' -Gap 1 -Content {
 }
 'SRV1', 'SRV2', 'SRV3' | Invoke-ConsoleDashboard $dashboard -Parallel -ThrottleLimit 3 {
     param($Server)
-    Update-ConsoleLane -Key $Server -Status Running -Total 5
-    1..5 | ForEach-Object { Start-Sleep -Milliseconds 300; Update-ConsoleLane -Key $Server -Result Pass }
+    Update-Console -Key $Server -Status Running -Total 5 -WidgetId 'lanes'
+    1..5 | ForEach-Object { Start-Sleep -Milliseconds 300; Update-Console -Key $Server -Result Pass -WidgetId 'lanes' }
     Write-Host "$Server patched"   # lands in the log region, never on top of the dashboard
-    Update-ConsoleLane -Key $Server -Complete
+    Update-Console -Key $Server -Complete -WidgetId 'lanes'
 }
 ```
 
@@ -50,16 +50,16 @@ lists every widget with its cmdlet form, its live update command and its .NET me
 New-ConsoleColumns -Content {
     New-ConsolePanel -Title 'Mail' -Content {
         New-ConsoleTree '[bold]evotec.xyz[/]' -Content {
-            New-ConsoleTreeNode 'MX' -Status Pass -Detail '2 records'
-            New-ConsoleTreeNode 'SPF' -Status Warn -Detail '9 of 10 DNS lookups'
-            New-ConsoleTreeNode 'DMARC' -Status Fail -Detail 'p=none'
+            [pscustomobject]@{ Label = 'MX'; Status = 'Pass'; Detail = '2 records' }
+            [pscustomobject]@{ Label = 'SPF'; Status = 'Warn'; Detail = '9 of 10 DNS lookups' }
+            [pscustomobject]@{ Label = 'DMARC'; Status = 'Fail'; Detail = 'p=none' }
         }
     }
     New-ConsolePanel -Title 'Build' -Content {
         New-ConsoleStatusList -Content {
-            New-ConsoleStatusItem 'Restore' -Status Pass -Detail '1.6 s'
-            New-ConsoleStatusItem 'Test' -Status Warn -Detail '1 skipped'
-            New-ConsoleStatusItem 'Publish' -Status Pending
+            [pscustomobject]@{ Label = 'Restore'; Status = 'Pass'; Detail = '1.6 s' }
+            [pscustomobject]@{ Label = 'Test'; Status = 'Warn'; Detail = '1 skipped' }
+            [pscustomobject]@{ Label = 'Publish'; Status = 'Pending' }
         }
     }
 } | Show-Console
@@ -331,7 +331,7 @@ built-in Format cmdlets:
 - Redirected output is plain text.
 
 ```powershell
-Get-ChildItem C:\Windows\Logs -Recurse -File | Show-ConsoleTable -GroupBy Extension -Total -Top 20 -Property @(
+Get-ChildItem C:\Windows\Logs -Recurse -File | Show-ConsoleTable -GroupBy Extension -Total -MaxRows 20 -Property @(
     @{ Name = 'Name'; Key = $true }
     @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes'; Priority = 9 }
     @{ Name = 'LastWriteTime'; Header = 'Changed'; Presenter = 'DateRelative'; Priority = 5 }
@@ -497,10 +497,10 @@ Prompts draw below the cursor and leave a one-line answer in the scrollback:
 
 ```powershell
 $environment = Read-ConsoleSelect 'Environment' -Choices 'Production', 'Staging', 'Lab' -Default 'Staging' -ParameterName '-Environment'
-$services = Get-Service | Read-ConsoleMultiSelect 'Services' -Display DisplayName -GroupBy Status -Minimum 1
+$services = Get-Service | Read-ConsoleSelect -Title 'Services' -Display DisplayName -GroupBy Status -Minimum 1 -Multiple
 $name = Read-ConsoleText 'Share name' -Pattern '[a-z][a-z0-9-]+' -PatternMessage 'Lower case letters, digits and dashes'
 $port = Read-ConsoleNumber 'Port' -Integer -Minimum 1 -Maximum 65535 -Default 443
-$token = Read-ConsoleSecret 'Token'
+$token = Read-ConsoleText -Title 'Token' -AsSecret
 $file = Read-ConsolePath 'Import file' -Kind File -MustExist -Extension .csv
 if (Read-ConsoleConfirm 'Remove FS01?' -TypedConfirmation 'FS01' -Warning 'This cannot be undone.') { ... }
 ```
@@ -645,7 +645,7 @@ lanes.Transient = true;              // nothing left at the end (with PrintFinal
 ```
 
 ```powershell
-New-ConsoleLanes -WidgetId servers -Lane 'DC01', 'DC02' -Total 40 -Column Standard, Rate -HideCompleted
+New-ConsoleLanes -WidgetId servers -Lane 'DC01', 'DC02' -Total 40 -HideCompleted -Columns Standard, Rate
 New-ConsoleProgress -Label 'Upload' -Total 500MB -Column Description, Bar, Percent, ByteRate, Remaining
 ```
 
@@ -688,13 +688,13 @@ using (LiveSession session = new LiveSession(dashboard)) {
 
 ```powershell
 $d = New-ConsoleDashboard -Title 'Domain health' -Content {
-    New-ConsolePanel -Title 'Domain controllers' -Content { New-ConsoleRegion -WidgetId main -Content { New-ConsoleSpinner -Label 'Querying' } }
-    New-ConsolePanel -Title 'Jobs' -Fill -Content { New-ConsoleLiveTable -WidgetId jobs -Column 'Job', 'State', 'Took' -MaxRows 8 }
+    New-ConsolePanel -Title 'Domain controllers' -Content { New-ConsoleRegion -WidgetId main -Content { New-ConsoleProgress -Label 'Querying' -Indeterminate -WidgetId 'spinner' } }
+    New-ConsolePanel -Title 'Jobs' -Fill -Content { New-ConsoleTable -WidgetId jobs -MaxRows 8 -Live -Columns 'Job', 'State', 'Took' }
 }
 Invoke-ConsoleDashboard $d {
-    Update-ConsoleLiveTable -WidgetId jobs -Key 'dns@DC01' -Value 'dns', 'Running', ([timespan]::Zero)
-    Set-ConsoleRegion -WidgetId main -Content { $controllers | Show-ConsoleTable -AsWidget }
-    Update-ConsoleLiveTable -WidgetId jobs -Key 'dns@DC01' -Remove
+    Update-Console -WidgetId jobs -Row ([pscustomobject]@{ Key = 'dns@DC01'; Values = @('dns', 'Running', ([timespan]::Zero)) })
+    Update-Console -WidgetId main -Content { $controllers | Show-ConsoleTable -AsWidget }
+    Update-Console -WidgetId jobs -Key 'dns@DC01' -RemoveRow
 }
 ```
 
@@ -739,8 +739,8 @@ Invoke-ConsolePester -Configuration $config -FullScreen -ExportHtml .\pester.htm
 ## Errors and exceptions
 
 ```powershell
-try { Get-Item C:\missing -ErrorAction Stop } catch { $_ | Show-ConsoleError }
-$Error[0] | Show-ConsoleError -ShowFrameworkFrames
+try { Get-Item C:\missing -ErrorAction Stop } catch { $_ | Show-Console -View Error }
+$Error[0] | Show-Console -ShowFrameworkFrames -View Error
 ```
 
 `ExceptionView` (C#) and `Show-ConsoleError` / `Show-ConsoleError` show an exception or ErrorRecord with its
@@ -753,9 +753,9 @@ their exception type.
 ## Syntax highlighting
 
 ```powershell
-Show-ConsoleCode -Path .\deploy.ps1 -LineNumbers -Highlight '12-13'
-Get-Content .\agent.log -Tail 20 | Show-ConsoleCode -Language Log
-Get-Process -Id $PID | Select-Object Name, Id | Show-ConsoleJson
+Show-Console -Path .\deploy.ps1 -LineNumbers -Highlight '12-13' -View Code
+Get-Content .\agent.log -Tail 20 | Show-Console -Language Log -View Code
+Get-Process -Id $PID | Select-Object Name, Id | Show-Console -View Json
 $hosts | Show-ConsoleTable -Property Name, @{ Name = 'Address'; Highlight = 'Smart' }
 Write-ConsoleLogEntry 'GET https://example.com took 412ms' -Highlight Smart
 ```

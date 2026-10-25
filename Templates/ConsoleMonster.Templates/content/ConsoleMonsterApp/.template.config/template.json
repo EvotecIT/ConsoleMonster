@@ -140,6 +140,23 @@
         }
       ],
       "defaultValue": "none"
+    },
+    "DemoStyle": {
+      "type": "parameter",
+      "description": "The gallery source style to run by default; both programs are included.",
+      "datatype": "choice",
+      "choices": [
+        {
+          "choice": "Initializer",
+          "description": "C# object initializers."
+        },
+        {
+          "choice": "Fluent",
+          "description": "C# fluent configuration."
+        }
+      ],
+      "defaultValue": "Initializer",
+      "replaces": "DEMO_STYLE"
     }
   },
   "primaryOutputs": [
@@ -169,13 +186,15 @@
       "source": "gallery/",
       "target": "./",
       "include": [
-        "readiness-report/Program.cs"
+        "readiness-report/Program.cs",
+        "readiness-report/Program.Fluent.cs"
       ],
       "copyOnly": [
         "**/*.cs"
       ],
       "rename": {
-        "readiness-report/Program.cs": "Program.cs"
+        "readiness-report/Program.cs": "Program.cs",
+        "readiness-report/Program.Fluent.cs": "Program.Fluent.cs"
       },
       "condition": "(demo == \"readiness-report\")"
     },
@@ -183,13 +202,15 @@
       "source": "gallery/",
       "target": "./",
       "include": [
-        "fleet-filter/Program.cs"
+        "fleet-filter/Program.cs",
+        "fleet-filter/Program.Fluent.cs"
       ],
       "copyOnly": [
         "**/*.cs"
       ],
       "rename": {
-        "fleet-filter/Program.cs": "Program.cs"
+        "fleet-filter/Program.cs": "Program.cs",
+        "fleet-filter/Program.Fluent.cs": "Program.Fluent.cs"
       },
       "condition": "(demo == \"fleet-filter\")"
     },
@@ -197,13 +218,15 @@
       "source": "gallery/",
       "target": "./",
       "include": [
-        "setup-basic/Program.cs"
+        "setup-basic/Program.cs",
+        "setup-basic/Program.Fluent.cs"
       ],
       "copyOnly": [
         "**/*.cs"
       ],
       "rename": {
-        "setup-basic/Program.cs": "Program.cs"
+        "setup-basic/Program.cs": "Program.cs",
+        "setup-basic/Program.Fluent.cs": "Program.Fluent.cs"
       },
       "condition": "(demo == \"setup-basic\")"
     },
@@ -211,13 +234,15 @@
       "source": "gallery/",
       "target": "./",
       "include": [
-        "worker-progress/Program.cs"
+        "worker-progress/Program.cs",
+        "worker-progress/Program.Fluent.cs"
       ],
       "copyOnly": [
         "**/*.cs"
       ],
       "rename": {
-        "worker-progress/Program.cs": "Program.cs"
+        "worker-progress/Program.cs": "Program.cs",
+        "worker-progress/Program.Fluent.cs": "Program.Fluent.cs"
       },
       "condition": "(demo == \"worker-progress\")"
     },
@@ -225,13 +250,15 @@
       "source": "gallery/",
       "target": "./",
       "include": [
-        "build-steps/Program.cs"
+        "build-steps/Program.cs",
+        "build-steps/Program.Fluent.cs"
       ],
       "copyOnly": [
         "**/*.cs"
       ],
       "rename": {
-        "build-steps/Program.cs": "Program.cs"
+        "build-steps/Program.cs": "Program.cs",
+        "build-steps/Program.Fluent.cs": "Program.Fluent.cs"
       },
       "condition": "(demo == \"build-steps\")"
     },
@@ -239,13 +266,15 @@
       "source": "gallery/",
       "target": "./",
       "include": [
-        "live-filter/Program.cs"
+        "live-filter/Program.cs",
+        "live-filter/Program.Fluent.cs"
       ],
       "copyOnly": [
         "**/*.cs"
       ],
       "rename": {
-        "live-filter/Program.cs": "Program.cs"
+        "live-filter/Program.cs": "Program.cs",
+        "live-filter/Program.Fluent.cs": "Program.Fluent.cs"
       },
       "condition": "(demo == \"live-filter\")"
     },
@@ -253,13 +282,15 @@
       "source": "gallery/",
       "target": "./",
       "include": [
-        "task-menu/Program.cs"
+        "task-menu/Program.cs",
+        "task-menu/Program.Fluent.cs"
       ],
       "copyOnly": [
         "**/*.cs"
       ],
       "rename": {
-        "task-menu/Program.cs": "Program.cs"
+        "task-menu/Program.cs": "Program.cs",
+        "task-menu/Program.Fluent.cs": "Program.Fluent.cs"
       },
       "condition": "(demo == \"task-menu\")"
     },
@@ -267,13 +298,15 @@
       "source": "gallery/",
       "target": "./",
       "include": [
-        "patch-progress/Program.cs"
+        "patch-progress/Program.cs",
+        "patch-progress/Program.Fluent.cs"
       ],
       "copyOnly": [
         "**/*.cs"
       ],
       "rename": {
-        "patch-progress/Program.cs": "Program.cs"
+        "patch-progress/Program.cs": "Program.cs",
+        "patch-progress/Program.Fluent.cs": "Program.Fluent.cs"
       },
       "condition": "(demo == \"patch-progress\")"
     },
@@ -281,13 +314,15 @@
       "source": "gallery/",
       "target": "./",
       "include": [
-        "log-tail/Program.cs"
+        "log-tail/Program.cs",
+        "log-tail/Program.Fluent.cs"
       ],
       "copyOnly": [
         "**/*.cs"
       ],
       "rename": {
-        "log-tail/Program.cs": "Program.cs"
+        "log-tail/Program.cs": "Program.cs",
+        "log-tail/Program.Fluent.cs": "Program.Fluent.cs"
       },
       "condition": "(demo == \"log-tail\")"
     },
@@ -295,13 +330,15 @@
       "source": "gallery/",
       "target": "./",
       "include": [
-        "welcome-compact/Program.cs"
+        "welcome-compact/Program.cs",
+        "welcome-compact/Program.Fluent.cs"
       ],
       "copyOnly": [
         "**/*.cs"
       ],
       "rename": {
-        "welcome-compact/Program.cs": "Program.cs"
+        "welcome-compact/Program.cs": "Program.cs",
+        "welcome-compact/Program.Fluent.cs": "Program.Fluent.cs"
       },
       "condition": "(demo == \"welcome-compact\")"
     },
@@ -309,13 +346,15 @@
       "source": "gallery/",
       "target": "./",
       "include": [
-        "welcome-rich/Program.cs"
+        "welcome-rich/Program.cs",
+        "welcome-rich/Program.Fluent.cs"
       ],
       "copyOnly": [
         "**/*.cs"
       ],
       "rename": {
-        "welcome-rich/Program.cs": "Program.cs"
+        "welcome-rich/Program.cs": "Program.cs",
+        "welcome-rich/Program.Fluent.cs": "Program.Fluent.cs"
       },
       "condition": "(demo == \"welcome-rich\")"
     },
@@ -323,13 +362,15 @@
       "source": "gallery/",
       "target": "./",
       "include": [
-        "everyday-formatting/Program.cs"
+        "everyday-formatting/Program.cs",
+        "everyday-formatting/Program.Fluent.cs"
       ],
       "copyOnly": [
         "**/*.cs"
       ],
       "rename": {
-        "everyday-formatting/Program.cs": "Program.cs"
+        "everyday-formatting/Program.cs": "Program.cs",
+        "everyday-formatting/Program.Fluent.cs": "Program.Fluent.cs"
       },
       "condition": "(demo == \"everyday-formatting\")"
     },
@@ -337,13 +378,15 @@
       "source": "gallery/",
       "target": "./",
       "include": [
-        "assessment/Program.cs"
+        "assessment/Program.cs",
+        "assessment/Program.Fluent.cs"
       ],
       "copyOnly": [
         "**/*.cs"
       ],
       "rename": {
-        "assessment/Program.cs": "Program.cs"
+        "assessment/Program.cs": "Program.cs",
+        "assessment/Program.Fluent.cs": "Program.Fluent.cs"
       },
       "condition": "(demo == \"assessment\")"
     },
@@ -351,13 +394,15 @@
       "source": "gallery/",
       "target": "./",
       "include": [
-        "stress/Program.cs"
+        "stress/Program.cs",
+        "stress/Program.Fluent.cs"
       ],
       "copyOnly": [
         "**/*.cs"
       ],
       "rename": {
-        "stress/Program.cs": "Program.cs"
+        "stress/Program.cs": "Program.cs",
+        "stress/Program.Fluent.cs": "Program.Fluent.cs"
       },
       "condition": "(demo == \"stress\")"
     },
@@ -365,13 +410,15 @@
       "source": "gallery/",
       "target": "./",
       "include": [
-        "fleet/Program.cs"
+        "fleet/Program.cs",
+        "fleet/Program.Fluent.cs"
       ],
       "copyOnly": [
         "**/*.cs"
       ],
       "rename": {
-        "fleet/Program.cs": "Program.cs"
+        "fleet/Program.cs": "Program.cs",
+        "fleet/Program.Fluent.cs": "Program.Fluent.cs"
       },
       "condition": "(demo == \"fleet\")"
     },
@@ -379,13 +426,15 @@
       "source": "gallery/",
       "target": "./",
       "include": [
-        "setup/Program.cs"
+        "setup/Program.cs",
+        "setup/Program.Fluent.cs"
       ],
       "copyOnly": [
         "**/*.cs"
       ],
       "rename": {
-        "setup/Program.cs": "Program.cs"
+        "setup/Program.cs": "Program.cs",
+        "setup/Program.Fluent.cs": "Program.Fluent.cs"
       },
       "condition": "(demo == \"setup\")"
     },
@@ -393,13 +442,15 @@
       "source": "gallery/",
       "target": "./",
       "include": [
-        "pipeline/Program.cs"
+        "pipeline/Program.cs",
+        "pipeline/Program.Fluent.cs"
       ],
       "copyOnly": [
         "**/*.cs"
       ],
       "rename": {
-        "pipeline/Program.cs": "Program.cs"
+        "pipeline/Program.cs": "Program.cs",
+        "pipeline/Program.Fluent.cs": "Program.Fluent.cs"
       },
       "condition": "(demo == \"pipeline\")"
     },
@@ -407,13 +458,15 @@
       "source": "gallery/",
       "target": "./",
       "include": [
-        "toolbox/Program.cs"
+        "toolbox/Program.cs",
+        "toolbox/Program.Fluent.cs"
       ],
       "copyOnly": [
         "**/*.cs"
       ],
       "rename": {
-        "toolbox/Program.cs": "Program.cs"
+        "toolbox/Program.cs": "Program.cs",
+        "toolbox/Program.Fluent.cs": "Program.Fluent.cs"
       },
       "condition": "(demo == \"toolbox\")"
     },
@@ -421,13 +474,15 @@
       "source": "gallery/",
       "target": "./",
       "include": [
-        "query/Program.cs"
+        "query/Program.cs",
+        "query/Program.Fluent.cs"
       ],
       "copyOnly": [
         "**/*.cs"
       ],
       "rename": {
-        "query/Program.cs": "Program.cs"
+        "query/Program.cs": "Program.cs",
+        "query/Program.Fluent.cs": "Program.Fluent.cs"
       },
       "condition": "(demo == \"query\")"
     },
@@ -435,13 +490,15 @@
       "source": "gallery/",
       "target": "./",
       "include": [
-        "parallel-patch/Program.cs"
+        "parallel-patch/Program.cs",
+        "parallel-patch/Program.Fluent.cs"
       ],
       "copyOnly": [
         "**/*.cs"
       ],
       "rename": {
-        "parallel-patch/Program.cs": "Program.cs"
+        "parallel-patch/Program.cs": "Program.cs",
+        "parallel-patch/Program.Fluent.cs": "Program.Fluent.cs"
       },
       "condition": "(demo == \"parallel-patch\")"
     },
@@ -449,13 +506,15 @@
       "source": "gallery/",
       "target": "./",
       "include": [
-        "prompt-tour/Program.cs"
+        "prompt-tour/Program.cs",
+        "prompt-tour/Program.Fluent.cs"
       ],
       "copyOnly": [
         "**/*.cs"
       ],
       "rename": {
-        "prompt-tour/Program.cs": "Program.cs"
+        "prompt-tour/Program.cs": "Program.cs",
+        "prompt-tour/Program.Fluent.cs": "Program.Fluent.cs"
       },
       "condition": "(demo == \"prompt-tour\")"
     },
@@ -463,13 +522,15 @@
       "source": "gallery/",
       "target": "./",
       "include": [
-        "certificate-expiry/Program.cs"
+        "certificate-expiry/Program.cs",
+        "certificate-expiry/Program.Fluent.cs"
       ],
       "copyOnly": [
         "**/*.cs"
       ],
       "rename": {
-        "certificate-expiry/Program.cs": "Program.cs"
+        "certificate-expiry/Program.cs": "Program.cs",
+        "certificate-expiry/Program.Fluent.cs": "Program.Fluent.cs"
       },
       "condition": "(demo == \"certificate-expiry\")"
     },
@@ -477,13 +538,15 @@
       "source": "gallery/",
       "target": "./",
       "include": [
-        "disk-usage/Program.cs"
+        "disk-usage/Program.cs",
+        "disk-usage/Program.Fluent.cs"
       ],
       "copyOnly": [
         "**/*.cs"
       ],
       "rename": {
-        "disk-usage/Program.cs": "Program.cs"
+        "disk-usage/Program.cs": "Program.cs",
+        "disk-usage/Program.Fluent.cs": "Program.Fluent.cs"
       },
       "condition": "(demo == \"disk-usage\")"
     },
@@ -491,13 +554,15 @@
       "source": "gallery/",
       "target": "./",
       "include": [
-        "process-monitor/Program.cs"
+        "process-monitor/Program.cs",
+        "process-monitor/Program.Fluent.cs"
       ],
       "copyOnly": [
         "**/*.cs"
       ],
       "rename": {
-        "process-monitor/Program.cs": "Program.cs"
+        "process-monitor/Program.cs": "Program.cs",
+        "process-monitor/Program.Fluent.cs": "Program.Fluent.cs"
       },
       "condition": "(demo == \"process-monitor\")"
     },
@@ -505,13 +570,15 @@
       "source": "gallery/",
       "target": "./",
       "include": [
-        "port-matrix/Program.cs"
+        "port-matrix/Program.cs",
+        "port-matrix/Program.Fluent.cs"
       ],
       "copyOnly": [
         "**/*.cs"
       ],
       "rename": {
-        "port-matrix/Program.cs": "Program.cs"
+        "port-matrix/Program.cs": "Program.cs",
+        "port-matrix/Program.Fluent.cs": "Program.Fluent.cs"
       },
       "condition": "(demo == \"port-matrix\")"
     },
@@ -519,13 +586,15 @@
       "source": "gallery/",
       "target": "./",
       "include": [
-        "repository-status/Program.cs"
+        "repository-status/Program.cs",
+        "repository-status/Program.Fluent.cs"
       ],
       "copyOnly": [
         "**/*.cs"
       ],
       "rename": {
-        "repository-status/Program.cs": "Program.cs"
+        "repository-status/Program.cs": "Program.cs",
+        "repository-status/Program.Fluent.cs": "Program.Fluent.cs"
       },
       "condition": "(demo == \"repository-status\")"
     },
@@ -533,13 +602,15 @@
       "source": "gallery/",
       "target": "./",
       "include": [
-        "backup-runner/Program.cs"
+        "backup-runner/Program.cs",
+        "backup-runner/Program.Fluent.cs"
       ],
       "copyOnly": [
         "**/*.cs"
       ],
       "rename": {
-        "backup-runner/Program.cs": "Program.cs"
+        "backup-runner/Program.cs": "Program.cs",
+        "backup-runner/Program.Fluent.cs": "Program.Fluent.cs"
       },
       "condition": "(demo == \"backup-runner\")"
     }

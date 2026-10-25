@@ -129,7 +129,7 @@ $visibility = $original.Visibility
 Import-Module $savedModulePath
 $warnings = @()
 Enable-ConsoleFormatting -Feature GridView -Force -WarningVariable warnings
-if ($warnings.Count -ne 1 -or $warnings[0].Message -notmatch 'cannot be replaced in this scope') { throw 'The unsupported alias scope was not reported.' }
+if ($warnings.Count -ne 1 -or $warnings[0].Message -notmatch 'kept') { throw 'The preserved alias was not reported.' }
 if (${function:global:Out-GridView}) { throw 'An unreachable fallback function was left installed.' }
 if ((Get-Command Out-GridView).CommandType -ne 'Alias') { throw 'Original alias resolution changed.' }
 Disable-ConsoleFormatting

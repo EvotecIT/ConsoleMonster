@@ -3,7 +3,7 @@ using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
 
-LineChart chart = new LineChart().WithHeight(7);
+LineChart chart = new LineChart().Height(7);
 chart.AddSeries("completed", ThemeToken.Accent);
 chart.AddSeries("failed", ThemeToken.Fail);
 for (int i = 0; i < 48; i++) {

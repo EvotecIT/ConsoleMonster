@@ -48,7 +48,7 @@ $rows = @(
 )
 $rows | Show-ConsoleTable
 Show-ConsoleList ([ordered] @{ Region = 'west'; Servers = 2 })
-Show-ConsoleRule 'Summary'
+Show-Console -Title 'Summary' -View Rule
 $rows | Export-ConsoleFrame -Format Markdown
 $rows | Show-ConsoleTable -AsWidget | Export-ConsoleFrame -Format Svg -Path ./servers.svg
 ```
@@ -79,8 +79,8 @@ $dashboard = New-ConsoleDashboard -Title 'Build' -Content {
     New-ConsoleProgress build -Label 'Packages' -Total 10
 }
 Invoke-ConsoleDashboard $dashboard {
-    Update-ConsoleProgress build -Value 5
-    Update-ConsoleProgress build -Status Pass -Value 10
+    Update-Console -WidgetId build -Value 5
+    Update-Console -WidgetId build -Status Pass -Value 10
 }
 Watch-ConsoleLog -Path ./service.log -Count 1 -PollIntervalSeconds 0.25 -NoLive
 ```

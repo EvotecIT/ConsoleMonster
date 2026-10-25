@@ -93,7 +93,7 @@ Enable-ConsoleFormatting -Feature Errors -Detailed  # include stacks and causes
 Disable-ConsoleFormatting -Feature Errors
 
 # The same view on demand, including inside a catch block or an export.
-try { [int]::Parse('production') } catch { $_ | Show-ConsoleError -Compact }
+try { [int]::Parse('production') } catch { $_ | Show-Console -Compact -View Error }
 ```
 
 `Errors` is excluded from `All`. Error-producing cmdlets remain native, and `$Error`, `-ErrorVariable`, `2>`,

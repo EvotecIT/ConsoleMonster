@@ -24,7 +24,7 @@ $dashboard = New-ConsoleDashboard -Title '[bold]Stress test[/]' -Subtitle "32 wo
                     'Dropped/errors' = '0 / 0'
                 })
             New-ConsoleRule 'updates/s'
-            New-ConsoleSparkline -WidgetId rate -Height 3
+            New-ConsoleChart -WidgetId rate -Height 3 -Type Sparkline
         }
     }
     New-ConsolePanel -Title 'Captured output' -Fill -Content { New-ConsoleLogRegion }
@@ -57,12 +57,12 @@ $results = $roles | Invoke-ConsoleDashboard $dashboard -Parallel -ThrottleLimit 
             $lastPosted = $posted
             $lastCpu = $process.TotalProcessorTime
             $lastWall = $now
-            Set-ConsoleValue -WidgetId stats -Key 'Updates posted' -Value ('{0:N0}' -f $posted)
-            Set-ConsoleValue -WidgetId stats -Key 'Update rate' -Value ('{0:N0}/s' -f $rate)
-            Set-ConsoleValue -WidgetId stats -Key 'Frames' -Value ('{0:N0}' -f $ConsoleSession.FramesRendered)
-            Set-ConsoleValue -WidgetId stats -Key 'CPU' -Value (('{0:N0}% ({1:N1} cores)' -f $core, ($core / 100)))
-            Set-ConsoleValue -WidgetId stats -Key 'Dropped/errors' -Value ('{0} / {1}' -f $ConsoleSession.EventsDropped, $ConsoleSession.ApplyErrors)
-            Add-ConsoleValue -WidgetId rate -Value $rate
+            Update-Console -WidgetId stats -Key 'Updates posted' -Value ('{0:N0}' -f $posted)
+            Update-Console -WidgetId stats -Key 'Update rate' -Value ('{0:N0}/s' -f $rate)
+            Update-Console -WidgetId stats -Key 'Frames' -Value ('{0:N0}' -f $ConsoleSession.FramesRendered)
+            Update-Console -WidgetId stats -Key 'CPU' -Value (('{0:N0}% ({1:N1} cores)' -f $core, ($core / 100)))
+            Update-Console -WidgetId stats -Key 'Dropped/errors' -Value ('{0} / {1}' -f $ConsoleSession.EventsDropped, $ConsoleSession.ApplyErrors)
+            Update-Console -WidgetId rate -Value $rate -Append
         }
         $process.Refresh()
         $elapsed = $wall.Elapsed.TotalSeconds
@@ -81,12 +81,12 @@ $results = $roles | Invoke-ConsoleDashboard $dashboard -Parallel -ThrottleLimit 
             ApplyErrors = $ConsoleSession.ApplyErrors
         }
     } elseif ($Role -like 'w*') {
-        Update-ConsoleLane -WidgetId workers -Key $Role -Status Running
+        Update-Console -WidgetId workers -Key $Role -Status Running
         while ([DateTime]::UtcNow -lt $end -and -not $ConsoleSession.Cancellation.IsCancellationRequested) {
             $result = if ((Get-Random -Maximum 100) -lt 4) { 'Fail' } else { 'Pass' }
-            Update-ConsoleLane -WidgetId workers -Key $Role -Result $result
+            Update-Console -WidgetId workers -Key $Role -Result $result
         }
-        Update-ConsoleLane -WidgetId workers -Key $Role -Complete
+        Update-Console -WidgetId workers -Key $Role -Complete
     } elseif ($Role -like 'library*') {
         while ([DateTime]::UtcNow -lt $end -and -not $ConsoleSession.Cancellation.IsCancellationRequested) {
             Start-Sleep -Milliseconds (Get-Random -Minimum 50 -Maximum 300)

@@ -7,14 +7,16 @@ Describe 'ConsoleMonster Markdown, HTML and clipboard output' {
         $commands = @(
             @{ Name = 'Show-ConsoleTable'; Input = [pscustomobject] @{ Name = 'export-marker'; Count = 12 } }
             @{ Name = 'Show-ConsoleList'; Input = [pscustomobject] @{ Name = 'export-marker'; Count = 12 } }
-            @{ Name = 'Show-ConsoleTree'; Input = [pscustomobject] @{ Name = 'export-marker'; Count = 12 } }
-            @{ Name = 'Show-ConsoleCode'; Input = 'export-marker' }
-            @{ Name = 'Show-ConsoleJson'; Input = '{"Name":"export-marker"}' }
-            @{ Name = 'Show-ConsoleError'; Input = [InvalidOperationException]::new('export-marker') }
+            @{ Name = 'Show-Console'; View = 'Tree'; Input = [pscustomobject] @{ Name = 'export-marker'; Count = 12 } }
+            @{ Name = 'Show-Console'; View = 'Code'; Input = 'export-marker' }
+            @{ Name = 'Show-Console'; View = 'Json'; Input = '{"Name":"export-marker"}' }
+            @{ Name = 'Show-Console'; View = 'Error'; Input = [InvalidOperationException]::new('export-marker') }
         )
         foreach ($command in $commands) {
             foreach ($format in 'FencedText', 'Markdown', 'Html') {
-                $result = @($command.Input | & $command.Name -AsWidget | Export-ConsoleFrame -Format $format -Width 70)
+                $viewArgs = @{}
+                if ($command.ContainsKey('View')) { $viewArgs.View = $command.View }
+                $result = @($command.Input | & $command.Name @viewArgs -AsWidget | Export-ConsoleFrame -Format $format -Width 70)
                 $result.Count | Should -Be 1 -Because $command.Name
                 $result[0] | Should -BeOfType string
                 $result[0] | Should -Match 'export-marker'
@@ -26,7 +28,7 @@ Describe 'ConsoleMonster Markdown, HTML and clipboard output' {
                 } elseif ($command.Name -in @('Show-ConsoleTable','Show-ConsoleList')) {
                     $result[0] | Should -Match '(?m)^\|.*\|$'
                     $result[0] | Should -Match '(?m)^\| :---'
-                } elseif ($command.Name -eq 'Show-ConsoleTree') {
+                } elseif ($command.View -eq 'Tree') {
                     $result[0] | Should -Match '(?m)^\s*- '
                 }
                 $result[0] | Should -Not -Match ([char] 27)
@@ -35,17 +37,15 @@ Describe 'ConsoleMonster Markdown, HTML and clipboard output' {
     }
 
     It 'rejects incompatible output switches before processing even empty input' {
-        foreach ($name in 'Show-ConsoleTable', 'Show-ConsoleList', 'Show-ConsoleTree', 'Show-ConsoleCode', 'Show-ConsoleJson', 'Show-ConsoleError') {
+        foreach ($view in 'Auto', 'Table', 'List', 'Tree', 'Code', 'Json', 'Error', 'Markdown', 'Rule') {
+            { Show-Console -View $view -AsWidget -AsString -ErrorAction Stop } | Should -Throw '*Choose one output mode*'
+            { Show-Console -View $view -AsWidget -PassThru -ErrorAction Stop } | Should -Throw '*Choose one output mode*'
+            { Show-Console -View $view -AsString -PassThru -ErrorAction Stop } | Should -Throw '*Choose one output mode*'
+        }
+        foreach ($name in 'Show-ConsoleTable', 'Show-ConsoleList') {
             { & $name -AsWidget -AsString -ErrorAction Stop } | Should -Throw '*Choose one output mode*'
-        }
-        foreach ($name in 'Show-ConsoleTable', 'Show-ConsoleCode', 'Show-ConsoleJson', 'Show-ConsoleError') {
-            { & $name -AsString -AsWidget -ErrorAction Stop } | Should -Throw '*Choose one output mode*'
-        }
-        foreach ($name in 'Show-ConsoleTable', 'Show-ConsoleList', 'Show-ConsoleTree') {
             { & $name -AsWidget -PassThru -ErrorAction Stop } | Should -Throw '*Choose one output mode*'
-            { & $name -AsString -PassThru -ErrorAction Stop } | Should -Throw '*Choose one output mode*'
         }
-        { Show-ConsoleTable -AsWidget -AsString -ErrorAction Stop } | Should -Throw '*Choose one output mode*'
     }
 
     It 'preserves widget, string and input-object contracts' {
@@ -79,13 +79,13 @@ Describe 'ConsoleMonster Markdown, HTML and clipboard output' {
         $document.IndexOf('widget-marker') | Should -BeLessThan $document.IndexOf('object-marker')
     }
 
-    It 'uses a registered view and returns a document from Out-ConsoleDefault without enabling takeover' {
+    It 'exports registered views through the canonical frame exporter without enabling takeover' {
         $row = [pscustomobject] @{ Name = 'view-marker'; Secret = 'must-stay-hidden' }
         $row.PSObject.TypeNames.Insert(0, 'ConsoleMonster.Tests.ExportRecord')
         try {
             Register-ConsoleView -TypeName 'ConsoleMonster.Tests.ExportRecord' -Property Name
             foreach ($format in 'Markdown', 'Html') {
-                $document = @($row | Out-ConsoleDefault -Format $format -Width 65)
+                $document = @($row | Export-ConsoleFrame -Format $format -Width 65)
                 $document.Count | Should -Be 1
                 $document[0] | Should -Match 'view-marker'
                 $document[0] | Should -Not -Match 'must-stay-hidden'
@@ -103,7 +103,7 @@ Describe 'ConsoleMonster Markdown, HTML and clipboard output' {
         try {
             Register-ConsoleView -TypeName 'ConsoleMonster.Tests.ExportFirst' -Property Name
             Register-ConsoleView -TypeName 'ConsoleMonster.Tests.ExportLast' -Property Name
-            $document = @($first; 'middle-marker'; $last) | Out-ConsoleDefault -Format Markdown
+            $document = @($first; 'middle-marker'; $last) | Export-ConsoleFrame -Format Markdown
             $document.IndexOf('first-marker') | Should -BeLessThan $document.IndexOf('middle-marker')
             $document.IndexOf('middle-marker') | Should -BeLessThan $document.IndexOf('last-marker')
         } finally {
@@ -113,7 +113,7 @@ Describe 'ConsoleMonster Markdown, HTML and clipboard output' {
 
     It 'returns no document for empty export input' {
         @(@() | Show-ConsoleTable -AsWidget | Export-ConsoleFrame -Format Markdown).Count | Should -Be 0
-        @(@() | Out-ConsoleDefault -Format Markdown).Count | Should -Be 0
+        @(@() | Export-ConsoleFrame -Format Markdown).Count | Should -Be 0
     }
 
     It 'previews clipboard copying for every input kind and format without accessing any provider' {

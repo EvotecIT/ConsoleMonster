@@ -10,7 +10,7 @@ var server = new {
     Enabled = true
 };
 new ObjectExplorer(server, rootPath: "$server")
-    .WithTitle("Server configuration")
+    .Title("Server configuration")
     .Show();
 
 sealed record OwnerInfo(string Name, string[] Groups);

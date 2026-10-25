@@ -5,28 +5,28 @@ using ConsoleMonster.Widgets;
 
 const string Cache = "/var/cache/dns/evotec.xyz/";
 Table table = new Table()
-    .WithTitle("[bold]evotec.xyz[/] [muted]· DNS records via Cloudflare DoH[/]")
+    .Title("[bold]evotec.xyz[/] [muted]· DNS records via Cloudflare DoH[/]")
     .AddColumn("Name", c => c
-        .WithIsKey()
-        .WithOverflow(ColumnOverflow.TruncateMiddle)
-        .WithMinWidth(10))
-    .AddColumn("Type", c => c.WithPriority(9).WithOverflow(ColumnOverflow.Never))
-    .AddColumn("TTL", c => c.WithPriority(2).WithPresenter(new DurationPresenter()))
+        .IsKey()
+        .Overflow(ColumnOverflow.TruncateMiddle)
+        .MinWidth(10))
+    .AddColumn("Type", c => c.Priority(9).Overflow(ColumnOverflow.Never))
+    .AddColumn("TTL", c => c.Priority(2).Presenter(new DurationPresenter()))
     .AddColumn("Data", c => c
-        .WithPriority(10)
-        .WithOverflow(ColumnOverflow.Wrap)
-        .WithMaxLines(3)
-        .WithFlexible()
-        .WithMinWidth(28))
+        .Priority(10)
+        .Overflow(ColumnOverflow.Wrap)
+        .MaxLines(3)
+        .Flexible()
+        .MinWidth(28))
     .AddColumn("Latency", c => c
-        .WithPriority(3)
-        .WithPresenter(new NumberPresenter("ms"))
+        .Priority(3)
+        .Presenter(new NumberPresenter("ms"))
         .AddRoleRules(RoleRule.Above(100, ThemeToken.Warn)))
     .AddColumn("Cache file", c => c
-        .WithPriority(1)
-        .WithOverflow(ColumnOverflow.TruncateMiddle)
-        .WithMinWidth(20)
-        .WithMaxWidth(36));
+        .Priority(1)
+        .Overflow(ColumnOverflow.TruncateMiddle)
+        .MinWidth(20)
+        .MaxWidth(36));
 table.AddValues("evotec.xyz", "A", 300, "104.21.48.12", 12, Cache + "A.json");
 // <more>
 table.AddValues("evotec.xyz", "AAAA", 300, "2606:4700:3036::6815:300c", 14, Cache + "AAAA.json");

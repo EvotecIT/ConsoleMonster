@@ -28,7 +28,7 @@ IReadOnlyList<MaintenanceTask> tasks = new MultiSelectPrompt<MaintenanceTask>("T
             .Add("Group", Markup.Escape(t.Category))
             .Add("Duration", "about " + t.Minutes + " min per server")
             .Add("Changes", t.Changes ? "[warn]yes[/], makes changes" : "[pass]no[/], read only")
-            .Add("Parameter", "[accent]" + Markup.Escape(t.Id) + "[/]")).WithGap(1)
+            .Add("Parameter", "[accent]" + Markup.Escape(t.Id) + "[/]")).Gap(1)
 }.Show();
 Terminal.WriteMarkupLine("Running [bold]" + tasks.Count + "[/] tasks");
 

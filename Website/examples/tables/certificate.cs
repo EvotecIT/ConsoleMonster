@@ -6,8 +6,8 @@ using ConsoleMonster.Widgets;
 // Relative dates are measured from a fixed time, so this example prints the same every day.
 DateTimeOffset now = new DateTimeOffset(2026, 10, 16, 14, 30, 0, TimeSpan.FromHours(2));
 RecordView view = new RecordView("[bold]mail.evotec.xyz[/]")
-    .WithSummary("TLS certificate · ECDSA P-256 · Let's Encrypt")
-    .WithPresentation(p => { p.Now = now; p.TimeZone = TimeZoneInfo.Utc; });
+    .Summary("TLS certificate · ECDSA P-256 · Let's Encrypt")
+    .Presentation(p => { p.Now = now; p.TimeZone = TimeZoneInfo.Utc; });
 view.AddSection("Certificate");
 view.AddField("Subject", "CN=mail.evotec.xyz");
 view.AddField("Issuer", "CN=R11, O=Let's Encrypt, C=US");
@@ -20,23 +20,23 @@ view.AddField("Revoked", false, new BooleanPresenter(trueIsProblem: true));
 view.AddField("Notes", (object?)null);
 view.AddGroup("Subject alternative names", "3");
 view.AddWidget(new Table()
-    .WithBorder(TableBorder.None)
-    .WithShowHeader(false)
-    .WithRecordViewRows(0)
+    .Border(TableBorder.None)
+    .ShowHeader(false)
+    .RecordViewRows(0)
     .AddColumn("Name")
     .AddValues("mail.evotec.xyz")
     .AddValues("autodiscover.evotec.xyz")
     .AddValues("mta-sts.evotec.xyz"));
 view.AddGroup("Chain", "3 certificates");
 view.AddWidget(new Table()
-    .WithBorder(TableBorder.Minimal)
-    .WithRecordViewRows(0)
-    .WithPresentation(p => { p.Now = now; p.TimeZone = TimeZoneInfo.Utc; })
-    .AddColumn("Subject", c => c.WithIsKey())
+    .Border(TableBorder.Minimal)
+    .RecordViewRows(0)
+    .Presentation(p => { p.Now = now; p.TimeZone = TimeZoneInfo.Utc; })
+    .AddColumn("Subject", c => c.IsKey())
     .AddColumn("Expires", c => c
-        .WithPresenter(new DatePresenter(DateDisplay.Relative))
+        .Presenter(new DatePresenter(DateDisplay.Relative))
         .AddRoleRules(RoleRule.Below(30, ThemeToken.Warn)))
-    .AddColumn("Key", c => c.WithPriority(1))
+    .AddColumn("Key", c => c.Priority(1))
     .AddValues("CN=mail.evotec.xyz", new DateTimeOffset(2026, 11, 8, 12, 0, 0, TimeSpan.Zero), "ECDSA P-256")
     .AddValues("CN=R11, O=Let's Encrypt", new DateTimeOffset(2027, 3, 12, 23, 59, 59, TimeSpan.Zero), "RSA 2048")
     .AddValues("CN=ISRG Root X1", new DateTimeOffset(2035, 6, 4, 11, 4, 38, TimeSpan.Zero), "RSA 4096"));

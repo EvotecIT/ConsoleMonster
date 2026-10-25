@@ -44,7 +44,7 @@ KeyValueList module = new KeyValueList("module")
     .Add("PowerShell", "5.1 Desktop · 7.x Core")
     .Add("Run mode", "Build [muted](publish disabled)[/]")
     .Add("Elapsed", "-");
-ProgressBar progress = new ProgressBar("Overall", "overall").WithTotal(plan.Length).WithLabelWidth(8);
+ProgressBar progress = new ProgressBar("Overall", "overall").Total(plan.Length).LabelWidth(8);
 
 Dashboard dashboard = new DashboardBuilder("[bold]Module build[/]")
     .Subtitle("Build-Module ConsoleMonster")
@@ -56,10 +56,10 @@ Dashboard dashboard = new DashboardBuilder("[bold]Module build[/]")
     .BuildDashboard();
 
 Table summary = new Table()
-    .WithBorder(TableBorder.Minimal)
-    .WithTitle("[bold]Build summary[/] [muted]ConsoleMonster 2.0.0[/]")
+    .Border(TableBorder.Minimal)
+    .Title("[bold]Build summary[/] [muted]ConsoleMonster 2.0.0[/]")
     .AddColumn("Phase")
-    .AddColumn("Step", c => c.WithFlexible())
+    .AddColumn("Step", c => c.Flexible())
     .AddColumn("Result")
     .AddColumn("Duration");
 

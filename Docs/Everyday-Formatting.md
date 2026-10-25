@@ -40,7 +40,7 @@ Import-Module ConsoleMonster
 Enable-ConsoleFormatting -Feature Errors
 
 # At the prompt, errors use the compact view.
-try { [int]::Parse('production') } catch { $_ | Show-ConsoleError -Compact }
+try { [int]::Parse('production') } catch { $_ | Show-Console -Compact -View Error }
 
 # Include script and .NET stacks in subsequent host errors.
 Enable-ConsoleFormatting -Feature Errors -Detailed

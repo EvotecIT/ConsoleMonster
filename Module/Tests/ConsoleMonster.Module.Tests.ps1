@@ -27,28 +27,29 @@
     It 'exports the Console cmdlets on this runtime' {
         Import-Module $script:ModulePath -Force
         $commands = Get-Command -Module ConsoleMonster
-        $commands.Count | Should -Be 144
+        $fixture = Get-Content (Join-Path $PSScriptRoot '../../Tests/Api/round2-commands.json') -Raw | ConvertFrom-Json
+        $commands.Count | Should -Be $fixture.ExpectedCount
         $manifest = Import-PowerShellDataFile -LiteralPath $script:ModulePath
         $cmdlets = @($commands | Where-Object CommandType -EQ Cmdlet)
-        $cmdlets.Count | Should -Be 144
+        $cmdlets.Count | Should -Be $fixture.ExpectedCount
         ($cmdlets.Name | Sort-Object) -join ',' | Should -BeExactly (($manifest.CmdletsToExport | Sort-Object) -join ',')
         ($commands | Where-Object CommandType -EQ Alias) | Should -BeNullOrEmpty
-        foreach ($name in 'Get-ConsoleDemo', 'Show-ConsoleDemo', 'New-ConsoleFlow', 'New-ConsoleFlowNode', 'New-ConsoleFlowEdge', 'New-ConsoleFlowBranch', 'Update-ConsoleFlow') { $cmdlets.Name | Should -Contain $name }
-        $commands.Name | Should -Contain 'Show-ConsoleMarkdown'
-        foreach ($name in 'Start-ConsoleRun', 'Update-ConsoleRun', 'Wait-ConsoleRun', 'Complete-ConsoleRun') { $commands.Name | Should -Contain $name }
+        foreach ($name in 'Get-ConsoleDemo', 'Show-ConsoleDemo', 'New-ConsoleFlow') { $cmdlets.Name | Should -Contain $name }
+        $commands.Name | Should -Contain 'Show-Console'
+        foreach ($name in 'Start-ConsoleRun', 'Update-Console', 'Complete-ConsoleRun') { $commands.Name | Should -Contain $name }
         $commands.Name | Should -Contain 'Show-ConsoleObject'
         $commands.Name | Should -Contain 'Show-ConsoleOverview'
         $commands.Name | Should -Contain 'Compare-ConsoleText'
         $commands.Name | Should -Contain 'Export-ConsoleTheme'
-        foreach ($name in 'New-ConsoleCalendar', 'New-ConsoleCommand', 'New-ConsoleScrollView', 'New-ConsoleBinding', 'New-ConsoleButton', 'New-ConsoleMultiSelect', 'New-ConsoleSelect',
-            'New-ConsoleTextArea', 'New-ConsoleTextInput', 'New-ConsoleToggle', 'Show-ConsoleApp', 'Watch-ConsoleLog',
+        foreach ($name in 'New-ConsoleCalendar', 'New-ConsoleCommand', 'New-ConsoleScrollView', 'New-ConsoleBinding', 'New-ConsoleButton', 'New-ConsoleSelect',
+            'New-ConsoleTextInput', 'New-ConsoleToggle', 'Show-ConsoleApp', 'Watch-ConsoleLog',
             'Stop-ConsoleRecording', 'Invoke-ConsoleRecording', 'Add-ConsoleRecordingMarker', 'Invoke-ConsolePresentation', 'Show-ConsolePresentation') {
             $commands.Name | Should -Contain $name
         }
-        $commands.Name | Should -Contain 'Show-ConsoleChart'
+        $commands.Name | Should -Contain 'New-ConsoleChart'
         $commands.Name | Should -Contain 'Copy-ConsoleOutput'
         $commands.Name | Should -Contain 'Out-ConsoleFormatCommand'
-        $commands.Name | Should -Contain 'New-ConsoleTreeNode'
+        $commands.Name | Should -Contain 'New-ConsoleTree'
         $commands.Name | Should -Contain 'Add-ConsoleItem'
         $commands.Name | Should -Contain 'Invoke-ConsolePester'
         $commands.Name | Should -Contain 'Show-ConsoleTable'
@@ -202,17 +203,20 @@ Stop-Transcript | Out-Null
         ($segments -join "`n") | Should -Match '\S+ FAIL\|Red'
     }
 
-    It 'reports updates to an unknown widget name once, through the host, after the dashboard ends' {
+    It 'rejects unknown widget updates before publication and lets the caller handle each error' {
         $text = Invoke-ConsoleChild -Script @'
 $d = New-ConsoleDashboard -Title 'Typos' -Content { New-ConsoleLanes -WidgetId lanes; New-ConsoleLogRegion }
-Invoke-ConsoleDashboard $d -WarningVariable dashboardWarnings -WarningAction SilentlyContinue {
-    1..5 | ForEach-Object { Update-Console -WidgetId lanez -Key one -Result Pass }
-}
-"WARNINGS=$(@($dashboardWarnings).Count)"
-$dashboardWarnings | ForEach-Object { "W: $_" }
+$rejected = @(Invoke-ConsoleDashboard $d {
+    1..5 | ForEach-Object {
+        try { Update-Console -WidgetId lanez -Key one -Result Pass }
+        catch { "REJECTED=$($_.FullyQualifiedErrorId)" }
+    }
+})
+"ERRORS=$($rejected.Count)"
+$rejected
 '@
-        $text | Should -Match 'WARNINGS=1'
-        $text | Should -Match "W: The console dashboard has no widget named 'lanez'; 5 update\(s\) for it were ignored\. Widget names: .*lanes"
+        $text | Should -Match 'ERRORS=5'
+        ([regex]::Matches($text, 'REJECTED=ConsoleMonsterUnknownWidget')).Count | Should -Be 5
     }
 
     It 'processes every input item with -Parallel' {
@@ -233,12 +237,12 @@ $results = 1..60 | Invoke-ConsoleDashboard $d -Parallel -ThrottleLimit 3 {
         $text = Invoke-ConsoleChild -Script @"
 `$d = New-ConsoleDashboard -Title 'Recorded' -Content { New-ConsoleLanes -WidgetId lanes; New-ConsoleLogRegion }
 Invoke-ConsoleDashboard `$d -RecordPath '$recording' {
-    Update-ConsoleLane -Key one -Status Running
+    Update-Console -WidgetId lanes -Key one -Status Running
     Write-ConsoleLogEntry -Message 'checking one' -Level Info
-    Update-ConsoleLane -Key one -Result Pass
-    Update-ConsoleLane -Key two -Result Fail
-    Update-ConsoleLane -Key one -Complete
-    Update-ConsoleLane -Key two -Complete
+    Update-Console -WidgetId lanes -Key one -Result Pass
+    Update-Console -WidgetId lanes -Key two -Result Fail
+    Update-Console -WidgetId lanes -Key one -Complete
+    Update-Console -WidgetId lanes -Key two -Complete
 }
 `$r = New-ConsoleDashboard -Title 'Replayed' -Content { New-ConsoleLanes -WidgetId lanes; New-ConsoleLogRegion }
 Show-ConsoleReplay -PlaybackMode Automatic `$r -Path '$recording' -Speed 1000

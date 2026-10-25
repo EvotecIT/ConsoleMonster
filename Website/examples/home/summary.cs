@@ -15,6 +15,6 @@ Terminal.Write(new Panel(new Rows()
             .Add("Warnings", 51, ThemeToken.Warn)
             .Add("Failed", 23, ThemeToken.Fail)
             .Add("Skipped", 14, ThemeToken.Skip))
-        .Add(new Sparkline().WithLabel("rules/s").WithUnit("/s").AddRange(rate)),
+        .Add(new Sparkline().Label("rules/s").Unit("/s").AddRange(rate)),
     "[bold]Nightly checks[/]")
-    .WithHeaderRight("lab01.contoso.com"));
+    .HeaderRight("lab01.contoso.com"));

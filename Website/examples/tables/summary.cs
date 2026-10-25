@@ -4,36 +4,36 @@ using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
 
 Table table = new Table()
-    .WithTitle("[bold]Nightly checks[/] [muted]· run summary[/]")
-    .WithShowSubtotals()
-    .WithShowTotals()
+    .Title("[bold]Nightly checks[/] [muted]· run summary[/]")
+    .ShowSubtotals()
+    .ShowTotals()
     .AddColumn("Target", c => c
-        .WithIsKey()
-        .WithOverflow(ColumnOverflow.TruncateMiddle)
-        .WithMinWidth(12))
-    .AddColumn("Result", c => c.WithPriority(10).WithPresenter(CellPresenters.Status))
+        .IsKey()
+        .Overflow(ColumnOverflow.TruncateMiddle)
+        .MinWidth(12))
+    .AddColumn("Result", c => c.Priority(10).Presenter(CellPresenters.Status))
     .AddColumn("Passed", c => c
-        .WithPriority(8)
-        .WithPresenter(CellPresenters.Number)
-        .WithAggregate(ColumnAggregate.Sum))
+        .Priority(8)
+        .Presenter(CellPresenters.Number)
+        .Aggregate(ColumnAggregate.Sum))
     .AddColumn("Failed", c => c
-        .WithPriority(9)
-        .WithPresenter(CellPresenters.Number)
-        .WithAggregate(ColumnAggregate.Sum)
+        .Priority(9)
+        .Presenter(CellPresenters.Number)
+        .Aggregate(ColumnAggregate.Sum)
         .AddRoleRules(RoleRule.Above(0, ThemeToken.Fail)))
     .AddColumn("Warnings", c => c
-        .WithPriority(6)
-        .WithPresenter(CellPresenters.Number)
-        .WithAggregate(ColumnAggregate.Sum)
+        .Priority(6)
+        .Presenter(CellPresenters.Number)
+        .Aggregate(ColumnAggregate.Sum)
         .AddRoleRules(RoleRule.Above(0, ThemeToken.Warn)))
     .AddColumn("Duration", c => c
-        .WithPriority(4)
-        .WithPresenter(CellPresenters.Duration)
-        .WithAggregate(ColumnAggregate.Sum))
+        .Priority(4)
+        .Presenter(CellPresenters.Duration)
+        .Aggregate(ColumnAggregate.Sum))
     .AddColumn("Score", c => c
-        .WithPriority(2)
-        .WithPresenter(new DataBarPresenter(100, new NumberPresenter("%")))
-        .WithAggregate(ColumnAggregate.Average));
+        .Priority(2)
+        .Presenter(new DataBarPresenter(100, new NumberPresenter("%")))
+        .Aggregate(ColumnAggregate.Average));
 table.AddGroup("Domains");
 table.AddValues("ad.adatum.com", StatusKind.Fail, 9, 2, 5, TimeSpan.FromSeconds(24), 56);
 // <more>

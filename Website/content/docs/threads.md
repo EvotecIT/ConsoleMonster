@@ -60,10 +60,10 @@ $dashboard = New-ConsoleDashboard -Title 'Patching' -Content {
 
 $servers | Invoke-ConsoleDashboard $dashboard -Parallel -ThrottleLimit 4 {
     param($Server)
-    Update-ConsoleStatusItem -WidgetId servers -Key $Server -Status Running -Detail 'patching'
+    Update-Console -WidgetId servers -Key $Server -Status Running -Detail 'patching'
     Start-Sleep -Milliseconds (Get-Random -Minimum 200 -Maximum 900)
     Write-Warning "$Server needs a reboot"
-    Update-ConsoleStatusItem -WidgetId servers -Key $Server -Status Pass -Detail 'patched'
+    Update-Console -WidgetId servers -Key $Server -Status Pass -Detail 'patched'
 }
 ```
 

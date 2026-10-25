@@ -571,7 +571,7 @@ Describe 'Examples use the PowerShell cmdlet form' -Tag 'Examples' {
         @(Get-NativeStyleViolation -Code "`$tree = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Widgets.Tree'))::new('x')").Count | Should -Be 2
         @(Get-NativeStyleViolation -Code "`$mx.Add('a', `$null, 'b') | Out-Null").Count | Should -Be 2
         @(Get-NativeStyleViolation -Code "`$log.Write('text', 'info')").Count | Should -Be 1
-        @(Get-NativeStyleViolation -Code "New-ConsoleTree 'x' -Content { New-ConsoleTreeNode 'MX' -Status Pass }").Count | Should -Be 0
+        @(Get-NativeStyleViolation -Code "New-ConsoleTree 'x' -Content { [pscustomobject]@{ Label = 'MX'; Status = 'Pass' } }").Count | Should -Be 0
         @(Get-NativeStyleViolation -Code "#region Using the object directly`n`$log.Write('text')`n#endregion").Count | Should -Be 0
     }
 }

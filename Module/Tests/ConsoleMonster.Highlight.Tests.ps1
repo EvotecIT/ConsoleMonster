@@ -1,4 +1,4 @@
-Describe 'Show-ConsoleCode, Show-ConsoleJson and smart highlighting' {
+Describe 'Show-ConsoleCode, Show-Console -View Json and smart highlighting' {
     BeforeAll {
         . (Join-Path $PSScriptRoot 'Support\Invoke-TestChild.ps1')
         $script:ModulePath = Join-Path $PSScriptRoot '..\ConsoleMonster.psd1'
@@ -19,7 +19,7 @@ Describe 'Show-ConsoleCode, Show-ConsoleJson and smart highlighting' {
     It 'shows a file with its name, line numbers and a marked range' {
         $file = Join-Path $TestDrive 'deploy.ps1'
         Set-Content -LiteralPath $file -Value "param(`$Path)`nGet-Item `$Path`nWrite-Host 'done'" -Encoding UTF8
-        $text = Invoke-HighlightChild "Show-ConsoleCode -Path '$file' -LineNumbers -Highlight '2-3' -Width 60"
+        $text = Invoke-HighlightChild "Show-Console -View Code -Path '$file' -LineNumbers -Highlight '2-3' -Width 60"
         $text | Should -Match 'deploy\.ps1'
         $text | Should -Match 'param\(\$Path\)'
         $text | Should -Match 'Get-Item \$Path'
@@ -36,7 +36,7 @@ Describe 'Show-ConsoleCode, Show-ConsoleJson and smart highlighting' {
         $view = [pscustomobject] @{ Name = 'alpha'; Count = 7; Tags = @('a', 'b') } | Show-Console -AsWidget -View Json
         $view.Text | Should -Match '"Name":\s+"alpha"'
         $view.Highlighter.Name | Should -Be 'json'
-        $text = Invoke-HighlightChild "'{""ok"": true}' | Show-ConsoleJson"
+        $text = Invoke-HighlightChild "'{""ok"": true}' | Show-Console -View Json"
         $text | Should -Match '"ok": true'
     }
 
