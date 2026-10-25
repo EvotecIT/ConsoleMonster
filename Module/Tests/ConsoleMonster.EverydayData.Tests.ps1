@@ -11,13 +11,35 @@ BeforeAll {
 
 Describe 'Everyday structured data and discovery views' {
     BeforeAll {
-        $script:SavedProfile = [ConsoleMonster.Terminal]::Profile
-        $script:SavedCulture = [Threading.Thread]::CurrentThread.CurrentCulture
-        $script:SavedTheme = [ConsoleMonster.Terminal]::Theme
-        $english = [cultureinfo]'en-US'
-        [Threading.Thread]::CurrentThread.CurrentCulture = $english
-        [ConsoleMonster.Terminal]::Profile = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed(96, 200).WithCulture($english).WithLanguage($english)
-        [ConsoleMonster.Terminal]::Theme = [ConsoleMonster.Styling.Theme]::Dark
+        try {
+            $script:SavedProfile = [ConsoleMonster.Terminal]::Profile
+            $script:SavedCulture = [Threading.Thread]::CurrentThread.CurrentCulture
+            $script:SavedTheme = [ConsoleMonster.Terminal]::Theme
+            $english = [cultureinfo]'en-US'
+            [Threading.Thread]::CurrentThread.CurrentCulture = $english
+            [ConsoleMonster.Terminal]::Profile = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed(96, 200).WithCulture($english).WithLanguage($english)
+            [ConsoleMonster.Terminal]::Theme = [ConsoleMonster.Styling.Theme]::Dark
+        } catch {
+            # Keep the original setup error visible even when Pester wraps a failed BeforeAll.
+            $setupError = $_
+            Write-Host 'Everyday view setup failed:'
+            Write-Host "ScriptStackTrace: $($setupError.ScriptStackTrace)"
+            Write-Host "InvocationInfo.PositionMessage: $($setupError.InvocationInfo.PositionMessage)"
+            $exception = $setupError.Exception
+            $depth = 0
+            while ($null -ne $exception) {
+                Write-Host "Exception[$depth] type: $($exception.GetType().FullName)"
+                Write-Host "Exception[$depth] message: $($exception.Message)"
+                Write-Host "Exception[$depth] StackTrace: $($exception.StackTrace)"
+                if ($exception -is [System.Management.Automation.RuntimeException] -and $null -ne $exception.ErrorRecord) {
+                    Write-Host "Exception[$depth] ScriptStackTrace: $($exception.ErrorRecord.ScriptStackTrace)"
+                    Write-Host "Exception[$depth] InvocationInfo.PositionMessage: $($exception.ErrorRecord.InvocationInfo.PositionMessage)"
+                }
+                $exception = $exception.InnerException
+                $depth++
+            }
+            throw
+        }
     }
     AfterAll {
         Disable-ConsoleFormatting
