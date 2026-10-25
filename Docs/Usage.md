@@ -810,6 +810,10 @@ $calendar | Show-Console
 C# uses `ConsoleMonster.Widgets.Calendar` and immutable `CalendarMark` rows:
 
 ```csharp
+using System;
+using ConsoleMonster;
+using ConsoleMonster.Styling;
+
 var marks = new[] {
     new ConsoleMonster.Dates.CalendarMark(new DateTime(2026, 10, 23), StatusKind.Warn, "Certificate expires")
 };
