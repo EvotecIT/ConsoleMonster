@@ -43,7 +43,7 @@ $edges = @(
 $flow = @($nodes; $edges) | New-ConsoleFlow -WidgetId chain
 if ($expired) {
     $flow | Add-ConsoleItem {
-        New-ConsoleFlowBranch -From intermediate -Label 'expired 2026-09-30' -Status Fail
+        [pscustomobject] @{ Kind = 'Branch'; From = 'intermediate'; Label = 'expired 2026-09-30'; Status = 'Fail' }
     }
 }
 $proof = if ($expired) { 'Intermediate expired before 2026-10-25.' } else { 'All three certificates valid on 2026-10-25.' }
@@ -58,7 +58,7 @@ New-ConsoleRows -Gap 1 {
     }
     New-ConsoleKeyValue -Columns 2 -KeyRole Accent -Content {
         foreach ($pair in $context) {
-            New-ConsoleKeyValueItem -Key $pair.Key -Value $pair.Value
+            [pscustomobject] @{ Key = $pair.Key; Value = $pair.Value }
         }
     }
     $flow
@@ -72,10 +72,10 @@ New-ConsoleRows -Gap 1 {
         New-ConsoleText -Text $(if ($expired) { 'Chain validation failed.' } else { 'Chain validation passed.' })
     }
     New-ConsoleKeyValue -KeyRole $chainStatus -Content {
-        New-ConsoleKeyValueItem -Key 'Cause' -Value $(if ($expired) { 'Expired intermediate certificate.' } else { 'Trusted root and complete chain.' })
-        New-ConsoleKeyValueItem -Key 'Proof' -Value $proof
-        New-ConsoleKeyValueItem -Key 'Action' -Value $action
-        New-ConsoleKeyValueItem -Key 'Exit' -Value "$exitCode · 184 ms"
+        [pscustomobject] @{ Key = 'Cause'; Value = $(if ($expired) { 'Expired intermediate certificate.' } else { 'Trusted root and complete chain.' }) }
+        [pscustomobject] @{ Key = 'Proof'; Value = $proof }
+        [pscustomobject] @{ Key = 'Action'; Value = $action }
+        [pscustomobject] @{ Key = 'Exit'; Value = "$exitCode · 184 ms" }
     }
 } | Show-Console
 # demo: pause 6

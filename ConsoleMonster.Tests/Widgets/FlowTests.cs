@@ -28,7 +28,7 @@ namespace ConsoleMonster.Tests.Widgets {
         [Theory]
         [InlineData(120)] [InlineData(80)] [InlineData(48)]
         public void ChainMatchesReviewedGoldenAtSupportedWidths(int width) {
-            Flow flow = Chain(true).WithBranch(new FlowBranch("issuer", "expired 2026-09-30", Status: StatusKind.Fail));
+            Flow flow = Chain(true).Branch(new FlowBranch("issuer", "expired 2026-09-30", Status: StatusKind.Fail));
             string actual = Frame(flow, width).ToPlainText().Replace("\r\n", "\n").TrimEnd();
             string path = Path.Combine(AppContext.BaseDirectory, "Golden", "flow-" + width + ".txt");
             Assert.Equal(File.ReadAllText(path).Replace("\r\n", "\n").TrimEnd(), actual);
@@ -58,7 +58,7 @@ namespace ConsoleMonster.Tests.Widgets {
         [Theory]
         [InlineData(120)] [InlineData(48)]
         public void BranchReturnsToLaterNodeAndCompositionKeepsEveryLabel(int width) {
-            Flow flow = Chain().WithBranch(new FlowBranch("host", "fallback", "root", StatusKind.Warn));
+            Flow flow = Chain().Branch(new FlowBranch("host", "fallback", "root", StatusKind.Warn));
             string text = Frame(new Panel(flow, "Path"), width).ToPlainText();
             foreach (string label in new[] { "client", "host:443", "leaf", "intermediate", "root", "fallback" }) Assert.Contains(label, text);
             Assert.Contains("Path", text);
@@ -72,7 +72,7 @@ namespace ConsoleMonster.Tests.Widgets {
             var flow = new Flow().Add(new FlowNode("a", "client"))
                 .Add(new FlowNode("b", "host:443"))
                 .Add(new FlowEdge("tls", "a", "b", "TLS", Cut: cut))
-                .WithBranch(new FlowBranch("a", "retry"));
+                .Branch(new FlowBranch("a", "retry"));
             string[] lines = Frame(flow, 20, tier).ToPlainText().Split('\n');
             int source = Array.FindIndex(lines, line => line.Contains("client"));
             int destination = Array.FindIndex(lines, line => line.Contains("host:443"));
@@ -163,7 +163,7 @@ namespace ConsoleMonster.Tests.Widgets {
         public void InvalidTopologyFailsBeforeDrawing() {
             Flow flow = Chain();
             Assert.Throws<ArgumentException>(() => flow.Add(new FlowEdge("wrong", "client", "root")));
-            Assert.Throws<ArgumentException>(() => flow.WithBranch(new FlowBranch("root", "back", "client")));
+            Assert.Throws<ArgumentException>(() => flow.Branch(new FlowBranch("root", "back", "client")));
             Assert.Throws<ArgumentException>(() => flow.Add(new FlowNode("", "empty key")));
         }
         [Fact]

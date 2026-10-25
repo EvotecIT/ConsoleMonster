@@ -26,6 +26,8 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(ParameterSetName = "AppendCells", Mandatory = true, Position = 0)]
         [Parameter(ParameterSetName = "ResizeCells", Mandatory = true, Position = 0)]
         [Parameter(ParameterSetName = "Content", Mandatory = true, Position = 0)]
+        [Parameter(ParameterSetName = "FlowNode", Mandatory = true, Position = 0)]
+        [Parameter(ParameterSetName = "FlowEdge", Mandatory = true, Position = 0)]
         public string WidgetId { get; set; } = string.Empty;
 
         /// <summary><para type="description">The session, otherwise ConsoleSession or the current session.</para></summary>
@@ -38,6 +40,8 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(ParameterSetName = "AppendCells")]
         [Parameter(ParameterSetName = "ResizeCells")]
         [Parameter(ParameterSetName = "Content")]
+        [Parameter(ParameterSetName = "FlowNode")]
+        [Parameter(ParameterSetName = "FlowEdge")]
         public LiveSession? Session { get; set; }
 
         /// <summary><para type="description">The caller-managed run handle.</para></summary>
@@ -81,9 +85,23 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(ParameterSetName = "Cells", Mandatory = true)]
         [Parameter(ParameterSetName = "AppendCells")]
         [Parameter(ParameterSetName = "Run", Mandatory = true)]
+        [Parameter(ParameterSetName = "FlowNode", Mandatory = true)]
+        [Parameter(ParameterSetName = "FlowEdge", Mandatory = true)]
         [Binding.StatusKindTransformation]
         [ArgumentCompleter(typeof(Binding.StatusKindCompleter))]
         public StatusKind Status { get; set; }
+
+        /// <summary><para type="description">The flow node whose status changes.</para></summary>
+        [Parameter(ParameterSetName = "FlowNode", Mandatory = true)]
+        public string NodeKey { get; set; } = string.Empty;
+
+        /// <summary><para type="description">The flow edge whose status or connectivity changes.</para></summary>
+        [Parameter(ParameterSetName = "FlowEdge", Mandatory = true)]
+        public string EdgeKey { get; set; } = string.Empty;
+
+        /// <summary><para type="description">Severs the edge; Cut:$false reconnects it. Omission preserves connectivity.</para></summary>
+        [Parameter(ParameterSetName = "FlowEdge")]
+        public SwitchParameter Cut { get; set; }
 
         /// <summary><para type="description">The result of completed lane steps.</para></summary>
         [Parameter(ParameterSetName = "Fields")]
@@ -168,6 +186,9 @@ namespace ConsoleMonster.PowerShell {
                 session ??= LiveSession.Current;
                 if (session == null) { throw new InvalidOperationException("No console dashboard is running. Use Invoke-ConsoleDashboard first."); }
                 var update = new WidgetUpdate();
+                if (MyInvocation.BoundParameters.ContainsKey(nameof(NodeKey))) { update.NodeKey = NodeKey; }
+                if (MyInvocation.BoundParameters.ContainsKey(nameof(EdgeKey))) { update.EdgeKey = EdgeKey; }
+                if (MyInvocation.BoundParameters.ContainsKey(nameof(Cut))) { update.Cut = Cut.IsPresent; }
                 if (MyInvocation.BoundParameters.ContainsKey(nameof(Key))) { update.Key = Key; }
                 if (MyInvocation.BoundParameters.ContainsKey(nameof(Label))) { update.Label = PSText.EventText(Label, out _); }
                 if (MyInvocation.BoundParameters.ContainsKey(nameof(Detail))) { update.Detail = PSText.EventText(Detail, out _); }

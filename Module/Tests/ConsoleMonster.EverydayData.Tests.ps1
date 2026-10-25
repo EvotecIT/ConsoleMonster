@@ -28,6 +28,7 @@ BeforeAll {
     try {
         Import-Module (Join-Path $PSScriptRoot '../ConsoleMonster.psd1') -Force
         . (Join-Path $PSScriptRoot 'Support/Get-EverydayViewSample.ps1')
+        . (Join-Path $PSScriptRoot 'Support/ConvertTo-TestEverydayText.ps1')
     } catch {
         Write-EverydaySetupFailure -SetupError $_
         throw
@@ -58,21 +59,21 @@ Describe 'Everyday structured data and discovery views' {
     }
 
     It 'renders <View> at <Width> columns like its golden frame' -ForEach $everydayCases {
-        $text = Get-EverydayViewSample $View | Out-ConsoleDefault -Format Text -Width $Width
+        $text = Get-EverydayViewSample $View | ConvertTo-TestEverydayText -Width $Width
         $expected = [IO.File]::ReadAllText((Join-Path $PSScriptRoot "Golden/everyday/$View-$Width.txt"))
         $text.Replace("`r", '').TrimEnd() | Should -BeExactly $expected.Replace("`r", '').TrimEnd()
         @($text -split "`n" | Where-Object { ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Text.DisplayWidth'))::Measure($_) -gt $Width }).Count | Should -Be 0
     }
 
     It 'renders Windows <View> at <Width> columns like its golden frame' -ForEach $windowsNetworkCases -Skip:([Environment]::OSVersion.Platform -ne [PlatformID]::Win32NT) {
-        $text = Get-EverydayViewSample $View | Out-ConsoleDefault -Format Text -Width $Width
+        $text = Get-EverydayViewSample $View | ConvertTo-TestEverydayText -Width $Width
         $expected = [IO.File]::ReadAllText((Join-Path $PSScriptRoot "Golden/everyday/windows-$View-$Width.txt"))
         $text.Replace("`r", '').TrimEnd() | Should -BeExactly $expected.Replace("`r", '').TrimEnd()
     }
 
     It 'keeps CSV values strings, preserves header order and aligns numeric and date text without converting it' {
         $rows = @(Get-EverydayViewSample csv)
-        $text = $rows | Out-ConsoleDefault -Format Text -Width 96
+        $text = $rows | ConvertTo-TestEverydayText -Width 96
         $text | Should -Match 'Name.*Count.*Cost.*When.*Notes'
         $text | Should -Match '0012'
         $text | Should -Match '12.50'
@@ -85,17 +86,17 @@ Describe 'Everyday structured data and discovery views' {
         $nested = [pscustomobject]@{ Name = 'api-01' }
         $nested | Add-Member ScriptProperty Dangerous { throw 'Nested getter must not run' }
         $row = [pscustomobject]@{ Name = 'payload'; Child = $nested; Array = 1..100 }
-        $row | Out-ConsoleDefault -Format Text | Should -Match '\+94 more'
-        $row | Out-ConsoleDefault -Format Text | Should -Match 'Name=api-01'
+        $row | ConvertTo-TestEverydayText | Should -Match '\+94 more'
+        $row | ConvertTo-TestEverydayText | Should -Match 'Name=api-01'
         [object]::ReferenceEquals($row.Child, $nested) | Should -BeTrue
-        ($row | Out-ConsoleDefault -Format Text) | Should -Not -Match 'Dangerous|@\{'
+        ($row | ConvertTo-TestEverydayText) | Should -Not -Match 'Dangerous|@\{'
     }
 
     It 'reports omitted rows and fields and retains the first columns in source order' {
-        Get-EverydayViewSample json-large | Out-ConsoleDefault -Format Text | Should -Match '\+3 more rows'
+        Get-EverydayViewSample json-large | ConvertTo-TestEverydayText | Should -Match '\+3 more rows'
         $row = [pscustomobject]@{}
         1..27 | ForEach-Object { $row | Add-Member NoteProperty "Field$_" $_ }
-        $text = $row | Out-ConsoleDefault -Format Text
+        $text = $row | ConvertTo-TestEverydayText
         $text | Should -Match '\+3 more fields'
         $text | Should -Not -Match 'Field25'
     }
@@ -103,24 +104,24 @@ Describe 'Everyday structured data and discovery views' {
     It 'lets a user view override the structured default and restores the default after removal' {
         try {
             Register-ConsoleView -TypeName System.Management.Automation.PSCustomObject -Property @{ Label = 'Custom'; Expression = { 'chosen' } }
-            Get-EverydayViewSample json-flat | Out-ConsoleDefault -Format Text | Should -Match 'Custom'
+            Get-EverydayViewSample json-flat | ConvertTo-TestEverydayText | Should -Match 'Custom'
         } finally {
             Unregister-ConsoleView -TypeName System.Management.Automation.PSCustomObject
         }
-        Get-EverydayViewSample json-flat | Out-ConsoleDefault -Format Text | Should -Match 'Count'
+        Get-EverydayViewSample json-flat | ConvertTo-TestEverydayText | Should -Match 'Count'
     }
 
     It 'keeps a sparse record visible when only its key has a value' {
         $row = [pscustomobject]@{ Name = 'api-01'; Owner = $null; Note = $null }
         foreach ($width in 96, 48) {
-            $row | Out-ConsoleDefault -Format Text -Width $width | Should -Match 'api-01'
+            $row | ConvertTo-TestEverydayText -Width $width | Should -Match 'api-01'
         }
     }
 
     It 'honours custom view properties even when its group matches the structured built-in' {
         try {
             Register-ConsoleView -TypeName System.Management.Automation.PSCustomObject -Group StructuredData -Property @{ Label = 'Chosen'; Expression = 'Name' }
-            $text = Get-EverydayViewSample json-large | Out-ConsoleDefault -Format Text -Width 96
+            $text = Get-EverydayViewSample json-large | ConvertTo-TestEverydayText -Width 96
             $text | Should -Match 'Chosen'
             $text | Should -Match 'api-53'
             $text | Should -Not -Match '\+3 more rows'
@@ -130,41 +131,41 @@ Describe 'Everyday structured data and discovery views' {
     }
 
     It 'keeps unnamed envelope labels and chooses a name field without reordering columns' {
-        $text = Get-EverydayViewSample json-envelope | Out-ConsoleDefault -Format Text -Width 96
+        $text = Get-EverydayViewSample json-envelope | ConvertTo-TestEverydayText -Width 96
         $text | Should -Match 'Total\s+3'
         $text | Should -Match 'Items'
         $text | Should -Match 'api-01'
         $text | Should -Match 'worker-01'
         $text | Should -Not -Match '3 items'
         $row = [pscustomobject]@{ Count = '0012'; Name = 'api-01'; Region = 'west' }
-        $record = $row | Out-ConsoleDefault -Format Text -Width 48
+        $record = $row | ConvertTo-TestEverydayText -Width 48
         $record | Should -Match 'api-01'
         $record | Should -Match 'Count\s+0012'
         $row.PSObject.Properties.Name -join ',' | Should -BeExactly 'Count,Name,Region'
     }
 
     It 'shows small nested values and bounds deep objects and large arrays without losing omission hints' {
-        $text = Get-EverydayViewSample json-nested | Out-ConsoleDefault -Format Text -Width 96
+        $text = Get-EverydayViewSample json-nested | ConvertTo-TestEverydayText -Width 96
         $text | Should -Match 'Region=west'
         $text | Should -Match 'Count=3'
         $text | Should -Match 'blue, ready'
         $text | Should -Match 'dns'
         $text | Should -Match 'http'
         $text | Should -Match '\(none\)'
-        $limited = Get-EverydayViewSample json-budgets | Out-ConsoleDefault -Format Text -Width 96
+        $limited = Get-EverydayViewSample json-budgets | ConvertTo-TestEverydayText -Width 96
         $limited | Should -Match 'tag-1, tag-2'
         $limited | Should -Match '\+4 more'
         $limited | Should -Match '6 keys'
         $limited | Should -Match 'check-5'
         $limited | Should -Match '\+3 more rows'
         $limited | Should -Not -Match 'tag-7|check-6|A=1'
-        [pscustomobject]@{} | Out-ConsoleDefault -Format Text | Should -Match '\(none\)'
+        [pscustomobject]@{} | ConvertTo-TestEverydayText | Should -Match '\(none\)'
     }
 
     It 'handles cycles and several envelope tables within one display budget without mutating them' {
         $cycle = [pscustomobject]@{ Name = 'loop' }
         $cycle | Add-Member NoteProperty Self $cycle
-        $text = [pscustomobject]@{ Name = 'payload'; Cycle = $cycle } | Out-ConsoleDefault -Format Text
+        $text = [pscustomobject]@{ Name = 'payload'; Cycle = $cycle } | ConvertTo-TestEverydayText
         $text | Should -Match 'keys'
         [object]::ReferenceEquals($cycle, $cycle.Self) | Should -BeTrue
         $payload = [pscustomobject]@{ Total = 36 }
@@ -172,7 +173,7 @@ Describe 'Everyday structured data and discovery views' {
             $rows = @(1..6 | ForEach-Object { [pscustomobject]@{ Name = "group-$group-row-$_"; Ready = $true } })
             $payload | Add-Member NoteProperty "Group$group" $rows
         }
-        $text = $payload | Out-ConsoleDefault -Format Text -Width 96
+        $text = $payload | ConvertTo-TestEverydayText -Width 96
         $text | Should -Match 'group-5-row-4'
         $text | Should -Not -Match 'group-5-row-5|group-6-row-1'
         $text | Should -Match '6 items'
@@ -184,25 +185,25 @@ Describe 'Everyday structured data and discovery views' {
         $two = [pscustomobject]@{}
         1..24 | ForEach-Object { $two | Add-Member NoteProperty "p$_" $_ }
         $two | Add-Member NoteProperty Name 'two'
-        $text = @($one, $two) | Out-ConsoleDefault -Format Text -Width 96
+        $text = @($one, $two) | ConvertTo-TestEverydayText -Width 96
         $text | Should -Match '\btwo\b'
         $text | Should -Match '\+1 more field'
         $text | Should -Not -Match '\+2 more fields'
-        $nested = [pscustomobject]@{ Total = 2; Items = @($one, $two) } | Out-ConsoleDefault -Format Text -Width 96
+        $nested = [pscustomobject]@{ Total = 2; Items = @($one, $two) } | ConvertTo-TestEverydayText -Width 96
         $nested | Should -Match '\btwo\b'
         $two.Name | Should -BeExactly 'two'
         $dictionary = [ordered]@{}
         1..24 | ForEach-Object { $dictionary["p$_"] = $_ }
         $dictionary['Name'] = 'dictionary-row'
         $envelope = [pscustomobject]@{ Items = @([ordered]@{ Name = 'one' }, $dictionary) }
-        $envelope | Out-ConsoleDefault -Format Text -Width 96 | Should -Match 'dictionary-row'
+        $envelope | ConvertTo-TestEverydayText -Width 96 | Should -Match 'dictionary-row'
     }
 
     It 'bounds large multiline text in expanded records and keeps the complete original value' {
         $message = 'body line' + ("`ncontinued body" * 10000)
         $payload = [pscustomobject]@{ Name = 'payload'; Message = $message; Settings = [pscustomobject]@{ Region = 'west' } }
         foreach ($width in 96, 48) {
-            $text = $payload | Out-ConsoleDefault -Format Text -Width $width
+            $text = $payload | ConvertTo-TestEverydayText -Width $width
             $text | Should -Match 'body line'
             $text | Should -Match '…'
             $text.Length | Should -BeLessThan 2000
@@ -213,27 +214,27 @@ Describe 'Everyday structured data and discovery views' {
 
     It 'shows empty root and nested record rows explicitly instead of creating a zero-column table' {
         foreach ($json in '[{},{}]', '[{}, {"Name":"api-01"}]', '{"Items":[{}]}', '{"Items":[{}, {"Name":"api-01"}]}') {
-            $text = $json | ConvertFrom-Json | Out-ConsoleDefault -Format Text -Width 48
+            $text = $json | ConvertFrom-Json | ConvertTo-TestEverydayText -Width 48
             $text | Should -Match '\(none\)'
             $text | Should -Not -Match 'outside the bounds|error:'
         }
     }
 
     It 'shows readable network labels while preserving the failure marks and omitting failure latency' {
-        $text = Get-EverydayViewSample ping | Out-ConsoleDefault -Format Text -Width 120
+        $text = Get-EverydayViewSample ping | ConvertTo-TestEverydayText -Width 120
         $text | Should -Match 'Timed out'
         $text | Should -Match 'Host unreachable'
         $text | Should -Not -Match 'TimedOut|DestinationHostUnreachable'
         $failed = ($text -split "`n" | Where-Object { $_ -match 'Timed out' }) -join "`n"
         $failed | Should -Not -Match '\b12\b'
-        $addresses = Get-EverydayViewSample ip | Out-ConsoleDefault -Format Text
+        $addresses = Get-EverydayViewSample ip | ConvertTo-TestEverydayText
         $addresses | Should -Match 'IPv4'
         $addresses | Should -Match 'IPv6'
         $addresses | Should -Not -Match 'InterNetwork'
     }
 
     It 'puts a repeated module name only in its group header and preserves user and system path origins' {
-        $text = Get-EverydayViewSample module | Out-ConsoleDefault -Format Text -Width 160
+        $text = Get-EverydayViewSample module | ConvertTo-TestEverydayText -Width 160
         $text | Should -Not -Match 'Name\s+\S\s+Version'
         $text | Should -Match 'Demo.Inventory'
         $text | Should -Match 'System /opt/'
@@ -241,7 +242,7 @@ Describe 'Everyday structured data and discovery views' {
         $text | Should -Match '2.1.0'
         $module = [pscustomobject]@{ Name = 'Local.Tools'; Version = [version]'1.0.0'; ModuleType = 'Script'; ExportedCommands = @{}; Path = (Join-Path $HOME 'Documents/PowerShell/Modules/Local.Tools/Local.Tools.psm1') }
         $module.PSObject.TypeNames.Insert(0, 'System.Management.Automation.PSModuleInfo')
-        $module | Out-ConsoleDefault -Format Text -Width 160 | Should -Match 'User ~[/\\]Documents'
+        $module | ConvertTo-TestEverydayText -Width 160 | Should -Match 'User ~[/\\]Documents'
     }
 
     It 'keeps capture, Select-Object, Export-Csv and native format records unchanged when enabled' {
@@ -260,10 +261,10 @@ Describe 'Everyday structured data and discovery views' {
     }
 
     It 'uses actual command and module objects through their registrations' {
-        $command = Get-Command Get-Date | Out-ConsoleDefault -Format Text
+        $command = Get-Command Get-Date | ConvertTo-TestEverydayText
         $command | Should -Match '\[Cmdlet\]'
         $command | Should -Match 'Get-Date'
-        Get-Module Microsoft.PowerShell.Utility | Out-ConsoleDefault -Format Text | Should -Match 'Commands'
+        Get-Module Microsoft.PowerShell.Utility | ConvertTo-TestEverydayText | Should -Match 'Commands'
     }
 
     It 'reads only fields supplied by DNS and ICMP result variants under strict mode' -Skip:([Environment]::OSVersion.Platform -ne [PlatformID]::Win32NT) {
@@ -273,8 +274,8 @@ Describe 'Everyday structured data and discovery views' {
         $connection.PSObject.TypeNames.Insert(0, 'NetConnectionResults')
         $text = & {
             Set-StrictMode -Version Latest
-            $dns | Out-ConsoleDefault -Format Text -Width 96
-            $connection | Out-ConsoleDefault -Format Text -Width 96
+            $dns | ConvertTo-TestEverydayText -Width 96
+            $connection | ConvertTo-TestEverydayText -Width 96
         }
         ($text -join "`n") | Should -Match '10 mail.example.test'
         ($text -join "`n") | Should -Match 'Success'
@@ -282,7 +283,7 @@ Describe 'Everyday structured data and discovery views' {
     }
 
     It 'does not register Windows network views on Unix' -Skip:([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) {
-        $text = Get-EverydayViewSample net-ip | Out-ConsoleDefault -Format Text
+        $text = Get-EverydayViewSample net-ip | Show-ConsoleTable -AsString
         $text | Should -Match 'PrefixLength'
         $text | Should -Not -Match '(?m)^\s*Prefix\s'
     }

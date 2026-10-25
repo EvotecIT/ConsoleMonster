@@ -62,6 +62,7 @@ namespace ConsoleMonster.Live {
             if (target is BarChart || target is StackedBar) { return "Key Value Increment"; }
             if (target is LineChart || target is Sparkline || target is Histogram) { return "Append Key Value"; }
             if (target is RegionWidget) { return "Content"; }
+            if (target is Flow) { return "NodeKey EdgeKey Status Cut"; }
             throw new ConsoleUpdateException("ConsoleMonsterUnsupportedUpdateTarget", "Use the raw event API for custom target " + target.GetType().FullName + ".");
         }
 
@@ -75,6 +76,16 @@ namespace ConsoleMonster.Live {
             if (u.Has(nameof(u.Increment))) { Number(u.Increment, nameof(u.Increment)); }
             if (u.Has(nameof(u.Value)) && !(target is KeyValueList)) { Number(Numeric(u.Value), nameof(u.Value)); }
             if (u.Remaining < TimeSpan.Zero) { throw new ArgumentOutOfRangeException(nameof(u.Remaining)); }
+            if (target is Flow flow) {
+                bool node = u.Has(nameof(u.NodeKey)), edge = u.Has(nameof(u.EdgeKey));
+                if (node == edge || !u.Has(nameof(u.Status))) { throw new ArgumentException("A flow update requires exactly one NodeKey or EdgeKey, and Status."); }
+                if (node && u.Has(nameof(u.Cut))) { throw new ArgumentException("Cut requires EdgeKey."); }
+                string? key = node ? u.NodeKey : u.EdgeKey;
+                RequireKey(key);
+                if (node ? !flow.Nodes.Any(item => item.Key == key) : !flow.Edges.Any(item => item.Key == key)) {
+                    throw new ConsoleUpdateException("ConsoleMonsterUnknownItem", "Unknown flow " + (node ? "NodeKey" : "EdgeKey") + " '" + key + "'.");
+                }
+            }
             if (target is ActivityList) {
                 if (!int.TryParse(u.Key, NumberStyles.None, CultureInfo.InvariantCulture, out _)) { throw new ArgumentException("An activity Key must be a nonnegative integer."); }
                 if (u.Has(nameof(u.ParentKey)) && !int.TryParse(u.ParentKey, NumberStyles.None, CultureInfo.InvariantCulture, out _)) { throw new ArgumentException("ParentKey must be a nonnegative integer."); }

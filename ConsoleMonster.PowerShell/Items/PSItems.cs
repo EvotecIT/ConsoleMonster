@@ -18,7 +18,7 @@ namespace ConsoleMonster.PowerShell {
         internal static string Accepted(object widget) {
             switch (widget) {
                 case Flow _:
-                    return "New-ConsoleFlowNode, New-ConsoleFlowEdge, New-ConsoleFlowBranch or rows with Kind";
+                    return "typed flow items or records with Kind = Node, Edge or Branch";
                 case Tree _:
                 case TreeNode _:
                     return "records with Label and Children, typed TreeNode values or strings";

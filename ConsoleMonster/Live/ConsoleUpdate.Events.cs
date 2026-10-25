@@ -82,6 +82,9 @@ namespace ConsoleMonster.Live {
                 Add("add", u.Key, value: Numeric(u.Value));
             } else if (target is RegionWidget) {
                 Add(u.Content == null ? "clear" : "set", payload: u.Content);
+            } else if (target is Flow) {
+                Add(u.Has(nameof(u.NodeKey)) ? "node" : u.Has(nameof(u.Cut)) ? u.Cut ? "cut" : "connect" : "edge",
+                    u.NodeKey ?? u.EdgeKey, status: u.Status.ToString());
             }
             return events;
         }

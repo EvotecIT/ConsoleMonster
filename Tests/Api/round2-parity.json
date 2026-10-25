@@ -5743,6 +5743,61 @@
       ]
     },
     {
+      "Command": "New-ConsoleFlow",
+      "Job": "New-ConsoleFlow",
+      "CSharpType": "ConsoleMonster.Widgets.Flow",
+      "Bindings": [
+        {
+          "Parameter": "Content",
+          "ParameterType": "System.Management.Automation.ScriptBlock",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 1,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "ContentBuilder",
+          "Reason": "Evaluates a PowerShell content block, then supplies the collected widget/items to the same container or definition."
+        },
+        {
+          "Parameter": "InputObject",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineCollection",
+          "Reason": "Collects PowerShell pipeline records before calling the owner; C# supplies a typed sequence directly."
+        },
+        {
+          "Parameter": "WidgetId",
+          "ParameterType": "System.String",
+          "Default": "flow",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.Flow",
+          "Member": ".ctor",
+          "MemberKind": "Constructor",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Argument": "widgetId"
+        }
+      ]
+    },
+    {
       "Command": "New-ConsoleFooterBar",
       "Job": "New-ConsoleFooterBar",
       "CSharpType": "ConsoleMonster.Widgets.FooterBar",
@@ -6267,6 +6322,26 @@
       "CSharpType": "ConsoleMonster.Widgets.KeyValueList",
       "Bindings": [
         {
+          "Parameter": "Columns",
+          "ParameterType": "System.Int32",
+          "Default": 1,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.KeyValueList",
+          "Member": "Columns",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
           "Parameter": "Content",
           "ParameterType": "System.Management.Automation.ScriptBlock",
           "Default": null,
@@ -6315,6 +6390,26 @@
           "MemberKind": "HostPolicy",
           "Conversion": "PipelineCollection",
           "Reason": "Collects PowerShell pipeline records before calling the owner; C# supplies a typed sequence directly."
+        },
+        {
+          "Parameter": "KeyRole",
+          "ParameterType": "ConsoleMonster.Styling.ThemeToken",
+          "Default": "Muted",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.KeyValueList",
+          "Member": "KeyRole",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "ConsoleMonster.Styling.ThemeToken",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
         },
         {
           "Parameter": "Markup",
@@ -8565,6 +8660,26 @@
           "Static": false
         },
         {
+          "Parameter": "Status",
+          "ParameterType": "System.Nullable`1[ConsoleMonster.Styling.StatusKind]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Layout.Panel",
+          "Member": "Status",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Styling.StatusKind]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
           "Parameter": "Title",
           "ParameterType": "System.Object",
           "Default": null,
@@ -8581,6 +8696,26 @@
           "Conversion": "Identity",
           "CSharpTypeName": "System.String",
           "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Verdict",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Layout.Panel",
+          "Member": "Verdict",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
           "Writable": true,
           "Static": false
         },
@@ -8657,6 +8792,26 @@
           "CSharpTypeName": "System.String",
           "Argument": "key",
           "Reason": "Each phase record supplies Key, Status, Label and Detail."
+        },
+        {
+          "Parameter": "StepCounter",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.Phases",
+          "Member": "StepCounter",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
         },
         {
           "Parameter": "WidgetId",
@@ -13908,13 +14063,13 @@
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.PowerShell.ConsoleTreeOptions",
+          "CSharpType": "ConsoleMonster.Widgets.Table",
           "Member": "Children",
           "MemberKind": "Property",
           "Conversion": "ScriptBlockCallback",
-          "CSharpTypeName": "System.Management.Automation.ScriptBlock",
-          "Nullable": "Nullable",
-          "Writable": true,
+          "CSharpTypeName": "System.Collections.Generic.IReadOnlyList`1[ConsoleMonster.Layout.IWidget]",
+          "Nullable": "Unknown",
+          "Writable": false,
           "Static": false
         },
         {
@@ -18584,6 +18739,26 @@
           "Static": false
         },
         {
+          "Parameter": "Cut",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "FlowEdge",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Live.WidgetUpdate",
+          "Member": "Cut",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
           "Parameter": "Detail",
           "ParameterType": "System.Object",
           "Default": null,
@@ -18624,6 +18799,26 @@
           "MemberKind": "Property",
           "Conversion": "SecondsToTimeSpan",
           "CSharpTypeName": "System.Nullable`1[System.TimeSpan]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "EdgeKey",
+          "ParameterType": "System.String",
+          "Default": "",
+          "Sets": [
+            {
+              "Name": "FlowEdge",
+              "Position": -2147483648,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Live.WidgetUpdate",
+          "Member": "EdgeKey",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
           "Nullable": "Nullable",
           "Writable": true,
           "Static": false
@@ -18721,6 +18916,26 @@
           ],
           "CSharpType": "ConsoleMonster.Live.WidgetUpdate",
           "Member": "Label",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "NodeKey",
+          "ParameterType": "System.String",
+          "Default": "",
+          "Sets": [
+            {
+              "Name": "FlowNode",
+              "Position": -2147483648,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Live.WidgetUpdate",
+          "Member": "NodeKey",
           "MemberKind": "Property",
           "Conversion": "Identity",
           "CSharpTypeName": "System.String",
@@ -18915,6 +19130,16 @@
               "Name": "Content",
               "Position": -2147483648,
               "Mandatory": false
+            },
+            {
+              "Name": "FlowNode",
+              "Position": -2147483648,
+              "Mandatory": false
+            },
+            {
+              "Name": "FlowEdge",
+              "Position": -2147483648,
+              "Mandatory": false
             }
           ],
           "CSharpType": "ConsoleMonster.Live.ConsoleUpdate",
@@ -18946,6 +19171,16 @@
             },
             {
               "Name": "Run",
+              "Position": -2147483648,
+              "Mandatory": true
+            },
+            {
+              "Name": "FlowNode",
+              "Position": -2147483648,
+              "Mandatory": true
+            },
+            {
+              "Name": "FlowEdge",
               "Position": -2147483648,
               "Mandatory": true
             }
@@ -19051,6 +19286,16 @@
             },
             {
               "Name": "Content",
+              "Position": 0,
+              "Mandatory": true
+            },
+            {
+              "Name": "FlowNode",
+              "Position": 0,
+              "Mandatory": true
+            },
+            {
+              "Name": "FlowEdge",
               "Position": 0,
               "Mandatory": true
             }
@@ -21480,8 +21725,8 @@
     }
   ],
   "SchemaVersion": 1,
-  "BaselineCount": 136,
-  "ExpectedCount": 97,
+  "BaselineCount": 141,
+  "ExpectedCount": 98,
   "ConfigurableRoots": [
     "ConsoleMonster.Capabilities.CapabilityDetector",
     "ConsoleMonster.Changes.ChangePreviewOptions",
@@ -21605,6 +21850,7 @@
     "ConsoleMonster.Widgets.CodeView",
     "ConsoleMonster.Widgets.Dashboard",
     "ConsoleMonster.Widgets.ExceptionView",
+    "ConsoleMonster.Widgets.Flow",
     "ConsoleMonster.Widgets.FooterBar",
     "ConsoleMonster.Widgets.HeaderBar",
     "ConsoleMonster.Widgets.HelpView",
@@ -21866,6 +22112,10 @@
     "ConsoleMonster.Widgets.ColumnOverflow",
     "ConsoleMonster.Widgets.Dashboard",
     "ConsoleMonster.Widgets.ExceptionView",
+    "ConsoleMonster.Widgets.Flow",
+    "ConsoleMonster.Widgets.FlowBranch",
+    "ConsoleMonster.Widgets.FlowEdge",
+    "ConsoleMonster.Widgets.FlowNode",
     "ConsoleMonster.Widgets.FooterBar",
     "ConsoleMonster.Widgets.FooterSegment",
     "ConsoleMonster.Widgets.HeaderBar",
@@ -23579,6 +23829,158 @@
       "Command": "Read-ConsoleSelect",
       "Parameter": "Collapsed",
       "Reason": "The shared factory/view adapter applies this option to the resulting MultiSelectPrompt`1."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.FlowNode",
+      "Member": "Key",
+      "MemberId": "ConsoleMonster.Widgets.FlowNode.Key",
+      "CSharpTypeName": "System.String",
+      "Command": "New-ConsoleFlow",
+      "Parameter": "InputObject",
+      "Reason": "The parent record field Key supplies this typed item member.",
+      "RecordField": "Key",
+      "RecordKind": "Node"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.FlowNode",
+      "Member": "Label",
+      "MemberId": "ConsoleMonster.Widgets.FlowNode.Label",
+      "CSharpTypeName": "System.String",
+      "Command": "New-ConsoleFlow",
+      "Parameter": "InputObject",
+      "Reason": "The parent record field Label supplies this typed item member.",
+      "RecordField": "Label",
+      "RecordKind": "Node"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.FlowNode",
+      "Member": "Status",
+      "MemberId": "ConsoleMonster.Widgets.FlowNode.Status",
+      "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Styling.StatusKind]",
+      "Command": "New-ConsoleFlow",
+      "Parameter": "InputObject",
+      "Reason": "The parent record field Status supplies this typed item member.",
+      "RecordField": "Status",
+      "RecordKind": "Node"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.FlowEdge",
+      "Member": "Key",
+      "MemberId": "ConsoleMonster.Widgets.FlowEdge.Key",
+      "CSharpTypeName": "System.String",
+      "Command": "New-ConsoleFlow",
+      "Parameter": "InputObject",
+      "Reason": "The parent record field Key supplies this typed item member.",
+      "RecordField": "Key",
+      "RecordKind": "Edge"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.FlowEdge",
+      "Member": "From",
+      "MemberId": "ConsoleMonster.Widgets.FlowEdge.From",
+      "CSharpTypeName": "System.String",
+      "Command": "New-ConsoleFlow",
+      "Parameter": "InputObject",
+      "Reason": "The parent record field From supplies this typed item member.",
+      "RecordField": "From",
+      "RecordKind": "Edge"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.FlowEdge",
+      "Member": "To",
+      "MemberId": "ConsoleMonster.Widgets.FlowEdge.To",
+      "CSharpTypeName": "System.String",
+      "Command": "New-ConsoleFlow",
+      "Parameter": "InputObject",
+      "Reason": "The parent record field To supplies this typed item member.",
+      "RecordField": "To",
+      "RecordKind": "Edge"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.FlowEdge",
+      "Member": "Label",
+      "MemberId": "ConsoleMonster.Widgets.FlowEdge.Label",
+      "CSharpTypeName": "System.String",
+      "Command": "New-ConsoleFlow",
+      "Parameter": "InputObject",
+      "Reason": "The parent record field Label supplies this typed item member.",
+      "RecordField": "Label",
+      "RecordKind": "Edge"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.FlowEdge",
+      "Member": "Status",
+      "MemberId": "ConsoleMonster.Widgets.FlowEdge.Status",
+      "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Styling.StatusKind]",
+      "Command": "New-ConsoleFlow",
+      "Parameter": "InputObject",
+      "Reason": "The parent record field Status supplies this typed item member.",
+      "RecordField": "Status",
+      "RecordKind": "Edge"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.FlowEdge",
+      "Member": "Cut",
+      "MemberId": "ConsoleMonster.Widgets.FlowEdge.Cut",
+      "CSharpTypeName": "System.Boolean",
+      "Command": "New-ConsoleFlow",
+      "Parameter": "InputObject",
+      "Reason": "The parent record field Cut supplies this typed item member.",
+      "RecordField": "Cut",
+      "RecordKind": "Edge"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.FlowBranch",
+      "Member": "From",
+      "MemberId": "ConsoleMonster.Widgets.FlowBranch.From",
+      "CSharpTypeName": "System.String",
+      "Command": "New-ConsoleFlow",
+      "Parameter": "InputObject",
+      "Reason": "The parent record field From supplies this typed item member.",
+      "RecordField": "From",
+      "RecordKind": "Branch"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.FlowBranch",
+      "Member": "To",
+      "MemberId": "ConsoleMonster.Widgets.FlowBranch.To",
+      "CSharpTypeName": "System.String",
+      "Command": "New-ConsoleFlow",
+      "Parameter": "InputObject",
+      "Reason": "The parent record field To supplies this typed item member.",
+      "RecordField": "To",
+      "RecordKind": "Branch"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.FlowBranch",
+      "Member": "Label",
+      "MemberId": "ConsoleMonster.Widgets.FlowBranch.Label",
+      "CSharpTypeName": "System.String",
+      "Command": "New-ConsoleFlow",
+      "Parameter": "InputObject",
+      "Reason": "The parent record field Label supplies this typed item member.",
+      "RecordField": "Label",
+      "RecordKind": "Branch"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.FlowBranch",
+      "Member": "Status",
+      "MemberId": "ConsoleMonster.Widgets.FlowBranch.Status",
+      "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Styling.StatusKind]",
+      "Command": "New-ConsoleFlow",
+      "Parameter": "InputObject",
+      "Reason": "The parent record field Status supplies this typed item member.",
+      "RecordField": "Status",
+      "RecordKind": "Branch"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Flow",
+      "Member": "Branch",
+      "MemberId": "ConsoleMonster.Widgets.Flow.Branch",
+      "CSharpTypeName": "ConsoleMonster.Widgets.FlowBranch",
+      "Command": "New-ConsoleFlow",
+      "Parameter": "InputObject",
+      "Reason": "A Kind=Branch record configures the single side branch through the same validated Branch property."
     }
   ],
   "Endings": [

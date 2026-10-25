@@ -110,7 +110,7 @@ namespace ConsoleMonster.PowerShell {
             ConsoleViewRegistration? view = _active && _types ? ConsoleFormatting.Find(item, ConsoleFormatting.TakeOverBuiltIns) ?? DictionaryView(item) : null;
             // Generic structured data must not replace an explicit native type table view.
             if (view?.IsBuiltIn == true && view.IsStructuredData
-                && item.BaseObject is PSCustomObject && FormatViews.HasTypedTableView(item, _host)) {
+                && item.BaseObject is PSCustomObject && Binding.FormatViews.HasTypedTableView(item, _host)) {
                 view = null;
             }
             if (view != null) {

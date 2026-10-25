@@ -97,4 +97,4 @@ $profile = $profileType::Fixed(100, 24)
 
 Prefer cmdlets for ordinary scripts. Use `New-ConsoleHeaderBar`, `New-ConsoleFooterBar` and `New-ConsoleColumnFormat` for header/footer composition and shared numeric-column layout. Canvas remains a C# capability. Recording JSONL keeps its existing `target` and `state` wire keys while the public API uses `WidgetId` and `Status`.
 
-Flow strips use `New-ConsoleFlowNode`, `New-ConsoleFlowEdge` and `New-ConsoleFlowBranch` items. Pipeline rows carry `Kind` (`Node`, `Edge` or `Branch`) and the item properties. Live flow commands use `-WidgetId`; see [Flow strips](Flow.md).
+Flow strips accept records through `New-ConsoleFlow` or `Add-ConsoleItem`. Each record carries `Kind` (`Node`, `Edge` or `Branch`) and its documented fields. `Update-Console -NodeKey` or `-EdgeKey` changes an existing item, with `-WidgetId` at position zero; see [Flow strips](Flow.md).

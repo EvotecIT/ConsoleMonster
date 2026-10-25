@@ -16,6 +16,24 @@ namespace ConsoleMonster.Live {
             set { _key = value; _bound.Add(nameof(Key)); }
         }
         private string? _parentKey;
+        private string? _nodeKey;
+        /// <summary>The flow node to update; exclusive with EdgeKey.</summary>
+        public string? NodeKey {
+            get => _nodeKey;
+            set { _nodeKey = value; _bound.Add(nameof(NodeKey)); }
+        }
+        private string? _edgeKey;
+        /// <summary>The flow edge to update; exclusive with NodeKey.</summary>
+        public string? EdgeKey {
+            get => _edgeKey;
+            set { _edgeKey = value; _bound.Add(nameof(EdgeKey)); }
+        }
+        private bool _cut;
+        /// <summary>Whether to sever the selected edge; omission preserves its connection state.</summary>
+        public bool Cut {
+            get => _cut;
+            set { _cut = value; _bound.Add(nameof(Cut)); }
+        }
         /// <summary>The parent activity key.</summary>
         public string? ParentKey {
             get => _parentKey;
