@@ -1,5 +1,4 @@
 ```text
-Record
 Total   4
 Region  west
 

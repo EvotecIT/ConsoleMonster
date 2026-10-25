@@ -26,11 +26,11 @@ Enable-ConsoleFormatting -ProfileSnippet
 
 {{< cm-demo id="shaping" heading="h2" >}}
 
-Collections in a cell are joined (`DNS, GC, PDC`), with a `+N` marker for the items that do not fit, where Format-Table shows `{DNS, GC, PDC}` and cuts long lists short. Durations read as `42 s` or `4 h 00 m`, an empty collection is a dash, and status words get their symbol and colour. `-GroupBy` writes a labelled heading per group, with its count.
+Collections in a cell are joined (`DNS, GC, PDC`), with a `+N` marker for the items that do not fit, where Format-Table shows `{DNS, GC, PDC}` and cuts long lists short. Durations read as `42 s` or `4 h 00 m`, and status words get their symbol and colour. `-GroupBy` writes a labelled heading per group, with its count.
 
 ## JSON and CSV at the prompt
 
-Flat objects from `ConvertFrom-Json` and `Invoke-RestMethod` become tables. Small nested objects show their fields, and short scalar arrays show their values: `Tags  blue, ready`. Empty arrays and objects show `(none)`. Objects expand to two levels below the root; only deeper objects or objects with more than six keys use a summary such as `{…} 12 keys`.
+Flat objects from `ConvertFrom-Json` and `Invoke-RestMethod` become tables. Small nested objects show their fields, and short scalar arrays show their values: `Tags  blue, ready`. Null values show `—`, as in `Retry=—` or `Next  —`; empty collections and objects show `(none)`. Objects expand to two levels below the root; only deeper objects or objects with more than six keys use a summary such as `{…} 12 keys`.
 
 An API envelope such as `{ Total: 3, Items: [...] }` shows its scalar metadata first, then an `Items` table with the actual records. Several record arrays each get a labelled table. Nested tables show up to five rows each, with a budget of 24 nested rows per displayed payload; scalar arrays show up to six values. Omitted items have a `+N more` hint, and long text ends with an ellipsis. The outer table still shows at most 50 rows and 24 fields. Narrow windows hide lower-priority columns with a hint or switch to cards.
 

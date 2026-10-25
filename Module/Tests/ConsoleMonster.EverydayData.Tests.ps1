@@ -4,10 +4,13 @@
 $windowsNetworkCases = foreach ($view in 'dns-record', 'net-ip', 'net-adapter', 'net-connection') {
     foreach ($width in 96, 48) { @{ View = $view; Width = $width } }
 }
+BeforeAll {
+    Import-Module (Join-Path $PSScriptRoot '../ConsoleMonster.psd1') -Force
+    . (Join-Path $PSScriptRoot 'Support/Get-EverydayViewSample.ps1')
+}
+
 Describe 'Everyday structured data and discovery views' {
     BeforeAll {
-        Import-Module (Join-Path $PSScriptRoot '../ConsoleMonster.psd1') -Force
-        . (Join-Path $PSScriptRoot 'Support/Get-EverydayViewSample.ps1')
         $script:SavedProfile = [ConsoleMonster.Terminal]::Profile
         $script:SavedCulture = [Threading.Thread]::CurrentThread.CurrentCulture
         $script:SavedTheme = [ConsoleMonster.Terminal]::Theme
@@ -18,9 +21,11 @@ Describe 'Everyday structured data and discovery views' {
     }
     AfterAll {
         Disable-ConsoleFormatting
-        [ConsoleMonster.Terminal]::Profile = $script:SavedProfile
-        [ConsoleMonster.Terminal]::Theme = $script:SavedTheme
-        [Threading.Thread]::CurrentThread.CurrentCulture = $script:SavedCulture
+        if ($null -ne $script:SavedProfile) {
+            [ConsoleMonster.Terminal]::Profile = $script:SavedProfile
+            [ConsoleMonster.Terminal]::Theme = $script:SavedTheme
+            [Threading.Thread]::CurrentThread.CurrentCulture = $script:SavedCulture
+        }
     }
 
     It 'renders <View> at <Width> columns like its golden frame' -ForEach $everydayCases {

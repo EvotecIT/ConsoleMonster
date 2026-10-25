@@ -1,5 +1,4 @@
 ```text
-Record
 Total  3
 Next   —
 

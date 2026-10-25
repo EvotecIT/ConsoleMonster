@@ -95,7 +95,7 @@ namespace ConsoleMonster.PowerShell {
 
         private static RecordView BuildRecord(DataRecord record, int depth, ExpansionBudget budget, bool title) {
             int key = title ? ValueShaper.TitleIndex(record.Fields.Select(field => field.Key).ToList()) : -1;
-            string? heading = title ? "Record" : null;
+            string? heading = null;
             if (key >= 0 && !IsNested(record.Fields[key].Value)) { heading = InlineText(record.Fields[key].Value); }
             else { key = -1; }
             RecordView view = new RecordView(heading == null ? null : Markup.Escape(heading)) { HideEmpty = false };
