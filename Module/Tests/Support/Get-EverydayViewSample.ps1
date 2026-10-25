@@ -115,15 +115,25 @@
         }
         'dns-record' {
             foreach ($kind in 'A', 'MX', 'TXT', 'SRV') {
+                $address = $null
+                $exchange = $null
+                $strings = $null
+                $target = $null
+                switch ($kind) {
+                    'A' { $address = '192.0.2.10' }
+                    'MX' { $exchange = 'mail.example.test' }
+                    'TXT' { $strings = @('v=spf1', '-all') }
+                    'SRV' { $target = 'ldap.example.test' }
+                }
                 $item = [pscustomobject]@{
                     Name = 'example.test'
                     Type = $kind
                     TTL = 300
-                    IPAddress = if ($kind -eq 'A') { '192.0.2.10' }
-                    NameExchange = if ($kind -eq 'MX') { 'mail.example.test' }
+                    IPAddress = $address
+                    NameExchange = $exchange
                     Preference = 10
-                    Strings = if ($kind -eq 'TXT') { @('v=spf1', '-all') }
-                    NameTarget = if ($kind -eq 'SRV') { 'ldap.example.test' }
+                    Strings = $strings
+                    NameTarget = $target
                     Port = 389
                 }
                 $item.PSObject.TypeNames.Insert(0, "Microsoft.DnsClient.Commands.DnsRecord_$kind")

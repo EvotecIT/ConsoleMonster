@@ -98,6 +98,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v7
 
+      - name: Parse every module script with Windows PowerShell 5.1
+        if: matrix.shell == 'powershell'
+        shell: powershell
+        run: ./Module/Tests/Support/Test-ModuleScriptSyntax.ps1
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v6
         with:
