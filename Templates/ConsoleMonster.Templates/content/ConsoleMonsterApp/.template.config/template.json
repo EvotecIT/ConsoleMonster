@@ -37,9 +37,9 @@
     },
     "ConsoleMonsterVersion": {
       "type": "parameter",
-      "description": "The ConsoleMonster package version (default: the newest 2.0 release).",
+      "description": "The ConsoleMonster package version (default: 2.0.2).",
       "datatype": "string",
-      "defaultValue": "2.0.*",
+      "defaultValue": "2.0.2",
       "replaces": "CONSOLEMONSTER_VERSION"
     },
     "NoAot": {

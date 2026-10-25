@@ -29,7 +29,7 @@ namespace ConsoleMonster.Generators {
         /// <inheritdoc />
         public void Initialize(IncrementalGeneratorInitializationContext context) {
             context.RegisterSourceOutput(context.CompilationProvider, (output, compilation) => {
-                if (compilation.AssemblyName != "ConsoleMonster" && compilation.AssemblyName != "ConsoleMonster.Graphics" && compilation.AssemblyName != "ConsoleMonster.Markdown" && compilation.AssemblyName != "ConsoleMonster.PowerShell") {
+                if (compilation.AssemblyName != "ConsoleMonster" && compilation.AssemblyName != "ConsoleMonster.Graphics" && compilation.AssemblyName != "ConsoleMonster.Markdown" && compilation.AssemblyName != "ConsoleMonster.PowerShell" && compilation.AssemblyName != "ConsoleMonster.Hosting" && compilation.AssemblyName != "ConsoleMonster.Extensions.Logging") {
                     return;
                 }
                 INamedTypeSymbol? widget = compilation.GetTypeByMetadataName(WidgetInterface);
@@ -209,6 +209,7 @@ namespace ConsoleMonster.Generators {
                 if (IsSettable(property) && !Taken(with, property.Type) && generated.Add(with + "(" + propertyType + ")")) {
                     bool flag = property.Type.SpecialType == SpecialType.System_Boolean;
                     body.Append(Doc("Sets <see cref=\"" + propertyDoc + "\"/>" + summary, receiver, flag ? "The value (default true)." : "The value.", "value"));
+                    if (property.Type.TypeKind != TypeKind.Delegate) { body.Append(PropertyExample(type, property, receiver)); }
                     body.Append("        public static ").Append(self).Append(' ').Append(with).Append(generic).Append("(this ").Append(self).Append(' ').Append(receiver)
                         .Append(", ").Append(propertyType).Append(" value").Append(flag ? " = true" : string.Empty).Append(')').Append(constraint).Append(" {\n")
                         .Append("            ").Append(receiver).Append('.').Append(property.Name).Append(" = value;\n")
@@ -303,6 +304,16 @@ namespace ConsoleMonster.Generators {
                 return "            " + receiver + "." + property.Name + " ??= new global::System.Collections.Generic.List<" + itemType + ">();\n";
             }
             return "            if (" + receiver + "." + property.Name + " == null) { throw new global::System.InvalidOperationException(\"" + property.Name + " is not set.\"); }\n";
+        }
+
+        /// <summary>Shows both configuration forms in the generated API reference, without assuming a parameterless constructor.</summary>
+        private static string PropertyExample(INamedTypeSymbol type, IPropertySymbol property, string receiver) {
+            bool constructible = type.InstanceConstructors.Any(ctor => ctor.DeclaredAccessibility == Accessibility.Public && ctor.Parameters.All(parameter => parameter.IsOptional));
+            string creation = "new " + type.ToDisplayString(TypeFormat);
+            string initializer = constructible ? creation + " { " + property.Name + " = value }" : receiver + "." + property.Name + " = value;";
+            string fluent = (constructible ? creation + "()" : receiver) + "." + property.Name + "(value)";
+            return "        /// <example><list type=\"table\"><listheader><term>C# initializer or property</term><description>C# fluent</description></listheader>\n"
+                + "        /// <item><term><code>" + new XText(initializer) + "</code></term><description><code>" + new XText(fluent) + "</code></description></item></list></example>\n";
         }
 
         private static string Doc(string summary, string receiver, string parameter, string parameterName) {

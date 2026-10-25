@@ -8,33 +8,73 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace SiteFrames.Capture {
     internal static partial class CSharpRunner {
         /// <summary>Generates a fluent source variant from resolved public setters, preserving mixed/behavioral initializer order.</summary>
-        public static string FluentSource(string path, params string[] companions) {
-            string code = SourceSnippets.Split(Site.ReadText(path)).Full;
-            CSharpCompilation compilation = CreateCompilation(path, code, companions: companions);
-            SyntaxTree tree = compilation.SyntaxTrees.First();
-            SemanticModel model = compilation.GetSemanticModel(tree);
-            var rewriter = new FluentSourceRewriter(model, compilation);
-            var root = (CompilationUnitSyntax)rewriter.Visit(tree.GetRoot())!;
-            foreach (string ns in rewriter.Namespaces.OrderBy(value => value, StringComparer.Ordinal)) {
-                if (!root.Usings.Any(directive => directive.Alias == null && directive.Name?.ToString() == ns)) {
-                    root = root.AddUsings(SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(ns)));
+        public static string FluentSource(string path, params string[] companions) => FluentSources(path, companions)[path];
+
+        /// <summary>Translates every file together, so a fluent tab never silently depends on initializer-only companions.</summary>
+        public static IReadOnlyDictionary<string, string> FluentSources(string path, params string[] companions) => FluentSourcesCore(path, companions, null);
+
+        private static IReadOnlyDictionary<string, string> FluentSourcesCore(string path, string[] companions, IReadOnlyList<MetadataReference>? references) {
+            var inputs = companions.Prepend(path).ToDictionary(file => file, file => SourceSnippets.Split(Site.ReadText(file)).Full, StringComparer.Ordinal);
+            CSharpCompilation compilation = CreateCompilation(path, inputs[path], companions: companions, sourceOverrides: inputs, references: references);
+            var generated = new Dictionary<string, string>(StringComparer.Ordinal);
+            foreach (SyntaxTree tree in compilation.SyntaxTrees.Where(tree => inputs.ContainsKey(tree.FilePath))) {
+                SemanticModel model = compilation.GetSemanticModel(tree);
+                var rewriter = new FluentSourceRewriter(model, compilation);
+                var root = (CompilationUnitSyntax)rewriter.Visit(tree.GetRoot())!;
+                foreach (string ns in rewriter.Namespaces.OrderBy(value => value, StringComparer.Ordinal)) {
+                    if (!root.Usings.Any(directive => directive.Alias == null && directive.Name?.ToString() == ns)) {
+                        root = root.AddUsings(SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(ns)));
+                    }
                 }
+                generated[tree.FilePath] = root.NormalizeWhitespace(indentation: "    ", eol: "\n").ToFullString() + "\n";
             }
-            string generated = root.NormalizeWhitespace(indentation: "    ", eol: "\n").ToFullString() + "\n";
-            var checkedProgram = CreateCompilation(path, generated, companions: companions);
-            SyntaxTree checkedTree = checkedProgram.SyntaxTrees.First();
-            var unused = checkedProgram.GetDiagnostics().Where(diagnostic => diagnostic.Id == "CS8019" && diagnostic.Location.SourceTree == checkedTree)
-                .Select(diagnostic => checkedTree.GetRoot().FindNode(diagnostic.Location.SourceSpan).FirstAncestorOrSelf<UsingDirectiveSyntax>())
-                .Where(directive => directive != null).Cast<UsingDirectiveSyntax>().ToArray();
-            if (unused.Length > 0) {
-                generated = checkedTree.GetRoot().RemoveNodes(unused, SyntaxRemoveOptions.KeepExteriorTrivia)!
-                    .NormalizeWhitespace(indentation: "    ", eol: "\n").ToFullString() + "\n";
+            CSharpCompilation checkedProgram = CreateCompilation(path, generated[path], companions: companions, sourceOverrides: generated, references: references);
+            var diagnostics = checkedProgram.GetDiagnostics();
+            foreach (SyntaxTree tree in checkedProgram.SyntaxTrees.Where(tree => generated.ContainsKey(tree.FilePath))) {
+                var unused = diagnostics.Where(diagnostic => diagnostic.Id == "CS8019" && diagnostic.Location.SourceTree == tree)
+                    .Select(diagnostic => tree.GetRoot().FindNode(diagnostic.Location.SourceSpan).FirstAncestorOrSelf<UsingDirectiveSyntax>())
+                    .Where(directive => directive != null).Cast<UsingDirectiveSyntax>().ToArray();
+                if (unused.Length > 0) {
+                    generated[tree.FilePath] = tree.GetRoot().RemoveNodes(unused, SyntaxRemoveOptions.KeepExteriorTrivia)!
+                        .NormalizeWhitespace(indentation: "    ", eol: "\n").ToFullString() + "\n";
+                }
             }
             return generated;
         }
 
         private sealed class FluentSourceRewriter(SemanticModel model, CSharpCompilation compilation) : CSharpSyntaxRewriter {
             public HashSet<string> Namespaces { get; } = new HashSet<string>(StringComparer.Ordinal);
+            public override SyntaxNode? VisitExpressionStatement(ExpressionStatementSyntax node) {
+                var visited = (ExpressionStatementSyntax)base.VisitExpressionStatement(node)!;
+                if (node.Expression is AssignmentExpressionSyntax { RawKind: (int)SyntaxKind.SimpleAssignmentExpression } assignment
+                    && assignment.Left is MemberAccessExpressionSyntax member
+                    && model.GetSymbolInfo(member).Symbol is IPropertySymbol property
+                    && property.SetMethod?.DeclaredAccessibility == Accessibility.Public && property.Type.TypeKind != TypeKind.Delegate
+                    && model.GetTypeInfo(member.Expression).Type is INamedTypeSymbol receiver && Owned(receiver)
+                    && HasSetter(receiver, property.Name)
+                    && visited.Expression is AssignmentExpressionSyntax { Left: MemberAccessExpressionSyntax rewrittenMember } rewritten) {
+                    Namespaces.Add(property.ContainingNamespace.ToDisplayString());
+                    return visited.WithExpression(SyntaxFactory.InvocationExpression(rewrittenMember,
+                        SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.Argument(rewritten.Right)))));
+                }
+                return visited;
+            }
+            public override SyntaxNode? VisitSimpleLambdaExpression(SimpleLambdaExpressionSyntax node) {
+                var visited = (SimpleLambdaExpressionSyntax)base.VisitSimpleLambdaExpression(node)!;
+                if (node.ExpressionBody is AssignmentExpressionSyntax { Left: MemberAccessExpressionSyntax member } assignment
+                    && assignment.IsKind(SyntaxKind.SimpleAssignmentExpression)
+                    && model.GetTypeInfo(node).ConvertedType is INamedTypeSymbol { DelegateInvokeMethod.ReturnsVoid: true }
+                    && model.GetSymbolInfo(member).Symbol is IPropertySymbol property && property.Type.TypeKind != TypeKind.Delegate
+                    && model.GetTypeInfo(member.Expression).Type is INamedTypeSymbol receiver && Owned(receiver)
+                    && HasSetter(receiver, property.Name)
+                    && visited.ExpressionBody is AssignmentExpressionSyntax { Left: MemberAccessExpressionSyntax rewrittenMember } rewritten) {
+                    Namespaces.Add(property.ContainingNamespace.ToDisplayString());
+                    return visited.WithExpressionBody(SyntaxFactory.InvocationExpression(rewrittenMember,
+                        SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.Argument(rewritten.Right)))));
+                }
+                return visited;
+            }
+
             public override SyntaxNode? VisitImplicitObjectCreationExpression(ImplicitObjectCreationExpressionSyntax node) {
                 if (model.GetTypeInfo(node).Type is not INamedTypeSymbol type || !Owned(type)) { return base.VisitImplicitObjectCreationExpression(node); }
                 var visited = (ImplicitObjectCreationExpressionSyntax)base.VisitImplicitObjectCreationExpression(node)!;
@@ -108,7 +148,7 @@ namespace SiteFrames.Capture {
                 return visited;
             }
 
-            private static bool Owned(INamedTypeSymbol type) => type.ContainingAssembly.Name is "ConsoleMonster" or "ConsoleMonster.Markdown" or "ConsoleMonster.Graphics" or "ConsoleMonster.PowerShell";
+            private static bool Owned(INamedTypeSymbol type) => type.ContainingAssembly.Name is "ConsoleMonster" or "ConsoleMonster.Markdown" or "ConsoleMonster.Graphics" or "ConsoleMonster.PowerShell" or "ConsoleMonster.Hosting" or "ConsoleMonster.Extensions.Logging";
         }
     }
 }

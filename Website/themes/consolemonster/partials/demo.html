@@ -25,7 +25,12 @@
          the program with Copy, Download and the full program one click away, and the Run line, from copy.json
          demos.<id>.try (install, run, project, packages, csrun). Without a try entry the code stands alone and the "use"
          block below says how to adopt it. ## ~}}
-    {{~ tr = c.try; both = d.powershell && d.csharp ~}}
+    {{~ tr = c.try; both = d.powershell && d.csharp
+        setup = null
+        if tr && tr.project
+          setup = "dotnet new console -n " + tr.project + "\ncd " + tr.project
+          for k in (tr.packages ?? ["ConsoleMonster"]); setup = setup + "\ndotnet add package " + k; end
+        end ~}}
     <div class="cm-demo__source cm-try">
       {{~ if both ~}}
       <div class="cm-try__bar">
@@ -40,17 +45,17 @@
       <div class="cm-try__code"{{ if both }} data-lang="powershell"{{ end }}>
         {{~ if tr ~}}
         <div class="cm-code cm-try__cmd" data-lang="powershell" data-prompt="PS&gt;">
-          <pre><code class="language-powershell">{{ (tr.install ?? "Install-Module ConsoleMonster -Scope CurrentUser") | html.escape | string.replace "\n" "&#10;" }}</code></pre>
+          <pre><code class="language-powershell">{{ (d.projectLauncher && setup ? setup : (tr.install ?? "Install-Module ConsoleMonster -Scope CurrentUser")) | html.escape | string.replace "\n" "&#10;" }}</code></pre>
           <button type="button" class="cm-code__copy" data-cm-copy aria-live="polite" aria-label="Copy the install command">Copy</button>
         </div>
         {{~ end ~}}
-        {{~ code_lang = "powershell"; code_label = "PowerShell"; code_repo = d.powershellRepo; code_text = d.powershell; code_full = d.powershellFull; code_download = tr != null ~}}
+        {{~ code_lang = "powershell"; code_label = "PowerShell"; code_repo = d.powershellRepo; code_file = d.powershellFile; code_text = d.powershell; code_full = d.powershellFull; code_download = tr != null ~}}
         {{ include "code" }}
         {{~ for k in d.companions ~}}
         {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = k.file; code_text = k.code; code_download = tr != null ~}}
         {{ include "code" }}
         {{~ end ~}}
-        {{~ if tr && tr.run ~}}<p class="cm-try__run"><span>Run:</span> <code>{{ tr.run | html.escape }}</code>{{ if tr.runNote }} <span class="cm-try__note">· {{ tr.runNote }}</span>{{ end }}</p>{{~ end ~}}
+        {{~ if d.powershellRun || (tr && tr.run) ~}}<p class="cm-try__run"><span>Run:</span> <code>{{ (d.powershellRun ?? tr.run) | html.escape }}</code>{{ if tr && tr.runNote }} <span class="cm-try__note">· {{ tr.runNote }}</span>{{ end }}</p>{{~ end ~}}
         {{~ if d.powershellNote ~}}<p class="cm-demo__refs cm-demo__refs--quiet">{{ d.powershellNote }}</p>{{~ end ~}}
       </div>
       {{~ end ~}}
@@ -62,12 +67,12 @@
         {{~ code_lang = "bash"; code_label = "Terminal"; code_text = setup ~}}
         {{ include "code" }}
         {{~ end ~}}
-        {{~ code_lang = "csharp"; code_label = "C#"; code_repo = d.csharpRepo; code_file = d.csharpFile; code_text = d.csharp; code_full = d.csharpFull; code_download = tr != null && d.csharpFiles == null ~}}
+        {{~ code_lang = "csharp"; code_label = "C#"; code_repo = d.csharpRepo; code_file = d.csharpFile; code_text = d.csharp; code_full = d.csharpFull; code_download = tr != null ~}}
         {{ include "code" }}
         {{~ for k in d.csharpFiles ~}}
         <details class="cm-source">
           <summary>{{ k.file }}</summary>
-          {{~ code_lang = "csharp"; code_label = "C#"; code_repo = k.codeRepo; code_file = k.file; code_text = k.code ~}}
+          {{~ code_lang = "csharp"; code_label = "C#"; code_repo = k.codeRepo; code_file = k.file; code_text = k.code; code_download = true ~}}
           {{ include "code" }}
         </details>
         {{~ end ~}}
@@ -83,12 +88,12 @@
         {{~ code_lang = "bash"; code_label = "Terminal"; code_text = setup ~}}
         {{ include "code" }}
         {{~ end ~}}
-        {{~ code_lang = "csharp"; code_label = "C# fluent"; code_repo = d.csharpFluentRepo; code_file = d.csharpFluentFile; code_text = d.csharpFluent; code_full = d.csharpFluentFull; code_download = tr != null && d.csharpFluentFiles == null ~}}
+        {{~ code_lang = "csharp"; code_label = "C# fluent"; code_repo = d.csharpFluentRepo; code_file = d.csharpFluentFile; code_text = d.csharpFluent; code_full = d.csharpFluentFull; code_download = tr != null ~}}
         {{ include "code" }}
         {{~ for k in d.csharpFluentFiles ~}}
         <details class="cm-source">
           <summary>{{ k.file }}</summary>
-          {{~ code_lang = "csharp"; code_label = "C# fluent"; code_repo = k.codeRepo; code_file = k.file; code_text = k.code ~}}
+          {{~ code_lang = "csharp"; code_label = "C# fluent"; code_repo = k.codeRepo; code_file = k.file; code_text = k.code; code_download = true ~}}
           {{ include "code" }}
         </details>
         {{~ end ~}}

@@ -1,12 +1,12 @@
 ---
 title: Coming from Format-Table
-description: "Show-ConsoleTable, Show-ConsoleList and Show-ConsoleTree beside the built-in Format cmdlets: -Property, column options and Markdown exports."
+description: "Show-ConsoleTable, Show-ConsoleList and Show-Console -View Tree beside the built-in Format cmdlets: -Property, column options and Markdown exports."
 slug: format-table
 card: format-consoletable
 order: 4
 ---
 
-The three Format cmdlets take pipeline input like the built-in `Format-Table`, `Format-List` and `Format-Custom`, which remain the right choice when output should go through PowerShell's formatting system. They write to the console like `Write-Host`, so `$x = ... | Show-ConsoleTable` captures nothing; `-PassThru` also writes the input objects to the pipeline, and `-AsWidget` returns the widget for `Show-Console` or `Export-ConsoleFrame`.
+The display commands take pipeline input like the built-in `Format-Table`, `Format-List` and `Format-Custom`, which remain the right choice when output should go through PowerShell's formatting system. They write to the console like `Write-Host`, so `$x = ... | Show-ConsoleTable` captures nothing; `-PassThru` also writes the input objects to the pipeline, and `-AsWidget` returns the widget for `Show-Console` or `Export-ConsoleFrame`.
 
 {{< cm-frame ids="format-table,format-consoletable" caption="The same four objects in PowerShell 7, 100 columns wide: Format-Table -AutoSize, then Show-ConsoleTable with -GroupBy, -Total and column options." >}}
 

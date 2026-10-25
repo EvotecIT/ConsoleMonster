@@ -129,7 +129,7 @@ Enable-ConsoleFormatting -Feature ReadLine, Streams -ProfileSnippet
 Disable-ConsoleFormatting -Feature ReadLine, Streams
 ```
 
-ReadLine is included in `All`. When runspaces share native preferences, the most recently applied installation supplies the colors. Disabling or removing that owner restores the latest surviving installation's colors; the last owner restores the first exact baseline, even after user edits. Re-enable after changing themes. Selecting only `ReadLine` and `Streams` keeps native `Write-*` commands and installs no `Out-Default` function. All also keeps every Write-* cmdlet native. The separate legacy `Progress` feature is excluded from All and explicitly opts into the `Write-ConsoleProgress` alias.
+ReadLine is included in `All`. When runspaces share native preferences, the most recently applied installation supplies the colors. Disabling or removing that owner restores the latest surviving installation's colors; the last owner restores the first exact baseline, even after user edits. Re-enable after changing themes. Selecting only `ReadLine` and `Streams` keeps native `Write-*` commands and installs no `Out-Default` function. All also keeps every Write-* cmdlet native. The separate `Progress` feature is excluded from All and explicitly opts into the native-metadata `Write-Progress` function adapter.
 ## Out-GridView without a desktop
 
 ```powershell
@@ -183,4 +183,4 @@ Get-Service | Select-Object -First 8 Name, Status, StartType | Copy-ConsoleOutpu
 
 - `Enable-ConsoleFormatting -Feature ErrorView`, `-Feature Progress` and `-Feature Streams` add the [error view, the progress area and themed warning, verbose and debug colours](/docs/help-and-defaults/); `-Feature All` adds default output, the error view, native stream/progress colors and ReadLine colors. The native `Write-Progress` adapter requires a separate opt-in.
 - `Register-ConsoleView` adds your own types in the session, including columns computed by script blocks; `Register-ConsoleView -Path` loads a `.consoleviews.psd1` file from anywhere.
-- `Show-ConsoleTable`, `Show-ConsoleList` and `Show-ConsoleTree` give the same views on demand, with column options; see [Coming from Format-Table](/guides/format-table/).
+- `Show-ConsoleTable`, `Show-ConsoleList` and `Show-Console -View Tree` give the same views on demand, with column options; see [Coming from Format-Table](/guides/format-table/).

@@ -15,7 +15,7 @@ Each layer can be used without the ones above it.
 | L2 Canvas | Cell buffer, braille and half-block pixel canvases, frame diff. |
 | L3 Layout and widgets | `IWidget` / `IContainer`; Rows, Columns, Grid, Panel, Padding, Align, Stack; rich text, text, rule, table (width negotiation, cards, groups, totals), record view, object inspector, tree, key/value, status list, spinner, progress, lanes, phases, bar and stacked bar, sparkline, histogram, line/scatter chart, log region, logo, dashboard; cell presenters shared by tables, cards, key/value lists and trees. |
 | L4 Live | `LiveSession`: lock-free update queue, ~15 fps coalesced diff rendering, resize, font and too-small handling, typed handles and names, ambient `TerminalScope`, Console.Out/Error capture into the log region, JSON-lines record and replay. |
-| L5 Surfaces | The C# object model and a fluent builder; 60 thin PowerShell cmdlets with a plain `Console` noun. |
+| L5 Surfaces | The C# object model and a fluent builder; 98 thin PowerShell cmdlets with a plain `Console` noun. |
 
 Every widget renders in every mode: a live dashboard becomes append-only lines when output is redirected or in CI,
 and plain ASCII lines without colour with `CONSOLEMONSTER_MODE=plain`. Status is never shown by colour alone.
@@ -40,10 +40,7 @@ $dashboard = New-ConsoleDashboard -Title 'Patch' -Gap 1 -Content {
 }
 ```
 
-Widgets read the same way everywhere: containers take a script block of children, and widgets with items take a script
-block of item commands (`New-ConsoleTreeNode`, `New-ConsoleStatusItem`, `New-ConsoleKeyValueItem`, `New-ConsoleBarItem`,
-`New-ConsoleChartSeries`, `New-ConsoleLogEntry`, `New-ConsoleLane`) with the shared `-Status`, `-Detail`, `-Role` and
-`-Value` parameters. A widget made earlier grows with `Add-ConsoleItem`. [PowerShell conventions](PowerShell-Conventions.md)
+Containers take a script block of children. Item widgets accept ordinary records through the pipeline or a Content block, with documented Label, Key, Status, Detail, Role and Value properties. Trees nest records through Children; chart series use Key and Values. New-ConsoleMenuItem and New-ConsoleField remain behavior-bearing workflow definitions. A widget made earlier grows with `Add-ConsoleItem`. [PowerShell conventions](PowerShell-Conventions.md)
 lists every widget with its cmdlet form, its live update command and its .NET method form.
 
 ```powershell
@@ -156,18 +153,18 @@ Terminal.Write(new Rows(
 
 ```csharp
 Terminal.Write(new Rows()
-    .WithGap(1)
+    .Gap(1)
     .Add(new Columns()
-        .WithGap(1)
+        .Gap(1)
         .Add(new Panel(Table.For(servers)
-            .Column(s => s.Name, c => c.WithIsKey())
+            .Column(s => s.Name, c => c.IsKey())
             .Column(s => s.Role)
-            .Column(s => s.Ram, c => c.WithPresenter(CellPresenters.Bytes))
+            .Column(s => s.Ram, c => c.Presenter(CellPresenters.Bytes))
             .Column(s => s.Status)
-            .WithTotals(), "Servers"))
+            .Totals(), "Servers"))
         .Add(new Panel(new Rows()
             .Add(new KeyValueList().AddValue("Servers", 3).AddValue("Failed", 1))
-            .Add(new Sparkline().WithLabel("CPU").AddRange(load)), "Summary")))
+            .Add(new Sparkline().Label("CPU").AddRange(load)), "Summary")))
     .Add(new TextBlock("[muted]Updated 10:02[/]")));
 ```
 
@@ -193,17 +190,17 @@ double[] load = { 12, 18, 31, 64, 47, 38, 55, 70, 72, 41 };
 Terminal.Write(Rows(
     Columns(
         Panel("Servers", Table(servers)
-            .Column(s => s.Name, c => c.WithIsKey())
+            .Column(s => s.Name, c => c.IsKey())
             .Column(s => s.Role)
-            .Column(s => s.Ram, c => c.WithPresenter(CellPresenters.Bytes))
+            .Column(s => s.Ram, c => c.Presenter(CellPresenters.Bytes))
             .Column(s => s.Status)
-            .WithTotals()),
+            .Totals()),
         Panel("Summary", Rows(
             KeyValue(("Servers", 3), ("Failed", 1)),
-            Sparkline(load).WithLabel("CPU")))
-    ).WithGap(1),
+            Sparkline(load).Label("CPU")))
+    ).Gap(1),
     Text("[muted]Updated 10:02[/]")
-).WithGap(1));
+).Gap(1));
 
 record Server(string Name, string Role, long Ram, StatusKind Status);
 ```
@@ -228,12 +225,12 @@ Updated 10:02
 
 How the styles fit together:
 
-- **Generated methods.** `WithX(value)` sets property `X` and returns the same instance; for a bool, `WithX()` means
-  `true`. `WithX(o => ...)` configures an option object in place, for example `table.WithPresentation(p => p.Culture = culture)`.
+- **Generated methods.** `X(value)` sets property `X` and returns the same instance; for a bool, `X()` means
+  `true`. `X(o => ...)` configures an option object in place, for example `table.Presentation(p => p.Culture = culture)`.
   For a collection `Xs`, you get `AddX(item)`, `AddXs(params items)` and `AddXs(IEnumerable)`.
 - **Typed tables.** `Table.For(items)` (or `Table(items)` from `Ui`) makes a `Table<T>`. Each `.Column(s => s.Name, c => ...)`
   reads its header from the expression, here "Name". Without columns, every public property is a column. The rows are
-  read when the table is laid out; after the collection changes, call `Refresh()`. `WithTotals()` adds a totals row
+  read when the table is laid out; after the collection changes, call `Refresh()`. `Totals()` adds a totals row
   that sums the numeric columns, but not the key column or identifier columns.
 - **Ui factories.** The factories are `Rows`, `Columns`, `Grid`, `Panel(title, content)`, `Fill` and `Fixed` (sizing
   inside rows and columns), `Table`, `KeyValue`, `Text`, `Rule`, `Sparkline`, `Lanes`, `Progress`, `Status`, `Tree`
@@ -241,7 +238,7 @@ How the styles fit together:
 - **Naming clash.** With `using static ConsoleMonster.Ui;`, write `Table(items)`, not `Table.For(items)`, because the
   factory takes the name `Table`.
 - **How the methods are made.** A Roslyn source generator in the repository (`ConsoleMonster.Generators`) writes the
-  `With...` and `Add...` methods from each widget's public properties at build time. The generated code is compiled into
+  property-named setters and `Add...` methods from each widget's public properties at build time. The generated code is compiled into
   `ConsoleMonster.dll` itself: the generator doesn't ship as an analyzer, and nothing in it runs or reflects at run
   time. So it works the same for net472, netstandard2.0 and net8.0 consumers on any C# version, and stays AOT and trim
   safe.
@@ -304,7 +301,7 @@ The object inspector (`InspectorView`, `ObjectInspector.Inspect`) shows .NET obj
 
 - Nested objects become indented sections and collections become nested tables.
 - `InspectorOptions` sets the depth limit, the item limit (with "+N more"), include/exclude and ordering.
-- `MaxNodes` (default 5,000; `Show-ConsoleTree -MaxNodes`) caps one inspection, so a wide object at a large depth
+- `MaxNodes` (default 5,000; `Show-Console -View Tree -MaxNodes`) caps one inspection, so a wide object at a large depth
   ends with a "node limit reached" marker instead of millions of nodes.
 - Cycles are detected and marked.
 - Getters that would block or force work are not called. An incomplete `Task` or `ValueTask` and an uncreated
@@ -316,7 +313,7 @@ The object inspector (`InspectorView`, `ObjectInspector.Inspect`) shows .NET obj
   On net8.0 it is marked `RequiresUnreferencedCode`. For trimmed or AOT builds, set `UseReflection = false` and pass
   dictionaries or your own `IMemberSource`.
 
-From PowerShell, `Show-ConsoleTable`, `Show-ConsoleList` and `Show-ConsoleTree` take pipeline input like the
+From PowerShell, `Show-ConsoleTable`, `Show-ConsoleList` and `Show-Console -View Tree` take pipeline input like the
 built-in Format cmdlets:
 
 - `-Property` accepts names, wildcards and calculated properties, as Format-Table does. A hashtable with column options
@@ -562,7 +559,7 @@ menu.Run(new MenuOptions { Layout = MenuLayout.Shell, AppName = "Server toolbox"
 - Items run actions (scriptblocks run on the pipeline thread) or open a submenu, a form, a selection, a page, a review
   (summary, equivalent command, Run, Copy command, Save preset) or the presets list. They can have hotkeys, icons,
   badges, state text and a reason when unavailable. Icons are semantic names that follow the glyph tier
-  (`New-ConsoleMenuItem -IconName Targets`, `WithIcon(GlyphIcon.Targets)`: ● in modern fonts, o in ASCII), or free text.
+  (`New-ConsoleMenuItem -IconName Targets`, `IconName(GlyphIcon.Targets)`: ● in modern fonts, o in ASCII), or free text.
 - The Shell layout shows a breadcrumb title bar, a sidebar, the content pane and a key footer. Below 84 columns the
   sidebar folds into the breadcrumb.
 - Keys: Esc goes back, Ctrl+Home goes home and Ctrl+Q leaves, asking first when a form has unsaved changes. `?` shows
@@ -743,7 +740,7 @@ try { Get-Item C:\missing -ErrorAction Stop } catch { $_ | Show-Console -View Er
 $Error[0] | Show-Console -ShowFrameworkFrames -View Error
 ```
 
-`ExceptionView` (C#) and `Show-ConsoleError` / `Show-ConsoleError` show an exception or ErrorRecord with its
+`ExceptionView` (C#) and `Show-Console -View Error` show an exception or ErrorRecord with its
 type and message, the PowerShell category, error id and position message, the source lines around the failing line
 (highlighted, the line marked), the script stack, .NET frames as `Type.Method()` with paths relative to the current
 folder and file:line links, framework frames collapsed into "+n framework frames", and inner exceptions as "Caused by".
@@ -944,7 +941,7 @@ and PowerShell 7, in Windows Terminal and conhost; without an interactive consol
 
 Automatic recording is opt-in: `LiveSessionOptions.AutoRecord = 10` (or `-AutoRecord 10`) writes each run to
 `%LOCALAPPDATA%\ConsoleMonster\Recordings` and keeps the newest ten within `AutoRecordMaxBytes` (50 MB) together.
-Region swaps (`Set-ConsoleRegion`, `RegionHandle.Set`) carry widgets that a recording cannot hold, so the new content is
+Region swaps (`Update-Console -Content`, `RegionHandle.Set`) carry widgets that a recording cannot hold, so the new content is
 recorded as a picture, together with later changes of the live widgets inside it, and replays as it looked.
 
 ## Export to HTML, SVG, text and asciicast
@@ -1172,7 +1169,7 @@ table shows `71,5 %`, `1,41 MB` and `1 234`; the words around them follow the UI
   the profile's decisions.
 - `TerminalProfile.WithCulture(culture)` for `Terminal.Write`, `LiveSessionOptions.Culture` for a live session, and
   `PresentationOptions.Culture` for one table, record view, key/value list or tree.
-- `-Culture en-US` on `Show-ConsoleTable`, `Show-ConsoleList` and `Show-ConsoleTree`.
+- `-Culture en-US` on `Show-ConsoleTable`, `Show-ConsoleList` and `Show-Console -View Tree`.
 
 The most specific setting wins: the widget's `PresentationOptions.Culture`, then `-Culture` or the session option, then
 the profile (`CONSOLEMONSTER_CULTURE`), then the current culture. Live dashboard counters (lanes, rates, clocks) and the
@@ -1190,7 +1187,7 @@ inspector's item counts use invariant digits regardless, because they are compac
 | A numeric series, or `-Chart` | A bar chart. |
 | Strings | Highlighted code when a language is detected (JSON, PowerShell, XML, YAML, C#...), otherwise text. |
 
-Use the named commands to choose a view explicitly: `Show-ConsoleTable`, `Show-ConsoleList`, `Show-ConsoleTree`, `Show-ConsoleObject`, `Show-ConsoleChart`, `Show-ConsoleCode` or `Show-ConsoleGrid`. The grid
+Use the named commands to choose a view explicitly: `Show-ConsoleTable`, `Show-ConsoleList`, `Show-Console -View Tree`, `Show-ConsoleObject`, `Show-Console -View Chart`, `Show-Console -View Code` or `Show-ConsoleGrid`. The grid
 returns what you pick.
 
 `Enable-ConsoleFormatting` (opt-in, for the session) shows the default output of files and folders (`Get-ChildItem`),

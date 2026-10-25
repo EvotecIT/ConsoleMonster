@@ -61,7 +61,12 @@ MenuItem targets = new MenuItem("Targets")
     LoadChoices = (context, token) => LoadServersAsync(token)
 };
 targets.Minimum = 1;
-MenuItem tasks = new MenuItem("Tasks").Hotkey('k').IconName(GlyphIcon.Tasks).Description("What to run on every target. Tasks marked 'changes' modify the servers; the rest only read.").MultiSelect(allTasks, t => t.Name, t => t.Category, TaskPreview);
+MenuItem tasks = new MenuItem("Tasks")
+{
+    Hotkey = 'k',
+    IconName = GlyphIcon.Tasks,
+    Description = "What to run on every target. Tasks marked 'changes' modify the servers; the rest only read."
+}.MultiSelect(allTasks, t => t.Name, t => t.Category, TaskPreview);
 foreach (Choice c in tasks.Choices)
 {
     MaintenanceTask task = (MaintenanceTask)c.Value!;
@@ -77,11 +82,22 @@ foreach (Choice c in tasks.Choices)
 
 tasks.SetSelection(new object? [] { allTasks[0], allTasks[3], allTasks[4] });
 Form options = OptionsForm();
-MenuItem optionsItem = new MenuItem("Options").Hotkey('o').IconName(GlyphIcon.Settings).Description("How the run behaves: parallelism, the report and notifications.").Form(options, (context, result) => context.Toast("Options saved"));
+MenuItem optionsItem = new MenuItem("Options")
+{
+    Hotkey = 'o',
+    IconName = GlyphIcon.Settings,
+    Description = "How the run behaves: parallelism, the report and notifications."
+}.Form(options, (context, result) => context.Toast("Options saved"));
 menu.Add(targets);
 menu.Add(tasks);
 menu.Add(optionsItem);
-menu.Item("Presets", i => i.Hotkey('p').IconName(GlyphIcon.Favorite).Description("Saved combinations of targets, tasks and options. Save one from Review & run.").Presets());
+menu.Item("Presets", i =>
+{
+    i.Hotkey = 'p';
+    i.IconName = GlyphIcon.Favorite;
+    i.Description = "Saved combinations of targets, tasks and options. Save one from Review & run.";
+    i.Presets();
+});
 menu.Separator();
 menu.Item("Review & run", i =>
 {
@@ -117,7 +133,10 @@ async Task<IEnumerable<Choice>> LoadServersAsync(CancellationToken token)
     return inventory.Select(server => new Choice(server, server.Name) { Group = server.Site, Badge = RichText.Plain(server.Role, new RichStyle(ThemeToken.Muted)), Description = server.Role + " server · " + server.OperatingSystem, DisabledReason = server.Offline }).ToList();
 }
 
-IWidget TaskPreview(MaintenanceTask task) => new Rows(new TextBlock(Markup.Escape(task.Description)), new KeyValueList().Add("Group", Markup.Escape(task.Category)).Add("Duration", "about " + task.Minutes + " min per server").Add("Changes", task.Changes ? "[warn]yes[/], makes changes" : "[pass]no[/], read only").Add("Parameter", "[accent]" + Markup.Escape(task.Id) + "[/]")).Gap(1);
+IWidget TaskPreview(MaintenanceTask task) => new Rows(new TextBlock(Markup.Escape(task.Description)), new KeyValueList().Add("Group", Markup.Escape(task.Category)).Add("Duration", "about " + task.Minutes + " min per server").Add("Changes", task.Changes ? "[warn]yes[/], makes changes" : "[pass]no[/], read only").Add("Parameter", "[accent]" + Markup.Escape(task.Id) + "[/]"))
+{
+    Gap = 1
+};
 Form OptionsForm()
 {
     Form form = new Form("Options")

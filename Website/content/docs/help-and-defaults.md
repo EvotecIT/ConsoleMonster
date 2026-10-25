@@ -103,11 +103,11 @@ remoting, CI and transcript output retains native rendering. `$ErrorView` stays 
 
 {{< cm-demo id="errors" heading="h2" >}}
 
-With `-Feature ErrorView`, errors that reach the console use the same view as `Show-ConsoleError`: the exception type, the message, the category, the lines of the script around the failing statement, and the call stack with framework frames folded. It follows `$ErrorView`: `DetailedView` adds the stack, and `CategoryView` keeps PowerShell's own view.
+With `-Feature ErrorView`, errors that reach the console use the same view as `Show-Console -View Error`: the exception type, the message, the category, the lines of the script around the failing statement, and the call stack with framework frames folded. It follows `$ErrorView`: `DetailedView` adds the stack, and `CategoryView` keeps PowerShell's own view.
 
 {{< cm-demo id="progress" heading="h2" >}}
 
-The legacy `Progress` feature is excluded from `All`: All keeps `Write-Progress` native and styles it through `Streams`, preserving its View and restoring exact owned colors on disable. With an explicit `-Feature Progress`, `Write-Progress` becomes an alias of `Write-ConsoleProgress` for the session, so existing loops get ConsoleMonster's progress area: one row per activity below the cursor, nested with `-ParentId`, with a bar, the percentage, the status and the elapsed time. Output written in between appears above the area, and the area disappears when every activity completes. `$ProgressPreference` is honoured. Progress written by compiled cmdlets such as `Copy-Item` is still drawn by PowerShell.
+The `Progress` feature is excluded from `All`: All keeps `Write-Progress` native and styles it through `Streams`, preserving its View and restoring exact owned colors on disable. With an explicit `-Feature Progress`, `Write-Progress` uses the native-metadata ConsoleMonster function adapter for the session, so existing loops get ConsoleMonster's progress area: one row per activity below the cursor, nested with `-ParentId`, with a bar, the percentage, the status and the elapsed time. Output written in between appears above the area, and the area disappears when every activity completes. `$ProgressPreference` is honoured. Progress written by compiled cmdlets such as `Copy-Item` is still drawn by PowerShell.
 
 ## Warning, verbose and debug colours
 

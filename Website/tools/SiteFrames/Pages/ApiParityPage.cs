@@ -25,6 +25,15 @@ namespace SiteFrames.Pages {
                 body.AppendLine("| `" + Cell(row["CSharpType"]!.GetValue<string>() + "." + row["Member"]!.GetValue<string>()) + "` | "
                     + Cell(row["Disposition"]!.GetValue<string>() + ": " + row["Reason"]!.GetValue<string>()) + " | " + Cell(row["Alternative"]!.GetValue<string>()) + " |");
             }
+            body.AppendLine("\n## .NET host integrations\n");
+            body.AppendLine("The PowerShell formatting, help and progress examples run inside a compiled PSCmdlet on its owning pipeline thread. The generic-host and ILogger examples configure .NET lifetimes; their PowerShell tab launches the same project. These options remain explicit C# integration settings.\n");
+            body.AppendLine("| Package and C# member | PowerShell route and reason |\n| --- | --- |");
+            foreach (JsonNode? node in map["IntegrationOptions"]!.AsArray()) {
+                JsonObject integration = node!.AsObject();
+                foreach (JsonNode? member in integration["Members"]!.AsArray()) {
+                    body.AppendLine("| `" + Cell(integration["CSharpType"]!.GetValue<string>() + "." + member!.GetValue<string>()) + "` (" + Cell(integration["Package"]!.GetValue<string>()) + ") | `dotnet run`: " + Cell(integration["Reason"]!.GetValue<string>()) + " |");
+                }
+            }
             string markdown = body.ToString();
             site.Write(Path.Combine(site.Repository, "Docs", "Api-Parity.md"), markdown);
             site.Write(Path.Combine(site.Website, "content", "docs", "api-parity.md"),

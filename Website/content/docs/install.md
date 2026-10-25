@@ -51,16 +51,16 @@ var artifacts = new[] {
 };
 Terminal.Write(Table.For(artifacts)
     .Column(a => a.Artifact, c => c
-        .WithIsKey()
-        .WithOverflow(ColumnOverflow.Never))
+        .IsKey()
+        .Overflow(ColumnOverflow.Never))
     .Column(a => a.Size, c => c
-        .WithPresenter(CellPresenters.Bytes)
-        .WithAggregate(ColumnAggregate.Sum))
-    .WithTotals()
-    .WithTitle("Artifacts"));
+        .Presenter(CellPresenters.Bytes)
+        .Aggregate(ColumnAggregate.Sum))
+    .Totals()
+    .Title("Artifacts"));
 ```
 
-This uses the fluent style. The same table can be written with object initializers or the `Ui` factories; [Three ways to write it in C#](/docs/csharp-styles/) shows each as a complete program.
+This uses the fluent style. The same table can be written with object initializers or PowerShell parameters; [Three ways to write it](/docs/csharp-styles/) shows the translation.
 
 The package targets netstandard2.0, net472, net8.0 and net10.0 and has no package dependencies. The net8.0 and net10.0 targets are marked AOT-compatible; the object inspector's reflection member source is marked `RequiresUnreferencedCode`, and `InspectorOptions.UseReflection = false` keeps trimmed builds safe.
 
@@ -93,6 +93,6 @@ Windows PowerShell 5.1 loads only one version of an assembly per session, so two
 - [Coming from another tool](/guides/coming-from/) maps familiar APIs and commands to ConsoleMonster.
 
 - [Widgets](/widgets/) shows every widget with its PowerShell and C# source.
-- [Three ways to write it in C#](/docs/csharp-styles/) compares the fluent, object and `Ui` styles.
+- [Three ways to write it](/docs/csharp-styles/) compares PowerShell, C# initializers and C# fluent calls.
 - [Capability detection](/docs/capabilities/) explains what ConsoleMonster decides about your console.
 - The [.NET API reference](/api/) and the [PowerShell command reference](/powershell/commands/) list every type and cmdlet.

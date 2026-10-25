@@ -14,14 +14,20 @@ namespace SiteFrames.Capture {
 
         /// <summary>Resolves the generated variant without writing a temporary source file.</summary>
         public static IReadOnlyCollection<string> ConfiguredMembersFromSource(string path, string code, params string[] companions) {
-            var compilation = CreateCompilation(path, code, companions: companions);
+            return ConfiguredMembers(CreateCompilation(path, code, companions: companions));
+        }
+
+        public static IReadOnlyCollection<string> ConfiguredProjectMembers(string path, string project, string code) =>
+            ConfiguredMembers(CreateCompilation(path, code, references: ProjectReferences(project)));
+
+        private static IReadOnlyCollection<string> ConfiguredMembers(Compilation compilation) {
             var result = new HashSet<string>(StringComparer.Ordinal);
             foreach (SyntaxTree tree in compilation.SyntaxTrees.Where(t => t.FilePath != "GlobalUsings.g.cs")) {
                 SemanticModel model = compilation.GetSemanticModel(tree);
                 foreach (SyntaxNode node in tree.GetRoot().DescendantNodes()) {
                     if (node is InvocationExpressionSyntax invocation && model.GetSymbolInfo(invocation).Symbol is IMethodSymbol invoked) {
                         IMethodSymbol method = invoked.ReducedFrom ?? invoked;
-                        if (method.ContainingNamespace.ToDisplayString().StartsWith("ConsoleMonster", StringComparison.Ordinal)) {
+                        if (method.ContainingNamespace.ToDisplayString().StartsWith("ConsoleMonster", StringComparison.Ordinal) || method.ContainingType.ToDisplayString() == "System.Console") {
                             result.Add("M:" + method.ContainingType.ToDisplayString() + "." + method.Name);
                         }
                     }
@@ -32,9 +38,12 @@ namespace SiteFrames.Capture {
                         && model.GetTypeInfo(member.Expression).Type is INamedTypeSymbol receiver) {
                         Add(result, Find(receiver, member.Name.Identifier.ValueText));
                     } else if (node is ArgumentSyntax argument && model.GetOperation(argument) is IArgumentOperation operation
-                        && operation.Parameter is IParameterSymbol parameter && parameter.ContainingSymbol is IMethodSymbol constructor
-                        && constructor.MethodKind == MethodKind.Constructor) {
-                        Add(result, Find(constructor.ContainingType, parameter.Name));
+                        && operation.Parameter is IParameterSymbol parameter && parameter.ContainingSymbol is IMethodSymbol owner) {
+                        if (owner.ContainingNamespace.ToDisplayString().StartsWith("ConsoleMonster", StringComparison.Ordinal)) {
+                            string methodName = owner.MethodKind == MethodKind.Constructor ? ".ctor" : owner.Name;
+                            result.Add("A:" + owner.ContainingType.ToDisplayString() + "." + methodName + "." + parameter.Name);
+                        }
+                        if (owner.MethodKind == MethodKind.Constructor) { Add(result, Find(owner.ContainingType, parameter.Name)); }
                     }
                 }
             }

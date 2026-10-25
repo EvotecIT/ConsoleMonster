@@ -74,6 +74,11 @@ namespace SiteFrames.Pages {
                     ["csharpFile"] = "Program.cs",
                     ["frame"] = site.Frame(Run(site, section.Id, DefaultWidth, Theme.Dark), Run(site, section.Id, DefaultWidth, Theme.Light))
                 };
+                string script = Path.ChangeExtension(ProgramPath(site, section.Id), ".ps1");
+                (string powershell, string powershellFull) = SourceSnippets.Program(Site.ReadText(script));
+                entry["powershell"] = powershell;
+                entry["powershellFull"] = powershellFull;
+                entry["powershellFile"] = section.Id + ".ps1";
                 SourceStyles.Add(site, entry, ProgramPath(site, section.Id));
                 list.Add(entry);
                 foreach (int width in Widths) {

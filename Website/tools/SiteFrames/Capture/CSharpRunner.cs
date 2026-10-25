@@ -74,6 +74,10 @@ namespace SiteFrames.Capture {
         /// <summary>Checks that program text (a code block on a page, named for messages) compiles cleanly; throws otherwise.</summary>
         public static void Check(string name, string code, params string[] companions) => Emit(name, code, companions: companions);
 
+        /// <summary>Checks every file of a generated multi-file example in the same compilation.</summary>
+        public static void CheckSources(string path, IReadOnlyDictionary<string, string> sources, params string[] companions) =>
+            Emit(path, sources[path], companions: companions, sourceOverrides: sources);
+
         /// <summary>
         /// Builds a program into <paramref name="folder"/> as a framework-dependent app (the program, its runtimeconfig and
         /// ConsoleMonster.dll), so a recording can run it as a real process in a pseudo console: <c>dotnet &lt;name&gt;.dll</c>.
@@ -93,30 +97,34 @@ namespace SiteFrames.Capture {
             return dll;
         }
 
-        private static CSharpCompilation CreateCompilation(string path, string code, string? assemblyName = null, string[]? companions = null) {
+        private static CSharpCompilation CreateCompilation(string path, string code, string? assemblyName = null, string[]? companions = null,
+            IReadOnlyDictionary<string, string>? sourceOverrides = null, IReadOnlyList<MetadataReference>? references = null) {
             // C# 12 with the .NET 8 SDK's warning level: what a reader's `dotnet new console` project on .NET 8 compiles.
             CSharpParseOptions parse = new CSharpParseOptions(LanguageVersion.CSharp12);
             SyntaxTree tree = CSharpSyntaxTree.ParseText(code, parse, path);
             SyntaxTree implicitUsings = CSharpSyntaxTree.ParseText(ImplicitUsings, parse, "GlobalUsings.g.cs");
             List<SyntaxTree> trees = new List<SyntaxTree> { tree, implicitUsings };
             foreach (string companion in companions ?? Array.Empty<string>()) {
-                trees.Add(CSharpSyntaxTree.ParseText(Site.ReadText(companion), parse, companion));
+                string source = sourceOverrides != null && sourceOverrides.TryGetValue(companion, out string? generated) ? generated : Site.ReadText(companion);
+                trees.Add(CSharpSyntaxTree.ParseText(source, parse, companion));
             }
             return CSharpCompilation.Create(
                 assemblyName ?? "SiteExample_" + Path.GetFileNameWithoutExtension(path).Replace('-', '_'),
                 trees,
-                References,
-                new CSharpCompilationOptions(OutputKind.ConsoleApplication, nullableContextOptions: NullableContextOptions.Enable, optimizationLevel: OptimizationLevel.Release, warningLevel: 8));
+                references ?? ReferencesFor(path),
+                new CSharpCompilationOptions(IsHostSource(path) ? OutputKind.DynamicallyLinkedLibrary : OutputKind.ConsoleApplication,
+                    nullableContextOptions: NullableContextOptions.Enable, optimizationLevel: OptimizationLevel.Release, warningLevel: 8));
         }
 
-        private static byte[] Emit(string path, string code, string? assemblyName = null, string[]? companions = null) {
-            CSharpCompilation compilation = CreateCompilation(path, code, assemblyName, companions);
+        private static byte[] Emit(string path, string code, string? assemblyName = null, string[]? companions = null,
+            IReadOnlyDictionary<string, string>? sourceOverrides = null, IReadOnlyList<MetadataReference>? references = null) {
+            CSharpCompilation compilation = CreateCompilation(path, code, assemblyName, companions, sourceOverrides, references);
             SyntaxTree tree = compilation.SyntaxTrees.First();
             using (MemoryStream stream = new MemoryStream()) {
                 Microsoft.CodeAnalysis.Emit.EmitResult result = compilation.Emit(stream);
                 // An unused using (CS8019) is reported by the compilation, not the emit; a reader should not copy dead lines.
                 List<Diagnostic> problems = result.Diagnostics.Where(d => d.Severity >= DiagnosticSeverity.Warning)
-                    .Concat(compilation.GetDiagnostics().Where(d => d.Id == "CS8019" && d.Location.SourceTree == tree))
+                    .Concat(compilation.GetDiagnostics().Where(d => d.Id == "CS8019" && (sourceOverrides != null ? d.Location.SourceTree?.FilePath != "GlobalUsings.g.cs" : d.Location.SourceTree == tree)))
                     .ToList();
                 if (!result.Success || problems.Count > 0) {
                     // A file by its name; a code block on a page by the page path and line it was given.

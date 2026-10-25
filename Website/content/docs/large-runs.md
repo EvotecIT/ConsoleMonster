@@ -32,7 +32,7 @@ try {
 }
 ```
 
-`-Label`, `-Target` and `-Group` accept property names or script blocks. Item positions start at zero. `Running` updates can change the phase without restarting elapsed time. `Pass`, `Fail`, `Warn` and `Skip` finish an item once. In C#, the handle's `Started` and `Finished` methods accept calls from worker threads.
+`-Label` and `-Group` accept property names or script blocks. Item positions start at zero. `Running` updates can change the phase without restarting elapsed time. `Pass`, `Fail`, `Warn` and `Skip` finish an item once. In C#, the handle's `Started` and `Finished` methods accept calls from worker threads.
 
 The larger previews below show 214 illustrative checks with eight active workers partway through a run. Their [C# scene](https://github.com/EvotecIT/ConsoleMonster/blob/master/ConsoleMonster.Examples/LargeRunScene.cs) is also used by the golden-frame tests:
 
@@ -46,9 +46,9 @@ At completion, the dashboard is removed and the full summary prints into scrollb
 
 CI and redirected output use append-only lines. `-NoLive` forces this mode. `-ProgressEvery` and `-ProgressIntervalSeconds` control compact progress updates. C# exposes the same settings through `LiveRunOptions`. `-HeightPercent` changes the dashboard limit.
 
-Background workers can call `$run.Started($index, $phase)` and `$run.Finished($index, $state, $message)` directly. Use `Wait-ConsoleRun $run` on the calling pipeline while those workers run: PowerShell hosts receive timed progress through that command's output pump. Join workers before `Complete-ConsoleRun`, including during cancellation. In C#, observe `run.Cancellation`, let workers report their last outcomes, then call `Complete`.
+Background workers can call `$run.Started($index, $phase)` and `$run.Finished($index, $state, $message)` directly. Use `Complete-ConsoleRun $run -Wait` on the calling pipeline to wait and finalize: its output pump keeps host progress moving. A timeout or cancellation leaves unfinished work open. For a non-finalizing checkpoint, wait on the actual PowerShell jobs or call the C# handle's `Wait` method, then join workers before finalization. In C#, observe `run.Cancellation`, let workers report their last outcomes, then call `Complete`.
 
-`-InteractiveKeys` enables `p` to pause/resume completion lines, `f` to filter new log lines to problems, `g` to show/hide groups, and `?` for key help. Work and dashboard counts continue while the log is paused. Held lines flush on resume or completion. `-Trend` adds a throughput sparkline when width permits. Without keyboard input these controls are omitted.
+`-InteractiveKeys` enables `p` to pause/resume completion lines, `f` to filter new log lines to problems, `g` to show/hide groups, and `?` for key help. Work and dashboard counts continue while the log is paused. Held lines flush on resume or completion. `-ShowTrend` adds a throughput sparkline when width permits. Without keyboard input these controls are omitted.
 
 ## Related
 

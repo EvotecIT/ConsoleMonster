@@ -39,7 +39,7 @@ used by the website gallery. Omitting `--demo` keeps the menu and hosted service
 | Option | Default | Meaning |
 | --- | --- | --- |
 | `--Framework` | `net8.0` | `net8.0` or `net10.0`. |
-| `--ConsoleMonsterVersion` | `2.0.*` | The ConsoleMonster package version (the newest 2.0 release by default). |
+| `--ConsoleMonsterVersion` | `2.0.2` | The ConsoleMonster package version (2.0.2 by default). |
 | `--NoAot` | `false` | Leaves native AOT publishing off. |
 | `--demo` | `none` | A gallery slug, or `none` for the menu and hosted service. |
 

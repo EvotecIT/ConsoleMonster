@@ -147,9 +147,9 @@ namespace SiteFrames.Pages {
                 CSharpProgram = "parallel.cs",
                 PosterShare = 0.45
             };
-            yield return new Demo("watch", "Watch-Console -Differences", 96, 14) { Script = "watch.ps1", PosterShare = 0.7 };
-            yield return new Demo("pester", "Invoke-ConsolePester", 96, 24) { Script = "pester.ps1", Companions = new[] { "fixtures/MailDomain.Tests.ps1" }, PosterShare = 0.75, AllowErrors = true };
-            yield return new Demo("formatting", "Enable-ConsoleFormatting", 100, 40) {
+            yield return new Demo("watch", "Watch-Console -Differences", 96, 14) { CSharpProgram = "watch.cs", Script = "watch.ps1", PosterShare = 0.7 };
+            yield return new Demo("pester", "Invoke-ConsolePester", 96, 24) { CSharpProgram = "pester.host.cs", Script = "pester.ps1", Companions = new[] { "fixtures/MailDomain.Tests.ps1" }, PosterShare = 0.75, AllowErrors = true };
+            yield return new Demo("formatting", "Enable-ConsoleFormatting", 100, 40) { CSharpProgram = "formatting.host.cs",
                 Script = "formatting.ps1",
                 Session = true,
                 Setup = "Set-Location -LiteralPath (Join-Path $PSHOME 'Modules')",
@@ -157,9 +157,9 @@ namespace SiteFrames.Pages {
                 Fps = 5,
                 Chapters = new[] { ("Before", "# PowerShell's own output"), ("After", "# The same commands now") }
             };
-            yield return new Demo("shaping", "Show-ConsoleTable -GroupBy Site", 100, 40) { Script = "shaping.ps1", Static = true };
+            yield return new Demo("shaping", "Show-ConsoleTable -GroupBy Site", 100, 40) { CSharpProgram = "shaping.host.cs", Script = "shaping.ps1", Static = true };
             // Format-Table, Format-List and Format-Wide before and after the separate FormatCommands opt-in.
-            yield return new Demo("format-commands", "Enable-ConsoleFormatting -Feature FormatCommands", 100, 46) {
+            yield return new Demo("format-commands", "Enable-ConsoleFormatting -Feature FormatCommands", 100, 46) { CSharpProgram = "format-commands.host.cs",
                 Script = "format-commands.ps1",
                 Session = true,
                 Setup = "Set-Location -LiteralPath (Join-Path $PSHOME 'Modules')",
@@ -168,23 +168,23 @@ namespace SiteFrames.Pages {
                 Chapters = new[] { ("Before", "# Format-Table, Format-List and Format-Wide as PowerShell draws them"), ("After", "# The same commands, drawn by ConsoleMonster") }
             };
             // A module that ships its own views as data, without depending on ConsoleMonster.
-            yield return new Demo("module-views", "Contoso.Servers.consoleviews.psd1", 100, 40) {
+            yield return new Demo("module-views", "Contoso.Servers.consoleviews.psd1", 100, 40) { CSharpProgram = "module-views.host.cs",
                 Script = "module-views.ps1",
                 Companions = new[] { "Contoso.Servers/Contoso.Servers.consoleviews.psd1", "Contoso.Servers/Contoso.Servers.psm1", "Contoso.Servers/Contoso.Servers.psd1" },
                 Session = true,
                 Static = true
             };
-            yield return new Demo("help", "Show-ConsoleHelp", 100, 50) { Script = "help.ps1", Session = true, PosterShare = 1 };
-            yield return new Demo("progress", "Write-Progress, drawn by ConsoleMonster", 96, 12) { Script = "progress.ps1", PosterShare = 0.5, Fps = 8, ShowProgress = true };
-            yield return new Demo("errors", "Show-ConsoleError", 100, 20) { Script = "errors.ps1", Static = true, AllowErrors = true };
+            yield return new Demo("help", "Show-ConsoleHelp", 100, 50) { CSharpProgram = "help.host.cs", Script = "help.ps1", Session = true, PosterShare = 1 };
+            yield return new Demo("progress", "Write-Progress, drawn by ConsoleMonster", 96, 12) { CSharpProgram = "progress.host.cs", Script = "progress.ps1", PosterShare = 0.5, Fps = 8, ShowProgress = true };
+            yield return new Demo("errors", "Show-Console -View Error", 100, 20) { CSharpProgram = "errors.cs", Script = "errors.ps1", Static = true, AllowErrors = true };
             // Threads and concurrency: the same parallel work written straight to the console, through a dashboard, and
             // through the same dashboard when CI is detected.
             yield return new Demo("threads-naive", "ForEach-Object -Parallel", 100, 24) { Script = "threads-naive.ps1", CSharpProgram = "threads-naive.cs", PosterShare = 0.6, Fps = 8 };
             yield return new Demo("threads-live", "Invoke-ConsoleDashboard -Parallel", 100, 22) { Script = "threads-dashboard.ps1", CSharpProgram = "threads-live.cs", PosterShare = 0.6, Fps = 8 };
-            yield return new Demo("threads-ci", "CI=true", 100, 30) { Script = "threads-dashboard.ps1", Setup = "$env:CI = 'true'", PosterShare = 0.55, Fps = 8 };
+            yield return new Demo("threads-ci", "CI=true", 100, 30) { CSharpProgram = "threads-live.cs", Script = "threads-dashboard.ps1", Setup = "$env:CI = 'true'", PosterShare = 0.55, Fps = 8 };
             yield return new Demo("session", "session.ps1", 100, 14) { Script = "session.ps1", CSharpProgram = "session.cs", PosterShare = 0.6, Fps = 6 };
             yield return new Demo("record", "record.ps1", 100, 18) { Script = "record.ps1", CSharpProgram = "record.cs", PosterShare = 0.4, Fps = 6 };
-            yield return new Demo("login", "ssh deploy@app-web-03", 100, 30) {
+            yield return new Demo("login", "ssh deploy@app-web-03", 100, 30) { CSharpProgram = "login.cs",
                 Script = Path.Combine("Module", "Examples", "Example-LoginOverview.ps1"),
                 Arguments = "-Sample -Width 96",
                 Prompt = "ssh deploy@app-web-03",
@@ -193,16 +193,19 @@ namespace SiteFrames.Pages {
             // The host runs until Ctrl+C, which the recording presses after twelve seconds, as a reader would.
             yield return new Demo("hosting", "dotnet run", 110, 30) {
                 Project = Path.Combine("Website", "examples", "demos", "hosting", "Orders.csproj"),
+                PowerShellTwin = "Website/examples/demos/hosting/Run.ps1",
                 Interrupt = TimeSpan.FromSeconds(12),
                 PosterShare = 0.75
             };
             yield return new Demo("logging", "dotnet run", 110, 30) {
                 Project = Path.Combine("Website", "examples", "demos", "logging", "Shop.csproj"),
+                PowerShellTwin = "Website/examples/demos/logging/Run.ps1",
                 Static = true
             };
             // TemplateDemo compiles the template's own Program.cs and drives its menu with scripted keys.
             yield return new Demo("template", "dotnet run, then dotnet run -- serve", 100, 26) {
                 Project = Path.Combine("Website", "tools", "TemplateDemo", "TemplateDemo.csproj"),
+                PowerShellTwin = "Website/examples/demos/template.ps1",
                 Sources = new[] { Path.Combine("Templates", "ConsoleMonster.Templates", "content", "ConsoleMonsterApp", "Program.cs") },
                 CSharp = (Path.Combine("Templates", "ConsoleMonster.Templates", "content", "ConsoleMonsterApp", "Program.cs"), null, "public static async Task<int> Main(string[] args)"),
                 PosterShare = 0.3
@@ -468,11 +471,19 @@ namespace SiteFrames.Pages {
                     entry["powershell"] = shortForm;
                     entry["powershellRepo"] = demo.PowerShellTwin.Replace('\\', '/');
                     entry["powershellFull"] = full.TrimEnd('\n');
-                    entry["powershellNote"] = "The recording ran the C# program. This script does the same with the module's commands.";
+                    entry["powershellNote"] = demo.Project == null ? "The recording ran the C# program. This script uses the same module capabilities."
+                        : "PowerShell launches the same .NET project after Program.cs is saved from either C# tab. The generic host and ILogger provider have no separate cmdlet implementation.";
+                    if (demo.Project != null) {
+                        entry["projectLauncher"] = true;
+                        entry["powershellRun"] = "./" + Path.GetFileName(demo.PowerShellTwin);
+                        entry["powershellFile"] = Path.GetFileName(demo.PowerShellTwin);
+                    }
                 }
                 if (demo.CSharpProgram != null) {
                     string program = Script(site, demo.CSharpProgram);
-                    if (demo.CSharpCompanions.Length == 0) {
+                    if (program.EndsWith(".host.cs", StringComparison.Ordinal)) {
+                        CSharpRunner.Check(program, Site.ReadText(program));
+                    } else if (demo.CSharpCompanions.Length == 0) {
                         CSharpRunner.Compile(program);
                     } else {
                         string check = Path.Combine(Path.GetTempPath(), "cmsite-check-" + demo.Id + "-" + Guid.NewGuid().ToString("N").Substring(0, 12));
@@ -488,8 +499,14 @@ namespace SiteFrames.Pages {
                     entry["csharpRepo"] = ScriptFile(site, demo.CSharpProgram);
                     entry["csharpFile"] = "Program.cs";
                     SourceStyles.Add(site, entry, program, Companions(site, demo));
+                    if (program.EndsWith(".host.cs", StringComparison.Ordinal)) {
+                        entry["csharpFile"] = Path.GetFileName(program);
+                        entry["csharpFluentFile"] = Path.GetFileName(program);
+                        entry["csharpNote"] = "This is a compiled PowerShell cmdlet class. Reference the installed module’s ConsoleMonster and ConsoleMonster.PowerShell assemblies in a PowerShell module project; ProcessRecord runs on the owning pipeline thread.";
+                        entry["csharpFluentNote"] = entry["csharpNote"]!.DeepClone();
+                    }
                     // The recording ran the script; say so on the C# tab, whose program compiles here but did not draw it.
-                    if (demo.Script != null) {
+                    if (demo.Script != null && !program.EndsWith(".host.cs", StringComparison.Ordinal)) {
                         entry["csharpNote"] = "The recording ran the PowerShell script. This C# program does the same with the library and compiles as shown; its timings are its own.";
                     }
                     // The other files of a multi-file program, each shown whole with its name.
@@ -510,6 +527,7 @@ namespace SiteFrames.Pages {
                     entry["csharpFull"] = full;
                     entry["csharpRepo"] = Path.GetRelativePath(site.Repository, projectProgram).Replace('\\', '/');
                     entry["csharpFile"] = "Program.cs";
+                    SourceStyles.AddProject(site, entry, projectProgram, Path.Combine(site.Repository, demo.Project!));
                 }
                 if (demo.CSharp != null) {
                     (string file, string? example, string? signature) = demo.CSharp.Value;
@@ -521,6 +539,7 @@ namespace SiteFrames.Pages {
                     }
                     entry["csharpFull"] = SourceSnippets.Split(fullProgram).Full.TrimEnd('\n');
                     entry["csharpRepo"] = file.Replace('\\', '/');
+                    SourceStyles.AddProject(site, entry, source, Path.Combine(site.Repository, demo.Project!));
                 }
                 demos[demo.Id] = entry;
             }

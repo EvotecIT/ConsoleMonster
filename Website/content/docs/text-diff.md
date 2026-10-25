@@ -70,7 +70,7 @@ TextDiffResult comparison = TextDiff.Compare(before, after, new TextDiffOptions 
     DifferenceLabel = "Proposed"
 });
 var view = new Panel(new TextDiffView(comparison))
-    .WithTitle("Configuration changes");
+    .Title("Configuration changes");
 Terminal.Write(view);
 ```
 

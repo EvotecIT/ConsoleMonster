@@ -6,33 +6,45 @@ using ConsoleMonster.Widgets;
 DateTimeOffset now = new DateTimeOffset(2026, 10, 16, 14, 30, 0, TimeSpan.FromHours(2));
 const string Root = @"D:\Builds\ConsoleMonster\Packed\";
 Table table = new Table()
-    .Title("[bold]Build artifacts[/] [muted]· ConsoleMonster 2.0.0[/]")
-    .ShowTotals()
-    .MaxRows(5)
-    .TotalRowCount(1234)
-    .Presentation(p => p.Now = now)
-    .AddColumn("Artifact", c => c.IsKey().Overflow(ColumnOverflow.Never))
-    .AddColumn("Kind", c => c.Priority(3))
-    .AddColumn("Size", c => c
-        .Priority(9)
-        .Presenter(CellPresenters.Bytes)
-        .Aggregate(ColumnAggregate.Sum))
-    .AddColumn("Built in", c => c
-        .Priority(6)
-        .Presenter(CellPresenters.Duration)
-        .Aggregate(ColumnAggregate.Sum))
-    .AddColumn("Created", c => c
-        .Priority(4)
-        .Presenter(new DatePresenter(DateDisplay.Relative)))
-    .AddColumn("Path", c => c
-        .Priority(1)
-        .Overflow(ColumnOverflow.TruncateMiddle)
-        .MinWidth(20)
-        .MaxWidth(40))
-    .AddColumn("SHA256", c => c
-        .Priority(0)
-        .Overflow(ColumnOverflow.Truncate)
-        .MaxWidth(14));
+{
+    Title = "[bold]Build artifacts[/] [muted]· ConsoleMonster 2.0.0[/]",
+    ShowTotals = true,
+    MaxRows = 5,
+    TotalRowCount = 1234,
+    Presentation = new PresentationOptions { Now = now }
+}.AddColumn("Artifact", c =>
+{
+    c.IsKey = true;
+    c.Overflow = ColumnOverflow.Never;
+}).AddColumn("Kind", c =>
+{
+    c.Priority = 3;
+}).AddColumn("Size", c =>
+{
+    c.Priority = 9;
+    c.Presenter = CellPresenters.Bytes;
+    c.Aggregate = ColumnAggregate.Sum;
+}).AddColumn("Built in", c =>
+{
+    c.Priority = 6;
+    c.Presenter = CellPresenters.Duration;
+    c.Aggregate = ColumnAggregate.Sum;
+}).AddColumn("Created", c =>
+{
+    c.Priority = 4;
+    c.Presenter = new DatePresenter(DateDisplay.Relative);
+}).AddColumn("Path", c =>
+{
+    c.Priority = 1;
+    c.Overflow = ColumnOverflow.TruncateMiddle;
+    c.MinWidth = 20;
+    c.MaxWidth = 40;
+}).AddColumn("SHA256", c =>
+{
+    c.Priority = 0;
+    c.Overflow = ColumnOverflow.Truncate;
+    c.MaxWidth = 14;
+});
 table.AddValues("ConsoleMonster.2.0.0.nupkg", "NuGet", 1_482_113L, TimeSpan.FromSeconds(48.2), now.AddMinutes(-12), Root + "ConsoleMonster.2.0.0.nupkg", "9f2c4e81a7d03b6e");
 // <more>
 table.AddValues("ConsoleMonster.2.0.0.snupkg", "Symbols", 402_331L, TimeSpan.FromSeconds(3.1), now.AddMinutes(-12), Root + "ConsoleMonster.2.0.0.snupkg", "41ab09cd77e2f310");

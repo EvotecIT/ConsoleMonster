@@ -14,9 +14,19 @@ namespace SiteFrames.Pages {
             FromSource(site, initializer, Site.ReadText(fluent), companions);
 
         public static JsonArray FromSource(Site site, string initializer, string fluentSource, params string[] companions) {
-            JsonObject map = JsonNode.Parse(File.ReadAllText(Path.Combine(site.Repository, "Tests", "Api", "round2-parity.json")))!.AsObject();
             var used = new HashSet<string>(CSharpRunner.ConfiguredMembers(initializer, companions), StringComparer.Ordinal);
             used.UnionWith(CSharpRunner.ConfiguredMembersFromSource(initializer, fluentSource, companions));
+            return FromMembers(site, initializer, used);
+        }
+
+        public static JsonArray ForProject(Site site, string initializer, string project, string fluent) {
+            var used = new HashSet<string>(CSharpRunner.ConfiguredProjectMembers(initializer, project, Site.ReadText(initializer)), StringComparer.Ordinal);
+            used.UnionWith(CSharpRunner.ConfiguredProjectMembers(initializer, project, fluent));
+            return FromMembers(site, initializer, used);
+        }
+
+        private static JsonArray FromMembers(Site site, string initializer, HashSet<string> used) {
+            JsonObject map = JsonNode.Parse(File.ReadAllText(Path.Combine(site.Repository, "Tests", "Api", "round2-parity.json")))!.AsObject();
             var rows = new Dictionary<string, (string Command, JsonObject Binding)>(StringComparer.Ordinal);
             foreach (JsonNode? commandNode in map["Commands"]!.AsArray()) {
                 JsonObject command = commandNode!.AsObject();
@@ -49,6 +59,7 @@ namespace SiteFrames.Pages {
                 binding["CSharpTypeName"] = route["CSharpTypeName"]!.GetValue<string>();
                 binding["Reason"] = route["Reason"]!.GetValue<string>();
                 if (route["RecordField"] != null) { binding["RecordField"] = route["RecordField"]!.GetValue<string>(); }
+                if (route["RecordKind"] != null) { binding["RecordKind"] = route["RecordKind"]!.GetValue<string>(); }
                 rows[key] = (commandName, binding);
             }
             JsonArray result = new JsonArray();
@@ -61,14 +72,41 @@ namespace SiteFrames.Pages {
                 string value = conversion == "BooleanInversion" ? "false" : isSwitch && binding["CSharpTypeName"]?.GetValue<string>() == "System.Boolean" ? "true" : conversion == "SecondsToTimeSpan" ? "TimeSpan.FromSeconds(…)"
                     : conversion == "MillisecondsToTimeSpan" ? "TimeSpan.FromMilliseconds(…)" : "…";
                 string? recordField = binding["RecordField"]?.GetValue<string>();
+                string recordKind = binding["RecordKind"] == null ? string.Empty : "Kind = '" + binding["RecordKind"]!.GetValue<string>() + "'; ";
                 result.Add(new JsonObject {
                     ["powershell"] = recordField == null ? row.Value.Command + " -" + parameter + (isSwitch ? string.Empty : " …")
-                        : "@{ " + recordField + " = … } | " + row.Value.Command,
+                        : "@{ " + recordKind + recordField + " = … } | " + row.Value.Command,
                     ["csharp"] = member + " = " + value,
                     ["fluent"] = "." + member + "(" + value + ")",
                     ["memberId"] = row.Key,
                     ["note"] = conversion == "Identity" ? null : binding["Reason"]?.GetValue<string>() ?? conversion
                 });
+            }
+            foreach (JsonNode? commandNode in map["Commands"]!.AsArray()) {
+                JsonObject command = commandNode!.AsObject();
+                foreach (JsonNode? bindingNode in command["Bindings"]!.AsArray()) {
+                    JsonObject binding = bindingNode!.AsObject();
+                    string? argument = binding["Argument"]?.GetValue<string>();
+                    if (argument == null || binding["MemberKind"]!.GetValue<string>() is not ("Method" or "Constructor")) { continue; }
+                    string owner = binding["CSharpType"]!.GetValue<string>();
+                    string method = binding["Member"]!.GetValue<string>();
+                    string key = "A:" + owner + "." + method + "." + argument;
+                    if (result.Count >= 6 || !used.Contains(key)) { continue; }
+                    bool isSwitch = binding["ParameterType"]!.GetValue<string>() == "System.Management.Automation.SwitchParameter";
+                    string conversion = binding["Conversion"]!.GetValue<string>();
+                    string value = conversion == "BooleanInversion" ? "false" : isSwitch ? "true"
+                        : conversion == "SecondsToTimeSpan" ? "TimeSpan.FromSeconds(…)" : "…";
+                    string call = owner.Substring(owner.LastIndexOf('.') + 1);
+                    call = method == ".ctor" ? "new " + call : call + "." + method;
+                    call += "(" + argument + ": " + value + ")";
+                    result.Add(new JsonObject {
+                        ["powershell"] = command["Command"]!.GetValue<string>() + " -" + binding["Parameter"]!.GetValue<string>() + (isSwitch ? string.Empty : " …"),
+                        ["csharp"] = call,
+                        ["fluent"] = call,
+                        ["memberId"] = key,
+                        ["note"] = binding["Reason"]?.GetValue<string>()
+                    });
+                }
             }
             foreach (JsonNode? endingNode in map["Endings"]!.AsArray()) {
                 JsonObject ending = endingNode!.AsObject();
@@ -99,6 +137,44 @@ namespace SiteFrames.Pages {
                     ["fluent"] = shortOwner + "." + operation["FluentFactory"]!.GetValue<string>() + "(…)." + operation["FluentMember"]!.GetValue<string>() + "()",
                     ["memberId"] = key,
                     ["note"] = operation["Reason"]!.GetValue<string>()
+                });
+            }
+            foreach (JsonNode? externalNode in map["ExternalOperations"]?.AsArray() ?? new JsonArray()) {
+                JsonObject external = externalNode!.AsObject();
+                string owner = external["CSharpType"]!.GetValue<string>();
+                string method = external["Member"]!.GetValue<string>();
+                string key = "M:" + owner + "." + method;
+                if (result.Count >= 6 || !used.Contains(key)) { continue; }
+                string call = owner.Substring(owner.LastIndexOf('.') + 1) + "." + method + "(…)";
+                result.Add(new JsonObject {
+                    ["powershell"] = external["Command"]!.GetValue<string>() + " …",
+                    ["csharp"] = call, ["fluent"] = call, ["memberId"] = key,
+                    ["note"] = external["Reason"]!.GetValue<string>()
+                });
+            }
+            foreach (JsonNode? integrationNode in map["IntegrationOptions"]?.AsArray() ?? new JsonArray()) {
+                JsonObject integration = integrationNode!.AsObject();
+                string owner = integration["CSharpType"]!.GetValue<string>();
+                foreach (JsonNode? memberNode in integration["Members"]!.AsArray()) {
+                    string member = memberNode!.GetValue<string>();
+                    string key = owner + "." + member;
+                    if (result.Count >= 6 || !used.Contains(key)) { continue; }
+                    result.Add(new JsonObject {
+                        ["powershell"] = "dotnet run", ["csharp"] = member + " = …", ["fluent"] = "." + member + "(…)",
+                        ["memberId"] = key, ["note"] = integration["Reason"]!.GetValue<string>()
+                    });
+                }
+            }
+            foreach (JsonNode? integrationNode in map["IntegrationOperations"]?.AsArray() ?? new JsonArray()) {
+                JsonObject integration = integrationNode!.AsObject();
+                string owner = integration["CSharpType"]!.GetValue<string>();
+                string member = integration["Member"]!.GetValue<string>();
+                string key = "M:" + owner + "." + member;
+                if (result.Count >= 6 || !used.Contains(key)) { continue; }
+                string call = owner.Substring(owner.LastIndexOf('.') + 1) + "." + member + "(…)";
+                result.Add(new JsonObject {
+                    ["powershell"] = "dotnet run", ["csharp"] = call, ["fluent"] = call, ["memberId"] = key,
+                    ["note"] = integration["Reason"]!.GetValue<string>()
                 });
             }
             if (result.Count == 0) { throw new InvalidDataException("No parity mapping is available for " + initializer + "."); }
