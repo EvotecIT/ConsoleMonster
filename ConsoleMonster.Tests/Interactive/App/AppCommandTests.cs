@@ -49,8 +49,8 @@ namespace ConsoleMonster.Tests.Interactive.App {
 
         [Fact]
         public void PaletteAndConfirmation_HandleAKeyboardBurstBeforeAnotherPaint() {
-            using ManualResetEventSlim finished = new ManualResetEventSlim();
-            AppCommand command = new AppCommand("restart", "Restart", (_, __) => { finished.Set(); return Task.CompletedTask; }) { ConfirmPrompt = "Restart?" };
+            TaskCompletionSource<bool> completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            AppCommand command = new AppCommand("restart", "Restart", (_, __) => completion.Task) { ConfirmPrompt = "Restart?" };
             using AppCommandHost host = new AppCommandHost(new[] { command }, () => Array.Empty<object?>(), new PromptLabels(), default);
             FrameComposer.Compose(host.Wrap(new TextBlock("body")), 80, 24, Context);
             host.Handle(InputEvent.Press(ConsoleKey.K, KeyModifiers.Control));
@@ -58,7 +58,10 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Assert.True(host.HasModal);
             host.Handle(InputEvent.Press(ConsoleKey.LeftArrow));
             host.Handle(InputEvent.Press(ConsoleKey.Enter));
-            Assert.True(finished.Wait(TimeSpan.FromSeconds(5)));
+            try {
+                Assert.True(host.IsBusy);
+                Assert.False(host.HasModal);
+            } finally { completion.TrySetResult(true); }
         }
 
         [Fact]
