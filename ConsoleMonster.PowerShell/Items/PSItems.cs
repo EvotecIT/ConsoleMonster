@@ -23,6 +23,8 @@ namespace ConsoleMonster.PowerShell {
         /// <summary>What a widget accepts, for error messages and help.</summary>
         internal static string Accepted(object widget) {
             switch (widget) {
+                case Flow _:
+                    return "New-ConsoleFlowNode, New-ConsoleFlowEdge, New-ConsoleFlowBranch or rows with Kind";
                 case Tree _:
                 case TreeNode _:
                     return "New-ConsoleTreeNode objects or strings";
@@ -111,6 +113,8 @@ namespace ConsoleMonster.PowerShell {
             problem = null;
             item = Item(item);
             switch (widget) {
+                case Flow flow:
+                    return PSFlowItems.TryAdd(flow, item, out problem);
                 case Tree tree:
                     return TryAddNode(tree.Root, item);
                 case TreeNode node:

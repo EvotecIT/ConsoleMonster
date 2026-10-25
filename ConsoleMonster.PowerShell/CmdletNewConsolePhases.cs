@@ -42,6 +42,9 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(Position = 0)]
         public string WidgetId { get; set; } = "phases";
 
+        /// <summary><para type="description">Draws [01/05] counters with right-aligned results from each item's Detail. Wrapped labels hang under the label text; results move below when the complete label and result cannot share a row.</para></summary>
+        [Parameter] public SwitchParameter StepCounter { get; set; }
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (InputObject != null) {
@@ -51,7 +54,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void EndProcessing() {
-            Phases phases = new Phases(WidgetId);
+            Phases phases = new Phases(WidgetId) { StepCounter = StepCounter.IsPresent };
             ScriptBlock? content = Content;
             if (Phase != null) {
                 foreach (object phase in Phase) {

@@ -15,13 +15,24 @@ namespace ConsoleMonster.Widgets {
     /// <c>Showing 50 of 1,234</c> footer. Raw values are formatted by the column presenters. <see cref="For{T}(IEnumerable{T})"/>
     /// makes a <see cref="Table{T}"/> whose columns are read from typed items.
     /// </summary>
-    public partial class Table : IWidget {
+    public partial class Table : IContainer {
         private readonly List<TableColumn> _columns = new List<TableColumn>();
         private readonly List<TableCell[]> _rows = new List<TableCell[]>();
         private readonly List<int> _rowGroups = new List<int>();
         private readonly List<string> _groups = new List<string>();
         private readonly Dictionary<string, int> _stableWidths = new Dictionary<string, int>(StringComparer.Ordinal);
         private TableCell[]? _footer;
+
+        /// <summary>Widgets held in value cells, including the footer, for dashboard discovery and recording replay.</summary>
+        public IReadOnlyList<IWidget> Children {
+            get {
+                Prepare();
+                var widgets = new List<IWidget>();
+                foreach (TableCell[] row in _rows) foreach (TableCell cell in row) if (WidgetCellLayout.GetWidget(cell.Value) is IWidget widget) widgets.Add(widget);
+                if (_footer != null) foreach (TableCell cell in _footer) if (WidgetCellLayout.GetWidget(cell.Value) is IWidget widget) widgets.Add(widget);
+                return widgets;
+            }
+        }
 
         /// <summary>The columns.</summary>
         public IReadOnlyList<TableColumn> Columns {

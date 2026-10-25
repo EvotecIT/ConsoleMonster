@@ -14,7 +14,7 @@ namespace ConsoleMonster.Widgets {
     /// emphasised; phases flow onto more lines when the width is short. Live operations (Key = phase): <c>add</c> (Text =
     /// label), <c>state</c> (State, Text = detail), <c>detail</c> (Text).
     /// </summary>
-    public sealed class Phases : LiveWidget {
+    public sealed partial class Phases : LiveWidget {
         private readonly List<StatusItem> _phases = new List<StatusItem>();
         private readonly Dictionary<string, StatusItem> _byKey = new Dictionary<string, StatusItem>(StringComparer.Ordinal);
         private readonly Dictionary<string, TimeSpan> _started = new Dictionary<string, TimeSpan>(StringComparer.Ordinal);
@@ -92,14 +92,19 @@ namespace ConsoleMonster.Widgets {
             return null;
         }
 
+        /// <summary>Draws a numbered ledger with hanging labels and right-aligned details, placing a detail below its label when they cannot share a row.</summary>
+        public bool StepCounter { get; set; }
+
         /// <inheritdoc />
         public override Size Measure(Constraints constraints, RenderContext context) {
+            if (StepCounter) return LedgerMeasure(constraints, context);
             int lines = Flow(constraints.MaxWidth, context).Count;
             return new Size(constraints.MaxWidth, constraints.IsHeightUnbounded ? lines : Math.Min(lines, constraints.MaxHeight));
         }
 
         /// <inheritdoc />
         public override void Render(Region region, RenderContext context) {
+            if (StepCounter) { LedgerRender(region, context); return; }
             List<List<StyledLine>> lines = Flow(region.Width, context);
             string separator = " " + context.Glyphs.Get(Glyph.Chevron) + " ";
             Style sepStyle = context.Style(ThemeToken.Subtle);

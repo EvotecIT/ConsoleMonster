@@ -55,6 +55,7 @@
         <TypeName>ConsoleMonster.Widgets.CodeView</TypeName>
         <TypeName>ConsoleMonster.Widgets.Dashboard</TypeName>
         <TypeName>ConsoleMonster.Widgets.ExceptionView</TypeName>
+        <TypeName>ConsoleMonster.Widgets.Flow</TypeName>
         <TypeName>ConsoleMonster.Widgets.FooterBar</TypeName>
         <TypeName>ConsoleMonster.Widgets.HeaderBar</TypeName>
         <TypeName>ConsoleMonster.Widgets.HelpView</TypeName>

@@ -27,13 +27,13 @@
     It 'exports the Console cmdlets on this runtime' {
         Import-Module $script:ModulePath -Force
         $commands = Get-Command -Module ConsoleMonster
-        $commands.Count | Should -Be 136
+        $commands.Count | Should -Be 141
         $manifest = Import-PowerShellDataFile -LiteralPath $script:ModulePath
         $cmdlets = @($commands | Where-Object CommandType -EQ Cmdlet)
-        $cmdlets.Count | Should -Be 136
+        $cmdlets.Count | Should -Be 141
         ($cmdlets.Name | Sort-Object) -join ',' | Should -BeExactly (($manifest.CmdletsToExport | Sort-Object) -join ',')
         ($commands | Where-Object CommandType -EQ Alias) | Should -BeNullOrEmpty
-        foreach ($name in 'Get-ConsoleDemo', 'Show-ConsoleDemo') { $cmdlets.Name | Should -Contain $name }
+        foreach ($name in 'Get-ConsoleDemo', 'Show-ConsoleDemo', 'New-ConsoleFlow', 'New-ConsoleFlowNode', 'New-ConsoleFlowEdge', 'New-ConsoleFlowBranch', 'Update-ConsoleFlow') { $cmdlets.Name | Should -Contain $name }
         $commands.Name | Should -Contain 'Show-ConsoleMarkdown'
         foreach ($name in 'Start-ConsoleRun', 'Update-ConsoleRun', 'Wait-ConsoleRun', 'Complete-ConsoleRun') { $commands.Name | Should -Contain $name }
         $commands.Name | Should -Contain 'Show-ConsoleObject'

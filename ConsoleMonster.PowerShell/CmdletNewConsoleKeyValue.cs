@@ -50,9 +50,14 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Shared NumberColumn layout settings from New-ConsoleColumnFormat.</para></summary>
         [Parameter] public Layout.ColumnFormat? NumberColumn { get; set; }
 
+        /// <summary><para type="description">Preferred pairs per row; reduces automatically in narrow terminals.</para></summary>
+        [Parameter, ValidateRange(1, 12)] public int Columns { get; set; } = 1;
+        /// <summary><para type="description">Theme role for keys.</para></summary>
+        [Parameter] public ConsoleMonster.Styling.ThemeToken KeyRole { get; set; } = ConsoleMonster.Styling.ThemeToken.Muted;
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            KeyValueList list = new KeyValueList(WidgetId);
+            KeyValueList list = new KeyValueList(WidgetId) { Columns = Columns, KeyRole = KeyRole };
             object? raw = InputObject is PSObject ps ? ps.BaseObject : InputObject;
             ScriptBlock? content = Content;
             if (raw is ScriptBlock script) {

@@ -185,6 +185,26 @@ Creates a form field for New-ConsoleForm.
 
 A field has a name (its key in the result), a label, help shown while it has focus, a default, validation (-Required, -Validator and the type's own checks) and the command-line parameter it supplies (-ParameterName) for the equivalent command. -VisibleWhen shows it only while a condition on the other values holds ($Values). -DependsOn resets it when those fields change; with -LoadChoices its options are loaded again in their own runspace (a spinner shows, Esc cancels), from the current values ($Values). Choices are built from any objects: -Display, -GroupBy, -Describe, -Badge, -DisabledReason and -Selected read each object (a property name, or a scriptblock for choices given with -Choices; loaded choices take property names), and -CommandValue picks the text the equivalent command shows and the field returns.
 
+### [New-ConsoleFlow](New-ConsoleFlow.md)
+Builds a native flow strip of nodes, labelled edges and one side branch.
+
+Emit nodes first, then edges and an optional branch. Pipeline rows use Kind (Node, Edge or Branch) and the item command's property names. Labels are literal. The strip becomes vertical in a narrow terminal.
+
+### [New-ConsoleFlowBranch](New-ConsoleFlowBranch.md)
+Creates the single side branch below a flow strip.
+
+Builds the single side branch for New-ConsoleFlow or Add-ConsoleItem. From identifies its source node. Omit To to end below that node, or name a later node to return to the strip. Label explains the branch using literal text.
+
+### [New-ConsoleFlowEdge](New-ConsoleFlowEdge.md)
+Creates a labelled connection between adjacent flow nodes.
+
+Builds an edge after its source and destination nodes have been added to a flow. From and To identify adjacent nodes in strip order. Label appears above the arrow; Cut severs the line with a cross, or x in ASCII mode.
+
+### [New-ConsoleFlowNode](New-ConsoleFlowNode.md)
+Creates a labelled flow node with an optional status glyph and colour.
+
+Builds a node for New-ConsoleFlow or Add-ConsoleItem. Key is its stable identity for live updates; Label is literal text. Status uses the shared vocabulary and remains readable through a glyph when colour is disabled.
+
 ### [New-ConsoleFooterBar](New-ConsoleFooterBar.md)
 Creates a reusable footer with key hints, messages and linked segments.
 
@@ -610,6 +630,11 @@ Starts, updates or finishes an activity of an activity list (New-ConsoleActivity
 Sets the state of cells of a cell map (New-ConsoleCellMap) in the running dashboard.
 
 -Index names the cells by position, from 0 (in a grid with -Columns, row * columns + column); -Status is their new state: Pass, Fail, Warn, Skip, Info, Running or Pending (PowerShell's words such as Success and Error work too). An index past the end grows the map. -Add appends cells in the -Status state instead, and -Count sets the number of cells (new ones are pending). Safe to call from any runspace or thread.
+
+### [Update-ConsoleFlow](Update-ConsoleFlow.md)
+Updates a node or edge in a live dashboard's flow strip.
+
+Posts a status change to an existing flow in a running dashboard. WidgetId selects the flow; NodeKey or EdgeKey selects its item. Cut severs an edge, Cut:$false reconnects it, and omitting Cut preserves its connection state.
 
 ### [Update-ConsoleLane](Update-ConsoleLane.md)
 Updates a lane of a running dashboard: progress, step results, status and detail.

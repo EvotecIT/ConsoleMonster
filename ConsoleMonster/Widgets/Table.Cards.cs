@@ -74,10 +74,11 @@ namespace ConsoleMonster.Widgets {
             if (total?.Cells != null) {
                 view.AddHeading(Markup.Escape(TotalLabel ?? presenter.Render.Labels.Total), 0);
                 for (int c = 0; c < _columns.Count; c++) {
-                    if (c == key || total.Cells[c].IsEmpty) {
+                    if ((c == key && total.Cells[c].Widget == null) || total.Cells[c].IsEmpty) {
                         continue;
                     }
-                    view.AddField(Markup.Strip(_columns[c].Header), new TableCell(Markup.Escape(total.Cells[c].Lines[0].PlainText)));
+                    view.AddField(Markup.Strip(_columns[c].Header), total.Cells[c].Widget is Layout.IWidget widget
+                        ? TableCell.FromValue(widget) : new TableCell(Markup.Escape(total.Cells[c].Lines[0].PlainText)));
                 }
             }
             return view;
@@ -85,7 +86,7 @@ namespace ConsoleMonster.Widgets {
 
         private void AddFields(RecordView view, TableCell[] row, int key, PresenterContext[] contexts) {
             for (int c = 0; c < _columns.Count; c++) {
-                if (c == key && !ShowKeyField) {
+                if (c == key && !ShowKeyField && WidgetCellLayout.GetWidget(row[c].Value) == null) {
                     continue;
                 }
                 TableColumn column = _columns[c];
@@ -97,6 +98,7 @@ namespace ConsoleMonster.Widgets {
             RowTitles != null && index < RowTitles.Count && !string.IsNullOrEmpty(RowTitles[index]) ? RowTitles[index]! : KeyText(_rows[index], key, contexts);
 
         private string KeyText(TableCell[] row, int key, PresenterContext[] contexts) {
+            if (WidgetCellLayout.GetWidget(row[key].Value) != null) return Markup.Strip(_columns[key].Header);
             CellContent content = CellRendering.Content(row[key], _columns[key].Presenter, null, contexts[key]);
             return content.Lines.Count > 0 ? content.Lines[0].PlainText : string.Empty;
         }

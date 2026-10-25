@@ -44,6 +44,12 @@ namespace ConsoleMonster.Layout {
         /// <summary>The theme token for the border (default <see cref="ThemeToken.Border"/>).</summary>
         public ThemeToken BorderRole { get; set; } = ThemeToken.Border;
 
+        /// <summary>Uses a double border and a centred title for a verdict.</summary>
+        public bool Verdict { get; set; }
+
+        /// <summary>Optional status colour and title glyph for a verdict.</summary>
+        public StatusKind? Status { get; set; }
+
         /// <summary>Cells between the left border and the content (default 1).</summary>
         public int PaddingLeft { get; set; } = 1;
 
@@ -72,7 +78,7 @@ namespace ConsoleMonster.Layout {
             int horizontal = (HasBorder ? 2 : 0) + PaddingLeft + PaddingRight;
             int vertical = (HasBorder ? 2 : (string.IsNullOrEmpty(Title) ? 0 : 1)) + PaddingTop + PaddingBottom;
             Size inner = Child.Measure(constraints.Shrink(horizontal, vertical), context);
-            int titleWidth = string.IsNullOrEmpty(Title) ? 0 : context.Markup(Title!).Width + 4;
+            int titleWidth = string.IsNullOrEmpty(Title) ? 0 : context.Markup(Title!).Width + 4 + (Verdict && Status.HasValue ? DisplayWidth.Measure(context.Glyphs.StatusSymbol(Status.Value)) + 1 : 0);
             int width = Expand ? constraints.MaxWidth : Math.Min(constraints.MaxWidth, Math.Max(inner.Width + horizontal, titleWidth + 2));
             int height = Height ?? inner.Height + vertical;
             return new Size(width, constraints.IsHeightUnbounded ? height : Math.Min(height, constraints.MaxHeight));
@@ -102,8 +108,8 @@ namespace ConsoleMonster.Layout {
         }
 
         private void DrawBorder(Region region, RenderContext context) {
-            BoxGlyphs box = context.Glyphs.GetBox(Border);
-            Style border = context.Style(BorderRole);
+            BoxGlyphs box = context.Glyphs.GetBox(Verdict ? BoxStyle.Double : Border);
+            Style border = context.Style(Verdict && Status.HasValue ? Status.Value.ToToken() : BorderRole);
             int w = region.Width;
             int h = region.Height;
             region.Put(0, 0, box.TopLeft, border);
@@ -132,8 +138,9 @@ namespace ConsoleMonster.Layout {
                 int available = w - 6 - (captionWidth > 0 ? captionWidth + 1 : 0);
                 if (available > 0) {
                     StyledLine title = TitleLine(context, available);
-                    region.Put(2, 0, " ", Style.Plain);
-                    int end = region.Write(3, 0, title);
+                    int start = Verdict ? Math.Max(2, (w - captionWidth - title.Width) / 2) : 3;
+                    region.Put(start - 1, 0, " ", Style.Plain);
+                    int end = region.Write(start, 0, title);
                     region.Put(end, 0, " ", Style.Plain);
                 }
             }
@@ -149,7 +156,11 @@ namespace ConsoleMonster.Layout {
         }
 
         private StyledLine TitleLine(RenderContext context, int width) {
-            StyledLine line = context.Markup(Title!).Lines[0].WithBaseStyle(context.Style(ThemeToken.Title));
+            Style style = context.Style(Verdict && Status.HasValue ? Status.Value.ToToken() : ThemeToken.Title);
+            var spans = new List<TextSpan>();
+            if (Verdict && Status.HasValue) spans.Add(new TextSpan(context.Glyphs.StatusSymbol(Status.Value) + " ", style));
+            spans.AddRange(context.Markup(Title!).Lines[0].WithBaseStyle(style));
+            var line = new StyledLine(spans);
             return TextWrapper.Truncate(line, width, context.Ellipsis);
         }
     }

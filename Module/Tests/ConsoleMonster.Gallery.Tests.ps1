@@ -1,4 +1,4 @@
-Describe 'ConsoleMonster gallery runner' {
+﻿Describe 'ConsoleMonster gallery runner' {
     BeforeAll {
         . (Join-Path $PSScriptRoot 'Support/Invoke-TestChild.ps1')
         $script:GalleryModulePath = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../ConsoleMonster.psd1'))
@@ -117,7 +117,7 @@ try {
             $demo.Tags | Should -BeOfType [string]
             $demo.Terminal.Width | Should -BeGreaterThan 0
             $demo.Terminal.Height | Should -BeGreaterThan 0
-            $demo.Runtime.PowerShell | Should -BeExactly '7.4+'
+            $demo.Runtime.PowerShell | Should -BeExactly $(if ($demo.Slug -eq 'tls-verdict') { '5.1+' } else { '7.4+' })
             $demo.Runtime.DotNet | Should -BeExactly '8.0+'
             $demo.PSObject.Properties.Name | Should -Contain 'addons'
             @($demo.MakeItYours).Count | Should -Be 3
@@ -214,6 +214,11 @@ try {
     It 'keeps the loaded fleet defaults selected in the native editor' {
         $text = Invoke-GalleryChild -Body 'Show-ConsoleDemo fleet -StaticSnapshot -Step 1'
         $text | Should -Match '5 of 5 selected'
+    }
+
+    It 'captures toolbox targets only after their defaults have loaded' {
+        $text = Invoke-GalleryChild -Body 'Show-ConsoleDemo toolbox -StaticSnapshot -Step 1'
+        $text | Should -Match '4 of 9 selected'
     }
 
     It 'filters the exported <Slug> app through real scripted input and shows the matching result' -ForEach @(

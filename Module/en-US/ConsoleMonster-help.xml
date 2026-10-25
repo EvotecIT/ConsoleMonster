@@ -9690,6 +9690,652 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -
   </command:command>
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
     <command:details>
+      <command:name>New-ConsoleFlow</command:name>
+      <command:verb>New</command:verb>
+      <command:noun>ConsoleFlow</command:noun>
+      <maml:description>
+        <maml:para>Builds a native flow strip of nodes, labelled edges and one side branch.</maml:para>
+        <maml:para>Emit nodes first, then edges and an optional branch. Pipeline rows use Kind (Node, Edge or Branch) and the item command's property names. Labels are literal. The strip becomes vertical in a narrow terminal.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Builds a native flow strip of nodes, labelled edges and one side branch.</maml:para>
+      <maml:para>Emit nodes first, then edges and an optional branch. Pipeline rows use Kind (Node, Edge or Branch) and the item command's property names. Labels are literal. The strip becomes vertical in a narrow terminal.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>New-ConsoleFlow</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="None">
+          <maml:name>Content</maml:name>
+          <maml:description>
+            <maml:para>Emits New-ConsoleFlowNode, New-ConsoleFlowEdge and New-ConsoleFlowBranch items.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
+          <dev:type>
+            <maml:name>ScriptBlock</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="named" aliases="None">
+          <maml:name>InputObject</maml:name>
+          <maml:description>
+            <maml:para>Items or plain rows with Kind and the corresponding item properties.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">PSObject</command:parameterValue>
+          <dev:type>
+            <maml:name>PSObject</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+          <maml:name>WidgetId</maml:name>
+          <maml:description>
+            <maml:para>Identifier used by Update-ConsoleFlow (default flow).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="None">
+        <maml:name>Content</maml:name>
+        <maml:description>
+          <maml:para>Emits New-ConsoleFlowNode, New-ConsoleFlowEdge and New-ConsoleFlowBranch items.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
+        <dev:type>
+          <maml:name>ScriptBlock</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="named" aliases="None">
+        <maml:name>InputObject</maml:name>
+        <maml:description>
+          <maml:para>Items or plain rows with Kind and the corresponding item properties.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">PSObject</command:parameterValue>
+        <dev:type>
+          <maml:name>PSObject</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <maml:name>WidgetId</maml:name>
+        <maml:description>
+          <maml:para>Identifier used by Update-ConsoleFlow (default flow).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>ConsoleMonster.Widgets.Flow</maml:name>
+        </dev:type>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>New-ConsoleFlow -Content {
+    New-ConsoleFlowNode -Key leaf -Label 'Leaf' -Status Pass
+    New-ConsoleFlowNode -Key issuer -Label 'Intermediate' -Status Fail
+    New-ConsoleFlowEdge -Key chain -From leaf -To issuer -Label 'expired' -Status Fail -Cut
+}</dev:code>
+        <dev:remarks>
+          <maml:para>A certificate path with a broken connection</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
+      <command:name>New-ConsoleFlowBranch</command:name>
+      <command:verb>New</command:verb>
+      <command:noun>ConsoleFlowBranch</command:noun>
+      <maml:description>
+        <maml:para>Creates the single side branch below a flow strip.</maml:para>
+        <maml:para>Builds the single side branch for New-ConsoleFlow or Add-ConsoleItem. From identifies its source node. Omit To to end below that node, or name a later node to return to the strip. Label explains the branch using literal text.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Creates the single side branch below a flow strip.</maml:para>
+      <maml:para>Builds the single side branch for New-ConsoleFlow or Add-ConsoleItem. From identifies its source node. Omit To to end below that node, or name a later node to return to the strip. Label explains the branch using literal text.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>New-ConsoleFlowBranch</maml:name>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>From</maml:name>
+          <maml:description>
+            <maml:para>Source node key.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+          <maml:name>Label</maml:name>
+          <maml:description>
+            <maml:para>Literal branch label.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Status</maml:name>
+          <maml:description>
+            <maml:para>Optional branch status.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">StatusKind</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Pending</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Running</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Pass</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Fail</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>StatusKind</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>To</maml:name>
+          <maml:description>
+            <maml:para>Optional later node to return to; omitted to end the branch.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>From</maml:name>
+        <maml:description>
+          <maml:para>Source node key.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <maml:name>Label</maml:name>
+        <maml:description>
+          <maml:para>Literal branch label.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Status</maml:name>
+        <maml:description>
+          <maml:para>Optional branch status.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">StatusKind</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Pending</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Running</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Pass</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Fail</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>StatusKind</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>To</maml:name>
+        <maml:description>
+          <maml:para>Optional later node to return to; omitted to end the branch.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>ConsoleMonster.Widgets.FlowBranch</maml:name>
+        </dev:type>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>New-ConsoleFlowBranch -From issuer -Label 'expired 2026-09-30' -Status Fail</dev:code>
+        <dev:remarks>
+          <maml:para>An expiry reason below the issuer</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
+      <command:name>New-ConsoleFlowEdge</command:name>
+      <command:verb>New</command:verb>
+      <command:noun>ConsoleFlowEdge</command:noun>
+      <maml:description>
+        <maml:para>Creates a labelled connection between adjacent flow nodes.</maml:para>
+        <maml:para>Builds an edge after its source and destination nodes have been added to a flow. From and To identify adjacent nodes in strip order. Label appears above the arrow; Cut severs the line with a cross, or x in ASCII mode.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Creates a labelled connection between adjacent flow nodes.</maml:para>
+      <maml:para>Builds an edge after its source and destination nodes have been added to a flow. From and To identify adjacent nodes in strip order. Label appears above the arrow; Cut severs the line with a cross, or x in ASCII mode.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>New-ConsoleFlowEdge</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Cut</maml:name>
+          <maml:description>
+            <maml:para>Draws a severed connection, using x in ASCII mode.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>From</maml:name>
+          <maml:description>
+            <maml:para>Source node key.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Key</maml:name>
+          <maml:description>
+            <maml:para>Stable edge key.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Label</maml:name>
+          <maml:description>
+            <maml:para>Literal label above the arrow.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Status</maml:name>
+          <maml:description>
+            <maml:para>Optional edge status.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">StatusKind</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Pending</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Running</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Pass</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Fail</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>StatusKind</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>To</maml:name>
+          <maml:description>
+            <maml:para>Next node key.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Cut</maml:name>
+        <maml:description>
+          <maml:para>Draws a severed connection, using x in ASCII mode.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>From</maml:name>
+        <maml:description>
+          <maml:para>Source node key.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Key</maml:name>
+        <maml:description>
+          <maml:para>Stable edge key.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Label</maml:name>
+        <maml:description>
+          <maml:para>Literal label above the arrow.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Status</maml:name>
+        <maml:description>
+          <maml:para>Optional edge status.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">StatusKind</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Pending</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Running</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Pass</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Fail</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>StatusKind</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>To</maml:name>
+        <maml:description>
+          <maml:para>Next node key.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>ConsoleMonster.Widgets.FlowEdge</maml:name>
+        </dev:type>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>New-ConsoleFlowEdge -Key tls -From client -To host -Label 'TLS 1.3' -Status Pass</dev:code>
+        <dev:remarks>
+          <maml:para>A successful TLS connection</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
+      <command:name>New-ConsoleFlowNode</command:name>
+      <command:verb>New</command:verb>
+      <command:noun>ConsoleFlowNode</command:noun>
+      <maml:description>
+        <maml:para>Creates a labelled flow node with an optional status glyph and colour.</maml:para>
+        <maml:para>Builds a node for New-ConsoleFlow or Add-ConsoleItem. Key is its stable identity for live updates; Label is literal text. Status uses the shared vocabulary and remains readable through a glyph when colour is disabled.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Creates a labelled flow node with an optional status glyph and colour.</maml:para>
+      <maml:para>Builds a node for New-ConsoleFlow or Add-ConsoleItem. Key is its stable identity for live updates; Label is literal text. Status uses the shared vocabulary and remains readable through a glyph when colour is disabled.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>New-ConsoleFlowNode</maml:name>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Key</maml:name>
+          <maml:description>
+            <maml:para>Stable node key.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+          <maml:name>Label</maml:name>
+          <maml:description>
+            <maml:para>Literal node label.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Status</maml:name>
+          <maml:description>
+            <maml:para>Optional node status.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">StatusKind</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Pending</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Running</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Pass</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Fail</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>StatusKind</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Key</maml:name>
+        <maml:description>
+          <maml:para>Stable node key.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <maml:name>Label</maml:name>
+        <maml:description>
+          <maml:para>Literal node label.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Status</maml:name>
+        <maml:description>
+          <maml:para>Optional node status.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">StatusKind</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Pending</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Running</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Pass</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Fail</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>StatusKind</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>ConsoleMonster.Widgets.FlowNode</maml:name>
+        </dev:type>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>New-ConsoleFlowNode -Key client -Label 'Client' -Status Pass</dev:code>
+        <dev:remarks>
+          <maml:para>A client hop that has completed</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
       <command:name>New-ConsoleFooterBar</command:name>
       <command:verb>New</command:verb>
       <command:noun>ConsoleFooterBar</command:noun>
@@ -11002,6 +11648,18 @@ Read-ConsoleForm $form -Preset Weekly</dev:code>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
         <maml:name>New-ConsoleKeyValue</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Columns</maml:name>
+          <maml:description>
+            <maml:para>Preferred pairs per row; reduces automatically in narrow terminals.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="2" aliases="None">
           <maml:name>Content</maml:name>
           <maml:description>
@@ -11022,6 +11680,45 @@ Read-ConsoleForm $form -Preset Weekly</dev:code>
           <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
           <dev:type>
             <maml:name>Object</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>KeyRole</maml:name>
+          <maml:description>
+            <maml:para>Theme role for keys.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">ThemeToken</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Text</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Muted</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Subtle</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Accent</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Accent2</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Pass</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Fail</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Running</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Pending</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Border</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Title</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Header</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Highlight</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Surface</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">SurfaceAccent</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Series1</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Series2</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Series3</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Series4</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Series5</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Series6</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Focus</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>ThemeToken</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -11065,6 +11762,18 @@ Read-ConsoleForm $form -Preset Weekly</dev:code>
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Columns</maml:name>
+        <maml:description>
+          <maml:para>Preferred pairs per row; reduces automatically in narrow terminals.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="2" aliases="None">
         <maml:name>Content</maml:name>
         <maml:description>
@@ -11085,6 +11794,45 @@ Read-ConsoleForm $form -Preset Weekly</dev:code>
         <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
         <dev:type>
           <maml:name>Object</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>KeyRole</maml:name>
+        <maml:description>
+          <maml:para>Theme role for keys.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">ThemeToken</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Text</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Muted</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Subtle</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Accent</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Accent2</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Pass</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Fail</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Running</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Pending</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Border</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Title</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Header</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Highlight</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Surface</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">SurfaceAccent</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Series1</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Series2</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Series3</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Series4</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Series5</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Series6</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Focus</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>ThemeToken</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -15465,6 +16213,27 @@ $menu = New-ConsoleMenu 'Patch' -Item $targets -Preset (New-ConsoleMenuPreset 'F
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Status</maml:name>
+          <maml:description>
+            <maml:para>Status colour and title glyph for a verdict.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">StatusKind</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Pending</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Running</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Pass</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Fail</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>StatusKind</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Title</maml:name>
           <maml:description>
             <maml:para>The title shown in the top border (Spectre-style markup allowed).</maml:para>
@@ -15472,6 +16241,18 @@ $menu = New-ConsoleMenu 'Patch' -Item $targets -Preset (New-ConsoleMenuPreset 'F
           <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
           <dev:type>
             <maml:name>Object</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Verdict</maml:name>
+          <maml:description>
+            <maml:para>Double-bordered verdict with a centred title.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -15584,6 +16365,27 @@ $menu = New-ConsoleMenu 'Patch' -Item $targets -Preset (New-ConsoleMenuPreset 'F
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Status</maml:name>
+        <maml:description>
+          <maml:para>Status colour and title glyph for a verdict.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">StatusKind</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Pending</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Running</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Pass</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Fail</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>StatusKind</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Title</maml:name>
         <maml:description>
           <maml:para>The title shown in the top border (Spectre-style markup allowed).</maml:para>
@@ -15591,6 +16393,18 @@ $menu = New-ConsoleMenu 'Patch' -Item $targets -Preset (New-ConsoleMenuPreset 'F
         <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
         <dev:type>
           <maml:name>Object</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Verdict</maml:name>
+        <maml:description>
+          <maml:para>Double-bordered verdict with a centred title.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -15703,6 +16517,18 @@ $menu = New-ConsoleMenu 'Patch' -Item $targets -Preset (New-ConsoleMenuPreset 'F
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>StepCounter</maml:name>
+          <maml:description>
+            <maml:para>Draws [01/05] counters with right-aligned results from each item's Detail. Wrapped labels hang under the label text; results move below when the complete label and result cannot share a row.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>WidgetId</maml:name>
           <maml:description>
@@ -15750,6 +16576,18 @@ $menu = New-ConsoleMenu 'Patch' -Item $targets -Preset (New-ConsoleMenuPreset 'F
         <command:parameterValue required="false" variableLength="false">Object[]</command:parameterValue>
         <dev:type>
           <maml:name>Object[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>StepCounter</maml:name>
+        <maml:description>
+          <maml:para>Draws [01/05] counters with right-aligned results from each item's Detail. Wrapped labels hang under the label text; results move below when the complete label and result cannot share a row.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -32261,6 +33099,262 @@ Update-ConsoleCell -WidgetId checks -Index 7 -Status Pass</dev:code>
 Update-ConsoleCell -WidgetId files -Index 0, 1, 2 -Status Pass</dev:code>
         <dev:remarks>
           <maml:para>Grow a map as items are found, then mark them</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
+      <command:name>Update-ConsoleFlow</command:name>
+      <command:verb>Update</command:verb>
+      <command:noun>ConsoleFlow</command:noun>
+      <maml:description>
+        <maml:para>Updates a node or edge in a live dashboard's flow strip.</maml:para>
+        <maml:para>Posts a status change to an existing flow in a running dashboard. WidgetId selects the flow; NodeKey or EdgeKey selects its item. Cut severs an edge, Cut:$false reconnects it, and omitting Cut preserves its connection state.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Updates a node or edge in a live dashboard's flow strip.</maml:para>
+      <maml:para>Posts a status change to an existing flow in a running dashboard. WidgetId selects the flow; NodeKey or EdgeKey selects its item. Cut severs an edge, Cut:$false reconnects it, and omitting Cut preserves its connection state.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="Node">
+        <maml:name>Update-ConsoleFlow</maml:name>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>NodeKey</maml:name>
+          <maml:description>
+            <maml:para>Node to update.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Session</maml:name>
+          <maml:description>
+            <maml:para>The live session to update. Defaults to $ConsoleSession or the running dashboard.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">LiveSession</command:parameterValue>
+          <dev:type>
+            <maml:name>LiveSession</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Status</maml:name>
+          <maml:description>
+            <maml:para>New status.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">StatusKind</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Pending</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Running</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Pass</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Fail</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>StatusKind</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+          <maml:name>WidgetId</maml:name>
+          <maml:description>
+            <maml:para>Flow widget identifier.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+      <command:syntaxItem parameterSetName="Edge">
+        <maml:name>Update-ConsoleFlow</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Cut</maml:name>
+          <maml:description>
+            <maml:para>Cuts the edge; -Cut:$false reconnects it. Omitted preserves connectivity.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>EdgeKey</maml:name>
+          <maml:description>
+            <maml:para>Edge to update.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Session</maml:name>
+          <maml:description>
+            <maml:para>The live session to update. Defaults to $ConsoleSession or the running dashboard.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">LiveSession</command:parameterValue>
+          <dev:type>
+            <maml:name>LiveSession</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Status</maml:name>
+          <maml:description>
+            <maml:para>New status.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">StatusKind</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Pending</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Running</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Pass</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Fail</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>StatusKind</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+          <maml:name>WidgetId</maml:name>
+          <maml:description>
+            <maml:para>Flow widget identifier.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Cut</maml:name>
+        <maml:description>
+          <maml:para>Cuts the edge; -Cut:$false reconnects it. Omitted preserves connectivity.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>EdgeKey</maml:name>
+        <maml:description>
+          <maml:para>Edge to update.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>NodeKey</maml:name>
+        <maml:description>
+          <maml:para>Node to update.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Session</maml:name>
+        <maml:description>
+          <maml:para>The live session to update. Defaults to $ConsoleSession or the running dashboard.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">LiveSession</command:parameterValue>
+        <dev:type>
+          <maml:name>LiveSession</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Status</maml:name>
+        <maml:description>
+          <maml:para>New status.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">StatusKind</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Pending</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Running</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Pass</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Fail</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>StatusKind</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <maml:name>WidgetId</maml:name>
+        <maml:description>
+          <maml:para>Flow widget identifier.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues />
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>Update-ConsoleFlow -WidgetId chain -NodeKey issuer -Status Fail
+            Update-ConsoleFlow -WidgetId chain -EdgeKey signature -Status Fail -Cut</dev:code>
+        <dev:remarks>
+          <maml:para>Mark an issuer failure and sever its incoming connection</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>

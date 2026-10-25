@@ -13,7 +13,7 @@ Phases come from -Phase (names, all pending) or from a script block of New-Conso
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsolePhases [[-WidgetId] <string>] [[-Phase] <Object[]>] [[-Content] <scriptblock>] [-InputObject <psobject>] [<CommonParameters>]
+New-ConsolePhases [[-WidgetId] <string>] [[-Phase] <Object[]>] [[-Content] <scriptblock>] [-InputObject <psobject>] [-StepCounter] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -87,6 +87,22 @@ Possible values:
 
 Required: False
 Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -StepCounter
+Draws [01/05] counters with right-aligned results from each item's Detail. Wrapped labels hang under the label text; results move below when the complete label and result cannot share a row.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

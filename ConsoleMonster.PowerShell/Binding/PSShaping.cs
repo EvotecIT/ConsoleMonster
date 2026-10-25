@@ -52,6 +52,7 @@ namespace ConsoleMonster.PowerShell.Binding {
         /// <param name="budget">The pass budget.</param>
         /// <returns>The cell value.</returns>
         internal static object? Cell(object? value, TableColumn column, ShapeOptions options, ShapeBudget budget) {
+            if (PSText.Unwrap(value) is Layout.IWidget widget) return widget;
             if (value is TableCell || value is Text.RichText) {
                 return value;
             }

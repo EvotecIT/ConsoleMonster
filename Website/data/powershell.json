@@ -334,7 +334,7 @@
     },
     {
       "verb": "New",
-      "count": 54,
+      "count": 58,
       "commands": [
         {
           "name": "New-ConsoleActivityList",
@@ -395,6 +395,26 @@
           "name": "New-ConsoleField",
           "synopsis": "Creates a form field for New-ConsoleForm.",
           "url": "/powershell/commands/new-consolefield/"
+        },
+        {
+          "name": "New-ConsoleFlow",
+          "synopsis": "Builds a native flow strip of nodes, labelled edges and one side branch.",
+          "url": "/powershell/commands/new-consoleflow/"
+        },
+        {
+          "name": "New-ConsoleFlowBranch",
+          "synopsis": "Creates the single side branch below a flow strip.",
+          "url": "/powershell/commands/new-consoleflowbranch/"
+        },
+        {
+          "name": "New-ConsoleFlowEdge",
+          "synopsis": "Creates a labelled connection between adjacent flow nodes.",
+          "url": "/powershell/commands/new-consoleflowedge/"
+        },
+        {
+          "name": "New-ConsoleFlowNode",
+          "synopsis": "Creates a labelled flow node with an optional status glyph and colour.",
+          "url": "/powershell/commands/new-consoleflownode/"
         },
         {
           "name": "New-ConsoleFooterBar",
@@ -621,7 +641,7 @@
     },
     {
       "verb": "Update",
-      "count": 10,
+      "count": 11,
       "commands": [
         {
           "name": "Update-ConsoleActivity",
@@ -632,6 +652,11 @@
           "name": "Update-ConsoleCell",
           "synopsis": "Sets the state of cells of a cell map (New-ConsoleCellMap) in the running dashboard.",
           "url": "/powershell/commands/update-consolecell/"
+        },
+        {
+          "name": "Update-ConsoleFlow",
+          "synopsis": "Updates a node or edge in a live dashboard's flow strip.",
+          "url": "/powershell/commands/update-consoleflow/"
         },
         {
           "name": "Update-ConsoleLane",

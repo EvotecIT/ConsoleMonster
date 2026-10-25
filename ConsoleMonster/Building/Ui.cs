@@ -88,6 +88,14 @@ namespace ConsoleMonster {
         /// <returns>The rule.</returns>
         public static Rule Rule(string? title = null) => new Rule(title);
 
+        /// <summary>A native flow strip of labelled nodes.</summary>
+        /// <param name="nodes">Nodes in strip order.</param><returns>The flow.</returns>
+        public static Flow Flow(params FlowNode[] nodes) {
+            var flow = new Widgets.Flow();
+            foreach (FlowNode node in nodes) flow.Add(node);
+            return flow;
+        }
+
         /// <summary>A sparkline of values (<see cref="Widgets.Sparkline"/>).</summary>
         /// <param name="values">The values, oldest first.</param>
         /// <returns>The sparkline.</returns>

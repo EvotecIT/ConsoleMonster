@@ -23,7 +23,11 @@ $options.NonInteractive = $false
 try {
     ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions', $true))::Default = $options
     Use-ConsoleTarget -Target $target -ScriptBlock {
-        try { $null = & $Demo }
+        try {
+            $arguments = @($state.arguments)
+            if ($null -eq $state.arguments) { $arguments = @() }
+            $null = & $Demo @arguments
+        }
         catch {
             # A partial input script deliberately stops at the screen being documented.
             if (-not $state.incomplete -or $_.FullyQualifiedErrorId -notlike 'InputClosed*') { throw }

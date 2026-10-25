@@ -11,6 +11,7 @@ using System.Text.Json.Nodes;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Export;
+using ConsoleMonster.Demos;
 using ConsoleMonster.Styling;
 using SiteFrames.Capture;
 using SiteFrames.Frames;
@@ -133,9 +134,16 @@ namespace SiteFrames.Pages {
             foreach (Demo demo in demos) {
                 List<TimedFrame> timeline = new List<TimedFrame>();
                 JsonArray parity = new JsonArray();
+                // A scenario recipe shows complete outcomes, rather than successive live ticks.
+                // Reuse the source's final demo pause so each outcome has time to be read on a slide.
+                int holdMilliseconds = 900;
+                if (demo.Metadata["capture"]!["states"]!.AsArray().Any(state => state?["arguments"] != null)) {
+                    DemoStep? pause = DemoScript.Read(demo.PowerShell).Steps.LastOrDefault(item => item.Kind == DemoStepKind.Pause);
+                    if (pause != null) holdMilliseconds = Math.Max(900, (int)(double.Parse(pause.Text, CultureInfo.InvariantCulture) * 1000));
+                }
                 for (int step = 0; step < demo.Steps; step++) {
                     CellBuffer frame = TwinFrame(site, demo, step);
-                    timeline.Add(new TimedFrame(step * 900, frame));
+                    timeline.Add(new TimedFrame(step * (long)holdMilliseconds, frame));
                     parity.Add(new JsonObject { ["step"] = step, ["identical"] = true });
                     if (review != null) {
                         ExportOptions options = new ExportOptions { Title = demo.Title, Theme = ExportTheme.Dark, WindowChrome = true };
@@ -179,7 +187,7 @@ namespace SiteFrames.Pages {
                     ["csharp"] = "dotnet new consolemonster --demo " + demo.Slug
                 };
                 if (demo.Steps > 1) {
-                    string replay = PlayerData.Write(site, timeline, demo.Title, 10, 1800, out long duration, out int count);
+                    string replay = PlayerData.Write(site, timeline, demo.Title, 10, Math.Max(1800, holdMilliseconds), out long duration, out int count);
                     site.Write(site.Static("replays/gallery-" + demo.Slug + ".json"), replay);
                     entry["url"] = "/replays/gallery-" + demo.Slug + ".json";
                     entry["capture"] = "scripted native program";
