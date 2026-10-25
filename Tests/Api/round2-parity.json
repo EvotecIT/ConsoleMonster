@@ -20847,6 +20847,22 @@
       "Disposition": "CSharpOnly"
     },
     {
+      "CSharpType": "ConsoleMonster.Interactive.SecretPrompt",
+      "Member": "AllowReveal",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "Changing whether a secret can be revealed is a C# embedding-host policy; the PowerShell secret question retains its secure default.",
+      "Alternative": "Read-ConsoleText -AsSecret keeps the masked secret entry policy.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.TypedConfirmPrompt",
+      "Member": "CaseSensitive",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "A custom case-sensitive confirmation belongs to a C# host; the shell uses the conventional case-insensitive name comparison.",
+      "Alternative": "Read-ConsoleConfirm -TypedConfirmation uses the default case-insensitive comparison.",
+      "Disposition": "CSharpOnly"
+    },
+    {
       "CSharpType": "ConsoleMonster.Live.LiveEvent",
       "Member": "Payload",
       "CSharpTypeName": "System.Object",
@@ -21504,19 +21520,26 @@
     "ConsoleMonster.Interactive.MenuOptions",
     "ConsoleMonster.Interactive.MenuRunResult",
     "ConsoleMonster.Interactive.MultiSelect",
+    "ConsoleMonster.Interactive.MultiSelectPrompt`1",
     "ConsoleMonster.Interactive.NumberPrompt",
     "ConsoleMonster.Interactive.ObjectExplorer",
     "ConsoleMonster.Interactive.PathPrompt",
+    "ConsoleMonster.Interactive.Prompt`1",
+    "ConsoleMonster.Interactive.SecretPrompt",
     "ConsoleMonster.Interactive.Select",
     "ConsoleMonster.Interactive.SelectInputOptions",
+    "ConsoleMonster.Interactive.SelectPrompt`1",
     "ConsoleMonster.Interactive.SelectQuestionOptions",
     "ConsoleMonster.Interactive.SelectionInputBase",
     "ConsoleMonster.Interactive.TextArea",
+    "ConsoleMonster.Interactive.TextAreaPrompt",
     "ConsoleMonster.Interactive.TextInput",
     "ConsoleMonster.Interactive.TextInputOptions",
+    "ConsoleMonster.Interactive.TextPrompt",
     "ConsoleMonster.Interactive.TextQuestionOptions",
     "ConsoleMonster.Interactive.Toggle",
     "ConsoleMonster.Interactive.ToggleInputOptions",
+    "ConsoleMonster.Interactive.TypedConfirmPrompt",
     "ConsoleMonster.Layout.Align",
     "ConsoleMonster.Layout.ColumnFormat",
     "ConsoleMonster.Layout.Columns",
@@ -21713,22 +21736,30 @@
     "ConsoleMonster.Interactive.MenuPreset",
     "ConsoleMonster.Interactive.MenuRunResult",
     "ConsoleMonster.Interactive.MultiSelect",
+    "ConsoleMonster.Interactive.MultiSelectPrompt`1",
     "ConsoleMonster.Interactive.NumberPrompt",
     "ConsoleMonster.Interactive.ObjectExplorer",
     "ConsoleMonster.Interactive.PathKind",
     "ConsoleMonster.Interactive.PathPrompt",
     "ConsoleMonster.Interactive.PromptLabels",
+    "ConsoleMonster.Interactive.Prompt`1",
     "ConsoleMonster.Interactive.ScreenCapture",
+    "ConsoleMonster.Interactive.SecretDisplay",
+    "ConsoleMonster.Interactive.SecretPrompt",
     "ConsoleMonster.Interactive.Select",
     "ConsoleMonster.Interactive.SelectInputOptions",
+    "ConsoleMonster.Interactive.SelectPrompt`1",
     "ConsoleMonster.Interactive.SelectQuestionOptions",
     "ConsoleMonster.Interactive.SelectionInputBase",
     "ConsoleMonster.Interactive.TextArea",
+    "ConsoleMonster.Interactive.TextAreaPrompt",
     "ConsoleMonster.Interactive.TextInput",
     "ConsoleMonster.Interactive.TextInputOptions",
+    "ConsoleMonster.Interactive.TextPrompt",
     "ConsoleMonster.Interactive.TextQuestionOptions",
     "ConsoleMonster.Interactive.Toggle",
     "ConsoleMonster.Interactive.ToggleInputOptions",
+    "ConsoleMonster.Interactive.TypedConfirmPrompt",
     "ConsoleMonster.Layout.Align",
     "ConsoleMonster.Layout.ColumnFormat",
     "ConsoleMonster.Layout.Columns",
@@ -23269,6 +23300,285 @@
       "Command": "New-ConsoleSelect",
       "Parameter": "PageSize",
       "Reason": "The shared selection factory applies PageSize to both single and multiple controls."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.TextPrompt",
+      "Member": "Placeholder",
+      "MemberId": "ConsoleMonster.Interactive.TextPrompt.Placeholder",
+      "CSharpTypeName": "System.String",
+      "Command": "Read-ConsoleText",
+      "Parameter": "Placeholder",
+      "Reason": "The shared factory/view adapter applies this option to the resulting TextPrompt."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.TextPrompt",
+      "Member": "Required",
+      "MemberId": "ConsoleMonster.Interactive.TextPrompt.Required",
+      "CSharpTypeName": "System.Boolean",
+      "Command": "Read-ConsoleText",
+      "Parameter": "Required",
+      "Reason": "The shared factory/view adapter applies this option to the resulting TextPrompt."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.TextPrompt",
+      "Member": "MinLength",
+      "MemberId": "ConsoleMonster.Interactive.TextPrompt.MinLength",
+      "CSharpTypeName": "System.Int32",
+      "Command": "Read-ConsoleText",
+      "Parameter": "MinLength",
+      "Reason": "The shared factory/view adapter applies this option to the resulting TextPrompt."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.TextPrompt",
+      "Member": "MaxLength",
+      "MemberId": "ConsoleMonster.Interactive.TextPrompt.MaxLength",
+      "CSharpTypeName": "System.Int32",
+      "Command": "Read-ConsoleText",
+      "Parameter": "MaxLength",
+      "Reason": "The shared factory/view adapter applies this option to the resulting TextPrompt."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.TextPrompt",
+      "Member": "Pattern",
+      "MemberId": "ConsoleMonster.Interactive.TextPrompt.Pattern",
+      "CSharpTypeName": "System.String",
+      "Command": "Read-ConsoleText",
+      "Parameter": "Pattern",
+      "Reason": "The shared factory/view adapter applies this option to the resulting TextPrompt."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.TextPrompt",
+      "Member": "PatternMessage",
+      "MemberId": "ConsoleMonster.Interactive.TextPrompt.PatternMessage",
+      "CSharpTypeName": "System.String",
+      "Command": "Read-ConsoleText",
+      "Parameter": "PatternMessage",
+      "Reason": "The shared factory/view adapter applies this option to the resulting TextPrompt."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.TextPrompt",
+      "Member": "Validator",
+      "MemberId": "ConsoleMonster.Interactive.TextPrompt.Validator",
+      "CSharpTypeName": "System.Func`2[System.String,System.String]",
+      "Command": "Read-ConsoleText",
+      "Parameter": "Validator",
+      "Reason": "The shared factory/view adapter applies this option to the resulting TextPrompt."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.TextPrompt",
+      "Member": "History",
+      "MemberId": "ConsoleMonster.Interactive.TextPrompt.History",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+      "Command": "Read-ConsoleText",
+      "Parameter": "History",
+      "Reason": "The shared factory/view adapter applies this option to the resulting TextPrompt."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.TextPrompt",
+      "Member": "PrefillDefault",
+      "MemberId": "ConsoleMonster.Interactive.TextPrompt.PrefillDefault",
+      "CSharpTypeName": "System.Boolean",
+      "Command": "Read-ConsoleText",
+      "Parameter": "PrefillDefault",
+      "Reason": "The shared factory/view adapter applies this option to the resulting TextPrompt."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.TextAreaPrompt",
+      "Member": "Placeholder",
+      "MemberId": "ConsoleMonster.Interactive.TextAreaPrompt.Placeholder",
+      "CSharpTypeName": "System.String",
+      "Command": "Read-ConsoleText",
+      "Parameter": "Placeholder",
+      "Reason": "The shared factory/view adapter applies this option to the resulting TextAreaPrompt."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.TextAreaPrompt",
+      "Member": "Required",
+      "MemberId": "ConsoleMonster.Interactive.TextAreaPrompt.Required",
+      "CSharpTypeName": "System.Boolean",
+      "Command": "Read-ConsoleText",
+      "Parameter": "Required",
+      "Reason": "The shared factory/view adapter applies this option to the resulting TextAreaPrompt."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.TextAreaPrompt",
+      "Member": "MinLength",
+      "MemberId": "ConsoleMonster.Interactive.TextAreaPrompt.MinLength",
+      "CSharpTypeName": "System.Int32",
+      "Command": "Read-ConsoleText",
+      "Parameter": "MinLength",
+      "Reason": "The shared factory/view adapter applies this option to the resulting TextAreaPrompt."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.TextAreaPrompt",
+      "Member": "MaxLength",
+      "MemberId": "ConsoleMonster.Interactive.TextAreaPrompt.MaxLength",
+      "CSharpTypeName": "System.Int32",
+      "Command": "Read-ConsoleText",
+      "Parameter": "MaxLength",
+      "Reason": "The shared factory/view adapter applies this option to the resulting TextAreaPrompt."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.TextAreaPrompt",
+      "Member": "MaxLines",
+      "MemberId": "ConsoleMonster.Interactive.TextAreaPrompt.MaxLines",
+      "CSharpTypeName": "System.Int32",
+      "Command": "Read-ConsoleText",
+      "Parameter": "MaxLines",
+      "Reason": "The shared factory/view adapter applies this option to the resulting TextAreaPrompt."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.TextAreaPrompt",
+      "Member": "Height",
+      "MemberId": "ConsoleMonster.Interactive.TextAreaPrompt.Height",
+      "CSharpTypeName": "System.Int32",
+      "Command": "Read-ConsoleText",
+      "Parameter": "Height",
+      "Reason": "The shared factory/view adapter applies this option to the resulting TextAreaPrompt."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.TextAreaPrompt",
+      "Member": "Validator",
+      "MemberId": "ConsoleMonster.Interactive.TextAreaPrompt.Validator",
+      "CSharpTypeName": "System.Func`2[System.String,System.String]",
+      "Command": "Read-ConsoleText",
+      "Parameter": "Validator",
+      "Reason": "The shared factory/view adapter applies this option to the resulting TextAreaPrompt."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.SecretPrompt",
+      "Member": "MinLength",
+      "MemberId": "ConsoleMonster.Interactive.SecretPrompt.MinLength",
+      "CSharpTypeName": "System.Int32",
+      "Command": "Read-ConsoleText",
+      "Parameter": "MinLength",
+      "Reason": "The shared factory/view adapter applies this option to the resulting SecretPrompt."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.SecretPrompt",
+      "Member": "Validator",
+      "MemberId": "ConsoleMonster.Interactive.SecretPrompt.Validator",
+      "CSharpTypeName": "System.Func`2[System.String,System.String]",
+      "Command": "Read-ConsoleText",
+      "Parameter": "Validator",
+      "Reason": "The shared factory/view adapter applies this option to the resulting SecretPrompt."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.SecretPrompt",
+      "Member": "Display",
+      "MemberId": "ConsoleMonster.Interactive.SecretPrompt.Display",
+      "CSharpTypeName": "ConsoleMonster.Interactive.SecretDisplay",
+      "Command": "Read-ConsoleText",
+      "Parameter": "Hidden",
+      "Reason": "Hidden selects SecretDisplay.Hidden; omission retains the masked display."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.SecretPrompt",
+      "Member": "Required",
+      "MemberId": "ConsoleMonster.Interactive.SecretPrompt.Required",
+      "CSharpTypeName": "System.Boolean",
+      "Command": "Read-ConsoleText",
+      "Parameter": "AllowEmpty",
+      "Reason": "AllowEmpty is the inverse of the secret prompt Required policy."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.SelectPrompt`1",
+      "Member": "Choices",
+      "MemberId": "ConsoleMonster.Interactive.SelectPrompt`1.Choices",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Interactive.Choice]",
+      "Command": "Read-ConsoleSelect",
+      "Parameter": "Choices",
+      "Reason": "The shared factory/view adapter applies this option to the resulting SelectPrompt`1."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.SelectPrompt`1",
+      "Member": "Preview",
+      "MemberId": "ConsoleMonster.Interactive.SelectPrompt`1.Preview",
+      "CSharpTypeName": "System.Func`2[T,ConsoleMonster.Layout.IWidget]",
+      "Command": "Read-ConsoleSelect",
+      "Parameter": "Preview",
+      "Reason": "The shared factory/view adapter applies this option to the resulting SelectPrompt`1."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.SelectPrompt`1",
+      "Member": "PageSize",
+      "MemberId": "ConsoleMonster.Interactive.SelectPrompt`1.PageSize",
+      "CSharpTypeName": "System.Int32",
+      "Command": "Read-ConsoleSelect",
+      "Parameter": "PageSize",
+      "Reason": "The shared factory/view adapter applies this option to the resulting SelectPrompt`1."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.SelectPrompt`1",
+      "Member": "PreviewText",
+      "MemberId": "ConsoleMonster.Interactive.SelectPrompt`1.PreviewText",
+      "CSharpTypeName": "System.Func`2[T,System.String]",
+      "Command": "Read-ConsoleSelect",
+      "Parameter": "Preview",
+      "Reason": "The PowerShell Preview adapter accepts plain strings and wraps them as widgets; C# may use its string-specialized preview callback."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.MultiSelectPrompt`1",
+      "Member": "Choices",
+      "MemberId": "ConsoleMonster.Interactive.MultiSelectPrompt`1.Choices",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Interactive.Choice]",
+      "Command": "Read-ConsoleSelect",
+      "Parameter": "Choices",
+      "Reason": "The shared factory/view adapter applies this option to the resulting MultiSelectPrompt`1."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.MultiSelectPrompt`1",
+      "Member": "Preview",
+      "MemberId": "ConsoleMonster.Interactive.MultiSelectPrompt`1.Preview",
+      "CSharpTypeName": "System.Func`2[T,ConsoleMonster.Layout.IWidget]",
+      "Command": "Read-ConsoleSelect",
+      "Parameter": "Preview",
+      "Reason": "The shared factory/view adapter applies this option to the resulting MultiSelectPrompt`1."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.MultiSelectPrompt`1",
+      "Member": "PageSize",
+      "MemberId": "ConsoleMonster.Interactive.MultiSelectPrompt`1.PageSize",
+      "CSharpTypeName": "System.Int32",
+      "Command": "Read-ConsoleSelect",
+      "Parameter": "PageSize",
+      "Reason": "The shared factory/view adapter applies this option to the resulting MultiSelectPrompt`1."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.MultiSelectPrompt`1",
+      "Member": "PreviewText",
+      "MemberId": "ConsoleMonster.Interactive.MultiSelectPrompt`1.PreviewText",
+      "CSharpTypeName": "System.Func`2[T,System.String]",
+      "Command": "Read-ConsoleSelect",
+      "Parameter": "Preview",
+      "Reason": "The PowerShell Preview adapter accepts plain strings and wraps them as widgets; C# may use its string-specialized preview callback."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.MultiSelectPrompt`1",
+      "Member": "Minimum",
+      "MemberId": "ConsoleMonster.Interactive.MultiSelectPrompt`1.Minimum",
+      "CSharpTypeName": "System.Nullable`1[System.Int32]",
+      "Command": "Read-ConsoleSelect",
+      "Parameter": "Minimum",
+      "Reason": "The shared factory/view adapter applies this option to the resulting MultiSelectPrompt`1."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.MultiSelectPrompt`1",
+      "Member": "Maximum",
+      "MemberId": "ConsoleMonster.Interactive.MultiSelectPrompt`1.Maximum",
+      "CSharpTypeName": "System.Nullable`1[System.Int32]",
+      "Command": "Read-ConsoleSelect",
+      "Parameter": "Maximum",
+      "Reason": "The shared factory/view adapter applies this option to the resulting MultiSelectPrompt`1."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.MultiSelectPrompt`1",
+      "Member": "Collapsed",
+      "MemberId": "ConsoleMonster.Interactive.MultiSelectPrompt`1.Collapsed",
+      "CSharpTypeName": "System.Boolean",
+      "Command": "Read-ConsoleSelect",
+      "Parameter": "Collapsed",
+      "Reason": "The shared factory/view adapter applies this option to the resulting MultiSelectPrompt`1."
     }
   ],
   "Endings": [
@@ -23289,6 +23599,19 @@
       "FluentType": "ConsoleMonster.WidgetPipeline",
       "FluentMember": "Export",
       "FluentArgument": "path"
+    }
+  ],
+  "Operations": [
+    {
+      "Command": "Show-Console",
+      "DiscriminatorParameter": "View",
+      "DiscriminatorValue": "Markdown",
+      "CSharpType": "ConsoleMonster.Markdown.MarkdownConsole",
+      "Member": "Show",
+      "Argument": "content",
+      "FluentFactory": "Parse",
+      "FluentMember": "Show",
+      "Reason": "MarkdownConsole parses through the Markdown add-on; the resulting widget uses the shared Show ending."
     }
   ]
 }

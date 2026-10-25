@@ -92,7 +92,7 @@ Describe 'PowerShell and C# API parity' {
         $seeds = @($script:ApiTypes.Values | Where-Object {
             -not [System.Management.Automation.PSCmdlet].IsAssignableFrom($_) -and
             -not $_.Name.EndsWith('Fluent', [StringComparison]::Ordinal) -and
-            (($_.FullName -ne 'ConsoleMonster.Layout.IWidget' -and $script:ApiTypes['ConsoleMonster.Layout.IWidget'].IsAssignableFrom($_)) -or $_.Name.EndsWith('Options', [StringComparison]::Ordinal) -or $_.FullName -in $owners)
+            (($_.FullName -ne 'ConsoleMonster.Layout.IWidget' -and $script:ApiTypes['ConsoleMonster.Layout.IWidget'].IsAssignableFrom($_)) -or $_.Name.EndsWith('Options', [StringComparison]::Ordinal) -or $_.FullName -in $owners -or (Test-ConsoleApiPromptType $_))
         })
         Compare-Object @($seeds.FullName | Sort-Object) @($script:Parity.ConfigurableRoots | Sort-Object) | Should -BeNullOrEmpty
         $graph = Get-ConsoleApiTypeGraph $seeds $script:ApiTypes -IncludeItemMethods
@@ -112,7 +112,7 @@ Describe 'PowerShell and C# API parity' {
             foreach ($binding in $entry.Bindings) {
                 if ($binding.MemberKind -eq 'Property') {
                     $property = $script:ApiTypes[$binding.CSharpType].GetProperty($binding.Member)
-                    $covered[$property.DeclaringType.FullName + '.' + $property.Name] = $true
+                    $covered[(Get-ConsoleApiOwnerName $property.DeclaringType) + '.' + $property.Name] = $true
                 }
             }
         }
@@ -123,7 +123,7 @@ Describe 'PowerShell and C# API parity' {
             $entry = $script:Parity.Commands | Where-Object Command -EQ $route.Command
             @($entry.Bindings | Where-Object Parameter -EQ $route.Parameter).Count | Should -Be 1
             $route.Reason | Should -Not -BeNullOrEmpty
-            $covered[$property.DeclaringType.FullName + '.' + $property.Name] = $true
+            $covered[(Get-ConsoleApiOwnerName $property.DeclaringType) + '.' + $property.Name] = $true
         }
         $decisions = @{}
         foreach ($decision in $script:Parity.CSharpOnly) {
@@ -132,20 +132,20 @@ Describe 'PowerShell and C# API parity' {
             (Get-ConsoleApiTypeName $property.PropertyType) | Should -BeExactly $decision.CSharpTypeName
             $decision.Reason | Should -Not -BeNullOrEmpty
             $decision.Alternative | Should -Not -BeNullOrEmpty
-            $key = $property.DeclaringType.FullName + '.' + $property.Name
+            $key = (Get-ConsoleApiOwnerName $property.DeclaringType) + '.' + $property.Name
             $decisions.ContainsKey($key) | Should -BeFalse -Because "$key has one decision"
             $covered.ContainsKey($key) | Should -BeFalse -Because "$key must not retain an obsolete exception"
             if (-not $decision.OverrideTypedInput) {
-                ($typed.ContainsKey($property.DeclaringType.FullName) -and -not $property.GetMethod.IsStatic) | Should -BeFalse -Because "$key is already reachable as typed configuration"
+                ($typed.ContainsKey((Get-ConsoleApiOwnerName $property.DeclaringType)) -and -not $property.GetMethod.IsStatic) | Should -BeFalse -Because "$key is already reachable as typed configuration"
             }
             $decisions[$key] = $true
         }
         foreach ($type in $graph.Values) {
             foreach ($property in $type.GetProperties()) {
                 if (-not (Test-ConsoleApiConfigurationProperty $property)) { continue }
-                $key = $property.DeclaringType.FullName + '.' + $property.Name
+                $key = (Get-ConsoleApiOwnerName $property.DeclaringType) + '.' + $property.Name
                 $reachable = $covered.ContainsKey($key) -or $decisions.ContainsKey($key) -or
-                    (-not $property.GetMethod.IsStatic -and ($typed.ContainsKey($type.FullName) -or $typed.ContainsKey($property.DeclaringType.FullName)))
+                    (-not $property.GetMethod.IsStatic -and ($typed.ContainsKey($type.FullName) -or $typed.ContainsKey((Get-ConsoleApiOwnerName $property.DeclaringType))))
                 $reachable | Should -BeTrue -Because "$key needs a PowerShell route or a specific C#-only decision"
             }
         }
@@ -163,4 +163,18 @@ Describe 'PowerShell and C# API parity' {
             }
         }
     }
+    It 'resolves display-specific operations and their fluent factories from the parity map' {
+        foreach ($operation in $script:Parity.Operations) {
+            $command = $script:ApiCommands | Where-Object Name -EQ $operation.Command
+            $command | Should -Not -BeNullOrEmpty
+            $command.Parameters.ContainsKey($operation.DiscriminatorParameter) | Should -BeTrue
+            $type = $script:ApiTypes[$operation.CSharpType]
+            $type | Should -Not -BeNullOrEmpty
+            $methods = @($type.GetMethods() | Where-Object Name -EQ $operation.Member)
+            @($methods | ForEach-Object { $_.GetParameters() } | Where-Object Name -EQ $operation.Argument).Count | Should -BeGreaterThan 0
+            @($type.GetMethods() | Where-Object Name -EQ $operation.FluentFactory).Count | Should -BeGreaterThan 0
+            @($script:Parity.Endings | Where-Object FluentMember -EQ $operation.FluentMember).Count | Should -Be 1
+        }
+    }
+
 }

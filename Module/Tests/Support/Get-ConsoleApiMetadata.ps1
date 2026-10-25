@@ -77,3 +77,17 @@ function Test-ConsoleApiConfigurationProperty {
     }
     return $false
 }
+
+function Get-ConsoleApiOwnerName {
+    param([Type] $Type)
+    if ($Type.IsGenericType) { return $Type.GetGenericTypeDefinition().FullName }
+    return $Type.FullName
+}
+
+function Test-ConsoleApiPromptType {
+    param([Type] $Type)
+    for ($current = $Type; $null -ne $current; $current = $current.BaseType) {
+        if ((Get-ConsoleApiOwnerName $current) -eq 'ConsoleMonster.Interactive.Prompt`1') { return $true }
+    }
+    return $false
+}
