@@ -152,7 +152,9 @@ namespace ConsoleMonster.Tests.Interactive.App {
             int calls = 0;
             Grid grid = new Grid("Services"); grid.AddColumn("Name"); grid.AddRow("one", "One");
             GridOptions options = new GridOptions();
-            options.Commands.Add(new AppCommand("run", "Run", (_, __) => { Interlocked.Increment(ref calls); return Task.CompletedTask; }));
+            AppCommand command = new AppCommand("run", "Run", (_, __) => Task.CompletedTask);
+            command.CaptureRows = rows => { calls++; return rows; };
+            options.Commands.Add(command);
             RecordingSurface surface = new RecordingSurface(100, 30, false);
             options.Interactive = PromptHarness.Options("", surface);
             options.Interactive.Profile = TerminalProfile.Fixed(100, 30);
@@ -161,7 +163,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
                 InputEvent.Press(ConsoleKey.Escape), InputEvent.Press(ConsoleKey.Escape)
             }) { Paced = true };
             PromptHarness.Guard(surface, () => grid.Show(options));
-            Assert.Equal(0, Volatile.Read(ref calls));
+            Assert.Equal(0, calls);
         }
 
         [Fact]

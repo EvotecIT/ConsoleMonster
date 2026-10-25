@@ -1,6 +1,6 @@
 # Full-screen apps
 
-Status: approved on 25 October 2026 with the dated decisions below. Phase 2 is in progress.
+Status: approved on 25 October 2026 with the dated decisions below. Phase 2 preview implemented; native Windows interaction and visual review remain release gates.
 
 I want ConsoleMonster to build full-screen administration tools: browse services,
 inspect objects, filter a large result set, choose a maintenance window, run an
@@ -13,7 +13,8 @@ source on `feature/api-consistency` at `5e4857c` in
 [#55](https://github.com/EvotecIT/ConsoleMonster/pull/55), including its
 [API proposal](https://github.com/EvotecIT/ConsoleMonster/blob/feature/api-consistency/Docs/api-consistency-proposal.md).
 Those names are the design baseline, even where this checkout still has the old
-spelling. New APIs below are explicitly proposals, not available commands.
+spelling. The public action contract and phase 2 examples are implemented on
+`feature/fullscreen-apps`; later controls remain proposals.
 
 ## Decisions — 25 October 2026
 
@@ -68,7 +69,7 @@ $restart = New-ConsoleCommand -Key Restart -Label 'Restart service' -Shortcut Ct
         Get-Service -Name $Row.Name
     }
 Get-Service | Show-ConsoleGrid -Action $restart
-# Convenience form for actions that need no confirmation or custom metadata:
+# Convenience form supplies a default confirmation; use a command to customize it:
 Get-Service | Show-ConsoleGrid -Action @{ Inspect = { param($Row) Get-Service $Row.Name } }
 ```
 
@@ -438,109 +439,68 @@ value/scale contract; status colours alone do not imply a contribution count.
 
 ## API sketches
 
-These sketches use #55's actual commands, parameters and core types. They show
-the existing composition style I want to preserve as the host grows. The new
-controls listed above are not prerequisites for this small example. They are
-design examples, not executed validation. Inputs remain outside bindings.
-
-### Earlier baseline sketches (superseded by the action contract)
-
-The following sketches document the pre-phase-2 surface only. They are not the
-phase 2 preview or recommended action workflow. The dated decision above replaces
-staging, closing and confirming outside the app.
-
-### PowerShell: browse Windows services
+These are the phase 2 APIs I am building. I keep one command definition for a
+button, the palette and grid actions. The PowerShell service example targets
+Windows; the portable gallery twin uses fictional service snapshots.
 
 ```powershell
-Import-Module ConsoleMonster
-$services = @(Get-Service | Sort-Object DisplayName)
-$result = Show-ConsoleApp -Content {
-    New-ConsoleColumns -CollapseBelow 70 -Fill -Content {
-        New-ConsolePanel -Title 'Services' -Content {
-            New-ConsoleSelect -Key Service -Label 'Service' `
-                -Choices $services -Display DisplayName
-        }
-        New-ConsolePanel -Title 'Details' -Content {
-            New-ConsoleBinding -WidgetId details -Content {
-                param($State)
-                if ($State.Service) {
-                    $State.Service | Show-ConsoleList -AsWidget
-                } else { 'Select a service.' }
-            }
-        }
+$restart = New-ConsoleCommand -Key Restart -Label 'Restart service' -Shortcut F5 `
+    -ConfirmPrompt 'Restart the selected services?' `
+    -ImportModule Microsoft.PowerShell.Management -ScriptBlock {
+        param($Row)
+        "Restarting $($Row.Name)"
+        Restart-Service -Name $Row.Name -ErrorAction Stop
+        "Restarted $($Row.Name)"
     }
-    New-ConsoleButton -Key Refresh -Label 'Refresh selected' -OnClick {
-        param($Value, $State)
-        if ($State.Service) {
-            $State.Service.Refresh()
-            $State.Revision = 1 + $State.Revision
-        }
-    }
-    New-ConsoleButton -Key Restart -Label 'Stage restart' -OnClick {
-        param($Value, $State)
-        if ($State.Service) { $State.RestartName = $State.Service.Name }
-    }
-    New-ConsoleBinding -Content {
-        param($State)
-        "Staged restart: $($State.RestartName). Escape closes; confirmation follows."
-    }
-} -PassThru
-if ($result.RestartName -and
-    (Read-ConsoleConfirm -Title "Restart $($result.RestartName)?")) {
-    Restart-Service -Name $result.RestartName -ErrorAction Stop
+Get-Service | Show-ConsoleGrid -Title Services -Property Name, Status, StartType -Action $restart
+
+# The short form confirms by default and is available through the palette/buttons.
+Get-Service | Show-ConsoleGrid -Action @{
+    Restart = { param($Row) Restart-Service -Name $Row.Name -ErrorAction Stop }
 }
 ```
 
-This keeps a potentially slow restart outside the current loop and uses the
-normal confirmation boundary. Refresh is a short synchronous local call; it
-must move to the work queue for a remote source. In the proposed host, the same
-restart command can confirm in a modal, run in an isolated operation and send
-results to the embedded log without closing the app. Phase 2 now includes the command/work API described in the dated decisions;
-captured `-OnClickAsync` script blocks are not its execution model.
-
-### C#: the same composition in a CLI
-
-`catalog` below is the caller's service backend: it returns service records and
-implements `GetDetails`/`RestartAsync`. It is not a new ConsoleMonster API or a
-core dependency. The example assumes the caller's `cancellationToken`.
+Space marks rows; otherwise the focused row is the action input. F5, a button or
+Ctrl+K opens the same confirmation. No is the default. I freeze the row set
+before confirmation, then serialize PowerShell rows and explicit `-ArgumentList`
+values into an isolated runspace with `-ImportModule` imports. Caller variables,
+functions and live object methods do not cross that boundary. Streams go into
+the embedded log; F6 requests cancellation; Escape leaves the app. One action
+runs at a time, with marked rows processed in display order. A PowerShell error
+stops the remaining batch. Service operations are not rolled back.
 
 ```csharp
-using ConsoleMonster.Interactive;
-using ConsoleMonster.Layout;
-using ConsoleMonster.Widgets;
-
-var services = catalog.List();
-var selected = new Select("Service", Choice.From(services, s => s.DisplayName)) {
-    Label = "Service"
+var services = new ConsoleMonster.Interactive.Grid("Services");
+services.AddColumn("Name").AddColumn("Status").AddColumn("StartType");
+services.AddRow("Spooler", "Spooler", "Running", "Automatic");
+services.AddRow("WinRM", "WinRM", "Running", "Automatic");
+var restart = new AppCommand("Restart", "Restart service", async (context, cancellation) => {
+    foreach (var row in context.Rows) {
+        context.Write($"Restarting {row}");
+        await serviceClient.RestartAsync((string)row!, cancellation);
+        context.Write($"Restarted {row}");
+    }
+}) {
+    Shortcut = new KeyChord(ConsoleKey.F5),
+    ConfirmPrompt = "Restart the selected services?"
 };
-var state = new AppState();
-var refresh = new Button("Refresh", "Refresh selected");
-refresh.Clicked += (_, _) => state["Revision"] = state.Get<int>("Revision") + 1;
-var restart = new Button("Restart", "Stage restart and close");
-restart.Clicked += (_, _) => {
-    state["RestartService"] = selected.Value;
-    state.RequestExit();
-};
-var details = new AppBinding(s => TextBlock.Plain(
-    selected.Value is null ? "Select a service." : catalog.GetDetails(selected.Value)));
-var body = new Columns(
-    new Panel(selected, "Services"), new Panel(details, "Details")) {
-    CollapseBelow = 70
-};
-var layout = new Rows().Add(body, LayoutSize.Fraction()).Add(refresh).Add(restart);
-var result = ConsoleApp.Run(layout, state, cancellationToken: cancellationToken);
-if (result.TryGetValue("RestartService", out var service) && service is not null &&
-    Prompt.Confirm("Restart the selected service?", cancellationToken: cancellationToken)) {
-    await catalog.RestartAsync(service, cancellationToken);
-}
+var options = new GridOptions();
+options.Commands.Add(restart);
+services.Show(options, cancellationToken);
 ```
 
-`GetDetails` must be a fast local read in this baseline sketch. The proposed
-async action route posts a result snapshot, never calls a backend from Render.
-Both examples retain original selected objects and use no ambiguous `Name`
-address or `Format-*` display command. C# `ConsoleApp.RunAsync` remains available
-for hosts that can accept its worker-thread callback contract; PowerShell keeps
-the synchronous route.
+`serviceClient` is the CLI's backend. The core owns no service-management
+provider. In a composed app, `new Button(restart)` binds the same definition;
+`ConsoleAppOptions.Commands` and `Selection` supply palette commands and row
+snapshots. `Show-ConsoleApp -Command $restart -SelectionKey Service` does the
+same for a named PowerShell input. Display widgets remain ordinary layout
+children; `ScrollView` / `New-ConsoleScrollView` supplies a clipped viewport.
+A per-run `AppDispatcher` accepts bounded C# UI updates and closes when the host
+exits. PowerShell input callbacks stay on their owning pipeline thread.
+
+The full service-browser gallery program has PowerShell and C# twins. Its
+fictional restart takes the same confirm/work/log path without changing the
+machine. I use that program for the phase 2 preview and native captures.
 
 ## Proof before calling it an app framework
 
@@ -575,6 +535,35 @@ The recorder forwards raw input without storing it;
 keep deterministic input scripts as separate synthetic test fixtures, never
 record real secrets to reproduce a session. Dashboard JSONL records live events
 and cannot by itself reconstruct focus, tab, modal and pointer behaviour.
+
+### Phase 2 evidence — 25 October 2026
+
+I rebuilt the grid's action flow on the shared host and retained the existing
+app, menu, grid and explorer contracts. The service-browser gallery has matching
+PowerShell/C# states for browsing, confirmation and completed output. Its
+fictional services make the demo safe to run on every supported platform.
+
+The source recording is `Website/captures/fullscreen/service-browser.cast`.
+The website generator exports its paced GIF and HTML player under
+`/recordings/fullscreen/`. I captured the same app in macOS Terminal and over an
+SSH PTY. Physical Mac clicks selected a service, opened confirmation and ran the
+action; keyboard navigation, the palette and resize kept the app usable. The
+published Mac capture uses scripted keys and SGR reports through the recorder,
+at 120×30. The separate SSH capture includes two resizes; it ran from in-memory
+assemblies without installing files or changing the remote host.
+
+Local builds cover net472, net8.0 and net10.0. The net8.0/net10.0 core suites each
+pass 2,763 tests with eight skips. The en-US Pester run exposed two regressions
+(format registration and callback ordering); both are fixed and the affected
+app/menu/grid/explorer/output suites pass on rerun. Windows PowerShell 5.1
+syntax remains supported; a Mac build cannot prove its native console behavior.
+
+Before release I still need native conhost and Windows Terminal click, wheel,
+drag, window-origin handling and input-mode restoration, including Quick Edit.
+Physical Windows mouse recording also needs the relay work described above.
+tmux mouse routing and older conhost degradation remain unobserved. Visual
+review of the calendar captures, service browser and paced preview is required
+before either PR merges.
 
 ## Phases and size
 

@@ -798,6 +798,52 @@ by column and F4 reverses, Space and Ctrl+A mark rows, Enter shows a row with ev
 Ctrl+Enter returns the original objects (`-OutputMode Multiple`, `Single` or `None`). Columns use the table's width
 negotiation, presenters and tone rules, and the screen has the same header bar, panel and footer as menus and forms.
 
+## In-app actions
+
+`Show-ConsoleGrid -Action` adds selected-row details, action buttons, a command
+palette and an embedded log. A hashtable supplies a small confirmed action:
+
+```powershell
+Get-Service | Show-ConsoleGrid -Property Name, Status, StartType -Title Services -Action @{
+    Restart = { param($Row) Restart-Service -Name $Row.Name -ErrorAction Stop; "Restarted $($Row.Name)" }
+}
+```
+
+For a shortcut, custom prompt, arguments or module imports, create one command:
+
+```powershell
+$restart = New-ConsoleCommand -Key Restart -Label Restart -Shortcut F5 `
+    -ConfirmPrompt 'Restart selected services?' -ImportModule Microsoft.PowerShell.Management `
+    -ScriptBlock { param($Row) Restart-Service -Name $Row.Name -ErrorAction Stop; "Restarted $($Row.Name)" }
+Get-Service | Show-ConsoleGrid -Property Name, Status, StartType -Action $restart
+```
+
+Space marks rows; an action uses the marks in display order, or the focused row
+when nothing is marked. Ctrl+K opens the palette; F8 focuses the action buttons;
+Tab moves between those buttons. No is the default confirmation answer. F6
+cancels current work, and the grid stays open after completion or failure.
+Alt+PgUp/PgDn or the wheel over the output pane scrolls its bounded history.
+
+Actions use isolated runspaces with serialized row snapshots and explicit
+`-ArgumentList` / `-ImportModule` values. Caller variables and functions are not
+inherited, and deserialized rows do not retain their live .NET methods. Output,
+errors, warnings, information and progress flow into the pane. One action runs
+at a time; a PowerShell error stops the remaining rows. Cancellation is
+cooperative and does not roll back work already performed. `Get-Service` and
+`Restart-Service` in these examples target Windows.
+
+The C# equivalent is `AppCommand` in `GridOptions.Commands`. Its asynchronous
+callback receives `AppActionContext.Rows`, `Write` and a cancellation token.
+`new Button(command)` and `ConsoleAppOptions.Commands` reuse that definition
+in a composed app. An optional per-run `AppDispatcher` queues bounded updates
+for the input thread; it is closed when the host exits. Long-lived display
+widgets can remain layout children. `New-ConsoleScrollView -Content { $details }
+-Height 12` clips ordinary widget trees; lists, grids and logs retain their row
+windows for larger data.
+
+`Show-ConsoleDemo service-browser` runs a portable fictional example with the
+same action path. It never restarts a local service.
+
 ## Comparing objects and previewing changes
 
 ```powershell

@@ -79,6 +79,7 @@
         <TypeName>ConsoleMonster.Widgets.RunProgress</TypeName>
         <TypeName>ConsoleMonster.Widgets.RunSummary</TypeName>
         <TypeName>ConsoleMonster.Widgets.RunView</TypeName>
+        <TypeName>ConsoleMonster.Widgets.ScrollView</TypeName>
         <TypeName>ConsoleMonster.Widgets.ShellPrompt</TypeName>
         <TypeName>ConsoleMonster.Widgets.Sparkline</TypeName>
         <TypeName>ConsoleMonster.Widgets.Spinner</TypeName>

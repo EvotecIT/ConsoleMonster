@@ -13,7 +13,7 @@ Builds the layout once, then runs input synchronously on the caller's PowerShell
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Show-ConsoleApp [-Content] <scriptblock> [-PassThru] [-StaticSnapshot] [-NoMouse] [-Mode <InteractionMode>] [-InputSource <IInputSource>] [-Capture <ScreenCapture>] [-Profile <TerminalProfile>] [-Theme <ITheme>] [-Live <LiveSessionOptions>] [<CommonParameters>]
+Show-ConsoleApp [-Content] <scriptblock> [-PassThru] [-StaticSnapshot] [-NoMouse] [-Command <AppCommand[]>] [-SelectionKey <string>] [-Mode <InteractionMode>] [-InputSource <IInputSource>] [-Capture <ScreenCapture>] [-Profile <TerminalProfile>] [-Theme <ITheme>] [-Live <LiveSessionOptions>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -51,6 +51,22 @@ Memory capture instead of terminal output; also supplies default screen dimensio
 
 ```yaml
 Type: ScreenCapture
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Command
+Shared command definitions for shortcuts and the in-app palette.
+
+```yaml
+Type: AppCommand[]
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -163,6 +179,22 @@ Terminal capabilities and dimensions; defaults to the existing interactive profi
 
 ```yaml
 Type: TerminalProfile
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -SelectionKey
+App-state key containing the selected row or row collection supplied to commands.
+
+```yaml
+Type: String
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
