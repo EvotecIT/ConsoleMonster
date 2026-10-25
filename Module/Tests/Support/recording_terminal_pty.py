@@ -8,6 +8,7 @@ from pathlib import Path
 import pty
 import re
 import select
+import shlex
 import shutil
 import signal
 import struct
@@ -25,6 +26,18 @@ def main():
     shell = directory / "recording-shell"
     shell.write_text("#!/bin/sh\nexport PS1='CM-SHELL> '\nexport BASH_SILENCE_DEPRECATION_WARNING=1\nexec /bin/bash --noprofile --norc -i\n")
     shell.chmod(0o700)
+    # The relay forwards available input before checking dimensions. Wait for a foreground
+    # handler to acknowledge readiness and the signal itself, without a timed wakeup newline.
+    resize_probe = directory / "resize-probe.py"
+    resize_probe.write_text("\n".join([
+        "import os, signal, sys",
+        "def resized(signum, frame):",
+        "    width, height = os.get_terminal_size(0)",
+        "    print('CM-WINCH' + str(height) + ' ' + str(width), flush=True)",
+        "signal.signal(signal.SIGWINCH, resized)",
+        "print('CM-RESIZE_READY', flush=True)",
+        "sys.stdin.readline()",
+    ]))
     quote = lambda value: "'" + str(value).replace("'", "''") + "'"
     script.write_text("\n".join([
         "$ErrorActionPreference = 'Stop'",
@@ -92,24 +105,25 @@ def main():
         until("CM-SHELL> ")
         command("exec 9<>/dev/tty; test $(ps -o tpgid= -p $$) -gt 0 && printf 'CM-%s\\n' TTY_OK")
         until("CM-TTY_OK")
-        command("printf 'CM-%s\\n' SLEEP_READY; /bin/sleep 20")
+        # Emit readiness from the foreground child, after Bash has assigned its process group.
+        command("/bin/sh -c " + shlex.quote("printf 'CM-%s\\n' SLEEP_READY; exec /bin/sleep 20"))
         until("CM-SLEEP_READY")
-        time.sleep(0.2)
         send(b"\x03")
+        until("CM-SHELL> ")
         command("printf 'CM-%s\\n' INTERRUPTED")
         until("CM-INTERRUPTED", 5)
-        command("trap 'printf CM-WINCH; stty size' WINCH; printf 'CM-%s\\n' RESIZE_READY")
+        command(shlex.quote(sys.executable) + " -u " + shlex.quote(str(resize_probe)))
         until("CM-RESIZE_READY")
         fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 40, 132, 0, 0))
-        send("\n")
         until("CM-WINCH")
         until("40 132")
-        command("pwsh -NoLogo -NoProfile -Command '[Console]::WriteLine((\"CM-WIDTH-\" + [Console]::WindowWidth)); [Console]::ReadLine() > $null; [Console]::WriteLine((\"CM-WIDTH-\" + [Console]::WindowWidth))'")
+        send("\n")
+        until("CM-SHELL> ")
+        command("pwsh -NoLogo -NoProfile -Command '[Console]::WriteLine((\"CM-WIDTH-\" + [Console]::WindowWidth)); $wait = [Diagnostics.Stopwatch]::StartNew(); while ([Console]::WindowWidth -ne 140 -and $wait.Elapsed.TotalSeconds -lt 8) { Start-Sleep -Milliseconds 20 }; [Console]::WriteLine((\"CM-WIDTH-\" + [Console]::WindowWidth))'")
         until("CM-WIDTH-132")
         fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 42, 140, 0, 0))
-        time.sleep(0.2)
-        send("\n")
-        until("CM-WIDTH-140")
+        until("CM-WIDTH-140", 10)
+        until("CM-SHELL> ")
         command("stty -echo; printf 'CM-%s\\n' SECRET_READY; IFS= read -r value </dev/tty; stty echo; test \"$value\" = synthetic-secret && printf 'CM-%s\\n' SECRET_ACCEPTED")
         until("CM-SECRET_READY")
         send("synthetic-secret\n")
