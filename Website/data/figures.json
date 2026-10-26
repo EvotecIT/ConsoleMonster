@@ -215,7 +215,7 @@
     "csharpFluentFile": "Program.cs",
     "apiMap": [
       {
-        "powershell": "New-ConsoleChart",
+        "powershell": "New-ConsoleChart -Type Stacked",
         "csharp": "new StackedBar(…)",
         "fluent": "Ui.Chart()",
         "memberId": "M:ConsoleMonster.Ui.Chart",
@@ -1544,7 +1544,7 @@
     "csharpFluentFile": "Program.cs",
     "apiMap": [
       {
-        "powershell": "New-ConsoleChart",
+        "powershell": "New-ConsoleChart -Type Stacked",
         "csharp": "new StackedBar(…)",
         "fluent": "Ui.Chart()",
         "memberId": "M:ConsoleMonster.Ui.Chart",
@@ -1610,7 +1610,7 @@
     "csharpFluentFile": "Program.cs",
     "apiMap": [
       {
-        "powershell": "New-ConsoleChart",
+        "powershell": "New-ConsoleChart -Type Stacked",
         "csharp": "new StackedBar(…)",
         "fluent": "Ui.Chart()",
         "memberId": "M:ConsoleMonster.Ui.Chart",
@@ -1676,7 +1676,7 @@
     "csharpFluentFile": "Program.cs",
     "apiMap": [
       {
-        "powershell": "New-ConsoleChart",
+        "powershell": "New-ConsoleChart -Type Stacked",
         "csharp": "new StackedBar(…)",
         "fluent": "Ui.Chart()",
         "memberId": "M:ConsoleMonster.Ui.Chart",
@@ -1745,7 +1745,7 @@
     "csharpFluentFile": "Program.cs",
     "apiMap": [
       {
-        "powershell": "New-ConsoleChart",
+        "powershell": "New-ConsoleChart -Type Sparkline",
         "csharp": "new Sparkline(…)",
         "fluent": "Ui.Chart()",
         "memberId": "M:ConsoleMonster.Ui.Chart",

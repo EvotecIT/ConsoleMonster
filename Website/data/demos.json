@@ -973,7 +973,7 @@
     "csharpFluentFile": "Program.cs",
     "apiMap": [
       {
-        "powershell": "New-ConsoleChart",
+        "powershell": "New-ConsoleChart -Type Bar",
         "csharp": "new BarChart(…)",
         "fluent": "Ui.Chart()",
         "memberId": "M:ConsoleMonster.Ui.Chart",

@@ -64,6 +64,18 @@ namespace SiteFrames.Tests {
             Assert.Equal("New-ConsoleRows -Gap …", gap["powershell"]!.GetValue<string>());
         }
 
+        [Theory]
+        [InlineData("var widget = new Sparkline { Label = \"req/s\" };", "New-ConsoleChart -Type Sparkline", "new Sparkline(…)")]
+        [InlineData("var widget = new BarChart().Add(\"Disk\", 42);", "New-ConsoleChart -Type Bar", "new BarChart(…)")]
+        public void KindSelectedConstructorsNameTheTypeValue(string body, string powerShell, string initializer) {
+            string path = Source("kind-" + powerShell.Split(' ')[^1], "using ConsoleMonster.Widgets;\n" + body + "\n");
+            string fluent = CSharpRunner.FluentSource(path);
+            CSharpRunner.Check(path, fluent);
+            var note = Assert.Single(ApiMappingNotes.FromSource(Repository(), path, fluent), note => note!["memberId"]!.GetValue<string>() == "M:ConsoleMonster.Ui.Chart")!;
+            Assert.Equal(powerShell, note["powershell"]!.GetValue<string>());
+            Assert.Equal(initializer, note["csharp"]!.GetValue<string>());
+        }
+
         [Fact]
         public void CollectionNotesUseTheVerifiedAddOperationInsteadOfAnUnavailableSetter() {
             string source = Source("commands", "using ConsoleMonster.Interactive;\nusing System.Threading.Tasks;\nvar command = new AppCommand(\"run\", \"Run\", (_, __) => Task.CompletedTask);\nvar options = new GridOptions { Command = { command }, HiddenColumns = { \"Detail\" } };\n");
