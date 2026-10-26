@@ -7,8 +7,18 @@ using ConsoleMonster.Interactive;
 namespace ConsoleMonster {
     /// <summary>Behavioral definitions and persistent controls. Build materializes immutable identity and kind through the shared factories.</summary>
     public static partial class Ui {
+        /// <summary>A retained tab-page definition.</summary>
+        public static TabOptions Tab() => new TabOptions();
+        /// <summary>A composed modal form definition with named field results.</summary>
+        public static FormDialogOptions Dialog() => new FormDialogOptions();
         /// <summary>An embeddable grid definition; configure Key and Grid, then Build.</summary>
         public static DataGridInputOptions DataGrid() => new DataGridInputOptions();
+        /// <summary>A budgeted, lazy object-tree input definition.</summary>
+        public static TreeSelectInputOptions TreeSelect() => new TreeSelectInputOptions();
+        /// <summary>A persistent civil-date or range picker definition.</summary>
+        public static DatePickerInputOptions DatePicker() => new DatePickerInputOptions();
+        /// <summary>A date or inclusive date-range question.</summary>
+        public static DatePrompt DatePrompt() => new DatePrompt(string.Empty);
         /// <summary>Empty sequential form.</summary>
         /// <returns>The empty sequential form.</returns>
         public static Form Form() => new Form(string.Empty);

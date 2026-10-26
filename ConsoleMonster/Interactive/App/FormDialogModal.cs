@@ -60,9 +60,12 @@ namespace ConsoleMonster.Interactive {
         }
         private void Commit(AppValueChangedEventArgs change) { _values[change.Key] = _fields.Find(field => field.Key == change.Key)!.CurrentValue; }
         private void Accept() {
-            _error = _dialog.Validate?.Invoke(_values);
-            if (_error != null) { return; }
-            T value = _dialog.Result(_values);
+            T value;
+            try {
+                _error = _dialog.Validate?.Invoke(_values);
+                if (_error != null) { return; }
+                value = _dialog.Result(_values);
+            } catch (Exception error) { _error = error.Message; return; }
             Close(); _completed(new DialogResult<T>(true, value));
         }
         private void Cancel() { Close(); _completed(new DialogResult<T>(false, default)); }

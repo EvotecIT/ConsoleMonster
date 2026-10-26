@@ -96,8 +96,8 @@ namespace ConsoleMonster.Interactive {
             Refresh();
             _modals.RemoveAll(m => m.IsClosed);
             string right = PromptLabels.Format(Labels.GridRows, _data.VisibleCount, _grid.Rows.Count);
-            if (_grid.OutputMode == GridSelection.Multiple && _data.MarkedIds.Count > 0) {
-                right += " " + InteractiveGlyphs.For(frame.Context).Separator + " " + PromptLabels.Format(Labels.GridSelected, _data.MarkedIds.Count);
+            if (_grid.OutputMode == GridSelection.Multiple && _data.MarkCount > 0) {
+                right += " " + InteractiveGlyphs.For(frame.Context).Separator + " " + PromptLabels.Format(Labels.GridSelected, _data.MarkCount);
             }
             Rows rows = new Rows();
             rows.Add(new HeaderBar(_grid.Title) { HeaderRight = right }, LayoutSize.Fixed(1));

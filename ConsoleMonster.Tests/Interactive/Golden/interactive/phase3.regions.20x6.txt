@@ -1,0 +1,4 @@
+Make the window
+larger (40 columns,
+12 rows). Esc
+closes.

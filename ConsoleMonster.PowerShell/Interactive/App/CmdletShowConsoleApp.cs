@@ -32,6 +32,22 @@ namespace ConsoleMonster.PowerShell {
     [Cmdlet(VerbsCommon.Show, "ConsoleApp")]
     [OutputType(typeof(Hashtable))]
     public sealed class CmdletShowConsoleApp : PSCmdlet {
+        /// <summary><para type="description">Host focus, cancel and palette gestures. Set a gesture to null to release it to the app registry.</para></summary>
+        [Parameter] public AppHostKeys Keys { get; set; } = new AppHostKeys();
+        /// <summary><para type="description">Allows the terminal to generate Ctrl+C and Ctrl+backslash signals instead of app input events.</para></summary>
+        [Parameter] public SwitchParameter SignalKeys { get; set; }
+        /// <summary><para type="description">App-thread command registry routing before the focused input. Return true when consumed.</para></summary>
+        [Parameter] public Func<AppState, InputEvent, bool>? HandleInput { get; set; }
+        /// <summary><para type="description">Child-terminal and last-output service attached for this app run.</para></summary>
+        [Parameter] public TerminalHandoff? TerminalHandoff { get; set; }
+        /// <summary><para type="description">Typed modal form service attached for this app run.</para></summary>
+        [Parameter] public AppDialogs? Dialogs { get; set; }
+        /// <summary><para type="description">Context key bar, normally a FooterBar reading the app's command registry.</para></summary>
+        [Parameter] public IWidget? Footer { get; set; }
+        /// <summary><para type="description">Minimum terminal width; smaller windows show a resize message without losing focus.</para></summary>
+        [Parameter, ValidateRange(0, 10000)] public int MinimumWidth { get; set; }
+        /// <summary><para type="description">Minimum terminal height; zero permits any height.</para></summary>
+        [Parameter, ValidateRange(0, 10000)] public int MinimumHeight { get; set; }
         private readonly object _stopGate = new object();
         private CancellationTokenSource? _stop;
         private bool _stopping;
@@ -116,7 +132,10 @@ namespace ConsoleMonster.PowerShell {
                         ReflowBelow = ReflowBelow,
                         StaticSnapshot = StaticSnapshot.IsPresent,
                         ProcessEvents = callbacks.Drain,
-                        SelectionKey = SelectionKey
+                        SelectionKey = SelectionKey,
+                        Keys = Keys, SignalKeys = SignalKeys.IsPresent, HandleInput = HandleInput,
+                        TerminalHandoff = TerminalHandoff, Dialogs = Dialogs, Footer = Footer,
+                        MinimumWidth = MinimumWidth, MinimumHeight = MinimumHeight
                     };
                     foreach (AppCommand command in Command) { options.Command.Add(command); }
                     AppState state = ConsoleApp.Run(layout, null, options, stop.Token);

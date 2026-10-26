@@ -191,6 +191,7 @@ namespace ConsoleMonster.Interactive {
         }
 
         internal static bool ValuesEqual(object? left, object? right) {
+            if (ReferenceEquals(left, right)) { return true; }
             if (left is IEnumerable a && right is IEnumerable b && !(left is string) && !(right is string)) {
                 IEnumerator x = a.GetEnumerator();
                 IEnumerator y = b.GetEnumerator();

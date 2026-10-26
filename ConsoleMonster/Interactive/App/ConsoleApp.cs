@@ -73,7 +73,7 @@ namespace ConsoleMonster.Interactive {
                 using (MouseReporting? mouse = MouseReporting.Open(settings.Mouse, interactive, profile, lease!.Source, live.Output != null))
                 using (LiveSession session = new LiveSession(app.Root, live)) {
                     session.Start();
-                    using IDisposable? handoff = settings.TerminalHandoff?.Attach(lease.Source, session, profile);
+                    using IDisposable? handoff = settings.TerminalHandoff?.Attach(lease.Source, session, profile, cancellationToken);
                     bool eventsProcessed = false;
                     try {
                         AppEventLoop.Run(lease.Source, () => values.ExitRequested || !session.IsRunning, () => {

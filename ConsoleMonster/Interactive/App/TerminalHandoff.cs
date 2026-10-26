@@ -22,6 +22,7 @@ namespace ConsoleMonster.Interactive {
         private TerminalProfile? _profile;
         private int _thread;
         private bool _running;
+        private CancellationToken _appCancellation;
 
         /// <summary>Maximum retained output characters. Old output is dropped from the front; no child input is retained.</summary>
         public int OutputCapacity { get; set; } = 256 * 1024;
@@ -39,6 +40,8 @@ namespace ConsoleMonster.Interactive {
                 if (_session == null || _input == null || _profile == null || _thread != Thread.CurrentThread.ManagedThreadId || _running) { throw new InvalidOperationException("Output view must run on its owning app thread with no active child."); }
                 session = _session; input = _input; profile = _profile;
             }
+            using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _appCancellation);
+            cancellationToken = cancellation.Token;
             using LivePause pause = session.Pause();
             using IDisposable? mouse = MouseReporting.SuspendCurrent();
             int width = profile.Width, height = profile.Height;
@@ -63,10 +66,11 @@ namespace ConsoleMonster.Interactive {
             } finally { session.Invalidate(); }
         }
 
-        internal IDisposable Attach(IInputSource input, LiveSession session, TerminalProfile profile) {
+        internal IDisposable Attach(IInputSource input, LiveSession session, TerminalProfile profile, CancellationToken appCancellation = default) {
             lock (_gate) {
                 if (_session != null) { throw new InvalidOperationException("This terminal handoff already belongs to an app."); }
                 _input = input; _session = session; _profile = profile; _thread = Thread.CurrentThread.ManagedThreadId;
+                _appCancellation = appCancellation;
                 return new Attachment(this);
             }
         }
@@ -83,9 +87,11 @@ namespace ConsoleMonster.Interactive {
                 if (_running) { throw new InvalidOperationException("A child already owns this terminal."); }
                 if (!(_input is IConsoleInputMode) || Console.IsInputRedirected || Console.IsOutputRedirected) { throw new InvalidOperationException("Terminal handoff requires the app's physical TTY input and output."); }
                 input = _input; session = _session; profile = _profile;
-                _running = true; _lastOutput.Clear();
+                _running = true;
             }
             try {
+                using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _appCancellation);
+                cancellationToken = cancellation.Token;
                 cancellationToken.ThrowIfCancellationRequested();
                 var child = new SessionRecordingOptions { Shell = options.FileName, WorkingDirectory = options.WorkingDirectory, Width = profile.Width, Height = profile.Height, Timeout = options.Timeout };
                 if (TerminalSize.TryGet(out int width, out int height) && width > 1 && height > 1) { child.Width = width; child.Height = height; }
@@ -100,6 +106,7 @@ namespace ConsoleMonster.Interactive {
                     using ITerminalWriter output = TerminalWriterFactory.Create(profile);
                     using IPseudoTerminal terminal = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
                         ? (IPseudoTerminal)new WindowsPseudoTerminal(child) : new UnixPseudoTerminal(child);
+                    lock (_gate) { _lastOutput.Clear(); }
                     return Pump(terminal, child, output, cancellationToken);
                 } finally { mode.Resume(); }
             } finally { lock (_gate) { _running = false; } }
@@ -119,7 +126,7 @@ namespace ConsoleMonster.Interactive {
                         AppendOutput(text);
                         output.Write(text); output.Flush();
                     }
-                } catch (Exception error) { readerError = error; }
+                } catch (Exception error) { Interlocked.Exchange(ref readerError, error); }
             }) { IsBackground = true, Name = "ConsoleMonster child output" };
             reader.Start();
             try {
@@ -128,7 +135,8 @@ namespace ConsoleMonster.Interactive {
                 int width = options.Width, height = options.Height;
                 while (!terminal.HasExited) {
                     cancellation.ThrowIfCancellationRequested();
-                    if (readerError != null) { throw new IOException("Child terminal output failed.", readerError); }
+                    Exception? failure = Interlocked.CompareExchange(ref readerError, null, null);
+                    if (failure != null) { throw new IOException("Child terminal output failed.", failure); }
                     if (elapsed.Elapsed > options.Timeout) { throw new TimeoutException("The child terminal exceeded its time limit."); }
                     string keys = relay.ReadAvailable();
                     if (keys.Length > 0) { terminal.Write(Encoding.UTF8.GetBytes(keys)); }
@@ -159,7 +167,7 @@ namespace ConsoleMonster.Interactive {
             public void Dispose() {
                 TerminalHandoff? owner = Interlocked.Exchange(ref _owner, null);
                 if (owner == null) { return; }
-                lock (owner._gate) { owner._session = null; owner._input = null; owner._profile = null; owner._thread = 0; }
+                lock (owner._gate) { owner._session = null; owner._input = null; owner._profile = null; owner._thread = 0; owner._appCancellation = default; }
             }
         }
     }

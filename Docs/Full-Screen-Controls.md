@@ -34,7 +34,8 @@ because the user searches, marks or sorts a listing.
 Call `grid.SetRows(rows)` with unique, non-null identities to refresh a listing.
 Surviving marks and the focused identity are retained. `SearchPrefix`,
 `MarkPattern`, `UnmarkPattern` and `InvertMarks` operate independently per grid.
-Patterns support `*` and `?`; matching ignores case. Marks survive a filter, and
+Patterns use the shared `GlobPattern` grammar, including `*`, `?`, character
+classes, exclusions and semicolon-separated alternatives; matching ignores case. Marks survive a filter, and
 selection returns marked objects in sort order even when some are filtered out.
 Call `RefreshRows` explicitly if newly completed cell values should affect an
 existing filter or sort.
@@ -122,3 +123,69 @@ Below that width it shows the region containing focus, or `ActiveRegion` when
 none owns focus. `Activate(key)` shows a region and requests its first enabled
 input; `Swap(first, second)` exchanges existing subtrees and retains their state.
 Configure the set of inputs before starting the app.
+
+PowerShell composes the same pages with `New-ConsoleTab -Title Files -Content
+{ ... }` and `$pages | New-ConsoleTabs -SelectedIndex 0`.
+
+## Forms and background operations
+
+`AppDialogs.Show` opens a `FormDialog<T>` inside the running host. Its content
+is an ordinary input subtree. The result mapper and optional validator run on
+the app thread. Cancel is the initial button unless `DefaultAccept` or
+`InitialFocus` chooses another target. Tab stays inside the form; Escape cancels
+and restores the underlying focus. Ctrl+Enter accepts from a field. In terminals
+that send Ctrl+Enter as plain Enter, Tab to the affirmative button and press Enter.
+
+```csharp
+var dialogs = new AppDialogs();
+var form = Ui.Dialog().Title("Destination")
+    .Content(c => c.Add(Ui.TextInput().Key("Path").Value("backup").Build()))
+    .InitialFocus("Path").Build();
+// From an app-thread command, with options.Dialogs = dialogs:
+dialogs.Show(form, answer => {
+    if (answer.Accepted) { destination = answer.Value!.Get<string>("Path"); }
+});
+```
+
+`New-ConsoleDialog` builds the same named-value form for PowerShell; construction
+does not start another input loop. C# callers can use `FormDialog<T>` directly
+when a domain-specific result is preferable to `AppState`.
+
+Set `AppCommand.ProgressDialog` (PowerShell: `New-ConsoleCommand
+-ProgressDialog`) to show the existing action worker in a cancellable dialog.
+Report immutable `AppProgress` values through `AppActionContext.Report`.
+Updates coalesce; they do not create an unbounded queue. Background closes the
+progress overlay while work continues. Completion, cancellation and failure
+show a final summary. `Summarize(new AppOperationSummary(...))` can include
+failed items and an explicit retry command; retry runs that command, so the
+backend decides which failed items are safe to repeat. Skip closes the summary.
+The host never silently replays a whole partially completed operation.
+
+## Dates, trees and logs
+
+`New-ConsoleTreeSelect` and `Ui.TreeSelect()` embed the same lazy object explorer
+used by `Show-ConsoleObject`, including traversal budgets and safe member access.
+The standalone explorer retains its value/path output contracts.
+
+`New-ConsoleSelect -Radio` presents the existing scalar selector as radio choices;
+`New-ConsoleToggle` remains the checkbox presentation.
+
+`DatePicker`, `New-ConsoleDatePicker`, `DatePrompt` and `Read-ConsoleDate` share
+the static calendar's Gregorian month geometry, culture labels, ISO weeks and
+marked days. Scalar answers are midnight `DateTime` values with unspecified
+kind. Range answers are one inclusive `DateRange`. Arrows move without committing;
+Space anchors a range and Enter commits it. Shift+arrows also extend a range.
+Wheel changes month; dragging beyond the month navigates at most four times per
+second. Minimum, maximum and unavailable days reject invalid commits visibly,
+including an unavailable interior day. Unattended prompts require a valid default.
+
+`LogViewport` retains a capped `LogRegion` with severity, elapsed time and literal
+messages. Up/PageUp pause following, End resumes it, and Left/Right scroll long
+lines. `CopyText()` returns retained messages for an app-owned copy/export action.
+`Write` is safe from a worker thread. No terminal output bypasses the live frame.
+
+Run `dotnet run --project ConsoleMonster.Examples --framework net8.0 --
+fullscreen-controls` for the service-browser and operations-calendar example.
+It uses fictional records and does not modify files or services. At 80 columns
+the two regions are side by side; below that only the focused region is shown.
+Below its configured 40-by-12 minimum, the host asks for a larger window.

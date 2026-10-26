@@ -16,7 +16,9 @@ namespace ConsoleMonster.Interactive {
             focused ??= CurrentRowCore?.Id;
             string[] words = _filter.Trim().Split(new[] { ' ', ',' }, StringSplitOptions.RemoveEmptyEntries);
             List<int> shown = ShownColumns();
-            _visible = Sorted(AllRows().Where(i => words.All(word => shown.Any(c => Text(_grid.Rows[i], c).IndexOf(word, StringComparison.OrdinalIgnoreCase) >= 0))));
+            _order = Sorted(AllRows());
+            _visible = _order.Where(i => words.All(word => shown.Any(c => Text(_grid.Rows[i], c).IndexOf(word, StringComparison.OrdinalIgnoreCase) >= 0))).ToList();
+            _markedSelection = null;
             int keep = focused == null ? -1 : _visible.FindIndex(i => Equals(_grid.Rows[i].Id, focused));
             _cursor = keep < 0 ? Clamp(_cursor) : keep;
             _dragAnchor = -1;
@@ -42,26 +44,16 @@ namespace ConsoleMonster.Interactive {
         private void ApplyPattern(string pattern, int column, bool mark) {
             if (pattern == null) { throw new ArgumentNullException(nameof(pattern)); }
             if (column < 0 || column >= _grid.Columns.Count) { throw new ArgumentOutOfRangeException(nameof(column)); }
+            var matcher = new Text.GlobPattern(pattern);
             Change(() => {
                 foreach (int index in _visible) {
                     GridRow row = _grid.Rows[index];
-                    if (!PatternMatches(Text(row, column), pattern)) { continue; }
+                    if (!matcher.IsMatch(Text(row, column))) { continue; }
                     if (mark) { _marked.Add(row.Id); } else { _marked.Remove(row.Id); }
                 }
+                _markedSelection = null;
             });
         }
 
-        // Linear-space wildcard matching without a regex timeout or an allocation per candidate.
-        private static bool PatternMatches(string text, string pattern) {
-            int t = 0, p = 0, star = -1, retry = 0;
-            while (t < text.Length) {
-                if (p < pattern.Length && (pattern[p] == '?' || char.ToUpperInvariant(pattern[p]) == char.ToUpperInvariant(text[t]))) { p++; t++; }
-                else if (p < pattern.Length && pattern[p] == '*') { star = p++; retry = t; }
-                else if (star >= 0) { p = star + 1; t = ++retry; }
-                else { return false; }
-            }
-            while (p < pattern.Length && pattern[p] == '*') { p++; }
-            return p == pattern.Length;
-        }
     }
 }
