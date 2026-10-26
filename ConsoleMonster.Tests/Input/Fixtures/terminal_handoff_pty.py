@@ -109,14 +109,23 @@ def run(dotnet, host, result, runtime=None):
         assert b"\x1b[?1049l" in output and b"\x1b[?1049h" in output, "alternate screen was not handed off"
         print("PTY_HANDOFF_OK: tty, colours, input, resize, exit7, focus, output view, timeout, child/app cancellation, invalid startup, modes restored")
     finally:
+        # Darwin can hold a killed session leader in terminal teardown while the
+        # parent keeps its replica open. Release owned PTY handles before reaping.
+        os.close(master)
+        os.close(slave)
         if status is None:
             try:
                 os.kill(pid, signal.SIGKILL)
-                os.waitpid(pid, 0)
+                deadline = time.monotonic() + 5
+                while time.monotonic() < deadline:
+                    done, _ = os.waitpid(pid, os.WNOHANG)
+                    if done:
+                        break
+                    time.sleep(0.02)
+                else:
+                    raise AssertionError("owned child %s did not reap after PTY closure" % pid)
             except ProcessLookupError:
                 pass
-        os.close(master)
-        os.close(slave)
 
 
 if __name__ == "__main__":

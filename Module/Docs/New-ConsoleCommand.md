@@ -13,7 +13,7 @@ Creates a passive command definition. Work runs in an isolated runspace with exp
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleCommand [-Key] <string> -ScriptBlock <scriptblock> [-Label <string>] [-Shortcut <string>] [-ConfirmPrompt <string>] [-ArgumentList <Object[]>] [-ImportModule <string[]>] [<CommonParameters>]
+New-ConsoleCommand [-Key] <string> -ScriptBlock <scriptblock> [-Label <string>] [-Shortcut <string>] [-ConfirmPrompt <string>] [-ProgressDialog] [-ArgumentList <Object[]>] [-ImportModule <string[]>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -101,6 +101,22 @@ Visible command text; defaults to Key.
 
 ```yaml
 Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressDialog
+Shows a progress dialog with Cancel and Background, followed by the operation summary.
+
+```yaml
+Type: SwitchParameter
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

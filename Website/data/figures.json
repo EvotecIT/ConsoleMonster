@@ -2613,6 +2613,20 @@
         "note": null
       },
       {
+        "powershell": "New-ConsoleTreeSelect -InputObject …",
+        "csharp": "new ObjectExplorer(value: …)",
+        "fluent": "new ObjectExplorer(value: …)",
+        "memberId": "A:ConsoleMonster.Interactive.ObjectExplorer..ctor.value",
+        "note": null
+      },
+      {
+        "powershell": "New-ConsoleTreeSelect -RootPath …",
+        "csharp": "new ObjectExplorer(rootPath: …)",
+        "fluent": "new ObjectExplorer(rootPath: …)",
+        "memberId": "A:ConsoleMonster.Interactive.ObjectExplorer..ctor.rootPath",
+        "note": null
+      },
+      {
         "powershell": "Show-ConsoleObject -RootPath …",
         "csharp": "new ObjectExplorer(rootPath: …)",
         "fluent": "new ObjectExplorer(rootPath: …)",
@@ -2656,6 +2670,20 @@
         "csharp": "Title = …",
         "fluent": ".Title(…)",
         "memberId": "ConsoleMonster.Interactive.ObjectExplorer.Title",
+        "note": null
+      },
+      {
+        "powershell": "New-ConsoleTreeSelect -InputObject …",
+        "csharp": "new ObjectExplorer(value: …)",
+        "fluent": "new ObjectExplorer(value: …)",
+        "memberId": "A:ConsoleMonster.Interactive.ObjectExplorer..ctor.value",
+        "note": null
+      },
+      {
+        "powershell": "New-ConsoleTreeSelect -RootPath …",
+        "csharp": "new ObjectExplorer(rootPath: …)",
+        "fluent": "new ObjectExplorer(rootPath: …)",
+        "memberId": "A:ConsoleMonster.Interactive.ObjectExplorer..ctor.rootPath",
         "note": null
       },
       {

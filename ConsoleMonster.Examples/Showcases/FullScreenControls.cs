@@ -34,6 +34,7 @@ namespace ConsoleMonster.Examples.Showcases {
             log.Write("This workspace uses fictional services. No files or services are changed.");
             var tabs = Ui.Tabs().Add("Services", regions).Add("Calendar", dates).Add("Output", log);
             var dialogs = new AppDialogs();
+            var actions = new AppActions();
             var work = new AppCommand("check", "Check replicas", async (context, cancellation) => {
                 for (int i = 1; i <= 20; i++) {
                     cancellation.ThrowIfCancellationRequested();
@@ -43,19 +44,19 @@ namespace ConsoleMonster.Examples.Showcases {
                 context.Summarize(new AppOperationSummary("20 replicas checked. All fictional checks passed."));
             }) { Shortcut = new KeyChord(ConsoleKey.F5), ProgressDialog = true };
             string[] labels = { "Help", "Options", "Output", "Swap", "Check", "Panel", "Calendar", "Mark", "Services", "Quit" };
-            var options = new ConsoleAppOptions { Dialogs = dialogs, MinimumWidth = 40, MinimumHeight = 12, Selection = _ => left.Focused ? left.Selection : right.Selection };
+            var options = new ConsoleAppOptions { Dialogs = dialogs, Actions = actions, MinimumWidth = 40, MinimumHeight = 12, Selection = _ => left.Focused ? left.Selection : right.Selection };
             options.Keys.NextFocus = null; options.Keys.Actions = null;
             options.Keys.CancelAction = new KeyChord(ConsoleKey.Escape);
             options.Command.Add(work);
             options.Footer = new FooterBar {
                 FixedSlots = true,
-                HintsSource = () => labels.Select((label, i) => new KeyHint("F" + (i + 1), i == 5 ? (left.Focused ? "Right" : "Left") : label, i != 7 || tabs.SelectedIndex == 0))
+                HintsSource = () => labels.Select((label, i) => new KeyHint("F" + (i + 1), i == 5 ? (left.Focused ? "Right" : "Left") : label, (i != 7 || tabs.SelectedIndex == 0) && (i != 4 || !actions.Running)))
             };
             options.HandleInput = (state, input) => {
                 int slot = 0;
                 if (input.Kind == InputEventKind.Key && input.Key >= ConsoleKey.F1 && input.Key <= ConsoleKey.F10) { slot = input.Key - ConsoleKey.F1 + 1; }
                 if ((input.Modifiers & KeyModifiers.Alt) != 0 && input.Char >= '0' && input.Char <= '9') { slot = input.Char == '0' ? 10 : input.Char - '0'; }
-                if (input.Is(ConsoleKey.Tab)) { if (left.Focused) { right.Focus(); } else { left.Focus(); } return true; }
+                if (input.Is(ConsoleKey.Tab) && tabs.SelectedIndex == 0) { if (left.Focused) { right.Focus(); } else { left.Focus(); } return true; }
                 if (slot == 10) { state.RequestExit(); return true; }
                 if (slot == 2) {
                     var destination = new TextInput("Destination", "replica");
@@ -67,6 +68,7 @@ namespace ConsoleMonster.Examples.Showcases {
                 }
                 if (slot == 3) { tabs.SelectedIndex = 2; return true; }
                 if (slot == 4) { regions.Swap("left", "right"); return true; }
+                if (slot == 5) { actions.Invoke(work); return true; }
                 if (slot == 6) { tabs.SelectedIndex = 0; if (left.Focused) { right.Focus(); } else { left.Focus(); } return true; }
                 if (slot == 7) { tabs.SelectedIndex = 1; return true; }
                 if (slot == 8 && tabs.SelectedIndex == 0) { (left.Focused ? left : right).MarkPattern("*.log"); return true; }

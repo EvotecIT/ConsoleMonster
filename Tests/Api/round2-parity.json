@@ -5324,6 +5324,26 @@
           "Nullable": "Nullable",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "ProgressDialog",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.PowerShell.ConsoleCommandOptions",
+          "Member": "ProgressDialog",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
         }
       ]
     },
@@ -5530,6 +5550,548 @@
           "MemberKind": "Constructor",
           "Conversion": "Identity",
           "CSharpTypeName": "System.String"
+        }
+      ]
+    },
+    {
+      "Command": "New-ConsoleDataGrid",
+      "Job": "New-ConsoleDataGrid",
+      "CSharpType": "ConsoleMonster.Interactive.DataGridInputOptions",
+      "Bindings": [
+        {
+          "Parameter": "Key",
+          "ParameterType": "System.String",
+          "Default": "",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.DataGridInputOptions",
+          "Member": "Key",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Label",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 1,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.DataGridInputOptions",
+          "Member": "Label",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Disabled",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.DataGridInputOptions",
+          "Member": "Disabled",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "TabIndex",
+          "ParameterType": "System.Int32",
+          "Default": 0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.DataGridInputOptions",
+          "Member": "TabIndex",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "ValidationMessage",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.DataGridInputOptions",
+          "Member": "ValidationMessage",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "OnChange",
+          "ParameterType": "System.Management.Automation.ScriptBlock",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.DataGridInputOptions",
+          "Member": "OnChange",
+          "MemberKind": "Property",
+          "Conversion": "ScriptBlockCallback",
+          "CSharpTypeName": "System.EventHandler`1[ConsoleMonster.Interactive.AppValueChangedEventArgs]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Grid",
+          "ParameterType": "ConsoleMonster.Interactive.Grid",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.DataGridInputOptions",
+          "Member": "Grid",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "ConsoleMonster.Interactive.Grid",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Height",
+          "ParameterType": "System.Int32",
+          "Default": 20,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.DataGridInputOptions",
+          "Member": "Height",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "NoQuickSearch",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.DataGridInputOptions",
+          "Member": "QuickSearch",
+          "MemberKind": "Property",
+          "Conversion": "BooleanInversion",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false,
+          "Reason": "The switch leaves printable input to the application registry."
+        }
+      ]
+    },
+    {
+      "Command": "New-ConsoleDatePicker",
+      "Job": "New-ConsoleDatePicker",
+      "CSharpType": "ConsoleMonster.Interactive.DatePickerInputOptions",
+      "Bindings": [
+        {
+          "Parameter": "Key",
+          "ParameterType": "System.String",
+          "Default": "",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.DatePickerInputOptions",
+          "Member": "Key",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Label",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 1,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.DatePickerInputOptions",
+          "Member": "Label",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Disabled",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.DatePickerInputOptions",
+          "Member": "Disabled",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "TabIndex",
+          "ParameterType": "System.Int32",
+          "Default": 0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.DatePickerInputOptions",
+          "Member": "TabIndex",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "ValidationMessage",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.DatePickerInputOptions",
+          "Member": "ValidationMessage",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "OnChange",
+          "ParameterType": "System.Management.Automation.ScriptBlock",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.DatePickerInputOptions",
+          "Member": "OnChange",
+          "MemberKind": "Property",
+          "Conversion": "ScriptBlockCallback",
+          "CSharpTypeName": "System.EventHandler`1[ConsoleMonster.Interactive.AppValueChangedEventArgs]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Range",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.DatePickerInputOptions",
+          "Member": "Range",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Value",
+          "ParameterType": "System.Object",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.DatePickerInputOptions",
+          "Member": "Value",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Object",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Selection",
+          "ParameterType": "ConsoleMonster.Interactive.DateSelectionOptions",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.DatePickerInputOptions",
+          "Member": "Selection",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "ConsoleMonster.Interactive.DateSelectionOptions",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        }
+      ]
+    },
+    {
+      "Command": "New-ConsoleDialog",
+      "Job": "New-ConsoleDialog",
+      "CSharpType": "ConsoleMonster.Interactive.FormDialogOptions",
+      "Bindings": [
+        {
+          "Parameter": "Title",
+          "ParameterType": "System.String",
+          "Default": "",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.FormDialogOptions",
+          "Member": "Title",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Content",
+          "ParameterType": "System.Object",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.FormDialogOptions",
+          "Member": "Content",
+          "MemberKind": "Property",
+          "Conversion": "WidgetContent",
+          "CSharpTypeName": "ConsoleMonster.Layout.IWidget",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "AcceptText",
+          "ParameterType": "System.String",
+          "Default": "OK",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.FormDialogOptions",
+          "Member": "AcceptText",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "CancelText",
+          "ParameterType": "System.String",
+          "Default": "Cancel",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.FormDialogOptions",
+          "Member": "CancelText",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "DefaultAccept",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.FormDialogOptions",
+          "Member": "DefaultAccept",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "InitialFocus",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.FormDialogOptions",
+          "Member": "InitialFocus",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "MaxWidth",
+          "ParameterType": "System.Int32",
+          "Default": 64,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.FormDialogOptions",
+          "Member": "MaxWidth",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Validate",
+          "ParameterType": "System.Func`2[ConsoleMonster.Interactive.AppState,System.String]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.FormDialogOptions",
+          "Member": "Validate",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Func`2[ConsoleMonster.Interactive.AppState,System.String]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
         }
       ]
     },
@@ -6504,6 +7066,46 @@
           "Reason": "The shell spelling selects this explicit nested option or typed collection.",
           "Nullable": "Unknown",
           "Writable": false,
+          "Static": false
+        },
+        {
+          "Parameter": "HintsSource",
+          "ParameterType": "System.Func`1[System.Collections.Generic.IEnumerable`1[ConsoleMonster.Widgets.KeyHint]]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.FooterBar",
+          "Member": "HintsSource",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Func`1[System.Collections.Generic.IEnumerable`1[ConsoleMonster.Widgets.KeyHint]]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "FixedSlots",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.FooterBar",
+          "Member": "FixedSlots",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
           "Static": false
         }
       ]
@@ -10349,6 +10951,26 @@
           "Nullable": "Nullable",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "Radio",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.SelectInputOptions",
+          "Member": "Radio",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
         }
       ]
     },
@@ -10704,6 +11326,54 @@
           "MemberKind": "Constructor",
           "Conversion": "Identity",
           "CSharpTypeName": "System.String"
+        }
+      ]
+    },
+    {
+      "Command": "New-ConsoleTab",
+      "Job": "New-ConsoleTab",
+      "CSharpType": "ConsoleMonster.Interactive.TabOptions",
+      "Bindings": [
+        {
+          "Parameter": "Title",
+          "ParameterType": "System.String",
+          "Default": "",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.TabOptions",
+          "Member": "Title",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Content",
+          "ParameterType": "System.Object",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.TabOptions",
+          "Member": "Content",
+          "MemberKind": "Property",
+          "Conversion": "WidgetContent",
+          "CSharpTypeName": "ConsoleMonster.Layout.IWidget",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false,
+          "Reason": "Pipeline or declaration output is composed into the shared retained region subtree."
         }
       ]
     },
@@ -11357,6 +12027,52 @@
           ],
           "CSharpType": "ConsoleMonster.Widgets.Table",
           "Member": "WrapLines",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        }
+      ]
+    },
+    {
+      "Command": "New-ConsoleTabs",
+      "Job": "New-ConsoleTabs",
+      "CSharpType": "ConsoleMonster.Widgets.Tabs",
+      "Bindings": [
+        {
+          "Parameter": "Tab",
+          "ParameterType": "ConsoleMonster.Widgets.LayoutRegion[]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.Tabs",
+          "Member": "Add",
+          "MemberKind": "Method",
+          "Conversion": "TabPages",
+          "CSharpTypeName": "ConsoleMonster.Layout.IWidget",
+          "Argument": "content",
+          "Reason": "Each typed page contributes its key and retained content to the shared tab container."
+        },
+        {
+          "Parameter": "SelectedIndex",
+          "ParameterType": "System.Int32",
+          "Default": 0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.Tabs",
+          "Member": "SelectedIndex",
           "MemberKind": "Property",
           "Conversion": "Identity",
           "CSharpTypeName": "System.Int32",
@@ -12313,6 +13029,249 @@
       ]
     },
     {
+      "Command": "New-ConsoleTreeSelect",
+      "Job": "New-ConsoleTreeSelect",
+      "CSharpType": "ConsoleMonster.Interactive.TreeSelectInputOptions",
+      "Bindings": [
+        {
+          "Parameter": "Key",
+          "ParameterType": "System.String",
+          "Default": "",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.TreeSelectInputOptions",
+          "Member": "Key",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Label",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 1,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.TreeSelectInputOptions",
+          "Member": "Label",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Disabled",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.TreeSelectInputOptions",
+          "Member": "Disabled",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "TabIndex",
+          "ParameterType": "System.Int32",
+          "Default": 0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.TreeSelectInputOptions",
+          "Member": "TabIndex",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "ValidationMessage",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.TreeSelectInputOptions",
+          "Member": "ValidationMessage",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "OnChange",
+          "ParameterType": "System.Management.Automation.ScriptBlock",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.TreeSelectInputOptions",
+          "Member": "OnChange",
+          "MemberKind": "Property",
+          "Conversion": "ScriptBlockCallback",
+          "CSharpTypeName": "System.EventHandler`1[ConsoleMonster.Interactive.AppValueChangedEventArgs]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "InputObject",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.ObjectExplorer",
+          "Member": ".ctor",
+          "MemberKind": "Constructor",
+          "Conversion": "PowerShellMemberAdapter",
+          "CSharpTypeName": "System.Object",
+          "Argument": "value"
+        },
+        {
+          "Parameter": "RootPath",
+          "ParameterType": "System.String",
+          "Default": "$x",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.ObjectExplorer",
+          "Member": ".ctor",
+          "MemberKind": "Constructor",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Argument": "rootPath"
+        },
+        {
+          "Parameter": "Depth",
+          "ParameterType": "System.Int32",
+          "Default": 8,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Data.InspectorOptions",
+          "Member": "MaxDepth",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "MaxItems",
+          "ParameterType": "System.Int32",
+          "Default": 100,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Data.InspectorOptions",
+          "Member": "MaxItems",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "MaxNodes",
+          "ParameterType": "System.Int32",
+          "Default": 5000,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Data.InspectorOptions",
+          "Member": "MaxNodes",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Height",
+          "ParameterType": "System.Int32",
+          "Default": 20,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.TreeSelectInputOptions",
+          "Member": "Height",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        }
+      ]
+    },
+    {
       "Command": "Out-ConsoleDefault",
       "Job": "Out-ConsoleDefault",
       "CSharpType": "ConsoleMonster.PowerShell.ConsoleDefaultOutput",
@@ -12707,6 +13666,187 @@
           "Nullable": "Nullable",
           "Writable": true,
           "Static": false
+        }
+      ]
+    },
+    {
+      "Command": "Read-ConsoleDate",
+      "Job": "Read-ConsoleDate",
+      "CSharpType": "ConsoleMonster.Interactive.DatePrompt",
+      "Bindings": [
+        {
+          "Parameter": "Title",
+          "ParameterType": "System.String",
+          "Default": "",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.DatePrompt",
+          "Member": "Title",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Description",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.DatePrompt",
+          "Member": "Description",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "ParameterName",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.DatePrompt",
+          "Member": "ParameterName",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Default",
+          "ParameterType": "System.Object",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.DatePrompt",
+          "Member": "Default",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Object",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Range",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.DatePrompt",
+          "Member": "Range",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Selection",
+          "ParameterType": "ConsoleMonster.Interactive.DateSelectionOptions",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.DatePrompt",
+          "Member": "Selection",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "ConsoleMonster.Interactive.DateSelectionOptions",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Mode",
+          "ParameterType": "System.Nullable`1[ConsoleMonster.Interactive.InteractionMode]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.InteractiveOptions",
+          "Member": "Mode",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Interactive.InteractionMode]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "InputObject",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.PowerShell.ConsoleHostViews",
+          "Member": "Calendar",
+          "MemberKind": "Method",
+          "Conversion": "CalendarDataAdaptation",
+          "CSharpTypeName": "System.Collections.Generic.IEnumerable`1[System.Object]",
+          "Argument": "inputObject",
+          "Reason": "Dated PowerShell records use the shared calendar adapter and immutable CalendarData."
+        },
+        {
+          "Parameter": "StaticSnapshot",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "SnapshotPolicy",
+          "Reason": "Uses the initialized prompt Snapshot operation rather than its interactive Show operation."
         }
       ]
     },
@@ -16243,6 +17383,186 @@
           "Conversion": "Identity",
           "CSharpTypeName": "ConsoleMonster.Styling.ITheme",
           "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Keys",
+          "ParameterType": "ConsoleMonster.Interactive.AppHostKeys",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.ConsoleAppOptions",
+          "Member": "Keys",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "ConsoleMonster.Interactive.AppHostKeys",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "SignalKeys",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.ConsoleAppOptions",
+          "Member": "SignalKeys",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "HandleInput",
+          "ParameterType": "System.Func`3[ConsoleMonster.Interactive.AppState,ConsoleMonster.Input.InputEvent,System.Boolean]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.ConsoleAppOptions",
+          "Member": "HandleInput",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Func`3[ConsoleMonster.Interactive.AppState,ConsoleMonster.Input.InputEvent,System.Boolean]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "TerminalHandoff",
+          "ParameterType": "ConsoleMonster.Interactive.TerminalHandoff",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.ConsoleAppOptions",
+          "Member": "TerminalHandoff",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "ConsoleMonster.Interactive.TerminalHandoff",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Dialogs",
+          "ParameterType": "ConsoleMonster.Interactive.AppDialogs",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.ConsoleAppOptions",
+          "Member": "Dialogs",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "ConsoleMonster.Interactive.AppDialogs",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Actions",
+          "ParameterType": "ConsoleMonster.Interactive.AppActions",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.ConsoleAppOptions",
+          "Member": "Actions",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "ConsoleMonster.Interactive.AppActions",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Footer",
+          "ParameterType": "ConsoleMonster.Layout.IWidget",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.ConsoleAppOptions",
+          "Member": "Footer",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "ConsoleMonster.Layout.IWidget",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "MinimumWidth",
+          "ParameterType": "System.Int32",
+          "Default": 0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.ConsoleAppOptions",
+          "Member": "MinimumWidth",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "MinimumHeight",
+          "ParameterType": "System.Int32",
+          "Default": 0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.ConsoleAppOptions",
+          "Member": "MinimumHeight",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
           "Writable": true,
           "Static": false
         }
@@ -21926,7 +23246,7 @@
       "Member": "ProcessEvents",
       "CSharpTypeName": "System.Action`1[ConsoleMonster.Interactive.AppState]",
       "Reason": "Show-ConsoleApp reserves this owning-thread hook for draining its registered callbacks; replacing it would detach the PowerShell callback lifecycle.",
-      "Alternative": "Use New-ConsoleBinding and the inputs’ OnChange/OnClick script blocks.",
+      "Alternative": "Use New-ConsoleBinding and the inputs\u2019 OnChange/OnClick script blocks.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -22128,7 +23448,7 @@
       "Member": "Arguments",
       "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
       "Reason": "The PowerShell recording adapter constructs safe child-shell arguments from the script; C# hosts can launch a different approved child command.",
-      "Alternative": "Use the child script or the presenter’s explicit shell/working-directory setup.",
+      "Alternative": "Use the child script or the presenter\u2019s explicit shell/working-directory setup.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -22136,7 +23456,7 @@
       "Member": "Environment",
       "CSharpTypeName": "System.Collections.Generic.IDictionary`2[System.String,System.String]",
       "Reason": "The cmdlet preserves its documented isolated child environment; C# hosts may construct a separate per-child environment map.",
-      "Alternative": "Use the child script or the presenter’s explicit shell/working-directory setup.",
+      "Alternative": "Use the child script or the presenter\u2019s explicit shell/working-directory setup.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -22144,7 +23464,7 @@
       "Member": "WorkingDirectory",
       "CSharpTypeName": "System.String",
       "Reason": "PowerShell resolves script/provider paths before recording; C# hosts can specify the native child process working directory.",
-      "Alternative": "Use the child script or the presenter’s explicit shell/working-directory setup.",
+      "Alternative": "Use the child script or the presenter\u2019s explicit shell/working-directory setup.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -22199,7 +23519,7 @@
       "CSharpType": "ConsoleMonster.TestRuns.TestRunSummary",
       "Member": "ShowFailures",
       "CSharpTypeName": "System.Boolean",
-      "Reason": "Controls a custom summary’s failure section; the PowerShell adapter preserves its standard result summary.",
+      "Reason": "Controls a custom summary\u2019s failure section; the PowerShell adapter preserves its standard result summary.",
       "Alternative": "Invoke-ConsolePester owns its consistent final summary; custom C# test hosts can compose a summary widget.",
       "Disposition": "CSharpOnly"
     },
@@ -22247,7 +23567,7 @@
       "CSharpType": "ConsoleMonster.Values.ShapeOptions",
       "Member": "Culture",
       "CSharpTypeName": "System.Globalization.CultureInfo",
-      "Reason": "PowerShell’s owning adapter resolves the command/runspace culture; C# shapers can supply a culture directly.",
+      "Reason": "PowerShell\u2019s owning adapter resolves the command/runspace culture; C# shapers can supply a culture directly.",
       "Alternative": "PowerShell uses its canonical PSObject/member shaping and explicit Property/Culture selection.",
       "Disposition": "CSharpOnly"
     },
@@ -22279,7 +23599,7 @@
       "CSharpType": "ConsoleMonster.Values.ShapeOptions",
       "Member": "MaxNodes",
       "CSharpTypeName": "System.Int32",
-      "Reason": "Bounds custom C# shaping graphs; PowerShell uses the host’s bounded projection and explicit inspector limits.",
+      "Reason": "Bounds custom C# shaping graphs; PowerShell uses the host\u2019s bounded projection and explicit inspector limits.",
       "Alternative": "PowerShell uses its canonical PSObject/member shaping and explicit Property/Culture selection.",
       "Disposition": "CSharpOnly"
     },
@@ -22336,7 +23656,7 @@
       "Member": "BasePath",
       "CSharpTypeName": "System.String",
       "Reason": "PowerShell supplies its current filesystem provider path for source diagnostics; C# hosts choose their own base path.",
-      "Alternative": "Use Show-Console’s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
+      "Alternative": "Use Show-Console\u2019s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -22344,7 +23664,7 @@
       "Member": "DetailsHint",
       "CSharpTypeName": "System.String",
       "Reason": "The PowerShell adapter generates the native Get-Error hint; C# hosts supply wording for their own error-detail route.",
-      "Alternative": "Use Show-Console’s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
+      "Alternative": "Use Show-Console\u2019s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -22352,7 +23672,7 @@
       "Member": "Provider",
       "CSharpTypeName": "ConsoleMonster.Views.IConsoleViewProvider",
       "Reason": "Native view providers are a C# extension point; cmdlets use the shared built-in and registered PowerShell view owners.",
-      "Alternative": "Use Show-Console’s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
+      "Alternative": "Use Show-Console\u2019s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -22360,7 +23680,7 @@
       "Member": "Shape",
       "CSharpTypeName": "ConsoleMonster.Values.ShapeOptions",
       "Reason": "PowerShell owns PSObject shaping and runspace selectors; native C# hosts supply their own ShapeOptions.",
-      "Alternative": "Use Show-Console’s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
+      "Alternative": "Use Show-Console\u2019s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -22368,14 +23688,14 @@
       "Member": "Sources",
       "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Data.IMemberSource]",
       "Reason": "Native member-source implementations are the AOT/C# extension point; cmdlets install the canonical PSObject source.",
-      "Alternative": "Use Show-Console’s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
+      "Alternative": "Use Show-Console\u2019s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
       "Disposition": "CSharpOnly"
     },
     {
       "CSharpType": "ConsoleMonster.Widgets.Dashboard",
       "Member": "CompactSummary",
       "CSharpTypeName": "System.Func`1[System.String]",
-      "Reason": "A C# embedding host may supply a separate compact widget; PowerShell uses the dashboard’s normal compact summary.",
+      "Reason": "A C# embedding host may supply a separate compact widget; PowerShell uses the dashboard\u2019s normal compact summary.",
       "Alternative": "Use New-ConsoleDashboard and the normal adaptive dashboard layout.",
       "Disposition": "CSharpOnly"
     },
@@ -22383,7 +23703,7 @@
       "CSharpType": "ConsoleMonster.Widgets.Dashboard",
       "Member": "MinimumSize",
       "CSharpTypeName": "ConsoleMonster.Layout.Size",
-      "Reason": "Controls an embedded C# dashboard’s compact-mode threshold; the PowerShell host keeps its supported adaptive threshold.",
+      "Reason": "Controls an embedded C# dashboard\u2019s compact-mode threshold; the PowerShell host keeps its supported adaptive threshold.",
       "Alternative": "Use New-ConsoleDashboard and the normal adaptive dashboard layout.",
       "Disposition": "CSharpOnly"
     },
@@ -22415,8 +23735,8 @@
       "CSharpType": "ConsoleMonster.Widgets.InspectorView",
       "Member": "Presentation",
       "CSharpTypeName": "ConsoleMonster.Presenters.PresentationOptions",
-      "Reason": "A C# host can pin a static inspector’s clock/time zone; PowerShell uses the owning host’s current value presentation.",
-      "Alternative": "Use Show-ConsoleObject’s standard inspector presentation.",
+      "Reason": "A C# host can pin a static inspector\u2019s clock/time zone; PowerShell uses the owning host\u2019s current value presentation.",
+      "Alternative": "Use Show-ConsoleObject\u2019s standard inspector presentation.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -22424,7 +23744,7 @@
       "Member": "ShowHeader",
       "CSharpTypeName": "System.Boolean",
       "Reason": "Controls a directly embedded static inspector; PowerShell chooses its header according to the inspector route.",
-      "Alternative": "Use Show-ConsoleObject’s standard inspector presentation.",
+      "Alternative": "Use Show-ConsoleObject\u2019s standard inspector presentation.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -22455,7 +23775,7 @@
       "CSharpType": "ConsoleMonster.Widgets.RecordView",
       "Member": "Presentation",
       "CSharpTypeName": "ConsoleMonster.Presenters.PresentationOptions",
-      "Reason": "A C# host can pin a record’s clock/time zone; PowerShell list values use their explicit Culture and owning-host context.",
+      "Reason": "A C# host can pin a record\u2019s clock/time zone; PowerShell list values use their explicit Culture and owning-host context.",
       "Alternative": "Use Show-ConsoleList and its Property/Depth/ShowEmpty/Culture controls.",
       "Disposition": "CSharpOnly"
     },
@@ -22567,7 +23887,7 @@
       "CSharpType": "ConsoleMonster.Widgets.TextBlock",
       "Member": "Content",
       "CSharpTypeName": "System.String",
-      "Reason": "TextBlock stores one string; PowerShell’s canonical text command returns RichText pieces usable in cells as well as block rendering.",
+      "Reason": "TextBlock stores one string; PowerShell\u2019s canonical text command returns RichText pieces usable in cells as well as block rendering.",
       "Alternative": "Use New-ConsoleText -Text/-Markup/-Role/-Alignment/-Overflow; its RichText result is also a widget.",
       "Disposition": "EquivalentRepresentation"
     },
@@ -22591,7 +23911,7 @@
       "CSharpType": "ConsoleMonster.Widgets.TextBlock",
       "Member": "Role",
       "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Styling.ThemeToken]",
-      "Reason": "TextBlock stores a block role; PowerShell applies the same Role through RichText’s base style.",
+      "Reason": "TextBlock stores a block role; PowerShell applies the same Role through RichText\u2019s base style.",
       "Alternative": "Use New-ConsoleText -Text/-Markup/-Role/-Alignment/-Overflow; its RichText result is also a widget.",
       "Disposition": "EquivalentRepresentation"
     },
@@ -22634,11 +23954,139 @@
       "Reason": "PowerShell supplies ScriptBlock, modules and arguments to its isolated script runner; C# supplies the asynchronous delegate directly.",
       "Alternative": "New-ConsoleCommand -ScriptBlock configures the same asynchronous command job.",
       "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.DataGrid",
+      "Member": "Cursor",
+      "CSharpTypeName": "System.Int32",
+      "Reason": "Programmatic cursor placement is retained grid state, not constructor configuration.",
+      "Alternative": "Call Move or set Cursor on the DataGrid returned by New-ConsoleDataGrid.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.LogViewport",
+      "Member": "Capacity",
+      "CSharpTypeName": "System.Int32",
+      "Reason": "The retained log viewport wraps the existing bounded LogRegion without adding a second log constructor cmdlet.",
+      "Alternative": "Create LogViewport in PowerShell or C#, configure Capacity, and embed it in Show-ConsoleApp.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.LogViewport",
+      "Member": "Height",
+      "CSharpTypeName": "System.Int32",
+      "Reason": "The retained log viewport wraps the existing bounded LogRegion without adding a second log constructor cmdlet.",
+      "Alternative": "Create LogViewport in PowerShell or C#, configure Height, and embed it in Show-ConsoleApp.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.LogViewport",
+      "Member": "ShowElapsed",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "The retained log viewport wraps the existing bounded LogRegion without adding a second log constructor cmdlet.",
+      "Alternative": "Create LogViewport in PowerShell or C#, configure ShowElapsed, and embed it in Show-ConsoleApp.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.LogViewport",
+      "Member": "ScrollOffset",
+      "CSharpTypeName": "System.Int32",
+      "Reason": "The retained log viewport wraps the existing bounded LogRegion without adding a second log constructor cmdlet.",
+      "Alternative": "Create LogViewport in PowerShell or C#, configure ScrollOffset, and embed it in Show-ConsoleApp.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.LogViewport",
+      "Member": "HorizontalOffset",
+      "CSharpTypeName": "System.Int32",
+      "Reason": "The retained log viewport wraps the existing bounded LogRegion without adding a second log constructor cmdlet.",
+      "Alternative": "Create LogViewport in PowerShell or C#, configure HorizontalOffset, and embed it in Show-ConsoleApp.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.TerminalChildOptions",
+      "Member": "FileName",
+      "CSharpTypeName": "System.String",
+      "Reason": "Child PTY execution is an app-thread operation on TerminalHandoff, not a standalone interactive cmdlet.",
+      "Alternative": "Create TerminalChildOptions in PowerShell or C# and call SuspendForChild on the attached handoff.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.TerminalChildOptions",
+      "Member": "Arguments",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+      "Reason": "Child PTY execution is an app-thread operation on TerminalHandoff, not a standalone interactive cmdlet.",
+      "Alternative": "Create TerminalChildOptions in PowerShell or C# and call SuspendForChild on the attached handoff.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.TerminalChildOptions",
+      "Member": "WorkingDirectory",
+      "CSharpTypeName": "System.String",
+      "Reason": "Child PTY execution is an app-thread operation on TerminalHandoff, not a standalone interactive cmdlet.",
+      "Alternative": "Create TerminalChildOptions in PowerShell or C# and call SuspendForChild on the attached handoff.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.TerminalChildOptions",
+      "Member": "Environment",
+      "CSharpTypeName": "System.Collections.Generic.IDictionary`2[System.String,System.String]",
+      "Reason": "Child PTY execution is an app-thread operation on TerminalHandoff, not a standalone interactive cmdlet.",
+      "Alternative": "Create TerminalChildOptions in PowerShell or C# and call SuspendForChild on the attached handoff.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.TerminalChildOptions",
+      "Member": "Timeout",
+      "CSharpTypeName": "System.TimeSpan",
+      "Reason": "Child PTY execution is an app-thread operation on TerminalHandoff, not a standalone interactive cmdlet.",
+      "Alternative": "Create TerminalChildOptions in PowerShell or C# and call SuspendForChild on the attached handoff.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.TreeSelect",
+      "Member": "Filter",
+      "CSharpTypeName": "System.String",
+      "Reason": "Retained tree filtering belongs to the embedded control rather than the object exploration constructor.",
+      "Alternative": "Set Filter on the TreeSelect returned by New-ConsoleTreeSelect.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.TreeSelectInputOptions",
+      "Member": "Explorer",
+      "CSharpTypeName": "ConsoleMonster.Interactive.ObjectExplorer",
+      "Reason": "The PowerShell constructor adapts InputObject through its member-access and traversal-budget policy.",
+      "Alternative": "Use New-ConsoleTreeSelect -InputObject; C# callers can provide an ObjectExplorer.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.LayoutRegions",
+      "Member": "NarrowBelow",
+      "CSharpTypeName": "System.Int32",
+      "Reason": "Responsive regions are composed through the typed layout container.",
+      "Alternative": "Construct LayoutRegions in PowerShell or C# and pass it to Show-ConsoleApp.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.LayoutRegions",
+      "Member": "ActiveRegion",
+      "CSharpTypeName": "System.String",
+      "Reason": "ActiveRegion is live layout state used when no region owns focus.",
+      "Alternative": "Call Activate(key) on the retained regions container.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.LayoutRegions",
+      "Member": "Gap",
+      "CSharpTypeName": "System.Int32",
+      "Reason": "The inter-region gap belongs to the typed responsive container.",
+      "Alternative": "Set Gap on LayoutRegions before passing it to Show-ConsoleApp.",
+      "Disposition": "CSharpOnly"
     }
   ],
   "SchemaVersion": 2,
   "BaselineCount": 144,
-  "ExpectedCount": 101,
+  "ExpectedCount": 108,
   "ConfigurableRoots": [
     "ConsoleMonster.Capabilities.CapabilityDetector",
     "ConsoleMonster.Changes.ChangePreviewOptions",
@@ -22668,13 +24116,21 @@
     "ConsoleMonster.Interactive.ConfirmPrompt",
     "ConsoleMonster.Interactive.ConsoleApp",
     "ConsoleMonster.Interactive.ConsoleAppOptions",
+    "ConsoleMonster.Interactive.DataGrid",
+    "ConsoleMonster.Interactive.DataGridInputOptions",
+    "ConsoleMonster.Interactive.DatePicker",
+    "ConsoleMonster.Interactive.DatePickerInputOptions",
+    "ConsoleMonster.Interactive.DatePrompt",
+    "ConsoleMonster.Interactive.DateSelectionOptions",
     "ConsoleMonster.Interactive.Field",
     "ConsoleMonster.Interactive.Form",
+    "ConsoleMonster.Interactive.FormDialogOptions",
     "ConsoleMonster.Interactive.FormOptions",
     "ConsoleMonster.Interactive.Grid",
     "ConsoleMonster.Interactive.GridOptions",
     "ConsoleMonster.Interactive.InputControl",
     "ConsoleMonster.Interactive.InteractiveOptions",
+    "ConsoleMonster.Interactive.LogViewport",
     "ConsoleMonster.Interactive.Menu",
     "ConsoleMonster.Interactive.MenuItem",
     "ConsoleMonster.Interactive.MenuOptions",
@@ -22691,6 +24147,8 @@
     "ConsoleMonster.Interactive.SelectionInputBase",
     "ConsoleMonster.Interactive.SelectPrompt`1",
     "ConsoleMonster.Interactive.SelectQuestionOptions",
+    "ConsoleMonster.Interactive.TabOptions",
+    "ConsoleMonster.Interactive.TerminalChildOptions",
     "ConsoleMonster.Interactive.TextArea",
     "ConsoleMonster.Interactive.TextAreaPrompt",
     "ConsoleMonster.Interactive.TextInput",
@@ -22699,6 +24157,8 @@
     "ConsoleMonster.Interactive.TextQuestionOptions",
     "ConsoleMonster.Interactive.Toggle",
     "ConsoleMonster.Interactive.ToggleInputOptions",
+    "ConsoleMonster.Interactive.TreeSelect",
+    "ConsoleMonster.Interactive.TreeSelectInputOptions",
     "ConsoleMonster.Interactive.TypedConfirmPrompt",
     "ConsoleMonster.Layout.Align",
     "ConsoleMonster.Layout.ColumnFormat",
@@ -22779,6 +24239,8 @@
     "ConsoleMonster.Widgets.InspectorView",
     "ConsoleMonster.Widgets.KeyValueList",
     "ConsoleMonster.Widgets.Lanes",
+    "ConsoleMonster.Widgets.LayoutRegion",
+    "ConsoleMonster.Widgets.LayoutRegions",
     "ConsoleMonster.Widgets.LineChart",
     "ConsoleMonster.Widgets.LiveTable",
     "ConsoleMonster.Widgets.LiveWidget",
@@ -22807,6 +24269,7 @@
     "ConsoleMonster.Widgets.SummaryBar",
     "ConsoleMonster.Widgets.Table",
     "ConsoleMonster.Widgets.Table`1",
+    "ConsoleMonster.Widgets.Tabs",
     "ConsoleMonster.Widgets.TextBlock",
     "ConsoleMonster.Widgets.Tree",
     "ConsoleMonster.Widgets.TreeHierarchyOptions",
@@ -22872,9 +24335,12 @@
     "ConsoleMonster.Input.IInputSource",
     "ConsoleMonster.Input.KeyChord",
     "ConsoleMonster.Input.KeyModifiers",
+    "ConsoleMonster.Interactive.AppActions",
     "ConsoleMonster.Interactive.AppBinding",
     "ConsoleMonster.Interactive.AppCommand",
+    "ConsoleMonster.Interactive.AppDialogs",
     "ConsoleMonster.Interactive.AppDispatcher",
+    "ConsoleMonster.Interactive.AppHostKeys",
     "ConsoleMonster.Interactive.AppInputOptions",
     "ConsoleMonster.Interactive.BindingOptions",
     "ConsoleMonster.Interactive.Button",
@@ -22886,10 +24352,17 @@
     "ConsoleMonster.Interactive.ConfirmPrompt",
     "ConsoleMonster.Interactive.ConsoleApp",
     "ConsoleMonster.Interactive.ConsoleAppOptions",
+    "ConsoleMonster.Interactive.DataGrid",
+    "ConsoleMonster.Interactive.DataGridInputOptions",
+    "ConsoleMonster.Interactive.DatePicker",
+    "ConsoleMonster.Interactive.DatePickerInputOptions",
+    "ConsoleMonster.Interactive.DatePrompt",
+    "ConsoleMonster.Interactive.DateSelectionOptions",
     "ConsoleMonster.Interactive.ExplorerNode",
     "ConsoleMonster.Interactive.Field",
     "ConsoleMonster.Interactive.FieldKind",
     "ConsoleMonster.Interactive.Form",
+    "ConsoleMonster.Interactive.FormDialogOptions",
     "ConsoleMonster.Interactive.FormOptions",
     "ConsoleMonster.Interactive.FormPage",
     "ConsoleMonster.Interactive.FormPreset",
@@ -22903,6 +24376,7 @@
     "ConsoleMonster.Interactive.InteractionMode",
     "ConsoleMonster.Interactive.InteractiveOptions",
     "ConsoleMonster.Interactive.KeyBinding",
+    "ConsoleMonster.Interactive.LogViewport",
     "ConsoleMonster.Interactive.Menu",
     "ConsoleMonster.Interactive.MenuItem",
     "ConsoleMonster.Interactive.MenuItemKind",
@@ -22926,6 +24400,9 @@
     "ConsoleMonster.Interactive.SelectionInputBase",
     "ConsoleMonster.Interactive.SelectPrompt`1",
     "ConsoleMonster.Interactive.SelectQuestionOptions",
+    "ConsoleMonster.Interactive.TabOptions",
+    "ConsoleMonster.Interactive.TerminalChildOptions",
+    "ConsoleMonster.Interactive.TerminalHandoff",
     "ConsoleMonster.Interactive.TextArea",
     "ConsoleMonster.Interactive.TextAreaPrompt",
     "ConsoleMonster.Interactive.TextInput",
@@ -22934,6 +24411,8 @@
     "ConsoleMonster.Interactive.TextQuestionOptions",
     "ConsoleMonster.Interactive.Toggle",
     "ConsoleMonster.Interactive.ToggleInputOptions",
+    "ConsoleMonster.Interactive.TreeSelect",
+    "ConsoleMonster.Interactive.TreeSelectInputOptions",
     "ConsoleMonster.Interactive.TypedConfirmPrompt",
     "ConsoleMonster.Layout.Align",
     "ConsoleMonster.Layout.ColumnFormat",
@@ -23065,6 +24544,8 @@
     "ConsoleMonster.Widgets.KeyValueList",
     "ConsoleMonster.Widgets.Lane",
     "ConsoleMonster.Widgets.Lanes",
+    "ConsoleMonster.Widgets.LayoutRegion",
+    "ConsoleMonster.Widgets.LayoutRegions",
     "ConsoleMonster.Widgets.LineChart",
     "ConsoleMonster.Widgets.LiveTable",
     "ConsoleMonster.Widgets.LiveWidget",
@@ -23102,6 +24583,7 @@
     "ConsoleMonster.Widgets.TableBorder",
     "ConsoleMonster.Widgets.TableCell",
     "ConsoleMonster.Widgets.TableColumn",
+    "ConsoleMonster.Widgets.Tabs",
     "ConsoleMonster.Widgets.TextBlock",
     "ConsoleMonster.Widgets.TextOverflow",
     "ConsoleMonster.Widgets.Tree",
@@ -25067,6 +26549,177 @@
       "Command": "Read-ConsoleConfirm",
       "Parameter": "TypedConfirmation",
       "Reason": "The typed confirmation renderer configures the same expected answer."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.AppCommand",
+      "Member": "ProgressDialog",
+      "MemberId": "ConsoleMonster.Interactive.AppCommand.ProgressDialog",
+      "CSharpTypeName": "System.Boolean",
+      "Command": "New-ConsoleCommand",
+      "Parameter": "ProgressDialog",
+      "Reason": "The core action and fluent definition use the same shared progress and summary presentation."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.CommandOptions",
+      "Member": "ProgressDialog",
+      "MemberId": "ConsoleMonster.Interactive.CommandOptions.ProgressDialog",
+      "CSharpTypeName": "System.Boolean",
+      "Command": "New-ConsoleCommand",
+      "Parameter": "ProgressDialog",
+      "Reason": "The core action and fluent definition use the same shared progress and summary presentation."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.SelectionInputBase",
+      "Member": "Radio",
+      "MemberId": "ConsoleMonster.Interactive.SelectionInputBase.Radio",
+      "CSharpTypeName": "System.Boolean",
+      "Command": "New-ConsoleSelect",
+      "Parameter": "Radio",
+      "Reason": "The retained selector renders radio indicators over its existing scalar value."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.DataGrid",
+      "Member": "Height",
+      "MemberId": "ConsoleMonster.Interactive.DataGrid.Height",
+      "CSharpTypeName": "System.Int32",
+      "Command": "New-ConsoleDataGrid",
+      "Parameter": "Height",
+      "Reason": "The named grid uses the same viewport height as its PowerShell constructor."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.DataGridInputOptions",
+      "Member": "Height",
+      "MemberId": "ConsoleMonster.Interactive.DataGridInputOptions.Height",
+      "CSharpTypeName": "System.Int32",
+      "Command": "New-ConsoleDataGrid",
+      "Parameter": "Height",
+      "Reason": "The named grid uses the same viewport height as its PowerShell constructor."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.TreeSelect",
+      "Member": "Height",
+      "MemberId": "ConsoleMonster.Interactive.TreeSelect.Height",
+      "CSharpTypeName": "System.Int32",
+      "Command": "New-ConsoleTreeSelect",
+      "Parameter": "Height",
+      "Reason": "The named tree uses the same viewport height as its PowerShell constructor."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.TreeSelectInputOptions",
+      "Member": "Height",
+      "MemberId": "ConsoleMonster.Interactive.TreeSelectInputOptions.Height",
+      "CSharpTypeName": "System.Int32",
+      "Command": "New-ConsoleTreeSelect",
+      "Parameter": "Height",
+      "Reason": "The named tree uses the same viewport height as its PowerShell constructor."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.DataGrid",
+      "Member": "QuickSearch",
+      "MemberId": "ConsoleMonster.Interactive.DataGrid.QuickSearch",
+      "CSharpTypeName": "System.Boolean",
+      "Command": "New-ConsoleDataGrid",
+      "Parameter": "NoQuickSearch",
+      "Reason": "NoQuickSearch inverts the control setting so the app registry can own printable keys."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.DatePicker",
+      "Member": "Range",
+      "MemberId": "ConsoleMonster.Interactive.DatePicker.Range",
+      "CSharpTypeName": "System.Boolean",
+      "Command": "New-ConsoleDatePicker",
+      "Parameter": "Range",
+      "Reason": "The date constructor maps to the same retained date/range state."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.DatePicker",
+      "Member": "Value",
+      "MemberId": "ConsoleMonster.Interactive.DatePicker.Value",
+      "CSharpTypeName": "System.Object",
+      "Command": "New-ConsoleDatePicker",
+      "Parameter": "Value",
+      "Reason": "The date constructor maps to the same retained date/range state."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.DatePicker",
+      "Member": "Minimum",
+      "MemberId": "ConsoleMonster.Interactive.DatePicker.Minimum",
+      "CSharpTypeName": "System.Nullable`1[System.DateTime]",
+      "Command": "New-ConsoleDatePicker",
+      "Parameter": "Selection",
+      "Reason": "DateSelectionOptions configures the same civil-date constraints, culture and marks on the retained picker."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.DatePicker",
+      "Member": "Maximum",
+      "MemberId": "ConsoleMonster.Interactive.DatePicker.Maximum",
+      "CSharpTypeName": "System.Nullable`1[System.DateTime]",
+      "Command": "New-ConsoleDatePicker",
+      "Parameter": "Selection",
+      "Reason": "DateSelectionOptions configures the same civil-date constraints, culture and marks on the retained picker."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.DatePicker",
+      "Member": "Unavailable",
+      "MemberId": "ConsoleMonster.Interactive.DatePicker.Unavailable",
+      "CSharpTypeName": "System.Func`2[System.DateTime,System.Boolean]",
+      "Command": "New-ConsoleDatePicker",
+      "Parameter": "Selection",
+      "Reason": "DateSelectionOptions configures the same civil-date constraints, culture and marks on the retained picker."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.DatePicker",
+      "Member": "Culture",
+      "MemberId": "ConsoleMonster.Interactive.DatePicker.Culture",
+      "CSharpTypeName": "System.Globalization.CultureInfo",
+      "Command": "New-ConsoleDatePicker",
+      "Parameter": "Selection",
+      "Reason": "DateSelectionOptions configures the same civil-date constraints, culture and marks on the retained picker."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.DatePicker",
+      "Member": "FirstDayOfWeek",
+      "MemberId": "ConsoleMonster.Interactive.DatePicker.FirstDayOfWeek",
+      "CSharpTypeName": "System.Nullable`1[System.DayOfWeek]",
+      "Command": "New-ConsoleDatePicker",
+      "Parameter": "Selection",
+      "Reason": "DateSelectionOptions configures the same civil-date constraints, culture and marks on the retained picker."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.DatePicker",
+      "Member": "Today",
+      "MemberId": "ConsoleMonster.Interactive.DatePicker.Today",
+      "CSharpTypeName": "System.DateTime",
+      "Command": "New-ConsoleDatePicker",
+      "Parameter": "Selection",
+      "Reason": "DateSelectionOptions configures the same civil-date constraints, culture and marks on the retained picker."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.DatePicker",
+      "Member": "Data",
+      "MemberId": "ConsoleMonster.Interactive.DatePicker.Data",
+      "CSharpTypeName": "ConsoleMonster.Dates.CalendarData",
+      "Command": "New-ConsoleDatePicker",
+      "Parameter": "Selection",
+      "Reason": "DateSelectionOptions configures the same civil-date constraints, culture and marks on the retained picker."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.DataGrid",
+      "Member": "Filter",
+      "MemberId": "ConsoleMonster.Interactive.DataGrid.Filter",
+      "CSharpTypeName": "System.String",
+      "Command": "Show-ConsoleGrid",
+      "Parameter": "Filter",
+      "Reason": "The standalone grid sets the same substring filter before running the shared retained control."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.LayoutRegion",
+      "Member": "Content",
+      "MemberId": "ConsoleMonster.Widgets.LayoutRegion.Content",
+      "CSharpTypeName": "ConsoleMonster.Layout.IWidget",
+      "Command": "New-ConsoleTab",
+      "Parameter": "Content",
+      "Reason": "The page definition retains the same region subtree when materialized."
     }
   ],
   "Endings": [
@@ -25159,7 +26812,7 @@
     {
       "Kind": "DelegateProperty",
       "Method": "Configure",
-      "Pattern": ".Configure(item => item.{Member} = …)",
+      "Pattern": ".Configure(item => item.{Member} = \u2026)",
       "Reason": "C# invokes a delegate-valued property before considering an extension with that name; Configure assigns the callback without invoking it."
     }
   ],
@@ -25171,8 +26824,8 @@
       "ExplicitValuePattern": ".{Member}(value)"
     },
     "Content": {
-      "PowerShellPattern": "-Content { … }",
-      "FluentPattern": ".Content(c => { … })",
+      "PowerShellPattern": "-Content { \u2026 }",
+      "FluentPattern": ".Content(c => { \u2026 })",
       "BuilderType": "ConsoleMonster.Layout.ContentBuilder",
       "Bindings": [
         {
@@ -25668,6 +27321,71 @@
           "InitializerTypes": [
             "ConsoleMonster.Widgets.Tree"
           ]
+        },
+        {
+          "Command": "New-ConsoleDataGrid",
+          "Noun": "DataGrid",
+          "ReturnType": "ConsoleMonster.Interactive.DataGridInputOptions",
+          "ContentBuilder": true,
+          "Pattern": "Ui.DataGrid()",
+          "InitializerTypes": [
+            "ConsoleMonster.Interactive.DataGridInputOptions"
+          ],
+          "Materialize": "Build"
+        },
+        {
+          "Command": "New-ConsoleTreeSelect",
+          "Noun": "TreeSelect",
+          "ReturnType": "ConsoleMonster.Interactive.TreeSelectInputOptions",
+          "ContentBuilder": true,
+          "Pattern": "Ui.TreeSelect()",
+          "InitializerTypes": [
+            "ConsoleMonster.Interactive.TreeSelectInputOptions"
+          ],
+          "Materialize": "Build"
+        },
+        {
+          "Command": "New-ConsoleDatePicker",
+          "Noun": "DatePicker",
+          "ReturnType": "ConsoleMonster.Interactive.DatePickerInputOptions",
+          "ContentBuilder": true,
+          "Pattern": "Ui.DatePicker()",
+          "InitializerTypes": [
+            "ConsoleMonster.Interactive.DatePickerInputOptions"
+          ],
+          "Materialize": "Build"
+        },
+        {
+          "Command": "New-ConsoleTab",
+          "Noun": "Tab",
+          "ReturnType": "ConsoleMonster.Interactive.TabOptions",
+          "ContentBuilder": false,
+          "Pattern": "Ui.Tab()",
+          "InitializerTypes": [
+            "ConsoleMonster.Interactive.TabOptions"
+          ],
+          "Materialize": "Build"
+        },
+        {
+          "Command": "New-ConsoleTabs",
+          "Noun": "Tabs",
+          "ReturnType": "ConsoleMonster.Widgets.Tabs",
+          "ContentBuilder": true,
+          "Pattern": "Ui.Tabs()",
+          "InitializerTypes": [
+            "ConsoleMonster.Widgets.Tabs"
+          ]
+        },
+        {
+          "Command": "New-ConsoleDialog",
+          "Noun": "Dialog",
+          "ReturnType": "ConsoleMonster.Interactive.FormDialogOptions",
+          "ContentBuilder": false,
+          "Pattern": "Ui.Dialog()",
+          "InitializerTypes": [
+            "ConsoleMonster.Interactive.FormDialogOptions"
+          ],
+          "Materialize": "Build"
         }
       ],
       "NonWidgetCommands": [
@@ -25732,6 +27450,14 @@
         {
           "Noun": "Review",
           "Reason": "Runtime review model for a typed question workflow, not display content."
+        },
+        {
+          "Noun": "LayoutRegions",
+          "Reason": "Responsive, swappable retained layout regions; compose typed children for Show-ConsoleApp."
+        },
+        {
+          "Noun": "DatePrompt",
+          "Reason": "Typed Read-ConsoleDate question renderer, including inclusive ranges."
         }
       ],
       "PrimaryInputs": [
@@ -25849,7 +27575,7 @@
         }
       ],
       "Pattern": "Ui.{Noun}()",
-      "NestedPattern": "c.{Noun}(widget => …)",
+      "NestedPattern": "c.{Noun}(widget => \u2026)",
       "DataConstructionExceptions": [
         {
           "CSharpType": "ConsoleMonster.Interactive.Choice",

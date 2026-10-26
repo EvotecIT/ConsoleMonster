@@ -1,0 +1,76 @@
+---
+external help file: ConsoleMonster-help.xml
+Module Name: ConsoleMonster
+online version: https://github.com/EvotecIT/ConsoleMonster
+schema: 2.0.0
+---
+# New-ConsoleTabs
+## SYNOPSIS
+Creates retained tabs with keyboard and pointer navigation.
+
+## SYNTAX
+### __AllParameterSets
+```powershell
+New-ConsoleTabs [-Tab] <LayoutRegion[]> [-SelectedIndex <int>] [<CommonParameters>]
+```
+
+## DESCRIPTION
+Creates retained tabs with keyboard and pointer navigation.
+
+## EXAMPLES
+
+### EXAMPLE 1
+```powershell
+$pages | New-ConsoleTabs | Show-ConsoleApp
+```
+
+Compose two pages.
+
+## PARAMETERS
+
+### -SelectedIndex
+Initial zero-based active page.
+
+```yaml
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Tab
+Pages returned by New-ConsoleTab, in display order.
+
+```yaml
+Type: LayoutRegion[]
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: True
+Position: 0
+Default value: None
+Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+## INPUTS
+
+- `ConsoleMonster.Widgets.LayoutRegion[]`
+
+## OUTPUTS
+
+- `ConsoleMonster.Widgets.Tabs`
+
+## RELATED LINKS
+
+- None

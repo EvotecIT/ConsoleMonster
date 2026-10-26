@@ -73,11 +73,17 @@ namespace ConsoleMonster.Interactive {
 
         /// <summary>Rebinds a listing while retaining the focused identity and surviving marks. Call on the app thread.</summary>
         public void SetRows(IEnumerable<GridRow> rows) {
-            Change(() => { object? current = CurrentRowCore?.Id; _grid.SetRows(rows); ResetCells(); Rebuild(current); PruneMarks(); });
+            Change(() => { _grid.SetRows(rows); RefreshRowsCore(); });
         }
 
         /// <summary>Refreshes column, sort and filter mappings after changing the listing.</summary>
-        public void RefreshRows() => Change(() => { ResetCells(); Rebuild(); PruneMarks(); });
+        public void RefreshRows() => Change(RefreshRowsCore);
+        private void RefreshRowsCore() {
+            object? focused = CurrentRowCore?.Id;
+            ResetCells();
+            _rows = _grid.Rows.ToArray();
+            Rebuild(focused); PruneMarks();
+        }
         private void PruneMarks() {
             var ids = new HashSet<object>(_rows.Select(row => row.Id));
             if (ids.Count != _rows.Count || ids.Contains(null!)) { throw new ArgumentException("Rows need unique, non-null identities."); }

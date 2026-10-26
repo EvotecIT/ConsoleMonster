@@ -329,7 +329,7 @@
     },
     {
       "verb": "New",
-      "count": 42,
+      "count": 48,
       "commands": [
         {
           "name": "New-ConsoleActivityList",
@@ -385,6 +385,21 @@
           "name": "New-ConsoleDashboard",
           "synopsis": "Defines a live console dashboard: a header with title and clock, the body and a footer.",
           "url": "/powershell/commands/new-consoledashboard/"
+        },
+        {
+          "name": "New-ConsoleDataGrid",
+          "synopsis": "Creates a named, embeddable data grid for Show-ConsoleApp.",
+          "url": "/powershell/commands/new-consoledatagrid/"
+        },
+        {
+          "name": "New-ConsoleDatePicker",
+          "synopsis": "Creates a persistent civil-date or inclusive range picker.",
+          "url": "/powershell/commands/new-consoledatepicker/"
+        },
+        {
+          "name": "New-ConsoleDialog",
+          "synopsis": "Creates a typed modal form for the running app's dialog service.",
+          "url": "/powershell/commands/new-consoledialog/"
         },
         {
           "name": "New-ConsoleField",
@@ -517,9 +532,19 @@
           "url": "/powershell/commands/new-consolesummarybar/"
         },
         {
+          "name": "New-ConsoleTab",
+          "synopsis": "Creates a retained tab page for New-ConsoleTabs.",
+          "url": "/powershell/commands/new-consoletab/"
+        },
+        {
           "name": "New-ConsoleTable",
           "synopsis": "Creates a console table from pipeline objects.",
           "url": "/powershell/commands/new-consoletable/"
+        },
+        {
+          "name": "New-ConsoleTabs",
+          "synopsis": "Creates retained tabs with keyboard and pointer navigation.",
+          "url": "/powershell/commands/new-consoletabs/"
         },
         {
           "name": "New-ConsoleText",
@@ -540,6 +565,11 @@
           "name": "New-ConsoleTree",
           "synopsis": "Creates a console tree from nested Label/Children records calls, hierarchical objects or nested hashtables.",
           "url": "/powershell/commands/new-consoletree/"
+        },
+        {
+          "name": "New-ConsoleTreeSelect",
+          "synopsis": "Creates an embeddable, lazy object tree for Show-ConsoleApp.",
+          "url": "/powershell/commands/new-consoletreeselect/"
         }
       ]
     },
@@ -567,12 +597,17 @@
     },
     {
       "verb": "Read",
-      "count": 6,
+      "count": 7,
       "commands": [
         {
           "name": "Read-ConsoleConfirm",
           "synopsis": "Asks a yes/no question and returns $true or $false.",
           "url": "/powershell/commands/read-consoleconfirm/"
+        },
+        {
+          "name": "Read-ConsoleDate",
+          "synopsis": "Asks for one civil date or inclusive date range.",
+          "url": "/powershell/commands/read-consoledate/"
         },
         {
           "name": "Read-ConsoleForm",
