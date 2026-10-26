@@ -31,7 +31,7 @@ namespace SiteFrames.Pages {
 
         /// <summary>Captures the exact native script on each PowerShell host; every run ends after one source poll.</summary>
         public static void Capture(Site site) {
-            foreach (PowerShellHost host in PowerShellHost.All) {
+            foreach (PowerShellHost host in PowerShellHost.Available) {
                 foreach (int width in Widths) {
                     foreach (string theme in new[] { "dark", "light" }) {
                         string path = CapturePath(site, host, width, theme);
@@ -42,7 +42,9 @@ namespace SiteFrames.Pages {
                             timeout: TimeSpan.FromSeconds(30), arguments: arguments);
                         // The wrapper saved the target's VT, excluding ConPTY's host startup/exit text.
                         FindFrames(File.ReadAllText(path), width);
+                        CaptureRun.Observe(File.ReadAllBytes(path), width, Rows);
                         Stamps.Write(site, path, Fingerprint(site, width, theme));
+                        CaptureRun.Record(path, width, Rows);
                         Console.WriteLine("captured tails " + host.Id + " " + width + " " + theme);
                     }
                 }

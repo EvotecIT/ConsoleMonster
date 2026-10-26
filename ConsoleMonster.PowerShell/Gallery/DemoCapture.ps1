@@ -22,7 +22,8 @@ $options.Mode = if ($null -ne $target.Input) { 'Rich' } else { 'None' }
 $options.NonInteractive = $false
 try {
     ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions', $true))::Default = $options
-    Use-ConsoleTarget -Target $target -ScriptBlock {
+    $targetScope = [ConsoleMonster.Terminal]::Use($target)
+    try {
         try {
             $arguments = @($state.arguments)
             if ($null -eq $state.arguments) { $arguments = @() }
@@ -32,7 +33,7 @@ try {
             # A partial input script deliberately stops at the screen being documented.
             if (-not $state.incomplete -or $_.FullyQualifiedErrorId -notlike 'InputClosed*') { throw }
         }
-    }
+    } finally { $targetScope.Dispose() }
 } finally {
     ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions', $true))::Default = $previous
     $env:CONSOLEMONSTER_STORAGE_ROOT = $previousStorage

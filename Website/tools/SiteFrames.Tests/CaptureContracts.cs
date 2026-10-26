@@ -78,12 +78,11 @@ namespace SiteFrames.Tests {
 
         [Fact]
         public void Capture_RejectsANonzeroExitInsteadOfSavingItAsOutput() {
-            if (OperatingSystem.IsWindows()) {
-                var error = Assert.Throws<InvalidOperationException>(() => PseudoConsole.Run("cmd.exe /c exit 7", 20, 5, new Dictionary<string, string?>(), Path.GetTempPath(), TimeSpan.FromSeconds(10)));
-                Assert.Contains("code 7", error.Message);
-            } else {
-                Assert.Throws<PlatformNotSupportedException>(() => PseudoConsole.Run("false", 20, 5, new Dictionary<string, string?>(), Path.GetTempPath(), TimeSpan.FromSeconds(10)));
-            }
+            string executable = OperatingSystem.IsWindows() ? "cmd.exe" : "/bin/sh";
+            string[] arguments = OperatingSystem.IsWindows() ? new[] { "/c", "exit 7" } : new[] { "-c", "exit 7" };
+            var error = Assert.Throws<InvalidOperationException>(() => TerminalCapture.Run(executable, arguments, 20, 5,
+                new Dictionary<string, string?>(), Path.GetTempPath(), TimeSpan.FromSeconds(10)));
+            Assert.Contains("code 7", error.Message);
         }
 
         [Fact]

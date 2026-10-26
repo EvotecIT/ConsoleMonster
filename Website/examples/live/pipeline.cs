@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using ConsoleMonster.Building;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
@@ -6,7 +5,7 @@ using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 using ConsoleMonster.Widgets;
 
-// A module build as a live dashboard: phases, steps with timings, module facts, a progress bar and the tool's own
+// A simulated module build as a live dashboard: phases, steps with timings, module facts, a progress bar and the tool's own
 // output. The build writes to Console.Out like any tool; the session captures those lines into the Output panel.
 Step[] plan = {
     new("Prepare", "config", "Read Build/project.build.json", 0.4, StatusKind.Pass, "Loaded project.build.json (3 projects, version 2.0.X)", "Resolved version 2.0.0 from PowerShell Gallery (current 0.0.4)"),
@@ -63,7 +62,9 @@ Table summary = new Table()
     .AddColumn("Result")
     .AddColumn("Duration");
 
-using (LiveSession session = new LiveSession(dashboard, new LiveSessionOptions { Summary = new Padding(summary, 1, 1, 1, 1) })) {
+// Planned step durations drive the displayed clocks; session delays keep normal playback paced in real time.
+SimulatedClock clock = new SimulatedClock();
+using (LiveSession session = new LiveSession(dashboard, new LiveSessionOptions { Clock = clock.Read, Summary = new Padding(summary, 1, 1, 1, 1) })) {
     session.Run(Build);
 }
 
@@ -73,7 +74,6 @@ void Build(LiveSession session) {
     StatusListHandle stepsHandle = steps.Handle(session);
     KeyValueHandle moduleHandle = module.Handle(session);
     ProgressHandle progressHandle = progress.Handle(session);
-    Stopwatch total = Stopwatch.StartNew();
     string? currentPhase = null;
     List<StatusKind> phaseResults = new List<StatusKind>();
     session.Post(new LiveEvent("dashboard", "status", text: "building", status: "running"));
@@ -93,15 +93,19 @@ void Build(LiveSession session) {
         }
         stepsHandle.Set(step.Key, StatusKind.Running);
         progressHandle.Label(step.Phase);
-        Stopwatch stepWatch = Stopwatch.StartNew();
+        TimeSpan stepStart = clock.Elapsed;
+        TimeSpan stepDuration = TimeSpan.FromSeconds(step.Seconds);
         int slices = Math.Max(1, (int)(step.Seconds * 10));
         for (int i = 0; i < slices && !session.Cancellation.IsCancellationRequested; i++) {
-            Thread.Sleep(100);
+            TimeSpan next = stepStart + TimeSpan.FromTicks(stepDuration.Ticks * (i + 1) / slices);
+            TimeSpan slice = next - clock.Elapsed;
+            session.Delay(slice);
+            clock.Advance(slice);
             if (i < step.Output.Length) {
                 Console.WriteLine(step.Output[i]);
             }
             if (i % 5 == 0) {
-                moduleHandle.Set("Elapsed", NumberFormat.Duration(total.Elapsed));
+                moduleHandle.Set("Elapsed", NumberFormat.Duration(clock.Elapsed));
             }
         }
         for (int i = slices; i < step.Output.Length; i++) {
@@ -110,7 +114,7 @@ void Build(LiveSession session) {
         if (step.Result == StatusKind.Warn) {
             Console.Error.WriteLine("WARNING: 1 Pester test skipped on PowerShell 7 (requires conhost).");
         }
-        string duration = NumberFormat.Duration(stepWatch.Elapsed);
+        string duration = NumberFormat.Duration(clock.Elapsed - stepStart);
         stepsHandle.Set(step.Key, step.Result);
         stepsHandle.Detail(step.Key, step.Result == StatusKind.Skip ? "skipped" : duration);
         phaseResults.Add(step.Result);
@@ -121,11 +125,11 @@ void Build(LiveSession session) {
     if (currentPhase != null) {
         phasesHandle.Complete(currentPhase, Worst(phaseResults));
     }
-    moduleHandle.Set("Elapsed", NumberFormat.Duration(total.Elapsed));
+    moduleHandle.Set("Elapsed", NumberFormat.Duration(clock.Elapsed));
     progressHandle.Complete(StatusKind.Pass);
     Console.WriteLine("Build completed: 2 artefacts in Artefacts\\ (nupkg, zip)");
     session.Post(new LiveEvent("dashboard", "status", text: "build succeeded with 1 warning", status: "warn"));
-    Thread.Sleep(1500);
+    session.Delay(TimeSpan.FromMilliseconds(1500));
 }
 
 static StatusKind Worst(List<StatusKind> results) =>

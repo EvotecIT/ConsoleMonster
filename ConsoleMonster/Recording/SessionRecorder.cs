@@ -11,9 +11,10 @@ namespace ConsoleMonster.Sessions {
     /// Records a child terminal to local asciicast v2. Raw input is forwarded but never stored, so password input
     /// remains private when applications disable echo. Secret patterns are applied to output before disk writes.
     /// </summary>
-    public sealed class SessionRecorder : IDisposable {
+    public sealed partial class SessionRecorder : IDisposable {
         private readonly object _gate = new object();
         private readonly object _lifetime = new object();
+        private readonly object _inputGate = new object();
         private readonly SessionCastWriter _writer;
         private readonly SessionRecordingOptions _options;
         private IPseudoTerminal? _terminal;
@@ -22,6 +23,7 @@ namespace ConsoleMonster.Sessions {
         private volatile bool _disposed;
         private volatile bool _stopping;
         private bool _captureEnabled = true;
+        private VtScreen? _terminalScreen;
 
         // Demo setup still reaches its readiness observer but never the recording.
         internal void SetCaptureEnabled(bool enabled) {
@@ -43,6 +45,9 @@ namespace ConsoleMonster.Sessions {
                         ? (IPseudoTerminal)new WindowsPseudoTerminal(options) : new UnixPseudoTerminal(options);
                 }
                 if (_terminal != null) {
+                    if (options.RespondToCursorQueries && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
+                        _terminalScreen = new VtScreen(options.Width, options.Height, keepScrollback: false) { TerminalResponse = RespondToCursorQuery };
+                    }
                     _reader = new Thread(ReadOutput) { IsBackground = true, Name = "ConsoleMonster recording output" };
                     _reader.Start();
                 }
@@ -76,20 +81,25 @@ namespace ConsoleMonster.Sessions {
                     int length = decoder.GetChars(bytes, 0, count, chars, 0, false);
                     string text = new string(chars, 0, length);
                     string visible;
-                    lock (_gate) { visible = _captureEnabled ? _writer.Append(text) : text; }
+                    lock (_gate) {
+                        _terminalScreen?.Feed(text);
+                        visible = _captureEnabled ? _writer.Append(text) : text;
+                    }
+                    ObserveOutput(visible);
                     if (visible.Length > 0) { Output?.Invoke(visible); }
                     if (_writer.StopRequested) { _stopping = true; _terminal.Stop(); }
                 }
             } catch (IOException) when (_stopping || (_terminal?.HasExited ?? true)) {
                 // A closed PTY is EOF, including Windows broken-pipe on child exit.
             } catch (Exception error) { _readError = error; _stopping = true; _terminal?.Stop(); }
+            finally { lock (_observationGate) { _outputFinished = true; Monitor.PulseAll(_observationGate); } }
         }
 
         /// <summary>Forwards UTF-8 input without recording it. Applications control password echo through the PTY.</summary>
         public void SendInput(string input) {
             if (_disposed) { throw new ObjectDisposedException(nameof(SessionRecorder)); }
             if (_terminal == null) { throw new InvalidOperationException("The in-process adapter has no terminal input."); }
-            _terminal.Write(Encoding.UTF8.GetBytes(input ?? throw new ArgumentNullException(nameof(input))));
+            lock (_inputGate) { _terminal.Write(Encoding.UTF8.GetBytes(input ?? throw new ArgumentNullException(nameof(input)))); }
         }
         /// <summary>Resizes the child terminal and records the new dimensions.</summary>
         public void Resize(int width, int height) {
@@ -97,6 +107,7 @@ namespace ConsoleMonster.Sessions {
             lock (_gate) {
                 if (_disposed) { throw new ObjectDisposedException(nameof(SessionRecorder)); }
                 _terminal?.Resize(width, height);
+                _terminalScreen?.Resize(width, height);
                 _writer.Resize(width, height);
             }
         }
@@ -112,13 +123,23 @@ namespace ConsoleMonster.Sessions {
             lock (_gate) { if (_disposed) { throw new ObjectDisposedException(nameof(SessionRecorder)); } _writer.Append(text); }
         }
         /// <summary>Waits for the child, drains its output, and finalizes both local files. Cancellation stops the owned child.</summary>
-        public void WaitForExit(CancellationToken cancellationToken = default) {
+        public void WaitForExit(CancellationToken cancellationToken = default) => WaitForExitCore(null, cancellationToken);
+
+        /// <summary>Waits for the child and optionally sends Ctrl+C after the given time from process startup.
+        /// Drains output and stops only the owned child on timeout or cancellation.</summary>
+        public void WaitForExitWithInterrupt(TimeSpan interruptAfter, CancellationToken cancellationToken = default) => WaitForExitCore(interruptAfter, cancellationToken);
+
+        private void WaitForExitCore(TimeSpan? interruptAfter, CancellationToken cancellationToken) {
+            if (interruptAfter < TimeSpan.Zero) { throw new ArgumentOutOfRangeException(nameof(interruptAfter)); }
             if (_terminal == null) { return; }
-            Stopwatch clock = Stopwatch.StartNew();
+            Stopwatch wait = Stopwatch.StartNew();
             try {
                 while (!_terminal.HasExited && !_stopping) {
                     cancellationToken.ThrowIfCancellationRequested();
-                    if (clock.Elapsed > _options.Timeout) { throw new TimeoutException("The recorded child exceeded its configured timeout."); }
+                    if (wait.Elapsed > _options.Timeout || SessionExpired) { throw new TimeoutException("The recorded child exceeded its configured timeout."); }
+                    if (interruptAfter.HasValue && !Interrupted && _sessionClock.Elapsed >= interruptAfter.Value) {
+                        SendBoundedInput("\u0003", cancellationToken, _options.Timeout - wait.Elapsed); Interrupted = true;
+                    }
                     Thread.Sleep(20);
                 }
                 ExitCode = _writer.StopRequested ? 0 : _terminal.ExitCode;

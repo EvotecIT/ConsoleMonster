@@ -65,7 +65,7 @@ namespace SiteFrames.Pages {
         private static string Path_(Site site, Run run, PowerShellHost host) => CapturePath(site, run.Id, run.Variant, host);
 
         /// <summary>The raw capture of a script run: captures/powershell/&lt;id&gt;.&lt;variant&gt;.&lt;host&gt;.ansi.</summary>
-        public static string CapturePath(Site site, string id, string variant, PowerShellHost host) => Path.Combine(site.Captures, "powershell", id + "." + variant + "." + host.Id + ".ansi");
+        public static string CapturePath(Site site, string id, string variant, PowerShellHost host) => CapturePlatforms.PathFor(site, Path.Combine(site.Captures, "powershell", id + "." + variant + "." + host.Id + ".ansi"));
 
         /// <summary>A capture as a frame, as the page shows it: from its first line with text, cropped.</summary>
         public static CellBuffer? CaptureFrame(Site site, string id, string variant, PowerShellHost host, int width = Width) {
@@ -77,12 +77,13 @@ namespace SiteFrames.Pages {
 
         public static void Capture(Site site) {
             foreach (Run run in Runs()) {
-                foreach (PowerShellHost host in run.Hosts) {
+                foreach (PowerShellHost host in run.Hosts.Where(host => host.CanCapture)) {
                     List<OutputChunk> chunks = PowerShellRunner.Run(site, host, Twins.Script(site, "powershell", run.Id), run.RunWidth, 120, run.Environment);
                     string path = Path_(site, run, host);
                     Directory.CreateDirectory(Path.GetDirectoryName(path)!);
                     File.WriteAllBytes(path, PowerShellRunner.Bytes(chunks));
                     Stamps.Write(site, path, Stamp(site, run, host));
+                    CaptureRun.Record(path, run.RunWidth, 120);
                     Console.WriteLine("captured " + Path.GetRelativePath(site.Website, path));
                 }
             }

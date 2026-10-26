@@ -59,7 +59,7 @@ namespace SiteFrames.Pages {
 
         /// <summary>Executes the complete published scripts on both supported PowerShell hosts.</summary>
         public static void Capture(Site site, Dictionary<string, string>? failures = null) {
-            foreach (PowerShellHost host in PowerShellHost.All) {
+            foreach (PowerShellHost host in PowerShellHost.Available) {
                 foreach (int width in Widths) {
                     foreach (string theme in Themes) {
                         foreach (string example in Examples) {
@@ -83,6 +83,7 @@ namespace SiteFrames.Pages {
                                 Directory.CreateDirectory(Path.GetDirectoryName(path)!);
                                 File.WriteAllBytes(path, PowerShellRunner.Bytes(chunks));
                                 Stamps.Write(site, path, Fingerprint(site, example, width, theme));
+                                CaptureRun.Record(path, width, Height(example));
                                 Console.WriteLine("captured help-formatting/" + id);
                             } catch (Exception ex) when (failures != null && (ex is InvalidOperationException || ex is TimeoutException)) {
                                 failures[id] = ex.Message;

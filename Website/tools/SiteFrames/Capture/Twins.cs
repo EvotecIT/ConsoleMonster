@@ -23,12 +23,13 @@ namespace SiteFrames.Capture {
 
         /// <summary>Captures both hosts, optionally naming a profile variant and pinning its environment.</summary>
         public static void Capture(Site site, string area, string id, int width, string? variant = null, Dictionary<string, string?>? environment = null) {
-            foreach (PowerShellHost host in PowerShellHost.All) {
+            foreach (PowerShellHost host in PowerShellHost.Available) {
                 List<Vt.OutputChunk> chunks = PowerShellRunner.Run(site, host, Script(site, area, id), width, 80, environment ?? PowerShellRunner.Environment("dark"));
                 string path = CapturePath(site, area, id, host, variant);
                 Directory.CreateDirectory(Path.GetDirectoryName(path)!);
                 File.WriteAllBytes(path, PowerShellRunner.Bytes(chunks));
                 Stamps.Write(site, path, Stamp(site, area, id, width, host, environment));
+                CaptureRun.Record(path, width, 80);
                 Console.WriteLine("captured " + Path.GetRelativePath(site.Website, path));
             }
         }

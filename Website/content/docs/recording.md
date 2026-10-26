@@ -238,6 +238,33 @@ A live dashboard can record the widget updates it applies instead of terminal by
 
 {{< cm-demo id="record" heading="h4" >}}
 
+### Automate a terminal capture in C#
+
+`SessionRecorder` can wait for child output before sending input. This example needs PowerShell 7 on `PATH`:
+
+```csharp
+using ConsoleMonster.Sessions;
+
+var options = new SessionRecordingOptions {
+    Shell = "pwsh",
+    Arguments = { "-NoLogo", "-NoProfile", "-Command", "[Console]::WriteLine('READY'); [Console]::WriteLine([Console]::ReadLine())" },
+    Path = "scripted.cast",
+    Width = 80,
+    Height = 20,
+    Timeout = TimeSpan.FromSeconds(30),
+    SessionTimeout = TimeSpan.FromSeconds(30),
+    RespondToCursorQueries = true
+};
+using SessionRecorder recorder = SessionRecorder.Start(options);
+recorder.WaitForOutput("READY", TimeSpan.FromSeconds(10));
+recorder.SendInputAfter(TimeSpan.FromMilliseconds(50), "hello\r");
+recorder.WaitForExit();
+```
+
+`Timeout` bounds the exit wait. `SessionTimeout` also bounds readiness and scripted-input work from startup. Cancellation and deadlines stop the owned child and drain its recording, including when the child stops reading input. `WaitForExitWithInterrupt` sends Ctrl+C at a chosen time from startup for a long-running child.
+
+Enable `RespondToCursorQueries` for unattended Unix captures: the recorder answers cursor-position requests from its VT screen. Leave it off when forwarding output to a real terminal that supplies its own replies. Windows uses ConPTY's native console handling.
+
 ## Related
 
 [Live sessions](/docs/live-sessions/) explain dashboard updates and targets. The [live dashboards page](/live/) shows a longer dashboard recording. See the [recording cmdlet reference](/powershell/commands/invoke-consolerecording/) and [export reference](/powershell/commands/export-consolerecording/) for all parameters.

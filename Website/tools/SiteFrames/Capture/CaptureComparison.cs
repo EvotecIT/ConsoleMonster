@@ -1,0 +1,307 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using ConsoleMonster.Canvas;
+using ConsoleMonster.Capabilities;
+using ConsoleMonster.Styling;
+using ConsoleMonster.Text;
+using SiteFrames.Frames;
+
+namespace SiteFrames.Capture {
+    /// <summary>Fail-closed comparison of independently produced receipts; completion never implies full-suite coverage.</summary>
+    internal static class CaptureComparison {
+        private sealed record Capture(string Path, byte[] Bytes, int Width, int Height, string Category,
+            List<CellBuffer> Frames, string? Source, string[] ScreenHashes);
+
+        internal static int Run(string left, string right, string? report = null) {
+            var failures = new JsonArray();
+            var allowed = new JsonArray();
+            var coverage = new JsonObject { ["scope"] = "produced-only", ["fullSuiteVerified"] = false };
+            var a = Read(left, "left", failures, coverage, out string producerA);
+            var b = Read(right, "right", failures, coverage, out string producerB);
+            coverage["fullSuiteVerified"] = coverage["left"]?["allSetsCompleted"]?.GetValue<bool>() == true
+                && coverage["right"]?["allSetsCompleted"]?.GetValue<bool>() == true;
+            bool samePlatform = producerA == producerB;
+            int compared = 0;
+            foreach (string file in a.Keys.Union(b.Keys).OrderBy(f => f, StringComparer.Ordinal)) {
+                bool hasA = a.TryGetValue(file, out Capture? ca), hasB = b.TryGetValue(file, out Capture? cb);
+                if (!hasA || !hasB) {
+                    string present = hasA ? producerA : producerB, missing = hasA ? producerB : producerA;
+                    if (!samePlatform && CapturePlatforms.IsPs5(file) && present == "windows" && missing is "macos" or "linux") {
+                        allowed.Add(new JsonObject { ["file"] = file, ["reason"] = "Windows-only ps5 production; retained files still require render validation",
+                            ["leftPath"] = ca?.Path, ["rightPath"] = cb?.Path, ["changedRows"] = new JsonArray() });
+                    } else { failures.Add(file + ": missing capture manifest entry in one run"); }
+                    continue;
+                }
+                Capture x = ca!, y = cb!;
+                compared++;
+                if (x.Width != y.Width || x.Height != y.Height) { failures.Add(file + ": terminal dimensions differ"); }
+                if (x.Source != y.Source) { failures.Add(file + ": capture source fingerprints differ"); }
+                JsonArray rows = ChangedRows(x, y);
+                JsonArray screens = ChangedScreenHashes(x, y);
+                bool bytesEqual = x.Bytes.AsSpan().SequenceEqual(y.Bytes);
+                if (samePlatform && !bytesEqual) { failures.Add(file + ": repeated capture is not byte-identical (including measurements)"); }
+                if (x.Frames.Count != y.Frames.Count) { failures.Add(file + ": frame counts differ (" + x.Frames.Count + " / " + y.Frames.Count + ")"); }
+                if (rows.Count > 0 || screens.Count > 0) {
+                    // No category is a blanket visual waiver. Measurement/profile value policies require explicit approval.
+                    failures.Add(new JsonObject { ["file"] = file, ["category"] = x.Category,
+                        ["reason"] = "capture cells, styles or screen hashes differ", ["changedRows"] = rows, ["changedScreenHashes"] = screens });
+                } else if (!samePlatform && !bytesEqual && x.Source == y.Source && x.Width == y.Width && x.Height == y.Height && x.Frames.Count == y.Frames.Count) {
+                    allowed.Add(new JsonObject { ["file"] = file, ["category"] = x.Category,
+                        ["reason"] = "transport encoding/timing only; all frames, cells, styles and screen hashes match",
+                        ["leftSha256"] = CaptureRun.Hash(x.Bytes), ["rightSha256"] = CaptureRun.Hash(y.Bytes), ["changedRows"] = rows });
+                }
+            }
+            if (compared == 0) { failures.Add("No common valid captures were compared."); }
+            var document = new JsonObject { ["compared"] = compared, ["samePlatform"] = samePlatform,
+                ["coverage"] = coverage, ["allowed"] = allowed, ["failures"] = failures };
+            string json = document.ToJsonString(new JsonSerializerOptions { WriteIndented = true,
+                TypeInfoResolver = new System.Text.Json.Serialization.Metadata.DefaultJsonTypeInfoResolver() });
+            if (report != null) {
+                try { File.WriteAllText(report, json + "\n"); }
+                catch (Exception ex) when (InputError(ex)) { Console.Error.WriteLine("Cannot write comparison report: " + ex.Message); return 1; }
+            }
+            Console.WriteLine(json);
+            return failures.Count == 0 ? 0 : 1;
+        }
+
+        private static Dictionary<string, Capture> Read(string root, string side, JsonArray failures, JsonObject coverage, out string producer) {
+            var result = new Dictionary<string, Capture>(StringComparer.Ordinal);
+            producer = string.Empty;
+            try {
+                JsonObject manifest = JsonNode.Parse(File.ReadAllText(Contained(root, "run.json")))!.AsObject();
+                if (manifest["version"]?.GetValue<int>() != 1) { throw new InvalidDataException("Unsupported receipt version."); }
+                producer = manifest["producer"]!.GetValue<string>();
+                if (!CapturePlatforms.All.Contains(producer, StringComparer.Ordinal)) { throw new InvalidDataException("Unsupported producer platform."); }
+                bool? complete = manifest["complete"]?.GetValue<bool>();
+                JsonObject files = manifest["files"]!.AsObject();
+                coverage[side] = new JsonObject { ["producer"] = producer, ["complete"] = complete,
+                    ["allSetsCompleted"] = manifest["allSetsCompleted"]?.GetValue<bool>() == true,
+                    ["requestedSet"] = manifest["requestedSet"]?.DeepClone(), ["filters"] = manifest["filters"]?.DeepClone(),
+                    ["listedFiles"] = files.Count, ["paths"] = new JsonArray(files.Select(f => (JsonNode?)JsonValue.Create(f.Key)).ToArray()) };
+                if (complete != true) { failures.Add(side + ": capture invocation incomplete or completion evidence missing"); }
+                if (manifest["scope"] != null && manifest["scope"]!.GetValue<string>() != "produced-only") { throw new InvalidDataException("Unsupported coverage scope."); }
+                var names = new HashSet<string>(StringComparer.Ordinal);
+                foreach (var entry in files) {
+                    try {
+                        string logical = CapturePlatforms.LogicalName(entry.Key);
+                        if (!names.Add(logical)) { throw new InvalidDataException("Duplicate logical capture name: " + logical); }
+                        JsonObject metadata = entry.Value!.AsObject();
+                        if (metadata["error"] != null) { throw new InvalidDataException("Producer recorded failure: " + metadata["error"]!.GetValue<string>()); }
+                        string platform = metadata["platform"]!.GetValue<string>();
+                        if (platform != producer || (CapturePlatforms.IsPs5(entry.Key) && producer != "windows") ||
+                            (CapturePlatforms.Tag(entry.Key) is string tag && tag != producer)) {
+                            throw new InvalidDataException("Capture platform/tag does not match producer.");
+                        }
+                        string category = metadata["category"]!.GetValue<string>();
+                        if (category != CaptureRun.Category(logical)) { throw new InvalidDataException("Capture category differs from its declared policy."); }
+                        int width = metadata["width"]!.GetValue<int>(), height = metadata["height"]!.GetValue<int>();
+                        // Bound allocation before any parser constructs a screen from an external receipt.
+                        if (width <= 0 || height <= 0 || width > 4096 || height > 4096 || (long)width * height > 4_194_304) {
+                            throw new InvalidDataException("Invalid or unrecorded terminal geometry; regenerate this set.");
+                        }
+                        string extension = Path.GetExtension(entry.Key);
+                        if (extension is not (".ansi" or ".cast" or ".txt")) { throw new InvalidDataException("Unsupported capture type: " + extension); }
+                        byte[] bytes = File.ReadAllBytes(Contained(root, entry.Key));
+                        string hash = metadata["sha256"]!.GetValue<string>();
+                        if (!Hex(hash, 64) || !string.Equals(CaptureRun.Hash(bytes), hash, StringComparison.OrdinalIgnoreCase)) { throw new InvalidDataException("File does not match its producer receipt."); }
+                        string text = new UTF8Encoding(false, true).GetString(bytes);
+                        if (text.Length > 0 && text[0] == '\uFEFF') { text = text[1..]; }
+                        string? source = null;
+                        string[] hashes = Array.Empty<string>();
+                        List<CellBuffer> frames = extension == ".txt" ? Descriptions(text, width, height, out source, out hashes) : Frames(text, extension, width, height, out source);
+                        for (int frame = 0; frame < frames.Count; frame++) {
+                            foreach (string issue in Quality(frames[frame])) { failures.Add(side + ": " + entry.Key + ": frame " + frame + ": " + issue); }
+                        }
+                        result.TryAdd(logical, new Capture(entry.Key, bytes, width, height, category, frames, source, hashes));
+                    } catch (Exception ex) when (InputError(ex)) { failures.Add(side + ": " + entry.Key + ": " + ex.Message); }
+                }
+            } catch (Exception ex) when (InputError(ex)) { failures.Add(side + ": invalid run.json: " + ex.Message); }
+            return result;
+        }
+
+        private static bool InputError(Exception ex) => ex is IOException or InvalidDataException or UnauthorizedAccessException or JsonException or InvalidOperationException
+            or ArgumentException or NullReferenceException or FormatException or OverflowException or KeyNotFoundException or IndexOutOfRangeException;
+
+        private static bool Hex(string value, int length) => value.Length == length && value.All(Uri.IsHexDigit);
+
+        private static string Contained(string root, string relative) {
+            if (Path.IsPathRooted(relative) || relative.Contains('\\') || relative.Contains(':') || relative.Split('/').Any(p => p is "" or "." or "..")) {
+                throw new InvalidDataException("Capture path must be a canonical relative path.");
+            }
+            string directory = Path.GetFullPath(root), path = directory;
+            foreach (string part in relative.Split('/')) {
+                path = Path.Combine(path, part);
+                if ((File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0) { throw new InvalidDataException("Capture path traverses a symbolic link."); }
+            }
+            return path;
+        }
+
+        /// <summary>Descriptions contain a source fingerprint and form-feed-separated styled-screen hashes, never VT.</summary>
+        private static List<CellBuffer> Descriptions(string text, int width, int height, out string? source, out string[] hashes) {
+            string[] parts = text.Replace("\r\n", "\n").Split('\f');
+            if (parts.Length < 2 || !parts[0].StartsWith("source ", StringComparison.Ordinal) || !Hex(parts[0][7..], 16)) {
+                throw new InvalidDataException("Invalid styled-screen description source header.");
+            }
+            source = parts[0];
+            hashes = new string[parts.Length - 1];
+            var frames = new List<CellBuffer>();
+            for (int index = 1; index < parts.Length; index++) {
+                int newline = parts[index].IndexOf('\n');
+                if (newline != 16 || !Hex(parts[index][..newline], 16)) { throw new InvalidDataException("Invalid styled-screen hash."); }
+                hashes[index - 1] = parts[index][..newline];
+                string[] rows = parts[index][(newline + 1)..].Split('\n');
+                if (rows.Length > height) { throw new InvalidDataException("Screen description exceeds recorded height."); }
+                var frame = new CellBuffer(width, rows.Length);
+                for (int row = 0; row < rows.Length; row++) {
+                    if (rows[row].Any(char.IsControl) || DisplayWidth.Measure(rows[row]) > width) { throw new InvalidDataException("Screen description has controls or exceeds recorded width."); }
+                    frame.Write(0, row, rows[row], Style.Plain);
+                }
+                frames.Add(frame);
+            }
+            return frames;
+        }
+
+        private static List<CellBuffer> Frames(string text, string extension, int width, int height, out string? source) {
+            source = null;
+            if (extension == ".ansi") {
+                var ansi = new ConsoleMonster.Sessions.VtScreen(width, height);
+                ansi.Feed(text);
+                if (ansi.SynchronizedOutput) { throw new InvalidDataException("ANSI capture ended during an uncommitted synchronized frame."); }
+                CellBuffer visible = ansi.Snapshot(), transcript = ansi.Transcript();
+                // Keep raw visible cells for quality checks and all transcript rows/styles, including blank rows.
+                return SameFrame(visible, transcript) ? new List<CellBuffer> { visible } : new List<CellBuffer> { visible, transcript };
+            }
+            using var lines = new StringReader(text);
+            JsonObject header = JsonNode.Parse(lines.ReadLine()!)!.AsObject();
+            if (header["version"]?.GetValue<int>() != 2 || header["width"]?.GetValue<int>() != width || header["height"]?.GetValue<int>() != height) {
+                throw new InvalidDataException("Cast header version/geometry does not match receipt.");
+            }
+            if (header["cm_source"] != null) {
+                source = header["cm_source"]!.GetValue<string>();
+                if (!Hex(source, 16)) { throw new InvalidDataException("Invalid cast source fingerprint."); }
+            }
+            var output = new StringBuilder();
+            double previous = -1;
+            string? line;
+            while ((line = lines.ReadLine()) != null) {
+                if (line.Length == 0) { continue; }
+                JsonArray entry = JsonNode.Parse(line)!.AsArray();
+                if (entry.Count != 3) { throw new InvalidDataException("Invalid cast event shape."); }
+                double timestamp = entry[0]!.GetValue<double>();
+                if (!double.IsFinite(timestamp) || timestamp < 0 || timestamp < previous) { throw new InvalidDataException("Invalid cast event time."); }
+                previous = timestamp;
+                string kind = entry[1]!.GetValue<string>(), data = entry[2]!.GetValue<string>();
+                if (kind == "o") { output.Append(data); }
+                else if (kind is not ("i" or "m")) { throw new InvalidDataException("Unsupported cast event type: " + kind); }
+            }
+            // Arrival times and packet boundaries are transport. Commit complete lines and synchronized frames in order.
+            text = output.ToString();
+            var screen = new ConsoleMonster.Sessions.VtScreen(width, height);
+            var result = new List<CellBuffer>();
+            const string commit = "\u001b[?2026l";
+            int offset = 0;
+            foreach (Rune rune in text.EnumerateRunes()) {
+                // Keep Unicode scalar boundaries intact while feeding decoded cast output.
+                string scalar = rune.ToString();
+                screen.Feed(scalar);
+                offset += scalar.Length;
+                bool boundary = rune.Value == '\n' || (offset >= commit.Length && text.AsSpan(offset - commit.Length, commit.Length).SequenceEqual(commit.AsSpan()));
+                if (boundary && !screen.SynchronizedOutput) {
+                    CellBuffer frame = screen.Snapshot();
+                    if (result.Count == 0 || !SameFrame(result[^1], frame)) { result.Add(frame); }
+                }
+            }
+            if (screen.SynchronizedOutput) { throw new InvalidDataException("Cast ended during an uncommitted synchronized frame."); }
+            CellBuffer final = screen.Transcript();
+            if (result.Count == 0 || !SameFrame(result[^1], final)) { result.Add(final); }
+            return result;
+        }
+
+        private static bool SameFrame(CellBuffer a, CellBuffer b) => a.Width == b.Width && a.Height == b.Height &&
+            Enumerable.Range(0, a.Height).All(y => Enumerable.Range(0, a.Width).All(x => SameCell(a[x, y], b[x, y])));
+
+        private static bool SameCell(Cell a, Cell b) => a.Width == b.Width && a.Glyph == b.Glyph && Normal(a.Style).Equals(Normal(b.Style));
+        private static Style Normal(Style style) {
+            Style value = FrameHtml.Reduce(style, ColorDepth.TrueColor);
+            return new Style(Rgb(value.Color), Rgb(value.BackgroundColor), value.Decoration, value.Link);
+        }
+        private static Color Rgb(Color color) {
+            if (color.IsDefault) { return color; }
+            color.ToRgb(out byte r, out byte g, out byte b);
+            return Color.FromRgb(r, g, b);
+        }
+
+        private static JsonArray ChangedRows(Capture a, Capture b) {
+            var rows = new JsonArray();
+            for (int frame = 0; frame < Math.Max(a.Frames.Count, b.Frames.Count); frame++) {
+                CellBuffer? x = frame < a.Frames.Count ? a.Frames[frame] : null, y = frame < b.Frames.Count ? b.Frames[frame] : null;
+                for (int row = 0; row < Math.Max(x?.Height ?? 0, y?.Height ?? 0); row++) {
+                    var cells = new JsonArray();
+                    for (int col = 0; col < Math.Max(x?.Width ?? 0, y?.Width ?? 0); col++) {
+                        Cell? cellA = x != null && row < x.Height && col < x.Width ? x[col, row] : null;
+                        Cell? cellB = y != null && row < y.Height && col < y.Width ? y[col, row] : null;
+                        if (!cellA.HasValue || !cellB.HasValue || !SameCell(cellA.Value, cellB.Value)) {
+                            cells.Add(new JsonObject { ["column"] = col, ["left"] = CellDetail(cellA), ["right"] = CellDetail(cellB) });
+                        }
+                    }
+                    if (cells.Count > 0) {
+                        rows.Add(new JsonObject { ["frame"] = frame, ["row"] = row,
+                            ["left"] = x != null && row < x.Height ? x.GetRowText(row) : null,
+                            ["right"] = y != null && row < y.Height ? y.GetRowText(row) : null,
+                            ["cells"] = cells });
+                    }
+                }
+            }
+            return rows;
+        }
+
+        private static JsonArray ChangedScreenHashes(Capture a, Capture b) {
+            var screens = new JsonArray();
+            for (int frame = 0; frame < Math.Max(a.ScreenHashes.Length, b.ScreenHashes.Length); frame++) {
+                string? x = frame < a.ScreenHashes.Length ? a.ScreenHashes[frame] : null, y = frame < b.ScreenHashes.Length ? b.ScreenHashes[frame] : null;
+                if (x != y) {
+                    screens.Add(new JsonObject { ["frame"] = frame, ["left"] = x, ["right"] = y,
+                        ["reason"] = "Styled-screen hash differs; descriptions cannot identify the affected style rows." });
+                }
+            }
+            return screens;
+        }
+
+        private static JsonObject? CellDetail(Cell? cell) => cell.HasValue ? new JsonObject {
+            ["glyph"] = cell.Value.Glyph, ["width"] = cell.Value.Width,
+            ["foreground"] = Rgb(cell.Value.Style.Color).ToString(), ["background"] = Rgb(cell.Value.Style.BackgroundColor).ToString(),
+            ["decoration"] = cell.Value.Style.Decoration.ToString(), ["link"] = cell.Value.Style.Link
+        } : null;
+
+        internal static IEnumerable<string> Quality(CellBuffer frame) {
+            for (int y = 0; y < frame.Height; y++) {
+                for (int x = 0; x < frame.Width; x++) {
+                    Cell cell = frame[x, y];
+                    if (cell.Glyph.Contains('\uFFFD')) { yield return "replacement glyph at " + x + "," + y; }
+                    if (!cell.IsContinuation && cell.Width != 2 && DisplayWidth.Measure(cell.Glyph) == 2) { yield return "truncated wide glyph at " + x + "," + y; }
+                    if (cell.Width == 2 && (x + 1 >= frame.Width || !frame[x + 1, y].IsContinuation)) { yield return "truncated wide cell at " + x + "," + y; }
+                    if (cell.IsContinuation && (cell.Glyph.Length != 0 || x == 0 || frame[x - 1, y].Width != 2)) { yield return "orphan wide-cell continuation at " + x + "," + y; }
+                    if (!Segments(cell, out int up, out int right, out int down, out int left)) { continue; }
+                    if (x + 1 < frame.Width && Segments(frame[x + 1, y], out int nu, out int nr, out int nd, out int nl) && (right > 0) != (nl > 0) &&
+                        !(up > 0 && down > 0 && right == 0 && left == 0) && !(nu > 0 && nd > 0 && nr == 0 && nl == 0)) {
+                        yield return "disconnected horizontal border from " + x + "," + y + " (" + cell.Glyph + ") to " + (x + 1) + "," + y + " (" + frame[x + 1, y].Glyph + ")";
+                    }
+                    if (y + 1 < frame.Height && Segments(frame[x, y + 1], out int bu, out int br, out int bd, out int bl) && (down > 0) != (bu > 0) &&
+                        !(left > 0 && right > 0 && up == 0 && down == 0) && !(bl > 0 && br > 0 && bu == 0 && bd == 0)) {
+                        yield return "disconnected vertical border from " + x + "," + y + " (" + cell.Glyph + ") to " + x + "," + (y + 1) + " (" + frame[x, y + 1].Glyph + ")";
+                    }
+                }
+            }
+        }
+
+        private static bool Segments(Cell cell, out int up, out int right, out int down, out int left) {
+            up = right = down = left = 0;
+            return cell.Glyph.Length == 1 && GlyphPaint.TrySegments(cell.Glyph[0], out up, out right, out down, out left);
+        }
+    }
+}

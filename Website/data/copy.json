@@ -90,7 +90,7 @@
             "title": "Everyday output",
             "url": "/guides/everyday-powershell/",
             "key": 3,
-            "body": "Files, processes, hashtables and services, before and after.",
+            "body": "A fixed service inventory, versions and hashtables, before and after.",
             "command": "Enable-ConsoleFormatting"
           },
           {
@@ -461,7 +461,7 @@
     },
     "formatting": {
       "title": "Before and after Enable-ConsoleFormatting",
-      "body": "Processes, files and a hashtable, first as PowerShell shows them, then with ConsoleMonster turned on for the session, followed by services grouped by status.",
+      "body": "An invented service inventory, a version and a hashtable, first as PowerShell shows them, then with ConsoleMonster turned on for the session, followed by the inventory grouped by status.",
       "label": "Get-Process, Get-ChildItem and a hashtable before and after Enable-ConsoleFormatting, then Get-Service grouped by status",
       "use": {
         "title": "Use it in every session",

@@ -13,7 +13,7 @@ namespace ConsoleMonster.Sessions {
         private ProcessInformation _process;
         private FileStream? _input;
         private FileStream? _output;
-        public WindowsPseudoTerminal(SessionRecordingOptions options, string? commandLine = null) {
+        public WindowsPseudoTerminal(SessionRecordingOptions options) {
             SafeFileHandle? inputRead = null, inputWrite = null, outputRead = null, outputWrite = null;
             IntPtr attributes = IntPtr.Zero;
             IntPtr environment = IntPtr.Zero;
@@ -36,7 +36,6 @@ namespace ConsoleMonster.Sessions {
                 startup.lpAttributeList = attributes;
                 StringBuilder command = new StringBuilder(Quote(options.Shell ?? "powershell.exe"));
                 foreach (string arg in options.Arguments) { command.Append(' ').Append(Quote(arg)); }
-                if (commandLine != null) { command = new StringBuilder(commandLine); }
                 if (options.Environment.Count > 0) { environment = EnvironmentBlock(options.Environment); }
                 if (!CreateProcessW(null, command, IntPtr.Zero, IntPtr.Zero, false, 0x00080000 | 0x00000400, environment, options.WorkingDirectory, ref startup, out _process)) { throw Error(); }
                 _input = new FileStream(inputWrite, FileAccess.Write, 4096);
@@ -66,7 +65,6 @@ namespace ConsoleMonster.Sessions {
         }
         internal static string Quote(string value) => Interactive.CommandLine.Quote(value, Interactive.CommandStyle.Windows);
         public int Read(byte[] bytes) => _output!.Read(bytes, 0, bytes.Length);
-        internal uint ProcessId => _process.ProcessId;
         public void Write(byte[] bytes) { _input!.Write(bytes, 0, bytes.Length); _input.Flush(); }
         public void Resize(int width, int height) { int hr = ResizePseudoConsole(_pty, new Coord(width, height)); if (hr != 0) { throw new Win32Exception(hr); } }
         public bool HasExited => _process.Process != IntPtr.Zero && WaitForSingleObject(_process.Process, 0) == 0;

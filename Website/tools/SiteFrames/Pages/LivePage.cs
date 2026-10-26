@@ -27,7 +27,7 @@ namespace SiteFrames.Pages {
 
         private static string PipelineScript(Site site) => Path.Combine(site.Repository, "Module", "Examples", "Example-BuildPipeline.ps1");
 
-        private static string CastPath(Site site, string id) => Path.Combine(site.Captures, "live", id + ".cast");
+        private static string CastPath(Site site, string id) => CapturePlatforms.PathFor(site, Path.Combine(site.Captures, "live", id + ".cast"));
 
         // Where the programs are built and the recording file is written for one capture run: one folder per checkout and
         // run, removed afterwards, so two worktrees never run each other's builds.
@@ -35,21 +35,8 @@ namespace SiteFrames.Pages {
 
         private static string Work => _work ?? throw new InvalidOperationException("The live programs are not built.");
 
-        /// <summary>The dotnet that hosts this tool, so a built program runs on the runtime it was compiled against.</summary>
-        internal static string DotnetHost {
-            get {
-                string? host = Environment.GetEnvironmentVariable("DOTNET_HOST_PATH");
-                if (!string.IsNullOrEmpty(host) && File.Exists(host)) {
-                    return host!;
-                }
-                string root = Path.GetFullPath(Path.Combine(System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory(), "..", "..", ".."));
-                string candidate = Path.Combine(root, OperatingSystem.IsWindows() ? "dotnet.exe" : "dotnet");
-                return File.Exists(candidate) ? candidate : "dotnet";
-            }
-        }
-
         private static List<OutputChunk> Dotnet(string program, string arguments, int width, int height, Dictionary<string, string?> environment) =>
-            PseudoConsole.Run("\"" + DotnetHost + "\" \"" + Path.Combine(Work, program + ".dll") + "\"" + (arguments.Length > 0 ? " " + arguments : string.Empty), width, height, environment, Work, TimeSpan.FromMinutes(3));
+            CSharpRunner.Record(Path.Combine(Work, program + ".dll"), arguments.Split(' ', StringSplitOptions.RemoveEmptyEntries), width, height, environment, Work, TimeSpan.FromMinutes(3));
 
         private sealed class Run {
             public Run(string id, string title, Func<Site, List<OutputChunk>> record, int width, int height, Func<Site, string> source) {
@@ -92,7 +79,7 @@ namespace SiteFrames.Pages {
         // Whether a recording was made from what its page shows now; a stale one is reported, not shown silently.
         private static void CheckFresh(Site site, string id, string cast) {
             foreach (Run run in Recordings()) {
-                if (run.Id == id && Replays.Source(cast) != Replays.Fingerprint(run.Source(site))) {
+                if (run.Id == id && Replays.Source(cast) != Replays.Fingerprint(run.Source(site), CapturePins.Policy)) {
                     WidgetsPage.Report(new List<string> { "recording " + id + " was made from another version of its program, arguments or data; run the capture command for the live area (SITEFRAMES_LIVE=" + id + ")." }, "live");
                 }
             }
@@ -118,14 +105,16 @@ namespace SiteFrames.Pages {
                     if (wanted != null && !wanted.Contains(recording.Id)) {
                         continue;
                     }
+                    if (recording.Id == "pipeline-ps5" && !OperatingSystem.IsWindows()) { continue; }
                     Stopwatch watch = Stopwatch.StartNew();
                     List<OutputChunk> chunks = recording.Record(site);
                     string path = CastPath(site, recording.Id);
                     Directory.CreateDirectory(Path.GetDirectoryName(path)!);
                     // Window titles (OSC 0 and 2) carry the executable's path; nothing on the site shows them.
                     string cast = Regex.Replace(Replays.ToCast(chunks, recording.Width, recording.Height, recording.Title), @"\\u001B\][02];(?:[^""\\]|\\\\)*?(?:\\u0007|\\u001B\\\\)", string.Empty);
-                    File.WriteAllText(path, Replays.Stamp(cast, Replays.Fingerprint(recording.Source(site))), new System.Text.UTF8Encoding(false));
-                    Console.WriteLine("recorded " + recording.Id + " in " + watch.Elapsed.TotalSeconds.ToString("0.0", CultureInfo.InvariantCulture) + " s");
+                    File.WriteAllText(path, Replays.Stamp(cast, Replays.Fingerprint(recording.Source(site), CapturePins.Policy)), new System.Text.UTF8Encoding(false));
+                    CaptureRun.Record(path);
+                Console.WriteLine("recorded " + recording.Id + " in " + watch.Elapsed.TotalSeconds.ToString("0.0", CultureInfo.InvariantCulture) + " s");
                 }
             } finally {
                 Site.RemoveTemporary(Work);

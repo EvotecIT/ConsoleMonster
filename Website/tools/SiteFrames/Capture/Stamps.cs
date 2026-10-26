@@ -27,6 +27,7 @@ namespace SiteFrames.Capture {
         /// <summary>Records what made a capture.</summary>
         public static void Write(Site site, string capture, string fingerprint) => Locked(() => {
             WriteLocked(site, capture, fingerprint);
+            CaptureRun.Record(capture);
             return true;
         });
 

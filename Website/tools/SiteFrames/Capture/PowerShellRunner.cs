@@ -20,6 +20,8 @@ namespace SiteFrames.Capture {
         public static PowerShellHost Core { get; } = new PowerShellHost("ps7", "PowerShell 7", OperatingSystem.IsWindows() ? "pwsh.exe" : "pwsh");
 
         public static PowerShellHost[] All { get; } = { Core, Desktop };
+        public static IEnumerable<PowerShellHost> Available => OperatingSystem.IsWindows() ? All : new[] { Core };
+        public bool CanCapture => this != Desktop || OperatingSystem.IsWindows();
 
         public string Id { get; }
 
@@ -35,6 +37,7 @@ namespace SiteFrames.Capture {
     internal static class PowerShellRunner {
         public static Dictionary<string, string?> Environment(string theme, string color = "truecolor", string glyphs = "full", string? mode = null) {
             Dictionary<string, string?> env = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase) {
+                ["SITEFRAMES_CAPTURE_POLICY"] = CapturePins.Policy,
                 ["CONSOLEMONSTER_COLOR"] = color,
                 ["CONSOLEMONSTER_GLYPHS"] = glyphs,
                 ["CONSOLEMONSTER_THEME"] = theme,
@@ -113,8 +116,10 @@ namespace SiteFrames.Capture {
             File.WriteAllText(runner, sb.ToString(), new UTF8Encoding(true));
             try {
                 // Prompts refuse to ask in a -NonInteractive session; runs that answer them with scripted keys leave it out.
-                string command = host.Executable + " -NoLogo -NoProfile" + (interactive ? string.Empty : " -NonInteractive") + " -ExecutionPolicy Bypass -File \"" + runner + "\"";
-                return PseudoConsole.Run(command, width, height, environment, directory, timeout ?? TimeSpan.FromMinutes(3));
+                var args = new List<string> { "-NoLogo", "-NoProfile" };
+                if (!interactive) { args.Add("-NonInteractive"); }
+                args.AddRange(new[] { "-ExecutionPolicy", "Bypass", "-File", runner });
+                return TerminalCapture.Run(host.Executable, args, width, height, environment, directory, timeout ?? TimeSpan.FromMinutes(3));
             } finally {
                 File.Delete(runner);
             }

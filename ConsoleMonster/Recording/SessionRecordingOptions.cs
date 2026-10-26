@@ -28,6 +28,9 @@ namespace ConsoleMonster.Sessions {
         public TimeSpan IdleLimit { get; set; } = TimeSpan.FromSeconds(2);
         /// <summary>Maximum time spent waiting for the child in WaitForExit.</summary>
         public TimeSpan Timeout { get; set; } = TimeSpan.FromHours(24);
+        /// <summary>Optional maximum child lifetime from startup, including readiness and scripted-input waits.
+        /// Null preserves the independent wait timeout used by existing callers.</summary>
+        public TimeSpan? SessionTimeout { get; set; }
         /// <summary>Additional regular expressions, applied before any recording data is written.</summary>
         public IList<string> Redact { get; } = new List<string>();
         /// <summary>Visible replacement for matched output. The default is [REDACTED]; control characters are not allowed.</summary>
@@ -36,6 +39,10 @@ namespace ConsoleMonster.Sessions {
         public string WorkingDirectory { get; set; } = System.Environment.CurrentDirectory;
         /// <summary>Explicitly use the limited in-process PowerShell capture adapter.</summary>
         public bool InProcess { get; set; }
+        /// <summary>Answers cursor-position queries from the tracked VT screen for unattended child sessions.
+        /// Leave false when forwarding output to a real terminal that supplies its own replies. ConPTY already
+        /// answers native Windows console queries; the emulation is used only on Unix.</summary>
+        public bool RespondToCursorQueries { get; set; }
 
         internal void Validate() {
             Width = Terminal.ResolveWidth(Width);
@@ -44,6 +51,7 @@ namespace ConsoleMonster.Sessions {
             }
             if (MaxBytes < 1024) { throw new ArgumentOutOfRangeException(nameof(MaxBytes)); }
             if (IdleLimit < TimeSpan.Zero || Timeout <= TimeSpan.Zero) { throw new ArgumentOutOfRangeException(nameof(Timeout)); }
+            if (SessionTimeout <= TimeSpan.Zero) { throw new ArgumentOutOfRangeException(nameof(SessionTimeout)); }
             if (string.IsNullOrEmpty(RedactionText) || RedactionText.Length > 128) { throw new ArgumentException("RedactionText must contain 1 to 128 visible characters.", nameof(RedactionText)); }
             foreach (char value in RedactionText) { if (char.IsControl(value)) { throw new ArgumentException("RedactionText cannot contain control characters.", nameof(RedactionText)); } }
             if (!Directory.Exists(WorkingDirectory)) { throw new DirectoryNotFoundException(WorkingDirectory); }

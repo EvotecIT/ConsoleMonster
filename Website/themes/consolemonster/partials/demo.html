@@ -6,6 +6,7 @@
      Play) and demo_heading (h2 or h3, default h3). ## ~}}
 {{~ d = data.demos[demo_id]; c = data.copy.demos[demo_id]; dh = demo_heading ?? "h3" ~}}
 {{~ if d ~}}
+{{~ media = d; if demo_platform && d.platforms && d.platforms[demo_platform]; media = d.platforms[demo_platform]; end ~}}
 <section class="cm-demo" id="demo-{{ demo_id }}" aria-labelledby="demo-{{ demo_id }}-title">
   <div class="cm-demo__head">
     <{{ dh }} id="demo-{{ demo_id }}-title">{{ c.title }}</{{ dh }}>
@@ -13,12 +14,29 @@
   </div>
   <div class="cm-demo__body">
     <div class="cm-demo__screen">
-      {{~ if d.url ~}}
-      {{~ player_data = d; player_title = d.title; player_meta = [d.terminal ?? (d.w + "×" + d.h), "24-bit", "Full"]; player_label = c.label ?? c.title; player_autoplay = demo_autoplay; player_max = 14 ~}}
+      {{~ if media.url ~}}
+      {{~ player_data = media; player_title = media.title; player_meta = [media.terminal ?? (media.w + "×" + media.h), "24-bit", "Full"]; player_label = c.label ?? c.title; player_autoplay = demo_autoplay; player_max = 14 ~}}
+      {{~ if media.platformLabel; player_meta = [media.terminal, "24-bit", "Full", media.platformLabel]; end ~}}
       {{ include "player" }}
       {{~ else ~}}
-      {{~ screen_frame = d.frame; screen_title = d.title; screen_meta = [d.frame.w + "×" + d.frame.h, "24-bit", "Full"]; screen_dark = true; screen_label = c.label ?? c.title; screen_max = 14 ~}}
+      {{~ screen_frame = media.frame; screen_title = media.title; screen_meta = [media.frame.w + "×" + media.frame.h, "24-bit", "Full"]; screen_dark = true; screen_label = c.label ?? c.title; screen_max = 14 ~}}
+      {{~ if media.platformLabel; screen_meta = [media.frame.w + "×" + media.frame.h, "24-bit", "Full", media.platformLabel]; end ~}}
       {{ include "screen" }}
+      {{~ end ~}}
+      {{~ for platform_entry in d.platforms ~}}
+      {{~ alternative = platform_entry.value ~}}
+      {{~ if alternative.platform != media.platform ~}}
+      <details class="cm-source">
+        <summary>{{ alternative.platformLabel }} capture</summary>
+        {{~ if alternative.url ~}}
+        {{~ player_data = alternative; player_title = alternative.title; player_meta = [alternative.terminal, "24-bit", "Full", alternative.platformLabel]; player_label = c.label ?? c.title; player_autoplay = false; player_max = 14 ~}}
+        {{ include "player" }}
+        {{~ else ~}}
+        {{~ screen_frame = alternative.frame; screen_title = alternative.title; screen_meta = [alternative.frame.w + "×" + alternative.frame.h, "24-bit", "Full", alternative.platformLabel]; screen_dark = true; screen_label = c.label ?? c.title; screen_max = 14 ~}}
+        {{ include "screen" }}
+        {{~ end ~}}
+      </details>
+      {{~ end ~}}
       {{~ end ~}}
     </div>
     {{~ ## The source in the Try-it layout (partials/try.html): a PowerShell | C# | C# fluent switch where both exist, the install line,

@@ -33,6 +33,15 @@
     {{~ screen_frame = b.output.frame; screen_title = b.output.title; screen_meta = [b.runtime, "Release build"]; screen_dark = true; screen_label = "The output of ConsoleMonster.Benchmarks, as it printed it" ~}}
     {{ include "screen" }}
     <p class="cm-section__source">Printed by <code>ConsoleMonster.Benchmarks</code>; <a href="#run-them-yourself">run it yourself</a> or <a href="https://github.com/EvotecIT/ConsoleMonster/blob/master/{{ b.output.programRepo }}">view its source on GitHub</a>.</p>
+    {{~ for platform_entry in b.platforms; alternative = platform_entry.value; am = alternative.machine ~}}
+    <details class="cm-source">
+      <summary>{{ alternative.platformLabel }} measurements</summary>
+      <p class="cm-section__source">{{ copy.machine | string.replace "{processor}" am.processor | string.replace "{threads}" am.logicalProcessors | string.replace "{os}" am.os | string.replace "{runtime}" alternative.runtime | string.replace "{date}" am.recorded }}</p>
+      {{~ screen_frame = alternative.output.frame; screen_title = alternative.output.title; screen_meta = [alternative.platformLabel, alternative.runtime, "Release build"]; screen_dark = true; screen_label = "The benchmark's actual output on " + alternative.platformLabel ~}}
+      {{ include "screen" }}
+    </details>
+    {{~ end ~}}
+
   </section>
 
   {{~ if b.stress ~}}

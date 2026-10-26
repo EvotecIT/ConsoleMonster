@@ -86,6 +86,8 @@ namespace ConsoleMonster.Sessions {
 
         /// <summary>Notifies replay when a complete synchronized repaint becomes visible.</summary>
         internal Action? SynchronizedFrameCompleted { get; set; }
+        /// <summary>Optional headless terminal reply sink. Parsing recordings without a sink never sends input.</summary>
+        internal Action<string>? TerminalResponse { get; set; }
 
         private CellBuffer Current => _onAlternate ? _alternate : _main;
 
@@ -340,6 +342,11 @@ namespace ConsoleMonster.Sessions {
             }
             CellBuffer screen = Current;
             switch (final) {
+                case 'n':
+                    if (_params.ToString() == "6") {
+                        TerminalResponse?.Invoke("\u001b[" + (_y - (_origin ? _top : 0) + 1).ToString(CultureInfo.InvariantCulture) + ";" + (_x + 1).ToString(CultureInfo.InvariantCulture) + "R");
+                    }
+                    return;
                 case 'm':
                     if (!priv) {
                         Sgr(p);

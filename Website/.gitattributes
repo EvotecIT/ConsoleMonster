@@ -10,3 +10,6 @@ static/replays/** linguist-generated=true
 
 # Card fonts (site.json Social.GeneratedCardFonts).
 *.ttf binary
+
+# Capture producer instructions are maintained prose.
+captures/README.md text eol=lf diff

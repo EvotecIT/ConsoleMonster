@@ -19,7 +19,7 @@ namespace SiteFrames.Pages {
 
         private const int ThreeWidth = 88;
 
-        private static string ProfilePath(Site site, string id) => Path.Combine(site.Captures, "docs", id + ".ansi");
+        private static string ProfilePath(Site site, string id) => CapturePlatforms.PathFor(site, Path.Combine(site.Captures, "docs", id + ".ansi"));
 
         private static IEnumerable<(string Id, Dictionary<string, string?> Environment)> Profiles() {
             yield return ("profile", PowerShellRunner.Environment("dark"));
@@ -42,34 +42,35 @@ namespace SiteFrames.Pages {
                 Directory.CreateDirectory(Path.GetDirectoryName(ProfilePath(site, id))!);
                 File.WriteAllBytes(ProfilePath(site, id), PowerShellRunner.Bytes(chunks));
                 Stamps.Write(site, ProfilePath(site, id), Stamps.Of(ProfileScript(site), environment, "100x40"));
+                CaptureRun.Record(ProfilePath(site, id), 100, 40);
                 Console.WriteLine("captured " + id);
             }
         }
 
         public static void Render(Site site, JsonObject powershell) {
             foreach ((string id, Dictionary<string, string?> environment) in Profiles()) {
-                string path = ProfilePath(site, id);
-                if (!File.Exists(path)) {
-                    WidgetsPage.Report(new List<string> { "missing capture " + id + "; run the capture command." }, "docs");
-                    continue;
+                string logical = Path.Combine(site.Captures, "docs", id + ".ansi");
+                bool found = false;
+                foreach ((string platform, string path) in CapturePlatforms.Variants(logical)) {
+                    found = true;
+                    string? stale = Stamps.Check(site, path, Stamps.Of(ProfileScript(site), environment, "100x40"), "docs on " + platform);
+                    if (stale != null) { WidgetsPage.Report(new List<string> { stale }, "docs"); }
+                    CellBuffer frame = Site.Crop(Parity.Transcript(File.ReadAllBytes(path), 100, 40));
+                    (string script, string scriptFull) = SourceSnippets.Program(Site.ReadText(ProfileScript(site)));
+                    var figure = new JsonObject {
+                        ["title"] = id == "profile-ci" ? "CI=true, NO_COLOR=1" : id == "profile" ? "pinned with CONSOLEMONSTER_*" : "detected terminal profile",
+                        ["file"] = "profile.ps1", ["platform"] = platform,
+                        ["label"] = "The terminal profile detected on " + CapturePlatforms.Label(platform) + ", with the decisions behind it",
+                        ["meta"] = new JsonArray("PowerShell 7", "100 columns", CapturePlatforms.Label(platform)),
+                        ["frame"] = site.Frame(frame, null), ["script"] = script, ["scriptFull"] = scriptFull
+                    };
+                    Figures.Add(id + "-" + platform, figure);
+                    if (path == ProfilePath(site, id)) {
+                        DocCards.Offer(id, frame, Frames.Screen.Dark);
+                        Figures.Add(id, figure.DeepClone().AsObject());
+                    }
                 }
-                string? stale = Stamps.Check(site, path, Stamps.Of(ProfileScript(site), environment, "100x40"), "docs");
-                if (stale != null) {
-                    WidgetsPage.Report(new List<string> { stale }, "docs");
-                }
-                CellBuffer frame = Site.Crop(Parity.Transcript(File.ReadAllBytes(path), 100, 40));
-                DocCards.Offer(id, frame, Frames.Screen.Dark);
-                (string script, string scriptFull) = SourceSnippets.Program(Site.ReadText(ProfileScript(site)));
-                JsonObject figure = new JsonObject {
-                    ["title"] = id == "profile-ci" ? "CI=true, NO_COLOR=1" : id == "profile" ? "pinned with CONSOLEMONSTER_*" : "nothing overridden",
-                    ["file"] = "profile.ps1",
-                    ["label"] = "The terminal profile ConsoleMonster detected, with the decisions behind it",
-                    ["meta"] = new JsonArray("PowerShell 7", "100 columns"),
-                    ["frame"] = site.Frame(frame, null),
-                    ["script"] = script,
-                    ["scriptFull"] = scriptFull
-                };
-                Figures.Add(id, figure);
+                if (!found) { WidgetsPage.Report(new List<string> { "missing capture " + id + "; run the capture command." }, "docs"); }
             }
 
             // One composition in the three built-in themes.

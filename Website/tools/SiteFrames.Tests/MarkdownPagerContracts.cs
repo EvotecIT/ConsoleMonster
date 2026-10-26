@@ -15,13 +15,12 @@ namespace SiteFrames.Tests {
         [InlineData(40)]
         public void ExplicitWidth_RemainsNarrowOnARealTerminal(int width) {
             string root = Repository();
-            foreach (PowerShellHost host in PowerShellHost.All) {
+            foreach (PowerShellHost host in PowerShellHost.Available) {
                 var environment = PowerShellRunner.Environment("dark", mode: "interactive");
                 environment["CONSOLEMONSTER_DEVELOPMENT_CONFIGURATION"] = "Release";
                 string script = Path.Combine(root, "Website", "tools", "SiteFrames", "Capture", "MarkdownWidth.ps1");
                 string module = Path.Combine(root, "Module", "ConsoleMonster.psd1");
-                var chunks = PseudoConsole.Run(host.Executable + " -NoLogo -NoProfile -File \"" + script
-                    + "\" -ModulePath \"" + module + "\" -Width " + width,
+                var chunks = TerminalCapture.Run(host.Executable, new[] { "-NoLogo", "-NoProfile", "-File", script, "-ModulePath", module, "-Width", width.ToString(System.Globalization.CultureInfo.InvariantCulture) },
                     120, 12, environment, root, TimeSpan.FromSeconds(45), inputText: "q", readyMarker: "alpha");
                 using MemoryStream bytes = new MemoryStream();
                 foreach (OutputChunk chunk in chunks) { bytes.Write(chunk.Data, 0, chunk.Data.Length); }

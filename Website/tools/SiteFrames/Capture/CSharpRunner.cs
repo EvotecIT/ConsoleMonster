@@ -97,6 +97,25 @@ namespace SiteFrames.Capture {
             return dll;
         }
 
+        /// <summary>Runs a built example through the public terminal recorder; in-process execution remains the
+        /// independent reference used for cell parity, source compilation and scripted frame selection.</summary>
+        internal static List<SiteFrames.Vt.OutputChunk> Record(string dll, IEnumerable<string> arguments, int width, int height,
+            IDictionary<string, string?> environment, string directory, TimeSpan timeout, TimeSpan? interrupt = null,
+            string? readyText = null, string? inputKeys = null, TimeSpan? inputDelay = null) =>
+            TerminalCapture.Run(DotnetHost, new[] { dll }.Concat(arguments), width, height, environment, directory, timeout, interrupt,
+                readyText: readyText, inputKeys: inputKeys, inputDelay: inputDelay);
+
+        /// <summary>The runtime hosting the tool, also used for the programs compiled against that runtime.</summary>
+        internal static string DotnetHost {
+            get {
+                string? host = Environment.GetEnvironmentVariable("DOTNET_HOST_PATH");
+                if (!string.IsNullOrEmpty(host) && File.Exists(host)) { return host; }
+                string root = Path.GetFullPath(Path.Combine(System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory(), "..", "..", ".."));
+                string candidate = Path.Combine(root, OperatingSystem.IsWindows() ? "dotnet.exe" : "dotnet");
+                return File.Exists(candidate) ? candidate : "dotnet";
+            }
+        }
+
         private static CSharpCompilation CreateCompilation(string path, string code, string? assemblyName = null, string[]? companions = null,
             IReadOnlyDictionary<string, string>? sourceOverrides = null, IReadOnlyList<MetadataReference>? references = null) {
             // C# 12 with the .NET 8 SDK's warning level: what a reader's `dotnet new console` project on .NET 8 compiles.
