@@ -686,7 +686,7 @@ Highlighters.Register(new RegexHighlighter("ini2").Rule(@"^\s*;.*$", HighlightRo
 
 ```powershell
 $reason = Read-ConsoleText 'Change reason' -Multiline -MaxLines 10
-New-ConsoleField Reason 'Change reason' -Type TextArea -MaxLines 10
+New-ConsoleField Reason 'Change reason' -Type Text -Multiline -MaxLines 10
 ```
 
 `TextAreaPrompt` and `TextAreaField` take notes and change reasons: soft wrap, Enter for a new line, Ctrl+Enter (or

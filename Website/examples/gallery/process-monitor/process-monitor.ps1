@@ -24,7 +24,7 @@ function New-ProcessFrame {
         New-ConsoleText -Markup "[accent]CPU $((56 + $Tick * 5))%[/]   Memory $((1640 + $Tick * 64)) MiB   [muted]4 processes[/]"
         New-ConsoleTable -InputObject $rows -Property Name, Pid, 'CPU %', 'Memory MiB' -Expand
         New-ConsolePanel -Title 'CPU history' -Content {
-            New-ConsoleChart -Label 'CPU %' -Type Sparkline -Values @($cpuHistory + (56 + $Tick * 5))
+            New-ConsoleChart -Title 'CPU %' -Type Sparkline -Values @($cpuHistory + (56 + $Tick * 5))
         }
         '[muted]Ctrl+C stops monitoring. Final counters stay in scrollback.[/]'
     }

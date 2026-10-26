@@ -154,7 +154,7 @@ $tree | Show-Console</dev:code>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 3</maml:title>
-        <dev:code>New-ConsoleChart -Label 'req/s' -Type Sparkline | Add-ConsoleItem 3, 5, 8, 13, 9 -PassThru | Show-Console</dev:code>
+        <dev:code>New-ConsoleChart -Title 'req/s' -Type Sparkline | Add-ConsoleItem 3, 5, 8, 13, 9 -PassThru | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Values for a sparkline, written on</maml:para>
         </dev:remarks>
@@ -6344,12 +6344,12 @@ $r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.htm
       <command:noun>ConsoleRun</command:noun>
       <maml:description>
         <maml:para>Runs a script block for every input item, optionally in parallel, with a live view of the run.</maml:para>
-        <maml:para>$_ is the item, as in ForEach-Object. While it runs, a live view shows a summary line (done of total, percentage, time left, counts), one cell per item, the running items with their elapsed time and the failures; without an interactive console (redirected output, CI, a job) it prints one line per finished item and a summary instead. The output is the script block's ordinary output, in input order (or as each item finishes with -Unordered); an item's errors are written as error records and mark it as failed. While the live view is showing, ordinary output and native stream records are delivered when it ends. With -Parallel, while the live view is showing, host messages, warnings, information, verbose and debug messages, and errors also appear immediately in its log; Write-Progress appears in an activity list, with independent parent and child activities per worker. Without -Parallel, progress bars from the script block are hidden while the live view is showing. Without -Parallel the items run one at a time in the caller's scope, as with ForEach-Object, so variables set in the script block stay. -Parallel runs up to -ThrottleLimit items at a time in their own runspaces on Windows PowerShell 5.1 and PowerShell 7: variables of the caller are passed with $using:name, and -TimeoutSeconds stops an item that runs too long. -Label sets each item's label: a property name or a script block. Ctrl+C stops the run: running items are stopped and the rest are counted as skipped.</maml:para>
+        <maml:para>$_ is the item, as in ForEach-Object. While it runs, a live view shows a summary line (done of total, percentage, time left, counts), one cell per item, the running items with their elapsed time and the failures; without an interactive console (redirected output, CI, a job) it prints one line per finished item and a summary instead. The output is the script block's ordinary output, in input order (or as each item finishes with -Unordered); an item's errors are written as error records and mark it as failed. While the live view is showing, ordinary output and native stream records are delivered when it ends. With -Parallel, while the live view is showing, host messages, warnings, information, verbose and debug messages, and errors also appear immediately in its log; Write-Progress appears in an activity list, with independent parent and child activities per worker. Without -Parallel, progress bars from the script block are hidden while the live view is showing. Without -Parallel the items run one at a time in the caller's scope, as with ForEach-Object, so variables set in the script block stay. -Parallel runs up to -ThrottleLimit items at a time in their own runspaces on Windows PowerShell 5.1 and PowerShell 7: variables of the caller are passed with $using:name, and -TimeoutSeconds stops an item that runs too long. -Label sets each item's label: a property name or a script block. -RetryCount runs a failed or timed-out item again (after -RetryDelaySeconds); only the last attempt's output and errors are kept, the item's cell shows the retry and the summary counts retried items. Ctrl+C stops the run: running items are stopped and the rest are counted as skipped.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Runs a script block for every input item, optionally in parallel, with a live view of the run.</maml:para>
-      <maml:para>$_ is the item, as in ForEach-Object. While it runs, a live view shows a summary line (done of total, percentage, time left, counts), one cell per item, the running items with their elapsed time and the failures; without an interactive console (redirected output, CI, a job) it prints one line per finished item and a summary instead. The output is the script block's ordinary output, in input order (or as each item finishes with -Unordered); an item's errors are written as error records and mark it as failed. While the live view is showing, ordinary output and native stream records are delivered when it ends. With -Parallel, while the live view is showing, host messages, warnings, information, verbose and debug messages, and errors also appear immediately in its log; Write-Progress appears in an activity list, with independent parent and child activities per worker. Without -Parallel, progress bars from the script block are hidden while the live view is showing. Without -Parallel the items run one at a time in the caller's scope, as with ForEach-Object, so variables set in the script block stay. -Parallel runs up to -ThrottleLimit items at a time in their own runspaces on Windows PowerShell 5.1 and PowerShell 7: variables of the caller are passed with $using:name, and -TimeoutSeconds stops an item that runs too long. -Label sets each item's label: a property name or a script block. Ctrl+C stops the run: running items are stopped and the rest are counted as skipped.</maml:para>
+      <maml:para>$_ is the item, as in ForEach-Object. While it runs, a live view shows a summary line (done of total, percentage, time left, counts), one cell per item, the running items with their elapsed time and the failures; without an interactive console (redirected output, CI, a job) it prints one line per finished item and a summary instead. The output is the script block's ordinary output, in input order (or as each item finishes with -Unordered); an item's errors are written as error records and mark it as failed. While the live view is showing, ordinary output and native stream records are delivered when it ends. With -Parallel, while the live view is showing, host messages, warnings, information, verbose and debug messages, and errors also appear immediately in its log; Write-Progress appears in an activity list, with independent parent and child activities per worker. Without -Parallel, progress bars from the script block are hidden while the live view is showing. Without -Parallel the items run one at a time in the caller's scope, as with ForEach-Object, so variables set in the script block stay. -Parallel runs up to -ThrottleLimit items at a time in their own runspaces on Windows PowerShell 5.1 and PowerShell 7: variables of the caller are passed with $using:name, and -TimeoutSeconds stops an item that runs too long. -Label sets each item's label: a property name or a script block. -RetryCount runs a failed or timed-out item again (after -RetryDelaySeconds); only the last attempt's output and errors are kept, the item's cell shows the retry and the summary counts retried items. Ctrl+C stops the run: running items are stopped and the rest are counted as skipped.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
@@ -6398,6 +6398,30 @@ $r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.htm
           <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>RetryCount</maml:name>
+          <maml:description>
+            <maml:para>How many more times a failed or timed-out item runs before it counts as failed (default 0).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>RetryDelaySeconds</maml:name>
+          <maml:description>
+            <maml:para>Seconds to wait before each retry (default 0).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+          <dev:type>
+            <maml:name>Double</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -6513,6 +6537,30 @@ $r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.htm
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>RetryCount</maml:name>
+        <maml:description>
+          <maml:para>How many more times a failed or timed-out item runs before it counts as failed (default 0).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>RetryDelaySeconds</maml:name>
+        <maml:description>
+          <maml:para>Seconds to wait before each retry (default 0).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+        <dev:type>
+          <maml:name>Double</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
         <maml:name>ScriptBlock</maml:name>
         <maml:description>
@@ -6610,6 +6658,13 @@ $r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.htm
 }</dev:code>
         <dev:remarks>
           <maml:para>Forty items in parallel with a title and a time limit: items that throw or run past 10 seconds are failures, listed when the run ends</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 4</maml:title>
+        <dev:code>$servers | Invoke-ConsoleRun -Parallel -RetryCount 2 -RetryDelaySeconds 5 -Label Name { Restart-Computer $_.Name -Wait -For WinRM -Timeout 300 -ErrorAction Stop }</dev:code>
+        <dev:remarks>
+          <maml:para>Retry flaky servers twice, five seconds apart</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>
@@ -8024,12 +8079,12 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
       <command:noun>ConsoleChart</command:noun>
       <maml:description>
         <maml:para>Creates one numeric chart representation from records or samples.</maml:para>
-        <maml:para>Type selects Bar, Stacked, Line, Scatter, Histogram or Sparkline. The shared C# Chart factory rejects options that do not apply to the selected kind. InputObject accepts ordinary records; Content emits the same records. Use Update-Console for live changes.</maml:para>
+        <maml:para>Type selects Bar, Stacked, Line, Scatter, Histogram or Sparkline. The shared C# Chart factory rejects options that do not apply to the selected kind. InputObject accepts chart records (Label and Value; Key, Label, Values and Role for series); Content emits the same records. For Bar, Histogram and Sparkline, -Property picks the number from ordinary objects and -Label (Bar only, default Name) their label, as Show-Console -View Chart does. Use Update-Console for live changes.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Creates one numeric chart representation from records or samples.</maml:para>
-      <maml:para>Type selects Bar, Stacked, Line, Scatter, Histogram or Sparkline. The shared C# Chart factory rejects options that do not apply to the selected kind. InputObject accepts ordinary records; Content emits the same records. Use Update-Console for live changes.</maml:para>
+      <maml:para>Type selects Bar, Stacked, Line, Scatter, Histogram or Sparkline. The shared C# Chart factory rejects options that do not apply to the selected kind. InputObject accepts chart records (Label and Value; Key, Label, Values and Role for series); Content emits the same records. For Bar, Histogram and Sparkline, -Property picks the number from ordinary objects and -Label (Bar only, default Name) their label, as Show-Console -View Chart does. Use Update-Console for live changes.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
@@ -8121,7 +8176,7 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Label</maml:name>
           <maml:description>
-            <maml:para>The sparkline label.</maml:para>
+            <maml:para>For Bar with -Property: the label property or expression; default Name.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
           <dev:type>
@@ -8226,6 +8281,18 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Property</maml:name>
+          <maml:description>
+            <maml:para>For Bar, Histogram or Sparkline: the numeric property of ordinary input objects (a name, pattern or calculated property).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Object[]</command:parameterValue>
+          <dev:type>
+            <maml:name>Object[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Role</maml:name>
           <maml:description>
@@ -8301,6 +8368,18 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
           <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Title</maml:name>
+          <maml:description>
+            <maml:para>The Sparkline caption shown before the trend.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+          <dev:type>
+            <maml:name>Object</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -8475,7 +8554,7 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Label</maml:name>
         <maml:description>
-          <maml:para>The sparkline label.</maml:para>
+          <maml:para>For Bar with -Property: the label property or expression; default Name.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
         <dev:type>
@@ -8580,6 +8659,18 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Property</maml:name>
+        <maml:description>
+          <maml:para>For Bar, Histogram or Sparkline: the numeric property of ordinary input objects (a name, pattern or calculated property).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Object[]</command:parameterValue>
+        <dev:type>
+          <maml:name>Object[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Role</maml:name>
         <maml:description>
@@ -8655,6 +8746,18 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
           <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Title</maml:name>
+        <maml:description>
+          <maml:para>The Sparkline caption shown before the trend.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+        <dev:type>
+          <maml:name>Object</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -8762,6 +8865,13 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>$servers | New-ConsoleChart -Type Bar -Property Cpu -Label Name -Unit '%'</dev:code>
+        <dev:remarks>
+          <maml:para>Chart a property of ordinary objects inside a report</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 2</maml:title>
         <dev:code>[pscustomobject] @{ Label = 'Cloudflare'; Value = 12 } | New-ConsoleChart -Type Bar -Unit ' ms' | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Show resolver latency</maml:para>
@@ -9691,6 +9801,18 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>AsSecret</maml:name>
+          <maml:description>
+            <maml:para>For Text: a masked secret, returned as SecureString unless Read-ConsoleForm -AsPlainText.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Badge</maml:name>
           <maml:description>
             <maml:para>Short muted text at the right of a choice ("~2 s", "Web"): a property name or a scriptblock. Rich text keeps its own style.</maml:para>
@@ -9705,7 +9827,7 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Choices</maml:name>
           <maml:description>
-            <maml:para>The choices of a Select or MultiSelect field (any objects).</maml:para>
+            <maml:para>The choices of a Select field (any objects).</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Object[]</command:parameterValue>
           <dev:type>
@@ -9825,7 +9947,7 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Height</maml:name>
           <maml:description>
-            <maml:para>The visible rows of the text area dialog (TextArea, default 8).</maml:para>
+            <maml:para>The visible rows of the text area dialog (Text -Multiline, default 8).</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
           <dev:type>
@@ -9914,7 +10036,7 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Maximum</maml:name>
           <maml:description>
-            <maml:para>The largest number, or the most choices of a MultiSelect field.</maml:para>
+            <maml:para>The largest number, or the most choices of a Select -Multiple field.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Decimal</command:parameterValue>
           <dev:type>
@@ -9926,7 +10048,7 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>MaxLength</maml:name>
           <maml:description>
-            <maml:para>The most characters (TextArea).</maml:para>
+            <maml:para>The most characters (Text).</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
           <dev:type>
@@ -9938,7 +10060,7 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>MaxLines</maml:name>
           <maml:description>
-            <maml:para>The most lines (TextArea).</maml:para>
+            <maml:para>The most lines (Text -Multiline).</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
           <dev:type>
@@ -9950,7 +10072,7 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Minimum</maml:name>
           <maml:description>
-            <maml:para>The smallest number, or the fewest choices of a MultiSelect field.</maml:para>
+            <maml:para>The smallest number, or the fewest choices of a Select -Multiple field.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Decimal</command:parameterValue>
           <dev:type>
@@ -9967,6 +10089,30 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
           <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
           <dev:type>
             <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Multiline</maml:name>
+          <maml:description>
+            <maml:para>For Text: several lines, edited in a text area dialog.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Multiple</maml:name>
+          <maml:description>
+            <maml:para>For Select: several choices instead of one.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -10130,18 +10276,15 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Type</maml:name>
           <maml:description>
-            <maml:para>The kind: Text (default), Secret, Number, Toggle, Select, MultiSelect or Path.</maml:para>
+            <maml:para>The kind: Text (default), Number, Toggle, Select or Path. -Multiple, -AsSecret and -Multiline choose the variant, as on Read-ConsoleSelect and Read-ConsoleText.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">ConsoleFieldType</command:parameterValue>
           <command:parameterValueGroup>
             <command:parameterValue required="false" variableLength="false">Text</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Secret</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Number</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Toggle</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Select</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">MultiSelect</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Path</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">TextArea</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>ConsoleFieldType</maml:name>
@@ -10189,6 +10332,18 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>AsSecret</maml:name>
+        <maml:description>
+          <maml:para>For Text: a masked secret, returned as SecureString unless Read-ConsoleForm -AsPlainText.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Badge</maml:name>
         <maml:description>
           <maml:para>Short muted text at the right of a choice ("~2 s", "Web"): a property name or a scriptblock. Rich text keeps its own style.</maml:para>
@@ -10203,7 +10358,7 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Choices</maml:name>
         <maml:description>
-          <maml:para>The choices of a Select or MultiSelect field (any objects).</maml:para>
+          <maml:para>The choices of a Select field (any objects).</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Object[]</command:parameterValue>
         <dev:type>
@@ -10323,7 +10478,7 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Height</maml:name>
         <maml:description>
-          <maml:para>The visible rows of the text area dialog (TextArea, default 8).</maml:para>
+          <maml:para>The visible rows of the text area dialog (Text -Multiline, default 8).</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
         <dev:type>
@@ -10412,7 +10567,7 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Maximum</maml:name>
         <maml:description>
-          <maml:para>The largest number, or the most choices of a MultiSelect field.</maml:para>
+          <maml:para>The largest number, or the most choices of a Select -Multiple field.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Decimal</command:parameterValue>
         <dev:type>
@@ -10424,7 +10579,7 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>MaxLength</maml:name>
         <maml:description>
-          <maml:para>The most characters (TextArea).</maml:para>
+          <maml:para>The most characters (Text).</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
         <dev:type>
@@ -10436,7 +10591,7 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>MaxLines</maml:name>
         <maml:description>
-          <maml:para>The most lines (TextArea).</maml:para>
+          <maml:para>The most lines (Text -Multiline).</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
         <dev:type>
@@ -10448,7 +10603,7 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Minimum</maml:name>
         <maml:description>
-          <maml:para>The smallest number, or the fewest choices of a MultiSelect field.</maml:para>
+          <maml:para>The smallest number, or the fewest choices of a Select -Multiple field.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Decimal</command:parameterValue>
         <dev:type>
@@ -10465,6 +10620,30 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
         <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
         <dev:type>
           <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Multiline</maml:name>
+        <maml:description>
+          <maml:para>For Text: several lines, edited in a text area dialog.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Multiple</maml:name>
+        <maml:description>
+          <maml:para>For Select: several choices instead of one.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -10628,18 +10807,15 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Type</maml:name>
         <maml:description>
-          <maml:para>The kind: Text (default), Secret, Number, Toggle, Select, MultiSelect or Path.</maml:para>
+          <maml:para>The kind: Text (default), Number, Toggle, Select or Path. -Multiple, -AsSecret and -Multiline choose the variant, as on Read-ConsoleSelect and Read-ConsoleText.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">ConsoleFieldType</command:parameterValue>
         <command:parameterValueGroup>
           <command:parameterValue required="false" variableLength="false">Text</command:parameterValue>
-          <command:parameterValue required="false" variableLength="false">Secret</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Number</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Toggle</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Select</command:parameterValue>
-          <command:parameterValue required="false" variableLength="false">MultiSelect</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Path</command:parameterValue>
-          <command:parameterValue required="false" variableLength="false">TextArea</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>ConsoleFieldType</maml:name>
@@ -10695,7 +10871,7 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
         <dev:code>New-ConsoleField Site 'Site' -Type Select -Choices 'Warsaw', 'Berlin' -ParameterName Site
-New-ConsoleField Server 'Servers' -Type MultiSelect -DependsOn Site -LoadChoices { param($Values) Get-AppServer -Site $Values.Site } -Display Name -ParameterName Server</dev:code>
+New-ConsoleField Server 'Servers' -Type Select -Multiple -DependsOn Site -LoadChoices { param($Values) Get-AppServer -Site $Values.Site } -Display Name -ParameterName Server</dev:code>
         <dev:remarks>
           <maml:para>Dependent fields: picking a site loads its servers</maml:para>
         </dev:remarks>
@@ -10710,7 +10886,7 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 3</maml:title>
-        <dev:code>New-ConsoleField Servers 'Servers' -Type MultiSelect -DependsOn Domain -ParameterName ComputerName -LoadChoices {
+        <dev:code>New-ConsoleField Servers 'Servers' -Type Select -Multiple -DependsOn Domain -ParameterName ComputerName -LoadChoices {
     param($Values)
     Get-AppServer -Domain $Values.Domain | ForEach-Object {
         [pscustomobject] @{ Name = $_.Name; Site = $_.Site; Role = $_.Role; Offline = $_.OfflineReason; Online = -not $_.OfflineReason }
@@ -10722,7 +10898,7 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 4</maml:title>
-        <dev:code>New-ConsoleField Checks 'Checks' -Type MultiSelect -Choices $checks -Display Name -CommandValue Id -GroupBy Category -Badge { "~$($_.Seconds) s" } -ParameterName Check</dev:code>
+        <dev:code>New-ConsoleField Checks 'Checks' -Type Select -Multiple -Choices $checks -Display Name -CommandValue Id -GroupBy Category -Badge { "~$($_.Seconds) s" } -ParameterName Check</dev:code>
         <dev:remarks>
           <maml:para>Checks offered by name, returned and shown in the command as their ids, with a typical time as a badge</maml:para>
         </dev:remarks>
@@ -16244,6 +16420,18 @@ Description and RunText.</maml:para>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Gap</maml:name>
+          <maml:description>
+            <maml:para>Blank rows between content children when -Content emits several widgets (default 0); 1 spaces a report's sections.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>HeaderRight</maml:name>
           <maml:description>
             <maml:para>Text on the right of the top border, for example a count.</maml:para>
@@ -16478,6 +16666,18 @@ Description and RunText.</maml:para>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
           <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Gap</maml:name>
+        <maml:description>
+          <maml:para>Blank rows between content children when -Content emits several widgets (default 0); 1 spaces a report's sections.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>

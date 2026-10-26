@@ -46,7 +46,7 @@ Grow a tree in a loop
 
 ### EXAMPLE 3
 ```powershell
-New-ConsoleChart -Label 'req/s' -Type Sparkline | Add-ConsoleItem 3, 5, 8, 13, 9 -PassThru | Show-Console
+New-ConsoleChart -Title 'req/s' -Type Sparkline | Add-ConsoleItem 3, 5, 8, 13, 9 -PassThru | Show-Console
 ```
 
 Values for a sparkline, written on

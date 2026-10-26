@@ -13,7 +13,7 @@ $dashboard = New-ConsoleDashboard -Title '[bold]Nightly checks[/]' -Subtitle "ad
         New-ConsolePanel -Title 'Results' -Content {
             New-ConsoleChart -WidgetId results -InputObject ([ordered] @{ Passed = 0; Warnings = 0; Failed = 0 }) -Type Stacked
             New-ConsoleRule
-            New-ConsoleChart -WidgetId pace -Label 'rules' -Height 3 -Type Sparkline
+            New-ConsoleChart -WidgetId pace -Title 'rules' -Height 3 -Type Sparkline
         }
     }
     New-ConsolePanel -Title 'Log' -Fill -Content { New-ConsoleLogRegion }

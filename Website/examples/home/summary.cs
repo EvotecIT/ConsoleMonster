@@ -27,4 +27,4 @@ double[] rate =
     53,
     57
 };
-Terminal.Write(new Panel(new Rows().Add(new Phases().Set("Discover", StatusKind.Pass, detail: "2.1s").Set("Collect", StatusKind.Pass, detail: "14s").Set("Evaluate", StatusKind.Running, detail: "64%")).Add(new StackedBar().Add("Passed", 412, ThemeToken.Pass).Add("Warnings", 51, ThemeToken.Warn).Add("Failed", 23, ThemeToken.Fail).Add("Skipped", 14, ThemeToken.Skip)).Add(new Sparkline() { Label = "rules/s", Unit = "/s" }.AddRange(rate)), "[bold]Nightly checks[/]") { HeaderRight = "lab01.contoso.com" });
+Terminal.Write(new Panel(new Rows().Add(new Phases().Set("Discover", StatusKind.Pass, detail: "2.1s").Set("Collect", StatusKind.Pass, detail: "14s").Set("Evaluate", StatusKind.Running, detail: "64%")).Add(new StackedBar().Add("Passed", 412, ThemeToken.Pass).Add("Warnings", 51, ThemeToken.Warn).Add("Failed", 23, ThemeToken.Fail).Add("Skipped", 14, ThemeToken.Skip)).Add(new Sparkline() { Title = "rules/s", Unit = "/s" }.AddRange(rate)), "[bold]Nightly checks[/]") { HeaderRight = "lab01.contoso.com" });
