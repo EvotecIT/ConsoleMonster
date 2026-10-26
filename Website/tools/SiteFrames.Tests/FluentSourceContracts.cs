@@ -21,6 +21,7 @@ namespace SiteFrames.Tests {
         [InlineData("int n = 0; Terminal.Write(new Rows(new TextBlock((++n).ToString()), new TextBlock(\"B\")) { Gap = n });")]
         [InlineData("Terminal.Write(new Panel(new TextBlock(\"Ready\"), ConsoleMonster.Text.RichText.Plain(\"Build\")));")]
         [InlineData("Terminal.Write(new Rows(new TextBlock(markup: \"Ready\"), new Rule(ConsoleMonster.Text.RichText.Plain(\"Build\"))));")]
+        [InlineData("string? title = null; Terminal.Write(new Rows(new Rule(title)));")]
         public void ContainerTranslationPreservesEvaluationAndSelectedOverloads(string body) {
             string path = Source("using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n" + body);
             string fluent = CSharpRunner.FluentSource(path);
