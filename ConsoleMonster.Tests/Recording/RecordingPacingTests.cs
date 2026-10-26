@@ -257,10 +257,12 @@ namespace ConsoleMonster.Tests.Sessions {
             Assert.Equal(new long[] { 21, 3000, 19, 1 }, frames.Select(frame => frame.Duration));
         }
 
-        [Fact]
-        public void FinalFractionalChapterRemainsInPlayerDataAfterAnUnchangedScreen() {
-            SessionRecording recording = Read(Event(0, "o", "A") + Event(2.999785, "o", "B")
-                + Event(3.020957, "m", "Interactive"));
+        [Theory]
+        [InlineData(2.999785, 3.020957, "B")]
+        [InlineData(2.8, 2.804153, "\rB")]
+        public void FinalFractionalChapterRemainsInPlayerDataAfterAnUnchangedScreen(double outputTime, double markerTime, string output) {
+            SessionRecording recording = Read(Event(0, "o", "A") + Event(outputTime, "o", output)
+                + Event(markerTime, "m", "Interactive"));
 
             Assert.Equal("Interactive", Assert.Single(recording.Markers).Label);
             var player = Assert.IsType<Dictionary<string, object?>>(MiniJson.Read(recording.ExportPlayerData(Source())));
