@@ -52,7 +52,7 @@ namespace ConsoleMonster.Tests.Building {
             KeyValueList summary = new KeyValueList();
             summary.AddValue("Servers", 3);
             summary.AddValue("Failed", 1);
-            Sparkline cpu = new Sparkline { Label = "CPU" };
+            Sparkline cpu = new Sparkline { Title = "CPU" };
             cpu.AddRange(Cpu);
             return new Rows(
                 new Columns(
@@ -75,7 +75,7 @@ namespace ConsoleMonster.Tests.Building {
                         .Totals(), "Servers"))
                     .Add(new Panel(new Rows()
                         .Add(new KeyValueList().AddValue("Servers", 3).AddValue("Failed", 1))
-                        .Add(new Sparkline().Label("CPU").AddRange(Cpu)), "Summary")))
+                        .Add(new Sparkline().Title("CPU").AddRange(Cpu)), "Summary")))
                 .Add(new TextBlock("[muted]Updated 10:02[/]"));
         }
 

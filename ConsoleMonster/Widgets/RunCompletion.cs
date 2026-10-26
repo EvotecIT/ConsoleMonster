@@ -42,8 +42,8 @@ namespace ConsoleMonster.Widgets {
                 region.Write(x, 0, TextWrapper.Truncate(target, targetWidth, context.Ellipsis), muted);
                 x += targetWidth + 3;
             }
-            if (_item.Message.Length > 0) {
-                region.Write(x, 0, TextWrapper.Truncate(OneLine(_item.Message), Math.Max(0, bodyWidth - x), context.Ellipsis), muted);
+            if (_item.Detail.Length > 0) {
+                region.Write(x, 0, TextWrapper.Truncate(OneLine(_item.Detail), Math.Max(0, bodyWidth - x), context.Ellipsis), muted);
             }
             duration = TextWrapper.Truncate(duration, durationWidth, context.Ellipsis);
             region.Write(region.Width - DisplayWidth.Measure(duration), 0, TextWrapper.Truncate(duration, durationWidth, context.Ellipsis), muted);

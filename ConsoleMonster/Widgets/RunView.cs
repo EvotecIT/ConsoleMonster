@@ -41,6 +41,9 @@ namespace ConsoleMonster.Widgets {
         /// <summary>The most rows of item cells (default 4).</summary>
         public int MaxCellRows { get; set; } = 4;
 
+        /// <summary>The retries allowed per item, for the "retry n of m" note on a running retry; zero shows only the attempt.</summary>
+        public int RetryCount { get; set; }
+
         /// <inheritdoc />
         public Size Measure(Constraints constraints, RenderContext context) =>
             Build(_tracker.Snapshot(), context).Measure(constraints, context);
@@ -75,10 +78,15 @@ namespace ConsoleMonster.Widgets {
             if (snapshot.Running.Count > 0) {
                 summary.SetCounter(labels.RunningCount, snapshot.Running.Count, StatusKind.Running);
             }
+            if (snapshot.Retried > 0) {
+                summary.SetCounter(labels.RetriedCount, snapshot.Retried, StatusKind.Warn);
+            }
             rows.Add(summary);
             CellMap map = new CellMap("run-cells") { MaxRows = MaxCellRows, ShowLegend = false, Window = CellMap.CellWindow.Active, SpinRunning = false };
-            foreach (StatusKind state in snapshot.States) {
-                map.Add(state);
+            for (int i = 0; i < snapshot.States.Count; i++) {
+                // A retry in progress shows in the warning tone until the item settles.
+                bool retrying = snapshot.States[i] == StatusKind.Running && i < snapshot.Attempts.Count && snapshot.Attempts[i] > 1;
+                map.Add(retrying ? StatusKind.Warn : snapshot.States[i]);
             }
             if (map.Count > 0) {
                 rows.Add(map);
@@ -86,7 +94,9 @@ namespace ConsoleMonster.Widgets {
             if (snapshot.Running.Count > 0) {
                 ActivityList activities = new ActivityList("run-activities") { ShowIds = true, MaxVisible = Math.Max(1, MaxRunning) };
                 foreach (RunActivity running in snapshot.Running) {
-                    activities.Apply(new LiveEvent(ActivityList.ProgressTarget, "update", key: (running.Index + 1).ToString(CultureInfo.InvariantCulture), text: running.Label, value: -1, total: -1, time: Math.Max(1, (long)running.Started.TotalMilliseconds)));
+                    string text = running.Attempt < 2 ? running.Label : running.Label + " · " + Localization.WidgetLabels.Format(labels.RetryAttempt,
+                        (running.Attempt - 1).ToString(CultureInfo.InvariantCulture), Math.Max(RetryCount, running.Attempt - 1).ToString(CultureInfo.InvariantCulture));
+                    activities.Apply(new LiveEvent(ActivityList.ProgressTarget, "update", key: (running.Index + 1).ToString(CultureInfo.InvariantCulture), text: text, value: -1, total: -1, time: Math.Max(1, (long)running.Started.TotalMilliseconds)));
                 }
                 rows.Add(new Clocked(activities, snapshot.Elapsed, MaxListWidth));
             }

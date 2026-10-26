@@ -49,7 +49,7 @@ namespace ConsoleMonster.Examples.Showcases {
                 .Add("Skipped", 14, ThemeToken.Skip);
 
             Random random = new Random(42);
-            Sparkline spark = new Sparkline("s1") { Label = "rules/s", Unit = "/s" };
+            Sparkline spark = new Sparkline("s1") { Title = "rules/s", Unit = "/s" };
             Sparkline area = new Sparkline("s2") { Height = 3, Unit = "/s" };
             LineChart chart = new LineChart { Height = 7 };
             chart.AddSeries("completed", ThemeToken.Accent);

@@ -297,7 +297,7 @@ namespace ConsoleMonster.PowerShell {
                 return chartItem;
             }
             if (IsRecord(item)) {
-                RecordFields(item, "Key Label Value Role", "To chart a property of ordinary objects, use Show-Console -View Chart -Property <number> -Label <name> (add -AsWidget inside -Content).");
+                RecordFields(item, "Key Label Value Role", "To chart ordinary objects, pick the columns: -Property <number> -Label <name>.");
                 object? label = Field(item, "Label");
                 object? value = Field(item, "Value");
                 if (label == null || value == null || !TryNumber(value, out double number)) {

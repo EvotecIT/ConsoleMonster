@@ -179,8 +179,20 @@ $v = Read-ConsoleText 'Reason' -Multiline -Mode Accessible
             $text | Should -Match 'value=first\|second'
         }
 
+        It 'uses the prompt vocabulary for field variants' {
+            (New-ConsoleField Pick -Type Select -Choices 'a', 'b').Multiple | Should -BeFalse
+            (New-ConsoleField Pick -Type Select -Multiple -Choices 'a', 'b').Multiple | Should -BeTrue
+            (New-ConsoleField Password -Type Text -AsSecret).GetType().Name | Should -Be 'SecretField'
+            (New-ConsoleField Name).GetType().Name | Should -Be 'TextField'
+            { New-ConsoleField Pick -Type Text -Multiple } | Should -Throw '*Multiple applies to -Type Select*'
+            { New-ConsoleField Port -Type Number -AsSecret } | Should -Throw '*AsSecret applies to -Type Text*'
+            { New-ConsoleField Note -Type Text -AsSecret -Multiline } | Should -Throw '*Choose AsSecret or Multiline*'
+            { New-ConsoleField Note -MaxLines 3 } | Should -Throw '*-Type Text -Multiline*'
+            [Enum]::GetNames((Get-Command New-ConsoleField).Parameters['Type'].ParameterType) | Should -Be @('Text', 'Number', 'Toggle', 'Select', 'Path')
+        }
+
         It 'creates a text area field' {
-            $field = New-ConsoleField Reason 'Reason' -Type TextArea -MaxLines 3 -Height 5
+            $field = New-ConsoleField Reason 'Reason' -Type Text -Multiline -MaxLines 3 -Height 5
             $field.GetType().Name | Should -Be 'TextAreaField'
             $field.MaxLines | Should -Be 3
         }
@@ -336,7 +348,7 @@ Show-ConsoleMenu $menu -Layout Inline
         }
 
         It 'builds choices with a muted badge, a disabled reason, a selection and a command-line value that keeps the object''s properties' {
-            $field = New-ConsoleField Checks 'Checks' -Type MultiSelect -Choices $script:Checks -Display Name -CommandValue Id -GroupBy Category -Badge { "~$($_.Seconds) s" } -DisabledReason Retired -Selected { $_.Id -eq 'CertChain' } -ParameterName Check
+            $field = New-ConsoleField Checks 'Checks' -Type Select -Multiple -Choices $script:Checks -Display Name -CommandValue Id -GroupBy Category -Badge { "~$($_.Seconds) s" } -DisabledReason Retired -Selected { $_.Id -eq 'CertChain' } -ParameterName Check
             $choices = @($field.Choices)
             ($choices | ForEach-Object Label) -join ',' | Should -Be 'Time offset,Free space,Cert chain'
             ($choices | ForEach-Object { [string] $_.Value }) -join ',' | Should -Be 'TimeOffset,FreeSpace,CertChain'
@@ -350,7 +362,7 @@ Show-ConsoleMenu $menu -Layout Inline
 
         It 'marks loaded choices with property names: badge, disabled reason and selection' {
             $domain = New-ConsoleField Domain 'Domain' -Type Select -Choices 'corp.example.test' -Default 'corp.example.test' -ParameterName Domain
-            $servers = New-ConsoleField Servers 'Servers' -Type MultiSelect -DependsOn Domain -ParameterName ComputerName -LoadChoices {
+            $servers = New-ConsoleField Servers 'Servers' -Type Select -Multiple -DependsOn Domain -ParameterName ComputerName -LoadChoices {
                 param($Values)
                 [pscustomobject] @{ Name = 'SRV01'; Role = 'Web'; Offline = $null; Online = $true; Domain = $Values.Domain }
                 [pscustomobject] @{ Name = 'SRV02'; Role = 'File'; Offline = 'offline since 07:12'; Online = $false; Domain = $Values.Domain }
@@ -410,7 +422,7 @@ Show-ConsoleMenu $menu -Layout Inline
         It 'gives a form built-in presets from its scriptblock and -Preset, with values matched to its choices' {
             $extra = [pscustomobject]@{ Name = 'Storage only'; Values = @{ Checks = 'Free space' }; Description = 'Only the storage check.' }
             $form = New-ConsoleForm 'Fleet' -Command 'Invoke-FleetCheck' -Preset $extra -Content {
-                New-ConsoleField Checks 'Checks' -Type MultiSelect -Choices $script:Checks -Display Name -CommandValue Id -ParameterName Check
+                New-ConsoleField Checks 'Checks' -Type Select -Multiple -Choices $script:Checks -Display Name -CommandValue Id -ParameterName Check
                 New-ConsoleField Parallel 'Servers at a time' -Type Number -Integer -Default 4 -ParameterName ThrottleLimit
                 [pscustomobject]@{ Name = 'Nightly'; Values = @{ Checks = 'TimeOffset', 'Cert chain'; Parallel = 8 }; Preview = { 'two checks, eight at a time' } }
             }
@@ -425,7 +437,7 @@ Show-ConsoleMenu $menu -Layout Inline
 
         It 'sets form values from a hashtable or an earlier run and refuses anything else' {
             $form = New-ConsoleForm 'Fleet' -Command 'Invoke-FleetCheck' -Content {
-                New-ConsoleField Checks 'Checks' -Type MultiSelect -Choices $script:Checks -Display Name -CommandValue Id -ParameterName Check
+                New-ConsoleField Checks 'Checks' -Type Select -Multiple -Choices $script:Checks -Display Name -CommandValue Id -ParameterName Check
                 New-ConsoleField Notify 'Email the report' -Type Toggle -ParameterName Notify
             }
             Set-ConsoleFormValue -Form $form -Values @{ Checks = @('Free space'); Notify = $true; Unknown = 1 }
@@ -439,7 +451,7 @@ Show-ConsoleMenu $menu -Layout Inline
         }
 
         It 'creates menu presets with form values, selections and a preview, and adds them to the menu' {
-            $form = New-ConsoleForm 'Fleet' -Content { New-ConsoleField Checks 'Checks' -Type MultiSelect -Choices $script:Checks -Display Name -CommandValue Id }
+            $form = New-ConsoleForm 'Fleet' -Content { New-ConsoleField Checks 'Checks' -Type Select -Multiple -Choices $script:Checks -Display Name -CommandValue Id }
             $targets = New-ConsoleMenuItem 'Targets' -MultiSelect ([pscustomobject] @{ Name = 'SRV01' }), ([pscustomobject] @{ Name = 'SRV02' }) -Display Name
             $first = [pscustomobject]@{ Name = 'First'; Form = $form; Values = @{ Checks = 'Time offset' }; Item = $targets; Selection = 'SRV02'; Description = 'The first wave.'; Preview = { New-ConsoleText 'preview' } }
             $first.Description | Should -Be 'The first wave.'
@@ -495,7 +507,7 @@ Show-ConsoleMenu $menu -Layout Inline
         It 'preserves original object answers and defaults instead of choosing the first custom object' {
             $targets = @([pscustomobject] @{ Name = 'SRV01' }, [pscustomobject] @{ Name = 'SRV02' })
             $single = New-ConsoleField Target 'Target' -Type Select -Choices $targets -Display Name -Default $targets[1]
-            $multiple = New-ConsoleField Targets 'Targets' -Type MultiSelect -Choices $targets -Display Name -Default @($targets[1])
+            $multiple = New-ConsoleField Targets 'Targets' -Type Select -Multiple -Choices $targets -Display Name -Default @($targets[1])
             $form = New-ConsoleForm 'Deployment' -Field $single, $multiple
             $form.GetValues()['Target'].Name | Should -Be 'SRV02'
             @($form.GetValues()['Targets']).Count | Should -Be 1

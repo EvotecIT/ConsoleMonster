@@ -3502,6 +3502,46 @@
           "Reason": "Schedules the callbacks in owning PowerShell worker runspaces."
         },
         {
+          "Parameter": "RetryCount",
+          "ParameterType": "System.Int32",
+          "Default": 0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Live.RunOptions",
+          "Member": "RetryCount",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "RetryDelaySeconds",
+          "ParameterType": "System.Double",
+          "Default": 0.0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Live.RunOptions",
+          "Member": "RetryDelay",
+          "MemberKind": "Property",
+          "Conversion": "SecondsToTimeSpan",
+          "CSharpTypeName": "System.TimeSpan",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
           "Parameter": "ScriptBlock",
           "ParameterType": "System.Management.Automation.ScriptBlock",
           "Default": null,
@@ -4594,7 +4634,7 @@
         {
           "Parameter": "Label",
           "ParameterType": "System.Object",
-          "Default": null,
+          "Default": "Name",
           "Sets": [
             {
               "Name": "__AllParameterSets",
@@ -4603,13 +4643,12 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Widgets.ChartOptions",
-          "Member": "Label",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
+          "Member": "AddItem",
+          "MemberKind": "Method",
+          "Conversion": "HostAdaptation",
           "CSharpTypeName": "System.String",
-          "Nullable": "Nullable",
-          "Writable": true,
-          "Static": false
+          "Argument": "label",
+          "Reason": "Reads each Bar label from ordinary objects through the shared property binder and passes it as the typed AddItem label."
         },
         {
           "Parameter": "LabelColumn",
@@ -4632,26 +4671,6 @@
           "Static": false
         },
         {
-          "Parameter": "MaxLegendColumns",
-          "ParameterType": "System.Int32",
-          "Default": 0,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Widgets.ChartOptions",
-          "Member": "MaxLegendColumns",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Int32",
-          "Nullable": "NotNull",
-          "Writable": true,
-          "Static": false
-        },
-        {
           "Parameter": "Maximum",
           "ParameterType": "System.Nullable`1[System.Double]",
           "Default": null,
@@ -4668,6 +4687,26 @@
           "Conversion": "Identity",
           "CSharpTypeName": "System.Nullable`1[System.Double]",
           "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "MaxLegendColumns",
+          "ParameterType": "System.Int32",
+          "Default": 0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.ChartOptions",
+          "Member": "MaxLegendColumns",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
           "Writable": true,
           "Static": false
         },
@@ -4772,6 +4811,25 @@
           "Static": false
         },
         {
+          "Parameter": "Property",
+          "ParameterType": "System.Object[]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.ChartOptions",
+          "Member": "AddItem",
+          "MemberKind": "Method",
+          "Conversion": "HostAdaptation",
+          "CSharpTypeName": "System.Double",
+          "Argument": "value",
+          "Reason": "Reads the number from ordinary objects through the shared property binder and adds each row with the typed AddItem value (Values for Histogram and Sparkline)."
+        },
+        {
           "Parameter": "Role",
           "ParameterType": "System.Nullable`1[ConsoleMonster.Styling.ThemeToken]",
           "Default": null,
@@ -4848,6 +4906,26 @@
           "Conversion": "Identity",
           "CSharpTypeName": "System.Boolean",
           "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Title",
+          "ParameterType": "System.Object",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.ChartOptions",
+          "Member": "Title",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "Nullable",
           "Writable": true,
           "Static": false
         },
@@ -6116,6 +6194,27 @@
           "Reason": "Positional arguments supplied to the PowerShell callback; C# closes over its typed arguments."
         },
         {
+          "Parameter": "AsSecret",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.Field",
+          "Member": "Kind",
+          "MemberKind": "Property",
+          "Conversion": "EnumDiscriminator",
+          "CSharpTypeName": "ConsoleMonster.Interactive.FieldKind",
+          "Reason": "Selects the secret Field subclass for -Type Text; Field.Kind records the immutable kind.",
+          "Nullable": "Unknown",
+          "Writable": false,
+          "Static": false
+        },
+        {
           "Parameter": "Badge",
           "ParameterType": "System.Object",
           "Default": null,
@@ -6465,6 +6564,26 @@
           "Static": false
         },
         {
+          "Parameter": "Maximum",
+          "ParameterType": "System.Nullable`1[System.Decimal]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.NumberField",
+          "Member": "Maximum",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Nullable`1[System.Decimal]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
           "Parameter": "MaxLength",
           "ParameterType": "System.Int32",
           "Default": 2147483647,
@@ -6505,7 +6624,7 @@
           "Static": false
         },
         {
-          "Parameter": "Maximum",
+          "Parameter": "Minimum",
           "ParameterType": "System.Nullable`1[System.Decimal]",
           "Default": null,
           "Sets": [
@@ -6516,7 +6635,7 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Interactive.NumberField",
-          "Member": "Maximum",
+          "Member": "Minimum",
           "MemberKind": "Property",
           "Conversion": "Identity",
           "CSharpTypeName": "System.Nullable`1[System.Decimal]",
@@ -6545,9 +6664,9 @@
           "Static": false
         },
         {
-          "Parameter": "Minimum",
-          "ParameterType": "System.Nullable`1[System.Decimal]",
-          "Default": null,
+          "Parameter": "Multiline",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
           "Sets": [
             {
               "Name": "__AllParameterSets",
@@ -6555,13 +6674,35 @@
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.Interactive.NumberField",
-          "Member": "Minimum",
+          "CSharpType": "ConsoleMonster.Interactive.Field",
+          "Member": "Kind",
           "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Nullable`1[System.Decimal]",
-          "Nullable": "Nullable",
-          "Writable": true,
+          "Conversion": "EnumDiscriminator",
+          "CSharpTypeName": "ConsoleMonster.Interactive.FieldKind",
+          "Reason": "Selects the text-area Field subclass for -Type Text; Field.Kind records the immutable kind.",
+          "Nullable": "Unknown",
+          "Writable": false,
+          "Static": false
+        },
+        {
+          "Parameter": "Multiple",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.Field",
+          "Member": "Kind",
+          "MemberKind": "Property",
+          "Conversion": "EnumDiscriminator",
+          "CSharpTypeName": "ConsoleMonster.Interactive.FieldKind",
+          "Reason": "Selects the multiple-choice Field subclass for -Type Select; Field.Kind records the immutable kind.",
+          "Nullable": "Unknown",
+          "Writable": false,
           "Static": false
         },
         {
@@ -9702,6 +9843,26 @@
           "Conversion": "LayoutDecorator",
           "CSharpTypeName": null,
           "Reason": "Wraps the constructed widget with fractional layout sizing."
+        },
+        {
+          "Parameter": "Gap",
+          "ParameterType": "System.Int32",
+          "Default": 0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Layout.Panel",
+          "Member": "Gap",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
         },
         {
           "Parameter": "HeaderRight",
@@ -24891,11 +25052,11 @@
     },
     {
       "CSharpType": "ConsoleMonster.Widgets.Sparkline",
-      "Member": "Label",
-      "MemberId": "ConsoleMonster.Widgets.Sparkline.Label",
+      "Member": "Title",
+      "MemberId": "ConsoleMonster.Widgets.Sparkline.Title",
       "CSharpTypeName": "System.String",
       "Command": "New-ConsoleChart",
-      "Parameter": "Label",
+      "Parameter": "Title",
       "Reason": "The shared factory/view adapter applies this option to the resulting Sparkline."
     },
     {
@@ -26720,6 +26881,15 @@
       "Command": "New-ConsoleTab",
       "Parameter": "Content",
       "Reason": "The page definition retains the same region subtree when materialized."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.RunView",
+      "Member": "RetryCount",
+      "MemberId": "ConsoleMonster.Widgets.RunView.RetryCount",
+      "CSharpTypeName": "System.Int32",
+      "Command": "Invoke-ConsoleRun",
+      "Parameter": "RetryCount",
+      "Reason": "The run monitor copies RunOptions.RetryCount to its view for the retry note on running items."
     }
   ],
   "Endings": [
@@ -27408,22 +27578,6 @@
           "Reason": "C# viewer model; Show-ConsoleGrid combines its construction and execution in PowerShell."
         },
         {
-          "Noun": "SelectPrompt",
-          "Reason": "Typed scalar Read-ConsoleSelect renderer; preserves the result type."
-        },
-        {
-          "Noun": "MultiSelectPrompt",
-          "Reason": "Typed collection Read-ConsoleSelect -Multiple renderer."
-        },
-        {
-          "Noun": "TextPrompt",
-          "Reason": "Typed Read-ConsoleText question renderer."
-        },
-        {
-          "Noun": "SecretPrompt",
-          "Reason": "Typed Read-ConsoleText -AsSecret question renderer."
-        },
-        {
           "Noun": "NumberPrompt",
           "Reason": "Typed Read-ConsoleNumber question renderer."
         },
@@ -27458,6 +27612,14 @@
         {
           "Noun": "DatePrompt",
           "Reason": "Typed Read-ConsoleDate question renderer, including inclusive ranges."
+        },
+        {
+          "Noun": "TextQuestion",
+          "Reason": "Read-ConsoleText's typed question definition (AsSecret, Multiline); the chain ends in Show() rather than a widget."
+        },
+        {
+          "Noun": "SelectQuestion",
+          "Reason": "Read-ConsoleSelect's question definition (Multiple); the chain ends in Show(), Show<T>() or ShowMany<T>() rather than a widget."
         }
       ],
       "PrimaryInputs": [

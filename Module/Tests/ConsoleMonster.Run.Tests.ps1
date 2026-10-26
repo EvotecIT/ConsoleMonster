@@ -16,6 +16,31 @@ Describe 'Invoke-ConsoleRun (Invoke-ConsoleRun)' {
         }
     }
 
+    It 'retries failed items in both modes, keeping only the last attempt' {
+        $text = Invoke-RunChild @'
+$dir = Join-Path ([IO.Path]::GetTempPath()) ([guid]::NewGuid().ToString('N'))
+New-Item -ItemType Directory -Path $dir | Out-Null
+$out = 1..4 | Invoke-ConsoleRun -Parallel -ThrottleLimit 2 -RetryCount 1 -RetryDelaySeconds 0.1 {
+    $marker = Join-Path $using:dir ([string] $_)
+    $attempt = 1 + @(Get-ChildItem -LiteralPath $using:dir -Filter "$_.*").Count
+    New-Item -ItemType File -Path "$marker.$attempt" | Out-Null
+    if ($_ -eq 2 -and $attempt -lt 2) { throw 'two flaked' }
+    if ($_ -eq 3) { throw "three broke on $attempt" }
+    "$_@$attempt"
+} -ErrorVariable failures -ErrorAction SilentlyContinue
+"PAR=$($out -join ',')"
+"PARERR=$($failures.Count) $($failures[0].Exception.Message)"
+$script:calls = 0
+$seq = 'a' | Invoke-ConsoleRun -RetryCount 2 { $script:calls++; if ($script:calls -lt 3) { Write-Error "try $script:calls" }; "seq@$script:calls" } -ErrorVariable seqErrors -ErrorAction SilentlyContinue
+"SEQ=$seq ERR=$($seqErrors.Count)"
+'@
+        $text | Should -Match 'PAR=1@1,2@2,4@1'
+        $text | Should -Match 'PARERR=1 three broke on 2'
+        $text | Should -Match '2 \(retry 1 of 1\): two flaked'
+        $text | Should -Match 'SEQ=seq@3 ERR=0'
+        $text | Should -Match 'a \(retry 2 of 2\): try 2'
+    }
+
     It 'returns the output in input order in parallel, passes $using: values and writes failures as errors' {
         $text = Invoke-RunChild @'
 $base = 10

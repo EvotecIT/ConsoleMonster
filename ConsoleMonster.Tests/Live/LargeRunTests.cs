@@ -88,7 +88,7 @@ namespace ConsoleMonster.Tests.Live {
                 Assert.True(run.HandleKey('p')); Assert.True(run.HandleKey('g')); Assert.True(run.HandleKey('?'));
                 run.Started(0, "collecting"); run.Finished(0, StatusKind.Warn, "Full detail [literal] survives without interpreting markup", TimeSpan.FromSeconds(4));
                 RunSnapshot before = run.Snapshot();
-                Assert.Equal(1, before.Warned); Assert.Equal("collecting", before.Items[0].Phase);
+                Assert.Equal(1, before.Warned); Assert.Equal("collecting", before.Items[0].Label);
                 Assert.True(run.Dashboard.LogPaused); Assert.True(run.Dashboard.ShowHelp); Assert.False(run.Dashboard.ShowGroups);
                 RunSnapshot final = run.Complete();
                 Assert.Equal(1, final.Warned); Assert.Equal(1, final.Skipped);

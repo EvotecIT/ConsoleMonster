@@ -25,7 +25,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Values for a sparkline, written on</para>
-    ///   <code>New-ConsoleChart -Label 'req/s' -Type Sparkline | Add-ConsoleItem 3, 5, 8, 13, 9 -PassThru | Show-Console</code>
+    ///   <code>New-ConsoleChart -Title 'req/s' -Type Sparkline | Add-ConsoleItem 3, 5, 8, 13, 9 -PassThru | Show-Console</code>
     /// </example>
     [Cmdlet(VerbsCommon.Add, "ConsoleItem")]
     public sealed class CmdletAddConsoleItem : PSCmdlet {

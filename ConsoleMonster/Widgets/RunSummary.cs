@@ -44,7 +44,7 @@ namespace ConsoleMonster.Widgets {
                 Table table = new Table { CardsBelow = 160, ShowKeyField = true };
                 table.AddColumn(new TableColumn("Item") { IsKey = true, MaxLines = TableColumn.Unlimited });
                 foreach (string column in new[] { "Target", "State", "Duration", "Message" }) { table.AddColumn(new TableColumn(column) { MaxLines = TableColumn.Unlimited }); }
-                foreach (var item in problems) { table.AddRow(Markup.Escape(item.Item.Label), Markup.Escape(item.Item.Target), TableCell.ForStatus(item.Status), NumberFormat.Duration(item.Duration), Markup.Escape(item.Message)); }
+                foreach (var item in problems) { table.AddRow(Markup.Escape(item.Item.Label), Markup.Escape(item.Item.Target), TableCell.ForStatus(item.Status), NumberFormat.Duration(item.Duration), Markup.Escape(item.Detail)); }
                 rows.Add(RunDashboard.Label("Problems"));
                 rows.Add(table);
             }

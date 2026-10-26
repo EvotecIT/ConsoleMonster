@@ -98,7 +98,8 @@ namespace SiteFrames.Capture {
                 ExpressionSyntax result = Rewrite(original, visited.WithArgumentList(visited.ArgumentList.WithArguments(SyntaxFactory.SeparatedList(replacements))), stageArguments: false);
                 statements.Add(SyntaxFactory.ReturnStatement(result));
                 var lambda = SyntaxFactory.ParenthesizedLambdaExpression().WithBlock(SyntaxFactory.Block(statements));
-                var callback = SyntaxFactory.CastExpression(SyntaxFactory.ParseTypeName("global::System.Func<" + type.ToDisplayString(format) + ">"), SyntaxFactory.ParenthesizedExpression(lambda));
+                string staged = QuestionType(type) is string question ? "global::ConsoleMonster.Interactive." + question : type.ToDisplayString(format);
+                var callback = SyntaxFactory.CastExpression(SyntaxFactory.ParseTypeName("global::System.Func<" + staged + ">"), SyntaxFactory.ParenthesizedExpression(lambda));
                 return SyntaxFactory.InvocationExpression(SyntaxFactory.ParenthesizedExpression(callback), SyntaxFactory.ArgumentList()).WithTriviaFrom(original);
             }
         }

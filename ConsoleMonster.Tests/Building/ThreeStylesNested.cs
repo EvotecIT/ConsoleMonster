@@ -13,7 +13,7 @@ namespace ThreeStylesSample {
                         .Column(s => s.Ram, c => c.Presenter(CellPresenters.Bytes)).Column(s => s.Status).Totals())));
                     panels.Panel(panel => panel.Title("Summary").Content(content => {
                         content.KeyValue(list => list.AddValue("Servers", 3).AddValue("Failed", 1));
-                        content.Chart(chart => chart.Type(ChartType.Sparkline).Label("CPU").Values(cpu));
+                        content.Chart(chart => chart.Type(ChartType.Sparkline).Title("CPU").Values(cpu));
                     }));
                 }));
                 rows.Text(text => text.Content("[muted]Updated 10:02[/]").IsMarkup());
