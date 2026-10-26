@@ -2,10 +2,23 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using ConsoleMonster.Live;
+using ConsoleMonster.Input;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>Input, live rendering and fallback settings for one application run.</summary>
     public sealed class ConsoleAppOptions {
+        /// <summary>Host navigation, cancellation and palette gestures. Set individual gestures to null to release them to the app registry.</summary>
+        public AppHostKeys Keys { get; set; } = new AppHostKeys();
+        /// <summary>Lets the terminal generate signals for Ctrl+C and Ctrl+backslash. False keeps signal keys as input events, including the Commander's Ctrl+backslash.</summary>
+        public bool SignalKeys { get; set; }
+        /// <summary>App-thread registry routing after modal and cancellation handling, before focused-input handling. Return true when consumed.</summary>
+        public Func<AppState, InputEvent, bool>? HandleInput { get; set; }
+        /// <summary>Optional terminal handoff service, attached only for this run.</summary>
+        public TerminalHandoff? TerminalHandoff { get; set; }
+        /// <summary>Optional context footer. Null uses the host's standard hints.</summary>
+        public Layout.IWidget? Footer { get; set; }
+        /// <summary>Optional typed modal form service for this run.</summary>
+        public AppDialogs? Dialogs { get; set; }
         /// <summary>Passive commands shared by the app's buttons, palette and keyboard shortcuts.</summary>
         public IList<AppCommand> Command { get; } = new List<AppCommand>();
         /// <summary>Captures action rows on the app thread before confirmation. Null supplies an empty row set.</summary>

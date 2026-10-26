@@ -7,6 +7,10 @@ using ConsoleMonster.Interactive;
 namespace ConsoleMonster {
     /// <summary>Passive widgets and validated construction definitions. Typed renderer factories retain C# handles; Chart and Progress expose the shared polymorphic definitions.</summary>
     public static partial class Ui {
+        /// <summary>Retained tabs with keyboard and pointer navigation.</summary>
+        public static Tabs Tabs() => new Tabs();
+        /// <summary>Swappable regions that show one active subtree at narrow widths.</summary>
+        public static LayoutRegions LayoutRegions() => new LayoutRegions();
         /// <summary>Empty ActivityList widget; the optional primary input is its live identity.</summary>
         /// <param name="widgetId">The primary input.</param>
         /// <returns>The empty ActivityList widget; the optional primary input is its live identity.</returns>

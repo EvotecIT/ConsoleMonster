@@ -7,6 +7,8 @@ using ConsoleMonster.Interactive;
 namespace ConsoleMonster {
     /// <summary>Behavioral definitions and persistent controls. Build materializes immutable identity and kind through the shared factories.</summary>
     public static partial class Ui {
+        /// <summary>An embeddable grid definition; configure Key and Grid, then Build.</summary>
+        public static DataGridInputOptions DataGrid() => new DataGridInputOptions();
         /// <summary>Empty sequential form.</summary>
         /// <returns>The empty sequential form.</returns>
         public static Form Form() => new Form(string.Empty);

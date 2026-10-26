@@ -11,6 +11,7 @@ namespace ConsoleMonster.Interactive {
         private readonly Dictionary<InputControl, Entry> _inputs = new Dictionary<InputControl, Entry>();
         private readonly List<Tuple<Widgets.ScrollView, Rect>> _scrolls = new List<Tuple<Widgets.ScrollView, Rect>>();
         internal InputControl? Focused { get; set; }
+        internal IEnumerable<InputControl> Mounted => _inputs.Keys;
         internal Rect? FocusBounds => Focused != null && _inputs.TryGetValue(Focused, out Entry? entry) ? entry.Bounds : (Rect?)null;
         internal IDisposable Begin(int x, int y, Rect clip) { _inputs.Clear(); _scrolls.Clear(); return new Scope(this, x, y, clip); }
         internal static IDisposable? Translate(int x, int y, Rect viewport) {
