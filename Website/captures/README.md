@@ -52,6 +52,10 @@ module used by PowerShell 5.1. An optional area follows `Website`, for example
   logical timeline: each complete synchronized repaint or printed line advances
   50 ms. Text, colour and cursor operations remain recorded output. This does
   not normalize application-level elapsed times or concurrent output ordering.
+- Gallery action-log timestamps use a frozen `SimulatedClock.Read` through
+  `InteractiveOptions.ActionClock`. This pins elapsed labels at zero without
+  changing action execution, cancellation, or scripted input pacing. Normal
+  applications keep their real action clock.
 - The capture policy participates in source fingerprints. Do not edit stamps
   to make an old capture appear fresh. Regenerate each affected producing set.
 
@@ -62,7 +66,7 @@ stress and benchmark recordings add `.windows`, `.macos` or `.linux` before the
 extension. Historical unqualified host-dependent files are Windows captures.
 Rendering chooses its default explicitly rather than using the build host's OS.
 Demo media can expose named platform variants, and the `cm-demo` shortcode accepts
-`platform="linux"`, `platform="macos"` or `platform="windows"`.
+`platform="linux"`, `platform="macos"` or `platform="windows"`. The `cm-live` shortcode uses the same platform selector for stress recordings. The live and benchmark pages expose each available measured platform separately.
 
 `captures/run.json` describes the files actually produced by a capture invocation:
 platform, category, hash and terminal geometry. Keep a copy of the complete

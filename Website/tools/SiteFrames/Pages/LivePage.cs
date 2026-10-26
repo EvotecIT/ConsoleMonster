@@ -22,7 +22,7 @@ namespace SiteFrames.Pages {
     /// build pipeline script on both hosts. The assessment program replays a recording file; that file is synthetic data
     /// the tool writes (and the page offers for download), the program only reads it.
     /// </summary>
-    internal static class LivePage {
+    internal static partial class LivePage {
         public static string ProgramPath(Site site, string name) => Path.Combine(site.Website, "examples", "live", name + ".cs");
 
         private static string PipelineScript(Site site) => Path.Combine(site.Repository, "Module", "Examples", "Example-BuildPipeline.ps1");
@@ -170,6 +170,7 @@ namespace SiteFrames.Pages {
             stress["result"] = StressResult(site);
             Source(stress, Site.ReadText(ProgramPath(site, "stress")), "csharp", "Program.cs");
             SourceStyles.Add(site, stress, ProgramPath(site, "stress"));
+            AddStressPlatforms(site, stress);
             live["stress"] = stress;
             JsonObject stream = Stream(site);
             Source(stream, Site.ReadText(ProgramPath(site, "replay")), "csharp", "Program.cs");
@@ -214,8 +215,9 @@ namespace SiteFrames.Pages {
             return frame;
         }
 
-        private static JsonObject FromCast(Site site, string id, string label, string command, double fps = 6, double share = 0.55) {
-            string path = CastPath(site, id);
+        private static JsonObject FromCast(Site site, string id, string label, string command, double fps = 6, double share = 0.55, string? capturePath = null, string? mediaId = null) {
+            string path = capturePath ?? CastPath(site, id);
+            string outputId = mediaId ?? id;
             if (!File.Exists(path)) {
                 WidgetsPage.Report(new List<string> { "missing capture " + id + "; run the capture command for the live area." }, "live");
                 return new JsonObject();
@@ -223,14 +225,14 @@ namespace SiteFrames.Pages {
             string cast = File.ReadAllText(path);
             CheckFresh(site, id, cast);
             List<TimedFrame> frames = Replays.FromCast(cast, fps, true, out CellBuffer scrollback, out int width, out int height);
-            site.Write(site.Static("replays/" + id + ".json"), PlayerData.Write(site, frames, command, fps, 3000, out long duration, out int count));
+            site.Write(site.Static("replays/" + outputId + ".json"), PlayerData.Write(site, frames, command, fps, 3000, out long duration, out int count));
             long posterTime = Poster(site, frames, share, out string poster);
             return new JsonObject {
                 ["start"] = posterTime,
-                ["id"] = id,
+                ["id"] = outputId,
                 ["label"] = label,
                 ["command"] = command,
-                ["url"] = "/replays/" + id + ".json",
+                ["url"] = "/replays/" + outputId + ".json",
                 ["w"] = width,
                 ["h"] = height,
                 ["frames"] = count,
@@ -242,8 +244,8 @@ namespace SiteFrames.Pages {
         }
 
         // The stress test prints one result line after the session; the page quotes it as measured on the capture machine.
-        private static JsonObject? StressResult(Site site) {
-            string path = CastPath(site, "stress");
+        private static JsonObject? StressResult(Site site, string? capturePath = null) {
+            string path = capturePath ?? CastPath(site, "stress");
             if (!File.Exists(path)) {
                 return null;
             }

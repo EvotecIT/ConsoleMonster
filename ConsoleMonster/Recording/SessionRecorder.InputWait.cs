@@ -40,12 +40,12 @@ namespace ConsoleMonster.Sessions {
                     if (left.HasValue) { timer!.Change((int)Math.Min(int.MaxValue, Math.Max(1, Math.Ceiling(left.Value.TotalMilliseconds))), Timeout.Infinite); }
                 }
             }
-            void Check() {
+            void Check(bool beforeWrite) {
                 cancellation.ThrowIfCancellationRequested();
                 if (Expired() || Volatile.Read(ref settlement) == 2) { throw new TimeoutException("The recorded child did not accept scripted input before its deadline."); }
                 if (_disposed) { throw new ObjectDisposedException(nameof(SessionRecorder)); }
                 if (_terminal == null) { throw new InvalidOperationException("The in-process adapter has no terminal input."); }
-                if (HasExited) { throw new IOException("The recorded child stopped before accepting scripted input."); }
+                if (beforeWrite && HasExited) { throw new IOException("The recorded child stopped before accepting scripted input."); }
             }
 
             using (CancellationTokenRegistration registration = cancellation.Register(() => Abort(3))) {
@@ -53,10 +53,10 @@ namespace ConsoleMonster.Sessions {
                 try {
                     Schedule();
                     lock (_inputGate) {
-                        Check();
+                        Check(beforeWrite: true);
                         _terminal!.Write(Encoding.UTF8.GetBytes(input));
                     }
-                    Check();
+                    Check(beforeWrite: false);
                 } catch (Exception error) when (cancellation.IsCancellationRequested || Volatile.Read(ref settlement) == 3) {
                     throw new OperationCanceledException("Scripted terminal input was cancelled.", error, cancellation);
                 } catch (Exception error) when (Expired() || Volatile.Read(ref settlement) == 2) {

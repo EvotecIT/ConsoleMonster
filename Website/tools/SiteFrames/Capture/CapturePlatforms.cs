@@ -20,7 +20,13 @@ namespace SiteFrames.Capture {
 
         internal static string Tagged(string path, string platform) => Path.ChangeExtension(path, platform + Path.GetExtension(path));
 
-        internal static bool IsPs5(string path) => Path.GetFileNameWithoutExtension(LogicalName(path)).EndsWith(".ps5", StringComparison.Ordinal);
+        internal static bool IsPs5(string path) {
+            string logical = LogicalName(path).Replace('\\', '/');
+            return Path.GetFileNameWithoutExtension(logical).EndsWith(".ps5", StringComparison.Ordinal)
+                || logical == "live/pipeline-ps5.cast"
+                || logical.StartsWith("tails/ps5-", StringComparison.Ordinal)
+                || (logical.StartsWith("help-formatting/", StringComparison.Ordinal) && logical.Contains("-ps5-", StringComparison.Ordinal));
+        }
 
         internal static string? Tag(string path) {
             foreach (string platform in All) {

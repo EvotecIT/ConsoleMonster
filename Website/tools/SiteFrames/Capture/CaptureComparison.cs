@@ -114,6 +114,11 @@ namespace SiteFrames.Capture {
                         string? source = null;
                         string[] hashes = Array.Empty<string>();
                         List<CellBuffer> frames = extension == ".txt" ? Descriptions(text, width, height, out source, out hashes) : Frames(text, extension, width, height, out source);
+                        if (extension == ".ansi") {
+                            JsonObject sources = JsonNode.Parse(File.ReadAllText(Contained(root, "sources.json")))!.AsObject();
+                            source = sources[entry.Key]?.GetValue<string>();
+                            if (source == null || !Hex(source, 16)) { throw new InvalidDataException("Missing or invalid ANSI source fingerprint."); }
+                        }
                         for (int frame = 0; frame < frames.Count; frame++) {
                             foreach (string issue in Quality(frames[frame])) { failures.Add(side + ": " + entry.Key + ": frame " + frame + ": " + issue); }
                         }
@@ -170,11 +175,17 @@ namespace SiteFrames.Capture {
             source = null;
             if (extension == ".ansi") {
                 var ansi = new ConsoleMonster.Sessions.VtScreen(width, height);
+                var frames = new List<CellBuffer>();
+                ansi.SynchronizedFrameCompleted = () => {
+                    CellBuffer frame = ansi.Snapshot();
+                    if (frames.Count == 0 || !SameFrame(frames[^1], frame)) { frames.Add(frame); }
+                };
                 ansi.Feed(text);
                 if (ansi.SynchronizedOutput) { throw new InvalidDataException("ANSI capture ended during an uncommitted synchronized frame."); }
                 CellBuffer visible = ansi.Snapshot(), transcript = ansi.Transcript();
-                // Keep raw visible cells for quality checks and all transcript rows/styles, including blank rows.
-                return SameFrame(visible, transcript) ? new List<CellBuffer> { visible } : new List<CellBuffer> { visible, transcript };
+                if (frames.Count == 0 || !SameFrame(frames[^1], visible)) { frames.Add(visible); }
+                if (!SameFrame(frames[^1], transcript)) { frames.Add(transcript); }
+                return frames;
             }
             using var lines = new StringReader(text);
             JsonObject header = JsonNode.Parse(lines.ReadLine()!)!.AsObject();

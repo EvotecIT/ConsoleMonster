@@ -1,7 +1,7 @@
 {{~ ## A live recording from data/live.json in docs and guides, by id: the player, the measured result when the run printed
      one (facts and the result line) and the C# program that recorded it. Written as one line, with its newlines as
      character references, so the Markdown around it passes it through whole (see cm-demo). ## ~}}
-{{~ a = shortcode.attrs; r = data.live[a.id] ~}}
+{{~ a = shortcode.attrs; r = data.live[a.id]; if a.platform && r.platforms && r.platforms[a.platform]; r = r.platforms[a.platform]; end ~}}
 {{~ capture live_html ~}}
 {{~ if r ~}}
 <figure class="cm-figure cm-live-figure">

@@ -30,7 +30,7 @@ namespace SiteFrames.Capture {
                     }
                     if (inputText != null) {
                         if (readyMarker != null) { recorder.WaitForOutput(readyMarker, timeout); }
-                        recorder.SendInput(inputText);
+                        recorder.SendInputAfter(TimeSpan.Zero, inputText);
                         if (completionText != null) {
                             recorder.SendInputAfter(TimeSpan.FromMilliseconds(250), completionText);
                         }

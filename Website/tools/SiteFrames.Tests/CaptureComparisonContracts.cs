@@ -30,6 +30,47 @@ namespace SiteFrames.Tests {
             Assert.Equal(1, CaptureComparison.Run(Run("a", "windows", "ok\r\n"), Run("b", "macos", changed)));
         }
 
+        [Theory]
+        [InlineData("sample.ps5.ansi")]
+        [InlineData("live/pipeline-ps5.cast")]
+        [InlineData("tails/ps5-120-dark.ansi")]
+        [InlineData("help-formatting/native-ps5-120-dark.ansi")]
+        [InlineData("help-formatting/get-help-ps5-120-dark.ansi")]
+        [InlineData("help-formatting/command-help-ps5-120-dark.ansi")]
+        [InlineData("help-formatting/help-ps5-120-dark.ansi")]
+        [InlineData("help-formatting/show-consolehelp-ps5-120-dark.ansi")]
+        public void EveryExistingPs5NamingContractIsWindowsOnly(string path) {
+            Assert.True(CapturePlatforms.IsPs5(path));
+            string a = Run("a", "windows", "ok");
+            string extra = Path.Combine(a, path);
+            Directory.CreateDirectory(Path.GetDirectoryName(extra)!);
+            string output = path.EndsWith(".cast", StringComparison.Ordinal) ? Cast("ok") : "ok";
+            File.WriteAllText(extra, output);
+            Change(a, manifest => manifest["files"]![path] = new JsonObject {
+                ["width"] = 20, ["height"] = 5, ["platform"] = "windows", ["category"] = "neutral",
+                ["sha256"] = CaptureRun.Hash(Encoding.UTF8.GetBytes(output))
+            });
+            File.WriteAllText(Path.Combine(a, "sources.json"), new JsonObject { ["sample.ansi"] = "0123456789abcdef", [path] = "0123456789abcdef" }.ToJsonString());
+            Assert.Equal(0, Compare(a, Run("b", "macos", "ok"), out JsonObject report));
+            Assert.Single(report["allowed"]!.AsArray());
+        }
+
+        [Fact]
+        public void AnsiCompletedAlternateFramesCannotDisappearAfterPrimaryRestoration() {
+            string Prefix(string content) => "\u001b[?1049h\u001b[?2026h" + content + "\u001b[?2026l\u001b[?1049l";
+            Assert.Equal(1, CaptureComparison.Run(Run("a", "windows", Prefix("ok")), Run("b", "macos", Prefix("different"))));
+            Assert.Equal(1, CaptureComparison.Run(Run("a", "windows", Prefix("\uFFFD")), Run("b", "macos", Prefix("\uFFFD"))));
+        }
+
+        [Fact]
+        public void AnsiProvenanceMustExistAndMatchEvenWhenCellsAreIdentical() {
+            string a = Run("a", "windows", "ok"), b = Run("b", "macos", "ok");
+            File.WriteAllText(Path.Combine(b, "sources.json"), new JsonObject { ["sample.ansi"] = "1111111111111111" }.ToJsonString());
+            Assert.Equal(1, CaptureComparison.Run(a, b));
+            File.Delete(Path.Combine(b, "sources.json"));
+            Assert.Equal(1, CaptureComparison.Run(a, b));
+        }
+
         [Fact]
         public void ChangedFileCannotReuseItsProducerHash() {
             string a = Run("a", "windows", "ok\r\n"), b = Run("b", "macos", "ok\r\n");
@@ -199,6 +240,7 @@ namespace SiteFrames.Tests {
             string a = Run("a", "windows", "ok"), b = Run("b", "macos", "ok");
             File.WriteAllText(Path.Combine(a, "only.ps5.ansi"), "ok", new UTF8Encoding(false));
             Change(a, m => m["files"]!["only.ps5.ansi"] = m["files"]!["sample.ansi"]!.DeepClone());
+            File.WriteAllText(Path.Combine(a, "sources.json"), new JsonObject { ["sample.ansi"] = "0123456789abcdef", ["only.ps5.ansi"] = "0123456789abcdef" }.ToJsonString());
             Assert.Equal(0, Compare(a, b, out JsonObject report));
             Assert.Single(report["allowed"]!.AsArray());
             File.WriteAllText(Path.Combine(a, "only.ps5.ansi"), "changed");
@@ -267,6 +309,7 @@ namespace SiteFrames.Tests {
                 } }
             };
             File.WriteAllText(Path.Combine(path, "run.json"), manifest.ToJsonString());
+            File.WriteAllText(Path.Combine(path, "sources.json"), new JsonObject { [file] = "0123456789abcdef" }.ToJsonString());
             return path;
         }
 
