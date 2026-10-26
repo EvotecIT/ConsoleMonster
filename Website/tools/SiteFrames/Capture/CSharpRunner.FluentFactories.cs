@@ -22,6 +22,9 @@ namespace SiteFrames.Capture {
                 return Rewrite(node, SyntaxFactory.ObjectCreationExpression(SyntaxFactory.ParseTypeName(type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)), visited.ArgumentList, visited.Initializer));
             }
             private ExpressionSyntax Rewrite(BaseObjectCreationExpressionSyntax original, ObjectCreationExpressionSyntax visited, bool stageArguments = true) {
+                // Moving a declaration into Content or an argument-staging lambda would
+                // change its caller scope. Keep this uncommon authoring form intact.
+                if (HasArgumentDeclarations(original)) { return visited; }
                 if (model.GetTypeInfo(original).Type is not INamedTypeSymbol type || !type.ContainingAssembly.Name.StartsWith("ConsoleMonster", StringComparison.Ordinal)
                     || model.GetSymbolInfo(original).Symbol is not IMethodSymbol ctor) { return original is ImplicitObjectCreationExpressionSyntax ? (ExpressionSyntax)original : visited; }
                 if (type.Name == "LiveSession") {
@@ -51,6 +54,7 @@ namespace SiteFrames.Capture {
                 if (chartType != null) { result = Call(result, "Type", SyntaxFactory.ParseExpression("ConsoleMonster.Widgets.ChartType." + chartType)); }
                 if (type.Name == "Spinner") { result = Call(result, "Indeterminate"); }
                 bool build = input || progress || chartType != null || type.Name is "AppBinding" or "AppCommand";
+                var contentParameters = new HashSet<string>(StringComparer.Ordinal);
                 for (int i = 0; i < (visited.ArgumentList?.Arguments.Count ?? 0); i++) {
                     ArgumentSyntax arg = original.ArgumentList!.Arguments[i];
                     IParameterSymbol p = BoundParameter(ctor, arg, i);
@@ -62,7 +66,7 @@ namespace SiteFrames.Capture {
                         continue;
                     }
                     if (p.Name is "content" or "children" or "layers" && type.AllInterfaces.Any(contract => contract.ToDisplayString() == "ConsoleMonster.Layout.IContentOwner")) {
-                        result = Call(result, "Content", ConstructorContent(p, value, model.GetTypeInfo(arg.Expression).Type is IArrayTypeSymbol, model.GetTypeInfo(arg.Expression).Nullability.FlowState != NullableFlowState.NotNull));
+                        if (contentParameters.Add(p.Name)) { result = Call(result, "Content", ConstructorContents(original, visited, ctor, p)); }
                         continue;
                     }
                     if (type.Name == "TextBlock" && p.Name == "markup") { result = Call(Call(result, "Content", value), "IsMarkup"); continue; }
@@ -80,7 +84,13 @@ namespace SiteFrames.Capture {
                         member = "AddChoices";
                     }
                     if ((type.Name is "SelectPrompt" or "MultiSelectPrompt") && p.Name is "display" or "group") { continue; }
-                    if (type.Name == "Calendar" && p.Name is "marks" or "data") { member = "Marks"; }
+                    if (type.Name == "Calendar" && p.Name is "marks" or "data") {
+                        member = "Marks";
+                        if (model.GetTypeInfo(arg.Expression).Type == null) {
+                            var format = SymbolDisplayFormat.FullyQualifiedFormat.AddMiscellaneousOptions(SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier);
+                            value = SyntaxFactory.CastExpression(SyntaxFactory.ParseTypeName(p.Type.ToDisplayString(format)), SyntaxFactory.ParenthesizedExpression(value));
+                        }
+                    }
                     if (type.Name is "Select" or "MultiSelect" && p.Name == "choices") { member = "AddChoices"; }
                     if (type.Name == "ConfirmPrompt" && p.Name == "defaultValue") { member = "Default"; }
                     if (type.Name == "Panel" && p.Name == "title" && p.Type.ToDisplayString().Contains("RichText", StringComparison.Ordinal)

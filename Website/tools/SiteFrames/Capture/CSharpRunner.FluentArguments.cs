@@ -7,6 +7,10 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace SiteFrames.Capture {
     internal static partial class CSharpRunner {
+        private static bool HasArgumentDeclarations(BaseObjectCreationExpressionSyntax creation) =>
+            creation.ArgumentList?.DescendantNodes(node => node is not AnonymousFunctionExpressionSyntax)
+                .Any(node => node is DeclarationExpressionSyntax or DeclarationPatternSyntax) == true;
+
         private sealed partial class FluentFactoryRewriter {
             private static IParameterSymbol BoundParameter(IMethodSymbol constructor, ArgumentSyntax argument, int index) =>
                 argument.NameColon == null ? constructor.Parameters[Math.Min(index, constructor.Parameters.Length - 1)]
@@ -37,8 +41,22 @@ namespace SiteFrames.Capture {
                 return false;
             }
 
-            private ExpressionSyntax ConstructorContent(IParameterSymbol parameter, ExpressionSyntax value, bool array, bool nullable) {
-                string content = Unique("content", value);
+            private ExpressionSyntax ConstructorContents(BaseObjectCreationExpressionSyntax original, ObjectCreationExpressionSyntax visited, IMethodSymbol constructor, IParameterSymbol parameter) {
+                string content = Unique("content", visited);
+                var statements = new List<StatementSyntax>();
+                for (int index = 0; index < visited.ArgumentList!.Arguments.Count; index++) {
+                    ArgumentSyntax argument = original.ArgumentList!.Arguments[index];
+                    if (BoundParameter(constructor, argument, index).Name != parameter.Name) { continue; }
+                    var info = model.GetTypeInfo(argument.Expression);
+                    var child = (SimpleLambdaExpressionSyntax)ConstructorContent(parameter, visited.ArgumentList.Arguments[index].Expression,
+                        info.Type is IArrayTypeSymbol, info.Nullability.FlowState != NullableFlowState.NotNull, content);
+                    if (child.Body is BlockSyntax block) { statements.AddRange(block.Statements); }
+                    else { statements.Add(SyntaxFactory.ExpressionStatement((ExpressionSyntax)child.Body)); }
+                }
+                return SyntaxFactory.SimpleLambdaExpression(SyntaxFactory.Parameter(SyntaxFactory.Identifier(content)), SyntaxFactory.Block(statements));
+            }
+
+            private ExpressionSyntax ConstructorContent(IParameterSymbol parameter, ExpressionSyntax value, bool array, bool nullable, string content) {
                 string child = Unique("child", value);
                 if (array) {
                     return SyntaxFactory.ParseExpression(content + " => { foreach (var " + child + " in (" + value + " ?? global::System.Array.Empty<global::ConsoleMonster.Layout.IWidget>())) { " + content + ".Add(" + child + "); } }");

@@ -23,6 +23,7 @@ namespace SiteFrames.Capture {
             // The initializer remains the maintained source; its fluent twin teaches the
             // same ordered children through the public ContentBuilder grammar.
             private ExpressionSyntax RewriteContent(BaseObjectCreationExpressionSyntax original, ExpressionSyntax rewritten) {
+                if (HasArgumentDeclarations(original)) { return rewritten; }
                 if (model.GetTypeInfo(original).Type is not INamedTypeSymbol type
                     || !type.AllInterfaces.Any(i => i.ToDisplayString() == "ConsoleMonster.Layout.IContentOwner")
                     || model.GetSymbolInfo(original).Symbol is not IMethodSymbol constructor) { return rewritten; }

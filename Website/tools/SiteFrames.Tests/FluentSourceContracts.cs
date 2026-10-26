@@ -37,6 +37,11 @@ namespace SiteFrames.Tests {
         [InlineData("string trace = \"\"; Func<int, string> Display() { trace += \"d\"; return _ => \"Label\"; } Func<int, string?> Group() { trace += \"g\"; return _ => \"Group\"; } var prompt = new ConsoleMonster.Interactive.SelectPrompt<int>(\"Pick\", new[] { 1 }, group: Group(), display: Display()); if (trace != \"gd\") throw new System.InvalidOperationException(trace); Terminal.Write(new Rows(new TextBlock(prompt.Choices[0].Label)));")]
         [InlineData("IWidget? child = null; Terminal.Write(new Rows(new Panel(child, \"Empty\"), new TextBlock(\"Empty\")));")]
         [InlineData("IWidget[]? children = null; Terminal.Write(new Rows(new Rows(children!), new TextBlock(\"Empty\")));")]
+        [InlineData("int columns = 2; Terminal.Write(new Grid(columns, TextBlock.Plain(\"First\"), TextBlock.Plain(\"Second\")));")]
+        [InlineData("Terminal.Write(new Rows(new Calendar(2026, 10, marks: null)));")]
+        [InlineData("System.Collections.Generic.IEnumerable<ConsoleMonster.Dates.CalendarMark>? marks = null; Terminal.Write(new Rows(new Calendar(2026, 10, marks)));")]
+        [InlineData("string MakeTitle(out string title) { title = \"Title\"; return title; } string MakeId() => \"id\"; var dashboard = new Dashboard(MakeTitle(out var title), new TextBlock(\"Child\"), MakeId()); Terminal.Write(new Rows(new TextBlock(title)));")]
+        [InlineData("string Make(out string text) { text = \"Scope\"; return text; } var rows = new Rows(new TextBlock(Make(out var text))); Terminal.Write(new Rows(rows, new TextBlock(text)));")]
         public void ContainerTranslationPreservesEvaluationAndSelectedOverloads(string body) {
             string path = Source("using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n" + body);
             string fluent = CSharpRunner.FluentSource(path);
