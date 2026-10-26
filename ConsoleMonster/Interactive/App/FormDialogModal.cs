@@ -29,7 +29,7 @@ namespace ConsoleMonster.Interactive {
             cancel.Clicked += (_, __) => Cancel();
             _content = new Rows().Add(dialog.Content).Add(new Columns().Add(accept, LayoutSize.Fixed(16)).Add(cancel, LayoutSize.Fixed(16)), LayoutSize.Fixed(1));
             _focus = new FocusManager(_content);
-            _viewport = new AppViewport(_content, _focus);
+            _viewport = new AppViewport(_content, _focus, reservedRows: 1);
             foreach (InputControl field in _fields) { _values[field.Key] = field.CurrentValue; field.ValueCommitted += Commit; }
             InputControl? initial = dialog.InitialFocus == null ? null : _fields.Find(field => string.Equals(field.Key, dialog.InitialFocus, StringComparison.OrdinalIgnoreCase));
             _focus.Focus(initial ?? (dialog.DefaultAccept ? accept : cancel));
@@ -49,13 +49,17 @@ namespace ConsoleMonster.Interactive {
         }
         public override bool HandleUnbound(InputEvent input) {
             if (_frame == null) { return false; }
+            if (_viewport.HandleContainerInput(input)) { return true; }
             if (input.Kind == InputEventKind.Mouse) {
+                if (input.MouseAction == MouseAction.Wheel && _viewport.Scroll(input)) { return true; }
                 if (input.MouseAction == MouseAction.Down && input.MouseButton == 1 && _viewport.FocusAt(input.Column, input.Row)) { _capture = _focus.Current; }
                 InputControl? target = _capture ?? _focus.Current;
                 bool handled = target?.HandleInput(_viewport.TranslatePointer(target, input), _frame.Context) ?? false;
                 if (input.MouseAction == MouseAction.Up) { _capture = null; }
                 return handled;
             }
+            if (input.Is(ConsoleKey.PageUp, KeyModifiers.Alt)) { return _viewport.ScrollBy(-5); }
+            if (input.Is(ConsoleKey.PageDown, KeyModifiers.Alt)) { return _viewport.ScrollBy(5); }
             return _focus.Current?.HandleInput(input, _frame.Context) ?? false;
         }
         private void Commit(AppValueChangedEventArgs change) { _values[change.Key] = _fields.Find(field => field.Key == change.Key)!.CurrentValue; }

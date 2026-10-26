@@ -19,6 +19,8 @@ namespace ConsoleMonster.Interactive {
         public Layout.IWidget? Footer { get; set; }
         /// <summary>Optional typed modal form service for this run.</summary>
         public AppDialogs? Dialogs { get; set; }
+        /// <summary>Optional app-thread bridge to the shared action runner for registry and dialog callbacks.</summary>
+        public AppActions? Actions { get; set; }
         /// <summary>Optional minimum terminal width; zero permits any width.</summary>
         public int MinimumWidth { get; set; }
         /// <summary>Optional minimum terminal height; zero permits any height.</summary>

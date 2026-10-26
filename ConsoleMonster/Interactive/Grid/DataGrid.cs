@@ -17,6 +17,7 @@ namespace ConsoleMonster.Interactive {
         private CancellationTokenSource _lifetime = new CancellationTokenSource();
         private readonly HashSet<DataGridCell> _cells = new HashSet<DataGridCell>();
         private readonly Action _cellChanged;
+        private IReadOnlyList<GridRow> _rows = Array.Empty<GridRow>();
         private List<int> _visible = new List<int>();
         private List<int> _order = new List<int>();
         private IReadOnlyList<object?>? _markedSelection;
@@ -65,10 +66,10 @@ namespace ConsoleMonster.Interactive {
         /// <summary>The original objects selected by the grid's output mode.</summary>
         public IReadOnlyList<object?> Selection => Read(SelectionCore);
 
-        private GridRow? CurrentRowCore => _cursor >= 0 && _cursor < _visible.Count ? _grid.Rows[_visible[_cursor]] : null;
+        private GridRow? CurrentRowCore => _cursor >= 0 && _cursor < _visible.Count ? _rows[_visible[_cursor]] : null;
         private CultureInfo Culture => _grid.Presentation.Culture ?? CultureInfo.CurrentCulture;
         private int Clamp(int cursor) => Math.Max(0, Math.Min(Math.Max(0, _visible.Count - 1), cursor));
-        private IEnumerable<int> AllRows() { for (int i = 0; i < _grid.Rows.Count; i++) { yield return i; } }
+        private IEnumerable<int> AllRows() { for (int i = 0; i < _rows.Count; i++) { yield return i; } }
 
         /// <summary>Rebinds a listing while retaining the focused identity and surviving marks. Call on the app thread.</summary>
         public void SetRows(IEnumerable<GridRow> rows) {
@@ -78,8 +79,8 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Refreshes column, sort and filter mappings after changing the listing.</summary>
         public void RefreshRows() => Change(() => { ResetCells(); Rebuild(); PruneMarks(); });
         private void PruneMarks() {
-            var ids = new HashSet<object>(_grid.Rows.Select(row => row.Id));
-            if (ids.Count != _grid.Rows.Count || ids.Contains(null!)) { throw new ArgumentException("Rows need unique, non-null identities."); }
+            var ids = new HashSet<object>(_rows.Select(row => row.Id));
+            if (ids.Count != _rows.Count || ids.Contains(null!)) { throw new ArgumentException("Rows need unique, non-null identities."); }
             _marked.IntersectWith(ids); _markedSelection = null;
         }
 
@@ -96,8 +97,8 @@ namespace ConsoleMonster.Interactive {
 
         /// <summary>Toggles all rows in the current filtered view.</summary>
         public void MarkAll() => Change(() => {
-            bool all = _visible.All(i => _marked.Contains(_grid.Rows[i].Id));
-            foreach (int i in _visible) { if (all) { _marked.Remove(_grid.Rows[i].Id); } else { _marked.Add(_grid.Rows[i].Id); } }
+            bool all = _visible.All(i => _marked.Contains(_rows[i].Id));
+            foreach (int i in _visible) { if (all) { _marked.Remove(_rows[i].Id); } else { _marked.Add(_rows[i].Id); } }
             _markedSelection = null;
         });
 
@@ -106,7 +107,7 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Unmarks matching names in the current view.</summary>
         public void UnmarkPattern(string pattern, int column = 0) => ApplyPattern(pattern, column, false);
         /// <summary>Inverts marks in the current view.</summary>
-        public void InvertMarks() => Change(() => { foreach (int i in _visible) { object id = _grid.Rows[i].Id; if (!_marked.Remove(id)) { _marked.Add(id); } } _markedSelection = null; });
+        public void InvertMarks() => Change(() => { foreach (int i in _visible) { object id = _rows[i].Id; if (!_marked.Remove(id)) { _marked.Add(id); } } _markedSelection = null; });
 
         /// <summary>Jumps to the first prefix match without forcing pending cell factories.</summary>
         public bool SearchPrefix(string prefix, int column = 0) {
@@ -117,7 +118,7 @@ namespace ConsoleMonster.Interactive {
         private bool SearchPrefixCore(string prefix, int column = 0) {
             _quickSearch = prefix ?? string.Empty;
             for (int i = 0; i < _visible.Count; i++) {
-                if (Text(_grid.Rows[_visible[i]], column).StartsWith(_quickSearch, StringComparison.OrdinalIgnoreCase)) { _cursor = i; return true; }
+                if (Text(_rows[_visible[i]], column).StartsWith(_quickSearch, StringComparison.OrdinalIgnoreCase)) { _cursor = i; return true; }
             }
             return false;
         }
@@ -133,7 +134,7 @@ namespace ConsoleMonster.Interactive {
         internal bool Descending => _descending;
         internal int PageRows => _pageRows;
         internal int[] SelectedIndices() => Read(() => _marked.Count > 0
-            ? _order.Where(i => _marked.Contains(_grid.Rows[i].Id)).ToArray()
+            ? _order.Where(i => _marked.Contains(_rows[i].Id)).ToArray()
             : CurrentRowCore == null ? Array.Empty<int>() : new[] { _visible[_cursor] });
         internal bool IsHidden(int column) => _hidden.Contains(column);
         internal List<int> ShownColumns() => Enumerable.Range(0, _grid.Columns.Count).Where(c => !_hidden.Contains(c)).ToList();
@@ -149,7 +150,7 @@ namespace ConsoleMonster.Interactive {
             if (_grid.OutputMode == GridSelection.Multiple && _marked.Count != 0) { return MarkedSelection(); }
             return CurrentRowCore == null ? Array.Empty<object?>() : new[] { CurrentRowCore.Item };
         }
-        private IReadOnlyList<object?> MarkedSelection() => _markedSelection ??= Array.AsReadOnly(_order.Where(i => _marked.Contains(_grid.Rows[i].Id)).Select(i => _grid.Rows[i].Item).ToArray());
+        private IReadOnlyList<object?> MarkedSelection() => _markedSelection ??= Array.AsReadOnly(_order.Where(i => _marked.Contains(_rows[i].Id)).Select(i => _rows[i].Item).ToArray());
         /// <inheritdoc />
         protected override object? ReadValueCore() => SelectionCore();
         /// <inheritdoc />

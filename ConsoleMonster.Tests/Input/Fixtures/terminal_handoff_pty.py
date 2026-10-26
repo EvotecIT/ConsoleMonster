@@ -70,6 +70,7 @@ def run(dotnet, host, result, runtime=None):
         assert "exit=7" in proof, proof
         assert "focus=second" in proof, proof
         assert "CHILD_ANSWER:handoff-input" in proof, proof
+        assert "CHILD_SIZE:28 100" in proof, proof
         assert "\x1b[32m" in proof, repr(proof)
         os.write(master, b"\x0f")
         wait_for(b"Last output")

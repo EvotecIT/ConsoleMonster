@@ -75,7 +75,7 @@ namespace ConsoleMonster.Interactive {
                 TableColumn source = _grid.Columns[c];
                 var column = new TableColumn(source.Header) {
                     Key = source.Key, Alignment = source.Alignment,
-                    Presenter = source.Presenter ?? (StatusPresenters && _grid.Rows.Count > 0 ? CellPresenters.ForStatus(source.Key ?? Markup.Strip(source.Header), Value(_grid.Rows[0], c)) : null),
+                    Presenter = source.Presenter ?? (StatusPresenters && _rows.Count > 0 ? CellPresenters.ForStatus(source.Key ?? Markup.Strip(source.Header), Value(_rows[0], c)) : null),
                     Priority = source.Priority, IsKey = source.IsKey, Flexible = source.Flexible,
                     MinWidth = source.MinWidth, MaxWidth = source.MaxWidth, Width = source.Width,
                     Overflow = ColumnOverflow.Truncate, MaxLines = 1
@@ -85,7 +85,7 @@ namespace ConsoleMonster.Interactive {
             }
             string check = Markup.Escape(context.Glyphs.Get(Glyph.Check));
             void Add(int visibleIndex, bool resolve) {
-                GridRow row = _grid.Rows[_visible[visibleIndex]];
+                GridRow row = _rows[_visible[visibleIndex]];
                 var cells = new List<TableCell>();
                 if (marks) { cells.Add(new TableCell(_marked.Contains(row.Id) ? "[accent bold]" + check + "[/]" : string.Empty)); }
                 foreach (int c in shown) {
@@ -118,7 +118,7 @@ namespace ConsoleMonster.Interactive {
             if (input.MouseAction == MouseAction.Down && input.MouseButton == 1) {
                 _cursor = hit + _top; _dragAnchor = _cursor;
                 if ((input.Modifiers & KeyModifiers.Control) != 0 && _grid.OutputMode == GridSelection.Multiple) {
-                    object id = _grid.Rows[_visible[_cursor]].Id;
+                    object id = _rows[_visible[_cursor]].Id;
                     if (!_marked.Remove(id)) { _marked.Add(id); }
                     _markedSelection = null;
                 }
@@ -127,7 +127,7 @@ namespace ConsoleMonster.Interactive {
             if (input.MouseAction == MouseAction.Move && _dragAnchor >= 0 && (input.HeldButtons & 1) != 0) {
                 _cursor = hit + _top;
                 if (_grid.OutputMode == GridSelection.Multiple) {
-                    for (int i = Math.Min(_dragAnchor, _cursor); i <= Math.Max(_dragAnchor, _cursor); i++) { _marked.Add(_grid.Rows[_visible[i]].Id); }
+                    for (int i = Math.Min(_dragAnchor, _cursor); i <= Math.Max(_dragAnchor, _cursor); i++) { _marked.Add(_rows[_visible[i]].Id); }
                     _markedSelection = null;
                 }
                 return true;

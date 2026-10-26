@@ -1,8 +1,11 @@
 Describe 'Composed full-screen controls' {
-    BeforeAll { if (-not (Get-Module ConsoleMonster)) { Import-Module (Join-Path $PSScriptRoot '../ConsoleMonster.psd1') } }
+    BeforeAll {
+        if (-not (Get-Module ConsoleMonster)) { Import-Module (Join-Path $PSScriptRoot '../ConsoleMonster.psd1') }
+        $script:Core = [ConsoleMonster.Terminal].Assembly
+    }
 
     It 'keeps two original-object selections separate through the public constructors' {
-        $listing = [ConsoleMonster.Interactive.Grid]::new('Files')
+        $listing = ($script:Core.GetType('ConsoleMonster.Interactive.Grid'))::new('Files')
         $null = $listing.AddColumn('Name')
         $first = [pscustomobject]@{ Name = 'first.log' }
         $second = [pscustomobject]@{ Name = 'second.json' }
@@ -23,7 +26,7 @@ Describe 'Composed full-screen controls' {
     It 'builds tab pages and modal fields without starting an input loop' {
         $pages = @(
             New-ConsoleTab -Title First -Content { New-ConsoleTextInput -Key Filter -Value alpha }
-            New-ConsoleTab -Title Second -Content { New-ConsoleToggle -Key Enabled -Value }
+            New-ConsoleTab -Title Second -Content { New-ConsoleToggle -Key Enabled -Value $true }
         )
         $tabs = $pages | New-ConsoleTabs -SelectedIndex 1
         $tabs.SelectedIndex | Should -Be 1
@@ -37,7 +40,7 @@ Describe 'Composed full-screen controls' {
     It 'returns a civil inclusive date range from an unattended explicit default' {
         $date = [datetime]::new(2026, 10, 8, 17, 30, 0, [DateTimeKind]::Utc)
         $answer = Read-ConsoleDate -Title Window -Range -Default $date -Mode None
-        $answer | Should -BeOfType ([ConsoleMonster.Dates.DateRange])
+        $answer | Should -BeOfType ($script:Core.GetType('ConsoleMonster.Dates.DateRange'))
         $answer.Start | Should -Be ([datetime]::new(2026, 10, 8))
         $answer.End | Should -Be $answer.Start
         $answer.Start.Kind | Should -Be Unspecified

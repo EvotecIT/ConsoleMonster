@@ -46,6 +46,19 @@ PowerShell can embed a prepared listing with
 `New-ConsoleDataGrid -Key Left -Grid $listing`; use `-NoQuickSearch` when the app
 registry owns printable keys.
 
+For direct .NET interop in PowerShell, resolve a type through the module's
+loaded assembly, as described in [PowerShell conventions](PowerShell-Conventions.md):
+
+```powershell
+$listing = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.Grid'))::new('Files')
+$null = $listing.AddColumn('Name')
+$null = $listing.AddRow($file, @($file.Name))
+$left = New-ConsoleDataGrid -Key Left -Grid $listing
+```
+
+This preserves type identity in the module's assembly load context and keeps
+the approved set of fully qualified type accelerators unchanged.
+
 ## Registry keys and footer
 
 `ConsoleAppOptions.HandleInput` routes a normalized event to the app registry
@@ -160,6 +173,17 @@ show a final summary. `Summarize(new AppOperationSummary(...))` can include
 failed items and an explicit retry command; retry runs that command, so the
 backend decides which failed items are safe to repeat. Skip closes the summary.
 The host never silently replays a whole partially completed operation.
+
+Attach an `AppActions` service through `ConsoleAppOptions.Actions` when the
+registry creates an operation after a dialog result. On the app thread,
+`actions.Invoke(command)` captures selection and uses the same confirmation,
+worker, progress and summary path as a registered shortcut. It returns false
+while another operation or modal is active. `actions.Cancel()` requests
+cooperative cancellation. PowerShell passes the same service with
+`Show-ConsoleApp -Actions`. This lets an `ICommanderHost.Start` implementation
+adapt its backend operation without another worker or synthetic input.
+Long summaries scroll with Alt+PageUp/PageDown or the mouse wheel while their
+Retry/Skip buttons retain focus.
 
 ## Dates, trees and logs
 

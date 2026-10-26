@@ -9,6 +9,7 @@ namespace ConsoleMonster.Interactive {
         private readonly object _gate = new object();
         private readonly IWidget _content;
         private readonly FocusManager _focus;
+        private readonly int _reservedRows;
         private int _scroll;
         private Rect _bounds;
         private InputControl? _lastFocus;
@@ -16,7 +17,7 @@ namespace ConsoleMonster.Interactive {
         private Size _lastSize;
         private readonly InputArrangement _arrangement = new InputArrangement();
 
-        internal AppViewport(IWidget content, FocusManager focus) { _content = content; _focus = focus; }
+        internal AppViewport(IWidget content, FocusManager focus, int reservedRows = 0) { _content = content; _focus = focus; _reservedRows = reservedRows; }
         public IReadOnlyList<IWidget> Children => new[] { _content };
 
         public Size Measure(Constraints constraints, RenderContext context) {
@@ -73,6 +74,8 @@ namespace ConsoleMonster.Interactive {
                 return false;
             }
         }
+        internal bool ScrollBy(int rows) { lock (_gate) { return _arrangement.ScrollBy(rows); } }
+        internal bool HandleContainerInput(Input.InputEvent input) { lock (_gate) { return _arrangement.HandleContainerInput(input, _focus.Current); } }
 
         internal void RevealFocus() {
             lock (_gate) { _revealRequested = true; RevealNested(_content); }
@@ -89,8 +92,9 @@ namespace ConsoleMonster.Interactive {
         }
 
         private void ConstrainInputs(int height) {
-            foreach (InputControl control in _focus.Controls) { control.ViewportHeight = height; }
-            ConstrainScrollViews(_content, height);
+            int contentHeight = height == Constraints.Unbounded ? height : Math.Max(1, height - _reservedRows);
+            foreach (InputControl control in _focus.Controls) { control.ViewportHeight = contentHeight; }
+            ConstrainScrollViews(_content, contentHeight);
         }
     }
 }

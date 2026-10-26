@@ -138,19 +138,21 @@ namespace ConsoleMonster.Interactive {
                     Exception? failure = Interlocked.CompareExchange(ref readerError, null, null);
                     if (failure != null) { throw new IOException("Child terminal output failed.", failure); }
                     if (elapsed.Elapsed > options.Timeout) { throw new TimeoutException("The child terminal exceeded its time limit."); }
-                    string keys = relay.ReadAvailable();
-                    if (keys.Length > 0) { terminal.Write(Encoding.UTF8.GetBytes(keys)); }
                     if (TerminalSize.TryGet(out int nextWidth, out int nextHeight) && nextWidth > 1 && nextHeight > 1 && (nextWidth != width || nextHeight != height)) {
                         terminal.Resize(nextWidth, nextHeight); width = nextWidth; height = nextHeight;
                     }
+                    string keys = relay.ReadAvailable();
+                    if (keys.Length > 0) { terminal.Write(Encoding.UTF8.GetBytes(keys)); }
                     cancellation.WaitHandle.WaitOne(10);
                 }
-                if (!reader.Join(TimeSpan.FromSeconds(2))) { terminal.Stop(); if (!reader.Join(TimeSpan.FromSeconds(2))) { throw new IOException("Child output did not drain."); } }
+                terminal.Complete();
+                if (!reader.Join(TimeSpan.FromSeconds(10))) { terminal.Dispose(); if (!reader.Join(TimeSpan.FromSeconds(2))) { throw new IOException("Child output did not drain."); } }
                 if (readerError != null) { throw new IOException("Child terminal output failed.", readerError); }
                 return terminal.ExitCode;
             } finally {
                 terminal.Stop();
-                if (reader.IsAlive) { reader.Join(TimeSpan.FromSeconds(2)); }
+                terminal.Complete();
+                if (reader.IsAlive && !reader.Join(TimeSpan.FromSeconds(10))) { terminal.Dispose(); reader.Join(TimeSpan.FromSeconds(2)); }
             }
         }
 
