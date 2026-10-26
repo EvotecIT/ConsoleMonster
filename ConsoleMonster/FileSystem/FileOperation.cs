@@ -138,11 +138,14 @@ namespace ConsoleMonster.FileSystem {
         private static bool EndsWithSeparator(string path) => path.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal) || path.EndsWith(Path.AltDirectorySeparatorChar.ToString(), StringComparison.Ordinal);
 
         private static string Full(string path) {
-            string full;
-            // .NET Framework refuses paths past MAX_PATH here; keep the path so the item fails with PathTooLong when it runs.
-            try { full = Path.GetFullPath(path); } catch (PathTooLongException) { full = path; }
-            string root = Path.GetPathRoot(full) ?? string.Empty;
-            return full.Length > root.Length ? full.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) : full;
+            try {
+                string full = Path.GetFullPath(path);
+                string root = Path.GetPathRoot(full) ?? string.Empty;
+                return full.Length > root.Length ? full.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) : full;
+            } catch (PathTooLongException) {
+                // .NET Framework refuses paths past MAX_PATH; keep the path so the item fails with PathTooLong when it runs.
+                return path.Length > 3 ? path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) : path;
+            }
         }
 
         internal static bool SamePath(string left, string right) => string.Equals(Full(left), Full(right), PathComparison);
@@ -632,7 +635,10 @@ namespace ConsoleMonster.FileSystem {
             }
 
             private bool SameVolume(string source, string target) {
-                if (Windows) { return string.Equals(Path.GetPathRoot(Full(source)), Path.GetPathRoot(Full(target)), StringComparison.OrdinalIgnoreCase); }
+                if (Windows) {
+                    // A path past MAX_PATH on .NET Framework has no root to compare; the copy that follows reports it.
+                    try { return string.Equals(Path.GetPathRoot(Full(source)), Path.GetPathRoot(Full(target)), StringComparison.OrdinalIgnoreCase); } catch (PathTooLongException) { return false; }
+                }
                 if (_volumes == null) {
                     try { _volumes = DriveInfo.GetDrives().Select(drive => drive.Name).ToArray(); } catch (IOException) { _volumes = Array.Empty<string>(); } catch (UnauthorizedAccessException) { _volumes = Array.Empty<string>(); }
                 }

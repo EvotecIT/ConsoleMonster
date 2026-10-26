@@ -385,8 +385,10 @@ namespace ConsoleMonster.Tests.FileSystem {
 
         [Fact]
         public void IsTooLong_ChecksNameLengthOnEveryPlatform() {
-            Assert.True(FileOperation.IsTooLong(Path.Combine(Path.GetTempPath(), new string('n', 256))));
-            Assert.False(FileOperation.IsTooLong(Path.Combine(Path.GetTempPath(), new string('n', 255))));
+            // Under the root, so a 255-character name stays inside MAX_PATH on .NET Framework too.
+            string root = Path.GetPathRoot(Path.GetTempPath())!;
+            Assert.True(FileOperation.IsTooLong(Path.Combine(root, new string('n', 256))));
+            Assert.False(FileOperation.IsTooLong(Path.Combine(root, new string('n', 255))));
             Assert.False(FileOperation.IsTooLong(null));
         }
 
