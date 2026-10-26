@@ -44,6 +44,61 @@ namespace ConsoleMonster.Tests {
         }
 
         [Fact]
+        public async System.Threading.Tasks.Task QueryReplyBackpressureCannotHideLiveOutputOrBlockMarkers() {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) { return; }
+            var options = FloodOptions();
+            options.Timeout = TimeSpan.FromMilliseconds(500);
+            using var observed = new ManualResetEventSlim();
+            using var recorder = SessionRecorder.Start(options, text => { if (text.Contains("READY")) { observed.Set(); } });
+            Assert.True(observed.Wait(TimeSpan.FromSeconds(10)), "Already-read live output was withheld behind terminal replies.");
+            await System.Threading.Tasks.Task.Delay(100); // Let the deterministic unread query burst fill its input pipe.
+            var marker = System.Threading.Tasks.Task.Run(() => recorder.AddMarker("still responsive"));
+            Assert.Same(marker, await System.Threading.Tasks.Task.WhenAny(marker, System.Threading.Tasks.Task.Delay(TimeSpan.FromSeconds(5))));
+            await marker;
+            Assert.Throws<TimeoutException>(() => recorder.WaitForExit());
+            Assert.Contains("still responsive", File.ReadAllText(options.Path!));
+        }
+
+        [Fact]
+        public void PrivateStopInAQueryBurstDoesNotWaitForUnreadReplies() {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) { return; }
+            var options = FloodOptions(SessionRecorder.StopSequence);
+            options.Timeout = TimeSpan.FromSeconds(2);
+            using var recorder = SessionRecorder.Start(options);
+            recorder.WaitForOutput("READY", TimeSpan.FromSeconds(10));
+            recorder.WaitForExit();
+            Assert.True(recorder.StopRequested);
+            Assert.Equal(0, recorder.ExitCode);
+        }
+
+        [Fact]
+        public void TimedInterruptAcceptsNaturalExitAtTheSameDeadline() {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) { return; }
+            for (int iteration = 0; iteration < 8; iteration++) {
+                var options = Options();
+                options.Path = Path.Combine(_folder, "exit-" + iteration + ".cast");
+                options.Shell = "/bin/sh";
+                options.Arguments.Add("-c");
+                options.Arguments.Add("trap 'exit 0' INT; printf READY; sleep 0.02");
+                using var recorder = SessionRecorder.Start(options);
+                recorder.WaitForOutput("READY", TimeSpan.FromSeconds(10));
+                recorder.WaitForExitWithInterrupt(TimeSpan.FromMilliseconds(20));
+                Assert.Equal(0, recorder.ExitCode);
+            }
+        }
+
+        private SessionRecordingOptions FloodOptions(string suffix = "") {
+            var options = Options();
+            options.Shell = "/bin/sh";
+            options.RespondToCursorQueries = true;
+            options.Arguments.Add("-c");
+            string prefix = ("READY" + suffix).Replace("\u001b", "\\033").Replace("\a", "\\007");
+            options.Arguments.Add("stty -echo -icanon -isig; printf '" + prefix
+                + string.Concat(System.Linq.Enumerable.Repeat("\\033[6n", 10000)) + "'; sleep 30");
+            return options;
+        }
+
+        [Fact]
         public void CursorReplyTracksSplitQueriesWideCellsAndIgnoresPrivateRequests() {
             string? reply = null;
             var screen = new VtScreen(40, 10) { TerminalResponse = text => reply = text };
@@ -104,7 +159,7 @@ namespace ConsoleMonster.Tests {
             options.RespondToCursorQueries = true;
             options.Timeout = TimeSpan.FromMilliseconds(500);
             options.Arguments.Add("-c");
-            options.Arguments.Add("stty -echo -icanon -isig; printf READY; i=0; while [ \"$i\" -lt 10000 ]; do printf '\\033[6n'; i=$((i+1)); done; sleep 30");
+            options.Arguments.Add("stty -echo -icanon -isig; printf 'READY" + string.Concat(System.Linq.Enumerable.Repeat("\\033[6n", 10000)) + "'; sleep 30");
             using var recorder = SessionRecorder.Start(options);
             recorder.WaitForOutput("READY", TimeSpan.FromSeconds(10));
             Assert.Throws<TimeoutException>(() => {
@@ -124,7 +179,7 @@ namespace ConsoleMonster.Tests {
             options.RespondToCursorQueries = true;
             options.SessionTimeout = cancel ? null : TimeSpan.FromMilliseconds(500);
             options.Arguments.Add("-c");
-            options.Arguments.Add("stty -echo -icanon -isig; printf READY; i=0; while [ \"$i\" -lt 10000 ]; do printf '\\033[6n'; i=$((i+1)); done; sleep 30");
+            options.Arguments.Add("stty -echo -icanon -isig; printf 'READY" + string.Concat(System.Linq.Enumerable.Repeat("\\033[6n", 10000)) + "'; sleep 30");
             using var recorder = SessionRecorder.Start(options);
             recorder.WaitForOutput("READY", TimeSpan.FromSeconds(10));
             using var cancellation = new CancellationTokenSource();

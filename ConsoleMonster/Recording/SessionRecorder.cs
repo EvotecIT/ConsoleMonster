@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -24,6 +25,7 @@ namespace ConsoleMonster.Sessions {
         private volatile bool _stopping;
         private bool _captureEnabled = true;
         private VtScreen? _terminalScreen;
+        private readonly List<string> _terminalReplies = new List<string>();
 
         // Demo setup still reaches its readiness observer but never the recording.
         internal void SetCaptureEnabled(bool enabled) {
@@ -46,7 +48,7 @@ namespace ConsoleMonster.Sessions {
                 }
                 if (_terminal != null) {
                     if (options.RespondToCursorQueries && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
-                        _terminalScreen = new VtScreen(options.Width, options.Height, keepScrollback: false) { TerminalResponse = RespondToCursorQuery };
+                        _terminalScreen = new VtScreen(options.Width, options.Height, keepScrollback: false) { TerminalResponse = _terminalReplies.Add };
                     }
                     _reader = new Thread(ReadOutput) { IsBackground = true, Name = "ConsoleMonster recording output" };
                     _reader.Start();
@@ -81,13 +83,19 @@ namespace ConsoleMonster.Sessions {
                     int length = decoder.GetChars(bytes, 0, count, chars, 0, false);
                     string text = new string(chars, 0, length);
                     string visible;
+                    string[] replies;
                     lock (_gate) {
-                        _terminalScreen?.Feed(text);
                         visible = _captureEnabled ? _writer.Append(text) : text;
+                        // Model mutations remain atomic with Resize; reply collection performs no terminal I/O.
+                        _terminalScreen?.Feed(text);
+                        replies = _terminalReplies.Count == 0 ? Array.Empty<string>() : _terminalReplies.ToArray();
+                        _terminalReplies.Clear();
                     }
                     ObserveOutput(visible);
-                    if (visible.Length > 0) { Output?.Invoke(visible); }
                     if (_writer.StopRequested) { _stopping = true; _terminal.Stop(); }
+                    if (visible.Length > 0) { Output?.Invoke(visible); }
+                    // A child that does not read replies cannot hold the recorder state lock or withhold this output.
+                    foreach (string response in replies) { RespondToCursorQuery(response); }
                 }
             } catch (IOException) when (_stopping || (_terminal?.HasExited ?? true)) {
                 // A closed PTY is EOF, including Windows broken-pipe on child exit.
@@ -138,7 +146,15 @@ namespace ConsoleMonster.Sessions {
                     cancellationToken.ThrowIfCancellationRequested();
                     if (wait.Elapsed > _options.Timeout || SessionExpired) { throw new TimeoutException("The recorded child exceeded its configured timeout."); }
                     if (interruptAfter.HasValue && !Interrupted && _sessionClock.Elapsed >= interruptAfter.Value) {
-                        SendBoundedInput("\u0003", cancellationToken, _options.Timeout - wait.Elapsed); Interrupted = true;
+                        try {
+                            SendBoundedInput("\u0003", cancellationToken, _options.Timeout - wait.Elapsed);
+                            Interrupted = true;
+                        } catch (Exception error) when ((error is IOException || error is System.ComponentModel.Win32Exception)
+                            && (_stopping || _writer.StopRequested || _terminal.HasExited) && _readError == null) {
+                            // A naturally completed child no longer needs the scheduled interrupt. Scripted input stays strict.
+                            cancellationToken.ThrowIfCancellationRequested();
+                            if (wait.Elapsed > _options.Timeout || SessionExpired) { throw new TimeoutException("The recorded child exceeded its configured timeout."); }
+                        }
                     }
                     Thread.Sleep(20);
                 }
