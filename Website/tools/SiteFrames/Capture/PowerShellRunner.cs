@@ -125,7 +125,7 @@ namespace SiteFrames.Capture {
                 var args = new List<string> { "-NoLogo", "-NoProfile" };
                 if (!interactive) { args.Add("-NonInteractive"); }
                 args.AddRange(new[] { "-ExecutionPolicy", "Bypass", "-File", runner });
-                return TerminalCapture.Run(host.Executable, args, width, height, environment, directory, timeout ?? TimeSpan.FromMinutes(3), recording: recording);
+                return TerminalCapture.Run(host.Executable, args, width, height, environment, directory, timeout ?? TimeSpan.FromMinutes(3), recording: recording, hostedOutput: recordCheckpoints);
             } finally {
                 File.Delete(runner);
             }

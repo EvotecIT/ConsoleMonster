@@ -13,6 +13,9 @@ namespace ConsoleMonster.Live {
         private TimeSpan _checkpointHeartbeat;
         private long _playbackTicks;
 
+        // Simulated clocks retain quarter-second animation steps in full-viewport recordings.
+        internal bool RecordsViewportSteps => _recordingTarget?.SkipDelays == true && _recordingTarget.CaptureViewport;
+
         /// <summary>
         /// Pauses work cancellably. With <see cref="RecordingTarget.SkipDelays"/>, first applies earlier queued updates
         /// and captures selected compact dashboard frames on the dispatcher instead of waiting. Selection and call

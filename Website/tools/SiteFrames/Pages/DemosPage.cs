@@ -143,6 +143,7 @@ namespace SiteFrames.Pages {
                 CSharpProgram = "fleet.cs",
                 CSharpCompanions = new[] { Path.Combine("ConsoleMonster.Examples", "Showcases", "FleetHealth.cs"), Path.Combine("ConsoleMonster.Examples", "Showcases", "FleetData.cs") },
                 ProgramArguments = "--demo",
+                LogicalCheckpoints = true,
                 PowerShellTwin = Path.Combine("Module", "Examples", "Example-FleetHealth.ps1"),
                 Fps = 8,
                 Chapters = new[] { ("Menu", "Fleet health check"), ("Form", "New check › Scope"), ("Dashboard", "Check map"), ("Results", "Fleet check finished") },
@@ -182,7 +183,7 @@ namespace SiteFrames.Pages {
                 Static = true
             };
             yield return new Demo("help", "Show-ConsoleHelp", 100, 50) { CSharpProgram = "help.host.cs", Script = "help.ps1", Session = true, PosterShare = 1 };
-            yield return new Demo("progress", "Write-Progress, drawn by ConsoleMonster", 96, 12) { CSharpProgram = "progress.host.cs", Script = "progress.ps1", PosterShare = 0.5, Fps = 8, ShowProgress = true, EndsOn = "Inventory collected: 36 servers across 3 sites." };
+            yield return new Demo("progress", "Write-Progress, drawn by ConsoleMonster", 96, 12) { CSharpProgram = "progress.host.cs", Script = "progress.ps1", PosterShare = 0.5, Fps = 8, ShowProgress = true, LogicalCheckpoints = true, EndsOn = "Inventory collected: 36 servers across 3 sites." };
             yield return new Demo("errors", "Show-Console -View Error", 100, 20) { CSharpProgram = "errors.cs", Script = "errors.ps1", Static = true, AllowErrors = true };
             // Threads and concurrency: the same parallel work written straight to the console, through a dashboard, and
             // through the same dashboard when CI is detected.
@@ -190,7 +191,7 @@ namespace SiteFrames.Pages {
             yield return new Demo("threads-live", "Invoke-ConsoleDashboard -Parallel", 100, 22) { Script = "threads-dashboard.ps1", CSharpProgram = "threads-live.cs", PosterShare = 0.6, Fps = 8 };
             yield return new Demo("threads-ci", "CI=true", 100, 30) { CSharpProgram = "threads-live.cs", Script = "threads-dashboard.ps1", Setup = "$env:CI = 'true'", PosterShare = 0.55, Fps = 8 };
             yield return new Demo("session", "session.ps1", 100, 14) { Script = "session.ps1", CSharpProgram = "session.cs", PosterShare = 0.6, Fps = 6 };
-            yield return new Demo("record", "record.ps1", 100, 18) { Script = "record.ps1", CSharpProgram = "record.cs", PosterShare = 0.4, Fps = 6 };
+            yield return new Demo("record", "record.ps1", 100, 18) { Script = "record.ps1", CSharpProgram = "record.cs", LogicalCheckpoints = true, PosterShare = 0.4, Fps = 6 };
             yield return new Demo("login", "ssh deploy@app-web-03", 100, 30) { CSharpProgram = "login.cs",
                 Script = Path.Combine("Module", "Examples", "Example-LoginOverview.ps1"),
                 Arguments = "-Sample -Width 96",
@@ -259,7 +260,7 @@ namespace SiteFrames.Pages {
                 foreach (string file in ProjectSources(site, demo)) {
                     text.Append(Path.GetFileName(file)).Append('\n').Append(Site.ReadText(file)).Append('\n');
                 }
-                text.Append(demo.ProjectArguments).Append('\n').Append(demo.Interrupt?.TotalMilliseconds);
+                text.Append(demo.ProjectArguments).Append('\n').Append(demo.Interrupt?.TotalMilliseconds).Append("\nsource-path:./Program.cs");
                 text.Append('\n').Append(demo.InputReadyText).Append('\n').Append(demo.InputKeys).Append('\n').Append(demo.InputDelay?.TotalMilliseconds);
             } else {
                 return null;
@@ -271,8 +272,9 @@ namespace SiteFrames.Pages {
                 if (demo.Session) { text.Append('\n').Append(PowerShellRunner.SessionRecipe); }
             }
             if (demo.LogicalCheckpoints) {
-                text.Append("\nlogical-watch-v1\n").Append(Site.ReadText(Path.Combine(site.Tool, "Capture", "CheckpointCapture.ps1")));
-                text.Append('\n').Append(Site.ReadText(Path.Combine(site.Repository, "ConsoleMonster", "Live", "ConsoleWatch.cs")));
+                text.Append("\nlogical-viewport-v2\n");
+                text.Append(Site.ReadText(Path.Combine(site.Tool, "Capture", demo.Script != null ? "CheckpointCapture.ps1" : "CSharpRunner.Checkpoints.cs")));
+                text.Append('\n').Append(Site.ReadText(Path.Combine(site.Repository, "ConsoleMonster", "Live", demo.Script != null ? "ConsoleWatch.cs" : "SimulatedClock.cs")));
             }
             return text.Append('\n').Append(demo.Width).Append('x').Append(demo.Height).ToString();
         }
@@ -333,6 +335,7 @@ namespace SiteFrames.Pages {
                     Dictionary<string, string?> environment = PowerShellRunner.Environment("dark");
                     environment["TEMP"] = temp;
                     environment["TMP"] = temp;
+                    environment["TMPDIR"] = temp;
                     try {
                         chunks = PowerShellRunner.Run(site, PowerShellHost.Core, Script(site, demo.Script), demo.Width, demo.Height, environment, allowErrors: demo.AllowErrors, showProgress: demo.ShowProgress, arguments: demo.Arguments, prompt: demo.Prompt, session: demo.Session, setup: demo.Setup, recordCheckpoints: demo.LogicalCheckpoints, recording: recorded);
                     } finally {
@@ -342,7 +345,9 @@ namespace SiteFrames.Pages {
                     string work = Path.Combine(Path.GetTempPath(), "cmsite-demo-" + demo.Id + "-" + Guid.NewGuid().ToString("N").Substring(0, 12));
                     try {
                         string dll = CSharpRunner.Build(Script(site, demo.CSharpProgram!), work, demo.Id, Companions(site, demo));
-                        chunks = CSharpRunner.Record(dll, demo.ProgramArguments.Split(' ', StringSplitOptions.RemoveEmptyEntries), demo.Width, demo.Height, PowerShellRunner.Environment("dark"), work, TimeSpan.FromMinutes(3), recording: recorded);
+                        chunks = demo.LogicalCheckpoints
+                            ? CSharpRunner.RecordCheckpoints(dll, demo.ProgramArguments.Split(' ', StringSplitOptions.RemoveEmptyEntries), demo.Width, demo.Height, PowerShellRunner.Environment("dark"), work, TimeSpan.FromMinutes(3))
+                            : CSharpRunner.Record(dll, demo.ProgramArguments.Split(' ', StringSplitOptions.RemoveEmptyEntries), demo.Width, demo.Height, PowerShellRunner.Environment("dark"), work, TimeSpan.FromMinutes(3), recording: recorded);
                     } finally {
                         Site.RemoveTemporary(work);
                     }
@@ -374,9 +379,10 @@ namespace SiteFrames.Pages {
 
 
         private static void Build(Site site, string project, string output) {
-            // ContinuousIntegrationBuild maps source paths to /_/, so stack traces in the recordings do not show this checkout.
+            // Map the shown program's PDB source to its portable file name. It must not become a local file link on only one OS.
+            string programDirectory = Path.GetDirectoryName(Path.Combine(site.Repository, project))!;
             // The same dotnet that runs the recordings builds them.
-            ProcessStartInfo info = new ProcessStartInfo(CSharpRunner.DotnetHost, "build \"" + Path.Combine(site.Repository, project) + "\" -c Release -nologo -v q -p:ContinuousIntegrationBuild=true -o \"" + output + "\"") { UseShellExecute = false };
+            ProcessStartInfo info = new ProcessStartInfo(CSharpRunner.DotnetHost, "build \"" + Path.Combine(site.Repository, project) + "\" -c Release -nologo -v q -p:ContinuousIntegrationBuild=true -p:DeterministicSourcePaths=false -p:PathMap=\"" + programDirectory + "=.\" -o \"" + output + "\"") { UseShellExecute = false };
             using (Process process = Process.Start(info)!) {
                 process.WaitForExit();
                 if (process.ExitCode != 0) {

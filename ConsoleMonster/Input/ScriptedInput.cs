@@ -46,6 +46,10 @@ namespace ConsoleMonster.Input {
         /// </summary>
         public bool RealTime { get; set; }
 
+        /// <summary>Called for each skipped wait step when <see cref="RealTime"/> is false, before the next input event.
+        /// A recording host can use <see cref="Interactive.ScreenCapture.Hold"/> to retain reading pauses without sleeping.</summary>
+        public Action<TimeSpan>? SkippedWait { get; set; }
+
         /// <summary>
         /// When true, a read that does not wait (zero timeout) returns null, so a reader that drains bursts draws a frame
         /// after every scripted event (golden tests of each step).
@@ -89,6 +93,7 @@ namespace ConsoleMonster.Input {
                 if (step.Event == null) {
                     _waitUntil = DateTime.UtcNow + TimeSpan.FromMilliseconds(step.WaitMilliseconds);
                     if (!RealTime) {
+                        SkippedWait?.Invoke(TimeSpan.FromMilliseconds(step.WaitMilliseconds));
                         continue;
                     }
                     continue;

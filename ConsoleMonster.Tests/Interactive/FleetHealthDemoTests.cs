@@ -74,7 +74,7 @@ namespace ConsoleMonster.Tests.Interactive {
             Assert.Contains("Export findings to CSV", results);
             Assert.Contains("6% on D:", results);
             Assert.NotNull(Last(capture, "8 workers", "Report emailed to ops@contoso.com"));
-            Assert.NotNull(Last(capture, "Report saved: " + Path.Combine("Reports", "Fleet", "fleet-20261020-0930.html")));
+            Assert.NotNull(Last(capture, "Report saved: Reports/Fleet/fleet-20261020-0930.html"));
             Assert.DoesNotContain(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), string.Join("\n", capture.Frames.Select(frame => frame.ToPlainText())));
 
             // Then back in the menu: the history lists the new run, and the app quit at the end of the script.

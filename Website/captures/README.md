@@ -30,6 +30,12 @@ module used by PowerShell 5.1. An optional area follows `Website`, for example
 
 - Terminal width and height come from the capture recipe. Colour, glyph tier,
   theme, interaction mode and language come from `PowerShellRunner.Environment`.
+- The operations-calendar fixture explicitly supplies `Su Mo Tu We Th Fr Sa`
+  as its shortest English weekday names; ICU and Windows NLS defaults differ.
+- Project demo builds map the shown `Program.cs` source to that portable PDB file
+  name through an explicit directory `PathMap`, avoiding checkout paths and
+  platform-dependent local-file links. Those temporary project builds disable
+  automatic deterministic source-root mapping so it cannot override that pin.
 - Both .NET cultures are en-US. The child locale is UTF-8 (`en_US.UTF-8` on
   macOS, `C.UTF-8` on Linux); `TZ=UTC` fixes Unix local date presentation.
   Cross-platform date fixtures also pass `Presentation.TimeZone=Utc`, since
@@ -50,12 +56,18 @@ module used by PowerShell 5.1. An optional area follows `Website`, for example
 - CI markers, terminal branding, colour suppression and telemetry/update prompts
   are cleared or pinned. Builds disable MSBuild node and server reuse.
 - ANSI captures retain recorded VT output. Casts use UTF-8 without BOM and LF
-  JSON-line endings. Visible terminal line endings are CRLF. Window titles and
+  JSON-line endings. Print-once encoder lines use CRLF. Native VT line feeds
+  retain their column semantics; adding CR would corrupt cursor-optimized ConPTY
+  output. Redundant CR immediately before LF is reduced to one CR. Window titles and
   cursor queries are omitted from replay output because they contain no cells.
 - Cast packet boundaries and wall-clock arrival timestamps are replaced by a
   logical timeline: each complete synchronized repaint or printed line advances
-  50 ms. Text, colour and cursor operations remain recorded output. This does
+  50 ms. Scripted input waits are retained as additional reading holds, and the
+  comparison gate checks those holds separately from transport timing. Text,
+  colour and cursor operations remain recorded output. This does
   not normalize application-level elapsed times or concurrent output ordering.
+- Gallery frames also use the hosted-output sink: their state markers and full
+  encoded output reach the recorder before ConPTY can move a repaint past its marker.
 - Gallery action-log timestamps use a frozen `SimulatedClock.Read` through
   `InteractiveOptions.ActionClock`. This pins elapsed labels at zero without
   changing action execution, cancellation, or scripted input pacing. Normal
@@ -63,11 +75,24 @@ module used by PowerShell 5.1. An optional area follows `Website`, for example
 - Synthetic live pipeline and assessment programs use `RecordingTarget.SkipDelays`
   checkpoints with `CaptureViewport` enabled. They execute the shown program and
   render its logical states at the real terminal size, including compact layouts.
-  The shared terminal encoder emits those frames inside the recorded native child;
-  SessionRecorder records that terminal output. Replay checkpoints follow recorded
+  The shared terminal encoder emits those frames inside the recorded native child.
+  Its hosted `SessionRecorder.CaptureOutput` sink records the exact VT before ConPTY
+  can coalesce rapid repaints; the parent still owns the native child and its timeout.
+  The sink captures emitted output only, not console APIs or keyboard input. Replay checkpoints follow recorded
   time groups, and simulated pipelines advance their explicit clock. Their frame
   schedule does not depend on producer CPU speed. Measured and concurrent programs
   keep their normal native execution path.
+- The fictional Fleet health app uses paced scripted keys, immediate inventory loading
+  and a seeded `SimulatedClock`. `ScriptedInput.SkippedWait` records each pause
+  through `ScreenCapture.Hold`; checkpoint workers pass those pauses through
+  `SessionRecorder.AddMarker` so menu, form and review screens remain readable. Full-viewport recordings capture its quarter-second
+  simulated steps and final hold, rather than sampling a render thread. String activity
+  IDs use a stable hash for spinner phases. Its fictional report path uses `/` on all
+  hosts because the example displays it without writing a real file.
+- Sequential recording and progress examples use `Wait-ConsoleDashboard` checkpoints
+  instead of wall-clock sleeps. Their normal runs still wait; recording targets
+  advance logical time, retain the actual updates and capture every step. Demo
+  temporary folders set `TEMP`, `TMP` and `TMPDIR` and are removed after the run.
 - The fixed-data watch example uses the same viewport checkpoints. A live watch
   honors `RecordingTarget.SkipDelays`, captures every result including the last,
   and keeps ordinary polling and caller cancellation outside that recording mode.

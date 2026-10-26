@@ -53,27 +53,36 @@ namespace SiteFrames.Replay {
         /// <summary>Saves a pseudo-console capture as asciicast v2 (output events only, times in seconds).</summary>
         public static string ToCast(IReadOnlyList<OutputChunk> chunks, int width, int height, string title) {
             StringBuilder sb = new StringBuilder();
-            sb.Append("{\"version\":2,\"width\":").Append(width).Append(",\"height\":").Append(height).Append(",\"title\":").Append(JsonSerializer.Serialize(title)).Append(",\"cm_timing\":\"logical-50ms\"}\n");
+            sb.Append("{\"version\":2,\"width\":").Append(width).Append(",\"height\":").Append(height).Append(",\"title\":").Append(JsonSerializer.Serialize(title)).Append(",\"cm_timing\":\"logical-50ms-with-holds\"}\n");
             using var bytes = new MemoryStream();
-            foreach (OutputChunk chunk in chunks) { bytes.Write(chunk.Data); }
-            string text = Encoding.UTF8.GetString(bytes.ToArray()).Replace("\r\n", "\n").Replace("\n", "\r\n");
-            // Titles and cursor queries have no cells; paths and terminal round-trip latency never enter replay data.
-            text = System.Text.RegularExpressions.Regex.Replace(text, "\u001b\\][02];[^\u0007\u001b]*(?:\u0007|\u001b\\\\)", string.Empty);
-            text = text.Replace("\u001b[6n", string.Empty);
             var screen = new VtScreen(width, height, keepScrollback: false);
             var pending = new StringBuilder();
-            long sequence = 0;
+            double milliseconds = 0;
             bool completed = false;
             screen.SynchronizedFrameCompleted = () => completed = true;
-            foreach (char character in text) {
-                pending.Append(character);
-                screen.Feed(character.ToString());
-                if (completed || (character == '\n' && !screen.SynchronizedOutput)) {
-                    sb.Append('[').Append((sequence++ * 0.05).ToString("0.000", CultureInfo.InvariantCulture)).Append(",\"o\",").Append(JsonSerializer.Serialize(pending.ToString())).Append("]\n");
-                    pending.Clear(); completed = false;
-                }
+            void Flush() {
+                if (pending.Length == 0) { return; }
+                sb.Append('[').Append((milliseconds / 1000).ToString("0.000", CultureInfo.InvariantCulture)).Append(",\"o\",").Append(JsonSerializer.Serialize(pending.ToString())).Append("]\n");
+                milliseconds += 50;
+                pending.Clear(); completed = false;
             }
-            if (pending.Length > 0) { sb.Append('[').Append((sequence * 0.05).ToString("0.000", CultureInfo.InvariantCulture)).Append(",\"o\",").Append(JsonSerializer.Serialize(pending.ToString())).Append("]\n"); }
+            void FeedBytes() {
+                // A bare VT LF preserves its column. Only redundant CR before LF can be normalized.
+                string text = System.Text.RegularExpressions.Regex.Replace(Encoding.UTF8.GetString(bytes.ToArray()), "\r+\n", "\r\n");
+                text = System.Text.RegularExpressions.Regex.Replace(text, "\u001b\\][02];[^\u0007\u001b]*(?:\u0007|\u001b\\\\)", string.Empty).Replace("\u001b[6n", string.Empty);
+                foreach (char character in text) {
+                    pending.Append(character);
+                    screen.Feed(character.ToString());
+                    if (completed || (character == '\n' && !screen.SynchronizedOutput)) { Flush(); }
+                }
+                bytes.SetLength(0);
+                bytes.Position = 0;
+            }
+            foreach (OutputChunk chunk in chunks) {
+                bytes.Write(chunk.Data);
+                if (chunk.Hold > TimeSpan.Zero) { FeedBytes(); Flush(); milliseconds += chunk.Hold.TotalMilliseconds; }
+            }
+            FeedBytes(); Flush();
             return sb.ToString();
         }
 

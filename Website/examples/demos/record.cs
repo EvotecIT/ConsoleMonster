@@ -30,7 +30,7 @@ using (LiveSession session = new LiveSession(dashboard, new LiveSessionOptions {
             foreach (string server in servers) {
                 status.Set(server, StatusKind.Running);
                 status.Detail(server, step);
-                Thread.Sleep(250);
+                s.Delay(TimeSpan.FromMilliseconds(250));
                 status.Set(server, StatusKind.Pass);
             }
             s.Post(new LiveEvent("log", "write", text: step + " done on 4 servers", status: "info"));

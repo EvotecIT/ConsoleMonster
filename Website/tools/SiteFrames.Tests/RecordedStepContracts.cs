@@ -1,15 +1,39 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using ConsoleMonster.Sessions;
 using SiteFrames.Replay;
+using SiteFrames.Vt;
 using Xunit;
 
 namespace SiteFrames.Tests {
     public sealed class RecordedStepContracts {
+        [Fact]
+        public void HostedReadingHoldKeepsTheCompletedFrameUntilTheNextLogicalOutput() {
+            var chunks = new[] {
+                new OutputChunk(17, Encoding.UTF8.GetBytes("\u001b[?2026hReview 甲\u001b[?2026l")),
+                new OutputChunk(18, Array.Empty<byte>(), TimeSpan.FromSeconds(2)),
+                new OutputChunk(19, Encoding.UTF8.GetBytes("\r\u001b[2KDashboard"))
+            };
+            string cast = Replays.ToCast(chunks, 20, 4, "Hold");
+            var recording = SessionRecording.Read(new StringReader(cast));
+            Assert.Contains("Review 甲", recording.FrameAt(TimeSpan.FromSeconds(2)).ToPlainText());
+            Assert.Contains("Dashboard", recording.FrameAt(TimeSpan.FromMilliseconds(2050)).ToPlainText());
+        }
+
         private static string Cast(params (string Kind, string Text)[] events) =>
             "{\"version\":2,\"width\":40,\"height\":6}\n" + string.Concat(events.Select(e => "[0," + JsonSerializer.Serialize(e.Kind) + "," + JsonSerializer.Serialize(e.Text) + "]\n"));
+
+        [Fact]
+        public void TransportTimingKeepsBareLineFeedColumnsAndNormalizesOnlyRedundantCarriageReturns() {
+            string Convert(string text) => Replays.ToCast(new[] { new OutputChunk(0, Encoding.UTF8.GetBytes(text)) }, 8, 4, "VT");
+            var frame = SessionRecording.Read(new StringReader(Convert("abc\u001b[2;3H\nZ"))).FinalFrame();
+            Assert.Equal("Z", frame[2, 2].Glyph);
+            Assert.Equal(" ", frame[0, 2].Glyph);
+            Assert.Equal(Convert("one\r\ntwo\r\n"), Convert("one\r\r\ntwo\r\n"));
+        }
 
         [Fact]
         public void EqualTimestampStepsKeepTheirOriginalEventOrderAndReadingHolds() {

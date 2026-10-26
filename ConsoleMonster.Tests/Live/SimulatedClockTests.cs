@@ -3,6 +3,8 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using ConsoleMonster.Live;
+using ConsoleMonster.Capabilities;
+using ConsoleMonster.Output;
 using Xunit;
 
 namespace ConsoleMonster.Tests.Live {
@@ -12,6 +14,53 @@ namespace ConsoleMonster.Tests.Live {
     /// </summary>
     [Collection("Live sessions")]
     public sealed class SimulatedClockTests {
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task FullViewportRecordingCapturesEverySimulatedStepAndFinalHold(bool viewport) {
+            var target = new RecordingTarget(TerminalProfile.Fixed(40, 8).WithMode(OutputMode.Interactive)) {
+                SkipDelays = true, CaptureViewport = viewport
+            };
+            var clock = new SimulatedClock();
+            var text = new ConsoleMonster.Widgets.TextBlock("initial");
+            var options = new LiveSessionOptions { Target = target, Clock = clock.Read, CaptureConsole = false,
+                HandleCancelKey = false, PrintFinalState = false, TaskbarProgress = false };
+            using (var session = new LiveSession(text, options)) {
+                await session.RunAsync((running, token) => {
+                    clock.Wait(0.6, token);
+                    clock.Hold(1, token);
+                    return Task.CompletedTask;
+                });
+            }
+            Assert.Equal(TimeSpan.FromMilliseconds(600), clock.Elapsed);
+            Assert.Equal(viewport ? 4 : 0, target.CheckpointCount);
+            Assert.Equal(viewport ? 4 : 0, target.Screens.Frames.Count);
+            if (viewport) { Assert.All(target.Screens.Frames, frame => Assert.Contains("initial", frame.ToPlainText())); }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task ViewportRecordingRetainsCancellationAfterSkippedWaitOrHold(bool holdFirst) {
+            var target = new RecordingTarget(TerminalProfile.Fixed(40, 8).WithMode(OutputMode.Interactive)) { SkipDelays = true, CaptureViewport = true };
+            var clock = new SimulatedClock(1);
+            var options = new LiveSessionOptions { Target = target, Clock = clock.Read, CaptureConsole = false,
+                HandleCancelKey = false, PrintFinalState = false, TaskbarProgress = false };
+            using (var stop = new CancellationTokenSource())
+            using (var session = new LiveSession(ConsoleMonster.Widgets.TextBlock.Plain("work"), options)) {
+                await session.RunAsync((running, token) => {
+                    if (holdFirst) { clock.Hold(0.25); } else { clock.Wait(0.25); }
+                    stop.Cancel();
+                    var real = Stopwatch.StartNew();
+                    clock.Wait(2);
+                    clock.Hold(2);
+                    Assert.True(real.Elapsed < TimeSpan.FromSeconds(1), "A cancelled recording clock slept " + real.Elapsed);
+                    return Task.CompletedTask;
+                }, stop.Token);
+            }
+            Assert.Equal(holdFirst ? 2 : 2.25, clock.Seconds);
+        }
+
         [Fact]
         public void Wait_SpeedZero_MovesTheClockWithoutSleeping() {
             SimulatedClock clock = new SimulatedClock();

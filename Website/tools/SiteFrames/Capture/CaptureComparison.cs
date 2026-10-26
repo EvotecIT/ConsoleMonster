@@ -15,7 +15,7 @@ namespace SiteFrames.Capture {
     /// <summary>Fail-closed comparison of independently produced receipts; completion never implies full-suite coverage.</summary>
     internal static partial class CaptureComparison {
         private sealed record Capture(string Path, byte[] Bytes, int Width, int Height, string Category, string? Screen,
-            List<CellBuffer> Frames, string? Source, string[] ScreenHashes);
+            List<CellBuffer> Frames, string? Source, string[] ScreenHashes, string ReadingHolds);
 
         internal static int Run(string left, string right, string? report = null) {
             var failures = new JsonArray();
@@ -43,6 +43,8 @@ namespace SiteFrames.Capture {
                 if (x.Width != y.Width || x.Height != y.Height) { failures.Add(file + ": terminal dimensions differ"); }
                 if (x.Source != y.Source) { failures.Add(file + ": capture source fingerprints differ"); }
                 if (x.Screen != y.Screen) { failures.Add(file + ": declared terminal defaults differ or are missing in one run"); }
+                bool readingHoldsEqual = x.ReadingHolds == y.ReadingHolds;
+                if (!readingHoldsEqual) { failures.Add(file + ": scripted reading holds differ"); }
                 bool bytesEqual = x.Bytes.AsSpan().SequenceEqual(y.Bytes);
                 int changedRowCount = 0;
                 long changedCellCount = 0;
@@ -66,7 +68,7 @@ namespace SiteFrames.Capture {
                             ["changedRowCount"] = changedRowCount, ["changedCellCount"] = changedCellCount,
                             ["omittedChangedRows"] = changedRowCount - rows.Count, ["changedScreenHashes"] = screens });
                     }
-                } else if (!samePlatform && !bytesEqual && x.Source == y.Source && x.Screen == y.Screen && x.Width == y.Width && x.Height == y.Height && x.Frames.Count == y.Frames.Count) {
+                } else if (!samePlatform && !bytesEqual && readingHoldsEqual && x.Source == y.Source && x.Screen == y.Screen && x.Width == y.Width && x.Height == y.Height && x.Frames.Count == y.Frames.Count) {
                     allowed.Add(new JsonObject { ["file"] = file, ["category"] = x.Category,
                         ["reason"] = "transport encoding/timing, declared terminal defaults or invisible space foreground only; all visible cells, backgrounds, decorations, links and screen hashes match",
                         ["leftSha256"] = CaptureRun.Hash(x.Bytes), ["rightSha256"] = CaptureRun.Hash(y.Bytes), ["changedRows"] = rows });
@@ -149,7 +151,7 @@ namespace SiteFrames.Capture {
                             }
                             frames = resolved;
                         }
-                        result.TryAdd(logical, new Capture(entry.Key, bytes, width, height, category, screen, frames, source, hashes));
+                        result.TryAdd(logical, new Capture(entry.Key, bytes, width, height, category, screen, frames, source, hashes, ReadingHolds(text, extension)));
                     } catch (Exception ex) when (InputError(ex)) { failures.Add(side + ": " + entry.Key + ": " + ex.Message); }
                 }
             } catch (Exception ex) when (InputError(ex)) { failures.Add(side + ": invalid run.json: " + ex.Message); }

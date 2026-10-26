@@ -61,11 +61,13 @@ namespace SiteFrames.Capture {
                     if (ca.Width != cb.Width || !string.Equals(ca.Glyph, cb.Glyph, StringComparison.Ordinal)) {
                         return new ParityResult(false, "row " + (y + 1) + ", column " + (x + 1) + " cell geometry differs");
                     }
-                    if (ca.IsContinuation || (ca.Glyph == " " && cb.Glyph == " " && ca.Style.BackgroundColor.IsDefault && cb.Style.BackgroundColor.IsDefault && ca.Style.Decoration == cb.Style.Decoration)) {
+                    if (ca.IsContinuation) {
                         continue;
                     }
-                    Style sa = Normal(ca.Style);
-                    Style sb = Normal(cb.Style);
+                    bool invisible = ca.Glyph == " " && ca.Width == 1 &&
+                        ((ca.Style.Decoration | cb.Style.Decoration) & (TextDecoration.Underline | TextDecoration.Strikethrough | TextDecoration.Reverse)) == 0;
+                    Style sa = Normal(ca.Style, invisible);
+                    Style sb = Normal(cb.Style, invisible);
                     if (!sa.Equals(sb)) {
                         return new ParityResult(false, "row " + (y + 1) + ", column " + (x + 1) + " style differs: expected " + sa + ", got " + sb);
                     }
@@ -75,9 +77,9 @@ namespace SiteFrames.Capture {
         }
 
         // The terminal receives RGB for theme colours; compare by value whatever the colour kind.
-        private static Style Normal(Style style) {
+        private static Style Normal(Style style, bool invisible) {
             Style s = FrameHtml.Reduce(style, ColorDepth.TrueColor);
-            return new Style(Rgb(s.Color), Rgb(s.BackgroundColor), s.Decoration, s.Link);
+            return new Style(invisible ? Color.Default : Rgb(s.Color), Rgb(s.BackgroundColor), s.Decoration, s.Link);
         }
 
         private static Color Rgb(Color color) {

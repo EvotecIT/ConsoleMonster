@@ -12,7 +12,8 @@ namespace SiteFrames.Capture {
         internal static List<OutputChunk> Run(string executable, IEnumerable<string> arguments, int width, int height,
             IDictionary<string, string?> environment, string workingDirectory, TimeSpan timeout, TimeSpan? interrupt = null,
             string? inputText = null, string? readyMarker = null, string? capturePath = null, string? completionText = null,
-            string? readyText = null, string? inputKeys = null, Action<string>? recording = null, TimeSpan? inputDelay = null) {
+            string? readyText = null, string? inputKeys = null, Action<string>? recording = null, TimeSpan? inputDelay = null,
+            bool hostedOutput = false) {
             string folder = Path.Combine(Path.GetTempPath(), "cmsite-session-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(folder);
             var options = new SessionRecordingOptions {
@@ -22,6 +23,9 @@ namespace SiteFrames.Capture {
             foreach (string argument in arguments) { options.Arguments.Add(argument); }
             foreach (var entry in environment) { options.Environment[entry.Key] = entry.Value; }
             CapturePins.Apply(options.Environment);
+            string hostedPath = Path.Combine(folder, "hosted.cast");
+            // Cooperative checkpoint workers record their encoder's actual VT before native terminal repaint coalescing.
+            if (hostedOutput) { options.Environment["SITEFRAMES_OUTPUT_RECORDING"] = hostedPath; }
             try {
                 using (SessionRecorder recorder = SessionRecorder.Start(options)) {
                     if (readyText != null && inputKeys != null) {
@@ -38,12 +42,15 @@ namespace SiteFrames.Capture {
                     if (interrupt.HasValue) { recorder.WaitForExitWithInterrupt(interrupt.Value); }
                     else { recorder.WaitForExit(); }
                     if (interrupt.HasValue && !recorder.Interrupted) { throw new InvalidOperationException("Capture exited before Ctrl+C: " + executable); }
-                    List<OutputChunk> chunks = Read(options.Path);
+                    List<OutputChunk> native = Read(options.Path);
+                    if (recorder.ExitCode != 0) { throw new InvalidOperationException("Capture process exited with code " + recorder.ExitCode + ": " + executable + "\n" + Encoding.UTF8.GetString(PowerShellRunner.Bytes(native))); }
+                    string recordedPath = hostedOutput ? hostedPath : options.Path;
+                    if (!File.Exists(recordedPath)) { throw new InvalidDataException("The capture worker did not finalize its hosted recording."); }
+                    List<OutputChunk> chunks = Read(recordedPath);
                     CaptureRun.Observe(PowerShellRunner.Bytes(chunks), width, height);
                     if (capturePath != null) { File.WriteAllBytes(capturePath, PowerShellRunner.Bytes(chunks)); }
                     if (recorder.LimitReached) { throw new IOException("Capture reached the recorder byte limit: " + executable); }
-                    if (recorder.ExitCode != 0) { throw new InvalidOperationException("Capture process exited with code " + recorder.ExitCode + ": " + executable + "\n" + Encoding.UTF8.GetString(PowerShellRunner.Bytes(chunks))); }
-                    recording?.Invoke(File.ReadAllText(options.Path));
+                    recording?.Invoke(File.ReadAllText(recordedPath));
                     return chunks;
                 }
             } catch (TimeoutException error) {
@@ -51,7 +58,8 @@ namespace SiteFrames.Capture {
                 if (output.Length > 8000) { output = output[^8000..]; }
                 throw new TimeoutException(error.Message + " Child: " + executable + "\n" + output, error);
             } finally {
-                if (capturePath != null && File.Exists(options.Path)) { File.WriteAllBytes(capturePath, PowerShellRunner.Bytes(Read(options.Path))); }
+                string retainedPath = hostedOutput && File.Exists(hostedPath) ? hostedPath : options.Path;
+                if (capturePath != null && File.Exists(retainedPath)) { File.WriteAllBytes(capturePath, PowerShellRunner.Bytes(Read(retainedPath))); }
                 Site.RemoveTemporary(folder);
             }
         }
@@ -64,6 +72,9 @@ namespace SiteFrames.Capture {
                 JsonElement entry = json.RootElement;
                 if (entry[1].GetString() == "o") {
                     chunks.Add(new OutputChunk((long)Math.Round(entry[0].GetDouble() * 1000), Encoding.UTF8.GetBytes(entry[2].GetString()!)));
+                } else if (entry[1].GetString() == "cm") {
+                    var marker = SessionMarkerData.Read(TimeSpan.FromSeconds(entry[0].GetDouble()), entry[2].GetString()!);
+                    if (marker.Hold > TimeSpan.Zero) { chunks.Add(new OutputChunk(0, Array.Empty<byte>(), marker.Hold)); }
                 }
             }
             return chunks;

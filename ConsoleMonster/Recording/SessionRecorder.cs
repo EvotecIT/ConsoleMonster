@@ -40,7 +40,7 @@ namespace ConsoleMonster.Sessions {
             options.Validate();
             _captureEnabled = options.CaptureInitiallyEnabled;
             Output = output;
-            _writer = new SessionCastWriter(options, options.InProcess ? "in-process PowerShell output only" : RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "ConPTY" : "openpty");
+            _writer = new SessionCastWriter(options, options.InProcess ? "in-process output only" : RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "ConPTY" : "openpty");
             try {
                 if (!options.InProcess) {
                     _terminal = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
@@ -126,8 +126,14 @@ namespace ConsoleMonster.Sessions {
         /// <summary>Records the reading pace for subsequent exported output.</summary>
         public void SetPace(RecordingPace pace) { lock (_gate) { _writer.Marker(string.Empty, TimeSpan.Zero, pace, false); } }
         /// <summary>Writes PowerShell host output into an explicitly selected in-process recording.</summary>
-        public void CapturePowerShellOutput(string text) {
-            if (!_options.InProcess) { throw new InvalidOperationException("Only the in-process PowerShell adapter can submit output."); }
+        public void CapturePowerShellOutput(string text) => CaptureOutput(text);
+
+        /// <summary>Writes hosted VT output into an explicitly selected in-process recording, before any terminal transport
+        /// can coalesce repaints. This does not capture input, start a child or intercept Console writes.</summary>
+        /// <param name="text">Output emitted by the host, including VT sequences and recording markers.</param>
+        public void CaptureOutput(string text) {
+            if (!_options.InProcess) { throw new InvalidOperationException("Only an in-process recording can submit output."); }
+            if (text == null) { throw new ArgumentNullException(nameof(text)); }
             lock (_gate) { if (_disposed) { throw new ObjectDisposedException(nameof(SessionRecorder)); } _writer.Append(text); }
         }
         /// <summary>Waits for the child, drains its output, and finalizes both local files. Cancellation stops the owned child.</summary>

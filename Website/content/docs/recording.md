@@ -115,7 +115,7 @@ Invoke-ConsoleRecording {
 } -InProcess -Destination ./summary.html
 ```
 
-It captures PowerShell host and pipeline output in an in-process runspace. The cast header and metadata say **in-process PowerShell output only**, and the command prints a warning. Native terminal behaviour, cursor movement and resize handling need pseudo-console mode.
+It captures PowerShell host and pipeline output in an in-process runspace. The cast header and metadata say **in-process output only**, and the command prints a warning. Native terminal behaviour, cursor movement and resize handling need pseudo-console mode.
 
 ### Choose a window style
 
@@ -264,6 +264,8 @@ recorder.WaitForExit();
 `Timeout` bounds the exit wait. `SessionTimeout` also bounds readiness and scripted-input work from startup. Cancellation and deadlines stop the owned child and drain its recording, including when the child stops reading input. `WaitForExitWithInterrupt` sends Ctrl+C at a chosen time from startup for a long-running child.
 
 Enable `RespondToCursorQueries` for unattended Unix captures: the recorder answers cursor-position requests from its VT screen. Leave it off when forwarding output to a real terminal that supplies its own replies. Windows uses ConPTY's native console handling.
+
+C# hosts can use `SessionRecordingOptions.InProcess` with `SessionRecorder.CaptureOutput` to record VT they emit themselves. This records output before a terminal can combine repaints; it does not intercept `Console` writes or capture input. `CapturePowerShellOutput` remains available for existing PowerShell host adapters.
 
 ## Related
 

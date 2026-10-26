@@ -51,6 +51,7 @@ pwsh Website/build/Render-SiteImages.ps1                                       #
   asciicast `.cast` for live runs, plus the host versions and the benchmark machine). Live runs, the stress test and the
   benchmarks carry real measurements. Cast transport timing is normalized to a logical timeline; application values
   remain honest. Non-Windows production skips ps5 with a message; render still validates its committed files.
+  Synthetic checkpoint workers record their emitted VT through the recorder's hosted-output sink before native repaint coalescing.
   Read [capture producers, pins and comparison commands](captures/README.md) before refreshing output. Run
   `compare-captures` for repeated and cross-platform runs; report every allowed category and unresolved difference.
   Visually changed captures require review before merge. Propose a Linux regeneration job in the PR; do not add it

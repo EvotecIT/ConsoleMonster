@@ -13,6 +13,16 @@ namespace SiteFrames.Tests {
         private readonly string _root = Path.Combine(Path.GetTempPath(), "siteframes-compare-" + Guid.NewGuid().ToString("N"));
 
         [Fact]
+        public void ScriptedReadingHoldsCannotBeWaivedAsCrossPlatformTransportTiming() {
+            string Make(string next) => "{\"version\":2,\"width\":20,\"height\":5,\"cm_timing\":\"logical-50ms-with-holds\"}\n"
+                + "[0,\"o\",\"Review\\r\\n\"]\n[" + next + ",\"o\",\"Done\"]\n";
+            string a = Run("a", "windows", Make("2.05"), "sample.cast");
+            Assert.Equal(0, CaptureComparison.Run(a, Run("b", "macos", Make("2.05"), "sample.cast")));
+            Assert.Equal(1, Compare(a, Run("b", "macos", Make("0.05"), "sample.cast"), out JsonObject report));
+            Assert.Contains(report["failures"]!.AsArray(), value => value!.ToString().Contains("scripted reading holds differ", StringComparison.Ordinal));
+        }
+
+        [Fact]
         public void EquivalentTransportEncodingPassesAcrossPlatformsButFailsRepeatedRunBytes() {
             string a = Run("a", "windows", "ok\r\n");
             string b = Run("b", "macos", "ok\n");

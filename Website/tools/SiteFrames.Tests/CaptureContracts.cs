@@ -56,6 +56,19 @@ namespace SiteFrames.Tests {
         }
 
         [Fact]
+        public void Parity_IgnoresOnlyInvisibleSpaceForegroundAndKeepsBackgroundAndDecoration() {
+            CellBuffer expected = new CellBuffer(4, 1), actual = new CellBuffer(4, 1);
+            Color background = Color.FromHex("#1f2a3c");
+            expected.Set(0, 0, " ", new Style(Color.FromHex("#e2e8f0"), background));
+            actual.Set(0, 0, " ", new Style(Color.Default, background));
+            Assert.True(Parity.Compare(expected, actual).Identical);
+            actual.Set(0, 0, " ", new Style(Color.Default, Color.Default));
+            Assert.False(Parity.Compare(expected, actual).Identical);
+            actual.Set(0, 0, " ", new Style(Color.Default, background, TextDecoration.Underline));
+            Assert.False(Parity.Compare(expected, actual).Identical);
+        }
+
+        [Fact]
         public void CastSampling_DoesNotPublishAnIncompleteSynchronizedFrame() {
             string cast = "{\"width\":8,\"height\":1}\n"
                 + "[0,\"o\",\"old\"]\n"

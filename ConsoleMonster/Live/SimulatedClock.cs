@@ -74,7 +74,8 @@ namespace ConsoleMonster.Live {
         /// Moves the clock forward to a time, in steps of a quarter of a simulated second, sleeping in proportion to
         /// <see cref="Speed"/>. A time already passed returns at once. Once the token is cancelled, or the live session the
         /// clock runs in (the running session it first sees) is stopped with Ctrl+C, the clock moves on without sleeping,
-        /// so the work reaches its next cancellation check, or its end, without delay.
+        /// so the work reaches its next cancellation check, or its end, without delay. A full-viewport recording target
+        /// with skipped delays captures each simulated step after queued updates, without real-time sampling or sleeping.
         /// </summary>
         /// <param name="seconds">The time on the clock to reach, in seconds.</param>
         /// <param name="cancellationToken">Cuts the sleeps short.</param>
@@ -86,7 +87,7 @@ namespace ConsoleMonster.Live {
             while (Interlocked.Read(ref _ticks) < goal) {
                 long now = Interlocked.Read(ref _ticks);
                 long step = Math.Min(Step, goal - now);
-                if (Speed > 0) {
+                if (Speed > 0 && !RecordsViewportSteps()) {
                     long due = (long)(Interlocked.Add(ref _waited, step) / Speed) + Interlocked.Read(ref _held);
                     long wait = due - _real.Elapsed.Ticks;
                     if (wait > 0) {
@@ -94,14 +95,21 @@ namespace ConsoleMonster.Live {
                     }
                 }
                 Interlocked.Add(ref _ticks, step);
+                CaptureStep(cancellationToken);
             }
         }
 
-        /// <summary>Waits real time with the clock standing still (a finished screen that stays a moment); never at speed 0.</summary>
+        /// <summary>Waits real time with the clock standing still (a finished screen that stays a moment); never at speed 0.
+        /// A full-viewport target with skipped delays captures a final checkpoint instead, including a zero-duration hold.</summary>
         /// <param name="seconds">The real seconds to wait.</param>
         /// <param name="cancellationToken">Cuts the wait short.</param>
         public void Hold(double seconds, CancellationToken cancellationToken = default) {
-            if (Speed <= 0 || double.IsNaN(seconds) || seconds <= 0) {
+            if (double.IsNaN(seconds) || seconds < 0) { return; }
+            if (RecordsViewportSteps()) {
+                CaptureStep(cancellationToken);
+                return;
+            }
+            if (Speed <= 0 || seconds <= 0) {
                 return;
             }
             StartReal();
@@ -116,6 +124,22 @@ namespace ConsoleMonster.Live {
                 if (!_real.IsRunning) {
                     _real.Start();
                 }
+            }
+        }
+
+        private bool RecordsViewportSteps() {
+            LiveSession? current = LiveSession.Current;
+            // Keep the same association as Sleep, even when recording bypasses real-time waits.
+            if (current != null) { Interlocked.Exchange(ref _session, current); }
+            return current?.RecordsViewportSteps == true;
+        }
+
+        private static void CaptureStep(CancellationToken cancellationToken) {
+            LiveSession? session = LiveSession.Current;
+            if (session?.RecordsViewportSteps != true || cancellationToken.IsCancellationRequested) { return; }
+            try { session.DelayCore(TimeSpan.Zero, cancellationToken); }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested || session.Cancellation.IsCancellationRequested) {
+                // Cancellation retains the clock's ordinary contract: advance to the caller's next cancellation check.
             }
         }
 

@@ -23,7 +23,7 @@ namespace ConsoleMonster.Tests.Sessions {
             options.RedactionText = "•••••••";
             options.Redact.Add("synthetic-value");
             using (SessionRecorder recorder = SessionRecorder.Start(options)) {
-                recorder.CapturePowerShellOutput("\u001b[90mAPI_TOKEN=synthetic-");
+                recorder.CaptureOutput("\u001b[90mAPI_TOKEN=synthetic-");
                 Thread.Sleep(30);
                 recorder.CapturePowerShellOutput("value (redacted)\u001b[0m\r\n");
                 recorder.AddMarker("Report");
@@ -68,7 +68,7 @@ namespace ConsoleMonster.Tests.Sessions {
             Assert.Equal("Automatic recording", header["title"]);
             var metadata = (Dictionary<string, object?>)header["consolemonster"]!;
             Assert.True((bool)metadata["recording"]!);
-            Assert.Equal("in-process PowerShell output only", metadata["mode"]);
+            Assert.Equal("in-process output only", metadata["mode"]);
             Assert.Equal("[REDACTED]", metadata["host"]);
         }
 
@@ -92,7 +92,7 @@ namespace ConsoleMonster.Tests.Sessions {
                 Assert.DoesNotContain(secret, cast); Assert.DoesNotContain(secret, metadata);
             }
             Assert.Contains("[REDACTED]", cast);
-            Assert.Contains("in-process PowerShell output only", cast);
+            Assert.Contains("in-process output only", cast);
             Assert.Contains("Deploy [REDACTED] [REDACTED]", SessionRecording.Read(options.Path!).ExportPlayerData());
         }
 
@@ -139,7 +139,7 @@ namespace ConsoleMonster.Tests.Sessions {
         [Fact]
         public void Writer_StopControlRemainsActiveAfterSizeCap() {
             SessionRecordingOptions options = Options(); options.MaxBytes = 1024;
-            using (SessionCastWriter writer = new SessionCastWriter(options, "in-process PowerShell output only")) {
+            using (SessionCastWriter writer = new SessionCastWriter(options, "in-process output only")) {
                 writer.Append(new string('x', 2000) + "\n");
                 Assert.True(writer.LimitReached);
                 writer.Append(SessionRecorder.StopSequence);
@@ -152,7 +152,7 @@ namespace ConsoleMonster.Tests.Sessions {
         public void Writer_InterruptedPrivateMarkerDoesNotPersistEncodedLabel() {
             SessionRecordingOptions options = Options();
             string encoded = Convert.ToBase64String(Encoding.UTF8.GetBytes("private-label"));
-            using (SessionCastWriter writer = new SessionCastWriter(options, "in-process PowerShell output only")) {
+            using (SessionCastWriter writer = new SessionCastWriter(options, "in-process output only")) {
                 writer.Append(SessionCastWriter.ControlPrefix + "marker;" + encoded);
                 writer.Append("\u001b[32mVisible\r\n");
             }
@@ -164,7 +164,7 @@ namespace ConsoleMonster.Tests.Sessions {
         [Fact]
         public void Writer_PreservesPartialWriteTimingAndResizeOrder() {
             SessionRecordingOptions options = Options(); options.Width = 4; options.Height = 4; options.IdleLimit = TimeSpan.Zero;
-            using (SessionCastWriter writer = new SessionCastWriter(options, "in-process PowerShell output only")) {
+            using (SessionCastWriter writer = new SessionCastWriter(options, "in-process output only")) {
                 writer.Append("ABCDEF");
                 Thread.Sleep(80);
                 writer.Resize(8, 4);
@@ -187,7 +187,7 @@ namespace ConsoleMonster.Tests.Sessions {
         [Fact]
         public void Writer_RedactsAcrossResizeWithoutPersistingASecretPrefix() {
             SessionRecordingOptions options = Options();
-            using (SessionCastWriter writer = new SessionCastWriter(options, "in-process PowerShell output only")) {
+            using (SessionCastWriter writer = new SessionCastWriter(options, "in-process output only")) {
                 writer.Append("password=split-"); writer.Resize(40, 8); writer.Append("secret\r\n");
             }
             string cast = File.ReadAllText(options.Path!);
@@ -440,7 +440,7 @@ namespace ConsoleMonster.Tests.Sessions {
         [Fact]
         public void Writer_RecognizesSplitMarkerAndStopWithoutPersistingControls() {
             SessionRecordingOptions options = Options();
-            using (SessionCastWriter writer = new SessionCastWriter(options, "in-process PowerShell output only")) {
+            using (SessionCastWriter writer = new SessionCastWriter(options, "in-process output only")) {
                 string marker = SessionRecorder.MarkerSequence("Deploy");
                 writer.Append(marker.Substring(0, 8)); writer.Append(marker.Substring(8));
                 writer.Append("Complete\r\n"); writer.Append(SessionRecorder.StopSequence);

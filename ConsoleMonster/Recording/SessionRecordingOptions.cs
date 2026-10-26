@@ -37,7 +37,8 @@ namespace ConsoleMonster.Sessions {
         public string RedactionText { get; set; } = "[REDACTED]";
         /// <summary>Child working directory.</summary>
         public string WorkingDirectory { get; set; } = System.Environment.CurrentDirectory;
-        /// <summary>Explicitly use the limited in-process PowerShell capture adapter.</summary>
+        /// <summary>Explicitly capture hosted output through <see cref="SessionRecorder.CaptureOutput"/> without starting a
+        /// child terminal. The host owns output forwarding; input and arbitrary Console writes are not intercepted.</summary>
         public bool InProcess { get; set; }
         /// <summary>Answers cursor-position queries from the tracked VT screen for unattended child sessions.
         /// Leave false when forwarding output to a real terminal that supplies its own replies. ConPTY already

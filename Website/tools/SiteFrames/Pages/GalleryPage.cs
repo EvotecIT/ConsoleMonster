@@ -99,7 +99,7 @@ namespace SiteFrames.Pages {
                 environment["CONSOLEMONSTER_DEVELOPMENT_CONFIGURATION"] = "Release";
                 string? cast = null;
                 TerminalCapture.Run(PowerShellHost.Core.Executable, arguments, demo.Width, demo.Height,
-                    environment, demo.Folder, TimeSpan.FromMinutes(1), recording: text => cast = text);
+                    environment, demo.Folder, TimeSpan.FromMinutes(1), recording: text => cast = text, hostedOutput: true);
                 var states = RecordedStates(cast ?? throw new InvalidDataException("The recorder returned no gallery session."), demo.Steps);
                 for (int step = 0; step < demo.Steps; step++) {
                     string path = CapturePath(site, demo, step);
