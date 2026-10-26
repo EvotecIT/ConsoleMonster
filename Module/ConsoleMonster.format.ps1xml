@@ -111,5 +111,45 @@
         </CustomEntries>
       </CustomControl>
     </View>
+    <View>
+      <Name>ConsoleMonster.ConsoleDemo</Name>
+      <ViewSelectedBy>
+        <TypeName>ConsoleMonster.ConsoleDemo</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Slug</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Category</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Mode</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Title</Label>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>slug</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>category</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>mode</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>title</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
   </ViewDefinitions>
 </Configuration>

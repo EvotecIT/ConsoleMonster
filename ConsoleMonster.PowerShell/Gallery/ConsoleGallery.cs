@@ -22,8 +22,11 @@ namespace ConsoleMonster.PowerShell {
             foreach (string candidate in PSDemoResources.Slugs()) {
                 if (!pattern.IsMatch(candidate)) { continue; }
                 found = true;
-                results.AddRange(invokeCommand.InvokeScript("param($json) Microsoft.PowerShell.Utility\\ConvertFrom-Json -InputObject $json -ErrorAction Stop",
-                    true, System.Management.Automation.Runspaces.PipelineResultTypes.None, null, PSDemoResources.Metadata(candidate)));
+                foreach (PSObject metadata in invokeCommand.InvokeScript("param($json) Microsoft.PowerShell.Utility\\ConvertFrom-Json -InputObject $json -ErrorAction Stop",
+                    true, System.Management.Automation.Runspaces.PipelineResultTypes.None, null, PSDemoResources.Metadata(candidate))) {
+                    metadata.TypeNames.Insert(0, WidgetFormatData.DemoTypeName);
+                    results.Add(metadata);
+                }
             }
             if (!found && !WildcardPattern.ContainsWildcardCharacters(slug)) { throw NotFound(slug); }
             return results;

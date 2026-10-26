@@ -1,36 +1,43 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://github.com/EvotecIT/ConsoleMonster
+online version: https://consolemonster.dev/
 schema: 2.0.0
 ---
 # Show-ConsoleDemo
 ## SYNOPSIS
 Runs an embedded ConsoleMonster gallery demo in the current PowerShell runspace.
 
-Executes the same self-contained PowerShell source offered by Export-ConsoleDemo -Path. The demo runs in a child scope of the current runspace and uses the current host and loaded ConsoleMonster commands. No child process, download or temporary script file is used. Live demos can be interrupted normally. -StaticSnapshot selects a recorded state using scripted input or queued live updates controlled by the runner. The copied source has no capture parameters. Demo output and errors follow the normal PowerShell streams.
+Without a slug, it lists the demos to pick from, grouped by category. Executes the same self-contained PowerShell source offered by Export-ConsoleDemo -Path. The demo runs in a child scope of the current runspace and uses the current host and loaded ConsoleMonster commands. No child process, download or temporary script file is used. Live demos can be interrupted normally. -StaticSnapshot selects a recorded state using scripted input or queued live updates controlled by the runner. The copied source has no capture parameters. Demo output and errors follow the normal PowerShell streams.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Show-ConsoleDemo [-Slug] <string> [-StaticSnapshot] [-Step <int>] [<CommonParameters>]
+Show-ConsoleDemo [[-Slug] <string>] [-StaticSnapshot] [-Step <int>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Runs an embedded ConsoleMonster gallery demo in the current PowerShell runspace.
 
-Executes the same self-contained PowerShell source offered by Export-ConsoleDemo -Path. The demo runs in a child scope of the current runspace and uses the current host and loaded ConsoleMonster commands. No child process, download or temporary script file is used. Live demos can be interrupted normally. -StaticSnapshot selects a recorded state using scripted input or queued live updates controlled by the runner. The copied source has no capture parameters. Demo output and errors follow the normal PowerShell streams.
+Without a slug, it lists the demos to pick from, grouped by category. Executes the same self-contained PowerShell source offered by Export-ConsoleDemo -Path. The demo runs in a child scope of the current runspace and uses the current host and loaded ConsoleMonster commands. No child process, download or temporary script file is used. Live demos can be interrupted normally. -StaticSnapshot selects a recorded state using scripted input or queued live updates controlled by the runner. The copied source has no capture parameters. Demo output and errors follow the normal PowerShell streams.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
+```powershell
+Show-ConsoleDemo
+```
+
+Pick a demo from the list and run it.
+
+### EXAMPLE 2
 ```powershell
 Show-ConsoleDemo fleet
 ```
 
 Run the fleet demo.
 
-### EXAMPLE 2
+### EXAMPLE 3
 ```powershell
 Show-ConsoleDemo assessment -StaticSnapshot -Step 0
 ```
@@ -40,7 +47,7 @@ Render a deterministic snapshot.
 ## PARAMETERS
 
 ### -Slug
-Exact demo slug from Get-ConsoleDemo.
+Exact demo slug from Get-ConsoleDemo. Without it, the demos are listed to pick from.
 
 ```yaml
 Type: String
@@ -48,7 +55,7 @@ Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
 
-Required: True
+Required: False
 Position: 0
 Default value: None
 Accept pipeline input: False

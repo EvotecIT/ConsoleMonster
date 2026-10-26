@@ -32232,22 +32232,22 @@ Read-ConsoleForm $form</dev:code>
       <command:noun>ConsoleDemo</command:noun>
       <maml:description>
         <maml:para>Runs an embedded ConsoleMonster gallery demo in the current PowerShell runspace.</maml:para>
-        <maml:para>Executes the same self-contained PowerShell source offered by Export-ConsoleDemo -Path. The demo runs in a child scope of the current runspace and uses the current host and loaded ConsoleMonster commands. No child process, download or temporary script file is used. Live demos can be interrupted normally. -StaticSnapshot selects a recorded state using scripted input or queued live updates controlled by the runner. The copied source has no capture parameters. Demo output and errors follow the normal PowerShell streams.</maml:para>
+        <maml:para>Without a slug, it lists the demos to pick from, grouped by category. Executes the same self-contained PowerShell source offered by Export-ConsoleDemo -Path. The demo runs in a child scope of the current runspace and uses the current host and loaded ConsoleMonster commands. No child process, download or temporary script file is used. Live demos can be interrupted normally. -StaticSnapshot selects a recorded state using scripted input or queued live updates controlled by the runner. The copied source has no capture parameters. Demo output and errors follow the normal PowerShell streams.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Runs an embedded ConsoleMonster gallery demo in the current PowerShell runspace.</maml:para>
-      <maml:para>Executes the same self-contained PowerShell source offered by Export-ConsoleDemo -Path. The demo runs in a child scope of the current runspace and uses the current host and loaded ConsoleMonster commands. No child process, download or temporary script file is used. Live demos can be interrupted normally. -StaticSnapshot selects a recorded state using scripted input or queued live updates controlled by the runner. The copied source has no capture parameters. Demo output and errors follow the normal PowerShell streams.</maml:para>
+      <maml:para>Without a slug, it lists the demos to pick from, grouped by category. Executes the same self-contained PowerShell source offered by Export-ConsoleDemo -Path. The demo runs in a child scope of the current runspace and uses the current host and loaded ConsoleMonster commands. No child process, download or temporary script file is used. Live demos can be interrupted normally. -StaticSnapshot selects a recorded state using scripted input or queued live updates controlled by the runner. The copied source has no capture parameters. Demo output and errors follow the normal PowerShell streams.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
         <maml:name>Show-ConsoleDemo</maml:name>
-        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>Slug</maml:name>
           <maml:description>
-            <maml:para>Exact demo slug from Get-ConsoleDemo.</maml:para>
+            <maml:para>Exact demo slug from Get-ConsoleDemo. Without it, the demos are listed to pick from.</maml:para>
           </maml:description>
-          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
             <maml:uri />
@@ -32281,12 +32281,12 @@ Read-ConsoleForm $form</dev:code>
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
-      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
         <maml:name>Slug</maml:name>
         <maml:description>
-          <maml:para>Exact demo slug from Get-ConsoleDemo.</maml:para>
+          <maml:para>Exact demo slug from Get-ConsoleDemo. Without it, the demos are listed to pick from.</maml:para>
         </maml:description>
-        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
           <maml:uri />
@@ -32340,13 +32340,20 @@ Read-ConsoleForm $form</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>Show-ConsoleDemo</dev:code>
+        <dev:remarks>
+          <maml:para>Pick a demo from the list and run it.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 2</maml:title>
         <dev:code>Show-ConsoleDemo fleet</dev:code>
         <dev:remarks>
           <maml:para>Run the fleet demo.</maml:para>
         </dev:remarks>
       </command:example>
       <command:example>
-        <maml:title>EXAMPLE 2</maml:title>
+        <maml:title>EXAMPLE 3</maml:title>
         <dev:code>Show-ConsoleDemo assessment -StaticSnapshot -Step 0</dev:code>
         <dev:remarks>
           <maml:para>Render a deterministic snapshot.</maml:para>

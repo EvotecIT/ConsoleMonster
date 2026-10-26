@@ -30,6 +30,9 @@ namespace ConsoleMonster.PowerShell {
             return names.ToList();
         }
 
+        /// <summary>The type name Get-ConsoleDemo gives its records, so the gallery lists as a table.</summary>
+        public const string DemoTypeName = "ConsoleMonster.ConsoleDemo";
+
         /// <summary>The name of the out-of-band view for renderings.</summary>
         public const string RenderingViewName = "ConsoleMonster.Rendering";
 
@@ -49,6 +52,7 @@ namespace ConsoleMonster.PowerShell {
             // table rows), as PowerShell draws error records. Widgets are not, so Format-List * still lists their properties.
             AppendView(xml, RenderingViewName, renderings, true);
             AppendView(xml, ViewName, widgets, false);
+            AppendDemoView(xml);
             xml.Append("  </ViewDefinitions>\n</Configuration>\n");
             return xml.ToString();
         }
@@ -66,6 +70,23 @@ namespace ConsoleMonster.PowerShell {
             xml.Append("      <CustomControl>\n        <CustomEntries>\n          <CustomEntry>\n            <CustomItem>\n              <ExpressionBinding>\n");
             xml.Append("                <ScriptBlock>((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.WidgetFormatter'))::Format($_, $Host, $(if ($style = Get-Variable -Name PSStyle -ValueOnly -ErrorAction Ignore) { [string] $style.OutputRendering } else { '' }))</ScriptBlock>\n");
             xml.Append("              </ExpressionBinding>\n            </CustomItem>\n          </CustomEntry>\n        </CustomEntries>\n      </CustomControl>\n");
+            xml.Append("    </View>\n");
+        }
+
+        // Get-ConsoleDemo: what each demo is called and how to run it, not the whole metadata record.
+        private static void AppendDemoView(StringBuilder xml) {
+            string[][] columns = { new[] { "Slug", "slug" }, new[] { "Category", "category" }, new[] { "Mode", "mode" }, new[] { "Title", "title" } };
+            xml.Append("    <View>\n      <Name>").Append(DemoTypeName).Append("</Name>\n");
+            xml.Append("      <ViewSelectedBy>\n        <TypeName>").Append(DemoTypeName).Append("</TypeName>\n      </ViewSelectedBy>\n");
+            xml.Append("      <TableControl>\n        <TableHeaders>\n");
+            foreach (string[] column in columns) {
+                xml.Append("          <TableColumnHeader>\n            <Label>").Append(column[0]).Append("</Label>\n          </TableColumnHeader>\n");
+            }
+            xml.Append("        </TableHeaders>\n        <TableRowEntries>\n          <TableRowEntry>\n            <TableColumnItems>\n");
+            foreach (string[] column in columns) {
+                xml.Append("              <TableColumnItem>\n                <PropertyName>").Append(column[1]).Append("</PropertyName>\n              </TableColumnItem>\n");
+            }
+            xml.Append("            </TableColumnItems>\n          </TableRowEntry>\n        </TableRowEntries>\n      </TableControl>\n");
             xml.Append("    </View>\n");
         }
     }

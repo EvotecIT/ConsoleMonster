@@ -1,7 +1,7 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://github.com/EvotecIT/ConsoleMonster
+online version: https://consolemonster.dev/
 schema: 2.0.0
 ---
 # Export-ConsoleTheme

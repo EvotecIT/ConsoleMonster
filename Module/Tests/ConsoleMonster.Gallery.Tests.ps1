@@ -137,6 +137,17 @@ try {
         { Show-ConsoleDemo no-such-demo -StaticSnapshot } | Should -Throw -ErrorId 'ConsoleDemoNotFound*'
     }
 
+    It 'lists demos as a table and asks for a slug only when nobody can pick one' {
+        (Get-ConsoleDemo fleet).PSObject.TypeNames[0] | Should -BeExactly 'ConsoleMonster.ConsoleDemo'
+        $table = Get-ConsoleDemo 'welcome-*' | Out-String -Width 120
+        $table | Should -Match 'Slug\s+Category\s+Mode\s+Title'
+        $table | Should -Match 'welcome-compact\s+Welcome screens\s+static\s+Three-line welcome'
+        (Get-Command Show-ConsoleDemo).Parameters.Slug.Attributes.Where({ $_ -is [System.Management.Automation.ParameterAttribute] }).Mandatory | Should -BeFalse
+        $lines = Invoke-TestChild -Runtime $script:GalleryRuntime -Script "Import-Module '$($script:GalleryModulePath.Replace("'", "''"))'; try { Show-ConsoleDemo } catch { `$_.FullyQualifiedErrorId; `$_.Exception.Message }"
+        $lines | Should -Contain 'ConsoleDemoSlugRequired,ConsoleMonster.PowerShell.CmdletShowConsoleDemo'
+        $lines | Should -Contain 'Name the demo to run, for example Show-ConsoleDemo fleet. Get-ConsoleDemo lists every slug.'
+    }
+
     It 'exports the canonical script verbatim and returns its file information' {
         $path = Join-Path $TestDrive 'readiness-report.ps1'
         $file = Export-ConsoleDemo readiness-report -Path $path -PassThru

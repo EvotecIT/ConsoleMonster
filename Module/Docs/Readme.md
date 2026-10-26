@@ -1,13 +1,13 @@
 ---
 Module Name: ConsoleMonster
 Module Guid: 7ef2133c-55a5-47e6-809e-6010f6e65e09
-Download Help Link: https://github.com/EvotecIT/ConsoleMonster
+Download Help Link: https://consolemonster.dev/
 Help Version: 2.0.2
 Locale: en-US
 ---
 # ConsoleMonster Module
 ## Description
-Rich console output for PowerShell 5.1 and 7: tables, trees, panels, charts and live dashboards with thread-safe updates, captured script output and graceful fallback to plain text.
+Readable output for the commands you already run, and tables, trees, charts, live runs, dashboards, menus and forms when you need more. One engine for Windows PowerShell 5.1, PowerShell 7 and .NET, with no dependencies and plain text when output is redirected.
 
 ## ConsoleMonster Cmdlets
 ### [Add-ConsoleItem](Add-ConsoleItem.md)
@@ -443,7 +443,7 @@ Compares -ReferenceObject with -DifferenceObject (as Compare-ConsoleObject does)
 ### [Show-ConsoleDemo](Show-ConsoleDemo.md)
 Runs an embedded ConsoleMonster gallery demo in the current PowerShell runspace.
 
-Executes the same self-contained PowerShell source offered by Export-ConsoleDemo -Path. The demo runs in a child scope of the current runspace and uses the current host and loaded ConsoleMonster commands. No child process, download or temporary script file is used. Live demos can be interrupted normally. -StaticSnapshot selects a recorded state using scripted input or queued live updates controlled by the runner. The copied source has no capture parameters. Demo output and errors follow the normal PowerShell streams.
+Without a slug, it lists the demos to pick from, grouped by category. Executes the same self-contained PowerShell source offered by Export-ConsoleDemo -Path. The demo runs in a child scope of the current runspace and uses the current host and loaded ConsoleMonster commands. No child process, download or temporary script file is used. Live demos can be interrupted normally. -StaticSnapshot selects a recorded state using scripted input or queued live updates controlled by the runner. The copied source has no capture parameters. Demo output and errors follow the normal PowerShell streams.
 
 ### [Show-ConsoleGrid](Show-ConsoleGrid.md)
 Shows pipeline objects in an interactive grid and returns the rows you choose.
