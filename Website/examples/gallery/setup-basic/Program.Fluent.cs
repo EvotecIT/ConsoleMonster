@@ -3,6 +3,7 @@
 using ConsoleMonster.Interactive;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Widgets;
+using ConsoleMonster;
 
 // Data: fictional inputs kept in memory.
 string installFolder = "./toolbox-agent";
@@ -13,20 +14,20 @@ string[] components =
 };
 // Layout: construct the widgets shown on screen.
 int page = 0;
-TextInput folder = new TextInput("Folder", installFolder).Label("Install folder");
-Select component = new Select("Component", components.Select(name => new Choice(name))).Label("Component").Value("Core");
-Button back = new Button("Back", "Back");
-Button next = new Button("Next", "Next / preview");
+TextInput folder = ((TextInput)Ui.TextInput().Key("Folder").Value(installFolder).Label("Install folder").Build());
+Select component = ((Select)Ui.Select().Key("Component").AddChoices(components.Select(name => new Choice(name))).Label("Component").Value("Core").Build());
+Button back = ((Button)Ui.Button().Key("Back").Label("Back").Build());
+Button next = ((Button)Ui.Button().Key("Next").Label("Next / preview").Build());
 back.Clicked += (_, _) => page = Math.Max(0, page - 1);
 next.Clicked += (_, _) => page = Math.Min(2, page + 1);
-Rows layout = new Rows().Gap(1).Content(c2 =>
+Rows layout = Ui.Rows().Gap(1).Content(c2 =>
 {
-    c2.Text("[bold]Install Toolbox Agent[/] [muted]· Toolbox Agent[/]");
+    c2.Text(c2Text => c2Text.Content("[bold]Install Toolbox Agent[/] [muted]· Toolbox Agent[/]").IsMarkup());
     c2.Add(folder);
     c2.Add(component);
     c2.Add(back);
     c2.Add(next);
-    c2.Add(new AppBinding(state =>
+    c2.Binding(cmBinding => cmBinding.Configure(cmDefinition => cmDefinition.Content = state =>
     {
         string title = new[]
         {
@@ -34,13 +35,13 @@ Rows layout = new Rows().Gap(1).Content(c2 =>
             "2 / 3 · Components",
             "3 / 3 · Review"
         }[page];
-        IWidget content = page == 0 ? new TextBlock("Choose a writable folder for the agent.") : page == 1 ? new TextBlock("Core runs local jobs. Reports adds an HTML summary.") : new Rows().Content(c =>
+        IWidget content = page == 0 ? Ui.Text().Content("Choose a writable folder for the agent.").IsMarkup() : page == 1 ? Ui.Text().Content("Core runs local jobs. Reports adds an HTML summary.").IsMarkup() : Ui.Rows().Content(c =>
         {
-            c.Text("Folder: " + ConsoleMonster.Text.Markup.Escape(state.Get<string>("Folder", "")));
-            c.Text("Component: " + ConsoleMonster.Text.Markup.Escape(state.Get<string>("Component", "")));
-            c.Text("[pass]Ready to install. Review the folder and components.[/]");
+            c.Text(cText => cText.Content("Folder: " + ConsoleMonster.Text.Markup.Escape(state.Get<string>("Folder", ""))).IsMarkup());
+            c.Text(cText => cText.Content("Component: " + ConsoleMonster.Text.Markup.Escape(state.Get<string>("Component", ""))).IsMarkup());
+            c.Text(cText => cText.Content("[pass]Ready to install. Review the folder and components.[/]").IsMarkup());
         });
-        return new Panel().Title(title).Content(c =>
+        return Ui.Panel().Title(title).Content(c =>
         {
             c.Add(content);
         });

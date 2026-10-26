@@ -13,14 +13,14 @@ var repositories = new RepositoryStatus[]
     new("orbit-tests", "main", 0, 0, 0, 0)
 };
 // Layout: numeric columns keep local changes separate from branch divergence.
-var table = Table.For(repositories).Column(row => row.Repository).Column(row => row.Branch).Column(row => row.Modified).Column(row => row.Staged).Column(row => row.Ahead).Column(row => row.Behind);
+var table = Ui.Table(repositories).Column(row => row.Repository).Column(row => row.Branch).Column(row => row.Modified).Column(row => row.Staged).Column(row => row.Ahead).Column(row => row.Behind);
 table.Expand();
-StatusList next = new StatusList().Add("orbit-api", StatusKind.Info, "Review the staged diff before committing").Add("orbit-cli", StatusKind.Warn, "Working tree clean; inspect four incoming commits").Add("orbit-docs", StatusKind.Info, "Two local edits need review").Add("orbit-tests", StatusKind.Pass, "Clean and up to date");
-Rows report = new Rows().Gap(1).Content(c2 =>
+StatusList next = Ui.StatusList().Add("orbit-api", StatusKind.Info, "Review the staged diff before committing").Add("orbit-cli", StatusKind.Warn, "Working tree clean; inspect four incoming commits").Add("orbit-docs", StatusKind.Info, "Two local edits need review").Add("orbit-tests", StatusKind.Pass, "Clean and up to date");
+Rows report = Ui.Rows().Gap(1).Content(c2 =>
 {
     c2.Rule("[bold]Repository workspace[/] [muted]· ./work[/]");
     c2.Add(table);
-    c2.Add(new Panel().Title("Suggested next steps").Content(c =>
+    c2.Panel(cmPanel => cmPanel.Title("Suggested next steps").Content(c =>
     {
         c.Add(next);
     }));

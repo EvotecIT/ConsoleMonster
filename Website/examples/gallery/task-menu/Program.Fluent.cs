@@ -3,6 +3,7 @@
 using ConsoleMonster.Interactive;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Widgets;
+using ConsoleMonster;
 
 // Data: fictional inputs kept in memory.
 string[] tasks =
@@ -12,11 +13,11 @@ string[] tasks =
     "Preview cleanup"
 };
 // Layout: construct the widgets shown on screen.
-Rows layout = new Rows().Gap(1).Content(c3 =>
+Rows layout = Ui.Rows().Gap(1).Content(c3 =>
 {
-    c3.Text("[bold]Server toolbox[/] [muted]· operations[/]");
-    c3.Add(new Select("Task", tasks.Select(task => new Choice(task))).Label("Task").Value(tasks[0]));
-    c3.Add(new AppBinding(state =>
+    c3.Text(c3Text => c3Text.Content("[bold]Server toolbox[/] [muted]· operations[/]").IsMarkup());
+    c3.Select(cmSelect => cmSelect.Key("Task").AddChoices(tasks.Select(task => new Choice(task))).Label("Task").Value(tasks[0]));
+    c3.Binding(cmBinding => cmBinding.Configure(cmDefinition => cmDefinition.Content = state =>
     {
         string task = state.Get<string>("Task", tasks[0]);
         string[] lines = task == tasks[0] ? new[]
@@ -36,11 +37,11 @@ Rows layout = new Rows().Gap(1).Content(c3 =>
             "[warn]3 artifacts eligible[/]",
             "Eligible artifacts: build-cache, test-output, old-logs."
         };
-        return new Panel().Title("Preview").Content(c2 =>
+        return Ui.Panel().Title("Preview").Content(c2 =>
         {
-            c2.Add(new Rows().Content(c =>
+            c2.Rows(cmRows => cmRows.Content(c =>
             {
-                foreach (var cWidget in lines.Select(line => new TextBlock(line)).ToArray())
+                foreach (var cWidget in lines.Select(line => Ui.Text().Content(line).IsMarkup()).ToArray())
                 {
                     c.Add(cWidget);
                 }

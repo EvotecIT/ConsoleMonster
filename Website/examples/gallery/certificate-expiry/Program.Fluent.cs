@@ -14,20 +14,20 @@ var certificates = new Certificate[]
     new("portal.example.test", "2026-12-18", 55, "Web", "Pass")
 };
 // Layout: put urgent renewals beside the inventory, with thresholds visible.
-var table = Table.For(certificates).Column(row => row.Name).Column(row => row.Expires).Column(row => row.Days).Column(row => row.Owner).Column(row => row.Status, column => column.Presenter(CellPresenters.StatusWord));
+var table = Ui.Table(certificates).Column(row => row.Name).Column(row => row.Expires).Column(row => row.Days).Column(row => row.Owner).Column(row => row.Status, column => column.Presenter(CellPresenters.StatusWord));
 table.Expand();
-StatusList renewals = new StatusList().Add("vpn.example.test", StatusKind.Fail, "Network · renew before Monday").Add("api.example.test", StatusKind.Warn, "Platform · schedule renewal this week");
-Rows report = new Rows().Gap(1).Content(c3 =>
+StatusList renewals = Ui.StatusList().Add("vpn.example.test", StatusKind.Fail, "Network · renew before Monday").Add("api.example.test", StatusKind.Warn, "Platform · schedule renewal this week");
+Rows report = Ui.Rows().Gap(1).Content(c3 =>
 {
     c3.Rule("[bold]Certificate renewals[/] [muted]· as of 2026-10-24[/]");
-    c3.Text("[fail]1 urgent[/]   [warn]1 due soon[/]   [pass]2 healthy[/]");
+    c3.Text(c3Text => c3Text.Content("[fail]1 urgent[/]   [warn]1 due soon[/]   [pass]2 healthy[/]").IsMarkup());
     c3.Add(table);
-    c3.Add(new Panel().Title("Renewal policy").Content(c2 =>
+    c3.Panel(cmPanel => cmPanel.Title("Renewal policy").Content(c2 =>
     {
-        c2.Add(new Rows().Content(c =>
+        c2.Rows(cmRows => cmRows.Content(c =>
         {
             c.Add(renewals);
-            c.Text("[muted]Urgent: 7 days or fewer · due soon: 30 days or fewer[/]");
+            c.Text(cText => cText.Content("[muted]Urgent: 7 days or fewer · due soon: 30 days or fewer[/]").IsMarkup());
         }));
     }));
 });

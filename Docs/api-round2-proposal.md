@@ -420,7 +420,7 @@ Apply this to gallery pages, embedded demos and the source-bearing demo layouts,
 
 ### Source files and Run it yourself
 
-Each gallery folder contains `<slug>.ps1`, **Program.cs** (initializer) and **Program.Fluent.cs** (fluent), with one shared metadata/capture recipe. Keep both C# programs standalone: no repository helpers or hidden shared source that a reader must discover. Initializer style can use constructors, loops and behavioral Add methods; it avoids fluent configuration chains. Fluent style changes configuration syntax, not data, callbacks or lifetimes. Ui factories remain optional composition sugar in their own reference note, rather than a fourth tab.
+Each gallery folder contains `<slug>.ps1`, **Program.cs** (initializer) and **Program.Fluent.cs** (fluent), with one shared metadata/capture recipe. Keep both C# programs standalone: no repository helpers or hidden shared source that a reader must discover. Initializer style can use constructors, loops and behavioral Add methods; it avoids fluent configuration chains. Fluent style changes configuration syntax, not data, callbacks or lifetimes. Ui is the fluent entry point; every fluent tab starts widgets with Ui.<Noun>() and uses the same nouns inside Content builders. Initializer tabs retain constructors.
 
 `CSharpRunner` already compiles a selected source file in isolation. Extend the gallery model to carry both C# paths and compile/run each independently with the same references, warning policy and inputs. A downloadable SDK project needs an explicit selection too: the normal Compile glob would otherwise compile two top-level programs. Supply a small gallery project with default compile items disabled, a default `DemoStyle=Initializer`, and exactly one Compile item selected by `DemoStyle=Initializer|Fluent`. Reject other values. The generated steps use `dotnet run` for the initializer and `dotnet run --property:DemoStyle=Fluent` for fluent, using the documented [MSBuild property option](https://learn.microsoft.com/dotnet/core/tools/dotnet-run#options); test those exact steps in fresh consumer projects, including switching back to the initializer after a fluent build. Package references use the ordinary published packages, including declared add-ons, with no reference to the gallery runner.
 
@@ -504,7 +504,28 @@ Przemysław approved this scope on **2026-10-25**, including the three amendment
 
 The three tabs teach each style rather than repeat constructor syntax. Wherever the PowerShell composes widgets with `-Content { … }`, the fluent program uses `.Content(c => { … })`, including ordered `c.Rule`, `c.Text`, `c.Add` and nested containers. Data/content records are separate from widget composition; a plain text greeting and an interactive grid need no artificial layout block.
 
-Both C# programs use the same named records, one literal item per line. A PowerShell `New-ConsoleTable -InputObject $rows -Property …` maps to the existing `Table.For(rows)` plus typed column selectors, preserving presenters and original row values. The initializer tab keeps property assignment; the fluent tab uses generated setters. Boolean setters expose both a parameterless overload for true (`.Expand()`) and an explicit-value overload (`.Expand(false)`). The reflection fixture and generated translation notes record this grammar.
+Both C# programs use the same named records, one literal item per line. A PowerShell `New-ConsoleTable -InputObject $rows -Property …` maps to `Table.For(rows)` in the initializer tab and `Ui.Table(rows)` in the fluent tab, plus the same typed column selectors, preserving presenters and original row values. The initializer tab keeps property assignment; the fluent tab uses generated setters. Boolean setters expose both a parameterless overload for true (`.Expand()`) and an explicit-value overload (`.Expand(false)`). The reflection fixture and generated translation notes record this grammar.
+
+### Fluent entry point — decision, 2026-10-26
+
+Przemysław made `Ui` the fluent entry point. It is no longer optional sugar. I keep constructors in the initializer tab and start fluent widgets with `Ui.<Noun>()`; nested content uses the same nouns on `ContentBuilder`. The 101-command count does not change.
+
+| PowerShell | C# fluent | C# initializer |
+| --- | --- | --- |
+| New-Console<Noun> | Ui.<Noun>() | new <Noun>() |
+| -Param value | .Param(value) | Param = value |
+| -Expand | .Expand() | Expand = true |
+| -Content { … } | .Content(c => …) | constructor children or Content assignment |
+| Nested New-Console<Noun> | c.<Noun>(configured => …) or c.<Noun>(widget) | new <Noun>(…) |
+| Show-Console / Export-ConsoleFrame -Path x | .Show() / .Export("x") | Terminal.Write(…) / exporter |
+
+Factories start empty. `Ui.Panel(title, content)` and `Ui.Rows(children)` are removed; configuration belongs in `.Title(...)` and `.Content(...)`. Numeric charts use `Ui.Chart().Type(...)`, and progress uses `Ui.Progress().Indeterminate(...)`, keeping the same kind selectors as PowerShell. Selection and text controls likewise use Multiple and Multiline. Their existing typed options materialize through `Build()` and the shared factories; `Build<T>()` verifies a required concrete live handle. This preserves immutable control/command identities rather than making keys writable after registration. Callback-valued properties retain the recorded Configure exception.
+
+The optional primary-input exceptions are explicit: `Ui.Text(text)` takes literal text, `Ui.Rule(title)` takes its title, `Ui.Table(rows)` takes one row collection, and factories for addressed live widgets accept their single WidgetId. Each corresponds to the same positional PowerShell input. Text markup is explicit (`Ui.Text().Content(markup).IsMarkup()`), so brackets in literal text stay literal. No factory accepts positional titles, child lists, layout sizes, colors, chart edges or other configuration. The parity map lists each exception and its native metadata position.
+
+`ContentBuilder` covers every widget factory noun with a matching configuration lambda or configured instance; `c.Add(widget)` remains available for an existing handle. Definitions such as Chart, Progress, Select, TextInput, Button, Toggle and Binding are materialized once by the builder after configuration. Form/menu/action definitions, typed Read-* question renderers, generic option construction and the C# dashboard composition helper are recorded separately from display widgets. Field construction stays on the form/page builder; SimulatedClock is an operational clock, not a widget. C#'s interactive Grid factory maps to Show-ConsoleGrid's viewer job, since that cmdlet combines construction and execution.
+
+Every fluent demo uses Ui and builders for composition, controls, options and session lifetimes. Ordinary C# data remains ordinary C#: record literals, collections, dates, style values, event records and exceptions are not widget factories. The source contract resolves constructions semantically and rejects direct widget/control/configuration construction rather than banning the `new` keyword inside data. The generated How it maps rows show the root factory and the matching nested builder noun, as well as Content and Boolean switch grammar. All three styles remain in the initial DOM and the triplet comparison remains byte-for-byte.
 
 ### Parallel PR ownership and added-command disposition
 

@@ -121,129 +121,38 @@ using (LiveSession session = new LiveSession(dashboard)) {
 
 ### Three ways to write it
 
-Every widget can be written in three equivalent styles. They build the same objects and render the same output (a
-golden test checks it), so use whichever reads best for the case, and mix them freely.
-Each style as a complete program, with the frame all three print: [Three ways to write it](https://consolemonster.dev/docs/csharp-styles/). Callback properties use `.Configure(item => item.Action = callback)` because C# otherwise invokes the delegate property instead of selecting an extension setter.
+Every demo shows PowerShell, C# initializers and C# fluent as three tabs. They use the same rows and render byte-identical output across the demo's states. The complete programs and their result are on [Three ways to write it](https://consolemonster.dev/docs/csharp-styles/).
 
-1. Object initializers are the canonical model, and the clearest when you set many options at once or fill rows in a loop:
+PowerShell names the widget and its parameters:
 
-```csharp
-Table table = new Table { ShowTotals = true, AutoTotals = true };
-table.AddColumn(new TableColumn("Name") { IsKey = true });
-table.AddColumn(new TableColumn("Role"));
-table.AddColumn(new TableColumn("Ram") { Presenter = CellPresenters.Bytes });
-table.AddColumn(new TableColumn("Status"));
-foreach (Server server in servers) {
-    table.AddValues(server.Name, server.Role, server.Ram, server.Status);
-}
-KeyValueList summary = new KeyValueList();
-summary.AddValue("Servers", 3);
-summary.AddValue("Failed", 1);
-Sparkline cpu = new Sparkline { Label = "CPU" };
-cpu.AddRange(load);
-Terminal.Write(new Rows(
-    new Columns(
-        new Panel(table, "Servers"),
-        new Panel(new Rows(summary, cpu), "Summary")) { Gap = 1 },
-    new TextBlock("[muted]Updated 10:02[/]")) { Gap = 1 });
+```powershell
+New-ConsolePanel -Title 'Build' -Border Rounded -Content {
+    New-ConsoleText 'All checks passed'
+} | Show-Console
 ```
 
-2. The fluent style uses a `With...` method for every settable property and `Add...` methods for every collection,
-   plus typed tables. It's the clearest for a widget configured in one expression:
+The initializer keeps constructors and properties:
 
 ```csharp
-Terminal.Write(new Rows()
-    .Gap(1)
-    .Add(new Columns()
-        .Gap(1)
-        .Add(new Panel(Table.For(servers)
-            .Column(s => s.Name, c => c.IsKey())
-            .Column(s => s.Role)
-            .Column(s => s.Ram, c => c.Presenter(CellPresenters.Bytes))
-            .Column(s => s.Status)
-            .Totals(), "Servers"))
-        .Add(new Panel(new Rows()
-            .Add(new KeyValueList().AddValue("Servers", 3).AddValue("Failed", 1))
-            .Add(new Sparkline().Label("CPU").AddRange(load)), "Summary")))
-    .Add(new TextBlock("[muted]Updated 10:02[/]")));
-```
-
-3. Nested composition uses `using static ConsoleMonster.Ui;` factories, so the code has the shape of the screen.
-   It's the clearest for layouts. The `With...` methods are extension methods in each widget's own namespace,
-   so `ConsoleMonster.Layout` and `ConsoleMonster.Widgets` stay among the `using` lines:
-
-```csharp
-using ConsoleMonster;
-using ConsoleMonster.Layout;
-using ConsoleMonster.Presenters;
-using ConsoleMonster.Styling;
-using ConsoleMonster.Widgets;
-using static ConsoleMonster.Ui;
-
-Server[] servers = {
-    new("web01", "IIS", 8L * 1024 * 1024 * 1024, StatusKind.Pass),
-    new("app01", "App", 16L * 1024 * 1024 * 1024, StatusKind.Warn),
-    new("db01", "SQL", 64L * 1024 * 1024 * 1024, StatusKind.Fail)
+var panel = new Panel(new TextBlock("All checks passed")) {
+    Title = "Build", Border = BoxStyle.Rounded
 };
-double[] load = { 12, 18, 31, 64, 47, 38, 55, 70, 72, 41 };
-
-Terminal.Write(Rows(
-    Columns(
-        Panel("Servers", Table(servers)
-            .Column(s => s.Name, c => c.IsKey())
-            .Column(s => s.Role)
-            .Column(s => s.Ram, c => c.Presenter(CellPresenters.Bytes))
-            .Column(s => s.Status)
-            .Totals()),
-        Panel("Summary", Rows(
-            KeyValue(("Servers", 3), ("Failed", 1)),
-            Sparkline(load).Label("CPU")))
-    ).Gap(1),
-    Text("[muted]Updated 10:02[/]")
-).Gap(1));
-
-record Server(string Name, string Role, long Ram, StatusKind Status);
+Terminal.Write(panel);
 ```
 
-All three print:
+The fluent style starts at `Ui`, uses property-named calls, and ends in the same display/export pipeline:
 
-```text
-╭─ Servers ─────────────────────────────╮ ╭─ Summary ──────────────────────────────╮
-│ ╭───────┬──────┬───────┬────────╮     │ │ Servers  3                             │
-│ │ Name  │ Role │   Ram │ Status │     │ │ Failed   1                             │
-│ ├───────┼──────┼───────┼────────┤     │ │ CPU                      ▁▂▄▇▅▄▆██▅ 41 │
-│ │ web01 │ IIS  │  8 GB │ ✓ PASS │     │ │                                        │
-│ │ app01 │ App  │ 16 GB │ ▴ WARN │     │ │                                        │
-│ │ db01  │ SQL  │ 64 GB │ ✗ FAIL │     │ │                                        │
-│ ├───────┼──────┼───────┼────────┤     │ │                                        │
-│ │ Total │      │ 88 GB │        │     │ │                                        │
-│ ╰───────┴──────┴───────┴────────╯     │ │                                        │
-╰───────────────────────────────────────╯ ╰────────────────────────────────────────╯
-
-Updated 10:02
+```csharp
+Ui.Panel().Title("Build").Border(BoxStyle.Rounded)
+    .Content(c => c.Text("All checks passed"))
+    .Show();
 ```
 
-How the styles fit together:
+Nested widgets use the same nouns: `c.Panel(p => p.Title("Build").Content(...))`, `c.Rows(r => ...)`, `c.Table(t => ...)`, or a configured instance. Existing handles use `c.Add(widget)`. A true Boolean switch becomes a parameterless call such as `.Expand()`; `.Expand(false)` remains available. Callback-valued properties use `.Configure(item => item.Action = callback)`, because C# otherwise invokes the delegate property.
 
-- **Generated methods.** `X(value)` sets property `X` and returns the same instance; for a bool, `X()` means
-  `true`. `X(o => ...)` configures an option object in place, for example `table.Presentation(p => p.Culture = culture)`.
-  For a collection `Xs`, you get `AddX(item)`, `AddXs(params items)` and `AddXs(IEnumerable)`.
-- **Typed tables.** `Table.For(items)` (or `Table(items)` from `Ui`) makes a `Table<T>`. Each `.Column(s => s.Name, c => ...)`
-  reads its header from the expression, here "Name". Without columns, every public property is a column. The rows are
-  read when the table is laid out; after the collection changes, call `Refresh()`. `Totals()` adds a totals row
-  that sums the numeric columns, but not the key column or identifier columns.
-- **Ui factories.** The factories are `Rows`, `Columns`, `Grid`, `Panel(title, content)`, `Fill` and `Fixed` (sizing
-  inside rows and columns), `Table`, `KeyValue`, `Text`, `Rule`, `Sparkline`, `Lanes`, `Progress`, `Status`, `Tree`
-  with `Node`, and `Dashboard`. Each one only creates the widget it names.
-- **Naming clash.** With `using static ConsoleMonster.Ui;`, write `Table(items)`, not `Table.For(items)`, because the
-  factory takes the name `Table`.
-- **How the methods are made.** A Roslyn source generator in the repository (`ConsoleMonster.Generators`) writes the
-  property-named setters and `Add...` methods from each widget's public properties at build time. The generated code is compiled into
-  `ConsoleMonster.dll` itself: the generator doesn't ship as an analyzer, and nothing in it runs or reflects at run
-  time. So it works the same for net472, netstandard2.0 and net8.0 consumers on any C# version, and stays AOT and trim
-  safe.
-- **Coverage.** A coverage test fails when a public widget property has no fluent counterpart. The PowerShell cmdlets
-  map to the same object model and are unchanged.
+Factories start empty. The recorded primary inputs are literal text, rule titles, one typed table row sequence, and a live widget's positional identity. Titles, children, colors, sizes and other configuration belong in the chain. `Ui.Table(rows)` uses the same `Table.For(rows)` owner and typed `.Column(row => row.Name)` selectors as the initializer style. `Ui.Chart().Type(...)`, `Ui.Progress().Indeterminate()` and kind-selected inputs configure the existing typed options before `Build()`; a typed live handle uses `Build<T>()`. Container builders materialize those definitions after their configuration lambda.
+
+Generated methods configure the same objects; no runtime reflection or analyzer is needed by consumers. The metadata contract checks factory nouns, nesting helpers, parameters and the explicit language exceptions. The gallery checks all three programs; data records stay ordinary C#.
 
 ## Tables and complex data
 

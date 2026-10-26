@@ -4,6 +4,7 @@ using ConsoleMonster.Interactive;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Presenters;
 using ConsoleMonster.Widgets;
+using ConsoleMonster;
 
 // Data: fictional inputs kept in memory.
 var hosts = new FleetHost[]
@@ -18,26 +19,26 @@ var hosts = new FleetHost[]
 IWidget Results(string query)
 {
     var rows = hosts.Where(host => string.Join(" ", host.Host, host.Role, host.Site, host.Status).IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0).ToArray();
-    var table = Table.For(rows).Column(row => row.Host).Column(row => row.Role).Column(row => row.Site).Column(row => row.Status, column => column.Presenter(CellPresenters.StatusWord));
-    Rows result = new Rows().Content(c =>
+    var table = Ui.Table(rows).Column(row => row.Host).Column(row => row.Role).Column(row => row.Site).Column(row => row.Status, column => column.Presenter(CellPresenters.StatusWord));
+    Rows result = Ui.Rows().Content(c =>
     {
-        c.Text(rows.Length.ToString(System.Globalization.CultureInfo.InvariantCulture) + " of " + hosts.Length.ToString(System.Globalization.CultureInfo.InvariantCulture) + " hosts");
+        c.Text(cText => cText.Content(rows.Length.ToString(System.Globalization.CultureInfo.InvariantCulture) + " of " + hosts.Length.ToString(System.Globalization.CultureInfo.InvariantCulture) + " hosts").IsMarkup());
         c.Add(table);
     });
     if (rows.Length == 0)
-        result.Add(new TextBlock("[muted]No matching hosts. Backspace to broaden the filter.[/]"));
+        result.Add(Ui.Text().Content("[muted]No matching hosts. Backspace to broaden the filter.[/]").IsMarkup());
     return result;
 }
 
-Rows layout = new Rows().Gap(1).Content(c2 =>
+Rows layout = Ui.Rows().Gap(1).Content(c2 =>
 {
-    c2.Text("[bold]Fleet health[/] [muted]· production inventory[/]");
-    c2.Add(new Panel().Title("Fleet summary").Content(c =>
+    c2.Text(c2Text => c2Text.Content("[bold]Fleet health[/] [muted]· production inventory[/]").IsMarkup());
+    c2.Panel(cmPanel => cmPanel.Title("Fleet summary").Content(c =>
     {
-        c.Text("[pass]2 healthy[/]  [warn]1 warning[/]  [fail]1 offline[/]  [accent]1 running[/]");
+        c.Text(cText => cText.Content("[pass]2 healthy[/]  [warn]1 warning[/]  [fail]1 offline[/]  [accent]1 running[/]").IsMarkup());
     }));
-    c2.Add(new TextInput("Query", string.Empty).Label("Filter").Placeholder("Host, role, site or status"));
-    c2.Add(new AppBinding(state => Results(state.Get<string>("Query", string.Empty))));
+    c2.TextInput(cmTextInput => cmTextInput.Key("Query").Value(string.Empty).Label("Filter").Placeholder("Host, role, site or status"));
+    c2.Binding(cmBinding => cmBinding.Configure(cmDefinition => cmDefinition.Content = state => Results(state.Get<string>("Query", string.Empty))));
 });
 // Behaviour: edit controls to update the view; Escape exits the app.
 ConsoleApp.Run(layout);

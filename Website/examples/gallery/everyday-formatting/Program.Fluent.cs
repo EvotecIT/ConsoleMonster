@@ -15,7 +15,7 @@ var tasks = new TaskItem[]
 };
 // Layout: compose the screen from the data above.
 string baseline = "";
-var table = Table.For(tasks).Column(row => row.Task).Column(row => row.State, column => column.Presenter(CellPresenters.StatusWord)).Column(row => row.Minutes);
+var table = Ui.Table(tasks).Column(row => row.Task).Column(row => row.State, column => column.Presenter(CellPresenters.StatusWord)).Column(row => row.Minutes);
 table.Expand();
 foreach (var task in tasks)
 {
@@ -27,14 +27,14 @@ foreach (var task in tasks)
     baseline += $"{task.Task} | {task.State} | {task.Minutes} min";
 }
 
-Rows layout = new Rows().Gap(1).Content(c =>
+Rows layout = Ui.Rows().Gap(1).Content(c =>
 {
     c.Rule("[bold]Everyday formatting[/] [muted]| same objects, clearer output[/]");
-    c.Text("[bold]Before[/] [muted]| plain text[/]");
-    c.Text(baseline);
-    c.Text("[bold]After[/] [muted]| ConsoleMonster table[/]");
+    c.Text(cText => cText.Content("[bold]Before[/] [muted]| plain text[/]").IsMarkup());
+    c.Text(cText => cText.Content(baseline).IsMarkup());
+    c.Text(cText => cText.Content("[bold]After[/] [muted]| ConsoleMonster table[/]").IsMarkup());
     c.Add(table);
-    c.Text("[muted]Three tasks. Aligned columns and right-aligned numbers.[/]");
+    c.Text(cText => cText.Content("[muted]Three tasks. Aligned columns and right-aligned numbers.[/]").IsMarkup());
 });
 // Behaviour: print the screen once and return.
 layout.Show();

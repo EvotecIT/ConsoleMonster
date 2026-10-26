@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
 
@@ -20,11 +21,25 @@ namespace SiteFrames.Capture {
         public static IReadOnlyCollection<string> ConfiguredProjectMembers(string path, string project, string code) =>
             ConfiguredMembers(CreateCompilation(path, code, references: ProjectReferences(project)));
 
+        /// <summary>Resolves direct construction in a fluent program, so data records remain ordinary C# while UI construction uses factories.</summary>
+        public static IReadOnlyCollection<string> ConstructedConsoleTypes(string path, string code) {
+            CSharpCompilation compilation = CreateCompilation(path, code);
+            var types = new HashSet<string>(StringComparer.Ordinal);
+            foreach (SyntaxTree tree in compilation.SyntaxTrees.Where(tree => tree.FilePath == path)) {
+                SemanticModel model = compilation.GetSemanticModel(tree);
+                foreach (BaseObjectCreationExpressionSyntax node in tree.GetRoot().DescendantNodes().OfType<BaseObjectCreationExpressionSyntax>()) {
+                    if (model.GetTypeInfo(node).Type is INamedTypeSymbol type && type.ContainingAssembly.Name.StartsWith("ConsoleMonster", StringComparison.Ordinal)) { types.Add(type.ToDisplayString()); }
+                }
+            }
+            return types;
+        }
+
         private static IReadOnlyCollection<string> ConfiguredMembers(Compilation compilation) {
             var result = new HashSet<string>(StringComparer.Ordinal);
             foreach (SyntaxTree tree in compilation.SyntaxTrees.Where(t => t.FilePath != "GlobalUsings.g.cs")) {
                 SemanticModel model = compilation.GetSemanticModel(tree);
                 foreach (SyntaxNode node in tree.GetRoot().DescendantNodes()) {
+                    if (node is BaseObjectCreationExpressionSyntax created && model.GetTypeInfo(created).Type is INamedTypeSymbol createdType && createdType.ContainingAssembly.Name.StartsWith("ConsoleMonster", StringComparison.Ordinal)) { result.Add("C:" + createdType.ToDisplayString()); }
                     if (node is InvocationExpressionSyntax invocation && model.GetSymbolInfo(invocation).Symbol is IMethodSymbol invoked) {
                         IMethodSymbol method = invoked.ReducedFrom ?? invoked;
                         if (method.ContainingNamespace.ToDisplayString().StartsWith("ConsoleMonster", StringComparison.Ordinal) || method.ContainingType.ToDisplayString() == "System.Console") {

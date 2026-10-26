@@ -52,7 +52,7 @@ namespace ConsoleMonster.Tests.Building {
                 if (!(container is Stack)) { Assert.Contains("First", rendered); }
                 Assert.Contains("Second", rendered);
             }
-            var panel = new Panel().Content(c => c.Panel("Outer", nested => nested.Text("Nested")));
+            var panel = new Panel().Content(c => c.Panel(p => p.Title("Outer").Content(nested => nested.Text("Nested"))));
             Assert.Contains("Nested", ConsoleExporter.ToText(panel, new ExportOptions { Width = 60 }));
         }
 

@@ -9,7 +9,7 @@ namespace ConsoleMonster.Layout {
     }
 
     /// <summary>Collects nested widgets in source order, mirroring a PowerShell Content script block.</summary>
-    public sealed class ContentBuilder {
+    public sealed partial class ContentBuilder {
         private readonly List<IWidget> _content = new List<IWidget>();
 
         /// <summary>Adds a constructed widget and returns this builder.</summary>
@@ -19,48 +19,6 @@ namespace ConsoleMonster.Layout {
             _content.Add(widget ?? throw new ArgumentNullException(nameof(widget)));
             return this;
         }
-
-        /// <summary>Adds a text widget.</summary>
-        /// <param name="text">The text, including supported markup.</param>
-        /// <returns>This builder.</returns>
-        public ContentBuilder Text(string text) => Add(new TextBlock(text));
-
-        /// <summary>Adds a horizontal rule with an optional title.</summary>
-        /// <param name="title">The title, including supported markup, or null for an untitled rule.</param>
-        /// <returns>This builder.</returns>
-        public ContentBuilder Rule(string? title = null) => Add(new Rule(title));
-
-        /// <summary>Adds a titled panel around nested content.</summary>
-        /// <param name="title">The title.</param>
-        /// <param name="content">Builds the panel content.</param>
-        /// <returns>This builder.</returns>
-        public ContentBuilder Panel(string title, Action<ContentBuilder> content) => Add(new Panel(Build(content), title));
-
-        /// <summary>Adds vertically composed nested content.</summary>
-        /// <param name="content">Builds the rows.</param>
-        /// <returns>This builder.</returns>
-        public ContentBuilder Rows(Action<ContentBuilder> content) => Add(new Rows(Collect(content)));
-
-        /// <summary>Adds a viewport around nested content.</summary>
-        /// <param name="content">Builds the scrollable content.</param>
-        /// <returns>This builder.</returns>
-        public ContentBuilder ScrollView(Action<ContentBuilder> content) => Add(new ScrollView(Build(content)));
-
-        /// <summary>Adds horizontally composed nested content.</summary>
-        /// <param name="content">Builds the columns.</param>
-        /// <returns>This builder.</returns>
-        public ContentBuilder Columns(Action<ContentBuilder> content) => Add(new Columns(Collect(content)));
-
-        /// <summary>Adds overlaid nested content in painting order.</summary>
-        /// <param name="content">Builds the layers.</param>
-        /// <returns>This builder.</returns>
-        public ContentBuilder Stack(Action<ContentBuilder> content) => Add(new Stack(Collect(content)));
-
-        /// <summary>Adds nested content in a layout grid.</summary>
-        /// <param name="columns">The number of columns.</param>
-        /// <param name="content">Builds the cells.</param>
-        /// <returns>This builder.</returns>
-        public ContentBuilder LayoutGrid(int columns, Action<ContentBuilder> content) => Add(new Grid(columns, Collect(content)));
 
         /// <summary>Composes the collected widgets; no widgets produce empty content.</summary>
         /// <returns>The one widget or a Rows container in source order.</returns>

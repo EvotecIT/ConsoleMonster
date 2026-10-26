@@ -29,6 +29,17 @@ namespace SiteFrames.Capture {
                 generated[tree.FilePath] = root.NormalizeWhitespace(indentation: "    ", eol: "\n").ToFullString() + "\n";
             }
             CSharpCompilation checkedProgram = CreateCompilation(path, generated[path], companions: companions, sourceOverrides: generated, references: references);
+            foreach (SyntaxTree tree in checkedProgram.SyntaxTrees.Where(tree => generated.ContainsKey(tree.FilePath))) {
+                var factoryRewriter = new FluentFactoryRewriter(checkedProgram.GetSemanticModel(tree));
+                var rewritten = factoryRewriter.Visit(tree.GetRoot())!;
+                var root = (CompilationUnitSyntax)rewritten;
+                if (!root.Usings.Any(u => u.Name?.ToString() == "ConsoleMonster")) { root = root.AddUsings(SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("ConsoleMonster"))); }
+                foreach (string ns in factoryRewriter.Namespaces.Where(ns => !string.IsNullOrEmpty(ns)).OrderBy(ns => ns, StringComparer.Ordinal)) {
+                    if (!root.Usings.Any(usingDirective => usingDirective.Alias == null && usingDirective.Name?.ToString() == ns)) { root = root.AddUsings(SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(ns))); }
+                }
+                generated[tree.FilePath] = root.NormalizeWhitespace(indentation: "    ", eol: "\n").ToFullString() + "\n";
+            }
+            checkedProgram = CreateCompilation(path, generated[path], companions: companions, sourceOverrides: generated, references: references);
             var diagnostics = checkedProgram.GetDiagnostics();
             foreach (SyntaxTree tree in checkedProgram.SyntaxTrees.Where(tree => generated.ContainsKey(tree.FilePath))) {
                 var unused = diagnostics.Where(diagnostic => diagnostic.Id == "CS8019" && diagnostic.Location.SourceTree == tree)

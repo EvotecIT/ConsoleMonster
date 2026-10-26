@@ -38,7 +38,7 @@ Terminal.Write(panel);
 ```
 
 ```csharp
-new Panel()
+Ui.Panel()
     .Title("Build")
     .Border(BoxStyle.Rounded)
     .Content(c => c.Text("All checks passed"))
@@ -55,6 +55,6 @@ PowerShell switches name the non-default behavior: `-NoMouse` maps to `Mouse = f
 
 Use initializers for several settings, named variables and rows filled in a loop. Use fluent calls when one expression makes the layout easier to follow. Both mutate the same object and return the same widget types. Configure a widget before starting a live session; once the session owns it, use its update API.
 
-Fluent methods are generated at build time from public properties. They use no runtime reflection and retain the receiver's derived type. Immutable values such as TerminalProfile keep their existing copy semantics and `With*` methods. The `Ui` factories remain available for short C# compositions; the demo tabs use explicit types so their parameter mappings remain visible.
+Fluent methods are generated at build time from public properties. They use no runtime reflection and retain the receiver's derived type. Immutable values such as TerminalProfile keep their existing copy semantics and `With*` methods. The fluent entry point is `Ui`: `New-ConsolePanel` maps to `Ui.Panel()`, and a nested panel maps to `c.Panel(p => p.Title("Build").Content(...))`. Factories start empty; named calls configure them. The initializer tab keeps `new Panel(...)`. Text, rule titles, row collections and live identities are the documented primary-input exceptions. Chart/progress and kind-selected inputs use the same typed options and `Build()` factories as PowerShell; content builders materialize these definitions after their configuration lambda.
 
 The [gallery](/demos/) checks all three maintained programs across every recorded state. The [API reference](/api/) shows property and fluent configuration forms together; the [parity contract](/docs/api-parity/) lists host and C#-only exceptions.

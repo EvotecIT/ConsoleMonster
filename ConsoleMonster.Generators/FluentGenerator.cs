@@ -206,7 +206,7 @@ namespace ConsoleMonster.Generators {
             if (delegateProperties && !inheritedConfigure && !Taken("Configure", compilation.GetTypeByMetadataName("System.Action`1")!.Construct(type))) {
                 body.Append(Doc("Assigns callbacks and related configuration without invoking delegate-valued properties.", receiver, "Assignments applied in order.", "configure"));
                 foreach (IPropertySymbol property in Properties(type).Where(property => IsSettable(property) && property.Type.TypeKind == TypeKind.Delegate)) {
-                    body.Append(PropertyExample(type, property, receiver));
+                    body.Append(PropertyExample(type, property, receiver, compilation));
                 }
                 body.Append("        public static ").Append(self).Append(" Configure").Append(generic).Append("(this ").Append(self).Append(' ').Append(receiver)
                     .Append(", global::System.Action<").Append(self).Append("> configure)").Append(constraint).Append(" {\n")
@@ -243,7 +243,7 @@ namespace ConsoleMonster.Generators {
                 if (IsSettable(property) && !Taken(with, property.Type) && generated.Add(with + "(" + propertyType + ")")) {
                     bool flag = property.Type.SpecialType == SpecialType.System_Boolean;
                     body.Append(Doc("Sets <see cref=\"" + propertyDoc + "\"/>" + summary, receiver, "The value.", "value"));
-                    if (property.Type.TypeKind != TypeKind.Delegate) { body.Append(PropertyExample(type, property, receiver)); }
+                    if (property.Type.TypeKind != TypeKind.Delegate) { body.Append(PropertyExample(type, property, receiver, compilation)); }
                     body.Append("        public static ").Append(self).Append(' ').Append(with).Append(generic).Append("(this ").Append(self).Append(' ').Append(receiver)
                         .Append(", ").Append(propertyType).Append(" value").Append(')').Append(constraint).Append(" {\n")
                         .Append("            ").Append(receiver).Append('.').Append(property.Name).Append(" = value;\n")
@@ -350,11 +350,19 @@ namespace ConsoleMonster.Generators {
         }
 
         /// <summary>Shows both configuration forms in the generated API reference, without assuming a parameterless constructor.</summary>
-        private static string PropertyExample(INamedTypeSymbol type, IPropertySymbol property, string receiver) {
+        private static string PropertyExample(INamedTypeSymbol type, IPropertySymbol property, string receiver, Compilation compilation) {
             bool constructible = type.InstanceConstructors.Any(ctor => ctor.DeclaredAccessibility == Accessibility.Public && ctor.Parameters.All(parameter => parameter.IsOptional));
             string creation = "new " + type.ToDisplayString(TypeFormat);
             string initializer = constructible ? creation + " { " + property.Name + " = value }" : receiver + "." + property.Name + " = value;";
-            string fluent = (constructible ? creation + "()" : receiver) + (property.Type.TypeKind == TypeKind.Delegate
+            INamedTypeSymbol? ui = compilation.GetTypeByMetadataName("ConsoleMonster.Ui");
+            IMethodSymbol? factory = ui?.GetMembers().OfType<IMethodSymbol>().FirstOrDefault(method => method.IsStatic && !method.IsGenericMethod
+                && method.Parameters.All(parameter => parameter.IsOptional) && SymbolEqualityComparer.Default.Equals(method.ReturnType, type));
+            string entry = factory == null ? receiver : "Ui." + factory.Name + "()";
+            if (type.Name == "TextBlock" && factory != null) { entry += ".IsMarkup()"; }
+            if (factory == null && type.Name.EndsWith("Options", StringComparison.Ordinal) && type.InstanceConstructors.Any(ctor => ctor.DeclaredAccessibility == Accessibility.Public && ctor.Parameters.Length == 0)) {
+                entry = "Ui.Options<" + type.ToDisplayString(TypeFormat) + ">()";
+            }
+            string fluent = entry + (property.Type.TypeKind == TypeKind.Delegate
                 ? ".Configure(configured => configured." + property.Name + " = value)" : "." + property.Name + "(value)");
             if (!initializer.EndsWith(";", StringComparison.Ordinal)) { initializer += ";"; }
             const string leftHeading = "// C# initializer or property";

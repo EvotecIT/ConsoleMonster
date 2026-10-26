@@ -269,6 +269,7 @@ namespace SiteFrames.Pages {
             foreach (Demo demo in Read(site)) {
                 string source = CSharpRunner.FluentSource(demo.CSharp);
                 CSharpRunner.Check(demo.CSharp, source);
+                CheckFluentConstruction(site, demo.CSharp, source);
                 File.WriteAllText(demo.CSharpFluent, source, new UTF8Encoding(false));
                 Console.WriteLine("gallery " + demo.Slug + ": fluent source regenerated");
             }
@@ -279,12 +280,22 @@ namespace SiteFrames.Pages {
             var failures = new List<string>();
             foreach (Demo demo in Read(site)) {
                 foreach (string path in new[] { demo.CSharp, demo.CSharpFluent }) {
-                    try { CSharpRunner.Compile(path); }
+                    try { CSharpRunner.Compile(path); if (path == demo.CSharpFluent) { CheckFluentConstruction(site, path, Site.ReadText(path)); } }
                     catch (InvalidOperationException error) { failures.Add(demo.Slug + "/" + Path.GetFileName(path) + ": " + error.Message); }
                 }
             }
             if (failures.Count != 0) { throw new InvalidDataException(string.Join("\n\n", failures)); }
             Console.WriteLine("All gallery initializer and fluent programs compile independently.");
+        }
+
+        private static void CheckFluentConstruction(Site site, string path, string source) {
+            var map = JsonNode.Parse(File.ReadAllText(Path.Combine(site.Repository, "Tests", "Api", "round2-parity.json")))!;
+            var allowed = map["FluentGrammar"]!["Entry"]!["DataConstructionExceptions"]!.AsArray().Select(row => row!["CSharpType"]!.GetValue<string>()).ToHashSet(StringComparer.Ordinal);
+            string[] direct = CSharpRunner.ConstructedConsoleTypes(path, source).Where(type => !allowed.Contains(type)).ToArray();
+            if (direct.Length > 0) { throw new InvalidOperationException("Fluent UI construction must use Ui and content builders: " + string.Join(", ", direct)); }
+            if (!CSharpRunner.ConfiguredMembersFromSource(path, source).Any(member => member.StartsWith("M:ConsoleMonster.Ui.", StringComparison.Ordinal))) {
+                throw new InvalidOperationException("A fluent gallery program must use the Ui entry point.");
+            }
         }
 
         /// <summary>Checks recorded PowerShell against the ordinary C# programs without rewriting site assets.</summary>

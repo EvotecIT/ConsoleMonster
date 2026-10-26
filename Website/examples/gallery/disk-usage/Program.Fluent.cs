@@ -18,10 +18,10 @@ var folders = new FolderRow[]
     new("./artifacts", new[] { ("current", "18 GiB"), ("history", "76 GiB") })
 };
 // Layout: bars answer where pressure is; the tree explains what occupies the space.
-BarChart chart = new BarChart().Maximum(100).Unit("%").Warning(80).Critical(90);
+BarChart chart = Ui.Chart().Type(ConsoleMonster.Widgets.ChartType.Bar).Maximum(100).Unit("%").Warning(80).Critical(90).Build<BarChart>();
 foreach (var volume in used)
     chart.Add(volume.Name, volume.Percent);
-Tree tree = new Tree("./");
+Tree tree = Ui.Tree().Title("./");
 foreach (var folder in folders)
 {
     TreeNode node = tree.Add(folder.Path);
@@ -29,26 +29,26 @@ foreach (var folder in folders)
         node.Add(child.Label, null, child.Size);
 }
 
-Rows report = new Rows().Gap(1).Content(c3 =>
+Rows report = Ui.Rows().Gap(1).Content(c3 =>
 {
     c3.Rule("[bold]Storage review[/] [muted]· capacity planning[/]");
-    c3.Add(new Columns().Content(c2 =>
+    c3.Columns(cmColumns => cmColumns.Content(c2 =>
     {
-        c2.Add(new Panel().Title("Used / 100 GiB").Content(c =>
+        c2.Panel(cmPanel => cmPanel.Title("Used / 100 GiB").Content(c =>
         {
             c.Add(chart);
         }));
-        c2.Add(new Panel().Title("Largest folders").Content(c =>
+        c2.Panel(cmPanel => cmPanel.Title("Largest folders").Content(c =>
         {
             c.Add(tree);
         }));
     }));
-    c3.Add(new Panel().Title("Next action").Content(c2 =>
+    c3.Panel(cmPanel => cmPanel.Title("Next action").Content(c2 =>
     {
-        c2.Add(new Rows().Content(c =>
+        c2.Rows(cmRows => cmRows.Content(c =>
         {
-            c.Text("[warn]Artifacts is at 94%.[/] Review the retention policy before the next build.");
-            c.Text("[muted]Keep the current release; archive history older than 30 days.[/]");
+            c.Text(cText => cText.Content("[warn]Artifacts is at 94%.[/] Review the retention policy before the next build.").IsMarkup());
+            c.Text(cText => cText.Content("[muted]Keep the current release; archive history older than 30 days.[/]").IsMarkup());
         }));
     }));
 });

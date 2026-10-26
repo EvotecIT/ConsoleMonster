@@ -22,8 +22,8 @@ namespace ConsoleMonster.Widgets {
         private const int MonthHeight = 10;
         private static readonly StatusKind[] Statuses = { StatusKind.Fail, StatusKind.Warn, StatusKind.Running, StatusKind.Pending, StatusKind.Pass, StatusKind.Info, StatusKind.Skip };
         private static readonly string[] Symbols = { "x", "!", ">", "?", "+", "i", "-" };
-        private readonly int _year;
-        private readonly int _month;
+        private int _year;
+        private int _month;
         private DayOfWeek? _firstDayOfWeek;
 
         /// <summary>Creates a calendar for an explicit month and a snapshot of its marked days.</summary>
@@ -38,13 +38,17 @@ namespace ConsoleMonster.Widgets {
         }
 
         /// <summary>The Gregorian year.</summary>
-        public int Year => _year;
+        public int Year { get => _year; set { _ = new DateTime(value, _month, 1); _year = value; } }
         /// <summary>The month used in Month view.</summary>
-        public int Month => _month;
+        public int Month { get => _month; set { _ = new DateTime(_year, value, 1); _month = value; } }
         /// <summary>Month or year presentation.</summary>
         public CalendarView View { get; set; }
         /// <summary>The immutable grouped date model.</summary>
-        public CalendarData Data { get; }
+        public CalendarData Data { get; private set; }
+
+        /// <summary>Replaces the marked-day snapshot before displaying the calendar.</summary>
+        /// <param name="marks">The primary marked-day records.</param><returns>This calendar.</returns>
+        public Calendar Marks(IEnumerable<CalendarMark> marks) { Data = new CalendarData(marks); return this; }
         /// <summary>Override for the culture's first day of week.</summary>
         public DayOfWeek? FirstDayOfWeek {
             get => _firstDayOfWeek;

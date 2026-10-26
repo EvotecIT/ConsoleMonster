@@ -250,4 +250,37 @@ Describe 'PowerShell and C# API parity' {
         }
     }
 
+    It 'matches construction nouns to Ui and the nesting builder, with only recorded primary inputs' {
+        $rule = $script:Parity.FluentGrammar.Entry
+        $ui = $script:ApiTypes[$rule.FactoryType]
+        $builder = $script:ApiTypes[$script:Parity.FluentGrammar.Content.BuilderType]
+        $constructors = @($script:ApiCommands | Where-Object Verb -EQ New | Select-Object -ExpandProperty Name)
+        Compare-Object @($constructors | Sort-Object) @(@($rule.Factories.Command) + @($rule.NonWidgetCommands.Command) | Sort-Object) | Should -BeNullOrEmpty
+        foreach ($exception in $rule.NonWidgetCommands) { $exception.Reason | Should -Not -BeNullOrEmpty }
+        foreach ($factory in $rule.Factories) {
+            $methods = @($ui.GetMethods([Reflection.BindingFlags] 'Public,Static,DeclaredOnly') | Where-Object { $_.Name -ceq $factory.Noun -and -not $_.IsGenericMethodDefinition -and @($_.GetParameters() | Where-Object { -not $_.IsOptional }).Count -eq 0 })
+            $methods.Count | Should -Be 1 -Because "$($factory.Command) needs Ui.$($factory.Noun)()"
+            $methods[0].ReturnType.FullName | Should -BeExactly $factory.ReturnType
+            if ($factory.ContentBuilder) {
+                $type = $script:ApiTypes[$factory.ReturnType]
+                $action = [Action[object]].GetGenericTypeDefinition().MakeGenericType([Type[]] @($type))
+                @($builder.GetMethods() | Where-Object { $_.Name -ceq $factory.Noun -and $_.GetParameters().Count -eq 1 -and $_.GetParameters()[0].ParameterType -eq $action }).Count | Should -Be 1 -Because "nested $($factory.Command) needs the same configured noun"
+                @($builder.GetMethods() | Where-Object { $_.Name -ceq $factory.Noun -and $_.GetParameters().Count -eq 1 -and $_.GetParameters()[0].ParameterType -eq $type }).Count | Should -Be 1
+            }
+        }
+        $all = @($ui.GetMethods([Reflection.BindingFlags] 'Public,Static,DeclaredOnly') | Select-Object -ExpandProperty Name -Unique | Sort-Object)
+        Compare-Object $all @(@($rule.Factories.Noun) + @($rule.CSharpOnlyFactories.Noun) | Sort-Object -Unique) | Should -BeNullOrEmpty
+        foreach ($exception in $rule.CSharpOnlyFactories) { $exception.Reason | Should -Not -BeNullOrEmpty }
+        foreach ($method in $ui.GetMethods([Reflection.BindingFlags] 'Public,Static,DeclaredOnly')) {
+            $parameters = @($method.GetParameters())
+            if ($parameters.Count -eq 0) { continue }
+            $parameters.Count | Should -Be 1 -Because 'configuration belongs in the chain; a factory can accept one recorded primary input'
+            $primary = @($rule.PrimaryInputs | Where-Object { $_.Noun -ceq $method.Name -and $_.Argument -ceq $parameters[0].Name })
+            $primary.Count | Should -Be 1
+            $command = $script:ApiCommands | Where-Object Name -EQ $primary[0].Command
+            @($command.ParameterSets | ForEach-Object Parameters | Where-Object { $_.Name -ceq $primary[0].Parameter -and $_.Position -eq $primary[0].Position }).Count | Should -BeGreaterThan 0
+            $primary[0].Reason | Should -Not -BeNullOrEmpty
+        }
+    }
+
 }

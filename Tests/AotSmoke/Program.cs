@@ -21,7 +21,7 @@ internal static class Program {
     }
 
     private static int Main() {
-        var table = Table.For(new[] { new Server() });
+        var table = Ui.Table(new[] { new Server() });
         table.Column(server => server.Name).Column(server => server.Count);
         Require(ConsoleExporter.ToText(table), "web-01", "42");
 
@@ -57,21 +57,27 @@ internal static class Program {
             } catch (ArgumentOutOfRangeException) { }
             if (session.EventsPosted != 1) { throw new InvalidOperationException("The native update path partially published an oversized append."); }
         }
-        Panel panel = new Panel().Title("Build").Content(content => content.Text("All checks passed"));
+        Panel panel = Ui.Panel().Title("Build").Content(content => content.Text("All checks passed"));
         var field = new NumberField("Attempts").Integer().Required();
         if (!field.Integer || !field.Required) { throw new InvalidOperationException("Boolean fluent switches did not enable the field options."); }
         field.Integer(false).Required(false);
         if (field.Integer || field.Required) { throw new InvalidOperationException("Explicit false did not disable the field options."); }
-        Require(ConsoleExporter.ToText(new Rows().Content(c => { c.Rule("Build"); c.Text("Ready"); })), "Build", "Ready");
+        Require(ConsoleExporter.ToText(Ui.Rows().Content(c => { c.Rule("Build"); c.Text("Ready"); })), "Build", "Ready");
         Require(ConsoleExporter.ToText(panel), "Build", "All checks passed");
-        var calendar = new Calendar(2026, 10).Culture(System.Globalization.CultureInfo.InvariantCulture).Today(new DateTime(2026, 10, 20)).ShowLegend(false);
+        var calendar = Ui.Calendar().Year(2026).Month(10).Culture(System.Globalization.CultureInfo.InvariantCulture).Today(new DateTime(2026, 10, 20)).ShowLegend(false);
         Require(ConsoleExporter.ToText(calendar), "October", "2026");
-        var scroll = new ScrollView().MaxContentHeight(100).Content(content => content.Text("Scrollable content"));
+        var scroll = Ui.ScrollView().MaxContentHeight(100).Content(content => content.Text("Scrollable content"));
         Require(ConsoleExporter.ToText(scroll), "Scrollable content");
-        var command = new AppCommand("check", "Run check", (_, __) => System.Threading.Tasks.Task.CompletedTask);
-        var button = AppInput.Button(new ButtonInputOptions { Key = "run", Command = command });
+        var command = Ui.Command().Key("check").Label("Run check").Configure(definition => definition.Action = (_, __) => System.Threading.Tasks.Task.CompletedTask).Build();
+        var button = Ui.Button().Key("run").Command(command).Build();
+        var typedProgress = Ui.Progress().WidgetId("fluent-progress").Label("Build").Value(5).Total(10).Build<ProgressBar>();
+        Require(ConsoleExporter.ToText(typedProgress), "Build");
+        Require(ConsoleExporter.ToText(Ui.Rows().Content(content => {
+            content.Panel(panel => panel.Title("Nested").Content(children => children.Text("literal [text]")));
+            content.Chart(chart => chart.Type(ChartType.Sparkline).Values(new double[] { 1, 2, 3 }));
+        })), "Nested", "literal [text]");
         var appCapture = new ScreenCapture(60, 12);
-        var appOptions = new ConsoleAppOptions().StaticSnapshot(true).SelectionKey("picked")
+        var appOptions = Ui.Options<ConsoleAppOptions>().StaticSnapshot(true).SelectionKey("picked")
             .Interactive(options => { options.Capture = appCapture; options.Profile = TerminalProfile.Fixed(60, 12); });
         appOptions.AddCommand(command);
         ConsoleApp.Run(new ScrollView().Content(content => content.Add(button)), options: appOptions);

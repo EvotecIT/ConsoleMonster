@@ -20,6 +20,20 @@ namespace SiteFrames.Pages {
             foreach (JsonNode? rule in map["FluentExceptions"]!.AsArray()) {
                 body.AppendLine("Callback properties use `" + rule!["Pattern"]!.GetValue<string>().Replace("{Member}", "Action", StringComparison.Ordinal) + "`. " + rule["Reason"]!.GetValue<string>() + "\n");
             }
+            body.AppendLine("## Fluent construction and nesting\n");
+            body.AppendLine("Ui is the fluent entry point: New-ConsolePanel becomes Ui.Panel(), named settings stay in the chain, and nested Content uses c.Panel(panel => …). Initializers retain constructors. Factories accept no positional configuration; the recorded primary inputs below are the only exceptions. Chart, Progress and kind-selected inputs materialize their existing typed options through the shared Build operation.\n");
+            body.AppendLine("| PowerShell constructor | Fluent entry | Nested builder |\n| --- | --- | --- |");
+            foreach (JsonNode? node in map["FluentGrammar"]!["Entry"]!["Factories"]!.AsArray()) {
+                JsonObject factory = node!.AsObject();
+                string noun = factory["Noun"]!.GetValue<string>();
+                body.AppendLine("| `" + factory["Command"]!.GetValue<string>() + "` | `" + factory["Pattern"]!.GetValue<string>() + "` | "
+                    + (factory["ContentBuilder"]!.GetValue<bool>() ? "`c." + noun + "(widget => …)`" : "Definition, not display content") + " |");
+            }
+            body.AppendLine("\n| Primary fluent input | PowerShell input | Reason |\n| --- | --- | --- |");
+            foreach (JsonNode? node in map["FluentGrammar"]!["Entry"]!["PrimaryInputs"]!.AsArray()) {
+                body.AppendLine("| `Ui." + node!["Noun"]!.GetValue<string>() + "(" + node["Argument"]!.GetValue<string>() + ")` | `" + node["Command"]!.GetValue<string>() + " -" + node["Parameter"]!.GetValue<string>() + "` | " + Cell(node["Reason"]!.GetValue<string>()) + " |");
+            }
+            body.AppendLine();
             body.AppendLine("## Parameter-set mappings\n");
             body.AppendLine("A structural parameter set can select a different request model. The metadata gate checks these mappings separately and includes both update requests in its public-member coverage.\n");
             body.AppendLine("| Command and parameter | Set | C# member | Conversion |\n| --- | --- | --- | --- |");

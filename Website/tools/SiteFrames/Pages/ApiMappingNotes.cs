@@ -8,7 +8,7 @@ using SiteFrames.Capture;
 namespace SiteFrames.Pages {
     /// <summary>Generates the three-style translation aid from resolved program symbols and the parity contract.</summary>
     internal static partial class ApiMappingNotes {
-        private static readonly string[] Preferred = { "Title", "Content", "Expand", "Border", "Label", "Value", "Total", "WidgetId", "HeaderRight", "Caption", "Role" };
+        private static readonly string[] Preferred = { "Expand", "Title", "Content", "Border", "Label", "Value", "Total", "WidgetId", "HeaderRight", "Caption", "Role" };
 
         public static JsonArray For(Site site, string initializer, string fluent, params string[] companions) =>
             FromSource(site, initializer, Site.ReadText(fluent), companions);
@@ -66,13 +66,27 @@ namespace SiteFrames.Pages {
                 rows[key] = (commandName, binding);
             }
             JsonArray result = new JsonArray();
+            JsonObject entryRule = map["FluentGrammar"]!["Entry"]!.AsObject();
+            foreach (JsonNode? factoryNode in entryRule["Factories"]!.AsArray()) {
+                JsonObject factory = factoryNode!.AsObject();
+                string noun = factory["Noun"]!.GetValue<string>();
+                string command = factory["Command"]!.GetValue<string>();
+                string methodId = "M:" + entryRule["FactoryType"]!.GetValue<string>() + "." + noun;
+                if (!used.Contains(methodId) || commands != null && !commands.Any(value => value == command || value.StartsWith(command + " -", StringComparison.Ordinal))) { continue; }
+                string type = factory["InitializerTypes"]!.AsArray().Select(node => node!.GetValue<string>()).FirstOrDefault(type => used.Contains("C:" + type)) ?? factory["ReturnType"]!.GetValue<string>();
+                string initializerType = type.Substring(type.LastIndexOf('.') + 1);
+                string? reason = factory["Reason"]?.GetValue<string>();
+                if (factory["ContentBuilder"]!.GetValue<bool>()) { reason = (reason == null ? string.Empty : reason + " ") + "Inside Content: " + entryRule["NestedPattern"]!.GetValue<string>().Replace("{Noun}", noun, StringComparison.Ordinal) + "."; }
+                result.Add(new JsonObject { ["powershell"] = command, ["csharp"] = noun == "Table" && used.Contains("M:ConsoleMonster.Widgets.Table.For") ? "Table.For(rows)" : "new " + initializerType + "(…)", ["fluent"] = factory["Pattern"]!.GetValue<string>(), ["memberId"] = methodId, ["note"] = reason });
+                break;
+            }
             var contentCommands = new HashSet<string>(StringComparer.Ordinal);
             JsonObject contentRule = map["FluentGrammar"]!["Content"]!.AsObject();
             foreach (JsonNode? contentNode in contentRule["Bindings"]!.AsArray()) {
                 JsonObject binding = contentNode!.AsObject();
                 string methodId = "M:" + binding["FluentType"]!.GetValue<string>() + ".Content";
                 string command = binding["Command"]!.GetValue<string>();
-                if (result.Count >= 3 || !used.Contains(methodId) || commands != null && !commands.Contains(command + " -Content")) { continue; }
+                if (contentCommands.Count >= 2 || !used.Contains(methodId) || commands != null && !commands.Contains(command + " -Content")) { continue; }
                 contentCommands.Add(command);
                 result.Add(new JsonObject {
                     ["powershell"] = command + " " + contentRule["PowerShellPattern"]!.GetValue<string>(),
@@ -121,7 +135,7 @@ namespace SiteFrames.Pages {
             if (result.Count < 6 && used.Contains(rowFactory)) {
                 result.Add(new JsonObject {
                     ["powershell"] = "New-ConsoleTable -InputObject $rows -Property …",
-                    ["csharp"] = tableRows["Pattern"]!.GetValue<string>(), ["fluent"] = tableRows["Pattern"]!.GetValue<string>(),
+                    ["csharp"] = tableRows["Pattern"]!.GetValue<string>(), ["fluent"] = tableRows["FluentPattern"]!.GetValue<string>(),
                     ["memberId"] = rowFactory, ["note"] = tableRows["Reason"]!.GetValue<string>()
                 });
             }

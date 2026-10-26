@@ -22,6 +22,12 @@ namespace SiteFrames.Tests {
         [InlineData("Terminal.Write(new Panel(new TextBlock(\"Ready\"), ConsoleMonster.Text.RichText.Plain(\"Build\")));")]
         [InlineData("Terminal.Write(new Rows(new TextBlock(markup: \"Ready\"), new Rule(ConsoleMonster.Text.RichText.Plain(\"Build\"))));")]
         [InlineData("string? title = null; Terminal.Write(new Rows(new Rule(title)));")]
+        [InlineData("var rows = new Rows(new ConsoleMonster.Interactive.AppBinding(state => new Panel(new TextBlock(\"Inner\"), \"Build\"))); if (rows.Children[0] is not ConsoleMonster.Interactive.AppBinding) throw new System.InvalidOperationException(\"Lost binding\"); Terminal.Write(new TextBlock(\"Binding retained\"));")]
+        [InlineData("Terminal.Write(new Rows().Content(c => c.Add(new Panel(new TextBlock(\"Fill\"), \"Build\").Fill(2))));")]
+        [InlineData("Terminal.Write(new Rows(new Panel(new Rows(new Panel(new TextBlock(\"Nested\"), \"Inner\")), \"Outer\")));")]
+        [InlineData("string cText = \"Text\"; Terminal.Write(new Rows(new TextBlock(cText)));")]
+        [InlineData("Terminal.Write(new Rows(new ProgressBar(\"Build\", \"build\") { Value = 5, Total = 10 }));")]
+        [InlineData("Terminal.Write(new ProgressBar(\"Build\").CountColumn(column => column.MinWidth(7)));")]
         public void ContainerTranslationPreservesEvaluationAndSelectedOverloads(string body) {
             string path = Source("using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n" + body);
             string fluent = CSharpRunner.FluentSource(path);
@@ -37,7 +43,7 @@ namespace SiteFrames.Tests {
             Assert.Contains(".Expand()", fluent, StringComparison.Ordinal);
             Assert.Contains(".Content(c =>", fluent, StringComparison.Ordinal);
             Assert.Contains(".Rule(\"Nightly\")", fluent, StringComparison.Ordinal);
-            Assert.Contains(".Text(\"Ready\")", fluent, StringComparison.Ordinal);
+            Assert.Contains(".Text(", fluent, StringComparison.Ordinal);
             CSharpRunner.Check(path, fluent);
             var profile = CSharpRunner.Profile(60, 20, ColorDepth.TrueColor, GlyphTier.Full);
             Assert.Equal(CSharpRunner.Execute(path, profile, Theme.Dark, null).Output, CSharpRunner.Execute(path, profile, Theme.Dark, null, fluent: true).Output);

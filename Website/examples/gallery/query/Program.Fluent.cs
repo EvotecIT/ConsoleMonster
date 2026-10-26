@@ -38,47 +38,47 @@ var resolvers = new ResolverRow[]
     new("Local resolver", 47)
 };
 // Layout: keep the dense report readable through wrapping and two balanced panels.
-KeyValueList summary = new KeyValueList().Add("Domain", "[bold]example.test[/]").Add("Resolver", "Edge west DNS over HTTPS [muted](192.0.2.53)[/]").Add("Query time", "38 ms [muted]for 7 record types[/]").Add("Records", "10").Add("DNSSEC", "not signed", StatusKind.Warn);
-var table = Table.For(records).Column(row => row.Name).Column(row => row.Type).Column(row => row.TTL, column =>
+KeyValueList summary = Ui.KeyValue().Add("Domain", "[bold]example.test[/]").Add("Resolver", "Edge west DNS over HTTPS [muted](192.0.2.53)[/]").Add("Query time", "38 ms [muted]for 7 record types[/]").Add("Records", "10").Add("DNSSEC", "not signed", StatusKind.Warn);
+var table = Ui.Table(records).Column(row => row.Name).Column(row => row.Type).Column(row => row.TTL, column =>
 {
     column.Header("TTL");
     column.Alignment(HorizontalAlignment.Right);
 }).Column(row => row.Data, column => column.Flexible());
 table.Expand();
 table.HeaderSeparator(false);
-Tree delegation = new Tree("[bold].[/] [muted]root[/]");
+Tree delegation = Ui.Tree().Title("[bold].[/] [muted]root[/]");
 TreeNode test = delegation.Add("[bold]test.[/]", null, "reserved namespace");
 test.Add("ns.test", null, "192.0.2.42");
 TreeNode zone = test.Add("[bold]example.test.[/]", null, "2 name servers");
 zone.Add("ns1.example.test", StatusKind.Pass, "198.51.100.103 · 12 ms");
 zone.Add("ns2.example.test", StatusKind.Pass, "203.0.113.149 · 14 ms");
 zone.Add("mail", null, "MX target").Add("mail.example.test", StatusKind.Pass, "192.0.2.17");
-StatusList mail = new StatusList();
+StatusList mail = Ui.StatusList();
 foreach (var(label, status, detail)in checks)
     mail.Add(label, status, detail);
-BarChart latency = new BarChart("latency").Unit(" ms");
+BarChart latency = Ui.Chart().Type(ConsoleMonster.Widgets.ChartType.Bar).WidgetId("latency").Unit(" ms").Build<BarChart>();
 foreach (var(label, value)in resolvers)
     latency.Add(label, value);
-IWidget report = new Rows().Gap(1).Content(c4 =>
+IWidget report = Ui.Rows().Gap(1).Content(c4 =>
 {
     c4.Rule("[bold]DNS query results[/] [muted]· example.test[/]");
-    c4.Add(new Padding().Bottom(0).Right(1).Top(0).Left(1).Content(c =>
+    c4.Padding(cmPadding => cmPadding.Bottom(0).Right(1).Top(0).Left(1).Content(c =>
     {
         c.Add(summary);
     }));
     c4.Add(table);
-    c4.Add(new Columns().Content(c3 =>
+    c4.Columns(cmColumns => cmColumns.Content(c3 =>
     {
-        c3.Add(new Panel().Title("Delegation").Content(c =>
+        c3.Panel(cmPanel => cmPanel.Title("Delegation").Content(c =>
         {
             c.Add(delegation);
         }));
-        c3.Add(new Panel().Title("Mail security").Content(c2 =>
+        c3.Panel(cmPanel => cmPanel.Title("Mail security").Content(c2 =>
         {
-            c2.Add(new Rows().Gap(0).Content(c =>
+            c2.Rows(cmRows => cmRows.Gap(0).Content(c =>
             {
                 c.Add(mail);
-                c.Add(new Rule());
+                c.Rule();
                 c.Add(latency);
             }));
         }).HeaderRight(domain));

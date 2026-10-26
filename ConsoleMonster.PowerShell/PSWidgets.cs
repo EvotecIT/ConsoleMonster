@@ -59,13 +59,13 @@ namespace ConsoleMonster.PowerShell {
         /// <summary>Wraps a widget with a layout size when the caller asked for one.</summary>
         public static IWidget WithSize(IWidget widget, double weight, int height, bool fill) {
             if (height > 0) {
-                return new Sized(widget, LayoutSize.Fixed(height));
+                return widget.Fixed(height);
             }
             if (fill) {
-                return new Sized(widget, LayoutSize.Fraction(weight > 0 ? weight : 1));
+                return widget.Fill(weight > 0 ? weight : 1);
             }
             if (weight > 0) {
-                return new Sized(widget, LayoutSize.Fraction(weight));
+                return widget.Fill(weight);
             }
             return widget;
         }

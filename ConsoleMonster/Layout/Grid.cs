@@ -15,7 +15,7 @@ namespace ConsoleMonster.Layout {
         /// <param name="columns">Number of columns (at least 1).</param>
         /// <param name="children">Initial children.</param>
         public Grid(int columns, params IWidget[] children) {
-            ColumnCount = Math.Max(1, columns);
+            Columns = Math.Max(1, columns);
             if (children != null) {
                 foreach (IWidget child in children) {
                     Add(child);
@@ -23,8 +23,10 @@ namespace ConsoleMonster.Layout {
             }
         }
 
+        private int _columns;
+
         /// <summary>The preferred number of columns.</summary>
-        public int ColumnCount { get; }
+        public int Columns { get => _columns; set => _columns = Math.Max(1, value); }
 
         /// <summary>Blank columns between cells (default 1).</summary>
         public int ColumnGap { get; set; } = 1;
@@ -88,7 +90,7 @@ namespace ConsoleMonster.Layout {
         }
 
         private int EffectiveColumns(int width) {
-            int columns = Math.Min(ColumnCount, Math.Max(1, _children.Count));
+            int columns = Math.Min(Columns, Math.Max(1, _children.Count));
             while (columns > 1 && (width - (ColumnGap * (columns - 1))) / columns < MinColumnWidth) {
                 columns--;
             }

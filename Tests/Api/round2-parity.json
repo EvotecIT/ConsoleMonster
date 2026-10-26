@@ -3714,7 +3714,7 @@
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.Ui",
+          "CSharpType": "ConsoleMonster.WidgetLayout",
           "Member": "Fill",
           "MemberKind": "Method",
           "Conversion": "LayoutDecorator",
@@ -3791,7 +3791,7 @@
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.Ui",
+          "CSharpType": "ConsoleMonster.WidgetLayout",
           "Member": "Fill",
           "MemberKind": "Method",
           "Conversion": "Identity",
@@ -5111,7 +5111,7 @@
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.Ui",
+          "CSharpType": "ConsoleMonster.WidgetLayout",
           "Member": "Fill",
           "MemberKind": "Method",
           "Conversion": "LayoutDecorator",
@@ -8933,7 +8933,7 @@
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.Ui",
+          "CSharpType": "ConsoleMonster.WidgetLayout",
           "Member": "Fill",
           "MemberKind": "Method",
           "Conversion": "LayoutDecorator",
@@ -8989,7 +8989,7 @@
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.Ui",
+          "CSharpType": "ConsoleMonster.WidgetLayout",
           "Member": "Fill",
           "MemberKind": "Method",
           "Conversion": "Identity",
@@ -9094,7 +9094,7 @@
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.Ui",
+          "CSharpType": "ConsoleMonster.WidgetLayout",
           "Member": "Fill",
           "MemberKind": "Method",
           "Conversion": "LayoutDecorator",
@@ -9312,7 +9312,7 @@
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.Ui",
+          "CSharpType": "ConsoleMonster.WidgetLayout",
           "Member": "Fill",
           "MemberKind": "Method",
           "Conversion": "Identity",
@@ -9776,7 +9776,7 @@
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.Ui",
+          "CSharpType": "ConsoleMonster.WidgetLayout",
           "Member": "Fill",
           "MemberKind": "Method",
           "Conversion": "LayoutDecorator",
@@ -9813,7 +9813,7 @@
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.Ui",
+          "CSharpType": "ConsoleMonster.WidgetLayout",
           "Member": "Fill",
           "MemberKind": "Method",
           "Conversion": "Identity",
@@ -9871,7 +9871,7 @@
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.Ui",
+          "CSharpType": "ConsoleMonster.WidgetLayout",
           "Member": "Fill",
           "MemberKind": "Method",
           "Conversion": "LayoutDecorator",
@@ -9909,7 +9909,7 @@
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.Ui",
+          "CSharpType": "ConsoleMonster.WidgetLayout",
           "Member": "Fill",
           "MemberKind": "Method",
           "Conversion": "Identity",
@@ -10041,7 +10041,7 @@
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.Ui",
+          "CSharpType": "ConsoleMonster.WidgetLayout",
           "Member": "Fill",
           "MemberKind": "Method",
           "Conversion": "LayoutDecorator",
@@ -10118,7 +10118,7 @@
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.Ui",
+          "CSharpType": "ConsoleMonster.WidgetLayout",
           "Member": "Fill",
           "MemberKind": "Method",
           "Conversion": "Identity",
@@ -10408,7 +10408,7 @@
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.Ui",
+          "CSharpType": "ConsoleMonster.WidgetLayout",
           "Member": "Fill",
           "MemberKind": "Method",
           "Conversion": "LayoutDecorator",
@@ -10445,7 +10445,7 @@
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.Ui",
+          "CSharpType": "ConsoleMonster.WidgetLayout",
           "Member": "Fill",
           "MemberKind": "Method",
           "Conversion": "Identity",
@@ -21926,7 +21926,7 @@
       "Member": "ProcessEvents",
       "CSharpTypeName": "System.Action`1[ConsoleMonster.Interactive.AppState]",
       "Reason": "Show-ConsoleApp reserves this owning-thread hook for draining its registered callbacks; replacing it would detach the PowerShell callback lifecycle.",
-      "Alternative": "Use New-ConsoleBinding and the inputs\u2019 OnChange/OnClick script blocks.",
+      "Alternative": "Use New-ConsoleBinding and the inputs’ OnChange/OnClick script blocks.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -22119,7 +22119,7 @@
       "Member": "Arguments",
       "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
       "Reason": "The PowerShell recording adapter constructs safe child-shell arguments from the script; C# hosts can launch a different approved child command.",
-      "Alternative": "Use the child script or the presenter\u2019s explicit shell/working-directory setup.",
+      "Alternative": "Use the child script or the presenter’s explicit shell/working-directory setup.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -22127,7 +22127,7 @@
       "Member": "Environment",
       "CSharpTypeName": "System.Collections.Generic.IDictionary`2[System.String,System.String]",
       "Reason": "The cmdlet preserves its documented isolated child environment; C# hosts may construct a separate per-child environment map.",
-      "Alternative": "Use the child script or the presenter\u2019s explicit shell/working-directory setup.",
+      "Alternative": "Use the child script or the presenter’s explicit shell/working-directory setup.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -22135,7 +22135,7 @@
       "Member": "WorkingDirectory",
       "CSharpTypeName": "System.String",
       "Reason": "PowerShell resolves script/provider paths before recording; C# hosts can specify the native child process working directory.",
-      "Alternative": "Use the child script or the presenter\u2019s explicit shell/working-directory setup.",
+      "Alternative": "Use the child script or the presenter’s explicit shell/working-directory setup.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -22190,7 +22190,7 @@
       "CSharpType": "ConsoleMonster.TestRuns.TestRunSummary",
       "Member": "ShowFailures",
       "CSharpTypeName": "System.Boolean",
-      "Reason": "Controls a custom summary\u2019s failure section; the PowerShell adapter preserves its standard result summary.",
+      "Reason": "Controls a custom summary’s failure section; the PowerShell adapter preserves its standard result summary.",
       "Alternative": "Invoke-ConsolePester owns its consistent final summary; custom C# test hosts can compose a summary widget.",
       "Disposition": "CSharpOnly"
     },
@@ -22238,7 +22238,7 @@
       "CSharpType": "ConsoleMonster.Values.ShapeOptions",
       "Member": "Culture",
       "CSharpTypeName": "System.Globalization.CultureInfo",
-      "Reason": "PowerShell\u2019s owning adapter resolves the command/runspace culture; C# shapers can supply a culture directly.",
+      "Reason": "PowerShell’s owning adapter resolves the command/runspace culture; C# shapers can supply a culture directly.",
       "Alternative": "PowerShell uses its canonical PSObject/member shaping and explicit Property/Culture selection.",
       "Disposition": "CSharpOnly"
     },
@@ -22270,7 +22270,7 @@
       "CSharpType": "ConsoleMonster.Values.ShapeOptions",
       "Member": "MaxNodes",
       "CSharpTypeName": "System.Int32",
-      "Reason": "Bounds custom C# shaping graphs; PowerShell uses the host\u2019s bounded projection and explicit inspector limits.",
+      "Reason": "Bounds custom C# shaping graphs; PowerShell uses the host’s bounded projection and explicit inspector limits.",
       "Alternative": "PowerShell uses its canonical PSObject/member shaping and explicit Property/Culture selection.",
       "Disposition": "CSharpOnly"
     },
@@ -22327,7 +22327,7 @@
       "Member": "BasePath",
       "CSharpTypeName": "System.String",
       "Reason": "PowerShell supplies its current filesystem provider path for source diagnostics; C# hosts choose their own base path.",
-      "Alternative": "Use Show-Console\u2019s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
+      "Alternative": "Use Show-Console’s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -22335,7 +22335,7 @@
       "Member": "DetailsHint",
       "CSharpTypeName": "System.String",
       "Reason": "The PowerShell adapter generates the native Get-Error hint; C# hosts supply wording for their own error-detail route.",
-      "Alternative": "Use Show-Console\u2019s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
+      "Alternative": "Use Show-Console’s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -22343,7 +22343,7 @@
       "Member": "Provider",
       "CSharpTypeName": "ConsoleMonster.Views.IConsoleViewProvider",
       "Reason": "Native view providers are a C# extension point; cmdlets use the shared built-in and registered PowerShell view owners.",
-      "Alternative": "Use Show-Console\u2019s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
+      "Alternative": "Use Show-Console’s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -22351,7 +22351,7 @@
       "Member": "Shape",
       "CSharpTypeName": "ConsoleMonster.Values.ShapeOptions",
       "Reason": "PowerShell owns PSObject shaping and runspace selectors; native C# hosts supply their own ShapeOptions.",
-      "Alternative": "Use Show-Console\u2019s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
+      "Alternative": "Use Show-Console’s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -22359,14 +22359,14 @@
       "Member": "Sources",
       "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Data.IMemberSource]",
       "Reason": "Native member-source implementations are the AOT/C# extension point; cmdlets install the canonical PSObject source.",
-      "Alternative": "Use Show-Console\u2019s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
+      "Alternative": "Use Show-Console’s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
       "Disposition": "CSharpOnly"
     },
     {
       "CSharpType": "ConsoleMonster.Widgets.Dashboard",
       "Member": "CompactSummary",
       "CSharpTypeName": "System.Func`1[System.String]",
-      "Reason": "A C# embedding host may supply a separate compact widget; PowerShell uses the dashboard\u2019s normal compact summary.",
+      "Reason": "A C# embedding host may supply a separate compact widget; PowerShell uses the dashboard’s normal compact summary.",
       "Alternative": "Use New-ConsoleDashboard and the normal adaptive dashboard layout.",
       "Disposition": "CSharpOnly"
     },
@@ -22374,7 +22374,7 @@
       "CSharpType": "ConsoleMonster.Widgets.Dashboard",
       "Member": "MinimumSize",
       "CSharpTypeName": "ConsoleMonster.Layout.Size",
-      "Reason": "Controls an embedded C# dashboard\u2019s compact-mode threshold; the PowerShell host keeps its supported adaptive threshold.",
+      "Reason": "Controls an embedded C# dashboard’s compact-mode threshold; the PowerShell host keeps its supported adaptive threshold.",
       "Alternative": "Use New-ConsoleDashboard and the normal adaptive dashboard layout.",
       "Disposition": "CSharpOnly"
     },
@@ -22406,8 +22406,8 @@
       "CSharpType": "ConsoleMonster.Widgets.InspectorView",
       "Member": "Presentation",
       "CSharpTypeName": "ConsoleMonster.Presenters.PresentationOptions",
-      "Reason": "A C# host can pin a static inspector\u2019s clock/time zone; PowerShell uses the owning host\u2019s current value presentation.",
-      "Alternative": "Use Show-ConsoleObject\u2019s standard inspector presentation.",
+      "Reason": "A C# host can pin a static inspector’s clock/time zone; PowerShell uses the owning host’s current value presentation.",
+      "Alternative": "Use Show-ConsoleObject’s standard inspector presentation.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -22415,7 +22415,7 @@
       "Member": "ShowHeader",
       "CSharpTypeName": "System.Boolean",
       "Reason": "Controls a directly embedded static inspector; PowerShell chooses its header according to the inspector route.",
-      "Alternative": "Use Show-ConsoleObject\u2019s standard inspector presentation.",
+      "Alternative": "Use Show-ConsoleObject’s standard inspector presentation.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -22446,7 +22446,7 @@
       "CSharpType": "ConsoleMonster.Widgets.RecordView",
       "Member": "Presentation",
       "CSharpTypeName": "ConsoleMonster.Presenters.PresentationOptions",
-      "Reason": "A C# host can pin a record\u2019s clock/time zone; PowerShell list values use their explicit Culture and owning-host context.",
+      "Reason": "A C# host can pin a record’s clock/time zone; PowerShell list values use their explicit Culture and owning-host context.",
       "Alternative": "Use Show-ConsoleList and its Property/Depth/ShowEmpty/Culture controls.",
       "Disposition": "CSharpOnly"
     },
@@ -22558,7 +22558,7 @@
       "CSharpType": "ConsoleMonster.Widgets.TextBlock",
       "Member": "Content",
       "CSharpTypeName": "System.String",
-      "Reason": "TextBlock stores one string; PowerShell\u2019s canonical text command returns RichText pieces usable in cells as well as block rendering.",
+      "Reason": "TextBlock stores one string; PowerShell’s canonical text command returns RichText pieces usable in cells as well as block rendering.",
       "Alternative": "Use New-ConsoleText -Text/-Markup/-Role/-Alignment/-Overflow; its RichText result is also a widget.",
       "Disposition": "EquivalentRepresentation"
     },
@@ -22582,7 +22582,7 @@
       "CSharpType": "ConsoleMonster.Widgets.TextBlock",
       "Member": "Role",
       "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Styling.ThemeToken]",
-      "Reason": "TextBlock stores a block role; PowerShell applies the same Role through RichText\u2019s base style.",
+      "Reason": "TextBlock stores a block role; PowerShell applies the same Role through RichText’s base style.",
       "Alternative": "Use New-ConsoleText -Text/-Markup/-Role/-Alignment/-Overflow; its RichText result is also a widget.",
       "Disposition": "EquivalentRepresentation"
     },
@@ -22617,6 +22617,14 @@
       "Reason": "A native grid host may provide its own mailbox; PowerShell keeps script execution and row refresh on the owning runspace.",
       "Alternative": "Use Show-ConsoleGrid -Command and -RefreshRow; C# hosts can supply an AppDispatcher.",
       "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.CommandOptions",
+      "Member": "Action",
+      "CSharpTypeName": "System.Func`3[ConsoleMonster.Interactive.AppActionContext,System.Threading.CancellationToken,System.Threading.Tasks.Task]",
+      "Reason": "PowerShell supplies ScriptBlock, modules and arguments to its isolated script runner; C# supplies the asynchronous delegate directly.",
+      "Alternative": "New-ConsoleCommand -ScriptBlock configures the same asynchronous command job.",
+      "Disposition": "CSharpOnly"
     }
   ],
   "SchemaVersion": 2,
@@ -22643,9 +22651,11 @@
     "ConsoleMonster.Interactive.AppBinding",
     "ConsoleMonster.Interactive.AppCommand",
     "ConsoleMonster.Interactive.AppInputOptions",
+    "ConsoleMonster.Interactive.BindingOptions",
     "ConsoleMonster.Interactive.Button",
     "ConsoleMonster.Interactive.ButtonInputOptions",
     "ConsoleMonster.Interactive.CommandLine",
+    "ConsoleMonster.Interactive.CommandOptions",
     "ConsoleMonster.Interactive.ConfirmPrompt",
     "ConsoleMonster.Interactive.ConsoleApp",
     "ConsoleMonster.Interactive.ConsoleAppOptions",
@@ -22857,10 +22867,12 @@
     "ConsoleMonster.Interactive.AppCommand",
     "ConsoleMonster.Interactive.AppDispatcher",
     "ConsoleMonster.Interactive.AppInputOptions",
+    "ConsoleMonster.Interactive.BindingOptions",
     "ConsoleMonster.Interactive.Button",
     "ConsoleMonster.Interactive.ButtonInputOptions",
     "ConsoleMonster.Interactive.Choice",
     "ConsoleMonster.Interactive.CommandLine",
+    "ConsoleMonster.Interactive.CommandOptions",
     "ConsoleMonster.Interactive.CommandStyle",
     "ConsoleMonster.Interactive.ConfirmPrompt",
     "ConsoleMonster.Interactive.ConsoleApp",
@@ -24956,6 +24968,96 @@
       "Command": "New-ConsoleCalendar",
       "Parameter": "NoLegend",
       "Reason": "The shared host calendar options configure this same portable calendar property."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.BindingOptions",
+      "Member": "WidgetId",
+      "MemberId": "ConsoleMonster.Interactive.BindingOptions.WidgetId",
+      "CSharpTypeName": "System.String",
+      "Command": "New-ConsoleBinding",
+      "Parameter": "WidgetId",
+      "Reason": "The typed definition materializes the same AppBinding after callback and identity configuration."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.BindingOptions",
+      "Member": "Content",
+      "MemberId": "ConsoleMonster.Interactive.BindingOptions.Content",
+      "CSharpTypeName": "System.Func`2[ConsoleMonster.Interactive.AppState,ConsoleMonster.Layout.IWidget]",
+      "Command": "New-ConsoleBinding",
+      "Parameter": "Content",
+      "Reason": "The typed definition materializes the same AppBinding after callback and identity configuration."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.CommandOptions",
+      "Member": "Key",
+      "MemberId": "ConsoleMonster.Interactive.CommandOptions.Key",
+      "CSharpTypeName": "System.String",
+      "Command": "New-ConsoleCommand",
+      "Parameter": "Key",
+      "Reason": "The typed C# action definition configures the same immutable AppCommand; PowerShell supplies its script runner."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.CommandOptions",
+      "Member": "Label",
+      "MemberId": "ConsoleMonster.Interactive.CommandOptions.Label",
+      "CSharpTypeName": "System.String",
+      "Command": "New-ConsoleCommand",
+      "Parameter": "Label",
+      "Reason": "The typed C# action definition configures the same immutable AppCommand; PowerShell supplies its script runner."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.CommandOptions",
+      "Member": "Shortcut",
+      "MemberId": "ConsoleMonster.Interactive.CommandOptions.Shortcut",
+      "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Input.KeyChord]",
+      "Command": "New-ConsoleCommand",
+      "Parameter": "Shortcut",
+      "Reason": "The typed C# action definition configures the same immutable AppCommand; PowerShell supplies its script runner."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.CommandOptions",
+      "Member": "ConfirmPrompt",
+      "MemberId": "ConsoleMonster.Interactive.CommandOptions.ConfirmPrompt",
+      "CSharpTypeName": "System.String",
+      "Command": "New-ConsoleCommand",
+      "Parameter": "ConfirmPrompt",
+      "Reason": "The typed C# action definition configures the same immutable AppCommand; PowerShell supplies its script runner."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Calendar",
+      "Member": "Year",
+      "MemberId": "ConsoleMonster.Widgets.Calendar.Year",
+      "CSharpTypeName": "System.Int32",
+      "Command": "New-ConsoleCalendar",
+      "Parameter": "Year",
+      "Reason": "The fluent calendar configures the same Gregorian period as the host adapter."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Calendar",
+      "Member": "Month",
+      "MemberId": "ConsoleMonster.Widgets.Calendar.Month",
+      "CSharpTypeName": "System.Int32",
+      "Command": "New-ConsoleCalendar",
+      "Parameter": "Month",
+      "Reason": "The fluent calendar configures the same Gregorian period as the host adapter."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Layout.Grid",
+      "Member": "Columns",
+      "MemberId": "ConsoleMonster.Layout.Grid.Columns",
+      "CSharpTypeName": "System.Int32",
+      "Command": "New-ConsoleLayoutGrid",
+      "Parameter": "Columns",
+      "Reason": "The fluent layout grid uses the same Columns setting as New-ConsoleLayoutGrid."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.TypedConfirmPrompt",
+      "Member": "Expected",
+      "MemberId": "ConsoleMonster.Interactive.TypedConfirmPrompt.Expected",
+      "CSharpTypeName": "System.String",
+      "Command": "Read-ConsoleConfirm",
+      "Parameter": "TypedConfirmation",
+      "Reason": "The typed confirmation renderer configures the same expected answer."
     }
   ],
   "Endings": [
@@ -25048,7 +25150,7 @@
     {
       "Kind": "DelegateProperty",
       "Method": "Configure",
-      "Pattern": ".Configure(item => item.{Member} = \u2026)",
+      "Pattern": ".Configure(item => item.{Member} = …)",
       "Reason": "C# invokes a delegate-valued property before considering an extension with that name; Configure assigns the callback without invoking it."
     }
   ],
@@ -25060,8 +25162,8 @@
       "ExplicitValuePattern": ".{Member}(value)"
     },
     "Content": {
-      "PowerShellPattern": "-Content { \u2026 }",
-      "FluentPattern": ".Content(c => { \u2026 })",
+      "PowerShellPattern": "-Content { … }",
+      "FluentPattern": ".Content(c => { … })",
       "BuilderType": "ConsoleMonster.Layout.ContentBuilder",
       "Bindings": [
         {
@@ -25127,7 +25229,656 @@
       "Member": "For",
       "PowerShellParameter": "InputObject",
       "Pattern": "Table.For(rows)",
-      "Reason": "Typed row collections are handed to the table once; Column selectors map the PowerShell Property list without constructing individual cells."
+      "Reason": "Typed row collections are handed to the table once; Column selectors map the PowerShell Property list without constructing individual cells.",
+      "FluentPattern": "Ui.Table(rows)"
+    },
+    "Entry": {
+      "FactoryType": "ConsoleMonster.Ui",
+      "Factories": [
+        {
+          "Command": "New-ConsoleActivityList",
+          "Noun": "ActivityList",
+          "ReturnType": "ConsoleMonster.Widgets.ActivityList",
+          "ContentBuilder": true,
+          "Pattern": "Ui.ActivityList()",
+          "InitializerTypes": [
+            "ConsoleMonster.Widgets.ActivityList"
+          ]
+        },
+        {
+          "Command": "New-ConsoleAlign",
+          "Noun": "Align",
+          "ReturnType": "ConsoleMonster.Layout.Align",
+          "ContentBuilder": true,
+          "Pattern": "Ui.Align()",
+          "InitializerTypes": [
+            "ConsoleMonster.Layout.Align"
+          ]
+        },
+        {
+          "Command": "New-ConsoleBinding",
+          "Noun": "Binding",
+          "ReturnType": "ConsoleMonster.Interactive.BindingOptions",
+          "ContentBuilder": true,
+          "Pattern": "Ui.Binding()",
+          "Materialize": "Build",
+          "InitializerTypes": [
+            "ConsoleMonster.Interactive.AppBinding",
+            "ConsoleMonster.Interactive.BindingOptions"
+          ]
+        },
+        {
+          "Command": "New-ConsoleButton",
+          "Noun": "Button",
+          "ReturnType": "ConsoleMonster.Interactive.ButtonInputOptions",
+          "ContentBuilder": true,
+          "Pattern": "Ui.Button()",
+          "Materialize": "Build",
+          "InitializerTypes": [
+            "ConsoleMonster.Interactive.Button",
+            "ConsoleMonster.Interactive.ButtonInputOptions"
+          ]
+        },
+        {
+          "Command": "New-ConsoleCalendar",
+          "Noun": "Calendar",
+          "ReturnType": "ConsoleMonster.Widgets.Calendar",
+          "ContentBuilder": true,
+          "Pattern": "Ui.Calendar()",
+          "InitializerTypes": [
+            "ConsoleMonster.Widgets.Calendar"
+          ]
+        },
+        {
+          "Command": "New-ConsoleCellMap",
+          "Noun": "CellMap",
+          "ReturnType": "ConsoleMonster.Widgets.CellMap",
+          "ContentBuilder": true,
+          "Pattern": "Ui.CellMap()",
+          "InitializerTypes": [
+            "ConsoleMonster.Widgets.CellMap"
+          ]
+        },
+        {
+          "Command": "New-ConsoleChart",
+          "Noun": "Chart",
+          "ReturnType": "ConsoleMonster.Widgets.ChartOptions",
+          "ContentBuilder": true,
+          "Pattern": "Ui.Chart()",
+          "Materialize": "Build",
+          "InitializerTypes": [
+            "ConsoleMonster.Widgets.BarChart",
+            "ConsoleMonster.Widgets.StackedBar",
+            "ConsoleMonster.Widgets.LineChart",
+            "ConsoleMonster.Widgets.ScatterPlot",
+            "ConsoleMonster.Widgets.Histogram",
+            "ConsoleMonster.Widgets.Sparkline",
+            "ConsoleMonster.Widgets.ChartOptions"
+          ]
+        },
+        {
+          "Command": "New-ConsoleColumnFormat",
+          "Noun": "ColumnFormat",
+          "ReturnType": "ConsoleMonster.Layout.ColumnFormat",
+          "ContentBuilder": false,
+          "Pattern": "Ui.ColumnFormat()",
+          "InitializerTypes": [
+            "ConsoleMonster.Layout.ColumnFormat"
+          ]
+        },
+        {
+          "Command": "New-ConsoleColumns",
+          "Noun": "Columns",
+          "ReturnType": "ConsoleMonster.Layout.Columns",
+          "ContentBuilder": true,
+          "Pattern": "Ui.Columns()",
+          "InitializerTypes": [
+            "ConsoleMonster.Layout.Columns"
+          ]
+        },
+        {
+          "Command": "New-ConsoleCommand",
+          "Noun": "Command",
+          "ReturnType": "ConsoleMonster.Interactive.CommandOptions",
+          "ContentBuilder": false,
+          "Pattern": "Ui.Command()",
+          "Materialize": "Build",
+          "InitializerTypes": [
+            "ConsoleMonster.Interactive.AppCommand",
+            "ConsoleMonster.Interactive.CommandOptions"
+          ]
+        },
+        {
+          "Command": "New-ConsoleDashboard",
+          "Noun": "Dashboard",
+          "ReturnType": "ConsoleMonster.Widgets.Dashboard",
+          "ContentBuilder": true,
+          "Pattern": "Ui.Dashboard()",
+          "InitializerTypes": [
+            "ConsoleMonster.Widgets.Dashboard"
+          ]
+        },
+        {
+          "Command": "New-ConsoleFlow",
+          "Noun": "Flow",
+          "ReturnType": "ConsoleMonster.Widgets.Flow",
+          "ContentBuilder": true,
+          "Pattern": "Ui.Flow()",
+          "InitializerTypes": [
+            "ConsoleMonster.Widgets.Flow"
+          ]
+        },
+        {
+          "Command": "New-ConsoleFooterBar",
+          "Noun": "FooterBar",
+          "ReturnType": "ConsoleMonster.Widgets.FooterBar",
+          "ContentBuilder": true,
+          "Pattern": "Ui.FooterBar()",
+          "InitializerTypes": [
+            "ConsoleMonster.Widgets.FooterBar"
+          ]
+        },
+        {
+          "Command": "New-ConsoleForm",
+          "Noun": "Form",
+          "ReturnType": "ConsoleMonster.Interactive.Form",
+          "ContentBuilder": false,
+          "Pattern": "Ui.Form()",
+          "InitializerTypes": [
+            "ConsoleMonster.Interactive.Form"
+          ]
+        },
+        {
+          "Command": "New-ConsoleHeaderBar",
+          "Noun": "HeaderBar",
+          "ReturnType": "ConsoleMonster.Widgets.HeaderBar",
+          "ContentBuilder": true,
+          "Pattern": "Ui.HeaderBar()",
+          "InitializerTypes": [
+            "ConsoleMonster.Widgets.HeaderBar"
+          ]
+        },
+        {
+          "Command": "New-ConsoleKeyValue",
+          "Noun": "KeyValue",
+          "ReturnType": "ConsoleMonster.Widgets.KeyValueList",
+          "ContentBuilder": true,
+          "Pattern": "Ui.KeyValue()",
+          "InitializerTypes": [
+            "ConsoleMonster.Widgets.KeyValueList"
+          ]
+        },
+        {
+          "Command": "New-ConsoleLanes",
+          "Noun": "Lanes",
+          "ReturnType": "ConsoleMonster.Widgets.Lanes",
+          "ContentBuilder": true,
+          "Pattern": "Ui.Lanes()",
+          "InitializerTypes": [
+            "ConsoleMonster.Widgets.Lanes"
+          ]
+        },
+        {
+          "Command": "New-ConsoleLayoutGrid",
+          "Noun": "LayoutGrid",
+          "ReturnType": "ConsoleMonster.Layout.Grid",
+          "ContentBuilder": true,
+          "Pattern": "Ui.LayoutGrid()",
+          "InitializerTypes": [
+            "ConsoleMonster.Layout.Grid"
+          ]
+        },
+        {
+          "Command": "New-ConsoleLogRegion",
+          "Noun": "LogRegion",
+          "ReturnType": "ConsoleMonster.Widgets.LogRegion",
+          "ContentBuilder": true,
+          "Pattern": "Ui.LogRegion()",
+          "InitializerTypes": [
+            "ConsoleMonster.Widgets.LogRegion"
+          ]
+        },
+        {
+          "Command": "New-ConsoleLogo",
+          "Noun": "Logo",
+          "ReturnType": "ConsoleMonster.Widgets.Logo",
+          "ContentBuilder": true,
+          "Pattern": "Ui.Logo()",
+          "InitializerTypes": [
+            "ConsoleMonster.Widgets.Logo"
+          ]
+        },
+        {
+          "Command": "New-ConsoleMenu",
+          "Noun": "Menu",
+          "ReturnType": "ConsoleMonster.Interactive.Menu",
+          "ContentBuilder": false,
+          "Pattern": "Ui.Menu()",
+          "InitializerTypes": [
+            "ConsoleMonster.Interactive.Menu"
+          ]
+        },
+        {
+          "Command": "New-ConsoleMenuItem",
+          "Noun": "MenuItem",
+          "ReturnType": "ConsoleMonster.Interactive.MenuItem",
+          "ContentBuilder": false,
+          "Pattern": "Ui.MenuItem()",
+          "InitializerTypes": [
+            "ConsoleMonster.Interactive.MenuItem"
+          ]
+        },
+        {
+          "Command": "New-ConsoleMenuRunResult",
+          "Noun": "MenuRunResult",
+          "ReturnType": "ConsoleMonster.Interactive.MenuRunResult",
+          "ContentBuilder": false,
+          "Pattern": "Ui.MenuRunResult()",
+          "InitializerTypes": [
+            "ConsoleMonster.Interactive.MenuRunResult"
+          ]
+        },
+        {
+          "Command": "New-ConsolePadding",
+          "Noun": "Padding",
+          "ReturnType": "ConsoleMonster.Layout.Padding",
+          "ContentBuilder": true,
+          "Pattern": "Ui.Padding()",
+          "InitializerTypes": [
+            "ConsoleMonster.Layout.Padding"
+          ]
+        },
+        {
+          "Command": "New-ConsolePanel",
+          "Noun": "Panel",
+          "ReturnType": "ConsoleMonster.Layout.Panel",
+          "ContentBuilder": true,
+          "Pattern": "Ui.Panel()",
+          "InitializerTypes": [
+            "ConsoleMonster.Layout.Panel"
+          ]
+        },
+        {
+          "Command": "New-ConsolePhases",
+          "Noun": "Phases",
+          "ReturnType": "ConsoleMonster.Widgets.Phases",
+          "ContentBuilder": true,
+          "Pattern": "Ui.Phases()",
+          "InitializerTypes": [
+            "ConsoleMonster.Widgets.Phases"
+          ]
+        },
+        {
+          "Command": "New-ConsoleProgress",
+          "Noun": "Progress",
+          "ReturnType": "ConsoleMonster.Widgets.ProgressOptions",
+          "ContentBuilder": true,
+          "Pattern": "Ui.Progress()",
+          "Materialize": "Build",
+          "InitializerTypes": [
+            "ConsoleMonster.Widgets.ProgressBar",
+            "ConsoleMonster.Widgets.Spinner",
+            "ConsoleMonster.Widgets.ProgressOptions"
+          ]
+        },
+        {
+          "Command": "New-ConsoleRegion",
+          "Noun": "Region",
+          "ReturnType": "ConsoleMonster.Widgets.RegionWidget",
+          "ContentBuilder": true,
+          "Pattern": "Ui.Region()",
+          "InitializerTypes": [
+            "ConsoleMonster.Widgets.RegionWidget"
+          ]
+        },
+        {
+          "Command": "New-ConsoleRows",
+          "Noun": "Rows",
+          "ReturnType": "ConsoleMonster.Layout.Rows",
+          "ContentBuilder": true,
+          "Pattern": "Ui.Rows()",
+          "InitializerTypes": [
+            "ConsoleMonster.Layout.Rows"
+          ]
+        },
+        {
+          "Command": "New-ConsoleRule",
+          "Noun": "Rule",
+          "ReturnType": "ConsoleMonster.Widgets.Rule",
+          "ContentBuilder": true,
+          "Pattern": "Ui.Rule()",
+          "InitializerTypes": [
+            "ConsoleMonster.Widgets.Rule"
+          ]
+        },
+        {
+          "Command": "New-ConsoleScrollView",
+          "Noun": "ScrollView",
+          "ReturnType": "ConsoleMonster.Widgets.ScrollView",
+          "ContentBuilder": true,
+          "Pattern": "Ui.ScrollView()",
+          "InitializerTypes": [
+            "ConsoleMonster.Widgets.ScrollView"
+          ]
+        },
+        {
+          "Command": "New-ConsoleSelect",
+          "Noun": "Select",
+          "ReturnType": "ConsoleMonster.Interactive.SelectInputOptions",
+          "ContentBuilder": true,
+          "Pattern": "Ui.Select()",
+          "Materialize": "Build",
+          "InitializerTypes": [
+            "ConsoleMonster.Interactive.Select",
+            "ConsoleMonster.Interactive.MultiSelect",
+            "ConsoleMonster.Interactive.SelectInputOptions"
+          ]
+        },
+        {
+          "Command": "New-ConsoleStack",
+          "Noun": "Stack",
+          "ReturnType": "ConsoleMonster.Layout.Stack",
+          "ContentBuilder": true,
+          "Pattern": "Ui.Stack()",
+          "InitializerTypes": [
+            "ConsoleMonster.Layout.Stack"
+          ]
+        },
+        {
+          "Command": "New-ConsoleStatusList",
+          "Noun": "StatusList",
+          "ReturnType": "ConsoleMonster.Widgets.StatusList",
+          "ContentBuilder": true,
+          "Pattern": "Ui.StatusList()",
+          "InitializerTypes": [
+            "ConsoleMonster.Widgets.StatusList"
+          ]
+        },
+        {
+          "Command": "New-ConsoleSummaryBar",
+          "Noun": "SummaryBar",
+          "ReturnType": "ConsoleMonster.Widgets.SummaryBar",
+          "ContentBuilder": true,
+          "Pattern": "Ui.SummaryBar()",
+          "InitializerTypes": [
+            "ConsoleMonster.Widgets.SummaryBar"
+          ]
+        },
+        {
+          "Command": "New-ConsoleTable",
+          "Noun": "Table",
+          "ReturnType": "ConsoleMonster.Widgets.Table",
+          "ContentBuilder": true,
+          "Pattern": "Ui.Table()",
+          "InitializerTypes": [
+            "ConsoleMonster.Widgets.Table"
+          ]
+        },
+        {
+          "Command": "New-ConsoleText",
+          "Noun": "Text",
+          "ReturnType": "ConsoleMonster.Widgets.TextBlock",
+          "ContentBuilder": true,
+          "Pattern": "Ui.Text()",
+          "Reason": "PowerShell returns rich text for cells as well as display; Ui.Text is its literal display wrapper. Explicit markup uses Content(markup).IsMarkup().",
+          "InitializerTypes": [
+            "ConsoleMonster.Widgets.TextBlock"
+          ]
+        },
+        {
+          "Command": "New-ConsoleTextInput",
+          "Noun": "TextInput",
+          "ReturnType": "ConsoleMonster.Interactive.TextInputOptions",
+          "ContentBuilder": true,
+          "Pattern": "Ui.TextInput()",
+          "Materialize": "Build",
+          "InitializerTypes": [
+            "ConsoleMonster.Interactive.TextInput",
+            "ConsoleMonster.Interactive.TextArea",
+            "ConsoleMonster.Interactive.TextInputOptions"
+          ]
+        },
+        {
+          "Command": "New-ConsoleToggle",
+          "Noun": "Toggle",
+          "ReturnType": "ConsoleMonster.Interactive.ToggleInputOptions",
+          "ContentBuilder": true,
+          "Pattern": "Ui.Toggle()",
+          "Materialize": "Build",
+          "InitializerTypes": [
+            "ConsoleMonster.Interactive.Toggle",
+            "ConsoleMonster.Interactive.ToggleInputOptions"
+          ]
+        },
+        {
+          "Command": "New-ConsoleTree",
+          "Noun": "Tree",
+          "ReturnType": "ConsoleMonster.Widgets.Tree",
+          "ContentBuilder": true,
+          "Pattern": "Ui.Tree()",
+          "InitializerTypes": [
+            "ConsoleMonster.Widgets.Tree"
+          ]
+        }
+      ],
+      "NonWidgetCommands": [
+        {
+          "Command": "New-ConsoleField",
+          "Reason": "Field is a behavioral form definition; the form/page builder constructs the selected field kind and its validation. It is not display content."
+        },
+        {
+          "Command": "New-ConsoleSimulatedClock",
+          "Reason": "A simulated clock is a run/session dependency, not a widget or control."
+        }
+      ],
+      "CSharpOnlyFactories": [
+        {
+          "Noun": "Options",
+          "Reason": "Generic empty C# configuration; it adds no widget or job."
+        },
+        {
+          "Noun": "Grid",
+          "Reason": "C# viewer model; Show-ConsoleGrid combines its construction and execution in PowerShell."
+        },
+        {
+          "Noun": "SelectPrompt",
+          "Reason": "Typed scalar Read-ConsoleSelect renderer; preserves the result type."
+        },
+        {
+          "Noun": "MultiSelectPrompt",
+          "Reason": "Typed collection Read-ConsoleSelect -Multiple renderer."
+        },
+        {
+          "Noun": "TextPrompt",
+          "Reason": "Typed Read-ConsoleText question renderer."
+        },
+        {
+          "Noun": "SecretPrompt",
+          "Reason": "Typed Read-ConsoleText -AsSecret question renderer."
+        },
+        {
+          "Noun": "NumberPrompt",
+          "Reason": "Typed Read-ConsoleNumber question renderer."
+        },
+        {
+          "Noun": "PathPrompt",
+          "Reason": "Typed Read-ConsolePath question renderer."
+        },
+        {
+          "Noun": "ConfirmPrompt",
+          "Reason": "Typed Read-ConsoleConfirm question renderer."
+        },
+        {
+          "Noun": "TypedConfirmPrompt",
+          "Reason": "Typed Read-ConsoleConfirm -Expected question renderer."
+        },
+        {
+          "Noun": "RichText",
+          "Reason": "Rich-text composer for typed cell/choice data, not a display widget."
+        },
+        {
+          "Noun": "DashboardLayout",
+          "Reason": "Existing C# helper that returns named live handles; it builds the same Dashboard/Rows model."
+        },
+        {
+          "Noun": "Review",
+          "Reason": "Runtime review model for a typed question workflow, not display content."
+        }
+      ],
+      "PrimaryInputs": [
+        {
+          "Noun": "ActivityList",
+          "Argument": "widgetId",
+          "Command": "New-ConsoleActivityList",
+          "Parameter": "WidgetId",
+          "Position": 0,
+          "Reason": "The primary live identity is positional in both surfaces; it is fixed before session registration."
+        },
+        {
+          "Noun": "CellMap",
+          "Argument": "widgetId",
+          "Command": "New-ConsoleCellMap",
+          "Parameter": "WidgetId",
+          "Position": 0,
+          "Reason": "The primary live identity is positional in both surfaces; it is fixed before session registration."
+        },
+        {
+          "Noun": "KeyValue",
+          "Argument": "widgetId",
+          "Command": "New-ConsoleKeyValue",
+          "Parameter": "WidgetId",
+          "Position": 0,
+          "Reason": "The primary live identity is positional in both surfaces; it is fixed before session registration."
+        },
+        {
+          "Noun": "Lanes",
+          "Argument": "widgetId",
+          "Command": "New-ConsoleLanes",
+          "Parameter": "WidgetId",
+          "Position": 0,
+          "Reason": "The primary live identity is positional in both surfaces; it is fixed before session registration."
+        },
+        {
+          "Noun": "LogRegion",
+          "Argument": "widgetId",
+          "Command": "New-ConsoleLogRegion",
+          "Parameter": "WidgetId",
+          "Position": 0,
+          "Reason": "The primary live identity is positional in both surfaces; it is fixed before session registration."
+        },
+        {
+          "Noun": "Phases",
+          "Argument": "widgetId",
+          "Command": "New-ConsolePhases",
+          "Parameter": "WidgetId",
+          "Position": 0,
+          "Reason": "The primary live identity is positional in both surfaces; it is fixed before session registration."
+        },
+        {
+          "Noun": "SummaryBar",
+          "Argument": "widgetId",
+          "Command": "New-ConsoleSummaryBar",
+          "Parameter": "WidgetId",
+          "Position": 0,
+          "Reason": "The primary live identity is positional in both surfaces; it is fixed before session registration."
+        },
+        {
+          "Noun": "Region",
+          "Argument": "widgetId",
+          "Command": "New-ConsoleRegion",
+          "Parameter": "WidgetId",
+          "Position": 0,
+          "Reason": "The primary live identity is positional in both surfaces; it is fixed before session registration."
+        },
+        {
+          "Noun": "Dashboard",
+          "Argument": "widgetId",
+          "Command": "New-ConsoleDashboard",
+          "Parameter": "WidgetId",
+          "Position": 0,
+          "Reason": "The primary live identity is positional in both surfaces; it is fixed before session registration."
+        },
+        {
+          "Noun": "StatusList",
+          "Argument": "widgetId",
+          "Command": "New-ConsoleStatusList",
+          "Parameter": "WidgetId",
+          "Position": 0,
+          "Reason": "The primary live identity is positional in both surfaces; it is fixed before session registration."
+        },
+        {
+          "Noun": "Flow",
+          "Argument": "widgetId",
+          "Command": "New-ConsoleFlow",
+          "Parameter": "WidgetId",
+          "Position": 0,
+          "Reason": "The primary live identity is positional in both surfaces; it is fixed before session registration."
+        },
+        {
+          "Noun": "Table",
+          "Argument": "items",
+          "Command": "New-ConsoleTable",
+          "Parameter": "InputObject",
+          "Position": 0,
+          "Reason": "A single typed row sequence is the primary table input."
+        },
+        {
+          "Noun": "Text",
+          "Argument": "text",
+          "Command": "New-ConsoleText",
+          "Parameter": "Text",
+          "Position": 0,
+          "Reason": "Literal text is the primary input; brackets stay literal."
+        },
+        {
+          "Noun": "Rule",
+          "Argument": "title",
+          "Command": "New-ConsoleRule",
+          "Parameter": "Title",
+          "Position": 0,
+          "Reason": "The rule title is the primary separator input."
+        }
+      ],
+      "Pattern": "Ui.{Noun}()",
+      "NestedPattern": "c.{Noun}(widget => …)",
+      "DataConstructionExceptions": [
+        {
+          "CSharpType": "ConsoleMonster.Interactive.Choice",
+          "Reason": "A data/event/style value; ordinary data construction does not select a widget or configure a layout."
+        },
+        {
+          "CSharpType": "ConsoleMonster.Styling.RichStyle",
+          "Reason": "A data/event/style value; ordinary data construction does not select a widget or configure a layout."
+        },
+        {
+          "CSharpType": "ConsoleMonster.Dates.CalendarMark",
+          "Reason": "A data/event/style value; ordinary data construction does not select a widget or configure a layout."
+        },
+        {
+          "CSharpType": "ConsoleMonster.Live.LiveEvent",
+          "Reason": "A data/event/style value; ordinary data construction does not select a widget or configure a layout."
+        },
+        {
+          "CSharpType": "ConsoleMonster.Widgets.FlowBranch",
+          "Reason": "A data/event/style value; ordinary data construction does not select a widget or configure a layout."
+        },
+        {
+          "CSharpType": "ConsoleMonster.Input.KeyChord",
+          "Reason": "A data/event/style value; ordinary data construction does not select a widget or configure a layout."
+        },
+        {
+          "CSharpType": "ConsoleMonster.Interactive.GridRow",
+          "Reason": "A data/event/style value; ordinary data construction does not select a widget or configure a layout."
+        },
+        {
+          "CSharpType": "ConsoleMonster.Widgets.FlowNode",
+          "Reason": "A passive flow data record, equivalent to a node or edge row in PowerShell."
+        },
+        {
+          "CSharpType": "ConsoleMonster.Widgets.FlowEdge",
+          "Reason": "A passive flow data record, equivalent to a node or edge row in PowerShell."
+        }
+      ]
     }
   }
 }
