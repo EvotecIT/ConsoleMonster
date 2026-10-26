@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "captures": {
+    "benchmarks/benchmarks.cast": {
+      "class": "live-measured",
+      "reason": "Actual event-apply throughput, rendering rates and durations measured by the benchmark program.",
+      "minFrames": 2, "maxFrames": 100,
+      "minDurationSeconds": 0.05, "maxDurationSeconds": 10
+    },
+    "live/stress.cast": {
+      "class": "live-measured",
+      "reason": "Actual throughput, render cost and sampled concurrent updates from 32 workers under load.",
+      "minFrames": 10, "maxFrames": 10000,
+      "minDurationSeconds": 0.5, "maxDurationSeconds": 180
+    },
+    "demos/hosting.cast": {
+      "class": "live-measured",
+      "reason": "Actual hosted-service startup and shutdown durations, background work and log ordering.",
+      "minFrames": 3, "maxFrames": 2000,
+      "minDurationSeconds": 0.1, "maxDurationSeconds": 120
+    },
+    "demos/parallel.cast": {
+      "class": "live-measured",
+      "reason": "Real concurrent task scheduling and completion order in the parallel fleet run.",
+      "minFrames": 3, "maxFrames": 2000,
+      "minDurationSeconds": 0.1, "maxDurationSeconds": 120
+    },
+    "demos/pester.cast": {
+      "class": "live-measured",
+      "reason": "Actual Pester discovery and test durations with the live test state sampled during execution.",
+      "minFrames": 3, "maxFrames": 2000,
+      "minDurationSeconds": 0.1, "maxDurationSeconds": 120
+    },
+    "demos/session.cast": {
+      "class": "live-measured",
+      "reason": "Real runspace scheduling and lane/log ordering while three servers deploy concurrently.",
+      "minFrames": 3, "maxFrames": 2000,
+      "minDurationSeconds": 0.1, "maxDurationSeconds": 120
+    },
+    "demos/template.cast": {
+      "class": "live-measured",
+      "reason": "Actual service startup and shutdown durations and background batches in the runnable application template.",
+      "minFrames": 5, "maxFrames": 4000,
+      "minDurationSeconds": 0.2, "maxDurationSeconds": 180
+    },
+    "demos/threads-ci.cast": {
+      "class": "live-measured",
+      "reason": "Real concurrent log ordering from the threaded dashboard in redirected CI mode.",
+      "minFrames": 3, "maxFrames": 4000,
+      "minDurationSeconds": 0.1, "maxDurationSeconds": 180
+    },
+    "demos/threads-live.cast": {
+      "class": "live-measured",
+      "reason": "Real concurrent lane updates, task completion and sampled dashboard frames.",
+      "minFrames": 3, "maxFrames": 2000,
+      "minDurationSeconds": 0.1, "maxDurationSeconds": 120
+    },
+    "demos/threads-naive.cast": {
+      "class": "live-measured",
+      "reason": "Deliberately unsynchronized concurrent writes demonstrate real output interleaving.",
+      "minFrames": 3, "maxFrames": 2000,
+      "minDurationSeconds": 0.1, "maxDurationSeconds": 120
+    }
+  }
+}

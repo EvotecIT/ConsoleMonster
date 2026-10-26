@@ -51,6 +51,12 @@ pwsh Website/build/Render-SiteImages.ps1                                       #
   asciicast `.cast` for live runs, plus the host versions and the benchmark machine). Live runs, the stress test and the
   benchmarks carry real measurements. Cast transport timing is normalized to a logical timeline; application values
   remain honest. Non-Windows production skips ps5 with a message; render still validates its committed files.
+  The ten real measurement/concurrency recordings are declared as `live-measured` in `captures/classes.json`,
+  each with its reason and frame/duration bounds. Refresh them deliberately when the program, capture backend or
+  intended measurement changes. They are excluded from repeated byte/cell identity, while hashes, source stamps,
+  terminal geometry, complete VT frames, glyphs, wide cells, border joins and the declared bounds remain required.
+  All undeclared captures stay strict; new variability fails until a reviewed metadata entry explains it.
+  Pin incidental titles, clocks, paths, locale and transport timing without replacing measured values or concurrent work.
   Synthetic checkpoint workers record their emitted VT through the recorder's hosted-output sink before native repaint coalescing.
   Read [capture producers, pins and comparison commands](captures/README.md) before refreshing output. Run
   `compare-captures` for repeated and cross-platform runs; report every allowed category and unresolved difference.

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
@@ -18,6 +19,14 @@ namespace SiteFrames.Pages {
     /// the machine it ran on recorded beside its output. Nothing here is estimated; every number is parsed from that output.
     /// </summary>
     internal static class BenchmarksPage {
+        private static string Fingerprint(Site site) {
+            string root = Path.Combine(site.Repository, "ConsoleMonster.Benchmarks");
+            string sources = string.Join("\n", Directory.EnumerateFiles(root, "*", SearchOption.TopDirectoryOnly)
+                .Where(path => path.EndsWith(".cs", StringComparison.Ordinal) || path.EndsWith(".csproj", StringComparison.Ordinal))
+                .OrderBy(path => path, StringComparer.Ordinal).Select(path => Path.GetFileName(path) + "\n" + Site.ReadText(path)));
+            return Replay.Replays.Fingerprint(sources, "600;110x20;dark", CapturePins.Policy);
+        }
+
         private static string CastPath(Site site) => CapturePlatforms.PathFor(site, Path.Combine(site.Captures, "benchmarks", "benchmarks.cast"));
 
         private static string MachinePath(Site site) {
@@ -38,7 +47,7 @@ namespace SiteFrames.Pages {
             string exe = Path.Combine(site.Repository, "ConsoleMonster.Benchmarks", "bin", "Release", "net8.0", "ConsoleMonster.Benchmarks.dll");
             List<OutputChunk> chunks = CSharpRunner.Record(exe, new[] { "600" }, 110, 20, PowerShellRunner.Environment("dark"), site.Repository, TimeSpan.FromMinutes(5));
             Directory.CreateDirectory(Path.GetDirectoryName(CastPath(site))!);
-            File.WriteAllText(CastPath(site), Replay.Replays.ToCast(chunks, 110, 20, "ConsoleMonster.Benchmarks 600"), new UTF8Encoding(false));
+            File.WriteAllText(CastPath(site), Replay.Replays.Stamp(Replay.Replays.ToCast(chunks, 110, 20, "ConsoleMonster.Benchmarks 600"), Fingerprint(site)), new UTF8Encoding(false));
             CaptureRun.Record(CastPath(site), "dark");
             string cpu;
             try {
@@ -87,6 +96,9 @@ namespace SiteFrames.Pages {
             if (!File.Exists(castPath) || !File.Exists(machinePath)) {
                 WidgetsPage.Report(new List<string> { "missing benchmark capture or machine metadata; run the capture command." }, "benchmarks");
                 return null;
+            }
+            if (Replay.Replays.Source(File.ReadAllText(castPath)) != Fingerprint(site)) {
+                WidgetsPage.Report(new List<string> { "benchmark recording was made from another version of its program, arguments or capture settings; run the capture command for benchmarks on " + (CapturePlatforms.Tag(castPath) ?? "windows") + "." }, "benchmarks");
             }
             Replay.Replays.FromCast(File.ReadAllText(castPath), 4, false, out CellBuffer output, out int width, out _);
             string text = Parity.Describe(output);

@@ -127,11 +127,11 @@ dotnet run --project Website/tools/SiteFrames -c Release -- \
 The command fails if a produced capture is missing, a hash or geometry is wrong,
 a neutral cell/style differs, or it finds replacement glyphs, invalid wide-cell
 continuations or disconnected adjacent border glyphs. Same-platform runs must
-be byte-identical. Cross-platform transport encoding and packet/timing differences
+be byte-identical unless explicitly declared `live-measured` below. Cross-platform transport encoding and packet/timing differences
 are allowed only when the decoded visible cells and styles match. The foreground
 of a one-cell space is invisible unless underlined, struck through or reversed,
 and may differ between ConPTY and Unix output. Backgrounds, all decoration flags, links,
-glyphs and widths remain strict; same-platform runs still require identical bytes.
+glyphs and widths remain strict; undeclared same-platform runs still require identical bytes.
 When both receipts declare the same terminal defaults, the comparer resolves
 default colours to that palette before comparing: dark uses foreground `#cccccc`
 and background `#0c0c0c`; light uses `#24292f` and `#ffffff`, matching the site's
@@ -145,12 +145,33 @@ their explanations and the built-in muted-label mapping for Ansi256/TrueColor.
 The parser checks every complete frame against the current ordered 100x40 schema;
 stable fields, dimensions, culture, width policy, links and all other styles stay
 strict. Every permitted field change is listed with both values and the original
-row/cell diagnostics. Unknown or duplicate rows fail. Real measurements still fail
+row/cell diagnostics. Unknown or duplicate rows fail. Undeclared measurements still fail
 strict repeated-run comparison. The Windows-only ps5 production difference is listed separately;
 it does not exempt those committed files from render freshness and parity.
+
+### Real measurements and concurrency
+
+`classes.json` is maintained capture metadata, keyed by logical capture path (without a platform tag).
+Its ten `live-measured` entries give a reason and bounds for complete decoded frames and normalized playback
+duration. They cover benchmarks, stress, hosted services, Pester and actual concurrent demonstrations,
+including the intentionally unsynchronized threads example. No recorded number or concurrent result is replaced.
+The producer copies each declaration into that file's `run.json` entry; the gate requires both declarations
+to match. An unknown class, missing reason, missing source stamp or changed policy fails.
+
+For this class, measured cells, order, frame counts and bytes can vary on the same platform and across platforms.
+Each side still needs a valid producer hash, matching source fingerprint, geometry, terminal defaults and scripted
+reading holds. Every complete frame is checked for broken borders, replacement glyphs and invalid wide cells;
+incomplete VT sequences and synchronized repaints fail. Counts and duration must remain within the entry's bounds.
+The report lists every exception with its reason, both hashes, frame counts and durations. Everything else retains
+strict byte identity on repeated runs and strict visible-cell/style parity across platforms. Adding a metadata
+entry is a deliberate reviewed change, never an automatic response to a failed comparison.
+
+Refresh live measurements deliberately after source/backend changes or when a new measurement is intended.
+Keep presentation clocks, title timestamps, locale, paths, terminal settings and transport timing pinned;
+retain essential elapsed measurements, discovery timing and real concurrent scheduling. Ordinary site builds
+render the committed runs and still reject stale source fingerprints.
 
 The comparison is a structural gate. Rendered review is still required to check
 the actual font, border paint, compact layout and replay interaction. Measured
 benchmark/stress values and intentionally concurrent demonstrations are real
-runtime observations; strict repeated-run comparison exposes their variability.
-Do not claim determinism or silently mask those differences.
+runtime observations, explicitly listed in `classes.json`. Do not claim byte determinism for that class.

@@ -84,6 +84,9 @@ namespace ConsoleMonster.Sessions {
         /// <summary>Whether a synchronized update is still being painted.</summary>
         public bool SynchronizedOutput { get; private set; }
 
+        /// <summary>Whether a recording ended before an escape sequence or Unicode scalar was complete.</summary>
+        internal bool HasIncompleteSequence => _state != 0 || _pendingHigh != '\0';
+
         /// <summary>Notifies replay when a complete synchronized repaint becomes visible.</summary>
         internal Action? SynchronizedFrameCompleted { get; set; }
         /// <summary>Optional headless terminal reply sink. Parsing recordings without a sink never sends input.</summary>

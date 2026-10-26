@@ -36,6 +36,7 @@ namespace SiteFrames.Capture {
         /// <summary>Writes only this invocation's production evidence, including failed/partial production when requested.</summary>
         internal static void Write(Site site, bool complete = true, string? area = null) {
             var files = new JsonObject();
+            Dictionary<string, CaptureClasses.LiveMeasured> classes = CaptureClasses.Read(site.Captures);
             foreach (string path in Produced.Keys.OrderBy(p => p, StringComparer.Ordinal)) {
                 string relative = Path.GetRelativePath(site.Captures, path).Replace('\\', '/');
                 var metadata = new JsonObject {
@@ -43,6 +44,9 @@ namespace SiteFrames.Capture {
                     ["category"] = Category(relative)
                 };
                 files[relative] = metadata;
+                if (classes.TryGetValue(CapturePlatforms.LogicalName(relative), out var classification)) {
+                    metadata["comparison"] = classification.Json();
+                }
                 try {
                     string extension = Path.GetExtension(path);
                     if (extension is not (".ansi" or ".cast" or ".txt")) { throw new InvalidDataException("Unsupported produced capture type: " + extension); }

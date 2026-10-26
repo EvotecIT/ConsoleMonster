@@ -15,7 +15,8 @@ namespace SiteFrames.Capture {
     /// <summary>Fail-closed comparison of independently produced receipts; completion never implies full-suite coverage.</summary>
     internal static partial class CaptureComparison {
         private sealed record Capture(string Path, byte[] Bytes, int Width, int Height, string Category, string? Screen,
-            List<CellBuffer> Frames, string? Source, string[] ScreenHashes, string ReadingHolds);
+            List<CellBuffer> Frames, string? Source, string[] ScreenHashes, string ReadingHolds,
+            CaptureClasses.LiveMeasured? Measured, double DurationSeconds);
 
         internal static int Run(string left, string right, string? report = null) {
             var failures = new JsonArray();
@@ -43,9 +44,22 @@ namespace SiteFrames.Capture {
                 if (x.Width != y.Width || x.Height != y.Height) { failures.Add(file + ": terminal dimensions differ"); }
                 if (x.Source != y.Source) { failures.Add(file + ": capture source fingerprints differ"); }
                 if (x.Screen != y.Screen) { failures.Add(file + ": declared terminal defaults differ or are missing in one run"); }
+                if (x.Measured != y.Measured) { failures.Add(file + ": capture class, reason or bounds differ"); }
                 bool readingHoldsEqual = x.ReadingHolds == y.ReadingHolds;
                 if (!readingHoldsEqual) { failures.Add(file + ": scripted reading holds differ"); }
                 bool bytesEqual = x.Bytes.AsSpan().SequenceEqual(y.Bytes);
+                if (validReceipts && x.Measured != null && x.Measured == y.Measured && x.Source == y.Source
+                    && x.Screen == y.Screen && x.Width == y.Width && x.Height == y.Height && readingHoldsEqual) {
+                    allowed.Add(new JsonObject {
+                        ["file"] = file, ["class"] = "live-measured", ["reason"] = x.Measured.Reason,
+                        ["bytesEqual"] = bytesEqual, ["leftPath"] = x.Path, ["rightPath"] = y.Path,
+                        ["leftSha256"] = CaptureRun.Hash(x.Bytes), ["rightSha256"] = CaptureRun.Hash(y.Bytes),
+                        ["leftFrames"] = x.Frames.Count, ["rightFrames"] = y.Frames.Count,
+                        ["leftDurationSeconds"] = x.DurationSeconds, ["rightDurationSeconds"] = y.DurationSeconds,
+                        ["policy"] = x.Measured.Json()
+                    });
+                    continue;
+                }
                 int changedRowCount = 0;
                 long changedCellCount = 0;
                 JsonArray rows = bytesEqual && x.Width == y.Width && x.Height == y.Height ? new JsonArray()
@@ -97,6 +111,7 @@ namespace SiteFrames.Capture {
                 if (!CapturePlatforms.All.Contains(producer, StringComparer.Ordinal)) { throw new InvalidDataException("Unsupported producer platform."); }
                 bool? complete = manifest["complete"]?.GetValue<bool>();
                 JsonObject files = manifest["files"]!.AsObject();
+                Dictionary<string, CaptureClasses.LiveMeasured> classes = CaptureClasses.Read(root);
                 coverage[side] = new JsonObject { ["producer"] = producer, ["complete"] = complete,
                     ["allSetsCompleted"] = manifest["allSetsCompleted"]?.GetValue<bool>() == true,
                     ["requestedSet"] = manifest["requestedSet"]?.DeepClone(), ["filters"] = manifest["filters"]?.DeepClone(),
@@ -131,7 +146,18 @@ namespace SiteFrames.Capture {
                         if (text.Length > 0 && text[0] == '\uFEFF') { text = text[1..]; }
                         string? source = null;
                         string[] hashes = Array.Empty<string>();
-                        List<CellBuffer> frames = extension == ".txt" ? Descriptions(text, width, height, out source, out hashes) : Frames(text, extension, width, height, out source);
+                        double duration = 0;
+                        List<CellBuffer> frames = extension == ".txt" ? Descriptions(text, width, height, out source, out hashes) : Frames(text, extension, width, height, out source, out duration);
+                        classes.TryGetValue(logical, out var measured);
+                        CaptureClasses.LiveMeasured? recorded = metadata["comparison"] is JsonObject comparison ? CaptureClasses.Parse(comparison) : null;
+                        if (recorded != measured) { throw new InvalidDataException("Receipt capture class must match its declared metadata, reason and bounds."); }
+                        if (measured != null) {
+                            if (extension != ".cast" || source == null) { throw new InvalidDataException("Live-measured output needs a stamped cast."); }
+                            if (frames.Count < measured.MinFrames || frames.Count > measured.MaxFrames
+                                || duration < measured.MinDurationSeconds || duration > measured.MaxDurationSeconds) {
+                                throw new InvalidDataException("Live-measured frame count or duration is outside its declared bounds: " + frames.Count + " frames, " + duration + " seconds.");
+                            }
+                        }
                         string? screen = metadata["screen"]?.GetValue<string>();
                         if (screen != null && screen is not ("dark" or "light")) { throw new InvalidDataException("Unsupported terminal defaults."); }
                         if (extension == ".ansi") {
@@ -151,7 +177,7 @@ namespace SiteFrames.Capture {
                             }
                             frames = resolved;
                         }
-                        result.TryAdd(logical, new Capture(entry.Key, bytes, width, height, category, screen, frames, source, hashes, ReadingHolds(text, extension)));
+                        result.TryAdd(logical, new Capture(entry.Key, bytes, width, height, category, screen, frames, source, hashes, ReadingHolds(text, extension), measured, duration));
                     } catch (Exception ex) when (InputError(ex)) { failures.Add(side + ": " + entry.Key + ": " + ex.Message); }
                 }
             } catch (Exception ex) when (InputError(ex)) { failures.Add(side + ": invalid run.json: " + ex.Message); }
@@ -200,8 +226,9 @@ namespace SiteFrames.Capture {
             return frames;
         }
 
-        private static List<CellBuffer> Frames(string text, string extension, int width, int height, out string? source) {
+        private static List<CellBuffer> Frames(string text, string extension, int width, int height, out string? source, out double duration) {
             source = null;
+            duration = 0;
             if (extension == ".ansi") {
                 var ansi = new ConsoleMonster.Sessions.VtScreen(width, height);
                 var frames = new List<CellBuffer>();
@@ -210,6 +237,7 @@ namespace SiteFrames.Capture {
                     if (frames.Count == 0 || !SameFrame(frames[^1], frame)) { frames.Add(frame); }
                 };
                 ansi.Feed(text);
+                if (ansi.HasIncompleteSequence) { throw new InvalidDataException("ANSI capture ended during an incomplete VT sequence."); }
                 if (ansi.SynchronizedOutput) { throw new InvalidDataException("ANSI capture ended during an uncommitted synchronized frame."); }
                 CellBuffer visible = ansi.Snapshot(), transcript = ansi.Transcript();
                 if (frames.Count == 0 || !SameFrame(frames[^1], visible)) { frames.Add(visible); }
@@ -236,7 +264,7 @@ namespace SiteFrames.Capture {
                 if (!double.IsFinite(timestamp) || timestamp < 0 || timestamp < previous) { throw new InvalidDataException("Invalid cast event time."); }
                 previous = timestamp;
                 string kind = entry[1]!.GetValue<string>(), data = entry[2]!.GetValue<string>();
-                if (kind == "o") { output.Append(data); }
+                if (kind == "o") { output.Append(data); duration = timestamp; }
                 else if (kind is not ("i" or "m")) { throw new InvalidDataException("Unsupported cast event type: " + kind); }
             }
             // Arrival times and packet boundaries are transport. Commit complete lines and synchronized frames in order.
@@ -257,6 +285,7 @@ namespace SiteFrames.Capture {
                 }
             }
             if (screen.SynchronizedOutput) { throw new InvalidDataException("Cast ended during an uncommitted synchronized frame."); }
+            if (screen.HasIncompleteSequence) { throw new InvalidDataException("Cast ended during an incomplete VT sequence."); }
             CellBuffer final = screen.Transcript();
             if (result.Count == 0 || !SameFrame(result[^1], final)) { result.Add(final); }
             return result;
