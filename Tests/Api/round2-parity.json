@@ -4220,7 +4220,7 @@
             {
               "Name": "__AllParameterSets",
               "Position": -2147483648,
-              "Mandatory": true
+              "Mandatory": false
             }
           ],
           "CSharpType": "ConsoleMonster.PowerShell.ConsoleCalendarOptions",

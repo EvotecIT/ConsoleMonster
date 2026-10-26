@@ -12,14 +12,15 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="description">Returns a passive widget. Pipeline rows provide Date, Status and Label properties, with explicit property overrides. Duplicate dates retain every row; the displayed status uses Fail, Warn, Running, Pending, Pass, Info, Skip precedence. Dates retain calendar components without time-zone conversion. ISO week labels describe the Monday in each row, including with a Sunday-first display.</para>
     /// </summary>
     /// <example><para>Display backup outcomes for October.</para><code>$calendar = $backups | New-ConsoleCalendar -Year 2026 -Month 10; $calendar | Show-Console</code></example>
+    /// <example><para>Show this month.</para><code>New-ConsoleCalendar | Show-Console</code></example>
     /// <example><para>Build a year view with Monday-first weeks.</para><code>New-ConsoleCalendar -Year 2026 -View Year -FirstDayOfWeek Monday</code></example>
     [Cmdlet(VerbsCommon.New, "ConsoleCalendar")]
     [OutputType(typeof(Calendar))]
     public sealed class CmdletNewConsoleCalendar : PSCmdlet {
         private readonly List<CalendarMark> _marks = new List<CalendarMark>();
-        /// <summary><para type="description">Gregorian year to display.</para></summary>
-        [Parameter(Mandatory = true)] [ValidateRange(1, 9999)] public int Year { get; set; }
-        /// <summary><para type="description">Gregorian month, required in Month view.</para></summary>
+        /// <summary><para type="description">Gregorian year to display; default the current year (or the year of Today).</para></summary>
+        [Parameter] [ValidateRange(1, 9999)] public int Year { get; set; }
+        /// <summary><para type="description">Gregorian month for Month view; without Year and Month the current month is shown.</para></summary>
         [Parameter] [ValidateRange(1, 12)] public int Month { get; set; }
         /// <summary><para type="description">Month (default) or Year.</para></summary>
         [Parameter] public CalendarView View { get; set; }
@@ -52,10 +53,14 @@ namespace ConsoleMonster.PowerShell {
             WriteObject(ConsoleHostViews.Calendar(new CalendarData(_marks), Options()));
         }
 
-        private ConsoleCalendarOptions Options() => new ConsoleCalendarOptions {
-                Year = Year, Month = Month, View = View, DateProperty = DateProperty,
+        // Like Ui.Calendar(), no Year and no Month means this month.
+        private ConsoleCalendarOptions Options() {
+            DateTime today = Today ?? DateTime.Today;
+            return new ConsoleCalendarOptions {
+                Year = Year == 0 ? today.Year : Year, Month = Year == 0 && Month == 0 && View == CalendarView.Month ? today.Month : Month, View = View, DateProperty = DateProperty,
                 StatusProperty = StatusProperty, LabelProperty = LabelProperty, FirstDayOfWeek = FirstDayOfWeek,
                 Culture = Culture, Today = Today, ShowLegend = !NoLegend.IsPresent
-        };
+            };
+        }
     }
 }

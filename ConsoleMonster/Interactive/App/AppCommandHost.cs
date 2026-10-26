@@ -155,12 +155,12 @@ namespace ConsoleMonster.Interactive {
         internal IWidget Wrap(IWidget content) => HasCommands ? new Surface(this, content) : content;
         internal void AddBindings(List<KeyBinding> bindings) {
             if (!HasCommands) { return; }
-            if (_commandBar != null) { bindings.Add(new KeyBinding("actions", () => { _barActive = !_barActive; SetBarFocus(); }, new KeyChord(ConsoleKey.F8)) { KeyText = "F8" }); }
-            bindings.Add(new KeyBinding("palette", () => { lock (_gate) { ReplaceModal(new CommandModal(_commands, Invoke, _labels)); } }, new KeyChord(ConsoleKey.K, KeyModifiers.Control)) { KeyText = "Ctrl+K", Order = 31 });
+            if (_commandBar != null) { bindings.Add(new KeyBinding(_labels.KeyActions, () => { _barActive = !_barActive; SetBarFocus(); }, new KeyChord(ConsoleKey.F8)) { KeyText = "f8" }); }
+            bindings.Add(new KeyBinding(_labels.KeyPalette, () => { lock (_gate) { ReplaceModal(new CommandModal(_commands, Invoke, _labels)); } }, new KeyChord(ConsoleKey.K, KeyModifiers.Control)) { KeyText = "ctrl+k", Order = 31 });
             foreach (AppCommand command in _commands) {
-                if (command.Shortcut.HasValue) { bindings.Add(new KeyBinding(command.Label, () => Invoke(command), command.Shortcut.Value) { KeyText = command.Shortcut.Value.ToString().ToUpperInvariant(), Order = 30 }); }
+                if (command.Shortcut.HasValue) { bindings.Add(new KeyBinding(command.Label, () => Invoke(command), command.Shortcut.Value) { KeyText = command.Shortcut.Value.ToString().ToLowerInvariant(), Order = 30 }); }
             }
-            bindings.Add(new KeyBinding("cancel action", _session.Cancel, new KeyChord(ConsoleKey.F6)) { InFooter = _session.IsBusy, KeyText = "F6", Order = 32 });
+            bindings.Add(new KeyBinding(_labels.KeyCancelAction, _session.Cancel, new KeyChord(ConsoleKey.F6)) { InFooter = _session.IsBusy, KeyText = "f6", Order = 32 });
         }
 
         internal void Bind(Button button, AppCommand command) {
@@ -195,7 +195,7 @@ namespace ConsoleMonster.Interactive {
                         int height = _host._commandBar.Measure(new Constraints(region.Width, Math.Max(1, region.Height - logHeight - 1)), context).Height;
                         rows.Add(_host._commandBar, LayoutSize.Fixed(height));
                     }
-                    IWidget body = rows.Add(new Panel(log, _host.IsBusy ? "Action running · F6 cancels" : "Action output · Alt+PgUp/PgDn scroll"), LayoutSize.Fixed(logHeight));
+                    IWidget body = rows.Add(new Panel(log, _host.IsBusy ? _host._labels.ActionRunning : _host._labels.ActionOutput), LayoutSize.Fixed(logHeight));
                     _host._frame = new ViewFrame(context, region.Width, region.Height, false, context.Elapsed);
                     if (_host._modal != null && !_host._modal.IsClosed) {
                         body = new Overlay(body, _host._modal.Build(_host._frame, _host._frame.Caret)) { MaxWidth = _host._modal.MaxWidth };

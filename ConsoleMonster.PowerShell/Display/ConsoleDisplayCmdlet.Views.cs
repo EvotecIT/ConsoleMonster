@@ -46,6 +46,8 @@ namespace ConsoleMonster.PowerShell {
                 case "rule": return new Rule(PSText.Markup(Title) ?? (items.Count == 0 ? null : PSText.Markup(items[0]))) { Alignment = Alignment, LineRole = LineRole, LineStyle = LineStyle };
                 default:
                     if (ChildrenProperty != null) { return BuildTreeView(items); }
+                    // `catch { $_ | Show-Console }` means the error, not the ErrorRecord's object graph.
+                    if (items.Count > 0 && items.All(item => PSText.Unwrap(item) is ErrorRecord || PSText.Unwrap(item) is Exception)) { return BuildErrorView(items); }
                     return PSOutputExport.Widget(items.Cast<object>().ToList(), this, Property, PSText.Markup(Title), Depth);
             }
         }

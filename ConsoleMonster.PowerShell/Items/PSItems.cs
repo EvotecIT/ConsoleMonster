@@ -18,7 +18,7 @@ namespace ConsoleMonster.PowerShell {
         internal static string Accepted(object widget) {
             switch (widget) {
                 case Flow _:
-                    return "typed flow items or records with Kind = Node, Edge or Branch";
+                    return "step names, typed flow items or records with Kind = Node, Edge or Branch";
                 case Tree _:
                 case TreeNode _:
                     return "records with Label and Children, typed TreeNode values or strings";
@@ -297,7 +297,7 @@ namespace ConsoleMonster.PowerShell {
                 return chartItem;
             }
             if (IsRecord(item)) {
-                RecordFields(item, "Key Label Value Role");
+                RecordFields(item, "Key Label Value Role", "To chart a property of ordinary objects, use Show-Console -View Chart -Property <number> -Label <name> (add -AsWidget inside -Content).");
                 object? label = Field(item, "Label");
                 object? value = Field(item, "Value");
                 if (label == null || value == null || !TryNumber(value, out double number)) {

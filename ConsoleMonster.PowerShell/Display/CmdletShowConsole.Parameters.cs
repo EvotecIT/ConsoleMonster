@@ -158,8 +158,9 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public override SwitchParameter NoTitle { get; set; }
 
-        /// <summary><para type="description">Numeric chart representation: Bar, Histogram or Sparkline.</para></summary>
+        /// <summary><para type="description">Numeric chart representation: Bar, Histogram or Sparkline. Line, Stacked and Scatter charts take series; build them with New-ConsoleChart.</para></summary>
         [Parameter]
+        [ValidateSet("Bar", "Histogram", "Sparkline")]
         public override ChartType Type { get; set; }
 
         /// <summary><para type="description">The chart label property or expression; default Name.</para></summary>

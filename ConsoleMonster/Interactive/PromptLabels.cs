@@ -143,6 +143,21 @@ namespace ConsoleMonster.Interactive {
         /// <summary>The grid's selection count.</summary>
         public string GridSelected { get; set; } = "{0} selected";
 
+        /// <summary>The title of the grid's focused-row pane when it has actions.</summary>
+        public string GridSelectedRow { get; set; } = "Selected row";
+
+        /// <summary>Key hint: focus the action bar.</summary>
+        public string KeyActions { get; set; } = "actions";
+
+        /// <summary>Key hint: cancel the running action.</summary>
+        public string KeyCancelAction { get; set; } = "cancel action";
+
+        /// <summary>The action output pane's title while idle.</summary>
+        public string ActionOutput { get; set; } = "Action output · Alt+PgUp/PgDn scroll";
+
+        /// <summary>The action output pane's title while an action runs.</summary>
+        public string ActionRunning { get; set; } = "Action running · F6 cancels";
+
         /// <summary>The column chooser's title.</summary>
         public string Columns { get; set; } = "Columns";
 

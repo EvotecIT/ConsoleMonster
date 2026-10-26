@@ -180,4 +180,21 @@ Describe 'ConsoleMonster pipeline charts' {
         { 1 | Show-Console -Bins 129 -ErrorAction Stop -View Chart } | Should -Throw
         { 1 | Show-Console -AsString -AsWidget -ErrorAction Stop -View Chart } | Should -Throw
     }
+
+    It 'names the numeric properties once when objects have no Value' {
+        $servers = @([pscustomobject] @{ Name = 'web01'; Cpu = 42; Uptime = 3 }, [pscustomobject] @{ Name = 'db01'; Cpu = 97; Uptime = 1 })
+        $errors = @()
+        { $servers | Show-Console -View Chart -ErrorVariable errors -ErrorAction SilentlyContinue } | Should -Throw '*-Property Cpu*numeric properties: Cpu, Uptime*'
+        $errors.Where({ $_.FullyQualifiedErrorId -like 'ConsoleMonsterChartValue*' }).Count | Should -Be 0
+        ($servers | Show-Console -View Chart -Property Cpu -AsWidget).Samples.Count | Should -Be 2
+    }
+
+    It 'offers only the chart kinds a single property can draw' {
+        (Get-Command Show-Console).Parameters['Type'].Attributes.Where({ $_ -is [ValidateSet] }).ValidValues | Should -Be @('Bar', 'Histogram', 'Sparkline')
+        { 1, 2 | Show-Console -View Chart -Type Line } | Should -Throw '*Line*does not belong to the set*'
+    }
+
+    It 'points ordinary records at the property-based chart view' {
+        { [pscustomobject] @{ Name = 'web01'; Cpu = 42 } | New-ConsoleChart -Type Bar } | Should -Throw '*Show-Console -View Chart -Property*'
+    }
 }

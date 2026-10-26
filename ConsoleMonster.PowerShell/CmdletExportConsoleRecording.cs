@@ -11,6 +11,13 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="description">PNG selects the final frame, -AtSeconds a source time, -Chapter a completed chapter, or -PerChapter numbered slides. GIF and APNG are managed animations without an external executable. Without -Dashboard, reads a whole-session asciicast v2 from Invoke-ConsoleRecording -Interactive or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Invoke-ConsoleDashboard widget updates into the same definition, preserving the dashboard HTML, SVG and asciicast v3 exports; Markdown writes timestamped fenced frames through the bundled add-on. Add #t=30000 to an HTML address to open at 30 seconds.</para>
     /// </summary>
     /// <example>
+    ///   <para>Record a script, then make a paced 1920x1080 GIF and a closing PNG for a slide</para>
+    ///   <code>
+    /// Invoke-ConsoleRecording { Get-Service | Show-ConsoleTable } -Destination .\services.cast
+    /// Export-ConsoleRecording .\services.cast .\services.gif -Pace Slow -Preset Slide16x9
+    /// Export-ConsoleRecording .\services.cast .\services.png -Preset Slide16x9</code>
+    /// </example>
+    /// <example>
     ///   <para>An animated SVG and an HTML player of the same run</para>
     ///   <code>
     /// Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Svg -Destination .\run.svg

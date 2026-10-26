@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using ConsoleMonster.Live;
 using ConsoleMonster.Text;
 using ConsoleMonster.Values;
 
@@ -15,6 +16,13 @@ namespace ConsoleMonster.Widgets {
         /// <param name="shape">Host member adapters; null uses ordinary C# data adapters.</param>
         /// <returns>This table.</returns>
         public LiveTable Add(object inputObject, string? keyProperty = null, ShapeOptions? shape = null) {
+            ConsoleTableRow row = Project(inputObject, keyProperty, shape);
+            Set(row.Key, row.Values);
+            return this;
+        }
+
+        // Shared with Update-Console -Row, so an ordinary record fills the same columns before and after the session starts.
+        internal ConsoleTableRow Project(object inputObject, string? keyProperty, ShapeOptions? shape) {
             if (inputObject == null) { throw new ArgumentNullException(nameof(inputObject)); }
             string keyName = keyProperty ?? KeyProperty ?? (Table.Columns.Count == 0 ? string.Empty : ColumnKey(Table.Columns[0]));
             if (!ValueShaper.TryGetField(inputObject, keyName, out object? key, shape) || key == null || key is FieldError) {
@@ -25,8 +33,7 @@ namespace ConsoleMonster.Widgets {
                 ValueShaper.TryGetField(inputObject, ColumnKey(column), out object? value, shape);
                 values.Add(value);
             }
-            Set(Convert.ToString(key, CultureInfo.CurrentCulture) ?? string.Empty, values.ToArray());
-            return this;
+            return new ConsoleTableRow { Key = Convert.ToString(key, CultureInfo.CurrentCulture) ?? string.Empty, Values = values.ToArray() };
         }
 
         private static string ColumnKey(TableColumn column) => string.IsNullOrEmpty(column.Key) ? Markup.Strip(column.Header) : column.Key!;

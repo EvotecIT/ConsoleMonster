@@ -75,4 +75,23 @@ Describe 'Native flow strip' {
         (Get-Command Update-Console).Parameters.Keys | Should -Contain 'WidgetId'
         (Get-Command New-ConsoleFlow).Parameters['WidgetId'].Aliases.Count | Should -Be 0
     }
+    It 'turns plain strings into connected steps' {
+        $flow = 'Build', 'Test', 'Deploy' | New-ConsoleFlow
+        $flow.Nodes.Key | Should -Be @('Build', 'Test', 'Deploy')
+        $flow.Nodes.Label | Should -Be @('Build', 'Test', 'Deploy')
+        $text = $flow | Export-ConsoleFrame -Format Text -Width 60
+        $text | Should -Match 'Build.*Test.*Deploy'
+    }
+    It 'infers nodes and edges and derives their keys when Kind and Key are left out' {
+        $flow = New-ConsoleFlow -Content {
+            [pscustomobject] @{ Label = 'Build'; Status = 'Pass' }
+            [pscustomobject] @{ Key = 'test'; Label = 'Test' }
+            [pscustomobject] @{ From = 'Build'; To = 'test'; Label = 'artifacts' }
+        }
+        $flow.Nodes.Key | Should -Be @('Build', 'test')
+        $flow.Edges.Count | Should -Be 1
+        $flow.Edges[0].Key | Should -BeExactly 'Build->test'
+        $flow.Edges[0].Label | Should -BeExactly 'artifacts'
+        { New-ConsoleFlow -Content { [pscustomobject] @{ From = 'a'; Label = 'side' } } } | Should -Throw '*Kind*'
+    }
 }

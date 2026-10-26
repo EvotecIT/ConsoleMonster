@@ -27,4 +27,4 @@
 │                                                                                                  │
 │                                                                                                  │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  Space mark  Esc close  F5 Refresh  Ctrl+K palette  F8 actions
+ ↑↓ move  space select  esc close  f5 Refresh  ctrl+k commands  f8 actions
