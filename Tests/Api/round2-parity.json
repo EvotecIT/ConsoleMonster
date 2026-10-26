@@ -21931,6 +21931,15 @@
     },
     {
       "CSharpType": "ConsoleMonster.Interactive.InteractiveOptions",
+      "Member": "ActionClock",
+      "CSharpTypeName": "System.Func`1[System.TimeSpan]",
+      "Reason": "Action workers sample this thread-safe native clock delegate; a PowerShell script block cannot run on that worker without its owning runspace. Null keeps real elapsed time.",
+      "Alternative": "Normal grid/app commands use real elapsed time. Embedding hosts and external capture recipes can supply SimulatedClock.Read through shared InteractiveOptions.",
+      "Disposition": "CSharpOnly",
+      "OverrideTypedInput": true
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.InteractiveOptions",
       "Member": "Default",
       "CSharpTypeName": "ConsoleMonster.Interactive.InteractiveOptions",
       "Reason": "This static process-wide default belongs to an embedding host; PowerShell resolves interaction per owning runspace.",

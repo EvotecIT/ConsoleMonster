@@ -545,6 +545,12 @@ With all named feature PRs integrated, this branch is **144 → 101**: the origi
 
 I keep document export in `Export-ConsoleFrame`, including ordinary objects and registered views. The existing `Out-ConsoleDefault -Format` export branch duplicates that job, so I remove its `Format` and export-only `Width` parameters. `Out-ConsoleDefault` remains the shell output router. This changes no command count and adds no compatibility shim.
 
+### 2026-10-26 — Deterministic action clocks in capture recipes
+
+Action logs use real elapsed time by default. `InteractiveOptions.ActionClock` lets an embedding host supply a thread-safe monotonic clock; grid and app actions measure each log entry relative to that action’s start. I record this callback as a C# host setting in the parity catalog because action workers cannot invoke a PowerShell script block on the owning runspace.
+
+The service-browser capture recipe selects `actionClock: Frozen` in its metadata. Both C# runners and the site-only PowerShell driver supply `SimulatedClock.Read` before executing the ordinary programs. Delays, cancellation and input pacing remain real. I compare the resulting cells directly; I do not remove or rewrite timestamps. The shared module demo driver stays unchanged, so this recipe change refreshes only service-browser’s three portable gallery states. The Windows terminal captures retain their existing sources and stamps.
+
 ## 8. Complete command disposition
 
 The following inventory is the count check for this proposal. A kept name can still receive parity changes described above. Retired names have no alias or obsolete replacement.

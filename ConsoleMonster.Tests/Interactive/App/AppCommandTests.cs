@@ -78,6 +78,25 @@ namespace ConsoleMonster.Tests.Interactive.App {
         }
 
         [Fact]
+        public void SuppliedActionClock_TimestampsWorkerOutputAndRestartsForEachAction() {
+            var clock = new ConsoleMonster.Live.SimulatedClock();
+            clock.Advance(20);
+            using AppActionSession session = new AppActionSession(default, actionClock: clock.Read);
+            AppCommand command = new AppCommand("query", "Query", async (context, token) => {
+                context.Write("Connecting");
+                await Task.Yield();
+                clock.Advance(2.7);
+                context.Write("Verified");
+            });
+            for (int action = 0; action < 2; action++) {
+                Assert.True(session.Start(command, Array.Empty<object?>()));
+                Assert.True(SpinWait.SpinUntil(() => !session.IsBusy, TimeSpan.FromSeconds(5)));
+                LogEntry[] entries = session.Output.Skip(action * 3).ToArray();
+                Assert.Equal(new[] { TimeSpan.Zero, TimeSpan.FromSeconds(2.7), TimeSpan.FromSeconds(2.7) }, entries.Select(entry => entry.Time));
+            }
+        }
+
+        [Fact]
         public void Cancellation_StreamsOutputAndAllowsAnotherAction() {
             using ManualResetEventSlim started = new ManualResetEventSlim();
             AppCommand command = new AppCommand("query", "Query", async (context, token) => {

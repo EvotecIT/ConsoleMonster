@@ -318,7 +318,7 @@ namespace ConsoleMonster.Interactive {
                 }
                 try {
                     using MouseReporting? mouse = MouseReporting.Open(true, interactive, profile, lease.Source, interactive.Surface != null);
-                    using GridView view = new GridView(grid, options, labels, cancellationToken);
+                    using GridView view = new GridView(grid, options, labels, cancellationToken, interactive.ActionClock);
                     InteractionLoop.Run(view, lease.Source, surface, context, cancellationToken);
                     surface.Complete(view.Summary(context));
                     return new GridResult(view.Accepted, view.Accepted ? view.ChosenItems() : new List<object?>());

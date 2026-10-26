@@ -14,6 +14,8 @@ namespace SiteFrames.Capture {
     internal static class GalleryFrames {
         internal static CellBuffer Run(GalleryPage.Demo demo, int step, bool fluent = false) {
             JsonNode state = demo.Metadata["capture"]!["states"]![step]!;
+            string? actionClock = demo.Metadata["capture"]!["actionClock"]?.GetValue<string>();
+            if (actionClock != null && actionClock != "Frozen") { throw new InvalidDataException(demo.Slug + ": unsupported actionClock " + actionClock); }
             var profile = CSharpRunner.Profile(demo.Width, demo.Height, ColorDepth.TrueColor, GlyphTier.Full);
             var target = new RecordingTarget(profile, state["keys"]?.GetValue<string>()) {
                 Theme = Theme.Dark, SkipDelays = true,
@@ -26,6 +28,7 @@ namespace SiteFrames.Capture {
             try {
                 CSharpRunner.Execute(fluent ? demo.CSharpFluent : demo.CSharp, profile, Theme.Dark, new InteractiveOptions {
                     Target = target, Input = target.Input, Capture = target.Screens, Profile = profile, Theme = Theme.Dark,
+                    ActionClock = actionClock == "Frozen" ? new ConsoleMonster.Live.SimulatedClock().Read : null,
                     Mode = target.Input == null ? InteractionMode.None : InteractionMode.Rich
                 }, arguments: state["arguments"]?.AsArray().Select(a => a!.GetValue<string>()).ToArray(), recording: target, allowIncompleteInput: state["incomplete"]?.GetValue<bool>() ?? false);
             } finally {

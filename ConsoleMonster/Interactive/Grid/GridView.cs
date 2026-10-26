@@ -41,9 +41,9 @@ namespace ConsoleMonster.Interactive {
         private int _dragAnchor = -1;
         private int[] _actionIndices = Array.Empty<int>();
 
-        public GridView(Grid grid, GridOptions options, PromptLabels labels, System.Threading.CancellationToken cancellationToken = default) : base(labels) {
+        public GridView(Grid grid, GridOptions options, PromptLabels labels, System.Threading.CancellationToken cancellationToken = default, Func<TimeSpan>? actionClock = null) : base(labels) {
             _grid = grid;
-            if (options.Command.Count > 0 || options.Dispatcher != null) { _actions = new AppCommandHost(options.Command, ActionRows, labels, cancellationToken, commandBar: true, requiresRows: true, dispatcher: options.Dispatcher, selectionLabel: ActionSelectionLabel, completed: command => RefreshActionRows(options, command)); }
+            if (options.Command.Count > 0 || options.Dispatcher != null) { _actions = new AppCommandHost(options.Command, ActionRows, labels, cancellationToken, commandBar: true, requiresRows: true, dispatcher: options.Dispatcher, selectionLabel: ActionSelectionLabel, completed: command => RefreshActionRows(options, command), actionClock: actionClock); }
             _filter = new LineEditor(options.Filter);
             _hidden = new bool[grid.Columns.Count];
             for (int c = 0; c < grid.Columns.Count; c++) {

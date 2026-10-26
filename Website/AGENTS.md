@@ -45,6 +45,7 @@ pwsh Website/build/Render-SiteImages.ps1                                       #
 - `render` is deterministic: it renders in-process with fixed widths, tiers, themes and the en-US culture, replays the
   committed captures and recordings, and writes the generated files listed below. Rerun it after any renderer change and
   commit what changed. It exits with an error when a PowerShell example no longer draws the same cells as its C# initializer and fluent variants. Gallery triplets must produce byte-identical output for every state.
+- A gallery recipe may select `capture.actionClock: "Frozen"` for action logs. Both C# styles and the site-only PowerShell driver then supply a native `SimulatedClock.Read` delegate through `InteractiveOptions.ActionClock`. The programs, delays, cancellation and input pacing stay intact, and comparisons use the actual rendered cells. Keep this selection in the affected demo metadata so its capture fingerprint changes; never normalize elapsed-time text after rendering.
 - `capture` runs scripts and showcases inside a Windows pseudo console (ConPTY) of a fixed size, with the terminal profile
   pinned through `CONSOLEMONSTER_COLOR`, `CONSOLEMONSTER_GLYPHS`, `CONSOLEMONSTER_THEME` and `CONSOLEMONSTER_CULTURE`, and the
   thread culture pinned for built-in cmdlets. It saves the VT streams under `captures/` (`.ansi` for printed output,

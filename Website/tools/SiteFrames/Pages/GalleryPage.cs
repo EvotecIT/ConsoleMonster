@@ -82,9 +82,17 @@ namespace SiteFrames.Pages {
             Parity.Transcript(File.ReadAllBytes(CapturePath(site, demo, demo.Steps - 1)), demo.Width, demo.Height);
 
         // Pin only portable inputs. Host versions and machine paths do not belong in deterministic data.
-        private static string Stamp(Site site, Demo demo) => Replays.Fingerprint(
-            Site.ReadText(demo.PowerShell), Site.ReadText(demo.CSharp), Site.ReadText(demo.CSharpFluent), Site.ReadText(Path.Combine(site.Website, "..", "ConsoleMonster.PowerShell", "Gallery", "DemoCapture.ps1")), demo.Width.ToString(CultureInfo.InvariantCulture), demo.Height.ToString(CultureInfo.InvariantCulture),
-            demo.Metadata["capture"]!.ToJsonString(), "en-US/dark/truecolor/full/gallery-v3");
+        private static string Stamp(Site site, Demo demo) {
+            string[] parts = {
+                Site.ReadText(demo.PowerShell), Site.ReadText(demo.CSharp), Site.ReadText(demo.CSharpFluent), Site.ReadText(Path.Combine(site.Website, "..", "ConsoleMonster.PowerShell", "Gallery", "DemoCapture.ps1")), demo.Width.ToString(CultureInfo.InvariantCulture), demo.Height.ToString(CultureInfo.InvariantCulture),
+                demo.Metadata["capture"]!.ToJsonString(), "en-US/dark/truecolor/full/gallery-v3"
+            };
+            // Only clock recipes use this producer setting; ordinary gallery receipts retain their existing inputs.
+            if (demo.Metadata["capture"]!["actionClock"] != null) {
+                parts = parts.Append(Site.ReadText(Path.Combine(site.Website, "tools", "SiteFrames", "Capture", "GalleryCapture.ps1"))).ToArray();
+            }
+            return Replays.Fingerprint(parts);
+        }
 
         /// <summary>Captures every snapshot on PowerShell 7, on macOS, Linux or Windows; no pseudo-console is required.</summary>
         public static int Capture(Site site) {

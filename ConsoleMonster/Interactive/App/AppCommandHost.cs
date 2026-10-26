@@ -30,7 +30,7 @@ namespace ConsoleMonster.Interactive {
         private readonly Action<AppCommand>? _completed;
         private long _completionRevision;
 
-        internal AppCommandHost(IEnumerable<AppCommand> commands, Func<IReadOnlyList<object?>> selection, PromptLabels labels, CancellationToken token, bool commandBar = false, bool requiresRows = false, AppDispatcher? dispatcher = null, Func<string>? selectionLabel = null, Action<AppCommand>? completed = null) {
+        internal AppCommandHost(IEnumerable<AppCommand> commands, Func<IReadOnlyList<object?>> selection, PromptLabels labels, CancellationToken token, bool commandBar = false, bool requiresRows = false, AppDispatcher? dispatcher = null, Func<string>? selectionLabel = null, Action<AppCommand>? completed = null, Func<TimeSpan>? actionClock = null) {
             _completed = completed;
             _selectionLabel = selectionLabel;
             _commands = new List<AppCommand>(commands).ToArray();
@@ -56,7 +56,7 @@ namespace ConsoleMonster.Interactive {
             }
             _selection = selection;
             _labels = labels;
-            _session = new AppActionSession(token, dispatcher);
+            _session = new AppActionSession(token, dispatcher, actionClock);
         }
 
         internal bool HasCommands => _commands.Length != 0;
