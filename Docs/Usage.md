@@ -160,6 +160,9 @@ Tables negotiate their width instead of overflowing it:
 
 - Each column can set a `Priority`, `MinWidth`/`MaxWidth` and an `Overflow`: `Wrap` (with `MaxLines`), `Truncate`,
   `TruncateMiddle` (paths, DNS names) or `Never`.
+- An expanded table (`-Expand`) shares its spare width among the text columns in proportion to their widths; numbers,
+  dates and status words keep their natural width. A column's `Weight` (or `Flexible`) takes the share instead, and
+  `Width` or `MaxWidth` holds.
 - Wrapped text breaks after spaces first, then after separators, and only then by character. Path, list and query
   separators (`\ / ; , | & ?`) win over the dots, dashes and colons inside a name (`. - : =`) when the next segment fits
   on one line, so a line ends with its separator: `evotec-xyz.mail.protection.` / `outlook.com`,
@@ -226,7 +229,7 @@ From PowerShell, `Show-ConsoleTable`, `Show-ConsoleList` and `Show-Console -View
 built-in Format cmdlets:
 
 - `-Property` accepts names, wildcards and calculated properties, as Format-Table does. A hashtable with column options
-  (`Priority`, `Key`, `Overflow`, `MaxLines`, `MinWidth`, `MaxWidth`, `Presenter`, `Aggregate`, `WarnAbove`,
+  (`Priority`, `Key`, `Overflow`, `MaxLines`, `MinWidth`, `MaxWidth`, `Weight`, `Presenter`, `Aggregate`, `WarnAbove`,
   `Identifier`, ...) configures that column.
 - Identifier columns (`Id`, `ProcessId`, `PID`, ports, `Index`, `Year`, handle and build numbers) show their digits
   without thousands separators and are never totalled; `Identifier = $true` (or `Presenter = 'Identifier'`) does the

@@ -103,6 +103,7 @@ namespace ConsoleMonster.Interactive {
                     Priority = source.Priority,
                     IsKey = source.IsKey,
                     Flexible = source.Flexible,
+                    Weight = source.Weight,
                     MinWidth = source.MinWidth,
                     MaxWidth = source.MaxWidth,
                     Width = source.Width,

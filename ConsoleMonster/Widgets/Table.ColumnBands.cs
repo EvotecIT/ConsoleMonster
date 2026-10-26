@@ -66,7 +66,7 @@ namespace ConsoleMonster.Widgets {
         private static TableColumn WrappingColumn(TableColumn source, int width) {
             TableColumn column = new TableColumn(source.Header) {
                 Key = source.Key, Alignment = source.Alignment, Wrap = true, MaxLines = TableColumn.Unlimited,
-                Priority = source.Priority, IsKey = source.IsKey, Flexible = source.Flexible,
+                Priority = source.Priority, IsKey = source.IsKey, Flexible = source.Flexible, Weight = source.Weight,
                 MaxWidth = width, Presenter = source.Presenter, Aggregate = source.Aggregate
             };
             foreach (var rule in source.RoleRules) column.RoleRules.Add(rule);

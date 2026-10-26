@@ -86,7 +86,7 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Whether group labels occupy full-width section rows instead of labelled border rules (default false).</summary>
         public bool GroupHeadersAsRows { get; set; }
 
-        /// <summary>Whether the table fills the available width (spare width goes to the flexible column).</summary>
+        /// <summary>Whether the table fills the available width: the free-text columns share the spare width in proportion to their widths, unless columns set <see cref="TableColumn.Weight"/> or <see cref="TableColumn.Flexible"/>; number, date and status columns keep their natural width.</summary>
         public bool Expand { get; set; }
 
         /// <summary>
