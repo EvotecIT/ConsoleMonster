@@ -85,7 +85,7 @@ namespace SiteFrames.Pages {
                 string type = factory["InitializerTypes"]!.AsArray().Select(node => node!.GetValue<string>()).Where(type => used.Contains("C:" + type)).OrderBy(type => Position("C:" + type)).FirstOrDefault() ?? factory["ReturnType"]!.GetValue<string>();
                 string initializerType = type.Substring(type.LastIndexOf('.') + 1);
                 string? reason = factory["Reason"]?.GetValue<string>();
-                if (factory["ContentBuilder"]!.GetValue<bool>()) { reason = (reason == null ? string.Empty : reason + " ") + "Inside Content: " + entryRule["NestedPattern"]!.GetValue<string>().Replace("{Noun}", noun, StringComparison.Ordinal) + "."; }
+                if (factory["ContentBuilder"]!.GetValue<bool>()) { reason = (reason == null ? string.Empty : reason + " ") + "Inside Content: " + entryRule["NestedPattern"]!.GetValue<string>().Replace("{Noun}", noun, StringComparison.Ordinal).Replace("{Parameter}", CSharpRunner.BuilderParameter(noun), StringComparison.Ordinal) + "."; }
                 factoryPositions[methodId] = Math.Min(Position(methodId), Position("C:" + type));
                 bool tableRowsUsed = noun == "Table" && used.Contains("M:ConsoleMonster.Widgets.Table.For");
                 if (tableRowsUsed) { factoryPositions[methodId] = Math.Min(factoryPositions[methodId], Position("M:ConsoleMonster.Widgets.Table.For")); }

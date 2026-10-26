@@ -22,6 +22,7 @@ namespace SiteFrames.Tests {
             Assert.Contains(notes, note => note!["powershell"]!.GetValue<string>() == "New-ConsoleRows -Content { … }" && note["fluent"]!.GetValue<string>() == ".Content(c => { … })");
             Assert.Contains(notes, note => note!["powershell"]!.GetValue<string>() == "New-ConsoleTable -Expand" && note["fluent"]!.GetValue<string>() == ".Expand()");
             Assert.Contains(notes, note => note!["powershell"]!.GetValue<string>() == "New-ConsoleText -Markup $text" && note["fluent"]!.GetValue<string>().Contains("c.Markup(text)", StringComparison.Ordinal));
+            Assert.Contains(notes, note => note!["powershell"]!.GetValue<string>() == "New-ConsoleTable" && note["note"]!.GetValue<string>().Contains("c.Table(t => …)", StringComparison.Ordinal));
         }
 
         [Theory]

@@ -762,3 +762,9 @@ I rebased onto `dd5d7ce`, including #54, #57, #58, #59, #60, #62, #63 and #65. T
 | Coming-from guides' calendar gap and old names | Calendar / New-ConsoleCalendar equivalents and the consolidated names | Describe the actual shipped display capability; date picking, Figlet fonts and command-line parsing retain their separate status. | Guide sources, executable examples and website |
 
 The final parity catalog has **101 commands, 1,067 parameters and 293 reachable public types**. Read-only command collections translate as `-Command` ↔ `Command = { … }` ↔ `.AddCommand(…)`; the metadata test resolves the named fluent method. Both newly merged demos ship PowerShell, initializer and fluent sources, initial-DOM tabs, generated translation notes and triplet output checks.
+
+### 2026-10-26 — Desktop teaching-code fit
+
+I apply the shared 100-column formatter to strings whose target Roslyn confirms is `string`, including properties and arguments. `FormattableString` and handler targets keep their interpolation. The gallery guard includes strings: C# lines have a hard ceiling of 110 columns, and every language stays within the desktop pane’s 145-column capacity. A browser check covers all three tabs at a 1440-pixel desktop width. The two PowerShell summaries that exceeded that capacity use a named server count and joined summary parts.
+
+Nested mapping notes share the source rewriter’s callback naming rule: `c.Table(t => …)`, `c.Rows(r => …)`, `c.Panel(p => …)`, with local collision suffixes where needed. The parity map records this grammar. Positional teaching calls and the existing argument-order checks remain the default.

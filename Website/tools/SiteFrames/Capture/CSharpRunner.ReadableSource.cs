@@ -6,6 +6,31 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace SiteFrames.Capture {
     internal static partial class CSharpRunner {
+        /// <summary>Wraps only expressions whose bound target is string, preserving handlers and FormattableString.</summary>
+        internal static string LayoutSource(string path, string source) {
+            source = source.Replace("\r\n", "\n", StringComparison.Ordinal);
+            var compilation = CreateCompilation(path, source);
+            var tree = compilation.SyntaxTrees.Single(tree => tree.FilePath == path);
+            return LayoutSource(tree, compilation.GetSemanticModel(tree));
+        }
+
+        private static string LayoutSource(SyntaxTree tree, SemanticModel model) {
+            var strings = tree.GetRoot().DescendantNodes().OfType<ExpressionSyntax>()
+                .Where(node => node is InterpolatedStringExpressionSyntax
+                    || node is LiteralExpressionSyntax literal && literal.IsKind(SyntaxKind.StringLiteralExpression))
+                .Where(node => model.GetTypeInfo(node).ConvertedType?.SpecialType == SpecialType.System_String)
+                .ToArray();
+            var spans = strings.Where(node => !node.Ancestors().Any(parent => strings.Contains(parent)))
+                .Select(node => node.Span);
+            return SourceLayout.Format(tree.GetText().ToString(), spans);
+        }
+
+        /// <summary>Shares ordinary builder callback names between runnable programs and their translation notes.</summary>
+        internal static string BuilderParameter(string noun) => noun switch {
+            "definition" => "o", "Table" => "t", "Panel" => "p", "KeyValue" => "kv", "Chart" => "chart", "Rows" => "r",
+            _ => char.ToLowerInvariant(noun[0]) + noun.Substring(1)
+        };
+
         private static string ReadableSource(SyntaxNode root) =>
             SourceLayout.Format(root.NormalizeWhitespace(indentation: "    ", eol: "\n").ToFullString() + "\n");
 

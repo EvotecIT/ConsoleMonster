@@ -70,7 +70,8 @@ MenuItem targets = new MenuItem("Targets")
 {
     Hotkey = 't',
     IconName = GlyphIcon.Targets,
-    Description = "Servers the tasks run on. The list is loaded from the inventory; offline servers cannot be picked.",
+    Description = ("Servers the tasks run on. The list is loaded from the inventory; offline servers "
+        + "cannot be picked."),
     LoadChoices = (context, token) => LoadServersAsync(token)
 };
 targets.Minimum = 1;
@@ -78,7 +79,8 @@ MenuItem tasks = new MenuItem("Tasks")
 {
     Hotkey = 'k',
     IconName = GlyphIcon.Tasks,
-    Description = "What to run on every target. Tasks marked 'changes' modify the servers; the rest only read."
+    Description = ("What to run on every target. Tasks marked 'changes' modify the servers; the rest "
+        + "only read.")
 }.MultiSelect(allTasks, t => t.Name, t => t.Category, TaskPreview);
 foreach (Choice c in tasks.Choices)
 {

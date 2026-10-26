@@ -69,7 +69,7 @@ namespace SiteFrames {
                     foreach (string file in args.Skip(2)) {
                         string full = Path.GetFullPath(Path.Combine(website, file));
                         string original = File.ReadAllText(full);
-                        string laid = SourceLayout.Format(original);
+                        string laid = CSharpRunner.LayoutSource(full, original);
                         if (laid != original.Replace("\r\n", "\n")) { File.WriteAllText(full, laid, new System.Text.UTF8Encoding(File.ReadAllBytes(full) is [0xEF, 0xBB, 0xBF, ..])); Console.WriteLine("laid out " + file); }
                     }
                     return 0;

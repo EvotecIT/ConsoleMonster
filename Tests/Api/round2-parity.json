@@ -25918,7 +25918,8 @@
         }
       ],
       "Pattern": "Ui.{Noun}()",
-      "NestedPattern": "c.{Noun}(widget => …)",
+      "NestedPattern": "c.{Noun}({Parameter} => …)",
+      "NestedParameterNaming": "Use the shared teaching-code callback name (Table t, Rows r, Panel p, KeyValue kv, Chart chart; otherwise lower camel case), with a numeric suffix on local collisions.",
       "DataConstructionExceptions": [
         {
           "CSharpType": "ConsoleMonster.Interactive.Choice",

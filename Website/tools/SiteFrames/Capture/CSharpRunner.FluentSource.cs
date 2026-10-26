@@ -60,6 +60,10 @@ namespace SiteFrames.Capture {
                 var names = new ExampleNames(checkedProgram.GetSemanticModel(tree));
                 generated[tree.FilePath] = ReadableSource(names.Visit(tree.GetRoot())!);
             }
+            checkedProgram = CreateCompilation(path, generated[path], companions: companions, sourceOverrides: generated, references: references);
+            foreach (SyntaxTree tree in checkedProgram.SyntaxTrees.Where(tree => generated.ContainsKey(tree.FilePath))) {
+                generated[tree.FilePath] = LayoutSource(tree, checkedProgram.GetSemanticModel(tree));
+            }
             return generated;
         }
 

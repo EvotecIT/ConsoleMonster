@@ -13,7 +13,7 @@ namespace SiteFrames.Capture {
     /// chain, argument list or conditional (then operators, then initializers), one level at a time; literal arrays stay on
     /// as few lines as fit; a statement led by a comment gets a blank line before it. Roslyn's NormalizeWhitespace puts a
     /// whole chain on one line and every array element on its own, which is what this undoes. Overlong string values in
-    /// explicitly typed string declarations can split into concatenated parts; other changes affect whitespace only.
+    /// confirmed string targets can split into concatenated parts; other changes affect whitespace only.
     /// </summary>
     internal static partial class SourceLayout {
         public const int Width = 100;
@@ -21,8 +21,9 @@ namespace SiteFrames.Capture {
         private static readonly CSharpParseOptions Options = new CSharpParseOptions(LanguageVersion.CSharp12);
         private static readonly string[] Markers = { "<more>", "</more>", "<hidden>", "</hidden>" };
 
-        public static string Format(string source) {
+        public static string Format(string source, IEnumerable<TextSpan>? stringValues = null) {
             string text = source.Replace("\r\n", "\n", StringComparison.Ordinal);
+            if (stringValues != null) { text = WrapStringValues(text, stringValues.ToHashSet()); }
             text = Spacing(text);
             text = Compact(text);
             text = Wrap(text);

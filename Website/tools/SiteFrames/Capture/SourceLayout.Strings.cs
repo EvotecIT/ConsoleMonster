@@ -6,11 +6,13 @@ using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
 
 namespace SiteFrames.Capture {
     internal static partial class SourceLayout {
-        // Only an explicit string declaration supplies a known string target.
-        // FormattableString and handler arguments must retain their interpolation.
+        // Without a semantic model, only an explicit string declaration supplies
+        // a known target. Bound property and argument targets can opt in too;
+        // FormattableString and handler arguments retain their interpolation.
         private static bool StringValue(ExpressionSyntax expression) {
             SyntaxNode value = expression;
             while (value.Parent is ParenthesizedExpressionSyntax
@@ -22,11 +24,12 @@ namespace SiteFrames.Capture {
             } && type.Keyword.IsKind(SyntaxKind.StringKeyword);
         }
 
-        private static string WrapStringValues(string text) {
+        private static string WrapStringValues(string text, HashSet<TextSpan>? knownStrings = null) {
             SyntaxNode root = Parse(text);
             var source = root.SyntaxTree.GetText();
             var edits = new List<(int, int, string)>();
-            foreach (ExpressionSyntax value in root.DescendantNodes().OfType<ExpressionSyntax>().Where(StringValue)) {
+            foreach (ExpressionSyntax value in root.DescendantNodes().OfType<ExpressionSyntax>()
+                .Where(value => knownStrings == null ? StringValue(value) : knownStrings.Contains(value.Span))) {
                 var line = source.Lines.GetLineFromPosition(value.SpanStart);
                 if (line.Span.Length <= Width || source.Lines.GetLineFromPosition(value.Span.End).LineNumber != line.LineNumber) { continue; }
                 string start;

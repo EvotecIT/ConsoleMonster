@@ -13,6 +13,53 @@ namespace SiteFrames.Tests {
     [Collection("Interactive process defaults")]
     public sealed class SourceLayoutContracts {
         [Fact]
+        public void GalleryTeachingLinesFitTheDesktopCodePaneIncludingStrings() {
+            string gallery = Path.Combine(Repository(), "Website", "examples", "gallery");
+            foreach (string path in Directory.GetFiles(gallery, "*", SearchOption.AllDirectories)
+                .Where(path => path.EndsWith(".ps1", StringComparison.Ordinal) || path.EndsWith(".cs", StringComparison.Ordinal))
+                .Where(path => !path.Split(Path.DirectorySeparatorChar).Any(part => part is "bin" or "obj"))) {
+                // At a 1440px desktop the pane is 1240px. At 13.5px monospace,
+                // 145 columns leave room for padding and a native scrollbar.
+                int budget = path.EndsWith(".cs", StringComparison.Ordinal) ? 110 : 145;
+                string[] lines = File.ReadAllLines(path);
+                for (int i = 0; i < lines.Length; i++) {
+                    Assert.True(lines[i].Replace("\t", "    ", StringComparison.Ordinal).Length <= budget,
+                        path + ":" + (i + 1) + " exceeds " + budget + " columns: " + lines[i]);
+                }
+            }
+        }
+
+        [Fact]
+        public void BoundStringPropertiesAndArgumentsWrapButFormattableTargetsDoNot() {
+            const string source = """
+                using ConsoleMonster;
+                using ConsoleMonster.Widgets;
+                int reads = 0;
+                int Next() => ++reads;
+                var label = new Label { Caption = $"[pass]{Next()} checks on {Next()} servers. Review the findings and choose the next action before completing the nightly report and retaining the results." };
+                string Echo(string value) => value;
+                var text = Echo($"{Next()} checks completed with all findings retained for the daily summary, which includes recovery instructions and the next action for every server.");
+                FormattableString template = $"{Next()} a long template which preserves its arguments and format string for a caller supplied format provider";
+                Terminal.Write(new TextBlock(label.Caption + text + template.Format + " / reads=" + reads));
+                sealed class Label { public string Caption { get; set; } = ""; }
+                """;
+            string directory = Path.Combine(Path.GetTempPath(), "cm-bound-layout-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(directory);
+            try {
+                string before = Path.Combine(directory, "before.cs");
+                string after = Path.Combine(directory, "after.cs");
+                File.WriteAllText(before, source);
+                string formatted = CSharpRunner.LayoutSource(before, source);
+                File.WriteAllText(after, formatted);
+                Assert.Equal(formatted, CSharpRunner.LayoutSource(after, formatted));
+                Assert.Contains("template = $\"{Next()} a long template", formatted, StringComparison.Ordinal);
+                var profile = CSharpRunner.Profile(100, 20, ColorDepth.TrueColor, GlyphTier.Full);
+                Assert.Equal(CSharpRunner.Execute(before, profile, Theme.Dark, null).Output,
+                    CSharpRunner.Execute(after, profile, Theme.Dark, null).Output);
+            } finally { Directory.Delete(directory, recursive: true); }
+        }
+
+        [Fact]
         public void LongStringSummariesWrapWithoutChangingValuesOrInterpolationOrder() {
             const string source = """
                 using ConsoleMonster;
@@ -111,10 +158,14 @@ namespace SiteFrames.Tests {
         // next Windows capture of the live and demos areas.
         private static readonly string[] WindowsRecorded = { "live/pipeline.cs", "live/replay.cs", "live/stress.cs", "demos/hosting/Program.cs", "demos/logging/Program.cs" };
 
-        private static string[] Examples() {
+        private static string Repository() {
             DirectoryInfo? root = new DirectoryInfo(AppContext.BaseDirectory);
             while (root != null && !File.Exists(Path.Combine(root.FullName, "ConsoleMonster.sln"))) { root = root.Parent; }
-            string examples = Path.Combine(root!.FullName, "Website", "examples");
+            return root!.FullName;
+        }
+
+        private static string[] Examples() {
+            string examples = Path.Combine(Repository(), "Website", "examples");
             return Directory.GetFiles(examples, "*.cs", SearchOption.AllDirectories)
                 .Where(path => !Path.GetRelativePath(examples, path).Split(Path.DirectorySeparatorChar).Any(part => part is "bin" or "obj"))
                 .Where(path => !WindowsRecorded.Contains(Path.GetRelativePath(examples, path).Replace('\\', '/'), StringComparer.Ordinal))
