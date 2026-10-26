@@ -10,7 +10,9 @@ $tasks = @(
     [pscustomobject]@{ Task = 'Review examples'; State = 'In progress'; Minutes = 25 }
     [pscustomobject]@{ Task = 'Archive old drafts'; State = 'Waiting'; Minutes = 8 }
 )
-$baseline = ($tasks | ForEach-Object -Process { "$($_.Task) | $($_.State) | $($_.Minutes) min" }) -join "`n"
+$baseline = ($tasks | ForEach-Object -Process {
+    "$($_.Task) | $($_.State) | $($_.Minutes) min"
+}) -join "`n"
 
 # Layout: compose the screen from the data above.
 $screen = New-ConsoleRows -Gap 1 -Content {

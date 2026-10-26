@@ -15,8 +15,12 @@ function New-DemoFrame {
         '[bold]Build pipeline[/] [muted]· Orbit.Tools[/]'
         New-ConsolePanel -Title 'Release checklist' -Content {
             foreach ($index in 0..3) {
-                $status = if ($index -lt $Tick) { 'pass' } elseif ($index -eq $Tick) { 'accent' } else { 'muted' }
-                $label = if ($index -lt $Tick) { 'complete' } elseif ($index -eq $Tick) { 'running' } else { 'pending' }
+                $status = if ($index -lt $Tick) { 'pass' }
+                elseif ($index -eq $Tick) { 'accent' }
+                else { 'muted' }
+                $label = if ($index -lt $Tick) { 'complete' }
+                elseif ($index -eq $Tick) { 'running' }
+                else { 'pending' }
                 "[$status]$($stages[$index])[/]  $label"
             }
         }

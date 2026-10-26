@@ -2,8 +2,10 @@
 
 #region Using the object directly
 # A custom presenter fixes the bar scale at 100 and adds a percent unit.
-$dataBarType = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Presenters.DataBarPresenter', $true)
-$numberType = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Presenters.NumberPresenter', $true)
+$dataBarType = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Presenters.DataBarPresenter',
+    $true)
+$numberType = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Presenters.NumberPresenter',
+    $true)
 $scorePresenter = $dataBarType::new(100, $numberType::new('%'))
 #endregion
 
@@ -81,12 +83,20 @@ $rows = @(
     }
 )
 
-$rows | Show-ConsoleTable -Title '[bold]Nightly checks[/] [muted]· run summary[/]' -GroupBy Group -ShowSubtotals -ShowTotals -NoSort -Property @(
-    @{ Name = 'Target'; Key = $true; Overflow = 'TruncateMiddle'; MinWidth = 12 }
-    @{ Name = 'Result'; Priority = 10; Presenter = 'Status' }
-    @{ Name = 'Passed'; Priority = 8; Presenter = 'Number'; Aggregate = 'Sum' }
-    @{ Name = 'Failed'; Priority = 9; Presenter = 'Number'; Aggregate = 'Sum'; FailAbove = 0 }
-    @{ Name = 'Warnings'; Priority = 6; Presenter = 'Number'; Aggregate = 'Sum'; WarnAbove = 0 }
-    @{ Name = 'Duration'; Priority = 4; Presenter = 'Duration'; Aggregate = 'Sum' }
-    @{ Name = 'Score'; Priority = 2; Presenter = $scorePresenter; Aggregate = 'Average' }
-)
+$tableParameters = @{
+    Title = '[bold]Nightly checks[/] [muted]· run summary[/]'
+    GroupBy = 'Group'
+    ShowSubtotals = $true
+    ShowTotals = $true
+    NoSort = $true
+}
+$rows |
+    Show-ConsoleTable @tableParameters -Property @(
+        @{ Name = 'Target'; Key = $true; Overflow = 'TruncateMiddle'; MinWidth = 12 }
+        @{ Name = 'Result'; Priority = 10; Presenter = 'Status' }
+        @{ Name = 'Passed'; Priority = 8; Presenter = 'Number'; Aggregate = 'Sum' }
+        @{ Name = 'Failed'; Priority = 9; Presenter = 'Number'; Aggregate = 'Sum'; FailAbove = 0 }
+        @{ Name = 'Warnings'; Priority = 6; Presenter = 'Number'; Aggregate = 'Sum'; WarnAbove = 0 }
+        @{ Name = 'Duration'; Priority = 4; Presenter = 'Duration'; Aggregate = 'Sum' }
+        @{ Name = 'Score'; Priority = 2; Presenter = $scorePresenter; Aggregate = 'Average' }
+    )

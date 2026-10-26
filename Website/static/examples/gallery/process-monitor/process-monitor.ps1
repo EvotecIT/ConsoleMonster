@@ -17,14 +17,20 @@ function New-ProcessFrame {
     )
 
     $rows = foreach ($process in $processes) {
-        [pscustomobject] @{ Name = $process.Name; Pid = $process.Pid; 'CPU %' = $process.Cpu + $Tick * 3; 'Memory MiB' = $process.Memory + $Tick * 16 }
+        [pscustomobject] @{ Name = $process.Name; Pid = $process.Pid
+            'CPU %' = $process.Cpu + $Tick * 3; 'Memory MiB' = $process.Memory + $Tick * 16 }
     }
     New-ConsoleRows -Gap 1 -Content {
         New-ConsoleRule -Title '[bold]Process monitor[/] [muted]· refresh 1s[/]'
         New-ConsoleText -Markup "[accent]CPU $((56 + $Tick * 5))%[/]   Memory $((1640 + $Tick * 64)) MiB   [muted]4 processes[/]"
         New-ConsoleTable -InputObject $rows -Property Name, Pid, 'CPU %', 'Memory MiB' -Expand
         New-ConsolePanel -Title 'CPU history' -Content {
-            New-ConsoleChart -Label 'CPU %' -Type Sparkline -Values @($cpuHistory + (56 + $Tick * 5))
+            $chartParameters = @{
+                Label = 'CPU %'
+                Type = 'Sparkline'
+                Values = @($cpuHistory + (56 + $Tick * 5))
+            }
+            New-ConsoleChart @chartParameters
         }
         '[muted]Ctrl+C stops monitoring. Final counters stay in scrollback.[/]'
     }
