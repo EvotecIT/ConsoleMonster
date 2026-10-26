@@ -27,7 +27,22 @@ namespace ConsoleMonster.Layout {
         }
 
         /// <summary>The content.</summary>
-        public IWidget Content { get; set; }
+        public IWidget Content {
+            get => _content;
+            set { _content = value; if (value is Rows { ComposedContent: true } rows) { rows.Gap = _gap; } }
+        }
+        private IWidget _content = null!;
+
+        /// <summary>Blank rows between content children when the content is several widgets, as a report usually is (default 0).</summary>
+        public int Gap {
+            get => _gap;
+            set {
+                if (value < 0) { throw new ArgumentOutOfRangeException(nameof(value)); }
+                _gap = value;
+                if (_content is Rows { ComposedContent: true } rows) { rows.Gap = value; }
+            }
+        }
+        private int _gap;
 
         void IContentOwner.ReplaceContent(IWidget[] content) => Content = ContentBuilder.Compose(content);
 

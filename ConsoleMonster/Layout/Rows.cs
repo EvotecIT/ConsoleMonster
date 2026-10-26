@@ -25,6 +25,9 @@ namespace ConsoleMonster.Layout {
         /// <summary>Blank rows between children.</summary>
         public int Gap { get; set; }
 
+        // Rows made from a container's several content children; the container's own Gap governs them.
+        internal bool ComposedContent { get; set; }
+
         /// <inheritdoc />
         public IReadOnlyList<IWidget> Children => _children;
 

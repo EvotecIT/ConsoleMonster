@@ -194,7 +194,25 @@ Describe 'ConsoleMonster pipeline charts' {
         { 1, 2 | Show-Console -View Chart -Type Line } | Should -Throw '*Line*does not belong to the set*'
     }
 
+    It 'builds charts from ordinary objects with -Property and -Label' {
+        $servers = @([pscustomobject] @{ Host = 'web01'; Cpu = 42 }, [pscustomobject] @{ Host = 'db01'; Cpu = 97 })
+        $bar = $servers | New-ConsoleChart -Type Bar -Property Cpu -Label Host -Unit '%'
+        @($bar.Items.Label) | Should -Be @('web01', 'db01')
+        $text = New-ConsolePanel -Title Report -Content { $servers | New-ConsoleChart -Type Bar -Property Cpu -Label Host } | Show-Console -AsString -Width 60
+        $text | Should -Match 'web01'
+        $text | Should -Match '97'
+        $named = [pscustomobject] @{ Name = 'fs01'; Cpu = 5 } | New-ConsoleChart -Type Bar -Property Cpu
+        $named.Items[0].Label | Should -BeExactly 'fs01'
+        $spark = $servers | New-ConsoleChart -Type Sparkline -Property Cpu -Title 'CPU'
+        $spark.Title | Should -BeExactly 'CPU'
+        @($spark.Values) | Should -Be @(42, 97)
+        { $servers | New-ConsoleChart -Type Line -Property Cpu } | Should -Throw '*Bar, Histogram and Sparkline*'
+        { $servers | New-ConsoleChart -Type Sparkline -Property Cpu -Label Host } | Should -Throw '*Label applies to Bar*'
+        { [pscustomobject] @{ Label = 'a'; Value = 1 } | New-ConsoleChart -Type Bar -Label Host } | Should -Throw '*use it with -Property*'
+        (Get-Command New-ConsoleChart).Parameters['Title'].ParameterType | Should -Be ([object])
+    }
+
     It 'points ordinary records at the property-based chart view' {
-        { [pscustomobject] @{ Name = 'web01'; Cpu = 42 } | New-ConsoleChart -Type Bar } | Should -Throw '*Show-Console -View Chart -Property*'
+        { [pscustomobject] @{ Name = 'web01'; Cpu = 42 } | New-ConsoleChart -Type Bar } | Should -Throw '*-Property <number> -Label <name>*'
     }
 }

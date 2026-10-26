@@ -17,7 +17,7 @@ using ConsoleMonster.Styling;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Runs a script block for every input item, optionally in parallel, with a live view of the run.</para>
-    /// <para type="description">$_ is the item, as in ForEach-Object. While it runs, a live view shows a summary line (done of total, percentage, time left, counts), one cell per item, the running items with their elapsed time and the failures; without an interactive console (redirected output, CI, a job) it prints one line per finished item and a summary instead. The output is the script block's ordinary output, in input order (or as each item finishes with -Unordered); an item's errors are written as error records and mark it as failed. While the live view is showing, ordinary output and native stream records are delivered when it ends. With -Parallel, while the live view is showing, host messages, warnings, information, verbose and debug messages, and errors also appear immediately in its log; Write-Progress appears in an activity list, with independent parent and child activities per worker. Without -Parallel, progress bars from the script block are hidden while the live view is showing. Without -Parallel the items run one at a time in the caller's scope, as with ForEach-Object, so variables set in the script block stay. -Parallel runs up to -ThrottleLimit items at a time in their own runspaces on Windows PowerShell 5.1 and PowerShell 7: variables of the caller are passed with $using:name, and -TimeoutSeconds stops an item that runs too long. -Label sets each item's label: a property name or a script block. Ctrl+C stops the run: running items are stopped and the rest are counted as skipped.</para>
+    /// <para type="description">$_ is the item, as in ForEach-Object. While it runs, a live view shows a summary line (done of total, percentage, time left, counts), one cell per item, the running items with their elapsed time and the failures; without an interactive console (redirected output, CI, a job) it prints one line per finished item and a summary instead. The output is the script block's ordinary output, in input order (or as each item finishes with -Unordered); an item's errors are written as error records and mark it as failed. While the live view is showing, ordinary output and native stream records are delivered when it ends. With -Parallel, while the live view is showing, host messages, warnings, information, verbose and debug messages, and errors also appear immediately in its log; Write-Progress appears in an activity list, with independent parent and child activities per worker. Without -Parallel, progress bars from the script block are hidden while the live view is showing. Without -Parallel the items run one at a time in the caller's scope, as with ForEach-Object, so variables set in the script block stay. -Parallel runs up to -ThrottleLimit items at a time in their own runspaces on Windows PowerShell 5.1 and PowerShell 7: variables of the caller are passed with $using:name, and -TimeoutSeconds stops an item that runs too long. -Label sets each item's label: a property name or a script block. -RetryCount runs a failed or timed-out item again (after -RetryDelaySeconds); only the last attempt's output and errors are kept, the item's cell shows the retry and the summary counts retried items. Ctrl+C stops the run: running items are stopped and the rest are counted as skipped.</para>
     /// </summary>
     /// <example>
     ///   <para>Check servers in parallel</para>
@@ -34,6 +34,10 @@ namespace ConsoleMonster.PowerShell {
     ///     Start-Sleep -Milliseconds (Get-Random -Minimum 200 -Maximum 1500)
     ///     if ($_ % 13 -eq 0) { throw "web$_ did not come back after the reboot" }
     /// }</code>
+    /// </example>
+    /// <example>
+    ///   <para>Retry flaky servers twice, five seconds apart</para>
+    ///   <code>$servers | Invoke-ConsoleRun -Parallel -RetryCount 2 -RetryDelaySeconds 5 -Label Name { Restart-Computer $_.Name -Wait -For WinRM -Timeout 300 -ErrorAction Stop }</code>
     /// </example>
     [Cmdlet(VerbsLifecycle.Invoke, "ConsoleRun")]
 
@@ -63,6 +67,16 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         [ValidateRange(0, 864000)]
         public double TimeoutSeconds { get; set; }
+
+        /// <summary><para type="description">How many more times a failed or timed-out item runs before it counts as failed (default 0).</para></summary>
+        [Parameter]
+        [ValidateRange(0, 100)]
+        public int RetryCount { get; set; }
+
+        /// <summary><para type="description">Seconds to wait before each retry (default 0).</para></summary>
+        [Parameter]
+        [ValidateRange(0, 86400)]
+        public double RetryDelaySeconds { get; set; }
 
         /// <summary><para type="description">Writes each item's output as soon as it finishes instead of in input order (when the live view is not showing).</para></summary>
         [Parameter]
@@ -106,6 +120,8 @@ namespace ConsoleMonster.PowerShell {
             RunOptions options = new RunOptions {
                 Title = Title != null ? PSText.Markup(Title) : null,
                 Live = live,
+                RetryCount = RetryCount,
+                RetryDelay = TimeSpan.FromSeconds(RetryDelaySeconds),
                 Session = new LiveSessionOptions { Mode = LiveMode.Inline, PrintFinalState = true, HandleCancelKey = false },
                 Print = line => HostOutput.WriteHostLine(this, line)
             };
@@ -161,12 +177,19 @@ namespace ConsoleMonster.PowerShell {
                 }
                 monitor.Started(i, labels[i]);
                 Stopwatch watch = Stopwatch.StartNew();
-                Collection<PSObject> merged = new Collection<PSObject>();
-                Exception? failure = null;
-                try {
-                    SessionState.InvokeCommand.InvokeScript(false, sequential, null, ScriptBlock, _items[i], quiet, merged);
-                } catch (Exception ex) when (!(ex is PipelineStoppedException) && !_stopping) {
-                    failure = ex;
+                Collection<PSObject> merged;
+                Exception? failure;
+                for (int attempt = 1; ; attempt++) {
+                    merged = new Collection<PSObject>();
+                    failure = null;
+                    try {
+                        SessionState.InvokeCommand.InvokeScript(false, sequential, null, ScriptBlock, _items[i], quiet, merged);
+                    } catch (Exception ex) when (!(ex is PipelineStoppedException) && !_stopping) {
+                        failure = ex;
+                    }
+                    if (_stopping || attempt > RetryCount || FailureOf(merged, failure) == null) { break; }
+                    monitor.Retrying(i, labels[i], attempt + 1, FailureOf(merged, failure));
+                    if (!Pause(RetryDelaySeconds)) { break; }
                 }
                 if (_stopping) {
                     monitor.Finished(i, StatusKind.Skip, labels[i], watch.Elapsed);
@@ -195,6 +218,9 @@ namespace ConsoleMonster.PowerShell {
             TimeSpan? timeout = TimeoutSeconds > 0 ? TimeSpan.FromSeconds(TimeoutSeconds) : (TimeSpan?)null;
             BlockingCollection<int> done = new BlockingCollection<int>();
             Dictionary<int, Flight> flights = new Dictionary<int, Flight>();
+            // Items waiting to run again, with the time they may start; an item keeps its index and cell across attempts.
+            List<KeyValuePair<int, DateTime>> retries = new List<KeyValuePair<int, DateTime>>();
+            int[] attempts = new int[_items.Count];
             using (RunspacePool pool = monitor.Session == null
                 ? RunspaceFactory.CreateRunspacePool(1, ThrottleLimit, InitialSessionState.CreateDefault(), Host)
                 : RunspaceFactory.CreateRunspacePool(InitialSessionState.CreateDefault2())) {
@@ -204,8 +230,12 @@ namespace ConsoleMonster.PowerShell {
                 int next = 0;
                 int finished = 0;
                 while (finished < _items.Count) {
-                    while (!_stopping && next < _items.Count && flights.Count < ThrottleLimit) {
-                        int index = next++;
+                    while (!_stopping && flights.Count < ThrottleLimit && (next < _items.Count || retries.Exists(entry => entry.Value <= DateTime.UtcNow))) {
+                        int ready = retries.FindIndex(entry => entry.Value <= DateTime.UtcNow);
+                        int index;
+                        if (ready >= 0) { index = retries[ready].Key; retries.RemoveAt(ready); }
+                        else { index = next++; }
+                        attempts[index]++;
                         System.Management.Automation.PowerShell ps = System.Management.Automation.PowerShell.Create();
                         ps.RunspacePool = pool;
                         ps.AddScript(script).AddArgument(_items[index]).AddArgument(usings);
@@ -217,13 +247,18 @@ namespace ConsoleMonster.PowerShell {
                         lock (_inFlight) {
                             _inFlight.Add(ps);
                         }
-                        monitor.Started(index, labels[index]);
+                        if (attempts[index] == 1) { monitor.Started(index, labels[index]); }
                         flight.Result = ps.BeginInvoke<PSObject, PSObject>(null, flight.Output, null, ar => {
                             flight.Watch.Stop();
                             done.Add(index);
                         }, null);
                     }
                     if (flights.Count == 0) {
+                        if (!_stopping && retries.Count > 0) {
+                            // Only delayed retries remain: wait for the next one to become due.
+                            Thread.Sleep(50);
+                            continue;
+                        }
                         // Stopped before every item started: the rest count as skipped.
                         break;
                     }
@@ -249,7 +284,6 @@ namespace ConsoleMonster.PowerShell {
                     lock (_inFlight) {
                         _inFlight.Remove(current.Shell);
                     }
-                    finished++;
                     Collection<PSObject> merged = new Collection<PSObject>();
                     Exception? failure = null;
                     try {
@@ -262,6 +296,17 @@ namespace ConsoleMonster.PowerShell {
                     foreach (PSObject item in current.Output) {
                         merged.Add(item);
                     }
+                    string? retryReason = current.TimedOut ? "timed out after " + Widgets.NumberFormat.Duration(timeout!.Value) : FailureOf(merged, failure);
+                    if (!_stopping && retryReason != null && attempts[completed] <= RetryCount) {
+                        // Another attempt replaces this one: its output and errors are dropped, the cell shows the retry.
+                        monitor.Retrying(completed, labels[completed], attempts[completed] + 1, retryReason);
+                        retries.Add(new KeyValuePair<int, DateTime>(completed, DateTime.UtcNow.AddSeconds(RetryDelaySeconds)));
+                        current.Capture?.Dispose();
+                        current.Shell.Dispose();
+                        current.Output.Dispose();
+                        continue;
+                    }
+                    finished++;
                     if (_stopping && !current.TimedOut) {
                         monitor.Finished(completed, StatusKind.Skip, labels[completed], current.Watch.Elapsed);
                     } else if (current.TimedOut) {
@@ -275,6 +320,25 @@ namespace ConsoleMonster.PowerShell {
                     writer.Flush(false);
                 }
             }
+        }
+
+        // The message that marks an attempt failed (a terminating error, or an error record other than a native stderr line), or null.
+        private static string? FailureOf(Collection<PSObject> merged, Exception? failure) {
+            if (failure != null) { return (failure is RuntimeException runtime && runtime.ErrorRecord?.Exception != null ? runtime.ErrorRecord.Exception : failure).Message; }
+            foreach (PSObject item in merged) {
+                if (item?.BaseObject is ErrorRecord error && !PSStreams.IsNativeErrorLine(error)) { return error.ToString(); }
+            }
+            return null;
+        }
+
+        // Waits between sequential attempts; false when the run is being stopped.
+        private bool Pause(double seconds) {
+            Stopwatch wait = Stopwatch.StartNew();
+            while (wait.Elapsed.TotalSeconds < seconds) {
+                if (_stopping) { return false; }
+                Thread.Sleep(Math.Min(100, Math.Max(1, (int)((seconds - wait.Elapsed.TotalSeconds) * 1000))));
+            }
+            return !_stopping;
         }
 
         // The script for a runspace: $using:name read from the passed table, the body run with $_ as the item, every stream merged.

@@ -51,13 +51,13 @@ namespace ConsoleMonster {
         /// <returns>The interactive record grid; configure Title and rows in the chain.</returns>
         public static ConsoleMonster.Interactive.Grid Grid() => new ConsoleMonster.Interactive.Grid(string.Empty);
 
-        /// <summary>Text question; configure Title and validation in the chain.</summary>
-        /// <returns>The text question; configure Title and validation in the chain.</returns>
-        public static TextPrompt TextPrompt() => new TextPrompt(string.Empty);
+        /// <summary>Text question, as Read-ConsoleText: configure Title and validation in the chain, AsSecret or Multiline for the variant, and end with Show().</summary>
+        /// <returns>The text question definition.</returns>
+        public static TextQuestionOptions TextQuestion() => new TextQuestionOptions();
 
-        /// <summary>Secret question.</summary>
-        /// <returns>The secret question.</returns>
-        public static SecretPrompt SecretPrompt() => new SecretPrompt(string.Empty);
+        /// <summary>Selection question, as Read-ConsoleSelect: configure Title and choices in the chain, Multiple for several answers, and end with Show().</summary>
+        /// <returns>The selection question definition.</returns>
+        public static SelectQuestionOptions SelectQuestion() => new SelectQuestionOptions();
 
         /// <summary>Numeric question.</summary>
         /// <returns>The numeric question.</returns>

@@ -19,7 +19,7 @@ namespace ConsoleMonster.Widgets {
                 case ChartType.Stacked: specific = "CountColumn PercentColumn LabelColumn ShowLegend MaxLegendColumns"; break;
                 case ChartType.Line: case ChartType.Scatter: specific = "Height Minimum Maximum Capacity"; break;
                 case ChartType.Histogram: specific = "Height Role Edges Values"; break;
-                default: specific = "Height Role Label Maximum ShowLatest Values Capacity"; break;
+                default: specific = "Height Role Title Maximum ShowLatest Values Capacity"; break;
             }
             var allowed = new HashSet<string>((common + " " + specific).Split(' '), StringComparer.Ordinal);
             foreach (string field in o.Bound) {
@@ -77,7 +77,7 @@ namespace ConsoleMonster.Widgets {
                     foreach (double value in o.Values ?? Array.Empty<double>()) { histogram.Add(value); }
                     return histogram;
                 default:
-                    var sparkline = new Sparkline(id) { Unit = o.Unit, Label = o.Label, Height = o.Height ?? 1, Maximum = o.Maximum, ShowLatest = o.ShowLatest, Capacity = o.Capacity ?? 1024 };
+                    var sparkline = new Sparkline(id) { Unit = o.Unit, Title = o.Title, Height = o.Height ?? 1, Maximum = o.Maximum, ShowLatest = o.ShowLatest, Capacity = o.Capacity ?? 1024 };
                     if (o.Role.HasValue) { sparkline.Role = o.Role.Value; }
                     sparkline.AddRange(o.Values ?? Array.Empty<double>());
                     return sparkline;

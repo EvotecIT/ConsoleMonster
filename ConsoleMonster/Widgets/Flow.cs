@@ -56,6 +56,15 @@ namespace ConsoleMonster.Widgets {
             return this;
         }
 
+        /// <summary>Adds a node, like Add(new FlowNode(...)) and a New-ConsoleFlow node row.</summary>
+        /// <param name="key">The stable node key.</param><param name="label">The literal label.</param><param name="status">The node status, or null.</param><returns>This flow.</returns>
+        public Flow Node(string key, string label, Styling.StatusKind? status = null) => Add(new FlowNode(key, label, status));
+
+        /// <summary>Adds an edge between adjacent nodes; its key defaults to <c>from-&gt;to</c>, as for a New-ConsoleFlow edge row.</summary>
+        /// <param name="from">The left node key.</param><param name="to">The right node key.</param><param name="label">The literal edge label, or null.</param>
+        /// <param name="status">The edge status, or null.</param><param name="cut">Whether the connection is severed.</param><param name="key">The stable edge key, or null for <c>from-&gt;to</c>.</param><returns>This flow.</returns>
+        public Flow Edge(string from, string to, string? label = null, Styling.StatusKind? status = null, bool cut = false, string? key = null) => Add(new FlowEdge(key ?? from + "->" + to, from, to, label, status, cut));
+
         /// <summary>Returns a handle that posts state changes through the live dispatcher.</summary>
         /// <param name="dispatcher">The dispatcher.</param><returns>The handle.</returns>
         public FlowHandle Handle(ILiveDispatcher dispatcher) => new FlowHandle(dispatcher, WidgetId);

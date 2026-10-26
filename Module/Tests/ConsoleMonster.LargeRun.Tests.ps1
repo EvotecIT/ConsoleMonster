@@ -182,7 +182,7 @@ Complete-ConsoleRun $run
         $failed = @($summary.Items | Where-Object Status -eq Fail)
         $failed.Count | Should -Be 1
         $failed[0].Item.Label | Should -BeExactly 'b'
-        $failed[0].Message | Should -BeExactly 'refused'
+        $failed[0].Detail | Should -BeExactly 'refused'
         (Get-Help Complete-ConsoleRun -Examples | Out-String) | Should -Not -Match 'Where-Object State'
     }
 

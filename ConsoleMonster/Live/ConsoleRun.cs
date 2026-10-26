@@ -24,6 +24,22 @@ namespace ConsoleMonster.Live {
         /// <summary>The time one item may take, or null for no limit; an item past it is cancelled and counts as failed.</summary>
         public TimeSpan? Timeout { get; set; }
 
+        private int _retryCount;
+
+        /// <summary>How many more times a failed or timed-out item runs before it counts as failed (default 0). Cancelling the run does not retry.</summary>
+        public int RetryCount {
+            get => _retryCount;
+            set => _retryCount = value < 0 ? throw new ArgumentOutOfRangeException(nameof(value)) : value;
+        }
+
+        private TimeSpan _retryDelay;
+
+        /// <summary>The pause before each retry (default none).</summary>
+        public TimeSpan RetryDelay {
+            get => _retryDelay;
+            set => _retryDelay = value < TimeSpan.Zero ? throw new ArgumentOutOfRangeException(nameof(value)) : value;
+        }
+
         /// <summary>A title above the live view (markup), or null.</summary>
         public string? Title { get; set; }
 
@@ -44,7 +60,8 @@ namespace ConsoleMonster.Live {
     /// <typeparam name="TItem">The item type.</typeparam>
     /// <typeparam name="TResult">The result type.</typeparam>
     public sealed class RunResult<TItem, TResult> {
-        internal RunResult(int index, TItem item, TResult value, Exception? error, TimeSpan duration, bool timedOut) {
+        internal RunResult(int index, TItem item, TResult value, Exception? error, TimeSpan duration, bool timedOut, int attempts = 1) {
+            Attempts = attempts;
             Index = index;
             Item = item;
             Value = value;
@@ -73,6 +90,9 @@ namespace ConsoleMonster.Live {
 
         /// <summary>Whether the item succeeded.</summary>
         public bool Succeeded => Error == null;
+
+        /// <summary>How many times the item ran: 1, or more when <see cref="RunOptions.RetryCount"/> retried it.</summary>
+        public int Attempts { get; }
     }
 
     /// <summary>
@@ -95,7 +115,7 @@ namespace ConsoleMonster.Live {
             Tracker = new RunTracker(total);
             IsLive = _options.Live ?? Terminal.GetCurrentProfile().Mode == OutputMode.Interactive;
             if (IsLive) {
-                Rows view = new Rows().Add(new RunView(Tracker) { Title = _options.Title }, LayoutSize.Fraction(1, 1))
+                Rows view = new Rows().Add(new RunView(Tracker) { Title = _options.Title, RetryCount = _options.RetryCount }, LayoutSize.Fraction(1, 1))
                     .Add(new ActivityList()).Add(new LogRegion { PreferredHeight = 5 });
                 _session = new LiveSession(view, _options.Session ?? new LiveSessionOptions { Mode = LiveMode.Inline, PrintFinalState = true });
                 _session.Start();
@@ -134,6 +154,21 @@ namespace ConsoleMonster.Live {
         /// <param name="index">Its position (0-based).</param>
         /// <param name="label">Its label.</param>
         public void Started(int index, string label) => Tracker.Started(index, label);
+
+        /// <summary>An item failed and runs again: it stays running, its cell shows the retry and the summary counts it.</summary>
+        /// <param name="index">Its position (0-based).</param>
+        /// <param name="label">Its label.</param>
+        /// <param name="attempt">The attempt about to start (2 for the first retry).</param>
+        /// <param name="message">Why the previous attempt failed.</param>
+        public void Retrying(int index, string label, int attempt, string? message = null) {
+            Tracker.Retrying(index, label, attempt);
+            if (!IsLive) {
+                Localization.WidgetLabels labels = Localization.WidgetLabels.Current;
+                string retry = Localization.WidgetLabels.Format(labels.RetryAttempt, (attempt - 1).ToString(CultureInfo.InvariantCulture), _options.RetryCount.ToString(CultureInfo.InvariantCulture));
+                Print(_glyphs!.StatusSymbol(StatusKind.Warn) + " " + label + " (" + retry + ")"
+                    + (string.IsNullOrEmpty(message) ? string.Empty : ": " + message!.Replace("\r\n", " ").Replace('\n', ' ')));
+            }
+        }
 
         /// <summary>An item finished.</summary>
         /// <param name="index">Its position (0-based).</param>
@@ -253,29 +288,42 @@ namespace ConsoleMonster.Live {
             return results.Where(result => result != null).Select(result => result!).ToList();
         }
 
+        // Each attempt gets its own timeout; a failed attempt with retries left reports Retrying, waits RetryDelay and runs again.
         private static async Task<RunResult<TItem, TResult>> RunOne<TItem, TResult>(TItem item, int index, Func<TItem, CancellationToken, Task<TResult>> body, RunOptions options, RunMonitor monitor, CancellationToken cancellationToken) {
             string label = monitor.LabelOf(item);
             monitor.Started(index, label);
             DateTime started = DateTime.UtcNow;
-            using (CancellationTokenSource itemToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken)) {
-                if (options.Timeout.HasValue) {
-                    itemToken.CancelAfter(options.Timeout.Value);
-                }
-                try {
-                    TResult value = await body(item, itemToken.Token).ConfigureAwait(false);
-                    TimeSpan duration = DateTime.UtcNow - started;
-                    monitor.Finished(index, StatusKind.Pass, label, duration);
-                    return new RunResult<TItem, TResult>(index, item, value, null, duration, false);
-                } catch (Exception ex) {
-                    TimeSpan duration = DateTime.UtcNow - started;
-                    bool timedOut = ex is OperationCanceledException && !cancellationToken.IsCancellationRequested && itemToken.IsCancellationRequested;
-                    if (ex is OperationCanceledException && cancellationToken.IsCancellationRequested) {
-                        monitor.Finished(index, StatusKind.Skip, label, duration);
-                        return new RunResult<TItem, TResult>(index, item, default!, ex, duration, false);
+            for (int attempt = 1; ; attempt++) {
+                using (CancellationTokenSource itemToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken)) {
+                    if (options.Timeout.HasValue) {
+                        itemToken.CancelAfter(options.Timeout.Value);
                     }
-                    string message = timedOut ? "timed out after " + NumberFormat.Duration(options.Timeout!.Value) : ex.Message;
-                    monitor.Finished(index, StatusKind.Fail, label, duration, message, timedOut);
-                    return new RunResult<TItem, TResult>(index, item, default!, timedOut ? new TimeoutException(message, ex) : ex, duration, timedOut);
+                    try {
+                        TResult value = await body(item, itemToken.Token).ConfigureAwait(false);
+                        TimeSpan duration = DateTime.UtcNow - started;
+                        monitor.Finished(index, StatusKind.Pass, label, duration);
+                        return new RunResult<TItem, TResult>(index, item, value, null, duration, false, attempt);
+                    } catch (Exception ex) {
+                        TimeSpan duration = DateTime.UtcNow - started;
+                        bool timedOut = ex is OperationCanceledException && !cancellationToken.IsCancellationRequested && itemToken.IsCancellationRequested;
+                        if (ex is OperationCanceledException && cancellationToken.IsCancellationRequested) {
+                            monitor.Finished(index, StatusKind.Skip, label, duration);
+                            return new RunResult<TItem, TResult>(index, item, default!, ex, duration, false, attempt);
+                        }
+                        string message = timedOut ? "timed out after " + NumberFormat.Duration(options.Timeout!.Value) : ex.Message;
+                        if (attempt <= options.RetryCount) {
+                            monitor.Retrying(index, label, attempt + 1, message);
+                            try {
+                                if (options.RetryDelay > TimeSpan.Zero) { await Task.Delay(options.RetryDelay, cancellationToken).ConfigureAwait(false); }
+                                continue;
+                            } catch (OperationCanceledException canceled) {
+                                monitor.Finished(index, StatusKind.Skip, label, DateTime.UtcNow - started);
+                                return new RunResult<TItem, TResult>(index, item, default!, canceled, DateTime.UtcNow - started, false, attempt);
+                            }
+                        }
+                        monitor.Finished(index, StatusKind.Fail, label, duration, message, timedOut);
+                        return new RunResult<TItem, TResult>(index, item, default!, timedOut ? new TimeoutException(message, ex) : ex, duration, timedOut, attempt);
+                    }
                 }
             }
         }
