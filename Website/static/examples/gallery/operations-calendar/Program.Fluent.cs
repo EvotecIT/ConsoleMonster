@@ -19,7 +19,19 @@ var days = new[]
     new CalendarMark(new DateTime(2026, 10, 30), StatusKind.Pending, "Backup scheduled"),
 };
 // Behaviour: group dates while keeping each event's own status.
-var calendar = Ui.Calendar().Year(2026).Month(10).Marks(days).FirstDayOfWeek(DayOfWeek.Monday).Today(today);
+// Pin this English fixture's weekday labels: ICU and Windows NLS have different shortest names.
+var calendarCulture = (System.Globalization.CultureInfo)System.Globalization.CultureInfo.GetCultureInfo("en-US").Clone();
+calendarCulture.DateTimeFormat.ShortestDayNames = new[]
+{
+    "Su",
+    "Mo",
+    "Tu",
+    "We",
+    "Th",
+    "Fr",
+    "Sa"
+};
+var calendar = Ui.Calendar().Year(2026).Month(10).Marks(days).FirstDayOfWeek(DayOfWeek.Monday).Today(today).Culture(calendarCulture);
 var upcoming = days.Where(day => day.Date >= today && day.Date <= today.AddDays(14)).GroupBy(day => day.Date).OrderBy(group => group.Key);
 // Layout: a month overview beside the next two weeks from the same rows.
 var events = Ui.Rows();

@@ -3,19 +3,75 @@
   "producer": "macos",
   "complete": true,
   "scope": "produced-only",
-  "requestedSet": "demos",
+  "requestedSet": "gallery",
   "filters": {
-    "SITEFRAMES_DEMOS": "watch"
+    "SITEFRAMES_GALLERY": "toolbox"
   },
   "allSetsCompleted": false,
   "files": {
-    "demos/watch.cast": {
+    "gallery/toolbox-0.ps7.ansi": {
       "platform": "macos",
       "category": "neutral",
-      "sha256": "0cc4fb9ee98fa7aa719c7444f6d9d4c87e4062b515e45a955285ece7a4c511e6",
+      "sha256": "3a26b2a34e54c89e99df7c9d9b47934b127499b22579d2777b9a0384f2d9496e",
       "screen": "dark",
-      "width": 96,
-      "height": 14
+      "width": 128,
+      "height": 40
+    },
+    "gallery/toolbox-1.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "09aa38de8616b0b3b53fa943a0c76570ec747ed6ad5ca5503782b5ed35bef605",
+      "screen": "dark",
+      "width": 128,
+      "height": 40
+    },
+    "gallery/toolbox-2.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "17a3e1127db2de2df473d71d82c3b8cb6474fafd63dca4c161a2a9ffe3407769",
+      "screen": "dark",
+      "width": 128,
+      "height": 40
+    },
+    "gallery/toolbox-3.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "9a90981cfc361a7128144bca361a69d1cdf2b3d6c0720f40f7eaf7b94fe371d1",
+      "screen": "dark",
+      "width": 128,
+      "height": 40
+    },
+    "gallery/toolbox-4.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "e4ff49b59cfa9b35f3d704749fa6b7b182cfd2afeddc35d318a032225a1f0f3e",
+      "screen": "dark",
+      "width": 128,
+      "height": 40
+    },
+    "gallery/toolbox-5.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "f37430e309236728206c437cc69fe996e9d43da816ae5e0c4e6d4fb079791738",
+      "screen": "dark",
+      "width": 128,
+      "height": 40
+    },
+    "gallery/toolbox-6.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "c6a682271201e5721fa3f8b754779685ad4f670d3b9b70232a430b8e6ccda025",
+      "screen": "dark",
+      "width": 128,
+      "height": 40
+    },
+    "gallery/toolbox-7.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "c7c3c33722a9aed706c52ab9759d2d03fb89952df109fee3b4eaac743ecc3335",
+      "screen": "dark",
+      "width": 128,
+      "height": 40
     }
   }
 }

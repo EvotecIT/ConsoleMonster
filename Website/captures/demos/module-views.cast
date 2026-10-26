@@ -1,4 +1,4 @@
-{"cm_source":"2c240f3d41bf6cd8","version":2,"width":100,"height":40,"title":"Contoso.Servers.consoleviews.psd1","cm_timing":"logical-50ms"}
+{"cm_source":"e962c88b17d8e27b","version":2,"width":100,"height":40,"title":"Contoso.Servers.consoleviews.psd1","cm_timing":"logical-50ms-with-holds"}
 [0.000,"o","\u001B[0;38;2;249;241;165mPS\u003E\u001B[0m \u001B[0;38;2;249;241;165mImport-Module\u001B[0m \u001B[0;38;2;249;241;165mConsoleMonster\u001B[0m\r\n"]
 [0.050,"o","\u001B[0;38;2;249;241;165mPS\u003E\u001B[0m \u001B[0;38;2;249;241;165mImport-Module\u001B[0m \u001B[0;38;2;249;241;165m./Contoso.Servers\u001B[0m\r\n"]
 [0.100,"o","\u001B[0;38;2;249;241;165mPS\u003E\u001B[0m \u001B[0;38;2;249;241;165m#\u001B[0m \u001B[0;38;2;249;241;165mWithout\u001B[0m \u001B[0;38;2;249;241;165mviews:\u001B[0m \u001B[0;38;2;249;241;165mPowerShell\u0027s\u001B[0m \u001B[0;38;2;249;241;165mown\u001B[0m \u001B[0;38;2;249;241;165mtable\u001B[0m\r\n"]
