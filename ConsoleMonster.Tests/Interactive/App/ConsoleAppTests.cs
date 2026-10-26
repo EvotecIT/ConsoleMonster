@@ -265,6 +265,15 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Assert.Empty(options.CaptureSelection(state));
         }
 
+        [Fact]
+        public void SelectionKeyRetainsAnExpandoRowAsOneObject() {
+            IDictionary<string, object?> row = new System.Dynamic.ExpandoObject();
+            row["Name"] = "Service";
+            AppState state = new AppState { ["picked"] = row };
+            var options = new ConsoleAppOptions { SelectionKey = "picked" };
+            Assert.Same(row, Assert.Single(options.CaptureSelection(state)));
+        }
+
         private static void WithGlobalInput(string script, Action run) {
             IInputSource? previous = ConsoleInput.Override;
             using (ScriptedInput input = new ScriptedInput(script)) {

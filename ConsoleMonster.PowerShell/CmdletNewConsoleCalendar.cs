@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Management.Automation;
+using ConsoleMonster.Dates;
 using ConsoleMonster.Widgets;
 using Calendar = ConsoleMonster.Widgets.Calendar;
 
@@ -15,7 +16,7 @@ namespace ConsoleMonster.PowerShell {
     [Cmdlet(VerbsCommon.New, "ConsoleCalendar")]
     [OutputType(typeof(Calendar))]
     public sealed class CmdletNewConsoleCalendar : PSCmdlet {
-        private readonly List<object?> _input = new List<object?>();
+        private readonly List<CalendarMark> _marks = new List<CalendarMark>();
         /// <summary><para type="description">Gregorian year to display.</para></summary>
         [Parameter(Mandatory = true)] [ValidateRange(1, 9999)] public int Year { get; set; }
         /// <summary><para type="description">Gregorian month, required in Month view.</para></summary>
@@ -42,16 +43,19 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (InputObject == null) { return; }
-            _input.AddRange(InputObject);
+            ConsoleCalendarOptions options = Options();
+            foreach (PSObject row in InputObject) { _marks.Add(ConsoleHostViews.ReadCalendarMark(row, options)); }
         }
 
         /// <inheritdoc />
         protected override void EndProcessing() {
-            WriteObject(ConsoleHostViews.Calendar(_input, new ConsoleCalendarOptions {
+            WriteObject(ConsoleHostViews.Calendar(new CalendarData(_marks), Options()));
+        }
+
+        private ConsoleCalendarOptions Options() => new ConsoleCalendarOptions {
                 Year = Year, Month = Month, View = View, DateProperty = DateProperty,
                 StatusProperty = StatusProperty, LabelProperty = LabelProperty, FirstDayOfWeek = FirstDayOfWeek,
                 Culture = Culture, Today = Today, ShowLegend = !NoLegend.IsPresent
-            }));
-        }
+        };
     }
 }

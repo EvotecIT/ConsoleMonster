@@ -17,7 +17,7 @@ namespace ConsoleMonster.Interactive {
             if (Selection != null) { return Selection(state); }
             if (SelectionKey == null || !state.TryGetValue(SelectionKey, out object? value) || value == null) { return Array.Empty<object?>(); }
             var rows = new List<object?>();
-            if (value is IEnumerable items && !(value is string) && !(value is IDictionary) && !(value is Layout.IWidget)) { foreach (object? item in items) { rows.Add(item); } }
+            if (value is IEnumerable items && !(value is string) && !Data.DictionaryMemberSource.IsDictionary(value) && !(value is Layout.IWidget)) { foreach (object? item in items) { rows.Add(item); } }
             else { rows.Add(value); }
             return rows;
         }

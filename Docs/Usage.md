@@ -887,9 +887,9 @@ cooperative and does not roll back work already performed. `Get-Service` and
 Use `-ConfirmPrompt 'Restart {Selection}?'` to name the focused row, or show the
 marked-row count for a batch. The host captures that target before work starts.
 
-The C# equivalent is `AppCommand` in `GridOptions.Commands`. Its asynchronous
+The C# equivalent is `AppCommand` in `GridOptions.Command`. Its asynchronous
 callback receives `AppActionContext.Rows`, `Write` and a cancellation token.
-`new Button(command)` and `ConsoleAppOptions.Commands` reuse that definition
+`new Button(command)` and `ConsoleAppOptions.Command` reuse that definition
 in a composed app. An optional per-run `AppDispatcher` queues bounded updates
 for the input thread; it is closed when the host exits. Long-lived display
 widgets can remain layout children. `New-ConsoleScrollView -Content { $details }

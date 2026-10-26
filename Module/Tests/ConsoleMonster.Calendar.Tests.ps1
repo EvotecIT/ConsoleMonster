@@ -23,6 +23,24 @@
         $text | Should -Not -Match 'CalendarData'
     }
 
+    It 'captures each emitted date status and label when a producer reuses its row' {
+        $row = [pscustomobject] @{ Date = [datetime]'2026-10-01'; Status = 'Pass'; Label = 'First' }
+        $calendar = 1..2 | ForEach-Object {
+            $row.Date = [datetime]'2026-10-01' + [timespan]::FromDays($_ - 1)
+            $row.Status = if ($_ -eq 1) { 'Pass' } else { 'Warn' }
+            $row.Label = if ($_ -eq 1) { 'First' } else { 'Second' }
+            $row
+        } | New-ConsoleCalendar -Year 2026 -Month 10
+        $first = $calendar.Data.GetMarks([datetime]'2026-10-01')
+        $second = $calendar.Data.GetMarks([datetime]'2026-10-02')
+        $first.Count | Should -Be 1
+        $first[0].Label | Should -BeExactly 'First'
+        $first[0].Status.ToString() | Should -BeExactly 'Pass'
+        $second.Count | Should -Be 1
+        $second[0].Label | Should -BeExactly 'Second'
+        $second[0].Status.ToString() | Should -BeExactly 'Warn'
+    }
+
     It 'creates a passive year view and rejects contradictory month input' {
         $calendar = New-ConsoleCalendar -Year 2026 -View Year
         $calendar.View.ToString() | Should -BeExactly 'Year'

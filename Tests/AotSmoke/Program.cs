@@ -63,6 +63,14 @@ internal static class Program {
         Require(ConsoleExporter.ToText(calendar), "October", "2026");
         var scroll = new ScrollView().MaxContentHeight(100).Content(content => content.Text("Scrollable content"));
         Require(ConsoleExporter.ToText(scroll), "Scrollable content");
+        var command = new AppCommand("check", "Run check", (_, __) => System.Threading.Tasks.Task.CompletedTask);
+        var button = AppInput.Button(new ButtonInputOptions { Key = "run", Command = command });
+        var appCapture = new ScreenCapture(60, 12);
+        var appOptions = new ConsoleAppOptions().StaticSnapshot(true).SelectionKey("picked")
+            .Interactive(options => { options.Capture = appCapture; options.Profile = TerminalProfile.Fixed(60, 12); });
+        appOptions.AddCommand(command);
+        ConsoleApp.Run(new ScrollView().Content(content => content.Add(button)), options: appOptions);
+        Require(appCapture.LastFrame!.ToPlainText(), "Run check");
         var profile = TerminalProfile.Fixed(60, 12);
         var target = new RecordingTarget(profile);
         panel.Show(profile, target.Writer);
