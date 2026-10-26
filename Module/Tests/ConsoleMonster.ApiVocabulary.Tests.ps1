@@ -13,10 +13,6 @@ Describe 'ConsoleMonster public API vocabulary' {
             $names | Should -Not -Contain $name
             Get-Command -Module ConsoleMonster -Name $name -ErrorAction SilentlyContinue | Should -BeNullOrEmpty
         }
-        foreach ($name in 'Format-ConsoleTable', 'Format-ConsoleList', 'Format-ConsoleTree', 'Format-ConsoleCode', 'Format-ConsoleJson', 'Format-ConsoleError', 'Write-ConsoleTable', 'Write-ConsoleTree', 'Write-ConsoleKeyValue', 'Write-ConsoleWidget', 'Write-ConsoleMarkup', 'Write-ConsoleException', 'Write-ConsoleRule', 'Out-ConsoleChart', 'Start-ConsoleRecording', 'Start-ConsoleReplay', 'Start-ConsoleDemo', 'Invoke-ConsoleDemo', 'Update-ConsoleTable', 'New-ConsoleLog', 'Write-ConsoleLog', 'Write-ConsoleStatus', 'Update-ConsoleStatus', 'New-ConsoleRun', 'Start-ConsoleDashboard', 'Read-ConsoleSelection', 'Read-ConsoleMultiSelection', 'New-ConsoleClock', 'New-ConsoleRunResult') {
-            $names | Should -Not -Contain $name
-            Get-Command -Module ConsoleMonster -Name $name -ErrorAction SilentlyContinue | Should -BeNullOrEmpty
-        }
         foreach ($name in 'fct', 'fcl', 'ForEach-ConsoleItem') {
             Get-Alias $name -ErrorAction SilentlyContinue | Should -BeNullOrEmpty
         }

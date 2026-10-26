@@ -19,7 +19,7 @@ using SiteFrames.Replay;
 
 namespace SiteFrames.Pages {
     /// <summary>Runs the copyable gallery programs and exports their frames, storyboards and metadata.</summary>
-    internal static class GalleryPage {
+    internal static partial class GalleryPage {
         private static readonly HashSet<string> Categories = new HashSet<string>(StringComparer.Ordinal) {
             "Dashboards", "Wizards", "Terminal apps", "Everyday", "Welcome screens", "Reports"
         };
@@ -167,20 +167,7 @@ namespace SiteFrames.Pages {
                 site.Write(site.Static(thumbnail), FrameMinimap.Svg(poster, ColorDepth.TrueColor, Screen.Dark, demo.Width, poster.Height));
                 JsonObject entry = (JsonObject)demo.Metadata.DeepClone();
                 entry["id"] = demo.Slug;
-                JsonObject powershell = Source(demo.PowerShell, demo.Slug);
-                JsonObject csharp = Source(demo.CSharp, demo.Slug);
-                JsonObject fluent = Source(demo.CSharpFluent, demo.Slug);
-                entry["source"] = new JsonObject { ["powershell"] = powershell, ["csharp"] = csharp, ["csharpFluent"] = fluent };
-                entry["powershell"] = powershell["text"]!.GetValue<string>();
-                entry["csharp"] = csharp["text"]!.GetValue<string>();
-                entry["csharpFluent"] = fluent["text"]!.GetValue<string>();
-                entry["apiMap"] = ApiMappingNotes.ForPair(site, demo.CSharp, demo.CSharpFluent, demo.PowerShell);
-                entry["powershellRepo"] = powershell["repo"]!.GetValue<string>();
-                entry["csharpRepo"] = csharp["repo"]!.GetValue<string>();
-                entry["csharpFluentRepo"] = fluent["repo"]!.GetValue<string>();
-                entry["powershellFile"] = demo.Slug + ".ps1";
-                entry["csharpFile"] = "Program.cs";
-                entry["csharpFluentFile"] = "Program.Fluent.cs";
+                WriteSources(site, demo, entry);
                 entry["thumbnail"] = "/" + thumbnail;
                 entry["frame"] = site.Frame(poster, null);
                 entry["parity"] = parity;
@@ -191,17 +178,6 @@ namespace SiteFrames.Pages {
                 };
                 entry["featured"] = demo.Metadata["featured"]?.GetValue<bool>() ?? false;
                 entry["replay"] = null;
-                foreach (string file in new[] { demo.Slug + ".ps1", "Program.cs", "Program.Fluent.cs" }) {
-                    string target = site.Static("examples/gallery/" + demo.Slug + "/" + file);
-                    Directory.CreateDirectory(Path.GetDirectoryName(target)!);
-                    File.Copy(Path.Combine(demo.Folder, file), target, true);
-                }
-                entry["powershellDownload"] = "/examples/gallery/" + demo.Slug + "/" + demo.Slug + ".ps1";
-                entry["csharpDownload"] = "/examples/gallery/" + demo.Slug + "/Program.cs";
-                entry["csharpFluentDownload"] = "/examples/gallery/" + demo.Slug + "/Program.Fluent.cs";
-                string projectTarget = site.Static("examples/gallery/" + demo.Slug + "/GalleryDemo.csproj");
-                File.Copy(Path.Combine(site.Website, "examples", "gallery", "GalleryDemo.csproj.template"), projectTarget, true);
-                entry["projectDownload"] = "/examples/gallery/" + demo.Slug + "/GalleryDemo.csproj";
                 entry["run"] = new JsonObject {
                     ["powershell"] = "Show-ConsoleDemo " + demo.Slug,
                     ["export"] = "Export-ConsoleDemo " + demo.Slug + " -Path ./" + demo.Slug + ".ps1",
@@ -283,6 +259,7 @@ namespace SiteFrames.Pages {
                 File.WriteAllText(demo.CSharpFluent, source, new UTF8Encoding(false));
                 Console.WriteLine("gallery " + demo.Slug + ": fluent source regenerated");
             }
+            WritePublishedSources(site);
         }
 
         /// <summary>Compiles both C# styles independently, without needing terminal captures.</summary>

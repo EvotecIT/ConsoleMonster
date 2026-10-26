@@ -43,15 +43,17 @@ foreach (string host in hosts)
     map.RowLabels.Add(host);
 foreach (StatusKind state in states)
     map.Add(state);
-StatusList exceptions = Ui.StatusList().Add("api-01 → SQL 5432", StatusKind.Fail, "Connection refused · check listener and access policy").Add("api-01 → Cache 6379", StatusKind.Warn, "180 ms · expected under 50 ms");
+StatusList exceptions = Ui.StatusList()
+    .Add("api-01 → SQL 5432", StatusKind.Fail, "Connection refused · check listener and access policy")
+    .Add("api-01 → Cache 6379", StatusKind.Warn, "180 ms · expected under 50 ms");
 Rows report = Ui.Rows().Gap(1).Content(c2 =>
 {
     c2.Rule("[bold]Application connectivity[/] [muted]· core services[/]");
-    c2.Panel(cmPanel => cmPanel.Title(string.Join("   |   ", ports)).Content(c =>
+    c2.Panel(p => p.Title(string.Join("   |   ", ports)).Content(c =>
     {
         c.Add(map);
     }));
-    c2.Panel(cmPanel => cmPanel.Title("Exceptions to investigate").Content(c =>
+    c2.Panel(p => p.Title("Exceptions to investigate").Content(c =>
     {
         c.Add(exceptions);
     }));

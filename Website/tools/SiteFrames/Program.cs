@@ -79,6 +79,14 @@ namespace SiteFrames {
                 case "write-gallery-fluent":
                     GalleryPage.WriteFluentSources(new Site(website));
                     return 0;
+                case "write-source-tabs":
+                    var sourceSite = new Site(website);
+                    ApiParityPage.Render(sourceSite);
+                    var refreshed = SourceStyles.RefreshStoredSources(sourceSite);
+                    Console.WriteLine($"Source tabs: {refreshed.Refreshed.Count} refreshed, {refreshed.Unmatched.Count} unmatched, {refreshed.Ambiguous.Count} ambiguous.");
+                    foreach (string entry in refreshed.Unmatched) { Console.Error.WriteLine("Unmatched: " + entry); }
+                    foreach (string entry in refreshed.Ambiguous) { Console.Error.WriteLine("Ambiguous: " + entry); }
+                    return refreshed.Ambiguous.Count == 0 && refreshed.Unmatched.Count == 0 ? 0 : 1;
                 case "verify-gallery":
                     GalleryPage.Verify(new Site(website), only);
                     return 0;

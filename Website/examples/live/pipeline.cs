@@ -63,7 +63,16 @@ Table summary = new Table()
     .AddColumn("Result")
     .AddColumn("Duration");
 
-using (LiveSession session = new LiveSession(dashboard, new LiveSessionOptions { Summary = new Padding(summary, 1, 1, 1, 1) })) {
+using (LiveSession session = new LiveSession(
+    dashboard,
+    new LiveSessionOptions { Summary = new Padding(
+        summary,
+        1,
+        1,
+        1,
+        1
+    ) }
+)) {
     session.Run(Build);
 }
 
@@ -114,7 +123,12 @@ void Build(LiveSession session) {
         stepsHandle.Set(step.Key, step.Result);
         stepsHandle.Detail(step.Key, step.Result == StatusKind.Skip ? "skipped" : duration);
         phaseResults.Add(step.Result);
-        summary.AddRow(step.Phase, Markup.Escape(step.Label), TableCell.ForStatus(step.Result), step.Result == StatusKind.Skip ? "-" : duration);
+        summary.AddRow(
+            step.Phase,
+            Markup.Escape(step.Label),
+            TableCell.ForStatus(step.Result),
+            step.Result == StatusKind.Skip ? "-" : duration
+        );
         index++;
         progressHandle.Set(index);
     }
@@ -124,7 +138,12 @@ void Build(LiveSession session) {
     moduleHandle.Set("Elapsed", NumberFormat.Duration(total.Elapsed));
     progressHandle.Complete(StatusKind.Pass);
     Console.WriteLine("Build completed: 2 artefacts in Artefacts\\ (nupkg, zip)");
-    session.Post(new LiveEvent("dashboard", "status", text: "build succeeded with 1 warning", status: "warn"));
+    session.Post(new LiveEvent(
+            "dashboard",
+            "status",
+            text: "build succeeded with 1 warning",
+            status: "warn"
+        ));
     Thread.Sleep(1500);
 }
 

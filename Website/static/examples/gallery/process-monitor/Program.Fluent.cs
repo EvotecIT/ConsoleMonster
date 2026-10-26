@@ -24,21 +24,34 @@ double[] cpuHistory =
 // Layout: build a complete frame from one set of counters.
 IWidget Frame(int tick)
 {
-    var rows = processes.Select(process => new ProcessRow(process.Name, process.Pid, process.Cpu + tick * 3, process.Memory + tick * 16)).ToArray();
-    var table = Ui.Table(rows).Column(row => row.Name).Column(row => row.Pid, column => column.Presenter(CellPresenters.Identifier)).Column("CPU %", row => row.Cpu).Column("Memory MiB", row => row.Memory).Expand();
-    Sparkline history = Ui.Chart().Type(ConsoleMonster.Widgets.ChartType.Sparkline).Label("CPU %").Build<Sparkline>();
+    var rows = processes.Select(process => new ProcessRow(
+            process.Name,
+            process.Pid,
+            process.Cpu + tick * 3,
+            process.Memory + tick * 16
+        ))
+        .ToArray();
+    var table = Ui.Table(rows)
+        .Column(row => row.Name)
+        .Column(row => row.Pid, column => column.Presenter(CellPresenters.Identifier))
+        .Column("CPU %", row => row.Cpu)
+        .Column("Memory MiB", row => row.Memory)
+        .Expand();
+    Sparkline history = (Sparkline)Ui.Chart().Type(ChartType.Sparkline).Label("CPU %").Build();
     history.AddRange(cpuHistory.Concat(new[] { 56.0 + tick * 5 }));
-    return Ui.Rows().Gap(1).Content(c2 =>
-    {
-        c2.Rule("[bold]Process monitor[/] [muted]· refresh 1s[/]");
-        c2.Markup($"[accent]CPU {56 + tick * 5}%[/]   Memory {1640 + tick * 64} MiB   [muted]4 processes[/]");
-        c2.Add(table);
-        c2.Panel(cmPanel => cmPanel.Title("CPU history").Content(c =>
+    return Ui.Rows()
+        .Gap(1)
+        .Content(c2 =>
         {
-            c.Add(history);
-        }));
-        c2.Markup("[muted]Ctrl+C stops monitoring. Final counters stay in scrollback.[/]");
-    });
+            c2.Rule("[bold]Process monitor[/] [muted]· refresh 1s[/]");
+            c2.Markup($"[accent]CPU {56 + tick * 5}%[/]   Memory {1640 + tick * 64} MiB   [muted]4 processes[/]");
+            c2.Add(table);
+            c2.Panel(p => p.Title("CPU history").Content(c =>
+            {
+                c.Add(history);
+            }));
+            c2.Markup("[muted]Ctrl+C stops monitoring. Final counters stay in scrollback.[/]");
+        });
 }
 
 // Behaviour: update each frame in a bounded live run.
@@ -58,7 +71,7 @@ try
         }
     });
 }
-catch (OperationCanceledException cancelled)when (cancelled.CancellationToken == session.Cancellation)
+catch (OperationCanceledException cancelled) when (cancelled.CancellationToken == session.Cancellation)
 {
     // Ctrl+C is a normal way to leave the demo, after the session restores the terminal.
     return;

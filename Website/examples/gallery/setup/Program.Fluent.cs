@@ -24,8 +24,14 @@ Part[] components = new Part[]
 var accounts = new[]
 {
     new Choice("CurrentUser", "Current user").Description("Runs with your signed-in identity."),
-    new Choice("ServiceUser", "Dedicated service identity").Description("Uses the platform's managed service identity."),
-    new Choice("Custom", "A specific account").Description("An account you name; password stays out of the command.")
+    new Choice(
+    "ServiceUser",
+    "Dedicated service identity"
+).Description("Uses the platform's managed service identity."),
+    new Choice(
+    "Custom",
+    "A specific account"
+).Description("An account you name; password stays out of the command.")
 };
 string[] installSteps =
 {
@@ -44,35 +50,134 @@ Endpoint[] endpoints = new Endpoint[]
     new(Region: "ap", Host: "ap-south.example.test", City: "South", Latency: "121 ms"),
     new(Region: "ap", Host: "ap-east.example.test", City: "East", Latency: "", Disabled: "maintenance until 18:00")
 };
-Choice[] Parts() => components.Select(p => new Choice(p.Id, p.Name).Group(p.Group).Description(p.Description).Badge(RichText.Plain(p.Size, new RichStyle(ThemeToken.Muted))).Selected(p.Selected).DisabledReason(p.Disabled)).ToArray();
-Choice[] Servers(string? region) => endpoints.Where(e => e.Region == region).Select(e => new Choice(e.Host).Description(e.City).Badge(RichText.Plain(e.Latency, new RichStyle(ThemeToken.Muted))).DisabledReason(e.Disabled)).ToArray();
+Choice[] Parts() => components.Select(p => new Choice(
+        p.Id,
+        p.Name
+    ).Group(p.Group)
+        .Description(p.Description)
+        .Badge(RichText.Plain(
+            p.Size,
+            new RichStyle(ThemeToken.Muted)
+        ))
+        .Selected(p.Selected)
+        .DisabledReason(p.Disabled))
+    .ToArray();
+Choice[] Servers(string? region) => endpoints.Where(e => e.Region == region)
+    .Select(e => new Choice(e.Host).Description(e.City)
+            .Badge(RichText.Plain(
+                e.Latency,
+                new RichStyle(ThemeToken.Muted)
+            ))
+            .DisabledReason(e.Disabled))
+    .ToArray();
 // Layout: the native form owns validation, dependent choices, editors and review.
 Form BuildForm()
 {
-    Form form = Ui.Form().Title("Install Toolbox Agent").Command("Install-ToolboxAgent").SubmitText("Install").Description("Sets up the agent that runs toolbox tasks on this machine.");
+    Form form = Ui.Form()
+        .Title("Install Toolbox Agent")
+        .Command("Install-ToolboxAgent")
+        .SubmitText("Install")
+        .Description("Sets up the agent that runs toolbox tasks on this machine.");
     FormPage location = form.Page("Location");
-    PathField path = location.Path("Path", "Install folder").PathKind(PathKind.Folder).Default(installFolder).Required().ParameterName("Path").Help("Created during installation. Tab completes folder names.");
-    PathField data = location.Path("Data", "Data folder").PathKind(PathKind.Folder).Default(dataFolder).ParameterName("DataPath").Help("Logs, reports and the local queue.");
-    ToggleField launcher = location.Toggle("Launcher", "Launcher entry").Default(true).ParameterName("Launcher");
+    PathField path = location.Path(
+        "Path",
+        "Install folder"
+    )
+        .PathKind(PathKind.Folder)
+        .Default(installFolder)
+        .Required()
+        .ParameterName("Path")
+        .Help("Created during installation. Tab completes folder names.");
+    PathField data = location.Path(
+        "Data",
+        "Data folder"
+    )
+        .PathKind(PathKind.Folder)
+        .Default(dataFolder)
+        .ParameterName("DataPath")
+        .Help("Logs, reports and the local queue.");
+    ToggleField launcher = location.Toggle(
+        "Launcher",
+        "Launcher entry"
+    ).Default(true).ParameterName("Launcher");
     FormPage parts = form.Page("Components");
-    ChoiceField selection = parts.MultiSelect("Components", "Components", Parts()).Minimum(1).ParameterName("Component").Help("Space toggles, Ctrl+A selects all, Enter closes the list.");
+    ChoiceField selection = parts.MultiSelect(
+        "Components",
+        "Components",
+        Parts()
+    )
+        .Minimum(1)
+        .ParameterName("Component")
+        .Help("Space toggles, Ctrl+A selects all, Enter closes the list.");
     FormPage service = form.Page("Service");
-    ChoiceField account = service.Select("Account", "Service account", accounts).Default("ServiceUser").ParameterName("Account");
-    TextField user = service.Text("UserName", "User name").Configure(configured => configured.VisibleWhen = v => Equals(v["Account"], "Custom")).Required().Placeholder("toolbox-agent").ParameterName("UserName");
-    SecretField password = service.Secret("Password", "Password").Configure(configured => configured.VisibleWhen = v => Equals(v["Account"], "Custom")).ParameterName("Password").CommandPlaceholder("(Read-Host -AsSecureString)");
-    ToggleField automatic = service.Toggle("AutoStart", "Start automatically").Default(true).ParameterName("AutoStart");
+    ChoiceField account = service.Select(
+        "Account",
+        "Service account",
+        accounts
+    ).Default("ServiceUser").ParameterName("Account");
+    TextField user = service.Text(
+        "UserName",
+        "User name"
+    )
+        .Configure(configured => configured.VisibleWhen = v => Equals(
+                v["Account"],
+                "Custom"
+            ))
+        .Required()
+        .Placeholder("toolbox-agent")
+        .ParameterName("UserName");
+    SecretField password = service.Secret(
+        "Password",
+        "Password"
+    )
+        .Configure(configured => configured.VisibleWhen = v => Equals(
+                v["Account"],
+                "Custom"
+            ))
+        .ParameterName("Password")
+        .CommandPlaceholder("(Read-Host -AsSecureString)");
+    ToggleField automatic = service.Toggle(
+        "AutoStart",
+        "Start automatically"
+    ).Default(true).ParameterName("AutoStart");
     FormPage connection = form.Page("Connection");
-    ChoiceField region = connection.Select("Region", "Region", new[] { new Choice("eu", "Europe"), new Choice("us", "Americas"), new Choice("ap", "Asia Pacific") }).Default("eu").Required().ParameterName("Region").Help("Choosing a region loads its servers.");
+    ChoiceField region = connection.Select(
+        "Region",
+        "Region",
+        new[] { new Choice("eu", "Europe"), new Choice("us", "Americas"), new Choice("ap", "Asia Pacific") }
+    )
+        .Default("eu")
+        .Required()
+        .ParameterName("Region")
+        .Help("Choosing a region loads its servers.");
     ChoiceField server = connection.Select("Server", "Server");
     server.DependsOn.Add("Region");
-    server.Required().ParameterName("Server").Configure(configured => configured.LoadChoices = async (values, token) =>
-    {
-        await Task.Delay(300, token);
-        return Servers(values.Get<string>("Region"));
-    }).Help("Loaded for the chosen region; Esc cancels loading.");
-    NumberField port = connection.Number("Port", "Port").Integer().Minimum(1).Maximum(65535).Default(443m).ParameterName("Port");
+    server.Required()
+        .ParameterName("Server")
+        .Configure(configured => configured.LoadChoices = async (values, token) =>
+        {
+            await Task.Delay(300, token);
+            return Servers(values.Get<string>("Region"));
+        })
+        .Help("Loaded for the chosen region; Esc cancels loading.");
+    NumberField port = connection.Number(
+        "Port",
+        "Port"
+    )
+        .Integer()
+        .Minimum(1)
+        .Maximum(65535)
+        .Default(443m)
+        .ParameterName("Port");
     ToggleField proxy = connection.Toggle("UseProxy", "Use a proxy").ParameterName("UseProxy");
-    TextField address = connection.Text("Proxy", "Proxy address").Configure(configured => configured.VisibleWhen = v => v.Get<bool>("UseProxy")).Required().Placeholder("http://proxy.example.test:8080").ParameterName("Proxy");
+    TextField address = connection.Text(
+        "Proxy",
+        "Proxy address"
+    )
+        .Configure(configured => configured.VisibleWhen = v => v.Get<bool>("UseProxy"))
+        .Required()
+        .Placeholder("http://proxy.example.test:8080")
+        .ParameterName("Proxy");
     return form;
 }
 
@@ -83,11 +188,16 @@ if (!answers.Submitted)
 StatusList install = Ui.StatusList("steps");
 foreach (string label in installSteps)
     install.Add(label, StatusKind.Pending);
-ProgressBar bar = Ui.Progress().Label("Install").Total(40).Build<ProgressBar>();
-Dashboard dashboard = Ui.DashboardLayout().Title("Installing Toolbox Agent").Subtitle(Markup.Escape(answers.Values.Get<string>("Path"))).Panel("Steps", install).Add(Ui.Padding().Bottom(0).Right(1).Top(0).Left(1).Content(c =>
+ProgressBar bar = (ProgressBar)Ui.Progress().Label("Install").Total(40).Build();
+Dashboard dashboard = Ui.DashboardLayout()
+    .Title("Installing Toolbox Agent")
+    .Subtitle(Markup.Escape(answers.Values.Get<string>("Path")))
+    .Panel("Steps", install)
+    .Add(Ui.Padding().Bottom(0).Right(1).Top(0).Left(1).Content(c =>
 {
     c.Add(bar);
-})).BuildDashboard();
+}))
+    .BuildDashboard();
 using (LiveSession session = dashboard.CreateSession())
 {
     try
@@ -113,16 +223,29 @@ using (LiveSession session = dashboard.CreateSession())
             progress.Complete();
         });
     }
-    catch (OperationCanceledException cancelled)when (cancelled.CancellationToken == session.Cancellation)
+    catch (OperationCanceledException cancelled) when (cancelled.CancellationToken == session.Cancellation)
     {
         // Ctrl+C is a normal way to leave the demo, after the session restores the terminal.
         return;
     }
 }
 
-Ui.Panel().Title("Toolbox Agent installed").Content(c =>
-{
-    c.KeyValue(cmKeyValue => cmKeyValue.Add("Install folder", Markup.Escape(answers.Values.Get<string>("Path"))).Add("Components", Markup.Escape(string.Join(", ", answers.Values.GetList<object>("Components")))).Add("Server", Markup.Escape(answers.Values.Get<string>("Server"))).Add("Steps done", "4", StatusKind.Pass).Add("Launch", "toolbox"));
-}).Show();
+Ui.Panel()
+    .Title("Toolbox Agent installed")
+    .Content(c =>
+    {
+        c.KeyValue(kv => kv.Add(
+                "Install folder",
+                Markup.Escape(answers.Values.Get<string>("Path"))
+            )
+                .Add("Components", Markup.Escape(string.Join(
+                        ", ",
+                        answers.Values.GetList<object>("Components")
+                    )))
+                .Add("Server", Markup.Escape(answers.Values.Get<string>("Server")))
+                .Add("Steps done", "4", StatusKind.Pass)
+                .Add("Launch", "toolbox"));
+    })
+    .Show();
 record Part(string Id, string Name, string Group, string Size, string Description, bool Selected = false, string? Disabled = null);
 record Endpoint(string Region, string Host, string City, string Latency, string? Disabled = null);

@@ -21,12 +21,12 @@ foreach (var item in hostData)
     hostSummary.Add(item.Label, item.Value);
 Rows layout = Ui.Rows().Gap(1).Content(c2 =>
 {
-    c2.Logo(cmLogo => cmLogo.Text("HELLO").Tagline("[muted]A little context before your next command.[/]"));
-    c2.Panel(cmPanel => cmPanel.Title("Host summary").Content(c =>
+    c2.Logo(logo => logo.Text("HELLO").Tagline("[muted]A little context before your next command.[/]"));
+    c2.Panel(p => p.Title("Host summary").Content(c =>
     {
         c.Add(hostSummary);
     }).HeaderRight("local workspace"));
-    c2.Panel(cmPanel => cmPanel.Title("Git | comet-notes").Content(c =>
+    c2.Panel(p => p.Title("Git | comet-notes").Content(c =>
     {
         c.Markup(git);
     }));

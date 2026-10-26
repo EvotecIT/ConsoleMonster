@@ -15,11 +15,13 @@ public sealed class FormattingExample : PSCmdlet {
         } | Microsoft.PowerShell.Core\Out-Default");
         ConsoleHostFormatting.Enable(
             this,
-            new ConsoleFormattingOptions { Feature = new[] { ConsoleFormattingFeature.Output } });
+            new ConsoleFormattingOptions { Feature = new[] { ConsoleFormattingFeature.Output } }
+        );
         try {
             using var output = new ConsoleDefaultOutput(
                 this,
-                new ConsoleDefaultOutputOptions { Force = true });
+                new ConsoleDefaultOutputOptions { Force = true }
+            );
             foreach (var item in InvokeCommand.InvokeScript(@"# The same commands now
         Get-Process svchost | Sort-Object CPU -Descending | Select-Object -First 8
         Get-ChildItem
@@ -28,8 +30,6 @@ public sealed class FormattingExample : PSCmdlet {
             var services = InvokeCommand.InvokeScript("Get-Service W*").ToList();
             ConsoleMonster.Terminal.Write(ConsoleHostViews.Table(services,
                 new ConsoleTableViewOptions { GroupBy = "Status" }, table => table.MaxRows = 6));
-        } finally { ConsoleHostFormatting.Disable(
-            this,
-            new[] { ConsoleFormattingFeature.Output }); }
+        } finally { ConsoleHostFormatting.Disable(this, new[] { ConsoleFormattingFeature.Output }); }
     }
 }

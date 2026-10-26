@@ -21,15 +21,19 @@ IWidget Frame(int tick)
     Rows lines = Ui.Rows();
     foreach (string line in messages.Take(tick + 1))
         lines.Add(Ui.Markup(line));
-    return Ui.Rows().Gap(1).Content(c2 =>
-    {
-        c2.Markup("[bold]Application log[/] [muted]· worker events[/]");
-        c2.Panel(cmPanel => cmPanel.Title("./logs/worker.log").Content(c =>
+    return Ui.Rows()
+        .Gap(1)
+        .Content(c2 =>
         {
-            c.Add(lines);
-        }));
-        c2.Markup("[muted]" + (tick + 1).ToString(System.Globalization.CultureInfo.InvariantCulture) + " / 5 events · Ctrl+C stops the live run[/]");
-    });
+            c2.Markup("[bold]Application log[/] [muted]· worker events[/]");
+            c2.Panel(p => p.Title("./logs/worker.log").Content(c =>
+            {
+                c.Add(lines);
+            }));
+            c2.Markup("[muted]"
+                    + (tick + 1).ToString(System.Globalization.CultureInfo.InvariantCulture)
+                    + " / 5 events · Ctrl+C stops the live run[/]");
+        });
 }
 
 // Behaviour: update each frame in a bounded live run.
@@ -49,7 +53,7 @@ try
         }
     });
 }
-catch (OperationCanceledException cancelled)when (cancelled.CancellationToken == session.Cancellation)
+catch (OperationCanceledException cancelled) when (cancelled.CancellationToken == session.Cancellation)
 {
     // Ctrl+C is a normal way to leave the demo, after the session restores the terminal.
     return;

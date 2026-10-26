@@ -47,7 +47,9 @@ string[] compilerNames =
 int completed = 0;
 string PathText(string text) => text.Replace('\\', '/');
 string Duration(double seconds) => seconds.ToString("0.0", CultureInfo.InvariantCulture) + "s";
-StatusKind Worst(IEnumerable<BuildStep> items) => items.Any(item => item.Result == StatusKind.Warn) ? StatusKind.Warn : items.All(item => item.Result == StatusKind.Skip) ? StatusKind.Skip : StatusKind.Pass;
+StatusKind Worst(IEnumerable<BuildStep> items) => items.Any(item => item.Result == StatusKind.Warn)
+    ? StatusKind.Warn
+    : items.All(item => item.Result == StatusKind.Skip) ? StatusKind.Skip : StatusKind.Pass;
 // Layout: a phase strip and detailed checklist beside module facts, overall progress and compiler lanes.
 Phases phases = Ui.Phases();
 foreach (string phase in phaseNames)
@@ -55,19 +57,44 @@ foreach (string phase in phaseNames)
     BuildStep[] group = steps.Where(item => item.Phase == phase).ToArray();
     int first = Array.IndexOf(steps, group[0]);
     int last = first + group.Length;
-    StatusKind state = last <= completed ? Worst(group) : first <= completed && completed < steps.Length ? StatusKind.Running : StatusKind.Pending;
+    StatusKind state = last <= completed
+        ? Worst(group)
+        : first <= completed && completed < steps.Length ? StatusKind.Running : StatusKind.Pending;
     phases.Set(phase, state, detail: last <= completed ? Duration(group.Sum(item => item.Seconds)) : null);
 }
 
 StatusList status = Ui.StatusList("steps");
 for (int i = 0; i < steps.Length; i++)
-    status.Set(steps[i].Key, PathText(steps[i].Label), i < completed ? steps[i].Result : i == completed ? StatusKind.Running : StatusKind.Pending, i < completed ? Duration(steps[i].Seconds) : null);
-KeyValueList module = Ui.KeyValue("module").Add("Module", "[bold]ConsoleMonster[/]").Add("Version", "0.0.4 [muted]→[/] [bold]2.0.0[/]").Add("Frameworks", "netstandard2.0 · net472 · net8.0").Add("PowerShell", "5.1 Desktop · 7.x Core").Add("Run mode", "Build").Add("Elapsed", completed == 0 ? "-" : Duration(steps.Take(completed).Sum(item => item.Seconds)));
-ProgressBar progress = Ui.Progress().Label("Overall").WidgetId("overall").Total(steps.Length).Value(completed).LabelWidth(8).Build<ProgressBar>();
+    status.Set(
+        steps[i].Key,
+        PathText(steps[i].Label),
+        i < completed ? steps[i].Result : i == completed ? StatusKind.Running : StatusKind.Pending,
+        i < completed ? Duration(steps[i].Seconds) : null
+    );
+KeyValueList module = Ui.KeyValue("module")
+    .Add("Module", "[bold]ConsoleMonster[/]")
+    .Add("Version", "0.0.4 [muted]→[/] [bold]2.0.0[/]")
+    .Add("Frameworks", "netstandard2.0 · net472 · net8.0")
+    .Add("PowerShell", "5.1 Desktop · 7.x Core")
+    .Add("Run mode", "Build")
+    .Add("Elapsed", completed == 0 ? "-" : Duration(steps.Take(completed).Sum(item => item.Seconds)));
+ProgressBar progress = (ProgressBar)Ui.Progress()
+    .Label("Overall")
+    .WidgetId("overall")
+    .Total(steps.Length)
+    .Value(completed)
+    .LabelWidth(8)
+    .Build();
 Lanes compilers = Ui.Lanes("compilers");
 for (int i = 0; i < compilerNames.Length; i++)
 {
-    Lane lane = compilers.Add("c" + i, compilerNames[i], 1).Status(completed > i + 3 ? StatusKind.Pass : completed == i + 3 ? StatusKind.Running : StatusKind.Pending).Value(completed > i + 3 ? 1 : 0);
+    Lane lane = compilers.Add(
+        "c" + i,
+        compilerNames[i],
+        1
+    )
+        .Status(completed > i + 3 ? StatusKind.Pass : completed == i + 3 ? StatusKind.Running : StatusKind.Pending)
+        .Value(completed > i + 3 ? 1 : 0);
     lane.Passed((int)lane.Value);
     lane.Detail(lane.Value > 0 ? "compiled" : lane.Status == StatusKind.Running ? "compiling" : "queued");
 }
@@ -76,21 +103,24 @@ LogRegion log = Ui.LogRegion().PreferredHeight(8).ShowElapsed(false);
 log.Write("Build engine · release pipeline");
 foreach (BuildStep item in steps.Take(completed))
     foreach (string line in item.Output)
-        log.Write(PathText(line), item.Result == StatusKind.Warn ? "warn" : item.Result == StatusKind.Skip ? "skip" : "info");
+        log.Write(
+            PathText(line),
+            item.Result == StatusKind.Warn ? "warn" : item.Result == StatusKind.Skip ? "skip" : "info"
+        );
 if (completed < steps.Length)
     log.Write(PathText(steps[completed].Label) + "...");
 Rows body = Ui.Rows().Content(c3 =>
 {
-    c3.Padding(cmPadding => cmPadding.Bottom(1).Right(1).Top(0).Left(1).Content(c =>
+    c3.Padding(padding => padding.Bottom(1).Right(1).Top(0).Left(1).Content(c =>
     {
         c.Add(phases);
     }));
-    c3.Columns(cmColumns => cmColumns.Add(Ui.Panel().Title("Steps").Content(c =>
+    c3.Columns(columns => columns.Add(Ui.Panel().Title("Steps").Content(c =>
     {
         c.Add(status);
     }), LayoutSize.Fraction(1.5)).Add(Ui.Panel().Title("Module").Content(c2 =>
     {
-        c2.Rows(cmRows => cmRows.Content(c =>
+        c2.Rows(r => r.Content(c =>
         {
             c.Add(module);
             c.Rule();
@@ -103,10 +133,15 @@ Rows body = Ui.Rows().Content(c3 =>
 {
     c.Add(log);
 }), LayoutSize.Fraction());
-Dashboard dashboard = Ui.Dashboard().Content(c =>
-{
-    c.Add(body);
-}).Title("[bold]Module build[/]").Subtitle("Build-Module ConsoleMonster").ShowElapsed(false).Footer("[muted]Prepare · Restore · Build · Test · Docs · Sign · Package · Publish    Ctrl+C stop[/]");
+Dashboard dashboard = Ui.Dashboard()
+    .Content(c =>
+    {
+        c.Add(body);
+    })
+    .Title("[bold]Module build[/]")
+    .Subtitle("Build-Module ConsoleMonster")
+    .ShowElapsed(false)
+    .Footer("[muted]Prepare · Restore · Build · Test · Docs · Sign · Package · Publish    Ctrl+C stop[/]");
 // Behaviour: native handles update each region while ordinary tool output is captured by the live session.
 using LiveSession session = dashboard.CreateSession();
 try
@@ -153,12 +188,18 @@ try
             if (i == steps.Length - 1 || steps[i + 1].Phase != item.Phase)
             {
                 var group = steps.Where(value => value.Phase == item.Phase);
-                live.Post(new LiveEvent("phases", "state", item.Phase, Duration(group.Sum(value => value.Seconds)), Worst(group).ToString()));
+                live.Post(new LiveEvent(
+                        "phases",
+                        "state",
+                        item.Phase,
+                        Duration(group.Sum(value => value.Seconds)),
+                        Worst(group).ToString()
+                    ));
             }
         }
     });
 }
-catch (OperationCanceledException cancelled)when (cancelled.CancellationToken == session.Cancellation)
+catch (OperationCanceledException cancelled) when (cancelled.CancellationToken == session.Cancellation)
 {
     // Ctrl+C is a normal way to leave the demo, after the session restores the terminal.
     return;

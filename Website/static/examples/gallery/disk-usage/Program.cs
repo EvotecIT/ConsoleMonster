@@ -17,7 +17,6 @@ var folders = new FolderRow[]
     new("./cache", new[] { ("dependencies", "63 GiB"), ("downloads", "25 GiB") }),
     new("./artifacts", new[] { ("current", "18 GiB"), ("history", "76 GiB") })
 };
-
 // Layout: bars answer where pressure is; the tree explains what occupies the space.
 BarChart chart = new BarChart
 {
@@ -40,22 +39,18 @@ Rows report = new Rows(
     new Rule("[bold]Storage review[/] [muted]· capacity planning[/]"),
     new Columns(
         new Panel() { Title = "Used / 100 GiB", Content = chart },
-        new Panel() { Title = "Largest folders", Content = tree }),
-    new Panel()
-    {
-        Title = "Next action",
-        Content = new Rows(
-            new TextBlock(
-                "[warn]Artifacts is at 94%.[/] Review the retention policy before the next build."),
-            new TextBlock("[muted]Keep the current release; archive history older than 30 days.[/]"))
-    })
+        new Panel() { Title = "Largest folders", Content = tree }
+    ),
+    new Panel() { Title = "Next action", Content = new Rows(
+        new TextBlock("[warn]Artifacts is at 94%.[/] Review the retention policy before the next build."),
+        new TextBlock("[muted]Keep the current release; archive history older than 30 days.[/]")
+    ) }
+)
 {
     Gap = 1
 };
-
 // Behaviour: print once. Review recommendations before connecting any cleanup action.
 Terminal.Write(report);
 
 record UsedRow(string Name, int Percent);
-
 record FolderRow(string Path, (string Label, string Size)[] Children);

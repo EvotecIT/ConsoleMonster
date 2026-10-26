@@ -14,21 +14,13 @@ string installFolder = "./toolbox-agent";
 string dataFolder = "./toolbox-data";
 Part[] components = new Part[]
 {
-    new(Id: "Agent", Name: "Agent service", Group: "Core", Size: "18 MB",
-        Description: "Runs tasks and reports results.", Selected: true),
-    new(Id: "Cli", Name: "Command-line tools", Group: "Core", Size: "6 MB",
-        Description: "The toolbox command and PowerShell module.", Selected: true),
-    new(Id: "Html", Name: "HTML reports", Group: "Reporting", Size: "4 MB",
-        Description: "Interactive reports with tables and charts.", Selected: true),
-    new(Id: "Pdf", Name: "PDF export", Group: "Reporting", Size: "31 MB",
-        Description: "Prints reports to PDF."),
-    new(Id: "Chat", Name: "Chat notifications", Group: "Integrations", Size: "1 MB",
-        Description: "Posts run summaries to a channel."),
-    new(Id: "Mail", Name: "Email notifications", Group: "Integrations", Size: "1 MB",
-        Description: "Sends reports by email."),
-    new(Id: "Syslog", Name: "Syslog forwarder", Group: "Integrations", Size: "1 MB",
-        Description: "Forwards findings to a collector.", Selected: false,
-        Disabled: "needs the Enterprise licence")
+    new(Id: "Agent", Name: "Agent service", Group: "Core", Size: "18 MB", Description: "Runs tasks and reports results.", Selected: true),
+    new(Id: "Cli", Name: "Command-line tools", Group: "Core", Size: "6 MB", Description: "The toolbox command and PowerShell module.", Selected: true),
+    new(Id: "Html", Name: "HTML reports", Group: "Reporting", Size: "4 MB", Description: "Interactive reports with tables and charts.", Selected: true),
+    new(Id: "Pdf", Name: "PDF export", Group: "Reporting", Size: "31 MB", Description: "Prints reports to PDF."),
+    new(Id: "Chat", Name: "Chat notifications", Group: "Integrations", Size: "1 MB", Description: "Posts run summaries to a channel."),
+    new(Id: "Mail", Name: "Email notifications", Group: "Integrations", Size: "1 MB", Description: "Sends reports by email."),
+    new(Id: "Syslog", Name: "Syslog forwarder", Group: "Integrations", Size: "1 MB", Description: "Forwards findings to a collector.", Selected: false, Disabled: "needs the Enterprise licence")
 };
 var accounts = new[]
 {
@@ -45,7 +37,13 @@ var accounts = new[]
         Description = "An account you name; password stays out of the command."
     }
 };
-string[] installSteps = { "Copy files", "Register agent", "Configure connection", "Start agent" };
+string[] installSteps =
+{
+    "Copy files",
+    "Register agent",
+    "Configure connection",
+    "Start agent"
+};
 Endpoint[] endpoints = new Endpoint[]
 {
     new(Region: "eu", Host: "eu-west.example.test", City: "Dublin", Latency: "12 ms"),
@@ -54,27 +52,22 @@ Endpoint[] endpoints = new Endpoint[]
     new(Region: "us", Host: "us-east.example.test", City: "East", Latency: "18 ms"),
     new(Region: "us", Host: "us-west.example.test", City: "West", Latency: "74 ms"),
     new(Region: "ap", Host: "ap-south.example.test", City: "South", Latency: "121 ms"),
-    new(Region: "ap", Host: "ap-east.example.test", City: "East", Latency: "",
-        Disabled: "maintenance until 18:00")
+    new(Region: "ap", Host: "ap-east.example.test", City: "East", Latency: "", Disabled: "maintenance until 18:00")
 };
-Choice[] Parts() => components.Select(p => new Choice(p.Id, p.Name)
-{
-    Group = p.Group,
-    Description = p.Description,
-    Badge = RichText.Plain(p.Size, new RichStyle(ThemeToken.Muted)),
-    Selected = p.Selected,
-    DisabledReason = p.Disabled
-})
+Choice[] Parts() => components.Select(p => new Choice(
+        p.Id,
+        p.Name
+    ) { Group = p.Group, Description = p.Description, Badge = RichText.Plain(
+        p.Size,
+        new RichStyle(ThemeToken.Muted)
+    ), Selected = p.Selected, DisabledReason = p.Disabled })
     .ToArray();
 Choice[] Servers(string? region) => endpoints.Where(e => e.Region == region)
-    .Select(e => new Choice(e.Host)
-    {
-        Description = e.City,
-        Badge = RichText.Plain(e.Latency, new RichStyle(ThemeToken.Muted)),
-        DisabledReason = e.Disabled
-    })
+    .Select(e => new Choice(e.Host) { Description = e.City, Badge = RichText.Plain(
+            e.Latency,
+            new RichStyle(ThemeToken.Muted)
+        ), DisabledReason = e.Disabled })
     .ToArray();
-
 // Layout: the native form owns validation, dependent choices, editors and review.
 Form BuildForm()
 {
@@ -124,12 +117,8 @@ Form BuildForm()
     ChoiceField region = connection.Select(
         "Region",
         "Region",
-        new[]
-        {
-            new Choice("eu", "Europe"),
-            new Choice("us", "Americas"),
-            new Choice("ap", "Asia Pacific")
-        });
+        new[] { new Choice("eu", "Europe"), new Choice("us", "Americas"), new Choice("ap", "Asia Pacific") }
+    );
     region.Default = "eu";
     region.Required = true;
     region.ParameterName = "Region";
@@ -171,8 +160,7 @@ ProgressBar bar = new ProgressBar("Install")
 {
     Total = 40
 };
-Dashboard dashboard = new DashboardBuilder("Installing Toolbox Agent")
-    .Subtitle(Markup.Escape(answers.Values.Get<string>("Path")))
+Dashboard dashboard = new DashboardBuilder("Installing Toolbox Agent").Subtitle(Markup.Escape(answers.Values.Get<string>("Path")))
     .Panel("Steps", install)
     .Add(new Padding() { Bottom = 0, Right = 1, Top = 0, Left = 1, Content = bar })
     .BuildDashboard();
@@ -201,27 +189,23 @@ using (LiveSession session = new LiveSession(dashboard))
             progress.Complete();
         });
     }
-    catch (OperationCanceledException cancelled)
-        when (cancelled.CancellationToken == session.Cancellation)
+    catch (OperationCanceledException cancelled) when (cancelled.CancellationToken == session.Cancellation)
     {
         // Ctrl+C is a normal way to leave the demo, after the session restores the terminal.
         return;
     }
 }
 
-Terminal.Write(new Panel()
-{
-    Title = "Toolbox Agent installed",
-    Content = new KeyValueList()
-        .Add("Install folder", Markup.Escape(answers.Values.Get<string>("Path")))
-        .Add("Components",
-            Markup.Escape(string.Join(", ", answers.Values.GetList<object>("Components"))))
+Terminal.Write(new Panel() { Title = "Toolbox Agent installed", Content = new KeyValueList().Add(
+        "Install folder",
+        Markup.Escape(answers.Values.Get<string>("Path"))
+    )
+        .Add("Components", Markup.Escape(string.Join(
+                ", ",
+                answers.Values.GetList<object>("Components")
+            )))
         .Add("Server", Markup.Escape(answers.Values.Get<string>("Server")))
         .Add("Steps done", "4", StatusKind.Pass)
-        .Add("Launch", "toolbox")
-});
-
-record Part(string Id, string Name, string Group, string Size, string Description,
-    bool Selected = false, string? Disabled = null);
-
+        .Add("Launch", "toolbox") });
+record Part(string Id, string Name, string Group, string Size, string Description, bool Selected = false, string? Disabled = null);
 record Endpoint(string Region, string Host, string City, string Latency, string? Disabled = null);

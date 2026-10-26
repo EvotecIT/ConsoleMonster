@@ -34,7 +34,17 @@ Dashboard dashboard = new DashboardBuilder("[bold]Stress test[/]")
     .Subtitle(Workers + " workers · random Console.WriteLine · " + seconds + "s")
     .Columns(c => c
         .Panel("Workers", lanes, 2.2)
-        .Panel("Session", new Rows(stats, new Rule("updates/s"), rate, new Rule("CPU % (100% = one core)"), cpu), 1))
+        .Panel(
+            "Session",
+            new Rows(
+            stats,
+            new Rule("updates/s"),
+            rate,
+            new Rule("CPU % (100% = one core)"),
+            cpu
+        ),
+            1
+        ))
     .Panel("Captured output", new LogRegion { PreferredHeight = 6 }, fill: true)
     .BuildDashboard();
 
@@ -91,9 +101,36 @@ string Drive(LiveSession session) {
         statsHandle.Set("Updates applied", NumberFormat.Grouped(session.EventsApplied));
         statsHandle.Set("Update rate", NumberFormat.Grouped(perSecond) + "/s");
         statsHandle.Set("Frames", NumberFormat.Grouped(session.FramesRendered));
-        statsHandle.Set("Frame rate", (session.FramesRendered / now).ToString("0.0", CultureInfo.InvariantCulture) + " fps");
-        statsHandle.Set("CPU", core.ToString("0", CultureInfo.InvariantCulture) + "% (" + (core / 100).ToString("0.0", CultureInfo.InvariantCulture) + " cores)");
-        statsHandle.Set("CPU share", (core / Environment.ProcessorCount).ToString("0.0", CultureInfo.InvariantCulture) + "% of " + Environment.ProcessorCount + " cores");
+        statsHandle.Set(
+            "Frame rate",
+            (session.FramesRendered / now).ToString(
+                "0.0",
+                CultureInfo.InvariantCulture
+            ) + " fps"
+        );
+        statsHandle.Set(
+            "CPU",
+            core.ToString(
+                "0",
+                CultureInfo.InvariantCulture
+            )
+                + "% ("
+                + (core / 100).ToString(
+                "0.0",
+                CultureInfo.InvariantCulture
+            )
+                + " cores)"
+        );
+        statsHandle.Set(
+            "CPU share",
+            (core / Environment.ProcessorCount).ToString(
+                "0.0",
+                CultureInfo.InvariantCulture
+            )
+                + "% of "
+                + Environment.ProcessorCount
+                + " cores"
+        );
         statsHandle.Set("Captured lines", NumberFormat.Grouped(Interlocked.Read(ref captured)));
         statsHandle.Set("Dropped / errors", session.EventsDropped + " / " + session.ApplyErrors);
     }
@@ -111,11 +148,23 @@ string Drive(LiveSession session) {
     process.Refresh();
     double elapsed = wall.Elapsed.TotalSeconds;
     double avgCore = (process.TotalProcessorTime - cpuStart).TotalMilliseconds / (elapsed * 1000) * 100;
-    return string.Format(CultureInfo.InvariantCulture,
+    return string.Format(
+        CultureInfo.InvariantCulture,
         "STRESS seconds={0:0.0} workers={1} posted={2} avgRate={3:0}/s peakRate={4:0}/s frames={5} fps={6:0.0} cpuOneCore={7:0.0}% cpuMachine={8:0.0}% captured={9} dropped={10} errors={11} runtime={12}",
-        elapsed, Workers, session.EventsPosted, session.EventsPosted / elapsed, peakRate, session.FramesRendered, session.FramesRendered / elapsed,
-        avgCore, avgCore / Environment.ProcessorCount, Interlocked.Read(ref captured), session.EventsDropped, session.ApplyErrors,
-        System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription);
+        elapsed,
+        Workers,
+        session.EventsPosted,
+        session.EventsPosted / elapsed,
+        peakRate,
+        session.FramesRendered,
+        session.FramesRendered / elapsed,
+        avgCore,
+        avgCore / Environment.ProcessorCount,
+        Interlocked.Read(ref captured),
+        session.EventsDropped,
+        session.ApplyErrors,
+        System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription
+    );
 }
 
 void Worker(int id, LanesHandle handle, CancellationToken token) {
@@ -128,7 +177,11 @@ void Worker(int id, LanesHandle handle, CancellationToken token) {
         for (int burst = 0; burst < 40; burst++) {
             double roll = random.NextDouble();
             StatusKind outcome = roll < 0.03 ? StatusKind.Fail : roll < 0.1 ? StatusKind.Warn : StatusKind.Pass;
-            handle.Advance(key, outcome, (n++ % 97 == 0) ? steps[random.Next(steps.Length)] + " item " + n : null);
+            handle.Advance(
+                key,
+                outcome,
+                (n++ % 97 == 0) ? steps[random.Next(steps.Length)] + " item " + n : null
+            );
         }
         Thread.Sleep(1);
     }
@@ -142,7 +195,14 @@ void FakeLibrary(int id, CancellationToken token, ref long captured) {
     };
     while (!token.IsCancellationRequested) {
         Thread.Sleep(random.Next(40, 400));
-        string text = string.Format(CultureInfo.InvariantCulture, messages[random.Next(messages.Length)], random.Next(1, 999));
+        string text = string.Format(
+            CultureInfo.InvariantCulture,
+            messages[random.Next(messages.Length)],
+            random.Next(
+                1,
+                999
+            )
+        );
         if (random.NextDouble() < 0.15) {
             Console.Error.WriteLine("ERROR " + text);
         } else {

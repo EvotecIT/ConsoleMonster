@@ -38,11 +38,19 @@ var resolvers = new ResolverRow[]
     new("Local resolver", 47)
 };
 // Layout: keep the dense report readable through wrapping and two balanced panels.
-KeyValueList summary = Ui.KeyValue().Add("Domain", "[bold]example.test[/]").Add("Resolver", "Edge west DNS over HTTPS [muted](192.0.2.53)[/]").Add("Query time", "38 ms [muted]for 7 record types[/]").Add("Records", "10").Add("DNSSEC", "not signed", StatusKind.Warn);
-var table = Ui.Table(records).Column(row => row.Name).Column(row => row.Type).Column(row => row.TTL, column =>
+KeyValueList summary = Ui.KeyValue()
+    .Add("Domain", "[bold]example.test[/]")
+    .Add("Resolver", "Edge west DNS over HTTPS [muted](192.0.2.53)[/]")
+    .Add("Query time", "38 ms [muted]for 7 record types[/]")
+    .Add("Records", "10")
+    .Add("DNSSEC", "not signed", StatusKind.Warn);
+var table = Ui.Table(records).Column(row => row.Name).Column(row => row.Type).Column(
+    row => row.TTL,
+    column =>
 {
     column.Header("TTL").Alignment(HorizontalAlignment.Right);
-}).Column(row => row.Data, column => column.Flexible()).Expand().HeaderSeparator(false);
+}
+).Column(row => row.Data, column => column.Flexible()).Expand().HeaderSeparator(false);
 Tree delegation = Ui.Tree().Title("[bold].[/] [muted]root[/]");
 TreeNode test = delegation.Add("[bold]test.[/]", null, "reserved namespace");
 test.Add("ns.test", null, "192.0.2.42");
@@ -53,26 +61,26 @@ zone.Add("mail", null, "MX target").Add("mail.example.test", StatusKind.Pass, "1
 StatusList mail = Ui.StatusList();
 foreach (var(label, status, detail)in checks)
     mail.Add(label, status, detail);
-BarChart latency = Ui.Chart().Type(ConsoleMonster.Widgets.ChartType.Bar).WidgetId("latency").Unit(" ms").Build<BarChart>();
+BarChart latency = (BarChart)Ui.Chart().Type(ChartType.Bar).WidgetId("latency").Unit(" ms").Build();
 foreach (var(label, value)in resolvers)
     latency.Add(label, value);
 IWidget report = Ui.Rows().Gap(1).Content(c4 =>
 {
     c4.Rule("[bold]DNS query results[/] [muted]· example.test[/]");
-    c4.Padding(cmPadding => cmPadding.Bottom(0).Right(1).Top(0).Left(1).Content(c =>
+    c4.Padding(padding => padding.Bottom(0).Right(1).Top(0).Left(1).Content(c =>
     {
         c.Add(summary);
     }));
     c4.Add(table);
-    c4.Columns(cmColumns => cmColumns.Content(c3 =>
+    c4.Columns(columns => columns.Content(c3 =>
     {
-        c3.Panel(cmPanel => cmPanel.Title("Delegation").Content(c =>
+        c3.Panel(p => p.Title("Delegation").Content(c =>
         {
             c.Add(delegation);
         }));
-        c3.Panel(cmPanel => cmPanel.Title("Mail security").Content(c2 =>
+        c3.Panel(p => p.Title("Mail security").Content(c2 =>
         {
-            c2.Rows(cmRows => cmRows.Gap(0).Content(c =>
+            c2.Rows(r => r.Gap(0).Content(c =>
             {
                 c.Add(mail);
                 c.Rule();

@@ -15,7 +15,11 @@ var tasks = new TaskItem[]
 };
 // Layout: compose the screen from the data above.
 string baseline = "";
-var table = Ui.Table(tasks).Column(row => row.Task).Column(row => row.State, column => column.Presenter(CellPresenters.StatusWord)).Column(row => row.Minutes).Expand();
+var table = Ui.Table(tasks)
+    .Column(row => row.Task)
+    .Column(row => row.State, column => column.Presenter(CellPresenters.StatusWord))
+    .Column(row => row.Minutes)
+    .Expand();
 foreach (var task in tasks)
 {
     if (baseline.Length > 0)

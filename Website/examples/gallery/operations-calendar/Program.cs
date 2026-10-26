@@ -28,12 +28,21 @@ var upcoming = days.Where(day => day.Date >= today && day.Date <= today.AddDays(
 // Layout: a month overview beside the next two weeks from the same rows.
 var events = new Rows();
 foreach (var group in upcoming) {
-    events.Add(TextBlock.Plain(group.Key.ToString("ddd dd MMM",
-        System.Globalization.CultureInfo.GetCultureInfo("en-US"))));
+    events.Add(TextBlock.Plain(group.Key.ToString(
+                "ddd dd MMM",
+                System.Globalization.CultureInfo.GetCultureInfo("en-US")
+            )));
     var items = new StatusList();
     foreach (var day in group) { items.Add(day.Label, day.Status); }
     events.Add(new Padding(items, 2, 0, 0, 1));
 }
 Terminal.Write(new Columns(
-    new Panel(calendar, "Operations"),
-    new Panel(events, "Upcoming · next 14 days")));
+        new Panel(
+            calendar,
+            "Operations"
+        ),
+        new Panel(
+            events,
+            "Upcoming · next 14 days"
+        )
+    ));

@@ -13,7 +13,6 @@ var tasks = new TaskItem[]
     new("Review examples", "In progress", 25),
     new("Archive old drafts", "Waiting", 8)
 };
-
 // Layout: compose the screen from the data above.
 string baseline = "";
 var table = Table.For(tasks)
@@ -37,12 +36,11 @@ Rows layout = new Rows(
     new TextBlock(baseline),
     new TextBlock("[bold]After[/] [muted]| ConsoleMonster table[/]"),
     table,
-    new TextBlock("[muted]Three tasks. Aligned columns and right-aligned numbers.[/]"))
+    new TextBlock("[muted]Three tasks. Aligned columns and right-aligned numbers.[/]")
+)
 {
     Gap = 1
 };
-
 // Behaviour: print the screen once and return.
 Terminal.Write(layout);
-
 record TaskItem(string Task, string State, int Minutes);

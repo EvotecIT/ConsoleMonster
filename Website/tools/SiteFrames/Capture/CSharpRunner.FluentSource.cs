@@ -55,7 +55,11 @@ namespace SiteFrames.Capture {
                         .NormalizeWhitespace(indentation: "    ", eol: "\n").ToFullString() + "\n";
                 }
             }
-            foreach (string file in generated.Keys.ToArray()) { generated[file] = SourceLayout.Format(generated[file]); }
+            checkedProgram = CreateCompilation(path, generated[path], companions: companions, sourceOverrides: generated, references: references);
+            foreach (SyntaxTree tree in checkedProgram.SyntaxTrees.Where(tree => generated.ContainsKey(tree.FilePath))) {
+                var names = new ExampleNames(checkedProgram.GetSemanticModel(tree));
+                generated[tree.FilePath] = ReadableSource(names.Visit(tree.GetRoot())!);
+            }
             return generated;
         }
 

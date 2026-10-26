@@ -39,18 +39,39 @@ Job[] tasks = new Job[]
 };
 string reportFolder = "./toolbox-reports/weekly";
 // Layout: the prompts themselves draw choices, validation, masks and editing hints.
-IWidget Preview(Job job) => Ui.Rows().Gap(1).Content(c =>
-{
-    c.Markup(Markup.Escape(job.Description));
-    c.KeyValue(cmKeyValue => cmKeyValue.Add("Group", Markup.Escape(job.Category)).Add("Duration", $"about {job.Minutes} min per server").Add("Changes", job.Changes ? "[warn]yes[/], makes changes" : "[pass]no[/], read only").Add("Parameter", "[accent]" + job.Id + "[/]"));
-});
+IWidget Preview(Job job) => Ui.Rows()
+    .Gap(1)
+    .Content(c =>
+    {
+        c.Markup(Markup.Escape(job.Description));
+        c.KeyValue(kv => kv.Add(
+                "Group",
+                Markup.Escape(job.Category)
+            )
+                .Add("Duration", $"about {job.Minutes} min per server")
+                .Add("Changes", job.Changes ? "[warn]yes[/], makes changes" : "[pass]no[/], read only")
+                .Add("Parameter", "[accent]" + job.Id + "[/]"));
+    });
 SelectPrompt<Server> ServerPrompt()
 {
-    SelectPrompt<Server> prompt = Ui.SelectPrompt<Server>().Title("Target server").AddChoices(ConsoleMonster.Interactive.Choice.From(servers, s => s.Name, s => s.Site)).Description("Type to filter; offline servers show why they cannot be picked.").Default(servers[0]);
+    SelectPrompt<Server> prompt = Ui.SelectPrompt<Server>()
+        .Title("Target server")
+        .AddChoices(Choice.From(
+            servers,
+            s => s.Name,
+            s => s.Site
+        ))
+        .Description("Type to filter; offline servers show why they cannot be picked.")
+        .Default(servers[0]);
     foreach (Choice choice in prompt.Choices)
     {
         Server server = (Server)choice.Value!;
-        choice.Badge(RichText.Plain(server.Role, new RichStyle(ThemeToken.Muted))).DisabledReason(server.Offline).Description(server.Role + " server · " + server.OS);
+        choice.Badge(RichText.Plain(
+                server.Role,
+                new RichStyle(ThemeToken.Muted)
+            ))
+            .DisabledReason(server.Offline)
+            .Description(server.Role + " server · " + server.OS);
     }
 
     return prompt;
@@ -58,8 +79,23 @@ SelectPrompt<Server> ServerPrompt()
 
 MultiSelectPrompt<Job> TaskPrompt()
 {
-    Choice[] choices = tasks.Select(t => new Choice(t, t.Name).Group(t.Category).Description(t.Description).Badge(Ui.RichText().Append(t.Changes ? "changes " : "", ThemeToken.Warn).Append($"~{t.Minutes} min", ThemeToken.Muted).Build()).Selected(t.Id is "PatchStatus" or "DiskSpace")).ToArray();
-    return Ui.MultiSelectPrompt<Job>().Title("Tasks").AddChoices(choices).Minimum(1).Configure(configured => configured.Preview = Preview).Default(tasks.Where(t => t.Id is "PatchStatus" or "DiskSpace").ToArray());
+    Choice[] choices = tasks.Select(t => new Choice(
+            t,
+            t.Name
+        ).Group(t.Category)
+            .Description(t.Description)
+            .Badge(Ui.RichText()
+                .Append(t.Changes ? "changes " : "", ThemeToken.Warn)
+                .Append($"~{t.Minutes} min", ThemeToken.Muted)
+                .Build())
+            .Selected(t.Id is "PatchStatus" or "DiskSpace"))
+        .ToArray();
+    return Ui.MultiSelectPrompt<Job>()
+        .Title("Tasks")
+        .AddChoices(choices)
+        .Minimum(1)
+        .Configure(configured => configured.Preview = Preview)
+        .Default(tasks.Where(t => t.Id is "PatchStatus" or "DiskSpace").ToArray());
 }
 
 // Behaviour: each native prompt returns an answer; the tour performs no external action.
@@ -72,21 +108,41 @@ Terminal.WriteMarkupLine("[muted]returned:[/] " + string.Join(", ", selected.Sel
 Ui.Rule().Title("[bold]3 / 9 · Confirmation[/]").Show();
 Ui.ConfirmPrompt().Title("Restart the report agent on FS01?").Default(true).Show();
 Ui.Rule().Title("[bold]4 / 9 · Text[/]").Show();
-Ui.TextPrompt().Title("Share name").Default("Reports").Pattern("[A-Za-z][A-Za-z0-9_-]{1,23}").PatternMessage("Start with a letter; letters, digits, - and _ only").Description("Shown to users when they browse the server.").Show();
+Ui.TextPrompt()
+    .Title("Share name")
+    .Default("Reports")
+    .Pattern("[A-Za-z][A-Za-z0-9_-]{1,23}")
+    .PatternMessage("Start with a letter; letters, digits, - and _ only")
+    .Description("Shown to users when they browse the server.")
+    .Show();
 Ui.Rule().Title("[bold]5 / 9 · Secret[/]").Show();
-Ui.SecretPrompt().Title("Password for svc-backup").MinLength(8).Description("Try example-passphrase; at least 8 characters.").Show();
+Ui.SecretPrompt()
+    .Title("Password for svc-backup")
+    .MinLength(8)
+    .Description("Try example-passphrase; at least 8 characters.")
+    .Show();
 Ui.Rule().Title("[bold]6 / 9 · Number[/]").Show();
 Ui.NumberPrompt().Title("Port").Integer().Minimum(1).Maximum(65535).Default(443).Show();
 Ui.Rule().Title("[bold]7 / 9 · Path[/]").Show();
 Ui.PathPrompt().Title("Report folder").Kind(PathKind.Folder).Default(reportFolder).Show();
 Ui.Rule().Title("[bold]8 / 9 · Typed confirmation[/]").Show();
-Ui.TypedConfirmPrompt().Title("Remove FS01 from the inventory?").Expected("FS01").Default(false).Warning("Its history and reports would be removed too. Type FS01 to confirm.").Show();
+Ui.TypedConfirmPrompt()
+    .Title("Remove FS01 from the inventory?")
+    .Expected("FS01")
+    .Default(false)
+    .Warning("Its history and reports would be removed too. Type FS01 to confirm.")
+    .Show();
 Ui.Rule().Title("[bold]9 / 9 · Dashboard pause[/]").Show();
 Lanes lanes = Ui.Lanes();
 foreach (Server host in servers.Take(5))
     lanes.Add(host.Name, host.Name, 6);
 LogRegion log = Ui.LogRegion().PreferredHeight(6);
-Dashboard dashboard = Ui.DashboardLayout().Title("[bold]Patching[/]").Subtitle("5 servers").Panel("Servers", lanes).Panel("Log", log, fill: true).BuildDashboard();
+Dashboard dashboard = Ui.DashboardLayout()
+    .Title("[bold]Patching[/]")
+    .Subtitle("5 servers")
+    .Panel("Servers", lanes)
+    .Panel("Log", log, fill: true)
+    .BuildDashboard();
 using (LiveSession session = dashboard.CreateSession())
 {
     try
@@ -98,7 +154,12 @@ using (LiveSession session = dashboard.CreateSession())
                 live.Cancellation.ThrowIfCancellationRequested();
                 foreach (Server host in servers.Take(5))
                 {
-                    lanes.Handle(live).Advance(host.Name, host.Name == "WEB01" && tick == 3 ? StatusKind.Fail : StatusKind.Pass, "step " + tick);
+                    lanes.Handle(live)
+                        .Advance(
+                            host.Name,
+                            host.Name == "WEB01" && tick == 3 ? StatusKind.Fail : StatusKind.Pass,
+                            "step " + tick
+                        );
                 }
 
                 log.Handle(live).Write("step " + tick + " done");
@@ -106,7 +167,11 @@ using (LiveSession session = dashboard.CreateSession())
                 if (tick == 3)
                 {
                     log.Handle(live).Error("WEB01: update verification failed");
-                    bool go = Ui.ConfirmPrompt().Title("WEB01 failed. Continue with the other servers?").Default(true).Description("The patch dashboard pauses for your answer, then resumes.").Show();
+                    bool go = Ui.ConfirmPrompt()
+                        .Title("WEB01 failed. Continue with the other servers?")
+                        .Default(true)
+                        .Description("The patch dashboard pauses for your answer, then resumes.")
+                        .Show();
                     log.Handle(live).Write(go ? "continuing" : "stopping after this step");
                     if (!go)
                         break;
@@ -114,7 +179,7 @@ using (LiveSession session = dashboard.CreateSession())
             }
         });
     }
-    catch (OperationCanceledException cancelled)when (cancelled.CancellationToken == session.Cancellation)
+    catch (OperationCanceledException cancelled) when (cancelled.CancellationToken == session.Cancellation)
     {
         // Ctrl+C is a normal way to leave the demo, after the session restores the terminal.
         return;

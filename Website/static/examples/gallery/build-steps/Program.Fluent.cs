@@ -25,17 +25,25 @@ IWidget Frame(int tick)
         checklist.Add(Ui.Markup("[" + status + "]" + stages[index] + "[/]  " + label));
     }
 
-    return Ui.Rows().Gap(1).Content(c2 =>
-    {
-        c2.Markup("[bold]Build pipeline[/] [muted]· Orbit.Tools[/]");
-        c2.Panel(cmPanel => cmPanel.Title("Release checklist").Content(c =>
+    return Ui.Rows()
+        .Gap(1)
+        .Content(c2 =>
         {
-            c.Add(checklist);
-        }));
-        c2.Progress(cmProgress => cmProgress.Label("Overall").Value(tick).Total(4));
-        c2.KeyValue(cmKeyValue => cmKeyValue.Add("Project", "Orbit.Tools").Add("Version", "1.2.0").Add("Artifacts", "./artifacts/").Add("Publish", "manual approval"));
-        c2.Markup("[muted]Ctrl+C stops the live run.[/]");
-    });
+            c2.Markup("[bold]Build pipeline[/] [muted]· Orbit.Tools[/]");
+            c2.Panel(p => p.Title("Release checklist").Content(c =>
+            {
+                c.Add(checklist);
+            }));
+            c2.Progress(progress => progress.Label("Overall").Value(tick).Total(4));
+            c2.KeyValue(kv => kv.Add(
+                    "Project",
+                    "Orbit.Tools"
+                )
+                    .Add("Version", "1.2.0")
+                    .Add("Artifacts", "./artifacts/")
+                    .Add("Publish", "manual approval"));
+            c2.Markup("[muted]Ctrl+C stops the live run.[/]");
+        });
 }
 
 // Behaviour: update each frame in a bounded live run.
@@ -55,7 +63,7 @@ try
         }
     });
 }
-catch (OperationCanceledException cancelled)when (cancelled.CancellationToken == session.Cancellation)
+catch (OperationCanceledException cancelled) when (cancelled.CancellationToken == session.Cancellation)
 {
     // Ctrl+C is a normal way to leave the demo, after the session restores the terminal.
     return;

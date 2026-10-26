@@ -18,18 +18,20 @@ namespace SiteFrames.Pages {
 
         public static JsonArray FromSource(Site site, string initializer, string fluentSource, string[]? companions = null, HashSet<string>? commands = null) {
             companions ??= Array.Empty<string>();
-            var used = new HashSet<string>(CSharpRunner.ConfiguredMembers(initializer, companions), StringComparer.Ordinal);
-            used.UnionWith(CSharpRunner.ConfiguredMembersFromSource(initializer, fluentSource, companions));
-            return FromMembers(site, initializer, used, commands);
+            var order = CSharpRunner.ConfiguredMembersFromSource(initializer, fluentSource, companions)
+                .Concat(CSharpRunner.ConfiguredMembers(initializer, companions)).Distinct(StringComparer.Ordinal).ToArray();
+            var used = order.ToHashSet(StringComparer.Ordinal);
+            return FromMembers(site, initializer, used, commands, order);
         }
 
         public static JsonArray ForProject(Site site, string initializer, string project, string fluent, HashSet<string>? commands = null) {
-            var used = new HashSet<string>(CSharpRunner.ConfiguredProjectMembers(initializer, project, Site.ReadText(initializer)), StringComparer.Ordinal);
-            used.UnionWith(CSharpRunner.ConfiguredProjectMembers(initializer, project, fluent));
-            return FromMembers(site, initializer, used, commands);
+            var order = CSharpRunner.ConfiguredProjectMembers(initializer, project, fluent)
+                .Concat(CSharpRunner.ConfiguredProjectMembers(initializer, project, Site.ReadText(initializer))).Distinct(StringComparer.Ordinal).ToArray();
+            var used = order.ToHashSet(StringComparer.Ordinal);
+            return FromMembers(site, initializer, used, commands, order);
         }
 
-        private static JsonArray FromMembers(Site site, string initializer, HashSet<string> used, HashSet<string>? commands) {
+        private static JsonArray FromMembers(Site site, string initializer, HashSet<string> used, HashSet<string>? commands, string[] order) {
             JsonObject map = JsonNode.Parse(File.ReadAllText(Path.Combine(site.Repository, "Tests", "Api", "round2-parity.json")))!.AsObject();
             var rows = new Dictionary<string, (string Command, JsonObject Binding)>(StringComparer.Ordinal);
             foreach (JsonNode? commandNode in map["Commands"]!.AsArray()) {
@@ -66,19 +68,37 @@ namespace SiteFrames.Pages {
                 rows[key] = (commandName, binding);
             }
             JsonArray result = new JsonArray();
+            var positions = order.Select((key, index) => (key, index)).ToDictionary(pair => pair.key, pair => pair.index, StringComparer.Ordinal);
+            int Position(string key) => positions.TryGetValue(key, out int index) ? index : int.MaxValue;
+            var factoryPositions = new Dictionary<string, int>(StringComparer.Ordinal);
             JsonObject entryRule = map["FluentGrammar"]!["Entry"]!.AsObject();
             foreach (JsonNode? factoryNode in entryRule["Factories"]!.AsArray()) {
                 JsonObject factory = factoryNode!.AsObject();
                 string noun = factory["Noun"]!.GetValue<string>();
+                if (noun == "Text" && (used.Contains("M:ConsoleMonster.Ui.Markup") || used.Contains("M:ConsoleMonster.Layout.ContentBuilder.Markup"))) { continue; }
                 string command = factory["Command"]!.GetValue<string>();
-                string methodId = "M:" + entryRule["FactoryType"]!.GetValue<string>() + "." + noun;
+                string uiId = "M:" + entryRule["FactoryType"]!.GetValue<string>() + "." + noun;
+                string nestedId = "M:ConsoleMonster.Layout.ContentBuilder." + noun;
+                string? constructed = factory["InitializerTypes"]!.AsArray().Select(node => node!.GetValue<string>()).Where(type => used.Contains("C:" + type)).OrderBy(type => Position("C:" + type)).FirstOrDefault();
+                string methodId = used.Contains(uiId) ? uiId : used.Contains(nestedId) ? nestedId : "C:" + constructed;
                 if (!used.Contains(methodId) || commands != null && !commands.Any(value => value == command || value.StartsWith(command + " -", StringComparison.Ordinal))) { continue; }
-                string type = factory["InitializerTypes"]!.AsArray().Select(node => node!.GetValue<string>()).FirstOrDefault(type => used.Contains("C:" + type)) ?? factory["ReturnType"]!.GetValue<string>();
+                string type = factory["InitializerTypes"]!.AsArray().Select(node => node!.GetValue<string>()).Where(type => used.Contains("C:" + type)).OrderBy(type => Position("C:" + type)).FirstOrDefault() ?? factory["ReturnType"]!.GetValue<string>();
                 string initializerType = type.Substring(type.LastIndexOf('.') + 1);
                 string? reason = factory["Reason"]?.GetValue<string>();
                 if (factory["ContentBuilder"]!.GetValue<bool>()) { reason = (reason == null ? string.Empty : reason + " ") + "Inside Content: " + entryRule["NestedPattern"]!.GetValue<string>().Replace("{Noun}", noun, StringComparison.Ordinal) + "."; }
-                result.Add(new JsonObject { ["powershell"] = command + KindArgument(map, command, initializerType),["csharp"] = noun == "Table" && used.Contains("M:ConsoleMonster.Widgets.Table.For") ? "Table.For(rows)" : "new " + initializerType + "(…)", ["fluent"] = factory["Pattern"]!.GetValue<string>(), ["memberId"] = methodId, ["note"] = reason });
-                break;
+                factoryPositions[methodId] = Math.Min(Position(methodId), Position("C:" + type));
+                bool tableRowsUsed = noun == "Table" && used.Contains("M:ConsoleMonster.Widgets.Table.For");
+                if (tableRowsUsed) { factoryPositions[methodId] = Math.Min(factoryPositions[methodId], Position("M:ConsoleMonster.Widgets.Table.For")); }
+                JsonObject? discriminator = factory["Discriminators"]?.AsArray().Select(node => node!.AsObject())
+                    .FirstOrDefault(rule => rule["InitializerType"]!.GetValue<string>() == type);
+                string pattern = tableRowsUsed ? "Ui.Table(rows)" : factory["Pattern"]!.GetValue<string>();
+                if (tableRowsUsed) { command += " -InputObject $rows -Property …"; }
+                if (discriminator != null) {
+                    bool flag = discriminator["Switch"]?.GetValue<bool>() == true;
+                    command += " -" + discriminator["Parameter"]!.GetValue<string>() + (flag ? string.Empty : " " + discriminator["Value"]!.GetValue<string>());
+                    pattern += "." + discriminator["Member"]!.GetValue<string>() + "(" + (flag ? string.Empty : discriminator["EnumType"]!.GetValue<string>() + "." + discriminator["Value"]!.GetValue<string>()) + ")";
+                }
+                result.Add(new JsonObject { ["powershell"] = command, ["csharp"] = noun == "Table" && used.Contains("M:ConsoleMonster.Widgets.Table.For") ? "Table.For(rows)" : "new " + initializerType + "(…)", ["fluent"] = pattern, ["memberId"] = methodId, ["note"] = reason });
             }
             JsonObject markup = map["FluentGrammar"]!["Markup"]!.AsObject();
             if (used.Contains("M:ConsoleMonster.Ui.Markup") || used.Contains("M:ConsoleMonster.Layout.ContentBuilder.Markup")) {
@@ -95,7 +115,7 @@ namespace SiteFrames.Pages {
                 JsonObject binding = contentNode!.AsObject();
                 string methodId = "M:" + binding["FluentType"]!.GetValue<string>() + ".Content";
                 string command = binding["Command"]!.GetValue<string>();
-                if (contentCommands.Count >= 2 || !used.Contains(methodId) || commands != null && !commands.Contains(command + " -Content")) { continue; }
+                if (!used.Contains(methodId) || commands != null && !commands.Contains(command + " -Content")) { continue; }
                 contentCommands.Add(command);
                 result.Add(new JsonObject {
                     ["powershell"] = command + " " + contentRule["PowerShellPattern"]!.GetValue<string>(),
@@ -110,7 +130,7 @@ namespace SiteFrames.Pages {
                 string optionsType = operation["OptionsType"]!.GetValue<string>();
                 var optionRows = rows.Values.Where(row => row.Binding["CSharpType"]!.GetValue<string>() == optionsType)
                     .OrderBy(row => Rank(row.Binding["Member"]!.GetValue<string>())).Take(2).ToArray();
-                if (result.Count >= 5 || !used.Contains(operationId) || optionRows.Length == 0) { continue; }
+                if (!used.Contains(operationId) || optionRows.Length == 0) { continue; }
                 string chain = "o => o" + string.Concat(optionRows.Select(row => {
                     string member = row.Binding["Member"]!.GetValue<string>();
                     string type = row.Binding["CSharpTypeName"]!.GetValue<string>();
@@ -130,9 +150,10 @@ namespace SiteFrames.Pages {
                 break;
             }
             foreach (var row in rows.Where(pair => pair.Value.Binding["Parameter"]!.GetValue<string>() != "Content" || !contentCommands.Contains(pair.Value.Command))
-                .OrderBy(pair => Rank(pair.Value.Binding["Member"]!.GetValue<string>())).ThenBy(pair => pair.Key, StringComparer.Ordinal).Take(6 - result.Count)) {
+                .OrderBy(pair => Rank(pair.Value.Binding["Member"]!.GetValue<string>())).ThenBy(pair => pair.Key, StringComparer.Ordinal)) {
                 JsonObject binding = row.Value.Binding;
                 string parameter = binding["Parameter"]!.GetValue<string>();
+                if (parameter == "Type" && result.Any(note => note!["powershell"]!.GetValue<string>().StartsWith(row.Value.Command + " -Type ", StringComparison.Ordinal))) { continue; }
                 string member = binding["Member"]!.GetValue<string>();
                 string conversion = binding["Conversion"]!.GetValue<string>();
                 bool isSwitch = binding["ParameterType"]!.GetValue<string>() == "System.Management.Automation.SwitchParameter";
@@ -168,7 +189,7 @@ namespace SiteFrames.Pages {
             }
             JsonObject tableRows = map["FluentGrammar"]!["TableRows"]!.AsObject();
             string rowFactory = "M:" + tableRows["CSharpType"]!.GetValue<string>() + "." + tableRows["Member"]!.GetValue<string>();
-            if (result.Count < 6 && used.Contains(rowFactory)) {
+            if (used.Contains(rowFactory) && !result.Any(row => row!["memberId"]!.GetValue<string>() == "M:ConsoleMonster.Ui.Table")) {
                 result.Add(new JsonObject {
                     ["powershell"] = "New-ConsoleTable -InputObject $rows -Property …",
                     ["csharp"] = tableRows["Pattern"]!.GetValue<string>(), ["fluent"] = tableRows["FluentPattern"]!.GetValue<string>(),
@@ -184,7 +205,7 @@ namespace SiteFrames.Pages {
                     string owner = binding["CSharpType"]!.GetValue<string>();
                     string method = binding["Member"]!.GetValue<string>();
                     string key = "A:" + owner + "." + method + "." + argument;
-                    if (result.Count >= 6 || !used.Contains(key)) { continue; }
+                    if (!used.Contains(key)) { continue; }
                     bool isSwitch = binding["ParameterType"]!.GetValue<string>() == "System.Management.Automation.SwitchParameter";
                     string conversion = binding["Conversion"]!.GetValue<string>();
                     string value = conversion == "BooleanInversion" ? "false" : isSwitch ? "true"
@@ -208,7 +229,7 @@ namespace SiteFrames.Pages {
                 string fluentOwner = ending["FluentType"]!.GetValue<string>();
                 string fluentMethod = ending["FluentMember"]!.GetValue<string>();
                 string key = "M:" + owner + "." + method;
-                if (result.Count >= 6 || !used.Contains(key) && !used.Contains("M:" + fluentOwner + "." + fluentMethod)) { continue; }
+                if (!used.Contains(key) && !used.Contains("M:" + fluentOwner + "." + fluentMethod)) { continue; }
                 string? argument = ending["FluentArgument"]?.GetValue<string>();
                 result.Add(new JsonObject {
                     ["powershell"] = "| " + ending["Command"]!.GetValue<string>() + (argument == null ? string.Empty : " -" + char.ToUpperInvariant(argument[0]) + argument.Substring(1) + " …"),
@@ -222,7 +243,7 @@ namespace SiteFrames.Pages {
                 string owner = operation["CSharpType"]!.GetValue<string>();
                 string member = operation["Member"]!.GetValue<string>();
                 string key = "M:" + owner + "." + member;
-                if (result.Count >= 6 || !used.Contains(key)) { continue; }
+                if (!used.Contains(key)) { continue; }
                 string shortOwner = owner.Substring(owner.LastIndexOf('.') + 1);
                 result.Add(new JsonObject {
                     ["powershell"] = "… | " + operation["Command"]!.GetValue<string>() + " -" + operation["DiscriminatorParameter"]!.GetValue<string>() + " " + operation["DiscriminatorValue"]!.GetValue<string>(),
@@ -237,7 +258,7 @@ namespace SiteFrames.Pages {
                 string owner = external["CSharpType"]!.GetValue<string>();
                 string method = external["Member"]!.GetValue<string>();
                 string key = "M:" + owner + "." + method;
-                if (result.Count >= 6 || !used.Contains(key)) { continue; }
+                if (!used.Contains(key)) { continue; }
                 string call = owner.Substring(owner.LastIndexOf('.') + 1) + "." + method + "(…)";
                 result.Add(new JsonObject {
                     ["powershell"] = external["Command"]!.GetValue<string>() + " …",
@@ -251,7 +272,7 @@ namespace SiteFrames.Pages {
                 foreach (JsonNode? memberNode in integration["Members"]!.AsArray()) {
                     string member = memberNode!.GetValue<string>();
                     string key = owner + "." + member;
-                    if (result.Count >= 6 || !used.Contains(key)) { continue; }
+                    if (!used.Contains(key)) { continue; }
                     result.Add(new JsonObject {
                         ["powershell"] = "dotnet run", ["csharp"] = member + " = …", ["fluent"] = "." + member + "(…)",
                         ["memberId"] = key, ["note"] = integration["Reason"]!.GetValue<string>()
@@ -263,7 +284,7 @@ namespace SiteFrames.Pages {
                 string owner = integration["CSharpType"]!.GetValue<string>();
                 string member = integration["Member"]!.GetValue<string>();
                 string key = "M:" + owner + "." + member;
-                if (result.Count >= 6 || !used.Contains(key)) { continue; }
+                if (!used.Contains(key)) { continue; }
                 string call = owner.Substring(owner.LastIndexOf('.') + 1) + "." + member + "(…)";
                 result.Add(new JsonObject {
                     ["powershell"] = "dotnet run", ["csharp"] = call, ["fluent"] = call, ["memberId"] = key,
@@ -271,20 +292,26 @@ namespace SiteFrames.Pages {
                 });
             }
             if (result.Count == 0) { throw new InvalidDataException("No parity mapping is available for " + initializer + "."); }
-            return result;
-        }
-
-        // One command can build several widget types (New-ConsoleChart builds a Sparkline with -Type Sparkline). The row names
-        // the -Type value whose enum name starts the constructed type's name, so the C# cell is not read as the default kind.
-        private static string KindArgument(JsonObject map, string command, string initializerType) {
-            JsonObject? binding = map["Commands"]!.AsArray().Select(node => node!.AsObject())
-                .Where(node => node["Command"]!.GetValue<string>() == command)
-                .SelectMany(node => node["Bindings"]!.AsArray()).Select(node => node!.AsObject())
-                .FirstOrDefault(node => node["Parameter"]!.GetValue<string>() == "Type");
-            Type? kinds = binding?["CSharpTypeName"] == null ? null : typeof(ConsoleMonster.Terminal).Assembly.GetType(binding["CSharpTypeName"]!.GetValue<string>());
-            if (kinds?.IsEnum != true) { return string.Empty; }
-            string? kind = Enum.GetNames(kinds).Where(name => initializerType.StartsWith(name, StringComparison.Ordinal)).OrderByDescending(name => name.Length).FirstOrDefault();
-            return kind == null ? string.Empty : " -Type " + kind;
+            int SourcePosition(JsonNode? row) {
+                string key = row!["memberId"]!.GetValue<string>();
+                return factoryPositions.TryGetValue(key, out int index) ? index : Position(key);
+            }
+            // Reserve the compact aid for construction, nesting, markup and
+            // switches before filling it with scalar options. Display order is
+            // still the program's order, never this selection preference.
+            var required = new HashSet<string>(StringComparer.Ordinal);
+            void RequireFirst(Func<JsonNode?, bool> predicate) {
+                var row = result.Where(predicate).OrderBy(SourcePosition).FirstOrDefault();
+                if (row != null) { required.Add(row["memberId"]!.GetValue<string>()); }
+            }
+            RequireFirst(row => factoryPositions.ContainsKey(row!["memberId"]!.GetValue<string>()));
+            RequireFirst(row => row!["memberId"]!.GetValue<string>().EndsWith(".Content", StringComparison.Ordinal));
+            RequireFirst(row => row!["memberId"]!.GetValue<string>().EndsWith(".Markup", StringComparison.Ordinal));
+            RequireFirst(row => row!["csharp"]!.GetValue<string>().EndsWith(" = true", StringComparison.Ordinal) || row["csharp"]!.GetValue<string>().EndsWith(" = false", StringComparison.Ordinal));
+            foreach (var row in result.Where(row => factoryPositions.ContainsKey(row!["memberId"]!.GetValue<string>()) && row["powershell"]!.GetValue<string>().Contains(" -Type ", StringComparison.Ordinal))) { required.Add(row!["memberId"]!.GetValue<string>()); }
+            bool Essential(JsonNode? row) => required.Contains(row!["memberId"]!.GetValue<string>());
+            return new JsonArray(result.OrderBy(row => Essential(row) ? 0 : 1).ThenBy(SourcePosition)
+                .Take(6).OrderBy(SourcePosition).Select(row => row!.DeepClone()).ToArray());
         }
 
         private static int Preference(string command, JsonObject binding, HashSet<string>? commands) =>

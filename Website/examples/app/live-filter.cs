@@ -21,23 +21,20 @@ IWidget Results(string query) {
         host.Role.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0 ||
         host.Site.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0 ||
         host.Status.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0).ToArray();
-    TextBlock count = new TextBlock("[bold]" + matches.Length.ToString(CultureInfo.InvariantCulture)
-        +
-            "[/] of " + hosts.Length.ToString(CultureInfo.InvariantCulture) + " hosts");
+    TextBlock count = new TextBlock("[bold]" + matches.Length.ToString(CultureInfo.InvariantCulture) +
+        "[/] of " + hosts.Length.ToString(CultureInfo.InvariantCulture) + " hosts");
     Table table = Table.For(matches)
         .Column("Host", host => host.Name)
         .Column("Role", host => host.Role)
         .Column("Site", host => host.Site)
-        .Column(
-            "Status",
-            host => host.Status,
-            column => column.Presenter = CellPresenters.StatusWord);
+        .Column("Status", host => host.Status, column => column.Presenter = CellPresenters.StatusWord);
     table.HeaderSeparator = false;
     if (matches.Length == 0) {
         return new Rows(
             count,
             table,
-            new TextBlock("[muted]No matching hosts. Backspace to broaden the query.[/]"));
+            new TextBlock("[muted]No matching hosts. Backspace to broaden the query.[/]")
+        );
     }
     return new Rows(count, table);
 }

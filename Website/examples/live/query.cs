@@ -13,13 +13,10 @@ DnsRecord[] records = {
     new("evotec.xyz", "MX", "3600", "10 evotec-xyz.mail.protection.outlook.com"),
     new("evotec.xyz", "NS", "86400", "dana.ns.cloudflare.com"),
     new("evotec.xyz", "NS", "86400", "kirk.ns.cloudflare.com"),
-    new("evotec.xyz", "TXT", "3600",
-        "v=spf1 include:spf.protection.outlook.com include:_spf.google.com include:sendgrid.net ip4:51.38.120.9 -all"),
-    new("_dmarc.evotec.xyz", "TXT", "3600",
-        "v=DMARC1; p=reject; rua=mailto:dmarc@evotec.xyz; ruf=mailto:forensic@evotec.xyz; fo=1"),
+    new("evotec.xyz", "TXT", "3600", "v=spf1 include:spf.protection.outlook.com include:_spf.google.com include:sendgrid.net ip4:51.38.120.9 -all"),
+    new("_dmarc.evotec.xyz", "TXT", "3600", "v=DMARC1; p=reject; rua=mailto:dmarc@evotec.xyz; ruf=mailto:forensic@evotec.xyz; fo=1"),
     new("evotec.xyz", "CAA", "3600", "0 issue \"letsencrypt.org\""),
-    new("evotec.xyz", "SOA", "3600",
-        "dana.ns.cloudflare.com. dns.cloudflare.com. 2351234567 10000 2400 604800 3600")
+    new("evotec.xyz", "SOA", "3600", "dana.ns.cloudflare.com. dns.cloudflare.com. 2351234567 10000 2400 604800 3600")
     // </more>
 };
 
@@ -45,7 +42,10 @@ xyz.Add("y.nic.xyz", detail: "185.24.64.42");
 TreeNode evotec = xyz.Add("[bold]evotec.xyz.[/]", detail: "2 name servers");
 evotec.Add("dana.ns.cloudflare.com", StatusKind.Pass, "108.162.192.103 · 12 ms");
 evotec.Add("kirk.ns.cloudflare.com", StatusKind.Pass, "172.64.33.149 · 14 ms");
-evotec.Add("mail", detail: "MX target")
+evotec.Add(
+    "mail",
+    detail: "MX target"
+)
     .Add("evotec-xyz.mail.protection.outlook.com", StatusKind.Pass, "52.101.68.17");
 
 StatusList checks = new StatusList()
@@ -72,7 +72,6 @@ Terminal.Write(new Rows()
     .Add(table)
     .Add(new Columns(
         new Panel(delegation, "Delegation"),
-        new Panel(new Rows(checks, new Rule(), latency), "Mail security")
-            .HeaderRight("evotec.xyz"))));
+        new Panel(new Rows(checks, new Rule(), latency), "Mail security").HeaderRight("evotec.xyz"))));
 
 record DnsRecord(string Name, string Type, string Ttl, string Data);

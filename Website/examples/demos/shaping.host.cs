@@ -13,9 +13,8 @@ public sealed class ShapingExample : PSCmdlet {
             [pscustomobject] @{ Name = 'DC04'; Site = 'Dublin'; Roles = @(); LastSync = (New-TimeSpan -Hours 4); Status = 'Fail' }
         )
 
-        $servers").ToList();
-        Terminal.Write(ConsoleHostViews.Table(
-            rows,
-            new ConsoleTableViewOptions { GroupBy = "Site" }));
+        $servers")
+            .ToList();
+        Terminal.Write(ConsoleHostViews.Table(rows, new ConsoleTableViewOptions { GroupBy = "Site" }));
     }
 }

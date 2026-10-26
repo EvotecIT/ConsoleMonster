@@ -30,7 +30,10 @@ KeyValueList summary = new KeyValueList("summary")
 LineChart throughput = new LineChart("throughput").Height(7);
 throughput.AddSeries("completed", ThemeToken.Accent);
 throughput.AddSeries("failed", ThemeToken.Fail);
-Histogram durations = new Histogram(new double[] { 0, 0.25, 0.5, 1, 2, 4, 8 }, "durations").Height(6).Unit("s");
+Histogram durations = new Histogram(
+    new double[] { 0, 0.25, 0.5, 1, 2, 4, 8 },
+    "durations"
+).Height(6).Unit("s");
 BarChart findings = new BarChart("findings").Role(ThemeToken.Fail);
 foreach (string category in new[] { "Domain controllers", "Replication", "DNS", "Kerberos", "Security", "Group Policy", "Accounts", "PKI" }) {
     findings.Add(category, 0);
@@ -59,7 +62,12 @@ dashboard.CompactSummary = () => {
 };
 
 using StreamReader recording = new StreamReader(path);
-LiveSession.Replay(dashboard, recording, new LiveSessionOptions { Summary = new RunSummary(targets) }, speed);
+LiveSession.Replay(
+    dashboard,
+    recording,
+    new LiveSessionOptions { Summary = new RunSummary(targets) },
+    speed
+);
 
 // <more>
 // A widget written by hand (IWidget): the run summary printed to the scrollback when the session ends.
@@ -68,7 +76,10 @@ sealed class RunSummary : IWidget {
 
     public RunSummary(Lanes lanes) => _lanes = lanes;
 
-    public Size Measure(Constraints constraints, RenderContext context) => Content().Measure(constraints, context);
+    public Size Measure(Constraints constraints, RenderContext context) => Content().Measure(
+        constraints,
+        context
+    );
 
     public void Render(Region region, RenderContext context) => Content().Render(region, context);
 
@@ -85,14 +96,32 @@ sealed class RunSummary : IWidget {
             .AddColumn("Duration");
         int passed = 0, failed = 0, warned = 0, skipped = 0;
         foreach (Lane lane in _lanes.Items) {
-            string duration = lane.Started.HasValue && lane.Finished.HasValue ? NumberFormat.Duration(lane.Finished.Value - lane.Started.Value) : "-";
-            table.AddRow(Markup.Escape(lane.Label), TableCell.ForStatus(lane.Status), lane.Passed.ToString(), lane.Failed.ToString(), lane.Warned.ToString(), lane.Skipped.ToString(), duration);
+            string duration = lane.Started.HasValue && lane.Finished.HasValue
+                ? NumberFormat.Duration(lane.Finished.Value - lane.Started.Value)
+                : "-";
+            table.AddRow(
+                Markup.Escape(lane.Label),
+                TableCell.ForStatus(lane.Status),
+                lane.Passed.ToString(),
+                lane.Failed.ToString(),
+                lane.Warned.ToString(),
+                lane.Skipped.ToString(),
+                duration
+            );
             passed += lane.Passed;
             failed += lane.Failed;
             warned += lane.Warned;
             skipped += lane.Skipped;
         }
-        table.SetFooter("[bold]Total[/]", string.Empty, passed.ToString(), failed.ToString(), warned.ToString(), skipped.ToString(), string.Empty);
+        table.SetFooter(
+            "[bold]Total[/]",
+            string.Empty,
+            passed.ToString(),
+            failed.ToString(),
+            warned.ToString(),
+            skipped.ToString(),
+            string.Empty
+        );
         return new Padding(table, 1, 1, 1, 1);
     }
 }

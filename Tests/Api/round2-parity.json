@@ -25324,6 +25324,50 @@
             "ConsoleMonster.Widgets.Histogram",
             "ConsoleMonster.Widgets.Sparkline",
             "ConsoleMonster.Widgets.ChartOptions"
+          ],
+          "Discriminators": [
+            {
+              "InitializerType": "ConsoleMonster.Widgets.BarChart",
+              "Parameter": "Type",
+              "Member": "Type",
+              "EnumType": "ChartType",
+              "Value": "Bar"
+            },
+            {
+              "InitializerType": "ConsoleMonster.Widgets.StackedBar",
+              "Parameter": "Type",
+              "Member": "Type",
+              "EnumType": "ChartType",
+              "Value": "Stacked"
+            },
+            {
+              "InitializerType": "ConsoleMonster.Widgets.LineChart",
+              "Parameter": "Type",
+              "Member": "Type",
+              "EnumType": "ChartType",
+              "Value": "Line"
+            },
+            {
+              "InitializerType": "ConsoleMonster.Widgets.ScatterPlot",
+              "Parameter": "Type",
+              "Member": "Type",
+              "EnumType": "ChartType",
+              "Value": "Scatter"
+            },
+            {
+              "InitializerType": "ConsoleMonster.Widgets.Histogram",
+              "Parameter": "Type",
+              "Member": "Type",
+              "EnumType": "ChartType",
+              "Value": "Histogram"
+            },
+            {
+              "InitializerType": "ConsoleMonster.Widgets.Sparkline",
+              "Parameter": "Type",
+              "Member": "Type",
+              "EnumType": "ChartType",
+              "Value": "Sparkline"
+            }
           ]
         },
         {
@@ -25529,6 +25573,14 @@
             "ConsoleMonster.Widgets.ProgressBar",
             "ConsoleMonster.Widgets.Spinner",
             "ConsoleMonster.Widgets.ProgressOptions"
+          ],
+          "Discriminators": [
+            {
+              "InitializerType": "ConsoleMonster.Widgets.Spinner",
+              "Parameter": "Indeterminate",
+              "Member": "Indeterminate",
+              "Switch": true
+            }
           ]
         },
         {
@@ -25582,6 +25634,14 @@
             "ConsoleMonster.Interactive.Select",
             "ConsoleMonster.Interactive.MultiSelect",
             "ConsoleMonster.Interactive.SelectInputOptions"
+          ],
+          "Discriminators": [
+            {
+              "InitializerType": "ConsoleMonster.Interactive.MultiSelect",
+              "Parameter": "Multiple",
+              "Member": "Multiple",
+              "Switch": true
+            }
           ]
         },
         {

@@ -28,18 +28,18 @@ foreach (var check in checks)
     statuses.Add(check.Name, check.Status, check.Detail);
 }
 
-BarChart scores = Ui.Chart().Type(ConsoleMonster.Widgets.ChartType.Bar).Maximum(100).Unit("%").Warning(80).Critical(50).Build<BarChart>();
+BarChart scores = (BarChart)Ui.Chart().Type(ChartType.Bar).Maximum(100).Unit("%").Warning(80).Critical(50).Build();
 foreach (var area in areaScores)
     scores.Add(area.Name, area.Score);
 Rows layout = Ui.Rows().Gap(1).Content(c2 =>
 {
     c2.Rule("[bold]Readiness assessment[/] [muted]| workspace[/]");
     c2.Markup("[pass]3 passed[/]   [warn]1 warning[/]   [fail]1 failed[/]   [muted]5 checks total[/]");
-    c2.Panel(cmPanel => cmPanel.Title("Checks").Content(c =>
+    c2.Panel(p => p.Title("Checks").Content(c =>
     {
         c.Add(statuses);
     }));
-    c2.Panel(cmPanel => cmPanel.Title("Readiness by area").Content(c =>
+    c2.Panel(p => p.Title("Readiness by area").Content(c =>
     {
         c.Add(scores);
     }).HeaderRight("score / 100"));
@@ -48,5 +48,5 @@ Rows layout = Ui.Rows().Gap(1).Content(c2 =>
 });
 // Behaviour: print the screen once and return.
 layout.Show();
-record CheckRow(string Name, global::ConsoleMonster.Styling.StatusKind Status, string Detail);
+record CheckRow(string Name, StatusKind Status, string Detail);
 record AreaScoreRow(string Name, int Score);

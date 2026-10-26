@@ -25,9 +25,18 @@ IWidget Summary()
         string status = completed.ContainsKey(job.Name) ? "Pass" : count == 0 ? "Pending" : "Warn";
         return new BackupRow(job.Name, job.Size, count, status);
     }).ToArray();
-    var table = Ui.Table(rows).Column(row => row.Job).Column(row => row.Size).Column(row => row.Attempts).Column(row => row.Status, column => column.Presenter(CellPresenters.StatusWord)).Expand();
+    var table = Ui.Table(rows)
+        .Column(row => row.Job)
+        .Column(row => row.Size)
+        .Column(row => row.Attempts)
+        .Column(row => row.Status, column => column.Presenter(CellPresenters.StatusWord))
+        .Expand();
     int recovered = completed.Keys.Count(name => attempts[name] > 1);
-    string summary = attempts.Count == 0 ? "[muted]4 jobs queued · destination ./backups/nightly[/]" : completed.Count < jobs.Length ? $"[pass]{completed.Count} passed[/]   [warn]{jobs.Length - completed.Count} queued for retry[/]" : $"[pass]{completed.Count} passed[/]   [accent]{recovered} recovered on retry[/]   [muted]retention: 14 days[/]";
+    string summary = attempts.Count == 0
+        ? "[muted]4 jobs queued · destination ./backups/nightly[/]"
+        : completed.Count < jobs.Length
+        ? $"[pass]{completed.Count} passed[/]   [warn]{jobs.Length - completed.Count} queued for retry[/]"
+        : $"[pass]{completed.Count} passed[/]   [accent]{recovered} recovered on retry[/]   [muted]retention: 14 days[/]";
     return Ui.Rows().Gap(1).Content(c =>
     {
         c.Rule("[bold]Nightly backup[/] [muted]· throttle 2 · maximum 2 attempts[/]");

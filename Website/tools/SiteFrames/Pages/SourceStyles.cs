@@ -6,7 +6,7 @@ using SiteFrames.Capture;
 
 namespace SiteFrames.Pages {
     /// <summary>Publishes a compiled fluent translation beside an example's maintained initializer source.</summary>
-    internal static class SourceStyles {
+    internal static partial class SourceStyles {
         private static readonly Dictionary<string, IReadOnlyDictionary<string, string>> Generated = new Dictionary<string, IReadOnlyDictionary<string, string>>(StringComparer.Ordinal);
 
         public static JsonObject Add(Site site, JsonObject entry, string path, params string[] companions) => AddCore(site, entry, path, companions, null);

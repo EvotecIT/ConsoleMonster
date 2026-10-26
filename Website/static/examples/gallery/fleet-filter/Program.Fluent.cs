@@ -18,28 +18,49 @@ var hosts = new FleetHost[]
 // Layout: construct the widgets shown on screen.
 IWidget Results(string query)
 {
-    var rows = hosts.Where(host => string.Join(" ", host.Host, host.Role, host.Site, host.Status).IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0).ToArray();
-    var table = Ui.Table(rows).Column(row => row.Host).Column(row => row.Role).Column(row => row.Site).Column(row => row.Status, column => column.Presenter(CellPresenters.StatusWord));
-    Rows result = Ui.Rows().Content(c =>
-    {
-        c.Markup(rows.Length.ToString(System.Globalization.CultureInfo.InvariantCulture) + " of " + hosts.Length.ToString(System.Globalization.CultureInfo.InvariantCulture) + " hosts");
-        c.Add(table);
-    });
+    var rows = hosts.Where(host => string.Join(
+            " ",
+            host.Host,
+            host.Role,
+            host.Site,
+            host.Status
+        )
+            .IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0)
+        .ToArray();
+    var table = Ui.Table(rows)
+        .Column(row => row.Host)
+        .Column(row => row.Role)
+        .Column(row => row.Site)
+        .Column(row => row.Status, column => column.Presenter(CellPresenters.StatusWord));
+    Rows result = Ui.Rows()
+        .Content(c =>
+        {
+            c.Markup(rows.Length.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                    + " of "
+                    + hosts.Length.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                    + " hosts");
+            c.Add(table);
+        });
     if (rows.Length == 0)
         result.Add(Ui.Markup("[muted]No matching hosts. Backspace to broaden the filter.[/]"));
     return result;
 }
 
-Rows layout = Ui.Rows().Gap(1).Content(c2 =>
-{
-    c2.Markup("[bold]Fleet health[/] [muted]· production inventory[/]");
-    c2.Panel(cmPanel => cmPanel.Title("Fleet summary").Content(c =>
+Rows layout = Ui.Rows()
+    .Gap(1)
+    .Content(c2 =>
     {
-        c.Markup("[pass]2 healthy[/]  [warn]1 warning[/]  [fail]1 offline[/]  [accent]1 running[/]");
-    }));
-    c2.TextInput(cmTextInput => cmTextInput.Key("Query").Value(string.Empty).Label("Filter").Placeholder("Host, role, site or status"));
-    c2.Binding(cmBinding => cmBinding.Configure(cmDefinition => cmDefinition.Content = state => Results(state.Get<string>("Query", string.Empty))));
-});
+        c2.Markup("[bold]Fleet health[/] [muted]· production inventory[/]");
+        c2.Panel(p => p.Title("Fleet summary").Content(c =>
+        {
+            c.Markup("[pass]2 healthy[/]  [warn]1 warning[/]  [fail]1 offline[/]  [accent]1 running[/]");
+        }));
+        c2.TextInput(textInput => textInput.Key("Query").Value(string.Empty).Label("Filter").Placeholder("Host, role, site or status"));
+        c2.Binding(binding => binding.Configure(o => o.Content = state => Results(state.Get<string>(
+                        "Query",
+                        string.Empty
+                    ))));
+    });
 // Behaviour: edit controls to update the view; Escape exits the app.
 ConsoleApp.Run(layout);
 record FleetHost(string Host, string Role, string Site, string Status);

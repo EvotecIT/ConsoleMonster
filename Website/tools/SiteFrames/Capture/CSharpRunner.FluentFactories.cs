@@ -135,8 +135,9 @@ namespace SiteFrames.Capture {
             private string Unique(string stem, params SyntaxNode[] scope) {
                 var names = model.SyntaxTree.GetRoot().DescendantTokens().Concat(scope.SelectMany(node => node.DescendantTokens()))
                     .Where(t => t.IsKind(SyntaxKind.IdentifierToken)).Select(t => t.ValueText).ToHashSet(StringComparer.Ordinal);
-                string name = "cm" + char.ToUpperInvariant(stem[0]) + stem.Substring(1);
-                for (int suffix = 2; names.Contains(name); suffix++) { name = "cm" + stem + suffix; }
+                string basis = stem switch { "definition" => "o", "Table" => "t", "Panel" => "p", "KeyValue" => "kv", "Chart" => "chart", "Rows" => "r", _ => char.ToLowerInvariant(stem[0]) + stem.Substring(1) };
+                string name = basis;
+                for (int suffix = 2; names.Contains(name); suffix++) { name = basis + suffix; }
                 return name;
             }
 

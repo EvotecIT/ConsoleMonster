@@ -7,7 +7,8 @@ public sealed class ProgressExample : PSCmdlet {
     protected override void ProcessRecord() {
         ConsoleHostFormatting.Enable(
             this,
-            new ConsoleFormattingOptions { Feature = new[] { ConsoleFormattingFeature.Progress } });
+            new ConsoleFormattingOptions { Feature = new[] { ConsoleFormattingFeature.Progress } }
+        );
         try { InvokeCommand.InvokeScript(@"$sites = 'Warsaw', 'Dublin', 'Berlin'
         for ($i = 0; $i -lt $sites.Count; $i++) {
             Write-Progress -Id 1 -Activity 'Collecting inventory' -Status $sites[$i] -PercentComplete ($i * 100 / $sites.Count)
@@ -19,8 +20,6 @@ public sealed class ProgressExample : PSCmdlet {
         }
         Write-Progress -Id 2 -Activity 'Servers' -Completed
         Write-Progress -Id 1 -Activity 'Collecting inventory' -Completed"); }
-        finally { ConsoleHostFormatting.Disable(
-            this,
-            new[] { ConsoleFormattingFeature.Progress }); }
+        finally { ConsoleHostFormatting.Disable(this, new[] { ConsoleFormattingFeature.Progress }); }
     }
 }
