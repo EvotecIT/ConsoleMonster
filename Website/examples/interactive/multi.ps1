@@ -16,7 +16,7 @@ $allTasks = @(
     #endregion
 )
 
-$tasks = $allTasks | Read-ConsoleMultiSelect 'Tasks' -Display Name -GroupBy Category -Minimum 1 -Preview {
+$tasks = $allTasks | Read-ConsoleSelect -Title 'Tasks' -Display Name -GroupBy Category -Minimum 1 -Preview {
     New-ConsoleRows -Gap 1 -Content {
         New-ConsoleText $_.Description
         New-ConsoleKeyValue -Markup -InputObject ([ordered] @{
@@ -26,5 +26,5 @@ $tasks = $allTasks | Read-ConsoleMultiSelect 'Tasks' -Display Name -GroupBy Cate
             Parameter = "[accent]$($_.Id)[/]"
         })
     }
-}
+} -Multiple
 Write-ConsoleText -Markup "Running [bold]$($tasks.Count)[/] tasks"

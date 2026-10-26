@@ -41,7 +41,7 @@ namespace ConsoleMonster.Interactive {
         private IWidget Compose(ViewFrame? frame) {
             Refresh();
             Rows rows = new Rows();
-            rows.Add(new HeaderBar(_explorer.Title) { Right = _visible.Count + " members" }, LayoutSize.Fixed(1));
+            rows.Add(new HeaderBar(_explorer.Title) { HeaderRight = _visible.Count + " members" }, LayoutSize.Fixed(1));
             rows.Add(TextBlock.Plain(_root.Path, ThemeToken.Accent), LayoutSize.Fixed(1));
             if (_searching) { rows.Add(TextBlock.Plain("/ " + _search.Text, ThemeToken.Muted), LayoutSize.Fixed(1)); }
             IWidget body = new ExplorerBody(this);

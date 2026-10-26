@@ -5,12 +5,12 @@ slug: markdown
 order: 17
 group: apps
 summary: "Headings, lists, quotes, code and tables rendered as native console widgets."
-apis: [Show-ConsoleMarkdown, MarkdownConsole, MarkdownView, WidgetPager]
+apis: [Show-Console -View Markdown, MarkdownConsole, MarkdownView, WidgetPager]
 chips: [CommonMark, Tables, Pager]
 card: markdown-120
 ---
 
-`Show-ConsoleMarkdown` reads CommonMark with pipe tables and renders through ConsoleMonster's own widgets. Headings use accent rules, lists keep hanging indents, quotes get a vertical bar, and fenced code uses the registered syntax highlighter with its language label.
+`Show-Console -View Markdown` reads CommonMark with pipe tables and renders through ConsoleMonster's own widgets. Headings use accent rules, lists keep hanging indents, quotes get a vertical bar, and fenced code uses the registered syntax highlighter with its language label.
 
 Level-one headings use a double rule and level-two headings use a single rule. Lower headings have no rule and keep their level markers, so the hierarchy remains visible without colour. Level three is bold; levels four through six are bold and muted.
 
@@ -20,7 +20,7 @@ Level-one headings use a double rule and level-two headings use a single rule. L
 
 ## Files and source text
 
-Use `Show-ConsoleMarkdown -Path .\README.md` to read a file. Paths are literal, resolve from PowerShell's current FileSystem location, and support FileSystem drives. `-Content` takes source text; pipeline strings are joined before parsing, so reference links and multi-line blocks retain their meaning.
+Use `Show-Console -View Markdown -Path .\README.md` to read a file. Paths are literal, resolve from PowerShell's current FileSystem location, and support FileSystem drives. `-Content` takes source text; pipeline strings are joined before parsing, so reference links and multi-line blocks retain their meaning.
 
 `-Width` sets the layout width. `-NoPager` prints the whole document, and `-AsString` returns the complete rendering as one plain string for assignment or saving. A downstream pipeline command receives plain lines.
 

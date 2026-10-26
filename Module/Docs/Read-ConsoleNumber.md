@@ -13,7 +13,7 @@ Whole numbers with -Integer (returns [int]), decimals otherwise (returns [decima
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Read-ConsoleNumber [-Title] <string> [-Default <Decimal>] [-Minimum <Decimal>] [-Maximum <Decimal>] [-Step <decimal>] [-Integer] [-Validator <scriptblock>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
+Read-ConsoleNumber [-Title] <string> [-Default <Decimal>] [-Minimum <Decimal>] [-Maximum <Decimal>] [-Step <decimal>] [-Integer] [-Validator <scriptblock>] [-Culture <cultureinfo>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -31,6 +31,22 @@ $port = Read-ConsoleNumber 'Port' -Integer -Minimum 1 -Maximum 65535 -Default 44
 A port number
 
 ## PARAMETERS
+
+### -Culture
+Culture used to parse and display the answer; omitted uses the current culture.
+
+```yaml
+Type: CultureInfo
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -Default
 The default.

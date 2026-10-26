@@ -14,7 +14,7 @@ namespace ConsoleMonster.Tests.Widgets {
             Lane source = new Lane("build", "Build") {
                 LabelText = RichText.Plain("Build", new RichStyle(ThemeToken.Accent)),
                 DetailText = RichText.Plain("Complete", new RichStyle(ThemeToken.Pass)),
-                Total = 5, Done = 5, Passed = 3, Failed = 1, Warned = 1, Skipped = 2,
+                Total = 5, Value = 5, Passed = 3, Failed = 1, Warned = 1, Skipped = 2,
                 Status = StatusKind.Warn, Started = TimeSpan.FromSeconds(2), Finished = TimeSpan.FromSeconds(9), Order = 99
             };
             Lane actual = lanes.Add(source);
@@ -23,11 +23,11 @@ namespace ConsoleMonster.Tests.Widgets {
             Assert.Same(source.LabelText, actual.LabelText);
             Assert.Same(source.DetailText, actual.DetailText);
             Assert.Equal((5d, 5d, 3, 1, 1, 2, StatusKind.Warn),
-                (actual.Total, actual.Done, actual.Passed, actual.Failed, actual.Warned, actual.Skipped, actual.Status));
+                (actual.Total, actual.Value, actual.Passed, actual.Failed, actual.Warned, actual.Skipped, actual.Status));
             Assert.Equal(source.Started, actual.Started);
             Assert.Equal(source.Finished, actual.Finished);
-            source.Done = 1;
-            Assert.Equal(5, actual.Done);
+            source.Value = 1;
+            Assert.Equal(5, actual.Value);
             Assert.Same(actual, lanes.Add(actual));
             Assert.NotNull(actual.LabelText);
             Lane replacement = lanes.Add(new Lane("build", "") { Status = StatusKind.Pending });

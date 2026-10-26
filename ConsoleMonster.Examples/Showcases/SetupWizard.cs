@@ -96,7 +96,7 @@ namespace ConsoleMonster.Examples.Showcases {
             server.DependsOn.Add("Region");
             server.Required = true;
             server.ParameterName = "Server";
-            server.Loader = (values, token) => LoadServersAsync(values.Get<string>("Region"), token);
+            server.LoadChoices = (values, token) => LoadServersAsync(values.Get<string>("Region"), token);
             server.Help = "Loaded for the chosen region; Esc cancels loading.";
             NumberField port = connection.Number("Port", "Port");
             port.Integer = true;

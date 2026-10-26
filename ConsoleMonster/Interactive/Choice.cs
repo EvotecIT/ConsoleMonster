@@ -53,33 +53,33 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Whether the choice can be picked.</summary>
         public bool IsEnabled => DisabledReason == null;
 
-        /// <summary>Builds choices from values with a title selector.</summary>
+        /// <summary>Builds choices from values using the shared display and metadata selectors.</summary>
         /// <typeparam name="T">The value type.</typeparam>
-        /// <param name="values">The values.</param>
-        /// <param name="title">The title for a value; null uses its text.</param>
-        /// <param name="group">The group for a value, or null.</param>
-        /// <param name="description">Help text for a value, or null.</param>
+        /// <param name="choices">The choices.</param>
+        /// <param name="display">The label for a value; null uses its text.</param>
+        /// <param name="groupBy">The group heading for a value, or null.</param>
+        /// <param name="describe">Help text for a value, or null.</param>
         /// <param name="badge">A styled badge for a value, or null.</param>
-        /// <param name="disabled">Why a value cannot be selected; null or empty keeps it enabled.</param>
+        /// <param name="disabledReason">Why a value cannot be selected; null or empty keeps it enabled.</param>
         /// <returns>The choices.</returns>
-        public static List<Choice> From<T>(IEnumerable<T> values, Func<T, string>? title = null, Func<T, string?>? group = null,
-            Func<T, string?>? description = null, Func<T, RichText?>? badge = null, Func<T, string?>? disabled = null) {
-            if (values == null) {
-                throw new ArgumentNullException(nameof(values));
+        public static List<Choice> From<T>(IEnumerable<T> choices, Func<T, string>? display = null, Func<T, string?>? groupBy = null,
+            Func<T, string?>? describe = null, Func<T, RichText?>? badge = null, Func<T, string?>? disabledReason = null) {
+            if (choices == null) {
+                throw new ArgumentNullException(nameof(choices));
             }
-            List<Choice> choices = new List<Choice>();
-            foreach (T value in values) {
+            List<Choice> result = new List<Choice>();
+            foreach (T value in choices) {
                 if (value is Choice existing) {
-                    choices.Add(existing);
+                    result.Add(existing);
                     continue;
                 }
-                string? reason = disabled?.Invoke(value);
-                choices.Add(new Choice(value, title?.Invoke(value)) {
-                    Group = group?.Invoke(value), Description = description?.Invoke(value), Badge = badge?.Invoke(value),
+                string? reason = disabledReason?.Invoke(value);
+                result.Add(new Choice(value, display?.Invoke(value)) {
+                    Group = groupBy?.Invoke(value), Description = describe?.Invoke(value), Badge = badge?.Invoke(value),
                     DisabledReason = string.IsNullOrEmpty(reason) ? null : reason
                 });
             }
-            return choices;
+            return result;
         }
 
         /// <inheritdoc />

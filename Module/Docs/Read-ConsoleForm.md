@@ -13,7 +13,7 @@ The form opens on the alternate screen (or in the scrollback with -Inline). Fiel
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Read-ConsoleForm [-Form] <Form> [-AppName <string>] [-RememberLastChoices] [-StorageRoot <string>] [-Inline] [-Preset <string>] [-PassThru] [-AsPlainText] [-Mode <InteractionMode>] [<CommonParameters>]
+Read-ConsoleForm [-Form] <Form> [-AppName <string>] [-RememberLastChoices] [-StorageRoot <string>] [-Inline] [-Preset <string>] [-PassThru] [-AsPlainText] [-Mode <InteractionMode>] [-Options <FormOptions>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -113,6 +113,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Options
+Typed C# FormOptions configuration. Use this instead of individual interaction settings; omitted host devices use the owning PowerShell runspace and the supplied object is not modified.
+
+```yaml
+Type: FormOptions
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -PassThru
 Returns the full result (Submitted, Values, CommandLine) instead of the answers.
 
@@ -130,7 +146,7 @@ Accept wildcard characters: False
 ```
 
 ### -Preset
-A preset to apply first: a built-in one (New-ConsoleFormPreset) or one saved under -AppName.
+A preset to apply first: a built-in one (New-ConsoleForm -Preset) or one saved under -AppName.
 
 ```yaml
 Type: String

@@ -15,7 +15,7 @@ namespace ConsoleMonster.Tests.Interactive {
         private static readonly string[] Roles = { "web", "sql", "dc", "file", "app" };
 
         private static Grid Servers(GridSelection selection = GridSelection.Multiple) {
-            Grid grid = new Grid("Servers") { Selection = selection, Presentation = new PresentationOptions { Culture = CultureInfo.InvariantCulture } };
+            Grid grid = new Grid("Servers") { OutputMode = selection, Presentation = new PresentationOptions { Culture = CultureInfo.InvariantCulture } };
             grid.AddColumn(new TableColumn("Name") { IsKey = true });
             grid.AddColumn("Role");
             grid.AddColumn("CPU %");

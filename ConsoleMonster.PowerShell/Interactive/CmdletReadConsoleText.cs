@@ -16,19 +16,19 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>A scriptblock validator ($_ is the answer; return $true, $false or an error message)</para>
     ///   <code>Read-ConsoleText 'Email' -Validator { if ($_ -notmatch '@') { 'Enter an email address' } }</code>
     /// </example>
-    [Cmdlet(VerbsCommunications.Read, "ConsoleText")]
-    [OutputType(typeof(string))]
+    [Cmdlet(VerbsCommunications.Read, "ConsoleText", DefaultParameterSetName = "Text")]
+    [OutputType(typeof(string), typeof(System.Security.SecureString))]
     public sealed class CmdletReadConsoleText : PromptCmdlet {
         /// <summary><para type="description">The default answer.</para></summary>
-        [Parameter]
+        [Parameter(ParameterSetName = "Text")]
         public string? Default { get; set; }
 
         /// <summary><para type="description">Muted text in the empty box.</para></summary>
-        [Parameter]
+        [Parameter(ParameterSetName = "Text")]
         public string? Placeholder { get; set; }
 
         /// <summary><para type="description">Refuses an empty answer.</para></summary>
-        [Parameter]
+        [Parameter(ParameterSetName = "Text")]
         public SwitchParameter Required { get; set; }
 
         /// <summary><para type="description">The fewest characters.</para></summary>
@@ -36,15 +36,15 @@ namespace ConsoleMonster.PowerShell {
         public int MinLength { get; set; }
 
         /// <summary><para type="description">The most characters.</para></summary>
-        [Parameter]
+        [Parameter(ParameterSetName = "Text")]
         public int MaxLength { get; set; } = int.MaxValue;
 
         /// <summary><para type="description">A regular expression the whole answer must match.</para></summary>
-        [Parameter]
+        [Parameter(ParameterSetName = "Text")]
         public string? Pattern { get; set; }
 
         /// <summary><para type="description">The message when -Pattern does not match.</para></summary>
-        [Parameter]
+        [Parameter(ParameterSetName = "Text")]
         public string? PatternMessage { get; set; }
 
         /// <summary><para type="description">A validator: $_ is the answer; return $true (or nothing) to accept, $false or an error message to refuse.</para></summary>
@@ -52,65 +52,61 @@ namespace ConsoleMonster.PowerShell {
         public ScriptBlock? Validator { get; set; }
 
         /// <summary><para type="description">Earlier answers offered with Up and Down (oldest first).</para></summary>
-        [Parameter]
+        [Parameter(ParameterSetName = "Text")]
         public string[]? History { get; set; }
 
         /// <summary><para type="description">Puts the default in the box (editable) instead of showing it as a hint.</para></summary>
-        [Parameter]
+        [Parameter(ParameterSetName = "Text")]
         public SwitchParameter PrefillDefault { get; set; }
 
         /// <summary><para type="description">Asks for several lines of text in a text area: soft wrap, Enter for a new line, Ctrl+Enter (or Ctrl+S) to save, paste keeps line breaks. In line mode the answer ends with an empty line.</para></summary>
-        [Parameter]
+        [Parameter(ParameterSetName = "Text")]
         public SwitchParameter Multiline { get; set; }
 
         /// <summary><para type="description">The most lines (-Multiline).</para></summary>
-        [Parameter]
+        [Parameter(ParameterSetName = "Text")]
         public int MaxLines { get; set; } = int.MaxValue;
 
         /// <summary><para type="description">The visible rows of the text area (-Multiline, default 6).</para></summary>
-        [Parameter]
+        [Parameter(ParameterSetName = "Text")]
         public int Height { get; set; } = 6;
+
+        /// <summary><para type="description">Reads a masked secret and returns SecureString by default. History and defaults are forbidden.</para></summary>
+        [Parameter(Mandatory = true, ParameterSetName = "Secret")] public SwitchParameter AsSecret { get; set; }
+        /// <summary><para type="description">With AsSecret, explicitly returns plaintext.</para></summary>
+        [Parameter(ParameterSetName = "Secret")] public SwitchParameter AsPlainText { get; set; }
+        /// <summary><para type="description">With AsSecret, hides even the typed length.</para></summary>
+        [Parameter(ParameterSetName = "Secret")] public SwitchParameter Hidden { get; set; }
+        /// <summary><para type="description">With AsSecret, accepts an empty answer.</para></summary>
+        [Parameter(ParameterSetName = "Secret")] public SwitchParameter AllowEmpty { get; set; }
 
         /// <inheritdoc />
         protected override void EndProcessing() {
-            if (Multiline.IsPresent) {
-                TextAreaPrompt area = new TextAreaPrompt(Title) { Placeholder = Placeholder, Required = Required.IsPresent, MinLength = MinLength, MaxLength = MaxLength, MaxLines = MaxLines, Height = Height };
-                Configure(area);
-                if (Default != null) {
-                    area.Default = Default;
-                }
-                if (Validator != null) {
-                    ScriptBlock check = Validator;
-                    area.Validator = text => PSInteractive.Validation(check, text, PromptLabels.Default);
-                }
-                if (TrySnapshot(area)) { return; }
-                WriteObject(Ask(area));
-                return;
-            }
-            TextPrompt prompt = new TextPrompt(Title) {
-                Placeholder = Placeholder,
-                Required = Required.IsPresent,
-                MinLength = MinLength,
-                MaxLength = MaxLength,
-                Pattern = Pattern,
-                PatternMessage = PatternMessage,
-                PrefillDefault = PrefillDefault.IsPresent
-            };
-            Configure(prompt);
-            if (Default != null) {
-                prompt.Default = Default;
-            }
-            if (History != null) {
-                foreach (string entry in History) {
-                    prompt.History.Add(entry);
-                }
-            }
+            if (AsPlainText.IsPresent && !AsSecret.IsPresent) { throw new PSArgumentException("AsPlainText requires AsSecret."); }
+            var options = new TextQuestionOptions { Title = Title, Description = Description, ParameterName = ParameterName };
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(AsSecret))) { options.AsSecret = AsSecret.IsPresent; }
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(Multiline))) { options.Multiline = Multiline.IsPresent; }
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(Default))) { options.Default = Default; }
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(Placeholder))) { options.Placeholder = Placeholder; }
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(Required))) { options.Required = Required.IsPresent; }
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(MinLength))) { options.MinLength = MinLength; }
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(MaxLength))) { options.MaxLength = MaxLength; }
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(Pattern))) { options.Pattern = Pattern; }
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(PatternMessage))) { options.PatternMessage = PatternMessage; }
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(PrefillDefault))) { options.PrefillDefault = PrefillDefault.IsPresent; }
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(MaxLines))) { options.MaxLines = MaxLines; }
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(Height))) { options.Height = Height; }
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(Hidden))) { options.Hidden = Hidden.IsPresent; }
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(AllowEmpty))) { options.AllowEmpty = AllowEmpty.IsPresent; }
+            if (History != null) { foreach (string entry in History) { options.History.Add(entry); } }
             if (Validator != null) {
                 ScriptBlock validate = Validator;
-                prompt.Validator = text => PSInteractive.Validation(validate, text, PromptLabels.Default);
+                options.Validator = text => PSInteractive.Validation(validate, text, PromptLabels.Default);
             }
+            Prompt<string> prompt = Question.Text(options);
             if (TrySnapshot(prompt)) { return; }
-            WriteObject(Ask(prompt));
+            string answer = Ask(prompt);
+            WriteObject(AsSecret.IsPresent && !AsPlainText.IsPresent ? (object)PSInteractive.ToSecureString(answer) : answer);
         }
     }
 }

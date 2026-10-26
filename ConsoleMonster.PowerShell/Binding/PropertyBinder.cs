@@ -295,11 +295,13 @@ namespace ConsoleMonster.PowerShell.Binding {
             SetBool(options, "Identifier", value => column.Presenter = value ? CellPresenters.Identifier : column.Presenter);
             SetBool(options, "Flexible", value => column.Flexible = value);
 
-            if (TryOption(options, "Presenter", out object? presenter))
-                column.Presenter = CellPresenters.FromName(
-                    Convert.ToString(presenter, CultureInfo.InvariantCulture) ?? string.Empty,
+            if (TryOption(options, "Presenter", out object? presenter)) {
+                object? value = PSText.Unwrap(presenter);
+                column.Presenter = value is ICellPresenter configured ? configured : CellPresenters.FromName(
+                    Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty,
                     OptionString(options, "Unit")
                 );
+            }
             // Highlight = 'Smart' (or a language): the cell text is highlighted, and stays literal.
             if (TryOption(options, "Highlight", out object? highlight)) {
                 string language = Convert.ToString(highlight, CultureInfo.InvariantCulture) ?? string.Empty;

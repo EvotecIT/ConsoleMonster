@@ -13,7 +13,7 @@ Pipe any New-Console* widget (or Show-ConsoleTable -AsWidget) and get a self-con
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Export-ConsoleFrame [-InputObject] <Object> [[-Path] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-Theme <ExportTheme>] [-Title <string>] [-WindowChrome] [-ChromeStyle <WindowChromeStyle>] [-FontSize <double>] [-PassThru] [-Preset <string>] [-Fit <string>] [-Background <string>] [-BackgroundColor <string>] [-BackgroundEndColor <string>] [-FontFamily <string>] [<CommonParameters>]
+Export-ConsoleFrame [-InputObject] <Object> [[-Path] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-Theme <ExportTheme>] [-Title <string>] [-WindowChrome] [-ChromeStyle <WindowChromeStyle>] [-FontSize <double>] [-PassThru] [-Preset <string>] [-Fit <string>] [-Background <string>] [-BackgroundColor <string>] [-BackgroundEndColor <string>] [-FontFamily <string>] [-Options <ExportOptions>] [-MaxFontSize <double>] [-FontFallbacks <string[]>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -119,6 +119,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -FontFallbacks
+Additional raster font-family fallbacks, in preferred order.
+
+```yaml
+Type: String[]
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -FontFamily
 Installed raster font; omitted uses embedded JetBrains Mono.
 
@@ -196,6 +212,38 @@ Required: True
 Position: 0
 Default value: None
 Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -MaxFontSize
+Maximum raster font size in pixels; default 72.
+
+```yaml
+Type: Double
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Options
+Typed C# ExportOptions, including custom themes, glyphs, culture and document settings. Use this instead of individual frame-rendering settings; the object is not modified.
+
+```yaml
+Type: ExportOptions
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 

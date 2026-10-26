@@ -38,8 +38,8 @@ namespace ConsoleMonster.PowerShell {
         internal PSCmdlet? Cmdlet { get; private set; }
 
         /// <summary>Associates a dependent widget with its script for scoped input-thread ownership.</summary>
-        internal AppBinding CreateBinding(Func<AppState, IWidget> build, string? name = null) {
-            AppBinding binding = new AppBinding(build, name);
+        internal AppBinding CreateBinding(Func<AppState, IWidget> content, string? widgetId = null) {
+            AppBinding binding = new AppBinding(content, widgetId);
             Bindings.Add(binding, this);
             return binding;
         }

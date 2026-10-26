@@ -35,7 +35,7 @@ The [live dashboards page](/live/) shows larger programs built the same way, rec
 ```powershell
 Import-Module ConsoleMonster
 
-New-ConsoleLanes -WidgetId servers -Lane 'DC01', 'DC02' -Total 40 -Column Standard, Rate -HideCompleted | Show-Console
+New-ConsoleLanes -WidgetId servers -Lane 'DC01', 'DC02' -Total 40 -HideCompleted -Columns Standard, Rate | Show-Console
 New-ConsoleProgress -Label 'Upload' -Total 500MB -Column Description, Bar, Percent, ByteRate, Remaining | Show-Console
 ```
 
@@ -72,15 +72,15 @@ $controllers = @(
     [pscustomobject] @{ Name = 'DC02'; Site = 'Dublin'; Status = 'Warn' }
 )
 $d = New-ConsoleDashboard -Title 'Domain health' -Content {
-    New-ConsolePanel -Title 'Domain controllers' -Content { New-ConsoleRegion -WidgetId main -Content { New-ConsoleSpinner -Label 'Querying' } }
-    New-ConsolePanel -Title 'Jobs' -Fill -Content { New-ConsoleLiveTable -WidgetId jobs -Column 'Job', 'State', 'Took' -MaxRows 8 }
+    New-ConsolePanel -Title 'Domain controllers' -Content { New-ConsoleRegion -WidgetId main -Content { New-ConsoleProgress -Label 'Querying' -Indeterminate -WidgetId 'spinner' } }
+    New-ConsolePanel -Title 'Jobs' -Fill -Content { New-ConsoleTable -WidgetId jobs -MaxRows 8 -Live -Columns 'Job', 'State', 'Took' }
 }
 Invoke-ConsoleDashboard $d -ArgumentList (, $controllers) {
     param($Controllers)
-    Update-ConsoleLiveTable -WidgetId jobs -Key 'dns@DC01' -Value 'dns', 'Running', ([timespan]::Zero)
+    Update-Console -WidgetId jobs -Row ([pscustomobject]@{ Key = 'dns@DC01'; Values = @('dns', 'Running', ([timespan]::Zero)) })
     Start-Sleep -Seconds 1
-    Update-ConsoleLiveTable -WidgetId jobs -Key 'dns@DC01' -Value 'dns', 'Done', ([timespan]::FromSeconds(1))
-    Set-ConsoleRegion -WidgetId main -Content { $Controllers | Show-ConsoleTable -AsWidget }
+    Update-Console -WidgetId jobs -Row ([pscustomobject]@{ Key = 'dns@DC01'; Values = @('dns', 'Done', ([timespan]::FromSeconds(1))) })
+    Update-Console -WidgetId main -Content { $Controllers | Show-ConsoleTable -AsWidget }
     Start-Sleep -Seconds 1
 }
 ```

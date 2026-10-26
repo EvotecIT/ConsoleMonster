@@ -359,7 +359,7 @@ namespace ConsoleMonster.PowerShell {
         /// <param name="script">The script.</param>
         /// <param name="selectors">How to build the choices from its output (property names only: scriptblocks cannot run on the loader's thread).</param>
         /// <param name="arguments">More arguments for the script.</param>
-        public static Func<FormValues, CancellationToken, Task<IEnumerable<Choice>>> Loader(ScriptBlock script, ChoiceSelectors selectors, object?[]? arguments) {
+        public static Func<FormValues, CancellationToken, Task<IEnumerable<Choice>>> LoadChoices(ScriptBlock script, ChoiceSelectors selectors, object?[]? arguments) {
             string text = script.ToString();
             ChoiceSelectors isolated = selectors.PropertiesOnly();
             return (values, token) => Task.Run<IEnumerable<Choice>>(() => {

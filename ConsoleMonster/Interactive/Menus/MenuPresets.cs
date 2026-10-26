@@ -75,8 +75,8 @@ namespace ConsoleMonster.Interactive {
                     }
                     values[key] = stored;
                 }
-                if (item.SubmenuDefinition != null) {
-                    Collect(item.SubmenuDefinition, key + "/", values);
+                if (item.Submenu != null) {
+                    Collect(item.Submenu, key + "/", values);
                 }
             }
         }
@@ -93,7 +93,7 @@ namespace ConsoleMonster.Interactive {
                         }
                     }
                     List<object?> selection = new List<object?>();
-                    if (item.Choices.Count == 0 && item.ChoicesLoader != null) {
+                    if (item.Choices.Count == 0 && item.LoadChoices != null) {
                         foreach (string value in wanted) { selection.Add(value); }
                         item.SetSelection(selection);
                         continue;
@@ -105,30 +105,30 @@ namespace ConsoleMonster.Interactive {
                     }
                     item.SetSelection(selection);
                 }
-                if (item.SubmenuDefinition != null) {
-                    Restore(item.SubmenuDefinition, key + "/", values);
+                if (item.Submenu != null) {
+                    Restore(item.Submenu, key + "/", values);
                 }
             }
         }
 
         private static void CollectForms(Menu menu, Dictionary<string, object?> forms) {
             foreach (MenuItem item in menu.Items) {
-                if (item.FormDefinition != null) {
-                    forms[item.FormDefinition.Key] = item.FormDefinition.ToStored();
+                if (item.Form != null) {
+                    forms[item.Form.Key] = item.Form.ToStored();
                 }
-                if (item.SubmenuDefinition != null) {
-                    CollectForms(item.SubmenuDefinition, forms);
+                if (item.Submenu != null) {
+                    CollectForms(item.Submenu, forms);
                 }
             }
         }
 
         private static void ApplyForms(Menu menu, IDictionary<string, object?> forms) {
             foreach (MenuItem item in menu.Items) {
-                if (item.FormDefinition != null && forms.TryGetValue(item.FormDefinition.Key, out object? stored) && stored is IDictionary<string, object?> map) {
-                    ApplyForm(item.FormDefinition, map, true);
+                if (item.Form != null && forms.TryGetValue(item.Form.Key, out object? stored) && stored is IDictionary<string, object?> map) {
+                    ApplyForm(item.Form, map, true);
                 }
-                if (item.SubmenuDefinition != null) {
-                    ApplyForms(item.SubmenuDefinition, forms);
+                if (item.Submenu != null) {
+                    ApplyForms(item.Submenu, forms);
                 }
             }
         }

@@ -15,33 +15,51 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>Strings with a default</para>
     ///   <code>$environment = Read-ConsoleSelect 'Environment' -Choices 'Production', 'Staging', 'Lab' -Default 'Staging'</code>
     /// </example>
-    [Cmdlet(VerbsCommunications.Read, "ConsoleSelect")]
+    [Cmdlet(VerbsCommunications.Read, "ConsoleSelect", DefaultParameterSetName = "Single")]
     public sealed class CmdletReadConsoleSelect : SelectionCmdlet {
         /// <summary><para type="description">The default: one of the choices, or its displayed text.</para></summary>
         [Parameter]
         public object? Default { get; set; }
 
+        /// <summary><para type="description">Allows multiple answers; Default supplies initial selected choices.</para></summary>
+        [Parameter(Mandatory = true, ParameterSetName = "Multiple")] public SwitchParameter Multiple { get; set; }
+
+        /// <summary><para type="description">The fewest choices accepted.</para></summary>
+        [Parameter(ParameterSetName = "Multiple")]
+        public int? Minimum { get; set; }
+
+        /// <summary><para type="description">The most choices accepted.</para></summary>
+        [Parameter(ParameterSetName = "Multiple")]
+        public int? Maximum { get; set; }
+
+        /// <summary><para type="description">Starts with every group collapsed.</para></summary>
+        [Parameter(ParameterSetName = "Multiple")]
+        public SwitchParameter Collapsed { get; set; }
+
         /// <inheritdoc />
         protected override void EndProcessing() {
-            List<Choice> choices = BuildChoices(null);
-            if (choices.Count == 0) {
-                ThrowTerminatingError(new ErrorRecord(new System.ArgumentException("There is nothing to choose from."), "NoChoices", ErrorCategory.InvalidArgument, Title));
+            List<Choice> choices = BuildChoices(Multiple.IsPresent ? Default : null);
+            var definition = new SelectQuestionOptions { Title = Title, Description = Description, ParameterName = ParameterName, Multiple = Multiple.IsPresent };
+            foreach (Choice choice in choices) { definition.Choices.Add(choice); }
+            if (Preview != null) { ScriptBlock preview = Preview; definition.Preview = value => PSInteractive.ToWidget(PSInteractive.InvokeWith(preview, value)); }
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(PageSize))) { definition.PageSize = PageSize; }
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(Minimum))) { definition.Minimum = Minimum; }
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(Maximum))) { definition.Maximum = Maximum; }
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(Collapsed))) { definition.Collapsed = Collapsed.IsPresent; }
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(Default))) {
+                if (Multiple.IsPresent) { definition.Default = choices.FindAll(c => c.Selected).ConvertAll(c => c.Value); }
+                else {
+                    Choice? fallback = PSInteractive.Find(choices, Default);
+                    if (fallback != null) { definition.Default = fallback.Value; }
+                }
             }
-            SelectPrompt<object?> prompt = new SelectPrompt<object?>(Title, choices);
-            if (Preview != null) {
-                ScriptBlock preview = Preview;
-                prompt.Preview = value => PSInteractive.ToWidget(PSInteractive.InvokeWith(preview, value));
-            }
-            if (PageSize > 0) {
-                prompt.PageSize = PageSize;
-            }
-            Configure(prompt);
-            Choice? fallback = PSInteractive.Find(choices, Default);
-            if (fallback != null) {
-                prompt.Default = fallback.Value;
-            }
-            if (TrySnapshot(prompt)) { return; }
-            WriteObject(Ask(prompt));
+            SelectionQuestion question = Question.Select(definition);
+            if (StaticSnapshot.IsPresent) { PSFormatting.Write(this, question.Snapshot(Options()), 0); return; }
+            object? answer;
+            try { answer = question.Show(Options(), Token); }
+            catch (System.Exception error) when (error is PromptCanceledException || error is PromptUnavailableException || error is Input.InputClosedException) { PSInteractive.Fail(this, error, Title); throw; }
+            if (Multiple.IsPresent) { foreach (object? value in (IReadOnlyList<object?>)answer!) { WriteObject(value); } }
+            else { WriteObject(answer); }
         }
     }
 }

@@ -10,5 +10,5 @@ param([string]$ModulePath, [int]$Width)
 $ErrorActionPreference = 'Stop'
 Import-Module $ModulePath -Force
 $content = ('alpha beta gamma delta epsilon zeta ' * 40)
-Show-ConsoleMarkdown -Content $content -Width $Width
+Show-Console -Content $content -Width $Width -View Markdown
 'MARKDOWN_PAGER_DONE'

@@ -13,7 +13,7 @@ The line Invoke-ConsoleRun ends its view with, as a widget of its own: a thin ba
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleSummaryBar [[-WidgetId] <string>] [[-Done] <double>] [[-Total] <double>] [-Counter <IDictionary>] [-ElapsedSeconds <Double>] [-BarWidth <int>] [<CommonParameters>]
+New-ConsoleSummaryBar [[-WidgetId] <string>] [[-Value] <double>] [[-Total] <double>] [-Counter <IDictionary>] [-ElapsedSeconds <Double>] [-BarWidth <int>] [-NoElapsed] [-DoneLabel <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,7 +25,7 @@ The line Invoke-ConsoleRun ends its view with, as a widget of its own: a thin ba
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleSummaryBar -Done 30 -Total 40 -ElapsedSeconds 42 -Counter ([ordered] @{ passed = 27; failed = 2; skipped = 1 }) | Show-Console
+New-ConsoleSummaryBar -Value 30 -Total 40 -ElapsedSeconds 42 -Counter ([ordered] @{ passed = 27; failed = 2; skipped = 1 }) | Show-Console
 ```
 
 A run three quarters through
@@ -64,17 +64,17 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Done
-Items done.
+### -DoneLabel
+Custom completed-count label; omitted uses the localized default.
 
 ```yaml
-Type: Double
+Type: String
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
 
 Required: False
-Position: 1
+Position: named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -85,6 +85,22 @@ Elapsed seconds used to estimate remaining time. Fractional seconds are accepted
 
 ```yaml
 Type: Double
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NoElapsed
+Hides the elapsed and remaining duration.
+
+```yaml
+Type: SwitchParameter
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -107,6 +123,22 @@ Possible values:
 
 Required: False
 Position: 2
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Value
+Items done.
+
+```yaml
+Type: Double
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: 1
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

@@ -1,0 +1,31 @@
+{{~ ## All available source styles are rendered with the page, including the full downloadable programs. ## ~}}
+{{~ se = style_entry; style_ps = se.powershell ?? se.script ~}}
+<div class="cm-try cm-source-styles">
+  <div class="cm-try__bar">
+    <div class="cm-seg cm-try__lang" role="radiogroup" aria-label="Source style" data-cm-lang-switch hidden>
+      {{~ if style_ps ~}}<button type="button" role="radio" aria-checked="true" data-lang="powershell" style="--key: var(--cm-s3)">PowerShell</button>{{~ end ~}}
+      {{~ if se.csharp ~}}<button type="button" role="radio" aria-checked="false" data-lang="csharp" style="--key: var(--cm-s5)">C#</button>{{~ end ~}}
+      {{~ if se.csharpFluent ~}}<button type="button" role="radio" aria-checked="false" data-lang="csharp-fluent" style="--key: var(--cm-s5)">C# fluent</button>{{~ end ~}}
+    </div>
+  </div>
+  {{~ if style_ps ~}}
+  <div class="cm-try__code" data-lang="powershell">
+    {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = se.powershellFile ?? se.file ?? "example.ps1"; code_text = style_ps; code_full = se.powershellFull ?? se.scriptFull; code_download = true ~}}
+    {{ include "code" }}
+  </div>
+  {{~ end ~}}
+  {{~ if se.csharp ~}}
+  <div class="cm-try__code" data-lang="csharp">
+    {{~ code_lang = "csharp"; code_label = "C#"; code_file = se.csharpFile ?? "Program.cs"; code_text = se.csharp; code_full = se.csharpFull; code_download = true ~}}
+    {{ include "code" }}
+  </div>
+  {{~ end ~}}
+  {{~ if se.csharpFluent ~}}
+  <div class="cm-try__code" data-lang="csharp-fluent">
+    {{~ code_lang = "csharp"; code_label = "C# fluent"; code_file = se.csharpFluentFile ?? "Program.cs"; code_text = se.csharpFluent; code_full = se.csharpFluentFull; code_download = true ~}}
+    {{ include "code" }}
+  </div>
+  {{~ end ~}}
+  {{~ api_map = se.apiMap ~}}{{ include "api-map" }}
+</div>
+{{~ style_entry = null ~}}

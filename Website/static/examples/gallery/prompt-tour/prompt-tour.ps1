@@ -35,10 +35,10 @@ $taskPreview = {
     New-ConsoleRows -Gap 1 -Content {
         New-ConsoleText -Text $_.Description
         New-ConsoleKeyValue -Content {
-            New-ConsoleKeyValueItem -Key Group -Value $_.Category
-            New-ConsoleKeyValueItem -Key Duration -Value "about $($_.Minutes) min per server"
-            New-ConsoleKeyValueItem -Key Changes -Value $(if ($_.Changes) { '[warn]yes[/], makes changes' } else { '[pass]no[/], read only' }) -Markup
-            New-ConsoleKeyValueItem -Key Parameter -Value "[accent]$($_.Id)[/]" -Markup
+            [pscustomobject]@{ Key = 'Group'; Value = $_.Category }
+            [pscustomobject]@{ Key = 'Duration'; Value = "about $($_.Minutes) min per server" }
+            [pscustomobject]@{ Key = 'Changes'; Value = $(if ($_.Changes) { '[warn]yes[/], makes changes' } else { '[pass]no[/], read only' }); Markup = $true }
+            [pscustomobject]@{ Key = 'Parameter'; Value = "[accent]$($_.Id)[/]"; Markup = $true }
         }
     }
 }
@@ -52,7 +52,7 @@ $taskBadge = {
 }
 
 # Behaviour: each native prompt returns an answer; the tour performs no external action.
-Show-ConsoleRule -Title '[bold]1 / 9 · Typed selection[/]'
+Show-Console -Title '[bold]1 / 9 · Typed selection[/]' -View Rule
 $serverPrompt = @{
     Title = 'Target server'
     Choices = $servers
@@ -67,7 +67,7 @@ $serverPrompt = @{
 $server = Read-ConsoleSelect @serverPrompt
 Write-ConsoleText -Text "returned: $($server.Name) (Server)"
 
-Show-ConsoleRule -Title '[bold]2 / 9 · Multiple selection[/]'
+Show-Console -Title '[bold]2 / 9 · Multiple selection[/]' -View Rule
 $taskPrompt = @{
     Title = 'Tasks'
     Choices = $tasks
@@ -75,17 +75,17 @@ $taskPrompt = @{
     GroupBy = 'Category'
     Describe = 'Description'
     Badge = $taskBadge
-    Selected = @($tasks | Where-Object -Property Id -In -Value PatchStatus, DiskSpace)
+    Default = @($tasks | Where-Object -Property Id -In -Value PatchStatus, DiskSpace)
     Minimum = 1
     Preview = $taskPreview
 }
-$selected = @(Read-ConsoleMultiSelect @taskPrompt)
+$selected = @(Read-ConsoleSelect @taskPrompt -Multiple)
 Write-ConsoleText -Text "returned: $($selected.Id -join ', ')"
 
-Show-ConsoleRule -Title '[bold]3 / 9 · Confirmation[/]'
+Show-Console -Title '[bold]3 / 9 · Confirmation[/]' -View Rule
 $null = Read-ConsoleConfirm -Title 'Restart the report agent on FS01?' -Default $true
 
-Show-ConsoleRule -Title '[bold]4 / 9 · Text[/]'
+Show-Console -Title '[bold]4 / 9 · Text[/]' -View Rule
 $textPrompt = @{
     Title = 'Share name'
     Default = 'Reports'
@@ -95,21 +95,21 @@ $textPrompt = @{
 }
 $null = Read-ConsoleText @textPrompt
 
-Show-ConsoleRule -Title '[bold]5 / 9 · Secret[/]'
+Show-Console -Title '[bold]5 / 9 · Secret[/]' -View Rule
 $secretPrompt = @{
     Title = 'Password for svc-backup'
     MinLength = 8
     Description = 'Try example-passphrase; at least 8 characters.'
 }
-$null = Read-ConsoleSecret @secretPrompt
+$null = Read-ConsoleText @secretPrompt -AsSecret
 
-Show-ConsoleRule -Title '[bold]6 / 9 · Number[/]'
+Show-Console -Title '[bold]6 / 9 · Number[/]' -View Rule
 $null = Read-ConsoleNumber -Title Port -Integer -Minimum 1 -Maximum 65535 -Default 443
 
-Show-ConsoleRule -Title '[bold]7 / 9 · Path[/]'
+Show-Console -Title '[bold]7 / 9 · Path[/]' -View Rule
 $null = Read-ConsolePath -Title 'Report folder' -Kind Folder -Default $reportFolder
 
-Show-ConsoleRule -Title '[bold]8 / 9 · Typed confirmation[/]'
+Show-Console -Title '[bold]8 / 9 · Typed confirmation[/]' -View Rule
 $confirmPrompt = @{
     Title = 'Remove FS01 from the inventory?'
     TypedConfirmation = 'FS01'
@@ -118,7 +118,7 @@ $confirmPrompt = @{
 }
 $null = Read-ConsoleConfirm @confirmPrompt
 
-Show-ConsoleRule -Title '[bold]9 / 9 · Dashboard pause[/]'
+Show-Console -Title '[bold]9 / 9 · Dashboard pause[/]' -View Rule
 $hosts = @($servers | Select-Object -First 5 -ExpandProperty Name)
 $dashboard = New-ConsoleDashboard -Title '[bold]Patching[/]' -Subtitle '5 servers' -Content {
     New-ConsolePanel -Title Servers -Content { New-ConsoleLanes -Lane $hosts -Total 6 }
@@ -129,7 +129,7 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ArgumentList (, $hosts) -ScriptBl
     for ($tick = 1; $tick -le 6; $tick++) {
         foreach ($hostName in $Hosts) {
             $status = if ($hostName -eq 'WEB01' -and $tick -eq 3) { 'Fail' } else { 'Pass' }
-            Update-ConsoleLane -Key $hostName -Result $status -Detail "step $tick"
+            Update-Console -Key $hostName -Result $status -Detail "step $tick" -WidgetId 'lanes'
         }
         Write-ConsoleLogEntry -Message "step $tick done"
         Wait-ConsoleDashboard -Milliseconds 350

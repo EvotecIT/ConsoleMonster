@@ -31,13 +31,9 @@ namespace ConsoleMonster.PowerShell {
                 if (!string.Equals(provider.Name, "FileSystem", StringComparison.OrdinalIgnoreCase)) {
                     throw new ArgumentException("The demo destination must be a filesystem path.");
                 }
-                string source = PSDemoResources.Script(slug);
                 if (!ShouldProcess(path, "Export ConsoleMonster demo " + slug)) { return; }
-                using (var stream = new FileStream(path, Force.IsPresent ? FileMode.Create : FileMode.CreateNew, FileAccess.Write))
-                using (var writer = new StreamWriter(stream, new UTF8Encoding(true))) {
-                    writer.Write(source);
-                }
-                if (PassThru.IsPresent) { WriteObject(new FileInfo(path)); }
+                FileInfo saved = ConsoleGallery.Export(slug, path, Force.IsPresent);
+                if (PassThru.IsPresent) { WriteObject(saved); }
             } catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is ArgumentException || ex is NotSupportedException) {
                 ThrowTerminatingError(new ErrorRecord(ex, "ConsoleDemoExportFailed", ErrorCategory.WriteError, Path));
             }

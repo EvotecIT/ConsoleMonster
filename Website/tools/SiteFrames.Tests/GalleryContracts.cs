@@ -158,9 +158,9 @@ namespace SiteFrames.Tests {
                 Assert.Contains(tier, new[] { "starter", "showcase" });
                 Assert.StartsWith("Use it when ", entry["useCase"]!.GetValue<string>());
                 if (entry["featured"]!.GetValue<bool>()) Assert.Equal("showcase", tier);
-                foreach (string language in new[] { "powershell", "csharp" }) {
+                foreach (string language in new[] { "powershell", "csharp", "csharpFluent" }) {
                     JsonNode source = entry["source"]![language]!;
-                    string file = language == "powershell" ? slug + ".ps1" : "Program.cs";
+                    string file = language == "powershell" ? slug + ".ps1" : language == "csharpFluent" ? "Program.Fluent.cs" : "Program.cs";
                     string repo = "Website/examples/gallery/" + slug + "/" + file;
                     Assert.Equal(file, source["file"]!.GetValue<string>());
                     Assert.Equal(repo, source["repo"]!.GetValue<string>());

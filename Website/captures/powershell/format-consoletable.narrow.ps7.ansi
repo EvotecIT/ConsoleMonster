@@ -1,26 +1,23 @@
-[?9001h[?1004h[?25l[2J[m[H]0;Administrator: C:\Program Files\PowerShell\7\pwsh.exe[?25h[?25l[1mBuild artifacts[38;2;139;143;154m[22m  ·  4 records[m[1m[3;1HModule[38;2;139;143;154m[22m  2[m
-  [1mConsoleMonster-2.0.0.zip[22m
-    [38;2;139;143;154mSize      [m2.77 [38;2;139;143;154mMB[m
-    [38;2;139;143;154mBuilt in  [m12 s
-    [38;2;139;143;154mSigned    [38;2;74;222;128m✓ yes[m
-    [38;2;139;143;154mPath      [38;2;96;165;250mD:\Builds\ConsoleMonster\Packed\[m
-[14X[38;2;96;165;250m[14CConsoleMonster-2.0.0.zip[m
-  [1mDocs.zip[22m
-    [38;2;139;143;154mSize      [m50.1 [38;2;139;143;154mKB[m
-    [38;2;139;143;154mBuilt in  [m1.2 s
-    [38;2;139;143;154mSigned    – no[m
-    [38;2;139;143;154mPath      [38;2;96;165;250mD:\Builds\ConsoleMonster\Packed\Docs.zip[m[1m[16;1HNuGet[38;2;139;143;154m[22m  2[m
-  [1mConsoleMonster.2.0.0.nupkg[22m
-    [38;2;139;143;154mSize      [m1.41 [38;2;139;143;154mMB[m
-    [38;2;139;143;154mBuilt in  [m48 s
-    [38;2;139;143;154mSigned    [38;2;74;222;128m✓ yes[m
-    [38;2;139;143;154mPath      [38;2;96;165;250mD:\Builds\ConsoleMonster\Packed\[m
-[14X[38;2;96;165;250m[14CConsoleMonster.2.0.0.nupkg[m
-  [1mConsoleMonster.2.0.0.snupkg[22m
-    [38;2;139;143;154mSize      [m393 [38;2;139;143;154mKB[m
-    [38;2;139;143;154mBuilt in  [m3.1 s
-    [38;2;139;143;154mSigned    [38;2;74;222;128m✓ yes[m
-    [38;2;139;143;154mPath      [38;2;96;165;250mD:\Builds\ConsoleMonster\Packed\[m
-[14X[38;2;96;165;250m[14CConsoleMonster.2.0.0.snupkg[m[1m[30;1HTotal[22m
-  [38;2;139;143;154mSize      [m4.62 MB
-  [38;2;139;143;154mBuilt in  [m1 m 04 s[34;1H[?25h[?9001l[?1004l
+[?9001h[?1004h[?25l[2J[m[1m[HBuild artifacts[38;2;139;143;154m[22m  ·  4 records[m[1m[3;1HModule[38;2;139;143;154m[22m  2[m
+[1m[2CConsoleMonster-2.0.0.zip[22m
+[38;2;139;143;154m[4CSize      [m2.77[38;2;139;143;154m[1CMB[m
+[38;2;139;143;154m[4CBuilt in  [m12 s
+[38;2;139;143;154m[4CSigned    [38;2;74;222;128m✓ yes[m
+[38;2;139;143;154m[4CPath      [38;2;96;165;250mD:\Builds\ConsoleMons…oleMonster-2.0.0.zip[m
+[1m[2CDocs.zip[22m
+[38;2;139;143;154m[4CSize      [m50.1[38;2;139;143;154m[1CKB[m
+[38;2;139;143;154m[4CBuilt in  [m1.2 s
+[38;2;139;143;154m[4CSigned    – no[m
+[38;2;139;143;154m[4CPath      [38;2;96;165;250mD:\Builds\ConsoleMonster\Packed\Docs.zip[m[1m[15;1HNuGet[38;2;139;143;154m[22m  2[m
+[1m[2CConsoleMonster.2.0.0.nupkg[22m
+[38;2;139;143;154m[4CSize      [m1.41[38;2;139;143;154m[1CMB[m
+[38;2;139;143;154m[4CBuilt in  [m48 s
+[38;2;139;143;154m[4CSigned    [38;2;74;222;128m✓ yes[m
+[38;2;139;143;154m[4CPath      [38;2;96;165;250mD:\Builds\ConsoleMons…eMonster.2.0.0.nupkg[m
+[1m[2CConsoleMonster.2.0.0.snupkg[22m
+[38;2;139;143;154m[4CSize      [m393[38;2;139;143;154m[1CKB[m
+[38;2;139;143;154m[4CBuilt in  [m3.1 s
+[38;2;139;143;154m[4CSigned    [38;2;74;222;128m✓ yes[m
+[38;2;139;143;154m[4CPath      [38;2;96;165;250mD:\Builds\ConsoleMons…Monster.2.0.0.snupkg[m[1m[27;1HTotal[22m
+[38;2;139;143;154m[2CSize      [m4.62 MB
+[38;2;139;143;154m[2CBuilt in  [m1 m 04 s[31;1H]0;C:\Program Files\PowerShell\7\pwsh.exe[?25h[?9001l[?1004l

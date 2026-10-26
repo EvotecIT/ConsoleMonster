@@ -33,13 +33,13 @@ dotnet run                       # the ordinary live program
 Choose a full showcase such as `fleet` or `assessment`, or a small starter such
 as `fleet-filter` or `readiness-report`. Run `dotnet new consolemonster --help`
 for the complete list of gallery slugs. Interactive demos run live in a terminal;
-static demos print their output. Each generated `Program.cs` is the same source
-used by the website gallery. Omitting `--demo` keeps the menu and hosted service above.
+static demos print their output. Each generated `Program.cs` and `Program.Fluent.cs` is the same source
+used by the website gallery. Use `dotnet run -p:DemoStyle=Fluent` to run the fluent file; initializer is the default. Omitting `--demo` keeps the menu and hosted service above.
 
 | Option | Default | Meaning |
 | --- | --- | --- |
 | `--Framework` | `net8.0` | `net8.0` or `net10.0`. |
-| `--ConsoleMonsterVersion` | `2.0.*` | The ConsoleMonster package version (the newest 2.0 release by default). |
+| `--ConsoleMonsterVersion` | `2.0.2` | The ConsoleMonster package version (2.0.2 by default). |
 | `--NoAot` | `false` | Leaves native AOT publishing off. |
 | `--demo` | `none` | A gallery slug, or `none` for the menu and hosted service. |
 
@@ -54,6 +54,6 @@ python3 Tests/Build/test_template_gallery.py
 
 The integration test packs and installs the actual `.nupkg` in an isolated template
 hive, compares every generated program with the canonical gallery source, and
-builds and runs the demos against the local ConsoleMonster project. It also checks
+builds and runs both C# styles against locally packed libraries in a private NuGet feed and consumer cache. It keeps the generated reader projects unchanged. It also checks
 folder installation and the default template. Python 3 and the .NET 10 SDK are
 required; temporary test output is removed when the test finishes.

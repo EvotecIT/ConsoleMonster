@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="*.host.cs" />
+    <Reference Include="ConsoleMonster">
+      <HintPath>$(ConsoleMonsterModuleDirectory)/ConsoleMonster.dll</HintPath>
+    </Reference>
+    <Reference Include="ConsoleMonster.PowerShell">
+      <HintPath>$(ConsoleMonsterModuleDirectory)/ConsoleMonster.PowerShell.dll</HintPath>
+    </Reference>
+    <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" PrivateAssets="all" />
+  </ItemGroup>
+  <Target Name="RequireModuleDirectory" BeforeTargets="ResolveReferences" Condition="'$(ConsoleMonsterModuleDirectory)' == ''">
+    <Error Text="Set ConsoleMonsterModuleDirectory to the directory containing the installed module's ConsoleMonster.PowerShell.dll." />
+  </Target>
+</Project>

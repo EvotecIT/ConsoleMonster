@@ -13,7 +13,7 @@ Creates a bordered panel with a title around other console widgets.
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsolePanel [[-Content] <Object>] [-Widget <IWidget>] [-Title <Object>] [-HeaderRight <Object>] [-Caption <Object>] [-Border <BoxStyle>] [-Weight <double>] [-Height <int>] [-Fill] [-Verdict] [-Status <StatusKind>] [<CommonParameters>]
+New-ConsolePanel [[-Content] <Object>] [-Title <Object>] [-HeaderRight <Object>] [-Caption <Object>] [-Border <BoxStyle>] [-Weight <double>] [-Height <int>] [-Fill] [-BorderRole <ThemeToken>] [-PaddingLeft <int>] [-PaddingRight <int>] [-PaddingTop <int>] [-PaddingBottom <int>] [-NoExpand] [-Verdict] [-Status <StatusKind>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -40,6 +40,22 @@ Type: BoxStyle
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values: Rounded, Single, Double, Heavy, Ascii, None
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -BorderRole
+The semantic border colour.
+
+```yaml
+Type: ThemeToken
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: Text, Muted, Subtle, Accent, Accent2, Pass, Fail, Warn, Info, Skip, Running, Pending, Border, Title, Header, Highlight, Surface, SurfaceAccent, Series1, Series2, Series3, Series4, Series5, Series6, Focus
 
 Required: False
 Position: named
@@ -76,7 +92,7 @@ Possible values:
 Required: False
 Position: 0
 Default value: None
-Accept pipeline input: False
+Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
@@ -114,6 +130,86 @@ Accept wildcard characters: False
 
 ### -Height
 Fixed height in rows, including the border.
+
+```yaml
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NoExpand
+Fits the panel to content instead of filling its available width.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -PaddingBottom
+Rows between content and the bottom border.
+
+```yaml
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -PaddingLeft
+Cells between the left border and content.
+
+```yaml
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -PaddingRight
+Cells between content and the right border.
+
+```yaml
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -PaddingTop
+Rows between the top border and content.
 
 ```yaml
 Type: Int32
@@ -192,28 +288,12 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Widget
-A widget to use as content instead of a scriptblock.
-
-```yaml
-Type: IWidget
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: True (ByValue)
-Accept wildcard characters: False
-```
-
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
-- `ConsoleMonster.Layout.IWidget`
+- `System.Object`
 
 ## OUTPUTS
 

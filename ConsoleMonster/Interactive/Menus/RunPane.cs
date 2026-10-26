@@ -25,7 +25,7 @@ namespace ConsoleMonster.Interactive {
 
         public RunPane(IWidget dashboard, PromptLabels labels) {
             _dashboard = dashboard as Dashboard;
-            _body = _dashboard != null ? _dashboard.Body : dashboard;
+            _body = _dashboard != null ? _dashboard.Content : dashboard;
             _labels = labels;
         }
 

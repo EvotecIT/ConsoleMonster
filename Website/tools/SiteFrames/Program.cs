@@ -58,6 +58,18 @@ namespace SiteFrames {
                 case "capture-fullscreen-preview":
                     FullScreenPreview.CaptureGif(new Site(website));
                     return 0;
+                case "write-fluent" when only != null && args.Length == 4:
+                    string source = Path.GetFullPath(Path.Combine(website, only));
+                    string fluent = CSharpRunner.FluentSource(source);
+                    CSharpRunner.Check(source, fluent);
+                    File.WriteAllText(Path.GetFullPath(Path.Combine(website, args[3])), fluent);
+                    return 0;
+                case "verify-gallery-sources":
+                    GalleryPage.CheckSources(new Site(website));
+                    return 0;
+                case "write-gallery-fluent":
+                    GalleryPage.WriteFluentSources(new Site(website));
+                    return 0;
                 case "verify-gallery":
                     GalleryPage.Verify(new Site(website), only);
                     return 0;
@@ -217,6 +229,7 @@ namespace SiteFrames {
 
         private static int Render(Site site, string? only) {
             JsonObject hosts = (JsonObject)JsonNode.Parse(File.ReadAllText(Path.Combine(site.Captures, "hosts.json")))!;
+            ApiParityPage.Render(site);
             Figures.Render(site);
             OverviewFigures.Render(site);
             CommandLineHelpFigures.Render(site);

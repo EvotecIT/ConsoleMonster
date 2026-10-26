@@ -5,28 +5,40 @@ using ConsoleMonster.Widgets;
 
 const string Cache = "/var/cache/dns/evotec.xyz/";
 Table table = new Table()
-    .WithTitle("[bold]evotec.xyz[/] [muted]· DNS records via Cloudflare DoH[/]")
-    .AddColumn("Name", c => c
-        .WithIsKey()
-        .WithOverflow(ColumnOverflow.TruncateMiddle)
-        .WithMinWidth(10))
-    .AddColumn("Type", c => c.WithPriority(9).WithOverflow(ColumnOverflow.Never))
-    .AddColumn("TTL", c => c.WithPriority(2).WithPresenter(new DurationPresenter()))
-    .AddColumn("Data", c => c
-        .WithPriority(10)
-        .WithOverflow(ColumnOverflow.Wrap)
-        .WithMaxLines(3)
-        .WithFlexible()
-        .WithMinWidth(28))
-    .AddColumn("Latency", c => c
-        .WithPriority(3)
-        .WithPresenter(new NumberPresenter("ms"))
-        .AddRoleRules(RoleRule.Above(100, ThemeToken.Warn)))
-    .AddColumn("Cache file", c => c
-        .WithPriority(1)
-        .WithOverflow(ColumnOverflow.TruncateMiddle)
-        .WithMinWidth(20)
-        .WithMaxWidth(36));
+{
+    Title = "[bold]evotec.xyz[/] [muted]· DNS records via Cloudflare DoH[/]"
+}.AddColumn("Name", c =>
+{
+    c.IsKey = true;
+    c.Overflow = ColumnOverflow.TruncateMiddle;
+    c.MinWidth = 10;
+}).AddColumn("Type", c =>
+{
+    c.Priority = 9;
+    c.Overflow = ColumnOverflow.Never;
+}).AddColumn("TTL", c =>
+{
+    c.Priority = 2;
+    c.Presenter = new DurationPresenter();
+}).AddColumn("Data", c =>
+{
+    c.Priority = 10;
+    c.Overflow = ColumnOverflow.Wrap;
+    c.MaxLines = 3;
+    c.Flexible = true;
+    c.MinWidth = 28;
+}).AddColumn("Latency", c =>
+{
+    c.Priority = 3;
+    c.Presenter = new NumberPresenter("ms");
+    c.AddRoleRules(RoleRule.Above(100, ThemeToken.Warn));
+}).AddColumn("Cache file", c =>
+{
+    c.Priority = 1;
+    c.Overflow = ColumnOverflow.TruncateMiddle;
+    c.MinWidth = 20;
+    c.MaxWidth = 36;
+});
 table.AddValues("evotec.xyz", "A", 300, "104.21.48.12", 12, Cache + "A.json");
 // <more>
 table.AddValues("evotec.xyz", "AAAA", 300, "2606:4700:3036::6815:300c", 14, Cache + "AAAA.json");

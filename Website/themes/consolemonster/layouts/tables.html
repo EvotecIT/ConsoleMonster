@@ -50,8 +50,7 @@
     <div class="cm-table-showcase__code">
       {{~ code_lang = "bash"; code_label = ".NET 8 and later"; code_text = "dotnet new console -n Tables\ncd Tables\ndotnet add package ConsoleMonster\ndotnet run" ~}}
       {{ include "code" }}
-      {{~ code_lang = "csharp"; code_label = "C#"; code_file = first.csharpFile; code_text = first.csharp; code_full = first.csharpFull ~}}
-      {{ include "code" }}
+      {{~ style_entry = first ~}}{{ include "source-styles" }}
     </div>
   </section>
   {{~ for s in tb.sections offset:1 ~}}
@@ -72,8 +71,7 @@
       </div>
     </div>
     <div class="cm-table-showcase__code">
-      {{~ code_lang = "csharp"; code_label = "C#"; code_file = s.csharpFile; code_text = s.csharp; code_full = s.csharpFull ~}}
-      {{ include "code" }}
+      {{~ style_entry = s ~}}{{ include "source-styles" }}
     </div>
   </section>
   {{~ end ~}}

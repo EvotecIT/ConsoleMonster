@@ -30,14 +30,14 @@ public static class Program {
         Menu menu = new Menu("ConsoleMonsterApp") { Description = "Pick an item with the arrow keys and Enter; Esc goes back." };
         menu.Item("Status report", item => {
             item.Description = "A table of services and a summary";
-            item.Page(_ => Report.Build());
+            item.Page = _ => Report.Build();
         });
         menu.Item("Run the service", item => {
             item.Description = "How to start the host with its live dashboard";
-            item.Page(_ => new Panel(new TextBlock(
+            item.Page = _ => new Panel(new TextBlock(
                 "Run [accent]dotnet run -- serve[/] to start the generic host. The dashboard shows each hosted service, "
                 + "its state and the log; Ctrl+C stops it.\n\nPublish one native executable with "
-                + "[accent]dotnet publish -c Release -r win-x64[/] (or linux-x64, osx-arm64)."), "Service"));
+                + "[accent]dotnet publish -c Release -r win-x64[/] (or linux-x64, osx-arm64)."), "Service");
         });
         menu.Exit();
         menu.Run();

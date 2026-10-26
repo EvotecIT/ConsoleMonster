@@ -84,6 +84,9 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public LiveSessionOptions? Live { get; set; }
 
+        /// <summary><para type="description">Default width below which columns stack; explicit column thresholds take precedence.</para></summary>
+        [Parameter, ValidateRange(0, int.MaxValue)] public int ReflowBelow { get; set; } = 60;
+
         /// <inheritdoc />
         protected override void EndProcessing() {
             CancellationTokenSource stop;
@@ -110,14 +113,12 @@ namespace ConsoleMonster.PowerShell {
                         Interactive = interactive,
                         Live = Live,
                         Mouse = !NoMouse.IsPresent,
+                        ReflowBelow = ReflowBelow,
                         StaticSnapshot = StaticSnapshot.IsPresent,
                         ProcessEvents = callbacks.Drain,
-                        Selection = state => {
-                            if (SelectionKey == null || !state.TryGetValue(SelectionKey, out object? value) || value == null) { return Array.Empty<object?>(); }
-                            return new System.Collections.Generic.List<object?>(PSItems.Items(value));
-                        }
+                        SelectionKey = SelectionKey
                     };
-                    foreach (AppCommand command in Command) { options.Commands.Add(command); }
+                    foreach (AppCommand command in Command) { options.Command.Add(command); }
                     AppState state = ConsoleApp.Run(layout, null, options, stop.Token);
                     if (PassThru.IsPresent) { WriteObject(PSAppScript.Snapshot(state), false); }
                 }

@@ -21,11 +21,25 @@ $profile = $profile.WithCulture([Globalization.CultureInfo]::GetCultureInfo('en-
 $metadata = Get-Content -LiteralPath (Join-Path (Split-Path -Parent $Source) 'metadata.json') -Raw | ConvertFrom-Json
 $driver = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../../../ConsoleMonster.PowerShell/Gallery/DemoCapture.ps1'))
 $demo = [scriptblock]::Create("& '$($Source.Replace("'", "''"))' @args")
-for ($step = 0; $step -lt $Steps; $step++) {
-    $frame = & $driver -Demo $demo -Metadata $metadata -Step $step
-    $target = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Output.RecordingTarget'))::new($profile)
-    $outputWriter = [ConsoleMonster.Terminal]::CreateOutput($profile, $target.Writer)
-    try { $outputWriter.WriteBlock($frame) }
-    finally { $outputWriter.Dispose() }
-    [IO.File]::WriteAllText((Join-Path $Output "$step.ansi"), $target.Output, [Text.UTF8Encoding]::new($false))
+$interactive = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions')
+$previous = $interactive::Default
+try {
+    if ($metadata.capture.actionClock) {
+        if ($metadata.capture.actionClock -ne 'Frozen') { throw "Unsupported actionClock: $($metadata.capture.actionClock)" }
+        $options = $previous.Clone()
+        $clock = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.SimulatedClock'))::new()
+        # The action worker samples a native delegate, never a script block on another runspace thread.
+        $options.ActionClock = [Delegate]::CreateDelegate([Func[TimeSpan]], $clock, 'Read')
+        $interactive::Default = $options
+    }
+    for ($step = 0; $step -lt $Steps; $step++) {
+        $frame = & $driver -Demo $demo -Metadata $metadata -Step $step
+        $target = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Output.RecordingTarget'))::new($profile)
+        $outputWriter = [ConsoleMonster.Terminal]::CreateOutput($profile, $target.Writer)
+        try { $outputWriter.WriteBlock($frame) }
+        finally { $outputWriter.Dispose() }
+        [IO.File]::WriteAllText((Join-Path $Output "$step.ansi"), $target.Output, [Text.UTF8Encoding]::new($false))
+    }
+} finally {
+    $interactive::Default = $previous
 }

@@ -77,32 +77,20 @@ namespace SiteFrames.Pages {
                 CellBuffer frame = Figures.Summary(site, 46, ColorDepth.TrueColor, GlyphTier.Full, theme);
                 DocCards.Offer(id, frame, screen);
                 JsonObject data = screen == Frames.Screen.Light ? LightOnly(site, frame) : site.Frame(frame, null);
-                Figures.Add(id, Figures.WithProgram(new JsonObject { ["title"] = ((Theme)theme).Name, ["label"] = "The assessment summary in the " + ((Theme)theme).Name + " theme", ["meta"] = new JsonArray("Theme." + ((Theme)theme).Name), ["frame"] = data }, Figures.SummaryProgram(site)));
+                Figures.Add(id, Figures.WithProgram(site, new JsonObject { ["title"] = ((Theme)theme).Name, ["label"] = "The assessment summary in the " + ((Theme)theme).Name + " theme", ["meta"] = new JsonArray("Theme." + ((Theme)theme).Name), ["frame"] = data }, Figures.SummaryProgram(site)));
             }
 
-            // Three ways to write it in C#: three programs, one frame. Each runs, and each must print the fluent one's frame cell
-            // for cell, so the page can say they are the same.
-            CellBuffer? reference = null;
-            foreach (string style in new[] { "fluent", "objects", "composed" }) {
-                string program = Path.Combine(site.Website, "examples", "docs", "three", style + ".cs");
-                CellBuffer dark = Site.Crop(CSharpRunner.Run(program, ThreeWidth, ColorDepth.TrueColor, GlyphTier.Full, Theme.Dark));
-                if (reference == null) {
-                    reference = dark;
-                    DocCards.Offer("three-" + style, dark, Frames.Screen.Dark);
-                } else {
-                    ParityResult same = Parity.Compare(reference, dark);
-                    if (!same.Identical) {
-                        WidgetsPage.Report(new List<string> { "three/" + style + ".cs does not print what three/fluent.cs prints: " + same.Detail }, "docs");
-                    }
-                }
-                CellBuffer light = Site.Crop(CSharpRunner.Run(program, ThreeWidth, ColorDepth.TrueColor, GlyphTier.Full, Theme.Light));
-                Figures.Add("three-" + style, Figures.WithProgram(new JsonObject {
-                    ["title"] = "dotnet run",
-                    ["label"] = "A servers table, a summary and a CPU sparkline in two panels",
-                    ["meta"] = new JsonArray(ThreeWidth + " columns", "24-bit", "Full"),
-                    ["frame"] = site.Frame(dark, light)
-                }, program));
-            }
+            // One maintained initializer program, its PowerShell counterpart and its compiled fluent translation.
+            string stylesProgram = Path.Combine(site.Website, "examples", "docs", "three", "objects.cs");
+            CellBuffer stylesDark = Site.Crop(CSharpRunner.Run(stylesProgram, ThreeWidth, ColorDepth.TrueColor, GlyphTier.Full, Theme.Dark));
+            CellBuffer stylesLight = Site.Crop(CSharpRunner.Run(stylesProgram, ThreeWidth, ColorDepth.TrueColor, GlyphTier.Full, Theme.Light));
+            DocCards.Offer("three-fluent", stylesDark, Frames.Screen.Dark);
+            Figures.Add("three-fluent", Figures.WithProgram(site, new JsonObject {
+                ["title"] = "Servers",
+                ["label"] = "A servers table, a summary and a CPU sparkline in two panels",
+                ["meta"] = new JsonArray(ThreeWidth + " columns", "24-bit", "Full"),
+                ["frame"] = site.Frame(stylesDark, stylesLight)
+            }, stylesProgram));
 
             // For the environment overrides card: what pinning NO_COLOR and the ASCII glyph tier gives, a table in plain text.
             DocCards.Offer("overrides-plain", TablesPage.Run(site, "dns", 80, Theme.Dark, ColorDepth.None, GlyphTier.Ascii), Frames.Screen.Dark);
@@ -117,14 +105,14 @@ namespace SiteFrames.Pages {
                     continue;
                 }
                 DocCards.Offer(id, midRun, Frames.Screen.Dark);
-                Figures.Add(id, new JsonObject {
+                Figures.Add(id, SourceStyles.Add(site, new JsonObject {
                     ["title"] = w + "×" + h,
                     ["label"] = "The assessment dashboard in a " + w + " by " + h + " window",
                     ["meta"] = new JsonArray(w + "×" + h),
                     ["frame"] = site.Frame(midRun, null),
                     ["csharp"] = replayShort,
                     ["csharpFull"] = replayFull
-                });
+                }, LivePage.ProgramPath(site, "replay")));
             }
 
             // PowerShell output used in the guides.

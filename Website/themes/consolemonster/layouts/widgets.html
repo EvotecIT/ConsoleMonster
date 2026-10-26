@@ -79,12 +79,7 @@
           {{~ end ~}}
         </div>
         <div class="cm-specimen__code">
-          {{~ if e.powershell ~}}
-          {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = e.powershellFile; code_text = e.powershell; code_full = e.powershellFull ~}}
-          {{ include "code" }}
-          {{~ end ~}}
-          {{~ code_lang = "csharp"; code_label = "C#"; code_file = e.csharpFile; code_text = e.csharp; code_full = e.csharpFull ~}}
-          {{ include "code" }}
+          {{~ style_entry = e ~}}{{ include "source-styles" }}
         </div>
       </div>
     </article>

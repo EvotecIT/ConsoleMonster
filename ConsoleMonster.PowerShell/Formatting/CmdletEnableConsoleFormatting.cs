@@ -42,7 +42,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsLifecycle.Enable, "ConsoleFormatting")]
     public sealed class CmdletEnableConsoleFormatting : PSCmdlet {
-        /// <summary><para type="description">What to turn on: Output (the default: registered and built-in types as ConsoleMonster views), ErrorView (errors that reach the console in ConsoleMonster's error view, following $ErrorView: DetailedView adds the stack, CategoryView keeps PowerShell's), Progress (Write-Progress drawn as ConsoleMonster's progress area; Write-Progress becomes an alias of Write-ConsoleProgress), Streams (native stream and progress colours), ReadLine (syntax, selection and available inline prediction colours for already loaded PSReadLine), or All (Output, ErrorView, Streams and ReadLine). Streams sets PSStyle.Formatting Warning, Verbose, Debug and Error on PowerShell 7.2+, and PSStyle.Progress.Style, or available Host.PrivateData warning, verbose, debug and progress foreground/background colours on older hosts. Native progress keeps its View and layout. ReadLine never imports PSReadLine and does nothing when it is absent; unsupported colour properties are skipped. PowerShell keeps its prefixes, records, preferences, redirection and transcript behaviour. Streams and ReadLine never replace Write-* commands or install an Out-Default function. Progress is the separate legacy alias feature, excluded from All; All keeps Write-Progress native and styles it through Streams. Re-enable Streams or ReadLine after changing themes; Shared native properties follow the most recently applied installation. Disabling its owner restores the latest surviving installation; the last owner restores the first original values, including later user edits. Use Show-ConsoleStatusLine or Write-ConsoleLogEntry for rich script messages. FormatCommands explicitly opts Format-Table, Format-List and Format-Wide into direct-host-only rendering, preserving native captures, jobs, remoting and transcripts; it is excluded from All. Help and Errors are separate direct-host opt-ins, excluded from All. Help renders native Get-Help, help and -? with paging. Errors uses the compact view; -Detailed includes stacks. GridView supplies the terminal grid only where Out-GridView is unavailable; a working native command is kept. Prompt adds a minimal shell prompt while preserving native fallback; oh-my-posh and Starship need Force. Features add up across calls; Disable-ConsoleFormatting turns them off.</para></summary>
+        /// <summary><para type="description">What to turn on: Output (the default: registered and built-in types as ConsoleMonster views), ErrorView (errors that reach the console in ConsoleMonster's error view, following $ErrorView: DetailedView adds the stack, CategoryView keeps PowerShell's), Progress (Write-Progress drawn as ConsoleMonster's progress area; Write-Progress uses a reversible native-parameter function proxy), Streams (native stream and progress colours), ReadLine (syntax, selection and available inline prediction colours for already loaded PSReadLine), or All (Output, ErrorView, Streams and ReadLine). Streams sets PSStyle.Formatting Warning, Verbose, Debug and Error on PowerShell 7.2+, and PSStyle.Progress.Style, or available Host.PrivateData warning, verbose, debug and progress foreground/background colours on older hosts. Native progress keeps its View and layout. ReadLine never imports PSReadLine and does nothing when it is absent; unsupported colour properties are skipped. PowerShell keeps its prefixes, records, preferences, redirection and transcript behaviour. Streams and ReadLine never replace Write-* commands or install an Out-Default function. Progress is the separate native-progress rendering feature, excluded from All; All keeps Write-Progress native and styles it through Streams. Re-enable Streams or ReadLine after changing themes; Shared native properties follow the most recently applied installation. Disabling its owner restores the latest surviving installation; the last owner restores the first original values, including later user edits. Use Show-ConsoleStatusLine or Write-ConsoleLogEntry for rich script messages. FormatCommands explicitly opts Format-Table, Format-List and Format-Wide into direct-host-only rendering, preserving native captures, jobs, remoting and transcripts; it is excluded from All. Help and Errors are separate direct-host opt-ins, excluded from All. Help renders native Get-Help, help and -? with paging. Errors uses the compact view; -Detailed includes stacks. GridView supplies the terminal grid only where Out-GridView is unavailable; a working native command is kept. Prompt adds a minimal shell prompt while preserving native fallback; oh-my-posh and Starship need Force. Features add up across calls; Disable-ConsoleFormatting turns them off.</para></summary>
         [Parameter]
         public ConsoleFormattingFeature[]? Feature { get; set; }
 
@@ -63,114 +63,19 @@ namespace ConsoleMonster.PowerShell {
         public SwitchParameter Detailed { get; set; }
 
         /// <inheritdoc />
-        protected override void EndProcessing() {
-            ConsoleFormattingFeature wanted = ConsoleFormattingFeature.None;
-            foreach (ConsoleFormattingFeature feature in Feature ?? new[] { ConsoleFormattingFeature.Output }) {
-                wanted |= feature;
-            }
-            if (ProfileSnippet.IsPresent) {
-                foreach (string line in ConsoleFormatting.ProfileSnippet(Convert.ToString(SessionState.PSVariable.GetValue("PROFILE"), System.Globalization.CultureInfo.InvariantCulture), NoBuiltIn.IsPresent, Force.IsPresent, wanted)) {
-                    WriteObject(Detailed.IsPresent && line.StartsWith("Enable-ConsoleFormatting", StringComparison.Ordinal) ? line + " -Detailed" : line);
-                }
-                return;
-            }
-            if (wanted == ConsoleFormattingFeature.None) {
-                return;
-            }
-            if ((wanted & ConsoleFormattingFeature.Prompt) != 0) {
-                if (PromptInstallation.Install(this, Force.IsPresent)) {
-                    ConsoleFormatting.Features |= ConsoleFormattingFeature.Prompt;
-                    ConsoleFormatting.RestoreCommandsWithModule(MyInvocation.MyCommand.Module);
-                }
-                wanted &= ~ConsoleFormattingFeature.Prompt;
-                if (wanted == ConsoleFormattingFeature.None) { return; }
-            }
-            if ((wanted & ConsoleFormattingFeature.GridView) != 0) {
-                if (GridViewInstallation.Install(this, Force.IsPresent)) {
-                    ConsoleFormatting.Features |= ConsoleFormattingFeature.GridView;
-                    ConsoleFormatting.RestoreCommandsWithModule(MyInvocation.MyCommand.Module);
-                }
-                wanted &= ~ConsoleFormattingFeature.GridView;
-                if (wanted == ConsoleFormattingFeature.None) { return; }
-            }
-            const ConsoleFormattingFeature cosmetic = ConsoleFormattingFeature.Streams | ConsoleFormattingFeature.ReadLine;
-            if ((wanted & ~cosmetic) == ConsoleFormattingFeature.None) {
-                ApplyNativeColors(wanted);
-                ConsoleFormatting.Features |= wanted;
-                ConsoleFormatting.RestoreCommandsWithModule(MyInvocation.MyCommand.Module);
-                return;
-            }
-            ConsoleModuleViews.Discover(this);
-            ScriptBlock? existing = FormatCommandInstallation.GlobalFunction(SessionState, "Out-Default");
-            bool ours = existing != null && existing.ToString().IndexOf(ConsoleFormatting.Marker, StringComparison.OrdinalIgnoreCase) >= 0;
-            if (existing != null && !ours) {
-                if (!Force.IsPresent) {
-                    WriteWarning("An Out-Default function already exists in this session; it was kept. Use -Force to replace it.");
-                    return;
-                }
-                ConsoleFormatting.SavedOutDefault = existing;
-            }
-            if ((wanted & ConsoleFormattingFeature.Progress) != 0 && !InstallProgressAlias()) {
-                wanted &= ~ConsoleFormattingFeature.Progress;
-                if (wanted == ConsoleFormattingFeature.None) {
-                    return;
-                }
-            }
-            if ((wanted & ConsoleFormattingFeature.FormatCommands) != 0 && !FormatCommandInstallation.Install(this, Force.IsPresent)) {
-                wanted &= ~ConsoleFormattingFeature.FormatCommands;
-                if (wanted == ConsoleFormattingFeature.None) {
-                    return;
-                }
-            }
-            if ((wanted & ConsoleFormattingFeature.Help) != 0 && !FormatCommandInstallation.InstallHelp(this, Force.IsPresent)) {
-                wanted &= ~ConsoleFormattingFeature.Help;
-                if (wanted == ConsoleFormattingFeature.None) { return; }
-            }
-            if ((wanted & ConsoleFormattingFeature.Output) != 0) {
-                ConsoleFormatting.TakeOverBuiltIns = !NoBuiltIn.IsPresent;
-            }
-            ApplyNativeColors(wanted);
-            ConsoleFormatting.Features |= wanted;
-            if ((wanted & ConsoleFormattingFeature.Errors) != 0) {
-                FormattingSessionState.Current.DetailedErrors = Detailed.IsPresent;
-            }
-            if (!ours) {
-                SessionState.InvokeProvider.Item.Set("function:global:Out-Default", ScriptBlock.Create(ConsoleFormatting.ShimScript));
-            }
-            ConsoleFormatting.RestoreCommandsWithModule(MyInvocation.MyCommand.Module);
-        }
+        protected override void EndProcessing() => ConsoleHostFormatting.Enable(this, new ConsoleFormattingOptions {
+            Feature = Feature, Force = Force.IsPresent, BuiltIn = !NoBuiltIn.IsPresent,
+            Detailed = Detailed.IsPresent, ProfileSnippet = ProfileSnippet.IsPresent
+        });
 
-        private void ApplyNativeColors(ConsoleFormattingFeature wanted) {
-            FormattingSessionState state = FormattingSessionState.Current;
-            if ((wanted & ConsoleFormattingFeature.Streams) != 0) { state.Streams.Apply(this); }
-            if ((wanted & ConsoleFormattingFeature.ReadLine) != 0) { state.ReadLine.Apply(this); }
-        }
 
-        // Write-Progress as a global alias of Write-ConsoleProgress: an alias wins over the cmdlet everywhere, also inside
-        // modules, and the cmdlet reads $ProgressPreference in its caller's scope as Write-Progress does.
-        private bool InstallProgressAlias() {
-            if (InvokeCommand.GetCommand("Write-Progress", CommandTypes.Function) != null && !Force.IsPresent) {
-                // The alias would win over the user's own Write-Progress function everywhere.
-                WriteWarning("A Write-Progress function exists in this session; the Progress feature would hide it and was not turned on. Use -Force to turn it on anyway.");
-                return false;
-            }
-            AliasInfo? alias = InvokeCommand.GetCommand("Write-Progress", CommandTypes.Alias) as AliasInfo;
-            if (alias != null && !string.Equals(alias.Definition, ConsoleFormatting.ProgressCommand, StringComparison.OrdinalIgnoreCase)) {
-                if (!Force.IsPresent) {
-                    WriteWarning("A Write-Progress alias already exists in this session; it was kept and the Progress feature was not turned on. Use -Force to replace it.");
-                    return false;
-                }
-                ConsoleFormatting.SavedWriteProgressAlias = alias.Definition;
-            }
-            InvokeCommand.InvokeScript("Microsoft.PowerShell.Utility\\Set-Alias -Name Write-Progress -Value " + ConsoleFormatting.ProgressCommand + " -Scope Global -Force");
-            SessionProgress.Enabled = true;
-            return true;
-        }
+
+
     }
 
     /// <summary>
     /// <para type="synopsis">Turns off the ConsoleMonster default formatting (Enable-ConsoleFormatting), all of it or some features.</para>
-    /// <para type="description">Without -Feature everything Enable-ConsoleFormatting turned on is turned off and the session is as it was: the Out-Default function goes (or the user's own function replaced with -Force comes back), the Write-Progress alias goes (or the user's own alias comes back), and $ErrorView was never changed. With -Feature only those parts are turned off. Streams and ReadLine release their native colour settings. Shared properties keep the latest surviving installation; the last owner restores the first exact baseline, including subsequent edits to owned properties. The Out-Default function stays while any feature that uses it is on; Streams and ReadLine alone need no function. Registrations stay for the next Enable-ConsoleFormatting.</para>
+    /// <para type="description">Without -Feature everything Enable-ConsoleFormatting turned on is turned off and the session is as it was: the Out-Default function goes (or the user's own function replaced with -Force comes back), the Write-Progress function is restored, and $ErrorView was never changed. With -Feature only those parts are turned off. Streams and ReadLine release their native colour settings. Shared properties keep the latest surviving installation; the last owner restores the first exact baseline, including subsequent edits to owned properties. The Out-Default function stays while any feature that uses it is on; Streams and ReadLine alone need no function. Registrations stay for the next Enable-ConsoleFormatting.</para>
     /// </summary>
     /// <example>
     ///   <para>Back to PowerShell's formatting</para>
@@ -187,45 +92,7 @@ namespace ConsoleMonster.PowerShell {
         public ConsoleFormattingFeature[]? Feature { get; set; }
 
         /// <inheritdoc />
-        protected override void EndProcessing() {
-            ConsoleFormattingFeature off = ConsoleFormattingFeature.None;
-            foreach (ConsoleFormattingFeature feature in Feature ?? new[] { ConsoleFormattingFeature.All | ConsoleFormattingFeature.Progress | ConsoleFormattingFeature.FormatCommands | ConsoleFormattingFeature.Help | ConsoleFormattingFeature.Errors | ConsoleFormattingFeature.GridView | ConsoleFormattingFeature.Prompt }) {
-                off |= feature;
-            }
-            if ((off & ConsoleFormattingFeature.Prompt) != 0) { PromptInstallation.Remove(FormattingSessionState.Current); }
-            if ((off & ConsoleFormattingFeature.GridView) != 0) {
-                GridViewInstallation.Remove(FormattingSessionState.Current);
-            }
-            if ((off & ConsoleFormattingFeature.Progress) != 0) {
-                ConsoleFormatting.RemoveProgressAlias(InvokeCommand);
-            }
-            if ((off & ConsoleFormattingFeature.FormatCommands) != 0) {
-                FormatCommandInstallation.Remove(FormattingSessionState.Current);
-            }
-            if ((off & ConsoleFormattingFeature.Help) != 0) {
-                FormatCommandInstallation.RemoveHelp(FormattingSessionState.Current);
-            }
-            if ((off & ConsoleFormattingFeature.Streams) != 0) {
-                FormattingSessionState.Current.Streams.Restore();
-            }
-            if ((off & ConsoleFormattingFeature.ReadLine) != 0) {
-                FormattingSessionState.Current.ReadLine.Restore();
-            }
-            ConsoleFormatting.Features &= ~off;
-            if ((off & ConsoleFormattingFeature.Errors) != 0) { FormattingSessionState.Current.DetailedErrors = false; }
-            if ((ConsoleFormatting.Features & ~(ConsoleFormattingFeature.Streams | ConsoleFormattingFeature.ReadLine | ConsoleFormattingFeature.GridView | ConsoleFormattingFeature.Prompt)) != ConsoleFormattingFeature.None) {
-                return;
-            }
-            ScriptBlock? existing = FormatCommandInstallation.GlobalFunction(SessionState, "Out-Default");
-            if (existing != null && existing.ToString().IndexOf(ConsoleFormatting.Marker, StringComparison.OrdinalIgnoreCase) >= 0) {
-                if (ConsoleFormatting.SavedOutDefault != null) {
-                    SessionState.InvokeProvider.Item.Set("function:global:Out-Default", ConsoleFormatting.SavedOutDefault);
-                } else {
-                    FormatCommandInstallation.RemoveGlobalFunction(MyInvocation.MyCommand.Module, "Out-Default");
-                }
-            }
-            ConsoleFormatting.SavedOutDefault = null;
-        }
+        protected override void EndProcessing() => ConsoleHostFormatting.Disable(this, Feature);
     }
 
     /// <summary>
@@ -278,15 +145,12 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void EndProcessing() {
             if (Path.Length > 0) {
-                foreach (string path in Path) { ConsoleModuleViews.Import(this, SessionState.Path.GetUnresolvedProviderPathFromPSPath(path), false); }
+                foreach (string path in Path) { ConsoleHostViews.Import(this, SessionState.Path.GetUnresolvedProviderPathFromPSPath(path)); }
                 return;
             }
             bool viewGiven = MyInvocation.BoundParameters.ContainsKey(nameof(View)) || Property != null || GroupBy != null || Title != null || Group != null;
             foreach (string type in TypeName) {
-                if (Shaper != null) {
-                    Binding.PSShaping.RegisterShaper(type, Shaper);
-                }
-                ConsoleFormatting.Register(new ConsoleViewRegistration(type, View, Property, GroupBy is PSObject ps ? ps.BaseObject : GroupBy, Group ?? TypeName[0], Title), onlyIfMissing: Shaper != null && !viewGiven);
+                ConsoleHostViews.Register(new ConsoleViewRegistration(type, View, Property, GroupBy is PSObject ps ? ps.BaseObject : GroupBy, Group ?? TypeName[0], Title), Shaper, onlyIfMissing: Shaper != null && !viewGiven);
             }
         }
     }

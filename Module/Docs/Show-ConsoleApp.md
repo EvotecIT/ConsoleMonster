@@ -13,7 +13,7 @@ Builds the layout once, then runs input synchronously on the caller's PowerShell
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Show-ConsoleApp [-Content] <scriptblock> [-PassThru] [-StaticSnapshot] [-NoMouse] [-Command <AppCommand[]>] [-SelectionKey <string>] [-Mode <InteractionMode>] [-InputSource <IInputSource>] [-Capture <ScreenCapture>] [-Profile <TerminalProfile>] [-Theme <ITheme>] [-Live <LiveSessionOptions>] [<CommonParameters>]
+Show-ConsoleApp [-Content] <scriptblock> [-PassThru] [-StaticSnapshot] [-NoMouse] [-Command <AppCommand[]>] [-SelectionKey <string>] [-Mode <InteractionMode>] [-InputSource <IInputSource>] [-Capture <ScreenCapture>] [-Profile <TerminalProfile>] [-Theme <ITheme>] [-Live <LiveSessionOptions>] [-ReflowBelow <int>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -179,6 +179,22 @@ Terminal capabilities and dimensions; defaults to the existing interactive profi
 
 ```yaml
 Type: TerminalProfile
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ReflowBelow
+Default width below which columns stack; explicit column thresholds take precedence.
+
+```yaml
+Type: Int32
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

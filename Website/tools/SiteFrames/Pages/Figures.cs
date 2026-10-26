@@ -37,11 +37,11 @@ namespace SiteFrames.Pages {
         public static CellBuffer Summary(Site site, int width, ColorDepth depth, GlyphTier glyphs, ITheme theme) => CSharpRunner.Run(SummaryProgram(site), width, depth, glyphs, theme);
 
         /// <summary>Adds a program's code to a figure: the short form, the whole program and its file name.</summary>
-        public static JsonObject WithProgram(JsonObject figure, string path) {
+        public static JsonObject WithProgram(Site site, JsonObject figure, string path) {
             (string shortForm, string full) = SourceSnippets.Program(Site.ReadText(path));
             figure["csharp"] = shortForm;
             figure["csharpFull"] = full;
-            return figure;
+            return SourceStyles.Add(site, figure, path);
         }
 
         public static void Render(Site site) {
@@ -65,7 +65,7 @@ namespace SiteFrames.Pages {
                     ["frame"] = frame
                 });
             }
-            Add("tier-ribbon", WithProgram(new JsonObject { ["tiers"] = tiers }, SummaryProgram(site)));
+            Add("tier-ribbon", WithProgram(site, new JsonObject { ["tiers"] = tiers }, SummaryProgram(site)));
 
             string notFound = Path.Combine(site.Website, "examples", "home", "not-found.cs");
             JsonObject figure = new JsonObject {
@@ -74,7 +74,7 @@ namespace SiteFrames.Pages {
                 ["meta"] = new JsonArray("56 columns", "24-bit", "Full"),
                 ["frame"] = site.Frame(CSharpRunner.Run(notFound, 56, ColorDepth.TrueColor, GlyphTier.Full, Theme.Dark), CSharpRunner.Run(notFound, 56, ColorDepth.TrueColor, GlyphTier.Full, Theme.Light))
             };
-            Add("not-found", WithProgram(figure, notFound));
+            Add("not-found", WithProgram(site, figure, notFound));
         }
 
         public static void Write(Site site) => site.WriteJson(site.Data("figures"), All);

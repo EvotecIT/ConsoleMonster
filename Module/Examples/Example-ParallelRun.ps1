@@ -11,9 +11,9 @@ $dashboard = New-ConsoleDashboard -Title '[bold]Nightly checks[/]' -Subtitle "ad
     New-ConsoleColumns -Content {
         New-ConsolePanel -Title 'Domain controllers' -Weight 2.3 -Content { New-ConsoleLanes -WidgetId lanes -Lane $servers -Total $rules.Count }
         New-ConsolePanel -Title 'Results' -Content {
-            New-ConsoleBarChart -Stacked -WidgetId results -InputObject ([ordered] @{ Passed = 0; Warnings = 0; Failed = 0 })
+            New-ConsoleChart -WidgetId results -InputObject ([ordered] @{ Passed = 0; Warnings = 0; Failed = 0 }) -Type Stacked
             New-ConsoleRule
-            New-ConsoleSparkline -WidgetId pace -Label 'rules' -Height 3
+            New-ConsoleChart -WidgetId pace -Label 'rules' -Height 3 -Type Sparkline
         }
     }
     New-ConsolePanel -Title 'Log' -Fill -Content { New-ConsoleLogRegion }
@@ -21,18 +21,18 @@ $dashboard = New-ConsoleDashboard -Title '[bold]Nightly checks[/]' -Subtitle "ad
 
 $servers | Invoke-ConsoleDashboard $dashboard -Parallel -ThrottleLimit 4 -ArgumentList (, $rules) {
     param($Server, $Rules)
-    Update-ConsoleLane -Key $Server -Status Running -Detail $Rules[0]
+    Update-Console -Key $Server -Status Running -Detail $Rules[0] -WidgetId 'lanes'
     foreach ($rule in $Rules) {
         Start-Sleep -Milliseconds (Get-Random -Minimum 150 -Maximum 700)
         $roll = Get-Random -Maximum 100
         $result = if ($roll -lt 6) { 'Fail' } elseif ($roll -lt 18) { 'Warn' } else { 'Pass' }
-        Update-ConsoleLane -Key $Server -Result $result -Detail $rule
-        Add-ConsoleValue -WidgetId results -Key @{ Pass = 'Passed'; Warn = 'Warnings'; Fail = 'Failed' }[$result] -Value 1
-        Add-ConsoleValue -WidgetId pace -Value (Get-Random -Minimum 4 -Maximum 12)
+        Update-Console -Key $Server -Result $result -Detail $rule -WidgetId 'lanes'
+        Update-Console -WidgetId results -Key @{ Pass = 'Passed'; Warn = 'Warnings'; Fail = 'Failed' }[$result] -Increment 1
+        Update-Console -WidgetId pace -Value (Get-Random -Minimum 4 -Maximum 12) -Append
         if ($result -eq 'Fail') {
             Write-Warning "$Server`: $rule failed"
         }
     }
-    Update-ConsoleLane -Key $Server -Complete
+    Update-Console -Key $Server -Complete -WidgetId 'lanes'
     Write-Host "$Server finished"
 }

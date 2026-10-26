@@ -53,7 +53,7 @@ namespace ConsoleMonster.Tests.Rendering {
             Lanes lanes = new Lanes("lanes");
             Lane lane = lanes.Add("srv01", Server("01"), 4);
             lane.Status = StatusKind.Running;
-            lane.Done = 2;
+            lane.Value = 2;
             lane.DetailText = new RichTextBuilder().Append("copying ", ThemeToken.Muted).Append("Weekly.xlsx", ConsoleColor.Green).Build();
 
             // A log region takes its preferred height when the height is bounded (stable in live dashboards); match the content here.

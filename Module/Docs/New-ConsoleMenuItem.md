@@ -11,9 +11,59 @@ Creates a menu item: an action, a submenu, a form, a selection, a page, a review
 What the item does follows from the parameter you give: -Action (a scriptblock, run on the pipeline thread with $MenuContext), -Submenu (a menu or a scriptblock of items), -Form (with -OnSubmit, which gets $Values and $FormResult), -Select or -MultiSelect (the chosen objects stay on the item: $item.Selection), -LoadChoices (loaded in its own runspace with a spinner), -Page (content built each time it shows), -Review (a summary with the equivalent command and Run), -Presets, -Separator or -Exit. -Badge and -Detail can be scriptblocks, recomputed every time the menu draws; -DisabledReason returns why the item is unavailable.
 
 ## SYNTAX
-### __AllParameterSets
+### Action (Default)
 ```powershell
-New-ConsoleMenuItem [[-Label] <string>] [[-Action] <scriptblock>] [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [-Submenu <Object>] [-Form <Form>] [-OnSubmit <scriptblock>] [-Select <Object[]>] [-MultiSelect <Object[]>] [-LoadChoices <scriptblock>] [-ArgumentList <Object[]>] [-Single] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-ChoiceBadge <Object>] [-ChoiceDisabledReason <Object>] [-Preview <scriptblock>] [-Selected <Object>] [-Minimum <Int32>] [-Maximum <Int32>] [-OnChange <scriptblock>] [-Page <scriptblock>] [-Review <scriptblock>] [-Presets] [-Separator] [-Exit] [<CommonParameters>]
+New-ConsoleMenuItem [[-Label] <string>] [[-Action] <scriptblock>] [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [<CommonParameters>]
+```
+
+### Submenu
+```powershell
+New-ConsoleMenuItem [[-Label] <string>] -Submenu <Object> [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [<CommonParameters>]
+```
+
+### Form
+```powershell
+New-ConsoleMenuItem [[-Label] <string>] -Form <Form> [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [-OnSubmit <scriptblock>] [<CommonParameters>]
+```
+
+### Select
+```powershell
+New-ConsoleMenuItem [[-Label] <string>] -Select <Object[]> [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-ChoiceBadge <Object>] [-ChoiceDisabledReason <Object>] [-Preview <scriptblock>] [-Selected <Object>] [-OnChange <scriptblock>] [<CommonParameters>]
+```
+
+### MultiSelect
+```powershell
+New-ConsoleMenuItem [[-Label] <string>] -MultiSelect <Object[]> [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-ChoiceBadge <Object>] [-ChoiceDisabledReason <Object>] [-Preview <scriptblock>] [-Selected <Object>] [-Minimum <Int32>] [-Maximum <Int32>] [-OnChange <scriptblock>] [<CommonParameters>]
+```
+
+### LoadChoices
+```powershell
+New-ConsoleMenuItem [[-Label] <string>] -LoadChoices <scriptblock> [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [-ArgumentList <Object[]>] [-Single] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-ChoiceBadge <Object>] [-ChoiceDisabledReason <Object>] [-Preview <scriptblock>] [-Selected <Object>] [-Minimum <Int32>] [-Maximum <Int32>] [-OnChange <scriptblock>] [<CommonParameters>]
+```
+
+### Page
+```powershell
+New-ConsoleMenuItem [[-Label] <string>] -Page <scriptblock> [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [<CommonParameters>]
+```
+
+### Review
+```powershell
+New-ConsoleMenuItem [[-Label] <string>] -Review <scriptblock> [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [<CommonParameters>]
+```
+
+### Presets
+```powershell
+New-ConsoleMenuItem [[-Label] <string>] -Presets [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [<CommonParameters>]
+```
+
+### Separator
+```powershell
+New-ConsoleMenuItem [[-Label] <string>] -Separator [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [<CommonParameters>]
+```
+
+### Exit
+```powershell
+New-ConsoleMenuItem [[-Label] <string>] -Exit [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -44,7 +94,7 @@ The action, run on the pipeline thread; $MenuContext (also $_) offers Toast, Con
 
 ```yaml
 Type: ScriptBlock
-Parameter Sets: __AllParameterSets
+Parameter Sets: Action
 Aliases: None
 Possible values:
 
@@ -60,7 +110,7 @@ Arguments for the -LoadChoices script.
 
 ```yaml
 Type: Object[]
-Parameter Sets: __AllParameterSets
+Parameter Sets: LoadChoices
 Aliases: None
 Possible values:
 
@@ -76,7 +126,7 @@ Right-aligned text: a string, rich text, or a scriptblock recomputed whenever th
 
 ```yaml
 Type: Object
-Parameter Sets: __AllParameterSets
+Parameter Sets: Action, Submenu, Form, Select, MultiSelect, LoadChoices, Page, Review, Presets, Separator, Exit
 Aliases: None
 Possible values:
 
@@ -92,7 +142,7 @@ Badge for each selection choice: a property name or scriptblock. With -LoadChoic
 
 ```yaml
 Type: Object
-Parameter Sets: __AllParameterSets
+Parameter Sets: Select, MultiSelect, LoadChoices
 Aliases: None
 Possible values:
 
@@ -108,7 +158,7 @@ Disabled reason for each selection choice: a property name or scriptblock; null 
 
 ```yaml
 Type: Object
-Parameter Sets: __AllParameterSets
+Parameter Sets: Select, MultiSelect, LoadChoices
 Aliases: None
 Possible values:
 
@@ -124,7 +174,7 @@ A sentence for the focused choice: a property name or a scriptblock.
 
 ```yaml
 Type: Object
-Parameter Sets: __AllParameterSets
+Parameter Sets: Select, MultiSelect, LoadChoices
 Aliases: None
 Possible values:
 
@@ -140,7 +190,7 @@ A sentence shown with the item.
 
 ```yaml
 Type: String
-Parameter Sets: __AllParameterSets
+Parameter Sets: Action, Submenu, Form, Select, MultiSelect, LoadChoices, Page, Review, Presets, Separator, Exit
 Aliases: None
 Possible values:
 
@@ -156,7 +206,7 @@ State text ("24 selected"): a string or a scriptblock recomputed whenever the me
 
 ```yaml
 Type: Object
-Parameter Sets: __AllParameterSets
+Parameter Sets: Action, Submenu, Form, Select, MultiSelect, LoadChoices, Page, Review, Presets, Separator, Exit
 Aliases: None
 Possible values:
 
@@ -172,7 +222,7 @@ Why the item is unavailable: a string, or a scriptblock returning the reason (no
 
 ```yaml
 Type: Object
-Parameter Sets: __AllParameterSets
+Parameter Sets: Action, Submenu, Form, Select, MultiSelect, LoadChoices, Page, Review, Presets, Separator, Exit
 Aliases: None
 Possible values:
 
@@ -188,7 +238,7 @@ What to show for a choice: a property name or a scriptblock.
 
 ```yaml
 Type: Object
-Parameter Sets: __AllParameterSets
+Parameter Sets: Select, MultiSelect, LoadChoices
 Aliases: None
 Possible values:
 
@@ -204,11 +254,11 @@ Makes the exit item (-Label defaults to Exit).
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: __AllParameterSets
+Parameter Sets: Exit
 Aliases: None
 Possible values:
 
-Required: False
+Required: True
 Position: named
 Default value: None
 Accept pipeline input: False
@@ -220,11 +270,11 @@ A form from New-ConsoleForm.
 
 ```yaml
 Type: Form
-Parameter Sets: __AllParameterSets
+Parameter Sets: Form
 Aliases: None
 Possible values:
 
-Required: False
+Required: True
 Position: named
 Default value: None
 Accept pipeline input: False
@@ -236,7 +286,7 @@ The group of a choice: a property name or a scriptblock.
 
 ```yaml
 Type: Object
-Parameter Sets: __AllParameterSets
+Parameter Sets: Select, MultiSelect, LoadChoices
 Aliases: None
 Possible values:
 
@@ -252,7 +302,7 @@ The key that opens the item directly.
 
 ```yaml
 Type: Char
-Parameter Sets: __AllParameterSets
+Parameter Sets: Action, Submenu, Form, Select, MultiSelect, LoadChoices, Page, Review, Presets, Separator, Exit
 Aliases: None
 Possible values:
 
@@ -268,7 +318,7 @@ A short mark before the title, as free text. Prefer -IconName, which follows the
 
 ```yaml
 Type: String
-Parameter Sets: __AllParameterSets
+Parameter Sets: Action, Submenu, Form, Select, MultiSelect, LoadChoices, Page, Review, Presets, Separator, Exit
 Aliases: None
 Possible values:
 
@@ -284,7 +334,7 @@ A semantic icon that follows the glyph tier: Item, Targets, Tasks, Settings, Fav
 
 ```yaml
 Type: GlyphIcon
-Parameter Sets: __AllParameterSets
+Parameter Sets: Action, Submenu, Form, Select, MultiSelect, LoadChoices, Page, Review, Presets, Separator, Exit
 Aliases: None
 Possible values: Item, Targets, Tasks, Settings, Favorite, Run, Back, List, Help, Warning, Done, Exit
 
@@ -300,7 +350,7 @@ The title.
 
 ```yaml
 Type: String
-Parameter Sets: __AllParameterSets
+Parameter Sets: Action, Submenu, Form, Select, MultiSelect, LoadChoices, Page, Review, Presets, Separator, Exit
 Aliases: None
 Possible values:
 
@@ -316,11 +366,11 @@ Loads the choices in its own runspace (a spinner shows meanwhile). Pair with -Si
 
 ```yaml
 Type: ScriptBlock
-Parameter Sets: __AllParameterSets
+Parameter Sets: LoadChoices
 Aliases: None
 Possible values:
 
-Required: False
+Required: True
 Position: named
 Default value: None
 Accept pipeline input: False
@@ -332,7 +382,7 @@ The most values of a multi-selection.
 
 ```yaml
 Type: Int32
-Parameter Sets: __AllParameterSets
+Parameter Sets: MultiSelect, LoadChoices
 Aliases: None
 Possible values:
 
@@ -348,7 +398,7 @@ The fewest values of a multi-selection.
 
 ```yaml
 Type: Int32
-Parameter Sets: __AllParameterSets
+Parameter Sets: MultiSelect, LoadChoices
 Aliases: None
 Possible values:
 
@@ -364,11 +414,11 @@ Choices for picking several values (any objects).
 
 ```yaml
 Type: Object[]
-Parameter Sets: __AllParameterSets
+Parameter Sets: MultiSelect
 Aliases: None
 Possible values:
 
-Required: False
+Required: True
 Position: named
 Default value: None
 Accept pipeline input: False
@@ -380,7 +430,7 @@ Runs when the selection changes ($MenuContext and $_).
 
 ```yaml
 Type: ScriptBlock
-Parameter Sets: __AllParameterSets
+Parameter Sets: Select, MultiSelect, LoadChoices
 Aliases: None
 Possible values:
 
@@ -396,7 +446,7 @@ Runs when the form is submitted; $Values is a hashtable of the values, $FormResu
 
 ```yaml
 Type: ScriptBlock
-Parameter Sets: __AllParameterSets
+Parameter Sets: Form
 Aliases: None
 Possible values:
 
@@ -412,11 +462,11 @@ Page content, built each time it shows: text, rich text, widgets, or objects sho
 
 ```yaml
 Type: ScriptBlock
-Parameter Sets: __AllParameterSets
+Parameter Sets: Page
 Aliases: None
 Possible values:
 
-Required: False
+Required: True
 Position: named
 Default value: None
 Accept pipeline input: False
@@ -424,15 +474,15 @@ Accept wildcard characters: False
 ```
 
 ### -Presets
-Makes the item list the menu's presets: the ones it comes with (New-ConsoleMenu -Preset or New-ConsoleMenuPreset in its scriptblock) first, marked as built in, with their previews, then the saved ones. Enter applies one; Delete removes a saved one (Shell and Classic layouts; the Inline layout applies them only).
+Makes the item list the menu's presets: the ones it comes with (New-ConsoleMenu -Preset) first, marked as built in, with their previews, then the saved ones. Enter applies one; Delete removes a saved one (Shell and Classic layouts; the Inline layout applies them only).
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: __AllParameterSets
+Parameter Sets: Presets
 Aliases: None
 Possible values:
 
-Required: False
+Required: True
 Position: named
 Default value: None
 Accept pipeline input: False
@@ -444,7 +494,7 @@ Preview content for the focused choice ($_ is the choice).
 
 ```yaml
 Type: ScriptBlock
-Parameter Sets: __AllParameterSets
+Parameter Sets: Select, MultiSelect, LoadChoices
 Aliases: None
 Possible values:
 
@@ -462,11 +512,11 @@ Description and RunText.
 
 ```yaml
 Type: ScriptBlock
-Parameter Sets: __AllParameterSets
+Parameter Sets: Review
 Aliases: None
 Possible values:
 
-Required: False
+Required: True
 Position: named
 Default value: None
 Accept pipeline input: False
@@ -478,11 +528,11 @@ Choices for picking one value (any objects).
 
 ```yaml
 Type: Object[]
-Parameter Sets: __AllParameterSets
+Parameter Sets: Select
 Aliases: None
 Possible values:
 
-Required: False
+Required: True
 Position: named
 Default value: None
 Accept pipeline input: False
@@ -494,7 +544,7 @@ Pre-selected choices: the objects or their texts, or a scriptblock returning $tr
 
 ```yaml
 Type: Object
-Parameter Sets: __AllParameterSets
+Parameter Sets: Select, MultiSelect, LoadChoices
 Aliases: None
 Possible values:
 
@@ -510,11 +560,11 @@ Makes a divider (with -Label as its heading, if given).
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: __AllParameterSets
+Parameter Sets: Separator
 Aliases: None
 Possible values:
 
-Required: False
+Required: True
 Position: named
 Default value: None
 Accept pipeline input: False
@@ -526,7 +576,7 @@ With -LoadChoices: pick one value instead of several.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: __AllParameterSets
+Parameter Sets: LoadChoices
 Aliases: None
 Possible values:
 
@@ -542,11 +592,11 @@ A submenu: a menu from New-ConsoleMenu, or a scriptblock of New-ConsoleMenuItem 
 
 ```yaml
 Type: Object
-Parameter Sets: __AllParameterSets
+Parameter Sets: Submenu
 Aliases: None
 Possible values:
 
-Required: False
+Required: True
 Position: named
 Default value: None
 Accept pipeline input: False

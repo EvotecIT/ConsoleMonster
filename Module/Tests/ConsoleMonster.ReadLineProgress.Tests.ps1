@@ -185,12 +185,13 @@ Assert-NativeCommands
 '@ | Should -Match 'ALL_NATIVE_COMMANDS_AND_PROGRESS_OK'
     }
 
-    It 'keeps explicit legacy progress outside All and unqualified Disable still removes it' {
+    It 'keeps explicit native progress rendering outside All and unqualified Disable still removes it' {
         Invoke-NativeStylingChild @'
 Enable-ConsoleFormatting -Feature Progress
-if ((Get-Command Write-Progress).CommandType -ne 'Alias') { throw 'Explicit legacy Progress did not install its alias.' }
+if ((Get-Command Write-Progress).CommandType -ne 'Function') { throw 'Explicit Progress did not install its native-parameter proxy.' }
+$progressProxy = (Get-Command Write-Progress).Definition
 Disable-ConsoleFormatting -Feature All
-if ((Get-Command Write-Progress).Definition -cne 'Write-ConsoleProgress') { throw 'Disable All removed the separate explicit Progress feature.' }
+if ((Get-Command Write-Progress).Definition -cne $progressProxy) { throw 'Disable All removed the separate explicit Progress feature.' }
 Disable-ConsoleFormatting
 Assert-NativeCommands
 'EXPLICIT_PROGRESS_OUTSIDE_ALL_OK'

@@ -116,11 +116,11 @@ namespace ConsoleMonster.Replay {
                 // The recorded status keeps its place; the play state moves to the free text.
                 header.Detail = chrome.Status;
                 header.Status = chrome.StatusLevel;
-                header.Right = state + " " + g.Separator + " " + position;
+                header.HeaderRight = state + " " + g.Separator + " " + position;
             } else {
                 header.Detail = state;
                 header.Status = _playing ? StatusKind.Running : StatusKind.Pending;
-                header.Right = position;
+                header.HeaderRight = position;
             }
             return header;
         }

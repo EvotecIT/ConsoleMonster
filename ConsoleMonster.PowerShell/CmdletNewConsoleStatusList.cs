@@ -8,16 +8,16 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates a checklist of items with status markers.</para>
-    /// <para type="description">Items come from a script block of New-ConsoleStatusItem calls (each with its own status and detail), from the pipeline, from -InputObject (labels mapped to statuses) or from -Item (labels added as pending, for a live checklist). Statuses use the shared vocabulary: Pass, Fail, Warn, Skip, Info, Running, Pending and PowerShell's words such as Success, Warning and Error. Status is always shown with a symbol (or a [PASS]-style word in ASCII mode), never by colour alone. To add items later, pipe the list to Add-ConsoleItem; in a live dashboard, update items with Update-ConsoleStatusItem.</para>
+    /// <para type="description">Items come from a script block of Key/Label/Status records calls (each with its own status and detail), from the pipeline, from -InputObject (labels mapped to statuses) or from -Item (labels added as pending, for a live checklist). Statuses use the shared vocabulary: Pass, Fail, Warn, Skip, Info, Running, Pending and PowerShell's words such as Success, Warning and Error. Status is always shown with a symbol (or a [PASS]-style word in ASCII mode), never by colour alone. To add items later, pipe the list to Add-ConsoleItem; in a live dashboard, update items with Update-Console.</para>
     /// </summary>
     /// <example>
     ///   <para>A build checklist</para>
     ///   <code>
     /// New-ConsoleStatusList -Content {
-    ///     New-ConsoleStatusItem 'Restore NuGet packages' -Status Pass -Detail '1.6 s'
-    ///     New-ConsoleStatusItem 'Compile ConsoleMonster' -Status Pass -Detail '4.7 s'
-    ///     New-ConsoleStatusItem 'Run Pester on PowerShell 7' -Status Warn -Detail '1 skipped'
-    ///     New-ConsoleStatusItem 'Pack ConsoleMonster.2.0.0.nupkg' -Status Running
+    ///     [pscustomobject]@{ Label = 'Restore NuGet packages'; Status = 'Pass'; Detail = '1.6 s' }
+    ///     [pscustomobject]@{ Label = 'Compile ConsoleMonster'; Status = 'Pass'; Detail = '4.7 s' }
+    ///     [pscustomobject]@{ Label = 'Run Pester on PowerShell 7'; Status = 'Warn'; Detail = '1 skipped' }
+    ///     [pscustomobject]@{ Label = 'Pack ConsoleMonster.2.0.0.nupkg'; Status = 'Running' }
     /// } | Show-Console</code>
     /// </example>
     /// <example>
@@ -26,13 +26,13 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Items from objects in the pipeline</para>
-    ///   <code>$checks | ForEach-Object { New-ConsoleStatusItem $_.Name -Status $_.Result -Detail $_.Duration } | New-ConsoleStatusList | Show-Console</code>
+    ///   <code>$checks | ForEach-Object { [pscustomobject]@{ Label = $_.Name; Status = $_.Result; Detail = $_.Duration } } | New-ConsoleStatusList | Show-Console</code>
     /// </example>
     /// <example>
     ///   <para>A live checklist: items start pending and are updated from the dashboard script</para>
     ///   <code>
     /// $steps = New-ConsoleStatusList -Item 'Scan files', 'Copy changes', 'Verify'
-    /// Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps }) { Update-ConsoleStatusItem -Key 'Scan files' -Status Pass -Detail '2.4 s' }</code>
+    /// Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps }) { Update-Console -Key 'Scan files' -Status Pass -Detail '2.4 s' -WidgetId 'status' }</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleStatusList")]
     [OutputType(typeof(StatusList))]
@@ -41,11 +41,11 @@ namespace ConsoleMonster.PowerShell {
         private readonly List<IDictionary> _dictionaries = new List<IDictionary>();
 
 
-        /// <summary><para type="description">A script block that emits the items: New-ConsoleStatusItem calls or hashtables with Label, Status and Detail.</para></summary>
+        /// <summary><para type="description">A script block that emits the items: Key/Label/Status records calls or hashtables with Label, Status and Detail.</para></summary>
         [Parameter(Position = 2)]
         public ScriptBlock? Content { get; set; }
 
-        /// <summary><para type="description">Items from the pipeline: New-ConsoleStatusItem objects or hashtables with Label, Status and Detail.</para></summary>
+        /// <summary><para type="description">Items from the pipeline: Key/Label/Status records objects or hashtables with Label, Status and Detail.</para></summary>
         [Parameter(ValueFromPipeline = true, Position = 1)]
         public PSObject? InputObject { get; set; }
 

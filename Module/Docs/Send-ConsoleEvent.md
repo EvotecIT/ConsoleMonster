@@ -8,7 +8,7 @@ schema: 2.0.0
 ## SYNOPSIS
 Sends a raw live event to any widget of a running dashboard.
 
-The general form behind the Update-* cmdlets, for custom widgets and less common operations (for example the dashboard's title or status). Operations are defined by each widget.
+The general form behind Update-Console, for custom widgets and less common operations (for example the dashboard's title or status). Operations are defined by each widget.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -19,7 +19,7 @@ Send-ConsoleEvent [-WidgetId] <string> [-Operation] <string> [-Key <string>] [-T
 ## DESCRIPTION
 Sends a raw live event to any widget of a running dashboard.
 
-The general form behind the Update-* cmdlets, for custom widgets and less common operations (for example the dashboard's title or status). Operations are defined by each widget.
+The general form behind Update-Console, for custom widgets and less common operations (for example the dashboard's title or status). Operations are defined by each widget.
 
 ## EXAMPLES
 

@@ -90,7 +90,7 @@ namespace ConsoleMonster.Widgets {
                     parent.Add(child);
                     object identity = _options.Identity?.Invoke(item!) ?? item!;
                     if (_path.Contains(identity)) {
-                        string? note = child.Note;
+                        string? note = child.Detail;
                         child.LocalizedNote = labels => string.IsNullOrEmpty(note) ? labels.TreeCycle : note + " " + labels.TreeCycle;
                         continue;
                     }

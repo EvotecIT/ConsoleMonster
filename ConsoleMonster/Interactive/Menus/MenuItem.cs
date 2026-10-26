@@ -10,7 +10,7 @@ namespace ConsoleMonster.Interactive {
     /// <summary>
     /// An entry of a <see cref="Menu"/>: title, description, hotkey, icon, badge, state text, a disabled reason, and what it
     /// opens (an action, a submenu, a form, a selection, a page). Configure it with the chainable methods:
-    /// <c>item.Hotkey('r').Form(form).Badge(() =&gt; "24 tasks")</c>.
+    /// <c>item.Hotkey('r').Form(form).Configure(value =&gt; value.Badge = () =&gt; RichText.Plain("24 tasks"))</c>.
     /// </summary>
     public sealed class MenuItem {
         private readonly List<Choice> _choices = new List<Choice>();
@@ -30,43 +30,49 @@ namespace ConsoleMonster.Interactive {
         public string? Description { get; set; }
 
         /// <summary>The key that opens the item directly.</summary>
-        public char? HotkeyChar { get; set; }
+        public char? Hotkey { get; set; }
 
-        /// <summary>A short mark before the title (one or two cells), as free text. <see cref="IconGlyph"/> takes precedence.</summary>
-        public string? Icon { get; set; }
+        /// <summary>A short mark before the title (one or two cells), as free text. Setting it clears a preceding semantic IconName.</summary>
+        public string? Icon { get => _icon; set { _icon = value; IconName = null; } }
+        private string? _icon;
 
         /// <summary>A semantic icon resolved for the glyph tier (shapes in Full, WGL4 in Basic, ASCII in Ascii), or null.</summary>
-        public GlyphIcon? IconGlyph { get; set; }
+        public GlyphIcon? IconName { get; set; }
 
         /// <summary>What the item does.</summary>
         public MenuItemKind Kind { get; set; } = MenuItemKind.Action;
 
         /// <summary>Computes the badge (right-aligned tag) each time the menu is drawn.</summary>
-        public Func<RichText?>? BadgeSource { get; set; }
+        public Func<RichText?>? Badge { get; set; }
 
         /// <summary>Computes the state text ("24 selected") each time the menu is drawn.</summary>
-        public Func<string?>? DetailSource { get; set; }
+        public Func<string?>? Detail { get; set; }
 
         /// <summary>Computes why the item is unavailable (null when available).</summary>
-        public Func<string?>? DisabledReasonSource { get; set; }
+        public Func<string?>? DisabledReason { get; set; }
 
+        private Action<MenuContext>? _action;
         /// <summary>The action of an action item.</summary>
-        public Action<MenuContext>? Handler { get; set; }
+        public Action<MenuContext>? Action { get => _action; set { _action = value; if (value != null) { Kind = MenuItemKind.Action; } } }
 
+        private Func<MenuContext, CancellationToken, Task>? _actionAsync;
         /// <summary>The asynchronous action of an action item (runs without blocking the screen; Esc cancels it).</summary>
-        public Func<MenuContext, CancellationToken, Task>? AsyncHandler { get; set; }
+        public Func<MenuContext, CancellationToken, Task>? ActionAsync { get => _actionAsync; set { _actionAsync = value; if (value != null) { Kind = MenuItemKind.Action; } } }
 
+        private Menu? _submenu;
         /// <summary>The submenu of a submenu item.</summary>
-        public Menu? SubmenuDefinition { get; set; }
+        public Menu? Submenu { get => _submenu; set { _submenu = value; if (value != null) { Kind = MenuItemKind.Submenu; } } }
 
+        private Form? _form;
         /// <summary>The form of a form item.</summary>
-        public Form? FormDefinition { get; set; }
+        public Form? Form { get => _form; set { _form = value; if (value != null) { Kind = MenuItemKind.Form; } } }
 
         /// <summary>Called when the form is submitted.</summary>
-        public Action<MenuContext, FormResult>? FormSubmitted { get; set; }
+        public Action<MenuContext, FormResult>? OnSubmit { get; set; }
 
+        private Func<MenuContext, IWidget>? _page;
         /// <summary>Builds the content of a page item.</summary>
-        public Func<MenuContext, IWidget>? PageFactory { get; set; }
+        public Func<MenuContext, IWidget>? Page { get => _page; set { _page = value; if (value != null) { Kind = MenuItemKind.Page; } } }
 
         /// <summary>The choices of a selection item.</summary>
         public IList<Choice> Choices => _choices;
@@ -80,14 +86,16 @@ namespace ConsoleMonster.Interactive {
         /// <summary>The most values of a multi-selection item.</summary>
         public int? Maximum { get; set; }
 
+        private Func<MenuContext, CancellationToken, Task<IEnumerable<Choice>>>? _loadChoices;
         /// <summary>Loads the choices of a selection item asynchronously (a spinner shows meanwhile; Ctrl+R reloads).</summary>
-        public Func<MenuContext, CancellationToken, Task<IEnumerable<Choice>>>? ChoicesLoader { get; set; }
+        public Func<MenuContext, CancellationToken, Task<IEnumerable<Choice>>>? LoadChoices { get => _loadChoices; set { _loadChoices = value; if (value != null) { Kind = MenuItemKind.MultiSelect; } } }
 
+        private Func<MenuContext, ReviewModel>? _review;
         /// <summary>Builds the review of a review item each time it is drawn.</summary>
-        public Func<MenuContext, ReviewModel>? ReviewFactory { get; set; }
+        public Func<MenuContext, ReviewModel>? Review { get => _review; set { _review = value; if (value != null) { Kind = MenuItemKind.Review; } } }
 
         /// <summary>Called when the selection of a selection item changes.</summary>
-        public Action<MenuContext>? SelectionChanged { get; set; }
+        public Action<MenuContext>? OnChange { get; set; }
 
         /// <summary>The selected values of a selection item, in list order.</summary>
         public IReadOnlyList<object?> Selection => _selection;
@@ -98,13 +106,13 @@ namespace ConsoleMonster.Interactive {
         internal object? Tag { get; set; }
 
         /// <summary>The badge now.</summary>
-        public RichText? CurrentBadge => Safe(BadgeSource);
+        public RichText? CurrentBadge => Safe(Badge);
 
         /// <summary>The state text now.</summary>
-        public string? CurrentDetail => Safe(DetailSource) ?? DefaultState();
+        public string? CurrentDetail => Safe(Detail) ?? DefaultState();
 
         /// <summary>The disabled reason now, or null.</summary>
-        public string? CurrentDisabledReason => Safe(DisabledReasonSource);
+        public string? CurrentDisabledReason => Safe(DisabledReason);
 
         private string? DefaultState() {
             if (Kind == MenuItemKind.MultiSelect) {
@@ -159,131 +167,38 @@ namespace ConsoleMonster.Interactive {
             return list;
         }
 
-        /// <summary>Sets the hotkey.</summary>
-        /// <param name="key">The key.</param>
-        /// <returns>The item.</returns>
-        public MenuItem Hotkey(char key) {
-            HotkeyChar = key;
-            return this;
-        }
 
-        /// <summary>Sets the description.</summary>
-        /// <param name="text">The text.</param>
-        /// <returns>The item.</returns>
-        public MenuItem Describe(string text) {
-            Description = text;
-            return this;
-        }
 
-        /// <summary>Sets the icon.</summary>
-        /// <param name="icon">One or two cells.</param>
-        /// <returns>The item.</returns>
-        public MenuItem WithIcon(string icon) {
-            Icon = icon;
-            IconGlyph = null;
-            return this;
-        }
 
-        /// <summary>Sets a semantic icon that follows the glyph tier (see <see cref="GlyphIcon"/>).</summary>
-        /// <param name="icon">The icon.</param>
-        /// <returns>The item.</returns>
-        public MenuItem WithIcon(GlyphIcon icon) {
-            IconGlyph = icon;
-            return this;
-        }
+
+
+
+
 
         /// <summary>The icon text for a glyph set: the semantic icon in its tier, else the free text, else null.</summary>
         /// <param name="glyphs">The glyph set.</param>
         /// <returns>The icon text, or null.</returns>
-        public string? IconText(IGlyphSet glyphs) => IconGlyph.HasValue ? glyphs.Icon(IconGlyph.Value) : (string.IsNullOrEmpty(Icon) ? null : Icon);
+        public string? IconText(IGlyphSet glyphs) => IconName.HasValue ? glyphs.Icon(IconName.Value) : (string.IsNullOrEmpty(Icon) ? null : Icon);
 
-        /// <summary>Sets a computed badge.</summary>
-        /// <param name="badge">Returns the badge text.</param>
-        /// <returns>The item.</returns>
-        public MenuItem Badge(Func<string?> badge) {
-            BadgeSource = badge == null ? null : () => badge() is string s && s.Length > 0 ? RichText.Plain(s) : null;
-            return this;
-        }
 
-        /// <summary>Sets a computed styled badge.</summary>
-        /// <param name="badge">Returns the badge.</param>
-        /// <returns>The item.</returns>
-        public MenuItem Badge(Func<RichText?> badge) {
-            BadgeSource = badge;
-            return this;
-        }
 
-        /// <summary>Sets computed state text.</summary>
-        /// <param name="state">Returns the state.</param>
-        /// <returns>The item.</returns>
-        public MenuItem Detail(Func<string?> state) {
-            DetailSource = state;
-            return this;
-        }
 
-        /// <summary>Makes the item unavailable while the function returns a reason.</summary>
-        /// <param name="reason">Returns the reason, or null when available.</param>
-        /// <returns>The item.</returns>
-        public MenuItem DisabledReason(Func<string?> reason) {
-            DisabledReasonSource = reason;
-            return this;
-        }
 
-        /// <summary>Makes the item run an action.</summary>
-        /// <param name="action">The action.</param>
-        /// <returns>The item.</returns>
-        public MenuItem Action(Action<MenuContext> action) {
-            Handler = action;
-            Kind = MenuItemKind.Action;
-            return this;
-        }
 
-        /// <summary>Makes the item run an asynchronous action.</summary>
-        /// <param name="action">The action.</param>
-        /// <returns>The item.</returns>
-        public MenuItem ActionAsync(Func<MenuContext, CancellationToken, Task> action) {
-            AsyncHandler = action;
-            Kind = MenuItemKind.Action;
-            return this;
-        }
 
-        /// <summary>Makes the item open a submenu.</summary>
-        /// <param name="menu">The submenu.</param>
-        /// <returns>The item.</returns>
-        public MenuItem Submenu(Menu menu) {
-            SubmenuDefinition = menu;
-            Kind = MenuItemKind.Submenu;
-            return this;
-        }
 
-        /// <summary>Makes the item open a submenu built in place.</summary>
-        /// <param name="configure">Adds the submenu's items.</param>
-        /// <returns>The item.</returns>
-        public MenuItem Submenu(Action<Menu> configure) {
-            Menu menu = new Menu(Label);
-            configure?.Invoke(menu);
-            return Submenu(menu);
-        }
 
-        /// <summary>Makes the item open a form.</summary>
-        /// <param name="form">The form.</param>
-        /// <param name="submitted">Called when it is submitted.</param>
-        /// <returns>The item.</returns>
-        public MenuItem Form(Form form, Action<MenuContext, FormResult>? submitted = null) {
-            FormDefinition = form;
-            FormSubmitted = submitted;
-            Kind = MenuItemKind.Form;
-            return this;
-        }
 
-        /// <summary>Makes the item show content.</summary>
-        /// <param name="page">Builds the content each time it is drawn.</param>
-        /// <returns>The item.</returns>
-        public MenuItem Page(Func<MenuContext, IWidget> page) {
-            PageFactory = page;
-            Kind = MenuItemKind.Page;
-            return this;
-        }
+
+
+
+
+
+
+
+
+
+
 
         /// <summary>Makes the item pick one value.</summary>
         /// <typeparam name="T">The value type.</typeparam>
@@ -318,24 +233,9 @@ namespace ConsoleMonster.Interactive {
             return this;
         }
 
-        /// <summary>Loads the choices of a selection item asynchronously instead of listing them up front.</summary>
-        /// <param name="loader">Returns the choices.</param>
-        /// <param name="multiple">Whether several values can be picked.</param>
-        /// <returns>The item.</returns>
-        public MenuItem LoadChoices(Func<MenuContext, CancellationToken, Task<IEnumerable<Choice>>> loader, bool multiple = true) {
-            ChoicesLoader = loader;
-            Kind = multiple ? MenuItemKind.MultiSelect : MenuItemKind.Select;
-            return this;
-        }
 
-        /// <summary>Makes the item show a review (summary, equivalent command, Run, Copy command, Save preset).</summary>
-        /// <param name="review">Builds the review from the app's current state.</param>
-        /// <returns>The item.</returns>
-        public MenuItem Review(Func<MenuContext, ReviewModel> review) {
-            ReviewFactory = review;
-            Kind = MenuItemKind.Review;
-            return this;
-        }
+
+
 
         /// <summary>
         /// Makes the item list the menu's presets: the built-in ones (<see cref="Menu.Presets"/> of the root menu) first,

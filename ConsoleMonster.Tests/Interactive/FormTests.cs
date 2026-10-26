@@ -39,7 +39,7 @@ namespace ConsoleMonster.Tests.Interactive {
             password.ParameterName = "Password";
             ChoiceField site = service.MultiSelect("Site", "Sites");
             site.ParameterName = "Site";
-            site.Loader = loader ?? ((values, token) => Task.FromResult<IEnumerable<Choice>>(new[] { new Choice("waw", "Warsaw"), new Choice("ber", "Berlin") }));
+            site.LoadChoices = loader ?? ((values, token) => Task.FromResult<IEnumerable<Choice>>(new[] { new Choice("waw", "Warsaw"), new Choice("ber", "Berlin") }));
             return form;
         }
 

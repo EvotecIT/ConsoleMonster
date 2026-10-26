@@ -91,7 +91,7 @@ namespace ConsoleMonster.Interactive {
                     string? state = item.CurrentDetail;
                     choices.Add(new Choice(item, item.Label) {
                         Group = group,
-                        Hotkey = item.HotkeyChar,
+                        Hotkey = item.Hotkey,
                         Description = item.Description,
                         DisabledReason = item.CurrentDisabledReason,
                         Badge = badge ?? (string.IsNullOrEmpty(state) ? null : RichText.Plain(state!, new RichStyle(ThemeToken.Muted)))
@@ -135,34 +135,34 @@ namespace ConsoleMonster.Interactive {
         public void Open(MenuItem item) {
             MenuContext context = new MenuContext(this, _root, item, null, _token);
             try {
-                if ((item.Kind == MenuItemKind.Select || item.Kind == MenuItemKind.MultiSelect) && item.ChoicesLoader != null && item.Choices.Count == 0) {
-                    item.ReplaceChoices(item.ChoicesLoader(context, _token).GetAwaiter().GetResult() ?? Array.Empty<Choice>());
+                if ((item.Kind == MenuItemKind.Select || item.Kind == MenuItemKind.MultiSelect) && item.LoadChoices != null && item.Choices.Count == 0) {
+                    item.ReplaceChoices(item.LoadChoices(context, _token).GetAwaiter().GetResult() ?? Array.Empty<Choice>());
                 }
                 switch (item.Kind) {
                     case MenuItemKind.Exit:
                         _exit = true;
                         return;
                     case MenuItemKind.Submenu:
-                        _stack.Add(item.SubmenuDefinition!);
+                        _stack.Add(item.Submenu!);
                         return;
                     case MenuItemKind.Action:
-                        if (item.Handler != null) {
-                            item.Handler(context);
-                        } else if (item.AsyncHandler != null) {
-                            item.AsyncHandler(context, _token).GetAwaiter().GetResult();
+                        if (item.Action != null) {
+                            item.Action(context);
+                        } else if (item.ActionAsync != null) {
+                            item.ActionAsync(context, _token).GetAwaiter().GetResult();
                         }
                         return;
                     case MenuItemKind.Form:
-                        FormResult result = item.FormDefinition!.Show(new FormOptions {
+                        FormResult result = item.Form!.Show(new FormOptions {
                             Interactive = Interactive,
                             Inline = true,
                             AppName = _store.AppName,
                             StorageRoot = _options.StorageRoot,
                             RememberLastChoices = _options.RememberLastChoices
                         }, _token);
-                        if (result.Submitted && item.FormSubmitted != null) {
+                        if (result.Submitted && item.OnSubmit != null) {
                             MenuContext submitted = new MenuContext(this, _root, item, result.Values, _token) { FormResult = result };
-                            item.FormSubmitted(submitted, result);
+                            item.OnSubmit(submitted, result);
                         }
                         return;
                     case MenuItemKind.Select: {
@@ -171,7 +171,7 @@ namespace ConsoleMonster.Interactive {
                             select.Default = item.SelectedValue;
                         }
                         item.SetSelection(new[] { select.Show(Interactive, _token) });
-                        item.SelectionChanged?.Invoke(context);
+                        item.OnChange?.Invoke(context);
                         return;
                     }
                     case MenuItemKind.MultiSelect: {
@@ -185,12 +185,12 @@ namespace ConsoleMonster.Interactive {
                         }
                         MultiSelectPrompt<object?> multi = new MultiSelectPrompt<object?>(item.Label, item.Choices) { Description = item.Description, Minimum = item.Minimum, Maximum = item.Maximum };
                         item.SetSelection(multi.Show(Interactive, _token));
-                        item.SelectionChanged?.Invoke(context);
+                        item.OnChange?.Invoke(context);
                         return;
                     }
                     case MenuItemKind.Page:
-                        if (item.PageFactory != null) {
-                            Terminal.Write(item.PageFactory(context));
+                        if (item.Page != null) {
+                            Terminal.Write(item.Page(context));
                         }
                         return;
                     case MenuItemKind.Presets:

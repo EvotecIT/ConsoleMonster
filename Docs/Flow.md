@@ -11,18 +11,18 @@ $nodes = @(
 )
 $flow = $nodes | New-ConsoleFlow -WidgetId chain
 $flow | Add-ConsoleItem {
-    New-ConsoleFlowEdge -Key trust -From client -To issuer -Label 'issuer' -Status Fail -Cut
-    New-ConsoleFlowBranch -From issuer -Label 'expired 2026-09-30' -Status Fail
+    [pscustomobject] @{ Kind = 'Edge'; Key = 'trust'; From = 'client'; To = 'issuer'; Label = 'issuer'; Status = 'Fail'; Cut = $true }
+    [pscustomobject] @{ Kind = 'Branch'; From = 'issuer'; Label = 'expired 2026-09-30'; Status = 'Fail' }
 }
 New-ConsolePanel -Title 'Certificate path' { $flow } | Show-Console
 ```
 
-Item commands and pipeline rows use the same properties. Rows need `Kind` set to
+Typed C# items and pipeline records use the same properties. Records need `Kind` set to
 `Node`, `Edge` or `Branch`. Add nodes in strip order before their edges and branch.
 Keys identify items; adding the same key replaces it in place. An edge connects
-adjacent nodes. Omitted edges are plain arrows. `WithBranch` replaces the single
+adjacent nodes. Omitted edges are plain arrows. `Branch` replaces the single
 branch, and a null branch removes it. A branch can end below its source or return
-to a later node through `-To`. Branches do not contain other branches.
+to a later node through the `To` field. Branches do not contain other branches.
 
 The equivalent C# builder uses immutable records:
 
@@ -35,7 +35,7 @@ var flow = new Flow("chain")
     .Add(new FlowNode("client", "client", StatusKind.Pass))
     .Add(new FlowNode("issuer", "issuer", StatusKind.Fail))
     .Add(new FlowEdge("trust", "client", "issuer", "issuer", StatusKind.Fail, Cut: true))
-    .WithBranch(new FlowBranch("issuer", "expired 2026-09-30", Status: StatusKind.Fail));
+    .Branch(new FlowBranch("issuer", "expired 2026-09-30", Status: StatusKind.Fail));
 Terminal.Write(flow);
 ```
 
@@ -48,7 +48,7 @@ The strip becomes vertical when it cannot fit horizontally. Labels wrap at word
 boundaries. An indivisible word wider than the available node becomes `...`;
 a word and a grapheme are never split across a border.
 
-In a dashboard, `Update-ConsoleFlow -WidgetId chain -NodeKey issuer -Status Fail`
+In a dashboard, `Update-Console chain -NodeKey issuer -Status Fail`
 changes a node. `-EdgeKey trust -Status Fail -Cut` severs an edge; `-Cut:$false`
 reconnects it. Omitting `-Cut` preserves connectivity. The C# equivalent is
 `flow.Handle(session).Node("issuer", StatusKind.Fail)` or

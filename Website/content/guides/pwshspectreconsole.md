@@ -16,22 +16,22 @@ ConsoleMonster lets the same rendering script run on Windows PowerShell 5.1 and 
 | PwshSpectreConsole | ConsoleMonster | Note |
 | --- | --- | --- |
 | `Format-SpectreTable` | `Show-ConsoleTable` | Direct display; `-AsWidget` for composition, `-AsString` for plain text. |
-| `Format-SpectreTree` | `Show-ConsoleTree`, `New-ConsoleTree` | Build explicit nodes or supply hierarchical data. |
+| `Format-SpectreTree` | `Show-Console -View Tree`, `New-ConsoleTree` | Build explicit nodes or supply hierarchical data. |
 | `Format-SpectrePanel` | `New-ConsolePanel` then `Show-Console` | Builder returns a widget; does not draw it. |
 | `Write-SpectreHost` | `Write-ConsoleText -Markup` | Escape untrusted bracketed text; semantic roles are available. |
-| `Write-SpectreRule` | `Show-ConsoleRule` | `New-ConsoleRule` constructs a reusable definition. |
+| `Write-SpectreRule` | `Show-Console -View Rule` | `New-ConsoleRule` constructs a reusable definition. |
 | `Read-SpectreSelection`, `Read-SpectreSelectionGrouped` | `Read-ConsoleSelect -Display ... -GroupBy ...` | Returns the selected original object. |
-| `Read-SpectreMultiSelection`, grouped variant | `Read-ConsoleMultiSelect` | Returns chosen objects; check cancellation behavior. |
+| `Read-SpectreMultiSelection`, grouped variant | `Read-ConsoleSelect -Multiple` | Returns chosen objects; check cancellation behavior. |
 | `Read-SpectreText`, `Read-SpectreConfirm` | `Read-ConsoleText`, `Read-ConsoleConfirm` | Defaults and validation use different parameters. |
 | `Invoke-SpectreCommandWithProgress` | `Use-ConsoleProgress` or `Invoke-ConsoleRun` | Wrap native progress, or execute per-item work with a run view. |
 | `Invoke-SpectreCommandWithStatus` | `Show-ConsoleStatusLine` with `try/finally` | Explicitly complete the status line. |
 | `Invoke-SpectreLive` | `Invoke-ConsoleDashboard` | Session handles update named widgets. |
 | `Write-SpectreFigletText` | `New-ConsoleLogo` then `Show-Console` | Different lettering; no `.flf` font loading. |
-| `New-SpectreChartItem`, `Format-SpectreBarChart` | `Show-ConsoleChart` or `New-ConsoleBarItem`/`New-ConsoleBarChart` | Ordinary object rows work with the display command. |
-| `Format-SpectreBreakdownChart` | `New-ConsoleBarChart -Stacked` | Proportions, with ConsoleMonster's own legend/layout. |
-| `Format-SpectreGrid`, `Format-SpectreColumns`, `Format-SpectreRows` | `New-ConsoleGrid`, `New-ConsoleColumns`, `New-ConsoleRows` | Definitions; pipe the result to `Show-Console`. |
-| `Format-SpectreJson`, `Format-SpectreException` | `Show-ConsoleJson`, `Show-ConsoleError` | Display JSON or an error; do not emit new error records. |
-| `Write-SpectreCalendar` | No direct equivalent | See the [roadmap](https://github.com/EvotecIT/ConsoleMonster/blob/master/ROADMAP.md). |
+| `New-SpectreChartItem`, `Format-SpectreBarChart` | `Show-Console -View Chart` or record rows piped to `New-ConsoleChart -Type Bar` | Ordinary object rows work with the display command. |
+| `Format-SpectreBreakdownChart` | `New-ConsoleChart -Type Stacked` | Proportions, with ConsoleMonster's own legend/layout. |
+| `Format-SpectreGrid`, `Format-SpectreColumns`, `Format-SpectreRows` | `New-ConsoleLayoutGrid`, `New-ConsoleColumns`, `New-ConsoleRows` | Definitions; pipe the result to `Show-Console`. |
+| `Format-SpectreJson`, `Format-SpectreException` | `Show-Console -View Json`, `Show-Console -View Error` | Display JSON or an error; do not emit new error records. |
+| `Write-SpectreCalendar` | `New-ConsoleCalendar` then `Show-Console` | Month/year display with dated outcome rows; see the [operations calendar](/demos/operations-calendar/). |
 
 </div>
 
@@ -104,7 +104,7 @@ $review = Read-ConsoleConfirm "Review $($server.Name)?" -Default $false
 </div>
 </div>
 
-The right-hand selection preserves `Site`, `Pending` and `Status` on the chosen object. Use `Read-ConsoleMultiSelect` for several rows. Handle the terminating `PromptCanceled` error on cancellation; do not silently treat cancellation as approval. In unattended runs provide values yourself, or use explicit defaults and `-Mode None` where appropriate.
+The right-hand selection preserves `Site`, `Pending` and `Status` on the chosen object. Use `Read-ConsoleSelect -Multiple` for several rows. Handle the terminating `PromptCanceled` error on cancellation; do not silently treat cancellation as approval. In unattended runs provide values yourself, or use explicit defaults and `-Mode None` where appropriate.
 
 ## 3. Report progress while collecting data
 
@@ -197,7 +197,7 @@ Write-SpectreHost '[yellow]SQL01 needs review[/]'
 
 ```powershell
 New-ConsoleLogo 'Ops' | Show-Console
-Show-ConsoleRule 'Patch inventory'
+Show-Console -View Rule 'Patch inventory'
 Write-ConsoleText -Markup '[warn]SQL01 needs review[/]'
 ```
 
@@ -226,7 +226,7 @@ Format-SpectreBarChart -Data $items -Label 'Pending patches'
 **ConsoleMonster**
 
 ```powershell
-$servers | Show-ConsoleChart -Label Name -Property Pending -Type Bar
+$servers | Show-Console -View Chart -Label Name -Property Pending -Type Bar
 # For composition, build the chart and pass the widget to a panel/dashboard.
 ```
 
@@ -239,7 +239,7 @@ $servers | Show-ConsoleChart -Label Name -Property Pending -Type Bar
 - `Show-* -AsString` and `-AsWidget` suppress host display. Export commands own file formats. The native PowerShell pipeline remains objects until a deliberate display/export boundary.
 - PowerShell 5.1 uses the .NET Framework build; PowerShell 7 isolates the binary module in its own assembly load context. Test scripts on the hosts you support; running in PowerShell 7 does not establish native 5.1 proof.
 - A Nerd Font is unnecessary for built-in rendering. ASCII/plain fallback is available; custom glyphs and emoji still need a font that contains them.
-- No automatic conversion exists for Spectre renderables, Figlet fonts or calendar output. Check the [roadmap](https://github.com/EvotecIT/ConsoleMonster/blob/master/ROADMAP.md) before replacing those paths.
+- No automatic conversion exists for Spectre renderables or Figlet fonts. Calendar output uses `New-ConsoleCalendar` with a month or year view. Check the [roadmap](https://github.com/EvotecIT/ConsoleMonster/blob/master/ROADMAP.md) before replacing those paths.
 
 ## Sources and next steps
 

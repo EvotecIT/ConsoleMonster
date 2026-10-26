@@ -8,7 +8,7 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a checklist of items with status markers.
 
-Items come from a script block of New-ConsoleStatusItem calls (each with its own status and detail), from the pipeline, from -InputObject (labels mapped to statuses) or from -Item (labels added as pending, for a live checklist). Statuses use the shared vocabulary: Pass, Fail, Warn, Skip, Info, Running, Pending and PowerShell's words such as Success, Warning and Error. Status is always shown with a symbol (or a [PASS]-style word in ASCII mode), never by colour alone. To add items later, pipe the list to Add-ConsoleItem; in a live dashboard, update items with Update-ConsoleStatusItem.
+Items come from a script block of Key/Label/Status records calls (each with its own status and detail), from the pipeline, from -InputObject (labels mapped to statuses) or from -Item (labels added as pending, for a live checklist). Statuses use the shared vocabulary: Pass, Fail, Warn, Skip, Info, Running, Pending and PowerShell's words such as Success, Warning and Error. Status is always shown with a symbol (or a [PASS]-style word in ASCII mode), never by colour alone. To add items later, pipe the list to Add-ConsoleItem; in a live dashboard, update items with Update-Console.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -19,17 +19,17 @@ New-ConsoleStatusList [[-WidgetId] <string>] [[-InputObject] <psobject>] [[-Cont
 ## DESCRIPTION
 Creates a checklist of items with status markers.
 
-Items come from a script block of New-ConsoleStatusItem calls (each with its own status and detail), from the pipeline, from -InputObject (labels mapped to statuses) or from -Item (labels added as pending, for a live checklist). Statuses use the shared vocabulary: Pass, Fail, Warn, Skip, Info, Running, Pending and PowerShell's words such as Success, Warning and Error. Status is always shown with a symbol (or a [PASS]-style word in ASCII mode), never by colour alone. To add items later, pipe the list to Add-ConsoleItem; in a live dashboard, update items with Update-ConsoleStatusItem.
+Items come from a script block of Key/Label/Status records calls (each with its own status and detail), from the pipeline, from -InputObject (labels mapped to statuses) or from -Item (labels added as pending, for a live checklist). Statuses use the shared vocabulary: Pass, Fail, Warn, Skip, Info, Running, Pending and PowerShell's words such as Success, Warning and Error. Status is always shown with a symbol (or a [PASS]-style word in ASCII mode), never by colour alone. To add items later, pipe the list to Add-ConsoleItem; in a live dashboard, update items with Update-Console.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
 New-ConsoleStatusList -Content {
-    New-ConsoleStatusItem 'Restore NuGet packages' -Status Pass -Detail '1.6 s'
-    New-ConsoleStatusItem 'Compile ConsoleMonster' -Status Pass -Detail '4.7 s'
-    New-ConsoleStatusItem 'Run Pester on PowerShell 7' -Status Warn -Detail '1 skipped'
-    New-ConsoleStatusItem 'Pack ConsoleMonster.2.0.0.nupkg' -Status Running
+    [pscustomobject]@{ Label = 'Restore NuGet packages'; Status = 'Pass'; Detail = '1.6 s' }
+    [pscustomobject]@{ Label = 'Compile ConsoleMonster'; Status = 'Pass'; Detail = '4.7 s' }
+    [pscustomobject]@{ Label = 'Run Pester on PowerShell 7'; Status = 'Warn'; Detail = '1 skipped' }
+    [pscustomobject]@{ Label = 'Pack ConsoleMonster.2.0.0.nupkg'; Status = 'Running' }
 } | Show-Console
 ```
 
@@ -44,7 +44,7 @@ Mail security checks from a hashtable
 
 ### EXAMPLE 3
 ```powershell
-$checks | ForEach-Object { New-ConsoleStatusItem $_.Name -Status $_.Result -Detail $_.Duration } | New-ConsoleStatusList | Show-Console
+$checks | ForEach-Object { [pscustomobject]@{ Label = $_.Name; Status = $_.Result; Detail = $_.Duration } } | New-ConsoleStatusList | Show-Console
 ```
 
 Items from objects in the pipeline
@@ -52,7 +52,7 @@ Items from objects in the pipeline
 ### EXAMPLE 4
 ```powershell
 $steps = New-ConsoleStatusList -Item 'Scan files', 'Copy changes', 'Verify'
-Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps }) { Update-ConsoleStatusItem -Key 'Scan files' -Status Pass -Detail '2.4 s' }
+Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps }) { Update-Console -Key 'Scan files' -Status Pass -Detail '2.4 s' -WidgetId 'status' }
 ```
 
 A live checklist: items start pending and are updated from the dashboard script
@@ -60,7 +60,7 @@ A live checklist: items start pending and are updated from the dashboard script
 ## PARAMETERS
 
 ### -Content
-A script block that emits the items: New-ConsoleStatusItem calls or hashtables with Label, Status and Detail.
+A script block that emits the items: Key/Label/Status records calls or hashtables with Label, Status and Detail.
 
 ```yaml
 Type: ScriptBlock
@@ -92,7 +92,7 @@ Accept wildcard characters: False
 ```
 
 ### -InputObject
-Items from the pipeline: New-ConsoleStatusItem objects or hashtables with Label, Status and Detail.
+Items from the pipeline: Key/Label/Status records objects or hashtables with Label, Status and Detail.
 
 ```yaml
 Type: PSObject

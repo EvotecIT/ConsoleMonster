@@ -6,20 +6,20 @@ schema: 2.0.0
 ---
 # New-ConsoleKeyValue
 ## SYNOPSIS
-Creates an aligned key/value list from a hashtable, an object's properties or New-ConsoleKeyValueItem pairs.
+Creates an aligned key/value list from a hashtable, an object's properties or Key/Value records pairs.
 
-Pairs come from a hashtable (use [ordered] to keep order), from an object's properties, or from a script block of New-ConsoleKeyValueItem calls when a pair needs a status marker, markup or a presenter. Keys are muted and aligned; values wrap. Values are shown literally unless -Markup is used. To add pairs later, pipe the list to Add-ConsoleItem; in a live dashboard, update pairs with Set-ConsoleValue.
+Pairs come from a hashtable (use [ordered] to keep order), from an object's properties, or from a script block of Key/Value records calls when a pair needs a status marker, markup or a presenter. Keys are muted and aligned; values wrap. Values are shown literally unless -Markup is used. To add pairs later, pipe the list to Add-ConsoleItem; in a live dashboard, update pairs with Update-Console.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleKeyValue [[-WidgetId] <string>] [[-InputObject] <Object>] [[-Content] <scriptblock>] [-Markup] [-NumberColumn <ColumnFormat>] [-Columns <int>] [-KeyRole <ThemeToken>] [<CommonParameters>]
+New-ConsoleKeyValue [[-WidgetId] <string>] [[-InputObject] <Object>] [[-Content] <scriptblock>] [-Markup] [-NumberColumn <ColumnFormat>] [-Gap <int>] [-MaxKeyFraction <double>] [-Columns <int>] [-KeyRole <ThemeToken>] [-Presentation <PresentationOptions>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Creates an aligned key/value list from a hashtable, an object's properties or New-ConsoleKeyValueItem pairs.
+Creates an aligned key/value list from a hashtable, an object's properties or Key/Value records pairs.
 
-Pairs come from a hashtable (use [ordered] to keep order), from an object's properties, or from a script block of New-ConsoleKeyValueItem calls when a pair needs a status marker, markup or a presenter. Keys are muted and aligned; values wrap. Values are shown literally unless -Markup is used. To add pairs later, pipe the list to Add-ConsoleItem; in a live dashboard, update pairs with Set-ConsoleValue.
+Pairs come from a hashtable (use [ordered] to keep order), from an object's properties, or from a script block of Key/Value records calls when a pair needs a status marker, markup or a presenter. Keys are muted and aligned; values wrap. Values are shown literally unless -Markup is used. To add pairs later, pipe the list to Add-ConsoleItem; in a live dashboard, update pairs with Update-Console.
 
 ## EXAMPLES
 
@@ -33,9 +33,9 @@ A summary block
 ### EXAMPLE 2
 ```powershell
 New-ConsoleKeyValue -Content {
-    New-ConsoleKeyValueItem 'Version' '0.0.4 [muted]→[/] [bold]2.0.0[/]' -Markup
-    New-ConsoleKeyValueItem 'Signing' 'skipped' -Status Skip
-    New-ConsoleKeyValueItem 'Tests' '1 skipped on PowerShell 7' -Status Warn
+    [pscustomobject]@{ Key = 'Version'; Value = '0.0.4 [muted]→[/] [bold]2.0.0[/]'; Markup = $true }
+    [pscustomobject]@{ Key = 'Signing'; Value = 'skipped'; Status = 'Skip' }
+    [pscustomobject]@{ Key = 'Tests'; Value = '1 skipped on PowerShell 7'; Status = 'Warn' }
 } | Show-Console
 ```
 
@@ -44,7 +44,7 @@ Pairs with status marks
 ### EXAMPLE 3
 ```powershell
 New-ConsoleKeyValue -InputObject ([ordered] @{ Module = 'ConsoleMonster'; Frameworks = 'netstandard2.0, net472, net8.0' }) -Content {
-    New-ConsoleKeyValueItem 'Signing' 'skipped' -Status Skip
+    [pscustomobject]@{ Key = 'Signing'; Value = 'skipped'; Status = 'Skip' }
 } | Show-Console
 ```
 
@@ -69,7 +69,7 @@ Accept wildcard characters: False
 ```
 
 ### -Content
-A script block that emits New-ConsoleKeyValueItem pairs (or hashtables), added after -InputObject.
+A script block that emits Key/Value records pairs (or hashtables), added after -InputObject.
 
 ```yaml
 Type: ScriptBlock
@@ -84,8 +84,24 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Gap
+Cells between the key column and values.
+
+```yaml
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -InputObject
-A hashtable or an object whose properties become the pairs (a script block here is taken as -Content).
+A hashtable or an object whose properties become the pairs. A record containing both Key and Value is an item descriptor, even when Value is null; Key by itself is ordinary data. A script block here is taken as -Content.
 
 ```yaml
 Type: Object
@@ -132,6 +148,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -MaxKeyFraction
+Preferred key fraction when natural widths do not fit.
+
+```yaml
+Type: Double
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -NumberColumn
 Shared NumberColumn layout settings from New-ConsoleColumnFormat.
 
@@ -148,8 +180,24 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Presentation
+Shared value-formatting culture, clock and time zone.
+
+```yaml
+Type: PresentationOptions
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -WidgetId
-The live name used by Set-ConsoleValue (default keyvalue).
+The live name used by Update-Console (default keyvalue).
 
 ```yaml
 Type: String

@@ -13,7 +13,7 @@ An Out-GridView for the console, on Windows PowerShell 5.1 and PowerShell 7. Typ
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Show-ConsoleGrid [[-Property] <Object[]>] [-InputObject <psobject>] [-Title <string>] [-OutputMode <GridSelection>] [-Filter <string>] [-SortBy <string>] [-Descending] [-Hide <string[]>] [-Action <Object[]>] [-Refresh <scriptblock>] [-Culture <cultureinfo>] [-Mode <InteractionMode>] [<CommonParameters>]
+Show-ConsoleGrid [[-Property] <Object[]>] [-InputObject <psobject>] [-Title <string>] [-OutputMode <GridSelection>] [-Filter <string>] [-SortBy <string>] [-Descending] [-Hide <string[]>] [-Command <Object[]>] [-RefreshRow <scriptblock>] [-Culture <cultureinfo>] [-Mode <InteractionMode>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,7 +25,7 @@ An Out-GridView for the console, on Windows PowerShell 5.1 and PowerShell 7. Typ
 
 ### EXAMPLE 1
 ```powershell
-Get-Service | Show-ConsoleGrid -Property Name, Status, StartType -Title 'Services' -Action @{ Restart = { param($Row) Restart-Service $Row.Name -ErrorAction Stop; "Restarted $($Row.Name)" } }
+Get-Service | Show-ConsoleGrid -Property Name, Status, StartType -Title 'Services' -Command @{ Restart = { param($Row) Restart-Service $Row.Name -ErrorAction Stop; "Restarted $($Row.Name)" } }
 ```
 
 Restart selected services with confirmation and embedded output
@@ -39,7 +39,7 @@ Browse processes sorted by memory
 
 ## PARAMETERS
 
-### -Action
+### -Command
 In-app commands or a hashtable of action keys and script blocks. Use New-ConsoleCommand for shortcuts, optional confirmation and explicit arguments/modules. Ctrl+K opens actions; F6 cancels work.
 
 ```yaml
@@ -183,7 +183,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Refresh
+### -RefreshRow
 Refreshes each acted-on row on the caller's input thread after successful completion. Receives param($Row, $CommandKey) and returns one replacement object. Keep the callback short; action work belongs in New-ConsoleCommand.
 
 ```yaml

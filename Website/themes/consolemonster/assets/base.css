@@ -225,7 +225,7 @@ main > .cm-band { contain-intrinsic-size: auto 900px; }
 /* Code blocks: one component for every snippet. */
 .cm-code { position: relative; margin: 0; min-width: 0; border-radius: 10px; background: var(--cm-surface); box-shadow: inset 0 0 0 1px var(--cm-line); overflow: hidden; }
 .cm-code__bar { display: flex; align-items: center; gap: 10px; min-height: 36px; padding: 0 8px 0 14px; border-bottom: 1px solid var(--cm-line); color: var(--cm-muted); font: 500 12px/1 var(--cm-mono); }
-.cm-code__lang { color: var(--cm-ink); font-weight: 600; }
+.cm-code__lang { color: var(--cm-ink); font-weight: 600; flex-shrink: 0; white-space: nowrap; }
 .cm-code__file { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cm-code__copy { margin-left: auto; height: 26px; padding: 0 10px; border: 0; border-radius: 5px; background: transparent; color: var(--cm-muted); font: 500 12px/1 var(--cm-mono); white-space: nowrap; flex-shrink: 0; cursor: pointer; }
 .cm-code__copy:hover { background: var(--cm-hover); color: var(--cm-ink); }
@@ -245,6 +245,9 @@ main > .cm-band { contain-intrinsic-size: auto 900px; }
 .cm-code.is-wide .cm-code__repo { order: 1; }
 .cm-code.is-wide:has(.cm-code__repo) .cm-code__bar::after { margin-left: 0; }
 @media (max-width: 480px) { .cm-code.is-wide .cm-code__bar::after { content: "scroll \2192" / ""; } }
+@media (max-width: 600px) {
+  .cm-code__bar { flex-wrap: wrap; row-gap: var(--cm-space-1); padding-block: var(--cm-space-1); }
+}
 .cm-code code { white-space: inherit; }
 /* Code never wraps, on any screen: a wrapped line starts at column 0 and loses its indentation, so a long line scrolls
    sideways instead. While there is more to the right, the right edge fades out (frames.js marks the end once it is

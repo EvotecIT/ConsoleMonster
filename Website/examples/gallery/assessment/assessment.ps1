@@ -253,30 +253,30 @@ $dashboard = New-ConsoleDashboard -Title '[bold]Nightly checks[/]' -Subtitle 'ad
     New-ConsolePadding -Padding 1, 0, 1, 1 -Content {
         New-ConsolePhases -Content {
             foreach ($phase in 'Discover', 'Collect', 'Evaluate', 'Report') {
-                New-ConsoleStatusItem -Label $phase -Status Pending
+                [pscustomobject]@{ Label = $phase; Status = 'Pending' }
             }
         }
     }
     New-ConsoleColumns -Content {
         New-ConsolePanel -Title Targets -HeaderRight '6 workers' -Weight 2.3 -Content { $lanes }
         New-ConsolePanel -Title Results -Content {
-            New-ConsoleBarChart -WidgetId results -Stacked -InputObject $results
+            New-ConsoleChart -WidgetId results -InputObject $results -Type Stacked
             New-ConsoleRule
             New-ConsoleKeyValue -WidgetId summary -InputObject $summary
         }
     }
     New-ConsoleColumns -Content {
         New-ConsolePanel -Title Throughput -HeaderRight 'rules/s' -Weight 1.2 -Content {
-            New-ConsoleLineChart -WidgetId throughput -Height 7 -Content {
-                New-ConsoleChartSeries -Key completed  -Role Accent
-                New-ConsoleChartSeries -Key failed  -Role Fail
-            }
+            New-ConsoleChart -WidgetId throughput -Height 7 -Content {
+                [pscustomobject]@{ Key = 'completed'; Role = 'Accent' }
+                [pscustomobject]@{ Key = 'failed'; Role = 'Fail' }
+            } -Type Line
         }
         New-ConsolePanel -Title 'Rule duration' -Content {
-            New-ConsoleHistogram -WidgetId durations -Height 6 -Unit s -Edge 0, 0.25, 0.5, 1, 2, 4, 8
+            New-ConsoleChart -WidgetId durations -Height 6 -Unit s -Type Histogram -Edges 0, 0.25, 0.5, 1, 2, 4, 8
         }
         New-ConsolePanel -Title 'Failures by category' -Content {
-            New-ConsoleBarChart -WidgetId findings -Role Fail -InputObject $findings
+            New-ConsoleChart -WidgetId findings -Role Fail -InputObject $findings -Type Bar
         }
     }
     New-ConsolePanel -Title Log -Fill -Content {

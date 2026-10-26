@@ -23,12 +23,12 @@ Describe 'Live regions, live tables, targets and symbol fallback' {
 
     It 'swaps a region and updates the live widgets inside the new content' {
         $text = Invoke-ContentChild -Script @'
-$d = New-ConsoleDashboard -Title 'Swap' -Content { New-ConsolePanel -Title 'Main' -Content { New-ConsoleRegion -WidgetId main -Content { New-ConsoleSpinner -Label 'waiting' } } }
+$d = New-ConsoleDashboard -Title 'Swap' -Content { New-ConsolePanel -Title 'Main' -Content { New-ConsoleRegion -WidgetId main -Content { New-ConsoleProgress -Label 'waiting' -Indeterminate -WidgetId 'spinner' } } }
 Invoke-ConsoleDashboard $d {
-    Set-ConsoleRegion -WidgetId main -Content { New-ConsoleLanes -WidgetId servers }
-    Update-ConsoleLane -WidgetId servers -Key srv1 -Status Running
-    Update-ConsoleLane -WidgetId servers -Key srv1 -Result Pass
-    Update-ConsoleLane -WidgetId servers -Key srv1 -Complete
+    Update-Console -WidgetId main -Content { New-ConsoleLanes -WidgetId servers }
+    Update-Console -WidgetId servers -Key srv1 -Status Running
+    Update-Console -WidgetId servers -Key srv1 -Result Pass
+    Update-Console -WidgetId servers -Key srv1 -Complete
 }
 '@
         $text | Should -Match 'srv1 started'
@@ -37,12 +37,12 @@ Invoke-ConsoleDashboard $d {
 
     It 'adds, updates and removes live table rows by key' {
         $text = Invoke-ContentChild -Script @'
-$d = New-ConsoleDashboard -Title 'Jobs' -Content { New-ConsoleLiveTable -WidgetId jobs -Column 'Job', 'State' -MaxRows 10 }
+$d = New-ConsoleDashboard -Title 'Jobs' -Content { New-ConsoleTable -WidgetId jobs -MaxRows 10 -Live -Columns 'Job', 'State' }
 Invoke-ConsoleDashboard $d {
-    Update-ConsoleLiveTable -WidgetId jobs -Key 1 -Value 'backup', 'running'
-    Update-ConsoleLiveTable -WidgetId jobs -Key 1 -Value 'backup', 'done'
-    Update-ConsoleLiveTable -WidgetId jobs -Key 2 -Value 'sync', 'running'
-    Update-ConsoleLiveTable -WidgetId jobs -Key 2 -Remove
+    Update-Console -WidgetId jobs -Row ([pscustomobject]@{ Key = 1; Values = @('backup', 'running') })
+    Update-Console -WidgetId jobs -Row ([pscustomobject]@{ Key = 1; Values = @('backup', 'done') })
+    Update-Console -WidgetId jobs -Row ([pscustomobject]@{ Key = 2; Values = @('sync', 'running') })
+    Update-Console -WidgetId jobs -Key 2 -RemoveRow
 }
 '@
         $text | Should -Match 'backup  running'
@@ -71,7 +71,7 @@ $captured
 
     It 'writes to a file with Use-ConsoleTarget -Path' {
         $file = Join-Path $TestDrive 'report.txt'
-        $null = Invoke-ContentChild -Script "Use-ConsoleTarget -Path '$file' -Width 40 { Show-ConsoleRule -Title 'Report'; Write-ConsoleText -Markup '[muted]end[/]' }"
+        $null = Invoke-ContentChild -Script "Use-ConsoleTarget -Path '$file' -Width 40 { Show-Console -View Rule -Title 'Report'; Write-ConsoleText -Markup '[muted]end[/]' }"
         $content = Get-Content -LiteralPath $file
         $content[0] | Should -Match 'Report'
         $content[0].Length | Should -Be 40
@@ -92,17 +92,17 @@ $bar = New-ConsoleSummaryBar -Total 4 -Counter ([ordered] @{ passed = 0; failed 
 $list = New-ConsoleActivityList -WidgetId running
 $d = New-ConsoleDashboard -Title 'Fleet' -Content { $bar; $map; $list }
 Invoke-ConsoleDashboard $d {
-    Update-ConsoleActivity -WidgetId running -Id 1 -Activity 'SRV01 check'
-    Update-ConsoleActivity -WidgetId running -Id 2 -Activity 'SRV02 check' -PercentComplete 50 -Detail 'second try'
-    Update-ConsoleCell -WidgetId checks -Index 0, 1 -Status Pass
-    Update-ConsoleCell -WidgetId checks -Index 3 -Status Error
-    Update-ConsoleCell -WidgetId checks -Add -Status Warn
-    Update-ConsoleSummaryBar -Done 1 -Counter ([ordered] @{ passed = 1 })
-    Update-ConsoleSummaryBar -Done 3 -Counter ([ordered] @{ passed = 2; failed = 1 })
-    Update-ConsoleActivity -WidgetId running -Id 1 -Completed
+    Update-Console -WidgetId running -Key 1 -Label 'SRV01 check'
+    Update-Console -WidgetId running -Key 2 -Label 'SRV02 check' -Value 50 -Detail 'second try'
+    Update-Console -WidgetId checks -Index 0, 1 -Status Pass
+    Update-Console -WidgetId checks -Index 3 -Status Error
+    Update-Console -WidgetId checks -Status Warn -AppendCells
+    Update-Console -Counter ([ordered] @{ passed = 1 }) -WidgetId 'summary' -Value 1
+    Update-Console -Counter ([ordered] @{ passed = 2; failed = 1 }) -WidgetId 'summary' -Value 3
+    Update-Console -WidgetId running -Key 1 -Complete
 }
 "map=$($map[0]),$($map[1]),$($map[2]),$($map[3]),$($map[4])"
-"bar=$($bar.Done)/$($bar.Total)"
+"bar=$($bar.Value)/$($bar.Total)"
 "activities=$($list.Count)"
 '@
         $text | Should -Match 'map=Pass,Pass,Pending,Fail,Warn'

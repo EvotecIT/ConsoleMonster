@@ -50,12 +50,12 @@ namespace ConsoleMonster.Examples.Showcases {
 
             // A typed table: each column reads a property, configured fluently.
             Table records = Table.For(Records)
-                .WithExpand()
-                .WithHeaderSeparator(false)
-                .Column(r => r.Name, c => c.WithWrap(false))
-                .Column(r => r.Type, c => c.WithWrap(false))
-                .Column(r => r.Ttl, c => c.WithHeader("TTL").WithAlignment(HorizontalAlignment.Right))
-                .Column(r => r.Data, c => c.WithFlexible());
+                .Expand()
+                .HeaderSeparator(false)
+                .Column(r => r.Name, c => c.Wrap(false))
+                .Column(r => r.Type, c => c.Wrap(false))
+                .Column(r => r.Ttl, c => c.Header("TTL").Alignment(HorizontalAlignment.Right))
+                .Column(r => r.Data, c => c.Flexible());
             Tree delegation = new Tree("[bold].[/] [muted]root[/]");
             TreeNode xyz = delegation.Add("[bold]xyz.[/]", null, "6 name servers");
             xyz.Add("x.nic.xyz", null, "194.169.218.42");

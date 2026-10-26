@@ -20,7 +20,17 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Explicit connections; omitted adjacent connections use an unlabelled arrow.</summary>
         public IReadOnlyList<FlowEdge> Edges => _edges;
         /// <summary>The single optional branch.</summary>
-        public FlowBranch? Branch { get; private set; }
+        public FlowBranch? Branch {
+            get => _branch;
+            set {
+                if (value != null && string.IsNullOrWhiteSpace(value.Label)) { throw new ArgumentException("A branch needs a label.", nameof(value)); }
+                if (value != null && (Index(value.From) < 0 || value.To != null && Index(value.To) <= Index(value.From))) {
+                    throw new ArgumentException("A branch needs an existing source and an optional later destination.", nameof(value));
+                }
+                _branch = value;
+            }
+        }
+        private FlowBranch? _branch;
 
         /// <summary>Adds a node or replaces the node with the same key in place.</summary>
         /// <param name="node">The node.</param><returns>This flow.</returns>
@@ -43,17 +53,6 @@ namespace ConsoleMonster.Widgets {
             int existing = _edges.FindIndex(e => e.Key == edge.Key);
             if (_edges.Exists(e => e.From == edge.From && e.Key != edge.Key)) throw new ArgumentException("Only one edge may join adjacent nodes.", nameof(edge));
             if (existing < 0) _edges.Add(edge); else _edges[existing] = edge;
-            return this;
-        }
-
-        /// <summary>Sets the one side branch, ending below its source or returning to a later node.</summary>
-        /// <param name="branch">The branch, or null to remove it.</param><returns>This flow.</returns>
-        public Flow WithBranch(FlowBranch? branch) {
-            if (branch != null && string.IsNullOrWhiteSpace(branch.Label)) throw new ArgumentException("A branch needs a label.", nameof(branch));
-            if (branch != null && (Index(branch.From) < 0 || (branch.To != null && Index(branch.To) <= Index(branch.From)))) {
-                throw new ArgumentException("A branch needs an existing source and an optional later destination.", nameof(branch));
-            }
-            Branch = branch;
             return this;
         }
 

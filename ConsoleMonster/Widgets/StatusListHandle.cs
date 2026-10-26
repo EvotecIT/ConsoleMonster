@@ -14,11 +14,15 @@ namespace ConsoleMonster.Widgets {
         /// <param name="key">Row key.</param>
         /// <param name="status">Status.</param>
         /// <param name="label">Label (markup), or <c>null</c> to keep it.</param>
-        public void Set(string key, StatusKind status, string? label = null) => Post("set", key, label, status.ToString());
+        public void Set(string key, StatusKind status, string? label = null) {
+            var update = new WidgetUpdate { Key = key, Status = status };
+            if (label != null) { update.Label = label; }
+            Update(update);
+        }
 
         /// <summary>Sets the right-aligned detail of a row.</summary>
         /// <param name="key">Row key.</param>
         /// <param name="detail">Detail text.</param>
-        public void Detail(string key, string detail) => Post("detail", key, detail);
+        public void Detail(string key, string detail) => Update(new WidgetUpdate { Key = key, Detail = detail });
     }
 }

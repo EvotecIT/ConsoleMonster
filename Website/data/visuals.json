@@ -254,11 +254,11 @@
     "formatting": {
       "src": "/site/cards/formatting.svg"
     },
-    "profile-detected": {
-      "src": "/site/cards/profile-detected.svg"
-    },
     "three-fluent": {
       "src": "/site/cards/three-fluent.svg"
+    },
+    "profile-detected": {
+      "src": "/site/cards/profile-detected.svg"
     },
     "overrides-plain": {
       "src": "/site/cards/overrides-plain.svg"

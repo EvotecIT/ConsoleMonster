@@ -9,9 +9,7 @@ using ConsoleMonster.Widgets;
 string greeting = "[bold accent]Welcome, explorer.[/] [muted]Workspace profile[/]";
 string workspace = "[muted]Workspace[/] comet-notes   [muted]Branch[/] main   [pass]clean[/]";
 string tip = "[muted]Tip[/] Get-Help Show-Console -Examples";
-
 // Layout: compose the greeting from the data above.
 TextBlock layout = new TextBlock($"{greeting}\n{workspace}\n{tip}");
-
 // Behaviour: print the screen once and return.
 Terminal.Write(layout);

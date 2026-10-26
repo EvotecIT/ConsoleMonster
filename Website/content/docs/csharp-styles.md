@@ -1,36 +1,60 @@
 ---
-title: Three ways to write it in C#
-description: "Fluent methods, object initializers or the Ui factories: three complete programs that print the same frame, and when each reads best."
+title: Three ways to write it
+description: "Translate the same widgets between PowerShell parameters, C# initializers and C# fluent calls."
 slug: csharp-styles
 order: 2
 group: start
 card: three-fluent
-chips: [Fluent, Objects, Ui factories]
-apis: [Table.For, DashboardBuilder, Ui]
-summary: "Fluent, objects or Ui factories: the same widgets, three ways."
+chips: [PowerShell, C#, C# fluent]
+apis: [Panel, Table.For, ContentBuilder, WidgetPipeline]
+summary: "The same widgets as PowerShell, C# initializers and C# fluent calls."
 ---
 
-Every widget can be written in three styles. They build the same objects, so they print the same output: the three programs below each printed this frame, cell for cell. Use whichever reads best for the case, and mix them freely in one program.
+Every demo has three tabs: **PowerShell | C# | C# fluent**. They use the same widgets and operations. Choose the spelling that reads best, then use the other tabs to translate it. The choice follows you between pages; PowerShell is the default.
 
 ## Try it
 
-{{< cm-try key="styles" scenarios="Fluent:three-fluent|Object initializers:three-objects|Ui factories:three-composed" project="Servers" caption="Each tab is a complete Program.cs; all three print the same frame." >}}
+{{< cm-try key="styles" ids="three-fluent" project="Servers" caption="The same servers, summary and CPU history in three source styles." >}}
 
-## How each style reads
+## Parameters become properties and methods
 
-- **Fluent.** A `With...` method for every settable property and `Add...` methods for every collection, plus typed tables: `Table.For(items)` reads each column's header from its expression. The whole layout is one expression that reads top to bottom. The docs and the gallery use this style.
-- **Object initializers.** The canonical model: each widget is a variable, set with properties (`new Table { ShowTotals = true }`) and filled with `Add` calls. It reads best when you set many options at once, fill rows in a loop, or keep a widget to change later.
-- **Ui factories.** `using static ConsoleMonster.Ui;` brings short factories (`Rows`, `Columns`, `Panel`, `Table`, `KeyValue`, `Text`, `Sparkline` and others), so the code has the shape of the screen. The `With...` methods are extension methods in each widget's own namespace, so `ConsoleMonster.Layout` and `ConsoleMonster.Widgets` stay among the `using` lines. With the factories, write `Table(items)` rather than `Table.For(items)`, because the factory takes the name `Table`.
+A parameter keeps its domain name: `-Title 'Build'` becomes `Title = "Build"` or `.Title("Build")`. Panel's `-Border Rounded` maps to `Border = BoxStyle.Rounded` and `.Border(BoxStyle.Rounded)`; Table uses its own `TableBorder` enum with the same property name. Each demo's generated **How it maps** note names its actual owning members.
 
-## When to use which
+Callback properties use `.Configure(item => item.Action = callback)`. C# treats `.Action(...)` as invoking the delegate property, so a property-named extension cannot assign it. Configure returns the same object and runs the assignments in order; it does not invoke the callback. The generated mapping notes show this exception for each affected parameter.
 
-- **One widget, configured in one place:** fluent.
-- **Many options, rows from a loop, or a widget you update later:** object initializers.
-- **A layout of panels, rows and columns:** the Ui factories, or fluent if you prefer `new`.
-- **A live dashboard:** `DashboardBuilder`, which hands each live widget back through an `out` parameter for its typed handle (see [Live sessions](/docs/live-sessions/)).
+```powershell
+New-ConsolePanel -Title 'Build' -Border Rounded -Content {
+    New-ConsoleText 'All checks passed'
+} | Show-Console
+```
 
-The fluent methods are generated at build time from each widget's public properties and compiled into `ConsoleMonster.dll`, so every property has one, on every target framework, with nothing generated or reflected at run time.
+```csharp
+var panel = new Panel {
+    Title = "Build",
+    Border = BoxStyle.Rounded,
+    Content = new TextBlock("All checks passed")
+};
+Terminal.Write(panel);
+```
 
-## Related
+```csharp
+Ui.Panel()
+    .Title("Build")
+    .Border(BoxStyle.Rounded)
+    .Content(c => c.Text("All checks passed"))
+    .Show();
+```
 
-The [widget gallery](/widgets/) shows every widget in the fluent style with its PowerShell twin, and [live sessions](/docs/live-sessions/) build dashboards with `DashboardBuilder`.
+The C# snippets use `ConsoleMonster`, `ConsoleMonster.Layout`, `ConsoleMonster.Glyphs` and `ConsoleMonster.Widgets`. `.Content(widget)` attaches an existing widget; `.Content(c => …)` builds nested content, like PowerShell's `-Content { … }`. Rows, Columns, Stack, LayoutGrid, Panel and dashboard regions use the same grammar.
+
+A pipeline ending becomes a chain ending: `| Show-Console` maps to `.Show()`, and `| Export-ConsoleFrame -Path ./build.svg -Format Svg` maps to `.Export("./build.svg", "Svg")`. Export dispatches through the same registered format providers. Add `ConsoleMonster.Markdown` for Markdown display/export and `ConsoleMonster.Graphics` for raster formats; the core does not implement those formats.
+
+PowerShell switches name the non-default behavior: `-NoMouse` maps to `Mouse = false` and `.Mouse(false)`. Numeric `-TimeoutSeconds 0.5` maps to `Timeout = TimeSpan.FromSeconds(0.5)` and `.Timeout(TimeSpan.FromSeconds(0.5))`. Constructor arguments, collection rows and host callbacks have explicit entries in the [API parity map](/docs/api-parity/).
+
+## Choosing a style
+
+Use initializers for several settings, named variables and rows filled in a loop. Use fluent calls when one expression makes the layout easier to follow. Both mutate the same object and return the same widget types. Configure a widget before starting a live session; once the session owns it, use its update API.
+
+Fluent methods are generated at build time from public properties. They use no runtime reflection and retain the receiver's derived type. Immutable values such as TerminalProfile keep their existing copy semantics and `With*` methods. The fluent entry point is `Ui`: `New-ConsolePanel` maps to `Ui.Panel()`, and a nested panel maps to `c.Panel(p => p.Title("Build").Content(...))`. Factories start empty; named calls configure them. The initializer tab keeps `new Panel(...)`. Text, rule titles, row collections and live identities are the documented primary-input exceptions. Chart/progress and kind-selected inputs use the same typed options and `Build()` factories as PowerShell; content builders materialize these definitions after their configuration lambda.
+
+The [gallery](/demos/) checks all three maintained programs across every recorded state. The [API reference](/api/) shows property and fluent configuration forms together; the [parity contract](/docs/api-parity/) lists host and C#-only exceptions.

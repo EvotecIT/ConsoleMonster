@@ -10,26 +10,26 @@ Application controls (`New-ConsoleSelect` and friends inside `Show-ConsoleApp`) 
 | Job | Primary command | Composition or lifecycle |
 | --- | --- | --- |
 | Show ordinary objects or a widget | `Show-Console` | Automatic view selection; accepts an `IWidget` directly. |
-| Show a table, record or hierarchy | `Show-ConsoleTable`, `Show-ConsoleList`, `Show-ConsoleTree` | `New-ConsoleTable`, `New-ConsoleKeyValue`, `New-ConsoleTree` build definitions. `Show-ConsoleList` accepts a hashtable or ordered dictionary directly. |
+| Show a table, record or hierarchy | `Show-ConsoleTable`, `Show-ConsoleList`, `Show-Console -View Tree` | `New-ConsoleTable`, `New-ConsoleKeyValue`, `New-ConsoleTree` build definitions. `Show-ConsoleList` accepts a hashtable or ordered dictionary directly. |
 | Inspect an object | `Show-ConsoleObject` | Keyboard explorer, or `-StaticSnapshot`, `-AsString` or `-AsWidget`. |
-| Show a separator | `Show-ConsoleRule 'Section'` | `New-ConsoleRule` builds the same widget for a layout. |
-| Show data as a chart | `Show-ConsoleChart` | `New-ConsoleBarChart`, `New-ConsoleLineChart`, `New-ConsoleSparkline` and `New-ConsoleHistogram` build reusable charts. |
+| Show a separator | `Show-Console -View Rule -Title 'Section'` | `New-ConsoleRule` builds the same widget for a layout. |
+| Show data as a chart | `Show-Console -View Chart` | `New-ConsoleChart -Type Bar|Stacked|Line|Scatter|Histogram|Sparkline` builds a reusable numeric chart; `New-ConsoleCellMap` builds a categorical outcome grid. |
 | Write text | `Write-ConsoleText` | `New-ConsoleText` creates rich text for another widget. |
-| Show an error | `Show-ConsoleError` | Displays the supplied exception or error record; does not emit another PowerShell error record. |
-| Show a one-line status | `Show-ConsoleStatusLine` | `-Complete` finishes it. A dashboard status-list item uses `Update-ConsoleStatusItem`. |
+| Show an error | `Show-Console -View Error` | Displays the supplied exception or error record; does not emit another PowerShell error record. |
+| Show a one-line status | `Show-ConsoleStatusLine` | `-Complete` finishes it. A dashboard status-list item uses `Update-Console`. |
 | Follow a log source | `Watch-ConsoleLog` | `New-ConsoleLogRegion` builds a dashboard destination; `Write-ConsoleLogEntry` sends a message to it. |
 | Run a dashboard | `Invoke-ConsoleDashboard` | Creates the live session, waits for the script and restores the terminal. |
-| Run items | `Invoke-ConsoleRun` | `Start-ConsoleRun` returns a handle; `Wait-ConsoleRun` waits and `Complete-ConsoleRun` finalizes it. |
-| Adapt native progress | `Use-ConsoleProgress` | Scopes existing `Write-Progress` calls. `New-ConsoleProgress` builds a dashboard bar; `Update-ConsoleProgress` addresses it. |
-| Ask for an answer | `Read-ConsoleText`, `Read-ConsoleNumber`, `Read-ConsoleConfirm`, `Read-ConsoleSelect`, `Read-ConsoleMultiSelect`, `Read-ConsolePath`, `Read-ConsoleSecret` | `New-ConsoleForm` builds a form; `Read-ConsoleForm` collects its answers. |
+| Run items | `Invoke-ConsoleRun` | `Start-ConsoleRun` returns a handle; `Complete-ConsoleRun -Wait` waits, finalizes and releases it. Use `Complete-ConsoleRun` for immediate finalization. |
+| Adapt native progress | `Use-ConsoleProgress` | Scopes existing `Write-Progress` calls. `New-ConsoleProgress` builds a dashboard bar; `Update-Console` addresses it. |
+| Ask for an answer | `Read-ConsoleText [-AsSecret]`, `Read-ConsoleNumber`, `Read-ConsoleConfirm`, `Read-ConsoleSelect [-Multiple]`, `Read-ConsolePath` | `New-ConsoleForm` builds a form; `Read-ConsoleForm` collects its answers. |
 | Run an action menu or app | `Show-ConsoleMenu`, `Show-ConsoleApp` | `New-ConsoleMenuItem` defines an action. `New-ConsoleSelect` and the other application controls persist in app state. |
 | Record a child terminal | `Invoke-ConsoleRecording` | Supply a script and `-Destination`, or use `-Interactive`. Stop and marker commands apply inside the recorded child. |
 | Play dashboard events | `Show-ConsoleReplay` | `-PlaybackMode Interactive` is the player; `Automatic` plays through the same event engine without keys. |
 | Export output | `Export-ConsoleFrame`, `Export-ConsoleRecording` | Frame export accepts ordinary objects as well as widgets and snapshots. `Copy-ConsoleOutput` uses the same `-Format` vocabulary. |
 | Browse embedded demos | `Get-ConsoleDemo`, `Show-ConsoleDemo` | `Export-ConsoleDemo <slug> -Path` writes the standalone script. |
-| Present a script | `Show-ConsolePresentation -Path talk.ps1` | `Invoke-ConsolePresentation -Path talk.ps1 -Destination talk.cast` records typed execution unattended. C# retains `ConsoleDemo.Present` and `ConsoleDemo.Record`. |
+| Present a script | `Show-ConsolePresentation -Path talk.ps1` | `Invoke-ConsolePresentation -Path talk.ps1 -Destination talk.cast` records typed execution unattended. C# retains `ConsolePresentation.Present` and `ConsolePresentation.Record`. |
 
-`New` returns a definition. `Show` renders or runs a viewer. `Read` returns an answer. `Invoke` waits for work, while `Start` returns an active handle. `Write` sends text or an update to its destination. `Format` remains PowerShell's formatting-record contract; ConsoleMonster exports no `Format-*` commands. `Out-ConsoleDefault` and `Out-ConsoleFormatCommand` are advanced native-formatting adapters.
+`New` returns a definition. `Show` renders or runs a viewer. `Read` returns an answer. `Invoke` waits for work, while `Start` returns an active handle. `Write` sends text or an update to its destination. `Format` returns formatting objects or text: `Format-ConsoleCommand` returns a command-invocation string. Display uses `Show`, and native `Format-*` adapters retain the formatting-record contract. `Out-ConsoleDefault` and `Out-ConsoleFormatCommand` are advanced native-formatting adapters.
 
 ## Composition and output
 
@@ -42,7 +42,7 @@ $rows = @(
 )
 $rows | Show-ConsoleTable
 Show-ConsoleList ([ordered] @{ Region = 'west'; Servers = 2 })
-Show-ConsoleRule 'Summary'
+Show-Console -Title 'Summary' -View Rule
 $rows | Export-ConsoleFrame -Format Markdown
 $rows | Show-ConsoleTable -AsWidget | Export-ConsoleFrame -Format Svg -Path ./servers.svg
 ```
@@ -73,8 +73,8 @@ $dashboard = New-ConsoleDashboard -Title 'Build' -Content {
     New-ConsoleProgress build -Label 'Packages' -Total 10
 }
 Invoke-ConsoleDashboard $dashboard {
-    Update-ConsoleProgress build -Value 5
-    Update-ConsoleProgress build -Status Pass -Value 10
+    Update-Console -WidgetId build -Value 5
+    Update-Console -WidgetId build -Status Pass -Value 10
 }
 Watch-ConsoleLog -Path ./service.log -Count 1 -PollIntervalSeconds 0.25 -NoLive
 ```
@@ -97,4 +97,4 @@ $profile = $profileType::Fixed(100, 24)
 
 Prefer cmdlets for ordinary scripts. Use `New-ConsoleHeaderBar`, `New-ConsoleFooterBar` and `New-ConsoleColumnFormat` for header/footer composition and shared numeric-column layout. Canvas remains a C# capability. Recording JSONL keeps its existing `target` and `state` wire keys while the public API uses `WidgetId` and `Status`.
 
-Flow strips use `New-ConsoleFlowNode`, `New-ConsoleFlowEdge` and `New-ConsoleFlowBranch` items. Pipeline rows carry `Kind` (`Node`, `Edge` or `Branch`) and the item properties. Live flow commands use `-WidgetId`; see [Flow strips](Flow.md).
+Flow strips accept records through `New-ConsoleFlow` or `Add-ConsoleItem`. Each record carries `Kind` (`Node`, `Edge` or `Branch`) and its documented fields. `Update-Console -NodeKey` or `-EdgeKey` changes an existing item, with `-WidgetId` at position zero; see [Flow strips](Flow.md).

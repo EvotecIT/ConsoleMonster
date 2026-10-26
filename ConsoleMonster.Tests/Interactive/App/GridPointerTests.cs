@@ -18,10 +18,10 @@ namespace ConsoleMonster.Tests.Interactive.App {
         [InlineData(GridSelection.Single, false)]
         [InlineData(GridSelection.Multiple, true)]
         public void ActionFooter_OnlyOffersMarksForMultipleSelection(GridSelection selection, bool marks) {
-            Grid grid = new Grid("Services") { Selection = selection };
+            Grid grid = new Grid("Services") { OutputMode = selection };
             grid.AddColumn("Name"); grid.AddRow("one", "One");
             GridOptions options = new GridOptions();
-            options.Commands.Add(new AppCommand("run", "Run", (_, __) => Task.CompletedTask));
+            options.Command.Add(new AppCommand("run", "Run", (_, __) => Task.CompletedTask));
             using GridView view = new GridView(grid, options, new PromptLabels());
             string text = FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, 100, 30, false, TimeSpan.Zero)), 100, 30, Context).ToPlainText();
             Assert.Equal(marks, text.Contains("Space mark"));

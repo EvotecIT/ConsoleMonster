@@ -13,7 +13,7 @@ Children emitted by the scriptblock are placed top to bottom. In a live dashboar
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleRows [-Content] <scriptblock> [-Gap <int>] [-Weight <double>] [-Fill] [<CommonParameters>]
+New-ConsoleRows [[-Content] <Object>] [-Gap <int>] [-Weight <double>] [-Fill] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -36,15 +36,15 @@ Two widgets stacked with a blank row between them
 Scriptblock that emits the child widgets.
 
 ```yaml
-Type: ScriptBlock
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
 
-Required: True
+Required: False
 Position: 0
 Default value: None
-Accept pipeline input: False
+Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
@@ -101,7 +101,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Object`
 
 ## OUTPUTS
 

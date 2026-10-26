@@ -5,15 +5,15 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates a log region: the newest lines of a log, bottom-aligned.</para>
-    /// <para type="description">Printed once, the lines come from a script block of New-ConsoleLogEntry calls (each with a level and a time) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry. To add lines to a log made earlier, pipe it to Add-ConsoleItem.</para>
+    /// <para type="description">Printed once, the lines come from a script block of Message/Level records calls (each with a level and a time) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry. To add lines to a log made earlier, pipe it to Add-ConsoleItem.</para>
     /// </summary>
     /// <example>
     ///   <para>A short log printed once</para>
     ///   <code>
     /// New-ConsoleLogRegion -Height 5 -Content {
-    ///     New-ConsoleLogEntry 'Discovered 4 domain controllers in 2 domains' -Level Info -AtSeconds 2
-    ///     New-ConsoleLogEntry 'DC02: USN rollback check failed (event 2095)' -Level Error -AtSeconds 44
-    ///     New-ConsoleLogEntry 'Using cached schema snapshot' -Level Verbose -AtSeconds 53
+    ///     [pscustomobject]@{ Message = 'Discovered 4 domain controllers in 2 domains'; Level = 'Info'; AtSeconds = 2 }
+    ///     [pscustomobject]@{ Message = 'DC02: USN rollback check failed (event 2095)'; Level = 'Error'; AtSeconds = 44 }
+    ///     [pscustomobject]@{ Message = 'Using cached schema snapshot'; Level = 'Verbose'; AtSeconds = 53 }
     /// } | Show-Console</code>
     /// </example>
     /// <example>
@@ -29,11 +29,11 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(Position = 0)]
         public string WidgetId { get; set; } = "log";
 
-        /// <summary><para type="description">A script block that emits the lines: New-ConsoleLogEntry calls, or strings for info lines.</para></summary>
+        /// <summary><para type="description">A script block that emits the lines: Message/Level records calls, or strings for info lines.</para></summary>
         [Parameter(Position = 1)]
         public ScriptBlock? Content { get; set; }
 
-        /// <summary><para type="description">Lines from the pipeline: New-ConsoleLogEntry objects or strings.</para></summary>
+        /// <summary><para type="description">Lines from the pipeline: Message/Level records objects or strings.</para></summary>
         [Parameter(ValueFromPipeline = true)]
         public PSObject? InputObject { get; set; }
 

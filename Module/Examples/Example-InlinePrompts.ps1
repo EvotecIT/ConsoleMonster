@@ -29,7 +29,7 @@ if (-not $Environment) {
 if ($Component) {
     $selected = $components | Where-Object { $_.Id -in $Component }
 } else {
-    $selected = Read-ConsoleMultiSelect 'Components' -Choices $components -Display Name -GroupBy Area -Describe Summary -Badge Size -Selected 'Web front end', 'Public API' -Minimum 1 -ParameterName '-Component'
+    $selected = Read-ConsoleSelect -Title 'Components' -Choices $components -Display Name -GroupBy Area -Describe Summary -Badge Size -Minimum 1 -ParameterName '-Component' -Multiple -Default 'Web front end', 'Public API'
 }
 if (-not $Release) {
     $Release = Read-ConsoleText 'Release name' -Default ('release-' + (Get-Date -Format 'yyyyMMdd')) -Pattern '[a-z0-9][a-z0-9.-]{2,40}' -PatternMessage 'Lower case letters, digits, dots and dashes' -ParameterName '-Release'

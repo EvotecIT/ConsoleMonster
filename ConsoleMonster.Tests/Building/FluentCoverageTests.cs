@@ -4,12 +4,14 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using ConsoleMonster.Layout;
+using ConsoleMonster.Interactive;
 using ConsoleMonster.Widgets;
 using Xunit;
 
 namespace ConsoleMonster.Tests.Building {
     /// <summary>
-    /// Every public widget property has its generated fluent counterpart: <c>WithX</c> for a settable property and
+    /// Every public widget property has its generated fluent counterpart: <c>X</c> for an ordinary setter,
+    /// <c>Configure</c> for callbacks and
     /// <c>AddX</c> for a mutable collection, on the widgets and on the option types they hold. A new property without one
     /// means the generator skipped it; mark it <c>[NoFluent]</c> only when a setter or Add would bypass the widget.
     /// </summary>
@@ -30,8 +32,16 @@ namespace ConsoleMonster.Tests.Building {
             Type type = Core.GetType(typeName, true)!;
             List<string> missing = new List<string>();
             foreach (PropertyInfo property in Properties(type)) {
-                if (IsSettable(property) && !Has(type, "With" + property.Name, property.PropertyType)) {
-                    missing.Add("With" + property.Name + "(" + property.PropertyType.Name + ")");
+                if (IsSettable(property) && typeof(Delegate).IsAssignableFrom(property.PropertyType)) {
+                    Assert.True(Extensions.Any(method => method.Name == "Configure" && Receives(method, type)), type.Name + " needs Configure for " + property.Name);
+                    Assert.DoesNotContain(Extensions, method => method.Name == property.Name && Receives(method, type));
+                    continue;
+                }
+                if (IsSettable(property) && !Has(type, property.Name, property.PropertyType)) {
+                    missing.Add(property.Name + "(" + property.PropertyType.Name + ")");
+                }
+                if (IsSettable(property) && property.PropertyType == typeof(bool)) {
+                    Assert.Contains(Extensions, method => method.Name == property.Name && Receives(method, type) && method.GetParameters().Length == 1);
                 }
                 Type? item = CollectionItem(property.PropertyType);
                 if (item != null) {
@@ -52,6 +62,8 @@ namespace ConsoleMonster.Tests.Building {
             Assert.Contains(typeof(Table), types);
             Assert.Contains(typeof(TableColumn), types);
             Assert.Contains(typeof(Panel), types);
+            Assert.Contains(typeof(ConsoleMonster.Interactive.TextQuestionOptions), types);
+            Assert.Contains(typeof(ConsoleMonster.Live.LiveRunOptions), types);
             Assert.Contains(typeof(Dashboard), types);
             Assert.True(types.Count >= 35, "Only " + types.Count + " fluent types were found.");
         }
@@ -59,35 +71,57 @@ namespace ConsoleMonster.Tests.Building {
         [Fact]
         public void GeneratedMethods_SetAndAddAndReturnTheSameInstance() {
             HeaderBar header = new HeaderBar("Build");
-            Assert.Same(header, header.WithSubtitle("nightly").WithShowElapsed().AddCrumb("Tasks").AddCrumbs("Review", "Run"));
+            Assert.Same(header, header.Subtitle("nightly").ShowElapsed().AddCrumb("Tasks").AddCrumbs("Review", "Run"));
             Assert.Equal("nightly", header.Subtitle);
             Assert.True(header.ShowElapsed);
             Assert.Equal(new[] { "Tasks", "Review", "Run" }, header.Crumbs);
-            Assert.False(header.WithShowElapsed(false).ShowElapsed);
+            Assert.False(header.ShowElapsed(false).ShowElapsed);
+        }
+
+        [Fact]
+        public void ConfigureAssignsCallbacksWithoutInvokingThemAndRetainsGenericReceivers() {
+            int calls = 0;
+            var options = new SelectQuestionOptions().Configure(value => value.Preview = _ => { calls++; return new TextBlock("Ready"); });
+            Assert.Equal(0, calls);
+            Assert.NotNull(options.Preview!(null));
+            Assert.Equal(1, calls);
+            var prompt = new SelectPrompt<int>("Number", new[] { 1, 2 }).Configure(value => value.Preview = number => new TextBlock(number.ToString()));
+            Assert.IsType<SelectPrompt<int>>(prompt);
+            Assert.NotNull(prompt.Preview);
         }
 
         [Fact]
         public void GeneratedMethods_ConfigureNestedOptionsAndCreateNullableCollections() {
-            Table table = new Table().WithPresentation(p => p.Culture = System.Globalization.CultureInfo.InvariantCulture);
+            Table table = new Table().Presentation(p => p.Culture = System.Globalization.CultureInfo.InvariantCulture);
             Assert.Same(System.Globalization.CultureInfo.InvariantCulture, table.Presentation.Culture);
             ProgressBar bar = new ProgressBar("copy").AddColumns(ProgressColumns.Percent(), ProgressColumns.Elapsed());
             Assert.Equal(2, bar.Columns!.Count);
         }
 
         [Fact]
+        public void GenericSelectionPromptsKeepTheirValueAndConcreteTypes() {
+            var single = new ConsoleMonster.Interactive.SelectPrompt<int>("Number", new[] { 1, 2 }).Description("Pick one").Default(2).PageSize(5);
+            Assert.IsType<ConsoleMonster.Interactive.SelectPrompt<int>>(single);
+            Assert.Equal(2, single.Default);
+            var multiple = new ConsoleMonster.Interactive.MultiSelectPrompt<int>("Numbers", new[] { 1, 2 }).Minimum(1).Maximum(2).PageSize(5);
+            Assert.IsType<ConsoleMonster.Interactive.MultiSelectPrompt<int>>(multiple);
+            Assert.Equal(1, multiple.Minimum);
+        }
+
+        [Fact]
         public void GeneratedMethods_OnATypedTable_KeepItsType() {
-            Table<int> table = Table.For(new[] { 1, 2 }).WithTitle("Numbers").WithShowHeader(false);
+            Table<int> table = Table.For(new[] { 1, 2 }).Title("Numbers").ShowHeader(false);
             Assert.Equal("Numbers", table.Title);
             Assert.IsType<Table<int>>(table.Column("Value", n => n));
         }
 
         // Widgets, then the option types their properties hold or their Add/Set methods take, as the generator walks them.
         private static IEnumerable<Type> Types() {
-            List<Type> widgets = Core.GetExportedTypes().Where(t => IsCandidate(t) && typeof(IWidget).IsAssignableFrom(t)).OrderBy(t => t.FullName, StringComparer.Ordinal).ToList();
+            List<Type> widgets = Core.GetExportedTypes().Where(t => IsCandidate(t) && (typeof(IWidget).IsAssignableFrom(t) || typeof(Field).IsAssignableFrom(t) || new[] { "Choice", "ConsoleTextLayout", "ConsoleLogFile" }.Contains(t.Name) || t.Name.EndsWith("Options", StringComparison.Ordinal) || IsPrompt(t) || new[] { "MenuItem", "MenuRunResult", "ReviewModel", "FormPreset", "MenuPreset", "ObjectExplorer", "Grid", "WidgetUpdate", "RunUpdate" }.Contains(t.Name))).OrderBy(t => t.FullName, StringComparer.Ordinal).ToList();
             HashSet<Type> seen = new HashSet<Type>(widgets);
             List<Type> result = new List<Type>(widgets);
             List<Type> frontier = widgets;
-            for (int depth = 0; depth < 3 && frontier.Count > 0; depth++) {
+            while (frontier.Count > 0) {
                 List<Type> next = new List<Type>();
                 foreach (Type type in frontier) {
                     IEnumerable<Type> reached = Properties(type).SelectMany(p => new[] { p.PropertyType, CollectionItem(p.PropertyType) }).Where(t => t != null).Select(t => t!)
@@ -106,7 +140,14 @@ namespace ConsoleMonster.Tests.Building {
             return result;
         }
 
-        private static bool IsCandidate(Type type) => type.IsClass && type.IsPublic && !type.IsAbstract && !type.IsGenericType && !NoFluent(type) && !typeof(Delegate).IsAssignableFrom(type);
+        private static bool IsPrompt(Type type) {
+            for (Type? current = type.BaseType; current != null; current = current.BaseType) {
+                if (current.IsGenericType && current.GetGenericTypeDefinition() == typeof(ConsoleMonster.Interactive.Prompt<>)) { return true; }
+            }
+            return false;
+        }
+
+        private static bool IsCandidate(Type type) => type.IsClass && type.IsPublic && (!type.IsAbstract || type == typeof(Field)) && !type.IsGenericType && !type.IsGenericParameter && !NoFluent(type) && !typeof(Delegate).IsAssignableFrom(type);
 
         private static bool IsOptionType(Type type) => type.Assembly == Core && IsCandidate(type) && Properties(type).Any(p => IsSettable(p) || CollectionItem(p.PropertyType) != null);
 

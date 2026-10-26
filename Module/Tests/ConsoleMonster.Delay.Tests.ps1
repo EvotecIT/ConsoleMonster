@@ -64,9 +64,9 @@ $scope = [ConsoleMonster.Terminal]::Use($target)
 try {
     $slot = New-ConsoleRegion -WidgetId body
     $result = @(Invoke-ConsoleDashboard $slot -Transient {
-        Set-ConsoleRegion -WidgetId body -Content { New-ConsoleText 'first' }
+        Update-Console -WidgetId body -Content { New-ConsoleText 'first' }
         Wait-ConsoleDashboard -Milliseconds 10000
-        Set-ConsoleRegion -WidgetId body -Content { New-ConsoleText 'second' }
+        Update-Console -WidgetId body -Content { New-ConsoleText 'second' }
         Wait-ConsoleDashboard -Milliseconds 0
     })
     if ($result.Count) { throw 'The child wait wrote pipeline output.' }

@@ -16,7 +16,7 @@ namespace SiteFrames.Pages {
             foreach (int width in new[] { 120, 60 }) {
                 var dark = CSharpRunner.Run(program, width, ColorDepth.TrueColor, GlyphTier.Full, Theme.Dark);
                 var light = CSharpRunner.Run(program, width, ColorDepth.TrueColor, GlyphTier.Full, Theme.Light);
-                JsonObject figure = Figures.WithProgram(new JsonObject {
+                JsonObject figure = Figures.WithProgram(site, new JsonObject {
                     ["title"] = "dotnet run",
                     ["label"] = "Illustrative host data rendered by OverviewWidget",
                     ["meta"] = new JsonArray(width + "×" + dark.Height, "24-bit", "Full"),

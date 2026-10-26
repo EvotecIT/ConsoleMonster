@@ -1,6 +1,6 @@
 ﻿Import-Module ConsoleMonster
 
-New-ConsoleGrid -Columns 3 -Content {
+New-ConsoleLayoutGrid -Columns 3 -Content {
     New-ConsolePanel -Title 'DC01' -Content { '[pass]√ healthy[/]' }
     New-ConsolePanel -Title 'DC02' -Content { '[warn]▲ lagging[/]' }
     New-ConsolePanel -Title 'DC03' -Content { '[pass]√ healthy[/]' }

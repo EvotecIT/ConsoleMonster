@@ -25,13 +25,13 @@ Describe 'ConsoleMonster exports' {
 
     It 'exports SVG and text, and picks the format from the extension' {
         $svg = Join-Path $TestDrive 'bar.svg'
-        $file = New-ConsolePanel -Title 'Failures' -Content { New-ConsoleBarChart -InputObject @{ DNS = 3; Kerberos = 1 } } | Export-ConsoleFrame -Path $svg -Width 50 -Theme Dark -Title 'Chart' -WindowChrome -PassThru
+        $file = New-ConsolePanel -Title 'Failures' -Content { New-ConsoleChart -InputObject @{ DNS = 3; Kerberos = 1 } -Type Bar } | Export-ConsoleFrame -Path $svg -Width 50 -Theme Dark -Title 'Chart' -WindowChrome -PassThru
         $file | Should -BeOfType System.IO.FileInfo
         $content = Get-Content -LiteralPath $svg -Raw -Encoding UTF8
         $content | Should -Match '^<svg xmlns="http://www.w3.org/2000/svg"'
         $content | Should -Match '<title>Chart</title>'
         $content | Should -Match 'class="cm-t'
-        $text = New-ConsolePanel -Title 'Failures' -Content { New-ConsoleBarChart -InputObject @{ DNS = 3 } } | Export-ConsoleFrame -Format Text -Width 40
+        $text = New-ConsolePanel -Title 'Failures' -Content { New-ConsoleChart -InputObject @{ DNS = 3 } -Type Bar } | Export-ConsoleFrame -Format Text -Width 40
         $text | Should -Match 'Failures'
         $text | Should -Match 'DNS'
     }

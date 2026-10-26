@@ -6,8 +6,12 @@ Describe 'ConsoleMonster public API vocabulary' {
 
     It 'exports one command for each approved job and removes the old names and aliases' {
         $names = $script:Commands.Name
-        foreach ($name in 'Show-Console', 'Show-ConsoleTable', 'Show-ConsoleList', 'Show-ConsoleTree', 'Show-ConsoleObject', 'Show-ConsoleError', 'Show-ConsoleChart', 'Show-ConsoleReplay', 'New-ConsoleProgress', 'Update-ConsoleProgress', 'Write-ConsoleProgress', 'Use-ConsoleProgress', 'Read-ConsoleSelect', 'Read-ConsoleMultiSelect', 'Read-ConsoleForm', 'New-ConsoleForm', 'Show-ConsoleMenu', 'Show-ConsoleApp', 'New-ConsoleSelect', 'New-ConsoleMultiSelect', 'Show-ConsoleRule', 'Export-ConsoleDemo', 'Show-ConsolePresentation', 'Invoke-ConsolePresentation', 'Unregister-ConsoleView', 'New-ConsoleHeaderBar', 'New-ConsoleFooterBar', 'New-ConsoleColumnFormat') {
-            $names | Should -Contain $name
+        $fixture = Get-Content (Join-Path $PSScriptRoot '../../Tests/Api/round2-commands.json') -Raw | ConvertFrom-Json
+        $names.Count | Should -Be $fixture.ExpectedCount
+        Compare-Object @($fixture.Commands) @($names) | Should -BeNullOrEmpty
+        foreach ($name in $fixture.Retired) {
+            $names | Should -Not -Contain $name
+            Get-Command -Module ConsoleMonster -Name $name -ErrorAction SilentlyContinue | Should -BeNullOrEmpty
         }
         foreach ($name in 'Format-ConsoleTable', 'Format-ConsoleList', 'Format-ConsoleTree', 'Format-ConsoleCode', 'Format-ConsoleJson', 'Format-ConsoleError', 'Write-ConsoleTable', 'Write-ConsoleTree', 'Write-ConsoleKeyValue', 'Write-ConsoleWidget', 'Write-ConsoleMarkup', 'Write-ConsoleException', 'Write-ConsoleRule', 'Out-ConsoleChart', 'Start-ConsoleRecording', 'Start-ConsoleReplay', 'Start-ConsoleDemo', 'Invoke-ConsoleDemo', 'Update-ConsoleTable', 'New-ConsoleLog', 'Write-ConsoleLog', 'Write-ConsoleStatus', 'Update-ConsoleStatus', 'New-ConsoleRun', 'Start-ConsoleDashboard', 'Read-ConsoleSelection', 'Read-ConsoleMultiSelection', 'New-ConsoleClock', 'New-ConsoleRunResult') {
             $names | Should -Not -Contain $name
@@ -24,7 +28,8 @@ Describe 'ConsoleMonster public API vocabulary' {
         $manifest = Import-PowerShellDataFile (Join-Path $PSScriptRoot '../ConsoleMonster.psd1')
         @($manifest.AliasesToExport).Count | Should -Be 0
         foreach ($command in $script:Commands) {
-            foreach ($parameter in $command.Parameters.Values) {
+            foreach ($entry in $command.Parameters.GetEnumerator()) {
+                $parameter = $entry.Value
                 # Common parameters belong to PowerShell, including its native aliases.
                 $property = $command.ImplementingType.GetProperty($parameter.Name)
                 if ($null -eq $property -or $property.DeclaringType.Namespace -notlike 'ConsoleMonster*') { continue }
@@ -33,17 +38,139 @@ Describe 'ConsoleMonster public API vocabulary' {
         }
     }
 
+    It 'runs Table and List shortcuts through the same view implementation and output contract' {
+        $rows = @([pscustomobject]@{ Name = 'first'; Count = 2 }, [pscustomobject]@{ Name = 'second'; Count = 5 })
+        foreach ($view in 'Table', 'List') {
+            $command = Get-Command "Show-Console$view"
+            $command.ImplementingType.BaseType | Should -Be (Get-Command Show-Console).ImplementingType.BaseType
+            $shortcut = $rows | & $command -AsString -Width 60
+            $canonical = $rows | Show-Console -View $view -AsString -Width 60
+            $shortcut | Should -Be $canonical
+        }
+    }
+
+    It 'keeps exporting in Export-ConsoleFrame and the default sink limited to routing' {
+        (Get-Command Out-ConsoleDefault).Parameters.ContainsKey('Format') | Should -BeFalse
+        (Get-Command Out-ConsoleDefault).Parameters.ContainsKey('Width') | Should -BeFalse
+        (Get-Command Export-ConsoleFrame).Parameters.Keys | Should -Contain Format
+    }
+
+    It 'uses the shared presentation options and removes the literal-text compatibility switch' {
+        (Get-Command New-ConsoleText).Parameters.ContainsKey('Plain') | Should -BeFalse
+        $lanes = New-ConsoleLanes -NoDetail -NoDimPending -CountSkipped -BoldActive -ShowRunningCount -MaxLabelWidth 17 -CollapseWhen Pass -RateWindowSeconds 0.5
+        $lanes.ShowDetail | Should -BeFalse
+        $lanes.DimPending | Should -BeFalse
+        $lanes.CountSkipped | Should -BeTrue
+        $lanes.BoldActive | Should -BeTrue
+        $lanes.ShowRunningCount | Should -BeTrue
+        $lanes.MaxLabelWidth | Should -Be 17
+        $lanes.CollapseWhen.ToString() | Should -Be Pass
+        $lanes.RateWindow.TotalSeconds | Should -Be 0.5
+        $cells = New-ConsoleCellMap -Gap 2 -Window Active -NoSpinRunning
+        $cells.Gap | Should -Be 2
+        $cells.Window.ToString() | Should -Be Active
+        $cells.SpinRunning | Should -BeFalse
+        (New-ConsoleSummaryBar -NoElapsed -DoneLabel 'Checked').ShowElapsed | Should -BeFalse
+        (New-ConsoleSummaryBar -DoneLabel 'Checked').DoneLabel | Should -Be Checked
+        (New-ConsoleText 'literal [pass]value[/]' -Overflow Ellipsis).PlainText | Should -Be 'literal [pass]value[/]'
+        foreach ($command in 'New-ConsoleProgress', 'New-ConsoleLanes') {
+            $widget = & $command -Columns @{ Type = 'Percent'; Alignment = 'Right'; Priority = 17; MaxWidth = 6 }
+            $widget.Columns.Count | Should -Be 1
+            $widget.Columns[0].Alignment.ToString() | Should -Be Right
+            $widget.Columns[0].Priority | Should -Be 17
+            $widget.Columns[0].MaxWidth | Should -Be 6
+            { & $command -Columns @{ Type = 'Percent'; Width = 6 } } | Should -Throw '*Unknown item field*'
+            { & $command -Columns @{ Type = 'Percent'; MaxWidth = -1 } } | Should -Throw '*MaxWidth*'
+        }
+        $spinner = New-ConsoleProgress -Indeterminate -StartedSeconds 0.25 -FinishedSeconds 1.5 -Status Pass
+        $spinner.Started.TotalSeconds | Should -Be 0.25
+        $spinner.Finished.TotalSeconds | Should -Be 1.5
+        { New-ConsoleProgress -Value 1 -StartedSeconds 0.25 } | Should -Throw
+        $rule = New-ConsoleRule 'Build' -LineRole Accent -LineStyle Double
+        $rule.LineRole.ToString() | Should -Be Accent
+        $rule.LineStyle.ToString() | Should -Be Double
+        (Show-Console -View Rule -Title Build -LineRole Accent -LineStyle Double -AsWidget).LineStyle | Should -Be $rule.LineStyle
+        { Show-Console -View Json -LineRole Accent -InputObject '{}' } | Should -Throw '*does not support LineRole*'
+    }
+
+    It 'passes typed export options through the same C# serializers without changing the request' {
+        $options = [Activator]::CreateInstance((Get-Command Export-ConsoleFrame).Parameters['Options'].ParameterType)
+        $options.Width = 0
+        $options.Padding = 7
+        $options.Fragment = $true
+        $options.LineHeight = 1.5
+        $widget = New-ConsolePanel -Title Build -Content { New-ConsoleText Ready }
+        $actual = $widget | Export-ConsoleFrame -Format Html -Options $options
+        $exporter = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Export.ConsoleExporter')
+        $expected = $exporter::ToHtml($widget, $options)
+        $actual | Should -BeExactly $expected
+        $options.Width | Should -Be 0
+        ($widget | Export-ConsoleFrame -Format Text -Options @{ Width = 25 }) | Should -Match Ready
+        $options.Padding | Should -Be 7
+        { $widget | Export-ConsoleFrame -Format Html -Options $options -Width 40 } | Should -Throw '*Width*cannot be combined*'
+        $cast = Join-Path $TestDrive 'sample.cast'
+        [IO.File]::WriteAllText($cast, "{`"version`":2,`"width`":10,`"height`":2}`n[0,`"o`",`"Ready`"]`n")
+        $playback = [Activator]::CreateInstance((Get-Command Export-ConsoleRecording).Parameters['Options'].ParameterType)
+        $playback.Width = 0
+        $playback.MaxFrames = 10
+        $playback.FontSize = 12
+        $actual = Export-ConsoleRecording -Path $cast -Format Svg -Options $playback
+        $recordingType = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Sessions.SessionRecording')
+        $recording = $recordingType::Read($cast)
+        $format = [Enum]::Parse([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Export.ExportFormat'), 'Svg')
+        $expected = $recording.Export($format, $playback)
+        $actual | Should -BeExactly $expected
+        $playback.Width | Should -Be 0
+        { Export-ConsoleRecording -Path $cast -Options $playback -Speed 2 } | Should -Throw '*Speed*cannot be combined*'
+        $form = New-ConsoleForm 'Build'
+        { Read-ConsoleForm $form -Options ([Activator]::CreateInstance((Get-Command Read-ConsoleForm).Parameters['Options'].ParameterType)) -Inline } | Should -Throw '*Inline*cannot be combined*'
+        $menu = New-ConsoleMenu 'Build'
+        { Show-ConsoleMenu $menu -Options ([Activator]::CreateInstance((Get-Command Show-ConsoleMenu).Parameters['Options'].ParameterType)) -NoCommandPalette } | Should -Throw '*NoCommandPalette*cannot be combined*'
+    }
+
+    It 'uses the same chart controls and rejects them for mismatched kinds' {
+        $bar = New-ConsoleChart -Type Bar -NoValues -Signed
+        $bar.ShowValues | Should -BeFalse
+        $bar.Signed | Should -BeTrue
+        $stacked = New-ConsoleChart -Type Stacked -NoLegend -MaxLegendColumns 2
+        $stacked.ShowLegend | Should -BeFalse
+        $stacked.MaxLegendColumns | Should -Be 2
+        (New-ConsoleChart -Type Line -Capacity 7).Capacity | Should -Be 7
+        (New-ConsoleChart -Type Sparkline -Capacity 9).Capacity | Should -Be 9
+        { New-ConsoleChart -Type Line -NoValues } | Should -Throw '*does not support ShowValues*'
+        { New-ConsoleChart -Type Bar -NoLegend } | Should -Throw '*does not support ShowLegend*'
+        { New-ConsoleChart -Type Bar -Capacity 7 } | Should -Throw '*does not support Capacity*'
+    }
+
+    It 'keeps shortcut metadata limited to the selected representation' {
+        foreach ($name in 'Language', 'LineNumbers', 'PlaybackMode', 'Bins', 'ChildrenProperty', 'NoStack') {
+            (Get-Command Show-ConsoleTable).Parameters.ContainsKey($name) | Should -BeFalse
+            (Get-Command Show-ConsoleList).Parameters.ContainsKey($name) | Should -BeFalse
+        }
+        (Get-Command Show-Console).Parameters.Keys | Should -Contain Language
+        (Get-Command Show-ConsoleTable).Parameters.Keys | Should -Contain Presentation
+        (Get-Command Show-ConsoleList).Parameters.Keys | Should -Contain ShowEmpty
+    }
+
+    It 'rejects conflicting menu jobs during parameter binding' {
+        { New-ConsoleMenuItem 'Conflict' -Action { } -Submenu (New-ConsoleMenu 'Nested') } | Should -Throw
+        { New-ConsoleMenuItem 'Conflict' -Separator -Exit } | Should -Throw
+        { New-ConsoleMenuItem 'Conflict' -Select 'One' -Minimum 1 } | Should -Throw
+        { New-ConsoleMenuItem 'Conflict' -LoadChoices { 'One' } -Single -Maximum 2 } | Should -Throw '*Single selection*'
+        (New-ConsoleMenuItem 'Tasks' -MultiSelect 'One', 'Two' -Minimum 1).Kind.ToString() | Should -Be MultiSelect
+    }
+
     It 'reserves Name and Target for their approved resource meanings' {
         foreach ($command in $script:Commands) {
             if ($command.Parameters.ContainsKey('Name')) {
-                $command.Name | Should -BeIn @('New-ConsoleFormPreset', 'New-ConsoleMenuPreset', 'Show-ConsoleHelp')
+                $command.Name | Should -BeIn @('Show-ConsoleHelp')
             }
             if ($command.Parameters.ContainsKey('Target')) {
                 $command.Name | Should -BeIn @('Use-ConsoleTarget', 'Start-ConsoleRun')
             }
         }
         (Get-Command New-ConsoleField).Parameters.Keys | Should -Contain Key
-        (Get-Command New-ConsoleChartSeries).Parameters.Keys | Should -Contain Key
+        (Get-Command New-ConsoleChart).Parameters.Keys | Should -Contain Type
         (Get-Command Set-ConsoleTheme).Parameters.Keys | Should -Contain Theme
         (Get-Command Invoke-ConsoleRecording).Parameters.Keys | Should -Contain Title
         (Get-Command Send-ConsoleEvent).Parameters.Keys | Should -Contain WidgetId
@@ -52,7 +179,8 @@ Describe 'ConsoleMonster public API vocabulary' {
     It 'keeps switches false by default and uses NoX for default-on behavior' {
         foreach ($command in $script:Commands) {
             $instance = [Activator]::CreateInstance($command.ImplementingType)
-            foreach ($parameter in $command.Parameters.Values) {
+            foreach ($entry in $command.Parameters.GetEnumerator()) {
+                $parameter = $entry.Value
                 if ($parameter.ParameterType -ne [Management.Automation.SwitchParameter]) { continue }
                 $property = $command.ImplementingType.GetProperty($parameter.Name)
                 if ($null -ne $property) {
@@ -70,7 +198,8 @@ Describe 'ConsoleMonster public API vocabulary' {
 
     It 'uses numeric units for PowerShell durations rather than implicit TimeSpan ticks' {
         foreach ($command in $script:Commands) {
-            foreach ($parameter in $command.Parameters.Values) {
+            foreach ($entry in $command.Parameters.GetEnumerator()) {
+                $parameter = $entry.Value
                 $type = $parameter.ParameterType
                 $inner = [Nullable]::GetUnderlyingType($type)
                 if ($null -ne $inner) { $type = $inner }
@@ -95,13 +224,14 @@ Describe 'ConsoleMonster public API vocabulary' {
             foreach ($set in $command.ParameterSets) {
                 $parameter = $set.Parameters | Where-Object Name -EQ WidgetId
                 if ($null -ne $parameter) {
+                    if ($command.Name -eq 'Update-Console') { $parameter.IsMandatory | Should -BeTrue }
                     $parameter.Position | Should -Be 0 -Because "$($command.Name) [$($set.Name)] addresses a widget first"
                 }
                 $positions = @($set.Parameters | Where-Object Position -GE 0 | Group-Object Position | Where-Object Count -GT 1)
                 $positions.Count | Should -Be 0 -Because "$($command.Name) [$($set.Name)] has unambiguous positional arguments"
             }
         }
-        $progress = Get-Command Write-ConsoleProgress
+        $progress = Get-Command Write-Progress
         foreach ($name in 'Activity', 'Status', 'Id', 'ParentId', 'PercentComplete', 'SecondsRemaining', 'CurrentOperation', 'Completed', 'SourceId') {
             $progress.Parameters.Keys | Should -Contain $name
         }
@@ -152,10 +282,10 @@ Describe 'ConsoleMonster public API vocabulary' {
         try {
             if ($PSVersionTable.PSVersion.Major -ge 7) { $PSStyle.OutputRendering = 'Ansi' }
             Use-ConsoleTarget -Target $target {
-                $text = Show-ConsoleRule 'Section' -AsString
+                $text = Show-Console -Title 'Section' -AsString -View Rule
                 $text.IndexOf([char]27) | Should -Be -1
                 ($text -split "`n")[0].Length | Should -Be 57
-                $narrow = Show-ConsoleRule -AsString -Width 5
+                $narrow = Show-Console -AsString -Width 5 -View Rule
                 ($narrow -split "`n")[0].Length | Should -Be 5
             }
         } finally {
@@ -186,7 +316,7 @@ Describe 'ConsoleMonster public API vocabulary' {
     It 'writes consecutive rules with the same one-line geometry as the C# writer' {
         $first = New-ConsoleRule 'Section'
         $second = New-ConsoleRule
-        $actual = Use-ConsoleTarget -Width 60 { Show-ConsoleRule 'Section'; Show-ConsoleRule }
+        $actual = Use-ConsoleTarget -Width 60 { Show-Console -Title 'Section' -View Rule; Show-Console -View Rule }
         $expected = Use-ConsoleTarget -Width 60 { [ConsoleMonster.Terminal]::Write($first); [ConsoleMonster.Terminal]::Write($second) }
         $actual | Should -Be $expected
     }
@@ -195,7 +325,7 @@ Describe 'ConsoleMonster public API vocabulary' {
         $pairs = [ordered] @{ Zulu = 3; Alpha = 1 }
         $text = Show-ConsoleList $pairs -AsString -Width 60
         $text | Should -Match '(?s)Zulu.*3.*Alpha.*1'
-        Show-ConsoleRule 'Section' -AsString -Width 60 | Should -Match Section
+        Show-Console -Title 'Section' -AsString -Width 60 -View Rule | Should -Match Section
         $rows = @([pscustomobject] @{ Label = 'first'; Count = 2 }, [pscustomobject] @{ Label = 'second'; Count = 5 })
         $direct = $rows | Export-ConsoleFrame -Format Markdown -Width 60
         $direct | Should -Match 'first'

@@ -11,9 +11,14 @@ Asks the user to pick one of the choices and returns the chosen object.
 Typing filters the list (fuzzy, matches highlighted). Choices can be grouped (-GroupBy), described (-Describe, shown for the focused choice), tagged (-Badge), picked by a key (-Hotkey; '/' then filters), disabled with a reason (-DisabledReason) and previewed (-Preview, beside the list when the window is wide). The chosen object itself is returned (a service, a record), not its text. In remoting and the ISE the choices are numbered and the host reads the answer.
 
 ## SYNTAX
-### __AllParameterSets
+### Single (Default)
 ```powershell
 Read-ConsoleSelect [-Title] <string> [[-Choices] <Object[]>] [-Default <Object>] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-Badge <Object>] [-Hotkey <Object>] [-DisabledReason <scriptblock>] [-Preview <scriptblock>] [-PageSize <int>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
+```
+
+### Multiple
+```powershell
+Read-ConsoleSelect [-Title] <string> [[-Choices] <Object[]>] -Multiple [-Default <Object>] [-Minimum <Int32>] [-Maximum <Int32>] [-Collapsed] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-Badge <Object>] [-Hotkey <Object>] [-DisabledReason <scriptblock>] [-Preview <scriptblock>] [-PageSize <int>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -44,7 +49,7 @@ Short right-aligned text per choice: a property name or a scriptblock.
 
 ```yaml
 Type: Object
-Parameter Sets: __AllParameterSets
+Parameter Sets: Single, Multiple
 Aliases: None
 Possible values:
 
@@ -60,7 +65,7 @@ The choices: any objects (strings, services, records). The chosen objects themse
 
 ```yaml
 Type: Object[]
-Parameter Sets: __AllParameterSets
+Parameter Sets: Single, Multiple
 Aliases: None
 Possible values:
 
@@ -71,12 +76,28 @@ Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
+### -Collapsed
+Starts with every group collapsed.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Multiple
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Default
 The default: one of the choices, or its displayed text.
 
 ```yaml
 Type: Object
-Parameter Sets: __AllParameterSets
+Parameter Sets: Single, Multiple
 Aliases: None
 Possible values:
 
@@ -92,7 +113,7 @@ A sentence for the focused choice: a property name or a scriptblock.
 
 ```yaml
 Type: Object
-Parameter Sets: __AllParameterSets
+Parameter Sets: Single, Multiple
 Aliases: None
 Possible values:
 
@@ -108,7 +129,7 @@ Help text under the question.
 
 ```yaml
 Type: String
-Parameter Sets: __AllParameterSets
+Parameter Sets: Single, Multiple
 Aliases: None
 Possible values:
 
@@ -124,7 +145,7 @@ Returns why a choice is unavailable ($_ is the choice), or nothing when it is av
 
 ```yaml
 Type: ScriptBlock
-Parameter Sets: __AllParameterSets
+Parameter Sets: Single, Multiple
 Aliases: None
 Possible values:
 
@@ -140,7 +161,7 @@ What to show for a choice: a property name or a scriptblock ($_ is the choice). 
 
 ```yaml
 Type: Object
-Parameter Sets: __AllParameterSets
+Parameter Sets: Single, Multiple
 Aliases: None
 Possible values:
 
@@ -156,7 +177,7 @@ The group heading of a choice: a property name or a scriptblock.
 
 ```yaml
 Type: Object
-Parameter Sets: __AllParameterSets
+Parameter Sets: Single, Multiple
 Aliases: None
 Possible values:
 
@@ -172,7 +193,39 @@ A key that picks a choice directly: a property name or a scriptblock returning a
 
 ```yaml
 Type: Object
-Parameter Sets: __AllParameterSets
+Parameter Sets: Single, Multiple
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Maximum
+The most choices accepted.
+
+```yaml
+Type: Int32
+Parameter Sets: Multiple
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Minimum
+The fewest choices accepted.
+
+```yaml
+Type: Int32
+Parameter Sets: Multiple
 Aliases: None
 Possible values:
 
@@ -188,11 +241,27 @@ Forces how to ask: Rich (in-place prompt), Line (question and typed answer), Acc
 
 ```yaml
 Type: InteractionMode
-Parameter Sets: __AllParameterSets
+Parameter Sets: Single, Multiple
 Aliases: None
 Possible values: Rich, Line, Accessible, None
 
 Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Multiple
+Allows multiple answers; Default supplies initial selected choices.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Multiple
+Aliases: None
+Possible values:
+
+Required: True
 Position: named
 Default value: None
 Accept pipeline input: False
@@ -204,7 +273,7 @@ The preferred number of visible rows.
 
 ```yaml
 Type: Int32
-Parameter Sets: __AllParameterSets
+Parameter Sets: Single, Multiple
 Aliases: None
 Possible values:
 
@@ -220,7 +289,7 @@ The parameter of your script that supplies this value without a prompt (named in
 
 ```yaml
 Type: String
-Parameter Sets: __AllParameterSets
+Parameter Sets: Single, Multiple
 Aliases: None
 Possible values:
 
@@ -236,7 +305,7 @@ Content for the preview pane ($_ is the focused choice): text, rich text, a widg
 
 ```yaml
 Type: ScriptBlock
-Parameter Sets: __AllParameterSets
+Parameter Sets: Single, Multiple
 Aliases: None
 Possible values:
 
@@ -252,7 +321,7 @@ Prints the initialized rich prompt without reading input or returning an answer.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: __AllParameterSets
+Parameter Sets: Single, Multiple
 Aliases: None
 Possible values:
 
@@ -268,7 +337,7 @@ The question.
 
 ```yaml
 Type: String
-Parameter Sets: __AllParameterSets
+Parameter Sets: Single, Multiple
 Aliases: None
 Possible values:
 

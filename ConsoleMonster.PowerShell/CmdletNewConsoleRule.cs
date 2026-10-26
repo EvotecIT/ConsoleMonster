@@ -22,9 +22,14 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public HorizontalAlignment Alignment { get; set; } = HorizontalAlignment.Left;
 
+        /// <summary><para type="description">Theme role for the line; default Border.</para></summary>
+        [Parameter] public Styling.ThemeToken LineRole { get; set; } = Styling.ThemeToken.Border;
+        /// <summary><para type="description">Optional line glyph style; omitted follows the active theme.</para></summary>
+        [Parameter] public Glyphs.BoxStyle? LineStyle { get; set; }
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            WriteObject(new Rule(PSText.Markup(Title)) { Alignment = Alignment });
+            WriteObject(new Rule(PSText.Markup(Title)) { Alignment = Alignment, LineRole = LineRole, LineStyle = LineStyle });
         }
     }
 }

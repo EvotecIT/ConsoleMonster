@@ -153,7 +153,7 @@ namespace ConsoleMonster.Tests.LiveRuns {
             lanes.Add("b", "Beta", 5).Status = StatusKind.Skip;
             Lane gamma = lanes.Add("c", "Gamma", 10);
             gamma.Status = StatusKind.Running;
-            gamma.Done = 4;
+            gamma.Value = 4;
             string[] lines = Render(lanes, 80);
             Assert.Contains(lines, line => line.Contains("Gamma"));
             Assert.Contains(lines, line => line.Contains("2 skipped: Alpha (46)") && line.Contains("Beta (5)"));

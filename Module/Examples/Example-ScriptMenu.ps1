@@ -26,9 +26,9 @@ $menu = New-ConsoleMenu 'Backup helper' -Description 'Back up and restore the re
         # The run's script block returns the result screen the menu shows when the dashboard closes.
         $null = $MenuContext.Run($dashboard, {
             foreach ($step in 'Scan files', 'Copy changes', 'Verify', 'Prune old backups') {
-                Update-ConsoleStatusItem -Key $step -Status Running
+                Update-Console -Key $step -Status Running -WidgetId 'status'
                 Start-Sleep -Milliseconds 600
-                Update-ConsoleStatusItem -Key $step -Status Pass
+                Update-Console -Key $step -Status Pass -WidgetId 'status'
             }
             New-ConsoleMenuRunResult 'Backup finished' -Summary '1 284 files copied, 312 MB.' -Figure ([ordered] @{ files = '1 284'; copied = '312 MB' }) -Next @{
                 'Show where the log is' = { $MenuContext.Toast('Log: D:\Backups\backup.log') }

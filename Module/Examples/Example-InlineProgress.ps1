@@ -16,14 +16,14 @@ if ($Part -in 'Dashboard', 'Both') {
     Invoke-ConsoleDashboard $dashboard -Inline -ArgumentList $Delay {
         param($Delay)
         foreach ($server in 'WEB01', 'WEB02', 'API01') {
-            Update-ConsoleLane -Key $server -Status Running -Detail 'copying files' -Total 4
+            Update-Console -Key $server -Status Running -Detail 'copying files' -Total 4 -WidgetId 'lanes'
             foreach ($step in 'copy', 'configure', 'restart', 'verify') {
                 Start-Sleep -Milliseconds ($Delay * 3)
-                Update-ConsoleLane -Key $server -Detail $step -Result Pass
-                Update-ConsoleProgress -WidgetId overall -Increment 1
+                Update-Console -Key $server -Detail $step -Result Pass -WidgetId 'lanes'
+                Update-Console -WidgetId overall -Increment 1
             }
             Write-Host "$server deployed"
-            Update-ConsoleLane -Key $server -Complete
+            Update-Console -Key $server -Complete -WidgetId 'lanes'
         }
     }
     Write-Host 'Done.'

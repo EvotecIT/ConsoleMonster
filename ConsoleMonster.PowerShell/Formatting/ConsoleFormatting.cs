@@ -6,7 +6,22 @@ using ConsoleMonster.Views;
 namespace ConsoleMonster.PowerShell {
     /// <summary>How objects of a registered type are shown by Enable-ConsoleFormatting (Register-ConsoleView).</summary>
     public sealed class ConsoleViewRegistration {
-        internal ConsoleViewRegistration(string typeName, ConsoleViewKind view, object[]? property, object? groupBy, string group, ScriptBlock? title = null, bool builtIn = false, bool nativePresentation = false, bool groupHeadersAsRows = false, int groupMinimumRows = 0, bool groupRepeatedOnly = false, bool structuredData = false) {
+        /// <summary>Describes the view of a registered PowerShell type.</summary>
+        /// <param name="typeName">The PowerShell type name.</param>
+        /// <param name="view">The representation to construct.</param>
+        /// <param name="property">Member selectors or calculated column records.</param>
+        /// <param name="groupBy">Optional grouping selector.</param>
+        /// <param name="group">Types sharing this group are displayed together; null uses the type name.</param>
+        /// <param name="title">Optional owning-runspace title selector.</param>
+        public ConsoleViewRegistration(string typeName, ConsoleViewKind view = ConsoleViewKind.Table, object[]? property = null, object? groupBy = null, string? group = null, ScriptBlock? title = null)
+            : this(typeName, view, property, groupBy, group ?? typeName, title, false, false, false, 0, false, false) {
+            if (string.IsNullOrWhiteSpace(typeName)) { throw new ArgumentException("A type name is required.", nameof(typeName)); }
+        }
+
+        internal static ConsoleViewRegistration Define(string typeName, ConsoleViewKind view, object[]? property, object? groupBy, string group, ScriptBlock? title = null, bool builtIn = false, bool nativePresentation = false, bool groupHeadersAsRows = false, int groupMinimumRows = 0, bool groupRepeatedOnly = false, bool structuredData = false) =>
+            new ConsoleViewRegistration(typeName, view, property, groupBy, group, title, builtIn, nativePresentation, groupHeadersAsRows, groupMinimumRows, groupRepeatedOnly, structuredData);
+
+        private ConsoleViewRegistration(string typeName, ConsoleViewKind view, object[]? property, object? groupBy, string group, ScriptBlock? title, bool builtIn, bool nativePresentation, bool groupHeadersAsRows, int groupMinimumRows, bool groupRepeatedOnly, bool structuredData) {
             TypeName = typeName;
             View = view;
             Property = property;
@@ -68,10 +83,10 @@ namespace ConsoleMonster.PowerShell {
         /// <summary>Registered and built-in types (files, processes, services, dictionaries) shown as ConsoleMonster views (the default).</summary>
         Output = 1,
 
-        /// <summary>Errors that reach the console shown with ConsoleMonster's error view (Show-ConsoleError), following $ErrorView.</summary>
+        /// <summary>Errors that reach the console shown with ConsoleMonster's error view (Show-Console -View Error), following $ErrorView.</summary>
         ErrorView = 2,
 
-        /// <summary>Write-Progress drawn as ConsoleMonster's progress area (Write-Progress becomes an alias of Write-ConsoleProgress).</summary>
+        /// <summary>Write-Progress drawn as ConsoleMonster's progress area (Write-Progress uses its native-parameter function proxy).</summary>
         Progress = 4,
 
         /// <summary>Explicitly opts Format-Table, Format-List and Format-Wide into host-only rendering. Excluded from All.</summary>
@@ -95,7 +110,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary>Syntax, selection and inline prediction colours for already loaded PSReadLine; editing behaviour stays native.</summary>
         ReadLine = 128,
 
-        /// <summary>Default output, errors, native stream/progress and ReadLine colours. Legacy Progress and FormatCommands require separate explicit opt-ins.</summary>
+        /// <summary>Default output, errors, native stream/progress and ReadLine colours. Progress rendering and FormatCommands require separate explicit opt-ins.</summary>
         All = Output | ErrorView | Streams | ReadLine
     }
 
@@ -121,12 +136,6 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary>The user's own Out-Default function replaced with -Force, restored by Disable-ConsoleFormatting.</summary>
         internal static ScriptBlock? SavedOutDefault { get => FormattingSessionState.Current.SavedOutDefault; set => FormattingSessionState.Current.SavedOutDefault = value; }
-
-        /// <summary>The user's own Write-Progress alias replaced with -Force (its definition), restored by Disable-ConsoleFormatting.</summary>
-        internal static string? SavedWriteProgressAlias { get => FormattingSessionState.Current.SavedWriteProgressAlias; set => FormattingSessionState.Current.SavedWriteProgressAlias = value; }
-
-        /// <summary>The command the Write-Progress alias points to while the Progress feature is on.</summary>
-        internal const string ProgressCommand = "Write-ConsoleProgress";
 
         internal const string Marker = "ConsoleMonster\\Out-ConsoleDefault";
 
@@ -156,19 +165,12 @@ namespace ConsoleMonster.PowerShell {
             };
         }
 
-        /// <summary>Removes the Write-Progress alias when it is still ConsoleMonster's and puts back the user's own; ends the progress area.</summary>
-        internal static void RemoveProgressAlias(CommandInvocationIntrinsics invoke) {
+        /// <summary>Restores the owned Write-Progress function and ends the progress area.</summary>
+        internal static void RemoveProgress() {
             SessionProgress.EndPipeline();
             SessionProgress.Enabled = false;
             Features &= ~ConsoleFormattingFeature.Progress;
-            AliasInfo? alias = invoke.GetCommand("Write-Progress", CommandTypes.Alias) as AliasInfo;
-            if (alias != null && string.Equals(alias.Definition, ProgressCommand, StringComparison.OrdinalIgnoreCase)) {
-                invoke.InvokeScript("Microsoft.PowerShell.Management\\Remove-Item -Path 'Alias:\\Write-Progress' -Force");
-                if (SavedWriteProgressAlias != null) {
-                    invoke.InvokeScript("Microsoft.PowerShell.Utility\\Set-Alias -Name Write-Progress -Value '" + SavedWriteProgressAlias.Replace("'", "''") + "' -Scope Global -Force");
-                }
-            }
-            SavedWriteProgressAlias = null;
+            FormatCommandInstallation.RemoveProgress(FormattingSessionState.Current);
         }
 
         /// <summary>
@@ -186,17 +188,14 @@ namespace ConsoleMonster.PowerShell {
                 previous = state.PreviousModuleOnRemove;
             }
             // A closure keeps the module's earlier OnRemove (for example type accelerator cleanup) running after ours.
-            ScriptBlock factory = ScriptBlock.Create("param($__cmPrevious, $__cmOutDefault, $__cmProgressAlias, $__cmReset) { $__cmProgressCleanup = $true; "
-                + "if ((Microsoft.PowerShell.Utility\\Get-Alias -Name Write-Progress -Scope Global -ErrorAction Ignore).Definition -eq '" + ProgressCommand + "') { "
-                + "Microsoft.PowerShell.Management\\Remove-Item -Path 'Alias:\\Write-Progress' -Force; "
-                + "if ($__cmProgressAlias) { Microsoft.PowerShell.Utility\\Set-Alias -Name Write-Progress -Value $__cmProgressAlias -Scope Global -Force } }; "
+            ScriptBlock factory = ScriptBlock.Create("param($__cmPrevious, $__cmOutDefault, $__cmReset) { $__cmProgressCleanup = $true; "
                 + "$__cmFunction = ${function:global:Out-Default}; "
                 + "if ($__cmFunction -and $__cmFunction.ToString().IndexOf('" + Marker + "', [System.StringComparison]::OrdinalIgnoreCase) -ge 0) { "
                 + "if ($__cmOutDefault) { Microsoft.PowerShell.Management\\Set-Item -Path 'Function:\\global:Out-Default' -Value $__cmOutDefault } "
                 + "else { Microsoft.PowerShell.Management\\Remove-Item -Path 'Function:\\Out-Default' -Force } }; "
                 + "$__cmReset.Invoke(); "
                 + "if ($__cmPrevious) { & $__cmPrevious @args } }.GetNewClosure()");
-            System.Collections.ObjectModel.Collection<PSObject> made = factory.Invoke(previous, SavedOutDefault, SavedWriteProgressAlias, (Action)(() => { GridViewInstallation.Remove(state); FormatCommandInstallation.Remove(state); FormatCommandInstallation.RemoveHelp(state); state.Reset(); }));
+            System.Collections.ObjectModel.Collection<PSObject> made = factory.Invoke(previous, SavedOutDefault, (Action)(() => { GridViewInstallation.Remove(state); FormatCommandInstallation.RemoveProgress(state); FormatCommandInstallation.Remove(state); FormatCommandInstallation.RemoveHelp(state); state.Reset(); }));
             if (made.Count > 0 && made[0]?.BaseObject is ScriptBlock cleanup) {
                 state.PreviousModuleOnRemove = previous;
                 state.ProgressCleanupHook = cleanup;
@@ -264,23 +263,23 @@ namespace ConsoleMonster.PowerShell {
                 "Name"
             };
             foreach (string type in new[] { "System.IO.FileInfo", "System.IO.DirectoryInfo" }) {
-                AddBuiltIn(new ConsoleViewRegistration(type, ConsoleViewKind.Table, files, null, "FileSystem", directory, true));
+                AddBuiltIn(ConsoleViewRegistration.Define(type, ConsoleViewKind.Table, files, null, "FileSystem", directory, true));
             }
             {
-                AddBuiltIn(new ConsoleViewRegistration("System.Diagnostics.Process", ConsoleViewKind.Table, new object[] {
+                AddBuiltIn(ConsoleViewRegistration.Define("System.Diagnostics.Process", ConsoleViewKind.Table, new object[] {
                     "Id", "ProcessName",
                     Hashtable("CPU (s)", ScriptBlock.Create("if ($null -ne $_.CPU) { [math]::Round($_.CPU, 1) }"), null),
                     Hashtable("Memory", ScriptBlock.Create("$_.WorkingSet64"), "Bytes"),
                     unix ? (object)Hashtable("Threads", ScriptBlock.Create("$_.Threads.Count"), null) : "Handles"
                 }, null, "System.Diagnostics.Process", null, true));
             }
-            AddBuiltIn(new ConsoleViewRegistration("System.ServiceProcess.ServiceController", ConsoleViewKind.Table, new object[] {
+            AddBuiltIn(ConsoleViewRegistration.Define("System.ServiceProcess.ServiceController", ConsoleViewKind.Table, new object[] {
                 Hashtable("Status", ScriptBlock.Create("[string] $_.Status"), "StatusWord"),
                 "Name", "DisplayName"
             }, null, "System.ServiceProcess.ServiceController", null, true));
             RegisterEverydayBuiltIns();
             // Get-WinEvent: time, id, the level as a status word, the source and the message's first line.
-            AddBuiltIn(new ConsoleViewRegistration("System.Diagnostics.Eventing.Reader.EventLogRecord", ConsoleViewKind.Table, new object[] {
+            AddBuiltIn(ConsoleViewRegistration.Define("System.Diagnostics.Eventing.Reader.EventLogRecord", ConsoleViewKind.Table, new object[] {
                 Hashtable("TimeCreated", ScriptBlock.Create("$_.TimeCreated"), "Date"),
                 Hashtable("Id", ScriptBlock.Create("$_.Id"), "Identifier"),
                 Hashtable("Level", ScriptBlock.Create("[string] $_.LevelDisplayName"), "StatusWord"),
@@ -295,7 +294,7 @@ namespace ConsoleMonster.PowerShell {
                 Hashtable("Size", ScriptBlock.Create("$_.Size"), "Bytes")
             };
             foreach (string type in new[] { "Microsoft.Management.Infrastructure.CimInstance#ROOT/Microsoft/Windows/Storage/MSFT_Volume", "Microsoft.Management.Infrastructure.CimInstance#MSFT_Volume" }) {
-                AddBuiltIn(new ConsoleViewRegistration(type, ConsoleViewKind.Table, volumes, null, "Volume", null, true));
+                AddBuiltIn(ConsoleViewRegistration.Define(type, ConsoleViewKind.Table, volumes, null, "Volume", null, true));
             }
             // Ready only once every built-in is in: a concurrent lookup never sees half of them.
             lock (Gate) {

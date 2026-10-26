@@ -13,7 +13,7 @@ Shell is an app: a title bar with the breadcrumb, a sidebar (it folds into the b
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Show-ConsoleMenu [-Menu] <Menu> [-Layout <MenuLayout>] [-AppName <string>] [-RememberLastChoices] [-StorageRoot <string>] [-NoCommandPalette] [-Mode <InteractionMode>] [<CommonParameters>]
+Show-ConsoleMenu [-Menu] <Menu> [-Layout <MenuLayout>] [-AppName <string>] [-RememberLastChoices] [-StorageRoot <string>] [-NoCommandPalette] [-Mode <InteractionMode>] [-Options <MenuOptions>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -101,6 +101,22 @@ Turns the command palette off.
 
 ```yaml
 Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Options
+Typed C# MenuOptions configuration. Use this instead of individual interaction settings; omitted host devices use the owning PowerShell runspace and the supplied object is not modified.
+
+```yaml
+Type: MenuOptions
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

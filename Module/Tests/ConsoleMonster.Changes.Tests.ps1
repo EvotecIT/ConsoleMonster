@@ -81,12 +81,12 @@ try { Show-ConsoleChanges -ReferenceObject $before -DifferenceObject $after -Pro
         $text = Invoke-ChangesChild @"
 `$d = New-ConsoleDashboard -Title 'Recorded' -Content { New-ConsoleLanes -WidgetId lanes; New-ConsoleLogRegion }
 Invoke-ConsoleDashboard `$d -RecordPath '$recording' {
-    Update-ConsoleLane -Key one -Status Running
+    Update-Console -WidgetId lanes -Key one -Status Running
     Send-ConsoleEvent -WidgetId '`$marker' -Operation mark -Text 'Wave 2 started'
     Write-ConsoleLogEntry -Message 'disk almost full' -Level warn
-    Update-ConsoleLane -Key two -Result Fail
-    Update-ConsoleLane -Key one -Complete
-    Update-ConsoleLane -Key two -Complete
+    Update-Console -WidgetId lanes -Key two -Result Fail
+    Update-Console -WidgetId lanes -Key one -Complete
+    Update-Console -WidgetId lanes -Key two -Complete
 }
 Show-ConsoleReplay `$d '$recording'
 'REPLAY-DONE'

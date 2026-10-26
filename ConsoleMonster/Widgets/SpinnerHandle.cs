@@ -12,19 +12,27 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>Restarts the clock and returns to running, optionally with a new label.</summary>
         /// <param name="label">The new label (markup), or null to keep it.</param>
-        public void Start(string? label = null) => Post("start", text: label);
+        public void Start(string? label = null) {
+            var update = new WidgetUpdate { Restart = true };
+            if (label != null) { update.Label = label; }
+            Update(update);
+        }
 
         /// <summary>Changes the label.</summary>
         /// <param name="label">The label (markup).</param>
-        public void Label(string label) => Post("label", text: label);
+        public void Label(string label) => Update(new WidgetUpdate { Label = label });
 
         /// <summary>Changes the muted detail, for example the current item.</summary>
         /// <param name="detail">The detail, or null to clear it.</param>
-        public void Detail(string? detail) => Post("detail", text: detail);
+        public void Detail(string? detail) => Update(new WidgetUpdate { Detail = detail });
 
         /// <summary>Sets the final status (Pass, Fail, Warn, Skip), optionally with a closing detail.</summary>
         /// <param name="status">The status.</param>
         /// <param name="detail">The detail, or null to keep the current one.</param>
-        public void Complete(StatusKind status = StatusKind.Pass, string? detail = null) => Post("state", text: detail, state: status.ToString());
+        public void Complete(StatusKind status = StatusKind.Pass, string? detail = null) {
+            var update = new WidgetUpdate { Status = status };
+            if (detail != null) { update.Detail = detail; }
+            Update(update);
+        }
     }
 }
