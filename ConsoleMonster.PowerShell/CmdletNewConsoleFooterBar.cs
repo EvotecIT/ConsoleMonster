@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Management.Automation;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
@@ -24,11 +25,15 @@ namespace ConsoleMonster.PowerShell {
         [Parameter] public object[] Segment { get; set; } = Array.Empty<object>();
         /// <summary><para type="description">Keeps the last hint when space runs out.</para></summary>
         [Parameter] public SwitchParameter KeepLast { get; set; }
+        /// <summary><para type="description">Reads context hints on the app input thread; unavailable KeyHint entries remain dimmed.</para></summary>
+        [Parameter] public Func<IEnumerable<KeyHint>>? HintsSource { get; set; }
+        /// <summary><para type="description">Keeps all context entries in fixed slots and shortens their labels to fit.</para></summary>
+        [Parameter] public SwitchParameter FixedSlots { get; set; }
         /// <summary><para type="description">Initial indentation in terminal cells.</para></summary>
         [Parameter] [ValidateRange(0, 1000)] public int Indent { get; set; } = 1;
         /// <inheritdoc />
         protected override void EndProcessing() {
-            FooterBar footer = new FooterBar { KeepLast = KeepLast.IsPresent, Indent = Indent, Message = Line(Message), Right = Line(Right) };
+            FooterBar footer = new FooterBar { KeepLast = KeepLast.IsPresent, Indent = Indent, Message = Line(Message), Right = Line(Right), HintsSource = HintsSource, FixedSlots = FixedSlots.IsPresent };
             if (Hint != null) {
                 foreach (KeyHint hint in PSFooterHints.Read(Hint)) { footer.Hints.Add(hint); }
             }

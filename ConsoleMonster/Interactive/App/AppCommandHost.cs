@@ -31,6 +31,7 @@ namespace ConsoleMonster.Interactive {
         private readonly Func<string>? _selectionLabel;
         private readonly Action<AppCommand>? _completed;
         private long _completionRevision;
+        private long _summaryRevision;
 
         internal AppCommandHost(IEnumerable<AppCommand> commands, Func<IReadOnlyList<object?>> selection, PromptLabels labels, CancellationToken token, bool commandBar = false, bool requiresRows = false, AppDispatcher? dispatcher = null, Func<string>? selectionLabel = null, Action<AppCommand>? completed = null, Func<TimeSpan>? actionClock = null, AppHostKeys? keys = null, AppDialogs? dialogs = null) {
             _keys = keys ?? new AppHostKeys();
@@ -71,6 +72,10 @@ namespace ConsoleMonster.Interactive {
         internal bool TryPost(Action action) => _session.Dispatcher.TryPost(action);
 
         internal bool Poll() {
+            lock (_gate) { return PollCore(); }
+        }
+
+        private bool PollCore() {
             bool changed = _session.Dispatcher.Drain() != 0;
             long completion = _session.CompletionRevision;
             if (completion != _completionRevision && !_session.IsBusy) {
@@ -83,6 +88,17 @@ namespace ConsoleMonster.Interactive {
             if (revision != _revision) { _revision = revision; changed = true; }
             bool busy = _session.IsBusy;
             if (busy != _wasBusy) { _wasBusy = busy; changed = true; }
+            if (!busy && completion != _summaryRevision && _session.OperationCommand?.ProgressDialog == true && (!HasModal || _modal is OperationProgressModal)) {
+                _summaryRevision = completion;
+                AppOperationSummary summary = _session.Summary ?? new AppOperationSummary("Completed");
+                var lines = new Rows().Add(TextBlock.Plain(summary.Message));
+                foreach (string failure in summary.Failures) { lines.Add(TextBlock.Plain(failure, Styling.ThemeToken.Fail)); }
+                var dialog = new FormDialog<bool>(_session.OperationCommand.Label, new ScrollView(lines), _ => true) {
+                    AcceptText = summary.Retry == null ? "Close" : "Retry failed", CancelText = "Skip", DefaultAccept = false
+                };
+                ReplaceModal(new FormDialogModal<bool>(dialog, result => { if (result.Accepted && summary.Retry != null) { Invoke(summary.Retry); } }));
+                changed = true;
+            }
             return changed;
         }
 
@@ -91,7 +107,9 @@ namespace ConsoleMonster.Interactive {
                 if (_session.IsBusy) { return; }
                 Poll();
                 IReadOnlyList<object?> rows = command.Capture(_selection());
-                void Start() { _session.Start(command, rows); }
+                void Start() {
+                    if (_session.Start(command, rows) && command.ProgressDialog) { ReplaceModal(new OperationProgressModal(_session)); }
+                }
                 if (_requiresRows && rows.Count == 0) { return; }
                 if (string.IsNullOrWhiteSpace(command.ConfirmPrompt)) { Start(); }
                 else {
@@ -113,6 +131,7 @@ namespace ConsoleMonster.Interactive {
         internal bool Handle(InputEvent input) {
             lock (_gate) {
                 if (input.Is(ConsoleKey.C, KeyModifiers.Control)) { if (_session.IsBusy) { _session.Cancel(); return true; } return false; }
+                if (AppHostKeys.Match(_keys.CancelAction, input) && _session.IsBusy) { _session.Cancel(); return true; }
                 if (input.Kind == InputEventKind.FocusLost || input.Kind == InputEventKind.Resize) {
                     _modal?.CancelPointer(); _barCapture?.CancelPointer(); _barCapture = null; return false;
                 }
@@ -183,7 +202,7 @@ namespace ConsoleMonster.Interactive {
             internal Surface(AppCommandHost host, IWidget content) { _host = host; _content = content; }
             public IReadOnlyList<IWidget> Children => new[] { _content };
             public Size Measure(Constraints constraints, RenderContext context) => new Size(constraints.MaxWidth,
-                constraints.IsHeightUnbounded ? _content.Measure(new Constraints(constraints.MaxWidth, 30), context).Height + 7 + (_host._commandBar?.Measure(new Constraints(constraints.MaxWidth, 30), context).Height ?? 0) : constraints.MaxHeight);
+                constraints.IsHeightUnbounded ? _content.Measure(new Constraints(constraints.MaxWidth, 30), context).Height + (_host.HasCommands ? 7 + (_host._commandBar?.Measure(new Constraints(constraints.MaxWidth, 30), context).Height ?? 0) : 0) : constraints.MaxHeight);
             public void Render(Region region, RenderContext context) {
                 lock (_host._gate) {
                     int logHeight = region.Height < 12 ? 3 : Math.Min(7, region.Height / 3);

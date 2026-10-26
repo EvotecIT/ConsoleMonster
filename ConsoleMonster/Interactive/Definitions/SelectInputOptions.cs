@@ -17,6 +17,8 @@ namespace ConsoleMonster.Interactive {
         public object? Value { get => _value; set { _value = value; _bound.Add(nameof(Value)); } }
         /// <summary>Visible choice rows; null keeps the control default.</summary>
         public int? PageSize { get; set; }
+        /// <summary>Shows a single-choice list with radio indicators.</summary>
+        public bool Radio { get; set; }
         /// <summary>The prepared choices, retaining original values and enabled/selected metadata.</summary>
         public IList<Choice> Choices { get; } = new List<Choice>();
     }

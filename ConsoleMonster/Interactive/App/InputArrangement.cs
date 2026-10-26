@@ -20,6 +20,7 @@ namespace ConsoleMonster.Interactive {
                 Move(viewport, parent.X, parent.Y).Intersect(parent.Clip));
         }
         internal static InputControl? CurrentFocus => _current?.Owner.Focused;
+        internal static Rect FrameBounds(Rect bounds) => _current == null ? bounds : Move(bounds, _current.X, _current.Y).Intersect(_current.Clip);
         internal static Rect? FocusWithin(IWidget content) {
             Scope? scope = _current;
             if (scope == null || scope.Owner.Focused == null) { return null; }

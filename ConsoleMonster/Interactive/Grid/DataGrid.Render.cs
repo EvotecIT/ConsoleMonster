@@ -90,7 +90,10 @@ namespace ConsoleMonster.Interactive {
                 if (marks) { cells.Add(new TableCell(_marked.Contains(row.Id) ? "[accent bold]" + check + "[/]" : string.Empty)); }
                 foreach (int c in shown) {
                     object? value = c < row.Values.Count ? row.Values[c] : null;
-                    if (value is DataGridCell lazy) { value = resolve ? lazy.Resolve(_lifetime.Token, () => { if (!_disposed) { Invalidate(); } }) : lazy.Peek(); }
+                    if (value is DataGridCell lazy) {
+                        if (resolve) { _cells.Add(lazy); value = lazy.Resolve(_lifetime.Token, _cellChanged); }
+                        else { value = lazy.Peek(); }
+                    }
                     cells.Add(TableCell.FromValue(value));
                 }
                 table.AddRow(cells.ToArray());
@@ -117,6 +120,7 @@ namespace ConsoleMonster.Interactive {
                 if ((input.Modifiers & KeyModifiers.Control) != 0 && _grid.OutputMode == GridSelection.Multiple) {
                     object id = _grid.Rows[_visible[_cursor]].Id;
                     if (!_marked.Remove(id)) { _marked.Add(id); }
+                    _markedSelection = null;
                 }
                 return true;
             }
@@ -124,6 +128,7 @@ namespace ConsoleMonster.Interactive {
                 _cursor = hit + _top;
                 if (_grid.OutputMode == GridSelection.Multiple) {
                     for (int i = Math.Min(_dragAnchor, _cursor); i <= Math.Max(_dragAnchor, _cursor); i++) { _marked.Add(_grid.Rows[_visible[i]].Id); }
+                    _markedSelection = null;
                 }
                 return true;
             }

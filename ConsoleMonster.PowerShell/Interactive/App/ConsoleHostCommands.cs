@@ -13,6 +13,7 @@ namespace ConsoleMonster.PowerShell {
             if (options.ScriptBlock == null) { throw new ArgumentException("ScriptBlock is required.", nameof(options)); }
             AppCommand command = PSCommandActions.Create(options.Key, options.Label ?? options.Key, options.ScriptBlock.ToString(), options.ArgumentList, options.ImportModule);
             command.ConfirmPrompt = options.ConfirmPrompt;
+            command.ProgressDialog = options.ProgressDialog;
             if (!string.IsNullOrWhiteSpace(options.Shortcut)) { command.Shortcut = KeyChord.Parse(options.Shortcut!); }
             return command;
         }

@@ -1,6 +1,8 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>A cell computed on demand when it first enters a grid viewport. The factory runs on a worker and never owns UI state.</summary>
@@ -8,6 +10,7 @@ namespace ConsoleMonster.Interactive {
         private readonly object _gate = new object();
         private readonly Func<CancellationToken, Task<object?>> _value;
         private Task<object?>? _work;
+        private readonly HashSet<Action> _changed = new HashSet<Action>();
 
         /// <summary>Creates an asynchronous cell. Use a fresh cell for a new listing or a changed value.</summary>
         public DataGridCell(Func<CancellationToken, Task<object?>> value, string placeholder = "…") {
@@ -33,12 +36,19 @@ namespace ConsoleMonster.Interactive {
 
         internal object? Resolve(CancellationToken cancellation, Action changed) {
             lock (_gate) {
-                if (_work == null) {
+                _changed.Add(changed);
+                if (_work == null || _work.IsCanceled && !cancellation.IsCancellationRequested) {
                     _work = Task.Run(() => _value(cancellation), cancellation);
-                    _ = _work.ContinueWith(task => { _ = task.Exception; changed(); }, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
+                    _ = _work.ContinueWith(task => {
+                        _ = task.Exception;
+                        Action[] listeners;
+                        lock (_gate) { listeners = _changed.ToArray(); }
+                        foreach (Action listener in listeners) { listener(); }
+                    }, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
                 }
                 return _work.Status == TaskStatus.RanToCompletion ? _work.Result : Placeholder;
             }
         }
+        internal void Release(Action changed) { lock (_gate) { _changed.Remove(changed); } }
     }
 }

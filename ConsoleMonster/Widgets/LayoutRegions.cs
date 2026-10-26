@@ -26,6 +26,7 @@ namespace ConsoleMonster.Widgets {
 
     /// <summary>Equal layout regions that show only the active region below a configurable width. Focus and retained control state follow swapped content.</summary>
     public sealed class LayoutRegions : IContainer {
+        private readonly object _gate = new object();
         private readonly List<LayoutRegion> _regions = new List<LayoutRegion>();
         /// <summary>The minimum width for showing regions side by side.</summary>
         public int NarrowBelow { get; set; } = 80;
@@ -44,13 +45,17 @@ namespace ConsoleMonster.Widgets {
         }
         /// <summary>Swaps two existing subtrees without reconstructing their controls.</summary>
         public void Swap(string first, string second) {
-            LayoutRegion a = Find(first), b = Find(second);
-            IWidget content = a.Content; a.Content = b.Content; b.Content = content;
+            lock (_gate) {
+                LayoutRegion a = Find(first), b = Find(second);
+                IWidget content = a.Content; a.Content = b.Content; b.Content = content;
+            }
         }
         /// <summary>Shows a region and focuses its first enabled input.</summary>
         public void Activate(string key) {
-            LayoutRegion region = Find(key); ActiveRegion = key;
-            foreach (InputControl input in FocusManager.Discover(region)) { if (!input.Disabled) { input.Focus(); break; } }
+            lock (_gate) {
+                LayoutRegion region = Find(key); ActiveRegion = key;
+                foreach (InputControl input in FocusManager.Discover(region)) { if (!input.Disabled) { input.Focus(); break; } }
+            }
         }
         private LayoutRegion Find(string key) => _regions.Find(r => r.Key == key) ?? throw new ArgumentException("Unknown region: " + key, nameof(key));
         private IWidget Layout(int width) {
@@ -67,8 +72,8 @@ namespace ConsoleMonster.Widgets {
             return columns;
         }
         /// <inheritdoc />
-        public Size Measure(Constraints constraints, RenderContext context) => Layout(constraints.MaxWidth).Measure(constraints, context);
+        public Size Measure(Constraints constraints, RenderContext context) { lock (_gate) { return Layout(constraints.MaxWidth).Measure(constraints, context); } }
         /// <inheritdoc />
-        public void Render(Region region, RenderContext context) => Layout(region.Width).Render(region, context);
+        public void Render(Region region, RenderContext context) { lock (_gate) { Layout(region.Width).Render(region, context); } }
     }
 }

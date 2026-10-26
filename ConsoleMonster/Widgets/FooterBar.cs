@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
@@ -70,6 +71,9 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>Reads current registry hints at render time, for example from the focused panel or active dialog.</summary>
         public Func<IEnumerable<KeyHint>>? HintsSource { get; set; }
+        private IReadOnlyList<KeyHint>? _appHints;
+        internal void RefreshHints() => Volatile.Write(ref _appHints, HintsSource == null ? null : new List<KeyHint>(HintsSource()));
+        internal void ReleaseHints() => Volatile.Write(ref _appHints, null);
 
         /// <summary>Keeps every registry entry in a fixed slot, shortening labels rather than hiding unavailable or trailing commands.</summary>
         public bool FixedSlots { get; set; }
@@ -105,7 +109,7 @@ namespace ConsoleMonster.Widgets {
             }
             int rightWidth = right?.Width ?? 0;
             int available = region.Width - Indent - (rightWidth > 0 ? rightWidth + 2 : 0) - 1;
-            IReadOnlyList<KeyHint> hints = HintsSource == null ? Hints : new List<KeyHint>(HintsSource());
+            IReadOnlyList<KeyHint> hints = Volatile.Read(ref _appHints) ?? (HintsSource == null ? Hints : new List<KeyHint>(HintsSource()));
             StyledLine left = Message != null ? TextWrapper.Truncate(Message, Math.Max(1, available), context.Ellipsis)
                 : FixedSlots ? SlotLine(hints, context, available) : Line(hints, context, available, KeepLast);
             region.Write(Indent, 0, left);
@@ -196,7 +200,7 @@ namespace ConsoleMonster.Widgets {
                 spans.Add(new TextSpan(keys, key));
                 int remaining = Math.Max(0, width - DisplayWidth.Measure(keys));
                 string text = remaining > 1 ? TextWrapper.Truncate(" " + hint.Label, remaining - 1, context.Ellipsis) : string.Empty;
-                spans.Add(new TextSpan(text.PadRight(remaining), label));
+                spans.Add(new TextSpan(text + new string(' ', Math.Max(0, remaining - DisplayWidth.Measure(text))), label));
             }
             return new StyledLine(spans);
         }

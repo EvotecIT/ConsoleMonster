@@ -78,7 +78,10 @@ namespace ConsoleMonster.PowerShell {
             pipeline.Streams.Debug.DataAdded += (_, __) => { foreach (DebugRecord item in pipeline.Streams.Debug.ReadAll()) { Write(item.Message, "debug"); } };
             pipeline.Streams.Information.DataAdded += (_, __) => { foreach (InformationRecord item in pipeline.Streams.Information.ReadAll()) { Write(Convert.ToString(item.MessageData) ?? string.Empty, "host"); } };
             pipeline.Streams.Progress.DataAdded += (_, __) => {
-                foreach (ProgressRecord progress in pipeline.Streams.Progress.ReadAll()) { Write(progress.Activity + ": " + progress.StatusDescription); }
+                foreach (ProgressRecord progress in pipeline.Streams.Progress.ReadAll()) {
+                    Write(progress.Activity + ": " + progress.StatusDescription);
+                    _context.Report(new AppProgress(progress.Activity, Math.Max(0, progress.PercentComplete), progress.PercentComplete < 0 ? 0 : 100, progress.StatusDescription));
+                }
             };
         }
     }

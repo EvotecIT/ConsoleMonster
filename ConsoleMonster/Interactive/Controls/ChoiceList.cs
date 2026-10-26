@@ -60,6 +60,8 @@ namespace ConsoleMonster.Interactive {
         }
 
         public bool Multi { get; }
+        internal bool Radio { get; set; }
+        internal object? RadioValue { get; set; }
 
         public bool HasHotkeys { get; }
 
@@ -556,6 +558,10 @@ namespace ConsoleMonster.Interactive {
                 string box = on ? g.Checked : g.Unchecked;
                 Style boxStyle = context.Style(!enabled ? ThemeToken.Subtle : on ? ThemeToken.Accent : ThemeToken.Muted);
                 x = row.Write(x, 0, box, baseStyle.Combine(boxStyle)) + 1;
+            } else if (Radio) {
+                bool on = Equals(c.Value, RadioValue);
+                string indicator = context.Glyphs.Tier == Capabilities.GlyphTier.Ascii ? (on ? "(*)" : "( )") : (on ? "(●)" : "(○)");
+                x = row.Write(x, 0, indicator, baseStyle.Combine(context.Style(on ? ThemeToken.Accent : ThemeToken.Muted))) + 1;
             }
             RichText? badge = c.Badge;
             int badgeWidth = 0;

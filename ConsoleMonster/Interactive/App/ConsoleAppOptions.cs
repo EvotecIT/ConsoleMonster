@@ -19,6 +19,10 @@ namespace ConsoleMonster.Interactive {
         public Layout.IWidget? Footer { get; set; }
         /// <summary>Optional typed modal form service for this run.</summary>
         public AppDialogs? Dialogs { get; set; }
+        /// <summary>Optional minimum terminal width; zero permits any width.</summary>
+        public int MinimumWidth { get; set; }
+        /// <summary>Optional minimum terminal height; zero permits any height.</summary>
+        public int MinimumHeight { get; set; }
         /// <summary>Passive commands shared by the app's buttons, palette and keyboard shortcuts.</summary>
         public IList<AppCommand> Command { get; } = new List<AppCommand>();
         /// <summary>Captures action rows on the app thread before confirmation. Null supplies an empty row set.</summary>

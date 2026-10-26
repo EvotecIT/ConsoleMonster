@@ -5,6 +5,7 @@ using ConsoleMonster.Canvas;
 using ConsoleMonster.Input;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
+using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>Owns callbacks and dependent-widget creation on the input thread; only live payload application runs on the renderer.</summary>
@@ -13,6 +14,7 @@ namespace ConsoleMonster.Interactive {
         private readonly AppState _state;
         private readonly List<AppBinding> _bindings = new List<AppBinding>();
         private readonly List<IAppInputContainer> _containers = new List<IAppInputContainer>();
+        private readonly List<FooterBar> _footers = new List<FooterBar>();
         private readonly FocusManager _focus;
         private readonly RenderContext _context;
         private readonly AppViewport _viewport;
@@ -22,12 +24,14 @@ namespace ConsoleMonster.Interactive {
         private bool _disposed;
         private readonly AppCommandHost _actions;
         private InputControl? _pointerCapture;
+        private volatile bool _tooSmall;
 
         internal AppController(IWidget layout, AppState state, RenderContext context, int reflowBelow, ConsoleAppOptions? options = null, CancellationToken cancellationToken = default, Func<TimeSpan>? actionClock = null) {
             _options = options ?? new ConsoleAppOptions();
             _state = state;
             _context = context;
             Discover(layout, reflowBelow);
+            if (_options.Footer != null) { Discover(_options.Footer, reflowBelow); }
             _focus = new FocusManager(layout);
             _viewport = new AppViewport(layout, _focus);
             List<AppCommand> commands = new List<AppCommand>(options?.Command ?? (IEnumerable<AppCommand>)Array.Empty<AppCommand>());
@@ -49,10 +53,12 @@ namespace ConsoleMonster.Interactive {
                 if (_options.Keys.Exit.HasValue) { hints.Add(new KeyBinding(PromptLabels.For(context.Profile.Language).KeyQuit, state.RequestExit, _options.Keys.Exit.Value)); }
                 _actions.AddBindings(hints);
                 Root = new Rows().Add(_actions.Wrap(_viewport), LayoutSize.Fraction()).Add(_options.Footer ?? new KeyFooter(hints), LayoutSize.Fixed(1));
+                if (_options.MinimumWidth > 0 || _options.MinimumHeight > 0) { Root = new AppMinimumSize(Root, _options.MinimumWidth, _options.MinimumHeight, small => _tooSmall = small); }
                 foreach (InputControl input in _focus.Controls) {
                     if (input is Button button && button.Command != null) { _actions.Bind(button, button.Command); }
                 }
                 foreach (AppBinding binding in _bindings) { binding.Refresh(state, null); }
+                foreach (FooterBar footer in _footers) { footer.RefreshHints(); }
             } catch { Dispose(); throw; }
         }
 
@@ -62,6 +68,10 @@ namespace ConsoleMonster.Interactive {
         internal CellBuffer PrepareFrame(int width, int height) => Rendering.FrameComposer.Compose(Root, width, height, _context);
 
         internal void Handle(InputEvent input, bool mouse) {
+            if (_tooSmall && input.Kind != InputEventKind.Resize) {
+                if (input.Is(ConsoleKey.C, KeyModifiers.Control) || AppHostKeys.Match(_options.Keys.Exit, input)) { _state.RequestExit(); }
+                return;
+            }
             bool pointerHandled = false;
             if (input.Kind == InputEventKind.FocusLost || input.Kind == InputEventKind.Resize) { _pointerCapture?.CancelPointer(); _pointerCapture = null; }
             if ((_actions.HasCommands || _actions.HasModal) && (input.Kind != InputEventKind.Mouse || mouse) && _actions.Handle(input)) { Invalidate(); return; }
@@ -98,10 +108,12 @@ namespace ConsoleMonster.Interactive {
             if (_actions.Poll()) { Invalidate(); }
             if (Interlocked.Exchange(ref _dirty, 0) == 0) { return; }
             foreach (AppBinding binding in _bindings) { binding.Refresh(_state, session); }
+            foreach (FooterBar footer in _footers) { footer.RefreshHints(); }
             session?.Invalidate();
         }
 
         private void Discover(IWidget widget, int reflowBelow) {
+            if (widget is FooterBar footer) { _footers.Add(footer); }
             if (widget is IAppInputContainer inputContainer) { _containers.Add(inputContainer); }
             if (widget is AppBinding binding) { _bindings.Add(binding); return; }
             if (widget is Columns columns && columns.CollapseBelow < 0) { columns.CollapseBelow = reflowBelow; }
@@ -131,6 +143,7 @@ namespace ConsoleMonster.Interactive {
                 control.ViewportHeight = Constraints.Unbounded;
             }
             _viewport.Reset();
+            foreach (FooterBar footer in _footers) { footer.ReleaseHints(); }
             _focus.Dispose();
             _actions?.Dispose();
         }

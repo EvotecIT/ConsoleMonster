@@ -21,6 +21,12 @@ namespace ConsoleMonster.Interactive {
         private long _revision;
         private long _completionRevision;
         private AppCommand? _completedCommand;
+        private AppCommand? _operationCommand;
+        private AppProgress? _progress;
+        private AppOperationSummary? _summary;
+        internal AppProgress? Progress { get { lock (_gate) { return _progress; } } }
+        internal AppOperationSummary? Summary { get { lock (_gate) { return _summary; } } }
+        internal AppCommand? OperationCommand { get { lock (_gate) { return _operationCommand; } } }
         internal AppDispatcher Dispatcher { get; }
         internal AppActionSession(CancellationToken token, AppDispatcher? dispatcher = null, Func<TimeSpan>? actionClock = null) { _actionClock = actionClock; Dispatcher = dispatcher ?? new AppDispatcher(); _lifetime = CancellationTokenSource.CreateLinkedTokenSource(token); }
         internal bool IsBusy { get { lock (_gate) { return _work != null && !_work.IsCompleted; } } }
@@ -38,17 +44,24 @@ namespace ConsoleMonster.Interactive {
                 _clockStart = _actionClock?.Invoke() ?? TimeSpan.Zero;
                 _clock.Restart();
                 var captured = Array.AsReadOnly(rows.ToArray());
+                _operationCommand = command; _progress = null; _summary = null;
                 _work = Task.Run(async () => {
                     bool succeeded = false;
                     try {
                         token.ThrowIfCancellationRequested();
-                        await command.Action(new AppActionContext(captured, Write), token).ConfigureAwait(false);
+                        await command.Action(new AppActionContext(captured, Write, progress => { lock (_gate) { if (!_closed) { _progress = progress; _revision++; } } }, summary => { lock (_gate) { if (!_closed) { _summary = summary; _revision++; } } }), token).ConfigureAwait(false);
                         token.ThrowIfCancellationRequested();
                         Write(command.Label + ": completed", "pass");
                         succeeded = true;
-                    } catch (OperationCanceledException) when (token.IsCancellationRequested) { Write(command.Label + ": cancelled", "warn"); }
-                    catch (Exception error) { WriteFailure(command.Label, error); }
-                    finally { lock (_gate) { _completedCommand = succeeded ? command : null; _completionRevision++; } }
+                    } catch (OperationCanceledException) when (token.IsCancellationRequested) {
+                        Write(command.Label + ": cancelled", "warn");
+                        lock (_gate) { _summary ??= new AppOperationSummary(command.Label + ": cancelled"); }
+                    }
+                    catch (Exception error) {
+                        WriteFailure(command.Label, error);
+                        lock (_gate) { _summary ??= new AppOperationSummary(command.Label + ": failed", new[] { error.Message }); }
+                    }
+                    finally { lock (_gate) { _summary ??= new AppOperationSummary(command.Label + ": completed"); _completedCommand = succeeded ? command : null; _completionRevision++; } }
                 });
                 return true;
             }

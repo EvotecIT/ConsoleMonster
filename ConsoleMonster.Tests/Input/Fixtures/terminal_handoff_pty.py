@@ -57,6 +57,7 @@ def run(dotnet, host, result, runtime=None):
         with open(result + ".start", "w", encoding="utf-8"):
             pass
         wait_for(b"TTY handoff")
+        assert not termios.tcgetattr(slave)[3] & termios.ISIG, "app signal keys must remain input"
         # Focus the second original object before handing off the screen.
         os.write(master, b"\x1b[B\x1b[15~")
         wait_for(b"CHILD_READY")
@@ -79,8 +80,15 @@ def run(dotnet, host, result, runtime=None):
         while len(output) == previous and time.monotonic() < deadline:
             if select.select([master], [], [], 0.1)[0]:
                 output.extend(os.read(master, 65536))
-        os.write(master, b"q")
+        for key, marker in ((b"\x1bOS", b"invalid"), (b"\x1bOQ", b"timeout"), (b"\x1bOR", b"cancelled")):
+            os.write(master, key)
+            wait_for(b"RESTORED_" + marker)
+            with open(result, encoding="utf-8") as stream:
+                assert "restored=" + marker.decode() + ";focus=second" in stream.read()
+        os.write(master, b"\x1b[20~")
         wait_for(b"HANDOFF_RESTORED")
+        with open(result, encoding="utf-8") as stream:
+            assert "app-cancellation=restored" in stream.read()
         after = termios.tcgetattr(slave)
         with open(result + ".modes", "w", encoding="utf-8") as stream:
             json.dump({"before": repr(before), "after": repr(after)}, stream)
@@ -98,7 +106,7 @@ def run(dotnet, host, result, runtime=None):
             raise AssertionError("app did not exit")
         assert os.waitstatus_to_exitcode(status) == 0, bytes(output[-2500:])
         assert b"\x1b[?1049l" in output and b"\x1b[?1049h" in output, "alternate screen was not handed off"
-        print("PTY_HANDOFF_OK: tty, colours, input, resize, exit7, focus, output view, modes restored")
+        print("PTY_HANDOFF_OK: tty, colours, input, resize, exit7, focus, output view, timeout, child/app cancellation, invalid startup, modes restored")
     finally:
         if status is None:
             try:
