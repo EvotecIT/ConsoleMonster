@@ -4,6 +4,12 @@ Export ConsoleMonster widgets, frames and recordings as PNG, GIF and APNG with
 ChartForgeX. All three formats run in-process without an external executable.
 The core ConsoleMonster package stays dependency-free.
 
+```bash
+dotnet add package ConsoleMonster.Graphics
+```
+
+In PowerShell the module bundles this add-on: `Export-ConsoleRecording -Format Gif` and `-Format Png` use it.
+
 Slide presets share a centred, rounded window on a theme, solid or gradient
 background. Content fitting trims unused rows and columns in a still, keeping two
 trailing columns of padding. Animations reserve the widest and tallest content
@@ -49,3 +55,6 @@ APNG remains available for full-colour playback in applications that support it.
 JetBrains Mono is embedded under the SIL Open Font License; see
 `licenses/JetBrainsMono-OFL.txt`. Installed font and emoji/CJK fallbacks depend
 on the host. Use the embedded default and fixed inputs for repeatable slides.
+
+[ConsoleMonster](https://consolemonster.dev/) · [Recording and replay](https://consolemonster.dev/docs/recording/) ·
+[Add-ons](https://consolemonster.dev/docs/add-ons/)

@@ -10,7 +10,7 @@ chips: [Pester]
 summary: "Invoke-ConsoleRun in parallel, Watch-Console and Pester runs, recorded."
 ---
 
-Three commands turn long-running work into a live view on an interactive console and into plain lines everywhere else: `Invoke-ConsoleRun` (`Invoke-ConsoleRun`) for many items, `Watch-Console` for a command you want to see change, and `Invoke-ConsolePester` for tests. Each writes ordinary PowerShell output when it ends, so it fits into a script like the commands it replaces.
+Three commands turn long-running work into a live view on an interactive console and into plain lines everywhere else: `Invoke-ConsoleRun` for many items, `Watch-Console` for a command you want to see change, and `Invoke-ConsolePester` for tests. Each writes ordinary PowerShell output when it ends, so it fits into a script like the commands it replaces.
 
 {{< cm-demo id="parallel" heading="h2" autoplay="true" >}}
 

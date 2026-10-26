@@ -1,8 +1,11 @@
 # ConsoleMonster
 
-**Everyday output in one line. The monster when you need it.** ConsoleMonster makes the output of the commands you
-already run readable, and draws tables, trees, charts, live runs, dashboards, menus and forms when you need more. One
-engine for PowerShell 5.1 and 7 and .NET, with no package dependencies and plain lines when the output is a log.
+**Everyday output in one line. The monster when you need it.**
+
+ConsoleMonster makes the output of the commands you already run readable, and draws tables, trees, charts, live
+runs, dashboards, menus and forms when you need more. It is one engine for Windows PowerShell 5.1, PowerShell 7 and
+.NET, with no package dependencies. A setting has one name everywhere (`-Title` in PowerShell, `Title =` and
+`.Title()` in C#), and when the output goes to a file, a log or CI, it writes plain lines instead of escape codes.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/EvotecIT/ConsoleMonster/master/Website/static/readme/hero-dark.png">
@@ -10,15 +13,26 @@ engine for PowerShell 5.1 and 7 and .NET, with no package dependencies and plain
 </picture>
 
 [Website](https://consolemonster.dev/) · [Documentation](https://consolemonster.dev/docs/) ·
-[Widgets](https://consolemonster.dev/widgets/) · [Prompts, menus and forms](https://consolemonster.dev/interactive/) ·
+[Demos](https://consolemonster.dev/demos/) · [Widgets](https://consolemonster.dev/widgets/) ·
 [.NET API](https://consolemonster.dev/api/) · [PowerShell commands](https://consolemonster.dev/powershell/commands/)
 
-## Install
+**Upgrading from 2.0.1?** 2.1.0 merges 144 commands into 101 and drops the `With` prefix from C# fluent setters.
+The [upgrade guide](https://consolemonster.dev/guides/upgrading/) maps every old name, and calling an old command
+tells you what replaced it.
+
+## Start in PowerShell
 
 <!-- example: Website/content/docs/install.md#1 -->
 ```powershell
 Install-Module ConsoleMonster -Scope CurrentUser
+Import-Module ConsoleMonster
+Get-Process | Sort-Object CPU -Descending | Select-Object -First 8 | Show-ConsoleTable
 ```
+
+`Show-ConsoleDemo` lists the gallery's demos, grouped by what they are for, and runs the one you pick.
+`Get-Command -Module ConsoleMonster` lists every command, and `Get-Help <command> -Examples` shows how to use it.
+
+## Start in C#
 
 <!-- example: Website/content/docs/install.md#3 -->
 ```bash
@@ -26,6 +40,21 @@ dotnet new console -n FirstTable
 cd FirstTable
 dotnet add package ConsoleMonster
 ```
+
+Replace `Program.cs`, then `dotnet run`:
+
+<!-- example: Website/content/docs/install.md#4 -->
+```csharp
+using ConsoleMonster;
+using ConsoleMonster.Widgets;
+
+var files = new DirectoryInfo(".").GetFiles().Select(f => new { f.Name, f.Length });
+Table.For(files).Title("Files").Show();
+```
+
+[Install](https://consolemonster.dev/docs/install/) ·
+[Three ways to write it in C#](https://consolemonster.dev/docs/csharp-styles/) ·
+[The `dotnet new` template](https://consolemonster.dev/docs/template/), which starts a project from any gallery demo
 
 ## Nicer default output in one line
 
@@ -56,7 +85,7 @@ Enable-ConsoleFormatting -Feature All -ProfileSnippet | Add-Content -Path $PROFI
 
 ## Tables, lists and trees
 
-`Show-ConsoleTable`, `Show-ConsoleList` and `Show-ConsoleTree` take pipeline input and fit the window.
+`Show-ConsoleTable`, `Show-ConsoleList` and `Show-Console -View Tree` take pipeline input and fit the window.
 `Format-Table`, `Format-List` and `Format-Wide` stay PowerShell's own unless you turn on `-Feature FormatCommands`.
 
 <!-- example: Website/examples/powershell/files.ps1 -->
@@ -127,8 +156,9 @@ $results = $servers | Invoke-ConsoleRun @run -ErrorAction SilentlyContinue {
 
 ## C# and the fluent API
 
-The same engine as a .NET library. Every widget has fluent `With...` and `Add...` methods, object initializers and
-`Ui` factories.
+The same engine as a .NET library. Every widget takes an object initializer or fluent calls named after its
+properties (`.Title("Build")`), and `Ui.Panel()`, `Ui.Table()` and the other `Ui` factories start a fluent chain.
+All three draw the same cells.
 
 <!-- example: Website/examples/widgets/statuslist.cs -->
 ```csharp
@@ -204,7 +234,9 @@ $dashboard = New-ConsoleDashboard -Title 'Workers' -Content {
   ([trimming notes](https://consolemonster.dev/docs/install/)).
 - **Consoles** are [detected](https://consolemonster.dev/docs/capabilities/) (colour, glyphs, size, CI, redirection);
   `NO_COLOR` and [`CONSOLEMONSTER_*`](https://consolemonster.dev/docs/environment/) override it
-  ([hosts and CI](https://consolemonster.dev/guides/hosts-and-ci/), [upgrading from 0.0.x](https://consolemonster.dev/guides/)).
+  ([hosts and CI](https://consolemonster.dev/guides/hosts-and-ci/)).
+- **Upgrading** from [2.0.1](https://consolemonster.dev/guides/upgrading/) or from the
+  [0.0.x module](https://consolemonster.dev/guides/).
 
 [Benchmarks](https://consolemonster.dev/benchmarks/) ·
 [Changelog](https://github.com/EvotecIT/ConsoleMonster/blob/master/CHANGELOG.MD) ·

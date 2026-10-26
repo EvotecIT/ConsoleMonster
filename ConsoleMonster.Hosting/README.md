@@ -3,6 +3,11 @@
 A live console dashboard for .NET generic host applications. It depends only on
 `Microsoft.Extensions.Hosting.Abstractions` and ConsoleMonster.
 
+```bash
+dotnet add package ConsoleMonster.Hosting
+dotnet add package ConsoleMonster.Extensions.Logging
+```
+
 ```csharp
 using ConsoleMonster.Extensions.Logging;
 using ConsoleMonster.Hosting;
@@ -83,3 +88,6 @@ dashboard ends with it.
 | `ServiceName` | type name | Names a hosted service from its type. |
 
 The package works with trimming and native AOT on .NET 8 and later.
+
+`dotnet new install ConsoleMonster.Templates` and `dotnet new consolemonster` start an app with this dashboard already
+wired up. [Hosting dashboard](https://consolemonster.dev/docs/hosting/) · [ConsoleMonster](https://consolemonster.dev/)
