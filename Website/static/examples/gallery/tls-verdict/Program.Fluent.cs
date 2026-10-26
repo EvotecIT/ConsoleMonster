@@ -45,34 +45,37 @@ FlowEdge[] edges =
     new global::ConsoleMonster.Widgets.FlowEdge("issuer", "leaf", "intermediate", "issuer", chainStatus, expired),
     new global::ConsoleMonster.Widgets.FlowEdge("anchor", "intermediate", "root", "anchor")
 };
-var flow = new Flow("chain");
+var flow = Ui.Flow("chain");
 foreach (FlowNode node in nodes)
     flow.Add(node);
 foreach (FlowEdge edge in edges)
     flow.Add(edge);
 if (expired)
     flow.Branch(new FlowBranch("intermediate", "expired 2026-09-30", Status: StatusKind.Fail));
-var phases = new Phases().StepCounter();
+var phases = Ui.Phases().StepCounter();
 foreach (Step step in steps)
     phases.Set(step.Key, step.Status, step.Label, step.Detail);
-var facts = new KeyValueList().Columns(2).KeyRole(ThemeToken.Accent);
+var facts = Ui.KeyValue().Columns(2).KeyRole(ThemeToken.Accent);
 foreach (Pair pair in context)
     facts.Add(pair.Key, pair.Value);
 string proof = expired ? "Intermediate expired before 2026-10-25." : "All three certificates valid on 2026-10-25.";
 string action = expired ? "Renew the intermediate; serve the full chain." : "No repair needed; keep expiry monitoring on.";
 int exitCode = expired ? 1 : 0;
-new Rows().Gap(1).Content(c2 =>
+Ui.Rows().Gap(1).Content(c2 =>
 {
-    c2.Text("[bold accent]TLS verdict[/]  [muted]Follow the chain. Verify the trust.[/]");
-    c2.Add(new Panel(title: "Connection ledger").Content(c =>
+    c2.Text(c2Text => c2Text.Content("[bold accent]TLS verdict[/]  [muted]Follow the chain. Verify the trust.[/]").IsMarkup());
+    c2.Panel(cmPanel => cmPanel.Title("Connection ledger").Content(c =>
     {
         c.Add(phases);
     }));
     c2.Add(facts);
     c2.Add(flow);
     c2.Rule("Trust decision");
-    c2.Add(new Panel(new TextBlock(expired ? "Chain validation failed." : "Chain validation passed."), verdict).Verdict().Status(chainStatus));
-    c2.Add(new KeyValueList().KeyRole(chainStatus.ToToken()).Add("Cause", expired ? "Expired intermediate certificate." : "Trusted root and complete chain.").Add("Proof", proof).Add("Action", action).Add("Exit", exitCode + " · 184 ms"));
+    c2.Panel(cmPanel => cmPanel.Content(cmContent =>
+    {
+        cmContent.Text(cmText => cmText.Content(expired ? "Chain validation failed." : "Chain validation passed.").IsMarkup());
+    }).Title(verdict).Verdict().Status(chainStatus));
+    c2.KeyValue(cmKeyValue => cmKeyValue.KeyRole(chainStatus.ToToken()).Add("Cause", expired ? "Expired intermediate certificate." : "Trusted root and complete chain.").Add("Proof", proof).Add("Action", action).Add("Exit", exitCode + " · 184 ms"));
 }).Show();
 record Step(string Key, string Label, StatusKind Status, string Detail);
 record Pair(string Key, string Value);

@@ -3,6 +3,7 @@
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Widgets;
+using ConsoleMonster;
 
 // All values are synthetic. This example never connects to a host.
 // Data: fictional inputs kept in memory.
@@ -17,26 +18,26 @@ string[] messages =
 // Layout: construct the widgets shown on screen.
 IWidget Frame(int tick)
 {
-    Rows lines = new Rows();
+    Rows lines = Ui.Rows();
     foreach (string line in messages.Take(tick + 1))
-        lines.Add(new TextBlock(line));
-    return new Rows().Gap(1).Content(c2 =>
+        lines.Add(Ui.Text().Content(line).IsMarkup());
+    return Ui.Rows().Gap(1).Content(c2 =>
     {
-        c2.Text("[bold]Application log[/] [muted]· worker events[/]");
-        c2.Add(new Panel().Title("./logs/worker.log").Content(c =>
+        c2.Text(c2Text => c2Text.Content("[bold]Application log[/] [muted]· worker events[/]").IsMarkup());
+        c2.Panel(cmPanel => cmPanel.Title("./logs/worker.log").Content(c =>
         {
             c.Add(lines);
         }));
-        c2.Text("[muted]" + (tick + 1).ToString(System.Globalization.CultureInfo.InvariantCulture) + " / 5 events · Ctrl+C stops the live run[/]");
+        c2.Text(c2Text => c2Text.Content("[muted]" + (tick + 1).ToString(System.Globalization.CultureInfo.InvariantCulture) + " / 5 events · Ctrl+C stops the live run[/]").IsMarkup());
     });
 }
 
 // Behaviour: update each frame in a bounded live run.
-RegionWidget screen = new RegionWidget(widgetId: "demo").Content(c =>
+RegionWidget screen = Ui.Region("demo").Content(c =>
 {
     c.Add(Frame(0));
 });
-using LiveSession session = new LiveSession(screen);
+using LiveSession session = screen.CreateSession();
 try
 {
     session.Run(live =>

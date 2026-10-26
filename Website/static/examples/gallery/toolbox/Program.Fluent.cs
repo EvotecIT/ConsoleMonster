@@ -6,6 +6,7 @@ using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 using ConsoleMonster.Widgets;
+using ConsoleMonster;
 
 // Data: replace these inventories, operations and findings with your own sources.
 Node[] inventory = new Node[]
@@ -59,7 +60,7 @@ List<Work> Plan() => checks.SelectMany(c => targets.Select(n =>
 StatusKind Verdict(IEnumerable<Work> work) => work.Any(w => w.Status == StatusKind.Fail) ? StatusKind.Fail : work.Any(w => w.Status == StatusKind.Warn) ? StatusKind.Warn : StatusKind.Pass;
 Table TableOf(string[] headers)
 {
-    Table table = new Table().Border(TableBorder.Minimal).RecordViewRows(0);
+    Table table = Ui.Table().Border(TableBorder.Minimal).RecordViewRows(0);
     foreach (string header in headers)
         table.AddColumn(header, HorizontalAlignment.Left);
     return table;
@@ -82,18 +83,18 @@ IWidget History()
     return table;
 }
 
-IWidget Preview(Check c) => new Rows().Gap(1).Content(c2 =>
+IWidget Preview(Check c) => Ui.Rows().Gap(1).Content(c2 =>
 {
-    c2.Text(Markup.Escape(c.Description));
-    c2.Add(new KeyValueList().Add("Group", c.Category).Add("Expected", c.Expected).Add("Duration", "about " + c.Minutes + " min per server").Add("Changes", c.Changes ? "[warn]yes[/]" : "[pass]no[/]").Add("Parameter", c.Id));
+    c2.Text(c2Text => c2Text.Content(Markup.Escape(c.Description)).IsMarkup());
+    c2.KeyValue(cmKeyValue => cmKeyValue.Add("Group", c.Category).Add("Expected", c.Expected).Add("Duration", "about " + c.Minutes + " min per server").Add("Changes", c.Changes ? "[warn]yes[/]" : "[pass]no[/]").Add("Parameter", c.Id));
 });
 // Layout: build the dashboard from the completed and active work.
 IWidget Body(List<Work> work, int done, int phase)
 {
     Work[] finished = work.Take(done).ToArray();
     Work[] active = phase == 2 ? work.Skip(done).TakeWhile(w => w.Check.Id == work[done].Check.Id).Take(parallel).ToArray() : Array.Empty<Work>();
-    SummaryBar summary = new SummaryBar().Elapsed(TimeSpan.FromSeconds(done * .24 / parallel)).SetProgress(done, work.Count).SetCounter("passed", finished.Count(w => w.Status == StatusKind.Pass), StatusKind.Pass).SetCounter("warnings", finished.Count(w => w.Status == StatusKind.Warn), StatusKind.Warn).SetCounter("failed", finished.Count(w => w.Status == StatusKind.Fail), StatusKind.Fail);
-    Phases phases = new Phases();
+    SummaryBar summary = Ui.SummaryBar().Elapsed(TimeSpan.FromSeconds(done * .24 / parallel)).SetProgress(done, work.Count).SetCounter("passed", finished.Count(w => w.Status == StatusKind.Pass), StatusKind.Pass).SetCounter("warnings", finished.Count(w => w.Status == StatusKind.Warn), StatusKind.Warn).SetCounter("failed", finished.Count(w => w.Status == StatusKind.Fail), StatusKind.Fail);
+    Phases phases = Ui.Phases();
     string[] names =
     {
         "Discover",
@@ -103,7 +104,7 @@ IWidget Body(List<Work> work, int done, int phase)
     };
     for (int i = 0; i < names.Length; i++)
         phases.Set(names[i], i < phase ? (i == 2 ? Verdict(finished) : StatusKind.Pass) : i == phase ? StatusKind.Running : StatusKind.Pending);
-    Lanes lanes = new Lanes("lanes");
+    Lanes lanes = Ui.Lanes("lanes");
     foreach (Node node in targets)
     {
         Work[] planned = work.Where(w => w.Node == node).ToArray();
@@ -117,7 +118,7 @@ IWidget Body(List<Work> work, int done, int phase)
         lane.Detail(active.FirstOrDefault(w => w.Node == node)?.Check.Name ?? ready.LastOrDefault()?.Check.Name);
     }
 
-    LogRegion log = new LogRegion().ShowElapsed(false).PreferredHeight(7);
+    LogRegion log = Ui.LogRegion().ShowElapsed(false).PreferredHeight(7);
     log.Write($"Inventory: {domain} · {targets.Length} servers · {work.Count} tasks");
     if (phase >= 1)
         log.Write($"Connecting up to {parallel} servers at a time");
@@ -127,28 +128,28 @@ IWidget Body(List<Work> work, int done, int phase)
         log.Write("Preparing " + format.ToUpperInvariant() + " report: " + report);
     if (phase >= 4)
         log.Write(notify ? "Report ready · recipient " + email : "Report ready · " + finished.Count(w => w.Status != StatusKind.Pass) + " findings to review");
-    KeyValueList facts = new KeyValueList().Add("Targets", targets.Length + " servers").Add("Tasks", checks.Length + " per server").Add("Parallel", parallel.ToString()).Add("Report", format.ToUpperInvariant()).Add("Dry run", dryRun ? "yes" : "no");
-    Columns info = new Columns().CollapseBelow(90).Content(c3 =>
+    KeyValueList facts = Ui.KeyValue().Add("Targets", targets.Length + " servers").Add("Tasks", checks.Length + " per server").Add("Parallel", parallel.ToString()).Add("Report", format.ToUpperInvariant()).Add("Dry run", dryRun ? "yes" : "no");
+    Columns info = Ui.Columns().CollapseBelow(90).Content(c3 =>
     {
-        c3.Add(new Panel().Title("Servers").Content(c2 =>
+        c3.Panel(cmPanel => cmPanel.Title("Servers").Content(c2 =>
         {
             c2.Add(lanes);
         }));
-        c3.Add(new Panel().Title("Run options").Content(c2 =>
+        c3.Panel(cmPanel => cmPanel.Title("Run options").Content(c2 =>
         {
             c2.Add(facts);
         }));
     });
-    return new Rows().Content(c3 =>
+    return Ui.Rows().Content(c3 =>
     {
         c3.Add(summary);
         c3.Add(phases);
         c3.Add(info);
-        c3.Add(new Panel().Title("Findings").Content(c2 =>
+        c3.Panel(cmPanel => cmPanel.Title("Findings").Content(c2 =>
         {
             c2.Add(Findings(finished));
         }));
-        c3.Add(new Panel().Title("Log").Content(c2 =>
+        c3.Panel(cmPanel => cmPanel.Title("Log").Content(c2 =>
         {
             c2.Add(log);
         }));
@@ -158,11 +159,11 @@ IWidget Body(List<Work> work, int done, int phase)
 // Behaviour: native form/menu navigation, then a bounded run with cancellation and history.
 void Execute(MenuContext context, List<Work> work)
 {
-    RegionWidget body = new RegionWidget(widgetId: "body").Content(c2 =>
+    RegionWidget body = Ui.Region("body").Content(c2 =>
     {
         c2.Add(Body(work, 0, 0));
     });
-    Dashboard dashboard = new Dashboard().Content(c2 =>
+    Dashboard dashboard = Ui.Dashboard().Content(c2 =>
     {
         c2.Add(body);
     }).Title("[bold]Server toolbox[/]").Subtitle(domain).Footer("Ctrl+C cancel · results keep the findings");
@@ -200,20 +201,20 @@ void Execute(MenuContext context, List<Work> work)
 
 MenuRunResult Result(List<Work> work)
 {
-    MenuRunResult result = new MenuRunResult("Run finished", Verdict(work)).Summary($"{work.Count} tasks on {work.Select(w => w.Node.Name).Distinct().Count()} servers. Review the findings and choose the next action.").Details(Findings(work));
+    MenuRunResult result = Ui.MenuRunResult().Title("Run finished").Status(Verdict(work)).Summary($"{work.Count} tasks on {work.Select(w => w.Node.Name).Distinct().Count()} servers. Review the findings and choose the next action.").Details(Findings(work));
     result.Figure("passed", work.Count(w => w.Status == StatusKind.Pass).ToString(), StatusKind.Pass);
     result.Figure("warnings", work.Count(w => w.Status == StatusKind.Warn).ToString(), work.Any(w => w.Status == StatusKind.Warn) ? StatusKind.Warn : StatusKind.Pass);
     result.Figure("failed", work.Count(w => w.Status == StatusKind.Fail).ToString(), work.Any(w => w.Status == StatusKind.Fail) ? StatusKind.Fail : StatusKind.Pass);
-    result.Next("View report", ctx => ctx.ShowResult(new MenuRunResult("Report · " + format.ToUpperInvariant(), Verdict(work)).Summary(report).Details(Findings(work))));
+    result.Next("View report", ctx => ctx.ShowResult(Ui.MenuRunResult().Title("Report · " + format.ToUpperInvariant()).Status(Verdict(work)).Summary(report).Details(Findings(work))));
     if (work.Any(w => w.Status == StatusKind.Fail))
         result.Next("Rerun failed tasks", ctx => Execute(ctx, work.Where(w => w.Status == StatusKind.Fail).ToList()));
-    result.Next("View history", ctx => ctx.ShowResult(new MenuRunResult("Run history").Details(History())));
+    result.Next("View history", ctx => ctx.ShowResult(Ui.MenuRunResult().Title("Run history").Details(History())));
     return result;
 }
 
 Form Options()
 {
-    Form form = new Form("Options").Review(false).SubmitText("Save");
+    Form form = Ui.Form().Title("Options").Review(false).SubmitText("Save");
     FormPage page = form.Page("Options", "Parallelism, reports and notifications.");
     NumberField throttle = page.Number("Parallel", "Servers at a time");
     throttle.Default(parallel);
@@ -253,8 +254,8 @@ void ApplyOptions(FormValues values)
     dryRun = values.Get<bool>("DryRun");
 }
 
-Menu menu = new Menu("Server toolbox").Layout(MenuLayout.Shell).Subtitle("Tue 20 Oct 2026 · 09:30");
-MenuItem targetItem = new MenuItem("Targets").Hotkey('t').IconName(GlyphIcon.Targets).Description("Inventory grouped by site; unavailable servers stay visible.").Configure(configured => configured.LoadChoices = async (_, token) =>
+Menu menu = Ui.Menu().Title("Server toolbox").Layout(MenuLayout.Shell).Subtitle("Tue 20 Oct 2026 · 09:30");
+MenuItem targetItem = Ui.MenuItem().Label("Targets").Hotkey('t').IconName(GlyphIcon.Targets).Description("Inventory grouped by site; unavailable servers stay visible.").Configure(configured => configured.LoadChoices = async (_, token) =>
 {
     await Task.Delay(700, token);
     return Choice.From(inventory, n => n.Name, n => n.Site, describe: n => n.Detail, badge: n => RichText.Plain(n.Role, new RichStyle(ThemeToken.Muted)), disabledReason: n => n.Offline);
@@ -264,16 +265,16 @@ targetItem.Minimum(1);
 targetItem.Configure(configured => configured.Preview = c =>
 {
     Node n = (Node)c.Value!;
-    return new KeyValueList().Add("Server", n.Name).Add("Site", n.Site).Add("Role", n.Role).Add("OS", n.Detail);
+    return Ui.KeyValue().Add("Server", n.Name).Add("Site", n.Site).Add("Role", n.Role).Add("OS", n.Detail);
 });
-MenuItem taskItem = new MenuItem("Tasks").Hotkey('k').IconName(GlyphIcon.Tasks).MultiSelect(catalog.Select(c => new Choice(c.Id, c.Name).Group(c.Category).Description(c.Description).Badge(RichText.Plain((c.Changes ? "changes · " : "") + "~" + c.Minutes + " min", new RichStyle(c.Changes ? ThemeToken.Warn : ThemeToken.Muted))).Selected(checks.Contains(c))));
+MenuItem taskItem = Ui.MenuItem().Label("Tasks").Hotkey('k').IconName(GlyphIcon.Tasks).MultiSelect(catalog.Select(c => new Choice(c.Id, c.Name).Group(c.Category).Description(c.Description).Badge(RichText.Plain((c.Changes ? "changes · " : "") + "~" + c.Minutes + " min", new RichStyle(c.Changes ? ThemeToken.Warn : ThemeToken.Muted))).Selected(checks.Contains(c))));
 taskItem.Minimum(1);
 taskItem.Configure(configured => configured.Preview = c => Preview(catalog.First(k => k.Id == (string)c.Value!)));
 menu.Add(targetItem);
 menu.Add(taskItem);
-MenuItem optionItem = new MenuItem("Options").Hotkey('o').IconName(GlyphIcon.Settings).Form(options, (_, result) => ApplyOptions(result.Values));
+MenuItem optionItem = Ui.MenuItem().Label("Options").Hotkey('o').IconName(GlyphIcon.Settings).Form(options, (_, result) => ApplyOptions(result.Values));
 menu.Add(optionItem);
-menu.Preset("Morning · Warsaw", p => p.Selection(targetItem, inventory.Where(n => n.Site == "Warsaw").Cast<object?>()).Selection(taskItem, new object? [] { "PatchStatus", "Certificates", "DiskSpace" }).Form(options, new Dictionary<string, object?> { ["Parallel"] = 2m, ["DryRun"] = true }).Preview(new KeyValueList().Add("Scope", "Warsaw servers").Add("Tasks", "Security and disk space").Add("Dry run", "yes")));
+menu.Preset("Morning · Warsaw", p => p.Selection(targetItem, inventory.Where(n => n.Site == "Warsaw").Cast<object?>()).Selection(taskItem, new object? [] { "PatchStatus", "Certificates", "DiskSpace" }).Form(options, new Dictionary<string, object?> { ["Parallel"] = 2m, ["DryRun"] = true }).Preview(Ui.KeyValue().Add("Scope", "Warsaw servers").Add("Tasks", "Security and disk space").Add("Dry run", "yes")));
 menu.Preset("Health · all sites", p => p.Selection(targetItem, inventory.Where(n => n.Offline == "").Cast<object?>()).Selection(taskItem, new object? [] { "EventErrors", "Services", "DiskSpace", "Uptime" }));
 menu.Item("Presets", i => i.Hotkey('p').IconName(GlyphIcon.Favorite).Presets());
 menu.Separator();
@@ -286,7 +287,7 @@ menu.Item("Review & run", i =>
         targets = inventory.Where(n => targetItem.GetSelection<Node>().Contains(n) && n.Offline == "").ToArray();
         checks = catalog.Where(c => taskItem.GetSelection<string>().Contains(c.Id)).ToArray();
         ApplyOptions(options.GetValues());
-        ReviewModel review = new ReviewModel("Review & run").Description("Everything the run uses; the command carries the same options.");
+        ReviewModel review = Ui.Review().Title("Review & run").Description("Everything the run uses; the command carries the same options.");
         review.Row("Targets", string.Join(", ", targets.Select(n => n.Name)));
         review.Row("Tasks", string.Join(", ", checks.Select(c => c.Name)));
         review.Row("Servers at a time", parallel.ToString());
@@ -318,7 +319,7 @@ menu.Item("History", i =>
 });
 menu.Separator();
 menu.Exit("Quit");
-menu.Run(new MenuOptions().Layout(MenuLayout.Shell).AppName("Server toolbox gallery"));
+menu.Run(Ui.Options<MenuOptions>().Layout(MenuLayout.Shell).AppName("Server toolbox gallery"));
 record Node(string Name, string Domain, string Site, string Role, string Detail, string Offline)
 {
     public override string ToString() => Name;

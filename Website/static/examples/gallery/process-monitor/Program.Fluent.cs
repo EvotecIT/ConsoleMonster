@@ -3,6 +3,7 @@ using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Presenters;
 using ConsoleMonster.Widgets;
+using ConsoleMonster;
 
 // Data: synthetic counters, not the machine's real process list.
 var processes = new Process[]
@@ -24,29 +25,29 @@ double[] cpuHistory =
 IWidget Frame(int tick)
 {
     var rows = processes.Select(process => new ProcessRow(process.Name, process.Pid, process.Cpu + tick * 3, process.Memory + tick * 16)).ToArray();
-    var table = Table.For(rows).Column(row => row.Name).Column(row => row.Pid, column => column.Presenter(CellPresenters.Identifier)).Column("CPU %", row => row.Cpu).Column("Memory MiB", row => row.Memory);
+    var table = Ui.Table(rows).Column(row => row.Name).Column(row => row.Pid, column => column.Presenter(CellPresenters.Identifier)).Column("CPU %", row => row.Cpu).Column("Memory MiB", row => row.Memory);
     table.Expand();
-    Sparkline history = new Sparkline().Label("CPU %");
+    Sparkline history = Ui.Chart().Type(ConsoleMonster.Widgets.ChartType.Sparkline).Label("CPU %").Build<Sparkline>();
     history.AddRange(cpuHistory.Concat(new[] { 56.0 + tick * 5 }));
-    return new Rows().Gap(1).Content(c2 =>
+    return Ui.Rows().Gap(1).Content(c2 =>
     {
         c2.Rule("[bold]Process monitor[/] [muted]· refresh 1s[/]");
-        c2.Text($"[accent]CPU {56 + tick * 5}%[/]   Memory {1640 + tick * 64} MiB   [muted]4 processes[/]");
+        c2.Text(c2Text => c2Text.Content($"[accent]CPU {56 + tick * 5}%[/]   Memory {1640 + tick * 64} MiB   [muted]4 processes[/]").IsMarkup());
         c2.Add(table);
-        c2.Add(new Panel().Title("CPU history").Content(c =>
+        c2.Panel(cmPanel => cmPanel.Title("CPU history").Content(c =>
         {
             c.Add(history);
         }));
-        c2.Text("[muted]Ctrl+C stops monitoring. Final counters stay in scrollback.[/]");
+        c2.Text(c2Text => c2Text.Content("[muted]Ctrl+C stops monitoring. Final counters stay in scrollback.[/]").IsMarkup());
     });
 }
 
 // Behaviour: update each frame in a bounded live run.
-RegionWidget screen = new RegionWidget(widgetId: "processes").Content(c =>
+RegionWidget screen = Ui.Region("processes").Content(c =>
 {
     c.Add(Frame(0));
 });
-using LiveSession session = new LiveSession(screen);
+using LiveSession session = screen.CreateSession();
 try
 {
     session.Run(live =>

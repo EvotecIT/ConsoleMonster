@@ -4,6 +4,7 @@ using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
+using ConsoleMonster;
 
 // Data: synthetic telemetry samples; no machine counters, services or files are read.
 const int Workers = 32;
@@ -129,7 +130,7 @@ string Number(double value) => value.ToString("#,0", CultureInfo.InvariantCultur
 // Layout: retain every worker row, the session counters, update sparkline, CPU chart and captured output.
 IWidget Frame(int tick)
 {
-    Lanes lanes = new Lanes("workers");
+    Lanes lanes = Ui.Lanes("workers");
     for (int id = 0; id < Workers; id++)
     {
         Lane lane = lanes.Add("w" + id, "worker " + (id + 1).ToString("00", CultureInfo.InvariantCulture), 100000);
@@ -146,24 +147,24 @@ IWidget Frame(int tick)
 
     int samples = tick * 8;
     long posted = tick * 128000L;
-    KeyValueList stats = new KeyValueList("stats").Add("Updates posted", Number(posted)).Add("Updates applied", Number(posted)).Add("Update rate", samples == 0 ? "-" : Number(sampleRates[samples - 1]) + "/s").Add("Frames", Number(tick * 15)).Add("Frame rate", tick == 0 ? "-" : "15.0 fps").Add("CPU", samples == 0 ? "-" : Number(sampleCpu[samples - 1]) + "%").Add("CPU share", samples == 0 ? "-" : (sampleCpu[samples - 1] / 8).ToString("0.0", CultureInfo.InvariantCulture) + "% of 8 cores").Add("Stray writes", (tick * 4).ToString(CultureInfo.InvariantCulture)).Add("Dropped / errors", "0 / 0");
-    Sparkline rate = new Sparkline("rate").Height(3).Unit("/s");
+    KeyValueList stats = Ui.KeyValue("stats").Add("Updates posted", Number(posted)).Add("Updates applied", Number(posted)).Add("Update rate", samples == 0 ? "-" : Number(sampleRates[samples - 1]) + "/s").Add("Frames", Number(tick * 15)).Add("Frame rate", tick == 0 ? "-" : "15.0 fps").Add("CPU", samples == 0 ? "-" : Number(sampleCpu[samples - 1]) + "%").Add("CPU share", samples == 0 ? "-" : (sampleCpu[samples - 1] / 8).ToString("0.0", CultureInfo.InvariantCulture) + "% of 8 cores").Add("Stray writes", (tick * 4).ToString(CultureInfo.InvariantCulture)).Add("Dropped / errors", "0 / 0");
+    Sparkline rate = Ui.Chart().Type(ConsoleMonster.Widgets.ChartType.Sparkline).WidgetId("rate").Height(3).Unit("/s").Build<Sparkline>();
     rate.AddRange(sampleRates.Take(samples));
-    LineChart cpu = new LineChart("cpu").Height(6).Minimum(0).Unit("%");
+    LineChart cpu = Ui.Chart().Type(ConsoleMonster.Widgets.ChartType.Line).WidgetId("cpu").Height(6).Minimum(0).Unit("%").Build<LineChart>();
     cpu.AddSeries("cpu", ThemeToken.Accent2);
     foreach (double value in sampleCpu.Take(samples))
         cpu.Add("cpu", value);
-    LogRegion output = new LogRegion().PreferredHeight(6).ShowElapsed(false);
+    LogRegion output = Ui.LogRegion().PreferredHeight(6).ShowElapsed(false);
     for (int i = 0; i < tick * 4; i++)
         output.Write("stray-" + i % 4 + "-" + i + ": FakeLib: " + messages[i % 5], i % 7 == 0 ? "err" : "info");
-    Rows body = new Rows().Content(c3 =>
+    Rows body = Ui.Rows().Content(c3 =>
     {
-        c3.Add(new Columns().Add(new Panel().Title("Workers").Content(c =>
+        c3.Columns(cmColumns => cmColumns.Add(Ui.Panel().Title("Workers").Content(c =>
         {
             c.Add(lanes);
-        }), LayoutSize.Fraction(2.2)).Add(new Panel().Title("Session").Content(c2 =>
+        }), LayoutSize.Fraction(2.2)).Add(Ui.Panel().Title("Session").Content(c2 =>
         {
-            c2.Add(new Rows().Content(c =>
+            c2.Rows(cmRows => cmRows.Content(c =>
             {
                 c.Add(stats);
                 c.Rule("updates/s");
@@ -172,22 +173,22 @@ IWidget Frame(int tick)
                 c.Add(cpu);
             }));
         })));
-    }).Add(new Panel().Title("Captured output").Content(c =>
+    }).Add(Ui.Panel().Title("Captured output").Content(c =>
     {
         c.Add(output);
     }), LayoutSize.Fraction());
-    return new Dashboard().Content(c =>
+    return Ui.Dashboard().Content(c =>
     {
         c.Add(body);
     }).Title("[bold]Stress test[/]").Subtitle("32 workers · captured tool output · 6s").ShowElapsed(false).Footer("[muted]32 workers    15 frames/s    Ctrl+C stop[/]");
 }
 
 // Behaviour: show seven samples through the ordinary live session.
-RegionWidget screen = new RegionWidget(widgetId: "stress").Content(c =>
+RegionWidget screen = Ui.Region("stress").Content(c =>
 {
     c.Add(Frame(0));
 });
-using LiveSession session = new LiveSession(screen);
+using LiveSession session = screen.CreateSession();
 try
 {
     session.Run(live =>

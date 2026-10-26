@@ -1,5 +1,6 @@
 using ConsoleMonster.Input;
 using ConsoleMonster.Interactive;
+using ConsoleMonster;
 
 // Data: the same fictional snapshots used by the PowerShell twin.
 Service[] services =
@@ -15,7 +16,7 @@ Service[] services =
     new("RemoteRegistry", "Stopped", "Manual", "Remote Registry", 0, "LocalService", "RPC", "Allows approved remote configuration."),
     new("BackupAgent", "Running", "Automatic", "Lab Backup Agent", 4120, "LabBackup", "RPC", "Verifies nightly backup snapshots."),
 };
-var grid = new Grid("Service browser");
+var grid = Ui.Grid().Title("Service browser");
 grid.AddColumn("Name").AddColumn("Status").AddColumn("StartType").AddColumn("DisplayName").AddColumn("ProcessId").AddColumn("Account").AddColumn("DependsOn").AddColumn("Description");
 foreach (var service in services)
 {
@@ -23,7 +24,7 @@ foreach (var service in services)
 }
 
 // Behaviour: asynchronous commands receive captured snapshots and cancellation.
-var options = new GridOptions();
+var options = Ui.Options<GridOptions>();
 foreach (string field in new[]
 {
     "DisplayName",
@@ -48,7 +49,7 @@ foreach (var definition in new CommandDefinition[]
 )
 {
     string operation = definition.Label;
-    options.Command.Add(new AppCommand(operation, operation, async (context, cancellation) =>
+    options.Command.Add(Ui.Command().Key(operation).Label(operation).Configure(cmDefinition => cmDefinition.Action = async (context, cancellation) =>
     {
         foreach (object? row in context.Rows)
         {
@@ -73,7 +74,7 @@ foreach (var definition in new CommandDefinition[]
             context.Write($"Verifying {name}");
             await Task.Delay(700, cancellation);
         }
-    }).Shortcut(new KeyChord(definition.Shortcut)).ConfirmPrompt(operation + " {Selection}?"));
+    }).Shortcut(new KeyChord(definition.Shortcut)).ConfirmPrompt(operation + " {Selection}?").Build());
 }
 
 // Refresh the acted-on snapshot on the input thread, preserving selection and row position.

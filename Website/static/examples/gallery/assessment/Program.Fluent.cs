@@ -4,6 +4,7 @@ using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
+using ConsoleMonster;
 
 // Data: fictional targets and rules, generated entirely in memory. No network checks or files are written.
 SyntheticRule[] DcRules = new SyntheticRule[]
@@ -307,14 +308,14 @@ void Add(List<LiveEvent> events, double time, string target, string operation, s
 
 // Layout: retain the worker lanes, result split, rate chart, duration histogram and category findings.
 var events = Generate();
-Phases phases = new Phases().Set("Discover").Set("Collect").Set("Evaluate").Set("Report");
-StackedBar results = new StackedBar("results").Add("Passed", 0, ThemeToken.Pass).Add("Warnings", 0, ThemeToken.Warn).Add("Failed", 0, ThemeToken.Fail).Add("Skipped", 0, ThemeToken.Skip);
-KeyValueList summary = new KeyValueList("summary").Add("Evaluated", "0 / " + TotalRules).Add("Average rate", "-").Add("Remaining", "-").Add("Targets done", "0 / 12").Add("Targets failing", "0");
-LineChart throughput = new LineChart("throughput").Height(7);
+Phases phases = Ui.Phases().Set("Discover").Set("Collect").Set("Evaluate").Set("Report");
+StackedBar results = Ui.Chart().Type(ConsoleMonster.Widgets.ChartType.Stacked).WidgetId("results").Build<StackedBar>().Add("Passed", 0, ThemeToken.Pass).Add("Warnings", 0, ThemeToken.Warn).Add("Failed", 0, ThemeToken.Fail).Add("Skipped", 0, ThemeToken.Skip);
+KeyValueList summary = Ui.KeyValue("summary").Add("Evaluated", "0 / " + TotalRules).Add("Average rate", "-").Add("Remaining", "-").Add("Targets done", "0 / 12").Add("Targets failing", "0");
+LineChart throughput = Ui.Chart().Type(ConsoleMonster.Widgets.ChartType.Line).WidgetId("throughput").Height(7).Build<LineChart>();
 throughput.AddSeries("completed", ThemeToken.Accent);
 throughput.AddSeries("failed", ThemeToken.Fail);
-Histogram durations = new Histogram(new double[] { 0, 0.25, 0.5, 1, 2, 4, 8 }, "durations").Height(6).Unit("s");
-BarChart findings = new BarChart("findings").Role(ThemeToken.Fail);
+Histogram durations = Ui.Chart().Type(ConsoleMonster.Widgets.ChartType.Histogram).Edges(new double[] { 0, 0.25, 0.5, 1, 2, 4, 8 }).WidgetId("durations").Height(6).Unit("s").Build<Histogram>();
+BarChart findings = Ui.Chart().Type(ConsoleMonster.Widgets.ChartType.Bar).WidgetId("findings").Role(ThemeToken.Fail).Build<BarChart>();
 foreach (string category in new[]
 {
     "Domain controllers",
@@ -329,46 +330,46 @@ foreach (string category in new[]
 
 )
     findings.Add(category, 0);
-Lanes lanes = new Lanes().MaxLabelWidth(28);
-LogRegion log = new LogRegion().PreferredHeight(6);
-Rows body = new Rows().Content(c4 =>
+Lanes lanes = Ui.Lanes().MaxLabelWidth(28);
+LogRegion log = Ui.LogRegion().PreferredHeight(6);
+Rows body = Ui.Rows().Content(c4 =>
 {
-    c4.Add(new Padding().Bottom(1).Right(1).Top(0).Left(1).Content(c2 =>
+    c4.Padding(cmPadding => cmPadding.Bottom(1).Right(1).Top(0).Left(1).Content(c2 =>
     {
         c2.Add(phases);
     }));
-    c4.Add(new Columns().Add(new Panel().Title("Targets").Content(c2 =>
+    c4.Columns(cmColumns => cmColumns.Add(Ui.Panel().Title("Targets").Content(c2 =>
     {
         c2.Add(lanes);
-    }).HeaderRight("6 workers"), LayoutSize.Fraction(2.3)).Add(new Panel().Title("Results").Content(c3 =>
+    }).HeaderRight("6 workers"), LayoutSize.Fraction(2.3)).Add(Ui.Panel().Title("Results").Content(c3 =>
     {
-        c3.Add(new Rows().Content(c2 =>
+        c3.Rows(cmRows => cmRows.Content(c2 =>
         {
             c2.Add(results);
-            c2.Add(new Rule());
+            c2.Rule();
             c2.Add(summary);
         }));
     })));
-    c4.Add(new Columns().Add(new Panel().Title("Throughput").Content(c2 =>
+    c4.Columns(cmColumns => cmColumns.Add(Ui.Panel().Title("Throughput").Content(c2 =>
     {
         c2.Add(throughput);
-    }).HeaderRight("rules/s"), LayoutSize.Fraction(1.2)).Add(new Panel().Title("Rule duration").Content(c2 =>
+    }).HeaderRight("rules/s"), LayoutSize.Fraction(1.2)).Add(Ui.Panel().Title("Rule duration").Content(c2 =>
     {
         c2.Add(durations);
-    })).Add(new Panel().Title("Failures by category").Content(c2 =>
+    })).Add(Ui.Panel().Title("Failures by category").Content(c2 =>
     {
         c2.Add(findings);
     })));
-}).Add(new Panel().Title("Log").Content(c2 =>
+}).Add(Ui.Panel().Title("Log").Content(c2 =>
 {
     c2.Add(log);
 }), LayoutSize.Fraction());
-Dashboard dashboard = new Dashboard().Content(c2 =>
+Dashboard dashboard = Ui.Dashboard().Content(c2 =>
 {
     c2.Add(body);
 }).Title("[bold]Nightly checks[/]").Subtitle("ad.adatum.com forest assessment · 12 targets · 332 rules").ShowElapsed(false).Footer("[muted]Discover · Collect · Evaluate · Report    Ctrl+C stop[/]");
 // Behaviour: post each synthetic event in a bounded live run, paced at 4x.
-using LiveSession session = new LiveSession(dashboard);
+using LiveSession session = dashboard.CreateSession();
 try
 {
     session.Run(live =>

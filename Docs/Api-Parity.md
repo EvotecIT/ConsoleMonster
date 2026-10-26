@@ -3,13 +3,77 @@
 
 I use the same domain names for cmdlet parameters, C# configuration and fluent calls. PowerShell keeps numeric duration parameters with units and default-off switches; C# keeps TimeSpan values and Boolean properties.
 
-The contract covers **101 commands**, **1067 parameters** and **293 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
+The contract covers **101 commands**, **1067 parameters** and **295 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
 
 Table and List remain named shortcuts to Show-Console’s shared view implementation. Read-* returns answers; New-ConsoleForm/Menu defines a question workflow; Show-ConsoleApp runs a persistent reactive application.
 
 Typed Options on export, form, menu and replay operations expose the corresponding C# configuration. I can pass a PowerShell hashtable, for example `Export-ConsoleFrame -Format Html -Options @{ Width = 100; Padding = 8 }`. Options and individual settings are mutually exclusive; the supplied request is not modified.
 
 Callback properties use `.Configure(item => item.Action = …)`. C# invokes a delegate-valued property before considering an extension with that name; Configure assigns the callback without invoking it.
+
+## Fluent construction and nesting
+
+Ui is the fluent entry point: New-ConsolePanel becomes Ui.Panel(), named settings stay in the chain, and nested Content uses c.Panel(panel => …). Initializers retain constructors. Factories accept no positional configuration; the recorded primary inputs below are the only exceptions. Chart, Progress and kind-selected inputs materialize their existing typed options through the shared Build operation.
+
+| PowerShell constructor | Fluent entry | Nested builder |
+| --- | --- | --- |
+| `New-ConsoleActivityList` | `Ui.ActivityList()` | `c.ActivityList(widget => …)` |
+| `New-ConsoleAlign` | `Ui.Align()` | `c.Align(widget => …)` |
+| `New-ConsoleBinding` | `Ui.Binding()` | `c.Binding(widget => …)` |
+| `New-ConsoleButton` | `Ui.Button()` | `c.Button(widget => …)` |
+| `New-ConsoleCalendar` | `Ui.Calendar()` | `c.Calendar(widget => …)` |
+| `New-ConsoleCellMap` | `Ui.CellMap()` | `c.CellMap(widget => …)` |
+| `New-ConsoleChart` | `Ui.Chart()` | `c.Chart(widget => …)` |
+| `New-ConsoleColumnFormat` | `Ui.ColumnFormat()` | Definition, not display content |
+| `New-ConsoleColumns` | `Ui.Columns()` | `c.Columns(widget => …)` |
+| `New-ConsoleCommand` | `Ui.Command()` | Definition, not display content |
+| `New-ConsoleDashboard` | `Ui.Dashboard()` | `c.Dashboard(widget => …)` |
+| `New-ConsoleFlow` | `Ui.Flow()` | `c.Flow(widget => …)` |
+| `New-ConsoleFooterBar` | `Ui.FooterBar()` | `c.FooterBar(widget => …)` |
+| `New-ConsoleForm` | `Ui.Form()` | Definition, not display content |
+| `New-ConsoleHeaderBar` | `Ui.HeaderBar()` | `c.HeaderBar(widget => …)` |
+| `New-ConsoleKeyValue` | `Ui.KeyValue()` | `c.KeyValue(widget => …)` |
+| `New-ConsoleLanes` | `Ui.Lanes()` | `c.Lanes(widget => …)` |
+| `New-ConsoleLayoutGrid` | `Ui.LayoutGrid()` | `c.LayoutGrid(widget => …)` |
+| `New-ConsoleLogRegion` | `Ui.LogRegion()` | `c.LogRegion(widget => …)` |
+| `New-ConsoleLogo` | `Ui.Logo()` | `c.Logo(widget => …)` |
+| `New-ConsoleMenu` | `Ui.Menu()` | Definition, not display content |
+| `New-ConsoleMenuItem` | `Ui.MenuItem()` | Definition, not display content |
+| `New-ConsoleMenuRunResult` | `Ui.MenuRunResult()` | Definition, not display content |
+| `New-ConsolePadding` | `Ui.Padding()` | `c.Padding(widget => …)` |
+| `New-ConsolePanel` | `Ui.Panel()` | `c.Panel(widget => …)` |
+| `New-ConsolePhases` | `Ui.Phases()` | `c.Phases(widget => …)` |
+| `New-ConsoleProgress` | `Ui.Progress()` | `c.Progress(widget => …)` |
+| `New-ConsoleRegion` | `Ui.Region()` | `c.Region(widget => …)` |
+| `New-ConsoleRows` | `Ui.Rows()` | `c.Rows(widget => …)` |
+| `New-ConsoleRule` | `Ui.Rule()` | `c.Rule(widget => …)` |
+| `New-ConsoleScrollView` | `Ui.ScrollView()` | `c.ScrollView(widget => …)` |
+| `New-ConsoleSelect` | `Ui.Select()` | `c.Select(widget => …)` |
+| `New-ConsoleStack` | `Ui.Stack()` | `c.Stack(widget => …)` |
+| `New-ConsoleStatusList` | `Ui.StatusList()` | `c.StatusList(widget => …)` |
+| `New-ConsoleSummaryBar` | `Ui.SummaryBar()` | `c.SummaryBar(widget => …)` |
+| `New-ConsoleTable` | `Ui.Table()` | `c.Table(widget => …)` |
+| `New-ConsoleText` | `Ui.Text()` | `c.Text(widget => …)` |
+| `New-ConsoleTextInput` | `Ui.TextInput()` | `c.TextInput(widget => …)` |
+| `New-ConsoleToggle` | `Ui.Toggle()` | `c.Toggle(widget => …)` |
+| `New-ConsoleTree` | `Ui.Tree()` | `c.Tree(widget => …)` |
+
+| Primary fluent input | PowerShell input | Reason |
+| --- | --- | --- |
+| `Ui.ActivityList(widgetId)` | `New-ConsoleActivityList -WidgetId` | The primary live identity is positional in both surfaces; it is fixed before session registration. |
+| `Ui.CellMap(widgetId)` | `New-ConsoleCellMap -WidgetId` | The primary live identity is positional in both surfaces; it is fixed before session registration. |
+| `Ui.KeyValue(widgetId)` | `New-ConsoleKeyValue -WidgetId` | The primary live identity is positional in both surfaces; it is fixed before session registration. |
+| `Ui.Lanes(widgetId)` | `New-ConsoleLanes -WidgetId` | The primary live identity is positional in both surfaces; it is fixed before session registration. |
+| `Ui.LogRegion(widgetId)` | `New-ConsoleLogRegion -WidgetId` | The primary live identity is positional in both surfaces; it is fixed before session registration. |
+| `Ui.Phases(widgetId)` | `New-ConsolePhases -WidgetId` | The primary live identity is positional in both surfaces; it is fixed before session registration. |
+| `Ui.SummaryBar(widgetId)` | `New-ConsoleSummaryBar -WidgetId` | The primary live identity is positional in both surfaces; it is fixed before session registration. |
+| `Ui.Region(widgetId)` | `New-ConsoleRegion -WidgetId` | The primary live identity is positional in both surfaces; it is fixed before session registration. |
+| `Ui.Dashboard(widgetId)` | `New-ConsoleDashboard -WidgetId` | The primary live identity is positional in both surfaces; it is fixed before session registration. |
+| `Ui.StatusList(widgetId)` | `New-ConsoleStatusList -WidgetId` | The primary live identity is positional in both surfaces; it is fixed before session registration. |
+| `Ui.Flow(widgetId)` | `New-ConsoleFlow -WidgetId` | The primary live identity is positional in both surfaces; it is fixed before session registration. |
+| `Ui.Table(items)` | `New-ConsoleTable -InputObject` | A single typed row sequence is the primary table input. |
+| `Ui.Text(text)` | `New-ConsoleText -Text` | Literal text is the primary input; brackets stay literal. |
+| `Ui.Rule(title)` | `New-ConsoleRule -Title` | The rule title is the primary separator input. |
 
 ## Parameter-set mappings
 
@@ -163,6 +227,7 @@ Native host hooks, runtime models and equivalent representations are listed indi
 | `ConsoleMonster.Interactive.ConsoleAppOptions.Dispatcher` | CSharpOnly: An embedding host may post native callbacks from other threads; PowerShell retains the owning runspace and drains its own callback queue. | Use Show-ConsoleApp callbacks and SelectionKey; native hosts can supply an AppDispatcher. |
 | `ConsoleMonster.Interactive.ConsoleAppOptions.Selection` | CSharpOnly: A native host can compute its action row set with a strongly typed delegate; PowerShell selects ordinary state values by SelectionKey. | Use Show-ConsoleApp -SelectionKey for scalar or collection state. |
 | `ConsoleMonster.Interactive.GridOptions.Dispatcher` | CSharpOnly: A native grid host may provide its own mailbox; PowerShell keeps script execution and row refresh on the owning runspace. | Use Show-ConsoleGrid -Command and -RefreshRow; C# hosts can supply an AppDispatcher. |
+| `ConsoleMonster.Interactive.CommandOptions.Action` | CSharpOnly: PowerShell supplies ScriptBlock, modules and arguments to its isolated script runner; C# supplies the asynchronous delegate directly. | New-ConsoleCommand -ScriptBlock configures the same asynchronous command job. |
 
 ## .NET host integrations
 

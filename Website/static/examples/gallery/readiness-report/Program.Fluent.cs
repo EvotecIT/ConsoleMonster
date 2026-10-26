@@ -22,29 +22,29 @@ var areaScores = new AreaScoreRow[]
     new("Recovery", 35)
 };
 // Layout: compose the screen from the data above.
-StatusList statuses = new StatusList();
+StatusList statuses = Ui.StatusList();
 foreach (var check in checks)
 {
     statuses.Add(check.Name, check.Status, check.Detail);
 }
 
-BarChart scores = new BarChart().Maximum(100).Unit("%").Warning(80).Critical(50);
+BarChart scores = Ui.Chart().Type(ConsoleMonster.Widgets.ChartType.Bar).Maximum(100).Unit("%").Warning(80).Critical(50).Build<BarChart>();
 foreach (var area in areaScores)
     scores.Add(area.Name, area.Score);
-Rows layout = new Rows().Gap(1).Content(c2 =>
+Rows layout = Ui.Rows().Gap(1).Content(c2 =>
 {
     c2.Rule("[bold]Readiness assessment[/] [muted]| workspace[/]");
-    c2.Text("[pass]3 passed[/]   [warn]1 warning[/]   [fail]1 failed[/]   [muted]5 checks total[/]");
-    c2.Add(new Panel().Title("Checks").Content(c =>
+    c2.Text(c2Text => c2Text.Content("[pass]3 passed[/]   [warn]1 warning[/]   [fail]1 failed[/]   [muted]5 checks total[/]").IsMarkup());
+    c2.Panel(cmPanel => cmPanel.Title("Checks").Content(c =>
     {
         c.Add(statuses);
     }));
-    c2.Add(new Panel().Title("Readiness by area").Content(c =>
+    c2.Panel(cmPanel => cmPanel.Title("Readiness by area").Content(c =>
     {
         c.Add(scores);
     }).HeaderRight("score / 100"));
-    c2.Text("[bold]Next:[/] rehearse a restore, then add the two missing test scenarios.");
-    c2.Text("[muted]Review owner: Platform team · next review: Friday[/]");
+    c2.Text(c2Text => c2Text.Content("[bold]Next:[/] rehearse a restore, then add the two missing test scenarios.").IsMarkup());
+    c2.Text(c2Text => c2Text.Content("[muted]Review owner: Platform team · next review: Friday[/]").IsMarkup());
 });
 // Behaviour: print the screen once and return.
 layout.Show();

@@ -59,7 +59,7 @@ IWidget Summary(IReadOnlyList<RunResult<Host, string>> outcomes)
     int failed = outcomes.Count(result => !result.Succeeded);
     bool finished = done == servers.Length;
     StatusKind State(string host) => byHost.TryGetValue(host, out var result) ? result.Succeeded ? StatusKind.Pass : StatusKind.Fail : StatusKind.Pending;
-    CellMap map = new CellMap().Columns(10).LegendLines(2);
+    CellMap map = Ui.CellMap().Columns(10).LegendLines(2);
     foreach (Host server in servers)
         map.Add(State(server.Name));
     foreach (string label in new[]
@@ -72,8 +72,8 @@ IWidget Summary(IReadOnlyList<RunResult<Host, string>> outcomes)
 
     )
         map.RowLabels.Add(label);
-    SummaryBar summary = new SummaryBar().SetProgress(done, servers.Length).SetCounter("passed", done - failed, StatusKind.Pass).SetCounter("failed", failed, StatusKind.Fail).SetCounter("running", 0, StatusKind.Running).SetCounter("pending", servers.Length - done, StatusKind.Pending);
-    Lanes lanes = new Lanes();
+    SummaryBar summary = Ui.SummaryBar().SetProgress(done, servers.Length).SetCounter("passed", done - failed, StatusKind.Pass).SetCounter("failed", failed, StatusKind.Fail).SetCounter("running", 0, StatusKind.Running).SetCounter("pending", servers.Length - done, StatusKind.Pending);
+    Lanes lanes = Ui.Lanes();
     foreach (Host host in finished ? servers.TakeLast(throttle) : servers.Take(throttle))
     {
         bool hasResult = byHost.TryGetValue(host.Name, out var result);
@@ -85,31 +85,31 @@ IWidget Summary(IReadOnlyList<RunResult<Host, string>> outcomes)
         lane.Detail(!hasResult ? "Waiting for a worker" : result!.Succeeded ? "Health verified" : result.TimedOut ? "4s timeout · retry separately" : "Restart verification failed");
     }
 
-    StatusList failures = new StatusList();
+    StatusList failures = Ui.StatusList();
     foreach (var result in outcomes.Where(result => !result.Succeeded))
     {
         failures.Add(result.Item.Name, StatusKind.Fail, result.TimedOut ? "4s timeout · retry separately" : "Restart verification failed");
     }
 
-    IWidget failureContent = failures.Items.Count == 0 ? new TextBlock("[muted]No failures recorded[/]") : failures;
-    return new Rows().Gap(1).Content(c2 =>
+    IWidget failureContent = failures.Items.Count == 0 ? Ui.Text().Content("[muted]No failures recorded[/]").IsMarkup() : failures;
+    return Ui.Rows().Gap(1).Content(c2 =>
     {
         c2.Rule("[bold]Patching the web farm[/]");
-        c2.Text("40 hosts · throttle 8 · per-host timeout 4s");
+        c2.Text(c2Text => c2Text.Content("40 hosts · throttle 8 · per-host timeout 4s").IsMarkup());
         c2.Add(summary);
-        c2.Add(new Panel().Title("Host outcomes").Content(c =>
+        c2.Panel(cmPanel => cmPanel.Title("Host outcomes").Content(c =>
         {
             c.Add(map);
         }));
-        c2.Add(new Panel().Title(finished ? "Last eight hosts" : "Worker lanes").Content(c =>
+        c2.Panel(cmPanel => cmPanel.Title(finished ? "Last eight hosts" : "Worker lanes").Content(c =>
         {
             c.Add(lanes);
         }));
-        c2.Add(new Panel().Title("Retained failures").Content(c =>
+        c2.Panel(cmPanel => cmPanel.Title("Retained failures").Content(c =>
         {
             c.Add(failureContent);
         }));
-        c2.Text(finished ? "[bold]Wave finished[/] · failed hosts remain available for a separate retry" : "[muted]Ctrl+C cancels active work and skips queued hosts[/]");
+        c2.Text(c2Text => c2Text.Content(finished ? "[bold]Wave finished[/] · failed hosts remain available for a separate retry" : "[muted]Ctrl+C cancels active work and skips queued hosts[/]").IsMarkup());
     });
 }
 
@@ -123,7 +123,7 @@ IReadOnlyList<RunResult<Host, string>> results = await ConsoleRun.ForEachAsync(s
     if (server.TimesOut)
         await Task.Delay(TimeSpan.FromSeconds(10), cancel);
     return server.Name + " patched";
-}, new RunOptions().ThrottleLimit(throttle).Timeout(TimeSpan.FromSeconds(timeoutSeconds)).Title("Patching the web farm").Live(true).Configure(configured => configured.Label = item => ((Host)item!).Name));
+}, Ui.Options<RunOptions>().ThrottleLimit(throttle).Timeout(TimeSpan.FromSeconds(timeoutSeconds)).Title("Patching the web farm").Live(true).Configure(configured => configured.Label = item => ((Host)item!).Name));
 // Keep the structured outcomes; never retry automatically after a failure.
 Summary(results).Show();
 record Host(string Name, int DelayMilliseconds, bool RestartFailure, bool TimesOut);

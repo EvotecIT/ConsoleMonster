@@ -16,22 +16,22 @@ var hostData = new HostDataRow[]
 };
 string git = "[accent]main[/]   [warn]2 modified[/]   [pass]1 staged[/]   [muted]0 ahead / 0 behind[/]";
 // Layout: compose the screen from the data above.
-KeyValueList hostSummary = new KeyValueList();
+KeyValueList hostSummary = Ui.KeyValue();
 foreach (var item in hostData)
     hostSummary.Add(item.Label, item.Value);
-Rows layout = new Rows().Gap(1).Content(c2 =>
+Rows layout = Ui.Rows().Gap(1).Content(c2 =>
 {
-    c2.Add(new Logo("HELLO", "[muted]A little context before your next command.[/]"));
-    c2.Add(new Panel().Title("Host summary").Content(c =>
+    c2.Logo(cmLogo => cmLogo.Text("HELLO").Tagline("[muted]A little context before your next command.[/]"));
+    c2.Panel(cmPanel => cmPanel.Title("Host summary").Content(c =>
     {
         c.Add(hostSummary);
     }).HeaderRight("local workspace"));
-    c2.Add(new Panel().Title("Git | comet-notes").Content(c =>
+    c2.Panel(cmPanel => cmPanel.Title("Git | comet-notes").Content(c =>
     {
-        c.Text(git);
+        c.Text(cText => cText.Content(git).IsMarkup());
     }));
-    c2.Text("[bold]Tip[/] Get-Help New-ConsoleTable -Examples");
-    c2.Text("[muted]Ready when you are.[/]");
+    c2.Text(c2Text => c2Text.Content("[bold]Tip[/] Get-Help New-ConsoleTable -Examples").IsMarkup());
+    c2.Text(c2Text => c2Text.Content("[muted]Ready when you are.[/]").IsMarkup());
 });
 // Behaviour: print the screen once and return.
 layout.Show();

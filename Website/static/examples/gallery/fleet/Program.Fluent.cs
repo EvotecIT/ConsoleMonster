@@ -6,6 +6,7 @@ using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 using ConsoleMonster.Widgets;
+using ConsoleMonster;
 
 // Data: replace these inventories, operations and findings with your own sources.
 Node[] inventory = new Node[]
@@ -55,7 +56,7 @@ StatusKind Verdict(IEnumerable<Work> work) => work.Any(w => w.Status == StatusKi
 string Seconds(double seconds) => seconds.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) + "s";
 Table TableOf(string[] headers)
 {
-    Table table = new Table().Border(TableBorder.Minimal).RecordViewRows(0);
+    Table table = Ui.Table().Border(TableBorder.Minimal).RecordViewRows(0);
     foreach (string header in headers)
         table.AddColumn(header, HorizontalAlignment.Left);
     return table;
@@ -78,18 +79,18 @@ IWidget History()
     return table;
 }
 
-IWidget Preview(Check c) => new Rows().Gap(1).Content(c2 =>
+IWidget Preview(Check c) => Ui.Rows().Gap(1).Content(c2 =>
 {
-    c2.Text(Markup.Escape(c.Description));
-    c2.Add(new KeyValueList().Add("Group", c.Category).Add("Expected", c.Expected).Add("Duration", "about " + Seconds(c.Seconds)).Add("Changes", c.Changes ? "[warn]yes[/]" : "[pass]no[/]").Add("Parameter", c.Id));
+    c2.Text(c2Text => c2Text.Content(Markup.Escape(c.Description)).IsMarkup());
+    c2.KeyValue(cmKeyValue => cmKeyValue.Add("Group", c.Category).Add("Expected", c.Expected).Add("Duration", "about " + Seconds(c.Seconds)).Add("Changes", c.Changes ? "[warn]yes[/]" : "[pass]no[/]").Add("Parameter", c.Id));
 });
 // Layout: build the dashboard from the completed and active work.
 IWidget Body(List<Work> work, int done, int phase)
 {
     Work[] finished = work.Take(done).ToArray();
     Work[] active = phase == 2 ? work.Skip(done).TakeWhile(w => w.Check.Id == work[done].Check.Id).Take(parallel).ToArray() : Array.Empty<Work>();
-    SummaryBar summary = new SummaryBar().Elapsed(TimeSpan.FromSeconds(done * .24 / parallel)).SetProgress(done, work.Count).SetCounter("passed", finished.Count(w => w.Status == StatusKind.Pass), StatusKind.Pass).SetCounter("warnings", finished.Count(w => w.Status == StatusKind.Warn), StatusKind.Warn).SetCounter("failed", finished.Count(w => w.Status == StatusKind.Fail), StatusKind.Fail);
-    Phases phases = new Phases();
+    SummaryBar summary = Ui.SummaryBar().Elapsed(TimeSpan.FromSeconds(done * .24 / parallel)).SetProgress(done, work.Count).SetCounter("passed", finished.Count(w => w.Status == StatusKind.Pass), StatusKind.Pass).SetCounter("warnings", finished.Count(w => w.Status == StatusKind.Warn), StatusKind.Warn).SetCounter("failed", finished.Count(w => w.Status == StatusKind.Fail), StatusKind.Fail);
+    Phases phases = Ui.Phases();
     string[] names =
     {
         "Discover",
@@ -99,7 +100,7 @@ IWidget Body(List<Work> work, int done, int phase)
     };
     for (int i = 0; i < names.Length; i++)
         phases.Set(names[i], i < phase ? (i == 2 ? Verdict(finished) : StatusKind.Pass) : i == phase ? StatusKind.Running : StatusKind.Pending);
-    Lanes lanes = new Lanes("lanes");
+    Lanes lanes = Ui.Lanes("lanes");
     foreach (string category in work.Select(w => w.Check.Category).Distinct())
     {
         Work[] planned = work.Where(w => w.Check.Category == category).ToArray();
@@ -112,7 +113,7 @@ IWidget Body(List<Work> work, int done, int phase)
         lane.Status(ready.Length == planned.Length ? Verdict(ready) : active.Any(w => w.Check.Category == category) ? StatusKind.Running : StatusKind.Pending);
     }
 
-    LogRegion log = new LogRegion().ShowElapsed(false).PreferredHeight(7);
+    LogRegion log = Ui.LogRegion().ShowElapsed(false).PreferredHeight(7);
     log.Write($"Inventory: {domain} · {targets.Length} servers · {work.Count} checks");
     if (phase >= 1)
         log.Write($"Connecting up to {parallel} servers at a time");
@@ -122,7 +123,7 @@ IWidget Body(List<Work> work, int done, int phase)
         log.Write("Preparing " + format.ToUpperInvariant() + " report: " + report);
     if (phase >= 4)
         log.Write(notify ? "Report ready · recipient " + email : "Report ready · " + finished.Count(w => w.Status != StatusKind.Pass) + " findings to review");
-    CellMap map = new CellMap().Columns(checks.Length).LegendLines(2);
+    CellMap map = Ui.CellMap().Columns(checks.Length).LegendLines(2);
     foreach (Node node in targets)
         map.RowLabels.Add(node.Name);
     map.Resize(targets.Length * checks.Length);
@@ -133,52 +134,52 @@ IWidget Body(List<Work> work, int done, int phase)
         map.Set(w.Cell, w.Status);
     foreach (Work w in active)
         map.Set(w.Cell, StatusKind.Running);
-    StatusList running = new StatusList("running");
+    StatusList running = Ui.StatusList("running");
     foreach (Work w in active)
         running.Add(Markup.Escape(w.Node.Name + " · " + w.Check.Name), StatusKind.Running);
     if (active.Length == 0)
         running.Add(phase >= 3 ? "Checks complete" : "Waiting for connections", phase >= 3 ? Verdict(finished) : StatusKind.Pending);
-    KeyValueList facts = new KeyValueList().Add("Domain", Markup.Escape(domain)).Add("Servers", targets.Length + " · " + targets.Select(n => n.Site).Distinct().Count() + " sites").Add("Checks", checks.Length + " · " + work.Count + " in all").Add("Report", format.ToUpperInvariant());
+    KeyValueList facts = Ui.KeyValue().Add("Domain", Markup.Escape(domain)).Add("Servers", targets.Length + " · " + targets.Select(n => n.Site).Distinct().Count() + " sites").Add("Checks", checks.Length + " · " + work.Count + " in all").Add("Report", format.ToUpperInvariant());
     Table slow = TableOf(new[] { "Check", "Server", "Took" });
     foreach (Work w in finished.OrderByDescending(w => w.Seconds).Take(5))
         slow.AddRow(w.Check.Name, w.Node.Name, Seconds(w.Seconds));
-    Histogram durations = new Histogram(new double[] { 0, 2, 4, 8, 16 }, "durations").Height(5);
+    Histogram durations = Ui.Chart().Type(ConsoleMonster.Widgets.ChartType.Histogram).Edges(new double[] { 0, 2, 4, 8, 16 }).WidgetId("durations").Height(5).Build<Histogram>();
     foreach (Work w in finished)
         durations.Add(w.Seconds);
-    Columns top = new Columns().Add(new Panel().Title("Check map").Content(c2 =>
+    Columns top = Ui.Columns().Add(Ui.Panel().Title("Check map").Content(c2 =>
     {
         c2.Add(map);
-    })).Add(new Panel().Title("Categories").Content(c3 =>
+    })).Add(Ui.Panel().Title("Categories").Content(c3 =>
     {
-        c3.Add(new Rows().Content(c2 =>
+        c3.Rows(cmRows => cmRows.Content(c2 =>
         {
             c2.Add(lanes);
-            c2.Add(new Rule());
+            c2.Rule();
             c2.Add(facts);
         }));
-    }), LayoutSize.Fraction(1.15)).Add(new Panel().Title("Running").Content(c2 =>
+    }), LayoutSize.Fraction(1.15)).Add(Ui.Panel().Title("Running").Content(c2 =>
     {
         c2.Add(running);
     }), LayoutSize.Fraction(.95));
     top.CollapseBelow(100);
-    Columns bottom = new Columns().Add(new Panel().Title("Findings").Content(c2 =>
+    Columns bottom = Ui.Columns().Add(Ui.Panel().Title("Findings").Content(c2 =>
     {
         c2.Add(Findings(finished));
-    }), LayoutSize.Fraction(1.5)).Add(new Panel().Title("Slowest checks").Content(c2 =>
+    }), LayoutSize.Fraction(1.5)).Add(Ui.Panel().Title("Slowest checks").Content(c2 =>
     {
         c2.Add(slow);
-    })).Add(new Panel().Title("Durations").Content(c2 =>
+    })).Add(Ui.Panel().Title("Durations").Content(c2 =>
     {
         c2.Add(durations);
     }), LayoutSize.Fixed(20));
     bottom.CollapseBelow(100);
-    return new Rows().Content(c3 =>
+    return Ui.Rows().Content(c3 =>
     {
         c3.Add(summary);
         c3.Add(phases);
         c3.Add(top);
         c3.Add(bottom);
-        c3.Add(new Panel().Title("Log").Content(c2 =>
+        c3.Panel(cmPanel => cmPanel.Title("Log").Content(c2 =>
         {
             c2.Add(log);
         }));
@@ -188,11 +189,11 @@ IWidget Body(List<Work> work, int done, int phase)
 // Behaviour: native form/menu navigation, then a bounded run with cancellation and history.
 void Execute(MenuContext context, List<Work> work)
 {
-    RegionWidget body = new RegionWidget(widgetId: "body").Content(c2 =>
+    RegionWidget body = Ui.Region("body").Content(c2 =>
     {
         c2.Add(Body(work, 0, 0));
     });
-    Dashboard dashboard = new Dashboard().Content(c2 =>
+    Dashboard dashboard = Ui.Dashboard().Content(c2 =>
     {
         c2.Add(body);
     }).Title("[bold]Fleet health check[/]").Subtitle(domain).Footer("Ctrl+C cancel · results keep the findings");
@@ -230,20 +231,20 @@ void Execute(MenuContext context, List<Work> work)
 
 MenuRunResult Result(List<Work> work)
 {
-    MenuRunResult result = new MenuRunResult("Fleet check finished", Verdict(work)).Summary($"{work.Count} checks on {work.Select(w => w.Node.Name).Distinct().Count()} servers. Review the findings and choose the next action.").Details(Findings(work));
+    MenuRunResult result = Ui.MenuRunResult().Title("Fleet check finished").Status(Verdict(work)).Summary($"{work.Count} checks on {work.Select(w => w.Node.Name).Distinct().Count()} servers. Review the findings and choose the next action.").Details(Findings(work));
     result.Figure("passed", work.Count(w => w.Status == StatusKind.Pass).ToString(), StatusKind.Pass);
     result.Figure("warnings", work.Count(w => w.Status == StatusKind.Warn).ToString(), work.Any(w => w.Status == StatusKind.Warn) ? StatusKind.Warn : StatusKind.Pass);
     result.Figure("failed", work.Count(w => w.Status == StatusKind.Fail).ToString(), work.Any(w => w.Status == StatusKind.Fail) ? StatusKind.Fail : StatusKind.Pass);
-    result.Next("View report", ctx => ctx.ShowResult(new MenuRunResult("Report · " + format.ToUpperInvariant(), Verdict(work)).Summary(report).Details(Findings(work))));
+    result.Next("View report", ctx => ctx.ShowResult(Ui.MenuRunResult().Title("Report · " + format.ToUpperInvariant()).Status(Verdict(work)).Summary(report).Details(Findings(work))));
     if (work.Any(w => w.Status == StatusKind.Fail))
         result.Next("Rerun failed checks", ctx => Execute(ctx, work.Where(w => w.Status == StatusKind.Fail).ToList()));
-    result.Next("View history", ctx => ctx.ShowResult(new MenuRunResult("Run history").Details(History())));
+    result.Next("View history", ctx => ctx.ShowResult(Ui.MenuRunResult().Title("Run history").Details(History())));
     return result;
 }
 
 Form Options()
 {
-    Form form = new Form("Options").Review(false).SubmitText("Save");
+    Form form = Ui.Form().Title("Options").Review(false).SubmitText("Save");
     FormPage page = form.Page("Options", "Parallelism, reports and notifications.");
     NumberField throttle = page.Number("Parallel", "Servers at a time");
     throttle.Default(parallel);
@@ -279,8 +280,8 @@ void ApplyOptions(FormValues values)
     email = values.Get<string>("Email", "ops@example.test");
 }
 
-Menu menu = new Menu("Fleet health check").Layout(MenuLayout.Shell).Subtitle("Tue 20 Oct 2026 · 09:30");
-Form checkForm = new Form("New check").Command("Invoke-FleetCheck").SubmitText("Run checks").Description("Choose the scope, checks and run options.");
+Menu menu = Ui.Menu().Title("Fleet health check").Layout(MenuLayout.Shell).Subtitle("Tue 20 Oct 2026 · 09:30");
+Form checkForm = Ui.Form().Title("New check").Command("Invoke-FleetCheck").SubmitText("Run checks").Description("Choose the scope, checks and run options.");
 FormPage scope = checkForm.Page("Scope", "Which servers to check.");
 ChoiceField domains = scope.Select("Domain", "Domain", inventory.Select(n => n.Domain).Distinct().Select(d => new Choice(d)));
 domains.Default(domain);
@@ -303,8 +304,8 @@ operations.Configure(configured => configured.Preview = c => Preview(catalog.Fir
 FormPage settings = checkForm.Page("Options", "How the run behaves.");
 foreach (Field field in options.Fields)
     settings.Add(field);
-menu.Preset("Morning · identity & DNS", p => p.Form(checkForm, new Dictionary<string, object?> { ["Servers"] = inventory.Where(n => n.Role == "Domain controller").Select(n => n.Name).ToArray(), ["Checks"] = new[] { "SecureChannel", "TimeOffset", "ForwardRecord" }, ["Parallel"] = 2m }).Preview(new KeyValueList().Add("Scope", "Domain controllers").Add("Checks", "Identity and DNS")));
-menu.Preset("Nightly · all sites", p => p.Form(checkForm, new Dictionary<string, object?> { ["Servers"] = inventory.Where(n => n.Domain == domain && n.Offline == "").Select(n => n.Name).ToArray(), ["Checks"] = catalog.Select(c => c.Id).ToArray(), ["Parallel"] = 3m, ["Notify"] = true }).Preview(new KeyValueList().Add("Scope", "Every online server").Add("Checks", "All categories")));
+menu.Preset("Morning · identity & DNS", p => p.Form(checkForm, new Dictionary<string, object?> { ["Servers"] = inventory.Where(n => n.Role == "Domain controller").Select(n => n.Name).ToArray(), ["Checks"] = new[] { "SecureChannel", "TimeOffset", "ForwardRecord" }, ["Parallel"] = 2m }).Preview(Ui.KeyValue().Add("Scope", "Domain controllers").Add("Checks", "Identity and DNS")));
+menu.Preset("Nightly · all sites", p => p.Form(checkForm, new Dictionary<string, object?> { ["Servers"] = inventory.Where(n => n.Domain == domain && n.Offline == "").Select(n => n.Name).ToArray(), ["Checks"] = catalog.Select(c => c.Id).ToArray(), ["Parallel"] = 3m, ["Notify"] = true }).Preview(Ui.KeyValue().Add("Scope", "Every online server").Add("Checks", "All categories")));
 menu.Preset("Patch Tuesday · updates", p => p.Form(checkForm, new Dictionary<string, object?> { ["Checks"] = new[] { "MissingUpdates", "AutoServices" }, ["Format"] = "Csv" }));
 menu.Preset("Certificates · web tier", p => p.Form(checkForm, new Dictionary<string, object?> { ["Servers"] = new[] { "WEB01" }, ["Checks"] = new[] { "CertExpiry", "CertChain", "ForwardRecord" } }));
 menu.Item("Presets", i => i.Hotkey('p').IconName(GlyphIcon.Favorite).Presets());
@@ -325,7 +326,7 @@ menu.Item("History", i =>
 });
 menu.Separator();
 menu.Exit("Quit");
-menu.Run(new MenuOptions().Layout(MenuLayout.Shell).AppName("Fleet health check gallery"));
+menu.Run(Ui.Options<MenuOptions>().Layout(MenuLayout.Shell).AppName("Fleet health check gallery"));
 record Node(string Name, string Domain, string Site, string Role, string Detail, string Offline, bool Online);
 record Check(string Id, string Name, string Category, string Description, string Expected, double Seconds, bool Changes);
 record Work(Node Node, Check Check, int Cell, StatusKind Status, string Actual, double Seconds);
