@@ -79,7 +79,7 @@ namespace SiteFrames.Capture {
                     if (sequences?.Contains(value) == true) {
                         string child = name + "Widget";
                         for (int suffix = 2; used.Contains(child); suffix++) { child = name + "Widget" + suffix; }
-                        return SyntaxFactory.ParseStatement("foreach (var " + child + " in " + value + ") { " + name + ".Add(" + child + "); }");
+                        return SyntaxFactory.ParseStatement("foreach (var " + child + " in (" + value + " ?? global::System.Array.Empty<global::ConsoleMonster.Layout.IWidget>())) { " + name + ".Add(" + child + "); }");
                     }
                     string operation = "Add";
                     ArgumentListSyntax arguments = SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.Argument(value)));

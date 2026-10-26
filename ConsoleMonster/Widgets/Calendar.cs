@@ -49,6 +49,9 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Replaces the marked-day snapshot before displaying the calendar.</summary>
         /// <param name="marks">The primary marked-day records.</param><returns>This calendar.</returns>
         public Calendar Marks(IEnumerable<CalendarMark> marks) { Data = new CalendarData(marks); return this; }
+        /// <summary>Uses the shared immutable date model without copying it.</summary>
+        /// <param name="data">The shared date model.</param><returns>This calendar.</returns>
+        public Calendar Marks(CalendarData data) { Data = data ?? throw new ArgumentNullException(nameof(data)); return this; }
         /// <summary>Override for the culture's first day of week.</summary>
         public DayOfWeek? FirstDayOfWeek {
             get => _firstDayOfWeek;

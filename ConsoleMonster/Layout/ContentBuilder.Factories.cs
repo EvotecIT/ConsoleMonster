@@ -168,13 +168,13 @@ namespace ConsoleMonster.Layout {
 
         /// <summary>Configures and materializes Chart through its shared factory before adding it.</summary>
         /// <param name="configure">The definition configuration.</param><returns>This builder.</returns>
-        public ContentBuilder Chart(Action<ChartOptions> configure) { var options = Ui.Chart(); configure(options); return Add(options.Build()); }
+        public ContentBuilder Chart(Action<ChartOptions>? configure = null) { var options = Ui.Chart(); configure?.Invoke(options); return Add(options.Build()); }
         /// <summary>Adds a configured Chart definition.</summary><param name="options">The definition.</param><returns>This builder.</returns>
         public ContentBuilder Chart(ChartOptions options) => Add(options.Build());
 
         /// <summary>Configures and materializes Progress through its shared factory before adding it.</summary>
         /// <param name="configure">The definition configuration.</param><returns>This builder.</returns>
-        public ContentBuilder Progress(Action<ProgressOptions> configure) { var options = Ui.Progress(); configure(options); return Add(options.Build()); }
+        public ContentBuilder Progress(Action<ProgressOptions>? configure = null) { var options = Ui.Progress(); configure?.Invoke(options); return Add(options.Build()); }
         /// <summary>Adds a configured Progress definition.</summary><param name="options">The definition.</param><returns>This builder.</returns>
         public ContentBuilder Progress(ProgressOptions options) => Add(options.Build());
 

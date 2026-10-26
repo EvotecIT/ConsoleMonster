@@ -41,7 +41,7 @@ Rows layout = Ui.Rows().Gap(1).Content(c3 =>
         {
             c2.Rows(cmRows => cmRows.Content(c =>
             {
-                foreach (var cWidget in lines.Select(line => Ui.Text().Content(line).IsMarkup()).ToArray())
+                foreach (var cWidget in (lines.Select(line => Ui.Text().Content(line).IsMarkup()).ToArray() ?? global::System.Array.Empty<global::ConsoleMonster.Layout.IWidget>()))
                 {
                     c.Add(cWidget);
                 }

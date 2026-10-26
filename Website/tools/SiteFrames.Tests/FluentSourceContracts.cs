@@ -28,6 +28,15 @@ namespace SiteFrames.Tests {
         [InlineData("string cText = \"Text\"; Terminal.Write(new Rows(new TextBlock(cText)));")]
         [InlineData("Terminal.Write(new Rows(new ProgressBar(\"Build\", \"build\") { Value = 5, Total = 10 }));")]
         [InlineData("Terminal.Write(new ProgressBar(\"Build\").CountColumn(column => column.MinWidth(7)));")]
+        [InlineData("Terminal.Write(new Rows().Content(c => c.Add(new ProgressBar())));")]
+        [InlineData("var command = new ConsoleMonster.Interactive.AppCommand(\"run\", \"Run\", (_, __) => System.Threading.Tasks.Task.CompletedTask); var button = new ConsoleMonster.Interactive.Button(command); if (button.Key != \"run\") throw new System.InvalidOperationException(\"Lost command key\"); Terminal.Write(new Rows(button, new TextBlock(\"Command\")));")]
+        [InlineData("var prompt = new ConsoleMonster.Interactive.SelectPrompt<int>(\"Pick\", new[] { 1 }, group: _ => \"Group\"); if (prompt.Choices[0].Group != \"Group\" || prompt.Choices[0].Label != \"1\") throw new System.InvalidOperationException(\"Lost grouping\"); Terminal.Write(new Rows(new TextBlock(\"Grouped\")));")]
+        [InlineData("var prompt = new ConsoleMonster.Interactive.MultiSelectPrompt<int>(\"Pick\", new[] { 1 }, group: _ => \"Group\"); if (prompt.Choices[0].Group != \"Group\" || prompt.Choices[0].Label != \"1\") throw new System.InvalidOperationException(\"Lost grouping\"); Terminal.Write(new Rows(new TextBlock(\"Grouped\")));")]
+        [InlineData("int n = 0; IWidget child = new TextBlock(\"Child\"); var dashboard = new Dashboard((++n).ToString(), child, (++n).ToString()); if (dashboard.Title != \"1\" || dashboard.WidgetId != \"2\") throw new System.InvalidOperationException(\"Reordered identity\"); Terminal.Write(new Rows(new TextBlock(\"Order retained\")));")]
+        [InlineData("var data = new ConsoleMonster.Dates.CalendarData(); var calendar = new Calendar(2026, 10, data); if (!object.ReferenceEquals(calendar.Data, data)) throw new System.InvalidOperationException(\"Copied shared model\"); Terminal.Write(new Rows(calendar));")]
+        [InlineData("string trace = \"\"; Func<int, string> Display() { trace += \"d\"; return _ => \"Label\"; } Func<int, string?> Group() { trace += \"g\"; return _ => \"Group\"; } var prompt = new ConsoleMonster.Interactive.SelectPrompt<int>(\"Pick\", new[] { 1 }, group: Group(), display: Display()); if (trace != \"gd\") throw new System.InvalidOperationException(trace); Terminal.Write(new Rows(new TextBlock(prompt.Choices[0].Label)));")]
+        [InlineData("IWidget? child = null; Terminal.Write(new Rows(new Panel(child, \"Empty\"), new TextBlock(\"Empty\")));")]
+        [InlineData("IWidget[]? children = null; Terminal.Write(new Rows(new Rows(children!), new TextBlock(\"Empty\")));")]
         public void ContainerTranslationPreservesEvaluationAndSelectedOverloads(string body) {
             string path = Source("using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n" + body);
             string fluent = CSharpRunner.FluentSource(path);

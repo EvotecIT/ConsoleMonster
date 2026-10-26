@@ -48,6 +48,9 @@ namespace ConsoleMonster.Tests.Building {
             Assert.Equal("Run", action.Label);
             var button = Ui.Button().Key("button").Command(action).Build();
             Assert.Same(action, button.Command);
+            Assert.Equal("run", Ui.Button().Command(action).Build().Key);
+            var model = new ConsoleMonster.Dates.CalendarData();
+            Assert.Same(model, Ui.Calendar().Marks(model).Data);
             Assert.Equal("Run", button.Label);
             Assert.Throws<ArgumentException>(() => Ui.Command().Build());
         }

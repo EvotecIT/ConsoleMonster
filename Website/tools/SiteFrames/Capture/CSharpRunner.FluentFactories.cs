@@ -9,7 +9,7 @@ namespace SiteFrames.Capture {
     internal static partial class CSharpRunner {
         // A second semantic pass sees the already-translated setters and containers.
         // Factory creation remains an authoring transformation, never a runtime adapter.
-        private sealed class FluentFactoryRewriter(SemanticModel model) : CSharpSyntaxRewriter {
+        private sealed partial class FluentFactoryRewriter(SemanticModel model) : CSharpSyntaxRewriter {
             public HashSet<string> Namespaces { get; } = new(StringComparer.Ordinal);
             private static readonly Dictionary<string, string> Names = new(StringComparer.Ordinal) {
                 ["TextBlock"] = "Text", ["KeyValueList"] = "KeyValue", ["RegionWidget"] = "Region", ["AppBinding"] = "Binding",
@@ -21,7 +21,7 @@ namespace SiteFrames.Capture {
                 if (model.GetTypeInfo(node).Type is not INamedTypeSymbol type || !type.ContainingAssembly.Name.StartsWith("ConsoleMonster", StringComparison.Ordinal)) { return visited; }
                 return Rewrite(node, SyntaxFactory.ObjectCreationExpression(SyntaxFactory.ParseTypeName(type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)), visited.ArgumentList, visited.Initializer));
             }
-            private ExpressionSyntax Rewrite(BaseObjectCreationExpressionSyntax original, ObjectCreationExpressionSyntax visited) {
+            private ExpressionSyntax Rewrite(BaseObjectCreationExpressionSyntax original, ObjectCreationExpressionSyntax visited, bool stageArguments = true) {
                 if (model.GetTypeInfo(original).Type is not INamedTypeSymbol type || !type.ContainingAssembly.Name.StartsWith("ConsoleMonster", StringComparison.Ordinal)
                     || model.GetSymbolInfo(original).Symbol is not IMethodSymbol ctor) { return original is ImplicitObjectCreationExpressionSyntax ? (ExpressionSyntax)original : visited; }
                 if (type.Name == "LiveSession") {
@@ -43,6 +43,9 @@ namespace SiteFrames.Capture {
                 if (!options && factory == null) { return visited; } // data records retain ordinary C# construction
                 Namespaces.Add(type.ContainingNamespace.ToDisplayString());
                 if (factory != null) { Namespaces.Add(factory.ReturnType.ContainingNamespace.ToDisplayString()); }
+                if (stageArguments && NeedsArgumentStaging(original, type, ctor, buildDefinition: input || progress || chartType != null || type.Name is "AppBinding" or "AppCommand")) {
+                    return StageArguments(original, visited, type, ctor);
+                }
                 string typeArgs = type.IsGenericType ? "<" + string.Join(", ", type.TypeArguments.Select(t => t.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat))) + ">" : string.Empty;
                 ExpressionSyntax result = SyntaxFactory.ParseExpression(options ? "Ui.Options<" + type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat) + ">()" : "Ui." + noun + typeArgs + "()");
                 if (chartType != null) { result = Call(result, "Type", SyntaxFactory.ParseExpression("ConsoleMonster.Widgets.ChartType." + chartType)); }
@@ -50,12 +53,16 @@ namespace SiteFrames.Capture {
                 bool build = input || progress || chartType != null || type.Name is "AppBinding" or "AppCommand";
                 for (int i = 0; i < (visited.ArgumentList?.Arguments.Count ?? 0); i++) {
                     ArgumentSyntax arg = original.ArgumentList!.Arguments[i];
-                    IParameterSymbol p = arg.NameColon == null ? ctor.Parameters[Math.Min(i, ctor.Parameters.Length - 1)] : ctor.Parameters.Single(p => p.Name == arg.NameColon.Name.Identifier.ValueText);
+                    IParameterSymbol p = BoundParameter(ctor, arg, i);
                     ExpressionSyntax value = visited.ArgumentList!.Arguments[i].Expression;
                     string member = char.ToUpperInvariant(p.Name[0]) + p.Name.Substring(1);
                     if (p.Name == "widgetId" && !build) {
                         var primary = RootFactory(result)!;
                         result = result.ReplaceNode(primary, primary.WithArgumentList(SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.Argument(value)))));
+                        continue;
+                    }
+                    if (p.Name is "content" or "children" or "layers" && type.AllInterfaces.Any(contract => contract.ToDisplayString() == "ConsoleMonster.Layout.IContentOwner")) {
+                        result = Call(result, "Content", ConstructorContent(p, value, model.GetTypeInfo(arg.Expression).Type is IArrayTypeSymbol));
                         continue;
                     }
                     if (type.Name == "TextBlock" && p.Name == "markup") { result = Call(Call(result, "Content", value), "IsMarkup"); continue; }
@@ -66,15 +73,14 @@ namespace SiteFrames.Capture {
                     }
                     if ((type.Name is "SelectPrompt" or "MultiSelectPrompt") && p.Name is "values" or "choices") {
                         if (p.Name == "values") {
-                            var args = visited.ArgumentList.Arguments;
-                            string display = args.Count > 2 ? args[2].Expression.ToString() : "null";
-                            string group = args.Count > 3 ? args[3].Expression.ToString() : "null";
+                            string display = BoundArgument(original, visited, ctor, "display")?.ToString() ?? "null";
+                            string group = BoundArgument(original, visited, ctor, "group")?.ToString() ?? "null";
                             value = SyntaxFactory.ParseExpression("ConsoleMonster.Interactive.Choice.From(" + value + ", " + display + ", " + group + ")");
                         }
                         member = "AddChoices";
                     }
                     if ((type.Name is "SelectPrompt" or "MultiSelectPrompt") && p.Name is "display" or "group") { continue; }
-                    if (type.Name == "Calendar" && p.Name == "marks") { member = "Marks"; }
+                    if (type.Name == "Calendar" && p.Name is "marks" or "data") { member = "Marks"; }
                     if (type.Name is "Select" or "MultiSelect" && p.Name == "choices") { member = "AddChoices"; }
                     if (type.Name == "ConfirmPrompt" && p.Name == "defaultValue") { member = "Default"; }
                     if (type.Name == "Panel" && p.Name == "title" && p.Type.ToDisplayString().Contains("RichText", StringComparison.Ordinal)
