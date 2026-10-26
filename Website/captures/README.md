@@ -55,11 +55,22 @@ module used by PowerShell 5.1. An optional area follows `Website`, for example
   can explicitly select their build configuration.
 - CI markers, terminal branding, colour suppression and telemetry/update prompts
   are cleared or pinned. Builds disable MSBuild node and server reuse.
-- ANSI captures retain recorded VT output. Casts use UTF-8 without BOM and LF
+- ANSI captures retain recorded VT output through the shared, opt-in
+  `VtOutputNormalizer`. It canonicalizes supported SGR changes at their point of
+  use, removes title/cursor/focus/input-mode housekeeping, and removes only
+  undecorated default-background trailing blanks before CRLF only when the
+  original cells are already blank with exactly the same full style (spaces that
+  erase text or establish a combining mark’s base style are retained). Visible backgrounds,
+  decorations, links, glyphs, cursor moves and synchronized frame boundaries stay
+  intact; unsupported SGR or truncated controls fail instead of being hidden.
+  This removes incidental ConPTY ordering without replacing real output.
+  Casts use the same normalizer, UTF-8 without BOM and LF
   JSON-line endings. Print-once encoder lines use CRLF. Native VT line feeds
   retain their column semantics; adding CR would corrupt cursor-optimized ConPTY
   output. Redundant CR immediately before LF is reduced to one CR. Window titles and
   cursor queries are omitted from replay output because they contain no cells.
+  Append-only hosted stream text explicitly converts its native text newlines to
+  CRLF before VT recording; that conversion is never applied to ordinary VT.
 - Cast packet boundaries and wall-clock arrival timestamps are replaced by a
   logical timeline: each complete synchronized repaint or printed line advances
   50 ms. Scripted input waits are retained as additional reading holds, and the

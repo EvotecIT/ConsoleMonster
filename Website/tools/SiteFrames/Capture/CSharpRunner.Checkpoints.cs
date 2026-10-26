@@ -37,7 +37,7 @@ namespace SiteFrames.Capture {
             using var recorder = SessionRecorder.Start(new SessionRecordingOptions { InProcess = true, Width = width, Height = height,
                 Path = Environment.GetEnvironmentVariable("SITEFRAMES_OUTPUT_RECORDING") ?? throw new InvalidOperationException("Missing hosted capture destination.") });
             if (stream) {
-                recorder.CaptureOutput(target.Output);
+                recorder.CaptureOutput(new VtOutputNormalizer(width, height).Normalize(target.Output, textLineEndings: true));
                 if (recorder.LimitReached) { throw new IOException("Hosted capture reached its recorder byte limit."); }
                 return 0;
             }

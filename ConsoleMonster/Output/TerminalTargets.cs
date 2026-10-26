@@ -155,7 +155,9 @@ namespace ConsoleMonster.Output {
         /// <returns>The printed rows, with their original cell styles.</returns>
         public Canvas.CellBuffer Transcript() {
             var screen = new Sessions.VtScreen(Profile.Width, Profile.Height);
-            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(Output);
+            string text = Profile.Mode is OutputMode.Stream or OutputMode.Plain
+                ? new Sessions.VtOutputNormalizer(Profile.Width, Profile.Height).Normalize(Output, textLineEndings: true) : Output;
+            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(text);
             screen.Feed(bytes, bytes.Length);
             return screen.Transcript();
         }

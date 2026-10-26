@@ -148,17 +148,21 @@ namespace ConsoleMonster.Tests.Sessions {
             Assert.NotNull(SessionRecording.Read(options.Path!).FinalFrame());
         }
 
-        [Fact]
-        public void Writer_InterruptedPrivateMarkerDoesNotPersistEncodedLabel() {
+        [Theory]
+        [InlineData("\u001b]1337;ConsoleMonster;", true)]
+        [InlineData("\u001b]1337;ConsoleMonster;", false)]
+        [InlineData("\u001b]777;ConsoleMonster;", true)]
+        [InlineData("\u001b]777;ConsoleMonster;", false)]
+        public void Writer_InterruptedPrivateMarkerDoesNotPersistEncodedLabel(string prefix, bool interrupted) {
             SessionRecordingOptions options = Options();
             string encoded = Convert.ToBase64String(Encoding.UTF8.GetBytes("private-label"));
             using (SessionCastWriter writer = new SessionCastWriter(options, "in-process output only")) {
-                writer.Append(SessionCastWriter.ControlPrefix + "marker;" + encoded);
-                writer.Append("\u001b[32mVisible\r\n");
+                writer.Append(prefix + "marker;" + encoded);
+                if (interrupted) { writer.Append("\u001b[32mVisible\r\n"); }
             }
             string cast = File.ReadAllText(options.Path!);
             Assert.DoesNotContain(encoded, cast); Assert.DoesNotContain("private-label", cast);
-            Assert.Contains("Visible", SessionRecording.Read(options.Path!).Export(ExportFormat.Text));
+            if (interrupted) { Assert.Contains("Visible", SessionRecording.Read(options.Path!).Export(ExportFormat.Text)); }
         }
 
         [Fact]
@@ -437,19 +441,22 @@ namespace ConsoleMonster.Tests.Sessions {
             Assert.Equal("existing recording", File.ReadAllText(options.Path!));
         }
 
-        [Fact]
-        public void Writer_RecognizesSplitMarkerAndStopWithoutPersistingControls() {
+        [Theory]
+        [InlineData("\u001b]1337;ConsoleMonster;")]
+        [InlineData("\u001b]777;ConsoleMonster;")]
+        public void Writer_RecognizesSplitMarkerAndStopWithoutPersistingControls(string prefix) {
             SessionRecordingOptions options = Options();
             using (SessionCastWriter writer = new SessionCastWriter(options, "in-process output only")) {
-                string marker = SessionRecorder.MarkerSequence("Deploy");
-                writer.Append(marker.Substring(0, 8)); writer.Append(marker.Substring(8));
-                writer.Append("Complete\r\n"); writer.Append(SessionRecorder.StopSequence);
+                string marker = prefix + "marker;" + Convert.ToBase64String(Encoding.UTF8.GetBytes("Deploy")) + "\a";
+                foreach (char character in marker) { writer.Append(character.ToString()); }
+                writer.Append("\u001b]1337;SetMark\aComplete\r\n"); writer.Append(prefix + "stop\a");
                 writer.Append("After stop must not be stored\r\n");
                 Assert.True(writer.StopRequested);
             }
             string cast = File.ReadAllText(options.Path!);
             Assert.Contains("\"m\",\"Deploy\"", cast);
-            Assert.DoesNotContain("777;ConsoleMonster", cast);
+            Assert.Contains("1337;SetMark", cast);
+            Assert.DoesNotContain("ConsoleMonster;", cast);
             Assert.DoesNotContain("After stop", cast);
         }
 

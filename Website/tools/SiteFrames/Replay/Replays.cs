@@ -57,6 +57,7 @@ namespace SiteFrames.Replay {
             using var bytes = new MemoryStream();
             var screen = new VtScreen(width, height, keepScrollback: false);
             var pending = new StringBuilder();
+            var normalizer = new ConsoleMonster.Sessions.VtOutputNormalizer(width, height);
             double milliseconds = 0;
             bool completed = false;
             screen.SynchronizedFrameCompleted = () => completed = true;
@@ -70,6 +71,7 @@ namespace SiteFrames.Replay {
                 // A bare VT LF preserves its column. Only redundant CR before LF can be normalized.
                 string text = System.Text.RegularExpressions.Regex.Replace(Encoding.UTF8.GetString(bytes.ToArray()), "\r+\n", "\r\n");
                 text = System.Text.RegularExpressions.Regex.Replace(text, "\u001b\\][02];[^\u0007\u001b]*(?:\u0007|\u001b\\\\)", string.Empty).Replace("\u001b[6n", string.Empty);
+                text = normalizer.Normalize(text);
                 foreach (char character in text) {
                     pending.Append(character);
                     screen.Feed(character.ToString());

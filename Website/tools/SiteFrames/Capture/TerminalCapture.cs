@@ -24,6 +24,7 @@ namespace SiteFrames.Capture {
             foreach (var entry in environment) { options.Environment[entry.Key] = entry.Value; }
             CapturePins.Apply(options.Environment);
             string hostedPath = Path.Combine(folder, "hosted.cast");
+            bool captureWritten = false;
             // Cooperative checkpoint workers record their encoder's actual VT before native terminal repaint coalescing.
             if (hostedOutput) { options.Environment["SITEFRAMES_OUTPUT_RECORDING"] = hostedPath; }
             try {
@@ -46,9 +47,9 @@ namespace SiteFrames.Capture {
                     if (recorder.ExitCode != 0) { throw new InvalidOperationException("Capture process exited with code " + recorder.ExitCode + ": " + executable + "\n" + Encoding.UTF8.GetString(PowerShellRunner.Bytes(native))); }
                     string recordedPath = hostedOutput ? hostedPath : options.Path;
                     if (!File.Exists(recordedPath)) { throw new InvalidDataException("The capture worker did not finalize its hosted recording."); }
-                    List<OutputChunk> chunks = Read(recordedPath);
+                    List<OutputChunk> chunks = Normalize(Read(recordedPath), width, height);
                     CaptureRun.Observe(PowerShellRunner.Bytes(chunks), width, height);
-                    if (capturePath != null) { File.WriteAllBytes(capturePath, PowerShellRunner.Bytes(chunks)); }
+                    if (capturePath != null) { File.WriteAllBytes(capturePath, PowerShellRunner.Bytes(chunks)); captureWritten = true; }
                     if (recorder.LimitReached) { throw new IOException("Capture reached the recorder byte limit: " + executable); }
                     recording?.Invoke(File.ReadAllText(recordedPath));
                     return chunks;
@@ -58,10 +59,28 @@ namespace SiteFrames.Capture {
                 if (output.Length > 8000) { output = output[^8000..]; }
                 throw new TimeoutException(error.Message + " Child: " + executable + "\n" + output, error);
             } finally {
-                string retainedPath = hostedOutput && File.Exists(hostedPath) ? hostedPath : options.Path;
-                if (capturePath != null && File.Exists(retainedPath)) { File.WriteAllBytes(capturePath, PowerShellRunner.Bytes(Read(retainedPath))); }
-                Site.RemoveTemporary(folder);
+                try {
+                    string retainedPath = hostedOutput && File.Exists(hostedPath) ? hostedPath : options.Path;
+                    // Failed captures retain their original bytes for diagnostics; they never receive a success receipt.
+                    if (!captureWritten && capturePath != null && File.Exists(retainedPath)) { File.WriteAllBytes(capturePath, PowerShellRunner.Bytes(Read(retainedPath))); }
+                } finally { Site.RemoveTemporary(folder); }
             }
+        }
+
+        private static List<OutputChunk> Normalize(List<OutputChunk> source, int width, int height) {
+            var result = new List<OutputChunk>();
+            var normalizer = new VtOutputNormalizer(width, height);
+            using var bytes = new MemoryStream();
+            void Flush() {
+                if (bytes.Length == 0) { return; }
+                result.Add(new OutputChunk(0, Encoding.UTF8.GetBytes(normalizer.Normalize(Encoding.UTF8.GetString(bytes.ToArray())))));
+                bytes.SetLength(0); bytes.Position = 0;
+            }
+            foreach (OutputChunk chunk in source) {
+                bytes.Write(chunk.Data);
+                if (chunk.Hold > TimeSpan.Zero) { Flush(); result.Add(new OutputChunk(0, Array.Empty<byte>(), chunk.Hold)); }
+            }
+            Flush(); return result;
         }
 
         private static List<OutputChunk> Read(string path) {
