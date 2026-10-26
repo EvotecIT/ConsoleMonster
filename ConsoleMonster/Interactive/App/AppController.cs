@@ -9,8 +9,10 @@ using ConsoleMonster.Live;
 namespace ConsoleMonster.Interactive {
     /// <summary>Owns callbacks and dependent-widget creation on the input thread; only live payload application runs on the renderer.</summary>
     internal sealed class AppController : IDisposable {
+        private readonly ConsoleAppOptions _options;
         private readonly AppState _state;
         private readonly List<AppBinding> _bindings = new List<AppBinding>();
+        private readonly List<IAppInputContainer> _containers = new List<IAppInputContainer>();
         private readonly FocusManager _focus;
         private readonly RenderContext _context;
         private readonly AppViewport _viewport;
@@ -22,6 +24,7 @@ namespace ConsoleMonster.Interactive {
         private InputControl? _pointerCapture;
 
         internal AppController(IWidget layout, AppState state, RenderContext context, int reflowBelow, ConsoleAppOptions? options = null, CancellationToken cancellationToken = default, Func<TimeSpan>? actionClock = null) {
+            _options = options ?? new ConsoleAppOptions();
             _state = state;
             _context = context;
             Discover(layout, reflowBelow);
@@ -32,7 +35,7 @@ namespace ConsoleMonster.Interactive {
                 if (input is Button commandButton && commandButton.Command != null && !commands.Contains(commandButton.Command)) { commands.Add(commandButton.Command); }
             }
             try {
-                _actions = new AppCommandHost(commands, () => options?.CaptureSelection(_state) ?? Array.Empty<object?>(), PromptLabels.For(context.Profile.Language), cancellationToken, dispatcher: options?.Dispatcher, actionClock: actionClock);
+                _actions = new AppCommandHost(commands, () => options?.CaptureSelection(_state) ?? Array.Empty<object?>(), PromptLabels.For(context.Profile.Language), cancellationToken, dispatcher: options?.Dispatcher, actionClock: actionClock, keys: _options.Keys, dialogs: _options.Dialogs);
                 foreach (InputControl control in _focus.Controls) {
                     _inputs.Add(control.Key, control);
                     state[control.Key] = control.CurrentValue;
@@ -40,13 +43,12 @@ namespace ConsoleMonster.Interactive {
                     control.Invalidated += Invalidate;
                 }
                 state.Changed += StateChanged;
-                List<KeyBinding> hints = new List<KeyBinding> {
-                    new KeyBinding(PromptLabels.For(context.Profile.Language).KeyNext, _focus.MoveNext, new KeyChord(ConsoleKey.Tab)),
-                    new KeyBinding(PromptLabels.For(context.Profile.Language).KeyBack, _focus.MovePrevious, new KeyChord(ConsoleKey.Tab, KeyModifiers.Shift)),
-                    new KeyBinding(PromptLabels.For(context.Profile.Language).KeyQuit, state.RequestExit, new KeyChord(ConsoleKey.Escape))
-                };
+                List<KeyBinding> hints = new List<KeyBinding>();
+                if (_options.Keys.NextFocus.HasValue) { hints.Add(new KeyBinding(PromptLabels.For(context.Profile.Language).KeyNext, _focus.MoveNext, _options.Keys.NextFocus.Value)); }
+                if (_options.Keys.PreviousFocus.HasValue) { hints.Add(new KeyBinding(PromptLabels.For(context.Profile.Language).KeyBack, _focus.MovePrevious, _options.Keys.PreviousFocus.Value)); }
+                if (_options.Keys.Exit.HasValue) { hints.Add(new KeyBinding(PromptLabels.For(context.Profile.Language).KeyQuit, state.RequestExit, _options.Keys.Exit.Value)); }
                 _actions.AddBindings(hints);
-                Root = new Rows().Add(_actions.Wrap(_viewport), LayoutSize.Fraction()).Add(new KeyFooter(hints), LayoutSize.Fixed(1));
+                Root = new Rows().Add(_actions.Wrap(_viewport), LayoutSize.Fraction()).Add(_options.Footer ?? new KeyFooter(hints), LayoutSize.Fixed(1));
                 foreach (InputControl input in _focus.Controls) {
                     if (input is Button button && button.Command != null) { _actions.Bind(button, button.Command); }
                 }
@@ -62,12 +64,17 @@ namespace ConsoleMonster.Interactive {
         internal void Handle(InputEvent input, bool mouse) {
             bool pointerHandled = false;
             if (input.Kind == InputEventKind.FocusLost || input.Kind == InputEventKind.Resize) { _pointerCapture?.CancelPointer(); _pointerCapture = null; }
-            if (_actions.HasCommands && (input.Kind != InputEventKind.Mouse || mouse) && _actions.Handle(input)) { Invalidate(); return; }
+            if ((_actions.HasCommands || _actions.HasModal) && (input.Kind != InputEventKind.Mouse || mouse) && _actions.Handle(input)) { Invalidate(); return; }
+            if (input.Is(ConsoleKey.C, KeyModifiers.Control)) { _state.RequestExit(); Invalidate(); return; }
+            if (_options.HandleInput?.Invoke(_state, input) == true) { Invalidate(); return; }
+            foreach (IAppInputContainer container in _containers) {
+                if ((input.Kind != InputEventKind.Mouse || mouse) && container.HandleContainerInput(input, _focus.Current)) { Invalidate(); return; }
+            }
             if (input.Kind != InputEventKind.Mouse && input.Kind != InputEventKind.FocusLost && input.Kind != InputEventKind.FocusGained) { _viewport.RevealFocus(); }
             if (input.Is(ConsoleKey.C, KeyModifiers.Control)) { _state.RequestExit(); }
             else if (input.Kind == InputEventKind.Resize) { PrepareFrame(input.Width, input.Height); }
-            else if (input.Is(ConsoleKey.Tab)) { _focus.MoveNext(); }
-            else if (input.Is(ConsoleKey.Tab, KeyModifiers.Shift)) { _focus.MovePrevious(); }
+            else if (AppHostKeys.Match(_options.Keys.NextFocus, input)) { _focus.MoveNext(); }
+            else if (AppHostKeys.Match(_options.Keys.PreviousFocus, input)) { _focus.MovePrevious(); }
             else if (input.Kind == InputEventKind.Mouse) {
                 if (mouse) {
                     if (input.MouseAction == MouseAction.Down && input.MouseButton == 1 && _viewport.FocusAt(input.Column, input.Row)) { _pointerCapture = _focus.Current; }
@@ -81,7 +88,7 @@ namespace ConsoleMonster.Interactive {
                 if (current != null && !current.Enabled) { _focus.MoveNext(); current = _focus.Current; }
                 // A selector can consume Escape to clear a filter; an unhandled Escape quits the app.
                 bool handled = current?.HandleInput(input, _context) ?? false;
-                if (!handled && input.Is(ConsoleKey.Escape)) { _state.RequestExit(); }
+                if (!handled && AppHostKeys.Match(_options.Keys.Exit, input)) { _state.RequestExit(); }
                 else if (!handled && input.Is(ConsoleKey.Enter)) { _focus.MoveNext(); }
             }
             if (input.Kind != InputEventKind.Mouse || input.MouseAction != MouseAction.Move || input.HeldButtons != 0 || pointerHandled) { Invalidate(); }
@@ -95,6 +102,7 @@ namespace ConsoleMonster.Interactive {
         }
 
         private void Discover(IWidget widget, int reflowBelow) {
+            if (widget is IAppInputContainer inputContainer) { _containers.Add(inputContainer); }
             if (widget is AppBinding binding) { _bindings.Add(binding); return; }
             if (widget is Columns columns && columns.CollapseBelow < 0) { columns.CollapseBelow = reflowBelow; }
             if (widget is IContainer container) {

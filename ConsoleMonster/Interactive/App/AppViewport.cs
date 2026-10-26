@@ -36,6 +36,8 @@ namespace ConsoleMonster.Interactive {
                 CellBuffer canvas = new CellBuffer(region.Width, height);
                 _arrangement.Focused = _focus.Current;
                 using (_arrangement.Begin(region.Bounds.X, region.Bounds.Y - _scroll, region.Bounds)) { _content.Render(new Region(canvas), context); }
+                InputControl? beforeFocus = _focus.Current;
+                _focus.SetMounted(_arrangement.Mounted);
                 int before = _scroll;
                 Rect? focused = _arrangement.FocusBounds;
                 bool reveal = _revealRequested || _focus.Current != _lastFocus || _lastSize.Width != region.Width || _lastSize.Height != region.Height;
@@ -45,8 +47,9 @@ namespace ConsoleMonster.Interactive {
                     else if (focused.Value.Bottom > region.Bounds.Bottom) { _scroll += focused.Value.Bottom - region.Bounds.Bottom; }
                 }
                 _scroll = Math.Max(0, Math.Min(_scroll, height - region.Height));
-                if (before != _scroll) {
+                if (before != _scroll || beforeFocus != _focus.Current) {
                     canvas = new CellBuffer(region.Width, height);
+                    _arrangement.Focused = _focus.Current;
                     using (_arrangement.Begin(region.Bounds.X, region.Bounds.Y - _scroll, region.Bounds)) { _content.Render(new Region(canvas), context); }
                 }
                 region.Buffer.Blit(canvas, 0, _scroll, region.Width, region.Height, region.Bounds.X, region.Bounds.Y);

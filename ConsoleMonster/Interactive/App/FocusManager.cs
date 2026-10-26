@@ -10,6 +10,7 @@ namespace ConsoleMonster.Interactive {
         private readonly List<InputControl> _controls;
         private InputControl? _current;
         private bool _disposed;
+        private HashSet<InputControl>? _mounted;
 
         /// <summary>Discovers inputs in declaration order and applies their tab-order overrides.</summary>
         /// <param name="layout">The stable input layout.</param>
@@ -39,6 +40,13 @@ namespace ConsoleMonster.Interactive {
 
         /// <summary>Moves to the previous enabled control, wrapping at the beginning.</summary>
         public void MovePrevious() => Move(-1);
+
+        internal void SetMounted(IEnumerable<InputControl> controls) {
+            lock (_gate) {
+                _mounted = new HashSet<InputControl>(controls);
+                if (_current == null || !_mounted.Contains(_current)) { Move(1); }
+            }
+        }
 
         /// <summary>Focuses a control belonging to this manager, if enabled.</summary>
         /// <param name="control">The target control.</param>
@@ -87,7 +95,7 @@ namespace ConsoleMonster.Interactive {
                 int start = _current == null ? (delta > 0 ? -1 : 0) : _controls.IndexOf(_current);
                 for (int i = 1; i <= _controls.Count; i++) {
                     int index = (start + delta * i + _controls.Count * 2) % _controls.Count;
-                    if (_controls[index].Enabled) { Focus(_controls[index]); return; }
+                    if (_controls[index].Enabled && (_mounted == null || _mounted.Contains(_controls[index]))) { Focus(_controls[index]); return; }
                 }
                 InputControl? previous = _current;
                 _current = null;

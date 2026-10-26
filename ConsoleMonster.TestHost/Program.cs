@@ -24,6 +24,7 @@ namespace ConsoleMonster.TestHost {
         private static int Main(string[] args) {
             try {
                 switch (args[0]) {
+                    case "handoff-probe": return TerminalHandoffProbe.Run(args[1]);
                     case "background": return BackgroundProbe.Run(args[1], args.Length > 2 ? args[2] : string.Empty);
                     case "unix-recording-child": return UnixRecordingChildProbe.Run();
                     case "copy-command": InteractiveClipboardProbe.Run(args[1], args[2]); break;

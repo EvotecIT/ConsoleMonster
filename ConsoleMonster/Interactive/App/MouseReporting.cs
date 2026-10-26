@@ -45,6 +45,22 @@ namespace ConsoleMonster.Interactive {
             _writer.Flush();
         }
 
+        internal static IDisposable? SuspendCurrent() {
+            MouseReporting? current = _current;
+            if (current == null || !current._active) { return null; }
+            current.Set(false);
+            return new Suspension(current);
+        }
+
+        private sealed class Suspension : IDisposable {
+            private MouseReporting? _owner;
+            internal Suspension(MouseReporting owner) { _owner = owner; }
+            public void Dispose() {
+                MouseReporting? owner = System.Threading.Interlocked.Exchange(ref _owner, null);
+                if (owner?._active == true) { owner.Set(true); }
+            }
+        }
+
         public void Dispose() {
             if (!_active) { return; }
             _active = false;
