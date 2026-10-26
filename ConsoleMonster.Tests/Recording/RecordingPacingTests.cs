@@ -258,6 +258,18 @@ namespace ConsoleMonster.Tests.Sessions {
         }
 
         [Fact]
+        public void EofChapterAfterAnUnchangedFrameSurvivesFrameworkEndRounding() {
+            // The native Windows fixture ended at this fractional boundary. Framework TotalMilliseconds
+            // converts ticks by multiplication, so adding separately converted frame/duration values loses the marker.
+            SessionRecording recording = Read(Event(0, "o", "A") + Event(2.8, "o", "\rB") + Event(2.804153, "m", "Interactive"));
+            Assert.Single(recording.Markers);
+            var player = (System.Collections.Generic.Dictionary<string, object?>)ConsoleMonster.Serialization.MiniJson.Read(recording.ExportPlayerData())!;
+            var markers = Assert.IsType<System.Collections.Generic.List<object?>>(player["markers"]);
+            var marker = Assert.IsType<System.Collections.Generic.List<object?>>(Assert.Single(markers));
+            Assert.Equal("Interactive", marker[1]);
+        }
+
+        [Fact]
         public void MarkerMetadataRetainsSubMillisecondHoldPrecisionOnEveryFramework() {
             TimeSpan hold = TimeSpan.FromTicks(30008000);
             string data = SessionMarkerData.Write("Results", hold, null, true);
