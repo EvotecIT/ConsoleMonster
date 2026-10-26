@@ -57,33 +57,6 @@
         ($commands.Name | Where-Object { $_ -notlike '*-Console*' }) | Should -BeNullOrEmpty
     }
 
-    It 'names the replacement when a script calls a retired command' {
-        Import-Module $script:ModulePath -Force
-        $failure = { Show-ConsoleTree -InputObject 1 } | Should -Throw -ExceptionType ([System.Management.Automation.CommandNotFoundException]) -PassThru
-        $failure.Exception.Message | Should -BeExactly 'Show-ConsoleTree was retired in ConsoleMonster 2.1.0. Use Show-Console -View Tree instead. Every renamed command: https://consolemonster.dev/guides/upgrading/'
-        $failure.FullyQualifiedErrorId | Should -BeLike 'CommandNotFoundException*'
-        $failure.CategoryInfo.Category | Should -Be 'ObjectNotFound'
-        ({ 'web01' | Update-ConsoleProgress -Value 1 } | Should -Throw -PassThru).Exception.Message | Should -BeLike 'Update-ConsoleProgress was retired*Use Update-Console instead.*'
-        $fixture = Get-Content (Join-Path $PSScriptRoot '../../Tests/Api/round2-commands.json') -Raw | ConvertFrom-Json
-        foreach ($name in $fixture.Retired) {
-            ({ & $name } | Should -Throw -ExceptionType ([System.Management.Automation.CommandNotFoundException]) -PassThru).Exception.Message | Should -BeLike "$name was retired in ConsoleMonster 2.1.0. Use * instead.*"
-        }
-        ({ Show-ConsoleNoSuchCommand } | Should -Throw -ExceptionType ([System.Management.Automation.CommandNotFoundException]) -PassThru).Exception.Message | Should -Not -BeLike '*retired*'
-
-        # A command of the old name defined by the user wins; the hint only answers when nothing was found.
-        function global:Show-ConsoleTree { 'shim' }
-        try { Show-ConsoleTree | Should -BeExactly 'shim' } finally { Remove-Item -Path Function:\Show-ConsoleTree }
-
-        # One handler per runspace, and removing the module removes it.
-        $child = Invoke-ConsoleChild -Script @'
-"handlers: " + @($ExecutionContext.InvokeCommand.CommandNotFoundAction.GetInvocationList()).Count
-Remove-Module ConsoleMonster
-try { Show-ConsoleTree } catch { 'removed: ' + ($_.Exception.Message -like '*retired*') }
-'@
-        $child | Should -Match 'handlers: 1'
-        $child | Should -Match 'removed: False'
-    }
-
     It 'writes a table with right-aligned numbers and status markers' {
         $text = Invoke-ConsoleChild -Script @'
 [System.Threading.Thread]::CurrentThread.CurrentCulture = [System.Globalization.CultureInfo]::GetCultureInfo('en-US')

@@ -16,10 +16,6 @@ runs, dashboards, menus and forms when you need more. It is one engine for Windo
 [Demos](https://consolemonster.dev/demos/) · [Widgets](https://consolemonster.dev/widgets/) ·
 [.NET API](https://consolemonster.dev/api/) · [PowerShell commands](https://consolemonster.dev/powershell/commands/)
 
-**Upgrading from 2.0.1?** 2.1.0 merges 144 commands into 101 and drops the `With` prefix from C# fluent setters.
-The [upgrade guide](https://consolemonster.dev/guides/upgrading/) maps every old name, and calling an old command
-tells you what replaced it.
-
 ## Start in PowerShell
 
 <!-- example: Website/content/docs/install.md#1 -->
@@ -234,9 +230,7 @@ $dashboard = New-ConsoleDashboard -Title 'Workers' -Content {
   ([trimming notes](https://consolemonster.dev/docs/install/)).
 - **Consoles** are [detected](https://consolemonster.dev/docs/capabilities/) (colour, glyphs, size, CI, redirection);
   `NO_COLOR` and [`CONSOLEMONSTER_*`](https://consolemonster.dev/docs/environment/) override it
-  ([hosts and CI](https://consolemonster.dev/guides/hosts-and-ci/)).
-- **Upgrading** from [2.0.1](https://consolemonster.dev/guides/upgrading/) or from the
-  [0.0.x module](https://consolemonster.dev/guides/).
+  ([hosts and CI](https://consolemonster.dev/guides/hosts-and-ci/), [upgrading from 0.0.x](https://consolemonster.dev/guides/)).
 
 [Benchmarks](https://consolemonster.dev/benchmarks/) ·
 [Changelog](https://github.com/EvotecIT/ConsoleMonster/blob/master/CHANGELOG.MD) ·

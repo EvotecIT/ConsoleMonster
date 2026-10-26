@@ -19,7 +19,7 @@
         <RepositoryType>git</RepositoryType>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageIcon>icon.png</PackageIcon>
-        <PackageReleaseNotes>Upgrading from 2.0.1: https://consolemonster.dev/guides/upgrading/ - all changes: https://github.com/EvotecIT/ConsoleMonster/blob/master/CHANGELOG.MD</PackageReleaseNotes>
+        <PackageReleaseNotes>Changes in each release: https://github.com/EvotecIT/ConsoleMonster/blob/master/CHANGELOG.MD</PackageReleaseNotes>
         <IsPackable>true</IsPackable>
         <IncludeBuildOutput>false</IncludeBuildOutput>
         <IncludeContentInPack>true</IncludeContentInPack>

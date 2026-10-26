@@ -41,5 +41,4 @@ PowerShell keeps `$rows | Export-ConsoleFrame -Format Markdown`, `-Format Fenced
 
 OfficeIMO's document model owns fenced blocks and recording documents, including safe fence selection. Semantic tables, records and trees use direct text in this bridge: they already have presented cell values, group/subtotal boundaries and literal escaping that must stay intact without reparsing or a document-builder row limit. Their output is unchanged. Fenced content containing backticks may use a shorter tilde fence; the content remains literal and the goldens cover that change.
 
-[ConsoleMonster](https://consolemonster.dev/) · [Add-ons](https://consolemonster.dev/docs/add-ons/) ·
-[Upgrading from 2.0.1](https://consolemonster.dev/guides/upgrading/)
+[ConsoleMonster](https://consolemonster.dev/) · [Add-ons](https://consolemonster.dev/docs/add-ons/)
