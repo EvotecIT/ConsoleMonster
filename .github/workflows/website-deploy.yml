@@ -33,3 +33,5 @@ jobs:
       pipeline_config: Website/pipeline.json
       site_output_path: Website/_site
       powerforge_lock_path: ./Website/.powerforge/engine-lock.json
+      powerforge_repository: EvotecIT/PSPublishModule
+      powerforge_ref: actions-next
