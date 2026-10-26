@@ -20,11 +20,33 @@ IWidget Frame(int tick)
     KeyValueList stats = new KeyValueList().Add("Updates", (800 + tick * 320).ToString(System.Globalization.CultureInfo.InvariantCulture)).Add("Queue", (24 - tick * 5).ToString(System.Globalization.CultureInfo.InvariantCulture)).Add("Workers", "8").Add("Dropped", "[pass]0[/]");
     Sparkline trend = new Sparkline().Label("updates/s");
     trend.AddRange(new double[] { 120, 180, 160, 240, 210, 220 + tick * 15 });
-    return new Rows(new TextBlock("[bold]Worker stress dashboard[/] [muted]· worker pool[/]"), new Columns(new Panel().Title("Workers").Content(workers), new Panel().Title("Session").Content(new Rows(stats, trend))), new TextBlock("[muted]Ctrl+C stops the live run.[/]")).Gap(1);
+    return new Rows().Gap(1).Content(c4 =>
+    {
+        c4.Text("[bold]Worker stress dashboard[/] [muted]· worker pool[/]");
+        c4.Add(new Columns().Content(c3 =>
+        {
+            c3.Add(new Panel().Title("Workers").Content(c =>
+            {
+                c.Add(workers);
+            }));
+            c3.Add(new Panel().Title("Session").Content(c2 =>
+            {
+                c2.Add(new Rows().Content(c =>
+                {
+                    c.Add(stats);
+                    c.Add(trend);
+                }));
+            }));
+        }));
+        c4.Text("[muted]Ctrl+C stops the live run.[/]");
+    });
 }
 
 // Behaviour: update each frame in a bounded live run.
-RegionWidget screen = new RegionWidget(widgetId: "demo", content: Frame(0));
+RegionWidget screen = new RegionWidget(widgetId: "demo").Content(c =>
+{
+    c.Add(Frame(0));
+});
 using LiveSession session = new LiveSession(screen);
 try
 {

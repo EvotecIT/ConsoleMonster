@@ -33,7 +33,20 @@ foreach (var group in upcoming)
         items.Add(day.Label, day.Status);
     }
 
-    events.Add(new Padding(items, 2, 0, 0, 1));
+    events.Add(new Padding(left: 2, top: 0, right: 0, bottom: 1).Content(c =>
+    {
+        c.Add(items);
+    }));
 }
 
-new Columns(new Panel(calendar, "Operations"), new Panel(events, "Upcoming · next 14 days")).Show();
+new Columns().Content(c2 =>
+{
+    c2.Add(new Panel(title: "Operations").Content(c =>
+    {
+        c.Add(calendar);
+    }));
+    c2.Add(new Panel(title: "Upcoming · next 14 days").Content(c =>
+    {
+        c.Add(events);
+    }));
+}).Show();

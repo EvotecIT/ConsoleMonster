@@ -12,27 +12,41 @@ string[] tasks =
     "Preview cleanup"
 };
 // Layout: construct the widgets shown on screen.
-Rows layout = new Rows(new TextBlock("[bold]Server toolbox[/] [muted]· operations[/]"), new Select("Task", tasks.Select(task => new Choice(task))).Label("Task").Value(tasks[0]), new AppBinding(state =>
+Rows layout = new Rows().Gap(1).Content(c3 =>
 {
-    string task = state.Get<string>("Task", tasks[0]);
-    string[] lines = task == tasks[0] ? new[]
+    c3.Text("[bold]Server toolbox[/] [muted]· operations[/]");
+    c3.Add(new Select("Task", tasks.Select(task => new Choice(task))).Label("Task").Value(tasks[0]));
+    c3.Add(new AppBinding(state =>
     {
-        "[pass]web-01 reachable[/]",
-        "CPU 24% · memory 61%"
-    }
+        string task = state.Get<string>("Task", tasks[0]);
+        string[] lines = task == tasks[0] ? new[]
+        {
+            "[pass]web-01 reachable[/]",
+            "CPU 24% · memory 61%"
+        }
 
-    : task == tasks[1] ? new[]
-    {
-        "[accent]12 jobs waiting[/]",
-        "Oldest job 4 minutes"
-    }
+        : task == tasks[1] ? new[]
+        {
+            "[accent]12 jobs waiting[/]",
+            "Oldest job 4 minutes"
+        }
 
-    : new[]
-    {
-        "[warn]3 artifacts eligible[/]",
-        "Eligible artifacts: build-cache, test-output, old-logs."
-    };
-    return new Panel().Title("Preview").Content(new Rows(lines.Select(line => new TextBlock(line)).ToArray()));
-})).Gap(1);
+        : new[]
+        {
+            "[warn]3 artifacts eligible[/]",
+            "Eligible artifacts: build-cache, test-output, old-logs."
+        };
+        return new Panel().Title("Preview").Content(c2 =>
+        {
+            c2.Add(new Rows().Content(c =>
+            {
+                foreach (var cWidget in lines.Select(line => new TextBlock(line)).ToArray())
+                {
+                    c.Add(cWidget);
+                }
+            }));
+        });
+    }));
+});
 // Behaviour: edit controls to update the view; Escape exits the app.
 ConsoleApp.Run(layout);

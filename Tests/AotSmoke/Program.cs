@@ -58,6 +58,11 @@ internal static class Program {
             if (session.EventsPosted != 1) { throw new InvalidOperationException("The native update path partially published an oversized append."); }
         }
         Panel panel = new Panel().Title("Build").Content(content => content.Text("All checks passed"));
+        var field = new NumberField("Attempts").Integer().Required();
+        if (!field.Integer || !field.Required) { throw new InvalidOperationException("Boolean fluent switches did not enable the field options."); }
+        field.Integer(false).Required(false);
+        if (field.Integer || field.Required) { throw new InvalidOperationException("Explicit false did not disable the field options."); }
+        Require(ConsoleExporter.ToText(new Rows().Content(c => { c.Rule("Build"); c.Text("Ready"); })), "Build", "Ready");
         Require(ConsoleExporter.ToText(panel), "Build", "All checks passed");
         var calendar = new Calendar(2026, 10).Culture(System.Globalization.CultureInfo.InvariantCulture).Today(new DateTime(2026, 10, 20)).ShowLegend(false);
         Require(ConsoleExporter.ToText(calendar), "October", "2026");

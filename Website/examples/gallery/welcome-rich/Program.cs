@@ -7,12 +7,12 @@ using ConsoleMonster.Widgets;
 // Data: fictional inputs kept in memory.
 // Fictional host and git values keep the greeting independent of local probes.
 // Replace fixed strings with cached local data to keep profile startup fast.
-var hostData = new[]
+var hostData = new HostDataRow[]
 {
-    (Label: "Host", Value: "comet-devbox"),
-    (Label: "Platform", Value: "Cross-platform development"),
-    (Label: "Runtime", Value: "PowerShell 7.4+ / .NET 8+"),
-    (Label: "Workspace", Value: "comet-notes")
+    new("Host", "comet-devbox"),
+    new("Platform", "Cross-platform development"),
+    new("Runtime", "PowerShell 7.4+ / .NET 8+"),
+    new("Workspace", "comet-notes")
 };
 string git = "[accent]main[/]   [warn]2 modified[/]   [pass]1 staged[/]   [muted]0 ahead / 0 behind[/]";
 // Layout: compose the screen from the data above.
@@ -25,3 +25,5 @@ Rows layout = new Rows(new Logo("HELLO", "[muted]A little context before your ne
 };
 // Behaviour: print the screen once and return.
 Terminal.Write(layout);
+
+record HostDataRow(string Label, string Value);

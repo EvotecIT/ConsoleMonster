@@ -5,36 +5,12 @@ using ConsoleMonster.Presenters;
 using ConsoleMonster.Widgets;
 
 // Data: synthetic counters, not the machine's real process list.
-var processes = new[]
+var processes = new Process[]
 {
-    new
-    {
-        Name = "build-worker",
-        Pid = 4102,
-        Cpu = 42,
-        Memory = 860
-    },
-    new
-    {
-        Name = "test-runner",
-        Pid = 4107,
-        Cpu = 28,
-        Memory = 512
-    },
-    new
-    {
-        Name = "api-host",
-        Pid = 4120,
-        Cpu = 12,
-        Memory = 220
-    },
-    new
-    {
-        Name = "file-watcher",
-        Pid = 4131,
-        Cpu = 3,
-        Memory = 48
-    }
+    new("build-worker", 4102, 42, 860),
+    new("test-runner", 4107, 28, 512),
+    new("api-host", 4120, 12, 220),
+    new("file-watcher", 4131, 3, 48)
 };
 double[] cpuHistory =
 {
@@ -47,15 +23,13 @@ double[] cpuHistory =
 // Layout: build a complete frame from one set of counters.
 IWidget Frame(int tick)
 {
-    Table table = new Table
-    {
-        Expand = true
-    };
-    table.AddColumn("Name").AddColumn("Pid", column => column.Presenter = CellPresenters.Identifier).AddColumn("CPU %").AddColumn("Memory MiB");
-    foreach (var process in processes)
-    {
-        table.AddRow(process.Name, TableCell.FromValue(process.Pid), TableCell.FromValue(process.Cpu + tick * 3), TableCell.FromValue(process.Memory + tick * 16));
-    }
+    var rows = processes.Select(process => new ProcessRow(process.Name, process.Pid, process.Cpu + tick * 3, process.Memory + tick * 16)).ToArray();
+    var table = Table.For(rows)
+        .Column(row => row.Name)
+        .Column(row => row.Pid, column => column.Presenter = CellPresenters.Identifier)
+        .Column("CPU %", row => row.Cpu)
+        .Column("Memory MiB", row => row.Memory);
+    table.Expand = true;
 
     Sparkline history = new Sparkline
     {
@@ -87,3 +61,7 @@ catch (OperationCanceledException cancelled)when (cancelled.CancellationToken ==
     // Ctrl+C is a normal way to leave the demo, after the session restores the terminal.
     return;
 }
+
+record Process(string Name, int Pid, int Cpu, int Memory);
+
+record ProcessRow(string Name, int Pid, int Cpu, int Memory);

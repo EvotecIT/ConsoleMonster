@@ -89,6 +89,13 @@ Describe 'PowerShell and C# API parity' {
                     (Get-ConsoleApiTypeName $member.PropertyType) | Should -BeExactly $binding.CSharpTypeName -Because $label
                     ($null -ne $member.GetSetMethod($false)) | Should -Be $binding.Writable -Because $label
                     $member.GetMethod.IsStatic | Should -Be $binding.Static -Because $label
+                    if ($binding.ParameterType -eq 'System.Management.Automation.SwitchParameter' -and $binding.CSharpTypeName -eq $script:Parity.FluentGrammar.Boolean.PropertyType -and $binding.Writable -and -not $binding.Static) {
+                        $fluent = $script:ApiTypes[$binding.CSharpType + 'Fluent']
+                        $fluent | Should -Not -BeNullOrEmpty -Because "$label needs both Boolean fluent overloads"
+                        $overloads = @($fluent.GetMethods() | Where-Object Name -EQ $binding.Member)
+                        @($overloads | Where-Object { $_.GetParameters().Count -eq 1 }).Count | Should -BeGreaterThan 0 -Because "$label maps to a parameterless fluent switch"
+                        @($overloads | Where-Object { $_.GetParameters().Count -eq 2 -and $_.GetParameters()[1].ParameterType -eq [bool] }).Count | Should -BeGreaterThan 0 -Because "$label also accepts an explicit false"
+                    }
                     if ($null -ne $script:ApiNullability) {
                         $script:ApiNullability.Create($member).WriteState.ToString() | Should -BeExactly $binding.Nullable -Because $label
                     }
@@ -217,6 +224,21 @@ Describe 'PowerShell and C# API parity' {
             @($type.GetMethods() | Where-Object Name -EQ $operation.FluentFactory).Count | Should -BeGreaterThan 0
             @($script:Parity.Endings | Where-Object FluentMember -EQ $operation.FluentMember).Count | Should -Be 1
         }
+    }
+
+    It 'resolves the shared content and row-collection grammar to actual API operations' {
+        $builderType = $script:ApiTypes[$script:Parity.FluentGrammar.Content.BuilderType]
+        $builderAction = [Action[object]].GetGenericTypeDefinition().MakeGenericType([Type[]] @($builderType))
+        foreach ($binding in $script:Parity.FluentGrammar.Content.Bindings) {
+            $script:ApiTypes[$binding.CSharpType] | Should -Not -BeNullOrEmpty
+            $fluent = $script:ApiTypes[$binding.FluentType]
+            $fluent | Should -Not -BeNullOrEmpty
+            @($fluent.GetMethods() | Where-Object { $_.Name -eq $binding.Member -and $_.GetParameters().Count -eq 2 -and $_.GetParameters()[1].ParameterType -eq $builderAction }).Count | Should -BeGreaterThan 0 -Because "$($binding.Command) needs the real content-builder overload"
+            (Get-Command $binding.Command).Parameters.ContainsKey('Content') | Should -BeTrue
+        }
+        $rows = $script:Parity.FluentGrammar.TableRows
+        @($script:ApiTypes[$rows.CSharpType].GetMethods() | Where-Object Name -EQ $rows.Member).Count | Should -BeGreaterThan 0
+        (Get-Command New-ConsoleTable).Parameters.ContainsKey($rows.PowerShellParameter) | Should -BeTrue
     }
 
     It 'validates the explicitly mapped native baseline without counting it as a module command' {

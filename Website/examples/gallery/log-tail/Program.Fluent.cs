@@ -20,11 +20,22 @@ IWidget Frame(int tick)
     Rows lines = new Rows();
     foreach (string line in messages.Take(tick + 1))
         lines.Add(new TextBlock(line));
-    return new Rows(new TextBlock("[bold]Application log[/] [muted]· worker events[/]"), new Panel().Title("./logs/worker.log").Content(lines), new TextBlock("[muted]" + (tick + 1).ToString(System.Globalization.CultureInfo.InvariantCulture) + " / 5 events · Ctrl+C stops the live run[/]")).Gap(1);
+    return new Rows().Gap(1).Content(c2 =>
+    {
+        c2.Text("[bold]Application log[/] [muted]· worker events[/]");
+        c2.Add(new Panel().Title("./logs/worker.log").Content(c =>
+        {
+            c.Add(lines);
+        }));
+        c2.Text("[muted]" + (tick + 1).ToString(System.Globalization.CultureInfo.InvariantCulture) + " / 5 events · Ctrl+C stops the live run[/]");
+    });
 }
 
 // Behaviour: update each frame in a bounded live run.
-RegionWidget screen = new RegionWidget(widgetId: "demo", content: Frame(0));
+RegionWidget screen = new RegionWidget(widgetId: "demo").Content(c =>
+{
+    c.Add(Frame(0));
+});
 using LiveSession session = new LiveSession(screen);
 try
 {

@@ -24,11 +24,24 @@ IWidget Frame(int tick)
         checklist.Add(new TextBlock("[" + status + "]" + stages[index] + "[/]  " + label));
     }
 
-    return new Rows(new TextBlock("[bold]Build pipeline[/] [muted]· Orbit.Tools[/]"), new Panel().Title("Release checklist").Content(checklist), new ProgressBar("Overall").Value(tick).Total(4), new KeyValueList().Add("Project", "Orbit.Tools").Add("Version", "1.2.0").Add("Artifacts", "./artifacts/").Add("Publish", "manual approval"), new TextBlock("[muted]Ctrl+C stops the live run.[/]")).Gap(1);
+    return new Rows().Gap(1).Content(c2 =>
+    {
+        c2.Text("[bold]Build pipeline[/] [muted]· Orbit.Tools[/]");
+        c2.Add(new Panel().Title("Release checklist").Content(c =>
+        {
+            c.Add(checklist);
+        }));
+        c2.Add(new ProgressBar("Overall").Value(tick).Total(4));
+        c2.Add(new KeyValueList().Add("Project", "Orbit.Tools").Add("Version", "1.2.0").Add("Artifacts", "./artifacts/").Add("Publish", "manual approval"));
+        c2.Text("[muted]Ctrl+C stops the live run.[/]");
+    });
 }
 
 // Behaviour: update each frame in a bounded live run.
-RegionWidget screen = new RegionWidget(widgetId: "demo", content: Frame(0));
+RegionWidget screen = new RegionWidget(widgetId: "demo").Content(c =>
+{
+    c.Add(Frame(0));
+});
 using LiveSession session = new LiveSession(screen);
 try
 {

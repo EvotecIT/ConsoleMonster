@@ -7,33 +7,16 @@ using ConsoleMonster.Widgets;
 
 // Data: fictional inputs kept in memory.
 // The same synthetic objects feed both views.
-var tasks = new[]
+var tasks = new TaskItem[]
 {
-    new
-    {
-        Task = "Draft release notes",
-        State = "Ready",
-        Minutes = 12
-    },
-    new
-    {
-        Task = "Review examples",
-        State = "In progress",
-        Minutes = 25
-    },
-    new
-    {
-        Task = "Archive old drafts",
-        State = "Waiting",
-        Minutes = 8
-    }
+    new("Draft release notes", "Ready", 12),
+    new("Review examples", "In progress", 25),
+    new("Archive old drafts", "Waiting", 8)
 };
 // Layout: compose the screen from the data above.
 string baseline = "";
-Table table = new Table().Expand(true);
-table.AddColumn("Task");
-table.AddColumn("State", column => column.Presenter(CellPresenters.StatusWord));
-table.AddColumn("Minutes");
+var table = Table.For(tasks).Column(row => row.Task).Column(row => row.State, column => column.Presenter(CellPresenters.StatusWord)).Column(row => row.Minutes);
+table.Expand();
 foreach (var task in tasks)
 {
     if (baseline.Length > 0)
@@ -42,9 +25,17 @@ foreach (var task in tasks)
     }
 
     baseline += $"{task.Task} | {task.State} | {task.Minutes} min";
-    table.AddRow(task.Task, TableCell.FromValue(task.State), TableCell.FromValue(task.Minutes));
 }
 
-Rows layout = new Rows(new Rule("[bold]Everyday formatting[/] [muted]| same objects, clearer output[/]"), new TextBlock("[bold]Before[/] [muted]| plain text[/]"), new TextBlock(baseline), new TextBlock("[bold]After[/] [muted]| ConsoleMonster table[/]"), table, new TextBlock("[muted]Three tasks. Aligned columns and right-aligned numbers.[/]")).Gap(1);
+Rows layout = new Rows().Gap(1).Content(c =>
+{
+    c.Rule("[bold]Everyday formatting[/] [muted]| same objects, clearer output[/]");
+    c.Text("[bold]Before[/] [muted]| plain text[/]");
+    c.Text(baseline);
+    c.Text("[bold]After[/] [muted]| ConsoleMonster table[/]");
+    c.Add(table);
+    c.Text("[muted]Three tasks. Aligned columns and right-aligned numbers.[/]");
+});
 // Behaviour: print the screen once and return.
 layout.Show();
+record TaskItem(string Task, string State, int Minutes);

@@ -11,6 +11,16 @@ using Xunit;
 namespace ConsoleMonster.Tests.Building {
     public sealed class FluentContentTests {
         [Fact]
+        public void BooleanSwitchOverloadsAndContentHelpersKeepTheirMeaning() {
+            var table = new Table().Expand();
+            Assert.True(table.Expand);
+            Assert.Same(table, table.Expand(false));
+            Assert.False(table.Expand);
+            var expected = new Rows(new Rule("Build"), new TextBlock("Passed"));
+            var actual = new Rows().Content(c => { c.Rule("Build"); c.Text("Passed"); });
+            Assert.Equal(ConsoleExporter.ToText(expected), ConsoleExporter.ToText(actual));
+        }
+        [Fact]
         public void InitializerAndNestedContentChainProduceIdenticalFrames() {
             var initializer = new Panel {
                 Title = "Build", HeaderRight = "2 jobs", Caption = "Ready", Border = BoxStyle.Rounded,

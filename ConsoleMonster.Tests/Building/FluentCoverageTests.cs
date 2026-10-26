@@ -40,6 +40,9 @@ namespace ConsoleMonster.Tests.Building {
                 if (IsSettable(property) && !Has(type, property.Name, property.PropertyType)) {
                     missing.Add(property.Name + "(" + property.PropertyType.Name + ")");
                 }
+                if (IsSettable(property) && property.PropertyType == typeof(bool)) {
+                    Assert.Contains(Extensions, method => method.Name == property.Name && Receives(method, type) && method.GetParameters().Length == 1);
+                }
                 Type? item = CollectionItem(property.PropertyType);
                 if (item != null) {
                     if (!Extensions.Any(m => m.Name.StartsWith("Add", StringComparison.Ordinal) && Receives(m, type) && m.GetParameters().Length == 2 && m.GetParameters()[1].ParameterType == item)) {
@@ -114,7 +117,7 @@ namespace ConsoleMonster.Tests.Building {
 
         // Widgets, then the option types their properties hold or their Add/Set methods take, as the generator walks them.
         private static IEnumerable<Type> Types() {
-            List<Type> widgets = Core.GetExportedTypes().Where(t => IsCandidate(t) && (typeof(IWidget).IsAssignableFrom(t) || t.Name.EndsWith("Options", StringComparison.Ordinal) || IsPrompt(t) || new[] { "MenuItem", "MenuRunResult", "ReviewModel", "FormPreset", "MenuPreset", "ObjectExplorer", "Grid", "WidgetUpdate", "RunUpdate" }.Contains(t.Name))).OrderBy(t => t.FullName, StringComparer.Ordinal).ToList();
+            List<Type> widgets = Core.GetExportedTypes().Where(t => IsCandidate(t) && (typeof(IWidget).IsAssignableFrom(t) || typeof(Field).IsAssignableFrom(t) || new[] { "Choice", "ConsoleTextLayout", "ConsoleLogFile" }.Contains(t.Name) || t.Name.EndsWith("Options", StringComparison.Ordinal) || IsPrompt(t) || new[] { "MenuItem", "MenuRunResult", "ReviewModel", "FormPreset", "MenuPreset", "ObjectExplorer", "Grid", "WidgetUpdate", "RunUpdate" }.Contains(t.Name))).OrderBy(t => t.FullName, StringComparer.Ordinal).ToList();
             HashSet<Type> seen = new HashSet<Type>(widgets);
             List<Type> result = new List<Type>(widgets);
             List<Type> frontier = widgets;
@@ -144,7 +147,7 @@ namespace ConsoleMonster.Tests.Building {
             return false;
         }
 
-        private static bool IsCandidate(Type type) => type.IsClass && type.IsPublic && !type.IsAbstract && !type.IsGenericType && !type.IsGenericParameter && !NoFluent(type) && !typeof(Delegate).IsAssignableFrom(type);
+        private static bool IsCandidate(Type type) => type.IsClass && type.IsPublic && (!type.IsAbstract || type == typeof(Field)) && !type.IsGenericType && !type.IsGenericParameter && !NoFluent(type) && !typeof(Delegate).IsAssignableFrom(type);
 
         private static bool IsOptionType(Type type) => type.Assembly == Core && IsCandidate(type) && Properties(type).Any(p => IsSettable(p) || CollectionItem(p.PropertyType) != null);
 

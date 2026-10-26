@@ -8,8 +8,28 @@ using ConsoleMonster.Text;
 using ConsoleMonster.Widgets;
 
 // Data: replace these inventories, operations and findings with your own sources.
-Node[] inventory = [new(Name: "DC01", Domain: "corp.example.test", Site: "Warsaw", Role: "Domain controller", Detail: "10.20.1.11", Offline: "", Online: true), new(Name: "DC02", Domain: "corp.example.test", Site: "Warsaw", Role: "Domain controller", Detail: "10.20.1.12", Offline: "", Online: true), new(Name: "FS01", Domain: "corp.example.test", Site: "Dublin", Role: "File", Detail: "10.30.1.21", Offline: "", Online: true), new(Name: "SQL01", Domain: "corp.example.test", Site: "Dublin", Role: "Database", Detail: "10.30.1.31", Offline: "", Online: true), new(Name: "WEB01", Domain: "corp.example.test", Site: "Berlin", Role: "Web", Detail: "10.40.1.41", Offline: "", Online: true), new(Name: "FS22", Domain: "corp.example.test", Site: "Berlin", Role: "File", Detail: "10.40.1.22", Offline: "offline since 07:12", Online: false), new(Name: "LAB01", Domain: "lab.example.test", Site: "Lab", Role: "Web", Detail: "192.168.50.40", Offline: "", Online: true), new(Name: "LAB02", Domain: "lab.example.test", Site: "Lab", Role: "Database", Detail: "192.168.50.30", Offline: "", Online: true), ];
-Check[] catalog = [new(Id: "SecureChannel", Name: "Secure channel", Category: "Identity", Description: "Tests the computer account trust with the domain.", Expected: "trusted", Seconds: 1.2, Changes: false), new(Id: "TimeOffset", Name: "Time offset", Category: "Identity", Description: "Compares the clock with the domain time source.", Expected: "under 1 s", Seconds: 0.8, Changes: false), new(Id: "ForwardRecord", Name: "Forward record", Category: "DNS", Description: "Compares the A record with the server address.", Expected: "matches IP", Seconds: 0.6, Changes: false), new(Id: "CertExpiry", Name: "Cert expiry", Category: "Certificates", Description: "Finds machine certificates expiring within 30 days.", Expected: "30+ days", Seconds: 1.8, Changes: false), new(Id: "CertChain", Name: "Cert chain", Category: "Certificates", Description: "Builds each certificate chain to a trusted root.", Expected: "trusted root", Seconds: 3.5, Changes: false), new(Id: "MissingUpdates", Name: "Missing updates", Category: "Updates", Description: "Lists missing security updates older than 14 days.", Expected: "0", Seconds: 6.5, Changes: false), new(Id: "FreeSpace", Name: "Free space", Category: "Storage", Description: "Measures free space on every fixed volume.", Expected: "15% free", Seconds: 1.3, Changes: false), new(Id: "AutoServices", Name: "Auto services", Category: "Services", Description: "Checks that automatic services are running.", Expected: "all running", Seconds: 2.2, Changes: false), ];
+Node[] inventory = new Node[]
+{
+    new(Name: "DC01", Domain: "corp.example.test", Site: "Warsaw", Role: "Domain controller", Detail: "10.20.1.11", Offline: "", Online: true),
+    new(Name: "DC02", Domain: "corp.example.test", Site: "Warsaw", Role: "Domain controller", Detail: "10.20.1.12", Offline: "", Online: true),
+    new(Name: "FS01", Domain: "corp.example.test", Site: "Dublin", Role: "File", Detail: "10.30.1.21", Offline: "", Online: true),
+    new(Name: "SQL01", Domain: "corp.example.test", Site: "Dublin", Role: "Database", Detail: "10.30.1.31", Offline: "", Online: true),
+    new(Name: "WEB01", Domain: "corp.example.test", Site: "Berlin", Role: "Web", Detail: "10.40.1.41", Offline: "", Online: true),
+    new(Name: "FS22", Domain: "corp.example.test", Site: "Berlin", Role: "File", Detail: "10.40.1.22", Offline: "offline since 07:12", Online: false),
+    new(Name: "LAB01", Domain: "lab.example.test", Site: "Lab", Role: "Web", Detail: "192.168.50.40", Offline: "", Online: true),
+    new(Name: "LAB02", Domain: "lab.example.test", Site: "Lab", Role: "Database", Detail: "192.168.50.30", Offline: "", Online: true)
+};
+Check[] catalog = new Check[]
+{
+    new(Id: "SecureChannel", Name: "Secure channel", Category: "Identity", Description: "Tests the computer account trust with the domain.", Expected: "trusted", Seconds: 1.2, Changes: false),
+    new(Id: "TimeOffset", Name: "Time offset", Category: "Identity", Description: "Compares the clock with the domain time source.", Expected: "under 1 s", Seconds: 0.8, Changes: false),
+    new(Id: "ForwardRecord", Name: "Forward record", Category: "DNS", Description: "Compares the A record with the server address.", Expected: "matches IP", Seconds: 0.6, Changes: false),
+    new(Id: "CertExpiry", Name: "Cert expiry", Category: "Certificates", Description: "Finds machine certificates expiring within 30 days.", Expected: "30+ days", Seconds: 1.8, Changes: false),
+    new(Id: "CertChain", Name: "Cert chain", Category: "Certificates", Description: "Builds each certificate chain to a trusted root.", Expected: "trusted root", Seconds: 3.5, Changes: false),
+    new(Id: "MissingUpdates", Name: "Missing updates", Category: "Updates", Description: "Lists missing security updates older than 14 days.", Expected: "0", Seconds: 6.5, Changes: false),
+    new(Id: "FreeSpace", Name: "Free space", Category: "Storage", Description: "Measures free space on every fixed volume.", Expected: "15% free", Seconds: 1.3, Changes: false),
+    new(Id: "AutoServices", Name: "Auto services", Category: "Services", Description: "Checks that automatic services are running.", Expected: "all running", Seconds: 2.2, Changes: false)
+};
 Dictionary<string, (StatusKind Status, string Actual)> findings = new()
 {
     ["DC02/TimeOffset"] = (StatusKind.Fail, "4.7 s"),

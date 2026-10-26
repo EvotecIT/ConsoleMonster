@@ -7,19 +7,19 @@ using ConsoleMonster.Widgets;
 
 // Data: fixed synthetic results; no checks run on this machine.
 // Replace these items with results you already have in memory.
-var checks = new[]
+var checks = new CheckRow[]
 {
-    (Name: "Configuration", Status: StatusKind.Pass, Detail: "All required settings present"),
-    (Name: "Dependencies", Status: StatusKind.Pass, Detail: "No conflicting versions"),
-    (Name: "Test coverage", Status: StatusKind.Warn, Detail: "Two scenarios need attention"),
-    (Name: "Documentation", Status: StatusKind.Pass, Detail: "Examples match the current API"),
-    (Name: "Recovery plan", Status: StatusKind.Fail, Detail: "Restore rehearsal still needed")
+    new("Configuration", StatusKind.Pass, "All required settings present"),
+    new("Dependencies", StatusKind.Pass, "No conflicting versions"),
+    new("Test coverage", StatusKind.Warn, "Two scenarios need attention"),
+    new("Documentation", StatusKind.Pass, "Examples match the current API"),
+    new("Recovery plan", StatusKind.Fail, "Restore rehearsal still needed")
 };
-var areaScores = new[]
+var areaScores = new AreaScoreRow[]
 {
-    (Name: "Configuration", Score: 100),
-    (Name: "Coverage", Score: 72),
-    (Name: "Recovery", Score: 35)
+    new("Configuration", 100),
+    new("Coverage", 72),
+    new("Recovery", 35)
 };
 // Layout: compose the screen from the data above.
 StatusList statuses = new StatusList();
@@ -43,3 +43,6 @@ Rows layout = new Rows(new Rule("[bold]Readiness assessment[/] [muted]| workspac
 };
 // Behaviour: print the screen once and return.
 Terminal.Write(layout);
+
+record CheckRow(string Name, global::ConsoleMonster.Styling.StatusKind Status, string Detail);
+record AreaScoreRow(string Name, int Score);

@@ -25051,5 +25051,83 @@
       "Pattern": ".Configure(item => item.{Member} = \u2026)",
       "Reason": "C# invokes a delegate-valued property before considering an extension with that name; Configure assigns the callback without invoking it."
     }
-  ]
+  ],
+  "FluentGrammar": {
+    "Boolean": {
+      "PropertyType": "System.Boolean",
+      "EnabledPattern": ".{Member}()",
+      "DisabledPattern": ".{Member}(false)",
+      "ExplicitValuePattern": ".{Member}(value)"
+    },
+    "Content": {
+      "PowerShellPattern": "-Content { \u2026 }",
+      "FluentPattern": ".Content(c => { \u2026 })",
+      "BuilderType": "ConsoleMonster.Layout.ContentBuilder",
+      "Bindings": [
+        {
+          "Command": "New-ConsolePanel",
+          "CSharpType": "ConsoleMonster.Layout.Panel",
+          "FluentType": "ConsoleMonster.Layout.PanelFluent",
+          "Member": "Content",
+          "InitializerPattern": "Content = widget"
+        },
+        {
+          "Command": "New-ConsoleRows",
+          "CSharpType": "ConsoleMonster.Layout.Rows",
+          "FluentType": "ConsoleMonster.Layout.RowsFluent",
+          "Member": "Content",
+          "InitializerPattern": "new Rows(widgets)"
+        },
+        {
+          "Command": "New-ConsoleColumns",
+          "CSharpType": "ConsoleMonster.Layout.Columns",
+          "FluentType": "ConsoleMonster.Layout.ColumnsFluent",
+          "Member": "Content",
+          "InitializerPattern": "new Columns(widgets)"
+        },
+        {
+          "Command": "New-ConsoleStack",
+          "CSharpType": "ConsoleMonster.Layout.Stack",
+          "FluentType": "ConsoleMonster.Layout.StackFluent",
+          "Member": "Content",
+          "InitializerPattern": "new Stack(widgets)"
+        },
+        {
+          "Command": "New-ConsoleLayoutGrid",
+          "CSharpType": "ConsoleMonster.Layout.Grid",
+          "FluentType": "ConsoleMonster.Layout.GridFluent",
+          "Member": "Content",
+          "InitializerPattern": "new Grid(columns, widgets)"
+        },
+        {
+          "Command": "New-ConsolePadding",
+          "CSharpType": "ConsoleMonster.Layout.Padding",
+          "FluentType": "ConsoleMonster.Layout.PaddingFluent",
+          "Member": "Content",
+          "InitializerPattern": "Content = widget"
+        },
+        {
+          "Command": "New-ConsoleAlign",
+          "CSharpType": "ConsoleMonster.Layout.Align",
+          "FluentType": "ConsoleMonster.Layout.AlignFluent",
+          "Member": "Content",
+          "InitializerPattern": "Content = widget"
+        },
+        {
+          "Command": "New-ConsoleScrollView",
+          "CSharpType": "ConsoleMonster.Widgets.ScrollView",
+          "FluentType": "ConsoleMonster.Widgets.ScrollViewFluent",
+          "Member": "Content",
+          "InitializerPattern": "Content = widget"
+        }
+      ]
+    },
+    "TableRows": {
+      "CSharpType": "ConsoleMonster.Widgets.Table",
+      "Member": "For",
+      "PowerShellParameter": "InputObject",
+      "Pattern": "Table.For(rows)",
+      "Reason": "Typed row collections are handed to the table once; Column selectors map the PowerShell Property list without constructing individual cells."
+    }
+  }
 }

@@ -156,12 +156,37 @@ IWidget Frame(int tick)
     LogRegion output = new LogRegion().PreferredHeight(6).ShowElapsed(false);
     for (int i = 0; i < tick * 4; i++)
         output.Write("stray-" + i % 4 + "-" + i + ": FakeLib: " + messages[i % 5], i % 7 == 0 ? "err" : "info");
-    Rows body = new Rows(new Columns().Add(new Panel().Title("Workers").Content(lanes), LayoutSize.Fraction(2.2)).Add(new Panel().Title("Session").Content(new Rows(stats, new Rule("updates/s"), rate, new Rule("CPU % (100% = one core)"), cpu)))).Add(new Panel().Title("Captured output").Content(output), LayoutSize.Fraction());
-    return new Dashboard().Content(body).Title("[bold]Stress test[/]").Subtitle("32 workers · captured tool output · 6s").ShowElapsed(false).Footer("[muted]32 workers    15 frames/s    Ctrl+C stop[/]");
+    Rows body = new Rows().Content(c3 =>
+    {
+        c3.Add(new Columns().Add(new Panel().Title("Workers").Content(c =>
+        {
+            c.Add(lanes);
+        }), LayoutSize.Fraction(2.2)).Add(new Panel().Title("Session").Content(c2 =>
+        {
+            c2.Add(new Rows().Content(c =>
+            {
+                c.Add(stats);
+                c.Rule("updates/s");
+                c.Add(rate);
+                c.Rule("CPU % (100% = one core)");
+                c.Add(cpu);
+            }));
+        })));
+    }).Add(new Panel().Title("Captured output").Content(c =>
+    {
+        c.Add(output);
+    }), LayoutSize.Fraction());
+    return new Dashboard().Content(c =>
+    {
+        c.Add(body);
+    }).Title("[bold]Stress test[/]").Subtitle("32 workers · captured tool output · 6s").ShowElapsed(false).Footer("[muted]32 workers    15 frames/s    Ctrl+C stop[/]");
 }
 
 // Behaviour: show seven samples through the ordinary live session.
-RegionWidget screen = new RegionWidget(widgetId: "stress", content: Frame(0));
+RegionWidget screen = new RegionWidget(widgetId: "stress").Content(c =>
+{
+    c.Add(Frame(0));
+});
 using LiveSession session = new LiveSession(screen);
 try
 {

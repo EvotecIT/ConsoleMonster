@@ -14,6 +14,28 @@ namespace SiteFrames.Tests {
         public void Dispose() => Directory.Delete(_folder, true);
 
         [Fact]
+        public void ContainerAndBooleanNotesTeachTheCompiledFluentGrammar() {
+            string path = Source("content-switches", "using ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\nvar table = new Table { Expand = true };\nvar rows = new Rows(new Rule(\"Build\"), table) { Gap = 1 };\n");
+            string fluent = CSharpRunner.FluentSource(path);
+            CSharpRunner.Check(path, fluent);
+            var notes = ApiMappingNotes.FromSource(Repository(), path, fluent);
+            Assert.Contains(notes, note => note!["powershell"]!.GetValue<string>() == "New-ConsoleRows -Content { … }" && note["fluent"]!.GetValue<string>() == ".Content(c => { … })");
+            Assert.Contains(notes, note => note!["powershell"]!.GetValue<string>() == "New-ConsoleTable -Expand" && note["fluent"]!.GetValue<string>() == ".Expand()");
+        }
+
+        [Theory]
+        [InlineData("var widget = new Grid(2, new TextBlock(\"Ready\"));", "New-ConsoleLayoutGrid -Content { … }", "new Grid(columns, widgets)")]
+        [InlineData("var widget = new ScrollView(new TextBlock(\"Ready\"));", "New-ConsoleScrollView -Content { … }", "Content = widget")]
+        public void ContentNotesUseTheActualContainerAndConstructor(string body, string powerShell, string initializer) {
+            string path = Source("container-" + powerShell.Split(' ')[0], "using ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n" + body);
+            string fluent = CSharpRunner.FluentSource(path);
+            CSharpRunner.Check(path, fluent);
+            var note = Assert.Single(ApiMappingNotes.FromSource(Repository(), path, fluent), note => note!["powershell"]!.GetValue<string>() == powerShell)!;
+            Assert.Equal(initializer, note["csharp"]!.GetValue<string>());
+            Assert.Equal(".Content(c => { … })", note["fluent"]!.GetValue<string>());
+        }
+
+        [Fact]
         public void AliasesInitializersAndNestedChainsResolveToTheSamePanelProperties() {
             string initializer = Source("initializer", "using P = ConsoleMonster.Layout.Panel;\nusing ConsoleMonster.Widgets;\nvar panel = new P { Title = \"Build\", Content = new TextBlock(\"Ready\") };\n");
             string fluent = Source("fluent", "using ConsoleMonster.Layout;\nvar panel = new Panel().Title(\"Build\").Content(c => c.Text(\"Ready\"));\n");

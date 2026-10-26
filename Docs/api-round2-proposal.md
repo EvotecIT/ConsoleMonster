@@ -500,6 +500,12 @@ Przemysław approved this scope on **2026-10-25**, including the three amendment
 | Behavioral item commands | Keep Field, MenuItem and MenuRunResult; remove the seven passive constructors after record conversion is complete. | Preserve discoverable actions/validation instead of creating a callback dictionary language. |
 | Demo styles — amendment 1, 2026-10-25 | PowerShell, C# initializer and C# fluent on every demo; three tabs with a remembered preference and PowerShell default. | At least 27 additional C# programs; mandatory triplet output checks and generated How it maps notes. This decision is settled; the estimates remain to be checked by the pilots. |
 
+### Demo teaching decisions — 2026-10-26
+
+The three tabs teach each style rather than repeat constructor syntax. Wherever the PowerShell composes widgets with `-Content { … }`, the fluent program uses `.Content(c => { … })`, including ordered `c.Rule`, `c.Text`, `c.Add` and nested containers. Data/content records are separate from widget composition; a plain text greeting and an interactive grid need no artificial layout block.
+
+Both C# programs use the same named records, one literal item per line. A PowerShell `New-ConsoleTable -InputObject $rows -Property …` maps to the existing `Table.For(rows)` plus typed column selectors, preserving presenters and original row values. The initializer tab keeps property assignment; the fluent tab uses generated setters. Boolean setters expose both a parameterless overload for true (`.Expand()`) and an explicit-value overload (`.Expand(false)`). The reflection fixture and generated translation notes record this grammar.
+
 ### Parallel PR ownership and added-command disposition
 
 The 97-command target is the merged #55 baseline. I inspected the feature APIs without changing their branches. Their merged PRs own the feature behavior; this PR incorporates their shared round-2 command, fluent, parity and triplet contracts.

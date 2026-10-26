@@ -17,6 +17,49 @@ namespace SiteFrames.Tests {
         public FluentSourceContracts() => Directory.CreateDirectory(_folder);
         public void Dispose() => Directory.Delete(_folder, true);
 
+        [Theory]
+        [InlineData("int n = 0; Terminal.Write(new Rows(new TextBlock((++n).ToString()), new TextBlock(\"B\")) { Gap = n });")]
+        [InlineData("Terminal.Write(new Panel(new TextBlock(\"Ready\"), ConsoleMonster.Text.RichText.Plain(\"Build\")));")]
+        [InlineData("Terminal.Write(new Rows(new TextBlock(markup: \"Ready\"), new Rule(ConsoleMonster.Text.RichText.Plain(\"Build\"))));")]
+        public void ContainerTranslationPreservesEvaluationAndSelectedOverloads(string body) {
+            string path = Source("using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n" + body);
+            string fluent = CSharpRunner.FluentSource(path);
+            CSharpRunner.Check(path, fluent);
+            var profile = CSharpRunner.Profile(40, 20, ColorDepth.TrueColor, GlyphTier.Full);
+            Assert.Equal(CSharpRunner.Execute(path, profile, Theme.Dark, null).Output, CSharpRunner.Execute(path, profile, Theme.Dark, null, fluent: true).Output);
+        }
+
+        [Fact]
+        public void ContainerConstructorsBecomeNestedContentBuildersAndBooleanSwitches() {
+            string path = Source("using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\nvar table = new Table { Expand = true };\ntable.AddColumn(\"Build\").AddRow(\"Passed\");\nvar report = new Rows(new Rule(\"Nightly\"), new Panel(table, \"Jobs\"), new TextBlock(\"Ready\")) { Gap = 1 };\nTerminal.Write(report);\n");
+            string fluent = CSharpRunner.FluentSource(path);
+            Assert.Contains(".Expand()", fluent, StringComparison.Ordinal);
+            Assert.Contains(".Content(c =>", fluent, StringComparison.Ordinal);
+            Assert.Contains(".Rule(\"Nightly\")", fluent, StringComparison.Ordinal);
+            Assert.Contains(".Text(\"Ready\")", fluent, StringComparison.Ordinal);
+            CSharpRunner.Check(path, fluent);
+            var profile = CSharpRunner.Profile(60, 20, ColorDepth.TrueColor, GlyphTier.Full);
+            Assert.Equal(CSharpRunner.Execute(path, profile, Theme.Dark, null).Output, CSharpRunner.Execute(path, profile, Theme.Dark, null, fluent: true).Output);
+        }
+
+        [Fact]
+        public void ContentArraysKeepEachChildAndTheOuterGap() {
+            string path = Source("using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\nIWidget[] children = { new TextBlock(\"First\"), new TextBlock(\"Second\") };\nTerminal.Write(new Rows(children) { Gap = 2 });\n");
+            string fluent = CSharpRunner.FluentSource(path);
+            CSharpRunner.Check(path, fluent);
+            var profile = CSharpRunner.Profile(40, 20, ColorDepth.TrueColor, GlyphTier.Full);
+            Assert.Equal(CSharpRunner.Execute(path, profile, Theme.Dark, null).Output, CSharpRunner.Execute(path, profile, Theme.Dark, null, fluent: true).Output);
+        }
+
+        [Fact]
+        public void ExplicitContentInitializerStillOverridesConstructorContent() {
+            string path = Source("using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\nTerminal.Write(new Panel(new TextBlock(\"Old\"), \"Build\") { Content = new TextBlock(\"Current\") });\n");
+            string fluent = CSharpRunner.FluentSource(path);
+            CSharpRunner.Check(path, fluent);
+            var profile = CSharpRunner.Profile(40, 20, ColorDepth.TrueColor, GlyphTier.Full);
+            Assert.Equal(CSharpRunner.Execute(path, profile, Theme.Dark, null).Output, CSharpRunner.Execute(path, profile, Theme.Dark, null, fluent: true).Output);
+        }
+
         [Fact]
         public void ImplicitCreationAndNestedInitializersBecomeCompilableChainsWithTheSameOutput() {
             string path = Source("using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\nPanel panel = new() { Title = \"Build\", Content = new TextBlock(\"Passed\") };\nTerminal.Write(panel);\n");

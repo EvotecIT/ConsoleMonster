@@ -25,6 +25,11 @@ namespace ConsoleMonster.Layout {
         /// <returns>This builder.</returns>
         public ContentBuilder Text(string text) => Add(new TextBlock(text));
 
+        /// <summary>Adds a horizontal rule with an optional title.</summary>
+        /// <param name="title">The title, including supported markup.</param>
+        /// <returns>This builder.</returns>
+        public ContentBuilder Rule(string title = "") => Add(new Rule(title));
+
         /// <summary>Adds a titled panel around nested content.</summary>
         /// <param name="title">The title.</param>
         /// <param name="content">Builds the panel content.</param>

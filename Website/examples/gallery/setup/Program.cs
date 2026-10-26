@@ -12,7 +12,16 @@ using ConsoleMonster.Widgets;
 // No files, services, launch entries, network connections or persistent presets are created.
 string installFolder = "./toolbox-agent";
 string dataFolder = "./toolbox-data";
-Part[] components = [new(Id: "Agent", Name: "Agent service", Group: "Core", Size: "18 MB", Description: "Runs tasks and reports results.", Selected: true), new(Id: "Cli", Name: "Command-line tools", Group: "Core", Size: "6 MB", Description: "The toolbox command and PowerShell module.", Selected: true), new(Id: "Html", Name: "HTML reports", Group: "Reporting", Size: "4 MB", Description: "Interactive reports with tables and charts.", Selected: true), new(Id: "Pdf", Name: "PDF export", Group: "Reporting", Size: "31 MB", Description: "Prints reports to PDF."), new(Id: "Chat", Name: "Chat notifications", Group: "Integrations", Size: "1 MB", Description: "Posts run summaries to a channel."), new(Id: "Mail", Name: "Email notifications", Group: "Integrations", Size: "1 MB", Description: "Sends reports by email."), new(Id: "Syslog", Name: "Syslog forwarder", Group: "Integrations", Size: "1 MB", Description: "Forwards findings to a collector.", Selected: false, Disabled: "needs the Enterprise licence"), ];
+Part[] components = new Part[]
+{
+    new(Id: "Agent", Name: "Agent service", Group: "Core", Size: "18 MB", Description: "Runs tasks and reports results.", Selected: true),
+    new(Id: "Cli", Name: "Command-line tools", Group: "Core", Size: "6 MB", Description: "The toolbox command and PowerShell module.", Selected: true),
+    new(Id: "Html", Name: "HTML reports", Group: "Reporting", Size: "4 MB", Description: "Interactive reports with tables and charts.", Selected: true),
+    new(Id: "Pdf", Name: "PDF export", Group: "Reporting", Size: "31 MB", Description: "Prints reports to PDF."),
+    new(Id: "Chat", Name: "Chat notifications", Group: "Integrations", Size: "1 MB", Description: "Posts run summaries to a channel."),
+    new(Id: "Mail", Name: "Email notifications", Group: "Integrations", Size: "1 MB", Description: "Sends reports by email."),
+    new(Id: "Syslog", Name: "Syslog forwarder", Group: "Integrations", Size: "1 MB", Description: "Forwards findings to a collector.", Selected: false, Disabled: "needs the Enterprise licence")
+};
 var accounts = new[]
 {
     new Choice("CurrentUser", "Current user")
@@ -35,7 +44,16 @@ string[] installSteps =
     "Configure connection",
     "Start agent"
 };
-Endpoint[] endpoints = [new(Region: "eu", Host: "eu-west.example.test", City: "Dublin", Latency: "12 ms"), new(Region: "eu", Host: "eu-central.example.test", City: "Frankfurt", Latency: "9 ms"), new(Region: "eu", Host: "eu-north.example.test", City: "Stockholm", Latency: "31 ms"), new(Region: "us", Host: "us-east.example.test", City: "East", Latency: "18 ms"), new(Region: "us", Host: "us-west.example.test", City: "West", Latency: "74 ms"), new(Region: "ap", Host: "ap-south.example.test", City: "South", Latency: "121 ms"), new(Region: "ap", Host: "ap-east.example.test", City: "East", Latency: "", Disabled: "maintenance until 18:00"), ];
+Endpoint[] endpoints = new Endpoint[]
+{
+    new(Region: "eu", Host: "eu-west.example.test", City: "Dublin", Latency: "12 ms"),
+    new(Region: "eu", Host: "eu-central.example.test", City: "Frankfurt", Latency: "9 ms"),
+    new(Region: "eu", Host: "eu-north.example.test", City: "Stockholm", Latency: "31 ms"),
+    new(Region: "us", Host: "us-east.example.test", City: "East", Latency: "18 ms"),
+    new(Region: "us", Host: "us-west.example.test", City: "West", Latency: "74 ms"),
+    new(Region: "ap", Host: "ap-south.example.test", City: "South", Latency: "121 ms"),
+    new(Region: "ap", Host: "ap-east.example.test", City: "East", Latency: "", Disabled: "maintenance until 18:00")
+};
 Choice[] Parts() => components.Select(p => new Choice(p.Id, p.Name) { Group = p.Group, Description = p.Description, Badge = RichText.Plain(p.Size, new RichStyle(ThemeToken.Muted)), Selected = p.Selected, DisabledReason = p.Disabled }).ToArray();
 Choice[] Servers(string? region) => endpoints.Where(e => e.Region == region).Select(e => new Choice(e.Host) { Description = e.City, Badge = RichText.Plain(e.Latency, new RichStyle(ThemeToken.Muted)), DisabledReason = e.Disabled }).ToArray();
 // Layout: the native form owns validation, dependent choices, editors and review.

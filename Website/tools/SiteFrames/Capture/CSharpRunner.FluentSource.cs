@@ -42,7 +42,7 @@ namespace SiteFrames.Capture {
             return generated;
         }
 
-        private sealed class FluentSourceRewriter(SemanticModel model, CSharpCompilation compilation) : CSharpSyntaxRewriter {
+        private sealed partial class FluentSourceRewriter(SemanticModel model, CSharpCompilation compilation) : CSharpSyntaxRewriter {
             public HashSet<string> Namespaces { get; } = new HashSet<string>(StringComparer.Ordinal);
             public override SyntaxNode? VisitExpressionStatement(ExpressionStatementSyntax node) {
                 var visited = (ExpressionStatementSyntax)base.VisitExpressionStatement(node)!;
@@ -76,10 +76,10 @@ namespace SiteFrames.Capture {
                 var visited = (ImplicitObjectCreationExpressionSyntax)base.VisitImplicitObjectCreationExpression(node)!;
                 var created = SyntaxFactory.ObjectCreationExpression(SyntaxFactory.ParseTypeName(type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)),
                     visited.ArgumentList, visited.Initializer).WithTriviaFrom(node);
-                return Rewrite(node, created);
+                return AnnotateContentHelper(node, RewriteContent(node, Rewrite(node, created)));
             }
             public override SyntaxNode? VisitObjectCreationExpression(ObjectCreationExpressionSyntax node) {
-                return Rewrite(node, (ObjectCreationExpressionSyntax)base.VisitObjectCreationExpression(node)!);
+                return AnnotateContentHelper(node, RewriteContent(node, Rewrite(node, (ObjectCreationExpressionSyntax)base.VisitObjectCreationExpression(node)!)));
             }
 
             private ExpressionSyntax Rewrite(BaseObjectCreationExpressionSyntax original, ObjectCreationExpressionSyntax visited) {
@@ -128,6 +128,9 @@ namespace SiteFrames.Capture {
                 bool callback = property.Type.TypeKind == TypeKind.Delegate;
                 string method = callback ? "Configure" : property.Name;
                 Namespaces.Add(SetterNamespace(type, method)!);
+                if (property.Name == "Content" && type.AllInterfaces.Any(i => i.ToDisplayString() == "ConsoleMonster.Layout.IContentOwner")) {
+                    return ContentCall(receiver, new[] { value });
+                }
                 if (callback) {
                     var used = new HashSet<string>(model.SyntaxTree.GetRoot().DescendantTokens().Concat(value.DescendantTokens())
                         .Where(token => token.IsKind(SyntaxKind.IdentifierToken)).Select(token => token.ValueText), StringComparer.Ordinal);
@@ -138,7 +141,8 @@ namespace SiteFrames.Capture {
                             SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.IdentifierName(name), SyntaxFactory.IdentifierName(property.Name)), value));
                 }
                 return SyntaxFactory.InvocationExpression(SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
-                    receiver, SyntaxFactory.IdentifierName(method)), SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.Argument(value))));
+                    receiver, SyntaxFactory.IdentifierName(method)), property.Type.SpecialType == SpecialType.System_Boolean && value.IsKind(SyntaxKind.TrueLiteralExpression)
+                        ? SyntaxFactory.ArgumentList() : SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.Argument(value))));
             }
 
             private bool HasSetter(INamedTypeSymbol type, string member) => SetterNamespace(type, member) != null;

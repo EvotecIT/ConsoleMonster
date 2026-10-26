@@ -64,6 +64,13 @@ namespace ConsoleMonster.Generators {
             foreach (INamedTypeSymbol prompt in AllTypes(assembly.GlobalNamespace).Where(t => IsCandidate(t) && IsPrompt(t))) {
                 if (!widgets.Contains(prompt, SymbolEqualityComparer.Default)) { widgets.Add(prompt); }
             }
+            // Standalone definitions exposed by the cmdlets are configuration roots too.
+            // Field is abstract; its generic extensions keep concrete field receiver types.
+            foreach (INamedTypeSymbol definition in AllTypes(assembly.GlobalNamespace).Where(t =>
+                t.ToDisplayString() == "ConsoleMonster.Interactive.Field" || IsCandidate(t) &&
+                (HasFieldBase(t) || new[] { "ConsoleMonster.Interactive.Choice", "ConsoleMonster.Text.ConsoleTextLayout", "ConsoleMonster.Output.ConsoleLogFile" }.Contains(t.ToDisplayString())))) {
+                if (!widgets.Contains(definition, SymbolEqualityComparer.Default)) { widgets.Add(definition); }
+            }
             HashSet<INamedTypeSymbol> seen = new HashSet<INamedTypeSymbol>(widgets, SymbolEqualityComparer.Default);
             List<INamedTypeSymbol> result = new List<INamedTypeSymbol>(widgets);
             List<INamedTypeSymbol> frontier = widgets;
@@ -111,6 +118,13 @@ namespace ConsoleMonster.Generators {
         private static bool IsPrompt(INamedTypeSymbol type) {
             for (INamedTypeSymbol? current = type.BaseType; current != null; current = current.BaseType) {
                 if (current.OriginalDefinition.ToDisplayString() == "ConsoleMonster.Interactive.Prompt<T>") { return true; }
+            }
+            return false;
+        }
+
+        private static bool HasFieldBase(INamedTypeSymbol type) {
+            for (INamedTypeSymbol? current = type.BaseType; current != null; current = current.BaseType) {
+                if (current.ToDisplayString() == "ConsoleMonster.Interactive.Field") { return true; }
             }
             return false;
         }
@@ -228,13 +242,22 @@ namespace ConsoleMonster.Generators {
                 ITypeSymbol? item = CollectionItem(property.Type);
                 if (IsSettable(property) && !Taken(with, property.Type) && generated.Add(with + "(" + propertyType + ")")) {
                     bool flag = property.Type.SpecialType == SpecialType.System_Boolean;
-                    body.Append(Doc("Sets <see cref=\"" + propertyDoc + "\"/>" + summary, receiver, flag ? "The value (default true)." : "The value.", "value"));
+                    body.Append(Doc("Sets <see cref=\"" + propertyDoc + "\"/>" + summary, receiver, "The value.", "value"));
                     if (property.Type.TypeKind != TypeKind.Delegate) { body.Append(PropertyExample(type, property, receiver)); }
                     body.Append("        public static ").Append(self).Append(' ').Append(with).Append(generic).Append("(this ").Append(self).Append(' ').Append(receiver)
-                        .Append(", ").Append(propertyType).Append(" value").Append(flag ? " = true" : string.Empty).Append(')').Append(constraint).Append(" {\n")
+                        .Append(", ").Append(propertyType).Append(" value").Append(')').Append(constraint).Append(" {\n")
                         .Append("            ").Append(receiver).Append('.').Append(property.Name).Append(" = value;\n")
                         .Append("            return ").Append(receiver).Append(";\n        }\n\n");
                     methods++;
+                    if (flag && !Taken(with) && generated.Add(with + "()")) {
+                        body.Append("        /// <summary>Sets <see cref=\"").Append(propertyDoc).Append("\"/> to true.</summary>\n")
+                            .Append("        /// <param name=\"").Append(receiver.TrimStart('@')).Append("\">The instance to configure.</param>\n")
+                            .Append("        /// <returns>The same instance.</returns>\n")
+                            .Append("        public static ").Append(self).Append(' ').Append(with).Append(generic).Append("(this ").Append(self).Append(' ').Append(receiver)
+                            .Append(')').Append(constraint).Append(" {\n            ").Append(receiver).Append('.').Append(property.Name).Append(" = true;\n            return ")
+                            .Append(receiver).Append(";\n        }\n\n");
+                        methods++;
+                    }
                 }
                 if (property.Type is INamedTypeSymbol option && IsOptionType(option, compilation.Assembly) && item == null && !Taken(with, compilation.GetTypeByMetadataName("System.Action`1")!.Construct(option)) && generated.Add(with + "(Action)")) {
                     body.Append(Configure(property, option, receiver, self, generic, constraint, with, propertyDoc, summary));
