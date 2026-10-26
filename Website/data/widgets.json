@@ -167,22 +167,21 @@
         "dark": "<span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c6\">Forest</span><span class=c1> </span><i class=\"g2500 c33 f4b5060\">─────────────────────────────────</i><span class=c1> </span><span class=\"f8b8f9a c13\">ad.adatum.com</span><span class=c1> </span><span class=f4b5060><i class=g2500>─</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c28> Four controllers answered. </span><span class=\"ffbbf24 c4\">DC02</span><span class=c26> lags by 42 minutes.      </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c43\"><i class=g2570>╰</i><i class=\"g2500 c42\">──────────────────────────────────────────</i></span><span class=c1> </span><span class=\"f8b8f9a c13\">checked 14:30</span><span class=c1> </span><span class=f4b5060><i class=g2500>─</i><i class=g256f>╯</i></span>",
         "light": "<span class=\"f8a8a94 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"f111827 B c6\">Forest</span><span class=c1> </span><i class=\"g2500 c33 f8a8a94\">─────────────────────────────────</i><span class=c1> </span><span class=\"f6b7280 c13\">ad.adatum.com</span><span class=c1> </span><span class=f8a8a94><i class=g2500>─</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f8a8a94\">│</i><span class=c28> Four controllers answered. </span><span class=\"fb45309 c4\">DC02</span><span class=c26> lags by 42 minutes.      </span><i class=\"g2502 f8a8a94\">│</i>\n<span class=\"f8a8a94 c43\"><i class=g2570>╰</i><i class=\"g2500 c42\">──────────────────────────────────────────</i></span><span class=c1> </span><span class=\"f6b7280 c13\">checked 14:30</span><span class=c1> </span><span class=f8a8a94><i class=g2500>─</i><i class=g256f>╯</i></span>"
       },
-      "csharpFluent": "new Panel(new TextBlock(\"Four controllers answered. [warn]DC02[/] lags by 42 minutes.\"), \"[bold]Forest[/]\").HeaderRight(\"ad.adatum.com\").Caption(\"[muted]checked 14:30[/]\").Show();\n",
-      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\nnew Panel(new TextBlock(\"Four controllers answered. [warn]DC02[/] lags by 42 minutes.\"), \"[bold]Forest[/]\").HeaderRight(\"ad.adatum.com\").Caption(\"[muted]checked 14:30[/]\").Show();\n",
+      "csharpFluent": "new Panel(title: \"[bold]Forest[/]\").HeaderRight(\"ad.adatum.com\").Caption(\"[muted]checked 14:30[/]\").Content(c =>\n{\n    c.Text(\"Four controllers answered. [warn]DC02[/] lags by 42 minutes.\");\n}).Show();\n",
+      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\nnew Panel(title: \"[bold]Forest[/]\").HeaderRight(\"ad.adatum.com\").Caption(\"[muted]checked 14:30[/]\").Content(c =>\n{\n    c.Text(\"Four controllers answered. [warn]DC02[/] lags by 42 minutes.\");\n}).Show();\n",
       "csharpFluentFile": "Program.cs",
       "apiMap": [
+        {
+          "powershell": "New-ConsolePanel -Content { … }",
+          "csharp": "Content = widget",
+          "fluent": ".Content(c => { … })",
+          "memberId": "M:ConsoleMonster.Layout.PanelFluent.Content"
+        },
         {
           "powershell": "New-ConsolePanel -Title …",
           "csharp": "Title = …",
           "fluent": ".Title(…)",
           "memberId": "ConsoleMonster.Layout.Panel.Title",
-          "note": null
-        },
-        {
-          "powershell": "New-ConsolePanel -Content …",
-          "csharp": "Content = …",
-          "fluent": ".Content(…)",
-          "memberId": "ConsoleMonster.Layout.Panel.Content",
           "note": null
         },
         {
@@ -237,10 +236,22 @@
         "dark": "<span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c7\">Results</span><span class=c1> </span><span class=\"f4b5060 c18\"><i class=\"g2500 c17\">─────────────────</i><i class=g256e>╮</i></span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c8\">Problems</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c17\">─────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"n f4ade80\">√</i><span class=c25> 412 passed              </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"n ff87171\">✗</i><span class=c26> 23 failed                </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"n ffbbf24\">▲</i><span class=c25> 51 warnings             </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f8b8f9a c1\">-</span><span class=c26> 14 skipped               </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c29\"><i class=g2570>╰</i><i class=\"g2500 c27\">───────────────────────────</i><i class=g256f>╯</i></span><span class=c1> </span><span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c28\">────────────────────────────</i><i class=g256f>╯</i></span>\n<i class=\"g2500 c2 f4b5060\">──</i><span class=c1> </span><span class=\"f8b8f9a B c25\">2 domains, 10 controllers</span><span class=c1> </span><i class=\"g2500 c31 f4b5060\">───────────────────────────────</i>",
         "light": "<span class=\"f8a8a94 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"f111827 B c7\">Results</span><span class=c1> </span><span class=\"f8a8a94 c18\"><i class=\"g2500 c17\">─────────────────</i><i class=g256e>╮</i></span><span class=c1> </span><span class=\"f8a8a94 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"f111827 B c8\">Problems</span><span class=c1> </span><span class=f8a8a94><i class=\"g2500 c17\">─────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><i class=\"n f15803d\">√</i><span class=c25> 412 passed              </span><i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><i class=\"n fb91c1c\">✗</i><span class=c26> 23 failed                </span><i class=\"g2502 f8a8a94\">│</i>\n<i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><i class=\"n fb45309\">▲</i><span class=c25> 51 warnings             </span><i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><span class=\"f6b7280 c1\">-</span><span class=c26> 14 skipped               </span><i class=\"g2502 f8a8a94\">│</i>\n<span class=\"f8a8a94 c29\"><i class=g2570>╰</i><i class=\"g2500 c27\">───────────────────────────</i><i class=g256f>╯</i></span><span class=c1> </span><span class=f8a8a94><i class=g2570>╰</i><i class=\"g2500 c28\">────────────────────────────</i><i class=g256f>╯</i></span>\n<i class=\"g2500 c2 f8a8a94\">──</i><span class=c1> </span><span class=\"f6b7280 B c25\">2 domains, 10 controllers</span><span class=c1> </span><i class=\"g2500 c31 f8a8a94\">───────────────────────────────</i>"
       },
-      "csharpFluent": "Panel results = new Panel(new TextBlock(\"[pass]√[/] 412 passed\\n[warn]▲[/] 51 warnings\"), \"Results\");\nPanel problems = new Panel(new TextBlock(\"[fail]✗[/] 23 failed\\n[muted]-[/] 14 skipped\"), \"Problems\");\nnew Rows().Add(new Columns(results, problems)).Add(new Rule(\"[muted]2 domains, 10 controllers[/]\")).Show();\n",
-      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\nPanel results = new Panel(new TextBlock(\"[pass]√[/] 412 passed\\n[warn]▲[/] 51 warnings\"), \"Results\");\nPanel problems = new Panel(new TextBlock(\"[fail]✗[/] 23 failed\\n[muted]-[/] 14 skipped\"), \"Problems\");\nnew Rows().Add(new Columns(results, problems)).Add(new Rule(\"[muted]2 domains, 10 controllers[/]\")).Show();\n",
+      "csharpFluent": "Panel results = new Panel(title: \"Results\").Content(c =>\n{\n    c.Text(\"[pass]√[/] 412 passed\\n[warn]▲[/] 51 warnings\");\n});\nPanel problems = new Panel(title: \"Problems\").Content(c =>\n{\n    c.Text(\"[fail]✗[/] 23 failed\\n[muted]-[/] 14 skipped\");\n});\nnew Rows().Add(new Columns().Content(c =>\n{\n    c.Add(results);\n    c.Add(problems);\n})).Add(new Rule(\"[muted]2 domains, 10 controllers[/]\")).Show();\n",
+      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\nPanel results = new Panel(title: \"Results\").Content(c =>\n{\n    c.Text(\"[pass]√[/] 412 passed\\n[warn]▲[/] 51 warnings\");\n});\nPanel problems = new Panel(title: \"Problems\").Content(c =>\n{\n    c.Text(\"[fail]✗[/] 23 failed\\n[muted]-[/] 14 skipped\");\n});\nnew Rows().Add(new Columns().Content(c =>\n{\n    c.Add(results);\n    c.Add(problems);\n})).Add(new Rule(\"[muted]2 domains, 10 controllers[/]\")).Show();\n",
       "csharpFluentFile": "Program.cs",
       "apiMap": [
+        {
+          "powershell": "New-ConsolePanel -Content { … }",
+          "csharp": "Content = widget",
+          "fluent": ".Content(c => { … })",
+          "memberId": "M:ConsoleMonster.Layout.PanelFluent.Content"
+        },
+        {
+          "powershell": "New-ConsoleColumns -Content { … }",
+          "csharp": "new Columns(widgets)",
+          "fluent": ".Content(c => { … })",
+          "memberId": "M:ConsoleMonster.Layout.ColumnsFluent.Content"
+        },
         {
           "powershell": "New-ConsolePanel -Title …",
           "csharp": "Title = …",
@@ -253,13 +264,6 @@
           "csharp": "Title = …",
           "fluent": ".Title(…)",
           "memberId": "ConsoleMonster.Widgets.Rule.Title",
-          "note": null
-        },
-        {
-          "powershell": "New-ConsolePanel -Content …",
-          "csharp": "Content = …",
-          "fluent": ".Content(…)",
-          "memberId": "ConsoleMonster.Layout.Panel.Content",
           "note": null
         },
         {
@@ -300,22 +304,27 @@
         "dark": "<span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c4\">DC01</span><span class=c1> </span><span class=\"f4b5060 c22\"><i class=\"g2500 c21\">─────────────────────</i><i class=g256e>╮</i></span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c4\">DC02</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c20\">────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f4ade80 c9\"><i class=n>√</i> healthy</span><span class=c18>                  </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"ffbbf24 c9\"><i class=n>▲</i> lagging</span><span class=c17>                 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c30\"><i class=g2570>╰</i><i class=\"g2500 c28\">────────────────────────────</i><i class=g256f>╯</i></span><span class=c1> </span><span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c27\">───────────────────────────</i><i class=g256f>╯</i></span>\n<span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c4\">DC03</span><span class=c1> </span><span class=\"f4b5060 c22\"><i class=\"g2500 c21\">─────────────────────</i><i class=g256e>╮</i></span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c4\">DC04</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c20\">────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f4ade80 c9\"><i class=n>√</i> healthy</span><span class=c18>                  </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"ff87171 c9\"><i class=n>✗</i> offline</span><span class=c17>                 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c30\"><i class=g2570>╰</i><i class=\"g2500 c28\">────────────────────────────</i><i class=g256f>╯</i></span><span class=c1> </span><span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c27\">───────────────────────────</i><i class=g256f>╯</i></span>\n<span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c4\">DC05</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c21\">─────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f4ade80 c9\"><i class=n>√</i> healthy</span><span class=c18>                  </span><i class=\"g2502 f4b5060\">│</i>\n<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c28\">────────────────────────────</i><i class=g256f>╯</i></span>",
         "light": "<span class=\"f8a8a94 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"f111827 B c4\">DC01</span><span class=c1> </span><span class=\"f8a8a94 c22\"><i class=\"g2500 c21\">─────────────────────</i><i class=g256e>╮</i></span><span class=c1> </span><span class=\"f8a8a94 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"f111827 B c4\">DC02</span><span class=c1> </span><span class=f8a8a94><i class=\"g2500 c20\">────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><span class=\"f15803d c9\"><i class=n>√</i> healthy</span><span class=c18>                  </span><i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><span class=\"fb45309 c9\"><i class=n>▲</i> lagging</span><span class=c17>                 </span><i class=\"g2502 f8a8a94\">│</i>\n<span class=\"f8a8a94 c30\"><i class=g2570>╰</i><i class=\"g2500 c28\">────────────────────────────</i><i class=g256f>╯</i></span><span class=c1> </span><span class=f8a8a94><i class=g2570>╰</i><i class=\"g2500 c27\">───────────────────────────</i><i class=g256f>╯</i></span>\n<span class=\"f8a8a94 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"f111827 B c4\">DC03</span><span class=c1> </span><span class=\"f8a8a94 c22\"><i class=\"g2500 c21\">─────────────────────</i><i class=g256e>╮</i></span><span class=c1> </span><span class=\"f8a8a94 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"f111827 B c4\">DC04</span><span class=c1> </span><span class=f8a8a94><i class=\"g2500 c20\">────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><span class=\"f15803d c9\"><i class=n>√</i> healthy</span><span class=c18>                  </span><i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><span class=\"fb91c1c c9\"><i class=n>✗</i> offline</span><span class=c17>                 </span><i class=\"g2502 f8a8a94\">│</i>\n<span class=\"f8a8a94 c30\"><i class=g2570>╰</i><i class=\"g2500 c28\">────────────────────────────</i><i class=g256f>╯</i></span><span class=c1> </span><span class=f8a8a94><i class=g2570>╰</i><i class=\"g2500 c27\">───────────────────────────</i><i class=g256f>╯</i></span>\n<span class=\"f8a8a94 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"f111827 B c4\">DC05</span><span class=c1> </span><span class=f8a8a94><i class=\"g2500 c21\">─────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><span class=\"f15803d c9\"><i class=n>√</i> healthy</span><span class=c18>                  </span><i class=\"g2502 f8a8a94\">│</i>\n<span class=f8a8a94><i class=g2570>╰</i><i class=\"g2500 c28\">────────────────────────────</i><i class=g256f>╯</i></span>"
       },
-      "csharpFluent": "new Grid(3, new Panel(new TextBlock(\"[pass]√ healthy[/]\"), \"DC01\"), new Panel(new TextBlock(\"[warn]▲ lagging[/]\"), \"DC02\"), new Panel(new TextBlock(\"[pass]√ healthy[/]\"), \"DC03\"), new Panel(new TextBlock(\"[fail]✗ offline[/]\"), \"DC04\"), new Panel(new TextBlock(\"[pass]√ healthy[/]\"), \"DC05\")).Show();\n",
-      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\nnew Grid(3, new Panel(new TextBlock(\"[pass]√ healthy[/]\"), \"DC01\"), new Panel(new TextBlock(\"[warn]▲ lagging[/]\"), \"DC02\"), new Panel(new TextBlock(\"[pass]√ healthy[/]\"), \"DC03\"), new Panel(new TextBlock(\"[fail]✗ offline[/]\"), \"DC04\"), new Panel(new TextBlock(\"[pass]√ healthy[/]\"), \"DC05\")).Show();\n",
+      "csharpFluent": "new Grid(columns: 3).Content(c2 =>\n{\n    c2.Add(new Panel(title: \"DC01\").Content(c =>\n    {\n        c.Text(\"[pass]√ healthy[/]\");\n    }));\n    c2.Add(new Panel(title: \"DC02\").Content(c =>\n    {\n        c.Text(\"[warn]▲ lagging[/]\");\n    }));\n    c2.Add(new Panel(title: \"DC03\").Content(c =>\n    {\n        c.Text(\"[pass]√ healthy[/]\");\n    }));\n    c2.Add(new Panel(title: \"DC04\").Content(c =>\n    {\n        c.Text(\"[fail]✗ offline[/]\");\n    }));\n    c2.Add(new Panel(title: \"DC05\").Content(c =>\n    {\n        c.Text(\"[pass]√ healthy[/]\");\n    }));\n}).Show();\n",
+      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\nnew Grid(columns: 3).Content(c2 =>\n{\n    c2.Add(new Panel(title: \"DC01\").Content(c =>\n    {\n        c.Text(\"[pass]√ healthy[/]\");\n    }));\n    c2.Add(new Panel(title: \"DC02\").Content(c =>\n    {\n        c.Text(\"[warn]▲ lagging[/]\");\n    }));\n    c2.Add(new Panel(title: \"DC03\").Content(c =>\n    {\n        c.Text(\"[pass]√ healthy[/]\");\n    }));\n    c2.Add(new Panel(title: \"DC04\").Content(c =>\n    {\n        c.Text(\"[fail]✗ offline[/]\");\n    }));\n    c2.Add(new Panel(title: \"DC05\").Content(c =>\n    {\n        c.Text(\"[pass]√ healthy[/]\");\n    }));\n}).Show();\n",
       "csharpFluentFile": "Program.cs",
       "apiMap": [
+        {
+          "powershell": "New-ConsolePanel -Content { … }",
+          "csharp": "Content = widget",
+          "fluent": ".Content(c => { … })",
+          "memberId": "M:ConsoleMonster.Layout.PanelFluent.Content"
+        },
+        {
+          "powershell": "New-ConsoleLayoutGrid -Content { … }",
+          "csharp": "new Grid(columns, widgets)",
+          "fluent": ".Content(c => { … })",
+          "memberId": "M:ConsoleMonster.Layout.GridFluent.Content"
+        },
         {
           "powershell": "New-ConsolePanel -Title …",
           "csharp": "Title = …",
           "fluent": ".Title(…)",
           "memberId": "ConsoleMonster.Layout.Panel.Title",
-          "note": null
-        },
-        {
-          "powershell": "New-ConsolePanel -Content …",
-          "csharp": "Content = …",
-          "fluent": ".Content(…)",
-          "memberId": "ConsoleMonster.Layout.Panel.Content",
           "note": null
         },
         {
@@ -363,10 +372,28 @@
         "dark": "<span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c5\">Align</span><span class=c1> </span><span class=\"f4b5060 c20\"><i class=\"g2500 c19\">───────────────────</i><i class=g256e>╮</i></span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c7\">Padding</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c18\">──────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c10>          </span><span class=\"B c7\">centred</span><span class=c10>          </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c28>                            </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c27>                           </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c28>   two cells of padding     </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c27>                           </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c28>                            </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c29\"><i class=g2570>╰</i><i class=\"g2500 c27\">───────────────────────────</i><i class=g256f>╯</i></span><span class=c1> </span><span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c28\">────────────────────────────</i><i class=g256f>╯</i></span>",
         "light": "<span class=\"f8a8a94 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"f111827 B c5\">Align</span><span class=c1> </span><span class=\"f8a8a94 c20\"><i class=\"g2500 c19\">───────────────────</i><i class=g256e>╮</i></span><span class=c1> </span><span class=\"f8a8a94 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"f111827 B c7\">Padding</span><span class=c1> </span><span class=f8a8a94><i class=\"g2500 c18\">──────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f8a8a94\">│</i><span class=c10>          </span><span class=\"B c7\">centred</span><span class=c10>          </span><i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><i class=\"g2502 f8a8a94\">│</i><span class=c28>                            </span><i class=\"g2502 f8a8a94\">│</i>\n<i class=\"g2502 f8a8a94\">│</i><span class=c27>                           </span><i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><i class=\"g2502 f8a8a94\">│</i><span class=c28>   two cells of padding     </span><i class=\"g2502 f8a8a94\">│</i>\n<i class=\"g2502 f8a8a94\">│</i><span class=c27>                           </span><i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><i class=\"g2502 f8a8a94\">│</i><span class=c28>                            </span><i class=\"g2502 f8a8a94\">│</i>\n<span class=\"f8a8a94 c29\"><i class=g2570>╰</i><i class=\"g2500 c27\">───────────────────────────</i><i class=g256f>╯</i></span><span class=c1> </span><span class=f8a8a94><i class=g2570>╰</i><i class=\"g2500 c28\">────────────────────────────</i><i class=g256f>╯</i></span>"
       },
-      "csharpFluent": "Panel left = new Panel(new Align(new TextBlock(\"[bold]centred[/]\")), \"Align\");\nPanel right = new Panel(new Padding(new TextBlock(\"two cells of padding\"), 2, 1, 2, 1), \"Padding\");\nnew Columns(left, right).Show();\n",
-      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\nPanel left = new Panel(new Align(new TextBlock(\"[bold]centred[/]\")), \"Align\");\nPanel right = new Panel(new Padding(new TextBlock(\"two cells of padding\"), 2, 1, 2, 1), \"Padding\");\nnew Columns(left, right).Show();\n",
+      "csharpFluent": "Panel left = new Panel(title: \"Align\").Content(c2 =>\n{\n    c2.Add(new Align().Content(c =>\n    {\n        c.Text(\"[bold]centred[/]\");\n    }));\n});\nPanel right = new Panel(title: \"Padding\").Content(c2 =>\n{\n    c2.Add(new Padding(left: 2, top: 1, right: 2, bottom: 1).Content(c =>\n    {\n        c.Text(\"two cells of padding\");\n    }));\n});\nnew Columns().Content(c =>\n{\n    c.Add(left);\n    c.Add(right);\n}).Show();\n",
+      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\nPanel left = new Panel(title: \"Align\").Content(c2 =>\n{\n    c2.Add(new Align().Content(c =>\n    {\n        c.Text(\"[bold]centred[/]\");\n    }));\n});\nPanel right = new Panel(title: \"Padding\").Content(c2 =>\n{\n    c2.Add(new Padding(left: 2, top: 1, right: 2, bottom: 1).Content(c =>\n    {\n        c.Text(\"two cells of padding\");\n    }));\n});\nnew Columns().Content(c =>\n{\n    c.Add(left);\n    c.Add(right);\n}).Show();\n",
       "csharpFluentFile": "Program.cs",
       "apiMap": [
+        {
+          "powershell": "New-ConsolePanel -Content { … }",
+          "csharp": "Content = widget",
+          "fluent": ".Content(c => { … })",
+          "memberId": "M:ConsoleMonster.Layout.PanelFluent.Content"
+        },
+        {
+          "powershell": "New-ConsoleColumns -Content { … }",
+          "csharp": "new Columns(widgets)",
+          "fluent": ".Content(c => { … })",
+          "memberId": "M:ConsoleMonster.Layout.ColumnsFluent.Content"
+        },
+        {
+          "powershell": "New-ConsolePadding -Content { … }",
+          "csharp": "Content = widget",
+          "fluent": ".Content(c => { … })",
+          "memberId": "M:ConsoleMonster.Layout.PaddingFluent.Content"
+        },
         {
           "powershell": "New-ConsolePanel -Title …",
           "csharp": "Title = …",
@@ -375,24 +402,10 @@
           "note": null
         },
         {
-          "powershell": "New-ConsoleAlign -Content …",
+          "powershell": "New-ConsoleAlign -Content { … }",
           "csharp": "Content = …",
-          "fluent": ".Content(…)",
+          "fluent": ".Content(c => { … })",
           "memberId": "ConsoleMonster.Layout.Align.Content",
-          "note": null
-        },
-        {
-          "powershell": "New-ConsolePadding -Content …",
-          "csharp": "Content = …",
-          "fluent": ".Content(…)",
-          "memberId": "ConsoleMonster.Layout.Padding.Content",
-          "note": null
-        },
-        {
-          "powershell": "New-ConsolePanel -Content …",
-          "csharp": "Content = …",
-          "fluent": ".Content(…)",
-          "memberId": "ConsoleMonster.Layout.Panel.Content",
           "note": null
         },
         {
@@ -400,13 +413,6 @@
           "csharp": "Bottom = …",
           "fluent": ".Bottom(…)",
           "memberId": "ConsoleMonster.Layout.Padding.Bottom",
-          "note": "The one/two/four-value Padding shorthand resolves Left, Top, Right and Bottom in the documented order."
-        },
-        {
-          "powershell": "New-ConsolePadding -Padding …",
-          "csharp": "Left = …",
-          "fluent": ".Left(…)",
-          "memberId": "ConsoleMonster.Layout.Padding.Left",
           "note": "The one/two/four-value Padding shorthand resolves Left, Top, Right and Bottom in the documented order."
         }
       ],
@@ -441,29 +447,33 @@
         "dark": "<span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c5\">Stack</span><span class=c1> </span><i class=\"g2500 c29 f4b5060\">─────────────────────────────</i><span class=c1> </span><span class=\"f8b8f9a c18\">badge over a chart</span><span class=c1> </span><span class=f4b5060><i class=g2500>─</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c49>                                                 </span><span class=\"f60a5fa c2\"><i class=g2581>▁</i><i class=g2583>▃</i></span><span class=\"f4ade80 c6\"> LIVE </span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c40>                                        </span><span class=\"f60a5fa c17\"><i class=g2581>▁</i><i class=g2583>▃</i><i class=g2582>▂</i><i class=g2584>▄</i><i class=g2585>▅</i><i class=g2584>▄</i><i class=g2586>▆</i><i class=g2588>█</i><i class=g2587>▇</i><i class=\"g2588 c8\">████████</i></span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c33>                                 </span><span class=\"f60a5fa c24\"><i class=\"g2584 c3\">▄▄▄</i><i class=g2585>▅</i><i class=g2587>▇</i><i class=\"g2588 c19\">███████████████████</i></span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i>\n<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c58\">──────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>",
         "light": "<span class=\"f8a8a94 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"f111827 B c5\">Stack</span><span class=c1> </span><i class=\"g2500 c29 f8a8a94\">─────────────────────────────</i><span class=c1> </span><span class=\"f6b7280 c18\">badge over a chart</span><span class=c1> </span><span class=f8a8a94><i class=g2500>─</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f8a8a94\">│</i><span class=c49>                                                 </span><span class=\"f2563eb c2\"><i class=g2581>▁</i><i class=g2583>▃</i></span><span class=\"f15803d c6\"> LIVE </span><span class=c1> </span><i class=\"g2502 f8a8a94\">│</i>\n<i class=\"g2502 f8a8a94\">│</i><span class=c40>                                        </span><span class=\"f2563eb c17\"><i class=g2581>▁</i><i class=g2583>▃</i><i class=g2582>▂</i><i class=g2584>▄</i><i class=g2585>▅</i><i class=g2584>▄</i><i class=g2586>▆</i><i class=g2588>█</i><i class=g2587>▇</i><i class=\"g2588 c8\">████████</i></span><span class=c1> </span><i class=\"g2502 f8a8a94\">│</i>\n<i class=\"g2502 f8a8a94\">│</i><span class=c33>                                 </span><span class=\"f2563eb c24\"><i class=\"g2584 c3\">▄▄▄</i><i class=g2585>▅</i><i class=g2587>▇</i><i class=\"g2588 c19\">███████████████████</i></span><span class=c1> </span><i class=\"g2502 f8a8a94\">│</i>\n<span class=f8a8a94><i class=g2570>╰</i><i class=\"g2500 c58\">──────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>"
       },
-      "csharpFluent": "Sparkline load = new Sparkline().Height(3).ShowLatest(false).AddRange(new double[] { 12, 14, 13, 18, 22, 26, 25, 31, 36, 34, 40, 44 }).AddRange(new double[] { 41, 47, 52, 49, 55, 61, 58, 64, 70, 66, 73, 79 });\nAlign badge = new Align(new TextBlock(\"[pass] LIVE [/]\"), HorizontalAlignment.Right);\nnew Panel(new Stack(load, badge), \"Stack\").HeaderRight(\"badge over a chart\").Show();\n",
-      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\nSparkline load = new Sparkline().Height(3).ShowLatest(false).AddRange(new double[] { 12, 14, 13, 18, 22, 26, 25, 31, 36, 34, 40, 44 }).AddRange(new double[] { 41, 47, 52, 49, 55, 61, 58, 64, 70, 66, 73, 79 });\nAlign badge = new Align(new TextBlock(\"[pass] LIVE [/]\"), HorizontalAlignment.Right);\nnew Panel(new Stack(load, badge), \"Stack\").HeaderRight(\"badge over a chart\").Show();\n",
+      "csharpFluent": "Sparkline load = new Sparkline().Height(3).ShowLatest(false).AddRange(new double[] { 12, 14, 13, 18, 22, 26, 25, 31, 36, 34, 40, 44 }).AddRange(new double[] { 41, 47, 52, 49, 55, 61, 58, 64, 70, 66, 73, 79 });\nAlign badge = new Align(horizontal: HorizontalAlignment.Right).Content(c =>\n{\n    c.Text(\"[pass] LIVE [/]\");\n});\nnew Panel(title: \"Stack\").HeaderRight(\"badge over a chart\").Content(c2 =>\n{\n    c2.Add(new Stack().Content(c =>\n    {\n        c.Add(load);\n        c.Add(badge);\n    }));\n}).Show();\n",
+      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\nSparkline load = new Sparkline().Height(3).ShowLatest(false).AddRange(new double[] { 12, 14, 13, 18, 22, 26, 25, 31, 36, 34, 40, 44 }).AddRange(new double[] { 41, 47, 52, 49, 55, 61, 58, 64, 70, 66, 73, 79 });\nAlign badge = new Align(horizontal: HorizontalAlignment.Right).Content(c =>\n{\n    c.Text(\"[pass] LIVE [/]\");\n});\nnew Panel(title: \"Stack\").HeaderRight(\"badge over a chart\").Content(c2 =>\n{\n    c2.Add(new Stack().Content(c =>\n    {\n        c.Add(load);\n        c.Add(badge);\n    }));\n}).Show();\n",
       "csharpFluentFile": "Program.cs",
       "apiMap": [
+        {
+          "powershell": "New-ConsolePanel -Content { … }",
+          "csharp": "Content = widget",
+          "fluent": ".Content(c => { … })",
+          "memberId": "M:ConsoleMonster.Layout.PanelFluent.Content"
+        },
+        {
+          "powershell": "New-ConsoleStack -Content { … }",
+          "csharp": "new Stack(widgets)",
+          "fluent": ".Content(c => { … })",
+          "memberId": "M:ConsoleMonster.Layout.StackFluent.Content"
+        },
+        {
+          "powershell": "New-ConsoleAlign -Content { … }",
+          "csharp": "Content = widget",
+          "fluent": ".Content(c => { … })",
+          "memberId": "M:ConsoleMonster.Layout.AlignFluent.Content"
+        },
         {
           "powershell": "New-ConsolePanel -Title …",
           "csharp": "Title = …",
           "fluent": ".Title(…)",
           "memberId": "ConsoleMonster.Layout.Panel.Title",
-          "note": null
-        },
-        {
-          "powershell": "New-ConsoleAlign -Content …",
-          "csharp": "Content = …",
-          "fluent": ".Content(…)",
-          "memberId": "ConsoleMonster.Layout.Align.Content",
-          "note": null
-        },
-        {
-          "powershell": "New-ConsolePanel -Content …",
-          "csharp": "Content = …",
-          "fluent": ".Content(…)",
-          "memberId": "ConsoleMonster.Layout.Panel.Content",
           "note": null
         },
         {
@@ -479,13 +489,6 @@
           "fluent": ".Horizontal(…)",
           "memberId": "ConsoleMonster.Layout.Align.Horizontal",
           "note": "Align.Horizontal uses ConsoleMonster.Layout.HorizontalAlignment."
-        },
-        {
-          "powershell": "New-ConsoleChart -Height …",
-          "csharp": "Height = …",
-          "fluent": ".Height(…)",
-          "memberId": "ConsoleMonster.Widgets.Sparkline.Height",
-          "note": null
         }
       ],
       "parity": {
@@ -1156,8 +1159,8 @@
         "dark": "<span class=\"f8b8f9a c4\">89ms</span><i class=\"g2502 f4b5060\">│</i><span class=c6>      </span><i class=\"g2880 fc084fc\">⢀</i><span class=c6>      </span><i class=\"g2804 fc084fc\">⠄</i><span class=c5>     </span><i class=\"g2808 fc084fc\">⠈</i><span class=c12>            </span><i class=\"g2880 fc084fc\">⢀</i><span class=c6>      </span><i class=\"g2804 fc084fc\">⠄</i><span class=c5>     </span><i class=\"g2808 fc084fc\">⠈</i>\n<span class=c4>    </span><i class=\"g2502 f4b5060\">│</i><i class=\"g2802 fc084fc\">⠂</i><span class=c6>      </span><i class=\"g2880 fc084fc\">⢀</i><span class=c4>    </span><i class=\"g2840 fc084fc\">⡀</i><span class=c3>   </span><i class=\"g2880 fc084fc\">⢀</i><span class=c9>         </span><i class=\"g2802 fc084fc\">⠂</i><span class=c1> </span><i class=\"g2880 fc084fc\">⢀</i><span class=c4>    </span><i class=\"g2880 fc084fc\">⢀</i><span class=c4>    </span><i class=\"g2840 fc084fc\">⡀</i><span class=c11>           </span><span class=\"fc084fc c2\"><i class=g2840>⡀</i><i class=g2808>⠈</i></span><span class=c2>  </span><i class=\"g2880 fc084fc\">⢀</i>\n<span class=c4>    </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"fc084fc c3\"><i class=g2802>⠂</i><i class=g2840>⡀</i><i class=g2821>⠡</i></span><span class=c1> </span><i class=\"g2810 fc084fc\">⠐</i><span class=c2>  </span><i class=\"g2820 fc084fc\">⠠</i><span class=c1> </span><span class=\"fc084fc c2\"><i class=g2802>⠂</i><i class=g2840>⡀</i></span><span class=c3>   </span><i class=\"g2881 fc084fc\">⢁</i><span class=c1> </span><i class=\"g2810 fc084fc\">⠐</i><span class=c2>  </span><i class=\"g2820 fc084fc\">⠠</i><span class=c1> </span><span class=\"fc084fc c4\"><i class=g2802>⠂</i><i class=g2840>⡀</i><i class=g2801>⠁</i><i class=g2804>⠄</i></span><span class=c1> </span><i class=\"g2882 fc084fc\">⢂</i><span class=c1> </span><i class=\"g2820 fc084fc\">⠠</i><span class=c1> </span><i class=\"g2810 fc084fc\">⠐</i><span class=c2>  </span><i class=\"g2804 fc084fc\">⠄</i><span class=c1> </span><span class=\"fc084fc c2\"><i class=g2801>⠁</i><i class=g2840>⡀</i></span><span class=c2>  </span><span class=\"fc084fc c2\"><i class=g2808>⠈</i><i class=g2820>⠠</i></span><span class=c1> </span><span class=\"fc084fc c2\"><i class=g2810>⠐</i><i class=g2880>⢀</i></span><span class=c1> </span><i class=\"g2804 fc084fc\">⠄</i><span class=c1> </span><span class=\"fc084fc c2\"><i class=g2802>⠂</i><i class=g2840>⡀</i></span><span class=c1> </span><span class=fc084fc><i class=g2804>⠄</i><i class=g2810>⠐</i><i class=g2880>⢀</i></span>\n<span class=c4>    </span><i class=\"g2502 f4b5060\">│</i><span class=c4>    </span><i class=\"g2808 fc084fc\">⠈</i><span class=c4>    </span><i class=\"g2801 fc084fc\">⠁</i><span class=c4>    </span><i class=\"g2801 fc084fc\">⠁</i><span class=c3>   </span><i class=\"g2808 fc084fc\">⠈</i><span class=c2>  </span><i class=\"g2802 fc084fc\">⠂</i><span class=c8>        </span><i class=\"g2808 fc084fc\">⠈</i><span class=c4>    </span><i class=\"g2801 fc084fc\">⠁</i><span class=c3>   </span><i class=\"g2808 fc084fc\">⠈</i><span class=c2>  </span><i class=\"g2810 fc084fc\">⠐</i><span class=c4>    </span><i class=\"g2801 fc084fc\">⠁</i>\n<span class=c4>    </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c1> </span><span class=\"f8b8f9a c3\">0ms</span><i class=\"g2502 f4b5060\">│</i>\n<span class=c4>    </span><span class=f4b5060><i class=g2514>└</i><i class=\"g2500 c55\">───────────────────────────────────────────────────────</i></span>",
         "light": "<span class=\"f6b7280 c4\">89ms</span><i class=\"g2502 f8a8a94\">│</i><span class=c6>      </span><i class=\"g2880 f7c3aed\">⢀</i><span class=c6>      </span><i class=\"g2804 f7c3aed\">⠄</i><span class=c5>     </span><i class=\"g2808 f7c3aed\">⠈</i><span class=c12>            </span><i class=\"g2880 f7c3aed\">⢀</i><span class=c6>      </span><i class=\"g2804 f7c3aed\">⠄</i><span class=c5>     </span><i class=\"g2808 f7c3aed\">⠈</i>\n<span class=c4>    </span><i class=\"g2502 f8a8a94\">│</i><i class=\"g2802 f7c3aed\">⠂</i><span class=c6>      </span><i class=\"g2880 f7c3aed\">⢀</i><span class=c4>    </span><i class=\"g2840 f7c3aed\">⡀</i><span class=c3>   </span><i class=\"g2880 f7c3aed\">⢀</i><span class=c9>         </span><i class=\"g2802 f7c3aed\">⠂</i><span class=c1> </span><i class=\"g2880 f7c3aed\">⢀</i><span class=c4>    </span><i class=\"g2880 f7c3aed\">⢀</i><span class=c4>    </span><i class=\"g2840 f7c3aed\">⡀</i><span class=c11>           </span><span class=\"f7c3aed c2\"><i class=g2840>⡀</i><i class=g2808>⠈</i></span><span class=c2>  </span><i class=\"g2880 f7c3aed\">⢀</i>\n<span class=c4>    </span><i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><span class=\"f7c3aed c3\"><i class=g2802>⠂</i><i class=g2840>⡀</i><i class=g2821>⠡</i></span><span class=c1> </span><i class=\"g2810 f7c3aed\">⠐</i><span class=c2>  </span><i class=\"g2820 f7c3aed\">⠠</i><span class=c1> </span><span class=\"f7c3aed c2\"><i class=g2802>⠂</i><i class=g2840>⡀</i></span><span class=c3>   </span><i class=\"g2881 f7c3aed\">⢁</i><span class=c1> </span><i class=\"g2810 f7c3aed\">⠐</i><span class=c2>  </span><i class=\"g2820 f7c3aed\">⠠</i><span class=c1> </span><span class=\"f7c3aed c4\"><i class=g2802>⠂</i><i class=g2840>⡀</i><i class=g2801>⠁</i><i class=g2804>⠄</i></span><span class=c1> </span><i class=\"g2882 f7c3aed\">⢂</i><span class=c1> </span><i class=\"g2820 f7c3aed\">⠠</i><span class=c1> </span><i class=\"g2810 f7c3aed\">⠐</i><span class=c2>  </span><i class=\"g2804 f7c3aed\">⠄</i><span class=c1> </span><span class=\"f7c3aed c2\"><i class=g2801>⠁</i><i class=g2840>⡀</i></span><span class=c2>  </span><span class=\"f7c3aed c2\"><i class=g2808>⠈</i><i class=g2820>⠠</i></span><span class=c1> </span><span class=\"f7c3aed c2\"><i class=g2810>⠐</i><i class=g2880>⢀</i></span><span class=c1> </span><i class=\"g2804 f7c3aed\">⠄</i><span class=c1> </span><span class=\"f7c3aed c2\"><i class=g2802>⠂</i><i class=g2840>⡀</i></span><span class=c1> </span><span class=f7c3aed><i class=g2804>⠄</i><i class=g2810>⠐</i><i class=g2880>⢀</i></span>\n<span class=c4>    </span><i class=\"g2502 f8a8a94\">│</i><span class=c4>    </span><i class=\"g2808 f7c3aed\">⠈</i><span class=c4>    </span><i class=\"g2801 f7c3aed\">⠁</i><span class=c4>    </span><i class=\"g2801 f7c3aed\">⠁</i><span class=c3>   </span><i class=\"g2808 f7c3aed\">⠈</i><span class=c2>  </span><i class=\"g2802 f7c3aed\">⠂</i><span class=c8>        </span><i class=\"g2808 f7c3aed\">⠈</i><span class=c4>    </span><i class=\"g2801 f7c3aed\">⠁</i><span class=c3>   </span><i class=\"g2808 f7c3aed\">⠈</i><span class=c2>  </span><i class=\"g2810 f7c3aed\">⠐</i><span class=c4>    </span><i class=\"g2801 f7c3aed\">⠁</i>\n<span class=c4>    </span><i class=\"g2502 f8a8a94\">│</i>\n<span class=c1> </span><span class=\"f6b7280 c3\">0ms</span><i class=\"g2502 f8a8a94\">│</i>\n<span class=c4>    </span><span class=f8a8a94><i class=g2514>└</i><i class=\"g2500 c55\">───────────────────────────────────────────────────────</i></span>"
       },
-      "csharpFluent": "LineChart chart = new LineChart().Height(7).Scatter(true).Unit(\"ms\");\nchart.AddSeries(\"latency\", ThemeToken.Accent2);\nfor (int i = 0; i < 60; i++)\n{\n    chart.Add(\"latency\", 40 + ((i * 37) % 23) + (i % 7 == 0 ? 30 : 0));\n}\n\nchart.Show();\n",
-      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\nLineChart chart = new LineChart().Height(7).Scatter(true).Unit(\"ms\");\nchart.AddSeries(\"latency\", ThemeToken.Accent2);\nfor (int i = 0; i < 60; i++)\n{\n    chart.Add(\"latency\", 40 + ((i * 37) % 23) + (i % 7 == 0 ? 30 : 0));\n}\n\nchart.Show();\n",
+      "csharpFluent": "LineChart chart = new LineChart().Height(7).Scatter().Unit(\"ms\");\nchart.AddSeries(\"latency\", ThemeToken.Accent2);\nfor (int i = 0; i < 60; i++)\n{\n    chart.Add(\"latency\", 40 + ((i * 37) % 23) + (i % 7 == 0 ? 30 : 0));\n}\n\nchart.Show();\n",
+      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\nLineChart chart = new LineChart().Height(7).Scatter().Unit(\"ms\");\nchart.AddSeries(\"latency\", ThemeToken.Accent2);\nfor (int i = 0; i < 60; i++)\n{\n    chart.Add(\"latency\", 40 + ((i * 37) % 23) + (i % 7 == 0 ? 30 : 0));\n}\n\nchart.Show();\n",
       "csharpFluentFile": "Program.cs",
       "apiMap": [
         {

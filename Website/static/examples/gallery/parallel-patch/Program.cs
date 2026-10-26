@@ -6,7 +6,49 @@ using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
 
 // Data: all hosts, outcomes and delays are synthetic. No remote command runs.
-Host[] servers = [new(Name: "web01", DelayMilliseconds: 637, RestartFailure: false, TimesOut: false), new(Name: "web02", DelayMilliseconds: 774, RestartFailure: false, TimesOut: false), new(Name: "web03", DelayMilliseconds: 911, RestartFailure: false, TimesOut: false), new(Name: "web04", DelayMilliseconds: 1048, RestartFailure: false, TimesOut: false), new(Name: "web05", DelayMilliseconds: 1185, RestartFailure: false, TimesOut: false), new(Name: "web06", DelayMilliseconds: 1322, RestartFailure: false, TimesOut: false), new(Name: "web07", DelayMilliseconds: 559, RestartFailure: false, TimesOut: false), new(Name: "web08", DelayMilliseconds: 696, RestartFailure: false, TimesOut: false), new(Name: "web09", DelayMilliseconds: 833, RestartFailure: false, TimesOut: false), new(Name: "web10", DelayMilliseconds: 970, RestartFailure: false, TimesOut: false), new(Name: "web11", DelayMilliseconds: 1107, RestartFailure: false, TimesOut: false), new(Name: "web12", DelayMilliseconds: 1244, RestartFailure: false, TimesOut: false), new(Name: "web13", DelayMilliseconds: 1381, RestartFailure: true, TimesOut: false), new(Name: "web14", DelayMilliseconds: 618, RestartFailure: false, TimesOut: false), new(Name: "web15", DelayMilliseconds: 755, RestartFailure: false, TimesOut: false), new(Name: "web16", DelayMilliseconds: 892, RestartFailure: false, TimesOut: false), new(Name: "web17", DelayMilliseconds: 1029, RestartFailure: false, TimesOut: false), new(Name: "web18", DelayMilliseconds: 1166, RestartFailure: false, TimesOut: false), new(Name: "web19", DelayMilliseconds: 1303, RestartFailure: false, TimesOut: false), new(Name: "web20", DelayMilliseconds: 540, RestartFailure: false, TimesOut: false), new(Name: "web21", DelayMilliseconds: 677, RestartFailure: false, TimesOut: false), new(Name: "web22", DelayMilliseconds: 814, RestartFailure: false, TimesOut: true), new(Name: "web23", DelayMilliseconds: 951, RestartFailure: false, TimesOut: false), new(Name: "web24", DelayMilliseconds: 1088, RestartFailure: false, TimesOut: false), new(Name: "web25", DelayMilliseconds: 1225, RestartFailure: false, TimesOut: false), new(Name: "web26", DelayMilliseconds: 1362, RestartFailure: true, TimesOut: false), new(Name: "web27", DelayMilliseconds: 599, RestartFailure: false, TimesOut: false), new(Name: "web28", DelayMilliseconds: 736, RestartFailure: false, TimesOut: false), new(Name: "web29", DelayMilliseconds: 873, RestartFailure: false, TimesOut: false), new(Name: "web30", DelayMilliseconds: 1010, RestartFailure: false, TimesOut: false), new(Name: "web31", DelayMilliseconds: 1147, RestartFailure: false, TimesOut: false), new(Name: "web32", DelayMilliseconds: 1284, RestartFailure: false, TimesOut: false), new(Name: "web33", DelayMilliseconds: 521, RestartFailure: false, TimesOut: false), new(Name: "web34", DelayMilliseconds: 658, RestartFailure: false, TimesOut: false), new(Name: "web35", DelayMilliseconds: 795, RestartFailure: false, TimesOut: false), new(Name: "web36", DelayMilliseconds: 932, RestartFailure: false, TimesOut: false), new(Name: "web37", DelayMilliseconds: 1069, RestartFailure: false, TimesOut: false), new(Name: "web38", DelayMilliseconds: 1206, RestartFailure: false, TimesOut: false), new(Name: "web39", DelayMilliseconds: 1343, RestartFailure: true, TimesOut: false), new(Name: "web40", DelayMilliseconds: 580, RestartFailure: false, TimesOut: false), ];
+Host[] servers = new Host[]
+{
+    new(Name: "web01", DelayMilliseconds: 637, RestartFailure: false, TimesOut: false),
+    new(Name: "web02", DelayMilliseconds: 774, RestartFailure: false, TimesOut: false),
+    new(Name: "web03", DelayMilliseconds: 911, RestartFailure: false, TimesOut: false),
+    new(Name: "web04", DelayMilliseconds: 1048, RestartFailure: false, TimesOut: false),
+    new(Name: "web05", DelayMilliseconds: 1185, RestartFailure: false, TimesOut: false),
+    new(Name: "web06", DelayMilliseconds: 1322, RestartFailure: false, TimesOut: false),
+    new(Name: "web07", DelayMilliseconds: 559, RestartFailure: false, TimesOut: false),
+    new(Name: "web08", DelayMilliseconds: 696, RestartFailure: false, TimesOut: false),
+    new(Name: "web09", DelayMilliseconds: 833, RestartFailure: false, TimesOut: false),
+    new(Name: "web10", DelayMilliseconds: 970, RestartFailure: false, TimesOut: false),
+    new(Name: "web11", DelayMilliseconds: 1107, RestartFailure: false, TimesOut: false),
+    new(Name: "web12", DelayMilliseconds: 1244, RestartFailure: false, TimesOut: false),
+    new(Name: "web13", DelayMilliseconds: 1381, RestartFailure: true, TimesOut: false),
+    new(Name: "web14", DelayMilliseconds: 618, RestartFailure: false, TimesOut: false),
+    new(Name: "web15", DelayMilliseconds: 755, RestartFailure: false, TimesOut: false),
+    new(Name: "web16", DelayMilliseconds: 892, RestartFailure: false, TimesOut: false),
+    new(Name: "web17", DelayMilliseconds: 1029, RestartFailure: false, TimesOut: false),
+    new(Name: "web18", DelayMilliseconds: 1166, RestartFailure: false, TimesOut: false),
+    new(Name: "web19", DelayMilliseconds: 1303, RestartFailure: false, TimesOut: false),
+    new(Name: "web20", DelayMilliseconds: 540, RestartFailure: false, TimesOut: false),
+    new(Name: "web21", DelayMilliseconds: 677, RestartFailure: false, TimesOut: false),
+    new(Name: "web22", DelayMilliseconds: 814, RestartFailure: false, TimesOut: true),
+    new(Name: "web23", DelayMilliseconds: 951, RestartFailure: false, TimesOut: false),
+    new(Name: "web24", DelayMilliseconds: 1088, RestartFailure: false, TimesOut: false),
+    new(Name: "web25", DelayMilliseconds: 1225, RestartFailure: false, TimesOut: false),
+    new(Name: "web26", DelayMilliseconds: 1362, RestartFailure: true, TimesOut: false),
+    new(Name: "web27", DelayMilliseconds: 599, RestartFailure: false, TimesOut: false),
+    new(Name: "web28", DelayMilliseconds: 736, RestartFailure: false, TimesOut: false),
+    new(Name: "web29", DelayMilliseconds: 873, RestartFailure: false, TimesOut: false),
+    new(Name: "web30", DelayMilliseconds: 1010, RestartFailure: false, TimesOut: false),
+    new(Name: "web31", DelayMilliseconds: 1147, RestartFailure: false, TimesOut: false),
+    new(Name: "web32", DelayMilliseconds: 1284, RestartFailure: false, TimesOut: false),
+    new(Name: "web33", DelayMilliseconds: 521, RestartFailure: false, TimesOut: false),
+    new(Name: "web34", DelayMilliseconds: 658, RestartFailure: false, TimesOut: false),
+    new(Name: "web35", DelayMilliseconds: 795, RestartFailure: false, TimesOut: false),
+    new(Name: "web36", DelayMilliseconds: 932, RestartFailure: false, TimesOut: false),
+    new(Name: "web37", DelayMilliseconds: 1069, RestartFailure: false, TimesOut: false),
+    new(Name: "web38", DelayMilliseconds: 1206, RestartFailure: false, TimesOut: false),
+    new(Name: "web39", DelayMilliseconds: 1343, RestartFailure: true, TimesOut: false),
+    new(Name: "web40", DelayMilliseconds: 580, RestartFailure: false, TimesOut: false)
+};
 const int throttle = 8;
 const int timeoutSeconds = 4;
 // Layout: a wave summary, every host, eight lane details and retained failures.

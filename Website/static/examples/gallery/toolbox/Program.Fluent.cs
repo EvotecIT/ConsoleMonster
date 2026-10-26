@@ -8,8 +8,34 @@ using ConsoleMonster.Text;
 using ConsoleMonster.Widgets;
 
 // Data: replace these inventories, operations and findings with your own sources.
-Node[] inventory = [new(Name: "FS01", Domain: "lab.example.test", Site: "Warsaw", Role: "File", Detail: "Windows Server 2022", Offline: ""), new(Name: "FS02", Domain: "lab.example.test", Site: "Warsaw", Role: "File", Detail: "Windows Server 2022", Offline: ""), new(Name: "WEB01", Domain: "lab.example.test", Site: "Warsaw", Role: "Web", Detail: "Windows Server 2025", Offline: ""), new(Name: "SQL01", Domain: "lab.example.test", Site: "Warsaw", Role: "Database", Detail: "Windows Server 2019", Offline: ""), new(Name: "FS11", Domain: "lab.example.test", Site: "Berlin", Role: "File", Detail: "Windows Server 2022", Offline: ""), new(Name: "WEB11", Domain: "lab.example.test", Site: "Berlin", Role: "Web", Detail: "Windows Server 2025", Offline: ""), new(Name: "PRN11", Domain: "lab.example.test", Site: "Berlin", Role: "Print", Detail: "Windows Server 2016", Offline: "offline since 09:12"), new(Name: "BKP21", Domain: "lab.example.test", Site: "Dublin", Role: "Backup", Detail: "Windows Server 2022", Offline: ""), new(Name: "SQL21", Domain: "lab.example.test", Site: "Dublin", Role: "Database", Detail: "Windows Server 2022", Offline: ""), new(Name: "LAB01", Domain: "lab.example.test", Site: "Lab", Role: "Test", Detail: "Windows Server 2025", Offline: ""), new(Name: "LAB02", Domain: "lab.example.test", Site: "Lab", Role: "Test", Detail: "Windows Server 2025", Offline: "maintenance until Friday"), ];
-Check[] catalog = [new(Id: "DiskCleanup", Name: "Disk cleanup", Category: "Maintenance", Description: "Removes temporary files and old update caches.", Expected: "cache under 1 GB", Minutes: 3, Changes: true), new(Id: "LogRotation", Name: "Log rotation", Category: "Maintenance", Description: "Compresses logs older than 7 days.", Expected: "retention 90 days", Minutes: 2, Changes: true), new(Id: "RestartPending", Name: "Pending restart check", Category: "Maintenance", Description: "Reports restarts waiting after updates.", Expected: "no restart pending", Minutes: 1, Changes: false), new(Id: "PatchStatus", Name: "Patch status", Category: "Security", Description: "Lists missing security updates.", Expected: "0 missing", Minutes: 2, Changes: false), new(Id: "Certificates", Name: "Certificate expiry", Category: "Security", Description: "Finds certificates expiring within 30 days.", Expected: "30+ days", Minutes: 1, Changes: false), new(Id: "LocalAdmins", Name: "Local administrators audit", Category: "Security", Description: "Compares local Administrators with the approved list.", Expected: "approved list", Minutes: 1, Changes: false), new(Id: "Firewall", Name: "Firewall rules review", Category: "Security", Description: "Flags inbound allow rules open to any address.", Expected: "scoped rules", Minutes: 2, Changes: false), new(Id: "EventErrors", Name: "Event log errors", Category: "Health", Description: "Summarizes errors from the last 24 hours.", Expected: "under 20", Minutes: 1, Changes: false), new(Id: "Services", Name: "Service health", Category: "Health", Description: "Checks and restarts stopped automatic services.", Expected: "all running", Minutes: 1, Changes: true), new(Id: "DiskSpace", Name: "Disk space", Category: "Health", Description: "Warns below 15% and fails below 5% free.", Expected: "15% free", Minutes: 1, Changes: false), new(Id: "Uptime", Name: "Uptime and reboots", Category: "Health", Description: "Reports unexpected reboots in the last 30 days.", Expected: "0 unexpected", Minutes: 1, Changes: false), ];
+Node[] inventory = new Node[]
+{
+    new(Name: "FS01", Domain: "lab.example.test", Site: "Warsaw", Role: "File", Detail: "Windows Server 2022", Offline: ""),
+    new(Name: "FS02", Domain: "lab.example.test", Site: "Warsaw", Role: "File", Detail: "Windows Server 2022", Offline: ""),
+    new(Name: "WEB01", Domain: "lab.example.test", Site: "Warsaw", Role: "Web", Detail: "Windows Server 2025", Offline: ""),
+    new(Name: "SQL01", Domain: "lab.example.test", Site: "Warsaw", Role: "Database", Detail: "Windows Server 2019", Offline: ""),
+    new(Name: "FS11", Domain: "lab.example.test", Site: "Berlin", Role: "File", Detail: "Windows Server 2022", Offline: ""),
+    new(Name: "WEB11", Domain: "lab.example.test", Site: "Berlin", Role: "Web", Detail: "Windows Server 2025", Offline: ""),
+    new(Name: "PRN11", Domain: "lab.example.test", Site: "Berlin", Role: "Print", Detail: "Windows Server 2016", Offline: "offline since 09:12"),
+    new(Name: "BKP21", Domain: "lab.example.test", Site: "Dublin", Role: "Backup", Detail: "Windows Server 2022", Offline: ""),
+    new(Name: "SQL21", Domain: "lab.example.test", Site: "Dublin", Role: "Database", Detail: "Windows Server 2022", Offline: ""),
+    new(Name: "LAB01", Domain: "lab.example.test", Site: "Lab", Role: "Test", Detail: "Windows Server 2025", Offline: ""),
+    new(Name: "LAB02", Domain: "lab.example.test", Site: "Lab", Role: "Test", Detail: "Windows Server 2025", Offline: "maintenance until Friday")
+};
+Check[] catalog = new Check[]
+{
+    new(Id: "DiskCleanup", Name: "Disk cleanup", Category: "Maintenance", Description: "Removes temporary files and old update caches.", Expected: "cache under 1 GB", Minutes: 3, Changes: true),
+    new(Id: "LogRotation", Name: "Log rotation", Category: "Maintenance", Description: "Compresses logs older than 7 days.", Expected: "retention 90 days", Minutes: 2, Changes: true),
+    new(Id: "RestartPending", Name: "Pending restart check", Category: "Maintenance", Description: "Reports restarts waiting after updates.", Expected: "no restart pending", Minutes: 1, Changes: false),
+    new(Id: "PatchStatus", Name: "Patch status", Category: "Security", Description: "Lists missing security updates.", Expected: "0 missing", Minutes: 2, Changes: false),
+    new(Id: "Certificates", Name: "Certificate expiry", Category: "Security", Description: "Finds certificates expiring within 30 days.", Expected: "30+ days", Minutes: 1, Changes: false),
+    new(Id: "LocalAdmins", Name: "Local administrators audit", Category: "Security", Description: "Compares local Administrators with the approved list.", Expected: "approved list", Minutes: 1, Changes: false),
+    new(Id: "Firewall", Name: "Firewall rules review", Category: "Security", Description: "Flags inbound allow rules open to any address.", Expected: "scoped rules", Minutes: 2, Changes: false),
+    new(Id: "EventErrors", Name: "Event log errors", Category: "Health", Description: "Summarizes errors from the last 24 hours.", Expected: "under 20", Minutes: 1, Changes: false),
+    new(Id: "Services", Name: "Service health", Category: "Health", Description: "Checks and restarts stopped automatic services.", Expected: "all running", Minutes: 1, Changes: true),
+    new(Id: "DiskSpace", Name: "Disk space", Category: "Health", Description: "Warns below 15% and fails below 5% free.", Expected: "15% free", Minutes: 1, Changes: false),
+    new(Id: "Uptime", Name: "Uptime and reboots", Category: "Health", Description: "Reports unexpected reboots in the last 30 days.", Expected: "0 unexpected", Minutes: 1, Changes: false)
+};
 Dictionary<string, (StatusKind Status, string Actual)> findings = new()
 {
     ["FS02/PatchStatus"] = (StatusKind.Fail, "3 updates missing for 41 days"),
@@ -42,7 +68,7 @@ Table TableOf(string[] headers)
 IWidget Findings(IEnumerable<Work> work)
 {
     Table table = TableOf(new[] { "Server", "Task", "Expected", "Actual" });
-    table.Columns[3].Flexible(true);
+    table.Columns[3].Flexible();
     foreach (Work w in work.Where(w => w.Status != StatusKind.Pass))
         table.AddRow(w.Node.Name, w.Check.Name, w.Check.Expected, TableCell.FromValue(RichText.Plain(w.Actual, new RichStyle(w.Status == StatusKind.Fail ? ThemeToken.Fail : ThemeToken.Warn))));
     return table;
@@ -56,7 +82,11 @@ IWidget History()
     return table;
 }
 
-IWidget Preview(Check c) => new Rows(new TextBlock(Markup.Escape(c.Description)), new KeyValueList().Add("Group", c.Category).Add("Expected", c.Expected).Add("Duration", "about " + c.Minutes + " min per server").Add("Changes", c.Changes ? "[warn]yes[/]" : "[pass]no[/]").Add("Parameter", c.Id)).Gap(1);
+IWidget Preview(Check c) => new Rows().Gap(1).Content(c2 =>
+{
+    c2.Text(Markup.Escape(c.Description));
+    c2.Add(new KeyValueList().Add("Group", c.Category).Add("Expected", c.Expected).Add("Duration", "about " + c.Minutes + " min per server").Add("Changes", c.Changes ? "[warn]yes[/]" : "[pass]no[/]").Add("Parameter", c.Id));
+});
 // Layout: build the dashboard from the completed and active work.
 IWidget Body(List<Work> work, int done, int phase)
 {
@@ -98,15 +128,44 @@ IWidget Body(List<Work> work, int done, int phase)
     if (phase >= 4)
         log.Write(notify ? "Report ready · recipient " + email : "Report ready · " + finished.Count(w => w.Status != StatusKind.Pass) + " findings to review");
     KeyValueList facts = new KeyValueList().Add("Targets", targets.Length + " servers").Add("Tasks", checks.Length + " per server").Add("Parallel", parallel.ToString()).Add("Report", format.ToUpperInvariant()).Add("Dry run", dryRun ? "yes" : "no");
-    Columns info = new Columns(new Panel().Title("Servers").Content(lanes), new Panel().Title("Run options").Content(facts)).CollapseBelow(90);
-    return new Rows(summary, phases, info, new Panel().Title("Findings").Content(Findings(finished)), new Panel().Title("Log").Content(log));
+    Columns info = new Columns().CollapseBelow(90).Content(c3 =>
+    {
+        c3.Add(new Panel().Title("Servers").Content(c2 =>
+        {
+            c2.Add(lanes);
+        }));
+        c3.Add(new Panel().Title("Run options").Content(c2 =>
+        {
+            c2.Add(facts);
+        }));
+    });
+    return new Rows().Content(c3 =>
+    {
+        c3.Add(summary);
+        c3.Add(phases);
+        c3.Add(info);
+        c3.Add(new Panel().Title("Findings").Content(c2 =>
+        {
+            c2.Add(Findings(finished));
+        }));
+        c3.Add(new Panel().Title("Log").Content(c2 =>
+        {
+            c2.Add(log);
+        }));
+    });
 }
 
 // Behaviour: native form/menu navigation, then a bounded run with cancellation and history.
 void Execute(MenuContext context, List<Work> work)
 {
-    RegionWidget body = new RegionWidget(widgetId: "body", content: Body(work, 0, 0));
-    Dashboard dashboard = new Dashboard().Content(body).Title("[bold]Server toolbox[/]").Subtitle(domain).Footer("Ctrl+C cancel · results keep the findings");
+    RegionWidget body = new RegionWidget(widgetId: "body").Content(c2 =>
+    {
+        c2.Add(Body(work, 0, 0));
+    });
+    Dashboard dashboard = new Dashboard().Content(c2 =>
+    {
+        c2.Add(body);
+    }).Title("[bold]Server toolbox[/]").Subtitle(domain).Footer("Ctrl+C cancel · results keep the findings");
     bool completed = false;
     MenuRunResult outcome = context.Run(dashboard, run =>
     {
@@ -157,29 +216,29 @@ Form Options()
     Form form = new Form("Options").Review(false).SubmitText("Save");
     FormPage page = form.Page("Options", "Parallelism, reports and notifications.");
     NumberField throttle = page.Number("Parallel", "Servers at a time");
-    throttle.Default = parallel;
-    throttle.Minimum = 1;
-    throttle.Maximum = 16;
-    throttle.Integer = true;
-    throttle.ParameterName = "ThrottleLimit";
+    throttle.Default(parallel);
+    throttle.Minimum(1);
+    throttle.Maximum(16);
+    throttle.Integer();
+    throttle.ParameterName("ThrottleLimit");
     PathField folder = page.Path("Report", "Report folder");
-    folder.Default = report;
-    folder.PathKind = PathKind.Folder;
-    folder.ParameterName = "ReportPath";
+    folder.Default(report);
+    folder.PathKind(PathKind.Folder);
+    folder.ParameterName("ReportPath");
     ChoiceField output = page.Select("Format", "Report format", new[] { new Choice("Html", "HTML"), new Choice("Csv", "CSV"), new Choice("Json", "JSON") });
-    output.Default = format;
-    output.ParameterName = "Format";
+    output.Default(format);
+    output.ParameterName("Format");
     ToggleField send = page.Toggle("Notify", "Email the report");
-    send.ParameterName = "Notify";
+    send.ParameterName("Notify");
     TextField recipient = page.Text("Email", "Recipient");
-    recipient.Default = email;
-    recipient.ParameterName = "To";
-    recipient.Required = true;
-    recipient.VisibleWhen = v => v.Get<bool>("Notify");
-    recipient.Validator = (value, _) => value is string s && s.Contains('@') ? null : "Enter an email address";
+    recipient.Default(email);
+    recipient.ParameterName("To");
+    recipient.Required();
+    recipient.Configure(configured => configured.VisibleWhen = v => v.Get<bool>("Notify"));
+    recipient.Configure(configured => configured.Validator = (value, _) => value is string s && s.Contains('@') ? null : "Enter an email address");
     ToggleField dry = page.Toggle("DryRun", "Dry run");
-    dry.Default = false;
-    dry.ParameterName = "WhatIf";
+    dry.Default(false);
+    dry.ParameterName("WhatIf");
     return form;
 }
 

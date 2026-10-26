@@ -8,8 +8,34 @@ using ConsoleMonster.Text;
 using ConsoleMonster.Widgets;
 
 // Data: replace these inventories, operations and findings with your own sources.
-Node[] inventory = [new(Name: "FS01", Domain: "lab.example.test", Site: "Warsaw", Role: "File", Detail: "Windows Server 2022", Offline: ""), new(Name: "FS02", Domain: "lab.example.test", Site: "Warsaw", Role: "File", Detail: "Windows Server 2022", Offline: ""), new(Name: "WEB01", Domain: "lab.example.test", Site: "Warsaw", Role: "Web", Detail: "Windows Server 2025", Offline: ""), new(Name: "SQL01", Domain: "lab.example.test", Site: "Warsaw", Role: "Database", Detail: "Windows Server 2019", Offline: ""), new(Name: "FS11", Domain: "lab.example.test", Site: "Berlin", Role: "File", Detail: "Windows Server 2022", Offline: ""), new(Name: "WEB11", Domain: "lab.example.test", Site: "Berlin", Role: "Web", Detail: "Windows Server 2025", Offline: ""), new(Name: "PRN11", Domain: "lab.example.test", Site: "Berlin", Role: "Print", Detail: "Windows Server 2016", Offline: "offline since 09:12"), new(Name: "BKP21", Domain: "lab.example.test", Site: "Dublin", Role: "Backup", Detail: "Windows Server 2022", Offline: ""), new(Name: "SQL21", Domain: "lab.example.test", Site: "Dublin", Role: "Database", Detail: "Windows Server 2022", Offline: ""), new(Name: "LAB01", Domain: "lab.example.test", Site: "Lab", Role: "Test", Detail: "Windows Server 2025", Offline: ""), new(Name: "LAB02", Domain: "lab.example.test", Site: "Lab", Role: "Test", Detail: "Windows Server 2025", Offline: "maintenance until Friday"), ];
-Check[] catalog = [new(Id: "DiskCleanup", Name: "Disk cleanup", Category: "Maintenance", Description: "Removes temporary files and old update caches.", Expected: "cache under 1 GB", Minutes: 3, Changes: true), new(Id: "LogRotation", Name: "Log rotation", Category: "Maintenance", Description: "Compresses logs older than 7 days.", Expected: "retention 90 days", Minutes: 2, Changes: true), new(Id: "RestartPending", Name: "Pending restart check", Category: "Maintenance", Description: "Reports restarts waiting after updates.", Expected: "no restart pending", Minutes: 1, Changes: false), new(Id: "PatchStatus", Name: "Patch status", Category: "Security", Description: "Lists missing security updates.", Expected: "0 missing", Minutes: 2, Changes: false), new(Id: "Certificates", Name: "Certificate expiry", Category: "Security", Description: "Finds certificates expiring within 30 days.", Expected: "30+ days", Minutes: 1, Changes: false), new(Id: "LocalAdmins", Name: "Local administrators audit", Category: "Security", Description: "Compares local Administrators with the approved list.", Expected: "approved list", Minutes: 1, Changes: false), new(Id: "Firewall", Name: "Firewall rules review", Category: "Security", Description: "Flags inbound allow rules open to any address.", Expected: "scoped rules", Minutes: 2, Changes: false), new(Id: "EventErrors", Name: "Event log errors", Category: "Health", Description: "Summarizes errors from the last 24 hours.", Expected: "under 20", Minutes: 1, Changes: false), new(Id: "Services", Name: "Service health", Category: "Health", Description: "Checks and restarts stopped automatic services.", Expected: "all running", Minutes: 1, Changes: true), new(Id: "DiskSpace", Name: "Disk space", Category: "Health", Description: "Warns below 15% and fails below 5% free.", Expected: "15% free", Minutes: 1, Changes: false), new(Id: "Uptime", Name: "Uptime and reboots", Category: "Health", Description: "Reports unexpected reboots in the last 30 days.", Expected: "0 unexpected", Minutes: 1, Changes: false), ];
+Node[] inventory = new Node[]
+{
+    new(Name: "FS01", Domain: "lab.example.test", Site: "Warsaw", Role: "File", Detail: "Windows Server 2022", Offline: ""),
+    new(Name: "FS02", Domain: "lab.example.test", Site: "Warsaw", Role: "File", Detail: "Windows Server 2022", Offline: ""),
+    new(Name: "WEB01", Domain: "lab.example.test", Site: "Warsaw", Role: "Web", Detail: "Windows Server 2025", Offline: ""),
+    new(Name: "SQL01", Domain: "lab.example.test", Site: "Warsaw", Role: "Database", Detail: "Windows Server 2019", Offline: ""),
+    new(Name: "FS11", Domain: "lab.example.test", Site: "Berlin", Role: "File", Detail: "Windows Server 2022", Offline: ""),
+    new(Name: "WEB11", Domain: "lab.example.test", Site: "Berlin", Role: "Web", Detail: "Windows Server 2025", Offline: ""),
+    new(Name: "PRN11", Domain: "lab.example.test", Site: "Berlin", Role: "Print", Detail: "Windows Server 2016", Offline: "offline since 09:12"),
+    new(Name: "BKP21", Domain: "lab.example.test", Site: "Dublin", Role: "Backup", Detail: "Windows Server 2022", Offline: ""),
+    new(Name: "SQL21", Domain: "lab.example.test", Site: "Dublin", Role: "Database", Detail: "Windows Server 2022", Offline: ""),
+    new(Name: "LAB01", Domain: "lab.example.test", Site: "Lab", Role: "Test", Detail: "Windows Server 2025", Offline: ""),
+    new(Name: "LAB02", Domain: "lab.example.test", Site: "Lab", Role: "Test", Detail: "Windows Server 2025", Offline: "maintenance until Friday")
+};
+Check[] catalog = new Check[]
+{
+    new(Id: "DiskCleanup", Name: "Disk cleanup", Category: "Maintenance", Description: "Removes temporary files and old update caches.", Expected: "cache under 1 GB", Minutes: 3, Changes: true),
+    new(Id: "LogRotation", Name: "Log rotation", Category: "Maintenance", Description: "Compresses logs older than 7 days.", Expected: "retention 90 days", Minutes: 2, Changes: true),
+    new(Id: "RestartPending", Name: "Pending restart check", Category: "Maintenance", Description: "Reports restarts waiting after updates.", Expected: "no restart pending", Minutes: 1, Changes: false),
+    new(Id: "PatchStatus", Name: "Patch status", Category: "Security", Description: "Lists missing security updates.", Expected: "0 missing", Minutes: 2, Changes: false),
+    new(Id: "Certificates", Name: "Certificate expiry", Category: "Security", Description: "Finds certificates expiring within 30 days.", Expected: "30+ days", Minutes: 1, Changes: false),
+    new(Id: "LocalAdmins", Name: "Local administrators audit", Category: "Security", Description: "Compares local Administrators with the approved list.", Expected: "approved list", Minutes: 1, Changes: false),
+    new(Id: "Firewall", Name: "Firewall rules review", Category: "Security", Description: "Flags inbound allow rules open to any address.", Expected: "scoped rules", Minutes: 2, Changes: false),
+    new(Id: "EventErrors", Name: "Event log errors", Category: "Health", Description: "Summarizes errors from the last 24 hours.", Expected: "under 20", Minutes: 1, Changes: false),
+    new(Id: "Services", Name: "Service health", Category: "Health", Description: "Checks and restarts stopped automatic services.", Expected: "all running", Minutes: 1, Changes: true),
+    new(Id: "DiskSpace", Name: "Disk space", Category: "Health", Description: "Warns below 15% and fails below 5% free.", Expected: "15% free", Minutes: 1, Changes: false),
+    new(Id: "Uptime", Name: "Uptime and reboots", Category: "Health", Description: "Reports unexpected reboots in the last 30 days.", Expected: "0 unexpected", Minutes: 1, Changes: false)
+};
 Dictionary<string, (StatusKind Status, string Actual)> findings = new()
 {
     ["FS02/PatchStatus"] = (StatusKind.Fail, "3 updates missing for 41 days"),

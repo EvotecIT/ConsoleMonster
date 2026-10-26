@@ -5,65 +5,26 @@ using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
 
 // Data: cached fictional git summaries; no git process or remote request runs here.
-var repositories = new[]
+var repositories = new RepositoryStatus[]
 {
-    new
-    {
-        Repository = "orbit-api",
-        Branch = "feature/cache",
-        Modified = 3,
-        Staged = 1,
-        Ahead = 2,
-        Behind = 0
-    },
-    new
-    {
-        Repository = "orbit-cli",
-        Branch = "main",
-        Modified = 0,
-        Staged = 0,
-        Ahead = 0,
-        Behind = 4
-    },
-    new
-    {
-        Repository = "orbit-docs",
-        Branch = "docs/setup",
-        Modified = 2,
-        Staged = 0,
-        Ahead = 0,
-        Behind = 0
-    },
-    new
-    {
-        Repository = "orbit-tests",
-        Branch = "main",
-        Modified = 0,
-        Staged = 0,
-        Ahead = 0,
-        Behind = 0
-    }
+    new("orbit-api", "feature/cache", 3, 1, 2, 0),
+    new("orbit-cli", "main", 0, 0, 0, 4),
+    new("orbit-docs", "docs/setup", 2, 0, 0, 0),
+    new("orbit-tests", "main", 0, 0, 0, 0)
 };
 // Layout: numeric columns keep local changes separate from branch divergence.
-Table table = new Table().Expand(true);
-foreach (string column in new[]
-{
-    "Repository",
-    "Branch",
-    "Modified",
-    "Staged",
-    "Ahead",
-    "Behind"
-}
-
-)
-    table.AddColumn(column);
-foreach (var repo in repositories)
-{
-    table.AddRow(repo.Repository, repo.Branch, TableCell.FromValue(repo.Modified), TableCell.FromValue(repo.Staged), TableCell.FromValue(repo.Ahead), TableCell.FromValue(repo.Behind));
-}
-
+var table = Table.For(repositories).Column(row => row.Repository).Column(row => row.Branch).Column(row => row.Modified).Column(row => row.Staged).Column(row => row.Ahead).Column(row => row.Behind);
+table.Expand();
 StatusList next = new StatusList().Add("orbit-api", StatusKind.Info, "Review the staged diff before committing").Add("orbit-cli", StatusKind.Warn, "Working tree clean; inspect four incoming commits").Add("orbit-docs", StatusKind.Info, "Two local edits need review").Add("orbit-tests", StatusKind.Pass, "Clean and up to date");
-Rows report = new Rows(new Rule("[bold]Repository workspace[/] [muted]· ./work[/]"), table, new Panel().Title("Suggested next steps").Content(next)).Gap(1);
+Rows report = new Rows().Gap(1).Content(c2 =>
+{
+    c2.Rule("[bold]Repository workspace[/] [muted]· ./work[/]");
+    c2.Add(table);
+    c2.Add(new Panel().Title("Suggested next steps").Content(c =>
+    {
+        c.Add(next);
+    }));
+});
 // Behaviour: print once. Keep cached summaries fresh in a separate local collection step.
 report.Show();
+record RepositoryStatus(string Repository, string Branch, int Modified, int Staged, int Ahead, int Behind);

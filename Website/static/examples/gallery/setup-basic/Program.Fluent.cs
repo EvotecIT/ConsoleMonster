@@ -19,16 +19,32 @@ Button back = new Button("Back", "Back");
 Button next = new Button("Next", "Next / preview");
 back.Clicked += (_, _) => page = Math.Max(0, page - 1);
 next.Clicked += (_, _) => page = Math.Min(2, page + 1);
-Rows layout = new Rows(new TextBlock("[bold]Install Toolbox Agent[/] [muted]· Toolbox Agent[/]"), folder, component, back, next, new AppBinding(state =>
+Rows layout = new Rows().Gap(1).Content(c2 =>
 {
-    string title = new[]
+    c2.Text("[bold]Install Toolbox Agent[/] [muted]· Toolbox Agent[/]");
+    c2.Add(folder);
+    c2.Add(component);
+    c2.Add(back);
+    c2.Add(next);
+    c2.Add(new AppBinding(state =>
     {
-        "1 / 3 · Location",
-        "2 / 3 · Components",
-        "3 / 3 · Review"
-    }[page];
-    IWidget content = page == 0 ? new TextBlock("Choose a writable folder for the agent.") : page == 1 ? new TextBlock("Core runs local jobs. Reports adds an HTML summary.") : new Rows(new TextBlock("Folder: " + ConsoleMonster.Text.Markup.Escape(state.Get<string>("Folder", ""))), new TextBlock("Component: " + ConsoleMonster.Text.Markup.Escape(state.Get<string>("Component", ""))), new TextBlock("[pass]Ready to install. Review the folder and components.[/]"));
-    return new Panel().Title(title).Content(content);
-})).Gap(1);
+        string title = new[]
+        {
+            "1 / 3 · Location",
+            "2 / 3 · Components",
+            "3 / 3 · Review"
+        }[page];
+        IWidget content = page == 0 ? new TextBlock("Choose a writable folder for the agent.") : page == 1 ? new TextBlock("Core runs local jobs. Reports adds an HTML summary.") : new Rows().Content(c =>
+        {
+            c.Text("Folder: " + ConsoleMonster.Text.Markup.Escape(state.Get<string>("Folder", "")));
+            c.Text("Component: " + ConsoleMonster.Text.Markup.Escape(state.Get<string>("Component", "")));
+            c.Text("[pass]Ready to install. Review the folder and components.[/]");
+        });
+        return new Panel().Title(title).Content(c =>
+        {
+            c.Add(content);
+        });
+    }));
+});
 // Behaviour: edit controls to update the view; Escape exits the app.
 ConsoleApp.Run(layout);

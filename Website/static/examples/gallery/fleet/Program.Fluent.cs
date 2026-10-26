@@ -8,8 +8,28 @@ using ConsoleMonster.Text;
 using ConsoleMonster.Widgets;
 
 // Data: replace these inventories, operations and findings with your own sources.
-Node[] inventory = [new(Name: "DC01", Domain: "corp.example.test", Site: "Warsaw", Role: "Domain controller", Detail: "10.20.1.11", Offline: "", Online: true), new(Name: "DC02", Domain: "corp.example.test", Site: "Warsaw", Role: "Domain controller", Detail: "10.20.1.12", Offline: "", Online: true), new(Name: "FS01", Domain: "corp.example.test", Site: "Dublin", Role: "File", Detail: "10.30.1.21", Offline: "", Online: true), new(Name: "SQL01", Domain: "corp.example.test", Site: "Dublin", Role: "Database", Detail: "10.30.1.31", Offline: "", Online: true), new(Name: "WEB01", Domain: "corp.example.test", Site: "Berlin", Role: "Web", Detail: "10.40.1.41", Offline: "", Online: true), new(Name: "FS22", Domain: "corp.example.test", Site: "Berlin", Role: "File", Detail: "10.40.1.22", Offline: "offline since 07:12", Online: false), new(Name: "LAB01", Domain: "lab.example.test", Site: "Lab", Role: "Web", Detail: "192.168.50.40", Offline: "", Online: true), new(Name: "LAB02", Domain: "lab.example.test", Site: "Lab", Role: "Database", Detail: "192.168.50.30", Offline: "", Online: true), ];
-Check[] catalog = [new(Id: "SecureChannel", Name: "Secure channel", Category: "Identity", Description: "Tests the computer account trust with the domain.", Expected: "trusted", Seconds: 1.2, Changes: false), new(Id: "TimeOffset", Name: "Time offset", Category: "Identity", Description: "Compares the clock with the domain time source.", Expected: "under 1 s", Seconds: 0.8, Changes: false), new(Id: "ForwardRecord", Name: "Forward record", Category: "DNS", Description: "Compares the A record with the server address.", Expected: "matches IP", Seconds: 0.6, Changes: false), new(Id: "CertExpiry", Name: "Cert expiry", Category: "Certificates", Description: "Finds machine certificates expiring within 30 days.", Expected: "30+ days", Seconds: 1.8, Changes: false), new(Id: "CertChain", Name: "Cert chain", Category: "Certificates", Description: "Builds each certificate chain to a trusted root.", Expected: "trusted root", Seconds: 3.5, Changes: false), new(Id: "MissingUpdates", Name: "Missing updates", Category: "Updates", Description: "Lists missing security updates older than 14 days.", Expected: "0", Seconds: 6.5, Changes: false), new(Id: "FreeSpace", Name: "Free space", Category: "Storage", Description: "Measures free space on every fixed volume.", Expected: "15% free", Seconds: 1.3, Changes: false), new(Id: "AutoServices", Name: "Auto services", Category: "Services", Description: "Checks that automatic services are running.", Expected: "all running", Seconds: 2.2, Changes: false), ];
+Node[] inventory = new Node[]
+{
+    new(Name: "DC01", Domain: "corp.example.test", Site: "Warsaw", Role: "Domain controller", Detail: "10.20.1.11", Offline: "", Online: true),
+    new(Name: "DC02", Domain: "corp.example.test", Site: "Warsaw", Role: "Domain controller", Detail: "10.20.1.12", Offline: "", Online: true),
+    new(Name: "FS01", Domain: "corp.example.test", Site: "Dublin", Role: "File", Detail: "10.30.1.21", Offline: "", Online: true),
+    new(Name: "SQL01", Domain: "corp.example.test", Site: "Dublin", Role: "Database", Detail: "10.30.1.31", Offline: "", Online: true),
+    new(Name: "WEB01", Domain: "corp.example.test", Site: "Berlin", Role: "Web", Detail: "10.40.1.41", Offline: "", Online: true),
+    new(Name: "FS22", Domain: "corp.example.test", Site: "Berlin", Role: "File", Detail: "10.40.1.22", Offline: "offline since 07:12", Online: false),
+    new(Name: "LAB01", Domain: "lab.example.test", Site: "Lab", Role: "Web", Detail: "192.168.50.40", Offline: "", Online: true),
+    new(Name: "LAB02", Domain: "lab.example.test", Site: "Lab", Role: "Database", Detail: "192.168.50.30", Offline: "", Online: true)
+};
+Check[] catalog = new Check[]
+{
+    new(Id: "SecureChannel", Name: "Secure channel", Category: "Identity", Description: "Tests the computer account trust with the domain.", Expected: "trusted", Seconds: 1.2, Changes: false),
+    new(Id: "TimeOffset", Name: "Time offset", Category: "Identity", Description: "Compares the clock with the domain time source.", Expected: "under 1 s", Seconds: 0.8, Changes: false),
+    new(Id: "ForwardRecord", Name: "Forward record", Category: "DNS", Description: "Compares the A record with the server address.", Expected: "matches IP", Seconds: 0.6, Changes: false),
+    new(Id: "CertExpiry", Name: "Cert expiry", Category: "Certificates", Description: "Finds machine certificates expiring within 30 days.", Expected: "30+ days", Seconds: 1.8, Changes: false),
+    new(Id: "CertChain", Name: "Cert chain", Category: "Certificates", Description: "Builds each certificate chain to a trusted root.", Expected: "trusted root", Seconds: 3.5, Changes: false),
+    new(Id: "MissingUpdates", Name: "Missing updates", Category: "Updates", Description: "Lists missing security updates older than 14 days.", Expected: "0", Seconds: 6.5, Changes: false),
+    new(Id: "FreeSpace", Name: "Free space", Category: "Storage", Description: "Measures free space on every fixed volume.", Expected: "15% free", Seconds: 1.3, Changes: false),
+    new(Id: "AutoServices", Name: "Auto services", Category: "Services", Description: "Checks that automatic services are running.", Expected: "all running", Seconds: 2.2, Changes: false)
+};
 Dictionary<string, (StatusKind Status, string Actual)> findings = new()
 {
     ["DC02/TimeOffset"] = (StatusKind.Fail, "4.7 s"),
@@ -44,7 +64,7 @@ Table TableOf(string[] headers)
 IWidget Findings(IEnumerable<Work> work)
 {
     Table table = TableOf(new[] { "Server", "Check", "Expected", "Actual" });
-    table.Columns[3].Flexible(true);
+    table.Columns[3].Flexible();
     foreach (Work w in work.Where(w => w.Status != StatusKind.Pass))
         table.AddRow(w.Node.Name, w.Check.Name, w.Check.Expected, TableCell.FromValue(RichText.Plain(w.Actual, new RichStyle(w.Status == StatusKind.Fail ? ThemeToken.Fail : ThemeToken.Warn))));
     return table;
@@ -58,7 +78,11 @@ IWidget History()
     return table;
 }
 
-IWidget Preview(Check c) => new Rows(new TextBlock(Markup.Escape(c.Description)), new KeyValueList().Add("Group", c.Category).Add("Expected", c.Expected).Add("Duration", "about " + Seconds(c.Seconds)).Add("Changes", c.Changes ? "[warn]yes[/]" : "[pass]no[/]").Add("Parameter", c.Id)).Gap(1);
+IWidget Preview(Check c) => new Rows().Gap(1).Content(c2 =>
+{
+    c2.Text(Markup.Escape(c.Description));
+    c2.Add(new KeyValueList().Add("Group", c.Category).Add("Expected", c.Expected).Add("Duration", "about " + Seconds(c.Seconds)).Add("Changes", c.Changes ? "[warn]yes[/]" : "[pass]no[/]").Add("Parameter", c.Id));
+});
 // Layout: build the dashboard from the completed and active work.
 IWidget Body(List<Work> work, int done, int phase)
 {
@@ -121,18 +145,57 @@ IWidget Body(List<Work> work, int done, int phase)
     Histogram durations = new Histogram(new double[] { 0, 2, 4, 8, 16 }, "durations").Height(5);
     foreach (Work w in finished)
         durations.Add(w.Seconds);
-    Columns top = new Columns().Add(new Panel().Title("Check map").Content(map)).Add(new Panel().Title("Categories").Content(new Rows(lanes, new Rule(), facts)), LayoutSize.Fraction(1.15)).Add(new Panel().Title("Running").Content(running), LayoutSize.Fraction(.95));
+    Columns top = new Columns().Add(new Panel().Title("Check map").Content(c2 =>
+    {
+        c2.Add(map);
+    })).Add(new Panel().Title("Categories").Content(c3 =>
+    {
+        c3.Add(new Rows().Content(c2 =>
+        {
+            c2.Add(lanes);
+            c2.Add(new Rule());
+            c2.Add(facts);
+        }));
+    }), LayoutSize.Fraction(1.15)).Add(new Panel().Title("Running").Content(c2 =>
+    {
+        c2.Add(running);
+    }), LayoutSize.Fraction(.95));
     top.CollapseBelow(100);
-    Columns bottom = new Columns().Add(new Panel().Title("Findings").Content(Findings(finished)), LayoutSize.Fraction(1.5)).Add(new Panel().Title("Slowest checks").Content(slow)).Add(new Panel().Title("Durations").Content(durations), LayoutSize.Fixed(20));
+    Columns bottom = new Columns().Add(new Panel().Title("Findings").Content(c2 =>
+    {
+        c2.Add(Findings(finished));
+    }), LayoutSize.Fraction(1.5)).Add(new Panel().Title("Slowest checks").Content(c2 =>
+    {
+        c2.Add(slow);
+    })).Add(new Panel().Title("Durations").Content(c2 =>
+    {
+        c2.Add(durations);
+    }), LayoutSize.Fixed(20));
     bottom.CollapseBelow(100);
-    return new Rows(summary, phases, top, bottom, new Panel().Title("Log").Content(log));
+    return new Rows().Content(c3 =>
+    {
+        c3.Add(summary);
+        c3.Add(phases);
+        c3.Add(top);
+        c3.Add(bottom);
+        c3.Add(new Panel().Title("Log").Content(c2 =>
+        {
+            c2.Add(log);
+        }));
+    });
 }
 
 // Behaviour: native form/menu navigation, then a bounded run with cancellation and history.
 void Execute(MenuContext context, List<Work> work)
 {
-    RegionWidget body = new RegionWidget(widgetId: "body", content: Body(work, 0, 0));
-    Dashboard dashboard = new Dashboard().Content(body).Title("[bold]Fleet health check[/]").Subtitle(domain).Footer("Ctrl+C cancel · results keep the findings");
+    RegionWidget body = new RegionWidget(widgetId: "body").Content(c2 =>
+    {
+        c2.Add(Body(work, 0, 0));
+    });
+    Dashboard dashboard = new Dashboard().Content(c2 =>
+    {
+        c2.Add(body);
+    }).Title("[bold]Fleet health check[/]").Subtitle(domain).Footer("Ctrl+C cancel · results keep the findings");
     bool completed = false;
     MenuRunResult outcome = context.Run(dashboard, run =>
     {
@@ -183,26 +246,26 @@ Form Options()
     Form form = new Form("Options").Review(false).SubmitText("Save");
     FormPage page = form.Page("Options", "Parallelism, reports and notifications.");
     NumberField throttle = page.Number("Parallel", "Servers at a time");
-    throttle.Default = parallel;
-    throttle.Minimum = 1;
-    throttle.Maximum = 16;
-    throttle.Integer = true;
-    throttle.ParameterName = "ThrottleLimit";
+    throttle.Default(parallel);
+    throttle.Minimum(1);
+    throttle.Maximum(16);
+    throttle.Integer();
+    throttle.ParameterName("ThrottleLimit");
     PathField folder = page.Path("Report", "Report folder");
-    folder.Default = report;
-    folder.PathKind = PathKind.Folder;
-    folder.ParameterName = "ReportPath";
+    folder.Default(report);
+    folder.PathKind(PathKind.Folder);
+    folder.ParameterName("ReportPath");
     ChoiceField output = page.Select("Format", "Report format", new[] { new Choice("Html", "HTML"), new Choice("Csv", "CSV"), new Choice("Json", "JSON") });
-    output.Default = format;
-    output.ParameterName = "Format";
+    output.Default(format);
+    output.ParameterName("Format");
     ToggleField send = page.Toggle("Notify", "Email the report");
-    send.ParameterName = "Notify";
+    send.ParameterName("Notify");
     TextField recipient = page.Text("Email", "Recipient");
-    recipient.Default = email;
-    recipient.ParameterName = "To";
-    recipient.Required = true;
-    recipient.VisibleWhen = v => v.Get<bool>("Notify");
-    recipient.Validator = (value, _) => value is string s && s.Contains('@') ? null : "Enter an email address";
+    recipient.Default(email);
+    recipient.ParameterName("To");
+    recipient.Required();
+    recipient.Configure(configured => configured.VisibleWhen = v => v.Get<bool>("Notify"));
+    recipient.Configure(configured => configured.Validator = (value, _) => value is string s && s.Contains('@') ? null : "Enter an email address");
     return form;
 }
 
@@ -220,23 +283,23 @@ Menu menu = new Menu("Fleet health check").Layout(MenuLayout.Shell).Subtitle("Tu
 Form checkForm = new Form("New check").Command("Invoke-FleetCheck").SubmitText("Run checks").Description("Choose the scope, checks and run options.");
 FormPage scope = checkForm.Page("Scope", "Which servers to check.");
 ChoiceField domains = scope.Select("Domain", "Domain", inventory.Select(n => n.Domain).Distinct().Select(d => new Choice(d)));
-domains.Default = domain;
-domains.ParameterName = "Domain";
+domains.Default(domain);
+domains.ParameterName("Domain");
 ChoiceField servers = scope.MultiSelect("Servers", "Servers");
-servers.Minimum = 1;
-servers.ParameterName = "ComputerName";
+servers.Minimum(1);
+servers.ParameterName("ComputerName");
 servers.DependsOn.Add("Domain");
-servers.LoadChoices = async (values, token) =>
+servers.Configure(configured => configured.LoadChoices = async (values, token) =>
 {
     await Task.Delay(350, token);
     return inventory.Where(n => n.Domain == values.Get<string>("Domain")).Select(n => new Choice(n.Name).Label(n.Name).Group(n.Site).Badge(RichText.Plain(n.Role, new RichStyle(ThemeToken.Muted))).Description(n.Detail).DisabledReason(n.Offline == "" ? null : n.Offline).Selected(n.Offline == ""));
-};
-servers.Default = targets.Select(n => n.Name).ToArray();
+});
+servers.Default(targets.Select(n => n.Name).ToArray());
 FormPage choose = checkForm.Page("Checks", "What a healthy server reports appears in the preview.");
 ChoiceField operations = choose.MultiSelect("Checks", "Checks", catalog.Select(c => new Choice(c.Id, c.Name).Group(c.Category).Description(c.Description).Badge(RichText.Plain("~" + Seconds(c.Seconds), new RichStyle(ThemeToken.Muted))).Selected(checks.Contains(c))));
-operations.Minimum = 1;
-operations.ParameterName = "Check";
-operations.Preview = c => Preview(catalog.First(k => k.Id == (string)c.Value!));
+operations.Minimum(1);
+operations.ParameterName("Check");
+operations.Configure(configured => configured.Preview = c => Preview(catalog.First(k => k.Id == (string)c.Value!)));
 FormPage settings = checkForm.Page("Options", "How the run behaves.");
 foreach (Field field in options.Fields)
     settings.Add(field);
