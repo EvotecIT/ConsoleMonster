@@ -96,7 +96,7 @@ jobs:
           ref: ${{ steps.engine.outputs.ref || steps.engine.outputs.lockRef }}
           path: _powerforge
       - if: steps.changes.outputs.website == 'true'
-        uses: EvotecIT/.github/actions/setup-dotnet@6a07f68bbcf97cfce479f930590d4fe4d85ef715
+        uses: EvotecIT/.github/actions/setup-dotnet@ec7a94defe85925f23fab68a44b4659ca71c3497
         with:
           dotnet-version: |
             8.0.x

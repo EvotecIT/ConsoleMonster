@@ -38,7 +38,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Setup .NET
-        uses: EvotecIT/.github/actions/setup-dotnet@6a07f68bbcf97cfce479f930590d4fe4d85ef715
+        uses: EvotecIT/.github/actions/setup-dotnet@ec7a94defe85925f23fab68a44b4659ca71c3497
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
@@ -72,7 +72,7 @@ jobs:
         framework: [net8.0, net10.0]
     steps:
       - uses: actions/checkout@v7
-      - uses: EvotecIT/.github/actions/setup-dotnet@6a07f68bbcf97cfce479f930590d4fe4d85ef715
+      - uses: EvotecIT/.github/actions/setup-dotnet@ec7a94defe85925f23fab68a44b4659ca71c3497
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
       - name: Publish native executable (trim and AOT warnings are errors)
@@ -104,7 +104,7 @@ jobs:
         run: ./Module/Tests/Support/Test-ModuleScriptSyntax.ps1
 
       - name: Setup .NET
-        uses: EvotecIT/.github/actions/setup-dotnet@6a07f68bbcf97cfce479f930590d4fe4d85ef715
+        uses: EvotecIT/.github/actions/setup-dotnet@ec7a94defe85925f23fab68a44b4659ca71c3497
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
@@ -161,7 +161,7 @@ jobs:
       LANG: C.UTF-8
     steps:
       - uses: actions/checkout@v7
-      - uses: EvotecIT/.github/actions/setup-dotnet@6a07f68bbcf97cfce479f930590d4fe4d85ef715
+      - uses: EvotecIT/.github/actions/setup-dotnet@ec7a94defe85925f23fab68a44b4659ca71c3497
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
       - name: Restore
@@ -202,7 +202,7 @@ jobs:
       LANG: en_US.UTF-8
     steps:
       - uses: actions/checkout@v7
-      - uses: EvotecIT/.github/actions/setup-dotnet@6a07f68bbcf97cfce479f930590d4fe4d85ef715
+      - uses: EvotecIT/.github/actions/setup-dotnet@ec7a94defe85925f23fab68a44b4659ca71c3497
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
       - name: Restore
@@ -225,7 +225,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: EvotecIT/.github/actions/setup-dotnet@6a07f68bbcf97cfce479f930590d4fe4d85ef715
+      - uses: EvotecIT/.github/actions/setup-dotnet@ec7a94defe85925f23fab68a44b4659ca71c3497
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
       - name: Publish native executable (trim and AOT warnings are errors)
@@ -246,7 +246,7 @@ jobs:
       LANG: C.UTF-8
     steps:
       - uses: actions/checkout@v7
-      - uses: EvotecIT/.github/actions/setup-dotnet@6a07f68bbcf97cfce479f930590d4fe4d85ef715
+      - uses: EvotecIT/.github/actions/setup-dotnet@ec7a94defe85925f23fab68a44b4659ca71c3497
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
       - name: Build the module binaries (Debug, net8.0 and net10.0)
@@ -334,7 +334,7 @@ jobs:
       LANG: en_US.UTF-8
     steps:
       - uses: actions/checkout@v7
-      - uses: EvotecIT/.github/actions/setup-dotnet@6a07f68bbcf97cfce479f930590d4fe4d85ef715
+      - uses: EvotecIT/.github/actions/setup-dotnet@ec7a94defe85925f23fab68a44b4659ca71c3497
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
       - name: Build the module binaries (Debug, net8.0 and net10.0)
