@@ -21,12 +21,12 @@ namespace ConsoleMonster.Tests.Interactive.App {
         private static readonly RenderContext Context = Terminal.CreateContext(TerminalProfile.Fixed(100, 30));
 
         [Fact]
-        public void Confirmation_CapturesRowsBeforeWorkAndKeepsAppOpen() {
+        public async Task Confirmation_CapturesRowsBeforeWorkAndKeepsAppOpen() {
             List<object?> selected = new List<object?> { "Spooler" };
-            using ManualResetEventSlim finished = new ManualResetEventSlim();
+            var finished = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             IReadOnlyList<object?>? received = null;
             AppCommand restart = new AppCommand("restart", "Restart", (context, token) => {
-                received = context.Rows; context.Write("Restarted " + context.Rows[0]); finished.Set(); return Task.CompletedTask;
+                received = context.Rows; context.Write("Restarted " + context.Rows[0]); finished.TrySetResult(true); return Task.CompletedTask;
             }) { ConfirmPrompt = "Restart {Selection}?", Shortcut = new KeyChord(ConsoleKey.F5) };
             using AppCommandHost host = new AppCommandHost(new[] { restart }, () => selected, new PromptLabels(), default);
             host.Invoke(restart);
@@ -38,7 +38,9 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Assert.DoesNotContain("Restart WinRM?", confirmation);
             host.Handle(InputEvent.Press(ConsoleKey.LeftArrow));
             host.Handle(InputEvent.Press(ConsoleKey.Enter));
-            Assert.True(finished.Wait(TimeSpan.FromSeconds(5)));
+            // Leave the test worker available while the app queues its backend work.
+            Task completed = await Task.WhenAny(finished.Task, Task.Delay(TimeSpan.FromSeconds(5)));
+            Assert.True(completed == finished.Task, "The confirmed command did not finish; busy=" + host.IsBusy + ", modal=" + host.HasModal);
             Assert.True(SpinWait.SpinUntil(() => !host.IsBusy, TimeSpan.FromSeconds(5)));
             Assert.Equal("Spooler", Assert.Single(received!));
             Assert.False(host.HasModal);
