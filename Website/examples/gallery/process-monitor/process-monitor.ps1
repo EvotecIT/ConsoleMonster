@@ -33,8 +33,8 @@ function New-ProcessFrame {
 # Behaviour: update each frame in a bounded live run.
 $frames = @(0..2 | ForEach-Object -Process { New-ProcessFrame -Tick $_ })
 $screen = New-ConsoleRegion -WidgetId processes -Content $frames[0]
-Invoke-ConsoleDashboard -Dashboard $screen -ArgumentList (, $frames) -ScriptBlock {
-    param($Frames)
+Invoke-ConsoleDashboard -Dashboard $screen -ScriptBlock {
+    $Frames = $using:frames
     foreach ($frame in $Frames) {
         if ($ConsoleSession.Cancellation.IsCancellationRequested) {
             break

@@ -164,8 +164,8 @@ $dashboard = New-ConsoleDashboard -Title 'Installing Toolbox Agent' -Subtitle $a
     New-ConsolePanel -Title Steps -Content { New-ConsoleStatusList -WidgetId steps -Item $installSteps }
     New-ConsolePadding -Padding 1, 0 -Content { New-ConsoleProgress -Label Install -Total 40 }
 }
-Invoke-ConsoleDashboard -Dashboard $dashboard -ArgumentList (, $installSteps) -ScriptBlock {
-    param($Steps)
+Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {
+    $Steps = $using:installSteps
     foreach ($label in $Steps) {
         Update-Console -WidgetId steps -Key $label -Status Running
         Update-Console -Label $label -WidgetId 'progress'

@@ -75,12 +75,11 @@ $d = New-ConsoleDashboard -Title 'Domain health' -Content {
     New-ConsolePanel -Title 'Domain controllers' -Content { New-ConsoleRegion -WidgetId main -Content { New-ConsoleProgress -Label 'Querying' -Indeterminate -WidgetId 'spinner' } }
     New-ConsolePanel -Title 'Jobs' -Fill -Content { New-ConsoleTable -WidgetId jobs -MaxRows 8 -Live -Columns 'Job', 'State', 'Took' }
 }
-Invoke-ConsoleDashboard $d -ArgumentList (, $controllers) {
-    param($Controllers)
+Invoke-ConsoleDashboard $d {
     Update-Console -WidgetId jobs -Row ([pscustomobject]@{ Key = 'dns@DC01'; Values = @('dns', 'Running', ([timespan]::Zero)) })
     Start-Sleep -Seconds 1
     Update-Console -WidgetId jobs -Row ([pscustomobject]@{ Key = 'dns@DC01'; Values = @('dns', 'Done', ([timespan]::FromSeconds(1))) })
-    Update-Console -WidgetId main -Content { $Controllers | Show-ConsoleTable -AsWidget }
+    Update-Console -WidgetId main -Content { $using:controllers | Show-ConsoleTable -AsWidget }
     Start-Sleep -Seconds 1
 }
 ```
