@@ -145,7 +145,7 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ArgumentList (, $steps) -ScriptBl
             Update-Console -WidgetId compilers -Key ('c' + ($i - 3)) -Status Running -Detail compiling
         }
         Write-Host -Object ($item.Label.Replace([char]92, [char]47) + '...')
-        Wait-ConsoleDashboard -Milliseconds ([int]($item.Seconds * 400))
+        Wait-ConsoleDashboard -Seconds ($item.Seconds * 0.4)
         foreach ($line in $item.Output) {
             $text = $line.Replace([char]92, [char]47)
             if ($item.Result -eq 'Warn') {

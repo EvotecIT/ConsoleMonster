@@ -169,7 +169,7 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ArgumentList (, $installSteps) -S
         Update-Console -Label $label -WidgetId 'progress'
         for ($i = 0; $i -lt 10; $i++) {
             Update-Console -Increment 1 -WidgetId 'progress'
-            Wait-ConsoleDashboard -Milliseconds 90
+            Wait-ConsoleDashboard -Seconds 0.09
         }
         Update-Console -WidgetId steps -Key $label -Status Pass
     }

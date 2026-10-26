@@ -21732,20 +21732,20 @@
       "CSharpType": "ConsoleMonster.Live.LiveSession",
       "Bindings": [
         {
-          "Parameter": "Milliseconds",
-          "ParameterType": "System.Int32",
+          "Parameter": "Seconds",
+          "ParameterType": "System.Double",
           "Default": 0,
           "Sets": [
             {
               "Name": "__AllParameterSets",
-              "Position": -2147483648,
+              "Position": 0,
               "Mandatory": true
             }
           ],
           "CSharpType": "ConsoleMonster.Live.LiveSession",
           "Member": "Delay",
           "MemberKind": "Method",
-          "Conversion": "MillisecondsToTimeSpan",
+          "Conversion": "SecondsToTimeSpan",
           "CSharpTypeName": "System.TimeSpan",
           "Argument": "delay",
           "Reason": "The parameter selects the documented operation or adapts pipeline data to its typed argument."
