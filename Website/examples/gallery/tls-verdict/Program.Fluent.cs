@@ -71,14 +71,7 @@ Ui.Rows().Gap(1).Content(c2 =>
     c2.Add(facts);
     c2.Add(flow);
     c2.Rule("Trust decision");
-    c2.Panel(cmPanel => cmPanel.Content(cmContent =>
-    {
-        global::ConsoleMonster.Layout.IWidget? cmChild = Ui.Text().Content(expired ? "Chain validation failed." : "Chain validation passed.").IsMarkup();
-        if (cmChild != null)
-        {
-            cmContent.Add(cmChild);
-        }
-    }).Title(verdict).Verdict().Status(chainStatus));
+    c2.Panel(cmPanel => cmPanel.Content(cmContent => cmContent.Text(cmText => cmText.Content(expired ? "Chain validation failed." : "Chain validation passed.").IsMarkup())).Title(verdict).Verdict().Status(chainStatus));
     c2.KeyValue(cmKeyValue => cmKeyValue.KeyRole(chainStatus.ToToken()).Add("Cause", expired ? "Expired intermediate certificate." : "Trusted root and complete chain.").Add("Proof", proof).Add("Action", action).Add("Exit", exitCode + " · 184 ms"));
 }).Show();
 record Step(string Key, string Label, StatusKind Status, string Detail);

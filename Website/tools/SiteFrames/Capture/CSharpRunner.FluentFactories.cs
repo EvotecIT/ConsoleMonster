@@ -62,7 +62,7 @@ namespace SiteFrames.Capture {
                         continue;
                     }
                     if (p.Name is "content" or "children" or "layers" && type.AllInterfaces.Any(contract => contract.ToDisplayString() == "ConsoleMonster.Layout.IContentOwner")) {
-                        result = Call(result, "Content", ConstructorContent(p, value, model.GetTypeInfo(arg.Expression).Type is IArrayTypeSymbol));
+                        result = Call(result, "Content", ConstructorContent(p, value, model.GetTypeInfo(arg.Expression).Type is IArrayTypeSymbol, model.GetTypeInfo(arg.Expression).Nullability.FlowState != NullableFlowState.NotNull));
                         continue;
                     }
                     if (type.Name == "TextBlock" && p.Name == "markup") { result = Call(Call(result, "Content", value), "IsMarkup"); continue; }

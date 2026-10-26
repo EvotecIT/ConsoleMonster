@@ -37,14 +37,25 @@ namespace SiteFrames.Capture {
                 return false;
             }
 
-            private ExpressionSyntax ConstructorContent(IParameterSymbol parameter, ExpressionSyntax value, bool array) {
+            private ExpressionSyntax ConstructorContent(IParameterSymbol parameter, ExpressionSyntax value, bool array, bool nullable) {
                 string content = Unique("content", value);
                 string child = Unique("child", value);
                 if (array) {
                     return SyntaxFactory.ParseExpression(content + " => { foreach (var " + child + " in (" + value + " ?? global::System.Array.Empty<global::ConsoleMonster.Layout.IWidget>())) { " + content + ".Add(" + child + "); } }");
                 }
-                if (parameter.Type.NullableAnnotation == NullableAnnotation.Annotated) {
+                if (nullable && parameter.Type.NullableAnnotation == NullableAnnotation.Annotated) {
                     return SyntaxFactory.ParseExpression(content + " => { global::ConsoleMonster.Layout.IWidget? " + child + " = " + value + "; if (" + child + " != null) { " + content + ".Add(" + child + "); } }");
+                }
+                if (RootFactory(value) is InvocationExpressionSyntax factory && factory.Expression is MemberAccessExpressionSyntax member
+                    && member.Name.Identifier.ValueText is not ("Options" or "RichText")) {
+                    string noun = member.Name.Identifier.ValueText;
+                    if (factory.ArgumentList.Arguments.Count == 0 && noun is not ("Chart" or "Progress" or "Select" or "TextInput" or "Button" or "Toggle" or "Binding")) {
+                        string configured = Unique(noun, value);
+                        ExpressionSyntax configuration = value.ReplaceNode(factory, SyntaxFactory.IdentifierName(configured));
+                        if (configuration is IdentifierNameSyntax) { return SyntaxFactory.ParseExpression(content + " => " + content + "." + noun + "()"); }
+                        return SyntaxFactory.ParseExpression(content + " => " + content + "." + noun + "(" + configured + " => " + configuration + ")");
+                    }
+                    return SyntaxFactory.ParseExpression(content + " => " + content + "." + noun + "(" + value + ")");
                 }
                 return SyntaxFactory.ParseExpression(content + " => " + content + ".Add(" + value + ")");
             }
