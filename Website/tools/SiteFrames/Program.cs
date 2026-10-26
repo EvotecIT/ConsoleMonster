@@ -64,6 +64,15 @@ namespace SiteFrames {
                     CSharpRunner.Check(source, fluent);
                     File.WriteAllText(Path.GetFullPath(Path.Combine(website, args[3])), fluent);
                     return 0;
+                case "layout" when only != null:
+                    // Lays out maintained example sources like the generated fluent programs: SiteFrames layout Website examples/home/summary.cs ...
+                    foreach (string file in args.Skip(2)) {
+                        string full = Path.GetFullPath(Path.Combine(website, file));
+                        string original = File.ReadAllText(full);
+                        string laid = SourceLayout.Format(original);
+                        if (laid != original.Replace("\r\n", "\n")) { File.WriteAllText(full, laid, new System.Text.UTF8Encoding(File.ReadAllBytes(full) is [0xEF, 0xBB, 0xBF, ..])); Console.WriteLine("laid out " + file); }
+                    }
+                    return 0;
                 case "verify-gallery-sources":
                     GalleryPage.CheckSources(new Site(website));
                     return 0;
