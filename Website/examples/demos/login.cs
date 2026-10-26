@@ -31,7 +31,10 @@ disks.Add("/", 71);
 disks.Add("/var", 88);
 disks.Add("/home", 34);
 disks.Add("/srv/data", 93);
-Terminal.Write(new Rule("[bold]app-web-03[/] [muted]· " + DateTime.Now.ToString("yyyy-MM-dd HH:mm") + "[/]"));
+Terminal.Write(new Rule("[bold]app-web-03[/] [muted]· " + DateTime.Now.ToString("yyyy-MM-dd HH:mm")
+    + "[/]"));
 var profile = Terminal.GetCurrentProfile().WithSize(96, Terminal.GetCurrentProfile().Height);
-Terminal.Write(new Columns(new Panel(facts, "System"), new Panel(health, "Health")) { Gap = 2 }, profile);
+Terminal.Write(
+    new Columns(new Panel(facts, "System"), new Panel(health, "Health")) { Gap = 2 },
+    profile);
 Terminal.Write(new Panel(disks, "Disk use"), profile);

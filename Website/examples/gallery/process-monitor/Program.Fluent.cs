@@ -13,32 +13,41 @@ var processes = new Process[]
     new("api-host", 4120, 12, 220),
     new("file-watcher", 4131, 3, 48)
 };
-double[] cpuHistory =
-{
-    38,
-    45,
-    51,
-    48,
-    56
-};
+double[] cpuHistory = { 38, 45, 51, 48, 56 };
+
 // Layout: build a complete frame from one set of counters.
 IWidget Frame(int tick)
 {
-    var rows = processes.Select(process => new ProcessRow(process.Name, process.Pid, process.Cpu + tick * 3, process.Memory + tick * 16)).ToArray();
-    var table = Ui.Table(rows).Column(row => row.Name).Column(row => row.Pid, column => column.Presenter(CellPresenters.Identifier)).Column("CPU %", row => row.Cpu).Column("Memory MiB", row => row.Memory);
+    var rows = processes.Select(process => new ProcessRow(process.Name, process.Pid,
+        process.Cpu + tick * 3, process.Memory + tick * 16))
+        .ToArray();
+    var table = Ui.Table(rows)
+        .Column(row => row.Name)
+        .Column(row => row.Pid, column => column.Presenter(CellPresenters.Identifier))
+        .Column("CPU %", row => row.Cpu)
+        .Column("Memory MiB", row => row.Memory);
     table.Expand();
-    Sparkline history = Ui.Chart().Type(ConsoleMonster.Widgets.ChartType.Sparkline).Label("CPU %").Build<Sparkline>();
+    Sparkline history = Ui.Chart()
+        .Type(ConsoleMonster.Widgets.ChartType.Sparkline)
+        .Label("CPU %")
+        .Build<Sparkline>();
     history.AddRange(cpuHistory.Concat(new[] { 56.0 + tick * 5 }));
     return Ui.Rows().Gap(1).Content(c2 =>
     {
         c2.Rule("[bold]Process monitor[/] [muted]· refresh 1s[/]");
-        c2.Text(c2Text => c2Text.Content($"[accent]CPU {56 + tick * 5}%[/]   Memory {1640 + tick * 64} MiB   [muted]4 processes[/]").IsMarkup());
+        c2.Text(
+            c2Text => c2Text.Content(
+                $"[accent]CPU {56 + tick * 5}%[/]   Memory {1640 + tick * 64} MiB   [muted]4 processes[/]")
+                .IsMarkup());
         c2.Add(table);
         c2.Panel(cmPanel => cmPanel.Title("CPU history").Content(c =>
         {
             c.Add(history);
         }));
-        c2.Text(c2Text => c2Text.Content("[muted]Ctrl+C stops monitoring. Final counters stay in scrollback.[/]").IsMarkup());
+        c2.Text(
+            c2Text => c2Text.Content(
+                "[muted]Ctrl+C stops monitoring. Final counters stay in scrollback.[/]")
+                .IsMarkup());
     });
 }
 
@@ -59,11 +68,13 @@ try
         }
     });
 }
-catch (OperationCanceledException cancelled)when (cancelled.CancellationToken == session.Cancellation)
+catch (OperationCanceledException cancelled)
+    when (cancelled.CancellationToken == session.Cancellation)
 {
     // Ctrl+C is a normal way to leave the demo, after the session restores the terminal.
     return;
 }
 
 record Process(string Name, int Pid, int Cpu, int Memory);
+
 record ProcessRow(string Name, int Pid, int Cpu, int Memory);

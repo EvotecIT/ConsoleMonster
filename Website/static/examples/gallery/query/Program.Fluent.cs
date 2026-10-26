@@ -14,10 +14,13 @@ var records = new QueryRecord[]
     new(domain, "MX", 3600, "10 mail.example.test"),
     new(domain, "NS", 86400, "ns1.example.test"),
     new(domain, "NS", 86400, "ns2.example.test"),
-    new(domain, "TXT", 3600, "v=spf1 include:spf.example.test include:relay.example.test ip4:203.0.113.9 -all"),
-    new("_dmarc." + domain, "TXT", 3600, "v=DMARC1; p=reject; rua=mailto:dmarc@example.test; ruf=mailto:forensic@example.test; fo=1"),
+    new(domain, "TXT", 3600,
+        "v=spf1 include:spf.example.test include:relay.example.test ip4:203.0.113.9 -all"),
+    new("_dmarc." + domain, "TXT", 3600,
+        "v=DMARC1; p=reject; rua=mailto:dmarc@example.test; ruf=mailto:forensic@example.test; fo=1"),
     new(domain, "CAA", 3600, "0 issue \"ca.example.test\""),
-    new(domain, "SOA", 3600, "ns1.example.test. hostmaster.example.test. 2026102401 10000 2400 604800 3600")
+    new(domain, "SOA", 3600,
+        "ns1.example.test. hostmaster.example.test. 2026102401 10000 2400 604800 3600")
 };
 var checks = new CheckRow[]
 {
@@ -37,13 +40,23 @@ var resolvers = new ResolverRow[]
     new("Cache south", 31),
     new("Local resolver", 47)
 };
+
 // Layout: keep the dense report readable through wrapping and two balanced panels.
-KeyValueList summary = Ui.KeyValue().Add("Domain", "[bold]example.test[/]").Add("Resolver", "Edge west DNS over HTTPS [muted](192.0.2.53)[/]").Add("Query time", "38 ms [muted]for 7 record types[/]").Add("Records", "10").Add("DNSSEC", "not signed", StatusKind.Warn);
-var table = Ui.Table(records).Column(row => row.Name).Column(row => row.Type).Column(row => row.TTL, column =>
-{
-    column.Header("TTL");
-    column.Alignment(HorizontalAlignment.Right);
-}).Column(row => row.Data, column => column.Flexible());
+KeyValueList summary = Ui.KeyValue()
+    .Add("Domain", "[bold]example.test[/]")
+    .Add("Resolver", "Edge west DNS over HTTPS [muted](192.0.2.53)[/]")
+    .Add("Query time", "38 ms [muted]for 7 record types[/]")
+    .Add("Records", "10")
+    .Add("DNSSEC", "not signed", StatusKind.Warn);
+var table = Ui.Table(records)
+    .Column(row => row.Name)
+    .Column(row => row.Type)
+    .Column(row => row.TTL, column =>
+    {
+        column.Header("TTL");
+        column.Alignment(HorizontalAlignment.Right);
+    })
+    .Column(row => row.Data, column => column.Flexible());
 table.Expand();
 table.HeaderSeparator(false);
 Tree delegation = Ui.Tree().Title("[bold].[/] [muted]root[/]");
@@ -56,7 +69,11 @@ zone.Add("mail", null, "MX target").Add("mail.example.test", StatusKind.Pass, "1
 StatusList mail = Ui.StatusList();
 foreach (var(label, status, detail)in checks)
     mail.Add(label, status, detail);
-BarChart latency = Ui.Chart().Type(ConsoleMonster.Widgets.ChartType.Bar).WidgetId("latency").Unit(" ms").Build<BarChart>();
+BarChart latency = Ui.Chart()
+    .Type(ConsoleMonster.Widgets.ChartType.Bar)
+    .WidgetId("latency")
+    .Unit(" ms")
+    .Build<BarChart>();
 foreach (var(label, value)in resolvers)
     latency.Add(label, value);
 IWidget report = Ui.Rows().Gap(1).Content(c4 =>
@@ -84,8 +101,12 @@ IWidget report = Ui.Rows().Gap(1).Content(c4 =>
         }).HeaderRight(domain));
     }));
 });
+
 // Behaviour: print the report once to the terminal or redirected output.
 report.Show();
+
 record QueryRecord(string Name, string Type, int TTL, string Data);
+
 record CheckRow(string Label, StatusKind Status, string Detail);
+
 record ResolverRow(string Label, int Milliseconds);
