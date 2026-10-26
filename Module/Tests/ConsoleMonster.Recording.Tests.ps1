@@ -122,7 +122,7 @@
         Test-Path -LiteralPath ([IO.Path]::ChangeExtension($destination, '.cast')) | Should -BeFalse
     }
 
-    It 'relays an interactive Start session through the real terminal input host' {
+    It 'relays an interactive recording through the real terminal input host' {
         $module = (Get-Module ConsoleMonster | Select-Object -First 1).Path
         $runtime = [Diagnostics.Process]::GetCurrentProcess().MainModule.FileName
         $inner = Join-Path $TestDrive 'interactive.cast'
@@ -161,7 +161,13 @@
                     $recorder.SendInput("`r")
                     # Command echo cannot satisfy this: the expected token is assembled only during execution.
                     # Stop after ConPTY has painted the result, rather than terminating it in the same command.
-                    if ($command.Output) { $observer.WaitFor($command.Output, [TimeSpan]::FromSeconds(20)) | Should -BeTrue -Because $observer.Text }
+                    if ($command.Output) {
+                        $observer.WaitFor($command.Output, [TimeSpan]::FromSeconds(20)) | Should -BeTrue -Because $observer.Text
+                        # Output can precede the next line editor's input-mode setup. Wait for its new prompt,
+                        # beyond the execution-only token, before entering the marker/stop command.
+                        $after = $observer.Text.IndexOf($command.Output, [StringComparison]::Ordinal) + $command.Output.Length
+                        $observer.WaitFor('>', [TimeSpan]::FromSeconds(20), $after) | Should -BeTrue -Because $observer.Text
+                    }
                 }
             } else {
                 $label = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes('Interactive'))
@@ -176,7 +182,11 @@
         $text = Export-ConsoleRecording -Path $inner -Format Text
         $text | Should -Match 'INTERACTIVE-CHECK' -Because ([IO.File]::ReadAllText($inner))
         $text | Should -Not -Match 'OUTER-DONE'
-        (Export-ConsoleRecording -Path $inner -Format PlayerData | ConvertFrom-Json).markers[0][1] | Should -Be 'Interactive'
+        $playerJson = Export-ConsoleRecording -Path $inner -Format PlayerData
+        $player = $playerJson | ConvertFrom-Json
+        $markerCount = if ($null -eq $player.markers) { 0 } else { $player.markers.Count }
+        $markerCount | Should -Be 1 -Because ("Inner recording:`n" + [IO.File]::ReadAllText($inner) + "`nPlayerData:`n" + $playerJson)
+        $player.markers[0][1] | Should -Be 'Interactive'
     }
 
     It 'surfaces a child failure and retains its recording' {
