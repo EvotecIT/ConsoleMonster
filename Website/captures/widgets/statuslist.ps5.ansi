@@ -1,7 +1,7 @@
-[?9001h[?1004h[?25l[2J[m[H]0;Administrator: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe[?25h[38;2;74;222;128m✓ [mRestore NuGet packages[31X[38;2;139;143;154m[31C1.6 s[38;2;74;222;128m
-✓ [mCompile ConsoleMonster[31X[38;2;139;143;154m[31C4.7 s[38;2;251;191;36m
-▴ [mRun Pester on PowerShell 7[23X[38;2;139;143;154m[23C1 skipped[38;2;161;161;170m
-– [mSign module files[34X[38;2;139;143;154m[34Cskipped[38;2;96;165;250m
+[?9001h[?1004h[?25l[2J[m[38;2;74;222;128m[H✓ [mRestore NuGet packages[38;2;139;143;154m[31C1.6 s[38;2;74;222;128m
+✓ [mCompile ConsoleMonster[38;2;139;143;154m[31C4.7 s[38;2;251;191;36m
+▴ [mRun Pester on PowerShell 7[38;2;139;143;154m[23C1 skipped[38;2;161;161;170m
+– [mSign module files[38;2;139;143;154m[34Cskipped[38;2;96;165;250m
 ⠋ [mPack ConsoleMonster.2.0.0.nupkg[38;2;113;113;122m
 ○ [mPublish to PowerShell Gallery
-[?9001l[?1004l
+]0;C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe[?25h[?9001l[?1004l

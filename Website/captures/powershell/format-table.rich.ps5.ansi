@@ -1,5 +1,4 @@
-[?9001h[?1004h[?25l[2J[m[H]0;Administrator: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe[?25h
-Name                        Kind    Length Time             Signed Path[28X
+[?9001h[?1004h[?25l[2J[m[2;1H]0;C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe[?25hName                        Kind    Length Time             Signed Path[28X
 ----                        ----    ------ ----             ------ ----[28X
 ConsoleMonster.2.0.0.nupkg  NuGet  1482113 00:00:48.2000000   True D:\Builds\ConsoleMonster\Pack...
 ConsoleMonster.2.0.0.snupkg NuGet   402331 00:00:03.1000000   True D:\Builds\ConsoleMonster\Pack...
