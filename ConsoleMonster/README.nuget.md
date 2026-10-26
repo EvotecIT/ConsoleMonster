@@ -46,7 +46,7 @@ Enable-ConsoleFormatting -Feature All -ProfileSnippet | Add-Content -Path $PROFI
 
 ## Tables, lists and trees
 
-`Show-ConsoleTable`, `Show-ConsoleList` and `Show-ConsoleTree` take pipeline input and fit the window.
+`Show-ConsoleTable`, `Show-ConsoleList` and `Show-Console -View Tree` take pipeline input and fit the window.
 `Format-Table`, `Format-List` and `Format-Wide` stay PowerShell's own unless you turn on `-Feature FormatCommands`.
 
 ```powershell

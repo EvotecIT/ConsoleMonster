@@ -55,7 +55,7 @@ namespace SiteFrames.Pages {
                 string id = "pipeline-charts-" + width;
                 DocCards.Offer(id, dark, null);
                 Figures.Add(id, Figures.WithProgram(site, new JsonObject {
-                    ["title"] = "Show-ConsoleChart",
+                    ["title"] = "Show-Console -View Chart",
                     ["file"] = "pipeline-charts.ps1",
                     ["label"] = "Bars, a distribution and grouped trends from numeric samples",
                     ["meta"] = new JsonArray(width + " columns", "24-bit", "Full"),
