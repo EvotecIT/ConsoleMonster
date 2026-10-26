@@ -391,14 +391,14 @@ $checkForm = New-ConsoleForm -Title 'New check' -Command Invoke-FleetCheck -Subm
         ParameterName = 'Domain'
     }
     New-ConsoleField @fieldOptions
-    New-ConsoleField -Key Servers -Label Servers -Page Scope -Type MultiSelect -DependsOn Domain -Minimum 1 -ParameterName ComputerName `
+    New-ConsoleField -Key Servers -Label Servers -Page Scope -Type Select -Multiple -DependsOn Domain -Minimum 1 -ParameterName ComputerName `
         -Display Name -CommandValue Name -GroupBy Site -Badge Role -DisabledReason Offline -Selected Online `
         -Describe Detail -Default $plan.Targets.Name -ArgumentList (, $inventory) -LoadChoices {
         param($Values, $Inventory)
         Start-Sleep -Milliseconds 350
         $Inventory | Where-Object -Property Domain -EQ -Value $Values.Domain
     }
-    New-ConsoleField -Key Checks -Label Checks -Page Checks -Type MultiSelect -Choices $catalog -Display Name -CommandValue Id `
+    New-ConsoleField -Key Checks -Label Checks -Page Checks -Type Select -Multiple -Choices $catalog -Display Name -CommandValue Id `
         -GroupBy Category -Describe Description -Badge { "~$(Format-Seconds -Value $_.Seconds)" } -Preview { Get-Preview -Check $_ } `
         -Default $plan.Checks.Id -Minimum 1 -ParameterName Check
     Get-OptionFields -Page Options

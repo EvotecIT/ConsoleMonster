@@ -8,22 +8,29 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates one numeric chart representation from records or samples.
 
-Type selects Bar, Stacked, Line, Scatter, Histogram or Sparkline. The shared C# Chart factory rejects options that do not apply to the selected kind. InputObject accepts ordinary records; Content emits the same records. Use Update-Console for live changes.
+Type selects Bar, Stacked, Line, Scatter, Histogram or Sparkline. The shared C# Chart factory rejects options that do not apply to the selected kind. InputObject accepts chart records (Label and Value; Key, Label, Values and Role for series); Content emits the same records. For Bar, Histogram and Sparkline, -Property picks the number from ordinary objects and -Label (Bar only, default Name) their label, as Show-Console -View Chart does. Use Update-Console for live changes.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleChart [[-WidgetId] <string>] [[-InputObject] <psobject>] -Type <ChartType> [-Unit <string>] [-Label <Object>] [-Height <Int32>] [-Minimum <Double>] [-Maximum <Double>] [-Role <ThemeToken>] [-Shape <BarShape>] [-Warning <Double>] [-Critical <Double>] [-NoLatest] [-Edges <double[]>] [-Values <double[]>] [-ValueColumn <ColumnFormat>] [-CountColumn <ColumnFormat>] [-PercentColumn <ColumnFormat>] [-LabelColumn <ColumnFormat>] [-Content <scriptblock>] [-Series <Object[]>] [-NoValues] [-Signed] [-NoLegend] [-MaxLegendColumns <int>] [-Capacity <Int32>] [<CommonParameters>]
+New-ConsoleChart [[-WidgetId] <string>] [[-InputObject] <psobject>] -Type <ChartType> [-Unit <string>] [-Title <Object>] [-Property <Object[]>] [-Label <Object>] [-Height <Int32>] [-Minimum <Double>] [-Maximum <Double>] [-Role <ThemeToken>] [-Shape <BarShape>] [-Warning <Double>] [-Critical <Double>] [-NoLatest] [-Edges <double[]>] [-Values <double[]>] [-ValueColumn <ColumnFormat>] [-CountColumn <ColumnFormat>] [-PercentColumn <ColumnFormat>] [-LabelColumn <ColumnFormat>] [-Content <scriptblock>] [-Series <Object[]>] [-NoValues] [-Signed] [-NoLegend] [-MaxLegendColumns <int>] [-Capacity <Int32>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Creates one numeric chart representation from records or samples.
 
-Type selects Bar, Stacked, Line, Scatter, Histogram or Sparkline. The shared C# Chart factory rejects options that do not apply to the selected kind. InputObject accepts ordinary records; Content emits the same records. Use Update-Console for live changes.
+Type selects Bar, Stacked, Line, Scatter, Histogram or Sparkline. The shared C# Chart factory rejects options that do not apply to the selected kind. InputObject accepts chart records (Label and Value; Key, Label, Values and Role for series); Content emits the same records. For Bar, Histogram and Sparkline, -Property picks the number from ordinary objects and -Label (Bar only, default Name) their label, as Show-Console -View Chart does. Use Update-Console for live changes.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
+```powershell
+$servers | New-ConsoleChart -Type Bar -Property Cpu -Label Name -Unit '%'
+```
+
+Chart a property of ordinary objects inside a report
+
+### EXAMPLE 2
 ```powershell
 [pscustomobject] @{ Label = 'Cloudflare'; Value = 12 } | New-ConsoleChart -Type Bar -Unit ' ms' | Show-Console
 ```
@@ -145,7 +152,7 @@ Accept wildcard characters: False
 ```
 
 ### -Label
-The sparkline label.
+For Bar with -Property: the label property or expression; default Name.
 
 ```yaml
 Type: Object
@@ -288,6 +295,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Property
+For Bar, Histogram or Sparkline: the numeric property of ordinary input objects (a name, pattern or calculated property).
+
+```yaml
+Type: Object[]
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Role
 The chart theme role.
 
@@ -341,6 +364,22 @@ Shows signed Bar values on both sides of zero.
 
 ```yaml
 Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Title
+The Sparkline caption shown before the trend.
+
+```yaml
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

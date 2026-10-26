@@ -14,6 +14,6 @@ New-ConsolePanel -Title '[bold]Nightly checks[/]' -HeaderRight 'lab01.contoso.co
             [pscustomobject] @{ Label = 'Failed'; Value = 23; Role = 'Fail' }
             [pscustomobject] @{ Label = 'Skipped'; Value = 14; Role = 'Skip' }
         }
-        New-ConsoleChart -Type Sparkline -Label 'rules/s' -Unit '/s' -InputObject $rate
+        New-ConsoleChart -Type Sparkline -Title 'rules/s' -Unit '/s' -InputObject $rate
     }
 } | Show-Console

@@ -29,4 +29,4 @@ double[] rate =
     62,
     60
 };
-Terminal.Write(new Rows() { Gap = 1 }.Add(new Sparkline() { Label = "rules/s", Unit = "/s" }.AddRange(rate)).Add(new Sparkline() { Height = 3, Unit = "/s" }.AddRange(rate)));
+Terminal.Write(new Rows() { Gap = 1 }.Add(new Sparkline() { Title = "rules/s", Unit = "/s" }.AddRange(rate)).Add(new Sparkline() { Height = 3, Unit = "/s" }.AddRange(rate)));

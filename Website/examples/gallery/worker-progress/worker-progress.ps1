@@ -28,7 +28,7 @@ function New-DemoFrame {
                         'Workers' = '8'
                         'Dropped' = '[pass]0[/]'
                     })
-                New-ConsoleChart -Label 'updates/s' -Type Sparkline -Values @(120, 180, 160, 240, 210, (220 + $Tick * 15))
+                New-ConsoleChart -Title 'updates/s' -Type Sparkline -Values @(120, 180, 160, 240, 210, (220 + $Tick * 15))
             }
         }
         '[muted]Ctrl+C stops the live run.[/]'
