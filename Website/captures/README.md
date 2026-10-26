@@ -102,6 +102,11 @@ module used by PowerShell 5.1. An optional area follows `Website`, for example
   native repaints. Static examples export the recorder's complete `Transcript`,
   including scrolled history. Both use the declared dark terminal palette and the
   shared terminal encoder; visible data, styles, links and wide cells are retained.
+- Gallery recipes can declare `capture.ready` (or a state-specific `ready`) to
+  wait for text in the actual current frame before sending scripted keys. The
+  shared `ScriptedInput.WaitForOutput` queues a bounded wait and yields to the
+  application's repaint loop; it does not guess asynchronous completion from a
+  fixed sleep. Toolbox waits for its loaded target count before navigation.
 - The capture policy participates in source fingerprints. Do not edit stamps
   to make an old capture appear fresh. Regenerate each affected producing set.
 

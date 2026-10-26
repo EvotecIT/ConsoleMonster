@@ -4,7 +4,13 @@ if ($Step -ge $Metadata.steps) { throw "Snapshot $Step does not exist for $($Met
 $state = $Metadata.capture.states[$Step]
 $culture = [Globalization.CultureInfo]::GetCultureInfo('en-US')
 $profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile', $true))::Fixed($Metadata.terminal.width, $Metadata.terminal.height, 'TrueColor', 'Full').WithCulture($culture).WithLanguage($culture)
-$target = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Output.RecordingTarget', $true))::new($profile, $state.keys)
+$ready = if ($null -ne $state.ready) { [string] $state.ready } elseif ($null -ne $Metadata.capture.ready) { [string] $Metadata.capture.ready } else { $null }
+$keys = if ($null -ne $ready) { '' } else { $state.keys }
+$target = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Output.RecordingTarget', $true))::new($profile, $keys)
+if ($null -ne $ready) {
+    $target.Input.WaitForOutput($target.Screens, $ready, [timespan]::FromSeconds(30))
+    $target.Input.Append([string] $state.keys)
+}
 $target.SkipDelays = $true
 $target.Checkpoints = if ($null -ne $state.checkpoint) { [int[]] @($state.checkpoint) } else { [int[]] @() }
 $previousStorage = $env:CONSOLEMONSTER_STORAGE_ROOT
