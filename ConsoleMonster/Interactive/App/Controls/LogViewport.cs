@@ -35,9 +35,9 @@ namespace ConsoleMonster.Interactive {
         public void Write(string text, string level = "info", TimeSpan time = default) => Change(() => {
             text = text ?? string.Empty;
             if (text.Length > 16384) { text = text.Substring(0, 16384); }
-            int before = _log.Entries.Count;
+            long before = _log.TotalLines;
             _log.Write(text, level, time);
-            if (_log.ScrollOffset > 0) { _log.ScrollOffset = Math.Min(_log.Entries.Count - 1, _log.ScrollOffset + Math.Max(1, _log.Entries.Count - before)); }
+            if (_log.ScrollOffset > 0) { _log.ScrollOffset = (int)Math.Min(_log.Entries.Count - 1, _log.ScrollOffset + _log.TotalLines - before); }
         });
         /// <inheritdoc />
         protected override object ReadValueCore() => _log.ScrollOffset;

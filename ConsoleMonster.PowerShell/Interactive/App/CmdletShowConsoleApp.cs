@@ -42,6 +42,8 @@ namespace ConsoleMonster.PowerShell {
         [Parameter] public TerminalHandoff? TerminalHandoff { get; set; }
         /// <summary><para type="description">Typed modal form service attached for this app run.</para></summary>
         [Parameter] public AppDialogs? Dialogs { get; set; }
+        /// <summary><para type="description">App-thread action service for starting the shared worker from registry and dialog callbacks.</para></summary>
+        [Parameter] public AppActions? Actions { get; set; }
         /// <summary><para type="description">Context key bar, normally a FooterBar reading the app's command registry.</para></summary>
         [Parameter] public IWidget? Footer { get; set; }
         /// <summary><para type="description">Minimum terminal width; smaller windows show a resize message without losing focus.</para></summary>
@@ -134,7 +136,7 @@ namespace ConsoleMonster.PowerShell {
                         ProcessEvents = callbacks.Drain,
                         SelectionKey = SelectionKey,
                         Keys = Keys, SignalKeys = SignalKeys.IsPresent, HandleInput = HandleInput,
-                        TerminalHandoff = TerminalHandoff, Dialogs = Dialogs, Footer = Footer,
+                        TerminalHandoff = TerminalHandoff, Dialogs = Dialogs, Actions = Actions, Footer = Footer,
                         MinimumWidth = MinimumWidth, MinimumHeight = MinimumHeight
                     };
                     foreach (AppCommand command in Command) { options.Command.Add(command); }

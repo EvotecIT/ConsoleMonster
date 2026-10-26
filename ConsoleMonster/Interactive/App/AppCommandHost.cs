@@ -17,6 +17,7 @@ namespace ConsoleMonster.Interactive {
         private readonly AppActionSession _session;
         private Modal? _modal;
         private readonly AppDialogs? _dialogs;
+        private readonly AppActions? _actions;
         private ViewFrame? _frame;
         private long _revision;
         private bool _wasBusy;
@@ -33,7 +34,7 @@ namespace ConsoleMonster.Interactive {
         private long _completionRevision;
         private long _summaryRevision;
 
-        internal AppCommandHost(IEnumerable<AppCommand> commands, Func<IReadOnlyList<object?>> selection, PromptLabels labels, CancellationToken token, bool commandBar = false, bool requiresRows = false, AppDispatcher? dispatcher = null, Func<string>? selectionLabel = null, Action<AppCommand>? completed = null, Func<TimeSpan>? actionClock = null, AppHostKeys? keys = null, AppDialogs? dialogs = null) {
+        internal AppCommandHost(IEnumerable<AppCommand> commands, Func<IReadOnlyList<object?>> selection, PromptLabels labels, CancellationToken token, bool commandBar = false, bool requiresRows = false, AppDispatcher? dispatcher = null, Func<string>? selectionLabel = null, Action<AppCommand>? completed = null, Func<TimeSpan>? actionClock = null, AppHostKeys? keys = null, AppDialogs? dialogs = null, AppActions? actions = null) {
             _keys = keys ?? new AppHostKeys();
             _completed = completed;
             _selectionLabel = selectionLabel;
@@ -62,10 +63,12 @@ namespace ConsoleMonster.Interactive {
             _labels = labels;
             _session = new AppActionSession(token, dispatcher, actionClock);
             _dialogs = dialogs;
+            _actions = actions;
+            _actions?.Attach(command => { lock (_gate) { PollCore(); if (IsBusy || HasModal) { return false; } Invoke(command); return true; } }, () => IsBusy, _session.Cancel);
             _dialogs?.Attach(modal => { lock (_gate) { ReplaceModal(modal); } }, () => HasModal);
         }
 
-        internal bool HasCommands => _commands.Length != 0;
+        internal bool HasCommands => _commands.Length != 0 || _actions != null;
         internal bool HasModal { get { lock (_gate) { return _modal != null && !_modal.IsClosed; } } }
         internal bool HasBarFocus => _barActive;
         internal bool IsBusy => _session.IsBusy;
@@ -161,7 +164,7 @@ namespace ConsoleMonster.Interactive {
                         }
                     } else if (_barActive && (_barFocus.Current?.HandleInput(input, _frame.Context) ?? false)) { return true; }
                 }
-                if (AppHostKeys.Match(_keys.Palette, input)) { ReplaceModal(new CommandModal(_commands, Invoke, _labels)); return true; }
+                if (_commands.Length > 0 && AppHostKeys.Match(_keys.Palette, input)) { ReplaceModal(new CommandModal(_commands, Invoke, _labels)); return true; }
                 if (AppHostKeys.Match(_keys.CancelAction, input) && _session.IsBusy) { _session.Cancel(); return true; }
                 foreach (AppCommand command in _commands) {
                     if (command.Shortcut.HasValue && !input.IsText && command.Shortcut.Value.Matches(input)) { Invoke(command); return true; }
@@ -180,7 +183,7 @@ namespace ConsoleMonster.Interactive {
         internal void AddBindings(List<KeyBinding> bindings) {
             if (!HasCommands) { return; }
             if (_commandBar != null && _keys.Actions.HasValue) { bindings.Add(new KeyBinding("actions", () => { _barActive = !_barActive; SetBarFocus(); }, _keys.Actions.Value) { KeyText = _keys.Actions.Value.ToString() }); }
-            if (_keys.Palette.HasValue) { bindings.Add(new KeyBinding("palette", () => { lock (_gate) { ReplaceModal(new CommandModal(_commands, Invoke, _labels)); } }, _keys.Palette.Value) { KeyText = _keys.Palette.Value.ToString(), Order = 31 }); }
+            if (_commands.Length > 0 && _keys.Palette.HasValue) { bindings.Add(new KeyBinding("palette", () => { lock (_gate) { ReplaceModal(new CommandModal(_commands, Invoke, _labels)); } }, _keys.Palette.Value) { KeyText = _keys.Palette.Value.ToString(), Order = 31 }); }
             foreach (AppCommand command in _commands) {
                 if (command.Shortcut.HasValue) { bindings.Add(new KeyBinding(command.Label, () => Invoke(command), command.Shortcut.Value) { KeyText = command.Shortcut.Value.ToString().ToUpperInvariant(), Order = 30 }); }
             }
@@ -193,7 +196,7 @@ namespace ConsoleMonster.Interactive {
             button.Clicked += handler;
             _detach.Add(() => button.Clicked -= handler);
         }
-        public void Dispose() { _dialogs?.Detach(); foreach (Action detach in _detach) { detach(); } lock (_gate) { (_modal as IDisposable)?.Dispose(); _barFocus?.Dispose(); } _session.Dispose(); }
+        public void Dispose() { _actions?.Detach(); _dialogs?.Detach(); foreach (Action detach in _detach) { detach(); } lock (_gate) { (_modal as IDisposable)?.Dispose(); _barFocus?.Dispose(); } _session.Dispose(); }
         private static bool Contains(Rect area, int x, int y) => x >= area.X && x < area.Right && y >= area.Y && y < area.Bottom;
 
         private sealed class Surface : IContainer {

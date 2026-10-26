@@ -48,6 +48,7 @@ namespace ConsoleMonster.Widgets {
         /// <inheritdoc />
         public void Render(Region region, RenderContext context) {
             lock (_gate) {
+            InputArrangement.Record((IAppInputContainer)this);
             _headers.Clear();
             if (region.Height <= 0 || region.Width <= 0) { return; }
             int x = 0;
@@ -66,7 +67,7 @@ namespace ConsoleMonster.Widgets {
             if (input.Kind == InputEventKind.Mouse && input.MouseAction == MouseAction.Down && input.MouseButton == 1) {
                 for (int i = 0; i < _headers.Count; i++) {
                     Rect area = _headers[i];
-                    if (input.Column >= area.X && input.Column < area.Right && input.Row == area.Y) { SelectedIndex = i; return true; }
+                    if (input.Column >= area.X && input.Column < area.Right && input.Row >= area.Y && input.Row < area.Bottom) { SelectedIndex = i; return true; }
                 }
             }
             if (focused != null && !FocusManager.Discover(this).Contains(focused)) { return false; }

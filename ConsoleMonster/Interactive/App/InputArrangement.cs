@@ -10,10 +10,16 @@ namespace ConsoleMonster.Interactive {
         [ThreadStatic] private static Scope? _current;
         private readonly Dictionary<InputControl, Entry> _inputs = new Dictionary<InputControl, Entry>();
         private readonly List<Tuple<Widgets.ScrollView, Rect>> _scrolls = new List<Tuple<Widgets.ScrollView, Rect>>();
+        private readonly List<IAppInputContainer> _containers = new List<IAppInputContainer>();
         internal InputControl? Focused { get; set; }
         internal IEnumerable<InputControl> Mounted => _inputs.Keys;
         internal Rect? FocusBounds => Focused != null && _inputs.TryGetValue(Focused, out Entry? entry) ? entry.Bounds : (Rect?)null;
-        internal IDisposable Begin(int x, int y, Rect clip) { _inputs.Clear(); _scrolls.Clear(); return new Scope(this, x, y, clip); }
+        internal IDisposable Begin(int x, int y, Rect clip) { _inputs.Clear(); _scrolls.Clear(); _containers.Clear(); return new Scope(this, x, y, clip); }
+        internal static void Record(IAppInputContainer container) => _current?.Owner._containers.Add(container);
+        internal bool HandleContainerInput(InputEvent input, InputControl? focused) {
+            for (int i = _containers.Count - 1; i >= 0; i--) { if (_containers[i].HandleContainerInput(input, focused)) { return true; } }
+            return false;
+        }
         internal static IDisposable? Translate(int x, int y, Rect viewport) {
             Scope? parent = _current;
             return parent == null ? null : new Scope(parent.Owner, parent.X + x, parent.Y + y,
@@ -50,6 +56,10 @@ namespace ConsoleMonster.Interactive {
                 if (Contains(_scrolls[i].Item2, pointer.Column, pointer.Row)) { _scrolls[i].Item1.ScrollBy(-Math.Sign(pointer.WheelDelta) * 3); return true; }
             }
             return false;
+        }
+        internal bool ScrollBy(int rows) {
+            if (_scrolls.Count == 0) { return false; }
+            _scrolls[_scrolls.Count - 1].Item1.ScrollBy(rows); return true;
         }
         private static Rect Move(Rect bounds, int x, int y) => new Rect(bounds.X + x, bounds.Y + y, bounds.Width, bounds.Height);
         private static bool Contains(Rect area, int x, int y) => x >= area.X && x < area.Right && y >= area.Y && y < area.Bottom;

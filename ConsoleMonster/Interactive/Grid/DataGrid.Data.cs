@@ -14,12 +14,13 @@ namespace ConsoleMonster.Interactive {
 
         private void Rebuild(object? focused = null) {
             focused ??= CurrentRowCore?.Id;
+            _rows = _grid.Rows.ToArray();
             string[] words = _filter.Trim().Split(new[] { ' ', ',' }, StringSplitOptions.RemoveEmptyEntries);
             List<int> shown = ShownColumns();
             _order = Sorted(AllRows());
-            _visible = _order.Where(i => words.All(word => shown.Any(c => Text(_grid.Rows[i], c).IndexOf(word, StringComparison.OrdinalIgnoreCase) >= 0))).ToList();
+            _visible = _order.Where(i => words.All(word => shown.Any(c => Text(_rows[i], c).IndexOf(word, StringComparison.OrdinalIgnoreCase) >= 0))).ToList();
             _markedSelection = null;
-            int keep = focused == null ? -1 : _visible.FindIndex(i => Equals(_grid.Rows[i].Id, focused));
+            int keep = focused == null ? -1 : _visible.FindIndex(i => Equals(_rows[i].Id, focused));
             _cursor = keep < 0 ? Clamp(_cursor) : keep;
             _dragAnchor = -1;
         }
@@ -29,13 +30,13 @@ namespace ConsoleMonster.Interactive {
             if (_sortColumn < 0) { return result; }
             int column = _sortColumn;
             result.Sort((a, b) => {
-                object? x = Value(_grid.Rows[a], column), y = Value(_grid.Rows[b], column);
+                object? x = Value(_rows[a], column), y = Value(_rows[b], column);
                 int compare;
                 bool emptyX = PresenterValues.IsEmpty(x), emptyY = PresenterValues.IsEmpty(y);
                 if (emptyX || emptyY) { compare = emptyX == emptyY ? 0 : emptyX ? 1 : -1; }
                 else if (!(x is string) && !(y is string) && PresenterValues.TryGetNumber(x, out double dx) && PresenterValues.TryGetNumber(y, out double dy)) { compare = dx.CompareTo(dy); }
                 else if (!(x is string) && x is IComparable comparable && y != null && x.GetType() == y.GetType()) { compare = comparable.CompareTo(y); }
-                else { compare = string.Compare(Text(_grid.Rows[a], column), Text(_grid.Rows[b], column), Culture, CompareOptions.IgnoreCase); }
+                else { compare = string.Compare(Text(_rows[a], column), Text(_rows[b], column), Culture, CompareOptions.IgnoreCase); }
                 return compare == 0 ? a.CompareTo(b) : _descending ? -compare : compare;
             });
             return result;
@@ -47,7 +48,7 @@ namespace ConsoleMonster.Interactive {
             var matcher = new Text.GlobPattern(pattern);
             Change(() => {
                 foreach (int index in _visible) {
-                    GridRow row = _grid.Rows[index];
+                    GridRow row = _rows[index];
                     if (!matcher.IsMatch(Text(row, column))) { continue; }
                     if (mark) { _marked.Add(row.Id); } else { _marked.Remove(row.Id); }
                 }

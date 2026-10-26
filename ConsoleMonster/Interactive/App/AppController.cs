@@ -13,7 +13,6 @@ namespace ConsoleMonster.Interactive {
         private readonly ConsoleAppOptions _options;
         private readonly AppState _state;
         private readonly List<AppBinding> _bindings = new List<AppBinding>();
-        private readonly List<IAppInputContainer> _containers = new List<IAppInputContainer>();
         private readonly List<FooterBar> _footers = new List<FooterBar>();
         private readonly FocusManager _focus;
         private readonly RenderContext _context;
@@ -39,7 +38,7 @@ namespace ConsoleMonster.Interactive {
                 if (input is Button commandButton && commandButton.Command != null && !commands.Contains(commandButton.Command)) { commands.Add(commandButton.Command); }
             }
             try {
-                _actions = new AppCommandHost(commands, () => options?.CaptureSelection(_state) ?? Array.Empty<object?>(), PromptLabels.For(context.Profile.Language), cancellationToken, dispatcher: options?.Dispatcher, actionClock: actionClock, keys: _options.Keys, dialogs: _options.Dialogs);
+                _actions = new AppCommandHost(commands, () => options?.CaptureSelection(_state) ?? Array.Empty<object?>(), PromptLabels.For(context.Profile.Language), cancellationToken, dispatcher: options?.Dispatcher, actionClock: actionClock, keys: _options.Keys, dialogs: _options.Dialogs, actions: _options.Actions);
                 foreach (InputControl control in _focus.Controls) {
                     _inputs.Add(control.Key, control);
                     state[control.Key] = control.CurrentValue;
@@ -77,9 +76,7 @@ namespace ConsoleMonster.Interactive {
             if ((_actions.HasCommands || _actions.HasModal) && (input.Kind != InputEventKind.Mouse || mouse) && _actions.Handle(input)) { Invalidate(); return; }
             if (input.Is(ConsoleKey.C, KeyModifiers.Control)) { _state.RequestExit(); Invalidate(); return; }
             if (_options.HandleInput?.Invoke(_state, input) == true) { Invalidate(); return; }
-            foreach (IAppInputContainer container in _containers) {
-                if ((input.Kind != InputEventKind.Mouse || mouse) && container.HandleContainerInput(input, _focus.Current)) { Invalidate(); return; }
-            }
+            if ((input.Kind != InputEventKind.Mouse || mouse) && _viewport.HandleContainerInput(input)) { Invalidate(); return; }
             if (input.Kind != InputEventKind.Mouse && input.Kind != InputEventKind.FocusLost && input.Kind != InputEventKind.FocusGained) { _viewport.RevealFocus(); }
             if (input.Is(ConsoleKey.C, KeyModifiers.Control)) { _state.RequestExit(); }
             else if (input.Kind == InputEventKind.Resize) { PrepareFrame(input.Width, input.Height); }
@@ -114,7 +111,6 @@ namespace ConsoleMonster.Interactive {
 
         private void Discover(IWidget widget, int reflowBelow) {
             if (widget is FooterBar footer) { _footers.Add(footer); }
-            if (widget is IAppInputContainer inputContainer) { _containers.Add(inputContainer); }
             if (widget is AppBinding binding) { _bindings.Add(binding); return; }
             if (widget is Columns columns && columns.CollapseBelow < 0) { columns.CollapseBelow = reflowBelow; }
             if (widget is IContainer container) {
