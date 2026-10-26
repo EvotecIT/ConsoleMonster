@@ -50,21 +50,9 @@ namespace ConsoleMonster.Interactive {
             return this;
         }
 
-        /// <summary>Sets the description.</summary>
-        /// <param name="text">The text.</param>
-        /// <returns>The preset.</returns>
-        public FormPreset Describe(string text) {
-            Description = text;
-            return this;
-        }
 
-        /// <summary>Sets the preview (see <see cref="Preview"/>).</summary>
-        /// <param name="preview">The content.</param>
-        /// <returns>The preset.</returns>
-        public FormPreset WithPreview(IWidget preview) {
-            Preview = preview;
-            return this;
-        }
+
+
 
         /// <inheritdoc />
         public override string ToString() => Name;

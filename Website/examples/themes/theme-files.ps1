@@ -59,18 +59,18 @@ $themeReport = New-ConsoleRows -Gap 1 -Content {
     New-ConsoleText -Markup '[accent]Build queue[/] [muted]sample data[/]'
     New-ConsolePanel -Title 'Checks' -Content {
         New-ConsoleStatusList -Content {
-            New-ConsoleStatusItem 'Restore packages' -Status Pass -Detail 'complete'
-            New-ConsoleStatusItem 'Run smoke checks' -Status Warn -Detail '1 retry'
-            New-ConsoleStatusItem 'Deploy api-west' -Status Fail -Detail 'blocked'
-            New-ConsoleStatusItem 'Publish report' -Status Pending -Detail 'queued'
+            [pscustomobject]@{ Label = 'Restore packages'; Status = 'Pass'; Detail = 'complete' }
+            [pscustomobject]@{ Label = 'Run smoke checks'; Status = 'Warn'; Detail = '1 retry' }
+            [pscustomobject]@{ Label = 'Deploy api-west'; Status = 'Fail'; Detail = 'blocked' }
+            [pscustomobject]@{ Label = 'Publish report'; Status = 'Pending'; Detail = 'queued' }
         }
     }
     $targets | New-ConsoleTable -Property Target, Status, Detail -StatusProperty Status -Title 'Targets' -Expand
     New-ConsolePanel -Title 'Recent log' -Content {
         New-ConsoleLogRegion -Height 3 -Content {
-            New-ConsoleLogEntry 'Loaded deployment plan' -Level Info -AtSeconds 1
-            New-ConsoleLogEntry 'Smoke check needed one retry' -Level Warning -AtSeconds 3
-            New-ConsoleLogEntry 'api-west health probe timed out' -Level Error -AtSeconds 5
+            [pscustomobject]@{ Message = 'Loaded deployment plan'; Level = 'Info'; AtSeconds = 1 }
+            [pscustomobject]@{ Message = 'Smoke check needed one retry'; Level = 'Warning'; AtSeconds = 3 }
+            [pscustomobject]@{ Message = 'api-west health probe timed out'; Level = 'Error'; AtSeconds = 5 }
         }
     }
 }

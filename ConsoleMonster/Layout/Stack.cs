@@ -9,8 +9,8 @@ namespace ConsoleMonster.Layout {
     /// to place an overlay, for example a status badge in the top-right corner of a chart. For children placed one
     /// below another, use <see cref="Rows"/>.
     /// </summary>
-    public sealed class Stack : IContainer {
-        private readonly IWidget[] _layers;
+    public sealed class Stack : IContainer, IContentOwner {
+        private IWidget[] _layers;
 
         /// <summary>Creates a stack.</summary>
         /// <param name="layers">The layers, bottom first.</param>
@@ -28,6 +28,8 @@ namespace ConsoleMonster.Layout {
 
         /// <inheritdoc />
         public IReadOnlyList<IWidget> Children => _layers;
+
+        void IContentOwner.ReplaceContent(IWidget[] content) { _layers = (IWidget[])content.Clone(); }
 
         /// <inheritdoc />
         public Size Measure(Constraints constraints, RenderContext context) {

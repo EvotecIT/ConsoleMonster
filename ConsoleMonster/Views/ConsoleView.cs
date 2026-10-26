@@ -38,31 +38,19 @@ namespace ConsoleMonster.Views {
         Chart,
 
         /// <summary>The interactive grid (filter, sort, select).</summary>
-        Grid
-    }
-
-    /// <summary>Options for <see cref="ConsoleView"/>.</summary>
-    public sealed class ConsoleViewOptions {
-        /// <summary>A view to use instead of the automatic choice.</summary>
-        public ConsoleViewKind? View { get; set; }
-
-        /// <summary>The member that holds each object's children, for a tree (found automatically when null).</summary>
-        public string? ChildrenProperty { get; set; }
-
-        /// <summary>Whether objects should become a chart (label from the first text member, value from the first number).</summary>
-        public bool Chart { get; set; }
-
-        /// <summary>Member sources tried before reflection (for example PowerShell objects).</summary>
-        public IList<IMemberSource> Sources { get; } = new List<IMemberSource>();
-
-        /// <summary>The members to show as columns, or null for all public members.</summary>
-        public IList<string>? Columns { get; set; }
-
-        /// <summary>A title for the view (markup), or null.</summary>
-        public string? Title { get; set; }
-
-        /// <summary>The deepest level a tree or inspector shows (default 3).</summary>
-        public int Depth { get; set; } = 3;
+        Grid,
+        /// <summary>Choose from the shape and content of the input.</summary>
+        Auto,
+        /// <summary>Labelled fields for each input record.</summary>
+        List,
+        /// <summary>Indented and highlighted JSON.</summary>
+        Json,
+        /// <summary>Exception descriptions and stack frames.</summary>
+        Error,
+        /// <summary>Markdown display supplied by ConsoleMonster.Markdown.</summary>
+        Markdown,
+        /// <summary>A one-line section separator.</summary>
+        Rule
     }
 
     /// <summary>
@@ -71,8 +59,7 @@ namespace ConsoleMonster.Views {
     /// detected and text otherwise. Columns get presenters from their member names and types
     /// (<see cref="CellPresenters.ForMember"/>). <c>Show-Console</c> is the PowerShell front end.
     /// </summary>
-    public static class ConsoleView {
-        private static readonly IMemberSource Reflection = new ReflectionMemberSource();
+    public static partial class ConsoleView {
 
         /// <summary>Builds the automatic view for a value: a sequence is shown as its items, anything else as one item.</summary>
         /// <param name="value">The value.</param>
@@ -104,8 +91,16 @@ namespace ConsoleMonster.Views {
                     return new TextBlock(string.Empty);
                 case ConsoleViewKind.Text:
                     return new TextBlock(Markup.Escape(string.Join("\n", items.Select(item => Values.ValueShaper.Text(item)))));
-                case ConsoleViewKind.Code:
-                    return CodeView.For(string.Join("\n", items.Select(item => Convert.ToString(item, CultureInfo.CurrentCulture) ?? string.Empty)), "auto");
+                case ConsoleViewKind.Code: case ConsoleViewKind.Json:
+                    return BuildCode(items, options);
+                case ConsoleViewKind.List:
+                    return BuildList(items, options);
+                case ConsoleViewKind.Error:
+                    return BuildErrors(items, options);
+                case ConsoleViewKind.Rule:
+                    return new Rule(options.Title ?? (items.Count == 0 ? null : Values.ValueShaper.Text(items[0]))) { Alignment = options.Alignment };
+                case ConsoleViewKind.Markdown:
+                    return (options.Provider ?? throw new InvalidOperationException("Markdown display requires the ConsoleMonster.Markdown package and a MarkdownViewProvider.")).Create(items, options);
                 case ConsoleViewKind.Chart:
                     return BuildChart(items, options);
                 case ConsoleViewKind.Tree:
@@ -130,7 +125,8 @@ namespace ConsoleMonster.Views {
                 throw new ArgumentNullException(nameof(items));
             }
             options ??= new ConsoleViewOptions();
-            if (options.View.HasValue) {
+            if (options.View.HasValue && options.View != ConsoleViewKind.Auto) {
+                if (!Enum.IsDefined(typeof(ConsoleViewKind), options.View.Value)) { throw new ArgumentOutOfRangeException(nameof(options.View)); }
                 return options.View.Value;
             }
             List<object> present = items.Where(item => item != null).Select(item => item!).ToList();
@@ -147,9 +143,6 @@ namespace ConsoleMonster.Views {
             }
             if (present.All(IsScalar)) {
                 return ConsoleViewKind.Text;
-            }
-            if (options.Chart) {
-                return ConsoleViewKind.Chart;
             }
             string? childProperty = options.ChildrenProperty ?? FindChildProperty(present[0], options);
             if (childProperty != null && options.ChildrenProperty != null) {
@@ -172,11 +165,11 @@ namespace ConsoleMonster.Views {
         public static Table BuildTable(IReadOnlyList<object?> items, ConsoleViewOptions? options = null) {
             options ??= new ConsoleViewOptions();
             List<object> present = items.Where(item => item != null).Select(item => item!).ToList();
-            List<string> columns = options.Columns != null ? new List<string>(options.Columns) : new List<string>();
+            List<string> columns = options.Property != null ? new List<string>(options.Property) : new List<string>();
             Dictionary<string, Type?> types = new Dictionary<string, Type?>(StringComparer.OrdinalIgnoreCase);
             foreach (object item in present) {
                 foreach (InspectMember member in Members(item, options)) {
-                    if (options.Columns == null && !columns.Contains(member.Name, StringComparer.OrdinalIgnoreCase)) {
+                    if (options.Property == null && !columns.Contains(member.Name, StringComparer.OrdinalIgnoreCase)) {
                         columns.Add(member.Name);
                     }
                     if (!types.TryGetValue(member.Name, out Type? known) || known == null) {
@@ -325,7 +318,7 @@ namespace ConsoleMonster.Views {
                     return source.GetMembers(item);
                 }
             }
-            return Reflection.GetMembers(item);
+            return Values.ValueShaper.Fields(item, options.Shape);
         }
 
         private static string TypeName(object item, ConsoleViewOptions options) {
@@ -334,7 +327,7 @@ namespace ConsoleMonster.Views {
                     return source.GetTypeName(item);
                 }
             }
-            return item.GetType().FullName ?? item.GetType().Name;
+            return Values.ValueShaper.TypeName(item, options.Shape);
         }
 
 

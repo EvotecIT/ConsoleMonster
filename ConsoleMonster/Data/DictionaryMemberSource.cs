@@ -7,7 +7,9 @@ using System.Diagnostics;
 
 namespace ConsoleMonster.Data {
     internal sealed class DictionaryMemberSource : IMemberSource {
-        public bool CanRead(object value) => value is IDictionary || IsStringObjectPairs(value);
+        public bool CanRead(object value) => IsDictionary(value);
+
+        internal static bool IsDictionary(object value) => value is IDictionary || IsStringObjectPairs(value);
 
         public string GetTypeName(object value) =>
             value is IDictionary

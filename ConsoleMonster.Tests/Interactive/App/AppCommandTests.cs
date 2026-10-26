@@ -78,6 +78,25 @@ namespace ConsoleMonster.Tests.Interactive.App {
         }
 
         [Fact]
+        public void SuppliedActionClock_TimestampsWorkerOutputAndRestartsForEachAction() {
+            var clock = new ConsoleMonster.Live.SimulatedClock();
+            clock.Advance(20);
+            using AppActionSession session = new AppActionSession(default, actionClock: clock.Read);
+            AppCommand command = new AppCommand("query", "Query", async (context, token) => {
+                context.Write("Connecting");
+                await Task.Yield();
+                clock.Advance(2.7);
+                context.Write("Verified");
+            });
+            for (int action = 0; action < 2; action++) {
+                Assert.True(session.Start(command, Array.Empty<object?>()));
+                Assert.True(SpinWait.SpinUntil(() => !session.IsBusy, TimeSpan.FromSeconds(5)));
+                LogEntry[] entries = session.Output.Skip(action * 3).ToArray();
+                Assert.Equal(new[] { TimeSpan.Zero, TimeSpan.FromSeconds(2.7), TimeSpan.FromSeconds(2.7) }, entries.Select(entry => entry.Time));
+            }
+        }
+
+        [Fact]
         public void Cancellation_StreamsOutputAndAllowsAnotherAction() {
             using ManualResetEventSlim started = new ManualResetEventSlim();
             AppCommand command = new AppCommand("query", "Query", async (context, token) => {
@@ -146,7 +165,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
             IReadOnlyList<object?>? captured = null;
             AppCommand command = new AppCommand("run", "Run", (_, __) => Task.CompletedTask) { Shortcut = new KeyChord(ConsoleKey.F5), ConfirmPrompt = "Run selected?" };
             command.CaptureRows = rows => { captured = rows.ToArray(); return captured; };
-            GridOptions options = new GridOptions(); options.Commands.Add(command);
+            GridOptions options = new GridOptions(); options.Command.Add(command);
             using GridView view = new GridView(grid, options, new PromptLabels());
             FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, 100, 30, false, TimeSpan.Zero)), 100, 30, Context);
             foreach (char key in filter) { view.Handle(InputEvent.Character(key)); }
@@ -184,7 +203,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
             GridOptions options = new GridOptions();
             AppCommand command = new AppCommand("run", "Run", (_, __) => Task.CompletedTask);
             command.CaptureRows = rows => { calls++; return rows; };
-            options.Commands.Add(command);
+            options.Command.Add(command);
             RecordingSurface surface = new RecordingSurface(100, 30, false);
             options.Interactive = PromptHarness.Options("", surface);
             options.Interactive.Profile = TerminalProfile.Fixed(100, 30);
@@ -202,7 +221,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
             IReadOnlyList<object?>? received = null;
             using ManualResetEventSlim finished = new ManualResetEventSlim();
             GridOptions options = new GridOptions();
-            options.Commands.Add(new AppCommand("refresh", "Refresh", (context, token) => { received = context.Rows; context.Write("Refreshed"); finished.Set(); return Task.CompletedTask; }) { Shortcut = new KeyChord(ConsoleKey.F5) });
+            options.Command.Add(new AppCommand("refresh", "Refresh", (context, token) => { received = context.Rows; context.Write("Refreshed"); finished.Set(); return Task.CompletedTask; }) { Shortcut = new KeyChord(ConsoleKey.F5) });
             using GridView view = new GridView(grid, options, new PromptLabels());
             FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, 100, 30, false, TimeSpan.Zero)), 100, 30, Context);
             view.Handle(InputEvent.Press(ConsoleKey.Spacebar)); view.Handle(InputEvent.Press(ConsoleKey.DownArrow)); view.Handle(InputEvent.Press(ConsoleKey.Spacebar));
@@ -230,7 +249,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
             grid.AddRow("one", "One", 2456); grid.AddRow("two", "Two", 1000);
             TaskCompletionSource<bool> finish = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             GridOptions options = new GridOptions();
-            options.Commands.Add(new AppCommand("restart", "Restart", (_, __) => finish.Task) { Shortcut = new KeyChord(ConsoleKey.F5) });
+            options.Command.Add(new AppCommand("restart", "Restart", (_, __) => finish.Task) { Shortcut = new KeyChord(ConsoleKey.F5) });
             int refreshes = 0;
             int inputThread = Thread.CurrentThread.ManagedThreadId;
             options.RefreshRow = (command, row) => {
@@ -264,7 +283,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Grid grid = new Grid("Services"); grid.AddColumn("Name");
             for (int i = 1; i <= 10; i++) { grid.AddRow(i, "Service" + i.ToString("00")); }
             GridOptions options = new GridOptions();
-            options.Commands.Add(new AppCommand("restart", "Restart", (_, __) => Task.CompletedTask));
+            options.Command.Add(new AppCommand("restart", "Restart", (_, __) => Task.CompletedTask));
             using GridView view = new GridView(grid, options, new PromptLabels());
             string Draw() => FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, 80, 24, false, TimeSpan.Zero)), 80, 24, Context).ToPlainText();
             Assert.Matches("1–[1-9] of 10", Draw());
@@ -282,7 +301,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Grid grid = new Grid("Services"); grid.AddColumn("Name").AddColumn("ProcessId");
             grid.AddRow(item, "One", 2456); grid.AddRow(item, "Two", 1000);
             GridOptions options = new GridOptions();
-            options.Commands.Add(new AppCommand("restart", "Restart", (_, __) => Task.CompletedTask) { Shortcut = new KeyChord(ConsoleKey.F5) });
+            options.Command.Add(new AppCommand("restart", "Restart", (_, __) => Task.CompletedTask) { Shortcut = new KeyChord(ConsoleKey.F5) });
             int calls = 0;
             options.RefreshRow = (_, row) => { calls++; return new GridRow(row.Item, row.Values[0], 2556); };
             using GridView view = new GridView(grid, options, new PromptLabels());
@@ -299,7 +318,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Grid grid = new Grid("Services"); grid.AddColumn("Name").AddColumn("ProcessId");
             grid.AddRow("one", "One", 2456); grid.AddRow("two", "Two", 1000); grid.AddRow("three", "Three", 3000);
             GridOptions options = new GridOptions();
-            options.Commands.Add(new AppCommand("restart", "Restart", (_, __) => Task.CompletedTask) { Shortcut = new KeyChord(ConsoleKey.F5) });
+            options.Command.Add(new AppCommand("restart", "Restart", (_, __) => Task.CompletedTask) { Shortcut = new KeyChord(ConsoleKey.F5) });
             int calls = 0;
             options.RefreshRow = (_, row) => {
                 calls++;
@@ -334,7 +353,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
                 Shortcut = new KeyChord(ConsoleKey.F5), ConfirmPrompt = "Restart {Selection}?"
             };
             command.CaptureRows = rows => { captured = rows; return rows; };
-            GridOptions options = new GridOptions(); options.Commands.Add(command);
+            GridOptions options = new GridOptions(); options.Command.Add(command);
             using GridView view = new GridView(grid, options, new PromptLabels());
             FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, 100, 30, false, TimeSpan.Zero)), 100, 30, Context);
             view.Handle(InputEvent.Press(ConsoleKey.Spacebar));

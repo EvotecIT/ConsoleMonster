@@ -34,7 +34,7 @@ $actions = foreach ($definition in @(@('Restart', 'F5'), @('Stop', 'F7'), @('Sta
 
 # Layout: list, details, buttons, modal confirmation and streamed output.
 $services | Show-ConsoleGrid -Title 'Service browser' -Property Name, Status, StartType, DisplayName, ProcessId, Account, DependsOn, Description `
-    -Hide DisplayName, ProcessId, Account, DependsOn, Description -Action $actions `
+    -Hide DisplayName, ProcessId, Account, DependsOn, Description -Command $actions `
     -Refresh {
         param($Row, $CommandKey)
         $Row.Status = if ($CommandKey -eq 'Stop') { 'Stopped' } else { 'Running' }

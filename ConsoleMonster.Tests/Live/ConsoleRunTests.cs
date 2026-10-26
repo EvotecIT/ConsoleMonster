@@ -156,7 +156,7 @@ namespace ConsoleMonster.Tests.Live {
             string narrow = bar.Line(36, context).PlainText;
             Assert.DoesNotContain("skipped", narrow);
             Assert.DoesNotContain("in 12s", narrow);
-            bar.ShowDuration = false;
+            bar.ShowElapsed = false;
             Assert.DoesNotContain("in 12s", bar.Line(120, context).PlainText);
         }
 

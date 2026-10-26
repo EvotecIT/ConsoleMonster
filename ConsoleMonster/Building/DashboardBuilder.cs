@@ -13,7 +13,7 @@ namespace ConsoleMonster.Building {
     /// </code>
     /// </summary>
     public sealed class DashboardBuilder : RowsBuilderBase<DashboardBuilder> {
-        private readonly string _title;
+        private string _title;
         private string? _subtitle;
         private string? _footer;
 
@@ -22,6 +22,10 @@ namespace ConsoleMonster.Building {
         public DashboardBuilder(string title) {
             _title = title ?? string.Empty;
         }
+
+        /// <summary>Sets the dashboard title before building.</summary>
+        /// <param name="title">The title, including markup.</param><returns>This builder.</returns>
+        public DashboardBuilder Title(string title) { _title = title ?? string.Empty; return this; }
 
         /// <summary>Sets the subtitle.</summary>
         /// <param name="subtitle">The subtitle (markup).</param>

@@ -42,7 +42,7 @@ namespace ConsoleMonster.Interactive {
             values.BeginRun();
             using InputLease? lease = snapshot ? null : ConsoleInput.Acquire(interactive.Input);
             RenderContext context = Terminal.CreateContext(profile, interactive.ResolveTheme());
-            using (AppController app = new AppController(layout, values, context, settings.ReflowBelow, settings, cancellationToken)) {
+            using (AppController app = new AppController(layout, values, context, settings.ReflowBelow, settings, cancellationToken, interactive.ActionClock)) {
                 if (snapshot) {
                     CellBuffer frame = FrameComposer.RenderBlock(app.Root, profile.Width, context);
                     if (interactive.Capture != null) { interactive.Capture.Surface.Present(frame, null); }

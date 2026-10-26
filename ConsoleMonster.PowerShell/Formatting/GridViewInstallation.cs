@@ -29,7 +29,7 @@ namespace ConsoleMonster.PowerShell {
             CommandInfo? native = cmdlet.InvokeCommand.GetCommand("Out-GridView", CommandTypes.Cmdlet);
             if (native != null && NativeUsable(cmdlet, native)) { return false; }
             CommandInfo? custom = cmdlet.InvokeCommand.GetCommand("Out-GridView", CommandTypes.Function | CommandTypes.Alias);
-            if (custom != null && !force) {
+            if (custom is AliasInfo || (custom != null && !force)) {
                 cmdlet.WriteWarning(Message("Conflict"));
                 return false;
             }
@@ -39,7 +39,7 @@ namespace ConsoleMonster.PowerShell {
             // Local aliases cannot be removed through the module's global installation boundary. An AllScope alias
             // inherited before import can be removed only from the module's copy, leaving the global alias dominant.
             // Keep both, and constants, rather than reporting an installed function that callers cannot reach.
-            if ((custom is AliasInfo && alias == null) || (custom is FunctionInfo && function == null)
+            if (alias != null || (custom is AliasInfo && alias == null) || (custom is FunctionInfo && function == null)
                 || IsConstant(alias) || IsConstant(function) || HasOption(alias, ScopedItemOptions.AllScope)) {
                 cmdlet.WriteWarning(Message("Immutable"));
                 return false;

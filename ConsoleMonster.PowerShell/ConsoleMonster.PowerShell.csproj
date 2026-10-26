@@ -37,6 +37,7 @@
         <EmbeddedResource Include="Pester\PesterAdapter.ps1" LogicalName="ConsoleMonster.PowerShell.Pester.PesterAdapter.ps1" />
         <EmbeddedResource Include="Gallery/DemoCapture.ps1" LogicalName="ConsoleMonster.PowerShell.Gallery.DemoCapture.ps1" />
         <EmbeddedResource Include="Formatting\FormatCommandProxy.ps1" />
+        <EmbeddedResource Include="Formatting/NativeProgressProxy.ps1" LogicalName="ConsoleMonster.PowerShell.Formatting.NativeProgressProxy.ps1" />
         <EmbeddedResource Update="Interactive\App\PSAppMessages.resx" LogicalName="ConsoleMonster.PowerShell.Interactive.App.PSAppMessages.resources" />
         <EmbeddedResource Update="Help\HelpMessages.resx" LogicalName="ConsoleMonster.PowerShell.Help.HelpMessages.resources" />
         <EmbeddedResource Include="Formatting\OutDefaultProxy.ps1" />
@@ -51,6 +52,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\ConsoleMonster\ConsoleMonster.csproj" />
+        <ProjectReference Include="..\ConsoleMonster.Generators\ConsoleMonster.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
         <ProjectReference Include="..\ConsoleMonster.Markdown\ConsoleMonster.Markdown.csproj" />
         <ProjectReference Include="../ConsoleMonster.Graphics/ConsoleMonster.Graphics.csproj" />
     </ItemGroup>

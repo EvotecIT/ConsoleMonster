@@ -19,7 +19,7 @@
         }
     }
 
-    It 'restores only the current runspace commands when explicitly enabled legacy progress is disabled' {
+    It 'keeps foreign progress aliases while restoring each runspace output function' {
         $text = Invoke-DefaultsChild @'
 $first = [powershell]::Create()
 $second = [powershell]::Create()
@@ -47,7 +47,7 @@ try {
         $text | Should -Match 'FIRST_ALIAS=Write-Output'
         $text | Should -Match 'FIRST_OUTPUT_STILL_ENABLED=True'
         $text | Should -Match "FIRST_FUNCTION='FIRST'"
-        $text | Should -Match 'SECOND_STILL_ENABLED=True SECOND_ALIAS=Write-ConsoleProgress'
+        $text | Should -Match 'SECOND_STILL_ENABLED=True SECOND_ALIAS=Write-Host'
         $text | Should -Match "SECOND_FUNCTION='SECOND' SECOND_RESTORED_ALIAS=Write-Host"
     }
 
@@ -81,22 +81,22 @@ Remove-Module ConsoleMonster
         $text | Should -Match 'RESTORED_ALIAS=Write-Host'
     }
 
-    It 'turns Write-Progress into an alias of Write-ConsoleProgress and removes it again' {
+    It 'installs a native-parameter Write-Progress function and restores the cmdlet' {
         $text = Invoke-DefaultsChild @'
 Enable-ConsoleFormatting -Feature Progress
-"ALIAS=$((Get-Alias Write-Progress).Definition)"
+"PROXY=$((Get-Command Write-Progress).CommandType) NATIVE_ID=$((Get-Command Write-Progress).Parameters['Id'].ParameterType.FullName)"
 foreach ($i in 1..3) { Write-Progress -Activity 'Copying' -PercentComplete ($i * 30) }
 Write-Progress -Activity 'Copying' -Completed
 "SHIM=$([bool] (Get-Command Out-Default -CommandType Function -ErrorAction Ignore))"
 Disable-ConsoleFormatting
 "GONE=$(-not (Get-Alias Write-Progress -ErrorAction Ignore)) NOSHIM=$(-not (Get-Command Out-Default -CommandType Function -ErrorAction Ignore))"
 '@
-        $text | Should -Match 'ALIAS=Write-ConsoleProgress'
+        $text | Should -Match 'PROXY=Function NATIVE_ID=System.Int32'
         $text | Should -Match 'SHIM=True'
         $text | Should -Match 'GONE=True NOSHIM=True'
     }
 
-    It 'keeps a user''s Write-Progress alias and Out-Default function, and with -Force puts them back exactly on Disable' {
+    It 'preserves a foreign progress alias even with Force and restores a forced output function' {
         $text = Invoke-DefaultsChild @'
 function global:Write-MyProgress { param($Activity) }
 Set-Alias -Name Write-Progress -Value Write-MyProgress -Scope Global
@@ -105,12 +105,12 @@ $definition = (Get-Command Out-Default -CommandType Function).Definition
 Enable-ConsoleFormatting -Feature Progress -WarningVariable w -WarningAction SilentlyContinue
 "KEPT=$((Get-Alias Write-Progress).Definition) WARNED=$($w.Count)"
 Enable-ConsoleFormatting -Feature Output, Progress -Force
-"REPLACED=$((Get-Alias Write-Progress).Definition) SHIM=$((Get-Command Out-Default -CommandType Function).Definition -match 'Out-ConsoleDefault')"
+"KEPT_FORCE=$((Get-Alias Write-Progress).Definition) SHIM=$((Get-Command Out-Default -CommandType Function).Definition -match 'Out-ConsoleDefault')"
 Disable-ConsoleFormatting
 "RESTORED=$((Get-Alias Write-Progress).Definition) SAME=$((Get-Command Out-Default -CommandType Function).Definition -eq $definition)"
 '@
         $text | Should -Match 'KEPT=Write-MyProgress WARNED=1'
-        $text | Should -Match 'REPLACED=Write-ConsoleProgress SHIM=True'
+        $text | Should -Match 'KEPT_FORCE=Write-MyProgress SHIM=True'
         $text | Should -Match 'RESTORED=Write-MyProgress SAME=True'
     }
 
@@ -154,18 +154,18 @@ Enable-ConsoleFormatting -Feature Progress
 $ProgressPreference = 'SilentlyContinue'
 Write-Progress -Activity 'quiet'
 $ProgressPreference = 'Continue'
-Write-ConsoleProgress -Activity 'loud' -Status 'half' -PercentComplete 50
+Write-Progress -Activity 'loud' -Status 'half' -PercentComplete 50
 'OK'
 '@
         $text | Should -Match 'OK'
         $text | Should -Not -Match 'Exception'
     }
 
-    It 'removes the Write-Progress alias with the module and keeps a user''s Write-Progress function unless -Force is used' {
+    It 'restores native Write-Progress on module removal and preserves custom functions unless Force is used' {
         $text = Invoke-DefaultsChild @'
 Enable-ConsoleFormatting -Feature Progress
 Remove-Module ConsoleMonster
-"GONE=$(-not (Get-Alias Write-Progress -ErrorAction Ignore))"
+"GONE=$((Get-Command Write-Progress).CommandType -eq 'Cmdlet')"
 Write-Progress -Activity 'after removal' -Completed
 'OK'
 '@

@@ -8,18 +8,18 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a lanes widget: one row per worker, server or item of a parallel workload.
 
-Each lane shows a status marker (a spinner while running), a progress bar, pass/fail/warning counts and what it is doing now. Lanes can be declared up front with -Lane (names sharing one -Total), with a script block of New-ConsoleLane calls (each with its own total, progress, status and counts), from the pipeline, or appear on their first Update-ConsoleLane in a live dashboard. To add lanes later, pipe the widget to Add-ConsoleItem.
+Each lane shows a status marker (a spinner while running), a progress bar, pass/fail/warning counts and what it is doing now. Lanes can be declared up front with -Lane (names sharing one -Total), with a script block of Key/Label records calls (each with its own total, progress, status and counts), from the pipeline, or appear on their first Update-Console in a live dashboard. To add lanes later, pipe the widget to Add-ConsoleItem.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleLanes [[-WidgetId] <string>] [[-Content] <scriptblock>] [-InputObject <psobject>] [-Lane <Object[]>] [-Total <double>] [-Shape <BarShape>] [-Column <string[]>] [-HideCompleted] [-CollapseWhenFinished] [-Transient] [-CountColumn <ColumnFormat>] [-PercentColumn <ColumnFormat>] [<CommonParameters>]
+New-ConsoleLanes [[-WidgetId] <string>] [[-Content] <scriptblock>] [-InputObject <psobject>] [-Lane <Object[]>] [-Total <double>] [-Shape <BarShape>] [-Columns <Object[]>] [-HideCompleted] [-CollapseWhenFinished] [-Transient] [-CountColumn <ColumnFormat>] [-PercentColumn <ColumnFormat>] [-MaxLabelWidth <int>] [-NoDetail] [-CountSkipped] [-NoDimPending] [-BoldActive] [-ShowRunningCount] [-CollapseWhen <StatusKind>] [-RateWindowSeconds <double>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Creates a lanes widget: one row per worker, server or item of a parallel workload.
 
-Each lane shows a status marker (a spinner while running), a progress bar, pass/fail/warning counts and what it is doing now. Lanes can be declared up front with -Lane (names sharing one -Total), with a script block of New-ConsoleLane calls (each with its own total, progress, status and counts), from the pipeline, or appear on their first Update-ConsoleLane in a live dashboard. To add lanes later, pipe the widget to Add-ConsoleItem.
+Each lane shows a status marker (a spinner while running), a progress bar, pass/fail/warning counts and what it is doing now. Lanes can be declared up front with -Lane (names sharing one -Total), with a script block of Key/Label records calls (each with its own total, progress, status and counts), from the pipeline, or appear on their first Update-Console in a live dashboard. To add lanes later, pipe the widget to Add-ConsoleItem.
 
 ## EXAMPLES
 
@@ -33,15 +33,47 @@ Lanes for three servers with 40 steps each
 ### EXAMPLE 2
 ```powershell
 New-ConsoleLanes -Content {
-    New-ConsoleLane 'DC01' -Total 40 -Done 40 -Status Pass -Passed 40
-    New-ConsoleLane 'DC02' -Total 40 -Done 22 -Status Running -Passed 21 -Warned 1 -Detail 'replication'
-    New-ConsoleLane 'DC03' -Total 40
+    [pscustomobject]@{ Key = 'DC01'; Total = 40; Status = 'Pass'; Passed = 40; Value = 40 }
+    [pscustomobject]@{ Key = 'DC02'; Total = 40; Status = 'Running'; Passed = 21; Warned = 1; Detail = 'replication'; Value = 22 }
+    [pscustomobject]@{ Key = 'DC03'; Total = 40 }
 } | Show-Console
 ```
 
 Lanes at different points, printed once
 
 ## PARAMETERS
+
+### -BoldActive
+Emphasizes active lane labels.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -CollapseWhen
+Collapses lanes with this status into a summary.
+
+```yaml
+Type: StatusKind
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: Pending, Running, Pass, Fail, Warn, Skip, Info
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -CollapseWhenFinished
 Collapses the display to one summary line once every lane has finished.
@@ -59,14 +91,14 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Column
-The columns of each row, in order: Standard (spinner, description, bar, percent, count, elapsed, remaining time, status), or any of Spinner, Description, Bar, Percent, Count, Elapsed, Remaining, Rate, ByteRate, Results and Status. Without it the classic layout shows the label, bar, percentage, pass/fail/warning counts and detail.
+### -Columns
+Builtin names, Type/Alignment/Priority/MaxWidth records or typed columns, in order: Standard (spinner, description, bar, percent, count, elapsed, remaining time, status), or any of Spinner, Description, Bar, Percent, Count, Elapsed, Remaining, Rate, ByteRate, Results and Status. Without it the classic layout shows the label, bar, percentage, pass/fail/warning counts and detail.
 
 ```yaml
-Type: String[]
+Type: Object[]
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: Standard, Spinner, Description, Bar, Percent, Count, Elapsed, Remaining, Rate, ByteRate, Results, Status
+Possible values:
 
 Required: False
 Position: named
@@ -76,7 +108,7 @@ Accept wildcard characters: False
 ```
 
 ### -Content
-A script block that emits the lanes: New-ConsoleLane calls, or names.
+A script block that emits the lanes: Key/Label records calls, or names.
 
 ```yaml
 Type: ScriptBlock
@@ -107,6 +139,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -CountSkipped
+Includes skipped work in the completed count.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -HideCompleted
 Finished lanes leave the display and are counted in the summary line.
 
@@ -124,7 +172,7 @@ Accept wildcard characters: False
 ```
 
 ### -InputObject
-Lanes from the pipeline: New-ConsoleLane objects or names.
+Lanes from the pipeline: Key/Label records objects or names.
 
 ```yaml
 Type: PSObject
@@ -155,11 +203,75 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -MaxLabelWidth
+Maximum lane label width in cells; default 28.
+
+```yaml
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NoDetail
+Hides each lane's detail text.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NoDimPending
+Uses normal text instead of dimming pending lanes.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -PercentColumn
 Shared PercentColumn layout settings from New-ConsoleColumnFormat.
 
 ```yaml
 Type: ColumnFormat
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -RateWindowSeconds
+Rate-estimation window in seconds; default 10.
+
+```yaml
+Type: Double
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -179,6 +291,22 @@ Type: BarShape
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values: Block, Line
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ShowRunningCount
+Shows a separate count of running lanes.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
 
 Required: False
 Position: named

@@ -19,7 +19,7 @@
             Path = $cast
             Pace = 'Source'
             Speed = 2
-            ChapterSpeed = @{ Install = 2 }
+            ChapterSpeeds = @{ Install = 2 }
             IdleLimitSeconds = 2
             ChapterHoldSeconds = 1
             HoldLastFrameSeconds = 2
@@ -32,6 +32,26 @@
         $data.markers[0][1] | Should -Be 'Results'
         Export-ConsoleRecording @settings -Format Svg | Should -Match 'animation:cm-play 10s'
         { Export-ConsoleRecording @settings -TrimStartChapter Results } | Should -Throw '*time or a chapter*'
+
+        $optionsType = (Get-Command Export-ConsoleRecording).Parameters['Options'].ParameterType
+        $options = [Activator]::CreateInstance($optionsType)
+        $options.Pace = 'Source'
+        $options.Speed = 2
+        $options.ChapterSpeeds.Add('Install', 2)
+        $options.IdleLimit = [TimeSpan]::FromSeconds(2)
+        $options.ChapterHold = [TimeSpan]::FromSeconds(1)
+        $options.HoldLastFrame = [TimeSpan]::FromSeconds(2)
+        $options.TrimStart = [TimeSpan]::FromSeconds(2)
+        $options.TrimEndChapter = 'End'
+        Export-ConsoleRecording $cast -Format PlayerData -Options $options | Should -BeExactly (Export-ConsoleRecording @settings -Format PlayerData)
+        Export-ConsoleRecording $cast -Format Svg -Options $options | Should -Match 'animation:cm-play 10s'
+        $options.TrimStart.TotalSeconds | Should -Be 2
+        $options.ChapterSpeeds['Install'] | Should -Be 2
+        foreach ($name in 'Pace', 'ChapterSpeeds', 'IdleLimitSeconds', 'ChapterHoldSeconds', 'HoldLastFrameSeconds', 'TrimStartSeconds', 'TrimEndChapter') {
+            $mixed = @{ Path = $cast; Format = 'PlayerData'; Options = $options }
+            $mixed[$name] = $settings[$name]
+            { Export-ConsoleRecording @mixed } | Should -Throw '*Use -Options or individual settings*'
+        }
     }
 
     It 'preserves fractional source boundaries through numeric second parameters' {

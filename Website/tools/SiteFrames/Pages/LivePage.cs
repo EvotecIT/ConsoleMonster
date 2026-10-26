@@ -157,6 +157,7 @@ namespace SiteFrames.Pages {
             assessment["bytes"] = jsonLines.Length;
             assessment["excerpt"] = string.Join("\n", lines.Take(9));
             Source(assessment, Site.ReadText(ProgramPath(site, "replay")), "csharp", "Program.cs");
+            SourceStyles.Add(site, assessment, ProgramPath(site, "replay"));
             live["assessment"] = assessment;
             JsonObject compact = FromCast(site, "assessment-compact", "C#", "dotnet run -- assessment-run.jsonl 2", 3, 0.55);
             // The same program as the assessment, in a narrower window: its code is the assessment's.
@@ -173,14 +174,17 @@ namespace SiteFrames.Pages {
             JsonObject pipelineSource = new JsonObject();
             Source(pipelineSource, Site.ReadText(PipelineScript(site)), "powershell", "Example-BuildPipeline.ps1");
             Source(pipelineSource, Site.ReadText(ProgramPath(site, "pipeline")), "csharp", "Program.cs");
+            SourceStyles.Add(site, pipelineSource, ProgramPath(site, "pipeline"));
             pipeline["source"] = pipelineSource;
             live["pipeline"] = pipeline;
             JsonObject stress = FromCast(site, "stress", "C#", "dotnet run -- 12", 3, 0.45);
             stress["result"] = StressResult(site);
             Source(stress, Site.ReadText(ProgramPath(site, "stress")), "csharp", "Program.cs");
+            SourceStyles.Add(site, stress, ProgramPath(site, "stress"));
             live["stress"] = stress;
             JsonObject stream = Stream(site);
             Source(stream, Site.ReadText(ProgramPath(site, "replay")), "csharp", "Program.cs");
+            SourceStyles.Add(site, stream, ProgramPath(site, "replay"));
             live["stream"] = stream;
             string query = ProgramPath(site, "query");
             JsonObject queryFigure = new JsonObject {
@@ -190,6 +194,7 @@ namespace SiteFrames.Pages {
                 ["frame"] = site.Frame(CSharpRunner.Run(query, 100, ColorDepth.TrueColor, GlyphTier.Full, Theme.Dark, 120), CSharpRunner.Run(query, 100, ColorDepth.TrueColor, GlyphTier.Full, Theme.Light, 120))
             };
             Source(queryFigure, Site.ReadText(query), "csharp", "Program.cs");
+            SourceStyles.Add(site, queryFigure, query);
             live["query"] = queryFigure;
 
             site.WriteJson(site.Data("live"), live);

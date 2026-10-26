@@ -132,6 +132,9 @@ namespace ConsoleMonster.Widgets {
 
         private void ApplyOperation(LiveEvent liveEvent) {
             switch (liveEvent.Operation) {
+                case "total":
+                    Total = liveEvent.Total;
+                    break;
                 case "set":
                     Value = liveEvent.Value;
                     if (liveEvent.Total > 0) {

@@ -5,16 +5,16 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates a phase strip for pipelines: Restore › Build › Test › Pack.</para>
-    /// <para type="description">Phases come from -Phase (names, all pending) or from a script block of New-ConsoleStatusItem calls, each with its status and a detail such as a duration. The active phase is emphasised and finished phases show their detail. To add phases later, pipe the strip to Add-ConsoleItem; in a live dashboard, update phases with Update-ConsolePhase, which also measures their duration.</para>
+    /// <para type="description">Phases come from -Phase (names, all pending) or from a script block of Key/Label/Status records calls, each with its status and a detail such as a duration. The active phase is emphasised and finished phases show their detail. To add phases later, pipe the strip to Add-ConsoleItem; in a live dashboard, update phases with Update-Console, which also measures their duration.</para>
     /// </summary>
     /// <example>
     ///   <para>A run part-way through</para>
     ///   <code>
     /// New-ConsolePhases -Content {
-    ///     New-ConsoleStatusItem 'Discover' -Status Pass -Detail '2.1s'
-    ///     New-ConsoleStatusItem 'Collect' -Status Pass -Detail '14s'
-    ///     New-ConsoleStatusItem 'Evaluate' -Status Running -Detail '64%'
-    ///     New-ConsoleStatusItem 'Report'
+    ///     [pscustomobject]@{ Label = 'Discover'; Status = 'Pass'; Detail = '2.1s' }
+    ///     [pscustomobject]@{ Label = 'Collect'; Status = 'Pass'; Detail = '14s' }
+    ///     [pscustomobject]@{ Label = 'Evaluate'; Status = 'Running'; Detail = '64%' }
+    ///     [pscustomobject]@{ Label = 'Report' }
     /// } | Show-Console</code>
     /// </example>
     /// <example>
@@ -30,11 +30,11 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(Position = 1)]
         public object[]? Phase { get; set; }
 
-        /// <summary><para type="description">A script block that emits the phases: New-ConsoleStatusItem calls (or phase names).</para></summary>
+        /// <summary><para type="description">A script block that emits the phases: Key/Label/Status records calls (or phase names).</para></summary>
         [Parameter(Position = 2)]
         public ScriptBlock? Content { get; set; }
 
-        /// <summary><para type="description">Phases from the pipeline: New-ConsoleStatusItem objects or names.</para></summary>
+        /// <summary><para type="description">Phases from the pipeline: Key/Label/Status records objects or names.</para></summary>
         [Parameter(ValueFromPipeline = true)]
         public PSObject? InputObject { get; set; }
 

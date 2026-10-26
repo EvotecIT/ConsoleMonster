@@ -14,7 +14,7 @@
 {{ include "site-header" }}
 <main id="main" class="cm-main">
 {{~ ## One demo (front matter `demo: <slug>`, an entry of data.gallery.items): its recording, the line that runs it, the
-     whole program in both languages, what to change first, files for slides, and more demos of the same kind. ## ~}}
+     whole program in all three styles, what to change first, files for slides, and more demos of the same kind. ## ~}}
 {{~ g = data.gallery; d = null; for i in g.demos; if i.slug == page.meta.demo; d = i; end; end ~}}
 {{~ rp = d.replay; if !rp && d.mode == "live"; rp = { url: "/replays/gallery-" + d.slug + ".json", w: d.frame.w, h: d.frame.h, poster: d.frame }; end ~}}
 {{~ capture side ~}}
@@ -41,19 +41,20 @@
 
 <div class="cm-wrap cm-page cm-reel-page">
   {{~ ## The program comes first: the page is how to build it, and running the bundled copy is a shortcut after it. ## ~}}
-  {{~ ps = d.source ? d.source.powershell : null; cs = d.source ? d.source.csharp : null ~}}
+  {{~ ps = d.source ? d.source.powershell : null; cs = d.source ? d.source.csharp : null; csf = d.source ? d.source.csharpFluent : null ~}}
   {{~ ps_file = ps ? ps.file : (d.slug + ".ps1"); project = d.slug | string.capitalize | string.replace "-" "" ~}}
   {{~ ## A section header with one PowerShell | C# switch for the whole section (the reader's choice, kept across pages). ## ~}}
   <section class="cm-showcase cm-reel-sec" id="build" aria-labelledby="build-title">
     <header class="cm-reel-sec__head">
       <div>
         <h2 id="build-title">How it's built</h2>
-        <p>The whole program in one file, with its sample data at the top. It drew the recording above; both languages draw the same cells.</p>
+        <p>The whole program in one file, with its sample data at the top. It drew the recording above; all three styles produce the same frame bytes.</p>
       </div>
       {{~ if ps && cs ~}}
       <div class="cm-seg cm-try__lang cm-reel-sec__lang" role="radiogroup" aria-label="Language" data-cm-lang-switch hidden>
         <button type="button" role="radio" aria-checked="true" data-lang="powershell" style="--key: var(--cm-s3)">PowerShell</button>
         <button type="button" role="radio" aria-checked="false" data-lang="csharp" style="--key: var(--cm-s5)">C#</button>
+        <button type="button" role="radio" aria-checked="false" data-lang="csharp-fluent" style="--key: var(--cm-s5)">C# fluent</button>
       </div>
       {{~ end ~}}
     </header>
@@ -69,6 +70,13 @@
       {{ include "code" }}
     </div>
     {{~ end ~}}
+    {{~ if csf ~}}
+    <div class="cm-reel__cmd" data-lang="csharp-fluent">
+      {{~ code_lang = "csharp"; code_label = "C# fluent"; code_file = csf.file; code_text = csf.text; code_full = null; code_repo = csf.repo; code_download = true ~}}
+      {{ include "code" }}
+    </div>
+    {{~ end ~}}
+    {{~ api_map = d.apiMap ~}}{{ include "api-map" }}
   </section>
 
   <section class="cm-showcase cm-reel-sec" id="run" aria-labelledby="run-title">
@@ -80,6 +88,7 @@
       <div class="cm-seg cm-try__lang cm-reel-sec__lang" role="radiogroup" aria-label="Language" data-cm-lang-switch hidden>
         <button type="button" role="radio" aria-checked="true" data-lang="powershell" style="--key: var(--cm-s3)">PowerShell</button>
         <button type="button" role="radio" aria-checked="false" data-lang="csharp" style="--key: var(--cm-s5)">C#</button>
+        <button type="button" role="radio" aria-checked="false" data-lang="csharp-fluent" style="--key: var(--cm-s5)">C# fluent</button>
       </div>
     </header>
     <ol class="cm-reel-steps cm-reel__cmd" data-lang="powershell">
@@ -105,19 +114,42 @@
         {{~ cmd_lang = "bash"; cmd_text = "dotnet new console -n " + project + "; cd " + project ~}}{{ include "command" }}
       </li>
       <li>
-        <div class="cm-reel-steps__text"><h3>Add ConsoleMonster</h3><p>The only package the program needs.</p></div>
-        {{~ cmd_lang = "bash"; cmd_text = "dotnet add package ConsoleMonster" ~}}{{ include "command" }}
+        <div class="cm-reel-steps__text"><h3>Save the project</h3><p>The project selects one C# style at a time and restores ConsoleMonster.</p></div>
+        <a class="cm-btn cm-btn--small" href="{{ d.projectDownload }}" download="{{ project }}.csproj">Download {{ project }}.csproj</a>
       </li>
       <li>
-        <div class="cm-reel-steps__text"><h3>Replace Program.cs</h3><p>Download it, or copy the program from above.</p></div>
+        <div class="cm-reel-steps__text"><h3>Save both programs</h3><p>Replace Program.cs and save Program.Fluent.cs beside it.</p></div>
         <div class="cm-reel-steps__file">
           {{~ if d.csharpDownload ~}}<a class="cm-btn cm-btn--small cm-reel-steps__dl" href="{{ d.csharpDownload }}" download="Program.cs">Download Program.cs</a>{{~ end ~}}
+          <a class="cm-btn cm-btn--small cm-reel-steps__dl" href="{{ d.csharpFluentDownload }}" download="Program.Fluent.cs">Download Program.Fluent.cs</a>
           {{~ if cs && cs.repo ~}}<a class="cm-reel-steps__gh" href="https://github.com/EvotecIT/ConsoleMonster/blob/master/{{ cs.repo }}" aria-label="View Program.cs on GitHub">View on GitHub</a>{{~ end ~}}
         </div>
       </li>
       <li>
         <div class="cm-reel-steps__text"><h3>Run it</h3></div>
         {{~ cmd_lang = "bash"; cmd_text = "dotnet run" ~}}{{ include "command" }}
+      </li>
+    </ol>
+    <ol class="cm-reel-steps cm-reel__cmd" data-lang="csharp-fluent">
+      <li>
+        <div class="cm-reel-steps__text"><h3>Create a project</h3><p>A plain console app; .NET 8 or later.</p></div>
+        {{~ cmd_lang = "bash"; cmd_text = "dotnet new console -n " + project + "; cd " + project ~}}{{ include "command" }}
+      </li>
+      <li>
+        <div class="cm-reel-steps__text"><h3>Save the project</h3><p>The project selects one C# style at a time and restores ConsoleMonster.</p></div>
+        <a class="cm-btn cm-btn--small" href="{{ d.projectDownload }}" download="{{ project }}.csproj">Download {{ project }}.csproj</a>
+      </li>
+      <li>
+        <div class="cm-reel-steps__text"><h3>Save both programs</h3><p>Replace Program.cs and save Program.Fluent.cs beside it.</p></div>
+        <div class="cm-reel-steps__file">
+          {{~ if d.csharpDownload ~}}<a class="cm-btn cm-btn--small cm-reel-steps__dl" href="{{ d.csharpDownload }}" download="Program.cs">Download Program.cs</a>{{~ end ~}}
+          <a class="cm-btn cm-btn--small cm-reel-steps__dl" href="{{ d.csharpFluentDownload }}" download="Program.Fluent.cs">Download Program.Fluent.cs</a>
+          {{~ if cs && cs.repo ~}}<a class="cm-reel-steps__gh" href="https://github.com/EvotecIT/ConsoleMonster/blob/master/{{ cs.repo }}" aria-label="View Program.cs on GitHub">View on GitHub</a>{{~ end ~}}
+        </div>
+      </li>
+      <li>
+        <div class="cm-reel-steps__text"><h3>Run it</h3></div>
+        {{~ cmd_lang = "bash"; cmd_text = "dotnet run --property:DemoStyle=Fluent" ~}}{{ include "command" }}
       </li>
     </ol>
     <div class="cm-reel-shortcut">
@@ -129,6 +161,10 @@
       <div class="cm-reel__cmd cm-reel-shortcut__cmds" data-lang="csharp">
         {{~ cmd_lang = "bash"; cmd_text = "dotnet new install ConsoleMonster.Templates" ~}}{{ include "command" }}
         {{~ cmd_lang = "bash"; cmd_text = d.run.csharp + " -n " + project ~}}{{ include "command" }}
+      </div>
+      <div class="cm-reel__cmd cm-reel-shortcut__cmds" data-lang="csharp-fluent">
+        {{~ cmd_lang = "bash"; cmd_text = "dotnet new install ConsoleMonster.Templates" ~}}{{ include "command" }}
+        {{~ cmd_lang = "bash"; cmd_text = d.run.csharpFluent + " -n " + project ~}}{{ include "command" }}
       </div>
     </div>
   </section>

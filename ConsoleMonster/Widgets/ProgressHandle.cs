@@ -12,19 +12,23 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>Sets the value (and optionally the total).</summary>
         /// <param name="value">The value.</param>
-        /// <param name="total">The total, or 0 to keep it.</param>
-        public void Set(double value, double total = 0) => Post("set", value: value, total: total);
+        /// <param name="total">The total, or null to keep it; zero explicitly clears an unknown total.</param>
+        public void Set(double value, double? total = null) {
+            var update = new WidgetUpdate { Value = value };
+            if (total.HasValue) { update.Total = total.Value; }
+            Update(update);
+        }
 
         /// <summary>Adds to the value.</summary>
         /// <param name="amount">The amount (default 1).</param>
-        public void Advance(double amount = 1) => Post("advance", value: amount);
+        public void Advance(double amount = 1) => Update(new WidgetUpdate { Increment = amount });
 
         /// <summary>Changes the label.</summary>
         /// <param name="label">The label (markup).</param>
-        public void Label(string label) => Post("label", text: label);
+        public void Label(string label) => Update(new WidgetUpdate { Label = label });
 
         /// <summary>Sets the final status (Pass, Fail, Warn).</summary>
         /// <param name="status">The status.</param>
-        public void Complete(StatusKind status = StatusKind.Pass) => Post("state", state: status.ToString());
+        public void Complete(StatusKind status = StatusKind.Pass) => Update(new WidgetUpdate { Status = status });
     }
 }

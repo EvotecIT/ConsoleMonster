@@ -17,17 +17,12 @@
 {{~ if a.script != "false"; shown = []; for id in ids; fig = data.figures[id | string.strip]
       if fig.script && !(shown | array.contains fig.script); shown = shown | array.add fig.script ~}}
 <div class="cm-figure__code">
-{{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = fig.file; code_text = fig.script; code_full = fig.scriptFull ~}}
-{{ include "code" }}
-{{~ if fig.csharp ~}}
-{{~ code_lang = "csharp"; code_label = "C#"; code_file = "Program.cs"; code_text = fig.csharp; code_full = fig.csharpFull ~}}
-{{ include "code" }}
-{{~ end ~}}
+{{~ style_entry = fig ~}}
+{{ include "source-styles" }}
 </div>
 {{~ else if fig.csharp && !fig.script && !(shown | array.contains fig.csharp); shown = shown | array.add fig.csharp ~}}
 <div class="cm-figure__code">
-{{~ code_lang = "csharp"; code_label = "C#"; code_file = "Program.cs"; code_text = fig.csharp; code_full = fig.csharpFull ~}}
-{{ include "code" }}
+{{~ style_entry = fig ~}}{{ include "source-styles" }}
 </div>
 {{~ end; end; end ~}}
 {{~ if a.caption ~}}<figcaption>{{ a.caption | html.escape | regex.replace "`([^`]+)`" "<code>$1</code>" }}</figcaption>{{~ end ~}}

@@ -4,36 +4,47 @@ using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
 
 Table table = new Table()
-    .WithTitle("[bold]Nightly checks[/] [muted]· run summary[/]")
-    .WithShowSubtotals()
-    .WithShowTotals()
-    .AddColumn("Target", c => c
-        .WithIsKey()
-        .WithOverflow(ColumnOverflow.TruncateMiddle)
-        .WithMinWidth(12))
-    .AddColumn("Result", c => c.WithPriority(10).WithPresenter(CellPresenters.Status))
-    .AddColumn("Passed", c => c
-        .WithPriority(8)
-        .WithPresenter(CellPresenters.Number)
-        .WithAggregate(ColumnAggregate.Sum))
-    .AddColumn("Failed", c => c
-        .WithPriority(9)
-        .WithPresenter(CellPresenters.Number)
-        .WithAggregate(ColumnAggregate.Sum)
-        .AddRoleRules(RoleRule.Above(0, ThemeToken.Fail)))
-    .AddColumn("Warnings", c => c
-        .WithPriority(6)
-        .WithPresenter(CellPresenters.Number)
-        .WithAggregate(ColumnAggregate.Sum)
-        .AddRoleRules(RoleRule.Above(0, ThemeToken.Warn)))
-    .AddColumn("Duration", c => c
-        .WithPriority(4)
-        .WithPresenter(CellPresenters.Duration)
-        .WithAggregate(ColumnAggregate.Sum))
-    .AddColumn("Score", c => c
-        .WithPriority(2)
-        .WithPresenter(new DataBarPresenter(100, new NumberPresenter("%")))
-        .WithAggregate(ColumnAggregate.Average));
+{
+    Title = "[bold]Nightly checks[/] [muted]· run summary[/]",
+    ShowSubtotals = true,
+    ShowTotals = true
+}.AddColumn("Target", c =>
+{
+    c.IsKey = true;
+    c.Overflow = ColumnOverflow.TruncateMiddle;
+    c.MinWidth = 12;
+}).AddColumn("Result", c =>
+{
+    c.Priority = 10;
+    c.Presenter = CellPresenters.Status;
+}).AddColumn("Passed", c =>
+{
+    c.Priority = 8;
+    c.Presenter = CellPresenters.Number;
+    c.Aggregate = ColumnAggregate.Sum;
+}).AddColumn("Failed", c =>
+{
+    c.Priority = 9;
+    c.Presenter = CellPresenters.Number;
+    c.Aggregate = ColumnAggregate.Sum;
+    c.AddRoleRules(RoleRule.Above(0, ThemeToken.Fail));
+}).AddColumn("Warnings", c =>
+{
+    c.Priority = 6;
+    c.Presenter = CellPresenters.Number;
+    c.Aggregate = ColumnAggregate.Sum;
+    c.AddRoleRules(RoleRule.Above(0, ThemeToken.Warn));
+}).AddColumn("Duration", c =>
+{
+    c.Priority = 4;
+    c.Presenter = CellPresenters.Duration;
+    c.Aggregate = ColumnAggregate.Sum;
+}).AddColumn("Score", c =>
+{
+    c.Priority = 2;
+    c.Presenter = new DataBarPresenter(100, new NumberPresenter("%"));
+    c.Aggregate = ColumnAggregate.Average;
+});
 table.AddGroup("Domains");
 table.AddValues("ad.adatum.com", StatusKind.Fail, 9, 2, 5, TimeSpan.FromSeconds(24), 56);
 // <more>

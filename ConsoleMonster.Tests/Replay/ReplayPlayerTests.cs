@@ -48,6 +48,18 @@ namespace ConsoleMonster.Tests.Replay {
         }
 
         [Fact]
+        public void AutomaticPlayback_UsesTheSharedEventEngineWithoutAcquiringInteractiveInput() {
+            var progress = new ProgressBar(widgetId: "work") { Total = 10 };
+            var output = new ConsoleMonster.Tests.Live.FakeOutput(false);
+            LiveSessionOptions session = ConsoleMonster.Tests.Live.LiveSessionTests.Options(output);
+            session.ReplayDelay = (_, cancellation) => cancellation.ThrowIfCancellationRequested();
+            ReplayPlayer.Play(progress, new[] { new LiveEvent("work", "set", value: 7, total: 10, time: 1) },
+                new ReplayOptions { PlaybackMode = PlaybackMode.Automatic, Session = session });
+            Assert.Equal(7, progress.Value);
+            Assert.Equal(10, progress.Total);
+        }
+
+        [Fact]
         public void Markers_FromEvents_FindMarkersStateChangesAndLogLines() {
             IReadOnlyList<ReplayMarker> markers = ReplayMarker.From(Events());
             Assert.Equal(new[] { ReplayMarkerKind.Log, ReplayMarkerKind.Marker, ReplayMarkerKind.Warning, ReplayMarkerKind.Failure, ReplayMarkerKind.Failure }, markers.Select(m => m.Kind).ToArray());

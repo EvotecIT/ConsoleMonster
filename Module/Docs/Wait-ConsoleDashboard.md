@@ -30,7 +30,7 @@ $dashboard = New-ConsoleDashboard -Title 'Scan' -Content {
 }
 Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {
     foreach ($count in 1..3) {
-        Update-ConsoleProgress -WidgetId overall -Value $count
+        Update-Console -WidgetId overall -Value $count
         Wait-ConsoleDashboard -Milliseconds 250
     }
 }

@@ -96,7 +96,7 @@ namespace ConsoleMonster.Interactive {
         /// <param name="title">The title; null uses "Exit".</param>
         /// <returns>The menu.</returns>
         public Menu Exit(string? title = null) {
-            Items.Add(new MenuItem(title ?? PromptLabels.Default.Exit) { Kind = MenuItemKind.Exit, HotkeyChar = null });
+            Items.Add(new MenuItem(title ?? PromptLabels.Default.Exit) { Kind = MenuItemKind.Exit, Hotkey = null });
             return this;
         }
 
@@ -108,7 +108,7 @@ namespace ConsoleMonster.Interactive {
                 if (string.Equals(item.Label, title, StringComparison.OrdinalIgnoreCase)) {
                     return item;
                 }
-                MenuItem? nested = item.SubmenuDefinition?.Find(title);
+                MenuItem? nested = item.Submenu?.Find(title);
                 if (nested != null) {
                     return nested;
                 }

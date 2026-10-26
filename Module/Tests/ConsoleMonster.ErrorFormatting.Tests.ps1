@@ -95,7 +95,7 @@ if (${function:global:Out-Default}.ToString() -cne $saved) { throw 'Removal did 
     It 'maps the original invocation and folds causes through the shared compact view' {
         $text = Invoke-ErrorFormattingChild @'
 try { [int]::Parse('abc') } catch { $record = $_ }
-$widget = $record | Show-ConsoleError -Compact -AsWidget
+$widget = $record | Show-Console -Compact -AsWidget -View Error
 $text = [ConsoleMonster.Terminal]::RenderText($widget, ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Testing.TestTerminal'))::Profile(120))
 if ($text -notmatch '^Error: Exception calling' -or $text -notmatch '\^+' -or $text -notmatch '\[int\]::Parse') { throw 'Missing compact invocation.' }
 if ($text -notmatch '\+1 inner exception' -or $text -match 'Caused by') { throw 'Causes were not folded.' }
@@ -133,13 +133,13 @@ try {
         $text = Invoke-ErrorFormattingChild @'
 $expression = "[int]::Parse('" + ('abc' * 45) + "')"
 $record = & ([scriptblock]::Create('try { ' + $expression + ' } catch { $_ }'))
-$widget = $record | Show-ConsoleError -Compact -AsWidget
+$widget = $record | Show-Console -Compact -AsWidget -View Error
 $text = [ConsoleMonster.Terminal]::RenderText($widget, ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Testing.TestTerminal'))::Profile(200))
 $marker = @($text -split "`n" | Where-Object { $_.TrimStart().StartsWith('^') })
 if ($marker.Count -ne 1 -or $marker[0].Trim().Length -ne $expression.Length) { throw 'Original single-line extent was shortened.' }
 $multi = "[int]::Parse(`n    'abc'`n)"
 $record = & ([scriptblock]::Create('try { ' + $multi + ' } catch { $_ }'))
-$widget = $record | Show-ConsoleError -Compact -AsWidget
+$widget = $record | Show-Console -Compact -AsWidget -View Error
 $text = [ConsoleMonster.Terminal]::RenderText($widget, ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Testing.TestTerminal'))::Profile(200))
 $marker = @($text -split "`n" | Where-Object { $_.TrimStart().StartsWith('^') })
 if ($marker.Count -ne 1 -or $marker[0].Trim().Length -ne '[int]::Parse('.Length) { throw 'Multiline extent did not end at the source line boundary.' }

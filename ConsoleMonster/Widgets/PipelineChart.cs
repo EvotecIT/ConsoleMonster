@@ -14,7 +14,7 @@ namespace ConsoleMonster.Widgets {
     /// </summary>
     public sealed class PipelineChart : IWidget {
         private readonly List<ChartItem> _samples = new List<ChartItem>();
-        private PipelineChartType _type;
+        private ChartType _type;
         private PipelineChartSort _sort;
         private int _top;
         private int _bins = 10;
@@ -23,15 +23,15 @@ namespace ConsoleMonster.Widgets {
         public IReadOnlyList<ChartItem> Samples => _samples.AsReadOnly();
 
         /// <summary>The chart presentation; defaults to horizontal bars.</summary>
-        public PipelineChartType Type {
+        public ChartType Type {
             get => _type;
             set {
-                if (!Enum.IsDefined(typeof(PipelineChartType), value)) { throw new ArgumentOutOfRangeException(nameof(value)); }
+                if (value != ChartType.Bar && value != ChartType.Histogram && value != ChartType.Sparkline) { throw new ArgumentOutOfRangeException(nameof(value)); }
                 _type = value;
             }
         }
 
-        /// <summary>Value order before Top; ties retain arrival order. Histogram observations are never sorted or limited.</summary>
+        /// <summary>Value order before MaxRows; ties retain arrival order. Histogram observations are never sorted or limited.</summary>
         public PipelineChartSort Sort {
             get => _sort;
             set {
@@ -41,7 +41,7 @@ namespace ConsoleMonster.Widgets {
         }
 
         /// <summary>Maximum bars or trend groups to show; zero shows all. Histogram always uses every valid sample.</summary>
-        public int Top {
+        public int MaxRows {
             get => _top;
             set {
                 if (value < 0) { throw new ArgumentOutOfRangeException(nameof(value)); }
@@ -95,8 +95,8 @@ namespace ConsoleMonster.Widgets {
         /// <returns>A widget for the selected samples; an empty chart has no rows.</returns>
         public IWidget Build(bool textOnly = false) {
             if (_samples.Count == 0) { return new Rows(); }
-            if (Type == PipelineChartType.Histogram) { return Distribution(textOnly); }
-            if (Type == PipelineChartType.Sparkline) { return Trends(textOnly); }
+            if (Type == ChartType.Histogram) { return Distribution(textOnly); }
+            if (Type == ChartType.Sparkline) { return Trends(textOnly); }
             BarChart bars = new BarChart() { Signed = true, Unit = Unit };
             Rows text = new Rows();
             HashSet<string> labels = new HashSet<string>(StringComparer.Ordinal);
@@ -120,7 +120,7 @@ namespace ConsoleMonster.Widgets {
         private IEnumerable<T> Select<T>(IEnumerable<T> source, Func<T, double> value) {
             IEnumerable<T> ordered = Sort == PipelineChartSort.Ascending ? source.OrderBy(value) :
                 Sort == PipelineChartSort.Descending ? source.OrderByDescending(value) : source;
-            return Top > 0 ? ordered.Take(Top) : ordered;
+            return MaxRows > 0 ? ordered.Take(MaxRows) : ordered;
         }
 
         private IWidget Trends(bool textOnly) {

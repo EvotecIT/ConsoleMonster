@@ -6,7 +6,7 @@ using ConsoleMonster.Interactive;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates a form or wizard from fields (New-ConsoleField) for Read-ConsoleForm or a menu item.</para>
-    /// <para type="description">The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Use -PageDescriptions to give each page its own sentence under the title. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back. Presets the form comes with (New-ConsoleFormPreset, in the scriptblock or -Preset) are listed before the saved ones.</para>
+    /// <para type="description">The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Use -PageDescriptions to give each page its own sentence under the title. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back. Presets the form comes with (New-ConsoleForm -Preset, in the scriptblock or -Preset) are listed before the saved ones.</para>
     /// </summary>
     /// <example>
     ///   <para>A two-page wizard</para>
@@ -23,7 +23,7 @@ namespace ConsoleMonster.PowerShell {
     /// $form = New-ConsoleForm 'New share' -Command 'New-AppShare' -Content {
     ///     New-ConsoleField Name 'Share name' -Required -ParameterName Name
     ///     New-ConsoleField ReadOnly 'Read only' -Type Toggle -ParameterName ReadOnly
-    ///     New-ConsoleFormPreset 'Archive' -Values @{ Name = 'Archive'; ReadOnly = $true } -Description 'A read-only archive share.'
+    ///     [pscustomobject]@{ Name = 'Archive'; Values = @{ Name = 'Archive'; ReadOnly = $true }; Description = 'A read-only archive share.' }
     /// }</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleForm")]
@@ -69,9 +69,9 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public string? StorageKey { get; set; }
 
-        /// <summary><para type="description">Presets the form comes with (New-ConsoleFormPreset), listed before the saved ones; presets emitted in the scriptblock are added too.</para></summary>
+        /// <summary><para type="description">Presets the form comes with (New-ConsoleForm -Preset), listed before the saved ones; presets emitted in the scriptblock are added too.</para></summary>
         [Parameter]
-        public FormPreset[]? Preset { get; set; }
+        public object[]? Preset { get; set; }
 
         /// <inheritdoc />
         protected override void EndProcessing() {
@@ -89,14 +89,14 @@ namespace ConsoleMonster.PowerShell {
                 fields.AddRange(Field);
             }
             if (Preset != null) {
-                presets.AddRange(Preset);
+                foreach (object preset in Preset) { presets.Add(PSPresets.Form(preset, this)); }
             }
             if (Content != null) {
                 foreach (PSObject output in Content.Invoke()) {
                     if (output?.BaseObject is Field field) {
                         fields.Add(field);
-                    } else if (output?.BaseObject is FormPreset preset) {
-                        presets.Add(preset);
+                    } else if (output != null && (output.BaseObject is FormPreset || PSPresets.IsRecord(output))) {
+                        presets.Add(PSPresets.Form(output, this));
                     }
                 }
             }

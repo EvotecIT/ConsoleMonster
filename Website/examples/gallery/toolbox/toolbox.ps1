@@ -95,7 +95,7 @@ function Get-Findings {
         $rows | Show-ConsoleTable -Property $columns -Border Minimal -NoSort -AsWidget
     }
     else {
-        New-ConsoleLiveTable -WidgetId findings -Column $columns -Border Minimal
+        New-ConsoleTable -WidgetId findings -Border Minimal -Live -Columns $columns
     }
 }
 function Get-History {
@@ -144,7 +144,7 @@ function Get-RunBody {
         failed = @($finished | Where-Object -Property Status -EQ -Value Fail).Count
     }
     New-ConsoleRows -Content {
-        New-ConsoleSummaryBar -Done $Done -Total $Work.Count -Counter $counter -ElapsedSeconds ($Done * .24 / $plan.Parallel)
+        New-ConsoleSummaryBar -Total $Work.Count -Counter $counter -ElapsedSeconds ($Done * .24 / $plan.Parallel) -Value $Done
         New-ConsolePhases -Content {
             $names = @('Discover', 'Connect', 'Tasks', 'Report')
             for ($i = 0; $i -lt $names.Count; $i++) {
@@ -162,7 +162,7 @@ function Get-RunBody {
                 else {
                     'Pending'
                 }
-                New-ConsoleStatusItem -Label $names[$i] -Status $status
+                [pscustomobject]@{ Label = $names[$i]; Status = $status }
             }
         }
         $lanes = New-ConsoleLanes -WidgetId lanes -Content {
@@ -180,9 +180,7 @@ function Get-RunBody {
                     'Pending'
                 }
                 $detail = if ($doing.Count) { $doing[0].Check.Name } elseif ($ready.Count) { $ready[-1].Check.Name } else { $null }
-                New-ConsoleLane -Key $node.Name -Label (New-ConsoleText -Text "$($node.Name)  $($node.Site)") -Total $planned.Count `
-                    -Done $ready.Count -Status $status -Detail $detail -Passed @($ready | Where-Object -Property Status -EQ -Value Pass).Count `
-                    -Warned @($ready | Where-Object -Property Status -EQ -Value Warn).Count -Failed @($ready | Where-Object -Property Status -EQ -Value Fail).Count
+                [pscustomobject]@{ Key = $node.Name; Label = (New-ConsoleText -Text "$($node.Name)  $($node.Site)"); Total = $planned.Count; Status = $status; Detail = $detail; Passed = @($ready | Where-Object -Property Status -EQ -Value Pass).Count; Warned = @($ready | Where-Object -Property Status -EQ -Value Warn).Count; Failed = @($ready | Where-Object -Property Status -EQ -Value Fail).Count; Value = $ready.Count }
             }
         }
         New-ConsoleColumns -CollapseBelow 90 -Content {
@@ -200,20 +198,20 @@ function Get-RunBody {
         New-ConsolePanel -Title Findings -Content { Get-Findings -Work $finished }
         New-ConsolePanel -Title Log -Content {
             New-ConsoleLogRegion -NoElapsed -Height 7 -Content {
-                New-ConsoleLogEntry -Message "Inventory: $($plan.Domain) · $($plan.Targets.Count) servers · $($Work.Count) tasks"
+                [pscustomobject]@{ Message = "Inventory: $($plan.Domain) · $($plan.Targets.Count) servers · $($Work.Count) tasks" }
                 if ($Phase -ge 1) {
-                    New-ConsoleLogEntry -Message "Connecting up to $($plan.Parallel) servers at a time"
+                    [pscustomobject]@{ Message = "Connecting up to $($plan.Parallel) servers at a time" }
                 }
                 foreach ($w in @($finished | Select-Object -Last 5)) {
                     $level = if ($w.Status -eq 'Fail') { 'err' } elseif ($w.Status -eq 'Warn') { 'warn' } else { 'info' }
-                    New-ConsoleLogEntry -Message "$($w.Node.Name) · $($w.Check.Name): $($w.Actual)" -Level $level
+                    [pscustomobject]@{ Message = "$($w.Node.Name) · $($w.Check.Name): $($w.Actual)"; Level = $level }
                 }
                 if ($Phase -ge 3) {
-                    New-ConsoleLogEntry -Message "Preparing $($plan.Format.ToUpperInvariant()) report: $($plan.Report)"
+                    [pscustomobject]@{ Message = "Preparing $($plan.Format.ToUpperInvariant()) report: $($plan.Report)" }
                 }
                 if ($Phase -ge 4) {
                     $text = if ($plan.Notify) { "Report ready · recipient $($plan.Email)" } else { "Report ready · $(@($finished | Where-Object -Property Status -NE -Value Pass).Count) findings to review" }
-                    New-ConsoleLogEntry -Message $text
+                    [pscustomobject]@{ Message = $text }
                 }
             }
         }
@@ -238,7 +236,7 @@ function Invoke-Work {
             $phase = 0
             $done = 0
             foreach ($phase in 0, 1) {
-                Set-ConsoleRegion -WidgetId body -Content { Get-RunBody -Work $Work -Done 0 -Phase $phase }
+                Update-Console -WidgetId body -Content { Get-RunBody -Work $Work -Done 0 -Phase $phase }
                 $Run.Session.Delay([timespan]::FromMilliseconds(240))
                 if ($Run.CancellationToken.IsCancellationRequested) {
                     return New-ConsoleMenuRunResult -Title 'Run cancelled' -Status Warn -Summary "$done of $($Work.Count) operations completed."
@@ -246,7 +244,7 @@ function Invoke-Work {
             }
             foreach ($group in @($Work | Group-Object -Property { $_.Check.Id })) {
                 for ($offset = 0; $offset -lt $group.Count; $offset += $plan.Parallel) {
-                    Set-ConsoleRegion -WidgetId body -Content { Get-RunBody -Work $Work -Done $done -Phase 2 }
+                    Update-Console -WidgetId body -Content { Get-RunBody -Work $Work -Done $done -Phase 2 }
                     $Run.Session.Delay([timespan]::FromMilliseconds(240))
                     if ($Run.CancellationToken.IsCancellationRequested) {
                         return New-ConsoleMenuRunResult -Title 'Run cancelled' -Status Warn -Summary "$done of $($Work.Count) operations completed."
@@ -255,7 +253,7 @@ function Invoke-Work {
                 }
             }
             foreach ($phase in 3, 4) {
-                Set-ConsoleRegion -WidgetId body -Content { Get-RunBody -Work $Work -Done $done -Phase $phase }
+                Update-Console -WidgetId body -Content { Get-RunBody -Work $Work -Done $done -Phase $phase }
                 $Run.Session.Delay([timespan]::FromMilliseconds(240))
                 if ($Run.CancellationToken.IsCancellationRequested) {
                     return New-ConsoleMenuRunResult -Title 'Run cancelled' -Status Warn -Summary "$done of $($Work.Count) operations completed."
@@ -361,21 +359,21 @@ $menu = New-ConsoleMenu -Title 'Server toolbox' -Layout Shell -Subtitle 'Tue 20 
     $taskItem
     New-ConsoleMenuItem -Label Options -Hotkey o -IconName Settings -Form $options -OnSubmit { Set-Options -Values $Values }
     New-ConsoleMenuItem -Label Presets -Hotkey p -IconName Favorite -Presets
-    New-ConsoleMenuPreset -Name 'Morning · Warsaw' -Form $options -Values @{
+    [pscustomobject]@{ Name = 'Morning · Warsaw'; Form = $options; Values = @{
         Parallel = 2
         DryRun = $true
-    } -Selections @{
+    }; Selections = @{
         $targetItem = @($inventory | Where-Object -Property Site -EQ -Value Warsaw)
         $taskItem = @($catalog | Where-Object -Property Id -In -Value 'PatchStatus', 'Certificates', 'DiskSpace')
-    } -Preview { New-ConsoleKeyValue -InputObject ([ordered] @{
+    }; Preview = { New-ConsoleKeyValue -InputObject ([ordered] @{
                 Scope = 'Warsaw servers'
                 Tasks = 'Security and disk space'
                 'Dry run' = 'yes'
-            }) }
-    New-ConsoleMenuPreset -Name 'Health · all sites' -Selections @{
+            }) } }
+    [pscustomobject]@{ Name = 'Health · all sites'; Selections = @{
         $targetItem = @($inventory | Where-Object -FilterScript { -not $_.Offline })
         $taskItem = @($catalog | Where-Object -Property Id -In -Value 'EventErrors', 'Services', 'DiskSpace', 'Uptime')
-    }
+    } }
     New-ConsoleMenuItem -Separator
     New-ConsoleMenuItem -Label 'Review & run' -Hotkey r -IconName Run -Review {
         $plan.Targets = @($targetItem.Selection | ForEach-Object -Process { $_ })

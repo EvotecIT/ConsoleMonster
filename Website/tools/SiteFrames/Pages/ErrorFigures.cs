@@ -19,7 +19,7 @@ namespace SiteFrames.Pages {
                     ["label"] = "A compact error with highlighted invocation and folded causes.",
                     ["frame"] = site.FrameAt(width, Run(site, width, Theme.Dark), Run(site, width, Theme.Light))
                 };
-                Figures.Add("errors-" + width, Figures.WithProgram(figure, Path.Combine(site.Website, "examples", "errors", "compact.cs")));
+                Figures.Add("errors-" + width, Figures.WithProgram(site, figure, Path.Combine(site.Website, "examples", "errors", "compact.cs")));
             }
         }
 

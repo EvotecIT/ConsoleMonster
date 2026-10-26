@@ -13,7 +13,7 @@ Marks unfinished items skipped, releases held log lines, restores the terminal a
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Complete-ConsoleRun [-Run] <LiveRun> [-PassThru] [<CommonParameters>]
+Complete-ConsoleRun [-Run] <LiveRun> [-PassThru] [-Wait] [-TimeoutSeconds <Double>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -59,6 +59,38 @@ Possible values:
 
 Required: True
 Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -TimeoutSeconds
+Maximum wait in seconds, including fractions; requires Wait. Omitted waits until completion.
+
+```yaml
+Type: Double
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Wait
+Wait for all reported items before finalizing. Cancellation or timeout leaves unfinished work open.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

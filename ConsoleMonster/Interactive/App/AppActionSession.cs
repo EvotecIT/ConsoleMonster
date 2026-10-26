@@ -12,6 +12,8 @@ namespace ConsoleMonster.Interactive {
         private readonly object _gate = new object();
         private readonly Queue<LogEntry> _output = new Queue<LogEntry>();
         private readonly Stopwatch _clock = Stopwatch.StartNew();
+        private readonly Func<TimeSpan>? _actionClock;
+        private TimeSpan _clockStart;
         private readonly CancellationTokenSource _lifetime;
         private CancellationTokenSource? _operation;
         private Task? _work;
@@ -20,7 +22,7 @@ namespace ConsoleMonster.Interactive {
         private long _completionRevision;
         private AppCommand? _completedCommand;
         internal AppDispatcher Dispatcher { get; }
-        internal AppActionSession(CancellationToken token, AppDispatcher? dispatcher = null) { Dispatcher = dispatcher ?? new AppDispatcher(); _lifetime = CancellationTokenSource.CreateLinkedTokenSource(token); }
+        internal AppActionSession(CancellationToken token, AppDispatcher? dispatcher = null, Func<TimeSpan>? actionClock = null) { _actionClock = actionClock; Dispatcher = dispatcher ?? new AppDispatcher(); _lifetime = CancellationTokenSource.CreateLinkedTokenSource(token); }
         internal bool IsBusy { get { lock (_gate) { return _work != null && !_work.IsCompleted; } } }
         internal long CompletionRevision { get { lock (_gate) { return _completionRevision; } } }
         internal AppCommand? CompletedCommand { get { lock (_gate) { return _completedCommand; } } }
@@ -33,6 +35,7 @@ namespace ConsoleMonster.Interactive {
                 _operation?.Dispose();
                 _operation = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
                 CancellationToken token = _operation.Token;
+                _clockStart = _actionClock?.Invoke() ?? TimeSpan.Zero;
                 _clock.Restart();
                 var captured = Array.AsReadOnly(rows.ToArray());
                 _work = Task.Run(async () => {
@@ -70,7 +73,7 @@ namespace ConsoleMonster.Interactive {
                 if (text.Length > 16384) { text = text.Substring(0, 16384) + " [truncated]"; }
                 foreach (string line in text.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n')) {
                     if (_output.Count == 1000) { _output.Dequeue(); }
-                    _output.Enqueue(new LogEntry(_clock.Elapsed, level, line.Length > 16384 ? line.Substring(0, 16384) : line));
+                    _output.Enqueue(new LogEntry(_actionClock == null ? _clock.Elapsed : _actionClock() - _clockStart, level, line.Length > 16384 ? line.Substring(0, 16384) : line));
                 }
                 _revision++;
             }

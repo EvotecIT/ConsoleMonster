@@ -20,8 +20,8 @@ $report = New-ConsoleRows -Gap 1 -Content {
     }
     New-ConsolePanel -Title 'Exceptions to investigate' -Content {
         New-ConsoleStatusList -Content {
-            New-ConsoleStatusItem -Label 'api-01 → SQL 5432' -Status Fail -Detail 'Connection refused · check listener and access policy'
-            New-ConsoleStatusItem -Label 'api-01 → Cache 6379' -Status Warn -Detail '180 ms · expected under 50 ms'
+            [pscustomobject]@{ Label = 'api-01 → SQL 5432'; Status = 'Fail'; Detail = 'Connection refused · check listener and access policy' }
+            [pscustomobject]@{ Label = 'api-01 → Cache 6379'; Status = 'Warn'; Detail = '180 ms · expected under 50 ms' }
         }
     }
     '[muted]Skipped cells are ports that host does not need.[/]'

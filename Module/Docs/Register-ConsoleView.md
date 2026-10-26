@@ -159,7 +159,7 @@ The view: Table (default), Cards, Tree, Inspector or Chart.
 Type: ConsoleViewKind
 Parameter Sets: Register
 Aliases: None
-Possible values: Empty, Text, Code, Inspector, Table, Cards, Tree, Chart, Grid
+Possible values: Empty, Text, Code, Inspector, Table, Cards, Tree, Chart, Grid, Auto, List, Json, Error, Markdown, Rule
 
 Required: False
 Position: named

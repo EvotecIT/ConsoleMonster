@@ -7,21 +7,21 @@ using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>
-    /// <para type="synopsis">Creates a console tree from nested New-ConsoleTreeNode calls, hierarchical objects or nested hashtables.</para>
-    /// <para type="description">Three ways in, one tree out. Nodes: a script block of New-ConsoleTreeNode calls, each with its own status, detail and children (strings become leaves shown literally); nodes can also be piped in. Objects: pipe hierarchical objects (groups and members, folders and files) and name their children with -ChildrenProperty or a -Children script block ($_ is the parent); -LabelProperty, -StatusProperty and -DetailProperty pick what each node shows, and -Depth, -MaxItems and -MaxNodes keep a large or cyclic hierarchy bounded and mark what was left out (a repeated item is shown once with "(cycle)"). Hashtables: -InputObject maps keys to nested hashtables (child nodes), arrays (leaves) or other values (a muted note); use [ordered] to keep order. The title (markup allowed) is the root; without it the top-level nodes are the roots.</para>
+    /// <para type="synopsis">Creates a console tree from nested Label/Children records calls, hierarchical objects or nested hashtables.</para>
+    /// <para type="description">Three ways in, one tree out. Nodes: a script block of Label/Children records calls, each with its own status, detail and children (strings become leaves shown literally); nodes can also be piped in. Objects: pipe hierarchical objects (groups and members, folders and files) and name their children with -ChildrenProperty or a -Children script block ($_ is the parent); -LabelProperty, -StatusProperty and -DetailProperty pick what each node shows, and -Depth, -MaxItems and -MaxNodes keep a large or cyclic hierarchy bounded and mark what was left out (a repeated item is shown once with "(cycle)"). Hashtables: -InputObject maps keys to nested hashtables (child nodes), arrays (leaves) or other values (a muted note); use [ordered] to keep order. The title (markup allowed) is the root; without it the top-level nodes are the roots.</para>
     /// </summary>
     /// <example>
     ///   <para>A mail domain with records and their state</para>
     ///   <code>
     /// New-ConsoleTree '[bold]evotec.xyz[/]' -Content {
-    ///     New-ConsoleTreeNode 'MX' -Status Pass -Detail '2 records' -Content {
-    ///         New-ConsoleTreeNode 'evotec-xyz.mail.protection.outlook.com' -Detail 'priority 0'
-    ///     }
-    ///     New-ConsoleTreeNode 'SPF' -Status Warn -Detail '9 of 10 DNS lookups' -Content {
+    ///     [pscustomobject]@{ Label = 'MX'; Status = 'Pass'; Detail = '2 records'; Children = @(&amp; {
+    ///         [pscustomobject]@{ Label = 'evotec-xyz.mail.protection.outlook.com'; Detail = 'priority 0' }
+    ///     }) }
+    ///     [pscustomobject]@{ Label = 'SPF'; Status = 'Warn'; Detail = '9 of 10 DNS lookups'; Children = @(&amp; {
     ///         'include:spf.protection.outlook.com'
     ///         'include:_spf.salesforce.com'
-    ///     }
-    ///     New-ConsoleTreeNode 'DMARC' -Status Fail -Detail 'p=none'
+    ///     }) }
+    ///     [pscustomobject]@{ Label = 'DMARC'; Status = 'Fail'; Detail = 'p=none' }
     /// } | Show-Console</code>
     /// </example>
     /// <example>
@@ -55,11 +55,11 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(ParameterSetName = ObjectsSet, Position = 0)]
         public object? Title { get; set; }
 
-        /// <summary><para type="description">A script block that emits the nodes: New-ConsoleTreeNode calls, or strings for leaves (shown literally).</para></summary>
+        /// <summary><para type="description">A script block that emits the nodes: Label/Children records calls, or strings for leaves (shown literally).</para></summary>
         [Parameter(ParameterSetName = NodesSet, Position = 1)]
         public ScriptBlock? Content { get; set; }
 
-        /// <summary><para type="description">Hierarchical objects (pipeline input); each becomes a top-level node. Nodes from New-ConsoleTreeNode go in as they are.</para></summary>
+        /// <summary><para type="description">Hierarchical objects (pipeline input); each becomes a top-level node. Nodes from Label/Children records go in as they are.</para></summary>
         [Parameter(ParameterSetName = ObjectsSet, Mandatory = true, ValueFromPipeline = true)]
         public PSObject? InputObject { get; set; }
 
@@ -83,7 +83,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(ParameterSetName = ObjectsSet)]
         public string? DetailProperty { get; set; }
 
-        /// <summary><para type="description">Levels of children to follow: New-ConsoleTree defaults to 5. Show-ConsoleTree defaults to 3 for object graphs, or one for wide .NET objects when Depth is omitted.</para></summary>
+        /// <summary><para type="description">Levels of children to follow: New-ConsoleTree defaults to 5. Show-Console -View Tree defaults to 3 for object graphs, or one for wide .NET objects when Depth is omitted.</para></summary>
         [Parameter(ParameterSetName = ObjectsSet)]
         public int Depth { get; set; } = 5;
 
@@ -95,11 +95,18 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(ParameterSetName = ObjectsSet)]
         public int MaxNodes { get; set; } = 5000;
 
+        /// <summary><para type="description">Wraps node labels and values with hanging indentation.</para></summary>
+        [Parameter] public SwitchParameter WrapLabels { get; set; }
+        /// <summary><para type="description">Hides the default-on root when a title was supplied.</para></summary>
+        [Parameter] public SwitchParameter NoRoot { get; set; }
+        /// <summary><para type="description">Typed culture, time-zone and value presentation configuration.</para></summary>
+        [Parameter] public Presenters.PresentationOptions? Presentation { get; set; }
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (ParameterSetName == ObjectsSet) {
                 if (InputObject != null) {
-                    Collect(_objects, InputObject);
+                    PSTree.Collect(_objects, InputObject);
                 }
                 return;
             }
@@ -113,123 +120,21 @@ namespace ConsoleMonster.PowerShell {
             if (ParameterSetName != ObjectsSet) {
                 return;
             }
-            if (ChildrenProperty != null && Children != null) {
-                ThrowTerminatingError(new ErrorRecord(new PSArgumentException("Give the children with -ChildrenProperty or -Children, not both."), "ConsoleMonsterTreeChildren", ErrorCategory.InvalidArgument, null));
-            }
-            Tree tree = new Tree(PSText.Markup(Title));
-            if (_objects.Count == 1 && PSText.Unwrap(_objects[0]) is IDictionary dictionary && ChildrenProperty == null && Children == null && LabelProperty == null && StatusProperty == null && DetailProperty == null) {
-                Fill(tree.Root, dictionary);
-                Emit(tree);
-                return;
-            }
-            Values.ShapeOptions shape = Binding.PSShaping.Options();
-            TreeHierarchy.Add(tree.Root, _objects, Node, ChildrenOf, new TreeHierarchyOptions {
-                Depth = System.Math.Max(0, Depth),
-                MaxItems = MaxItems,
-                MaxNodes = MaxNodes,
-                Identity = Identity
+            Tree tree = ConsoleHostViews.Tree(_objects, new ConsoleTreeOptions {
+                Title = Title, ChildrenProperty = ChildrenProperty, Children = Children, LabelProperty = LabelProperty,
+                StatusProperty = StatusProperty, DetailProperty = DetailProperty, Depth = Depth, MaxItems = MaxItems, MaxNodes = MaxNodes
             });
             Emit(tree);
-
-            TreeNode Node(object item) {
-                // Nodes made by New-ConsoleTreeNode (and strings) piped in go in as they are.
-                switch (PSText.Unwrap(item)) {
-                    case TreeNode made:
-                        return made;
-                    case Text.RichText richLabel:
-                        return new TreeNode(richLabel.ToMarkup());
-                }
-                PSObject ps = PSObject.AsPSObject(item);
-                object? label = LabelProperty != null ? Read(ps, LabelProperty) : null;
-                string text = label != null ? PSWidgets.ToText(label) : Binding.PSShaping.Title(ps, shape);
-                Text.RichText? rich = PSText.Rich(label);
-                StatusKind? status = null;
-                if (StatusProperty != null) {
-                    object? state = Read(ps, StatusProperty);
-                    if (state is StatusKind kind) {
-                        status = kind;
-                    } else if (state != null && StatusKinds.TryParse(PSWidgets.ToText(state), out StatusKind parsed)) {
-                        status = parsed;
-                    }
-                }
-                object? detail = DetailProperty != null ? Read(ps, DetailProperty) : null;
-                return new TreeNode(rich != null ? rich.ToMarkup() : Markup.Escape(text), status) { Note = detail == null ? null : PSWidgets.ToText(detail) };
-            }
-
-            IEnumerable<object>? ChildrenOf(object item) {
-                if (PSText.Unwrap(item) is TreeNode || PSText.Unwrap(item) is Text.RichText) {
-                    return null;
-                }
-                object? children;
-                if (Children != null) {
-                    List<PSVariable> variables = new List<PSVariable> { new PSVariable("_", item), new PSVariable("PSItem", item) };
-                    children = Children.InvokeWithContext(null, variables);
-                } else if (ChildrenProperty != null) {
-                    children = Read(PSObject.AsPSObject(item), ChildrenProperty, raw: true);
-                } else {
-                    return null;
-                }
-                List<object> list = new List<object>();
-                Collect(list, children);
-                return list.Count == 0 ? null : list;
-            }
         }
 
-
-        // Children keep their PowerShell wrapper: the properties of a [pscustomobject] live on it, not on its base object.
-        private static void Collect(List<object> list, object? value, List<object>? path = null) {
-            if (value == null) {
-                return;
-            }
-            object? raw = PSText.Unwrap(value);
-            if (raw == null) {
-                return;
-            }
-            if (raw is string || raw is IDictionary || !(raw is IEnumerable enumerable)) {
-                list.Add(PSObject.AsPSObject(value));
-                return;
-            }
-            PSCollectionPath.Enter(ref path, raw);
-            try {
-                foreach (object? element in enumerable) { Collect(list, element, path); }
-            } finally { path!.RemoveAt(path.Count - 1); }
-        }
-
-        // The identity for cycle detection: the wrapped object, except for [pscustomobject], whose base object is shared.
-        private static object Identity(object item) {
-            object? raw = PSText.Unwrap(item);
-            return raw == null || raw is PSCustomObject ? item : raw;
-        }
-
-        // A property (or dictionary key) of an item. With raw, the value keeps its PowerShell wrapper: a single
-        // [pscustomobject] child has its properties on the wrapper, not on its base object.
-        private static object? Read(PSObject item, string name, bool raw = false) {
-            object? value = null;
-            object? baseObject = PSText.Unwrap(item);
-            if (baseObject is IDictionary dictionary) {
-                foreach (DictionaryEntry entry in dictionary) {
-                    if (string.Equals(PSWidgets.ToText(entry.Key), name, System.StringComparison.OrdinalIgnoreCase)) {
-                        value = entry.Value;
-                        break;
-                    }
-                }
-            } else {
-                PSPropertyInfo? property = item.Properties[name];
-                if (property == null) {
-                    return null;
-                }
-                try {
-                    value = property.Value;
-                } catch (GetValueException) {
-                    return null;
-                }
-            }
-            return raw ? value : PSText.Unwrap(value);
-        }
-
-        /// <summary>Emits the tree (Show-ConsoleTree overrides this to write it).</summary>
+        /// <summary>Emits the tree (Show-Console -View Tree overrides this to write it).</summary>
         /// <param name="tree">The tree.</param>
-        protected virtual void Emit(Tree tree) => WriteObject(tree);
+        protected virtual void Emit(Tree tree) {
+            tree.WrapLabels = WrapLabels.IsPresent;
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(NoRoot))) { tree.ShowRoot = !NoRoot.IsPresent; }
+            if (Presentation != null) { tree.Presentation = Presentation; }
+            WriteObject(tree);
+        }
 
     }
 }

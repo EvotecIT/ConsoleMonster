@@ -52,11 +52,7 @@ that product. Gaps are closed with general extension points, not per-product shi
   key and shows property-level changes with counts (summary, table, side by side, unified), and `Show-ConsoleChanges`
   (`ChangePreview`) previews changes and asks before applying them, with a typed confirmation for removals and
   `-WhatIf` support.
-- Three equivalent C# styles on every widget: object initializers (the model), generated fluent `With...`/`Add...`
-  methods with typed tables (`Table.For(items).Column(s => s.Name)`), and nested `using static ConsoleMonster.Ui;`
-  factories. Decision: the fluent methods come from a build-time Roslyn source generator whose output is compiled
-  into `ConsoleMonster.dll`. Nothing ships as an analyzer and nothing is committed as generated code, so consumers on
-  every target framework and C# version get ordinary, reflection-free methods, and a coverage test keeps them complete.
+- PowerShell, C# initializer and C# fluent tabs on every demo. Fluent construction starts at `Ui`, named setters configure the same objects, and `ContentBuilder` keeps nesting consistent at every depth. Typed rows use `Table.For(rows)` / `Ui.Table(rows)`. A build-time Roslyn source generator compiles property-named setters into the library; no analyzer or runtime reflection ships. Metadata parity and byte-identical gallery triplets keep the translation complete.
 
 ## Next
 

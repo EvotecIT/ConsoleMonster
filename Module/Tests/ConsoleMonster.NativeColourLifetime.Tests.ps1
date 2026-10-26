@@ -13,7 +13,8 @@ Describe 'Native colour lease disposal contracts' {
         try {
             $env:MSBUILDDISABLENODEREUSE = '1'
             $env:DOTNET_CLI_USE_MSBUILD_SERVER = '0'
-            $output = & dotnet test $project -c Debug -warnaserror --filter 'FullyQualifiedName~NativeEditorSuppressionContracts' --logger 'trx;LogFileName=native-editor.trx' --results-directory $TestDrive 2>&1
+            $configuration = if ($env:CONSOLEMONSTER_DEVELOPMENT_CONFIGURATION) { $env:CONSOLEMONSTER_DEVELOPMENT_CONFIGURATION } else { 'Debug' }
+            $output = & dotnet test $project -c $configuration -warnaserror --filter 'FullyQualifiedName~NativeEditorSuppressionContracts' --logger 'trx;LogFileName=native-editor.trx' --results-directory $TestDrive 2>&1
             if ($LASTEXITCODE -ne 0) { throw ($output -join "`n") }
             [xml] $report = Get-Content -LiteralPath (Join-Path $TestDrive 'native-editor.trx') -Raw
             $counts = $report.SelectSingleNode('//*[local-name()="Counters"]')

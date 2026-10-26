@@ -132,7 +132,7 @@ namespace ConsoleMonster.Tests.Widgets {
                 Interlocked.Exchange(ref ticks, TimeSpan.FromSeconds(50).Ticks);
                 session.Post(new LiveEvent("summary", "progress", value: 10, total: 10));
                 session.Post(new LiveEvent("summary", "counter", key: "passed", value: 10, status: "Pass"));
-                Assert.True(SpinWait.SpinUntil(() => bar.Done >= 10 && bar.Remaining == null, 5000), "The end was not applied.");
+                Assert.True(SpinWait.SpinUntil(() => bar.Value >= 10 && bar.Remaining == null, 5000), "The end was not applied.");
                 Interlocked.Exchange(ref ticks, TimeSpan.FromSeconds(75).Ticks);
                 int frames = Volatile.Read(ref output.Frames);
                 session.Post(new LiveEvent("summary", "counter", key: "passed", value: 10, status: "Pass"));

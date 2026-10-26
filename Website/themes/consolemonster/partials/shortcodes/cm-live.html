@@ -15,8 +15,7 @@
 {{ include "code" }}
 {{~ end ~}}
 {{~ if r.csharp ~}}
-{{~ code_lang = "csharp"; code_label = "C#"; code_file = r.csharpFile; code_repo = r.csharpRepo; code_text = r.csharp; code_full = r.csharpFull ~}}
-{{ include "code" }}
+{{~ style_entry = r ~}}{{ include "source-styles" }}
 {{~ end ~}}
 {{~ if a.caption ~}}<figcaption>{{ a.caption | html.escape | regex.replace "`([^`]+)`" "<code>$1</code>" }}</figcaption>{{~ end ~}}
 </figure>

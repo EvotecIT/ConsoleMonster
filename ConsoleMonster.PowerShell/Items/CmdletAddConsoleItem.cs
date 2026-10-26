@@ -1,16 +1,17 @@
+using System;
 using System.Management.Automation;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Adds items to a console widget made earlier: tree nodes, pairs, status items, bars, series, log lines, lanes or values.</para>
-    /// <para type="description">The PowerShell way to grow a widget after it was created, instead of calling its .NET methods. Pipe the widget in and give the items as a script block or values; they are the same item commands the widget's own script block takes: New-ConsoleTreeNode for New-ConsoleTree, New-ConsoleKeyValueItem for New-ConsoleKeyValue, New-ConsoleStatusItem for New-ConsoleStatusList and New-ConsolePhases, New-ConsoleBarItem for New-ConsoleBarChart, New-ConsoleChartSeries for New-ConsoleLineChart, New-ConsoleLogEntry for New-ConsoleLogRegion and New-ConsoleLane for New-ConsoleLanes. Sparklines and histograms take numbers, a cell map takes status words, and a live table takes objects or hashtables with a property per column. -PassThru writes the widget on, so it can go straight to Show-Console. For a widget inside a running dashboard, use the live commands (Add-ConsoleValue, Set-ConsoleValue, Update-ConsoleStatusItem, Write-ConsoleLogEntry...) instead.</para>
+    /// <para type="description">The PowerShell way to grow a widget after it was created, instead of calling its .NET methods. Pipe the widget in and give the items as a script block or values; they are the same item commands the widget's own script block takes: Label/Children records for New-ConsoleTree, Key/Value records for New-ConsoleKeyValue, Key/Label/Status records for New-ConsoleStatusList and New-ConsolePhases, Label/Value records for New-ConsoleBarChart, Key/Values records for New-ConsoleLineChart, Message/Level records for New-ConsoleLogRegion and Key/Label records for New-ConsoleLanes. Sparklines and histograms take numbers, a cell map takes status words, and a live table takes objects or hashtables with a property per column. -PassThru writes the widget on, so it can go straight to Show-Console. For a widget inside a running dashboard, use the live commands (Update-Console, Update-Console, Update-Console, Write-ConsoleLogEntry...) instead.</para>
     /// </summary>
     /// <example>
     ///   <para>Add log lines as the script goes, then show the log</para>
     ///   <code>
     /// $log = New-ConsoleLogRegion -Height 5
-    /// $log | Add-ConsoleItem { New-ConsoleLogEntry 'Discovered 4 domain controllers' -AtSeconds 2 }
-    /// $log | Add-ConsoleItem { New-ConsoleLogEntry 'DC02 lags by 42 minutes' -Level Warning -AtSeconds 31 }
+    /// $log | Add-ConsoleItem { [pscustomobject]@{ Message = 'Discovered 4 domain controllers'; AtSeconds = 2 } }
+    /// $log | Add-ConsoleItem { [pscustomobject]@{ Message = 'DC02 lags by 42 minutes'; Level = 'Warning'; AtSeconds = 31 } }
     /// $log | Show-Console</code>
     /// </example>
     /// <example>
@@ -18,13 +19,13 @@ namespace ConsoleMonster.PowerShell {
     ///   <code>
     /// $tree = New-ConsoleTree 'Shares'
     /// foreach ($share in Get-SmbShare) {
-    ///     $tree | Add-ConsoleItem { New-ConsoleTreeNode $share.Name -Detail $share.Path }
+    ///     $tree | Add-ConsoleItem { [pscustomobject]@{ Label = $share.Name; Detail = $share.Path } }
     /// }
     /// $tree | Show-Console</code>
     /// </example>
     /// <example>
     ///   <para>Values for a sparkline, written on</para>
-    ///   <code>New-ConsoleSparkline -Label 'req/s' | Add-ConsoleItem 3, 5, 8, 13, 9 -PassThru | Show-Console</code>
+    ///   <code>New-ConsoleChart -Label 'req/s' -Type Sparkline | Add-ConsoleItem 3, 5, 8, 13, 9 -PassThru | Show-Console</code>
     /// </example>
     [Cmdlet(VerbsCommon.Add, "ConsoleItem")]
     public sealed class CmdletAddConsoleItem : PSCmdlet {
@@ -47,7 +48,10 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void ProcessRecord() {
             object widget = PSText.Unwrap(InputObject) ?? InputObject;
-            PSItems.AddAll(this, widget, PSItems.Items(Item), KeyProperty);
+            try { ConsoleHostItems.Add(widget, Item, KeyProperty); }
+            catch (ArgumentException error) {
+                ThrowTerminatingError(new ErrorRecord(error, "ConsoleMonsterItemNotAccepted", ErrorCategory.InvalidArgument, Item));
+            }
             if (PassThru.IsPresent) {
                 WriteObject(InputObject);
             }

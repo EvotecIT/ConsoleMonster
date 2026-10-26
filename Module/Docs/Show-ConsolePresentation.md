@@ -13,7 +13,7 @@ Enter types and runs; Space types without running; b moves back without undoing 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Show-ConsolePresentation [-Path] <string> [-RecordingPath <string>] [-Width <int>] [-Height <int>] [-Seed <int>] [-StepTimeoutSeconds <int>] [-IdleLimitSeconds <double>] [-Redact <string[]>] [-Shell <string>] [<CommonParameters>]
+Show-ConsolePresentation [-Path] <string> [-RecordingPath <string>] [-Width <int>] [-Height <int>] [-Seed <int>] [-StepTimeoutSeconds <double>] [-Jitter <double>] [-IdleLimitSeconds <double>] [-Redact <string[]>] [-Shell <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -50,6 +50,22 @@ Accept wildcard characters: False
 
 ### -IdleLimitSeconds
 Asciicast player idle-limit hint in seconds. Source timestamps are always preserved; zero disables the hint.
+
+```yaml
+Type: Double
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Jitter
+Fractional character-delay variation from zero to one; default 0.2.
 
 ```yaml
 Type: Double
@@ -148,7 +164,7 @@ Accept wildcard characters: False
 Maximum wait for a semantic prompt or output pattern.
 
 ```yaml
-Type: Int32
+Type: Double
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

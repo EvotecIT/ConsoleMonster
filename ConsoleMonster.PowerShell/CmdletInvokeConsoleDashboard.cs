@@ -7,7 +7,7 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Runs a console dashboard live while a script does the work.</para>
-    /// <para type="description">The script runs in a runspace the module owns (or, with -Parallel, once per input item on a runspace pool, started as items arrive and limited by -ThrottleLimit). Inside it, $ConsoleSession and the Update-ConsoleLane, Update-ConsolePhase, Write-ConsoleLogEntry and related cmdlets update the screen; Write-Host, Write-Warning, Write-Verbose, errors and Console.WriteLine go to the dashboard's log region instead of scribbling over the screen. The screen is redrawn at about 15 frames per second however many updates arrive. Ctrl+C stops the script and always restores the terminal; the dashboard then leaves the alternate screen and prints its final state (or -Summary). Script output is returned when the dashboard ends. In redirected or CI output the dashboard becomes append-only lines. Variables from the caller are not visible inside the script: pass them with -ArgumentList and a param() block.</para>
+    /// <para type="description">The script runs in a runspace the module owns (or, with -Parallel, once per input item on a runspace pool, started as items arrive and limited by -ThrottleLimit). Inside it, $ConsoleSession and the Update-Console, Update-Console, Write-ConsoleLogEntry and related cmdlets update the screen; Write-Host, Write-Warning, Write-Verbose, errors and Console.WriteLine go to the dashboard's log region instead of scribbling over the screen. The screen is redrawn at about 15 frames per second however many updates arrive. Ctrl+C stops the script and always restores the terminal; the dashboard then leaves the alternate screen and prints its final state (or -Summary). Script output is returned when the dashboard ends. In redirected or CI output the dashboard becomes append-only lines. Variables from the caller are not visible inside the script: pass them with -ArgumentList and a param() block.</para>
     /// </summary>
     /// <example>
     ///   <para>Three servers processed in parallel, three at a time</para>
@@ -15,10 +15,10 @@ namespace ConsoleMonster.PowerShell {
     /// $d = New-ConsoleDashboard -Title 'Patch' -Content { New-ConsolePanel -Title 'Servers' -Content { New-ConsoleLanes }; New-ConsolePanel -Title 'Log' -Fill -Content { New-ConsoleLogRegion } }
     /// 'SRV1', 'SRV2', 'SRV3' | Invoke-ConsoleDashboard $d -Parallel -ThrottleLimit 3 {
     ///     param($Server)
-    ///     Update-ConsoleLane -Key $Server -Status Running -Total 5
-    ///     1..5 | ForEach-Object { Start-Sleep -Milliseconds 300; Update-ConsoleLane -Key $Server -Result Pass }
+    ///     Update-Console -Key $Server -Status Running -Total 5 -WidgetId 'lanes'
+    ///     1..5 | ForEach-Object { Start-Sleep -Milliseconds 300; Update-Console -Key $Server -Result Pass -WidgetId 'lanes' }
     ///     Write-Host "$Server patched"
-    ///     Update-ConsoleLane -Key $Server -Complete
+    ///     Update-Console -Key $Server -Complete -WidgetId 'lanes'
     /// }</code>
     /// </example>
     [Cmdlet(VerbsLifecycle.Invoke, "ConsoleDashboard")]
@@ -128,7 +128,7 @@ namespace ConsoleMonster.PowerShell {
         protected override void BeginProcessing() {
             LiveSessionOptions options = new LiveSessionOptions {
                 FramesPerSecond = FramesPerSecond,
-                AppendOnly = NoLive.IsPresent,
+                Live = !NoLive.IsPresent,
                 Mode = Inline.IsPresent ? LiveMode.Inline : LiveMode.FullScreen,
                 PrintFinalState = !Transient.IsPresent,
                 Summary = Summary,

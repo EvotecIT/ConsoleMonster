@@ -38,14 +38,14 @@ function New-StressFrame {
                 $done = if ($tick -eq 6) { 100000 } else { $tick * 3200 + $id * 97 % 400 }
                 $failed = [int][Math]::Truncate($done / 97)
                 $warned = [int][Math]::Truncate($done / 17)
-                $lane.Done = $done
+                $lane.Value = $done
                 $lane.Failed = $failed
                 $lane.Warned = $warned
                 $lane.Passed = $done - $failed - $warned
                 $lane.Status = if ($tick -eq 6) { 'Pass' } else { 'Running' }
                 $lane.Detail = $actions[($id + $tick) % $actions.Count] + ' item ' + $done.ToString('#,0', $culture)
             }
-            New-ConsoleLane @lane
+            [pscustomobject]$lane
         }
     }
     $stats = [ordered]@{
@@ -66,18 +66,18 @@ function New-StressFrame {
                 New-ConsoleKeyValue -WidgetId stats -InputObject $stats
                 New-ConsoleRule -Title 'updates/s'
                 $values = @($sampleRates | Select-Object -First $samples)
-                New-ConsoleSparkline -WidgetId rate -Height 3 -Unit '/s' -Value $values
+                New-ConsoleChart -WidgetId rate -Height 3 -Unit '/s' -Type Sparkline -Values $values
                 New-ConsoleRule -Title 'CPU % (100% = one core)'
-                New-ConsoleLineChart -WidgetId cpu -Height 6 -Minimum 0 -Unit '%' -Content {
-                    New-ConsoleChartSeries -Key cpu -Role Accent2 -Value @($sampleCpu | Select-Object -First $samples)
-                }
+                New-ConsoleChart -WidgetId cpu -Height 6 -Minimum 0 -Unit '%' -Content {
+                    [pscustomobject]@{ Key = 'cpu'; Role = 'Accent2'; Values = @($sampleCpu | Select-Object -First $samples) }
+                } -Type Line
             }
         }
         New-ConsolePanel -Title 'Captured output' -Fill -Content {
             New-ConsoleLogRegion -Height 6 -NoElapsed -Content {
                 for ($i = 0; $i -lt $tick * 4; $i++) {
                     $level = if ($i % 7 -eq 0) { 'err' } else { 'info' }
-                    New-ConsoleLogEntry -Message ('stray-' + ($i % 4) + "-${i}: FakeLib: " + $messages[$i % 5]) -Level $level
+                    [pscustomobject]@{ Message = ('stray-' + ($i % 4) + "-${i}: FakeLib: " + $messages[$i % 5]); Level = $level }
                 }
             }
         }
@@ -88,11 +88,11 @@ function New-StressFrame {
 
 # Behaviour: show seven samples through the ordinary live session.
 $frames = @(0..6 | ForEach-Object -Process { New-StressFrame -Tick $_ })
-$screen = New-ConsoleRegion -WidgetId stress -Widget $frames[0]
+$screen = New-ConsoleRegion -WidgetId stress -Content $frames[0]
 Invoke-ConsoleDashboard -Dashboard $screen -ArgumentList (, $frames) -ScriptBlock {
     param($Frames)
     foreach ($frame in $Frames) {
-        Set-ConsoleRegion -WidgetId stress -Widget $frame
+        Update-Console -WidgetId stress -Content $frame
         Wait-ConsoleDashboard -Milliseconds 1000
     }
 }

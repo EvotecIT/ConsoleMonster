@@ -8,24 +8,24 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a named region whose content can be replaced while a dashboard runs.
 
-Put the region anywhere in a layout (inside New-ConsolePanel keeps the frame), then call Set-ConsoleRegion -WidgetId with a new widget from the dashboard script. The swap is queued like every update, lands between frames and redraws only what changed.
+Put the region anywhere in a layout (inside New-ConsolePanel keeps the frame), then call Update-Console -WidgetId with a new widget from the dashboard script. The swap is queued like every update, lands between frames and redraws only what changed.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleRegion [-WidgetId] <string> [[-Content] <scriptblock>] [-Widget <IWidget>] [-Weight <double>] [-Height <int>] [-Fill] [<CommonParameters>]
+New-ConsoleRegion [-WidgetId] <string> [[-Content] <Object>] [-Weight <double>] [-Height <int>] [-Fill] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Creates a named region whose content can be replaced while a dashboard runs.
 
-Put the region anywhere in a layout (inside New-ConsolePanel keeps the frame), then call Set-ConsoleRegion -WidgetId with a new widget from the dashboard script. The swap is queued like every update, lands between frames and redraws only what changed.
+Put the region anywhere in a layout (inside New-ConsolePanel keeps the frame), then call Update-Console -WidgetId with a new widget from the dashboard script. The swap is queued like every update, lands between frames and redraws only what changed.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-New-ConsolePanel -Title 'Result' -Content { New-ConsoleRegion -WidgetId main -Content { New-ConsoleSpinner -Label 'Querying' } }
+New-ConsolePanel -Title 'Result' -Content { New-ConsoleRegion -WidgetId main -Content { New-ConsoleProgress -Label 'Querying' -Indeterminate -WidgetId 'spinner' } }
 ```
 
 A panel whose content switches from a spinner to a table
@@ -36,7 +36,7 @@ A panel whose content switches from a spinner to a table
 A script block whose widgets are the first content.
 
 ```yaml
-Type: ScriptBlock
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -44,7 +44,7 @@ Possible values:
 Required: False
 Position: 1
 Default value: None
-Accept pipeline input: False
+Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
@@ -96,24 +96,8 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Widget
-A widget as the first content.
-
-```yaml
-Type: IWidget
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: True (ByValue)
-Accept wildcard characters: False
-```
-
 ### -WidgetId
-The region name used by Set-ConsoleRegion.
+The region name used by Update-Console.
 
 ```yaml
 Type: String
@@ -133,7 +117,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `ConsoleMonster.Layout.IWidget`
+- `System.Object`
 
 ## OUTPUTS
 

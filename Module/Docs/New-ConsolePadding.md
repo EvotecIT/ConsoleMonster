@@ -13,7 +13,7 @@ Adds empty space around console widgets.
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsolePadding [[-Content] <scriptblock>] [-Widget <IWidget>] [-Padding <int[]>] [-Weight <double>] [-Height <int>] [-Fill] [<CommonParameters>]
+New-ConsolePadding [[-Content] <Object>] [-Padding <int[]>] [-Weight <double>] [-Height <int>] [-Fill] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -43,7 +43,7 @@ Indent a block by four cells
 Script block that emits the content (several widgets are stacked vertically).
 
 ```yaml
-Type: ScriptBlock
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -51,7 +51,7 @@ Possible values:
 Required: False
 Position: 0
 Default value: None
-Accept pipeline input: False
+Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
@@ -119,28 +119,12 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Widget
-A widget to pad instead of a script block.
-
-```yaml
-Type: IWidget
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: True (ByValue)
-Accept wildcard characters: False
-```
-
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
-- `ConsoleMonster.Layout.IWidget`
+- `System.Object`
 
 ## OUTPUTS
 

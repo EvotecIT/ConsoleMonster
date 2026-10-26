@@ -251,6 +251,7 @@ namespace SiteFrames.Pages {
                     entry["powershellFile"] = story.Id + ".ps1";
                     entry["parity"] = Parity(site, story, capture, problems);
                 }
+                SourceStyles.Add(site, entry, ProgramPath(site, story));
                 list.Add(entry);
             }
             site.WriteJson(site.Data("interactive"), new JsonObject { ["stories"] = list });

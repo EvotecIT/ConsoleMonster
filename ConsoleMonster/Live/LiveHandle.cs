@@ -20,6 +20,15 @@ namespace ConsoleMonster.Live {
         /// <summary>The target widget name.</summary>
         public string WidgetId { get; }
 
+        /// <summary>Applies a complete update through the same target validation used by PowerShell.</summary>
+        /// <param name="update">The explicitly supplied fields.</param>
+        public void Update(WidgetUpdate update) {
+            if (!(Dispatcher is IWidgetUpdateDispatcher dispatcher)) {
+                throw new NotSupportedException("Typed updates require an IWidgetUpdateDispatcher. Use Post on a raw ILiveDispatcher for custom event protocols.");
+            }
+            dispatcher.Update(WidgetId, update);
+        }
+
         /// <summary>Builds and posts an event for this handle's target.</summary>
         /// <param name="operation">The operation.</param>
         /// <param name="key">Item key.</param>

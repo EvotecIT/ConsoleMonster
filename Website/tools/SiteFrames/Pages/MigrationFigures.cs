@@ -17,7 +17,7 @@ namespace SiteFrames.Pages {
                 var dark = CSharpRunner.Run(program, width, ColorDepth.TrueColor, GlyphTier.Full, Theme.Dark);
                 var light = CSharpRunner.Run(program, width, ColorDepth.TrueColor, GlyphTier.Full, Theme.Light);
                 DocCards.Offer("migration-report-" + width, dark, null);
-                Figures.Add("migration-report-" + width, Figures.WithProgram(new JsonObject {
+                Figures.Add("migration-report-" + width, Figures.WithProgram(site, new JsonObject {
                     ["title"] = "Patch inventory",
                     ["label"] = "Illustrative server inventory rendered by the C# program at " + width + " columns",
                     ["meta"] = new JsonArray(width + " columns", "24-bit", "Full"),
@@ -33,7 +33,7 @@ namespace SiteFrames.Pages {
             (string formScript, string formFull) = SourceSnippets.Program(Site.ReadText(Path.Combine(folder, "form.ps1")));
             var formDark = FormFrame(formProgram, Theme.Dark);
             DocCards.Offer("migration-form", formDark, null);
-            Figures.Add("migration-form", Figures.WithProgram(new JsonObject {
+            Figures.Add("migration-form", Figures.WithProgram(site, new JsonObject {
                 ["title"] = "Service inventory form",
                 ["label"] = "An initialized form with an illustrative service name; no command is executed",
                 ["meta"] = new JsonArray("80 columns", "24-bit", "Full"),

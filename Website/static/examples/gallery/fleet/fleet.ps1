@@ -96,7 +96,7 @@ function Get-Findings {
         $rows | Show-ConsoleTable -Property $columns -Border Minimal -NoSort -AsWidget
     }
     else {
-        New-ConsoleLiveTable -WidgetId findings -Column $columns -Border Minimal
+        New-ConsoleTable -WidgetId findings -Border Minimal -Live -Columns $columns
     }
 }
 function Get-History {
@@ -145,7 +145,7 @@ function Get-RunBody {
         failed = @($finished | Where-Object -Property Status -EQ -Value Fail).Count
     }
     New-ConsoleRows -Content {
-        New-ConsoleSummaryBar -Done $Done -Total $Work.Count -Counter $counter -ElapsedSeconds ($Done * .24 / $plan.Parallel)
+        New-ConsoleSummaryBar -Total $Work.Count -Counter $counter -ElapsedSeconds ($Done * .24 / $plan.Parallel) -Value $Done
         New-ConsolePhases -Content {
             $names = @('Discover', 'Connect', 'Check', 'Report')
             for ($i = 0; $i -lt $names.Count; $i++) {
@@ -163,7 +163,7 @@ function Get-RunBody {
                 else {
                     'Pending'
                 }
-                New-ConsoleStatusItem -Label $names[$i] -Status $status
+                [pscustomobject]@{ Label = $names[$i]; Status = $status }
             }
         }
         $lanes = New-ConsoleLanes -WidgetId lanes -Content {
@@ -179,8 +179,7 @@ function Get-RunBody {
                 else {
                     'Pending'
                 }
-                New-ConsoleLane -Key $category -Total $planned.Count -Done $ready.Count -Status $status `
-                    -Passed @($ready | Where-Object -Property Status -EQ -Value Pass).Count -Warned @($ready | Where-Object -Property Status -EQ -Value Warn).Count -Failed @($ready | Where-Object -Property Status -EQ -Value Fail).Count
+                [pscustomobject]@{ Key = $category; Total = $planned.Count; Status = $status; Passed = @($ready | Where-Object -Property Status -EQ -Value Pass).Count; Warned = @($ready | Where-Object -Property Status -EQ -Value Warn).Count; Failed = @($ready | Where-Object -Property Status -EQ -Value Fail).Count; Value = $ready.Count }
             }
         }
         New-ConsoleColumns -CollapseBelow 100 -Content {
@@ -212,16 +211,16 @@ function Get-RunBody {
             New-ConsolePanel -Title Running -Weight 0.95 -Content {
                 New-ConsoleStatusList -Content {
                     foreach ($w in $active) {
-                        New-ConsoleStatusItem -Label "$($w.Node.Name) · $($w.Check.Name)" -Status Running
+                        [pscustomobject]@{ Label = "$($w.Node.Name) · $($w.Check.Name)"; Status = 'Running' }
                     }
                     if (-not @($active).Count) {
                         $text = if ($Phase -ge 3) { 'Checks complete' } else { 'Waiting for connections' }
-                        New-ConsoleStatusItem -Label $text -Status $(if ($Phase -ge 3) {
+                        [pscustomobject]@{ Label = $text; Status = $(if ($Phase -ge 3) {
                                 Get-Verdict -Work $finished
                             }
                             else {
                                 'Pending'
-                            })
+                            }) }
                     }
                 }
             }
@@ -244,27 +243,27 @@ function Get-RunBody {
                     $rows | Show-ConsoleTable -Property $columns -Border Minimal -NoSort -AsWidget
                 }
                 else {
-                    New-ConsoleLiveTable -WidgetId slowest -Column $columns -Border Minimal
+                    New-ConsoleTable -WidgetId slowest -Border Minimal -Live -Columns $columns
                 }
             }
-            New-ConsolePanel -Title Durations -Content { New-ConsoleHistogram -WidgetId durations -Edge 0, 2, 4, 8, 16 -Height 5 -Value @($finished | ForEach-Object -MemberName Seconds) }
+            New-ConsolePanel -Title Durations -Content { New-ConsoleChart -WidgetId durations -Height 5 -Type Histogram -Values @($finished | ForEach-Object -MemberName Seconds) -Edges 0, 2, 4, 8, 16 }
         }
         New-ConsolePanel -Title Log -Content {
             New-ConsoleLogRegion -NoElapsed -Height 7 -Content {
-                New-ConsoleLogEntry -Message "Inventory: $($plan.Domain) · $($plan.Targets.Count) servers · $($Work.Count) checks"
+                [pscustomobject]@{ Message = "Inventory: $($plan.Domain) · $($plan.Targets.Count) servers · $($Work.Count) checks" }
                 if ($Phase -ge 1) {
-                    New-ConsoleLogEntry -Message "Connecting up to $($plan.Parallel) servers at a time"
+                    [pscustomobject]@{ Message = "Connecting up to $($plan.Parallel) servers at a time" }
                 }
                 foreach ($w in @($finished | Select-Object -Last 5)) {
                     $level = if ($w.Status -eq 'Fail') { 'err' } elseif ($w.Status -eq 'Warn') { 'warn' } else { 'info' }
-                    New-ConsoleLogEntry -Message "$($w.Node.Name) · $($w.Check.Name): $($w.Actual)" -Level $level
+                    [pscustomobject]@{ Message = "$($w.Node.Name) · $($w.Check.Name): $($w.Actual)"; Level = $level }
                 }
                 if ($Phase -ge 3) {
-                    New-ConsoleLogEntry -Message "Preparing $($plan.Format.ToUpperInvariant()) report: $($plan.Report)"
+                    [pscustomobject]@{ Message = "Preparing $($plan.Format.ToUpperInvariant()) report: $($plan.Report)" }
                 }
                 if ($Phase -ge 4) {
                     $text = if ($plan.Notify) { "Report ready · recipient $($plan.Email)" } else { "Report ready · $(@($finished | Where-Object -Property Status -NE -Value Pass).Count) findings to review" }
-                    New-ConsoleLogEntry -Message $text
+                    [pscustomobject]@{ Message = $text }
                 }
             }
         }
@@ -289,7 +288,7 @@ function Invoke-Work {
             $phase = 0
             $done = 0
             foreach ($phase in 0, 1) {
-                Set-ConsoleRegion -WidgetId body -Content { Get-RunBody -Work $Work -Done 0 -Phase $phase }
+                Update-Console -WidgetId body -Content { Get-RunBody -Work $Work -Done 0 -Phase $phase }
                 $Run.Session.Delay([timespan]::FromMilliseconds(240))
                 if ($Run.CancellationToken.IsCancellationRequested) {
                     return New-ConsoleMenuRunResult -Title 'Run cancelled' -Status Warn -Summary "$done of $($Work.Count) operations completed."
@@ -297,7 +296,7 @@ function Invoke-Work {
             }
             foreach ($group in @($Work | Group-Object -Property { $_.Check.Id })) {
                 for ($offset = 0; $offset -lt $group.Count; $offset += $plan.Parallel) {
-                    Set-ConsoleRegion -WidgetId body -Content { Get-RunBody -Work $Work -Done $done -Phase 2 }
+                    Update-Console -WidgetId body -Content { Get-RunBody -Work $Work -Done $done -Phase 2 }
                     $Run.Session.Delay([timespan]::FromMilliseconds(240))
                     if ($Run.CancellationToken.IsCancellationRequested) {
                         return New-ConsoleMenuRunResult -Title 'Run cancelled' -Status Warn -Summary "$done of $($Work.Count) operations completed."
@@ -306,7 +305,7 @@ function Invoke-Work {
                 }
             }
             foreach ($phase in 3, 4) {
-                Set-ConsoleRegion -WidgetId body -Content { Get-RunBody -Work $Work -Done $done -Phase $phase }
+                Update-Console -WidgetId body -Content { Get-RunBody -Work $Work -Done $done -Phase $phase }
                 $Run.Session.Delay([timespan]::FromMilliseconds(240))
                 if ($Run.CancellationToken.IsCancellationRequested) {
                     return New-ConsoleMenuRunResult -Title 'Run cancelled' -Status Warn -Summary "$done of $($Work.Count) operations completed."
@@ -405,31 +404,31 @@ $checkForm = New-ConsoleForm -Title 'New check' -Command Invoke-FleetCheck -Subm
     Get-OptionFields -Page Options
 }
 $menu = New-ConsoleMenu -Title 'Fleet health check' -Layout Shell -Subtitle 'Tue 20 Oct 2026 · 09:30' -Content {
-    New-ConsoleMenuPreset -Name 'Morning · identity & DNS' -Form $checkForm -Values @{
+    [pscustomobject]@{ Name = 'Morning · identity & DNS'; Form = $checkForm; Values = @{
         Servers = @($inventory | Where-Object -Property Role -EQ -Value 'Domain controller' | ForEach-Object -MemberName Name)
         Checks = @('SecureChannel', 'TimeOffset', 'ForwardRecord')
         Parallel = 2
-    } -Preview { New-ConsoleKeyValue -InputObject ([ordered] @{
+    }; Preview = { New-ConsoleKeyValue -InputObject ([ordered] @{
                 Scope = 'Domain controllers'
                 Checks = 'Identity and DNS'
-            }) }
-    New-ConsoleMenuPreset -Name 'Nightly · all sites' -Form $checkForm -Values @{
+            }) } }
+    [pscustomobject]@{ Name = 'Nightly · all sites'; Form = $checkForm; Values = @{
         Servers = @($inventory | Where-Object -FilterScript { $_.Domain -eq $plan.Domain -and -not $_.Offline } | ForEach-Object -MemberName Name)
         Checks = $catalog.Id
         Parallel = 3
         Notify = $true
-    } -Preview { New-ConsoleKeyValue -InputObject ([ordered] @{
+    }; Preview = { New-ConsoleKeyValue -InputObject ([ordered] @{
                 Scope = 'Every online server'
                 Checks = 'All categories'
-            }) }
-    New-ConsoleMenuPreset -Name 'Patch Tuesday · updates' -Form $checkForm -Values @{
+            }) } }
+    [pscustomobject]@{ Name = 'Patch Tuesday · updates'; Form = $checkForm; Values = @{
         Checks = @('MissingUpdates', 'AutoServices')
         Format = 'Csv'
-    }
-    New-ConsoleMenuPreset -Name 'Certificates · web tier' -Form $checkForm -Values @{
+    } }
+    [pscustomobject]@{ Name = 'Certificates · web tier'; Form = $checkForm; Values = @{
         Servers = @('WEB01')
         Checks = @('CertExpiry', 'CertChain', 'ForwardRecord')
-    }
+    } }
     New-ConsoleMenuItem -Label Presets -Hotkey p -IconName Favorite -Presets
     New-ConsoleMenuItem -Label 'New check' -Hotkey n -IconName Run -Description 'Choose a domain, servers and checks; review the command and run.' -Form $checkForm -OnSubmit {
         $plan.Domain = [string] $Values.Domain

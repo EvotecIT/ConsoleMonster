@@ -50,7 +50,7 @@ namespace SiteFrames.Pages {
             foreach (int width in new[] { 120, 60 }) {
                 CellBuffer dark = CheckedFrame(site, width, "dark", Theme.Dark, ColorDepth.TrueColor, GlyphTier.Full);
                 CellBuffer light = CheckedFrame(site, width, "light", Theme.Light, ColorDepth.TrueColor, GlyphTier.Full);
-                JsonObject figure = Figures.WithProgram(new JsonObject {
+                JsonObject figure = Figures.WithProgram(site, new JsonObject {
                     ["title"] = "Show-ConsoleMarkdown",
                     ["file"] = "markdown.ps1",
                     ["label"] = "CommonMark with headings, nested lists, a quote, native table, highlighted code and a link",

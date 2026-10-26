@@ -6,7 +6,7 @@ using ConsoleMonster.Text;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates rich text: multicolour words for table cells, calculated properties, titles, labels, log lines or output on its own.</para>
-    /// <para type="description">-Text takes pieces that are shown literally (data is never interpreted); -Color and -BackgroundColor take one colour per piece, and pieces beyond the colours use the first colour, as Write-Color does. Colours are ConsoleColor names exactly as Write-Host shows them, theme roles (Pass, Fail, Warn, Info, Muted, Accent) that follow the light or dark theme, #RRGGBB, rgb(r,g,b) or r,g,b. -Markup adds Spectre-compatible markup ([bold lime]Ready[/]); -Decoration adds Bold, Dim, Italic, Underline, Strikethrough or Invert; -Link makes the text a hyperlink where the terminal supports it; -Gradient colours the text from one colour to another. The result works as a cell value (also from a calculated property), as the title or label of any widget, with Write-ConsoleLogEntry and Update-ConsoleLane, and with Show-Console. Without colour (NO_COLOR, redirected output) the text stays plain.</para>
+    /// <para type="description">-Text takes pieces that are shown literally (data is never interpreted); -Color and -BackgroundColor take one colour per piece, and pieces beyond the colours use the first colour, as Write-Color does. Colours are ConsoleColor names exactly as Write-Host shows them, theme roles (Pass, Fail, Warn, Info, Muted, Accent) that follow the light or dark theme, #RRGGBB, rgb(r,g,b) or r,g,b. -Markup adds Spectre-compatible markup ([bold lime]Ready[/]); -Decoration adds Bold, Dim, Italic, Underline, Strikethrough or Invert; -Link makes the text a hyperlink where the terminal supports it; -Gradient colours the text from one colour to another. The result works as a cell value (also from a calculated property), as the title or label of any widget, with Write-ConsoleLogEntry and Update-Console, and with Show-Console. Without colour (NO_COLOR, redirected output) the text stays plain.</para>
     /// </summary>
     /// <example>
     ///   <para>A status cell from a calculated property</para>
@@ -65,14 +65,14 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public HorizontalAlignment Alignment { get; set; } = HorizontalAlignment.Left;
 
-        /// <summary><para type="description">Kept for compatibility: text is literal by default; use -Markup for markup.</para></summary>
-        [Parameter]
-        public SwitchParameter Plain { get; set; }
+        /// <summary><para type="description">Overflow policy when rendered in constrained cells.</para></summary>
+        [Parameter] public Widgets.TextOverflow Overflow { get; set; } = Widgets.TextOverflow.Wrap;
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
             RichText text = PSRichText.Build(Text, Color, BackgroundColor, Markup, Decoration, Link, Role, Gradient);
             text.Alignment = Alignment;
+            text.Overflow = Overflow;
             WriteObject(text);
         }
     }

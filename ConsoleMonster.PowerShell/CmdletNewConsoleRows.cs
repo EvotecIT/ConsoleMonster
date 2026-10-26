@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Management.Automation;
 using ConsoleMonster.Layout;
 
@@ -12,10 +13,11 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleRows")]
     [OutputType(typeof(IWidget))]
-    public sealed class CmdletNewConsoleRows : PSCmdlet {
+    public sealed class CmdletNewConsoleRows : ContainerCmdlet {
         /// <summary><para type="description">Scriptblock that emits the child widgets.</para></summary>
-        [Parameter(Position = 0, Mandatory = true)]
-        public ScriptBlock Content { get; set; } = null!;
+        [Parameter(Position = 0, ValueFromPipeline = true)]
+        [AllowNull, AllowEmptyCollection]
+        public override object? Content { get; set; }
 
         /// <summary><para type="description">Blank rows between children.</para></summary>
         [Parameter]
@@ -30,9 +32,9 @@ namespace ConsoleMonster.PowerShell {
         public SwitchParameter Fill { get; set; }
 
         /// <inheritdoc />
-        protected override void ProcessRecord() {
-            Rows rows = new Rows(PSWidgets.Collect(Content).ToArray()) { Gap = Gap };
-            WriteObject(PSWidgets.WithSize(rows, Weight, 0, Fill.IsPresent));
+        protected override IWidget Build(List<IWidget> children) {
+            Rows rows = new Rows(children.ToArray()) { Gap = Gap };
+            return PSWidgets.WithSize(rows, Weight, 0, Fill.IsPresent);
         }
     }
 }

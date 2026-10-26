@@ -13,14 +13,11 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleAlign")]
     [OutputType(typeof(IWidget))]
-    public sealed class CmdletNewConsoleAlign : PSCmdlet {
+    public sealed class CmdletNewConsoleAlign : ContainerCmdlet {
         /// <summary><para type="description">Scriptblock that emits the content (several widgets are stacked vertically).</para></summary>
-        [Parameter(Position = 0)]
-        public ScriptBlock? Content { get; set; }
-
-        /// <summary><para type="description">A widget to align instead of a scriptblock.</para></summary>
-        [Parameter(ValueFromPipeline = true)]
-        public IWidget? Widget { get; set; }
+        [Parameter(Position = 0, ValueFromPipeline = true)]
+        [AllowNull, AllowEmptyCollection]
+        public override object? Content { get; set; }
 
         /// <summary><para type="description">Horizontal placement: Left, Center (default) or Right.</para></summary>
         [Parameter]
@@ -43,13 +40,9 @@ namespace ConsoleMonster.PowerShell {
         public SwitchParameter Fill { get; set; }
 
         /// <inheritdoc />
-        protected override void ProcessRecord() {
-            List<IWidget> children = PSWidgets.Collect(Content);
-            if (Widget != null) {
-                children.Add(Widget);
-            }
+        protected override IWidget Build(List<IWidget> children) {
             IWidget content = children.Count == 1 ? children[0] : new Rows(children.ToArray());
-            WriteObject(PSWidgets.WithSize(new Align(content, Horizontal, Vertical), Weight, Height, Fill.IsPresent));
+            return PSWidgets.WithSize(new Align(content, Horizontal, Vertical), Weight, Height, Fill.IsPresent);
         }
     }
 }

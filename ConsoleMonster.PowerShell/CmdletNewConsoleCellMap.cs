@@ -7,7 +7,7 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates a cell map: one status symbol per item of a run, with a legend of counts.</para>
-    /// <para type="description">The map Invoke-ConsoleRun shows for many items, as a widget of its own: each item is one cell in its status colour (pass, fail, warn, skip, running, pending), wrapping to the width, followed by a legend with each state's count. States come from -Status or the pipeline, in the shared status vocabulary (PowerShell's words such as Success and Error work too). -Count adds pending cells for items not started yet. -Columns and -RowLabels turn it into a labelled grid (one row per server, one column per check) with one legend below, which -LegendLines lets wrap. To add cells later, pipe the map to Add-ConsoleItem; in a live dashboard, update cells with Update-ConsoleCell.</para>
+    /// <para type="description">The map Invoke-ConsoleRun shows for many items, as a widget of its own: each item is one cell in its status colour (pass, fail, warn, skip, running, pending), wrapping to the width, followed by a legend with each state's count. States come from -Status or the pipeline, in the shared status vocabulary (PowerShell's words such as Success and Error work too). -Count adds pending cells for items not started yet. -Columns and -RowLabels turn it into a labelled grid (one row per server, one column per check) with one legend below, which -LegendLines lets wrap. To add cells later, pipe the map to Add-ConsoleItem; in a live dashboard, update cells with Update-Console.</para>
     /// </summary>
     /// <example>
     ///   <para>Forty items part-way through a run</para>
@@ -60,6 +60,13 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(Position = 0)]
         public string WidgetId { get; set; } = "cells";
 
+        /// <summary><para type="description">Space between cells; default one column.</para></summary>
+        [Parameter, ValidateRange(0, int.MaxValue)] public int Gap { get; set; } = 1;
+        /// <summary><para type="description">Chooses which cells remain visible when MaxRows limits the map.</para></summary>
+        [Parameter] public CellMap.CellWindow Window { get; set; }
+        /// <summary><para type="description">Uses a fixed running marker instead of a spinner.</para></summary>
+        [Parameter] public SwitchParameter NoSpinRunning { get; set; }
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (Status != null) {
@@ -71,7 +78,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void EndProcessing() {
-            CellMap map = new CellMap(WidgetId) { MaxRows = MaxRows, ShowLegend = !NoLegend.IsPresent, Columns = Math.Max(0, Columns), LegendLines = Math.Max(1, LegendLines) };
+            CellMap map = new CellMap(WidgetId) { Gap = Gap, Window = Window, SpinRunning = !NoSpinRunning.IsPresent, MaxRows = MaxRows, ShowLegend = !NoLegend.IsPresent, Columns = Math.Max(0, Columns), LegendLines = Math.Max(1, LegendLines) };
             if (RowLabels != null) {
                 foreach (string label in RowLabels) {
                     map.RowLabels.Add(label ?? string.Empty);

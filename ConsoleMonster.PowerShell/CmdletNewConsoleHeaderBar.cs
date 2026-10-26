@@ -32,7 +32,7 @@ namespace ConsoleMonster.PowerShell {
         protected override void EndProcessing() {
             HeaderBar header = new HeaderBar(PSText.Markup(Title) ?? string.Empty) {
                 Subtitle = PSText.Markup(Subtitle), Detail = PSText.Markup(Detail), Status = Status,
-                Right = PSText.Markup(HeaderRight), ShowElapsed = ShowElapsed.IsPresent, Elapsed = ElapsedSeconds.HasValue ? TimeSpan.FromSeconds(ElapsedSeconds.Value) : (TimeSpan?)null
+                HeaderRight = PSText.Markup(HeaderRight), ShowElapsed = ShowElapsed.IsPresent, Elapsed = ElapsedSeconds.HasValue ? TimeSpan.FromSeconds(ElapsedSeconds.Value) : (TimeSpan?)null
             };
             foreach (string crumb in Crumb) { header.Crumbs.Add(crumb); }
             WriteObject(header);

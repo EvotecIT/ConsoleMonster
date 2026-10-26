@@ -13,7 +13,7 @@ Emits a stable core Toggle widget. Place inputs in the outer layout, outside dep
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleToggle [-Key] <string> [[-Label] <string>] [-Value <bool>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [<CommonParameters>]
+New-ConsoleToggle [-Key] <string> [[-Label] <string>] [-Value <bool>] [-OnText <string>] [-OffText <string>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [-ValidationMessage <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -80,6 +80,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -OffText
+Unchecked-state text; omit for the localized No label.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -OnChange
 Runs once per committed edit on the owning input thread. Receives param($Value, $State) and injected $Value, $State and $Control. State is a hashtable; add or assign keys to write back. Output is discarded. Retains closure variables.
 
@@ -96,11 +112,43 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -OnText
+Checked-state text; omit for the localized Yes label.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -TabIndex
 Keyboard focus order. Equal values preserve layout declaration order.
 
 ```yaml
 Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ValidationMessage
+Initial validation text displayed below the input.
+
+```yaml
+Type: String
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

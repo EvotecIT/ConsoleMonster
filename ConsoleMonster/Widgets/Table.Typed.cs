@@ -19,10 +19,10 @@ namespace ConsoleMonster.Widgets {
     /// read when the table is first laid out and after <see cref="Refresh"/>.
     /// <code>
     /// Table.For(servers)
-    ///     .WithTitle("Servers")
-    ///     .Column(s => s.Name, c => c.WithIsKey())
-    ///     .Column(s => s.Ram, c => c.WithPresenter(CellPresenters.Bytes))
-    ///     .WithTotals();
+    ///     .Title("Servers")
+    ///     .Column(s => s.Name, c => c.IsKey())
+    ///     .Column(s => s.Ram, c => c.Presenter(CellPresenters.Bytes))
+    ///     .Totals();
     /// </code>
     /// </summary>
     /// <typeparam name="T">The item type.</typeparam>
@@ -46,7 +46,7 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>
         /// Adds a column read from each item. The header comes from the expression (<c>s =&gt; s.Name</c> is "Name",
-        /// <c>s =&gt; s.Address.City</c> is "City"); set another with <c>c =&gt; c.WithHeader("...")</c>.
+        /// <c>s =&gt; s.Address.City</c> is "City"); set another with <c>c =&gt; c.Header("...")</c>.
         /// </summary>
         /// <param name="value">Reads the value from an item.</param>
         /// <param name="configure">Configures the column (priority, presenter, overflow...), or null.</param>

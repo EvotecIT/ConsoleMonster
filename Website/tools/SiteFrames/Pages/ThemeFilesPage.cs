@@ -19,7 +19,7 @@ namespace SiteFrames.Pages {
             foreach (int width in new[] { 120, 60 }) {
                 foreach (bool after in new[] { false, true }) {
                     string stage = after ? "after" : "before";
-                    Figures.Add("theme-files-" + stage + "-" + width, Figures.WithProgram(new JsonObject {
+                    Figures.Add("theme-files-" + stage + "-" + width, Figures.WithProgram(site, new JsonObject {
                         ["title"] = after ? "After: team files" : "Before: built-in themes",
                         ["label"] = "The same build report with " + (after ? "team theme files" : "the built-in themes"),
                         ["meta"] = new JsonArray(width + " columns", "24-bit", "Full"),

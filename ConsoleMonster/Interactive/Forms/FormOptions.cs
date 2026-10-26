@@ -32,5 +32,9 @@ namespace ConsoleMonster.Interactive {
         public System.Action<MenuContext>? AfterSubmit { get; set; }
 
         internal ChoiceStore? Store() => string.IsNullOrEmpty(AppName) ? null : new ChoiceStore(AppName!, StorageRoot);
+        /// <summary>Copies this configuration; explicitly supplied nested devices and callbacks remain shared.</summary>
+        /// <returns>A distinct options object with the same values.</returns>
+        public FormOptions Clone() => (FormOptions)MemberwiseClone();
+
     }
 }

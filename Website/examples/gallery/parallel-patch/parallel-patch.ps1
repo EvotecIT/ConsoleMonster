@@ -66,12 +66,12 @@ function New-PatchSummary {
     New-ConsoleRows -Gap 1 -Content {
         New-ConsoleRule -Title '[bold]Patching the web farm[/]'
         '40 hosts · throttle 8 · per-host timeout 4s'
-        New-ConsoleSummaryBar -Done $done -Total $servers.Count -Counter ([ordered] @{
+        New-ConsoleSummaryBar -Total $servers.Count -Counter ([ordered] @{
                 passed = $done - $failed
                 failed = $failed
                 running = 0
                 pending = $servers.Count - $done
-            })
+            }) -Value $done
         New-ConsolePanel -Title 'Host outcomes' -Content {
             $mapOptions = @{
                 Status = $states
@@ -89,13 +89,13 @@ function New-PatchSummary {
                     $laneOptions = @{
                         Key = $server.Name
                         Total = 4
-                        Done = if ($outcome) { 4 } else { 0 }
+                        Value = if ($outcome) { 4 } else { 0 }
                         Status = if ($outcome) { $outcome.Status } else { 'Pending' }
                         Passed = if (-not $outcome) { 0 } elseif ($outcome.Status -eq 'Pass') { 4 } else { 3 }
                         Failed = if ($outcome -and $outcome.Status -eq 'Fail') { 1 } else { 0 }
                         Detail = if (-not $outcome) { 'Waiting for a worker' } else { $outcome.Detail }
                     }
-                    New-ConsoleLane @laneOptions
+                    [pscustomobject]$laneOptions
                 }
             }
         }
@@ -106,7 +106,7 @@ function New-PatchSummary {
             else {
                 New-ConsoleStatusList -Content {
                     foreach ($outcome in $Outcomes | Where-Object -Property Status -EQ -Value Fail) {
-                        New-ConsoleStatusItem -Label $outcome.Host -Status Fail -Detail $outcome.Detail
+                        [pscustomobject]@{ Label = $outcome.Host; Status = 'Fail'; Detail = $outcome.Detail }
                     }
                 }
             }

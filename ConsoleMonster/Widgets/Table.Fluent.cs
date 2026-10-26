@@ -1,5 +1,5 @@
 namespace ConsoleMonster.Widgets {
-    // The generated half of TableFluent holds one With/Add method per property; these are the hand-written semantic helpers.
+    // The generated half of TableFluent holds property setters and collection adders; these are the hand-written semantic helpers.
     public static partial class TableFluent {
         /// <summary>
         /// Adds a totals row that sums every numeric column (<see cref="Table.ShowTotals"/> with <see cref="Table.AutoTotals"/>);
@@ -9,7 +9,7 @@ namespace ConsoleMonster.Widgets {
         /// <param name="table">The table.</param>
         /// <param name="label">The label of the totals row, or null for the built-in word.</param>
         /// <returns>The same table.</returns>
-        public static TSelf WithTotals<TSelf>(this TSelf table, string? label = null) where TSelf : Table {
+        public static TSelf Totals<TSelf>(this TSelf table, string? label = null) where TSelf : Table {
             table.ShowTotals = true;
             table.AutoTotals = true;
             if (label != null) {

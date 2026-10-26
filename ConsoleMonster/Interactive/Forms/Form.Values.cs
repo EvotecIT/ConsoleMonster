@@ -85,7 +85,7 @@ namespace ConsoleMonster.Interactive {
                 }
                 foreach (Field dependent in StaleDependents(before)) {
                     bool given = TryGet(copy, dependent.Key, out object? wanted);
-                    if (dependent is ChoiceField choice && choice.Loader != null) {
+                    if (dependent is ChoiceField choice && choice.LoadChoices != null) {
                         choice.Choices.Clear();
                         choice.Value = choice.Multiple ? new List<object?>() : null;
                         if (given) {
@@ -136,7 +136,7 @@ namespace ConsoleMonster.Interactive {
                     continue;
                 }
                 object? value = RestorationValue(field, pair.Value, stored);
-                if (field is ChoiceField choice && choice.Loader != null && choice.Choices.Count == 0) {
+                if (field is ChoiceField choice && choice.LoadChoices != null && choice.Choices.Count == 0) {
                     pending[field.Key] = value;
                     continue;
                 }

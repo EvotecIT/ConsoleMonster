@@ -19,14 +19,22 @@ namespace ConsoleMonster.Interactive {
             Expected = expected ?? throw new ArgumentNullException(nameof(expected));
         }
 
+        private string _expected = string.Empty;
+
         /// <summary>The text to type.</summary>
-        public string Expected { get; }
+        public string Expected { get => _expected; set => _expected = value ?? throw new ArgumentNullException(nameof(value)); }
 
         /// <summary>Whether case must match too.</summary>
         public bool CaseSensitive { get; set; }
 
         /// <summary>A warning under the question (default: none).</summary>
         public string? Warning { get; set; }
+
+        /// <inheritdoc />
+        public override bool Show(InteractiveOptions? options = null, CancellationToken cancellationToken = default) {
+            if (string.IsNullOrWhiteSpace(Expected)) { throw new InvalidOperationException("Configure Expected before showing a typed confirmation."); }
+            return base.Show(options, cancellationToken);
+        }
 
         /// <inheritdoc />
         public override string Describe(bool value) => value ? PromptLabels.Default.Yes : PromptLabels.Default.No;

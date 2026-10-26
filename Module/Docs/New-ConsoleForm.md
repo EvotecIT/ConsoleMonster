@@ -8,18 +8,18 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a form or wizard from fields (New-ConsoleField) for Read-ConsoleForm or a menu item.
 
-The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Use -PageDescriptions to give each page its own sentence under the title. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back. Presets the form comes with (New-ConsoleFormPreset, in the scriptblock or -Preset) are listed before the saved ones.
+The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Use -PageDescriptions to give each page its own sentence under the title. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back. Presets the form comes with (New-ConsoleForm -Preset, in the scriptblock or -Preset) are listed before the saved ones.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleForm [-Title] <string> [[-Content] <scriptblock>] [-Field <Field[]>] [-Description <string>] [-PageDescriptions <IDictionary>] [-Command <string>] [-CommandStyle <CommandStyle>] [-NoReview] [-SubmitText <string>] [-StorageKey <string>] [-Preset <FormPreset[]>] [<CommonParameters>]
+New-ConsoleForm [-Title] <string> [[-Content] <scriptblock>] [-Field <Field[]>] [-Description <string>] [-PageDescriptions <IDictionary>] [-Command <string>] [-CommandStyle <CommandStyle>] [-NoReview] [-SubmitText <string>] [-StorageKey <string>] [-Preset <Object[]>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Creates a form or wizard from fields (New-ConsoleField) for Read-ConsoleForm or a menu item.
 
-The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Use -PageDescriptions to give each page its own sentence under the title. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back. Presets the form comes with (New-ConsoleFormPreset, in the scriptblock or -Preset) are listed before the saved ones.
+The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Use -PageDescriptions to give each page its own sentence under the title. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back. Presets the form comes with (New-ConsoleForm -Preset, in the scriptblock or -Preset) are listed before the saved ones.
 
 ## EXAMPLES
 
@@ -39,7 +39,7 @@ A two-page wizard
 $form = New-ConsoleForm 'New share' -Command 'New-AppShare' -Content {
     New-ConsoleField Name 'Share name' -Required -ParameterName Name
     New-ConsoleField ReadOnly 'Read only' -Type Toggle -ParameterName ReadOnly
-    New-ConsoleFormPreset 'Archive' -Values @{ Name = 'Archive'; ReadOnly = $true } -Description 'A read-only archive share.'
+    [pscustomobject]@{ Name = 'Archive'; Values = @{ Name = 'Archive'; ReadOnly = $true }; Description = 'A read-only archive share.' }
 }
 ```
 
@@ -160,10 +160,10 @@ Accept wildcard characters: False
 ```
 
 ### -Preset
-Presets the form comes with (New-ConsoleFormPreset), listed before the saved ones; presets emitted in the scriptblock are added too.
+Presets the form comes with (New-ConsoleForm -Preset), listed before the saved ones; presets emitted in the scriptblock are added too.
 
 ```yaml
-Type: FormPreset[]
+Type: Object[]
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

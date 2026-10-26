@@ -35,10 +35,10 @@ if (Show 'Cards') {
     )
     $certificate | Show-ConsoleTable -Width 44 -Title (New-ConsoleText 'Certificates' -Color Cyan -Decoration Bold)
     New-ConsoleTree (New-ConsoleText 'ad.', 'evotec.xyz' -Color DarkGray, Cyan) -Content {
-        New-ConsoleTreeNode (New-ConsoleText 'Site ', 'Warsaw' -Color DarkGray, Green) -Status Pass -Content {
-            New-ConsoleTreeNode (New-ConsoleText 'DC', '01' -Color Cyan, Yellow) -Status Pass -Detail 'healthy'
-            New-ConsoleTreeNode (New-ConsoleText 'DC', '02' -Color Cyan, Yellow) -Status Warn -Detail 'lag 42 min'
-        }
+        [pscustomobject]@{ Label = (New-ConsoleText 'Site ', 'Warsaw' -Color DarkGray, Green); Status = 'Pass'; Children = @(& {
+            [pscustomobject]@{ Label = (New-ConsoleText 'DC', '01' -Color Cyan, Yellow); Status = 'Pass'; Detail = 'healthy' }
+            [pscustomobject]@{ Label = (New-ConsoleText 'DC', '02' -Color Cyan, Yellow); Status = 'Warn'; Detail = 'lag 42 min' }
+        }) }
     } | Show-Console
 }
 
@@ -50,17 +50,17 @@ if (Show 'Lanes') {
     Invoke-ConsoleDashboard $dashboard {
         $servers = 'SRV01', 'SRV02', 'SRV03', 'SRV04'
         foreach ($server in $servers) {
-            Update-ConsoleLane -Key $server -Label (New-ConsoleText $server.Substring(0, 3), $server.Substring(3) -Color Cyan, Yellow) -Total 6
+            Update-Console -Key $server -Label (New-ConsoleText $server.Substring(0, 3), $server.Substring(3) -Color Cyan, Yellow) -Total 6 -WidgetId 'lanes'
         }
         for ($step = 1; $step -le 6; $step++) {
             foreach ($server in $servers) {
                 $result = if ($server -eq 'SRV03' -and $step -eq 4) { 'Fail' } elseif ($step -eq 5 -and $server -eq 'SRV02') { 'Warn' } else { 'Pass' }
-                Update-ConsoleLane -Key $server -Result $result -Detail (New-ConsoleText 'installing ', "KB50$step$($server.Substring(3))" -Color DarkGray, Green)
+                Update-Console -Key $server -Result $result -Detail (New-ConsoleText 'installing ', "KB50$step$($server.Substring(3))" -Color DarkGray, Green) -WidgetId 'lanes'
             }
             Write-ConsoleLogEntry -Message (New-ConsoleText "step $step ", 'done', ' on 4 servers' -Color White, Green, DarkGray)
             Start-Sleep -Milliseconds 900
         }
-        foreach ($server in $servers) { Update-ConsoleLane -Key $server -Complete }
+        foreach ($server in $servers) { Update-Console -Key $server -Complete -WidgetId 'lanes' }
     }
 }
 

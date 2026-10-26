@@ -5,6 +5,6 @@ New-ConsoleKeyValue -Markup -InputObject ([ordered] @{
     Version    = '0.0.4 [muted]→[/] [bold]2.0.0[/]'
     Frameworks = 'netstandard2.0, net472, net8.0'
 }) -Content {
-    New-ConsoleKeyValueItem 'Signing' 'skipped' -Status Skip
-    New-ConsoleKeyValueItem 'Tests' '1 skipped on PowerShell 7' -Status Warn
+    [pscustomobject]@{ Key = 'Signing'; Value = 'skipped'; Status = 'Skip' }
+    [pscustomobject]@{ Key = 'Tests'; Value = '1 skipped on PowerShell 7'; Status = 'Warn' }
 } | Show-Console

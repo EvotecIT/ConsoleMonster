@@ -28,11 +28,6 @@ namespace ConsoleMonster.Interactive {
         /// <summary>The title in the screen header.</summary>
         public string Title { get; set; } = "Object explorer";
 
-        /// <summary>Sets the header title and returns this explorer for fluent composition.</summary>
-        /// <param name="title">The plain header text.</param>
-        /// <returns>This explorer.</returns>
-        public ObjectExplorer WithTitle(string title) { Title = title ?? string.Empty; return this; }
-
         /// <summary>Creates a deterministic, non-interactive initial view for previews and capture.</summary>
         /// <returns>The initial explorer screen as a widget.</returns>
         public IWidget Snapshot() => new ExplorerView(this, PromptLabels.Default).Snapshot();

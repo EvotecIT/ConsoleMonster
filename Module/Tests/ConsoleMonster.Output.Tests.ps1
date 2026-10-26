@@ -61,7 +61,7 @@ $text = $svc | Show-ConsoleTable -AsString
 "TABLE=$($text -match 'alpha' -and $text -match 'beta')"
 $list = $svc | Show-ConsoleList -AsString
 "LIST=$($list -match 'Running')"
-$json = $svc | Show-ConsoleJson -AsString
+$json = $svc | Show-Console -AsString -View Json
 "JSON=$($json -match '"Name": "alpha"')"
 '@
         Get-Result $out 'TYPE' | Should -Be 'String'

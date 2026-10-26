@@ -21,7 +21,7 @@ Describe 'Synthetic compact error shapes' {
 
     It 'uses the fallback header for a script-level throw without inventing a command name' {
         $record = try { & { throw 'Synthetic script-level failure.' } } catch { $_ }
-        $widget = $record | Show-ConsoleError -Compact -AsWidget
+        $widget = $record | Show-Console -Compact -AsWidget -View Error
         $text = [ConsoleMonster.Terminal]::RenderText($widget, [ConsoleMonster.Terminal]::Profile, [ConsoleMonster.Styling.Theme]::Dark)
         $text | Should -Match '^Error: Synthetic script-level failure\.'
         $text | Should -Not -Match 'NotSpecified'
@@ -40,7 +40,7 @@ Describe 'Synthetic compact error shapes' {
                 Enable-ConsoleFormatting -Feature Errors
                 try { ($record | Out-String -Width $Width) | Should -BeExactly $native }
                 finally { Disable-ConsoleFormatting -Feature Errors }
-                $widgets.Add(($record | Show-ConsoleError -Compact -AsWidget))
+                $widgets.Add(($record | Show-Console -Compact -AsWidget -View Error))
             } else { $widgets.Add(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Widgets.TextBlock'))::Plain([string] $record)) }
         }
         $view = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Layout.Rows'))::new($widgets.ToArray())
@@ -77,7 +77,7 @@ Describe 'Synthetic compact error shapes' {
                 $text | Should -Match 'detached worker'
                 $written = @(& { Write-Error -Exception $records[0].Exception -ErrorAction Continue } 2>&1)
                 $written[0] | Should -BeOfType ([Management.Automation.ErrorRecord])
-                $writtenWidget = $written[0] | Show-ConsoleError -Compact -AsWidget
+                $writtenWidget = $written[0] | Show-Console -Compact -AsWidget -View Error
                 $writtenText = [ConsoleMonster.Terminal]::RenderText($writtenWidget, $profile, $themeObject)
                 $writtenText | Should -Match 'detached worker'
                 $writtenText | Should -Not -Match '(?m)^\s*:\d+'

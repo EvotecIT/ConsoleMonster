@@ -13,7 +13,7 @@ namespace ConsoleMonster.Widgets {
     /// session under their names, replacing widgets of the same name.
     /// Live operations: <c>set</c> (Payload = the new widget), <c>clear</c>.
     /// </summary>
-    public sealed class RegionWidget : LiveWidget, IContainer {
+    public sealed class RegionWidget : LiveWidget, IContainer, IContentOwner {
         private IWidget _child;
 
         /// <summary>Creates a slot.</summary>
@@ -28,6 +28,8 @@ namespace ConsoleMonster.Widgets {
 
         /// <inheritdoc />
         public IReadOnlyList<IWidget> Children => new[] { _child };
+
+        void IContentOwner.ReplaceContent(IWidget[] content) => Set(ContentBuilder.Compose(content));
 
         /// <summary>A handle that replaces the content through a dispatcher (a live session).</summary>
         /// <param name="dispatcher">The dispatcher.</param>
@@ -91,13 +93,13 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>Shows <paramref name="widget"/> in the slot from the next frame on.</summary>
         /// <param name="widget">The new content.</param>
-        public void Set(IWidget widget) => PostPayload("set", widget ?? throw new ArgumentNullException(nameof(widget)));
+        public void Set(IWidget widget) => Update(new WidgetUpdate { Content = widget ?? throw new ArgumentNullException(nameof(widget)) });
 
         /// <summary>Shows <paramref name="widget"/> in the slot (same as <see cref="Set"/>).</summary>
         /// <param name="widget">The new content.</param>
         public void Replace(IWidget widget) => Set(widget);
 
         /// <summary>Empties the slot.</summary>
-        public void Clear() => Post("clear");
+        public void Clear() => Update(new WidgetUpdate { Content = null });
     }
 }

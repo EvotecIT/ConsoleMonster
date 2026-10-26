@@ -14,9 +14,14 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public bool Value { get; set; }
 
+        /// <summary><para type="description">Checked-state text; omit for the localized Yes label.</para></summary>
+        [Parameter] public string? OnText { get; set; }
+        /// <summary><para type="description">Unchecked-state text; omit for the localized No label.</para></summary>
+        [Parameter] public string? OffText { get; set; }
+
         /// <inheritdoc />
         protected override void EndProcessing() {
-            Emit(new Toggle(Key, Value));
+            Emit(AppInput.Toggle(new ToggleInputOptions { Key = Key, Label = Label, Value = Value, OnText = OnText, OffText = OffText }));
         }
     }
 }

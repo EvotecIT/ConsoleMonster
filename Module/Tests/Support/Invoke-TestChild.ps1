@@ -1,3 +1,5 @@
+﻿. (Join-Path $PSScriptRoot 'Stop-TestChildProcess.ps1')
+
 function Invoke-TestChild {
     <#
     .SYNOPSIS
@@ -7,7 +9,7 @@ function Invoke-TestChild {
     The child gets its own hidden console (CreateNoWindow), so output it writes straight to a console (coloured host
     writes, live areas) never lands on the console the tests run in, for example under an inline Invoke-ConsolePester
     view. Its output is UTF-8 whatever the code page of the parent console, and is returned as lines (standard output,
-    then standard error). $LASTEXITCODE is set to the child's exit code.
+    then standard error). $LASTEXITCODE is set to the child's exit code. A timeout or interrupted call stops its owned process tree.
 
     .PARAMETER Runtime
     The path of pwsh.exe or powershell.exe.
@@ -41,7 +43,7 @@ function Invoke-TestChild {
         $stdout = $process.StandardOutput.ReadToEndAsync()
         $stderr = $process.StandardError.ReadToEndAsync()
         if (-not $process.WaitForExit($TimeoutSeconds * 1000)) {
-            $process.Kill()
+            Stop-TestChildProcess -Process $process
             throw "The child process did not finish within $TimeoutSeconds seconds."
         }
         $process.WaitForExit()
@@ -73,6 +75,7 @@ function Invoke-TestChild {
         $all = ($stdout.Result + $errorText) -replace "`r", ''
         $all.TrimEnd("`n") -split "`n"
     } finally {
+        if (-not $process.HasExited) { Stop-TestChildProcess -Process $process }
         $process.Dispose()
     }
 }

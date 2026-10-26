@@ -51,7 +51,10 @@ namespace ConsoleMonster.PowerShell.Binding {
         /// Evaluates the column against one item. A getter or script block that throws gives a <see cref="FieldError"/>,
         /// shown as a warning marker in the cell, instead of an empty cell or a lost record; Ctrl+C still stops the command.
         /// </summary>
-        public object? GetValue(PSObject item) {
+        public object? GetValue(PSObject item) => GetValue(item, out _);
+
+        // The unformatted identity is captured from the same evaluation as the display value.
+        internal object? GetValue(PSObject item, out object? identity) {
             object? value;
             try {
                 value = PropertyBinder.Evaluate(item, _expression, Options);
@@ -59,8 +62,10 @@ namespace ConsoleMonster.PowerShell.Binding {
             catch (Exception ex) when (!(ex is System.Management.Automation.PipelineStoppedException) && !(ex is OperationCanceledException)) {
                 // Ctrl+C (PipelineStoppedException) must stop the cmdlet, not mark the cell.
                 LastError ??= ex.Message;
-                return FieldError.From(ex);
+                identity = FieldError.From(ex);
+                return identity;
             }
+            identity = value;
             if (value is FieldError error) {
                 LastError ??= error.Message;
                 return value;

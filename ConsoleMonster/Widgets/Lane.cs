@@ -45,7 +45,7 @@ namespace ConsoleMonster.Widgets {
         public double Total { get; set; }
 
         /// <summary>Completed steps.</summary>
-        public double Done { get; set; }
+        public double Value { get; set; }
 
         /// <summary>Steps that passed.</summary>
         public int Passed { get; set; }
@@ -98,6 +98,6 @@ namespace ConsoleMonster.Widgets {
         public bool IsFinished => Status == StatusKind.Pass || Status == StatusKind.Fail || Status == StatusKind.Warn || Status == StatusKind.Skip;
 
         /// <summary>The fraction complete (0-1); finished lanes are 1.</summary>
-        public double Fraction => IsFinished ? 1 : (Total <= 0 ? 0 : Math.Min(1, Done / Total));
+        public double Fraction => IsFinished ? 1 : (Total <= 0 ? 0 : Math.Min(1, Value / Total));
     }
 }

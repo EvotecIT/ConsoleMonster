@@ -288,7 +288,7 @@ namespace ConsoleMonster.PowerShell {
                         }
                     }
                     if (LoadChoices != null) {
-                        choice.Loader = PSInteractive.Loader(LoadChoices, selectors, ArgumentList);
+                        choice.LoadChoices = PSInteractive.LoadChoices(LoadChoices, selectors, ArgumentList);
                     }
                     if (Preview != null) {
                         ScriptBlock preview = Preview;

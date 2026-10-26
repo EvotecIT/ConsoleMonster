@@ -6,45 +6,59 @@ schema: 2.0.0
 ---
 # Show-ConsoleTable
 ## SYNOPSIS
-Formats pipeline objects as a width-aware table and writes it to the host.
+Displays the table representation through the shared Show-Console implementation.
 
-Columns come from -Property (like Format-Table: names, wildcards and calculated properties @{ Name; Expression }), from the type's DefaultDisplayPropertySet, or from the objects' properties. Column options go in the same hashtables: Overflow (Wrap, Truncate, TruncateMiddle, Never), MaxLines, Priority, Key, MinWidth, MaxWidth, Width, Alignment, Presenter (Text, Status, Number, Bytes, Duration, Date, DateRelative, DateBoth, Boolean, Bar, Sparkline, Progress, Link), Unit, Aggregate, Header and tone rules (FailAbove, WarnAbove, FailBelow, WarnBelow, PassAbove, PassBelow, Tone). When the table is too wide, low-priority columns hide with a footer that names them; below -CardsBelow cells the rows become record cards. One object stays a one-row table; -View Record shows objects as labelled fields and -View Cards as cards. Redirected output is plain text without escape codes.
+Table and List are idiomatic shortcuts to the same view construction and output path. AsWidget and AsString capture the result; export uses Export-ConsoleFrame.
 
 ## SYNTAX
-### __AllParameterSets
+### Objects (Default)
 ```powershell
-Show-ConsoleTable [[-Property] <Object[]>] [-InputObject <psobject>] [-GroupBy <Object>] [-Total] [-Top <int>] [-Title <Object>] [-Caption <Object>] [-Border <TableBorder>] [-CardsBelow <int>] [-Width <int>] [-Culture <cultureinfo>] [-NoHeaderSeparator] [-AsString] [-PassThru] [-AsWidget] [-StatusProperty <string>] [-Expand] [-ShowGroupColumn] [-NoSort] [-Wrap] [<CommonParameters>]
+Show-ConsoleTable [[-InputObject] <psobject>] [-Property <Object[]>] [-GroupBy <Object>] [-Title <Object>] [-Caption <Object>] [-Width <int>] [-Culture <cultureinfo>] [-AsString] [-AsWidget] [-PassThru] [-ShowTotals] [-MaxRows <int>] [-Border <TableBorder>] [-CardsBelow <int>] [-NoHeaderSeparator] [-Expand] [-StatusProperty <string>] [-ShowGroupColumn] [-NoSort] [-Wrap] [-TitleIndent <Int32>] [-WrapHeaders] [-KeepAllColumns] [-GroupHeadersAsRows] [-RecordViewRows <int>] [-ShowKeyField] [-NoHiddenColumns] [-NoStableWidths] [-NoHeader] [-AlwaysCards] [-RowTitles <string[]>] [-ShowSubtotals] [-TotalLabel <string>] [-WrapLines <int>] [-TotalRowCount <Int32>] [-Presentation <PresentationOptions>] [<CommonParameters>]
+```
+
+### Content
+```powershell
+Show-ConsoleTable -Content <Object> [-Property <Object[]>] [-GroupBy <Object>] [-Title <Object>] [-Caption <Object>] [-Width <int>] [-Culture <cultureinfo>] [-AsString] [-AsWidget] [-PassThru] [-ShowTotals] [-MaxRows <int>] [-Border <TableBorder>] [-CardsBelow <int>] [-NoHeaderSeparator] [-Expand] [-StatusProperty <string>] [-ShowGroupColumn] [-NoSort] [-Wrap] [-TitleIndent <Int32>] [-WrapHeaders] [-KeepAllColumns] [-GroupHeadersAsRows] [-RecordViewRows <int>] [-ShowKeyField] [-NoHiddenColumns] [-NoStableWidths] [-NoHeader] [-AlwaysCards] [-RowTitles <string[]>] [-ShowSubtotals] [-TotalLabel <string>] [-WrapLines <int>] [-TotalRowCount <Int32>] [-Presentation <PresentationOptions>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Formats pipeline objects as a width-aware table and writes it to the host.
+Displays the table representation through the shared Show-Console implementation.
 
-Columns come from -Property (like Format-Table: names, wildcards and calculated properties @{ Name; Expression }), from the type's DefaultDisplayPropertySet, or from the objects' properties. Column options go in the same hashtables: Overflow (Wrap, Truncate, TruncateMiddle, Never), MaxLines, Priority, Key, MinWidth, MaxWidth, Width, Alignment, Presenter (Text, Status, Number, Bytes, Duration, Date, DateRelative, DateBoth, Boolean, Bar, Sparkline, Progress, Link), Unit, Aggregate, Header and tone rules (FailAbove, WarnAbove, FailBelow, WarnBelow, PassAbove, PassBelow, Tone). When the table is too wide, low-priority columns hide with a footer that names them; below -CardsBelow cells the rows become record cards. One object stays a one-row table; -View Record shows objects as labelled fields and -View Cards as cards. Redirected output is plain text without escape codes.
+Table and List are idiomatic shortcuts to the same view construction and output path. AsWidget and AsString capture the result; export uses Export-ConsoleFrame.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-Get-ChildItem -File | Sort-Object Length -Descending | Show-ConsoleTable -Top 10 -Total -Property Name, @{ Name = 'Length'; Presenter = 'Bytes'; Aggregate = 'Sum' }, @{ Name = 'FullName'; Overflow = 'TruncateMiddle'; Priority = 1 }
+Get-Service | Show-ConsoleTable
 ```
 
-Largest files, sizes as bytes, paths shortened in the middle
-
-### EXAMPLE 2
-```powershell
-Get-Service | Show-ConsoleTable -GroupBy Status -Property Name, DisplayName, StartType
-```
-
-Services grouped by status
+Display pipeline input
 
 ## PARAMETERS
 
-### -AsString
-Writes the view as one string of plain text instead of drawing it, to keep it in a variable or a file from any script, function or PowerShell version. Without it, PowerShell 7.2+ captures a view typed at the prompt ($x = ..., > file, Out-File); inside scripts and functions, and on Windows PowerShell 5.1, the view is drawn on the screen. Piped into another command (Out-Host, Out-String, Select-String) the view goes on as plain lines, without colour. Cannot be combined with -PassThru.
+### -AlwaysCards
+Uses record cards at every width.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: __AllParameterSets
+Parameter Sets: Objects, Content
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -AsString
+Returns plain text instead of displaying it.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Objects, Content
 Aliases: None
 Possible values:
 
@@ -56,11 +70,11 @@ Accept wildcard characters: False
 ```
 
 ### -AsWidget
-Writes the table widget to the pipeline instead of drawing it (for Export-ConsoleFrame, New-ConsolePanel or a dashboard).
+Returns the constructed widget.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: __AllParameterSets
+Parameter Sets: Objects, Content
 Aliases: None
 Possible values:
 
@@ -72,11 +86,11 @@ Accept wildcard characters: False
 ```
 
 ### -Border
-Border style: Rounded, Square, Double, Minimal or None.
+Table border style; default Rounded.
 
 ```yaml
 Type: TableBorder
-Parameter Sets: __AllParameterSets
+Parameter Sets: Objects, Content
 Aliases: None
 Possible values: Rounded, Square, Double, Minimal, None
 
@@ -88,11 +102,11 @@ Accept wildcard characters: False
 ```
 
 ### -Caption
-A caption below the table (markup, muted).
+A table caption.
 
 ```yaml
 Type: Object
-Parameter Sets: __AllParameterSets
+Parameter Sets: Objects, Content
 Aliases: None
 Possible values:
 
@@ -104,11 +118,11 @@ Accept wildcard characters: False
 ```
 
 ### -CardsBelow
-Below this width (in cells) rows become record cards when the grid cannot fit; 0 disables cards. Default 60.
+Table card breakpoint; default 60 cells.
 
 ```yaml
 Type: Int32
-Parameter Sets: __AllParameterSets
+Parameter Sets: Objects, Content
 Aliases: None
 Possible values:
 
@@ -119,12 +133,28 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Content
+A widget, text or script block producing display content.
+
+```yaml
+Type: Object
+Parameter Sets: Content
+Aliases: None
+Possible values:
+
+Required: True
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Culture
-The culture for numbers and dates, for example en-US or pl-PL (labels stay English). Defaults to CONSOLEMONSTER_CULTURE, then the current culture, as PowerShell's own formatting does.
+The culture used for values.
 
 ```yaml
 Type: CultureInfo
-Parameter Sets: __AllParameterSets
+Parameter Sets: Objects, Content
 Aliases: None
 Possible values:
 
@@ -136,11 +166,11 @@ Accept wildcard characters: False
 ```
 
 ### -Expand
-Uses the full available width.
+Expands a table to the available width.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: __AllParameterSets
+Parameter Sets: Objects, Content
 Aliases: None
 Possible values:
 
@@ -152,11 +182,27 @@ Accept wildcard characters: False
 ```
 
 ### -GroupBy
-Groups rows under headings by a property name or a scriptblock; with -Total each group gets a subtotal.
+Groups rows or records by a property or script block.
 
 ```yaml
 Type: Object
-Parameter Sets: __AllParameterSets
+Parameter Sets: Objects, Content
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -GroupHeadersAsRows
+Renders group headings as full-width rows.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Objects, Content
 Aliases: None
 Possible values:
 
@@ -168,27 +214,91 @@ Accept wildcard characters: False
 ```
 
 ### -InputObject
-The objects to show (pipeline input).
+The object, widget or text to display.
 
 ```yaml
 Type: PSObject
-Parameter Sets: __AllParameterSets
+Parameter Sets: Objects
+Aliases: None
+Possible values:
+
+Required: False
+Position: 0
+Default value: None
+Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -KeepAllColumns
+Renders consecutive grids when all columns cannot fit.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Objects, Content
 Aliases: None
 Possible values:
 
 Required: False
 Position: named
 Default value: None
-Accept pipeline input: True (ByValue)
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -MaxRows
+Maximum displayed rows or chart groups; zero shows all.
+
+```yaml
+Type: Int32
+Parameter Sets: Objects, Content
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NoHeader
+Suppresses the default-on header row.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Objects, Content
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -NoHeaderSeparator
-Underlines the header instead of drawing a separator row.
+Underlines headers rather than drawing a separator.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: __AllParameterSets
+Parameter Sets: Objects, Content
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NoHiddenColumns
+Suppresses the default-on hidden-column footer.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Objects, Content
 Aliases: None
 Possible values:
 
@@ -200,11 +310,27 @@ Accept wildcard characters: False
 ```
 
 ### -NoSort
-Keeps the groups of -GroupBy in the order their keys first appear (by default they are sorted by key).
+Preserves the input order of groups.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: __AllParameterSets
+Parameter Sets: Objects, Content
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NoStableWidths
+Allows column widths to shrink between renders.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Objects, Content
 Aliases: None
 Possible values:
 
@@ -216,11 +342,27 @@ Accept wildcard characters: False
 ```
 
 ### -PassThru
-Also writes the input objects to the pipeline.
+Returns the original input after display.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: __AllParameterSets
+Parameter Sets: Objects, Content
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Presentation
+Typed culture, clock and time-zone configuration for values.
+
+```yaml
+Type: PresentationOptions
+Parameter Sets: Objects, Content
 Aliases: None
 Possible values:
 
@@ -232,27 +374,107 @@ Accept wildcard characters: False
 ```
 
 ### -Property
-Properties (names, wildcards, calculated properties and column option hashtables).
+Property names, patterns or calculated column records.
 
 ```yaml
 Type: Object[]
-Parameter Sets: __AllParameterSets
+Parameter Sets: Objects, Content
 Aliases: None
 Possible values:
 
 Required: False
-Position: 0
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -RecordViewRows
+Uses labelled records at or below this row count; zero disables.
+
+```yaml
+Type: Int32
+Parameter Sets: Objects, Content
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -RowTitles
+Optional per-row titles for record and card views.
+
+```yaml
+Type: String[]
+Parameter Sets: Objects, Content
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -ShowGroupColumn
-Keeps the -GroupBy column in the rows (by default the group heading names the key and the column is left out).
+Keeps the grouped property in table rows.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: __AllParameterSets
+Parameter Sets: Objects, Content
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ShowKeyField
+Repeats the full key in record and card layouts.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Objects, Content
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ShowSubtotals
+Shows group subtotals.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Objects, Content
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ShowTotals
+Shows a totals row for numeric columns.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Objects, Content
 Aliases: None
 Possible values:
 
@@ -264,11 +486,11 @@ Accept wildcard characters: False
 ```
 
 ### -StatusProperty
-A property displayed as a semantic status marker.
+The property shown through the status presenter.
 
 ```yaml
 Type: String
-Parameter Sets: __AllParameterSets
+Parameter Sets: Objects, Content
 Aliases: None
 Possible values:
 
@@ -280,11 +502,11 @@ Accept wildcard characters: False
 ```
 
 ### -Title
-A title above the table (markup).
+The view title, including markup.
 
 ```yaml
 Type: Object
-Parameter Sets: __AllParameterSets
+Parameter Sets: Objects, Content
 Aliases: None
 Possible values:
 
@@ -295,12 +517,12 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Top
-Shows only the first N rows followed by "Showing N of M" (totals still cover every row).
+### -TitleIndent
+Optional title indentation in cells.
 
 ```yaml
 Type: Int32
-Parameter Sets: __AllParameterSets
+Parameter Sets: Objects, Content
 Aliases: None
 Possible values:
 
@@ -311,12 +533,28 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Total
-Adds a totals row; numeric columns without an Aggregate option are summed.
+### -TotalLabel
+Text for the totals row.
 
 ```yaml
-Type: SwitchParameter
-Parameter Sets: __AllParameterSets
+Type: String
+Parameter Sets: Objects, Content
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -TotalRowCount
+Total count when the input contains a subset.
+
+```yaml
+Type: Int32
+Parameter Sets: Objects, Content
 Aliases: None
 Possible values:
 
@@ -328,11 +566,11 @@ Accept wildcard characters: False
 ```
 
 ### -Width
-Lays the table out for this width instead of the terminal's (for files, logs and previews).
+Layout width; zero resolves the terminal with a 100-cell fallback.
 
 ```yaml
 Type: Int32
-Parameter Sets: __AllParameterSets
+Parameter Sets: Objects, Content
 Aliases: None
 Possible values:
 
@@ -344,11 +582,43 @@ Accept wildcard characters: False
 ```
 
 ### -Wrap
-Shows every line of long values. Without it a value wraps onto at most three lines and the last ends with an ellipsis (a column's MaxLines option still applies). Short values (numbers, sizes, booleans, dates, enums, statuses) never wrap either way.
+Wraps long table values or code lines.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: __AllParameterSets
+Parameter Sets: Objects, Content
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WrapHeaders
+Wraps column headings.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Objects, Content
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WrapLines
+Maximum wrapped lines per value; zero has no limit.
+
+```yaml
+Type: Int32
+Parameter Sets: Objects, Content
 Aliases: None
 Possible values:
 

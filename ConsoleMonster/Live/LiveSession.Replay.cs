@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Collections.Generic;
 using System.Threading;
 using ConsoleMonster.Layout;
 
@@ -12,8 +13,19 @@ namespace ConsoleMonster.Live {
         /// <param name="speed">Playback multiplier; zero or negative disables waits.</param>
         /// <param name="ct">Playback cancellation.</param>
         public static void Replay(IWidget root, TextReader jsonLines, LiveSessionOptions? options = null, double speed = 1.0, CancellationToken ct = default) {
-            if (double.IsNaN(speed) || double.IsInfinity(speed)) { throw new ArgumentOutOfRangeException(nameof(speed)); }
             if (jsonLines == null) { throw new ArgumentNullException(nameof(jsonLines)); }
+            Replay(root, LiveRecordingReader.Read(jsonLines), options, speed, ct);
+        }
+
+        /// <summary>Replays already decoded events with the same timing, cancellation and drain policy as a recording reader.</summary>
+        /// <param name="root">Target widget tree.</param>
+        /// <param name="events">Events in recording order.</param>
+        /// <param name="options">Session configuration.</param>
+        /// <param name="speed">Playback multiplier; zero or negative disables waits.</param>
+        /// <param name="ct">Playback cancellation.</param>
+        public static void Replay(IWidget root, IEnumerable<LiveEvent> events, LiveSessionOptions? options = null, double speed = 1.0, CancellationToken ct = default) {
+            if (events == null) { throw new ArgumentNullException(nameof(events)); }
+            if (double.IsNaN(speed) || double.IsInfinity(speed)) { throw new ArgumentOutOfRangeException(nameof(speed)); }
             LiveSessionOptions configuration = options ?? new LiveSessionOptions();
             using (LiveSession session = new LiveSession(root, configuration)) {
                 if (speed > 0) {
@@ -23,7 +35,7 @@ namespace ConsoleMonster.Live {
                 using (CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(ct, session.Cancellation)) {
                     TimeSpan baseline = session.RealElapsed;
                     TimeSpan requestedDelay = TimeSpan.Zero;
-                    foreach (LiveEvent liveEvent in LiveRecordingReader.Read(jsonLines)) {
+                    foreach (LiveEvent liveEvent in events) {
                         linked.Token.ThrowIfCancellationRequested();
                         if (speed > 0) {
                             double milliseconds = Math.Max(0, liveEvent.Time / speed);

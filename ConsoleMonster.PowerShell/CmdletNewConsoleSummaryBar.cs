@@ -11,14 +11,14 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example>
     ///   <para>A run three quarters through</para>
-    ///   <code>New-ConsoleSummaryBar -Done 30 -Total 40 -ElapsedSeconds 42 -Counter ([ordered] @{ passed = 27; failed = 2; skipped = 1 }) | Show-Console</code>
+    ///   <code>New-ConsoleSummaryBar -Value 30 -Total 40 -ElapsedSeconds 42 -Counter ([ordered] @{ passed = 27; failed = 2; skipped = 1 }) | Show-Console</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleSummaryBar")]
     [OutputType(typeof(SummaryBar))]
     public sealed class CmdletNewConsoleSummaryBar : PSCmdlet {
         /// <summary><para type="description">Items done.</para></summary>
         [Parameter(Position = 1)]
-        public double Done { get; set; }
+        public double Value { get; set; }
 
         /// <summary><para type="description">Items in total (0 = unknown: no bar, percentage or time left).</para></summary>
         [Parameter(Position = 2)]
@@ -41,10 +41,15 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(Position = 0)]
         public string WidgetId { get; set; } = "summary";
 
+        /// <summary><para type="description">Hides the elapsed and remaining duration.</para></summary>
+        [Parameter] public SwitchParameter NoElapsed { get; set; }
+        /// <summary><para type="description">Custom completed-count label; omitted uses the localized default.</para></summary>
+        [Parameter] public string? DoneLabel { get; set; }
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            SummaryBar bar = new SummaryBar(WidgetId) { BarWidth = BarWidth, Elapsed = Elapsed };
-            bar.SetProgress(Done, Total);
+            SummaryBar bar = new SummaryBar(WidgetId) { BarWidth = BarWidth, Elapsed = Elapsed, ShowElapsed = !NoElapsed.IsPresent, DoneLabel = DoneLabel };
+            bar.SetProgress(Value, Total);
             if (Counter != null) {
                 foreach (DictionaryEntry entry in Counter) {
                     string label = PSWidgets.ToText(entry.Key);

@@ -8,7 +8,7 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a phase strip for pipelines: Restore › Build › Test › Pack.
 
-Phases come from -Phase (names, all pending) or from a script block of New-ConsoleStatusItem calls, each with its status and a detail such as a duration. The active phase is emphasised and finished phases show their detail. To add phases later, pipe the strip to Add-ConsoleItem; in a live dashboard, update phases with Update-ConsolePhase, which also measures their duration.
+Phases come from -Phase (names, all pending) or from a script block of Key/Label/Status records calls, each with its status and a detail such as a duration. The active phase is emphasised and finished phases show their detail. To add phases later, pipe the strip to Add-ConsoleItem; in a live dashboard, update phases with Update-Console, which also measures their duration.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -19,17 +19,17 @@ New-ConsolePhases [[-WidgetId] <string>] [[-Phase] <Object[]>] [[-Content] <scri
 ## DESCRIPTION
 Creates a phase strip for pipelines: Restore › Build › Test › Pack.
 
-Phases come from -Phase (names, all pending) or from a script block of New-ConsoleStatusItem calls, each with its status and a detail such as a duration. The active phase is emphasised and finished phases show their detail. To add phases later, pipe the strip to Add-ConsoleItem; in a live dashboard, update phases with Update-ConsolePhase, which also measures their duration.
+Phases come from -Phase (names, all pending) or from a script block of Key/Label/Status records calls, each with its status and a detail such as a duration. The active phase is emphasised and finished phases show their detail. To add phases later, pipe the strip to Add-ConsoleItem; in a live dashboard, update phases with Update-Console, which also measures their duration.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
 New-ConsolePhases -Content {
-    New-ConsoleStatusItem 'Discover' -Status Pass -Detail '2.1s'
-    New-ConsoleStatusItem 'Collect' -Status Pass -Detail '14s'
-    New-ConsoleStatusItem 'Evaluate' -Status Running -Detail '64%'
-    New-ConsoleStatusItem 'Report'
+    [pscustomobject]@{ Label = 'Discover'; Status = 'Pass'; Detail = '2.1s' }
+    [pscustomobject]@{ Label = 'Collect'; Status = 'Pass'; Detail = '14s' }
+    [pscustomobject]@{ Label = 'Evaluate'; Status = 'Running'; Detail = '64%' }
+    [pscustomobject]@{ Label = 'Report' }
 } | Show-Console
 ```
 
@@ -45,7 +45,7 @@ Build phases for a live dashboard
 ## PARAMETERS
 
 ### -Content
-A script block that emits the phases: New-ConsoleStatusItem calls (or phase names).
+A script block that emits the phases: Key/Label/Status records calls (or phase names).
 
 ```yaml
 Type: ScriptBlock
@@ -61,7 +61,7 @@ Accept wildcard characters: False
 ```
 
 ### -InputObject
-Phases from the pipeline: New-ConsoleStatusItem objects or names.
+Phases from the pipeline: Key/Label/Status records objects or names.
 
 ```yaml
 Type: PSObject

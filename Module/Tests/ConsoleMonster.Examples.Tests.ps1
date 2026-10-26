@@ -45,6 +45,7 @@ BeforeDiscovery {
 
 BeforeAll {
     $script:RepositoryRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
+    . (Join-Path $PSScriptRoot 'Support/Stop-TestChildProcess.ps1')
     $script:ModulePath = Join-Path $script:RepositoryRoot 'Module\ConsoleMonster.psd1'
     $script:Runtime = [System.Diagnostics.Process]::GetCurrentProcess().Path
 
@@ -288,12 +289,13 @@ BeforeAll {
             $stdout = $process.StandardOutput.ReadToEndAsync()
             $stderr = $process.StandardError.ReadToEndAsync()
             if (-not $process.WaitForExit($TimeoutSeconds * 1000)) {
-                $process.Kill()
+                Stop-TestChildProcess -Process $process
                 return "EXAMPLE-TIMEOUT after $TimeoutSeconds seconds"
             }
             $process.WaitForExit()
             (($stdout.Result + "`n" + $stderr.Result) -replace "`r", '') -split "`n"
         } finally {
+            if (-not $process.HasExited) { Stop-TestChildProcess -Process $process }
             $process.Dispose()
             Remove-Item -LiteralPath $temp -Recurse -Force -ErrorAction SilentlyContinue
         }
@@ -301,6 +303,9 @@ BeforeAll {
 
     # How each example runs headless: arguments that skip prompts or shorten waits, scripted keys for menus, a time limit.
     $script:ExampleCases = @{
+        'Website/examples/demos/hosting/Run.ps1' = @{ ProjectLauncher = $true }
+        'Website/examples/demos/logging/Run.ps1' = @{ ProjectLauncher = $true }
+        'Website/examples/demos/template.ps1' = @{ ProjectLauncher = $true }
         # Relative recording exports belong to the child-owned temp folder, not the checked-out example directory.
         'Website/examples/recording/record-command.ps1' = @{ TemporaryWorkingDirectory = $true }
         'Website/examples/recording/record-session.ps1' = @{
@@ -418,6 +423,11 @@ Describe 'Examples run headless' -Tag 'Examples' {
         # ConsoleMonster to this repository's Module folder, first on PSModulePath in each child, makes that name load the
         # repository build instead of an installed version. ConsoleMonster.PowerShell is linked beside it because the
         # module's development loader looks for the cmdlet binaries at $PSScriptRoot\..\ConsoleMonster.PowerShell\bin.
+        # The launcher accepts any normal .NET project. Its host's service lifetime is recorded by SiteFrames.
+        # A finite producer proves forwarding, quoting and native exit handling without leaving a service running.
+        $script:LauncherProject = Join-Path $TestDrive 'project launcher/ProjectLauncher.csproj'
+        $null = New-Item -ItemType Directory -Path (Split-Path -Parent $script:LauncherProject) -Force
+        Copy-Item (Join-Path $script:RepositoryRoot 'Module/Tests/Fixtures/ProjectLauncher/*') (Split-Path -Parent $script:LauncherProject)
         $script:ModuleLinkRoot = Join-Path ([IO.Path]::GetTempPath()) ('cm-example-modules-' + $PID + '-' + [guid]::NewGuid().ToString('N').Substring(0, 8))
         $script:ModuleLinks = @(
             @{ Path = Join-Path $script:ModuleLinkRoot 'ConsoleMonster'; Target = Join-Path $script:RepositoryRoot 'Module' }
@@ -456,6 +466,10 @@ Describe 'Examples run headless' -Tag 'Examples' {
         $arguments = if ($case['Arguments']) { $case['Arguments'] } else { '' }
         $pager = if ($case['NoNativePager']) { "function global:Out-ConsoleExamplePager { param(`$PagerArguments) process { `$_ } }; `$env:PAGER = 'Out-ConsoleExamplePager'" } else { '' }
         $invoke = "& '$Path' $arguments | Out-String | Out-Null"
+        if ($case['ProjectLauncher']) {
+            $project = $script:LauncherProject.Replace("'", "''")
+            $invoke = "`$projectOutput = @(& '$Path' -Project '$project'); if ((`$projectOutput -join [Environment]::NewLine) -notmatch 'CM-PROJECT-LAUNCH') { throw 'The PowerShell launcher did not execute the supplied .NET project.' }"
+        }
         $location = if ($case['TemporaryWorkingDirectory']) {
             'Set-Location -LiteralPath ([IO.Path]::GetTempPath())'
         } else {
@@ -571,7 +585,7 @@ Describe 'Examples use the PowerShell cmdlet form' -Tag 'Examples' {
         @(Get-NativeStyleViolation -Code "`$tree = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Widgets.Tree'))::new('x')").Count | Should -Be 2
         @(Get-NativeStyleViolation -Code "`$mx.Add('a', `$null, 'b') | Out-Null").Count | Should -Be 2
         @(Get-NativeStyleViolation -Code "`$log.Write('text', 'info')").Count | Should -Be 1
-        @(Get-NativeStyleViolation -Code "New-ConsoleTree 'x' -Content { New-ConsoleTreeNode 'MX' -Status Pass }").Count | Should -Be 0
+        @(Get-NativeStyleViolation -Code "New-ConsoleTree 'x' -Content { [pscustomobject]@{ Label = 'MX'; Status = 'Pass' } }").Count | Should -Be 0
         @(Get-NativeStyleViolation -Code "#region Using the object directly`n`$log.Write('text')`n#endregion").Count | Should -Be 0
     }
 }

@@ -92,9 +92,9 @@ Describe 'Native console applications' {
         $inputSource = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('Space Tab "note" Tab Down Enter Tab Space Escape')
         $result = Show-ConsoleApp -Content {
             New-ConsoleToggle -Key Enabled -OnChange $changed
-            New-ConsoleTextArea -Key Notes -Height 3 -OnChange $changed
+            New-ConsoleTextInput -Key Notes -Height 3 -OnChange $changed -Multiline
             New-ConsoleSelect -Key Site -Choices 'Warsaw', 'Berlin' -OnChange $changed
-            New-ConsoleMultiSelect -Key Sites -Choices 'Warsaw', 'Berlin' -OnChange $changed
+            New-ConsoleSelect -Key Sites -Choices 'Warsaw', 'Berlin' -OnChange $changed -Multiple
         } -InputSource $inputSource -Capture $capture -PassThru
 
         $result.Enabled | Should -BeTrue
@@ -117,10 +117,10 @@ Describe 'Native console applications' {
         $calls = [System.Collections.Generic.List[string]]::new()
         $result = Show-ConsoleApp -Content {
             New-ConsoleTextInput -Key Query -Label Filter -Value seed -Placeholder Search -MaxLength 20 -OnChange { $calls.Add('change') }
-            New-ConsoleTextArea -Key Notes -Value 'Draft' -Height 3 -MaxLength 80 -Placeholder Notes
+            New-ConsoleTextInput -Key Notes -Value 'Draft' -Height 3 -MaxLength 80 -Placeholder Notes -Multiline
             New-ConsoleToggle -Key Enabled -Value $true -Disabled -TabIndex 2
             New-ConsoleSelect -Key Site -Choices $choice, $other -Display Name -Value $choice
-            New-ConsoleMultiSelect -Key Sites -Choices 'Warsaw', 'Berlin' -Value Warsaw
+            New-ConsoleSelect -Key Sites -Choices 'Warsaw', 'Berlin' -Value Warsaw -Multiple
             New-ConsoleButton -Key Apply -OnClick { $calls.Add('click') }
             New-ConsoleTable -Bind { param($State) [pscustomobject]@{ Query = $State.Query } } -Property Query
         } -StaticSnapshot -Mode None -InputSource $inputSource -Capture $capture -PassThru

@@ -46,7 +46,7 @@ namespace ConsoleMonster.Interactive {
 
         private void Refresh() {
             try {
-                _model = _item.ReviewFactory?.Invoke(_context()) ?? new ReviewModel();
+                _model = _item.Review?.Invoke(_context()) ?? new ReviewModel();
             } catch (Exception ex) {
                 _model = new ReviewModel();
                 _model.Problem(ex.Message);

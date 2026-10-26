@@ -25,9 +25,9 @@ DemoOptions options = new DemoOptions {
     Recording = new SessionRecordingOptions { Path = Path.Combine(output, "talk.cast"), Shell = "pwsh", Width = 80, Height = 12 }
 };
 if (Array.IndexOf(args, "--present") >= 0) {
-    ConsoleDemo.Present(script, options, stepChanged: (step, total) => Console.Error.WriteLine("[demo " + step + "/" + total + "]"));
+    ConsolePresentation.Present(script, options, stepChanged: (step, total) => Console.Error.WriteLine("[demo " + step + "/" + total + "]"));
 } else {
-    ConsoleDemo.Record(script, options);
+    ConsolePresentation.Record(script, options);
 }
 SessionRecording recording = SessionRecording.Read(options.Recording.Path);
 var graphics = new GraphicsExportOptions {

@@ -26,8 +26,8 @@ KeyValueList stats = new KeyValueList("stats")
     .Add("CPU share", "-")
     .Add("Captured lines", "0")
     .Add("Dropped / errors", "0 / 0");
-Sparkline rate = new Sparkline("rate").WithHeight(3).WithUnit("/s");
-LineChart cpu = new LineChart("cpu").WithHeight(6).WithMinimum(0).WithUnit("%");
+Sparkline rate = new Sparkline("rate").Height(3).Unit("/s");
+LineChart cpu = new LineChart("cpu").Height(6).Minimum(0).Unit("%");
 cpu.AddSeries("cpu", ThemeToken.Accent2);
 
 Dashboard dashboard = new DashboardBuilder("[bold]Stress test[/]")

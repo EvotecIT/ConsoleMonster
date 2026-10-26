@@ -37,12 +37,12 @@ namespace ConsoleMonster.Layout {
         /// <summary>Returns constraints with a different maximum width.</summary>
         /// <param name="maxWidth">The width.</param>
         /// <returns>New constraints.</returns>
-        public Constraints WithWidth(int maxWidth) => new Constraints(maxWidth, MaxHeight);
+        public Constraints Width(int maxWidth) => new Constraints(maxWidth, MaxHeight);
 
         /// <summary>Returns constraints with a different maximum height.</summary>
         /// <param name="maxHeight">The height.</param>
         /// <returns>New constraints.</returns>
-        public Constraints WithHeight(int maxHeight) => new Constraints(MaxWidth, maxHeight);
+        public Constraints Height(int maxHeight) => new Constraints(MaxWidth, maxHeight);
 
         /// <inheritdoc />
         public override string ToString() => MaxWidth + "x" + (IsHeightUnbounded ? "inf" : MaxHeight.ToString(System.Globalization.CultureInfo.InvariantCulture));

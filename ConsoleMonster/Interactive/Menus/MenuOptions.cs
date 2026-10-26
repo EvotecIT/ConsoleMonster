@@ -29,5 +29,9 @@ namespace ConsoleMonster.Interactive {
 
         /// <summary>The narrowest window that still shows the sidebar.</summary>
         public int SidebarMinimumWidth { get; set; } = 84;
+        /// <summary>Copies this configuration; explicitly supplied nested devices and callbacks remain shared.</summary>
+        /// <returns>A distinct options object with the same values.</returns>
+        public MenuOptions Clone() => (MenuOptions)MemberwiseClone();
+
     }
 }

@@ -13,7 +13,7 @@ This is what Enable-ConsoleFormatting puts behind Out-Default. Consecutive objec
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Out-ConsoleDefault [-Width <int>] [-InputObject <psobject>] [-Transcript] [-Force] [-Format <string>] [<CommonParameters>]
+Out-ConsoleDefault [-InputObject <psobject>] [-Transcript] [-Force] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -48,22 +48,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Format
-Serializes the output to Text, Markdown or Html instead of displaying it.
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values: Text, Markdown, Html, FencedText
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -InputObject
 The objects to show.
 
@@ -85,22 +69,6 @@ Passed to Out-Default (the host transcribes the output).
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Width
-Width in cells for an exported document (default 0: terminal width, falling back to 100).
-
-```yaml
-Type: Int32
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

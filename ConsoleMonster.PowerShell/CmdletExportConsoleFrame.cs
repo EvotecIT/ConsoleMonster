@@ -88,6 +88,14 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Installed raster font; omitted uses embedded JetBrains Mono.</para></summary>
         [Parameter] public string? FontFamily { get; set; }
 
+        /// <summary><para type="description">Typed C# ExportOptions, including custom themes, glyphs, culture and document settings. Use this instead of individual frame-rendering settings; the object is not modified.</para></summary>
+        [Parameter, ValidateNotNull] public ExportOptions? Options { get; set; }
+
+        /// <summary><para type="description">Maximum raster font size in pixels; default 72.</para></summary>
+        [Parameter, ValidateRange(0.01, 4096)] public double MaxFontSize { get; set; } = 72;
+        /// <summary><para type="description">Additional raster font-family fallbacks, in preferred order.</para></summary>
+        [Parameter] public string[]? FontFallbacks { get; set; }
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (InputObject != null) {
@@ -107,17 +115,17 @@ namespace ConsoleMonster.PowerShell {
             bool graphics = string.Equals(requested, "Png", System.StringComparison.OrdinalIgnoreCase);
             string format = graphics ? "Svg" : PSOutputExport.FormatFor(Format, Path);
             if (format == "Asciicast") { format = "Text"; }
-            ExportOptions options = new ExportOptions {
+            ExportOptions options = PSOptions.Resolve(this, Options, () => new ExportOptions {
                 Width = Width,
                 Height = Height,
                 Theme = Theme,
                 Title = Title,
                 WindowChrome = (MyInvocation.BoundParameters.ContainsKey(nameof(WindowChrome)) ? WindowChrome.IsPresent : MyInvocation.BoundParameters.ContainsKey(nameof(ChromeStyle))), ChromeStyle = ChromeStyle,
                 FontSize = FontSize
-            };
+            }, nameof(Width), nameof(Height), nameof(Theme), nameof(Title), nameof(WindowChrome), nameof(ChromeStyle), nameof(FontSize));
             if (graphics) {
                 string? target = Path == null ? null : SessionState.Path.GetUnresolvedProviderPathFromPSPath(Path);
-                object result = GraphicsExportBridge.Frame(_items, target, Preset, FontFamily, Fit, Background, BackgroundColor, BackgroundEndColor, options, this);
+                object result = GraphicsExportBridge.Frame(_items, target, Preset, FontFamily, Fit, Background, BackgroundColor, BackgroundEndColor, options, this, MaxFontSize, FontFallbacks);
                 if (target == null || PassThru.IsPresent) { WriteObject(result, false); }
                 return;
             }

@@ -45,21 +45,26 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public InteractionMode? Mode { get; set; }
 
+        /// <summary><para type="description">Typed C# MenuOptions configuration. Use this instead of individual interaction settings; omitted host devices use the owning PowerShell runspace and the supplied object is not modified.</para></summary>
+        [Parameter, ValidateNotNull] public MenuOptions? Options { get; set; }
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (Menu == null) {
                 return;
             }
-            _stop = new CancellationTokenSource();
-            try {
-                Menu.Run(new MenuOptions {
+            MenuOptions options = PSOptions.Resolve(this, Options, () => new MenuOptions {
                     Layout = Layout,
                     Interactive = PSInteractive.Options(this, Mode),
                     AppName = AppName,
                     RememberLastChoices = RememberLastChoices.IsPresent,
                     StorageRoot = StorageRoot,
                     CommandPalette = !NoCommandPalette.IsPresent
-                }, _stop.Token);
+                }, nameof(Layout), nameof(AppName), nameof(RememberLastChoices), nameof(StorageRoot), nameof(NoCommandPalette), nameof(Mode)).Clone();
+            options.Interactive ??= PSInteractive.Options(this, null);
+            _stop = new CancellationTokenSource();
+            try {
+                Menu.Run(options, _stop.Token);
             } catch (Exception ex) when (ex is PromptCanceledException || ex is PromptUnavailableException || ex is Input.InputClosedException) {
                 PSInteractive.Fail(this, ex, Menu.Title);
             } catch (OperationCanceledException) {

@@ -37,38 +37,38 @@ $report = New-ConsoleRows -Gap 1 -Content {
     New-ConsoleRule -Title '[bold]DNS query results[/] [muted]· example.test[/]'
     New-ConsolePadding -Padding 1, 0 -Content {
         New-ConsoleKeyValue -Content {
-            New-ConsoleKeyValueItem -Key Domain -Value '[bold]example.test[/]' -Markup
-            New-ConsoleKeyValueItem -Key Resolver -Value 'Edge west DNS over HTTPS [muted](192.0.2.53)[/]' -Markup
-            New-ConsoleKeyValueItem -Key 'Query time' -Value '38 ms [muted]for 7 record types[/]' -Markup
-            New-ConsoleKeyValueItem -Key Records -Value '10'
-            New-ConsoleKeyValueItem -Key DNSSEC -Value 'not signed' -Status Warn
+            [pscustomobject]@{ Key = 'Domain'; Value = '[bold]example.test[/]'; Markup = $true }
+            [pscustomobject]@{ Key = 'Resolver'; Value = 'Edge west DNS over HTTPS [muted](192.0.2.53)[/]'; Markup = $true }
+            [pscustomobject]@{ Key = 'Query time'; Value = '38 ms [muted]for 7 record types[/]'; Markup = $true }
+            [pscustomobject]@{ Key = 'Records'; Value = '10' }
+            [pscustomobject]@{ Key = 'DNSSEC'; Value = 'not signed'; Status = 'Warn' }
         }
     }
     $records | New-ConsoleTable -Property Name, Type, TTL, Data -Expand -NoHeaderSeparator
     New-ConsoleColumns -Content {
         New-ConsolePanel -Title Delegation -Content {
             New-ConsoleTree -Title '[bold].[/] [muted]root[/]' -Content {
-                New-ConsoleTreeNode -Label '[bold]test.[/]' -Detail 'reserved namespace' -Content {
-                    New-ConsoleTreeNode -Label 'ns.test' -Detail '192.0.2.42'
-                    New-ConsoleTreeNode -Label '[bold]example.test.[/]' -Detail '2 name servers' -Content {
-                        New-ConsoleTreeNode -Label 'ns1.example.test' -Status Pass -Detail '198.51.100.103 · 12 ms'
-                        New-ConsoleTreeNode -Label 'ns2.example.test' -Status Pass -Detail '203.0.113.149 · 14 ms'
-                        New-ConsoleTreeNode -Label mail -Detail 'MX target' -Content {
-                            New-ConsoleTreeNode -Label 'mail.example.test' -Status Pass -Detail '192.0.2.17'
-                        }
-                    }
-                }
+                [pscustomobject]@{ Label = (New-ConsoleText -Markup '[bold]test.[/]'); Detail = 'reserved namespace'; Children = @(& {
+                    [pscustomobject]@{ Label = 'ns.test'; Detail = '192.0.2.42' }
+                    [pscustomobject]@{ Label = (New-ConsoleText -Markup '[bold]example.test.[/]'); Detail = '2 name servers'; Children = @(& {
+                        [pscustomobject]@{ Label = 'ns1.example.test'; Status = 'Pass'; Detail = '198.51.100.103 · 12 ms' }
+                        [pscustomobject]@{ Label = 'ns2.example.test'; Status = 'Pass'; Detail = '203.0.113.149 · 14 ms' }
+                        [pscustomobject]@{ Label = 'mail'; Detail = 'MX target'; Children = @(& {
+                            [pscustomobject]@{ Label = 'mail.example.test'; Status = 'Pass'; Detail = '192.0.2.17' }
+                        }) }
+                    }) }
+                }) }
             }
         }
         New-ConsolePanel -Title 'Mail security' -HeaderRight $domain -Content {
             New-ConsoleRows -Gap 0 -Content {
                 New-ConsoleStatusList -Content {
                     foreach ($check in $checks) {
-                        New-ConsoleStatusItem -Label $check[0] -Status $check[1] -Detail $check[2]
+                        [pscustomobject]@{ Label = $check[0]; Status = $check[1]; Detail = $check[2] }
                     }
                 }
                 New-ConsoleRule
-                New-ConsoleBarChart -WidgetId latency -Unit ' ms' -InputObject $resolvers
+                New-ConsoleChart -WidgetId latency -Unit ' ms' -InputObject $resolvers -Type Bar
             }
         }
     }
