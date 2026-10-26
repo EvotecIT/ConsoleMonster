@@ -51,7 +51,12 @@ namespace SiteFrames.Capture {
                     } else if (node is InvocationExpressionSyntax call && call.Expression is MemberAccessExpressionSyntax member
                         && model.GetSymbolInfo(call).Symbol is IMethodSymbol
                         && model.GetTypeInfo(member.Expression).Type is INamedTypeSymbol receiver) {
-                        Add(result, Find(receiver, member.Name.Identifier.ValueText));
+                        string name = member.Name.Identifier.ValueText;
+                        var method = (IMethodSymbol)model.GetSymbolInfo(call).Symbol!;
+                        var parameters = (method.ReducedFrom ?? method).Parameters;
+                        bool boolean = parameters.Length > 1 && parameters[1].Type.SpecialType == SpecialType.System_Boolean || parameters.Length == 1 && method.IsExtensionMethod;
+                        var flag = boolean ? Find(receiver, "Is" + name) : null;
+                        Add(result, flag?.Type.SpecialType == SpecialType.System_Boolean ? flag : Find(receiver, name));
                     } else if (node is ArgumentSyntax argument && model.GetOperation(argument) is IArgumentOperation operation
                         && operation.Parameter is IParameterSymbol parameter && parameter.ContainingSymbol is IMethodSymbol owner) {
                         if (owner.ContainingNamespace.ToDisplayString().StartsWith("ConsoleMonster", StringComparison.Ordinal)) {

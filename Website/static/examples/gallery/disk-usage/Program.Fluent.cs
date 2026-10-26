@@ -17,15 +17,8 @@ var folders = new FolderRow[]
     new("./cache", new[] { ("dependencies", "63 GiB"), ("downloads", "25 GiB") }),
     new("./artifacts", new[] { ("current", "18 GiB"), ("history", "76 GiB") })
 };
-
 // Layout: bars answer where pressure is; the tree explains what occupies the space.
-BarChart chart = Ui.Chart()
-    .Type(ConsoleMonster.Widgets.ChartType.Bar)
-    .Maximum(100)
-    .Unit("%")
-    .Warning(80)
-    .Critical(90)
-    .Build<BarChart>();
+BarChart chart = Ui.Chart().Type(ConsoleMonster.Widgets.ChartType.Bar).Maximum(100).Unit("%").Warning(80).Critical(90).Build<BarChart>();
 foreach (var volume in used)
     chart.Add(volume.Name, volume.Percent);
 Tree tree = Ui.Tree().Title("./");
@@ -54,21 +47,12 @@ Rows report = Ui.Rows().Gap(1).Content(c3 =>
     {
         c2.Rows(cmRows => cmRows.Content(c =>
         {
-            c.Text(
-                cText => cText.Content(
-                    "[warn]Artifacts is at 94%.[/] Review the retention policy before the next build.")
-                    .IsMarkup());
-            c.Text(
-                cText => cText.Content(
-                    "[muted]Keep the current release; archive history older than 30 days.[/]")
-                    .IsMarkup());
+            c.Markup("[warn]Artifacts is at 94%.[/] Review the retention policy before the next build.");
+            c.Markup("[muted]Keep the current release; archive history older than 30 days.[/]");
         }));
     }));
 });
-
 // Behaviour: print once. Review recommendations before connecting any cleanup action.
 report.Show();
-
 record UsedRow(string Name, int Percent);
-
 record FolderRow(string Path, (string Label, string Size)[] Children);

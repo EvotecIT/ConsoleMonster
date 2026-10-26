@@ -51,7 +51,7 @@ var artifacts = new[] {
 };
 Terminal.Write(Table.For(artifacts)
     .Column(a => a.Artifact, c => c
-        .IsKey()
+        .Key()
         .Overflow(ColumnOverflow.Never))
     .Column(a => a.Size, c => c
         .Presenter(CellPresenters.Bytes)

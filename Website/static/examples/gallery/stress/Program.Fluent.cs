@@ -42,8 +42,7 @@ IWidget Frame(int tick)
             lane.Value(tick == 6 ? 100000 : tick * 3200 + id * 97 % 400);
             lane.Failed((int)lane.Value / 97);
             lane.Warned((int)lane.Value / 17);
-            lane.Passed((int)lane.Value - lane.Failed - lane.Warned);
-            lane.Status(tick == 6 ? StatusKind.Pass : StatusKind.Running);
+            lane.Passed((int)lane.Value - lane.Failed - lane.Warned).Status(tick == 6 ? StatusKind.Pass : StatusKind.Running);
             lane.Detail(actions[(id + tick) % actions.Length] + " item " + Number(lane.Value));
         }
     }

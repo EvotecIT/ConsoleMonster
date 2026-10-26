@@ -39,10 +39,14 @@ namespace ConsoleMonster {
         /// <returns>The empty scrolling container.</returns>
         public static ScrollView ScrollView() => new ScrollView();
 
-        /// <summary>Literal text; use Content(markup).IsMarkup() for explicit markup.</summary>
+        /// <summary>Literal text; use Ui.Markup(markup) for explicit markup.</summary>
         /// <param name="text">The primary input.</param>
-        /// <returns>The literal text; use Content(markup).IsMarkup() for explicit markup.</returns>
+        /// <returns>The literal text; use Ui.Markup(markup) for explicit markup.</returns>
         public static TextBlock Text(string text = "") => TextBlock.Plain(text);
+
+        /// <summary>Markup text, matching New-ConsoleText -Markup.</summary>
+        /// <param name="markup">The markup input.</param><returns>The markup text widget.</returns>
+        public static TextBlock Markup(string markup) => new TextBlock(markup);
 
         /// <summary>Horizontal rule with an optional primary title.</summary>
         /// <param name="title">The primary input.</param>

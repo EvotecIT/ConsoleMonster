@@ -67,6 +67,11 @@ namespace SiteFrames.Capture {
                 if (RootFactory(value) is InvocationExpressionSyntax factory && factory.Expression is MemberAccessExpressionSyntax member
                     && member.Name.Identifier.ValueText is not ("Options" or "RichText")) {
                     string noun = member.Name.Identifier.ValueText;
+                    if (value == factory && factory.ArgumentList.Arguments.Count == 1 && noun is "Text" or "Markup" or "Rule") {
+                        return SyntaxFactory.ParseExpression(content + " => " + content + "." + noun + factory.ArgumentList);
+                    }
+                    if (noun == "Markup") { noun = "Text"; }
+
                     if (factory.ArgumentList.Arguments.Count == 0 && noun is not ("Chart" or "Progress" or "Select" or "TextInput" or "Button" or "Toggle" or "Binding")) {
                         string configured = Unique(noun, value);
                         ExpressionSyntax configuration = value.ReplaceNode(factory, SyntaxFactory.IdentifierName(configured));

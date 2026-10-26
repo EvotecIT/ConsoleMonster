@@ -80,6 +80,15 @@ namespace SiteFrames.Pages {
                 result.Add(new JsonObject { ["powershell"] = command + KindArgument(map, command, initializerType),["csharp"] = noun == "Table" && used.Contains("M:ConsoleMonster.Widgets.Table.For") ? "Table.For(rows)" : "new " + initializerType + "(…)", ["fluent"] = factory["Pattern"]!.GetValue<string>(), ["memberId"] = methodId, ["note"] = reason });
                 break;
             }
+            JsonObject markup = map["FluentGrammar"]!["Markup"]!.AsObject();
+            if (used.Contains("M:ConsoleMonster.Ui.Markup") || used.Contains("M:ConsoleMonster.Layout.ContentBuilder.Markup")) {
+                result.Add(new JsonObject {
+                    ["powershell"] = markup["PowerShellPattern"]!.GetValue<string>(),
+                    ["csharp"] = markup["InitializerPattern"]!.GetValue<string>(),
+                    ["fluent"] = markup["FluentPattern"]!.GetValue<string>() + "; " + markup["NestedPattern"]!.GetValue<string>(),
+                    ["memberId"] = used.Contains("M:ConsoleMonster.Ui.Markup") ? "M:ConsoleMonster.Ui.Markup" : "M:ConsoleMonster.Layout.ContentBuilder.Markup", ["note"] = markup["Reason"]!.GetValue<string>()
+                });
+            }
             var contentCommands = new HashSet<string>(StringComparer.Ordinal);
             JsonObject contentRule = map["FluentGrammar"]!["Content"]!.AsObject();
             foreach (JsonNode? contentNode in contentRule["Bindings"]!.AsArray()) {
@@ -93,6 +102,32 @@ namespace SiteFrames.Pages {
                     ["csharp"] = binding["InitializerPattern"]!.GetValue<string>(),
                     ["fluent"] = contentRule["FluentPattern"]!.GetValue<string>(), ["memberId"] = methodId
                 });
+            }
+            foreach (JsonNode? optionNode in map["FluentGrammar"]!["OperationOptions"]!.AsArray()) {
+                JsonObject operation = optionNode!.AsObject();
+                string owner = operation["CSharpType"]!.GetValue<string>();
+                string operationId = "M:" + owner + "." + operation["Member"]!.GetValue<string>();
+                string optionsType = operation["OptionsType"]!.GetValue<string>();
+                var optionRows = rows.Values.Where(row => row.Binding["CSharpType"]!.GetValue<string>() == optionsType)
+                    .OrderBy(row => Rank(row.Binding["Member"]!.GetValue<string>())).Take(2).ToArray();
+                if (result.Count >= 5 || !used.Contains(operationId) || optionRows.Length == 0) { continue; }
+                string chain = "o => o" + string.Concat(optionRows.Select(row => {
+                    string member = row.Binding["Member"]!.GetValue<string>();
+                    string type = row.Binding["CSharpTypeName"]!.GetValue<string>();
+                    if (type.StartsWith("System.Action", StringComparison.Ordinal) || type.StartsWith("System.Func", StringComparison.Ordinal)) {
+                        JsonObject exception = map["FluentExceptions"]!.AsArray().Single(rule => rule!["Kind"]!.GetValue<string>() == "DelegateProperty")!.AsObject();
+                        return exception["Pattern"]!.GetValue<string>().Replace("{Member}", member, StringComparison.Ordinal);
+                    }
+                    string fluentMember = type == "System.Boolean" && member.Length > 2 && member.StartsWith("Is", StringComparison.Ordinal) && char.IsUpper(member[2]) ? member.Substring(2) : member;
+                    return "." + fluentMember + "(…)";
+                }));
+                result.Add(new JsonObject {
+                    ["powershell"] = optionRows[0].Command + string.Concat(optionRows.Select(row => " -" + row.Binding["Parameter"]!.GetValue<string>() + " …")),
+                    ["csharp"] = "new " + optionsType.Substring(optionsType.LastIndexOf('.') + 1) + " { … }",
+                    ["fluent"] = owner.Substring(owner.LastIndexOf('.') + 1) + "." + operation["Member"]!.GetValue<string>() + "(…, " + chain + ")",
+                    ["memberId"] = operationId, ["note"] = operation["Reason"]!.GetValue<string>()
+                });
+                break;
             }
             foreach (var row in rows.Where(pair => pair.Value.Binding["Parameter"]!.GetValue<string>() != "Content" || !contentCommands.Contains(pair.Value.Command))
                 .OrderBy(pair => Rank(pair.Value.Binding["Member"]!.GetValue<string>())).ThenBy(pair => pair.Key, StringComparer.Ordinal).Take(6 - result.Count)) {
@@ -112,6 +147,7 @@ namespace SiteFrames.Pages {
                 string? collectionAdd = binding["FluentMember"]?.GetValue<string>();
                 bool contentBuilder = parameter == "Content" && used.Any(key => key.StartsWith("M:", StringComparison.Ordinal) && key.EndsWith("Fluent.Content", StringComparison.Ordinal));
                 bool boolSwitch = isSwitch && valueType == "System.Boolean";
+                string fluentMember = valueType == "System.Boolean" && member.Length > 2 && member.StartsWith("Is", StringComparison.Ordinal) && char.IsUpper(member[2]) ? member.Substring(2) : member;
                 if (callbackRule != null) { note = (note == null ? string.Empty : note + " ") + callbackRule["Reason"]!.GetValue<string>(); }
                 if (valueType != null && typeof(ConsoleMonster.Terminal).Assembly.GetType(valueType)?.IsEnum == true) {
                     string owner = binding["CSharpType"]!.GetValue<string>();
@@ -123,9 +159,9 @@ namespace SiteFrames.Pages {
                         : "@{ " + recordKind + recordField + " = … } | " + row.Value.Command,
                     ["csharp"] = member + " = " + (collectionAdd == null ? value : "{ " + value + " }"),
                     ["fluent"] = contentBuilder ? map["FluentGrammar"]!["Content"]!["FluentPattern"]!.GetValue<string>()
-                        : boolSwitch ? map["FluentGrammar"]!["Boolean"]![conversion == "BooleanInversion" ? "DisabledPattern" : "EnabledPattern"]!.GetValue<string>().Replace("{Member}", member, StringComparison.Ordinal)
+                        : boolSwitch ? map["FluentGrammar"]!["Boolean"]![conversion == "BooleanInversion" ? "DisabledPattern" : "EnabledPattern"]!.GetValue<string>().Replace("{Member}", fluentMember, StringComparison.Ordinal)
                         : collectionAdd != null ? "." + collectionAdd + "(" + value + ")"
-                        : callbackRule == null ? "." + member + "(" + value + ")" : callbackRule["Pattern"]!.GetValue<string>().Replace("{Member}", member, StringComparison.Ordinal),
+                        : callbackRule == null ? "." + fluentMember + "(" + value + ")" : callbackRule["Pattern"]!.GetValue<string>().Replace("{Member}", member, StringComparison.Ordinal),
                     ["memberId"] = row.Key,
                     ["note"] = note
                 });

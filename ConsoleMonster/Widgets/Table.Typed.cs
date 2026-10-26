@@ -20,7 +20,7 @@ namespace ConsoleMonster.Widgets {
     /// <code>
     /// Table.For(servers)
     ///     .Title("Servers")
-    ///     .Column(s => s.Name, c => c.IsKey())
+    ///     .Column(s => s.Name, c => c.Key())
     ///     .Column(s => s.Ram, c => c.Presenter(CellPresenters.Bytes))
     ///     .Totals();
     /// </code>

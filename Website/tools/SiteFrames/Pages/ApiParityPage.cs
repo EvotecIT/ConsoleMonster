@@ -22,6 +22,8 @@ namespace SiteFrames.Pages {
             }
             body.AppendLine("## Fluent construction and nesting\n");
             body.AppendLine("Ui is the fluent entry point: New-ConsolePanel becomes Ui.Panel(), named settings stay in the chain, and nested Content uses c.Panel(panel => …). Initializers retain constructors. Factories accept no positional configuration; the recorded primary inputs below are the only exceptions. Chart, Progress and kind-selected inputs materialize their existing typed options through the shared Build operation.\n");
+            body.AppendLine("Literal text uses `Ui.Text(text)` or `c.Text(text)`; PowerShell `-Markup` uses `Ui.Markup(markup)` or `c.Markup(markup)`. Boolean properties named IsX keep that property in initializers and use `.X()` / `.X(false)` in fluent chains. Adjacent configuration stays in one chain.\n");
+            body.AppendLine("Operation options use a typed configure callback, for example `ConsoleRun.ForEachAsync(items, work, o => o.ThrottleLimit(2).Title(\"Build\"))`. The operation creates fresh defaults, invokes the callback once and delegates to its existing implementation. `Ui.Options<T>()` is removed.\n");
             body.AppendLine("| PowerShell constructor | Fluent entry | Nested builder |\n| --- | --- | --- |");
             foreach (JsonNode? node in map["FluentGrammar"]!["Entry"]!["Factories"]!.AsArray()) {
                 JsonObject factory = node!.AsObject();

@@ -50,7 +50,7 @@ namespace SiteFrames.Capture {
                     return StageArguments(original, visited, type, ctor);
                 }
                 string typeArgs = type.IsGenericType ? "<" + string.Join(", ", type.TypeArguments.Select(t => t.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat))) + ">" : string.Empty;
-                ExpressionSyntax result = SyntaxFactory.ParseExpression(options ? "Ui.Options<" + type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat) + ">()" : "Ui." + noun + typeArgs + "()");
+                ExpressionSyntax result = SyntaxFactory.ParseExpression(options ? "new " + type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat) + "()" : "Ui." + noun + typeArgs + "()");
                 if (chartType != null) { result = Call(result, "Type", SyntaxFactory.ParseExpression("ConsoleMonster.Widgets.ChartType." + chartType)); }
                 if (type.Name == "Spinner") { result = Call(result, "Indeterminate"); }
                 bool build = input || progress || chartType != null || type.Name is "AppBinding" or "AppCommand";
@@ -69,7 +69,7 @@ namespace SiteFrames.Capture {
                         if (contentParameters.Add(p.Name)) { result = Call(result, "Content", ConstructorContents(original, visited, ctor, p)); }
                         continue;
                     }
-                    if (type.Name == "TextBlock" && p.Name == "markup") { result = Call(Call(result, "Content", value), "IsMarkup"); continue; }
+                    if (type.Name == "TextBlock" && p.Name == "markup") { result = SyntaxFactory.ParseExpression("Ui.Markup(" + value + ")"); continue; }
                     if (type.Name == "Grid" && noun == "LayoutGrid" && p.Name == "columns") { member = "Columns"; }
                     if (type.Name == "Logo" && p.Name == "text") { member = "Text"; }
                     if (type.Name == "AppBinding" && p.Name == "content" || type.Name == "AppCommand" && p.Name == "action") {
@@ -121,7 +121,7 @@ namespace SiteFrames.Capture {
                         } else {
                             result = property.Type.TypeKind == TypeKind.Delegate
                                 ? Call(result, "Configure", SyntaxFactory.ParseExpression(Callback(property.Name, assignment.Right)))
-                                : Call(result, property.Name, assignment.Right);
+                                : Call(result, FluentSourceRewriter.FluentName(property), assignment.Right);
                         }
                     }
                 }
@@ -177,6 +177,11 @@ namespace SiteFrames.Capture {
                 if (factory?.Expression is not MemberAccessExpressionSyntax factoryAccess) { return visited; }
                 string noun = factoryAccess.Name.Identifier.ValueText;
                 if (noun is "Options" or "RichText") { return visited; }
+                if (factory.ArgumentList.Arguments.Count > 0 && value == factory && noun is "Text" or "Markup" or "Rule") {
+                    return visited.WithExpression(((MemberAccessExpressionSyntax)visited.Expression).WithName(SyntaxFactory.IdentifierName(noun)))
+                        .WithArgumentList(factory.ArgumentList);
+                }
+                if (noun == "Markup") { noun = "Text"; }
                 if (factory.ArgumentList.Arguments.Count > 0) {
                     return visited.WithExpression(((MemberAccessExpressionSyntax)visited.Expression).WithName(SyntaxFactory.IdentifierName(noun)));
                 }

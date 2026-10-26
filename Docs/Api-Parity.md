@@ -15,6 +15,10 @@ Callback properties use `.Configure(item => item.Action = …)`. C# invokes a de
 
 Ui is the fluent entry point: New-ConsolePanel becomes Ui.Panel(), named settings stay in the chain, and nested Content uses c.Panel(panel => …). Initializers retain constructors. Factories accept no positional configuration; the recorded primary inputs below are the only exceptions. Chart, Progress and kind-selected inputs materialize their existing typed options through the shared Build operation.
 
+Literal text uses `Ui.Text(text)` or `c.Text(text)`; PowerShell `-Markup` uses `Ui.Markup(markup)` or `c.Markup(markup)`. Boolean properties named IsX keep that property in initializers and use `.X()` / `.X(false)` in fluent chains. Adjacent configuration stays in one chain.
+
+Operation options use a typed configure callback, for example `ConsoleRun.ForEachAsync(items, work, o => o.ThrottleLimit(2).Title("Build"))`. The operation creates fresh defaults, invokes the callback once and delegates to its existing implementation. `Ui.Options<T>()` is removed.
+
 | PowerShell constructor | Fluent entry | Nested builder |
 | --- | --- | --- |
 | `New-ConsoleActivityList` | `Ui.ActivityList()` | `c.ActivityList(widget => …)` |
@@ -74,6 +78,7 @@ Ui is the fluent entry point: New-ConsolePanel becomes Ui.Panel(), named setting
 | `Ui.Table(items)` | `New-ConsoleTable -InputObject` | A single typed row sequence is the primary table input. |
 | `Ui.Text(text)` | `New-ConsoleText -Text` | Literal text is the primary input; brackets stay literal. |
 | `Ui.Rule(title)` | `New-ConsoleRule -Title` | The rule title is the primary separator input. |
+| `Ui.Markup(markup)` | `New-ConsoleText -Markup` | Explicit -Markup value; unlike Text it is named in PowerShell, because a string cannot select two positional parameter meanings. |
 
 ## Parameter-set mappings
 

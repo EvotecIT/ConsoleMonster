@@ -236,7 +236,7 @@ namespace ConsoleMonster.Generators {
                 string propertyType = property.Type.ToDisplayString(TypeFormat);
                 string propertyDoc = property.GetDocumentationCommentId() ?? property.Name;
                 string summary = Summary(property);
-                string with = property.Name;
+                string with = FluentName(property);
                 // C# invokes a delegate property before considering an extension with the same name.
                 if (property.Type.TypeKind == TypeKind.Delegate) { continue; }
                 ITypeSymbol? item = CollectionItem(property.Type);
@@ -358,12 +358,12 @@ namespace ConsoleMonster.Generators {
             IMethodSymbol? factory = ui?.GetMembers().OfType<IMethodSymbol>().FirstOrDefault(method => method.IsStatic && !method.IsGenericMethod
                 && method.Parameters.All(parameter => parameter.IsOptional) && SymbolEqualityComparer.Default.Equals(method.ReturnType, type));
             string entry = factory == null ? receiver : "Ui." + factory.Name + "()";
-            if (type.Name == "TextBlock" && factory != null) { entry += ".IsMarkup()"; }
+            if (type.Name == "TextBlock" && factory != null) { entry += ".Markup()"; }
             if (factory == null && type.Name.EndsWith("Options", StringComparison.Ordinal) && type.InstanceConstructors.Any(ctor => ctor.DeclaredAccessibility == Accessibility.Public && ctor.Parameters.Length == 0)) {
-                entry = "Ui.Options<" + type.ToDisplayString(TypeFormat) + ">()";
+                entry = receiver;
             }
             string fluent = entry + (property.Type.TypeKind == TypeKind.Delegate
-                ? ".Configure(configured => configured." + property.Name + " = value)" : "." + property.Name + "(value)");
+                ? ".Configure(configured => configured." + property.Name + " = value)" : "." + FluentName(property) + "(value)");
             if (!initializer.EndsWith(";", StringComparison.Ordinal)) { initializer += ";"; }
             const string leftHeading = "// C# initializer or property";
             int column = Math.Max(leftHeading.Length, initializer.Length) + 4;
@@ -401,6 +401,10 @@ namespace ConsoleMonster.Generators {
                 return ".";
             }
         }
+
+        private static string FluentName(IPropertySymbol property) => property.Type.SpecialType == SpecialType.System_Boolean
+            && property.Name.Length > 2 && property.Name.StartsWith("Is", StringComparison.Ordinal) && char.IsUpper(property.Name[2])
+                ? property.Name.Substring(2) : property.Name;
 
         private static string Camel(string name) {
             string camel = char.ToLowerInvariant(name[0]) + name.Substring(1);

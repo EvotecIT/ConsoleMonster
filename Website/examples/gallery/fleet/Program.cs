@@ -402,7 +402,7 @@ domains.ParameterName = "Domain";
 ChoiceField servers = scope.MultiSelect("Servers", "Servers");
 servers.Minimum = 1;
 servers.ParameterName = "ComputerName";
-servers.DependsOn.Add("Domain");
+servers.AddDependsOn("Domain");
 servers.LoadChoices = async (values, token) =>
 {
     await Task.Delay(350, token);

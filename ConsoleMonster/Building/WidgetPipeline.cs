@@ -1,3 +1,4 @@
+using System;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Export;
 using ConsoleMonster.Layout;
@@ -20,5 +21,11 @@ namespace ConsoleMonster {
         /// <param name="provider">Optional typed add-on provider; a registered provider is used when omitted.</param>
         public static void Export(this IWidget widget, string path, string? format = null, ExportOptions? options = null, IFrameExportProvider? provider = null) =>
             FrameExporter.Save(widget, path, format, options, provider);
+
+        /// <summary>Exports with freshly configured frame options through the same core or add-on dispatcher.</summary>
+        /// <param name="widget">The configured widget.</param><param name="path">The destination.</param>
+        /// <param name="configure">Frame settings.</param><param name="format">Optional format.</param><param name="provider">Optional add-on provider.</param>
+        public static void Export(this IWidget widget, string path, Action<ExportOptions> configure, string? format = null, IFrameExportProvider? provider = null) =>
+            FrameExporter.Save(widget, path, format, OptionConfiguration.Create(configure), provider);
     }
 }
