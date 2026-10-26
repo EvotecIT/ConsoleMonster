@@ -427,6 +427,7 @@ html:not(.cm-js) .cm-paths [role="tablist"], html:not(.cm-js) .cm-demo [role="ta
 .cm-api-map { margin-top: var(--cm-space-4); min-width: 0; }
 .cm-api-map h3 { margin-bottom: var(--cm-space-2); font-size: 1rem; }
 .cm-api-map .cm-table-wrap { overflow-x: auto; }
+.cm-api-map .cm-table-wrap:focus-visible { outline: 2px solid var(--cm-accent); outline-offset: 2px; }
 .cm-api-map table { width: 100%; border-collapse: collapse; text-align: left; }
 .cm-api-map th, .cm-api-map td { padding: .5rem .65rem; border-bottom: 1px solid var(--cm-line); vertical-align: top; }
 .cm-api-map th { color: var(--cm-muted); font-size: .8rem; }

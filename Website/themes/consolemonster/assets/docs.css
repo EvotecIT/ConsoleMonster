@@ -6,7 +6,7 @@
 .cm-docs__nav h2:first-of-type { margin-top: 0; }
 .cm-docs__nav ul { margin: 0; padding: 0; list-style: none; }
 .cm-docs__nav li { margin: 0; }
-.cm-docs__nav a { display: block; padding: 5px 10px; border-radius: 5px; color: var(--cm-ink-2); text-decoration: none; line-height: 1.35; }
+.cm-docs__nav a { display: block; padding: 5px 10px; border-radius: 5px; color: var(--cm-ink-2); text-decoration: none; line-height: 1.35; overflow-wrap: break-word; }
 .cm-docs__nav a:hover { background: var(--cm-hover); color: var(--cm-ink); }
 /* The current page: the accent bar on the left, as the current type in the API sidebar and the current destination in the menus. */
 .cm-docs__nav a[aria-current="page"], .cm-docs__nav .is-active > a, .cm-docs__nav a.is-active { border-radius: 0 5px 5px 0; background: none; box-shadow: inset 2px 0 0 var(--cm-accent); color: var(--cm-ink); font-weight: 700; }
@@ -36,7 +36,7 @@
 .cm-docs__toc ul { margin: 0; padding: 0; list-style: none; }
 .cm-docs__toc li { margin: 0; }
 .cm-docs__toc ul ul { padding-left: 12px; }
-.cm-docs__toc a { display: block; padding: 4px 0 4px 12px; border-left: 1px solid var(--cm-line); color: var(--cm-muted); text-decoration: none; line-height: 1.35; }
+.cm-docs__toc a { display: block; padding: 4px 0 4px 12px; border-left: 1px solid var(--cm-line); color: var(--cm-muted); text-decoration: none; line-height: 1.35; overflow-wrap: break-word; }
 .cm-docs__toc a:hover { color: var(--cm-ink); border-left-color: var(--cm-line-strong); }
 
 /* Index cards for the docs and guides landing pages. */
