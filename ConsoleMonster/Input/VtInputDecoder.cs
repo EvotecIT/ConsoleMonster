@@ -154,7 +154,11 @@ namespace ConsoleMonster.Input {
                 } else if (c >= 1 && c <= 0x1a) {
                     DecodeControl(c, KeyModifiers.None, output);
                     i++;
-                } else if (c >= 0x1c && c <= 0x1f) {
+                } else if (c == 0x1c) {
+                    // FS is what terminals send for Ctrl+\ when signal keys are off.
+                    output.Add(InputEvent.Press(ConsoleKey.Oem5, KeyModifiers.Control));
+                    i++;
+                } else if (c >= 0x1d && c <= 0x1f) {
                     i++;
                 } else if (char.IsHighSurrogate(c)) {
                     if (i + 1 < combined.Length && char.IsLowSurrogate(combined[i + 1])) {
