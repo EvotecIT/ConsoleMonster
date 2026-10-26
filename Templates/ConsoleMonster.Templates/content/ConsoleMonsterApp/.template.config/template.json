@@ -140,6 +140,12 @@
         },
         {
           "choice": "tls-verdict"
+        },
+        {
+          "choice": "operations-calendar"
+        },
+        {
+          "choice": "service-browser"
         }
       ],
       "defaultValue": "none"
@@ -632,6 +638,38 @@
         "tls-verdict/Program.Fluent.cs": "Program.Fluent.cs"
       },
       "condition": "(demo == \"tls-verdict\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "operations-calendar/Program.cs",
+        "operations-calendar/Program.Fluent.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "operations-calendar/Program.cs": "Program.cs",
+        "operations-calendar/Program.Fluent.cs": "Program.Fluent.cs"
+      },
+      "condition": "(demo == \"operations-calendar\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "service-browser/Program.cs",
+        "service-browser/Program.Fluent.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "service-browser/Program.cs": "Program.cs",
+        "service-browser/Program.Fluent.cs": "Program.Fluent.cs"
+      },
+      "condition": "(demo == \"service-browser\")"
     }
   ]
 }
