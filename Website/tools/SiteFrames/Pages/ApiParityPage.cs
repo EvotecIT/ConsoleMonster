@@ -66,7 +66,55 @@ namespace SiteFrames.Pages {
             string markdown = body.ToString();
             site.Write(Path.Combine(site.Repository, "Docs", "Api-Parity.md"), markdown);
             site.Write(Path.Combine(site.Website, "content", "docs", "api-parity.md"),
-                "---\ntitle: PowerShell and C# API parity\ndescription: \"The shared parameter and fluent vocabulary, including every C# host-only member decision.\"\nslug: api-parity\norder: 16\ngroup: hosts\ncard: three-fluent\n---\n\n" + markdown.Replace("# PowerShell and C# API parity\n\n", string.Empty, StringComparison.Ordinal));
+                "---\ntitle: PowerShell and C# API parity\ndescription: \"The shared parameter and fluent vocabulary, including every C# host-only member decision.\"\nslug: api-parity\norder: 16\ngroup: hosts\ncard: three-fluent\n---\n\n" + SiteTables(markdown.Replace("# PowerShell and C# API parity\n\n", string.Empty, StringComparison.Ordinal)));
+        }
+
+        // The site's Markdown renderer escapes '>' inside code in a table cell twice (c.Panel(widget =&gt; …) on the page), and a
+        // pipe table cannot scroll on its own. The site copy writes each table as HTML in the scrolling region the guides use.
+        private static string SiteTables(string markdown) {
+            var output = new StringBuilder();
+            string[] lines = markdown.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
+            for (int i = 0; i < lines.Length; i++) {
+                if (!lines[i].StartsWith('|') || i + 1 >= lines.Length || !lines[i + 1].StartsWith("| ---", StringComparison.Ordinal)) {
+                    output.Append(lines[i]);
+                    if (i < lines.Length - 1) output.Append('\n');
+                    continue;
+                }
+                output.Append("<div class=\"cm-migration-map\" tabindex=\"0\" role=\"region\" aria-label=\"Scrollable table\">\n<table>\n<thead><tr>");
+                foreach (string cell in Cells(lines[i])) output.Append("<th>").Append(Inline(cell)).Append("</th>");
+                output.Append("</tr></thead>\n<tbody>\n");
+                for (i += 2; i < lines.Length && lines[i].StartsWith('|'); i++) {
+                    output.Append("<tr>");
+                    foreach (string cell in Cells(lines[i])) output.Append("<td>").Append(Inline(cell)).Append("</td>");
+                    output.Append("</tr>\n");
+                }
+                // An HTML block runs to the next blank line, so a heading straight after the table needs one.
+                output.Append("</tbody>\n</table>\n</div>\n");
+                if (i < lines.Length && lines[i].Length > 0) output.Append('\n');
+                i--;
+            }
+            return output.ToString();
+        }
+
+        private static string[] Cells(string row) {
+            var cells = new System.Collections.Generic.List<string>();
+            var cell = new StringBuilder();
+            for (int i = 1; i < row.Length; i++) {
+                if (row[i] == '\\' && i + 1 < row.Length && row[i + 1] == '|') { cell.Append('|'); i++; }
+                else if (row[i] == '|') { cells.Add(cell.ToString().Trim()); cell.Clear(); }
+                else cell.Append(row[i]);
+            }
+            return cells.ToArray();
+        }
+
+        private static string Inline(string text) {
+            string[] parts = text.Split('`');
+            var html = new StringBuilder();
+            for (int i = 0; i < parts.Length; i++) {
+                string escaped = parts[i].Replace("&", "&amp;", StringComparison.Ordinal).Replace("<", "&lt;", StringComparison.Ordinal).Replace(">", "&gt;", StringComparison.Ordinal);
+                html.Append(i % 2 == 1 ? "<code>" + escaped + "</code>" : escaped);
+            }
+            return html.ToString();
         }
 
         private static string Cell(string value) => value.Replace("|", "\\|", StringComparison.Ordinal).Replace("\n", " ", StringComparison.Ordinal);
