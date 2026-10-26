@@ -38,8 +38,8 @@ function New-DemoFrame {
 # Behaviour: update each frame in a bounded live run.
 $frames = @(0..4 | ForEach-Object -Process { New-DemoFrame -Tick $_ })
 $screen = New-ConsoleRegion -WidgetId demo -Content $frames[0]
-Invoke-ConsoleDashboard -Dashboard $screen -ArgumentList (, $frames) -ScriptBlock {
-    param($Frames)
+Invoke-ConsoleDashboard -Dashboard $screen -ScriptBlock {
+    $Frames = $using:frames
     foreach ($frame in $Frames) {
         if ($ConsoleSession.Cancellation.IsCancellationRequested) {
             break

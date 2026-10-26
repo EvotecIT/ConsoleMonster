@@ -129,8 +129,8 @@ $dashboard = New-ConsoleDashboard -Title '[bold]Module build[/]' -Subtitle 'Buil
 $dashboard.ShowElapsed = $false
 
 # Behaviour: native cmdlets post progress; Write-Host and Write-Warning land in the output region.
-Invoke-ConsoleDashboard -Dashboard $dashboard -ArgumentList (, $steps) -ScriptBlock {
-    param($Steps)
+Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {
+    $Steps = $using:steps
     $culture = [cultureinfo]::InvariantCulture
     $elapsed = 0.0
     for ($i = 0; $i -lt $Steps.Count; $i++) {
