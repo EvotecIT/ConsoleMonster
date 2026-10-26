@@ -77,7 +77,7 @@ Get-History
 
 | View | Before | After |
 | --- | --- | --- |
-| Commands | Native command table, with long names competing for space | Name first, command-type chips, version and source; aliases show `alias -> target`. Results of 12 or more commands group by module. |
+| Commands | Native command table, with long names competing for space | Name first, command-type chips, version and source; aliases show the command they point to. Results of 12 or more commands group by module. |
 | Modules | Exported command names can dominate a row | Name, version, module type, exported command count and a shortened path. Multiple versions group under one module name. Paths keep `User ~/...` or their system installation location visible; the stored path stays complete. |
 | History | Id and command line | Id, start time, elapsed duration, execution status and syntax-highlighted command text. Long commands end with an ellipsis. |
 
