@@ -12,6 +12,46 @@ namespace ConsoleMonster.Tests.Live {
     [Collection("Live sessions")]
     public sealed class ReplayRecordingTests {
         [Fact]
+        public void ReplayOnASkippedRecordingTargetUsesLogicalTimeAndCapturesEachTimeGroup() {
+            var target = ConsoleMonster.Testing.TestTerminal.Target(40, 8);
+            target.SkipDelays = true;
+            var times = new System.Collections.Generic.List<TimeSpan>();
+            var root = new FakeTarget { Rendering = context => times.Add(context.Elapsed) };
+            using var cancellation = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+            LiveSession.Replay(root, new[] {
+                new LiveEvent("work", "detail", text: "one", time: 60_000),
+                new LiveEvent("work", "detail", text: "same instant", time: 60_000),
+                new LiveEvent("work", "detail", text: "two", time: 120_000)
+            }, new LiveSessionOptions {
+                Target = target, CaptureConsole = false, HandleCancelKey = false, PrintFinalState = false,
+                TaskbarProgress = false, StreamHeartbeat = TimeSpan.Zero
+            }, speed: 2, ct: cancellation.Token);
+            Assert.Equal(3, target.Screens.Frames.Count);
+            Assert.Equal(new[] { TimeSpan.Zero, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(2) }, times.Take(3));
+            Assert.Equal(3, root.Events.Count);
+        }
+
+        [Fact]
+        public void AppendOnlyReplayKeepsLogicalHeartbeatSummariesWithoutAccumulatingViewportFrames() {
+            var profile = ConsoleMonster.Capabilities.TerminalProfile.Fixed(40, 8).WithMode(ConsoleMonster.Capabilities.OutputMode.Stream);
+            var target = new ConsoleMonster.Output.RecordingTarget(profile) { SkipDelays = true, CaptureViewport = true };
+            var root = new FakeTarget { Summary = "state summary" };
+            using var cancellation = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+            LiveSession.Replay(root, new[] {
+                new LiveEvent("work", "detail", text: "one", time: 60_000),
+                new LiveEvent("work", "detail", text: "two", time: 120_000)
+            }, new LiveSessionOptions {
+                Target = target, CaptureConsole = false, HandleCancelKey = false, PrintFinalState = false,
+                TaskbarProgress = false, StreamHeartbeat = TimeSpan.FromMinutes(1)
+            }, speed: 2, ct: cancellation.Token);
+            Assert.Empty(target.Screens.Frames);
+            Assert.Contains("one", target.Text);
+            Assert.Contains("two", target.Text);
+            Assert.Equal(2, System.Text.RegularExpressions.Regex.Matches(target.Text, "state summary").Count);
+            Assert.DoesNotContain("\u001b[?1049h", target.Output);
+        }
+
+        [Fact]
         public void Recording_RegionSwap_RecordsAPictureAndLaterLiveChanges() {
             RegionWidget slot = new RegionWidget("main", new TextBlock("starting"));
             StringWriter recording = new StringWriter();

@@ -41,15 +41,20 @@ namespace SiteFrames.Capture {
                 compared++;
                 if (x.Width != y.Width || x.Height != y.Height) { failures.Add(file + ": terminal dimensions differ"); }
                 if (x.Source != y.Source) { failures.Add(file + ": capture source fingerprints differ"); }
-                JsonArray rows = ChangedRows(x, y);
-                JsonArray screens = ChangedScreenHashes(x, y);
                 bool bytesEqual = x.Bytes.AsSpan().SequenceEqual(y.Bytes);
+                int changedRowCount = 0;
+                long changedCellCount = 0;
+                JsonArray rows = bytesEqual && x.Width == y.Width && x.Height == y.Height ? new JsonArray()
+                    : ChangedRows(x, y, out changedRowCount, out changedCellCount);
+                JsonArray screens = ChangedScreenHashes(x, y);
                 if (samePlatform && !bytesEqual) { failures.Add(file + ": repeated capture is not byte-identical (including measurements)"); }
                 if (x.Frames.Count != y.Frames.Count) { failures.Add(file + ": frame counts differ (" + x.Frames.Count + " / " + y.Frames.Count + ")"); }
                 if (rows.Count > 0 || screens.Count > 0) {
                     // No category is a blanket visual waiver. Measurement/profile value policies require explicit approval.
                     failures.Add(new JsonObject { ["file"] = file, ["category"] = x.Category,
-                        ["reason"] = "capture cells, styles or screen hashes differ", ["changedRows"] = rows, ["changedScreenHashes"] = screens });
+                        ["reason"] = "capture cells, styles or screen hashes differ", ["changedRows"] = rows,
+                        ["changedRowCount"] = changedRowCount, ["changedCellCount"] = changedCellCount,
+                        ["omittedChangedRows"] = changedRowCount - rows.Count, ["changedScreenHashes"] = screens });
                 } else if (!samePlatform && !bytesEqual && x.Source == y.Source && x.Width == y.Width && x.Height == y.Height && x.Frames.Count == y.Frames.Count) {
                     allowed.Add(new JsonObject { ["file"] = file, ["category"] = x.Category,
                         ["reason"] = "transport encoding/timing only; all frames, cells, styles and screen hashes match",
@@ -65,7 +70,7 @@ namespace SiteFrames.Capture {
                 try { File.WriteAllText(report, json + "\n"); }
                 catch (Exception ex) when (InputError(ex)) { Console.Error.WriteLine("Cannot write comparison report: " + ex.Message); return 1; }
             }
-            Console.WriteLine(json);
+            Console.WriteLine(report == null ? json : compared + " captures compared; " + failures.Count + " failures; " + allowed.Count + " allowed differences. Report: " + Path.GetFullPath(report));
             return failures.Count == 0 ? 0 : 1;
         }
 
@@ -247,23 +252,33 @@ namespace SiteFrames.Capture {
             return Color.FromRgb(r, g, b);
         }
 
-        private static JsonArray ChangedRows(Capture a, Capture b) {
+        private static JsonArray ChangedRows(Capture a, Capture b, out int changedRowCount, out long changedCellCount) {
             var rows = new JsonArray();
+            changedRowCount = 0;
+            changedCellCount = 0;
             for (int frame = 0; frame < Math.Max(a.Frames.Count, b.Frames.Count); frame++) {
                 CellBuffer? x = frame < a.Frames.Count ? a.Frames[frame] : null, y = frame < b.Frames.Count ? b.Frames[frame] : null;
                 for (int row = 0; row < Math.Max(x?.Height ?? 0, y?.Height ?? 0); row++) {
                     var cells = new JsonArray();
+                    int rowChanges = 0;
                     for (int col = 0; col < Math.Max(x?.Width ?? 0, y?.Width ?? 0); col++) {
                         Cell? cellA = x != null && row < x.Height && col < x.Width ? x[col, row] : null;
                         Cell? cellB = y != null && row < y.Height && col < y.Width ? y[col, row] : null;
                         if (!cellA.HasValue || !cellB.HasValue || !SameCell(cellA.Value, cellB.Value)) {
-                            cells.Add(new JsonObject { ["column"] = col, ["left"] = CellDetail(cellA), ["right"] = CellDetail(cellB) });
+                            rowChanges++;
+                            if (rows.Count < 32 && cells.Count < 8) {
+                                cells.Add(new JsonObject { ["column"] = col, ["left"] = CellDetail(cellA), ["right"] = CellDetail(cellB) });
+                            }
                         }
                     }
-                    if (cells.Count > 0) {
+                    if (rowChanges == 0) { continue; }
+                    changedRowCount++;
+                    changedCellCount += rowChanges;
+                    if (rows.Count < 32) {
                         rows.Add(new JsonObject { ["frame"] = frame, ["row"] = row,
                             ["left"] = x != null && row < x.Height ? x.GetRowText(row) : null,
                             ["right"] = y != null && row < y.Height ? y.GetRowText(row) : null,
+                            ["changedCellCount"] = rowChanges, ["omittedChangedCells"] = rowChanges - cells.Count,
                             ["cells"] = cells });
                     }
                 }

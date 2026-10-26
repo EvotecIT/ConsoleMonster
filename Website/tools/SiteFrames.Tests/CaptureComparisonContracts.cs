@@ -175,6 +175,19 @@ namespace SiteFrames.Tests {
         }
 
         [Fact]
+        public void LargeReplayDifferencesStayBoundedWithoutDroppingFailureCounts() {
+            string a = Run("a", "windows", Cast(string.Join("\r\n", Enumerable.Range(0, 100).Select(i => "left " + i))), "sample.cast");
+            string b = Run("b", "macos", Cast(string.Join("\r\n", Enumerable.Range(0, 100).Select(i => "right " + i))), "sample.cast");
+            Assert.Equal(1, Compare(a, b, out JsonObject report));
+            JsonObject difference = report["failures"]!.AsArray().OfType<JsonObject>().Single();
+            int samples = difference["changedRows"]!.AsArray().Count;
+            Assert.InRange(samples, 1, 32);
+            Assert.True(difference["omittedChangedRows"]!.GetValue<int>() > 0);
+            Assert.Equal(difference["changedRowCount"]!.GetValue<int>(), samples + difference["omittedChangedRows"]!.GetValue<int>());
+            Assert.True(report.ToJsonString().Length < 112_000);
+        }
+
+        [Fact]
         public void ScreenDescriptionsCompareSourceStyledHashesAndEveryScreenWithoutVtParsing() {
             const string text = "source 0123456789abcdef\f0123456789abcdef\nfirst\f1111111111111111\nlast";
             string a = Run("a", "windows", text, "sample.txt"), b = Run("b", "macos", text.Replace("\n", "\r\n"), "sample.txt");

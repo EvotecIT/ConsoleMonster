@@ -27,6 +27,9 @@ namespace SiteFrames.Pages {
 
         private static string PipelineScript(Site site) => Path.Combine(site.Repository, "Module", "Examples", "Example-BuildPipeline.ps1");
 
+        private static string PipelineSource(Site site, string host) => Site.ReadText(PipelineScript(site)) + "\n" + host + " 110x32\n"
+            + Site.ReadText(Path.Combine(site.Tool, "Capture", "CheckpointCapture.ps1"));
+
         private static string CastPath(Site site, string id) => CapturePlatforms.PathFor(site, Path.Combine(site.Captures, "live", id + ".cast"));
 
         // Where the programs are built and the recording file is written for one capture run: one folder per checkout and
@@ -36,7 +39,9 @@ namespace SiteFrames.Pages {
         private static string Work => _work ?? throw new InvalidOperationException("The live programs are not built.");
 
         private static List<OutputChunk> Dotnet(string program, string arguments, int width, int height, Dictionary<string, string?> environment) =>
-            CSharpRunner.Record(Path.Combine(Work, program + ".dll"), arguments.Split(' ', StringSplitOptions.RemoveEmptyEntries), width, height, environment, Work, TimeSpan.FromMinutes(3));
+            program != "stress"
+                ? CSharpRunner.RecordCheckpoints(Path.Combine(Work, program + ".dll"), arguments.Split(' ', StringSplitOptions.RemoveEmptyEntries), width, height, environment, Work, TimeSpan.FromMinutes(3))
+                : CSharpRunner.Record(Path.Combine(Work, program + ".dll"), arguments.Split(' ', StringSplitOptions.RemoveEmptyEntries), width, height, environment, Work, TimeSpan.FromMinutes(3));
 
         private sealed class Run {
             public Run(string id, string title, Func<Site, List<OutputChunk>> record, int width, int height, Func<Site, string> source) {
@@ -59,13 +64,14 @@ namespace SiteFrames.Pages {
         }
 
         private static string Program(Site site, string name, string arguments, int width, int height, string mode = "interactive") =>
-            Site.ReadText(ProgramPath(site, name)) + "\n" + arguments + "\n" + width + "x" + height + " " + mode + (name == "replay" ? "\n" + AssessmentRecording() : string.Empty);
+            Site.ReadText(ProgramPath(site, name)) + "\n" + arguments + "\n" + width + "x" + height + " " + mode + (name == "replay" ? "\n" + AssessmentRecording() : string.Empty)
+            + (name != "stress" ? "\n" + Site.ReadText(Path.Combine(site.Tool, "Capture", "CSharpRunner.Checkpoints.cs")) : string.Empty);
 
         /// <summary>The run recordings. The title is the command a reader types.</summary>
         private static IEnumerable<Run> Recordings() {
             yield return new Run("pipeline-csharp", "dotnet run", site => Dotnet("pipeline", string.Empty, 110, 32, PowerShellRunner.Environment("dark")), 110, 32, site => Program(site, "pipeline", string.Empty, 110, 32));
-            yield return new Run("pipeline-ps7", "Example-BuildPipeline.ps1", site => PowerShellRunner.Run(site, PowerShellHost.Core, PipelineScript(site), 110, 32, PowerShellRunner.Environment("dark")), 110, 32, site => Site.ReadText(PipelineScript(site)) + "\nps7 110x32");
-            yield return new Run("pipeline-ps5", "Example-BuildPipeline.ps1", site => PowerShellRunner.Run(site, PowerShellHost.Desktop, PipelineScript(site), 110, 32, PowerShellRunner.Environment("dark")), 110, 32, site => Site.ReadText(PipelineScript(site)) + "\nps5 110x32");
+            yield return new Run("pipeline-ps7", "Example-BuildPipeline.ps1", site => PowerShellRunner.Run(site, PowerShellHost.Core, PipelineScript(site), 110, 32, PowerShellRunner.Environment("dark"), recordCheckpoints: true), 110, 32, site => PipelineSource(site, "ps7"));
+            yield return new Run("pipeline-ps5", "Example-BuildPipeline.ps1", site => PowerShellRunner.Run(site, PowerShellHost.Desktop, PipelineScript(site), 110, 32, PowerShellRunner.Environment("dark"), recordCheckpoints: true), 110, 32, site => PipelineSource(site, "ps5"));
             yield return new Run("stress", "dotnet run -- 12", site => Dotnet("stress", "12", 120, 40, PowerShellRunner.Environment("dark")), 120, 40, site => Program(site, "stress", "12", 120, 40));
             yield return new Run("assessment", "dotnet run -- assessment-run.jsonl 2", site => Dotnet("replay", "assessment-run.jsonl 2", 120, 36, PowerShellRunner.Environment("dark")), 120, 36, site => Program(site, "replay", "assessment-run.jsonl 2", 120, 36));
             yield return new Run("assessment-compact", "dotnet run -- assessment-run.jsonl 2", site => Dotnet("replay", "assessment-run.jsonl 2", 64, 30, PowerShellRunner.Environment("dark")), 64, 30, site => Program(site, "replay", "assessment-run.jsonl 2", 64, 30));

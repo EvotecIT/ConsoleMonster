@@ -76,7 +76,7 @@ namespace SiteFrames.Capture {
         /// shown script is only the commands. Definitions such as functions run without a prompt. <paramref name="setup"/>
         /// is PowerShell the recording runs first (such as the folder to start in); it is never shown either.
         /// </summary>
-        public static List<OutputChunk> Run(Site site, PowerShellHost host, string script, int width, int height, Dictionary<string, string?> environment, string? workingDirectory = null, TimeSpan? timeout = null, bool allowErrors = false, bool showProgress = false, string? arguments = null, string? prompt = null, bool interactive = false, bool session = false, string? setup = null) {
+        public static List<OutputChunk> Run(Site site, PowerShellHost host, string script, int width, int height, Dictionary<string, string?> environment, string? workingDirectory = null, TimeSpan? timeout = null, bool allowErrors = false, bool showProgress = false, string? arguments = null, string? prompt = null, bool interactive = false, bool session = false, string? setup = null, bool recordCheckpoints = false) {
             string runner = Path.Combine(Path.GetTempPath(), "cmsite-runner-" + Path.GetFileNameWithoutExtension(script) + "-" + host.Id + ".ps1");
             string modules = ModuleLinkRoot(site);
             string directory = workingDirectory ?? Path.GetDirectoryName(script)!;
@@ -101,6 +101,11 @@ namespace SiteFrames.Capture {
             if (setup != null) {
                 sb.Append(setup).Append('\n');
             }
+            if (recordCheckpoints && session) { throw new ArgumentException("A typed session cannot use logical live checkpoints."); }
+            if (recordCheckpoints) {
+                sb.Append("& '").Append(Path.Combine(site.Tool, "Capture", "CheckpointCapture.ps1").Replace("'", "''"))
+                    .Append("' -Width ").Append(width).Append(" -Height ").Append(height).Append(" -ScriptBlock {\n");
+            }
             if (session) {
                 sb.Append(SessionDriver.Replace("{script}", script.Replace("'", "''")));
             } else {
@@ -110,6 +115,7 @@ namespace SiteFrames.Capture {
                 }
                 sb.Append('\n');
             }
+            if (recordCheckpoints) { sb.Append("}\n"); }
             if (allowErrors) {
                 sb.Append("exit 0\n");
             }

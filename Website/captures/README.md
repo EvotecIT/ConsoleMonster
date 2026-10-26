@@ -56,6 +56,14 @@ module used by PowerShell 5.1. An optional area follows `Website`, for example
   `InteractiveOptions.ActionClock`. This pins elapsed labels at zero without
   changing action execution, cancellation, or scripted input pacing. Normal
   applications keep their real action clock.
+- Synthetic live pipeline and assessment programs use `RecordingTarget.SkipDelays`
+  checkpoints with `CaptureViewport` enabled. They execute the shown program and
+  render its logical states at the real terminal size, including compact layouts.
+  The shared terminal encoder emits those frames inside the recorded native child;
+  SessionRecorder records that terminal output. Replay checkpoints follow recorded
+  time groups, and simulated pipelines advance their explicit clock. Their frame
+  schedule does not depend on producer CPU speed. Measured and concurrent programs
+  keep their normal native execution path.
 - The capture policy participates in source fingerprints. Do not edit stamps
   to make an old capture appear fresh. Regenerate each affected producing set.
 
@@ -81,7 +89,7 @@ The command fails if a produced capture is missing, a hash or geometry is wrong,
 a neutral cell/style differs, or it finds replacement glyphs, invalid wide-cell
 continuations or disconnected adjacent border glyphs. Same-platform runs must
 be byte-identical. Cross-platform transport encoding and packet/timing differences
-are allowed only when the decoded cells and styles match. Every differing row and cell is listed in the JSON report. A category label
+are allowed only when the decoded cells and styles match. The JSON report lists every failing capture and counts every changed row and cell. It retains the first 32 changed rows and eight changed cells per row as diagnostic samples, with explicit omitted counts, so animated differences cannot produce unbounded reports. A category label
 alone never waives a difference; platform values need an explicit comparison
 policy, and real measurements still fail strict repeated-run comparison. The Windows-only ps5 production difference is listed separately;
 it does not exempt those committed files from render freshness and parity.

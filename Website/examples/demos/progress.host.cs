@@ -6,7 +6,8 @@ using ConsoleMonster.PowerShell;
 public sealed class ProgressExample : PSCmdlet {
     protected override void ProcessRecord() {
         ConsoleHostFormatting.Enable(this, new ConsoleFormattingOptions { Feature = new[] { ConsoleFormattingFeature.Progress } });
-        try { InvokeCommand.InvokeScript(@"$sites = 'Warsaw', 'Dublin', 'Berlin'
+        try { InvokeCommand.InvokeScript(@"Use-ConsoleProgress {
+        $sites = 'Warsaw', 'Dublin', 'Berlin'
         for ($i = 0; $i -lt $sites.Count; $i++) {
             Write-Progress -Id 1 -Activity 'Collecting inventory' -Status $sites[$i] -PercentComplete ($i * 100 / $sites.Count)
             foreach ($server in 1..12) {
@@ -16,7 +17,9 @@ public sealed class ProgressExample : PSCmdlet {
             Write-Host ""$($sites[$i]) done: 12 servers""
         }
         Write-Progress -Id 2 -Activity 'Servers' -Completed
-        Write-Progress -Id 1 -Activity 'Collecting inventory' -Completed"); }
+        Write-Progress -Id 1 -Activity 'Collecting inventory' -Completed
+        } -Keep
+        Write-Host 'Inventory collected: 36 servers across 3 sites.'"); }
         finally { ConsoleHostFormatting.Disable(this, new[] { ConsoleFormattingFeature.Progress }); }
     }
 }

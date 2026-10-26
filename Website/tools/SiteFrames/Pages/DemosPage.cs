@@ -159,7 +159,7 @@ namespace SiteFrames.Pages {
 
                 PosterShare = 1,
                 Fps = 5,
-                Chapters = new[] { ("Before", "# PowerShell's own output"), ("After", "# The same commands now") }
+                Chapters = new[] { ("Before", "# PowerShell's own output"), ("After", "# The same objects now") }
             };
             yield return new Demo("shaping", "Show-ConsoleTable -GroupBy Site", 100, 40) { CSharpProgram = "shaping.host.cs", Script = "shaping.ps1", Static = true };
             // Format-Table, Format-List and Format-Wide before and after the separate FormatCommands opt-in.
@@ -179,7 +179,7 @@ namespace SiteFrames.Pages {
                 Static = true
             };
             yield return new Demo("help", "Show-ConsoleHelp", 100, 50) { CSharpProgram = "help.host.cs", Script = "help.ps1", Session = true, PosterShare = 1 };
-            yield return new Demo("progress", "Write-Progress, drawn by ConsoleMonster", 96, 12) { CSharpProgram = "progress.host.cs", Script = "progress.ps1", PosterShare = 0.5, Fps = 8, ShowProgress = true };
+            yield return new Demo("progress", "Write-Progress, drawn by ConsoleMonster", 96, 12) { CSharpProgram = "progress.host.cs", Script = "progress.ps1", PosterShare = 0.5, Fps = 8, ShowProgress = true, EndsOn = "Inventory collected: 36 servers across 3 sites." };
             yield return new Demo("errors", "Show-Console -View Error", 100, 20) { CSharpProgram = "errors.cs", Script = "errors.ps1", Static = true, AllowErrors = true };
             // Threads and concurrency: the same parallel work written straight to the console, through a dashboard, and
             // through the same dashboard when CI is detected.

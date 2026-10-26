@@ -26,6 +26,8 @@ namespace SiteFrames {
         internal static int Failures;
 
         public static int Main(string[] args) {
+            // A capture worker inherits the already pinned child environment rather than the renderer's clean defaults.
+            if (args.Length > 0 && args[0] == "capture-csharp-worker") { return CSharpRunner.RunCheckpointWorker(args); }
             CultureInfo culture = Site.Culture;
             CultureInfo.DefaultThreadCurrentCulture = culture;
             CultureInfo.DefaultThreadCurrentUICulture = culture;

@@ -120,6 +120,13 @@ namespace ConsoleMonster.Output {
         public bool SkipDelays { get; set; }
 
         /// <summary>
+        /// Captures Delay checkpoints at the profile's full viewport size, including constrained layouts and captured
+        /// console logs. Append-only outputs commit heartbeat summaries at logical checkpoints instead of capturing bitmap frames.
+        /// Default false keeps compact block checkpoints. Viewport animation frames follow checkpoint order. Configure before starting the session.
+        /// </summary>
+        public bool CaptureViewport { get; set; }
+
+        /// <summary>
         /// Zero-based live-session Delay calls to capture when <see cref="SkipDelays"/> is enabled; null captures all,
         /// an empty array captures none. Configure before starting the session. Checkpoint order assumes one producer.
         /// </summary>

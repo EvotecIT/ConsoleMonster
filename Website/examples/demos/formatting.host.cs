@@ -16,7 +16,7 @@ $services = @(
         # PowerShell's own output
         $services
         [version] '2.0.0'
-        @{ Domain = 'evotec.xyz'; Records = 14; DNSSEC = $false }
+        [ordered] @{ Domain = 'evotec.xyz'; Records = 14; DNSSEC = $false }
 
 
         } | Microsoft.PowerShell.Core\Out-Default");
@@ -26,7 +26,7 @@ $services = @(
             foreach (var item in InvokeCommand.InvokeScript(inventory + @"# The same objects now
         $services
         [version] '2.0.0'
-        @{ Domain = 'evotec.xyz'; Records = 14; DNSSEC = $false }")) { output.Write(item); }
+        [ordered] @{ Domain = 'evotec.xyz'; Records = 14; DNSSEC = $false }")) { output.Write(item); }
             output.Complete();
             var services = InvokeCommand.InvokeScript(inventory + "$services").ToList();
             ConsoleMonster.Terminal.Write(ConsoleHostViews.Table(services,

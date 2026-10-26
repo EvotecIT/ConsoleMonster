@@ -10,12 +10,12 @@ $services = @(
 # PowerShell's own output
 $services
 [version] '2.0.0'
-@{ Domain = 'evotec.xyz'; Records = 14; DNSSEC = $false }
+[ordered] @{ Domain = 'evotec.xyz'; Records = 14; DNSSEC = $false }
 
 Enable-ConsoleFormatting
 
 # The same objects now
 $services
 [version] '2.0.0'
-@{ Domain = 'evotec.xyz'; Records = 14; DNSSEC = $false }
+[ordered] @{ Domain = 'evotec.xyz'; Records = 14; DNSSEC = $false }
 $services | Show-ConsoleTable -GroupBy Status -MaxRows 6

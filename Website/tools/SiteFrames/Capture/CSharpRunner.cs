@@ -175,7 +175,11 @@ namespace SiteFrames.Capture {
         /// </summary>
         public static RecordingTarget Execute(string path, TerminalProfile profile, ITheme theme, InteractiveOptions? interactive, string[]? arguments = null,
             RecordingTarget? recording = null, bool allowIncompleteInput = false, bool fluent = false) {
-            Assembly assembly = Compile(path, fluent);
+            return ExecuteCompiled(Compile(path, fluent), path, profile, theme, interactive, arguments, recording, allowIncompleteInput);
+        }
+
+        private static RecordingTarget ExecuteCompiled(Assembly assembly, string path, TerminalProfile profile, ITheme theme,
+            InteractiveOptions? interactive, string[]? arguments, RecordingTarget? recording, bool allowIncompleteInput) {
             MethodInfo entry = assembly.EntryPoint ?? throw new InvalidOperationException(path + " has no entry point.");
             RecordingTarget target = recording ?? new RecordingTarget(profile) { Theme = theme };
             InteractiveOptions previous = InteractiveOptions.Default;
