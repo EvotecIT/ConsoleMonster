@@ -7,12 +7,12 @@
       <command:noun>ConsoleItem</command:noun>
       <maml:description>
         <maml:para>Adds items to a console widget made earlier: tree nodes, pairs, status items, bars, series, log lines, lanes or values.</maml:para>
-        <maml:para>The PowerShell way to grow a widget after it was created, instead of calling its .NET methods. Pipe the widget in and give the items as a script block or values; they are the same item commands the widget's own script block takes: Label/Children records for New-ConsoleTree, Key/Value records for New-ConsoleKeyValue, Key/Label/Status records for New-ConsoleStatusList and New-ConsolePhases, Label/Value records for New-ConsoleBarChart, Key/Values records for New-ConsoleLineChart, Message/Level records for New-ConsoleLogRegion and Key/Label records for New-ConsoleLanes. Sparklines and histograms take numbers, a cell map takes status words, and a live table takes objects or hashtables with a property per column. -PassThru writes the widget on, so it can go straight to Show-Console. For a widget inside a running dashboard, use the live commands (Update-Console, Update-Console, Update-Console, Write-ConsoleLogEntry...) instead.</maml:para>
+        <maml:para>The PowerShell way to grow a widget after it was created, instead of calling its .NET methods. Pipe the widget in and give the items as a script block or values; they are the same item commands the widget's own script block takes: Label/Children records for New-ConsoleTree, Key/Value records for New-ConsoleKeyValue, Key/Label/Status records for New-ConsoleStatusList and New-ConsolePhases, Label/Value records for New-ConsoleBarChart, Key/Values records for New-ConsoleLineChart, Message/Level records for New-ConsoleLogRegion and Key/Label records for New-ConsoleLanes. Sparklines and histograms take numbers, a cell map takes status words, and a live table takes objects or hashtables with a property per column. -PassThru writes the widget on, so it can go straight to Show-Console. For a widget inside a running dashboard, use Update-Console or Write-ConsoleLogEntry instead.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Adds items to a console widget made earlier: tree nodes, pairs, status items, bars, series, log lines, lanes or values.</maml:para>
-      <maml:para>The PowerShell way to grow a widget after it was created, instead of calling its .NET methods. Pipe the widget in and give the items as a script block or values; they are the same item commands the widget's own script block takes: Label/Children records for New-ConsoleTree, Key/Value records for New-ConsoleKeyValue, Key/Label/Status records for New-ConsoleStatusList and New-ConsolePhases, Label/Value records for New-ConsoleBarChart, Key/Values records for New-ConsoleLineChart, Message/Level records for New-ConsoleLogRegion and Key/Label records for New-ConsoleLanes. Sparklines and histograms take numbers, a cell map takes status words, and a live table takes objects or hashtables with a property per column. -PassThru writes the widget on, so it can go straight to Show-Console. For a widget inside a running dashboard, use the live commands (Update-Console, Update-Console, Update-Console, Write-ConsoleLogEntry...) instead.</maml:para>
+      <maml:para>The PowerShell way to grow a widget after it was created, instead of calling its .NET methods. Pipe the widget in and give the items as a script block or values; they are the same item commands the widget's own script block takes: Label/Children records for New-ConsoleTree, Key/Value records for New-ConsoleKeyValue, Key/Label/Status records for New-ConsoleStatusList and New-ConsolePhases, Label/Value records for New-ConsoleBarChart, Key/Values records for New-ConsoleLineChart, Message/Level records for New-ConsoleLogRegion and Key/Label records for New-ConsoleLanes. Sparklines and histograms take numbers, a cell map takes status words, and a live table takes objects or hashtables with a property per column. -PassThru writes the widget on, so it can go straight to Show-Console. For a widget inside a running dashboard, use Update-Console or Write-ConsoleLogEntry instead.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
@@ -1325,7 +1325,7 @@ $tree | Show-Console</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$summary = Complete-ConsoleRun $run -PassThru; $summary.Items | Where-Object State -eq Fail</dev:code>
+        <dev:code>$summary = Complete-ConsoleRun $run -PassThru; $summary.Items | Where-Object Status -eq Fail</dev:code>
         <dev:remarks>
           <maml:para>Keep a structured final result</maml:para>
         </dev:remarks>
@@ -4071,6 +4071,15 @@ $tree | Show-Console</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>Invoke-ConsoleRecording { Get-Service | Show-ConsoleTable } -Destination .\services.cast
+Export-ConsoleRecording .\services.cast .\services.gif -Pace Slow -Preset Slide16x9
+Export-ConsoleRecording .\services.cast .\services.png -Preset Slide16x9</dev:code>
+        <dev:remarks>
+          <maml:para>Record a script, then make a paced 1920x1080 GIF and a closing PNG for a slide</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 2</maml:title>
         <dev:code>Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Svg -Destination .\run.svg
 Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -Destination .\run.html -Width 120 -Height 36</dev:code>
         <dev:remarks>
@@ -4485,12 +4494,12 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
       <command:noun>ConsoleDashboard</command:noun>
       <maml:description>
         <maml:para>Runs a console dashboard live while a script does the work.</maml:para>
-        <maml:para>The script runs in a runspace the module owns (or, with -Parallel, once per input item on a runspace pool, started as items arrive and limited by -ThrottleLimit). Inside it, $ConsoleSession and the Update-Console, Update-Console, Write-ConsoleLogEntry and related cmdlets update the screen; Write-Host, Write-Warning, Write-Verbose, errors and Console.WriteLine go to the dashboard's log region instead of scribbling over the screen. The screen is redrawn at about 15 frames per second however many updates arrive. Ctrl+C stops the script and always restores the terminal; the dashboard then leaves the alternate screen and prints its final state (or -Summary). Script output is returned when the dashboard ends. In redirected or CI output the dashboard becomes append-only lines. Variables from the caller are not visible inside the script: pass them with -ArgumentList and a param() block.</maml:para>
+        <maml:para>The script runs in a runspace the module owns (or, with -Parallel, once per input item on a runspace pool, started as items arrive and limited by -ThrottleLimit). Inside it, $ConsoleSession, Update-Console and Write-ConsoleLogEntry update the screen; Write-Host, Write-Warning, Write-Verbose, errors and Console.WriteLine go to the dashboard's log region instead of scribbling over the screen. The screen is redrawn at about 15 frames per second however many updates arrive. Ctrl+C stops the script and always restores the terminal; the dashboard then leaves the alternate screen and prints its final state (or -Summary). Script output is returned when the dashboard ends. In redirected or CI output the dashboard becomes append-only lines. Variables from the caller are not visible inside the script: pass them with -ArgumentList and a param() block.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Runs a console dashboard live while a script does the work.</maml:para>
-      <maml:para>The script runs in a runspace the module owns (or, with -Parallel, once per input item on a runspace pool, started as items arrive and limited by -ThrottleLimit). Inside it, $ConsoleSession and the Update-Console, Update-Console, Write-ConsoleLogEntry and related cmdlets update the screen; Write-Host, Write-Warning, Write-Verbose, errors and Console.WriteLine go to the dashboard's log region instead of scribbling over the screen. The screen is redrawn at about 15 frames per second however many updates arrive. Ctrl+C stops the script and always restores the terminal; the dashboard then leaves the alternate screen and prints its final state (or -Summary). Script output is returned when the dashboard ends. In redirected or CI output the dashboard becomes append-only lines. Variables from the caller are not visible inside the script: pass them with -ArgumentList and a param() block.</maml:para>
+      <maml:para>The script runs in a runspace the module owns (or, with -Parallel, once per input item on a runspace pool, started as items arrive and limited by -ThrottleLimit). Inside it, $ConsoleSession, Update-Console and Write-ConsoleLogEntry update the screen; Write-Host, Write-Warning, Write-Verbose, errors and Console.WriteLine go to the dashboard's log region instead of scribbling over the screen. The screen is redrawn at about 15 frames per second however many updates arrive. Ctrl+C stops the script and always restores the terminal; the dashboard then leaves the alternate screen and prints its final state (or -Summary). Script output is returned when the dashboard ends. In redirected or CI output the dashboard becomes append-only lines. Variables from the caller are not visible inside the script: pass them with -ArgumentList and a param() block.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
@@ -4878,10 +4887,10 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
         <dev:code>$d = New-ConsoleDashboard -Title 'Patch' -Content { New-ConsolePanel -Title 'Servers' -Content { New-ConsoleLanes }; New-ConsolePanel -Title 'Log' -Fill -Content { New-ConsoleLogRegion } }
 'SRV1', 'SRV2', 'SRV3' | Invoke-ConsoleDashboard $d -Parallel -ThrottleLimit 3 {
     param($Server)
-    Update-Console -Key $Server -Status Running -Total 5 -WidgetId 'lanes'
-    1..5 | ForEach-Object { Start-Sleep -Milliseconds 300; Update-Console -Key $Server -Result Pass -WidgetId 'lanes' }
+    Update-Console lanes -Key $Server -Status Running -Total 5
+    1..5 | ForEach-Object { Start-Sleep -Milliseconds 300; Update-Console lanes -Key $Server -Result Pass }
     Write-Host "$Server patched"
-    Update-Console -Key $Server -Complete -WidgetId 'lanes'
+    Update-Console lanes -Key $Server -Complete
 }</dev:code>
         <dev:remarks>
           <maml:para>Three servers processed in parallel, three at a time</maml:para>
@@ -7404,7 +7413,7 @@ Invoke-ConsoleDashboard $dashboard {
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Month</maml:name>
           <maml:description>
-            <maml:para>Gregorian month, required in Month view.</maml:para>
+            <maml:para>Gregorian month for Month view; without Year and Month the current month is shown.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
           <dev:type>
@@ -7465,12 +7474,12 @@ Invoke-ConsoleDashboard $dashboard {
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Year</maml:name>
           <maml:description>
-            <maml:para>Gregorian year to display.</maml:para>
+            <maml:para>Gregorian year to display; default the current year (or the year of Today).</maml:para>
           </maml:description>
-          <command:parameterValue required="true" variableLength="false">Int32</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
           <dev:type>
             <maml:name>Int32</maml:name>
             <maml:uri />
@@ -7552,7 +7561,7 @@ Invoke-ConsoleDashboard $dashboard {
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Month</maml:name>
         <maml:description>
-          <maml:para>Gregorian month, required in Month view.</maml:para>
+          <maml:para>Gregorian month for Month view; without Year and Month the current month is shown.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
         <dev:type>
@@ -7613,12 +7622,12 @@ Invoke-ConsoleDashboard $dashboard {
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Year</maml:name>
         <maml:description>
-          <maml:para>Gregorian year to display.</maml:para>
+          <maml:para>Gregorian year to display; default the current year (or the year of Today).</maml:para>
         </maml:description>
-        <command:parameterValue required="true" variableLength="false">Int32</command:parameterValue>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
         <dev:type>
           <maml:name>Int32</maml:name>
           <maml:uri />
@@ -7655,6 +7664,13 @@ Invoke-ConsoleDashboard $dashboard {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
+        <dev:code>New-ConsoleCalendar | Show-Console</dev:code>
+        <dev:remarks>
+          <maml:para>Show this month.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 3</maml:title>
         <dev:code>New-ConsoleCalendar -Year 2026 -View Year -FirstDayOfWeek Monday</dev:code>
         <dev:remarks>
           <maml:para>Build a year view with Monday-first weeks.</maml:para>
@@ -11522,12 +11538,12 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -
       <command:noun>ConsoleFlow</command:noun>
       <maml:description>
         <maml:para>Builds a native flow strip of nodes, labelled edges and one side branch.</maml:para>
-        <maml:para>Emit nodes first, then edges and an optional branch. Pipeline rows use Kind (Node, Edge or Branch), Key, Label, Status, and the edge/branch From and To fields. Labels are literal. The strip becomes vertical in a narrow terminal.</maml:para>
+        <maml:para>Plain strings are steps, connected in order. Emit nodes first, then edges and an optional branch. Pipeline rows use Kind (Node, Edge or Branch), Key, Label, Status, and the edge/branch From and To fields. Kind can be left out for nodes and for edges with From and To; a node's Key defaults to its Label and an edge's Key to From-&gt;To. Labels are literal. The strip becomes vertical in a narrow terminal.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Builds a native flow strip of nodes, labelled edges and one side branch.</maml:para>
-      <maml:para>Emit nodes first, then edges and an optional branch. Pipeline rows use Kind (Node, Edge or Branch), Key, Label, Status, and the edge/branch From and To fields. Labels are literal. The strip becomes vertical in a narrow terminal.</maml:para>
+      <maml:para>Plain strings are steps, connected in order. Emit nodes first, then edges and an optional branch. Pipeline rows use Kind (Node, Edge or Branch), Key, Label, Status, and the edge/branch From and To fields. Kind can be left out for nodes and for edges with From and To; a node's Key defaults to its Label and an edge's Key to From-&gt;To. Labels are literal. The strip becomes vertical in a narrow terminal.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
@@ -11547,7 +11563,7 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="named" aliases="None">
           <maml:name>InputObject</maml:name>
           <maml:description>
-            <maml:para>Items or plain rows with Kind and the corresponding item properties.</maml:para>
+            <maml:para>Step names, items or plain rows with Kind and the corresponding item properties.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">PSObject</command:parameterValue>
           <dev:type>
@@ -11586,7 +11602,7 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="named" aliases="None">
         <maml:name>InputObject</maml:name>
         <maml:description>
-          <maml:para>Items or plain rows with Kind and the corresponding item properties.</maml:para>
+          <maml:para>Step names, items or plain rows with Kind and the corresponding item properties.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">PSObject</command:parameterValue>
         <dev:type>
@@ -11630,6 +11646,13 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>'Build', 'Test', 'Deploy' | New-ConsoleFlow | Show-Console</dev:code>
+        <dev:remarks>
+          <maml:para>Three steps in order</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 2</maml:title>
         <dev:code>New-ConsoleFlow -Content {
     [pscustomobject] @{ Kind = 'Node'; Key = 'leaf'; Label = 'Leaf'; Status = 'Pass' }
     [pscustomobject] @{ Kind = 'Node'; Key = 'issuer'; Label = 'Intermediate'; Status = 'Fail' }
@@ -16758,8 +16781,8 @@ Description and RunText.</maml:para>
         <dev:code>New-ConsoleMenuItem 'Back up now' -Action {
     $dashboard = New-ConsoleDashboard -Title 'Backup' -Content { New-ConsoleStatusList -Item 'Scan files', 'Copy changes' }
     $null = $MenuContext.Run($dashboard, {
-        Update-Console -Key 'Scan files' -Status Pass -WidgetId 'status'
-        Update-Console -Key 'Copy changes' -Status Pass -WidgetId 'status'
+        Update-Console status -Key 'Scan files' -Status Pass
+        Update-Console status -Key 'Copy changes' -Status Pass
         New-ConsoleMenuRunResult 'Backup finished' -Summary '1 284 files copied, 312 MB.' -Figure ([ordered] @{ files = '1 284'; copied = '312 MB' }) -Next @{
             'Show where the log is' = { $MenuContext.Toast('Log: D:\Backups\backup.log') }
         }
@@ -19705,7 +19728,7 @@ Invoke-ConsoleDashboard $dashboard -Clock $clock -ArgumentList $clock, $entries 
       <command:example>
         <maml:title>EXAMPLE 4</maml:title>
         <dev:code>$steps = New-ConsoleStatusList -Item 'Scan files', 'Copy changes', 'Verify'
-Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps }) { Update-Console -Key 'Scan files' -Status Pass -Detail '2.4 s' -WidgetId 'status' }</dev:code>
+Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps }) { Update-Console status -Key 'Scan files' -Status Pass -Detail '2.4 s' }</dev:code>
         <dev:remarks>
           <maml:para>A live checklist: items start pending and are updated from the dashboard script</maml:para>
         </dev:remarks>
@@ -28492,14 +28515,11 @@ Read-ConsoleForm $form</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Type</maml:name>
           <maml:description>
-            <maml:para>Numeric chart representation: Bar, Histogram or Sparkline.</maml:para>
+            <maml:para>Numeric chart representation: Bar, Histogram or Sparkline. Line, Stacked and Scatter charts take series; build them with New-ConsoleChart.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">ChartType</command:parameterValue>
           <command:parameterValueGroup>
             <command:parameterValue required="false" variableLength="false">Bar</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Stacked</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Line</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Scatter</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Histogram</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Sparkline</command:parameterValue>
           </command:parameterValueGroup>
@@ -29383,14 +29403,11 @@ Read-ConsoleForm $form</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Type</maml:name>
           <maml:description>
-            <maml:para>Numeric chart representation: Bar, Histogram or Sparkline.</maml:para>
+            <maml:para>Numeric chart representation: Bar, Histogram or Sparkline. Line, Stacked and Scatter charts take series; build them with New-ConsoleChart.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">ChartType</command:parameterValue>
           <command:parameterValueGroup>
             <command:parameterValue required="false" variableLength="false">Bar</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Stacked</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Line</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Scatter</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Histogram</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Sparkline</command:parameterValue>
           </command:parameterValueGroup>
@@ -30274,14 +30291,11 @@ Read-ConsoleForm $form</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Type</maml:name>
           <maml:description>
-            <maml:para>Numeric chart representation: Bar, Histogram or Sparkline.</maml:para>
+            <maml:para>Numeric chart representation: Bar, Histogram or Sparkline. Line, Stacked and Scatter charts take series; build them with New-ConsoleChart.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">ChartType</command:parameterValue>
           <command:parameterValueGroup>
             <command:parameterValue required="false" variableLength="false">Bar</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Stacked</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Line</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Scatter</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Histogram</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Sparkline</command:parameterValue>
           </command:parameterValueGroup>
@@ -31189,14 +31203,11 @@ Read-ConsoleForm $form</dev:code>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Type</maml:name>
         <maml:description>
-          <maml:para>Numeric chart representation: Bar, Histogram or Sparkline.</maml:para>
+          <maml:para>Numeric chart representation: Bar, Histogram or Sparkline. Line, Stacked and Scatter charts take series; build them with New-ConsoleChart.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">ChartType</command:parameterValue>
         <command:parameterValueGroup>
           <command:parameterValue required="false" variableLength="false">Bar</command:parameterValue>
-          <command:parameterValue required="false" variableLength="false">Stacked</command:parameterValue>
-          <command:parameterValue required="false" variableLength="false">Line</command:parameterValue>
-          <command:parameterValue required="false" variableLength="false">Scatter</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Histogram</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Sparkline</command:parameterValue>
         </command:parameterValueGroup>
@@ -37565,7 +37576,7 @@ try {
         <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="named" aliases="None">
           <maml:name>Row</maml:name>
           <maml:description>
-            <maml:para>A row with Key and Values properties, retaining typed cells.</maml:para>
+            <maml:para>A record with the live table's column properties (keyed by its KeyProperty), or a Key and Values descriptor that retains typed cells.</maml:para>
           </maml:description>
           <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
           <dev:type>
@@ -38393,7 +38404,7 @@ try {
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="named" aliases="None">
         <maml:name>Row</maml:name>
         <maml:description>
-          <maml:para>A row with Key and Values properties, retaining typed cells.</maml:para>
+          <maml:para>A record with the live table's column properties (keyed by its KeyProperty), or a Key and Values descriptor that retains typed cells.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
         <dev:type>
@@ -38507,6 +38518,13 @@ try {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
+        <dev:code>Update-Console results -Row ([pscustomobject] @{ Server = 'web01'; State = 'Pass'; Ms = 12 })</dev:code>
+        <dev:remarks>
+          <maml:para>Add or replace a live table row with an ordinary record</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 3</maml:title>
         <dev:code>Update-Console -Run $run -Index 0 -Status Pass -Detail 'Uploaded'</dev:code>
         <dev:remarks>
           <maml:para>Finish one run item</maml:para>
@@ -39136,14 +39154,14 @@ try {
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
         <maml:name>Wait-ConsoleDashboard</maml:name>
-        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>Milliseconds</maml:name>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+          <maml:name>Seconds</maml:name>
           <maml:description>
-            <maml:para>The pause in milliseconds; zero captures a checkpoint without waiting.</maml:para>
+            <maml:para>The pause in seconds, fractions allowed (0.25 is a quarter second); zero captures a checkpoint without waiting.</maml:para>
           </maml:description>
-          <command:parameterValue required="true" variableLength="false">Int32</command:parameterValue>
+          <command:parameterValue required="true" variableLength="false">Double</command:parameterValue>
           <dev:type>
-            <maml:name>Int32</maml:name>
+            <maml:name>Double</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -39163,14 +39181,14 @@ try {
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
-      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-        <maml:name>Milliseconds</maml:name>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <maml:name>Seconds</maml:name>
         <maml:description>
-          <maml:para>The pause in milliseconds; zero captures a checkpoint without waiting.</maml:para>
+          <maml:para>The pause in seconds, fractions allowed (0.25 is a quarter second); zero captures a checkpoint without waiting.</maml:para>
         </maml:description>
-        <command:parameterValue required="true" variableLength="false">Int32</command:parameterValue>
+        <command:parameterValue required="true" variableLength="false">Double</command:parameterValue>
         <dev:type>
-          <maml:name>Int32</maml:name>
+          <maml:name>Double</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -39210,7 +39228,7 @@ try {
 Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {
     foreach ($count in 1..3) {
         Update-Console -WidgetId overall -Value $count
-        Wait-ConsoleDashboard -Milliseconds 250
+        Wait-ConsoleDashboard -Seconds 0.25
     }
 }</dev:code>
         <dev:remarks>
