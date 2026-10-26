@@ -760,7 +760,7 @@
     {
       "title": "Coming from Write-Color",
       "url": "/guides/write-color/",
-      "body": "Write-ConsoleText takes Write-Color's parameters and aliases: how they map and where the two differ."
+      "body": "How Write-Color's parameters map to Write-ConsoleText, and where the two differ."
     },
     {
       "title": "Coming from Spectre.Console",
