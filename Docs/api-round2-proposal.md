@@ -565,7 +565,7 @@ I use the shared SourceLayout pass from the site QA changes to generate C# sourc
 
 The compact translation notes follow source order and reserve room for the main constructor, content, markup and switches. Kind-selected widgets include their discriminator, such as `New-ConsoleChart -Type Sparkline` ↔ `Ui.Chart().Type(ChartType.Sparkline)` ↔ `new Sparkline(…)`. The parity map owns those rules. Source tabs and downloads can regenerate independently of terminal captures; this never updates their parity result or capture stamp. Full capture freshness remains a separate gate.
 
-The gallery's presentation-line ceilings are 300 for starter demos and 600 for showcases, allowing wrapped chains and braces without adding behavior. Current help, documentation and runnable examples are guarded against the retired command list; historical proposal and migration tables remain the record of the renames.
+The gallery's presentation-line ceilings are 300 for starter demos and 750 for showcases, allowing wrapped chains, braces and PowerShell parameter splats without adding behavior. Both languages use the site QA layout passes at 100 columns. Current help, documentation and runnable examples are guarded against the retired command list; historical proposal and migration tables remain the record of the renames.
 
 
 ## 8. Complete command disposition
