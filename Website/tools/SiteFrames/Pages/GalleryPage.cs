@@ -50,8 +50,9 @@ namespace SiteFrames.Pages {
                     throw new InvalidDataException("Invalid gallery metadata: " + Slug);
                 }
                 foreach (string path in new[] { PowerShell, CSharp, CSharpFluent }) {
-                    // Counted after SourceLayout wraps at 100 columns: data rows take two or three lines each.
-                    int limit = Tier == "showcase" ? 600 : 300;
+                    // Counted after the 100-column layout (SourceLayout, build/Format-ExampleScript.ps1): data rows take two or three
+                    // lines each and long commands splat their parameters.
+                    int limit = Tier == "showcase" ? 750 : 300;
                     if (!File.Exists(path) || File.ReadAllLines(path).Length > limit) {
                         throw new InvalidDataException(Slug + " needs a complete source of at most " + limit + " lines: " + path);
                     }
