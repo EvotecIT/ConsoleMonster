@@ -8,22 +8,38 @@ using ConsoleMonster;
 // All values are synthetic. This example never connects to a host.
 // Data: fictional inputs kept in memory.
 int workerCount = 8;
+
 // Layout: construct the widgets shown on screen.
 IWidget Frame(int tick)
 {
     Rows workers = Ui.Rows();
     for (int worker = 1; worker <= workerCount; worker++)
     {
-        string name = "worker-" + worker.ToString("00", System.Globalization.CultureInfo.InvariantCulture);
-        workers.Add(Ui.Progress().Label(name).WidgetId(name).Value(Math.Min(100, 12 + worker * 5 + tick * 17)).Total(100).Build<ProgressBar>());
+        string name = "worker-" + worker.ToString("00",
+            System.Globalization.CultureInfo.InvariantCulture);
+        workers.Add(Ui.Progress()
+            .Label(name)
+            .WidgetId(name)
+            .Value(Math.Min(100, 12 + worker * 5 + tick * 17))
+            .Total(100)
+            .Build<ProgressBar>());
     }
 
-    KeyValueList stats = Ui.KeyValue().Add("Updates", (800 + tick * 320).ToString(System.Globalization.CultureInfo.InvariantCulture)).Add("Queue", (24 - tick * 5).ToString(System.Globalization.CultureInfo.InvariantCulture)).Add("Workers", "8").Add("Dropped", "[pass]0[/]");
-    Sparkline trend = Ui.Chart().Type(ConsoleMonster.Widgets.ChartType.Sparkline).Label("updates/s").Build<Sparkline>();
+    KeyValueList stats = Ui.KeyValue()
+        .Add("Updates",
+            (800 + tick * 320).ToString(System.Globalization.CultureInfo.InvariantCulture))
+        .Add("Queue", (24 - tick * 5).ToString(System.Globalization.CultureInfo.InvariantCulture))
+        .Add("Workers", "8")
+        .Add("Dropped", "[pass]0[/]");
+    Sparkline trend = Ui.Chart()
+        .Type(ConsoleMonster.Widgets.ChartType.Sparkline)
+        .Label("updates/s")
+        .Build<Sparkline>();
     trend.AddRange(new double[] { 120, 180, 160, 240, 210, 220 + tick * 15 });
     return Ui.Rows().Gap(1).Content(c4 =>
     {
-        c4.Text(c4Text => c4Text.Content("[bold]Worker stress dashboard[/] [muted]· worker pool[/]").IsMarkup());
+        c4.Text(c4Text => c4Text.Content("[bold]Worker stress dashboard[/] [muted]· worker pool[/]")
+            .IsMarkup());
         c4.Columns(cmColumns => cmColumns.Content(c3 =>
         {
             c3.Panel(cmPanel => cmPanel.Title("Workers").Content(c =>
@@ -60,7 +76,8 @@ try
         }
     });
 }
-catch (OperationCanceledException cancelled)when (cancelled.CancellationToken == session.Cancellation)
+catch (OperationCanceledException cancelled)
+    when (cancelled.CancellationToken == session.Cancellation)
 {
     // Ctrl+C is a normal way to leave the demo, after the session restores the terminal.
     return;

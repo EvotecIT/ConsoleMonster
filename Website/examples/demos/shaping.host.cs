@@ -14,6 +14,8 @@ public sealed class ShapingExample : PSCmdlet {
         )
 
         $servers").ToList();
-        Terminal.Write(ConsoleHostViews.Table(rows, new ConsoleTableViewOptions { GroupBy = "Site" }));
+        Terminal.Write(ConsoleHostViews.Table(
+            rows,
+            new ConsoleTableViewOptions { GroupBy = "Site" }));
     }
 }

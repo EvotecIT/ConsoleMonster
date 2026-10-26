@@ -21,7 +21,9 @@ Dashboard dashboard = new DashboardBuilder("[bold]Deploy[/]")
 string recording = Path.Combine(Path.GetTempPath(), "deploy.jsonl");
 
 // 1. Run it, writing every update to the recording.
-using (LiveSession session = new LiveSession(dashboard, new LiveSessionOptions { RecordPath = recording })) {
+using (LiveSession session = new LiveSession(
+    dashboard,
+    new LiveSessionOptions { RecordPath = recording })) {
     session.Run(s => {
         PhasesHandle phase = phases.Handle(s);
         StatusListHandle status = list.Handle(s);
@@ -33,7 +35,8 @@ using (LiveSession session = new LiveSession(dashboard, new LiveSessionOptions {
                 Thread.Sleep(250);
                 status.Set(server, StatusKind.Pass);
             }
-            s.Post(new LiveEvent("log", "write", text: step + " done on 4 servers", status: "info"));
+            s.Post(
+                new LiveEvent("log", "write", text: step + " done on 4 servers", status: "info"));
             phase.Complete(step, StatusKind.Pass);
         }
     });
@@ -46,5 +49,10 @@ using (StreamReader reader = File.OpenText(recording)) {
 
 // 3. Save it as a page with a player.
 using (StreamReader reader = File.OpenText(recording)) {
-    File.WriteAllText(Path.Combine(Path.GetTempPath(), "deploy.html"), Recording.ExportHtml(dashboard, reader, new RecordingExportOptions { Width = 100, Height = 16 }));
+    File.WriteAllText(
+        Path.Combine(Path.GetTempPath(), "deploy.html"),
+        Recording.ExportHtml(
+            dashboard,
+            reader,
+            new RecordingExportOptions { Width = 100, Height = 16 }));
 }

@@ -16,6 +16,7 @@ var jobs = new BackupJob[]
 Dictionary<string, int> attempts = new Dictionary<string, int>();
 Dictionary<string, string> completed = new Dictionary<string, string>();
 List<Exception> attemptErrors = new List<Exception>();
+
 // Layout: show the actual attempt counts and returned archive results.
 IWidget Summary()
 {
@@ -32,8 +33,15 @@ IWidget Summary()
     table.Expand = true;
 
     int recovered = completed.Keys.Count(name => attempts[name] > 1);
-    string summary = attempts.Count == 0 ? "[muted]4 jobs queued · destination ./backups/nightly[/]" : completed.Count < jobs.Length ? $"[pass]{completed.Count} passed[/]   [warn]{jobs.Length - completed.Count} queued for retry[/]" : $"[pass]{completed.Count} passed[/]   [accent]{recovered} recovered on retry[/]   [muted]retention: 14 days[/]";
-    return new Rows(new Rule("[bold]Nightly backup[/] [muted]· throttle 2 · maximum 2 attempts[/]"), table, new TextBlock(summary))
+    string summary = attempts.Count == 0
+        ? "[muted]4 jobs queued · destination ./backups/nightly[/]"
+        : completed.Count < jobs.Length
+            ? $"[pass]{completed.Count} passed[/]   [warn]{jobs.Length - completed.Count} queued for retry[/]"
+            : $"[pass]{completed.Count} passed[/]   [accent]{recovered} recovered on retry[/]   [muted]retention: 14 days[/]";
+    return new Rows(
+        new Rule("[bold]Nightly backup[/] [muted]· throttle 2 · maximum 2 attempts[/]"),
+        table,
+        new TextBlock(summary))
     {
         Gap = 1
     };
@@ -55,7 +63,8 @@ for (int attempt = 1; attempt <= 2 && pending.Length > 0; attempt++)
     }, new RunOptions { ThrottleLimit = 2, Title = "Backup attempt " + attempt });
     foreach (var result in outcomes.Where(result => result.Succeeded))
         completed[result.Item.Name] = result.Value;
-    attemptErrors.AddRange(outcomes.Where(result => !result.Succeeded).Select(result => result.Error!));
+    attemptErrors.AddRange(outcomes.Where(result => !result.Succeeded)
+        .Select(result => result.Error!));
     pending = outcomes.Where(result => !result.Succeeded).Select(result => result.Item).ToArray();
     Terminal.Write(Summary());
 } // completed holds archive results; pending and attemptErrors retain unresolved work and diagnostics.

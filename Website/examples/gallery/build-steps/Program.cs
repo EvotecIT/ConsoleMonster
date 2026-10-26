@@ -6,13 +6,8 @@ using ConsoleMonster.Widgets;
 
 // All values are synthetic. This example never connects to a host.
 // Data: fictional inputs kept in memory.
-string[] stages =
-{
-    "Restore",
-    "Compile",
-    "Test",
-    "Package"
-};
+string[] stages = { "Restore", "Compile", "Test", "Package" };
+
 // Layout: construct the widgets shown on screen.
 IWidget Frame(int tick)
 {
@@ -24,7 +19,16 @@ IWidget Frame(int tick)
         checklist.Add(new TextBlock("[" + status + "]" + stages[index] + "[/]  " + label));
     }
 
-    return new Rows(new TextBlock("[bold]Build pipeline[/] [muted]· Orbit.Tools[/]"), new Panel() { Title = "Release checklist", Content = checklist }, new ProgressBar("Overall") { Value = tick, Total = 4 }, new KeyValueList().Add("Project", "Orbit.Tools").Add("Version", "1.2.0").Add("Artifacts", "./artifacts/").Add("Publish", "manual approval"), new TextBlock("[muted]Ctrl+C stops the live run.[/]"))
+    return new Rows(
+        new TextBlock("[bold]Build pipeline[/] [muted]· Orbit.Tools[/]"),
+        new Panel() { Title = "Release checklist", Content = checklist },
+        new ProgressBar("Overall") { Value = tick, Total = 4 },
+        new KeyValueList()
+            .Add("Project", "Orbit.Tools")
+            .Add("Version", "1.2.0")
+            .Add("Artifacts", "./artifacts/")
+            .Add("Publish", "manual approval"),
+        new TextBlock("[muted]Ctrl+C stops the live run.[/]"))
     {
         Gap = 1
     };
@@ -44,7 +48,8 @@ try
         }
     });
 }
-catch (OperationCanceledException cancelled)when (cancelled.CancellationToken == session.Cancellation)
+catch (OperationCanceledException cancelled)
+    when (cancelled.CancellationToken == session.Cancellation)
 {
     // Ctrl+C is a normal way to leave the demo, after the session restores the terminal.
     return;

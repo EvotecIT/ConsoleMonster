@@ -37,7 +37,8 @@ public sealed class HelpExample : PSCmdlet {
             )
             process { [pscustomobject] @{ Domain = $Domain; Checks = 5 } }
         }");
-        if (ConsoleHostHelp.TryCreate("Test-MailDomain", InvokeCommand, out var widget, out var error) && widget != null) {
+        if (ConsoleHostHelp.TryCreate("Test-MailDomain", InvokeCommand, out var widget,
+            out var error) && widget != null) {
             Terminal.Write(widget);
         } else if (error != null) { WriteError(error); }
     }

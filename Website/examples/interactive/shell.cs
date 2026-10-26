@@ -28,18 +28,31 @@ Server[] inventory =
 };
 MaintenanceTask[] allTasks =
 {
-    new("DiskCleanup", "Disk cleanup", "Maintenance", "Removes temporary files, old update caches and crash dumps older than 30 days.", 3, true),
+    new("DiskCleanup", "Disk cleanup", "Maintenance",
+        "Removes temporary files, old update caches and crash dumps older than 30 days.", 3, true),
     // <more>
-    new("LogRotation", "Log rotation", "Maintenance", "Compresses application logs older than 7 days and deletes archives older than 90 days.", 2, true),
-    new("RestartPending", "Pending restart check", "Maintenance", "Reports servers waiting for a restart after updates or role changes.", 1, false),
-    new("PatchStatus", "Patch status", "Security", "Lists missing security updates and the date of the last successful install.", 2, false),
-    new("Certificates", "Certificate expiry", "Security", "Finds machine certificates that expire within 30 days and the services that use them.", 1, false),
-    new("LocalAdmins", "Local administrators audit", "Security", "Compares local Administrators membership with the approved list.", 1, false),
-    new("Firewall", "Firewall rules review", "Security", "Flags inbound allow rules open to any address.", 2, false),
-    new("EventErrors", "Event log errors", "Health", "Summarizes System and Application errors from the last 24 hours.", 1, false),
-    new("Services", "Service health", "Health", "Checks that automatic services are running and restarts the ones that stopped.", 1, true),
-    new("DiskSpace", "Disk space", "Health", "Warns below 15% free and fails below 5% free on every fixed volume.", 1, false),
-    new("Uptime", "Uptime and reboots", "Health", "Reports uptime and unexpected reboots in the last 30 days.", 1, false)
+    new("LogRotation", "Log rotation", "Maintenance",
+        "Compresses application logs older than 7 days and deletes archives older than 90 days.", 2,
+        true),
+    new("RestartPending", "Pending restart check", "Maintenance",
+        "Reports servers waiting for a restart after updates or role changes.", 1, false),
+    new("PatchStatus", "Patch status", "Security",
+        "Lists missing security updates and the date of the last successful install.", 2, false),
+    new("Certificates", "Certificate expiry", "Security",
+        "Finds machine certificates that expire within 30 days and the services that use them.", 1,
+        false),
+    new("LocalAdmins", "Local administrators audit", "Security",
+        "Compares local Administrators membership with the approved list.", 1, false),
+    new("Firewall", "Firewall rules review", "Security",
+        "Flags inbound allow rules open to any address.", 2, false),
+    new("EventErrors", "Event log errors", "Health",
+        "Summarizes System and Application errors from the last 24 hours.", 1, false),
+    new("Services", "Service health", "Health",
+        "Checks that automatic services are running and restarts the ones that stopped.", 1, true),
+    new("DiskSpace", "Disk space", "Health",
+        "Warns below 15% free and fails below 5% free on every fixed volume.", 1, false),
+    new("Uptime", "Uptime and reboots", "Health",
+        "Reports uptime and unexpected reboots in the last 30 days.", 1, false)
 // </more>
 };
 List<PastRun> history = new()
@@ -113,27 +126,43 @@ menu.Item("History", i =>
 });
 menu.Separator();
 menu.Exit("Quit");
-menu.CommandProviders.Add(new CommandProvider("Task", () => allTasks.Select(task => new PaletteCommand("Toggle " + task.Name, context =>
-{
-    List<object?> selection = tasks.Selection.ToList();
-    bool on = selection.Remove(task);
-    if (!on)
+menu.CommandProviders.Add(new CommandProvider(
+    "Task",
+    () => allTasks.Select(task => new PaletteCommand("Toggle " + task.Name, context =>
     {
-        selection.Add(task);
-    }
+        List<object?> selection = tasks.Selection.ToList();
+        bool on = selection.Remove(task);
+        if (!on)
+        {
+            selection.Add(task);
+        }
 
-    tasks.SetSelection(allTasks.Where(t => selection.Contains(t)).Cast<object?>());
-    context.Toast((on ? "Removed " : "Added ") + task.Name, on ? StatusKind.Info : StatusKind.Pass);
-}) { Description = task.Description })));
+        tasks.SetSelection(allTasks.Where(t => selection.Contains(t)).Cast<object?>());
+        context.Toast((on ? "Removed " : "Added ") + task.Name,
+            on ? StatusKind.Info : StatusKind.Pass);
+    }) { Description = task.Description })));
 menu.Run(new MenuOptions { StorageRoot = Path.Combine(Path.GetTempPath(), "server-toolbox") });
 // <more>
 async Task<IEnumerable<Choice>> LoadServersAsync(CancellationToken token)
 {
     await Task.Delay(1100, token);
-    return inventory.Select(server => new Choice(server, server.Name) { Group = server.Site, Badge = RichText.Plain(server.Role, new RichStyle(ThemeToken.Muted)), Description = server.Role + " server · " + server.OperatingSystem, DisabledReason = server.Offline }).ToList();
+    return inventory.Select(server => new Choice(server, server.Name)
+    {
+        Group = server.Site,
+        Badge = RichText.Plain(server.Role, new RichStyle(ThemeToken.Muted)),
+        Description = server.Role + " server · " + server.OperatingSystem,
+        DisabledReason = server.Offline
+    })
+        .ToList();
 }
 
-IWidget TaskPreview(MaintenanceTask task) => new Rows(new TextBlock(Markup.Escape(task.Description)), new KeyValueList().Add("Group", Markup.Escape(task.Category)).Add("Duration", "about " + task.Minutes + " min per server").Add("Changes", task.Changes ? "[warn]yes[/], makes changes" : "[pass]no[/], read only").Add("Parameter", "[accent]" + Markup.Escape(task.Id) + "[/]"))
+IWidget TaskPreview(MaintenanceTask task) => new Rows(
+    new TextBlock(Markup.Escape(task.Description)),
+    new KeyValueList()
+        .Add("Group", Markup.Escape(task.Category))
+        .Add("Duration", "about " + task.Minutes + " min per server")
+        .Add("Changes", task.Changes ? "[warn]yes[/], makes changes" : "[pass]no[/], read only")
+        .Add("Parameter", "[accent]" + Markup.Escape(task.Id) + "[/]"))
 {
     Gap = 1
 };
@@ -158,7 +187,10 @@ Form OptionsForm()
     report.Default = "reports/toolbox";
     report.ParameterName = "ReportPath";
     report.Help = "Created when it does not exist. Tab completes folder names.";
-    ChoiceField format = page.Select("Format", "Report format", new[] { new Choice("Html", "HTML"), new Choice("Csv", "CSV"), new Choice("Json", "JSON") });
+    ChoiceField format = page.Select(
+        "Format",
+        "Report format",
+        new[] { new Choice("Html", "HTML"), new Choice("Csv", "CSV"), new Choice("Json", "JSON") });
     format.Default = "Html";
     format.ParameterName = "Format";
     ToggleField notify = page.Toggle("Notify", "Email the report");
@@ -168,7 +200,9 @@ Form OptionsForm()
     email.Required = true;
     email.Placeholder = "ops@example.org";
     email.ParameterName = "To";
-    email.Validator = (value, values) => value is string s && s.Contains('@') ? null : "Enter an email address";
+    email.Validator = (value, values) => value is string s && s.Contains('@')
+        ? null
+        : "Enter an email address";
     ToggleField dryRun = page.Toggle("DryRun", "Dry run");
     dryRun.ParameterName = "WhatIf";
     dryRun.Help = "Reports what would change without changing anything.";
@@ -184,10 +218,21 @@ ReviewModel Review(MenuContext context)
     List<Server> servers = targets.GetSelection<Server>().ToList();
     List<MaintenanceTask> selected = tasks.GetSelection<MaintenanceTask>().ToList();
     FormValues values = options.GetValues();
-    review.Row("Targets", servers.Count == 0 ? string.Empty : servers.Count + " · " + string.Join(", ", servers.Select(s => s.Name)));
-    review.Row("Tasks", selected.Count == 0 ? string.Empty : selected.Count + " · " + string.Join(", ", selected.Select(t => t.Name)));
-    review.Row("Servers at a time", options.Find("Parallel")!.Display(values["Parallel"], PromptLabels.Default));
-    review.Row("Report", values.Get<string>("Report") + " (" + options.Find("Format")!.Display(values["Format"], PromptLabels.Default) + ")");
+    review.Row(
+        "Targets",
+        servers.Count == 0
+            ? string.Empty
+            : servers.Count + " · " + string.Join(", ", servers.Select(s => s.Name)));
+    review.Row(
+        "Tasks",
+        selected.Count == 0
+            ? string.Empty
+            : selected.Count + " · " + string.Join(", ", selected.Select(t => t.Name)));
+    review.Row("Servers at a time",
+        options.Find("Parallel")!.Display(values["Parallel"], PromptLabels.Default));
+    review.Row("Report",
+        values.Get<string>("Report") + " (" + options.Find("Format")!
+            .Display(values["Format"], PromptLabels.Default) + ")");
     review.Row("Email", values.Get<bool>("Notify") ? values.Get<string>("Email") : "off");
     review.Row("Dry run", values.Get<bool>("DryRun") ? "yes" : "no");
     if (servers.Count == 0)
@@ -202,26 +247,38 @@ ReviewModel Review(MenuContext context)
 
     if (values.Get<bool>("Notify") && string.IsNullOrWhiteSpace(values.Get<string>("Email")))
     {
-        review.Problem("Enter the email recipient in Options, or turn off Email the report", optionsItem);
+        review.Problem("Enter the email recipient in Options, or turn off Email the report",
+            optionsItem);
     }
 
     List<string> arguments = new List<string>
     {
-        CommandLine.Argument("ComputerName", servers.Select(s => s.Name).ToList(), CommandStyle.PowerShell),
+        CommandLine.Argument(
+            "ComputerName",
+            servers.Select(s => s.Name).ToList(),
+            CommandStyle.PowerShell),
         CommandLine.Argument("Task", selected.Select(t => t.Id).ToList(), CommandStyle.PowerShell)
     };
     string optionArguments = options.BuildCommand();
-    review.Command = CommandLine.Join("Invoke-ServerToolbox", arguments) + (optionArguments.Length > 0 ? " " + optionArguments : string.Empty);
+    review.Command = CommandLine.Join("Invoke-ServerToolbox", arguments)
+        + (optionArguments.Length > 0 ? " " + optionArguments : string.Empty);
     review.Run = ctx => Execute(ctx, servers, selected, values);
     return review;
 }
 
-void Execute(MenuContext context, List<Server> servers, List<MaintenanceTask> selected, FormValues values)
+void Execute(MenuContext context, List<Server> servers, List<MaintenanceTask> selected,
+    FormValues values)
 {
     Lanes lanes = new Lanes("lanes");
     foreach (Server server in servers)
     {
-        lanes.Add(server.Name, new RichTextBuilder().Append(server.Name, ThemeToken.Accent).Append("  " + server.Site, ThemeToken.Muted).Build(), selected.Count);
+        lanes.Add(
+            server.Name,
+            new RichTextBuilder()
+                .Append(server.Name, ThemeToken.Accent)
+                .Append("  " + server.Site, ThemeToken.Muted)
+                .Build(),
+            selected.Count);
     }
 
     ProgressBar overall = new ProgressBar("Overall", "overall")
@@ -233,12 +290,19 @@ void Execute(MenuContext context, List<Server> servers, List<MaintenanceTask> se
     {
         PreferredHeight = 6
     };
-    Dashboard dashboard = new DashboardBuilder("[bold]Server toolbox[/]").Subtitle(servers.Count + " servers · " + selected.Count + " tasks" + (values.Get<bool>("DryRun") ? " · dry run" : string.Empty)).Panel("Servers", lanes).Add(new Padding(overall, 1, 0, 1, 0)).Panel("Log", log, fill: true).BuildDashboard();
+    Dashboard dashboard = new DashboardBuilder("[bold]Server toolbox[/]")
+        .Subtitle(servers.Count + " servers · " + selected.Count + " tasks"
+            + (values.Get<bool>("DryRun") ? " · dry run" : string.Empty))
+        .Panel("Servers", lanes)
+        .Add(new Padding(overall, 1, 0, 1, 0))
+        .Panel("Log", log, fill: true)
+        .BuildDashboard();
     int throttle = (int)values.Get<decimal>("Parallel", 4m);
     context.Run(dashboard, run => Work(run, lanes, overall, log, servers, selected, throttle));
 }
 
-MenuRunResult Work(RunContext run, Lanes lanesWidget, ProgressBar overallWidget, LogRegion logWidget, List<Server> servers, List<MaintenanceTask> selected, int throttle)
+MenuRunResult Work(RunContext run, Lanes lanesWidget, ProgressBar overallWidget,
+    LogRegion logWidget, List<Server> servers, List<MaintenanceTask> selected, int throttle)
 {
     LanesHandle lanes = lanesWidget.Handle(run.Session);
     ProgressHandle overall = overallWidget.Handle(run.Session);
@@ -253,7 +317,8 @@ MenuRunResult Work(RunContext run, Lanes lanesWidget, ProgressBar overallWidget,
     failures.AddColumn("Task");
     failures.AddColumn(new TableColumn("Finding") { Flexible = true });
     Stopwatch watch = Stopwatch.StartNew();
-    log.Write("Started " + selected.Count + " tasks on " + servers.Count + " servers, " + throttle + " at a time");
+    log.Write("Started " + selected.Count + " tasks on " + servers.Count + " servers, " + throttle
+        + " at a time");
     foreach (MaintenanceTask task in selected)
     {
         foreach (Server server in servers)
@@ -266,13 +331,17 @@ MenuRunResult Work(RunContext run, Lanes lanesWidget, ProgressBar overallWidget,
         foreach (Server server in servers)
         {
             double roll = random.NextDouble();
-            StatusKind outcome = roll < 0.08 ? StatusKind.Fail : roll < 0.2 ? StatusKind.Warn : StatusKind.Pass;
+            StatusKind outcome = roll < 0.08
+                ? StatusKind.Fail
+                : roll < 0.2 ? StatusKind.Warn : StatusKind.Pass;
             lanes.Advance(server.Name, outcome, task.Name);
             overall.Advance();
             if (outcome == StatusKind.Fail)
             {
                 failed++;
-                string finding = task.Category == "Security" ? "3 updates missing for 41 days" : "volume D: below 5% free";
+                string finding = task.Category == "Security"
+                    ? "3 updates missing for 41 days"
+                    : "volume D: below 5% free";
                 failures.AddRow(server.Name, task.Name, finding);
                 log.Error(server.Name + " · " + task.Name + ": " + finding);
             }
@@ -295,12 +364,19 @@ MenuRunResult Work(RunContext run, Lanes lanesWidget, ProgressBar overallWidget,
         lanes.Complete(server.Name);
     }
 
-    overall.Complete(failed > 0 ? StatusKind.Fail : warnings > 0 ? StatusKind.Warn : StatusKind.Pass);
+    overall.Complete(failed > 0
+        ? StatusKind.Fail
+        : warnings > 0 ? StatusKind.Warn : StatusKind.Pass);
     Thread.Sleep(600);
-    history.Add(new PastRun(DateTime.Now, servers.Count, selected.Count, passed, warnings, failed, watch.Elapsed));
-    MenuRunResult result = new MenuRunResult("Run finished", failed > 0 ? StatusKind.Fail : warnings > 0 ? StatusKind.Warn : StatusKind.Pass)
+    history.Add(new PastRun(DateTime.Now, servers.Count, selected.Count, passed, warnings, failed,
+        watch.Elapsed));
+    MenuRunResult result = new MenuRunResult("Run finished",
+        failed > 0 ? StatusKind.Fail : warnings > 0 ? StatusKind.Warn : StatusKind.Pass)
     {
-        Summary = servers.Count + " servers checked. " + (failed > 0 ? failed + " findings need action." : warnings > 0 ? warnings + " warnings to review; nothing failed." : "Nothing needs action."),
+        Summary = servers.Count + " servers checked. "
+            + (failed > 0 ? failed + " findings need action." : warnings > 0
+                ? warnings + " warnings to review; nothing failed."
+                : "Nothing needs action."),
         Details = failed > 0 ? failures : null,
         Elapsed = watch.Elapsed
     };
@@ -323,10 +399,14 @@ MenuRunResult Work(RunContext run, Lanes lanesWidget, ProgressBar overallWidget,
         result.Figure("failed", "0");
     }
 
-    result.Next("Open the report", ctx => ctx.Toast("Report opened in the browser", StatusKind.Info));
+    result.Next(
+        "Open the report",
+        ctx => ctx.Toast("Report opened in the browser", StatusKind.Info));
     if (failed > 0)
     {
-        result.Next("Run the failed tasks again", ctx => ctx.Toast("Queued " + failed + " tasks", StatusKind.Info));
+        result.Next(
+            "Run the failed tasks again",
+            ctx => ctx.Toast("Queued " + failed + " tasks", StatusKind.Info));
     }
 
     result.Next("Export findings to CSV", ctx => ctx.Toast("Saved findings.csv"));
@@ -346,14 +426,26 @@ IWidget HistoryPage()
     table.AddColumn(new TableColumn("Duration") { Alignment = HorizontalAlignment.Right });
     foreach (PastRun past in Enumerable.Reverse(history))
     {
-        StatusKind status = past.Failed > 0 ? StatusKind.Fail : past.Warnings > 0 ? StatusKind.Warn : StatusKind.Pass;
-        table.AddRow(past.When.ToString("ddd HH:mm", CultureInfo.CurrentCulture), past.Servers.ToString(CultureInfo.CurrentCulture), past.Tasks.ToString(CultureInfo.CurrentCulture), TableCell.ForStatus(status, past.Passed + " passed · " + past.Warnings + " warn · " + past.Failed + " failed"), NumberFormat.Duration(past.Elapsed));
+        StatusKind status = past.Failed > 0
+            ? StatusKind.Fail
+            : past.Warnings > 0 ? StatusKind.Warn : StatusKind.Pass;
+        table.AddRow(past.When.ToString("ddd HH:mm", CultureInfo.CurrentCulture),
+            past.Servers.ToString(CultureInfo.CurrentCulture),
+            past.Tasks.ToString(CultureInfo.CurrentCulture),
+            TableCell.ForStatus(status,
+                past.Passed + " passed · " + past.Warnings + " warn · " + past.Failed + " failed"),
+            NumberFormat.Duration(past.Elapsed));
     }
 
     return table;
 }
 
 // </more>
-record Server(string Name, string Site, string Role, string OperatingSystem, string? Offline = null);
-record MaintenanceTask(string Id, string Name, string Category, string Description, int Minutes, bool Changes);
-record PastRun(DateTime When, int Servers, int Tasks, int Passed, int Warnings, int Failed, TimeSpan Elapsed);
+record Server(string Name, string Site, string Role, string OperatingSystem,
+    string? Offline = null);
+
+record MaintenanceTask(string Id, string Name, string Category, string Description, int Minutes,
+    bool Changes);
+
+record PastRun(DateTime When, int Servers, int Tasks, int Passed, int Warnings, int Failed,
+    TimeSpan Elapsed);
