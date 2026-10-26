@@ -1,9 +1,8 @@
-[?9001h[?1004h[?25l[2J[m[1m[Hevotec.xyz[38;2;75;80;96m[22m
-├── [38;2;74;222;128m✓ [mMX[38;2;139;143;154m[2C2 records[38;2;75;80;96m
-│   └── [mevotec-xyz.mail.protection.outlook.com[38;2;139;143;154m[2Cpriority 0[38;2;75;80;96m
-├── [38;2;251;191;36m▴ [mSPF[38;2;139;143;154m[2C9 of 10 DNS lookups[38;2;75;80;96m
-│   ├── [minclude:spf.protection.outlook.com[38;2;75;80;96m
-│   └── [minclude:_spf.salesforce.com[38;2;75;80;96m
-├── [38;2;248;113;113m✗ [mDMARC[38;2;139;143;154m[2Cp=none[38;2;75;80;96m
-└── [38;2;74;222;128m✓ [mDKIM[38;2;139;143;154m[2Cselector1, selector2
-]0;C:\Program Files\PowerShell\7\pwsh.exe[?25h[m[?9001l[?1004l
+[?1h=[0;1mevotec.xyz[0m
+[0;38;2;75;80;96m├── [0;38;2;74;222;128m✓[0m[6G MX  [0;38;2;139;143;154m2 records[0m
+[0;38;2;75;80;96m│   └── [0mevotec-xyz.mail.protection.outlook.com  [0;38;2;139;143;154mpriority 0[0m
+[0;38;2;75;80;96m├── [0;38;2;251;191;36m▴[0m[6G SPF  [0;38;2;139;143;154m9 of 10 DNS lookups[0m
+[0;38;2;75;80;96m│   ├── [0minclude:spf.protection.outlook.com[0m
+[0;38;2;75;80;96m│   └── [0minclude:_spf.salesforce.com[0m
+[0;38;2;75;80;96m├── [0;38;2;248;113;113m✗[0m[6G DMARC  [0;38;2;139;143;154mp=none[0m
+[0;38;2;75;80;96m└── [0;38;2;74;222;128m✓[0m[6G DKIM  [0;38;2;139;143;154mselector1, selector2[0m

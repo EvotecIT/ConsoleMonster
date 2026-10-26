@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "producer": "macos",
+  "complete": true,
+  "scope": "produced-only",
+  "requestedSet": "demos",
+  "filters": {
+    "SITEFRAMES_DEMOS": "watch"
+  },
+  "allSetsCompleted": false,
+  "files": {
+    "demos/watch.cast": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "0cc4fb9ee98fa7aa719c7444f6d9d4c87e4062b515e45a955285ece7a4c511e6",
+      "screen": "dark",
+      "width": 96,
+      "height": 14
+    }
+  }
+}

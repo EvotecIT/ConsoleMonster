@@ -13,7 +13,7 @@ using SiteFrames.Frames;
 
 namespace SiteFrames.Capture {
     /// <summary>Fail-closed comparison of independently produced receipts; completion never implies full-suite coverage.</summary>
-    internal static class CaptureComparison {
+    internal static partial class CaptureComparison {
         private sealed record Capture(string Path, byte[] Bytes, int Width, int Height, string Category, string? Screen,
             List<CellBuffer> Frames, string? Source, string[] ScreenHashes);
 
@@ -26,6 +26,7 @@ namespace SiteFrames.Capture {
             coverage["fullSuiteVerified"] = coverage["left"]?["allSetsCompleted"]?.GetValue<bool>() == true
                 && coverage["right"]?["allSetsCompleted"]?.GetValue<bool>() == true;
             bool samePlatform = producerA == producerB;
+            bool validReceipts = failures.Count == 0;
             int compared = 0;
             foreach (string file in a.Keys.Union(b.Keys).OrderBy(f => f, StringComparer.Ordinal)) {
                 bool hasA = a.TryGetValue(file, out Capture? ca), hasB = b.TryGetValue(file, out Capture? cb);
@@ -51,11 +52,20 @@ namespace SiteFrames.Capture {
                 if (samePlatform && !bytesEqual) { failures.Add(file + ": repeated capture is not byte-identical (including measurements)"); }
                 if (x.Frames.Count != y.Frames.Count) { failures.Add(file + ": frame counts differ (" + x.Frames.Count + " / " + y.Frames.Count + ")"); }
                 if (rows.Count > 0 || screens.Count > 0) {
-                    // No category is a blanket visual waiver. Measurement/profile value policies require explicit approval.
-                    failures.Add(new JsonObject { ["file"] = file, ["category"] = x.Category,
-                        ["reason"] = "capture cells, styles or screen hashes differ", ["changedRows"] = rows,
-                        ["changedRowCount"] = changedRowCount, ["changedCellCount"] = changedCellCount,
-                        ["omittedChangedRows"] = changedRowCount - rows.Count, ["changedScreenHashes"] = screens });
+                    // Only the three tagged native profiles have a parsed value policy; every other category stays strict.
+                    if (!samePlatform && validReceipts && ProfileDifferences(file, x, y, out JsonArray values)) {
+                        allowed.Add(new JsonObject { ["file"] = file, ["category"] = x.Category,
+                            ["reason"] = "documented native profile values; stable fields, layout and styles checked in every complete frame",
+                            ["leftPath"] = x.Path, ["rightPath"] = y.Path, ["valueDifferences"] = values,
+                            ["leftSha256"] = CaptureRun.Hash(x.Bytes), ["rightSha256"] = CaptureRun.Hash(y.Bytes),
+                            ["changedRows"] = rows, ["changedRowCount"] = changedRowCount, ["changedCellCount"] = changedCellCount,
+                            ["omittedChangedRows"] = changedRowCount - rows.Count, ["changedScreenHashes"] = screens });
+                    } else {
+                        failures.Add(new JsonObject { ["file"] = file, ["category"] = x.Category,
+                            ["reason"] = "capture cells, styles or screen hashes differ", ["changedRows"] = rows,
+                            ["changedRowCount"] = changedRowCount, ["changedCellCount"] = changedCellCount,
+                            ["omittedChangedRows"] = changedRowCount - rows.Count, ["changedScreenHashes"] = screens });
+                    }
                 } else if (!samePlatform && !bytesEqual && x.Source == y.Source && x.Screen == y.Screen && x.Width == y.Width && x.Height == y.Height && x.Frames.Count == y.Frames.Count) {
                     allowed.Add(new JsonObject { ["file"] = file, ["category"] = x.Category,
                         ["reason"] = "transport encoding/timing, declared terminal defaults or invisible space foreground only; all visible cells, backgrounds, decorations, links and screen hashes match",
@@ -134,7 +144,7 @@ namespace SiteFrames.Capture {
                             Screen defaults = screen == "dark" ? SiteFrames.Frames.Screen.Dark : SiteFrames.Frames.Screen.Light;
                             var resolved = new List<CellBuffer>();
                             foreach (CellBuffer frame in frames) {
-                                CellBuffer next = ResolveDefaults(frame, defaults);
+                                CellBuffer next = FrameDefaults.Resolve(frame, defaults);
                                 if (resolved.Count == 0 || !SameFrame(resolved[^1], next)) { resolved.Add(next); }
                             }
                             frames = resolved;
@@ -248,21 +258,6 @@ namespace SiteFrames.Capture {
             CellBuffer final = screen.Transcript();
             if (result.Count == 0 || !SameFrame(result[^1], final)) { result.Add(final); }
             return result;
-        }
-
-        private static CellBuffer ResolveDefaults(CellBuffer frame, Screen screen) {
-            var resolved = new CellBuffer(frame.Width, frame.Height);
-            Color foreground = Color.FromHex(screen.Foreground), background = Color.FromHex(screen.Background);
-            for (int y = 0; y < frame.Height; y++) {
-                for (int x = 0; x < frame.Width; x++) {
-                    Cell cell = frame[x, y];
-                    if (cell.IsContinuation) { continue; }
-                    Style style = cell.Style;
-                    resolved.Set(x, y, cell.Glyph, new Style(style.Color.IsDefault ? foreground : style.Color,
-                        style.BackgroundColor.IsDefault ? background : style.BackgroundColor, style.Decoration, style.Link), cell.Width);
-                }
-            }
-            return resolved;
         }
 
         private static bool SameFrame(CellBuffer a, CellBuffer b) => a.Width == b.Width && a.Height == b.Height &&

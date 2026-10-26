@@ -1,3 +1,2 @@
-[?9001h[?1004h[?25l[2J[m[1m[HDeployed[22m in[38;2;96;165;250m[1C48 s[m:[38;2;74;222;128m[1C√ 12 passed [38;2;251;191;36m▲ 2 warned [38;2;248;113;113m✗ 1 failed
-]0;C:\Program Files\PowerShell\7\pwsh.exe[?25h[m[3mDecorations:[23m [1mbold[22m [2mdim[22m [4munderline[24m [9mstruck[29m [7m invert 
-[?9001l[?1004l[27m
+[?1h=[0;1mDeployed[0m in [0;38;2;96;165;250m48 s[0m: [0;38;2;74;222;128m√ 12 passed[0m [0;38;2;251;191;36m▲ 2 warned[0m [0;38;2;248;113;113m✗ 1 failed[0m
+[0;3mDecorations:[0m [0;1mbold[0m [0;2mdim[0m [0;4munderline[0m [0;9mstruck[0m [0;7m invert [0m

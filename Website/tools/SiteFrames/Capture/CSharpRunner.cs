@@ -101,9 +101,9 @@ namespace SiteFrames.Capture {
         /// independent reference used for cell parity, source compilation and scripted frame selection.</summary>
         internal static List<SiteFrames.Vt.OutputChunk> Record(string dll, IEnumerable<string> arguments, int width, int height,
             IDictionary<string, string?> environment, string directory, TimeSpan timeout, TimeSpan? interrupt = null,
-            string? readyText = null, string? inputKeys = null, TimeSpan? inputDelay = null) =>
+            string? readyText = null, string? inputKeys = null, TimeSpan? inputDelay = null, Action<string>? recording = null) =>
             TerminalCapture.Run(DotnetHost, new[] { dll }.Concat(arguments), width, height, environment, directory, timeout, interrupt,
-                readyText: readyText, inputKeys: inputKeys, inputDelay: inputDelay);
+                readyText: readyText, inputKeys: inputKeys, inputDelay: inputDelay, recording: recording);
 
         /// <summary>The runtime hosting the tool, also used for the programs compiled against that runtime.</summary>
         internal static string DotnetHost {

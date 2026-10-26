@@ -68,6 +68,15 @@ module used by PowerShell 5.1. An optional area follows `Website`, for example
   time groups, and simulated pipelines advance their explicit clock. Their frame
   schedule does not depend on producer CPU speed. Measured and concurrent programs
   keep their normal native execution path.
+- The fixed-data watch example uses the same viewport checkpoints. A live watch
+  honors `RecordingTarget.SkipDelays`, captures every result including the last,
+  and keeps ordinary polling and caller cancellation outside that recording mode.
+- Typed examples insert recorder chapters before each comment, prompt and command
+  output. The site exports their actual `SessionRecording.ChapterFrame` cells with
+  fixed reading holds of 600, 400 and 1200 ms. This avoids comparing half-written
+  native repaints. Static examples export the recorder's complete `Transcript`,
+  including scrolled history. Both use the declared dark terminal palette and the
+  shared terminal encoder; visible data, styles, links and wide cells are retained.
 - The capture policy participates in source fingerprints. Do not edit stamps
   to make an old capture appear fresh. Regenerate each affected producing set.
 
@@ -105,7 +114,14 @@ renderer. A missing declaration never grants this equivalence, and conflicting
 declarations fail. Structural checks run before colour resolution.
 The JSON report lists every failing capture and counts every changed row and cell. It retains the first 32 changed rows and eight changed cells per row as diagnostic samples, with explicit omitted counts, so animated differences cannot produce unbounded reports. A category label
 alone never waives a difference; platform values need an explicit comparison
-policy, and real measurements still fail strict repeated-run comparison. The Windows-only ps5 production difference is listed separately;
+policy. The three tagged `docs/profile*` captures permit native font presence/value
+and terminal kind; the detected profile also permits detected colour/glyph values,
+their explanations and the built-in muted-label mapping for Ansi256/TrueColor.
+The parser checks every complete frame against the current ordered 100x40 schema;
+stable fields, dimensions, culture, width policy, links and all other styles stay
+strict. Every permitted field change is listed with both values and the original
+row/cell diagnostics. Unknown or duplicate rows fail. Real measurements still fail
+strict repeated-run comparison. The Windows-only ps5 production difference is listed separately;
 it does not exempt those committed files from render freshness and parity.
 
 The comparison is a structural gate. Rendered review is still required to check

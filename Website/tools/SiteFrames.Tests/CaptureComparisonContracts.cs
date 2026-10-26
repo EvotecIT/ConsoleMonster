@@ -9,7 +9,7 @@ using SiteFrames.Capture;
 using Xunit;
 
 namespace SiteFrames.Tests {
-    public sealed class CaptureComparisonContracts : IDisposable {
+    public sealed partial class CaptureComparisonContracts : IDisposable {
         private readonly string _root = Path.Combine(Path.GetTempPath(), "siteframes-compare-" + Guid.NewGuid().ToString("N"));
 
         [Fact]

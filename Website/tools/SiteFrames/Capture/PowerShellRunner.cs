@@ -76,7 +76,7 @@ namespace SiteFrames.Capture {
         /// shown script is only the commands. Definitions such as functions run without a prompt. <paramref name="setup"/>
         /// is PowerShell the recording runs first (such as the folder to start in); it is never shown either.
         /// </summary>
-        public static List<OutputChunk> Run(Site site, PowerShellHost host, string script, int width, int height, Dictionary<string, string?> environment, string? workingDirectory = null, TimeSpan? timeout = null, bool allowErrors = false, bool showProgress = false, string? arguments = null, string? prompt = null, bool interactive = false, bool session = false, string? setup = null, bool recordCheckpoints = false) {
+        public static List<OutputChunk> Run(Site site, PowerShellHost host, string script, int width, int height, Dictionary<string, string?> environment, string? workingDirectory = null, TimeSpan? timeout = null, bool allowErrors = false, bool showProgress = false, string? arguments = null, string? prompt = null, bool interactive = false, bool session = false, string? setup = null, bool recordCheckpoints = false, Action<string>? recording = null) {
             string runner = Path.Combine(Path.GetTempPath(), "cmsite-runner-" + Path.GetFileNameWithoutExtension(script) + "-" + host.Id + ".ps1");
             string modules = ModuleLinkRoot(site);
             string directory = workingDirectory ?? Path.GetDirectoryName(script)!;
@@ -125,7 +125,7 @@ namespace SiteFrames.Capture {
                 var args = new List<string> { "-NoLogo", "-NoProfile" };
                 if (!interactive) { args.Add("-NonInteractive"); }
                 args.AddRange(new[] { "-ExecutionPolicy", "Bypass", "-File", runner });
-                return TerminalCapture.Run(host.Executable, args, width, height, environment, directory, timeout ?? TimeSpan.FromMinutes(3));
+                return TerminalCapture.Run(host.Executable, args, width, height, environment, directory, timeout ?? TimeSpan.FromMinutes(3), recording: recording);
             } finally {
                 File.Delete(runner);
             }
@@ -183,7 +183,9 @@ namespace SiteFrames.Capture {
             }
         }
         // Plays a script as a typed session: a prompt and the command, then its output, for each top-level statement.
+        internal static string SessionRecipe => SessionDriver;
         private const string SessionDriver =
+            "$cmRecorder = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Sessions.SessionRecorder', $true)\n" +
             "$cmTokens = $null\n$cmErrors = $null\n" +
             "$cmAst = [System.Management.Automation.Language.Parser]::ParseFile('{script}', [ref] $cmTokens, [ref] $cmErrors)\n" +
             "$cmComments = @($cmTokens | Where-Object { $_.Kind -eq 'Comment' -and $_.Text -notmatch '^#(end)?region' })\n" +
@@ -193,14 +195,15 @@ namespace SiteFrames.Capture {
             "    if ($cmTyped) {\n" +
             "        foreach ($cmComment in $cmComments) {\n" +
             "            if ($cmComment.Extent.StartOffset -ge $cmPrevious -and $cmComment.Extent.EndOffset -le $cmStatement.Extent.StartOffset) {\n" +
-            "                Start-Sleep -Milliseconds 600\n                Write-Host \"PS> $($cmComment.Text)\" -ForegroundColor Yellow\n" +
+            "                Start-Sleep -Milliseconds 600\n                [Console]::Write($cmRecorder::MarkerSequence('site:comment'))\n                Write-Host \"PS> $($cmComment.Text)\" -ForegroundColor Yellow\n" +
             "            }\n" +
             "        }\n" +
-            "        Start-Sleep -Milliseconds 700\n        Write-Host \"PS> $($cmStatement.Extent.Text)\" -ForegroundColor Yellow\n        Start-Sleep -Milliseconds 400\n" +
+            "        Start-Sleep -Milliseconds 700\n        [Console]::Write($cmRecorder::MarkerSequence('site:prompt'))\n        Write-Host \"PS> $($cmStatement.Extent.Text)\" -ForegroundColor Yellow\n        Start-Sleep -Milliseconds 400\n" +
             "    }\n" +
             "    $cmPrevious = $cmStatement.Extent.EndOffset\n" +
+            "    [Console]::Write($cmRecorder::MarkerSequence('site:output'))\n" +
             "    . ([scriptblock]::Create($cmStatement.Extent.Text)) | Out-Default\n" +
-            "}\n";
+            "}\n[Console]::Write($cmRecorder::MarkerSequence('site:end'))\n";
 
         /// <summary>The VT bytes of a run, joined.</summary>
         public static byte[] Bytes(List<OutputChunk> chunks) {

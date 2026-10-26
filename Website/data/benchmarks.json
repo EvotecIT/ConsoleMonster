@@ -77,5 +77,91 @@
         "value": "28.1%"
       }
     ]
+  },
+  "platform": "windows",
+  "platforms": {
+    "macos": {
+      "runtime": ".NET 8.0.23",
+      "machine": {
+        "processor": "Apple M4",
+        "logicalProcessors": 10,
+        "os": "Darwin 27.0.0 Darwin Kernel Version 27.0.0: Tue Aug 11 21:02:57 PDT 2026; root:xnu-13432.1.9~1/RELEASE_ARM64_T8132",
+        "recorded": "2026-10-26"
+      },
+      "output": {
+        "title": "ConsoleMonster.Benchmarks 600",
+        "frame": {
+          "w": 77,
+          "h": 7,
+          "dark": "ConsoleMonster benchmark (.NET 8.0.23, 140x45, 32 lanes)\n  event apply:        7,439,900 events/s on one thread\n  compose per frame:  1.066 ms\n  diff+VT per frame:  0.138 ms\n  chars per frame:    2,915 (diffed, 5,000 updates between frames)\n  alloc per frame:    240,963 bytes\n  render CPU at 15 fps: 1.8% of one core (+ apply cost 1.1% at 80k updates/s)"
+        },
+        "w": 110,
+        "programRepo": "ConsoleMonster.Benchmarks/Program.cs"
+      },
+      "table": {
+        "w": 73,
+        "h": 10,
+        "dark": "<span class=c1> </span><span class=\"B c26\">ConsoleMonster.Benchmarks </span><span class=\"f8b8f9a B\">140<i class=n>×</i>45, 32 lanes, 5,000 updates between frames</span>\n<span class=f4b5060><i class=g256d>╭</i><i class=\"g2500 c30\">──────────────────────────────</i><i class=g252c>┬</i><i class=\"g2500 c11\">───────────</i><i class=g252c>┬</i><i class=\"g2500 c26\">──────────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"B c7\">Measure</span><span class=c22>                      </span><i class=\"g2502 f4b5060\">│</i><span class=c4>    </span><span class=\"B c6\">Result</span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"B c24\">Share of a 66.7 ms frame</span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i>\n<span class=f4b5060><i class=g251c>├</i><i class=\"g2500 c30\">──────────────────────────────</i><i class=g253c>┼</i><i class=\"g2500 c11\">───────────</i><i class=g253c>┼</i><i class=\"g2500 c26\">──────────────────────────</i><i class=g2524>┤</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c30> Compose a frame              </span><i class=\"g2502 f4b5060\">│</i><span class=c11>  1.066 ms </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"g2586 f60a5fa\">▆</i><span class=c20>                1.07</span><span class=\"f8b8f9a c3\"> ms</span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c30> Diff and encode VT           </span><i class=\"g2502 f4b5060\">│</i><span class=c11>  0.138 ms </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"g2586 f60a5fa\">▆</i><span class=c20>                0.14</span><span class=\"f8b8f9a c3\"> ms</span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c30> Characters written per frame </span><i class=\"g2502 f4b5060\">│</i><span class=c11>     2,915 </span><i class=\"g2502 f4b5060\">│</i><span class=c26>                          </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c30> Allocated per frame          </span><i class=\"g2502 f4b5060\">│</i><span class=c11> 240,963 B </span><i class=\"g2502 f4b5060\">│</i><span class=c26>                          </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c30> Events applied per second    </span><i class=\"g2502 f4b5060\">│</i><span class=c11> 7,439,900 </span><i class=\"g2502 f4b5060\">│</i><span class=c26>                          </span><i class=\"g2502 f4b5060\">│</i>\n<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c30\">──────────────────────────────</i><i class=g2534>┴</i><i class=\"g2500 c11\">───────────</i><i class=g2534>┴</i><i class=\"g2500 c26\">──────────────────────────</i><i class=g256f>╯</i></span>",
+        "light": "<span class=c1> </span><span class=\"f111827 B c26\">ConsoleMonster.Benchmarks </span><span class=\"f6b7280 B\">140<i class=n>×</i>45, 32 lanes, 5,000 updates between frames</span>\n<span class=f8a8a94><i class=g256d>╭</i><i class=\"g2500 c30\">──────────────────────────────</i><i class=g252c>┬</i><i class=\"g2500 c11\">───────────</i><i class=g252c>┬</i><i class=\"g2500 c26\">──────────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><span class=\"f374151 B c7\">Measure</span><span class=c22>                      </span><i class=\"g2502 f8a8a94\">│</i><span class=c4>    </span><span class=\"f374151 B c6\">Result</span><span class=c1> </span><i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><span class=\"f374151 B c24\">Share of a 66.7 ms frame</span><span class=c1> </span><i class=\"g2502 f8a8a94\">│</i>\n<span class=f8a8a94><i class=g251c>├</i><i class=\"g2500 c30\">──────────────────────────────</i><i class=g253c>┼</i><i class=\"g2500 c11\">───────────</i><i class=g253c>┼</i><i class=\"g2500 c26\">──────────────────────────</i><i class=g2524>┤</i></span>\n<i class=\"g2502 f8a8a94\">│</i><span class=c30> Compose a frame              </span><i class=\"g2502 f8a8a94\">│</i><span class=c11>  1.066 ms </span><i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><i class=\"g2586 f2563eb\">▆</i><span class=c20>                1.07</span><span class=\"f6b7280 c3\"> ms</span><span class=c1> </span><i class=\"g2502 f8a8a94\">│</i>\n<i class=\"g2502 f8a8a94\">│</i><span class=c30> Diff and encode VT           </span><i class=\"g2502 f8a8a94\">│</i><span class=c11>  0.138 ms </span><i class=\"g2502 f8a8a94\">│</i><span class=c1> </span><i class=\"g2586 f2563eb\">▆</i><span class=c20>                0.14</span><span class=\"f6b7280 c3\"> ms</span><span class=c1> </span><i class=\"g2502 f8a8a94\">│</i>\n<i class=\"g2502 f8a8a94\">│</i><span class=c30> Characters written per frame </span><i class=\"g2502 f8a8a94\">│</i><span class=c11>     2,915 </span><i class=\"g2502 f8a8a94\">│</i><span class=c26>                          </span><i class=\"g2502 f8a8a94\">│</i>\n<i class=\"g2502 f8a8a94\">│</i><span class=c30> Allocated per frame          </span><i class=\"g2502 f8a8a94\">│</i><span class=c11> 240,963 B </span><i class=\"g2502 f8a8a94\">│</i><span class=c26>                          </span><i class=\"g2502 f8a8a94\">│</i>\n<i class=\"g2502 f8a8a94\">│</i><span class=c30> Events applied per second    </span><i class=\"g2502 f8a8a94\">│</i><span class=c11> 7,439,900 </span><i class=\"g2502 f8a8a94\">│</i><span class=c26>                          </span><i class=\"g2502 f8a8a94\">│</i>\n<span class=f8a8a94><i class=g2570>╰</i><i class=\"g2500 c30\">──────────────────────────────</i><i class=g2534>┴</i><i class=\"g2500 c11\">───────────</i><i class=g2534>┴</i><i class=\"g2500 c26\">──────────────────────────</i><i class=g256f>╯</i></span>"
+      },
+      "facts": [
+        {
+          "label": "Compose plus diff and VT, per frame",
+          "value": "1.204 ms"
+        },
+        {
+          "label": "Render CPU at 15 fps",
+          "value": "1.8% of a core"
+        },
+        {
+          "label": "Events applied per second",
+          "value": "7.4 million"
+        },
+        {
+          "label": "Characters per diffed frame",
+          "value": "2,915"
+        }
+      ],
+      "stress": {
+        "line": "STRESS seconds=12.7 workers=32 posted=1017606 avgRate=79874/s peakRate=84049/s frames=191 fps=15.0 cpuOneCore=28.1% cpuMachine=0.9% captured=208 dropped=0 errors=0 runtime=.NET 8.0.33",
+        "seconds": "12.7",
+        "workers": "32",
+        "posted": "1017606",
+        "avgRate": "79874/s",
+        "peakRate": "84049/s",
+        "frames": "191",
+        "fps": "15.0",
+        "cpuOneCore": "28.1%",
+        "cpuMachine": "0.9%",
+        "captured": "208",
+        "dropped": "0",
+        "errors": "0",
+        "runtime": ".NET",
+        "facts": [
+          {
+            "label": "Updates posted in 12.7 s",
+            "value": "1,017,606"
+          },
+          {
+            "label": "Average update rate",
+            "value": "79,874/s"
+          },
+          {
+            "label": "Frames drawn",
+            "value": "191 (15.0 fps)"
+          },
+          {
+            "label": "Dropped updates and errors",
+            "value": "0 / 0"
+          },
+          {
+            "label": "CPU, share of one core",
+            "value": "28.1%"
+          }
+        ]
+      },
+      "platform": "macos",
+      "platformLabel": "macOS"
+    }
   }
 }

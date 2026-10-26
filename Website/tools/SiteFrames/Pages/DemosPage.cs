@@ -54,6 +54,9 @@ namespace SiteFrames.Pages {
             /// <summary>Whether the recording plays the script as typed commands, each after a prompt (see PowerShellRunner).</summary>
             public bool Session { get; set; }
 
+            /// <summary>Runs a synthetic live example with the recorder target's logical viewport checkpoints.</summary>
+            public bool LogicalCheckpoints { get; set; }
+
             /// <summary>PowerShell the recording runs before the script (for example the folder to start in); never shown.</summary>
             public string? Setup { get; set; }
 
@@ -151,7 +154,7 @@ namespace SiteFrames.Pages {
                 CSharpProgram = "parallel.cs",
                 PosterShare = 0.45
             };
-            yield return new Demo("watch", "Watch-Console -Differences", 96, 14) { CSharpProgram = "watch.cs", Script = "watch.ps1", PosterShare = 0.7 };
+            yield return new Demo("watch", "Watch-Console -Differences", 96, 14) { CSharpProgram = "watch.cs", Script = "watch.ps1", LogicalCheckpoints = true, PosterShare = 0.7 };
             yield return new Demo("pester", "Invoke-ConsolePester", 96, 24) { CSharpProgram = "pester.host.cs", Script = "pester.ps1", Companions = new[] { "fixtures/MailDomain.Tests.ps1" }, PosterShare = 0.75, AllowErrors = true };
             yield return new Demo("formatting", "Enable-ConsoleFormatting", 100, 40) { CSharpProgram = "formatting.host.cs",
                 Script = "formatting.ps1",
@@ -261,6 +264,16 @@ namespace SiteFrames.Pages {
             } else {
                 return null;
             }
+            if (demo.Static || demo.Session) {
+                text.Append('\n').Append(Site.ReadText(Path.Combine(site.Tool, "Replay", "RecordedSteps.cs")));
+                text.Append('\n').Append(Site.ReadText(Path.Combine(site.Tool, "Frames", "FrameDefaults.cs")));
+                text.Append(demo.Static ? "\nrecorded-transcript" : "\nrecorded-steps");
+                if (demo.Session) { text.Append('\n').Append(PowerShellRunner.SessionRecipe); }
+            }
+            if (demo.LogicalCheckpoints) {
+                text.Append("\nlogical-watch-v1\n").Append(Site.ReadText(Path.Combine(site.Tool, "Capture", "CheckpointCapture.ps1")));
+                text.Append('\n').Append(Site.ReadText(Path.Combine(site.Repository, "ConsoleMonster", "Live", "ConsoleWatch.cs")));
+            }
             return text.Append('\n').Append(demo.Width).Append('x').Append(demo.Height).ToString();
         }
 
@@ -311,6 +324,8 @@ namespace SiteFrames.Pages {
                 }
                 Stopwatch watch = Stopwatch.StartNew();
                 List<OutputChunk> chunks;
+                string? nativeRecording = null;
+                Action<string>? recorded = demo.Static || demo.Session ? text => nativeRecording = text : null;
                 if (demo.Script != null) {
                     // A fresh temporary folder per run: a script may write there (the record demo does), and nothing is left.
                     string temp = Path.Combine(Path.GetTempPath(), "cmsite-demo-temp-" + Guid.NewGuid().ToString("N").Substring(0, 12));
@@ -319,7 +334,7 @@ namespace SiteFrames.Pages {
                     environment["TEMP"] = temp;
                     environment["TMP"] = temp;
                     try {
-                        chunks = PowerShellRunner.Run(site, PowerShellHost.Core, Script(site, demo.Script), demo.Width, demo.Height, environment, allowErrors: demo.AllowErrors, showProgress: demo.ShowProgress, arguments: demo.Arguments, prompt: demo.Prompt, session: demo.Session, setup: demo.Setup);
+                        chunks = PowerShellRunner.Run(site, PowerShellHost.Core, Script(site, demo.Script), demo.Width, demo.Height, environment, allowErrors: demo.AllowErrors, showProgress: demo.ShowProgress, arguments: demo.Arguments, prompt: demo.Prompt, session: demo.Session, setup: demo.Setup, recordCheckpoints: demo.LogicalCheckpoints, recording: recorded);
                     } finally {
                         Site.RemoveTemporary(temp);
                     }
@@ -327,7 +342,7 @@ namespace SiteFrames.Pages {
                     string work = Path.Combine(Path.GetTempPath(), "cmsite-demo-" + demo.Id + "-" + Guid.NewGuid().ToString("N").Substring(0, 12));
                     try {
                         string dll = CSharpRunner.Build(Script(site, demo.CSharpProgram!), work, demo.Id, Companions(site, demo));
-                        chunks = CSharpRunner.Record(dll, demo.ProgramArguments.Split(' ', StringSplitOptions.RemoveEmptyEntries), demo.Width, demo.Height, PowerShellRunner.Environment("dark"), work, TimeSpan.FromMinutes(3));
+                        chunks = CSharpRunner.Record(dll, demo.ProgramArguments.Split(' ', StringSplitOptions.RemoveEmptyEntries), demo.Width, demo.Height, PowerShellRunner.Environment("dark"), work, TimeSpan.FromMinutes(3), recording: recorded);
                     } finally {
                         Site.RemoveTemporary(work);
                     }
@@ -339,7 +354,7 @@ namespace SiteFrames.Pages {
                         string dll = Path.Combine(output, Path.GetFileNameWithoutExtension(demo.Project!) + ".dll");
                         // The drive root as the working directory: a host logs its content root, which should not be this checkout.
                         chunks = CSharpRunner.Record(dll, demo.ProjectArguments.Split(' ', StringSplitOptions.RemoveEmptyEntries), demo.Width, demo.Height, PowerShellRunner.Environment("dark"), Path.GetPathRoot(site.Repository) ?? site.Repository, TimeSpan.FromMinutes(2), demo.Interrupt,
-                            demo.InputReadyText, demo.InputKeys, demo.InputDelay);
+                            demo.InputReadyText, demo.InputKeys, demo.InputDelay, recording: recorded);
                     } finally {
                         Site.RemoveTemporary(output);
                     }
@@ -347,7 +362,9 @@ namespace SiteFrames.Pages {
                 string path = CastPath(site, demo.Id);
                 Directory.CreateDirectory(Path.GetDirectoryName(path)!);
                 // Window titles (OSC 0 and 2) carry the executable's path; nothing on the site shows them.
-                string cast = System.Text.RegularExpressions.Regex.Replace(Replays.ToCast(chunks, demo.Width, demo.Height, demo.Title), @"\\u001B\][02];(?:[^""\\]|\\\\)*?(?:\\u0007|\\u001B\\\\)", string.Empty);
+                string sourceCast = recorded == null ? Replays.ToCast(chunks, demo.Width, demo.Height, demo.Title)
+                    : RecordedSteps.ToCast(nativeRecording ?? throw new InvalidDataException("The recorder returned no native session."), demo.Title, demo.Static);
+                string cast = System.Text.RegularExpressions.Regex.Replace(sourceCast, @"\\u001B\][02];(?:[^""\\]|\\\\)*?(?:\\u0007|\\u001B\\\\)", string.Empty);
                 string? source = Source(site, demo);
                 File.WriteAllText(path, source != null ? Replays.Stamp(cast, Replays.Fingerprint(source, CapturePins.Policy)) : cast, new System.Text.UTF8Encoding(false));
                 CaptureRun.Record(path, "dark");

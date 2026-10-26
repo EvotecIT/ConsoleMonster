@@ -1,5 +1,5 @@
-[?9001h[?1004h[?25l[2J[m[H]0;Administrator: C:\Program Files\PowerShell\7\pwsh.exe[?25h
-[?25lNAME
+[?1h=
+NAME
     Get-ConsoleCapability
     
 SYNOPSIS
@@ -27,15 +27,16 @@ DESCRIPTION
     support, console font and the reasons behind each 
     decision. -Refresh detects again (after a resize or 
     font change).
-    [32;1HRELATED LINKS[?25h
+    
+
+RELATED LINKS
 
 REMARKS
-    To see the examples, type: "Get-Help
+    To see the examples, type: "Get-Help 
     Get-ConsoleCapability -Examples"
-    For more information, type: "Get-Help
+    For more information, type: "Get-Help 
     Get-ConsoleCapability -Detailed"
-    For technical information, type: "Get-Help
+    For technical information, type: "Get-Help 
     Get-ConsoleCapability -Full"
 
 
-[?9001l[?1004l

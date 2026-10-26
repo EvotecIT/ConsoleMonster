@@ -28,7 +28,8 @@ namespace ConsoleMonster.Live {
         /// <exception cref="OperationCanceledException">The session was cancelled or stopped.</exception>
         public void Delay(TimeSpan delay) => DelayCore(delay, Cancellation);
 
-        private void DelayCore(TimeSpan delay, CancellationToken cancellation) {
+        // Replay and watch producers supply their linked cancellation while sharing the same checkpoint admission.
+        internal void DelayCore(TimeSpan delay, CancellationToken cancellation) {
             if (delay < TimeSpan.Zero || delay.TotalMilliseconds > int.MaxValue) {
                 throw new ArgumentOutOfRangeException(nameof(delay));
             }

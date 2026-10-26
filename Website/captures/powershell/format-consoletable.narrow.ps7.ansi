@@ -1,23 +1,30 @@
-[?9001h[?1004h[?25l[2J[m[1m[HBuild artifacts[38;2;139;143;154m[22m  ·  4 records[m[1m[3;1HModule[38;2;139;143;154m[22m  2[m
-[1m[2CConsoleMonster-2.0.0.zip[22m
-[38;2;139;143;154m[4CSize      [m2.77[38;2;139;143;154m[1CMB[m
-[38;2;139;143;154m[4CBuilt in  [m12 s
-[38;2;139;143;154m[4CSigned    [38;2;74;222;128m✓ yes[m
-[38;2;139;143;154m[4CPath      [38;2;96;165;250mD:\Builds\ConsoleMons…oleMonster-2.0.0.zip[m
-[1m[2CDocs.zip[22m
-[38;2;139;143;154m[4CSize      [m50.1[38;2;139;143;154m[1CKB[m
-[38;2;139;143;154m[4CBuilt in  [m1.2 s
-[38;2;139;143;154m[4CSigned    – no[m
-[38;2;139;143;154m[4CPath      [38;2;96;165;250mD:\Builds\ConsoleMonster\Packed\Docs.zip[m[1m[15;1HNuGet[38;2;139;143;154m[22m  2[m
-[1m[2CConsoleMonster.2.0.0.nupkg[22m
-[38;2;139;143;154m[4CSize      [m1.41[38;2;139;143;154m[1CMB[m
-[38;2;139;143;154m[4CBuilt in  [m48 s
-[38;2;139;143;154m[4CSigned    [38;2;74;222;128m✓ yes[m
-[38;2;139;143;154m[4CPath      [38;2;96;165;250mD:\Builds\ConsoleMons…eMonster.2.0.0.nupkg[m
-[1m[2CConsoleMonster.2.0.0.snupkg[22m
-[38;2;139;143;154m[4CSize      [m393[38;2;139;143;154m[1CKB[m
-[38;2;139;143;154m[4CBuilt in  [m3.1 s
-[38;2;139;143;154m[4CSigned    [38;2;74;222;128m✓ yes[m
-[38;2;139;143;154m[4CPath      [38;2;96;165;250mD:\Builds\ConsoleMons…Monster.2.0.0.snupkg[m[1m[27;1HTotal[22m
-[38;2;139;143;154m[2CSize      [m4.62 MB
-[38;2;139;143;154m[2CBuilt in  [m1 m 04 s[31;1H]0;C:\Program Files\PowerShell\7\pwsh.exe[?25h[?9001l[?1004l
+[?1h=[0;1mBuild artifacts[0;38;2;139;143;154m  ·[19G  4 records[0m
+
+[0;1mModule[0;38;2;139;143;154m  2[0m
+[0m  [0;1mConsoleMonster-2.0.0.zip[0m
+[0m    [0;38;2;139;143;154mSize[0m      2.77[0;38;2;139;143;154m MB[0m
+[0m    [0;38;2;139;143;154mBuilt in[0m  12 s[0m
+[0m    [0;38;2;139;143;154mSigned[0m    [0;38;2;74;222;128m✓[16G yes[0m
+[0m    [0;38;2;139;143;154mPath[0m      [0;38;2;96;165;250mD:\Builds\ConsoleMons…[37GoleMonster-2.0.0.zip[0m
+[0m  [0;1mDocs.zip[0m
+[0m    [0;38;2;139;143;154mSize[0m      50.1[0;38;2;139;143;154m KB[0m
+[0m    [0;38;2;139;143;154mBuilt in[0m  1.2 s[0m
+[0m    [0;38;2;139;143;154mSigned[0m    [0;38;2;139;143;154m–[16G no[0m
+[0m    [0;38;2;139;143;154mPath[0m      [0;38;2;96;165;250mD:\Builds\ConsoleMonster\Packed\Docs.zip[0m
+
+[0;1mNuGet[0;38;2;139;143;154m  2[0m
+[0m  [0;1mConsoleMonster.2.0.0.nupkg[0m
+[0m    [0;38;2;139;143;154mSize[0m      1.41[0;38;2;139;143;154m MB[0m
+[0m    [0;38;2;139;143;154mBuilt in[0m  48 s[0m
+[0m    [0;38;2;139;143;154mSigned[0m    [0;38;2;74;222;128m✓[16G yes[0m
+[0m    [0;38;2;139;143;154mPath[0m      [0;38;2;96;165;250mD:\Builds\ConsoleMons…[37GeMonster.2.0.0.nupkg[0m
+[0m  [0;1mConsoleMonster.2.0.0.snupkg[0m
+[0m    [0;38;2;139;143;154mSize[0m      393[0;38;2;139;143;154m KB[0m
+[0m    [0;38;2;139;143;154mBuilt in[0m  3.1 s[0m
+[0m    [0;38;2;139;143;154mSigned[0m    [0;38;2;74;222;128m✓[16G yes[0m
+[0m    [0;38;2;139;143;154mPath[0m      [0;38;2;96;165;250mD:\Builds\ConsoleMons…[37GMonster.2.0.0.snupkg[0m
+
+[0;1mTotal[0m
+[0m  [0;38;2;139;143;154mSize[0m      4.62 MB[0m
+[0m  [0;38;2;139;143;154mBuilt in[0m  1 m 04 s[0m
+
