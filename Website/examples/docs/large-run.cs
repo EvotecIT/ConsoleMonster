@@ -1,6 +1,7 @@
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
 
+// The preview fixes time; omit Clock when monitoring real work.
 using (LiveRun run = new LiveRun(
     new[]
     {
@@ -11,7 +12,7 @@ using (LiveRun run = new LiveRun(
     {
         Title = "Fleet checks",
         ProgressInterval = TimeSpan.Zero,
-            Clock = () => TimeSpan.Zero
+        Clock = () => TimeSpan.Zero
     }))
 {
     run.Started(0, "collecting");

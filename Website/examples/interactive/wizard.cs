@@ -46,6 +46,7 @@ ChoiceField parts = components.MultiSelect(
                 Description = "Runs tasks and reports results. Required.",
                 Badge = RichText.Plain("18 MB")
             },
+            // <more>
             new Choice("Cli",
                 "Command-line tools")
                 {
@@ -90,6 +91,7 @@ ChoiceField parts = components.MultiSelect(
                 Description = "Forwards findings to a syslog collector.",
                 DisabledReason = "needs the Enterprise licence"
             }
+            // </more>
         });
 parts.Minimum = 1;
 parts.ParameterName = "Component";
