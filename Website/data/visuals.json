@@ -132,6 +132,12 @@
       "dark": "/site/nav/demos/log-tail-dark.svg",
       "light": "/site/nav/demos/log-tail-light.svg"
     },
+    "demos/operations-calendar": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/operations-calendar-dark.svg",
+      "light": "/site/nav/demos/operations-calendar-light.svg"
+    },
     "demos/parallel-patch": {
       "w": 96,
       "h": 60,

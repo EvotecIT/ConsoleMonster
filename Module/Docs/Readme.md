@@ -155,6 +155,11 @@ Creates a named action button for Show-ConsoleApp.
 
 Emits a stable core Button widget. Place inputs in the outer layout, outside dependent bindings. The final state contains the input's committed value.
 
+### [New-ConsoleCalendar](New-ConsoleCalendar.md)
+Creates a month or year calendar with dated operational outcomes.
+
+Returns a passive widget. Pipeline rows provide Date, Status and Label properties, with explicit property overrides. Duplicate dates retain every row; the displayed status uses Fail, Warn, Running, Pending, Pass, Info, Skip precedence. Dates retain calendar components without time-zone conversion. ISO week labels describe the Monday in each row, including with a Sunday-first display.
+
 ### [New-ConsoleCellMap](New-ConsoleCellMap.md)
 Creates a cell map: one status symbol per item of a run, with a legend of counts.
 

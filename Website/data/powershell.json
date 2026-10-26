@@ -334,7 +334,7 @@
     },
     {
       "verb": "New",
-      "count": 60,
+      "count": 61,
       "commands": [
         {
           "name": "New-ConsoleActivityList",
@@ -365,6 +365,11 @@
           "name": "New-ConsoleButton",
           "synopsis": "Creates a named action button for Show-ConsoleApp.",
           "url": "/powershell/commands/new-consolebutton/"
+        },
+        {
+          "name": "New-ConsoleCalendar",
+          "synopsis": "Creates a month or year calendar with dated operational outcomes.",
+          "url": "/powershell/commands/new-consolecalendar/"
         },
         {
           "name": "New-ConsoleCellMap",

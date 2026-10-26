@@ -787,6 +787,54 @@ New-ConsoleField Reason 'Change reason' -Type TextArea -MaxLines 10
 Ctrl+S) to save, paste with line breaks kept, a line and length limit, and validation with the inline error. In a form
 the field shows the first line and opens the text in a dialog. In line mode the answer ends with an empty line.
 
+## Operations calendars
+
+`New-ConsoleCalendar` returns a passive month or year widget. Dates retain their
+calendar components without time-zone conversion; convert source timestamps to
+the business time zone before binding them. Duplicate dates retain all labels
+and display the highest-priority status: Fail, Warn, Running, Pending, Pass,
+Info, Skip. Unmarked dates remain neutral. Symbols keep outcomes visible without
+colour. The ISO gutter labels the Monday in each displayed week, including
+Sunday-first layouts.
+
+```powershell
+$days = @(
+    [pscustomobject] @{ Date = [datetime]'2026-10-02'; Status = 'Pass'; Label = 'Backup verified' }
+    [pscustomobject] @{ Date = [datetime]'2026-10-23'; Status = 'Warn'; Label = 'Certificate expires' }
+)
+$calendar = $days | New-ConsoleCalendar -Year 2026 -Month 10 -FirstDayOfWeek Monday
+$calendar | Show-Console
+# New-ConsoleCalendar -Year 2026 -View Year builds all twelve months.
+```
+
+C# uses `ConsoleMonster.Widgets.Calendar` and immutable `CalendarMark` rows:
+
+```csharp
+using System;
+using ConsoleMonster;
+using ConsoleMonster.Styling;
+
+var marks = new[] {
+    new ConsoleMonster.Dates.CalendarMark(new DateTime(2026, 10, 23), StatusKind.Warn, "Certificate expires")
+};
+var calendar = new ConsoleMonster.Widgets.Calendar(2026, 10, marks) {
+    FirstDayOfWeek = DayOfWeek.Monday
+};
+Terminal.Write(calendar);
+```
+
+The render culture supplies localized weekday/month labels and the default week
+start. `FirstDayOfWeek` overrides the start; arithmetic and year numbers remain
+Gregorian. A culture without Gregorian month names uses invariant month names.
+`View = CalendarView.Year` wraps up to three months per row; `ShowLegend = false`
+omits the legend. These widgets never acquire input or start an app.
+
+Coloured marked days use a status chip; ASCII and monochrome keep an aligned
+marker column. The legend includes only statuses present in the displayed
+period. ISO week-years appear only when they differ from the displayed year. `Today` is named with its civil date in the legend; ASCII and monochrome output reserve `@` for an unmarked today cell.
+Use `-Today ([datetime]'2026-10-20')` (C#: `Today`) to highlight a fixed report
+date without consulting the machine clock.
+
 ## Interactive grid
 
 ```powershell

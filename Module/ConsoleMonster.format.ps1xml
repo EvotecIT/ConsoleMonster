@@ -51,6 +51,7 @@
         <TypeName>ConsoleMonster.Text.RichText</TypeName>
         <TypeName>ConsoleMonster.Widgets.ActivityList</TypeName>
         <TypeName>ConsoleMonster.Widgets.BarChart</TypeName>
+        <TypeName>ConsoleMonster.Widgets.Calendar</TypeName>
         <TypeName>ConsoleMonster.Widgets.CellMap</TypeName>
         <TypeName>ConsoleMonster.Widgets.CodeView</TypeName>
         <TypeName>ConsoleMonster.Widgets.Dashboard</TypeName>
