@@ -22,6 +22,10 @@ Callback properties use `.Configure(item => item.Action = …)`. C# invokes a de
 
 Ui is the fluent entry point: New-ConsolePanel becomes Ui.Panel(), named settings stay in the chain, and nested Content uses c.Panel(p => …). Initializers retain constructors. Factories accept no positional configuration; the recorded primary inputs below are the only exceptions. Chart, Progress and kind-selected inputs materialize their existing typed options through the shared Build operation.
 
+Literal text uses `Ui.Text(text)` or `c.Text(text)`; PowerShell `-Markup` uses `Ui.Markup(markup)` or `c.Markup(markup)`. Boolean properties named IsX keep that property in initializers and use `.X()` / `.X(false)` in fluent chains. Adjacent configuration stays in one chain.
+
+Operation options use a typed configure callback, for example `ConsoleRun.ForEachAsync(items, work, o => o.ThrottleLimit(2).Title("Build"))`. The operation creates fresh defaults, invokes the callback once and delegates to its existing implementation. `Ui.Options<T>()` is removed.
+
 <div class="cm-migration-map" tabindex="0" role="region" aria-label="Scrollable table">
 <table>
 <thead><tr><th>PowerShell constructor</th><th>Fluent entry</th><th>Nested builder</th></tr></thead>
@@ -88,6 +92,7 @@ Ui is the fluent entry point: New-ConsolePanel becomes Ui.Panel(), named setting
 <tr><td><code>Ui.Table(items)</code></td><td><code>New-ConsoleTable -InputObject</code></td><td>A single typed row sequence is the primary table input.</td></tr>
 <tr><td><code>Ui.Text(text)</code></td><td><code>New-ConsoleText -Text</code></td><td>Literal text is the primary input; brackets stay literal.</td></tr>
 <tr><td><code>Ui.Rule(title)</code></td><td><code>New-ConsoleRule -Title</code></td><td>The rule title is the primary separator input.</td></tr>
+<tr><td><code>Ui.Markup(markup)</code></td><td><code>New-ConsoleText -Markup</code></td><td>Explicit -Markup value; unlike Text it is named in PowerShell, because a string cannot select two positional parameter meanings.</td></tr>
 </tbody>
 </table>
 </div>
