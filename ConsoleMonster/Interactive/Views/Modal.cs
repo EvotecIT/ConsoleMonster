@@ -89,6 +89,7 @@ namespace ConsoleMonster.Interactive {
         }
 
         public override bool HandleUnbound(InputEvent input) {
+            if (input.Kind != InputEventKind.Key && input.Kind != InputEventKind.Paste) { return false; }
             _error = null;
             return _editor.Handle(input);
         }

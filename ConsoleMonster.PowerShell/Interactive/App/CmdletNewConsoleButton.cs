@@ -14,9 +14,15 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public ScriptBlock? OnClick { get; set; }
 
+        /// <summary><para type="description">An in-app command definition shared with the palette and shortcuts. Do not combine with OnClick.</para></summary>
+        [Parameter]
+        public AppCommand? Command { get; set; }
+
         /// <inheritdoc />
         protected override void EndProcessing() {
-            Emit(new Button(Key, Label), OnClick);
+            if (Command != null && OnClick != null) { throw new System.ArgumentException("Use Command or OnClick, not both."); }
+            if (Command != null && Label == null) { Label = Command.Label; }
+            Emit(Command == null ? new Button(Key, Label) : new Button(Command, Key), OnClick);
         }
     }
 }

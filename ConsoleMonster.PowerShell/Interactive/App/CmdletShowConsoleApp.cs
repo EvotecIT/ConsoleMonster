@@ -52,6 +52,14 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter NoMouse { get; set; }
 
+        /// <summary><para type="description">Shared command definitions for shortcuts and the in-app palette.</para></summary>
+        [Parameter]
+        public AppCommand[] Command { get; set; } = Array.Empty<AppCommand>();
+
+        /// <summary><para type="description">App-state key containing the selected row or row collection supplied to commands.</para></summary>
+        [Parameter]
+        public string? SelectionKey { get; set; }
+
         /// <summary><para type="description">Interaction mode override, as in Read-ConsoleText. A running app requires Rich; use -StaticSnapshot without interactive input.</para></summary>
         [Parameter]
         public InteractionMode? Mode { get; set; }
@@ -98,13 +106,19 @@ namespace ConsoleMonster.PowerShell {
                 if (Theme != null) { interactive.Theme = Theme; }
                 using (PSAppCallbacks callbacks = new PSAppCallbacks(this)) {
                     callbacks.Attach(layout);
-                    AppState state = ConsoleApp.Run(layout, null, new ConsoleAppOptions {
+                    ConsoleAppOptions options = new ConsoleAppOptions {
                         Interactive = interactive,
                         Live = Live,
                         Mouse = !NoMouse.IsPresent,
                         StaticSnapshot = StaticSnapshot.IsPresent,
-                        ProcessEvents = callbacks.Drain
-                    }, stop.Token);
+                        ProcessEvents = callbacks.Drain,
+                        Selection = state => {
+                            if (SelectionKey == null || !state.TryGetValue(SelectionKey, out object? value) || value == null) { return Array.Empty<object?>(); }
+                            return new System.Collections.Generic.List<object?>(PSItems.Items(value));
+                        }
+                    };
+                    foreach (AppCommand command in Command) { options.Commands.Add(command); }
+                    AppState state = ConsoleApp.Run(layout, null, options, stop.Token);
                     if (PassThru.IsPresent) { WriteObject(PSAppScript.Snapshot(state), false); }
                 }
             } catch (Exception ex) when (ex is PromptUnavailableException || ex is PromptCanceledException || ex is InputClosedException) {

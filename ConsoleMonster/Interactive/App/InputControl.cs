@@ -83,7 +83,7 @@ namespace ConsoleMonster.Interactive {
             lock (_gate) {
                 if (!_enabled) { return false; }
                 before = ReadValueCore();
-                handled = HandleInputCore(input, context);
+                handled = input.Kind == InputEventKind.Mouse ? HandlePointerCore(input, context) : HandleInputCore(input, context);
                 after = ReadValueCore();
             }
             Notify(before, after);
@@ -117,6 +117,10 @@ namespace ConsoleMonster.Interactive {
         /// <returns>Whether the input was handled.</returns>
         protected abstract bool HandleInputCore(InputEvent input, RenderContext context);
 
+        /// <summary>Handles pointer input while the same value/render lock is held. Coordinates are in the control's arranged buffer.</summary>
+        protected virtual bool HandlePointerCore(InputEvent input, RenderContext context) => false;
+        internal virtual void CancelPointer() { }
+
         /// <summary>Measures the existing control content without its border.</summary>
         /// <param name="constraints">Available content size.</param>
         /// <param name="context">The render context.</param>
@@ -142,6 +146,7 @@ namespace ConsoleMonster.Interactive {
         public void Render(Region region, RenderContext context) {
             lock (_gate) {
                 _bounds = region.Bounds;
+                InputArrangement.Record(this, region.Bounds);
                 if (!_chrome) { RenderContent(region, context); return; }
                 string title = Label ?? Key;
                 if (!_enabled) { title = PromptLabels.Format(PromptLabels.For(context.Profile.Language).Disabled, title); }

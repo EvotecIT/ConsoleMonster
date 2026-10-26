@@ -334,7 +334,7 @@
     },
     {
       "verb": "New",
-      "count": 58,
+      "count": 60,
       "commands": [
         {
           "name": "New-ConsoleActivityList",
@@ -385,6 +385,11 @@
           "name": "New-ConsoleColumns",
           "synopsis": "Places console widgets side by side.",
           "url": "/powershell/commands/new-consolecolumns/"
+        },
+        {
+          "name": "New-ConsoleCommand",
+          "synopsis": "Defines an in-app action for buttons, palettes and grid rows.",
+          "url": "/powershell/commands/new-consolecommand/"
         },
         {
           "name": "New-ConsoleDashboard",
@@ -550,6 +555,11 @@
           "name": "New-ConsoleRule",
           "synopsis": "Creates a horizontal rule, optionally with a title.",
           "url": "/powershell/commands/new-consolerule/"
+        },
+        {
+          "name": "New-ConsoleScrollView",
+          "synopsis": "Creates a clipped vertical viewport for a small widget tree inside an app.",
+          "url": "/powershell/commands/new-consolescrollview/"
         },
         {
           "name": "New-ConsoleSelect",

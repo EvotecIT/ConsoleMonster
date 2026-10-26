@@ -42,7 +42,7 @@ namespace ConsoleMonster.Interactive {
             values.BeginRun();
             using InputLease? lease = snapshot ? null : ConsoleInput.Acquire(interactive.Input);
             RenderContext context = Terminal.CreateContext(profile, interactive.ResolveTheme());
-            using (AppController app = new AppController(layout, values, context, settings.ReflowBelow)) {
+            using (AppController app = new AppController(layout, values, context, settings.ReflowBelow, settings, cancellationToken)) {
                 if (snapshot) {
                     CellBuffer frame = FrameComposer.RenderBlock(app.Root, profile.Width, context);
                     if (interactive.Capture != null) { interactive.Capture.Surface.Present(frame, null); }
@@ -66,32 +66,28 @@ namespace ConsoleMonster.Interactive {
                     live.Output = new AppCaptureOutput(interactive.Capture, profile);
                     live.WindowSource = () => Volatile.Read(ref captureWindow);
                 }
-                using (MouseReporting? mouse = OpenMouse(settings, interactive, profile, live, lease!.Source))
+                using (MouseReporting? mouse = MouseReporting.Open(settings.Mouse, interactive, profile, lease!.Source, live.Output != null))
                 using (LiveSession session = new LiveSession(app.Root, live)) {
                     session.Start();
+                    bool eventsProcessed = false;
                     try {
-                        while (!values.ExitRequested && session.IsRunning) {
-                            cancellationToken.ThrowIfCancellationRequested();
-                            settings.ProcessEvents?.Invoke(values);
+                        AppEventLoop.Run(lease.Source, () => values.ExitRequested || !session.IsRunning, () => {
+                            if (!eventsProcessed) { settings.ProcessEvents?.Invoke(values); }
+                            eventsProcessed = false;
                             app.Refresh(session);
-                            if (values.ExitRequested) { break; }
-                            InputEvent? input;
-                            try { input = lease.Source.Read(TimeSpan.FromMilliseconds(30), cancellationToken); }
-                            catch (InputClosedException) { break; }
-                            if (input != null) {
+                        }, input => {
+
                                 if (interactive.Capture != null && input.Kind == InputEventKind.Resize && input.Width > 0 && input.Height > 0) {
                                     Interlocked.Exchange(ref captureWindow, new[] { 0, 0, input.Width, input.Height });
                                 }
-                                if (input.Kind == InputEventKind.Mouse && lease.Source is WindowsConsoleInput
-                                    && TerminalSize.TryGetWindow(out int left, out int top, out _, out _)) {
-                                    if (input.Column < left || input.Row < top) { continue; }
-                                    input = InputEvent.Mouse(input.Column - left, input.Row - top, input.MouseButton, input.MousePressed, input.Modifiers);
-                                }
                                 app.Handle(input, settings.Mouse);
-                            }
-                        }
+                                // Drain pipeline-owned callbacks before another event can capture an action's selection.
+                                settings.ProcessEvents?.Invoke(values);
+                                app.Refresh(session);
+                                eventsProcessed = true;
+                        }, cancellationToken, endOnInputClosed: true);
                         if (session.Failure == null) {
-                            settings.ProcessEvents?.Invoke(values);
+                            if (!eventsProcessed) { settings.ProcessEvents?.Invoke(values); }
                             app.Refresh(session);
                         }
                     } finally {
@@ -122,14 +118,5 @@ namespace ConsoleMonster.Interactive {
                 || string.Equals(value, "yes", StringComparison.OrdinalIgnoreCase);
         }
 
-        private static MouseReporting? OpenMouse(ConsoleAppOptions settings, InteractiveOptions interactive, TerminalProfile profile, LiveSessionOptions live, IInputSource input) {
-            if (!settings.Mouse || !(input is ConsoleKeyInput) || live.Output != null || interactive.Capture != null
-                || !profile.SupportsVirtualTerminal || profile.IsContinuousIntegration || profile.IsOutputRedirected || profile.Mode != OutputMode.Interactive) { return null; }
-            ITerminalWriter? writer = interactive.ResolveTarget().Writer;
-            bool owns = writer == null;
-            writer ??= TerminalWriterFactory.Create(profile);
-            if (!writer.IsConsole) { if (owns) { writer.Dispose(); } return null; }
-            return new MouseReporting(writer, owns);
-        }
     }
 }

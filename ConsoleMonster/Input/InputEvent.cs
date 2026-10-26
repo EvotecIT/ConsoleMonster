@@ -3,6 +3,18 @@ using System.Globalization;
 using System.Text;
 
 namespace ConsoleMonster.Input {
+    /// <summary>The pointer operation, separate from button identity.</summary>
+    public enum MouseAction {
+        /// <summary>A button was pressed.</summary>
+        Down,
+        /// <summary>A button was released.</summary>
+        Up,
+        /// <summary>The pointer moved, optionally with a button held.</summary>
+        Move,
+        /// <summary>A vertical or horizontal wheel moved.</summary>
+        Wheel
+    }
+
     /// <summary>
     /// One input event from any source (Windows console records, VT sequences, the PowerShell host, a script in tests),
     /// normalized so controls never care where it came from:
@@ -16,7 +28,8 @@ namespace ConsoleMonster.Input {
     /// </summary>
     public sealed class InputEvent {
         private InputEvent(InputEventKind kind, ConsoleKey key, char character, KeyModifiers modifiers, string? text, int width, int height,
-            int column = 0, int row = 0, int mouseButton = 0, bool mousePressed = false) {
+            int column = 0, int row = 0, int mouseButton = 0, bool mousePressed = false,
+            MouseAction mouseAction = MouseAction.Down, int wheelDelta = 0, int horizontalWheelDelta = 0, int heldButtons = 0) {
             Kind = kind;
             Key = key;
             Char = character;
@@ -28,6 +41,10 @@ namespace ConsoleMonster.Input {
             Row = row;
             MouseButton = mouseButton;
             MousePressed = mousePressed;
+            MouseAction = mouseAction;
+            WheelDelta = wheelDelta;
+            HorizontalWheelDelta = horizontalWheelDelta;
+            HeldButtons = heldButtons;
         }
 
         /// <summary>What the event describes.</summary>
@@ -63,6 +80,33 @@ namespace ConsoleMonster.Input {
         /// <summary>Whether the mouse button was pressed (true) or released (false); false for other event kinds.</summary>
         public bool MousePressed { get; }
 
+        /// <summary>Pointer operation. Meaningful only for Mouse events.</summary>
+        public MouseAction MouseAction { get; }
+        /// <summary>Vertical wheel movement; positive is up, negative is down.</summary>
+        public int WheelDelta { get; }
+        /// <summary>Horizontal wheel movement; positive is right, negative is left.</summary>
+        public int HorizontalWheelDelta { get; }
+        /// <summary>Held-button bitmask: left 1, middle 2, right 4.</summary>
+        public int HeldButtons { get; }
+
+        /// <summary>Creates a normalized pointer event. Motion/wheel events use button zero when no button changed.</summary>
+        public static InputEvent Pointer(int column, int row, MouseAction action, int button = 0, int wheelDelta = 0,
+            int horizontalWheelDelta = 0, int heldButtons = 0, KeyModifiers modifiers = KeyModifiers.None) {
+            if (column < 0 || row < 0) { throw new ArgumentOutOfRangeException(nameof(column)); }
+            if (!Enum.IsDefined(typeof(MouseAction), action)) { throw new ArgumentOutOfRangeException(nameof(action)); }
+            if (button < 0 || button > 3 || ((action == MouseAction.Down || action == MouseAction.Up) && button == 0)) { throw new ArgumentOutOfRangeException(nameof(button)); }
+            if ((heldButtons & ~7) != 0) { throw new ArgumentOutOfRangeException(nameof(heldButtons)); }
+            return new InputEvent(InputEventKind.Mouse, 0, '\0', modifiers, null, 0, 0, column, row, button, action == MouseAction.Down,
+                action, wheelDelta, horizontalWheelDelta, heldButtons);
+        }
+
+        /// <summary>Translates a mouse event into another viewport while preserving its action, modifiers and deltas.</summary>
+        public InputEvent WithPosition(int column, int row) {
+            if (Kind != InputEventKind.Mouse) { throw new InvalidOperationException("Only mouse coordinates can be translated."); }
+            return new InputEvent(Kind, Key, Char, Modifiers, Text, Width, Height, column, row, MouseButton, MousePressed,
+                MouseAction, WheelDelta, HorizontalWheelDelta, HeldButtons);
+        }
+
         /// <summary>Creates a mouse button press or release at a character-cell position, retaining all modifiers.</summary>
         /// <param name="column">The zero-based column.</param>
         /// <param name="row">The zero-based row.</param>
@@ -75,7 +119,8 @@ namespace ConsoleMonster.Input {
             if (column < 0) throw new ArgumentOutOfRangeException(nameof(column));
             if (row < 0) throw new ArgumentOutOfRangeException(nameof(row));
             if (button < 1 || button > 3) throw new ArgumentOutOfRangeException(nameof(button));
-            return new InputEvent(InputEventKind.Mouse, 0, '\0', modifiers, null, 0, 0, column, row, button, pressed);
+            return Pointer(column, row, pressed ? MouseAction.Down : MouseAction.Up, button,
+                heldButtons: pressed ? 1 << (button - 1) : 0, modifiers: modifiers);
         }
 
         /// <summary>Whether this is a printable character typed without Ctrl or Alt.</summary>
@@ -143,6 +188,9 @@ namespace ConsoleMonster.Input {
                 case InputEventKind.FocusLost:
                     return "focus lost";
                 case InputEventKind.Mouse:
+                    if (MouseAction == MouseAction.Move || MouseAction == MouseAction.Wheel) {
+                        return "mouse " + MouseAction.ToString().ToLowerInvariant() + " at " + Column.ToString(CultureInfo.InvariantCulture) + "," + Row.ToString(CultureInfo.InvariantCulture);
+                    }
                     return "mouse " + MouseButton.ToString(CultureInfo.InvariantCulture) + (MousePressed ? " pressed at " : " released at ")
                         + Column.ToString(CultureInfo.InvariantCulture) + "," + Row.ToString(CultureInfo.InvariantCulture);
             }

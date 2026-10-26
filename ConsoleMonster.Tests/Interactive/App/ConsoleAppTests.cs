@@ -233,6 +233,21 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Assert.False(ConsoleInput.IsAcquired);
         }
 
+        [Fact]
+        public void BurstInput_DrainsCallbacksBeforeTheFollowingCommandCapturesSelection() {
+            TextInput query = new TextInput("query");
+            bool pending = false;
+            string? captured = null;
+            query.Changed += (_, __) => pending = true;
+            ConsoleAppOptions options = AppTestHarness.Options("", out _);
+            options.Interactive!.Input = new ScriptedInput("\"a\" F5 Escape");
+            options.ProcessEvents = state => { if (pending) { state["picked"] = query.Value; pending = false; } };
+            options.Selection = state => { captured = state.Get<string>("picked"); return new object?[] { captured }; };
+            options.Commands.Add(new AppCommand("run", "Run", (_, __) => Task.CompletedTask) { Shortcut = new KeyChord(ConsoleKey.F5) });
+            ConsoleApp.Run(query, options: options);
+            Assert.Equal("a", captured);
+        }
+
         private static void WithGlobalInput(string script, Action run) {
             IInputSource? previous = ConsoleInput.Override;
             using (ScriptedInput input = new ScriptedInput(script)) {

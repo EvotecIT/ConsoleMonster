@@ -114,6 +114,7 @@ namespace ConsoleMonster.Interactive {
                 Cancel();
                 return;
             }
+            if (HandlePriorityInput(input)) { return; }
             List<KeyBinding> bindings = new List<KeyBinding>();
             AddBindings(bindings, _frame);
             if (input.Kind == InputEventKind.Key && KeyFooter.Dispatch(bindings, input)) {
@@ -121,6 +122,9 @@ namespace ConsoleMonster.Interactive {
             }
             HandleUnbound(input);
         }
+
+        /// <summary>Lets the active modal focus scope consume input before the view's ordinary bindings.</summary>
+        protected virtual bool HandlePriorityInput(InputEvent input) => false;
 
         /// <summary>Ctrl+C: ends the view as cancelled.</summary>
         public virtual void Cancel() {

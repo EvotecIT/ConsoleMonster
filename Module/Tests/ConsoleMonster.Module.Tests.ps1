@@ -27,10 +27,10 @@
     It 'exports the Console cmdlets on this runtime' {
         Import-Module $script:ModulePath -Force
         $commands = Get-Command -Module ConsoleMonster
-        $commands.Count | Should -Be 141
+        $commands.Count | Should -Be 143
         $manifest = Import-PowerShellDataFile -LiteralPath $script:ModulePath
         $cmdlets = @($commands | Where-Object CommandType -EQ Cmdlet)
-        $cmdlets.Count | Should -Be 141
+        $cmdlets.Count | Should -Be 143
         ($cmdlets.Name | Sort-Object) -join ',' | Should -BeExactly (($manifest.CmdletsToExport | Sort-Object) -join ',')
         ($commands | Where-Object CommandType -EQ Alias) | Should -BeNullOrEmpty
         foreach ($name in 'Get-ConsoleDemo', 'Show-ConsoleDemo', 'New-ConsoleFlow', 'New-ConsoleFlowNode', 'New-ConsoleFlowEdge', 'New-ConsoleFlowBranch', 'Update-ConsoleFlow') { $cmdlets.Name | Should -Contain $name }
@@ -40,7 +40,7 @@
         $commands.Name | Should -Contain 'Show-ConsoleOverview'
         $commands.Name | Should -Contain 'Compare-ConsoleText'
         $commands.Name | Should -Contain 'Export-ConsoleTheme'
-        foreach ($name in 'New-ConsoleBinding', 'New-ConsoleButton', 'New-ConsoleMultiSelect', 'New-ConsoleSelect',
+        foreach ($name in 'New-ConsoleCommand', 'New-ConsoleScrollView', 'New-ConsoleBinding', 'New-ConsoleButton', 'New-ConsoleMultiSelect', 'New-ConsoleSelect',
             'New-ConsoleTextArea', 'New-ConsoleTextInput', 'New-ConsoleToggle', 'Show-ConsoleApp', 'Watch-ConsoleLog',
             'Stop-ConsoleRecording', 'Invoke-ConsoleRecording', 'Add-ConsoleRecordingMarker', 'Invoke-ConsolePresentation', 'Show-ConsolePresentation') {
             $commands.Name | Should -Contain $name

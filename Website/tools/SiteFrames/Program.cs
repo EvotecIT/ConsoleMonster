@@ -16,6 +16,7 @@ namespace SiteFrames {
     /// and the committed captures. Deterministic: rerun it after a renderer change and commit what changed.</item>
     /// <item><c>capture [Website]</c>: runs the PowerShell examples on Windows PowerShell 5.1 and PowerShell 7 and records the
     /// live showcases, each inside a Windows pseudo console, and saves the VT streams under <c>Website/captures/</c>.</item>
+    /// <item><c>capture-fullscreen-preview [Website]</c>: exports and stamps the paced service-browser GIF from its committed recording.</item>
     /// <item><c>app-review [Website] [OutputDirectory]</c>: exports the live-filter application at both widths and themes.</item>
     /// <item><c>theme-files-review [Website] [OutputDirectory]</c>: exports the portable theme examples.</item>
     /// <item><c>native-styling Website Output</c>: captures real PSReadLine and native progress at both review widths and exports their cells and restoration evidence.</item>
@@ -54,6 +55,9 @@ namespace SiteFrames {
                 return 2;
             }
             switch (command) {
+                case "capture-fullscreen-preview":
+                    FullScreenPreview.CaptureGif(new Site(website));
+                    return 0;
                 case "verify-gallery":
                     GalleryPage.Verify(new Site(website), only);
                     return 0;

@@ -175,6 +175,11 @@ Places console widgets side by side.
 
 Children share the width equally unless they were created with -Weight. -FixedWidth gives children a fixed width in cells instead, by position (a narrow histogram beside two tables). Children in a row share their height. On narrow terminals the columns stack vertically instead of squeezing content: by default below the sum of the children's minimum widths, or below -CollapseBelow cells.
 
+### [New-ConsoleCommand](New-ConsoleCommand.md)
+Defines an in-app action for buttons, palettes and grid rows.
+
+Creates a passive command definition. Work runs in an isolated runspace with explicit arguments and module imports, not the defining closure. The first script parameter receives a deserialized row snapshot. Selected or marked rows are captured before optional modal confirmation and run in order. Output, host messages, warnings, errors and progress stream into the app's log. F6 requests cancellation while the app stays open. After a two-second grace period the app becomes available even when a native call is still stopping. That command cannot start again until its previous runspace exits; other commands remain available. Cancellation cannot undo effects already performed by an external operation.
+
 ### [New-ConsoleDashboard](New-ConsoleDashboard.md)
 Defines a live console dashboard: a header with title and clock, the body and a footer.
 
@@ -339,6 +344,11 @@ Children emitted by the scriptblock are placed top to bottom. In a live dashboar
 Creates a horizontal rule, optionally with a title.
 
 The line uses the border colour and the glyph tier's line character.
+
+### [New-ConsoleScrollView](New-ConsoleScrollView.md)
+Creates a clipped vertical viewport for a small widget tree inside an app.
+
+Mouse wheel scrolls the viewport. Tab navigation reveals focused inputs. Lists, grids and logs keep their own row windows for large data.
 
 ### [New-ConsoleSelect](New-ConsoleSelect.md)
 Creates a named select input for Show-ConsoleApp.

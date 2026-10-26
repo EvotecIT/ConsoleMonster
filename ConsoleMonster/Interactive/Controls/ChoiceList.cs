@@ -23,6 +23,23 @@ namespace ConsoleMonster.Interactive {
         private int _viewport = 10;
         private bool _dirty = true;
         private bool _focusPlaced;
+        private Rect _pointerBounds;
+        private int _scrollbarColumn = -1;
+
+        internal bool HandlePointer(InputEvent input) {
+            EnsureRows();
+            if (input.Column < _pointerBounds.X || input.Column >= _pointerBounds.Right || input.Row < _pointerBounds.Y || input.Row >= _pointerBounds.Bottom) { return false; }
+            if (input.MouseAction == MouseAction.Wheel) { Move(-Math.Sign(input.WheelDelta) * 3); return true; }
+            if ((input.MouseAction == MouseAction.Down && input.MouseButton == 1) || input.MouseAction == MouseAction.Up ||
+                (input.MouseAction == MouseAction.Move && (input.HeldButtons & 1) != 0)) {
+                int index = _scroll + input.Row - _pointerBounds.Y;
+                if (input.Column == _scrollbarColumn && _rows.Count > _viewport) {
+                    index = Math.Min(_rows.Count - 1, (input.Row - _pointerBounds.Y) * _rows.Count / Math.Max(1, _pointerBounds.Height));
+                }
+                if (index >= 0 && index < _rows.Count && IsFocusable(_rows[index])) { _focus = index; return true; }
+            }
+            return false;
+        }
 
         public ChoiceList(IEnumerable<Choice> choices, bool multi) {
             _choices = new List<Choice>(choices ?? throw new ArgumentNullException(nameof(choices)));
@@ -459,6 +476,8 @@ namespace ConsoleMonster.Interactive {
         }
 
         public void Render(Region region, RenderContext context) {
+            _pointerBounds = region.Bounds;
+            _scrollbarColumn = -1;
             EnsureRows();
             if (region.Width <= 0 || region.Height <= 0) {
                 return;
@@ -492,6 +511,7 @@ namespace ConsoleMonster.Interactive {
             int range = Math.Max(1, total - height);
             int top = (int)Math.Round((height - thumb) * (_scroll / (double)range));
             int x = Math.Min(region.Width, Math.Max(20, RowWidth(context, region.Width))) - 1;
+            _scrollbarColumn = region.Bounds.X + x;
             for (int y = 0; y < height; y++) {
                 bool onThumb = y >= top && y < top + thumb;
                 region.Put(x, y, onThumb ? g.ScrollThumb : g.ScrollTrack, context.Style(onThumb ? ThemeToken.Muted : ThemeToken.Subtle));

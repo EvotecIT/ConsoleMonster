@@ -13,7 +13,7 @@ Emits a stable core Button widget. Place inputs in the outer layout, outside dep
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleButton [-Key] <string> [[-Label] <string>] [-OnClick <scriptblock>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [<CommonParameters>]
+New-ConsoleButton [-Key] <string> [[-Label] <string>] [-OnClick <scriptblock>] [-Command <AppCommand>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -31,6 +31,22 @@ New-ConsoleButton -Key Apply -OnClick { $State.Applied = $true }
 Create an application input.
 
 ## PARAMETERS
+
+### -Command
+An in-app command definition shared with the palette and shortcuts. Do not combine with OnClick.
+
+```yaml
+Type: AppCommand
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -Disabled
 Disables editing and removes the input from keyboard focus traversal.

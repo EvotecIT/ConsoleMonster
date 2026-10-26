@@ -1,0 +1,85 @@
+using System;
+using System.IO;
+using System.Linq;
+using System.Text.Json.Nodes;
+using ConsoleMonster.Export;
+using ConsoleMonster.Sessions;
+using SiteFrames.Pages;
+using Xunit;
+
+namespace SiteFrames.Tests {
+    /// <summary>The published preview must retain the real in-app action and transport evidence.</summary>
+    public sealed class FullScreenPreviewContracts {
+        [Theory]
+        [InlineData("captures/fullscreen/service-browser.cast")]
+        [InlineData("captures/fullscreen/service-browser.gif")]
+        [InlineData("tools/SiteFrames/Pages/FullScreenPreview.cs")]
+        public void Preview_RejectsChangedRecordingPixelsOrExportPolicy(string changed) {
+            string website = Path.Combine(Repository(), "Website");
+            Assert.Null(FullScreenPreview.CheckGif(new Site(website)));
+            string temporary = Path.Combine(Path.GetTempPath(), "cm-fullscreen-preview-" + Guid.NewGuid().ToString("N"));
+            try {
+                Directory.CreateDirectory(temporary);
+                File.WriteAllText(Path.Combine(temporary, "ConsoleMonster.sln"), string.Empty);
+                string copy = Path.Combine(temporary, "Website");
+                foreach (string relative in new[] {
+                    "captures/sources.json", "captures/fullscreen/service-browser.cast", "captures/fullscreen/service-browser.gif",
+                    "tools/SiteFrames/Pages/FullScreenPreview.cs"
+                }) {
+                    string target = Path.Combine(copy, relative);
+                    Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+                    File.Copy(Path.Combine(website, relative), target);
+                }
+                Site site = new Site(copy);
+                Assert.Null(FullScreenPreview.CheckGif(site));
+                File.AppendAllText(Path.Combine(copy, changed), "changed");
+                Assert.Contains("another version", FullScreenPreview.CheckGif(site));
+            } finally {
+                if (Directory.Exists(temporary)) { Directory.Delete(temporary, true); }
+            }
+        }
+
+        [Theory]
+        [InlineData("service-browser.cast", 120, 0)]
+        [InlineData("service-browser-ssh.cast", 100, 2)]
+        public void Capture_KeepsConfirmationOutputAndTransportEvents(string name, int width, int resizes) {
+            string root = Repository();
+            string path = Path.Combine(root, "Website", "captures", "fullscreen", name);
+            string[] lines = File.ReadAllLines(path);
+            JsonObject header = (JsonObject)JsonNode.Parse(lines[0])!;
+            Assert.Equal(width, header["width"]!.GetValue<int>());
+            Assert.Equal("[REDACTED]", header["consolemonster"]!["host"]!.GetValue<string>());
+            JsonArray[] events = lines.Skip(1).Select(line => (JsonArray)JsonNode.Parse(line)!).ToArray();
+            Assert.Equal(resizes, events.Count(item => item[1]!.GetValue<string>() == "r"));
+            string output = string.Concat(events.Where(item => item[1]!.GetValue<string>() == "o").Select(item => item[2]!.GetValue<string>()));
+            Assert.Contains("Restart WinRM?", output);
+            Assert.Contains("Restart: completed", output);
+            Assert.DoesNotContain("Connection to ", output);
+            Assert.Contains("\u001b[?1006h", output);
+            Assert.Contains("\u001b[?1049h", output);
+            SessionRecording recording = SessionRecording.Read(path);
+            Assert.Equal(4, recording.Chapters.Count);
+            string completed = ConsoleExporter.ToText(recording.ChapterFrame(3));
+            Assert.Contains("Service browser", completed);
+            Assert.Contains("Restart: completed", completed);
+            Assert.Contains("WinRM", completed);
+            Assert.Contains("2556", completed);
+            Assert.Contains("DependsOn", completed);
+            string[] frames = recording.CaptureFrames(new RecordingExportOptions { FramesPerSecond = 10 })
+                .Select(frame => ConsoleExporter.ToText(frame.Frame)).ToArray();
+            Assert.Contains(frames, text => text.Contains("Action running") && text.Contains("Stopping WinRM") && !text.Contains("Starting WinRM"));
+            Assert.Contains(frames, text => text.Contains("Action running") && text.Contains("Starting WinRM") && !text.Contains("Verifying WinRM"));
+            Assert.Contains(frames, text => text.Contains("Action running") && text.Contains("Verifying WinRM") && !text.Contains("Restart: completed"));
+            if (resizes > 0) { Assert.Contains(frames, text => System.Text.RegularExpressions.Regex.IsMatch(text, @"1–\d+ of 10")); }
+            string preview = Path.Combine(root, "Website", "static", "recordings", "fullscreen", name);
+            Assert.Contains("Service browser", ConsoleExporter.ToText(SessionRecording.Read(preview).FrameAt(TimeSpan.Zero)));
+        }
+
+        private static string Repository() {
+            DirectoryInfo? root = new DirectoryInfo(AppContext.BaseDirectory);
+            while (root != null && !File.Exists(Path.Combine(root.FullName, "ConsoleMonster.sln"))) { root = root.Parent; }
+            Assert.NotNull(root);
+            return root!.FullName;
+        }
+    }
+}
