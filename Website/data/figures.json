@@ -417,7 +417,7 @@
     ]
   },
   "pipeline-charts-120": {
-    "title": "Show-ConsoleChart",
+    "title": "Show-Console -View Chart",
     "file": "pipeline-charts.ps1",
     "label": "Bars, a distribution and grouped trends from numeric samples",
     "meta": [
@@ -483,7 +483,7 @@
     ]
   },
   "pipeline-charts-60": {
-    "title": "Show-ConsoleChart",
+    "title": "Show-Console -View Chart",
     "file": "pipeline-charts.ps1",
     "label": "Bars, a distribution and grouped trends from numeric samples",
     "meta": [
@@ -659,7 +659,7 @@
     ]
   },
   "markdown-120": {
-    "title": "Show-ConsoleMarkdown",
+    "title": "Show-Console -View Markdown",
     "file": "markdown.ps1",
     "label": "CommonMark with headings, nested lists, a quote, native table, highlighted code and a link",
     "meta": [
@@ -694,7 +694,7 @@
     ]
   },
   "markdown-60": {
-    "title": "Show-ConsoleMarkdown",
+    "title": "Show-Console -View Markdown",
     "file": "markdown.ps1",
     "label": "CommonMark with headings, nested lists, a quote, native table, highlighted code and a link",
     "meta": [

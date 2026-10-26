@@ -112,7 +112,7 @@
             "url": "/guides/format-table/",
             "key": 1,
             "body": "Records, nested objects and hierarchies.",
-            "command": "Show-ConsoleTree"
+            "command": "Show-Console -View Tree"
           },
           {
             "title": "Errors, help and progress",
@@ -770,7 +770,7 @@
     {
       "title": "Coming from Format-Table",
       "url": "/guides/format-table/",
-      "body": "Show-ConsoleTable, Show-ConsoleList and Show-ConsoleTree beside the built-in Format cmdlets."
+      "body": "Show-ConsoleTable, Show-ConsoleList and Show-Console -View Tree beside the built-in Format cmdlets."
     },
     {
       "title": "Hosts, CI and transcripts",
