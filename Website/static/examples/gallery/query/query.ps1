@@ -10,10 +10,14 @@ $records = @(
     [pscustomobject] @{ Name = $domain; Type = 'MX'; TTL = 3600; Data = '10 mail.example.test' }
     [pscustomobject] @{ Name = $domain; Type = 'NS'; TTL = 86400; Data = 'ns1.example.test' }
     [pscustomobject] @{ Name = $domain; Type = 'NS'; TTL = 86400; Data = 'ns2.example.test' }
-    [pscustomobject] @{ Name = $domain; Type = 'TXT'; TTL = 3600; Data = 'v=spf1 include:spf.example.test include:relay.example.test ip4:203.0.113.9 -all' }
-    [pscustomobject] @{ Name = "_dmarc.$domain"; Type = 'TXT'; TTL = 3600; Data = 'v=DMARC1; p=reject; rua=mailto:dmarc@example.test; ruf=mailto:forensic@example.test; fo=1' }
-    [pscustomobject] @{ Name = $domain; Type = 'CAA'; TTL = 3600; Data = '0 issue "ca.example.test"' }
-    [pscustomobject] @{ Name = $domain; Type = 'SOA'; TTL = 3600; Data = 'ns1.example.test. hostmaster.example.test. 2026102401 10000 2400 604800 3600' }
+    [pscustomobject] @{ Name = $domain; Type = 'TXT'; TTL = 3600
+        Data = 'v=spf1 include:spf.example.test include:relay.example.test ip4:203.0.113.9 -all' }
+    [pscustomobject] @{ Name = "_dmarc.$domain"; Type = 'TXT'; TTL = 3600
+        Data = 'v=DMARC1; p=reject; rua=mailto:dmarc@example.test; ruf=mailto:forensic@example.test; fo=1' }
+    [pscustomobject] @{ Name = $domain; Type = 'CAA'; TTL = 3600
+        Data = '0 issue "ca.example.test"' }
+    [pscustomobject] @{ Name = $domain; Type = 'SOA'; TTL = 3600
+        Data = 'ns1.example.test. hostmaster.example.test. 2026102401 10000 2400 604800 3600' }
 )
 $checks = @(
     , @('SPF record present and valid', 'Pass', '9 lookups')
@@ -38,8 +42,10 @@ $report = New-ConsoleRows -Gap 1 -Content {
     New-ConsolePadding -Padding 1, 0 -Content {
         New-ConsoleKeyValue -Content {
             [pscustomobject]@{ Key = 'Domain'; Value = '[bold]example.test[/]'; Markup = $true }
-            [pscustomobject]@{ Key = 'Resolver'; Value = 'Edge west DNS over HTTPS [muted](192.0.2.53)[/]'; Markup = $true }
-            [pscustomobject]@{ Key = 'Query time'; Value = '38 ms [muted]for 7 record types[/]'; Markup = $true }
+            [pscustomobject]@{ Key = 'Resolver'
+                Value = 'Edge west DNS over HTTPS [muted](192.0.2.53)[/]'; Markup = $true }
+            [pscustomobject]@{ Key = 'Query time'; Value = '38 ms [muted]for 7 record types[/]'
+                Markup = $true }
             [pscustomobject]@{ Key = 'Records'; Value = '10' }
             [pscustomobject]@{ Key = 'DNSSEC'; Value = 'not signed'; Status = 'Warn' }
         }
@@ -48,23 +54,30 @@ $report = New-ConsoleRows -Gap 1 -Content {
     New-ConsoleColumns -Content {
         New-ConsolePanel -Title Delegation -Content {
             New-ConsoleTree -Title '[bold].[/] [muted]root[/]' -Content {
-                [pscustomobject]@{ Label = (New-ConsoleText -Markup '[bold]test.[/]'); Detail = 'reserved namespace'; Children = @(& {
-                    [pscustomobject]@{ Label = 'ns.test'; Detail = '192.0.2.42' }
-                    [pscustomobject]@{ Label = (New-ConsoleText -Markup '[bold]example.test.[/]'); Detail = '2 name servers'; Children = @(& {
-                        [pscustomobject]@{ Label = 'ns1.example.test'; Status = 'Pass'; Detail = '198.51.100.103 · 12 ms' }
-                        [pscustomobject]@{ Label = 'ns2.example.test'; Status = 'Pass'; Detail = '203.0.113.149 · 14 ms' }
-                        [pscustomobject]@{ Label = 'mail'; Detail = 'MX target'; Children = @(& {
-                            [pscustomobject]@{ Label = 'mail.example.test'; Status = 'Pass'; Detail = '192.0.2.17' }
-                        }) }
+                [pscustomobject]@{ Label = (New-ConsoleText -Markup '[bold]test.[/]')
+                    Detail = 'reserved namespace'; Children = @(& {
+                        [pscustomobject]@{ Label = 'ns.test'; Detail = '192.0.2.42' }
+                        [pscustomobject]@{ Label = (New-ConsoleText -Markup '[bold]example.test.[/]')
+                            Detail = '2 name servers'; Children = @(& {
+                                [pscustomobject]@{ Label = 'ns1.example.test'; Status = 'Pass'
+                                    Detail = '198.51.100.103 · 12 ms' }
+                                [pscustomobject]@{ Label = 'ns2.example.test'; Status = 'Pass'
+                                    Detail = '203.0.113.149 · 14 ms' }
+                                [pscustomobject]@{ Label = 'mail'; Detail = 'MX target'
+                                    Children = @(& {
+                                        [pscustomobject]@{ Label = 'mail.example.test'
+                                            Status = 'Pass'; Detail = '192.0.2.17' }
+                                    }) }
+                            }) }
                     }) }
-                }) }
             }
         }
         New-ConsolePanel -Title 'Mail security' -HeaderRight $domain -Content {
             New-ConsoleRows -Gap 0 -Content {
                 New-ConsoleStatusList -Content {
                     foreach ($check in $checks) {
-                        [pscustomobject]@{ Label = $check[0]; Status = $check[1]; Detail = $check[2] }
+                        [pscustomobject]@{ Label = $check[0]; Status = $check[1]
+                            Detail = $check[2] }
                     }
                 }
                 New-ConsoleRule

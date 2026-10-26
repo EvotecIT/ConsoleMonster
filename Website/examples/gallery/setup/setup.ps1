@@ -6,18 +6,33 @@ Import-Module -Name ConsoleMonster
 $installFolder = './toolbox-agent'
 $dataFolder = './toolbox-data'
 $components = @(
-    [pscustomobject] @{ Id = 'Agent'; Name = 'Agent service'; Group = 'Core'; Size = '18 MB'; Description = 'Runs tasks and reports results.'; Selected = $true; Disabled = $null }
-    [pscustomobject] @{ Id = 'Cli'; Name = 'Command-line tools'; Group = 'Core'; Size = '6 MB'; Description = 'The toolbox command and PowerShell module.'; Selected = $true; Disabled = $null }
-    [pscustomobject] @{ Id = 'Html'; Name = 'HTML reports'; Group = 'Reporting'; Size = '4 MB'; Description = 'Interactive reports with tables and charts.'; Selected = $true; Disabled = $null }
-    [pscustomobject] @{ Id = 'Pdf'; Name = 'PDF export'; Group = 'Reporting'; Size = '31 MB'; Description = 'Prints reports to PDF.'; Selected = $false; Disabled = $null }
-    [pscustomobject] @{ Id = 'Chat'; Name = 'Chat notifications'; Group = 'Integrations'; Size = '1 MB'; Description = 'Posts run summaries to a channel.'; Selected = $false; Disabled = $null }
-    [pscustomobject] @{ Id = 'Mail'; Name = 'Email notifications'; Group = 'Integrations'; Size = '1 MB'; Description = 'Sends reports by email.'; Selected = $false; Disabled = $null }
-    [pscustomobject] @{ Id = 'Syslog'; Name = 'Syslog forwarder'; Group = 'Integrations'; Size = '1 MB'; Description = 'Forwards findings to a collector.'; Selected = $false; Disabled = 'needs the Enterprise licence' }
+    [pscustomobject] @{ Id = 'Agent'; Name = 'Agent service'; Group = 'Core'; Size = '18 MB'
+        Description = 'Runs tasks and reports results.'; Selected = $true; Disabled = $null }
+    [pscustomobject] @{ Id = 'Cli'; Name = 'Command-line tools'; Group = 'Core'; Size = '6 MB'
+        Description = 'The toolbox command and PowerShell module.'; Selected = $true
+        Disabled = $null }
+    [pscustomobject] @{ Id = 'Html'; Name = 'HTML reports'; Group = 'Reporting'; Size = '4 MB'
+        Description = 'Interactive reports with tables and charts.'; Selected = $true
+        Disabled = $null }
+    [pscustomobject] @{ Id = 'Pdf'; Name = 'PDF export'; Group = 'Reporting'; Size = '31 MB'
+        Description = 'Prints reports to PDF.'; Selected = $false; Disabled = $null }
+    [pscustomobject] @{ Id = 'Chat'; Name = 'Chat notifications'; Group = 'Integrations'
+        Size = '1 MB'; Description = 'Posts run summaries to a channel.'; Selected = $false
+        Disabled = $null }
+    [pscustomobject] @{ Id = 'Mail'; Name = 'Email notifications'; Group = 'Integrations'
+        Size = '1 MB'; Description = 'Sends reports by email.'; Selected = $false
+        Disabled = $null }
+    [pscustomobject] @{ Id = 'Syslog'; Name = 'Syslog forwarder'; Group = 'Integrations'
+        Size = '1 MB'; Description = 'Forwards findings to a collector.'; Selected = $false
+        Disabled = 'needs the Enterprise licence' }
 )
 $accounts = @(
-    [pscustomobject] @{ Id = 'CurrentUser'; Name = 'Current user'; Description = 'Runs with your signed-in identity.' }
-    [pscustomobject] @{ Id = 'ServiceUser'; Name = 'Dedicated service identity'; Description = "Uses the platform's managed service identity." }
-    [pscustomobject] @{ Id = 'Custom'; Name = 'A specific account'; Description = 'An account you name; password stays out of the command.' }
+    [pscustomobject] @{ Id = 'CurrentUser'; Name = 'Current user'
+        Description = 'Runs with your signed-in identity.' }
+    [pscustomobject] @{ Id = 'ServiceUser'; Name = 'Dedicated service identity'
+        Description = "Uses the platform's managed service identity." }
+    [pscustomobject] @{ Id = 'Custom'; Name = 'A specific account'
+        Description = 'An account you name; password stays out of the command.' }
 )
 $regions = @(
     [pscustomobject] @{ Id = 'eu'; Name = 'Europe' }
@@ -25,13 +40,20 @@ $regions = @(
     [pscustomobject] @{ Id = 'ap'; Name = 'Asia Pacific' }
 )
 $endpoints = @(
-    [pscustomobject] @{ Region = 'eu'; Host = 'eu-west.example.test'; City = 'Dublin'; Latency = '12 ms'; Disabled = $null }
-    [pscustomobject] @{ Region = 'eu'; Host = 'eu-central.example.test'; City = 'Frankfurt'; Latency = '9 ms'; Disabled = $null }
-    [pscustomobject] @{ Region = 'eu'; Host = 'eu-north.example.test'; City = 'Stockholm'; Latency = '31 ms'; Disabled = $null }
-    [pscustomobject] @{ Region = 'us'; Host = 'us-east.example.test'; City = 'East'; Latency = '18 ms'; Disabled = $null }
-    [pscustomobject] @{ Region = 'us'; Host = 'us-west.example.test'; City = 'West'; Latency = '74 ms'; Disabled = $null }
-    [pscustomobject] @{ Region = 'ap'; Host = 'ap-south.example.test'; City = 'South'; Latency = '121 ms'; Disabled = $null }
-    [pscustomobject] @{ Region = 'ap'; Host = 'ap-east.example.test'; City = 'East'; Latency = ''; Disabled = 'maintenance until 18:00' }
+    [pscustomobject] @{ Region = 'eu'; Host = 'eu-west.example.test'; City = 'Dublin'
+        Latency = '12 ms'; Disabled = $null }
+    [pscustomobject] @{ Region = 'eu'; Host = 'eu-central.example.test'; City = 'Frankfurt'
+        Latency = '9 ms'; Disabled = $null }
+    [pscustomobject] @{ Region = 'eu'; Host = 'eu-north.example.test'; City = 'Stockholm'
+        Latency = '31 ms'; Disabled = $null }
+    [pscustomobject] @{ Region = 'us'; Host = 'us-east.example.test'; City = 'East'
+        Latency = '18 ms'; Disabled = $null }
+    [pscustomobject] @{ Region = 'us'; Host = 'us-west.example.test'; City = 'West'
+        Latency = '74 ms'; Disabled = $null }
+    [pscustomobject] @{ Region = 'ap'; Host = 'ap-south.example.test'; City = 'South'
+        Latency = '121 ms'; Disabled = $null }
+    [pscustomobject] @{ Region = 'ap'; Host = 'ap-east.example.test'; City = 'East'; Latency = ''
+        Disabled = 'maintenance until 18:00' }
 )
 $installSteps = @('Copy files', 'Register agent', 'Configure connection', 'Start agent')
 
@@ -65,7 +87,15 @@ $formOptions = @{
             Help = 'Logs, reports and the local queue.'
         }
         New-ConsoleField @fieldOptions
-        New-ConsoleField -Key Launcher -Label 'Launcher entry' -Type Toggle -Default $true -Page Location -ParameterName Launcher
+        $fieldParameters = @{
+            Key = 'Launcher'
+            Label = 'Launcher entry'
+            Type = 'Toggle'
+            Default = $true
+            Page = 'Location'
+            ParameterName = 'Launcher'
+        }
+        New-ConsoleField @fieldParameters
         $fieldOptions = @{
             Key = 'Components'
             Label = 'Components'
@@ -117,7 +147,15 @@ $formOptions = @{
             CommandPlaceholder = '(Read-Host -AsSecureString)'
         }
         New-ConsoleField @fieldOptions
-        New-ConsoleField -Key AutoStart -Label 'Start automatically' -Type Toggle -Default $true -Page Service -ParameterName AutoStart
+        $fieldParameters = @{
+            Key = 'AutoStart'
+            Label = 'Start automatically'
+            Type = 'Toggle'
+            Default = $true
+            Page = 'Service'
+            ParameterName = 'AutoStart'
+        }
+        New-ConsoleField @fieldParameters
         $fieldOptions = @{
             Key = 'Region'
             Label = 'Region'
@@ -132,13 +170,47 @@ $formOptions = @{
             Help = 'Choosing a region loads its servers.'
         }
         New-ConsoleField @fieldOptions
-        New-ConsoleField -Key Server -Label Server -Type Select -DependsOn Region -Required -Page Connection -ParameterName Server -LoadChoices {
+        $fieldParameters = @{
+            Key = 'Server'
+            Label = 'Server'
+            Type = 'Select'
+            DependsOn = 'Region'
+            Required = $true
+            Page = 'Connection'
+            ParameterName = 'Server'
+            ArgumentList = (, $endpoints)
+            Display = 'Host'
+            CommandValue = 'Host'
+            Badge = 'Latency'
+            Describe = 'City'
+            DisabledReason = 'Disabled'
+            Help = 'Loaded for the chosen region; Esc cancels loading.'
+        }
+        New-ConsoleField @fieldParameters -LoadChoices {
             param($Values, $Endpoints)
             Start-Sleep -Milliseconds 300
             $Endpoints | Where-Object -Property Region -EQ -Value $Values.Region
-        } -ArgumentList (, $endpoints) -Display Host -CommandValue Host -Badge Latency -Describe City -DisabledReason Disabled -Help 'Loaded for the chosen region; Esc cancels loading.'
-        New-ConsoleField -Key Port -Label Port -Type Number -Integer -Minimum 1 -Maximum 65535 -Default 443 -Page Connection -ParameterName Port
-        New-ConsoleField -Key UseProxy -Label 'Use a proxy' -Type Toggle -Page Connection -ParameterName UseProxy
+        }
+        $fieldParameters = @{
+            Key = 'Port'
+            Label = 'Port'
+            Type = 'Number'
+            Integer = $true
+            Minimum = 1
+            Maximum = 65535
+            Default = 443
+            Page = 'Connection'
+            ParameterName = 'Port'
+        }
+        New-ConsoleField @fieldParameters
+        $fieldParameters = @{
+            Key = 'UseProxy'
+            Label = 'Use a proxy'
+            Type = 'Toggle'
+            Page = 'Connection'
+            ParameterName = 'UseProxy'
+        }
+        New-ConsoleField @fieldParameters
         $fieldOptions = @{
             Key = 'Proxy'
             Label = 'Proxy address'
@@ -158,8 +230,14 @@ $answers = Read-ConsoleForm -Form $form
 if (-not $answers) {
     return
 }
-$dashboard = New-ConsoleDashboard -Title 'Installing Toolbox Agent' -Subtitle $answers.Path -Content {
-    New-ConsolePanel -Title Steps -Content { New-ConsoleStatusList -WidgetId steps -Item $installSteps }
+$dashboardParameters = @{
+    Title = 'Installing Toolbox Agent'
+    Subtitle = $answers.Path
+}
+$dashboard = New-ConsoleDashboard @dashboardParameters -Content {
+    New-ConsolePanel -Title Steps -Content {
+        New-ConsoleStatusList -WidgetId steps -Item $installSteps
+    }
     New-ConsolePadding -Padding 1, 0 -Content { New-ConsoleProgress -Label Install -Total 40 }
 }
 Invoke-ConsoleDashboard -Dashboard $dashboard -ArgumentList (, $installSteps) -ScriptBlock {
