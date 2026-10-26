@@ -1,0 +1,35 @@
+{
+  "slug": "stale-accounts",
+  "title": "Stale Active Directory accounts",
+  "pitch": "List the accounts nobody uses, then lay the month's password expiries and the disable date on a calendar.",
+  "category": "Reports",
+  "tags": [
+    "Active Directory",
+    "accounts",
+    "calendar"
+  ],
+  "terminal": {
+    "width": 100,
+    "height": 26
+  },
+  "runtime": {
+    "powershell": "7.4+",
+    "dotnet": "8.0+"
+  },
+  "addons": [],
+  "makeItYours": [
+    "Fill the account rows from Get-ADUser with LastLogonDate, PasswordLastSet and msDS-UserPasswordExpiryTimeComputed.",
+    "Change the 60-day, 90-day and one-year rules to match your account policy.",
+    "Exclude service accounts you manage elsewhere, or give them their own panel."
+  ],
+  "mode": "static",
+  "steps": 1,
+  "tier": "starter",
+  "useCase": "Use it when the quarterly access review needs the inactive accounts and the next month's expiries in one place.",
+  "featured": false,
+  "capture": {
+    "states": [
+      {}
+    ]
+  }
+}

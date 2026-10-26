@@ -1,0 +1,46 @@
+{
+  "slug": "container-status",
+  "title": "Container status",
+  "pitch": "Watch a container host refresh every two seconds: who is restarting, who is near its memory limit, and what just happened.",
+  "category": "Dashboards",
+  "tags": [
+    "containers",
+    "docker",
+    "live"
+  ],
+  "terminal": {
+    "width": 100,
+    "height": 34
+  },
+  "runtime": {
+    "powershell": "7.4+",
+    "dotnet": "8.0+"
+  },
+  "addons": [],
+  "makeItYours": [
+    "Replace the samples with docker stats --no-stream --format '{{json .}}' and docker inspect for restart counts, read once per refresh.",
+    "Change the 80% and 90% memory thresholds and the CPU warning levels to fit your hosts.",
+    "Keep the dashboard running until Ctrl+C instead of four samples, and log the event feed to a file."
+  ],
+  "mode": "live",
+  "steps": 4,
+  "tier": "showcase",
+  "useCase": "Use it when a container keeps restarting and you want to see memory pressure build before the next OOM kill.",
+  "featured": false,
+  "capture": {
+    "states": [
+      {
+        "checkpoint": 0
+      },
+      {
+        "checkpoint": 1
+      },
+      {
+        "checkpoint": 2
+      },
+      {
+        "checkpoint": 3
+      }
+    ]
+  }
+}
