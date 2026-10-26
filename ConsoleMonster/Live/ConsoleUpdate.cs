@@ -71,7 +71,9 @@ namespace ConsoleMonster.Live {
             if (u.Has(nameof(u.Status)) && !Enum.IsDefined(typeof(StatusKind), u.Status)) { throw new ArgumentOutOfRangeException(nameof(u.Status)); }
             if (u.Has(nameof(u.Result)) && !Enum.IsDefined(typeof(StatusKind), u.Result)) { throw new ArgumentOutOfRangeException(nameof(u.Result)); }
             if (u.Has(nameof(u.Status)) && u.Has(nameof(u.Result))) { throw new ArgumentException("Status and Result cannot be combined."); }
-            if (target is ActivityList || target is Lanes || target is Phases || target is StatusList || target is KeyValueList || target is BarChart || target is StackedBar) { RequireKey(u.Key); }
+            if (target is ActivityList || target is Lanes || target is Phases || target is StatusList || target is KeyValueList || target is BarChart || target is StackedBar) {
+                if (string.IsNullOrWhiteSpace(u.Key)) { throw new ArgumentException(target.GetType().Name + " '" + target.WidgetId + "' updates one item at a time: give the item's Key."); }
+            }
             if (u.Has(nameof(u.Total))) { Nonnegative(u.Total, nameof(u.Total)); }
             if (u.Has(nameof(u.Increment))) { Number(u.Increment, nameof(u.Increment)); }
             if (u.Has(nameof(u.Value)) && !(target is KeyValueList)) { Number(Numeric(u.Value), nameof(u.Value)); }

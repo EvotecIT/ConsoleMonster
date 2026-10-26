@@ -8,7 +8,7 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="synopsis">Finishes a run dashboard and prints its full summary into scrollback.</para>
     /// <para type="description">Marks unfinished items skipped, releases held log lines, restores the terminal and prints totals, groups, full wrapped problems and the report path. Safe to call more than once. If deferred host output cannot finish within five seconds, reports a timeout and retains it for a later call. Put it in finally so cancellation or errors restore the terminal. PassThru returns the structured snapshot; ordinary results and the script's exit code are unchanged.</para>
     /// </summary>
-    /// <example><para>Keep a structured final result</para><code>$summary = Complete-ConsoleRun $run -PassThru; $summary.Items | Where-Object State -eq Fail</code></example>
+    /// <example><para>Keep a structured final result</para><code>$summary = Complete-ConsoleRun $run -PassThru; $summary.Items | Where-Object Status -eq Fail</code></example>
     [Cmdlet(VerbsLifecycle.Complete, "ConsoleRun")]
     [OutputType(typeof(RunSnapshot))]
     public sealed class CmdletCompleteConsoleRun : PSCmdlet {

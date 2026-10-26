@@ -50,6 +50,24 @@ Invoke-ConsoleDashboard $d {
         $text | Should -Match 'sync  running'
     }
 
+    It 'upserts ordinary records into a live table through its KeyProperty and columns' {
+        $text = Invoke-ContentChild -Script @'
+$d = New-ConsoleDashboard -Title 'Health' -Content { New-ConsoleProgress build -Total 2; New-ConsoleTable results -Live -KeyProperty Server -Property Server, State, Ms }
+Invoke-ConsoleDashboard $d {
+    Update-Console results -Row ([pscustomobject] @{ Server = 'web01'; State = 'Pass'; Ms = 12 })
+    Update-Console results -Row ([pscustomobject] @{ Server = 'web01'; State = 'Fail'; Ms = 99 })
+    Update-Console results -Row @{ Server = 'web02'; State = 'Warn'; Ms = 50 }
+    try { Update-Console results -Row ([pscustomobject] @{ Host = 'x' }) } catch { 'E1 ' + $_.Exception.Message }
+    try { Update-Console build -Row ([pscustomobject] @{ Server = 'x' }) } catch { 'E2 ' + $_.Exception.Message }
+}
+'@
+        $text | Should -Match 'web01  Pass  12'
+        $text | Should -Match 'web01  Fail  99'
+        $text | Should -Match 'web02  Warn  50'
+        $text | Should -Match "E1 The row has no 'Server' value"
+        $text | Should -Match 'E2 ProgressBar does not support Row'
+    }
+
     It 'returns the output of a script block as a string with Use-ConsoleTarget' {
         $text = Invoke-ContentChild -Script @'
 $captured = Use-ConsoleTarget -Width 30 {

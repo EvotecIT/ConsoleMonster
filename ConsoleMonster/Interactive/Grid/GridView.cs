@@ -107,7 +107,7 @@ namespace ConsoleMonster.Interactive {
             Panel panel = new Panel(new GridBody(this), SortTitle()) { BorderRole = ThemeToken.Accent };
             if (_actions?.HasCommands == true) {
                 Columns panes = new Columns { CollapseBelow = 70 };
-                panes.Add(panel, LayoutSize.Fraction(3)).Add(new Panel(new GridActionDetails(this), "Selected row"), LayoutSize.Fraction(2));
+                panes.Add(panel, LayoutSize.Fraction(3)).Add(new Panel(new GridActionDetails(this), Labels.GridSelectedRow), LayoutSize.Fraction(2));
                 rows.Add(panes, LayoutSize.Fraction());
             } else { rows.Add(panel, LayoutSize.Fraction()); }
             List<KeyBinding> bindings = new List<KeyBinding>();
@@ -115,8 +115,8 @@ namespace ConsoleMonster.Interactive {
             if (_actions?.HasCommands == true) {
                 foreach (KeyBinding binding in bindings) { binding.InFooter = false; }
                 bindings.Add(new KeyBinding(Labels.KeyMove, () => Move(-1), new KeyChord(ConsoleKey.UpArrow)) { KeyText = "↑↓", Order = 10 });
-                if (_grid.OutputMode == GridSelection.Multiple) { bindings.Add(new KeyBinding("mark", ToggleMark, new KeyChord(ConsoleKey.Spacebar)) { KeyText = "Space", Order = 15 }); }
-                bindings.Add(new KeyBinding("close", Escape, new KeyChord(ConsoleKey.Escape)) { KeyText = "Esc", Order = 20 });
+                if (_grid.OutputMode == GridSelection.Multiple) { bindings.Add(new KeyBinding(Labels.KeySelect, ToggleMark, new KeyChord(ConsoleKey.Spacebar)) { KeyText = "space", Order = 15 }); }
+                bindings.Add(new KeyBinding(Labels.KeyClose, Escape, new KeyChord(ConsoleKey.Escape)) { KeyText = "esc", Order = 20 });
             }
             _actions?.AddBindings(bindings);
             IWidget body = rows;

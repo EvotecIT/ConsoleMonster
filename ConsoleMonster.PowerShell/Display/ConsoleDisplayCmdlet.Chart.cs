@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Management.Automation;
 using ConsoleMonster.Layout;
 using ConsoleMonster.PowerShell.Binding;
@@ -15,6 +16,15 @@ namespace ConsoleMonster.PowerShell {
             BoundColumn value = BindChartColumn(items, property);
             value.FormatString = null;
             BoundColumn? label = Type == ChartType.Histogram ? null : BindChartColumn(items, Label);
+            if ((Property == null || Property.Length == 0) && items.Count > 0 && !HasNumber(items, value) && !items.Any(HasValueMember)) {
+                // Without -Property the chart reads Value; one hint naming the numeric columns beats an error per row.
+                var numeric = new List<string>();
+                foreach (PSPropertyInfo candidate in items[0].Properties) {
+                    if (candidate.IsGettable && PipelineChart.TryNumber(PSText.Unwrap(SafeValue(candidate)), out _)) { numeric.Add(candidate.Name); }
+                }
+                throw new PSArgumentException("Chart reads the Value property by default and these objects have none. Choose the numeric property with -Property"
+                    + (numeric.Count == 0 ? "." : " (for example -Property " + numeric[0] + "; numeric properties: " + string.Join(", ", numeric) + ")."));
+            }
             var chart = new PipelineChart { Type = Type, Sort = Sort, MaxRows = MaxRows, Bins = Bins, Unit = Unit };
             int row = 0;
             foreach (PSObject item in items) {
@@ -30,6 +40,17 @@ namespace ConsoleMonster.PowerShell {
                 chart.Add(text, number);
             }
             return chart.Samples.Count == 0 ? null : chart;
+        }
+
+        private static bool HasNumber(IReadOnlyList<PSObject> items, BoundColumn value) {
+            foreach (PSObject item in items) { if (PipelineChart.TryNumber(PSText.Unwrap(value.GetValue(item)), out _)) { return true; } }
+            return false;
+        }
+
+        private static bool HasValueMember(PSObject item) => PSText.Unwrap(item) is System.Collections.IDictionary map ? map.Contains("Value") : item.Properties["Value"] != null;
+
+        private static object? SafeValue(PSPropertyInfo property) {
+            try { return property.Value; } catch (GetValueException) { return null; }
         }
 
         private static BoundColumn BindChartColumn(IReadOnlyList<PSObject> items, object property) {

@@ -182,13 +182,13 @@ namespace ConsoleMonster.Interactive {
         internal IWidget Wrap(IWidget content) => HasCommands || _dialogs != null ? new Surface(this, content) : content;
         internal void AddBindings(List<KeyBinding> bindings) {
             if (!HasCommands) { return; }
-            if (_commandBar != null && _keys.Actions.HasValue) { bindings.Add(new KeyBinding("actions", () => { _barActive = !_barActive; SetBarFocus(); }, _keys.Actions.Value) { KeyText = _keys.Actions.Value.ToString() }); }
-            if (_commands.Length > 0 && _keys.Palette.HasValue) { bindings.Add(new KeyBinding("palette", () => { lock (_gate) { ReplaceModal(new CommandModal(_commands, Invoke, _labels)); } }, _keys.Palette.Value) { KeyText = _keys.Palette.Value.ToString(), Order = 31 }); }
+            if (_commandBar != null && _keys.Actions.HasValue) { bindings.Add(new KeyBinding(_labels.KeyActions, () => { _barActive = !_barActive; SetBarFocus(); }, _keys.Actions.Value) { KeyText = _keys.Actions.Value.ToString().ToLowerInvariant() }); }
+            if (_commands.Length > 0 && _keys.Palette.HasValue) { bindings.Add(new KeyBinding(_labels.KeyPalette, () => { lock (_gate) { ReplaceModal(new CommandModal(_commands, Invoke, _labels)); } }, _keys.Palette.Value) { KeyText = _keys.Palette.Value.ToString().ToLowerInvariant(), Order = 31 }); }
             foreach (AppCommand command in _commands) {
-                if (command.Shortcut.HasValue) { bindings.Add(new KeyBinding(command.Label, () => Invoke(command), command.Shortcut.Value) { KeyText = command.Shortcut.Value.ToString().ToUpperInvariant(), Order = 30 }); }
+                if (command.Shortcut.HasValue) { bindings.Add(new KeyBinding(command.Label, () => Invoke(command), command.Shortcut.Value) { KeyText = command.Shortcut.Value.ToString().ToLowerInvariant(), Order = 30 }); }
             }
             KeyChord cancel = _keys.CancelAction ?? new KeyChord(ConsoleKey.C, KeyModifiers.Control);
-            bindings.Add(new KeyBinding("cancel action", _session.Cancel, cancel) { InFooter = _session.IsBusy, KeyText = cancel.ToString(), Order = 32 });
+            bindings.Add(new KeyBinding(_labels.KeyCancelAction, _session.Cancel, cancel) { InFooter = _session.IsBusy, KeyText = cancel.ToString().ToLowerInvariant(), Order = 32 });
         }
 
         internal void Bind(Button button, AppCommand command) {
@@ -217,7 +217,7 @@ namespace ConsoleMonster.Interactive {
                         int height = _host._commandBar.Measure(new Constraints(region.Width, Math.Max(1, region.Height - logHeight - 1)), context).Height;
                         rows.Add(_host._commandBar, LayoutSize.Fixed(height));
                     }
-                    IWidget body = !_host.HasCommands ? _content : rows.Add(new Panel(log, _host.IsBusy ? "Action running · " + (_host._keys.CancelAction?.ToString() ?? "Ctrl+C") + " cancels" : "Action output · Alt+PgUp/PgDn scroll"), LayoutSize.Fixed(logHeight));
+                    IWidget body = !_host.HasCommands ? _content : rows.Add(new Panel(log, _host.IsBusy ? PromptLabels.Format(_host._labels.ActionRunning, _host._keys.CancelAction?.ToString() ?? "Ctrl+C") : _host._labels.ActionOutput), LayoutSize.Fixed(logHeight));
                     _host._frame = new ViewFrame(context, region.Width, region.Height, false, context.Elapsed);
                     if (_host._modal != null && !_host._modal.IsClosed) {
                         body = new Overlay(body, _host._modal.Build(_host._frame, _host._frame.Caret)) { MaxWidth = _host._modal.MaxWidth };

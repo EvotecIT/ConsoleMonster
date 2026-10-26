@@ -24,7 +24,25 @@ namespace ConsoleMonster.Tests.Interactive.App {
             options.Command.Add(new AppCommand("run", "Run", (_, __) => Task.CompletedTask));
             using GridView view = new GridView(grid, options, new PromptLabels());
             string text = FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, 100, 30, false, TimeSpan.Zero)), 100, 30, Context).ToPlainText();
-            Assert.Equal(marks, text.Contains("Space mark"));
+            Assert.Equal(marks, text.Contains("space " + new PromptLabels().KeySelect));
+        }
+
+        [Fact]
+        public void ActionScreen_UsesTheLabelLanguage() {
+            Grid grid = new Grid("Usługi") { OutputMode = GridSelection.Multiple };
+            grid.AddColumn("Name"); grid.AddRow("one", "One");
+            GridOptions options = new GridOptions();
+            options.Command.Add(new AppCommand("run", "Uruchom", (_, __) => Task.CompletedTask));
+            PromptLabels labels = PromptLabels.For(System.Globalization.CultureInfo.GetCultureInfo("pl-PL"));
+            using GridView view = new GridView(grid, options, labels);
+            string text = FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, 120, 30, false, TimeSpan.Zero)), 120, 30, Context).ToPlainText();
+            Assert.Contains("Wybrany wiersz", text);
+            Assert.Contains("Wynik akcji", text);
+            Assert.Contains("space wybierz", text);
+            Assert.Contains("esc zamknij", text);
+            Assert.Contains("ctrl+k polecenia", text);
+            Assert.DoesNotContain("Selected row", text);
+            Assert.DoesNotContain("Action output", text);
         }
 
         [Fact]
