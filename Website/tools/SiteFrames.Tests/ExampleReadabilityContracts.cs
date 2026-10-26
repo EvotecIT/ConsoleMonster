@@ -11,55 +11,16 @@ namespace SiteFrames.Tests {
     [Collection("Interactive process defaults")]
     public sealed class ExampleReadabilityContracts {
         [Fact]
-        public void LongChainsAndArgumentsWrapWithoutChangingTokens() {
-            const string source = "var table = Ui.Table(rows).Column(row => row.Name).Column(row => row.Size).Column(row => row.Count).Expand().Border(BorderStyle.Rounded);";
-            string formatted = CSharpRunner.FormatSource(source);
-            Assert.All(formatted.Split('\n'), line => Assert.True(line.Length <= 108, line));
-            Assert.Contains("\n    .Column", formatted);
-            Assert.Equal(SyntaxFactory.ParseCompilationUnit(source).DescendantTokens().Select(token => token.Text),
-                SyntaxFactory.ParseCompilationUnit(formatted).DescendantTokens().Select(token => token.Text));
-            Assert.Equal(formatted, CSharpRunner.FormatSource(formatted));
-        }
-
-        [Theory]
-        [InlineData("Row[] rows = [new(\"{0}\", 1)];")]
-        [InlineData("var rows = new Row[] {{ new Row(\"{0}\", 1) }};")]
-        public void RecordRowsStayOnOneLineInBothArraySyntaxes(string template) {
-            string source = string.Format(template, new string('x', 110));
-            string formatted = CSharpRunner.FormatSource(source);
-            string row = Assert.Single(formatted.Split('\n'), line => line.Contains("new(", StringComparison.Ordinal) || line.Contains("new Row(", StringComparison.Ordinal));
-            Assert.Contains("\"" + new string('x', 110) + "\", 1)", row);
-            Assert.Equal(formatted, CSharpRunner.FormatSource(formatted));
-        }
-
-        [Fact]
-        public void MultipleCallbacksAndCollectionItemsPreserveTokensAndComments() {
-            const string source = "var widget = Ui.Panel().Configure(first => { first.Text(\"First callback value\"); }, second => { second.Text(\"Second callback value\"); }).Title(\"Build\");\nobject[] Values() => [new(\"one\", 1), /* keep the item note */ new(\"two\", 2), new(\"three\", 3), new(\"four\", 4), new(\"five\", 5)];";
-            string formatted = CSharpRunner.FormatSource(source);
-            Assert.Contains("keep the item note", formatted);
-            Assert.Equal(SyntaxFactory.ParseCompilationUnit(source).DescendantTokens().Select(token => token.Text),
-                SyntaxFactory.ParseCompilationUnit(formatted).DescendantTokens().Select(token => token.Text));
-            Assert.Equal(formatted, CSharpRunner.FormatSource(formatted));
-            string literal = "var panel = Ui.Panel().Title(\"" + new string('x', 140) + "\").Content(c => { c.Text(\"Ready\"); });";
-            string wrapped = CSharpRunner.FormatSource(literal);
-            Assert.Equal(wrapped, CSharpRunner.FormatSource(wrapped));
-            const string filter = "try { } catch (Exception error) when (error != null) { }";
-            Assert.Equal(filter + "\n", CSharpRunner.FormatSource(filter));
-            Assert.Equal(CSharpRunner.FormatSource(filter), CSharpRunner.FormatSource(CSharpRunner.FormatSource(filter)));
-        }
-
-        [Fact]
-        public void CatchFiltersRetainCommentAndDirectiveBoundaries() {
-            foreach (string source in new[] {
-                "try { } catch (Exception e)\n// A recoverable failure.\nwhen (e != null) { }",
-                "try { } catch (Exception e) // A recoverable failure.\nwhen (e != null) { }",
-                "try { } catch (Exception e)\n#if DEBUG\nwhen (e.Message.Length > 0)\n#else\nwhen (e != null)\n#endif\n{ }"
-            }) {
-                string formatted = CSharpRunner.FormatSource(source);
-                Assert.DoesNotContain(SyntaxFactory.ParseCompilationUnit(formatted).GetDiagnostics(), diagnostic => diagnostic.Severity == Microsoft.CodeAnalysis.DiagnosticSeverity.Error);
-                Assert.Equal(source + "\n", formatted);
-                Assert.Equal(formatted, CSharpRunner.FormatSource(formatted));
-            }
+        public void PublishedExamplesUsePositionalArguments() {
+            string folder = Path.Combine(Repository().Website, "examples");
+            var named = Directory.EnumerateFiles(folder, "*.cs", SearchOption.AllDirectories)
+                .Where(path => !path.Replace('\\', '/').Contains("/bin/", StringComparison.Ordinal)
+                    && !path.Replace('\\', '/').Contains("/obj/", StringComparison.Ordinal))
+                .SelectMany(path => SyntaxFactory.ParseCompilationUnit(File.ReadAllText(path)).DescendantNodes()
+                    .OfType<Microsoft.CodeAnalysis.CSharp.Syntax.ArgumentSyntax>()
+                    .Where(argument => argument.NameColon != null)
+                    .Select(argument => Path.GetRelativePath(folder, path) + ": " + argument.ToString()));
+            Assert.Empty(named);
         }
 
         [Fact]

@@ -2,16 +2,19 @@ using ConsoleMonster;
 using ConsoleMonster.Data;
 using ConsoleMonster.Widgets;
 
-Dictionary<string, object?> zone = new() {
+Dictionary<string, object?> zone = new()
+{
     ["Name"] = "evotec.xyz",
     ["Serial"] = 2351234567L,
     ["Signed"] = false,
-    ["Soa"] = new Dictionary<string, object?> {
+    ["Soa"] = new Dictionary<string, object?>
+    {
         ["Primary"] = "dana.ns.cloudflare.com",
         ["Refresh"] = TimeSpan.FromSeconds(10000),
         ["Expire"] = TimeSpan.FromSeconds(604800)
     },
-    ["NameServers"] = new List<Dictionary<string, object?>> {
+    ["NameServers"] = new List<Dictionary<string, object?>>
+    {
         new()
         {
             ["Host"] = "dana.ns.cloudflare.com",

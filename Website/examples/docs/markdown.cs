@@ -27,5 +27,4 @@ Get-Service | Select-Object Name, Status
 
 Reference: [deployment guide](https://example.org/deploy).
 """;
-
 MarkdownConsole.Show(content);

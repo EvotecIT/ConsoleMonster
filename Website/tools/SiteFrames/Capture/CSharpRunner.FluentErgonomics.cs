@@ -24,9 +24,17 @@ namespace SiteFrames.Capture {
                     if (index != node.ArgumentList.Arguments.Count - 1 || original.DescendantNodesAndSelf().Any(value => value is AwaitExpressionSyntax or DeclarationExpressionSyntax or DeclarationPatternSyntax)) { continue; }
                     var creation = RootCreation(original);
                     if (creation == null || model.GetTypeInfo(creation).Type is not INamedTypeSymbol created || !SymbolEqualityComparer.Default.Equals(created, options)) { continue; }
-                    var overload = method.ContainingType.GetMembers(method.Name).OfType<IMethodSymbol>().FirstOrDefault(candidate => candidate.Parameters.Any(parameter =>
-                        parameter.Type is INamedTypeSymbol action && action.OriginalDefinition.ToDisplayString() == "System.Action<T>" && SymbolEqualityComparer.Default.Equals(action.TypeArguments[0], options)));
-                    if (overload == null) { continue; }
+                    var overloads = method.ContainingType.GetMembers(method.Name).OfType<IMethodSymbol>()
+                        .Where(candidate => candidate.TypeParameters.Length == method.TypeArguments.Length)
+                        .Select(candidate => candidate.IsGenericMethod ? candidate.Construct(method.TypeArguments.ToArray()) : candidate)
+                        .Select(candidate => method.ReducedFrom == null ? candidate
+                            : candidate.ReduceExtensionMethod(model.GetTypeInfo(((MemberAccessExpressionSyntax)node.Expression).Expression).Type!))
+                        .Where(candidate => candidate != null).Cast<IMethodSymbol>()
+                        .Where(candidate => candidate.Parameters.Any(parameter => parameter.Name == "configure"
+                            && parameter.Type is INamedTypeSymbol action && action.OriginalDefinition.ToDisplayString() == "System.Action<T>"
+                            && SymbolEqualityComparer.Default.Equals(action.TypeArguments[0], options)))
+                        .Where(candidate => method.Parameters.Where(parameter => parameter.Name != binding.Parameter.Name).All(parameter =>
+                            candidate.Parameters.Any(other => other.Name == parameter.Name && SymbolEqualityComparer.Default.Equals(other.Type, parameter.Type))));
                     string name = "options";
                     var names = model.SyntaxTree.GetRoot().DescendantTokens().Where(t => t.IsKind(SyntaxKind.IdentifierToken)).Select(t => t.ValueText).ToHashSet(StringComparer.Ordinal);
                     for (int suffix = 2; names.Contains(name); suffix++) { name = "options" + suffix; }
@@ -35,14 +43,19 @@ namespace SiteFrames.Capture {
                     var configured = value.ReplaceNode(newRoot, SyntaxFactory.IdentifierName(name));
                     var statements = configured is IdentifierNameSyntax ? Array.Empty<StatementSyntax>() : new[] { SyntaxFactory.ExpressionStatement(configured) };
                     var lambda = SyntaxFactory.SimpleLambdaExpression(SyntaxFactory.Parameter(SyntaxFactory.Identifier(name)), SyntaxFactory.Block(statements));
-                    // Named arguments also handle overloads whose required configure
-                    // parameter precedes the original optional state/format parameters.
+                    var supplied = new List<(string, int, ArgumentSyntax)>();
                     for (int other = 0; other < args.Count; other++) {
-                        if (other == index) { args = args.Replace(args[other], args[other].WithExpression(lambda).WithNameColon(SyntaxFactory.NameColon("configure"))); }
-                        else if (model.GetOperation(node.ArgumentList.Arguments[other]) is Microsoft.CodeAnalysis.Operations.IArgumentOperation argument && argument.Parameter != null) {
-                            args = args.Replace(args[other], args[other].WithNameColon(SyntaxFactory.NameColon(argument.Parameter.Name)));
-                        }
+                        IParameterSymbol? parameter = ParameterFor(model, method, node.ArgumentList.Arguments[other], other);
+                        if (parameter == null) { return visited; }
+                        supplied.Add(other == index ? ("configure", -1, args[other].WithExpression(lambda))
+                            : (parameter.Name, other, args[other]));
                     }
+                    foreach (IMethodSymbol overload in overloads) {
+                        if (PositionalArguments(overload, supplied) is not { } positional) { continue; }
+                        args = positional;
+                        break;
+                    }
+
                 }
                 return visited.WithArgumentList(visited.ArgumentList.WithArguments(args));
             }

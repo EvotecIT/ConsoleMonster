@@ -15,13 +15,15 @@ var hostData = new HostDataRow[]
     new("Workspace", "comet-notes")
 };
 string git = "[accent]main[/]   [warn]2 modified[/]   [pass]1 staged[/]   [muted]0 ahead / 0 behind[/]";
+
 // Layout: compose the screen from the data above.
 KeyValueList hostSummary = Ui.KeyValue();
 foreach (var item in hostData)
     hostSummary.Add(item.Label, item.Value);
 Rows layout = Ui.Rows().Gap(1).Content(c2 =>
 {
-    c2.Logo(logo => logo.Text("HELLO").Tagline("[muted]A little context before your next command.[/]"));
+    c2.Logo(logo => logo.Text("HELLO")
+        .Tagline("[muted]A little context before your next command.[/]"));
     c2.Panel(p => p.Title("Host summary").Content(c =>
     {
         c.Add(hostSummary);
@@ -33,6 +35,8 @@ Rows layout = Ui.Rows().Gap(1).Content(c2 =>
     c2.Markup("[bold]Tip[/] Get-Help New-ConsoleTable -Examples");
     c2.Markup("[muted]Ready when you are.[/]");
 });
+
 // Behaviour: print the screen once and return.
 layout.Show();
+
 record HostDataRow(string Label, string Value);

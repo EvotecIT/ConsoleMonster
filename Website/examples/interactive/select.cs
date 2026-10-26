@@ -3,7 +3,8 @@ using ConsoleMonster.Interactive;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 
-Server[] servers = {
+Server[] servers =
+{
     new("FS01", "Warsaw", "File"),
     // <more>
     new("FS02", "Warsaw", "File"),
@@ -16,21 +17,23 @@ Server[] servers = {
     new("SQL21", "Dublin", "Database"),
     new("LAB01", "Lab", "Test"),
     new("LAB02", "Lab", "Test", "in maintenance until Friday")
-    // </more>
+// </more>
 };
-
 SelectPrompt<Server> prompt = new SelectPrompt<Server>(
     "Target server",
     servers,
     s => s.Name,
-    s => s.Site) {
+    s => s.Site)
+{
     Description = "Type to filter; offline servers show why they cannot be picked."
 };
-foreach (Choice choice in prompt.Choices) {
+foreach (Choice choice in prompt.Choices)
+{
     Server server = (Server)choice.Value!;
     choice.Badge = RichText.Plain(server.Role, new RichStyle(ThemeToken.Muted));
     choice.DisabledReason = server.Offline;
 }
+
 Server target = prompt.Show();
 Terminal.WriteMarkupLine("Connecting to [bold]" + target.Name + "[/]");
 

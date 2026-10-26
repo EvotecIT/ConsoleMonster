@@ -2,14 +2,16 @@ using ConsoleMonster;
 using ConsoleMonster.Widgets;
 
 // Illustrative completed-command data; the PowerShell feature supplies these values from the session.
-Terminal.Write(new ShellPrompt {
+Terminal.Write(new ShellPrompt
+{
     Path = "~/src/Operations/Deployment/Scripts",
     Home = "~",
     Branch = "feature/themed-prompt",
     Dirty = true,
     Succeeded = true
 });
-Terminal.Write(new ShellPrompt {
+Terminal.Write(new ShellPrompt
+{
     Path = "~/src/Operations/Deployment/Scripts",
     Home = "~",
     Branch = "feature/themed-prompt",

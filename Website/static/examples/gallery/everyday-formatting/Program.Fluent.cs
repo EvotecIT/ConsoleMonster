@@ -13,6 +13,7 @@ var tasks = new TaskItem[]
     new("Review examples", "In progress", 25),
     new("Archive old drafts", "Waiting", 8)
 };
+
 // Layout: compose the screen from the data above.
 string baseline = "";
 var table = Ui.Table(tasks)
@@ -39,6 +40,8 @@ Rows layout = Ui.Rows().Gap(1).Content(c =>
     c.Add(table);
     c.Markup("[muted]Three tasks. Aligned columns and right-aligned numbers.[/]");
 });
+
 // Behaviour: print the screen once and return.
 layout.Show();
+
 record TaskItem(string Task, string State, int Minutes);

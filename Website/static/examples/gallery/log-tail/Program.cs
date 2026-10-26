@@ -14,6 +14,7 @@ string[] messages =
     "[muted]09:41:03[/] [pass]INFO[/]  Cache warm; queue draining",
     "[muted]09:41:04[/] [pass]INFO[/]  Batch complete; no jobs lost"
 };
+
 // Layout: construct the widgets shown on screen.
 IWidget Frame(int tick)
 {
@@ -24,16 +25,15 @@ IWidget Frame(int tick)
         new TextBlock("[bold]Application log[/] [muted]· worker events[/]"),
         new Panel() { Title = "./logs/worker.log", Content = lines },
         new TextBlock("[muted]"
-                + (tick + 1).ToString(System.Globalization.CultureInfo.InvariantCulture)
-                + " / 5 events · Ctrl+C stops the live run[/]")
-    )
+            + (tick + 1).ToString(System.Globalization.CultureInfo.InvariantCulture)
+            + " / 5 events · Ctrl+C stops the live run[/]"))
     {
         Gap = 1
     };
 }
 
 // Behaviour: update each frame in a bounded live run.
-RegionWidget screen = new RegionWidget(widgetId: "demo", content: Frame(0));
+RegionWidget screen = new RegionWidget("demo", Frame(0));
 using LiveSession session = new LiveSession(screen);
 try
 {
@@ -46,7 +46,8 @@ try
         }
     });
 }
-catch (OperationCanceledException cancelled) when (cancelled.CancellationToken == session.Cancellation)
+catch (OperationCanceledException cancelled)
+    when (cancelled.CancellationToken == session.Cancellation)
 {
     // Ctrl+C is a normal way to leave the demo, after the session restores the terminal.
     return;

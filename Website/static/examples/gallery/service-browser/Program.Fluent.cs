@@ -5,16 +5,26 @@ using ConsoleMonster;
 // Data: the same fictional snapshots used by the PowerShell twin.
 Service[] services =
 {
-    new("Spooler", "Running", "Automatic", "Print Spooler", 1234, "LocalSystem", "RPC", "Queues print jobs for lab printers."),
-    new("WinRM", "Running", "Automatic", "Windows Remote Management", 2456, "NetworkService", "RPC", "Receives remote administration requests."),
-    new("WSearch", "Stopped", "Manual", "Windows Search", 0, "LocalSystem", "RPC", "Indexes lab documents for search."),
-    new("BITS", "Running", "Automatic", "Background Transfer", 3100, "LocalSystem", "RPC", "Transfers deployment packages."),
-    new("Dnscache", "Running", "Automatic", "DNS Client", 3220, "NetworkService", "NSI", "Caches DNS lookups."),
-    new("W32Time", "Running", "Automatic", "Windows Time", 3400, "LocalService", "RPC", "Keeps lab clocks synchronized."),
-    new("EventLog", "Running", "Automatic", "Windows Event Log", 3500, "LocalService", "RPC", "Collects service and security events."),
-    new("Schedule", "Running", "Automatic", "Task Scheduler", 3600, "LocalSystem", "RPC", "Runs scheduled maintenance tasks."),
-    new("RemoteRegistry", "Stopped", "Manual", "Remote Registry", 0, "LocalService", "RPC", "Allows approved remote configuration."),
-    new("BackupAgent", "Running", "Automatic", "Lab Backup Agent", 4120, "LabBackup", "RPC", "Verifies nightly backup snapshots."),
+    new("Spooler", "Running", "Automatic", "Print Spooler", 1234, "LocalSystem", "RPC",
+        "Queues print jobs for lab printers."),
+    new("WinRM", "Running", "Automatic", "Windows Remote Management", 2456, "NetworkService", "RPC",
+        "Receives remote administration requests."),
+    new("WSearch", "Stopped", "Manual", "Windows Search", 0, "LocalSystem", "RPC",
+        "Indexes lab documents for search."),
+    new("BITS", "Running", "Automatic", "Background Transfer", 3100, "LocalSystem", "RPC",
+        "Transfers deployment packages."),
+    new("Dnscache", "Running", "Automatic", "DNS Client", 3220, "NetworkService", "NSI",
+        "Caches DNS lookups."),
+    new("W32Time", "Running", "Automatic", "Windows Time", 3400, "LocalService", "RPC",
+        "Keeps lab clocks synchronized."),
+    new("EventLog", "Running", "Automatic", "Windows Event Log", 3500, "LocalService", "RPC",
+        "Collects service and security events."),
+    new("Schedule", "Running", "Automatic", "Task Scheduler", 3600, "LocalSystem", "RPC",
+        "Runs scheduled maintenance tasks."),
+    new("RemoteRegistry", "Stopped", "Manual", "Remote Registry", 0, "LocalService", "RPC",
+        "Allows approved remote configuration."),
+    new("BackupAgent", "Running", "Automatic", "Lab Backup Agent", 4120, "LabBackup", "RPC",
+        "Verifies nightly backup snapshots."),
 };
 var grid = Ui.Grid().Title("Service browser");
 grid.AddColumn("Name")
@@ -27,17 +37,8 @@ grid.AddColumn("Name")
     .AddColumn("Description");
 foreach (var service in services)
 {
-    grid.AddRow(
-        service,
-        service.Name,
-        service.Status,
-        service.StartType,
-        service.DisplayName,
-        service.ProcessId,
-        service.Account,
-        service.DependsOn,
-        service.Description
-    );
+    grid.AddRow(service, service.Name, service.Status, service.StartType, service.DisplayName,
+        service.ProcessId, service.Account, service.DependsOn, service.Description);
 }
 
 // Behaviour: asynchronous commands receive captured snapshots and cancellation.
@@ -45,11 +46,7 @@ grid.Show(options =>
 {
     foreach (string field in new[]
     {
-        "DisplayName",
-        "ProcessId",
-        "Account",
-        "DependsOn",
-        "Description"
+        "DisplayName", "ProcessId", "Account", "DependsOn", "Description"
     }
 
     )
@@ -68,13 +65,13 @@ grid.Show(options =>
     {
         string operation = definition.Label;
         options.Command.Add(Ui.Command()
-                .Key(operation)
-                .Label(operation)
-                .Configure(o => o.Action = async (context, cancellation) =>
+            .Key(operation)
+            .Label(operation)
+            .Configure(o => o.Action = async (context, cancellation) =>
             {
-            foreach (object? row in context.Rows)
+                foreach (object? row in context.Rows)
                 {
-                string name = row switch
+                    string name = row switch
                     {
                         Service service => service.Name,
                         ServiceRefresh refreshed => refreshed.Name,
@@ -96,9 +93,9 @@ grid.Show(options =>
                     await Task.Delay(700, cancellation);
                 }
             })
-                .Shortcut(new KeyChord(definition.Shortcut))
-                .ConfirmPrompt(operation + " {Selection}?")
-                .Build());
+            .Shortcut(new KeyChord(definition.Shortcut))
+            .ConfirmPrompt(operation + " {Selection}?")
+            .Build());
     }
 
     // Refresh on the input thread, preserving selection and row position.
@@ -112,6 +109,10 @@ grid.Show(options =>
         return new GridRow(item, values);
     });
 });
-record Service(string Name, string Status, string StartType, string DisplayName, int ProcessId, string Account, string DependsOn, string Description);
+
+record Service(string Name, string Status, string StartType, string DisplayName, int ProcessId,
+    string Account, string DependsOn, string Description);
+
 record ServiceRefresh(string Name, string Status);
+
 record CommandDefinition(string Label, ConsoleKey Shortcut);

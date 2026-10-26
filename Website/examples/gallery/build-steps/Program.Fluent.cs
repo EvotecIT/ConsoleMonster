@@ -7,13 +7,8 @@ using ConsoleMonster;
 
 // All values are synthetic. This example never connects to a host.
 // Data: fictional inputs kept in memory.
-string[] stages =
-{
-    "Restore",
-    "Compile",
-    "Test",
-    "Package"
-};
+string[] stages = { "Restore", "Compile", "Test", "Package" };
+
 // Layout: construct the widgets shown on screen.
 IWidget Frame(int tick)
 {
@@ -25,25 +20,20 @@ IWidget Frame(int tick)
         checklist.Add(Ui.Markup("[" + status + "]" + stages[index] + "[/]  " + label));
     }
 
-    return Ui.Rows()
-        .Gap(1)
-        .Content(c2 =>
+    return Ui.Rows().Gap(1).Content(c2 =>
+    {
+        c2.Markup("[bold]Build pipeline[/] [muted]· Orbit.Tools[/]");
+        c2.Panel(p => p.Title("Release checklist").Content(c =>
         {
-            c2.Markup("[bold]Build pipeline[/] [muted]· Orbit.Tools[/]");
-            c2.Panel(p => p.Title("Release checklist").Content(c =>
-            {
-                c.Add(checklist);
-            }));
-            c2.Progress(progress => progress.Label("Overall").Value(tick).Total(4));
-            c2.KeyValue(kv => kv.Add(
-                    "Project",
-                    "Orbit.Tools"
-                )
-                    .Add("Version", "1.2.0")
-                    .Add("Artifacts", "./artifacts/")
-                    .Add("Publish", "manual approval"));
-            c2.Markup("[muted]Ctrl+C stops the live run.[/]");
-        });
+            c.Add(checklist);
+        }));
+        c2.Progress(progress => progress.Label("Overall").Value(tick).Total(4));
+        c2.KeyValue(kv => kv.Add("Project", "Orbit.Tools")
+            .Add("Version", "1.2.0")
+            .Add("Artifacts", "./artifacts/")
+            .Add("Publish", "manual approval"));
+        c2.Markup("[muted]Ctrl+C stops the live run.[/]");
+    });
 }
 
 // Behaviour: update each frame in a bounded live run.
@@ -63,7 +53,8 @@ try
         }
     });
 }
-catch (OperationCanceledException cancelled) when (cancelled.CancellationToken == session.Cancellation)
+catch (OperationCanceledException cancelled)
+    when (cancelled.CancellationToken == session.Cancellation)
 {
     // Ctrl+C is a normal way to leave the demo, after the session restores the terminal.
     return;

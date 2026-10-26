@@ -17,6 +17,6 @@ Grid grid = new Grid("Services on FS01")
     .AddRow("WinRM", "WinRM", StatusKind.Pass, "Automatic", 9_830_400L)
     .AddRow("DFSR", "DFSR", StatusKind.Fail, "Automatic", 0L)
     .AddRow("LanmanServer", "LanmanServer", StatusKind.Pass, "Automatic", 6_553_600L);
-    // </more>
+// </more>
 GridResult picked = grid.Show();
 Terminal.WriteMarkupLine("Picked [bold]" + picked.Items.Count + "[/] services");

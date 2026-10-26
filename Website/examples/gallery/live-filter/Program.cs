@@ -14,31 +14,23 @@ var hosts = new FleetHost[]
     new("sql-02", "Database", "West", "Fail"),
     new("job-01", "Worker", "West", "Running")
 };
+
 // Layout: construct the widgets shown on screen.
 IWidget Results(string query)
 {
-    var rows = hosts.Where(host => string.Join(
-            " ",
-            host.Host,
-            host.Role,
-            host.Site,
-            host.Status
-        )
-            .IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0)
+    var rows = hosts.Where(host => string.Join(" ", host.Host, host.Role, host.Site, host.Status)
+        .IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0)
         .ToArray();
     var table = Table.For(rows)
-    .Column(row => row.Host)
-    .Column(row => row.Role)
-    .Column(row => row.Site)
-    .Column(row => row.Status, column => column.Presenter = CellPresenters.StatusWord);
-
+        .Column(row => row.Host)
+        .Column(row => row.Role)
+        .Column(row => row.Site)
+        .Column(row => row.Status, column => column.Presenter = CellPresenters.StatusWord);
     Rows result = new Rows(
         new TextBlock(rows.Length.ToString(System.Globalization.CultureInfo.InvariantCulture)
-                + " of "
-                + hosts.Length.ToString(System.Globalization.CultureInfo.InvariantCulture)
-                + " hosts"),
-        table
-    );
+            + " of " + hosts.Length.ToString(System.Globalization.CultureInfo.InvariantCulture)
+            + " hosts"),
+        table);
     if (rows.Length == 0)
         result.Add(new TextBlock("[muted]No matching hosts. Backspace to broaden the filter.[/]"));
     return result;
@@ -46,18 +38,14 @@ IWidget Results(string query)
 
 Rows layout = new Rows(
     new TextBlock("[bold]Live filter[/] [muted]· host inventory[/]"),
-    new TextInput(
-        "Query",
-        string.Empty
-    ) { Label = "Filter", Placeholder = "Host, role, site or status" },
-    new AppBinding(state => Results(state.Get<string>(
-                "Query",
-                string.Empty
-            )))
-)
+    new TextInput("Query",
+        string.Empty) { Label = "Filter", Placeholder = "Host, role, site or status" },
+    new AppBinding(state => Results(state.Get<string>("Query", string.Empty))))
 {
     Gap = 1
 };
+
 // Behaviour: edit controls to update the view; Escape exits the app.
 ConsoleApp.Run(layout);
+
 record FleetHost(string Host, string Role, string Site, string Status);

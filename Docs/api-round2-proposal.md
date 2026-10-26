@@ -561,11 +561,11 @@ The service-browser capture recipe selects `actionClock: Frozen` in its metadata
 
 ### 2026-10-26 — Teaching-source readability and translation notes
 
-I generate wrapped C# source with a soft 108-column budget, one call per line for long chains, normal braces, resolved short type names and short callback names. Record data stays one item per line; long literal data is an intentional exception to the width budget. Typed live handles use an explicit cast with the ordinary `Build()` ending rather than generic `Build<T>()` in teaching code. The public typed helper remains available.
+I use the shared SourceLayout pass from the site QA changes to generate C# source at 100 columns, one call per line for long chains, normal braces, resolved short type names and short callback names. Record data stays one item per line; long literal data is an intentional exception to the width budget. Typed live handles use an explicit cast with the ordinary `Build()` ending rather than generic `Build<T>()` in teaching code. The public typed helper remains available.
 
 The compact translation notes follow source order and reserve room for the main constructor, content, markup and switches. Kind-selected widgets include their discriminator, such as `New-ConsoleChart -Type Sparkline` ↔ `Ui.Chart().Type(ChartType.Sparkline)` ↔ `new Sparkline(…)`. The parity map owns those rules. Source tabs and downloads can regenerate independently of terminal captures; this never updates their parity result or capture stamp. Full capture freshness remains a separate gate.
 
-The gallery's presentation-line ceilings are 350 for starter demos and 750 for showcases, allowing wrapped chains and braces without adding behavior. Current help, documentation and runnable examples are guarded against the retired command list; historical proposal and migration tables remain the record of the renames.
+The gallery's presentation-line ceilings are 300 for starter demos and 600 for showcases, allowing wrapped chains and braces without adding behavior. Current help, documentation and runnable examples are guarded against the retired command list; historical proposal and migration tables remain the record of the renames.
 
 
 ## 8. Complete command disposition

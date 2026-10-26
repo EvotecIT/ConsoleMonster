@@ -10,25 +10,33 @@ using ConsoleMonster.Widgets;
 // Data: replace these inventories, operations and findings with your own sources.
 Node[] inventory = new Node[]
 {
-    new(Name: "DC01", Domain: "corp.example.test", Site: "Warsaw", Role: "Domain controller", Detail: "10.20.1.11", Offline: "", Online: true),
-    new(Name: "DC02", Domain: "corp.example.test", Site: "Warsaw", Role: "Domain controller", Detail: "10.20.1.12", Offline: "", Online: true),
-    new(Name: "FS01", Domain: "corp.example.test", Site: "Dublin", Role: "File", Detail: "10.30.1.21", Offline: "", Online: true),
-    new(Name: "SQL01", Domain: "corp.example.test", Site: "Dublin", Role: "Database", Detail: "10.30.1.31", Offline: "", Online: true),
-    new(Name: "WEB01", Domain: "corp.example.test", Site: "Berlin", Role: "Web", Detail: "10.40.1.41", Offline: "", Online: true),
-    new(Name: "FS22", Domain: "corp.example.test", Site: "Berlin", Role: "File", Detail: "10.40.1.22", Offline: "offline since 07:12", Online: false),
-    new(Name: "LAB01", Domain: "lab.example.test", Site: "Lab", Role: "Web", Detail: "192.168.50.40", Offline: "", Online: true),
-    new(Name: "LAB02", Domain: "lab.example.test", Site: "Lab", Role: "Database", Detail: "192.168.50.30", Offline: "", Online: true)
+    new("DC01", "corp.example.test", "Warsaw", "Domain controller", "10.20.1.11", "", true),
+    new("DC02", "corp.example.test", "Warsaw", "Domain controller", "10.20.1.12", "", true),
+    new("FS01", "corp.example.test", "Dublin", "File", "10.30.1.21", "", true),
+    new("SQL01", "corp.example.test", "Dublin", "Database", "10.30.1.31", "", true),
+    new("WEB01", "corp.example.test", "Berlin", "Web", "10.40.1.41", "", true),
+    new("FS22", "corp.example.test", "Berlin", "File", "10.40.1.22", "offline since 07:12", false),
+    new("LAB01", "lab.example.test", "Lab", "Web", "192.168.50.40", "", true),
+    new("LAB02", "lab.example.test", "Lab", "Database", "192.168.50.30", "", true)
 };
 Check[] catalog = new Check[]
 {
-    new(Id: "SecureChannel", Name: "Secure channel", Category: "Identity", Description: "Tests the computer account trust with the domain.", Expected: "trusted", Seconds: 1.2, Changes: false),
-    new(Id: "TimeOffset", Name: "Time offset", Category: "Identity", Description: "Compares the clock with the domain time source.", Expected: "under 1 s", Seconds: 0.8, Changes: false),
-    new(Id: "ForwardRecord", Name: "Forward record", Category: "DNS", Description: "Compares the A record with the server address.", Expected: "matches IP", Seconds: 0.6, Changes: false),
-    new(Id: "CertExpiry", Name: "Cert expiry", Category: "Certificates", Description: "Finds machine certificates expiring within 30 days.", Expected: "30+ days", Seconds: 1.8, Changes: false),
-    new(Id: "CertChain", Name: "Cert chain", Category: "Certificates", Description: "Builds each certificate chain to a trusted root.", Expected: "trusted root", Seconds: 3.5, Changes: false),
-    new(Id: "MissingUpdates", Name: "Missing updates", Category: "Updates", Description: "Lists missing security updates older than 14 days.", Expected: "0", Seconds: 6.5, Changes: false),
-    new(Id: "FreeSpace", Name: "Free space", Category: "Storage", Description: "Measures free space on every fixed volume.", Expected: "15% free", Seconds: 1.3, Changes: false),
-    new(Id: "AutoServices", Name: "Auto services", Category: "Services", Description: "Checks that automatic services are running.", Expected: "all running", Seconds: 2.2, Changes: false)
+    new("SecureChannel", "Secure channel", "Identity",
+        "Tests the computer account trust with the domain.", "trusted", 1.2, false),
+    new("TimeOffset", "Time offset", "Identity", "Compares the clock with the domain time source.",
+        "under 1 s", 0.8, false),
+    new("ForwardRecord", "Forward record", "DNS", "Compares the A record with the server address.",
+        "matches IP", 0.6, false),
+    new("CertExpiry", "Cert expiry", "Certificates",
+        "Finds machine certificates expiring within 30 days.", "30+ days", 1.8, false),
+    new("CertChain", "Cert chain", "Certificates",
+        "Builds each certificate chain to a trusted root.", "trusted root", 3.5, false),
+    new("MissingUpdates", "Missing updates", "Updates",
+        "Lists missing security updates older than 14 days.", "0", 6.5, false),
+    new("FreeSpace", "Free space", "Storage", "Measures free space on every fixed volume.",
+        "15% free", 1.3, false),
+    new("AutoServices", "Auto services", "Services", "Checks that automatic services are running.",
+        "all running", 2.2, false)
 };
 Dictionary<string, (StatusKind Status, string Actual)> findings = new()
 {
@@ -40,42 +48,31 @@ Dictionary<string, (StatusKind Status, string Actual)> findings = new()
     ["SQL01/AutoServices"] = (StatusKind.Warn, "1 restarted"),
 };
 List<HistoryRow> history = [
-    new(When: "Mon 19 Oct 21:04", Servers: 3, Checks: 4, Passed: 10, Warnings: 1, Failed: 1, Elapsed: TimeSpan.FromSeconds(372)),
-    new(When: "Tue 20 Oct 07:30", Servers: 2, Checks: 3, Passed: 6, Warnings: 0, Failed: 0, Elapsed: TimeSpan.FromSeconds(66)),
+    new("Mon 19 Oct 21:04", 3, 4, 10, 1, 1, TimeSpan.FromSeconds(372)),
+    new("Tue 20 Oct 07:30", 2, 3, 6, 0, 0, TimeSpan.FromSeconds(66)),
 ];
 string reportRoot = "Reports/Fleet";
-Node[] targets = inventory.Where(n => n.Domain == "corp.example.test" && n.Offline == "").Take(5).ToArray();
-Check[] checks = catalog.Where(c => new[] { "SecureChannel", "TimeOffset", "ForwardRecord", "CertExpiry", "CertChain", "MissingUpdates", "FreeSpace", "AutoServices" }.Contains(c.Id))
+Node[] targets = inventory.Where(n => n.Domain == "corp.example.test" && n.Offline == "")
+    .Take(5)
+    .ToArray();
+Check[] checks = catalog.Where(c => new[] { "SecureChannel", "TimeOffset", "ForwardRecord",
+    "CertExpiry", "CertChain", "MissingUpdates", "FreeSpace", "AutoServices" }.Contains(c.Id))
     .ToArray();
 string domain = "corp.example.test", format = "Html", report = reportRoot, email = "ops@example.test";
 int parallel = 3;
 bool notify = false;
 List<Work> Plan() => checks.SelectMany((c, ci) => targets.Select((n, ni) =>
 {
-    (StatusKind Status, string Actual) outcome = findings.GetValueOrDefault(
-        n.Name + "/" + c.Id,
-        (StatusKind.Pass, c.Expected)
-    );
-    return new Work(
-        n,
-        c,
-        ni * checks.Length + ci,
-        outcome.Status,
-        outcome.Actual,
-        Math.Round(
-            c.Seconds * (1 + ni * .17),
-            1
-        )
-    );
-}))
-    .ToList();
+    (StatusKind Status, string Actual) outcome = findings.GetValueOrDefault(n.Name + "/" + c.Id,
+        (StatusKind.Pass, c.Expected));
+    return new Work(n, c, ni * checks.Length + ci, outcome.Status, outcome.Actual,
+        Math.Round(c.Seconds * (1 + ni * .17), 1));
+})).ToList();
 StatusKind Verdict(IEnumerable<Work> work) => work.Any(w => w.Status == StatusKind.Fail)
     ? StatusKind.Fail
     : work.Any(w => w.Status == StatusKind.Warn) ? StatusKind.Warn : StatusKind.Pass;
-string Seconds(double seconds) => seconds.ToString(
-    "0.0",
-    System.Globalization.CultureInfo.InvariantCulture
-) + "s";
+string Seconds(double seconds) => seconds.ToString("0.0",
+    System.Globalization.CultureInfo.InvariantCulture) + "s";
 Table TableOf(string[] headers)
 {
     Table table = new Table()
@@ -98,10 +95,8 @@ IWidget Findings(IEnumerable<Work> work)
             w.Check.Name,
             w.Check.Expected,
             TableCell.FromValue(RichText.Plain(
-                    w.Actual,
-                    new RichStyle(w.Status == StatusKind.Fail ? ThemeToken.Fail : ThemeToken.Warn)
-                ))
-        );
+                w.Actual,
+                new RichStyle(w.Status == StatusKind.Fail ? ThemeToken.Fail : ThemeToken.Warn))));
     return table;
 }
 
@@ -109,30 +104,24 @@ IWidget History()
 {
     Table table = TableOf(new[] { "When", "Servers", "Checks", "Result", "Duration" });
     foreach (HistoryRow h in history.AsEnumerable().Reverse())
-        table.AddRow(
-            h.When,
-            h.Servers.ToString(),
-            h.Checks.ToString(),
+        table.AddRow(h.When, h.Servers.ToString(), h.Checks.ToString(),
             $"{h.Passed} passed · {h.Warnings} warn · {h.Failed} failed",
-            h.Elapsed.ToString(@"hh\:mm\:ss")
-        );
+            h.Elapsed.ToString(@"hh\:mm\:ss"));
     return table;
 }
 
 IWidget Preview(Check c) => new Rows(
     new TextBlock(Markup.Escape(c.Description)),
-    new KeyValueList().Add(
-        "Group",
-        c.Category
-    )
+    new KeyValueList()
+        .Add("Group", c.Category)
         .Add("Expected", c.Expected)
         .Add("Duration", "about " + Seconds(c.Seconds))
         .Add("Changes", c.Changes ? "[warn]yes[/]" : "[pass]no[/]")
-        .Add("Parameter", c.Id)
-)
+        .Add("Parameter", c.Id))
 {
     Gap = 1
 };
+
 // Layout: build the dashboard from the completed and active work.
 IWidget Body(List<Work> work, int done, int phase)
 {
@@ -143,28 +132,18 @@ IWidget Body(List<Work> work, int done, int phase)
     SummaryBar summary = new SummaryBar
     {
         Elapsed = TimeSpan.FromSeconds(done * .24 / parallel)
-    }.SetProgress(
-        done,
-        work.Count
-    )
+    }
+        .SetProgress(done, work.Count)
         .SetCounter("passed", finished.Count(w => w.Status == StatusKind.Pass), StatusKind.Pass)
         .SetCounter("warnings", finished.Count(w => w.Status == StatusKind.Warn), StatusKind.Warn)
         .SetCounter("failed", finished.Count(w => w.Status == StatusKind.Fail), StatusKind.Fail);
     Phases phases = new Phases();
-    string[] names =
-    {
-        "Discover",
-        "Connect",
-        "Check",
-        "Report"
-    };
+    string[] names = { "Discover", "Connect", "Check", "Report" };
     for (int i = 0; i < names.Length; i++)
-        phases.Set(
-            names[i],
+        phases.Set(names[i],
             i < phase
                 ? (i == 2 ? Verdict(finished) : StatusKind.Pass)
-                : i == phase ? StatusKind.Running : StatusKind.Pending
-        );
+                : i == phase ? StatusKind.Running : StatusKind.Pending);
     Lanes lanes = new Lanes("lanes");
     foreach (string category in work.Select(w => w.Check.Category).Distinct())
     {
@@ -177,7 +156,9 @@ IWidget Body(List<Work> work, int done, int phase)
         lane.Failed = ready.Count(w => w.Status == StatusKind.Fail);
         lane.Status = ready.Length == planned.Length
             ? Verdict(ready)
-            : active.Any(w => w.Check.Category == category) ? StatusKind.Running : StatusKind.Pending;
+            : active.Any(w => w.Check.Category == category)
+                ? StatusKind.Running
+                : StatusKind.Pending;
     }
 
     LogRegion log = new LogRegion()
@@ -189,16 +170,15 @@ IWidget Body(List<Work> work, int done, int phase)
     if (phase >= 1)
         log.Write($"Connecting up to {parallel} servers at a time");
     foreach (Work w in finished.TakeLast(5))
-        log.Write(
-            $"{w.Node.Name} · {w.Check.Name}: {w.Actual}",
-            w.Status == StatusKind.Fail ? "err" : w.Status == StatusKind.Warn ? "warn" : "info"
-        );
+        log.Write($"{w.Node.Name} · {w.Check.Name}: {w.Actual}",
+            w.Status == StatusKind.Fail ? "err" : w.Status == StatusKind.Warn ? "warn" : "info");
     if (phase >= 3)
         log.Write("Preparing " + format.ToUpperInvariant() + " report: " + report);
     if (phase >= 4)
         log.Write(notify
-                ? "Report ready · recipient " + email
-                : "Report ready · " + finished.Count(w => w.Status != StatusKind.Pass) + " findings to review");
+            ? "Report ready · recipient " + email
+            : "Report ready · " + finished.Count(w => w.Status != StatusKind.Pass)
+                + " findings to review");
     CellMap map = new CellMap()
     {
         Columns = checks.Length,
@@ -218,15 +198,13 @@ IWidget Body(List<Work> work, int done, int phase)
     foreach (Work w in active)
         running.Add(Markup.Escape(w.Node.Name + " · " + w.Check.Name), StatusKind.Running);
     if (active.Length == 0)
-        running.Add(
-            phase >= 3 ? "Checks complete" : "Waiting for connections",
-            phase >= 3 ? Verdict(finished) : StatusKind.Pending
-        );
-    KeyValueList facts = new KeyValueList().Add(
-        "Domain",
-        Markup.Escape(domain)
-    )
-        .Add("Servers", targets.Length + " · " + targets.Select(n => n.Site).Distinct().Count() + " sites")
+        running.Add(phase >= 3 ? "Checks complete" : "Waiting for connections",
+            phase >= 3 ? Verdict(finished) : StatusKind.Pending);
+    KeyValueList facts = new KeyValueList()
+        .Add("Domain", Markup.Escape(domain))
+        .Add(
+            "Servers",
+            targets.Length + " · " + targets.Select(n => n.Site).Distinct().Count() + " sites")
         .Add("Checks", checks.Length + " · " + work.Count + " in all")
         .Add("Report", format.ToUpperInvariant());
     Table slow = TableOf(new[] { "Check", "Server", "Took" });
@@ -238,21 +216,17 @@ IWidget Body(List<Work> work, int done, int phase)
     };
     foreach (Work w in finished)
         durations.Add(w.Seconds);
-    Columns top = new Columns().Add(new Panel() { Title = "Check map", Content = map })
+    Columns top = new Columns()
+        .Add(new Panel() { Title = "Check map", Content = map })
         .Add(
-            new Panel() { Title = "Categories", Content = new Rows(
-            lanes,
-            new Rule(),
-            facts
-        ) },
-            LayoutSize.Fraction(1.15)
-        )
+            new Panel() { Title = "Categories", Content = new Rows(lanes, new Rule(), facts) },
+            LayoutSize.Fraction(1.15))
         .Add(new Panel() { Title = "Running", Content = running }, LayoutSize.Fraction(.95));
     top.CollapseBelow = 100;
-    Columns bottom = new Columns().Add(
-        new Panel() { Title = "Findings", Content = Findings(finished) },
-        LayoutSize.Fraction(1.5)
-    )
+    Columns bottom = new Columns()
+        .Add(
+            new Panel() { Title = "Findings", Content = Findings(finished) },
+            LayoutSize.Fraction(1.5))
         .Add(new Panel() { Title = "Slowest checks", Content = slow })
         .Add(new Panel() { Title = "Durations", Content = durations }, LayoutSize.Fixed(20));
     bottom.CollapseBelow = 100;
@@ -262,7 +236,7 @@ IWidget Body(List<Work> work, int done, int phase)
 // Behaviour: native form/menu navigation, then a bounded run with cancellation and history.
 void Execute(MenuContext context, List<Work> work)
 {
-    RegionWidget body = new RegionWidget(widgetId: "body", content: Body(work, 0, 0));
+    RegionWidget body = new RegionWidget("body", Body(work, 0, 0));
     Dashboard dashboard = new Dashboard()
     {
         Content = body,
@@ -300,14 +274,13 @@ void Execute(MenuContext context, List<Work> work)
     if (!completed)
         return;
     history.Add(new(
-            When: "Tue 20 Oct 09:30",
-            Servers: work.Select(w => w.Node.Name).Distinct().Count(),
-            Checks: work.Select(w => w.Check.Id).Distinct().Count(),
-            Passed: work.Count(w => w.Status == StatusKind.Pass),
-            Warnings: work.Count(w => w.Status == StatusKind.Warn),
-            Failed: work.Count(w => w.Status == StatusKind.Fail),
-            Elapsed: outcome.Elapsed
-        ));
+        "Tue 20 Oct 09:30",
+        work.Select(w => w.Node.Name).Distinct().Count(),
+        work.Select(w => w.Check.Id).Distinct().Count(),
+        work.Count(w => w.Status == StatusKind.Pass),
+        work.Count(w => w.Status == StatusKind.Warn),
+        work.Count(w => w.Status == StatusKind.Fail),
+        outcome.Elapsed));
 }
 
 MenuRunResult Result(List<Work> work)
@@ -317,36 +290,29 @@ MenuRunResult Result(List<Work> work)
         Summary = $"{work.Count} checks on {work.Select(w => w.Node.Name).Distinct().Count()} servers. Review the findings and choose the next action.",
         Details = Findings(work)
     };
-    result.Figure("passed", work.Count(w => w.Status == StatusKind.Pass).ToString(), StatusKind.Pass);
+    result.Figure(
+        "passed",
+        work.Count(w => w.Status == StatusKind.Pass).ToString(),
+        StatusKind.Pass);
     result.Figure(
         "warnings",
         work.Count(w => w.Status == StatusKind.Warn).ToString(),
-        work.Any(w => w.Status == StatusKind.Warn) ? StatusKind.Warn : StatusKind.Pass
-    );
+        work.Any(w => w.Status == StatusKind.Warn) ? StatusKind.Warn : StatusKind.Pass);
     result.Figure(
         "failed",
         work.Count(w => w.Status == StatusKind.Fail).ToString(),
-        work.Any(w => w.Status == StatusKind.Fail) ? StatusKind.Fail : StatusKind.Pass
-    );
+        work.Any(w => w.Status == StatusKind.Fail) ? StatusKind.Fail : StatusKind.Pass);
     result.Next(
         "View report",
-        ctx => ctx.ShowResult(new MenuRunResult(
-                "Report · " + format.ToUpperInvariant(),
-                Verdict(work)
-            ) { Summary = report, Details = Findings(work) })
-    );
+        ctx => ctx.ShowResult(new MenuRunResult("Report · " + format.ToUpperInvariant(),
+            Verdict(work)) { Summary = report, Details = Findings(work) }));
     if (work.Any(w => w.Status == StatusKind.Fail))
         result.Next(
             "Rerun failed checks",
-            ctx => Execute(
-                ctx,
-                work.Where(w => w.Status == StatusKind.Fail).ToList()
-            )
-        );
+            ctx => Execute(ctx, work.Where(w => w.Status == StatusKind.Fail).ToList()));
     result.Next(
         "View history",
-        ctx => ctx.ShowResult(new MenuRunResult("Run history") { Details = History() })
-    );
+        ctx => ctx.ShowResult(new MenuRunResult("Run history") { Details = History() }));
     return result;
 }
 
@@ -371,8 +337,7 @@ Form Options()
     ChoiceField output = page.Select(
         "Format",
         "Report format",
-        new[] { new Choice("Html", "HTML"), new Choice("Csv", "CSV"), new Choice("Json", "JSON") }
-    );
+        new[] { new Choice("Html", "HTML"), new Choice("Csv", "CSV"), new Choice("Json", "JSON") });
     output.Default = format;
     output.ParameterName = "Format";
     ToggleField send = page.Toggle("Notify", "Email the report");
@@ -382,7 +347,8 @@ Form Options()
     recipient.ParameterName = "To";
     recipient.Required = true;
     recipient.VisibleWhen = v => v.Get<bool>("Notify");
-    recipient.Validator = (value, _) => value is string s && s.Contains('@') ? null : "Enter an email address";
+    recipient.Validator = (value,
+        _) => value is string s && s.Contains('@') ? null : "Enter an email address";
     return form;
 }
 
@@ -411,8 +377,7 @@ FormPage scope = checkForm.Page("Scope", "Which servers to check.");
 ChoiceField domains = scope.Select(
     "Domain",
     "Domain",
-    inventory.Select(n => n.Domain).Distinct().Select(d => new Choice(d))
-);
+    inventory.Select(n => n.Domain).Distinct().Select(d => new Choice(d)));
 domains.Default = domain;
 domains.ParameterName = "Domain";
 ChoiceField servers = scope.MultiSelect("Servers", "Servers");
@@ -423,24 +388,29 @@ servers.LoadChoices = async (values, token) =>
 {
     await Task.Delay(350, token);
     return inventory.Where(n => n.Domain == values.Get<string>("Domain"))
-        .Select(n => new Choice(n.Name) { Label = n.Name, Group = n.Site, Badge = RichText.Plain(
-                n.Role,
-                new RichStyle(ThemeToken.Muted)
-            ), Description = n.Detail, DisabledReason = n.Offline == "" ? null : n.Offline, Selected = n.Offline == "" });
+        .Select(n => new Choice(n.Name)
+        {
+            Label = n.Name,
+            Group = n.Site,
+            Badge = RichText.Plain(n.Role, new RichStyle(ThemeToken.Muted)),
+            Description = n.Detail,
+            DisabledReason = n.Offline == "" ? null : n.Offline,
+            Selected = n.Offline == ""
+        });
 };
 servers.Default = targets.Select(n => n.Name).ToArray();
 FormPage choose = checkForm.Page("Checks", "What a healthy server reports appears in the preview.");
 ChoiceField operations = choose.MultiSelect(
     "Checks",
     "Checks",
-    catalog.Select(c => new Choice(
-            c.Id,
-            c.Name
-        ) { Group = c.Category, Description = c.Description, Badge = RichText.Plain(
-            "~" + Seconds(c.Seconds),
-            new RichStyle(ThemeToken.Muted)
-        ), Selected = checks.Contains(c) })
-);
+    catalog.Select(c => new Choice(c.Id,
+        c.Name)
+        {
+            Group = c.Category,
+            Description = c.Description,
+            Badge = RichText.Plain("~" + Seconds(c.Seconds), new RichStyle(ThemeToken.Muted)),
+            Selected = checks.Contains(c)
+        }));
 operations.Minimum = 1;
 operations.ParameterName = "Check";
 operations.Preview = c => Preview(catalog.First(k => k.Id == (string)c.Value!));
@@ -451,63 +421,69 @@ menu.Preset(
     "Morning · identity & DNS",
     p => p.Form(
         checkForm,
-        new Dictionary<string, object?> { ["Servers"] = inventory.Where(n => n.Role == "Domain controller").Select(n => n.Name).ToArray(), ["Checks"] = new[] { "SecureChannel", "TimeOffset", "ForwardRecord" }, ["Parallel"] = 2m }
-    )
-        .Preview(new KeyValueList().Add(
-            "Scope",
-            "Domain controllers"
-        ).Add(
-            "Checks",
-            "Identity and DNS"
-        ))
-);
+        new Dictionary<string, object?>
+        {
+            ["Servers"] = inventory.Where(n => n.Role == "Domain controller")
+                .Select(n => n.Name)
+                .ToArray(),
+            ["Checks"] = new[] { "SecureChannel", "TimeOffset", "ForwardRecord" },
+            ["Parallel"] = 2m
+        })
+        .Preview(new KeyValueList()
+            .Add("Scope", "Domain controllers")
+            .Add("Checks", "Identity and DNS")));
 menu.Preset(
     "Nightly · all sites",
     p => p.Form(
         checkForm,
-        new Dictionary<string, object?> { ["Servers"] = inventory.Where(n => n.Domain == domain && n.Offline == "").Select(n => n.Name).ToArray(), ["Checks"] = catalog.Select(c => c.Id).ToArray(), ["Parallel"] = 3m, ["Notify"] = true }
-    )
-        .Preview(new KeyValueList().Add(
-            "Scope",
-            "Every online server"
-        ).Add(
-            "Checks",
-            "All categories"
-        ))
-);
+        new Dictionary<string, object?>
+        {
+            ["Servers"] = inventory.Where(n => n.Domain == domain && n.Offline == "")
+                .Select(n => n.Name)
+                .ToArray(),
+            ["Checks"] = catalog.Select(c => c.Id).ToArray(),
+            ["Parallel"] = 3m,
+            ["Notify"] = true
+        })
+        .Preview(new KeyValueList()
+            .Add("Scope", "Every online server")
+            .Add("Checks", "All categories")));
 menu.Preset(
     "Patch Tuesday · updates",
     p => p.Form(
         checkForm,
-        new Dictionary<string, object?> { ["Checks"] = new[] { "MissingUpdates", "AutoServices" }, ["Format"] = "Csv" }
-    )
-);
+        new Dictionary<string, object?>
+        {
+            ["Checks"] = new[] { "MissingUpdates", "AutoServices" },
+            ["Format"] = "Csv"
+        }));
 menu.Preset(
     "Certificates · web tier",
     p => p.Form(
         checkForm,
-        new Dictionary<string, object?> { ["Servers"] = new[] { "WEB01" }, ["Checks"] = new[] { "CertExpiry", "CertChain", "ForwardRecord" } }
-    )
-);
+        new Dictionary<string, object?>
+        {
+            ["Servers"] = new[] { "WEB01" },
+            ["Checks"] = new[] { "CertExpiry", "CertChain", "ForwardRecord" }
+        }));
 menu.Item("Presets", i => i.Hotkey('p').IconName(GlyphIcon.Favorite).Presets());
 menu.Item(
     "New check",
     i => i.Hotkey('n')
         .IconName(GlyphIcon.Run)
         .Description("Choose a domain, servers and checks; review the command and run.")
-        .Form(
-            checkForm,
-            (context, result) =>
-{
+        .Form(checkForm, (context, result) =>
+        {
             domain = result.Values.Get<string>("Domain", domain);
-            targets = inventory.Where(n => n.Domain == domain && n.Offline == "" && result.Values.GetList<string>("Servers").Contains(n.Name))
+            targets = inventory.Where(n => n.Domain == domain && n.Offline == ""
+                && result.Values.GetList<string>("Servers")
+                    .Contains(n.Name))
                 .ToArray();
-            checks = catalog.Where(c => result.Values.GetList<string>("Checks").Contains(c.Id)).ToArray();
+            checks = catalog.Where(c => result.Values.GetList<string>("Checks").Contains(c.Id))
+                .ToArray();
             ApplyOptions(result.Values);
             Execute(context, Plan());
-}
-        )
-);
+        }));
 menu.Item("History", i =>
 {
     i.Hotkey = 'h';
@@ -518,7 +494,14 @@ menu.Item("History", i =>
 menu.Separator();
 menu.Exit("Quit");
 menu.Run(new MenuOptions { Layout = MenuLayout.Shell, AppName = "Fleet health check gallery" });
-record Node(string Name, string Domain, string Site, string Role, string Detail, string Offline, bool Online);
-record Check(string Id, string Name, string Category, string Description, string Expected, double Seconds, bool Changes);
+
+record Node(string Name, string Domain, string Site, string Role, string Detail, string Offline,
+    bool Online);
+
+record Check(string Id, string Name, string Category, string Description, string Expected,
+    double Seconds, bool Changes);
+
 record Work(Node Node, Check Check, int Cell, StatusKind Status, string Actual, double Seconds);
-record HistoryRow(string When, int Servers, int Checks, int Passed, int Warnings, int Failed, TimeSpan Elapsed);
+
+record HistoryRow(string When, int Servers, int Checks, int Passed, int Warnings, int Failed,
+    TimeSpan Elapsed);

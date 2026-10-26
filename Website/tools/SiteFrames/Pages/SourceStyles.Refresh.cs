@@ -19,8 +19,9 @@ namespace SiteFrames.Pages {
 
         /// <summary>
         /// Refreshes non-gallery C# tabs and mapping notes through the normal source publishers, without rendering,
-        /// running examples, or changing stored frames, parity results or capture stamps. Only exact token matches
-        /// identify maintained programs; unresolved or ambiguous sources are reported and left untouched.
+        /// running examples, or changing stored frames, parity results or capture stamps. Published repository paths
+        /// identify maintained programs; entries without a path require an exact token match. Unresolved or ambiguous
+        /// sources are reported and left untouched.
         /// Project-backed examples require the same built project references as a normal source publication.
         /// </summary>
         internal static SourceRefreshResult RefreshStoredSources(Site site) {
@@ -47,7 +48,10 @@ namespace SiteFrames.Pages {
                 JsonNode data = JsonNode.Parse(File.ReadAllText(path))!;
                 bool changed = false;
                 foreach ((string location, JsonObject entry) in StoredPrograms(data, Path.GetFileName(path))) {
-                    string[] matches = byTokens[SourceIdentity(entry["csharpFull"]!.GetValue<string>())].ToArray();
+                    string? repositoryPath = entry["csharpRepo"]?.GetValue<string>();
+                    string[] matches = repositoryPath == null
+                        ? byTokens[SourceIdentity(entry["csharpFull"]!.GetValue<string>())].ToArray()
+                        : programs.Where(program => program == Path.GetFullPath(Path.Combine(site.Repository, repositoryPath.Replace('/', Path.DirectorySeparatorChar)))).ToArray();
                     if (matches.Length == 0) { result.Unmatched.Add(location); continue; }
                     if (matches.Length != 1) {
                         result.Ambiguous.Add(location + ": " + string.Join(", ", matches.Select(file => Path.GetRelativePath(site.Repository, file))));
@@ -95,7 +99,7 @@ namespace SiteFrames.Pages {
                     if (owners == null) { Add(site, updated, program, companions.ToArray()); }
                     else { AddProject(site, updated, program, owners[0]); }
                     // Copy only C# publication fields. Add can also discover a PowerShell sibling on a normal render.
-                    foreach (string field in new[] { "csharp", "csharpFull", "csharpFiles", "csharpFluent", "csharpFluentFull", "csharpFluentFiles", "apiMap" }) {
+                    foreach (string field in new[] { "csharp", "csharpFull", "csharpRepo", "csharpFiles", "csharpFluent", "csharpFluentFull", "csharpFluentFiles", "apiMap" }) {
                         if (updated[field] != null) { entry[field] = updated[field]!.DeepClone(); }
                     }
                     result.Refreshed.Add(location);

@@ -3,12 +3,68 @@ using System.IO;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using ConsoleMonster.Capabilities;
+using ConsoleMonster.Styling;
 using SiteFrames.Capture;
 using Xunit;
 
 namespace SiteFrames.Tests {
     /// <summary>Example C# reads like hand-written code: long lines break at their structure and only whitespace changes.</summary>
+    [Collection("Interactive process defaults")]
     public sealed class SourceLayoutContracts {
+        [Fact]
+        public void LongStringSummariesWrapWithoutChangingValuesOrInterpolationOrder() {
+            const string source = """
+                using ConsoleMonster;
+                using ConsoleMonster.Widgets;
+                int reads = 0;
+                int Next() => ++reads;
+                bool retry = true;
+                string summary = retry ? $"[pass]{Next()} passed[/]   [accent]{Next()} recovered on retry[/]   [muted]retention: 14 days and archive verification complete[/]" : "No jobs were retried and every archive remains available for fourteen days in the nightly backup destination directory.";
+                Terminal.Write(new TextBlock(summary + " / reads=" + reads));
+                """;
+            string formatted = SourceLayout.Format(source);
+            Assert.All(formatted.Split('\n'), line => Assert.True(line.Length <= SourceLayout.Width, line));
+            Assert.Equal(formatted, SourceLayout.Format(formatted));
+            string directory = Path.Combine(Path.GetTempPath(), "cm-layout-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(directory);
+            try {
+                string before = Path.Combine(directory, "before.cs");
+                string after = Path.Combine(directory, "after.cs");
+                File.WriteAllText(before, source);
+                File.WriteAllText(after, formatted);
+                var profile = CSharpRunner.Profile(100, 12, ColorDepth.TrueColor, GlyphTier.Full);
+                Assert.Equal(CSharpRunner.Execute(before, profile, Theme.Dark, null).Output,
+                    CSharpRunner.Execute(after, profile, Theme.Dark, null).Output);
+            } finally { Directory.Delete(directory, recursive: true); }
+        }
+
+        [Fact]
+        public void NonStringTargetsKeepTheirInterpolatedExpression() {
+            const string source = "FormattableString summary = $\"{DateTime.Now} a long template which preserves its arguments and format string for a caller supplied format provider\";";
+            string original = CSharpSyntaxTree.ParseText(source).GetRoot().DescendantNodes().OfType<Microsoft.CodeAnalysis.CSharp.Syntax.InterpolatedStringExpressionSyntax>().Single().ToString();
+            string formatted = SourceLayout.Format(source);
+            Assert.Equal(original, CSharpSyntaxTree.ParseText(formatted).GetRoot().DescendantNodes().OfType<Microsoft.CodeAnalysis.CSharp.Syntax.InterpolatedStringExpressionSyntax>().Single().ToString());
+        }
+
+        [Fact]
+        public void WrappingArgumentsRetainsTheirInlineComment() {
+            const string source = "Write(\"The first argument deliberately fills the available line\", /* keep the explanation */ \"The second argument wraps\");";
+            string formatted = SourceLayout.Format(source);
+            Assert.Contains("/* keep the explanation */", formatted, StringComparison.Ordinal);
+            Assert.True(CSharpSyntaxTree.ParseText(formatted).GetRoot().IsEquivalentTo(CSharpSyntaxTree.ParseText(source).GetRoot(), topLevel: false));
+            Assert.Equal(formatted, SourceLayout.Format(formatted));
+        }
+
+        [Fact]
+        public void SourceFoldMarkersRemainStandaloneAfterNormalizingBraces() {
+            const string source = "// <more>\nvoid Work() { } // </more>\n";
+            string formatted = SourceLayout.Format(source);
+            Assert.Contains("}\n// </more>\n", formatted, StringComparison.Ordinal);
+            Assert.Equal(formatted, SourceLayout.Format(formatted));
+            SourceSnippets.Split(formatted);
+        }
+
         [Fact]
         public void LongChainsBreakOneCallPerLineAndNestedChainsIndentAgain() {
             string source = "using ConsoleMonster.Widgets;\nvar bar = new StackedBar().Add(\"Passed\", 412, ThemeToken.Pass).Add(\"Warnings\", 51, ThemeToken.Warn).Add(\"Failed\", 23, ThemeToken.Fail);\n";
@@ -60,6 +116,7 @@ namespace SiteFrames.Tests {
             while (root != null && !File.Exists(Path.Combine(root.FullName, "ConsoleMonster.sln"))) { root = root.Parent; }
             string examples = Path.Combine(root!.FullName, "Website", "examples");
             return Directory.GetFiles(examples, "*.cs", SearchOption.AllDirectories)
+                .Where(path => !Path.GetRelativePath(examples, path).Split(Path.DirectorySeparatorChar).Any(part => part is "bin" or "obj"))
                 .Where(path => !WindowsRecorded.Contains(Path.GetRelativePath(examples, path).Replace('\\', '/'), StringComparer.Ordinal))
                 .OrderBy(path => path, StringComparer.Ordinal).ToArray();
         }

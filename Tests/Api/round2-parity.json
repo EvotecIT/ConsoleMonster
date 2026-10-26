@@ -25974,7 +25974,7 @@
         "Member": "ForEachAsync",
         "OptionsType": "ConsoleMonster.Live.RunOptions",
         "Argument": "configure",
-        "Pattern": "o => o.Param(value)",
+        "Pattern": "options => options.Param(value)",
         "Reason": "Configure fresh defaults once, then call the existing operation owner; object options remain supported."
       },
       {
@@ -25982,7 +25982,7 @@
         "Member": "Run",
         "OptionsType": "ConsoleMonster.Interactive.MenuOptions",
         "Argument": "configure",
-        "Pattern": "o => o.Param(value)",
+        "Pattern": "options => options.Param(value)",
         "Reason": "Configure fresh defaults once, then call the existing operation owner; object options remain supported."
       },
       {
@@ -25990,7 +25990,7 @@
         "Member": "RunAsync",
         "OptionsType": "ConsoleMonster.Interactive.MenuOptions",
         "Argument": "configure",
-        "Pattern": "o => o.Param(value)",
+        "Pattern": "options => options.Param(value)",
         "Reason": "Configure fresh defaults once, then call the existing operation owner; object options remain supported."
       },
       {
@@ -25998,7 +25998,7 @@
         "Member": "Show",
         "OptionsType": "ConsoleMonster.Interactive.GridOptions",
         "Argument": "configure",
-        "Pattern": "o => o.Param(value)",
+        "Pattern": "options => options.Param(value)",
         "Reason": "Configure fresh defaults once, then call the existing operation owner; object options remain supported."
       },
       {
@@ -26006,7 +26006,7 @@
         "Member": "Show",
         "OptionsType": "ConsoleMonster.Interactive.FormOptions",
         "Argument": "configure",
-        "Pattern": "o => o.Param(value)",
+        "Pattern": "options => options.Param(value)",
         "Reason": "Configure fresh defaults once, then call the existing operation owner; object options remain supported."
       },
       {
@@ -26014,7 +26014,7 @@
         "Member": "ShowAsync",
         "OptionsType": "ConsoleMonster.Interactive.FormOptions",
         "Argument": "configure",
-        "Pattern": "o => o.Param(value)",
+        "Pattern": "options => options.Param(value)",
         "Reason": "Configure fresh defaults once, then call the existing operation owner; object options remain supported."
       },
       {
@@ -26022,7 +26022,7 @@
         "Member": "Run",
         "OptionsType": "ConsoleMonster.Interactive.ConsoleAppOptions",
         "Argument": "configure",
-        "Pattern": "o => o.Param(value)",
+        "Pattern": "options => options.Param(value)",
         "Reason": "Configure fresh defaults once, then call the existing operation owner; object options remain supported."
       },
       {
@@ -26030,7 +26030,7 @@
         "Member": "RunAsync",
         "OptionsType": "ConsoleMonster.Interactive.ConsoleAppOptions",
         "Argument": "configure",
-        "Pattern": "o => o.Param(value)",
+        "Pattern": "options => options.Param(value)",
         "Reason": "Configure fresh defaults once, then call the existing operation owner; object options remain supported."
       },
       {
@@ -26038,7 +26038,7 @@
         "Member": "CreateSession",
         "OptionsType": "ConsoleMonster.Live.LiveSessionOptions",
         "Argument": "configure",
-        "Pattern": "o => o.Param(value)",
+        "Pattern": "options => options.Param(value)",
         "Reason": "Configure fresh defaults once, then call the existing operation owner; object options remain supported."
       },
       {
@@ -26046,7 +26046,7 @@
         "Member": "Export",
         "OptionsType": "ConsoleMonster.Export.ExportOptions",
         "Argument": "configure",
-        "Pattern": "o => o.Width(100)",
+        "Pattern": "options => options.Width(100)",
         "Reason": "Configure fresh defaults before the existing core/add-on export dispatcher."
       }
     ]

@@ -131,7 +131,7 @@ namespace SiteFrames.Pages {
                 var optionRows = rows.Values.Where(row => row.Binding["CSharpType"]!.GetValue<string>() == optionsType)
                     .OrderBy(row => Rank(row.Binding["Member"]!.GetValue<string>())).Take(2).ToArray();
                 if (!used.Contains(operationId) || optionRows.Length == 0) { continue; }
-                string chain = "o => o" + string.Concat(optionRows.Select(row => {
+                string chain = "options => options" + string.Concat(optionRows.Select(row => {
                     string member = row.Binding["Member"]!.GetValue<string>();
                     string type = row.Binding["CSharpTypeName"]!.GetValue<string>();
                     if (type.StartsWith("System.Action", StringComparison.Ordinal) || type.StartsWith("System.Func", StringComparison.Ordinal)) {
@@ -144,7 +144,7 @@ namespace SiteFrames.Pages {
                 result.Add(new JsonObject {
                     ["powershell"] = optionRows[0].Command + string.Concat(optionRows.Select(row => " -" + row.Binding["Parameter"]!.GetValue<string>() + " …")),
                     ["csharp"] = "new " + optionsType.Substring(optionsType.LastIndexOf('.') + 1) + " { … }",
-                    ["fluent"] = owner.Substring(owner.LastIndexOf('.') + 1) + "." + operation["Member"]!.GetValue<string>() + "(…, " + chain + ")",
+                    ["fluent"] = OperationPattern(operation, chain),
                     ["memberId"] = operationId, ["note"] = operation["Reason"]!.GetValue<string>()
                 });
                 break;
@@ -212,13 +212,13 @@ namespace SiteFrames.Pages {
                         : conversion == "SecondsToTimeSpan" ? "TimeSpan.FromSeconds(…)" : "…";
                     string call = owner.Substring(owner.LastIndexOf('.') + 1);
                     call = method == ".ctor" ? "new " + call : call + "." + method;
-                    call += "(" + argument + ": " + value + ")";
+                    call += "(…)";
                     result.Add(new JsonObject {
                         ["powershell"] = command["Command"]!.GetValue<string>() + " -" + binding["Parameter"]!.GetValue<string>() + (isSwitch ? string.Empty : " …"),
                         ["csharp"] = call,
                         ["fluent"] = call,
                         ["memberId"] = key,
-                        ["note"] = binding["Reason"]?.GetValue<string>()
+                        ["note"] = (binding["Reason"]?.GetValue<string>() ?? string.Empty) + " The " + argument + " argument receives " + value + "."
                     });
                 }
             }
@@ -312,6 +312,24 @@ namespace SiteFrames.Pages {
             bool Essential(JsonNode? row) => required.Contains(row!["memberId"]!.GetValue<string>());
             return new JsonArray(result.OrderBy(row => Essential(row) ? 0 : 1).ThenBy(SourcePosition)
                 .Take(6).OrderBy(SourcePosition).Select(row => row!.DeepClone()).ToArray());
+        }
+
+        // Resolve the configure overload itself: app state and export format follow
+        // its callback, whereas the ordinary options overload puts them before it.
+        private static string OperationPattern(JsonObject operation, string configure) {
+            Type owner = typeof(ConsoleMonster.Terminal).Assembly.GetType(operation["CSharpType"]!.GetValue<string>())!;
+            Type options = owner.Assembly.GetType(operation["OptionsType"]!.GetValue<string>())!;
+            var method = owner.GetMethods().Single(candidate => candidate.Name == operation["Member"]!.GetValue<string>()
+                && candidate.GetParameters().Any(parameter => parameter.ParameterType.IsGenericType
+                    && parameter.ParameterType.GetGenericTypeDefinition() == typeof(Action<>)
+                    && parameter.ParameterType.GetGenericArguments()[0] == options));
+            bool extension = method.IsDefined(typeof(System.Runtime.CompilerServices.ExtensionAttribute), false);
+            var parameters = method.GetParameters().Skip(extension ? 1 : 0)
+                .Where(parameter => parameter.ParameterType != typeof(System.Threading.CancellationToken));
+            string receiver = extension || owner == typeof(ConsoleMonster.UiConstruction) ? "widget"
+                : method.IsStatic ? owner.Name : char.ToLowerInvariant(owner.Name[0]) + owner.Name.Substring(1);
+            return receiver + "." + method.Name + "(" + string.Join(", ", parameters.Select(parameter =>
+                parameter.Name == operation["Argument"]!.GetValue<string>() ? configure : parameter.Name)) + ")";
         }
 
         private static int Preference(string command, JsonObject binding, HashSet<string>? commands) =>

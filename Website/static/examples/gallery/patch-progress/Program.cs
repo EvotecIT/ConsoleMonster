@@ -8,20 +8,14 @@ using ConsoleMonster.Widgets;
 
 // A parallel dry run: the delay and one failure are synthetic. No server is contacted.
 // Data: fictional inputs kept in memory.
-string[] servers =
-{
-    "web-01",
-    "web-02",
-    "web-03",
-    "job-01",
-    "sql-01",
-    "sql-02"
-};
+string[] servers = { "web-01", "web-02", "web-03", "job-01", "sql-01", "sql-02" };
+
 // Layout: construct the widgets shown on screen.
 IWidget Summary(IReadOnlyList<RunResult<string, string>> outcomes)
 {
     var byHost = outcomes.ToDictionary(result => result.Item);
-    var rows = servers.Select(server => {
+    var rows = servers.Select(server =>
+    {
         bool finished = byHost.TryGetValue(server, out var outcome);
         string stage = finished ? "Finished" : "Queued";
         string result = !finished ? "-" : outcome!.Succeeded ? "Pass" : "Retry needed";
@@ -31,15 +25,14 @@ IWidget Summary(IReadOnlyList<RunResult<string, string>> outcomes)
         .Column(row => row.Host)
         .Column(row => row.Stage)
         .Column(row => row.Result, column => column.Presenter = CellPresenters.StatusWord);
-
     string summary = outcomes.Count > 0
-        ? $"[pass]{outcomes.Count(result => result.Succeeded)} passed[/]  [warn]{outcomes.Count(result => !result.Succeeded)} retry needed[/]"
+        ? ($"[pass]{outcomes.Count(result => result.Succeeded)} passed[/]  [warn]"
+            + $"{outcomes.Count(result => !result.Succeeded)} retry needed[/]")
         : "[muted]Ctrl+C cancels active work.[/]";
     return new Rows(
         new TextBlock("[bold]Parallel patch run[/] [muted]· throttle 3[/]"),
         table,
-        new TextBlock(summary)
-    )
+        new TextBlock(summary))
     {
         Gap = 1
     };
@@ -50,14 +43,14 @@ Terminal.Write(Summary(Array.Empty<RunResult<string, string>>()));
 IReadOnlyList<RunResult<string, string>> results = await ConsoleRun.ForEachAsync(
     servers,
     async (server, cancel) =>
-{
-    await Task.Delay(350, cancel);
-    if (server == "web-03")
-        throw new InvalidOperationException("Restart check failed");
-    return server + " preview passed";
-},
-    new RunOptions { ThrottleLimit = 3, Timeout = TimeSpan.FromSeconds(3), Title = "Patch run" }
-);
+    {
+        await Task.Delay(350, cancel);
+        if (server == "web-03")
+            throw new InvalidOperationException("Restart check failed");
+        return server + " preview passed";
+    },
+    new RunOptions { ThrottleLimit = 3, Timeout = TimeSpan.FromSeconds(3), Title = "Patch run" });
+
 // results retains each outcome for retry/reporting; no patch command runs here.
 Terminal.Write(Summary(results));
 

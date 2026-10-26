@@ -27,6 +27,18 @@ namespace SiteFrames.Capture {
                 return base.VisitQualifiedName(node);
             }
 
+            public override SyntaxNode? VisitObjectCreationExpression(ObjectCreationExpressionSyntax node) {
+                var visited = (ObjectCreationExpressionSyntax)base.VisitObjectCreationExpression(node)!;
+                return node.ArgumentList == null ? visited : visited.WithArgumentList(visited.ArgumentList!.WithArguments(
+                    WithoutArgumentNames(model, node, node.ArgumentList.Arguments, visited.ArgumentList.Arguments)));
+            }
+
+            public override SyntaxNode? VisitImplicitObjectCreationExpression(ImplicitObjectCreationExpressionSyntax node) {
+                var visited = (ImplicitObjectCreationExpressionSyntax)base.VisitImplicitObjectCreationExpression(node)!;
+                return visited.WithArgumentList(visited.ArgumentList.WithArguments(
+                    WithoutArgumentNames(model, node, node.ArgumentList.Arguments, visited.ArgumentList.Arguments)));
+            }
+
             public override SyntaxNode? VisitInvocationExpression(InvocationExpressionSyntax node) {
                 var visited = (InvocationExpressionSyntax)base.VisitInvocationExpression(node)!;
                 if (node.Expression is MemberAccessExpressionSyntax { Name: GenericNameSyntax { Identifier.ValueText: "Build" } } member
@@ -37,7 +49,8 @@ namespace SiteFrames.Capture {
                     var cast = SyntaxFactory.CastExpression(SyntaxFactory.ParseTypeName(method.ReturnType.ToMinimalDisplayString(model, node.SpanStart)), call);
                     return node.Parent is MemberAccessExpressionSyntax ? SyntaxFactory.ParenthesizedExpression(cast).WithTriviaFrom(node) : cast.WithTriviaFrom(node);
                 }
-                return visited;
+                return visited.WithArgumentList(visited.ArgumentList.WithArguments(
+                    WithoutArgumentNames(model, node, node.ArgumentList.Arguments, visited.ArgumentList.Arguments)));
             }
         }
     }

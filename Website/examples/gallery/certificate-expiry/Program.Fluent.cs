@@ -13,6 +13,7 @@ var certificates = new Certificate[]
     new("packages.example.test", "2027-02-14", 113, "Build", "Pass"),
     new("portal.example.test", "2026-12-18", 55, "Web", "Pass")
 };
+
 // Layout: put urgent renewals beside the inventory, with thresholds visible.
 var table = Ui.Table(certificates)
     .Column(row => row.Name)
@@ -38,6 +39,8 @@ Rows report = Ui.Rows().Gap(1).Content(c3 =>
         }));
     }));
 });
+
 // Behaviour: print once; connect your own inventory reader before rendering.
 report.Show();
+
 record Certificate(string Name, string Expires, int Days, string Owner, string Status);

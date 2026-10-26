@@ -31,8 +31,8 @@ var table = Table.For(servers)
     .Column(s => s.Site)
     .Column(s => s.Pending)
     .Column(s => s.Status, column =>
-{
+    {
         column.Presenter = CellPresenters.StatusWord;
-});
+    });
 table.Title = "Patch inventory";
 Terminal.Write(table);

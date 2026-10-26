@@ -12,6 +12,7 @@ var repositories = new RepositoryStatus[]
     new("orbit-docs", "docs/setup", 2, 0, 0, 0),
     new("orbit-tests", "main", 0, 0, 0, 0)
 };
+
 // Layout: numeric columns keep local changes separate from branch divergence.
 var table = Ui.Table(repositories)
     .Column(row => row.Repository)
@@ -35,6 +36,9 @@ Rows report = Ui.Rows().Gap(1).Content(c2 =>
         c.Add(next);
     }));
 });
+
 // Behaviour: print once. Keep cached summaries fresh in a separate local collection step.
 report.Show();
-record RepositoryStatus(string Repository, string Branch, int Modified, int Staged, int Ahead, int Behind);
+
+record RepositoryStatus(string Repository, string Branch, int Modified, int Staged, int Ahead,
+    int Behind);

@@ -14,6 +14,7 @@ namespace SiteFrames.Pages {
         public static JsonObject AddProject(Site site, JsonObject entry, string path, string project) => AddCore(site, entry, path, Array.Empty<string>(), project);
 
         private static JsonObject AddCore(Site site, JsonObject entry, string path, string[] companions, string? project) {
+            entry["csharpRepo"] = Path.GetRelativePath(site.Repository, path).Replace('\\', '/');
             string key = (project ?? "") + "\n" + path + "\n" + Site.ReadText(path) + "\n" + string.Join("\n", Array.ConvertAll(companions, Site.ReadText));
             if (!Generated.TryGetValue(key, out IReadOnlyDictionary<string, string>? generated)) {
                 generated = project == null ? CSharpRunner.FluentSources(path, companions) : CSharpRunner.FluentProjectSources(path, project, companions);
