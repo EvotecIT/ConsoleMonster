@@ -24,6 +24,8 @@ namespace ConsoleMonster.FileSystem {
     /// </remarks>
     public sealed partial class FileOperation {
         private static readonly bool Windows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        // .NET Framework keeps the MAX_PATH limit; .NET 8 and later lift it on Windows.
+        private static readonly bool LegacyPaths = RuntimeInformation.FrameworkDescription.StartsWith(".NET Framework", StringComparison.Ordinal);
         private static readonly StringComparison PathComparison = Windows || RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
         private readonly Item[] _items;
 
@@ -136,7 +138,9 @@ namespace ConsoleMonster.FileSystem {
         private static bool EndsWithSeparator(string path) => path.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal) || path.EndsWith(Path.AltDirectorySeparatorChar.ToString(), StringComparison.Ordinal);
 
         private static string Full(string path) {
-            string full = Path.GetFullPath(path);
+            string full;
+            // .NET Framework refuses paths past MAX_PATH here; keep the path so the item fails with PathTooLong when it runs.
+            try { full = Path.GetFullPath(path); } catch (PathTooLongException) { full = path; }
             string root = Path.GetPathRoot(full) ?? string.Empty;
             return full.Length > root.Length ? full.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) : full;
         }
@@ -163,7 +167,12 @@ namespace ConsoleMonster.FileSystem {
             } catch (IOException) { return false; } catch (UnauthorizedAccessException) { return false; }
         }
 
-        internal static FileOperationErrorKind Classify(Exception error) {
+        internal static FileOperationErrorKind Classify(Exception error, string? path = null) {
+            if (Windows && error is IOException windowsError) {
+                // ERROR_FILENAME_EXCED_RANGE, or "not found" / "invalid name" for a path the volume can't hold.
+                int code = windowsError.HResult & 0xFFFF;
+                if (code == 206 || (code == 2 || code == 3 || code == 123) && IsTooLong(path)) { return FileOperationErrorKind.PathTooLong; }
+            }
             switch (error) {
                 case UnauthorizedAccessException _: return FileOperationErrorKind.AccessDenied;
                 case System.Security.SecurityException _: return FileOperationErrorKind.AccessDenied;
@@ -175,7 +184,6 @@ namespace ConsoleMonster.FileSystem {
                     if (Windows) {
                         if (code == 32 || code == 33) { return FileOperationErrorKind.InUse; }
                         if (code == 39 || code == 112) { return FileOperationErrorKind.DiskFull; }
-                        if (code == 206) { return FileOperationErrorKind.PathTooLong; }
                         if (code == 80 || code == 183) { return FileOperationErrorKind.AlreadyExists; }
                     } else {
                         // .NET reports the raw errno for input/output failures on Unix.
@@ -187,6 +195,18 @@ namespace ConsoleMonster.FileSystem {
                     return FileOperationErrorKind.Other;
                 default: return FileOperationErrorKind.Other;
             }
+        }
+
+        /// <summary>Whether a path has a name longer than volumes allow (255), or, on .NET Framework for Windows, passes MAX_PATH.</summary>
+        internal static bool IsTooLong(string? path) {
+            if (string.IsNullOrEmpty(path)) { return false; }
+            int run = 0;
+            foreach (char character in path!) {
+                run = character == Path.DirectorySeparatorChar || character == Path.AltDirectorySeparatorChar ? 0 : run + 1;
+                if (run > 255) { return true; }
+            }
+            if (Windows && LegacyPaths && path.Length >= 260 && !path.StartsWith(@"\\?\", StringComparison.Ordinal)) { return true; }
+            return false;
         }
 
         internal static string FreeName(string target) {
@@ -564,7 +584,7 @@ namespace ConsoleMonster.FileSystem {
                     trash.MoveToTrash(path);
                     Done(0);
                 } catch (Exception error) when (IsFileError(error)) {
-                    FileOperationErrorKind kind = Classify(error);
+                    FileOperationErrorKind kind = Classify(error, path);
                     Fail(path, null, kind == FileOperationErrorKind.Other ? FileOperationErrorKind.TrashUnavailable : kind, error.Message, error);
                 }
             }
@@ -654,7 +674,7 @@ namespace ConsoleMonster.FileSystem {
                 Report(false);
             }
 
-            private void Fail(string source, string? target, Exception error) => Fail(source, target, Classify(error), error.Message, error);
+            private void Fail(string source, string? target, Exception error) => Fail(source, target, Classify(error, target ?? source), error.Message, error);
 
             private void Fail(string source, string? target, FileOperationErrorKind kind, string message, Exception? error) {
                 _errors.Add(new FileOperationError(source, target, kind, message, error));

@@ -356,6 +356,41 @@ namespace ConsoleMonster.Tests.FileSystem {
         }
 
         [Fact]
+        public async Task PathTooLong_OnMoveLeavesTheSource() {
+            using TempFolder temp = new TempFolder();
+            string file = temp.File("src/short.txt", "s");
+            // Every common volume caps a single name at 255 characters, so the target is genuinely too long everywhere.
+            FileOperationResult result = await FileOperation.Move(new[] { file }, temp.Combine("dst", new string('n', 260))).RunAsync();
+            Assert.Equal(FileOperationErrorKind.PathTooLong, Assert.Single(result.Errors).Kind);
+            Assert.True(File.Exists(file));
+        }
+
+        [Fact]
+        public void Classify_MapsWindowsPathLimitCodes() {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) { return; }
+            string tooLong = @"C:\work\" + new string('n', 300) + ".txt";
+            string fine = @"C:\work\missing\a.txt";
+            Assert.Equal(FileOperationErrorKind.PathTooLong, FileOperation.Classify(new IOException("range", unchecked((int)0x800700CE)), fine));
+            Assert.Equal(FileOperationErrorKind.PathTooLong, FileOperation.Classify(new MissingFolder(unchecked((int)0x80070003)), tooLong));
+            Assert.Equal(FileOperationErrorKind.PathTooLong, FileOperation.Classify(new IOException("name", unchecked((int)0x8007007B)), tooLong));
+            Assert.Equal(FileOperationErrorKind.NotFound, FileOperation.Classify(new MissingFolder(unchecked((int)0x80070003)), fine));
+            Assert.Equal(FileOperationErrorKind.Other, FileOperation.Classify(new IOException("name", unchecked((int)0x8007007B)), fine));
+            Assert.Equal(FileOperationErrorKind.PathTooLong, FileOperation.Classify(new PathTooLongException(), fine));
+            Assert.Equal(FileOperationErrorKind.InUse, FileOperation.Classify(new IOException("busy", unchecked((int)0x80070020)), fine));
+        }
+
+        private sealed class MissingFolder : DirectoryNotFoundException {
+            internal MissingFolder(int hresult) : base("missing") { HResult = hresult; }
+        }
+
+        [Fact]
+        public void IsTooLong_ChecksNameLengthOnEveryPlatform() {
+            Assert.True(FileOperation.IsTooLong(Path.Combine(Path.GetTempPath(), new string('n', 256))));
+            Assert.False(FileOperation.IsTooLong(Path.Combine(Path.GetTempPath(), new string('n', 255))));
+            Assert.False(FileOperation.IsTooLong(null));
+        }
+
+        [Fact]
         public async Task MissingSource_IsNotFound() {
             using TempFolder temp = new TempFolder();
             FileOperationResult result = await FileOperation.Copy(new[] { temp.Combine("ghost.txt") }, temp.Combine("dst")).RunAsync();

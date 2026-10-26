@@ -459,7 +459,7 @@ namespace ConsoleMonster.Apps.Commander {
             foreach (FileSystemInfo info in directory.EnumerateFileSystemInfos()) {
                 FileAttributes attributes;
                 try { attributes = info.Attributes; } catch (IOException) { continue; } catch (UnauthorizedAccessException) { continue; }
-                if (!ShowHidden && (attributes & FileAttributes.Hidden) != 0) { continue; }
+                if (!ShowHidden && PanelEntry.IsHiddenItem(info.Name, attributes)) { continue; }
                 bool isFolder = (attributes & FileAttributes.Directory) != 0;
                 long size = 0;
                 if (!isFolder && info is FileInfo file) {

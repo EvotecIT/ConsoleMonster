@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using ConsoleMonster.Apps.Commander;
 using ConsoleMonster.Tests.FileSystem;
@@ -18,8 +19,15 @@ namespace ConsoleMonster.Tests.Apps.Commander {
             temp.File("b.txt", new string('b', 30), new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc));
             temp.File("A.md", new string('a', 10), new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc));
             temp.File("c.cs", new string('c', 20), new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc));
-            temp.File(".hidden", "h");
+            Hide(temp.File(".hidden", "h"));
             return temp;
+        }
+
+        private static readonly bool Windows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+
+        // A leading dot hides an item on macOS and Linux; Windows needs the attribute.
+        private static void Hide(string path) {
+            if (Windows) { File.SetAttributes(path, File.GetAttributes(path) | FileAttributes.Hidden); }
         }
 
         private static CommanderPanel Open(string folder) => new CommanderPanel(new PanelState { Folder = folder, ComputeFolderSizes = false });
@@ -37,6 +45,28 @@ namespace ConsoleMonster.Tests.Apps.Commander {
             Assert.Null(panel.Error);
             panel.SetShowHidden(true);
             Assert.Contains(".hidden", Names(panel));
+        }
+
+        [Fact]
+        public void Hidden_FollowsThePlatformRule() {
+            using TempFolder temp = new TempFolder();
+            temp.File(".dotfile");
+            string flagged = temp.File("flagged.txt");
+            File.SetAttributes(flagged, FileAttributes.Hidden);
+            string system = temp.File("system.txt");
+            if (Windows) { File.SetAttributes(system, FileAttributes.System); }
+            temp.File("plain.txt");
+            using CommanderPanel panel = Open(temp.Path);
+            // macOS keeps the hidden flag that .NET sets; Linux has no such flag, so only the dot counts there.
+            bool flagKept = (File.GetAttributes(flagged) & FileAttributes.Hidden) != 0;
+            Assert.Equal(Windows || RuntimeInformation.IsOSPlatform(OSPlatform.OSX), flagKept);
+            string[] expected = Windows ? new[] { "..", ".dotfile", "plain.txt" } : flagKept ? new[] { "..", "plain.txt", "system.txt" } : new[] { "..", "flagged.txt", "plain.txt", "system.txt" };
+            Assert.Equal(expected, Names(panel));
+            panel.SetShowHidden(true);
+            Assert.Equal(new[] { "..", ".dotfile", "flagged.txt", "plain.txt", "system.txt" }, Names(panel));
+            Assert.Equal(new[] { ".dotfile", "flagged.txt", "system.txt" }.Where(name => Windows ? name != ".dotfile" : name == ".dotfile" || name == "flagged.txt" && flagKept),
+                panel.Entries.Where(entry => entry.IsHidden).Select(entry => entry.Name));
+            Assert.False(panel.Entries[0].IsHidden);
         }
 
         [Fact]

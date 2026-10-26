@@ -74,8 +74,18 @@ namespace ConsoleMonster.Apps.Commander {
         /// <summary>Whether this is a symbolic link, junction or other reparse point.</summary>
         public bool IsLink => (Attributes & FileAttributes.ReparsePoint) != 0;
 
-        /// <summary>Whether the item is hidden: the hidden attribute, or a leading dot on Unix.</summary>
-        public bool IsHidden => (Attributes & FileAttributes.Hidden) != 0;
+        /// <summary>
+        /// Whether the item is hidden by the platform's rule: the hidden or system attribute on Windows, where a leading dot is
+        /// just part of the name; a leading dot on macOS and Linux, plus the hidden flag that .NET reports on macOS.
+        /// </summary>
+        public bool IsHidden => !IsParent && IsHiddenItem(Name, Attributes);
+
+        internal static bool IsHiddenItem(string name, FileAttributes attributes) {
+            if (Windows) { return (attributes & (FileAttributes.Hidden | FileAttributes.System)) != 0; }
+            return name.StartsWith(".", StringComparison.Ordinal) || (attributes & FileAttributes.Hidden) != 0;
+        }
+
+        private static readonly bool Windows = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
 
         /// <summary>Whether the item is read-only.</summary>
         public bool IsReadOnly => (Attributes & FileAttributes.ReadOnly) != 0;
