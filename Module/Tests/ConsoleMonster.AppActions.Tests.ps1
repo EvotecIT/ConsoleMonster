@@ -17,7 +17,7 @@ Describe 'In-app command actions' {
             try {
                 ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default = $options
                 $rows = @([pscustomobject] @{ Name = 'One' }, [pscustomobject] @{ Name = 'Two' })
-                $null = $rows | Show-ConsoleGrid -Property Name -Title Services -Action $Command -Refresh $Refresh -ErrorAction Stop
+                $null = $rows | Show-ConsoleGrid -Property Name -Title Services -Command $Command -RefreshRow $Refresh -ErrorAction Stop
                 return ($capture.Frames | ForEach-Object { $_.ToPlainText() }) -join "`n"
             } finally { ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default = $previous; $inputSource.Dispose() }
         }
@@ -26,6 +26,23 @@ Describe 'In-app command actions' {
     It 'treats an explicit null module list as no imports' {
         $command = New-ConsoleCommand -Key NoImports -ImportModule $null -ScriptBlock { 'Done' }
         $command.Key | Should -Be NoImports
+    }
+
+    It 'preserves a command label on a button and accepts an explicit label override' {
+        $command = New-ConsoleCommand -Key restart -Label 'Restart service' -ScriptBlock { 'Done' }
+        $button = New-ConsoleButton -Key action -Command $command
+        $button.Label | Should -BeExactly 'Restart service'
+        $button.Command | Should -Be $command
+        (New-ConsoleButton -Key action -Command $command -Label 'Restart now').Label | Should -BeExactly 'Restart now'
+        { New-ConsoleButton -Key action -Command $command -OnClick { 'Duplicate' } } | Should -Throw '*not both*'
+    }
+
+    It 'collects pipeline content into one scroll container' {
+        $scroll = @('First', 'Second') | New-ConsoleScrollView -Height 5
+        @($scroll).Count | Should -Be 1
+        $text = $scroll | Show-Console -AsString -Width 40
+        $text | Should -Match 'First'
+        $text | Should -Match 'Second'
     }
 
     It 'runs explicit arguments and modules in isolation for marked rows and keeps the grid open' {

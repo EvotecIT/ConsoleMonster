@@ -27,12 +27,12 @@ namespace ConsoleMonster.Interactive {
             Discover(layout, reflowBelow);
             _focus = new FocusManager(layout);
             _viewport = new AppViewport(layout, _focus);
-            List<AppCommand> commands = new List<AppCommand>(options?.Commands ?? (IEnumerable<AppCommand>)Array.Empty<AppCommand>());
+            List<AppCommand> commands = new List<AppCommand>(options?.Command ?? (IEnumerable<AppCommand>)Array.Empty<AppCommand>());
             foreach (InputControl input in _focus.Controls) {
                 if (input is Button commandButton && commandButton.Command != null && !commands.Contains(commandButton.Command)) { commands.Add(commandButton.Command); }
             }
             try {
-                _actions = new AppCommandHost(commands, () => options?.Selection?.Invoke(_state) ?? Array.Empty<object?>(), PromptLabels.For(context.Profile.Language), cancellationToken, dispatcher: options?.Dispatcher);
+                _actions = new AppCommandHost(commands, () => options?.CaptureSelection(_state) ?? Array.Empty<object?>(), PromptLabels.For(context.Profile.Language), cancellationToken, dispatcher: options?.Dispatcher);
                 foreach (InputControl control in _focus.Controls) {
                     _inputs.Add(control.Key, control);
                     state[control.Key] = control.CurrentValue;

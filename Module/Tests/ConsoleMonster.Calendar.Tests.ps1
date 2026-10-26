@@ -26,7 +26,7 @@
     It 'creates a passive year view and rejects contradictory month input' {
         $calendar = New-ConsoleCalendar -Year 2026 -View Year
         $calendar.View.ToString() | Should -BeExactly 'Year'
-        { New-ConsoleCalendar -Year 2026 } | Should -Throw '*requires -Month*'
-        { New-ConsoleCalendar -Year 2026 -View Year -Month 10 } | Should -Throw '*without -Month*'
+        { New-ConsoleCalendar -Year 2026 } | Should -Throw '*requires*Month*'
+        { New-ConsoleCalendar -Year 2026 -View Year -Month 10 } | Should -Throw '*without*Month*'
     }
 }

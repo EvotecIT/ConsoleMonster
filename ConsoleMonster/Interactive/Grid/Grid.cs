@@ -99,7 +99,7 @@ namespace ConsoleMonster.Interactive {
     /// <summary>Options for <see cref="Grid.Show"/>.</summary>
     public sealed class GridOptions {
         /// <summary>Commands available through the action palette and their shortcuts. Actions keep the grid open.</summary>
-        public IList<AppCommand> Commands { get; } = new List<AppCommand>();
+        public IList<AppCommand> Command { get; } = new List<AppCommand>();
         /// <summary>Refreshes each acted-on row on the input thread after successful completion. Return a new snapshot in the same column order; selection and row position are retained. Keep this callback short.</summary>
         public Func<AppCommand, GridRow, GridRow>? RefreshRow { get; set; }
         /// <summary>Optional per-run mailbox, drained on the input thread and closed when the grid exits.</summary>

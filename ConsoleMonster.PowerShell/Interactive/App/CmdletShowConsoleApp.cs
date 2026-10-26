@@ -116,12 +116,9 @@ namespace ConsoleMonster.PowerShell {
                         ReflowBelow = ReflowBelow,
                         StaticSnapshot = StaticSnapshot.IsPresent,
                         ProcessEvents = callbacks.Drain,
-                        Selection = state => {
-                            if (SelectionKey == null || !state.TryGetValue(SelectionKey, out object? value) || value == null) { return Array.Empty<object?>(); }
-                            return new System.Collections.Generic.List<object?>(PSItems.Items(value));
-                        }
+                        SelectionKey = SelectionKey
                     };
-                    foreach (AppCommand command in Command) { options.Commands.Add(command); }
+                    foreach (AppCommand command in Command) { options.Command.Add(command); }
                     AppState state = ConsoleApp.Run(layout, null, options, stop.Token);
                     if (PassThru.IsPresent) { WriteObject(PSAppScript.Snapshot(state), false); }
                 }

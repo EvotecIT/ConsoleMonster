@@ -243,9 +243,26 @@ namespace ConsoleMonster.Tests.Interactive.App {
             options.Interactive!.Input = new ScriptedInput("\"a\" F5 Escape");
             options.ProcessEvents = state => { if (pending) { state["picked"] = query.Value; pending = false; } };
             options.Selection = state => { captured = state.Get<string>("picked"); return new object?[] { captured }; };
-            options.Commands.Add(new AppCommand("run", "Run", (_, __) => Task.CompletedTask) { Shortcut = new KeyChord(ConsoleKey.F5) });
+            options.Command.Add(new AppCommand("run", "Run", (_, __) => Task.CompletedTask) { Shortcut = new KeyChord(ConsoleKey.F5) });
             ConsoleApp.Run(query, options: options);
             Assert.Equal("a", captured);
+        }
+
+        [Fact]
+        public void SelectionKeyCapturesScalarAndCollectionStateWithoutSplittingText() {
+            AppState state = new AppState { ["picked"] = "Service" };
+            var options = new ConsoleAppOptions { SelectionKey = "picked" };
+            Assert.Equal(new object?[] { "Service" }, options.CaptureSelection(state));
+            var row = new Dictionary<string, object?> { ["Name"] = "Service" };
+            state["picked"] = row;
+            Assert.Same(row, Assert.Single(options.CaptureSelection(state)));
+            state["picked"] = new object?[] { "First", "Second" };
+            Assert.Equal(new object?[] { "First", "Second" }, options.CaptureSelection(state));
+            options.Selection = _ => new object?[] { "Custom selection" };
+            Assert.Equal(new object?[] { "Custom selection" }, options.CaptureSelection(state));
+            options.Selection = null;
+            options.SelectionKey = "missing";
+            Assert.Empty(options.CaptureSelection(state));
         }
 
         private static void WithGlobalInput(string script, Action run) {

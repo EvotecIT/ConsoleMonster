@@ -48,8 +48,9 @@ namespace ConsoleMonster.Interactive {
         /// <returns>The persistent button.</returns>
         public static Button Button(ButtonInputOptions options) {
             if (options == null) { throw new ArgumentNullException(nameof(options)); }
-            var button = new Button(options.Key, options.Label);
-            Configure(button, options.Label, options.Disabled, options.TabIndex, options.ValidationMessage, options.OnChange);
+            if (options.Command != null && options.OnClick != null) { throw new ArgumentException("Use Command or OnClick, not both.", nameof(options)); }
+            var button = options.Command == null ? new Button(options.Key, options.Label) : new Button(options.Command, options.Key);
+            Configure(button, options.Label ?? options.Command?.Label, options.Disabled, options.TabIndex, options.ValidationMessage, options.OnChange);
             if (options.OnClick != null) { button.Clicked += options.OnClick; }
             return button;
         }

@@ -28,10 +28,10 @@ namespace ConsoleMonster.PowerShell {
         [Parameter] public string[] ImportModule { get; set; } = Array.Empty<string>();
         /// <inheritdoc />
         protected override void EndProcessing() {
-            AppCommand command = PSCommandActions.Create(Key, Label ?? Key, ScriptBlock.ToString(), ArgumentList, ImportModule);
-            command.ConfirmPrompt = ConfirmPrompt;
-            if (!string.IsNullOrWhiteSpace(Shortcut)) { command.Shortcut = KeyChord.Parse(Shortcut!); }
-            WriteObject(command);
+            WriteObject(ConsoleHostCommands.Create(new ConsoleCommandOptions {
+                Key = Key, Label = Label, Shortcut = Shortcut, ConfirmPrompt = ConfirmPrompt,
+                ScriptBlock = ScriptBlock, ArgumentList = ArgumentList, ImportModule = ImportModule
+            }));
         }
     }
 }

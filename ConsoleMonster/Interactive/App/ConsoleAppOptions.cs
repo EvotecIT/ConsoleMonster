@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using ConsoleMonster.Live;
 
@@ -6,9 +7,20 @@ namespace ConsoleMonster.Interactive {
     /// <summary>Input, live rendering and fallback settings for one application run.</summary>
     public sealed class ConsoleAppOptions {
         /// <summary>Passive commands shared by the app's buttons, palette and keyboard shortcuts.</summary>
-        public IList<AppCommand> Commands { get; } = new List<AppCommand>();
+        public IList<AppCommand> Command { get; } = new List<AppCommand>();
         /// <summary>Captures action rows on the app thread before confirmation. Null supplies an empty row set.</summary>
         public Func<AppState, IReadOnlyList<object?>>? Selection { get; set; }
+        /// <summary>State key supplying one selected row or a collection to commands when Selection is unset.</summary>
+        public string? SelectionKey { get; set; }
+
+        internal IReadOnlyList<object?> CaptureSelection(AppState state) {
+            if (Selection != null) { return Selection(state); }
+            if (SelectionKey == null || !state.TryGetValue(SelectionKey, out object? value) || value == null) { return Array.Empty<object?>(); }
+            var rows = new List<object?>();
+            if (value is IEnumerable items && !(value is string) && !(value is IDictionary) && !(value is Layout.IWidget)) { foreach (object? item in items) { rows.Add(item); } }
+            else { rows.Add(value); }
+            return rows;
+        }
         /// <summary>Optional mailbox for this run. The host drains it on the input thread and closes it on exit; create a new dispatcher for another run.</summary>
         public AppDispatcher? Dispatcher { get; set; }
         /// <summary>Shared prompt input, capture, capability, theme and language settings.</summary>

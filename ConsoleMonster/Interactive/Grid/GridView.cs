@@ -43,7 +43,7 @@ namespace ConsoleMonster.Interactive {
 
         public GridView(Grid grid, GridOptions options, PromptLabels labels, System.Threading.CancellationToken cancellationToken = default) : base(labels) {
             _grid = grid;
-            if (options.Commands.Count > 0 || options.Dispatcher != null) { _actions = new AppCommandHost(options.Commands, ActionRows, labels, cancellationToken, commandBar: true, requiresRows: true, dispatcher: options.Dispatcher, selectionLabel: ActionSelectionLabel, completed: command => RefreshActionRows(options, command)); }
+            if (options.Command.Count > 0 || options.Dispatcher != null) { _actions = new AppCommandHost(options.Command, ActionRows, labels, cancellationToken, commandBar: true, requiresRows: true, dispatcher: options.Dispatcher, selectionLabel: ActionSelectionLabel, completed: command => RefreshActionRows(options, command)); }
             _filter = new LineEditor(options.Filter);
             _hidden = new bool[grid.Columns.Count];
             for (int c = 0; c < grid.Columns.Count; c++) {
@@ -163,7 +163,7 @@ namespace ConsoleMonster.Interactive {
             if (_actions?.HasCommands == true) {
                 foreach (KeyBinding binding in bindings) { binding.InFooter = false; }
                 bindings.Add(new KeyBinding(Labels.KeyMove, () => Move(-1), new KeyChord(ConsoleKey.UpArrow)) { KeyText = "↑↓", Order = 10 });
-                if (_grid.Selection == GridSelection.Multiple) { bindings.Add(new KeyBinding("mark", ToggleMark, new KeyChord(ConsoleKey.Spacebar)) { KeyText = "Space", Order = 15 }); }
+                if (_grid.OutputMode == GridSelection.Multiple) { bindings.Add(new KeyBinding("mark", ToggleMark, new KeyChord(ConsoleKey.Spacebar)) { KeyText = "Space", Order = 15 }); }
                 bindings.Add(new KeyBinding("close", Escape, new KeyChord(ConsoleKey.Escape)) { KeyText = "Esc", Order = 20 });
             }
             _actions?.AddBindings(bindings);
@@ -244,12 +244,12 @@ namespace ConsoleMonster.Interactive {
             if (input.MouseAction == MouseAction.Down && input.MouseButton == 1) {
                 _cursor = hit + _top;
                 _dragAnchor = _cursor;
-                if ((input.Modifiers & KeyModifiers.Control) != 0 && _grid.Selection == GridSelection.Multiple) { ToggleMark(); }
+                if ((input.Modifiers & KeyModifiers.Control) != 0 && _grid.OutputMode == GridSelection.Multiple) { ToggleMark(); }
                 return true;
             }
             if (input.MouseAction == MouseAction.Move && _dragAnchor >= 0 && (input.HeldButtons & 1) != 0) {
                 _cursor = hit + _top;
-                if (_grid.Selection == GridSelection.Multiple) {
+                if (_grid.OutputMode == GridSelection.Multiple) {
                     for (int i = Math.Min(_dragAnchor, _cursor); i <= Math.Max(_dragAnchor, _cursor); i++) { _marked.Add(_visible[i]); }
                     _table = null;
                 }

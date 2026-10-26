@@ -36,6 +36,11 @@ namespace ConsoleMonster.Layout {
         /// <returns>This builder.</returns>
         public ContentBuilder Rows(Action<ContentBuilder> content) => Add(new Rows(Collect(content)));
 
+        /// <summary>Adds a viewport around nested content.</summary>
+        /// <param name="content">Builds the scrollable content.</param>
+        /// <returns>This builder.</returns>
+        public ContentBuilder ScrollView(Action<ContentBuilder> content) => Add(new ScrollView(Build(content)));
+
         /// <summary>Adds horizontally composed nested content.</summary>
         /// <param name="content">Builds the columns.</param>
         /// <returns>This builder.</returns>

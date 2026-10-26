@@ -76,6 +76,13 @@ Describe 'PowerShell and C# API parity' {
                 }
                 $type = $script:ApiTypes[$binding.CSharpType]
                 $type | Should -Not -BeNullOrEmpty -Because $label
+                if ($binding.FluentMember) {
+                    $fluent = $script:ApiTypes[$binding.CSharpType + 'Fluent']
+                    $fluent | Should -Not -BeNullOrEmpty -Because "$label needs a real fluent collection operation"
+                    @($fluent.GetMethods() | Where-Object {
+                        $_.Name -eq $binding.FluentMember -and $_.GetParameters()[0].ParameterType -eq $type
+                    }).Count | Should -BeGreaterThan 0 -Because "$label generates this call in How it maps"
+                }
                 if ($binding.MemberKind -eq 'Property') {
                     $member = $type.GetProperty($binding.Member)
                     $member | Should -Not -BeNullOrEmpty -Because $label

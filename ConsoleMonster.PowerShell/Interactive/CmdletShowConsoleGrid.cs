@@ -15,7 +15,7 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example>
     ///   <para>Restart selected services with confirmation and embedded output</para>
-    ///   <code>Get-Service | Show-ConsoleGrid -Property Name, Status, StartType -Title 'Services' -Action @{ Restart = { param($Row) Restart-Service $Row.Name -ErrorAction Stop; "Restarted $($Row.Name)" } }</code>
+    ///   <code>Get-Service | Show-ConsoleGrid -Property Name, Status, StartType -Title 'Services' -Command @{ Restart = { param($Row) Restart-Service $Row.Name -ErrorAction Stop; "Restarted $($Row.Name)" } }</code>
     /// </example>
     /// <example>
     ///   <para>Browse processes sorted by memory</para>
@@ -61,11 +61,11 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">In-app commands or a hashtable of action keys and script blocks. Use New-ConsoleCommand for shortcuts, optional confirmation and explicit arguments/modules. Ctrl+K opens actions; F6 cancels work.</para></summary>
         [Parameter]
-        public object[]? Action { get; set; }
+        public object[]? Command { get; set; }
 
         /// <summary><para type="description">Refreshes each acted-on row on the caller's input thread after successful completion. Receives param($Row, $CommandKey) and returns one replacement object. Keep the callback short; action work belongs in New-ConsoleCommand.</para></summary>
         [Parameter]
-        public ScriptBlock? Refresh { get; set; }
+        public ScriptBlock? RefreshRow { get; set; }
 
         /// <summary><para type="description">The culture for numbers and dates (default CONSOLEMONSTER_CULTURE, then the current culture).</para></summary>
         [Parameter]
@@ -118,11 +118,11 @@ namespace ConsoleMonster.PowerShell {
             }
             foreach (PSObject item in items) { grid.AddRow(item, ValuesFor(item, budget)); }
             GridOptions options = new GridOptions { Filter = Filter, SortDescending = Descending.IsPresent, Interactive = PSInteractive.Options(this, Mode) };
-            foreach (AppCommand command in PSCommandActions.Collect(Action)) { options.Commands.Add(command); }
-            if (Refresh != null) {
+            foreach (AppCommand command in PSCommandActions.Collect(Command)) { options.Command.Add(command); }
+            if (RefreshRow != null) {
                 options.RefreshRow = (command, row) => {
-                    System.Collections.ObjectModel.Collection<PSObject> output = Refresh.Invoke(row.Item, command.Key);
-                    if (output.Count != 1) { throw new InvalidOperationException("Refresh must return exactly one row object."); }
+                    System.Collections.ObjectModel.Collection<PSObject> output = RefreshRow.Invoke(row.Item, command.Key);
+                    if (output.Count != 1) { throw new InvalidOperationException("RefreshRow must return exactly one row object."); }
                     PSObject item = output[0];
                     return new GridRow(item, ValuesFor(item, Values.ShapeBudget.For(shape)));
                 };

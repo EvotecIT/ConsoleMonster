@@ -34,7 +34,8 @@ namespace ConsoleMonster.Tests.Building {
             IContainer[] containers = {
                 new Panel().Content(build), new Rows().Content(build), new Columns().Content(build),
                 new Stack().Content(build), new Grid(2).Content(build), new Align().Content(build), new Padding().Content(build),
-                new Dashboard("Build", new Rows()).Content(build), new RegionWidget("main").Content(build)
+                new Dashboard("Build", new Rows()).Content(build), new RegionWidget("main").Content(build),
+                new ScrollView().Content(build)
             };
             foreach (IContainer container in containers) {
                 string rendered = ConsoleExporter.ToText(container, new ExportOptions { Width = 60 });

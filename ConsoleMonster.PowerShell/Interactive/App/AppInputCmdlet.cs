@@ -32,7 +32,7 @@ namespace ConsoleMonster.PowerShell {
         /// <param name="control">The new core input.</param>
         /// <param name="onClick">Optional button activation script.</param>
         protected void Emit(InputControl control, ScriptBlock? onClick = null) {
-            control.Label = Label;
+            if (Label != null) { control.Label = Label; }
             control.Disabled = Disabled.IsPresent;
             control.TabIndex = TabIndex;
             control.ValidationMessage = ValidationMessage;

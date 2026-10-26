@@ -59,6 +59,10 @@ internal static class Program {
         }
         Panel panel = new Panel().Title("Build").Content(content => content.Text("All checks passed"));
         Require(ConsoleExporter.ToText(panel), "Build", "All checks passed");
+        var calendar = new Calendar(2026, 10).Culture(System.Globalization.CultureInfo.InvariantCulture).Today(new DateTime(2026, 10, 20)).ShowLegend(false);
+        Require(ConsoleExporter.ToText(calendar), "October", "2026");
+        var scroll = new ScrollView().MaxContentHeight(100).Content(content => content.Text("Scrollable content"));
+        Require(ConsoleExporter.ToText(scroll), "Scrollable content");
         var profile = TerminalProfile.Fixed(60, 12);
         var target = new RecordingTarget(profile);
         panel.Show(profile, target.Writer);

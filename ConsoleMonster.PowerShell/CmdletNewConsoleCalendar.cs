@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Management.Automation;
-using ConsoleMonster.Dates;
-using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
 using Calendar = ConsoleMonster.Widgets.Calendar;
 
@@ -17,7 +15,7 @@ namespace ConsoleMonster.PowerShell {
     [Cmdlet(VerbsCommon.New, "ConsoleCalendar")]
     [OutputType(typeof(Calendar))]
     public sealed class CmdletNewConsoleCalendar : PSCmdlet {
-        private readonly List<CalendarMark> _marks = new List<CalendarMark>();
+        private readonly List<object?> _input = new List<object?>();
         /// <summary><para type="description">Gregorian year to display.</para></summary>
         [Parameter(Mandatory = true)] [ValidateRange(1, 9999)] public int Year { get; set; }
         /// <summary><para type="description">Gregorian month, required in Month view.</para></summary>
@@ -44,28 +42,16 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (InputObject == null) { return; }
-            foreach (PSObject row in InputObject) {
-                object? value = row?.Properties[DateProperty]?.Value;
-                if (value == null) { throw new ArgumentException("A calendar row needs a date in " + DateProperty + "."); }
-                DateTime date;
-                if (value is DateTimeOffset offset) { date = offset.DateTime; }
-                else if (value is string text) {
-                    if (!DateTimeOffset.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTimeOffset parsed)) {
-                        throw new ArgumentException("A calendar date must be a date value or a valid invariant date string.");
-                    }
-                    date = parsed.DateTime;
-                } else { date = (DateTime)LanguagePrimitives.ConvertTo(value, typeof(DateTime), CultureInfo.InvariantCulture); }
-                string statusText = Convert.ToString(row!.Properties[StatusProperty]?.Value, CultureInfo.InvariantCulture) ?? string.Empty;
-                if (!StatusKinds.TryParse(statusText, out StatusKind status)) { throw new ArgumentException("Unknown calendar status: " + statusText); }
-                _marks.Add(new CalendarMark(date, status, Convert.ToString(row.Properties[LabelProperty]?.Value, CultureInfo.CurrentCulture), row));
-            }
+            _input.AddRange(InputObject);
         }
 
         /// <inheritdoc />
         protected override void EndProcessing() {
-            if (View == CalendarView.Month && Month == 0) { throw new ArgumentException("Month view requires -Month."); }
-            if (View == CalendarView.Year && MyInvocation.BoundParameters.ContainsKey(nameof(Month))) { throw new ArgumentException("Use -Month for Month view or -View Year without -Month."); }
-            WriteObject(new Calendar(Year, Month == 0 ? 1 : Month, _marks) { View = View, FirstDayOfWeek = FirstDayOfWeek, Culture = Culture, ShowLegend = !NoLegend, Today = Today });
+            WriteObject(ConsoleHostViews.Calendar(_input, new ConsoleCalendarOptions {
+                Year = Year, Month = Month, View = View, DateProperty = DateProperty,
+                StatusProperty = StatusProperty, LabelProperty = LabelProperty, FirstDayOfWeek = FirstDayOfWeek,
+                Culture = Culture, Today = Today, ShowLegend = !NoLegend.IsPresent
+            }));
         }
     }
 }

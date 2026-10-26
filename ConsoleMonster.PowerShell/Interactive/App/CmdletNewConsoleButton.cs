@@ -21,8 +21,7 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void EndProcessing() {
             if (Command != null && OnClick != null) { throw new System.ArgumentException("Use Command or OnClick, not both."); }
-            if (Command != null && Label == null) { Label = Command.Label; }
-            Emit(Command == null ? AppInput.Button(new ButtonInputOptions { Key = Key, Label = Label }) : new Button(Command, Key), OnClick);
+            Emit(AppInput.Button(new ButtonInputOptions { Key = Key, Label = Label, Command = Command }), OnClick);
         }
     }
 }
