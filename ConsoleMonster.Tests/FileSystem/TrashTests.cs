@@ -59,17 +59,20 @@ namespace ConsoleMonster.Tests.FileSystem {
             } finally { Environment.SetEnvironmentVariable("XDG_DATA_HOME", previous); }
         }
 
+        /// <summary>
+        /// The real recycle bin or Trash runs only where CONSOLEMONSTER_TEST_REAL_TRASH=1 (the throwaway CI runners), so a local
+        /// test run never adds to a developer's trash. On Linux the record goes to a temp XDG home and always runs.
+        /// </summary>
         [Fact]
         public void CurrentPlatformTrash_TakesATempFile() {
+            bool linux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+            if (!linux && Environment.GetEnvironmentVariable("CONSOLEMONSTER_TEST_REAL_TRASH") != "1") { return; }
             ITrash trash = FileTrash.Current;
             Assert.True(trash.IsAvailable, trash.Name + " should be available on this machine.");
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) { Assert.Equal("Recycle Bin", trash.Name); } else { Assert.Equal("Trash", trash.Name); }
             using TempFolder temp = new TempFolder();
             string file = temp.File("ConsoleMonster-trash-test-" + Guid.NewGuid().ToString("N").Substring(0, 8) + ".txt", "temporary");
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
-                // Keep the user's own trash out of it: the trash record goes to a temp XDG home.
-                trash = new XdgTrash(temp.Combine("xdg", "Trash"));
-            }
+            if (linux) { trash = new XdgTrash(temp.Combine("xdg", "Trash")); }
             string? location = trash.MoveToTrash(file);
             Assert.False(File.Exists(file));
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) {
