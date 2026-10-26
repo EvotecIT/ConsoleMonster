@@ -16,11 +16,13 @@
         <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
         <PackageId>ConsoleMonster.Extensions.Logging</PackageId>
         <PackageTags>console;terminal;logging;ilogger;microsoft-extensions-logging;dashboard;consolemonster</PackageTags>
-        <PackageProjectUrl>https://github.com/EvotecIT/ConsoleMonster</PackageProjectUrl>
+        <PackageProjectUrl>https://consolemonster.dev/</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <RepositoryUrl>https://github.com/EvotecIT/ConsoleMonster</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageIcon>icon.png</PackageIcon>
+        <PackageReleaseNotes>Upgrading from 2.0.1: https://consolemonster.dev/guides/upgrading/ - all changes: https://github.com/EvotecIT/ConsoleMonster/blob/master/CHANGELOG.MD</PackageReleaseNotes>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <DebugType>portable</DebugType>
         <NeutralLanguage>en</NeutralLanguage>
@@ -42,5 +44,6 @@
 
     <ItemGroup>
         <None Include="README.md" Pack="true" PackagePath="\" />
+        <None Include="..\Website\static\site\icon-192.png" Pack="true" PackagePath="\icon.png" Visible="false" />
     </ItemGroup>
 </Project>

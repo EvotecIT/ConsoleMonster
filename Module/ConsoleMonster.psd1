@@ -5,7 +5,7 @@
     CompanyName            = 'Evotec'
     CompatiblePSEditions   = @('Desktop', 'Core')
     Copyright              = '(c) 2011 - 2026 Przemyslaw Klys @ Evotec. All rights reserved.'
-    Description            = 'Rich console output for PowerShell 5.1 and 7: tables, trees, panels, charts and live dashboards with thread-safe updates, captured script output and graceful fallback to plain text.'
+    Description            = 'Readable output for the commands you already run, and tables, trees, charts, live runs, dashboards, menus and forms when you need more. One engine for Windows PowerShell 5.1, PowerShell 7 and .NET, with no dependencies and plain text when output is redirected.'
     FormatsToProcess       = @('ConsoleMonster.format.ps1xml')
     FunctionsToExport      = @()
     GUID                   = '7ef2133c-55a5-47e6-809e-6010f6e65e09'
@@ -14,9 +14,10 @@
     PrivateData            = @{
         PSData = @{
             ExternalModuleDependencies = @()
-            IconUri                    = 'https://evotec.xyz/wp-content/uploads/2022/08/ConsoleMonster-1.png'
-            ProjectUri                 = 'https://github.com/EvotecIT/ConsoleMonster'
-            Tags                       = @('Windows', 'MacOS', 'Linux', 'Console', 'Terminal', 'Dashboard', 'Table', 'Progress', 'TUI')
+            LicenseUri                 = 'https://github.com/EvotecIT/ConsoleMonster/blob/master/LICENSE'
+            IconUri                    = 'https://raw.githubusercontent.com/EvotecIT/ConsoleMonster/master/Website/static/site/icon-512.png'
+            ProjectUri                 = 'https://consolemonster.dev/'
+            Tags                       = @('Windows', 'MacOS', 'Linux', 'Console', 'Terminal', 'Formatting', 'Table', 'Tree', 'Chart', 'Progress', 'Dashboard', 'Menu', 'Prompt', 'TUI', 'ANSI')
             RequireLicenseAcceptance   = $false
 }
     }

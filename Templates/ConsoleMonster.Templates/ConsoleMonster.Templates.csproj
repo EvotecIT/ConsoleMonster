@@ -13,11 +13,13 @@
         <FileVersion>2.0.2</FileVersion>
         <TargetFramework>netstandard2.0</TargetFramework>
         <PackageTags>dotnet-new;templates;console;terminal;dashboard;consolemonster</PackageTags>
-        <PackageProjectUrl>https://github.com/EvotecIT/ConsoleMonster</PackageProjectUrl>
+        <PackageProjectUrl>https://consolemonster.dev/</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <RepositoryUrl>https://github.com/EvotecIT/ConsoleMonster</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageIcon>icon.png</PackageIcon>
+        <PackageReleaseNotes>Upgrading from 2.0.1: https://consolemonster.dev/guides/upgrading/ - all changes: https://github.com/EvotecIT/ConsoleMonster/blob/master/CHANGELOG.MD</PackageReleaseNotes>
         <IsPackable>true</IsPackable>
         <IncludeBuildOutput>false</IncludeBuildOutput>
         <IncludeContentInPack>true</IncludeContentInPack>
@@ -32,6 +34,7 @@
     <ItemGroup>
         <Content Include="content\**\*" Exclude="content\**\bin\**;content\**\obj\**" />
         <None Include="README.md" Pack="true" PackagePath="\" />
+        <None Include="..\..\Website\static\site\icon-192.png" Pack="true" PackagePath="\icon.png" Visible="false" />
     </ItemGroup>
 
     <ItemGroup>
