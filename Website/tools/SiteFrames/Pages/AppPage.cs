@@ -90,7 +90,7 @@ namespace SiteFrames.Pages {
                             Directory.CreateDirectory(Path.GetDirectoryName(path)!);
                             File.WriteAllBytes(path, vt);
                             Stamps.Write(site, path, Fingerprint(site, width, theme, state));
-                            CaptureRun.Record(path, width, Height + 4);
+                            CaptureRun.Record(path, width, Height + 4, theme);
                             Console.WriteLine("captured " + Path.GetRelativePath(site.Website, path));
                         }
                     }

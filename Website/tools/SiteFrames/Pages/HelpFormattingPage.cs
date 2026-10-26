@@ -83,7 +83,7 @@ namespace SiteFrames.Pages {
                                 Directory.CreateDirectory(Path.GetDirectoryName(path)!);
                                 File.WriteAllBytes(path, PowerShellRunner.Bytes(chunks));
                                 Stamps.Write(site, path, Fingerprint(site, example, width, theme));
-                                CaptureRun.Record(path, width, Height(example));
+                                CaptureRun.Record(path, width, Height(example), theme);
                                 Console.WriteLine("captured help-formatting/" + id);
                             } catch (Exception ex) when (failures != null && (ex is InvalidOperationException || ex is TimeoutException)) {
                                 failures[id] = ex.Message;

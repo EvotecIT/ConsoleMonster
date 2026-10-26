@@ -14,7 +14,7 @@ using SiteFrames.Frames;
 namespace SiteFrames.Capture {
     /// <summary>Fail-closed comparison of independently produced receipts; completion never implies full-suite coverage.</summary>
     internal static class CaptureComparison {
-        private sealed record Capture(string Path, byte[] Bytes, int Width, int Height, string Category,
+        private sealed record Capture(string Path, byte[] Bytes, int Width, int Height, string Category, string? Screen,
             List<CellBuffer> Frames, string? Source, string[] ScreenHashes);
 
         internal static int Run(string left, string right, string? report = null) {
@@ -41,6 +41,7 @@ namespace SiteFrames.Capture {
                 compared++;
                 if (x.Width != y.Width || x.Height != y.Height) { failures.Add(file + ": terminal dimensions differ"); }
                 if (x.Source != y.Source) { failures.Add(file + ": capture source fingerprints differ"); }
+                if (x.Screen != y.Screen) { failures.Add(file + ": declared terminal defaults differ or are missing in one run"); }
                 bool bytesEqual = x.Bytes.AsSpan().SequenceEqual(y.Bytes);
                 int changedRowCount = 0;
                 long changedCellCount = 0;
@@ -55,9 +56,9 @@ namespace SiteFrames.Capture {
                         ["reason"] = "capture cells, styles or screen hashes differ", ["changedRows"] = rows,
                         ["changedRowCount"] = changedRowCount, ["changedCellCount"] = changedCellCount,
                         ["omittedChangedRows"] = changedRowCount - rows.Count, ["changedScreenHashes"] = screens });
-                } else if (!samePlatform && !bytesEqual && x.Source == y.Source && x.Width == y.Width && x.Height == y.Height && x.Frames.Count == y.Frames.Count) {
+                } else if (!samePlatform && !bytesEqual && x.Source == y.Source && x.Screen == y.Screen && x.Width == y.Width && x.Height == y.Height && x.Frames.Count == y.Frames.Count) {
                     allowed.Add(new JsonObject { ["file"] = file, ["category"] = x.Category,
-                        ["reason"] = "transport encoding/timing only; all frames, cells, styles and screen hashes match",
+                        ["reason"] = "transport encoding/timing, declared terminal defaults or invisible space foreground only; all visible cells, backgrounds, decorations, links and screen hashes match",
                         ["leftSha256"] = CaptureRun.Hash(x.Bytes), ["rightSha256"] = CaptureRun.Hash(y.Bytes), ["changedRows"] = rows });
                 }
             }
@@ -119,6 +120,8 @@ namespace SiteFrames.Capture {
                         string? source = null;
                         string[] hashes = Array.Empty<string>();
                         List<CellBuffer> frames = extension == ".txt" ? Descriptions(text, width, height, out source, out hashes) : Frames(text, extension, width, height, out source);
+                        string? screen = metadata["screen"]?.GetValue<string>();
+                        if (screen != null && screen is not ("dark" or "light")) { throw new InvalidDataException("Unsupported terminal defaults."); }
                         if (extension == ".ansi") {
                             JsonObject sources = JsonNode.Parse(File.ReadAllText(Contained(root, "sources.json")))!.AsObject();
                             source = sources[entry.Key]?.GetValue<string>();
@@ -127,7 +130,16 @@ namespace SiteFrames.Capture {
                         for (int frame = 0; frame < frames.Count; frame++) {
                             foreach (string issue in Quality(frames[frame])) { failures.Add(side + ": " + entry.Key + ": frame " + frame + ": " + issue); }
                         }
-                        result.TryAdd(logical, new Capture(entry.Key, bytes, width, height, category, frames, source, hashes));
+                        if (screen != null) {
+                            Screen defaults = screen == "dark" ? SiteFrames.Frames.Screen.Dark : SiteFrames.Frames.Screen.Light;
+                            var resolved = new List<CellBuffer>();
+                            foreach (CellBuffer frame in frames) {
+                                CellBuffer next = ResolveDefaults(frame, defaults);
+                                if (resolved.Count == 0 || !SameFrame(resolved[^1], next)) { resolved.Add(next); }
+                            }
+                            frames = resolved;
+                        }
+                        result.TryAdd(logical, new Capture(entry.Key, bytes, width, height, category, screen, frames, source, hashes));
                     } catch (Exception ex) when (InputError(ex)) { failures.Add(side + ": " + entry.Key + ": " + ex.Message); }
                 }
             } catch (Exception ex) when (InputError(ex)) { failures.Add(side + ": invalid run.json: " + ex.Message); }
@@ -238,13 +250,32 @@ namespace SiteFrames.Capture {
             return result;
         }
 
+        private static CellBuffer ResolveDefaults(CellBuffer frame, Screen screen) {
+            var resolved = new CellBuffer(frame.Width, frame.Height);
+            Color foreground = Color.FromHex(screen.Foreground), background = Color.FromHex(screen.Background);
+            for (int y = 0; y < frame.Height; y++) {
+                for (int x = 0; x < frame.Width; x++) {
+                    Cell cell = frame[x, y];
+                    if (cell.IsContinuation) { continue; }
+                    Style style = cell.Style;
+                    resolved.Set(x, y, cell.Glyph, new Style(style.Color.IsDefault ? foreground : style.Color,
+                        style.BackgroundColor.IsDefault ? background : style.BackgroundColor, style.Decoration, style.Link), cell.Width);
+                }
+            }
+            return resolved;
+        }
+
         private static bool SameFrame(CellBuffer a, CellBuffer b) => a.Width == b.Width && a.Height == b.Height &&
             Enumerable.Range(0, a.Height).All(y => Enumerable.Range(0, a.Width).All(x => SameCell(a[x, y], b[x, y])));
 
-        private static bool SameCell(Cell a, Cell b) => a.Width == b.Width && a.Glyph == b.Glyph && Normal(a.Style).Equals(Normal(b.Style));
-        private static Style Normal(Style style) {
-            Style value = FrameHtml.Reduce(style, ColorDepth.TrueColor);
-            return new Style(Rgb(value.Color), Rgb(value.BackgroundColor), value.Decoration, value.Link);
+        private static bool SameCell(Cell a, Cell b) => a.Width == b.Width && a.Glyph == b.Glyph && Normal(a).Equals(Normal(b));
+        private static Style Normal(Cell cell) {
+            Style value = FrameHtml.Reduce(cell.Style, ColorDepth.TrueColor);
+            // ConPTY can retain a foreground on spaces while Unix preserves the writer's reset.
+            // Underline, strike and reverse paint that foreground; all decoration flags and links stay strict.
+            Color foreground = cell.Glyph == " " && cell.Width == 1 && (value.Decoration & (TextDecoration.Underline | TextDecoration.Strikethrough | TextDecoration.Reverse)) == 0
+                ? Color.Default : Rgb(value.Color);
+            return new Style(foreground, Rgb(value.BackgroundColor), value.Decoration, value.Link);
         }
         private static Color Rgb(Color color) {
             if (color.IsDefault) { return color; }

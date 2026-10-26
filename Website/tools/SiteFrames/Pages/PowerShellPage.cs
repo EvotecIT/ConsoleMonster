@@ -83,7 +83,7 @@ namespace SiteFrames.Pages {
                     Directory.CreateDirectory(Path.GetDirectoryName(path)!);
                     File.WriteAllBytes(path, PowerShellRunner.Bytes(chunks));
                     Stamps.Write(site, path, Stamp(site, run, host));
-                    CaptureRun.Record(path, run.RunWidth, 120);
+                    CaptureRun.Record(path, run.RunWidth, 120, run.Environment["CONSOLEMONSTER_THEME"]);
                     Console.WriteLine("captured " + Path.GetRelativePath(site.Website, path));
                 }
             }

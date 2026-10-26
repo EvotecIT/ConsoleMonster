@@ -29,7 +29,7 @@ namespace SiteFrames.Capture {
                 Directory.CreateDirectory(Path.GetDirectoryName(path)!);
                 File.WriteAllBytes(path, PowerShellRunner.Bytes(chunks));
                 Stamps.Write(site, path, Stamp(site, area, id, width, host, environment));
-                CaptureRun.Record(path, width, 80);
+                CaptureRun.Record(path, width, 80, environment == null ? "dark" : environment["CONSOLEMONSTER_THEME"]);
                 Console.WriteLine("captured " + Path.GetRelativePath(site.Website, path));
             }
         }

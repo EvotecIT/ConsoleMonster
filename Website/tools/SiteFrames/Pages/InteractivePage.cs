@@ -186,7 +186,7 @@ namespace SiteFrames.Pages {
                 if (story.Area != "interactive") { environment["CONSOLEMONSTER_DEVELOPMENT_CONFIGURATION"] = "Release"; }
                 PowerShellRunner.Run(site, host ?? PowerShellHost.Core, wrapper, story.Width, story.Height, environment, Path.GetDirectoryName(script), interactive: true);
                 CaptureRun.Observe(File.ReadAllBytes(output), story.Width, story.Height);
-                CaptureRun.Record(output, story.Width, story.Height);
+                CaptureRun.Record(output, story.Width, story.Height, environment["CONSOLEMONSTER_THEME"]);
             } finally {
                 File.Delete(wrapper);
             }

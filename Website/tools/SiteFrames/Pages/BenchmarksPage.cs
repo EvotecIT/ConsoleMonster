@@ -39,7 +39,7 @@ namespace SiteFrames.Pages {
             List<OutputChunk> chunks = CSharpRunner.Record(exe, new[] { "600" }, 110, 20, PowerShellRunner.Environment("dark"), site.Repository, TimeSpan.FromMinutes(5));
             Directory.CreateDirectory(Path.GetDirectoryName(CastPath(site))!);
             File.WriteAllText(CastPath(site), Replay.Replays.ToCast(chunks, 110, 20, "ConsoleMonster.Benchmarks 600"), new UTF8Encoding(false));
-            CaptureRun.Record(CastPath(site));
+            CaptureRun.Record(CastPath(site), "dark");
             string cpu;
             try {
                 if (OperatingSystem.IsLinux()) {

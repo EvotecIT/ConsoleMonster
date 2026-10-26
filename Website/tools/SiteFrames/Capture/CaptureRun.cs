@@ -11,20 +11,27 @@ namespace SiteFrames.Capture {
     /// <summary>Producer evidence for comparing terminal cells independently of transport packet boundaries.</summary>
     internal static class CaptureRun {
         private static readonly ConcurrentDictionary<string, (int Width, int Height)> Sizes = new(StringComparer.Ordinal);
+        private static readonly ConcurrentDictionary<string, string> Screens = new(StringComparer.Ordinal);
         private static readonly ConcurrentDictionary<string, bool> Produced = new(StringComparer.Ordinal);
         private static readonly ConcurrentDictionary<string, (int Width, int Height, string Hash)> PathSizes = new(StringComparer.Ordinal);
-        internal static void Record(string path) => Produced[Path.GetFullPath(path)] = true;
-        internal static void Record(string path, int width, int height) {
+        internal static void Record(string path, string? screen = null) {
+            string full = Path.GetFullPath(path);
+            Produced[full] = true;
+            if (screen is "dark" or "light") { Screens[full] = screen; }
+        }
+        internal static void Record(string path, int width, int height, string? screen = null) {
             string full = Path.GetFullPath(path);
             PathSizes[full] = (width, height, Hash(File.ReadAllBytes(full)));
-            Record(full);
+            Record(full, screen);
         }
-        internal static void Reset() { Sizes.Clear(); Produced.Clear(); PathSizes.Clear(); }
+        internal static void Reset() { Sizes.Clear(); Screens.Clear(); Produced.Clear(); PathSizes.Clear(); }
         internal static string Platform => OperatingSystem.IsWindows() ? "windows" : OperatingSystem.IsMacOS() ? "macos" : "linux";
         internal static string Hash(byte[] bytes) => Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant();
 
-        internal static void Observe(byte[] bytes, int width, int height) => Sizes.AddOrUpdate(Hash(bytes), (width, height),
-            (_, previous) => previous == (width, height) ? previous : (-1, -1));
+        internal static void Observe(byte[] bytes, int width, int height) {
+            string hash = Hash(bytes);
+            Sizes.AddOrUpdate(hash, (width, height), (_, previous) => previous == (width, height) ? previous : (-1, -1));
+        }
 
         /// <summary>Writes only this invocation's production evidence, including failed/partial production when requested.</summary>
         internal static void Write(Site site, bool complete = true, string? area = null) {
@@ -41,6 +48,7 @@ namespace SiteFrames.Capture {
                     if (extension is not (".ansi" or ".cast" or ".txt")) { throw new InvalidDataException("Unsupported produced capture type: " + extension); }
                     string hash = Hash(File.ReadAllBytes(path));
                     metadata["sha256"] = hash;
+                    if (Screens.TryGetValue(path, out string? screen)) { metadata["screen"] = screen; }
                     Sizes.TryGetValue(hash, out var size);
                     if (PathSizes.TryGetValue(path, out var observed)) {
                         if (observed.Hash != hash) { throw new InvalidDataException("Capture changed after its producer recorded geometry."); }

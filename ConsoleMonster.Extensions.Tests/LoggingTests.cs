@@ -66,6 +66,22 @@ namespace ConsoleMonster.Extensions.Tests {
             Assert.Contains("Shop.Orders[7]  shown", text);
         }
 
+        [Theory]
+        [InlineData(false, "14:00:00 +02:00")]
+        [InlineData(true, "12:00:00 +00:00")]
+        public void Log_RecordingTimeRetainsItsOffsetUnlessUtcIsRequested(bool utc, string expected) {
+            string? saved = Environment.GetEnvironmentVariable("CONSOLEMONSTER_NOW");
+            try {
+                Environment.SetEnvironmentVariable("CONSOLEMONSTER_NOW", "2026-10-21T14:00:00+02:00");
+                (ILoggerFactory factory, StringTerminalWriter writer) = Factory(options => {
+                    options.TimestampFormat = "HH:mm:ss zzz";
+                    options.UseUtcTimestamp = utc;
+                });
+                using (factory) { factory.CreateLogger("Clock").LogInformation("pinned"); }
+                Assert.StartsWith(expected + " ", writer.ToString());
+            } finally { Environment.SetEnvironmentVariable("CONSOLEMONSTER_NOW", saved); }
+        }
+
         [Fact]
         public void Log_AnException_PrintsItThroughTheErrorViewUnderTheEntry() {
             (ILoggerFactory factory, StringTerminalWriter writer) = Factory(options => options.MaxExceptionLines = 1);

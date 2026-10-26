@@ -22,8 +22,10 @@ namespace ConsoleMonster.Presenters {
         /// <returns>The presenter context.</returns>
         public PresenterContext CreateContext(RenderContext render) => new PresenterContext(render, Culture, Now, TimeZone);
 
-        // Read at presentation time, so an explicitly scoped recording override also reaches widgets already created.
-        internal static DateTimeOffset ReferenceNow() {
+        /// <summary>Reads the presentation clock: CONSOLEMONSTER_NOW when it is a valid ISO timestamp, otherwise the current local time.
+        /// This affects displayed timestamps, not elapsed-time measurements or scheduling.</summary>
+        /// <returns>The reference time, retaining the configured timestamp's offset.</returns>
+        public static DateTimeOffset ReferenceNow() {
             string? text = Environment.GetEnvironmentVariable("CONSOLEMONSTER_NOW");
             if (!string.IsNullOrWhiteSpace(text) && DateTimeOffset.TryParseExact(text,
                 new[] { "yyyy-MM-dd'T'HH:mm:ss.FFFFFFFzzz", "yyyy-MM-dd'T'HH:mm:sszzz", "yyyy-MM-dd'T'HH:mm:ss.FFFFFFF'Z'", "yyyy-MM-dd'T'HH:mm:ss'Z'" },

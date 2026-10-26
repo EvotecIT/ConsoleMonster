@@ -110,7 +110,7 @@ namespace SiteFrames.Pages {
                     File.WriteAllText(path, target.Output, new System.Text.UTF8Encoding(false));
                     CaptureRun.Observe(File.ReadAllBytes(path), demo.Width, demo.Height);
                     Stamps.Write(site, path, Stamp(site, demo));
-                    CaptureRun.Record(path, demo.Width, demo.Height);
+                    CaptureRun.Record(path, demo.Width, demo.Height, "dark");
                 }
                 Console.WriteLine("captured gallery " + demo.Slug + " (" + demo.Steps + " states)");
             }

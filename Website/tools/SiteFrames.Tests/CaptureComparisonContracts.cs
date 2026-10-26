@@ -22,6 +22,42 @@ namespace SiteFrames.Tests {
         }
 
         [Theory]
+        [InlineData("")]
+        [InlineData("\u001b[1m")]
+        [InlineData("\u001b[2m")]
+        [InlineData("\u001b[3m")]
+        public void ConptyInvisibleForegroundOnASpaceDoesNotChangeTheRenderedFrame(string decoration) {
+            string unix = decoration + "a \u001b[31mb\u001b[0m";
+            string windows = decoration + "a\u001b[32m \u001b[31mb\u001b[0m";
+            Assert.Equal(0, Compare(Run("a", "macos", unix), Run("b", "windows", windows), out JsonObject report));
+            Assert.Single(report["allowed"]!.AsArray());
+            Assert.Equal(1, CaptureComparison.Run(Run("a", "windows", unix), Run("b", "windows", windows)));
+        }
+
+        [Fact]
+        public void DeclaredTerminalDefaultsResolveEquivalentColoursWithoutWaivingChangedBackgrounds() {
+            string a = Run("a", "windows", "ok "), b = Run("b", "macos", "\u001b[48;2;12;12;12mok ");
+            Change(a, m => m["files"]!["sample.ansi"]!["screen"] = "dark");
+            Change(b, m => m["files"]!["sample.ansi"]!["screen"] = "dark");
+            Assert.Equal(0, CaptureComparison.Run(a, b));
+            Change(b, m => m["files"]!["sample.ansi"]!["screen"] = "light");
+            Assert.Equal(1, CaptureComparison.Run(a, b));
+            b = Run("b", "macos", "\u001b[48;2;13;12;12mok ");
+            Change(b, m => m["files"]!["sample.ansi"]!["screen"] = "dark");
+            Assert.Equal(1, CaptureComparison.Run(a, b));
+        }
+
+        [Theory]
+        [InlineData("\u001b[41m ")]
+        [InlineData("\u001b[4m ")]
+        [InlineData("\u001b[9m ")]
+        [InlineData("\u001b[7m ")]
+        [InlineData("\u001b]8;;https://example.com\u001b\\ \u001b]8;;\u001b\\")]
+        public void VisibleBlankStylesAndLinksRemainStrict(string changed) {
+            Assert.Equal(1, CaptureComparison.Run(Run("a", "macos", " "), Run("b", "windows", changed)));
+        }
+
+        [Theory]
         [InlineData("different\r\n")]
         [InlineData("\u001b[31mok\u001b[0m\r\n")]
         [InlineData("\uFFFD\r\n")]
@@ -156,9 +192,8 @@ namespace SiteFrames.Tests {
         }
 
         [Fact]
-        public void BlankCellStylesAndHyperlinksStillParticipateInNeutralParity() {
+        public void HyperlinksOnVisibleTextParticipateInNeutralParity() {
             string a = Run("a", "windows", "ok\r\n");
-            Assert.Equal(1, CaptureComparison.Run(a, Run("b", "macos", "ok\r\n\u001b[31m \u001b[0m")));
             Assert.Equal(1, CaptureComparison.Run(a, Run("c", "macos", "\u001b]8;;https://example.test\u001b\\ok\u001b]8;;\u001b\\\r\n")));
         }
 

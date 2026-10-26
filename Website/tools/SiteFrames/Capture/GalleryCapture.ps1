@@ -7,6 +7,7 @@ param(
     [int] $Steps
 )
 $ErrorActionPreference = 'Stop'
+[Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)
 [Threading.Thread]::CurrentThread.CurrentCulture = [Globalization.CultureInfo]::GetCultureInfo('en-US')
 [Threading.Thread]::CurrentThread.CurrentUICulture = [Globalization.CultureInfo]::GetCultureInfo('en-US')
 $env:PSModulePath = $ModuleRoot + [IO.Path]::PathSeparator + $env:PSModulePath

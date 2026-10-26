@@ -92,7 +92,12 @@ namespace SiteFrames {
                 case "render":
                     return Render(new Site(website), only);
                 case "capture":
-                    return CaptureAll(new Site(website), only);
+                    try { return CaptureAll(new Site(website), only); }
+                    catch (Exception error) {
+                        // Catch at the command boundary so CaptureAll's finally writes a partial producer receipt.
+                        Console.Error.WriteLine(error);
+                        return 1;
+                    }
                 case "theme-files-review" when !string.IsNullOrWhiteSpace(only):
                     return ThemeFilesPage.Review(new Site(website), only, args.Length > 3 && args[3] == "--powershell");
                 case "app-review" when only != null:
@@ -182,6 +187,8 @@ namespace SiteFrames {
 
         private static int CaptureAll(Site site, string? only) {
             bool complete = false;
+            // A killed or interrupted run must never leave a previous invocation's successful receipt in place.
+            CaptureRun.Write(site, complete: false, area: only);
             try {
                 // Gallery fixtures emit their selected cells through the same terminal recorder as the native producers.
                 if (only == "gallery") { int result = GalleryPage.Capture(site); complete = result == 0; return result; }

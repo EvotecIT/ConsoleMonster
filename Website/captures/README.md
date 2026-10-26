@@ -37,7 +37,11 @@ module used by PowerShell 5.1. An optional area follows `Website`, for example
 - Emoji occupy two cells; ambiguous-width characters occupy one. The recorder
   answers Unix cursor-position queries from the same VT model used for replay.
 - `CONSOLEMONSTER_NOW=2026-10-21T12:00:00Z` fixes relative-date presentation.
-  This variable does not replace `DateTime.Now`, `Get-Date` or a stopwatch.
+  Watch headings, logging-provider timestamps and the hosted dashboard's start
+  label use the same presentation clock. Its explicit offset is preserved;
+  logging's UTC option converts it to UTC. Explicit watch times retain their
+  existing local-time presentation. This variable does not replace `DateTime.Now`,
+  `Get-Date` or a stopwatch, and hosted service durations remain real measurements.
   Sample programs supply their own fixed timestamps and explicit invented data.
 - PowerShell uses no logo or profile. The checkout's module link comes first on
   `PSModulePath`, and the runner verifies that the loaded binary came from that
@@ -77,7 +81,8 @@ Demo media can expose named platform variants, and the `cm-demo` shortcode accep
 `platform="linux"`, `platform="macos"` or `platform="windows"`. The `cm-live` shortcode uses the same platform selector for stress recordings. The live and benchmark pages expose each available measured platform separately.
 
 `captures/run.json` describes the files actually produced by a capture invocation:
-platform, category, hash and terminal geometry. Keep a copy of the complete
+platform, category, hash, terminal geometry and, where explicitly pinned, the
+site's dark/light terminal defaults. Keep a copy of the complete
 capture directory for each run. Compare two independent runs with:
 
 ```sh
@@ -89,7 +94,16 @@ The command fails if a produced capture is missing, a hash or geometry is wrong,
 a neutral cell/style differs, or it finds replacement glyphs, invalid wide-cell
 continuations or disconnected adjacent border glyphs. Same-platform runs must
 be byte-identical. Cross-platform transport encoding and packet/timing differences
-are allowed only when the decoded cells and styles match. The JSON report lists every failing capture and counts every changed row and cell. It retains the first 32 changed rows and eight changed cells per row as diagnostic samples, with explicit omitted counts, so animated differences cannot produce unbounded reports. A category label
+are allowed only when the decoded visible cells and styles match. The foreground
+of a one-cell space is invisible unless underlined, struck through or reversed,
+and may differ between ConPTY and Unix output. Backgrounds, all decoration flags, links,
+glyphs and widths remain strict; same-platform runs still require identical bytes.
+When both receipts declare the same terminal defaults, the comparer resolves
+default colours to that palette before comparing: dark uses foreground `#cccccc`
+and background `#0c0c0c`; light uses `#24292f` and `#ffffff`, matching the site's
+renderer. A missing declaration never grants this equivalence, and conflicting
+declarations fail. Structural checks run before colour resolution.
+The JSON report lists every failing capture and counts every changed row and cell. It retains the first 32 changed rows and eight changed cells per row as diagnostic samples, with explicit omitted counts, so animated differences cannot produce unbounded reports. A category label
 alone never waives a difference; platform values need an explicit comparison
 policy, and real measurements still fail strict repeated-run comparison. The Windows-only ps5 production difference is listed separately;
 it does not exempt those committed files from render freshness and parity.

@@ -63,6 +63,7 @@ namespace ConsoleMonster.Sessions {
             block.Append('\0');
             return Marshal.StringToHGlobalUni(block.ToString());
         }
+        // Reuse the shared Windows argument encoder. In particular, cmd.exe switches must remain unquoted.
         internal static string Quote(string value) => Interactive.CommandLine.Quote(value, Interactive.CommandStyle.Windows);
         public int Read(byte[] bytes) => _output!.Read(bytes, 0, bytes.Length);
         public void Write(byte[] bytes) { _input!.Write(bytes, 0, bytes.Length); _input.Flush(); }

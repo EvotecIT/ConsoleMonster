@@ -350,7 +350,7 @@ namespace SiteFrames.Pages {
                 string cast = System.Text.RegularExpressions.Regex.Replace(Replays.ToCast(chunks, demo.Width, demo.Height, demo.Title), @"\\u001B\][02];(?:[^""\\]|\\\\)*?(?:\\u0007|\\u001B\\\\)", string.Empty);
                 string? source = Source(site, demo);
                 File.WriteAllText(path, source != null ? Replays.Stamp(cast, Replays.Fingerprint(source, CapturePins.Policy)) : cast, new System.Text.UTF8Encoding(false));
-                CaptureRun.Record(path);
+                CaptureRun.Record(path, "dark");
                 Console.WriteLine("recorded demo " + demo.Id + " in " + watch.Elapsed.TotalSeconds.ToString("0.0", CultureInfo.InvariantCulture) + " s");
             }
         }

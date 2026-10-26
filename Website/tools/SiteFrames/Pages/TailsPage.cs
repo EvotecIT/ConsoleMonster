@@ -44,7 +44,7 @@ namespace SiteFrames.Pages {
                         FindFrames(File.ReadAllText(path), width);
                         CaptureRun.Observe(File.ReadAllBytes(path), width, Rows);
                         Stamps.Write(site, path, Fingerprint(site, width, theme));
-                        CaptureRun.Record(path, width, Rows);
+                        CaptureRun.Record(path, width, Rows, theme);
                         Console.WriteLine("captured tails " + host.Id + " " + width + " " + theme);
                     }
                 }

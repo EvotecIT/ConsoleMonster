@@ -119,7 +119,7 @@ namespace SiteFrames.Pages {
                     // Window titles (OSC 0 and 2) carry the executable's path; nothing on the site shows them.
                     string cast = Regex.Replace(Replays.ToCast(chunks, recording.Width, recording.Height, recording.Title), @"\\u001B\][02];(?:[^""\\]|\\\\)*?(?:\\u0007|\\u001B\\\\)", string.Empty);
                     File.WriteAllText(path, Replays.Stamp(cast, Replays.Fingerprint(recording.Source(site), CapturePins.Policy)), new System.Text.UTF8Encoding(false));
-                    CaptureRun.Record(path);
+                    CaptureRun.Record(path, "dark");
                 Console.WriteLine("recorded " + recording.Id + " in " + watch.Elapsed.TotalSeconds.ToString("0.0", CultureInfo.InvariantCulture) + " s");
                 }
             } finally {

@@ -42,7 +42,7 @@ namespace SiteFrames.Pages {
                 Directory.CreateDirectory(Path.GetDirectoryName(ProfilePath(site, id))!);
                 File.WriteAllBytes(ProfilePath(site, id), PowerShellRunner.Bytes(chunks));
                 Stamps.Write(site, ProfilePath(site, id), Stamps.Of(ProfileScript(site), environment, "100x40"));
-                CaptureRun.Record(ProfilePath(site, id), 100, 40);
+                CaptureRun.Record(ProfilePath(site, id), 100, 40, environment["CONSOLEMONSTER_THEME"]);
                 Console.WriteLine("captured " + id);
             }
         }
