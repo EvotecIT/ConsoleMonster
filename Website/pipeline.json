@@ -31,7 +31,10 @@
       "operation": "verify",
       "path": "./.powerforge/engine-lock.json",
       "failOnDrift": true,
-      "requireImmutableRef": true,
+      "requireImmutableRef": false,
+      "repository": "EvotecIT/PSPublishModule",
+      "ref": "actions-next",
+      "channel": "next",
       "reportPath": "./_reports/engine-lock.json",
       "summaryPath": "./_reports/engine-lock.md"
     },
