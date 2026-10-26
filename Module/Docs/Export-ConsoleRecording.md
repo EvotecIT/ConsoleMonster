@@ -30,6 +30,15 @@ PNG selects the final frame, -AtSeconds a source time, -Chapter a completed chap
 
 ### EXAMPLE 1
 ```powershell
+Invoke-ConsoleRecording { Get-Service | Show-ConsoleTable } -Destination .\services.cast
+Export-ConsoleRecording .\services.cast .\services.gif -Pace Slow -Preset Slide16x9
+Export-ConsoleRecording .\services.cast .\services.png -Preset Slide16x9
+```
+
+Record a script, then make a paced 1920x1080 GIF and a closing PNG for a slide
+
+### EXAMPLE 2
+```powershell
 Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Svg -Destination .\run.svg
 Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -Destination .\run.html -Width 120 -Height 36
 ```
