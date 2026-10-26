@@ -34,7 +34,8 @@ IWidget Frame(int tick)
     return new Rows(
         new Rule("[bold]Process monitor[/] [muted]· refresh 1s[/]"),
         new TextBlock(
-            $"[accent]CPU {56 + tick * 5}%[/]   Memory {1640 + tick * 64} MiB   [muted]4 processes[/]"),
+            ($"[accent]CPU {56 + tick * 5}%[/]   Memory {1640 + tick * 64} MiB   [muted]4 "
+                + $"processes[/]")),
         table,
         new Panel() { Title = "CPU history", Content = history },
         new TextBlock("[muted]Ctrl+C stops monitoring. Final counters stay in scrollback.[/]"))

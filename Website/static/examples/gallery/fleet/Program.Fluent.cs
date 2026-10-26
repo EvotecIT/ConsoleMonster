@@ -300,8 +300,8 @@ MenuRunResult Result(List<Work> work)
     MenuRunResult result = Ui.MenuRunResult()
         .Title("Fleet check finished")
         .Status(Verdict(work))
-        .Summary(
-            $"{work.Count} checks on {work.Select(w => w.Node.Name).Distinct().Count()} servers. Review the findings and choose the next action.")
+        .Summary(($"{work.Count} checks on {work.Select(w => w.Node.Name).Distinct().Count()} "
+            + $"servers. Review the findings and choose the next action."))
         .Details(Findings(work));
     result.Figure(
         "passed",

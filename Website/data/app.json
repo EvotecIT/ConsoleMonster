@@ -122,7 +122,7 @@
       "csharp": "Table.For(rows)",
       "fluent": "Ui.Table(rows)",
       "memberId": "M:ConsoleMonster.Ui.Table",
-      "note": "Inside Content: c.Table(widget => …)."
+      "note": "Inside Content: c.Table(t => …)."
     },
     {
       "powershell": "New-ConsoleTable -NoHeaderSeparator",
@@ -136,7 +136,7 @@
       "csharp": "new Rows(…)",
       "fluent": "Ui.Rows()",
       "memberId": "M:ConsoleMonster.Ui.Rows",
-      "note": "Inside Content: c.Rows(widget => …)."
+      "note": "Inside Content: c.Rows(r => …)."
     },
     {
       "powershell": "New-ConsoleRows -Content { … }",

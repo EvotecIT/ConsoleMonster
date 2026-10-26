@@ -32,8 +32,8 @@ IWidget Frame(int tick)
     return Ui.Rows().Gap(1).Content(c2 =>
     {
         c2.Rule("[bold]Process monitor[/] [muted]· refresh 1s[/]");
-        c2.Markup(
-            $"[accent]CPU {56 + tick * 5}%[/]   Memory {1640 + tick * 64} MiB   [muted]4 processes[/]");
+        c2.Markup(($"[accent]CPU {56 + tick * 5}%[/]   Memory {1640 + tick * 64} MiB   [muted]4 "
+            + $"processes[/]"));
         c2.Add(table);
         c2.Panel(p => p.Title("CPU history").Content(c =>
         {

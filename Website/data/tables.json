@@ -252,7 +252,7 @@
           "csharp": "new Table(…)",
           "fluent": "Ui.Table()",
           "memberId": "M:ConsoleMonster.Ui.Table",
-          "note": "Inside Content: c.Table(widget => …)."
+          "note": "Inside Content: c.Table(t => …)."
         },
         {
           "powershell": "New-ConsoleTable -Border …",

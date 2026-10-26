@@ -185,7 +185,7 @@
           "csharp": "new Panel(…)",
           "fluent": "Ui.Panel()",
           "memberId": "M:ConsoleMonster.Ui.Panel",
-          "note": "Inside Content: c.Panel(widget => …)."
+          "note": "Inside Content: c.Panel(p => …)."
         },
         {
           "powershell": "New-ConsolePanel -Title …",
@@ -263,7 +263,7 @@
           "csharp": "new Panel(…)",
           "fluent": "Ui.Panel()",
           "memberId": "M:ConsoleMonster.Ui.Panel",
-          "note": "Inside Content: c.Panel(widget => …)."
+          "note": "Inside Content: c.Panel(p => …)."
         },
         {
           "powershell": "New-ConsolePanel -Title …",
@@ -290,14 +290,14 @@
           "csharp": "new Rows(…)",
           "fluent": "Ui.Rows()",
           "memberId": "M:ConsoleMonster.Ui.Rows",
-          "note": "Inside Content: c.Rows(widget => …)."
+          "note": "Inside Content: c.Rows(r => …)."
         },
         {
           "powershell": "New-ConsoleColumns",
           "csharp": "new Columns(…)",
           "fluent": "Ui.Columns()",
           "memberId": "M:ConsoleMonster.Ui.Columns",
-          "note": "Inside Content: c.Columns(widget => …)."
+          "note": "Inside Content: c.Columns(columns => …)."
         }
       ],
       "parity": {
@@ -341,7 +341,7 @@
           "csharp": "new Grid(…)",
           "fluent": "Ui.LayoutGrid()",
           "memberId": "M:ConsoleMonster.Ui.LayoutGrid",
-          "note": "Inside Content: c.LayoutGrid(widget => …)."
+          "note": "Inside Content: c.LayoutGrid(layoutGrid => …)."
         },
         {
           "powershell": "New-ConsoleLayoutGrid -Columns …",
@@ -361,7 +361,7 @@
           "csharp": "new Panel(…)",
           "fluent": "Ui.Panel()",
           "memberId": "M:ConsoleMonster.Layout.ContentBuilder.Panel",
-          "note": "Inside Content: c.Panel(widget => …)."
+          "note": "Inside Content: c.Panel(p => …)."
         },
         {
           "powershell": "New-ConsolePanel -Title …",
@@ -419,7 +419,7 @@
           "csharp": "new Panel(…)",
           "fluent": "Ui.Panel()",
           "memberId": "M:ConsoleMonster.Ui.Panel",
-          "note": "Inside Content: c.Panel(widget => …)."
+          "note": "Inside Content: c.Panel(p => …)."
         },
         {
           "powershell": "New-ConsolePanel -Title …",
@@ -439,7 +439,7 @@
           "csharp": "new Align(…)",
           "fluent": "Ui.Align()",
           "memberId": "M:ConsoleMonster.Layout.ContentBuilder.Align",
-          "note": "Inside Content: c.Align(widget => …)."
+          "note": "Inside Content: c.Align(align => …)."
         },
         {
           "powershell": "New-ConsoleAlign -Content { … }",
@@ -496,7 +496,7 @@
           "csharp": "new Sparkline(…)",
           "fluent": "Ui.Chart().Type(ChartType.Sparkline)",
           "memberId": "M:ConsoleMonster.Ui.Chart",
-          "note": "Inside Content: c.Chart(widget => …)."
+          "note": "Inside Content: c.Chart(chart => …)."
         },
         {
           "powershell": "New-ConsoleChart -Height …",
@@ -517,7 +517,7 @@
           "csharp": "new Align(…)",
           "fluent": "Ui.Align()",
           "memberId": "M:ConsoleMonster.Ui.Align",
-          "note": "Inside Content: c.Align(widget => …)."
+          "note": "Inside Content: c.Align(align => …)."
         },
         {
           "powershell": "New-ConsoleAlign -Content { … }",
@@ -574,7 +574,7 @@
           "csharp": "new KeyValueList(…)",
           "fluent": "Ui.KeyValue()",
           "memberId": "M:ConsoleMonster.Ui.KeyValue",
-          "note": "Inside Content: c.KeyValue(widget => …)."
+          "note": "Inside Content: c.KeyValue(kv => …)."
         },
         {
           "powershell": "New-ConsoleKeyValue -Markup",
@@ -631,7 +631,7 @@
           "csharp": "new StatusList(…)",
           "fluent": "Ui.StatusList()",
           "memberId": "M:ConsoleMonster.Ui.StatusList",
-          "note": "Inside Content: c.StatusList(widget => …)."
+          "note": "Inside Content: c.StatusList(statusList => …)."
         },
         {
           "powershell": "| Show-Console",
@@ -681,7 +681,7 @@
           "csharp": "new Tree(…)",
           "fluent": "Ui.Tree()",
           "memberId": "M:ConsoleMonster.Ui.Tree",
-          "note": "Inside Content: c.Tree(widget => …)."
+          "note": "Inside Content: c.Tree(tree => …)."
         },
         {
           "powershell": "New-ConsoleTree -Title …",
@@ -738,14 +738,14 @@
           "csharp": "new Rows(…)",
           "fluent": "Ui.Rows()",
           "memberId": "M:ConsoleMonster.Ui.Rows",
-          "note": "Inside Content: c.Rows(widget => …)."
+          "note": "Inside Content: c.Rows(r => …)."
         },
         {
           "powershell": "New-ConsoleProgress",
           "csharp": "new ProgressBar(…)",
           "fluent": "Ui.Progress()",
           "memberId": "M:ConsoleMonster.Ui.Progress",
-          "note": "Inside Content: c.Progress(widget => …)."
+          "note": "Inside Content: c.Progress(progress => …)."
         },
         {
           "powershell": "New-ConsoleProgress -Label …",
@@ -817,7 +817,7 @@
           "csharp": "new Phases(…)",
           "fluent": "Ui.Phases()",
           "memberId": "M:ConsoleMonster.Ui.Phases",
-          "note": "Inside Content: c.Phases(widget => …)."
+          "note": "Inside Content: c.Phases(phases => …)."
         },
         {
           "powershell": "New-ConsolePhases -Phase …",
@@ -874,14 +874,14 @@
           "csharp": "new Rows(…)",
           "fluent": "Ui.Rows()",
           "memberId": "M:ConsoleMonster.Ui.Rows",
-          "note": "Inside Content: c.Rows(widget => …)."
+          "note": "Inside Content: c.Rows(r => …)."
         },
         {
           "powershell": "New-ConsoleProgress -Indeterminate",
           "csharp": "new Spinner(…)",
           "fluent": "Ui.Progress().Indeterminate()",
           "memberId": "M:ConsoleMonster.Ui.Progress",
-          "note": "Inside Content: c.Progress(widget => …)."
+          "note": "Inside Content: c.Progress(progress => …)."
         },
         {
           "powershell": "New-ConsoleProgress -Indeterminate",
@@ -953,7 +953,7 @@
           "csharp": "new LogRegion(…)",
           "fluent": "Ui.LogRegion()",
           "memberId": "M:ConsoleMonster.Ui.LogRegion",
-          "note": "Inside Content: c.LogRegion(widget => …)."
+          "note": "Inside Content: c.LogRegion(logRegion => …)."
         },
         {
           "powershell": "| Show-Console",
@@ -1003,7 +1003,7 @@
           "csharp": "new BarChart(…)",
           "fluent": "Ui.Chart().Type(ChartType.Bar)",
           "memberId": "M:ConsoleMonster.Ui.Chart",
-          "note": "Inside Content: c.Chart(widget => …)."
+          "note": "Inside Content: c.Chart(chart => …)."
         },
         {
           "powershell": "New-ConsoleChart -Role …",
@@ -1067,7 +1067,7 @@
           "csharp": "new StackedBar(…)",
           "fluent": "Ui.Chart().Type(ChartType.Stacked)",
           "memberId": "M:ConsoleMonster.Ui.Chart",
-          "note": "Inside Content: c.Chart(widget => …)."
+          "note": "Inside Content: c.Chart(chart => …)."
         },
         {
           "powershell": "| Show-Console",
@@ -1117,7 +1117,7 @@
           "csharp": "new Rows(…)",
           "fluent": "Ui.Rows()",
           "memberId": "M:ConsoleMonster.Ui.Rows",
-          "note": "Inside Content: c.Rows(widget => …)."
+          "note": "Inside Content: c.Rows(r => …)."
         },
         {
           "powershell": "New-ConsoleRows -Gap …",
@@ -1131,7 +1131,7 @@
           "csharp": "new Sparkline(…)",
           "fluent": "Ui.Chart().Type(ChartType.Sparkline)",
           "memberId": "M:ConsoleMonster.Ui.Chart",
-          "note": "Inside Content: c.Chart(widget => …)."
+          "note": "Inside Content: c.Chart(chart => …)."
         },
         {
           "powershell": "New-ConsoleChart -Label …",
@@ -1196,7 +1196,7 @@
           "csharp": "new Histogram(…)",
           "fluent": "Ui.Chart().Type(ChartType.Histogram)",
           "memberId": "M:ConsoleMonster.Ui.Chart",
-          "note": "Inside Content: c.Chart(widget => …)."
+          "note": "Inside Content: c.Chart(chart => …)."
         },
         {
           "powershell": "New-ConsoleChart -Edges …",
@@ -1275,7 +1275,7 @@
           "csharp": "new LineChart(…)",
           "fluent": "Ui.Chart().Type(ChartType.Line)",
           "memberId": "M:ConsoleMonster.Ui.Chart",
-          "note": "Inside Content: c.Chart(widget => …)."
+          "note": "Inside Content: c.Chart(chart => …)."
         },
         {
           "powershell": "New-ConsoleChart -Height …",
@@ -1339,7 +1339,7 @@
           "csharp": "new LineChart(…)",
           "fluent": "Ui.Chart().Type(ChartType.Line)",
           "memberId": "M:ConsoleMonster.Ui.Chart",
-          "note": "Inside Content: c.Chart(widget => …)."
+          "note": "Inside Content: c.Chart(chart => …)."
         },
         {
           "powershell": "New-ConsoleChart -Height …",
@@ -1410,7 +1410,7 @@
           "csharp": "new Logo(…)",
           "fluent": "Ui.Logo()",
           "memberId": "M:ConsoleMonster.Ui.Logo",
-          "note": "Inside Content: c.Logo(widget => …)."
+          "note": "Inside Content: c.Logo(logo => …)."
         },
         {
           "powershell": "New-ConsoleLogo -Text …",

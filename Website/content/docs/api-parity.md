@@ -20,52 +20,52 @@ Callback properties use `.Configure(item => item.Action = …)`. C# invokes a de
 
 ## Fluent construction and nesting
 
-Ui is the fluent entry point: New-ConsolePanel becomes Ui.Panel(), named settings stay in the chain, and nested Content uses c.Panel(panel => …). Initializers retain constructors. Factories accept no positional configuration; the recorded primary inputs below are the only exceptions. Chart, Progress and kind-selected inputs materialize their existing typed options through the shared Build operation.
+Ui is the fluent entry point: New-ConsolePanel becomes Ui.Panel(), named settings stay in the chain, and nested Content uses c.Panel(p => …). Initializers retain constructors. Factories accept no positional configuration; the recorded primary inputs below are the only exceptions. Chart, Progress and kind-selected inputs materialize their existing typed options through the shared Build operation.
 
 <div class="cm-migration-map" tabindex="0" role="region" aria-label="Scrollable table">
 <table>
 <thead><tr><th>PowerShell constructor</th><th>Fluent entry</th><th>Nested builder</th></tr></thead>
 <tbody>
-<tr><td><code>New-ConsoleActivityList</code></td><td><code>Ui.ActivityList()</code></td><td><code>c.ActivityList(widget =&gt; …)</code></td></tr>
-<tr><td><code>New-ConsoleAlign</code></td><td><code>Ui.Align()</code></td><td><code>c.Align(widget =&gt; …)</code></td></tr>
-<tr><td><code>New-ConsoleBinding</code></td><td><code>Ui.Binding()</code></td><td><code>c.Binding(widget =&gt; …)</code></td></tr>
-<tr><td><code>New-ConsoleButton</code></td><td><code>Ui.Button()</code></td><td><code>c.Button(widget =&gt; …)</code></td></tr>
-<tr><td><code>New-ConsoleCalendar</code></td><td><code>Ui.Calendar()</code></td><td><code>c.Calendar(widget =&gt; …)</code></td></tr>
-<tr><td><code>New-ConsoleCellMap</code></td><td><code>Ui.CellMap()</code></td><td><code>c.CellMap(widget =&gt; …)</code></td></tr>
-<tr><td><code>New-ConsoleChart</code></td><td><code>Ui.Chart()</code></td><td><code>c.Chart(widget =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsoleActivityList</code></td><td><code>Ui.ActivityList()</code></td><td><code>c.ActivityList(activityList =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsoleAlign</code></td><td><code>Ui.Align()</code></td><td><code>c.Align(align =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsoleBinding</code></td><td><code>Ui.Binding()</code></td><td><code>c.Binding(binding =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsoleButton</code></td><td><code>Ui.Button()</code></td><td><code>c.Button(button =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsoleCalendar</code></td><td><code>Ui.Calendar()</code></td><td><code>c.Calendar(calendar =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsoleCellMap</code></td><td><code>Ui.CellMap()</code></td><td><code>c.CellMap(cellMap =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsoleChart</code></td><td><code>Ui.Chart()</code></td><td><code>c.Chart(chart =&gt; …)</code></td></tr>
 <tr><td><code>New-ConsoleColumnFormat</code></td><td><code>Ui.ColumnFormat()</code></td><td>Definition, not display content</td></tr>
-<tr><td><code>New-ConsoleColumns</code></td><td><code>Ui.Columns()</code></td><td><code>c.Columns(widget =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsoleColumns</code></td><td><code>Ui.Columns()</code></td><td><code>c.Columns(columns =&gt; …)</code></td></tr>
 <tr><td><code>New-ConsoleCommand</code></td><td><code>Ui.Command()</code></td><td>Definition, not display content</td></tr>
-<tr><td><code>New-ConsoleDashboard</code></td><td><code>Ui.Dashboard()</code></td><td><code>c.Dashboard(widget =&gt; …)</code></td></tr>
-<tr><td><code>New-ConsoleFlow</code></td><td><code>Ui.Flow()</code></td><td><code>c.Flow(widget =&gt; …)</code></td></tr>
-<tr><td><code>New-ConsoleFooterBar</code></td><td><code>Ui.FooterBar()</code></td><td><code>c.FooterBar(widget =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsoleDashboard</code></td><td><code>Ui.Dashboard()</code></td><td><code>c.Dashboard(dashboard =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsoleFlow</code></td><td><code>Ui.Flow()</code></td><td><code>c.Flow(flow =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsoleFooterBar</code></td><td><code>Ui.FooterBar()</code></td><td><code>c.FooterBar(footerBar =&gt; …)</code></td></tr>
 <tr><td><code>New-ConsoleForm</code></td><td><code>Ui.Form()</code></td><td>Definition, not display content</td></tr>
-<tr><td><code>New-ConsoleHeaderBar</code></td><td><code>Ui.HeaderBar()</code></td><td><code>c.HeaderBar(widget =&gt; …)</code></td></tr>
-<tr><td><code>New-ConsoleKeyValue</code></td><td><code>Ui.KeyValue()</code></td><td><code>c.KeyValue(widget =&gt; …)</code></td></tr>
-<tr><td><code>New-ConsoleLanes</code></td><td><code>Ui.Lanes()</code></td><td><code>c.Lanes(widget =&gt; …)</code></td></tr>
-<tr><td><code>New-ConsoleLayoutGrid</code></td><td><code>Ui.LayoutGrid()</code></td><td><code>c.LayoutGrid(widget =&gt; …)</code></td></tr>
-<tr><td><code>New-ConsoleLogRegion</code></td><td><code>Ui.LogRegion()</code></td><td><code>c.LogRegion(widget =&gt; …)</code></td></tr>
-<tr><td><code>New-ConsoleLogo</code></td><td><code>Ui.Logo()</code></td><td><code>c.Logo(widget =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsoleHeaderBar</code></td><td><code>Ui.HeaderBar()</code></td><td><code>c.HeaderBar(headerBar =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsoleKeyValue</code></td><td><code>Ui.KeyValue()</code></td><td><code>c.KeyValue(kv =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsoleLanes</code></td><td><code>Ui.Lanes()</code></td><td><code>c.Lanes(lanes =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsoleLayoutGrid</code></td><td><code>Ui.LayoutGrid()</code></td><td><code>c.LayoutGrid(layoutGrid =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsoleLogRegion</code></td><td><code>Ui.LogRegion()</code></td><td><code>c.LogRegion(logRegion =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsoleLogo</code></td><td><code>Ui.Logo()</code></td><td><code>c.Logo(logo =&gt; …)</code></td></tr>
 <tr><td><code>New-ConsoleMenu</code></td><td><code>Ui.Menu()</code></td><td>Definition, not display content</td></tr>
 <tr><td><code>New-ConsoleMenuItem</code></td><td><code>Ui.MenuItem()</code></td><td>Definition, not display content</td></tr>
 <tr><td><code>New-ConsoleMenuRunResult</code></td><td><code>Ui.MenuRunResult()</code></td><td>Definition, not display content</td></tr>
-<tr><td><code>New-ConsolePadding</code></td><td><code>Ui.Padding()</code></td><td><code>c.Padding(widget =&gt; …)</code></td></tr>
-<tr><td><code>New-ConsolePanel</code></td><td><code>Ui.Panel()</code></td><td><code>c.Panel(widget =&gt; …)</code></td></tr>
-<tr><td><code>New-ConsolePhases</code></td><td><code>Ui.Phases()</code></td><td><code>c.Phases(widget =&gt; …)</code></td></tr>
-<tr><td><code>New-ConsoleProgress</code></td><td><code>Ui.Progress()</code></td><td><code>c.Progress(widget =&gt; …)</code></td></tr>
-<tr><td><code>New-ConsoleRegion</code></td><td><code>Ui.Region()</code></td><td><code>c.Region(widget =&gt; …)</code></td></tr>
-<tr><td><code>New-ConsoleRows</code></td><td><code>Ui.Rows()</code></td><td><code>c.Rows(widget =&gt; …)</code></td></tr>
-<tr><td><code>New-ConsoleRule</code></td><td><code>Ui.Rule()</code></td><td><code>c.Rule(widget =&gt; …)</code></td></tr>
-<tr><td><code>New-ConsoleScrollView</code></td><td><code>Ui.ScrollView()</code></td><td><code>c.ScrollView(widget =&gt; …)</code></td></tr>
-<tr><td><code>New-ConsoleSelect</code></td><td><code>Ui.Select()</code></td><td><code>c.Select(widget =&gt; …)</code></td></tr>
-<tr><td><code>New-ConsoleStack</code></td><td><code>Ui.Stack()</code></td><td><code>c.Stack(widget =&gt; …)</code></td></tr>
-<tr><td><code>New-ConsoleStatusList</code></td><td><code>Ui.StatusList()</code></td><td><code>c.StatusList(widget =&gt; …)</code></td></tr>
-<tr><td><code>New-ConsoleSummaryBar</code></td><td><code>Ui.SummaryBar()</code></td><td><code>c.SummaryBar(widget =&gt; …)</code></td></tr>
-<tr><td><code>New-ConsoleTable</code></td><td><code>Ui.Table()</code></td><td><code>c.Table(widget =&gt; …)</code></td></tr>
-<tr><td><code>New-ConsoleText</code></td><td><code>Ui.Text()</code></td><td><code>c.Text(widget =&gt; …)</code></td></tr>
-<tr><td><code>New-ConsoleTextInput</code></td><td><code>Ui.TextInput()</code></td><td><code>c.TextInput(widget =&gt; …)</code></td></tr>
-<tr><td><code>New-ConsoleToggle</code></td><td><code>Ui.Toggle()</code></td><td><code>c.Toggle(widget =&gt; …)</code></td></tr>
-<tr><td><code>New-ConsoleTree</code></td><td><code>Ui.Tree()</code></td><td><code>c.Tree(widget =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsolePadding</code></td><td><code>Ui.Padding()</code></td><td><code>c.Padding(padding =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsolePanel</code></td><td><code>Ui.Panel()</code></td><td><code>c.Panel(p =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsolePhases</code></td><td><code>Ui.Phases()</code></td><td><code>c.Phases(phases =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsoleProgress</code></td><td><code>Ui.Progress()</code></td><td><code>c.Progress(progress =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsoleRegion</code></td><td><code>Ui.Region()</code></td><td><code>c.Region(region =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsoleRows</code></td><td><code>Ui.Rows()</code></td><td><code>c.Rows(r =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsoleRule</code></td><td><code>Ui.Rule()</code></td><td><code>c.Rule(rule =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsoleScrollView</code></td><td><code>Ui.ScrollView()</code></td><td><code>c.ScrollView(scrollView =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsoleSelect</code></td><td><code>Ui.Select()</code></td><td><code>c.Select(select =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsoleStack</code></td><td><code>Ui.Stack()</code></td><td><code>c.Stack(stack =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsoleStatusList</code></td><td><code>Ui.StatusList()</code></td><td><code>c.StatusList(statusList =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsoleSummaryBar</code></td><td><code>Ui.SummaryBar()</code></td><td><code>c.SummaryBar(summaryBar =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsoleTable</code></td><td><code>Ui.Table()</code></td><td><code>c.Table(t =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsoleText</code></td><td><code>Ui.Text()</code></td><td><code>c.Text(text =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsoleTextInput</code></td><td><code>Ui.TextInput()</code></td><td><code>c.TextInput(textInput =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsoleToggle</code></td><td><code>Ui.Toggle()</code></td><td><code>c.Toggle(toggle =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsoleTree</code></td><td><code>Ui.Tree()</code></td><td><code>c.Tree(tree =&gt; …)</code></td></tr>
 </tbody>
 </table>
 </div>

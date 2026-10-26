@@ -221,7 +221,7 @@
         "csharp": "new Panel(…)",
         "fluent": "Ui.Panel()",
         "memberId": "M:ConsoleMonster.Ui.Panel",
-        "note": "Inside Content: c.Panel(widget => …)."
+        "note": "Inside Content: c.Panel(p => …)."
       },
       {
         "powershell": "New-ConsolePanel -Title …",
@@ -248,14 +248,14 @@
         "csharp": "new Rows(…)",
         "fluent": "Ui.Rows()",
         "memberId": "M:ConsoleMonster.Layout.ContentBuilder.Rows",
-        "note": "Inside Content: c.Rows(widget => …)."
+        "note": "Inside Content: c.Rows(r => …)."
       },
       {
         "powershell": "New-ConsoleChart -Type Stacked",
         "csharp": "new StackedBar(…)",
         "fluent": "Ui.Chart().Type(ChartType.Stacked)",
         "memberId": "M:ConsoleMonster.Ui.Chart",
-        "note": "Inside Content: c.Chart(widget => …)."
+        "note": "Inside Content: c.Chart(chart => …)."
       }
     ],
     "csharpRepo": "Website/examples/home/summary.cs"
@@ -473,7 +473,7 @@
         "csharp": "new Rows(…)",
         "fluent": "Ui.Rows()",
         "memberId": "M:ConsoleMonster.Ui.Rows",
-        "note": "Inside Content: c.Rows(widget => …)."
+        "note": "Inside Content: c.Rows(r => …)."
       },
       {
         "powershell": "New-ConsoleRows -Content { … }",
@@ -540,7 +540,7 @@
         "csharp": "new Rows(…)",
         "fluent": "Ui.Rows()",
         "memberId": "M:ConsoleMonster.Ui.Rows",
-        "note": "Inside Content: c.Rows(widget => …)."
+        "note": "Inside Content: c.Rows(r => …)."
       },
       {
         "powershell": "New-ConsoleRows -Content { … }",
@@ -772,14 +772,14 @@
         "csharp": "new StatusList(…)",
         "fluent": "Ui.StatusList()",
         "memberId": "M:ConsoleMonster.Ui.StatusList",
-        "note": "Inside Content: c.StatusList(widget => …)."
+        "note": "Inside Content: c.StatusList(statusList => …)."
       },
       {
         "powershell": "New-ConsoleTable",
         "csharp": "new Table(…)",
         "fluent": "Ui.Table()",
         "memberId": "M:ConsoleMonster.Ui.Table",
-        "note": "Inside Content: c.Table(widget => …)."
+        "note": "Inside Content: c.Table(t => …)."
       },
       {
         "powershell": "New-ConsoleTable -Title …",
@@ -840,14 +840,14 @@
         "csharp": "new StatusList(…)",
         "fluent": "Ui.StatusList()",
         "memberId": "M:ConsoleMonster.Ui.StatusList",
-        "note": "Inside Content: c.StatusList(widget => …)."
+        "note": "Inside Content: c.StatusList(statusList => …)."
       },
       {
         "powershell": "New-ConsoleTable",
         "csharp": "new Table(…)",
         "fluent": "Ui.Table()",
         "memberId": "M:ConsoleMonster.Ui.Table",
-        "note": "Inside Content: c.Table(widget => …)."
+        "note": "Inside Content: c.Table(t => …)."
       },
       {
         "powershell": "New-ConsoleTable -Title …",
@@ -908,14 +908,14 @@
         "csharp": "new StatusList(…)",
         "fluent": "Ui.StatusList()",
         "memberId": "M:ConsoleMonster.Ui.StatusList",
-        "note": "Inside Content: c.StatusList(widget => …)."
+        "note": "Inside Content: c.StatusList(statusList => …)."
       },
       {
         "powershell": "New-ConsoleTable",
         "csharp": "new Table(…)",
         "fluent": "Ui.Table()",
         "memberId": "M:ConsoleMonster.Ui.Table",
-        "note": "Inside Content: c.Table(widget => …)."
+        "note": "Inside Content: c.Table(t => …)."
       },
       {
         "powershell": "New-ConsoleTable -Title …",
@@ -976,14 +976,14 @@
         "csharp": "new StatusList(…)",
         "fluent": "Ui.StatusList()",
         "memberId": "M:ConsoleMonster.Ui.StatusList",
-        "note": "Inside Content: c.StatusList(widget => …)."
+        "note": "Inside Content: c.StatusList(statusList => …)."
       },
       {
         "powershell": "New-ConsoleTable",
         "csharp": "new Table(…)",
         "fluent": "Ui.Table()",
         "memberId": "M:ConsoleMonster.Ui.Table",
-        "note": "Inside Content: c.Table(widget => …)."
+        "note": "Inside Content: c.Table(t => …)."
       },
       {
         "powershell": "New-ConsoleTable -Title …",
@@ -1198,7 +1198,7 @@
         "csharp": "Table.For(rows)",
         "fluent": "Ui.Table(rows)",
         "memberId": "M:ConsoleMonster.Ui.Table",
-        "note": "Inside Content: c.Table(widget => …)."
+        "note": "Inside Content: c.Table(t => …)."
       },
       {
         "powershell": "New-ConsoleTable -NoHeaderSeparator",
@@ -1212,7 +1212,7 @@
         "csharp": "new Rows(…)",
         "fluent": "Ui.Rows()",
         "memberId": "M:ConsoleMonster.Ui.Rows",
-        "note": "Inside Content: c.Rows(widget => …)."
+        "note": "Inside Content: c.Rows(r => …)."
       },
       {
         "powershell": "New-ConsoleRows -Content { … }",
@@ -1265,7 +1265,7 @@
         "csharp": "Table.For(rows)",
         "fluent": "Ui.Table(rows)",
         "memberId": "M:ConsoleMonster.Ui.Table",
-        "note": "Inside Content: c.Table(widget => …)."
+        "note": "Inside Content: c.Table(t => …)."
       },
       {
         "powershell": "New-ConsoleTable -NoHeaderSeparator",
@@ -1279,7 +1279,7 @@
         "csharp": "new Rows(…)",
         "fluent": "Ui.Rows()",
         "memberId": "M:ConsoleMonster.Ui.Rows",
-        "note": "Inside Content: c.Rows(widget => …)."
+        "note": "Inside Content: c.Rows(r => …)."
       },
       {
         "powershell": "New-ConsoleRows -Content { … }",
@@ -1332,7 +1332,7 @@
         "csharp": "Table.For(rows)",
         "fluent": "Ui.Table(rows)",
         "memberId": "M:ConsoleMonster.Ui.Table",
-        "note": "Inside Content: c.Table(widget => …)."
+        "note": "Inside Content: c.Table(t => …)."
       },
       {
         "powershell": "New-ConsoleTable -NoHeaderSeparator",
@@ -1346,7 +1346,7 @@
         "csharp": "new Rows(…)",
         "fluent": "Ui.Rows()",
         "memberId": "M:ConsoleMonster.Ui.Rows",
-        "note": "Inside Content: c.Rows(widget => …)."
+        "note": "Inside Content: c.Rows(r => …)."
       },
       {
         "powershell": "New-ConsoleRows -Content { … }",
@@ -1399,7 +1399,7 @@
         "csharp": "Table.For(rows)",
         "fluent": "Ui.Table(rows)",
         "memberId": "M:ConsoleMonster.Ui.Table",
-        "note": "Inside Content: c.Table(widget => …)."
+        "note": "Inside Content: c.Table(t => …)."
       },
       {
         "powershell": "New-ConsoleTable -NoHeaderSeparator",
@@ -1413,7 +1413,7 @@
         "csharp": "new Rows(…)",
         "fluent": "Ui.Rows()",
         "memberId": "M:ConsoleMonster.Ui.Rows",
-        "note": "Inside Content: c.Rows(widget => …)."
+        "note": "Inside Content: c.Rows(r => …)."
       },
       {
         "powershell": "New-ConsoleRows -Content { … }",
@@ -1570,7 +1570,7 @@
         "csharp": "new Panel(…)",
         "fluent": "Ui.Panel()",
         "memberId": "M:ConsoleMonster.Ui.Panel",
-        "note": "Inside Content: c.Panel(widget => …)."
+        "note": "Inside Content: c.Panel(p => …)."
       },
       {
         "powershell": "New-ConsolePanel -Title …",
@@ -1597,14 +1597,14 @@
         "csharp": "new Rows(…)",
         "fluent": "Ui.Rows()",
         "memberId": "M:ConsoleMonster.Layout.ContentBuilder.Rows",
-        "note": "Inside Content: c.Rows(widget => …)."
+        "note": "Inside Content: c.Rows(r => …)."
       },
       {
         "powershell": "New-ConsoleChart -Type Stacked",
         "csharp": "new StackedBar(…)",
         "fluent": "Ui.Chart().Type(ChartType.Stacked)",
         "memberId": "M:ConsoleMonster.Ui.Chart",
-        "note": "Inside Content: c.Chart(widget => …)."
+        "note": "Inside Content: c.Chart(chart => …)."
       }
     ],
     "csharpRepo": "Website/examples/home/summary.cs"
@@ -1637,7 +1637,7 @@
         "csharp": "new Panel(…)",
         "fluent": "Ui.Panel()",
         "memberId": "M:ConsoleMonster.Ui.Panel",
-        "note": "Inside Content: c.Panel(widget => …)."
+        "note": "Inside Content: c.Panel(p => …)."
       },
       {
         "powershell": "New-ConsolePanel -Title …",
@@ -1664,14 +1664,14 @@
         "csharp": "new Rows(…)",
         "fluent": "Ui.Rows()",
         "memberId": "M:ConsoleMonster.Layout.ContentBuilder.Rows",
-        "note": "Inside Content: c.Rows(widget => …)."
+        "note": "Inside Content: c.Rows(r => …)."
       },
       {
         "powershell": "New-ConsoleChart -Type Stacked",
         "csharp": "new StackedBar(…)",
         "fluent": "Ui.Chart().Type(ChartType.Stacked)",
         "memberId": "M:ConsoleMonster.Ui.Chart",
-        "note": "Inside Content: c.Chart(widget => …)."
+        "note": "Inside Content: c.Chart(chart => …)."
       }
     ],
     "csharpRepo": "Website/examples/home/summary.cs"
@@ -1704,7 +1704,7 @@
         "csharp": "new Panel(…)",
         "fluent": "Ui.Panel()",
         "memberId": "M:ConsoleMonster.Ui.Panel",
-        "note": "Inside Content: c.Panel(widget => …)."
+        "note": "Inside Content: c.Panel(p => …)."
       },
       {
         "powershell": "New-ConsolePanel -Title …",
@@ -1731,14 +1731,14 @@
         "csharp": "new Rows(…)",
         "fluent": "Ui.Rows()",
         "memberId": "M:ConsoleMonster.Layout.ContentBuilder.Rows",
-        "note": "Inside Content: c.Rows(widget => …)."
+        "note": "Inside Content: c.Rows(r => …)."
       },
       {
         "powershell": "New-ConsoleChart -Type Stacked",
         "csharp": "new StackedBar(…)",
         "fluent": "Ui.Chart().Type(ChartType.Stacked)",
         "memberId": "M:ConsoleMonster.Ui.Chart",
-        "note": "Inside Content: c.Chart(widget => …)."
+        "note": "Inside Content: c.Chart(chart => …)."
       }
     ],
     "csharpRepo": "Website/examples/home/summary.cs"
@@ -1781,14 +1781,14 @@
         "csharp": "new KeyValueList(…)",
         "fluent": "Ui.KeyValue()",
         "memberId": "M:ConsoleMonster.Ui.KeyValue",
-        "note": "Inside Content: c.KeyValue(widget => …)."
+        "note": "Inside Content: c.KeyValue(kv => …)."
       },
       {
         "powershell": "New-ConsoleChart -Type Sparkline",
         "csharp": "new Sparkline(…)",
         "fluent": "Ui.Chart().Type(ChartType.Sparkline)",
         "memberId": "M:ConsoleMonster.Ui.Chart",
-        "note": "Inside Content: c.Chart(widget => …)."
+        "note": "Inside Content: c.Chart(chart => …)."
       },
       {
         "powershell": "New-ConsoleChart -Label …",

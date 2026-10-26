@@ -13,7 +13,7 @@ Callback properties use `.Configure(item => item.Action = …)`. C# invokes a de
 
 ## Fluent construction and nesting
 
-Ui is the fluent entry point: New-ConsolePanel becomes Ui.Panel(), named settings stay in the chain, and nested Content uses c.Panel(panel => …). Initializers retain constructors. Factories accept no positional configuration; the recorded primary inputs below are the only exceptions. Chart, Progress and kind-selected inputs materialize their existing typed options through the shared Build operation.
+Ui is the fluent entry point: New-ConsolePanel becomes Ui.Panel(), named settings stay in the chain, and nested Content uses c.Panel(p => …). Initializers retain constructors. Factories accept no positional configuration; the recorded primary inputs below are the only exceptions. Chart, Progress and kind-selected inputs materialize their existing typed options through the shared Build operation.
 
 Literal text uses `Ui.Text(text)` or `c.Text(text)`; PowerShell `-Markup` uses `Ui.Markup(markup)` or `c.Markup(markup)`. Boolean properties named IsX keep that property in initializers and use `.X()` / `.X(false)` in fluent chains. Adjacent configuration stays in one chain.
 
@@ -21,46 +21,46 @@ Operation options use a typed configure callback, for example `ConsoleRun.ForEac
 
 | PowerShell constructor | Fluent entry | Nested builder |
 | --- | --- | --- |
-| `New-ConsoleActivityList` | `Ui.ActivityList()` | `c.ActivityList(widget => …)` |
-| `New-ConsoleAlign` | `Ui.Align()` | `c.Align(widget => …)` |
-| `New-ConsoleBinding` | `Ui.Binding()` | `c.Binding(widget => …)` |
-| `New-ConsoleButton` | `Ui.Button()` | `c.Button(widget => …)` |
-| `New-ConsoleCalendar` | `Ui.Calendar()` | `c.Calendar(widget => …)` |
-| `New-ConsoleCellMap` | `Ui.CellMap()` | `c.CellMap(widget => …)` |
-| `New-ConsoleChart` | `Ui.Chart()` | `c.Chart(widget => …)` |
+| `New-ConsoleActivityList` | `Ui.ActivityList()` | `c.ActivityList(activityList => …)` |
+| `New-ConsoleAlign` | `Ui.Align()` | `c.Align(align => …)` |
+| `New-ConsoleBinding` | `Ui.Binding()` | `c.Binding(binding => …)` |
+| `New-ConsoleButton` | `Ui.Button()` | `c.Button(button => …)` |
+| `New-ConsoleCalendar` | `Ui.Calendar()` | `c.Calendar(calendar => …)` |
+| `New-ConsoleCellMap` | `Ui.CellMap()` | `c.CellMap(cellMap => …)` |
+| `New-ConsoleChart` | `Ui.Chart()` | `c.Chart(chart => …)` |
 | `New-ConsoleColumnFormat` | `Ui.ColumnFormat()` | Definition, not display content |
-| `New-ConsoleColumns` | `Ui.Columns()` | `c.Columns(widget => …)` |
+| `New-ConsoleColumns` | `Ui.Columns()` | `c.Columns(columns => …)` |
 | `New-ConsoleCommand` | `Ui.Command()` | Definition, not display content |
-| `New-ConsoleDashboard` | `Ui.Dashboard()` | `c.Dashboard(widget => …)` |
-| `New-ConsoleFlow` | `Ui.Flow()` | `c.Flow(widget => …)` |
-| `New-ConsoleFooterBar` | `Ui.FooterBar()` | `c.FooterBar(widget => …)` |
+| `New-ConsoleDashboard` | `Ui.Dashboard()` | `c.Dashboard(dashboard => …)` |
+| `New-ConsoleFlow` | `Ui.Flow()` | `c.Flow(flow => …)` |
+| `New-ConsoleFooterBar` | `Ui.FooterBar()` | `c.FooterBar(footerBar => …)` |
 | `New-ConsoleForm` | `Ui.Form()` | Definition, not display content |
-| `New-ConsoleHeaderBar` | `Ui.HeaderBar()` | `c.HeaderBar(widget => …)` |
-| `New-ConsoleKeyValue` | `Ui.KeyValue()` | `c.KeyValue(widget => …)` |
-| `New-ConsoleLanes` | `Ui.Lanes()` | `c.Lanes(widget => …)` |
-| `New-ConsoleLayoutGrid` | `Ui.LayoutGrid()` | `c.LayoutGrid(widget => …)` |
-| `New-ConsoleLogRegion` | `Ui.LogRegion()` | `c.LogRegion(widget => …)` |
-| `New-ConsoleLogo` | `Ui.Logo()` | `c.Logo(widget => …)` |
+| `New-ConsoleHeaderBar` | `Ui.HeaderBar()` | `c.HeaderBar(headerBar => …)` |
+| `New-ConsoleKeyValue` | `Ui.KeyValue()` | `c.KeyValue(kv => …)` |
+| `New-ConsoleLanes` | `Ui.Lanes()` | `c.Lanes(lanes => …)` |
+| `New-ConsoleLayoutGrid` | `Ui.LayoutGrid()` | `c.LayoutGrid(layoutGrid => …)` |
+| `New-ConsoleLogRegion` | `Ui.LogRegion()` | `c.LogRegion(logRegion => …)` |
+| `New-ConsoleLogo` | `Ui.Logo()` | `c.Logo(logo => …)` |
 | `New-ConsoleMenu` | `Ui.Menu()` | Definition, not display content |
 | `New-ConsoleMenuItem` | `Ui.MenuItem()` | Definition, not display content |
 | `New-ConsoleMenuRunResult` | `Ui.MenuRunResult()` | Definition, not display content |
-| `New-ConsolePadding` | `Ui.Padding()` | `c.Padding(widget => …)` |
-| `New-ConsolePanel` | `Ui.Panel()` | `c.Panel(widget => …)` |
-| `New-ConsolePhases` | `Ui.Phases()` | `c.Phases(widget => …)` |
-| `New-ConsoleProgress` | `Ui.Progress()` | `c.Progress(widget => …)` |
-| `New-ConsoleRegion` | `Ui.Region()` | `c.Region(widget => …)` |
-| `New-ConsoleRows` | `Ui.Rows()` | `c.Rows(widget => …)` |
-| `New-ConsoleRule` | `Ui.Rule()` | `c.Rule(widget => …)` |
-| `New-ConsoleScrollView` | `Ui.ScrollView()` | `c.ScrollView(widget => …)` |
-| `New-ConsoleSelect` | `Ui.Select()` | `c.Select(widget => …)` |
-| `New-ConsoleStack` | `Ui.Stack()` | `c.Stack(widget => …)` |
-| `New-ConsoleStatusList` | `Ui.StatusList()` | `c.StatusList(widget => …)` |
-| `New-ConsoleSummaryBar` | `Ui.SummaryBar()` | `c.SummaryBar(widget => …)` |
-| `New-ConsoleTable` | `Ui.Table()` | `c.Table(widget => …)` |
-| `New-ConsoleText` | `Ui.Text()` | `c.Text(widget => …)` |
-| `New-ConsoleTextInput` | `Ui.TextInput()` | `c.TextInput(widget => …)` |
-| `New-ConsoleToggle` | `Ui.Toggle()` | `c.Toggle(widget => …)` |
-| `New-ConsoleTree` | `Ui.Tree()` | `c.Tree(widget => …)` |
+| `New-ConsolePadding` | `Ui.Padding()` | `c.Padding(padding => …)` |
+| `New-ConsolePanel` | `Ui.Panel()` | `c.Panel(p => …)` |
+| `New-ConsolePhases` | `Ui.Phases()` | `c.Phases(phases => …)` |
+| `New-ConsoleProgress` | `Ui.Progress()` | `c.Progress(progress => …)` |
+| `New-ConsoleRegion` | `Ui.Region()` | `c.Region(region => …)` |
+| `New-ConsoleRows` | `Ui.Rows()` | `c.Rows(r => …)` |
+| `New-ConsoleRule` | `Ui.Rule()` | `c.Rule(rule => …)` |
+| `New-ConsoleScrollView` | `Ui.ScrollView()` | `c.ScrollView(scrollView => …)` |
+| `New-ConsoleSelect` | `Ui.Select()` | `c.Select(select => …)` |
+| `New-ConsoleStack` | `Ui.Stack()` | `c.Stack(stack => …)` |
+| `New-ConsoleStatusList` | `Ui.StatusList()` | `c.StatusList(statusList => …)` |
+| `New-ConsoleSummaryBar` | `Ui.SummaryBar()` | `c.SummaryBar(summaryBar => …)` |
+| `New-ConsoleTable` | `Ui.Table()` | `c.Table(t => …)` |
+| `New-ConsoleText` | `Ui.Text()` | `c.Text(text => …)` |
+| `New-ConsoleTextInput` | `Ui.TextInput()` | `c.TextInput(textInput => …)` |
+| `New-ConsoleToggle` | `Ui.Toggle()` | `c.Toggle(toggle => …)` |
+| `New-ConsoleTree` | `Ui.Tree()` | `c.Tree(tree => …)` |
 
 | Primary fluent input | PowerShell input | Reason |
 | --- | --- | --- |
