@@ -14,7 +14,6 @@ namespace ConsoleMonster.Interactive {
 
         private void Rebuild(object? focused = null) {
             focused ??= CurrentRowCore?.Id;
-            _rows = _grid.Rows.ToArray();
             string[] words = _filter.Trim().Split(new[] { ' ', ',' }, StringSplitOptions.RemoveEmptyEntries);
             List<int> shown = ShownColumns();
             _order = Sorted(AllRows());

@@ -28,11 +28,15 @@
         <TypeName>ConsoleMonster.Changes.TextDiffView</TypeName>
         <TypeName>ConsoleMonster.Interactive.AppBinding</TypeName>
         <TypeName>ConsoleMonster.Interactive.Button</TypeName>
+        <TypeName>ConsoleMonster.Interactive.DataGrid</TypeName>
+        <TypeName>ConsoleMonster.Interactive.DatePicker</TypeName>
+        <TypeName>ConsoleMonster.Interactive.LogViewport</TypeName>
         <TypeName>ConsoleMonster.Interactive.MultiSelect</TypeName>
         <TypeName>ConsoleMonster.Interactive.Select</TypeName>
         <TypeName>ConsoleMonster.Interactive.TextArea</TypeName>
         <TypeName>ConsoleMonster.Interactive.TextInput</TypeName>
         <TypeName>ConsoleMonster.Interactive.Toggle</TypeName>
+        <TypeName>ConsoleMonster.Interactive.TreeSelect</TypeName>
         <TypeName>ConsoleMonster.Layout.Align</TypeName>
         <TypeName>ConsoleMonster.Layout.Columns</TypeName>
         <TypeName>ConsoleMonster.Layout.CultureScope</TypeName>
@@ -64,6 +68,8 @@
         <TypeName>ConsoleMonster.Widgets.InspectorView</TypeName>
         <TypeName>ConsoleMonster.Widgets.KeyValueList</TypeName>
         <TypeName>ConsoleMonster.Widgets.Lanes</TypeName>
+        <TypeName>ConsoleMonster.Widgets.LayoutRegion</TypeName>
+        <TypeName>ConsoleMonster.Widgets.LayoutRegions</TypeName>
         <TypeName>ConsoleMonster.Widgets.LineChart</TypeName>
         <TypeName>ConsoleMonster.Widgets.LiveTable</TypeName>
         <TypeName>ConsoleMonster.Widgets.LogRegion</TypeName>
@@ -88,6 +94,7 @@
         <TypeName>ConsoleMonster.Widgets.StatusList</TypeName>
         <TypeName>ConsoleMonster.Widgets.SummaryBar</TypeName>
         <TypeName>ConsoleMonster.Widgets.Table</TypeName>
+        <TypeName>ConsoleMonster.Widgets.Tabs</TypeName>
         <TypeName>ConsoleMonster.Widgets.TextBlock</TypeName>
         <TypeName>ConsoleMonster.Widgets.Tree</TypeName>
         <TypeName>ConsoleMonster.Widgets.WatchView</TypeName>

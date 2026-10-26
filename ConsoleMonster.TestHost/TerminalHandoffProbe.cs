@@ -15,7 +15,7 @@ namespace ConsoleMonster.TestHost {
             bool ran = false;
             var options = new ConsoleAppOptions {
                 TerminalHandoff = handoff,
-                Interactive = new InteractiveOptions { Mode = InteractionMode.Rich },
+                Interactive = new InteractiveOptions { Mode = InteractionMode.Rich, Profile = TerminalProfile.Fixed(80, 24) },
                 ProcessEvents = state => {
                     if (ran) { return; }
                     ran = true;

@@ -16,6 +16,20 @@ namespace ConsoleMonster.Tests.Interactive.App {
         private static readonly Canvas.RenderContext Context = Terminal.CreateContext(TerminalProfile.Fixed(80, 24));
 
         [Fact]
+        public void SharedListingChangesAreAdoptedOnlyByExplicitRefreshWithMarkReconciliation() {
+            var listing = new Grid("Files"); listing.AddColumn("Name");
+            listing.AddRow(new GridRow("old", "old") { Id = 1 });
+            using var first = new DataGrid("First", listing);
+            using var second = new DataGrid("Second", listing);
+            second.ToggleMark();
+            first.SetRows(new[] { new GridRow("new", "new") { Id = 2 } });
+            second.Sort(0); second.Filter = "old";
+            Assert.Equal("old", Assert.Single(second.Selection)); Assert.Equal(1, second.MarkCount);
+            second.Filter = ""; second.RefreshRows();
+            Assert.Equal("new", Assert.Single(second.Selection)); Assert.Equal(0, second.MarkCount);
+        }
+
+        [Fact]
         public void BackingListingCanShrinkAndClearBeforeRefreshWithoutInvalidatingTheOldSelection() {
             var listing = new Grid("Files"); listing.AddColumn("Name");
             listing.AddRow(new GridRow("one", "one") { Id = 1 }); listing.AddRow(new GridRow("two", "two") { Id = 2 });
