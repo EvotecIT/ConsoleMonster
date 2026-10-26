@@ -35,6 +35,7 @@ namespace ConsoleMonster.PowerShell.Binding {
             "Unit",
             "Aggregate",
             "Flexible",
+            "Weight",
             "Header",
             "Markup",
             "FailAbove",
@@ -228,7 +229,7 @@ namespace ConsoleMonster.PowerShell.Binding {
 
         /// <summary>
         /// A table column from a column hashtable (Name or Label for the header, and the column options of Show-ConsoleTable:
-        /// Alignment, Width, MinWidth, MaxWidth, Flexible, Overflow, Presenter, Markup, role rules...), for tables whose rows
+        /// Alignment, Width, MinWidth, MaxWidth, Flexible, Weight, Overflow, Presenter, Markup, role rules...), for tables whose rows
         /// come later, such as live tables.
         /// </summary>
         /// <param name="spec">The hashtable.</param>
@@ -291,6 +292,7 @@ namespace ConsoleMonster.PowerShell.Binding {
             SetInt(options, "MinWidth", value => column.MinWidth = value);
             SetInt(options, "MaxWidth", value => column.MaxWidth = value);
             SetInt(options, "Width", value => column.Width = value);
+            SetInt(options, "Weight", value => column.Weight = value);
             SetBool(options, "Key", value => column.IsKey = value);
             SetBool(options, "Identifier", value => column.Presenter = value ? CellPresenters.Identifier : column.Presenter);
             SetBool(options, "Flexible", value => column.Flexible = value);

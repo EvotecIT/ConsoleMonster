@@ -27,6 +27,7 @@ namespace ConsoleMonster.Widgets {
             StyledLine[] headers = new StyledLine[count];
             int[] desired = new int[count];
             int[] minimum = new int[count];
+            _freeText = new bool[count];
             for (int c = 0; c < count; c++) {
                 Style headerStyle = HeaderSeparator ? context.Style(ThemeToken.Header) : context.Style(ThemeToken.Header).With(TextDecoration.Underline);
                 headers[c] = context.Markup(_columns[c].Header).Lines[0].WithBaseStyle(headerStyle);
@@ -44,7 +45,7 @@ namespace ConsoleMonster.Widgets {
                     continue;
                 }
                 for (int c = 0; c < count; c++) {
-                    Measure(row.Cells[c], _columns[c], ref desired[c], ref minimum[c]);
+                    Measure(row.Cells[c], _columns[c], ref desired[c], ref minimum[c], ref _freeText[c]);
                 }
             }
             _keyComfort = stats != null ? stats.KeyComfort() : KeyComfort(rows);
@@ -130,7 +131,7 @@ namespace ConsoleMonster.Widgets {
             }
         }
 
-        private static void Measure(CellContent content, TableColumn column, ref int desired, ref int minimum) {
+        private static void Measure(CellContent content, TableColumn column, ref int desired, ref int minimum, ref bool freeText) {
             int text = content.TextWidth;
             int want = content.HasVisual ? text + 1 + content.Presented!.VisualWidth : text;
             desired = Math.Max(desired, want);
@@ -145,6 +146,9 @@ namespace ConsoleMonster.Widgets {
                 // only the space left over.
                 minimum = Math.Max(minimum, text);
                 return;
+            }
+            if (!content.IsEmpty) {
+                freeText = true;
             }
             switch (column.Overflow) {
                 case ColumnOverflow.Never:
@@ -242,7 +246,7 @@ namespace ConsoleMonster.Widgets {
             int sum = TrackAllocator.Sum(widths);
             if (sum <= available) {
                 if (Expand && count > 0) {
-                    widths[FlexibleColumn(desired, visible)] += available - sum;
+                    Widen(widths, available - sum, visible);
                 }
                 return widths;
             }
@@ -298,20 +302,82 @@ namespace ConsoleMonster.Widgets {
             return highest;
         }
 
-        private int FlexibleColumn(int[] desired, List<int> visible) {
-            for (int v = 0; v < visible.Count; v++) {
-                if (_columns[visible[v]].Flexible) {
-                    return v;
+        // Whether each column holds free text (values that may wrap or shorten), from the last layout's measure pass.
+        private bool[] _freeText = Array.Empty<bool>();
+
+        // Spare width when the table expands: columns with a Weight share it by weight; otherwise Flexible columns share it
+        // evenly; otherwise the free-text columns share it in proportion to their widths, so numbers, dates and status words
+        // keep their natural width. Fixed and maximum widths hold; what the chosen columns cannot take passes to the next
+        // group, and only a table with no other room widens every column.
+        private void Widen(int[] widths, int spare, List<int> visible) {
+            Func<TableColumn, bool>[] groups = {
+                column => column.Weight > 0,
+                column => column.Flexible,
+                column => IsFreeText(column),
+                column => true
+            };
+            for (int g = 0; g < groups.Length && spare > 0; g++) {
+                int[] shares = new int[visible.Count];
+                for (int v = 0; v < visible.Count; v++) {
+                    TableColumn column = _columns[visible[v]];
+                    if (!column.Width.HasValue && groups[g](column)) {
+                        shares[v] = g == 0 ? column.Weight : g == 1 ? 1 : Math.Max(1, widths[v]);
+                    }
                 }
+                spare = Grow(widths, shares, spare, visible);
             }
-            int best = 0;
-            for (int v = 0; v < visible.Count; v++) {
-                if (_columns[visible[v]].Overflow == ColumnOverflow.Wrap && desired[v] > desired[best]) {
-                    best = v;
-                }
-            }
-            return best;
         }
+
+        // Shares spare width by the shares, largest remainders first; columns that reach their maximum drop out. Returns what is left.
+        private int Grow(int[] widths, int[] shares, int spare, List<int> visible) {
+            while (spare > 0) {
+                long total = 0;
+                for (int v = 0; v < visible.Count; v++) {
+                    if (shares[v] > 0 && !AtMaximum(widths[v], visible[v])) { total += shares[v]; }
+                }
+                if (total == 0) {
+                    return spare;
+                }
+                int given = 0;
+                int[] extra = new int[visible.Count];
+                long[] remainders = new long[visible.Count];
+                for (int v = 0; v < visible.Count; v++) {
+                    if (shares[v] <= 0 || AtMaximum(widths[v], visible[v])) { remainders[v] = -1; continue; }
+                    long exact = (long)spare * shares[v];
+                    extra[v] = (int)(exact / total);
+                    remainders[v] = exact % total;
+                    given += extra[v];
+                }
+                for (int left = spare - given; left > 0; left--) {
+                    int best = -1;
+                    for (int v = 0; v < visible.Count; v++) {
+                        if (remainders[v] >= 0 && (best < 0 || remainders[v] > remainders[best])) { best = v; }
+                    }
+                    extra[best]++;
+                    remainders[best] = -1;
+                    given++;
+                }
+                int used = 0;
+                for (int v = 0; v < visible.Count; v++) {
+                    int room = _columns[visible[v]].MaxWidth is int max ? Math.Max(0, max - widths[v]) : int.MaxValue;
+                    int add = Math.Min(extra[v], room);
+                    widths[v] += add;
+                    used += add;
+                }
+                if (used == 0) {
+                    return spare;
+                }
+                spare -= used;
+            }
+            return spare;
+        }
+
+        private bool IsFreeText(TableColumn column) {
+            int index = _columns.IndexOf(column);
+            return index >= 0 && index < _freeText.Length && _freeText[index];
+        }
+
+        private bool AtMaximum(int width, int column) => _columns[column].MaxWidth is int max && width >= max;
 
         private void FitRow(TableLayoutRow row, TableLayout layout, RenderContext context) {
             if (row.Cells == null) {
