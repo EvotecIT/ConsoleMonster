@@ -50,6 +50,28 @@ Invoke-ConsoleDashboard $d {
         $text | Should -Match 'sync  running'
     }
 
+    It 'reads caller variables with $using: and caller functions with -ImportFunction' {
+        $text = Invoke-ContentChild -Script @'
+$frames = @(1, 2, 3)
+$map = @{ web01 = 'up' }
+function Get-Double($n) { $n * 2 }
+$d = New-ConsoleDashboard -Title 'Frames' -Content { New-ConsoleProgress p -Total 3 }
+$seq = Invoke-ConsoleDashboard $d -ImportFunction Get-Double { foreach ($f in $using:frames) { Update-Console p -Value $f; Get-Double $f } }
+"SEQ=$($seq -join ',')"
+$par = 'a', 'b' | Invoke-ConsoleDashboard $d -Parallel -ImportFunction Get-Double { param($Item) "$Item$(Get-Double $using:frames.Count)$($using:map['web01'])" }
+"PAR=$(($par | Sort-Object) -join ',')"
+try { Invoke-ConsoleDashboard $d -ImportFunction Missing-Thing { } } catch { "MISSING=$($_.Exception.Message)" }
+'@
+        $text | Should -Match 'SEQ=2,4,6'
+        $text | Should -Match 'PAR=a6up,b6up'
+        $text | Should -Match "MISSING=ImportFunction found no function named 'Missing-Thing'"
+    }
+
+    It 'stops a dashboard with two widgets of one default id where it is built' {
+        { New-ConsoleDashboard -Title 'Report' -Content { New-ConsoleChart -Type Bar; New-ConsoleChart -Type Bar } } | Should -Throw "*WidgetId 'bars'*-WidgetId*"
+        { New-ConsoleDashboard -Title 'Report' -Content { New-ConsoleChart -Type Bar; New-ConsoleChart bars-2 -Type Bar } } | Should -Not -Throw
+    }
+
     It 'upserts ordinary records into a live table through its KeyProperty and columns' {
         $text = Invoke-ContentChild -Script @'
 $d = New-ConsoleDashboard -Title 'Health' -Content { New-ConsoleProgress build -Total 2; New-ConsoleTable results -Live -KeyProperty Server -Property Server, State, Ms }

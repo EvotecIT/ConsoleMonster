@@ -238,6 +238,7 @@ namespace ConsoleMonster.Widgets {
                 // Too narrow for the grid: shrink the label column so counts and percents keep their columns.
                 labelWidth = Math.Max(1, labelWidth - (entryWidth - width));
             }
+            int[] percents = WholePercents(total);
             List<TextSpan> current = new List<TextSpan>();
             for (int i = 0; i < _segments.Count; i++) {
                 if (i > 0 && i % columns == 0) {
@@ -259,7 +260,7 @@ namespace ConsoleMonster.Widgets {
                 current.Add(new TextSpan(new string(' ', padding - before), textStyle));
                 current.Add(new TextSpan(" " + StatColumn.Pad(Count(segment.Value, context), countWidth, CountColumn.Alignment), context.Style(ThemeToken.Text)));
                 if (percentWidth > 0) {
-                    string percent = NumberFormat.IsFinite(segment.Value) ? NumberFormat.Percent(NumberFormat.PositiveOrZero(segment.Value) / total) : NumberFormat.Missing(context.Glyphs.Tier);
+                    string percent = NumberFormat.IsFinite(segment.Value) ? percents[i].ToString("0", System.Globalization.CultureInfo.InvariantCulture) + "%" : NumberFormat.Missing(context.Glyphs.Tier);
                     current.Add(new TextSpan(" " + StatColumn.Pad(percent, percentWidth, PercentColumn.Alignment), context.Style(ThemeToken.Muted)));
                 }
             }
@@ -267,6 +268,31 @@ namespace ConsoleMonster.Widgets {
                 lines.Add(new StyledLine(current));
             }
             return lines;
+        }
+
+        // Whole legend percents that add up to 100 (largest remainder): 7, 3 and 2 of 12 are 58%, 25% and 17%, not 58/25/16.
+        internal int[] WholePercents(double total) {
+            int[] result = new int[_segments.Count];
+            if (!(total > 0)) { return result; }
+            double[] remainders = new double[_segments.Count];
+            int assigned = 0;
+            for (int i = 0; i < _segments.Count; i++) {
+                if (!NumberFormat.IsFinite(_segments[i].Value)) { continue; }
+                double exact = NumberFormat.PositiveOrZero(_segments[i].Value) / total * 100;
+                result[i] = (int)Math.Floor(exact + 1e-9);
+                remainders[i] = exact - result[i];
+                assigned += result[i];
+            }
+            for (int left = 100 - assigned; left > 0; left--) {
+                int best = -1;
+                for (int i = 0; i < _segments.Count; i++) {
+                    if (remainders[i] > 1e-9 && (best < 0 || remainders[i] > remainders[best])) { best = i; }
+                }
+                if (best < 0) { break; }
+                result[best]++;
+                remainders[best] = 0;
+            }
+            return result;
         }
 
         // NaN or infinite segments (a rate over zero elapsed time) take no width and show a dash.

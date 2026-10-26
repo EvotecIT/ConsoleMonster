@@ -20,7 +20,7 @@ namespace ConsoleMonster.PowerShell {
         private RunspacePool? _pool;
         private int _throttle = 1;
 
-        public DashboardRunspaceHost(LiveSession session, string[]? modules) {
+        public DashboardRunspaceHost(LiveSession session, string[]? modules, System.Collections.IDictionary? usings = null, IDictionary<string, string>? functions = null) {
             _session = session;
             _state = InitialSessionState.CreateDefault2();
             foreach (Type type in typeof(DashboardRunspaceHost).Assembly.GetTypes()) {
@@ -31,6 +31,12 @@ namespace ConsoleMonster.PowerShell {
                 }
             }
             _state.Variables.Add(new SessionStateVariableEntry("ConsoleSession", session, "The running ConsoleMonster live session."));
+            if (usings != null) {
+                foreach (System.Collections.DictionaryEntry entry in usings) { _state.Variables.Add(new SessionStateVariableEntry((string)entry.Key, entry.Value, "A $using: value from the caller.")); }
+            }
+            if (functions != null) {
+                foreach (KeyValuePair<string, string> function in functions) { _state.Commands.Add(new SessionStateFunctionEntry(function.Key, function.Value)); }
+            }
             if (modules != null && modules.Length > 0) {
                 _state.ImportPSModule(modules);
             }

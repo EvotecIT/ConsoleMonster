@@ -34,6 +34,7 @@ namespace ConsoleMonster.Widgets {
         private readonly IEnumerable<T> _items;
         private readonly Dictionary<TableColumn, Func<T, object?>> _values = new Dictionary<TableColumn, Func<T, object?>>();
         private readonly List<TableColumn> _inferred = new List<TableColumn>();
+        private readonly HashSet<TableColumn> _explicitPresenters = new HashSet<TableColumn>();
         private bool _dirty = true;
         private bool _preparing;
 
@@ -73,6 +74,8 @@ namespace ConsoleMonster.Widgets {
             _inferred.Clear();
             TableColumn column = new TableColumn(header ?? string.Empty);
             configure?.Invoke(column);
+            // A presenter the caller chose is never replaced by inference.
+            if (configure != null && column.Presenter != null) { _explicitPresenters.Add(column); }
             _values[column] = value;
             AddColumn(column);
             _dirty = true;
@@ -95,12 +98,20 @@ namespace ConsoleMonster.Widgets {
                     }
                     ClearRows();
                     IReadOnlyList<TableColumn> columns = ColumnDefinitions;
+                    object?[] samples = new object?[columns.Count];
                     foreach (T item in _items) {
                         object?[] row = new object?[columns.Count];
                         for (int c = 0; c < columns.Count; c++) {
                             row[c] = _values.TryGetValue(columns[c], out Func<T, object?>? read) ? read(item) : null;
+                            samples[c] ??= row[c] is TableCell ? null : row[c];
                         }
                         AddValues(row);
+                    }
+                    // The same inference as PowerShell tables, so a typed table of the same data looks the same.
+                    for (int c = 0; c < columns.Count; c++) {
+                        if (columns[c].Presenter == null && !_explicitPresenters.Contains(columns[c])) {
+                            columns[c].Presenter = Presenters.CellPresenters.ForColumn(Text.Markup.Strip(columns[c].Key ?? columns[c].Header), samples[c]);
+                        }
                     }
                     _dirty = false;
                 } finally {

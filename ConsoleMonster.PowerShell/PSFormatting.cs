@@ -267,11 +267,9 @@ namespace ConsoleMonster.PowerShell {
                 if (sample == null || column.Presenter != null) {
                     continue;
                 }
-                if (IdentifierPresenter.LooksLikeIdentifier(columns[c].Name) && CellPresenters.ForMember(columns[c].Name, sample.GetType()) == CellPresenters.Identifier) {
-                    column.Presenter = CellPresenters.Identifier;
-                } else if (CellPresenters.ForStatus(columns[c].Name, sample) is ICellPresenter status) {
-                    // Status columns get markers in every command, not only in Out-ConsoleDefault's views.
-                    column.Presenter = status;
+                if (CellPresenters.ForColumn(columns[c].Name, sample) is ICellPresenter inferred) {
+                    // Identifiers and status columns are inferred in every command (and typed C# tables), not only in Out-ConsoleDefault's views.
+                    column.Presenter = inferred;
                 } else if (autoPresenters) {
                     column.Presenter = CellPresenters.ForMember(columns[c].Name, sample.GetType());
                 }
