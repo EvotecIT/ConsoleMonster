@@ -47,7 +47,7 @@ namespace ConsoleMonster.TestHost {
                 return 0;
             } catch (Exception error) {
                 if (args.Length > 2 && (args[0] == "app-mode-child" || args[0] == "grid-mode-child")) { File.WriteAllText(args[2], error.ToString()); }
-                else if (args.Length > 1 && args[0].StartsWith("cancel", StringComparison.Ordinal)) { File.WriteAllText(args[1], error.ToString()); }
+                else if (args.Length > 1 && (args[0].StartsWith("cancel", StringComparison.Ordinal) || args[0] == "handoff-windows")) { File.WriteAllText(args[1], error.ToString()); }
                 else { Console.Error.WriteLine(error); }
                 return 1;
             }

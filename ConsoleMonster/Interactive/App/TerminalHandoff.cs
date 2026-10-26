@@ -120,7 +120,12 @@ namespace ConsoleMonster.Interactive {
                     var bytes = new byte[8192];
                     var chars = new char[Encoding.UTF8.GetMaxCharCount(bytes.Length)];
                     while (true) {
-                        int length = terminal.Read(bytes);
+                        int length;
+                        try { length = terminal.Read(bytes); }
+                        catch (IOException) when (terminal.HasExited) {
+                            // Windows reports a closed ConPTY output pipe as EOF after the child exits.
+                            break;
+                        }
                         if (length <= 0) { break; }
                         string text = new string(chars, 0, decoder.GetChars(bytes, 0, length, chars, 0, false));
                         AppendOutput(text);
@@ -138,10 +143,11 @@ namespace ConsoleMonster.Interactive {
                     Exception? failure = Interlocked.CompareExchange(ref readerError, null, null);
                     if (failure != null) { throw new IOException("Child terminal output failed.", failure); }
                     if (elapsed.Elapsed > options.Timeout) { throw new TimeoutException("The child terminal exceeded its time limit."); }
+                    string keys = relay.ReadAvailable();
+                    // Resize may arrive with the same input batch. Apply it before delivering that batch.
                     if (TerminalSize.TryGet(out int nextWidth, out int nextHeight) && nextWidth > 1 && nextHeight > 1 && (nextWidth != width || nextHeight != height)) {
                         terminal.Resize(nextWidth, nextHeight); width = nextWidth; height = nextHeight;
                     }
-                    string keys = relay.ReadAvailable();
                     if (keys.Length > 0) { terminal.Write(Encoding.UTF8.GetBytes(keys)); }
                     cancellation.WaitHandle.WaitOne(10);
                 }
