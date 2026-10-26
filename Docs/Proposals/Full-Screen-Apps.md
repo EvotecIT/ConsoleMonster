@@ -491,7 +491,7 @@ services.Show(options, cancellationToken);
 
 `serviceClient` is the CLI's backend. The core owns no service-management
 provider. In a composed app, `new Button(restart)` binds the same definition;
-`ConsoleAppOptions.Commands` and `Selection` supply palette commands and row
+`ConsoleAppOptions.Command` and `Selection` supply palette commands and row
 snapshots. `Show-ConsoleApp -Command $restart -SelectionKey Service` does the
 same for a named PowerShell input. Display widgets remain ordinary layout
 children; `ScrollView` / `New-ConsoleScrollView` supplies a clipped viewport.
