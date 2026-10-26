@@ -13,7 +13,7 @@ Mouse wheel scrolls the viewport. Tab navigation reveals focused inputs. Lists, 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleScrollView [[-Content] <Object>] [-Widget <IWidget>] [-ScrollOffset <int>] [-MaxContentHeight <int>] [-Weight <double>] [-Height <int>] [-Fill] [<CommonParameters>]
+New-ConsoleScrollView [[-Content] <Object>] [-ScrollOffset <int>] [-MaxContentHeight <int>] [-Weight <double>] [-Height <int>] [-Fill] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -44,7 +44,7 @@ Possible values:
 Required: False
 Position: 0
 Default value: None
-Accept pipeline input: False
+Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
@@ -128,28 +128,12 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Widget
-A widget supplied through the pipeline.
-
-```yaml
-Type: IWidget
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: True (ByValue)
-Accept wildcard characters: False
-```
-
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
-- `ConsoleMonster.Layout.IWidget`
+- `System.Object`
 
 ## OUTPUTS
 

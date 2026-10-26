@@ -56,7 +56,7 @@
         "csharp": "Role = …",
         "fluent": ".Role(…)",
         "memberId": "ConsoleMonster.Widgets.BarChart.Role",
-        "note": "ChartOptions.Role uses ConsoleMonster.Styling.ThemeToken."
+        "note": "BarChart.Role uses ConsoleMonster.Styling.ThemeToken."
       },
       {
         "powershell": "New-ConsolePadding -Padding …",
@@ -374,7 +374,7 @@
         "csharp": "Role = …",
         "fluent": ".Role(…)",
         "memberId": "ConsoleMonster.Widgets.BarChart.Role",
-        "note": "ChartOptions.Role uses ConsoleMonster.Styling.ThemeToken."
+        "note": "BarChart.Role uses ConsoleMonster.Styling.ThemeToken."
       },
       {
         "powershell": "New-ConsolePadding -Padding …",

@@ -689,14 +689,14 @@
           "csharp": "Shape = …",
           "fluent": ".Shape(…)",
           "memberId": "ConsoleMonster.Widgets.ProgressBar.Shape",
-          "note": "ProgressOptions.Shape uses ConsoleMonster.Widgets.BarShape."
+          "note": "ProgressBar.Shape uses ConsoleMonster.Widgets.BarShape."
         },
         {
           "powershell": "New-ConsoleProgress -Status …",
           "csharp": "Status = …",
           "fluent": ".Status(…)",
           "memberId": "ConsoleMonster.Widgets.ProgressBar.Status",
-          "note": "ProgressOptions.Status uses ConsoleMonster.Styling.StatusKind."
+          "note": "ProgressBar.Status uses ConsoleMonster.Styling.StatusKind."
         },
         {
           "powershell": "| Show-Console",
@@ -808,7 +808,7 @@
           "csharp": "Status = …",
           "fluent": ".Status(…)",
           "memberId": "ConsoleMonster.Widgets.Spinner.Status",
-          "note": "ProgressOptions.Status uses ConsoleMonster.Styling.StatusKind."
+          "note": "Spinner.Status uses ConsoleMonster.Styling.StatusKind."
         },
         {
           "powershell": "| Show-Console",
@@ -899,7 +899,7 @@
           "csharp": "Role = …",
           "fluent": ".Role(…)",
           "memberId": "ConsoleMonster.Widgets.BarChart.Role",
-          "note": "ChartOptions.Role uses ConsoleMonster.Styling.ThemeToken."
+          "note": "BarChart.Role uses ConsoleMonster.Styling.ThemeToken."
         },
         {
           "powershell": "| Show-Console",

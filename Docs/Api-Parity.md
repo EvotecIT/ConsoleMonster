@@ -3,7 +3,7 @@
 
 I use the same domain names for cmdlet parameters, C# configuration and fluent calls. PowerShell keeps numeric duration parameters with units and default-off switches; C# keeps TimeSpan values and Boolean properties.
 
-The contract covers **98 commands**, **1038 parameters** and **285 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
+The contract covers **101 commands**, **1067 parameters** and **293 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
 
 Table and List remain named shortcuts to Show-Console’s shared view implementation. Read-* returns answers; New-ConsoleForm/Menu defines a question workflow; Show-ConsoleApp runs a persistent reactive application.
 
@@ -160,6 +160,9 @@ Native host hooks, runtime models and equivalent representations are listed indi
 | `ConsoleMonster.Widgets.TextBlock.Overflow` | EquivalentRepresentation: TextBlock and RichText share overflow behavior; PowerShell exposes Overflow on its canonical RichText result. | Use New-ConsoleText -Text/-Markup/-Role/-Alignment/-Overflow; its RichText result is also a widget. |
 | `ConsoleMonster.Widgets.TextBlock.Role` | EquivalentRepresentation: TextBlock stores a block role; PowerShell applies the same Role through RichText’s base style. | Use New-ConsoleText -Text/-Markup/-Role/-Alignment/-Overflow; its RichText result is also a widget. |
 | `ConsoleMonster.Widgets.TreeHierarchyOptions.Identity` | CSharpOnly: A native graph identity delegate supports custom/AOT C# nodes; the PowerShell hierarchy adapter owns wrapped-object identity. | Use the canonical PSObject identity and bounded tree traversal. |
+| `ConsoleMonster.Interactive.ConsoleAppOptions.Dispatcher` | CSharpOnly: An embedding host may post native callbacks from other threads; PowerShell retains the owning runspace and drains its own callback queue. | Use Show-ConsoleApp callbacks and SelectionKey; native hosts can supply an AppDispatcher. |
+| `ConsoleMonster.Interactive.ConsoleAppOptions.Selection` | CSharpOnly: A native host can compute its action row set with a strongly typed delegate; PowerShell selects ordinary state values by SelectionKey. | Use Show-ConsoleApp -SelectionKey for scalar or collection state. |
+| `ConsoleMonster.Interactive.GridOptions.Dispatcher` | CSharpOnly: A native grid host may provide its own mailbox; PowerShell keeps script execution and row refresh on the owning runspace. | Use Show-ConsoleGrid -Command and -RefreshRow; C# hosts can supply an AppDispatcher. |
 
 ## .NET host integrations
 
