@@ -40,6 +40,6 @@ Invoke-ConsoleDashboard -Dashboard $screen -ArgumentList (, $frames) -ScriptBloc
             break
         }
         Update-Console -WidgetId processes -Content $frame
-        Wait-ConsoleDashboard -Milliseconds 1000
+        Wait-ConsoleDashboard -Seconds 1
     }
 }
