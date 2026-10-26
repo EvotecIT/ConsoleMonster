@@ -2377,6 +2377,21 @@
           "Static": false
         },
         {
+          "Parameter": "ImportFunction",
+          "ParameterType": "System.String[]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "HostPolicy",
+          "Reason": "Defines the caller's PowerShell functions in the owning dashboard runspaces; C# work runs in the caller's own code."
+        },
+        {
           "Parameter": "ImportModule",
           "ParameterType": "System.String[]",
           "Default": null,

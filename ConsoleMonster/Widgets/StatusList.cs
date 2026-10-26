@@ -129,12 +129,16 @@ namespace ConsoleMonster.Widgets {
         public override void Render(Region region, RenderContext context) {
             int markerWidth = 0;
             int detailColumn = 0;
+            int labelColumn = 0;
             foreach (StatusItem item in _items) {
                 markerWidth = Math.Max(markerWidth, DisplayWidth.Measure(context.Glyphs.StatusMarker(item.Status)));
                 detailColumn = Math.Max(detailColumn, string.IsNullOrEmpty(item.Detail) ? 0 : DisplayWidth.Measure(item.Detail));
+                labelColumn = Math.Max(labelColumn, context.Markup(item.Label).Width);
             }
             if (detailColumn > 0) {
-                detailColumn = Math.Min(_detailColumn.Resolve(detailColumn), Math.Max(0, region.Width / 2));
+                // Details get the room the longest label leaves, and at least half the line when both are long.
+                int room = Math.Max(0, region.Width - markerWidth - 1 - 2);
+                detailColumn = Math.Min(_detailColumn.Resolve(detailColumn), Math.Max(room - labelColumn, room / 2));
             }
             Style muted = context.Style(ThemeToken.Muted);
             for (int i = 0; i < _items.Count && i < region.Height; i++) {

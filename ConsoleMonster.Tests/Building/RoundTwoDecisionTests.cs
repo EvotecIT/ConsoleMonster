@@ -81,6 +81,62 @@ namespace ConsoleMonster.Tests.Building {
             Assert.Throws<ArgumentOutOfRangeException>(() => new Panel { Gap = -1 });
         }
 
+        private sealed record Container(int Id, string Name, string State, int Port);
+
+        [Fact]
+        public void TypedTablesInferIdentifierAndStatusPresentersLikePowerShell() {
+            Container[] rows = { new Container(12345, "web", "running", 8080), new Container(23456, "db", "restarting", 5432) };
+            Table<Container> table = Table.For(rows);
+            string text = TestTerminal.RenderText(table, 80);
+            Assert.Contains("12345", text);
+            Assert.DoesNotContain("12 345", text);
+            Assert.DoesNotContain("12,345", text);
+            Assert.Same(ConsoleMonster.Presenters.CellPresenters.Identifier, table.Columns[0].Presenter);
+            Assert.Same(ConsoleMonster.Presenters.CellPresenters.StatusWord, table.Columns[2].Presenter);
+            Table<Container> chosen = Table.For(rows).Column(r => r.State, c => c.Presenter(ConsoleMonster.Presenters.CellPresenters.Auto));
+            TestTerminal.RenderText(chosen, 80);
+            Assert.Same(ConsoleMonster.Presenters.CellPresenters.Auto, chosen.Columns[0].Presenter);
+        }
+
+        [Theory]
+        [InlineData("restarting", StatusKind.Warn)]
+        [InlineData("exited", StatusKind.Skip)]
+        [InlineData("CrashLoopBackOff", StatusKind.Fail)]
+        [InlineData("Terminating", StatusKind.Warn)]
+        public void ContainerAndServiceStatesReadAsStatusWords(string word, StatusKind expected) {
+            Assert.True(ConsoleMonster.Presenters.StatusEnumPresenter.TryRead(word, out StatusKind status));
+            Assert.Equal(expected, status);
+        }
+
+        [Fact]
+        public void DuplicateWidgetIdsNameTheIdAndTheFix() {
+            var error = Assert.Throws<ArgumentException>(() => new ConsoleMonster.Live.LiveSession(new Rows(Ui.Chart().Type(ChartType.Bar).Build(), Ui.Chart().Type(ChartType.Bar).Build())));
+            Assert.Contains("'bars'", error.Message);
+            Assert.Contains("-WidgetId", error.Message);
+            Assert.Contains("bars-2", error.Message);
+        }
+
+        [Fact]
+        public void StatusListGivesDetailsTheRoomShortLabelsLeave() {
+            StatusList list = new StatusList().Add("DNS", StatusKind.Pass, "two resolvers answered in 12 ms each");
+            string text = TestTerminal.RenderText(list, 50);
+            Assert.Contains("two resolvers answered in 12 ms each", text);
+            StatusList both = new StatusList().Add(new string('L', 40), StatusKind.Pass, new string('D', 40));
+            string line = TestTerminal.RenderText(both, 50);
+            Assert.Contains(new string('D', 20), line);
+        }
+
+        [Fact]
+        public void StackedLegendPercentsAddUpToOneHundred() {
+            StackedBar bar = new StackedBar().Add("Passed", 7, ThemeToken.Pass).Add("Warnings", 3, ThemeToken.Warn).Add("Failed", 2, ThemeToken.Fail);
+            Assert.Equal(new[] { 58, 25, 17 }, bar.WholePercents(12));
+            string text = TestTerminal.RenderText(bar, 80);
+            Assert.Contains("17%", text);
+            Assert.DoesNotContain("16%", text);
+            Assert.Equal(new[] { 100, 0 }, new StackedBar().Add("All", 5).Add("None", 0).WholePercents(5));
+            Assert.Equal(new[] { 34, 33, 33 }, new StackedBar().Add("a", 1).Add("b", 1).Add("c", 1).WholePercents(3));
+        }
+
         [Theory]
         [InlineData("pl-PL", "y", true)]
         [InlineData("pl-PL", "n", false)]

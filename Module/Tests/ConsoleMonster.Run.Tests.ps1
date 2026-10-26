@@ -109,19 +109,20 @@ $progressBefore = $ProgressPreference
         $text | Should -Match 'LEAKED=0 PROGRESS=True'
     }
 
-    It 'prints nothing for no input, warns about -TimeoutSeconds without -Parallel and rejects $using: expressions before the run' {
+    It 'prints nothing for no input, warns about -TimeoutSeconds without -Parallel and reads $using: member and index expressions' {
         $text = Invoke-RunChild @'
 $none = @() | Invoke-ConsoleRun -Title 'NOTHING' { $_ }
 "NONE=$(@($none).Count)"
 $out = 1 | Invoke-ConsoleRun -TimeoutSeconds 5 { $_ } -WarningVariable w -WarningAction SilentlyContinue
 "WARNED=$($w.Count) OUT=$out"
 $items = @{ a = 1 }
-try { 1, 2 | Invoke-ConsoleRun -Parallel { $using:items['a'] } } catch { "REJECTED=$($_.Exception.Message -like '*$using:name*')" }
+$indexed = 1, 2 | Invoke-ConsoleRun -Parallel { "$($using:items['a'])$($using:items.Count)" }
+"INDEXED=$($indexed -join ',')"
 '@
         $text | Should -Match 'NONE=0'
         $text | Should -Not -Match 'NOTHING'
         $text | Should -Match 'WARNED=1 OUT=1'
-        $text | Should -Match 'REJECTED=True'
+        $text | Should -Match 'INDEXED=11,11'
         $text | Should -Not -Match '2 items: 0 passed'
     }
 

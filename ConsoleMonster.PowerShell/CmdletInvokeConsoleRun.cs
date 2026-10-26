@@ -343,21 +343,7 @@ namespace ConsoleMonster.PowerShell {
 
         // The script for a runspace: $using:name read from the passed table, the body run with $_ as the item, every stream merged.
         private string ParallelScript(Hashtable usings) {
-            Ast body = ScriptBlock.Ast;
-            string text = body.Extent.Text;
-            int origin = body.Extent.StartOffset;
-            List<UsingExpressionAst> found = body.FindAll(ast => ast is UsingExpressionAst, true).Cast<UsingExpressionAst>().OrderByDescending(ast => ast.Extent.StartOffset).ToList();
-            StringBuilder rewritten = new StringBuilder(text);
-            foreach (UsingExpressionAst use in found) {
-                if (!(use.SubExpression is VariableExpressionAst variable)) {
-                    throw new PSArgumentException("Only $using:name is supported in -Parallel script blocks: " + use.Extent.Text);
-                }
-                string name = variable.VariablePath.UserPath;
-                string local = "__cmUsing_" + name.Replace(':', '_');
-                usings[local] = SessionState.PSVariable.GetValue(name);
-                rewritten.Remove(use.Extent.StartOffset - origin, use.Extent.Text.Length).Insert(use.Extent.StartOffset - origin, "$" + local);
-            }
-            string block = rewritten.ToString().Trim();
+            string block = PSUsing.Rewrite(ScriptBlock, SessionState, usings);
             if (!block.StartsWith("{", StringComparison.Ordinal)) {
                 block = "{" + block + "}";
             }
