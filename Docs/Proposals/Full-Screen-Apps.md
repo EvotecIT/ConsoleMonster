@@ -25,7 +25,7 @@ I am proceeding with this design and four amendments:
    cancellation, streams into the embedded log, and leaves the app open.
    PowerShell work uses isolated runspaces with explicit arguments and modules;
    C# work uses asynchronous actions with a cancellation token.
-2. `Show-ConsoleGrid -Action` ships in phase 2. The convenience hashtable form
+2. `Show-ConsoleGrid -Command` ships in phase 2. The convenience hashtable form
    maps action keys to scripts; command objects add labels, shortcuts and
    confirmation. Actions receive the selected row or a captured set of marked
    rows, with details and output visible in the same app.
@@ -68,9 +68,9 @@ $restart = New-ConsoleCommand -Key Restart -Label 'Restart service' -Shortcut Ct
         Restart-Service -Name $Row.Name -ErrorAction Stop
         Get-Service -Name $Row.Name
     }
-Get-Service | Show-ConsoleGrid -Action $restart
+Get-Service | Show-ConsoleGrid -Command $restart
 # Convenience form supplies a default confirmation; use a command to customize it:
-Get-Service | Show-ConsoleGrid -Action @{ Inspect = { param($Row) Get-Service $Row.Name } }
+Get-Service | Show-ConsoleGrid -Command @{ Inspect = { param($Row) Get-Service $Row.Name } }
 ```
 
 ## Principles
@@ -100,7 +100,7 @@ not a claim of fresh native terminal qualification.
 | `FocusManager`, `AppViewport` | Declaration order plus `TabIndex`, disabled-control skipping, focus requests, whole-app scrolling to reveal focus, narrow-column reflow | **Extend** to active focus scopes, visibility and nested scroll views. The current viewport renders a content-height buffer; it is not virtualization for large tables/logs. |
 | `Interactive/Forms` and prompts | Typed values, validation, defaults, presets, review, wizard pages, rich/line/accessible modes | **Keep** answer and validation models. Reuse their editors as persistent app controls. Retain line prompts; a full-screen app cannot become an unattended answer source. |
 | `Interactive/Menus` | Navigation, action execution, command palette, toasts, review and output panes; queued calls to the menu thread | **Merge infrastructure** into the app host: command routing, overlay stack, action output and dispatch. Keep `Show-ConsoleMenu` as a convenient composition. |
-| `Interactive/Grid` | Filter, sort, paging, marking, column selection and detail view; returns original objects; uses table presenters | **Extract** an embeddable data-grid control. Keep `Show-ConsoleGrid` as the viewer and preserve its selection contract. `New-ConsoleGrid` remains a layout grid. |
+| `Interactive/Grid` | Filter, sort, paging, marking, column selection and detail view; returns original objects; uses table presenters | **Extract** an embeddable data-grid control. Keep `Show-ConsoleGrid` as the viewer and preserve its selection contract. `New-ConsoleLayoutGrid` remains a layout grid. |
 | `Interactive/Explorer` | Lazy member expansion, paths, search and inspection budgets | **Extract** an interactive tree/detail composition. Keep `Show-ConsoleObject`, lazy evaluation, cycle handling and budgets. Do not replace inspection with eager reflection. |
 | `Interactive/Views`, `Surfaces`, `InteractionLoop`, `WidgetPager` | Modal chrome, overlays, caret handling, pager, screen/inline/recording surfaces; burst input processing and animation ticks | **Merge** loop and overlay mechanics with the app host, then retire duplicate paths after migrations. Keep inline surfaces for prompts and pagers. The older loop routes keys/paste but does not dispatch mouse events. |
 | `Layout`, `Canvas`, `Rendering` | Rows, Columns, Grid, Stack, Panel, constraints; Unicode-aware cells; `FrameDiff`/`DiffRun`; VT alternate screen and synchronized frame writes | **Keep** this rendering foundation. Diffing already reduces terminal writes; it still scans complete frames. Add layout metadata, clipping and damage tracking without another buffer/encoder. |
@@ -262,9 +262,9 @@ returns one final state hashtable, and ordinary runs emit no success objects.
 
 Any existing `IWidget`, including a calendar or dashboard, can occupy an app
 region. Register its live descendants once with the app's dispatcher; existing
-`Update-ConsoleProgress`, `Update-ConsoleLiveTable`, `Write-ConsoleLogEntry` and
+`Update-Console`, `Write-ConsoleLogEntry` and
 other typed updates still address `WidgetId`. A replaceable region uses
-`New-ConsoleRegion`/`Set-ConsoleRegion` vocabulary from #55.
+`New-ConsoleRegion`/`Update-Console -Content` vocabulary from the API consistency pass.
 
 Embedded dashboards borrow the host's frame clock, terminal output and screen
 lifetime. They do not start a second input loop or independent alternate screen.
@@ -333,10 +333,10 @@ remain definitions; constructing an interactive control does not start input.
 
 | First complete release | Reuse and API direction | Required behaviour |
 | --- | --- | --- |
-| List | `New-ConsoleSelect`, `New-ConsoleMultiSelect`; `Select`, `MultiSelect` | Original object values, filtering, disabled choices, visible-row navigation, keyboard and pointer selection. |
+| List | `New-ConsoleSelect [-Multiple]`; `Select`, `MultiSelect` | Original object values, filtering, disabled choices, visible-row navigation, keyboard and pointer selection. |
 | Table/grid | **new** `New-ConsoleDataGrid -Key`; C# `Interactive.DataGrid` extracted from GridView | Filter/sort, stable row identity, marking, scrolling, column sizing and row detail. Preserve `Show-ConsoleGrid` output semantics. |
 | Tree | **new** `New-ConsoleTreeSelect -Key`; C# `TreeSelect` | Expand/collapse, lazy children, bounded traversal/search, selection and scrolling. Static `New-ConsoleTree` stays display-only. |
-| Text input | `New-ConsoleTextInput`, `New-ConsoleTextArea` and shared editors | Caret, selection, paste, validation and clipped scrolling. Keep secret handling in its existing prompt/form boundary. |
+| Text input | `New-ConsoleTextInput [-Multiline]` and shared editors | Caret, selection, paste, validation and clipped scrolling. Keep secret handling in its existing prompt/form boundary. |
 | Buttons | `New-ConsoleButton` | Enter/Space/click, disabled reason, command invocation and busy state. |
 | Checkbox and radio | `New-ConsoleToggle` already renders a checkbox; extend `New-ConsoleSelect` with **new** `-Presentation Radio` | One Boolean/choice model, labelled hit areas, Space/arrows, disabled choices. No duplicate answer types or checkbox aliases. |
 | Tabs | **new** `New-ConsoleTabs`/`New-ConsoleTab`; C# `Tabs`/`Tab` | Active-page scope, keyboard/click switching, retained values and predictable focus restoration. |
@@ -452,10 +452,10 @@ $restart = New-ConsoleCommand -Key Restart -Label 'Restart service' -Shortcut F5
         Restart-Service -Name $Row.Name -ErrorAction Stop
         "Restarted $($Row.Name)"
     }
-Get-Service | Show-ConsoleGrid -Title Services -Property Name, Status, StartType -Action $restart
+Get-Service | Show-ConsoleGrid -Title Services -Property Name, Status, StartType -Command $restart
 
 # The short form confirms by default and is available through the palette/buttons.
-Get-Service | Show-ConsoleGrid -Action @{
+Get-Service | Show-ConsoleGrid -Command @{
     Restart = { param($Row) Restart-Service -Name $Row.Name -ErrorAction Stop }
 }
 ```
@@ -485,7 +485,7 @@ var restart = new AppCommand("Restart", "Restart service", async (context, cance
     ConfirmPrompt = "Restart the selected services?"
 };
 var options = new GridOptions();
-options.Commands.Add(restart);
+options.Command.Add(restart);
 services.Show(options, cancellationToken);
 ```
 
@@ -558,7 +558,7 @@ published Mac capture uses scripted keys and SGR reports through the recorder,
 at 120×30. The separate SSH capture includes two resizes; it ran from in-memory
 assemblies without installing files or changing the remote host.
 
-I refresh acted-on rows through `Show-ConsoleGrid -Refresh` or
+I refresh acted-on rows through `Show-ConsoleGrid -RefreshRow` or
 `GridOptions.RefreshRow` after successful work. The callback runs on the app's
 input thread and preserves row positions and selection. A failed refresh is
 logged without skipping the remaining rows. Captured row indices identify the
@@ -603,7 +603,7 @@ implementation checkpoints, not a requirement for a separate PR per stage.
 | --- | --- | --- | --- |
 | 1 — this proposal | Inventory, vocabulary, design and decisions | Reviewed design; no product code | Proposal only |
 | Standalone calendar — first PR | Month/year Calendar, shared date model, marks/legend/ISO weeks and gallery twins | Date contract tests, captures, twins and website checks | Independent of the app host |
-| 2 — host and admin preview | Shared event loop, arrangement/clipping, focus scopes, scroll view, terminal ownership, pointer decoder, bounded dispatcher, public commands/actions and Show-ConsoleGrid -Action | Existing app/menu/grid/explorer tests retained; service browser with in-app confirmation/log, mouse/keyboard, paced GIF/HTML, macOS Terminal/SSH and explicit Windows proof gaps | Re-estimate after the host prototype |
+| 2 — host and admin preview | Shared event loop, arrangement/clipping, focus scopes, scroll view, terminal ownership, pointer decoder, bounded dispatcher, public commands/actions and Show-ConsoleGrid -Command | Existing app/menu/grid/explorer tests retained; service browser with in-app confirmation/log, mouse/keyboard, paced GIF/HTML, macOS Terminal/SSH and explicit Windows proof gaps | Re-estimate after the host prototype |
 | 3 — first complete controls | Extract DataGrid and TreeSelect; tabs, log viewport, checkbox/radio presentations; month Calendar, DatePicker and Read-ConsoleDate including ranges | Service browser plus operations calendar; keyboard/mouse/date/culture proof; bounded large table/tree/log workloads | 4–6 weeks |
 | 4 — integration and first release | Rebuild Show-ConsoleGrid and Show-ConsoleObject on the new controls; migrate menu/form/pager infrastructure; year calendar display; recorder/export qualification; remove superseded loops | Original-object selection and explorer budgets preserved; no duplicate screen/input ownership; complete first-control set and native matrix | 2–4 weeks |
 | 5 — follow-on controls | Heatmap calendar, richer menu bar, file picker, splitters and advanced editors as real callers need them | Each has a concrete consumer and bounded proof | Estimate separately |
@@ -628,7 +628,7 @@ not promise arbitrary latency or zero allocation from a design document.
 | Extend ConsoleMonster or wrap another toolkit? | Extend the existing core. Keep zero runtime dependencies and one rendering/input stack. The other frameworks remain references. |
 | Preserve the app API or introduce an Application DSL? | Keep Show-ConsoleApp, ConsoleApp.Run/RunAsync and ordinary layout builders. Add focused controls/services; avoid a competing app syntax. |
 | Retained controls or immediate-mode reconstruction? | Retain controls and state; allow bindings to rebuild display content. Explicitly mount tab/dialog subtrees. This fits PowerShell callback lifetime and existing models. |
-| Data-grid/tree naming? | New-ConsoleDataGrid and New-ConsoleTreeSelect. Keep New-ConsoleGrid as layout and New-ConsoleTree as static hierarchy. Retain Select/MultiSelect vocabulary. |
+| Data-grid/tree naming? | New-ConsoleDataGrid and New-ConsoleTreeSelect. Keep New-ConsoleLayoutGrid as layout and New-ConsoleTree as static hierarchy. Retain Select/MultiSelect vocabulary. |
 | Checkbox/radio constructors? | Keep Toggle's existing checkbox and add a radio presentation to Select, with no second Boolean/choice state model. Add separate names only if real usage proves the distinction worthwhile. |
 | Mouse defaults? | Click/wheel/drag when supported; optional hover and NoMouse. Preserve terminal selection gestures and keyboard equivalence. |
 | Calendar date/range contract? | Gregorian, culture-aware labels/week start, date-only DateTime across all targets, inclusive DateRange, status aggregation as specified above. Add non-Gregorian calendars only for a demonstrated need. |

@@ -43,6 +43,20 @@ namespace SiteFrames.Tests {
         }
 
         [Fact]
+        public void CollectionNotesUseTheVerifiedAddOperationInsteadOfAnUnavailableSetter() {
+            string source = Source("commands", "using ConsoleMonster.Interactive;\nusing System.Threading.Tasks;\nvar command = new AppCommand(\"run\", \"Run\", (_, __) => Task.CompletedTask);\nvar options = new GridOptions { Command = { command }, HiddenColumns = { \"Detail\" } };\n");
+            string fluent = CSharpRunner.FluentSource(source);
+            CSharpRunner.Check(source, fluent);
+            var notes = ApiMappingNotes.FromSource(Repository(), source, fluent);
+            var command = Assert.Single(notes, row => row!["memberId"]!.GetValue<string>() == "ConsoleMonster.Interactive.GridOptions.Command")!;
+            Assert.Equal("Show-ConsoleGrid -Command …", command["powershell"]!.GetValue<string>());
+            Assert.Equal("Command = { … }", command["csharp"]!.GetValue<string>());
+            Assert.Equal(".AddCommand(…)", command["fluent"]!.GetValue<string>());
+            var hidden = Assert.Single(notes, row => row!["memberId"]!.GetValue<string>() == "ConsoleMonster.Interactive.GridOptions.HiddenColumns")!;
+            Assert.Equal(".AddHiddenColumn(…)", hidden["fluent"]!.GetValue<string>());
+        }
+
+        [Fact]
         public void CallbackNotesShowConfigureFromTheSameClassifiedExceptionAsTheParityGate() {
             string source = Source("callback", "using ConsoleMonster.Interactive;\nusing ConsoleMonster.Widgets;\nvar options = new SelectQuestionOptions { Preview = value => new TextBlock(\"Ready\") };\n");
             string fluent = CSharpRunner.FluentSource(source);

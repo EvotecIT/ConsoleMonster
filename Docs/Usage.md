@@ -537,8 +537,8 @@ A menu runs as an app (`Shell`), a centred menu (`Classic`) or a list in the scr
 
 ```powershell
 $menu = New-ConsoleMenu 'Backup helper' -Content {
-    New-ConsoleMenuItem 'Back up now' -Hotkey b -Action { if ($MenuContext.Confirm('Start now?', $true)) { Start-Backup } }
-    New-ConsoleMenuItem 'Restore' -Hotkey r -Action { $backup = Read-ConsoleSelect 'Backup' -Choices (Get-Backup) -Display Name }
+    New-ConsoleMenuItem 'Back up now' -Hotkey b -Command { if ($MenuContext.Confirm('Start now?', $true)) { Start-Backup } }
+    New-ConsoleMenuItem 'Restore' -Hotkey r -Command { $backup = Read-ConsoleSelect 'Backup' -Choices (Get-Backup) -Display Name }
     New-ConsoleMenuItem 'Settings' -Hotkey s -Form $settings -OnSubmit { $MenuContext.Toast("Saved: $($Values.Keep) days") }
     New-ConsoleMenuItem -Exit
 }
@@ -845,11 +845,11 @@ negotiation, presenters and tone rules, and the screen has the same header bar, 
 
 ## In-app actions
 
-`Show-ConsoleGrid -Action` adds selected-row details, action buttons, a command
+`Show-ConsoleGrid -Command` adds selected-row details, action buttons, a command
 palette and an embedded log. A hashtable supplies a small confirmed action:
 
 ```powershell
-Get-Service | Show-ConsoleGrid -Property Name, Status, StartType -Title Services -Action @{
+Get-Service | Show-ConsoleGrid -Property Name, Status, StartType -Title Services -Command @{
     Restart = { param($Row) Restart-Service -Name $Row.Name -ErrorAction Stop; "Restarted $($Row.Name)" }
 }
 ```
@@ -860,10 +860,10 @@ For a shortcut, custom prompt, arguments or module imports, create one command:
 $restart = New-ConsoleCommand -Key Restart -Label Restart -Shortcut F5 `
     -ConfirmPrompt 'Restart selected services?' -ImportModule Microsoft.PowerShell.Management `
     -ScriptBlock { param($Row) Restart-Service -Name $Row.Name -ErrorAction Stop; "Restarted $($Row.Name)" }
-Get-Service | Show-ConsoleGrid -Property Name, Status, StartType -Action $restart
+Get-Service | Show-ConsoleGrid -Property Name, Status, StartType -Command $restart
 ```
 
-Use `Show-ConsoleGrid -Refresh { param($Row, $CommandKey) Get-Service -Name $Row.Name }`
+Use `Show-ConsoleGrid -RefreshRow { param($Row, $CommandKey) Get-Service -Name $Row.Name }`
 to re-read each acted-on row after successful work. The callback runs on the
 caller's input thread and returns one replacement object; keep it short. Row
 positions and selection remain stable. A failed refresh is logged while the

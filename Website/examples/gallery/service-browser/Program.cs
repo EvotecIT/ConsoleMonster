@@ -30,7 +30,7 @@ var options = new GridOptions();
 foreach (string field in new[] { "DisplayName", "ProcessId", "Account", "DependsOn", "Description" }) { options.HiddenColumns.Add(field); }
 foreach (var definition in new[] { ("Restart", System.ConsoleKey.F5), ("Stop", System.ConsoleKey.F7), ("Start", System.ConsoleKey.F9) }) {
     string operation = definition.Item1;
-    options.Commands.Add(new AppCommand(operation, operation, async (context, cancellation) => {
+    options.Command.Add(new AppCommand(operation, operation, async (context, cancellation) => {
         foreach (object? row in context.Rows) {
             var type = row!.GetType();
             string name = type.GetProperty("Name")!.GetValue(row)?.ToString() ?? "";

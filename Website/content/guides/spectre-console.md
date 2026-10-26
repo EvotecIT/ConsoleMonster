@@ -29,7 +29,8 @@ Keep your inventory collection and application logic, then replace the rendering
 | `FigletText` | `Logo` | Built-in pixel lettering; no `.flf` font loader equivalent. |
 | `Grid`, `Columns`, `Rows` | `ConsoleMonster.Layout.Grid`, `Columns`, `Rows` | Grid layout is distinct from the interactive grid. |
 | `Layout` | `DashboardBuilder`, `Rows`, `Columns`, `RegionWidget` | Compose the layout explicitly; no named split-tree API clone. |
-| `Calendar`, emoji shortcodes, `Spectre.Console.Cli` | No direct equivalent | Use literal Unicode for emoji; keep a separate command-line parser. |
+| `Calendar` | `ConsoleMonster.Widgets.Calendar` | Month and year views with dated outcomes, culture-aware labels and ISO weeks. See the [operations calendar](/demos/operations-calendar/). |
+| Emoji shortcodes, `Spectre.Console.Cli` | No direct equivalent | Use literal Unicode for emoji; keep a separate command-line parser. |
 
 </div>
 
@@ -281,7 +282,7 @@ Terminal.Write(dashboard);
 - Keep collection separate from display. A widget is a definition; `Terminal.Write` draws it and `LiveSession` controls its live lifetime.
 - Similar markup does not make the parsers interchangeable. Escape input and check strict-mode behavior, supported links, colors and emoji before moving a shared markup string.
 - ConsoleMonster chooses color depth and glyph tier for the host, including ASCII and plain output. A Nerd Font is not required; literal emoji still depend on your terminal and font.
-- Spectre renderables, custom renderers and extensions need rewriting against `IWidget`. Calendar and custom Figlet-font use have no direct migration. Check the [roadmap](https://github.com/EvotecIT/ConsoleMonster/blob/master/ROADMAP.md) for planned capabilities; an item there is not an implemented feature.
+- Spectre renderables, custom renderers and extensions need rewriting against `IWidget`. Calendar maps to the marked month/year widget; custom Figlet fonts have no direct migration. Check the [roadmap](https://github.com/EvotecIT/ConsoleMonster/blob/master/ROADMAP.md) for planned capabilities; an item there is not an implemented feature.
 
 ## What you get beyond this API mapping
 

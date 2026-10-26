@@ -2,9 +2,9 @@
 
 **Approved, 25 October 2026.** [Round 1](api-consistency-proposal.md) establishes names, parameter vocabulary, accelerator ownership and the Markdown package boundary. This document proposes the next breaking pass. The examples and signatures below describe the proposed API, except where explicitly labelled current.
 
-The approved #55 baseline remains **136 → 97**. With #58 now merged, the expanded surface is **141 → 98** (46 retired names and three introduced), retaining Flow as one distinct construction job. The integration record below identifies the added contracts.
+The approved #55 baseline remains **136 → 97**. With the feature PRs merged at master `dd5d7ce`, the expanded surface is **144 → 101** (46 retired names and three introduced). Flow, Calendar, Command and ScrollView each remain one distinct construction job. The integration record below identifies their contracts.
 
-I recommend **136 → 97 exported cmdlets**, a reduction of 39 (28.7%). That retires 42 current names and introduces three: `Update-Console`, `New-ConsoleChart` and `New-ConsoleLayoutGrid`. The last is a clarifying rename with no effect on the total. There are no compatibility aliases, parameter aliases or obsolete forwarding methods. Show-ConsoleTable and Show-ConsoleList remain idiomatic shortcuts, sharing the Show-Console view implementation. Constructors and display remain separate operations.
+For the original #55 surface I recommended **136 → 97 exported cmdlets**, a reduction of 39 (28.7%). That retires 42 current names and introduces three: `Update-Console`, `New-ConsoleChart` and `New-ConsoleLayoutGrid`. The last is a clarifying rename with no effect on the total. There are no compatibility aliases, parameter aliases or obsolete forwarding methods. Show-ConsoleTable and Show-ConsoleList remain idiomatic shortcuts, sharing the Show-Console view implementation. Constructors and display remain separate operations.
 
 Round 1's other rules stay: no compatibility shims, American public spelling, only the 13 fully qualified accelerators on import with no generic or automatically discovered additions, Width 0 resolved with a 100-cell fallback, distinct BarWidth/Weight, numeric PowerShell durations and non-default switches. Markdown display/export stays in ConsoleMonster.Markdown.
 
@@ -502,17 +502,17 @@ Przemysław approved this scope on **2026-10-25**, including the three amendment
 
 ### Parallel PR ownership and added-command disposition
 
-The 97-command target is the merged #55 baseline. I inspected the open feature branches without changing them. Their PRs own their feature behavior and rebase/migration after whichever PR lands first; this PR owns the shared round-2 command, fluent, parity and triplet contracts.
+The 97-command target is the merged #55 baseline. I inspected the feature APIs without changing their branches. Their merged PRs own the feature behavior; this PR incorporates their shared round-2 command, fluent, parity and triplet contracts.
 
 | Feature owner | Added surface → round-2 disposition | Follow-up owner |
 | --- | --- | --- |
 | #54 everyday views, merged | No added cmdlets; reuse Show-Console views and the same Table/List shortcuts. | Integrated here: this PR preserves the merged formatting adapters, registered views and gallery while applying the round-2 contracts. |
 | #57 GIF slide exports, merged | No added cmdlets; GIF stays an Export-ConsoleFrame/Recording format, with the same fluent Export ending and add-on dispatch. | Integrated here: #57 owns GIF/pacing behavior; this PR maps the merged playback controls, numeric durations, typed Options and ChapterSpeeds into the parity catalog and generated fluent/reference surface. |
 | #58 flow/TLS, merged | New-ConsoleFlow → keep the distinct flow constructor; Update-ConsoleFlow → Update-Console node/edge structural sets; New-ConsoleFlowNode/Edge/Branch → documented Nodes/Edges/Branches records on the parent. The three item commands only constructed passive records. | Integrated here: this PR preserves Flow validation/rendering and the TLS demo, and supplies the shared update validator, record binding, fluent names and three source styles. |
-| #59 calendars | New-ConsoleCalendar → keep; its existing View selects month/year, so no separate command per view. | #59 owns calendar behavior and its operations-calendar demo, then adds its options and three styles to the shared parity/triplet contract. If it lands first, include that migration here. |
-| #60 full-screen phase 2 | New-ConsoleCommand stays as a behavior-bearing asynchronous app action; New-ConsoleScrollView stays as a distinct scroll container, sharing ContainerCmdlet and Content(widget)/Content(builder). Its current separate Widget parameter folds into pipeline Content. Show-ConsoleApp -Command/-SelectionKey, New-ConsoleButton -Command and Show-ConsoleGrid -Action join the existing owners and parity map. Future Tabs use the same Content grammar. | #60 owns these new interactions and the migration if it lands after round 2; if it lands first, this PR incorporates the two constructors and their parity/triplet coverage. No edits are made to that branch. |
+| #59 calendars, merged | New-ConsoleCalendar → keep; its existing View selects month/year, so no separate command per view. | #59 owns calendar behavior. This PR adds the shared object-adapter options, parity routes, generated fluent style and operations-calendar triplet. |
+| #60 full-screen phase 2, merged | New-ConsoleCommand stays as a behavior-bearing asynchronous app action; New-ConsoleScrollView stays as a distinct scroll container, sharing ContainerCmdlet and Content(widget)/Content(builder). Its current separate Widget parameter folds into pipeline Content. Show-ConsoleApp -Command/-SelectionKey, New-ConsoleButton -Command and Show-ConsoleGrid -Command/-RefreshRow join the existing owners and parity map. Future Tabs use the same Content grammar. | #60 owns the interactions. This PR incorporates both constructors, shared command collections, ScrollView content grammar, row refresh and service-browser triplet. No edits are made to that branch. |
 
-With #58 integrated, this branch is **141 → 98**. If #59 lands before round 2 with its present command list, the expanded starting count is 142 and the same treatment leaves **99** (97 plus Flow and Calendar). That does not justify retaining passive item/update commands or changing another branch from this worktree.
+With all named feature PRs integrated, this branch is **144 → 101**: the original 97 plus Flow, Calendar, Command and ScrollView. The smaller surface comes from retiring 46 current names and introducing the three consolidated names. The new features do not retain separate passive item or update commands.
 
 ### Implementation clarification — 2026-10-25
 
@@ -661,7 +661,7 @@ The following inventory is the count check for this proposal. A kept name can st
 | `Write-ConsoleProgress` | `Native Write-Progress through scoped/explicit integration`; retire this name. |
 | `Write-ConsoleText` | Keep. |
 
-**New names:** `Update-Console`, `New-ConsoleChart`, `New-ConsoleLayoutGrid`. **Kept current names:** 94. **Retired current names:** 42. **Final total:** 97.
+**New names:** `Update-Console`, `New-ConsoleChart`, `New-ConsoleLayoutGrid`. **Kept current names:** 94. **Retired current names:** 42. **Original #55 baseline total:** 97; the merged feature integration totals 101.
 
 ## Sources and design constraints
 
@@ -692,3 +692,23 @@ The generic-host and ILogger integrations keep their .NET lifetimes. Their Power
 Custom RecordView sections and a fixed-scale data-bar presenter use the labelled direct-object form in PowerShell. Ordinary table examples use presenter names and pipeline records. This keeps the advanced C# composition available without adding another item or display cmdlet, or registering more type accelerators.
 
 The packaged-template check compiles both gallery C# files against actual locally packed libraries in an isolated NuGet consumer cache. Generated reader projects keep their package references. The check covers all28 gallery demos, including the merged TLS verdict, and source-folder installation; it does not replace a reader's package references with project references. Native AOT proof covers nested Content and the Show/Export endings. Project-launcher tests pass an ordinary finite .NET project through the documented Project parameter, while the site's real captures exercise the generic host's service lifetime.
+
+
+### Final merged-feature disposition — 2026-10-26
+
+I rebased onto `dd5d7ce`, including #54, #57, #58, #59, #60, #62, #63 and #65. The current master exports **144** commands; this pass exports **101**, with no compatibility aliases or obsolete forwarding methods. The extra four jobs beyond the original 97 are explicit in this table.
+
+| Family / before | After | Job and parity decision | Blast radius |
+| --- | --- | --- | --- |
+| Flow: New-ConsoleFlowNode / Edge / Branch, Update-ConsoleFlow | New-ConsoleFlow with ordinary node/edge/branch records; Update-Console for live changes | One flow builder and the common update operation; item keys and widget handles retain distinct names. | Core, cmdlets, TLS demo triplet, metadata and help |
+| New-ConsoleCalendar | Keep; View Month / Year | A passive marked-date display. The host adapter shares Year, Month, member selectors and display options with C#; portable C# uses CalendarMark and Calendar directly. | Core/host parity, operations-calendar triplet, coming-from guides, tests/help |
+| Read-ConsoleDate | No shipped command at this master; present only in the full-screen phase 3 plan | Date selection is a separate interactive job, not a calendar display alias. It does not contribute to either shipped count. | Proposal cross-reference; no compatibility shim or fabricated migration equivalent |
+| New-ConsoleCommand | Keep | Defines one isolated asynchronous action, executed by an app, button or grid. ConsoleHostCommands.Create shares the PowerShell operation definition; plain C# uses AppCommand with a typed action. | Core/host parity, public host options, tests/help |
+| Show-ConsoleGrid -Action / -Refresh; C# options.Commands | Show-ConsoleGrid -Command / -RefreshRow; C# GridOptions.Command / RefreshRow | The same action collection and row-refresh names across grids and apps. Script-block shorthand is a host adapter for the same AppCommand definitions. | Core, cmdlets, service-browser triplet, docs, tests/help |
+| Show-ConsoleApp -Command / -SelectionKey; C# Commands / Selection | Shared Command collection and SelectionKey; native Selection delegate remains an explicit C# host choice | SelectionKey captures one row or a collection from state. Native dispatchers and custom selection delegates are documented C# host policies. | Core, cmdlets, metadata, callbacks and selection tests |
+| New-ConsoleButton -Command | Keep, routed through AppInput.Button | A persistent control bound to the same action definition; its command label survives unless Label overrides it. | Core factory, cmdlet, regression tests/help |
+| New-ConsoleScrollView -Content / -Widget | One Content parameter accepting pipeline values or a script block | One scroll container, collected once. C# uses Content(widget) or Content(builder), with the same Show/Export endings. | Core, cmdlet, AOT, content tests/help |
+| Steps and key/value layouts | Keep on New-ConsolePhases / New-ConsoleKeyValue and New-ConsoleColumnFormat | Layout, number columns, spacing and value formatting configure their existing owners; they add no item constructors or display commands. | Parity map, samples, help and pipeline tests |
+| Coming-from guides' calendar gap and old names | Calendar / New-ConsoleCalendar equivalents and the consolidated names | Describe the actual shipped display capability; date picking, Figlet fonts and command-line parsing retain their separate status. | Guide sources, executable examples and website |
+
+The final parity catalog has **101 commands, 1,067 parameters and 293 reachable public types**. Read-only command collections translate as `-Command` ↔ `Command = { … }` ↔ `.AddCommand(…)`; the metadata test resolves the named fluent method. Both newly merged demos ship PowerShell, initializer and fluent sources, initial-DOM tabs, generated translation notes and triplet output checks.

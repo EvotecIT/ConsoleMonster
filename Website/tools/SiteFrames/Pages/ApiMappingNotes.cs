@@ -57,6 +57,7 @@ namespace SiteFrames.Pages {
                 JsonObject source = command["Bindings"]!.AsArray().Select(node => node!.AsObject())
                     .Single(node => node["Parameter"]!.GetValue<string>() == route["Parameter"]!.GetValue<string>());
                 JsonObject binding = (JsonObject)source.DeepClone();
+                binding["CSharpType"] = route["CSharpType"]!.GetValue<string>();
                 binding["Member"] = route["Member"]!.GetValue<string>();
                 binding["CSharpTypeName"] = route["CSharpTypeName"]!.GetValue<string>();
                 binding["Reason"] = route["Reason"]!.GetValue<string>();
@@ -79,6 +80,7 @@ namespace SiteFrames.Pages {
                 string? valueType = binding["CSharpTypeName"]?.GetValue<string>();
                 bool callback = valueType?.StartsWith("System.Action", StringComparison.Ordinal) == true || valueType?.StartsWith("System.Func", StringComparison.Ordinal) == true;
                 JsonObject? callbackRule = callback ? map["FluentExceptions"]!.AsArray().Single(rule => rule!["Kind"]!.GetValue<string>() == "DelegateProperty")!.AsObject() : null;
+                string? collectionAdd = binding["FluentMember"]?.GetValue<string>();
                 if (callbackRule != null) { note = (note == null ? string.Empty : note + " ") + callbackRule["Reason"]!.GetValue<string>(); }
                 if (valueType != null && typeof(ConsoleMonster.Terminal).Assembly.GetType(valueType)?.IsEnum == true) {
                     string owner = binding["CSharpType"]!.GetValue<string>();
@@ -88,8 +90,9 @@ namespace SiteFrames.Pages {
                 result.Add(new JsonObject {
                     ["powershell"] = recordField == null ? row.Value.Command + (binding["ParameterSet"]?.GetValue<string>() == "Run" ? " -Run …" : string.Empty) + " -" + parameter + (isSwitch ? string.Empty : " …")
                         : "@{ " + recordKind + recordField + " = … } | " + row.Value.Command,
-                    ["csharp"] = member + " = " + value,
-                    ["fluent"] = callbackRule == null ? "." + member + "(" + value + ")" : callbackRule["Pattern"]!.GetValue<string>().Replace("{Member}", member, StringComparison.Ordinal),
+                    ["csharp"] = member + " = " + (collectionAdd == null ? value : "{ " + value + " }"),
+                    ["fluent"] = collectionAdd != null ? "." + collectionAdd + "(" + value + ")"
+                        : callbackRule == null ? "." + member + "(" + value + ")" : callbackRule["Pattern"]!.GetValue<string>().Replace("{Member}", member, StringComparison.Ordinal),
                     ["memberId"] = row.Key,
                     ["note"] = note
                 });

@@ -31,7 +31,7 @@ ConsoleMonster lets the same rendering script run on Windows PowerShell 5.1 and 
 | `Format-SpectreBreakdownChart` | `New-ConsoleChart -Type Stacked` | Proportions, with ConsoleMonster's own legend/layout. |
 | `Format-SpectreGrid`, `Format-SpectreColumns`, `Format-SpectreRows` | `New-ConsoleLayoutGrid`, `New-ConsoleColumns`, `New-ConsoleRows` | Definitions; pipe the result to `Show-Console`. |
 | `Format-SpectreJson`, `Format-SpectreException` | `Show-Console -View Json`, `Show-Console -View Error` | Display JSON or an error; do not emit new error records. |
-| `Write-SpectreCalendar` | No direct equivalent | See the [roadmap](https://github.com/EvotecIT/ConsoleMonster/blob/master/ROADMAP.md). |
+| `Write-SpectreCalendar` | `New-ConsoleCalendar` then `Show-Console` | Month/year display with dated outcome rows; see the [operations calendar](/demos/operations-calendar/). |
 
 </div>
 
@@ -239,7 +239,7 @@ $servers | Show-Console -View Chart -Label Name -Property Pending -Type Bar
 - `Show-* -AsString` and `-AsWidget` suppress host display. Export commands own file formats. The native PowerShell pipeline remains objects until a deliberate display/export boundary.
 - PowerShell 5.1 uses the .NET Framework build; PowerShell 7 isolates the binary module in its own assembly load context. Test scripts on the hosts you support; running in PowerShell 7 does not establish native 5.1 proof.
 - A Nerd Font is unnecessary for built-in rendering. ASCII/plain fallback is available; custom glyphs and emoji still need a font that contains them.
-- No automatic conversion exists for Spectre renderables, Figlet fonts or calendar output. Check the [roadmap](https://github.com/EvotecIT/ConsoleMonster/blob/master/ROADMAP.md) before replacing those paths.
+- No automatic conversion exists for Spectre renderables or Figlet fonts. Calendar output uses `New-ConsoleCalendar` with a month or year view. Check the [roadmap](https://github.com/EvotecIT/ConsoleMonster/blob/master/ROADMAP.md) before replacing those paths.
 
 ## Sources and next steps
 
