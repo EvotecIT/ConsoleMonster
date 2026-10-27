@@ -16,7 +16,7 @@ namespace ConsoleMonster.PowerShell {
             BoundColumn value = BindChartColumn(items, property);
             value.FormatString = null;
             BoundColumn? label = Type == ChartType.Histogram ? null : BindChartColumn(items, Label);
-            if ((Property == null || Property.Length == 0) && items.Count > 0 && !HasNumber(items, value) && !items.Any(HasValueMember)) {
+            if ((Property == null || Property.Length == 0) && items.Count > 0 && !items.Any(HasValueMember) && !HasNumber(items, value)) {
                 // Without -Property the chart reads Value; one hint naming the numeric columns beats an error per row.
                 var numeric = new List<string>();
                 foreach (PSPropertyInfo candidate in items[0].Properties) {

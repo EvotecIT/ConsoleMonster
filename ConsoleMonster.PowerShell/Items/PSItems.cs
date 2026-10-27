@@ -321,7 +321,8 @@ namespace ConsoleMonster.PowerShell {
 
         private static bool TryAddRow(LiveTable table, object item, string? keyProperty, out string? problem) {
             try {
-                table.Add(item, keyProperty, Binding.PSShaping.Options());
+                Live.ConsoleTableRow row = Binding.TableBindings.Project(table, item, keyProperty);
+                table.Set(row.Key, row.Values);
                 problem = null;
                 return true;
             } catch (ArgumentException error) {

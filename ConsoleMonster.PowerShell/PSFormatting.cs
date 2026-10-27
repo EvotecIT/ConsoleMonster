@@ -158,6 +158,7 @@ namespace ConsoleMonster.PowerShell {
             Table table = new Table { GroupHeadersAsRows = view?.GroupHeadersAsRows == true };
             foreach (BoundColumn column in columns) {
                 table.AddColumn(column.Column);
+                TableBindings.Remember(column);
             }
             if (options.Total) {
                 MarkNumericTotals(columns, rows);
@@ -582,7 +583,7 @@ namespace ConsoleMonster.PowerShell {
         }
 #pragma warning restore IL2026
 
-        private static object?[] Values(IReadOnlyList<BoundColumn> columns, PSObject item, ShapeOptions shape, ShapeBudget budget, out object? identity) {
+        internal static object?[] Values(IReadOnlyList<BoundColumn> columns, PSObject item, ShapeOptions shape, ShapeBudget budget, out object? identity) {
             object?[] values = new object?[columns.Count];
             object? key = null;
             for (int c = 0; c < columns.Count; c++) {

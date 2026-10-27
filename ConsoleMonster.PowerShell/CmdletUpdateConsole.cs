@@ -248,7 +248,7 @@ namespace ConsoleMonster.PowerShell {
             if (key == null || values == null) {
                 // Not a live table (or an unknown id): an empty row lets the shared validator name the real problem.
                 if (value == null || !session.TryGetTarget(widgetId, out ILiveTarget? target) || !(target is Widgets.LiveTable table)) { return new ConsoleTableRow(); }
-                return table.Project(source, null, Binding.PSShaping.Options());
+                return Binding.TableBindings.Project(table, source);
             }
             var cells = new List<object?>();
             if (values is IEnumerable sequence && !(values is string)) { foreach (object? cell in sequence) { cells.Add(PSText.Unwrap(cell)); } }

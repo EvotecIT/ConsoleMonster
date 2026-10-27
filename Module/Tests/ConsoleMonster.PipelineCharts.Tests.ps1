@@ -189,6 +189,16 @@ Describe 'ConsoleMonster pipeline charts' {
         ($servers | Show-Console -View Chart -Property Cpu -AsWidget).Samples.Count | Should -Be 2
     }
 
+    It 'charts the first reading of a Value script property exactly once' {
+        $script:chartValueReads = 0
+        $item = [pscustomobject] @{ Name = 'sample' }
+        $item | Add-Member ScriptProperty Value { $script:chartValueReads++; $script:chartValueReads }
+        $chart = $item | Show-Console -View Chart -AsWidget
+        $chart.Samples.Count | Should -Be 1
+        $chart.Samples[0].Value | Should -Be 1
+        $script:chartValueReads | Should -Be 1
+    }
+
     It 'offers only the chart kinds a single property can draw' {
         (Get-Command Show-Console).Parameters['Type'].Attributes.Where({ $_ -is [ValidateSet] }).ValidValues | Should -Be @('Bar', 'Histogram', 'Sparkline')
         { 1, 2 | Show-Console -View Chart -Type Line } | Should -Throw '*Line*does not belong to the set*'

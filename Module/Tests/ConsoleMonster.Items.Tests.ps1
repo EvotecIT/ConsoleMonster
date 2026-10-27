@@ -156,6 +156,20 @@ if ([regex]::Matches($text, 'leaf').Count -ne 2) { throw 'Shared content was rej
             $script:liveIdentityReads | Should -Be 2
         }
 
+        It 'adds ordinary live rows with the original calculated bindings and formatting' {
+            $script:liveUpdateReads = 0
+            $table = [pscustomobject] @{ Server = 'web01'; Cpu = 3 } | New-ConsoleTable -Live -KeyProperty Server -Property @(
+                'Server'
+                @{ Name = 'CPU %'; Expression = 'Cpu'; FormatString = 'F1' }
+                @{ Name = 'Doubled'; Expression = { $script:liveUpdateReads++; $_.Cpu * 2 }; FormatString = 'F1' }
+            )
+            $null = $table | Add-ConsoleItem ([pscustomobject] @{ Server = 'web02'; Cpu = 5 }) -PassThru
+            $script:liveUpdateReads | Should -Be 2
+            $text = $table | Get-WidgetText
+            $text | Should -Match 'web02\s*[\u2502|]\s*5[.,]0\s*[\u2502|]\s*10[.,]0'
+            $table.Keys | Should -Be @('web01', 'web02')
+        }
+
         It 'keeps record values literal unless a presenter is explicit' {
             $literal = [pscustomobject]@{ Key = 'Install folder'; Value = './toolbox-agent' } | New-ConsoleKeyValue
             $literal.Items[0].Cell | Should -BeNullOrEmpty

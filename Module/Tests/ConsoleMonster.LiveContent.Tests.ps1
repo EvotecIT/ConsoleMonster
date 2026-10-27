@@ -90,6 +90,24 @@ Invoke-ConsoleDashboard $d {
         $text | Should -Match 'E2 ProgressBar does not support Row'
     }
 
+    It 'updates ordinary live rows with calculated and renamed columns intact' {
+        $text = Invoke-ContentChild -Script @'
+$table = [pscustomobject] @{ Server = 'web01'; Cpu = 3 } | New-ConsoleTable results -Live -KeyProperty Server -Property @(
+    'Server'
+    @{ Name = 'CPU %'; Expression = 'Cpu'; FormatString = 'F1' }
+    @{ Name = 'Doubled'; Expression = { $_.Cpu * 2 }; FormatString = 'F1' }
+)
+$dashboard = New-ConsoleDashboard -Title 'Health' -Content { $table }
+Invoke-ConsoleDashboard $dashboard {
+    Update-Console results -Row ([pscustomobject] @{ Server = 'web01'; Cpu = 12 })
+    Update-Console results -Row @{ Server = 'web02'; Cpu = 5 }
+}
+$table | Export-ConsoleFrame -Format Text -Width 70
+'@
+        $text | Should -Match 'web01\s+12\.0\s+24\.0'
+        $text | Should -Match 'web02\s+5\.0\s+10\.0'
+    }
+
     It 'returns the output of a script block as a string with Use-ConsoleTarget' {
         $text = Invoke-ContentChild -Script @'
 $captured = Use-ConsoleTarget -Width 30 {
