@@ -35,7 +35,7 @@ Certificate
 Expires  in 22 d
 
 ad.evotec.xyz
-`-- [PASS] Site Warsaw
+`-- [OK] Site Warsaw
     `-- [WARN] SRV01  2 warnings
 
 [WARN] DNS scavenging                                     7 days

@@ -76,7 +76,7 @@ cards and dialogs always use Accent.
 
 | Status | Symbol (Full/Basic) | Symbol (ASCII) | Marker (ASCII) | Role |
 |---|---|---|---|---|
-| pass | ✓ | + | [PASS] | Pass |
+| pass | ✓ | + | [OK] | Pass |
 | warn | ▴ | ! | [WARN] | Warn |
 | fail | ✗ | x | [FAIL] | Fail |
 | skip | – | - | [SKIP] | Skip |
@@ -88,6 +88,16 @@ cards and dialogs always use Accent.
 marker for status columns (status lists, phases, the dashboard header). `RenderContext.Spinner()` is the running
 symbol for live widgets, so lanes, phases, status lists, activities and spinners turn together. Destructive questions
 use the warn symbol in the Warn colour.
+
+For an emoji or application symbol, `SymbolFallback.GetGlyph(symbol, tier)` returns one complete cell on Basic/ASCII.
+`GetPrefix` reserves that cell and a separate space (three cells for Full emoji). These APIs never truncate a prose
+token such as `[doc]` or a face such as `:(`. ASCII success uses `+` for a cell and `[OK]` for a readable status badge.
+
+`SymbolFallback.Apply` is for prose: it keeps badges, replaces whole Unicode graphemes (including ZWJ sequences),
+and pads a narrower emoji replacement before adjacent text. Existing spaces are retained without doubling them.
+Basic/ASCII have a generic fallback for unknown emoji; ASCII decorative fallbacks are printable 7-bit text.
+Ordinary multilingual content is preserved. Full keeps the original symbols. Hint (`*`) and search (`?`) remain
+distinct from warning (`!`). Styled text follows the same rules across span boundaries.
 
 ## Icons (`GlyphIcon`)
 

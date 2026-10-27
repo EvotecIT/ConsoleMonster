@@ -60,7 +60,7 @@ namespace ConsoleMonster.Glyphs {
                 [BoxStyle.Ascii] = new BoxGlyphs(BoxStyle.Ascii, "+-+|+++++++"),
                 [BoxStyle.None] = new BoxGlyphs(BoxStyle.None, "           ")
             },
-            new[] { "[WAIT]", "[BUSY]", "[PASS]", "[FAIL]", "[WARN]", "[SKIP]", "[INFO]" },
+            new[] { "[WAIT]", "[BUSY]", "[OK]", "[FAIL]", "[WARN]", "[SKIP]", "[INFO]" },
             new[] { "", "", "", "", "", "", "", "#" },
             new[] { "", "", "", ".", ".", ".", ".", "#" },
             new[] { " ", ".", ":", "-", "=", "+", "*", "#", "@" },
