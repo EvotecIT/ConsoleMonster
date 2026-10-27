@@ -27,14 +27,11 @@ concurrency:
 
 jobs:
   deploy:
-    uses: EvotecIT/PSPublishModule/.github/workflows/powerforge-website-deploy.yml@a59da372d66af663a6591a9e7d4d9aa3abc4547c
+    uses: EvotecIT/PSPublishModule/.github/workflows/powerforge-website-deploy.yml@actions-next
     with:
       website_root: Website
-      dotnet_version: |
-        8.0.x
-        10.0.x
       pipeline_config: Website/pipeline.json
       site_output_path: Website/_site
       powerforge_lock_path: ./Website/.powerforge/engine-lock.json
-      powerforge_repository_override: ${{ vars.POWERFORGE_REPOSITORY }}
-      powerforge_ref_override: ${{ vars.POWERFORGE_REF }}
+      powerforge_repository: EvotecIT/PSPublishModule
+      powerforge_ref: actions-next
