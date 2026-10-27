@@ -21,22 +21,12 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            var pattern = new WildcardPattern(Slug, WildcardOptions.IgnoreCase | WildcardOptions.CultureInvariant);
-            bool found = false;
-            foreach (string slug in PSDemoResources.Slugs()) {
-                if (!pattern.IsMatch(slug)) { continue; }
-                found = true;
-                foreach (PSObject metadata in InvokeCommand.InvokeScript(
-                    "param($json) Microsoft.PowerShell.Utility\\ConvertFrom-Json -InputObject $json -ErrorAction Stop",
-                    true, System.Management.Automation.Runspaces.PipelineResultTypes.None, null, PSDemoResources.Metadata(slug))) {
-                    WriteObject(metadata);
-                }
+            try {
+                foreach (PSObject metadata in ConsoleGallery.List(Slug, InvokeCommand)) { WriteObject(metadata); }
+            } catch (ItemNotFoundException error) {
+                ThrowTerminatingError(new ErrorRecord(error, "ConsoleDemoNotFound", ErrorCategory.ObjectNotFound, Slug));
             }
-            if (!found && !WildcardPattern.ContainsWildcardCharacters(Slug)) { NotFound(); }
         }
 
-        private void NotFound() => ThrowTerminatingError(new ErrorRecord(
-            new ItemNotFoundException("Unknown ConsoleMonster demo '" + Slug + "'. Use Get-ConsoleDemo to list available slugs."),
-            "ConsoleDemoNotFound", ErrorCategory.ObjectNotFound, Slug));
     }
 }

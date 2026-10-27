@@ -16,12 +16,22 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(Mandatory = true, Position = 0)] public LiveRun Run { get; set; } = null!;
         /// <summary><para type="description">Return the final structured snapshot.</para></summary>
         [Parameter] public SwitchParameter PassThru { get; set; }
+        /// <summary><para type="description">Wait for all reported items before finalizing. Cancellation or timeout leaves unfinished work open.</para></summary>
+        [Parameter] public SwitchParameter Wait { get; set; }
+        /// <summary><para type="description">Maximum wait in seconds, including fractions; requires Wait. Omitted waits until completion.</para></summary>
+        [Parameter, ValidateRange(0, double.MaxValue)] public double? TimeoutSeconds { get; set; }
         /// <inheritdoc />
         protected override void EndProcessing() {
+            if (TimeoutSeconds.HasValue && !Wait.IsPresent) { throw new ArgumentException("TimeoutSeconds requires Wait."); }
+            if (Wait.IsPresent && !Run.Wait(TimeoutSeconds.HasValue ? TimeSpan.FromSeconds(TimeoutSeconds.Value) : (TimeSpan?)null, pump: () => LiveRunHostQueues.Drain(Run, this))) {
+                throw new TimeoutException("Run items did not finish within TimeoutSeconds. The run remains open.");
+            }
             RunSnapshot snapshot = Run.Complete();
             LiveRunHostQueues.Drain(Run, this, true);
             if (PassThru.IsPresent) { WriteObject(snapshot); }
         }
+        /// <inheritdoc />
+        protected override void StopProcessing() { Run?.Cancel(); }
     }
 
     // The existing host writer queues from the render thread; only a cmdlet's pipeline thread writes host records.

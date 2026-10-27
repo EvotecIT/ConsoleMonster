@@ -11,7 +11,7 @@
   function langChoice(preferred, available) {
     var has = function (name) { return available.indexOf(name) >= 0; };
     var lang = has(preferred) || !available.length ? preferred : available[0];
-    return { lang: lang, unavailable: { powershell: available.length > 0 && !has('powershell'), csharp: available.length > 0 && !has('csharp') } };
+    return { lang: lang, unavailable: { powershell: available.length > 0 && !has('powershell'), csharp: available.length > 0 && !has('csharp'), 'csharp-fluent': available.length > 0 && !has('csharp-fluent') } };
   }
   // </lang-choice>
   document.querySelectorAll('[data-cm-theme-toggle]').forEach(function (button) {
@@ -259,32 +259,46 @@
     });
   });
 
-  // The reader's language, PowerShell or C#: one choice for every page, kept in <html data-lang> (set before the page
+  // The reader's source style, PowerShell, C# or C# fluent: one choice for every page, kept in <html data-lang> (set before the page
   // draws by partials/head.html) and in localStorage when it can be. Try-it switches ([data-cm-lang-switch], a radio
   // group) show the chosen language's code through CSS; tabs that name a language (data-cm-lang, such as the home
   // page's install line) select the matching tab.
-  var langs = { powershell: true, csharp: true };
+  var langs = { powershell: true, csharp: true, 'csharp-fluent': true };
   // A PowerShell excerpt followed by its C# twin (.cm-lang blocks on docs pages) gets a switch of its own.
   document.querySelectorAll('.cm-lang[data-lang="powershell"]').forEach(function (ps) {
     var cs = ps.nextElementSibling;
     if (!cs || !cs.matches('.cm-lang[data-lang="csharp"]')) return;
+    var fluent = cs.nextElementSibling;
+    if (!fluent || !fluent.matches('.cm-lang[data-lang="csharp-fluent"]')) fluent = null;
     var pair = document.createElement('div');
     pair.className = 'cm-langpair';
     pair.innerHTML = '<div class="cm-try__bar"><div class="cm-seg cm-try__lang" role="radiogroup" aria-label="Language" data-cm-lang-switch hidden>' +
       '<button type="button" role="radio" aria-checked="true" data-lang="powershell" style="--key: var(--cm-s3)">PowerShell</button>' +
-      '<button type="button" role="radio" aria-checked="false" data-lang="csharp" style="--key: var(--cm-s5)">C#</button></div></div>';
+      '<button type="button" role="radio" aria-checked="false" data-lang="csharp" style="--key: var(--cm-s5)">C#</button>' +
+      (fluent ? '<button type="button" role="radio" aria-checked="false" data-lang="csharp-fluent" style="--key: var(--cm-s5)">C# fluent</button>' : '') + '</div></div>';
     ps.parentNode.insertBefore(pair, ps);
     pair.appendChild(ps);
     pair.appendChild(cs);
+    if (fluent) pair.appendChild(fluent);
   });
-  var currentLang = function () { return root.dataset.lang === 'csharp' ? 'csharp' : 'powershell'; };
+  var currentLang = function () { return langs[root.dataset.lang] ? root.dataset.lang : 'powershell'; };
   var langTabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"][data-cm-lang]'));
   // The languages the switch's example has: a Try it block's shown example names them (data-langs); a demo's source or
   // a pair of excerpts has both.
+  var sourceScopeSelector = '.cm-langpair, .cm-try__scenario, .cm-demo__source, .cm-reel-sec';
+  var sourcePaneSelector = '.cm-lang[data-lang], .cm-try__code[data-lang], .cm-reel__cmd[data-lang], .cm-reel-shortcut__cmds[data-lang]';
+  var panesOf = function (scope) {
+    return Array.prototype.filter.call(scope.querySelectorAll(sourcePaneSelector), function (pane) {
+      return pane.closest(sourceScopeSelector) === scope;
+    });
+  };
   var languagesOf = function (group) {
     var block = group.closest('.cm-try');
     var shown = block ? Array.prototype.filter.call(block.querySelectorAll('.cm-try__scenario[data-langs]'), function (s) { return !s.hidden; })[0] : null;
-    return shown ? shown.getAttribute('data-langs').split(' ').filter(Boolean) : ['powershell', 'csharp'];
+    if (shown) return shown.getAttribute('data-langs').split(' ').filter(Boolean);
+    var pair = group.closest('.cm-langpair');
+    var scope = pair || group.closest(sourceScopeSelector);
+    return scope ? panesOf(scope).map(function (pane) { return pane.getAttribute('data-lang'); }) : ['powershell', 'csharp', 'csharp-fluent'];
   };
   var syncLang = function () {
     var lang = currentLang();
@@ -300,8 +314,19 @@
         if (option.disabled) option.setAttribute('aria-disabled', 'true'); else option.removeAttribute('aria-disabled');
       });
     });
+    // Resolve each source independently. Installation snippets may have fewer styles than a complete demo;
+    // a remembered fluent choice must not leave those existing snippets blank or alter the stored preference.
+    document.querySelectorAll(sourceScopeSelector).forEach(function (scope) {
+      var panes = panesOf(scope);
+      var choice = langChoice(lang, panes.map(function (pane) { return pane.getAttribute('data-lang'); }));
+      panes.forEach(function (pane) {
+        var selected = pane.getAttribute('data-lang') === choice.lang;
+        pane.hidden = !selected;
+        pane.style.display = selected ? (pane.matches('.cm-try__code, .cm-reel-steps, .cm-reel-shortcut__cmds') ? 'grid' : 'block') : 'none';
+      });
+    });
     langTabs.forEach(function (tab) {
-      if (tab.getAttribute('data-cm-lang') === lang && tab.getAttribute('aria-selected') !== 'true' && tab.cmSelect) tab.cmSelect(tab, false);
+      if (tab.getAttribute('data-cm-lang') === (lang === 'csharp-fluent' ? 'csharp' : lang) && tab.getAttribute('aria-selected') !== 'true' && tab.cmSelect) tab.cmSelect(tab, false);
     });
   };
   var setLang = function (lang) {
@@ -319,10 +344,12 @@
       option.addEventListener('click', function () { if (option.getAttribute('aria-checked') !== 'true') setLang(option.getAttribute('data-lang')); });
       option.addEventListener('keydown', function (event) {
         var step = /^(ArrowRight|ArrowDown)$/.test(event.key) ? 1 : /^(ArrowLeft|ArrowUp)$/.test(event.key) ? -1 : 0;
-        if (!step) return;
+        if (!step && event.key !== 'Home' && event.key !== 'End') return;
         event.preventDefault();
-        var next = options[(index + step + options.length) % options.length];
-        if (next.disabled) return;
+        var enabled = options.filter(function (candidate) { return !candidate.disabled; });
+        var position = enabled.indexOf(option);
+        var next = event.key === 'Home' ? enabled[0] : event.key === 'End' ? enabled[enabled.length - 1] : enabled[(position + step + enabled.length) % enabled.length];
+        if (!next) return;
         setLang(next.getAttribute('data-lang'));
         next.focus();
       });

@@ -10,10 +10,10 @@ $dashboard = New-ConsoleDashboard -Title 'Patching the web farm' -Content {
 $servers | Invoke-ConsoleDashboard $dashboard -Parallel -ThrottleLimit 12 {
     param($Server)
     foreach ($step in 'copying', 'stopping', 'swapping', 'starting') {
-        Update-ConsoleLane -WidgetId servers -Key $Server -Status Running -Detail $step
+        Update-Console -WidgetId servers -Key $Server -Status Running -Detail $step
         Start-Sleep -Milliseconds (Get-Random -Minimum 40 -Maximum 240)
-        Update-ConsoleLane -WidgetId servers -Key $Server -Result Pass
+        Update-Console -WidgetId servers -Key $Server -Result Pass
     }
     Write-Host "$Server done"
-    Update-ConsoleLane -WidgetId servers -Key $Server -Complete
+    Update-Console -WidgetId servers -Key $Server -Complete
 }

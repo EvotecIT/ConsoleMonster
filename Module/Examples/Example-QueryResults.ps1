@@ -3,7 +3,7 @@
 # DNS and mail-security query results, printed once (no live view).
 # Works the same in Windows Terminal, conhost, redirected output and CONSOLEMONSTER_MODE=plain.
 
-Show-ConsoleRule '[bold]DNS query results[/] [muted]· evotec.xyz[/]'
+Show-Console -Title '[bold]DNS query results[/] [muted]· evotec.xyz[/]' -View Rule
 
 [ordered] @{
     Domain       = 'evotec.xyz'
@@ -42,10 +42,10 @@ $checks = New-ConsoleStatusList -InputObject ([ordered] @{
         'BIMI record'                  = 'skip'
     })
 
-$latency = New-ConsoleBarChart -WidgetId latency -Unit ' ms' -InputObject ([ordered] @{ Cloudflare = 12; Google = 18; Quad9 = 24; OpenDNS = 31 })
+$latency = New-ConsoleChart -WidgetId latency -Unit ' ms' -InputObject ([ordered] @{ Cloudflare = 12; Google = 18; Quad9 = 24; OpenDNS = 31 }) -Type Bar
 
 New-ConsoleColumns -Content {
-    New-ConsolePanel -Title 'Delegation' -Widget $delegation
+    New-ConsolePanel -Title 'Delegation' -Content $delegation
     New-ConsolePanel -Title 'Mail security' -HeaderRight 'evotec.xyz' -Content {
         $checks
         New-ConsoleRule

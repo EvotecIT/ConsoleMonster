@@ -55,11 +55,11 @@ foreach ($kind in 'Table','List') {
 }
 
 $markdownColumns = @('Name', 'State', @{Name='Bytes';Aggregate='Sum'}, 'Date','Duration','Tags')
-$valueRows | Show-ConsoleTable -Property $markdownColumns -GroupBy State -ShowGroupColumn -Total -AsWidget | Export-ConsoleFrame -Format Markdown |
+$valueRows | Show-ConsoleTable -Property $markdownColumns -GroupBy State -ShowGroupColumn -AsWidget -ShowTotals | Export-ConsoleFrame -Format Markdown |
     Set-Content -LiteralPath (Join-Path $OutputDirectory '3-markdown-table.md') -Encoding UTF8
 $valueRows | Show-ConsoleList -Property $valueColumns -AsWidget | Export-ConsoleFrame -Format Markdown |
     Set-Content -LiteralPath (Join-Path $OutputDirectory '3-markdown-list.md') -Encoding UTF8
-$valueRows[0] | Show-ConsoleTree -Title 'Service' -AsWidget | Export-ConsoleFrame -Format Markdown |
+$valueRows[0] | Show-Console -Title 'Service' -AsWidget -View Tree | Export-ConsoleFrame -Format Markdown |
     Set-Content -LiteralPath (Join-Path $OutputDirectory '3-markdown-tree.md') -Encoding UTF8
 $valueRows | Show-ConsoleTable -Property $valueColumns -AsWidget -Width 100 | Export-ConsoleFrame -Format FencedText |
     Set-Content -LiteralPath (Join-Path $OutputDirectory '3-text-layout.md') -Encoding UTF8

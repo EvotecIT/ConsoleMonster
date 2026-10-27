@@ -29,6 +29,8 @@
   "useCase": "Use it when an operator needs service details and confirmed actions without leaving the terminal app.",
   "featured": false,
   "capture": {
+    "actionClock": "Frozen",
+    "runKeys": "Escape",
     "states": [
       {
         "keys": "Escape"

@@ -13,7 +13,7 @@ Like watch: every -PollIntervalSeconds seconds the script block runs and its out
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Watch-Console [-ScriptBlock] <scriptblock> [-PollIntervalSeconds <double>] [-Count <int>] [-Differences] [-Title <Object>] [-NoLive] [<CommonParameters>]
+Watch-Console [-ScriptBlock] <scriptblock> [-PollIntervalSeconds <double>] [-Count <int>] [-Differences] [-Title <Object>] [-NoLive] [-Session <LiveSessionOptions>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -121,6 +121,22 @@ Possible values:
 
 Required: True
 Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Session
+Typed live-session configuration for the watch; omit for inline output with its final frame retained.
+
+```yaml
+Type: LiveSessionOptions
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

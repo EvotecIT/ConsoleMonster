@@ -39,9 +39,12 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public ScriptBlock? Validator { get; set; }
 
+        /// <summary><para type="description">Culture used to parse and display the answer; omitted uses the current culture.</para></summary>
+        [Parameter] public System.Globalization.CultureInfo? Culture { get; set; }
+
         /// <inheritdoc />
         protected override void EndProcessing() {
-            NumberPrompt prompt = new NumberPrompt(Title) { Integer = Integer.IsPresent, Minimum = Minimum, Maximum = Maximum, Step = Step };
+            NumberPrompt prompt = new NumberPrompt(Title) { Culture = Culture, Integer = Integer.IsPresent, Minimum = Minimum, Maximum = Maximum, Step = Step };
             Configure(prompt);
             if (Default.HasValue) {
                 prompt.Default = Default.Value;

@@ -13,7 +13,7 @@ Each widget the scriptblock emits is a layer, bottom first; later layers paint o
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleStack [[-Content] <scriptblock>] [-Widget <IWidget[]>] [-Weight <double>] [-Height <int>] [-Fill] [<CommonParameters>]
+New-ConsoleStack [[-Content] <Object>] [-Weight <double>] [-Height <int>] [-Fill] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -26,7 +26,7 @@ Each widget the scriptblock emits is a layer, bottom first; later layers paint o
 ### EXAMPLE 1
 ```powershell
 New-ConsoleStack -Content {
-    New-ConsoleLineChart -WidgetId latency
+    New-ConsoleChart -WidgetId latency -Type Line
     New-ConsoleAlign -Horizontal Right -Content { New-ConsoleText -Markup '[pass]LIVE[/]' }
 }
 ```
@@ -39,7 +39,7 @@ A chart with a status badge in its top-right corner
 Scriptblock that emits the layers, bottom first.
 
 ```yaml
-Type: ScriptBlock
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -47,7 +47,7 @@ Possible values:
 Required: False
 Position: 0
 Default value: None
-Accept pipeline input: False
+Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
@@ -99,28 +99,12 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Widget
-Layers to use instead of, or after, the scriptblock output.
-
-```yaml
-Type: IWidget[]
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: True (ByValue)
-Accept wildcard characters: False
-```
-
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
-- `ConsoleMonster.Layout.IWidget[]`
+- `System.Object`
 
 ## OUTPUTS
 

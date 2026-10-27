@@ -35,10 +35,15 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public string? BasePath { get; set; }
 
+        /// <summary><para type="description">Includes hidden files and folders in completion suggestions.</para></summary>
+        [Parameter] public SwitchParameter ShowHidden { get; set; }
+        /// <summary><para type="description">Maximum visible completion suggestions; default six.</para></summary>
+        [Parameter, ValidateRange(1, int.MaxValue)] public int Suggestions { get; set; } = 6;
+
         /// <inheritdoc />
         protected override void EndProcessing() {
             PathPrompt prompt = new PathPrompt(Title) {
-                Kind = Kind,
+                Kind = Kind, ShowHidden = ShowHidden.IsPresent, Suggestions = Suggestions,
                 MustExist = MustExist.IsPresent,
                 BasePath = BasePath ?? SessionState.Path.CurrentFileSystemLocation.ProviderPath
             };

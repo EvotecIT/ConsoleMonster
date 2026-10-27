@@ -17,14 +17,11 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsolePadding")]
     [OutputType(typeof(IWidget))]
-    public sealed class CmdletNewConsolePadding : PSCmdlet {
+    public sealed class CmdletNewConsolePadding : ContainerCmdlet {
         /// <summary><para type="description">Script block that emits the content (several widgets are stacked vertically).</para></summary>
-        [Parameter(Position = 0)]
-        public ScriptBlock? Content { get; set; }
-
-        /// <summary><para type="description">A widget to pad instead of a script block.</para></summary>
-        [Parameter(ValueFromPipeline = true)]
-        public IWidget? Widget { get; set; }
+        [Parameter(Position = 0, ValueFromPipeline = true)]
+        [AllowNull, AllowEmptyCollection]
+        public override object? Content { get; set; }
 
         /// <summary><para type="description">The space in cells: one value for all sides; two for left and right, then top and bottom; four for left, top, right and bottom (default 1, 0: one cell left and right).</para></summary>
         [Parameter]
@@ -44,11 +41,7 @@ namespace ConsoleMonster.PowerShell {
         public SwitchParameter Fill { get; set; }
 
         /// <inheritdoc />
-        protected override void ProcessRecord() {
-            List<IWidget> children = PSWidgets.Collect(Content);
-            if (Widget != null) {
-                children.Add(Widget);
-            }
+        protected override IWidget Build(List<IWidget> children) {
             IWidget content = children.Count == 1 ? children[0] : new Rows(children.ToArray());
             if (Padding.Length == 3) {
                 ThrowTerminatingError(new ErrorRecord(new PSArgumentException("Give -Padding one, two or four numbers."), "ConsoleMonsterPadding", ErrorCategory.InvalidArgument, Padding));
@@ -69,7 +62,7 @@ namespace ConsoleMonster.PowerShell {
                     bottom = Padding[3];
                     break;
             }
-            WriteObject(PSWidgets.WithSize(new ConsoleMonster.Layout.Padding(content, left, top, right, bottom), Weight, Height, Fill.IsPresent));
+            return PSWidgets.WithSize(new ConsoleMonster.Layout.Padding(content, left, top, right, bottom), Weight, Height, Fill.IsPresent);
         }
     }
 }

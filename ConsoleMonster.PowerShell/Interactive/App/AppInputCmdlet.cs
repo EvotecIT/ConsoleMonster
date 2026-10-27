@@ -25,13 +25,17 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public ScriptBlock? OnChange { get; set; }
 
+        /// <summary><para type="description">Initial validation text displayed below the input.</para></summary>
+        [Parameter] public string? ValidationMessage { get; set; }
+
         /// <summary>Applies common configuration and attaches callback metadata without subscribing outside an app run.</summary>
         /// <param name="control">The new core input.</param>
         /// <param name="onClick">Optional button activation script.</param>
         protected void Emit(InputControl control, ScriptBlock? onClick = null) {
-            control.Label = Label;
-            control.Enabled = !Disabled.IsPresent;
+            if (Label != null) { control.Label = Label; }
+            control.Disabled = Disabled.IsPresent;
             control.TabIndex = TabIndex;
+            control.ValidationMessage = ValidationMessage;
             PSAppCallbacks.Register(control, OnChange, onClick);
             WriteObject(control);
         }

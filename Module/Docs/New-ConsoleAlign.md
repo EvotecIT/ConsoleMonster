@@ -13,7 +13,7 @@ The content keeps its measured size and is placed within the space the parent gi
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleAlign [[-Content] <scriptblock>] [-Widget <IWidget>] [-Horizontal <HorizontalAlignment>] [-Vertical <VerticalAlignment>] [-Weight <double>] [-Height <int>] [-Fill] [<CommonParameters>]
+New-ConsoleAlign [[-Content] <Object>] [-Horizontal <HorizontalAlignment>] [-Vertical <VerticalAlignment>] [-Weight <double>] [-Height <int>] [-Fill] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -36,7 +36,7 @@ A centred logo above a dashboard
 Scriptblock that emits the content (several widgets are stacked vertically).
 
 ```yaml
-Type: ScriptBlock
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -44,7 +44,7 @@ Possible values:
 Required: False
 Position: 0
 Default value: None
-Accept pipeline input: False
+Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
@@ -128,28 +128,12 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Widget
-A widget to align instead of a scriptblock.
-
-```yaml
-Type: IWidget
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: True (ByValue)
-Accept wildcard characters: False
-```
-
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
-- `ConsoleMonster.Layout.IWidget`
+- `System.Object`
 
 ## OUTPUTS
 

@@ -31,7 +31,7 @@ New-ConsoleMenuItem 'Run checks' -Action {
     $null = $MenuContext.Run($dashboard, {
         foreach ($done in 1..3) {
             $clock.Wait(4.5)
-            Update-ConsoleSummaryBar -Done $done -Counter @{ passed = $done }
+            Update-Console -Counter @{ passed = $done } -WidgetId 'summary' -Value $done
             Write-ConsoleLogEntry "Check $done passed"
         }
         New-ConsoleMenuRunResult 'Checks finished'

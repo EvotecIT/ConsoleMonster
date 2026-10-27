@@ -53,6 +53,9 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Disables live redraws and uses append-only output.</para></summary>
         [Parameter] public SwitchParameter NoLive { get; set; }
 
+        /// <summary><para type="description">Typed live-session configuration for the watch; omit for inline output with its final frame retained.</para></summary>
+        [Parameter] public LiveSessionOptions? Session { get; set; }
+
         /// <inheritdoc />
         protected override void EndProcessing() {
             Capabilities.TerminalProfile profile = Terminal.GetCurrentProfile();
@@ -67,7 +70,7 @@ namespace ConsoleMonster.PowerShell {
                 Title = Title != null ? PSText.Markup(Title) : Text.Markup.Escape(ScriptBlock.ToString().Trim()),
                 Live = live,
                 // Ctrl+C stops the pipeline the PowerShell way (StopProcessing); the session keeps the last frame.
-                Session = new LiveSessionOptions { Mode = LiveMode.Inline, PrintFinalState = true, HandleCancelKey = false },
+                Session = Session ?? new LiveSessionOptions { Mode = LiveMode.Inline, PrintFinalState = true, HandleCancelKey = false },
                 Print = widget => PSFormatting.Emit(this, widget, 0, null, false)
             };
             try {

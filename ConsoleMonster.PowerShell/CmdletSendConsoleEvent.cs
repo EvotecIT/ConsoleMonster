@@ -4,7 +4,7 @@ using ConsoleMonster.Live;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Sends a raw live event to any widget of a running dashboard.</para>
-    /// <para type="description">The general form behind the Update-* cmdlets, for custom widgets and less common operations (for example the dashboard's title or status). Operations are defined by each widget.</para>
+    /// <para type="description">The general form behind Update-Console, for custom widgets and less common operations (for example the dashboard's title or status). Operations are defined by each widget.</para>
     /// </summary>
     /// <example>
     ///   <para>Change the dashboard status in the header</para>

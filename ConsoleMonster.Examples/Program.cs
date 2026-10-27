@@ -14,6 +14,9 @@ namespace ConsoleMonster.Examples {
         public static int Main(string[] args) {
             string name = args.Length > 0 ? args[0].ToLowerInvariant() : "query";
             switch (name) {
+                case "fullscreen-controls":
+                    FullScreenControls.Show();
+                    return 0;
                 case "target":
                     HealthReport.Show();
                     return 0;

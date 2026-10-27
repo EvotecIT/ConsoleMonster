@@ -86,7 +86,7 @@ namespace ConsoleMonster.Tests.Demos {
             string folder = Path.Combine(Path.GetTempPath(), "cm-wait-proof-" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(folder);
             try {
                 var script = DemoScript.Parse("# demo: setup\nfunction prompt { 'PROMPT-READY> ' }\n# demo: wpm 1000\n$null = 'INPUT-READY'\n# demo: wait INPUT-READY|PROMPT-READY");
-                var error = Assert.Throws<TimeoutException>(() => ConsoleDemo.Record(script, new DemoOptions {
+                var error = Assert.Throws<TimeoutException>(() => ConsolePresentation.Record(script, new DemoOptions {
                     Recording = new SessionRecordingOptions { Shell = "pwsh", Path = Path.Combine(folder, "wait.cast") },
                     StepTimeout = TimeSpan.FromSeconds(10)
                 }));
@@ -143,7 +143,7 @@ namespace ConsoleMonster.Tests.Demos {
                 var script = DemoScript.Read(demoPath);
                 string cast = Path.Combine(folder, "demo.cast");
                 StringBuilder shown = new StringBuilder();
-                ConsoleDemo.Record(script, new DemoOptions {
+                ConsolePresentation.Record(script, new DemoOptions {
                     Recording = new SessionRecordingOptions { Shell = "pwsh", Path = cast, Width = 50, Height = 10 },
                     Output = value => { lock (shown) { shown.Append(value); } }
                 });
@@ -164,7 +164,7 @@ namespace ConsoleMonster.Tests.Demos {
                 var script = DemoScript.Parse("# demo: wpm 1000\nWrite-Output 'FIRST-RAN'\nWrite-Output 'SECOND-RAN'");
                 var keys = new[] { Key(' ', ConsoleKey.Spacebar), Key('s', ConsoleKey.S), Key('b', ConsoleKey.B), Key('s', ConsoleKey.S), Key('\r', ConsoleKey.Enter) };
                 int index = 0;
-                string path = ConsoleDemo.Present(script, new DemoOptions { Recording = new SessionRecordingOptions { Shell = "pwsh", Path = Path.Combine(folder, "live.cast"), Width = 50, Height = 10 } }, () => keys[index++]);
+                string path = ConsolePresentation.Present(script, new DemoOptions { Recording = new SessionRecordingOptions { Shell = "pwsh", Path = Path.Combine(folder, "live.cast"), Width = 50, Height = 10 } }, () => keys[index++]);
                 var text = ConsoleExporter.ToText(SessionRecording.Read(path).Transcript());
                 Assert.Contains("SECOND-RAN\n", text); Assert.DoesNotContain("\nFIRST-RAN\n", text);
             } finally { Directory.Delete(folder, true); }

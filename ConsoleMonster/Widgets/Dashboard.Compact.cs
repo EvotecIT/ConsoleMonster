@@ -29,7 +29,7 @@ namespace ConsoleMonster.Widgets {
             region.Write(0, 0, CompactLine(region.Width, region.Height, context));
             int y = 1;
             List<Prioritized> widgets = new List<Prioritized>();
-            Collect(Body, widgets);
+            Collect(Content, widgets);
             widgets.Sort((a, b) => b.Priority.CompareTo(a.Priority));
             foreach (Prioritized widget in widgets) {
                 int room = region.Height - y;

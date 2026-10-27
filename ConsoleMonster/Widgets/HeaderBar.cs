@@ -37,7 +37,7 @@ namespace ConsoleMonster.Widgets {
         public StatusKind? Status { get; set; }
 
         /// <summary>Plain text on the right, before the clock (an app's subtitle, a step count).</summary>
-        public string? Right { get; set; }
+        public string? HeaderRight { get; set; }
 
         /// <summary>Shows the elapsed clock on the right.</summary>
         public bool ShowElapsed { get; set; }
@@ -78,7 +78,7 @@ namespace ConsoleMonster.Widgets {
                 }
                 status = new StyledLine(spans);
             }
-            StyledLine? free = string.IsNullOrEmpty(Right) ? null : StyledLine.From(Right!, quiet);
+            StyledLine? free = string.IsNullOrEmpty(HeaderRight) ? null : StyledLine.From(HeaderRight!, quiet);
             StyledLine? clock = ShowElapsed ? StyledLine.From(NumberFormat.Clock(Elapsed ?? context.Elapsed), accent) : null;
             StyledLine titleOnly = context.Markup(Title).Lines[0];
             int available = Math.Max(0, bar.Width - 2);

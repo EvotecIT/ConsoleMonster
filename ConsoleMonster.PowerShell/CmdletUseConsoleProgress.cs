@@ -93,7 +93,7 @@ $__cmProgressBridge.Host((@($Object | ForEach-Object { if ($_ -is [System.Collec
             ActivityList activities = new ActivityList();
             LiveSessionOptions options = new LiveSessionOptions {
                 Mode = LiveMode.Inline,
-                AppendOnly = NoLive.IsPresent,
+                Live = !NoLive.IsPresent,
                 PrintFinalState = Keep.IsPresent,
                 FramesPerSecond = FramesPerSecond,
                 // Ctrl+C stops the script the PowerShell way; the session is stopped (and the area cleared) in finally.
@@ -110,7 +110,7 @@ $__cmProgressBridge.Host((@($Object | ForEach-Object { if ($_ -is [System.Collec
                     ProgressBridge bridge = new ProgressBridge(session);
                     List<PSVariable> variables = new List<PSVariable> { new PSVariable("__cmProgressBridge", bridge) };
                     // With Enable-ConsoleFormatting -Feature Progress, Write-Progress is an alias, which wins over the
-                    // function above: Write-ConsoleProgress hands its calls to this area while the script runs.
+                    // function above: Update-Console hands its calls to this area while the script runs.
                     ProgressBridge? previous = SessionProgress.Override;
                     SessionProgress.Override = bridge;
                     try {

@@ -14,7 +14,7 @@ namespace ConsoleMonster.Live {
     /// Monitors an existing runner without scheduling its work or changing its results. Completed items are appended
     /// once to scrollback; a bounded dashboard shows active work and problems. All update methods are safe from worker threads.
     /// </summary>
-    public sealed class LiveRun : IDisposable {
+    public sealed partial class LiveRun : IDisposable {
         private readonly object _gate = new object();
         private readonly RunTracker _tracker;
         private readonly LiveSession _session;
@@ -38,7 +38,7 @@ namespace ConsoleMonster.Live {
             _tracker = new RunTracker(items, _options.Clock);
             Dashboard = new RunDashboard(_tracker) { Title = _options.Title, ShowGroups = _options.ShowGroups, ShowTrend = _options.ShowTrend };
             LiveSessionOptions session = _options.Session ?? new LiveSessionOptions();
-            session.Mode = LiveMode.Inline; session.InlineHeightFraction = _options.HeightFraction;
+            session.Mode = LiveMode.Inline; session.InlineHeightFraction = _options.HeightPercent / 100.0;
             session.StopOnCancellation = false;
             session.FramesPerSecond = 10; session.StreamHeartbeat = TimeSpan.Zero;
             session.Summary = new RunSummary(_tracker) { Title = _options.Title, ReportPath = _options.ReportPath };

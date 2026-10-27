@@ -8,6 +8,7 @@ using ConsoleMonster.Canvas;
 using ConsoleMonster.Export;
 using ConsoleMonster.Graphics;
 using ConsoleMonster.Sessions;
+using ConsoleMonster.Widgets;
 using Xunit;
 
 namespace ConsoleMonster.Extensions.Tests.Graphics {
@@ -26,7 +27,7 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
                     using (var recorder = SessionRecorder.Start(new SessionRecordingOptions { Path = path, Width = 120, Height = 40, InProcess = true })) {
                         for (int index = 0; index < 16; index++) {
                             string title = "Capture " + index.ToString("D2");
-                            var dashboard = Ui.Dashboard(title, Ui.Text(string.Join("\n", Enumerable.Range(0, 34)
+                            var dashboard = Ui.Dashboard().Title(title).Content(Ui.Text().IsMarkup().Content(string.Join("\n", Enumerable.Range(0, 34)
                                 .Select(row => "[accent]" + title + " row " + row.ToString("D2") + " " + new string('x', 90) + "[/]"))));
                             dashboard.ShowElapsed = false;
                             CellBuffer frame = ConsoleExporter.Render(dashboard, new ExportOptions { Width = 120, Height = 40 }, ConsoleMonster.Styling.Theme.Dark);

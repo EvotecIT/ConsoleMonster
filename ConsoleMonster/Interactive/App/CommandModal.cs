@@ -44,6 +44,6 @@ namespace ConsoleMonster.Interactive {
             return _focus.Current?.HandleInput(input, _frame.Context) ?? false;
         }
         public void Dispose() => _focus.Dispose();
-        internal void CancelPointer() => _focus.Current?.CancelPointer();
+        internal override void CancelPointer() => _focus.Current?.CancelPointer();
     }
 }

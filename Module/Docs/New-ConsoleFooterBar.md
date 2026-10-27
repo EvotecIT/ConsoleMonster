@@ -13,7 +13,7 @@ Hint maps key names to their labels. Segment accepts FooterSegment values or has
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleFooterBar [[-Hint] <IDictionary>] [-Message <Object>] [-Right <Object>] [-Segment <Object[]>] [-KeepLast] [-Indent <int>] [<CommonParameters>]
+New-ConsoleFooterBar [[-Hint] <IDictionary>] [-Message <Object>] [-Right <Object>] [-Segment <Object[]>] [-KeepLast] [-HintsSource <Func[IEnumerable[KeyHint]]>] [-FixedSlots] [-Indent <int>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -32,6 +32,22 @@ Show navigation hints.
 
 ## PARAMETERS
 
+### -FixedSlots
+Keeps all context entries in fixed slots and shortens their labels to fit.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Hint
 An ordered dictionary of key names and action labels.
 
@@ -43,6 +59,22 @@ Possible values:
 
 Required: False
 Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -HintsSource
+Reads context hints on the app input thread; unavailable KeyHint entries remain dimmed.
+
+```yaml
+Type: Func`1
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

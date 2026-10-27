@@ -8,7 +8,7 @@ namespace ConsoleMonster.Layout {
     /// staircase. When the width drops below the children's minimum widths the columns stack vertically instead of
     /// squeezing content unreadably.
     /// </summary>
-    public sealed class Columns : IContainer {
+    public sealed class Columns : IContainer, IContentOwner {
         private const int DefaultFractionMin = 16;
         private readonly List<IWidget> _children = new List<IWidget>();
         private readonly List<LayoutSize> _sizes = new List<LayoutSize>();
@@ -47,6 +47,8 @@ namespace ConsoleMonster.Layout {
             _sizes.Add(size ?? (child is Sized sized ? sized.LayoutSize : LayoutSize.Fraction()));
             return this;
         }
+
+        void IContentOwner.ReplaceContent(IWidget[] content) { _children.Clear(); _sizes.Clear(); foreach (IWidget widget in content) { Add(widget); } }
 
         /// <inheritdoc />
         public Size Measure(Constraints constraints, RenderContext context) {

@@ -7,8 +7,8 @@ namespace ConsoleMonster.Live {
         public string Title { get; set; } = "Run";
         /// <summary>Allow live rendering when supported by the terminal; false selects append-only output.</summary>
         public bool Live { get; set; } = true;
-        /// <summary>Maximum share of terminal height used by the dashboard, default 0.4. Header and problems share the available rows on very short terminals.</summary>
-        public double HeightFraction { get; set; } = 0.4;
+        /// <summary>Maximum percentage of terminal height used by the dashboard, default 40. Header and problems share the available rows on very short terminals.</summary>
+        public double HeightPercent { get; set; } = 40;
         /// <summary>Show category progress when spare height is available.</summary>
         public bool ShowGroups { get; set; } = true;
         /// <summary>Enable p/f/g/? keyboard controls when input is available. Default false.</summary>

@@ -13,7 +13,7 @@ The line uses the border colour and the glyph tier's line character.
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleRule [[-Title] <Object>] [-Alignment <HorizontalAlignment>] [<CommonParameters>]
+New-ConsoleRule [[-Title] <Object>] [-Alignment <HorizontalAlignment>] [-LineRole <ThemeToken>] [-LineStyle <BoxStyle>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -40,6 +40,38 @@ Type: HorizontalAlignment
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values: Left, Center, Right
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -LineRole
+Theme role for the line; default Border.
+
+```yaml
+Type: ThemeToken
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: Text, Muted, Subtle, Accent, Accent2, Pass, Fail, Warn, Info, Skip, Running, Pending, Border, Title, Header, Highlight, Surface, SurfaceAccent, Series1, Series2, Series3, Series4, Series5, Series6, Focus
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -LineStyle
+Optional line glyph style; omitted follows the active theme.
+
+```yaml
+Type: BoxStyle
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: Rounded, Single, Double, Heavy, Ascii, None
 
 Required: False
 Position: named

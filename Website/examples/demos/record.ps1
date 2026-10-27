@@ -12,14 +12,14 @@ $recording = Join-Path ([IO.Path]::GetTempPath()) 'deploy.jsonl'
 # 1. Run it, writing every update to the recording.
 Invoke-ConsoleDashboard $dashboard -RecordPath $recording {
     foreach ($phase in 'Stage', 'Swap', 'Verify') {
-        Update-ConsolePhase -Key $phase -Status Running
+        Update-Console -Key $phase -Status Running -WidgetId 'phases'
         foreach ($server in 'web01', 'web02', 'web03', 'web04') {
-            Update-ConsoleStatusItem -WidgetId servers -Key $server -Status Running -Detail $phase
+            Update-Console -WidgetId servers -Key $server -Status Running -Detail $phase
             Start-Sleep -Milliseconds 250
-            Update-ConsoleStatusItem -WidgetId servers -Key $server -Status Pass -Detail $phase
+            Update-Console -WidgetId servers -Key $server -Status Pass -Detail $phase
         }
         Write-ConsoleLogEntry "$phase done on 4 servers"
-        Update-ConsolePhase -Key $phase -Status Pass
+        Update-Console -Key $phase -Status Pass -WidgetId 'phases'
     }
 }
 

@@ -11,8 +11,9 @@ namespace ConsoleMonster.Generators {
     /// Writes the fluent methods of every public widget (a class implementing <c>ConsoleMonster.Layout.IWidget</c>) and of
     /// the option types they hold (column definitions, items, presentation options) from their public properties:
     /// <list type="bullet">
-    /// <item><c>WithX(value)</c> for every settable property (<c>WithX()</c> sets a bool to true);</item>
-    /// <item><c>WithX(Action&lt;T&gt;)</c> for a property holding an option object, configuring it in place;</item>
+    /// <item><c>X(value)</c> for ordinary settable properties (<c>X()</c> sets a bool to true);</item>
+    /// <item><c>Configure(value =&gt; value.Callback = callback)</c> for delegate-valued properties;</item>
+    /// <item><c>X(Action&lt;T&gt;)</c> for a property holding an option object, configuring it in place;</item>
     /// <item><c>AddX(item)</c>, <c>AddXs(params items)</c> and <c>AddXs(IEnumerable)</c> for every mutable collection.</item>
     /// </list>
     /// The methods are extension methods in the widget's namespace, return the same instance (typed as the receiver, so a
@@ -29,32 +30,51 @@ namespace ConsoleMonster.Generators {
         /// <inheritdoc />
         public void Initialize(IncrementalGeneratorInitializationContext context) {
             context.RegisterSourceOutput(context.CompilationProvider, (output, compilation) => {
-                if (compilation.AssemblyName != "ConsoleMonster") {
+                if (compilation.AssemblyName != "ConsoleMonster" && compilation.AssemblyName != "ConsoleMonster.Graphics" && compilation.AssemblyName != "ConsoleMonster.Markdown" && compilation.AssemblyName != "ConsoleMonster.PowerShell" && compilation.AssemblyName != "ConsoleMonster.Hosting" && compilation.AssemblyName != "ConsoleMonster.Extensions.Logging") {
                     return;
                 }
                 INamedTypeSymbol? widget = compilation.GetTypeByMetadataName(WidgetInterface);
                 if (widget == null) {
                     return;
                 }
-                foreach (INamedTypeSymbol type in FluentTypes(compilation.Assembly, widget)) {
-                    string? source = Generate(type, compilation);
+                List<INamedTypeSymbol> types = FluentTypes(compilation.Assembly, widget);
+                foreach (INamedTypeSymbol type in types) {
+                    string? source = Generate(type, compilation, types);
                     if (source != null) {
-                        output.AddSource(type.ToDisplayString().Replace("ConsoleMonster.", string.Empty) + ".Fluent.g.cs", source);
+                        output.AddSource(type.ToDisplayString().Replace("ConsoleMonster.", string.Empty).Replace('<', '_').Replace('>', '_').Replace(',', '_').Replace(' ', '_') + ".Fluent.g.cs", source);
                     }
                 }
             });
         }
 
-        /// <summary>The widgets, then the option types reachable from their properties (three levels deep).</summary>
+        /// <summary>The widgets, then the option types reachable from their properties (with cycle detection).</summary>
         internal static List<INamedTypeSymbol> FluentTypes(IAssemblySymbol assembly, INamedTypeSymbol widget) {
             List<INamedTypeSymbol> widgets = AllTypes(assembly.GlobalNamespace)
                 .Where(t => IsCandidate(t) && t.AllInterfaces.Contains(widget, SymbolEqualityComparer.Default))
                 .OrderBy(t => t.ToDisplayString(), StringComparer.Ordinal)
                 .ToList();
+            foreach (string name in new[] { "ConsoleMonster.Interactive.MenuItem", "ConsoleMonster.Interactive.MenuRunResult", "ConsoleMonster.Interactive.ReviewModel", "ConsoleMonster.Interactive.FormPreset", "ConsoleMonster.Interactive.MenuPreset", "ConsoleMonster.Interactive.ObjectExplorer", "ConsoleMonster.Interactive.Grid", "ConsoleMonster.Interactive.SelectQuestionOptions", "ConsoleMonster.Interactive.SelectInputOptions", "ConsoleMonster.Interactive.TextInputOptions", "ConsoleMonster.Interactive.TextQuestionOptions", "ConsoleMonster.Widgets.ProgressOptions", "ConsoleMonster.Widgets.ChartOptions", "ConsoleMonster.Live.WidgetUpdate", "ConsoleMonster.Live.RunUpdate", "ConsoleMonster.Live.LiveRunOptions", "ConsoleMonster.Live.LiveSessionOptions", "ConsoleMonster.Export.ExportOptions", "ConsoleMonster.Export.RecordingExportOptions" }) {
+                INamedTypeSymbol? option = AllTypes(assembly.GlobalNamespace).FirstOrDefault(t => t.ToDisplayString() == name);
+                if (option != null && IsCandidate(option)) { widgets.Add(option); }
+            }
+            // Standalone operation options are roots too, including the add-ons' own options.
+            foreach (INamedTypeSymbol option in AllTypes(assembly.GlobalNamespace).Where(t => IsCandidate(t) && t.Name.EndsWith("Options", StringComparison.Ordinal))) {
+                if (!widgets.Contains(option, SymbolEqualityComparer.Default)) { widgets.Add(option); }
+            }
+            foreach (INamedTypeSymbol prompt in AllTypes(assembly.GlobalNamespace).Where(t => IsCandidate(t) && IsPrompt(t))) {
+                if (!widgets.Contains(prompt, SymbolEqualityComparer.Default)) { widgets.Add(prompt); }
+            }
+            // Standalone definitions exposed by the cmdlets are configuration roots too.
+            // Field is abstract; its generic extensions keep concrete field receiver types.
+            foreach (INamedTypeSymbol definition in AllTypes(assembly.GlobalNamespace).Where(t =>
+                t.ToDisplayString() == "ConsoleMonster.Interactive.Field" || IsCandidate(t) &&
+                (HasFieldBase(t) || new[] { "ConsoleMonster.Interactive.Choice", "ConsoleMonster.Text.ConsoleTextLayout", "ConsoleMonster.Output.ConsoleLogFile" }.Contains(t.ToDisplayString())))) {
+                if (!widgets.Contains(definition, SymbolEqualityComparer.Default)) { widgets.Add(definition); }
+            }
             HashSet<INamedTypeSymbol> seen = new HashSet<INamedTypeSymbol>(widgets, SymbolEqualityComparer.Default);
             List<INamedTypeSymbol> result = new List<INamedTypeSymbol>(widgets);
             List<INamedTypeSymbol> frontier = widgets;
-            for (int depth = 0; depth < 3 && frontier.Count > 0; depth++) {
+            while (frontier.Count > 0) {
                 List<INamedTypeSymbol> next = new List<INamedTypeSymbol>();
                 foreach (INamedTypeSymbol type in frontier) {
                     foreach (IPropertySymbol property in Properties(type)) {
@@ -95,8 +115,22 @@ namespace ConsoleMonster.Generators {
             }
         }
 
+        private static bool IsPrompt(INamedTypeSymbol type) {
+            for (INamedTypeSymbol? current = type.BaseType; current != null; current = current.BaseType) {
+                if (current.OriginalDefinition.ToDisplayString() == "ConsoleMonster.Interactive.Prompt<T>") { return true; }
+            }
+            return false;
+        }
+
+        private static bool HasFieldBase(INamedTypeSymbol type) {
+            for (INamedTypeSymbol? current = type.BaseType; current != null; current = current.BaseType) {
+                if (current.ToDisplayString() == "ConsoleMonster.Interactive.Field") { return true; }
+            }
+            return false;
+        }
+
         private static bool IsCandidate(INamedTypeSymbol type) =>
-            type.TypeKind == TypeKind.Class && !type.IsAbstract && !type.IsStatic && !type.IsGenericType
+            type.TypeKind == TypeKind.Class && !type.IsAbstract && !type.IsStatic && (!type.IsGenericType || type.IsSealed && IsPrompt(type))
             && type.DeclaredAccessibility == Accessibility.Public && type.ContainingType == null && !HasNoFluent(type);
 
         // A public class of this assembly with something to set or add.
@@ -142,25 +176,57 @@ namespace ConsoleMonster.Generators {
 
         private static bool HasNoFluent(ISymbol symbol) => symbol.GetAttributes().Any(a => a.AttributeClass?.ToDisplayString() == NoFluentAttribute);
 
-        private static string? Generate(INamedTypeSymbol type, Compilation compilation) {
+        private static string? Generate(INamedTypeSymbol type, Compilation compilation, IReadOnlyList<INamedTypeSymbol> types) {
             string typeName = type.ToDisplayString(TypeFormat);
             string docId = type.GetDocumentationCommentId() ?? type.Name;
             bool open = !type.IsSealed;
             // A type that can be derived from gets generic methods (TSelf : Type), so a chain keeps the derived type.
             string self = open ? "TSelf" : typeName;
-            string generic = open ? "<TSelf>" : string.Empty;
+            string generic = open ? "<TSelf>" : type.TypeParameters.Length == 0 ? string.Empty : "<" + string.Join(", ", type.TypeParameters.Select(parameter => parameter.Name)) + ">";
             string constraint = open ? " where TSelf : " + typeName : string.Empty;
             string receiver = Camel(type.Name);
-            // Names the type already has, and the hand-written half of its Fluent class (TableFluent.WithTotals).
-            HashSet<string> taken = new HashSet<string>(type.GetMembers().OfType<IMethodSymbol>().Select(m => m.Name), StringComparer.Ordinal);
+            // Compare complete value-parameter signatures, including inherited instance methods.
+            var existing = new List<IMethodSymbol>();
+            for (INamedTypeSymbol? current = type; current != null; current = current.BaseType) { existing.AddRange(current.GetMembers().OfType<IMethodSymbol>()); }
             INamedTypeSymbol? handWritten = compilation.GetTypeByMetadataName(type.ContainingNamespace.ToDisplayString() + "." + type.Name + "Fluent");
-            if (handWritten != null) {
-                taken.UnionWith(handWritten.GetMembers().OfType<IMethodSymbol>().Select(m => m.Name));
-            }
+            if (handWritten != null) { existing.AddRange(handWritten.GetMembers().OfType<IMethodSymbol>()); }
+            bool Taken(string name, params ITypeSymbol[] parameters) => existing.Any(m => {
+                int offset = m.IsExtensionMethod ? 1 : 0;
+                return m.Name == name && m.Parameters.Length == parameters.Length + offset
+                    && parameters.Select((parameter, index) => SymbolEqualityComparer.Default.Equals(parameter, m.Parameters[index + offset].Type)).All(equal => equal);
+            });
             HashSet<string> generated = new HashSet<string>(StringComparer.Ordinal);
             StringBuilder body = new StringBuilder();
             int methods = 0;
+            bool delegateProperties = Properties(type).Any(property => IsSettable(property) && property.Type.TypeKind == TypeKind.Delegate);
+            bool inheritedConfigure = false;
+            for (INamedTypeSymbol? parent = type.BaseType; parent != null; parent = parent.BaseType) {
+                if (types.Contains(parent, SymbolEqualityComparer.Default) && Properties(parent).Any(property => IsSettable(property) && property.Type.TypeKind == TypeKind.Delegate)) { inheritedConfigure = true; break; }
+            }
+            if (delegateProperties && !inheritedConfigure && !Taken("Configure", compilation.GetTypeByMetadataName("System.Action`1")!.Construct(type))) {
+                body.Append(Doc("Assigns callbacks and related configuration without invoking delegate-valued properties.", receiver, "Assignments applied in order.", "configure"));
+                foreach (IPropertySymbol property in Properties(type).Where(property => IsSettable(property) && property.Type.TypeKind == TypeKind.Delegate)) {
+                    body.Append(PropertyExample(type, property, receiver, compilation));
+                }
+                body.Append("        public static ").Append(self).Append(" Configure").Append(generic).Append("(this ").Append(self).Append(' ').Append(receiver)
+                    .Append(", global::System.Action<").Append(self).Append("> configure)").Append(constraint).Append(" {\n")
+                    .Append("            if (configure == null) { throw new global::System.ArgumentNullException(nameof(configure)); }\n")
+                    .Append("            configure(").Append(receiver).Append(");\n            return ").Append(receiver).Append(";\n        }\n\n");
+                methods++;
+            }
+            bool ownsContent = type.AllInterfaces.Any(i => i.ToDisplayString() == "ConsoleMonster.Layout.IContentOwner");
+            if (ownsContent) {
+                foreach (string parameterType in new[] { "global::ConsoleMonster.Layout.IWidget", "global::System.Action<global::ConsoleMonster.Layout.ContentBuilder>" }) {
+                    body.Append(Doc("Configures this container's content before session ownership.", receiver, "The widget or nested content builder.", "content"));
+                    body.Append("        public static ").Append(self).Append(" Content").Append(generic).Append("(this ").Append(self).Append(' ').Append(receiver)
+                        .Append(", ").Append(parameterType).Append(" content)").Append(constraint).Append(" {\n")
+                        .Append("            global::ConsoleMonster.Layout.ContentBuilder.Replace(").Append(receiver).Append(", content);\n")
+                        .Append("            return ").Append(receiver).Append(";\n        }\n\n");
+                    methods++;
+                }
+            }
             foreach (IPropertySymbol property in Properties(type)) {
+                if (ownsContent && property.Name == "Content") { continue; }
                 // An inherited property of a base that can be derived from is covered by the base's generic methods;
                 // generating it again would make every call ambiguous.
                 if (!SymbolEqualityComparer.Default.Equals(property.ContainingType, type) && !property.ContainingType.IsSealed && IsCandidate(property.ContainingType)
@@ -170,18 +236,30 @@ namespace ConsoleMonster.Generators {
                 string propertyType = property.Type.ToDisplayString(TypeFormat);
                 string propertyDoc = property.GetDocumentationCommentId() ?? property.Name;
                 string summary = Summary(property);
-                string with = "With" + property.Name;
+                string with = property.Name;
+                // C# invokes a delegate property before considering an extension with the same name.
+                if (property.Type.TypeKind == TypeKind.Delegate) { continue; }
                 ITypeSymbol? item = CollectionItem(property.Type);
-                if (IsSettable(property) && !taken.Contains(with) && generated.Add(with + "(" + propertyType + ")")) {
+                if (IsSettable(property) && !Taken(with, property.Type) && generated.Add(with + "(" + propertyType + ")")) {
                     bool flag = property.Type.SpecialType == SpecialType.System_Boolean;
-                    body.Append(Doc("Sets <see cref=\"" + propertyDoc + "\"/>" + summary, receiver, flag ? "The value (default true)." : "The value.", "value"));
+                    body.Append(Doc("Sets <see cref=\"" + propertyDoc + "\"/>" + summary, receiver, "The value.", "value"));
+                    if (property.Type.TypeKind != TypeKind.Delegate) { body.Append(PropertyExample(type, property, receiver, compilation)); }
                     body.Append("        public static ").Append(self).Append(' ').Append(with).Append(generic).Append("(this ").Append(self).Append(' ').Append(receiver)
-                        .Append(", ").Append(propertyType).Append(" value").Append(flag ? " = true" : string.Empty).Append(')').Append(constraint).Append(" {\n")
+                        .Append(", ").Append(propertyType).Append(" value").Append(')').Append(constraint).Append(" {\n")
                         .Append("            ").Append(receiver).Append('.').Append(property.Name).Append(" = value;\n")
                         .Append("            return ").Append(receiver).Append(";\n        }\n\n");
                     methods++;
+                    if (flag && !Taken(with) && generated.Add(with + "()")) {
+                        body.Append("        /// <summary>Sets <see cref=\"").Append(propertyDoc).Append("\"/> to true.</summary>\n")
+                            .Append("        /// <param name=\"").Append(receiver.TrimStart('@')).Append("\">The instance to configure.</param>\n")
+                            .Append("        /// <returns>The same instance.</returns>\n")
+                            .Append("        public static ").Append(self).Append(' ').Append(with).Append(generic).Append("(this ").Append(self).Append(' ').Append(receiver)
+                            .Append(')').Append(constraint).Append(" {\n            ").Append(receiver).Append('.').Append(property.Name).Append(" = true;\n            return ")
+                            .Append(receiver).Append(";\n        }\n\n");
+                        methods++;
+                    }
                 }
-                if (property.Type is INamedTypeSymbol option && IsOptionType(option, compilation.Assembly) && item == null && !taken.Contains(with) && generated.Add(with + "(Action)")) {
+                if (property.Type is INamedTypeSymbol option && IsOptionType(option, compilation.Assembly) && item == null && !Taken(with, compilation.GetTypeByMetadataName("System.Action`1")!.Construct(option)) && generated.Add(with + "(Action)")) {
                     body.Append(Configure(property, option, receiver, self, generic, constraint, with, propertyDoc, summary));
                     methods++;
                 }
@@ -191,7 +269,7 @@ namespace ConsoleMonster.Generators {
                     string itemType = item.ToDisplayString(TypeFormat);
                     string add = "Add" + singular;
                     string addAll = "Add" + plural;
-                    if (!taken.Contains(add) && generated.Add(add + "(" + itemType + ")")) {
+                    if (!Taken(add, item) && generated.Add(add + "(" + itemType + ")")) {
                         body.Append(Doc("Adds an item to <see cref=\"" + propertyDoc + "\"/>" + summary, receiver, "The item.", "item"));
                         body.Append("        public static ").Append(self).Append(' ').Append(add).Append(generic).Append("(this ").Append(self).Append(' ').Append(receiver)
                             .Append(", ").Append(itemType).Append(" item)").Append(constraint).Append(" {\n")
@@ -200,11 +278,17 @@ namespace ConsoleMonster.Generators {
                             .Append("            return ").Append(receiver).Append(";\n        }\n\n");
                         methods++;
                     }
-                    if (!taken.Contains(addAll) && generated.Add(addAll + "(params " + itemType + ")")) {
+                    if (!Taken(addAll, compilation.CreateArrayTypeSymbol(item)) && generated.Add(addAll + "(params " + itemType + ")")) {
                         body.Append(Doc("Adds items to <see cref=\"" + propertyDoc + "\"/>" + summary, receiver, "The items, in order.", "items"));
                         body.Append("        public static ").Append(self).Append(' ').Append(addAll).Append(generic).Append("(this ").Append(self).Append(' ').Append(receiver)
                             .Append(", params ").Append(itemType).Append("[] items)").Append(constraint).Append(" {\n")
-                            .Append("            return ").Append(addAll).Append("(").Append(receiver).Append(", (global::System.Collections.Generic.IEnumerable<").Append(itemType).Append(">)items);\n        }\n\n");
+                            .Append("            if (items == null) { throw new global::System.ArgumentNullException(nameof(items)); }\n")
+                            .Append(Ensure(property, receiver, itemType))
+                            .Append("            foreach (var item in items) { ").Append(receiver).Append('.').Append(property.Name).Append(".Add(item); }\n")
+                            .Append("            return ").Append(receiver).Append(";\n        }\n\n");
+                        methods++;
+                    }
+                    if (!Taken(addAll, compilation.GetTypeByMetadataName("System.Collections.Generic.IEnumerable`1")!.Construct(item)) && generated.Add(addAll + "(IEnumerable<" + itemType + ">)")) {
                         body.Append(Doc("Adds items to <see cref=\"" + propertyDoc + "\"/>" + summary, receiver, "The items, in order.", "items"));
                         body.Append("        public static ").Append(self).Append(' ').Append(addAll).Append(generic).Append("(this ").Append(self).Append(' ').Append(receiver)
                             .Append(", global::System.Collections.Generic.IEnumerable<").Append(itemType).Append("> items)").Append(constraint).Append(" {\n")
@@ -213,7 +297,7 @@ namespace ConsoleMonster.Generators {
                             .Append("            foreach (").Append(itemType).Append(" item in items) {\n")
                             .Append("                ").Append(receiver).Append('.').Append(property.Name).Append(".Add(item);\n            }\n")
                             .Append("            return ").Append(receiver).Append(";\n        }\n\n");
-                        methods += 2;
+                        methods++;
                     }
                 }
             }
@@ -225,7 +309,7 @@ namespace ConsoleMonster.Generators {
                 .Append(type.ToDisplayString()).Append(".\n// Do not edit: change the properties instead.\n// </auto-generated>\n")
                 .Append("#nullable enable\n\n")
                 .Append("namespace ").Append(type.ContainingNamespace.ToDisplayString()).Append(" {\n")
-                .Append("    /// <summary>The fluent methods of <see cref=\"").Append(docId).Append("\"/>, generated from its public properties: <c>With...</c> sets a property and <c>Add...</c> adds to a collection, both returning the same instance.</summary>\n")
+                .Append("    /// <summary>The fluent methods of <see cref=\"").Append(docId).Append("\"/>, generated from its public properties: A property-named method sets a property and <c>Add...</c> adds to a collection, both returning the same instance.</summary>\n")
                 .Append("    [global::System.CodeDom.Compiler.GeneratedCode(\"ConsoleMonster.Generators\", \"1.0.0\")]\n")
                 .Append("    public static partial class ").Append(type.Name).Append("Fluent {\n")
                 .Append(body.ToString().TrimEnd('\n')).Append('\n')
@@ -233,7 +317,7 @@ namespace ConsoleMonster.Generators {
             return source.ToString();
         }
 
-        // WithX(Action<T>): configures the option object in place, creating it first when it is not set and can be.
+        // X(Action<T>): configures the option object in place, creating it first when it is not set and can be.
         private static string Configure(IPropertySymbol property, INamedTypeSymbol option, string receiver, string self, string generic, string constraint, string with, string propertyDoc, string summary) {
             string optionType = option.WithNullableAnnotation(NullableAnnotation.NotAnnotated).ToDisplayString(TypeFormat);
             bool canCreate = IsSettable(property) && option.InstanceConstructors.Any(c => c.Parameters.Length == 0 && c.DeclaredAccessibility == Accessibility.Public);
@@ -263,6 +347,30 @@ namespace ConsoleMonster.Generators {
                 return "            " + receiver + "." + property.Name + " ??= new global::System.Collections.Generic.List<" + itemType + ">();\n";
             }
             return "            if (" + receiver + "." + property.Name + " == null) { throw new global::System.InvalidOperationException(\"" + property.Name + " is not set.\"); }\n";
+        }
+
+        /// <summary>Shows both configuration forms in the generated API reference, without assuming a parameterless constructor.</summary>
+        private static string PropertyExample(INamedTypeSymbol type, IPropertySymbol property, string receiver, Compilation compilation) {
+            bool constructible = type.InstanceConstructors.Any(ctor => ctor.DeclaredAccessibility == Accessibility.Public && ctor.Parameters.All(parameter => parameter.IsOptional));
+            string creation = "new " + type.ToDisplayString(TypeFormat);
+            string initializer = constructible ? creation + " { " + property.Name + " = value }" : receiver + "." + property.Name + " = value;";
+            INamedTypeSymbol? ui = compilation.GetTypeByMetadataName("ConsoleMonster.Ui");
+            IMethodSymbol? factory = ui?.GetMembers().OfType<IMethodSymbol>().FirstOrDefault(method => method.IsStatic && !method.IsGenericMethod
+                && method.Parameters.All(parameter => parameter.IsOptional) && SymbolEqualityComparer.Default.Equals(method.ReturnType, type));
+            string entry = factory == null ? receiver : "Ui." + factory.Name + "()";
+            if (type.Name == "TextBlock" && factory != null) { entry += ".IsMarkup()"; }
+            if (factory == null && type.Name.EndsWith("Options", StringComparison.Ordinal) && type.InstanceConstructors.Any(ctor => ctor.DeclaredAccessibility == Accessibility.Public && ctor.Parameters.Length == 0)) {
+                entry = "Ui.Options<" + type.ToDisplayString(TypeFormat) + ">()";
+            }
+            string fluent = entry + (property.Type.TypeKind == TypeKind.Delegate
+                ? ".Configure(configured => configured." + property.Name + " = value)" : "." + property.Name + "(value)");
+            if (!initializer.EndsWith(";", StringComparison.Ordinal)) { initializer += ";"; }
+            const string leftHeading = "// C# initializer or property";
+            int column = Math.Max(leftHeading.Length, initializer.Length) + 4;
+            return "        /// <example><code>\n"
+                + "        /// " + leftHeading.PadRight(column) + "// C# fluent\n"
+                + "        /// " + new XText(initializer.PadRight(column) + fluent + ";") + "\n"
+                + "        /// </code></example>\n";
         }
 
         private static string Doc(string summary, string receiver, string parameter, string parameterName) {

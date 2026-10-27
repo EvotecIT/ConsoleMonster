@@ -15,10 +15,10 @@ $report = New-ConsoleRows -Gap 1 -Content {
     New-ConsoleTable -InputObject $repositories -Property Repository, Branch, Modified, Staged, Ahead, Behind -Expand
     New-ConsolePanel -Title 'Suggested next steps' -Content {
         New-ConsoleStatusList -Content {
-            New-ConsoleStatusItem -Label 'orbit-api' -Status Info -Detail 'Review the staged diff before committing'
-            New-ConsoleStatusItem -Label 'orbit-cli' -Status Warn -Detail 'Working tree clean; inspect four incoming commits'
-            New-ConsoleStatusItem -Label 'orbit-docs' -Status Info -Detail 'Two local edits need review'
-            New-ConsoleStatusItem -Label 'orbit-tests' -Status Pass -Detail 'Clean and up to date'
+            [pscustomobject]@{ Label = 'orbit-api'; Status = 'Info'; Detail = 'Review the staged diff before committing' }
+            [pscustomobject]@{ Label = 'orbit-cli'; Status = 'Warn'; Detail = 'Working tree clean; inspect four incoming commits' }
+            [pscustomobject]@{ Label = 'orbit-docs'; Status = 'Info'; Detail = 'Two local edits need review' }
+            [pscustomobject]@{ Label = 'orbit-tests'; Status = 'Pass'; Detail = 'Clean and up to date' }
         }
     }
 }

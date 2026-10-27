@@ -26,7 +26,7 @@ Get-Process | Format-Table Name, Id | Out-File ./processes.txt
 Get-Process | Format-Table Name, Id > ./processes.txt
 ```
 
-`-Feature All` enables default object views, errors, native stream/progress colors and ReadLine colors. All keeps Write-Progress native; the separate legacy Progress alias feature requires explicit opt-in and is excluded from All. It deliberately excludes `FormatCommands`: overriding commands used in scripts requires a separate opt-in. Features add up, so use `Enable-ConsoleFormatting -Feature All, FormatCommands` when you want both. `Disable-ConsoleFormatting` removes all installed features. `Disable-ConsoleFormatting -Feature FormatCommands` restores only the three formatter functions; explicit `-Feature All` retains separately enabled `Progress` and `FormatCommands` features.
+`-Feature All` enables default object views, errors, native stream/progress colors and ReadLine colors. All keeps Write-Progress native; the separate Progress function adapter requires explicit opt-in and is excluded from All. It deliberately excludes `FormatCommands`: overriding commands used in scripts requires a separate opt-in. Features add up, so use `Enable-ConsoleFormatting -Feature All, FormatCommands` when you want both. `Disable-ConsoleFormatting` removes all installed features. `Disable-ConsoleFormatting -Feature FormatCommands` restores only the three formatter functions; explicit `-Feature All` retains separately enabled `Progress` and `FormatCommands` features.
 
 Custom functions are preserved unless `-Force` is supplied, then restored on disable or module removal. A custom alias named `Format-Table`, `Format-List` or `Format-Wide` prevents installation; remove it explicitly first. Aliases such as `ft`, `fl` and `fw` continue to resolve their normal command names.
 
@@ -40,7 +40,7 @@ Import-Module ConsoleMonster
 Enable-ConsoleFormatting -Feature Errors
 
 # At the prompt, errors use the compact view.
-try { [int]::Parse('production') } catch { $_ | Show-ConsoleError -Compact }
+try { [int]::Parse('production') } catch { $_ | Show-Console -Compact -View Error }
 
 # Include script and .NET stacks in subsequent host errors.
 Enable-ConsoleFormatting -Feature Errors -Detailed
@@ -50,7 +50,7 @@ Disable-ConsoleFormatting -Feature Errors
 The message comes first. Only its label uses the error tone; the invocation line uses the PowerShell highlighter and a
 caret marks the failing expression. The script, line and column come from `InvocationInfo`. Category and target stay
 visible; inner exceptions fold into a muted count. PowerShell 7 adds a muted `Get-Error for details` hint. `-Detailed`
-includes stacks and causes. `Show-ConsoleError -Compact` provides the same view explicitly, including `-AsWidget`
+includes stacks and causes. `Show-Console -View Error -Compact` provides the same view explicitly, including `-AsWidget`
 and exports.
 
 `$ErrorView` is never changed: disabling the feature returns display control to PowerShell;
@@ -156,7 +156,7 @@ Enable-ConsoleFormatting -Feature ReadLine, Streams -ProfileSnippet
 Disable-ConsoleFormatting -Feature ReadLine, Streams
 ```
 
-`Streams` also sets `$PSStyle.Progress.Style` on PowerShell 7.2 and later, keeping `View`, width and other progress preferences as you set them. On Windows PowerShell 5.1 it sets the host's available progress foreground/background colors. Unsupported or unwritable properties are skipped. `Write-Progress` keeps native records, preferences and completion behavior. The separate legacy `Progress` feature installs the existing `Write-ConsoleProgress` alias; selecting only `ReadLine` and `Streams` installs neither that alias nor an `Out-Default` function.
+`Streams` also sets `$PSStyle.Progress.Style` on PowerShell 7.2 and later, keeping `View`, width and other progress preferences as you set them. On Windows PowerShell 5.1 it sets the host's available progress foreground/background colors. Unsupported or unwritable properties are skipped. `Write-Progress` keeps native records, preferences and completion behavior. The separate `Progress` feature installs the native-metadata `Write-Progress` function adapter; selecting only `ReadLine` and `Streams` installs neither that function adapter nor an `Out-Default` function.
 
 Re-enable either feature after choosing a new theme. Reapplying makes that installation the current owner of its native colors. Shared PSReadLine options follow the same ownership order as native stream and progress colors, retaining the first baseline until the last owner disables or removes the module. Editing mode, key bindings, prediction source and prediction view stay yours. Features can be disabled independently. The profile snippet only prints configuration lines.
 
@@ -195,7 +195,7 @@ For a .NET application the same renderer is `ConsoleMonster.Interactive.Grid`:
 ```csharp
 using ConsoleMonster.Interactive;
 
-Grid grid = new Grid("Choose nodes") { Selection = GridSelection.Single };
+Grid grid = new Grid("Choose nodes") { OutputMode = GridSelection.Single };
 grid.AddColumn("Name").AddColumn("Region");
 grid.AddRow("api-east", "api-east", "eu-west");
 GridResult selected = grid.Show();

@@ -28,4 +28,4 @@ Get-Service | Select-Object Name, Status
 Reference: [deployment guide](https://example.org/deploy).
 '@
 
-Show-ConsoleMarkdown -Content $content -NoPager
+Show-Console -Content $content -NoPager -View Markdown

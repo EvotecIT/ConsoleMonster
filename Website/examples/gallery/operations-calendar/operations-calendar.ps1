@@ -29,7 +29,7 @@ $report = New-ConsoleColumns -Content {
                 New-ConsoleText -Text $group.Group[0].Date.ToString('ddd dd MMM', [cultureinfo]'en-US')
                 New-ConsolePadding -Padding 2, 0, 0, 1 -Content {
                     New-ConsoleStatusList -Content {
-                        foreach ($day in $group.Group) { New-ConsoleStatusItem -Key $day.Label -Label $day.Label -Status $day.Status }
+                        foreach ($day in $group.Group) { [pscustomobject] @{ Key = $day.Label; Label = $day.Label; Status = $day.Status } }
                     }
                 }
             }

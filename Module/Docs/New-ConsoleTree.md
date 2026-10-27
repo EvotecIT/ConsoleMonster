@@ -6,39 +6,39 @@ schema: 2.0.0
 ---
 # New-ConsoleTree
 ## SYNOPSIS
-Creates a console tree from nested New-ConsoleTreeNode calls, hierarchical objects or nested hashtables.
+Creates a console tree from nested Label/Children records calls, hierarchical objects or nested hashtables.
 
-Three ways in, one tree out. Nodes: a script block of New-ConsoleTreeNode calls, each with its own status, detail and children (strings become leaves shown literally); nodes can also be piped in. Objects: pipe hierarchical objects (groups and members, folders and files) and name their children with -ChildrenProperty or a -Children script block ($_ is the parent); -LabelProperty, -StatusProperty and -DetailProperty pick what each node shows, and -Depth, -MaxItems and -MaxNodes keep a large or cyclic hierarchy bounded and mark what was left out (a repeated item is shown once with "(cycle)"). Hashtables: -InputObject maps keys to nested hashtables (child nodes), arrays (leaves) or other values (a muted note); use [ordered] to keep order. The title (markup allowed) is the root; without it the top-level nodes are the roots.
+Three ways in, one tree out. Nodes: a script block of Label/Children records calls, each with its own status, detail and children (strings become leaves shown literally); nodes can also be piped in. Objects: pipe hierarchical objects (groups and members, folders and files) and name their children with -ChildrenProperty or a -Children script block ($_ is the parent); -LabelProperty, -StatusProperty and -DetailProperty pick what each node shows, and -Depth, -MaxItems and -MaxNodes keep a large or cyclic hierarchy bounded and mark what was left out (a repeated item is shown once with "(cycle)"). Hashtables: -InputObject maps keys to nested hashtables (child nodes), arrays (leaves) or other values (a muted note); use [ordered] to keep order. The title (markup allowed) is the root; without it the top-level nodes are the roots.
 
 ## SYNTAX
 ### Nodes (Default)
 ```powershell
-New-ConsoleTree [[-Title] <Object>] [[-Content] <scriptblock>] [<CommonParameters>]
+New-ConsoleTree [[-Title] <Object>] [[-Content] <scriptblock>] [-WrapLabels] [-NoRoot] [-Presentation <PresentationOptions>] [<CommonParameters>]
 ```
 
 ### Objects
 ```powershell
-New-ConsoleTree [[-Title] <Object>] -InputObject <psobject> [-ChildrenProperty <string>] [-Children <scriptblock>] [-LabelProperty <string>] [-StatusProperty <string>] [-DetailProperty <string>] [-Depth <int>] [-MaxItems <int>] [-MaxNodes <int>] [<CommonParameters>]
+New-ConsoleTree [[-Title] <Object>] -InputObject <psobject> [-ChildrenProperty <string>] [-Children <scriptblock>] [-LabelProperty <string>] [-StatusProperty <string>] [-DetailProperty <string>] [-Depth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-WrapLabels] [-NoRoot] [-Presentation <PresentationOptions>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Creates a console tree from nested New-ConsoleTreeNode calls, hierarchical objects or nested hashtables.
+Creates a console tree from nested Label/Children records calls, hierarchical objects or nested hashtables.
 
-Three ways in, one tree out. Nodes: a script block of New-ConsoleTreeNode calls, each with its own status, detail and children (strings become leaves shown literally); nodes can also be piped in. Objects: pipe hierarchical objects (groups and members, folders and files) and name their children with -ChildrenProperty or a -Children script block ($_ is the parent); -LabelProperty, -StatusProperty and -DetailProperty pick what each node shows, and -Depth, -MaxItems and -MaxNodes keep a large or cyclic hierarchy bounded and mark what was left out (a repeated item is shown once with "(cycle)"). Hashtables: -InputObject maps keys to nested hashtables (child nodes), arrays (leaves) or other values (a muted note); use [ordered] to keep order. The title (markup allowed) is the root; without it the top-level nodes are the roots.
+Three ways in, one tree out. Nodes: a script block of Label/Children records calls, each with its own status, detail and children (strings become leaves shown literally); nodes can also be piped in. Objects: pipe hierarchical objects (groups and members, folders and files) and name their children with -ChildrenProperty or a -Children script block ($_ is the parent); -LabelProperty, -StatusProperty and -DetailProperty pick what each node shows, and -Depth, -MaxItems and -MaxNodes keep a large or cyclic hierarchy bounded and mark what was left out (a repeated item is shown once with "(cycle)"). Hashtables: -InputObject maps keys to nested hashtables (child nodes), arrays (leaves) or other values (a muted note); use [ordered] to keep order. The title (markup allowed) is the root; without it the top-level nodes are the roots.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
 New-ConsoleTree '[bold]evotec.xyz[/]' -Content {
-    New-ConsoleTreeNode 'MX' -Status Pass -Detail '2 records' -Content {
-        New-ConsoleTreeNode 'evotec-xyz.mail.protection.outlook.com' -Detail 'priority 0'
-    }
-    New-ConsoleTreeNode 'SPF' -Status Warn -Detail '9 of 10 DNS lookups' -Content {
+    [pscustomobject]@{ Label = 'MX'; Status = 'Pass'; Detail = '2 records'; Children = @(& {
+        [pscustomobject]@{ Label = 'evotec-xyz.mail.protection.outlook.com'; Detail = 'priority 0' }
+    }) }
+    [pscustomobject]@{ Label = 'SPF'; Status = 'Warn'; Detail = '9 of 10 DNS lookups'; Children = @(& {
         'include:spf.protection.outlook.com'
         'include:_spf.salesforce.com'
-    }
-    New-ConsoleTreeNode 'DMARC' -Status Fail -Detail 'p=none'
+    }) }
+    [pscustomobject]@{ Label = 'DMARC'; Status = 'Fail'; Detail = 'p=none' }
 } | Show-Console
 ```
 
@@ -106,7 +106,7 @@ Accept wildcard characters: False
 ```
 
 ### -Content
-A script block that emits the nodes: New-ConsoleTreeNode calls, or strings for leaves (shown literally).
+A script block that emits the nodes: Label/Children records calls, or strings for leaves (shown literally).
 
 ```yaml
 Type: ScriptBlock
@@ -122,7 +122,7 @@ Accept wildcard characters: False
 ```
 
 ### -Depth
-Levels of children to follow: New-ConsoleTree defaults to 5. Show-ConsoleTree defaults to 3 for object graphs, or one for wide .NET objects when Depth is omitted.
+Levels of children to follow: New-ConsoleTree defaults to 5. Show-Console -View Tree defaults to 3 for object graphs, or one for wide .NET objects when Depth is omitted.
 
 ```yaml
 Type: Int32
@@ -154,7 +154,7 @@ Accept wildcard characters: False
 ```
 
 ### -InputObject
-Hierarchical objects (pipeline input); each becomes a top-level node. Nodes from New-ConsoleTreeNode go in as they are.
+Hierarchical objects (pipeline input); each becomes a top-level node. Nodes from Label/Children records go in as they are.
 
 ```yaml
 Type: PSObject
@@ -217,6 +217,38 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -NoRoot
+Hides the default-on root when a title was supplied.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Nodes, Objects
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Presentation
+Typed culture, time-zone and value presentation configuration.
+
+```yaml
+Type: PresentationOptions
+Parameter Sets: Nodes, Objects
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -StatusProperty
 The property whose value is the node status (pass, fail, warn, skip... or PowerShell's words).
 
@@ -244,6 +276,22 @@ Possible values:
 
 Required: False
 Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WrapLabels
+Wraps node labels and values with hanging indentation.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Nodes, Objects
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

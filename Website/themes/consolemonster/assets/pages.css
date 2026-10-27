@@ -410,3 +410,24 @@ html:not(.cm-js) .cm-paths [role="tablist"], html:not(.cm-js) .cm-demo [role="ta
   .cm-reel-steps > li { grid-template-columns: 30px minmax(0, 1fr); }
   .cm-reel-steps > li > .cm-code, .cm-reel-steps > li > .cm-reel-steps__file { grid-column: 2; }
 }
+
+/* Three source styles share one remembered choice; all remain visible without JavaScript. */
+.cm-js .cm-try__code[data-lang="csharp-fluent"],
+.cm-js .cm-lang[data-lang="csharp-fluent"],
+.cm-js .cm-reel__cmd[data-lang="csharp-fluent"],
+.cm-js[data-lang="csharp-fluent"] .cm-try__code[data-lang="powershell"],
+.cm-js[data-lang="csharp-fluent"] .cm-lang[data-lang="powershell"],
+.cm-js[data-lang="csharp-fluent"] .cm-reel__cmd[data-lang="powershell"] { display: none; }
+.cm-js[data-lang="csharp-fluent"] .cm-try__code[data-lang="csharp-fluent"] { display: grid; }
+.cm-js[data-lang="csharp-fluent"] .cm-lang[data-lang="csharp-fluent"],
+.cm-js[data-lang="csharp-fluent"] .cm-reel__cmd[data-lang="csharp-fluent"] { display: block; }
+.cm-js[data-lang="csharp-fluent"] .cm-reel-steps.cm-reel__cmd[data-lang="csharp-fluent"],
+.cm-js[data-lang="csharp-fluent"] .cm-reel-shortcut__cmds[data-lang="csharp-fluent"] { display: grid; }
+
+.cm-api-map { margin-top: var(--cm-space-4); min-width: 0; }
+.cm-api-map h3 { margin-bottom: var(--cm-space-2); font-size: 1rem; }
+.cm-api-map .cm-table-wrap { overflow-x: auto; }
+.cm-api-map table { width: 100%; border-collapse: collapse; text-align: left; }
+.cm-api-map th, .cm-api-map td { padding: .5rem .65rem; border-bottom: 1px solid var(--cm-line); vertical-align: top; }
+.cm-api-map th { color: var(--cm-muted); font-size: .8rem; }
+.cm-api-map small { display: block; margin-top: .25rem; color: var(--cm-muted); }

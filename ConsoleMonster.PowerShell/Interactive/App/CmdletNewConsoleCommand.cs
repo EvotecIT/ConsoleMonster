@@ -8,7 +8,7 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="synopsis">Defines an in-app action for buttons, palettes and grid rows.</para>
     /// <para type="description">Creates a passive command definition. Work runs in an isolated runspace with explicit arguments and module imports, not the defining closure. The first script parameter receives a deserialized row snapshot. Selected or marked rows are captured before optional modal confirmation and run in order. Output, host messages, warnings, errors and progress stream into the app's log. F6 requests cancellation while the app stays open. After a two-second grace period the app becomes available even when a native call is still stopping. That command cannot start again until its previous runspace exits; other commands remain available. Cancellation cannot undo effects already performed by an external operation.</para>
     /// </summary>
-    /// <example><para>Restart selected services after confirmation without closing the viewer.</para><code>$restart = New-ConsoleCommand -Key Restart -Label 'Restart service' -Shortcut Ctrl+R -ConfirmPrompt 'Restart selected services?' -ScriptBlock { param($Row) Restart-Service -Name $Row.Name -ErrorAction Stop }; Get-Service | Show-ConsoleGrid -Action $restart</code></example>
+    /// <example><para>Restart selected services after confirmation without closing the viewer.</para><code>$restart = New-ConsoleCommand -Key Restart -Label 'Restart service' -Shortcut Ctrl+R -ConfirmPrompt 'Restart selected services?' -ScriptBlock { param($Row) Restart-Service -Name $Row.Name -ErrorAction Stop }; Get-Service | Show-ConsoleGrid -Command $restart</code></example>
     [Cmdlet(VerbsCommon.New, "ConsoleCommand")]
     [OutputType(typeof(AppCommand))]
     public sealed class CmdletNewConsoleCommand : PSCmdlet {
@@ -20,6 +20,8 @@ namespace ConsoleMonster.PowerShell {
         [Parameter] public string? Shortcut { get; set; }
         /// <summary><para type="description">Optional modal confirmation text. {Selection} expands to the focused row label or marked-row count. No is the initial answer.</para></summary>
         [Parameter] public string? ConfirmPrompt { get; set; }
+        /// <summary><para type="description">Shows a progress dialog with Cancel and Background, followed by the operation summary.</para></summary>
+        [Parameter] public SwitchParameter ProgressDialog { get; set; }
         /// <summary><para type="description">Operation source, receiving param($Row, ...explicit arguments). Closure variables are not inherited.</para></summary>
         [Parameter(Mandatory = true)] public ScriptBlock ScriptBlock { get; set; } = null!;
         /// <summary><para type="description">Explicit values serialized when defining the command and passed after Row.</para></summary>
@@ -28,10 +30,10 @@ namespace ConsoleMonster.PowerShell {
         [Parameter] public string[] ImportModule { get; set; } = Array.Empty<string>();
         /// <inheritdoc />
         protected override void EndProcessing() {
-            AppCommand command = PSCommandActions.Create(Key, Label ?? Key, ScriptBlock.ToString(), ArgumentList, ImportModule);
-            command.ConfirmPrompt = ConfirmPrompt;
-            if (!string.IsNullOrWhiteSpace(Shortcut)) { command.Shortcut = KeyChord.Parse(Shortcut!); }
-            WriteObject(command);
+            WriteObject(ConsoleHostCommands.Create(new ConsoleCommandOptions {
+                Key = Key, Label = Label, Shortcut = Shortcut, ConfirmPrompt = ConfirmPrompt, ProgressDialog = ProgressDialog.IsPresent,
+                ScriptBlock = ScriptBlock, ArgumentList = ArgumentList, ImportModule = ImportModule
+            }));
         }
     }
 }

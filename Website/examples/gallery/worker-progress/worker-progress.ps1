@@ -28,7 +28,7 @@ function New-DemoFrame {
                         'Workers' = '8'
                         'Dropped' = '[pass]0[/]'
                     })
-                New-ConsoleSparkline -Label 'updates/s' -Value @(120, 180, 160, 240, 210, (220 + $Tick * 15))
+                New-ConsoleChart -Label 'updates/s' -Type Sparkline -Values @(120, 180, 160, 240, 210, (220 + $Tick * 15))
             }
         }
         '[muted]Ctrl+C stops the live run.[/]'
@@ -37,14 +37,14 @@ function New-DemoFrame {
 
 # Behaviour: update each frame in a bounded live run.
 $frames = @(0..4 | ForEach-Object -Process { New-DemoFrame -Tick $_ })
-$screen = New-ConsoleRegion -WidgetId demo -Widget $frames[0]
+$screen = New-ConsoleRegion -WidgetId demo -Content $frames[0]
 Invoke-ConsoleDashboard -Dashboard $screen -ArgumentList (, $frames) -ScriptBlock {
     param($Frames)
     foreach ($frame in $Frames) {
         if ($ConsoleSession.Cancellation.IsCancellationRequested) {
             break
         }
-        Set-ConsoleRegion -WidgetId demo -Widget $frame
+        Update-Console -WidgetId demo -Content $frame
         Wait-ConsoleDashboard -Milliseconds 650
     }
 }

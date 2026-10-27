@@ -247,13 +247,13 @@ namespace ConsoleMonster.Presenters {
             }
             foreach (RoleRule rule in rules) {
                 if (rule.Matches(value, presented.Number)) {
-                    return WithRole(presented, rule.Role, context);
+                    return Role(presented, rule.Role, context);
                 }
             }
             return presented;
         }
 
-        private static PresentedValue WithRole(PresentedValue presented, ThemeToken tone, PresenterContext context) {
+        private static PresentedValue Role(PresentedValue presented, ThemeToken tone, PresenterContext context) {
             Style style = context.Render.Style(tone);
             List<TextSpan> spans = new List<TextSpan>();
             if (!context.HasColor && ToStatus(tone, out StatusKind status)) {

@@ -84,7 +84,7 @@ namespace ConsoleMonster.Tests.Views {
         public void Decide_HonoursOverridesAndHints() {
             IReadOnlyList<object?> servers = new object?[] { Srv("a", ServiceState.Running), Srv("b", ServiceState.Stopped) };
             Assert.Equal(ConsoleViewKind.Grid, ConsoleView.Decide(servers, new ConsoleViewOptions { View = ConsoleViewKind.Grid }));
-            Assert.Equal(ConsoleViewKind.Chart, ConsoleView.Decide(servers, new ConsoleViewOptions { Chart = true }));
+            Assert.Equal(ConsoleViewKind.Chart, ConsoleView.Decide(servers, new ConsoleViewOptions { View = ConsoleViewKind.Chart }));
             Assert.Equal(ConsoleViewKind.Tree, ConsoleView.Decide(new object?[] { new Folder() }, new ConsoleViewOptions { ChildrenProperty = "Children" }));
         }
 

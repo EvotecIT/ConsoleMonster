@@ -224,7 +224,7 @@ Accept wildcard characters: False
 ```
 
 ### -Path
-Test files or folders (Run.Path); default the current folder.
+Test files or folders; omitted uses Pester's current-folder default.
 
 ```yaml
 Type: String[]

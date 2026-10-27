@@ -61,7 +61,7 @@ $dashboard = New-ConsoleDashboard -Title '[bold]Module build[/]' -Subtitle 'Buil
                 else {
                     ''
                 }
-                New-ConsoleStatusItem -Label $phase -Status $state -Detail $detail
+                [pscustomobject]@{ Label = $phase; Status = $state; Detail = $detail }
                 $offset = $last
             }
         }
@@ -78,7 +78,7 @@ $dashboard = New-ConsoleDashboard -Title '[bold]Module build[/]' -Subtitle 'Buil
                     else {
                         ''
                     }
-                    New-ConsoleStatusItem -Label (Format-PipelinePath -Text $item.Label) -Key $item.Key -Status $state -Detail $detail
+                    [pscustomobject]@{ Label = (Format-PipelinePath -Text $item.Label); Key = $item.Key; Status = $state; Detail = $detail }
                 }
             }
         }
@@ -106,22 +106,22 @@ $dashboard = New-ConsoleDashboard -Title '[bold]Module build[/]' -Subtitle 'Buil
                     $done = if ($completed -gt $i + 3) { 1 } else { 0 }
                     $state = if ($done) { 'Pass' } elseif ($completed -eq $i + 3) { 'Running' } else { 'Pending' }
                     $detail = if ($done) { 'compiled' } elseif ($state -eq 'Running') { 'compiling' } else { 'queued' }
-                    New-ConsoleLane -Key "c$i" -Label $compilerNames[$i] -Total 1 -Done $done -Passed $done -Status $state -Detail $detail
+                    [pscustomobject]@{ Key = "c$i"; Label = $compilerNames[$i]; Total = 1; Passed = $done; Status = $state; Detail = $detail; Value = $done }
                 }
             }
         }
     }
     New-ConsolePanel -Title Output -Fill -Content {
         New-ConsoleLogRegion -Height 8 -NoElapsed -Content {
-            New-ConsoleLogEntry -Message 'Build engine · release pipeline'
+            [pscustomobject]@{ Message = 'Build engine · release pipeline' }
             foreach ($item in ($steps | Select-Object -First $completed)) {
                 $level = if ($item.Result -eq 'Warn') { 'warn' } elseif ($item.Result -eq 'Skip') { 'skip' } else { 'info' }
                 foreach ($line in $item.Output) {
-                    New-ConsoleLogEntry -Message (Format-PipelinePath -Text $line) -Level $level
+                    [pscustomobject]@{ Message = (Format-PipelinePath -Text $line); Level = $level }
                 }
             }
             if ($completed -lt $steps.Count) {
-                New-ConsoleLogEntry -Message ((Format-PipelinePath -Text $steps[$completed].Label) + '...')
+                [pscustomobject]@{ Message = ((Format-PipelinePath -Text $steps[$completed].Label) + '...') }
             }
         }
     }
@@ -138,11 +138,11 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ArgumentList (, $steps) -ScriptBl
             break
         }
         $item = $Steps[$i]
-        Update-ConsolePhase -Key $item.Phase -Status Running
-        Update-ConsoleStatusItem -WidgetId steps -Key $item.Key -Status Running
-        Update-ConsoleProgress -WidgetId overall -Label $item.Phase
+        Update-Console -Key $item.Phase -Status Running -WidgetId 'phases'
+        Update-Console -WidgetId steps -Key $item.Key -Status Running
+        Update-Console -WidgetId overall -Label $item.Phase
         if ($i -ge 3 -and $i -le 6) {
-            Update-ConsoleLane -WidgetId compilers -Key ('c' + ($i - 3)) -Status Running -Detail compiling
+            Update-Console -WidgetId compilers -Key ('c' + ($i - 3)) -Status Running -Detail compiling
         }
         Write-Host -Object ($item.Label.Replace([char]92, [char]47) + '...')
         Wait-ConsoleDashboard -Milliseconds ([int]($item.Seconds * 400))
@@ -157,17 +157,17 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ArgumentList (, $steps) -ScriptBl
         }
         $elapsed += $item.Seconds
         $detail = $item.Seconds.ToString('0.0', $culture) + 's'
-        Update-ConsoleStatusItem -WidgetId steps -Key $item.Key -Status $item.Result -Detail $detail
-        Set-ConsoleValue -WidgetId module -Key Elapsed -Value ($elapsed.ToString('0.0', $culture) + 's')
-        Update-ConsoleProgress -WidgetId overall -Value ($i + 1)
+        Update-Console -WidgetId steps -Key $item.Key -Status $item.Result -Detail $detail
+        Update-Console -WidgetId module -Key Elapsed -Value ($elapsed.ToString('0.0', $culture) + 's')
+        Update-Console -WidgetId overall -Value ($i + 1)
         if ($i -ge 3 -and $i -le 6) {
-            Update-ConsoleLane -WidgetId compilers -Key ('c' + ($i - 3)) -Result Pass -Detail compiled -Complete
+            Update-Console -WidgetId compilers -Key ('c' + ($i - 3)) -Result Pass -Detail compiled -Complete
         }
         if ($i -eq $Steps.Count - 1 -or $Steps[$i + 1].Phase -ne $item.Phase) {
             $group = @($Steps | Where-Object -Property Phase -EQ -Value $item.Phase)
             $state = if ($group.Result -contains 'Warn') { 'Warn' } elseif (@($group | Where-Object -Property Result -NE -Value Skip).Count -eq 0) { 'Skip' } else { 'Pass' }
             $detail = ($group | Measure-Object -Property Seconds -Sum).Sum.ToString('0.0', $culture) + 's'
-            Update-ConsolePhase -Key $item.Phase -Status $state -Detail $detail
+            Update-Console -Key $item.Phase -Status $state -Detail $detail -WidgetId 'phases'
         }
     }
 }

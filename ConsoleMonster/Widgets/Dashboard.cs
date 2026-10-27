@@ -13,15 +13,17 @@ namespace ConsoleMonster.Widgets {
     /// footer bar (hints such as "Ctrl+C to stop"). In print-once output it renders the same parts top to bottom.
     /// Live operations: <c>title</c> (Text), <c>subtitle</c> (Text), <c>status</c> (Text, State), <c>footer</c> (Text).
     /// </summary>
-    public sealed partial class Dashboard : LiveWidget, IContainer, Output.ITaskbarProgressSource {
+    public sealed partial class Dashboard : LiveWidget, IContainer, IContentOwner, Output.ITaskbarProgressSource {
         /// <summary>Creates a dashboard.</summary>
         /// <param name="title">The title (markup).</param>
-        /// <param name="body">The body.</param>
+        /// <param name="content">The body.</param>
         /// <param name="widgetId">The live name (default <c>dashboard</c>).</param>
-        public Dashboard(string title, IWidget body, string widgetId = "dashboard") : base(widgetId) {
+        public Dashboard(string title = "", IWidget? content = null, string widgetId = "dashboard") : base(widgetId) {
             Title = title ?? string.Empty;
-            Body = body ?? throw new ArgumentNullException(nameof(body));
+            Content = content ?? new Rows();
         }
+
+        void IContentOwner.ReplaceContent(IWidget[] content) => Content = ContentBuilder.Compose(content);
 
         /// <summary>The title (markup).</summary>
         public string Title { get; set; }
@@ -47,10 +49,10 @@ namespace ConsoleMonster.Widgets {
         public bool ShowElapsed { get; set; } = true;
 
         /// <summary>The body.</summary>
-        public IWidget Body { get; }
+        public IWidget Content { get; set; }
 
         /// <inheritdoc />
-        public IReadOnlyList<IWidget> Children => new[] { Body };
+        public IReadOnlyList<IWidget> Children => new[] { Content };
 
         /// <summary>The run state for the terminal's indicator: red after a failure status, yellow after a warning status.</summary>
         /// <param name="state">The state.</param>
@@ -89,7 +91,7 @@ namespace ConsoleMonster.Widgets {
         /// <inheritdoc />
         public override Size Measure(Constraints constraints, RenderContext context) {
             int chrome = 1 + (HasFooter ? 1 : 0);
-            Size body = Body.Measure(constraints.Shrink(0, chrome + 1), context);
+            Size body = Content.Measure(constraints.Shrink(0, chrome + 1), context);
             int height = body.Height + chrome + 1;
             return new Size(constraints.MaxWidth, constraints.IsHeightUnbounded ? height : Math.Min(height, constraints.MaxHeight));
         }
@@ -103,7 +105,7 @@ namespace ConsoleMonster.Widgets {
             bool footer = HasFooter && region.Height > 3;
             int bodyHeight = region.Height - 2 - (footer ? 1 : 0);
             if (bodyHeight > 0) {
-                Body.Render(region.Sub(0, 2, region.Width, bodyHeight), context);
+                Content.Render(region.Sub(0, 2, region.Width, bodyHeight), context);
             }
             if (footer) {
                 DrawFooter(region.Sub(0, region.Height - 1, region.Width, 1), context);

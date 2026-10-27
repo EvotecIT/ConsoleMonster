@@ -54,7 +54,7 @@ namespace SiteFrames.Pages {
                 CellBuffer light = CheckedFrame(site, width, "light", Theme.Light, ColorDepth.TrueColor, GlyphTier.Full);
                 string id = "pipeline-charts-" + width;
                 DocCards.Offer(id, dark, null);
-                Figures.Add(id, Figures.WithProgram(new JsonObject {
+                Figures.Add(id, Figures.WithProgram(site, new JsonObject {
                     ["title"] = "Show-ConsoleChart",
                     ["file"] = "pipeline-charts.ps1",
                     ["label"] = "Bars, a distribution and grouped trends from numeric samples",
@@ -105,7 +105,7 @@ namespace SiteFrames.Pages {
 
         /// <summary>Reproduces narrow exporter chrome with real chart content, including the reported 20-column frame.</summary>
         private static void ReviewChrome(string output) {
-            PipelineChart chart = new PipelineChart { Type = PipelineChartType.Sparkline };
+            PipelineChart chart = new PipelineChart { Type = ChartType.Sparkline };
             foreach (double sample in new[] { 1.0, 2.0, 3.0 }) {
                 chart.Add("long-host-name.example.org", sample).Add("日本語の長いホスト名", sample + 1);
             }

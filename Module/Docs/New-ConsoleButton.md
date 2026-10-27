@@ -13,7 +13,7 @@ Emits a stable core Button widget. Place inputs in the outer layout, outside dep
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleButton [-Key] <string> [[-Label] <string>] [-OnClick <scriptblock>] [-Command <AppCommand>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [<CommonParameters>]
+New-ConsoleButton [-Key] <string> [[-Label] <string>] [-OnClick <scriptblock>] [-Command <AppCommand>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [-ValidationMessage <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -133,6 +133,22 @@ Keyboard focus order. Equal values preserve layout declaration order.
 
 ```yaml
 Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ValidationMessage
+Initial validation text displayed below the input.
+
+```yaml
+Type: String
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

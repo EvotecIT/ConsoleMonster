@@ -13,7 +13,7 @@ Builds the layout once, then runs input synchronously on the caller's PowerShell
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Show-ConsoleApp [-Content] <scriptblock> [-PassThru] [-StaticSnapshot] [-NoMouse] [-Command <AppCommand[]>] [-SelectionKey <string>] [-Mode <InteractionMode>] [-InputSource <IInputSource>] [-Capture <ScreenCapture>] [-Profile <TerminalProfile>] [-Theme <ITheme>] [-Live <LiveSessionOptions>] [<CommonParameters>]
+Show-ConsoleApp [-Content] <scriptblock> [-Keys <AppHostKeys>] [-SignalKeys] [-HandleInput <Func[AppState,InputEvent,bool]>] [-TerminalHandoff <TerminalHandoff>] [-Dialogs <AppDialogs>] [-Actions <AppActions>] [-Footer <IWidget>] [-MinimumWidth <int>] [-MinimumHeight <int>] [-PassThru] [-StaticSnapshot] [-NoMouse] [-Command <AppCommand[]>] [-SelectionKey <string>] [-Mode <InteractionMode>] [-InputSource <IInputSource>] [-Capture <ScreenCapture>] [-Profile <TerminalProfile>] [-Theme <ITheme>] [-Live <LiveSessionOptions>] [-ReflowBelow <int>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -45,6 +45,22 @@ Show-ConsoleApp -Content { New-ConsoleTextInput -Key Query } -InputSource $keys 
 Capture a scripted run without a physical console.
 
 ## PARAMETERS
+
+### -Actions
+App-thread action service for starting the shared worker from registry and dialog callbacks.
+
+```yaml
+Type: AppActions
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -Capture
 Memory capture instead of terminal output; also supplies default screen dimensions.
@@ -94,6 +110,54 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Dialogs
+Typed modal form service attached for this app run.
+
+```yaml
+Type: AppDialogs
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Footer
+Context key bar, normally a FooterBar reading the app's command registry.
+
+```yaml
+Type: IWidget
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -HandleInput
+App-thread command registry routing before the focused input. Return true when consumed.
+
+```yaml
+Type: Func`3
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -InputSource
 Input source, including ScriptedInput for examples and tests. Uses the existing core input lease.
 
@@ -110,11 +174,59 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Keys
+Host focus, cancel and palette gestures. Set a gesture to null to release it to the app registry.
+
+```yaml
+Type: AppHostKeys
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Live
 Optional full-screen live rendering settings, passed directly to the core runner. Inline mode is rejected before input or state initialization.
 
 ```yaml
 Type: LiveSessionOptions
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -MinimumHeight
+Minimum terminal height; zero permits any height.
+
+```yaml
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -MinimumWidth
+Minimum terminal width; smaller windows show a resize message without losing focus.
+
+```yaml
+Type: Int32
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -190,6 +302,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -ReflowBelow
+Default width below which columns stack; explicit column thresholds take precedence.
+
+```yaml
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -SelectionKey
 App-state key containing the selected row or row collection supplied to commands.
 
@@ -206,11 +334,43 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -SignalKeys
+Allows the terminal to generate Ctrl+C and Ctrl+backslash signals instead of app input events.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -StaticSnapshot
 Prints or captures one initialized snapshot without reading input; usable in CI or redirected output.
 
 ```yaml
 Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -TerminalHandoff
+Child-terminal and last-output service attached for this app run.
+
+```yaml
+Type: TerminalHandoff
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

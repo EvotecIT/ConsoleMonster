@@ -11,11 +11,11 @@ namespace ConsoleMonster.PowerShell {
     /// <example><para>A scrollable detail pane.</para><code>New-ConsoleScrollView -Content { $details } -Height 12</code></example>
     [Cmdlet(VerbsCommon.New, "ConsoleScrollView")]
     [OutputType(typeof(IWidget))]
-    public sealed class CmdletNewConsoleScrollView : PSCmdlet {
+    public sealed class CmdletNewConsoleScrollView : ContainerCmdlet {
         /// <summary><para type="description">Widgets, text, objects, or a script block that emits them.</para></summary>
-        [Parameter(Position = 0)] public object? Content { get; set; }
-        /// <summary><para type="description">A widget supplied through the pipeline.</para></summary>
-        [Parameter(ValueFromPipeline = true)] public IWidget? Widget { get; set; }
+        [Parameter(Position = 0, ValueFromPipeline = true)]
+        [AllowNull, AllowEmptyCollection]
+        public override object? Content { get; set; }
         /// <summary><para type="description">First visible content row.</para></summary>
         [Parameter, ValidateRange(0, int.MaxValue)] public int ScrollOffset { get; set; }
         /// <summary><para type="description">Maximum composed rows for ordinary content; use virtualized lists or grids for larger data.</para></summary>
@@ -27,12 +27,10 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Use the available height.</para></summary>
         [Parameter] public SwitchParameter Fill { get; set; }
         /// <inheritdoc />
-        protected override void ProcessRecord() {
-            List<IWidget> children = PSWidgets.CollectAny(Content, this);
-            if (Widget != null) { children.Add(Widget); }
+        protected override IWidget Build(List<IWidget> children) {
             ScrollView scroll = new ScrollView(children.Count == 1 ? children[0] : new Rows(children.ToArray())) { MaxContentHeight = MaxContentHeight };
             if (MyInvocation.BoundParameters.ContainsKey(nameof(ScrollOffset))) { scroll.ScrollOffset = ScrollOffset; }
-            WriteObject(PSWidgets.WithSize(scroll, Weight, Height, Fill.IsPresent));
+            return PSWidgets.WithSize(scroll, Weight, Height, Fill.IsPresent);
         }
     }
 }

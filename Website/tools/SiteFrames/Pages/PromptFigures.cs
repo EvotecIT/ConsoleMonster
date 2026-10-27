@@ -17,7 +17,7 @@ namespace SiteFrames.Pages {
             foreach (int width in new[] { 120, 60 }) {
                 CellBuffer dark = CSharpRunner.Run(program, width, ColorDepth.TrueColor, GlyphTier.Full, Theme.Dark);
                 CellBuffer light = CSharpRunner.Run(program, width, ColorDepth.TrueColor, GlyphTier.Full, Theme.Light);
-                Figures.Add("shell-prompt-" + width, Figures.WithProgram(new JsonObject {
+                Figures.Add("shell-prompt-" + width, Figures.WithProgram(site, new JsonObject {
                     ["title"] = "Shell prompt · " + width + " columns",
                     ["label"] = "Illustrative path, dirty branch, success and failure; only the slow command has a duration.",
                     ["frame"] = site.FrameAt(width, dark, light)

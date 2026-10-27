@@ -7,7 +7,7 @@ $servers = @(
     [pscustomobject] @{ Name = 'DC03'; Site = 'Dublin'; Roles = 'DNS', 'GC', 'RID', 'Infrastructure', 'Schema', 'Naming'; LastSync = (New-TimeSpan -Seconds 64); Status = 'Pass' }
     [pscustomobject] @{ Name = 'DC04'; Site = 'Dublin'; Roles = @(); LastSync = (New-TimeSpan -Hours 4); Status = 'Fail' }
 )
-Show-ConsoleRule 'Format-Table'
+Show-Console -Title 'Format-Table' -View Rule
 $servers | Format-Table | Out-Host
-Show-ConsoleRule 'Show-ConsoleTable -GroupBy Site'
+Show-Console -Title 'Show-ConsoleTable -GroupBy Site' -View Rule
 $servers | Show-ConsoleTable -GroupBy Site

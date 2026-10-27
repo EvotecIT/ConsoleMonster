@@ -8,18 +8,18 @@ schema: 2.0.0
 ## SYNOPSIS
 Starts a bounded run dashboard for work scheduled by your script.
 
-Declares the queued items and returns a LiveRun handle. Use Update-ConsoleRun as workers start or finish and Complete-ConsoleRun in a finally block. Finished items stream above the live dashboard; failures and warnings remain pinned. The dashboard uses at most 40 percent of terminal height by default. CI and redirected hosts use append-only lines with periodic totals. This command does not execute work or change its results or exit code. Name, Target and Group accept property names or script blocks evaluated once, before the session starts. Interactive keys are opt-in: p pauses the log, f filters it to problems, g toggles groups, and ? shows help.
+Declares the queued items and returns a LiveRun handle. Use Update-Console as workers start or finish and Complete-ConsoleRun in a finally block. Finished items stream above the live dashboard; failures and warnings remain pinned. The dashboard uses at most 40 percent of terminal height by default. CI and redirected hosts use append-only lines with periodic totals. This command does not execute work or change its results or exit code. Name, Target and Group accept property names or script blocks evaluated once, before the session starts. Interactive keys are opt-in: p pauses the log, f filters it to problems, g toggles groups, and ? shows help.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Start-ConsoleRun -Items <psobject[]> [-Title <string>] [-Label <Object>] [-Target <Object>] [-Group <Object>] [-NoLive] [-InteractiveKeys] [-Trend] [-HeightPercent <int>] [-ProgressEvery <int>] [-ProgressIntervalSeconds <double>] [-ReportPath <string>] [<CommonParameters>]
+Start-ConsoleRun -Items <psobject[]> [-Title <string>] [-Label <Object>] [-Target <Object>] [-Group <Object>] [-NoLive] [-InteractiveKeys] [-ShowTrend] [-HeightPercent <int>] [-ProgressEvery <int>] [-ProgressIntervalSeconds <double>] [-ReportPath <string>] [-NoGroups] [-Session <LiveSessionOptions>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Starts a bounded run dashboard for work scheduled by your script.
 
-Declares the queued items and returns a LiveRun handle. Use Update-ConsoleRun as workers start or finish and Complete-ConsoleRun in a finally block. Finished items stream above the live dashboard; failures and warnings remain pinned. The dashboard uses at most 40 percent of terminal height by default. CI and redirected hosts use append-only lines with periodic totals. This command does not execute work or change its results or exit code. Name, Target and Group accept property names or script blocks evaluated once, before the session starts. Interactive keys are opt-in: p pauses the log, f filters it to problems, g toggles groups, and ? shows help.
+Declares the queued items and returns a LiveRun handle. Use Update-Console as workers start or finish and Complete-ConsoleRun in a finally block. Finished items stream above the live dashboard; failures and warnings remain pinned. The dashboard uses at most 40 percent of terminal height by default. CI and redirected hosts use append-only lines with periodic totals. This command does not execute work or change its results or exit code. Name, Target and Group accept property names or script blocks evaluated once, before the session starts. Interactive keys are opt-in: p pauses the log, f filters it to problems, g toggles groups, and ? shows help.
 
 ## EXAMPLES
 
@@ -29,9 +29,9 @@ $files = @(Get-ChildItem *.log)
 $run = Start-ConsoleRun -Items $files -Title 'Archive logs' -Label Name -Target DirectoryName
 try {
     for ($i = 0; $i -lt $files.Count; $i++) {
-        Update-ConsoleRun $run -Index $i -Status Running -Phase 'archiving'
-        try { Compress-Archive $files[$i].FullName "$($files[$i].FullName).zip" -ErrorAction Stop; Update-ConsoleRun $run -Index $i -Status Pass }
-        catch { Update-ConsoleRun $run -Index $i -Status Fail -Message $_.Exception.Message }
+        Update-Console -Run $run -Index $i -Status Running -Label 'archiving'
+        try { Compress-Archive $files[$i].FullName "$($files[$i].FullName).zip" -ErrorAction Stop; Update-Console -Run $run -Index $i -Status Pass }
+        catch { Update-Console -Run $run -Index $i -Status Fail -Detail $_.Exception.Message }
     }
 } finally { Complete-ConsoleRun $run }
 ```
@@ -127,6 +127,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -NoGroups
+Hides default-on category progress.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -NoLive
 Force append-only output without cursor movement.
 
@@ -191,6 +207,38 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Session
+Exclusive typed session configuration. The run owns its output lifetime and applies run-specific layout and cancellation settings.
+
+```yaml
+Type: LiveSessionOptions
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ShowTrend
+Show the throughput trend next to its rate.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Target
 An optional target property or script block.
 
@@ -212,22 +260,6 @@ The literal run title.
 
 ```yaml
 Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Trend
-Show the throughput trend next to its rate.
-
-```yaml
-Type: SwitchParameter
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

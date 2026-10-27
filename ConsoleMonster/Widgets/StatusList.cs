@@ -82,8 +82,13 @@ namespace ConsoleMonster.Widgets {
             if (liveEvent.Operation == "set") {
                 StatusKinds.TryParse(liveEvent.Status, out StatusKind status);
                 Set(liveEvent.Key, liveEvent.Text, status);
-            } else if (liveEvent.Operation == "detail" && _byKey.TryGetValue(liveEvent.Key, out StatusItem? item)) {
-                item.Detail = liveEvent.Text;
+            } else if (liveEvent.Operation == "detail" || liveEvent.Operation == "label") {
+                if (!_byKey.TryGetValue(liveEvent.Key, out StatusItem? item)) {
+                    Set(liveEvent.Key, null, StatusKind.Running);
+                    item = _byKey[liveEvent.Key];
+                }
+                if (liveEvent.Operation == "label") { item.Label = liveEvent.Text ?? string.Empty; }
+                else { item.Detail = liveEvent.Text; }
             }
         }
 

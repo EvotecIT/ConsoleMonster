@@ -13,12 +13,12 @@ PNG selects the final frame, -AtSeconds a source time, -Chapter a completed chap
 ## SYNTAX
 ### Session (Default)
 ```powershell
-Export-ConsoleRecording [-Path] <string> [[-Destination] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-FramesPerSecond <double>] [-Speed <double>] [-Theme <ExportTheme>] [-Title <string>] [-WindowChrome] [-ChromeStyle <WindowChromeStyle>] [-PassThru] [-FinalFrame] [-Preset <string>] [-Fit <string>] [-Background <string>] [-BackgroundColor <string>] [-BackgroundEndColor <string>] [-FontFamily <string>] [-AtSeconds <double>] [-Chapter <string>] [-PerChapter] [-IdleLimitSeconds <double>] [-LoopCount <int>] [-Pace <RecordingPace>] [-ChapterHoldSeconds <double>] [-HoldLastFrameSeconds <double>] [-TrimStartSeconds <double>] [-TrimEndSeconds <double>] [-TrimStartChapter <string>] [-TrimEndChapter <string>] [-ChapterSpeed <hashtable>] [<CommonParameters>]
+Export-ConsoleRecording [-Path] <string> [[-Destination] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-FramesPerSecond <double>] [-Speed <double>] [-Theme <ExportTheme>] [-Title <string>] [-WindowChrome] [-ChromeStyle <WindowChromeStyle>] [-PassThru] [-FinalFrame] [-Preset <string>] [-Fit <string>] [-Background <string>] [-BackgroundColor <string>] [-BackgroundEndColor <string>] [-FontFamily <string>] [-AtSeconds <double>] [-Chapter <string>] [-PerChapter] [-IdleLimitSeconds <double>] [-LoopCount <int>] [-Options <RecordingExportOptions>] [-MaxFontSize <double>] [-FontFallbacks <string[]>] [-Pace <RecordingPace>] [-ChapterHoldSeconds <double>] [-HoldLastFrameSeconds <double>] [-TrimStartSeconds <double>] [-TrimEndSeconds <double>] [-TrimStartChapter <string>] [-TrimEndChapter <string>] [-ChapterSpeeds <hashtable>] [<CommonParameters>]
 ```
 
 ### Dashboard
 ```powershell
-Export-ConsoleRecording [-Dashboard] <IWidget> [-Path] <string> [[-Destination] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-FramesPerSecond <double>] [-Speed <double>] [-Theme <ExportTheme>] [-Title <string>] [-WindowChrome] [-ChromeStyle <WindowChromeStyle>] [-PassThru] [-Preset <string>] [-Fit <string>] [-Background <string>] [-BackgroundColor <string>] [-BackgroundEndColor <string>] [-FontFamily <string>] [-IdleLimitSeconds <double>] [-LoopCount <int>] [-Pace <RecordingPace>] [-ChapterHoldSeconds <double>] [-HoldLastFrameSeconds <double>] [-TrimStartSeconds <double>] [-TrimEndSeconds <double>] [-TrimStartChapter <string>] [-TrimEndChapter <string>] [-ChapterSpeed <hashtable>] [<CommonParameters>]
+Export-ConsoleRecording [-Dashboard] <IWidget> [-Path] <string> [[-Destination] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-FramesPerSecond <double>] [-Speed <double>] [-Theme <ExportTheme>] [-Title <string>] [-WindowChrome] [-ChromeStyle <WindowChromeStyle>] [-PassThru] [-Preset <string>] [-Fit <string>] [-Background <string>] [-BackgroundColor <string>] [-BackgroundEndColor <string>] [-FontFamily <string>] [-IdleLimitSeconds <double>] [-LoopCount <int>] [-Options <RecordingExportOptions>] [-MaxFontSize <double>] [-FontFallbacks <string[]>] [-Pace <RecordingPace>] [-ChapterHoldSeconds <double>] [-HoldLastFrameSeconds <double>] [-TrimStartSeconds <double>] [-TrimEndSeconds <double>] [-TrimStartChapter <string>] [-TrimEndChapter <string>] [-ChapterSpeeds <hashtable>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -134,7 +134,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ChapterSpeed
+### -ChapterSpeeds
 Hashtable of chapter labels to positive speed multipliers, for example @{ Install = 4; Results = 1 }. Multiplies Speed for source and reading delays; explicit holds retain their duration. Labels must be unique in the recording.
 
 ```yaml
@@ -222,6 +222,22 @@ Type: String
 Parameter Sets: Session, Dashboard
 Aliases: None
 Possible values: Content, Terminal
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -FontFallbacks
+Additional raster font-family fallbacks, in preferred order.
+
+```yaml
+Type: String[]
+Parameter Sets: Session, Dashboard
+Aliases: None
+Possible values:
 
 Required: False
 Position: named
@@ -331,6 +347,38 @@ Total animation plays: zero repeats forever, one plays once.
 
 ```yaml
 Type: Int32
+Parameter Sets: Session, Dashboard
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -MaxFontSize
+Maximum raster font size in pixels; default 72.
+
+```yaml
+Type: Double
+Parameter Sets: Session, Dashboard
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Options
+Typed C# RecordingExportOptions, including sampling limits, markers, custom themes and playback settings. Use this instead of individual playback settings; the object is not modified.
+
+```yaml
+Type: RecordingExportOptions
 Parameter Sets: Session, Dashboard
 Aliases: None
 Possible values:

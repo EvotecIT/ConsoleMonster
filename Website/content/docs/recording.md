@@ -223,7 +223,7 @@ Trim with source positions, or with unique chapter labels. The start is included
 ```powershell
 Export-ConsoleRecording ./run.cast -Destination ./results.gif -Preset Slide16x9 `
     -TrimStartChapter Install -TrimEndChapter Cleanup `
-    -ChapterSpeed @{ Install = 4; Results = 1 } -ChapterHoldSeconds 2
+    -ChapterSpeeds @{ Install = 4; Results = 1 } -ChapterHoldSeconds 2
 # Time boundaries use positions in the original cast, before speed and holds.
 Export-ConsoleRecording ./run.cast -Destination ./excerpt.svg -TrimStartSeconds 4 -TrimEndSeconds 18
 ```

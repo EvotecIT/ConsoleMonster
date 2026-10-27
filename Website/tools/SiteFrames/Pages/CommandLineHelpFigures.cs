@@ -12,7 +12,7 @@ namespace SiteFrames.Pages {
             foreach (int width in new[] { 120, 60 }) {
                 var dark = CSharpRunner.Run(program, width, ColorDepth.TrueColor, GlyphTier.Full, Theme.Dark);
                 var light = CSharpRunner.Run(program, width, ColorDepth.TrueColor, GlyphTier.Full, Theme.Light);
-                Figures.Add("cli-help-" + width, Figures.WithProgram(new JsonObject {
+                Figures.Add("cli-help-" + width, Figures.WithProgram(site, new JsonObject {
                     ["title"] = "dotnet run",
                     ["label"] = "Parser-independent command-line help",
                     ["meta"] = new JsonArray(width + "×" + dark.Height, "24-bit", "Full"),

@@ -11,10 +11,10 @@ Import-Module '__MODULE__' -Force
 $items = @([pscustomobject]@{Name='Alpha';Target='host-1';Group='DNS'}, [pscustomobject]@{Name='Beta';Target='host-2';Group='DNS'}, [pscustomobject]@{Name='Gamma';Target='host-3';Group='Storage'})
 $run = Start-ConsoleRun -Items $items -Label { $_.Name } -Target Target -Group Group -Title 'Batch checks' -NoLive -ProgressEvery 2 -ProgressIntervalSeconds 0 -ReportPath 'reports/checks.html'
 try {
-    Update-ConsoleRun $run -Index 0 -Status Running -Phase 'collecting'
-    Update-ConsoleRun $run -Index 0 -Status Pass
-    Update-ConsoleRun $run -Index 1 -Status Warn -Message 'Partial response [literal]'
-    Update-ConsoleRun $run -Index 1 -Status Fail -Message 'duplicate ignored'
+    Update-Console -Run $run -Index 0 -Status Running -Label 'collecting'
+    Update-Console -Run $run -Index 0 -Status Pass
+    Update-Console -Run $run -Index 1 -Status Warn -Detail 'Partial response [literal]'
+    Update-Console -Run $run -Index 1 -Status Fail -Detail 'duplicate ignored'
     $value = 42
 } finally { $summary = Complete-ConsoleRun $run -PassThru }
 "COUNTS=$($summary.Passed),$($summary.Warned),$($summary.Failed),$($summary.Skipped)"
@@ -40,18 +40,18 @@ Import-Module '__MODULE__' -Force
 $run = Start-ConsoleRun -Items @('one check') -NoLive -ProgressIntervalSeconds 0
 try {
     try {
-        Update-ConsoleRun $run -Index 0 -Status '__STATE__' -ErrorAction Stop
+        Update-Console -Run $run -Index 0 -Status '__STATE__' -ErrorAction Stop
         throw 'The unsupported state was accepted'
     } catch {
         "STATE_ERROR=$($_.FullyQualifiedErrorId)"
     }
     "UNCHANGED=$($run.Snapshot().Done),$($run.Snapshot().Running.Count)"
-    Update-ConsoleRun $run -Index 0 -Status Pass
+    Update-Console -Run $run -Index 0 -Status Pass
     "VALID=$($run.Snapshot().Passed)"
 } finally { Complete-ConsoleRun $run }
 '@
         $output = (Invoke-TestChild -Runtime $script:Runtime -Script $code.Replace('__MODULE__', $script:ModulePath).Replace('__STATE__', $State)) -join "`n"
-        $output | Should -Match 'STATE_ERROR=InvalidRunState'
+        $output | Should -Match 'STATE_ERROR=ConsoleMonsterInvalidUpdate'
         $output | Should -Match 'UNCHANGED=0,0'
         $output | Should -Match 'VALID=1'
     }
@@ -89,7 +89,7 @@ try {
 }
 "NO_HANDLE=$($null -eq $run)"
 $next = Start-ConsoleRun -Items @('next check') -NoLive -ProgressIntervalSeconds 0
-try { Update-ConsoleRun $next -Index 0 -Status Pass }
+try { Update-Console -Run $next -Index 0 -Status Pass }
 finally { $summary = Complete-ConsoleRun $next -PassThru }
 "NEXT=$($summary.Passed),$($summary.IsFinished)"
 '@
@@ -117,7 +117,7 @@ $worker = [powershell]::Create()
 $null = $worker.AddScript('param($run) Start-Sleep -Milliseconds 800; $run.Finished(0, [ConsoleMonster.Styling.StatusKind]::Pass, "worker done")').AddArgument($run)
 try {
     $pending = $worker.BeginInvoke()
-    Wait-ConsoleRun $run
+    Complete-ConsoleRun -Run $run -Wait
     'WAIT_DONE'
     $null = $worker.EndInvoke($pending)
 } finally {
@@ -126,7 +126,7 @@ try {
 }
 '@
         $output = (Invoke-TestChild -Runtime $script:Runtime -Script $code.Replace('__MODULE__', $script:ModulePath)) -join "`n"
-        $output | Should -Match '(?s)0/1.*?worker done.*?WAIT_DONE.*?1 / 1 finished'
+        $output | Should -Match '(?s)0/1.*?worker done.*?1 / 1 finished.*?WAIT_DONE'
         $output | Should -Not -Match ([char]27)
     }
 
@@ -145,7 +145,7 @@ $writer = $arguments[1]
 $gate = $writer.GetType().GetField('_gate', 'Instance,NonPublic').GetValue($writer)
 $hold = New-Object HeldMonitor -ArgumentList $gate
 try {
-    try { Update-ConsoleRun $run -Index 0 -Status Pass -ErrorAction Stop }
+    try { Update-Console -Run $run -Index 0 -Status Pass -ErrorAction Stop }
     catch { "UPDATE_ERROR=$($_.Exception.Message)" }
     try {
         Complete-ConsoleRun $run -ErrorAction Stop

@@ -43,7 +43,7 @@ namespace SiteFrames.Pages {
             foreach (int width in new[] { 120, 60 }) {
                 CellBuffer dark = ExplorerExamples.Frame(site, width, ColorDepth.TrueColor, GlyphTier.Full, Theme.Dark);
                 CellBuffer light = ExplorerExamples.Frame(site, width, ColorDepth.TrueColor, GlyphTier.Full, Theme.Light);
-                JsonObject figure = Figures.WithProgram(new JsonObject {
+                JsonObject figure = Figures.WithProgram(site, new JsonObject {
                     ["title"] = "Show-ConsoleObject",
                     ["label"] = "Browse members without expanding the entire object",
                     ["meta"] = new JsonArray(width + " columns", "24-bit", "Full"),

@@ -36,7 +36,7 @@ namespace ConsoleMonster.Interactive {
         public string Title { get; set; }
 
         /// <summary>What the grid returns (default <see cref="GridSelection.Multiple"/>).</summary>
-        public GridSelection Selection { get; set; } = GridSelection.Multiple;
+        public GridSelection OutputMode { get; set; } = GridSelection.Multiple;
 
         /// <summary>Culture and display options for the presenters.</summary>
         public PresentationOptions Presentation { get; set; } = new PresentationOptions();
@@ -70,7 +70,25 @@ namespace ConsoleMonster.Interactive {
             return this;
         }
 
-        internal void ReplaceRow(int index, GridRow row) => _rows[index] = row;
+        /// <summary>Adds a row with an explicit stable identity, including lazy cells.</summary>
+        public Grid AddRow(GridRow row) {
+            _rows.Add(row ?? throw new ArgumentNullException(nameof(row)));
+            return this;
+        }
+
+        /// <summary>Replaces a listing. Reuse row identities to retain a DataGrid's cursor and marks.</summary>
+        public void SetRows(IEnumerable<GridRow> rows) {
+            if (rows == null) { throw new ArgumentNullException(nameof(rows)); }
+            var replacement = new List<GridRow>(rows);
+            var identities = new HashSet<object>();
+            foreach (GridRow row in replacement) {
+                if (row == null || row.Id == null || !identities.Add(row.Id)) { throw new ArgumentException("Rows need unique, non-null identities.", nameof(rows)); }
+            }
+            _rows.Clear();
+            _rows.AddRange(replacement);
+        }
+
+        internal void ReplaceRow(int index, GridRow row) { row.Id = _rows[index].Id; _rows[index] = row; }
 
         /// <summary>Shows the grid and returns the chosen rows.</summary>
         /// <param name="options">The options, or null for the defaults.</param>
@@ -90,6 +108,9 @@ namespace ConsoleMonster.Interactive {
         /// <summary>The object the row stands for.</summary>
         public object? Item { get; }
 
+        /// <summary>Stable row identity, independent of the original object and display position. Defaults to a unique identity; set it before binding a refreshable listing.</summary>
+        public object Id { get; set; } = new object();
+
         /// <summary>The raw column values.</summary>
         public IReadOnlyList<object?> Values { get; }
 
@@ -99,7 +120,7 @@ namespace ConsoleMonster.Interactive {
     /// <summary>Options for <see cref="Grid.Show"/>.</summary>
     public sealed class GridOptions {
         /// <summary>Commands available through the action palette and their shortcuts. Actions keep the grid open.</summary>
-        public IList<AppCommand> Commands { get; } = new List<AppCommand>();
+        public IList<AppCommand> Command { get; } = new List<AppCommand>();
         /// <summary>Refreshes each acted-on row on the input thread after successful completion. Return a new snapshot in the same column order; selection and row position are retained. Keep this callback short.</summary>
         public Func<AppCommand, GridRow, GridRow>? RefreshRow { get; set; }
         /// <summary>Optional per-run mailbox, drained on the input thread and closed when the grid exits.</summary>

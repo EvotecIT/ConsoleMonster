@@ -20,16 +20,16 @@ Width 0 resolves the current target/terminal, falling back to 100 columns. Posit
 
 ## Registered views
 
-Use `Out-ConsoleDefault -Format` to export objects using their registered views,
+Use `Export-ConsoleFrame -Format` to export objects using their registered views,
 without enabling automatic host formatting:
 
 ```powershell
-Get-Process -Id $PID | Out-ConsoleDefault -Format Markdown -Width 100
+Get-Process -Id $PID | Export-ConsoleFrame -Format Markdown -Width 100
 ```
 
 The same view discovery and registration apply as for normal output, including
 module-provided views. Other objects use ConsoleMonster's object-to-table
-export. `-Format` cannot be combined with `-Transcript` or the internal `-Shim`.
+export. `Out-ConsoleDefault` only routes host output; document export uses this command.
 The opt-in `Format-Table`, `Format-List` and `Format-Wide` proxies retain
 PowerShell's native parameters. Use `Show-Console* -AsWidget | Export-ConsoleFrame` to export a selected view.
 

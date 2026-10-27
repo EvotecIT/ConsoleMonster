@@ -4,17 +4,32 @@ using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
 
 Table table = new Table()
-    .WithTitle("[bold]evotec.xyz[/] [muted]· mail security checks[/]")
-    .AddColumn("Check", c => c.WithIsKey().WithOverflow(ColumnOverflow.Never))
-    .AddColumn("Status", c => c.WithPriority(10).WithPresenter(CellPresenters.Status))
-    .AddColumn("Detail", c => c
-        .WithPriority(5)
-        .WithOverflow(ColumnOverflow.Wrap)
-        .WithMaxLines(2)
-        .WithFlexible()
-        .WithMinWidth(18))
-    .AddColumn("Took", c => c.WithPriority(1).WithPresenter(CellPresenters.Duration))
-    .AddColumn("RFC", c => c.WithPriority(0).WithOverflow(ColumnOverflow.Never));
+{
+    Title = "[bold]evotec.xyz[/] [muted]· mail security checks[/]"
+}.AddColumn("Check", c =>
+{
+    c.IsKey = true;
+    c.Overflow = ColumnOverflow.Never;
+}).AddColumn("Status", c =>
+{
+    c.Priority = 10;
+    c.Presenter = CellPresenters.Status;
+}).AddColumn("Detail", c =>
+{
+    c.Priority = 5;
+    c.Overflow = ColumnOverflow.Wrap;
+    c.MaxLines = 2;
+    c.Flexible = true;
+    c.MinWidth = 18;
+}).AddColumn("Took", c =>
+{
+    c.Priority = 1;
+    c.Presenter = CellPresenters.Duration;
+}).AddColumn("RFC", c =>
+{
+    c.Priority = 0;
+    c.Overflow = ColumnOverflow.Never;
+});
 table.AddValues("SPF", StatusKind.Pass, "9 DNS lookups (limit 10); ends with -all", TimeSpan.FromMilliseconds(84), "7208");
 // <more>
 table.AddValues("DMARC", StatusKind.Pass, "p=reject, aggregate and forensic reports configured", TimeSpan.FromMilliseconds(41), "7489");

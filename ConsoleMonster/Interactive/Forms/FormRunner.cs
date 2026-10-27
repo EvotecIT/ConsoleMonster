@@ -135,10 +135,10 @@ namespace ConsoleMonster.Interactive {
                     if (!form.GetValues().IsVisible(field.Key)) {
                         continue;
                     }
-                    if (field is ChoiceField choice && choice.Loader != null) {
+                    if (field is ChoiceField choice && choice.LoadChoices != null) {
                         lines.Say(lines.Labels.Loading);
                         choice.Choices.Clear();
-                        foreach (Choice c in choice.Loader(form.GetValues(), token).GetAwaiter().GetResult()) {
+                        foreach (Choice c in choice.LoadChoices(form.GetValues(), token).GetAwaiter().GetResult()) {
                             choice.Choices.Add(c);
                         }
                         if (pending.TryGetValue(choice.Key, out object? wanted) && Form.TryRestore(choice, wanted, out object? restored)) {

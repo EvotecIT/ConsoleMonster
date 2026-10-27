@@ -58,7 +58,7 @@ namespace ConsoleMonster.Interactive {
             return this;
         }
 
-        /// <summary>Adds a built-in preset and configures it (see <see cref="Presets"/>): <c>p =&gt; p.Value("Path", @"D:\Weekly").Describe("...")</c>.</summary>
+        /// <summary>Adds a built-in preset and configures it (see <see cref="Presets"/>): <c>p =&gt; p.Value("Path", @"D:\Weekly").Description("...")</c>.</summary>
         /// <param name="name">The name; a saved preset cannot take it.</param>
         /// <param name="configure">Sets the preset's values, description and preview.</param>
         /// <returns>The form.</returns>

@@ -29,16 +29,16 @@ if ($fenced -notmatch '^```text') { throw 'FencedText did not use the add-on.' }
     }
 
     It 'renders inline content and literal markup without interpreting document text as console markup' {
-        $text = Show-ConsoleMarkdown -Content '# Notes' -AsString -Width 60
+        $text = Show-Console -Content '# Notes' -AsString -Width 60 -View Markdown
         $text | Should -Match 'Notes'
         $text | Should -Not -Match '# Notes'
-        Show-ConsoleMarkdown -Content '`[fail]literal[/]`' -AsString | Should -Match '\[fail\]literal\[/\]'
-        Show-ConsoleMarkdown -Content '' -AsString | Should -BeOfType ([string])
+        Show-Console -Content '`[fail]literal[/]`' -AsString -View Markdown | Should -Match '\[fail\]literal\[/\]'
+        Show-Console -Content '' -AsString -View Markdown | Should -BeOfType ([string])
     }
 
     It 'joins source lines before parsing reference links and block structure' {
         $lines = @('[Read the guide][guide]', '', '[guide]: https://example.org/guide')
-        $actual = $lines | Show-ConsoleMarkdown -AsString -Width 60
+        $actual = $lines | Show-Console -AsString -Width 60 -View Markdown
         $actual.Trim() | Should -BeExactly 'Read the guide (https://example.org/guide)'
     }
 
@@ -47,18 +47,18 @@ if ($fenced -notmatch '^```text') { throw 'FencedText did not use the add-on.' }
         [IO.File]::WriteAllText($path, '# Saved notes')
         Push-Location $TestDrive
         try {
-            $expected = Show-ConsoleMarkdown -Content '# Saved notes' -AsString -Width 60
-            Show-ConsoleMarkdown -Path './notes [final].md' -AsString -Width 60 | Should -BeExactly $expected
-            Show-ConsoleMarkdown -Path 'TestDrive:/notes [final].md' -AsString -Width 60 | Should -BeExactly $expected
-            Show-ConsoleMarkdown -Path ('Microsoft.PowerShell.Core\FileSystem::' + $path) -AsString -Width 60 | Should -BeExactly $expected
+            $expected = Show-Console -Content '# Saved notes' -AsString -Width 60 -View Markdown
+            Show-Console -Path './notes [final].md' -AsString -Width 60 -View Markdown | Should -BeExactly $expected
+            Show-Console -Path 'TestDrive:/notes [final].md' -AsString -Width 60 -View Markdown | Should -BeExactly $expected
+            Show-Console -Path ('Microsoft.PowerShell.Core\FileSystem::' + $path) -AsString -Width 60 -View Markdown | Should -BeExactly $expected
         } finally {
             Pop-Location
         }
     }
 
     It 'rejects non-file providers and reports missing files' {
-        { Show-ConsoleMarkdown -Path 'Variable:/PSVersionTable' -AsString -ErrorAction Stop } | Should -Throw '*FileSystem*'
-        { Show-ConsoleMarkdown -Path (Join-Path $TestDrive 'missing.md') -AsString -ErrorAction Stop } | Should -Throw
+        { Show-Console -Path 'Variable:/PSVersionTable' -AsString -ErrorAction Stop -View Markdown } | Should -Throw '*FileSystem*'
+        { Show-Console -Path (Join-Path $TestDrive 'missing.md') -AsString -ErrorAction Stop -View Markdown } | Should -Throw
     }
 
     It 'uses native code highlighting, quotes and table rendering at the requested width' {
@@ -74,7 +74,7 @@ if ($fenced -notmatch '^```text') { throw 'FencedText did not use the add-on.' }
 Get-Service | Select-Object Name
 ```
 '@
-        $actual = Show-ConsoleMarkdown -Content $source -AsString -Width 60
+        $actual = Show-Console -Content $source -AsString -Width 60 -View Markdown
         $actual | Should -Match 'Keep the rollback plan'
         $actual | Should -Match 'web-01'
         $actual | Should -Match 'powershell'
@@ -86,7 +86,7 @@ Get-Service | Select-Object Name
 
     It 'pipes the complete long document as plain lines without reading input' {
         $source = (1..120 | ForEach-Object { 'Paragraph ' + $_ + '.' }) -join "`n`n"
-        $actual = Show-ConsoleMarkdown -Content $source -Width 60 | Out-String -Width 200
+        $actual = Show-Console -Content $source -Width 60 -View Markdown | Out-String -Width 200
         $actual | Should -Match 'Paragraph 1\.'
         $actual | Should -Match 'Paragraph 120\.'
         $actual | Should -Not -Match ([char]27)
@@ -95,9 +95,9 @@ Get-Service | Select-Object Name
 
     It 'keeps the complete rendering in files and explicit string assignment' {
         $source = '# Assignment' + "`n`n" + '[Guide](https://example.org/guide)'
-        $text = Show-ConsoleMarkdown -Content $source -AsString -Width 60
+        $text = Show-Console -Content $source -AsString -Width 60 -View Markdown
         $path = Join-Path $TestDrive 'rendered.txt'
-        Show-ConsoleMarkdown -Content $source -NoPager -Width 60 | Set-Content -LiteralPath $path -Encoding UTF8
+        Show-Console -Content $source -NoPager -Width 60 -View Markdown | Set-Content -LiteralPath $path -Encoding UTF8
         (Get-Content -LiteralPath $path -Raw).Replace("`r", '').Trim() | Should -BeExactly $text.Replace("`r", '').Trim()
         $text | Should -Not -Match ([char]27)
     }

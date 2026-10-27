@@ -13,6 +13,22 @@
         [ConsoleMonster.Terminal]::Theme = $script:OriginalTheme
     }
 
+    It 'uses the same public C# writer and reader for <Extension> themes' -ForEach @(
+        @{ Extension = 'json' }
+        @{ Extension = 'psd1' }
+    ) {
+        $path = Join-Path $TestDrive "csharp.$Extension"
+        $exported = Join-Path $TestDrive "powershell.$Extension"
+        $model = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Styling.ThemeFile')
+        $bridge = (Get-Command Export-ConsoleTheme).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.ConsoleThemeDataFile')
+        $document = $model.GetMethod('FromTheme').Invoke($null, @([ConsoleMonster.Terminal]::Theme))
+        $bridge.GetMethod('Save').Invoke($null, @($document.PSObject.BaseObject, $path.PSObject.BaseObject))
+        Export-ConsoleTheme -Path $exported
+        [Convert]::ToBase64String([IO.File]::ReadAllBytes($path)) | Should -BeExactly ([Convert]::ToBase64String([IO.File]::ReadAllBytes($exported)))
+        $loaded = $bridge.GetMethod('Load').Invoke($null, @($path.PSObject.BaseObject))
+        $loaded.ToJson() | Should -BeExactly $document.ToJson()
+    }
+
     It 'selects each built-in preset including ColorBlindSafe' {
         foreach ($preset in 'Dark', 'Light', 'HighContrast', 'ColorBlindSafe') {
             Set-ConsoleTheme -Theme $preset

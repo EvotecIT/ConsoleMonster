@@ -37,24 +37,24 @@ Invoke-ConsoleDashboard $dashboard -ArgumentList (, $steps) {
     foreach ($step in $Steps) {
         if ($step.Phase -ne $phase) {
             if ($phase) {
-                Update-ConsolePhase -Key $phase -Status Pass
+                Update-Console -Key $phase -Status Pass -WidgetId 'phases'
             }
             $phase = $step.Phase
-            Update-ConsolePhase -Key $phase -Status Running
+            Update-Console -Key $phase -Status Running -WidgetId 'phases'
         }
-        Update-ConsoleStatusItem -WidgetId steps -Key $step.Label -Status Running
+        Update-Console -WidgetId steps -Key $step.Label -Status Running
         Write-Host "$($step.Label)..."
         Start-Sleep -Milliseconds ([int] ($step.Seconds * 1000))
         if ($step.Result -eq 'Warn') {
             Write-Warning '1 Pester test skipped on PowerShell 7 (requires conhost)'
         }
-        Update-ConsoleStatusItem -WidgetId steps -Key $step.Label -Status $step.Result -Detail ($step.Seconds.ToString('0.0', [cultureinfo]::InvariantCulture) + 's')
+        Update-Console -WidgetId steps -Key $step.Label -Status $step.Result -Detail ($step.Seconds.ToString('0.0', [cultureinfo]::InvariantCulture) + 's')
         $index++
-        Update-ConsoleProgress -WidgetId overall -Value $index
-        Set-ConsoleValue -WidgetId module -Key Elapsed -Value ($watch.Elapsed.TotalSeconds.ToString('0.0', [cultureinfo]::InvariantCulture) + 's')
+        Update-Console -WidgetId overall -Value $index
+        Update-Console -WidgetId module -Key Elapsed -Value ($watch.Elapsed.TotalSeconds.ToString('0.0', [cultureinfo]::InvariantCulture) + 's')
     }
-    Update-ConsolePhase -Key $phase -Status Skip
-    Update-ConsoleProgress -WidgetId overall -Status Pass
+    Update-Console -Key $phase -Status Skip -WidgetId 'phases'
+    Update-Console -WidgetId overall -Status Pass
     Write-Host 'Build completed: Artefacts\Packed\ConsoleMonster-PowerShellModule.v2.0.0.zip'
     Start-Sleep -Seconds 2
 }

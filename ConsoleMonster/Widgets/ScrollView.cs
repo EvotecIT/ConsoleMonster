@@ -6,7 +6,7 @@ using ConsoleMonster.Layout;
 
 namespace ConsoleMonster.Widgets {
     /// <summary>A vertical viewport for ordinary widgets. Lists, grids and logs keep their own virtualized row windows.</summary>
-    public sealed class ScrollView : IContainer {
+    public sealed class ScrollView : IContainer, IContentOwner {
         private readonly object _gate = new object();
         private int _offset;
         private int _maximum;
@@ -15,11 +15,14 @@ namespace ConsoleMonster.Widgets {
         private Size _lastSize;
         private bool _hasRendered;
         internal int ViewportHeight { get; set; } = Constraints.Unbounded;
+        /// <summary>Creates an empty viewport for initializer or fluent content configuration.</summary>
+        public ScrollView() : this(new Rows()) { }
         /// <summary>Creates a viewport over one stable content tree.</summary>
         /// <param name="content">The content to clip and scroll.</param>
         public ScrollView(IWidget content) { Content = content ?? throw new ArgumentNullException(nameof(content)); }
         /// <summary>The content tree.</summary>
-        public IWidget Content { get; }
+        public IWidget Content { get; set; }
+        void IContentOwner.ReplaceContent(IWidget[] content) => Content = ContentBuilder.Compose(content);
         /// <summary>Maximum rows composed for non-virtualized content. Use a list, grid or log for larger data.</summary>
         public int MaxContentHeight { get; set; } = 16384;
         /// <summary>The first visible content row, clamped after measurement.</summary>

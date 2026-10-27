@@ -28,21 +28,21 @@ KeyValueList summary = new KeyValueList()
     .Add("DNSSEC", "not signed", StatusKind.Warn);
 
 Table table = Table.For(records)
-    .WithExpand()
-    .WithHeaderSeparator(false)
-    .Column(r => r.Name, c => c.WithWrap(false))
-    .Column(r => r.Type, c => c.WithWrap(false))
-    .Column(r => r.Ttl, c => c.WithHeader("TTL").WithAlignment(HorizontalAlignment.Right))
-    .Column(r => r.Data, c => c.WithFlexible());
+    .Expand()
+    .HeaderSeparator(false)
+    .Column(r => r.Name, c => c.Wrap(false))
+    .Column(r => r.Type, c => c.Wrap(false))
+    .Column(r => r.Ttl, c => c.Header("TTL").Alignment(HorizontalAlignment.Right))
+    .Column(r => r.Data, c => c.Flexible());
 
 Tree delegation = new Tree("[bold].[/] [muted]root[/]");
-TreeNode xyz = delegation.Add("[bold]xyz.[/]", note: "6 name servers");
-xyz.Add("x.nic.xyz", note: "194.169.218.42");
-xyz.Add("y.nic.xyz", note: "185.24.64.42");
-TreeNode evotec = xyz.Add("[bold]evotec.xyz.[/]", note: "2 name servers");
+TreeNode xyz = delegation.Add("[bold]xyz.[/]", detail: "6 name servers");
+xyz.Add("x.nic.xyz", detail: "194.169.218.42");
+xyz.Add("y.nic.xyz", detail: "185.24.64.42");
+TreeNode evotec = xyz.Add("[bold]evotec.xyz.[/]", detail: "2 name servers");
 evotec.Add("dana.ns.cloudflare.com", StatusKind.Pass, "108.162.192.103 · 12 ms");
 evotec.Add("kirk.ns.cloudflare.com", StatusKind.Pass, "172.64.33.149 · 14 ms");
-evotec.Add("mail", note: "MX target").Add("evotec-xyz.mail.protection.outlook.com", StatusKind.Pass, "52.101.68.17");
+evotec.Add("mail", detail: "MX target").Add("evotec-xyz.mail.protection.outlook.com", StatusKind.Pass, "52.101.68.17");
 
 StatusList checks = new StatusList()
     .Add("SPF record present and valid", StatusKind.Pass, "9 lookups")
@@ -54,7 +54,7 @@ StatusList checks = new StatusList()
     .Add("BIMI record", StatusKind.Skip, "optional");
 
 BarChart latency = new BarChart("latency")
-    .WithUnit(" ms")
+    .Unit(" ms")
     .Add("Cloudflare", 12)
     .Add("Google", 18)
     .Add("Quad9", 24)
@@ -62,12 +62,12 @@ BarChart latency = new BarChart("latency")
     .Add("System resolver", 47);
 
 Terminal.Write(new Rows()
-    .WithGap(1)
+    .Gap(1)
     .Add(new Rule("[bold]DNS query results[/] [muted]· evotec.xyz[/]"))
     .Add(new Padding(summary, 1, 0, 1, 0))
     .Add(table)
     .Add(new Columns(
         new Panel(delegation, "Delegation"),
-        new Panel(new Rows(checks, new Rule(), latency), "Mail security").WithHeaderRight("evotec.xyz"))));
+        new Panel(new Rows(checks, new Rule(), latency), "Mail security").HeaderRight("evotec.xyz"))));
 
 record DnsRecord(string Name, string Type, string Ttl, string Data);

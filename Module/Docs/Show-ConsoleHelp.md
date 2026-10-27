@@ -13,7 +13,7 @@ Reads the help PowerShell has for the command (Get-Help -Full): cmdlet help file
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Show-ConsoleHelp [-Name] <string> [-Width <int>] [-AsString] [-NoExamples] [-AsWidget] [<CommonParameters>]
+Show-ConsoleHelp [-Name] <string> [-Width <int>] [-AsString] [-NoExamples] [-AsWidget] [-NoParameters] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -89,6 +89,22 @@ Accept wildcard characters: False
 
 ### -NoExamples
 Leaves out the examples.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NoParameters
+Leaves out the detailed parameter reference.
 
 ```yaml
 Type: SwitchParameter

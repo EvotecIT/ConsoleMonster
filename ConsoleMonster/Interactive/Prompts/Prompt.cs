@@ -70,7 +70,7 @@ namespace ConsoleMonster.Interactive {
         /// <returns>The answer.</returns>
         /// <exception cref="PromptCanceledException">The user cancelled.</exception>
         /// <exception cref="PromptUnavailableException">Nobody can answer and there is no default.</exception>
-        public T Show(InteractiveOptions? options = null, CancellationToken cancellationToken = default) {
+        public virtual T Show(InteractiveOptions? options = null, CancellationToken cancellationToken = default) {
             InteractiveOptions o = options ?? InteractiveOptions.Default;
             PromptLabels labels = o.ResolveLabels();
             switch (o.ResolveMode()) {

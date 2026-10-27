@@ -76,6 +76,17 @@ $c = $columns[0].Column
         $result.ToneCount | Should -Be 2
     }
 
+    It 'uses the supplied C# presenter instance in a table column' {
+        $result = Invoke-BindingChild @'
+$presenterType = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Presenters.NumberPresenter')
+$presenter = $presenterType::new('%')
+$table = [pscustomobject] @{ Score = 95 } | New-ConsoleTable -Property @(@{ Name = 'Score'; Presenter = $presenter })
+'BINDING:' + (@{ Same = [object]::ReferenceEquals($presenter, $table.Columns[0].Presenter); Text = ($table | Show-Console -AsString) } | ConvertTo-Json -Compress)
+'@
+        $result.Same | Should -BeTrue
+        $result.Text | Should -Match '95 %'
+    }
+
     It 'rejects unknown calculated option keys with valid key names' {
         $result = Invoke-BindingChild @'
 $items = [System.Collections.Generic.List[System.Management.Automation.PSObject]]::new()

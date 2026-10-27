@@ -12,6 +12,6 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Appends a value.</summary>
         /// <param name="value">The value.</param>
         /// <param name="series">The series key for multi-series charts, or <c>null</c>.</param>
-        public void Add(double value, string? series = null) => Post("add", series, value: value);
+        public void Add(double value, string? series = null) => Update(new WidgetUpdate { Append = true, Key = series, Value = value });
     }
 }

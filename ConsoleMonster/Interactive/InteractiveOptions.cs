@@ -36,6 +36,14 @@ namespace ConsoleMonster.Interactive {
             set => _input = value;
         }
 
+        /// <summary>
+        /// Optional monotonic clock for grid and app action-log timestamps, relative to each action's start.
+        /// Null uses real elapsed time. Simulations and capture recipes can supply a thread-safe clock such as
+        /// <see cref="Live.SimulatedClock.Read"/>; the action worker may sample it from another thread.
+        /// This does not replace action delays, cancellation, or input pacing.
+        /// </summary>
+        public Func<TimeSpan>? ActionClock { get; set; }
+
         private IInputSource? _input;
 
         /// <summary>The terminal profile; null uses <see cref="Terminal.GetCurrentProfile"/>.</summary>

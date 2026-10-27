@@ -97,7 +97,8 @@ namespace ConsoleMonster.Input {
             Activate(true);
         }
 
-        private void Activate(bool discardInput = false) {
+        /// <summary>Applies the leased mode before callbacks or rendering, preserving queued input unless resuming from work.</summary>
+        internal void Activate(bool discardInput = false) {
             IntPtr raw = Marshal.AllocHGlobal(UnixInputNative.AttributesCapacity);
             try {
                 byte[] attributes = new byte[UnixInputNative.AttributesCapacity];

@@ -13,7 +13,7 @@ Compares -ReferenceObject with -DifferenceObject (as Compare-ConsoleObject does)
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Show-ConsoleChanges [-ReferenceObject] <Object[]> [-DifferenceObject] <Object[]> [-Property <string[]>] [-Ignore <string[]>] [-View <ChangeViewMode>] [-Title <Object>] [-Question <string>] [-TypedConfirmation <string>] [-Force] [-WhatIf] [-Confirm] [<CommonParameters>]
+Show-ConsoleChanges [-ReferenceObject] <Object[]> [-DifferenceObject] <Object[]> [-Property <string[]>] [-Ignore <string[]>] [-View <ChangeViewMode>] [-Title <Object>] [-Question <string>] [-TypedConfirmation <string>] [-Force] [-NoTypedWhenDestructive] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -69,6 +69,22 @@ Properties or paths left out of the comparison.
 
 ```yaml
 Type: String[]
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NoTypedWhenDestructive
+Keeps a yes/no confirmation for removals instead of requiring the removal count. An explicit TypedConfirmation still takes precedence.
+
+```yaml
+Type: SwitchParameter
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

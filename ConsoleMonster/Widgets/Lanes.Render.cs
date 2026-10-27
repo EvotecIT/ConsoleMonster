@@ -269,7 +269,7 @@ namespace ConsoleMonster.Widgets {
         private ProgressRow RowFor(Lane lane, TimeSpan now) {
             lane.Meter.Window = RateWindow;
             double rate = lane.IsFinished ? 0 : lane.Meter.Rate(now);
-            return new ProgressRow(lane.Key, lane.Label, lane.LabelText, lane.Detail, lane.DetailText, lane.Status, lane.Done, lane.Total,
+            return new ProgressRow(lane.Key, lane.Label, lane.LabelText, lane.Detail, lane.DetailText, lane.Status, lane.Value, lane.Total,
                 lane.Passed, lane.Failed, lane.Warned, lane.Skipped, lane.Started, lane.Finished, now, rate, lane.Order);
         }
 
@@ -314,7 +314,7 @@ namespace ConsoleMonster.Widgets {
             string marker;
             Style markerStyle;
             // A running lane whose work is all done reads as passed: a check mark, not a spinner.
-            StatusKind shown = lane.Status == StatusKind.Running && lane.Total > 0 && lane.Done >= lane.Total ? StatusKind.Pass : lane.Status;
+            StatusKind shown = lane.Status == StatusKind.Running && lane.Total > 0 && lane.Value >= lane.Total ? StatusKind.Pass : lane.Status;
             if (shown == StatusKind.Running) {
                 marker = context.Spinner(glyphs.Tier == GlyphTier.Ascii ? 0 : lane.Order);
                 markerStyle = context.Style(ThemeToken.Running);
@@ -392,7 +392,7 @@ namespace ConsoleMonster.Widgets {
         private static int Digits(int value) => value.ToString(CultureInfo.InvariantCulture).Length;
 
         private void DrawCounts(Region region, int x, int y, Lane lane, CountLayout counts, RenderContext context) {
-            if (lane.Status == StatusKind.Pending && lane.Done == 0) {
+            if (lane.Status == StatusKind.Pending && lane.Value == 0) {
                 return;
             }
             Style muted = context.Style(ThemeToken.Muted);

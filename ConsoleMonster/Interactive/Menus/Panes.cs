@@ -33,7 +33,7 @@ namespace ConsoleMonster.Interactive {
                     group = string.IsNullOrEmpty(item.Label) ? " " : item.Label;
                     continue;
                 }
-                Choice choice = new Choice(item, Label(item)) { Group = group, Hotkey = item.HotkeyChar };
+                Choice choice = new Choice(item, Label(item)) { Group = group, Hotkey = item.Hotkey };
                 _choices[item] = choice;
                 _items.Add(item);
                 choices.Add(choice);
@@ -211,7 +211,7 @@ namespace ConsoleMonster.Interactive {
                 }
             }
             Pane = new ChoicePane(List, new CaretSlot()) { Fill = true, Preview = item.Preview, ShowCount = false };
-            if (item.ChoicesLoader != null && item.Choices.Count == 0) {
+            if (item.LoadChoices != null && item.Choices.Count == 0) {
                 StartLoad();
             }
         }
@@ -219,7 +219,7 @@ namespace ConsoleMonster.Interactive {
         public bool Loading => _load != null && !_load.IsCompleted;
 
         private void StartLoad() {
-            if (_item.ChoicesLoader == null || _context == null) {
+            if (_item.LoadChoices == null || _context == null) {
                 return;
             }
             try {
@@ -229,7 +229,7 @@ namespace ConsoleMonster.Interactive {
             _cancel = new System.Threading.CancellationTokenSource();
             System.Threading.CancellationToken token = _cancel.Token;
             MenuContext context = _context();
-            Func<MenuContext, System.Threading.CancellationToken, System.Threading.Tasks.Task<IEnumerable<Choice>>> loader = _item.ChoicesLoader;
+            Func<MenuContext, System.Threading.CancellationToken, System.Threading.Tasks.Task<IEnumerable<Choice>>> loader = _item.LoadChoices;
             _loadError = null;
             try {
                 _load = loader(context, token) ?? System.Threading.Tasks.Task.FromResult<IEnumerable<Choice>>(new Choice[0]);
@@ -282,7 +282,7 @@ namespace ConsoleMonster.Interactive {
         }
 
         public void AddBindings(List<KeyBinding> bindings, ViewFrame frame) {
-            if (_item.ChoicesLoader != null) {
+            if (_item.LoadChoices != null) {
                 bindings.Add(new KeyBinding("reload", StartLoad, new KeyChord(ConsoleKey.R, KeyModifiers.Control)) { KeyText = "ctrl+r", Order = 65, Group = "Selection", InFooter = Loading || _loadError != null });
             }
             if (Loading) {
@@ -406,7 +406,7 @@ namespace ConsoleMonster.Interactive {
 
         public IWidget Build(ViewFrame frame, bool focused) {
             try {
-                return _item.PageFactory?.Invoke(_context()) ?? (IWidget)UiLine.Empty;
+                return _item.Page?.Invoke(_context()) ?? (IWidget)UiLine.Empty;
             } catch (Exception ex) {
                 return TextBlock.Plain(ex.Message, ThemeToken.Fail);
             }
@@ -508,7 +508,7 @@ namespace ConsoleMonster.Interactive {
             _back = back;
             List<Choice> choices = new List<Choice>();
             foreach (MenuItem item in result.NextActions) {
-                choices.Add(new Choice(item, item.Label) { Description = item.Description, Hotkey = item.HotkeyChar });
+                choices.Add(new Choice(item, item.Label) { Description = item.Description, Hotkey = item.Hotkey });
             }
             choices.Add(new Choice(null, labels.Back));
             _next = new ChoiceList(choices, false) { Labels = labels };

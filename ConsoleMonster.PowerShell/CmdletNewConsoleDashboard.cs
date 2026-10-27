@@ -14,10 +14,11 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleDashboard")]
     [OutputType(typeof(Dashboard))]
-    public sealed class CmdletNewConsoleDashboard : PSCmdlet {
+    public sealed class CmdletNewConsoleDashboard : ContainerCmdlet {
         /// <summary><para type="description">Scriptblock that emits the body widgets.</para></summary>
-        [Parameter(Position = 1, Mandatory = true)]
-        public ScriptBlock Content { get; set; } = null!;
+        [Parameter(Position = 1, ValueFromPipeline = true)]
+        [AllowNull, AllowEmptyCollection]
+        public override object? Content { get; set; }
 
         /// <summary><para type="description">The title shown in the header bar (markup allowed).</para></summary>
         [Parameter(Mandatory = true)]
@@ -46,10 +47,14 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Hides the default elapsed clock in the dashboard header.</para></summary>
         [Parameter] public SwitchParameter NoElapsed { get; set; }
 
+        /// <summary><para type="description">Additional header detail, including markup.</para></summary>
+        [Parameter] public object? Detail { get; set; }
+        /// <summary><para type="description">Initial header status.</para></summary>
+        [Parameter] public Styling.StatusKind? Status { get; set; }
+
         /// <inheritdoc />
-        protected override void ProcessRecord() {
-            List<IWidget> children = PSWidgets.Collect(Content);
-            Dashboard dashboard = new Dashboard(PSText.Markup(Title) ?? string.Empty, new Rows(children.ToArray()) { Gap = Gap }, WidgetId) { Subtitle = PSText.Markup(Subtitle), ShowElapsed = !NoElapsed.IsPresent };
+        protected override IWidget Build(List<IWidget> children) {
+            Dashboard dashboard = new Dashboard(PSText.Markup(Title) ?? string.Empty, new Rows(children.ToArray()) { Gap = Gap }, WidgetId) { Subtitle = PSText.Markup(Subtitle), Detail = PSText.Markup(Detail), Status = Status, ShowElapsed = !NoElapsed.IsPresent };
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Footer))) {
                 dashboard.Footer = PSText.Markup(Footer);
             }
@@ -57,7 +62,7 @@ namespace ConsoleMonster.PowerShell {
                 dashboard.FooterHints.Clear();
                 foreach (KeyHint hint in PSFooterHints.Read(FooterHints)) { dashboard.FooterHints.Add(hint); }
             }
-            WriteObject(dashboard);
+            return dashboard;
         }
     }
 }

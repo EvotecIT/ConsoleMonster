@@ -19,14 +19,14 @@ if ($Width -gt 0) {
     $common.Width = $Width
 }
 
-if ($Part -in 'All', 'Artifacts') { $artifacts | Show-ConsoleTable @common -Title '[bold]Build artifacts[/]' -GroupBy Kind -Total -Property @(
+if ($Part -in 'All', 'Artifacts') { $artifacts | Show-ConsoleTable -Property @(
     @{ Name = 'Name'; Key = $true; Overflow = 'Never' }
     @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes'; Priority = 9 }
     @{ Name = 'Time'; Header = 'Built in'; Presenter = 'Duration'; Priority = 6 }
     @{ Name = 'Created'; Presenter = 'DateRelative'; Priority = 4 }
     @{ Name = 'Signed'; Presenter = 'Boolean'; Priority = 5 }
     @{ Name = 'Path'; Overflow = 'TruncateMiddle'; Priority = 1; MinWidth = 20 }
-) }
+) -Title '[bold]Build artifacts[/]' -GroupBy Kind -ShowTotals }
 
 $checks = @(
     [pscustomobject] @{ Check = 'SPF'; Status = 'Pass'; Detail = '9 DNS lookups (limit 10); ends with -all'; Took = [timespan]::FromMilliseconds(84) }

@@ -11,9 +11,14 @@ Asks for a line of text.
 A default is shown as a hint (Enter on an empty box accepts it, Tab puts it in the box to edit). -Required, -MinLength, -MaxLength, -Pattern and -Validator check the answer; problems show inline under the box until fixed. -History offers earlier answers with Up and Down.
 
 ## SYNTAX
-### __AllParameterSets
+### Text (Default)
 ```powershell
 Read-ConsoleText [-Title] <string> [-Default <string>] [-Placeholder <string>] [-Required] [-MinLength <int>] [-MaxLength <int>] [-Pattern <string>] [-PatternMessage <string>] [-Validator <scriptblock>] [-History <string[]>] [-PrefillDefault] [-Multiline] [-MaxLines <int>] [-Height <int>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
+```
+
+### Secret
+```powershell
+Read-ConsoleText [-Title] <string> -AsSecret [-MinLength <int>] [-Validator <scriptblock>] [-AsPlainText] [-Hidden] [-AllowEmpty] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -39,12 +44,60 @@ A scriptblock validator ($_ is the answer; return $true, $false or an error mess
 
 ## PARAMETERS
 
+### -AllowEmpty
+With AsSecret, accepts an empty answer.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Secret
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -AsPlainText
+With AsSecret, explicitly returns plaintext.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Secret
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -AsSecret
+Reads a masked secret and returns SecureString by default. History and defaults are forbidden.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Secret
+Aliases: None
+Possible values:
+
+Required: True
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Default
 The default answer.
 
 ```yaml
 Type: String
-Parameter Sets: __AllParameterSets
+Parameter Sets: Text
 Aliases: None
 Possible values:
 
@@ -60,7 +113,7 @@ Help text under the question.
 
 ```yaml
 Type: String
-Parameter Sets: __AllParameterSets
+Parameter Sets: Text, Secret
 Aliases: None
 Possible values:
 
@@ -76,7 +129,23 @@ The visible rows of the text area (-Multiline, default 6).
 
 ```yaml
 Type: Int32
-Parameter Sets: __AllParameterSets
+Parameter Sets: Text
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Hidden
+With AsSecret, hides even the typed length.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Secret
 Aliases: None
 Possible values:
 
@@ -92,7 +161,7 @@ Earlier answers offered with Up and Down (oldest first).
 
 ```yaml
 Type: String[]
-Parameter Sets: __AllParameterSets
+Parameter Sets: Text
 Aliases: None
 Possible values:
 
@@ -108,7 +177,7 @@ The most characters.
 
 ```yaml
 Type: Int32
-Parameter Sets: __AllParameterSets
+Parameter Sets: Text
 Aliases: None
 Possible values:
 
@@ -124,7 +193,7 @@ The most lines (-Multiline).
 
 ```yaml
 Type: Int32
-Parameter Sets: __AllParameterSets
+Parameter Sets: Text
 Aliases: None
 Possible values:
 
@@ -140,7 +209,7 @@ The fewest characters.
 
 ```yaml
 Type: Int32
-Parameter Sets: __AllParameterSets
+Parameter Sets: Text, Secret
 Aliases: None
 Possible values:
 
@@ -156,7 +225,7 @@ Forces how to ask: Rich (in-place prompt), Line (question and typed answer), Acc
 
 ```yaml
 Type: InteractionMode
-Parameter Sets: __AllParameterSets
+Parameter Sets: Text, Secret
 Aliases: None
 Possible values: Rich, Line, Accessible, None
 
@@ -172,7 +241,7 @@ Asks for several lines of text in a text area: soft wrap, Enter for a new line, 
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: __AllParameterSets
+Parameter Sets: Text
 Aliases: None
 Possible values:
 
@@ -188,7 +257,7 @@ The parameter of your script that supplies this value without a prompt (named in
 
 ```yaml
 Type: String
-Parameter Sets: __AllParameterSets
+Parameter Sets: Text, Secret
 Aliases: None
 Possible values:
 
@@ -204,7 +273,7 @@ A regular expression the whole answer must match.
 
 ```yaml
 Type: String
-Parameter Sets: __AllParameterSets
+Parameter Sets: Text
 Aliases: None
 Possible values:
 
@@ -220,7 +289,7 @@ The message when -Pattern does not match.
 
 ```yaml
 Type: String
-Parameter Sets: __AllParameterSets
+Parameter Sets: Text
 Aliases: None
 Possible values:
 
@@ -236,7 +305,7 @@ Muted text in the empty box.
 
 ```yaml
 Type: String
-Parameter Sets: __AllParameterSets
+Parameter Sets: Text
 Aliases: None
 Possible values:
 
@@ -252,7 +321,7 @@ Puts the default in the box (editable) instead of showing it as a hint.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: __AllParameterSets
+Parameter Sets: Text
 Aliases: None
 Possible values:
 
@@ -268,7 +337,7 @@ Refuses an empty answer.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: __AllParameterSets
+Parameter Sets: Text
 Aliases: None
 Possible values:
 
@@ -284,7 +353,7 @@ Prints the initialized rich prompt without reading input or returning an answer.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: __AllParameterSets
+Parameter Sets: Text, Secret
 Aliases: None
 Possible values:
 
@@ -300,7 +369,7 @@ The question.
 
 ```yaml
 Type: String
-Parameter Sets: __AllParameterSets
+Parameter Sets: Text, Secret
 Aliases: None
 Possible values:
 
@@ -316,7 +385,7 @@ A validator: $_ is the answer; return $true (or nothing) to accept, $false or an
 
 ```yaml
 Type: ScriptBlock
-Parameter Sets: __AllParameterSets
+Parameter Sets: Text, Secret
 Aliases: None
 Possible values:
 
@@ -337,6 +406,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 - `System.String`
+- `System.Security.SecureString`
 
 ## RELATED LINKS
 

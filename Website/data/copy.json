@@ -600,8 +600,8 @@
         "install": "Install-Module ConsoleMonster -Scope CurrentUser\nEnable-ConsoleFormatting -Feature ErrorView",
         "links": [
           {
-            "title": "Show-ConsoleError",
-            "url": "/powershell/commands/show-consoleerror/"
+            "title": "Show-Console -View Error",
+            "url": "/powershell/commands/show-console/"
           }
         ]
       }
@@ -616,8 +616,8 @@
         "install": "Install-Module ConsoleMonster -Scope CurrentUser\nEnable-ConsoleFormatting -Feature Progress",
         "links": [
           {
-            "title": "Write-ConsoleProgress",
-            "url": "/powershell/commands/write-consoleprogress/"
+            "title": "Use-ConsoleProgress",
+            "url": "/powershell/commands/use-consoleprogress/"
           }
         ]
       }

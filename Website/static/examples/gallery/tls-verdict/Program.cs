@@ -35,7 +35,7 @@ FlowEdge[] edges = {
 var flow = new Flow("chain");
 foreach (FlowNode node in nodes) flow.Add(node);
 foreach (FlowEdge edge in edges) flow.Add(edge);
-if (expired) flow.WithBranch(new FlowBranch("intermediate", "expired 2026-09-30", Status: StatusKind.Fail));
+if (expired) flow.Branch = new FlowBranch("intermediate", "expired 2026-09-30", Status: StatusKind.Fail);
 var phases = new Phases { StepCounter = true };
 foreach (Step step in steps) phases.Set(step.Key, step.Status, step.Label, step.Detail);
 var facts = new KeyValueList { Columns = 2, KeyRole = ThemeToken.Accent };

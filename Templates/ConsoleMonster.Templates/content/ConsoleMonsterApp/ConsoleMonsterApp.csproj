@@ -5,6 +5,10 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>ConsoleMonsterApp</RootNamespace>
+<!--#if (demo != "none") -->
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <DemoStyle Condition="'$(DemoStyle)' == ''">DEMO_STYLE</DemoStyle>
+<!--#endif -->
 <!--#if (!NoAot) -->
     <!-- dotnet publish -c Release -r win-x64 (or linux-x64, osx-arm64) makes one native executable. -->
     <PublishAot>true</PublishAot>
@@ -20,4 +24,13 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
 <!--#endif -->
   </ItemGroup>
+<!--#if (demo != "none") -->
+  <ItemGroup>
+    <Compile Include="Program.cs" Condition="'$(DemoStyle)' == 'Initializer'" />
+    <Compile Include="Program.Fluent.cs" Condition="'$(DemoStyle)' == 'Fluent'" />
+  </ItemGroup>
+  <Target Name="ValidateDemoStyle" BeforeTargets="CoreCompile" Condition="'$(DemoStyle)' != 'Initializer' and '$(DemoStyle)' != 'Fluent'">
+    <Error Text="DemoStyle must be Initializer or Fluent." />
+  </Target>
+<!--#endif -->
 </Project>

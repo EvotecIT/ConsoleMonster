@@ -41,8 +41,15 @@ namespace ConsoleMonster.Interactive {
             AppState values = state ?? new AppState();
             values.BeginRun();
             using InputLease? lease = snapshot ? null : ConsoleInput.Acquire(interactive.Input);
+            if (settings.SignalKeys) {
+                if (lease?.Source is WindowsConsoleInput windows) { windows.EnableCancelKeyProcessing(); }
+                else if (lease?.Source is ConsoleKeyInput console) { console.EnableCancelKeyProcessing(); }
+            } else if (lease?.Source is ConsoleKeyInput console) {
+                // The initial frame and ProcessEvents callback can run before the first Read.
+                console.Activate();
+            }
             RenderContext context = Terminal.CreateContext(profile, interactive.ResolveTheme());
-            using (AppController app = new AppController(layout, values, context, settings.ReflowBelow, settings, cancellationToken)) {
+            using (AppController app = new AppController(layout, values, context, settings.ReflowBelow, settings, cancellationToken, interactive.ActionClock)) {
                 if (snapshot) {
                     CellBuffer frame = FrameComposer.RenderBlock(app.Root, profile.Width, context);
                     if (interactive.Capture != null) { interactive.Capture.Surface.Present(frame, null); }
@@ -69,6 +76,7 @@ namespace ConsoleMonster.Interactive {
                 using (MouseReporting? mouse = MouseReporting.Open(settings.Mouse, interactive, profile, lease!.Source, live.Output != null))
                 using (LiveSession session = new LiveSession(app.Root, live)) {
                     session.Start();
+                    using IDisposable? handoff = settings.TerminalHandoff?.Attach(lease.Source, session, profile, cancellationToken);
                     bool eventsProcessed = false;
                     try {
                         AppEventLoop.Run(lease.Source, () => values.ExitRequested || !session.IsRunning, () => {

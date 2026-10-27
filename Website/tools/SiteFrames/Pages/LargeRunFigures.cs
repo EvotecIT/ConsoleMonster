@@ -15,7 +15,7 @@ namespace SiteFrames.Pages {
             string program = Path.Combine(site.Website, "examples", "docs", "large-run.cs");
             string script = Path.Combine(site.Website, "examples", "docs", "large-run.ps1");
             (string shortScript, string fullScript) = SourceSnippets.Program(Site.ReadText(script));
-            Figures.Add("large-run-example", Figures.WithProgram(new JsonObject {
+            Figures.Add("large-run-example", Figures.WithProgram(site, new JsonObject {
                 ["title"] = "Fleet checks", ["label"] = "The completed two-item example, including its warning detail",
                 ["file"] = "large-run.ps1", ["script"] = shortScript, ["scriptFull"] = fullScript,
                 ["powershellRepo"] = "Website/examples/docs/large-run.ps1", ["csharpRepo"] = "Website/examples/docs/large-run.cs",

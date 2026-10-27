@@ -39,9 +39,15 @@ namespace ConsoleMonster.Interactive {
         public int TabIndex { get; set; }
 
         /// <summary>Whether the control accepts input and participates in focus traversal.</summary>
-        public bool Enabled {
+        internal bool Enabled {
             get { lock (_gate) { return _enabled; } }
             set { lock (_gate) { _enabled = value; } Invalidate(); }
+        }
+
+        /// <summary>Whether this control is excluded from input and focus traversal.</summary>
+        public bool Disabled {
+            get => !Enabled;
+            set => Enabled = !value;
         }
 
         /// <summary>Whether this control owns keyboard focus.</summary>
@@ -135,7 +141,7 @@ namespace ConsoleMonster.Interactive {
         /// <inheritdoc />
         public Size Measure(Constraints constraints, RenderContext context) {
             lock (_gate) {
-                constraints = constraints.WithHeight(Math.Min(constraints.MaxHeight, _viewportHeight));
+                constraints = constraints.Height(Math.Min(constraints.MaxHeight, _viewportHeight));
                 int extra = _chrome ? 2 + (string.IsNullOrEmpty(ValidationMessage) ? 0 : 1) : 0;
                 Size content = MeasureContent(_chrome ? constraints.Shrink(4, extra) : constraints, context);
                 return new Size(constraints.MaxWidth, Math.Min(constraints.MaxHeight, content.Height + extra));
@@ -185,6 +191,7 @@ namespace ConsoleMonster.Interactive {
         }
 
         internal static bool ValuesEqual(object? left, object? right) {
+            if (ReferenceEquals(left, right)) { return true; }
             if (left is IEnumerable a && right is IEnumerable b && !(left is string) && !(right is string)) {
                 IEnumerator x = a.GetEnumerator();
                 IEnumerator y = b.GetEnumerator();

@@ -24,7 +24,7 @@ namespace ConsoleMonster.PowerShell {
 
         internal static string Export(IWidget widget, string format, ExportOptions options) => IsMarkdown(format)
             ? MarkdownExportBridge.Widget(widget, options, string.Equals(format, "FencedText", StringComparison.OrdinalIgnoreCase))
-            : ConsoleExporter.Export(widget, CoreFormat(format), options);
+            : System.Text.Encoding.UTF8.GetString(FrameExporter.Export(widget, format, options));
 
         /// <summary>Reject competing output modes before input is rendered, including an empty pipeline.</summary>
         internal static void Validate(PSCmdlet cmdlet) {
@@ -45,7 +45,7 @@ namespace ConsoleMonster.PowerShell {
 
         internal static string Document(IReadOnlyList<object> items, string format, ExportOptions options, PSCmdlet cmdlet) {
             if (items.Count == 1 && Frame(items[0]) is CellBuffer frame) {
-                return IsMarkdown(format) ? MarkdownExportBridge.Frame(frame) : ConsoleExporter.Export(frame, CoreFormat(format), options);
+                return IsMarkdown(format) ? MarkdownExportBridge.Frame(frame) : System.Text.Encoding.UTF8.GetString(FrameExporter.Export(frame, format, options));
             }
             return Export(Widget(items, cmdlet), format, options);
         }

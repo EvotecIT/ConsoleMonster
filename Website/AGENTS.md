@@ -44,7 +44,8 @@ pwsh Website/build/Render-SiteImages.ps1                                       #
 
 - `render` is deterministic: it renders in-process with fixed widths, tiers, themes and the en-US culture, replays the
   committed captures and recordings, and writes the generated files listed below. Rerun it after any renderer change and
-  commit what changed. It exits with an error when a PowerShell example no longer draws the same cells as its C# twin.
+  commit what changed. It exits with an error when a PowerShell example no longer draws the same cells as its C# initializer and fluent variants. Gallery triplets must produce byte-identical output for every state.
+- A gallery recipe may select `capture.actionClock: "Frozen"` for action logs. Both C# styles and the site-only PowerShell driver then supply a native `SimulatedClock.Read` delegate through `InteractiveOptions.ActionClock`. The programs, delays, cancellation and input pacing stay intact, and comparisons use the actual rendered cells. Keep this selection in the affected demo metadata so its capture fingerprint changes; never normalize elapsed-time text after rendering.
 - `capture` runs scripts and showcases inside a Windows pseudo console (ConPTY) of a fixed size, with the terminal profile
   pinned through `CONSOLEMONSTER_COLOR`, `CONSOLEMONSTER_GLYPHS`, `CONSOLEMONSTER_THEME` and `CONSOLEMONSTER_CULTURE`, and the
   thread culture pinned for built-in cmdlets. It saves the VT streams under `captures/` (`.ansi` for printed output,
@@ -187,11 +188,11 @@ to run.
   produced it).
 - A page that walks through a program has one **Try it** block (`cm-try` shortcode, `partials/try.html`): `ids` for
   one example or `scenarios="Label:id,id|Label:id"` for several (real scenarios only), `project` for the C# project
-  name. It shows the PowerShell | C# switch (the reader's choice, kept in `<html data-lang>` and localStorage), the
+  name. It shows the PowerShell | C# | C# fluent switch (PowerShell by default; the reader's choice is kept in `<html data-lang>` and guarded localStorage), the
   install line, the program with Copy and Download, a muted Run line and the output under the code. Pages follow
   lead, Try it, how it works (quote the 3 to 8 lines that matter, never the whole program again), variations, related.
-  The same lines in both languages go in `<div class="cm-lang" data-lang="powershell">` and its `csharp` twin, which
-  site.js puts under one switch. Fence `dotnet` commands (and the `cd` beside them) as `terminal` (labelled Terminal); a block that
+  All three variants are present in the initial DOM: `<div class="cm-lang" data-lang="powershell">`, `csharp` and `fluent`, which
+  site.js puts under one switch. Generate How it maps notes from the parity catalog; do not write separate mappings by hand. Fence `dotnet` commands (and the `cd` beside them) as `terminal` (labelled Terminal); a block that
   holds only a run command fails the render (`CodeGuard.Presentation`).
 - The docs catalogue (`layouts/docsindex.html`) is built from the docs pages: `content/docs/_index.md` is a section, so
   the template gets every page as `items`. Each page's front matter names its `group` (one of `docsCatalog.groups` in

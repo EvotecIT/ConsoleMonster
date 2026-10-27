@@ -22,6 +22,8 @@ namespace ConsoleMonster.Interactive {
         public KeyChord? Shortcut { get; set; }
         /// <summary>Optional modal confirmation text. {Selection} expands to the captured row label or row count. Its default answer is No.</summary>
         public string? ConfirmPrompt { get; set; }
+        /// <summary>Shows progress with Cancel and Background, followed by a summary with an explicit backend-supplied retry or Skip.</summary>
+        public bool ProgressDialog { get; set; }
         /// <summary>The operation, which receives captured rows and cooperative cancellation.</summary>
         public Func<AppActionContext, CancellationToken, Task> Action { get; }
         internal Func<IReadOnlyList<object?>, IReadOnlyList<object?>>? CaptureRows { get; set; }
@@ -31,10 +33,16 @@ namespace ConsoleMonster.Interactive {
     /// <summary>Captured action input and a thread-safe output sink. It deliberately exposes no controls or app state.</summary>
     public sealed class AppActionContext {
         private readonly Action<string, string> _write;
-        internal AppActionContext(IReadOnlyList<object?> rows, Action<string, string> write) { Rows = rows; _write = write; }
+        private readonly Action<AppProgress>? _progress;
+        private readonly Action<AppOperationSummary>? _summary;
+        internal AppActionContext(IReadOnlyList<object?> rows, Action<string, string> write, Action<AppProgress>? progress = null, Action<AppOperationSummary>? summary = null) { Rows = rows; _write = write; _progress = progress; _summary = summary; }
         /// <summary>The row set captured before confirmation, in display order. Changing selection does not change this set.</summary>
         public IReadOnlyList<object?> Rows { get; }
         /// <summary>Appends literal output to the bounded embedded log. Levels use the existing log vocabulary.</summary>
         public void Write(string text, string level = "out") => _write(text ?? string.Empty, level);
+        /// <summary>Replaces the latest progress snapshot; fast producers do not accumulate a UI backlog.</summary>
+        public void Report(AppProgress progress) => _progress?.Invoke(progress ?? throw new ArgumentNullException(nameof(progress)));
+        /// <summary>Supplies a final summary and optional retry command over the backend's failed work.</summary>
+        public void Summarize(AppOperationSummary summary) => _summary?.Invoke(summary ?? throw new ArgumentNullException(nameof(summary)));
     }
 }

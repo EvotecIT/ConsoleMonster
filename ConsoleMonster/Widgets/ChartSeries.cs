@@ -8,11 +8,12 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>Creates a series.</summary>
         /// <param name="key">The name (legend and live key).</param>
-        /// <param name="role">The colour role.</param>
-        public ChartSeries(string key, ThemeToken role) {
+        /// <param name="role">The colour role, or null to let the parent chart choose it.</param>
+        public ChartSeries(string key, ThemeToken? role = null) {
             Key = key;
             Label = key;
-            Role = role;
+            _role = role ?? ThemeToken.Series1;
+            AutomaticRole = !role.HasValue;
         }
 
         /// <summary>The name.</summary>
@@ -25,7 +26,9 @@ namespace ConsoleMonster.Widgets {
         public Text.RichText? LabelText { get; set; }
 
         /// <summary>The colour role.</summary>
-        public ThemeToken Role { get; set; }
+        public ThemeToken Role { get => _role; set { _role = value; AutomaticRole = false; } }
+        private ThemeToken _role;
+        internal bool AutomaticRole { get; private set; }
 
         /// <summary>The values, oldest first.</summary>
         public IReadOnlyList<double> Values => _values;

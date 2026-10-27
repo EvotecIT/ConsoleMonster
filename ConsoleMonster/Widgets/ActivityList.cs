@@ -77,16 +77,27 @@ namespace ConsoleMonster.Widgets {
                 }
                 return;
             }
-            if (liveEvent.Operation != "update") {
+            bool patch = liveEvent.Operation == "label" || liveEvent.Operation == "detail" || liveEvent.Operation == "value" || liveEvent.Operation == "remaining" || liveEvent.Operation == "parent";
+            if (liveEvent.Operation != "update" && !patch) {
                 return;
             }
             // An event without a time stamp (no session) leaves the start unknown, so no elapsed time is shown.
             Activity activity = index >= 0 ? _activities[index] : new Activity(id) { Started = liveEvent.Time > 0 ? TimeSpan.FromMilliseconds(liveEvent.Time) : (TimeSpan?)null };
-            activity.Parent = parent;
-            activity.Title = string.IsNullOrEmpty(liveEvent.Text) ? activity.Title : liveEvent.Text!;
-            activity.Status = liveEvent.Status;
-            activity.Percent = liveEvent.Value;
-            activity.SecondsLeft = liveEvent.Total;
+            if (patch) {
+                switch (liveEvent.Operation) {
+                    case "label": activity.Title = liveEvent.Text ?? string.Empty; break;
+                    case "detail": activity.Status = liveEvent.Text; break;
+                    case "value": activity.Percent = liveEvent.Value; break;
+                    case "remaining": activity.SecondsLeft = liveEvent.Value; break;
+                    case "parent": activity.Parent = (int)liveEvent.Value; break;
+                }
+            } else {
+                activity.Parent = parent;
+                activity.Title = string.IsNullOrEmpty(liveEvent.Text) ? activity.Title : liveEvent.Text!;
+                activity.Status = liveEvent.Status;
+                activity.Percent = liveEvent.Value;
+                activity.SecondsLeft = liveEvent.Total;
+            }
             if (index < 0) {
                 _activities.Add(activity);
             }
