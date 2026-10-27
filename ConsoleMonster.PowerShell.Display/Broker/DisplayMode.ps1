@@ -7,8 +7,8 @@ param(
 )
 if ($Module) {
     foreach ($cmModuleName in $Module) {
-        [ConsoleMonster.PowerShell.Display.DefaultDisplay]::SetMode([ConsoleMonster.PowerShell.Display.DefaultDisplayMode]$Mode, $cmModuleName)
+        $cmDisplayType::SetMode($Mode, $cmModuleName)
     }
 } else {
-    [ConsoleMonster.PowerShell.Display.DefaultDisplay]::SetMode([ConsoleMonster.PowerShell.Display.DefaultDisplayMode]$Mode, $null)
+    $cmDisplayType::SetMode($Mode, $null)
 }

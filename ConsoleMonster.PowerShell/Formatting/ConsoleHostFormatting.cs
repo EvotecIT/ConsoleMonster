@@ -62,7 +62,6 @@ namespace ConsoleMonster.PowerShell {
                 return;
             }
             ConsoleModuleViews.Discover(source);
-            EmbeddedDisplayIntegration.Join();
             ScriptBlock? existing = FormatCommandInstallation.GlobalFunction(source.SessionState, "Out-Default");
             bool ours = Display.DefaultDisplay.IsBrokerInstalled || (existing != null && existing.ToString().IndexOf(ConsoleFormatting.Marker, StringComparison.OrdinalIgnoreCase) >= 0);
             if (existing != null && !ours) {
@@ -93,11 +92,14 @@ namespace ConsoleMonster.PowerShell {
             }
             ApplyNativeColors(source, wanted);
             ConsoleFormatting.Features |= wanted;
+            // Register the shared sink only after a feature actually installed. Refused progress/help
+            // must not leave an Out-Default broker or module cleanup hook behind.
+            EmbeddedDisplayIntegration.Join();
             EmbeddedDisplayIntegration.SetOutputEnabled((ConsoleFormatting.Features & ConsoleFormattingFeature.Output) != 0);
             if ((wanted & ConsoleFormattingFeature.Errors) != 0) {
                 FormattingSessionState.Current.DetailedErrors = options.Detailed;
             }
-            if (!ours) {
+            if (!ours && !Display.DefaultDisplay.IsBrokerInstalled) {
                 source.SessionState.InvokeProvider.Item.Set("function:global:Out-Default", ScriptBlock.Create(ConsoleFormatting.ShimScript));
             }
             ConsoleFormatting.RestoreCommandsWithModule(source.MyInvocation.MyCommand.Module);

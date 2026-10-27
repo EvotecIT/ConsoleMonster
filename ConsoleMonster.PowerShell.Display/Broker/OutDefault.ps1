@@ -6,7 +6,9 @@ param(
 )
 begin {
     $cmAutomaticTopLevel = $MyInvocation.CommandOrigin -eq 'Runspace'
-    $cmDisplaySession = [ConsoleMonster.PowerShell.Display.DefaultDisplay]::Begin($PSCmdlet, $cmAutomaticTopLevel, $Transcript.IsPresent)
+    # The owning installation captures its exact Type, including private assembly load contexts.
+    # A copied definition has no captured owner and delegates straight to native formatting.
+    $cmDisplaySession = if ($null -ne $cmDisplayType) { $cmDisplayType::Begin($PSCmdlet, $cmAutomaticTopLevel, $Transcript.IsPresent) } else { $null }
     $cmNativePipeline = $null
     $cmDispatch = {
         param($cmOperations)
@@ -20,7 +22,7 @@ begin {
                 if ($cmDisplaySession.Render($cmOperation)) { continue }
             }
             if ($null -eq $cmNativePipeline) {
-                $cmNativePipeline = [ConsoleMonster.PowerShell.Display.DefaultDisplay]::CreateNativeSink($PSCmdlet, $cmAutomaticTopLevel, $Transcript.IsPresent)
+                $cmNativePipeline = $cmDisplayType::CreateNativeSink($PSCmdlet, $cmAutomaticTopLevel, $Transcript.IsPresent)
                 $cmNativePipeline.Begin()
             }
             foreach ($cmOriginal in $cmOperation.Objects) { $cmNativePipeline.Process($cmOriginal) }
@@ -28,19 +30,27 @@ begin {
     }
 }
 process {
-    try { . $cmDispatch ($cmDisplaySession.Receive($InputObject)) }
+    try {
+        if ($null -eq $cmDisplaySession) {
+            if ($null -eq $cmNativePipeline) {
+                $cmNativePipeline = { Microsoft.PowerShell.Core\Out-Default -Transcript:$Transcript }.GetSteppablePipeline($MyInvocation.CommandOrigin)
+                $cmNativePipeline.Begin($PSCmdlet)
+            }
+            $cmNativePipeline.Process($InputObject)
+        } else { . $cmDispatch ($cmDisplaySession.Receive($InputObject)) }
+    }
     catch {
-        $cmDisplaySession.Dispose()
+        if ($null -ne $cmDisplaySession) { $cmDisplaySession.Dispose() }
         if ($null -ne $cmNativePipeline) { $cmNativePipeline.Dispose() }
         throw
     }
 }
 end {
     try {
-        . $cmDispatch ($cmDisplaySession.Complete())
+        if ($null -ne $cmDisplaySession) { . $cmDispatch ($cmDisplaySession.Complete()) }
         if ($null -ne $cmNativePipeline) { $cmNativePipeline.End() }
     } finally {
-        $cmDisplaySession.Dispose()
+        if ($null -ne $cmDisplaySession) { $cmDisplaySession.Dispose() }
         if ($null -ne $cmNativePipeline) { $cmNativePipeline.Dispose() }
     }
 }

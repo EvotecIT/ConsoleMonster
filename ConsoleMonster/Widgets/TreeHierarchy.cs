@@ -111,6 +111,7 @@ namespace ConsoleMonster.Widgets {
                     object identity = _options.Identity?.Invoke(item!) ?? item!;
                     if (_path.Contains(identity)) {
                         child.Reference |= TreeReferenceKind.Cycle;
+                        child.HasLocalizedCycleNote = true;
                         Func<Localization.WidgetLabels, string?>? localizedNote = child.LocalizedNote;
                         string? note = child.Detail;
                         child.LocalizedNote = labels => {

@@ -42,11 +42,13 @@ internal sealed class DisplayRunspaceState {
         && ReferenceEquals(function.ScriptBlock, _installed);
     internal void Acquire(ModuleLease lease) {
         _leases.Add(lease);
+        // Bind only the actual Type in a private module. GetNewClosure also captures the invoking
+        // pipeline's preference variables, which would freeze verbose/error behavior at registration.
         if (_modeFunction == null) {
             using (Stream resource = typeof(DefaultDisplay).Assembly.GetManifestResourceStream("ConsoleMonster.PowerShell.Display.DisplayMode.ps1")!)
             using (StreamReader reader = new StreamReader(resource))
             using (System.Management.Automation.PowerShell ps = System.Management.Automation.PowerShell.Create(RunspaceMode.CurrentRunspace)) {
-                var result = ps.AddScript("param($body) if (-not $ExecutionContext.InvokeCommand.GetCommand('Set-ConsoleDefaultDisplay', [System.Management.Automation.CommandTypes]::All)) { Microsoft.PowerShell.Management\\Set-Item -LiteralPath function:global:Set-ConsoleDefaultDisplay -Value ([scriptblock]::Create($body)); ($ExecutionContext.InvokeCommand.GetCommand('Set-ConsoleDefaultDisplay', [System.Management.Automation.CommandTypes]::Function)).ScriptBlock }").AddArgument(reader.ReadToEnd()).Invoke();
+                var result = ps.AddScript("param($body, $cmDisplayType) if (-not $ExecutionContext.InvokeCommand.GetCommand('Set-ConsoleDefaultDisplay', [System.Management.Automation.CommandTypes]::All)) { Microsoft.PowerShell.Management\\Set-Item -LiteralPath function:global:Set-ConsoleDefaultDisplay -Value ((Microsoft.PowerShell.Core\\New-Module -ScriptBlock {param($cmDisplayType)} -ArgumentList $cmDisplayType).NewBoundScriptBlock([scriptblock]::Create($body))); ($ExecutionContext.InvokeCommand.GetCommand('Set-ConsoleDefaultDisplay', [System.Management.Automation.CommandTypes]::Function)).ScriptBlock }").AddArgument(reader.ReadToEnd()).AddArgument(typeof(DefaultDisplay)).Invoke();
                 if (!ps.HadErrors && result.Count == 1) { _modeFunction = result[0].BaseObject as ScriptBlock; }
             }
         }
@@ -60,8 +62,8 @@ internal sealed class DisplayRunspaceState {
             ?? throw new InvalidOperationException("The native broker resource is missing."))
         using (StreamReader reader = new StreamReader(resource))
         using (System.Management.Automation.PowerShell ps = System.Management.Automation.PowerShell.Create(RunspaceMode.CurrentRunspace)) {
-            var result = ps.AddScript("param($body) $c = $ExecutionContext.InvokeCommand.GetCommand('Out-Default', [System.Management.Automation.CommandTypes]::All); if ($c -is [System.Management.Automation.CmdletInfo] -and $c.ModuleName -eq 'Microsoft.PowerShell.Core') { $body = [scriptblock]::Create($body); Microsoft.PowerShell.Management\\Set-Item -LiteralPath function:global:Out-Default -Value $body; ($ExecutionContext.InvokeCommand.GetCommand('Out-Default', [System.Management.Automation.CommandTypes]::Function)).ScriptBlock }")
-                .AddArgument(reader.ReadToEnd()).Invoke();
+            var result = ps.AddScript("param($body, $cmDisplayType) $c = $ExecutionContext.InvokeCommand.GetCommand('Out-Default', [System.Management.Automation.CommandTypes]::All); if ($c -is [System.Management.Automation.CmdletInfo] -and $c.ModuleName -eq 'Microsoft.PowerShell.Core') { $body = (Microsoft.PowerShell.Core\\New-Module -ScriptBlock {param($cmDisplayType)} -ArgumentList $cmDisplayType).NewBoundScriptBlock([scriptblock]::Create($body)); Microsoft.PowerShell.Management\\Set-Item -LiteralPath function:global:Out-Default -Value $body; ($ExecutionContext.InvokeCommand.GetCommand('Out-Default', [System.Management.Automation.CommandTypes]::Function)).ScriptBlock }")
+                .AddArgument(reader.ReadToEnd()).AddArgument(typeof(DefaultDisplay)).Invoke();
             if (!ps.HadErrors && result.Count == 1) { _installed = result[0].BaseObject as ScriptBlock; }
         }
     }

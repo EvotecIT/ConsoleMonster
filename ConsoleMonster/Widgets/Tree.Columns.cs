@@ -55,7 +55,7 @@ namespace ConsoleMonster.Widgets {
                 int primaryWidth = notes ? width : labelWidth;
                 body.AddRange(Primary(row, primaryWidth, notes, context));
                 if (notes) {
-                    AppendNote(body, ReferenceWords(row.Reference), primaryWidth, context);
+                    AppendNote(body, ReferenceWords(row), primaryWidth, context);
                     AppendNote(body, row.DetailFor(context), primaryWidth, context);
                     List<int> ordered = new List<int>(visible);
                     ordered.Sort((a, b) => {
@@ -139,9 +139,12 @@ namespace ConsoleMonster.Widgets {
             return string.Join(" ", glyphs);
         }
 
-        private static string ReferenceWords(TreeReferenceKind reference) {
+        private static string ReferenceWords(TreeRow row) {
+            TreeReferenceKind reference = row.Reference;
             List<string> words = new List<string>();
-            if ((reference & TreeReferenceKind.Cycle) != 0) words.Add("cycle");
+            if ((reference & TreeReferenceKind.Cycle) != 0) {
+                if (!row.Node.HasLocalizedCycleNote) words.Add("cycle");
+            }
             else if ((reference & TreeReferenceKind.Repeat) != 0) words.Add("shown above");
             if ((reference & TreeReferenceKind.Collapsed) != 0) words.Add("collapsed");
             if ((reference & TreeReferenceKind.Incomplete) != 0) words.Add("incomplete");

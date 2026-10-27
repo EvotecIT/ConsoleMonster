@@ -92,10 +92,10 @@ namespace ConsoleMonster.Tests.Widgets {
         }
 
         [Theory]
-        [InlineData(GlyphTier.Full, true, "↺ cycle")]
-        [InlineData(GlyphTier.Ascii, true, "@ cycle")]
-        [InlineData(GlyphTier.Full, false, "↺ cycle")]
-        [InlineData(GlyphTier.Ascii, false, "@ cycle")]
+        [InlineData(GlyphTier.Full, true, "↺")]
+        [InlineData(GlyphTier.Ascii, true, "@")]
+        [InlineData(GlyphTier.Full, false, "↺")]
+        [InlineData(GlyphTier.Ascii, false, "@")]
         public void Render_AutomaticHierarchyCycle_StaysStructuralInNarrowColumnsAndWrappedTrees(GlyphTier tier, bool columns, string marker) {
             Item a = Cycle();
             Tree tree = new Tree { WrapLabels = !columns };
@@ -110,9 +110,9 @@ namespace ConsoleMonster.Tests.Widgets {
             Assert.Equal(1, selectedA);
             Assert.True((cycle.Reference & TreeReferenceKind.Cycle) != 0);
             string text = TestTerminal.RenderText(tree, 45, glyphs: tier);
-            if (columns) {
-                Assert.Contains(marker.Split(' ')[0] + " A  cycle", text);
-            } else Assert.Contains(marker, text);
+            Assert.Contains(marker, text);
+            Assert.Contains("(cycle)", text);
+            Assert.Single(System.Text.RegularExpressions.Regex.Matches(text, @"\bcycle\b"));
             Assert.Equal(2, text.Split('\n').Count(line => line.Contains("A")));
         }
 

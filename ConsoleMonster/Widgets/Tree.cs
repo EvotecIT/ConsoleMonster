@@ -197,7 +197,7 @@ namespace ConsoleMonster.Widgets {
             public string MarkersFor(RenderContext context) {
                 bool ascii = context.Glyphs.Tier != Capabilities.GlyphTier.Full;
                 List<string> parts = new List<string>();
-                if ((Reference & TreeReferenceKind.Cycle) != 0) parts.Add((ascii ? "@" : "↺") + " cycle");
+                if ((Reference & TreeReferenceKind.Cycle) != 0) parts.Add((ascii ? "@" : "↺") + (Node.HasLocalizedCycleNote ? string.Empty : " cycle"));
                 else if ((Reference & TreeReferenceKind.Repeat) != 0) parts.Add((ascii ? "@" : "↪") + " shown above");
                 if ((Reference & TreeReferenceKind.Collapsed) != 0) parts.Add((ascii ? ">" : "▸") + " collapsed");
                 if ((Reference & TreeReferenceKind.Incomplete) != 0) parts.Add("? incomplete");

@@ -54,12 +54,15 @@ namespace ConsoleMonster.Widgets {
             set {
                 _note = value;
                 LocalizedNote = null;
+                HasLocalizedCycleNote = false;
             }
         }
         private string? _note;
 
         internal Func<Localization.WidgetLabels, string>? LocalizedLabel { get; set; }
         internal Func<Localization.WidgetLabels, string?>? LocalizedNote { get; set; }
+        // The hierarchy walker already supplied a localized cycle note; render its structural glyph once.
+        internal bool HasLocalizedCycleNote { get; set; }
         // Inspection indexes remain useful in the console; scalar items need only their value in semantic exports.
         internal bool IsScalarCollectionItem { get; set; }
         internal string LabelFor(Canvas.RenderContext context) => LocalizedLabel?.Invoke(context.Labels) ?? _label;
