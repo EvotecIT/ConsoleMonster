@@ -65,12 +65,16 @@ $themeReport = New-ConsoleRows -Gap 1 -Content {
             [pscustomobject]@{ Label = 'Publish report'; Status = 'Pending'; Detail = 'queued' }
         }
     }
-    $targets | New-ConsoleTable -Property Target, Status, Detail -StatusProperty Status -Title 'Targets' -Expand
+    $targets |
+        New-ConsoleTable -Property Target, Status,
+            Detail -StatusProperty Status -Title 'Targets' -Expand
     New-ConsolePanel -Title 'Recent log' -Content {
         New-ConsoleLogRegion -Height 3 -Content {
             [pscustomobject]@{ Message = 'Loaded deployment plan'; Level = 'Info'; AtSeconds = 1 }
-            [pscustomobject]@{ Message = 'Smoke check needed one retry'; Level = 'Warning'; AtSeconds = 3 }
-            [pscustomobject]@{ Message = 'api-west health probe timed out'; Level = 'Error'; AtSeconds = 5 }
+            [pscustomobject]@{ Message = 'Smoke check needed one retry'; Level = 'Warning'
+                AtSeconds = 3 }
+            [pscustomobject]@{ Message = 'api-west health probe timed out'; Level = 'Error'
+                AtSeconds = 5 }
         }
     }
 }

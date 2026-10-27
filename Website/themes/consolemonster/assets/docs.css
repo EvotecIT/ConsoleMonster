@@ -6,7 +6,7 @@
 .cm-docs__nav h2:first-of-type { margin-top: 0; }
 .cm-docs__nav ul { margin: 0; padding: 0; list-style: none; }
 .cm-docs__nav li { margin: 0; }
-.cm-docs__nav a { display: block; padding: 5px 10px; border-radius: 5px; color: var(--cm-ink-2); text-decoration: none; line-height: 1.35; }
+.cm-docs__nav a { display: block; padding: 5px 10px; border-radius: 5px; color: var(--cm-ink-2); text-decoration: none; line-height: 1.35; overflow-wrap: break-word; }
 .cm-docs__nav a:hover { background: var(--cm-hover); color: var(--cm-ink); }
 /* The current page: the accent bar on the left, as the current type in the API sidebar and the current destination in the menus. */
 .cm-docs__nav a[aria-current="page"], .cm-docs__nav .is-active > a, .cm-docs__nav a.is-active { border-radius: 0 5px 5px 0; background: none; box-shadow: inset 2px 0 0 var(--cm-accent); color: var(--cm-ink); font-weight: 700; }
@@ -36,7 +36,7 @@
 .cm-docs__toc ul { margin: 0; padding: 0; list-style: none; }
 .cm-docs__toc li { margin: 0; }
 .cm-docs__toc ul ul { padding-left: 12px; }
-.cm-docs__toc a { display: block; padding: 4px 0 4px 12px; border-left: 1px solid var(--cm-line); color: var(--cm-muted); text-decoration: none; line-height: 1.35; }
+.cm-docs__toc a { display: block; padding: 4px 0 4px 12px; border-left: 1px solid var(--cm-line); color: var(--cm-muted); text-decoration: none; line-height: 1.35; overflow-wrap: break-word; }
 .cm-docs__toc a:hover { color: var(--cm-ink); border-left-color: var(--cm-line-strong); }
 
 /* Index cards for the docs and guides landing pages. */
@@ -118,6 +118,8 @@
 
 .cm-migration-map { max-width: 100%; overflow-x: auto; margin-block: var(--cm-space-5); }
 .cm-migration-map > table { margin-block: 0; }
+/* The map scrolls instead, so names in it break only at spaces, never inside an identifier. */
+.cm-migration-map :not(pre) > code { overflow-wrap: normal; white-space: nowrap; }
 .cm-migration-map:focus-visible { outline: 2px solid var(--cm-accent); outline-offset: 2px; }
 
 /* Migration operations stay paired on wide pages and keep before/after reading order on phones. */

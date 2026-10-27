@@ -16,7 +16,8 @@ $samples = for ($i = 0; $i -lt $west.Count; $i++) {
 
 New-ConsoleRows -Content {
     New-ConsoleText -Markup '[bold]CPU time - highest first[/]'
-    $processes | Show-Console -Property CPU -Sort Descending -MaxRows 3 -Unit ' s' -AsWidget -View Chart
+    $processes |
+        Show-Console -Property CPU -Sort Descending -MaxRows 3 -Unit ' s' -AsWidget -View Chart
     New-ConsoleText ''
     New-ConsoleText -Markup '[bold]Response-time distribution[/]'
     $latency | Show-Console -Type Histogram -Bins 6 -Unit ' ms' -AsWidget -View Chart
