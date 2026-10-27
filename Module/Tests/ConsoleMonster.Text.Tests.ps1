@@ -81,6 +81,7 @@ Write-ConsoleText 'alias2' -ShowTimestamp -TimestampFormat 'dd'
 
         It 'centres with -HorizontalCenter by display width, including emoji and CJK' {
             $text = Invoke-TextChild -Script @'
+$env:CONSOLEMONSTER_GLYPHS = 'Full'
 Write-ConsoleText 'abcd' -HorizontalCenter -Width 20
 Write-ConsoleText ([string] [char] 0x4E2D + [char] 0x6587 + [char]::ConvertFromUtf32(0x1F98A)) -HorizontalCenter -Width 20
 '@
