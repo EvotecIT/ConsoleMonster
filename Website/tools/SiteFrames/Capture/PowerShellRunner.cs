@@ -48,6 +48,7 @@ namespace SiteFrames.Capture {
                 ["CONSOLEMONSTER_AMBIGUOUS_WIDTH"] = null,
                 ["NO_COLOR"] = null,
                 ["CI"] = null,
+                ["CODEX_CI"] = null,
                 ["TF_BUILD"] = null,
                 ["GITHUB_ACTIONS"] = null,
                 ["BUILD_BUILDID"] = null,

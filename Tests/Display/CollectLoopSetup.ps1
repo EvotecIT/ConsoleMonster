@@ -6,8 +6,10 @@ $global:CollectBatches=New-Object 'System.Collections.Generic.List[string]'
 $global:CollectVersion=0
 $global:CollectBroken=$false
 $global:CollectLarge=$false
+$global:CollectStatusAtBuild=$false
 $global:CollectBuilder=[Func[System.Collections.Generic.IReadOnlyList[object],ConsoleMonster.PowerShell.Display.DefaultDisplayContext,ConsoleMonster.Layout.IWidget]]{
     param($objects,$context)
+    $global:CollectStatusAtBuild=$global:CollectStatusAtBuild -or [DisplayHostContract.ConsoleText]::Read().Contains('collecting ')
     $names=if($objects.Count -gt 4){$objects.Count.ToString()+':'+$objects[0].Name+':'+$objects[$objects.Count-1].Name}else{($objects|ForEach-Object {$_.Name}) -join ','}
     $global:CollectBatches.Add($names)
     $global:CollectMode=$context.Profile.Mode.ToString()
@@ -19,6 +21,7 @@ function global:Use-CollectView {
     param([int]$Records=2000,[long]$Bytes=16777216,[string]$View='collect.host')
     $global:CollectVersion++
     $global:CollectBatches.Clear()
+    $global:CollectStatusAtBuild=$false
     $global:CollectLease.Unregister('DisplayHostContract.Row')
     $global:CollectView=$global:CollectLease.Register('DisplayHostContract.Row',$View,[version]('1.0.'+$global:CollectVersion),'Collect',[string[]]@('Scope'),$global:CollectBuilder,[ConsoleMonster.PowerShell.Display.DefaultDisplayBudget]::new($Records,$Bytes))
     [Console]::Clear()

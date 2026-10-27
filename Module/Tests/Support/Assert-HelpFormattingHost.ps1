@@ -60,7 +60,7 @@ try {
     # A script's outer Out-Default was resolved before import. Explicitly invoke the installed shim as its host sink.
     # The nested producer has no following command; this is the same pipe connection as the interactive prompt.
     $width = [Console]::BufferWidth
-    [ConsoleMonster.Terminal]::Profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed($width, 200, 'None')
+    [ConsoleMonster.Terminal]::Profile = [ConsoleMonster.Terminal]::GetCurrentProfile().WithSize($width, 200).WithColorDepth('None')
     $native = Microsoft.PowerShell.Core\Get-Help Get-HelpFormattingShort
     $factory = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.ConsoleViewRegistration')).Assembly.GetType('ConsoleMonster.PowerShell.PSHelp').GetMethod('CreateView', [Reflection.BindingFlags]'Static,NonPublic')
     $view = $factory.Invoke($null, @($native, (Get-Command Get-HelpFormattingShort).PSObject.BaseObject, $false, $false, $true))
@@ -155,7 +155,7 @@ try {
     $checks.Add('Short help skips pager and leaves input alone')
 
     # Space advances, b returns, q exits. A remaining key proves early quit.
-    [ConsoleMonster.Terminal]::Profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed($width, 10, 'None')
+    [ConsoleMonster.Terminal]::Profile = [ConsoleMonster.Terminal]::GetCurrentProfile().WithSize($width, 10).WithColorDepth('None')
     $input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('Space b q Space')
     ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::Override = $input
     & { help Get-HelpFormattingValue -Full } | Out-Default

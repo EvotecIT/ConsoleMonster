@@ -55,8 +55,11 @@ $commands=@(
     'Assert-Collect ''Collect_CaptureFormatSerialization_PreserveIdentityAndNativeSinks'' ($global:CollectBatches.Count -eq 0 -and [object]::ReferenceEquals($original,$assigned) -and ($names -join ''|'') -ceq ($original.PSObject.TypeNames -join ''|'') -and $native -match ''identity-row'' -and $formatted -match ''identity-row'' -and $json -match ''identity-row'')',
     'Use-CollectView',
     ('Start-Transcript -LiteralPath '+(Quote-Collect ([IO.Path]::ChangeExtension($ResultsPath,'transcript.txt')))+'|Out-Null'),
-    '[DisplayHostContract.Row]::new(''transcript-collect'',''a'')',
-    'Stop-Transcript|Out-Null; Assert-Collect ''Collect_ActiveTranscript_DoesNotInvokeBuilder'' ($global:CollectBatches.Count -eq 0)',
+    '& { [DisplayHostContract.Row]::new(''transcript-a'',''a''); Start-Sleep -Milliseconds 1100; [DisplayHostContract.Row]::new(''transcript-b'',''a''); $global:TranscriptStatusObserved=Read-CollectStatus }',
+    ('Stop-Transcript|Out-Null; $transcriptText=Get-Content -Raw -LiteralPath '+(Quote-Collect ([IO.Path]::ChangeExtension($ResultsPath,'transcript.txt')))+'; Assert-Collect ''Collect_ActiveTranscript_DoesNotInvokeBuilderOrWriteStatus'' ($global:CollectBatches.Count -eq 0 -and -not $global:TranscriptStatusObserved -and $transcriptText -notmatch ''(?m)^collecting [0-9,]+ rows\.\.\.'')'),
+    'Use-CollectView',
+    ('& { [DisplayHostContract.Row]::new(''redirect-a'',''a''); Start-Sleep -Milliseconds 1100; [DisplayHostContract.Row]::new(''redirect-b'',''a''); $global:RedirectStatusObserved=Read-CollectStatus } > '+(Quote-Collect ([IO.Path]::ChangeExtension($ResultsPath,'redirect.txt')))),
+    ('$redirectText=Get-Content -Raw -LiteralPath '+(Quote-Collect ([IO.Path]::ChangeExtension($ResultsPath,'redirect.txt')))+'; Assert-Collect ''Collect_RedirectedOutput_NeverWritesStatus'' ($global:CollectBatches.Count -eq 0 -and -not $global:RedirectStatusObserved -and $redirectText -notmatch ''collecting '' -and $redirectText -match ''redirect-a'' -and $redirectText -match ''redirect-b'')'),
     'Use-CollectView; $env:CI=''1''',
     '[DisplayHostContract.Row]::new(''ci-collect'',''a'')',
     'Assert-Collect ''Collect_CI_DoesNotInvokeBuilder'' ($global:CollectBatches.Count -eq 0); $env:CI=$null',
@@ -64,8 +67,11 @@ $commands=@(
     '& { [DisplayHostContract.Row]::new(''plain-a'',''a''); [DisplayHostContract.Row]::new(''plain-b'',''a'') }',
     'Assert-Collect ''Collect_NoColorPhysicalHost_KeepsLayoutInPlainMode'' ($global:CollectBatches.Count -eq 1 -and $global:CollectMode -eq ''Plain'')',
     'Use-CollectView',
-    '& { [DisplayHostContract.Row]::new(''status-a'',''a''); Start-Sleep -Milliseconds 1100; [DisplayHostContract.Row]::new(''status-b'',''a''); $global:StatusObserved=Read-CollectStatus; Write-Warning ''STATUS_WARNING''; Write-Verbose ''STATUS_VERBOSE'' -Verbose; Write-Information ''STATUS_INFORMATION'' -InformationAction Continue; [DisplayHostContract.Row]::new(''status-c'',''a'') }',
-    '$screen=[DisplayHostContract.ConsoleText]::Read(); Assert-Collect ''Collect_StatusLine_CompleteOwnedLineErasedNativeMessagesIntact'' ($global:StatusObserved -and $screen -notmatch ''collecting'' -and ($screen.IndexOf(''WARNING: STATUS_WARNING'') % [Console]::BufferWidth) -eq 0 -and (Test-CollectOrder @(''STATUS_WARNING'',''STATUS_VERBOSE'',''STATUS_INFORMATION'',''COLLECT<status-a,status-b,status-c>'')))',
+    '& { [DisplayHostContract.Row]::new(''status-a'',''a''); Start-Sleep -Milliseconds 1100; $global:QuietStatusObserved=Read-CollectStatus; [DisplayHostContract.Row]::new(''status-b'',''a''); $global:StatusObserved=Read-CollectStatus; Write-Warning ''STATUS_WARNING''; Write-Verbose ''STATUS_VERBOSE'' -Verbose; Write-Information ''STATUS_INFORMATION'' -InformationAction Continue; [DisplayHostContract.Row]::new(''status-c'',''a'') }',
+    '$screen=[DisplayHostContract.ConsoleText]::Read(); Assert-Collect ''Collect_StatusLine_CompleteOwnedLineErasedBeforeBuilderNativeMessagesIntact'' (-not $global:QuietStatusObserved -and $global:StatusObserved -and -not $global:CollectStatusAtBuild -and $screen -notmatch ''collecting'' -and ($screen.IndexOf(''WARNING: STATUS_WARNING'') % [Console]::BufferWidth) -eq 0 -and (Test-CollectOrder @(''STATUS_WARNING'',''STATUS_VERBOSE'',''STATUS_INFORMATION'',''COLLECT<status-a,status-b,status-c>'')))',
+    'Use-CollectView',
+    '& { [DisplayHostContract.Row]::new(''status-error-a'',''a''); Start-Sleep -Milliseconds 1100; [DisplayHostContract.Row]::new(''status-error-b'',''a''); $global:ErrorStatusObserved=Read-CollectStatus; Write-Error ''STATUS_NATIVE_ERROR'' -ErrorAction Continue; [DisplayHostContract.Row]::new(''status-error-c'',''a'') }',
+    '$screen=[DisplayHostContract.ConsoleText]::Read(); Assert-Collect ''Collect_StatusLine_NativeErrorClearsBeforeFramesAndPreservesError'' ($global:ErrorStatusObserved -and -not $global:CollectStatusAtBuild -and $screen -notmatch ''collecting'' -and (Test-CollectOrder @(''COLLECT<status-error-a,status-error-b>'',''STATUS_NATIVE_ERROR'',''COLLECT<status-error-c>'')))',
     'Use-CollectView',
     '& { [DisplayHostContract.Row]::new(''aborted-status-a'',''a''); Start-Sleep -Milliseconds 1100; [DisplayHostContract.Row]::new(''aborted-status-b'',''a''); $global:AbortedStatusObserved=Read-CollectStatus; throw ''ABORTED_STATUS_ERROR'' }',
     '$screen=[DisplayHostContract.ConsoleText]::Read(); Assert-Collect ''Collect_AbortedProducer_ReleasesVisibleStatusWithoutLateFrame'' ($global:AbortedStatusObserved -and $screen -notmatch ''collecting'' -and $screen -match ''ABORTED_STATUS_ERROR'' -and $screen -notmatch ''COLLECT<aborted-status'')',
@@ -87,4 +93,4 @@ if(-not $process.WaitForExit(45000)){Stop-Process -Id $process.Id;throw 'The own
 $process.Refresh()
 $report=Get-Content -LiteralPath $ResultsPath -Raw|ConvertFrom-Json
 $report.Tests|Format-Table Name,Passed -AutoSize
-if($process.ExitCode -ne 0 -or $report.Failed -or $report.Tests.Count -ne 24 -or [DateTime]$report.RecordedUtc -lt $started){throw 'Collect host proof failed; see its result file.'}
+if($process.ExitCode -ne 0 -or $report.Failed -or $report.Tests.Count -ne 26 -or [DateTime]$report.RecordedUtc -lt $started){throw 'Collect host proof failed; see its result file.'}

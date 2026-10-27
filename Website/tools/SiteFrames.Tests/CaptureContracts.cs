@@ -83,7 +83,7 @@ namespace SiteFrames.Tests {
         [Fact]
         public void CaptureEnvironment_ClearsEveryKnownCiMarker() {
             var environment = PowerShellRunner.Environment("dark");
-            foreach (string marker in new[] { "CI", "GITHUB_ACTIONS", "TF_BUILD", "BUILD_BUILDID", "JENKINS_URL", "GITLAB_CI", "TEAMCITY_VERSION" }) {
+            foreach (string marker in new[] { "CI", "GITHUB_ACTIONS", "TF_BUILD", "BUILD_BUILDID", "JENKINS_URL", "GITLAB_CI", "TEAMCITY_VERSION", "CODEX_CI" }) {
                 Assert.Null(environment[marker]);
             }
             Assert.Equal("xterm-256color", environment["TERM"]);

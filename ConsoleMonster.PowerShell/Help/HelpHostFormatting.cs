@@ -81,12 +81,12 @@ namespace ConsoleMonster.PowerShell {
             if (pipe != null) { PagedPipes.Remove(pipe); }
         }
 
-        internal static Layout.IWidget? CreateView(PSCmdlet source, PSObject help, bool literal) {
+        internal static Layout.IWidget? CreateView(PSCmdlet source, PSObject help) {
             if (source == null) { throw new ArgumentNullException(nameof(source)); }
             if (help == null) { return null; }
             if (!FormatCommandRouter.IsDirectHost(source, ConsoleFormattingFeature.Help)
                 || source.MyInvocation.BoundParameters.ContainsKey("Online") || source.MyInvocation.BoundParameters.ContainsKey("ShowWindow")) { return null; }
-            if (literal && help.BaseObject is string text) {
+            if (help.BaseObject is string text) {
                 // About-topic text uses the same reader as Show-Console -View Markdown; native captured routes return above.
                 return global::ConsoleMonster.Markdown.MarkdownConsole.Parse(text);
             }
