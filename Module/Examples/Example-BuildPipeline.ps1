@@ -45,7 +45,7 @@ Invoke-ConsoleDashboard $dashboard -Clock $clock -ArgumentList $clock, $steps {
         }
         Update-Console -WidgetId steps -Key $step.Label -Status Running
         Write-Host "$($step.Label)..."
-        Wait-ConsoleDashboard -Milliseconds ([int] ($step.Seconds * 1000))
+        Wait-ConsoleDashboard -Seconds $step.Seconds
         $Clock.Advance($step.Seconds)
         if ($step.Result -eq 'Warn') {
             Write-Warning '1 Pester test skipped on PowerShell 7 (requires conhost)'
@@ -58,5 +58,5 @@ Invoke-ConsoleDashboard $dashboard -Clock $clock -ArgumentList $clock, $steps {
     Update-Console -Key $phase -Status Skip -WidgetId 'phases'
     Update-Console -WidgetId overall -Status Pass
     Write-Host 'Build completed: Artefacts\Packed\ConsoleMonster-PowerShellModule.v2.0.0.zip'
-    Wait-ConsoleDashboard -Milliseconds 2000
+    Wait-ConsoleDashboard -Seconds 2
 }

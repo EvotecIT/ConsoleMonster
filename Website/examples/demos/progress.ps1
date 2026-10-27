@@ -23,7 +23,7 @@ Use-ConsoleProgress {
             Write-Progress @progressParameters
             # Redirected output has no live progress area; keep the ordinary pause there.
             if ($null -ne $ConsoleSession) {
-                Wait-ConsoleDashboard -Milliseconds 110
+                Wait-ConsoleDashboard -Seconds 0.11
             } else {
                 Start-Sleep -Milliseconds 110
             }

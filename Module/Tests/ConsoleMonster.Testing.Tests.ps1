@@ -73,7 +73,7 @@ $result = Use-ConsoleProgress {
             Use-ConsoleProgress {
                 $ConsoleSession | Should -BeOfType ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.LiveSession'))
                 Write-Progress -Activity 'Work' -PercentComplete 50
-                Wait-ConsoleDashboard -Milliseconds 110 -ErrorAction Stop
+                Wait-ConsoleDashboard -Seconds 0.11 -ErrorAction Stop
             }
         }
         $target.CheckpointCount | Should -Be 1

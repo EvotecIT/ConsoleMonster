@@ -21,7 +21,7 @@ Invoke-ConsoleDashboard $dashboard -RecordPath $recording {
         Update-Console -Key $phase -Status Running -WidgetId 'phases'
         foreach ($server in 'web01', 'web02', 'web03', 'web04') {
             Update-Console -WidgetId servers -Key $server -Status Running -Detail $phase
-            Wait-ConsoleDashboard -Milliseconds 250
+            Wait-ConsoleDashboard -Seconds 0.25
             Update-Console -WidgetId servers -Key $server -Status Pass -Detail $phase
         }
         Write-ConsoleLogEntry "$phase done on 4 servers"
