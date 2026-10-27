@@ -265,7 +265,7 @@ namespace SiteFrames.Capture {
                     return (Kind.Embedded, new List<SyntaxToken> { conditional.Statement.GetFirstToken() });
                 case CollectionExpressionSyntax collection when collection.Elements.Count >= 2:
                     return (Kind.Collection, collection.Elements.Select(element => element.GetFirstToken()).Append(collection.CloseBracketToken).ToList());
-                case ConditionalExpressionSyntax conditional when conditional.Span.Length >= Width / 2 && conditional.Parent is not ParenthesizedExpressionSyntax:
+                case ConditionalExpressionSyntax conditional when conditional.Parent is not ParenthesizedExpressionSyntax:
                     return (Kind.Conditional, new List<SyntaxToken> { conditional.QuestionToken, conditional.ColonToken });
                 case BinaryExpressionSyntax binary when (binary.IsKind(SyntaxKind.AddExpression) || binary.IsKind(SyntaxKind.LogicalAndExpression)
                         || binary.IsKind(SyntaxKind.LogicalOrExpression) || binary.IsKind(SyntaxKind.CoalesceExpression))
