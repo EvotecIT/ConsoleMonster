@@ -103,7 +103,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
         }
 
         [Fact]
-        public void BackgroundOperationReportsLatestProgressAndExplicitRetryWithoutAnotherRunner() {
+        public async Task BackgroundOperationReportsLatestProgressAndExplicitRetryWithoutAnotherRunner() {
             var retry = new AppCommand("retry", "Retry failures", (_, __) => Task.CompletedTask);
             using var session = new AppActionSession(default);
             var command = new AppCommand("copy", "Copy", (context, cancellation) => {
@@ -112,7 +112,9 @@ namespace ConsoleMonster.Tests.Interactive.App {
                 return Task.CompletedTask;
             }) { ProgressDialog = true };
             Assert.True(session.Start(command, Array.Empty<object?>()));
-            Assert.True(SpinWait.SpinUntil(() => !session.IsBusy, TimeSpan.FromSeconds(5)));
+            DateTime deadline = DateTime.UtcNow.AddSeconds(5);
+            while (session.IsBusy && DateTime.UtcNow < deadline) { await Task.Delay(10); }
+            Assert.False(session.IsBusy);
             Assert.Equal("file1", session.Progress!.Message); Assert.Equal(10, session.Progress.Completed);
             Assert.Equal("1 copied, 1 failed", session.Summary!.Message); Assert.Same(retry, session.Summary.Retry);
             Assert.Single(session.Summary.Failures);

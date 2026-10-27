@@ -8,6 +8,8 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a retained tab page for New-ConsoleTabs.
 
+Collects the page widgets once and preserves their input values when another tab is selected. Pass the page to New-ConsoleTabs to mount it in a full-screen application.
+
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -16,6 +18,8 @@ New-ConsoleTab [[-Content] <Object>] -Title <string> [<CommonParameters>]
 
 ## DESCRIPTION
 Creates a retained tab page for New-ConsoleTabs.
+
+Collects the page widgets once and preserves their input values when another tab is selected. Pass the page to New-ConsoleTabs to mount it in a full-screen application.
 
 ## EXAMPLES
 

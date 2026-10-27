@@ -19963,10 +19963,12 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
       <command:noun>ConsoleTab</command:noun>
       <maml:description>
         <maml:para>Creates a retained tab page for New-ConsoleTabs.</maml:para>
+        <maml:para>Collects the page widgets once and preserves their input values when another tab is selected. Pass the page to New-ConsoleTabs to mount it in a full-screen application.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Creates a retained tab page for New-ConsoleTabs.</maml:para>
+      <maml:para>Collects the page widgets once and preserves their input values when another tab is selected. Pass the page to New-ConsoleTabs to mount it in a full-screen application.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
@@ -21561,10 +21563,12 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
       <command:noun>ConsoleTabs</command:noun>
       <maml:description>
         <maml:para>Creates retained tabs with keyboard and pointer navigation.</maml:para>
+        <maml:para>Combines pages from New-ConsoleTab in display order. Only the selected page receives input; switching pages retains each page's values and focus for the next visit.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Creates retained tabs with keyboard and pointer navigation.</maml:para>
+      <maml:para>Combines pages from New-ConsoleTab in display order. Only the selected page receives input; switching pages retains each page's values and focus for the next visit.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">

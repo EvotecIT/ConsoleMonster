@@ -22,6 +22,7 @@ namespace ConsoleMonster.Output {
                         return true;
                     }
                 } else {
+                    if (UnixTerminalSize.TryGet(out width, out height)) { return true; }
                     width = Console.WindowWidth;
                     height = Console.WindowHeight;
                     if (width > 0 && height > 0) {

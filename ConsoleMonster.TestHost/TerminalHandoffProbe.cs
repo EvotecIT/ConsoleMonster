@@ -22,7 +22,9 @@ namespace ConsoleMonster.TestHost {
                     var child = new TerminalChildOptions { FileName = "cmd.exe", Timeout = TimeSpan.FromSeconds(10) };
                     child.Arguments.Add("/d"); child.Arguments.Add("/c"); child.Arguments.Add("echo CHILD_FINAL & exit /b 7");
                     int exit = handoff.SuspendForChild(child);
-                    if (exit != 7 || !handoff.LastOutput.Contains("CHILD_FINAL") || !field.Focused || field.Value != "retained") { throw new InvalidOperationException("ConPTY exit, output or focus was lost."); }
+                    if (exit != 7 || !handoff.LastOutput.Contains("CHILD_FINAL") || !field.Focused || field.Value != "retained") {
+                        throw new InvalidOperationException("ConPTY state: exit=" + exit + ", focused=" + field.Focused + ", value=" + field.Value + ", output=" + handoff.LastOutput);
+                    }
                     child.Arguments[2] = "pause >nul";
                     using (var cancellation = new CancellationTokenSource(150)) {
                         try { handoff.SuspendForChild(child, cancellation.Token); throw new InvalidOperationException("Child cancellation was lost."); }

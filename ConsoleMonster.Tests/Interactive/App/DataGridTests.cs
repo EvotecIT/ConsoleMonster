@@ -60,20 +60,21 @@ namespace ConsoleMonster.Tests.Interactive.App {
         [Fact]
         public async Task LargeListingOnlyStartsVisibleCellsAndRepaintsCompletedValues() {
             int started = 0;
+            var firstStarted = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             var completion = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
             var listing = new Grid("Large"); listing.AddColumn("Name"); listing.AddColumn("Size");
             for (int i = 0; i < 10000; i++) {
-                listing.AddRow(new GridRow(i, "row" + i.ToString("D5"), new DataGridCell(_ => { Interlocked.Increment(ref started); return completion.Task; }, "pending")) { Id = i });
+                listing.AddRow(new GridRow(i, "row" + i.ToString("D5"), new DataGridCell(_ => { Interlocked.Increment(ref started); firstStarted.TrySetResult(true); return completion.Task; }, "pending")) { Id = i });
             }
             using var grid = new DataGrid("Rows", listing) { Focused = true };
-            int revisions = 0; grid.Invalidated += () => Interlocked.Increment(ref revisions);
+            var repainted = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            grid.Invalidated += () => repainted.TrySetResult(true);
             string loading = FrameComposer.Compose(grid, 80, 12, Context).ToPlainText();
             Assert.Contains("pending", loading);
-            Assert.True(SpinWait.SpinUntil(() => Volatile.Read(ref started) > 0, TimeSpan.FromSeconds(5)));
+            Assert.Same(firstStarted.Task, await Task.WhenAny(firstStarted.Task, Task.Delay(TimeSpan.FromSeconds(5))));
             Assert.InRange(started, 1, 12);
             completion.SetResult("ready");
-            await completion.Task;
-            Assert.True(SpinWait.SpinUntil(() => Volatile.Read(ref revisions) > 0, TimeSpan.FromSeconds(5)));
+            Assert.Same(repainted.Task, await Task.WhenAny(repainted.Task, Task.Delay(TimeSpan.FromSeconds(5))));
             Assert.Contains("ready", FrameComposer.Compose(grid, 80, 12, Context).ToPlainText());
             grid.Move(9999);
             Assert.Contains("row09999", FrameComposer.Compose(grid, 80, 12, Context).ToPlainText());

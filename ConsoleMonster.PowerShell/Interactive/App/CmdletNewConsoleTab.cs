@@ -5,7 +5,10 @@ using ConsoleMonster.Widgets;
 using ConsoleMonster.Interactive;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary><para type="synopsis">Creates a retained tab page for New-ConsoleTabs.</para></summary>
+    /// <summary>
+    /// <para type="synopsis">Creates a retained tab page for New-ConsoleTabs.</para>
+    /// <para type="description">Collects the page widgets once and preserves their input values when another tab is selected. Pass the page to New-ConsoleTabs to mount it in a full-screen application.</para>
+    /// </summary>
     /// <example><para>Create a page.</para><code>New-ConsoleTab -Title Services -Content { New-ConsoleTextInput -Key Filter }</code></example>
     [Cmdlet(VerbsCommon.New, "ConsoleTab")]
     [OutputType(typeof(LayoutRegion))]

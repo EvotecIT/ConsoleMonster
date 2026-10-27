@@ -8,6 +8,8 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates retained tabs with keyboard and pointer navigation.
 
+Combines pages from New-ConsoleTab in display order. Only the selected page receives input; switching pages retains each page's values and focus for the next visit.
+
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -16,6 +18,8 @@ New-ConsoleTabs [-Tab] <LayoutRegion[]> [-SelectedIndex <int>] [<CommonParameter
 
 ## DESCRIPTION
 Creates retained tabs with keyboard and pointer navigation.
+
+Combines pages from New-ConsoleTab in display order. Only the selected page receives input; switching pages retains each page's values and focus for the next visit.
 
 ## EXAMPLES
 

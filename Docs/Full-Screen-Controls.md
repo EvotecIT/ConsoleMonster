@@ -46,18 +46,16 @@ PowerShell can embed a prepared listing with
 `New-ConsoleDataGrid -Key Left -Grid $listing`; use `-NoQuickSearch` when the app
 registry owns printable keys.
 
-For direct .NET interop in PowerShell, resolve a type through the module's
-loaded assembly, as described in [PowerShell conventions](PowerShell-Conventions.md):
+Embed a listing prepared by the application's .NET model through the constructor:
 
 ```powershell
-$listing = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.Grid'))::new('Files')
-$null = $listing.AddColumn('Name')
-$null = $listing.AddRow($file, @($file.Name))
-$left = New-ConsoleDataGrid -Key Left -Grid $listing
+Show-ConsoleApp -Content {
+    New-ConsoleDataGrid -Key Left -Grid $listing
+}
 ```
 
-This preserves type identity in the module's assembly load context and keeps
-the approved set of fully qualified type accelerators unchanged.
+See [PowerShell conventions](PowerShell-Conventions.md) for the module's assembly
+load context when passing .NET objects to a cmdlet.
 
 ## Registry keys and footer
 

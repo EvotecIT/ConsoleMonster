@@ -3,7 +3,10 @@ using System.Management.Automation;
 using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary><para type="synopsis">Creates retained tabs with keyboard and pointer navigation.</para></summary>
+    /// <summary>
+    /// <para type="synopsis">Creates retained tabs with keyboard and pointer navigation.</para>
+    /// <para type="description">Combines pages from New-ConsoleTab in display order. Only the selected page receives input; switching pages retains each page's values and focus for the next visit.</para>
+    /// </summary>
     /// <example><para>Compose two pages.</para><code>$pages | New-ConsoleTabs | Show-ConsoleApp</code></example>
     [Cmdlet(VerbsCommon.New, "ConsoleTabs")]
     [OutputType(typeof(Tabs))]

@@ -323,6 +323,8 @@ The line Invoke-ConsoleRun ends its view with, as a widget of its own: a thin ba
 ### [New-ConsoleTab](New-ConsoleTab.md)
 Creates a retained tab page for New-ConsoleTabs.
 
+Collects the page widgets once and preserves their input values when another tab is selected. Pass the page to New-ConsoleTabs to mount it in a full-screen application.
+
 ### [New-ConsoleTable](New-ConsoleTable.md)
 Creates a console table from pipeline objects.
 
@@ -330,6 +332,8 @@ Columns come from -Property or from the first object's properties (or hashtable 
 
 ### [New-ConsoleTabs](New-ConsoleTabs.md)
 Creates retained tabs with keyboard and pointer navigation.
+
+Combines pages from New-ConsoleTab in display order. Only the selected page receives input; switching pages retains each page's values and focus for the next visit.
 
 ### [New-ConsoleText](New-ConsoleText.md)
 Creates rich text: multicolour words for table cells, calculated properties, titles, labels, log lines or output on its own.

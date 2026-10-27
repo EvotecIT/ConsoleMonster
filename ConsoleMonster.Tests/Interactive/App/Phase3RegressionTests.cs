@@ -88,27 +88,30 @@ namespace ConsoleMonster.Tests.Interactive.App {
         }
 
         [Fact]
-        public void FormCallbackStartsAndCancelsTheSharedActionWorkerThroughItsPublicService() {
-            var actions = new AppActions(); var dialogs = new AppDialogs();
-            var field = new TextInput("Selection", "selected");
-            var options = new ConsoleAppOptions { Actions = actions, Dialogs = dialogs, Selection = _ => new object?[] { field.Value } };
-            string? captured = null;
-            var command = new AppCommand("dynamic", "Dynamic operation", async (context, cancellation) => {
-                Volatile.Write(ref captured, (string?)context.Rows[0]);
-                await Task.Delay(5000, cancellation);
-            }) { ProgressDialog = true };
-            using (var app = new AppController(field, new AppState(), Context, 60, options)) {
-                dialogs.Show(new FormDialog<bool>("Options", new Rows(), _ => true) { DefaultAccept = true }, result => { if (result.Accepted) { Assert.True(actions.Invoke(command)); } });
-                app.PrepareFrame(80, 24); app.Handle(InputEvent.Press(ConsoleKey.Enter), true);
-                Assert.True(SpinWait.SpinUntil(() => Volatile.Read(ref captured) != null, TimeSpan.FromSeconds(5)));
-                Assert.Equal("selected", captured); Assert.False(actions.Invoke(command));
-                actions.Cancel();
-                Assert.True(SpinWait.SpinUntil(() => !actions.Running, TimeSpan.FromSeconds(5)));
-                app.Refresh(null);
-                Assert.Contains("cancelled", app.PrepareFrame(80, 24).ToPlainText());
-                Assert.Equal("selected", field.Value);
-            }
-            Assert.Throws<InvalidOperationException>(() => actions.Invoke(command));
+        public async Task FormCallbackStartsAndCancelsTheSharedActionWorkerThroughItsPublicService() {
+            // Own one app thread while xUnit yields its worker for the action's Task.Run.
+            await Task.Factory.StartNew(() => {
+                var actions = new AppActions(); var dialogs = new AppDialogs();
+                var field = new TextInput("Selection", "selected");
+                var options = new ConsoleAppOptions { Actions = actions, Dialogs = dialogs, Selection = _ => new object?[] { field.Value } };
+                string? captured = null;
+                var command = new AppCommand("dynamic", "Dynamic operation", async (context, cancellation) => {
+                    Volatile.Write(ref captured, (string?)context.Rows[0]);
+                    await Task.Delay(Timeout.Infinite, cancellation);
+                }) { ProgressDialog = true };
+                using (var app = new AppController(field, new AppState(), Context, 60, options)) {
+                    dialogs.Show(new FormDialog<bool>("Options", new Rows(), _ => true) { DefaultAccept = true }, result => { if (result.Accepted) { Assert.True(actions.Invoke(command)); } });
+                    app.PrepareFrame(80, 24); app.Handle(InputEvent.Press(ConsoleKey.Enter), true);
+                    Assert.True(SpinWait.SpinUntil(() => Volatile.Read(ref captured) != null, TimeSpan.FromSeconds(5)));
+                    Assert.Equal("selected", captured); Assert.False(actions.Invoke(command));
+                    actions.Cancel();
+                    Assert.True(SpinWait.SpinUntil(() => !actions.Running, TimeSpan.FromSeconds(5)));
+                    app.Refresh(null);
+                    Assert.Contains("cancelled", app.PrepareFrame(80, 24).ToPlainText());
+                    Assert.Equal("selected", field.Value);
+                }
+                Assert.Throws<InvalidOperationException>(() => actions.Invoke(command));
+            }, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
     }
 }
