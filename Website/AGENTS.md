@@ -201,8 +201,8 @@ to run.
   checks every example). Example PowerShell follows the same width with `pwsh Website/build/Format-ExampleScript.ps1 -Path
   <file>`: it breaks only where PowerShell allows (hashtable entries, script blocks, pipes, commas, `elseif`/`else`) and
   splats the named parameters of a command that still does not fit; each run is checked token for token, and a splat
-  by its parameter binding (ScriptLayoutContracts). Sources stamped into Windows captures (Windows PowerShell 5.1, the
-  pseudo console) are laid out with their next Windows capture; the contracts name them.
+  by its parameter binding (ScriptLayoutContracts). After laying out a captured source, regenerate its Windows PowerShell
+  5.1 and pseudo-console captures before rendering the site. Both layout contracts cover every example.
 - The docs catalogue (`layouts/docsindex.html`) is built from the docs pages: `content/docs/_index.md` is a section, so
   the template gets every page as `items`. Each page's front matter names its `group` (one of `docsCatalog.groups` in
   `data/copy.json`), a `summary`, `apis` (shown as code) and `chips` (topics), and a `card`: a figure or demo id whose

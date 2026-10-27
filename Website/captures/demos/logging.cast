@@ -1,6 +1,6 @@
-{"cm_source":"8efd6c3c603b5563","version":2,"width":110,"height":30,"title":"dotnet run"}
-[0.036,"o","\u001B[?9001h\u001B[?1004h"]
-[0.501,"o","\u001B[?25l\u001B[2J\u001B[m\u001B[38;2;139;143;154m\u001B[H17:01:53 VERB   Cache  Probing 4 cache shards\r\n\u001B[?25h"]
-[0.518,"o","\u001B[m\u001B[38;2;139;143;154m17:01:53 DBG    Cache  Shard eu-1 answered in 12 ms\r\n17:01:53        Orders (order 1042)  \u001B[mPayment accepted: 129.90 EUR\u001B[38;2;139;143;154m\r\n17:01:53 \u001B[38;2;251;191;36m\u25B4 WARN \u001B[38;2;139;143;154mOrders (order 1042)  \u001B[mStock is low for A-17: 3 left\r\n"]
-[0.533,"o","\u001B[38;2;139;143;154m17:01:53 \u001B[38;2;248;113;113m\u2717 ERR  \u001B[38;2;139;143;154mOrders  \u001B[mRefund for order 1038 failed\r\n    \u001B[38;2;248;113;113m\u2717 \u001B[1mTimeoutException\u001B[m\r\n      The payment gateway did not answer within 30 s.\r\n      \u001B[38;2;139;143;154mat \u001B[mProgram.\u003CMain\u003E$(String[] args)  \u001B[38;2;139;143;154mlogging/Program.cs:16\r\n17:01:53 \u001B[38;2;248;113;113m\u2717 ERR  \u001B[38;2;139;143;154mOrders  \u001B[mcritical: Queue orders-eu is not draining\u001B[38;2;139;143;154m\r\n17:01:53        Orders  \u001B[mDone; 57 orders processed\r\n"]
-[0.950,"o","\u001B[?9001l\u001B[?1004l"]
+{"cm_source":"de56c10d5f70b18c","version":2,"width":110,"height":30,"title":"dotnet run"}
+[0.014,"o","\u001B[?9001h\u001B[?1004h"]
+[0.346,"o","\u001B[?25l\u001B[2J\u001B[m\u001B[38;2;139;143;154m\u001B[H11:51:11 VERB   Cache  Probing 4 cache shards\r\n\u001B[?25h"]
+[0.363,"o","\u001B[m\u001B[38;2;139;143;154m11:51:11 DBG    Cache  Shard eu-1 answered in 12 ms\r\n11:51:11        Orders (order 1042)  \u001B[mPayment accepted: 129.90 EUR\u001B[38;2;139;143;154m\r\n11:51:11 \u001B[38;2;251;191;36m\u25B4 WARN \u001B[38;2;139;143;154mOrders (order 1042)  \u001B[mStock is low for A-17: 3 left\r\n"]
+[0.379,"o","\u001B[38;2;139;143;154m11:51:11 \u001B[38;2;248;113;113m\u2717 ERR  \u001B[38;2;139;143;154mOrders  \u001B[mRefund for order 1038 failed\r\n    \u001B[38;2;248;113;113m\u2717 \u001B[1mTimeoutException\u001B[m\r\n      The payment gateway did not answer within 30 s.\r\n      \u001B[38;2;139;143;154mat \u001B[mProgram.\u003CMain\u003E$(String[] args)  \u001B[38;2;139;143;154mlogging/Program.cs:18\r\n11:51:11 \u001B[38;2;248;113;113m\u2717 ERR  \u001B[38;2;139;143;154mOrders  \u001B[mcritical: Queue orders-eu is not draining\u001B[38;2;139;143;154m\r\n11:51:11        Orders  \u001B[mDone; 57 orders processed\r\n"]
+[0.783,"o","\u001B[?9001l\u001B[?1004l"]

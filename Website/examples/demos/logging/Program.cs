@@ -2,7 +2,9 @@ using ConsoleMonster.Extensions.Logging;
 using Microsoft.Extensions.Logging;
 
 // Every level, a scope, a structured message and an exception.
-using ILoggerFactory factory = LoggerFactory.Create(logging => logging.SetMinimumLevel(LogLevel.Trace).AddConsoleMonster());
+using ILoggerFactory factory = LoggerFactory.Create(
+    logging => logging.SetMinimumLevel(LogLevel.Trace)
+        .AddConsoleMonster());
 ILogger orders = factory.CreateLogger("Shop.Services.Orders");
 ILogger cache = factory.CreateLogger("Shop.Infrastructure.Cache");
 

@@ -51,16 +51,11 @@ namespace SiteFrames.Tests {
             }
         }
 
-        // Recorded in a Windows pseudo console, whose recordings are stamped with these sources; they are laid out with the
-        // next Windows capture of the live and demos areas.
-        private static readonly string[] WindowsRecorded = { "live/pipeline.cs", "live/replay.cs", "live/stress.cs", "demos/hosting/Program.cs", "demos/logging/Program.cs" };
-
         private static string[] Examples() {
             DirectoryInfo? root = new DirectoryInfo(AppContext.BaseDirectory);
             while (root != null && !File.Exists(Path.Combine(root.FullName, "ConsoleMonster.sln"))) { root = root.Parent; }
             string examples = Path.Combine(root!.FullName, "Website", "examples");
             return Directory.GetFiles(examples, "*.cs", SearchOption.AllDirectories)
-                .Where(path => !WindowsRecorded.Contains(Path.GetRelativePath(examples, path).Replace('\\', '/'), StringComparer.Ordinal))
                 .OrderBy(path => path, StringComparer.Ordinal).ToArray();
         }
     }

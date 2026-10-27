@@ -63,7 +63,7 @@ namespace SiteFrames.Pages {
                     body.AppendLine("| `" + Cell(integration["CSharpType"]!.GetValue<string>() + "." + member!.GetValue<string>()) + "` (" + Cell(integration["Package"]!.GetValue<string>()) + ") | `dotnet run`: " + Cell(integration["Reason"]!.GetValue<string>()) + " |");
                 }
             }
-            string markdown = body.ToString();
+            string markdown = body.ToString().Replace("\r\n", "\n", StringComparison.Ordinal);
             site.Write(Path.Combine(site.Repository, "Docs", "Api-Parity.md"), markdown);
             site.Write(Path.Combine(site.Website, "content", "docs", "api-parity.md"),
                 "---\ntitle: PowerShell and C# API parity\ndescription: \"The shared parameter and fluent vocabulary, including every C# host-only member decision.\"\nslug: api-parity\norder: 16\ngroup: hosts\ncard: three-fluent\n---\n\n" + SiteTables(markdown.Replace("# PowerShell and C# API parity\n\n", string.Empty, StringComparison.Ordinal)));
