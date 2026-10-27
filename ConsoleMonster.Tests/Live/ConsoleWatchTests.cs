@@ -5,12 +5,14 @@ using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
+using ConsoleMonster.Output;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
 using Xunit;
 
 namespace ConsoleMonster.Tests.Live {
     /// <summary>Watching a command: runs, printed output without a console, errors that do not stop the watch, changed cells.</summary>
+    [Collection("Live sessions")]
     public sealed class ConsoleWatchTests {
         private static string Text(IWidget widget, int width = 60) {
             RenderContext context = new RenderContext(TerminalProfile.Fixed(width, 20, ColorDepth.None, GlyphTier.Full), Theme.Dark);
@@ -18,6 +20,34 @@ namespace ConsoleMonster.Tests.Live {
             CellBuffer buffer = new CellBuffer(width, Math.Max(1, size.Height));
             widget.Render(new Region(buffer), context);
             return buffer.ToPlainText();
+        }
+
+        [Fact]
+        public void RecordingTargetCapturesEveryWatchResultWithoutWaitingForThePollInterval() {
+            var target = new RecordingTarget(TerminalProfile.Fixed(40, 8)) { SkipDelays = true, CaptureViewport = true };
+            using (Terminal.Use(target))
+            using (var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(5))) {
+                Assert.Equal(3, ConsoleWatch.Run(i => new TextBlock("value " + i), new WatchOptions {
+                    Count = 3, PollInterval = TimeSpan.FromHours(1),
+                    Session = new LiveSessionOptions { HandleCancelKey = false, CaptureConsole = false }
+                }, deadline.Token));
+            }
+            foreach (int i in new[] { 1, 2, 3 }) { Assert.Contains(target.Screens.Frames, frame => frame.ToPlainText().Contains("value " + i)); }
+        }
+
+        [Fact]
+        public void CancellationDuringANormalLiveWatchWaitReturnsTheRunCount() {
+            var target = new RecordingTarget(TerminalProfile.Fixed(40, 8));
+            using (Terminal.Use(target))
+            using (var stop = new CancellationTokenSource()) {
+                Assert.Equal(1, ConsoleWatch.Run(i => {
+                    stop.CancelAfter(TimeSpan.FromMilliseconds(100));
+                    return new TextBlock("value " + i);
+                }, new WatchOptions {
+                    PollInterval = TimeSpan.FromHours(1),
+                    Session = new LiveSessionOptions { HandleCancelKey = false, CaptureConsole = false }
+                }, stop.Token));
+            }
         }
 
         [Fact]

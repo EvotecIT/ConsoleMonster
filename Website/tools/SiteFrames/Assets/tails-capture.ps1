@@ -2,7 +2,6 @@
     [Parameter(Mandatory = $true)][string]$Example,
     [Parameter(Mandatory = $true)][int]$Columns,
     [Parameter(Mandatory = $true)][string]$Appearance,
-    [Parameter(Mandatory = $true)][string]$Destination,
     [switch]$Navigation,
     [string]$Receipt
 )
@@ -11,6 +10,8 @@
 $profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed($Columns, 12)
 $keys = if ($Navigation) { 'wait:300 PgUp wait:300 End wait:300 q' } else { '' }
 $target = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Output.RecordingTarget'))::new($profile, $keys)
+# A finite poll records its completed state, without a background repaint racing the first read.
+$target.SkipDelays = -not $Navigation
 if ($Navigation) { $target.Input.RealTime = $true }
 $target.Theme = [ConsoleMonster.Styling.Theme]::FromName($Appearance)
 if ($Navigation) {
@@ -19,7 +20,17 @@ if ($Navigation) {
 } else {
     Use-ConsoleTarget -Target $target { & $Example }
 }
-[IO.File]::WriteAllText($Destination, $target.Output, [Text.UTF8Encoding]::new($false))
+if (-not $env:SITEFRAMES_OUTPUT_RECORDING) { throw 'Missing hosted capture destination.' }
+$recording = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Sessions.SessionRecordingOptions', $true))::new()
+$recording.InProcess = $true
+$recording.Width = $Columns
+$recording.Height = 12
+$recording.Path = $env:SITEFRAMES_OUTPUT_RECORDING
+$recorder = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Sessions.SessionRecorder', $true))::Start($recording)
+try {
+    $recorder.CaptureOutput($target.Output)
+    if ($recorder.LimitReached) { throw 'Hosted tail capture reached the recorder byte limit.' }
+} finally { $recorder.Dispose() }
 if ($Receipt) { [ordered]@{
     Runtime = $PSVersionTable.PSVersion.ToString()
     Edition = $PSVersionTable.PSEdition

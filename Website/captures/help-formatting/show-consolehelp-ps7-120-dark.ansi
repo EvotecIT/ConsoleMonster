@@ -1,19 +1,32 @@
-[?9001h[?1004h[?25l[2J[m[H]0;Administrator: C:\Program Files\PowerShell\7\pwsh.exe[?25h[?25l[1mGet-ConsoleCapability[22m
-Shows what ConsoleMonster detected about the current terminal.[38;2;96;165;250m[1m[4;1HSyntax[m
-  [1mGet-ConsoleCapability[22m [38;2;58;61;69m[[38;2;192;132;252m-Refresh[38;2;58;61;69m] [<CommonParameters>][38;2;96;165;250m[1m[7;1HDescription[m
-  Shows what ConsoleMonster detected about the current terminal.[10;1H  Returns the terminal profile: kind, mode (Interactive, Stream, Plain), colour depth, glyph tier, size, VT support,
-  console font and the reasons behind each decision. -Refresh detects again (after a resize or font change).[38;2;96;165;250m[1m[13;1HParameters[m
-  [38;2;75;80;96m╭───────────┬────────┬──────────┬──────────┬──────────┬───────────────────────────────────────────────────────╮[m
-  [38;2;75;80;96m│ [m[1mParameter[22m [38;2;75;80;96m│ [m[1mType[22m   [38;2;75;80;96m│ [m[1mRequired[22m [38;2;75;80;96m│ [m[1mPosition[22m [38;2;75;80;96m│ [m[1mPipeline[22m [38;2;75;80;96m│ [m[1mDescription[22m[43X[38;2;75;80;96m[43C│[m
-  [38;2;75;80;96m├───────────┼────────┼──────────┼──────────┼──────────┼───────────────────────────────────────────────────────┤[m
-  [38;2;75;80;96m│ [38;2;192;132;252m-Refresh  [38;2;75;80;96m│ [38;2;139;143;154mswitch [38;2;75;80;96m│ [38;2;139;143;154mno       [38;2;75;80;96m│ [38;2;139;143;154mnamed    [38;2;75;80;96m│ [38;2;139;143;154mno       [38;2;75;80;96m│ [mDetect again instead of returning the cached profile. [38;2;75;80;96m│[m
-  [38;2;75;80;96m╰───────────┴────────┴──────────┴──────────┴──────────┴───────────────────────────────────────────────────────╯[m
-  [38;2;139;143;154mCommon parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -OutVariable, -Verbose, -WarningAction[m
-  [38;2;139;143;154mand the others (about_CommonParameters).[38;2;96;165;250m[1m[22;1HExamples[m
-  [1mExample 1[22m
-     [38;2;45;212;191mGet-ConsoleCapability [m| [38;2;45;212;191mSelect-Object [38;2;96;165;250m-ExpandProperty [mDecisions
-     Show the profile and the decisions[38;2;96;165;250m[1m[27;1HInputs[m
-  [38;2;192;132;252mNone[38;2;96;165;250m[1m[30;1HOutputs[m
-  [38;2;192;132;252mConsoleMonster.Capabilities.TerminalProfile
-[?25h[m
-[?9001l[?1004l
+[?1h=[0;1mGet-ConsoleCapability
+[0mShows what ConsoleMonster detected about the current terminal.
+
+[0;1;38;2;96;165;250mSyntax
+[0m  [0;1mGet-ConsoleCapability[0m [0;38;2;58;61;69m[[0;38;2;192;132;252m-Refresh[0;38;2;58;61;69m][0m [0;38;2;58;61;69m[<CommonParameters>]
+
+[0;1;38;2;96;165;250mDescription
+[0m  Shows what ConsoleMonster detected about the current terminal.
+
+  Returns the terminal profile: kind, mode (Interactive, Stream, Plain), colour depth, glyph tier, size, VT support,
+  console font and the reasons behind each decision. -Refresh detects again (after a resize or font change).
+
+[0;1;38;2;96;165;250mParameters
+[0m  [0;38;2;75;80;96m╭───────────┬────────┬──────────┬──────────┬──────────┬───────────────────────────────────────────────────────╮
+[0m  [0;38;2;75;80;96m│[0m [0;1mParameter[0m [0;38;2;75;80;96m│[0m [0;1mType[0m   [0;38;2;75;80;96m│[0m [0;1mRequired[0m [0;38;2;75;80;96m│[0m [0;1mPosition[0m [0;38;2;75;80;96m│[0m [0;1mPipeline[0m [0;38;2;75;80;96m│[0m [0;1mDescription[0m                                           [0;38;2;75;80;96m│
+[0m  [0;38;2;75;80;96m├───────────┼────────┼──────────┼──────────┼──────────┼───────────────────────────────────────────────────────┤
+[0m  [0;38;2;75;80;96m│[0m [0;38;2;192;132;252m-Refresh[0m  [0;38;2;75;80;96m│[0m [0;38;2;139;143;154mswitch[0m [0;38;2;75;80;96m│[0m [0;38;2;139;143;154mno[0m       [0;38;2;75;80;96m│[0m [0;38;2;139;143;154mnamed[0m    [0;38;2;75;80;96m│[0m [0;38;2;139;143;154mno[0m       [0;38;2;75;80;96m│[0m Detect again instead of returning the cached profile. [0;38;2;75;80;96m│
+[0m  [0;38;2;75;80;96m╰───────────┴────────┴──────────┴──────────┴──────────┴───────────────────────────────────────────────────────╯
+[0m  [0;38;2;139;143;154mCommon parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -OutVariable, -Verbose, -WarningAction
+[0m  [0;38;2;139;143;154mand the others (about_CommonParameters).
+
+[0;1;38;2;96;165;250mExamples
+[0m  [0;1mExample 1
+[0m     [0;38;2;45;212;191mGet-ConsoleCapability[0m | [0;38;2;45;212;191mSelect-Object[0m [0;38;2;96;165;250m-ExpandProperty[0m Decisions
+     Show the profile and the decisions
+
+[0;1;38;2;96;165;250mInputs
+[0m  [0;38;2;192;132;252mNone
+
+[0;1;38;2;96;165;250mOutputs
+[0m  [0;38;2;192;132;252mConsoleMonster.Capabilities.TerminalProfile
+

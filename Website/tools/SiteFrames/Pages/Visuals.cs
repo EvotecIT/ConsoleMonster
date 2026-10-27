@@ -68,7 +68,7 @@ namespace SiteFrames.Pages {
 
         // The last live frame of the recorded stress test.
         private static CellBuffer? StressFrame(Site site) {
-            string path = Path.Combine(site.Captures, "live", "stress.cast");
+            string path = Capture.CapturePlatforms.PathFor(site, Path.Combine(site.Captures, "live", "stress.cast"));
             if (!File.Exists(path)) {
                 return null;
             }

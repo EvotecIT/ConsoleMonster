@@ -1,14 +1,14 @@
-[?9001h[?1004h[?25l[2J[m[38;2;96;165;250m[1m[HDeployment notes[22m
-════════════════════════════════════════════════════════════[m[4;1HRead[1m[1Cthe plan[22m, keep[3m[1Crollback notes[23m, and verify each host.
-This paragraph reflows to the terminal width.[38;2;96;165;250m[1m[7;1HBefore the rollout[22m
-────────────────────────────────────────────────────────────[38;2;139;143;154m[10;1H1. [mCheck the selected environment.[38;2;139;143;154m
-2. [mInspect the results:[13;1H[38;2;139;143;154m[3C- [mweb-01 is ready.
-[38;2;139;143;154m[3C- [mweb-02 needs another check.[38;2;139;143;154m[16;1H│ [mKeep the rollback plan close. Confirm the target before[38;2;139;143;154m
-│ [mchanging it.[38;2;75;80;96m[19;1H╭────────┬────────┬────────────────────────────────╮
-│ [m[1mHost[22m[38;2;75;80;96m[3C│ [m[1mChecks[22m[38;2;75;80;96m[1C│ [m[1mNotes[22m[38;2;75;80;96m[26C│
+[2J[H[0;1;38;2;96;165;250mDeployment notes
+[0;38;2;96;165;250m════════════════════════════════════════════════════════════[4;1H[0mRead[1C[0;1mthe plan[0m, keep[1C[0;3mrollback notes[0m, and verify each host.
+This paragraph reflows to the terminal width.[7;1H[0;1;38;2;96;165;250mBefore the rollout
+[0;38;2;96;165;250m────────────────────────────────────────────────────────────[10;1H[0;38;2;139;143;154m1. [0mCheck the selected environment.
+[0;38;2;139;143;154m2. [0mInspect the results:[13;1H[3C[0;38;2;139;143;154m- [0mweb-01 is ready.
+[3C[0;38;2;139;143;154m- [0mweb-02 needs another check.[16;1H[0;38;2;139;143;154m│ [0mKeep the rollback plan close. Confirm the target before
+[0;38;2;139;143;154m│ [0mchanging it.[19;1H[0;38;2;75;80;96m╭────────┬────────┬────────────────────────────────╮
+│ [0;1mHost[3C[0;38;2;75;80;96m│ [0;1mChecks[1C[0;38;2;75;80;96m│ [0;1mNotes[26C[0;38;2;75;80;96m│
 ├────────┼────────┼────────────────────────────────┤
-│ [mweb-01[38;2;75;80;96m[1C│     [m12[38;2;75;80;96m[1C│ [mHealth checks passed.[38;2;75;80;96m[10C│
-│ [mweb-02[38;2;75;80;96m[1C│      [m3[38;2;75;80;96m[1C│ [mVerify the maintenance window.[38;2;75;80;96m[1C│
-╰────────┴────────┴────────────────────────────────╯[26;1H╭─ [m[1mpowershell[22m[38;2;75;80;96m[1C─────────────────────────────────────────────╮
-│ [38;2;45;212;191mGet-Service [m|[38;2;45;212;191m[1CSelect-Object [mName[38;2;139;143;154m, [mStatus[38;2;75;80;96m[17C│
-╰──────────────────────────────────────────────────────────╯[m[30;1HReference: deployment guide[38;2;139;143;154m[1C(https://example.org/deploy)[m.[32;1H]0;C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe[?25h[?9001l[?1004l
+│ [0mweb-01[1C[0;38;2;75;80;96m│     [0m12[1C[0;38;2;75;80;96m│ [0mHealth checks passed.[10C[0;38;2;75;80;96m│
+│ [0mweb-02[1C[0;38;2;75;80;96m│      [0m3[1C[0;38;2;75;80;96m│ [0mVerify the maintenance window.[1C[0;38;2;75;80;96m│
+╰────────┴────────┴────────────────────────────────╯[26;1H╭─ [0;1mpowershell[1C[0;38;2;75;80;96m─────────────────────────────────────────────╮
+│ [0;38;2;45;212;191mGet-Service [0m|[1C[0;38;2;45;212;191mSelect-Object [0mName[0;38;2;139;143;154m, [0mStatus[17C[0;38;2;75;80;96m│
+╰──────────────────────────────────────────────────────────╯[30;1H[0mReference: deployment guide[1C[0;38;2;139;143;154m(https://example.org/deploy)[0m.[32;1H

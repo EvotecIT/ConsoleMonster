@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using System.Threading;
@@ -46,6 +47,10 @@ namespace ConsoleMonster.Input {
         /// </summary>
         public bool RealTime { get; set; }
 
+        /// <summary>Called for each skipped wait step when <see cref="RealTime"/> is false, before the next input event.
+        /// A recording host can use <see cref="Interactive.ScreenCapture.Hold"/> to retain reading pauses without sleeping.</summary>
+        public Action<TimeSpan>? SkippedWait { get; set; }
+
         /// <summary>
         /// When true, a read that does not wait (zero timeout) returns null, so a reader that drains bursts draws a frame
         /// after every scripted event (golden tests of each step).
@@ -61,6 +66,19 @@ namespace ConsoleMonster.Input {
             foreach (Step step in Parse(script)) {
                 _steps.Enqueue(step);
             }
+        }
+
+        /// <summary>Queues a bounded wait for visible output before subsequently appended input. Reads return timeouts
+        /// while waiting so the application can finish asynchronous work and repaint; this wait also applies when
+        /// <see cref="RealTime"/> is false.</summary>
+        /// <param name="capture">The application's real screen capture.</param>
+        /// <param name="text">The ordinal, case-sensitive text expected in the current frame.</param>
+        /// <param name="timeout">Maximum time from the first read of this step.</param>
+        public void WaitForOutput(Interactive.ScreenCapture capture, string text, TimeSpan timeout) {
+            if (capture == null) { throw new ArgumentNullException(nameof(capture)); }
+            if (string.IsNullOrEmpty(text)) { throw new ArgumentException("Expected output cannot be empty.", nameof(text)); }
+            if (timeout <= TimeSpan.Zero) { throw new ArgumentOutOfRangeException(nameof(timeout)); }
+            _steps.Enqueue(new Step(() => capture.LastFrame?.ToPlainText().IndexOf(text, StringComparison.Ordinal) >= 0, timeout));
         }
 
         /// <inheritdoc />
@@ -85,10 +103,25 @@ namespace ConsoleMonster.Input {
                     }
                     throw new InputClosedException("The input script ended before the prompt was answered.");
                 }
-                Step step = _steps.Dequeue();
+                Step step = _steps.Peek();
+                if (step.Ready != null) {
+                    long now = Stopwatch.GetTimestamp();
+                    if (step.Started.HasValue && (now - step.Started.Value) * 1000.0 / Stopwatch.Frequency >= step.ReadyTimeout.TotalMilliseconds) {
+                        throw new TimeoutException("The scripted input did not observe its expected output before the deadline.");
+                    }
+                    if (step.Ready()) { _steps.Dequeue(); continue; }
+                    if (!step.Started.HasValue) { step.Started = now; }
+                    double remaining = step.ReadyTimeout.TotalMilliseconds - (now - step.Started.Value) * 1000.0 / Stopwatch.Frequency;
+                    if (remaining <= 0) { throw new TimeoutException("The scripted input did not observe its expected output before the deadline."); }
+                    double poll = timeout < TimeSpan.Zero ? 50 : Math.Min(50, timeout.TotalMilliseconds);
+                    Sleep(TimeSpan.FromMilliseconds(Math.Min(remaining, poll)), cancellationToken);
+                    return null;
+                }
+                _steps.Dequeue();
                 if (step.Event == null) {
                     _waitUntil = DateTime.UtcNow + TimeSpan.FromMilliseconds(step.WaitMilliseconds);
                     if (!RealTime) {
+                        SkippedWait?.Invoke(TimeSpan.FromMilliseconds(step.WaitMilliseconds));
                         continue;
                     }
                     continue;
@@ -199,6 +232,7 @@ namespace ConsoleMonster.Input {
         }
 
         private sealed class Step {
+            public Step(Func<bool> ready, TimeSpan timeout) { Ready = ready; ReadyTimeout = timeout; }
             public Step(InputEvent? e, int wait) {
                 Event = e;
                 WaitMilliseconds = wait;
@@ -207,6 +241,9 @@ namespace ConsoleMonster.Input {
             public InputEvent? Event { get; }
 
             public int WaitMilliseconds { get; }
+            public Func<bool>? Ready { get; }
+            public TimeSpan ReadyTimeout { get; }
+            public long? Started { get; set; }
         }
     }
 }

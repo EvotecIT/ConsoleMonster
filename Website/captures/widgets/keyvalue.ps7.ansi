@@ -1,6 +1,5 @@
-[?9001h[?1004h[?25l[2J[m[38;2;139;143;154m[HModule      [m[1mConsoleMonster[38;2;139;143;154m[22m
-Version     [m0.0.4[38;2;139;143;154m[1C→ [m[1m2.0.0[38;2;139;143;154m[22m
-Frameworks  [mnetstandard2.0, net472, net8.0[38;2;139;143;154m
-Signing     [38;2;161;161;170m– [mskipped[38;2;139;143;154m
-Tests       [38;2;251;191;36m▴ [m1 skipped on PowerShell 7
-]0;C:\Program Files\PowerShell\7\pwsh.exe[?25h[?9001l[?1004l
+[?1h=[0;38;2;139;143;154mModule[0m      [0;1mConsoleMonster
+[0;38;2;139;143;154mVersion[0m     0.0.4 [0;38;2;139;143;154m→[20G[0m [0;1m2.0.0
+[0;38;2;139;143;154mFrameworks[0m  netstandard2.0, net472, net8.0
+[0;38;2;139;143;154mSigning[0m     [0;38;2;161;161;170m–[14G [0mskipped
+[0;38;2;139;143;154mTests[0m       [0;38;2;251;191;36m▴[14G [0m1 skipped on PowerShell 7

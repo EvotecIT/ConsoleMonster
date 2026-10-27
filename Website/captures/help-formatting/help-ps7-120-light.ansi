@@ -1,41 +1,49 @@
-[?9001h[?1004h[?25l[2J[m[H]0;Administrator: C:\Program Files\PowerShell\7\pwsh.exe[?25h[38;2;17;24;39m[1mGet-ConsoleCapability
-[?25l[mShows what ConsoleMonster detected about the current terminal.[38;2;37;99;235m[1m[4;1HSyntax[m
-  [38;2;17;24;39m[1mGet-ConsoleCapability[m [38;2;212;212;216m[[38;2;124;58;237m-Refresh[38;2;212;212;216m] [<CommonParameters>][38;2;37;99;235m[1m[7;1HDescription[m
-  Shows what ConsoleMonster detected about the current terminal.[10;1H  Returns the terminal profile: kind, mode (Interactive, Stream, Plain), colour depth, glyph tier, size, VT support,
-  console font and the reasons behind each decision. -Refresh detects again (after a resize or font change).[38;2;37;99;235m[1m[13;1HParameters[m
-  [38;2;138;138;148m╭───────────┬────────┬──────────┬──────────┬──────────┬───────────────────────────────────────────────────────╮[m
-  [38;2;138;138;148m│ [38;2;55;65;81m[1mParameter[m [38;2;138;138;148m│ [38;2;55;65;81m[1mType[m   [38;2;138;138;148m│ [38;2;55;65;81m[1mRequired[m [38;2;138;138;148m│ [38;2;55;65;81m[1mPosition[m [38;2;138;138;148m│ [38;2;55;65;81m[1mPipeline[m [38;2;138;138;148m│ [38;2;55;65;81m[1mDescription[m[43X[38;2;138;138;148m[43C│[38;2;107;114;128m
-───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-Page 1 of 3 · [38;2;37;99;235mSpace [38;2;107;114;128mnext · [38;2;37;99;235mb [38;2;107;114;128mback · [38;2;37;99;235mq [38;2;107;114;128mquit[?25h[m[42X  [38;2;138;138;148m├───────────┼────────┼──────────┼──────────┼──────────┼───────────────────────────────────────────────────────┤[m
-  [38;2;138;138;148m│ [38;2;124;58;237m-Refresh  [38;2;138;138;148m│ [38;2;107;114;128mswitch [38;2;138;138;148m│ [38;2;107;114;128mno       [38;2;138;138;148m│ [38;2;107;114;128mnamed    [38;2;138;138;148m│ [38;2;107;114;128mno       [38;2;138;138;148m│ [mDetect again instead of returning the cached profile. [38;2;138;138;148m│[m
-  [38;2;138;138;148m╰───────────┴────────┴──────────┴──────────┴──────────┴───────────────────────────────────────────────────────╯       [18;1H[m
-  [38;2;107;114;128mCommon parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -OutVariable, -Verbose, -WarningAction   [18;1H[m
-  [38;2;107;114;128mand the others (about_CommonParameters).[K[m
-
-[38;2;37;99;235m[1mExamples[m[K
-  [1mExample 1[22m[K
-     [38;2;13;148;136mGet-ConsoleCapability [m| [38;2;13;148;136mSelect-Object [38;2;37;99;235m-ExpandProperty [mDecisions[K
-     Show the profile and the decisions
-
-[38;2;37;99;235m[1mInputs[m[K
-  [38;2;124;58;237mNone[K[m
-
-[38;2;37;99;235m[1mOutputs[m[K
-[38;2;107;114;128m─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── [18;1H[m
-[38;2;107;114;128mPage 2 of 3 · [38;2;37;99;235mSpace [38;2;107;114;128mnext · [38;2;37;99;235mb [38;2;107;114;128mback · [38;2;37;99;235mq [38;2;107;114;128mquit[K[m[42X[38;2;17;24;39m[1mGet-ConsoleCapability[m
-Shows what ConsoleMonster detected about the current terminal.
-
-[38;2;37;99;235m[1mSyntax[m[K
-  [38;2;17;24;39m[1mGet-ConsoleCapability[m [38;2;212;212;216m[[38;2;124;58;237m-Refresh[38;2;212;212;216m] [<CommonParameters>][K[m
-
-[38;2;37;99;235m[1mDescription[m[K
-  Shows what ConsoleMonster detected about the current terminal.
-
-  Returns the terminal profile: kind, mode (Interactive, Stream, Plain), colour depth, glyph tier, size, VT support,    
-  console font and the reasons behind each decision. -Refresh detects again (after a resize or font change).
-
-[38;2;37;99;235m[1mParameters[m[K
-  [38;2;138;138;148m╭───────────┬────────┬──────────┬──────────┬──────────┬───────────────────────────────────────────────────────╮       [18;1H[m
-  [38;2;138;138;148m│ [38;2;55;65;81m[1mParameter[m [38;2;138;138;148m│ [38;2;55;65;81m[1mType[m   [38;2;138;138;148m│ [38;2;55;65;81m[1mRequired[m [38;2;138;138;148m│ [38;2;55;65;81m[1mPosition[m [38;2;138;138;148m│ [38;2;55;65;81m[1mPipeline[m [38;2;138;138;148m│ [38;2;55;65;81m[1mDescription[m[43X[38;2;138;138;148m[43C│       [18;1H[m
-[38;2;107;114;128m─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── [18;1H[m
-[38;2;107;114;128mPage 1 of 3 · [38;2;37;99;235mSpace [38;2;107;114;128mnext · [38;2;37;99;235mb [38;2;107;114;128mback · [38;2;37;99;235mq [38;2;107;114;128mquit[K[m[42X[?9001l[?1004l
+[?1h=[0;1;38;2;17;24;39mGet-ConsoleCapability
+[0mShows what ConsoleMonster detected about the current terminal.
+
+[0;1;38;2;37;99;235mSyntax
+[0m  [0;1;38;2;17;24;39mGet-ConsoleCapability[0m [0;38;2;212;212;216m[[0;38;2;124;58;237m-Refresh[0;38;2;212;212;216m][0m [0;38;2;212;212;216m[<CommonParameters>]
+
+[0;1;38;2;37;99;235mDescription
+[0m  Shows what ConsoleMonster detected about the current terminal.
+
+  Returns the terminal profile: kind, mode (Interactive, Stream, Plain), colour depth, glyph tier, size, VT support,
+  console font and the reasons behind each decision. -Refresh detects again (after a resize or font change).
+
+[0;1;38;2;37;99;235mParameters
+[0m  [0;38;2;138;138;148m╭───────────┬────────┬──────────┬──────────┬──────────┬───────────────────────────────────────────────────────╮
+[0m  [0;38;2;138;138;148m│[0m [0;1;38;2;55;65;81mParameter[0m [0;38;2;138;138;148m│[0m [0;1;38;2;55;65;81mType[0m   [0;38;2;138;138;148m│[0m [0;1;38;2;55;65;81mRequired[0m [0;38;2;138;138;148m│[0m [0;1;38;2;55;65;81mPosition[0m [0;38;2;138;138;148m│[0m [0;1;38;2;55;65;81mPipeline[0m [0;38;2;138;138;148m│[0m [0;1;38;2;55;65;81mDescription[0m                                           [0;38;2;138;138;148m│
+[0;38;2;107;114;128m───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Page 1 of 3 · [0;38;2;37;99;235mSpace[0;38;2;107;114;128m next · [0;38;2;37;99;235mb[0;38;2;107;114;128m back · [0;38;2;37;99;235mq[0;38;2;107;114;128m quit[0m                                            [0;38;2;138;138;148m├───────────┼────────┼──────────┼──────────┼──────────┼───────────────────────────────────────────────────────┤
+[0m  [0;38;2;138;138;148m│[0m [0;38;2;124;58;237m-Refresh[0m  [0;38;2;138;138;148m│[0m [0;38;2;107;114;128mswitch[0m [0;38;2;138;138;148m│[0m [0;38;2;107;114;128mno[0m       [0;38;2;138;138;148m│[0m [0;38;2;107;114;128mnamed[0m    [0;38;2;138;138;148m│[0m [0;38;2;107;114;128mno[0m       [0;38;2;138;138;148m│[0m Detect again instead of returning the cached profile. [0;38;2;138;138;148m│
+[0m  [0;38;2;138;138;148m╰───────────┴────────┴──────────┴──────────┴──────────┴───────────────────────────────────────────────────────╯
+[0m  [0;38;2;107;114;128mCommon parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -OutVariable, -Verbose, -WarningAction
+[0m  [0;38;2;107;114;128mand the others (about_CommonParameters).
+
+[0;1;38;2;37;99;235mExamples
+[0m  [0;1mExample 1
+[0m     [0;38;2;13;148;136mGet-ConsoleCapability[0m | [0;38;2;13;148;136mSelect-Object[0m [0;38;2;37;99;235m-ExpandProperty[0m Decisions
+     Show the profile and the decisions
+
+[0;1;38;2;37;99;235mInputs
+[0m  [0;38;2;124;58;237mNone
+
+[0;1;38;2;37;99;235mOutputs
+[0;38;2;107;114;128m───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Page 2 of 3 · [0;38;2;37;99;235mSpace[0;38;2;107;114;128m next · [0;38;2;37;99;235mb[0;38;2;107;114;128m back · [0;38;2;37;99;235mq[0;38;2;107;114;128m quit[0m                                          [0;1;38;2;17;24;39mGet-ConsoleCapability
+[0mShows what ConsoleMonster detected about the current terminal.
+
+[0;1;38;2;37;99;235mSyntax
+[0m  [0;1;38;2;17;24;39mGet-ConsoleCapability[0m [0;38;2;212;212;216m[[0;38;2;124;58;237m-Refresh[0;38;2;212;212;216m][0m [0;38;2;212;212;216m[<CommonParameters>]
+
+[0;1;38;2;37;99;235mDescription
+[0m  Shows what ConsoleMonster detected about the current terminal.
+
+  Returns the terminal profile: kind, mode (Interactive, Stream, Plain), colour depth, glyph tier, size, VT support,
+  console font and the reasons behind each decision. -Refresh detects again (after a resize or font change).
+
+[0;1;38;2;37;99;235mParameters
+[0m  [0;38;2;138;138;148m╭───────────┬────────┬──────────┬──────────┬──────────┬───────────────────────────────────────────────────────╮
+[0m  [0;38;2;138;138;148m│[0m [0;1;38;2;55;65;81mParameter[0m [0;38;2;138;138;148m│[0m [0;1;38;2;55;65;81mType[0m   [0;38;2;138;138;148m│[0m [0;1;38;2;55;65;81mRequired[0m [0;38;2;138;138;148m│[0m [0;1;38;2;55;65;81mPosition[0m [0;38;2;138;138;148m│[0m [0;1;38;2;55;65;81mPipeline[0m [0;38;2;138;138;148m│[0m [0;1;38;2;55;65;81mDescription[0m                                           [0;38;2;138;138;148m│
+[0;38;2;107;114;128m───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Page 1 of 3 · [0;38;2;37;99;235mSpace[0;38;2;107;114;128m next · [0;38;2;37;99;235mb[0;38;2;107;114;128m back · [0;38;2;37;99;235mq[0;38;2;107;114;128m quit[0m                                          

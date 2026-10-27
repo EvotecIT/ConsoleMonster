@@ -1,6 +1,7 @@
-[?9001h[?1004h[?25l[2J[m[1m[HConsoleMonster.2.0.0.nupkg[22m
-[38;2;139;143;154m[2CKind      [mNuGet
-[38;2;139;143;154m[2CSize      [m1.41[38;2;139;143;154m[1CMB[m
-[38;2;139;143;154m[2CBuilt in  [m48 s
-[38;2;139;143;154m[2CSigned    [38;2;74;222;128m✓ yes[m
-[38;2;139;143;154m[2CPath      [38;2;96;165;250mD:\Builds\ConsoleMonster\Packed\ConsoleMonster.2.0.0.nupkg[8;1H]0;C:\Program Files\PowerShell\7\pwsh.exe[?25h[m[?9001l[?1004l
+[?1h=[0;1mConsoleMonster.2.0.0.nupkg
+[0m  [0;38;2;139;143;154mKind[0m      NuGet
+  [0;38;2;139;143;154mSize[0m      1.41[0;38;2;139;143;154m MB
+[0m  [0;38;2;139;143;154mBuilt in[0m  48 s
+  [0;38;2;139;143;154mSigned[0m    [0;38;2;74;222;128m✓[14G yes
+[0m  [0;38;2;139;143;154mPath[0m      [0;38;2;96;165;250mD:\Builds\ConsoleMonster\Packed\ConsoleMonster.2.0.0.nupkg
+

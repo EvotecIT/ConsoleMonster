@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ConsoleMonster.Canvas;
+using ConsoleMonster.Capabilities;
 using ConsoleMonster.Input;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
@@ -19,6 +20,23 @@ namespace ConsoleMonster.Tests.Live {
             Target = target, CaptureConsole = false, HandleCancelKey = false, PrintFinalState = false,
             TaskbarProgress = false, StreamHeartbeat = TimeSpan.Zero, FramesPerSecond = 60
         };
+
+        [Fact]
+        public void ViewportCheckpointsUseTheSameHeightConstraintAsTheLiveWindow() {
+            var target = new RecordingTarget(TerminalProfile.Fixed(50, 12).WithMode(OutputMode.Interactive));
+            target.SkipDelays = true;
+            target.CaptureViewport = true;
+            var root = new Dashboard("Window", TextBlock.Plain("full layout")) { MinimumSize = new Size(60, 20), CompactSummary = () => "small console" };
+            using (var session = new LiveSession(root, Options(target))) {
+                session.Start();
+                session.Delay(TimeSpan.Zero);
+            }
+            CellBuffer frame = Assert.Single(target.Screens.Frames);
+            Assert.Equal(50, frame.Width);
+            Assert.Equal(12, frame.Height);
+            Assert.Contains("small console", frame.ToPlainText());
+            Assert.DoesNotContain("full layout", frame.ToPlainText());
+        }
 
         [Theory]
         [InlineData(-1L)]

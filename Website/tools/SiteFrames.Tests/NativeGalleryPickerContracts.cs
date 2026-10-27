@@ -26,6 +26,7 @@ namespace SiteFrames.Tests {
             string folder = Path.Combine(Path.GetTempPath(), "cm-picker-redirect-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(folder);
             string script = Path.Combine(folder, "picker.ps1");
+            string launcher = Path.Combine(folder, "picker.cmd");
             string log = Path.Combine(folder, "stdout.txt");
             string pid = Path.Combine(folder, "child.pid");
             string capture = Path.Combine(folder, "parent.ansi");
@@ -48,9 +49,9 @@ namespace SiteFrames.Tests {
             environment["CONSOLEMONSTER_NONINTERACTIVE"] = null;
             environment["CONSOLEMONSTER_ACCESSIBLE"] = null;
             // cmd changes only stdout: stdin remains the attached ConPTY console. No -NonInteractive switch is used.
-            string launch = "cmd.exe /d /s /c \"\"" + host.Executable + "\" -NoLogo -NoProfile -File \"" + script + "\" > \"" + log + "\"\"";
+            File.WriteAllText(launcher, "@echo off\r\n\"" + host.Executable + "\" -NoLogo -NoProfile -File \"picker.ps1\" > \"stdout.txt\"\r\n", Encoding.ASCII);
             try {
-                var chunks = PseudoConsole.Run(launch, 100, 24, environment, repository, TimeSpan.FromSeconds(12),
+                var chunks = TerminalCapture.Run("cmd.exe", new[] { "/d", "/c", "picker.cmd" }, 100, 24, environment, folder, TimeSpan.FromSeconds(12),
                     readyText: "INPUT=False;OUTPUT=True", inputKeys: string.Empty, capturePath: capture);
                 string output = string.Concat(chunks.Select(chunk => Encoding.UTF8.GetString(chunk.Data)));
                 Assert.Contains("INPUT=False;OUTPUT=True", output, StringComparison.Ordinal);

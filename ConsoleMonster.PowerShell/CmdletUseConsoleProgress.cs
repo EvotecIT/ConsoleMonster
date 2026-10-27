@@ -8,7 +8,7 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Runs a script and shows its Write-Progress calls as an inline progress area.</para>
-    /// <para type="description">The script runs on the pipeline thread with the caller's variables. While it runs, Write-Progress (Activity, Status, CurrentOperation, PercentComplete, SecondsRemaining, Id and ParentId nesting, -Completed) is drawn as nested activities with bars, below the cursor and without the alternate screen; Write-Host and console output scroll above the area. When the script ends the area disappears (or stays with -Keep) and the script's output is returned. Calls the script makes directly are covered; commands inside other modules call their own Write-Progress, which PowerShell shows as usual. In jobs, remoting, the ISE and redirected output the script simply runs. If another runspace owns the terminal's progress area, the script also runs with PowerShell's native progress. Works on Windows PowerShell 5.1 and PowerShell 7.</para>
+    /// <para type="description">The script runs on the pipeline thread with the caller's variables. While it runs, Write-Progress (Activity, Status, CurrentOperation, PercentComplete, SecondsRemaining, Id and ParentId nesting, -Completed) is drawn as nested activities with bars, below the cursor and without the alternate screen; Write-Host and console output scroll above the area. When the script ends the area disappears (or stays with -Keep) and the script's output is returned. Calls the script makes directly are covered; commands inside other modules call their own Write-Progress, which PowerShell shows as usual. Inside the script, $ConsoleSession is this progress area's session, so Wait-ConsoleDashboard can capture or pause it. In jobs, remoting, the ISE and redirected output the script simply runs with $ConsoleSession set to null. If another runspace owns the terminal's progress area, the script also runs with PowerShell's native progress. Works on Windows PowerShell 5.1 and PowerShell 7.</para>
     /// </summary>
     /// <example>
     ///   <para>An existing loop, unchanged</para>
@@ -72,7 +72,7 @@ $__cmProgressBridge.Host((@($Object | ForEach-Object { if ($_ -is [System.Collec
         protected override void EndProcessing() {
             Capabilities.TerminalProfile profile = Terminal.GetCurrentProfile();
             if (HostOutput.UseHost(this, profile)) {
-                foreach (PSObject item in ScriptBlock.Invoke()) {
+                foreach (PSObject item in InvokeWithoutArea()) {
                     WriteObject(item);
                 }
                 return;
@@ -80,7 +80,7 @@ $__cmProgressBridge.Host((@($Object | ForEach-Object { if ($_ -is [System.Collec
             using (IDisposable? foreground = SessionProgress.TryEnterForeground()) {
                 if (foreground == null) {
                     // Another runspace owns the one terminal area. Keep the script and native progress in this runspace.
-                    foreach (PSObject item in ScriptBlock.Invoke()) {
+                    foreach (PSObject item in InvokeWithoutArea()) {
                         WriteObject(item);
                     }
                     return;
@@ -88,6 +88,10 @@ $__cmProgressBridge.Host((@($Object | ForEach-Object { if ($_ -is [System.Collec
                 RunWithArea();
             }
         }
+
+        // A host fallback owns no live session. Shadow an outer dashboard variable rather than accidentally waiting on it.
+        private Collection<PSObject> InvokeWithoutArea() => ScriptBlock.InvokeWithContext(null,
+            new List<PSVariable> { new PSVariable("ConsoleSession", null) });
 
         private void RunWithArea() {
             ActivityList activities = new ActivityList();
@@ -108,7 +112,9 @@ $__cmProgressBridge.Host((@($Object | ForEach-Object { if ($_ -is [System.Collec
                         ["Write-Host"] = ScriptBlock.Create(HostProxy)
                     };
                     ProgressBridge bridge = new ProgressBridge(session);
-                    List<PSVariable> variables = new List<PSVariable> { new PSVariable("__cmProgressBridge", bridge) };
+                    List<PSVariable> variables = new List<PSVariable> {
+                        new PSVariable("__cmProgressBridge", bridge), new PSVariable("ConsoleSession", session)
+                    };
                     // With Enable-ConsoleFormatting -Feature Progress, Write-Progress is an alias, which wins over the
                     // function above: Update-Console hands its calls to this area while the script runs.
                     ProgressBridge? previous = SessionProgress.Override;

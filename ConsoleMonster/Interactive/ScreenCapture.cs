@@ -10,6 +10,7 @@ namespace ConsoleMonster.Interactive {
     /// </summary>
     public sealed class ScreenCapture {
         private readonly RecordingSurface _surface;
+        private readonly Dictionary<int, TimeSpan> _frameHolds = new Dictionary<int, TimeSpan>();
 
         /// <summary>Creates a capture of a fixed size.</summary>
         /// <param name="width">Width in cells.</param>
@@ -30,6 +31,20 @@ namespace ConsoleMonster.Interactive {
 
         /// <summary>Every frame drawn, in order.</summary>
         public IReadOnlyList<CellBuffer> Frames => _surface.Frames;
+
+        /// <summary>Additional playback pauses after each zero-based frame index. Capturing a pause never sleeps.</summary>
+        public IReadOnlyDictionary<int, TimeSpan> FrameHolds => _frameHolds;
+
+        /// <summary>Records an additional playback pause after the last captured frame.</summary>
+        /// <param name="duration">A nonnegative pause; zero does nothing.</param>
+        public void Hold(TimeSpan duration) {
+            if (duration < TimeSpan.Zero) { throw new ArgumentOutOfRangeException(nameof(duration)); }
+            if (duration == TimeSpan.Zero) { return; }
+            int index = Frames.Count - 1;
+            if (index < 0) { throw new InvalidOperationException("Capture a frame before adding its playback pause."); }
+            _frameHolds.TryGetValue(index, out TimeSpan previous);
+            _frameHolds[index] = previous + duration;
+        }
 
         /// <summary>The last frame drawn, or null.</summary>
         public CellBuffer? LastFrame => _surface.LastFrame;

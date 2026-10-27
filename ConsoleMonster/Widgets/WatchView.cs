@@ -52,7 +52,7 @@ namespace ConsoleMonster.Widgets {
             _content = content ?? new TextBlock(string.Empty);
             Iteration = iteration;
             Status = status;
-            _lastRun = time ?? DateTimeOffset.Now;
+            _lastRun = time?.ToLocalTime() ?? Presenters.PresentationOptions.ReferenceNow();
             return this;
         }
 
@@ -302,7 +302,7 @@ namespace ConsoleMonster.Widgets {
                 spans.Add(new TextSpan("   #" + Iteration.ToString(CultureInfo.InvariantCulture), muted));
             }
             if (_lastRun.HasValue) {
-                spans.Add(new TextSpan(separator + _lastRun.Value.ToLocalTime().ToString("HH:mm:ss", CultureInfo.InvariantCulture), muted));
+                spans.Add(new TextSpan(separator + _lastRun.Value.ToString("HH:mm:ss", CultureInfo.InvariantCulture), muted));
             }
             if (!string.IsNullOrEmpty(Status)) {
                 spans.Add(new TextSpan(separator + Status, context.Style(StatusKind.Fail)));

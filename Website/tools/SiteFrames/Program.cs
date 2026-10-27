@@ -15,7 +15,7 @@ namespace SiteFrames {
     /// <item><c>render [Website]</c>: renders every frame, replay, thumbnail and page data file from the ConsoleMonster sources
     /// and the committed captures. Deterministic: rerun it after a renderer change and commit what changed.</item>
     /// <item><c>capture [Website]</c>: runs the PowerShell examples on Windows PowerShell 5.1 and PowerShell 7 and records the
-    /// live showcases, each inside a Windows pseudo console, and saves the VT streams under <c>Website/captures/</c>.</item>
+    /// live showcases through SessionRecorder on Windows, macOS and Linux, and saves the VT streams under <c>Website/captures/</c>.</item>
     /// <item><c>capture-fullscreen-preview [Website]</c>: exports and stamps the paced service-browser GIF from its committed recording.</item>
     /// <item><c>app-review [Website] [OutputDirectory]</c>: exports the live-filter application at both widths and themes.</item>
     /// <item><c>theme-files-review [Website] [OutputDirectory]</c>: exports the portable theme examples.</item>
@@ -26,6 +26,8 @@ namespace SiteFrames {
         internal static int Failures;
 
         public static int Main(string[] args) {
+            // A capture worker inherits the already pinned child environment rather than the renderer's clean defaults.
+            if (args.Length > 0 && args[0] == "capture-csharp-worker") { return CSharpRunner.RunCheckpointWorker(args); }
             CultureInfo culture = Site.Culture;
             CultureInfo.DefaultThreadCurrentCulture = culture;
             CultureInfo.DefaultThreadCurrentUICulture = culture;
@@ -42,6 +44,8 @@ namespace SiteFrames {
             Environment.SetEnvironmentVariable("CONSOLEMONSTER_LANGUAGE", "en");
             Environment.SetEnvironmentVariable("CONSOLEMONSTER_CULTURE", "en-US");
             string command = args.Length > 0 ? args[0] : "render";
+            CapturePlatforms.Capturing = command == "capture";
+            if (CapturePlatforms.Capturing) { CaptureRun.Reset(); }
             string website = args.Length > 1 ? args[1] : Path.Combine("..", "..");
             string? only = args.Length > 2 ? args[2] : null;
             if (command == "verify-gridview") {
@@ -55,6 +59,8 @@ namespace SiteFrames {
                 return 2;
             }
             switch (command) {
+                case "compare-captures":
+                    return CaptureComparison.Run(website, only ?? throw new ArgumentException("Pass both capture directories."), args.Length > 3 ? args[3] : null);
                 case "capture-fullscreen-preview":
                     FullScreenPreview.CaptureGif(new Site(website));
                     return 0;
@@ -103,7 +109,12 @@ namespace SiteFrames {
                 case "render":
                     return Render(new Site(website), only);
                 case "capture":
-                    return CaptureAll(new Site(website), only);
+                    try { return CaptureAll(new Site(website), only); }
+                    catch (Exception error) {
+                        // Catch at the command boundary so CaptureAll's finally writes a partial producer receipt.
+                        Console.Error.WriteLine(error);
+                        return 1;
+                    }
                 case "theme-files-review" when !string.IsNullOrWhiteSpace(only):
                     return ThemeFilesPage.Review(new Site(website), only, args.Length > 3 && args[3] == "--powershell");
                 case "app-review" when only != null:
@@ -192,56 +203,70 @@ namespace SiteFrames {
         private static bool Wants(string? only, string area) => only == null || string.Equals(only, area, StringComparison.OrdinalIgnoreCase);
 
         private static int CaptureAll(Site site, string? only) {
-            // The copyable gallery uses a portable recording target, independently of the legacy ConPTY captures.
-            if (only == "gallery") { return GalleryPage.Capture(site); }
-            JsonObject hosts = new JsonObject();
-            foreach (PowerShellHost host in PowerShellHost.All) {
-                hosts[host.Id] = PowerShellRunner.Version(host);
-            }
-            site.WriteJson(Path.Combine(site.Captures, "hosts.json"), hosts);
-            if (Wants(only, "widgets")) {
-                WidgetsPage.Capture(site);
-            }
-            if (Wants(only, "live")) {
-                LivePage.Capture(site);
-            }
-            if (Wants(only, "home")) {
-                HomePage.Capture(site);
-            }
-            if (Wants(only, "powershell")) {
-                PowerShellPage.Capture(site);
-            }
-            if (Wants(only, "benchmarks")) {
-                BenchmarksPage.Capture(site);
-            }
-            if (Wants(only, "docs")) {
-                DocsPage.Capture(site);
-            }
-            if (Wants(only, "objects") || Wants(only, "docs")) {
-                ExplorerFigures.Capture(site);
-            }
-            if (Wants(only, "charts") || Wants(only, "docs")) {
-                ChartFigures.Capture(site);
-            }
-            if (Wants(only, "docs") || Wants(only, "text-diff")) {
-                TextDiffFigures.Capture(site);
-            }
-            if (Wants(only, "docs") || Wants(only, "markdown")) { MarkdownFigures.Capture(site); }
-            if (Wants(only, "interactive")) {
-                InteractivePage.Capture(site);
-            }
-            if (Wants(only, "demos")) {
-                DemosPage.Capture(site);
-            }
-            if (Wants(only, "help-formatting")) {
-                HelpFormattingPage.Capture(site);
-            }
-            if (Wants(only, "app")) { AppPage.Capture(site); }
-            if (Wants(only, "tails")) {
-                TailsPage.Capture(site);
-            }
-            if (Wants(only, "gallery")) { GalleryPage.Capture(site); }
-            return 0;
+            bool complete = false;
+            // A killed or interrupted run must never leave a previous invocation's successful receipt in place.
+            CaptureRun.Write(site, complete: false, area: only);
+            try {
+                // Gallery fixtures emit their selected cells through the same terminal recorder as the native producers.
+                if (only == "gallery") { int result = GalleryPage.Capture(site); complete = result == 0; return result; }
+                string hostsPath = Path.Combine(site.Captures, "hosts.json");
+                JsonObject hosts = File.Exists(hostsPath) ? JsonNode.Parse(File.ReadAllText(hostsPath))!.AsObject() : new JsonObject();
+                JsonObject platforms = hosts["platforms"]?.AsObject() ?? new JsonObject();
+                if (hosts["platforms"] == null) { hosts["platforms"] = platforms; }
+                JsonObject currentHost = new JsonObject();
+                if (!OperatingSystem.IsWindows()) { Console.WriteLine("Skipping Windows PowerShell 5.1 (ps5): Windows only; committed ps5 captures remain subject to freshness and parity checks."); }
+                foreach (PowerShellHost host in PowerShellHost.Available) {
+                    string version = PowerShellRunner.Version(host);
+                    currentHost[host.Id] = version;
+                    hosts[host.Id] = version;
+                }
+                platforms[CaptureRun.Platform] = currentHost;
+                site.WriteJson(Path.Combine(site.Captures, "hosts.json"), hosts);
+                if (Wants(only, "widgets")) {
+                    WidgetsPage.Capture(site);
+                }
+                if (Wants(only, "live")) {
+                    LivePage.Capture(site);
+                }
+                if (Wants(only, "home")) {
+                    HomePage.Capture(site);
+                }
+                if (Wants(only, "powershell")) {
+                    PowerShellPage.Capture(site);
+                }
+                if (Wants(only, "benchmarks")) {
+                    BenchmarksPage.Capture(site);
+                }
+                if (Wants(only, "docs")) {
+                    DocsPage.Capture(site);
+                }
+                if (Wants(only, "objects") || Wants(only, "docs")) {
+                    ExplorerFigures.Capture(site);
+                }
+                if (Wants(only, "charts") || Wants(only, "docs")) {
+                    ChartFigures.Capture(site);
+                }
+                if (Wants(only, "docs") || Wants(only, "text-diff")) {
+                    TextDiffFigures.Capture(site);
+                }
+                if (Wants(only, "docs") || Wants(only, "markdown")) { MarkdownFigures.Capture(site); }
+                if (Wants(only, "interactive")) {
+                    InteractivePage.Capture(site);
+                }
+                if (Wants(only, "demos")) {
+                    DemosPage.Capture(site);
+                }
+                if (Wants(only, "help-formatting")) {
+                    HelpFormattingPage.Capture(site);
+                }
+                if (Wants(only, "app")) { AppPage.Capture(site); }
+                if (Wants(only, "tails")) {
+                    TailsPage.Capture(site);
+                }
+                if (Wants(only, "gallery")) { GalleryPage.Capture(site); }
+                complete = true;
+                return 0;
+            } finally { CaptureRun.Write(site, complete, only); }
         }
 
         private static int Render(Site site, string? only) {

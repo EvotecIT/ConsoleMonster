@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text.Json.Nodes;
 using ConsoleMonster.Canvas;
 using SiteFrames.Capture;
@@ -15,9 +16,9 @@ namespace SiteFrames.Pages {
     /// <c>capture</c> runs each demo script or program once in a pseudo console of a fixed size and saves the VT stream
     /// (asciicast) under <c>captures/demos/</c>; <c>render</c> turns the committed streams into player data, a poster frame
     /// and <c>data/demos.json</c>, reading the sources from the same files the capture ran, so the code shown on the site is
-    /// the code that drew the recording. Every demo uses invented or generic data (svchost, the PowerShell install folder, W* services), fixed sizes and a pinned terminal profile.
+    /// the code that drew the recording. The ordinary demos use explicit invented data, fixed sizes and a pinned terminal profile.
     /// </summary>
-    internal static class DemosPage {
+    internal static partial class DemosPage {
         private sealed class Demo {
             public Demo(string id, string title, int width, int height) {
                 Id = id;
@@ -53,6 +54,9 @@ namespace SiteFrames.Pages {
             /// <summary>Whether the recording plays the script as typed commands, each after a prompt (see PowerShellRunner).</summary>
             public bool Session { get; set; }
 
+            /// <summary>Runs a synthetic live example with the recorder target's logical viewport checkpoints.</summary>
+            public bool LogicalCheckpoints { get; set; }
+
             /// <summary>PowerShell the recording runs before the script (for example the folder to start in); never shown.</summary>
             public string? Setup { get; set; }
 
@@ -77,6 +81,9 @@ namespace SiteFrames.Pages {
 
             /// <summary>When the recording presses Ctrl+C, for a program that runs until it is stopped.</summary>
             public TimeSpan? Interrupt { get; set; }
+            public string? InputReadyText { get; set; }
+            public string? InputKeys { get; set; }
+            public TimeSpan? InputDelay { get; set; }
 
             /// <summary>
             /// The C# source shown beside the recording: the file relative to the repository, and either the method whose
@@ -136,6 +143,7 @@ namespace SiteFrames.Pages {
                 CSharpProgram = "fleet.cs",
                 CSharpCompanions = new[] { Path.Combine("ConsoleMonster.Examples", "Showcases", "FleetHealth.cs"), Path.Combine("ConsoleMonster.Examples", "Showcases", "FleetData.cs") },
                 ProgramArguments = "--demo",
+                LogicalCheckpoints = true,
                 PowerShellTwin = Path.Combine("Module", "Examples", "Example-FleetHealth.ps1"),
                 Fps = 8,
                 Chapters = new[] { ("Menu", "Fleet health check"), ("Form", "New check › Scope"), ("Dashboard", "Check map"), ("Results", "Fleet check finished") },
@@ -147,22 +155,22 @@ namespace SiteFrames.Pages {
                 CSharpProgram = "parallel.cs",
                 PosterShare = 0.45
             };
-            yield return new Demo("watch", "Watch-Console -Differences", 96, 14) { CSharpProgram = "watch.cs", Script = "watch.ps1", PosterShare = 0.7 };
+            yield return new Demo("watch", "Watch-Console -Differences", 96, 14) { CSharpProgram = "watch.cs", Script = "watch.ps1", LogicalCheckpoints = true, PosterShare = 0.7 };
             yield return new Demo("pester", "Invoke-ConsolePester", 96, 24) { CSharpProgram = "pester.host.cs", Script = "pester.ps1", Companions = new[] { "fixtures/MailDomain.Tests.ps1" }, PosterShare = 0.75, AllowErrors = true };
             yield return new Demo("formatting", "Enable-ConsoleFormatting", 100, 40) { CSharpProgram = "formatting.host.cs",
                 Script = "formatting.ps1",
                 Session = true,
-                Setup = "Set-Location -LiteralPath (Join-Path $PSHOME 'Modules')",
+
                 PosterShare = 1,
                 Fps = 5,
-                Chapters = new[] { ("Before", "# PowerShell's own output"), ("After", "# The same commands now") }
+                Chapters = new[] { ("Before", "# PowerShell's own output"), ("After", "# The same objects now") }
             };
             yield return new Demo("shaping", "Show-ConsoleTable -GroupBy Site", 100, 40) { CSharpProgram = "shaping.host.cs", Script = "shaping.ps1", Static = true };
             // Format-Table, Format-List and Format-Wide before and after the separate FormatCommands opt-in.
             yield return new Demo("format-commands", "Enable-ConsoleFormatting -Feature FormatCommands", 100, 46) { CSharpProgram = "format-commands.host.cs",
                 Script = "format-commands.ps1",
                 Session = true,
-                Setup = "Set-Location -LiteralPath (Join-Path $PSHOME 'Modules')",
+
                 PosterShare = 1,
                 Fps = 5,
                 Chapters = new[] { ("Before", "# Format-Table, Format-List and Format-Wide as PowerShell draws them"), ("After", "# The same commands, drawn by ConsoleMonster") }
@@ -175,7 +183,7 @@ namespace SiteFrames.Pages {
                 Static = true
             };
             yield return new Demo("help", "Show-ConsoleHelp", 100, 50) { CSharpProgram = "help.host.cs", Script = "help.ps1", Session = true, PosterShare = 1 };
-            yield return new Demo("progress", "Write-Progress, drawn by ConsoleMonster", 96, 12) { CSharpProgram = "progress.host.cs", Script = "progress.ps1", PosterShare = 0.5, Fps = 8, ShowProgress = true };
+            yield return new Demo("progress", "Write-Progress, drawn by ConsoleMonster", 96, 12) { CSharpProgram = "progress.host.cs", Script = "progress.ps1", PosterShare = 0.5, Fps = 8, ShowProgress = true, LogicalCheckpoints = true, EndsOn = "Inventory collected: 36 servers across 3 sites." };
             yield return new Demo("errors", "Show-Console -View Error", 100, 20) { CSharpProgram = "errors.cs", Script = "errors.ps1", Static = true, AllowErrors = true };
             // Threads and concurrency: the same parallel work written straight to the console, through a dashboard, and
             // through the same dashboard when CI is detected.
@@ -183,7 +191,7 @@ namespace SiteFrames.Pages {
             yield return new Demo("threads-live", "Invoke-ConsoleDashboard -Parallel", 100, 22) { Script = "threads-dashboard.ps1", CSharpProgram = "threads-live.cs", PosterShare = 0.6, Fps = 8 };
             yield return new Demo("threads-ci", "CI=true", 100, 30) { CSharpProgram = "threads-live.cs", Script = "threads-dashboard.ps1", Setup = "$env:CI = 'true'", PosterShare = 0.55, Fps = 8 };
             yield return new Demo("session", "session.ps1", 100, 14) { Script = "session.ps1", CSharpProgram = "session.cs", PosterShare = 0.6, Fps = 6 };
-            yield return new Demo("record", "record.ps1", 100, 18) { Script = "record.ps1", CSharpProgram = "record.cs", PosterShare = 0.4, Fps = 6 };
+            yield return new Demo("record", "record.ps1", 100, 18) { Script = "record.ps1", CSharpProgram = "record.cs", LogicalCheckpoints = true, PosterShare = 0.4, Fps = 6 };
             yield return new Demo("login", "ssh deploy@app-web-03", 100, 30) { CSharpProgram = "login.cs",
                 Script = Path.Combine("Module", "Examples", "Example-LoginOverview.ps1"),
                 Arguments = "-Sample -Width 96",
@@ -205,6 +213,7 @@ namespace SiteFrames.Pages {
             // TemplateDemo compiles the template's own Program.cs and drives its menu with scripted keys.
             yield return new Demo("template", "dotnet run, then dotnet run -- serve", 100, 26) {
                 Project = Path.Combine("Website", "tools", "TemplateDemo", "TemplateDemo.csproj"),
+                InputReadyText = "Processed batch", InputKeys = "\u0003", InputDelay = TimeSpan.FromSeconds(9),
                 PowerShellTwin = "Website/examples/demos/template.ps1",
                 Sources = new[] { Path.Combine("Templates", "ConsoleMonster.Templates", "content", "ConsoleMonsterApp", "Program.cs") },
                 CSharp = (Path.Combine("Templates", "ConsoleMonster.Templates", "content", "ConsoleMonsterApp", "Program.cs"), null, "public static async Task<int> Main(string[] args)"),
@@ -251,9 +260,21 @@ namespace SiteFrames.Pages {
                 foreach (string file in ProjectSources(site, demo)) {
                     text.Append(Path.GetFileName(file)).Append('\n').Append(Site.ReadText(file)).Append('\n');
                 }
-                text.Append(demo.ProjectArguments).Append('\n').Append(demo.Interrupt?.TotalMilliseconds);
+                text.Append(demo.ProjectArguments).Append('\n').Append(demo.Interrupt?.TotalMilliseconds).Append("\nsource-path:./Program.cs");
+                text.Append('\n').Append(demo.InputReadyText).Append('\n').Append(demo.InputKeys).Append('\n').Append(demo.InputDelay?.TotalMilliseconds);
             } else {
                 return null;
+            }
+            if (demo.Static || demo.Session) {
+                text.Append('\n').Append(Site.ReadText(Path.Combine(site.Tool, "Replay", "RecordedSteps.cs")));
+                text.Append('\n').Append(Site.ReadText(Path.Combine(site.Tool, "Frames", "FrameDefaults.cs")));
+                text.Append(demo.Static ? "\nrecorded-transcript" : "\nrecorded-steps");
+                if (demo.Session) { text.Append('\n').Append(PowerShellRunner.SessionRecipe); }
+            }
+            if (demo.LogicalCheckpoints) {
+                text.Append("\nlogical-viewport-v2\n");
+                text.Append(Site.ReadText(Path.Combine(site.Tool, "Capture", demo.Script != null ? "CheckpointCapture.ps1" : "CSharpRunner.Checkpoints.cs")));
+                text.Append('\n').Append(Site.ReadText(Path.Combine(site.Repository, "ConsoleMonster", "Live", demo.Script != null ? "ConsoleWatch.cs" : "SimulatedClock.cs")));
             }
             return text.Append('\n').Append(demo.Width).Append('x').Append(demo.Height).ToString();
         }
@@ -287,7 +308,7 @@ namespace SiteFrames.Pages {
         // The path a code bar names and the site links to on GitHub: relative to the repository, with forward slashes.
         private static string ScriptFile(Site site, string name) => Path.GetRelativePath(site.Repository, Script(site, name)).Replace('\\', '/');
 
-        private static string CastPath(Site site, string id) => Path.Combine(site.Captures, "demos", id + ".cast");
+        private static string CastPath(Site site, string id) => CapturePlatforms.PathFor(site, Path.Combine(site.Captures, "demos", id + ".cast"));
 
         public static void Capture(Site site) {
             // SITEFRAMES_DEMOS (comma-separated ids) records only those demos, leaving the other recordings as they are.
@@ -305,6 +326,8 @@ namespace SiteFrames.Pages {
                 }
                 Stopwatch watch = Stopwatch.StartNew();
                 List<OutputChunk> chunks;
+                string? nativeRecording = null;
+                Action<string>? recorded = demo.Static || demo.Session ? text => nativeRecording = text : null;
                 if (demo.Script != null) {
                     // A fresh temporary folder per run: a script may write there (the record demo does), and nothing is left.
                     string temp = Path.Combine(Path.GetTempPath(), "cmsite-demo-temp-" + Guid.NewGuid().ToString("N").Substring(0, 12));
@@ -312,8 +335,9 @@ namespace SiteFrames.Pages {
                     Dictionary<string, string?> environment = PowerShellRunner.Environment("dark");
                     environment["TEMP"] = temp;
                     environment["TMP"] = temp;
+                    environment["TMPDIR"] = temp;
                     try {
-                        chunks = PowerShellRunner.Run(site, PowerShellHost.Core, Script(site, demo.Script), demo.Width, demo.Height, environment, allowErrors: demo.AllowErrors, showProgress: demo.ShowProgress, arguments: demo.Arguments, prompt: demo.Prompt, session: demo.Session, setup: demo.Setup);
+                        chunks = PowerShellRunner.Run(site, PowerShellHost.Core, Script(site, demo.Script), demo.Width, demo.Height, environment, allowErrors: demo.AllowErrors, showProgress: demo.ShowProgress, arguments: demo.Arguments, prompt: demo.Prompt, session: demo.Session, setup: demo.Setup, recordCheckpoints: demo.LogicalCheckpoints, recording: recorded);
                     } finally {
                         Site.RemoveTemporary(temp);
                     }
@@ -321,7 +345,9 @@ namespace SiteFrames.Pages {
                     string work = Path.Combine(Path.GetTempPath(), "cmsite-demo-" + demo.Id + "-" + Guid.NewGuid().ToString("N").Substring(0, 12));
                     try {
                         string dll = CSharpRunner.Build(Script(site, demo.CSharpProgram!), work, demo.Id, Companions(site, demo));
-                        chunks = PseudoConsole.Run("\"" + LivePage.DotnetHost + "\" \"" + dll + "\" " + demo.ProgramArguments, demo.Width, demo.Height, PowerShellRunner.Environment("dark"), work, TimeSpan.FromMinutes(3));
+                        chunks = demo.LogicalCheckpoints
+                            ? CSharpRunner.RecordCheckpoints(dll, demo.ProgramArguments.Split(' ', StringSplitOptions.RemoveEmptyEntries), demo.Width, demo.Height, PowerShellRunner.Environment("dark"), work, TimeSpan.FromMinutes(3))
+                            : CSharpRunner.Record(dll, demo.ProgramArguments.Split(' ', StringSplitOptions.RemoveEmptyEntries), demo.Width, demo.Height, PowerShellRunner.Environment("dark"), work, TimeSpan.FromMinutes(3), recording: recorded);
                     } finally {
                         Site.RemoveTemporary(work);
                     }
@@ -331,9 +357,9 @@ namespace SiteFrames.Pages {
                     try {
                         Build(site, demo.Project!, output);
                         string dll = Path.Combine(output, Path.GetFileNameWithoutExtension(demo.Project!) + ".dll");
-                        string command = "\"" + LivePage.DotnetHost + "\" \"" + dll + "\"" + (demo.ProjectArguments.Length > 0 ? " " + demo.ProjectArguments : string.Empty);
                         // The drive root as the working directory: a host logs its content root, which should not be this checkout.
-                        chunks = PseudoConsole.Run(command, demo.Width, demo.Height, PowerShellRunner.Environment("dark"), Path.GetPathRoot(site.Repository) ?? site.Repository, TimeSpan.FromMinutes(2), demo.Interrupt);
+                        chunks = CSharpRunner.Record(dll, demo.ProjectArguments.Split(' ', StringSplitOptions.RemoveEmptyEntries), demo.Width, demo.Height, PowerShellRunner.Environment("dark"), Path.GetPathRoot(site.Repository) ?? site.Repository, TimeSpan.FromMinutes(2), demo.Interrupt,
+                            demo.InputReadyText, demo.InputKeys, demo.InputDelay, recording: recorded);
                     } finally {
                         Site.RemoveTemporary(output);
                     }
@@ -341,18 +367,22 @@ namespace SiteFrames.Pages {
                 string path = CastPath(site, demo.Id);
                 Directory.CreateDirectory(Path.GetDirectoryName(path)!);
                 // Window titles (OSC 0 and 2) carry the executable's path; nothing on the site shows them.
-                string cast = System.Text.RegularExpressions.Regex.Replace(Replays.ToCast(chunks, demo.Width, demo.Height, demo.Title), @"\\u001B\][02];(?:[^""\\]|\\\\)*?(?:\\u0007|\\u001B\\\\)", string.Empty);
+                string sourceCast = recorded == null ? Replays.ToCast(chunks, demo.Width, demo.Height, demo.Title)
+                    : RecordedSteps.ToCast(nativeRecording ?? throw new InvalidDataException("The recorder returned no native session."), demo.Title, demo.Static);
+                string cast = System.Text.RegularExpressions.Regex.Replace(sourceCast, @"\\u001B\][02];(?:[^""\\]|\\\\)*?(?:\\u0007|\\u001B\\\\)", string.Empty);
                 string? source = Source(site, demo);
-                File.WriteAllText(path, source != null ? Replays.Stamp(cast, Replays.Fingerprint(source)) : cast, new System.Text.UTF8Encoding(false));
+                File.WriteAllText(path, source != null ? Replays.Stamp(cast, Replays.Fingerprint(source, CapturePins.Policy)) : cast, new System.Text.UTF8Encoding(false));
+                CaptureRun.Record(path, "dark");
                 Console.WriteLine("recorded demo " + demo.Id + " in " + watch.Elapsed.TotalSeconds.ToString("0.0", CultureInfo.InvariantCulture) + " s");
             }
         }
 
 
         private static void Build(Site site, string project, string output) {
-            // ContinuousIntegrationBuild maps source paths to /_/, so stack traces in the recordings do not show this checkout.
+            // Map the shown program's PDB source to its portable file name. It must not become a local file link on only one OS.
+            string programDirectory = Path.GetDirectoryName(Path.Combine(site.Repository, project))!;
             // The same dotnet that runs the recordings builds them.
-            ProcessStartInfo info = new ProcessStartInfo(LivePage.DotnetHost, "build \"" + Path.Combine(site.Repository, project) + "\" -c Release -nologo -v q -p:ContinuousIntegrationBuild=true -o \"" + output + "\"") { UseShellExecute = false };
+            ProcessStartInfo info = new ProcessStartInfo(CSharpRunner.DotnetHost, "build \"" + Path.Combine(site.Repository, project) + "\" -c Release -nologo -v q -p:ContinuousIntegrationBuild=true -p:DeterministicSourcePaths=false -p:PathMap=\"" + programDirectory + "=.\" -o \"" + output + "\"") { UseShellExecute = false };
             using (Process process = Process.Start(info)!) {
                 process.WaitForExit();
                 if (process.ExitCode != 0) {
@@ -372,7 +402,7 @@ namespace SiteFrames.Pages {
                 }
                 string cast = File.ReadAllText(path);
                 string? expected = Source(site, demo);
-                if (expected != null && Replays.Source(cast) != Replays.Fingerprint(expected)) {
+                if (expected != null && Replays.Source(cast) != Replays.Fingerprint(expected, CapturePins.Policy)) {
                     problems.Add("demo " + demo.Id + ": the recording was made from another version of its script or program; run the capture command for the demos area (SITEFRAMES_DEMOS=" + demo.Id + ").");
                 }
                 List<TimedFrame> frames = Replays.FromCast(cast, demo.Fps, false, out CellBuffer scrollback, out int width, out int height);

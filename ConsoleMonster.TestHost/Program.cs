@@ -26,6 +26,7 @@ namespace ConsoleMonster.TestHost {
                 switch (args[0]) {
                     case "handoff-probe": return TerminalHandoffProbe.Run(args[1]);
                     case "handoff-windows": return TerminalHandoffProbe.Windows(args[1]);
+                    case "activity-frame": WriteActivityFrame(); break;
                     case "background": return BackgroundProbe.Run(args[1], args.Length > 2 ? args[2] : string.Empty);
                     case "unix-recording-child": return UnixRecordingChildProbe.Run();
                     case "recording-child": return RecordingChildProbe.Run();

@@ -23589,6 +23589,14 @@
     },
     {
       "CSharpType": "ConsoleMonster.Output.RecordingTarget",
+      "Member": "CaptureViewport",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "The recording host chooses full terminal viewport checkpoints rather than compact blocks; ordinary scripts use their current terminal layout.",
+      "Alternative": "Use Export-ConsoleFrame or Invoke-ConsoleRecording; C# capture hosts configure their RecordingTarget before starting the session.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Output.RecordingTarget",
       "Member": "Checkpoints",
       "CSharpTypeName": "System.Int32[]",
       "Reason": "The fixture driver receives captured checkpoint notifications; normal scripts use Wait-ConsoleDashboard.",
@@ -23617,6 +23625,22 @@
       "CSharpTypeName": "System.TimeSpan",
       "Reason": "Per-provider cooperative timeout policy belongs to the C# overview host; PowerShell exposes the caller collection budget.",
       "Alternative": "Use Show-ConsoleOverview -BudgetMilliseconds to bound the whole collection.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Sessions.SessionRecordingOptions",
+      "Member": "SessionTimeout",
+      "CSharpTypeName": "System.Nullable`1[System.TimeSpan]",
+      "Reason": "A native automation host may bound the complete child lifetime, including readiness and scripted input, independently of its exit wait.",
+      "Alternative": "Use Invoke-ConsoleRecording -TimeoutSeconds for the PowerShell adapter; C# hosts set SessionTimeout for unattended input sequences.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Sessions.SessionRecordingOptions",
+      "Member": "RespondToCursorQueries",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "Only an unattended Unix pseudo-terminal host should emulate cursor replies; an interactive PowerShell recording forwards them to the real terminal.",
+      "Alternative": "Use Invoke-ConsoleRecording for the native PowerShell route; C# capture hosts opt into terminal replies when no real terminal is attached.",
       "Disposition": "CSharpOnly"
     },
     {

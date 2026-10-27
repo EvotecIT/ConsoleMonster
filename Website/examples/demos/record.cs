@@ -32,7 +32,7 @@ using (LiveSession session = new LiveSession(
             foreach (string server in servers) {
                 status.Set(server, StatusKind.Running);
                 status.Detail(server, step);
-                Thread.Sleep(250);
+                s.Delay(TimeSpan.FromMilliseconds(250));
                 status.Set(server, StatusKind.Pass);
             }
             s.Post(

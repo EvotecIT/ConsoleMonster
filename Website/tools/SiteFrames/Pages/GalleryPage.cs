@@ -84,57 +84,41 @@ namespace SiteFrames.Pages {
             Parity.Transcript(File.ReadAllBytes(CapturePath(site, demo, demo.Steps - 1)), demo.Width, demo.Height);
 
         // Pin only portable inputs. Host versions and machine paths do not belong in deterministic data.
-        private static string Stamp(Site site, Demo demo) {
-            string[] parts = {
-                Site.ReadText(demo.PowerShell), Site.ReadText(demo.CSharp), Site.ReadText(demo.CSharpFluent), Site.ReadText(Path.Combine(site.Website, "..", "ConsoleMonster.PowerShell", "Gallery", "DemoCapture.ps1")), demo.Width.ToString(CultureInfo.InvariantCulture), demo.Height.ToString(CultureInfo.InvariantCulture),
-                demo.Metadata["capture"]!.ToJsonString(), "en-US/dark/truecolor/full/gallery-v3"
-            };
-            // Only clock recipes use this producer setting; ordinary gallery receipts retain their existing inputs.
-            if (demo.Metadata["capture"]!["actionClock"] != null) {
-                parts = parts.Append(Site.ReadText(Path.Combine(site.Website, "tools", "SiteFrames", "Capture", "GalleryCapture.ps1"))).ToArray();
-            }
-            return Replays.Fingerprint(parts);
-        }
+        private static string Stamp(Site site, Demo demo) => Replays.Fingerprint(
+            Site.ReadText(demo.PowerShell), Site.ReadText(demo.CSharp), Site.ReadText(demo.CSharpFluent), Site.ReadText(Path.Combine(site.Website, "..", "ConsoleMonster.PowerShell", "Gallery", "DemoCapture.ps1")), demo.Width.ToString(CultureInfo.InvariantCulture), demo.Height.ToString(CultureInfo.InvariantCulture),
+            demo.Metadata["capture"]!.ToJsonString(), CapturePins.Policy, Site.ReadText(Path.Combine(site.Tool, "Capture", "GalleryCapture.ps1")), "en-US/dark/truecolor/full/gallery-v4");
 
-        /// <summary>Captures every snapshot on PowerShell 7, on macOS, Linux or Windows; no pseudo-console is required.</summary>
+        /// <summary>Captures every PowerShell 7 snapshot through the recorder on macOS, Linux or Windows.</summary>
         public static int Capture(Site site) {
             string modules = PowerShellRunner.ModuleLinkRoot(site);
             string? selected = Environment.GetEnvironmentVariable("SITEFRAMES_GALLERY");
             foreach (Demo demo in Read(site).Where(demo => string.IsNullOrEmpty(selected) || selected.Split(',').Contains(demo.Slug, StringComparer.Ordinal))) {
-                string output = Path.Combine(Path.GetTempPath(), "cm-gallery-" + Guid.NewGuid().ToString("N"));
-                Directory.CreateDirectory(output);
-                try {
-                    ProcessStartInfo info = new ProcessStartInfo("pwsh") { UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true };
-                    foreach (string argument in new[] { "-NoLogo", "-NoProfile", "-NonInteractive", "-File", Path.Combine(site.Tool, "Capture", "GalleryCapture.ps1"),
-                        "-ModuleRoot", modules, "-Source", demo.PowerShell, "-Output", output,
-                        "-Width", demo.Width.ToString(CultureInfo.InvariantCulture), "-Height", demo.Height.ToString(CultureInfo.InvariantCulture),
-                        "-Steps", demo.Steps.ToString(CultureInfo.InvariantCulture) }) info.ArgumentList.Add(argument);
-                    foreach (KeyValuePair<string, string?> setting in PowerShellRunner.Environment("dark")) info.Environment[setting.Key] = setting.Value;
-                    // SiteFrames clears host overrides; captures use the Release module built for the website.
-                    info.Environment["CONSOLEMONSTER_DEVELOPMENT_CONFIGURATION"] = "Release";
-                    using (Process process = Process.Start(info)!) {
-                        var stdout = process.StandardOutput.ReadToEndAsync();
-                        var stderr = process.StandardError.ReadToEndAsync();
-                        if (!process.WaitForExit(60000)) {
-                            process.Kill(true);
-                            process.WaitForExit();
-                            throw new TimeoutException(demo.Slug + " PowerShell capture exceeded one minute.");
-                        }
-                        if (process.ExitCode != 0) throw new InvalidOperationException(demo.Slug + " PowerShell capture failed:\n" + stdout.GetAwaiter().GetResult() + stderr.GetAwaiter().GetResult());
-                    }
-                    for (int step = 0; step < demo.Steps; step++) {
-                        string path = CapturePath(site, demo, step);
-                        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-                        File.Copy(Path.Combine(output, step.ToString(CultureInfo.InvariantCulture) + ".ansi"), path, true);
-                        Stamps.Write(site, path, Stamp(site, demo));
-                    }
-                    Console.WriteLine("captured gallery " + demo.Slug + " (" + demo.Steps + " states)");
-                } finally {
-                    Site.RemoveTemporary(output);
+                var arguments = new[] { "-NoLogo", "-NoProfile", "-NonInteractive", "-File", Path.Combine(site.Tool, "Capture", "GalleryCapture.ps1"),
+                    "-ModuleRoot", modules, "-Source", demo.PowerShell,
+                    "-Width", demo.Width.ToString(CultureInfo.InvariantCulture), "-Height", demo.Height.ToString(CultureInfo.InvariantCulture),
+                    "-Steps", demo.Steps.ToString(CultureInfo.InvariantCulture) };
+                var environment = PowerShellRunner.Environment("dark");
+                environment["CONSOLEMONSTER_DEVELOPMENT_CONFIGURATION"] = "Release";
+                string? cast = null;
+                TerminalCapture.Run(PowerShellHost.Core.Executable, arguments, demo.Width, demo.Height,
+                    environment, demo.Folder, TimeSpan.FromMinutes(1), recording: text => cast = text, hostedOutput: true);
+                var states = RecordedStates(cast ?? throw new InvalidDataException("The recorder returned no gallery session."), demo.Steps);
+                for (int step = 0; step < demo.Steps; step++) {
+                    string path = CapturePath(site, demo, step);
+                    Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+                    CellBuffer frame = Parity.Transcript(System.Text.Encoding.UTF8.GetBytes(states[step]), demo.Width, demo.Height);
+                    var target = new ConsoleMonster.Output.RecordingTarget(CSharpRunner.Profile(demo.Width, demo.Height, ColorDepth.TrueColor, GlyphTier.Full));
+                    using (var writer = ConsoleMonster.Terminal.CreateOutput(target.Profile, target.Writer)) { writer.WriteBlock(frame); }
+                    File.WriteAllText(path, target.Output, new System.Text.UTF8Encoding(false));
+                    CaptureRun.Observe(File.ReadAllBytes(path), demo.Width, demo.Height);
+                    Stamps.Write(site, path, Stamp(site, demo));
+                    CaptureRun.Record(path, demo.Width, demo.Height, "dark");
                 }
+                Console.WriteLine("captured gallery " + demo.Slug + " (" + demo.Steps + " states)");
             }
             return 0;
         }
+
 
         /// <summary>Checks all three source programs cell by cell and by encoded frame bytes, then generates gallery data and downloadable sources.</summary>
         public static void Render(Site site, string? review = null) {

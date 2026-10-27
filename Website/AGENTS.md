@@ -37,7 +37,7 @@ Every terminal frame on the site is ConsoleMonster output. Nothing is a screensh
 
 ```powershell
 dotnet build ConsoleMonster.PowerShell -c Release                              # the module the PowerShell captures load
-dotnet run --project Website/tools/SiteFrames -c Release -- capture Website    # Windows only; optional area: widgets, home, live, powershell, benchmarks, docs, demos
+dotnet run --project Website/tools/SiteFrames -c Release -- capture Website    # Windows, macOS or Linux; ps5 is produced only on Windows
 dotnet run --project Website/tools/SiteFrames -c Release -- render Website     # deterministic: frames, replays, data
 pwsh Website/build/Render-SiteImages.ps1                                       # social card, touch icon, app icons, favicon.ico (needs Edge)
 ```
@@ -45,15 +45,26 @@ pwsh Website/build/Render-SiteImages.ps1                                       #
 - `render` is deterministic: it renders in-process with fixed widths, tiers, themes and the en-US culture, replays the
   committed captures and recordings, and writes the generated files listed below. Rerun it after any renderer change and
   commit what changed. It exits with an error when a PowerShell example no longer draws the same cells as its C# initializer and fluent variants. Gallery triplets must produce byte-identical output for every state.
-- A gallery recipe may select `capture.actionClock: "Frozen"` for action logs. Both C# styles and the site-only PowerShell driver then supply a native `SimulatedClock.Read` delegate through `InteractiveOptions.ActionClock`. The programs, delays, cancellation and input pacing stay intact, and comparisons use the actual rendered cells. Keep this selection in the affected demo metadata so its capture fingerprint changes; never normalize elapsed-time text after rendering.
-- `capture` runs scripts and showcases inside a Windows pseudo console (ConPTY) of a fixed size, with the terminal profile
+- `capture` runs scripts and showcases through ConsoleMonster's `SessionRecorder` (ConPTY on Windows, openpty on macOS/Linux) of a fixed size, with the terminal profile
   pinned through `CONSOLEMONSTER_COLOR`, `CONSOLEMONSTER_GLYPHS`, `CONSOLEMONSTER_THEME` and `CONSOLEMONSTER_CULTURE`, and the
   thread culture pinned for built-in cmdlets. It saves the VT streams under `captures/` (`.ansi` for printed output,
   asciicast `.cast` for live runs, plus the host versions and the benchmark machine). Live runs, the stress test and the
-  benchmarks carry real timing and measurements, so a new capture differs from the last one; commit captures deliberately.
+  benchmarks carry real measurements. Cast transport timing is normalized to a logical timeline; application values
+  remain honest. Non-Windows production skips ps5 with a message; render still validates its committed files.
+  The ten real measurement/concurrency recordings are declared as `live-measured` in `captures/classes.json`,
+  each with its reason and frame/duration bounds. Refresh them deliberately when the program, capture backend or
+  intended measurement changes. They are excluded from repeated byte/cell identity, while hashes, source stamps,
+  terminal geometry, complete VT frames, glyphs, wide cells, border joins and the declared bounds remain required.
+  All undeclared captures stay strict; new variability fails until a reviewed metadata entry explains it.
+  Pin incidental titles, clocks, paths, locale and transport timing without replacing measured values or concurrent work.
+  Synthetic checkpoint workers record their emitted VT through the recorder's hosted-output sink before native repaint coalescing.
+  Read [capture producers, pins and comparison commands](captures/README.md) before refreshing output. Run
+  `compare-captures` for repeated and cross-platform runs; report every allowed category and unresolved difference.
+  Visually changed captures require review before merge. Propose a Linux regeneration job in the PR; do not add it
+  as part of the capture migration.
 - The converters are the tool's own: `Frames/FrameHtml.cs` (cells to HTML), `Frames/GlyphPaint.cs` (box drawing, block
   elements and braille painted on the cell grid, so borders join in every font), `Frames/FrameMinimap.cs` (navigation
-  thumbnails) and `Vt/VtScreen.cs` (a VT parser that turns captured streams back into cells). No terminal library is used.
+  thumbnails). The shared `ConsoleMonster/Recording/VtScreen.cs` turns captured streams back into cells. No external terminal library is used.
 - Cell geometry: a cell is 0.6em by 1.2em (JetBrains Mono). Every run except a row's last is a box exactly as wide as its
   cells (`.cN` classes in `static/css/frames.css`), and the frame font size is snapped so cells are whole layout units, so
   bars and borders line up from row to row.

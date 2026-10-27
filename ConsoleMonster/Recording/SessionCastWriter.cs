@@ -11,7 +11,11 @@ using ConsoleMonster.Export;
 namespace ConsoleMonster.Sessions {
     /// <summary>Writes sanitized v2 events in arrival order, while keeping controls active after the byte cap.</summary>
     internal sealed class SessionCastWriter : IDisposable {
-        internal const string ControlPrefix = "\u001b]777;ConsoleMonster;";
+        // ConPTY flushes its pending repaint before forwarding OSC 1337 (DoITerm2Action). Unknown OSCs such as
+        // 777 can overtake that repaint, placing a chapter or stop before the output it was meant to follow.
+        // https://github.com/microsoft/terminal/blob/12c6b0a240c4cab02d471a445227d116df1df681/src/terminal/adapter/adaptDispatch.cpp#L3681-L3685
+        internal const string ControlPrefix = "\u001b]1337;ConsoleMonster;";
+        private const string LegacyControlPrefix = "\u001b]777;ConsoleMonster;";
         internal const int MaximumPendingCharacters = 1024 * 1024;
         private const int FlushThreshold = 65536;
         private const int OutputChunkCharacters = 16384;
@@ -68,16 +72,17 @@ namespace ConsoleMonster.Sessions {
             foreach (char c in text) {
                 if (StopRequested) { break; }
                 if (c == '\u001b') {
-                    if (_control.ToString().StartsWith(ControlPrefix, StringComparison.Ordinal)) { ClearControl(); }
+                    if (PrivatePrefix(_control.ToString()) != null) { ClearControl(); }
                     else { FlushNonPrivateControl(); }
                     _control.Append(c); _controlArrivals.Add(arrival);
                     _suppressLongControl = false;
                 } else if (_control.Length > 0 || _suppressLongControl) {
                     if (!_suppressLongControl) { _control.Append(c); _controlArrivals.Add(arrival); }
                     string value = _control.ToString();
-                    if (value.StartsWith(ControlPrefix, StringComparison.Ordinal)) {
+                    string? prefix = PrivatePrefix(value);
+                    if (prefix != null) {
                         if (c == '\a') {
-                            string command = value.Substring(ControlPrefix.Length, value.Length - ControlPrefix.Length - 1);
+                            string command = value.Substring(prefix.Length, value.Length - prefix.Length - 1);
                             ClearControl();
                             if (command == "stop") { FlushPending(); StopRequested = true; }
                             else if (command.StartsWith("marker;", StringComparison.Ordinal)) {
@@ -96,11 +101,17 @@ namespace ConsoleMonster.Sessions {
                         } else if (_control.Length > 8192) { ClearControl(); _suppressLongControl = true; }
                     } else if (_suppressLongControl) {
                         if (c == '\a') { _suppressLongControl = false; }
-                    } else if (!ControlPrefix.StartsWith(value, StringComparison.Ordinal)) { FlushNonPrivateControl(); }
+                    } else if (!PendingPrivatePrefix(value)) { FlushNonPrivateControl(); }
                 } else { AppendCharacter(c, arrival); }
             }
             return _relay.ToString();
         }
+
+        private static string? PrivatePrefix(string value) => value.StartsWith(ControlPrefix, StringComparison.Ordinal) ? ControlPrefix
+            : value.StartsWith(LegacyControlPrefix, StringComparison.Ordinal) ? LegacyControlPrefix : null;
+
+        private static bool PendingPrivatePrefix(string value) => ControlPrefix.StartsWith(value, StringComparison.Ordinal)
+            || LegacyControlPrefix.StartsWith(value, StringComparison.Ordinal);
 
         private void AppendCharacter(char c, Arrival arrival) {
             _relay.Append(c);
@@ -245,7 +256,7 @@ namespace ConsoleMonster.Sessions {
         public void Dispose() {
             if (_disposed) { return; }
             if (_control.Length > 0) {
-                if (ControlPrefix.StartsWith(_control.ToString(), StringComparison.Ordinal) || _control.ToString().StartsWith(ControlPrefix, StringComparison.Ordinal)) { ClearControl(); }
+                if (PendingPrivatePrefix(_control.ToString()) || PrivatePrefix(_control.ToString()) != null) { ClearControl(); }
                 else { FlushNonPrivateControl(); }
             }
             FlushPending(); _disposed = true; _file.Dispose();

@@ -1,6 +1,15 @@
-[?9001h[?1004h[?25l[2J[m[H]0;Administrator: C:\Program Files\PowerShell\7\pwsh.exe[?25h[?25l[38;2;17;24;39m[1mGet-ConsoleCapability[m
-Shows what ConsoleMonster detected about the current terminal.[38;2;37;99;235m[1m[4;1HSyntax[m
-  [38;2;17;24;39m[1mGet-ConsoleCapability[m [38;2;212;212;216m[[38;2;124;58;237m-Refresh[38;2;212;212;216m] [<CommonParameters>][38;2;37;99;235m[1m[7;1HDescription[m
-  Shows what ConsoleMonster detected about the current terminal.[10;1H  Returns the terminal profile: kind, mode (Interactive, Stream, Plain), colour depth, glyph tier, size, VT support,
-  console font and the reasons behind each decision. -Refresh detects again (after a resize or font change).[38;2;37;99;235m[13;1HRemarks[m
-  [38;2;107;114;128mGet-Help Get-ConsoleCapability -Examples / -Detailed / -Full[16;1H[?25h[m[?9001l[?1004l
+[?1h=[0;1;38;2;17;24;39mGet-ConsoleCapability
+[0mShows what ConsoleMonster detected about the current terminal.
+
+[0;1;38;2;37;99;235mSyntax
+[0m  [0;1;38;2;17;24;39mGet-ConsoleCapability[0m [0;38;2;212;212;216m[[0;38;2;124;58;237m-Refresh[0;38;2;212;212;216m][0m [0;38;2;212;212;216m[<CommonParameters>]
+
+[0;1;38;2;37;99;235mDescription
+[0m  Shows what ConsoleMonster detected about the current terminal.
+
+  Returns the terminal profile: kind, mode (Interactive, Stream, Plain), colour depth, glyph tier, size, VT support,
+  console font and the reasons behind each decision. -Refresh detects again (after a resize or font change).
+
+[0;38;2;37;99;235mRemarks
+[0m  [0;38;2;107;114;128mGet-Help Get-ConsoleCapability -Examples / -Detailed / -Full
+

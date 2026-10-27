@@ -1,4 +1,3 @@
-[?9001h[?1004h[?25l[2J[m[38;2;96;165;250m[H⠋ [mResolving DNS records[38;2;139;143;154m[2Czone 4 of 9[38;2;74;222;128m
-✓ [mSchema snapshot[38;2;139;143;154m[2Ccached[38;2;248;113;113m
-✗ [mCertificate chain[38;2;139;143;154m[2Cexpired 3 days ago
-]0;C:\Program Files\PowerShell\7\pwsh.exe[?25h[m[?9001l[?1004l
+[?1h=[0;38;2;96;165;250m⠋[0m Resolving DNS records  [0;38;2;139;143;154mzone 4 of 9
+[0;38;2;74;222;128m✓[2G[0m Schema snapshot  [0;38;2;139;143;154mcached
+[0;38;2;248;113;113m✗[2G[0m Certificate chain  [0;38;2;139;143;154mexpired 3 days ago

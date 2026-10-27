@@ -1,7 +1,7 @@
-[?9001h[?1004h[?25l[2J[m[H| Name | Length | LastWriteTime |
+[?1h=| Name | Length | LastWriteTime |
 | :--- | ---: | :--- |
-| System.Management.Automation.dll | 18.8 MB | 2026-10-25 03:17 |
-| Microsoft.CodeAnalysis.CSharp.dll | 17.7 MB | 2026-10-25 03:17 |
-| System.Private.CoreLib.dll | 15.3 MB | 2026-10-25 03:17 |
-| PresentationFramework.dll | 15.1 MB | 2026-10-25 03:17 |
-| System.Windows.Forms.dll | 13.1 MB | 2026-10-25 03:17 |[10;1H]0;C:\Program Files\PowerShell\7\pwsh.exe[?25h[?9001l[?1004l
+| ConsoleMonster.dll | 1 MB | 2026-10-21 12:00 |
+| ConsoleMonster.deps.json | 4 KB | 2026-10-21 12:00 |
+| start.ps1 | 512 B | 2026-10-21 12:00 |
+
+

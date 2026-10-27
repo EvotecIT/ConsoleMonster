@@ -1,6 +1,6 @@
 ﻿Import-Module ConsoleMonster
 
-# A module build pipeline: phases, steps with timings, module facts and the tool output.
+# A simulated module build pipeline: phases, steps with timings, module facts and the tool output.
 # The script runs in a runspace ConsoleMonster owns: Write-Host, Write-Warning and Write-Verbose land in the log
 # region instead of writing over the live screen.
 
@@ -29,9 +29,10 @@ $dashboard = New-ConsoleDashboard -Title '[bold]Module build[/]' -Subtitle 'Buil
     New-ConsolePanel -Title 'Output' -Fill -Content { New-ConsoleLogRegion }
 }
 
-Invoke-ConsoleDashboard $dashboard -ArgumentList (, $steps) {
-    param($Steps)
-    $watch = [System.Diagnostics.Stopwatch]::StartNew()
+# Planned step durations drive the displayed clocks; dashboard waits keep normal playback paced in real time.
+$clock = New-ConsoleSimulatedClock
+Invoke-ConsoleDashboard $dashboard -Clock $clock -ArgumentList $clock, $steps {
+    param($Clock, $Steps)
     $phase = $null
     $index = 0
     foreach ($step in $Steps) {
@@ -44,17 +45,18 @@ Invoke-ConsoleDashboard $dashboard -ArgumentList (, $steps) {
         }
         Update-Console -WidgetId steps -Key $step.Label -Status Running
         Write-Host "$($step.Label)..."
-        Start-Sleep -Milliseconds ([int] ($step.Seconds * 1000))
+        Wait-ConsoleDashboard -Milliseconds ([int] ($step.Seconds * 1000))
+        $Clock.Advance($step.Seconds)
         if ($step.Result -eq 'Warn') {
             Write-Warning '1 Pester test skipped on PowerShell 7 (requires conhost)'
         }
         Update-Console -WidgetId steps -Key $step.Label -Status $step.Result -Detail ($step.Seconds.ToString('0.0', [cultureinfo]::InvariantCulture) + 's')
         $index++
         Update-Console -WidgetId overall -Value $index
-        Update-Console -WidgetId module -Key Elapsed -Value ($watch.Elapsed.TotalSeconds.ToString('0.0', [cultureinfo]::InvariantCulture) + 's')
+        Update-Console -WidgetId module -Key Elapsed -Value ($Clock.Elapsed.TotalSeconds.ToString('0.0', [cultureinfo]::InvariantCulture) + 's')
     }
     Update-Console -Key $phase -Status Skip -WidgetId 'phases'
     Update-Console -WidgetId overall -Status Pass
     Write-Host 'Build completed: Artefacts\Packed\ConsoleMonster-PowerShellModule.v2.0.0.zip'
-    Start-Sleep -Seconds 2
+    Wait-ConsoleDashboard -Milliseconds 2000
 }

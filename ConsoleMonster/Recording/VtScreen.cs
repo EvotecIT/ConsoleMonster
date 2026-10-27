@@ -28,10 +28,12 @@ namespace ConsoleMonster.Sessions {
         private int _savedY;
         private bool _savedWrap;
         private bool _savedOrigin;
+        private Style _savedStyle;
         private int _mainX;
         private int _mainY;
         private bool _mainWrap;
         private bool _mainOrigin;
+        private Style _mainStyle;
         private bool _origin;
         private bool _pendingWrap;
         private bool _autowrap = true;
@@ -84,8 +86,18 @@ namespace ConsoleMonster.Sessions {
         /// <summary>Whether a synchronized update is still being painted.</summary>
         public bool SynchronizedOutput { get; private set; }
 
+        /// <summary>Whether a recording ended before an escape sequence or Unicode scalar was complete.</summary>
+        internal bool HasIncompleteSequence => _state != 0 || _pendingHigh != '\0';
+
+        // Shared with the opt-in stream normalizer; SGR parsing has one owner.
+        internal Style ActiveStyle => _link == null ? _style : _style.WithLink(_link);
+        internal bool CursorOnMatchingBlank => !_pendingWrap && Current[_x, _y].Glyph == " "
+            && Current[_x, _y].Width == 1 && Current[_x, _y].Style == ActiveStyle;
+
         /// <summary>Notifies replay when a complete synchronized repaint becomes visible.</summary>
         internal Action? SynchronizedFrameCompleted { get; set; }
+        /// <summary>Optional headless terminal reply sink. Parsing recordings without a sink never sends input.</summary>
+        internal Action<string>? TerminalResponse { get; set; }
 
         private CellBuffer Current => _onAlternate ? _alternate : _main;
 
@@ -262,16 +274,10 @@ namespace ConsoleMonster.Sessions {
                     _state = 5;
                     return;
                 case '7':
-                    _savedX = _x;
-                    _savedY = _y;
-                    _savedWrap = _pendingWrap;
-                    _savedOrigin = _origin;
+                    SaveCursor();
                     return;
                 case '8':
-                    _x = _savedX;
-                    _y = _savedY;
-                    _pendingWrap = _savedWrap;
-                    _origin = _savedOrigin;
+                    RestoreCursor();
                     return;
                 case 'M':
                     if (_y == _top) {
@@ -305,6 +311,7 @@ namespace ConsoleMonster.Sessions {
             _savedOrigin = _mainOrigin = false;
             _autowrap = true;
             _style = Style.Plain;
+            _savedStyle = _mainStyle = Style.Plain;
             _top = 0;
             _bottom = Height - 1;
         }
@@ -340,6 +347,11 @@ namespace ConsoleMonster.Sessions {
             }
             CellBuffer screen = Current;
             switch (final) {
+                case 'n':
+                    if (_params.ToString() == "6") {
+                        TerminalResponse?.Invoke("\u001b[" + (_y - (_origin ? _top : 0) + 1).ToString(CultureInfo.InvariantCulture) + ";" + (_x + 1).ToString(CultureInfo.InvariantCulture) + "R");
+                    }
+                    return;
                 case 'm':
                     if (!priv) {
                         Sgr(p);
@@ -470,16 +482,10 @@ namespace ConsoleMonster.Sessions {
                     _pendingWrap = false;
                     return;
                 case 's':
-                    _savedX = _x;
-                    _savedY = _y;
-                    _savedWrap = _pendingWrap;
-                    _savedOrigin = _origin;
+                    SaveCursor();
                     return;
                 case 'u':
-                    _x = _savedX;
-                    _y = _savedY;
-                    _pendingWrap = _savedWrap;
-                    _origin = _savedOrigin;
+                    RestoreCursor();
                     return;
                 case 'h':
                 case 'l':
@@ -488,6 +494,16 @@ namespace ConsoleMonster.Sessions {
                     }
                     return;
             }
+        }
+
+        private void SaveCursor() {
+            _savedX = _x; _savedY = _y; _savedWrap = _pendingWrap;
+            _savedOrigin = _origin; _savedStyle = _style;
+        }
+
+        private void RestoreCursor() {
+            _x = _savedX; _y = _savedY; _pendingWrap = _savedWrap;
+            _origin = _savedOrigin; _style = _savedStyle;
         }
 
         private void PositionRow(int row) {
@@ -511,6 +527,9 @@ namespace ConsoleMonster.Sessions {
                     case 7:
                         _autowrap = set;
                         break;
+                    case 1048:
+                        if (set) { SaveCursor(); } else { RestoreCursor(); }
+                        break;
                     case 47:
                     case 1047:
                     case 1049:
@@ -520,6 +539,7 @@ namespace ConsoleMonster.Sessions {
                                 _mainY = _y;
                                 _mainWrap = _pendingWrap;
                                 _mainOrigin = _origin;
+                                _mainStyle = _style;
                                 _pendingWrap = false;
                             }
                             _onAlternate = true;
@@ -531,6 +551,7 @@ namespace ConsoleMonster.Sessions {
                                 _y = _mainY;
                                 _pendingWrap = _mainWrap;
                                 _origin = _mainOrigin;
+                                _style = _mainStyle;
                             }
                         }
                         break;

@@ -56,7 +56,7 @@ namespace ConsoleMonster.Hosting {
             if (_options.ShowLog) {
                 // The live log counts time from the start (mm:ss); lines printed above the dashboard (exceptions) and the
                 // scrollback use the clock. The rule says which is which.
-                string started = DateTimeOffset.Now.ToString("HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
+                string started = Presenters.PresentationOptions.ReferenceNow().ToString("HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
                 parts.Add(new Rule("[muted]log · times since " + started + "[/]"));
                 parts.Add(new LogRegion("log") { PreferredHeight = Math.Max(1, _options.LogHeight) });
             }

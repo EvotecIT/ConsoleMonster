@@ -13,6 +13,7 @@ namespace ConsoleMonster.Sessions {
         private readonly object _processGate = new object();
         private bool _exited;
         private int _exitCode;
+        private volatile bool _stopping;
         private readonly bool _mac = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
         private readonly bool _macArm64 = RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && RuntimeInformation.ProcessArchitecture == Architecture.Arm64;
         public UnixPseudoTerminal(SessionRecordingOptions options) {
@@ -27,6 +28,8 @@ namespace ConsoleMonster.Sessions {
                 if (opened != 0) { throw Error(); }
                 // Both parent descriptors must close on exec; dup2 actions create the child's standard handles.
                 CloseOnExec(_master); CloseOnExec(slave);
+                int flags = ControlFlags(_master, 3, 0); // F_GETFL
+                if (flags < 0 || ControlFlags(_master, 4, flags | (_mac ? 4 : 0x800)) != 0) { throw Error(); } // F_SETFL | O_NONBLOCK
                 Check(posix_spawn_file_actions_init(actions)); actionsReady = true;
                 Check(posix_spawnattr_init(attributes)); attributesReady = true;
                 byte[] tty = new byte[1024];
@@ -106,18 +109,29 @@ namespace ConsoleMonster.Sessions {
                 if (count >= 0) { return (int)count; }
                 int error = Marshal.GetLastWin32Error();
                 if (error == 4) { continue; }
+                if (error == (_mac ? 35 : 11)) { if (!WaitReadable(20) && HasExited) { return 0; } continue; } // EAGAIN
                 if (error == 5 || error == 9) { return 0; } // terminal EOF / closed
                 throw Error();
             }
         }
         public void Write(byte[] bytes) {
             int offset = 0;
+            byte[] remaining = bytes;
             while (offset < bytes.Length) {
-                byte[] remaining = offset == 0 ? bytes : Slice(bytes, offset);
+                if (_stopping || HasExited) { throw new System.IO.IOException("The recorded child stopped before accepting terminal input."); }
                 long count = write(_master, remaining, (UIntPtr)remaining.Length).ToInt64();
-                if (count < 0 && Marshal.GetLastWin32Error() == 4) { continue; }
+                if (count < 0) {
+                    int error = Marshal.GetLastWin32Error();
+                    if (error == 4) { continue; }
+                    if (error == (_mac ? 35 : 11)) {
+                        PollFd descriptor = new PollFd { File = _master, Events = 4 };
+                        if (poll(ref descriptor, (UIntPtr)1, 20) < 0 && Marshal.GetLastWin32Error() != 4) { throw Error(); }
+                        continue;
+                    }
+                }
                 if (count <= 0) { throw Error(); }
                 offset += (int)count;
+                if (offset < bytes.Length) { remaining = Slice(bytes, offset); }
             }
         }
         private static byte[] Slice(byte[] bytes, int offset) { byte[] copy = new byte[bytes.Length - offset]; Buffer.BlockCopy(bytes, offset, copy, 0, copy.Length); return copy; }
@@ -129,10 +143,12 @@ namespace ConsoleMonster.Sessions {
             if (result != 0) { throw Error(); }
         }
         private void CloseOnExec(int descriptor) {
-            int result = _macArm64 ? FcntlMacArm64(descriptor, 2, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, 1)
-                : fcntl(descriptor, 2, 1);
+            int result = ControlFlags(descriptor, 2, 1);
             if (result != 0) { throw Error(); }
         }
+        private int ControlFlags(int descriptor, int command, int value) => _macArm64
+            ? FcntlMacArm64(descriptor, command, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, value)
+            : fcntl(descriptor, command, value);
         public bool HasExited {
             get {
                 lock (_processGate) {
@@ -156,8 +172,9 @@ namespace ConsoleMonster.Sessions {
             return true;
         }
         public int ExitCode => _exitCode;
-        public void Stop() { lock (_processGate) { if (_pid > 0) { kill(-_pid, 15); kill(_pid, 15); } } }
+        public void Stop() { _stopping = true; lock (_processGate) { if (_pid > 0) { kill(-_pid, 15); kill(_pid, 15); } } }
         public void Complete() {
+            _stopping = true;
             lock (_processGate) {
                 // WNOWAIT reserves the leader PID until teardown, so this process-group identity cannot be reused.
                 if (_pid > 0) { kill(-_pid, 9); kill(_pid, 9); }

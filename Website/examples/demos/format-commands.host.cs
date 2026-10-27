@@ -5,26 +5,26 @@ using ConsoleMonster.PowerShell;
 [Cmdlet(VerbsLifecycle.Invoke, "FormatCommandsExample") ]
 public sealed class FormatCommandsExample : PSCmdlet {
     protected override void ProcessRecord() {
-        InvokeCommand.InvokeScript(@"& {
+        const string inventory = @"# Invented services: the same inventory before and after formatting is enabled.
+$services = @(
+    [pscustomobject] @{ Name = 'WebApi'; Status = 'Running'; StartType = 'Automatic' }
+    [pscustomobject] @{ Name = 'Worker'; Status = 'Running'; StartType = 'Automatic' }
+    [pscustomobject] @{ Name = 'Archive'; Status = 'Stopped'; StartType = 'Manual' }
+)
+";
+        InvokeCommand.InvokeScript(inventory + @"& {
         # Format-Table, Format-List and Format-Wide as PowerShell draws them
-        Get-Service W* | Select-Object -First 8 | Format-Table Name, Status, StartType -AutoSize
-        Get-Command Get-Service | Format-List Name, CommandType, Source, Version
-        Get-ChildItem | Format-Wide Name -Column 3
+        $services | Format-Table Name, Status, StartType -AutoSize
+        $services[0] | Format-List Name, Status, StartType
+        $services | Format-Wide Name -Column 3
 
 
         } | Microsoft.PowerShell.Core\Out-Default");
-        ConsoleHostFormatting.Enable(
-            this,
-            new ConsoleFormattingOptions
-            {
-                Feature = new[] { ConsoleFormattingFeature.FormatCommands }
-            });
-        try { InvokeCommand.InvokeScript(@"# The same commands, drawn by ConsoleMonster
-        Get-Service W* | Select-Object -First 8 | Format-Table Name, Status, StartType -AutoSize
-        Get-Command Get-Service | Format-List Name, CommandType, Source, Version
-        Get-ChildItem | Format-Wide Name -Column 3"); }
-        finally { ConsoleHostFormatting.Disable(
-            this,
-            new[] { ConsoleFormattingFeature.FormatCommands }); }
+        ConsoleHostFormatting.Enable(this, new ConsoleFormattingOptions { Feature = new[] { ConsoleFormattingFeature.FormatCommands } });
+        try { InvokeCommand.InvokeScript(inventory + @"# The same commands, drawn by ConsoleMonster
+        $services | Format-Table Name, Status, StartType -AutoSize
+        $services[0] | Format-List Name, Status, StartType
+        $services | Format-Wide Name -Column 3"); }
+        finally { ConsoleHostFormatting.Disable(this, new[] { ConsoleFormattingFeature.FormatCommands }); }
     }
 }

@@ -7,7 +7,13 @@ if ($Metadata.capture.actionClock -and $Metadata.capture.actionClock -ne 'Frozen
 }
 $culture = [Globalization.CultureInfo]::GetCultureInfo('en-US')
 $profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile', $true))::Fixed($Metadata.terminal.width, $Metadata.terminal.height, 'TrueColor', 'Full').WithCulture($culture).WithLanguage($culture)
-$target = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Output.RecordingTarget', $true))::new($profile, $state.keys)
+$ready = if ($null -ne $state.ready) { [string] $state.ready } elseif ($null -ne $Metadata.capture.ready) { [string] $Metadata.capture.ready } else { $null }
+$keys = if ($null -ne $ready) { '' } else { $state.keys }
+$target = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Output.RecordingTarget', $true))::new($profile, $keys)
+if ($null -ne $ready) {
+    $target.Input.WaitForOutput($target.Screens, $ready, [timespan]::FromSeconds(30))
+    $target.Input.Append([string] $state.keys)
+}
 $target.SkipDelays = $true
 $target.Checkpoints = if ($null -ne $state.checkpoint) { [int[]] @($state.checkpoint) } else { [int[]] @() }
 $previousStorage = $env:CONSOLEMONSTER_STORAGE_ROOT
@@ -15,11 +21,8 @@ $captureStorage = Join-Path ([IO.Path]::GetTempPath()) ('cm-demo-presets-' + [gu
 $env:CONSOLEMONSTER_STORAGE_ROOT = $captureStorage
 $previous = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions', $true))::Default
 $options = $previous.Clone()
-if ($Metadata.capture.actionClock -eq 'Frozen') {
-    $clock = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.SimulatedClock', $true))::new()
-    # The action worker needs a native delegate rather than a script block tied to this runspace.
-    $options.ActionClock = [Delegate]::CreateDelegate([Func[TimeSpan]], $clock, 'Read')
-}
+$actionClock = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.SimulatedClock', $true))::new()
+$options.ActionClock = [Delegate]::CreateDelegate([Func[TimeSpan]], $actionClock, 'Read')
 $options.Target = $target
 $options.Input = $target.Input
 if ($null -ne $target.Input) { $target.Input.RealTime = [bool] $state.realTime }
@@ -30,7 +33,8 @@ $options.Mode = if ($null -ne $target.Input) { 'Rich' } else { 'None' }
 $options.NonInteractive = $false
 try {
     ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions', $true))::Default = $options
-    Use-ConsoleTarget -Target $target -ScriptBlock {
+    $targetScope = [ConsoleMonster.Terminal]::Use($target)
+    try {
         try {
             $arguments = @($state.arguments)
             if ($null -eq $state.arguments) { $arguments = @() }
@@ -40,7 +44,7 @@ try {
             # A partial input script deliberately stops at the screen being documented.
             if (-not $state.incomplete -or $_.FullyQualifiedErrorId -notlike 'InputClosed*') { throw }
         }
-    }
+    } finally { $targetScope.Dispose() }
 } finally {
     ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions', $true))::Default = $previous
     $env:CONSOLEMONSTER_STORAGE_ROOT = $previousStorage

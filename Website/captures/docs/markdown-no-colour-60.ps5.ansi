@@ -1,4 +1,4 @@
-[?9001h[?1004h[?25l[2J[m[HDeployment notes
+[2J[HDeployment notes
 ============================================================[4;1HRead the plan, keep rollback notes, and verify each host.
 This paragraph reflows to the terminal width.[7;1HBefore the rollout
 ------------------------------------------------------------[10;1H1. Check the selected environment.
@@ -11,4 +11,4 @@ This paragraph reflows to the terminal width.[7;1HBefore the rollout
 | web-02 |      3 | Verify the maintenance window. |
 +--------+--------+--------------------------------+[26;1H+- powershell ---------------------------------------------+
 | Get-Service | Select-Object Name, Status                 |
-+----------------------------------------------------------+[30;1HReference: deployment guide (https://example.org/deploy).[32;1H]0;C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe[?25h[?9001l[?1004l
++----------------------------------------------------------+[30;1HReference: deployment guide (https://example.org/deploy).[32;1H

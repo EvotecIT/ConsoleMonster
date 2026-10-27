@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -11,9 +12,10 @@ namespace ConsoleMonster.Sessions {
     /// Records a child terminal to local asciicast v2. Raw input is forwarded but never stored, so password input
     /// remains private when applications disable echo. Secret patterns are applied to output before disk writes.
     /// </summary>
-    public sealed class SessionRecorder : IDisposable {
+    public sealed partial class SessionRecorder : IDisposable {
         private readonly object _gate = new object();
         private readonly object _lifetime = new object();
+        private readonly object _inputGate = new object();
         private readonly SessionCastWriter _writer;
         private readonly SessionRecordingOptions _options;
         private IPseudoTerminal? _terminal;
@@ -22,6 +24,8 @@ namespace ConsoleMonster.Sessions {
         private volatile bool _disposed;
         private volatile bool _stopping;
         private bool _captureEnabled = true;
+        private VtScreen? _terminalScreen;
+        private readonly List<string> _terminalReplies = new List<string>();
 
         // Demo setup still reaches its readiness observer but never the recording.
         internal void SetCaptureEnabled(bool enabled) {
@@ -36,13 +40,16 @@ namespace ConsoleMonster.Sessions {
             options.Validate();
             _captureEnabled = options.CaptureInitiallyEnabled;
             Output = output;
-            _writer = new SessionCastWriter(options, options.InProcess ? "in-process PowerShell output only" : RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "ConPTY" : "openpty");
+            _writer = new SessionCastWriter(options, options.InProcess ? "in-process output only" : RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "ConPTY" : "openpty");
             try {
                 if (!options.InProcess) {
                     _terminal = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
                         ? (IPseudoTerminal)new WindowsPseudoTerminal(options) : new UnixPseudoTerminal(options);
                 }
                 if (_terminal != null) {
+                    if (options.RespondToCursorQueries && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
+                        _terminalScreen = new VtScreen(options.Width, options.Height, keepScrollback: false) { TerminalResponse = _terminalReplies.Add };
+                    }
                     _reader = new Thread(ReadOutput) { IsBackground = true, Name = "ConsoleMonster recording output" };
                     _reader.Start();
                 }
@@ -76,20 +83,31 @@ namespace ConsoleMonster.Sessions {
                     int length = decoder.GetChars(bytes, 0, count, chars, 0, false);
                     string text = new string(chars, 0, length);
                     string visible;
-                    lock (_gate) { visible = _captureEnabled ? _writer.Append(text) : text; }
-                    if (visible.Length > 0) { Output?.Invoke(visible); }
+                    string[] replies;
+                    lock (_gate) {
+                        visible = _captureEnabled ? _writer.Append(text) : text;
+                        // Model mutations remain atomic with Resize; reply collection performs no terminal I/O.
+                        _terminalScreen?.Feed(text);
+                        replies = _terminalReplies.Count == 0 ? Array.Empty<string>() : _terminalReplies.ToArray();
+                        _terminalReplies.Clear();
+                    }
+                    ObserveOutput(visible);
                     if (_writer.StopRequested) { _stopping = true; _terminal.Stop(); }
+                    if (visible.Length > 0) { Output?.Invoke(visible); }
+                    // A child that does not read replies cannot hold the recorder state lock or withhold this output.
+                    foreach (string response in replies) { RespondToCursorQuery(response); }
                 }
             } catch (IOException) when (_stopping || (_terminal?.HasExited ?? true)) {
                 // A closed PTY is EOF, including Windows broken-pipe on child exit.
             } catch (Exception error) { _readError = error; _stopping = true; _terminal?.Stop(); }
+            finally { lock (_observationGate) { _outputFinished = true; Monitor.PulseAll(_observationGate); } }
         }
 
         /// <summary>Forwards UTF-8 input without recording it. Applications control password echo through the PTY.</summary>
         public void SendInput(string input) {
             if (_disposed) { throw new ObjectDisposedException(nameof(SessionRecorder)); }
             if (_terminal == null) { throw new InvalidOperationException("The in-process adapter has no terminal input."); }
-            _terminal.Write(Encoding.UTF8.GetBytes(input ?? throw new ArgumentNullException(nameof(input))));
+            lock (_inputGate) { _terminal.Write(Encoding.UTF8.GetBytes(input ?? throw new ArgumentNullException(nameof(input)))); }
         }
         /// <summary>Resizes the child terminal and records the new dimensions.</summary>
         public void Resize(int width, int height) {
@@ -97,6 +115,7 @@ namespace ConsoleMonster.Sessions {
             lock (_gate) {
                 if (_disposed) { throw new ObjectDisposedException(nameof(SessionRecorder)); }
                 _terminal?.Resize(width, height);
+                _terminalScreen?.Resize(width, height);
                 _writer.Resize(width, height);
             }
         }
@@ -107,18 +126,42 @@ namespace ConsoleMonster.Sessions {
         /// <summary>Records the reading pace for subsequent exported output.</summary>
         public void SetPace(RecordingPace pace) { lock (_gate) { _writer.Marker(string.Empty, TimeSpan.Zero, pace, false); } }
         /// <summary>Writes PowerShell host output into an explicitly selected in-process recording.</summary>
-        public void CapturePowerShellOutput(string text) {
-            if (!_options.InProcess) { throw new InvalidOperationException("Only the in-process PowerShell adapter can submit output."); }
+        public void CapturePowerShellOutput(string text) => CaptureOutput(text);
+
+        /// <summary>Writes hosted VT output into an explicitly selected in-process recording, before any terminal transport
+        /// can coalesce repaints. This does not capture input, start a child or intercept Console writes.</summary>
+        /// <param name="text">Output emitted by the host, including VT sequences and recording markers.</param>
+        public void CaptureOutput(string text) {
+            if (!_options.InProcess) { throw new InvalidOperationException("Only an in-process recording can submit output."); }
+            if (text == null) { throw new ArgumentNullException(nameof(text)); }
             lock (_gate) { if (_disposed) { throw new ObjectDisposedException(nameof(SessionRecorder)); } _writer.Append(text); }
         }
         /// <summary>Waits for the child, drains its output, and finalizes both local files. Cancellation stops the owned child.</summary>
-        public void WaitForExit(CancellationToken cancellationToken = default) {
+        public void WaitForExit(CancellationToken cancellationToken = default) => WaitForExitCore(null, cancellationToken);
+
+        /// <summary>Waits for the child and optionally sends Ctrl+C after the given time from process startup.
+        /// Drains output and stops only the owned child on timeout or cancellation.</summary>
+        public void WaitForExitWithInterrupt(TimeSpan interruptAfter, CancellationToken cancellationToken = default) => WaitForExitCore(interruptAfter, cancellationToken);
+
+        private void WaitForExitCore(TimeSpan? interruptAfter, CancellationToken cancellationToken) {
+            if (interruptAfter < TimeSpan.Zero) { throw new ArgumentOutOfRangeException(nameof(interruptAfter)); }
             if (_terminal == null) { return; }
-            Stopwatch clock = Stopwatch.StartNew();
+            Stopwatch wait = Stopwatch.StartNew();
             try {
                 while (!_terminal.HasExited && !_stopping) {
                     cancellationToken.ThrowIfCancellationRequested();
-                    if (clock.Elapsed > _options.Timeout) { throw new TimeoutException("The recorded child exceeded its configured timeout."); }
+                    if (wait.Elapsed > _options.Timeout || SessionExpired) { throw new TimeoutException("The recorded child exceeded its configured timeout."); }
+                    if (interruptAfter.HasValue && !Interrupted && _sessionClock.Elapsed >= interruptAfter.Value) {
+                        try {
+                            SendBoundedInput("\u0003", cancellationToken, _options.Timeout - wait.Elapsed);
+                            Interrupted = true;
+                        } catch (Exception error) when ((error is IOException || error is System.ComponentModel.Win32Exception)
+                            && (_stopping || _writer.StopRequested || _terminal.HasExited) && _readError == null) {
+                            // A naturally completed child no longer needs the scheduled interrupt. Scripted input stays strict.
+                            cancellationToken.ThrowIfCancellationRequested();
+                            if (wait.Elapsed > _options.Timeout || SessionExpired) { throw new TimeoutException("The recorded child exceeded its configured timeout."); }
+                        }
+                    }
                     Thread.Sleep(20);
                 }
                 ExitCode = _writer.StopRequested ? 0 : _terminal.ExitCode;

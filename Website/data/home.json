@@ -21,8 +21,8 @@
     },
     "parity": {
       "ps7": {
-        "host": "PowerShell 7.6",
-        "version": "7.6",
+        "host": "PowerShell 7.5",
+        "version": "7.5",
         "identical": true
       },
       "ps5": {

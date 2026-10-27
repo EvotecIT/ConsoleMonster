@@ -64,7 +64,7 @@ Enable-ConsoleFormatting
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/EvotecIT/ConsoleMonster/master/Website/static/readme/formatting-dark.png">
-  <img alt="Get-ChildItem and a hashtable after Enable-ConsoleFormatting" width="734" src="https://raw.githubusercontent.com/EvotecIT/ConsoleMonster/master/Website/static/readme/formatting-light.png">
+  <img alt="Get-ChildItem and a hashtable after Enable-ConsoleFormatting" width="751" src="https://raw.githubusercontent.com/EvotecIT/ConsoleMonster/master/Website/static/readme/formatting-light.png">
 </picture>
 
 To keep it in every session, add the lines `-ProfileSnippet` prints to your profile:
@@ -88,15 +88,29 @@ Enable-ConsoleFormatting -Feature All -ProfileSnippet | Add-Content -Path $PROFI
 ```powershell
 Import-Module ConsoleMonster
 
-# A few of PowerShell's own files, grouped by extension.
-Get-ChildItem -Path $PSHOME -File |
-    Where-Object Extension -in '.exe', '.json', '.ps1' |
-    Show-ConsoleTable -Property Name, Length, LastWriteTime -GroupBy Extension
+# Invented package artifacts with fixed sizes and UTC timestamps.
+$recordedAt = [datetimeoffset] '2026-10-21T12:00:00Z'
+$files = @(
+    [pscustomobject] @{
+        Name = 'ConsoleMonster.dll'; Length = 1048576
+        LastWriteTime = $recordedAt; Extension = '.dll'
+    }
+    [pscustomobject] @{
+        Name = 'ConsoleMonster.deps.json'; Length = 4096
+        LastWriteTime = $recordedAt; Extension = '.json'
+    }
+    [pscustomobject] @{
+        Name = 'start.ps1'; Length = 512
+        LastWriteTime = $recordedAt; Extension = '.ps1'
+    }
+)
+$files | Show-ConsoleTable -Property Name, Length, LastWriteTime `
+    -GroupBy Extension -Presentation @{ TimeZone = [TimeZoneInfo]::Utc }
 ```
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/EvotecIT/ConsoleMonster/master/Website/static/readme/files-dark.png">
-  <img alt="The files in PowerShell's folder grouped by extension, with sizes and dates" width="591" src="https://raw.githubusercontent.com/EvotecIT/ConsoleMonster/master/Website/static/readme/files-light.png">
+  <img alt="Sample package artifacts grouped by extension, with fixed sizes and dates" width="499" src="https://raw.githubusercontent.com/EvotecIT/ConsoleMonster/master/Website/static/readme/files-light.png">
 </picture>
 
 [Coming from Format-Table](https://consolemonster.dev/guides/format-table/) · [Tables at six widths](https://consolemonster.dev/tables/)
@@ -188,16 +202,27 @@ tests.
 ```powershell
 Import-Module ConsoleMonster
 
-# The largest files in PowerShell's folder, as a Markdown table for a report.
-Get-ChildItem -Path $PSHOME -File |
-    Sort-Object -Property Length -Descending |
-    Select-Object -Property Name, Length, LastWriteTime -First 5 |
+# Invented package artifacts, exported as a Markdown table for a report.
+$recordedAt = [datetimeoffset] '2026-10-21T12:00:00Z'
+$files = @(
+    [pscustomobject] @{
+        Name = 'ConsoleMonster.dll'; Length = 1048576; LastWriteTime = $recordedAt
+    }
+    [pscustomobject] @{
+        Name = 'ConsoleMonster.deps.json'; Length = 4096; LastWriteTime = $recordedAt
+    }
+    [pscustomobject] @{
+        Name = 'start.ps1'; Length = 512; LastWriteTime = $recordedAt
+    }
+)
+$files | Show-ConsoleTable -Property Name, Length, LastWriteTime `
+    -Presentation @{ TimeZone = [TimeZoneInfo]::Utc } -AsWidget |
     Export-ConsoleFrame -Format Markdown
 ```
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/EvotecIT/ConsoleMonster/master/Website/static/readme/markdown-dark.png">
-  <img alt="The Markdown table the script printed" width="583" src="https://raw.githubusercontent.com/EvotecIT/ConsoleMonster/master/Website/static/readme/markdown-light.png">
+  <img alt="The Markdown table the script printed" width="482" src="https://raw.githubusercontent.com/EvotecIT/ConsoleMonster/master/Website/static/readme/markdown-light.png">
 </picture>
 
 [Recording and replay](https://consolemonster.dev/docs/recording/) ·

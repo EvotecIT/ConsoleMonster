@@ -53,16 +53,38 @@ namespace SiteFrames.Replay {
         /// <summary>Saves a pseudo-console capture as asciicast v2 (output events only, times in seconds).</summary>
         public static string ToCast(IReadOnlyList<OutputChunk> chunks, int width, int height, string title) {
             StringBuilder sb = new StringBuilder();
-            sb.Append("{\"version\":2,\"width\":").Append(width).Append(",\"height\":").Append(height).Append(",\"title\":").Append(JsonSerializer.Serialize(title)).Append("}\n");
-            Decoder decoder = new UTF8Encoding(false).GetDecoder();
-            foreach (OutputChunk chunk in chunks) {
-                char[] chars = new char[decoder.GetCharCount(chunk.Data, 0, chunk.Data.Length)];
-                decoder.GetChars(chunk.Data, 0, chunk.Data.Length, chars, 0);
-                if (chars.Length == 0) {
-                    continue;
-                }
-                sb.Append('[').Append((chunk.Time / 1000.0).ToString("0.000", CultureInfo.InvariantCulture)).Append(",\"o\",").Append(JsonSerializer.Serialize(new string(chars))).Append("]\n");
+            sb.Append("{\"version\":2,\"width\":").Append(width).Append(",\"height\":").Append(height).Append(",\"title\":").Append(JsonSerializer.Serialize(title)).Append(",\"cm_timing\":\"logical-50ms-with-holds\"}\n");
+            using var bytes = new MemoryStream();
+            var screen = new VtScreen(width, height, keepScrollback: false);
+            var pending = new StringBuilder();
+            var normalizer = new ConsoleMonster.Sessions.VtOutputNormalizer(width, height);
+            double milliseconds = 0;
+            bool completed = false;
+            screen.SynchronizedFrameCompleted = () => completed = true;
+            void Flush() {
+                if (pending.Length == 0) { return; }
+                sb.Append('[').Append((milliseconds / 1000).ToString("0.000", CultureInfo.InvariantCulture)).Append(",\"o\",").Append(JsonSerializer.Serialize(pending.ToString())).Append("]\n");
+                milliseconds += 50;
+                pending.Clear(); completed = false;
             }
+            void FeedBytes() {
+                // A bare VT LF preserves its column. Only redundant CR before LF can be normalized.
+                string text = System.Text.RegularExpressions.Regex.Replace(Encoding.UTF8.GetString(bytes.ToArray()), "\r+\n", "\r\n");
+                text = System.Text.RegularExpressions.Regex.Replace(text, "\u001b\\][02];[^\u0007\u001b]*(?:\u0007|\u001b\\\\)", string.Empty).Replace("\u001b[6n", string.Empty);
+                text = normalizer.Normalize(text);
+                foreach (char character in text) {
+                    pending.Append(character);
+                    screen.Feed(character.ToString());
+                    if (completed || (character == '\n' && !screen.SynchronizedOutput)) { Flush(); }
+                }
+                bytes.SetLength(0);
+                bytes.Position = 0;
+            }
+            foreach (OutputChunk chunk in chunks) {
+                bytes.Write(chunk.Data);
+                if (chunk.Hold > TimeSpan.Zero) { FeedBytes(); Flush(); milliseconds += chunk.Hold.TotalMilliseconds; }
+            }
+            FeedBytes(); Flush();
             return sb.ToString();
         }
 

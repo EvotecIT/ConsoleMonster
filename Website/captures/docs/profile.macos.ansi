@@ -1,0 +1,21 @@
+[?1h=[0;1mThis console
+[0;38;2;139;143;154mMode[0m             Interactive
+[0;38;2;139;143;154mColorDepth[0m       TrueColor
+[0;38;2;139;143;154mGlyphs[0m           Full
+[0;38;2;139;143;154mWidth[0m            100
+[0;38;2;139;143;154mHeight[0m           40
+[0;38;2;139;143;154mThemePreference[0m  Dark
+
+  CONSOLEMONSTER_EMOJI_WIDTH: 2
+  CONSOLEMONSTER_AMBIGUOUS_WIDTH: 1
+  hyperlinks: False (terminal/CONSOLEMONSTER_HYPERLINKS; requires interactive VT, never redirected or CI)
+  mode: Interactive (VT terminal)
+  colour: TrueColor (CONSOLEMONSTER_COLOR)
+  glyphs: Full (CONSOLEMONSTER_GLYPHS)
+  VT: supported
+  kind: Xterm
+  width profile: emoji=2, ambiguous=1, zwj=Joined, flag=2, text=1 (environment)
+  probe widths: False
+  theme preference: Dark (CONSOLEMONSTER_THEME)
+  culture: en-US (CONSOLEMONSTER_CULTURE)
+  size: 100x40 (visible window or defaults)

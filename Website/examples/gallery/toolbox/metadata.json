@@ -29,6 +29,7 @@
   "tier": "showcase",
   "useCase": "Use it when operators need to plan, run and review a repeatable server maintenance workflow.",
   "capture": {
+    "ready": "4/9",
     "runKeys": "Ctrl+Q",
     "states": [
       {

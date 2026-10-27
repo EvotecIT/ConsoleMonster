@@ -85,7 +85,8 @@ namespace ConsoleMonster.Extensions.Logging {
             Style muted = context.Style(ThemeToken.Muted);
             List<TextSpan> spans = new List<TextSpan>();
             if (Options.TimestampFormat != null) {
-                DateTimeOffset now = Options.UseUtcTimestamp ? DateTimeOffset.UtcNow : DateTimeOffset.Now;
+                DateTimeOffset now = Presenters.PresentationOptions.ReferenceNow();
+                if (Options.UseUtcTimestamp) { now = now.ToUniversalTime(); }
                 spans.Add(new TextSpan(now.ToString(Options.TimestampFormat, CultureInfo.InvariantCulture) + " ", muted));
             }
             // Status markers only on an interactive terminal; logs that are redirected or collected keep the word alone.

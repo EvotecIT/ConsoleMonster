@@ -22,12 +22,15 @@ namespace SiteFrames.Pages {
     /// build pipeline script on both hosts. The assessment program replays a recording file; that file is synthetic data
     /// the tool writes (and the page offers for download), the program only reads it.
     /// </summary>
-    internal static class LivePage {
+    internal static partial class LivePage {
         public static string ProgramPath(Site site, string name) => Path.Combine(site.Website, "examples", "live", name + ".cs");
 
         private static string PipelineScript(Site site) => Path.Combine(site.Repository, "Module", "Examples", "Example-BuildPipeline.ps1");
 
-        private static string CastPath(Site site, string id) => Path.Combine(site.Captures, "live", id + ".cast");
+        private static string PipelineSource(Site site, string host) => Site.ReadText(PipelineScript(site)) + "\n" + host + " 110x32\n"
+            + Site.ReadText(Path.Combine(site.Tool, "Capture", "CheckpointCapture.ps1"));
+
+        private static string CastPath(Site site, string id) => CapturePlatforms.PathFor(site, Path.Combine(site.Captures, "live", id + ".cast"));
 
         // Where the programs are built and the recording file is written for one capture run: one folder per checkout and
         // run, removed afterwards, so two worktrees never run each other's builds.
@@ -35,21 +38,10 @@ namespace SiteFrames.Pages {
 
         private static string Work => _work ?? throw new InvalidOperationException("The live programs are not built.");
 
-        /// <summary>The dotnet that hosts this tool, so a built program runs on the runtime it was compiled against.</summary>
-        internal static string DotnetHost {
-            get {
-                string? host = Environment.GetEnvironmentVariable("DOTNET_HOST_PATH");
-                if (!string.IsNullOrEmpty(host) && File.Exists(host)) {
-                    return host!;
-                }
-                string root = Path.GetFullPath(Path.Combine(System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory(), "..", "..", ".."));
-                string candidate = Path.Combine(root, OperatingSystem.IsWindows() ? "dotnet.exe" : "dotnet");
-                return File.Exists(candidate) ? candidate : "dotnet";
-            }
-        }
-
         private static List<OutputChunk> Dotnet(string program, string arguments, int width, int height, Dictionary<string, string?> environment) =>
-            PseudoConsole.Run("\"" + DotnetHost + "\" \"" + Path.Combine(Work, program + ".dll") + "\"" + (arguments.Length > 0 ? " " + arguments : string.Empty), width, height, environment, Work, TimeSpan.FromMinutes(3));
+            program != "stress"
+                ? CSharpRunner.RecordCheckpoints(Path.Combine(Work, program + ".dll"), arguments.Split(' ', StringSplitOptions.RemoveEmptyEntries), width, height, environment, Work, TimeSpan.FromMinutes(3))
+                : CSharpRunner.Record(Path.Combine(Work, program + ".dll"), arguments.Split(' ', StringSplitOptions.RemoveEmptyEntries), width, height, environment, Work, TimeSpan.FromMinutes(3));
 
         private sealed class Run {
             public Run(string id, string title, Func<Site, List<OutputChunk>> record, int width, int height, Func<Site, string> source) {
@@ -72,13 +64,14 @@ namespace SiteFrames.Pages {
         }
 
         private static string Program(Site site, string name, string arguments, int width, int height, string mode = "interactive") =>
-            Site.ReadText(ProgramPath(site, name)) + "\n" + arguments + "\n" + width + "x" + height + " " + mode + (name == "replay" ? "\n" + AssessmentRecording() : string.Empty);
+            Site.ReadText(ProgramPath(site, name)) + "\n" + arguments + "\n" + width + "x" + height + " " + mode + (name == "replay" ? "\n" + AssessmentRecording() : string.Empty)
+            + (name != "stress" ? "\n" + Site.ReadText(Path.Combine(site.Tool, "Capture", "CSharpRunner.Checkpoints.cs")) : string.Empty);
 
         /// <summary>The run recordings. The title is the command a reader types.</summary>
         private static IEnumerable<Run> Recordings() {
             yield return new Run("pipeline-csharp", "dotnet run", site => Dotnet("pipeline", string.Empty, 110, 32, PowerShellRunner.Environment("dark")), 110, 32, site => Program(site, "pipeline", string.Empty, 110, 32));
-            yield return new Run("pipeline-ps7", "Example-BuildPipeline.ps1", site => PowerShellRunner.Run(site, PowerShellHost.Core, PipelineScript(site), 110, 32, PowerShellRunner.Environment("dark")), 110, 32, site => Site.ReadText(PipelineScript(site)) + "\nps7 110x32");
-            yield return new Run("pipeline-ps5", "Example-BuildPipeline.ps1", site => PowerShellRunner.Run(site, PowerShellHost.Desktop, PipelineScript(site), 110, 32, PowerShellRunner.Environment("dark")), 110, 32, site => Site.ReadText(PipelineScript(site)) + "\nps5 110x32");
+            yield return new Run("pipeline-ps7", "Example-BuildPipeline.ps1", site => PowerShellRunner.Run(site, PowerShellHost.Core, PipelineScript(site), 110, 32, PowerShellRunner.Environment("dark"), recordCheckpoints: true), 110, 32, site => PipelineSource(site, "ps7"));
+            yield return new Run("pipeline-ps5", "Example-BuildPipeline.ps1", site => PowerShellRunner.Run(site, PowerShellHost.Desktop, PipelineScript(site), 110, 32, PowerShellRunner.Environment("dark"), recordCheckpoints: true), 110, 32, site => PipelineSource(site, "ps5"));
             yield return new Run("stress", "dotnet run -- 12", site => Dotnet("stress", "12", 120, 40, PowerShellRunner.Environment("dark")), 120, 40, site => Program(site, "stress", "12", 120, 40));
             yield return new Run("assessment", "dotnet run -- assessment-run.jsonl 2", site => Dotnet("replay", "assessment-run.jsonl 2", 120, 36, PowerShellRunner.Environment("dark")), 120, 36, site => Program(site, "replay", "assessment-run.jsonl 2", 120, 36));
             yield return new Run("assessment-compact", "dotnet run -- assessment-run.jsonl 2", site => Dotnet("replay", "assessment-run.jsonl 2", 64, 30, PowerShellRunner.Environment("dark")), 64, 30, site => Program(site, "replay", "assessment-run.jsonl 2", 64, 30));
@@ -92,7 +85,7 @@ namespace SiteFrames.Pages {
         // Whether a recording was made from what its page shows now; a stale one is reported, not shown silently.
         private static void CheckFresh(Site site, string id, string cast) {
             foreach (Run run in Recordings()) {
-                if (run.Id == id && Replays.Source(cast) != Replays.Fingerprint(run.Source(site))) {
+                if (run.Id == id && Replays.Source(cast) != Replays.Fingerprint(run.Source(site), CapturePins.Policy)) {
                     WidgetsPage.Report(new List<string> { "recording " + id + " was made from another version of its program, arguments or data; run the capture command for the live area (SITEFRAMES_LIVE=" + id + ")." }, "live");
                 }
             }
@@ -118,14 +111,16 @@ namespace SiteFrames.Pages {
                     if (wanted != null && !wanted.Contains(recording.Id)) {
                         continue;
                     }
+                    if (recording.Id == "pipeline-ps5" && !OperatingSystem.IsWindows()) { continue; }
                     Stopwatch watch = Stopwatch.StartNew();
                     List<OutputChunk> chunks = recording.Record(site);
                     string path = CastPath(site, recording.Id);
                     Directory.CreateDirectory(Path.GetDirectoryName(path)!);
                     // Window titles (OSC 0 and 2) carry the executable's path; nothing on the site shows them.
                     string cast = Regex.Replace(Replays.ToCast(chunks, recording.Width, recording.Height, recording.Title), @"\\u001B\][02];(?:[^""\\]|\\\\)*?(?:\\u0007|\\u001B\\\\)", string.Empty);
-                    File.WriteAllText(path, Replays.Stamp(cast, Replays.Fingerprint(recording.Source(site))), new System.Text.UTF8Encoding(false));
-                    Console.WriteLine("recorded " + recording.Id + " in " + watch.Elapsed.TotalSeconds.ToString("0.0", CultureInfo.InvariantCulture) + " s");
+                    File.WriteAllText(path, Replays.Stamp(cast, Replays.Fingerprint(recording.Source(site), CapturePins.Policy)), new System.Text.UTF8Encoding(false));
+                    CaptureRun.Record(path, "dark");
+                Console.WriteLine("recorded " + recording.Id + " in " + watch.Elapsed.TotalSeconds.ToString("0.0", CultureInfo.InvariantCulture) + " s");
                 }
             } finally {
                 Site.RemoveTemporary(Work);
@@ -181,6 +176,7 @@ namespace SiteFrames.Pages {
             stress["result"] = StressResult(site);
             Source(stress, Site.ReadText(ProgramPath(site, "stress")), "csharp", "Program.cs");
             SourceStyles.Add(site, stress, ProgramPath(site, "stress"));
+            AddStressPlatforms(site, stress);
             live["stress"] = stress;
             JsonObject stream = Stream(site);
             Source(stream, Site.ReadText(ProgramPath(site, "replay")), "csharp", "Program.cs");
@@ -225,8 +221,9 @@ namespace SiteFrames.Pages {
             return frame;
         }
 
-        private static JsonObject FromCast(Site site, string id, string label, string command, double fps = 6, double share = 0.55) {
-            string path = CastPath(site, id);
+        private static JsonObject FromCast(Site site, string id, string label, string command, double fps = 6, double share = 0.55, string? capturePath = null, string? mediaId = null) {
+            string path = capturePath ?? CastPath(site, id);
+            string outputId = mediaId ?? id;
             if (!File.Exists(path)) {
                 WidgetsPage.Report(new List<string> { "missing capture " + id + "; run the capture command for the live area." }, "live");
                 return new JsonObject();
@@ -234,14 +231,14 @@ namespace SiteFrames.Pages {
             string cast = File.ReadAllText(path);
             CheckFresh(site, id, cast);
             List<TimedFrame> frames = Replays.FromCast(cast, fps, true, out CellBuffer scrollback, out int width, out int height);
-            site.Write(site.Static("replays/" + id + ".json"), PlayerData.Write(site, frames, command, fps, 3000, out long duration, out int count));
+            site.Write(site.Static("replays/" + outputId + ".json"), PlayerData.Write(site, frames, command, fps, 3000, out long duration, out int count));
             long posterTime = Poster(site, frames, share, out string poster);
             return new JsonObject {
                 ["start"] = posterTime,
-                ["id"] = id,
+                ["id"] = outputId,
                 ["label"] = label,
                 ["command"] = command,
-                ["url"] = "/replays/" + id + ".json",
+                ["url"] = "/replays/" + outputId + ".json",
                 ["w"] = width,
                 ["h"] = height,
                 ["frames"] = count,
@@ -253,8 +250,8 @@ namespace SiteFrames.Pages {
         }
 
         // The stress test prints one result line after the session; the page quotes it as measured on the capture machine.
-        private static JsonObject? StressResult(Site site) {
-            string path = CastPath(site, "stress");
+        private static JsonObject? StressResult(Site site, string? capturePath = null) {
+            string path = capturePath ?? CastPath(site, "stress");
             if (!File.Exists(path)) {
                 return null;
             }
