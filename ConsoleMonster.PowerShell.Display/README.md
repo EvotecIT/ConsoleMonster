@@ -2,7 +2,7 @@
 
 `ConsoleMonster.PowerShell.Display` provides a runspace-owned default display broker without importing the ConsoleMonster command module. It targets .NET Framework 4.7.2, .NET 8 and .NET 10. Its ABI epoch is 1 (`AssemblyVersion` 1.0.0.0); package versions move independently.
 
-The CLR identity is declared in `AssemblyInfo.cs`, with SDK assembly-version generation disabled. Package publisher version overrides therefore cannot change the ABI epoch's assembly identity. The project participates in the aligned 2.1 package track; this feature candidate targets 2.1.1 after the 2.1.0 release.
+The CLR identity is declared in `AssemblyInfo.cs`, with SDK assembly-version generation disabled. Package publisher version overrides therefore cannot change the ABI epoch's assembly identity. The package ships with the aligned 2.1.0 release.
 
 Acquire a `ModuleLease` with `DefaultDisplay.RegisterModule(moduleName, moduleVersion, ownedTypeNames, minimumFeatureLevel, source)`. List each owned CLR type by its exact full name. A product lease cannot register system types, dictionaries, deserialized objects, formatting records, namespace wildcards or `PSCustomObject`.
 
