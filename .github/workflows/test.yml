@@ -124,7 +124,16 @@ jobs:
           Write-Host "PowerShell $($PSVersionTable.PSVersion); PSResourceGet $((Get-Module Microsoft.PowerShell.PSResourceGet).Version)"
           $moduleRoot = Join-Path $env:RUNNER_TEMP 'pester-modules'
           $null = New-Item -ItemType Directory -Path $moduleRoot -Force
-          Save-PSResource -Name Pester -Version $env:PESTER_VERSION -Repository PSGallery -Path $moduleRoot -TrustRepository -ErrorAction Stop
+          for ($attempt = 1; $attempt -le 4; $attempt++) {
+            try {
+              Save-PSResource -Name Pester -Version $env:PESTER_VERSION -Repository PSGallery -Path $moduleRoot -TrustRepository -ErrorAction Stop
+              break
+            } catch {
+              Write-Warning "Pester download attempt $attempt/4 failed: $($_.Exception.Message)"
+              if ($attempt -eq 4) { throw }
+              Start-Sleep -Seconds (5 * [Math]::Pow(2, $attempt - 1))
+            }
+          }
 
       - name: Run Pester
         run: |
@@ -300,7 +309,16 @@ jobs:
           Write-Host "PowerShell $($PSVersionTable.PSVersion); PSResourceGet $((Get-Module Microsoft.PowerShell.PSResourceGet).Version)"
           $moduleRoot = Join-Path $env:RUNNER_TEMP 'pester-modules'
           $null = New-Item -ItemType Directory -Path $moduleRoot -Force
-          Save-PSResource -Name Pester -Version $env:PESTER_VERSION -Repository PSGallery -Path $moduleRoot -TrustRepository -ErrorAction Stop
+          for ($attempt = 1; $attempt -le 4; $attempt++) {
+            try {
+              Save-PSResource -Name Pester -Version $env:PESTER_VERSION -Repository PSGallery -Path $moduleRoot -TrustRepository -ErrorAction Stop
+              break
+            } catch {
+              Write-Warning "Pester download attempt $attempt/4 failed: $($_.Exception.Message)"
+              if ($attempt -eq 4) { throw }
+              Start-Sleep -Seconds (5 * [Math]::Pow(2, $attempt - 1))
+            }
+          }
       - name: Run Pester
         run: |
           # Preserve this test host's native module paths, especially Windows PowerShell 5.1.
@@ -354,7 +372,16 @@ jobs:
           Write-Host "PowerShell $($PSVersionTable.PSVersion); PSResourceGet $((Get-Module Microsoft.PowerShell.PSResourceGet).Version)"
           $moduleRoot = Join-Path $env:RUNNER_TEMP 'pester-modules'
           $null = New-Item -ItemType Directory -Path $moduleRoot -Force
-          Save-PSResource -Name Pester -Version $env:PESTER_VERSION -Repository PSGallery -Path $moduleRoot -TrustRepository -ErrorAction Stop
+          for ($attempt = 1; $attempt -le 4; $attempt++) {
+            try {
+              Save-PSResource -Name Pester -Version $env:PESTER_VERSION -Repository PSGallery -Path $moduleRoot -TrustRepository -ErrorAction Stop
+              break
+            } catch {
+              Write-Warning "Pester download attempt $attempt/4 failed: $($_.Exception.Message)"
+              if ($attempt -eq 4) { throw }
+              Start-Sleep -Seconds (5 * [Math]::Pow(2, $attempt - 1))
+            }
+          }
       - name: Run Pester
         run: |
           # Preserve this test host's native module paths, especially Windows PowerShell 5.1.

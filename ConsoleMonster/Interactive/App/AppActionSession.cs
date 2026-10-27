@@ -30,6 +30,8 @@ namespace ConsoleMonster.Interactive {
         internal AppDispatcher Dispatcher { get; }
         internal AppActionSession(CancellationToken token, AppDispatcher? dispatcher = null, Func<TimeSpan>? actionClock = null) { _actionClock = actionClock; Dispatcher = dispatcher ?? new AppDispatcher(); _lifetime = CancellationTokenSource.CreateLinkedTokenSource(token); }
         internal bool IsBusy { get { lock (_gate) { return _work != null && !_work.IsCompleted; } } }
+        /// <summary>The current worker, including output and completion bookkeeping; completed when no action has started.</summary>
+        internal Task Completion { get { lock (_gate) { return _work ?? Task.CompletedTask; } } }
         internal long CompletionRevision { get { lock (_gate) { return _completionRevision; } } }
         internal AppCommand? CompletedCommand { get { lock (_gate) { return _completedCommand; } } }
         internal long Revision { get { lock (_gate) { return _revision; } } }
