@@ -425,7 +425,7 @@ namespace ConsoleMonster.Tests.Sessions {
             }
             string raw = File.ReadAllText(options.Path!);
             Assert.DoesNotContain("input-secret", raw); Assert.DoesNotContain("output-secret", raw);
-            Assert.Contains("[32m", raw);
+            Assert.Contains("\\u001b[32m", raw);
             Assert.DoesNotContain("\"i\",", raw);
             Assert.Contains("40x10", raw); Assert.Contains("[REDACTED]", raw);
             SessionRecording recording = SessionRecording.Read(options.Path!);
