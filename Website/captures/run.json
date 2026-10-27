@@ -82,7 +82,7 @@
         "minDurationSeconds": 0.05,
         "maxDurationSeconds": 10
       },
-      "sha256": "2e120ea2859c9d5daebf62f539ec5c272aa629fd982ab194e472896376ec972b",
+      "sha256": "3ae8a10edd70e064429eaa3288e494014659be44acdd1857a27576085f61fc03",
       "screen": "dark",
       "width": 110,
       "height": 20
@@ -98,7 +98,7 @@
     "demos/errors.cast": {
       "platform": "macos",
       "category": "neutral",
-      "sha256": "efdf24d120f1ab83c1d936353fd3ecd41e21ef3756094c509c622a7fa438722d",
+      "sha256": "303e151037e28a59e26948ee640cb9aee933bd0fa9d5aed57b6e2b584619d766",
       "screen": "dark",
       "width": 100,
       "height": 20
@@ -138,7 +138,7 @@
         "minDurationSeconds": 0.1,
         "maxDurationSeconds": 120
       },
-      "sha256": "d8914f54de8c8de7eba56802a49da40b5eb5ceaa524d3a70c719ed171e119388",
+      "sha256": "3802b01dd437dfdc9316ad5c4ae8d22f1b7bb1c61831d57d75ac0fecb5de25f8",
       "screen": "dark",
       "width": 110,
       "height": 30
@@ -178,7 +178,7 @@
         "minDurationSeconds": 0.1,
         "maxDurationSeconds": 120
       },
-      "sha256": "cef74858fced3edf894d28e3594c3fcbe0a7b786f830fac02694c02269f3766e",
+      "sha256": "cd46781132cce9610eba438c7adc14349c36b9a8017126ebdca240a167e02123",
       "screen": "dark",
       "width": 100,
       "height": 24
@@ -194,7 +194,7 @@
         "minDurationSeconds": 0.1,
         "maxDurationSeconds": 120
       },
-      "sha256": "92efb4c203ae39ee0fb0b2349fca956301760a7eb4b1cef204d171a2e671b98d",
+      "sha256": "57483f7c41f95d37411b7e6479f03042059c5e52402c0aac05c9b76a0ee09866",
       "screen": "dark",
       "width": 96,
       "height": 24
@@ -202,7 +202,7 @@
     "demos/progress.cast": {
       "platform": "macos",
       "category": "neutral",
-      "sha256": "e8de3d8818bb6ba8210ec2b149089e38cca9ad35ca3ffd07d06f93b7a3c5ee19",
+      "sha256": "35b29cb527f71053f1aee4ae30b02dad68c74184db1fdc10ab5bb35cd12f7a46",
       "screen": "dark",
       "width": 96,
       "height": 12
@@ -226,7 +226,7 @@
         "minDurationSeconds": 0.1,
         "maxDurationSeconds": 120
       },
-      "sha256": "f0835665b6b3c7f37755b98e824499d0c800f4c05f2eb150f4c3d61eccddfa45",
+      "sha256": "933fcaa9932c75a04b93ea6fe0e6937a2364ed603edfda04930e1d2d2384f102",
       "screen": "dark",
       "width": 100,
       "height": 14
@@ -250,7 +250,7 @@
         "minDurationSeconds": 0.2,
         "maxDurationSeconds": 180
       },
-      "sha256": "e3755be7458eb9d15fea6e4dfdc5ff74a9f2a07f9abda99d13f54bdea9f164f7",
+      "sha256": "f8d3dd2e5ffad11ab8c3e3f8e6f3f6772ea11b1e2728b990e1610ac298c927ff",
       "screen": "dark",
       "width": 100,
       "height": 26
@@ -266,7 +266,7 @@
         "minDurationSeconds": 0.1,
         "maxDurationSeconds": 180
       },
-      "sha256": "c67577155393355737859585649518e0377b221036348faae923ca3968ea6973",
+      "sha256": "5de5545ff198ac63da176c488daa3e8ca65940fa21d319592ff064bef16fd9c7",
       "screen": "dark",
       "width": 100,
       "height": 30
@@ -282,7 +282,7 @@
         "minDurationSeconds": 0.1,
         "maxDurationSeconds": 120
       },
-      "sha256": "c3993c91b89e1d7b22237bc198ca105e859c247ec82c31f855c3fc4095819e6d",
+      "sha256": "668cca1e100bb220c1acff229e4dc369bd0937b3b2031cbe6132cc81ea907c49",
       "screen": "dark",
       "width": 100,
       "height": 22
@@ -298,7 +298,7 @@
         "minDurationSeconds": 0.1,
         "maxDurationSeconds": 120
       },
-      "sha256": "bc0d69d37cdbf51fa29ca2e60990479331ac19da9955935910c1e9358809a37d",
+      "sha256": "1406212a99de530d5b58ffa9d785144111a629084396b3b39b4ee55e4d717112",
       "screen": "dark",
       "width": 100,
       "height": 24
@@ -1777,7 +1777,7 @@
         "minDurationSeconds": 0.5,
         "maxDurationSeconds": 180
       },
-      "sha256": "6e8e8ede3e1ba76ce04607cd1a488817b87dfbbeda126202ad8df0820fb68d01",
+      "sha256": "0d93b3abf6dd212fb4605b538b6cbdc0b44de2c9b16dd489402b7e5d182d9f92",
       "screen": "dark",
       "width": 120,
       "height": 40
