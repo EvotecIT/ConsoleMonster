@@ -352,7 +352,9 @@ namespace ConsoleMonster.Tests.FileSystem {
             FileOperationResult result = await FileOperation.Copy(new[] { file }, temp.Combine("dst", new string('n', 300) + ".txt")).RunAsync();
             FileOperationError error = Assert.Single(result.Errors);
             Assert.Equal(FileOperationErrorKind.PathTooLong, error.Kind);
-            Assert.Empty(Directory.GetFiles(temp.Combine("dst")));
+            // .NET Framework rejects the path before creating dst; newer runtimes create it but write nothing there.
+            string dst = temp.Combine("dst");
+            Assert.True(!Directory.Exists(dst) || Directory.GetFiles(dst).Length == 0);
         }
 
         [Fact]
