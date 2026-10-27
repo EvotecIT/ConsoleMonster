@@ -210,6 +210,9 @@ namespace ConsoleMonster.Live {
             if (snapshot.Skipped > 0) {
                 parts.Add(Localization.WidgetLabels.Format(labels.SkippedCount, snapshot.Skipped.ToString(CultureInfo.InvariantCulture)));
             }
+            if (snapshot.Retried > 0) {
+                parts.Add(Localization.WidgetLabels.Format(labels.RetriedCount, snapshot.Retried.ToString(CultureInfo.InvariantCulture)));
+            }
             Print(Localization.WidgetLabels.Format(snapshot.Total == 1 ? labels.OneItem : labels.ManyItems, snapshot.Total.ToString(CultureInfo.InvariantCulture)) + ": " + string.Join(", ", parts.ToArray()) + " (" + NumberFormat.Duration(snapshot.Elapsed) + ")");
         }
 
@@ -306,15 +309,17 @@ namespace ConsoleMonster.Live {
                     } catch (Exception ex) {
                         TimeSpan duration = DateTime.UtcNow - started;
                         bool timedOut = ex is OperationCanceledException && !cancellationToken.IsCancellationRequested && itemToken.IsCancellationRequested;
-                        if (ex is OperationCanceledException && cancellationToken.IsCancellationRequested) {
+                        if (cancellationToken.IsCancellationRequested) {
                             monitor.Finished(index, StatusKind.Skip, label, duration);
-                            return new RunResult<TItem, TResult>(index, item, default!, ex, duration, false, attempt);
+                            return new RunResult<TItem, TResult>(index, item, default!, ex as OperationCanceledException ?? new OperationCanceledException("The run was canceled.", ex, cancellationToken), duration, false, attempt);
                         }
                         string message = timedOut ? "timed out after " + NumberFormat.Duration(options.Timeout!.Value) : ex.Message;
                         if (attempt <= options.RetryCount) {
                             monitor.Retrying(index, label, attempt + 1, message);
                             try {
+                                cancellationToken.ThrowIfCancellationRequested();
                                 if (options.RetryDelay > TimeSpan.Zero) { await Task.Delay(options.RetryDelay, cancellationToken).ConfigureAwait(false); }
+                                cancellationToken.ThrowIfCancellationRequested();
                                 continue;
                             } catch (OperationCanceledException canceled) {
                                 monitor.Finished(index, StatusKind.Skip, label, DateTime.UtcNow - started);

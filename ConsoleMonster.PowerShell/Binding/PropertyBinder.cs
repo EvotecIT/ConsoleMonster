@@ -234,7 +234,11 @@ namespace ConsoleMonster.PowerShell.Binding {
         /// </summary>
         /// <param name="spec">The hashtable.</param>
         /// <returns>The column.</returns>
-        internal static TableColumn ColumnFrom(IDictionary spec) => CreateCalculated(spec).Column;
+        internal static TableColumn ColumnFrom(IDictionary spec) {
+            BoundColumn column = CreateCalculated(spec);
+            TableBindings.Remember(column);
+            return column.Column;
+        }
 
         private static BoundColumn CreateCalculated(IDictionary source) {
             Dictionary<string, object?> options = new Dictionary<string, object?>(

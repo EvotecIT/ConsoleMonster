@@ -59,6 +59,35 @@ namespace ConsoleMonster.Tests.Live {
             Assert.Equal(new[] { 1, 2, 3 }, calls);
             Assert.Contains(lines, line => line.Contains("1 (retry 1 of 2): flaky"));
             Assert.Contains(lines, line => line.Contains("2 (retry 2 of 2): broken"));
+            Assert.Contains("2 retried", lines[lines.Count - 1]);
+        }
+
+        [Theory]
+        [InlineData(0, false)]
+        [InlineData(5, false)]
+        [InlineData(0, true)]
+        [InlineData(5, true)]
+        public async Task ForEachAsync_CancellationPreventsAnotherFailedAttempt(int delayMilliseconds, bool cancelOnRetryMessage) {
+            using CancellationTokenSource stop = new CancellationTokenSource();
+            int calls = 0;
+            List<string> lines = new List<string>();
+            IReadOnlyList<RunResult<int, int>> results = await ConsoleRun.ForEachAsync<int, int>(new[] { 1 }, (_, token) => {
+                calls++;
+                if (!cancelOnRetryMessage) { stop.Cancel(); }
+                throw new InvalidOperationException("failed while cancellation was requested");
+            }, new RunOptions {
+                Live = false, RetryCount = 1, RetryDelay = TimeSpan.FromMilliseconds(delayMilliseconds),
+                Print = line => {
+                    lines.Add(line);
+                    if (cancelOnRetryMessage && line.Contains("retry 1 of 1")) { stop.Cancel(); }
+                }
+            }, stop.Token);
+            Assert.Equal(1, calls);
+            RunResult<int, int> result = Assert.Single(results);
+            Assert.Equal(1, result.Attempts);
+            Assert.IsAssignableFrom<OperationCanceledException>(result.Error);
+            Assert.False(result.Succeeded);
+            Assert.Contains("1 skipped", lines[lines.Count - 1]);
         }
 
         [Fact]

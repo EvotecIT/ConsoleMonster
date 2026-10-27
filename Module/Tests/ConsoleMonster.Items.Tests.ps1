@@ -170,6 +170,25 @@ if ([regex]::Matches($text, 'leaf').Count -ne 2) { throw 'Shared content was rej
             $table.Keys | Should -Be @('web01', 'web02')
         }
 
+        It 'adds to empty live tables using calculated <Selection> descriptors' -TestCases @(
+            @{ Selection = 'Columns' }
+            @{ Selection = 'Property' }
+        ) {
+            param($Selection)
+            $script:emptyLiveReads = 0
+            $selectionArgument = @{}
+            $selectionArgument[$Selection] = @(
+                'Server'
+                @{ Name = 'CPU %'; Expression = 'Cpu'; FormatString = 'F1' }
+                @{ Name = 'Doubled'; Expression = { $script:emptyLiveReads++; $_.Cpu * 2 }; FormatString = 'F1' }
+            )
+            $table = New-ConsoleTable -Live -KeyProperty Server @selectionArgument
+            $null = $table | Add-ConsoleItem ([pscustomobject] @{ Server = 'web01'; Cpu = 12 }) -PassThru
+            $text = $table | Get-WidgetText
+            $script:emptyLiveReads | Should -Be 1
+            $text | Should -Match 'web01\s*[\u2502|]\s*12[.,]0\s*[\u2502|]\s*24[.,]0'
+        }
+
         It 'keeps record values literal unless a presenter is explicit' {
             $literal = [pscustomobject]@{ Key = 'Install folder'; Value = './toolbox-agent' } | New-ConsoleKeyValue
             $literal.Items[0].Cell | Should -BeNullOrEmpty
