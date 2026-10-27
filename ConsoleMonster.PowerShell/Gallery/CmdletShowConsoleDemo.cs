@@ -61,7 +61,14 @@ namespace ConsoleMonster.PowerShell {
                 });
             }
             try {
-                return (string?)Question.Select(definition).Show(PSInteractive.Options(this, null));
+                InteractiveOptions options = PSInteractive.Options(this, null);
+                // A redirected command must not write a chooser into its output and wait on the attached stdin.
+                // Explicit input/capture devices and hosts that provide their own line console remain usable.
+                if (options.Input == null && Input.ConsoleInput.Override == null &&
+                    options.Capture == null && options.LineConsole == null && Terminal.GetCurrentProfile().IsOutputRedirected) {
+                    throw new PromptUnavailableException();
+                }
+                return (string?)Question.Select(definition).Show(options);
             } catch (PromptCanceledException) {
                 return null;
             } catch (Exception error) when (error is PromptUnavailableException || error is Input.InputClosedException) {
