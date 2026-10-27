@@ -18,8 +18,11 @@ var tasks = new TaskRow[]
 };
 var failures = new Failure[]
 {
-    new("Nightly SQL backup", "Daily 02:00", "Backup-Sql.ps1", "exit 1", @"Target share \\nas-01\sql is full", "Free space or move the target, then run the task once by hand."),
-    new("Certificate renewal", "Mon 03:00", "Renew-Certificates.ps1", "access denied", "svc-certs lost Log on as a batch job", "Restore the right in the server baseline policy.")
+    new("Nightly SQL backup", "Daily 02:00", "Backup-Sql.ps1", "exit 1",
+        @"Target share \\nas-01\sql is full",
+        "Free space or move the target, then run the task once by hand."),
+    new("Certificate renewal", "Mon 03:00", "Renew-Certificates.ps1", "access denied",
+        "svc-certs lost Log on as a batch job", "Restore the right in the server baseline policy.")
 };
 
 // Layout: the task table first, then one trigger → task → action trace per failure, side by side.
@@ -44,7 +47,9 @@ foreach (var failure in failures)
     var details = new KeyValueList { KeyRole = ThemeToken.Fail }
         .Add("Cause", failure.Cause)
         .Add("Fix", failure.Fix);
-    traces.Add(new Panel(new Rows(flow, details) { Gap = 1 }, $"{failure.Task} · {failure.Outcome}") { Status = StatusKind.Fail });
+    traces.Add(new Panel(
+        new Rows(flow, details) { Gap = 1 },
+        $"{failure.Task} · {failure.Outcome}") { Status = StatusKind.Fail });
 }
 
 var report = new Rows(
@@ -58,5 +63,8 @@ var report = new Rows(
 // Behaviour: print once; fix the cause, then start the task by hand and rerun this check.
 Terminal.Write(report);
 
-record TaskRow(string Task, string Trigger, string LastRun, string Result, string NextRun, string Status);
-record Failure(string Task, string Trigger, string Action, string Outcome, string Cause, string Fix);
+record TaskRow(string Task, string Trigger, string LastRun, string Result, string NextRun,
+    string Status);
+
+record Failure(string Task, string Trigger, string Action, string Outcome, string Cause,
+    string Fix);
