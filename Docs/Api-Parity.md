@@ -3,7 +3,7 @@
 
 I use the same domain names for cmdlet parameters, C# configuration and fluent calls. PowerShell keeps numeric duration parameters with units and default-off switches; C# keeps TimeSpan values and Boolean properties.
 
-The contract covers **108 commands**, **1140 parameters** and **314 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
+The contract covers **108 commands**, **1140 parameters** and **327 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
 
 Table and List remain named shortcuts to Show-Console’s shared view implementation. Read-* returns answers; New-ConsoleForm/Menu defines a question workflow; Show-ConsoleApp runs a persistent reactive application.
 
@@ -13,55 +13,59 @@ Callback properties use `.Configure(item => item.Action = …)`. C# invokes a de
 
 ## Fluent construction and nesting
 
-Ui is the fluent entry point: New-ConsolePanel becomes Ui.Panel(), named settings stay in the chain, and nested Content uses c.Panel(panel => …). Initializers retain constructors. Factories accept no positional configuration; the recorded primary inputs below are the only exceptions. Chart, Progress and kind-selected inputs materialize their existing typed options through the shared Build operation.
+Ui is the fluent entry point: New-ConsolePanel becomes Ui.Panel(), named settings stay in the chain, and nested Content uses c.Panel(p => …). Initializers retain constructors. Factories accept no positional configuration; the recorded primary inputs below are the only exceptions. Chart, Progress and kind-selected inputs materialize their existing typed options through the shared Build operation.
+
+Literal text uses `Ui.Text(text)` or `c.Text(text)`; PowerShell `-Markup` uses `Ui.Markup(markup)` or `c.Markup(markup)`. Boolean properties named IsX keep that property in initializers and use `.X()` / `.X(false)` in fluent chains. Adjacent configuration stays in one chain.
+
+Operation options use a typed configure callback, for example `ConsoleRun.ForEachAsync(items, work, o => o.ThrottleLimit(2).Title("Build"))`. The operation creates fresh defaults, invokes the callback once and delegates to its existing implementation. `Ui.Options<T>()` is removed.
 
 | PowerShell constructor | Fluent entry | Nested builder |
 | --- | --- | --- |
-| `New-ConsoleActivityList` | `Ui.ActivityList()` | `c.ActivityList(widget => …)` |
-| `New-ConsoleAlign` | `Ui.Align()` | `c.Align(widget => …)` |
-| `New-ConsoleBinding` | `Ui.Binding()` | `c.Binding(widget => …)` |
-| `New-ConsoleButton` | `Ui.Button()` | `c.Button(widget => …)` |
-| `New-ConsoleCalendar` | `Ui.Calendar()` | `c.Calendar(widget => …)` |
-| `New-ConsoleCellMap` | `Ui.CellMap()` | `c.CellMap(widget => …)` |
-| `New-ConsoleChart` | `Ui.Chart()` | `c.Chart(widget => …)` |
+| `New-ConsoleActivityList` | `Ui.ActivityList()` | `c.ActivityList(activityList => …)` |
+| `New-ConsoleAlign` | `Ui.Align()` | `c.Align(align => …)` |
+| `New-ConsoleBinding` | `Ui.Binding()` | `c.Binding(binding => …)` |
+| `New-ConsoleButton` | `Ui.Button()` | `c.Button(button => …)` |
+| `New-ConsoleCalendar` | `Ui.Calendar()` | `c.Calendar(calendar => …)` |
+| `New-ConsoleCellMap` | `Ui.CellMap()` | `c.CellMap(cellMap => …)` |
+| `New-ConsoleChart` | `Ui.Chart()` | `c.Chart(chart => …)` |
 | `New-ConsoleColumnFormat` | `Ui.ColumnFormat()` | Definition, not display content |
-| `New-ConsoleColumns` | `Ui.Columns()` | `c.Columns(widget => …)` |
+| `New-ConsoleColumns` | `Ui.Columns()` | `c.Columns(columns => …)` |
 | `New-ConsoleCommand` | `Ui.Command()` | Definition, not display content |
-| `New-ConsoleDashboard` | `Ui.Dashboard()` | `c.Dashboard(widget => …)` |
-| `New-ConsoleFlow` | `Ui.Flow()` | `c.Flow(widget => …)` |
-| `New-ConsoleFooterBar` | `Ui.FooterBar()` | `c.FooterBar(widget => …)` |
+| `New-ConsoleDashboard` | `Ui.Dashboard()` | `c.Dashboard(dashboard => …)` |
+| `New-ConsoleFlow` | `Ui.Flow()` | `c.Flow(flow => …)` |
+| `New-ConsoleFooterBar` | `Ui.FooterBar()` | `c.FooterBar(footerBar => …)` |
 | `New-ConsoleForm` | `Ui.Form()` | Definition, not display content |
-| `New-ConsoleHeaderBar` | `Ui.HeaderBar()` | `c.HeaderBar(widget => …)` |
-| `New-ConsoleKeyValue` | `Ui.KeyValue()` | `c.KeyValue(widget => …)` |
-| `New-ConsoleLanes` | `Ui.Lanes()` | `c.Lanes(widget => …)` |
-| `New-ConsoleLayoutGrid` | `Ui.LayoutGrid()` | `c.LayoutGrid(widget => …)` |
-| `New-ConsoleLogRegion` | `Ui.LogRegion()` | `c.LogRegion(widget => …)` |
-| `New-ConsoleLogo` | `Ui.Logo()` | `c.Logo(widget => …)` |
+| `New-ConsoleHeaderBar` | `Ui.HeaderBar()` | `c.HeaderBar(headerBar => …)` |
+| `New-ConsoleKeyValue` | `Ui.KeyValue()` | `c.KeyValue(kv => …)` |
+| `New-ConsoleLanes` | `Ui.Lanes()` | `c.Lanes(lanes => …)` |
+| `New-ConsoleLayoutGrid` | `Ui.LayoutGrid()` | `c.LayoutGrid(layoutGrid => …)` |
+| `New-ConsoleLogRegion` | `Ui.LogRegion()` | `c.LogRegion(logRegion => …)` |
+| `New-ConsoleLogo` | `Ui.Logo()` | `c.Logo(logo => …)` |
 | `New-ConsoleMenu` | `Ui.Menu()` | Definition, not display content |
 | `New-ConsoleMenuItem` | `Ui.MenuItem()` | Definition, not display content |
 | `New-ConsoleMenuRunResult` | `Ui.MenuRunResult()` | Definition, not display content |
-| `New-ConsolePadding` | `Ui.Padding()` | `c.Padding(widget => …)` |
-| `New-ConsolePanel` | `Ui.Panel()` | `c.Panel(widget => …)` |
-| `New-ConsolePhases` | `Ui.Phases()` | `c.Phases(widget => …)` |
-| `New-ConsoleProgress` | `Ui.Progress()` | `c.Progress(widget => …)` |
-| `New-ConsoleRegion` | `Ui.Region()` | `c.Region(widget => …)` |
-| `New-ConsoleRows` | `Ui.Rows()` | `c.Rows(widget => …)` |
-| `New-ConsoleRule` | `Ui.Rule()` | `c.Rule(widget => …)` |
-| `New-ConsoleScrollView` | `Ui.ScrollView()` | `c.ScrollView(widget => …)` |
-| `New-ConsoleSelect` | `Ui.Select()` | `c.Select(widget => …)` |
-| `New-ConsoleStack` | `Ui.Stack()` | `c.Stack(widget => …)` |
-| `New-ConsoleStatusList` | `Ui.StatusList()` | `c.StatusList(widget => …)` |
-| `New-ConsoleSummaryBar` | `Ui.SummaryBar()` | `c.SummaryBar(widget => …)` |
-| `New-ConsoleTable` | `Ui.Table()` | `c.Table(widget => …)` |
-| `New-ConsoleText` | `Ui.Text()` | `c.Text(widget => …)` |
-| `New-ConsoleTextInput` | `Ui.TextInput()` | `c.TextInput(widget => …)` |
-| `New-ConsoleToggle` | `Ui.Toggle()` | `c.Toggle(widget => …)` |
-| `New-ConsoleTree` | `Ui.Tree()` | `c.Tree(widget => …)` |
-| `New-ConsoleDataGrid` | `Ui.DataGrid()` | `c.DataGrid(widget => …)` |
-| `New-ConsoleTreeSelect` | `Ui.TreeSelect()` | `c.TreeSelect(widget => …)` |
-| `New-ConsoleDatePicker` | `Ui.DatePicker()` | `c.DatePicker(widget => …)` |
+| `New-ConsolePadding` | `Ui.Padding()` | `c.Padding(padding => …)` |
+| `New-ConsolePanel` | `Ui.Panel()` | `c.Panel(p => …)` |
+| `New-ConsolePhases` | `Ui.Phases()` | `c.Phases(phases => …)` |
+| `New-ConsoleProgress` | `Ui.Progress()` | `c.Progress(progress => …)` |
+| `New-ConsoleRegion` | `Ui.Region()` | `c.Region(region => …)` |
+| `New-ConsoleRows` | `Ui.Rows()` | `c.Rows(r => …)` |
+| `New-ConsoleRule` | `Ui.Rule()` | `c.Rule(rule => …)` |
+| `New-ConsoleScrollView` | `Ui.ScrollView()` | `c.ScrollView(scrollView => …)` |
+| `New-ConsoleSelect` | `Ui.Select()` | `c.Select(select => …)` |
+| `New-ConsoleStack` | `Ui.Stack()` | `c.Stack(stack => …)` |
+| `New-ConsoleStatusList` | `Ui.StatusList()` | `c.StatusList(statusList => …)` |
+| `New-ConsoleSummaryBar` | `Ui.SummaryBar()` | `c.SummaryBar(summaryBar => …)` |
+| `New-ConsoleTable` | `Ui.Table()` | `c.Table(t => …)` |
+| `New-ConsoleText` | `Ui.Text()` | `c.Text(text => …)` |
+| `New-ConsoleTextInput` | `Ui.TextInput()` | `c.TextInput(textInput => …)` |
+| `New-ConsoleToggle` | `Ui.Toggle()` | `c.Toggle(toggle => …)` |
+| `New-ConsoleTree` | `Ui.Tree()` | `c.Tree(tree => …)` |
+| `New-ConsoleDataGrid` | `Ui.DataGrid()` | `c.DataGrid(dataGrid => …)` |
+| `New-ConsoleTreeSelect` | `Ui.TreeSelect()` | `c.TreeSelect(treeSelect => …)` |
+| `New-ConsoleDatePicker` | `Ui.DatePicker()` | `c.DatePicker(datePicker => …)` |
 | `New-ConsoleTab` | `Ui.Tab()` | Definition, not display content |
-| `New-ConsoleTabs` | `Ui.Tabs()` | `c.Tabs(widget => …)` |
+| `New-ConsoleTabs` | `Ui.Tabs()` | `c.Tabs(tabs => …)` |
 | `New-ConsoleDialog` | `Ui.Dialog()` | Definition, not display content |
 
 | Primary fluent input | PowerShell input | Reason |
@@ -80,6 +84,7 @@ Ui is the fluent entry point: New-ConsolePanel becomes Ui.Panel(), named setting
 | `Ui.Table(items)` | `New-ConsoleTable -InputObject` | A single typed row sequence is the primary table input. |
 | `Ui.Text(text)` | `New-ConsoleText -Text` | Literal text is the primary input; brackets stay literal. |
 | `Ui.Rule(title)` | `New-ConsoleRule -Title` | The rule title is the primary separator input. |
+| `Ui.Markup(markup)` | `New-ConsoleText -Markup` | Explicit -Markup value; unlike Text it is named in PowerShell, because a string cannot select two positional parameter meanings. |
 
 ## Parameter-set mappings
 
@@ -254,6 +259,47 @@ Native host hooks, runtime models and equivalent representations are listed indi
 | `ConsoleMonster.Widgets.LayoutRegions.NarrowBelow` | CSharpOnly: Responsive regions are composed through the typed layout container. | Construct LayoutRegions in PowerShell or C# and pass it to Show-ConsoleApp. |
 | `ConsoleMonster.Widgets.LayoutRegions.ActiveRegion` | CSharpOnly: ActiveRegion is live layout state used when no region owns focus. | Call Activate(key) on the retained regions container. |
 | `ConsoleMonster.Widgets.LayoutRegions.Gap` | CSharpOnly: The inter-region gap belongs to the typed responsive container. | Set Gap on LayoutRegions before passing it to Show-ConsoleApp. |
+| `ConsoleMonster.FileSystem.FileOperationOptions.ConflictPolicy` | CSharpOnly: File operations have no cmdlet in round 2: they belong to full-screen apps such as the Commander, which drive them from C# or from the .NET type in PowerShell. | PowerShell calls the [ConsoleMonster.FileSystem.FileOperation] type directly; Copy-Item, Move-Item and Remove-Item cover scripted file work. |
+| `ConsoleMonster.FileSystem.FileOperationOptions.PreserveTimestamps` | CSharpOnly: File operations have no cmdlet in round 2: they belong to full-screen apps such as the Commander, which drive them from C# or from the .NET type in PowerShell. | PowerShell calls the [ConsoleMonster.FileSystem.FileOperation] type directly; Copy-Item, Move-Item and Remove-Item cover scripted file work. |
+| `ConsoleMonster.FileSystem.FileOperationOptions.ResolveConflict` | CSharpOnly: File operations have no cmdlet in round 2: they belong to full-screen apps such as the Commander, which drive them from C# or from the .NET type in PowerShell. | PowerShell calls the [ConsoleMonster.FileSystem.FileOperation] type directly; Copy-Item, Move-Item and Remove-Item cover scripted file work. |
+| `ConsoleMonster.FileSystem.FileOperationOptions.Progress` | CSharpOnly: File operations have no cmdlet in round 2: they belong to full-screen apps such as the Commander, which drive them from C# or from the .NET type in PowerShell. | PowerShell calls the [ConsoleMonster.FileSystem.FileOperation] type directly; Copy-Item, Move-Item and Remove-Item cover scripted file work. |
+| `ConsoleMonster.FileSystem.FileOperationOptions.Trash` | CSharpOnly: File operations have no cmdlet in round 2: they belong to full-screen apps such as the Commander, which drive them from C# or from the .NET type in PowerShell. | PowerShell calls the [ConsoleMonster.FileSystem.FileOperation] type directly; Copy-Item, Move-Item and Remove-Item cover scripted file work. |
+| `ConsoleMonster.FileSystem.FileOperationOptions.ProgressInterval` | CSharpOnly: File operations have no cmdlet in round 2: they belong to full-screen apps such as the Commander, which drive them from C# or from the .NET type in PowerShell. | PowerShell calls the [ConsoleMonster.FileSystem.FileOperation] type directly; Copy-Item, Move-Item and Remove-Item cover scripted file work. |
+| `ConsoleMonster.FileSystem.FileOperationOptions.BufferSize` | CSharpOnly: File operations have no cmdlet in round 2: they belong to full-screen apps such as the Commander, which drive them from C# or from the .NET type in PowerShell. | PowerShell calls the [ConsoleMonster.FileSystem.FileOperation] type directly; Copy-Item, Move-Item and Remove-Item cover scripted file work. |
+| `ConsoleMonster.Widgets.BarChart.AxisLabel` | CSharpOnly: An axis caption describes the supplied numeric model; automatic chart input does not infer that caption. | Set AxisLabel on the BarChart returned by New-ConsoleChart -Type Bar. |
+| `ConsoleMonster.Widgets.BarChart.MissingText` | CSharpOnly: The fallback for an absent metric is presentation policy for an explicitly configured bar chart. | Set MissingText on the BarChart returned by New-ConsoleChart -Type Bar. |
+| `ConsoleMonster.Widgets.ChartItem.MissingText` | CSharpOnly: A missing observation carries its own explanation; ordinary numeric chart input supplies values and labels. | Use BarChart.AddMissing for an absent observation, or set MissingText on an existing BarChart.Items entry. |
+| `ConsoleMonster.Widgets.ChartItem.Status` | CSharpOnly: An explicit observation status is independent of numeric thresholds and must be supplied by the application. | Set Status on an existing BarChart.Items entry, or supply status to BarChart.AddMissing. |
+| `ConsoleMonster.Widgets.Matrix.IsHealthy` | CSharpOnly: The matrix attention list needs an application-supplied health policy rather than inferring health from labels. | Assign IsHealthy in a native Matrix builder and pass the resulting widget to Show-Console. |
+| `ConsoleMonster.Widgets.Matrix.MaxGridSize` | CSharpOnly: The grid-to-list boundary belongs to an explicit cross-tab model, which automatic object tables do not construct. | Set MaxGridSize on Matrix before passing it to Show-Console. |
+| `ConsoleMonster.Widgets.Matrix.MaxListRows` | CSharpOnly: The attention-list budget applies to an explicit matrix rather than the ordinary object table row limit. | Set MaxListRows on Matrix before passing it to Show-Console. |
+| `ConsoleMonster.Widgets.Matrix.NonHealthyOnly` | CSharpOnly: Selecting the attention view requires a supplied matrix and its health policy. | Set NonHealthyOnly on Matrix before passing it to Show-Console. |
+| `ConsoleMonster.Widgets.Matrix.ShowLegend` | CSharpOnly: A matrix legend summarizes supplied cross-tab observations; automatic object views have no matrix legend. | Set ShowLegend on Matrix before passing it to Show-Console. |
+| `ConsoleMonster.Widgets.Matrix.Title` | CSharpOnly: The cross-tab title belongs to an explicitly constructed matrix with fixed axes. | Set Title on Matrix before passing it to Show-Console. |
+| `ConsoleMonster.Widgets.MatrixLabel.ShortText` | CSharpOnly: A shortened axis label must retain the identity of its full label and cannot be inferred from record projection. | Set ShortText on MatrixLabel when constructing the matrix axes. |
+| `ConsoleMonster.Widgets.PathHop.Chips` | CSharpOnly: Per-hop annotations belong to the caller-supplied path model and preserve their explicit order. | Add chips to PathHop before adding the chain to PathSet and showing the widget. |
+| `ConsoleMonster.Widgets.PathHop.Status` | CSharpOnly: Per-hop status is supplied independently of the hop label and shared-path identity. | Set Status on PathHop before adding the chain to PathSet and showing the widget. |
+| `ConsoleMonster.Widgets.PathSet.HighlightSharedHops` | CSharpOnly: Shared-hop highlighting requires explicit path identities rather than an inferred object hierarchy. | Set HighlightSharedHops on PathSet and pass the widget to Show-Console. |
+| `ConsoleMonster.Widgets.PathSet.MaxHops` | CSharpOnly: The accepted chain length is a budget for an explicitly supplied path model. | Set MaxHops on PathSet before adding chains and passing the widget to Show-Console. |
+| `ConsoleMonster.Widgets.PathSet.MaxPaths` | CSharpOnly: The path-list display limit applies to explicit chains rather than automatic tree children. | Set MaxPaths on PathSet and pass the widget to Show-Console. |
+| `ConsoleMonster.Widgets.PathSet.Title` | CSharpOnly: The common-origin path view has its own title outside automatic object projection. | Set Title on PathSet and pass the widget to Show-Console. |
+| `ConsoleMonster.Widgets.TableRowRole.AsciiMarker` | CSharpOnly: The reduced-tier marker is part of an explicit whole-row role, independent of per-column role rules. | Set AsciiMarker on TableRowRole and supply that role to native Table.AddRow. |
+| `ConsoleMonster.Widgets.TableRowRole.Bold` | CSharpOnly: Whole-row emphasis follows the application-supplied row classification. | Set Bold on TableRowRole and supply that role to native Table.AddRow. |
+| `ConsoleMonster.Widgets.TableRowRole.Marker` | CSharpOnly: A whole-row marker belongs to an explicit row role rather than an inferred status column. | Set Marker on TableRowRole and supply that role to native Table.AddRow. |
+| `ConsoleMonster.Widgets.TableRowRole.Muted` | CSharpOnly: Whole-row muting follows the application-supplied row classification. | Set Muted on TableRowRole and supply that role to native Table.AddRow. |
+| `ConsoleMonster.Widgets.TableRowRole.Tone` | CSharpOnly: A whole-row semantic tone is independent of the ordinary column presentation policy. | Set Tone on TableRowRole and supply that role to native Table.AddRow. |
+| `ConsoleMonster.Widgets.Tree.CollapsedSummary` | CSharpOnly: A collapsed-node aggregate requires a typed application callback and does not enumerate descendants itself. | Assign CollapsedSummary in a native Tree builder and pass the widget to Show-Console. |
+| `ConsoleMonster.Widgets.Tree.DetectRepeatedNodes` | CSharpOnly: Repeated-node references depend on explicit graph identity rather than label equality. | Set DetectRepeatedNodes on a native Tree with identified nodes and pass it to Show-Console. |
+| `ConsoleMonster.Widgets.Tree.ShowValueHeaders` | CSharpOnly: Value headers belong to explicitly configured tree value columns. | Set ShowValueHeaders on a native Tree with ValueColumns and pass it to Show-Console. |
+| `ConsoleMonster.Widgets.Tree.ValueColumns` | CSharpOnly: Aligned tree values require an explicit keyed column schema rather than an inferred node label. | Configure native Tree.ValueColumns and TreeNode.Values, then pass the tree to Show-Console. |
+| `ConsoleMonster.Widgets.TreeHierarchyOptions.CollapsedSummary` | CSharpOnly: An object aggregate for a collapsed node is application-specific and must not trigger another child traversal. | Supply CollapsedSummary through TreeHierarchyOptions when calling TreeHierarchy.Add; New-ConsoleTree retains its bounded object traversal. |
+| `ConsoleMonster.Widgets.TreeHierarchyOptions.DetectRepeatedNodes` | CSharpOnly: Cross-branch deduplication needs an explicit identity policy; the ordinary PowerShell adapter keeps its wrapped-object identity rules. | Configure DetectRepeatedNodes and Identity through TreeHierarchyOptions passed to TreeHierarchy.Add. |
+| `ConsoleMonster.Widgets.TreeHierarchyOptions.IdentityComparer` | CSharpOnly: A custom identity comparer belongs to a native application graph rather than PowerShell wrapped-object identity. | Supply IdentityComparer with Identity through TreeHierarchyOptions passed to TreeHierarchy.Add. |
+| `ConsoleMonster.Widgets.TreeHierarchyOptions.IsIncomplete` | CSharpOnly: Knowing whether application-owned children are incomplete requires a pure application callback. | Supply IsIncomplete through TreeHierarchyOptions passed to TreeHierarchy.Add; use MaxItems, MaxNodes and Depth for ordinary PowerShell traversal budgets. |
+| `ConsoleMonster.Widgets.TreeNode.Identity` | CSharpOnly: Stable graph identity is supplied independently of a node label or display value. | Set Identity when building native TreeNode instances and pass the tree to Show-Console. |
+| `ConsoleMonster.Widgets.TreeNode.Reference` | CSharpOnly: A node reference records an explicit cycle or previously shown node rather than deriving it from text. | Set Reference on a native TreeNode with an identity-aware tree builder. |
+| `ConsoleMonster.Widgets.TreeNode.ReferenceSummary` | CSharpOnly: Reference wording belongs to the explicitly identified native node. | Set ReferenceSummary on a native TreeNode before showing the tree. |
+| `ConsoleMonster.Widgets.TreeNode.Values` | CSharpOnly: Keyed value cells require the explicit native tree column schema. | Populate TreeNode.Values to match Tree.ValueColumns and pass the tree to Show-Console. |
 
 ## .NET host integrations
 
