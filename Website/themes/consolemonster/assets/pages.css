@@ -431,4 +431,5 @@ html:not(.cm-js) .cm-paths [role="tablist"], html:not(.cm-js) .cm-demo [role="ta
 .cm-api-map table { width: 100%; border-collapse: collapse; text-align: left; }
 .cm-api-map th, .cm-api-map td { padding: .5rem .65rem; border-bottom: 1px solid var(--cm-line); vertical-align: top; }
 .cm-api-map th { color: var(--cm-muted); font-size: .8rem; }
+.cm-api-map td code { overflow-wrap: normal; white-space: nowrap; }
 .cm-api-map small { display: block; margin-top: .25rem; color: var(--cm-muted); }
