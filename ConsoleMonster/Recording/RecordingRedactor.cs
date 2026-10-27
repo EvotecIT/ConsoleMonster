@@ -1,21 +1,23 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
 namespace ConsoleMonster.Sessions {
     /// <summary>Redacts complete output records; never persists partial secret-bearing tokens.</summary>
     internal sealed partial class RecordingRedactor {
+        // Reuse callers' compiled rules without keeping session-specific literal secrets alive.
+        private static readonly ConditionalWeakTable<string, CustomPatternSlot> CustomPatterns = new ConditionalWeakTable<string, CustomPatternSlot>();
         private readonly List<Regex> _patterns = new List<Regex>();
         private readonly string _replacement;
         public RecordingRedactor(IEnumerable<string> patterns, string replacement = "[REDACTED]") {
             _replacement = replacement;
-            Add(@"(?i)\bbearer\s+[^\s;""'\x00-\x1f]+");
-            Add(@"(?i)\b(?:password|pwd|api[_-]?key|access[_-]?token|client[_-]?secret|token)\s*[=:]\s*(?:""[^""\x00-\x1f]*(?:""|(?=[\x00-\x1f]|\z))|'[^'\x00-\x1f]*(?:'|(?=[\x00-\x1f]|\z))|[^;""'\x00-\x1f]+)");
-            Add(@"\b(?:gh[pousr]_[A-Za-z0-9_]+|github_pat_[A-Za-z0-9_]+|sk-[A-Za-z0-9_-]{8,}|AKIA[A-Z0-9]{16})\b");
+            _patterns.AddRange(BuiltInPatterns);
             foreach (string pattern in patterns) { ConfigureStreaming(pattern); Add(pattern); }
         }
-        private void Add(string pattern) { _patterns.Add(new Regex(pattern, RegexOptions.CultureInvariant, TimeSpan.FromMilliseconds(100))); }
+        private void Add(string pattern) { _patterns.Add(CustomPatterns.GetValue(pattern, CreateCustomPatternSlot).Get(pattern)); }
+        private static CustomPatternSlot CreateCustomPatternSlot(string pattern) => new CustomPatternSlot();
         public string Apply(string text) => ApplyWithOffsets(text).Text;
         public RedactedOutput ApplyWithOffsets(string text) => ApplyPrefix(text, text.Length);
 
