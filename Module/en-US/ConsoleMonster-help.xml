@@ -10585,7 +10585,7 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
     <command:returnValues>
       <command:returnValue>
         <dev:type>
-          <maml:name>ConsoleMonster.Interactive.FormDialog`1[[ConsoleMonster.Interactive.AppState, ConsoleMonster, Version=2.0.2.0, Culture=neutral, PublicKeyToken=null]]</maml:name>
+          <maml:name>ConsoleMonster.Interactive.FormDialog`1[[ConsoleMonster.Interactive.AppState, ConsoleMonster, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null]]</maml:name>
         </dev:type>
       </command:returnValue>
     </command:returnValues>
