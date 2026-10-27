@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Text;
+using ConsoleMonster.Canvas;
 using ConsoleMonster.Dates;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Testing;
@@ -103,6 +106,55 @@ namespace ConsoleMonster.Tests.Widgets {
                 Assert.True(char.IsUpper(label[0]), label);
                 Assert.DoesNotContain(".", label);
             }
+        }
+
+        [Theory]
+        [InlineData("zh-CN")]
+        [InlineData("ar-SA")]
+        [InlineData("ja-JP")]
+        [InlineData("nl-NL")]
+        [InlineData("vi-VN")]
+        [InlineData("pt-BR")]
+        [InlineData("pt-PT")]
+        public void FallbackWeekdayHeaders_RenderSevenDistinctLocalizedLabels(string name) {
+            CultureInfo culture = CultureInfo.GetCultureInfo(name);
+            Calendar calendar = new Calendar(2026, 10) {
+                Culture = culture,
+                FirstDayOfWeek = DayOfWeek.Sunday,
+                ShowLegend = false
+            };
+            CellBuffer frame = TestTerminal.Render(calendar, width: 40);
+            HashSet<string> labels = new HashSet<string>(StringComparer.Ordinal);
+            for (int col = 0; col < 7; col++) {
+                StringBuilder text = new StringBuilder();
+                for (int cell = 0; cell < 3; cell++) {
+                    text.Append(frame[8 + col * 4 + cell, 2].Glyph);
+                }
+                string label = text.ToString().TrimEnd();
+                Assert.NotEmpty(label);
+                Assert.True(labels.Add(label), "Weekday headers must identify each day: " + label);
+                Assert.InRange(ConsoleMonster.Text.DisplayWidth.Measure(label), 1, 3);
+                string abbreviated = culture.DateTimeFormat.GetAbbreviatedDayName((DayOfWeek)col);
+                string shortest = culture.DateTimeFormat.GetShortestDayName((DayOfWeek)col);
+                Assert.True(culture.CompareInfo.IndexOf(abbreviated, label, CompareOptions.IgnoreCase) >= 0 ||
+                    culture.CompareInfo.IndexOf(shortest, label, CompareOptions.IgnoreCase) >= 0,
+                    "The header must retain the culture's weekday name: " + label);
+                Assert.Equal(" ", frame[11 + col * 4, 2].Glyph);
+            }
+        }
+
+        [Fact]
+        public void AmbiguousCustomWeekdayNames_RetainSevenIdentifiableDays() {
+            CultureInfo culture = (CultureInfo)CultureInfo.GetCultureInfo("nl-NL").Clone();
+            culture.DateTimeFormat.AbbreviatedDayNames = new[] { "Day", "Day", "Day", "Day", "Day", "Day", "Day" };
+            culture.DateTimeFormat.ShortestDayNames = new[] { "Day", "Day", "Day", "Day", "Day", "Day", "Day" };
+            Calendar calendar = new Calendar(2026, 10) {
+                Culture = culture,
+                FirstDayOfWeek = DayOfWeek.Sunday,
+                ShowLegend = false
+            };
+            string header = TestTerminal.RenderText(calendar, width: 40).Split('\n')[2];
+            Assert.Equal("Week    Su  Mo  Tu  We  Th  Fr  Sa", header.TrimEnd());
         }
 
         [Fact]

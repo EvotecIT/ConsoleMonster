@@ -2,14 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using ConsoleMonster.Text;
 
 namespace ConsoleMonster.Widgets {
     /// <summary>
     /// Weekday and month names for calendars. The operating system's globalization data differs between backends (ICU on macOS
     /// and Linux, NLS or another ICU build on Windows): shortest day names are "Mo" on one and "M" on another, and German
     /// abbreviations gain a period. So the languages ConsoleMonster ships labels for (English, Polish, German, Spanish, French
-    /// and Italian) use the names below, and any other culture uses its own data normalised the same way: two-cell weekday
-    /// labels from the abbreviated names and short month names without a trailing period.
+    /// and Italian) use the names below. Other cultures use abbreviated names without their shared prefix, fitting whole
+    /// text elements into the three-cell weekday header, and short month names without a trailing period.
     /// </summary>
     internal static class CalendarNames {
         private sealed class Names {
@@ -46,14 +47,57 @@ namespace ConsoleMonster.Widgets {
                 "gen feb mar apr mag giu lug ago set ott nov dic")
         };
 
-        /// <summary>The two-cell weekday label.</summary>
+        /// <summary>A distinct weekday label that fits the calendar's three-cell header.</summary>
         public static string Day(CultureInfo culture, DayOfWeek day) {
             if (Builtin.TryGetValue(culture.TwoLetterISOLanguageName, out Names? names)) {
                 return names.Days[(int)day];
             }
-            string abbreviated = TrimPeriod(culture.DateTimeFormat.GetAbbreviatedDayName(day));
-            string label = TextElements(abbreviated, 2);
-            return label.Length == 0 ? TextElements(day.ToString(), 2) : char.ToUpper(label[0], culture) + label.Substring(1);
+            string[] abbreviated = new string[7];
+            for (int index = 0; index < abbreviated.Length; index++) {
+                abbreviated[index] = TrimPeriod(culture.DateTimeFormat.GetAbbreviatedDayName((DayOfWeek)index));
+            }
+            if (TryDayLabels(culture, abbreviated, 2, out string[] labels) || TryDayLabels(culture, abbreviated, 3, out labels)) {
+                return labels[(int)day];
+            }
+            string[] shortest = new string[7];
+            for (int index = 0; index < shortest.Length; index++) {
+                shortest[index] = TrimPeriod(culture.DateTimeFormat.GetShortestDayName((DayOfWeek)index));
+            }
+            // Truncation may remove distinguishing letters or digits (Portuguese and Vietnamese, for example).
+            // Prefer another complete localized set before handling inherently ambiguous custom culture data.
+            return TryDayLabels(culture, shortest, 3, out labels) ? labels[(int)day] : Builtin["en"].Days[(int)day];
+        }
+
+        private static bool TryDayLabels(CultureInfo culture, string[] names, int count, out string[] labels) {
+            int prefix = SharedPrefixLength(names);
+            labels = new string[7];
+            HashSet<string> distinct = new HashSet<string>(StringComparer.Ordinal);
+            for (int index = 0; index < labels.Length; index++) {
+                string remainder = names[index].Substring(prefix);
+                string label = TextElements(remainder, count);
+                if (label.Length > 0) {
+                    string initial = StringInfo.GetNextTextElement(label);
+                    label = culture.TextInfo.ToUpper(initial) + label.Substring(initial.Length);
+                }
+                if (label.Length == 0 || DisplayWidth.Measure(label) > 3 || !distinct.Add(label)) { return false; }
+                labels[index] = label;
+            }
+            return true;
+        }
+
+        // Compare whole text elements so a shared base character never leaves a detached combining mark.
+        private static int SharedPrefixLength(string[] names) {
+            int length = 0;
+            while (length < names[0].Length) {
+                string element = StringInfo.GetNextTextElement(names[0], length);
+                for (int index = 1; index < names.Length; index++) {
+                    if (length >= names[index].Length || StringInfo.GetNextTextElement(names[index], length) != element) {
+                        return length;
+                    }
+                }
+                length += element.Length;
+            }
+            return length;
         }
 
         /// <summary>The month's name, for a calendar title.</summary>
@@ -66,12 +110,14 @@ namespace ConsoleMonster.Widgets {
 
         private static string TrimPeriod(string text) => text.Trim().TrimEnd('.');
 
-        // The first count text elements, so a combining mark or surrogate pair is never split.
+        // Keep whole text elements within the header's cell budget, including wide CJK glyphs.
         private static string TextElements(string text, int count) {
             StringBuilder result = new StringBuilder();
             TextElementEnumerator elements = StringInfo.GetTextElementEnumerator(text);
             for (int taken = 0; taken < count && elements.MoveNext(); taken++) {
-                result.Append(elements.GetTextElement());
+                string element = elements.GetTextElement();
+                if (DisplayWidth.Measure(result.ToString()) + DisplayWidth.Measure(element) > 3) { break; }
+                result.Append(element);
             }
             return result.ToString();
         }
