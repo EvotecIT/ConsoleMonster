@@ -147,8 +147,7 @@ namespace ConsoleMonster.Sessions {
             _stopping = true;
             _terminal?.Stop();
             // Closing ConPTY must happen concurrently with the output reader, which drains its final writes.
-            if (_terminal is WindowsPseudoTerminal windows) { windows.Complete(); }
-            if (_terminal is UnixPseudoTerminal unix) { unix.Complete(); }
+            _terminal?.Complete();
             if (_reader != null && _reader != Thread.CurrentThread && !_reader.Join(TimeSpan.FromSeconds(10))) {
                 _terminal?.Dispose();
                 if (!_reader.Join(TimeSpan.FromSeconds(2))) { throw new IOException("The recording output reader did not finish."); }

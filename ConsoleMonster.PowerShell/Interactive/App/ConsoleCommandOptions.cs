@@ -12,6 +12,8 @@ namespace ConsoleMonster.PowerShell {
         public string? Shortcut { get; set; }
         /// <summary>Optional modal confirmation text; No is the initial answer.</summary>
         public string? ConfirmPrompt { get; set; }
+        /// <summary>Shows the shared progress and final-summary dialogs.</summary>
+        public bool ProgressDialog { get; set; }
         /// <summary>Operation source, receiving the row followed by ArgumentList values in an isolated runspace.</summary>
         public ScriptBlock ScriptBlock { get; set; } = null!;
         /// <summary>Values serialized at definition time; closures are not captured.</summary>

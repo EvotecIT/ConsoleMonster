@@ -20,6 +20,8 @@ namespace ConsoleMonster.PowerShell {
         [Parameter] public string? Shortcut { get; set; }
         /// <summary><para type="description">Optional modal confirmation text. {Selection} expands to the focused row label or marked-row count. No is the initial answer.</para></summary>
         [Parameter] public string? ConfirmPrompt { get; set; }
+        /// <summary><para type="description">Shows a progress dialog with Cancel and Background, followed by the operation summary.</para></summary>
+        [Parameter] public SwitchParameter ProgressDialog { get; set; }
         /// <summary><para type="description">Operation source, receiving param($Row, ...explicit arguments). Closure variables are not inherited.</para></summary>
         [Parameter(Mandatory = true)] public ScriptBlock ScriptBlock { get; set; } = null!;
         /// <summary><para type="description">Explicit values serialized when defining the command and passed after Row.</para></summary>
@@ -29,7 +31,7 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void EndProcessing() {
             WriteObject(ConsoleHostCommands.Create(new ConsoleCommandOptions {
-                Key = Key, Label = Label, Shortcut = Shortcut, ConfirmPrompt = ConfirmPrompt,
+                Key = Key, Label = Label, Shortcut = Shortcut, ConfirmPrompt = ConfirmPrompt, ProgressDialog = ProgressDialog.IsPresent,
                 ScriptBlock = ScriptBlock, ArgumentList = ArgumentList, ImportModule = ImportModule
             }));
         }

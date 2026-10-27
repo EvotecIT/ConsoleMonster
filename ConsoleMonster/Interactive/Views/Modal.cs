@@ -26,6 +26,8 @@ namespace ConsoleMonster.Interactive {
 
         public virtual bool IsAnimating => false;
 
+        internal virtual void CancelPointer() { }
+
         public void Close() => IsClosed = true;
     }
 

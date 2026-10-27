@@ -187,10 +187,10 @@ Describe 'ConsoleMonster public API vocabulary' {
                     $property.GetValue($instance).IsPresent | Should -BeFalse -Because "$($command.Name) -$($parameter.Name) selects non-default behavior"
                 }
             }
-            $command.Parameters.Keys | Should -Not -Contain NoLiveView
+            $command.Parameters.ContainsKey('NoLiveView') | Should -BeFalse
         }
         foreach ($name in 'Show-ConsoleApp') {
-            (Get-Command $name).Parameters.Keys | Should -Contain NoMouse
+            (Get-Command $name).Parameters.ContainsKey('NoMouse') | Should -BeTrue
         }
         (Get-Command New-ConsoleLogRegion).Parameters.Keys | Should -Contain NoElapsed
         (Get-Command Show-ConsoleStatusLine).Parameters.Keys | Should -Contain ShowElapsed
@@ -209,7 +209,7 @@ Describe 'ConsoleMonster public API vocabulary' {
                 }
             }
             foreach ($old in 'Timeout', 'StepTimeout', 'Interval', 'IdleLimit', 'ProgressSeconds', 'Budget') {
-                $command.Parameters.Keys | Should -Not -Contain $old -Because $command.Name
+                $command.Parameters.ContainsKey($old) | Should -BeFalse -Because $command.Name
             }
         }
         foreach ($name in 'Watch-Console', 'Watch-ConsoleLog') {
@@ -253,9 +253,9 @@ Describe 'ConsoleMonster public API vocabulary' {
     It 'uses one spelling for semantic roles, timestamps and decoration' {
         foreach ($command in $script:Commands) {
             foreach ($old in 'Tone', 'ClockFormat', 'DateTimeFormat', 'ShowTime', 'LogTime') {
-                $command.Parameters.Keys | Should -Not -Contain $old -Because $command.Name
+                $command.Parameters.ContainsKey($old) | Should -BeFalse -Because $command.Name
             }
-            if ($command.Verb -eq 'Show') { $command.Parameters.Keys | Should -Not -Contain As }
+            if ($command.Verb -eq 'Show') { $command.Parameters.ContainsKey('As') | Should -BeFalse }
         }
     }
 

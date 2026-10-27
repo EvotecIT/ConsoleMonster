@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Glyphs;
 using ConsoleMonster.Input;
@@ -20,51 +21,24 @@ namespace ConsoleMonster.Interactive {
     internal sealed partial class GridView : InteractiveView, IViewHost, IDisposable {
         private readonly Grid _grid;
         private readonly LineEditor _filter;
-        private readonly bool[] _hidden;
-        private readonly HashSet<int> _marked = new HashSet<int>();
+        private readonly DataGrid _data;
         private readonly List<Modal> _modals = new List<Modal>();
-        private readonly CultureInfo _culture;
-        private List<int> _visible = new List<int>();
-        private string _appliedFilter = "\0";
-        private int _sortColumn;
-        private bool _descending;
-        private int _cursor;
-        private int _top;
-        private int _pageRows = 10;
-        private Table? _table;
-        private Capabilities.GlyphTier _tableTier;
         private readonly AppCommandHost? _actions;
-        private Rect _bodyBounds;
-        private List<int> _rowLines = new List<int>();
-        private List<int> _rowEnds = new List<int>();
-        private int _positionLine = -1;
-        private int _dragAnchor = -1;
         private int[] _actionIndices = Array.Empty<int>();
 
         public GridView(Grid grid, GridOptions options, PromptLabels labels, System.Threading.CancellationToken cancellationToken = default, Func<TimeSpan>? actionClock = null) : base(labels) {
             _grid = grid;
             if (options.Command.Count > 0 || options.Dispatcher != null) { _actions = new AppCommandHost(options.Command, ActionRows, labels, cancellationToken, commandBar: true, requiresRows: true, dispatcher: options.Dispatcher, selectionLabel: ActionSelectionLabel, completed: command => RefreshActionRows(options, command), actionClock: actionClock); }
             _filter = new LineEditor(options.Filter);
-            _hidden = new bool[grid.Columns.Count];
+            _data = new DataGrid("Grid", grid) { Focused = true, QuickSearch = false, StatusPresenters = _actions?.HasCommands == true, ShowPosition = _actions?.HasCommands == true };
             for (int c = 0; c < grid.Columns.Count; c++) {
-                _hidden[c] = options.HiddenColumns.Contains(Markup.Strip(grid.Columns[c].Header));
+                if (options.HiddenColumns.Contains(Markup.Strip(grid.Columns[c].Header))) { _data.SetHidden(c, true); }
             }
-            _sortColumn = options.SortColumn >= 0 && options.SortColumn < grid.Columns.Count ? options.SortColumn : -1;
-            _descending = options.SortDescending;
-            _culture = grid.Presentation.Culture ?? CultureInfo.CurrentCulture;
-            RebuildSearch();
+            _data.Sort(options.SortColumn >= 0 && options.SortColumn < grid.Columns.Count ? options.SortColumn : -1, options.SortDescending);
+            _data.Filter = _filter.Text;
         }
 
-        private void RebuildSearch() {
-            foreach (GridRow row in _grid.Rows) {
-                row.Search = new string[_grid.Columns.Count];
-                for (int c = 0; c < row.Search.Length; c++) {
-                    row.Search[c] = c < row.Values.Count ? PresenterValues.ToText(row.Values[c], _culture) : string.Empty;
-                }
-            }
-            _appliedFilter = "\0";
-            _table = null;
-        }
+        private void RebuildSearch() => _data.RefreshRows();
 
         private void RefreshActionRows(GridOptions options, AppCommand command) {
             if (options.RefreshRow == null) { return; }
@@ -81,50 +55,31 @@ namespace ConsoleMonster.Interactive {
 
         public bool Accepted { get; private set; }
 
+        internal Task ActionCompletion => _actions?.Completion ?? Task.CompletedTask;
+
         public void ShowModal(Modal modal) => _modals.Add(modal);
 
         // A grid hosts no panes that take values from other threads.
         public bool TryPost(Action call) => _actions?.TryPost(call) ?? false;
 
-        public void Dispose() => _actions?.Dispose();
+        public void Dispose() { _actions?.Dispose(); _data.Dispose(); }
 
         public override bool Poll(TimeSpan now) => base.Poll(now) | (_actions?.Poll() ?? false);
 
         private IReadOnlyList<object?> ActionRows() {
             Refresh();
-            // Row indices identify the acted-on entries independently of nullable/shared Item references.
-            _actionIndices = _marked.Count > 0
-                ? Sorted(AllRows()).Where(index => _marked.Contains(index)).ToArray()
-                : _visible.Count == 0 ? Array.Empty<int>() : new[] { _visible[_cursor] };
+            _actionIndices = _data.SelectedIndices();
             return _actionIndices.Select(index => _grid.Rows[index].Item).ToArray();
         }
 
         protected override bool HandlePriorityInput(InputEvent input) {
             if (_modals.Count == 0 && (_actions?.Handle(input) ?? false)) { return true; }
-            if (input.Kind == InputEventKind.Resize || input.Kind == InputEventKind.FocusLost) { _dragAnchor = -1; }
+            if (input.Kind == InputEventKind.Resize || input.Kind == InputEventKind.FocusLost) { _data.CancelPointer(); }
             return false;
         }
 
         /// <summary>The objects of the chosen rows.</summary>
-        public List<object?> ChosenItems() {
-            List<object?> items = new List<object?>();
-            if (_grid.OutputMode == GridSelection.None) {
-                return items;
-            }
-            if (_grid.OutputMode == GridSelection.Multiple && _marked.Count > 0) {
-                foreach (int index in Sorted(AllRows())) {
-                    if (_marked.Contains(index)) {
-                        items.Add(_grid.Rows[index].Item);
-                    }
-                }
-                return items;
-            }
-            Refresh();
-            if (_cursor >= 0 && _cursor < _visible.Count) {
-                items.Add(_grid.Rows[_visible[_cursor]].Item);
-            }
-            return items;
-        }
+        public List<object?> ChosenItems() { Refresh(); return new List<object?>(_data.Selection); }
 
         public override IReadOnlyList<StyledLine>? Summary(RenderContext context) {
             if (IsCanceled || !Accepted) {
@@ -143,9 +98,9 @@ namespace ConsoleMonster.Interactive {
         protected override IWidget Build(ViewFrame frame) {
             Refresh();
             _modals.RemoveAll(m => m.IsClosed);
-            string right = PromptLabels.Format(Labels.GridRows, _visible.Count, _grid.Rows.Count);
-            if (_grid.OutputMode == GridSelection.Multiple && _marked.Count > 0) {
-                right += " " + InteractiveGlyphs.For(frame.Context).Separator + " " + PromptLabels.Format(Labels.GridSelected, _marked.Count);
+            string right = PromptLabels.Format(Labels.GridRows, _data.VisibleCount, _grid.Rows.Count);
+            if (_grid.OutputMode == GridSelection.Multiple && _data.MarkCount > 0) {
+                right += " " + InteractiveGlyphs.For(frame.Context).Separator + " " + PromptLabels.Format(Labels.GridSelected, _data.MarkCount);
             }
             Rows rows = new Rows();
             rows.Add(new HeaderBar(_grid.Title) { HeaderRight = right }, LayoutSize.Fixed(1));
@@ -178,17 +133,17 @@ namespace ConsoleMonster.Interactive {
         }
 
         private string ActionSelectionLabel() {
-            if (_actionIndices.Length > 1) { return _actionIndices.Length.ToString(_culture) + " rows"; }
+            if (_actionIndices.Length > 1) { return _actionIndices.Length.ToString((_grid.Presentation.Culture ?? CultureInfo.CurrentCulture)) + " rows"; }
             int index = _actionIndices.Length == 1 ? _actionIndices[0] : -1;
-            return index >= 0 && _grid.Rows[index].Values.Count > 0 ? PresenterValues.ToText(_grid.Rows[index].Values[0], _culture) : "selected row";
+            return index >= 0 && _grid.Rows[index].Values.Count > 0 ? PresenterValues.ToText(_grid.Rows[index].Values[0], (_grid.Presentation.Culture ?? CultureInfo.CurrentCulture)) : "selected row";
         }
 
         private string? SortTitle() {
-            if (_sortColumn < 0) {
+            if (_data.SortColumn < 0) {
                 return null;
             }
-            string arrow = _descending ? "↓" : "↑";
-            return Markup.Escape(Markup.Strip(_grid.Columns[_sortColumn].Header)) + " " + arrow;
+            string arrow = _data.Descending ? "↓" : "↑";
+            return Markup.Escape(Markup.Strip(_grid.Columns[_data.SortColumn].Header)) + " " + arrow;
         }
 
         public override void AddBindings(List<KeyBinding> bindings, ViewFrame frame) {
@@ -199,10 +154,10 @@ namespace ConsoleMonster.Interactive {
             InteractiveGlyphs g = InteractiveGlyphs.For(frame.Context);
             bindings.Add(new KeyBinding(Labels.KeyMove, () => Move(-1), new KeyChord(ConsoleKey.UpArrow)) { KeyText = g.KeyUpDown, Order = 10 });
             bindings.Add(new KeyBinding(string.Empty, () => Move(1), new KeyChord(ConsoleKey.DownArrow)) { InFooter = false });
-            bindings.Add(new KeyBinding(Labels.KeyPage, () => Move(-_pageRows), new KeyChord(ConsoleKey.PageUp)) { KeyText = "pgup/pgdn", Order = 11, InFooter = false });
-            bindings.Add(new KeyBinding(string.Empty, () => Move(_pageRows), new KeyChord(ConsoleKey.PageDown)) { InFooter = false });
-            bindings.Add(new KeyBinding(string.Empty, () => Move(-_visible.Count), new KeyChord(ConsoleKey.Home, KeyModifiers.Control)) { InFooter = false });
-            bindings.Add(new KeyBinding(string.Empty, () => Move(_visible.Count), new KeyChord(ConsoleKey.End, KeyModifiers.Control)) { InFooter = false });
+            bindings.Add(new KeyBinding(Labels.KeyPage, () => Move(-_data.PageRows), new KeyChord(ConsoleKey.PageUp)) { KeyText = "pgup/pgdn", Order = 11, InFooter = false });
+            bindings.Add(new KeyBinding(string.Empty, () => Move(_data.PageRows), new KeyChord(ConsoleKey.PageDown)) { InFooter = false });
+            bindings.Add(new KeyBinding(string.Empty, () => Move(-_data.VisibleCount), new KeyChord(ConsoleKey.Home, KeyModifiers.Control)) { InFooter = false });
+            bindings.Add(new KeyBinding(string.Empty, () => Move(_data.VisibleCount), new KeyChord(ConsoleKey.End, KeyModifiers.Control)) { InFooter = false });
             if (_grid.OutputMode == GridSelection.Multiple) {
                 bindings.Add(new KeyBinding(Labels.KeySelect, ToggleMark, new KeyChord(ConsoleKey.Spacebar), new KeyChord(' ')) { KeyText = "space", Order = 15 });
                 bindings.Add(new KeyBinding(Labels.KeyAll, MarkAll, new KeyChord(ConsoleKey.A, KeyModifiers.Control)) { KeyText = "ctrl+a", Order = 16, InFooter = false });
@@ -234,29 +189,7 @@ namespace ConsoleMonster.Interactive {
             return _filter.Handle(input);
         }
 
-        private bool HandlePointer(InputEvent input) {
-            if (input.MouseAction == MouseAction.Up) { _dragAnchor = -1; }
-            if (input.Column < _bodyBounds.X || input.Column >= _bodyBounds.Right || input.Row < _bodyBounds.Y || input.Row >= _bodyBounds.Bottom) { return false; }
-            if (input.MouseAction == MouseAction.Wheel) { Move(-Math.Sign(input.WheelDelta) * 3); return true; }
-            int relative = input.Row - _bodyBounds.Y;
-            int hit = _rowLines.FindLastIndex(y => y <= relative);
-            if (hit < 0 || hit + _top >= _visible.Count || relative >= _rowEnds[hit] || relative == _positionLine) { return false; }
-            if (input.MouseAction == MouseAction.Down && input.MouseButton == 1) {
-                _cursor = hit + _top;
-                _dragAnchor = _cursor;
-                if ((input.Modifiers & KeyModifiers.Control) != 0 && _grid.OutputMode == GridSelection.Multiple) { ToggleMark(); }
-                return true;
-            }
-            if (input.MouseAction == MouseAction.Move && _dragAnchor >= 0 && (input.HeldButtons & 1) != 0) {
-                _cursor = hit + _top;
-                if (_grid.OutputMode == GridSelection.Multiple) {
-                    for (int i = Math.Min(_dragAnchor, _cursor); i <= Math.Max(_dragAnchor, _cursor); i++) { _marked.Add(_visible[i]); }
-                    _table = null;
-                }
-                return true;
-            }
-            return false;
-        }
+        private bool HandlePointer(InputEvent input) => LastFrame != null && _data.Pointer(input, LastFrame.Context);
 
         private void Escape() {
             if (!_filter.IsEmpty) {
@@ -272,99 +205,50 @@ namespace ConsoleMonster.Interactive {
             IsDone = true;
         }
 
-        private void Move(int delta) {
-            Refresh();
-            _cursor = Math.Max(0, Math.Min(_visible.Count - 1, _cursor + delta));
-        }
-
-        private void ToggleMark() {
-            Refresh();
-            if (_cursor < 0 || _cursor >= _visible.Count) {
-                return;
-            }
-            int index = _visible[_cursor];
-            if (!_marked.Remove(index)) {
-                _marked.Add(index);
-            }
-            _table = null;
-        }
-
-        private void MarkAll() {
-            Refresh();
-            bool all = _visible.TrueForAll(i => _marked.Contains(i));
-            foreach (int index in _visible) {
-                if (all) {
-                    _marked.Remove(index);
-                } else {
-                    _marked.Add(index);
-                }
-            }
-            _table = null;
-        }
+        private void Refresh() { if (_data.Filter != _filter.Text.Trim()) { _data.Filter = _filter.Text.Trim(); } }
+        private void Move(int delta) { Refresh(); _data.Move(delta); }
+        private void ToggleMark() { Refresh(); _data.ToggleMark(); }
+        private void MarkAll() { Refresh(); _data.MarkAll(); }
 
         private void CycleSort(int direction) {
             List<int> shown = ShownColumns();
-            int position = shown.IndexOf(_sortColumn);
+            int position = shown.IndexOf(_data.SortColumn);
             int next = position + direction;
             if (position < 0) {
                 next = direction > 0 ? 0 : shown.Count - 1;
             }
-            _sortColumn = next < 0 || next >= shown.Count ? -1 : shown[next];
-            _descending = false;
-            Invalidate();
+            _data.Sort(next < 0 || next >= shown.Count ? -1 : shown[next]);
         }
 
         private void ReverseSort() {
-            if (_sortColumn >= 0) {
-                _descending = !_descending;
-                Invalidate();
+            if (_data.SortColumn >= 0) {
+                _data.Sort(_data.SortColumn, !_data.Descending);
             }
         }
 
         private void OpenDetails() {
             Refresh();
-            if (_cursor >= 0 && _cursor < _visible.Count) {
+            if (_data.CurrentRow != null) {
                 ShowModal(new GridDetailModal(this));
             }
         }
 
-        internal void Invalidate() {
-            _appliedFilter = "\0";
-            _table = null;
-        }
-
+        internal void Invalidate() => _data.RefreshRows();
         internal Grid Grid => _grid;
-
-        internal bool IsHidden(int column) => _hidden[column];
-
-        internal void SetHidden(int column, bool hidden) {
-            if (hidden && ShownColumns().Count <= 1) {
-                return;
-            }
-            _hidden[column] = hidden;
-            if (hidden && _sortColumn == column) {
-                _sortColumn = -1;
-            }
-            Invalidate();
-        }
-
-        internal GridRow? FocusedRow => _cursor >= 0 && _cursor < _visible.Count ? _grid.Rows[_visible[_cursor]] : null;
-
+        internal bool IsHidden(int column) => _data.IsHidden(column);
+        internal void SetHidden(int column, bool hidden) => _data.SetHidden(column, hidden);
+        internal GridRow? FocusedRow => _data.CurrentRow;
         internal void StepFocus(int delta) => Move(delta);
+        internal List<int> ShownColumns() => _data.ShownColumns();
 
-        internal List<int> ShownColumns() {
-            List<int> shown = new List<int>();
-            for (int c = 0; c < _hidden.Length; c++) {
-                if (!_hidden[c]) {
-                    shown.Add(c);
-                }
-            }
-            return shown;
-        }
-
-        private IEnumerable<int> AllRows() {
-            for (int i = 0; i < _grid.Rows.Count; i++) {
-                yield return i;
+        private sealed class GridBody : IWidget {
+            private readonly GridView _view;
+            internal GridBody(GridView view) { _view = view; }
+            public Size Measure(Constraints constraints, RenderContext context) => new Size(constraints.MaxWidth, constraints.IsHeightUnbounded ? 10 : constraints.MaxHeight);
+            public void Render(Region region, RenderContext context) {
+                _view.Refresh();
+                _view._data.Focused = !(_view._actions?.HasBarFocus ?? false) && !(_view._actions?.HasModal ?? false) && _view._modals.Count == 0;
+                _view._data.RenderRows(region, context);
             }
         }
     }
