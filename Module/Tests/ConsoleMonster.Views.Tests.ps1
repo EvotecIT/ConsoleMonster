@@ -99,7 +99,7 @@ $servers | Out-ConsoleDefault -Force
         $builtIn, $native = ($text -split '== built-in')[1] -split '== native'
         # Removing a custom view restores the generic record view; opting out restores PowerShell's native table.
         $builtIn | Should -Match '[|│] srv01\s+[|│] Running\s+[|│]'
-        $builtIn | Should -Not -Match '\[PASS\]'
+        $builtIn | Should -Not -Match '\[OK\]'
         $native | Should -Match 'Name\s+State\s*\n-+\s+-+'
     }
 

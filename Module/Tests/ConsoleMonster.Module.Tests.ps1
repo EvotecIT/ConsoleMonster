@@ -76,7 +76,7 @@
         $text = Invoke-ConsoleChild -Environment @{ CONSOLEMONSTER_MODE = 'plain'; CONSOLEMONSTER_COLOR = 'truecolor' } -Script @'
 New-ConsolePanel -Title 'Plain' -Content { New-ConsoleStatusList -InputObject ([ordered] @{ SPF = 'pass'; DNSSEC = 'fail' }) } | Show-Console
 '@
-        $text | Should -Match '\[PASS\] SPF'
+        $text | Should -Match '\[OK\]\s+SPF'
         $text | Should -Match '\[FAIL\] DNSSEC'
         $text | Should -Not -Match ([char] 27)
         ($text.ToCharArray() | Where-Object { [int] $_ -gt 126 }) | Should -BeNullOrEmpty
