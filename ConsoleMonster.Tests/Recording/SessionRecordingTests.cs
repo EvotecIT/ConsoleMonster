@@ -396,9 +396,16 @@ namespace ConsoleMonster.Tests.Sessions {
             options.InProcess = false; options.Timeout = TimeSpan.FromSeconds(30);
             using (ManualResetEventSlim prompt = new ManualResetEventSlim()) {
                 if (windows) {
-                    options.Shell = "powershell.exe";
-                    string script = "[Console]::Write([char]27 + '[32mNative colour' + [char]27 + '[0m' + \"`r`n\"); git --version; 1..3 | % { [Console]::Write(\"`rProgress $_/3\"); Start-Sleep -Milliseconds 30 }; [Console]::Write(\"`r`nPassword: \"); do { $k=[Console]::ReadKey($true) } while ($k.Key -ne 'Enter'); [Console]::Write(\"`r`nNative size $([Console]::WindowWidth)x$([Console]::WindowHeight)`r`npassword=output-secret`r`nFinished`r`n\")";
-                    options.Arguments.Add("-NoProfile"); options.Arguments.Add("-EncodedCommand"); options.Arguments.Add(Convert.ToBase64String(Encoding.Unicode.GetBytes(script)));
+                    // Exercise the recorder directly; PowerShell startup and its input host have separate Pester coverage.
+#if NETFRAMEWORK
+                    options.Shell = typeof(TestHost.Program).Assembly.Location;
+#else
+                    options.Shell = "dotnet";
+                    options.Arguments.Add("exec"); options.Arguments.Add("--runtimeconfig");
+                    options.Arguments.Add(System.IO.Path.ChangeExtension(typeof(SessionRecordingTests).Assembly.Location, ".runtimeconfig.json"));
+                    options.Arguments.Add(typeof(TestHost.Program).Assembly.Location);
+#endif
+                    options.Arguments.Add("recording-child");
                 } else {
                     options.Shell = "/bin/sh";
                     options.Arguments.Add("-c");
@@ -418,6 +425,7 @@ namespace ConsoleMonster.Tests.Sessions {
             }
             string raw = File.ReadAllText(options.Path!);
             Assert.DoesNotContain("input-secret", raw); Assert.DoesNotContain("output-secret", raw);
+            Assert.Contains("[32m", raw);
             Assert.DoesNotContain("\"i\",", raw);
             Assert.Contains("40x10", raw); Assert.Contains("[REDACTED]", raw);
             SessionRecording recording = SessionRecording.Read(options.Path!);
