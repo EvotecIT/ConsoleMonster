@@ -25,4 +25,5 @@ new ObjectExplorer(server, rootPath: "$server")
 {
     Title = "Server configuration"
 }.Show();
+
 sealed record OwnerInfo(string Name, string[] Groups);

@@ -13,11 +13,17 @@ $chainStatus = if ($expired) { 'Fail' } else { 'Pass' }
 $verdict = if ($expired) { 'UNTRUSTED' } else { 'TRUSTED' }
 $hostName = if ($expired) { 'legacy.example.test' } else { 'portal.example.test' }
 $steps = @(
-    [pscustomobject] @{ Key = 'dns'; Label = 'Resolve DNS'; Status = 'Pass'; Detail = '203.0.113.42' }
-    [pscustomobject] @{ Key = 'connect'; Label = 'Connect :443'; Status = 'Pass'; Detail = 'connected' }
-    [pscustomobject] @{ Key = 'handshake'; Label = 'TLS handshake'; Status = 'Pass'; Detail = 'TLS 1.3' }
-    [pscustomobject] @{ Key = 'chain'; Label = 'Validate chain'; Status = $chainStatus; Detail = $(if ($expired) { 'expired intermediate' } else { 'verified' }) }
-    [pscustomobject] @{ Key = 'expiry'; Label = 'Expiry and revocation'; Status = $(if ($expired) { 'Skip' } else { 'Pass' }); Detail = $(if ($expired) { 'skipped' } else { 'valid / good' }) }
+    [pscustomobject] @{ Key = 'dns'; Label = 'Resolve DNS'; Status = 'Pass'
+        Detail = '203.0.113.42' }
+    [pscustomobject] @{ Key = 'connect'; Label = 'Connect :443'; Status = 'Pass'
+        Detail = 'connected' }
+    [pscustomobject] @{ Key = 'handshake'; Label = 'TLS handshake'; Status = 'Pass'
+        Detail = 'TLS 1.3' }
+    [pscustomobject] @{ Key = 'chain'; Label = 'Validate chain'; Status = $chainStatus
+        Detail = $(if ($expired) { 'expired intermediate' } else { 'verified' }) }
+    [pscustomobject] @{ Key = 'expiry'; Label = 'Expiry and revocation'
+        Status = $(if ($expired) { 'Skip' } else { 'Pass' })
+        Detail = $(if ($expired) { 'skipped' } else { 'valid / good' }) }
 )
 $context = @(
     [pscustomobject] @{ Key = 'Host'; Value = $hostName }
@@ -31,23 +37,31 @@ $nodes = @(
     [pscustomobject] @{ Kind = 'Node'; Key = 'client'; Label = 'client'; Status = 'Pass' }
     [pscustomobject] @{ Kind = 'Node'; Key = 'host'; Label = 'host:443'; Status = 'Pass' }
     [pscustomobject] @{ Kind = 'Node'; Key = 'leaf'; Label = 'leaf'; Status = 'Pass' }
-    [pscustomobject] @{ Kind = 'Node'; Key = 'intermediate'; Label = 'intermediate'; Status = $chainStatus }
-    [pscustomobject] @{ Kind = 'Node'; Key = 'root'; Label = 'root'; Status = $(if ($expired) { 'Skip' } else { 'Pass' }) }
+    [pscustomobject] @{ Kind = 'Node'; Key = 'intermediate'; Label = 'intermediate'
+        Status = $chainStatus }
+    [pscustomobject] @{ Kind = 'Node'; Key = 'root'; Label = 'root'
+        Status = $(if ($expired) { 'Skip' } else { 'Pass' }) }
 )
 $edges = @(
-    [pscustomobject] @{ Kind = 'Edge'; Key = 'connect'; From = 'client'; To = 'host'; Label = ':443' }
+    [pscustomobject] @{ Kind = 'Edge'; Key = 'connect'; From = 'client'; To = 'host'
+        Label = ':443' }
     [pscustomobject] @{ Kind = 'Edge'; Key = 'tls'; From = 'host'; To = 'leaf'; Label = 'TLS' }
-    [pscustomobject] @{ Kind = 'Edge'; Key = 'issuer'; From = 'leaf'; To = 'intermediate'; Label = 'issuer'; Status = $chainStatus; Cut = $expired }
-    [pscustomobject] @{ Kind = 'Edge'; Key = 'anchor'; From = 'intermediate'; To = 'root'; Label = 'anchor' }
+    [pscustomobject] @{ Kind = 'Edge'; Key = 'issuer'; From = 'leaf'; To = 'intermediate'
+        Label = 'issuer'; Status = $chainStatus; Cut = $expired }
+    [pscustomobject] @{ Kind = 'Edge'; Key = 'anchor'; From = 'intermediate'; To = 'root'
+        Label = 'anchor' }
 )
 $flow = @($nodes; $edges) | New-ConsoleFlow -WidgetId chain
 if ($expired) {
     $flow | Add-ConsoleItem {
-        [pscustomobject] @{ Kind = 'Branch'; From = 'intermediate'; Label = 'expired 2026-09-30'; Status = 'Fail' }
+        [pscustomobject] @{ Kind = 'Branch'; From = 'intermediate'; Label = 'expired 2026-09-30'
+            Status = 'Fail' }
     }
 }
-$proof = if ($expired) { 'Intermediate expired before 2026-10-25.' } else { 'All three certificates valid on 2026-10-25.' }
-$action = if ($expired) { 'Renew the intermediate; serve the full chain.' } else { 'No repair needed; keep expiry monitoring on.' }
+$proof = if ($expired) { 'Intermediate expired before 2026-10-25.' }
+else { 'All three certificates valid on 2026-10-25.' }
+$action = if ($expired) { 'Renew the intermediate; serve the full chain.' }
+else { 'No repair needed; keep expiry monitoring on.' }
 $exitCode = if ($expired) { 1 } else { 0 }
 
 # demo: pause 1
@@ -69,10 +83,13 @@ New-ConsoleRows -Gap 1 {
         Status = $chainStatus
     }
     New-ConsolePanel @verdictOptions {
-        New-ConsoleText -Text $(if ($expired) { 'Chain validation failed.' } else { 'Chain validation passed.' })
+        New-ConsoleText -Text $(if ($expired) { 'Chain validation failed.' }
+        else { 'Chain validation passed.' })
     }
     New-ConsoleKeyValue -KeyRole $chainStatus -Content {
-        [pscustomobject] @{ Key = 'Cause'; Value = $(if ($expired) { 'Expired intermediate certificate.' } else { 'Trusted root and complete chain.' }) }
+        [pscustomobject] @{ Key = 'Cause'
+            Value = $(if ($expired) { 'Expired intermediate certificate.' }
+            else { 'Trusted root and complete chain.' }) }
         [pscustomobject] @{ Key = 'Proof'; Value = $proof }
         [pscustomobject] @{ Key = 'Action'; Value = $action }
         [pscustomobject] @{ Key = 'Exit'; Value = "$exitCode · 184 ms" }

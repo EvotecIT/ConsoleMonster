@@ -18,7 +18,13 @@ function New-DemoFrame {
             New-ConsolePanel -Title Workers -Content {
                 foreach ($worker in 1..$workerCount) {
                     $value = [Math]::Min(100, 12 + $worker * 5 + $Tick * 17)
-                    New-ConsoleProgress -WidgetId ('worker' + $worker) -Label ('worker-{0:00}' -f $worker) -Value $value -Total 100
+                    $progressParameters = @{
+                        WidgetId = ('worker' + $worker)
+                        Label = ('worker-{0:00}' -f $worker)
+                        Value = $value
+                        Total = 100
+                    }
+                    New-ConsoleProgress @progressParameters
                 }
             }
             New-ConsolePanel -Title Session -Content {
@@ -28,7 +34,8 @@ function New-DemoFrame {
                         'Workers' = '8'
                         'Dropped' = '[pass]0[/]'
                     })
-                New-ConsoleChart -Title 'updates/s' -Type Sparkline -Values @(120, 180, 160, 240, 210, (220 + $Tick * 15))
+                New-ConsoleChart -Title 'updates/s' -Type Sparkline -Values @(120, 180, 160, 240,
+                    210, (220 + $Tick * 15))
             }
         }
         '[muted]Ctrl+C stops the live run.[/]'

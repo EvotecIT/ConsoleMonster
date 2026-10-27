@@ -50,6 +50,7 @@ namespace SiteFrames.Capture {
                         .NormalizeWhitespace(indentation: "    ", eol: "\n").ToFullString() + "\n";
                 }
             }
+            foreach (string file in generated.Keys.ToArray()) { generated[file] = SourceLayout.Format(generated[file]); }
             return generated;
         }
 

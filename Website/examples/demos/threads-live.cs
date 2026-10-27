@@ -19,15 +19,18 @@ using (LiveSession session = new LiveSession(dashboard)) {
     await session.RunAsync(async (s, cancel) => {
         LanesHandle handle = lanes.Handle(s);
         try {
-            await Parallel.ForEachAsync(servers, new ParallelOptions { MaxDegreeOfParallelism = 12, CancellationToken = cancel }, async (server, token) => {
-                foreach (string step in steps) {
-                    handle.Start(server, step);
-                    await Task.Delay(Random.Shared.Next(40, 240), token);
-                    handle.Advance(server, StatusKind.Pass);
-                }
-                Console.WriteLine(server + " done");
-                handle.Complete(server);
-            });
+            await Parallel.ForEachAsync(
+                servers,
+                new ParallelOptions { MaxDegreeOfParallelism = 12, CancellationToken = cancel },
+                async (server, token) => {
+                    foreach (string step in steps) {
+                        handle.Start(server, step);
+                        await Task.Delay(Random.Shared.Next(40, 240), token);
+                        handle.Advance(server, StatusKind.Pass);
+                    }
+                    Console.WriteLine(server + " done");
+                    handle.Complete(server);
+                });
         } catch (OperationCanceledException) {
             // Ctrl+C: the session has already stopped the view; the workers just stop.
         }

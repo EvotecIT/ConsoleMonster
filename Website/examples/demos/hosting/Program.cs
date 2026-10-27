@@ -5,18 +5,26 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 // A generic host with three workers and the console dashboard; log entries go into its log region. Ctrl+C stops it.
-HostApplicationBuilder builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings { ApplicationName = "Orders", EnvironmentName = "Staging" });
+HostApplicationBuilder builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings
+{
+    ApplicationName = "Orders",
+    EnvironmentName = "Staging"
+});
 builder.Logging.ClearProviders();
 builder.Logging.AddConsoleMonster();
+
 // A worker that fails shows as failed on the dashboard while the others keep running.
-builder.Services.Configure<HostOptions>(options => options.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore);
+builder.Services.Configure<HostOptions>(
+    options => options.BackgroundServiceExceptionBehavior =
+        BackgroundServiceExceptionBehavior.Ignore);
 builder.Services.AddHostedService<QueueWorker>();
 builder.Services.AddHostedService<CacheWarmer>();
 builder.Services.AddHostedService<ReportBuilder>();
 builder.Services.AddConsoleDashboard(dashboard => dashboard.LogHeight = 6);
 await builder.Build().RunAsync();
 
-sealed class QueueWorker(ILogger<QueueWorker> log, IConsoleDashboard dashboard) : BackgroundService {
+sealed class QueueWorker(ILogger<QueueWorker> log,
+    IConsoleDashboard dashboard) : BackgroundService {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken) {
         int order = 1040;
         while (!stoppingToken.IsCancellationRequested) {

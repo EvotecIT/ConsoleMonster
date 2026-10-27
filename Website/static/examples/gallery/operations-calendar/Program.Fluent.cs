@@ -18,14 +18,24 @@ var days = new[]
     new CalendarMark(new DateTime(2026, 10, 26), StatusKind.Pending, "Restore drill scheduled"),
     new CalendarMark(new DateTime(2026, 10, 30), StatusKind.Pending, "Backup scheduled"),
 };
+
 // Behaviour: group dates while keeping each event's own status.
-var calendar = Ui.Calendar().Year(2026).Month(10).Marks(days).FirstDayOfWeek(DayOfWeek.Monday).Today(today);
-var upcoming = days.Where(day => day.Date >= today && day.Date <= today.AddDays(14)).GroupBy(day => day.Date).OrderBy(group => group.Key);
+var calendar = Ui.Calendar()
+    .Year(2026)
+    .Month(10)
+    .Marks(days)
+    .FirstDayOfWeek(DayOfWeek.Monday)
+    .Today(today);
+var upcoming = days.Where(day => day.Date >= today && day.Date <= today.AddDays(14))
+    .GroupBy(day => day.Date)
+    .OrderBy(group => group.Key);
+
 // Layout: a month overview beside the next two weeks from the same rows.
 var events = Ui.Rows();
 foreach (var group in upcoming)
 {
-    events.Add(Ui.Text(group.Key.ToString("ddd dd MMM", System.Globalization.CultureInfo.GetCultureInfo("en-US"))));
+    events.Add(Ui.Text(group.Key.ToString("ddd dd MMM",
+        System.Globalization.CultureInfo.GetCultureInfo("en-US"))));
     var items = Ui.StatusList();
     foreach (var day in group)
     {

@@ -6,8 +6,8 @@ In PowerShell, import ConsoleMonster and read a file or supply content:
 
 ```powershell
 Import-Module ConsoleMonster
-Show-ConsoleMarkdown -Path .\README.md
-Show-ConsoleMarkdown -Content '# Deployment notes' -NoPager
+Show-Console -View Markdown -Path .\README.md
+Show-Console -View Markdown -Content '# Deployment notes' -NoPager
 ```
 
 For .NET, install the `ConsoleMonster.Markdown` package:
