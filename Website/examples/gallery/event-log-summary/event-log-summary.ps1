@@ -38,10 +38,10 @@ $report = New-ConsoleRows -Gap 1 -Content {
     "[fail]$($critical.Count) critical[/]   [warn]$errorTotal errors[/]   [muted]$warningTotal warnings · busiest hour $('{0:00}:00' -f $peak)[/]"
     New-ConsoleColumns -Content {
         New-ConsolePanel -Title 'Errors per hour' -Content {
-            New-ConsoleChart -Type Sparkline -Label 'errors' -Height 3 -Role Fail -Values $errorsPerHour
+            New-ConsoleChart -Type Sparkline -Title 'errors' -Height 3 -Role Fail -Values $errorsPerHour
         }
         New-ConsolePanel -Title 'Warnings per hour' -Content {
-            New-ConsoleChart -Type Sparkline -Label 'warnings' -Height 3 -Role Warn -Values $warningsPerHour
+            New-ConsoleChart -Type Sparkline -Title 'warnings' -Height 3 -Role Warn -Values $warningsPerHour
         }
     }
     New-ConsoleColumns -Content {

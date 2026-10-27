@@ -18,11 +18,11 @@
 [0;38;2;75;80;96m╰───────────────────────────────────────────────╯[0m [0;38;2;75;80;96m╰────────────────────────────────────────────────╯[0m
 
 [0;38;2;75;80;96m╭─[0m [0;1mCritical events[0m [0;38;2;75;80;96m────────────────────────────────────────────────────────────────────────────────╮[0m
-[0;38;2;75;80;96m│[0m [0;1mTime[0m   [0;1mHost[0m    [0;1mSource[0m         [0;1mId[0m  [0;1mMessage[0m                                                        [0;38;2;75;80;96m│[0m
-[0;38;2;75;80;96m│[0m 14:52  sql-01  Kernel-Power   41  Rebooted without a clean shutdown                              [0;38;2;75;80;96m│[0m
-[0;38;2;75;80;96m│[0m 15:07  sql-01  MSSQLSERVER   824  Logical consistency I/O error on tempdb                        [0;38;2;75;80;96m│[0m
-[0;38;2;75;80;96m│[0m 15:31  fs-02   Disk            7  Bad block on \Device\Harddisk1\DR1                             [0;38;2;75;80;96m│[0m
-[0;38;2;75;80;96m│[0m 16:10  web-03  Kernel-Power   41  Rebooted without a clean shutdown                              [0;38;2;75;80;96m│[0m
+[0;38;2;75;80;96m│[0m [0;1mTime[0m     [0;1mHost[0m      [0;1mSource[0m             [0;1mId[0m  [0;1mMessage[0m                                                [0;38;2;75;80;96m│[0m
+[0;38;2;75;80;96m│[0m 14:52    sql-01    Kernel-Power       41  Rebooted without a clean shutdown                      [0;38;2;75;80;96m│[0m
+[0;38;2;75;80;96m│[0m 15:07    sql-01    MSSQLSERVER       824  Logical consistency I/O error on tempdb                [0;38;2;75;80;96m│[0m
+[0;38;2;75;80;96m│[0m 15:31    fs-02     Disk                7  Bad block on \Device\Harddisk1\DR1                     [0;38;2;75;80;96m│[0m
+[0;38;2;75;80;96m│[0m 16:10    web-03    Kernel-Power       41  Rebooted without a clean shutdown                      [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m╰──────────────────────────────────────────────────────────────────────────────────────────────────╯[0m
 
 
