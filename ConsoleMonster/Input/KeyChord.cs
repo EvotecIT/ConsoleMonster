@@ -104,7 +104,8 @@ namespace ConsoleMonster.Input {
             rest = rest.Trim();
             if (rest.Length == 1) {
                 char c = rest[0];
-                ConsoleKey key = InputEvent.KeyFor(c);
+                // Ctrl+\ arrives as the US-layout backslash key on every input path.
+                ConsoleKey key = c == '\\' ? ConsoleKey.Oem5 : InputEvent.KeyFor(c);
                 if (modifiers == KeyModifiers.None) {
                     chord = c == ' ' ? new KeyChord(ConsoleKey.Spacebar) : new KeyChord(c);
                     return c >= ' ';
@@ -190,6 +191,8 @@ namespace ConsoleMonster.Input {
                     return "Del";
                 case ConsoleKey.Insert:
                     return "Ins";
+                case ConsoleKey.Oem5:
+                    return "\\";
                 case 0:
                     return character == '\0' ? "?" : InputEvent.Printable(character.ToString());
             }
