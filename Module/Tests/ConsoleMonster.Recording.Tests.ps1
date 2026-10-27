@@ -91,7 +91,8 @@
         } -Destination $destination -InProcess -WarningAction SilentlyContinue | Out-Null
         $cast = [IO.Path]::ChangeExtension($destination, '.cast')
         $raw = Get-Content -LiteralPath $cast -Raw
-        $raw | Should -Match 'in-process PowerShell output only'
+        # The shared hosted-output sink also serves C# hosts; the mode still states its output-only limitation.
+        (($raw -split "`n")[0] | ConvertFrom-Json).consolemonster.mode | Should -BeExactly 'in-process output only'
         $raw | Should -Not -Match 'synthetic-fallback-secret'
         $text = Export-ConsoleRecording -Path $cast -Format Text
         $text | Should -Match 'Host output'
