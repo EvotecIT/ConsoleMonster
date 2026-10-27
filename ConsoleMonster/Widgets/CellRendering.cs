@@ -95,6 +95,22 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>Presents a cell: raw values through the column presenter and tone rules, markup as written, status cells with marker.</summary>
         internal static CellContent Content(TableCell cell, ICellPresenter? presenter, IReadOnlyList<RoleRule>? rules, PresenterContext context) {
+            CellContent content = CoreContent(cell, presenter, rules, context);
+            if (cell.RowRole == null) return content;
+            TableRowRole role = cell.RowRole;
+            List<StyledLine> lines = new List<StyledLine>();
+            foreach (StyledLine line in content.Lines) lines.Add(role.Apply(line, context.Render));
+            PresentedValue? presented = content.Presented;
+            if (presented != null) presented = new PresentedValue(role.Apply(presented.Line, context.Render), presented.Alignment) {
+                Role = role.Tone ?? (role.Muted ? ThemeToken.Muted : presented.Role), Visual = presented.Visual,
+                Fraction = presented.Fraction, Series = presented.Series, VisualWidth = presented.VisualWidth,
+                Number = presented.Number, IsEmpty = presented.IsEmpty
+            };
+            IWidget? widget = content.Widget == null ? null : new RowRoleWidget(content.Widget, role);
+            return new CellContent(lines, presented, content.Atomic, widget);
+        }
+
+        private static CellContent CoreContent(TableCell cell, ICellPresenter? presenter, IReadOnlyList<RoleRule>? rules, PresenterContext context) {
             if (cell.HasValue && WidgetCellLayout.GetWidget(cell.Value) is IWidget widget) {
                 return new CellContent(WidgetCellLayout.Lines(widget, context.Render.Profile.Width, context.Render), null, widget: widget);
             }

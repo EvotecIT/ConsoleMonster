@@ -4,6 +4,7 @@
   "ExpectedVersion": null,
   "ExpectedVersionMap": {
     "ConsoleMonster": "2.1.X",
+    "ConsoleMonster.PowerShell.Display": "2.1.X",
     "ConsoleMonster.Markdown": "2.1.X",
     "ConsoleMonster.Extensions.Logging": "2.1.X",
     "ConsoleMonster.Hosting": "2.1.X",

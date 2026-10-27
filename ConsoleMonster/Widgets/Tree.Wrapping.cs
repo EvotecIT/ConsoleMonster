@@ -31,7 +31,7 @@ namespace ConsoleMonster.Widgets {
                     content.Add(new TextSpan("  "));
                     AddLines(content, CellRendering.Content(node.Value, node.Presenter, null, presenter).Lines);
                 }
-                string? note = node.NoteFor(context);
+                string? note = row.NoteFor(context);
                 if (!string.IsNullOrEmpty(note)) content.Add(new TextSpan("  " + note, context.Style(ThemeToken.Muted)));
                 IReadOnlyList<StyledLine> wrapped = TextWrapper.Wrap(new StyledLine(content), Math.Max(1, width - indent));
                 for (int i = 0; i < wrapped.Count; i++) {

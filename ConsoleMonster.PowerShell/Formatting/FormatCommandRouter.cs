@@ -38,7 +38,8 @@ namespace ConsoleMonster.PowerShell {
                 object? downstream = Member(pipe, "DownstreamCmdlet");
                 CommandInfo? command = Member(downstream, "CommandInfo") as CommandInfo;
                 bool native = command is CmdletInfo && string.Equals(command.ModuleName, "Microsoft.PowerShell.Core", StringComparison.OrdinalIgnoreCase);
-                bool shim = command is FunctionInfo function && function.Definition.IndexOf(ConsoleFormatting.Marker, StringComparison.OrdinalIgnoreCase) >= 0;
+                bool shim = Display.DefaultDisplay.IsOwnedBroker(command)
+                    || command is FunctionInfo function && function.Definition.IndexOf(ConsoleFormatting.Marker, StringComparison.OrdinalIgnoreCase) >= 0;
                 if (command == null || !string.Equals(command.Name, "Out-Default", StringComparison.OrdinalIgnoreCase) || (!native && !shim)) {
                     return false;
                 }

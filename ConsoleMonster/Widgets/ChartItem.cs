@@ -29,5 +29,11 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>The colour role.</summary>
         public ThemeToken? Role { get; set; }
+
+        /// <summary>A plain text replacement for a non-finite value in a bar chart; null uses the chart default.</summary>
+        public string? MissingText { get; set; }
+
+        /// <summary>An explicit status, shown as a glyph as well as a theme role in bar charts.</summary>
+        public StatusKind? Status { get; set; }
     }
 }

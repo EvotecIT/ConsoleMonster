@@ -27,6 +27,8 @@ namespace ConsoleMonster.PowerShell {
         }
 
         internal bool TakeOverBuiltIns { get; set; } = true;
+        internal Display.ModuleLease? DisplayLease { get; set; }
+        internal Dictionary<string, EmbeddedDisplayFile> DisplayFiles { get; } = new Dictionary<string, EmbeddedDisplayFile>(StringComparer.OrdinalIgnoreCase);
         internal ConsoleFormattingFeature Features { get; set; }
         internal bool DetailedErrors { get; set; }
         internal ScriptBlock? SavedOutDefault { get; set; }
@@ -48,6 +50,10 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary>Ends this installation without changing any other runspace's saved commands.</summary>
         internal void Reset() {
+            foreach (EmbeddedDisplayFile file in DisplayFiles.Values) { file.Dispose(); }
+            DisplayFiles.Clear();
+            DisplayLease?.Dispose();
+            DisplayLease = null;
             PromptInstallation.Remove(this);
             Streams.Restore();
             ReadLine.Restore();

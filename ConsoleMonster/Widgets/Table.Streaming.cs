@@ -5,6 +5,9 @@ using ConsoleMonster.Presenters;
 
 namespace ConsoleMonster.Widgets {
     public partial class Table {
+        // The grouped streaming composition freezes only the initial bounded sample's negotiated grid.
+        internal TableLayout StreamingLayout(int width, Canvas.RenderContext context) => ComputeLayout(width, context);
+
         /// <summary>
         /// What a streaming layout learns from each row while it is measured: the column widths it wants and needs, the key
         /// column's widths (for the comfortable key width) and how many values align right (automatic alignment).

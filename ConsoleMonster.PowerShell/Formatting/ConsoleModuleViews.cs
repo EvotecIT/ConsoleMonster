@@ -24,6 +24,7 @@ namespace ConsoleMonster.PowerShell {
         }
 
         internal static void Import(PSCmdlet cmdlet, string path, bool onlyIfMissing) {
+            if (EmbeddedDisplayIntegration.TryImportV2(cmdlet, path, onlyIfMissing)) { return; }
             foreach (ConsoleViewRegistration registration in Read(cmdlet, path)) {
                 ConsoleFormatting.Register(registration, onlyIfMissing);
             }

@@ -10,6 +10,7 @@ namespace ConsoleMonster.PowerShell {
         /// <param name="onlyIfMissing">Keeps an existing view when registering only a shaper.</param>
         public static void Register(ConsoleViewRegistration registration, ScriptBlock? shaper = null, bool onlyIfMissing = false) {
             if (registration == null) { throw new ArgumentNullException(nameof(registration)); }
+            if (!onlyIfMissing) { EmbeddedDisplayIntegration.Unregister(registration.TypeName); }
             if (shaper != null) { Binding.PSShaping.RegisterShaper(registration.TypeName, shaper); }
             ConsoleFormatting.Register(registration, onlyIfMissing);
         }
@@ -28,16 +29,22 @@ namespace ConsoleMonster.PowerShell {
         /// <returns>The validated definitions.</returns>
         public static IReadOnlyList<ConsoleViewRegistration> Read(PSCmdlet source, string path) {
             if (source == null) { throw new ArgumentNullException(nameof(source)); }
+            if (EmbeddedDisplayIntegration.TryReadV2(source, path, out Display.ConsoleViewDocument? document)) {
+                List<ConsoleViewRegistration> result = new List<ConsoleViewRegistration>();
+                foreach (string typeName in document!.TypeNames) { result.Add(new ConsoleViewRegistration(typeName)); }
+                return result;
+            }
             return ConsoleModuleViews.Read(source, path);
         }
 
         /// <summary>Removes a type's registered view and value shaper.</summary>
         /// <param name="typeName">The PowerShell type name.</param>
-        /// <returns>Whether either registration existed.</returns>
+        /// <returns>Whether a saved view or value shaper existed, including an inactive schema 2 definition.</returns>
         public static bool Unregister(string typeName) {
+            bool embedded = EmbeddedDisplayIntegration.Unregister(typeName);
             bool view = ConsoleFormatting.Unregister(typeName);
             bool shaper = Values.ValueShaper.Unregister(typeName);
-            return view || shaper;
+            return embedded || view || shaper;
         }
     }
 }

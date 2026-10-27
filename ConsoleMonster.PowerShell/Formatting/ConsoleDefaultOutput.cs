@@ -49,7 +49,8 @@ namespace ConsoleMonster.PowerShell {
         private void Begin() {
             ConsoleModuleViews.Discover(_host);
 
-            _active = _options.Force || (!_options.Transcript && ConsoleFormatting.Displayed(_host) && FormatCommandRouter.IsUntranscribed(_host));
+            _active = _options.Force || (!_options.Transcript && ConsoleFormatting.Displayed(_host) && FormatCommandRouter.IsUntranscribed(_host)
+                && (!_options.Shim || Display.DefaultDisplayHostGate.CanRender(_host, _options.TopLevel, _options.Transcript, Terminal.GetCurrentProfile())));
             if (_options.Shim) {
                 ConsoleFormattingFeature features = ConsoleFormatting.Features;
                 _types = (features & ConsoleFormattingFeature.Output) != 0;
