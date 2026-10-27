@@ -140,8 +140,8 @@ if ([regex]::Matches($text, 'leaf').Count -ne 2) { throw 'Shared content was rej
             $script:liveExpressionReads | Should -Be 2
             $text = $table | Get-WidgetText
             $table.Keys | Should -Be @('first', 'second')
-            $text | Should -Match '6\.0'
-            $text | Should -Match '10\.0'
+            $text | Should -Match ([regex]::Escape(('{0:F1}' -f 6)))
+            $text | Should -Match ([regex]::Escape(('{0:F1}' -f 10)))
             $script:liveExpressionReads | Should -Be 2
         }
 
