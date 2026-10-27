@@ -21,12 +21,11 @@ namespace ConsoleMonster.Tests.Interactive.App {
         private static readonly RenderContext Context = Terminal.CreateContext(TerminalProfile.Fixed(100, 30));
 
         [Fact]
-        public void Confirmation_CapturesRowsBeforeWorkAndKeepsAppOpen() {
+        public async Task Confirmation_CapturesRowsBeforeWorkAndKeepsAppOpen() {
             List<object?> selected = new List<object?> { "Spooler" };
-            using ManualResetEventSlim finished = new ManualResetEventSlim();
             IReadOnlyList<object?>? received = null;
             AppCommand restart = new AppCommand("restart", "Restart", (context, token) => {
-                received = context.Rows; context.Write("Restarted " + context.Rows[0]); finished.Set(); return Task.CompletedTask;
+                received = context.Rows; context.Write("Restarted " + context.Rows[0]); return Task.CompletedTask;
             }) { ConfirmPrompt = "Restart {Selection}?", Shortcut = new KeyChord(ConsoleKey.F5) };
             using AppCommandHost host = new AppCommandHost(new[] { restart }, () => selected, new PromptLabels(), default);
             host.Invoke(restart);
@@ -38,8 +37,8 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Assert.DoesNotContain("Restart WinRM?", confirmation);
             host.Handle(InputEvent.Press(ConsoleKey.LeftArrow));
             host.Handle(InputEvent.Press(ConsoleKey.Enter));
-            Assert.True(finished.Wait(TimeSpan.FromSeconds(5)));
-            Assert.True(SpinWait.SpinUntil(() => !host.IsBusy, TimeSpan.FromSeconds(5)));
+            await WaitForSignal(host.Completion);
+            Assert.False(host.IsBusy);
             Assert.Equal("Spooler", Assert.Single(received!));
             Assert.False(host.HasModal);
             string frame = FrameComposer.Compose(host.Wrap(new TextBlock("Services remain open")), 100, 30, Context).ToPlainText();
@@ -49,7 +48,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
         }
 
         [Fact]
-        public void PaletteAndConfirmation_HandleAKeyboardBurstBeforeAnotherPaint() {
+        public async Task PaletteAndConfirmation_HandleAKeyboardBurstBeforeAnotherPaint() {
             TaskCompletionSource<bool> completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             AppCommand command = new AppCommand("restart", "Restart", (_, __) => completion.Task) { ConfirmPrompt = "Restart?" };
             using AppCommandHost host = new AppCommandHost(new[] { command }, () => Array.Empty<object?>(), new PromptLabels(), default);
@@ -62,7 +61,10 @@ namespace ConsoleMonster.Tests.Interactive.App {
             try {
                 Assert.True(host.IsBusy);
                 Assert.False(host.HasModal);
-            } finally { completion.TrySetResult(true); }
+            } finally {
+                completion.TrySetResult(true);
+                await WaitForSignal(host.Completion);
+            }
         }
 
         [Fact]
@@ -78,7 +80,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
         }
 
         [Fact]
-        public void SuppliedActionClock_TimestampsWorkerOutputAndRestartsForEachAction() {
+        public async Task SuppliedActionClock_TimestampsWorkerOutputAndRestartsForEachAction() {
             var clock = new ConsoleMonster.Live.SimulatedClock();
             clock.Advance(20);
             using AppActionSession session = new AppActionSession(default, actionClock: clock.Read);
@@ -90,43 +92,48 @@ namespace ConsoleMonster.Tests.Interactive.App {
             });
             for (int action = 0; action < 2; action++) {
                 Assert.True(session.Start(command, Array.Empty<object?>()));
-                Assert.True(SpinWait.SpinUntil(() => !session.IsBusy, TimeSpan.FromSeconds(5)));
+                await WaitForSignal(session.Completion);
+                Assert.False(session.IsBusy);
                 LogEntry[] entries = session.Output.Skip(action * 3).ToArray();
                 Assert.Equal(new[] { TimeSpan.Zero, TimeSpan.FromSeconds(2.7), TimeSpan.FromSeconds(2.7) }, entries.Select(entry => entry.Time));
             }
         }
 
         [Fact]
-        public void Cancellation_StreamsOutputAndAllowsAnotherAction() {
-            using ManualResetEventSlim started = new ManualResetEventSlim();
+        public async Task Cancellation_StreamsOutputAndAllowsAnotherAction() {
+            TaskCompletionSource<bool> started = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             AppCommand command = new AppCommand("query", "Query", async (context, token) => {
-                context.Write("Connecting"); started.Set(); await Task.Delay(Timeout.Infinite, token);
+                context.Write("Connecting"); started.SetResult(true); await Task.Delay(Timeout.Infinite, token);
             });
             using AppActionSession session = new AppActionSession(default);
             Assert.True(session.Start(command, Array.Empty<object?>()));
-            Assert.True(started.Wait(TimeSpan.FromSeconds(5)));
+            await WaitForSignal(started.Task);
             Assert.False(session.Start(command, Array.Empty<object?>()));
             Assert.Contains(session.Output, entry => entry.Text == "Connecting");
             session.Cancel();
-            Assert.True(SpinWait.SpinUntil(() => !session.IsBusy, TimeSpan.FromSeconds(5)));
+            await WaitForSignal(session.Completion);
+            Assert.False(session.IsBusy);
             Assert.Contains(session.Output, entry => entry.Text.Contains("cancelled"));
             Assert.True(session.Start(new AppCommand("next", "Next", (_, __) => Task.CompletedTask), Array.Empty<object?>()));
+            await WaitForSignal(session.Completion);
         }
 
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
-        public void AggregatedActionFailure_LogsEveryCauseAndAllowsAnotherAction(bool empty) {
+        public async Task AggregatedActionFailure_LogsEveryCauseAndAllowsAnotherAction(bool empty) {
             Exception failure = empty ? new AggregateException("Backend unavailable") : new AggregateException(
                 new InvalidOperationException("First service unavailable"), new AggregateException(new InvalidOperationException("Second service unavailable")));
             AppCommand command = new AppCommand("query", "Query", (_, __) => Task.FromException(failure));
             using AppActionSession session = new AppActionSession(default);
             Assert.True(session.Start(command, Array.Empty<object?>()));
-            Assert.True(SpinWait.SpinUntil(() => !session.IsBusy, TimeSpan.FromSeconds(5)));
+            await WaitForSignal(session.Completion);
+            Assert.False(session.IsBusy);
             Assert.Contains(session.Output, entry => entry.Text == (empty ? "Query: Backend unavailable" : "Query: First service unavailable") && entry.Level == "err");
             if (!empty) { Assert.Contains(session.Output, entry => entry.Text == "Query: Second service unavailable" && entry.Level == "err"); }
             Assert.Null(session.CompletedCommand);
             Assert.True(session.Start(new AppCommand("next", "Next", (_, __) => Task.CompletedTask), Array.Empty<object?>()));
+            await WaitForSignal(session.Completion);
         }
 
         [Theory]
@@ -216,25 +223,22 @@ namespace ConsoleMonster.Tests.Interactive.App {
         }
 
         [Fact]
-        public void GridAction_UsesMarkedRowsAndReturnsToGridAfterCompletion() {
+        public async Task GridAction_UsesMarkedRowsAndReturnsToGridAfterCompletion() {
             Grid grid = new Grid("Services"); grid.AddColumn("Name"); grid.AddRow("one", "One"); grid.AddRow("two", "Two");
             IReadOnlyList<object?>? received = null;
-            using ManualResetEventSlim finished = new ManualResetEventSlim();
             GridOptions options = new GridOptions();
-            options.Command.Add(new AppCommand("refresh", "Refresh", (context, token) => { received = context.Rows; context.Write("Refreshed"); finished.Set(); return Task.CompletedTask; }) { Shortcut = new KeyChord(ConsoleKey.F5) });
+            options.Command.Add(new AppCommand("refresh", "Refresh", (context, token) => { received = context.Rows; context.Write("Refreshed"); return Task.CompletedTask; }) { Shortcut = new KeyChord(ConsoleKey.F5) });
             using GridView view = new GridView(grid, options, new PromptLabels());
             FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, 100, 30, false, TimeSpan.Zero)), 100, 30, Context);
             view.Handle(InputEvent.Press(ConsoleKey.Spacebar)); view.Handle(InputEvent.Press(ConsoleKey.DownArrow)); view.Handle(InputEvent.Press(ConsoleKey.Spacebar));
             view.Handle(InputEvent.Press(ConsoleKey.F5));
-            Assert.True(finished.Wait(TimeSpan.FromSeconds(5)));
+            await WaitForSignal(view.ActionCompletion);
             Assert.Equal(new object?[] { "one", "two" }, received);
             Assert.False(view.IsDone);
-            string frame = string.Empty;
-            Assert.True(SpinWait.SpinUntil(() => {
-                view.Poll(TimeSpan.Zero);
-                frame = FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, 100, 30, false, TimeSpan.Zero)), 100, 30, Context).ToPlainText();
-                return frame.Contains("Refresh: completed") && frame.Contains("Action output") && !frame.Contains("F6 cancel action");
-            }, TimeSpan.FromSeconds(5)));
+            view.Poll(TimeSpan.Zero);
+            string frame = FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, 100, 30, false, TimeSpan.Zero)), 100, 30, Context).ToPlainText();
+            Assert.Contains("Refresh: completed", frame);
+            Assert.DoesNotContain("F6 cancel action", frame);
             Assert.Contains("Selected row", frame); Assert.Contains("Action output", frame); Assert.Contains("Refreshed", frame);
             // This golden protects the layout, independently of the real action stopwatch.
             frame = Regex.Replace(frame, @"(?<=│ )\d{2}:\d{2}(?= )", "00:00");
@@ -244,14 +248,14 @@ namespace ConsoleMonster.Tests.Interactive.App {
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void GridRefresh_UpdatesOnlyTheActedOnRowOnTheInputThread(bool succeeds) {
+        public async Task GridRefresh_UpdatesOnlyTheActedOnRowOnTheInputThread(bool succeeds) {
             Grid grid = new Grid("Services"); grid.AddColumn("Name").AddColumn("ProcessId");
             grid.AddRow("one", "One", 2456); grid.AddRow("two", "Two", 1000);
             TaskCompletionSource<bool> finish = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             GridOptions options = new GridOptions();
             options.Command.Add(new AppCommand("restart", "Restart", (_, __) => finish.Task) { Shortcut = new KeyChord(ConsoleKey.F5) });
             int refreshes = 0;
-            int inputThread = Thread.CurrentThread.ManagedThreadId;
+            int inputThread = 0;
             options.RefreshRow = (command, row) => {
                 Assert.Equal(Thread.CurrentThread.ManagedThreadId, inputThread);
                 Assert.Equal("restart", command.Key);
@@ -264,11 +268,13 @@ namespace ConsoleMonster.Tests.Interactive.App {
             view.Handle(InputEvent.Press(ConsoleKey.F5));
             view.Handle(InputEvent.Press(ConsoleKey.DownArrow));
             if (succeeds) { finish.SetResult(true); } else { finish.SetException(new InvalidOperationException("Backend failed")); }
-            Assert.True(SpinWait.SpinUntil(() => {
-                view.Poll(TimeSpan.Zero);
-                string text = FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, 100, 30, false, TimeSpan.Zero)), 100, 30, Context).ToPlainText();
-                return text.Contains(succeeds ? "Restart: completed" : "Backend failed") && (!succeeds || refreshes == 1);
-            }, TimeSpan.FromSeconds(10)));
+            await WaitForSignal(view.ActionCompletion);
+            Assert.Equal(0, refreshes);
+            // Await may resume on another test worker. Poll owns the input-thread refresh.
+            inputThread = Thread.CurrentThread.ManagedThreadId;
+            view.Poll(TimeSpan.Zero);
+            string text = FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, 100, 30, false, TimeSpan.Zero)), 100, 30, Context).ToPlainText();
+            Assert.Contains(succeeds ? "Restart: completed" : "Backend failed", text);
             view.Poll(TimeSpan.Zero);
             Assert.Equal(succeeds ? 1 : 0, refreshes);
             Assert.Equal(succeeds ? 2556 : 2456, grid.Rows[0].Values[1]);
@@ -296,7 +302,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
-        public void GridRefresh_DoesNotRefreshASiblingWithTheSameItem(bool nullItem) {
+        public async Task GridRefresh_DoesNotRefreshASiblingWithTheSameItem(bool nullItem) {
             object? item = nullItem ? null : new object();
             Grid grid = new Grid("Services"); grid.AddColumn("Name").AddColumn("ProcessId");
             grid.AddRow(item, "One", 2456); grid.AddRow(item, "Two", 1000);
@@ -307,14 +313,15 @@ namespace ConsoleMonster.Tests.Interactive.App {
             using GridView view = new GridView(grid, options, new PromptLabels());
             FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, 100, 30, false, TimeSpan.Zero)), 100, 30, Context);
             view.Handle(InputEvent.Press(ConsoleKey.F5));
-            Assert.True(SpinWait.SpinUntil(() => { view.Poll(TimeSpan.Zero); return calls > 0; }, TimeSpan.FromSeconds(10)));
+            await WaitForSignal(view.ActionCompletion);
+            view.Poll(TimeSpan.Zero);
             Assert.Equal(1, calls);
             Assert.Equal(2556, grid.Rows[0].Values[1]);
             Assert.Equal(1000, grid.Rows[1].Values[1]);
         }
 
         [Fact]
-        public void GridRefresh_ReportsEachFailureAndContinuesRefreshingMarkedRows() {
+        public async Task GridRefresh_ReportsEachFailureAndContinuesRefreshingMarkedRows() {
             Grid grid = new Grid("Services"); grid.AddColumn("Name").AddColumn("ProcessId");
             grid.AddRow("one", "One", 2456); grid.AddRow("two", "Two", 1000); grid.AddRow("three", "Three", 3000);
             GridOptions options = new GridOptions();
@@ -331,7 +338,8 @@ namespace ConsoleMonster.Tests.Interactive.App {
             view.Handle(InputEvent.Press(ConsoleKey.Spacebar)); view.Handle(InputEvent.Press(ConsoleKey.DownArrow)); view.Handle(InputEvent.Press(ConsoleKey.Spacebar));
             view.Handle(InputEvent.Press(ConsoleKey.DownArrow)); view.Handle(InputEvent.Press(ConsoleKey.Spacebar));
             view.Handle(InputEvent.Press(ConsoleKey.F5));
-            Assert.True(SpinWait.SpinUntil(() => { view.Poll(TimeSpan.Zero); return calls > 0; }, TimeSpan.FromSeconds(10)));
+            await WaitForSignal(view.ActionCompletion);
+            view.Poll(TimeSpan.Zero);
             Assert.Equal(3, calls);
             Assert.Equal(2456, grid.Rows[0].Values[1]);
             Assert.Equal(1000, grid.Rows[1].Values[1]);
@@ -340,6 +348,16 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Assert.Contains("Refresh: First row unavailable", frame);
             Assert.Contains("Refresh: Second row unavailable", frame);
             Assert.False(view.IsDone);
+        }
+
+        // The signal defines readiness; the timer only bounds a broken test or a deadlock.
+        private static async Task WaitForSignal(Task signal) {
+            using CancellationTokenSource watchdog = new CancellationTokenSource();
+            Task timeout = Task.Delay(TimeSpan.FromSeconds(30), watchdog.Token);
+            Task completed = await Task.WhenAny(signal, timeout);
+            watchdog.Cancel();
+            Assert.True(completed == signal, "The app action did not signal within the 30-second deadlock watchdog.");
+            await signal;
         }
 
         [Theory]

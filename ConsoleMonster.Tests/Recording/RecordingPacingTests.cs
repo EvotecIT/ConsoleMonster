@@ -258,6 +258,18 @@ namespace ConsoleMonster.Tests.Sessions {
         }
 
         [Fact]
+        public void FinalFractionalChapterRemainsInPlayerDataAfterAnUnchangedScreen() {
+            SessionRecording recording = Read(Event(0, "o", "A") + Event(2.999785, "o", "B")
+                + Event(3.020957, "m", "Interactive"));
+
+            Assert.Equal("Interactive", Assert.Single(recording.Markers).Label);
+            var player = Assert.IsType<Dictionary<string, object?>>(MiniJson.Read(recording.ExportPlayerData(Source())));
+            Assert.True(player.TryGetValue("markers", out object? markerData), "The player must retain the final recorded chapter.");
+            var marker = Assert.IsType<List<object?>>(Assert.Single(Assert.IsType<List<object?>>(markerData)));
+            Assert.Equal("Interactive", marker[1]);
+        }
+
+        [Fact]
         public void MarkerMetadataRetainsSubMillisecondHoldPrecisionOnEveryFramework() {
             TimeSpan hold = TimeSpan.FromTicks(30008000);
             string data = SessionMarkerData.Write("Results", hold, null, true);
