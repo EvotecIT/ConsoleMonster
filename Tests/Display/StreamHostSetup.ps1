@@ -70,6 +70,5 @@ function global:Assert-IdentityStreamHost {
     $firstRow=@($lines|Where-Object {$_.Contains($First)})
     $secondRow=@($lines|Where-Object {$_.Contains($Second)})
     $passed=$firstRow.Count -eq 1 -and $secondRow.Count -eq 1 -and $firstRow[0].Contains('failing') -and $secondRow[0].Contains('failing')
-    if($width -eq 60){$passed=$passed -and @($lines|Where-Object {$_ -match '^\+'}).Count -gt 0}
     $global:DisplayLoopResults.Add([pscustomobject]@{Name=$Name;Passed=[bool]$passed;BufferWidth=$width;ProfileWidth=[ConsoleMonster.Terminal]::GetCurrentProfile().Width;Lines=@($lines|Where-Object {$_})})
 }

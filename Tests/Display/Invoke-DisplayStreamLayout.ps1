@@ -53,6 +53,7 @@ try{
             if($second -notmatch 'DFS Replication' -or $third -notmatch 'Backups' -or $third -notmatch ([regex]::Escape([string][char]0x2026)+'|\.\.\.')){throw 'A later value lost its label or overflow marker.'}
             foreach($line in @($secondLines)+@($thirdLines)){if([ConsoleMonster.Text.DisplayWidth]::Measure($line,$profile.WidthProfile) -gt $width){throw ('A row exceeded the terminal width: '+[ConsoleMonster.Text.DisplayWidth]::Measure($line,$profile.WidthProfile)+' '+($line|ConvertTo-Json -Compress))}}
             if(($first -split '\r?\n'|Where-Object {$_ -match '\bName\b'}).Count -ne 1 -or $second -match '\bName\b' -or $third -match '\bName\b' -or $footer -notmatch '3 rows'){throw 'The stable header or group closure changed.'}
+            if($width -eq 60 -and -not $first.Contains('+')){throw 'Low-priority columns were not dropped before cutting declared identity and display minima.'}
             if($null -ne $global:LayoutPrototype.Columns[0].Width -or $global:LayoutPrototype.Columns[0].Overflow -ne 'Wrap'){throw 'Column definitions were mutated.'}
             if($plain -and (($first+$second+$third+$footer).Contains([string][char]27))){throw 'NO_COLOR retained an escape.'}
             $results.Add([pscustomobject]@{Name=$name;Passed=$true;First=$first;Later=$second+$third;Footer=$footer})
@@ -84,12 +85,37 @@ try{
                 $first=Remove-LayoutSgr ($stream.Append($a));$second=Remove-LayoutSgr ($stream.Append($b));$null=$stream.Complete()
                 if(-not $first.Contains($a.Name) -or -not $second.Contains($b.Name)){throw ('Identifying names were shortened while optional columns retained space: '+$first+$second)}
                 if(-not $second.Contains('failing') -or $second -notmatch '\b1\b'){throw 'Required state or failure count was hidden.'}
-                if($width -eq 60 -and -not $first.Contains('+')){throw 'No low-priority columns were dropped at the constrained width.'}
                 foreach($line in ($first+$second) -split '\r?\n'){if([ConsoleMonster.Text.DisplayWidth]::Measure($line,$profile.WidthProfile) -gt $width){throw 'Identity allocation exceeded the physical width.'}}
                 if($global:IdentityPrototype.Columns[0].Width -ne $null -or $global:IdentityPrototype.Columns[0].MinWidth -ne 22){throw 'Identity column contract was mutated.'}
                 $results.Add([pscustomobject]@{Name=('Stream_IdentityBeforeEmptyColumns_'+$kind+'_'+$width);Passed=$true;First=$first;Later=$second})
             }catch{$results.Add([pscustomobject]@{Name=('Stream_IdentityBeforeEmptyColumns_'+$kind+'_'+$width);Passed=$false;Error=$_.Exception.ToString()})}finally{if($stream){$stream.Dispose()}}
         }
+    }
+    foreach($scenario in 'NarrowMinimum','LongIdentity'){
+        $global:LayoutBoundaryScenario=$scenario
+        $boundaryBuilder=[Func[System.Collections.Generic.IReadOnlyList[object],ConsoleMonster.PowerShell.Display.DefaultDisplayContext,ConsoleMonster.Layout.IWidget]]{
+            param($objects,$context)
+            $t=[ConsoleMonster.Widgets.Table]::new();$t.Title='boundary-layout'
+            $key=[ConsoleMonster.Widgets.TableColumn]::new('Name');$key.IsKey=$true;$key.Priority=100
+            if($global:LayoutBoundaryScenario -eq 'NarrowMinimum'){$key.MinWidth=40}
+            $null=$t.AddColumn($key)
+            foreach($header in 'State','Failed'){$c=[ConsoleMonster.Widgets.TableColumn]::new($header);$c.Priority=90;$null=$t.AddColumn($c)}
+            $null=$t.AddRow([ConsoleMonster.Widgets.TableCell[]]@([ConsoleMonster.Widgets.TableCell]::FromValue($objects[0].Name),[ConsoleMonster.Widgets.TableCell]::FromValue('failing'),[ConsoleMonster.Widgets.TableCell]::FromValue(1)))
+            $t
+        }
+        $v=$lease.Register('DisplayLayout.Row',('layout.boundary.'+$scenario),[version]'1.0.0','Stream',$null,$boundaryBuilder)
+        $stream=$null
+        try{
+            $width=if($scenario -eq 'NarrowMinimum'){30}else{80}
+            $profile=[ConsoleMonster.Capabilities.TerminalProfile]::Fixed($width,30,[ConsoleMonster.Capabilities.ColorDepth]::None,[ConsoleMonster.Capabilities.GlyphTier]::Ascii,[ConsoleMonster.Capabilities.OutputMode]::Plain)
+            $ctx=[ConsoleMonster.PowerShell.Display.DefaultDisplayContext]::new($profile,'scope',[ConsoleMonster.PowerShell.Display.DefaultDisplayMode]::Auto)
+            $stream=[ConsoleMonster.PowerShell.Display.DefaultDisplayStream]::new($v,$ctx)
+            $a=[DisplayLayout.Row]::new();$a.Name=if($scenario -eq 'NarrowMinimum'){'DC01'}else{'Policy-'+('long-name-'*8)}
+            $text=Remove-LayoutSgr ($stream.Append($a));$null=$stream.Complete()
+            if(-not $text.Contains('failing') -or $text -notmatch '\b1\b'){throw 'The key starved its diagnostic state and failure count.'}
+            if($scenario -eq 'NarrowMinimum' -and -not $text.Contains('DC01')){throw 'A declared minimum larger than a narrow terminal prevented record-card rendering.'}
+            $results.Add([pscustomobject]@{Name=('Stream_IdentityBoundary_'+$scenario);Passed=$true;Text=$text})
+        }catch{$results.Add([pscustomobject]@{Name=('Stream_IdentityBoundary_'+$scenario);Passed=$false;Error=$_.Exception.ToString()})}finally{if($stream){$stream.Dispose()}}
     }
 }finally{$lease.Dispose();Remove-Variable LayoutPrototype -Scope Global -ErrorAction Ignore}
 $report=[pscustomobject]@{Runtime=$PSVersionTable.PSVersion.ToString();Tests=$results.ToArray();Failed=@($results|Where-Object {-not $_.Passed}).Count}
