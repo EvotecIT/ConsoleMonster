@@ -148,13 +148,14 @@ menu.Run(new MenuOptions { StorageRoot = Path.Combine(Path.GetTempPath(), "serve
 async Task<IEnumerable<Choice>> LoadServersAsync(CancellationToken token)
 {
     await Task.Delay(1100, token);
-    return inventory.Select(server => new Choice(server, server.Name)
-    {
-        Group = server.Site,
-        Badge = RichText.Plain(server.Role, new RichStyle(ThemeToken.Muted)),
-        Description = server.Role + " server · " + server.OperatingSystem,
-        DisabledReason = server.Offline
-    })
+    return inventory.Select(server => new Choice(server,
+        server.Name)
+        {
+            Group = server.Site,
+            Badge = RichText.Plain(server.Role, new RichStyle(ThemeToken.Muted)),
+            Description = server.Role + " server · " + server.OperatingSystem,
+            DisabledReason = server.Offline
+        })
         .ToList();
 }
 
@@ -202,9 +203,8 @@ Form OptionsForm()
     email.Required = true;
     email.Placeholder = "ops@example.org";
     email.ParameterName = "To";
-    email.Validator = (value, values) => value is string s && s.Contains('@')
-        ? null
-        : "Enter an email address";
+    email.Validator = (value,
+        values) => value is string s && s.Contains('@') ? null : "Enter an email address";
     ToggleField dryRun = page.Toggle("DryRun", "Dry run");
     dryRun.ParameterName = "WhatIf";
     dryRun.Help = "Reports what would change without changing anything.";
@@ -262,8 +262,8 @@ ReviewModel Review(MenuContext context)
         CommandLine.Argument("Task", selected.Select(t => t.Id).ToList(), CommandStyle.PowerShell)
     };
     string optionArguments = options.BuildCommand();
-    review.Command = CommandLine.Join("Invoke-ServerToolbox", arguments)
-        + (optionArguments.Length > 0 ? " " + optionArguments : string.Empty);
+    review.Command = CommandLine.Join("Invoke-ServerToolbox",
+        arguments) + (optionArguments.Length > 0 ? " " + optionArguments : string.Empty);
     review.Run = ctx => Execute(ctx, servers, selected, values);
     return review;
 }
@@ -297,7 +297,7 @@ void Execute(MenuContext context, List<Server> servers, List<MaintenanceTask> se
             + (values.Get<bool>("DryRun") ? " · dry run" : string.Empty))
         .Panel("Servers", lanes)
         .Add(new Padding(overall, 1, 0, 1, 0))
-        .Panel("Log", log, fill: true)
+        .Panel("Log", log, true)
         .BuildDashboard();
     int throttle = (int)values.Get<decimal>("Parallel", 4m);
     context.Run(dashboard, run => Work(run, lanes, overall, log, servers, selected, throttle));

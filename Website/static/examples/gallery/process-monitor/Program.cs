@@ -26,7 +26,6 @@ IWidget Frame(int tick)
         .Column("CPU %", row => row.Cpu)
         .Column("Memory MiB", row => row.Memory);
     table.Expand = true;
-
     Sparkline history = new Sparkline
     {
         Title = "CPU %"
@@ -46,7 +45,7 @@ IWidget Frame(int tick)
 }
 
 // Behaviour: update each frame in a bounded live run.
-RegionWidget screen = new RegionWidget(widgetId: "processes", content: Frame(0));
+RegionWidget screen = new RegionWidget("processes", Frame(0));
 using LiveSession session = new LiveSession(screen);
 try
 {

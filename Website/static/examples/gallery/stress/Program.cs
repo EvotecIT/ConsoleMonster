@@ -59,8 +59,8 @@ IWidget Frame(int tick)
         .Add("CPU share",
             samples == 0
                 ? "-"
-                : (sampleCpu[samples - 1] / 8).ToString("0.0", CultureInfo.InvariantCulture)
-                    + "% of 8 cores")
+                : (sampleCpu[samples - 1] / 8).ToString("0.0",
+                    CultureInfo.InvariantCulture) + "% of 8 cores")
         .Add("Stray writes", (tick * 4).ToString(CultureInfo.InvariantCulture))
         .Add("Dropped / errors", "0 / 0");
     Sparkline rate = new Sparkline("rate")
@@ -110,7 +110,7 @@ IWidget Frame(int tick)
 }
 
 // Behaviour: show seven samples through the ordinary live session.
-RegionWidget screen = new RegionWidget(widgetId: "stress", content: Frame(0));
+RegionWidget screen = new RegionWidget("stress", Frame(0));
 using LiveSession session = new LiveSession(screen);
 try
 {

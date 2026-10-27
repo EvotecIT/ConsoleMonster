@@ -16,11 +16,8 @@ IWidget Frame(int tick)
     {
         string name = "worker-" + worker.ToString("00",
             System.Globalization.CultureInfo.InvariantCulture);
-        workers.Add(new ProgressBar(name, name)
-        {
-            Value = Math.Min(100, 12 + worker * 5 + tick * 17),
-            Total = 100
-        });
+        workers.Add(new ProgressBar(name,
+            name) { Value = Math.Min(100, 12 + worker * 5 + tick * 17), Total = 100 });
     }
 
     KeyValueList stats = new KeyValueList()
@@ -46,7 +43,7 @@ IWidget Frame(int tick)
 }
 
 // Behaviour: update each frame in a bounded live run.
-RegionWidget screen = new RegionWidget(widgetId: "demo", content: Frame(0));
+RegionWidget screen = new RegionWidget("demo", Frame(0));
 using LiveSession session = new LiveSession(screen);
 try
 {

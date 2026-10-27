@@ -10,64 +10,44 @@ using ConsoleMonster.Widgets;
 // Data: replace these inventories, operations and findings with your own sources.
 Node[] inventory = new Node[]
 {
-    new(Name: "FS01", Domain: "lab.example.test", Site: "Warsaw", Role: "File",
-        Detail: "Windows Server 2022", Offline: ""),
-    new(Name: "FS02", Domain: "lab.example.test", Site: "Warsaw", Role: "File",
-        Detail: "Windows Server 2022", Offline: ""),
-    new(Name: "WEB01", Domain: "lab.example.test", Site: "Warsaw", Role: "Web",
-        Detail: "Windows Server 2025", Offline: ""),
-    new(Name: "SQL01", Domain: "lab.example.test", Site: "Warsaw", Role: "Database",
-        Detail: "Windows Server 2019", Offline: ""),
-    new(Name: "FS11", Domain: "lab.example.test", Site: "Berlin", Role: "File",
-        Detail: "Windows Server 2022", Offline: ""),
-    new(Name: "WEB11", Domain: "lab.example.test", Site: "Berlin", Role: "Web",
-        Detail: "Windows Server 2025", Offline: ""),
-    new(Name: "PRN11", Domain: "lab.example.test", Site: "Berlin", Role: "Print",
-        Detail: "Windows Server 2016", Offline: "offline since 09:12"),
-    new(Name: "BKP21", Domain: "lab.example.test", Site: "Dublin", Role: "Backup",
-        Detail: "Windows Server 2022", Offline: ""),
-    new(Name: "SQL21", Domain: "lab.example.test", Site: "Dublin", Role: "Database",
-        Detail: "Windows Server 2022", Offline: ""),
-    new(Name: "LAB01", Domain: "lab.example.test", Site: "Lab", Role: "Test",
-        Detail: "Windows Server 2025", Offline: ""),
-    new(Name: "LAB02", Domain: "lab.example.test", Site: "Lab", Role: "Test",
-        Detail: "Windows Server 2025", Offline: "maintenance until Friday")
+    new("FS01", "lab.example.test", "Warsaw", "File", "Windows Server 2022", ""),
+    new("FS02", "lab.example.test", "Warsaw", "File", "Windows Server 2022", ""),
+    new("WEB01", "lab.example.test", "Warsaw", "Web", "Windows Server 2025", ""),
+    new("SQL01", "lab.example.test", "Warsaw", "Database", "Windows Server 2019", ""),
+    new("FS11", "lab.example.test", "Berlin", "File", "Windows Server 2022", ""),
+    new("WEB11", "lab.example.test", "Berlin", "Web", "Windows Server 2025", ""),
+    new("PRN11", "lab.example.test", "Berlin", "Print", "Windows Server 2016",
+        "offline since 09:12"),
+    new("BKP21", "lab.example.test", "Dublin", "Backup", "Windows Server 2022", ""),
+    new("SQL21", "lab.example.test", "Dublin", "Database", "Windows Server 2022", ""),
+    new("LAB01", "lab.example.test", "Lab", "Test", "Windows Server 2025", ""),
+    new("LAB02", "lab.example.test", "Lab", "Test", "Windows Server 2025",
+        "maintenance until Friday")
 };
 Check[] catalog = new Check[]
 {
-    new(Id: "DiskCleanup", Name: "Disk cleanup", Category: "Maintenance",
-        Description: "Removes temporary files and old update caches.", Expected: "cache under 1 GB",
-        Minutes: 3, Changes: true),
-    new(Id: "LogRotation", Name: "Log rotation", Category: "Maintenance",
-        Description: "Compresses logs older than 7 days.", Expected: "retention 90 days",
-        Minutes: 2, Changes: true),
-    new(Id: "RestartPending", Name: "Pending restart check", Category: "Maintenance",
-        Description: "Reports restarts waiting after updates.", Expected: "no restart pending",
-        Minutes: 1, Changes: false),
-    new(Id: "PatchStatus", Name: "Patch status", Category: "Security",
-        Description: "Lists missing security updates.", Expected: "0 missing", Minutes: 2,
-        Changes: false),
-    new(Id: "Certificates", Name: "Certificate expiry", Category: "Security",
-        Description: "Finds certificates expiring within 30 days.", Expected: "30+ days",
-        Minutes: 1, Changes: false),
-    new(Id: "LocalAdmins", Name: "Local administrators audit", Category: "Security",
-        Description: "Compares local Administrators with the approved list.",
-        Expected: "approved list", Minutes: 1, Changes: false),
-    new(Id: "Firewall", Name: "Firewall rules review", Category: "Security",
-        Description: "Flags inbound allow rules open to any address.", Expected: "scoped rules",
-        Minutes: 2, Changes: false),
-    new(Id: "EventErrors", Name: "Event log errors", Category: "Health",
-        Description: "Summarizes errors from the last 24 hours.", Expected: "under 20", Minutes: 1,
-        Changes: false),
-    new(Id: "Services", Name: "Service health", Category: "Health",
-        Description: "Checks and restarts stopped automatic services.", Expected: "all running",
-        Minutes: 1, Changes: true),
-    new(Id: "DiskSpace", Name: "Disk space", Category: "Health",
-        Description: "Warns below 15% and fails below 5% free.", Expected: "15% free", Minutes: 1,
-        Changes: false),
-    new(Id: "Uptime", Name: "Uptime and reboots", Category: "Health",
-        Description: "Reports unexpected reboots in the last 30 days.", Expected: "0 unexpected",
-        Minutes: 1, Changes: false)
+    new("DiskCleanup", "Disk cleanup", "Maintenance",
+        "Removes temporary files and old update caches.", "cache under 1 GB", 3, true),
+    new("LogRotation", "Log rotation", "Maintenance", "Compresses logs older than 7 days.",
+        "retention 90 days", 2, true),
+    new("RestartPending", "Pending restart check", "Maintenance",
+        "Reports restarts waiting after updates.", "no restart pending", 1, false),
+    new("PatchStatus", "Patch status", "Security", "Lists missing security updates.", "0 missing",
+        2, false),
+    new("Certificates", "Certificate expiry", "Security",
+        "Finds certificates expiring within 30 days.", "30+ days", 1, false),
+    new("LocalAdmins", "Local administrators audit", "Security",
+        "Compares local Administrators with the approved list.", "approved list", 1, false),
+    new("Firewall", "Firewall rules review", "Security",
+        "Flags inbound allow rules open to any address.", "scoped rules", 2, false),
+    new("EventErrors", "Event log errors", "Health", "Summarizes errors from the last 24 hours.",
+        "under 20", 1, false),
+    new("Services", "Service health", "Health", "Checks and restarts stopped automatic services.",
+        "all running", 1, true),
+    new("DiskSpace", "Disk space", "Health", "Warns below 15% and fails below 5% free.", "15% free",
+        1, false),
+    new("Uptime", "Uptime and reboots", "Health", "Reports unexpected reboots in the last 30 days.",
+        "0 unexpected", 1, false)
 };
 Dictionary<string, (StatusKind Status, string Actual)> findings = new()
 {
@@ -78,10 +58,8 @@ Dictionary<string, (StatusKind Status, string Actual)> findings = new()
     ["FS01/DiskCleanup"] = (StatusKind.Warn, "1.4 GB remains"),
 };
 List<HistoryRow> history = [
-    new(When: "Mon 19 Oct 21:04", Servers: 3, Tasks: 4, Passed: 10, Warnings: 1, Failed: 1,
-        Elapsed: TimeSpan.FromSeconds(372)),
-    new(When: "Tue 20 Oct 07:30", Servers: 2, Tasks: 3, Passed: 6, Warnings: 0, Failed: 0,
-        Elapsed: TimeSpan.FromSeconds(66)),
+    new("Mon 19 Oct 21:04", 3, 4, 10, 1, 1, TimeSpan.FromSeconds(372)),
+    new("Tue 20 Oct 07:30", 2, 3, 6, 0, 0, TimeSpan.FromSeconds(66)),
 ];
 string reportRoot = "Reports/Toolbox";
 Node[] targets = inventory.Where(n => n.Domain == "lab.example.test" && n.Offline == "")
@@ -232,7 +210,7 @@ IWidget Body(List<Work> work, int done, int phase)
 // Behaviour: native form/menu navigation, then a bounded run with cancellation and history.
 void Execute(MenuContext context, List<Work> work)
 {
-    RegionWidget body = new RegionWidget(widgetId: "body", content: Body(work, 0, 0));
+    RegionWidget body = new RegionWidget("body", Body(work, 0, 0));
     Dashboard dashboard = new Dashboard()
     {
         Content = body,
@@ -270,13 +248,13 @@ void Execute(MenuContext context, List<Work> work)
     if (!completed)
         return;
     history.Add(new(
-        When: "Tue 20 Oct 09:30",
-        Servers: work.Select(w => w.Node.Name).Distinct().Count(),
-        Tasks: work.Select(w => w.Check.Id).Distinct().Count(),
-        Passed: work.Count(w => w.Status == StatusKind.Pass),
-        Warnings: work.Count(w => w.Status == StatusKind.Warn),
-        Failed: work.Count(w => w.Status == StatusKind.Fail),
-        Elapsed: outcome.Elapsed));
+        "Tue 20 Oct 09:30",
+        work.Select(w => w.Node.Name).Distinct().Count(),
+        work.Select(w => w.Check.Id).Distinct().Count(),
+        work.Count(w => w.Status == StatusKind.Pass),
+        work.Count(w => w.Status == StatusKind.Warn),
+        work.Count(w => w.Status == StatusKind.Fail),
+        outcome.Elapsed));
 }
 
 MenuRunResult Result(List<Work> work)
@@ -344,9 +322,8 @@ Form Options()
     recipient.ParameterName = "To";
     recipient.Required = true;
     recipient.VisibleWhen = v => v.Get<bool>("Notify");
-    recipient.Validator = (value, _) => value is string s && s.Contains('@')
-        ? null
-        : "Enter an email address";
+    recipient.Validator = (value,
+        _) => value is string s && s.Contains('@') ? null : "Enter an email address";
     ToggleField dry = page.Toggle("DryRun", "Dry run");
     dry.Default = false;
     dry.ParameterName = "WhatIf";
@@ -381,9 +358,9 @@ MenuItem targetItem = new MenuItem("Targets")
             inventory,
             n => n.Name,
             n => n.Site,
-            describe: n => n.Detail,
-            badge: n => RichText.Plain(n.Role, new RichStyle(ThemeToken.Muted)),
-            disabledReason: n => n.Offline);
+            n => n.Detail,
+            n => RichText.Plain(n.Role, new RichStyle(ThemeToken.Muted)),
+            n => n.Offline);
     }
 };
 targetItem.SetSelection(targets.Cast<object?>());
@@ -402,15 +379,16 @@ MenuItem taskItem = new MenuItem("Tasks")
     Hotkey = 'k',
     IconName = GlyphIcon.Tasks
 }
-    .MultiSelect(catalog.Select(c => new Choice(c.Id, c.Name)
-    {
-        Group = c.Category,
-        Description = c.Description,
-        Badge = RichText.Plain(
-            (c.Changes ? "changes · " : "") + "~" + c.Minutes + " min",
-            new RichStyle(c.Changes ? ThemeToken.Warn : ThemeToken.Muted)),
-        Selected = checks.Contains(c)
-    }));
+    .MultiSelect(catalog.Select(c => new Choice(c.Id,
+        c.Name)
+        {
+            Group = c.Category,
+            Description = c.Description,
+            Badge = RichText.Plain(
+                (c.Changes ? "changes · " : "") + "~" + c.Minutes + " min",
+                new RichStyle(c.Changes ? ThemeToken.Warn : ThemeToken.Muted)),
+            Selected = checks.Contains(c)
+        }));
 taskItem.Minimum = 1;
 taskItem.Preview = c => Preview(catalog.First(k => k.Id == (string)c.Value!));
 menu.Add(targetItem);
@@ -468,8 +446,8 @@ menu.Item("Review & run", i =>
             ["ComputerName"] = targets.Select(n => n.Name).ToArray(),
             ["Task"] = checks.Select(c => c.Id).ToArray()
         };
-        review.Command = CommandLine.Build("Invoke-ServerToolbox", commandArguments) + " "
-            + options.BuildCommand();
+        review.Command = CommandLine.Build("Invoke-ServerToolbox",
+            commandArguments) + " " + options.BuildCommand();
         review.Run = ctx => Execute(ctx, Plan());
         return review;
     };

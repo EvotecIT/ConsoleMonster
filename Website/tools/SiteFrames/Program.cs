@@ -70,6 +70,14 @@ namespace SiteFrames {
                     CSharpRunner.Check(source, fluent);
                     File.WriteAllText(Path.GetFullPath(Path.Combine(website, args[3])), fluent);
                     return 0;
+                case "positional" when only != null:
+                    foreach (string file in args.Skip(2)) {
+                        string full = Path.GetFullPath(Path.Combine(website, file));
+                        string original = File.ReadAllText(full);
+                        string readable = CSharpRunner.PositionalSource(full, original);
+                        if (readable != original) { File.WriteAllText(full, readable, new System.Text.UTF8Encoding(File.ReadAllBytes(full) is [0xEF, 0xBB, 0xBF, ..])); Console.WriteLine("normalized " + file); }
+                    }
+                    return 0;
                 case "layout" when only != null:
                     // Lays out maintained example sources like the generated fluent programs: SiteFrames layout Website examples/home/summary.cs ...
                     foreach (string file in args.Skip(2)) {

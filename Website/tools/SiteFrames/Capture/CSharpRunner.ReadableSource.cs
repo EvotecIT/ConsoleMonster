@@ -6,6 +6,18 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace SiteFrames.Capture {
     internal static partial class CSharpRunner {
+        /// <summary>Normalizes argument names through the same bound source pass used by fluent examples.</summary>
+        internal static string PositionalSource(string path, string source) {
+            var compilation = CreateCompilation(path, source);
+            var tree = compilation.SyntaxTrees.Single(tree => tree.FilePath == path);
+            if (!tree.GetRoot().DescendantNodes().OfType<ArgumentSyntax>().Any(argument => argument.NameColon != null)) { return source; }
+            Check(path, source);
+            string readable = ReadableSource(new ExampleNames(compilation.GetSemanticModel(tree)).Visit(tree.GetRoot())!);
+            readable = LayoutSource(path, readable);
+            Check(path, readable);
+            return readable;
+        }
+
         /// <summary>Wraps only expressions whose bound target is string, preserving handlers and FormattableString.</summary>
         internal static string LayoutSource(string path, string source) {
             source = source.Replace("\r\n", "\n", StringComparison.Ordinal);

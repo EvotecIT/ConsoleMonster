@@ -14,21 +14,16 @@ string installFolder = "./toolbox-agent";
 string dataFolder = "./toolbox-data";
 Part[] components = new Part[]
 {
-    new(Id: "Agent", Name: "Agent service", Group: "Core", Size: "18 MB",
-        Description: "Runs tasks and reports results.", Selected: true),
-    new(Id: "Cli", Name: "Command-line tools", Group: "Core", Size: "6 MB",
-        Description: "The toolbox command and PowerShell module.", Selected: true),
-    new(Id: "Html", Name: "HTML reports", Group: "Reporting", Size: "4 MB",
-        Description: "Interactive reports with tables and charts.", Selected: true),
-    new(Id: "Pdf", Name: "PDF export", Group: "Reporting", Size: "31 MB",
-        Description: "Prints reports to PDF."),
-    new(Id: "Chat", Name: "Chat notifications", Group: "Integrations", Size: "1 MB",
-        Description: "Posts run summaries to a channel."),
-    new(Id: "Mail", Name: "Email notifications", Group: "Integrations", Size: "1 MB",
-        Description: "Sends reports by email."),
-    new(Id: "Syslog", Name: "Syslog forwarder", Group: "Integrations", Size: "1 MB",
-        Description: "Forwards findings to a collector.", Selected: false,
-        Disabled: "needs the Enterprise licence")
+    new("Agent", "Agent service", "Core", "18 MB", "Runs tasks and reports results.", true),
+    new("Cli", "Command-line tools", "Core", "6 MB", "The toolbox command and PowerShell module.",
+        true),
+    new("Html", "HTML reports", "Reporting", "4 MB", "Interactive reports with tables and charts.",
+        true),
+    new("Pdf", "PDF export", "Reporting", "31 MB", "Prints reports to PDF."),
+    new("Chat", "Chat notifications", "Integrations", "1 MB", "Posts run summaries to a channel."),
+    new("Mail", "Email notifications", "Integrations", "1 MB", "Sends reports by email."),
+    new("Syslog", "Syslog forwarder", "Integrations", "1 MB", "Forwards findings to a collector.",
+        false, "needs the Enterprise licence")
 };
 var accounts = new[]
 {
@@ -48,23 +43,23 @@ var accounts = new[]
 string[] installSteps = { "Copy files", "Register agent", "Configure connection", "Start agent" };
 Endpoint[] endpoints = new Endpoint[]
 {
-    new(Region: "eu", Host: "eu-west.example.test", City: "Dublin", Latency: "12 ms"),
-    new(Region: "eu", Host: "eu-central.example.test", City: "Frankfurt", Latency: "9 ms"),
-    new(Region: "eu", Host: "eu-north.example.test", City: "Stockholm", Latency: "31 ms"),
-    new(Region: "us", Host: "us-east.example.test", City: "East", Latency: "18 ms"),
-    new(Region: "us", Host: "us-west.example.test", City: "West", Latency: "74 ms"),
-    new(Region: "ap", Host: "ap-south.example.test", City: "South", Latency: "121 ms"),
-    new(Region: "ap", Host: "ap-east.example.test", City: "East", Latency: "",
-        Disabled: "maintenance until 18:00")
+    new("eu", "eu-west.example.test", "Dublin", "12 ms"),
+    new("eu", "eu-central.example.test", "Frankfurt", "9 ms"),
+    new("eu", "eu-north.example.test", "Stockholm", "31 ms"),
+    new("us", "us-east.example.test", "East", "18 ms"),
+    new("us", "us-west.example.test", "West", "74 ms"),
+    new("ap", "ap-south.example.test", "South", "121 ms"),
+    new("ap", "ap-east.example.test", "East", "", "maintenance until 18:00")
 };
-Choice[] Parts() => components.Select(p => new Choice(p.Id, p.Name)
-{
-    Group = p.Group,
-    Description = p.Description,
-    Badge = RichText.Plain(p.Size, new RichStyle(ThemeToken.Muted)),
-    Selected = p.Selected,
-    DisabledReason = p.Disabled
-})
+Choice[] Parts() => components.Select(p => new Choice(p.Id,
+    p.Name)
+    {
+        Group = p.Group,
+        Description = p.Description,
+        Badge = RichText.Plain(p.Size, new RichStyle(ThemeToken.Muted)),
+        Selected = p.Selected,
+        DisabledReason = p.Disabled
+    })
     .ToArray();
 Choice[] Servers(string? region) => endpoints.Where(e => e.Region == region)
     .Select(e => new Choice(e.Host)

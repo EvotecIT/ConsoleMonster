@@ -7,7 +7,8 @@ using ConsoleMonster.Widgets;
 
 // A simulated module build as a live dashboard: phases, steps with timings, module facts, a progress bar and the tool's own
 // output. The build writes to Console.Out like any tool; the session captures those lines into the Output panel.
-Step[] plan = {
+Step[] plan =
+{
     new("Prepare", "config", "Read Build/project.build.json", 0.4, StatusKind.Pass,
         "Loaded project.build.json (3 projects, version 2.0.X)",
         "Resolved version 2.0.0 from PowerShell Gallery (current 0.0.4)"),
@@ -46,18 +47,25 @@ Step[] plan = {
         "Artefacts\\Packed\\ConsoleMonster-v2.0.0.zip (1.1 MB)"),
     new("Publish", "publish", "Publish to PowerShell Gallery", 0.3, StatusKind.Skip,
         "RunMode is Build; publishing is disabled")
-    // </more>
+// </more>
 };
-
 Phases phases = new Phases();
-foreach (string phase in new[] { "Prepare", "Restore", "Build", "Test", "Docs", "Sign", "Package",
-    "Publish" }) {
+foreach (string phase in new[]
+{
+    "Prepare", "Restore", "Build", "Test", "Docs", "Sign", "Package", "Publish"
+}
+
+)
+{
     phases.Set(phase);
 }
+
 StatusList steps = new StatusList("steps");
-foreach (Step step in plan) {
+foreach (Step step in plan)
+{
     steps.Set(step.Key, step.Label, StatusKind.Pending);
 }
+
 KeyValueList module = new KeyValueList("module")
     .Add("Module", "[bold]ConsoleMonster[/]")
     .Add("Version", "0.0.4 [muted]→[/] [bold]2.0.0[/]")
@@ -66,16 +74,13 @@ KeyValueList module = new KeyValueList("module")
     .Add("Run mode", "Build [muted](publish disabled)[/]")
     .Add("Elapsed", "-");
 ProgressBar progress = new ProgressBar("Overall", "overall").Total(plan.Length).LabelWidth(8);
-
 Dashboard dashboard = new DashboardBuilder("[bold]Module build[/]")
     .Subtitle("Build-Module ConsoleMonster")
     .Add(new Padding(phases, 1, 0, 1, 1))
-    .Columns(c => c
-        .Panel("Steps", steps, 1.5)
+    .Columns(c => c.Panel("Steps", steps, 1.5)
         .Panel("Module", new Rows(module, new Rule(), progress), 1))
-    .Panel("Output", new LogRegion { PreferredHeight = 8 }, fill: true)
+    .Panel("Output", new LogRegion { PreferredHeight = 8 }, true)
     .BuildDashboard();
-
 Table summary = new Table()
     .Border(TableBorder.Minimal)
     .Title("[bold]Build summary[/] [muted]ConsoleMonster 2.0.0[/]")
@@ -88,57 +93,75 @@ Table summary = new Table()
 SimulatedClock clock = new SimulatedClock();
 using (LiveSession session = new LiveSession(
     dashboard,
-    new LiveSessionOptions { Clock = clock.Read, Summary = new Padding(summary, 1, 1, 1, 1) })) {
+    new LiveSessionOptions { Clock = clock.Read, Summary = new Padding(summary, 1, 1, 1, 1) }))
+{
     session.Run(Build);
 }
 
 // <more>
-void Build(LiveSession session) {
+void Build(LiveSession session)
+{
     PhasesHandle phasesHandle = phases.Handle(session);
     StatusListHandle stepsHandle = steps.Handle(session);
     KeyValueHandle moduleHandle = module.Handle(session);
     ProgressHandle progressHandle = progress.Handle(session);
     string? currentPhase = null;
     List<StatusKind> phaseResults = new List<StatusKind>();
-    session.Post(new LiveEvent("dashboard", "status", text: "building", status: "running"));
+    session.Post(new LiveEvent("dashboard", "status", default, "building", "running"));
     Console.WriteLine("Build engine 3.0.168 · release pipeline");
     int index = 0;
-    foreach (Step step in plan) {
-        if (session.Cancellation.IsCancellationRequested) {
+    foreach (Step step in plan)
+    {
+        if (session.Cancellation.IsCancellationRequested)
+        {
             break;
         }
-        if (step.Phase != currentPhase) {
-            if (currentPhase != null) {
+
+        if (step.Phase != currentPhase)
+        {
+            if (currentPhase != null)
+            {
                 phasesHandle.Complete(currentPhase, Worst(phaseResults));
             }
+
             currentPhase = step.Phase;
             phaseResults.Clear();
             phasesHandle.Start(currentPhase);
         }
+
         stepsHandle.Set(step.Key, StatusKind.Running);
         progressHandle.Label(step.Phase);
         TimeSpan stepStart = clock.Elapsed;
         TimeSpan stepDuration = TimeSpan.FromSeconds(step.Seconds);
         int slices = Math.Max(1, (int)(step.Seconds * 10));
-        for (int i = 0; i < slices && !session.Cancellation.IsCancellationRequested; i++) {
+        for (int i = 0; i < slices && !session.Cancellation.IsCancellationRequested; i++)
+        {
             TimeSpan next = stepStart + TimeSpan.FromTicks(stepDuration.Ticks * (i + 1) / slices);
             TimeSpan slice = next - clock.Elapsed;
             session.Delay(slice);
             clock.Advance(slice);
-            if (i < step.Output.Length) {
+            if (i < step.Output.Length)
+            {
                 Console.WriteLine(step.Output[i]);
             }
-            if (i % 5 == 0) {
+
+            if (i % 5 == 0)
+            {
                 moduleHandle.Set("Elapsed", NumberFormat.Duration(clock.Elapsed));
             }
         }
-        for (int i = slices; i < step.Output.Length; i++) {
+
+        for (int i = slices; i < step.Output.Length; i++)
+        {
             Console.WriteLine(step.Output[i]);
         }
-        if (step.Result == StatusKind.Warn) {
+
+        if (step.Result == StatusKind.Warn)
+        {
             Console.Error.WriteLine(
                 "WARNING: 1 Pester test skipped on PowerShell 7 (requires conhost).");
         }
+
         string duration = NumberFormat.Duration(clock.Elapsed - stepStart);
         stepsHandle.Set(step.Key, step.Result);
         stepsHandle.Detail(step.Key, step.Result == StatusKind.Skip ? "skipped" : duration);
@@ -148,23 +171,25 @@ void Build(LiveSession session) {
         index++;
         progressHandle.Set(index);
     }
-    if (currentPhase != null) {
+
+    if (currentPhase != null)
+    {
         phasesHandle.Complete(currentPhase, Worst(phaseResults));
     }
+
     moduleHandle.Set("Elapsed", NumberFormat.Duration(clock.Elapsed));
     progressHandle.Complete(StatusKind.Pass);
     Console.WriteLine("Build completed: 2 artefacts in Artefacts\\ (nupkg, zip)");
-    session.Post(new LiveEvent("dashboard", "status", text: "build succeeded with 1 warning",
-        status: "warn"));
+    session.Post(new LiveEvent("dashboard", "status", default, "build succeeded with 1 warning",
+        "warn"));
     session.Delay(TimeSpan.FromMilliseconds(1500));
 }
 
-static StatusKind Worst(List<StatusKind> results) =>
-    results.Contains(StatusKind.Fail) ? StatusKind.Fail
-    : results.Contains(StatusKind.Warn) ? StatusKind.Warn
-    : results.TrueForAll(r => r == StatusKind.Skip) ? StatusKind.Skip
-    : StatusKind.Pass;
+static StatusKind Worst(List<StatusKind> results) => results.Contains(StatusKind.Fail)
+    ? StatusKind.Fail
+    : results.Contains(StatusKind.Warn)
+        ? StatusKind.Warn
+        : results.TrueForAll(r => r == StatusKind.Skip) ? StatusKind.Skip : StatusKind.Pass;
 // </more>
-
 record Step(string Phase, string Key, string Label, double Seconds, StatusKind Result,
     params string[] Output);

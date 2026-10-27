@@ -71,7 +71,8 @@ foreach (string phase in phaseNames)
     phases.Set(
         phase,
         state,
-        detail: last <= completed ? Duration(group.Sum(item => item.Seconds)) : null);
+        default,
+        last <= completed ? Duration(group.Sum(item => item.Seconds)) : null);
 }
 
 StatusList status = new StatusList("steps");

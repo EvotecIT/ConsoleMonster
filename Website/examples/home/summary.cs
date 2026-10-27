@@ -8,9 +8,9 @@ double[] rate = { 18, 21, 19, 24, 27, 26, 31, 29, 34, 38, 36, 41, 39, 44, 47, 45
 Terminal.Write(new Panel(
     new Rows()
         .Add(new Phases()
-            .Set("Discover", StatusKind.Pass, detail: "2.1s")
-            .Set("Collect", StatusKind.Pass, detail: "14s")
-            .Set("Evaluate", StatusKind.Running, detail: "64%"))
+            .Set("Discover", StatusKind.Pass, default, "2.1s")
+            .Set("Collect", StatusKind.Pass, default, "14s")
+            .Set("Evaluate", StatusKind.Running, default, "64%"))
         .Add(new StackedBar()
             .Add("Passed", 412, ThemeToken.Pass)
             .Add("Warnings", 51, ThemeToken.Warn)

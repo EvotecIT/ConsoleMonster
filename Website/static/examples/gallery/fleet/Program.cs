@@ -10,49 +10,33 @@ using ConsoleMonster.Widgets;
 // Data: replace these inventories, operations and findings with your own sources.
 Node[] inventory = new Node[]
 {
-    new(Name: "DC01", Domain: "corp.example.test", Site: "Warsaw", Role: "Domain controller",
-        Detail: "10.20.1.11", Offline: "", Online: true),
-    new(Name: "DC02", Domain: "corp.example.test", Site: "Warsaw", Role: "Domain controller",
-        Detail: "10.20.1.12", Offline: "", Online: true),
-    new(Name: "FS01", Domain: "corp.example.test", Site: "Dublin", Role: "File",
-        Detail: "10.30.1.21", Offline: "", Online: true),
-    new(Name: "SQL01", Domain: "corp.example.test", Site: "Dublin", Role: "Database",
-        Detail: "10.30.1.31", Offline: "", Online: true),
-    new(Name: "WEB01", Domain: "corp.example.test", Site: "Berlin", Role: "Web",
-        Detail: "10.40.1.41", Offline: "", Online: true),
-    new(Name: "FS22", Domain: "corp.example.test", Site: "Berlin", Role: "File",
-        Detail: "10.40.1.22", Offline: "offline since 07:12", Online: false),
-    new(Name: "LAB01", Domain: "lab.example.test", Site: "Lab", Role: "Web",
-        Detail: "192.168.50.40", Offline: "", Online: true),
-    new(Name: "LAB02", Domain: "lab.example.test", Site: "Lab", Role: "Database",
-        Detail: "192.168.50.30", Offline: "", Online: true)
+    new("DC01", "corp.example.test", "Warsaw", "Domain controller", "10.20.1.11", "", true),
+    new("DC02", "corp.example.test", "Warsaw", "Domain controller", "10.20.1.12", "", true),
+    new("FS01", "corp.example.test", "Dublin", "File", "10.30.1.21", "", true),
+    new("SQL01", "corp.example.test", "Dublin", "Database", "10.30.1.31", "", true),
+    new("WEB01", "corp.example.test", "Berlin", "Web", "10.40.1.41", "", true),
+    new("FS22", "corp.example.test", "Berlin", "File", "10.40.1.22", "offline since 07:12", false),
+    new("LAB01", "lab.example.test", "Lab", "Web", "192.168.50.40", "", true),
+    new("LAB02", "lab.example.test", "Lab", "Database", "192.168.50.30", "", true)
 };
 Check[] catalog = new Check[]
 {
-    new(Id: "SecureChannel", Name: "Secure channel", Category: "Identity",
-        Description: "Tests the computer account trust with the domain.", Expected: "trusted",
-        Seconds: 1.2, Changes: false),
-    new(Id: "TimeOffset", Name: "Time offset", Category: "Identity",
-        Description: "Compares the clock with the domain time source.", Expected: "under 1 s",
-        Seconds: 0.8, Changes: false),
-    new(Id: "ForwardRecord", Name: "Forward record", Category: "DNS",
-        Description: "Compares the A record with the server address.", Expected: "matches IP",
-        Seconds: 0.6, Changes: false),
-    new(Id: "CertExpiry", Name: "Cert expiry", Category: "Certificates",
-        Description: "Finds machine certificates expiring within 30 days.", Expected: "30+ days",
-        Seconds: 1.8, Changes: false),
-    new(Id: "CertChain", Name: "Cert chain", Category: "Certificates",
-        Description: "Builds each certificate chain to a trusted root.", Expected: "trusted root",
-        Seconds: 3.5, Changes: false),
-    new(Id: "MissingUpdates", Name: "Missing updates", Category: "Updates",
-        Description: "Lists missing security updates older than 14 days.", Expected: "0",
-        Seconds: 6.5, Changes: false),
-    new(Id: "FreeSpace", Name: "Free space", Category: "Storage",
-        Description: "Measures free space on every fixed volume.", Expected: "15% free",
-        Seconds: 1.3, Changes: false),
-    new(Id: "AutoServices", Name: "Auto services", Category: "Services",
-        Description: "Checks that automatic services are running.", Expected: "all running",
-        Seconds: 2.2, Changes: false)
+    new("SecureChannel", "Secure channel", "Identity",
+        "Tests the computer account trust with the domain.", "trusted", 1.2, false),
+    new("TimeOffset", "Time offset", "Identity", "Compares the clock with the domain time source.",
+        "under 1 s", 0.8, false),
+    new("ForwardRecord", "Forward record", "DNS", "Compares the A record with the server address.",
+        "matches IP", 0.6, false),
+    new("CertExpiry", "Cert expiry", "Certificates",
+        "Finds machine certificates expiring within 30 days.", "30+ days", 1.8, false),
+    new("CertChain", "Cert chain", "Certificates",
+        "Builds each certificate chain to a trusted root.", "trusted root", 3.5, false),
+    new("MissingUpdates", "Missing updates", "Updates",
+        "Lists missing security updates older than 14 days.", "0", 6.5, false),
+    new("FreeSpace", "Free space", "Storage", "Measures free space on every fixed volume.",
+        "15% free", 1.3, false),
+    new("AutoServices", "Auto services", "Services", "Checks that automatic services are running.",
+        "all running", 2.2, false)
 };
 Dictionary<string, (StatusKind Status, string Actual)> findings = new()
 {
@@ -64,10 +48,8 @@ Dictionary<string, (StatusKind Status, string Actual)> findings = new()
     ["SQL01/AutoServices"] = (StatusKind.Warn, "1 restarted"),
 };
 List<HistoryRow> history = [
-    new(When: "Mon 19 Oct 21:04", Servers: 3, Checks: 4, Passed: 10, Warnings: 1, Failed: 1,
-        Elapsed: TimeSpan.FromSeconds(372)),
-    new(When: "Tue 20 Oct 07:30", Servers: 2, Checks: 3, Passed: 6, Warnings: 0, Failed: 0,
-        Elapsed: TimeSpan.FromSeconds(66)),
+    new("Mon 19 Oct 21:04", 3, 4, 10, 1, 1, TimeSpan.FromSeconds(372)),
+    new("Tue 20 Oct 07:30", 2, 3, 6, 0, 0, TimeSpan.FromSeconds(66)),
 ];
 string reportRoot = "Reports/Fleet";
 Node[] targets = inventory.Where(n => n.Domain == "corp.example.test" && n.Offline == "")
@@ -254,7 +236,7 @@ IWidget Body(List<Work> work, int done, int phase)
 // Behaviour: native form/menu navigation, then a bounded run with cancellation and history.
 void Execute(MenuContext context, List<Work> work)
 {
-    RegionWidget body = new RegionWidget(widgetId: "body", content: Body(work, 0, 0));
+    RegionWidget body = new RegionWidget("body", Body(work, 0, 0));
     Dashboard dashboard = new Dashboard()
     {
         Content = body,
@@ -292,13 +274,13 @@ void Execute(MenuContext context, List<Work> work)
     if (!completed)
         return;
     history.Add(new(
-        When: "Tue 20 Oct 09:30",
-        Servers: work.Select(w => w.Node.Name).Distinct().Count(),
-        Checks: work.Select(w => w.Check.Id).Distinct().Count(),
-        Passed: work.Count(w => w.Status == StatusKind.Pass),
-        Warnings: work.Count(w => w.Status == StatusKind.Warn),
-        Failed: work.Count(w => w.Status == StatusKind.Fail),
-        Elapsed: outcome.Elapsed));
+        "Tue 20 Oct 09:30",
+        work.Select(w => w.Node.Name).Distinct().Count(),
+        work.Select(w => w.Check.Id).Distinct().Count(),
+        work.Count(w => w.Status == StatusKind.Pass),
+        work.Count(w => w.Status == StatusKind.Warn),
+        work.Count(w => w.Status == StatusKind.Fail),
+        outcome.Elapsed));
 }
 
 MenuRunResult Result(List<Work> work)
@@ -366,9 +348,8 @@ Form Options()
     recipient.ParameterName = "To";
     recipient.Required = true;
     recipient.VisibleWhen = v => v.Get<bool>("Notify");
-    recipient.Validator = (value, _) => value is string s && s.Contains('@')
-        ? null
-        : "Enter an email address";
+    recipient.Validator = (value,
+        _) => value is string s && s.Contains('@') ? null : "Enter an email address";
     return form;
 }
 
@@ -423,13 +404,14 @@ FormPage choose = checkForm.Page("Checks", "What a healthy server reports appear
 ChoiceField operations = choose.MultiSelect(
     "Checks",
     "Checks",
-    catalog.Select(c => new Choice(c.Id, c.Name)
-    {
-        Group = c.Category,
-        Description = c.Description,
-        Badge = RichText.Plain("~" + Seconds(c.Seconds), new RichStyle(ThemeToken.Muted)),
-        Selected = checks.Contains(c)
-    }));
+    catalog.Select(c => new Choice(c.Id,
+        c.Name)
+        {
+            Group = c.Category,
+            Description = c.Description,
+            Badge = RichText.Plain("~" + Seconds(c.Seconds), new RichStyle(ThemeToken.Muted)),
+            Selected = checks.Contains(c)
+        }));
 operations.Minimum = 1;
 operations.ParameterName = "Check";
 operations.Preview = c => Preview(catalog.First(k => k.Id == (string)c.Value!));

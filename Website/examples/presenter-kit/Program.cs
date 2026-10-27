@@ -1,5 +1,3 @@
-using System;
-using System.IO;
 using ConsoleMonster.Demos;
 using ConsoleMonster.Export;
 using ConsoleMonster.Graphics;
@@ -21,7 +19,8 @@ Write-Host ('The answer is ' + (6 * 7)) -ForegroundColor Cyan
 'Compile: passed', 'Tests: 24 passed', 'Package: ready' | ForEach-Object { Write-Host $_ -ForegroundColor Green }
 # demo: pause 2
 """);
-DemoOptions options = new DemoOptions {
+DemoOptions options = new DemoOptions
+{
     Seed = 42,
     Output = Console.Write,
     Recording = new SessionRecordingOptions
@@ -32,16 +31,22 @@ DemoOptions options = new DemoOptions {
         Height = 12
     }
 };
-if (Array.IndexOf(args, "--present") >= 0) {
+if (Array.IndexOf(args, "--present") >= 0)
+{
     ConsolePresentation.Present(
         script,
         options,
-        stepChanged: (step, total) => Console.Error.WriteLine("[demo " + step + "/" + total + "]"));
-} else {
+        default,
+        (step, total) => Console.Error.WriteLine("[demo " + step + "/" + total + "]"));
+}
+else
+{
     ConsolePresentation.Record(script, options);
 }
+
 SessionRecording recording = SessionRecording.Read(options.Recording.Path);
-var graphics = new GraphicsExportOptions {
+var graphics = new GraphicsExportOptions
+{
     Preset = GraphicsPreset.Slide16x9,
     Frame = new ExportOptions
     {
