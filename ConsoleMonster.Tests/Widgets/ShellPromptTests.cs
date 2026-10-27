@@ -19,7 +19,7 @@ namespace ConsoleMonster.Tests.Widgets {
         public void DurationUsesCompletedHistoryThreshold(double seconds, bool shown) {
             string text = new ShellPrompt { Path = "/work/project", Duration = TimeSpan.FromSeconds(seconds) }.ToAnsi(Context(), 120);
             Assert.Equal(shown, text.Contains("2.0s"));
-            Assert.EndsWith("[PASS] > ", text, StringComparison.Ordinal);
+            Assert.EndsWith("[OK] > ", text, StringComparison.Ordinal);
         }
 
         [Theory]

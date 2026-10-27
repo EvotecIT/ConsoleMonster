@@ -12,7 +12,7 @@ namespace ConsoleMonster.Presenters {
                 ? Values.ValueShaper.Text(value, new Values.ShapeOptions { UseReflection = false, Culture = context.Culture })
                 : PresenterValues.ToText(value, context.Culture);
             string text = raw.Replace("\r\n", " ").Replace('\n', ' ').Replace('\t', ' ');
-            text = Glyphs.SymbolFallback.Apply(text, context.Render.Glyphs.Tier);
+            text = Glyphs.SymbolFallback.Apply(text, context.Render.Glyphs.Tier, context.Render.Profile.WidthProfile);
             return new PresentedValue(StyledLine.From(text, context.Render.Style(ThemeToken.Text))) { IsEmpty = text.Length == 0 };
         }
     }

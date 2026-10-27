@@ -118,7 +118,7 @@ namespace ConsoleMonster.Tests.Rendering {
             Assert.StartsWith("/", running);
             spinner.Apply(new LiveEvent("spinner", "state", status: "pass", time: 10));
             string finished = Render(spinner, tier: GlyphTier.Ascii)[0];
-            Assert.StartsWith("[PASS]", finished);
+            Assert.StartsWith("[OK]", finished);
             Assert.True(finished.All(c => c < 127));
         }
 

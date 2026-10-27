@@ -22,8 +22,8 @@
 +---------+--------+-----------------------------------------------------------------------------------+--------+------+
 | Check   | Status | Detail                                                                            |   Took | RFC  |
 +---------+--------+-----------------------------------------------------------------------------------+--------+------+
-| SPF     | [PASS] | 9 DNS lookups (limit 10); ends with -all                                          |  84 ms | 7208 |
-| DMARC   | [PASS] | p=reject, aggregate and forensic reports configured                               |  41 ms | 7489 |
+| SPF     | [OK]   | 9 DNS lookups (limit 10); ends with -all                                          |  84 ms | 7208 |
+| DMARC   | [OK]   | p=reject, aggregate and forensic reports configured                               |  41 ms | 7489 |
 | DKIM    | [WARN] | selector2 key is 1024-bit; selector1 is 2048-bit. Rotate selector2 to a 2048-bit  | 212 ms | 6376 |
 |         |        | key                                                                               |        |      |
 | MTA-STS | [FAIL] | policy file returns 404 at https://mta-sts.evotec.xyz/.well-known/mta-sts.txt     |  1.4 s | 8461 |
@@ -66,7 +66,7 @@ Certificate
 | DC02.ad.adatum.com       | [WARN] |     23 |         0 |  [WARN] 6 |     17 s | #######     79 % |
 | DC03.ad.adatum.com       | [FAIL] |     23 |  [FAIL] 3 |  [WARN] 4 |     19 s | #######     77 % |
 | DC07.eu.ad.adatum.com    | [FAIL] |     21 |  [FAIL] 4 |  [WARN] 4 |     16 s | #######     72 % |
-| DC09.eu.ad.adatum.com    | [PASS] |     30 |         0 |         0 |     15 s | ########## 100 % |
+| DC09.eu.ad.adatum.com    | [OK]   |     30 |         0 |         0 |     15 s | ########## 100 % |
 | Subtotal                 |        |    123 |  [FAIL] 7 | [WARN] 17 | 1 m 24 s |           83.6 % |
 +--------------------------+--------+--------+-----------+-----------+----------+------------------+
 | Total                    |        |    145 | [FAIL] 10 | [WARN] 23 | 2 m 04 s |          80.14 % |
