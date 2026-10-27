@@ -9,9 +9,6 @@ using ConsoleMonster.Sessions;
 using Xunit;
 
 namespace ConsoleMonster.Tests.Sessions {
-    // Long-record correctness checks keep the production regex deadline and must not race
-    // other allocation-heavy collections for that budget. Exact content/leak assertions remain active.
-    [Collection("Live sessions")]
     public sealed class SessionLongRecordTests : IDisposable {
         private readonly string _folder = Path.Combine(Path.GetTempPath(), "ConsoleMonster-long-record-" + Guid.NewGuid().ToString("N"));
         private SessionRecordingOptions Options() => new SessionRecordingOptions {
@@ -99,6 +96,18 @@ namespace ConsoleMonster.Tests.Sessions {
             using (SessionCastWriter writer = new SessionCastWriter(options, "test")) {
                 writer.Append(prefix + "password='" + new string('x', 70000));
                 Assert.DoesNotContain(new string('x', 100), ReadLiveCast(options.Path!));
+                writer.Append("'; visible\n");
+            }
+            Assert.Equal(prefix + "[REDACTED]; visible\n", Output(options.Path!));
+        }
+
+        [Fact]
+        public void BuiltInSecret_ProtectsAnOverlappingKeyAfterARejectedWordBoundary() {
+            SessionRecordingOptions options = Options();
+            string prefix = new string('a', 65500) + " xaccess-";
+            using (SessionCastWriter writer = new SessionCastWriter(options, "test")) {
+                writer.Append(prefix + "token='" + new string('q', 70000));
+                Assert.DoesNotContain(new string('q', 100), ReadLiveCast(options.Path!));
                 writer.Append("'; visible\n");
             }
             Assert.Equal(prefix + "[REDACTED]; visible\n", Output(options.Path!));
@@ -295,6 +304,19 @@ namespace ConsoleMonster.Tests.Sessions {
             int done = events.FindIndex(e => (string)e[1]! == "o" && ((string)e[2]!).Contains("Done"));
             Assert.True(marker > 0 && marker < resize && resize < done);
             Assert.Equal(140, SessionRecording.Read(options.Path!).FinalFrame().Width);
+        }
+
+        [Fact]
+        public void CustomRegexTimeout_OmitsTheRecordAndRecoversWithoutPersistingSecrets() {
+            SessionRecordingOptions options = Options();
+            options.Redact.Add("(a+)+$");
+            using (SessionCastWriter writer = new SessionCastWriter(options, "test")) {
+                writer.Append(new string('a', 32768) + "!\nRecovered\n");
+                Assert.False(writer.LimitReached);
+            }
+            Assert.Equal("[REDACTED: pattern timeout]\r\nRecovered\n", Output(options.Path!));
+            Dictionary<string, object?> metadata = (Dictionary<string, object?>)MiniJson.Read(File.ReadAllText(options.Path + ".json"))!;
+            Assert.Equal("1", metadata["redactionFallbacks"]);
         }
 
         private static List<List<object?>> Events(string path) => File.ReadAllLines(path).Skip(1)

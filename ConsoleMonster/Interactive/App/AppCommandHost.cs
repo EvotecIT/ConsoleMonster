@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Input;
 using ConsoleMonster.Layout;
@@ -72,6 +73,7 @@ namespace ConsoleMonster.Interactive {
         internal bool HasModal { get { lock (_gate) { return _modal != null && !_modal.IsClosed; } } }
         internal bool HasBarFocus => _barActive;
         internal bool IsBusy => _session.IsBusy;
+        internal Task Completion => _session.Completion;
         internal bool TryPost(Action action) => _session.Dispatcher.TryPost(action);
 
         internal bool Poll() {
