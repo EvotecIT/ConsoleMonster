@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Styling;
@@ -157,15 +158,17 @@ namespace ConsoleMonster.Glyphs {
 
         private static string ReplaceCluster(string text, TextCluster cluster, GlyphTier tier, Dictionary<string, string[]> map, TerminalWidthProfile profile) {
             string original = text.Substring(cluster.Start, cluster.Length);
-            if (original.IndexOf('\uFE0E') >= 0) return original;
+            bool decorative = IsDecorative(original);
+            if (!decorative && original.IndexOf('\uFE0E') >= 0) return original;
             string key = Strip(original);
             string replacement;
             if (map.TryGetValue(key, out string[]? entry)) replacement = Safe(entry[tier == GlyphTier.Basic ? 0 : 1], tier);
             else if (IsEmoji(original)) replacement = "*";
+            else if (decorative) replacement = Safe(key, tier);
             else return key;
             int end = cluster.Start + cluster.Length;
-            // Explicitly mapped pictographs also need separation when written without VS16 (e.g. ℹ, 🌡, ⛓).
-            if (IsEmoji(original) || IsPictographic(original)) {
+            // Changed decorative symbols also need separation without selectors (e.g. ℹ, ☐, ⏻).
+            if (decorative && !string.Equals(replacement, original, StringComparison.Ordinal)) {
                 int padding = cluster.Width - DisplayWidth.Measure(replacement, profile);
                 if (end < text.Length && !char.IsWhiteSpace(text[end])) padding = Math.Max(1, padding);
                 else if (end < text.Length) padding = 0;
@@ -175,8 +178,10 @@ namespace ConsoleMonster.Glyphs {
         }
 
         private static string Safe(string value, GlyphTier tier) {
-            if (tier == GlyphTier.Ascii) {
-                foreach (char c in value) if (c < ' ' || c > '~') return "*";
+            if (tier != GlyphTier.Full) {
+                foreach (char c in value) {
+                    if (tier == GlyphTier.Ascii ? c < ' ' || c > '~' : !Wgl4Repertoire.Contains(c)) return "*";
+                }
             }
             return value;
         }
@@ -201,6 +206,17 @@ namespace ConsoleMonster.Glyphs {
             return UnicodeWidthTables.Contains(UnicodeWidthTables.ExtendedPictographic, scalar);
         }
 
+        private static bool IsDecorative(string value) {
+            if (IsEmoji(value)) return true;
+            int scalar = char.IsHighSurrogate(value[0]) && value.Length > 1 && char.IsLowSurrogate(value[1])
+                ? char.ConvertToUtf32(value[0], value[1]) : value[0];
+            // These text signs belong to prose, including explicit text presentation. Emoji presentation
+            // is handled above. Do not turn localized names or copyright/trademark notices into glyphs.
+            if (scalar == 0x00A9 || scalar == 0x00AE || scalar == 0x2122) return false;
+            return scalar >= 0x2100 && scalar <= 0x2BFF || scalar >= 0x1F000 && scalar <= 0x1FAFF
+                || IsPictographic(value) || CharUnicodeInfo.GetUnicodeCategory(value, 0) == UnicodeCategory.MathSymbol;
+        }
+
         private static Dictionary<string, string[]> Build() {
             Dictionary<string, string[]> map = new Dictionary<string, string[]>(StringComparer.Ordinal);
             void Add(string basic, string ascii, params string[] symbols) {
@@ -211,9 +227,16 @@ namespace ConsoleMonster.Glyphs {
             void Cell(string basic, string ascii, string cell, params string[] symbols) {
                 foreach (string symbol in symbols) map[Strip(symbol)] = new[] { basic, ascii, cell };
             }
-            Cell("√", "[OK]", "+", "✅", "☑️", "✔️", "✔", "💚", "🧡");
-            Add("√", "+", "✓", "👍");
-            Add("×", "x", "❌", "✖️", "✗", "✘", "❎");
+            Cell("√", "[OK]", "+", "✅", "✔️", "✔", "💚", "🧡");
+            Add("·", "-", "☐");
+            Add("√", "+", "☑");
+            Add("×", "x", "☒");
+            Add("*", "*", "⚙");
+            Add("»", ">", "⏭");
+            Add("■", "#", "⏹");
+            Add("○", "O", "⏻");
+            Add("√", "+", "✓", "√", "👍");
+            Add("×", "x", "❌", "✖️", "✗", "✘", "❎", "×");
             Add("!", "!", "⚠️", "⚠", "❗", "❕", "‼️");
             Add("?", "?", "❓", "❔", "⁉️", "⁉", "🕵️");
             Add("!", "!", "😠", "🤯");

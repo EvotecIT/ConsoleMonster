@@ -38,14 +38,14 @@ namespace ConsoleMonster.Tests.Text {
         }
 
         [Theory]
-        [InlineData("Acme™")]
-        [InlineData("© 2026")]
-        [InlineData("© 2026 Łódź")]
-        [InlineData("Acme® ™︎ text")]
-        [InlineData("☀︎ text")]
-        public void Apply_TextPresentation_PreservesOrdinaryProse(string text) {
-            Assert.Equal(text, SymbolFallback.Apply(text, GlyphTier.Basic));
-            Assert.Equal(text, SymbolFallback.Apply(text, GlyphTier.Ascii));
+        [InlineData("Acme™", "Acme™")]
+        [InlineData("© 2026", "© 2026")]
+        [InlineData("© 2026 Łódź", "© 2026 Łódź")]
+        [InlineData("Acme® ™︎ text", "Acme® ™︎ text")]
+        [InlineData("☀︎ text", "* text")]
+        public void Apply_TextPresentation_PreservesProseAndDowngradesUnsupportedDecorations(string text, string expected) {
+            Assert.Equal(expected, SymbolFallback.Apply(text, GlyphTier.Basic));
+            Assert.Equal(expected, SymbolFallback.Apply(text, GlyphTier.Ascii));
         }
 
         [Fact]

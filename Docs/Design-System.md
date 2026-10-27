@@ -99,6 +99,17 @@ Basic/ASCII have a generic fallback for unknown emoji; ASCII decorative fallback
 Ordinary multilingual content is preserved. Full keeps the original symbols. Hint (`*`) and search (`?`) remain
 distinct from warning (`!`). Styled text follows the same rules across span boundaries.
 
+Menu toggles and actions use cell APIs: `☐` is `·` / `-`, `☑` is `√` / `+`, `☒` is `×` / `x`,
+`⚙` is `*`, `⏭` is `»` / `>`, `⏹` is `■` / `#`, and `⏻` is `○` / `O` (Basic / ASCII).
+`GetPrefix` adds the separator; do not use prose badges for a fixed-width menu cell.
+
+Reduced-tier decorative fallbacks use a pinned repertoire: printable ASCII, or Microsoft's
+[Windows Glyph List 4.0](https://learn.microsoft.com/en-us/typography/develop/wgl4) for Basic, matching
+`GlyphSet.Basic`. Unsupported symbol-block decorations use `*`, including when explicitly text-presented;
+variation selectors cannot bypass the tier. This uses the documented character set rather than an installed font's
+fallback behavior. Ordinary localized prose and copyright/registered/trademark text signs remain as written;
+their explicit emoji presentation is decorative. Full retains the original text and symbols.
+
 ## Icons (`GlyphIcon`)
 
 Menu items take a semantic icon that follows the glyph tier, or free text when an app needs its own mark. Every icon is
