@@ -1,7 +1,7 @@
-[?9001h[?1004h[?25l[2J[m[H From a background job]0;C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe[?25h[?25l[38;5;8m
-╭───────┬────────╮
-│ [mCheck [38;5;8m│ [mStatus [38;5;8m│
+[2J[H From a background job
+[0;90m╭───────┬────────╮
+│ [0mCheck [0;90m│ [0mStatus [0;90m│
 ├───────┼────────┤
-│ [mSPF   [38;5;8m│ [38;5;10m✓ Pass [38;5;8m│
-│ [mDMARC [38;5;8m│ [38;5;9m✗ Fail [38;5;8m│
-╰───────┴────────╯[9;1H[?25h[?9001l[?1004l[m
+│ [0mSPF   [0;90m│ [0;92m✓ Pass [0;90m│
+│ [0mDMARC [0;90m│ [0;91m✗ Fail [0;90m│
+╰───────┴────────╯[9;1H

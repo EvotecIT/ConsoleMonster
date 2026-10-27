@@ -15,3 +15,6 @@ static/replays/** linguist-generated=true
 captures/README.md text eol=lf diff
 # Capture class declarations are reviewed metadata, not captured terminal bytes.
 captures/classes.json text eol=lf diff
+# Comparison reports and the changed-capture inventory are reviewable generated evidence.
+captures/comparisons/*.json text eol=lf diff
+captures/comparisons/*.csv text eol=lf diff

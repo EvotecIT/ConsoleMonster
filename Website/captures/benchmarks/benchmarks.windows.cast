@@ -1,0 +1,8 @@
+{"cm_source":"6c25dc8638bfdbc5","version":2,"width":110,"height":20,"title":"ConsoleMonster.Benchmarks 600","cm_timing":"logical-50ms-with-holds"}
+[0.000,"o","\u001B[2J\u001B[HConsoleMonster benchmark (.NET 8.0.33, 140x45, 32 lanes)\r\n"]
+[0.050,"o","  event apply:        9,965,966 events/s on one thread\r\n"]
+[0.100,"o","  compose per frame:  0.656 ms\r\n"]
+[0.150,"o","  diff\u002BVT per frame:  0.135 ms\r\n"]
+[0.200,"o","  chars per frame:    2,915 (diffed, 5,000 updates between frames)\r\n"]
+[0.250,"o","  alloc per frame:    240,980 bytes\r\n"]
+[0.300,"o","  render CPU at 15 fps: 1.2% of one core (\u002B apply cost 0.8% at 80k updates/s)\r\n"]

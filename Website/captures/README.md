@@ -199,3 +199,9 @@ The comparison is a structural gate. Rendered review is still required to check
 the actual font, border paint, compact layout and replay interaction. Measured
 benchmark/stress values and intentionally concurrent demonstrations are real
 runtime observations, explicitly listed in `classes.json`. Do not claim byte determinism for that class.
+
+The migration's [Mac–Windows comparison](comparisons/macos-windows.json) lists
+every allowed difference, including native profile values and Windows-only ps5
+production. The [changed-capture inventory](comparisons/changed-captures.csv)
+lists each changed capture and its reason. Both are generated from the qualified
+runs; retain the original producer directories when regenerating a comparison.

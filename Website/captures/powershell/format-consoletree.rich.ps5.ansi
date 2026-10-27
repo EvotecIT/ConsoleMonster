@@ -1,12 +1,12 @@
-[?9001h[?1004h[?25l[2J[m[1m[Hmail.evotec.xyz certificate[38;2;139;143;154m[22m  ·  5 members
-Subject       [mCN=mail.evotec.xyz[38;2;139;143;154m
-Issuer        [mCN=R11, O=Let's Encrypt, C=US[38;2;139;143;154m
-KeyAlgorithm  [mECDSA P-256[1m[6;1HSubjectAlternativeNames[38;2;139;143;154m[22m  3 items[m
-[38;2;139;143;154m[2C[0]  [mmail.evotec.xyz
-[38;2;139;143;154m[2C[1]  [mautodiscover.evotec.xyz
-[38;2;139;143;154m[2C[2]  [mmta-sts.evotec.xyz[1m[11;1HChain[38;2;139;143;154m[22m  3 items[m
-[1m[2CSubject[22m[1m[18CKey[22m[1m[10CRevoked[22m
-[38;2;75;80;96m[2C───────────────────────  ───────────  ───────[m
-  CN=mail.evotec.xyz       ECDSA P-256[38;2;139;143;154m[2C– no[m
-  CN=R11, O=Let's Encrypt  RSA 2048[38;2;139;143;154m[5C– no[m
-  CN=ISRG Root X1          RSA 4096[38;2;139;143;154m[5C– no[18;1H]0;C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe[?25h[m[?9001l[?1004l
+[2J[H[0;1mmail.evotec.xyz certificate[0;38;2;139;143;154m  ·  5 members
+Subject       [0mCN=mail.evotec.xyz
+[0;38;2;139;143;154mIssuer        [0mCN=R11, O=Let's Encrypt, C=US
+[0;38;2;139;143;154mKeyAlgorithm  [0mECDSA P-256[6;1H[0;1mSubjectAlternativeNames[0;38;2;139;143;154m  3 items
+[2C[0]  [0mmail.evotec.xyz
+[2C[0;38;2;139;143;154m[1]  [0mautodiscover.evotec.xyz
+[2C[0;38;2;139;143;154m[2]  [0mmta-sts.evotec.xyz[11;1H[0;1mChain[0;38;2;139;143;154m  3 items
+[2C[0;1mSubject[18CKey[10CRevoked
+[2C[0;38;2;75;80;96m───────────────────────  ───────────  ───────
+[0m  CN=mail.evotec.xyz       ECDSA P-256[2C[0;38;2;139;143;154m– no
+[0m  CN=R11, O=Let's Encrypt  RSA 2048[5C[0;38;2;139;143;154m– no
+[0m  CN=ISRG Root X1          RSA 4096[5C[0;38;2;139;143;154m– no[18;1H

@@ -1,7 +1,7 @@
-[?9001h[?1004h[?25l[2J[m[2;1H]0;C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe[?25h[?25l
+[2J[2;1H
 Name   : ConsoleMonster.2.0.0.nupkg
 Kind   : NuGet
 Length : 1482113
 Time   : 00:00:48.2000000
 Signed : True
-Path   : D:\Builds\ConsoleMonster\Packed\ConsoleMonster.2.0.0.nupkg[12;1H[?25h[?9001l[?1004l
+Path   : D:\Builds\ConsoleMonster\Packed\ConsoleMonster.2.0.0.nupkg[12;1H
