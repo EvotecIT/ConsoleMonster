@@ -12,7 +12,8 @@ supplies the examples, profiles and capture recipes.
 | Windows PowerShell 5.1 (`ps5`) | Produce | Skip production; validate committed output during render |
 | Terminal-profile examples and measurements | Produce platform-tagged files | Produce platform-tagged files |
 
-Run from the repository root, with .NET 8 and PowerShell 7 installed:
+Run from the repository root, with .NET 8, PowerShell 7 and Pester 5 (for the
+Pester demo) installed:
 
 ```sh
 dotnet build ConsoleMonster.PowerShell -c Release
@@ -73,6 +74,11 @@ module used by PowerShell 5.1. An optional area follows `Website`, for example
   cursor queries are omitted from replay output because they contain no cells.
   Append-only hosted stream text explicitly converts its native text newlines to
   CRLF before VT recording; that conversion is never applied to ordinary VT.
+- Finite file-tail examples record the completed `-Count 1` poll with the
+  recording target's checkpoint mode. This suppresses incidental background
+  repaints before that poll; the real file is still read and every queued entry
+  is drained. The target's actual VT goes through `SessionRecorder.CaptureOutput`,
+  including for native navigation reviews, rather than being saved directly.
 - Cast packet boundaries and wall-clock arrival timestamps are replaced by a
   logical timeline: each complete synchronized repaint or printed line advances
   50 ms. Scripted input waits are retained as additional reading holds, and the

@@ -472,7 +472,6 @@ namespace SiteFrames.Pages {
                     entry["bytes"] = System.Text.Encoding.UTF8.GetByteCount(data);
                     entry["poster"] = new JsonObject { ["w"] = width, ["h"] = height, ["dark"] = poster };
                 }
-                AddPlatformVariants(site, demo, entry, problems);
                 if (demo.Script != null) {
                     (string shortForm, string full) = SourceSnippets.Program(Site.ReadText(Script(site, demo.Script)));
                     entry["powershell"] = shortForm;

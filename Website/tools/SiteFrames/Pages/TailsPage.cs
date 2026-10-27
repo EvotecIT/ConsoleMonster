@@ -37,10 +37,10 @@ namespace SiteFrames.Pages {
                         string path = CapturePath(site, host, width, theme);
                         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
                         string arguments = "-Example '" + Example(site, "file.ps1").Replace("'", "''")
-                            + "' -Columns " + width + " -Appearance " + theme + " -Destination '" + path.Replace("'", "''") + "'";
-                        PowerShellRunner.Run(site, host, Driver(site), width, Rows, PowerShellRunner.Environment(theme),
-                            timeout: TimeSpan.FromSeconds(30), arguments: arguments);
-                        // The wrapper saved the target's VT, excluding ConPTY's host startup/exit text.
+                            + "' -Columns " + width + " -Appearance " + theme;
+                        List<OutputChunk> chunks = PowerShellRunner.Run(site, host, Driver(site), width, Rows, PowerShellRunner.Environment(theme),
+                            timeout: TimeSpan.FromSeconds(30), arguments: arguments, hostedOutput: true);
+                        File.WriteAllBytes(path, PowerShellRunner.Bytes(chunks));
                         FindFrames(File.ReadAllText(path), width);
                         CaptureRun.Observe(File.ReadAllBytes(path), width, Rows);
                         Stamps.Write(site, path, Fingerprint(site, width, theme));

@@ -75,8 +75,9 @@ namespace SiteFrames.Capture {
         /// <c>PS&gt;</c> prompt (with the comment lines just above it) and then run, its output formatted on its own, so the
         /// shown script is only the commands. Definitions such as functions run without a prompt. <paramref name="setup"/>
         /// is PowerShell the recording runs first (such as the folder to start in); it is never shown either.
+        /// <paramref name="hostedOutput"/> selects a script's own hosted recorder sink without adding the checkpoint driver.
         /// </summary>
-        public static List<OutputChunk> Run(Site site, PowerShellHost host, string script, int width, int height, Dictionary<string, string?> environment, string? workingDirectory = null, TimeSpan? timeout = null, bool allowErrors = false, bool showProgress = false, string? arguments = null, string? prompt = null, bool interactive = false, bool session = false, string? setup = null, bool recordCheckpoints = false, Action<string>? recording = null) {
+        public static List<OutputChunk> Run(Site site, PowerShellHost host, string script, int width, int height, Dictionary<string, string?> environment, string? workingDirectory = null, TimeSpan? timeout = null, bool allowErrors = false, bool showProgress = false, string? arguments = null, string? prompt = null, bool interactive = false, bool session = false, string? setup = null, bool recordCheckpoints = false, Action<string>? recording = null, bool hostedOutput = false) {
             string runner = Path.Combine(Path.GetTempPath(), "cmsite-runner-" + Path.GetFileNameWithoutExtension(script) + "-" + host.Id + ".ps1");
             string modules = ModuleLinkRoot(site);
             string directory = workingDirectory ?? Path.GetDirectoryName(script)!;
@@ -125,7 +126,7 @@ namespace SiteFrames.Capture {
                 var args = new List<string> { "-NoLogo", "-NoProfile" };
                 if (!interactive) { args.Add("-NonInteractive"); }
                 args.AddRange(new[] { "-ExecutionPolicy", "Bypass", "-File", runner });
-                return TerminalCapture.Run(host.Executable, args, width, height, environment, directory, timeout ?? TimeSpan.FromMinutes(3), recording: recording, hostedOutput: recordCheckpoints);
+                return TerminalCapture.Run(host.Executable, args, width, height, environment, directory, timeout ?? TimeSpan.FromMinutes(3), recording: recording, hostedOutput: recordCheckpoints || hostedOutput);
             } finally {
                 File.Delete(runner);
             }
