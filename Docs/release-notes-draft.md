@@ -49,7 +49,7 @@ ConsoleMonster 2.1.0 is the first version I consider complete: one consistent AP
 - Streaming redaction preserves long recording output while keeping built-in and custom sensitive values redacted across chunks. (#77)
 - Recording player exports retain a final chapter at a fractional timestamp, including Windows PowerShell 5.1 recordings stopped immediately after the marker. (#81)
 - App command completion includes final output and bookkeeping, so callers can observe the complete action before continuing. (#81)
-- Calendar day and month labels render consistently across operating systems while retaining localized, distinct weekday names. (#80)
+- Built-in calendar languages use the same day and month labels on every operating system; other cultures use localized names with distinct weekday labels. (#80)
 - The native recorder probe waits for readiness and the observed resize instead of fixed delays. (#65)
 - Multiline rich log messages keep their markup across lines. (#25)
 - Site code highlighting no longer colors `filter` or `process` inside hyphenated names. (#63)
