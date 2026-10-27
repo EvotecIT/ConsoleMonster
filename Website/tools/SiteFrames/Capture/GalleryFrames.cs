@@ -35,7 +35,7 @@ namespace SiteFrames.Capture {
             try {
                 CSharpRunner.Execute(fluent ? demo.CSharpFluent : demo.CSharp, profile, Theme.Dark, new InteractiveOptions {
                     Target = target, Input = target.Input, Capture = target.Screens, Profile = profile, Theme = Theme.Dark,
-                    ActionClock = new ConsoleMonster.Live.SimulatedClock().Read,
+                    ActionClock = actionClock == "Frozen" ? new ConsoleMonster.Live.SimulatedClock().Read : null,
                     Mode = target.Input == null ? InteractionMode.None : InteractionMode.Rich
                 }, arguments: state["arguments"]?.AsArray().Select(a => a!.GetValue<string>()).ToArray(), recording: target, allowIncompleteInput: state["incomplete"]?.GetValue<bool>() ?? false);
             } finally {
