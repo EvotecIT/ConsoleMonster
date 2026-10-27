@@ -64,7 +64,7 @@ pwsh Website/build/Render-SiteImages.ps1                                       #
   as part of the capture migration.
 - The converters are the tool's own: `Frames/FrameHtml.cs` (cells to HTML), `Frames/GlyphPaint.cs` (box drawing, block
   elements and braille painted on the cell grid, so borders join in every font), `Frames/FrameMinimap.cs` (navigation
-  thumbnails) and `Vt/VtScreen.cs` (a VT parser that turns captured streams back into cells). No terminal library is used.
+  thumbnails). The shared `ConsoleMonster/Recording/VtScreen.cs` turns captured streams back into cells. No external terminal library is used.
 - Cell geometry: a cell is 0.6em by 1.2em (JetBrains Mono). Every run except a row's last is a box exactly as wide as its
   cells (`.cN` classes in `static/css/frames.css`), and the frame font size is snapped so cells are whole layout units, so
   bars and borders line up from row to row.

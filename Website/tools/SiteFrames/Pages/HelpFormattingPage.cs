@@ -14,7 +14,7 @@ using SiteFrames.Frames;
 using SiteFrames.Vt;
 
 namespace SiteFrames.Pages {
-    /// <summary>Native host-help captures and review frames, produced by the site's ConPTY and VT renderer.</summary>
+    /// <summary>Native host-help captures and review frames, produced through the shared session recorder and VT model.</summary>
     internal static class HelpFormattingPage {
         private static int Height(string example) => example == "help" ? 18 : 32;
         private static readonly string[] Examples = { "native", "get-help", "command-help", "help", "show-consolehelp" };
@@ -50,7 +50,7 @@ namespace SiteFrames.Pages {
 
         private static Dictionary<string, string?> CaptureEnvironment(string theme) {
             Dictionary<string, string?> environment = PowerShellRunner.Environment(theme);
-            environment["CONSOLEMONSTER_DEVELOPMENT_CONFIGURATION"] = "Debug";
+            environment["CONSOLEMONSTER_DEVELOPMENT_CONFIGURATION"] = "Release";
             return environment;
         }
 
@@ -136,7 +136,7 @@ namespace SiteFrames.Pages {
             if (!reuseCaptures) { Capture(site, failures); }
             Directory.CreateDirectory(scratch);
             JsonObject evidence = new JsonObject();
-            StringBuilder index = new StringBuilder("<h1>Native host help</h1><p>Complete runnable scripts, captured through ConPTY. Before and after use default Get-Help Get-ConsoleCapability.</p><ul>");
+            StringBuilder index = new StringBuilder("<h1>Native host help</h1><p>Complete runnable scripts, captured through SessionRecorder. Before and after use default Get-Help Get-ConsoleCapability.</p><ul>");
             foreach (PowerShellHost host in PowerShellHost.All) {
                 foreach (int width in Widths) {
                     foreach (string theme in Themes) {

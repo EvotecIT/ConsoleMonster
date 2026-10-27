@@ -51,13 +51,15 @@ module used by PowerShell 5.1. An optional area follows `Website`, for example
   Sample programs supply their own fixed timestamps and explicit invented data.
 - PowerShell uses no logo or profile. The checkout's module link comes first on
   `PSModulePath`, and the runner verifies that the loaded binary came from that
-  link. Release is the default development configuration. Native review commands
+  link. Capture recipes select the Release development configuration, including
+  native help, so a pre-existing Debug build cannot change the producing binary.
+  Native review commands
   can explicitly select their build configuration.
 - CI markers, terminal branding, colour suppression and telemetry/update prompts
   are cleared or pinned. Builds disable MSBuild node and server reuse.
 - ANSI captures retain recorded VT output through the shared, opt-in
   `VtOutputNormalizer`. It canonicalizes supported SGR changes at their point of
-  use, removes title/cursor/focus/input-mode housekeeping, and removes only
+  use, removes title/cursor/focus/input-mode housekeeping, and omits
   undecorated default-background trailing blanks before CRLF only when the
   original cells are already blank with exactly the same full style (spaces that
   erase text or establish a combining mark’s base style are retained). Visible backgrounds,
