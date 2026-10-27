@@ -115,11 +115,11 @@ namespace ConsoleMonster.Widgets {
         private int Columns(int width) => View == CalendarView.Year ? Math.Max(1, (Math.Min(width, 112) + 2) / (MonthWidth + 2)) : 1;
 
         private void RenderMonth(Region region, int month, DayOfWeek first, CultureInfo culture, RenderContext context) {
-            string title = GregorianDateFormat(culture).GetMonthName(month) + " " + Year.ToString(CultureInfo.InvariantCulture);
+            string title = CalendarNames.Month(culture, GregorianDateFormat(culture), month) + " " + Year.ToString(CultureInfo.InvariantCulture);
             region.Write(0, 0, title, context.Style(ThemeToken.Title));
             region.Write(0, 2, "Week", context.Style(ThemeToken.Muted));
             for (int col = 0; col < 7; col++) {
-                string label = culture.DateTimeFormat.GetShortestDayName((DayOfWeek)(((int)first + col) % 7));
+                string label = CalendarNames.Day(culture, (DayOfWeek)(((int)first + col) % 7));
                 region.Write(8 + col * 4, 2, label, context.Style(ThemeToken.Header), 3);
             }
             DateTime start = new DateTime(Year, month, 1);
@@ -167,7 +167,7 @@ namespace ConsoleMonster.Widgets {
                 current += (current.Length == 0 ? "" : "  ") + item;
             }
             if (Today.HasValue && Today.Value.Year == Year && (View == CalendarView.Year || Today.Value.Month == Month)) {
-                string item = (context.HasColor && context.Glyphs.Tier != GlyphTier.Ascii ? "Today " : "@ Today ") + Today.Value.ToString("dd MMM", GregorianDateFormat(Culture ?? context.Culture));
+                string item = (context.HasColor && context.Glyphs.Tier != GlyphTier.Ascii ? "Today " : "@ Today ") + Today.Value.Day.ToString("00", CultureInfo.InvariantCulture) + " " + CalendarNames.ShortMonth(Culture ?? context.Culture, GregorianDateFormat(Culture ?? context.Culture), Today.Value.Month);
                 if (current.Length > 0 && ConsoleMonster.Text.DisplayWidth.Measure(current) + 2 + ConsoleMonster.Text.DisplayWidth.Measure(item) > width) { lines.Add(current); current = string.Empty; }
                 current += (current.Length == 0 ? "" : "  ") + item;
             }
