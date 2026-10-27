@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Glyphs;
 using ConsoleMonster.Input;
@@ -53,6 +54,8 @@ namespace ConsoleMonster.Interactive {
         }
 
         public bool Accepted { get; private set; }
+
+        internal Task ActionCompletion => _actions?.Completion ?? Task.CompletedTask;
 
         public void ShowModal(Modal modal) => _modals.Add(modal);
 
