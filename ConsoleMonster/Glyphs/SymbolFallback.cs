@@ -170,7 +170,7 @@ namespace ConsoleMonster.Glyphs {
             // Changed decorative symbols also need separation without selectors (e.g. ℹ, ☐, ⏻).
             if (decorative && !string.Equals(replacement, original, StringComparison.Ordinal)) {
                 int padding = cluster.Width - DisplayWidth.Measure(replacement, profile);
-                if (end < text.Length && !char.IsWhiteSpace(text[end])) padding = Math.Max(1, padding);
+                if (end < text.Length && !char.IsWhiteSpace(text[end]) && !char.IsPunctuation(text, end)) padding = Math.Max(1, padding);
                 else if (end < text.Length) padding = 0;
                 if (padding > 0) replacement += new string(' ', padding);
             }

@@ -76,6 +76,17 @@ namespace ConsoleMonster.Tests.Text {
         }
 
         [Theory]
+        [InlineData(GlyphTier.Basic, "√")]
+        [InlineData(GlyphTier.Ascii, "[OK]")]
+        public void Apply_SentencePunctuation_StaysAttachedToTheFallback(GlyphTier tier, string expected) {
+            foreach (string suffix in new[] { ".", ", ready", ": ready", ")" }) {
+                Assert.Equal(expected + suffix, SymbolFallback.Apply("✅" + suffix, tier));
+                StyledText styled = SymbolFallback.Apply(Markup.Parse("[green]✅[/]" + suffix), tier);
+                Assert.Equal(expected + suffix, styled.Lines[0].PlainText);
+            }
+        }
+
+        [Theory]
         [InlineData("💡", "*")]
         [InlineData("🕵️", "?")]
         public void Apply_HintAndSearch_AreDistinctFromWarning(string symbol, string expected) {
