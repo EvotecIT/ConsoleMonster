@@ -9,11 +9,6 @@ namespace ConsoleMonster.Sessions {
         internal bool RequiresCompleteRecord { get; private set; }
         private int _overlap = 32; // More than the longest built-in key/prefix, including its word boundary.
 
-        // An unfinished built-in credential must remain private even when its value/whitespace is arbitrarily long.
-        private static readonly Regex PendingCredential = new Regex(
-            @"(?i)\b(?:bearer(?:\s+[^\s;""'\x00-\x1f]*)?|(?:password|pwd|api[_-]?key|access[_-]?token|client[_-]?secret|token)(?:\s*(?:[=:]\s*(?:""[^""\x00-\x1f]*|'[^'\x00-\x1f]*|[^;""'\x00-\x1f]*))?)?|gh[pousr]_[A-Za-z0-9_]*|github_pat_[A-Za-z0-9_]*|sk-[A-Za-z0-9_-]*)\z",
-            RegexOptions.CultureInvariant, TimeSpan.FromMilliseconds(100));
-
         private void ConfigureStreaming(string pattern) {
             if (pattern == null) { throw new ArgumentNullException(nameof(pattern)); }
             int? length = PatternWidth.Read(pattern);
@@ -28,8 +23,8 @@ namespace ConsoleMonster.Sessions {
                 boundary = Math.Min(boundary, ProjectionPrefixLength(text, interpretation));
             }
             if (boundary == 0) { return 0; }
-            Match pending = PendingCredential.Match(text);
-            return pending.Success ? Math.Min(boundary, pending.Index) : boundary;
+            int pending = PendingCredentialStart(text);
+            return pending >= 0 ? Math.Min(boundary, pending) : boundary;
         }
 
         private int ProjectionPrefixLength(string text, TerminalInterpretation interpretation) {
@@ -39,10 +34,21 @@ namespace ConsoleMonster.Sessions {
             foreach (SourceRange control in controls) {
                 if (control.Start < boundary && control.End > boundary) { boundary = control.Start; }
             }
-            Match pending = PendingCredential.Match(visible);
-            if (pending.Success) { boundary = Math.Min(boundary, positions[pending.Index]); }
+            int pending = PendingCredentialStart(visible);
+            if (pending >= 0) { boundary = Math.Min(boundary, positions[pending]); }
             if (boundary > 0 && char.IsHighSurrogate(text[boundary - 1]) && char.IsLowSurrogate(text[boundary])) { boundary--; }
             return boundary;
+        }
+
+        /// <summary>Finds the earliest unfinished credential while keeping each rule's bounded search intact.</summary>
+        private static int PendingCredentialStart(string text) {
+            int start = text.Length;
+            foreach (Regex pattern in PendingCredentialPatterns) {
+                Match pending = pattern.Match(text);
+                if (pending.Success) { start = Math.Min(start, pending.Index); }
+                if (start == 0) { break; }
+            }
+            return start < text.Length ? start : -1;
         }
 
         /// <summary>Retains a previous visible character and following controls for word-boundary context.</summary>
