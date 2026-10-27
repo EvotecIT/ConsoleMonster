@@ -3,7 +3,7 @@
 
 I use the same domain names for cmdlet parameters, C# configuration and fluent calls. PowerShell keeps numeric duration parameters with units and default-off switches; C# keeps TimeSpan values and Boolean properties.
 
-The contract covers **108 commands**, **1131 parameters** and **314 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
+The contract covers **108 commands**, **1131 parameters** and **320 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
 
 Table and List remain named shortcuts to Show-Console’s shared view implementation. Read-* returns answers; New-ConsoleForm/Menu defines a question workflow; Show-ConsoleApp runs a persistent reactive application.
 
@@ -251,6 +251,13 @@ Native host hooks, runtime models and equivalent representations are listed indi
 | `ConsoleMonster.Widgets.LayoutRegions.NarrowBelow` | CSharpOnly: Responsive regions are composed through the typed layout container. | Construct LayoutRegions in PowerShell or C# and pass it to Show-ConsoleApp. |
 | `ConsoleMonster.Widgets.LayoutRegions.ActiveRegion` | CSharpOnly: ActiveRegion is live layout state used when no region owns focus. | Call Activate(key) on the retained regions container. |
 | `ConsoleMonster.Widgets.LayoutRegions.Gap` | CSharpOnly: The inter-region gap belongs to the typed responsive container. | Set Gap on LayoutRegions before passing it to Show-ConsoleApp. |
+| `ConsoleMonster.FileSystem.FileOperationOptions.ConflictPolicy` | CSharpOnly: File operations have no cmdlet in round 2: they belong to full-screen apps such as the Commander, which drive them from C# or from the .NET type in PowerShell. | PowerShell calls the [ConsoleMonster.FileSystem.FileOperation] type directly; Copy-Item, Move-Item and Remove-Item cover scripted file work. |
+| `ConsoleMonster.FileSystem.FileOperationOptions.PreserveTimestamps` | CSharpOnly: File operations have no cmdlet in round 2: they belong to full-screen apps such as the Commander, which drive them from C# or from the .NET type in PowerShell. | PowerShell calls the [ConsoleMonster.FileSystem.FileOperation] type directly; Copy-Item, Move-Item and Remove-Item cover scripted file work. |
+| `ConsoleMonster.FileSystem.FileOperationOptions.ResolveConflict` | CSharpOnly: File operations have no cmdlet in round 2: they belong to full-screen apps such as the Commander, which drive them from C# or from the .NET type in PowerShell. | PowerShell calls the [ConsoleMonster.FileSystem.FileOperation] type directly; Copy-Item, Move-Item and Remove-Item cover scripted file work. |
+| `ConsoleMonster.FileSystem.FileOperationOptions.Progress` | CSharpOnly: File operations have no cmdlet in round 2: they belong to full-screen apps such as the Commander, which drive them from C# or from the .NET type in PowerShell. | PowerShell calls the [ConsoleMonster.FileSystem.FileOperation] type directly; Copy-Item, Move-Item and Remove-Item cover scripted file work. |
+| `ConsoleMonster.FileSystem.FileOperationOptions.Trash` | CSharpOnly: File operations have no cmdlet in round 2: they belong to full-screen apps such as the Commander, which drive them from C# or from the .NET type in PowerShell. | PowerShell calls the [ConsoleMonster.FileSystem.FileOperation] type directly; Copy-Item, Move-Item and Remove-Item cover scripted file work. |
+| `ConsoleMonster.FileSystem.FileOperationOptions.ProgressInterval` | CSharpOnly: File operations have no cmdlet in round 2: they belong to full-screen apps such as the Commander, which drive them from C# or from the .NET type in PowerShell. | PowerShell calls the [ConsoleMonster.FileSystem.FileOperation] type directly; Copy-Item, Move-Item and Remove-Item cover scripted file work. |
+| `ConsoleMonster.FileSystem.FileOperationOptions.BufferSize` | CSharpOnly: File operations have no cmdlet in round 2: they belong to full-screen apps such as the Commander, which drive them from C# or from the .NET type in PowerShell. | PowerShell calls the [ConsoleMonster.FileSystem.FileOperation] type directly; Copy-Item, Move-Item and Remove-Item cover scripted file work. |
 
 ## .NET host integrations
 
