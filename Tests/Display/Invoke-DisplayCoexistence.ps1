@@ -20,6 +20,22 @@ $module=$null
 $lease=$null
 $path=[IO.Path]::ChangeExtension($ResultsPath,'consoleviews.psd1')
 try {
+    Test-Join 'BrokerHelpers_PreserveCallerVariablesAcrossAcquireInspectAndRelease' {
+        $c='column'; $body='message'; $owned='selection'; $cmDisplayType='application value'
+        $temporary=[ConsoleMonster.PowerShell.Display.DefaultDisplay]::RegisterModule('ScopeProbe',[version]'1.0.0',[string[]]@('DisplayJoinContract.Row'))
+        try { $installed=[ConsoleMonster.PowerShell.Display.DefaultDisplay]::IsBrokerInstalled }
+        finally { $temporary.Dispose() }
+        Assert-Join ($c -ceq 'column' -and $body -ceq 'message' -and $owned -ceq 'selection' -and $cmDisplayType -ceq 'application value') 'Broker helpers changed caller variables.'
+    }
+    Test-Join 'LastLeaseRelease_UnderLocalOutDefaultShadow_RestoresGlobalNativeSlot' {
+        $temporary=[ConsoleMonster.PowerShell.Display.DefaultDisplay]::RegisterModule('ShadowProbe',[version]'1.0.0',[string[]]@('DisplayJoinContract.Row'))
+        & {
+            function Out-Default { 'local output' }
+            $temporary.Dispose()
+            Assert-Join ((Out-Default) -ceq 'local output') 'Lease cleanup removed the local user function.'
+        }
+        Assert-Join ((Get-Command Out-Default).CommandType -eq 'Cmdlet') 'The last lease left a global broker behind a local shadow.'
+    }
     $module=Import-Module (Join-Path $PSScriptRoot 'Fixtures/ConsoleMonster.psm1') -ArgumentList (Join-Path $AssemblyDirectory 'ConsoleMonster.PowerShell.dll') -PassThru
     $lease=[ConsoleMonster.PowerShell.Display.DefaultDisplay]::RegisterModule('JoinProduct',[version]'1.0.0',[string[]]@('DisplayJoinContract.Row'))
     $view=$lease.Register('DisplayJoinContract.Row','join.row',[version]'1.0.0','Single',$null,$builder,$null)

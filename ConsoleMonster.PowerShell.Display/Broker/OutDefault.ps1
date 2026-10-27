@@ -8,7 +8,8 @@ begin {
     $cmAutomaticTopLevel = $MyInvocation.CommandOrigin -eq 'Runspace'
     # The owning installation captures its exact Type, including private assembly load contexts.
     # A copied definition has no captured owner and delegates straight to native formatting.
-    $cmDisplaySession = if ($null -ne $cmDisplayType) { $cmDisplayType::Begin($PSCmdlet, $cmAutomaticTopLevel, $Transcript.IsPresent) } else { $null }
+    $cmOwnerType = $PSCmdlet.SessionState.PSVariable.GetValue('cmDisplayType')
+    $cmDisplaySession = if ($null -ne $cmOwnerType) { $cmOwnerType::Begin($PSCmdlet, $cmAutomaticTopLevel, $Transcript.IsPresent) } else { $null }
     $cmNativePipeline = $null
     $cmDispatch = {
         param($cmOperations)
@@ -22,7 +23,7 @@ begin {
                 if ($cmDisplaySession.Render($cmOperation)) { continue }
             }
             if ($null -eq $cmNativePipeline) {
-                $cmNativePipeline = $cmDisplayType::CreateNativeSink($PSCmdlet, $cmAutomaticTopLevel, $Transcript.IsPresent)
+                $cmNativePipeline = $cmOwnerType::CreateNativeSink($PSCmdlet, $cmAutomaticTopLevel, $Transcript.IsPresent)
                 $cmNativePipeline.Begin()
             }
             foreach ($cmOriginal in $cmOperation.Objects) { $cmNativePipeline.Process($cmOriginal) }
