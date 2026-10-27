@@ -8,6 +8,13 @@ foreach($glyph in 'Full','Ascii'){foreach($plain in $false,$true){
     $commands.Add('Use-StreamHost -Glyph '+$glyph+' -Plain $'+$plain.ToString().ToLowerInvariant())
     $commands.Add('& { [DisplayHostContract.Row]::new(''DFS'',''a''); [DisplayHostContract.Row]::new(''DFS Replication'',''a''); [DisplayHostContract.Row]::new(''Backups and capacity unknown on an exceptionally long volume label'',''a''); ''stream-native-tail'' }')
     $commands.Add('Assert-StreamHost '+(Quote-StreamHost ('Stream_RealHost_LaterLongerRows_'+$Width+'_'+$glyph+'_'+$(if($plain){'NoColor'}else{'Color'}))))
+    foreach($kind in 'Controller','Policy'){
+        $first=if($kind -eq 'Controller'){'KATOWICE-DC01.ad.evotec.xyz'}else{'Default Domain Controllers Policy'}
+        $second=if($kind -eq 'Controller'){'KATOWICE-DC02.ad.evotec.xyz'}else{'Default Domain Policy'}
+        $commands.Add('Use-IdentityStreamHost -Glyph '+$glyph+' -Plain $'+$plain.ToString().ToLowerInvariant())
+        $commands.Add('& { [DisplayHostContract.Row]::new('+(Quote-StreamHost $first)+',''a''); [DisplayHostContract.Row]::new('+(Quote-StreamHost $second)+',''a'') }')
+        $commands.Add('Assert-IdentityStreamHost -Name '+(Quote-StreamHost ('Stream_RealHost_Identity_'+$kind+'_'+$Width+'_'+$glyph+'_'+$(if($plain){'NoColor'}else{'Color'})))+' -First '+(Quote-StreamHost $first)+' -Second '+(Quote-StreamHost $second))
+    }
 }}
 $commands.Add('$global:StreamHostLease.Dispose()')
 $commands.Add('[pscustomobject]@{Runtime=$PSVersionTable.PSVersion.ToString();RecordedUtc=[DateTime]::UtcNow.ToString(''o'');Tests=$global:DisplayLoopResults.ToArray();Failed=@($global:DisplayLoopResults|Where-Object{-not $_.Passed}).Count}|ConvertTo-Json -Depth 8|Set-Content -LiteralPath '+(Quote-StreamHost $ResultsPath)+' -Encoding UTF8')
@@ -19,4 +26,4 @@ $process=Start-Process -FilePath $RuntimePath -ArgumentList @('-NoLogo','-NoProf
 if(-not $process.WaitForExit(30000)){Stop-Process -Id $process.Id;throw 'The owned stream host exceeded 30 seconds.'}
 $process.Refresh();$report=Get-Content -LiteralPath $ResultsPath -Raw|ConvertFrom-Json
 $report.Tests|Format-Table Name,Passed,BufferWidth,ProfileWidth -AutoSize
-if($process.ExitCode -ne 0 -or $report.Failed -or $report.Tests.Count -ne 4 -or [DateTime]$report.RecordedUtc -lt $started){throw 'Native stream host proof failed.'}
+if($process.ExitCode -ne 0 -or $report.Failed -or $report.Tests.Count -ne 12 -or [DateTime]$report.RecordedUtc -lt $started){throw 'Native stream host proof failed.'}

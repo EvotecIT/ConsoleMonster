@@ -58,6 +58,39 @@ try{
             $results.Add([pscustomobject]@{Name=$name;Passed=$true;First=$first;Later=$second+$third;Footer=$footer})
         }catch{$results.Add([pscustomobject]@{Name=$name;Passed=$false;Error=$_.Exception.ToString()})}finally{if($stream){$stream.Dispose()}}
     }}}
+    foreach($kind in 'Controller','Policy'){
+        $global:LayoutIdentityKind=$kind
+        $identityBuilder=[Func[System.Collections.Generic.IReadOnlyList[object],ConsoleMonster.PowerShell.Display.DefaultDisplayContext,ConsoleMonster.Layout.IWidget]]{
+            param($objects,$context)
+            $t=[ConsoleMonster.Widgets.Table]::new();$t.Title='identity-layout'
+            $key=[ConsoleMonster.Widgets.TableColumn]::new('Name');$key.IsKey=$true;$key.Priority=100;$key.MinWidth=22;$key.MaxWidth=40;$null=$t.AddColumn($key)
+            foreach($def in @(@('State',80),@('Neighbors',60),@('Failed',90),@('Stale Schema/Config/Domain/App',0),@('Last logon',0),@('Password set',0))){
+                $col=[ConsoleMonster.Widgets.TableColumn]::new([string]$def[0]);$col.Priority=[int]$def[1];$null=$t.AddColumn($col)
+            }
+            $null=$t.AddRow([ConsoleMonster.Widgets.TableCell[]]@([ConsoleMonster.Widgets.TableCell]::FromValue($objects[0].Name),[ConsoleMonster.Widgets.TableCell]::FromValue('failing'),[ConsoleMonster.Widgets.TableCell]::FromValue(6),[ConsoleMonster.Widgets.TableCell]::FromValue(1),[ConsoleMonster.Widgets.TableCell]::FromValue(0),[ConsoleMonster.Widgets.TableCell]::FromValue($null),[ConsoleMonster.Widgets.TableCell]::FromValue($null)))
+            $global:IdentityPrototype=$t
+            return $t
+        }
+        $identityView=$lease.Register('DisplayLayout.Row',('layout.identity.'+$kind),[version]'1.0.0','Stream',$null,$identityBuilder)
+        foreach($width in 120,80,60){
+            $stream=$null
+            try{
+                $profile=[ConsoleMonster.Capabilities.TerminalProfile]::Fixed($width,30,[ConsoleMonster.Capabilities.ColorDepth]::None,[ConsoleMonster.Capabilities.GlyphTier]::Ascii,[ConsoleMonster.Capabilities.OutputMode]::Plain)
+                $ctx=[ConsoleMonster.PowerShell.Display.DefaultDisplayContext]::new($profile,'scope',[ConsoleMonster.PowerShell.Display.DefaultDisplayMode]::Auto)
+                $stream=[ConsoleMonster.PowerShell.Display.DefaultDisplayStream]::new($identityView,$ctx)
+                $a=[DisplayLayout.Row]::new();$b=[DisplayLayout.Row]::new()
+                if($kind -eq 'Controller'){$a.Name='KATOWICE-DC01.ad.evotec.xyz';$b.Name='KATOWICE-DC02.ad.evotec.xyz'}
+                else{$a.Name='Default Domain Controllers Policy';$b.Name='Default Domain Policy'}
+                $first=Remove-LayoutSgr ($stream.Append($a));$second=Remove-LayoutSgr ($stream.Append($b));$null=$stream.Complete()
+                if(-not $first.Contains($a.Name) -or -not $second.Contains($b.Name)){throw ('Identifying names were shortened while optional columns retained space: '+$first+$second)}
+                if(-not $second.Contains('failing') -or $second -notmatch '\b1\b'){throw 'Required state or failure count was hidden.'}
+                if($width -eq 60 -and -not $first.Contains('+')){throw 'No low-priority columns were dropped at the constrained width.'}
+                foreach($line in ($first+$second) -split '\r?\n'){if([ConsoleMonster.Text.DisplayWidth]::Measure($line,$profile.WidthProfile) -gt $width){throw 'Identity allocation exceeded the physical width.'}}
+                if($global:IdentityPrototype.Columns[0].Width -ne $null -or $global:IdentityPrototype.Columns[0].MinWidth -ne 22){throw 'Identity column contract was mutated.'}
+                $results.Add([pscustomobject]@{Name=('Stream_IdentityBeforeEmptyColumns_'+$kind+'_'+$width);Passed=$true;First=$first;Later=$second})
+            }catch{$results.Add([pscustomobject]@{Name=('Stream_IdentityBeforeEmptyColumns_'+$kind+'_'+$width);Passed=$false;Error=$_.Exception.ToString()})}finally{if($stream){$stream.Dispose()}}
+        }
+    }
 }finally{$lease.Dispose();Remove-Variable LayoutPrototype -Scope Global -ErrorAction Ignore}
 $report=[pscustomobject]@{Runtime=$PSVersionTable.PSVersion.ToString();Tests=$results.ToArray();Failed=@($results|Where-Object {-not $_.Passed}).Count}
 $report|ConvertTo-Json -Depth 8|Set-Content -LiteralPath $ResultsPath -Encoding UTF8

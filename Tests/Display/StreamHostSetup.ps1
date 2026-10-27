@@ -46,3 +46,30 @@ function global:Assert-StreamHost {
     $modeCorrect=if($global:StreamHostPlain){$global:StreamHostMode -eq 'Plain' -and $global:StreamHostDepth -eq 'None'}else{$global:StreamHostMode -ne 'Plain' -and $global:StreamHostDepth -eq 'TrueColor'}
     $global:DisplayLoopResults.Add([pscustomobject]@{Name=$Name;Passed=[bool]($passed -and $modeCorrect);BufferWidth=$width;ProfileWidth=[ConsoleMonster.Terminal]::GetCurrentProfile().Width;Mode=$global:StreamHostMode;Depth=$global:StreamHostDepth;Lines=@($lines|Where-Object {$_})})
 }
+
+function global:Use-IdentityStreamHost {
+    param([string]$Glyph,[bool]$Plain)
+    Use-StreamHost -Glyph $Glyph -Plain $Plain
+    $global:StreamHostLease.Unregister('DisplayHostContract.Row')
+    $builder=[Func[System.Collections.Generic.IReadOnlyList[object],ConsoleMonster.PowerShell.Display.DefaultDisplayContext,ConsoleMonster.Layout.IWidget]]{
+        param($objects,$context)
+        $t=[ConsoleMonster.Widgets.Table]::new();$t.Title='identity-host'
+        $key=[ConsoleMonster.Widgets.TableColumn]::new('Name');$key.IsKey=$true;$key.Priority=100;$key.MinWidth=22;$key.MaxWidth=40;$null=$t.AddColumn($key)
+        foreach($def in @(@('State',80),@('Neighbors',60),@('Failed',90),@('Stale Schema/Config/Domain/App',0),@('Last logon',0),@('Password set',0))){
+            $c=[ConsoleMonster.Widgets.TableColumn]::new([string]$def[0]);$c.Priority=[int]$def[1];$null=$t.AddColumn($c)
+        }
+        $null=$t.AddRow([ConsoleMonster.Widgets.TableCell[]]@([ConsoleMonster.Widgets.TableCell]::FromValue($objects[0].Name),[ConsoleMonster.Widgets.TableCell]::FromValue('failing'),[ConsoleMonster.Widgets.TableCell]::FromValue(6),[ConsoleMonster.Widgets.TableCell]::FromValue(1),[ConsoleMonster.Widgets.TableCell]::FromValue(0),[ConsoleMonster.Widgets.TableCell]::FromValue($null),[ConsoleMonster.Widgets.TableCell]::FromValue($null)))
+        return $t
+    }
+    $null=$global:StreamHostLease.Register('DisplayHostContract.Row','stream.identity',[version]'1.0.0','Stream',$null,$builder)
+}
+function global:Assert-IdentityStreamHost {
+    param([string]$Name,[string]$First,[string]$Second)
+    $text=[DisplayHostContract.ConsoleText]::Read();$width=[Console]::BufferWidth
+    $lines=@(for($i=0;$i -lt [Math]::Min(100,[Console]::BufferHeight);$i++){$text.Substring($i*$width,$width).TrimEnd()})
+    $firstRow=@($lines|Where-Object {$_.Contains($First)})
+    $secondRow=@($lines|Where-Object {$_.Contains($Second)})
+    $passed=$firstRow.Count -eq 1 -and $secondRow.Count -eq 1 -and $firstRow[0].Contains('failing') -and $secondRow[0].Contains('failing')
+    if($width -eq 60){$passed=$passed -and @($lines|Where-Object {$_ -match '^\+'}).Count -gt 0}
+    $global:DisplayLoopResults.Add([pscustomobject]@{Name=$Name;Passed=[bool]$passed;BufferWidth=$width;ProfileWidth=[ConsoleMonster.Terminal]::GetCurrentProfile().Width;Lines=@($lines|Where-Object {$_})})
+}

@@ -2,26 +2,46 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ConsoleMonster.Layout;
+using ConsoleMonster.Presenters;
 using ConsoleMonster.Text;
 using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell.Display;
 
 // Streaming cannot discover a later row's preferred width before writing its header.
-// Allocate from the terminal and declared limits instead; never change the caller's columns.
+// Measure the available first row and declared limits; never change the caller's columns.
 internal sealed class DisplayStreamColumns {
     internal DisplayStreamColumns(Table prototype, DefaultDisplayContext context) {
         List<int> selected = Enumerable.Range(0, prototype.Columns.Count).ToList();
-        int[] minimum = prototype.Columns.Select(column => Math.Max(1, column.MinWidth ?? 1) > (column.MaxWidth ?? int.MaxValue)
-            ? throw new ArgumentException("A stream column's minimum cannot exceed its maximum.")
-            : Math.Max(column.MinWidth ?? 1, Math.Min(column.MaxWidth ?? int.MaxValue, column.Width ?? column.MinWidth
-                ?? DisplayWidth.Measure(Markup.Strip(column.Header), context.Profile.WidthProfile)))).ToArray();
-        int[] maximum = prototype.Columns.Select((column, index) => Math.Max(minimum[index], column.Width ?? column.MaxWidth
-            ?? (IsNumeric(column, prototype.Rows[0][index]) ? Math.Max(16, minimum[index]) : context.Width))).ToArray();
+        int[] minimum = new int[selected.Count];
+        int[] desired = new int[selected.Count];
+        bool hasKey = prototype.Columns.Any(column => column.IsKey);
+        PresenterContext presenter = prototype.Presentation.CreateContext(Terminal.CreateContext(context.Profile));
+        for (int index = 0; index < selected.Count; index++) {
+            TableColumn column = prototype.Columns[index];
+            int limit = Math.Max(1, column.MaxWidth ?? context.Width);
+            if (Math.Max(1, column.MinWidth ?? 1) > limit) { throw new ArgumentException("A stream column's minimum cannot exceed its maximum."); }
+            TableCell cell = prototype.Rows[0][index];
+            string text = cell.HasValue ? CellPresenters.Present(cell.Value, column.Presenter,
+                (IReadOnlyList<RoleRule>)column.RoleRules, presenter).Text : Markup.Strip(cell.Markup);
+            int content = text.Split('\n').Select(line => DisplayWidth.Measure(line.TrimEnd('\r'), context.Profile.WidthProfile)).DefaultIfEmpty(0).Max();
+            int header = DisplayWidth.Measure(Markup.Strip(column.Header), context.Profile.WidthProfile);
+            // A long header must not reserve a whole text column for a one-digit value or an empty field.
+            desired[index] = Math.Min(limit, Math.Max(content, Math.Min(header, content == 0 ? 12 : Math.Max(4, content))));
+            minimum[index] = Math.Max(1, column.MinWidth ?? Math.Min(desired[index], IsNumeric(column, cell) ? Math.Max(1, content) : 8));
+            bool identity = column.IsKey || !hasKey && index == 0;
+            if (identity) {
+                // Reserve useful identity space before dropping detail columns. The first row cannot predict later
+                // names, so use the core table's 32-cell key comfort within the caller's maximum.
+                desired[index] = Math.Max(desired[index], Math.Min(32, limit));
+                minimum[index] = Math.Max(minimum[index], desired[index]);
+            }
+            desired[index] = Math.Max(desired[index], minimum[index]);
+            if (column.Width.HasValue) { desired[index] = minimum[index] = Math.Max(1, column.Width.Value); }
+        }
         List<string> hidden = new List<string>();
         // Preserve the core's record-card transition below 60 cells. At grid widths, retain important columns first.
         if (context.Width >= 60) {
-            bool hasKey = prototype.Columns.Any(column => column.IsKey);
             while (selected.Count > 1 && selected.Sum(index => minimum[index]) + 2 * (selected.Count - 1) > context.Width) {
                 int victim = selected.Where(index => !prototype.Columns[index].IsKey && (hasKey || index != 0))
                     .OrderBy(index => prototype.Columns[index].Priority).ThenByDescending(index => index).DefaultIfEmpty(-1).First();
@@ -34,16 +54,12 @@ internal sealed class DisplayStreamColumns {
         bool fits = widths.Sum() <= available;
         if (fits) {
             int spare = available - widths.Sum();
-            int[] order = Enumerable.Range(0, selected.Count).OrderByDescending(v => prototype.Columns[selected[v]].Priority).ToArray();
-            while (spare > 0) {
-                bool grew = false;
-                foreach (int v in order) {
-                    int index = selected[v];
-                    int add = Math.Min(spare, Math.Min(maximum[index] - widths[v], prototype.Columns[index].Flexible ? 4 : 1));
-                    if (add <= 0) { continue; }
-                    widths[v] += add; spare -= add; grew = true;
-                }
-                if (!grew) { break; }
+            int[] order = Enumerable.Range(0, selected.Count)
+                .OrderByDescending(v => prototype.Columns[selected[v]].IsKey || !hasKey && selected[v] == 0)
+                .ThenByDescending(v => prototype.Columns[selected[v]].Priority).ToArray();
+            foreach (int v in order) {
+                int add = Math.Min(spare, desired[selected[v]] - widths[v]);
+                widths[v] += add; spare -= add;
             }
         }
         Indices = selected.ToArray();
