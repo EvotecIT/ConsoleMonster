@@ -4,6 +4,17 @@ using System.Globalization;
 namespace ConsoleMonster.Widgets {
     /// <summary>Compact, invariant formatting for numbers, percentages and durations used across widgets.</summary>
     public static class NumberFormat {
+        /// <summary>Formats an invariant count with the caller's singular or plural noun. No language rules or suffixes are inferred.</summary>
+        /// <param name="count">The count to display.</param>
+        /// <param name="singular">The noun used for exactly one.</param>
+        /// <param name="plural">The noun used for other counts.</param>
+        /// <returns>The count, a space and the selected noun.</returns>
+        public static string CountPhrase(long count, string singular, string plural) {
+            if (singular == null) throw new ArgumentNullException(nameof(singular));
+            if (plural == null) throw new ArgumentNullException(nameof(plural));
+            return count.ToString(CultureInfo.InvariantCulture) + " " + (count == 1 ? singular : plural);
+        }
+
         /// <summary>Whether a value is a real number (not NaN or an infinity).</summary>
         /// <param name="value">The value.</param>
         /// <returns>True when finite.</returns>

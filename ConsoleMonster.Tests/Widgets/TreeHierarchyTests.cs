@@ -93,7 +93,8 @@ namespace ConsoleMonster.Tests.Hierarchy {
             int added = TreeHierarchy.Add(tree.Root, new[] { a }, item => new TreeNode(item.Name), item => item.Children);
 
             Assert.Equal(3, added);
-            Assert.Contains("Group A  (cycle)", Render(tree));
+            Assert.Contains("Group A  cycle", Render(tree));
+            Assert.Contains("(cycle)", Render(tree));
         }
 
         [Fact]
@@ -119,7 +120,8 @@ namespace ConsoleMonster.Tests.Hierarchy {
                 wrapper => ((KeyValuePair<string, Item>)wrapper).Value.Children.Select(child => (object)new KeyValuePair<string, Item>("w", child)),
                 new TreeHierarchyOptions { Identity = wrapper => ((KeyValuePair<string, Item>)wrapper).Value });
 
-            Assert.Contains("Loop  (cycle)", Render(tree));
+            Assert.Contains("Loop  cycle", Render(tree));
+            Assert.Contains("(cycle)", Render(tree));
         }
     }
 }

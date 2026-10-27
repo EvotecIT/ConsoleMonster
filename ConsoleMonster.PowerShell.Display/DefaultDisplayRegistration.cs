@@ -40,6 +40,8 @@ public sealed class DefaultDisplayRegistration {
     public DefaultDisplayBudget Budget { get; }
     /// <summary>Optional product aggregate for streamed groups; null prints the group row count.</summary>
     public DefaultDisplayStreaming? Streaming { get; set; }
+    /// <summary>Optional Stream-only presentation for a scope that closes with one original record. Configure before the scope starts.</summary>
+    public Func<object, DefaultDisplayContext, IWidget>? SingleRecordBuilder { get; set; }
     /// <summary>Builds without host I/O, for explicit preview and presentation qualification.</summary>
     public IWidget Build(IReadOnlyList<object> objects, DefaultDisplayContext context) => Builder(objects, context);
 }

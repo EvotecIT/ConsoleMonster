@@ -48,7 +48,7 @@ namespace ConsoleMonster.Widgets {
             if (summary) {
                 view.Summary = shown < all
                     ? Localization.WidgetLabels.Format(presenter.Render.Labels.Showing, shown.ToString("N0", culture), all.ToString("N0", culture))
-                    : Localization.WidgetLabels.Format(all == 1 ? presenter.Render.Labels.OneRecord : presenter.Render.Labels.ManyRecords, all.ToString("N0", culture));
+                    : ShowCardCount ? Localization.WidgetLabels.Format(all == 1 ? presenter.Render.Labels.OneRecord : presenter.Render.Labels.ManyRecords, all.ToString("N0", culture)) : null;
             }
             int group = int.MinValue;
             int level = 0;

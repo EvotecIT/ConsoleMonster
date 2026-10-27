@@ -14,8 +14,9 @@ namespace ConsoleMonster.Widgets {
             foreach (TreeRow row in Flatten(context)) {
                 TreeNode node = row.Node;
                 StyledLine guide = StyledLine.From(row.Prefix, context.Style(ThemeToken.Border));
-                StyledLine marker = node.Status.HasValue
-                    ? StyledLine.From(context.Glyphs.StatusMarker(node.Status.Value) + " ", context.Style(node.Status.Value))
+                string? markerText = node.MarkerFor(context);
+                StyledLine marker = !string.IsNullOrEmpty(markerText)
+                    ? StyledLine.From(markerText + " ", node.MarkerStyle(context))
                     : StyledLine.Empty;
                 // Keep the outcome before spending cells on the tree guide; leave at least one cell for the label.
                 int markerWidth = Math.Min(marker.Width, Math.Max(0, width - 1));

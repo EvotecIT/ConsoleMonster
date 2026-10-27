@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Layout;
@@ -18,6 +19,7 @@ internal sealed class DisplayTableStream : IDisposable {
     private readonly DefaultDisplayRegistration _registration;
     private readonly DefaultDisplayContext _context;
     private readonly int _columns;
+    private readonly DisplayStreamColumns _layout;
     private long _rendered;
     private long _received;
     private bool _complete;
@@ -26,7 +28,9 @@ internal sealed class DisplayTableStream : IDisposable {
         _registration = registration; _context = context; _columns = prototype.Columns.Count;
         DefaultDisplayStreaming? streaming = registration.Streaming;
         if (_columns == 0) { throw new InvalidOperationException("A streaming builder must define table columns."); }
-        GroupedStreamingTable<Row, object?> table = new GroupedStreamingTable<Row, object?>(prototype.Columns,
+        if (prototype.Rows.Count != 1) { throw new InvalidOperationException("A streaming builder must return exactly one row."); }
+        _layout = new DisplayStreamColumns(prototype, context);
+        GroupedStreamingTable<Row, object?> table = new GroupedStreamingTable<Row, object?>(_layout.Columns,
             row => ConsoleMonster.Text.Markup.Strip(prototype.Title ?? string.Empty), row => row.Cells,
             key => streaming?.Seed(),
             (aggregate, row) => {
@@ -45,10 +49,13 @@ internal sealed class DisplayTableStream : IDisposable {
     internal string Append(Table row, object value) {
         if (_disposed || _complete) { throw new ObjectDisposedException(nameof(DisplayTableStream)); }
         if (row.Columns.Count != _columns || row.Rows.Count != 1) { throw new InvalidOperationException("A streaming builder must return one table row with stable column definitions."); }
-        _queue.Enqueue(new Row(value, row.Rows[0]));
+        _queue.Enqueue(new Row(value, _layout.Indices.Select(index => row.Rows[0][index]).ToArray()));
         _received++;
         BoundedTextWriter writer = new BoundedTextWriter(_registration.Budget.Bytes);
         using (ITerminalOutput output = Terminal.CreateOutput(_context.Profile, writer)) {
+            if (_received == 1 && _layout.Hidden != null) {
+                output.WriteBlock(FrameComposer.RenderBlock(TextBlock.Plain(_layout.Hidden, ThemeToken.Muted), _context.Width, Terminal.CreateContext(_context.Profile)));
+            }
             // Hidden-column notices and the group heading may precede the row. Stop exactly after that row's chunk.
             while (_rendered < _received) { Advance(output); }
         }

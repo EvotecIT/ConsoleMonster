@@ -33,6 +33,7 @@ public sealed class DefaultDisplayStream : IDisposable {
     }
     internal bool MatchesProfile(TerminalProfile profile) => profile.Width == _context.Profile.Width && profile.Mode == _context.Profile.Mode
         && profile.ColorDepth == _context.Profile.ColorDepth && profile.Glyphs == _context.Profile.Glyphs;
+    internal TerminalProfile Profile => _context.Profile;
     /// <summary>Releases the iterator; early disposal does not print or build a completion summary.</summary>
     public void Dispose() { if (_closed) { return; } _closed = true; _table?.Dispose(); _table = null; }
 }

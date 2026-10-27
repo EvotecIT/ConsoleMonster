@@ -57,11 +57,11 @@ try {
         finally{Stop-Transcript|Out-Null}
         Assert-HostContract ($script:HostBuilds -eq $before) 'Active transcription ran the rich builder.'
     }
-    Test-HostContract 'Collect_UnknownIndependentStreamRoute_FailsClosedFromFirstRow' {
+    Test-HostContract 'Collect_InternalSubmission_RemainsNativeFromFirstRow' {
         $lease.Register('DisplayHostContract.Row','host.row',[version]'1.1.0','Collect',[string[]]@('Scope'),$builder,$null)|Out-Null
         $before=$script:HostBuilds
         Invoke-HostSubmission @([DisplayHostContract.Row]::new('collect-native','a'))
-        Assert-HostContract ($script:HostBuilds -eq $before) 'Unproven Collect routing rendered richly.'
+        Assert-HostContract ($script:HostBuilds -eq $before) 'An internal submission forced Collect rendering.'
     }
     Test-HostContract 'WidgetFailure_PreparationWritesNoPartialFrame' {
         $widget=[DisplayHostContract.BrokenWidget]::new()

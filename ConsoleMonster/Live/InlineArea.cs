@@ -108,9 +108,10 @@ namespace ConsoleMonster.Live {
             Style? current = null;
             for (int y = 0; y < frame.Height; y++) {
                 sb.Append('\r');
-                CellEncoder.AppendRun(sb, frame, y, 0, CellEncoder.ContentEnd(frame, y, _profile.ColorDepth), _profile.ColorDepth, ref current);
+                ColorDepth depth = SgrEncoder.DepthFor(_profile);
+                CellEncoder.AppendRun(sb, frame, y, 0, CellEncoder.ContentEnd(frame, y, depth), depth, ref current, profile: _profile);
                 if (current.HasValue) {
-                    sb.Append(Esc).Append("0m");
+                    SgrEncoder.AppendReset(sb, _profile);
                     current = null;
                 }
                 sb.Append(Esc).Append('K').Append("\r\n");

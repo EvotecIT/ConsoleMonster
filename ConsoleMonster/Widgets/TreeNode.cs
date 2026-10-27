@@ -28,6 +28,26 @@ namespace ConsoleMonster.Widgets {
         /// <summary>An optional status marker shown before the label.</summary>
         public StatusKind? Status { get; set; }
 
+        /// <summary>An optional plain text glyph replacing the status glyph, without changing the node's status tone.</summary>
+        public string? Marker { get; set; }
+
+        /// <summary>An optional glyph used only in the Basic tier; null retains <see cref="Marker"/>.</summary>
+        public string? BasicMarker { get; set; }
+
+        /// <summary>The ASCII alternative to <see cref="Marker"/>; null uses that marker unchanged.</summary>
+        public string? AsciiMarker { get; set; }
+
+        /// <summary>An optional theme tone for the marker, independent of status semantics. Null preserves the status or text tone.</summary>
+        public ThemeToken? MarkerTone { get; set; }
+
+        internal Style MarkerStyle(Canvas.RenderContext context) => MarkerTone.HasValue ? context.Style(MarkerTone.Value)
+            : Status.HasValue ? context.Style(Status.Value) : context.Style(ThemeToken.Text);
+
+        internal string? MarkerFor(Canvas.RenderContext context, bool compact = false) =>
+            (context.Glyphs.Tier == Capabilities.GlyphTier.Ascii ? AsciiMarker ?? Marker
+                : context.Glyphs.Tier == Capabilities.GlyphTier.Basic ? BasicMarker ?? Marker : Marker)
+            ?? (Status.HasValue ? compact ? Glyphs.GlyphSetExtensions.StatusSymbol(context.Glyphs, Status.Value) : context.Glyphs.StatusMarker(Status.Value) : null);
+
         /// <summary>A muted detail shown after the label (counts, values), or <c>null</c>.</summary>
         public string? Detail {
             get => LocalizedNote?.Invoke(Localization.WidgetLabels.Current) ?? _note;

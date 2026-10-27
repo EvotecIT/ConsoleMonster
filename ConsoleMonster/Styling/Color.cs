@@ -44,6 +44,12 @@ namespace ConsoleMonster.Styling {
         /// <returns>The colour.</returns>
         public static Color FromRgb(byte r, byte g, byte b) => new Color(ColorKind.Rgb, 0, r, g, b);
 
+        /// <summary>Converts a host console color to its corresponding ANSI 16 palette color.</summary>
+        /// <param name="color">The host color, such as a foreground or background snapshot.</param>
+        /// <returns>The ANSI color, using the canonical console palette mapping.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">The value is not one of the 16 console colors.</exception>
+        public static Color FromConsoleColor(ConsoleColor color) => ConsoleColorMap.FromConsoleColor(color);
+
         /// <summary>Creates one of the 16 standard colours.</summary>
         /// <param name="index">Index 0-15 (0 black, 1 maroon, 2 green, 3 olive, 4 navy, 5 purple, 6 teal, 7 silver, 8 grey, 9 red, 10 lime, 11 yellow, 12 blue, 13 fuchsia, 14 aqua, 15 white).</param>
         /// <returns>The colour.</returns>

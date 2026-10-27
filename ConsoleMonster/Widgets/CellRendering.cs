@@ -62,7 +62,7 @@ namespace ConsoleMonster.Widgets {
     }
 
     /// <summary>Turns cells into content and draws visuals; one implementation for every widget that shows cells.</summary>
-    internal static class CellRendering {
+    internal static partial class CellRendering {
         /// <summary>Fits presented cell lines consistently in tables, record views and narrow cards.</summary>
         internal static List<StyledLine> FitLines(List<StyledLine> lines, int width, ColumnOverflow overflow, int maxLines, RenderContext context) {
             List<StyledLine> result = new List<StyledLine>();
@@ -115,7 +115,15 @@ namespace ConsoleMonster.Widgets {
                 return new CellContent(WidgetCellLayout.Lines(widget, context.Render.Profile.Width, context.Render), null, widget: widget);
             }
             if (cell.HasValue && !(cell.Value is RichText)) {
-                PresentedValue presented = CellPresenters.Present(cell.Value, presenter, rules, context);
+                bool dataBar = presenter is DataBarPresenter;
+                PresentedValue presented = CellPresenters.Present(cell.Value, presenter, dataBar ? null : rules, context);
+                if (dataBar) {
+                    ThemeToken? tone = cell.RowRole?.Tone;
+                    if (!tone.HasValue && rules != null) foreach (RoleRule rule in rules) {
+                        if (rule.Matches(cell.Value, presented.Number)) { tone = rule.Role; break; }
+                    }
+                    if (tone.HasValue) presented = DataBarTone(presented, tone.Value, context.Render);
+                }
                 // A status word held as text ("Warning" in a State column) is as short as a status enum.
                 bool status = presented.Role.HasValue && (presenter is StatusEnumPresenter || presenter is StatusPresenter);
                 return new CellContent(new List<StyledLine> { presented.Line }, presented, (IsShortValue(cell.Value) || status) && presented.Line.Width <= ShortValueWidth);
@@ -126,14 +134,7 @@ namespace ConsoleMonster.Widgets {
             List<StyledLine> lines = new List<StyledLine>(text.Lines);
             if (cell.Status.HasValue && lines.Count > 0) {
                 Style style = render.Style(cell.Status.Value);
-                List<TextSpan> spans = new List<TextSpan> { new TextSpan(render.Glyphs.StatusMarker(cell.Status.Value), style) };
-                if (render.Glyphs.Tier != GlyphTier.Ascii || lines[0].Width > 0) {
-                    spans.Add(new TextSpan(" ", style));
-                    foreach (TextSpan span in lines[0]) {
-                        spans.Add(new TextSpan(span.Text, style.Combine(span.Style)));
-                    }
-                }
-                lines[0] = new StyledLine(spans);
+                lines[0] = WithMarker(render.Glyphs.StatusMarker(cell.Status.Value), lines[0], style);
             }
             // A status cell's word ("✓ Passed") is a short value too.
             return new CellContent(lines, null, cell.Status.HasValue && lines.Count == 1 && lines[0].Width <= ShortValueWidth);

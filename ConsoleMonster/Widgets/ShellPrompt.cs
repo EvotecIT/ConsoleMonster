@@ -33,10 +33,10 @@ namespace ConsoleMonster.Widgets {
             StyledLine line = Build(context, width);
             StringBuilder result = new StringBuilder();
             foreach (TextSpan span in line) {
-                SgrEncoder.Append(result, span.Style, context.Depth);
+                SgrEncoder.Append(result, span.Style, SgrEncoder.DepthFor(context.Profile), context.Profile);
                 result.Append(span.Text);
             }
-            if (context.HasColor) { result.Append(SgrEncoder.Reset); }
+            SgrEncoder.AppendReset(result, context.Profile);
             return result.ToString();
         }
 

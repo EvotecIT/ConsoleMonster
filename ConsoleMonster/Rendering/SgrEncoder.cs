@@ -17,11 +17,17 @@ namespace ConsoleMonster.Rendering {
         /// <param name="builder">The target.</param>
         /// <param name="style">The style.</param>
         /// <param name="depth">The colour depth; colours are downsampled to it.</param>
-        public static void Append(StringBuilder builder, Style style, ColorDepth depth) {
+        public static void Append(StringBuilder builder, Style style, ColorDepth depth) => Append(builder, style, depth, null);
+
+        // The original public overload retains VT-default behavior. Only profile-aware render paths opt in.
+        internal static void Append(StringBuilder builder, Style style, ColorDepth depth, TerminalProfile? profile) {
             if (depth == ColorDepth.None) {
                 return;
             }
-            Style s = style.Downsample(depth);
+            Style s = new Style(
+                style.Color.IsDefault ? profile?.DefaultForeground ?? Color.Default : style.Color,
+                style.BackgroundColor.IsDefault ? profile?.DefaultBackground ?? Color.Default : style.BackgroundColor,
+                style.Decoration, style.Link).Downsample(depth);
             builder.Append("\u001b[0");
             TextDecoration d = s.Decoration;
             if ((d & TextDecoration.Bold) != 0) {
@@ -55,6 +61,16 @@ namespace ConsoleMonster.Rendering {
             StringBuilder sb = new StringBuilder(24);
             Append(sb, style, depth);
             return sb.ToString();
+        }
+
+        internal static ColorDepth DepthFor(TerminalProfile profile) => profile.Mode == OutputMode.Plain ? ColorDepth.None : profile.ColorDepth;
+
+        internal static void AppendReset(StringBuilder builder, TerminalProfile profile) => Append(builder, Style.Plain, DepthFor(profile), profile);
+
+        internal static string ResetFor(TerminalProfile profile) {
+            StringBuilder builder = new StringBuilder(24);
+            AppendReset(builder, profile);
+            return builder.ToString();
         }
 
         private static void AppendColor(StringBuilder builder, Color color, bool background) {

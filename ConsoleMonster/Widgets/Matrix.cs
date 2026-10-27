@@ -32,6 +32,31 @@ namespace ConsoleMonster.Widgets {
         /// <summary>An optional markup title.</summary>
         public string? Title { get; set; }
 
+        /// <summary>An optional plain text caption for the row axis, shown in grids and attention lists.</summary>
+        public string? RowAxisCaption { get; set; }
+
+        /// <summary>An optional plain text caption for the column axis, shown in grids and attention lists.</summary>
+        public string? ColumnAxisCaption { get; set; }
+
+        /// <summary>An optional literal connector between row and column identities in lists; null retains a slash.</summary>
+        public string? ListDirection { get; set; }
+
+        /// <summary>The ASCII connector for <see cref="ListDirection"/>; null uses that connector unchanged.</summary>
+        public string? AsciiListDirection { get; set; }
+
+        /// <summary>Optional plain text legend words keyed by supplied status; absent entries retain the built-in words.</summary>
+        public IDictionary<StatusKind, string> LegendLabels { get; } = new Dictionary<StatusKind, string>();
+
+        /// <summary>Optional literal legend glyphs keyed by status; absent entries retain the built-in glyphs.
+        /// These do not change cell glyphs or counts. Use ASCII-safe glyphs for all-tier output.</summary>
+        public IDictionary<StatusKind, string> LegendMarkers { get; } = new Dictionary<StatusKind, string>();
+
+        /// <summary>The plain text self-cell legend word, or null for the built-in word.</summary>
+        public string? SelfLegendLabel { get; set; }
+
+        /// <summary>The plain text absent-observation legend word, or null for the built-in word.</summary>
+        public string? MissingLegendLabel { get; set; }
+
         /// <summary>Show counts of supplied statuses, self cells and absent observations (default true).</summary>
         public bool ShowLegend { get; set; } = true;
 
@@ -60,6 +85,20 @@ namespace ConsoleMonster.Widgets {
             return this;
         }
 
+        /// <summary>Sets an observation with a literal marker independent of its supplied status and tone.</summary>
+        /// <param name="row">Zero-based row index.</param>
+        /// <param name="column">Zero-based column index.</param>
+        /// <param name="status">The supplied status, or null.</param>
+        /// <param name="text">Optional short plain text.</param>
+        /// <param name="marker">A literal marker; null retains the built-in glyph. Explicit self cells retain their self marker.</param>
+        /// <param name="diagonal">True for an explicit self marker.</param>
+        /// <returns>This matrix.</returns>
+        public Matrix SetCell(int row, int column, StatusKind? status, string? text, string? marker, bool diagonal = false) {
+            CheckIndex(row, column);
+            _cells[(row, column)] = new MatrixCell(status, text, diagonal, marker);
+            return this;
+        }
+
         /// <summary>Gets an observation, or null when none has been supplied.</summary>
         /// <param name="row">Zero-based row index.</param>
         /// <param name="column">Zero-based column index.</param>
@@ -80,6 +119,11 @@ namespace ConsoleMonster.Widgets {
         private List<StyledLine> Lines(int width, RenderContext context) {
             List<StyledLine> lines = new List<StyledLine>();
             if (!string.IsNullOrEmpty(Title)) WidgetLines.Wrap(lines, context.Markup(Title!).Lines[0].WithBaseStyle(context.Style(ThemeToken.Accent).With(TextDecoration.Bold)), width);
+            if (!string.IsNullOrEmpty(RowAxisCaption) || !string.IsNullOrEmpty(ColumnAxisCaption)) {
+                string row = string.IsNullOrEmpty(RowAxisCaption) ? string.Empty : RowAxisCaption + " " + context.Glyphs.Get(Glyph.ArrowDown);
+                string column = string.IsNullOrEmpty(ColumnAxisCaption) ? string.Empty : ColumnAxisCaption + " " + context.Glyphs.Get(Glyph.ArrowRight);
+                WidgetLines.Wrap(lines, StyledLine.From(row + (row.Length > 0 && column.Length > 0 ? "  " : string.Empty) + column, context.Style(ThemeToken.Muted)), width);
+            }
             int cellWidth = 1;
             foreach (MatrixCell cell in _cells.Values) cellWidth = Math.Max(cellWidth, CellLine(cell, context).Width);
             bool numbered = width < 80;
@@ -148,8 +192,15 @@ namespace ConsoleMonster.Widgets {
             int shown = MaxListRows <= 0 ? attention.Count : Math.Min(MaxListRows, attention.Count);
             for (int i = 0; i < shown; i++) {
                 var entry = attention[i];
-                List<TextSpan> spans = new List<TextSpan> { new TextSpan(_rows[entry.Key.Row].Text + " / " + _columns[entry.Key.Column].Text + "  ", context.Style(ThemeToken.Text)) };
-                spans.AddRange(CellLine(entry.Value, context));
+                bool directed = !string.IsNullOrEmpty(ListDirection);
+                string connector = (context.Glyphs.Tier == GlyphTier.Ascii ? AsciiListDirection ?? ListDirection : ListDirection) ?? "/";
+                string row = (string.IsNullOrEmpty(RowAxisCaption) ? string.Empty : RowAxisCaption + " ") + _rows[entry.Key.Row].Text;
+                string column = (string.IsNullOrEmpty(ColumnAxisCaption) ? string.Empty : ColumnAxisCaption + " ") + _columns[entry.Key.Column].Text;
+                Style tone = entry.Value.Status.HasValue ? context.Style(entry.Value.Status.Value) : context.Style(ThemeToken.Muted);
+                List<TextSpan> spans = new List<TextSpan>();
+                if (directed) spans.Add(new TextSpan(CellMarker(entry.Value, context) + " ", tone));
+                spans.Add(new TextSpan(row + " " + connector + " " + column + "  ", context.Style(ThemeToken.Text)));
+                spans.AddRange(directed ? StyledLine.From(entry.Value.Text ?? string.Empty, tone) : CellLine(entry.Value, context));
                 WidgetLines.Wrap(lines, new StyledLine(spans), width);
             }
             if (shown == 0) WidgetLines.Wrap(lines, StyledLine.From("0 non-healthy cells", context.Style(ThemeToken.Muted)), width);
@@ -169,10 +220,10 @@ namespace ConsoleMonster.Widgets {
             List<TextSpan> spans = new List<TextSpan>();
             foreach (StatusKind status in new[] { StatusKind.Pending, StatusKind.Running, StatusKind.Pass, StatusKind.Fail, StatusKind.Warn, StatusKind.Skip, StatusKind.Info }) {
                 if (!counts.TryGetValue(status, out int count)) continue;
-                spans.Add(new TextSpan(context.Glyphs.StatusSymbol(status) + " " + status.ToWord() + " " + count.ToString(CultureInfo.InvariantCulture) + "  ", context.Style(status)));
+                spans.Add(new TextSpan((LegendMarkers.TryGetValue(status, out string? marker) ? marker : context.Glyphs.StatusSymbol(status)) + " " + (LegendLabels.TryGetValue(status, out string? label) ? label : status.ToWord()) + " " + count.ToString(CultureInfo.InvariantCulture) + "  ", context.Style(status)));
             }
             long absent = (long)_rows.Count * _columns.Count - observed - self;
-            spans.Add(new TextSpan(Self(context) + " self " + self.ToString(CultureInfo.InvariantCulture) + "  " + None(context) + " none " + absent.ToString(CultureInfo.InvariantCulture), context.Style(ThemeToken.Muted)));
+            spans.Add(new TextSpan(Self(context) + " " + (SelfLegendLabel ?? "self") + " " + self.ToString(CultureInfo.InvariantCulture) + "  " + None(context) + " " + (MissingLegendLabel ?? "none") + " " + absent.ToString(CultureInfo.InvariantCulture), context.Style(ThemeToken.Muted)));
             WidgetLines.Wrap(lines, new StyledLine(spans), width);
         }
 
@@ -200,9 +251,12 @@ namespace ConsoleMonster.Widgets {
 
         private static StyledLine CellLine(MatrixCell? cell, RenderContext context) {
             if (cell?.Diagonal == true) return StyledLine.From(Self(context), context.Style(ThemeToken.Muted));
-            string marker = cell?.Status is StatusKind status ? context.Glyphs.StatusSymbol(status) : None(context);
-            return StyledLine.From(marker + (cell?.Text ?? string.Empty), cell?.Status is StatusKind state ? context.Style(state) : context.Style(ThemeToken.Muted));
+            string marker = CellMarker(cell, context);
+            return CellRendering.WithMarker(marker, StyledLine.From(cell?.Text ?? string.Empty), cell?.Status is StatusKind state ? context.Style(state) : context.Style(ThemeToken.Muted));
         }
+
+        private static string CellMarker(MatrixCell? cell, RenderContext context) => cell?.Marker
+            ?? (cell?.Status is StatusKind status ? context.Glyphs.StatusSymbol(status) : None(context));
 
         private static string Self(RenderContext context) => context.Glyphs.Tier == GlyphTier.Ascii ? "-" : "—";
         private static string None(RenderContext context) => context.Glyphs.Tier == GlyphTier.Ascii ? "." : "·";

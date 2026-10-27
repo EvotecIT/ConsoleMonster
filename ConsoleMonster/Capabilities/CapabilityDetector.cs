@@ -214,7 +214,8 @@ namespace ConsoleMonster.Capabilities {
             return new TerminalProfile(profile.ColorDepth, glyphs, profile.Mode, profile.Width, profile.Height,
                 profile.Kind, profile.SupportsVirtualTerminal, profile.IsOutputRedirected, profile.IsConsoleHandle,
                 profile.IsContinuousIntegration, fontFace, decisions.AsReadOnly(), profile.WidthProfile, profile.ProbeWidths,
-                profile.ThemePreference, profile.Culture, profile.HyperlinkSupport).WithLanguage(profile.Language);
+                profile.ThemePreference, profile.Culture, profile.HyperlinkSupport).WithLanguage(profile.Language)
+                .WithDefaultColors(profile.DefaultForeground, profile.DefaultBackground);
         }
 
         private bool ParseWidth(string name, ref TerminalWidthProfile profile, bool emoji, List<string> decisions) {

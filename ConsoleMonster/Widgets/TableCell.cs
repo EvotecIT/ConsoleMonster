@@ -32,6 +32,14 @@ namespace ConsoleMonster.Widgets {
 
         internal TableRowRole? RowRole { get; private set; }
 
+        /// <summary>Returns a copy with a cell tone, retaining the raw value, status and existing emphasis.</summary>
+        /// <param name="tone">The theme role supplied by the caller; it is not inferred from the numeric value.</param>
+        /// <returns>A new cell; this cell is unchanged.</returns>
+        public TableCell WithTone(ThemeToken tone) => WithRowRole(new TableRowRole {
+            Tone = tone, Bold = RowRole?.Bold ?? false, Muted = RowRole?.Muted ?? false,
+            Marker = RowRole?.Marker, AsciiMarker = RowRole?.AsciiMarker
+        });
+
         internal TableCell WithRowRole(TableRowRole role) {
             TableCell copy = HasValue ? FromValue(Value) : new TableCell(Markup);
             copy.Status = Status;

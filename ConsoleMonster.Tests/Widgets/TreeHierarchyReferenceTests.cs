@@ -110,7 +110,9 @@ namespace ConsoleMonster.Tests.Widgets {
             Assert.Equal(1, selectedA);
             Assert.True((cycle.Reference & TreeReferenceKind.Cycle) != 0);
             string text = TestTerminal.RenderText(tree, 45, glyphs: tier);
-            Assert.Contains(marker, text);
+            if (columns) {
+                Assert.Contains(marker.Split(' ')[0] + " A  cycle", text);
+            } else Assert.Contains(marker, text);
             Assert.Equal(2, text.Split('\n').Count(line => line.Contains("A")));
         }
 

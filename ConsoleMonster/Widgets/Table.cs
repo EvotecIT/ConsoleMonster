@@ -98,6 +98,9 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Shows the rows as record cards at any width (the Cards view of Show-Console).</summary>
         public bool AlwaysCards { get; set; }
 
+        /// <summary>Show the record count beneath cards (default true). Omitted-row notices remain visible when false.</summary>
+        public bool ShowCardCount { get; set; } = true;
+
         /// <summary>A table with at most this many rows renders as a record view (default 1; 0 disables).</summary>
         public int RecordViewRows { get; set; } = 1;
 

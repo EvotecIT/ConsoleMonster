@@ -10,8 +10,9 @@ namespace ConsoleMonster.Widgets {
     public sealed partial class Tree {
         /// <summary>
         /// Aligned value columns, keyed by <see cref="TableColumn.Id"/> in <see cref="TreeNode.Values"/>.
-        /// Default alignment is right. Below 120 cells values become one muted note. Lower priorities drop first;
-        /// below 60 cells all values drop.
+        /// Default alignment is right. Wide layouts reserve at least 40% for labels and shrink value columns before
+        /// dropping them. Below 120 cells values become one muted note. Lower priorities drop first;
+        /// below 60 cells fitting detail precedes value notes. Labels always receive space first.
         /// With columns the tree uses single-line labels, regardless of <see cref="WrapLabels"/>.
         /// </summary>
         public IList<TableColumn> ValueColumns { get; } = new List<TableColumn>();
@@ -33,7 +34,9 @@ namespace ConsoleMonster.Widgets {
                 visible.Add(c);
             }
             foreach (TreeRow row in rows) labelDesired = Math.Max(labelDesired, row.Width(context) + ValueWidth(row.Node, presenter));
-            while (visible.Count > 0 && (width < 60 || ColumnsWidth(visible, widths) + Math.Min(labelDesired, 28) > width)) {
+            int labelReserve = width >= 120 ? (int)Math.Ceiling(width * 0.4) : Math.Min(labelDesired, 28);
+            if (width >= 120) ShrinkColumns(visible, widths, Math.Max(0, width - labelReserve));
+            while (width >= 60 && visible.Count > 0 && ColumnsWidth(visible, widths) + labelReserve > width) {
                 int victim = visible[0];
                 foreach (int c in visible) if (ValueColumns[c].Priority <= ValueColumns[victim].Priority) victim = c;
                 visible.Remove(victim);
@@ -49,25 +52,24 @@ namespace ConsoleMonster.Widgets {
             foreach (TreeRow row in rows) {
                 TreeNode node = row.Node;
                 List<TextSpan> body = new List<TextSpan>();
-                // Keep reference information next to the outcome, ahead of a potentially long label.
-                string? note = width >= 60 ? row.DetailFor(context) : null;
-                List<TextSpan> tail = new List<TextSpan>();
-                if (!string.IsNullOrEmpty(note)) tail.Add(new TextSpan("  " + note, context.Style(ThemeToken.Muted)));
-                if (node.Value != null && width >= 60) {
-                    tail.Add(new TextSpan("  "));
-                    tail.AddRange(CellRendering.Content(node.Value, node.Presenter, null, presenter).Lines[0]);
+                int primaryWidth = notes ? width : labelWidth;
+                body.AddRange(Primary(row, primaryWidth, notes, context));
+                if (notes) {
+                    AppendNote(body, ReferenceWords(row.Reference), primaryWidth, context);
+                    if (width < 60) AppendNote(body, row.DetailFor(context), primaryWidth, context);
+                    List<int> ordered = new List<int>(visible);
+                    ordered.Sort((a, b) => {
+                        int priority = ValueColumns[b].Priority.CompareTo(ValueColumns[a].Priority);
+                        return priority != 0 ? priority : a.CompareTo(b);
+                    });
+                    foreach (int c in ordered) {
+                        StyledLine value = ColumnValue(node, ValueColumns[c], presenter);
+                        if (ValueColumns[c].MaxWidth is int maximum) value = FitNote(value, Math.Max(0, maximum), context);
+                        AppendNote(body, value.PlainText, primaryWidth, context);
+                    }
                 }
-                if (notes) foreach (int c in visible) {
-                    tail.Add(new TextSpan("  " + ColumnValue(node, ValueColumns[c], presenter).PlainText, context.Style(ThemeToken.Muted)));
-                }
-                StyledLine suffix = TextWrapper.Truncate(new StyledLine(tail), Math.Max(0, notes ? width - Math.Min(labelDesired, 28) : labelWidth / 2), context.Ellipsis);
-                List<TextSpan> lead = new List<TextSpan> { new TextSpan(row.Prefix, context.Style(ThemeToken.Border)) };
-                if (node.Status.HasValue) lead.Add(new TextSpan(context.Glyphs.StatusMarker(node.Status.Value) + " ", context.Style(node.Status.Value)));
-                string markers = row.MarkersFor(context);
-                if (markers.Length > 0) lead.Add(new TextSpan(markers + " ", context.Style(ThemeToken.Muted)));
-                lead.AddRange(context.Markup(node.LabelFor(context)).Lines[0]);
-                body.AddRange(TextWrapper.Truncate(new StyledLine(lead), Math.Max(0, (notes ? width : labelWidth) - suffix.Width), context.Ellipsis));
-                body.AddRange(suffix);
+                if (node.Value != null && width >= 60) AppendNote(body, CellRendering.Content(node.Value, node.Presenter, null, presenter).Lines[0].PlainText, primaryWidth, context);
+                if (width >= 60) AppendNote(body, row.DetailFor(context), primaryWidth, context);
                 if (!notes) {
                     int used = new StyledLine(body).Width;
                     body.Add(new TextSpan(new string(' ', Math.Max(0, labelWidth - used))));
@@ -81,6 +83,69 @@ namespace ConsoleMonster.Widgets {
                 WidgetLines.Wrap(lines, StyledLine.From("+" + hidden.Count + " columns (" + string.Join(", ", hidden) + ")", context.Style(ThemeToken.Muted)), width);
             }
             return lines;
+        }
+
+        private void ShrinkColumns(List<int> visible, int[] widths, int budget) {
+            while (ColumnsWidth(visible, widths) > budget) {
+                int victim = -1;
+                int slack = 0;
+                foreach (int c in visible) {
+                    int minimum = Math.Max(1, ValueColumns[c].Width ?? ValueColumns[c].MinWidth ?? 1);
+                    if (widths[c] - minimum > slack) { victim = c; slack = widths[c] - minimum; }
+                }
+                if (victim < 0) break;
+                widths[victim] -= Math.Min(slack, ColumnsWidth(visible, widths) - budget);
+            }
+        }
+
+        private StyledLine Primary(TreeRow row, int width, bool narrow, RenderContext context) {
+            TreeNode node = row.Node;
+            List<TextSpan> markers = new List<TextSpan>();
+            string? marker = node.MarkerFor(context, compact: narrow);
+            if (!string.IsNullOrEmpty(marker)) markers.Add(new TextSpan(marker + " ", node.MarkerStyle(context)));
+            string reference = narrow ? ReferenceGlyphs(row.Reference, context) : row.MarkersFor(context);
+            if (reference.Length > 0) markers.Add(new TextSpan(reference + " ", context.Style(ThemeToken.Muted)));
+            StyledLine symbols = new StyledLine(markers);
+            StyledLine label = context.Markup(node.LabelFor(context)).Lines[0];
+            int guideWidth = Math.Max(0, width - symbols.Width - Math.Min(label.Width, Math.Max(1, width / 2)));
+            StyledLine guide = TextWrapper.Truncate(StyledLine.From(row.Prefix, context.Style(ThemeToken.Border)), guideWidth, string.Empty);
+            List<TextSpan> spans = new List<TextSpan>(guide);
+            spans.AddRange(symbols);
+            spans.AddRange(FitLabel(label, Math.Max(0, width - guide.Width - symbols.Width), context));
+            return new StyledLine(spans);
+        }
+
+        private StyledLine FitLabel(StyledLine label, int width, RenderContext context) => TruncateLabelsInMiddle
+            ? TextWrapper.TruncateMiddle(label, width, context.Ellipsis) : TextWrapper.Truncate(label, width, context.Ellipsis);
+
+        private StyledLine FitNote(StyledLine note, int width, RenderContext context) => TruncateNotesInMiddle
+            ? TextWrapper.TruncateMiddle(note, width, context.Ellipsis) : TextWrapper.Truncate(note, width, context.Ellipsis);
+
+        private void AppendNote(List<TextSpan> spans, string? text, int width, RenderContext context) {
+            if (string.IsNullOrEmpty(text)) return;
+            int remaining = width - new StyledLine(spans).Width - 2;
+            if (remaining < 1) return;
+            spans.Add(new TextSpan("  "));
+            spans.AddRange(FitNote(StyledLine.From(text!, context.Style(ThemeToken.Muted)), remaining, context));
+        }
+
+        private static string ReferenceGlyphs(TreeReferenceKind reference, RenderContext context) {
+            bool ascii = context.Glyphs.Tier != Capabilities.GlyphTier.Full;
+            List<string> glyphs = new List<string>();
+            if ((reference & TreeReferenceKind.Cycle) != 0) glyphs.Add(ascii ? "@" : "↺");
+            else if ((reference & TreeReferenceKind.Repeat) != 0) glyphs.Add(ascii ? "@" : "↪");
+            if ((reference & TreeReferenceKind.Collapsed) != 0) glyphs.Add(ascii ? ">" : "▸");
+            if ((reference & TreeReferenceKind.Incomplete) != 0) glyphs.Add("?");
+            return string.Join(" ", glyphs);
+        }
+
+        private static string ReferenceWords(TreeReferenceKind reference) {
+            List<string> words = new List<string>();
+            if ((reference & TreeReferenceKind.Cycle) != 0) words.Add("cycle");
+            else if ((reference & TreeReferenceKind.Repeat) != 0) words.Add("shown above");
+            if ((reference & TreeReferenceKind.Collapsed) != 0) words.Add("collapsed");
+            if ((reference & TreeReferenceKind.Incomplete) != 0) words.Add("incomplete");
+            return string.Join(" ", words);
         }
 
         private static int ColumnsWidth(List<int> visible, int[] widths) {

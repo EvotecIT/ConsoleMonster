@@ -195,12 +195,12 @@ namespace ConsoleMonster.Interactive {
 
         private string EncodeRow(CellBuffer frame, int y, out int width) {
             StringBuilder row = new StringBuilder();
-            ColorDepth depth = _profile.ColorDepth;
+            ColorDepth depth = SgrEncoder.DepthFor(_profile);
             int end = Math.Min(CellEncoder.ContentEnd(frame, y, depth), Width);
             Style? current = null;
-            CellEncoder.AppendRun(row, frame, y, 0, end, depth, ref current, true, Hyperlinks);
+            CellEncoder.AppendRun(row, frame, y, 0, end, depth, ref current, true, Hyperlinks, _profile);
             if (depth != ColorDepth.None && end > 0) {
-                row.Append(SgrEncoder.Reset);
+                SgrEncoder.AppendReset(row, _profile);
             }
             row.Append(Csi).Append('K');
             width = end;
@@ -208,13 +208,13 @@ namespace ConsoleMonster.Interactive {
         }
 
         private void AppendLine(StyledLine line) {
-            ColorDepth depth = _profile.ColorDepth;
+            ColorDepth depth = SgrEncoder.DepthFor(_profile);
             foreach (TextSpan span in line) {
-                SgrEncoder.Append(_sb, span.Style, depth);
+                SgrEncoder.Append(_sb, span.Style, depth, _profile);
                 TextSanitizer.Append(_sb, span.Text);
             }
             if (depth != ColorDepth.None) {
-                _sb.Append(SgrEncoder.Reset);
+                SgrEncoder.AppendReset(_sb, _profile);
             }
         }
 

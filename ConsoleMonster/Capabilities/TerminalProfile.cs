@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.Collections.Generic;
 using ConsoleMonster.Text;
+using ConsoleMonster.Styling;
 
 namespace ConsoleMonster.Capabilities {
 
@@ -108,6 +109,14 @@ namespace ConsoleMonster.Capabilities {
         /// <summary>Colour fidelity.</summary>
         public ColorDepth ColorDepth { get; }
 
+        /// <summary>The per-render foreground used when a style requests the terminal default.
+        /// Defaults to <see cref="Color.Default"/>; the profile never reads or changes host colors itself.</summary>
+        public Color DefaultForeground { get; private set; }
+
+        /// <summary>The per-render background used when a style requests the terminal default.
+        /// Defaults to <see cref="Color.Default"/>; color-disabled output ignores this baseline.</summary>
+        public Color DefaultBackground { get; private set; }
+
         /// <summary>Glyph tier.</summary>
         public GlyphTier Glyphs { get; }
 
@@ -196,6 +205,17 @@ namespace ConsoleMonster.Capabilities {
         /// <returns>A new profile.</returns>
         public TerminalProfile WithColorDepth(ColorDepth colorDepth) => Copy(colorDepth: colorDepth);
 
+        /// <summary>Returns a copy with explicit default colors for this rendering, including style and output resets.</summary>
+        /// <param name="foreground">The supplied host foreground, or <see cref="Color.Default"/> to keep VT defaults.</param>
+        /// <param name="background">The supplied host background, or <see cref="Color.Default"/> to keep VT defaults.</param>
+        /// <returns>A new profile. Explicit style colors still take precedence; Plain and color-disabled output emit no SGR.</returns>
+        public TerminalProfile WithDefaultColors(Color foreground, Color background) {
+            TerminalProfile copy = Copy();
+            copy.DefaultForeground = foreground;
+            copy.DefaultBackground = background;
+            return copy;
+        }
+
         /// <summary>Returns a copy with a different glyph tier.</summary>
         /// <param name="glyphs">The new glyph tier.</param>
         /// <returns>A new profile.</returns>
@@ -216,7 +236,9 @@ namespace ConsoleMonster.Capabilities {
         /// <returns>The copy.</returns>
         public TerminalProfile WithCulture(CultureInfo? culture) {
             return new TerminalProfile(ColorDepth, Glyphs, Mode, Width, Height, Kind, SupportsVirtualTerminal, IsOutputRedirected,
-                IsConsoleHandle, IsContinuousIntegration, FontFace, Decisions, WidthProfile, ProbeWidths, ThemePreference, culture, _supportsHyperlinks) { Language = Language };
+                IsConsoleHandle, IsContinuousIntegration, FontFace, Decisions, WidthProfile, ProbeWidths, ThemePreference, culture, _supportsHyperlinks) {
+                Language = Language, DefaultForeground = DefaultForeground, DefaultBackground = DefaultBackground
+            };
         }
 
         /// <summary>Returns a copy whose built-in labels use the given language (see <see cref="Language"/>).</summary>
@@ -275,7 +297,9 @@ namespace ConsoleMonster.Capabilities {
                 widthProfile ?? WidthProfile,
                 ProbeWidths,
                 themePreference ?? ThemePreference,
-                Culture, supportsHyperlinks ?? _supportsHyperlinks) { Language = Language };
+                Culture, supportsHyperlinks ?? _supportsHyperlinks) {
+                Language = Language, DefaultForeground = DefaultForeground, DefaultBackground = DefaultBackground
+            };
         }
     }
 }

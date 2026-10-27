@@ -34,6 +34,13 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Wrap labels, values and notes with a hanging indent instead of shortening them (default false).</summary>
         public bool WrapLabels { get; set; }
 
+        /// <summary>Use a middle ellipsis for shortened identity labels, preserving both ends (default false).</summary>
+        public bool TruncateLabelsInMiddle { get; set; }
+
+        /// <summary>Use the rendering context's middle ellipsis for shortened notes and value notes,
+        /// preserving both ends (default false). Labels keep priority; wrapped notes continue to wrap.</summary>
+        public bool TruncateNotesInMiddle { get; set; }
+
         /// <summary>Mark identities seen on earlier branches as shown above instead of expanding them again.</summary>
         public bool DetectRepeatedNodes { get; set; }
 
@@ -95,11 +102,12 @@ namespace ConsoleMonster.Widgets {
                 TreeRow row = rows[i];
                 int x = region.Write(0, i, row.Prefix, guide);
                 TreeNode node = row.Node;
-                if (node.Status.HasValue) {
-                    x = region.Write(x, i, context.Glyphs.StatusMarker(node.Status.Value), context.Style(node.Status.Value));
+                string? marker = node.MarkerFor(context);
+                if (!string.IsNullOrEmpty(marker)) {
+                    x = region.Write(x, i, marker!, node.MarkerStyle(context));
                     x++;
                 }
-                StyledLine label = TextWrapper.Truncate(context.Markup(node.LabelFor(context)).Lines[0], Math.Max(1, region.Width - x), context.Ellipsis);
+                StyledLine label = FitLabel(context.Markup(node.LabelFor(context)).Lines[0], Math.Max(1, region.Width - x), context);
                 x = region.Write(x, i, label);
                 if (node.Value != null) {
                     StyledLine value = CellRendering.Content(node.Value, node.Presenter, null, presenter).Lines[0];
@@ -110,7 +118,7 @@ namespace ConsoleMonster.Widgets {
                 int noteSpace = region.Width - x - 2;
                 string? note = row.NoteFor(context);
                 if (!string.IsNullOrEmpty(note) && noteSpace >= 4) {
-                    region.Write(x + 2, i, TextWrapper.Truncate(note!, noteSpace, context.Ellipsis), muted);
+                    region.Write(x + 2, i, FitNote(StyledLine.From(note!, muted), noteSpace, context));
                 }
             }
         }
@@ -187,7 +195,7 @@ namespace ConsoleMonster.Widgets {
                 (Node.NoteFor(context) is string note ? note + " " : string.Empty) + Summary;
 
             public string MarkersFor(RenderContext context) {
-                bool ascii = context.Glyphs.Tier == Capabilities.GlyphTier.Ascii;
+                bool ascii = context.Glyphs.Tier != Capabilities.GlyphTier.Full;
                 List<string> parts = new List<string>();
                 if ((Reference & TreeReferenceKind.Cycle) != 0) parts.Add((ascii ? "@" : "↺") + " cycle");
                 else if ((Reference & TreeReferenceKind.Repeat) != 0) parts.Add((ascii ? "@" : "↪") + " shown above");
@@ -198,8 +206,9 @@ namespace ConsoleMonster.Widgets {
 
             public int Width(RenderContext context) {
                 int width = DisplayWidth.Measure(Prefix) + context.Markup(Node.LabelFor(context)).Width;
-                if (Node.Status.HasValue) {
-                    width += DisplayWidth.Measure(context.Glyphs.StatusMarker(Node.Status.Value)) + 1;
+                string? marker = Node.MarkerFor(context);
+                if (!string.IsNullOrEmpty(marker)) {
+                    width += DisplayWidth.Measure(marker!) + 1;
                 }
                 string? note = NoteFor(context);
                 if (!string.IsNullOrEmpty(note)) {

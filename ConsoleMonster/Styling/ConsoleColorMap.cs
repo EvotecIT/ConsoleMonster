@@ -20,6 +20,13 @@ namespace ConsoleMonster.Styling {
 
         private readonly Dictionary<Color, ConsoleColor?> _roles = new Dictionary<Color, ConsoleColor?>();
 
+        // Keep both directions tied to the same palette; ConsoleColor enum order is not ANSI order.
+        internal static Color FromConsoleColor(ConsoleColor color) {
+            int index = Array.IndexOf(AnsiToConsole, color);
+            if (index < 0) throw new ArgumentOutOfRangeException(nameof(color));
+            return Color.FromAnsi16(index);
+        }
+
         /// <summary>Creates a map for a render context.</summary>
         /// <param name="context">The context the cells were rendered with.</param>
         /// <param name="enabled">False when colour is off (NO_COLOR, CONSOLEMONSTER_COLOR=none, plain mode).</param>

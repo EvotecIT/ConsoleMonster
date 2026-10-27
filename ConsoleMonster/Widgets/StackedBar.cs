@@ -16,6 +16,7 @@ namespace ConsoleMonster.Widgets {
     /// </summary>
     public sealed class StackedBar : LiveWidget {
         private static readonly string[] AsciiFills = { "#", "=", "+", "-", ".", ":" };
+        private const string AdditionalFills = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!?%&*/\\|~_<>";
         private readonly List<ChartItem> _segments = new List<ChartItem>();
 
         /// <summary>Creates a stacked bar.</summary>
@@ -129,7 +130,7 @@ namespace ConsoleMonster.Widgets {
             int[] widths = SegmentWidths(region.Width);
             int x = 0;
             for (int i = 0; i < _segments.Count; i++) {
-                string fill = FillGlyph(i, context);
+                string fill = GetFillMarker(i, context);
                 region.HorizontalLine(x, 0, widths[i], fill, context.Style(_segments[i].Role ?? ThemeToken.Series1));
                 x += widths[i];
             }
@@ -145,16 +146,26 @@ namespace ConsoleMonster.Widgets {
             }
         }
 
-        private string FillGlyph(int index, RenderContext context) {
+        /// <summary>Gets the exact unpadded fill glyph used for a segment in the supplied rendering context.
+        /// Custom legends can use this marker when <see cref="RenderContext.HasColor"/> is false to identify
+        /// the corresponding bar fill. The built-in bar and legend use this same mapping.</summary>
+        /// <param name="segmentIndex">Zero-based index in <see cref="Segments"/>, including zero-valued segments.</param>
+        /// <param name="context">The rendering context, including its glyph set and color capability.</param>
+        /// <returns>The segment's fill glyph, with no surrounding spaces.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">The index does not identify a segment.</exception>
+        /// <exception cref="ArgumentNullException">The context is null.</exception>
+        public string GetFillMarker(int segmentIndex, RenderContext context) {
+            if (segmentIndex < 0 || segmentIndex >= _segments.Count) throw new ArgumentOutOfRangeException(nameof(segmentIndex));
+            if (context == null) throw new ArgumentNullException(nameof(context));
             IGlyphSet glyphs = context.Glyphs;
             if (glyphs.Tier == GlyphTier.Ascii) {
-                return AsciiFills[index % AsciiFills.Length];
+                return segmentIndex < AsciiFills.Length ? AsciiFills[segmentIndex] : AdditionalFills[(segmentIndex - AsciiFills.Length) % AdditionalFills.Length].ToString();
             }
             if (context.HasColor) {
                 return glyphs.Get(Glyph.BlockFull);
             }
             Glyph[] shades = { Glyph.BlockFull, Glyph.ShadeDark, Glyph.ShadeMedium, Glyph.ShadeLight };
-            return glyphs.Get(shades[index % shades.Length]);
+            return segmentIndex < shades.Length ? glyphs.Get(shades[segmentIndex]) : AdditionalFills[(segmentIndex - shades.Length) % AdditionalFills.Length].ToString();
         }
 
         private int[] SegmentWidths(int width) {
@@ -223,7 +234,7 @@ namespace ConsoleMonster.Widgets {
                 countWidth = Math.Max(countWidth, DisplayWidth.Measure(Count(segment.Value, context)));
             }
             for (int i = 0; i < _segments.Count; i++) {
-                markerWidth = Math.Max(markerWidth, DisplayWidth.Measure(FillGlyph(i, context)));
+                markerWidth = Math.Max(markerWidth, DisplayWidth.Measure(GetFillMarker(i, context)));
             }
             labelWidth = _labelColumn.Resolve(labelWidth);
             countWidth = _countColumn.Resolve(countWidth, 0, DisplayWidth.Measure(NumberFormat.Compact(total)));
@@ -251,7 +262,7 @@ namespace ConsoleMonster.Widgets {
                 ChartItem segment = _segments[i];
                 Style textStyle = context.Style(ThemeToken.Text);
                 StyledLine label = TextWrapper.Truncate(RichLines.Line(segment.LabelText, segment.Label, textStyle, context), labelWidth, context.Ellipsis);
-                current.Add(new TextSpan(StatColumn.Pad(FillGlyph(i, context), markerWidth, HorizontalAlignment.Left), context.Style(segment.Role ?? ThemeToken.Series1)));
+                current.Add(new TextSpan(StatColumn.Pad(GetFillMarker(i, context), markerWidth, HorizontalAlignment.Left), context.Style(segment.Role ?? ThemeToken.Series1)));
                 // The label keeps its own colours; padding fills the column per its alignment.
                 int padding = Math.Max(0, labelWidth - label.Width);
                 int before = LabelColumn.Alignment == HorizontalAlignment.Right ? padding : LabelColumn.Alignment == HorizontalAlignment.Center ? padding / 2 : 0;

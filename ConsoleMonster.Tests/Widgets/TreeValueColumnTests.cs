@@ -73,7 +73,7 @@ namespace ConsoleMonster.Tests.Widgets {
             Tree tree = new Tree();
             tree.Add(new string('x', 100)).Reference = TreeReferenceKind.Cycle | TreeReferenceKind.Incomplete;
             string text = TestTerminal.RenderText(tree, 45, glyphs: GlyphTier.Ascii);
-            Assert.Contains("@ cycle ? incomplete", text);
+            Assert.Contains("@ ? x", text);
             Assert.Contains("...", text);
         }
 

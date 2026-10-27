@@ -27,8 +27,8 @@ namespace ConsoleMonster.Tests.Widgets {
             Assert.Contains("North", text);
             Assert.Contains("South", text);
             Assert.Contains("Coverage", text);
-            Assert.Contains(GlyphSet.For(tier).StatusSymbol(StatusKind.Pass) + "3m", text);
-            Assert.Contains(GlyphSet.For(tier).StatusSymbol(StatusKind.Fail) + "2d", text);
+            Assert.Contains(GlyphSet.For(tier).StatusSymbol(StatusKind.Pass) + " 3m", text);
+            Assert.Contains(GlyphSet.For(tier).StatusSymbol(StatusKind.Fail) + " 2d", text);
             Assert.Contains("self 1", text);
             Assert.Contains("none 1", text);
             Assert.Contains(StatusKind.Pass.ToWord() + " 1", text);
