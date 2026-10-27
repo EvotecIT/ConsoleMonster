@@ -8,6 +8,41 @@ using Xunit;
 namespace ConsoleMonster.Tests.Widgets {
     public sealed class TreeReview184Tests {
         [Theory]
+        [InlineData(GlyphTier.Basic, ColorDepth.Ansi16, 59)]
+        [InlineData(GlyphTier.Basic, ColorDepth.None, 60)]
+        [InlineData(GlyphTier.Basic, ColorDepth.Ansi16, 80)]
+        [InlineData(GlyphTier.Basic, ColorDepth.None, 119)]
+        [InlineData(GlyphTier.Ascii, ColorDepth.None, 59)]
+        [InlineData(GlyphTier.Ascii, ColorDepth.TrueColor, 60)]
+        [InlineData(GlyphTier.Ascii, ColorDepth.None, 80)]
+        [InlineData(GlyphTier.Ascii, ColorDepth.TrueColor, 119)]
+        public void Render_ForeignDetailInNotes_PrecedesDomainAndKeepsStateOnItsOwnRow(GlyphTier tier, ColorDepth depth, int width) {
+            Tree tree = new Tree { TruncateNotesInMiddle = true };
+            tree.ValueColumns.Add(new TableColumn("Domain") { Priority = -1 });
+            TreeNode foreign = tree.Add("Foreign.Off", StatusKind.Info, "disabled · cross-forest");
+            foreign.Marker = "⇄";
+            foreign.BasicMarker = "<->";
+            foreign.AsciiMarker = "<->";
+            foreign.Values["Domain"] = TableCell.FromValue("partner.example.test");
+            TreeNode local = tree.Add("Local.On", StatusKind.Pass, "enabled");
+            local.Values["Domain"] = TableCell.FromValue("local.test");
+            Review184Capture capture = new Review184Capture(tree, width, tier, depth);
+            foreach (string rendered in new[] { capture.Raw.ToPlainText(), capture.Decoded }) {
+                string foreignRow = Assert.Single(rendered.Split('\n'), row => row.Contains("Foreign.Off"));
+                string localRow = Assert.Single(rendered.Split('\n'), row => row.Contains("Local.On"));
+                Assert.Contains("<-> Foreign.Off  disabled · cross-forest", foreignRow);
+                Assert.True(foreignRow.IndexOf("disabled", StringComparison.Ordinal) < foreignRow.IndexOf("part", StringComparison.Ordinal), foreignRow);
+                Assert.DoesNotContain("enabled", foreignRow);
+                Assert.Contains("enabled", localRow);
+                Assert.Contains("local.test", localRow);
+                Assert.DoesNotContain("disabled", localRow);
+                Assert.DoesNotContain("partner", localRow);
+            }
+            Assert.Equal("partner.example.test", foreign.Values["Domain"].Value);
+            Assert.Equal("disabled · cross-forest", foreign.Detail);
+        }
+
+        [Theory]
         [InlineData(false, false)]
         [InlineData(true, false)]
         [InlineData(false, true)]

@@ -11,8 +11,8 @@ namespace ConsoleMonster.Widgets {
         /// <summary>
         /// Aligned value columns, keyed by <see cref="TableColumn.Id"/> in <see cref="TreeNode.Values"/>.
         /// Default alignment is right. Wide layouts reserve at least 40% for labels and shrink value columns before
-        /// dropping them. Below 120 cells values become one muted note. Lower priorities drop first;
-        /// below 60 cells fitting detail precedes value notes. Labels always receive space first.
+        /// dropping them. Below 120 cells fitting detail precedes value notes. Lower priorities drop first;
+        /// labels always receive space first.
         /// With columns the tree uses single-line labels, regardless of <see cref="WrapLabels"/>.
         /// </summary>
         public IList<TableColumn> ValueColumns { get; } = new List<TableColumn>();
@@ -56,7 +56,7 @@ namespace ConsoleMonster.Widgets {
                 body.AddRange(Primary(row, primaryWidth, notes, context));
                 if (notes) {
                     AppendNote(body, ReferenceWords(row.Reference), primaryWidth, context);
-                    if (width < 60) AppendNote(body, row.DetailFor(context), primaryWidth, context);
+                    AppendNote(body, row.DetailFor(context), primaryWidth, context);
                     List<int> ordered = new List<int>(visible);
                     ordered.Sort((a, b) => {
                         int priority = ValueColumns[b].Priority.CompareTo(ValueColumns[a].Priority);
@@ -69,7 +69,7 @@ namespace ConsoleMonster.Widgets {
                     }
                 }
                 if (node.Value != null && width >= 60) AppendNote(body, CellRendering.Content(node.Value, node.Presenter, null, presenter).Lines[0].PlainText, primaryWidth, context);
-                if (width >= 60) AppendNote(body, row.DetailFor(context), primaryWidth, context);
+                if (!notes) AppendNote(body, row.DetailFor(context), primaryWidth, context);
                 if (!notes) {
                     int used = new StyledLine(body).Width;
                     body.Add(new TextSpan(new string(' ', Math.Max(0, labelWidth - used))));
