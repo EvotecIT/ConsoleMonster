@@ -28,6 +28,9 @@ namespace ConsoleMonster.Input {
         /// <summary>Preserves Ctrl+C signals for live work while reading other keys on Unix.</summary>
         public void EnableCancelKeyProcessing() => _unix?.EnableCancelKeyProcessing();
 
+        /// <summary>Enters the leased native mode without consuming or discarding initial keys.</summary>
+        internal void Activate() => _unix?.Activate();
+
         void IConsoleInputMode.Suspend() => _unix?.Suspend();
 
         void IConsoleInputMode.Resume() => _unix?.Resume();

@@ -48,9 +48,16 @@ namespace ConsoleMonster.TestHost {
             var handoff = new TerminalHandoff();
             using var appCancellation = new CancellationTokenSource();
             var profile = TerminalProfile.Fixed(80, 24);
+            bool startupReady = false;
             var options = new ConsoleAppOptions {
                 Interactive = new InteractiveOptions { Profile = profile, Mode = InteractionMode.Rich },
                 SignalKeys = false, TerminalHandoff = handoff,
+                ProcessEvents = _ => {
+                    if (startupReady) { return; }
+                    startupReady = true;
+                    File.WriteAllText(resultPath + ".ready", "ready");
+                    WaitFor(resultPath + ".continue");
+                },
                 HandleInput = (state, input) => {
                     if (input.Key == ConsoleKey.F2 || input.Key == ConsoleKey.F3 || input.Key == ConsoleKey.F4) {
                         string expected = input.Key == ConsoleKey.F2 ? "timeout" : input.Key == ConsoleKey.F3 ? "cancelled" : "invalid";

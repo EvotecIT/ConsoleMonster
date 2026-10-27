@@ -57,7 +57,13 @@ def run(dotnet, host, result, runtime=None):
         with open(result + ".start", "w", encoding="utf-8"):
             pass
         wait_for(b"TTY handoff")
+        deadline = time.monotonic() + 20
+        while not os.path.exists(result + ".ready") and time.monotonic() < deadline:
+            time.sleep(0.01)
+        assert os.path.exists(result + ".ready"), "app startup callback was not reached"
         assert not termios.tcgetattr(slave)[3] & termios.ISIG, "app signal keys must remain input"
+        with open(result + ".continue", "w", encoding="utf-8"):
+            pass
         # Focus the second original object before handing off the screen.
         os.write(master, b"\x1b[B\x1b[15~")
         wait_for(b"CHILD_READY")

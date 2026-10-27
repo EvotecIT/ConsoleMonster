@@ -44,6 +44,9 @@ namespace ConsoleMonster.Interactive {
             if (settings.SignalKeys) {
                 if (lease?.Source is WindowsConsoleInput windows) { windows.EnableCancelKeyProcessing(); }
                 else if (lease?.Source is ConsoleKeyInput console) { console.EnableCancelKeyProcessing(); }
+            } else if (lease?.Source is ConsoleKeyInput console) {
+                // The initial frame and ProcessEvents callback can run before the first Read.
+                console.Activate();
             }
             RenderContext context = Terminal.CreateContext(profile, interactive.ResolveTheme());
             using (AppController app = new AppController(layout, values, context, settings.ReflowBelow, settings, cancellationToken, interactive.ActionClock)) {
