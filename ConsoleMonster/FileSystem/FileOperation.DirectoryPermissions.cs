@@ -12,7 +12,6 @@ namespace ConsoleMonster.FileSystem {
 #if NET8_0_OR_GREATER
                 Directory.CreateDirectory(target, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
 #else
-                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) { throw new NotSupportedException("This runtime cannot preserve directory permissions on this platform."); }
                 _ = UnixDirectoryPermissions.Mode(source);
                 UnixDirectoryPermissions.PrivateDirectory(target);
 #endif
