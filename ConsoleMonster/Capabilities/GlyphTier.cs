@@ -6,7 +6,7 @@ namespace ConsoleMonster.Capabilities {
     /// </summary>
     public enum GlyphTier {
 
-        /// <summary>Printable ASCII only: <c>+-|#*.</c>, <c>[PASS]</c>/<c>[FAIL]</c> words.</summary>
+        /// <summary>Printable ASCII only: <c>+-|#*.</c>, <c>[OK]</c>/<c>[FAIL]</c> words.</summary>
         Ascii = 0,
 
         /// <summary>Box drawing, shades and half blocks covered by Consolas and Lucida Console.</summary>

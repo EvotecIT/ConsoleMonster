@@ -21,6 +21,9 @@ namespace ConsoleMonster.Glyphs {
                 string value = tier == GlyphTier.Basic ? entry[0] : entry.Length > 2 ? entry[2] : entry[1];
                 value = Safe(value, tier);
                 if (DisplayWidth.Measure(value, profile) == 1) return value;
+                string plain = Safe(entry.Length > 2 ? entry[2] : entry[1], GlyphTier.Ascii);
+                if (tier == GlyphTier.Basic && DisplayWidth.Measure(plain, profile) == 1) return plain;
+                return "*";
             }
             if (symbol.Length > 0 && !IsEmoji(symbol) && !IsPictographic(symbol)
                 && Safe(symbol, tier) == symbol && DisplayWidth.Measure(symbol, profile) == 1) return symbol;

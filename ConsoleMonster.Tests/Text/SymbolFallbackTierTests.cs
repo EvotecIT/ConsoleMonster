@@ -116,6 +116,17 @@ namespace ConsoleMonster.Tests.Text {
             Assert.Equal("✅ ", SymbolFallback.GetPrefix("✅", GlyphTier.Full));
         }
 
+        [Theory]
+        [InlineData("✓", "+")]
+        [InlineData("✅", "+")]
+        [InlineData("☑", "+")]
+        public void GetGlyph_BasicAmbiguousWidthTwo_UsesTheAsciiCellMeaning(string symbol, string expected) {
+            var profile = new TerminalWidthProfile(ambiguousWidth: 2);
+            Assert.Equal(expected, SymbolFallback.GetGlyph(symbol, GlyphTier.Basic, profile));
+            Assert.Equal(expected + " ", SymbolFallback.GetPrefix(symbol, GlyphTier.Basic, profile));
+            Assert.Equal(1, DisplayWidth.Measure(SymbolFallback.GetGlyph(symbol, GlyphTier.Basic, profile), profile));
+        }
+
         [Fact]
         public void GetGlyph_UnicodeEmojiCatalog_AllReducedTiersStaySingleCell() {
             foreach (int[] ranges in new[] { UnicodeWidthTables.EmojiPresentation, UnicodeWidthTables.ExtendedPictographic }) {
