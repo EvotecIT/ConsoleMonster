@@ -51,6 +51,18 @@ namespace ConsoleMonster.Widgets {
         /// <summary>The presenter for <see cref="Value"/>, or null for automatic.</summary>
         public Presenters.ICellPresenter? Presenter { get; set; }
 
+        /// <summary>Values keyed by <see cref="TableColumn.Id"/> for the tree's aligned value columns.</summary>
+        public IDictionary<string, TableCell> Values { get; } = new Dictionary<string, TableCell>(StringComparer.Ordinal);
+
+        /// <summary>An optional stable identity for cycle and repeated-node detection; null uses node reference identity.</summary>
+        public object? Identity { get; set; }
+
+        /// <summary>Explicit reference and completeness markers. Cycle, repeat and collapse markers stop traversal.</summary>
+        public TreeReferenceKind Reference { get; set; }
+
+        /// <summary>An optional plain text aggregate or reference detail shown with the marker.</summary>
+        public string? ReferenceSummary { get; set; }
+
         /// <summary>The children.</summary>
         public IReadOnlyList<TreeNode> Children => _children;
 

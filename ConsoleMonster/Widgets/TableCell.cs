@@ -30,6 +30,15 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Whether this is a value cell (formatted by the column's presenter).</summary>
         public bool HasValue { get; }
 
+        internal TableRowRole? RowRole { get; private set; }
+
+        internal TableCell WithRowRole(TableRowRole role) {
+            TableCell copy = HasValue ? FromValue(Value) : new TableCell(Markup);
+            copy.Status = Status;
+            copy.RowRole = role;
+            return copy;
+        }
+
         /// <summary>Creates a value cell: the column's presenter formats it, and totals and tone rules read it.</summary>
         /// <param name="value">The raw value (null is an empty cell).</param>
         /// <returns>The cell.</returns>
