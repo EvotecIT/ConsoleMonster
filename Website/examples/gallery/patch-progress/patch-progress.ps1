@@ -49,6 +49,7 @@ $results = @($servers | Invoke-ConsoleRun @runOptions -ScriptBlock {
 # $results contains successes; $failures retains error records including the failed host.
 # Keep both for retry/reporting. No patch command runs here.
 $outcomes = foreach ($server in $servers) {
-    [pscustomobject] @{ Host = $server; Result = if ($server -in $results.Host) { 'Pass' } else { 'Retry needed' } }
+    [pscustomobject] @{ Host = $server
+        Result = if ($server -in $results.Host) { 'Pass' } else { 'Retry needed' } }
 }
 New-PatchSummary -Outcomes @($outcomes) | Show-Console

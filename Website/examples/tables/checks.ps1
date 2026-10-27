@@ -56,7 +56,8 @@ $rows = @(
 $rows | Show-ConsoleTable -Title '[bold]evotec.xyz[/] [muted]· mail security checks[/]' -Property @(
     @{ Name = 'Check'; Key = $true; Overflow = 'Never' }
     @{ Name = 'Status'; Priority = 10; Presenter = 'Status' }
-    @{ Name = 'Detail'; Priority = 5; Overflow = 'Wrap'; MaxLines = 2; Flexible = $true; MinWidth = 18 }
+    @{ Name = 'Detail'; Priority = 5; Overflow = 'Wrap'; MaxLines = 2; Flexible = $true
+        MinWidth = 18 }
     @{ Name = 'Took'; Priority = 1; Presenter = 'Duration' }
     @{ Name = 'RFC'; Priority = 0; Overflow = 'Never' }
 )

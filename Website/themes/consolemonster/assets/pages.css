@@ -78,9 +78,9 @@
    are the site's too, so the site's window keeps its own frame, and the screen keeps the engine's font (its rows rely on it)
    but takes the site's responsive cell size. */
 .cm-replay.cm-export[data-cm-player] figure.cm-window { display: block; overflow: visible; border-radius: 0; background: none; box-shadow: none; }
-.cm-replay.cm-export[data-cm-player] .cm-window__body .cm-screen.cm-screen--dark { width: max-content; min-width: 100%; padding: 12px var(--cm-pad) 14px; overflow: visible; line-height: var(--cm-cell); color: var(--cm-term-fg); background: var(--cm-term-bg); font-size: clamp(var(--cm-min-font), calc((100cqi - 2 * var(--cm-pad) - 2px) / (var(--cols, 80) * .6)), var(--cm-max-font)); }
+.cm-replay.cm-export[data-cm-player] .cm-window__body .cm-screen.cm-screen--dark { width: max-content; min-width: 100%; padding: 12px var(--cm-pad) 14px; overflow: visible; line-height: var(--cm-cell); color: var(--cm-term-fg); background: var(--cm-term-bg); font-size: min(var(--cm-max-font), max(var(--cm-fit), var(--cm-min-font) - clamp(0px, (var(--cm-fit) - var(--cm-fit-font, var(--cm-min-font))) * 1000, 1px) * 1000)); }
 @supports (font-size: round(down, 13px, 1px)) {
-  .cm-replay.cm-export[data-cm-player] .cm-window__body .cm-screen.cm-screen--dark { font-size: round(down, clamp(var(--cm-min-font), calc((100cqi - 2 * var(--cm-pad) - 2px) / (var(--cols, 80) * .6)), var(--cm-max-font)), calc(1px / 38.4)); }
+  .cm-replay.cm-export[data-cm-player] .cm-window__body .cm-screen.cm-screen--dark { font-size: round(down, min(var(--cm-max-font), max(var(--cm-fit), var(--cm-min-font) - clamp(0px, (var(--cm-fit) - var(--cm-fit-font, var(--cm-min-font))) * 1000, 1px) * 1000)), calc(1px / 38.4)); }
 }
 .cm-replay.cm-export[data-cm-player] .cm-window__body .cm-screen.cm-screen--dark span { height: var(--cm-cell); }.cm-player__note { margin: 0; color: var(--cm-muted); font-size: 14px; }
 
@@ -427,6 +427,7 @@ html:not(.cm-js) .cm-paths [role="tablist"], html:not(.cm-js) .cm-demo [role="ta
 .cm-api-map { margin-top: var(--cm-space-4); min-width: 0; }
 .cm-api-map h3 { margin-bottom: var(--cm-space-2); font-size: 1rem; }
 .cm-api-map .cm-table-wrap { overflow-x: auto; }
+.cm-api-map .cm-table-wrap:focus-visible { outline: 2px solid var(--cm-accent); outline-offset: 2px; }
 .cm-api-map table { width: 100%; border-collapse: collapse; text-align: left; }
 .cm-api-map th, .cm-api-map td { padding: .5rem .65rem; border-bottom: 1px solid var(--cm-line); vertical-align: top; }
 .cm-api-map th { color: var(--cm-muted); font-size: .8rem; }

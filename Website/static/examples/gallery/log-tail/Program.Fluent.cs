@@ -15,6 +15,7 @@ string[] messages =
     "[muted]09:41:03[/] [pass]INFO[/]  Cache warm; queue draining",
     "[muted]09:41:04[/] [pass]INFO[/]  Batch complete; no jobs lost"
 };
+
 // Layout: construct the widgets shown on screen.
 IWidget Frame(int tick)
 {
@@ -23,12 +24,16 @@ IWidget Frame(int tick)
         lines.Add(Ui.Text().Content(line).IsMarkup());
     return Ui.Rows().Gap(1).Content(c2 =>
     {
-        c2.Text(c2Text => c2Text.Content("[bold]Application log[/] [muted]· worker events[/]").IsMarkup());
+        c2.Text(c2Text => c2Text.Content("[bold]Application log[/] [muted]· worker events[/]")
+            .IsMarkup());
         c2.Panel(cmPanel => cmPanel.Title("./logs/worker.log").Content(c =>
         {
             c.Add(lines);
         }));
-        c2.Text(c2Text => c2Text.Content("[muted]" + (tick + 1).ToString(System.Globalization.CultureInfo.InvariantCulture) + " / 5 events · Ctrl+C stops the live run[/]").IsMarkup());
+        c2.Text(c2Text => c2Text.Content("[muted]"
+            + (tick + 1).ToString(System.Globalization.CultureInfo.InvariantCulture)
+            + " / 5 events · Ctrl+C stops the live run[/]")
+            .IsMarkup());
     });
 }
 
@@ -49,7 +54,8 @@ try
         }
     });
 }
-catch (OperationCanceledException cancelled)when (cancelled.CancellationToken == session.Cancellation)
+catch (OperationCanceledException cancelled)
+    when (cancelled.CancellationToken == session.Cancellation)
 {
     // Ctrl+C is a normal way to leave the demo, after the session restores the terminal.
     return;

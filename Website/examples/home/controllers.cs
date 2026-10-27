@@ -36,4 +36,6 @@ table.Column(c => c.Name, c =>
     c.Priority = 4;
 });
 Terminal.Write(table);
-record DomainController(string Name, string Site, StatusKind Status, int Latency, TimeSpan LastSync);
+
+record DomainController(string Name, string Site, StatusKind Status, int Latency,
+    TimeSpan LastSync);

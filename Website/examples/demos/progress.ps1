@@ -4,9 +4,22 @@
 Enable-ConsoleFormatting -Feature Progress
 $sites = 'Warsaw', 'Dublin', 'Berlin'
 for ($i = 0; $i -lt $sites.Count; $i++) {
-    Write-Progress -Id 1 -Activity 'Collecting inventory' -Status $sites[$i] -PercentComplete ($i * 100 / $sites.Count)
+    $progressParameters = @{
+        Id = 1
+        Activity = 'Collecting inventory'
+        Status = $sites[$i]
+        PercentComplete = ($i * 100 / $sites.Count)
+    }
+    Write-Progress @progressParameters
     foreach ($server in 1..12) {
-        Write-Progress -Id 2 -ParentId 1 -Activity "Servers in $($sites[$i])" -Status "SRV$server" -PercentComplete ($server * 100 / 12)
+        $progressParameters = @{
+            Id = 2
+            ParentId = 1
+            Activity = "Servers in $($sites[$i])"
+            Status = "SRV$server"
+            PercentComplete = ($server * 100 / 12)
+        }
+        Write-Progress @progressParameters
         Start-Sleep -Milliseconds 110
     }
     Write-Host "$($sites[$i]) done: 12 servers"

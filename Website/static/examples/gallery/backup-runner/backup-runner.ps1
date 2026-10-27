@@ -17,7 +17,9 @@ $attemptErrors = @()
 function New-BackupSummary {
     $rows = foreach ($job in $jobs) {
         $count = if ($attempts.ContainsKey($job.Name)) { $attempts[$job.Name] } else { 0 }
-        $status = if ($completed.ContainsKey($job.Name)) { 'Pass' } elseif ($count -eq 0) { 'Pending' } else { 'Warn' }
+        $status = if ($completed.ContainsKey($job.Name)) { 'Pass' }
+        elseif ($count -eq 0) { 'Pending' }
+        else { 'Warn' }
         [pscustomobject] @{ Job = $job.Name; Size = $job.Size; Attempts = $count; Status = $status }
     }
     New-ConsoleRows -Gap 1 -Content {

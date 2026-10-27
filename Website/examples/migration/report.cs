@@ -26,9 +26,13 @@ var servers = new[]
         Status = "Pass"
     }
 };
-var table = Table.For(servers).Column(s => s.Name).Column(s => s.Site).Column(s => s.Pending).Column(s => s.Status, column =>
-{
-    column.Presenter = CellPresenters.StatusWord;
-});
+var table = Table.For(servers)
+    .Column(s => s.Name)
+    .Column(s => s.Site)
+    .Column(s => s.Pending)
+    .Column(s => s.Status, column =>
+    {
+        column.Presenter = CellPresenters.StatusWord;
+    });
 table.Title = "Patch inventory";
 Terminal.Write(table);

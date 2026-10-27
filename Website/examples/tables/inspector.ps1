@@ -10,8 +10,10 @@ $zone = [ordered] @{
         Expire = [timespan]::FromSeconds(604800)
     }
     NameServers = @(
-        [pscustomobject] @{ Host = 'dana.ns.cloudflare.com'; Address = '108.162.192.103'; LatencyMs = 12 }
-        [pscustomobject] @{ Host = 'kirk.ns.cloudflare.com'; Address = '172.64.33.149'; LatencyMs = 14 }
+        [pscustomobject] @{ Host = 'dana.ns.cloudflare.com'; Address = '108.162.192.103'
+            LatencyMs = 12 }
+        [pscustomobject] @{ Host = 'kirk.ns.cloudflare.com'; Address = '172.64.33.149'
+            LatencyMs = 14 }
     )
     Tags = @('production', 'cloudflare', 'doh')
 }

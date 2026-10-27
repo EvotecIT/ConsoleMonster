@@ -4,30 +4,63 @@ Import-Module -Name ConsoleMonster
 # Data: fictional inventory and tasks. Answers never trigger the operations described.
 # The path points into an absent sample folder; no directories or presets are created.
 $servers = @(
-    [pscustomobject] @{ Name = 'FS01'; Site = 'Warsaw'; Role = 'File'; OS = 'Windows Server 2022'; Offline = $null }
-    [pscustomobject] @{ Name = 'FS02'; Site = 'Warsaw'; Role = 'File'; OS = 'Windows Server 2022'; Offline = $null }
-    [pscustomobject] @{ Name = 'WEB01'; Site = 'Warsaw'; Role = 'Web'; OS = 'Linux'; Offline = $null }
-    [pscustomobject] @{ Name = 'SQL01'; Site = 'Warsaw'; Role = 'Database'; OS = 'Linux'; Offline = $null }
-    [pscustomobject] @{ Name = 'FS11'; Site = 'Berlin'; Role = 'File'; OS = 'Windows Server 2022'; Offline = $null }
-    [pscustomobject] @{ Name = 'WEB11'; Site = 'Berlin'; Role = 'Web'; OS = 'Linux'; Offline = $null }
-    [pscustomobject] @{ Name = 'PRN11'; Site = 'Berlin'; Role = 'Print'; OS = 'Windows Server 2022'; Offline = 'offline since 09:12' }
-    [pscustomobject] @{ Name = 'BKP21'; Site = 'Dublin'; Role = 'Backup'; OS = 'Linux'; Offline = $null }
-    [pscustomobject] @{ Name = 'SQL21'; Site = 'Dublin'; Role = 'Database'; OS = 'Linux'; Offline = $null }
+    [pscustomobject] @{ Name = 'FS01'; Site = 'Warsaw'; Role = 'File'; OS = 'Windows Server 2022'
+        Offline = $null }
+    [pscustomobject] @{ Name = 'FS02'; Site = 'Warsaw'; Role = 'File'; OS = 'Windows Server 2022'
+        Offline = $null }
+    [pscustomobject] @{ Name = 'WEB01'; Site = 'Warsaw'; Role = 'Web'; OS = 'Linux'
+        Offline = $null }
+    [pscustomobject] @{ Name = 'SQL01'; Site = 'Warsaw'; Role = 'Database'; OS = 'Linux'
+        Offline = $null }
+    [pscustomobject] @{ Name = 'FS11'; Site = 'Berlin'; Role = 'File'; OS = 'Windows Server 2022'
+        Offline = $null }
+    [pscustomobject] @{ Name = 'WEB11'; Site = 'Berlin'; Role = 'Web'; OS = 'Linux'
+        Offline = $null }
+    [pscustomobject] @{ Name = 'PRN11'; Site = 'Berlin'; Role = 'Print'; OS = 'Windows Server 2022'
+        Offline = 'offline since 09:12' }
+    [pscustomobject] @{ Name = 'BKP21'; Site = 'Dublin'; Role = 'Backup'; OS = 'Linux'
+        Offline = $null }
+    [pscustomobject] @{ Name = 'SQL21'; Site = 'Dublin'; Role = 'Database'; OS = 'Linux'
+        Offline = $null }
     [pscustomobject] @{ Name = 'LAB01'; Site = 'Lab'; Role = 'Test'; OS = 'Linux'; Offline = $null }
-    [pscustomobject] @{ Name = 'LAB02'; Site = 'Lab'; Role = 'Test'; OS = 'Linux'; Offline = 'in maintenance until Friday' }
+    [pscustomobject] @{ Name = 'LAB02'; Site = 'Lab'; Role = 'Test'; OS = 'Linux'
+        Offline = 'in maintenance until Friday' }
 )
 $tasks = @(
-    [pscustomobject] @{ Id = 'DiskCleanup'; Name = 'Disk cleanup'; Category = 'Maintenance'; Description = 'Removes temporary files, old update caches and crash dumps older than 30 days.'; Minutes = 3; Changes = $true }
-    [pscustomobject] @{ Id = 'LogRotation'; Name = 'Log rotation'; Category = 'Maintenance'; Description = 'Compresses logs older than 7 days and removes archives older than 90 days.'; Minutes = 2; Changes = $true }
-    [pscustomobject] @{ Id = 'RestartPending'; Name = 'Pending restart check'; Category = 'Maintenance'; Description = 'Reports servers waiting for a restart after updates or role changes.'; Minutes = 1; Changes = $false }
-    [pscustomobject] @{ Id = 'PatchStatus'; Name = 'Patch status'; Category = 'Security'; Description = 'Lists missing security updates and the last successful install.'; Minutes = 2; Changes = $false }
-    [pscustomobject] @{ Id = 'Certificates'; Name = 'Certificate expiry'; Category = 'Security'; Description = 'Finds certificates expiring within 30 days and the services using them.'; Minutes = 1; Changes = $false }
-    [pscustomobject] @{ Id = 'LocalAdmins'; Name = 'Local administrators audit'; Category = 'Security'; Description = 'Compares local administrator membership with the approved list.'; Minutes = 1; Changes = $false }
-    [pscustomobject] @{ Id = 'Firewall'; Name = 'Firewall rules review'; Category = 'Security'; Description = 'Flags inbound allow rules open to any address.'; Minutes = 2; Changes = $false }
-    [pscustomobject] @{ Id = 'EventErrors'; Name = 'Event log errors'; Category = 'Health'; Description = 'Summarizes errors from the last 24 hours.'; Minutes = 1; Changes = $false }
-    [pscustomobject] @{ Id = 'Services'; Name = 'Service health'; Category = 'Health'; Description = 'Checks automatic services and restarts stopped ones.'; Minutes = 1; Changes = $true }
-    [pscustomobject] @{ Id = 'DiskSpace'; Name = 'Disk space'; Category = 'Health'; Description = 'Warns below 15% free and fails below 5% on each volume.'; Minutes = 1; Changes = $false }
-    [pscustomobject] @{ Id = 'Uptime'; Name = 'Uptime and reboots'; Category = 'Health'; Description = 'Reports uptime and unexpected reboots in the last 30 days.'; Minutes = 1; Changes = $false }
+    [pscustomobject] @{ Id = 'DiskCleanup'; Name = 'Disk cleanup'; Category = 'Maintenance'
+        Description = 'Removes temporary files, old update caches and crash dumps older than 30 days.'
+        Minutes = 3; Changes = $true }
+    [pscustomobject] @{ Id = 'LogRotation'; Name = 'Log rotation'; Category = 'Maintenance'
+        Description = 'Compresses logs older than 7 days and removes archives older than 90 days.'
+        Minutes = 2; Changes = $true }
+    [pscustomobject] @{ Id = 'RestartPending'; Name = 'Pending restart check'
+        Category = 'Maintenance'
+        Description = 'Reports servers waiting for a restart after updates or role changes.'
+        Minutes = 1; Changes = $false }
+    [pscustomobject] @{ Id = 'PatchStatus'; Name = 'Patch status'; Category = 'Security'
+        Description = 'Lists missing security updates and the last successful install.'; Minutes = 2
+        Changes = $false }
+    [pscustomobject] @{ Id = 'Certificates'; Name = 'Certificate expiry'; Category = 'Security'
+        Description = 'Finds certificates expiring within 30 days and the services using them.'
+        Minutes = 1; Changes = $false }
+    [pscustomobject] @{ Id = 'LocalAdmins'; Name = 'Local administrators audit'
+        Category = 'Security'
+        Description = 'Compares local administrator membership with the approved list.'; Minutes = 1
+        Changes = $false }
+    [pscustomobject] @{ Id = 'Firewall'; Name = 'Firewall rules review'; Category = 'Security'
+        Description = 'Flags inbound allow rules open to any address.'; Minutes = 2
+        Changes = $false }
+    [pscustomobject] @{ Id = 'EventErrors'; Name = 'Event log errors'; Category = 'Health'
+        Description = 'Summarizes errors from the last 24 hours.'; Minutes = 1; Changes = $false }
+    [pscustomobject] @{ Id = 'Services'; Name = 'Service health'; Category = 'Health'
+        Description = 'Checks automatic services and restarts stopped ones.'; Minutes = 1
+        Changes = $true }
+    [pscustomobject] @{ Id = 'DiskSpace'; Name = 'Disk space'; Category = 'Health'
+        Description = 'Warns below 15% free and fails below 5% on each volume.'; Minutes = 1
+        Changes = $false }
+    [pscustomobject] @{ Id = 'Uptime'; Name = 'Uptime and reboots'; Category = 'Health'
+        Description = 'Reports uptime and unexpected reboots in the last 30 days.'; Minutes = 1
+        Changes = $false }
 )
 $reportFolder = './toolbox-reports/weekly'
 # Layout: the prompts themselves draw choices, validation, masks and editing hints.
@@ -37,7 +70,10 @@ $taskPreview = {
         New-ConsoleKeyValue -Content {
             [pscustomobject]@{ Key = 'Group'; Value = $_.Category }
             [pscustomobject]@{ Key = 'Duration'; Value = "about $($_.Minutes) min per server" }
-            [pscustomobject]@{ Key = 'Changes'; Value = $(if ($_.Changes) { '[warn]yes[/], makes changes' } else { '[pass]no[/], read only' }); Markup = $true }
+            [pscustomobject]@{ Key = 'Changes'
+                Value = $(if ($_.Changes) { '[warn]yes[/], makes changes' }
+                else { '[pass]no[/], read only' })
+                Markup = $true }
             [pscustomobject]@{ Key = 'Parameter'; Value = "[accent]$($_.Id)[/]"; Markup = $true }
         }
     }
@@ -141,7 +177,8 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ArgumentList (, $hosts) -ScriptBl
                 Description = 'The patch dashboard pauses for your answer, then resumes.'
             }
             $go = Read-ConsoleConfirm @pausePrompt
-            Write-ConsoleLogEntry -Message $(if ($go) { 'continuing' } else { 'stopping after this step' })
+            Write-ConsoleLogEntry -Message $(if ($go) { 'continuing' }
+            else { 'stopping after this step' })
             if (-not $go) {
                 break
             }

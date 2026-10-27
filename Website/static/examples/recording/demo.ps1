@@ -6,7 +6,10 @@
     $env:CONSOLEMONSTER_GLYPHS = 'full'
     $env:CI = $null
     $env:NO_COLOR = $null
-    $demo = if ($env:CM_DEMO_ROOT) { $env:CM_DEMO_ROOT } else { Join-Path ([IO.Path]::GetTempPath()) ('ConsoleMonsterTalk-' + [guid]::NewGuid().ToString('N') + '/demo') }
+    $demo = if ($env:CM_DEMO_ROOT) { $env:CM_DEMO_ROOT }
+    else {
+        Join-Path ([IO.Path]::GetTempPath()) ('ConsoleMonsterTalk-' + [guid]::NewGuid().ToString('N') + '/demo')
+    }
     $null = New-Item -ItemType Directory -Path $demo -Force
     $null = New-PSDrive -Name demo -PSProvider FileSystem -Root $demo -Scope Global
     Set-Location demo:
@@ -15,10 +18,13 @@
     $env:GIT_COMMITTER_DATE = $env:GIT_AUTHOR_DATE
     $env:API_TOKEN = 'demo-token'
     git init --quiet --initial-branch main
-    foreach ($subject in @('Start sample app', 'Add synthetic fixtures', 'Render report table', 'Track build progress', 'Document local recording')) {
+    $identity = '-c', 'user.name=Demo', '-c', 'user.email=demo@example.invalid', '-c',
+        'commit.gpgsign=false'
+    foreach ($subject in @('Start sample app', 'Add synthetic fixtures', 'Render report table',
+        'Track build progress', 'Document local recording')) {
         Add-Content (Join-Path $demo 'history.txt') $subject
         git add history.txt
-        git -c user.name='Demo' -c user.email='demo@example.invalid' -c commit.gpgsign=false commit --quiet -m $subject
+        git @identity commit --quiet -m $subject
         if ($LASTEXITCODE) { throw 'Cannot prepare the synthetic Git repository.' }
     }
     function global:Show-DemoReport {
@@ -32,7 +38,12 @@
     function global:Invoke-DemoBuild {
         Use-ConsoleProgress {
             foreach ($step in 1..10) {
-                Write-Progress -Activity 'Building sample app' -Status "Step $step of 10" -PercentComplete ($step * 10)
+                $progressParameters = @{
+                    Activity = 'Building sample app'
+                    Status = "Step $step of 10"
+                    PercentComplete = ($step * 10)
+                }
+                Write-Progress @progressParameters
                 Start-Sleep -Milliseconds 100
             }
             Write-Progress -Activity 'Building sample app' -Completed

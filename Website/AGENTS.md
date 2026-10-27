@@ -194,6 +194,15 @@ to run.
   All three variants are present in the initial DOM: `<div class="cm-lang" data-lang="powershell">`, `csharp` and `fluent`, which
   site.js puts under one switch. Generate How it maps notes from the parity catalog; do not write separate mappings by hand. Fence `dotnet` commands (and the `cd` beside them) as `terminal` (labelled Terminal); a block that
   holds only a run command fails the render (`CodeGuard.Presentation`).
+- Example C# keeps lines within 100 columns (`tools/SiteFrames/Capture/SourceLayout.cs`): a long line breaks at its
+  chain, arguments or conditional, data rows fill their lines, and only strings and comments may run longer. Generated
+  fluent sources go through the same pass; lay out a maintained source with
+  `dotnet run --project Website/tools/SiteFrames -c Release -- layout Website examples/<file>.cs` (SourceLayoutContracts
+  checks every example). Example PowerShell follows the same width with `pwsh Website/build/Format-ExampleScript.ps1 -Path
+  <file>`: it breaks only where PowerShell allows (hashtable entries, script blocks, pipes, commas, `elseif`/`else`) and
+  splats the named parameters of a command that still does not fit; each run is checked token for token, and a splat
+  by its parameter binding (ScriptLayoutContracts). After laying out a captured source, regenerate its Windows PowerShell
+  5.1 and pseudo-console captures before rendering the site. Both layout contracts cover every example.
 - The docs catalogue (`layouts/docsindex.html`) is built from the docs pages: `content/docs/_index.md` is a section, so
   the template gets every page as `items`. Each page's front matter names its `group` (one of `docsCatalog.groups` in
   `data/copy.json`), a `summary`, `apis` (shown as code) and `chips` (topics), and a `card`: a figure or demo id whose

@@ -5,7 +5,13 @@ using ConsoleMonster.PowerShell.Pester;
 [Cmdlet(VerbsLifecycle.Invoke, "PesterExample") ]
 public sealed class PesterExample : PSCmdlet {
     protected override void ProcessRecord() {
-        using var runner = new ConsolePester(this, new ConsolePesterOptions { Path = new[] { "./fixtures" }, Title = "Mail domain checks" });
+        using var runner = new ConsolePester(
+            this,
+            new ConsolePesterOptions
+            {
+                Path = new[] { "./fixtures" },
+                Title = "Mail domain checks"
+            });
         runner.Run();
     }
 }

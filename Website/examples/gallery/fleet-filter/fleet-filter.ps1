@@ -19,17 +19,26 @@ $content = {
             '[pass]2 healthy[/]  [warn]1 warning[/]  [fail]1 offline[/]  [accent]1 running[/]'
         }
 
-        New-ConsoleTextInput -Key Query -Label Filter -Value '' -Placeholder 'Host, role, site or status'
+        $textInputParameters = @{
+            Key = 'Query'
+            Label = 'Filter'
+            Value = ''
+            Placeholder = 'Host, role, site or status'
+        }
+        New-ConsoleTextInput @textInputParameters
         # Rebuild this section when an input or button changes state.
         New-ConsoleBinding -Content {
             param($State)
             $queryText = [string] $State.Query
             $rows = @($hosts | Where-Object -FilterScript {
-                    ($_.Host, $_.Role, $_.Site, $_.Status -join ' ').IndexOf($queryText, [StringComparison]::OrdinalIgnoreCase) -ge 0
+                    ($_.Host, $_.Role, $_.Site, $_.Status -join ' ').IndexOf($queryText,
+                        [StringComparison]::OrdinalIgnoreCase) -ge 0
                 })
             "$($rows.Count) of $($hosts.Count) hosts"
             New-ConsoleTable -InputObject $rows -Property Host, Role, Site, Status
-            if ($rows.Count -eq 0) { '[muted]No matching hosts. Backspace to broaden the filter.[/]' }
+            if ($rows.Count -eq 0) {
+                '[muted]No matching hosts. Backspace to broaden the filter.[/]'
+            }
         }
     }
 }

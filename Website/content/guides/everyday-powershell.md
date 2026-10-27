@@ -75,11 +75,15 @@ Get-Module -ListAvailable
 Get-History
 ```
 
+<div class="cm-migration-map" tabindex="0" role="region" aria-label="Command, module and history formatting comparison">
+
 | View | Before | After |
 | --- | --- | --- |
-| Commands | Native command table, with long names competing for space | Name first, command-type chips, version and source; aliases show `alias -> target`. Results of 12 or more commands group by module. |
+| Commands | Native command table, with long names competing for space | Name first, command-type chips, version and source; aliases show the command they point to. Results of 12 or more commands group by module. |
 | Modules | Exported command names can dominate a row | Name, version, module type, exported command count and a shortened path. Multiple versions group under one module name. Paths keep `User ~/...` or their system installation location visible; the stored path stays complete. |
 | History | Id and command line | Id, start time, elapsed duration, execution status and syntax-highlighted command text. Long commands end with an ellipsis. |
+
+</div>
 
 `Get-Module -ListAvailable` reports the exported-command metadata PowerShell supplies; the view never imports a module to discover more commands. History uses local start times (`HH:mm:ss`) and PowerShell's `ExecutionStatus`, including completed and failed commands.
 
@@ -92,6 +96,8 @@ Test-Connection 127.0.0.1 -Count 2
 [System.Net.IPAddress]::Loopback
 ```
 
+<div class="cm-migration-map" tabindex="0" role="region" aria-label="Network formatting support across hosts">
+
 | View | Before | After | Where |
 | --- | --- | --- | --- |
 | Ping replies | Native ping table | Destination, reply number, address, latency in milliseconds and success/failure colour; readable reasons such as `Timed out` and `Host unreachable`, with no invented failure latency | PowerShell 7 on macOS, Linux and Windows |
@@ -100,6 +106,8 @@ Test-Connection 127.0.0.1 -Count 2
 | `Get-NetIPAddress` | Native address fields | Interface, address, prefix, family and address state | Windows, with NetTCPIP |
 | `Get-NetAdapter` | Native adapter table | Name, status, MAC address, link speed and description | Windows, with NetAdapter |
 | `Test-NetConnection` | Native connection report | Computer, remote address/port, interface and ping/TCP outcomes | Windows, with NetTCPIP |
+
+</div>
 
 The Windows views register only on Windows. None of these views performs network requests, probes installed commands or loads optional networking modules: the commands you run supply the objects. `Enable-ConsoleFormatting -NoBuiltIn` leaves the native built-in displays in place, and `Disable-ConsoleFormatting` restores native output.
 

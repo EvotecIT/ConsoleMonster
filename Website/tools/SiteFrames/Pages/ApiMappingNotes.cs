@@ -77,7 +77,7 @@ namespace SiteFrames.Pages {
                 string initializerType = type.Substring(type.LastIndexOf('.') + 1);
                 string? reason = factory["Reason"]?.GetValue<string>();
                 if (factory["ContentBuilder"]!.GetValue<bool>()) { reason = (reason == null ? string.Empty : reason + " ") + "Inside Content: " + entryRule["NestedPattern"]!.GetValue<string>().Replace("{Noun}", noun, StringComparison.Ordinal) + "."; }
-                result.Add(new JsonObject { ["powershell"] = command, ["csharp"] = noun == "Table" && used.Contains("M:ConsoleMonster.Widgets.Table.For") ? "Table.For(rows)" : "new " + initializerType + "(…)", ["fluent"] = factory["Pattern"]!.GetValue<string>(), ["memberId"] = methodId, ["note"] = reason });
+                result.Add(new JsonObject { ["powershell"] = command + KindArgument(map, command, initializerType),["csharp"] = noun == "Table" && used.Contains("M:ConsoleMonster.Widgets.Table.For") ? "Table.For(rows)" : "new " + initializerType + "(…)", ["fluent"] = factory["Pattern"]!.GetValue<string>(), ["memberId"] = methodId, ["note"] = reason });
                 break;
             }
             var contentCommands = new HashSet<string>(StringComparer.Ordinal);
@@ -236,6 +236,19 @@ namespace SiteFrames.Pages {
             }
             if (result.Count == 0) { throw new InvalidDataException("No parity mapping is available for " + initializer + "."); }
             return result;
+        }
+
+        // One command can build several widget types (New-ConsoleChart builds a Sparkline with -Type Sparkline). The row names
+        // the -Type value whose enum name starts the constructed type's name, so the C# cell is not read as the default kind.
+        private static string KindArgument(JsonObject map, string command, string initializerType) {
+            JsonObject? binding = map["Commands"]!.AsArray().Select(node => node!.AsObject())
+                .Where(node => node["Command"]!.GetValue<string>() == command)
+                .SelectMany(node => node["Bindings"]!.AsArray()).Select(node => node!.AsObject())
+                .FirstOrDefault(node => node["Parameter"]!.GetValue<string>() == "Type");
+            Type? kinds = binding?["CSharpTypeName"] == null ? null : typeof(ConsoleMonster.Terminal).Assembly.GetType(binding["CSharpTypeName"]!.GetValue<string>());
+            if (kinds?.IsEnum != true) { return string.Empty; }
+            string? kind = Enum.GetNames(kinds).Where(name => initializerType.StartsWith(name, StringComparison.Ordinal)).OrderByDescending(name => name.Length).FirstOrDefault();
+            return kind == null ? string.Empty : " -Type " + kind;
         }
 
         private static int Preference(string command, JsonObject binding, HashSet<string>? commands) =>
