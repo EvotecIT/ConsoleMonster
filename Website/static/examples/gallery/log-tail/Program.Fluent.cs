@@ -21,19 +21,16 @@ IWidget Frame(int tick)
 {
     Rows lines = Ui.Rows();
     foreach (string line in messages.Take(tick + 1))
-        lines.Add(Ui.Text().Content(line).IsMarkup());
+        lines.Add(Ui.Markup(line));
     return Ui.Rows().Gap(1).Content(c2 =>
     {
-        c2.Text(c2Text => c2Text.Content("[bold]Application log[/] [muted]· worker events[/]")
-            .IsMarkup());
-        c2.Panel(cmPanel => cmPanel.Title("./logs/worker.log").Content(c =>
+        c2.Markup("[bold]Application log[/] [muted]· worker events[/]");
+        c2.Panel(p => p.Title("./logs/worker.log").Content(c =>
         {
             c.Add(lines);
         }));
-        c2.Text(c2Text => c2Text.Content("[muted]"
-            + (tick + 1).ToString(System.Globalization.CultureInfo.InvariantCulture)
-            + " / 5 events · Ctrl+C stops the live run[/]")
-            .IsMarkup());
+        c2.Markup("[muted]" + (tick + 1).ToString(System.Globalization.CultureInfo.InvariantCulture)
+            + " / 5 events · Ctrl+C stops the live run[/]");
     });
 }
 

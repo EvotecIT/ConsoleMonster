@@ -30,19 +30,21 @@ IWidget Summary()
         .Column(row => row.Job)
         .Column(row => row.Size)
         .Column(row => row.Attempts)
-        .Column(row => row.Status, column => column.Presenter(CellPresenters.StatusWord));
-    table.Expand();
+        .Column(row => row.Status, column => column.Presenter(CellPresenters.StatusWord))
+        .Expand();
     int recovered = completed.Keys.Count(name => attempts[name] > 1);
     string summary = attempts.Count == 0
         ? "[muted]4 jobs queued · destination ./backups/nightly[/]"
         : completed.Count < jobs.Length
-            ? $"[pass]{completed.Count} passed[/]   [warn]{jobs.Length - completed.Count} queued for retry[/]"
-            : $"[pass]{completed.Count} passed[/]   [accent]{recovered} recovered on retry[/]   [muted]retention: 14 days[/]";
+            ? ($"[pass]{completed.Count} passed[/]   [warn]{jobs.Length - completed.Count} "
+                + $"queued for retry[/]")
+            : ($"[pass]{completed.Count} passed[/]   [accent]{recovered} recovered on "
+                + $"retry[/]   [muted]retention: 14 days[/]");
     return Ui.Rows().Gap(1).Content(c =>
     {
         c.Rule("[bold]Nightly backup[/] [muted]· throttle 2 · maximum 2 attempts[/]");
         c.Add(table);
-        c.Text(cText => cText.Content(summary).IsMarkup());
+        c.Markup(summary);
     });
 }
 
@@ -59,7 +61,10 @@ for (int attempt = 1; attempt <= 2 && pending.Length > 0; attempt++)
         if (job.Retry && attempt == 1)
             throw new InvalidOperationException("Destination busy; retry this job");
         return "./backups/nightly/" + job.Name + ".zip";
-    }, Ui.Options<RunOptions>().ThrottleLimit(2).Title("Backup attempt " + attempt));
+    }, options =>
+    {
+        options.ThrottleLimit(2).Title("Backup attempt " + attempt);
+    });
     foreach (var result in outcomes.Where(result => result.Succeeded))
         completed[result.Item.Name] = result.Value;
     attemptErrors.AddRange(outcomes.Where(result => !result.Succeeded)

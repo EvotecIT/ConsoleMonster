@@ -19,13 +19,13 @@ var folders = new FolderRow[]
 };
 
 // Layout: bars answer where pressure is; the tree explains what occupies the space.
-BarChart chart = Ui.Chart()
-    .Type(ConsoleMonster.Widgets.ChartType.Bar)
+BarChart chart = (BarChart)Ui.Chart()
+    .Type(ChartType.Bar)
     .Maximum(100)
     .Unit("%")
     .Warning(80)
     .Critical(90)
-    .Build<BarChart>();
+    .Build();
 foreach (var volume in used)
     chart.Add(volume.Name, volume.Percent);
 Tree tree = Ui.Tree().Title("./");
@@ -39,29 +39,24 @@ foreach (var folder in folders)
 Rows report = Ui.Rows().Gap(1).Content(c3 =>
 {
     c3.Rule("[bold]Storage review[/] [muted]· capacity planning[/]");
-    c3.Columns(cmColumns => cmColumns.Content(c2 =>
+    c3.Columns(columns => columns.Content(c2 =>
     {
-        c2.Panel(cmPanel => cmPanel.Title("Used / 100 GiB").Content(c =>
+        c2.Panel(p => p.Title("Used / 100 GiB").Content(c =>
         {
             c.Add(chart);
         }));
-        c2.Panel(cmPanel => cmPanel.Title("Largest folders").Content(c =>
+        c2.Panel(p => p.Title("Largest folders").Content(c =>
         {
             c.Add(tree);
         }));
     }));
-    c3.Panel(cmPanel => cmPanel.Title("Next action").Content(c2 =>
+    c3.Panel(p => p.Title("Next action").Content(c2 =>
     {
-        c2.Rows(cmRows => cmRows.Content(c =>
+        c2.Rows(r => r.Content(c =>
         {
-            c.Text(
-                cText => cText.Content(
-                    "[warn]Artifacts is at 94%.[/] Review the retention policy before the next build.")
-                    .IsMarkup());
-            c.Text(
-                cText => cText.Content(
-                    "[muted]Keep the current release; archive history older than 30 days.[/]")
-                    .IsMarkup());
+            c.Markup(
+                "[warn]Artifacts is at 94%.[/] Review the retention policy before the next build.");
+            c.Markup("[muted]Keep the current release; archive history older than 30 days.[/]");
         }));
     }));
 });

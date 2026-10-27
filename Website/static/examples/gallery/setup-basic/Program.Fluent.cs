@@ -28,35 +28,25 @@ back.Clicked += (_, _) => page = Math.Max(0, page - 1);
 next.Clicked += (_, _) => page = Math.Min(2, page + 1);
 Rows layout = Ui.Rows().Gap(1).Content(c2 =>
 {
-    c2.Text(c2Text => c2Text.Content("[bold]Install Toolbox Agent[/] [muted]· Toolbox Agent[/]")
-        .IsMarkup());
+    c2.Markup("[bold]Install Toolbox Agent[/] [muted]· Toolbox Agent[/]");
     c2.Add(folder);
     c2.Add(component);
     c2.Add(back);
     c2.Add(next);
-    c2.Binding(cmBinding => cmBinding.Configure(cmDefinition => cmDefinition.Content = state =>
+    c2.Binding(binding => binding.Configure(o => o.Content = state =>
     {
         string title = new[] { "1 / 3 · Location", "2 / 3 · Components", "3 / 3 · Review" }[page];
         IWidget content = page == 0
-            ? Ui.Text().Content("Choose a writable folder for the agent.").IsMarkup()
+            ? Ui.Markup("Choose a writable folder for the agent.")
             : page == 1
-                ? Ui.Text()
-                    .Content("Core runs local jobs. Reports adds an HTML summary.")
-                    .IsMarkup()
+                ? Ui.Markup("Core runs local jobs. Reports adds an HTML summary.")
                 : Ui.Rows().Content(c =>
                 {
-                    c.Text(cText => cText.Content("Folder: "
-                        + ConsoleMonster.Text.Markup.Escape(state.Get<string>(
-                            "Folder", "")))
-                        .IsMarkup());
-                    c.Text(cText => cText.Content("Component: "
-                        + ConsoleMonster.Text.Markup.Escape(state.Get<string>(
-                            "Component", "")))
-                        .IsMarkup());
-                    c.Text(
-                        cText => cText.Content(
-                            "[pass]Ready to install. Review the folder and components.[/]")
-                            .IsMarkup());
+                    c.Markup("Folder: " + ConsoleMonster.Text.Markup.Escape(state.Get<string>(
+                        "Folder", "")));
+                    c.Markup("Component: " + ConsoleMonster.Text.Markup.Escape(state.Get<string>(
+                        "Component", "")));
+                    c.Markup("[pass]Ready to install. Review the folder and components.[/]");
                 });
         return Ui.Panel().Title(title).Content(c =>
         {

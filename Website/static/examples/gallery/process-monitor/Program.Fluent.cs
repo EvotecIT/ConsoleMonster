@@ -25,29 +25,21 @@ IWidget Frame(int tick)
         .Column(row => row.Name)
         .Column(row => row.Pid, column => column.Presenter(CellPresenters.Identifier))
         .Column("CPU %", row => row.Cpu)
-        .Column("Memory MiB", row => row.Memory);
-    table.Expand();
-    Sparkline history = Ui.Chart()
-        .Type(ConsoleMonster.Widgets.ChartType.Sparkline)
-        .Title("CPU %")
-        .Build<Sparkline>();
+        .Column("Memory MiB", row => row.Memory)
+        .Expand();
+    Sparkline history = (Sparkline)Ui.Chart().Type(ChartType.Sparkline).Title("CPU %").Build();
     history.AddRange(cpuHistory.Concat(new[] { 56.0 + tick * 5 }));
     return Ui.Rows().Gap(1).Content(c2 =>
     {
         c2.Rule("[bold]Process monitor[/] [muted]· refresh 1s[/]");
-        c2.Text(
-            c2Text => c2Text.Content(
-                $"[accent]CPU {56 + tick * 5}%[/]   Memory {1640 + tick * 64} MiB   [muted]4 processes[/]")
-                .IsMarkup());
+        c2.Markup(($"[accent]CPU {56 + tick * 5}%[/]   Memory {1640 + tick * 64} MiB   [muted]4 "
+            + $"processes[/]"));
         c2.Add(table);
-        c2.Panel(cmPanel => cmPanel.Title("CPU history").Content(c =>
+        c2.Panel(p => p.Title("CPU history").Content(c =>
         {
             c.Add(history);
         }));
-        c2.Text(
-            c2Text => c2Text.Content(
-                "[muted]Ctrl+C stops monitoring. Final counters stay in scrollback.[/]")
-                .IsMarkup());
+        c2.Markup("[muted]Ctrl+C stops monitoring. Final counters stay in scrollback.[/]");
     });
 }
 

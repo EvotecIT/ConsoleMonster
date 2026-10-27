@@ -24,7 +24,9 @@ $services = @(
             this,
             new ConsoleFormattingOptions { Feature = new[] { ConsoleFormattingFeature.Output } });
         try {
-            using var output = new ConsoleDefaultOutput(this, new ConsoleDefaultOutputOptions { Force = true });
+            using var output = new ConsoleDefaultOutput(
+                this,
+                new ConsoleDefaultOutputOptions { Force = true });
             foreach (var item in InvokeCommand.InvokeScript(inventory + @"# The same objects now
         $services
         [version] '2.0.0'

@@ -19,8 +19,8 @@ string baseline = "";
 var table = Ui.Table(tasks)
     .Column(row => row.Task)
     .Column(row => row.State, column => column.Presenter(CellPresenters.StatusWord))
-    .Column(row => row.Minutes);
-table.Expand();
+    .Column(row => row.Minutes)
+    .Expand();
 foreach (var task in tasks)
 {
     if (baseline.Length > 0)
@@ -34,13 +34,11 @@ foreach (var task in tasks)
 Rows layout = Ui.Rows().Gap(1).Content(c =>
 {
     c.Rule("[bold]Everyday formatting[/] [muted]| same objects, clearer output[/]");
-    c.Text(cText => cText.Content("[bold]Before[/] [muted]| plain text[/]").IsMarkup());
-    c.Text(cText => cText.Content(baseline).IsMarkup());
-    c.Text(cText => cText.Content("[bold]After[/] [muted]| ConsoleMonster table[/]").IsMarkup());
+    c.Markup("[bold]Before[/] [muted]| plain text[/]");
+    c.Markup(baseline);
+    c.Markup("[bold]After[/] [muted]| ConsoleMonster table[/]");
     c.Add(table);
-    c.Text(
-        cText => cText.Content("[muted]Three tasks. Aligned columns and right-aligned numbers.[/]")
-            .IsMarkup());
+    c.Markup("[muted]Three tasks. Aligned columns and right-aligned numbers.[/]");
 });
 
 // Behaviour: print the screen once and return.

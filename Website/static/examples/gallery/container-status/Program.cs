@@ -112,9 +112,12 @@ IWidget Frame(int tick)
 
     return new Rows(
         new Rule(
-            $"[bold]Containers[/] [muted]· docker-01.adatum.example.test · refresh 2s · {clock}[/]"),
+            ($"[bold]Containers[/] [muted]· docker-01.adatum.example.test · refresh 2s · "
+                + $"{clock}[/]")),
         new TextBlock(
-            $"[pass]{rows.Count - restarting} running[/]   [warn]{restarting} restarting[/]   [muted]memory {memoryTotal:N0} of {limitTotal:N0} MiB reserved[/]"),
+            ($"[pass]{rows.Count - restarting} running[/]   [warn]{restarting} "
+                + $"restarting[/]   [muted]memory {memoryTotal:N0} of {limitTotal:N0} MiB "
+                + $"reserved[/]")),
         table,
         new Columns(new Panel(cpu, "CPU %"), new Panel(memory, "Memory % of limit")),
         new Panel(feed, "Events"))

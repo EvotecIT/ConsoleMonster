@@ -14,7 +14,8 @@ DnsRecord[] records = {
     new("evotec.xyz", "NS", "86400", "dana.ns.cloudflare.com"),
     new("evotec.xyz", "NS", "86400", "kirk.ns.cloudflare.com"),
     new("evotec.xyz", "TXT", "3600",
-        "v=spf1 include:spf.protection.outlook.com include:_spf.google.com include:sendgrid.net ip4:51.38.120.9 -all"),
+        ("v=spf1 include:spf.protection.outlook.com include:_spf.google.com "
+            + "include:sendgrid.net ip4:51.38.120.9 -all")),
     new("_dmarc.evotec.xyz", "TXT", "3600",
         "v=DMARC1; p=reject; rua=mailto:dmarc@evotec.xyz; ruf=mailto:forensic@evotec.xyz; fo=1"),
     new("evotec.xyz", "CAA", "3600", "0 issue \"letsencrypt.org\""),

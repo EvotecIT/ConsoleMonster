@@ -35,11 +35,7 @@ int unusedSeats = usage.Sum(sku => sku.Unused);
 int monthlyWaste = usage.Sum(sku => sku.Waste);
 
 // Layout: utilisation bars beside the biggest savings, then the full ledger.
-var bars = Ui.Chart()
-    .Type(ConsoleMonster.Widgets.ChartType.Bar)
-    .Maximum(100)
-    .Unit("%")
-    .Build<BarChart>();
+var bars = (BarChart)Ui.Chart().Type(ChartType.Bar).Maximum(100).Unit("%").Build();
 foreach (var sku in usage)
     bars.Add(sku.Sku, sku.Used, sku.Status.ToToken());
 var savings = Ui.StatusList();
@@ -52,27 +48,25 @@ var table = Ui.Table(usage)
     .Column(row => row.Unused)
     .Column("Used %", row => row.Used)
     .Column("Waste $", row => row.Waste)
-    .Column(row => row.Status, column => column.Presenter(CellPresenters.StatusWord));
-table.Expand();
+    .Column(row => row.Status, column => column.Presenter(CellPresenters.StatusWord))
+    .Expand();
 var report = Ui.Rows().Gap(1).Content(c3 =>
 {
     c3.Rule("[bold]Microsoft 365 licenses[/] [muted]· adatum.example.test · October 2026[/]");
-    c3.Columns(cmColumns => cmColumns.Content(c2 =>
+    c3.Columns(columns => columns.Content(c2 =>
     {
-        c2.Panel(cmPanel => cmPanel.Title("Assigned of purchased").Content(c =>
+        c2.Panel(p => p.Title("Assigned of purchased").Content(c =>
         {
             c.Add(bars);
         }));
-        c2.Panel(cmPanel => cmPanel.Title("Reclaim first").Content(c =>
+        c2.Panel(p => p.Title("Reclaim first").Content(c =>
         {
             c.Add(savings);
         }));
     }));
     c3.Add(table);
-    c3.Text(
-        c3Text => c3Text.Content(
-            $"[warn]${monthlyWaste:N0} a month[/] pays for {unusedSeats} unassigned seats. [muted]Reclaim before the renewal date.[/]")
-            .IsMarkup());
+    c3.Markup(($"[warn]${monthlyWaste:N0} a month[/] pays for {unusedSeats} unassigned seats. "
+        + $"[muted]Reclaim before the renewal date.[/]"));
 });
 
 // Behaviour: print once; review the reclaim list with each license owner before removing seats.

@@ -39,16 +39,15 @@ StatusList exceptions = Ui.StatusList()
 Rows report = Ui.Rows().Gap(1).Content(c2 =>
 {
     c2.Rule("[bold]Application connectivity[/] [muted]· core services[/]");
-    c2.Panel(cmPanel => cmPanel.Title(string.Join("   |   ", ports)).Content(c =>
+    c2.Panel(p => p.Title(string.Join("   |   ", ports)).Content(c =>
     {
         c.Add(map);
     }));
-    c2.Panel(cmPanel => cmPanel.Title("Exceptions to investigate").Content(c =>
+    c2.Panel(p => p.Title("Exceptions to investigate").Content(c =>
     {
         c.Add(exceptions);
     }));
-    c2.Text(c2Text => c2Text.Content("[muted]Skipped cells are ports that host does not need.[/]")
-        .IsMarkup());
+    c2.Markup("[muted]Skipped cells are ports that host does not need.[/]");
 });
 
 // Behaviour: print the collected observations once; collectors belong before the layout.

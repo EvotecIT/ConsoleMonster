@@ -17,7 +17,8 @@ var records = new QueryRecord[]
     new(domain, "TXT", 3600,
         "v=spf1 include:spf.example.test include:relay.example.test ip4:203.0.113.9 -all"),
     new("_dmarc." + domain, "TXT", 3600,
-        "v=DMARC1; p=reject; rua=mailto:dmarc@example.test; ruf=mailto:forensic@example.test; fo=1"),
+        ("v=DMARC1; p=reject; rua=mailto:dmarc@example.test; "
+            + "ruf=mailto:forensic@example.test; fo=1")),
     new(domain, "CAA", 3600, "0 issue \"ca.example.test\""),
     new(domain, "SOA", 3600,
         "ns1.example.test. hostmaster.example.test. 2026102401 10000 2400 604800 3600")

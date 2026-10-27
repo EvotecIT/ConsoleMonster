@@ -20,8 +20,8 @@ var table = Ui.Table(repositories)
     .Column(row => row.Modified)
     .Column(row => row.Staged)
     .Column(row => row.Ahead)
-    .Column(row => row.Behind);
-table.Expand();
+    .Column(row => row.Behind)
+    .Expand();
 StatusList next = Ui.StatusList()
     .Add("orbit-api", StatusKind.Info, "Review the staged diff before committing")
     .Add("orbit-cli", StatusKind.Warn, "Working tree clean; inspect four incoming commits")
@@ -31,7 +31,7 @@ Rows report = Ui.Rows().Gap(1).Content(c2 =>
 {
     c2.Rule("[bold]Repository workspace[/] [muted]· ./work[/]");
     c2.Add(table);
-    c2.Panel(cmPanel => cmPanel.Title("Suggested next steps").Content(c =>
+    c2.Panel(p => p.Title("Suggested next steps").Content(c =>
     {
         c.Add(next);
     }));

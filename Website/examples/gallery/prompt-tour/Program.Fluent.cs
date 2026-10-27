@@ -11,61 +11,50 @@ using ConsoleMonster.Widgets;
 // The path points into an absent sample folder; no directories or presets are created.
 Server[] servers = new Server[]
 {
-    new(Name: "FS01", Site: "Warsaw", Role: "File", OS: "Windows Server 2022"),
-    new(Name: "FS02", Site: "Warsaw", Role: "File", OS: "Windows Server 2022"),
-    new(Name: "WEB01", Site: "Warsaw", Role: "Web", OS: "Linux"),
-    new(Name: "SQL01", Site: "Warsaw", Role: "Database", OS: "Linux"),
-    new(Name: "FS11", Site: "Berlin", Role: "File", OS: "Windows Server 2022"),
-    new(Name: "WEB11", Site: "Berlin", Role: "Web", OS: "Linux"),
-    new(Name: "PRN11", Site: "Berlin", Role: "Print", OS: "Windows Server 2022",
-        Offline: "offline since 09:12"),
-    new(Name: "BKP21", Site: "Dublin", Role: "Backup", OS: "Linux"),
-    new(Name: "SQL21", Site: "Dublin", Role: "Database", OS: "Linux"),
-    new(Name: "LAB01", Site: "Lab", Role: "Test", OS: "Linux"),
-    new(Name: "LAB02", Site: "Lab", Role: "Test", OS: "Linux",
-        Offline: "in maintenance until Friday")
+    new("FS01", "Warsaw", "File", "Windows Server 2022"),
+    new("FS02", "Warsaw", "File", "Windows Server 2022"),
+    new("WEB01", "Warsaw", "Web", "Linux"),
+    new("SQL01", "Warsaw", "Database", "Linux"),
+    new("FS11", "Berlin", "File", "Windows Server 2022"),
+    new("WEB11", "Berlin", "Web", "Linux"),
+    new("PRN11", "Berlin", "Print", "Windows Server 2022", "offline since 09:12"),
+    new("BKP21", "Dublin", "Backup", "Linux"),
+    new("SQL21", "Dublin", "Database", "Linux"),
+    new("LAB01", "Lab", "Test", "Linux"),
+    new("LAB02", "Lab", "Test", "Linux", "in maintenance until Friday")
 };
 Job[] tasks = new Job[]
 {
-    new(Id: "DiskCleanup", Name: "Disk cleanup", Category: "Maintenance",
-        Description: "Removes temporary files, old update caches and crash dumps older than 30 days.",
-        Minutes: 3, Changes: true),
-    new(Id: "LogRotation", Name: "Log rotation", Category: "Maintenance",
-        Description: "Compresses logs older than 7 days and removes archives older than 90 days.",
-        Minutes: 2, Changes: true),
-    new(Id: "RestartPending", Name: "Pending restart check", Category: "Maintenance",
-        Description: "Reports servers waiting for a restart after updates or role changes.",
-        Minutes: 1, Changes: false),
-    new(Id: "PatchStatus", Name: "Patch status", Category: "Security",
-        Description: "Lists missing security updates and the last successful install.", Minutes: 2,
-        Changes: false),
-    new(Id: "Certificates", Name: "Certificate expiry", Category: "Security",
-        Description: "Finds certificates expiring within 30 days and the services using them.",
-        Minutes: 1, Changes: false),
-    new(Id: "LocalAdmins", Name: "Local administrators audit", Category: "Security",
-        Description: "Compares local administrator membership with the approved list.", Minutes: 1,
-        Changes: false),
-    new(Id: "Firewall", Name: "Firewall rules review", Category: "Security",
-        Description: "Flags inbound allow rules open to any address.", Minutes: 2, Changes: false),
-    new(Id: "EventErrors", Name: "Event log errors", Category: "Health",
-        Description: "Summarizes errors from the last 24 hours.", Minutes: 1, Changes: false),
-    new(Id: "Services", Name: "Service health", Category: "Health",
-        Description: "Checks automatic services and restarts stopped ones.", Minutes: 1,
-        Changes: true),
-    new(Id: "DiskSpace", Name: "Disk space", Category: "Health",
-        Description: "Warns below 15% free and fails below 5% on each volume.", Minutes: 1,
-        Changes: false),
-    new(Id: "Uptime", Name: "Uptime and reboots", Category: "Health",
-        Description: "Reports uptime and unexpected reboots in the last 30 days.", Minutes: 1,
-        Changes: false)
+    new("DiskCleanup", "Disk cleanup", "Maintenance",
+        "Removes temporary files, old update caches and crash dumps older than 30 days.", 3, true),
+    new("LogRotation", "Log rotation", "Maintenance",
+        "Compresses logs older than 7 days and removes archives older than 90 days.", 2, true),
+    new("RestartPending", "Pending restart check", "Maintenance",
+        "Reports servers waiting for a restart after updates or role changes.", 1, false),
+    new("PatchStatus", "Patch status", "Security",
+        "Lists missing security updates and the last successful install.", 2, false),
+    new("Certificates", "Certificate expiry", "Security",
+        "Finds certificates expiring within 30 days and the services using them.", 1, false),
+    new("LocalAdmins", "Local administrators audit", "Security",
+        "Compares local administrator membership with the approved list.", 1, false),
+    new("Firewall", "Firewall rules review", "Security",
+        "Flags inbound allow rules open to any address.", 2, false),
+    new("EventErrors", "Event log errors", "Health", "Summarizes errors from the last 24 hours.", 1,
+        false),
+    new("Services", "Service health", "Health",
+        "Checks automatic services and restarts stopped ones.", 1, true),
+    new("DiskSpace", "Disk space", "Health",
+        "Warns below 15% free and fails below 5% on each volume.", 1, false),
+    new("Uptime", "Uptime and reboots", "Health",
+        "Reports uptime and unexpected reboots in the last 30 days.", 1, false)
 };
 string reportFolder = "./toolbox-reports/weekly";
 
 // Layout: the prompts themselves draw choices, validation, masks and editing hints.
 IWidget Preview(Job job) => Ui.Rows().Gap(1).Content(c =>
 {
-    c.Text(cText => cText.Content(Markup.Escape(job.Description)).IsMarkup());
-    c.KeyValue(cmKeyValue => cmKeyValue.Add("Group", Markup.Escape(job.Category))
+    c.Markup(Markup.Escape(job.Description));
+    c.KeyValue(kv => kv.Add("Group", Markup.Escape(job.Category))
         .Add("Duration", $"about {job.Minutes} min per server")
         .Add("Changes", job.Changes ? "[warn]yes[/], makes changes" : "[pass]no[/], read only")
         .Add("Parameter", "[accent]" + job.Id + "[/]"));
@@ -74,15 +63,15 @@ SelectQuestionOptions ServerPrompt()
 {
     SelectQuestionOptions prompt = Ui.SelectQuestion()
         .Title("Target server")
-        .AddChoices(ConsoleMonster.Interactive.Choice.From(servers, s => s.Name, s => s.Site))
+        .AddChoices(Choice.From(servers, s => s.Name, s => s.Site))
         .Description("Type to filter; offline servers show why they cannot be picked.")
         .Default(servers[0]);
     foreach (Choice choice in prompt.Choices)
     {
         Server server = (Server)choice.Value!;
-        choice.Badge(RichText.Plain(server.Role, new RichStyle(ThemeToken.Muted)));
-        choice.DisabledReason(server.Offline);
-        choice.Description(server.Role + " server · " + server.OS);
+        choice.Badge(RichText.Plain(server.Role, new RichStyle(ThemeToken.Muted)))
+            .DisabledReason(server.Offline)
+            .Description(server.Role + " server · " + server.OS);
     }
 
     return prompt;
@@ -104,8 +93,8 @@ SelectQuestionOptions TaskPrompt()
         .Title("Tasks")
         .AddChoices(choices)
         .Minimum(1)
-        .Configure(configured => configured.Preview = cmValue => cmValue is Job cmItem
-            ? Preview(cmItem)
+        .Configure(configured => configured.Preview = value => value is Job item
+            ? Preview(item)
             : null)
         .Default(tasks.Where(t => t.Id is "PatchStatus" or "DiskSpace").ToArray());
 }
@@ -154,7 +143,7 @@ Dashboard dashboard = Ui.DashboardLayout()
     .Title("[bold]Patching[/]")
     .Subtitle("5 servers")
     .Panel("Servers", lanes)
-    .Panel("Log", log, fill: true)
+    .Panel("Log", log, true)
     .BuildDashboard();
 using (LiveSession session = dashboard.CreateSession())
 {

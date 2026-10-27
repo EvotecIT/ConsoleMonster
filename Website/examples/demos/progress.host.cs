@@ -5,7 +5,9 @@ using ConsoleMonster.PowerShell;
 [Cmdlet(VerbsLifecycle.Invoke, "ProgressExample") ]
 public sealed class ProgressExample : PSCmdlet {
     protected override void ProcessRecord() {
-        ConsoleHostFormatting.Enable(this, new ConsoleFormattingOptions { Feature = new[] { ConsoleFormattingFeature.Progress } });
+        ConsoleHostFormatting.Enable(
+            this,
+            new ConsoleFormattingOptions { Feature = new[] { ConsoleFormattingFeature.Progress } });
         try { InvokeCommand.InvokeScript(@"Use-ConsoleProgress {
         $sites = 'Warsaw', 'Dublin', 'Berlin'
         for ($i = 0; $i -lt $sites.Count; $i++) {
@@ -20,6 +22,8 @@ public sealed class ProgressExample : PSCmdlet {
         Write-Progress -Id 1 -Activity 'Collecting inventory' -Completed
         } -Keep
         Write-ConsoleText 'Inventory collected: 36 servers across 3 sites.'"); }
-        finally { ConsoleHostFormatting.Disable(this, new[] { ConsoleFormattingFeature.Progress }); }
+        finally { ConsoleHostFormatting.Disable(
+            this,
+            new[] { ConsoleFormattingFeature.Progress }); }
     }
 }

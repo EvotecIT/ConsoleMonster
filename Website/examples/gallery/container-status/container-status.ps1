@@ -59,7 +59,8 @@ function New-ContainerFrame {
 
     New-ConsoleRows -Gap 1 -Content {
         New-ConsoleRule -Title "[bold]Containers[/] [muted]· docker-01.adatum.example.test · refresh 2s · $clock[/]"
-        "[pass]$($rows.Count - $restarting) running[/]   [warn]$restarting restarting[/]   [muted]memory $('{0:N0}' -f $memoryTotal) of $('{0:N0}' -f $limitTotal) MiB reserved[/]"
+        ("[pass]$($rows.Count - $restarting) running[/]   [warn]$restarting restarting[/]   " +
+            "[muted]memory $('{0:N0}' -f $memoryTotal) of $('{0:N0}' -f $limitTotal) MiB reserved[/]")
         New-ConsoleTable -InputObject $rows -Property Container, Image, State, Restarts, 'CPU %',
             'Memory MiB', 'Memory %', Status -Expand
         New-ConsoleColumns -Content {

@@ -143,7 +143,8 @@ Dashboard dashboard = new Dashboard()
     Title = "[bold]Module build[/]",
     Subtitle = "Build-Module ConsoleMonster",
     ShowElapsed = false,
-    Footer = "[muted]Prepare · Restore · Build · Test · Docs · Sign · Package · Publish    Ctrl+C stop[/]"
+    Footer = ("[muted]Prepare · Restore · Build · Test · Docs · Sign · Package · Publish    Ctrl+C "
+        + "stop[/]")
 };
 
 // Behaviour: native handles update each region while ordinary tool output is captured by the live session.

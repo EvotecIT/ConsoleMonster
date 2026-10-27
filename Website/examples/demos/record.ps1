@@ -33,4 +33,10 @@ Invoke-ConsoleDashboard $dashboard -RecordPath $recording {
 Show-ConsoleReplay -PlaybackMode Automatic $dashboard $recording -Speed 2
 
 # 3. Save it as a page with a player.
-$null = Export-ConsoleRecording $dashboard $recording -Format Html -Destination (Join-Path ([IO.Path]::GetTempPath()) 'deploy.html') -Width 100 -Height 16
+$recordingParameters = @{
+    Format = 'Html'
+    Destination = (Join-Path ([IO.Path]::GetTempPath()) 'deploy.html')
+    Width = 100
+    Height = 16
+}
+$null = Export-ConsoleRecording $dashboard $recording @recordingParameters

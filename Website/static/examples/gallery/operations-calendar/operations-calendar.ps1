@@ -21,10 +21,7 @@ $days = @(
 )
 
 # Behaviour: duplicate dates retain all labels and use the calendar precedence.
-# Pin the English fixture labels instead of inheriting ICU/NLS shortest names.
-$calendarCulture = ([cultureinfo]::GetCultureInfo('en-US')).Clone()
-$calendarCulture.DateTimeFormat.ShortestDayNames = @('Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa')
-$calendar = $days | New-ConsoleCalendar -Year 2026 -Month 10 -FirstDayOfWeek Monday -Today $today -Culture $calendarCulture
+$calendar = $days | New-ConsoleCalendar -Year 2026 -Month 10 -FirstDayOfWeek Monday -Today $today
 $upcoming = $days | Where-Object { $_.Date -ge $today -and $_.Date -le $today.AddDays(14) } |
     Group-Object { $_.Date.Date } | Sort-Object { $_.Group[0].Date }
 

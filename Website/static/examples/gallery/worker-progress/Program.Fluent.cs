@@ -17,12 +17,12 @@ IWidget Frame(int tick)
     {
         string name = "worker-" + worker.ToString("00",
             System.Globalization.CultureInfo.InvariantCulture);
-        workers.Add(Ui.Progress()
+        workers.Add((ProgressBar)Ui.Progress()
             .Label(name)
             .WidgetId(name)
             .Value(Math.Min(100, 12 + worker * 5 + tick * 17))
             .Total(100)
-            .Build<ProgressBar>());
+            .Build());
     }
 
     KeyValueList stats = Ui.KeyValue()
@@ -31,31 +31,27 @@ IWidget Frame(int tick)
         .Add("Queue", (24 - tick * 5).ToString(System.Globalization.CultureInfo.InvariantCulture))
         .Add("Workers", "8")
         .Add("Dropped", "[pass]0[/]");
-    Sparkline trend = Ui.Chart()
-        .Type(ConsoleMonster.Widgets.ChartType.Sparkline)
-        .Title("updates/s")
-        .Build<Sparkline>();
+    Sparkline trend = (Sparkline)Ui.Chart().Type(ChartType.Sparkline).Title("updates/s").Build();
     trend.AddRange(new double[] { 120, 180, 160, 240, 210, 220 + tick * 15 });
     return Ui.Rows().Gap(1).Content(c4 =>
     {
-        c4.Text(c4Text => c4Text.Content("[bold]Worker stress dashboard[/] [muted]· worker pool[/]")
-            .IsMarkup());
-        c4.Columns(cmColumns => cmColumns.Content(c3 =>
+        c4.Markup("[bold]Worker stress dashboard[/] [muted]· worker pool[/]");
+        c4.Columns(columns => columns.Content(c3 =>
         {
-            c3.Panel(cmPanel => cmPanel.Title("Workers").Content(c =>
+            c3.Panel(p => p.Title("Workers").Content(c =>
             {
                 c.Add(workers);
             }));
-            c3.Panel(cmPanel => cmPanel.Title("Session").Content(c2 =>
+            c3.Panel(p => p.Title("Session").Content(c2 =>
             {
-                c2.Rows(cmRows => cmRows.Content(c =>
+                c2.Rows(r => r.Content(c =>
                 {
                     c.Add(stats);
                     c.Add(trend);
                 }));
             }));
         }));
-        c4.Text(c4Text => c4Text.Content("[muted]Ctrl+C stops the live run.[/]").IsMarkup());
+        c4.Markup("[muted]Ctrl+C stops the live run.[/]");
     });
 }
 

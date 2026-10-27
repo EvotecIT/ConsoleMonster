@@ -42,71 +42,74 @@ foreach (var service in services)
 }
 
 // Behaviour: asynchronous commands receive captured snapshots and cancellation.
-var options = Ui.Options<GridOptions>();
-foreach (string field in new[] { "DisplayName", "ProcessId", "Account", "DependsOn", "Description" }
-
-)
-{
-    options.HiddenColumns.Add(field);
-}
-
-foreach (var definition in new CommandDefinition[]
-{
-    new("Restart", System.ConsoleKey.F5),
-    new("Stop", System.ConsoleKey.F7),
-    new("Start", System.ConsoleKey.F9)
-}
-
-)
-{
-    string operation = definition.Label;
-    options.Command.Add(Ui.Command()
-        .Key(operation)
-        .Label(operation)
-        .Configure(cmDefinition => cmDefinition.Action = async (context, cancellation) =>
-        {
-            foreach (object? row in context.Rows)
-            {
-                string name = row switch
-                {
-                    Service service => service.Name,
-                    ServiceRefresh refreshed => refreshed.Name,
-                    _ => string.Empty
-                };
-                if (operation == "Restart")
-                {
-                    context.Write($"Stopping {name} (Lab)");
-                    await Task.Delay(1000, cancellation);
-                    context.Write($"Starting {name} (Lab)");
-                }
-                else
-                {
-                    context.Write($"{operation} {name} (Lab)");
-                }
-
-                await Task.Delay(1000, cancellation);
-                context.Write($"Verifying {name}");
-                await Task.Delay(700, cancellation);
-            }
-        })
-        .Shortcut(new KeyChord(definition.Shortcut))
-        .ConfirmPrompt(operation + " {Selection}?")
-        .Build());
-}
-
-// Refresh the acted-on snapshot on the input thread, preserving selection and row position.
-options.Configure(configured => configured.RefreshRow = (command, row) =>
-{
-    var values = row.Values.ToArray();
-    string status = command.Key == "Stop" ? "Stopped" : "Running";
-    values[1] = status;
-    values[4] = command.Key == "Stop" ? 0 : Convert.ToInt32(values[4]) + 100;
-    var item = new ServiceRefresh(values[0]?.ToString() ?? string.Empty, status);
-    return new GridRow(item, values);
-});
-
 // Layout: the shared host owns details, confirmation, output and terminal lifetime.
-grid.Show(options);
+grid.Show(options =>
+{
+    foreach (string field in new[]
+    {
+        "DisplayName", "ProcessId", "Account", "DependsOn", "Description"
+    }
+
+    )
+    {
+        options.HiddenColumns.Add(field);
+    }
+
+    foreach (var definition in new CommandDefinition[]
+    {
+        new("Restart", ConsoleKey.F5),
+        new("Stop", ConsoleKey.F7),
+        new("Start", ConsoleKey.F9)
+    }
+
+    )
+    {
+        string operation = definition.Label;
+        options.Command.Add(Ui.Command()
+            .Key(operation)
+            .Label(operation)
+            .Configure(o => o.Action = async (context, cancellation) =>
+            {
+                foreach (object? row in context.Rows)
+                {
+                    string name = row switch
+                    {
+                        Service service => service.Name,
+                        ServiceRefresh refreshed => refreshed.Name,
+                        _ => string.Empty
+                    };
+                    if (operation == "Restart")
+                    {
+                        context.Write($"Stopping {name} (Lab)");
+                        await Task.Delay(1000, cancellation);
+                        context.Write($"Starting {name} (Lab)");
+                    }
+                    else
+                    {
+                        context.Write($"{operation} {name} (Lab)");
+                    }
+
+                    await Task.Delay(1000, cancellation);
+                    context.Write($"Verifying {name}");
+                    await Task.Delay(700, cancellation);
+                }
+            })
+            .Shortcut(new KeyChord(definition.Shortcut))
+            .ConfirmPrompt(operation + " {Selection}?")
+            .Build());
+    }
+
+    // Refresh the acted-on snapshot on the input thread, preserving selection and row position.
+    options.Configure(configured => configured.RefreshRow = (command, row) =>
+    {
+        var values = row.Values.ToArray();
+        string status = command.Key == "Stop" ? "Stopped" : "Running";
+        values[1] = status;
+        values[4] = command.Key == "Stop" ? 0 : Convert.ToInt32(values[4]) + 100;
+        var item = new ServiceRefresh(values[0]?.ToString() ?? string.Empty, status);
+        return new GridRow(item, values);
+    });
+});
 
 record Service(string Name, string Status, string StartType, string DisplayName, int ProcessId,
     string Account, string DependsOn, string Description);

@@ -42,8 +42,8 @@ IWidget Frame(int tick)
             lane.Value(tick == 6 ? 100000 : tick * 3200 + id * 97 % 400);
             lane.Failed((int)lane.Value / 97);
             lane.Warned((int)lane.Value / 17);
-            lane.Passed((int)lane.Value - lane.Failed - lane.Warned);
-            lane.Status(tick == 6 ? StatusKind.Pass : StatusKind.Running);
+            lane.Passed((int)lane.Value - lane.Failed - lane.Warned)
+                .Status(tick == 6 ? StatusKind.Pass : StatusKind.Running);
             lane.Detail(actions[(id + tick) % actions.Length] + " item " + Number(lane.Value));
         }
     }
@@ -64,20 +64,20 @@ IWidget Frame(int tick)
                     CultureInfo.InvariantCulture) + "% of 8 cores")
         .Add("Stray writes", (tick * 4).ToString(CultureInfo.InvariantCulture))
         .Add("Dropped / errors", "0 / 0");
-    Sparkline rate = Ui.Chart()
-        .Type(ConsoleMonster.Widgets.ChartType.Sparkline)
+    Sparkline rate = (Sparkline)Ui.Chart()
+        .Type(ChartType.Sparkline)
         .WidgetId("rate")
         .Height(3)
         .Unit("/s")
-        .Build<Sparkline>();
+        .Build();
     rate.AddRange(sampleRates.Take(samples));
-    LineChart cpu = Ui.Chart()
-        .Type(ConsoleMonster.Widgets.ChartType.Line)
+    LineChart cpu = (LineChart)Ui.Chart()
+        .Type(ChartType.Line)
         .WidgetId("cpu")
         .Height(6)
         .Minimum(0)
         .Unit("%")
-        .Build<LineChart>();
+        .Build();
     cpu.AddSeries("cpu", ThemeToken.Accent2);
     foreach (double value in sampleCpu.Take(samples))
         cpu.Add("cpu", value);
@@ -87,12 +87,12 @@ IWidget Frame(int tick)
             i % 7 == 0 ? "err" : "info");
     Rows body = Ui.Rows().Content(c3 =>
     {
-        c3.Columns(cmColumns => cmColumns.Add(Ui.Panel().Title("Workers").Content(c =>
+        c3.Columns(columns => columns.Add(Ui.Panel().Title("Workers").Content(c =>
         {
             c.Add(lanes);
         }), LayoutSize.Fraction(2.2)).Add(Ui.Panel().Title("Session").Content(c2 =>
         {
-            c2.Rows(cmRows => cmRows.Content(c =>
+            c2.Rows(r => r.Content(c =>
             {
                 c.Add(stats);
                 c.Rule("updates/s");

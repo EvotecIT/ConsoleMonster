@@ -57,8 +57,8 @@ var table = Ui.Table(stale)
     .Column(row => row.LastLogon)
     .Column(row => row.Inactive)
     .Column(row => row.PasswordAge)
-    .Column(row => row.Status, column => column.Presenter(CellPresenters.StatusWord));
-table.Expand();
+    .Column(row => row.Status, column => column.Presenter(CellPresenters.StatusWord))
+    .Expand();
 var calendar = Ui.Calendar()
     .Year(2026)
     .Month(11)
@@ -73,13 +73,13 @@ var report = Ui.Rows().Gap(1).Content(c3 =>
 {
     c3.Rule("[bold]Account hygiene[/] [muted]· adatum.example.test · as of 2026-11-02[/]");
     c3.Add(table);
-    c3.Columns(cmColumns => cmColumns.Content(c2 =>
+    c3.Columns(columns => columns.Content(c2 =>
     {
-        c2.Panel(cmPanel => cmPanel.Title("November").Content(c =>
+        c2.Panel(p => p.Title("November").Content(c =>
         {
             c.Add(calendar);
         }));
-        c2.Panel(cmPanel => cmPanel.Title("Coming up").Content(c =>
+        c2.Panel(p => p.Title("Coming up").Content(c =>
         {
             c.Add(upcoming);
         }));

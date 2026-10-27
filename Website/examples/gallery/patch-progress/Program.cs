@@ -26,7 +26,8 @@ IWidget Summary(IReadOnlyList<RunResult<string, string>> outcomes)
         .Column(row => row.Result, column => column.Presenter = CellPresenters.StatusWord);
 
     string summary = outcomes.Count > 0
-        ? $"[pass]{outcomes.Count(result => result.Succeeded)} passed[/]  [warn]{outcomes.Count(result => !result.Succeeded)} retry needed[/]"
+        ? ($"[pass]{outcomes.Count(result => result.Succeeded)} passed[/]  [warn]"
+            + $"{outcomes.Count(result => !result.Succeeded)} retry needed[/]")
         : "[muted]Ctrl+C cancels active work.[/]";
     return new Rows(
         new TextBlock("[bold]Parallel patch run[/] [muted]· throttle 3[/]"),

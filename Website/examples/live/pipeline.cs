@@ -86,7 +86,9 @@ Table summary = new Table()
 
 // Planned step durations drive the displayed clocks; session delays keep normal playback paced in real time.
 SimulatedClock clock = new SimulatedClock();
-using (LiveSession session = new LiveSession(dashboard, new LiveSessionOptions { Clock = clock.Read, Summary = new Padding(summary, 1, 1, 1, 1) })) {
+using (LiveSession session = new LiveSession(
+    dashboard,
+    new LiveSessionOptions { Clock = clock.Read, Summary = new Padding(summary, 1, 1, 1, 1) })) {
     session.Run(Build);
 }
 
@@ -152,7 +154,8 @@ void Build(LiveSession session) {
     moduleHandle.Set("Elapsed", NumberFormat.Duration(clock.Elapsed));
     progressHandle.Complete(StatusKind.Pass);
     Console.WriteLine("Build completed: 2 artefacts in Artefacts\\ (nupkg, zip)");
-    session.Post(new LiveEvent("dashboard", "status", text: "build succeeded with 1 warning", status: "warn"));
+    session.Post(new LiveEvent("dashboard", "status", text: "build succeeded with 1 warning",
+        status: "warn"));
     session.Delay(TimeSpan.FromMilliseconds(1500));
 }
 
@@ -163,4 +166,5 @@ static StatusKind Worst(List<StatusKind> results) =>
     : StatusKind.Pass;
 // </more>
 
-record Step(string Phase, string Key, string Label, double Seconds, StatusKind Result, params string[] Output);
+record Step(string Phase, string Key, string Label, double Seconds, StatusKind Result,
+    params string[] Output);

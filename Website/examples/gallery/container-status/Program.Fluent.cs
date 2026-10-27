@@ -92,29 +92,29 @@ IWidget Frame(int tick)
         .Column("CPU %", row => row.Cpu)
         .Column("Memory MiB", row => row.Memory)
         .Column("Memory %", row => row.MemoryPercent)
-        .Column(row => row.Status, column => column.Presenter(CellPresenters.StatusWord));
-    table.Expand();
-    var cpu = Ui.Chart()
-        .Type(ConsoleMonster.Widgets.ChartType.Bar)
+        .Column(row => row.Status, column => column.Presenter(CellPresenters.StatusWord))
+        .Expand();
+    var cpu = (BarChart)Ui.Chart()
+        .Type(ChartType.Bar)
         .WidgetId("cpu")
         .Maximum(100)
         .Warning(70)
         .Critical(90)
-        .Build<BarChart>();
-    var memory = Ui.Chart()
-        .Type(ConsoleMonster.Widgets.ChartType.Bar)
+        .Build();
+    var memory = (BarChart)Ui.Chart()
+        .Type(ChartType.Bar)
         .WidgetId("memory")
         .Maximum(100)
         .Warning(80)
         .Critical(90)
-        .Build<BarChart>();
+        .Build();
     foreach (var row in rows)
     {
         cpu.Add(row.Container, row.Cpu);
         memory.Add(row.Container, row.MemoryPercent);
     }
 
-    IWidget feed = Ui.Text().Content("[muted]No restarts or memory warnings yet.[/]").IsMarkup();
+    IWidget feed = Ui.Markup("[muted]No restarts or memory warnings yet.[/]");
     if (events.Count > 0)
     {
         var list = Ui.StatusList();
@@ -125,25 +125,24 @@ IWidget Frame(int tick)
 
     return Ui.Rows().Gap(1).Content(c3 =>
     {
-        c3.Rule(
-            $"[bold]Containers[/] [muted]· docker-01.adatum.example.test · refresh 2s · {clock}[/]");
-        c3.Text(
-            c3Text => c3Text.Content(
-                $"[pass]{rows.Count - restarting} running[/]   [warn]{restarting} restarting[/]   [muted]memory {memoryTotal:N0} of {limitTotal:N0} MiB reserved[/]")
-                .IsMarkup());
+        c3.Rule(($"[bold]Containers[/] [muted]· docker-01.adatum.example.test · refresh 2s · "
+            + $"{clock}[/]"));
+        c3.Markup(($"[pass]{rows.Count - restarting} running[/]   [warn]{restarting} "
+            + $"restarting[/]   [muted]memory {memoryTotal:N0} of {limitTotal:N0} MiB "
+            + $"reserved[/]"));
         c3.Add(table);
-        c3.Columns(cmColumns => cmColumns.Content(c2 =>
+        c3.Columns(columns => columns.Content(c2 =>
         {
-            c2.Panel(cmPanel => cmPanel.Title("CPU %").Content(c =>
+            c2.Panel(p => p.Title("CPU %").Content(c =>
             {
                 c.Add(cpu);
             }));
-            c2.Panel(cmPanel => cmPanel.Title("Memory % of limit").Content(c =>
+            c2.Panel(p => p.Title("Memory % of limit").Content(c =>
             {
                 c.Add(memory);
             }));
         }));
-        c3.Panel(cmPanel => cmPanel.Title("Events").Content(c =>
+        c3.Panel(p => p.Title("Events").Content(c =>
         {
             c.Add(feed);
         }));

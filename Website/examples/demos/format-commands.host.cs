@@ -20,11 +20,18 @@ $services = @(
 
 
         } | Microsoft.PowerShell.Core\Out-Default");
-        ConsoleHostFormatting.Enable(this, new ConsoleFormattingOptions { Feature = new[] { ConsoleFormattingFeature.FormatCommands } });
+        ConsoleHostFormatting.Enable(
+            this,
+            new ConsoleFormattingOptions
+            {
+                Feature = new[] { ConsoleFormattingFeature.FormatCommands }
+            });
         try { InvokeCommand.InvokeScript(inventory + @"# The same commands, drawn by ConsoleMonster
         $services | Format-Table Name, Status, StartType -AutoSize
         $services[0] | Format-List Name, Status, StartType
         $services | Format-Wide Name -Column 3"); }
-        finally { ConsoleHostFormatting.Disable(this, new[] { ConsoleFormattingFeature.FormatCommands }); }
+        finally { ConsoleHostFormatting.Disable(
+            this,
+            new[] { ConsoleFormattingFeature.FormatCommands }); }
     }
 }

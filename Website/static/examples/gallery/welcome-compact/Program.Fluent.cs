@@ -11,7 +11,7 @@ string workspace = "[muted]Workspace[/] comet-notes   [muted]Branch[/] main   [p
 string tip = "[muted]Tip[/] Get-Help Show-Console -Examples";
 
 // Layout: compose the greeting from the data above.
-TextBlock layout = Ui.Text().Content($"{greeting}\n{workspace}\n{tip}").IsMarkup();
+TextBlock layout = Ui.Markup($"{greeting}\n{workspace}\n{tip}");
 
 // Behaviour: print the screen once and return.
 layout.Show();

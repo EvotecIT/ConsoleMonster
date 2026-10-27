@@ -29,33 +29,24 @@ IWidget Results(string query)
         .Column(row => row.Status, column => column.Presenter(CellPresenters.StatusWord));
     Rows result = Ui.Rows().Content(c =>
     {
-        c.Text(
-            cText => cText.Content(
-                rows.Length.ToString(System.Globalization.CultureInfo.InvariantCulture)
-                    + " of "
-                    + hosts.Length.ToString(System.Globalization.CultureInfo.InvariantCulture)
-                        + " hosts")
-                .IsMarkup());
+        c.Markup(rows.Length.ToString(System.Globalization.CultureInfo.InvariantCulture) + " of "
+            + hosts.Length.ToString(System.Globalization.CultureInfo.InvariantCulture) + " hosts");
         c.Add(table);
     });
     if (rows.Length == 0)
-        result.Add(Ui.Text()
-            .Content("[muted]No matching hosts. Backspace to broaden the filter.[/]")
-            .IsMarkup());
+        result.Add(Ui.Markup("[muted]No matching hosts. Backspace to broaden the filter.[/]"));
     return result;
 }
 
 Rows layout = Ui.Rows().Gap(1).Content(c =>
 {
-    c.Text(cText => cText.Content("[bold]Live filter[/] [muted]· host inventory[/]").IsMarkup());
-    c.TextInput(cmTextInput => cmTextInput.Key("Query")
+    c.Markup("[bold]Live filter[/] [muted]· host inventory[/]");
+    c.TextInput(textInput => textInput.Key("Query")
         .Value(string.Empty)
         .Label("Filter")
         .Placeholder("Host, role, site or status"));
-    c.Binding(
-        cmBinding => cmBinding.Configure(
-            cmDefinition => cmDefinition.Content = state => Results(state.Get<string>(
-                "Query", string.Empty))));
+    c.Binding(binding => binding.Configure(o => o.Content = state => Results(state.Get<string>(
+        "Query", string.Empty))));
 });
 
 // Behaviour: edit controls to update the view; Escape exits the app.

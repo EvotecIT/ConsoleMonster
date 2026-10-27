@@ -34,20 +34,18 @@ Pair[] context =
 };
 FlowNode[] nodes =
 {
-    new global::ConsoleMonster.Widgets.FlowNode("client", "client", StatusKind.Pass),
-    new global::ConsoleMonster.Widgets.FlowNode("host", "host:443", StatusKind.Pass),
-    new global::ConsoleMonster.Widgets.FlowNode("leaf", "leaf", StatusKind.Pass),
-    new global::ConsoleMonster.Widgets.FlowNode("intermediate", "intermediate", chainStatus),
-    new global::ConsoleMonster.Widgets.FlowNode("root", "root",
-        expired ? StatusKind.Skip : StatusKind.Pass)
+    new FlowNode("client", "client", StatusKind.Pass),
+    new FlowNode("host", "host:443", StatusKind.Pass),
+    new FlowNode("leaf", "leaf", StatusKind.Pass),
+    new FlowNode("intermediate", "intermediate", chainStatus),
+    new FlowNode("root", "root", expired ? StatusKind.Skip : StatusKind.Pass)
 };
 FlowEdge[] edges =
 {
-    new global::ConsoleMonster.Widgets.FlowEdge("connect", "client", "host", ":443"),
-    new global::ConsoleMonster.Widgets.FlowEdge("tls", "host", "leaf", "TLS"),
-    new global::ConsoleMonster.Widgets.FlowEdge("issuer", "leaf", "intermediate", "issuer",
-        chainStatus, expired),
-    new global::ConsoleMonster.Widgets.FlowEdge("anchor", "intermediate", "root", "anchor")
+    new FlowEdge("connect", "client", "host", ":443"),
+    new FlowEdge("tls", "host", "leaf", "TLS"),
+    new FlowEdge("issuer", "leaf", "intermediate", "issuer", chainStatus, expired),
+    new FlowEdge("anchor", "intermediate", "root", "anchor")
 };
 var flow = Ui.Flow("chain");
 foreach (FlowNode node in nodes)
@@ -55,7 +53,7 @@ foreach (FlowNode node in nodes)
 foreach (FlowEdge edge in edges)
     flow.Add(edge);
 if (expired)
-    flow.Branch(new FlowBranch("intermediate", "expired 2026-09-30", Status: StatusKind.Fail));
+    flow.Branch(new FlowBranch("intermediate", "expired 2026-09-30", default, StatusKind.Fail));
 var phases = Ui.Phases().StepCounter();
 foreach (Step step in steps)
     phases.Set(step.Key, step.Status, step.Label, step.Detail);
@@ -71,25 +69,19 @@ string action = expired
 int exitCode = expired ? 1 : 0;
 Ui.Rows().Gap(1).Content(c2 =>
 {
-    c2.Text(
-        c2Text => c2Text.Content(
-            "[bold accent]TLS verdict[/]  [muted]Follow the chain. Verify the trust.[/]")
-            .IsMarkup());
-    c2.Panel(cmPanel => cmPanel.Title("Connection ledger").Content(c =>
+    c2.Markup("[bold accent]TLS verdict[/]  [muted]Follow the chain. Verify the trust.[/]");
+    c2.Panel(p => p.Title("Connection ledger").Content(c =>
     {
         c.Add(phases);
     }));
     c2.Add(facts);
     c2.Add(flow);
     c2.Rule("Trust decision");
-    c2.Panel(cmPanel => cmPanel.Content(cmContent =>
+    c2.Panel(p => p.Content(content =>
     {
-        cmContent.Text(cmText => cmText.Content(expired
-            ? "Chain validation failed."
-            : "Chain validation passed.")
-            .IsMarkup());
+        content.Markup(expired ? "Chain validation failed." : "Chain validation passed.");
     }).Title(verdict).Verdict().Status(chainStatus));
-    c2.KeyValue(cmKeyValue => cmKeyValue.KeyRole(chainStatus.ToToken())
+    c2.KeyValue(kv => kv.KeyRole(chainStatus.ToToken())
         .Add("Cause",
             expired ? "Expired intermediate certificate." : "Trusted root and complete chain.")
         .Add("Proof", proof)

@@ -72,7 +72,8 @@ foreach (string phase in phaseNames)
     phases.Set(
         phase,
         state,
-        detail: last <= completed ? Duration(group.Sum(item => item.Seconds)) : null);
+        default,
+        last <= completed ? Duration(group.Sum(item => item.Seconds)) : null);
 }
 
 StatusList status = Ui.StatusList("steps");
@@ -89,21 +90,21 @@ KeyValueList module = Ui.KeyValue("module")
     .Add(
         "Elapsed",
         completed == 0 ? "-" : Duration(steps.Take(completed).Sum(item => item.Seconds)));
-ProgressBar progress = Ui.Progress()
+ProgressBar progress = (ProgressBar)Ui.Progress()
     .Label("Overall")
     .WidgetId("overall")
     .Total(steps.Length)
     .Value(completed)
     .LabelWidth(8)
-    .Build<ProgressBar>();
+    .Build();
 Lanes compilers = Ui.Lanes("compilers");
 for (int i = 0; i < compilerNames.Length; i++)
 {
-    Lane lane = compilers.Add("c" + i, compilerNames[i], 1);
-    lane.Status(completed > i + 3
-        ? StatusKind.Pass
-        : completed == i + 3 ? StatusKind.Running : StatusKind.Pending);
-    lane.Value(completed > i + 3 ? 1 : 0);
+    Lane lane = compilers.Add("c" + i, compilerNames[i], 1)
+        .Status(completed > i + 3
+            ? StatusKind.Pass
+            : completed == i + 3 ? StatusKind.Running : StatusKind.Pending)
+        .Value(completed > i + 3 ? 1 : 0);
     lane.Passed((int)lane.Value);
     lane.Detail(lane.Value > 0
         ? "compiled"
@@ -122,16 +123,16 @@ if (completed < steps.Length)
     log.Write(PathText(steps[completed].Label) + "...");
 Rows body = Ui.Rows().Content(c3 =>
 {
-    c3.Padding(cmPadding => cmPadding.Bottom(1).Right(1).Top(0).Left(1).Content(c =>
+    c3.Padding(padding => padding.Bottom(1).Right(1).Top(0).Left(1).Content(c =>
     {
         c.Add(phases);
     }));
-    c3.Columns(cmColumns => cmColumns.Add(Ui.Panel().Title("Steps").Content(c =>
+    c3.Columns(columns => columns.Add(Ui.Panel().Title("Steps").Content(c =>
     {
         c.Add(status);
     }), LayoutSize.Fraction(1.5)).Add(Ui.Panel().Title("Module").Content(c2 =>
     {
-        c2.Rows(cmRows => cmRows.Content(c =>
+        c2.Rows(r => r.Content(c =>
         {
             c.Add(module);
             c.Rule();
@@ -152,8 +153,8 @@ Dashboard dashboard = Ui.Dashboard()
     .Title("[bold]Module build[/]")
     .Subtitle("Build-Module ConsoleMonster")
     .ShowElapsed(false)
-    .Footer(
-        "[muted]Prepare · Restore · Build · Test · Docs · Sign · Package · Publish    Ctrl+C stop[/]");
+    .Footer(("[muted]Prepare · Restore · Build · Test · Docs · Sign · Package · Publish    Ctrl+C "
+        + "stop[/]"));
 
 // Behaviour: native handles update each region while ordinary tool output is captured by the live session.
 using LiveSession session = dashboard.CreateSession();

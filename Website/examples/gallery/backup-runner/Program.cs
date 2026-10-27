@@ -36,8 +36,10 @@ IWidget Summary()
     string summary = attempts.Count == 0
         ? "[muted]4 jobs queued · destination ./backups/nightly[/]"
         : completed.Count < jobs.Length
-            ? $"[pass]{completed.Count} passed[/]   [warn]{jobs.Length - completed.Count} queued for retry[/]"
-            : $"[pass]{completed.Count} passed[/]   [accent]{recovered} recovered on retry[/]   [muted]retention: 14 days[/]";
+            ? ($"[pass]{completed.Count} passed[/]   [warn]{jobs.Length - completed.Count} "
+                + $"queued for retry[/]")
+            : ($"[pass]{completed.Count} passed[/]   [accent]{recovered} recovered on "
+                + $"retry[/]   [muted]retention: 14 days[/]");
     return new Rows(
         new Rule("[bold]Nightly backup[/] [muted]· throttle 2 · maximum 2 attempts[/]"),
         table,

@@ -125,7 +125,9 @@ string Drive(LiveSession session) {
         (process.TotalProcessorTime - cpuStart).TotalMilliseconds / (elapsed * 1000) * 100;
     return string.Format(
         CultureInfo.InvariantCulture,
-            "STRESS seconds={0:0.0} workers={1} posted={2} avgRate={3:0}/s peakRate={4:0}/s frames={5} fps={6:0.0} cpuOneCore={7:0.0}% cpuMachine={8:0.0}% captured={9} dropped={10} errors={11} runtime={12}",
+            ("STRESS seconds={0:0.0} workers={1} posted={2} avgRate={3:0}/s "
+                + "peakRate={4:0}/s frames={5} fps={6:0.0} cpuOneCore={7:0.0}% "
+                + "cpuMachine={8:0.0}% captured={9} dropped={10} errors={11} runtime={12}"),
             elapsed,
         Workers,
         session.EventsPosted,

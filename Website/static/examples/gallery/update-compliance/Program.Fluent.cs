@@ -30,7 +30,7 @@ var states = new State[]
 };
 
 // Behaviour: count each state, keep the hosts that need work and flag anything unpatched for 30+ days.
-var byState = Ui.Chart().Type(ConsoleMonster.Widgets.ChartType.Stacked).Build<StackedBar>();
+var byState = (StackedBar)Ui.Chart().Type(ChartType.Stacked).Build();
 foreach (var state in states)
     byState.Add(state.Label, servers.Count(server => server.State == state.Label), state.Role);
 var attention = servers.Where(server => server.State != "Compliant").ToArray();
@@ -47,17 +47,17 @@ var table = Ui.Table(attention)
     .Column(row => row.Missing)
     .Column(row => row.LastPatched)
     .Column(row => row.Days)
-    .Column(row => row.Status, column => column.Presenter(CellPresenters.StatusWord));
-table.Expand();
+    .Column(row => row.Status, column => column.Presenter(CellPresenters.StatusWord))
+    .Expand();
 var report = Ui.Rows().Gap(1).Content(c2 =>
 {
     c2.Rule("[bold]Windows Update compliance[/] [muted]· 2026-10 cumulative · as of 2026-10-20[/]");
-    c2.Panel(cmPanel => cmPanel.Content(cmContent =>
+    c2.Panel(p => p.Content(content =>
     {
-        cmContent.Add(byState);
+        content.Add(byState);
     }).Title($"Fleet · {servers.Length} servers"));
     c2.Add(table);
-    c2.Panel(cmPanel => cmPanel.Title("Overdue · unpatched for more than 30 days").Content(c =>
+    c2.Panel(p => p.Title("Overdue · unpatched for more than 30 days").Content(c =>
     {
         c.Add(overdue);
     }));

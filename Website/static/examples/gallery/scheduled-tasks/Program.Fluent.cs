@@ -32,8 +32,8 @@ var table = Ui.Table(tasks)
     .Column(row => row.LastRun)
     .Column(row => row.Result)
     .Column(row => row.NextRun)
-    .Column(row => row.Status, column => column.Presenter(CellPresenters.StatusWord));
-table.Expand();
+    .Column(row => row.Status, column => column.Presenter(CellPresenters.StatusWord))
+    .Expand();
 var traces = Ui.Columns();
 foreach (var failure in failures)
 {
@@ -47,9 +47,9 @@ foreach (var failure in failures)
         .KeyRole(ThemeToken.Fail)
         .Add("Cause", failure.Cause)
         .Add("Fix", failure.Fix);
-    traces.Add(Ui.Panel().Content(cmContent =>
+    traces.Add(Ui.Panel().Content(content =>
     {
-        cmContent.Rows(cmRows => cmRows.Gap(1).Content(c =>
+        content.Rows(r => r.Gap(1).Content(c =>
         {
             c.Add(flow);
             c.Add(details);

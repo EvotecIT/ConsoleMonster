@@ -17,7 +17,8 @@ var records = new QueryRecord[]
     new(domain, "TXT", 3600,
         "v=spf1 include:spf.example.test include:relay.example.test ip4:203.0.113.9 -all"),
     new("_dmarc." + domain, "TXT", 3600,
-        "v=DMARC1; p=reject; rua=mailto:dmarc@example.test; ruf=mailto:forensic@example.test; fo=1"),
+        ("v=DMARC1; p=reject; rua=mailto:dmarc@example.test; "
+            + "ruf=mailto:forensic@example.test; fo=1")),
     new(domain, "CAA", 3600, "0 issue \"ca.example.test\""),
     new(domain, "SOA", 3600,
         "ns1.example.test. hostmaster.example.test. 2026102401 10000 2400 604800 3600")
@@ -53,12 +54,11 @@ var table = Ui.Table(records)
     .Column(row => row.Type)
     .Column(row => row.TTL, column =>
     {
-        column.Header("TTL");
-        column.Alignment(HorizontalAlignment.Right);
+        column.Header("TTL").Alignment(HorizontalAlignment.Right);
     })
-    .Column(row => row.Data, column => column.Flexible());
-table.Expand();
-table.HeaderSeparator(false);
+    .Column(row => row.Data, column => column.Flexible())
+    .Expand()
+    .HeaderSeparator(false);
 Tree delegation = Ui.Tree().Title("[bold].[/] [muted]root[/]");
 TreeNode test = delegation.Add("[bold]test.[/]", null, "reserved namespace");
 test.Add("ns.test", null, "192.0.2.42");
@@ -69,30 +69,26 @@ zone.Add("mail", null, "MX target").Add("mail.example.test", StatusKind.Pass, "1
 StatusList mail = Ui.StatusList();
 foreach (var(label, status, detail)in checks)
     mail.Add(label, status, detail);
-BarChart latency = Ui.Chart()
-    .Type(ConsoleMonster.Widgets.ChartType.Bar)
-    .WidgetId("latency")
-    .Unit(" ms")
-    .Build<BarChart>();
+BarChart latency = (BarChart)Ui.Chart().Type(ChartType.Bar).WidgetId("latency").Unit(" ms").Build();
 foreach (var(label, value)in resolvers)
     latency.Add(label, value);
 IWidget report = Ui.Rows().Gap(1).Content(c4 =>
 {
     c4.Rule("[bold]DNS query results[/] [muted]· example.test[/]");
-    c4.Padding(cmPadding => cmPadding.Bottom(0).Right(1).Top(0).Left(1).Content(c =>
+    c4.Padding(padding => padding.Bottom(0).Right(1).Top(0).Left(1).Content(c =>
     {
         c.Add(summary);
     }));
     c4.Add(table);
-    c4.Columns(cmColumns => cmColumns.Content(c3 =>
+    c4.Columns(columns => columns.Content(c3 =>
     {
-        c3.Panel(cmPanel => cmPanel.Title("Delegation").Content(c =>
+        c3.Panel(p => p.Title("Delegation").Content(c =>
         {
             c.Add(delegation);
         }));
-        c3.Panel(cmPanel => cmPanel.Title("Mail security").Content(c2 =>
+        c3.Panel(p => p.Title("Mail security").Content(c2 =>
         {
-            c2.Rows(cmRows => cmRows.Gap(0).Content(c =>
+            c2.Rows(r => r.Gap(0).Content(c =>
             {
                 c.Add(mail);
                 c.Rule();

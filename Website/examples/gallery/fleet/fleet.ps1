@@ -437,7 +437,8 @@ function Get-Result {
         $Work
     )
 
-    $summary = "$($Work.Count) checks on $(@($Work.Node.Name | Select-Object -Unique).Count) servers. Review the findings and choose the next action."
+    $summary = ("$($Work.Count) checks on $(@($Work.Node.Name | Select-Object -Unique).Count) servers. " +
+        "Review the findings and choose the next action.")
     # Retain the current run for next actions on the menu's owning thread.
     $next = [ordered] @{
         'View report' = {

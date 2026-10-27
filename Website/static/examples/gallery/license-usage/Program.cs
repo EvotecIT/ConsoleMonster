@@ -57,7 +57,8 @@ var report = new Rows(
     new Columns(new Panel(bars, "Assigned of purchased"), new Panel(savings, "Reclaim first")),
     table,
     new TextBlock(
-        $"[warn]${monthlyWaste:N0} a month[/] pays for {unusedSeats} unassigned seats. [muted]Reclaim before the renewal date.[/]"))
+        ($"[warn]${monthlyWaste:N0} a month[/] pays for {unusedSeats} unassigned seats. "
+            + $"[muted]Reclaim before the renewal date.[/]")))
 {
     Gap = 1
 };

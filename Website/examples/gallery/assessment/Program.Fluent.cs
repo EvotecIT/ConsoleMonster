@@ -9,160 +9,117 @@ using ConsoleMonster;
 // Data: fictional targets and rules, generated entirely in memory. No network checks or files are written.
 SyntheticRule[] DcRules = new SyntheticRule[]
 {
-    new(Category: "Domain controllers", Name: "LDAP signing required",
-        FailReason: "LDAPServerIntegrity is 1 (signing not required)",
-        WarnReason: "12 unsigned binds in the last 24h", Weight: 1.0),
-    new(Category: "Domain controllers", Name: "LDAP channel binding",
-        FailReason: "LdapEnforceChannelBinding is 0",
-        WarnReason: "channel binding set to 'when supported'", Weight: 1.0),
-    new(Category: "Domain controllers", Name: "SMB signing enforced",
-        FailReason: "RequireSecuritySignature is disabled",
-        WarnReason: "SMB1 client still installed", Weight: 1.0),
-    new(Category: "Domain controllers", Name: "Print Spooler disabled",
-        FailReason: "Spooler service is running", WarnReason: "Spooler set to manual start",
-        Weight: 1.0),
-    new(Category: "Domain controllers", Name: "LSA protection enabled",
-        FailReason: "RunAsPPL is not set", WarnReason: "RunAsPPL set without UEFI lock",
-        Weight: 1.0),
-    new(Category: "Domain controllers", Name: "Credential Guard posture",
-        FailReason: "virtualization-based security is off",
-        WarnReason: "Credential Guard configured but not running", Weight: 1.4),
-    new(Category: "Domain controllers", Name: "Secure Boot certificate rollout",
-        FailReason: "2023 CA certificate not applied", WarnReason: "update staged, reboot pending",
-        Weight: 1.0),
-    new(Category: "Domain controllers", Name: "Windows Update compliance",
-        FailReason: "last cumulative update 94 days ago",
-        WarnReason: "update installed, restart pending", Weight: 2.2),
-    new(Category: "Domain controllers", Name: "Operating system support",
-        FailReason: "Windows Server 2012 R2 is out of support",
-        WarnReason: "support ends in 11 months", Weight: 1.0),
-    new(Category: "Domain controllers", Name: "NTLM audit configuration",
-        FailReason: "NTLM auditing is disabled",
-        WarnReason: "audit enabled for incoming traffic only", Weight: 1.0),
-    new(Category: "Replication", Name: "Replication latency per partner",
-        FailReason: "no successful inbound replication from DC02 for 4h",
-        WarnReason: "latency to DC05 is 42 minutes", Weight: 2.6),
-    new(Category: "Replication", Name: "USN rollback detection",
-        FailReason: "event 2095 logged (USN rollback suspected)",
-        WarnReason: "invocation ID changed after restore", Weight: 1.8),
-    new(Category: "Replication", Name: "SYSVOL DFSR state",
-        FailReason: "DFSR state is 'In Error' (5)", WarnReason: "DFSR backlog of 37 files",
-        Weight: 1.5),
-    new(Category: "Replication", Name: "Tombstone lifetime",
-        FailReason: "tombstone lifetime is 60 days",
-        WarnReason: "tombstone lifetime not set explicitly", Weight: 1.0),
-    new(Category: "Replication", Name: "Lingering objects",
-        FailReason: "3 lingering objects in the configuration partition",
-        WarnReason: "strict replication consistency is off", Weight: 2.0),
-    new(Category: "DNS", Name: "DNS forwarders consistency",
-        FailReason: "forwarders differ from the domain baseline",
-        WarnReason: "one forwarder does not answer", Weight: 1.0),
-    new(Category: "DNS", Name: "DNS scavenging", FailReason: "scavenging disabled on all zones",
-        WarnReason: "no-refresh interval longer than 7 days", Weight: 1.0),
-    new(Category: "DNS", Name: "Root hints reachable",
-        FailReason: "4 of 13 root servers unreachable",
-        WarnReason: "root hints file older than 2 years", Weight: 1.6),
-    new(Category: "DNS", Name: "DC locator SRV records",
-        FailReason: "_ldap._tcp.dc._msdcs record missing",
-        WarnReason: "stale SRV record for a retired DC", Weight: 1.0),
-    new(Category: "Time", Name: "Time source hierarchy",
-        FailReason: "PDC emulator syncs from the local CMOS clock",
-        WarnReason: "NTP server configured by IP address", Weight: 1.0),
-    new(Category: "Time", Name: "Clock skew",
-        FailReason: "clock skew of 7 minutes against the PDC emulator",
-        WarnReason: "clock skew of 48 seconds", Weight: 1.0),
-    new(Category: "Kerberos", Name: "Kerberos AES-only encryption",
-        FailReason: "RC4 still allowed for Kerberos", WarnReason: "3 accounts without AES keys",
-        Weight: 1.0),
-    new(Category: "Kerberos", Name: "krbtgt password age",
-        FailReason: "krbtgt password not changed for 812 days",
-        WarnReason: "krbtgt password is 190 days old", Weight: 1.0),
-    new(Category: "Kerberos", Name: "Unconstrained delegation",
-        FailReason: "2 servers trusted for unconstrained delegation",
-        WarnReason: "1 service account trusted for delegation", Weight: 1.0),
-    new(Category: "Security", Name: "Audit policy baseline",
-        FailReason: "advanced audit policy not applied",
-        WarnReason: "logon auditing set to success only", Weight: 1.3),
-    new(Category: "Security", Name: "Event log sizes",
-        FailReason: "Security log is 20 MB and overwrites in 2 hours",
-        WarnReason: "Directory Service log under 64 MB", Weight: 1.0),
-    new(Category: "Security", Name: "Local administrators",
-        FailReason: "4 unexpected members in BUILTIN\\Administrators",
-        WarnReason: "nested group in BUILTIN\\Administrators", Weight: 1.0),
-    new(Category: "Security", Name: "Firewall profile",
-        FailReason: "domain firewall profile is disabled",
-        WarnReason: "inbound rule allows any remote address", Weight: 1.0),
-    new(Category: "Security", Name: "Remote Desktop exposure",
-        FailReason: "RDP allowed without network level authentication",
-        WarnReason: "RDP open to all internal subnets", Weight: 1.0),
-    new(Category: "Security", Name: "PowerShell logging",
-        FailReason: "script block logging is disabled", WarnReason: "transcription not configured",
-        Weight: 1.0)
+    new("Domain controllers", "LDAP signing required",
+        "LDAPServerIntegrity is 1 (signing not required)", "12 unsigned binds in the last 24h",
+        1.0),
+    new("Domain controllers", "LDAP channel binding", "LdapEnforceChannelBinding is 0",
+        "channel binding set to 'when supported'", 1.0),
+    new("Domain controllers", "SMB signing enforced", "RequireSecuritySignature is disabled",
+        "SMB1 client still installed", 1.0),
+    new("Domain controllers", "Print Spooler disabled", "Spooler service is running",
+        "Spooler set to manual start", 1.0),
+    new("Domain controllers", "LSA protection enabled", "RunAsPPL is not set",
+        "RunAsPPL set without UEFI lock", 1.0),
+    new("Domain controllers", "Credential Guard posture", "virtualization-based security is off",
+        "Credential Guard configured but not running", 1.4),
+    new("Domain controllers", "Secure Boot certificate rollout", "2023 CA certificate not applied",
+        "update staged, reboot pending", 1.0),
+    new("Domain controllers", "Windows Update compliance", "last cumulative update 94 days ago",
+        "update installed, restart pending", 2.2),
+    new("Domain controllers", "Operating system support",
+        "Windows Server 2012 R2 is out of support", "support ends in 11 months", 1.0),
+    new("Domain controllers", "NTLM audit configuration", "NTLM auditing is disabled",
+        "audit enabled for incoming traffic only", 1.0),
+    new("Replication", "Replication latency per partner",
+        "no successful inbound replication from DC02 for 4h", "latency to DC05 is 42 minutes", 2.6),
+    new("Replication", "USN rollback detection", "event 2095 logged (USN rollback suspected)",
+        "invocation ID changed after restore", 1.8),
+    new("Replication", "SYSVOL DFSR state", "DFSR state is 'In Error' (5)",
+        "DFSR backlog of 37 files", 1.5),
+    new("Replication", "Tombstone lifetime", "tombstone lifetime is 60 days",
+        "tombstone lifetime not set explicitly", 1.0),
+    new("Replication", "Lingering objects", "3 lingering objects in the configuration partition",
+        "strict replication consistency is off", 2.0),
+    new("DNS", "DNS forwarders consistency", "forwarders differ from the domain baseline",
+        "one forwarder does not answer", 1.0),
+    new("DNS", "DNS scavenging", "scavenging disabled on all zones",
+        "no-refresh interval longer than 7 days", 1.0),
+    new("DNS", "Root hints reachable", "4 of 13 root servers unreachable",
+        "root hints file older than 2 years", 1.6),
+    new("DNS", "DC locator SRV records", "_ldap._tcp.dc._msdcs record missing",
+        "stale SRV record for a retired DC", 1.0),
+    new("Time", "Time source hierarchy", "PDC emulator syncs from the local CMOS clock",
+        "NTP server configured by IP address", 1.0),
+    new("Time", "Clock skew", "clock skew of 7 minutes against the PDC emulator",
+        "clock skew of 48 seconds", 1.0),
+    new("Kerberos", "Kerberos AES-only encryption", "RC4 still allowed for Kerberos",
+        "3 accounts without AES keys", 1.0),
+    new("Kerberos", "krbtgt password age", "krbtgt password not changed for 812 days",
+        "krbtgt password is 190 days old", 1.0),
+    new("Kerberos", "Unconstrained delegation", "2 servers trusted for unconstrained delegation",
+        "1 service account trusted for delegation", 1.0),
+    new("Security", "Audit policy baseline", "advanced audit policy not applied",
+        "logon auditing set to success only", 1.3),
+    new("Security", "Event log sizes", "Security log is 20 MB and overwrites in 2 hours",
+        "Directory Service log under 64 MB", 1.0),
+    new("Security", "Local administrators", "4 unexpected members in BUILTIN\\Administrators",
+        "nested group in BUILTIN\\Administrators", 1.0),
+    new("Security", "Firewall profile", "domain firewall profile is disabled",
+        "inbound rule allows any remote address", 1.0),
+    new("Security", "Remote Desktop exposure", "RDP allowed without network level authentication",
+        "RDP open to all internal subnets", 1.0),
+    new("Security", "PowerShell logging", "script block logging is disabled",
+        "transcription not configured", 1.0)
 };
 SyntheticRule[] DomainRules = new SyntheticRule[]
 {
-    new(Category: "Group Policy", Name: "GPO permissions baseline",
-        FailReason: "Authenticated Users can edit 2 GPOs",
-        WarnReason: "a GPO without Authenticated Users read", Weight: 2.4),
-    new(Category: "Group Policy", Name: "Orphaned GPO folders",
-        FailReason: "5 SYSVOL folders without a GPO object",
-        WarnReason: "1 GPO object without a SYSVOL folder", Weight: 1.0),
-    new(Category: "Group Policy", Name: "Empty GPOs",
-        FailReason: "9 GPOs with no settings are linked", WarnReason: "3 unlinked empty GPOs",
-        Weight: 1.0),
-    new(Category: "Group Policy", Name: "LAPS policy",
-        FailReason: "no LAPS policy applies to member servers",
-        WarnReason: "legacy LAPS still deployed alongside Windows LAPS", Weight: 1.0),
-    new(Category: "Accounts", Name: "Stale computer accounts",
-        FailReason: "214 computers inactive for over 180 days",
-        WarnReason: "41 computers inactive for over 90 days", Weight: 1.8),
-    new(Category: "Accounts", Name: "Password never expires",
-        FailReason: "18 user accounts never expire their password",
-        WarnReason: "2 service accounts never expire their password", Weight: 1.0),
-    new(Category: "Accounts", Name: "Privileged group membership",
-        FailReason: "Domain Admins has 14 members",
-        WarnReason: "a disabled account is still in Enterprise Admins", Weight: 1.5),
-    new(Category: "Accounts", Name: "AdminSDHolder protected objects",
-        FailReason: "6 orphaned adminCount=1 accounts",
-        WarnReason: "AdminSDHolder ACL differs from the default", Weight: 1.0),
-    new(Category: "Accounts", Name: "Service account SPN hygiene",
-        FailReason: "duplicate SPN HTTP/intranet registered twice",
-        WarnReason: "3 SPNs on user accounts with old passwords", Weight: 1.4),
-    new(Category: "PKI", Name: "CA weak key size", FailReason: "issuing CA uses a 1024-bit RSA key",
-        WarnReason: "issuing CA certificate expires in 9 months", Weight: 1.0),
-    new(Category: "PKI", Name: "Certificate template exposure",
-        FailReason: "template allows SAN from the requester (ESC1)",
-        WarnReason: "template enrollable by Domain Users", Weight: 1.7),
-    new(Category: "Kerberos", Name: "Constrained delegation overview",
-        FailReason: "protocol transition allowed to DC services",
-        WarnReason: "delegation to CIFS on 2 servers", Weight: 1.0),
-    new(Category: "Forest", Name: "Recycle Bin enabled",
-        FailReason: "AD Recycle Bin is not enabled",
-        WarnReason: "deleted object lifetime is 60 days", Weight: 1.0),
-    new(Category: "Forest", Name: "Site link costs",
-        FailReason: "site link with cost 0 and 15-minute schedule gaps",
-        WarnReason: "2 site links use default cost 100", Weight: 1.0),
-    new(Category: "Forest", Name: "Subnets without sites",
-        FailReason: "11 client subnets are not mapped to a site",
-        WarnReason: "3 overlapping subnet definitions", Weight: 1.0),
-    new(Category: "Forest", Name: "Functional level",
-        FailReason: "domain functional level is Windows Server 2008 R2",
-        WarnReason: "forest functional level is behind the domains", Weight: 1.0)
+    new("Group Policy", "GPO permissions baseline", "Authenticated Users can edit 2 GPOs",
+        "a GPO without Authenticated Users read", 2.4),
+    new("Group Policy", "Orphaned GPO folders", "5 SYSVOL folders without a GPO object",
+        "1 GPO object without a SYSVOL folder", 1.0),
+    new("Group Policy", "Empty GPOs", "9 GPOs with no settings are linked", "3 unlinked empty GPOs",
+        1.0),
+    new("Group Policy", "LAPS policy", "no LAPS policy applies to member servers",
+        "legacy LAPS still deployed alongside Windows LAPS", 1.0),
+    new("Accounts", "Stale computer accounts", "214 computers inactive for over 180 days",
+        "41 computers inactive for over 90 days", 1.8),
+    new("Accounts", "Password never expires", "18 user accounts never expire their password",
+        "2 service accounts never expire their password", 1.0),
+    new("Accounts", "Privileged group membership", "Domain Admins has 14 members",
+        "a disabled account is still in Enterprise Admins", 1.5),
+    new("Accounts", "AdminSDHolder protected objects", "6 orphaned adminCount=1 accounts",
+        "AdminSDHolder ACL differs from the default", 1.0),
+    new("Accounts", "Service account SPN hygiene", "duplicate SPN HTTP/intranet registered twice",
+        "3 SPNs on user accounts with old passwords", 1.4),
+    new("PKI", "CA weak key size", "issuing CA uses a 1024-bit RSA key",
+        "issuing CA certificate expires in 9 months", 1.0),
+    new("PKI", "Certificate template exposure", "template allows SAN from the requester (ESC1)",
+        "template enrollable by Domain Users", 1.7),
+    new("Kerberos", "Constrained delegation overview", "protocol transition allowed to DC services",
+        "delegation to CIFS on 2 servers", 1.0),
+    new("Forest", "Recycle Bin enabled", "AD Recycle Bin is not enabled",
+        "deleted object lifetime is 60 days", 1.0),
+    new("Forest", "Site link costs", "site link with cost 0 and 15-minute schedule gaps",
+        "2 site links use default cost 100", 1.0),
+    new("Forest", "Subnets without sites", "11 client subnets are not mapped to a site",
+        "3 overlapping subnet definitions", 1.0),
+    new("Forest", "Functional level", "domain functional level is Windows Server 2008 R2",
+        "forest functional level is behind the domains", 1.0)
 };
 const int Workers = 6;
 IReadOnlyList<KeyValuePair<string, string>> Targets() => [
-    new(key: "dom-ad", value: "ad.adatum.com (domain)"),
-    new(key: "dom-eu", value: "eu.ad.adatum.com (domain)"),
-    new(key: "dc1", value: "DC01.ad.adatum.com"),
-    new(key: "dc2", value: "DC02.ad.adatum.com"),
-    new(key: "dc3", value: "DC03.ad.adatum.com"),
-    new(key: "dc4", value: "DC04.ad.adatum.com"),
-    new(key: "dc5", value: "DC05.ad.adatum.com"),
-    new(key: "dc6", value: "DC06.ad.adatum.com"),
-    new(key: "dc7", value: "DC07.eu.ad.adatum.com"),
-    new(key: "dc8", value: "DC08.eu.ad.adatum.com"),
-    new(key: "dc9", value: "DC09.eu.ad.adatum.com"),
-    new(key: "dc10", value: "DC10.eu.ad.adatum.com"),
+    new("dom-ad", "ad.adatum.com (domain)"),
+    new("dom-eu", "eu.ad.adatum.com (domain)"),
+    new("dc1", "DC01.ad.adatum.com"),
+    new("dc2", "DC02.ad.adatum.com"),
+    new("dc3", "DC03.ad.adatum.com"),
+    new("dc4", "DC04.ad.adatum.com"),
+    new("dc5", "DC05.ad.adatum.com"),
+    new("dc6", "DC06.ad.adatum.com"),
+    new("dc7", "DC07.eu.ad.adatum.com"),
+    new("dc8", "DC08.eu.ad.adatum.com"),
+    new("dc9", "DC09.eu.ad.adatum.com"),
+    new("dc10", "DC10.eu.ad.adatum.com"),
 ];
 int TotalRules = (2 * DomainRules.Length) + (10 * DcRules.Length);
 List<LiveEvent> Generate(int seed = 2026)
@@ -170,35 +127,35 @@ List<LiveEvent> Generate(int seed = 2026)
     Random random = new Random(seed);
     List<LiveEvent> events = new List<LiveEvent>();
     IReadOnlyList<KeyValuePair<string, string>> targets = Targets();
-    Add(events, 0, "dashboard", "status", text: "discovering forest", state: "running");
-    Add(events, 0, "phases", "state", "Discover", state: "running");
+    Add(events, 0, "dashboard", "status", default, "discovering forest", "running");
+    Add(events, 0, "phases", "state", "Discover", default, "running");
     foreach (KeyValuePair<string, string> target in targets)
     {
         int rules = target.Key.StartsWith("dom", StringComparison.Ordinal)
             ? DomainRules.Length
             : DcRules.Length;
-        Add(events, 0, "lanes", "add", target.Key, target.Value, total: rules);
+        Add(events, 0, "lanes", "add", target.Key, target.Value, default, 0, rules);
     }
 
-    Add(events, 400, "log", "write",
-        text: "Connecting to ad.adatum.com via LDAP (DC01.ad.adatum.com)", state: "info");
-    Add(events, 1300, "log", "write",
-        text: "Forest ad.adatum.com: 2 domains, 10 domain controllers, 4 sites", state: "info");
-    Add(events, 2100, "log", "write",
-        text: "DC10.eu.ad.adatum.com responded slowly (812 ms LDAP bind)", state: "warn");
-    Add(events, 2800, "phases", "state", "Discover", state: "pass");
-    Add(events, 2800, "phases", "state", "Collect", state: "running");
-    Add(events, 2800, "dashboard", "status", text: "collecting rule inputs", state: "running");
-    Add(events, 3600, "log", "write", text: "Collecting 18 data sources per domain controller",
-        state: "info");
-    Add(events, 5200, "log", "write", text: "Using cached schema snapshot from 2026-10-15",
-        state: "verbose");
-    Add(events, 6800, "phases", "state", "Collect", state: "pass");
-    Add(events, 6800, "phases", "state", "Evaluate", state: "running");
-    Add(events, 6800, "dashboard", "status",
-        text: "evaluating " + TotalRules.ToString(CultureInfo.InvariantCulture) + " rules on "
+    Add(events, 400, "log", "write", default,
+        "Connecting to ad.adatum.com via LDAP (DC01.ad.adatum.com)", "info");
+    Add(events, 1300, "log", "write", default,
+        "Forest ad.adatum.com: 2 domains, 10 domain controllers, 4 sites", "info");
+    Add(events, 2100, "log", "write", default,
+        "DC10.eu.ad.adatum.com responded slowly (812 ms LDAP bind)", "warn");
+    Add(events, 2800, "phases", "state", "Discover", default, "pass");
+    Add(events, 2800, "phases", "state", "Collect", default, "running");
+    Add(events, 2800, "dashboard", "status", default, "collecting rule inputs", "running");
+    Add(events, 3600, "log", "write", default, "Collecting 18 data sources per domain controller",
+        "info");
+    Add(events, 5200, "log", "write", default, "Using cached schema snapshot from 2026-10-15",
+        "verbose");
+    Add(events, 6800, "phases", "state", "Collect", default, "pass");
+    Add(events, 6800, "phases", "state", "Evaluate", default, "running");
+    Add(events, 6800, "dashboard", "status", default,
+        "evaluating " + TotalRules.ToString(CultureInfo.InvariantCulture) + " rules on "
             + Workers.ToString(CultureInfo.InvariantCulture) + " workers",
-        state: "running");
+        "running");
     double[] workerClock = new double[Workers];
     for (int w = 0; w < Workers; w++)
     {
@@ -230,10 +187,10 @@ List<LiveEvent> Generate(int seed = 2026)
         bool troubled = target.Key == "dc7";
         bool laneFailed = false;
         Add(events, t, "lanes", "state", target.Key, rules[0].Name, "running");
-        Add(events, t, "log", "write",
-            text: target.Value + ": evaluating "
-                + rules.Length.ToString(CultureInfo.InvariantCulture) + " rules",
-            state: "info");
+        Add(events, t, "log", "write", default,
+            target.Value + ": evaluating " + rules.Length.ToString(CultureInfo.InvariantCulture)
+                + " rules",
+            "info");
         for (int r = 0; r < rules.Length; r++)
         {
             SyntheticRule rule = rules[r];
@@ -246,23 +203,22 @@ List<LiveEvent> Generate(int seed = 2026)
             string result = PickResult(random, troubled && rule.Category == "Replication");
             string? next = r + 1 < rules.Length ? rules[r + 1].Name : "finishing";
             Add(events, t, "lanes", "advance", target.Key, next, result, 1);
-            Add(events, t, "durations", "add", value: seconds);
+            Add(events, t, "durations", "add", default, default, default, seconds);
             done++;
             completions.Add(t);
             switch (result)
             {
                 case "pass":
                     passed++;
-                    Add(events, t, "results", "add", "Passed", value: 1);
+                    Add(events, t, "results", "add", "Passed", default, default, 1);
                     break;
                 case "warn":
                     warned++;
-                    Add(events, t, "results", "add", "Warnings", value: 1);
+                    Add(events, t, "results", "add", "Warnings", default, default, 1);
                     if (Sample(random) < 0.5)
                     {
-                        Add(events, t, "log", "write",
-                            text: target.Value + ": " + rule.Name + " - " + rule.WarnReason,
-                            state: "warn");
+                        Add(events, t, "log", "write", default,
+                            target.Value + ": " + rule.Name + " - " + rule.WarnReason, "warn");
                     }
 
                     break;
@@ -270,15 +226,14 @@ List<LiveEvent> Generate(int seed = 2026)
                     failed++;
                     laneFailed = true;
                     failures.Add(t);
-                    Add(events, t, "results", "add", "Failed", value: 1);
-                    Add(events, t, "findings", "add", rule.Category, value: 1);
-                    Add(events, t, "log", "write",
-                        text: target.Value + ": " + rule.Name + " failed - " + rule.FailReason,
-                        state: "err");
+                    Add(events, t, "results", "add", "Failed", default, default, 1);
+                    Add(events, t, "findings", "add", rule.Category, default, default, 1);
+                    Add(events, t, "log", "write", default,
+                        target.Value + ": " + rule.Name + " failed - " + rule.FailReason, "err");
                     break;
                 default:
                     skipped++;
-                    Add(events, t, "results", "add", "Skipped", value: 1);
+                    Add(events, t, "results", "add", "Skipped", default, default, 1);
                     break;
             }
         }
@@ -297,20 +252,20 @@ List<LiveEvent> Generate(int seed = 2026)
 
     AddThroughput(events, completions, failures, 7000, evaluateEnd);
     AddSummaryUpdates(events, completions, targetFinishes, evaluateEnd);
-    Add(events, evaluateEnd, "phases", "state", "Evaluate", state: failed > 0 ? "warn" : "pass");
-    Add(events, evaluateEnd, "phases", "state", "Report", state: "running");
-    Add(events, evaluateEnd, "dashboard", "status", text: "writing report", state: "running");
-    Add(events, evaluateEnd + 900, "log", "write",
-        text: "Report written to Reports/Assessment-ad.adatum.com.html (4.2 MB)", state: "pass");
-    Add(events, evaluateEnd + 1800, "phases", "state", "Report", state: "pass");
+    Add(events, evaluateEnd, "phases", "state", "Evaluate", default, failed > 0 ? "warn" : "pass");
+    Add(events, evaluateEnd, "phases", "state", "Report", default, "running");
+    Add(events, evaluateEnd, "dashboard", "status", default, "writing report", "running");
+    Add(events, evaluateEnd + 900, "log", "write", default,
+        "Report written to Reports/Assessment-ad.adatum.com.html (4.2 MB)", "pass");
+    Add(events, evaluateEnd + 1800, "phases", "state", "Report", default, "pass");
     string final = done.ToString(CultureInfo.InvariantCulture) + " rules · "
         + passed.ToString(CultureInfo.InvariantCulture) + " passed · "
         + failed.ToString(CultureInfo.InvariantCulture) + " failed · "
         + warned.ToString(CultureInfo.InvariantCulture) + " warnings · "
         + skipped.ToString(CultureInfo.InvariantCulture) + " skipped";
-    Add(events, evaluateEnd + 1800, "dashboard", "status", text: final,
-        state: failed > 0 ? "warn" : "pass");
-    Add(events, evaluateEnd + 4500, "log", "write", text: "Done.", state: "info");
+    Add(events, evaluateEnd + 1800, "dashboard", "status", default, final,
+        failed > 0 ? "warn" : "pass");
+    Add(events, evaluateEnd + 4500, "log", "write", default, "Done.", "info");
 
     // Stable ordering: events with the same timestamp keep the order they were produced in.
     return events.OrderBy(e => e.Time).ToList();
@@ -339,8 +294,8 @@ void AddThroughput(List<LiveEvent> events, List<double> completions, List<double
             fi++;
         }
 
-        Add(events, second, "throughput", "add", "completed", value: count);
-        Add(events, second, "throughput", "add", "failed", value: failCount);
+        Add(events, second, "throughput", "add", "completed", default, default, count);
+        Add(events, second, "throughput", "add", "failed", default, default, failCount);
     }
 }
 
@@ -450,11 +405,10 @@ void Add(List<LiveEvent> events, double time, string target, string operation, s
 // Layout: retain the worker lanes, result split, rate chart, duration histogram and category findings.
 var events = Generate();
 Phases phases = Ui.Phases().Set("Discover").Set("Collect").Set("Evaluate").Set("Report");
-StackedBar results = Ui.Chart()
-    .Type(ConsoleMonster.Widgets.ChartType.Stacked)
+StackedBar results = ((StackedBar)Ui.Chart()
+    .Type(ChartType.Stacked)
     .WidgetId("results")
-    .Build<StackedBar>()
-    .Add("Passed", 0, ThemeToken.Pass)
+    .Build()).Add("Passed", 0, ThemeToken.Pass)
     .Add("Warnings", 0, ThemeToken.Warn)
     .Add("Failed", 0, ThemeToken.Fail)
     .Add("Skipped", 0, ThemeToken.Skip);
@@ -464,25 +418,25 @@ KeyValueList summary = Ui.KeyValue("summary")
     .Add("Remaining", "-")
     .Add("Targets done", "0 / 12")
     .Add("Targets failing", "0");
-LineChart throughput = Ui.Chart()
-    .Type(ConsoleMonster.Widgets.ChartType.Line)
+LineChart throughput = (LineChart)Ui.Chart()
+    .Type(ChartType.Line)
     .WidgetId("throughput")
     .Height(7)
-    .Build<LineChart>();
+    .Build();
 throughput.AddSeries("completed", ThemeToken.Accent);
 throughput.AddSeries("failed", ThemeToken.Fail);
-Histogram durations = Ui.Chart()
-    .Type(ConsoleMonster.Widgets.ChartType.Histogram)
+Histogram durations = (Histogram)Ui.Chart()
+    .Type(ChartType.Histogram)
     .Edges(new double[] { 0, 0.25, 0.5, 1, 2, 4, 8 })
     .WidgetId("durations")
     .Height(6)
     .Unit("s")
-    .Build<Histogram>();
-BarChart findings = Ui.Chart()
-    .Type(ConsoleMonster.Widgets.ChartType.Bar)
+    .Build();
+BarChart findings = (BarChart)Ui.Chart()
+    .Type(ChartType.Bar)
     .WidgetId("findings")
     .Role(ThemeToken.Fail)
-    .Build<BarChart>();
+    .Build();
 foreach (string category in new[]
 {
     "Domain controllers", "Replication", "DNS", "Kerberos", "Security", "Group Policy", "Accounts",
@@ -495,24 +449,24 @@ Lanes lanes = Ui.Lanes().MaxLabelWidth(28);
 LogRegion log = Ui.LogRegion().PreferredHeight(6);
 Rows body = Ui.Rows().Content(c4 =>
 {
-    c4.Padding(cmPadding => cmPadding.Bottom(1).Right(1).Top(0).Left(1).Content(c2 =>
+    c4.Padding(padding => padding.Bottom(1).Right(1).Top(0).Left(1).Content(c2 =>
     {
         c2.Add(phases);
     }));
-    c4.Columns(cmColumns => cmColumns.Add(Ui.Panel().Title("Targets").Content(c2 =>
+    c4.Columns(columns => columns.Add(Ui.Panel().Title("Targets").Content(c2 =>
     {
         c2.Add(lanes);
     }).HeaderRight("6 workers"), LayoutSize.Fraction(2.3))
         .Add(Ui.Panel().Title("Results").Content(c3 =>
         {
-            c3.Rows(cmRows => cmRows.Content(c2 =>
+            c3.Rows(r2 => r2.Content(c2 =>
             {
                 c2.Add(results);
                 c2.Rule();
                 c2.Add(summary);
             }));
         })));
-    c4.Columns(cmColumns => cmColumns.Add(Ui.Panel().Title("Throughput").Content(c2 =>
+    c4.Columns(columns => columns.Add(Ui.Panel().Title("Throughput").Content(c2 =>
     {
         c2.Add(throughput);
     }).HeaderRight("rules/s"), LayoutSize.Fraction(1.2))

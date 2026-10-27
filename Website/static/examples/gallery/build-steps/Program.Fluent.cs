@@ -17,25 +17,22 @@ IWidget Frame(int tick)
     {
         string status = index < tick ? "pass" : index == tick ? "accent" : "muted";
         string label = index < tick ? "complete" : index == tick ? "running" : "pending";
-        checklist.Add(Ui.Text()
-            .Content("[" + status + "]" + stages[index] + "[/]  " + label)
-            .IsMarkup());
+        checklist.Add(Ui.Markup("[" + status + "]" + stages[index] + "[/]  " + label));
     }
 
     return Ui.Rows().Gap(1).Content(c2 =>
     {
-        c2.Text(c2Text => c2Text.Content("[bold]Build pipeline[/] [muted]· Orbit.Tools[/]")
-            .IsMarkup());
-        c2.Panel(cmPanel => cmPanel.Title("Release checklist").Content(c =>
+        c2.Markup("[bold]Build pipeline[/] [muted]· Orbit.Tools[/]");
+        c2.Panel(p => p.Title("Release checklist").Content(c =>
         {
             c.Add(checklist);
         }));
-        c2.Progress(cmProgress => cmProgress.Label("Overall").Value(tick).Total(4));
-        c2.KeyValue(cmKeyValue => cmKeyValue.Add("Project", "Orbit.Tools")
+        c2.Progress(progress => progress.Label("Overall").Value(tick).Total(4));
+        c2.KeyValue(kv => kv.Add("Project", "Orbit.Tools")
             .Add("Version", "1.2.0")
             .Add("Artifacts", "./artifacts/")
             .Add("Publish", "manual approval"));
-        c2.Text(c2Text => c2Text.Content("[muted]Ctrl+C stops the live run.[/]").IsMarkup());
+        c2.Markup("[muted]Ctrl+C stops the live run.[/]");
     });
 }
 

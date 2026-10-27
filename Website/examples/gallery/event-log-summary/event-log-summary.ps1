@@ -40,7 +40,8 @@ $topIds = @($eventIds | Sort-Object -Property Count -Descending)
 # Layout: headline, the 24-hour trend, the noisiest sources beside the top IDs, then criticals.
 $report = New-ConsoleRows -Gap 1 -Content {
     New-ConsoleRule -Title '[bold]Event log summary[/] [muted]· 6 servers · Sunday 2026-10-25[/]'
-    "[fail]$($critical.Count) critical[/]   [warn]$errorTotal errors[/]   [muted]$warningTotal warnings · busiest hour $('{0:00}:00' -f $peak)[/]"
+    ("[fail]$($critical.Count) critical[/]   [warn]$errorTotal errors[/]   " +
+        "[muted]$warningTotal warnings · busiest hour $('{0:00}:00' -f $peak)[/]")
     New-ConsoleColumns -Content {
         New-ConsolePanel -Title 'Errors per hour' -Content {
             $chartParameters = @{

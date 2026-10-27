@@ -26,14 +26,14 @@ IWidget Summary(IReadOnlyList<RunResult<string, string>> outcomes)
         .Column(row => row.Stage)
         .Column(row => row.Result, column => column.Presenter(CellPresenters.StatusWord));
     string summary = outcomes.Count > 0
-        ? $"[pass]{outcomes.Count(result => result.Succeeded)} passed[/]  [warn]{outcomes.Count(result => !result.Succeeded)} retry needed[/]"
+        ? ($"[pass]{outcomes.Count(result => result.Succeeded)} passed[/]  [warn]"
+            + $"{outcomes.Count(result => !result.Succeeded)} retry needed[/]")
         : "[muted]Ctrl+C cancels active work.[/]";
     return Ui.Rows().Gap(1).Content(c =>
     {
-        c.Text(cText => cText.Content("[bold]Parallel patch run[/] [muted]· throttle 3[/]")
-            .IsMarkup());
+        c.Markup("[bold]Parallel patch run[/] [muted]· throttle 3[/]");
         c.Add(table);
-        c.Text(cText => cText.Content(summary).IsMarkup());
+        c.Markup(summary);
     });
 }
 
@@ -48,7 +48,10 @@ IReadOnlyList<RunResult<string, string>> results = await ConsoleRun.ForEachAsync
             throw new InvalidOperationException("Restart check failed");
         return server + " preview passed";
     },
-    Ui.Options<RunOptions>().ThrottleLimit(3).Timeout(TimeSpan.FromSeconds(3)).Title("Patch run"));
+    options =>
+    {
+        options.ThrottleLimit(3).Timeout(TimeSpan.FromSeconds(3)).Title("Patch run");
+    });
 
 // results retains each outcome for retry/reporting; no patch command runs here.
 Summary(results).Show();

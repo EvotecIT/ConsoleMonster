@@ -68,7 +68,8 @@ criticalTable.Expand = true;
 var report = new Rows(
     new Rule("[bold]Event log summary[/] [muted]· 6 servers · Sunday 2026-10-25[/]"),
     new TextBlock(
-        $"[fail]{critical.Length} critical[/]   [warn]{errorTotal} errors[/]   [muted]{warningTotal} warnings · busiest hour {peak:00}:00[/]"),
+        ($"[fail]{critical.Length} critical[/]   [warn]{errorTotal} errors[/]   [muted]"
+            + $"{warningTotal} warnings · busiest hour {peak:00}:00[/]")),
     new Columns(new Panel(errors, "Errors per hour"), new Panel(warnings, "Warnings per hour")),
     new Columns(new Panel(noisiest, "Noisiest sources"), new Panel(idTable, "Top event IDs")),
     new Panel(criticalTable, "Critical events"))
