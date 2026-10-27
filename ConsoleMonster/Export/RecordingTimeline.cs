@@ -24,7 +24,8 @@ namespace ConsoleMonster.Export {
         internal static List<RecordedFrame> Apply(IReadOnlyList<RecordingSourceFrame> source, RecordingExportOptions options) {
             options.ToFrameOptions();
             List<RecordingMarker> markers = options.Markers.OrderBy(marker => marker.Time).ThenBy(marker => marker.SourceSequence ?? long.MaxValue).ToList();
-            double end = source[source.Count - 1].Time.TotalMilliseconds + source[source.Count - 1].Duration.TotalMilliseconds;
+            // Add in ticks before converting, so a final marker cannot round past the source boundary.
+            double end = (source[source.Count - 1].Time + source[source.Count - 1].Duration).TotalMilliseconds;
             double from = Boundary(options.TrimStart, options.TrimStartChapter, 0, markers);
             double until = Boundary(options.TrimEnd, options.TrimEndChapter, end, markers);
             long? fromSequence = options.TrimStartChapter == null ? null : FindChapter(options.TrimStartChapter, markers).SourceSequence;
