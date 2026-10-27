@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>
-    /// A menu tree: items that run actions, open submenus, forms, selections and pages. <see cref="Run"/> shows it as an
+    /// A menu tree: items that run actions, open submenus, forms, selections and pages. <c>Run</c> shows it as an
     /// app (Shell), a centred menu (Classic) or a scrollback list (Inline), with a breadcrumb, Back/Home/Exit, the command
     /// palette (Ctrl+K or :), the key map (?) and a footer generated from the active keys.
     /// </summary>
-    public sealed class Menu {
+    public sealed partial class Menu {
         /// <summary>Creates a menu.</summary>
         /// <param name="title">The title (the app name for the root menu).</param>
         public Menu(string title) {

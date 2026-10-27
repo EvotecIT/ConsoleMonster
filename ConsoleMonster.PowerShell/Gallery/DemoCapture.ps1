@@ -2,6 +2,9 @@
 param($Demo, $Metadata, [int] $Step)
 if ($Step -ge $Metadata.steps) { throw "Snapshot $Step does not exist for $($Metadata.slug)." }
 $state = $Metadata.capture.states[$Step]
+if ($Metadata.capture.actionClock -and $Metadata.capture.actionClock -ne 'Frozen') {
+    throw "Unsupported actionClock: $($Metadata.capture.actionClock)"
+}
 $culture = [Globalization.CultureInfo]::GetCultureInfo('en-US')
 $profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile', $true))::Fixed($Metadata.terminal.width, $Metadata.terminal.height, 'TrueColor', 'Full').WithCulture($culture).WithLanguage($culture)
 $target = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Output.RecordingTarget', $true))::new($profile, $state.keys)
@@ -12,6 +15,11 @@ $captureStorage = Join-Path ([IO.Path]::GetTempPath()) ('cm-demo-presets-' + [gu
 $env:CONSOLEMONSTER_STORAGE_ROOT = $captureStorage
 $previous = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions', $true))::Default
 $options = $previous.Clone()
+if ($Metadata.capture.actionClock -eq 'Frozen') {
+    $clock = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.SimulatedClock', $true))::new()
+    # The action worker needs a native delegate rather than a script block tied to this runspace.
+    $options.ActionClock = [Delegate]::CreateDelegate([Func[TimeSpan]], $clock, 'Read')
+}
 $options.Target = $target
 $options.Input = $target.Input
 if ($null -ne $target.Input) { $target.Input.RealTime = [bool] $state.realTime }

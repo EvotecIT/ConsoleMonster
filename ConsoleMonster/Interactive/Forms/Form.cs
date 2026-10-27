@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace ConsoleMonster.Interactive {
     /// <summary>
     /// A form or wizard: fields on one or more pages, a review page with the equivalent command line, named presets and
-    /// (opt-in) remembered choices. Show it on its own (<see cref="Show"/>) or open it from a menu item.
+    /// (opt-in) remembered choices. Show it on its own (<c>Show</c>) or open it from a menu item.
     /// </summary>
     public sealed partial class Form {
         /// <summary>Creates a form.</summary>

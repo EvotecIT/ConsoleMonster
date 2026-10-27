@@ -68,7 +68,7 @@ namespace ConsoleMonster.Tests.Building {
                 .Add(new Columns()
                     .Gap(1)
                     .Add(new Panel(Table.For(Servers)
-                        .Column(s => s.Name, c => c.IsKey())
+                        .Column(s => s.Name, c => c.Key())
                         .Column(s => s.Role)
                         .Column(s => s.Ram, c => c.Presenter(CellPresenters.Bytes))
                         .Column(s => s.Status)

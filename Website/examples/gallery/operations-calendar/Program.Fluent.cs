@@ -50,11 +50,11 @@ foreach (var group in upcoming)
 
 Ui.Columns().Content(c2 =>
 {
-    c2.Panel(cmPanel => cmPanel.Title("Operations").Content(c =>
+    c2.Panel(p => p.Title("Operations").Content(c =>
     {
         c.Add(calendar);
     }));
-    c2.Panel(cmPanel => cmPanel.Title("Upcoming · next 14 days").Content(c =>
+    c2.Panel(p => p.Title("Upcoming · next 14 days").Content(c =>
     {
         c.Add(events);
     }));

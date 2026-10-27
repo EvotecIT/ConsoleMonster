@@ -27006,7 +27006,8 @@
       "PropertyType": "System.Boolean",
       "EnabledPattern": ".{Member}()",
       "DisabledPattern": ".{Member}(false)",
-      "ExplicitValuePattern": ".{Member}(value)"
+      "ExplicitValuePattern": ".{Member}(value)",
+      "IsPrefix": "A Boolean IsX property keeps its .NET name; the fluent setter is X()/X(bool). This is a mechanical grammar exception, not an alias."
     },
     "Content": {
       "PowerShellPattern": "-Content { \u2026 }",
@@ -27161,6 +27162,50 @@
             "ConsoleMonster.Widgets.Histogram",
             "ConsoleMonster.Widgets.Sparkline",
             "ConsoleMonster.Widgets.ChartOptions"
+          ],
+          "Discriminators": [
+            {
+              "InitializerType": "ConsoleMonster.Widgets.BarChart",
+              "Parameter": "Type",
+              "Member": "Type",
+              "EnumType": "ChartType",
+              "Value": "Bar"
+            },
+            {
+              "InitializerType": "ConsoleMonster.Widgets.StackedBar",
+              "Parameter": "Type",
+              "Member": "Type",
+              "EnumType": "ChartType",
+              "Value": "Stacked"
+            },
+            {
+              "InitializerType": "ConsoleMonster.Widgets.LineChart",
+              "Parameter": "Type",
+              "Member": "Type",
+              "EnumType": "ChartType",
+              "Value": "Line"
+            },
+            {
+              "InitializerType": "ConsoleMonster.Widgets.ScatterPlot",
+              "Parameter": "Type",
+              "Member": "Type",
+              "EnumType": "ChartType",
+              "Value": "Scatter"
+            },
+            {
+              "InitializerType": "ConsoleMonster.Widgets.Histogram",
+              "Parameter": "Type",
+              "Member": "Type",
+              "EnumType": "ChartType",
+              "Value": "Histogram"
+            },
+            {
+              "InitializerType": "ConsoleMonster.Widgets.Sparkline",
+              "Parameter": "Type",
+              "Member": "Type",
+              "EnumType": "ChartType",
+              "Value": "Sparkline"
+            }
           ]
         },
         {
@@ -27366,6 +27411,14 @@
             "ConsoleMonster.Widgets.ProgressBar",
             "ConsoleMonster.Widgets.Spinner",
             "ConsoleMonster.Widgets.ProgressOptions"
+          ],
+          "Discriminators": [
+            {
+              "InitializerType": "ConsoleMonster.Widgets.Spinner",
+              "Parameter": "Indeterminate",
+              "Member": "Indeterminate",
+              "Switch": true
+            }
           ]
         },
         {
@@ -27419,6 +27472,14 @@
             "ConsoleMonster.Interactive.Select",
             "ConsoleMonster.Interactive.MultiSelect",
             "ConsoleMonster.Interactive.SelectInputOptions"
+          ],
+          "Discriminators": [
+            {
+              "InitializerType": "ConsoleMonster.Interactive.MultiSelect",
+              "Parameter": "Multiple",
+              "Member": "Multiple",
+              "Switch": true
+            }
           ]
         },
         {
@@ -27467,7 +27528,7 @@
           "ReturnType": "ConsoleMonster.Widgets.TextBlock",
           "ContentBuilder": true,
           "Pattern": "Ui.Text()",
-          "Reason": "PowerShell returns rich text for cells as well as display; Ui.Text is its literal display wrapper. Explicit markup uses Content(markup).IsMarkup().",
+          "Reason": "PowerShell returns RichText for cell or display use; Ui.Text/c.Text display literal text and Ui.Markup/c.Markup select -Markup parsing.",
           "InitializerTypes": [
             "ConsoleMonster.Widgets.TextBlock"
           ]
@@ -27585,10 +27646,6 @@
       ],
       "CSharpOnlyFactories": [
         {
-          "Noun": "Options",
-          "Reason": "Generic empty C# configuration; it adds no widget or job."
-        },
-        {
           "Noun": "Grid",
           "Reason": "C# viewer model; Show-ConsoleGrid combines its construction and execution in PowerShell."
         },
@@ -27635,6 +27692,10 @@
         {
           "Noun": "SelectQuestion",
           "Reason": "Read-ConsoleSelect's question definition (Multiple); the chain ends in Show(), Show<T>() or ShowMany<T>() rather than a widget."
+        },
+        {
+          "Noun": "Markup",
+          "Reason": "Explicit markup variant of New-ConsoleText -Markup; Text remains literal. ContentBuilder.Markup has the same string input."
         }
       ],
       "PrimaryInputs": [
@@ -27749,10 +27810,19 @@
           "Parameter": "Title",
           "Position": 0,
           "Reason": "The rule title is the primary separator input."
+        },
+        {
+          "Noun": "Markup",
+          "Argument": "markup",
+          "Command": "New-ConsoleText",
+          "Parameter": "Markup",
+          "Position": null,
+          "Reason": "Explicit -Markup value; unlike Text it is named in PowerShell, because a string cannot select two positional parameter meanings."
         }
       ],
       "Pattern": "Ui.{Noun}()",
-      "NestedPattern": "c.{Noun}(widget => \u2026)",
+      "NestedPattern": "c.{Noun}({Parameter} => …)",
+      "NestedParameterNaming": "Use the shared teaching-code callback name (Table t, Rows r, Panel p, KeyValue kv, Chart chart; otherwise lower camel case), with a numeric suffix on local collisions.",
       "DataConstructionExceptions": [
         {
           "CSharpType": "ConsoleMonster.Interactive.Choice",
@@ -27791,6 +27861,98 @@
           "Reason": "A passive flow data record, equivalent to a node or edge row in PowerShell."
         }
       ]
-    }
+    },
+    "Markup": {
+      "Command": "New-ConsoleText",
+      "Parameter": "Markup",
+      "PowerShellPattern": "New-ConsoleText -Markup $text",
+      "InitializerPattern": "new TextBlock(text)",
+      "FluentPattern": "Ui.Markup(text)",
+      "NestedPattern": "c.Markup(text)",
+      "LiteralPattern": "Ui.Text(text) / c.Text(text)",
+      "Reason": "Same text renderer; the helper selects markup parsing explicitly while Text keeps brackets literal."
+    },
+    "OperationOptions": [
+      {
+        "CSharpType": "ConsoleMonster.Live.ConsoleRun",
+        "Member": "ForEachAsync",
+        "OptionsType": "ConsoleMonster.Live.RunOptions",
+        "Argument": "configure",
+        "Pattern": "options => options.Param(value)",
+        "Reason": "Configure fresh defaults once, then call the existing operation owner; object options remain supported."
+      },
+      {
+        "CSharpType": "ConsoleMonster.Interactive.Menu",
+        "Member": "Run",
+        "OptionsType": "ConsoleMonster.Interactive.MenuOptions",
+        "Argument": "configure",
+        "Pattern": "options => options.Param(value)",
+        "Reason": "Configure fresh defaults once, then call the existing operation owner; object options remain supported."
+      },
+      {
+        "CSharpType": "ConsoleMonster.Interactive.Menu",
+        "Member": "RunAsync",
+        "OptionsType": "ConsoleMonster.Interactive.MenuOptions",
+        "Argument": "configure",
+        "Pattern": "options => options.Param(value)",
+        "Reason": "Configure fresh defaults once, then call the existing operation owner; object options remain supported."
+      },
+      {
+        "CSharpType": "ConsoleMonster.Interactive.Grid",
+        "Member": "Show",
+        "OptionsType": "ConsoleMonster.Interactive.GridOptions",
+        "Argument": "configure",
+        "Pattern": "options => options.Param(value)",
+        "Reason": "Configure fresh defaults once, then call the existing operation owner; object options remain supported."
+      },
+      {
+        "CSharpType": "ConsoleMonster.Interactive.Form",
+        "Member": "Show",
+        "OptionsType": "ConsoleMonster.Interactive.FormOptions",
+        "Argument": "configure",
+        "Pattern": "options => options.Param(value)",
+        "Reason": "Configure fresh defaults once, then call the existing operation owner; object options remain supported."
+      },
+      {
+        "CSharpType": "ConsoleMonster.Interactive.Form",
+        "Member": "ShowAsync",
+        "OptionsType": "ConsoleMonster.Interactive.FormOptions",
+        "Argument": "configure",
+        "Pattern": "options => options.Param(value)",
+        "Reason": "Configure fresh defaults once, then call the existing operation owner; object options remain supported."
+      },
+      {
+        "CSharpType": "ConsoleMonster.Interactive.ConsoleApp",
+        "Member": "Run",
+        "OptionsType": "ConsoleMonster.Interactive.ConsoleAppOptions",
+        "Argument": "configure",
+        "Pattern": "options => options.Param(value)",
+        "Reason": "Configure fresh defaults once, then call the existing operation owner; object options remain supported."
+      },
+      {
+        "CSharpType": "ConsoleMonster.Interactive.ConsoleApp",
+        "Member": "RunAsync",
+        "OptionsType": "ConsoleMonster.Interactive.ConsoleAppOptions",
+        "Argument": "configure",
+        "Pattern": "options => options.Param(value)",
+        "Reason": "Configure fresh defaults once, then call the existing operation owner; object options remain supported."
+      },
+      {
+        "CSharpType": "ConsoleMonster.UiConstruction",
+        "Member": "CreateSession",
+        "OptionsType": "ConsoleMonster.Live.LiveSessionOptions",
+        "Argument": "configure",
+        "Pattern": "options => options.Param(value)",
+        "Reason": "Configure fresh defaults once, then call the existing operation owner; object options remain supported."
+      },
+      {
+        "CSharpType": "ConsoleMonster.WidgetPipeline",
+        "Member": "Export",
+        "OptionsType": "ConsoleMonster.Export.ExportOptions",
+        "Argument": "configure",
+        "Pattern": "options => options.Width(100)",
+        "Reason": "Configure fresh defaults before the existing core/add-on export dispatcher."
+      }
+    ]
   }
 }

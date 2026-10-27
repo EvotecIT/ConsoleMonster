@@ -16,9 +16,6 @@ namespace ConsoleMonster {
 #endif
             T>(IEnumerable<T> items) => Widgets.Table.For(items);
 
-        /// <summary>Creates configuration without positional arguments; no reflection-based property mapping is used.</summary>
-        /// <typeparam name="T">A configuration type with a public empty constructor.</typeparam><returns>The empty configuration.</returns>
-        public static T Options<T>() where T : new() => new T();
 
         /// <summary>Creates an empty review model for a typed question workflow.</summary><returns>The review model.</returns>
         public static ReviewModel Review() => new ReviewModel();

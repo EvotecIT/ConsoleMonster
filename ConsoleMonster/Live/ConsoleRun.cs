@@ -11,7 +11,7 @@ using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.Live {
-    /// <summary>Options for <see cref="ConsoleRun.ForEachAsync{TItem, TResult}"/> and <see cref="RunMonitor"/>.</summary>
+    /// <summary>Options for <c>ConsoleRun.ForEachAsync</c> and <see cref="RunMonitor"/>.</summary>
     public sealed class RunOptions {
         private int _throttleLimit = Math.Max(1, Environment.ProcessorCount);
 
@@ -56,7 +56,7 @@ namespace ConsoleMonster.Live {
         public Action<string>? Print { get; set; }
     }
 
-    /// <summary>The outcome of one item of <see cref="ConsoleRun.ForEachAsync{TItem, TResult}"/>.</summary>
+    /// <summary>The outcome of one item of <c>ConsoleRun.ForEachAsync</c>.</summary>
     /// <typeparam name="TItem">The item type.</typeparam>
     /// <typeparam name="TResult">The result type.</typeparam>
     public sealed class RunResult<TItem, TResult> {
@@ -98,7 +98,7 @@ namespace ConsoleMonster.Live {
     /// <summary>
     /// Shows a run of many items while it happens: the live <see cref="RunView"/> on an interactive terminal, or one line per
     /// finished item (and a summary at the end) in redirected output and CI. Safe to call from any thread.
-    /// <see cref="ConsoleRun.ForEachAsync{TItem, TResult}"/> and Invoke-ConsoleRun use it; other runners can too.
+    /// <c>ConsoleRun.ForEachAsync</c> and Invoke-ConsoleRun use it; other runners can too.
     /// </summary>
     public sealed class RunMonitor : IDisposable {
         private readonly RunOptions _options;
@@ -231,7 +231,7 @@ namespace ConsoleMonster.Live {
     }
 
     /// <summary>Runs work over many items with a live view of the run (the C# side of Invoke-ConsoleRun).</summary>
-    public static class ConsoleRun {
+    public static partial class ConsoleRun {
         /// <summary>
         /// Runs <paramref name="body"/> for every item, at most <see cref="RunOptions.ThrottleLimit"/> at a time, showing the run
         /// (summary line, item cells, running items, failures; one line per item when the output is not interactive). An

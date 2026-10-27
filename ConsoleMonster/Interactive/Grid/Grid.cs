@@ -22,7 +22,7 @@ namespace ConsoleMonster.Interactive {
     /// a row's details. It returns the original objects of the chosen rows. Columns use the table's width negotiation and
     /// presenters; the screen has the same header bar, panel and footer as menus and forms.
     /// </summary>
-    public sealed class Grid {
+    public sealed partial class Grid {
         private readonly List<TableColumn> _columns = new List<TableColumn>();
         private readonly List<GridRow> _rows = new List<GridRow>();
 
@@ -117,8 +117,8 @@ namespace ConsoleMonster.Interactive {
         internal string[]? Search { get; set; }
     }
 
-    /// <summary>Options for <see cref="Grid.Show"/>.</summary>
-    public sealed class GridOptions {
+    /// <summary>Options for <c>Grid.Show</c>.</summary>
+    public sealed partial class GridOptions {
         /// <summary>Commands available through the action palette and their shortcuts. Actions keep the grid open.</summary>
         public IList<AppCommand> Command { get; } = new List<AppCommand>();
         /// <summary>Refreshes each acted-on row on the input thread after successful completion. Return a new snapshot in the same column order; selection and row position are retained. Keep this callback short.</summary>

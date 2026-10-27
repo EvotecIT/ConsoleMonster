@@ -77,10 +77,8 @@ internal static class Program {
             content.Chart(chart => chart.Type(ChartType.Sparkline).Values(new double[] { 1, 2, 3 }));
         })), "Nested", "literal [text]");
         var appCapture = new ScreenCapture(60, 12);
-        var appOptions = Ui.Options<ConsoleAppOptions>().StaticSnapshot(true).SelectionKey("picked")
-            .Interactive(options => { options.Capture = appCapture; options.Profile = TerminalProfile.Fixed(60, 12); });
-        appOptions.AddCommand(command);
-        ConsoleApp.Run(new ScrollView().Content(content => content.Add(button)), options: appOptions);
+        ConsoleApp.Run(Ui.ScrollView().Content(content => content.Add(button)), options => options.StaticSnapshot().SelectionKey("picked")
+            .Interactive(interactive => { interactive.Capture = appCapture; interactive.Profile = TerminalProfile.Fixed(60, 12); }).AddCommand(command));
         Require(appCapture.LastFrame!.ToPlainText(), "Run check");
         var profile = TerminalProfile.Fixed(60, 12);
         var target = new RecordingTarget(profile);

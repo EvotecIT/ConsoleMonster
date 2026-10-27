@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json.Nodes;
+using SiteFrames.Capture;
 
 namespace SiteFrames.Pages {
     /// <summary>Publishes the member decisions from the same contract consumed by the parity gate and demo notes.</summary>
@@ -21,13 +22,15 @@ namespace SiteFrames.Pages {
                 body.AppendLine("Callback properties use `" + rule!["Pattern"]!.GetValue<string>().Replace("{Member}", "Action", StringComparison.Ordinal) + "`. " + rule["Reason"]!.GetValue<string>() + "\n");
             }
             body.AppendLine("## Fluent construction and nesting\n");
-            body.AppendLine("Ui is the fluent entry point: New-ConsolePanel becomes Ui.Panel(), named settings stay in the chain, and nested Content uses c.Panel(panel => …). Initializers retain constructors. Factories accept no positional configuration; the recorded primary inputs below are the only exceptions. Chart, Progress and kind-selected inputs materialize their existing typed options through the shared Build operation.\n");
+            body.AppendLine("Ui is the fluent entry point: New-ConsolePanel becomes Ui.Panel(), named settings stay in the chain, and nested Content uses c.Panel(p => …). Initializers retain constructors. Factories accept no positional configuration; the recorded primary inputs below are the only exceptions. Chart, Progress and kind-selected inputs materialize their existing typed options through the shared Build operation.\n");
+            body.AppendLine("Literal text uses `Ui.Text(text)` or `c.Text(text)`; PowerShell `-Markup` uses `Ui.Markup(markup)` or `c.Markup(markup)`. Boolean properties named IsX keep that property in initializers and use `.X()` / `.X(false)` in fluent chains. Adjacent configuration stays in one chain.\n");
+            body.AppendLine("Operation options use a typed configure callback, for example `ConsoleRun.ForEachAsync(items, work, o => o.ThrottleLimit(2).Title(\"Build\"))`. The operation creates fresh defaults, invokes the callback once and delegates to its existing implementation. `Ui.Options<T>()` is removed.\n");
             body.AppendLine("| PowerShell constructor | Fluent entry | Nested builder |\n| --- | --- | --- |");
             foreach (JsonNode? node in map["FluentGrammar"]!["Entry"]!["Factories"]!.AsArray()) {
                 JsonObject factory = node!.AsObject();
                 string noun = factory["Noun"]!.GetValue<string>();
                 body.AppendLine("| `" + factory["Command"]!.GetValue<string>() + "` | `" + factory["Pattern"]!.GetValue<string>() + "` | "
-                    + (factory["ContentBuilder"]!.GetValue<bool>() ? "`c." + noun + "(widget => …)`" : "Definition, not display content") + " |");
+                    + (factory["ContentBuilder"]!.GetValue<bool>() ? "`c." + noun + "(" + CSharpRunner.BuilderParameter(noun) + " => …)`" : "Definition, not display content") + " |");
             }
             body.AppendLine("\n| Primary fluent input | PowerShell input | Reason |\n| --- | --- | --- |");
             foreach (JsonNode? node in map["FluentGrammar"]!["Entry"]!["PrimaryInputs"]!.AsArray()) {

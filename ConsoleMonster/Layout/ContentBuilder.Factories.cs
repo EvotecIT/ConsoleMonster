@@ -226,6 +226,10 @@ namespace ConsoleMonster.Layout {
         /// <summary>Adds literal text, matching Ui.Text and New-ConsoleText's primary text input.</summary>
         /// <param name="text">The literal text.</param><returns>This builder.</returns>
         public ContentBuilder Text(string text) => Add(Ui.Text(text));
+
+        /// <summary>Adds markup text, matching New-ConsoleText -Markup.</summary>
+        /// <param name="markup">The markup input.</param><returns>This builder.</returns>
+        public ContentBuilder Markup(string markup) => Add(Ui.Markup(markup));
         /// <summary>Adds a titled or untitled rule, matching Ui.Rule.</summary>
         /// <param name="title">The optional primary title, or null.</param><returns>This builder.</returns>
         public ContentBuilder Rule(string? title) => Add(Ui.Rule(title));

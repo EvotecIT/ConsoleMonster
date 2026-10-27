@@ -16,12 +16,14 @@ namespace SiteFrames.Tests {
 
         [Fact]
         public void ContainerAndBooleanNotesTeachTheCompiledFluentGrammar() {
-            string path = Source("content-switches", "using ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\nvar table = new Table { Expand = true };\nvar rows = new Rows(new Rule(\"Build\"), table) { Gap = 1 };\n");
+            string path = Source("content-switches", "using ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\nvar table = new Table { Expand = true };\nvar rows = new Rows(new Rule(\"Build\"), table, new TextBlock(\"[bold]Ready[/]\")) { Gap = 1 };\n");
             string fluent = CSharpRunner.FluentSource(path);
             CSharpRunner.Check(path, fluent);
             var notes = ApiMappingNotes.FromSource(Repository(), path, fluent);
             Assert.Contains(notes, note => note!["powershell"]!.GetValue<string>() == "New-ConsoleRows -Content { … }" && note["fluent"]!.GetValue<string>() == ".Content(c => { … })");
             Assert.Contains(notes, note => note!["powershell"]!.GetValue<string>() == "New-ConsoleTable -Expand" && note["fluent"]!.GetValue<string>() == ".Expand()");
+            Assert.Contains(notes, note => note!["powershell"]!.GetValue<string>() == "New-ConsoleText -Markup $text" && note["fluent"]!.GetValue<string>().Contains("c.Markup(text)", StringComparison.Ordinal));
+            Assert.Contains(notes, note => note!["powershell"]!.GetValue<string>() == "New-ConsoleTable" && note["note"]!.GetValue<string>().Contains("c.Table(t => …)", StringComparison.Ordinal));
         }
 
         [Theory]
@@ -110,6 +112,16 @@ namespace SiteFrames.Tests {
             Assert.Equal("Update-Console -Run … -Index …", index["powershell"]!.GetValue<string>());
             Assert.Contains("exactly one index", index["note"]!.GetValue<string>());
             Assert.Contains(notes, row => row!["memberId"]!.GetValue<string>() == "ConsoleMonster.Live.RunUpdate.Label");
+        }
+
+        [Fact]
+        public void OperationNotesConfigureDelegatePropertiesInsteadOfCallingThem() {
+            string path = Source("operation-options", "using ConsoleMonster.Live;\nawait ConsoleRun.ForEachAsync(new[] { 1 }, (item, _) => Task.FromResult(item), new RunOptions { Title = \"Run\", Label = item => item?.ToString() ?? \"\" });\n");
+            string fluent = CSharpRunner.FluentSource(path);
+            CSharpRunner.Check(path, fluent);
+            var row = Assert.Single(ApiMappingNotes.FromSource(Repository(), path, fluent), note => note!["memberId"]!.GetValue<string>() == "M:ConsoleMonster.Live.ConsoleRun.ForEachAsync")!;
+            Assert.Contains(".Configure(item => item.Label = …)", row["fluent"]!.GetValue<string>(), StringComparison.Ordinal);
+            Assert.DoesNotContain(".Label(…)", row["fluent"]!.GetValue<string>(), StringComparison.Ordinal);
         }
 
         [Fact]

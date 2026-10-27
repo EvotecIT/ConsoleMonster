@@ -40,6 +40,9 @@ namespace ConsoleMonster {
         public static System.Collections.Generic.IReadOnlyList<T> ShowMany<T>(this SelectQuestionOptions question, InteractiveOptions? options = null, System.Threading.CancellationToken cancellationToken = default) => SelectionAnswer.Many<T>(SelectionAnswer.Expect(question, true).Show(options, cancellationToken));
         /// <summary>Creates an owned live-session lifetime over a configured widget; dispose it after running.</summary><param name="widget">The session root.</param><param name="options">The session options.</param><returns>The new session.</returns>
         public static LiveSession CreateSession(this IWidget widget, LiveSessionOptions? options = null) => new LiveSession(widget, options);
+        /// <summary>Creates a session with freshly configured options.</summary><param name="widget">The root.</param><param name="configure">Session settings.</param><returns>The owned session.</returns>
+        public static LiveSession CreateSession(this IWidget widget, Action<LiveSessionOptions> configure) => new LiveSession(widget, OptionConfiguration.Create(configure));
+
         /// <summary>Displays the configured definition through the shared widget pipeline.</summary><param name="definition">The configured definition.</param><param name="profile">The terminal profile.</param><param name="writer">The output writer.</param>
         public static void Show(this ChartOptions definition, TerminalProfile? profile = null, ITerminalWriter? writer = null) => definition.Build().Show(profile, writer);
         /// <summary>Exports the configured definition through the shared core/add-on dispatcher.</summary><param name="definition">The configured definition.</param><param name="path">The destination.</param><param name="format">The format.</param><param name="options">The export options.</param><param name="provider">An optional add-on provider.</param>

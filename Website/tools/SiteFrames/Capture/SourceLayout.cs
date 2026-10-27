@@ -12,20 +12,39 @@ namespace SiteFrames.Capture {
     /// Lays out example C# the way it is written by hand: a line longer than <see cref="Width"/> breaks at its outermost
     /// chain, argument list or conditional (then operators, then initializers), one level at a time; literal arrays stay on
     /// as few lines as fit; a statement led by a comment gets a blank line before it. Roslyn's NormalizeWhitespace puts a
-    /// whole chain on one line and every array element on its own, which is what this undoes. Only whitespace changes.
+    /// whole chain on one line and every array element on its own, which is what this undoes. Overlong string values in
+    /// confirmed string targets can split into concatenated parts; other changes affect whitespace only.
     /// </summary>
-    internal static class SourceLayout {
+    internal static partial class SourceLayout {
         public const int Width = 100;
         private const int Step = 4;
         private static readonly CSharpParseOptions Options = new CSharpParseOptions(LanguageVersion.CSharp12);
         private static readonly string[] Markers = { "<more>", "</more>", "<hidden>", "</hidden>" };
 
-        public static string Format(string source) {
+        public static string Format(string source, IEnumerable<TextSpan>? stringValues = null) {
             string text = source.Replace("\r\n", "\n", StringComparison.Ordinal);
+            if (stringValues != null) { text = WrapStringValues(text, stringValues.ToHashSet()); }
             text = Spacing(text);
             text = Compact(text);
             text = Wrap(text);
-            return Separate(text);
+            text = Wrap(WrapStringValues(text));
+            return Separate(MarkerLines(text)).TrimEnd() + "\n";
+        }
+
+        // NormalizeWhitespace can attach a closing source-fold marker to the
+        // preceding brace. The snippet reader requires each marker on its own line.
+        private static string MarkerLines(string text) {
+            SyntaxNode root = Parse(text);
+            SourceText source = root.SyntaxTree.GetText();
+            var edits = new List<(int, int, string)>();
+            foreach (SyntaxTrivia trivia in root.DescendantTrivia().Where(trivia => trivia.IsKind(SyntaxKind.SingleLineCommentTrivia)
+                && Markers.Any(marker => trivia.ToString().Trim() == "// " + marker))) {
+                TextLine line = source.Lines.GetLineFromPosition(trivia.SpanStart);
+                int start = trivia.SpanStart;
+                while (start > line.Start && (source[start - 1] == ' ' || source[start - 1] == '\t')) { start--; }
+                if (start > line.Start) { edits.Add((start, trivia.SpanStart, "\n" + new string(' ', Indent(source, line.Start)))); }
+            }
+            return Apply(text, edits);
         }
 
         // NormalizeWhitespace writes catch (...)when (...).
@@ -146,7 +165,12 @@ namespace SiteFrames.Capture {
             string inner = new string(' ', indent + Step);
             string outer = new string(' ', indent);
             var edits = new List<(int, int, string)>();
-            void Before(SyntaxToken token, string indentation) => edits.Add((token.GetPreviousToken().Span.End, token.SpanStart, "\n" + indentation));
+            void Before(SyntaxToken token, string indentation) {
+                int start = token.GetPreviousToken().Span.End;
+                string gap = text.Substring(start, token.SpanStart - start);
+                string comment = string.IsNullOrWhiteSpace(gap) ? string.Empty : gap.TrimEnd();
+                edits.Add((start, token.SpanStart, comment + "\n" + indentation));
+            }
             if (chosen.Kind == Kind.Initializer && Broken(source, ((InitializerExpressionSyntax)chosen.Node).OpenBraceToken)) {
                 // Already open: every element that shares a line with the one before it takes its own line.
                 foreach (SyntaxToken token in chosen.Points) { Before(token, new string(' ', Indent(source, token.GetPreviousToken().SpanStart))); }

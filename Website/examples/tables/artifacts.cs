@@ -11,7 +11,10 @@ Table table = new Table()
     ShowTotals = true,
     MaxRows = 5,
     TotalRowCount = 1234,
-    Presentation = new PresentationOptions { Now = now }
+    Presentation = new PresentationOptions
+    {
+        Now = now
+    }
 }.AddColumn("Artifact", c =>
 {
     c.IsKey = true;

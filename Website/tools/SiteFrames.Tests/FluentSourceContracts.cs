@@ -1,4 +1,5 @@
 using System;
+using Microsoft.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using ConsoleMonster.Capabilities;
@@ -42,10 +43,11 @@ namespace SiteFrames.Tests {
         [InlineData("System.Collections.Generic.IEnumerable<ConsoleMonster.Dates.CalendarMark>? marks = null; Terminal.Write(new Rows(new Calendar(2026, 10, marks)));")]
         [InlineData("string MakeTitle(out string title) { title = \"Title\"; return title; } string MakeId() => \"id\"; var dashboard = new Dashboard(MakeTitle(out var title), new TextBlock(\"Child\"), MakeId()); Terminal.Write(new Rows(new TextBlock(title)));")]
         [InlineData("string Make(out string text) { text = \"Scope\"; return text; } var rows = new Rows(new TextBlock(Make(out var text))); Terminal.Write(new Rows(rows, new TextBlock(text)));")]
+        [InlineData("var tree = new Tree(\"Root\"); var parent = tree.Add(\"Parent\"); parent.Add(\"First\"); parent.Add(\"Second\").Label(\"Last\"); Terminal.Write(new Rows(tree));")]
         public void ContainerTranslationPreservesEvaluationAndSelectedOverloads(string body) {
             string path = Source("using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n" + body);
             string fluent = CSharpRunner.FluentSource(path);
-            CSharpRunner.Check(path, fluent);
+            try { CSharpRunner.Check(path, fluent); } catch (InvalidOperationException error) { throw new InvalidOperationException(fluent, error); }
             var profile = CSharpRunner.Profile(40, 20, ColorDepth.TrueColor, GlyphTier.Full);
             Assert.Equal(CSharpRunner.Execute(path, profile, Theme.Dark, null).Output, CSharpRunner.Execute(path, profile, Theme.Dark, null, fluent: true).Output);
         }
@@ -57,10 +59,87 @@ namespace SiteFrames.Tests {
             Assert.Contains(".Expand()", fluent, StringComparison.Ordinal);
             Assert.Contains(".Content(c =>", fluent, StringComparison.Ordinal);
             Assert.Contains(".Rule(\"Nightly\")", fluent, StringComparison.Ordinal);
-            Assert.Contains(".Text(", fluent, StringComparison.Ordinal);
+            Assert.Contains(".Markup(\"Ready\")", fluent, StringComparison.Ordinal);
             CSharpRunner.Check(path, fluent);
             var profile = CSharpRunner.Profile(60, 20, ColorDepth.TrueColor, GlyphTier.Full);
             Assert.Equal(CSharpRunner.Execute(path, profile, Theme.Dark, null).Output, CSharpRunner.Execute(path, profile, Theme.Dark, null, fluent: true).Output);
+        }
+
+        [Fact]
+        public void FluentConfigurationStaysChainedAndOperationCallbacksKeepDefaultsAndExecutionOrder() {
+            string path = Source("""
+                using ConsoleMonster;
+                using ConsoleMonster.Live;
+                using ConsoleMonster.Layout;
+                using ConsoleMonster.Widgets;
+                var table = new Table();
+                table.Expand();
+                table.AddColumn("Build").AddRow("Passed");
+                var rows = new Rows(table, new TextBlock("[bold]Ready[/]"));
+                var result = await ConsoleRun.ForEachAsync(new[] { 1 }, (item, _) => Task.FromResult(item), new RunOptions { ThrottleLimit = 2, Title = "Run", Live = false, Print = _ => { } });
+                if (result.Count != 1) throw new System.InvalidOperationException("Lost operation");
+                Terminal.Write(rows);
+                """);
+            string fluent = CSharpRunner.FluentSource(path);
+            CSharpRunner.Check(path, fluent);
+            Assert.Contains("Ui.Table().Expand().AddColumn", fluent, StringComparison.Ordinal);
+            Assert.DoesNotContain("table.Expand", fluent, StringComparison.Ordinal);
+            Assert.Contains("options =>", fluent, StringComparison.Ordinal);
+            Assert.DoesNotContain("configure:", fluent, StringComparison.Ordinal);
+            Assert.Contains("options.ThrottleLimit(2).Title(\"Run\").Live(false)",
+                Microsoft.CodeAnalysis.CSharp.SyntaxFactory.ParseCompilationUnit(fluent).NormalizeWhitespace().ToFullString(), StringComparison.Ordinal);
+            Assert.DoesNotContain("Ui.Options", fluent, StringComparison.Ordinal);
+            Assert.Contains(".Markup(\"[bold]Ready[/]\")", fluent, StringComparison.Ordinal);
+            var profile = CSharpRunner.Profile(60, 20, ColorDepth.TrueColor, GlyphTier.Full);
+            Assert.Equal(CSharpRunner.Execute(path, profile, Theme.Dark, null).Output, CSharpRunner.Execute(path, profile, Theme.Dark, null, fluent: true).Output);
+        }
+
+        [Theory]
+        [InlineData("ReadTitle()", ", Next()", "TC")]
+        [InlineData("await Task.FromResult(ReadTitle())", "", "T")]
+        public void OperationTranslationRetainsCallerArgumentAndAwaitBoundaries(string title, string trailing, string expected) {
+            string next = trailing.Length == 0 ? string.Empty : "System.Threading.CancellationToken Next() { trace += \"C\"; return default; }";
+            string path = Source("using ConsoleMonster;\nusing ConsoleMonster.Live;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n"
+                + "string trace = \"\"; string ReadTitle() { trace += \"T\"; return \"Run\"; } " + next
+                + " var result = await ConsoleRun.ForEachAsync(new[] { 1 }, (item, _) => Task.FromResult(item), new RunOptions { Title = " + title + ", Live = false, Print = _ => { } }" + trailing + ");"
+                + " if (trace != \"" + expected + "\" || result.Count != 1) throw new System.InvalidOperationException(trace); Terminal.Write(new Rows(new TextBlock(trace)));\n");
+            string fluent = CSharpRunner.FluentSource(path);
+            CSharpRunner.Check(path, fluent);
+            Assert.Contains("new RunOptions()", fluent, StringComparison.Ordinal);
+            var profile = CSharpRunner.Profile(60, 20, ColorDepth.TrueColor, GlyphTier.Full);
+            Assert.Equal(CSharpRunner.Execute(path, profile, Theme.Dark, null).Output, CSharpRunner.Execute(path, profile, Theme.Dark, null, fluent: true).Output);
+        }
+
+        [Theory]
+        [InlineData("app")]
+        [InlineData("export")]
+        public void PositionalConfigureCallbacksPreserveStateAndFormatEvaluationOrder(string operation) {
+            string output = Path.Combine(_folder, "export.txt").Replace("\\", "\\\\", StringComparison.Ordinal);
+            string body = operation == "app" ? """
+                IWidget Layout() { trace += "L"; return new Rows(new TextBlock("Ready")); }
+                AppState State() { trace += "S"; return new AppState(); }
+                int Width() { trace += "W"; return 60; }
+                ConsoleApp.Run(Layout(), State(), new ConsoleAppOptions { StaticSnapshot = true, ReflowBelow = Width() });
+                if (trace != "LSW") throw new InvalidOperationException(trace);
+                """ : $$"""
+                string PathFor() { trace += "P"; return "{{output}}"; }
+                string FormatFor() { trace += "F"; return "Text"; }
+                int Width() { trace += "W"; return 60; }
+                new TextBlock("Ready").Export(PathFor(), FormatFor(), new ExportOptions { Width = Width() });
+                if (trace != "PFW" || !File.ReadAllText("{{output}}").Contains("Ready")) throw new InvalidOperationException(trace);
+                File.Delete("{{output}}");
+                """;
+            string imports = "using ConsoleMonster;\nusing ConsoleMonster.Widgets;\n"
+                + (operation == "app" ? "using ConsoleMonster.Layout;\nusing ConsoleMonster.Interactive;\n" : "using ConsoleMonster.Export;\n");
+            string path = Source(imports + "string trace = \"\";\n" + body + "\nTerminal.Write(new TextBlock(trace));\n");
+            string fluent = CSharpRunner.FluentSource(path);
+            CSharpRunner.Check(path, fluent);
+            Assert.DoesNotContain(Microsoft.CodeAnalysis.CSharp.CSharpSyntaxTree.ParseText(fluent).GetRoot()
+                .DescendantNodes().OfType<Microsoft.CodeAnalysis.CSharp.Syntax.ArgumentSyntax>(), argument => argument.NameColon != null);
+            Assert.Contains("options =>", fluent, StringComparison.Ordinal);
+            var profile = CSharpRunner.Profile(60, 20, ColorDepth.TrueColor, GlyphTier.Full);
+            Assert.Equal(CSharpRunner.Execute(path, profile, Theme.Dark, null).Output,
+                CSharpRunner.Execute(path, profile, Theme.Dark, null, fluent: true).Output);
         }
 
         [Fact]
@@ -132,6 +211,7 @@ namespace SiteFrames.Tests {
             foreach (string folder in new[] { "widgets", "home", "tables", "docs", "errors", "themes", "interactive", "app", "tails", "recording", "migration" }) {
                 foreach (string path in Directory.GetFiles(Path.Combine(website, "examples", folder), "*.cs")) {
                     var entry = SourceStyles.Add(site, new JsonObject(), path);
+                    Assert.Equal(Path.GetRelativePath(site.Repository, path).Replace('\\', '/'), entry["csharpRepo"]!.GetValue<string>());
                     Assert.False(string.IsNullOrWhiteSpace(entry["csharpFluent"]!.GetValue<string>()));
                     Assert.NotEmpty(entry["apiMap"]!.AsArray());
                 }

@@ -21,7 +21,7 @@ var server = new
     },
     Enabled = true
 };
-new ObjectExplorer(server, rootPath: "$server")
+new ObjectExplorer(server, default, "$server")
 {
     Title = "Server configuration"
 }.Show();

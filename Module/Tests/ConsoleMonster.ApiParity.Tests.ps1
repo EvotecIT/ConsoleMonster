@@ -92,7 +92,8 @@ Describe 'PowerShell and C# API parity' {
                     if ($binding.ParameterType -eq 'System.Management.Automation.SwitchParameter' -and $binding.CSharpTypeName -eq $script:Parity.FluentGrammar.Boolean.PropertyType -and $binding.Writable -and -not $binding.Static) {
                         $fluent = $script:ApiTypes[$binding.CSharpType + 'Fluent']
                         $fluent | Should -Not -BeNullOrEmpty -Because "$label needs both Boolean fluent overloads"
-                        $overloads = @($fluent.GetMethods() | Where-Object Name -EQ $binding.Member)
+                        $methodName = if ($binding.Member -cmatch '^Is[A-Z]') { $binding.Member.Substring(2) } else { $binding.Member }
+                        $overloads = @($fluent.GetMethods() | Where-Object Name -EQ $methodName)
                         @($overloads | Where-Object { $_.GetParameters().Count -eq 1 }).Count | Should -BeGreaterThan 0 -Because "$label maps to a parameterless fluent switch"
                         @($overloads | Where-Object { $_.GetParameters().Count -eq 2 -and $_.GetParameters()[1].ParameterType -eq [bool] }).Count | Should -BeGreaterThan 0 -Because "$label also accepts an explicit false"
                     }
@@ -250,6 +251,17 @@ Describe 'PowerShell and C# API parity' {
         }
     }
 
+    It 'exposes configured operation overloads and explicit literal or markup input' {
+        foreach ($route in $script:Parity.FluentGrammar.OperationOptions) {
+            $owner = $script:ApiTypes[$route.CSharpType]
+            $option = $script:ApiTypes[$route.OptionsType]
+            $action = [Action[object]].GetGenericTypeDefinition().MakeGenericType([Type[]] @($option))
+            @($owner.GetMethods() | Where-Object { $_.Name -ceq $route.Member -and @($_.GetParameters() | Where-Object { $_.Name -ceq $route.Argument -and $_.ParameterType -eq $action }).Count -eq 1 }).Count | Should -Be 1
+        }
+        $builder = $script:ApiTypes[$script:Parity.FluentGrammar.Content.BuilderType]
+        @($builder.GetMethods() | Where-Object { $_.Name -ceq 'Markup' -and $_.GetParameters().Count -eq 1 -and $_.GetParameters()[0].ParameterType -eq [string] }).Count | Should -Be 1
+    }
+
     It 'matches construction nouns to Ui and the nesting builder, with only recorded primary inputs' {
         $rule = $script:Parity.FluentGrammar.Entry
         $ui = $script:ApiTypes[$rule.FactoryType]
@@ -278,7 +290,12 @@ Describe 'PowerShell and C# API parity' {
             $primary = @($rule.PrimaryInputs | Where-Object { $_.Noun -ceq $method.Name -and $_.Argument -ceq $parameters[0].Name })
             $primary.Count | Should -Be 1
             $command = $script:ApiCommands | Where-Object Name -EQ $primary[0].Command
-            @($command.ParameterSets | ForEach-Object Parameters | Where-Object { $_.Name -ceq $primary[0].Parameter -and $_.Position -eq $primary[0].Position }).Count | Should -BeGreaterThan 0
+            if ($null -eq $primary[0].Position) {
+                $method.Name | Should -BeExactly 'Markup' -Because '-Markup is the explicit named text representation'
+                $command.Parameters.ContainsKey('Markup') | Should -BeTrue
+            } else {
+                @($command.ParameterSets | ForEach-Object Parameters | Where-Object { $_.Name -ceq $primary[0].Parameter -and $_.Position -eq $primary[0].Position }).Count | Should -BeGreaterThan 0
+            }
             $primary[0].Reason | Should -Not -BeNullOrEmpty
         }
     }

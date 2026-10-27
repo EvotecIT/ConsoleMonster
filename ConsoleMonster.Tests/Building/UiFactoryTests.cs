@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using ConsoleMonster.Export;
 using ConsoleMonster.Interactive;
 using ConsoleMonster.Layout;
+using ConsoleMonster.Live;
 using ConsoleMonster.Widgets;
 using Xunit;
 
@@ -20,7 +21,25 @@ namespace ConsoleMonster.Tests.Building {
                 content.Table(table => table.AddColumn("Name").AddRow("API"));
             });
             Assert.Equal(ConsoleExporter.ToText(expected), ConsoleExporter.ToText(actual));
-            Assert.Equal(ConsoleExporter.ToText(new TextBlock("[pass]Ready[/]")), ConsoleExporter.ToText(Ui.Text().Content("[pass]Ready[/]").IsMarkup()));
+            Assert.Equal(ConsoleExporter.ToText(new TextBlock("[pass]Ready[/]")), ConsoleExporter.ToText(Ui.Text().Content("[pass]Ready[/]").Markup()));
+        }
+
+        [Fact]
+        public async Task ConfigureOperationsUseFreshDefaultsBeforeRunningAndPropagateConfigurationErrors() {
+            int calls = 0;
+            var result = await ConsoleMonster.Live.ConsoleRun.ForEachAsync(new[] { 1, 2 }, (int item, System.Threading.CancellationToken _) => Task.FromResult(item * 2), options => {
+                calls++;
+                Assert.Equal(Math.Max(1, Environment.ProcessorCount), options.ThrottleLimit);
+                options.ThrottleLimit(2).Title("Configured").Live(false).Configure(request => request.Print = _ => { });
+            });
+            Assert.Equal(1, calls);
+            Assert.Equal(2, result.Count);
+            Assert.Throws<ArgumentNullException>(() => Ui.Rows().CreateSession((Action<ConsoleMonster.Live.LiveSessionOptions>)null!));
+            Assert.Throws<InvalidOperationException>(() => Ui.Grid().Show(_ => throw new InvalidOperationException("before input")));
+            Assert.Equal("literal [bold]text[/]", ConsoleExporter.ToText(Ui.Text("literal [bold]text[/]")).Trim());
+            Assert.Equal("text", ConsoleExporter.ToText(Ui.Markup("[bold]text[/]")).Trim());
+            Assert.Equal(ConsoleExporter.ToText(new Rows(new TextBlock("[bold]text[/]"))), ConsoleExporter.ToText(Ui.Rows().Content(content => content.Markup("[bold]text[/]"))));
+            Assert.False(Ui.Markup("[bold]text[/]").Markup(false).IsMarkup);
         }
 
         [Fact]

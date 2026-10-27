@@ -8,7 +8,11 @@ DateTimeOffset now = new DateTimeOffset(2026, 10, 16, 14, 30, 0, TimeSpan.FromHo
 RecordView view = new RecordView("[bold]mail.evotec.xyz[/]")
 {
     Summary = "TLS certificate · ECDSA P-256 · Let's Encrypt",
-    Presentation = new PresentationOptions { Now = now, TimeZone = TimeZoneInfo.Utc }
+    Presentation = new PresentationOptions
+    {
+        Now = now,
+        TimeZone = TimeZoneInfo.Utc
+    }
 };
 view.AddSection("Certificate");
 view.AddField("Subject", "CN=mail.evotec.xyz");
@@ -25,7 +29,7 @@ view.AddField(
     new[] { RoleRule.Below(0, ThemeToken.Fail), RoleRule.Below(30, ThemeToken.Warn) });
 view.AddField("Key", "ECDSA P-256");
 view.AddField("OCSP stapling", true);
-view.AddField("Revoked", false, new BooleanPresenter(trueIsProblem: true));
+view.AddField("Revoked", false, new BooleanPresenter("yes", "no", true));
 view.AddField("Notes", (object? )null);
 view.AddGroup("Subject alternative names", "3");
 view.AddWidget(new Table() { Border = TableBorder.None, ShowHeader = false, RecordViewRows = 0 }

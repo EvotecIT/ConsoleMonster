@@ -37,11 +37,11 @@ namespace ConsoleMonster.Tests.Building {
                     Assert.DoesNotContain(Extensions, method => method.Name == property.Name && Receives(method, type));
                     continue;
                 }
-                if (IsSettable(property) && !Has(type, property.Name, property.PropertyType)) {
+                if (IsSettable(property) && !Has(type, FluentName(property), property.PropertyType)) {
                     missing.Add(property.Name + "(" + property.PropertyType.Name + ")");
                 }
                 if (IsSettable(property) && property.PropertyType == typeof(bool)) {
-                    Assert.Contains(Extensions, method => method.Name == property.Name && Receives(method, type) && method.GetParameters().Length == 1);
+                    Assert.Contains(Extensions, method => method.Name == FluentName(property) && Receives(method, type) && method.GetParameters().Length == 1);
                 }
                 Type? item = CollectionItem(property.PropertyType);
                 if (item != null) {
@@ -139,6 +139,9 @@ namespace ConsoleMonster.Tests.Building {
             }
             return result;
         }
+
+        private static string FluentName(PropertyInfo property) => property.PropertyType == typeof(bool) && property.Name.Length > 2
+            && property.Name.StartsWith("Is", StringComparison.Ordinal) && char.IsUpper(property.Name[2]) ? property.Name.Substring(2) : property.Name;
 
         private static bool IsPrompt(Type type) {
             for (Type? current = type.BaseType; current != null; current = current.BaseType) {
