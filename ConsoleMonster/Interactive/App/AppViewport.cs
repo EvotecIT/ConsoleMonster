@@ -9,6 +9,7 @@ namespace ConsoleMonster.Interactive {
         private readonly object _gate = new object();
         private readonly IWidget _content;
         private readonly FocusManager _focus;
+        private readonly int _reservedRows;
         private int _scroll;
         private Rect _bounds;
         private InputControl? _lastFocus;
@@ -16,7 +17,7 @@ namespace ConsoleMonster.Interactive {
         private Size _lastSize;
         private readonly InputArrangement _arrangement = new InputArrangement();
 
-        internal AppViewport(IWidget content, FocusManager focus) { _content = content; _focus = focus; }
+        internal AppViewport(IWidget content, FocusManager focus, int reservedRows = 0) { _content = content; _focus = focus; _reservedRows = reservedRows; }
         public IReadOnlyList<IWidget> Children => new[] { _content };
 
         public Size Measure(Constraints constraints, RenderContext context) {
@@ -36,6 +37,8 @@ namespace ConsoleMonster.Interactive {
                 CellBuffer canvas = new CellBuffer(region.Width, height);
                 _arrangement.Focused = _focus.Current;
                 using (_arrangement.Begin(region.Bounds.X, region.Bounds.Y - _scroll, region.Bounds)) { _content.Render(new Region(canvas), context); }
+                InputControl? beforeFocus = _focus.Current;
+                _focus.SetMounted(_arrangement.Mounted);
                 int before = _scroll;
                 Rect? focused = _arrangement.FocusBounds;
                 bool reveal = _revealRequested || _focus.Current != _lastFocus || _lastSize.Width != region.Width || _lastSize.Height != region.Height;
@@ -45,8 +48,9 @@ namespace ConsoleMonster.Interactive {
                     else if (focused.Value.Bottom > region.Bounds.Bottom) { _scroll += focused.Value.Bottom - region.Bounds.Bottom; }
                 }
                 _scroll = Math.Max(0, Math.Min(_scroll, height - region.Height));
-                if (before != _scroll) {
+                if (before != _scroll || beforeFocus != _focus.Current) {
                     canvas = new CellBuffer(region.Width, height);
+                    _arrangement.Focused = _focus.Current;
                     using (_arrangement.Begin(region.Bounds.X, region.Bounds.Y - _scroll, region.Bounds)) { _content.Render(new Region(canvas), context); }
                 }
                 region.Buffer.Blit(canvas, 0, _scroll, region.Width, region.Height, region.Bounds.X, region.Bounds.Y);
@@ -70,6 +74,8 @@ namespace ConsoleMonster.Interactive {
                 return false;
             }
         }
+        internal bool ScrollBy(int rows) { lock (_gate) { return _arrangement.ScrollBy(rows); } }
+        internal bool HandleContainerInput(Input.InputEvent input) { lock (_gate) { return _arrangement.HandleContainerInput(input, _focus.Current); } }
 
         internal void RevealFocus() {
             lock (_gate) { _revealRequested = true; RevealNested(_content); }
@@ -86,8 +92,9 @@ namespace ConsoleMonster.Interactive {
         }
 
         private void ConstrainInputs(int height) {
-            foreach (InputControl control in _focus.Controls) { control.ViewportHeight = height; }
-            ConstrainScrollViews(_content, height);
+            int contentHeight = height == Constraints.Unbounded ? height : Math.Max(1, height - _reservedRows);
+            foreach (InputControl control in _focus.Controls) { control.ViewportHeight = contentHeight; }
+            ConstrainScrollViews(_content, contentHeight);
         }
     }
 }

@@ -67,6 +67,17 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>The civil date to emphasize as today; null leaves all dates neutral.</summary>
         public DateTime? Today { get; set; }
+        internal Func<DateTime, Style?>? DayStyle { get; set; }
+
+        internal bool TryDateAt(int column, int row, out DateTime date) {
+            date = default;
+            if (row < 3 || column < 8 || column >= 36 || (column - 8) % 4 > 2) { return false; }
+            DayOfWeek first = FirstDayOfWeek ?? (Culture ?? CultureInfo.CurrentCulture).DateTimeFormat.FirstDayOfWeek;
+            int offset = ((int)new DateTime(Year, Month, 1).DayOfWeek - (int)first + 7) % 7;
+            int day = (row - 3) * 7 + (column - 8) / 4 - offset + 1;
+            if (day < 1 || day > DateTime.DaysInMonth(Year, Month)) { return false; }
+            date = new DateTime(Year, Month, day); return true;
+        }
 
         /// <inheritdoc />
         public Size Measure(Constraints constraints, RenderContext context) {
@@ -139,6 +150,7 @@ namespace ConsoleMonster.Widgets {
                         else { marker = Symbol(status.Value, context); }
                     }
                     if (Today.HasValue && Today.Value.Date == date) { style = style.With(TextDecoration.Underline | TextDecoration.Bold); if (!status.HasValue) { style = context.Style(ThemeToken.Focus).With(TextDecoration.Bold | TextDecoration.Underline); if (!context.HasColor || context.Glyphs.Tier == GlyphTier.Ascii) { marker = "@"; } } }
+                    style = DayStyle?.Invoke(date) ?? style;
                     region.Write(8 + col * 4, row + 3, number.ToString("00", CultureInfo.InvariantCulture), style);
                     region.Write(10 + col * 4, row + 3, marker, context.Style(status.HasValue ? status.Value.ToToken() : ThemeToken.Text));
                 }

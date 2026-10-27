@@ -16,5 +16,7 @@ namespace ConsoleMonster.Interactive {
         public KeyChord? Shortcut { get; set; }
         /// <summary>The optional confirmation prompt.</summary>
         public string? ConfirmPrompt { get; set; }
+        /// <summary>Shows the shared operation progress and summary dialogs.</summary>
+        public bool ProgressDialog { get; set; }
     }
 }

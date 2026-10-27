@@ -24,6 +24,8 @@ namespace ConsoleMonster.TestHost {
         private static int Main(string[] args) {
             try {
                 switch (args[0]) {
+                    case "handoff-probe": return TerminalHandoffProbe.Run(args[1]);
+                    case "handoff-windows": return TerminalHandoffProbe.Windows(args[1]);
                     case "background": return BackgroundProbe.Run(args[1], args.Length > 2 ? args[2] : string.Empty);
                     case "unix-recording-child": return UnixRecordingChildProbe.Run();
                     case "copy-command": InteractiveClipboardProbe.Run(args[1], args[2]); break;
@@ -45,7 +47,7 @@ namespace ConsoleMonster.TestHost {
                 return 0;
             } catch (Exception error) {
                 if (args.Length > 2 && (args[0] == "app-mode-child" || args[0] == "grid-mode-child")) { File.WriteAllText(args[2], error.ToString()); }
-                else if (args.Length > 1 && args[0].StartsWith("cancel", StringComparison.Ordinal)) { File.WriteAllText(args[1], error.ToString()); }
+                else if (args.Length > 1 && (args[0].StartsWith("cancel", StringComparison.Ordinal) || args[0] == "handoff-windows")) { File.WriteAllText(args[1], error.ToString()); }
                 else { Console.Error.WriteLine(error); }
                 return 1;
             }

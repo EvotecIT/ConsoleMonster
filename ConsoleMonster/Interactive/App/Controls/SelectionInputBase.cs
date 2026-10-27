@@ -35,6 +35,9 @@ namespace ConsoleMonster.Interactive {
             }
         }
 
+        /// <summary>Shows single-choice items as radio buttons using the existing selection value. Multiple-selection inputs retain checkboxes.</summary>
+        public bool Radio { get; set; }
+
         /// <summary>Reads the single committed value under the control lock.</summary>
         /// <returns>The selected value, or null before a selection or after clearing it.</returns>
         protected object? ReadSingleValue() => Read(() => _value);
@@ -145,6 +148,8 @@ namespace ConsoleMonster.Interactive {
         private void Configure(RenderContext context) {
             _list.Labels = PromptLabels.For(context.Profile.Language);
             _list.Focused = Focused && Enabled;
+            _list.Radio = Radio && !_multiple;
+            _list.RadioValue = _value;
         }
 
         private void Accept(Choice? choice) {

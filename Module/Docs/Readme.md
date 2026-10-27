@@ -175,6 +175,21 @@ Defines a live console dashboard: a header with title and clock, the body and a 
 
 The scriptblock emits the body widgets top to bottom. Pass the result to Invoke-ConsoleDashboard to run it live, or to Show-Console to print it once.
 
+### [New-ConsoleDataGrid](New-ConsoleDataGrid.md)
+Creates a named, embeddable data grid for Show-ConsoleApp.
+
+The listing retains original objects and stable row identities. Each grid has its own cursor, marks and prefix search. Rows and lazy cells are rendered through the shared DataGrid control.
+
+### [New-ConsoleDatePicker](New-ConsoleDatePicker.md)
+Creates a persistent civil-date or inclusive range picker.
+
+Uses Gregorian arithmetic with culture-aware labels. Arrows move the cursor, PageUp/PageDown change month, Ctrl+PageUp/PageDown change year, and Enter commits. In range mode Space anchors a range and Shift+arrows extend it. Bounds and unavailable dates reject a whole invalid range.
+
+### [New-ConsoleDialog](New-ConsoleDialog.md)
+Creates a typed modal form for the running app's dialog service.
+
+Construction does not read input. AppDialogs.Show hosts the form on the owning application thread and returns DialogResult of AppState through its completion callback.
+
 ### [New-ConsoleField](New-ConsoleField.md)
 Creates a form field for New-ConsoleForm.
 
@@ -305,10 +320,20 @@ Creates a summary bar: one line with progress, done of total, the time left and 
 
 The line Invoke-ConsoleRun ends its view with, as a widget of its own: a thin bar, done of total, the percentage, the time left (estimated from -ElapsedSeconds and the share done) and counters in a fixed order with zeros dimmed rather than hidden. -Counter maps labels to counts; a label that is a status word (passed, failed, warnings, skipped, running) takes that status's symbol and colour. Without -Total only the count done shows.
 
+### [New-ConsoleTab](New-ConsoleTab.md)
+Creates a retained tab page for New-ConsoleTabs.
+
+Collects the page widgets once and preserves their input values when another tab is selected. Pass the page to New-ConsoleTabs to mount it in a full-screen application.
+
 ### [New-ConsoleTable](New-ConsoleTable.md)
 Creates a console table from pipeline objects.
 
 Columns come from -Property or from the first object's properties (or hashtable keys). Property descriptors accept presenter names or configured C# ICellPresenter instances. Columns size to their content, numbers are right-aligned, long values wrap. A -StatusProperty column shows status markers (pass, fail, warn...) as the row's one colour signal.
+
+### [New-ConsoleTabs](New-ConsoleTabs.md)
+Creates retained tabs with keyboard and pointer navigation.
+
+Combines pages from New-ConsoleTab in display order. Only the selected page receives input; switching pages retains each page's values and focus for the next visit.
 
 ### [New-ConsoleText](New-ConsoleText.md)
 Creates rich text: multicolour words for table cells, calculated properties, titles, labels, log lines or output on its own.
@@ -330,6 +355,11 @@ Creates a console tree from nested Label/Children records calls, hierarchical ob
 
 Three ways in, one tree out. Nodes: a script block of Label/Children records calls, each with its own status, detail and children (strings become leaves shown literally); nodes can also be piped in. Objects: pipe hierarchical objects (groups and members, folders and files) and name their children with -ChildrenProperty or a -Children script block ($_ is the parent); -LabelProperty, -StatusProperty and -DetailProperty pick what each node shows, and -Depth, -MaxItems and -MaxNodes keep a large or cyclic hierarchy bounded and mark what was left out (a repeated item is shown once with "(cycle)"). Hashtables: -InputObject maps keys to nested hashtables (child nodes), arrays (leaves) or other values (a muted note); use [ordered] to keep order. The title (markup allowed) is the root; without it the top-level nodes are the roots.
 
+### [New-ConsoleTreeSelect](New-ConsoleTreeSelect.md)
+Creates an embeddable, lazy object tree for Show-ConsoleApp.
+
+Uses the same member adapters, paths, cycle guards and expansion budget as Show-ConsoleObject. Arrows expand and collapse; Enter drills into the selected subtree.
+
 ### [Out-ConsoleDefault](Out-ConsoleDefault.md)
 Shows objects of registered types through ConsoleMonster and passes everything else to PowerShell's Out-Default.
 
@@ -344,6 +374,11 @@ The host-only sink used by Enable-ConsoleFormatting -Feature FormatCommands. Pow
 Asks a yes/no question and returns $true or $false.
 
 Shows the question with the answers inline (the default focused); Y and N answer at once, arrows move, Enter takes the focused answer and Esc answers no. With -TypedConfirmation the user must type a text (a server name, a domain) before a destructive action; Esc then returns $false. In remoting and the ISE the host asks (PromptForChoice); without a user the default is returned.
+
+### [Read-ConsoleDate](Read-ConsoleDate.md)
+Asks for one civil date or inclusive date range.
+
+Returns one DateTime at midnight with unspecified kind, or one DateRange with -Range. Escape follows the normal prompt cancellation policy. Line and accessible modes accept yyyy-MM-dd and culture-aware dates; non-interactive mode requires a valid explicit default.
 
 ### [Read-ConsoleForm](Read-ConsoleForm.md)
 Shows a form or wizard and returns the answers.

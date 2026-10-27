@@ -64,16 +64,7 @@ namespace ConsoleMonster.Sessions {
             block.Append('\0');
             return Marshal.StringToHGlobalUni(block.ToString());
         }
-        internal static string Quote(string value) {
-            StringBuilder result = new StringBuilder("\"");
-            int slashes = 0;
-            foreach (char c in value) {
-                if (c == '\\') { slashes++; continue; }
-                result.Append('\\', c == '"' ? slashes * 2 + 1 : slashes).Append(c);
-                slashes = 0;
-            }
-            return result.Append('\\', slashes * 2).Append('"').ToString();
-        }
+        internal static string Quote(string value) => Interactive.CommandLine.Quote(value, Interactive.CommandStyle.Windows);
         public int Read(byte[] bytes) => _output!.Read(bytes, 0, bytes.Length);
         internal uint ProcessId => _process.ProcessId;
         public void Write(byte[] bytes) { _input!.Write(bytes, 0, bytes.Length); _input.Flush(); }

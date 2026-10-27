@@ -9,5 +9,6 @@ namespace ConsoleMonster.Sessions {
         bool HasExited { get; }
         int ExitCode { get; }
         void Stop();
+        void Complete();
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
@@ -11,9 +12,11 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Creates a hint.</summary>
         /// <param name="keys">The keys, lower case ("ctrl+c").</param>
         /// <param name="label">What they do ("stop").</param>
-        public KeyHint(string keys, string label) {
+        /// <param name="available">Whether the command can run in the current context.</param>
+        public KeyHint(string keys, string label, bool available = true) {
             Keys = keys ?? string.Empty;
             Label = label ?? string.Empty;
+            Available = available;
         }
 
         /// <summary>The keys.</summary>
@@ -21,6 +24,9 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>What they do.</summary>
         public string Label { get; }
+
+        /// <summary>Whether this command can run in the current context. Unavailable hints remain visible and dimmed.</summary>
+        public bool Available { get; }
     }
 
     /// <summary>One segment on the right of a footer: text with an optional link (OSC 8 where the terminal supports it) and tone.</summary>
@@ -63,6 +69,15 @@ namespace ConsoleMonster.Widgets {
         /// <summary>The hints, in order.</summary>
         public List<KeyHint> Hints { get; } = new List<KeyHint>();
 
+        /// <summary>Reads current registry hints at render time, for example from the focused panel or active dialog.</summary>
+        public Func<IEnumerable<KeyHint>>? HintsSource { get; set; }
+        private IReadOnlyList<KeyHint>? _appHints;
+        internal void RefreshHints() => Volatile.Write(ref _appHints, HintsSource == null ? null : new List<KeyHint>(HintsSource()));
+        internal void ReleaseHints() => Volatile.Write(ref _appHints, null);
+
+        /// <summary>Keeps every registry entry in a fixed slot, shortening labels rather than hiding unavailable or trailing commands.</summary>
+        public bool FixedSlots { get; set; }
+
         /// <summary>Keeps the last hint (the key map) when others have to be dropped.</summary>
         public bool KeepLast { get; set; }
 
@@ -94,7 +109,9 @@ namespace ConsoleMonster.Widgets {
             }
             int rightWidth = right?.Width ?? 0;
             int available = region.Width - Indent - (rightWidth > 0 ? rightWidth + 2 : 0) - 1;
-            StyledLine left = Message != null ? TextWrapper.Truncate(Message, Math.Max(1, available), context.Ellipsis) : Line(Hints, context, available, KeepLast);
+            IReadOnlyList<KeyHint> hints = Volatile.Read(ref _appHints) ?? (HintsSource == null ? Hints : new List<KeyHint>(HintsSource()));
+            StyledLine left = Message != null ? TextWrapper.Truncate(Message, Math.Max(1, available), context.Ellipsis)
+                : FixedSlots ? SlotLine(hints, context, available) : Line(hints, context, available, KeepLast);
             region.Write(Indent, 0, left);
             if (right != null && rightWidth > 0 && region.Width - 1 - rightWidth > Indent + left.Width + 1) {
                 region.Write(region.Width - 1 - rightWidth, 0, right);
@@ -160,6 +177,7 @@ namespace ConsoleMonster.Widgets {
             if (spans.Count > 0) {
                 spans.Add(new TextSpan("  ", label));
             }
+            if (!hint.Available) { key = label.With(TextDecoration.Dim); label = key; }
             spans.Add(new TextSpan(hint.Keys, key));
             if (hint.Label.Length > 0) {
                 spans.Add(new TextSpan(" " + hint.Label, label));
@@ -167,5 +185,24 @@ namespace ConsoleMonster.Widgets {
         }
 
         private static int Width(KeyHint hint) => DisplayWidth.Measure(hint.Keys) + (hint.Label.Length > 0 ? 1 + DisplayWidth.Measure(hint.Label) : 0);
+
+        private static StyledLine SlotLine(IReadOnlyList<KeyHint> hints, RenderContext context, int available) {
+            var spans = new List<TextSpan>();
+            if (hints.Count == 0 || available <= 0) { return StyledLine.Empty; }
+            for (int i = 0; i < hints.Count; i++) {
+                int width = available / hints.Count + (i < available % hints.Count ? 1 : 0);
+                if (width <= 0) { break; }
+                KeyHint hint = hints[i];
+                Style key = context.Style(hint.Available ? ThemeToken.Accent : ThemeToken.Muted);
+                Style label = context.Style(ThemeToken.Muted);
+                if (!hint.Available) { key = key.With(TextDecoration.Dim); label = label.With(TextDecoration.Dim); }
+                string keys = TextWrapper.Truncate(hint.Keys, width, string.Empty);
+                spans.Add(new TextSpan(keys, key));
+                int remaining = Math.Max(0, width - DisplayWidth.Measure(keys));
+                string text = remaining > 1 ? TextWrapper.Truncate(" " + hint.Label, remaining - 1, context.Ellipsis) : string.Empty;
+                spans.Add(new TextSpan(text + new string(' ', Math.Max(0, remaining - DisplayWidth.Measure(text))), label));
+            }
+            return new StyledLine(spans);
+        }
     }
 }

@@ -9,6 +9,27 @@ using Xunit;
 namespace ConsoleMonster.Tests.Input {
     /// <summary>Actual Unix TTY input and mode restoration, isolated from the test runner's terminal.</summary>
     public sealed class UnixInputProcessTests {
+        [UnixFact]
+        public async Task ActualTerminalHandoff_RestoresFocusOutputAndModes() {
+            string directory = Path.Combine(Path.GetTempPath(), "ConsoleMonster-Handoff-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(directory);
+            try {
+                string script = Path.Combine(directory, "terminal_handoff_pty.py");
+                using (Stream resource = typeof(UnixInputProcessTests).Assembly.GetManifestResourceStream("ConsoleMonster.Tests.Input.Fixtures.terminal_handoff_pty.py")!)
+                using (FileStream target = File.Create(script)) { resource.CopyTo(target); }
+                string host = typeof(TestHost.Program).Assembly.Location;
+                string runtime = Path.ChangeExtension(typeof(UnixInputProcessTests).Assembly.Location, ".runtimeconfig.json");
+                string dotnet = Environment.GetEnvironmentVariable("DOTNET_HOST_PATH") ?? "dotnet";
+                var info = new ProcessStartInfo("python3", Quote(script) + " " + Quote(dotnet) + " " + Quote(host) + " " + Quote(Path.Combine(directory, "result")) + " " + Quote(runtime)) {
+                    UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true
+                };
+                using Process process = Process.Start(info)!;
+                Task<string> output = process.StandardOutput.ReadToEndAsync();
+                Task<string> error = process.StandardError.ReadToEndAsync();
+                await Task.Run(() => process.WaitForExit());
+                Assert.True(process.ExitCode == 0, await output + await error);
+            } finally { Directory.Delete(directory, true); }
+        }
         /// <summary>SGR mouse, Unicode and keys pass through the real backend, and disposal restores the entire termios state.</summary>
         [UnixFact]
         public async Task ActualTtyInput_RoundTripsEventsAndRestoresModeBeforeProcessExit() {
