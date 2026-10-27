@@ -8,6 +8,7 @@ using Xunit;
 
 namespace SiteFrames.Tests {
     /// <summary>The translation notes name actual configured API symbols, using the same map as the parity gate.</summary>
+    [Collection("Interactive process defaults")]
     public sealed class ApiMappingContracts : IDisposable {
         private readonly string _folder = Path.Combine(Path.GetTempPath(), "cm-api-map-" + Guid.NewGuid().ToString("N"));
         public ApiMappingContracts() => Directory.CreateDirectory(_folder);
@@ -65,7 +66,7 @@ namespace SiteFrames.Tests {
         }
 
         [Theory]
-        [InlineData("var widget = new Sparkline { Label = \"req/s\" };", "New-ConsoleChart -Type Sparkline", "new Sparkline(…)")]
+        [InlineData("var widget = new Sparkline { Title = \"req/s\" };", "New-ConsoleChart -Type Sparkline", "new Sparkline(…)")]
         [InlineData("var widget = new BarChart().Add(\"Disk\", 42);", "New-ConsoleChart -Type Bar", "new BarChart(…)")]
         public void KindSelectedConstructorsNameTheTypeValue(string body, string powerShell, string initializer) {
             string path = Source("kind-" + powerShell.Split(' ')[^1], "using ConsoleMonster.Widgets;\n" + body + "\n");

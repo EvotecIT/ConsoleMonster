@@ -30,13 +30,14 @@ var states = new State[]
 };
 
 // Behaviour: count each state, keep the hosts that need work and flag anything unpatched for 30+ days.
-var byState = Ui.Chart().Type(ChartType.Stacked).Build<StackedBar>();
+var byState = Ui.Chart().Type(ConsoleMonster.Widgets.ChartType.Stacked).Build<StackedBar>();
 foreach (var state in states)
     byState.Add(state.Label, servers.Count(server => server.State == state.Label), state.Role);
 var attention = servers.Where(server => server.State != "Compliant").ToArray();
 var overdue = Ui.StatusList();
 foreach (var server in servers.Where(server => server.Days > 30))
-    overdue.Add(server.Host, StatusKind.Fail, $"{server.Days} days · {server.State.ToLowerInvariant()} · {server.Missing} missing");
+    overdue.Add(server.Host, StatusKind.Fail,
+        $"{server.Days} days · {server.State.ToLowerInvariant()} · {server.Missing} missing");
 
 // Layout: the fleet split first, then the hosts to fix, then the overdue call-out.
 var table = Ui.Table(attention)
@@ -46,17 +47,26 @@ var table = Ui.Table(attention)
     .Column(row => row.Missing)
     .Column(row => row.LastPatched)
     .Column(row => row.Days)
-    .Column(row => row.Status, column => column.Presenter(CellPresenters.StatusWord))
-    .Expand();
+    .Column(row => row.Status, column => column.Presenter(CellPresenters.StatusWord));
+table.Expand();
+var report = Ui.Rows().Gap(1).Content(c2 =>
+{
+    c2.Rule("[bold]Windows Update compliance[/] [muted]· 2026-10 cumulative · as of 2026-10-20[/]");
+    c2.Panel(cmPanel => cmPanel.Content(cmContent =>
+    {
+        cmContent.Add(byState);
+    }).Title($"Fleet · {servers.Length} servers"));
+    c2.Add(table);
+    c2.Panel(cmPanel => cmPanel.Title("Overdue · unpatched for more than 30 days").Content(c =>
+    {
+        c.Add(overdue);
+    }));
+});
 
 // Behaviour: print once; schedule the overdue hosts into the next maintenance window.
-Ui.Rows().Gap(1).Content(c =>
-{
-    c.Rule("[bold]Windows Update compliance[/] [muted]· 2026-10 cumulative · as of 2026-10-20[/]");
-    c.Panel(panel => panel.Title($"Fleet · {servers.Length} servers").Content(byState));
-    c.Add(table);
-    c.Panel(panel => panel.Title("Overdue · unpatched for more than 30 days").Content(overdue));
-}).Show();
+report.Show();
 
-record Server(string Host, string Ring, string State, int Missing, string LastPatched, int Days, string Status);
+record Server(string Host, string Ring, string State, int Missing, string LastPatched, int Days,
+    string Status);
+
 record State(string Label, ThemeToken Role);

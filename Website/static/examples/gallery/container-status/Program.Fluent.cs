@@ -9,12 +9,48 @@ using ConsoleMonster.Widgets;
 // Data: four fictional samples, two seconds apart; no container engine is contacted.
 var containers = new Container[]
 {
-    new("web", "nginx:1.27", 256, new[] { 8, 9, 12, 10 }, new[] { 96, 98, 101, 99 }, new[] { 0, 0, 0, 0 }),
-    new("api", "adatum/api:4.2", 512, new[] { 34, 41, 3, 22 }, new[] { 410, 468, 120, 190 }, new[] { 2, 2, 3, 3 }),
-    new("worker", "adatum/worker:4.2", 896, new[] { 55, 61, 72, 78 }, new[] { 690, 742, 801, 846 }, new[] { 0, 0, 0, 0 }),
-    new("db", "postgres:16", 2048, new[] { 18, 22, 25, 21 }, new[] { 1210, 1225, 1240, 1236 }, new[] { 0, 0, 0, 0 }),
-    new("cache", "redis:7.4", 512, new[] { 3, 4, 4, 3 }, new[] { 152, 153, 153, 154 }, new[] { 0, 0, 0, 0 }),
-    new("queue", "rabbitmq:3.13", 1024, new[] { 6, 7, 9, 8 }, new[] { 301, 305, 309, 312 }, new[] { 1, 1, 1, 1 })
+    new(
+        "web",
+        "nginx:1.27",
+        256,
+        new[] { 8, 9, 12, 10 },
+        new[] { 96, 98, 101, 99 },
+        new[] { 0, 0, 0, 0 }),
+    new(
+        "api",
+        "adatum/api:4.2",
+        512,
+        new[] { 34, 41, 3, 22 },
+        new[] { 410, 468, 120, 190 },
+        new[] { 2, 2, 3, 3 }),
+    new(
+        "worker",
+        "adatum/worker:4.2",
+        896,
+        new[] { 55, 61, 72, 78 },
+        new[] { 690, 742, 801, 846 },
+        new[] { 0, 0, 0, 0 }),
+    new(
+        "db",
+        "postgres:16",
+        2048,
+        new[] { 18, 22, 25, 21 },
+        new[] { 1210, 1225, 1240, 1236 },
+        new[] { 0, 0, 0, 0 }),
+    new(
+        "cache",
+        "redis:7.4",
+        512,
+        new[] { 3, 4, 4, 3 },
+        new[] { 152, 153, 153, 154 },
+        new[] { 0, 0, 0, 0 }),
+    new(
+        "queue",
+        "rabbitmq:3.13",
+        1024,
+        new[] { 6, 7, 9, 8 },
+        new[] { 301, 305, 309, 312 },
+        new[] { 1, 1, 1, 1 })
 };
 var events = new List<Event>();
 
@@ -27,17 +63,27 @@ IWidget Frame(int tick)
     {
         int memoryPercent = (int)Math.Round(100.0 * container.Memory[tick] / container.Limit);
         bool restarted = tick > 0 && container.Restarts[tick] > container.Restarts[tick - 1];
-        string status = restarted || memoryPercent >= 90 ? "Fail" : memoryPercent >= 80 ? "Warn" : "Pass";
+        string status = restarted || memoryPercent >= 90
+            ? "Fail"
+            : memoryPercent >= 80 ? "Warn" : "Pass";
         if (restarted)
-            events.Insert(0, new Event($"{clock} {container.Name}", StatusKind.Fail, $"restarted after exit 137 · restart {container.Restarts[tick]}"));
+            events.Insert(
+                0,
+                new Event($"{clock} {container.Name}", StatusKind.Fail,
+                    $"restarted after exit 137 · restart {container.Restarts[tick]}"));
         else if (memoryPercent >= 90)
-            events.Insert(0, new Event($"{clock} {container.Name}", StatusKind.Warn, $"memory at {memoryPercent}% of its {container.Limit} MiB limit"));
-        rows.Add(new ContainerRow(container.Name, container.Image, restarted ? "restarting" : "running", container.Restarts[tick], container.Cpu[tick], container.Memory[tick], memoryPercent, status));
+            events.Insert(
+                0,
+                new Event($"{clock} {container.Name}", StatusKind.Warn,
+                    $"memory at {memoryPercent}% of its {container.Limit} MiB limit"));
+        rows.Add(new ContainerRow(container.Name, container.Image,
+            restarted ? "restarting" : "running", container.Restarts[tick], container.Cpu[tick],
+            container.Memory[tick], memoryPercent, status));
     }
+
     int restarting = rows.Count(row => row.State == "restarting");
     int memoryTotal = rows.Sum(row => row.Memory);
     int limitTotal = containers.Sum(container => container.Limit);
-
     var table = Ui.Table(rows)
         .Column(row => row.Container)
         .Column(row => row.Image)
@@ -46,45 +92,70 @@ IWidget Frame(int tick)
         .Column("CPU %", row => row.Cpu)
         .Column("Memory MiB", row => row.Memory)
         .Column("Memory %", row => row.MemoryPercent)
-        .Column(row => row.Status, column => column.Presenter(CellPresenters.StatusWord))
-        .Expand();
-    var cpu = Ui.Chart().WidgetId("cpu").Type(ChartType.Bar).Maximum(100).Warning(70).Critical(90).Build<BarChart>();
-    var memory = Ui.Chart().WidgetId("memory").Type(ChartType.Bar).Maximum(100).Warning(80).Critical(90).Build<BarChart>();
+        .Column(row => row.Status, column => column.Presenter(CellPresenters.StatusWord));
+    table.Expand();
+    var cpu = Ui.Chart()
+        .Type(ConsoleMonster.Widgets.ChartType.Bar)
+        .WidgetId("cpu")
+        .Maximum(100)
+        .Warning(70)
+        .Critical(90)
+        .Build<BarChart>();
+    var memory = Ui.Chart()
+        .Type(ConsoleMonster.Widgets.ChartType.Bar)
+        .WidgetId("memory")
+        .Maximum(100)
+        .Warning(80)
+        .Critical(90)
+        .Build<BarChart>();
     foreach (var row in rows)
     {
         cpu.Add(row.Container, row.Cpu);
         memory.Add(row.Container, row.MemoryPercent);
     }
 
-    return Ui.Rows().Gap(1).Content(c =>
+    IWidget feed = Ui.Text().Content("[muted]No restarts or memory warnings yet.[/]").IsMarkup();
+    if (events.Count > 0)
     {
-        c.Rule($"[bold]Containers[/] [muted]· docker-01.adatum.example.test · refresh 2s · {clock}[/]");
-        c.Text(text => text.Content($"[pass]{rows.Count - restarting} running[/]   [warn]{restarting} restarting[/]   [muted]memory {memoryTotal:N0} of {limitTotal:N0} MiB reserved[/]").IsMarkup());
-        c.Add(table);
-        c.Columns(columns => columns.Content(charts =>
+        var list = Ui.StatusList();
+        foreach (var item in events.Take(4))
+            list.Add(item.Label, item.Status, item.Detail);
+        feed = list;
+    }
+
+    return Ui.Rows().Gap(1).Content(c3 =>
+    {
+        c3.Rule(
+            $"[bold]Containers[/] [muted]· docker-01.adatum.example.test · refresh 2s · {clock}[/]");
+        c3.Text(
+            c3Text => c3Text.Content(
+                $"[pass]{rows.Count - restarting} running[/]   [warn]{restarting} restarting[/]   [muted]memory {memoryTotal:N0} of {limitTotal:N0} MiB reserved[/]")
+                .IsMarkup());
+        c3.Add(table);
+        c3.Columns(cmColumns => cmColumns.Content(c2 =>
         {
-            charts.Panel(panel => panel.Title("CPU %").Content(cpu));
-            charts.Panel(panel => panel.Title("Memory % of limit").Content(memory));
+            c2.Panel(cmPanel => cmPanel.Title("CPU %").Content(c =>
+            {
+                c.Add(cpu);
+            }));
+            c2.Panel(cmPanel => cmPanel.Title("Memory % of limit").Content(c =>
+            {
+                c.Add(memory);
+            }));
         }));
-        c.Panel(panel => panel.Title("Events").Content(feed =>
+        c3.Panel(cmPanel => cmPanel.Title("Events").Content(c =>
         {
-            if (events.Count == 0)
-            {
-                feed.Text(text => text.Content("[muted]No restarts or memory warnings yet.[/]").IsMarkup());
-                return;
-            }
-            feed.StatusList(list =>
-            {
-                foreach (var item in events.Take(4))
-                    list.Add(item.Label, item.Status, item.Detail);
-            });
+            c.Add(feed);
         }));
     });
 }
 
 // Behaviour: build each sample's screen, then replay them in a bounded live dashboard.
 var frames = Enumerable.Range(0, 4).Select(Frame).ToArray();
-var screen = Ui.Region("containers").Content(frames[0]);
+var screen = Ui.Region("containers").Content(c =>
+{
+    c.Add(frames[0]);
+});
 using LiveSession session = screen.CreateSession();
 try
 {
@@ -99,11 +170,15 @@ try
         }
     });
 }
-catch (OperationCanceledException cancelled) when (cancelled.CancellationToken == session.Cancellation)
+catch (OperationCanceledException cancelled)
+    when (cancelled.CancellationToken == session.Cancellation)
 {
-    // Ctrl+C is a normal way to leave the dashboard, after the session restores the terminal.
+// Ctrl+C is a normal way to leave the dashboard, after the session restores the terminal.
 }
 
 record Container(string Name, string Image, int Limit, int[] Cpu, int[] Memory, int[] Restarts);
-record ContainerRow(string Container, string Image, string State, int Restarts, int Cpu, int Memory, int MemoryPercent, string Status);
+
+record ContainerRow(string Container, string Image, string State, int Restarts, int Cpu, int Memory,
+    int MemoryPercent, string Status);
+
 record Event(string Label, StatusKind Status, string Detail);

@@ -17,9 +17,13 @@ $usage = foreach ($sku in $skus) {
     $percent = [math]::Round(100 * $sku.Assigned / $sku.Purchased)
     $status = if ($percent -ge 90) { 'Pass' } elseif ($percent -ge 70) { 'Warn' } else { 'Fail' }
     $unused = $sku.Purchased - $sku.Assigned
-    [pscustomobject] @{ Sku = $sku.Sku; Purchased = $sku.Purchased; Assigned = $sku.Assigned; Unused = $unused; 'Used %' = $percent; 'Waste $' = $unused * $sku.Price; Status = $status }
+    [pscustomobject] @{ Sku = $sku.Sku; Purchased = $sku.Purchased; Assigned = $sku.Assigned
+        Unused = $unused; 'Used %' = $percent; 'Waste $' = $unused * $sku.Price; Status = $status }
 }
-$reclaim = @($usage | Where-Object -Property Status -NE -Value 'Pass' | Sort-Object -Property 'Waste $' -Descending | Select-Object -First 3)
+$reclaim = @($usage |
+    Where-Object -Property Status -NE -Value 'Pass' |
+    Sort-Object -Property 'Waste $' -Descending |
+    Select-Object -First 3)
 $unusedSeats = ($usage | Measure-Object -Property Unused -Sum).Sum
 $monthlyWaste = ($usage | Measure-Object -Property 'Waste $' -Sum).Sum
 
@@ -28,19 +32,25 @@ $report = New-ConsoleRows -Gap 1 -Content {
     New-ConsoleRule -Title '[bold]Microsoft 365 licenses[/] [muted]· adatum.example.test · October 2026[/]'
     New-ConsoleColumns -Content {
         New-ConsolePanel -Title 'Assigned of purchased' -Content {
-            $usage | ForEach-Object -Process { [pscustomobject] @{ Label = $_.Sku; Value = $_.'Used %'; Role = $_.Status } } |
-                New-ConsoleChart -Type Bar -Maximum 100 -Unit '%'
+            $usage |
+                ForEach-Object -Process {
+                    [pscustomobject] @{ Label = $_.Sku; Value = $_.'Used %'; Role = $_.Status }
+                } |
+                    New-ConsoleChart -Type Bar -Maximum 100 -Unit '%'
         }
         New-ConsolePanel -Title 'Reclaim first' -Content {
             New-ConsoleStatusList -Content {
                 foreach ($sku in $reclaim) {
-                    [pscustomobject] @{ Label = $sku.Sku; Status = $sku.Status; Detail = ('{0} unused · ${1:N0}/mo' -f $sku.Unused, $sku.'Waste $') }
+                    [pscustomobject] @{ Label = $sku.Sku; Status = $sku.Status
+                        Detail = ('{0} unused · ${1:N0}/mo' -f $sku.Unused, $sku.'Waste $') }
                 }
             }
         }
     }
-    New-ConsoleTable -InputObject $usage -Property Sku, Purchased, Assigned, Unused, 'Used %', 'Waste $', Status -Expand
-    ('[warn]${0:N0} a month[/] pays for {1} unassigned seats. [muted]Reclaim before the renewal date.[/]' -f $monthlyWaste, $unusedSeats)
+    New-ConsoleTable -InputObject $usage -Property Sku, Purchased, Assigned, Unused, 'Used %',
+        'Waste $', Status -Expand
+    ('[warn]${0:N0} a month[/] pays for {1} unassigned seats. [muted]Reclaim before the renewal date.[/]' -f $monthlyWaste,
+        $unusedSeats)
 }
 
 # Behaviour: print once; review the reclaim list with each license owner before removing seats.

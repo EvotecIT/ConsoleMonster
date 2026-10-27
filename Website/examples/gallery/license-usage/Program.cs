@@ -21,11 +21,16 @@ var skus = new Sku[]
 var usage = skus.Select(sku =>
 {
     int percent = (int)Math.Round(100.0 * sku.Assigned / sku.Purchased);
-    StatusKind status = percent >= 90 ? StatusKind.Pass : percent >= 70 ? StatusKind.Warn : StatusKind.Fail;
+    StatusKind status = percent >= 90
+        ? StatusKind.Pass
+        : percent >= 70 ? StatusKind.Warn : StatusKind.Fail;
     int unused = sku.Purchased - sku.Assigned;
-    return new Usage(sku.Name, sku.Purchased, sku.Assigned, unused, percent, unused * sku.Price, status);
+    return new Usage(sku.Name, sku.Purchased, sku.Assigned, unused, percent, unused * sku.Price,
+        status);
 }).ToArray();
-var reclaim = usage.Where(sku => sku.Status != StatusKind.Pass).OrderByDescending(sku => sku.Waste).Take(3);
+var reclaim = usage.Where(sku => sku.Status != StatusKind.Pass)
+    .OrderByDescending(sku => sku.Waste)
+    .Take(3);
 int unusedSeats = usage.Sum(sku => sku.Unused);
 int monthlyWaste = usage.Sum(sku => sku.Waste);
 
@@ -51,7 +56,8 @@ var report = new Rows(
     new Rule("[bold]Microsoft 365 licenses[/] [muted]· adatum.example.test · October 2026[/]"),
     new Columns(new Panel(bars, "Assigned of purchased"), new Panel(savings, "Reclaim first")),
     table,
-    new TextBlock($"[warn]${monthlyWaste:N0} a month[/] pays for {unusedSeats} unassigned seats. [muted]Reclaim before the renewal date.[/]"))
+    new TextBlock(
+        $"[warn]${monthlyWaste:N0} a month[/] pays for {unusedSeats} unassigned seats. [muted]Reclaim before the renewal date.[/]"))
 {
     Gap = 1
 };
@@ -60,4 +66,6 @@ var report = new Rows(
 Terminal.Write(report);
 
 record Sku(string Name, int Purchased, int Assigned, int Price);
-record Usage(string Sku, int Purchased, int Assigned, int Unused, int Used, int Waste, StatusKind Status);
+
+record Usage(string Sku, int Purchased, int Assigned, int Unused, int Used, int Waste,
+    StatusKind Status);

@@ -33,13 +33,20 @@ foreach (var account in accounts)
     if (inactive > 60 || age > 365)
     {
         string status = inactive > 90 || age > 365 ? "Fail" : "Warn";
-        stale.Add(new StaleRow(account.Name, account.Department, account.LastLogon.ToString("yyyy-MM-dd"), inactive, age, status));
+        stale.Add(new StaleRow(account.Name, account.Department,
+            account.LastLogon.ToString("yyyy-MM-dd"), inactive, age, status));
     }
 }
-var expiring = accounts.Where(account => account.PasswordExpires >= today && account.PasswordExpires <= today.AddDays(30));
-var marks = expiring
-    .Select(account => new CalendarMark(account.PasswordExpires!.Value, account.PasswordExpires <= today.AddDays(7) ? StatusKind.Warn : StatusKind.Info, account.Name + " password"))
-    .Append(new CalendarMark(new DateTime(2026, 11, 16), StatusKind.Fail, $"Disable {stale.Count} accounts"))
+
+var expiring = accounts.Where(account => account.PasswordExpires >= today
+    && account.PasswordExpires <= today.AddDays(30));
+var marks = expiring.Select(account => new CalendarMark(account.PasswordExpires!.Value,
+    account.PasswordExpires <= today.AddDays(7) ? StatusKind.Warn : StatusKind.Info,
+    account.Name + " password"))
+    .Append(new CalendarMark(
+        new DateTime(2026, 11, 16),
+        StatusKind.Fail,
+        $"Disable {stale.Count} accounts"))
     .OrderBy(mark => mark.Date)
     .ToArray();
 
@@ -50,24 +57,40 @@ var table = Ui.Table(stale)
     .Column(row => row.LastLogon)
     .Column(row => row.Inactive)
     .Column(row => row.PasswordAge)
-    .Column(row => row.Status, column => column.Presenter(CellPresenters.StatusWord))
-    .Expand();
-
+    .Column(row => row.Status, column => column.Presenter(CellPresenters.StatusWord));
+table.Expand();
+var calendar = Ui.Calendar()
+    .Year(2026)
+    .Month(11)
+    .Marks(marks)
+    .FirstDayOfWeek(DayOfWeek.Monday)
+    .Today(today);
 var upcoming = Ui.StatusList();
 foreach (var mark in marks)
-    upcoming.Add(mark.Date.ToString("ddd dd MMM", CultureInfo.GetCultureInfo("en-US")), mark.Status, mark.Label);
+    upcoming.Add(mark.Date.ToString("ddd dd MMM", CultureInfo.GetCultureInfo("en-US")), mark.Status,
+        mark.Label);
+var report = Ui.Rows().Gap(1).Content(c3 =>
+{
+    c3.Rule("[bold]Account hygiene[/] [muted]· adatum.example.test · as of 2026-11-02[/]");
+    c3.Add(table);
+    c3.Columns(cmColumns => cmColumns.Content(c2 =>
+    {
+        c2.Panel(cmPanel => cmPanel.Title("November").Content(c =>
+        {
+            c.Add(calendar);
+        }));
+        c2.Panel(cmPanel => cmPanel.Title("Coming up").Content(c =>
+        {
+            c.Add(upcoming);
+        }));
+    }));
+});
 
 // Behaviour: print once; confirm each stale account with its manager before disabling it.
-Ui.Rows().Gap(1).Content(c =>
-{
-    c.Rule("[bold]Account hygiene[/] [muted]· adatum.example.test · as of 2026-11-02[/]");
-    c.Add(table);
-    c.Columns(columns => columns.Content(row =>
-    {
-        row.Panel(panel => panel.Title("November").Content(month => month.Calendar(calendar => calendar.Year(2026).Month(11).Marks(marks).FirstDayOfWeek(DayOfWeek.Monday).Today(today))));
-        row.Panel(panel => panel.Title("Coming up").Content(upcoming));
-    }));
-}).Show();
+report.Show();
 
-record Account(string Name, string Department, DateTime LastLogon, DateTime PasswordSet, DateTime? PasswordExpires);
-record StaleRow(string Account, string Department, string LastLogon, int Inactive, int PasswordAge, string Status);
+record Account(string Name, string Department, DateTime LastLogon, DateTime PasswordSet,
+    DateTime? PasswordExpires);
+
+record StaleRow(string Account, string Department, string LastLogon, int Inactive, int PasswordAge,
+    string Status);

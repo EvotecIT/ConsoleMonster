@@ -8,6 +8,7 @@ using Xunit;
 
 namespace SiteFrames.Tests {
     /// <summary>Example C# reads like hand-written code: long lines break at their structure and only whitespace changes.</summary>
+    [Collection("Interactive process defaults")]
     public sealed class SourceLayoutContracts {
         [Fact]
         public void LongChainsBreakOneCallPerLineAndNestedChainsIndentAgain() {
@@ -23,6 +24,16 @@ namespace SiteFrames.Tests {
             Assert.StartsWith("double[] rate = { 18, 21, 19 };\n", laid, StringComparison.Ordinal);
             Assert.Contains("var row = new Row(Name: \"Domain controllers\", Rule: \"LDAP signing required\",\n    Reason: \"LDAPServerIntegrity is 1\", Weight: 1.0);\n", laid, StringComparison.Ordinal);
             Assert.Contains("\n\nrecord Row(", laid, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public void ShortConditionalAfterNestedCallbacksFitsWithoutChangingTheProgram() {
+            string source = "Func<object?, Func<object?, string?>> map = configured => cmValue => cmValue is string cmItem ? cmItem : null;\nConsole.WriteLine(map(null)(\"sample\"));\n";
+            string laid = SourceLayout.Format(source);
+            Assert.All(laid.Split('\n'), line => Assert.InRange(line.Length, 0, SourceLayout.Width));
+            Assert.True(CSharpSyntaxTree.ParseText(laid).GetRoot().IsEquivalentTo(CSharpSyntaxTree.ParseText(source).GetRoot(), topLevel: false));
+            Assert.Equal(laid, SourceLayout.Format(laid));
+            CSharpRunner.Check("nested-callback.cs", laid);
         }
 
         [Fact]

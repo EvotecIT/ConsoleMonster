@@ -34,13 +34,20 @@ foreach (var account in accounts)
     if (inactive > 60 || age > 365)
     {
         string status = inactive > 90 || age > 365 ? "Fail" : "Warn";
-        stale.Add(new StaleRow(account.Name, account.Department, account.LastLogon.ToString("yyyy-MM-dd"), inactive, age, status));
+        stale.Add(new StaleRow(account.Name, account.Department,
+            account.LastLogon.ToString("yyyy-MM-dd"), inactive, age, status));
     }
 }
-var expiring = accounts.Where(account => account.PasswordExpires >= today && account.PasswordExpires <= today.AddDays(30));
+var expiring = accounts.Where(account => account.PasswordExpires >= today
+    && account.PasswordExpires <= today.AddDays(30));
 var marks = expiring
-    .Select(account => new CalendarMark(account.PasswordExpires!.Value, account.PasswordExpires <= today.AddDays(7) ? StatusKind.Warn : StatusKind.Info, account.Name + " password"))
-    .Append(new CalendarMark(new DateTime(2026, 11, 16), StatusKind.Fail, $"Disable {stale.Count} accounts"))
+    .Select(account => new CalendarMark(account.PasswordExpires!.Value,
+        account.PasswordExpires <= today.AddDays(7) ? StatusKind.Warn : StatusKind.Info,
+        account.Name + " password"))
+    .Append(new CalendarMark(
+        new DateTime(2026, 11, 16),
+        StatusKind.Fail,
+        $"Disable {stale.Count} accounts"))
     .OrderBy(mark => mark.Date)
     .ToArray();
 
@@ -57,7 +64,8 @@ table.Expand = true;
 var calendar = new Calendar(2026, 11, marks) { FirstDayOfWeek = DayOfWeek.Monday, Today = today };
 var upcoming = new StatusList();
 foreach (var mark in marks)
-    upcoming.Add(mark.Date.ToString("ddd dd MMM", CultureInfo.GetCultureInfo("en-US")), mark.Status, mark.Label);
+    upcoming.Add(mark.Date.ToString("ddd dd MMM", CultureInfo.GetCultureInfo("en-US")), mark.Status,
+        mark.Label);
 
 var report = new Rows(
     new Rule("[bold]Account hygiene[/] [muted]· adatum.example.test · as of 2026-11-02[/]"),
@@ -70,5 +78,8 @@ var report = new Rows(
 // Behaviour: print once; confirm each stale account with its manager before disabling it.
 Terminal.Write(report);
 
-record Account(string Name, string Department, DateTime LastLogon, DateTime PasswordSet, DateTime? PasswordExpires);
-record StaleRow(string Account, string Department, string LastLogon, int Inactive, int PasswordAge, string Status);
+record Account(string Name, string Department, DateTime LastLogon, DateTime PasswordSet,
+    DateTime? PasswordExpires);
+
+record StaleRow(string Account, string Department, string LastLogon, int Inactive, int PasswordAge,
+    string Status);

@@ -6,8 +6,14 @@ using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
 
 // Data: fictional counts already grouped from the System and Application logs of six servers.
-double[] errorsPerHour = { 4, 3, 5, 2, 3, 4, 6, 9, 14, 11, 8, 7, 6, 9, 31, 44, 27, 12, 8, 6, 5, 4, 6, 5 };
-double[] warningsPerHour = { 12, 10, 11, 9, 10, 12, 15, 22, 30, 26, 21, 19, 18, 20, 41, 52, 38, 24, 19, 16, 14, 13, 15, 14 };
+double[] errorsPerHour =
+{
+    4, 3, 5, 2, 3, 4, 6, 9, 14, 11, 8, 7, 6, 9, 31, 44, 27, 12, 8, 6, 5, 4, 6, 5
+};
+double[] warningsPerHour =
+{
+    12, 10, 11, 9, 10, 12, 15, 22, 30, 26, 21, 19, 18, 20, 41, 52, 38, 24, 19, 16, 14, 13, 15, 14
+};
 var sources = new SourceCount[]
 {
     new("Service Control Manager", 74),
@@ -40,43 +46,77 @@ int peak = Array.IndexOf(errorsPerHour, errorsPerHour.Max());
 var topIds = eventIds.OrderByDescending(row => row.Count).ToArray();
 
 // Layout: headline, the 24-hour trend, the noisiest sources beside the top IDs, then criticals.
-var noisiest = Ui.Chart().Type(ChartType.Bar).Build<BarChart>();
+var errors = Ui.Chart()
+    .Type(ConsoleMonster.Widgets.ChartType.Sparkline)
+    .Title("errors")
+    .Height(3)
+    .Role(ThemeToken.Fail)
+    .Build<Sparkline>();
+errors.AddRange(errorsPerHour);
+var warnings = Ui.Chart()
+    .Type(ConsoleMonster.Widgets.ChartType.Sparkline)
+    .Title("warnings")
+    .Height(3)
+    .Role(ThemeToken.Warn)
+    .Build<Sparkline>();
+warnings.AddRange(warningsPerHour);
+var noisiest = Ui.Chart().Type(ConsoleMonster.Widgets.ChartType.Bar).Build<BarChart>();
 foreach (var source in sources)
     noisiest.Add(source.Source, source.Errors);
-
 var idTable = Ui.Table(topIds)
     .Column(row => row.Id, column => column.Presenter(CellPresenters.Identifier))
     .Column(row => row.Count)
-    .Column(row => row.Meaning)
-    .Border(TableBorder.None)
-    .Expand();
+    .Column(row => row.Meaning);
+idTable.Border(TableBorder.None);
+idTable.Expand();
 var criticalTable = Ui.Table(critical)
     .Column(row => row.Time)
     .Column(row => row.Host)
     .Column(row => row.Source)
     .Column(row => row.Id, column => column.Presenter(CellPresenters.Identifier))
-    .Column(row => row.Message)
-    .Border(TableBorder.None)
-    .Expand();
+    .Column(row => row.Message);
+criticalTable.Border(TableBorder.None);
+criticalTable.Expand();
+var report = Ui.Rows().Gap(1).Content(c3 =>
+{
+    c3.Rule("[bold]Event log summary[/] [muted]· 6 servers · Sunday 2026-10-25[/]");
+    c3.Text(
+        c3Text => c3Text.Content(
+            $"[fail]{critical.Length} critical[/]   [warn]{errorTotal} errors[/]   [muted]{warningTotal} warnings · busiest hour {peak:00}:00[/]")
+            .IsMarkup());
+    c3.Columns(cmColumns => cmColumns.Content(c2 =>
+    {
+        c2.Panel(cmPanel => cmPanel.Title("Errors per hour").Content(c =>
+        {
+            c.Add(errors);
+        }));
+        c2.Panel(cmPanel => cmPanel.Title("Warnings per hour").Content(c =>
+        {
+            c.Add(warnings);
+        }));
+    }));
+    c3.Columns(cmColumns => cmColumns.Content(c2 =>
+    {
+        c2.Panel(cmPanel => cmPanel.Title("Noisiest sources").Content(c =>
+        {
+            c.Add(noisiest);
+        }));
+        c2.Panel(cmPanel => cmPanel.Title("Top event IDs").Content(c =>
+        {
+            c.Add(idTable);
+        }));
+    }));
+    c3.Panel(cmPanel => cmPanel.Title("Critical events").Content(c =>
+    {
+        c.Add(criticalTable);
+    }));
+});
 
 // Behaviour: print once; feed it Get-WinEvent results grouped the same way for a real day.
-Ui.Rows().Gap(1).Content(c =>
-{
-    c.Rule("[bold]Event log summary[/] [muted]· 6 servers · Sunday 2026-10-25[/]");
-    c.Text(text => text.Content($"[fail]{critical.Length} critical[/]   [warn]{errorTotal} errors[/]   [muted]{warningTotal} warnings · busiest hour {peak:00}:00[/]").IsMarkup());
-    c.Columns(columns => columns.Content(row =>
-    {
-        row.Panel(panel => panel.Title("Errors per hour").Content(trend => trend.Chart(chart => chart.Type(ChartType.Sparkline).Label("errors").Height(3).Role(ThemeToken.Fail).Values(errorsPerHour))));
-        row.Panel(panel => panel.Title("Warnings per hour").Content(trend => trend.Chart(chart => chart.Type(ChartType.Sparkline).Label("warnings").Height(3).Role(ThemeToken.Warn).Values(warningsPerHour))));
-    }));
-    c.Columns(columns => columns.Content(row =>
-    {
-        row.Panel(panel => panel.Title("Noisiest sources").Content(noisiest));
-        row.Panel(panel => panel.Title("Top event IDs").Content(idTable));
-    }));
-    c.Panel(panel => panel.Title("Critical events").Content(criticalTable));
-}).Show();
+report.Show();
 
 record SourceCount(string Source, int Errors);
+
 record EventIdCount(int Id, int Count, string Meaning);
+
 record CriticalEvent(string Time, string Host, string Source, int Id, string Message);
