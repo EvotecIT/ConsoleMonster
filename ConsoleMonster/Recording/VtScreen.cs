@@ -91,8 +91,6 @@ namespace ConsoleMonster.Sessions {
 
         // Shared with the opt-in stream normalizer; SGR parsing has one owner.
         internal Style ActiveStyle => _link == null ? _style : _style.WithLink(_link);
-        internal bool CursorOnMatchingBlank => !_pendingWrap && Current[_x, _y].Glyph == " "
-            && Current[_x, _y].Width == 1 && Current[_x, _y].Style == ActiveStyle;
 
         /// <summary>Notifies replay when a complete synchronized repaint becomes visible.</summary>
         internal Action? SynchronizedFrameCompleted { get; set; }

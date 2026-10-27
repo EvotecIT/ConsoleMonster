@@ -21,6 +21,7 @@
         <EmbeddedResource Include="Input/Fixtures/background_pty.py" />
         <EmbeddedResource Include="Input/Fixtures/terminal_handoff_pty.py" />
         <EmbeddedResource Include="Text/Fixtures/Wgl4.codepoints.txt" />
+        <EmbeddedResource Include="Recording/Fixtures/help-repeat/**/*.ansi" />
         <ProjectReference Include="..\ConsoleMonster\ConsoleMonster.csproj" />
         <ProjectReference Include="..\ConsoleMonster.TestHost\ConsoleMonster.TestHost.csproj" />
         <!-- The table showcases double as golden scenes, so the datasets are defined once. -->

@@ -30,6 +30,10 @@ namespace ConsoleMonster.Tests.Sessions {
         [InlineData("HELLO\r     \r\nX")]
         [InlineData("12345678901       \r\nX")]
         [InlineData("\u001b[41mA\r\nB\u001b[0m\r\nC\r\nD\u001b[2K")]
+        [InlineData("erase me\u001b[1;1H\u001b[K")]
+        [InlineData("\u001b[2;3r\u001b[?6hA\r\nB\r\nC\u001b[?6l")]
+        [InlineData("A\u001b[3;1H\nB")]
+        [InlineData("12345678901 \u001b[1;12H\u001b[31m\u0301")]
         public void VisibleCellsBackgroundsDecorationsLinksAndScrollbackSurvive(string original) {
             string normalized = new VtOutputNormalizer(12, 3).Normalize(original);
             Assert.Equal(normalized, new VtOutputNormalizer(12, 3).Normalize(normalized));
@@ -43,8 +47,10 @@ namespace ConsoleMonster.Tests.Sessions {
             var normalizer = new VtOutputNormalizer(12, 3);
             string text = normalizer.Normalize("\u001b[31mA\n", true) + normalizer.Normalize("B\u001b[0m\n", true);
             Assert.Equal(new VtOutputNormalizer(12, 3).Normalize("\u001b[31mA\r\nB\u001b[0m\r\n"), text);
-            Assert.Equal("A\nB", new VtOutputNormalizer(12, 3).Normalize("A\nB"));
-            Assert.Equal("A\r\nB", new VtOutputNormalizer(12, 3).Normalize("A\nB", true));
+            var vt = new VtScreen(12, 3); vt.Feed(new VtOutputNormalizer(12, 3).Normalize("A\nB"));
+            var plain = new VtScreen(12, 3); plain.Feed(new VtOutputNormalizer(12, 3).Normalize("A\nB", true));
+            Assert.Equal(" B", vt.Snapshot().GetRowText(1).TrimEnd());
+            Assert.Equal("B", plain.Snapshot().GetRowText(1).TrimEnd());
         }
 
         [Theory]
@@ -70,6 +76,26 @@ namespace ConsoleMonster.Tests.Sessions {
             Assert.Equal(Color.FromAnsi16(1), screen.Snapshot()[0, 0].Style.Color);
         }
 
+        [Fact]
+        public void SegmentAndSynchronizedFrameBoundariesKeepTheirPaintedState() {
+            var normalizer = new VtOutputNormalizer(12, 3);
+            var source = new VtScreen(12, 3);
+            var output = new VtScreen(12, 3);
+            int sourceFrames = 0, outputFrames = 0;
+            source.SynchronizedFrameCompleted = () => sourceFrames++;
+            output.SynchronizedFrameCompleted = () => outputFrames++;
+            foreach (string segment in new[] { "\u001b[?2026hpage 1\u001b[?2026l", "\u001b[?2026h\rpage 2\u001b[?2026l", "\u001b[?2026h\rpage 1\u001b[?2026l" }) {
+                source.Feed(segment);
+                output.Feed(normalizer.Normalize(segment));
+                Same(source.Snapshot(), output.Snapshot());
+                Assert.Equal(sourceFrames, outputFrames);
+                Assert.Equal(source.Cursor.X, output.Cursor.X);
+                Assert.Equal(source.Cursor.Y, output.Cursor.Y);
+                Assert.Equal(source.Cursor.PendingWrap, output.Cursor.PendingWrap);
+            }
+            Assert.Equal(3, outputFrames);
+        }
+
         [Theory]
         [InlineData("\u001b[31")]
         [InlineData("\u001b[5mblinking")]
@@ -77,7 +103,7 @@ namespace ConsoleMonster.Tests.Sessions {
             Assert.Throws<FormatException>(() => new VtOutputNormalizer(12, 3).Normalize(text));
         }
 
-        private static void Same(CellBuffer a, CellBuffer b) {
+        internal static void Same(CellBuffer a, CellBuffer b) {
             Assert.Equal(a.Width, b.Width); Assert.Equal(a.Height, b.Height);
             for (int y = 0; y < a.Height; y++) {
                 for (int x = 0; x < a.Width; x++) {
@@ -85,7 +111,7 @@ namespace ConsoleMonster.Tests.Sessions {
                     Assert.Equal(a[x, y].Width, b[x, y].Width);
                     var left = a[x, y].Style; var right = b[x, y].Style;
                     // Foreground on an undecorated blank has no visible effect.
-                    if (a[x, y].Glyph == " " && left.Decoration == 0 && right.Decoration == 0) {
+                    if (a[x, y].Glyph == " " && a[x, y].Width == 1 && left.Decoration == 0 && right.Decoration == 0 && left.Link == null && right.Link == null) {
                         left = left.WithColor(default); right = right.WithColor(default);
                     }
                     Assert.Equal(left, right);

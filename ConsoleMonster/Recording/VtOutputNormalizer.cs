@@ -1,7 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Rendering;
 using ConsoleMonster.Styling;
@@ -9,11 +9,12 @@ using ConsoleMonster.Styling;
 namespace ConsoleMonster.Sessions {
     /// <summary>Opt-in canonical encoding of terminal output without changing its visible cells or repaint boundaries.
     /// Removes window titles, cursor visibility/focus/input-mode housekeeping and cursor queries, combines supported SGR
-    /// changes, and omits already-identical blank-cell writes immediately before a newline that returns to column one.
-    /// Unknown SGR is rejected rather than silently discarded. Other terminal controls and OSC hyperlinks are retained.</summary>
-    public sealed class VtOutputNormalizer {
+    /// changes, and re-encodes equivalent cursor movement and already-blank writes through the shared terminal model.
+    /// Latent blank styles, real scrolling, holds, synchronized updates and OSC hyperlinks remain effective.
+    /// Unknown SGR is rejected rather than silently discarded; other terminal controls are retained.</summary>
+    public sealed partial class VtOutputNormalizer {
         private readonly VtScreen _styles;
-        private Style _emitted;
+        private readonly VtScreen _written;
 
         /// <summary>Creates a normalizer with the recorded terminal's fixed geometry.</summary>
         /// <param name="width">Terminal columns.</param>
@@ -22,6 +23,7 @@ namespace ConsoleMonster.Sessions {
             if (width < 1 || width > 4096) { throw new ArgumentOutOfRangeException(nameof(width)); }
             if (height < 1 || height > 4096 || (long)width * height > 4_194_304) { throw new ArgumentOutOfRangeException(nameof(height)); }
             _styles = new VtScreen(width, height, keepScrollback: false);
+            _written = new VtScreen(width, height, keepScrollback: false);
         }
 
         /// <summary>Normalizes a complete VT segment. Successive calls retain the active SGR state.
@@ -33,19 +35,12 @@ namespace ConsoleMonster.Sessions {
         public string Normalize(string text, bool textLineEndings = false) {
             if (text == null) { throw new ArgumentNullException(nameof(text)); }
             var result = new StringBuilder(text.Length);
-            var blanks = new List<Style>();
-            void EmitStyle(Style style) {
-                // Links are encoded by their original OSC controls, independently of SGR.
-                style = style.WithLink(null);
-                if (_emitted != style) { SgrEncoder.Append(result, style, ColorDepth.TrueColor); _emitted = style; }
-            }
-            void FlushBlanks() {
-                foreach (Style style in blanks) { EmitStyle(style); result.Append(' '); }
-                blanks.Clear();
-            }
             for (int i = 0; i < text.Length; i++) {
+                VtScreen.CursorState before = _styles.Cursor;
+                Style active = _styles.ActiveStyle;
                 char c = text[i];
                 if (c == '\u001b') {
+                    CellBuffer? cells = MayErase(text, i) ? _styles.Snapshot() : null;
                     int start = i;
                     do { _styles.Feed(text[i].ToString()); i++; }
                     while (i < text.Length && _styles.HasIncompleteSequence);
@@ -55,45 +50,46 @@ namespace ConsoleMonster.Sessions {
                         if (!SupportedSgr(control)) { throw new FormatException("The recording contains SGR outside the supported cell model."); }
                         continue;
                     }
-                    if (control.StartsWith("\u001b]0;", StringComparison.Ordinal) || control.StartsWith("\u001b]2;", StringComparison.Ordinal)
-                        || control == "\u001b[6n" || control == "\u001b[?25h" || control == "\u001b[?25l"
-                        || control == "\u001b[?9001h" || control == "\u001b[?9001l" || control == "\u001b[?1004h" || control == "\u001b[?1004l") { continue; }
-                    FlushBlanks();
-                    // Cursor moves and synchronization do not paint; erases and unknown controls may depend on SGR.
-                    bool cursor = control.StartsWith("\u001b[", StringComparison.Ordinal)
-                        && "HfABCDEFGd`".IndexOf(control[control.Length - 1]) >= 0;
-                    bool synchronized = control == "\u001b[?2026h" || control == "\u001b[?2026l";
-                    if (!cursor && !synchronized) { EmitStyle(_styles.ActiveStyle); }
-                    result.Append(control);
-                    if (control == "\u001bc") { _emitted = Style.Plain; }
+                    if (Housekeeping(control) || CursorTransport(control)) { continue; }
+                    if (cells != null && SameVisibleCells(cells)) { continue; }
+                    FlushCursor(result, before);
+                    EmitStyle(result, active);
+                    Emit(result, control);
                     continue;
                 }
-                Style active = _styles.ActiveStyle;
-                bool blank = c == ' ' && _styles.CursorOnMatchingBlank && active.BackgroundColor.IsDefault
-                    && active.Decoration == TextDecoration.None && active.Link == null;
-                _styles.Feed(c.ToString());
-                if (blank) { blanks.Add(active); continue; }
-                bool crlf = c == '\r' && i + 1 < text.Length && text[i + 1] == '\n';
-                if (crlf || (c == '\n' && textLineEndings)) {
-                    blanks.Clear();
-                    // Scrolling/erasure at LF uses the active background, even without printable text.
-                    if (_emitted.BackgroundColor != active.BackgroundColor) { EmitStyle(active); }
-                    result.Append("\r\n");
-                    if (crlf) { _styles.Feed("\n"); i++; }
-                    else {
-                        // The input was append-only text: its LF also returns to column one.
-                        _styles.Feed("\r");
-                    }
-                } else {
-                    FlushBlanks();
-                    if (!char.IsControl(c) || ((c is '\n' or '\v' or '\f') && _emitted.BackgroundColor != active.BackgroundColor)) { EmitStyle(active); }
-                    result.Append(c);
+                string scalar = char.IsHighSurrogate(c) && i + 1 < text.Length && char.IsLowSurrogate(text[i + 1]) ? text.Substring(i++, 2) : c.ToString();
+                if (c is '\r' or '\b' or '\t') { _styles.Feed(scalar); continue; }
+                if (c is '\n' or '\v' or '\f') {
+                    if (c == '\n' && textLineEndings) { _styles.Feed("\r"); before = _styles.Cursor; }
+                    if (before.Y != before.Bottom) { _styles.Feed(scalar); continue; }
+                    // A bottom-margin line feed really scrolls and uses the active background.
+                    FlushCursor(result, before);
+                    if (_written.ActiveStyle.BackgroundColor != active.BackgroundColor) { EmitStyle(result, active); }
+                    _styles.Feed(scalar);
+                    Emit(result, scalar);
+                    continue;
                 }
+                if (c == ' ' && !before.PendingWrap && active.BackgroundColor.IsDefault &&
+                    active.Decoration == TextDecoration.None && active.Link == null &&
+                    SameVisibleCell(_styles.CellAt(before.X, before.Y), new Cell(" ", active))) {
+                    // Keep the original latent foreground in the source model. A later combining
+                    // scalar can make it visible, even in a subsequent Normalize segment.
+                    _styles.Feed(scalar);
+                    continue;
+                }
+                if (_styles.TryJoiningCell(scalar, out int baseX, out Cell previous) && previous != _written.CellAt(baseX, before.Y)) {
+                    FlushCursor(result, before);
+                    WriteCell(result, baseX, before.Y, before.OriginTop, previous);
+                }
+                FlushCursor(result, before);
+                if (!char.IsControl(c)) { EmitStyle(result, active); }
+                _styles.Feed(scalar);
+                Emit(result, scalar);
             }
-            FlushBlanks();
+            // Recording holds and synchronized updates are real boundaries, never flattened pages.
+            FlushCursor(result, _styles.Cursor);
             return result.ToString();
         }
-
         private static bool SupportedSgr(string control) {
             string[] parts = control.Substring(2, control.Length - 3).Split(';');
             for (int i = 0; i < parts.Length; i++) {
