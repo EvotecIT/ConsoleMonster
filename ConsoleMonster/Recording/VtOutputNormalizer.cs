@@ -2,8 +2,6 @@ using System;
 using System.Globalization;
 using System.Text;
 using ConsoleMonster.Canvas;
-using ConsoleMonster.Capabilities;
-using ConsoleMonster.Rendering;
 using ConsoleMonster.Styling;
 
 namespace ConsoleMonster.Sessions {
@@ -11,10 +9,13 @@ namespace ConsoleMonster.Sessions {
     /// Removes window titles, cursor visibility/focus/input-mode housekeeping and cursor queries, combines supported SGR
     /// changes, and re-encodes equivalent cursor movement and already-blank writes through the shared terminal model.
     /// Latent blank styles, real scrolling, holds, synchronized updates and OSC hyperlinks remain effective.
-    /// Unknown SGR is rejected rather than silently discarded; other terminal controls are retained.</summary>
+    /// Unknown SGR is rejected rather than silently discarded. Unmodeled controls suspend optimization until reset;
+    /// transport is then retained verbatim. A pending state that cannot safely be reconstructed is rejected.</summary>
     public sealed partial class VtOutputNormalizer {
         private readonly VtScreen _styles;
         private readonly VtScreen _written;
+        private readonly VtScreen _controls = new VtScreen(1, 1, keepScrollback: false);
+        private bool _passthrough;
 
         /// <summary>Creates a normalizer with the recorded terminal's fixed geometry.</summary>
         /// <param name="width">Terminal columns.</param>
@@ -40,17 +41,32 @@ namespace ConsoleMonster.Sessions {
                 Style active = _styles.ActiveStyle;
                 char c = text[i];
                 if (c == '\u001b') {
-                    CellBuffer? cells = MayErase(text, i) ? _styles.Snapshot() : null;
                     int start = i;
-                    do { _styles.Feed(text[i].ToString()); i++; }
-                    while (i < text.Length && _styles.HasIncompleteSequence);
-                    if (_styles.HasIncompleteSequence) { throw new FormatException("Normalization requires complete VT sequences."); }
+                    // Use the canonical parser to frame the control before applying its effects.
+                    // The one-cell reader has no paint or cursor authority over the recording.
+                    do { _controls.Feed(text[i].ToString()); i++; }
+                    while (i < text.Length && _controls.HasIncompleteSequence);
+                    if (_controls.HasIncompleteSequence) { throw new FormatException("Normalization requires complete VT sequences."); }
                     string control = text.Substring(start, i - start); i--;
                     if (control.StartsWith("\u001b[", StringComparison.Ordinal) && control.EndsWith("m", StringComparison.Ordinal)) {
                         if (!SupportedSgr(control)) { throw new FormatException("The recording contains SGR outside the supported cell model."); }
+                        _styles.Feed(control);
+                        if (_passthrough) { Emit(result, control); }
                         continue;
                     }
-                    if (Housekeeping(control) || CursorTransport(control)) { continue; }
+                    if (!_passthrough && !ModeledControl(control)) { PreparePassthrough(result, before, active); }
+                    CellBuffer? cells = !_passthrough && MayErase(control, 0) ? _styles.Snapshot() : null;
+                    _styles.Feed(control);
+                    if (_passthrough) {
+                        Emit(result, control);
+                        if (control == "\u001bc") { _passthrough = false; }
+                        continue;
+                    }
+                    if (Housekeeping(control)) { continue; }
+                    if (CursorTransport(control)) {
+                        if (before.OutsideOrigin || _styles.Cursor.OutsideOrigin) { FlushCursor(result, before); Emit(result, control); }
+                        continue;
+                    }
                     if (cells != null && SameVisibleCells(cells)) { continue; }
                     FlushCursor(result, before);
                     EmitStyle(result, active);
@@ -58,6 +74,15 @@ namespace ConsoleMonster.Sessions {
                     continue;
                 }
                 string scalar = char.IsHighSurrogate(c) && i + 1 < text.Length && char.IsLowSurrogate(text[i + 1]) ? text.Substring(i++, 2) : c.ToString();
+                if (_passthrough) {
+                    if (c == '\n' && textLineEndings && (i == 0 || text[i - 1] != '\r')) { scalar = "\r\n"; }
+                    _styles.Feed(scalar); Emit(result, scalar); continue;
+                }
+                if (before.OutsideOrigin && (c is '\r' or '\b' or '\t' or '\n' or '\v' or '\f')) {
+                    FlushCursor(result, before);
+                    if ((c is '\n' or '\v' or '\f') && _written.ActiveStyle.BackgroundColor != active.BackgroundColor) { EmitStyle(result, active); }
+                    _styles.Feed(scalar); Emit(result, scalar); continue;
+                }
                 if (c is '\r' or '\b' or '\t') { _styles.Feed(scalar); continue; }
                 if (c is '\n' or '\v' or '\f') {
                     if (c == '\n' && textLineEndings) { _styles.Feed("\r"); before = _styles.Cursor; }
@@ -69,7 +94,7 @@ namespace ConsoleMonster.Sessions {
                     Emit(result, scalar);
                     continue;
                 }
-                if (c == ' ' && !before.PendingWrap && active.BackgroundColor.IsDefault &&
+                if (c == ' ' && !before.PendingWrap && !before.OutsideOrigin && active.BackgroundColor.IsDefault &&
                     active.Decoration == TextDecoration.None && active.Link == null &&
                     SameVisibleCell(_styles.CellAt(before.X, before.Y), new Cell(" ", active))) {
                     // Keep the original latent foreground in the source model. A later combining
@@ -87,7 +112,7 @@ namespace ConsoleMonster.Sessions {
                 Emit(result, scalar);
             }
             // Recording holds and synchronized updates are real boundaries, never flattened pages.
-            FlushCursor(result, _styles.Cursor);
+            if (!_passthrough) { FlushCursor(result, _styles.Cursor); }
             return result.ToString();
         }
         private static bool SupportedSgr(string control) {

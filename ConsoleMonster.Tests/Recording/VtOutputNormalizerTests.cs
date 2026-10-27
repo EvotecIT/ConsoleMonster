@@ -34,6 +34,7 @@ namespace ConsoleMonster.Tests.Sessions {
         [InlineData("\u001b[2;3r\u001b[?6hA\r\nB\r\nC\u001b[?6l")]
         [InlineData("A\u001b[3;1H\nB")]
         [InlineData("12345678901 \u001b[1;12H\u001b[31m\u0301")]
+        [InlineData("\u001b[2;1H\u001b[32m \u001b[1;1H\u001b[31m            \u001bH\u0301!")]
         public void VisibleCellsBackgroundsDecorationsLinksAndScrollbackSurvive(string original) {
             string normalized = new VtOutputNormalizer(12, 3).Normalize(original);
             Assert.Equal(normalized, new VtOutputNormalizer(12, 3).Normalize(normalized));
@@ -74,6 +75,34 @@ namespace ConsoleMonster.Tests.Sessions {
             var screen = new VtScreen(12, 3); screen.Feed(text);
             Assert.Equal(" \u0301", screen.Snapshot()[0, 0].Glyph);
             Assert.Equal(Color.FromAnsi16(1), screen.Snapshot()[0, 0].Style.Color);
+        }
+
+        [Theory]
+        [InlineData("\u001b7", "\u001b8")]
+        [InlineData("\u001b[s", "\u001b[u")]
+        [InlineData("\u001b[?1048h", "\u001b[?1048l")]
+        public void SavedOriginCursorOutsideChangedMarginsStaysReachable(string save, string restore) {
+            string original = "\u001b[2;5r\u001b[?6h" + save + "\u001b[3;5r" + restore + "\u001b[CZ";
+            var source = new VtScreen(12, 6); source.Feed(original);
+            var output = new VtScreen(12, 6); output.Feed(new VtOutputNormalizer(12, 6).Normalize(original));
+            Assert.Equal("Z", source.Snapshot()[1, 1].Glyph);
+            Same(source.Snapshot(), output.Snapshot());
+            Assert.Equal(source.Cursor.X, output.Cursor.X);
+            Assert.Equal(source.Cursor.Y, output.Cursor.Y);
+        }
+
+        [Fact]
+        public void UnmodeledTabStopsRetainTheirDependentTransportAcrossSegments() {
+            var normalizer = new VtOutputNormalizer(12, 3);
+            string text = normalizer.Normalize("A\u001bH") + normalizer.Normalize("\r\tB");
+            Assert.EndsWith("\u001bH\r\tB", text);
+            Assert.EndsWith("\u001bH\r\nB", new VtOutputNormalizer(12, 3).Normalize("A\u001bH\nB", true));
+        }
+
+        [Fact]
+        public void UnmodeledInsertModeRetainsBlankWrites() {
+            string text = new VtOutputNormalizer(12, 3).Normalize("A B\u001b[1;2H\u001b[4h \u001b[4l");
+            Assert.Contains("\u001b[4h \u001b[4l", text);
         }
 
         [Fact]

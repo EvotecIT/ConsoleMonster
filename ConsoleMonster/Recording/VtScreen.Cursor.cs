@@ -8,7 +8,7 @@ namespace ConsoleMonster.Sessions {
             get {
                 int edge = Width - 1;
                 if (Current[edge, _y].IsContinuation && edge > 0) { edge--; }
-                return new CursorState(_x, _y, _pendingWrap, _origin ? _top : 0, _bottom, edge, Current[edge, _y]);
+                return new CursorState(_x, _y, _pendingWrap, _origin, _origin ? _top : 0, _bottom, edge, Current[edge, _y]);
             }
         }
 
@@ -29,12 +29,14 @@ namespace ConsoleMonster.Sessions {
         }
 
         internal readonly struct CursorState {
-            internal CursorState(int x, int y, bool wrap, int originTop, int bottom, int edge, Cell edgeCell) {
-                X = x; Y = y; PendingWrap = wrap; OriginTop = originTop; Bottom = bottom; Edge = edge; EdgeCell = edgeCell;
+            internal CursorState(int x, int y, bool wrap, bool origin, int originTop, int bottom, int edge, Cell edgeCell) {
+                X = x; Y = y; PendingWrap = wrap; Origin = origin; OriginTop = originTop; Bottom = bottom; Edge = edge; EdgeCell = edgeCell;
             }
             internal int X { get; }
             internal int Y { get; }
             internal bool PendingWrap { get; }
+            internal bool Origin { get; }
+            internal bool OutsideOrigin => Origin && (Y < OriginTop || Y > Bottom);
             internal int OriginTop { get; }
             internal int Bottom { get; }
             internal int Edge { get; }
