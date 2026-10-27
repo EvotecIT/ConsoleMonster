@@ -10,6 +10,7 @@ using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Output;
 using ConsoleMonster.Rendering;
+using ConsoleMonster.Testing;
 using ConsoleMonster.Widgets;
 using Xunit;
 
@@ -41,6 +42,70 @@ namespace ConsoleMonster.Tests.Live {
             Assert.Equal(2, results.Count);
             Assert.All(results, r => Assert.True(r.Succeeded));
             Assert.Contains(lines, line => line.Contains("7 ("));
+        }
+
+        [Fact]
+        public async Task ForEachAsync_RetriesAFailedItemAndCountsTheRetry() {
+            List<string> lines = new List<string>();
+            int[] calls = new int[3];
+            IReadOnlyList<RunResult<int, int>> results = await ConsoleRun.ForEachAsync(new[] { 0, 1, 2 }, (n, token) => {
+                int call = Interlocked.Increment(ref calls[n]);
+                if (n == 1 && call < 2) { throw new InvalidOperationException("flaky"); }
+                if (n == 2) { throw new InvalidOperationException("broken"); }
+                return Task.FromResult(n);
+            }, new RunOptions { Live = false, RetryCount = 2, RetryDelay = TimeSpan.FromMilliseconds(5), Print = line => { lock (lines) { lines.Add(line); } } });
+            Assert.Equal(new[] { 1, 2, 3 }, results.Select(r => r.Attempts));
+            Assert.Equal(new[] { true, true, false }, results.Select(r => r.Succeeded));
+            Assert.Equal(new[] { 1, 2, 3 }, calls);
+            Assert.Contains(lines, line => line.Contains("1 (retry 1 of 2): flaky"));
+            Assert.Contains(lines, line => line.Contains("2 (retry 2 of 2): broken"));
+            Assert.Contains("2 retried", lines[lines.Count - 1]);
+        }
+
+        [Theory]
+        [InlineData(0, false)]
+        [InlineData(5, false)]
+        [InlineData(0, true)]
+        [InlineData(5, true)]
+        public async Task ForEachAsync_CancellationPreventsAnotherFailedAttempt(int delayMilliseconds, bool cancelOnRetryMessage) {
+            using CancellationTokenSource stop = new CancellationTokenSource();
+            int calls = 0;
+            List<string> lines = new List<string>();
+            IReadOnlyList<RunResult<int, int>> results = await ConsoleRun.ForEachAsync<int, int>(new[] { 1 }, (_, token) => {
+                calls++;
+                if (!cancelOnRetryMessage) { stop.Cancel(); }
+                throw new InvalidOperationException("failed while cancellation was requested");
+            }, new RunOptions {
+                Live = false, RetryCount = 1, RetryDelay = TimeSpan.FromMilliseconds(delayMilliseconds),
+                Print = line => {
+                    lines.Add(line);
+                    if (cancelOnRetryMessage && line.Contains("retry 1 of 1")) { stop.Cancel(); }
+                }
+            }, stop.Token);
+            Assert.Equal(1, calls);
+            RunResult<int, int> result = Assert.Single(results);
+            Assert.Equal(1, result.Attempts);
+            Assert.IsAssignableFrom<OperationCanceledException>(result.Error);
+            Assert.False(result.Succeeded);
+            Assert.Contains("1 skipped", lines[lines.Count - 1]);
+        }
+
+        [Fact]
+        public void RunView_ShowsRetriedItemsInTheCellsSummaryAndRunningList() {
+            RunTracker tracker = new RunTracker(2);
+            tracker.Started(0, "web01");
+            tracker.Retrying(0, "web01", 2);
+            tracker.Started(1, "web02");
+            tracker.Finished(1, StatusKind.Pass, "web02");
+            RunSnapshot snapshot = tracker.Snapshot();
+            Assert.Equal(new[] { 2, 1 }, snapshot.Attempts);
+            Assert.Equal(1, snapshot.Retried);
+            Assert.Equal(StatusKind.Running, snapshot.States[0]);
+            string text = TestTerminal.RenderText(new RunView(tracker) { RetryCount = 3 }, 140);
+            Assert.Contains("1 retried", text);
+            Assert.Contains("web01 · retry 1 of 3", text);
+            Assert.Throws<ArgumentOutOfRangeException>(() => tracker.Retrying(0, "web01", 1));
+            Assert.Throws<ArgumentOutOfRangeException>(() => new RunOptions { RetryCount = -1 });
         }
 
         [Fact]

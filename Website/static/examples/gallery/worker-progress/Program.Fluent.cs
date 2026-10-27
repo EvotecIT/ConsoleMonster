@@ -19,7 +19,7 @@ IWidget Frame(int tick)
     }
 
     KeyValueList stats = Ui.KeyValue().Add("Updates", (800 + tick * 320).ToString(System.Globalization.CultureInfo.InvariantCulture)).Add("Queue", (24 - tick * 5).ToString(System.Globalization.CultureInfo.InvariantCulture)).Add("Workers", "8").Add("Dropped", "[pass]0[/]");
-    Sparkline trend = Ui.Chart().Type(ConsoleMonster.Widgets.ChartType.Sparkline).Label("updates/s").Build<Sparkline>();
+    Sparkline trend = Ui.Chart().Type(ConsoleMonster.Widgets.ChartType.Sparkline).Title("updates/s").Build<Sparkline>();
     trend.AddRange(new double[] { 120, 180, 160, 240, 210, 220 + tick * 15 });
     return Ui.Rows().Gap(1).Content(c4 =>
     {

@@ -69,6 +69,10 @@ namespace ConsoleMonster.PowerShell {
         [Parameter, ValidateRange(0, int.MaxValue)]
         public int PaddingBottom { get; set; } = 0;
 
+        /// <summary><para type="description">Blank rows between content children when -Content emits several widgets (default 0); 1 spaces a report's sections.</para></summary>
+        [Parameter, ValidateRange(0, int.MaxValue)]
+        public int Gap { get; set; }
+
         /// <summary><para type="description">Fits the panel to content instead of filling its available width.</para></summary>
         [Parameter]
         public SwitchParameter NoExpand { get; set; }
@@ -81,8 +85,8 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override IWidget Build(List<IWidget> children) {
-            IWidget content = children.Count == 1 ? children[0] : new Rows(children.ToArray());
-            Panel panel = new Panel(content, PSText.Markup(Title)) { HeaderRight = PSText.Markup(HeaderRight), Caption = PSText.Markup(Caption), Border = Border, BorderRole = BorderRole, PaddingLeft = PaddingLeft, PaddingRight = PaddingRight, PaddingTop = PaddingTop, PaddingBottom = PaddingBottom, Expand = !NoExpand.IsPresent, Verdict = Verdict.IsPresent, Status = Status };
+            IWidget content = ContentBuilder.Compose(children.ToArray());
+            Panel panel = new Panel(content, PSText.Markup(Title)) { Gap = Gap, HeaderRight = PSText.Markup(HeaderRight), Caption = PSText.Markup(Caption), Border = Border, BorderRole = BorderRole, PaddingLeft = PaddingLeft, PaddingRight = PaddingRight, PaddingTop = PaddingTop, PaddingBottom = PaddingBottom, Expand = !NoExpand.IsPresent, Verdict = Verdict.IsPresent, Status = Status };
             return PSWidgets.WithSize(panel, Weight, Height, Fill.IsPresent);
         }
     }

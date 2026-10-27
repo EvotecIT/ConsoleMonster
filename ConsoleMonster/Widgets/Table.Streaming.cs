@@ -27,7 +27,7 @@ namespace ConsoleMonster.Widgets {
 
             public void Add(CellContent[] cells) {
                 for (int c = 0; c < _desired.Length && c < cells.Length; c++) {
-                    Measure(cells[c], _table._columns[c], ref _desired[c], ref _minimum[c]);
+                    Measure(cells[c], _table._columns[c], ref _desired[c], ref _minimum[c], ref _table._freeText[c]);
                     CellContent content = cells[c];
                     if (content.Presented != null && !content.IsEmpty) {
                         if (content.Alignment == HorizontalAlignment.Right) {

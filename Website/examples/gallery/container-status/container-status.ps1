@@ -80,6 +80,6 @@ Invoke-ConsoleDashboard -Dashboard $screen -ArgumentList (, $frames) -ScriptBloc
             break
         }
         Update-Console -WidgetId containers -Content $frame
-        Wait-ConsoleDashboard -Milliseconds 2000
+        Wait-ConsoleDashboard -Seconds 2
     }
 }

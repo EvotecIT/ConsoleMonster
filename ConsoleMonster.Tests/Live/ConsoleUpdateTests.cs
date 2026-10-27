@@ -68,6 +68,13 @@ namespace ConsoleMonster.Tests.Live {
         }
 
         [Fact]
+        public void KeyedTargetsNameTheWidgetWhenKeyIsMissing() {
+            var list = new StatusList("checks");
+            var error = Assert.Throws<ArgumentException>(() => Apply(list, new WidgetUpdate { Status = StatusKind.Pass }));
+            Assert.Equal("StatusList 'checks' updates one item at a time: give the item's Key.", error.Message);
+        }
+
+        [Fact]
         public void CellBatchRejectsEveryIndexBeforeCreatingEvents() {
             var cells = new CellMap();
             Assert.Throws<ArgumentException>(() => Apply(cells, new WidgetUpdate { Index = new[] { 0, -1 }, Status = StatusKind.Pass }));

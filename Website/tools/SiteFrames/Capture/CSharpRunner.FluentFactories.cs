@@ -41,18 +41,21 @@ namespace SiteFrames.Capture {
                 bool options = type.Name.EndsWith("Options", StringComparison.Ordinal);
                 bool input = type.Name is "TextInput" or "Select" or "MultiSelect" or "Toggle" or "Button";
                 if (type.Name == "MultiSelect") { noun = "Select"; }
+                string? question = QuestionNoun(type);
+                if (question != null) { noun = question; }
                 INamedTypeSymbol ui = model.Compilation.GetTypeByMetadataName("ConsoleMonster.Ui")!;
-                IMethodSymbol? factory = ui.GetMembers(noun).OfType<IMethodSymbol>().FirstOrDefault(m => m.Arity == type.Arity && m.Parameters.All(p => p.IsOptional));
+                IMethodSymbol? factory = ui.GetMembers(noun).OfType<IMethodSymbol>().FirstOrDefault(m => (question != null ? m.Arity == 0 : m.Arity == type.Arity) && m.Parameters.All(p => p.IsOptional));
                 if (!options && factory == null) { return visited; } // data records retain ordinary C# construction
                 Namespaces.Add(type.ContainingNamespace.ToDisplayString());
                 if (factory != null) { Namespaces.Add(factory.ReturnType.ContainingNamespace.ToDisplayString()); }
                 if (stageArguments && NeedsArgumentStaging(original, type, ctor, buildDefinition: input || progress || chartType != null || type.Name is "AppBinding" or "AppCommand")) {
                     return StageArguments(original, visited, type, ctor);
                 }
-                string typeArgs = type.IsGenericType ? "<" + string.Join(", ", type.TypeArguments.Select(t => t.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat))) + ">" : string.Empty;
+                string typeArgs = type.IsGenericType && question == null ? "<" + string.Join(", ", type.TypeArguments.Select(t => t.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat))) + ">" : string.Empty;
                 ExpressionSyntax result = SyntaxFactory.ParseExpression(options ? "Ui.Options<" + type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat) + ">()" : "Ui." + noun + typeArgs + "()");
                 if (chartType != null) { result = Call(result, "Type", SyntaxFactory.ParseExpression("ConsoleMonster.Widgets.ChartType." + chartType)); }
                 if (type.Name == "Spinner") { result = Call(result, "Indeterminate"); }
+                if (question != null && QuestionVariant(type) is string variant) { result = Call(result, variant); }
                 bool build = input || progress || chartType != null || type.Name is "AppBinding" or "AppCommand";
                 var contentParameters = new HashSet<string>(StringComparer.Ordinal);
                 for (int i = 0; i < (visited.ArgumentList?.Arguments.Count ?? 0); i++) {
@@ -142,6 +145,7 @@ namespace SiteFrames.Capture {
 
             public override SyntaxNode? VisitInvocationExpression(InvocationExpressionSyntax node) {
                 var visited = (InvocationExpressionSyntax)base.VisitInvocationExpression(node)!;
+                if (QuestionShow(node, visited) is ExpressionSyntax typedShow) { return typedShow.WithTriviaFrom(node); }
                 if (node.Expression is MemberAccessExpressionSyntax originalSetter && visited.Expression is MemberAccessExpressionSyntax setter
                     && model.GetSymbolInfo(node).Symbol is IMethodSymbol setterMethod && setterMethod.Name.EndsWith(originalSetter.Name.Identifier.ValueText, StringComparison.Ordinal)
                     && (setterMethod.ReducedFrom ?? setterMethod).ContainingType.Name.EndsWith("Fluent", StringComparison.Ordinal)

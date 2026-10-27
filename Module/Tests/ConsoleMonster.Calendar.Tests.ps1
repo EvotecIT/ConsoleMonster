@@ -47,4 +47,16 @@
         { New-ConsoleCalendar -Year 2026 } | Should -Throw '*requires*Month*'
         { New-ConsoleCalendar -Year 2026 -View Year -Month 10 } | Should -Throw '*without*Month*'
     }
+
+    It 'shows the current month without Year or Month, like Ui.Calendar()' {
+        (Get-Command New-ConsoleCalendar).Parameters['Year'].Attributes.Where({ $_ -is [System.Management.Automation.ParameterAttribute] }).Mandatory | Should -Not -Contain $true
+        $calendar = New-ConsoleCalendar
+        $calendar.Year | Should -Be ([datetime]::Today.Year)
+        $calendar.Month | Should -Be ([datetime]::Today.Month)
+        $fixed = New-ConsoleCalendar -Today ([datetime]'2025-02-14') -Culture en-US
+        $fixed.Year | Should -Be 2025
+        $fixed.Month | Should -Be 2
+        ($fixed | Show-Console -AsString -Width 40) | Should -Match 'February 2025'
+        (New-ConsoleCalendar -View Year).Year | Should -Be ([datetime]::Today.Year)
+    }
 }

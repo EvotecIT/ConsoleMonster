@@ -24,8 +24,8 @@ namespace ConsoleMonster.Widgets {
         /// <summary>The values, oldest first.</summary>
         public IReadOnlyList<double> Values => _values;
 
-        /// <summary>A label shown on the left (markup), or <c>null</c>.</summary>
-        public string? Label { get; set; }
+        /// <summary>A caption shown on the left (markup), or <c>null</c>.</summary>
+        public string? Title { get; set; }
 
         /// <summary>Rows (default 1).</summary>
         public int Height { get; set; } = 1;
@@ -96,8 +96,8 @@ namespace ConsoleMonster.Widgets {
             }
             int rows = Math.Min(Math.Max(1, Height), region.Height);
             int x = 0;
-            if (!string.IsNullOrEmpty(Label)) {
-                StyledLine label = context.Markup(Label!).Lines[0].WithBaseStyle(context.Style(ThemeToken.Muted));
+            if (!string.IsNullOrEmpty(Title)) {
+                StyledLine label = context.Markup(Title!).Lines[0].WithBaseStyle(context.Style(ThemeToken.Muted));
                 x = region.Write(0, rows - 1, label) + 1;
             }
             string latest = ShowLatest && _values.Count > 0 ? NumberFormat.Compact(_values[_values.Count - 1]) + (Unit ?? string.Empty) : string.Empty;

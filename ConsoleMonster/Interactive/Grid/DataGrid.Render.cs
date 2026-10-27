@@ -76,7 +76,7 @@ namespace ConsoleMonster.Interactive {
                 var column = new TableColumn(source.Header) {
                     Key = source.Key, Alignment = source.Alignment,
                     Presenter = source.Presenter ?? (StatusPresenters && _rows.Count > 0 ? CellPresenters.ForStatus(source.Key ?? Markup.Strip(source.Header), Value(_rows[0], c)) : null),
-                    Priority = source.Priority, IsKey = source.IsKey, Flexible = source.Flexible,
+                    Priority = source.Priority, IsKey = source.IsKey, Flexible = source.Flexible, Weight = source.Weight,
                     MinWidth = source.MinWidth, MaxWidth = source.MaxWidth, Width = source.Width,
                     Overflow = ColumnOverflow.Truncate, MaxLines = 1
                 };

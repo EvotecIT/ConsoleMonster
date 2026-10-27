@@ -16,7 +16,7 @@ namespace ConsoleMonster.PowerShell {
     /// Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {
     ///     foreach ($count in 1..3) {
     ///         Update-Console -WidgetId overall -Value $count
-    ///         Wait-ConsoleDashboard -Milliseconds 250
+    ///         Wait-ConsoleDashboard -Seconds 0.25
     ///     }
     /// }</code>
     /// </example>
@@ -25,10 +25,10 @@ namespace ConsoleMonster.PowerShell {
         private volatile LiveSession? _waitingSession;
         private volatile bool _stopping;
 
-        /// <summary><para type="description">The pause in milliseconds; zero captures a checkpoint without waiting.</para></summary>
-        [Parameter(Mandatory = true)]
-        [ValidateRange(0, int.MaxValue)]
-        public int Milliseconds { get; set; }
+        /// <summary><para type="description">The pause in seconds, fractions allowed (0.25 is a quarter second); zero captures a checkpoint without waiting.</para></summary>
+        [Parameter(Mandatory = true, Position = 0)]
+        [ValidateRange(0, 2147483.0)]
+        public double Seconds { get; set; }
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
@@ -41,7 +41,7 @@ namespace ConsoleMonster.PowerShell {
             _waitingSession = session;
             try {
                 if (_stopping) { session.Cancel(); }
-                session.Delay(TimeSpan.FromMilliseconds(Milliseconds));
+                session.Delay(TimeSpan.FromSeconds(Seconds));
             } catch (OperationCanceledException) when (session.Cancellation.IsCancellationRequested) {
                 // Stopping a dashboard or its pipeline cancels the pause without adding pipeline output or errors.
             } finally {

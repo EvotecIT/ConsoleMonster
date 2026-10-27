@@ -8,8 +8,9 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates one numeric chart representation from records or samples.</para>
-    /// <para type="description">Type selects Bar, Stacked, Line, Scatter, Histogram or Sparkline. The shared C# Chart factory rejects options that do not apply to the selected kind. InputObject accepts ordinary records; Content emits the same records. Use Update-Console for live changes.</para>
+    /// <para type="description">Type selects Bar, Stacked, Line, Scatter, Histogram or Sparkline. The shared C# Chart factory rejects options that do not apply to the selected kind. InputObject accepts chart records (Label and Value; Key, Label, Values and Role for series); Content emits the same records. For Bar, Histogram and Sparkline, -Property picks the number from ordinary objects and -Label (Bar only, default Name) their label, as Show-Console -View Chart does. Use Update-Console for live changes.</para>
     /// </summary>
+    /// <example><para>Chart a property of ordinary objects inside a report</para><code>$servers | New-ConsoleChart -Type Bar -Property Cpu -Label Name -Unit '%'</code></example>
     /// <example><para>Show resolver latency</para><code>[pscustomobject] @{ Label = 'Cloudflare'; Value = 12 } | New-ConsoleChart -Type Bar -Unit ' ms' | Show-Console</code></example>
     [Cmdlet(VerbsCommon.New, "ConsoleChart")]
     [OutputType(typeof(IWidget))]
@@ -24,9 +25,15 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">The unit on numeric labels.</para></summary>
         [Parameter]
         public string? Unit { get; set; }
-        /// <summary><para type="description">The sparkline label.</para></summary>
+        /// <summary><para type="description">The Sparkline caption shown before the trend.</para></summary>
         [Parameter]
-        public object? Label { get; set; }
+        public object? Title { get; set; }
+        /// <summary><para type="description">For Bar, Histogram or Sparkline: the numeric property of ordinary input objects (a name, pattern or calculated property).</para></summary>
+        [Parameter]
+        public object[]? Property { get; set; }
+        /// <summary><para type="description">For Bar with -Property: the label property or expression; default Name.</para></summary>
+        [Parameter]
+        public object Label { get; set; } = "Name";
         /// <summary><para type="description">Plot rows; omitted uses the selected kind default.</para></summary>
         [Parameter]
         public int? Height { get; set; }
@@ -102,7 +109,7 @@ namespace ConsoleMonster.PowerShell {
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Capacity))) { options.Capacity = Capacity; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(WidgetId))) { options.WidgetId = WidgetId; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Unit))) { options.Unit = Unit; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(Label))) { options.Label = PSText.Markup(Label); }
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(Title))) { options.Title = PSText.Markup(Title); }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Height))) { options.Height = Height; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Minimum))) { options.Minimum = Minimum; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Maximum))) { options.Maximum = Maximum; }
@@ -122,8 +129,46 @@ namespace ConsoleMonster.PowerShell {
                 PSItems.ChartData(options, PSItems.Items(Series));
             }
             _items.AddRange(PSItems.Items(Content));
-            PSItems.ChartData(options, _items);
+            if (Property != null && Property.Length > 0) { AddSelected(options); }
+            else {
+                if (MyInvocation.BoundParameters.ContainsKey(nameof(Label))) { throw new PSArgumentException("Label picks the bar label of ordinary objects; use it with -Property."); }
+                PSItems.ChartData(options, _items);
+            }
             WriteObject(Chart.Create(options));
+        }
+
+        // Ordinary objects: the same property binding as Show-Console -View Chart, ending in the typed AddItem/Values inputs.
+        private void AddSelected(ChartOptions options) {
+            if (Type != ChartType.Bar && Type != ChartType.Histogram && Type != ChartType.Sparkline) { throw new PSArgumentException("Property applies to Bar, Histogram and Sparkline charts; Line, Stacked and Scatter take series records."); }
+            if (Property!.Length != 1) { throw new PSArgumentException("Chart requires exactly one Property."); }
+            if (Type != ChartType.Bar && MyInvocation.BoundParameters.ContainsKey(nameof(Label))) { throw new PSArgumentException("Label applies to Bar charts."); }
+            var input = new List<PSObject>();
+            foreach (object item in _items) { input.Add(PSObject.AsPSObject(item)); }
+            IReadOnlyList<PSObject> rows = PSFormatting.Expand(input, Binding.PSShaping.Options());
+            Binding.BoundColumn value = Column(rows, Property[0]);
+            Binding.BoundColumn? label = Type == ChartType.Bar ? Column(rows, Label) : null;
+            var samples = new List<double>(options.Values ?? Array.Empty<double>());
+            int row = 0;
+            foreach (PSObject item in rows) {
+                row++;
+                object? raw = PSText.Unwrap(value.GetValue(item));
+                object? name = label == null ? null : PSText.Unwrap(label.GetValue(item));
+                if (!PipelineChart.TryNumber(raw, out double number) || name is Values.FieldError) {
+                    WriteError(new ErrorRecord(new ArgumentException("Row " + row.ToString(System.Globalization.CultureInfo.InvariantCulture) + " must have a finite numeric value and a readable label."), "ConsoleMonsterChartValue", ErrorCategory.InvalidData, item));
+                    continue;
+                }
+                if (label == null) { samples.Add(number); continue; }
+                string text = Convert.ToString(name, System.Globalization.CultureInfo.CurrentCulture) ?? string.Empty;
+                options.AddItem(text.Length == 0 ? row.ToString(System.Globalization.CultureInfo.InvariantCulture) : text, number);
+            }
+            if (Type != ChartType.Bar) { options.Values = samples.ToArray(); }
+        }
+
+        private static Binding.BoundColumn Column(IReadOnlyList<PSObject> rows, object property) {
+            IReadOnlyList<Binding.BoundColumn> columns = Binding.PropertyBinder.Bind(rows, new[] { property });
+            if (columns.Count != 1) { throw new PSArgumentException("Chart property selections must resolve to exactly one column."); }
+            columns[0].FormatString = null;
+            return columns[0];
         }
     }
 }

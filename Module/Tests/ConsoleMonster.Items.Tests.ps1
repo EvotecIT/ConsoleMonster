@@ -140,8 +140,8 @@ if ([regex]::Matches($text, 'leaf').Count -ne 2) { throw 'Shared content was rej
             $script:liveExpressionReads | Should -Be 2
             $text = $table | Get-WidgetText
             $table.Keys | Should -Be @('first', 'second')
-            $text | Should -Match '6\.0'
-            $text | Should -Match '10\.0'
+            $text | Should -Match ([regex]::Escape(('{0:F1}' -f 6)))
+            $text | Should -Match ([regex]::Escape(('{0:F1}' -f 10)))
             $script:liveExpressionReads | Should -Be 2
         }
 
@@ -154,6 +154,39 @@ if ([regex]::Matches($text, 'leaf').Count -ne 2) { throw 'Shared content was rej
             $table.Keys | Should -Be @('1.1', '1.2')
             $table.Table.Rows.Count | Should -Be 2
             $script:liveIdentityReads | Should -Be 2
+        }
+
+        It 'adds ordinary live rows with the original calculated bindings and formatting' {
+            $script:liveUpdateReads = 0
+            $table = [pscustomobject] @{ Server = 'web01'; Cpu = 3 } | New-ConsoleTable -Live -KeyProperty Server -Property @(
+                'Server'
+                @{ Name = 'CPU %'; Expression = 'Cpu'; FormatString = 'F1' }
+                @{ Name = 'Doubled'; Expression = { $script:liveUpdateReads++; $_.Cpu * 2 }; FormatString = 'F1' }
+            )
+            $null = $table | Add-ConsoleItem ([pscustomobject] @{ Server = 'web02'; Cpu = 5 }) -PassThru
+            $script:liveUpdateReads | Should -Be 2
+            $text = $table | Get-WidgetText
+            $text | Should -Match 'web02\s*[\u2502|]\s*5[.,]0\s*[\u2502|]\s*10[.,]0'
+            $table.Keys | Should -Be @('web01', 'web02')
+        }
+
+        It 'adds to empty live tables using calculated <Selection> descriptors' -TestCases @(
+            @{ Selection = 'Columns' }
+            @{ Selection = 'Property' }
+        ) {
+            param($Selection)
+            $script:emptyLiveReads = 0
+            $selectionArgument = @{}
+            $selectionArgument[$Selection] = @(
+                'Server'
+                @{ Name = 'CPU %'; Expression = 'Cpu'; FormatString = 'F1' }
+                @{ Name = 'Doubled'; Expression = { $script:emptyLiveReads++; $_.Cpu * 2 }; FormatString = 'F1' }
+            )
+            $table = New-ConsoleTable -Live -KeyProperty Server @selectionArgument
+            $null = $table | Add-ConsoleItem ([pscustomobject] @{ Server = 'web01'; Cpu = 12 }) -PassThru
+            $text = $table | Get-WidgetText
+            $script:emptyLiveReads | Should -Be 1
+            $text | Should -Match 'web01\s*[\u2502|]\s*12[.,]0\s*[\u2502|]\s*24[.,]0'
         }
 
         It 'keeps record values literal unless a presenter is explicit' {

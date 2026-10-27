@@ -62,6 +62,9 @@ namespace ConsoleMonster.PowerShell {
                 dashboard.FooterHints.Clear();
                 foreach (KeyHint hint in PSFooterHints.Read(FooterHints)) { dashboard.FooterHints.Add(hint); }
             }
+            // Two widgets with one default id (two bar charts are both "bars") fail here, where the report is built.
+            try { Live.LiveSession.ValidateWidgetIds(dashboard); }
+            catch (System.ArgumentException error) { ThrowTerminatingError(new ErrorRecord(error, "ConsoleMonsterDuplicateWidgetId", ErrorCategory.InvalidArgument, dashboard)); }
             return dashboard;
         }
     }

@@ -13,6 +13,7 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="description">WidgetId is position zero. Fields are checked against the resolved widget before any events are posted. Structural sets separate table rows, cell batches, content replacement and run items. Unknown targets and unsupported fields are terminating errors.</para>
     /// </summary>
     /// <example><para>Advance a build and change its label</para><code>Update-Console build -Value 5 -Total 20 -Label 'Compile'</code></example>
+    /// <example><para>Add or replace a live table row with an ordinary record</para><code>Update-Console results -Row ([pscustomobject] @{ Server = 'web01'; State = 'Pass'; Ms = 12 })</code></example>
     /// <example><para>Finish one run item</para><code>Update-Console -Run $run -Index 0 -Status Pass -Detail 'Uploaded'</code></example>
     [Cmdlet(VerbsData.Update, "Console", DefaultParameterSetName = "Fields")]
     public sealed class CmdletUpdateConsole : PSCmdlet {
@@ -133,7 +134,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(ParameterSetName = "Append", Mandatory = true)]
         public SwitchParameter Append { get; set; }
 
-        /// <summary><para type="description">A row with Key and Values properties, retaining typed cells.</para></summary>
+        /// <summary><para type="description">A record with the live table's column properties (keyed by its KeyProperty), or a Key and Values descriptor that retains typed cells.</para></summary>
         [Parameter(ParameterSetName = "Row", Mandatory = true, ValueFromPipeline = true)]
         public object Row { get; set; } = null!;
 
@@ -203,7 +204,7 @@ namespace ConsoleMonster.PowerShell {
                 if (MyInvocation.BoundParameters.ContainsKey(nameof(Restart))) { update.Restart = Restart.IsPresent; }
                 if (MyInvocation.BoundParameters.ContainsKey(nameof(Complete))) { update.Complete = Complete.IsPresent; }
                 if (MyInvocation.BoundParameters.ContainsKey(nameof(Append))) { update.Append = Append.IsPresent; }
-                if (MyInvocation.BoundParameters.ContainsKey(nameof(Row))) { update.Row = TableRow(Row); }
+                if (MyInvocation.BoundParameters.ContainsKey(nameof(Row))) { update.Row = TableRow(Row, session, WidgetId); }
                 if (MyInvocation.BoundParameters.ContainsKey(nameof(RemoveRow))) { update.RemoveRow = RemoveRow.IsPresent; }
                 if (MyInvocation.BoundParameters.ContainsKey(nameof(ClearRows))) { update.ClearRows = ClearRows.IsPresent; }
                 if (MyInvocation.BoundParameters.ContainsKey(nameof(Index))) { update.Index = Index; }
@@ -237,13 +238,18 @@ namespace ConsoleMonster.PowerShell {
             throw new ArgumentException("Content must be a widget or a script block producing widgets.");
         }
 
-        private static ConsoleTableRow TableRow(object source) {
+        // A Key/Values descriptor keeps its typed cells; any other record is read through the live table's own columns and KeyProperty.
+        private static ConsoleTableRow TableRow(object source, LiveSession session, string widgetId) {
             object? value = PSText.Unwrap(source);
             if (value is ConsoleTableRow row) { return row; }
             PSObject record = PSObject.AsPSObject(source);
             object? key = value is IDictionary dictionary ? dictionary["Key"] : record.Properties["Key"]?.Value;
             object? values = value is IDictionary map ? map["Values"] : record.Properties["Values"]?.Value;
-            if (key == null || values == null) { throw new ArgumentException("Row requires Key and Values properties."); }
+            if (key == null || values == null) {
+                // Not a live table (or an unknown id): an empty row lets the shared validator name the real problem.
+                if (value == null || !session.TryGetTarget(widgetId, out ILiveTarget? target) || !(target is Widgets.LiveTable table)) { return new ConsoleTableRow(); }
+                return Binding.TableBindings.Project(table, source);
+            }
             var cells = new List<object?>();
             if (values is IEnumerable sequence && !(values is string)) { foreach (object? cell in sequence) { cells.Add(PSText.Unwrap(cell)); } }
             else { cells.Add(PSText.Unwrap(values)); }

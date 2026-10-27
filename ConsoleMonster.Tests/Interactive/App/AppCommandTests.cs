@@ -68,6 +68,25 @@ namespace ConsoleMonster.Tests.Interactive.App {
         }
 
         [Fact]
+        public async Task RunningAction_NamesTheConfiguredCancelKeyInTheLabelLanguage() {
+            TaskCompletionSource<bool> completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            AppCommand command = new AppCommand("restart", "Restart", (_, __) => completion.Task);
+            AppHostKeys keys = new AppHostKeys { CancelAction = new KeyChord(ConsoleKey.F9) };
+            PromptLabels labels = PromptLabels.For(System.Globalization.CultureInfo.GetCultureInfo("pl-PL"));
+            using AppCommandHost host = new AppCommandHost(new[] { command }, () => Array.Empty<object?>(), labels, default, keys: keys);
+            try {
+                host.Invoke(command);
+                Assert.True(host.IsBusy);
+                string frame = FrameComposer.Compose(host.Wrap(new TextBlock("body")), 100, 24, Context).ToPlainText();
+                Assert.Contains("Akcja w toku · F9 anuluje", frame);
+                Assert.DoesNotContain("F6", frame);
+            } finally {
+                completion.TrySetResult(true);
+                await WaitForSignal(host.Completion);
+            }
+        }
+
+        [Fact]
         public void ModalEscape_LeavesCommandUnstarted() {
             int calls = 0;
             AppCommand command = new AppCommand("delete", "Delete", (_, __) => { calls++; return Task.CompletedTask; }) { ConfirmPrompt = "Delete?" };

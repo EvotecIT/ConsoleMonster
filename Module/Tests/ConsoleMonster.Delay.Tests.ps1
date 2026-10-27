@@ -13,16 +13,30 @@
         }
     }
 
-    It 'reports a missing dashboard and rejects negative milliseconds' {
+    It 'takes the pause in seconds, as Start-Sleep does' {
+        Import-Module (Join-Path $PSScriptRoot '..\ConsoleMonster.psd1') -Force
+        $parameter = (Get-Command Wait-ConsoleDashboard).Parameters['Seconds']
+        $parameter.ParameterType | Should -Be ([double])
+        (Get-Command Wait-ConsoleDashboard).Parameters.ContainsKey('Milliseconds') | Should -BeFalse
+        Invoke-DelayChild -Script @'
+$dashboard = New-ConsoleDashboard -Title 'Pause' -Content { New-ConsoleProgress -WidgetId overall -Total 1 }
+$watch = [System.Diagnostics.Stopwatch]::StartNew()
+Invoke-ConsoleDashboard -Dashboard $dashboard -NoLive -ScriptBlock { Wait-ConsoleDashboard 0.2 } | Out-Null
+if ($watch.Elapsed.TotalMilliseconds -lt 150) { throw 'The fractional pause did not wait.' }
+'PAUSED-OK'
+'@ | Should -Match 'PAUSED-OK'
+    }
+
+    It 'reports a missing dashboard and rejects negative seconds' {
         Invoke-DelayChild -Script @'
 try {
-    Wait-ConsoleDashboard -Milliseconds 0 -ErrorAction Stop
+    Wait-ConsoleDashboard -Seconds 0 -ErrorAction Stop
     throw 'The missing session was accepted.'
 } catch {
     if ($_.FullyQualifiedErrorId -notlike 'ConsoleMonsterNoSession*') { throw }
 }
 try {
-    Wait-ConsoleDashboard -Milliseconds -1 -ErrorAction Stop
+    Wait-ConsoleDashboard -Seconds -1 -ErrorAction Stop
     throw 'A negative delay was accepted.'
 } catch {
     if ($_.FullyQualifiedErrorId -notlike 'ParameterArgumentValidationError*') { throw }
@@ -45,10 +59,10 @@ $session = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.Live
 try {
     $session.Start()
     $session.Region('body').Set(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Widgets.TextBlock', $true))::Plain('explicit'))
-    if (@(Wait-ConsoleDashboard -Milliseconds 10000 -Session $session).Count) { throw 'The wait wrote pipeline output.' }
+    if (@(Wait-ConsoleDashboard -Seconds 10 -Session $session).Count) { throw 'The wait wrote pipeline output.' }
     if ($target.Screens.Frames.Count -ne 1 -or $target.Screens.LastFrame.ToPlainText() -ne 'explicit') { throw 'The explicit session was not captured.' }
     $session.Cancel()
-    if (@(Wait-ConsoleDashboard -Milliseconds 0 -Session $session).Count) { throw 'Cancellation wrote pipeline output.' }
+    if (@(Wait-ConsoleDashboard -Seconds 0 -Session $session).Count) { throw 'Cancellation wrote pipeline output.' }
     if ($target.CheckpointCount -ne 1) { throw 'Cancellation captured another checkpoint.' }
 } finally { $session.Dispose() }
 'explicit'
@@ -65,9 +79,9 @@ try {
     $slot = New-ConsoleRegion -WidgetId body
     $result = @(Invoke-ConsoleDashboard $slot -Transient {
         Update-Console -WidgetId body -Content { New-ConsoleText 'first' }
-        Wait-ConsoleDashboard -Milliseconds 10000
+        Wait-ConsoleDashboard -Seconds 10
         Update-Console -WidgetId body -Content { New-ConsoleText 'second' }
-        Wait-ConsoleDashboard -Milliseconds 0
+        Wait-ConsoleDashboard -Seconds 0
     })
     if ($result.Count) { throw 'The child wait wrote pipeline output.' }
 } finally { $scope.Dispose() }
@@ -87,7 +101,7 @@ try {
     $log = New-ConsoleLogRegion -WidgetId log -Height 1
     Invoke-ConsoleDashboard $log -Transient {
         Send-ConsoleEvent -WidgetId log -Operation write -Text 'source timestamp' -Status info -TimeMilliseconds 123000
-        Wait-ConsoleDashboard -Milliseconds 0
+        Wait-ConsoleDashboard -Seconds 0
     }
 } finally { $scope.Dispose() }
 $entries = @($log.Entries | Where-Object Text -EQ 'source timestamp')

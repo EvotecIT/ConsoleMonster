@@ -132,7 +132,7 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ArgumentList (, $hosts) -ScriptBl
             Update-Console -Key $hostName -Result $status -Detail "step $tick" -WidgetId 'lanes'
         }
         Write-ConsoleLogEntry -Message "step $tick done"
-        Wait-ConsoleDashboard -Milliseconds 350
+        Wait-ConsoleDashboard -Seconds 0.35
         if ($tick -eq 3) {
             Write-ConsoleLogEntry -Message 'WEB01: update verification failed' -Level Error
             $pausePrompt = @{

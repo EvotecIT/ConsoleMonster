@@ -32,7 +32,7 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>A live checklist: items start pending and are updated from the dashboard script</para>
     ///   <code>
     /// $steps = New-ConsoleStatusList -Item 'Scan files', 'Copy changes', 'Verify'
-    /// Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps }) { Update-Console -Key 'Scan files' -Status Pass -Detail '2.4 s' -WidgetId 'status' }</code>
+    /// Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps }) { Update-Console status -Key 'Scan files' -Status Pass -Detail '2.4 s' }</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleStatusList")]
     [OutputType(typeof(StatusList))]

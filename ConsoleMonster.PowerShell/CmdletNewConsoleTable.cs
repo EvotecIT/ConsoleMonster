@@ -54,7 +54,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter NoHeaderSeparator { get; set; }
 
-        /// <summary><para type="description">Fill the available width (spare width goes to the widest text column).</para></summary>
+        /// <summary><para type="description">Fill the available width. The text columns share the spare width in proportion to their widths, while number, date and status columns keep their natural width; a column hashtable's Weight (or Flexible) decides the share instead, and Width or MaxWidth holds.</para></summary>
         [Parameter]
         public SwitchParameter Expand { get; set; }
 

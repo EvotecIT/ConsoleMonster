@@ -130,8 +130,8 @@ namespace ConsoleMonster.Interactive {
             char no = char.ToLowerInvariant(_labels.No[0]);
             bindings.Add(new KeyBinding(_labels.KeyMove, () => _focus = 1 - _focus, new KeyChord(ConsoleKey.LeftArrow), new KeyChord(ConsoleKey.RightArrow), new KeyChord(ConsoleKey.Tab)) { KeyText = InteractiveGlyphs.For(frame.Context).KeyLeftRight });
             bindings.Add(new KeyBinding(_labels.KeyConfirm, () => Answer(_focus == 0), new KeyChord(ConsoleKey.Enter)));
-            bindings.Add(new KeyBinding(string.Empty, () => Answer(true), new KeyChord(yes)) { InFooter = false });
-            bindings.Add(new KeyBinding(string.Empty, () => Answer(false), new KeyChord(no)) { InFooter = false });
+            bindings.Add(new KeyBinding(string.Empty, () => Answer(true), ConfirmPrompt.AnswerKeys(yes, 'y', no)) { InFooter = false });
+            bindings.Add(new KeyBinding(string.Empty, () => Answer(false), ConfirmPrompt.AnswerKeys(no, 'n', yes)) { InFooter = false });
             bindings.Add(new KeyBinding(_labels.KeyCancel, Close, new KeyChord(ConsoleKey.Escape)));
         }
 
