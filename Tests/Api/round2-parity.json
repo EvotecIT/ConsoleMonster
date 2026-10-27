@@ -24360,7 +24360,7 @@
       "Member": "MissingText",
       "CSharpTypeName": "System.String",
       "Reason": "A missing observation carries its own explanation; ordinary numeric chart input supplies values and labels.",
-      "Alternative": "Construct a ChartItem with MissingText and add it to the returned BarChart.",
+      "Alternative": "Use BarChart.AddMissing for an absent observation, or set MissingText on an existing BarChart.Items entry.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24368,7 +24368,7 @@
       "Member": "Status",
       "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Styling.StatusKind]",
       "Reason": "An explicit observation status is independent of numeric thresholds and must be supplied by the application.",
-      "Alternative": "Set Status on a ChartItem before adding it to the returned BarChart.",
+      "Alternative": "Set Status on an existing BarChart.Items entry, or supply status to BarChart.AddMissing.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24552,7 +24552,7 @@
       "Member": "CollapsedSummary",
       "CSharpTypeName": "System.Func`2[System.Object,System.String]",
       "Reason": "An object aggregate for a collapsed node is application-specific and must not trigger another child traversal.",
-      "Alternative": "Supply CollapsedSummary to a native Tree.FromHierarchy builder; New-ConsoleTree retains its bounded object traversal.",
+      "Alternative": "Supply CollapsedSummary through TreeHierarchyOptions when calling TreeHierarchy.Add; New-ConsoleTree retains its bounded object traversal.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24560,7 +24560,7 @@
       "Member": "DetectRepeatedNodes",
       "CSharpTypeName": "System.Boolean",
       "Reason": "Cross-branch deduplication needs an explicit identity policy; the ordinary PowerShell adapter keeps its wrapped-object identity rules.",
-      "Alternative": "Configure DetectRepeatedNodes and Identity in a native Tree.FromHierarchy builder.",
+      "Alternative": "Configure DetectRepeatedNodes and Identity through TreeHierarchyOptions passed to TreeHierarchy.Add.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24568,7 +24568,7 @@
       "Member": "IdentityComparer",
       "CSharpTypeName": "System.Collections.Generic.IEqualityComparer`1[System.Object]",
       "Reason": "A custom identity comparer belongs to a native application graph rather than PowerShell wrapped-object identity.",
-      "Alternative": "Supply IdentityComparer with Identity to a native Tree.FromHierarchy builder.",
+      "Alternative": "Supply IdentityComparer with Identity through TreeHierarchyOptions passed to TreeHierarchy.Add.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24576,7 +24576,7 @@
       "Member": "IsIncomplete",
       "CSharpTypeName": "System.Func`2[System.Object,System.Boolean]",
       "Reason": "Knowing whether application-owned children are incomplete requires a pure application callback.",
-      "Alternative": "Supply IsIncomplete to a native Tree.FromHierarchy builder; use MaxItems, MaxNodes and Depth for ordinary PowerShell traversal budgets.",
+      "Alternative": "Supply IsIncomplete through TreeHierarchyOptions passed to TreeHierarchy.Add; use MaxItems, MaxNodes and Depth for ordinary PowerShell traversal budgets.",
       "Disposition": "CSharpOnly"
     },
     {
