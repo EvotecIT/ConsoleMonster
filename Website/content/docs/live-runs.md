@@ -23,6 +23,8 @@ Three commands turn long-running work into a live view on an interactive console
 
 Without `-Parallel` the items run one at a time in the caller's scope, as with `ForEach-Object`. With it, up to `-ThrottleLimit` items run at a time in their own runspaces on Windows PowerShell 5.1 and PowerShell 7; pass the caller's variables with `$using:name`. In redirected output, CI and jobs, the view becomes one line per finished item and a summary.
 
+`-RetryCount 2 -RetryDelaySeconds 5` runs a failed or timed-out item again, up to twice, five seconds apart. Only its last attempt's output and errors are kept; while it retries its cell turns to the warning colour, the running list says `retry 1 of 2`, and the summary counts retried items. In C# the same options are `RunOptions.RetryCount` and `RetryDelay`, and each `RunResult` reports its `Attempts`.
+
 The summary bar and the cell map are widgets of their own, for your own views:
 
 ```powershell

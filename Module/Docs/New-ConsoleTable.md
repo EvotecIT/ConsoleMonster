@@ -130,7 +130,7 @@ Accept wildcard characters: False
 ```
 
 ### -Expand
-Fill the available width (spare width goes to the widest text column).
+Fill the available width. The text columns share the spare width in proportion to their widths, while number, date and status columns keep their natural width; a column hashtable's Weight (or Flexible) decides the share instead, and Width or MaxWidth holds.
 
 ```yaml
 Type: SwitchParameter

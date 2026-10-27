@@ -28,8 +28,8 @@ Return it from the script block of $MenuContext.Run (a live dashboard started fr
 New-ConsoleMenuItem 'Back up now' -Action {
     $dashboard = New-ConsoleDashboard -Title 'Backup' -Content { New-ConsoleStatusList -Item 'Scan files', 'Copy changes' }
     $null = $MenuContext.Run($dashboard, {
-        Update-Console -Key 'Scan files' -Status Pass -WidgetId 'status'
-        Update-Console -Key 'Copy changes' -Status Pass -WidgetId 'status'
+        Update-Console status -Key 'Scan files' -Status Pass
+        Update-Console status -Key 'Copy changes' -Status Pass
         New-ConsoleMenuRunResult 'Backup finished' -Summary '1 284 files copied, 312 MB.' -Figure ([ordered] @{ files = '1 284'; copied = '312 MB' }) -Next @{
             'Show where the log is' = { $MenuContext.Toast('Log: D:\Backups\backup.log') }
         }

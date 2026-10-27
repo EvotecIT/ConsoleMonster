@@ -11,6 +11,7 @@ namespace ConsoleMonster.Widgets {
     public sealed class TableColumn {
         private ColumnOverflow _overflow = ColumnOverflow.Wrap;
         private int _maxLines;
+        private int _weight;
 
         /// <summary>Creates a column.</summary>
         /// <param name="header">The header (markup).</param>
@@ -66,8 +67,18 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Whether this is a key column: it never hides, and it titles the record cards.</summary>
         public bool IsKey { get; set; }
 
-        /// <summary>Whether this column takes spare width when the table expands (the main text column).</summary>
+        /// <summary>Whether this column takes spare width when the table expands (the main text column). Flexible columns share it evenly.</summary>
         public bool Flexible { get; set; }
+
+        /// <summary>
+        /// This column's share of the spare width when the table expands, relative to other weighted columns (0, the default,
+        /// takes no weighted share). When no column has a weight, Flexible columns share the spare width, otherwise the free-text columns
+        /// in proportion to their widths.
+        /// </summary>
+        public int Weight {
+            get => _weight;
+            set => _weight = value < 0 ? 0 : value;
+        }
 
         /// <summary>A minimum width, or <c>null</c>.</summary>
         public int? MinWidth { get; set; }

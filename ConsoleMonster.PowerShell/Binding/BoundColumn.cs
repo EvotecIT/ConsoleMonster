@@ -30,6 +30,12 @@ namespace ConsoleMonster.PowerShell.Binding {
 
         internal ShapeOptions? Options { get; set; }
 
+        // Reuse the expression and formatting without retaining a previous shaping pass's input caches.
+        internal BoundColumn WithOptions(ShapeOptions options) => new BoundColumn(Name, Column, _expression) {
+            FormatString = FormatString,
+            Options = options
+        };
+
         // Formatting turns numbers into text. Retain their alignment from the first raw value without guessing that
         // every FormatString is numeric; explicit alignment always wins. The native capture calls the same step.
         internal void InferFormattedAlignment(object? value) {

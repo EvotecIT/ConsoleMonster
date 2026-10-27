@@ -173,6 +173,19 @@ Complete-ConsoleRun $run
         ([regex]::Matches($output, '1 / 1 finished')).Count | Should -Be 1
     }
 
+    It 'filters the PassThru snapshot by item Status, as the help shows' {
+        Import-Module (Join-Path $PSScriptRoot '..\ConsoleMonster.psd1') -Force
+        $run = Start-ConsoleRun -Items a, b -NoLive
+        Update-Console -Run $run -Index 0 -Status Pass
+        Update-Console -Run $run -Index 1 -Status Fail -Detail 'refused'
+        $summary = Complete-ConsoleRun $run -PassThru 6>$null
+        $failed = @($summary.Items | Where-Object Status -eq Fail)
+        $failed.Count | Should -Be 1
+        $failed[0].Item.Label | Should -BeExactly 'b'
+        $failed[0].Detail | Should -BeExactly 'refused'
+        (Get-Help Complete-ConsoleRun -Examples | Out-String) | Should -Not -Match 'Where-Object State'
+    }
+
     It 'releases a finalized host queue even when the host rejects its last output' {
         $code = @'
 $ErrorActionPreference = 'Stop'

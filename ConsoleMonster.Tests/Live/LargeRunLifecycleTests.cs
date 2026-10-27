@@ -144,7 +144,7 @@ namespace ConsoleMonster.Tests.Live {
                 Assert.False(run.Session.IsRunning);
                 RunSnapshot snapshot = run.Snapshot();
                 Assert.True(snapshot.IsFinished); Assert.Equal(1, snapshot.Passed);
-                Assert.Equal("worker result", snapshot.Items[0].Message);
+                Assert.Equal("worker result", snapshot.Items[0].Detail);
                 Assert.Equal(TimeSpan.FromSeconds(2), snapshot.Items[0].Duration);
             } finally { run.Dispose(); }
         }
@@ -212,7 +212,7 @@ namespace ConsoleMonster.Tests.Live {
                 Assert.Throws<InvalidOperationException>(() => run.Complete());
                 RunSnapshot snapshot = run.Snapshot();
                 Assert.True(snapshot.IsFinished); Assert.Equal(1, snapshot.Failed); Assert.Equal(1, snapshot.Skipped);
-                Assert.Equal("actual worker result", snapshot.Items[0].Message); Assert.Equal(TimeSpan.FromSeconds(7), snapshot.Items[0].Duration);
+                Assert.Equal("actual worker result", snapshot.Items[0].Detail); Assert.Equal(TimeSpan.FromSeconds(7), snapshot.Items[0].Duration);
             } finally { run.Dispose(); }
         }
 
@@ -432,7 +432,7 @@ namespace ConsoleMonster.Tests.Live {
             RunSnapshot snapshot = tracker.Snapshot();
             Assert.Equal(1, snapshot.Failed); Assert.Equal(1, snapshot.Skipped);
             Assert.True(snapshot.Failures[0].TimedOut); Assert.Equal("declared name", snapshot.Failures[0].Label);
-            Assert.Equal("timeout", snapshot.Items[0].Message); Assert.Equal(TimeSpan.FromSeconds(2), snapshot.Items[0].Duration);
+            Assert.Equal("timeout", snapshot.Items[0].Detail); Assert.Equal(TimeSpan.FromSeconds(2), snapshot.Items[0].Duration);
             Assert.Equal(new[] { 1, 2 }, snapshot.Items.Select(item => item.CompletionOrder));
         }
     }

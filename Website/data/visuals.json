@@ -102,11 +102,23 @@
       "dark": "/site/nav/demos/certificate-expiry-dark.svg",
       "light": "/site/nav/demos/certificate-expiry-light.svg"
     },
+    "demos/container-status": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/container-status-dark.svg",
+      "light": "/site/nav/demos/container-status-light.svg"
+    },
     "demos/disk-usage": {
       "w": 96,
       "h": 60,
       "dark": "/site/nav/demos/disk-usage-dark.svg",
       "light": "/site/nav/demos/disk-usage-light.svg"
+    },
+    "demos/event-log-summary": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/event-log-summary-dark.svg",
+      "light": "/site/nav/demos/event-log-summary-light.svg"
     },
     "demos/everyday-formatting": {
       "w": 96,
@@ -119,6 +131,12 @@
       "h": 60,
       "dark": "/site/nav/demos/fleet-filter-dark.svg",
       "light": "/site/nav/demos/fleet-filter-light.svg"
+    },
+    "demos/license-usage": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/license-usage-dark.svg",
+      "light": "/site/nav/demos/license-usage-light.svg"
     },
     "demos/live-filter": {
       "w": 96,
@@ -192,6 +210,12 @@
       "dark": "/site/nav/demos/repository-status-dark.svg",
       "light": "/site/nav/demos/repository-status-light.svg"
     },
+    "demos/scheduled-tasks": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/scheduled-tasks-dark.svg",
+      "light": "/site/nav/demos/scheduled-tasks-light.svg"
+    },
     "demos/service-browser": {
       "w": 96,
       "h": 60,
@@ -210,6 +234,12 @@
       "dark": "/site/nav/demos/setup-basic-dark.svg",
       "light": "/site/nav/demos/setup-basic-light.svg"
     },
+    "demos/stale-accounts": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/stale-accounts-dark.svg",
+      "light": "/site/nav/demos/stale-accounts-light.svg"
+    },
     "demos/task-menu": {
       "w": 96,
       "h": 60,
@@ -227,6 +257,12 @@
       "h": 60,
       "dark": "/site/nav/demos/toolbox-dark.svg",
       "light": "/site/nav/demos/toolbox-light.svg"
+    },
+    "demos/update-compliance": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/update-compliance-dark.svg",
+      "light": "/site/nav/demos/update-compliance-light.svg"
     },
     "demos/welcome-compact": {
       "w": 96,

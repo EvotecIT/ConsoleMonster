@@ -27,7 +27,7 @@ IWidget Frame(int tick)
     var rows = processes.Select(process => new ProcessRow(process.Name, process.Pid, process.Cpu + tick * 3, process.Memory + tick * 16)).ToArray();
     var table = Ui.Table(rows).Column(row => row.Name).Column(row => row.Pid, column => column.Presenter(CellPresenters.Identifier)).Column("CPU %", row => row.Cpu).Column("Memory MiB", row => row.Memory);
     table.Expand();
-    Sparkline history = Ui.Chart().Type(ConsoleMonster.Widgets.ChartType.Sparkline).Label("CPU %").Build<Sparkline>();
+    Sparkline history = Ui.Chart().Type(ConsoleMonster.Widgets.ChartType.Sparkline).Title("CPU %").Build<Sparkline>();
     history.AddRange(cpuHistory.Concat(new[] { 56.0 + tick * 5 }));
     return Ui.Rows().Gap(1).Content(c2 =>
     {

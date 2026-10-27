@@ -21,7 +21,7 @@ preserving `-WarningVariable` and downstream records; the live log contains one 
 Without an interactive console, run commands print finished-item lines and a summary while results travel through the pipeline.
 
 `Invoke-ConsoleDashboard -Parallel` also captures host, warning, information, verbose/debug, error, and progress streams from
-its owned runspaces. Dashboard scripts receive caller values with `-ArgumentList` and `param()`; the run commands use `$using:name`.
+its owned runspaces. Dashboard scripts and the run commands read caller values with `$using:name` (or `-ArgumentList` and `param()`); `-ImportFunction` brings caller functions into dashboard runspaces.
 
 ## Output and queue behavior
 

@@ -158,6 +158,7 @@ namespace ConsoleMonster.PowerShell {
             Table table = new Table { GroupHeadersAsRows = view?.GroupHeadersAsRows == true };
             foreach (BoundColumn column in columns) {
                 table.AddColumn(column.Column);
+                TableBindings.Remember(column);
             }
             if (options.Total) {
                 MarkNumericTotals(columns, rows);
@@ -267,11 +268,9 @@ namespace ConsoleMonster.PowerShell {
                 if (sample == null || column.Presenter != null) {
                     continue;
                 }
-                if (IdentifierPresenter.LooksLikeIdentifier(columns[c].Name) && CellPresenters.ForMember(columns[c].Name, sample.GetType()) == CellPresenters.Identifier) {
-                    column.Presenter = CellPresenters.Identifier;
-                } else if (CellPresenters.ForStatus(columns[c].Name, sample) is ICellPresenter status) {
-                    // Status columns get markers in every command, not only in Out-ConsoleDefault's views.
-                    column.Presenter = status;
+                if (CellPresenters.ForColumn(columns[c].Name, sample) is ICellPresenter inferred) {
+                    // Identifiers and status columns are inferred in every command (and typed C# tables), not only in Out-ConsoleDefault's views.
+                    column.Presenter = inferred;
                 } else if (autoPresenters) {
                     column.Presenter = CellPresenters.ForMember(columns[c].Name, sample.GetType());
                 }
@@ -584,7 +583,7 @@ namespace ConsoleMonster.PowerShell {
         }
 #pragma warning restore IL2026
 
-        private static object?[] Values(IReadOnlyList<BoundColumn> columns, PSObject item, ShapeOptions shape, ShapeBudget budget, out object? identity) {
+        internal static object?[] Values(IReadOnlyList<BoundColumn> columns, PSObject item, ShapeOptions shape, ShapeBudget budget, out object? identity) {
             object?[] values = new object?[columns.Count];
             object? key = null;
             for (int c = 0; c < columns.Count; c++) {

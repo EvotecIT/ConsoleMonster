@@ -67,7 +67,7 @@ $servers | Invoke-ConsoleDashboard $dashboard -Parallel -ThrottleLimit 4 {
 }
 ```
 
-- Variables of the calling script are not visible inside a runspace, and `$using:` does not work here: pass values with `-ArgumentList` and a `param()` block, or as the input items.
+- Variables of the calling script are not visible inside a runspace by themselves: read them with `$using:name` (also `$using:name.Member` and `$using:name[index]`), as with `ForEach-Object -Parallel`, and bring helper functions in with `-ImportFunction Name`. `-ArgumentList` with a `param()` block and the input items still work.
 - Change widgets through the update commands, never by calling a widget object's own methods from a runspace.
 - `Invoke-ConsoleRun` (also called `Invoke-ConsoleRun`) with `-Parallel` draws its own run view: a summary bar, a cell per item and the failures. While it shows, host messages, warnings, information, verbose and debug messages and errors from the workers appear in its log, and their `Write-Progress` in an activity list; each worker's progress IDs are its own, so every worker can use `-Id 0`. Results keep input order (unless `-Unordered`), and the native stream records (warnings, errors, information, verbose and debug messages) are also delivered when the view ends, so `-WarningVariable` and the pipeline still get them. Its workers receive the caller's variables with `$using:name`. Use `Invoke-ConsoleDashboard -Parallel` when workers should update widgets of your own.
 

@@ -129,8 +129,8 @@ $dashboard = New-ConsoleDashboard -Title '[bold]Module build[/]' -Subtitle 'Buil
 $dashboard.ShowElapsed = $false
 
 # Behaviour: native cmdlets post progress; Write-Host and Write-Warning land in the output region.
-Invoke-ConsoleDashboard -Dashboard $dashboard -ArgumentList (, $steps) -ScriptBlock {
-    param($Steps)
+Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {
+    $Steps = $using:steps
     $culture = [cultureinfo]::InvariantCulture
     $elapsed = 0.0
     for ($i = 0; $i -lt $Steps.Count; $i++) {
@@ -145,7 +145,7 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ArgumentList (, $steps) -ScriptBl
             Update-Console -WidgetId compilers -Key ('c' + ($i - 3)) -Status Running -Detail compiling
         }
         Write-Host -Object ($item.Label.Replace([char]92, [char]47) + '...')
-        Wait-ConsoleDashboard -Milliseconds ([int]($item.Seconds * 400))
+        Wait-ConsoleDashboard -Seconds ($item.Seconds * 0.4)
         foreach ($line in $item.Output) {
             $text = $line.Replace([char]92, [char]47)
             if ($item.Result -eq 'Warn') {

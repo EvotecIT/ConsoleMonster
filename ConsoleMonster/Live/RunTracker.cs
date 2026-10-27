@@ -28,7 +28,8 @@ namespace ConsoleMonster.Live {
 
     /// <summary>An item that is running, for the activity list.</summary>
     public sealed class RunActivity {
-        internal RunActivity(int index, string label, TimeSpan started) {
+        internal RunActivity(int index, string label, TimeSpan started, int attempt = 1) {
+            Attempt = attempt;
             Index = index;
             Label = label;
             Started = started;
@@ -42,6 +43,9 @@ namespace ConsoleMonster.Live {
 
         /// <summary>When it started (run time).</summary>
         public TimeSpan Started { get; }
+
+        /// <summary>The attempt running now: 1, or 2 and more for a retry.</summary>
+        public int Attempt { get; }
     }
 
     /// <summary>A consistent copy of a <see cref="RunTracker"/>.</summary>
@@ -100,6 +104,13 @@ namespace ConsoleMonster.Live {
         /// <summary>Items in total.</summary>
         public int Total => States.Count;
 
+        /// <summary>How many times each item has run, in input order: 0 before it starts, 2 or more once retried.</summary>
+        public IReadOnlyList<int> Attempts { get => _attempts; internal set { _attempts = value; Retried = 0; foreach (int attempts in value) { if (attempts > 1) { Retried++; } } } }
+        private IReadOnlyList<int> _attempts = Array.Empty<int>();
+
+        /// <summary>Items that needed more than one attempt, whatever their outcome.</summary>
+        public int Retried { get; private set; }
+
         /// <summary>Items finished, whatever the outcome.</summary>
         public int Done => Passed + Failed + Warned + Skipped;
     }
@@ -111,6 +122,7 @@ namespace ConsoleMonster.Live {
     public sealed partial class RunTracker {
         private readonly object _gate = new object();
         private readonly List<StatusKind> _states;
+        private readonly List<int> _attempts;
         private readonly Dictionary<int, RunActivity> _running = new Dictionary<int, RunActivity>();
         private readonly List<RunFailure> _failures = new List<RunFailure>();
         private readonly Func<TimeSpan> _clock;
@@ -121,6 +133,7 @@ namespace ConsoleMonster.Live {
         /// <param name="clock">The run clock, or null for a stopwatch started now.</param>
         public RunTracker(int total, Func<TimeSpan>? clock = null) {
             _states = new List<StatusKind>(new StatusKind[Math.Max(0, total)]);
+            _attempts = new List<int>(new int[Math.Max(0, total)]);
             if (clock == null) {
                 Stopwatch watch = Stopwatch.StartNew();
                 clock = () => watch.Elapsed;
@@ -144,6 +157,7 @@ namespace ConsoleMonster.Live {
                 }
                 int index = _states.Count;
                 _states.Add(StatusKind.Pending);
+                _attempts.Add(0);
                 return index;
             }
         }
@@ -163,7 +177,22 @@ namespace ConsoleMonster.Live {
 
         private void StartedCore(int index, string label) {
             _states[index] = StatusKind.Running;
+            if (_attempts[index] == 0) { _attempts[index] = 1; }
             _running[index] = new RunActivity(index, label ?? string.Empty, _clock());
+        }
+
+        /// <summary>A running item failed and starts another attempt; it stays running and counts as retried.</summary>
+        /// <param name="index">The item's position (0-based).</param>
+        /// <param name="label">Its label.</param>
+        /// <param name="attempt">The attempt about to start (2 for the first retry).</param>
+        public void Retrying(int index, string label, int attempt) {
+            if (attempt < 2) { throw new ArgumentOutOfRangeException(nameof(attempt), "A retry is attempt 2 or later."); }
+            lock (_gate) {
+                if (index < 0 || index >= _states.Count || _finished.HasValue || IsTerminal(_states[index])) { return; }
+                _states[index] = StatusKind.Running;
+                _attempts[index] = attempt;
+                _running[index] = new RunActivity(index, label ?? string.Empty, _clock(), attempt);
+            }
         }
 
         /// <summary>An item finished.</summary>
@@ -208,7 +237,7 @@ namespace ConsoleMonster.Live {
             lock (_gate) {
                 List<RunActivity> running = new List<RunActivity>(_running.Values);
                 running.Sort((a, b) => a.Started.CompareTo(b.Started));
-                RunSnapshot snapshot = new RunSnapshot(_states.ToArray(), running, new List<RunFailure>(_failures), _finished ?? _clock(), _finished.HasValue);
+                RunSnapshot snapshot = new RunSnapshot(_states.ToArray(), running, new List<RunFailure>(_failures), _finished ?? _clock(), _finished.HasValue) { Attempts = _attempts.ToArray() };
                 CopyItems(snapshot);
                 return snapshot;
             }

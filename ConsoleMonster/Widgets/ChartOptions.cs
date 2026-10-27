@@ -33,9 +33,9 @@ namespace ConsoleMonster.Widgets {
         private string? _unit;
         /// <summary>The unit on numeric labels.</summary>
         public string? Unit { get => _unit; set { _unit = value; _bound.Add(nameof(Unit)); } }
-        private string? _label;
-        /// <summary>The sparkline label.</summary>
-        public string? Label { get => _label; set { _label = value; _bound.Add(nameof(Label)); } }
+        private string? _title;
+        /// <summary>The sparkline caption shown before the trend.</summary>
+        public string? Title { get => _title; set { _title = value; _bound.Add(nameof(Title)); } }
         private int? _height;
         /// <summary>The plot height; omitted uses the selected kind default.</summary>
         public int? Height { get => _height; set { _height = value; _bound.Add(nameof(Height)); } }
@@ -96,6 +96,17 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>Labelled bars or stacked segments.</summary>
         public IList<ChartItem> Items { get; } = new List<ChartItem>();
+
+        /// <summary>Adds one labelled bar or stacked segment, like KeyValue's Add(key, value).</summary>
+        /// <param name="label">The plain-text label.</param>
+        /// <param name="value">The finite value.</param>
+        /// <param name="role">The colour role, or null for the chart default.</param>
+        /// <param name="key">Stable identity, or null to use the label.</param>
+        /// <returns>These options.</returns>
+        public ChartOptions AddItem(string label, double value, ThemeToken? role = null, string? key = null) {
+            Items.Add(new ChartItem(label, value, role, key));
+            return this;
+        }
         /// <summary>Typed line/scatter series, retaining per-series colors.</summary>
         public IList<ChartSeries> Series { get; } = new List<ChartSeries>();
     }

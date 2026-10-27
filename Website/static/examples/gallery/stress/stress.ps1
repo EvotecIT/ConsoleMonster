@@ -93,6 +93,6 @@ Invoke-ConsoleDashboard -Dashboard $screen -ArgumentList (, $frames) -ScriptBloc
     param($Frames)
     foreach ($frame in $Frames) {
         Update-Console -WidgetId stress -Content $frame
-        Wait-ConsoleDashboard -Milliseconds 1000
+        Wait-ConsoleDashboard -Seconds 1
     }
 }

@@ -13,7 +13,7 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>Dependent fields: picking a site loads its servers</para>
     ///   <code>
     /// New-ConsoleField Site 'Site' -Type Select -Choices 'Warsaw', 'Berlin' -ParameterName Site
-    /// New-ConsoleField Server 'Servers' -Type MultiSelect -DependsOn Site -LoadChoices { param($Values) Get-AppServer -Site $Values.Site } -Display Name -ParameterName Server</code>
+    /// New-ConsoleField Server 'Servers' -Type Select -Multiple -DependsOn Site -LoadChoices { param($Values) Get-AppServer -Site $Values.Site } -Display Name -ParameterName Server</code>
     /// </example>
     /// <example>
     ///   <para>A conditional field</para>
@@ -24,7 +24,7 @@ namespace ConsoleMonster.PowerShell {
     /// <example>
     ///   <para>Loaded servers grouped by site, with their role as a badge, offline ones disabled and online ones selected; the command shows their names</para>
     ///   <code>
-    /// New-ConsoleField Servers 'Servers' -Type MultiSelect -DependsOn Domain -ParameterName ComputerName -LoadChoices {
+    /// New-ConsoleField Servers 'Servers' -Type Select -Multiple -DependsOn Domain -ParameterName ComputerName -LoadChoices {
     ///     param($Values)
     ///     Get-AppServer -Domain $Values.Domain | ForEach-Object {
     ///         [pscustomobject] @{ Name = $_.Name; Site = $_.Site; Role = $_.Role; Offline = $_.OfflineReason; Online = -not $_.OfflineReason }
@@ -33,7 +33,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Checks offered by name, returned and shown in the command as their ids, with a typical time as a badge</para>
-    ///   <code>New-ConsoleField Checks 'Checks' -Type MultiSelect -Choices $checks -Display Name -CommandValue Id -GroupBy Category -Badge { "~$($_.Seconds) s" } -ParameterName Check</code>
+    ///   <code>New-ConsoleField Checks 'Checks' -Type Select -Multiple -Choices $checks -Display Name -CommandValue Id -GroupBy Category -Badge { "~$($_.Seconds) s" } -ParameterName Check</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleField")]
     [OutputType(typeof(Field))]
@@ -46,9 +46,21 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(Position = 1)]
         public string? Label { get; set; }
 
-        /// <summary><para type="description">The kind: Text (default), Secret, Number, Toggle, Select, MultiSelect or Path.</para></summary>
+        /// <summary><para type="description">The kind: Text (default), Number, Toggle, Select or Path. -Multiple, -AsSecret and -Multiline choose the variant, as on Read-ConsoleSelect and Read-ConsoleText.</para></summary>
         [Parameter]
         public ConsoleFieldType Type { get; set; } = ConsoleFieldType.Text;
+
+        /// <summary><para type="description">For Select: several choices instead of one.</para></summary>
+        [Parameter]
+        public SwitchParameter Multiple { get; set; }
+
+        /// <summary><para type="description">For Text: a masked secret, returned as SecureString unless Read-ConsoleForm -AsPlainText.</para></summary>
+        [Parameter]
+        public SwitchParameter AsSecret { get; set; }
+
+        /// <summary><para type="description">For Text: several lines, edited in a text area dialog.</para></summary>
+        [Parameter]
+        public SwitchParameter Multiline { get; set; }
 
         /// <summary><para type="description">The wizard page the field is on.</para></summary>
         [Parameter]
@@ -74,7 +86,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public string? Placeholder { get; set; }
 
-        /// <summary><para type="description">The choices of a Select or MultiSelect field (any objects).</para></summary>
+        /// <summary><para type="description">The choices of a Select field (any objects).</para></summary>
         [Parameter]
         public object?[]? Choices { get; set; }
 
@@ -130,11 +142,11 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public ScriptBlock? Validator { get; set; }
 
-        /// <summary><para type="description">The smallest number, or the fewest choices of a MultiSelect field.</para></summary>
+        /// <summary><para type="description">The smallest number, or the fewest choices of a Select -Multiple field.</para></summary>
         [Parameter]
         public decimal? Minimum { get; set; }
 
-        /// <summary><para type="description">The largest number, or the most choices of a MultiSelect field.</para></summary>
+        /// <summary><para type="description">The largest number, or the most choices of a Select -Multiple field.</para></summary>
         [Parameter]
         public decimal? Maximum { get; set; }
 
@@ -178,15 +190,15 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public int MinLength { get; set; }
 
-        /// <summary><para type="description">The most characters (TextArea).</para></summary>
+        /// <summary><para type="description">The most characters (Text).</para></summary>
         [Parameter]
         public int MaxLength { get; set; } = int.MaxValue;
 
-        /// <summary><para type="description">The most lines (TextArea).</para></summary>
+        /// <summary><para type="description">The most lines (Text -Multiline).</para></summary>
         [Parameter]
         public int MaxLines { get; set; } = int.MaxValue;
 
-        /// <summary><para type="description">The visible rows of the text area dialog (TextArea, default 8).</para></summary>
+        /// <summary><para type="description">The visible rows of the text area dialog (Text -Multiline, default 8).</para></summary>
         [Parameter]
         public int Height { get; set; } = 8;
 
@@ -203,7 +215,7 @@ namespace ConsoleMonster.PowerShell {
             Field field = Create();
             field.Help = Help;
             field.ParameterName = ParameterName;
-            field.Required = Required.IsPresent || field.Required && Type == ConsoleFieldType.Secret;
+            field.Required = Required.IsPresent || field.Required && AsSecret.IsPresent;
             if (NoRemember.IsPresent) {
                 field.Remember = false;
             }
@@ -225,14 +237,18 @@ namespace ConsoleMonster.PowerShell {
         }
 
         private Field Create() {
+            if (Multiple.IsPresent && Type != ConsoleFieldType.Select) { throw new PSArgumentException("Multiple applies to -Type Select."); }
+            if ((AsSecret.IsPresent || Multiline.IsPresent) && Type != ConsoleFieldType.Text) { throw new PSArgumentException((AsSecret.IsPresent ? "AsSecret" : "Multiline") + " applies to -Type Text."); }
+            if (AsSecret.IsPresent && Multiline.IsPresent) { throw new PSArgumentException("Choose AsSecret or Multiline."); }
+            if (!Multiline.IsPresent && (MyInvocation.BoundParameters.ContainsKey(nameof(MaxLines)) || MyInvocation.BoundParameters.ContainsKey(nameof(Height)))) { throw new PSArgumentException("MaxLines and Height apply to -Type Text -Multiline."); }
             switch (Type) {
-                case ConsoleFieldType.TextArea:
+                case ConsoleFieldType.Text when Multiline.IsPresent:
                     TextAreaField area = new TextAreaField(Key, Label) { Placeholder = Placeholder, MinLength = MinLength, MaxLength = MaxLength, MaxLines = MaxLines, Height = Height };
                     if (Default != null) {
                         area.Default = PSInteractive.Text(Default);
                     }
                     return area;
-                case ConsoleFieldType.Secret:
+                case ConsoleFieldType.Text when AsSecret.IsPresent:
                     SecretField secret = new SecretField(Key, Label) { MinLength = MinLength, Required = Required.IsPresent };
                     if (CommandPlaceholder != null) {
                         secret.CommandPlaceholder = CommandPlaceholder;
@@ -265,8 +281,7 @@ namespace ConsoleMonster.PowerShell {
                     }
                     return path;
                 case ConsoleFieldType.Select:
-                case ConsoleFieldType.MultiSelect:
-                    bool multiple = Type == ConsoleFieldType.MultiSelect;
+                    bool multiple = Multiple.IsPresent;
                     ChoiceField choice = new ChoiceField(Key, Label, multiple) {
                         Minimum = Minimum.HasValue ? (int)Minimum.Value : (int?)null,
                         Maximum = Maximum.HasValue ? (int)Maximum.Value : (int?)null

@@ -1,0 +1,35 @@
+{
+  "slug": "license-usage",
+  "title": "Microsoft 365 license usage",
+  "pitch": "Put assigned against purchased for every SKU and price the seats nobody uses.",
+  "category": "Reports",
+  "tags": [
+    "Microsoft 365",
+    "licensing",
+    "cost"
+  ],
+  "terminal": {
+    "width": 100,
+    "height": 26
+  },
+  "runtime": {
+    "powershell": "7.4+",
+    "dotnet": "8.0+"
+  },
+  "addons": [],
+  "makeItYours": [
+    "Replace the inline SKUs with your tenant's subscribed SKUs and their consumed units.",
+    "Set each SKU's price from your agreement and change the 90% and 70% thresholds.",
+    "Add an owner per SKU so the reclaim list names who to ask."
+  ],
+  "mode": "static",
+  "steps": 1,
+  "tier": "starter",
+  "useCase": "Use it when a renewal is coming and you need to know which licenses are paid for but not assigned.",
+  "featured": false,
+  "capture": {
+    "states": [
+      {}
+    ]
+  }
+}

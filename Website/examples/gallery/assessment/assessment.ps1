@@ -311,7 +311,7 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ArgumentList (, $events) -ScriptB
             $fields.Status = $event.State
         }
         Send-ConsoleEvent @fields
-        Wait-ConsoleDashboard -Milliseconds $delay
+        Wait-ConsoleDashboard -Seconds ($delay / 1000)
         $previous = $event.Time
     }
 }

@@ -22,7 +22,7 @@ New-ConsoleRows -Gap 1 -Content {
                     [pscustomobject] @{ Label = 'Servers'; Value = 3 }
                     [pscustomobject] @{ Label = 'Failed'; Value = 1 }
                 }
-                New-ConsoleChart -Type Sparkline -Label 'CPU' -InputObject $load
+                New-ConsoleChart -Type Sparkline -Title 'CPU' -InputObject $load
             }
         }
     }

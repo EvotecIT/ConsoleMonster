@@ -56,10 +56,10 @@ $items.Add([System.Management.Automation.PSObject]::AsPSObject([pscustomobject]@
 $columns = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.PropertyBinder'))::Bind($items, [object[]]@(@{
     Name = 'Score'; Header = 'Health'; Overflow = 'TruncateMiddle'; MaxLines = 2; Priority = 7; Key = $true
     MinWidth = 4; MaxWidth = 20; Width = 12; Alignment = 'Right'; Presenter = 'Number'; Unit = '%'
-    Aggregate = 'Average'; Flexible = $true; FailAbove = 90; Role = @{ Above = 80; Role = 'Warn' }
+    Aggregate = 'Average'; Flexible = $true; Weight = 3; FailAbove = 90; Role = @{ Above = 80; Role = 'Warn' }
 }))
 $c = $columns[0].Column
-'BINDING:' + (@{ Header = $c.Header; Overflow = $c.Overflow.ToString(); MaxLines = $c.MaxLines; Priority = $c.Priority; Key = $c.IsKey; Min = $c.MinWidth; Max = $c.MaxWidth; Width = $c.Width; Alignment = $c.Alignment.ToString(); Presenter = $c.Presenter.GetType().Name; Aggregate = $c.Aggregate.ToString(); Flexible = $c.Flexible; ToneCount = $c.RoleRules.Count } | ConvertTo-Json -Compress)
+'BINDING:' + (@{ Header = $c.Header; Overflow = $c.Overflow.ToString(); MaxLines = $c.MaxLines; Priority = $c.Priority; Key = $c.IsKey; Min = $c.MinWidth; Max = $c.MaxWidth; Width = $c.Width; Alignment = $c.Alignment.ToString(); Presenter = $c.Presenter.GetType().Name; Aggregate = $c.Aggregate.ToString(); Flexible = $c.Flexible; Weight = $c.Weight; ToneCount = $c.RoleRules.Count } | ConvertTo-Json -Compress)
 '@
         $result.Header | Should -Be 'Health'
         $result.Overflow | Should -Be 'TruncateMiddle'
@@ -73,6 +73,7 @@ $c = $columns[0].Column
         $result.Presenter | Should -Be 'NumberPresenter'
         $result.Aggregate | Should -Be 'Average'
         $result.Flexible | Should -BeTrue
+        $result.Weight | Should -Be 3
         $result.ToneCount | Should -Be 2
     }
 

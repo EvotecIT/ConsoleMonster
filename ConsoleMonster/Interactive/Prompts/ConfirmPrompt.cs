@@ -80,11 +80,18 @@ namespace ConsoleMonster.Interactive {
                 char no = char.ToLowerInvariant(No[0]);
                 bindings.Add(new KeyBinding(Labels.KeyMove, () => _focus = 1 - _focus, new KeyChord(ConsoleKey.LeftArrow), new KeyChord(ConsoleKey.RightArrow), new KeyChord(ConsoleKey.Tab), new KeyChord(ConsoleKey.Tab, KeyModifiers.Shift)) { KeyText = g.KeyLeftRight, Order = 10 });
                 bindings.Add(new KeyBinding(Labels.KeyYesNo, () => { }) { KeyText = yes + "/" + no, Order = 20 });
-                bindings.Add(new KeyBinding(string.Empty, () => Accept(true), new KeyChord(yes), new KeyChord(char.ToUpperInvariant(yes))) { InFooter = false });
-                bindings.Add(new KeyBinding(string.Empty, () => Accept(false), new KeyChord(no), new KeyChord(char.ToUpperInvariant(no))) { InFooter = false });
+                bindings.Add(new KeyBinding(string.Empty, () => Accept(true), AnswerKeys(yes, 'y', no)) { InFooter = false });
+                bindings.Add(new KeyBinding(string.Empty, () => Accept(false), AnswerKeys(no, 'n', yes)) { InFooter = false });
                 bindings.Add(new KeyBinding(Labels.KeyConfirm, () => Accept(_focus == 0), new KeyChord(ConsoleKey.Enter)) { Order = 30 });
                 bindings.Add(new KeyBinding(No.ToLowerInvariant(), () => Accept(false), new KeyChord(ConsoleKey.Escape)) { Order = 40 });
             }
+        }
+
+        // The localized initial, plus English y/n as long as it doesn't mean the other answer here (English scripts on localized machines).
+        internal static KeyChord[] AnswerKeys(char localized, char english, char other) {
+            var keys = new List<KeyChord> { new KeyChord(localized), new KeyChord(char.ToUpperInvariant(localized)) };
+            if (english != localized && english != other) { keys.Add(new KeyChord(english)); keys.Add(new KeyChord(char.ToUpperInvariant(english))); }
+            return keys.ToArray();
         }
     }
 }

@@ -13,7 +13,7 @@ Creates a bordered panel with a title around other console widgets.
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsolePanel [[-Content] <Object>] [-Title <Object>] [-HeaderRight <Object>] [-Caption <Object>] [-Border <BoxStyle>] [-Weight <double>] [-Height <int>] [-Fill] [-BorderRole <ThemeToken>] [-PaddingLeft <int>] [-PaddingRight <int>] [-PaddingTop <int>] [-PaddingBottom <int>] [-NoExpand] [-Verdict] [-Status <StatusKind>] [<CommonParameters>]
+New-ConsolePanel [[-Content] <Object>] [-Title <Object>] [-HeaderRight <Object>] [-Caption <Object>] [-Border <BoxStyle>] [-Weight <double>] [-Height <int>] [-Fill] [-BorderRole <ThemeToken>] [-PaddingLeft <int>] [-PaddingRight <int>] [-PaddingTop <int>] [-PaddingBottom <int>] [-Gap <int>] [-NoExpand] [-Verdict] [-Status <StatusKind>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -101,6 +101,22 @@ Take the remaining height of a live dashboard (for example a log).
 
 ```yaml
 Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Gap
+Blank rows between content children when -Content emits several widgets (default 0); 1 spaces a report's sections.
+
+```yaml
+Type: Int32
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

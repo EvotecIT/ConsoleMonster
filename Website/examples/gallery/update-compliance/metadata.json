@@ -1,0 +1,35 @@
+{
+  "slug": "update-compliance",
+  "title": "Windows Update compliance",
+  "pitch": "See the whole fleet's patch state in one bar, then the five hosts that need you and the two that are overdue.",
+  "category": "Reports",
+  "tags": [
+    "patching",
+    "compliance",
+    "stacked bar"
+  ],
+  "terminal": {
+    "width": 100,
+    "height": 24
+  },
+  "runtime": {
+    "powershell": "7.4+",
+    "dotnet": "8.0+"
+  },
+  "addons": [],
+  "makeItYours": [
+    "Fill the server rows from your update tooling's export (WSUS, Configuration Manager or Intune) instead of the inline list.",
+    "Change the 30-day overdue rule and the ring names to match your patch policy.",
+    "Add a column for the maintenance window so the overdue list doubles as a schedule."
+  ],
+  "mode": "static",
+  "steps": 1,
+  "tier": "starter",
+  "useCase": "Use it when the monthly patch report has to answer how many servers are compliant and which ones are not.",
+  "featured": false,
+  "capture": {
+    "states": [
+      {}
+    ]
+  }
+}

@@ -63,7 +63,7 @@ namespace ConsoleMonster.Widgets {
                     int left = i * width;
                     string duration = NumberFormat.Duration(item.Duration);
                     int detailWidth = Math.Max(0, width - DisplayWidth.Measure(duration) - 2);
-                    string detail = "  " + _spin + " " + ItemName(item) + (item.Phase.Length > 0 ? " · " + item.Phase : "");
+                    string detail = "  " + _spin + " " + ItemName(item) + (item.Label.Length > 0 ? " · " + item.Label : "");
                     region.Write(left, 0, TextWrapper.Truncate(detail, detailWidth, context.Ellipsis), context.Style(ThemeToken.Text));
                     region.Write(left + Math.Max(0, width - duration.Length - 1), 0, duration, context.Style(ThemeToken.Muted));
                 }

@@ -1035,8 +1035,8 @@
       "frame": {
         "w": 60,
         "h": 3,
-        "dark": "<i class=\"g2588 c49 f4ade80\">█████████████████████████████████████████████████</i><i class=\"g2588 c6 ffbbf24\">██████</i><i class=\"g2588 c3 ff87171\">███</i><i class=\"g2588 c2 fa1a1aa\">██</i>\n<i class=\"g2588 f4ade80\">█</i><span class=c13> Passed   412</span><span class=\"f8b8f9a c5\">  82%</span><span class=c3>   </span><i class=\"g2588 ffbbf24\">█</i><span class=c13> Warnings  51</span><span class=f8b8f9a>  10%</span>\n<i class=\"g2588 ff87171\">█</i><span class=c13> Failed    23</span><span class=\"f8b8f9a c5\">   4%</span><span class=c3>   </span><i class=\"g2588 fa1a1aa\">█</i><span class=c13> Skipped   14</span><span class=f8b8f9a>   2%</span>",
-        "light": "<i class=\"g2588 c49 f15803d\">█████████████████████████████████████████████████</i><i class=\"g2588 c6 fb45309\">██████</i><i class=\"g2588 c3 fb91c1c\">███</i><i class=\"g2588 c2 f71717a\">██</i>\n<i class=\"g2588 f15803d\">█</i><span class=c13> Passed   412</span><span class=\"f6b7280 c5\">  82%</span><span class=c3>   </span><i class=\"g2588 fb45309\">█</i><span class=c13> Warnings  51</span><span class=f6b7280>  10%</span>\n<i class=\"g2588 fb91c1c\">█</i><span class=c13> Failed    23</span><span class=\"f6b7280 c5\">   4%</span><span class=c3>   </span><i class=\"g2588 f71717a\">█</i><span class=c13> Skipped   14</span><span class=f6b7280>   2%</span>"
+        "dark": "<i class=\"g2588 c49 f4ade80\">█████████████████████████████████████████████████</i><i class=\"g2588 c6 ffbbf24\">██████</i><i class=\"g2588 c3 ff87171\">███</i><i class=\"g2588 c2 fa1a1aa\">██</i>\n<i class=\"g2588 f4ade80\">█</i><span class=c13> Passed   412</span><span class=\"f8b8f9a c5\">  82%</span><span class=c3>   </span><i class=\"g2588 ffbbf24\">█</i><span class=c13> Warnings  51</span><span class=f8b8f9a>  10%</span>\n<i class=\"g2588 ff87171\">█</i><span class=c13> Failed    23</span><span class=\"f8b8f9a c5\">   5%</span><span class=c3>   </span><i class=\"g2588 fa1a1aa\">█</i><span class=c13> Skipped   14</span><span class=f8b8f9a>   3%</span>",
+        "light": "<i class=\"g2588 c49 f15803d\">█████████████████████████████████████████████████</i><i class=\"g2588 c6 fb45309\">██████</i><i class=\"g2588 c3 fb91c1c\">███</i><i class=\"g2588 c2 f71717a\">██</i>\n<i class=\"g2588 f15803d\">█</i><span class=c13> Passed   412</span><span class=\"f6b7280 c5\">  82%</span><span class=c3>   </span><i class=\"g2588 fb45309\">█</i><span class=c13> Warnings  51</span><span class=f6b7280>  10%</span>\n<i class=\"g2588 fb91c1c\">█</i><span class=c13> Failed    23</span><span class=\"f6b7280 c5\">   5%</span><span class=c3>   </span><i class=\"g2588 f71717a\">█</i><span class=c13> Skipped   14</span><span class=f6b7280>   3%</span>"
       },
       "csharpFluent": "Ui.Chart().Type(ConsoleMonster.Widgets.ChartType.Stacked).Build<StackedBar>().Add(\"Passed\", 412, ThemeToken.Pass).Add(\"Warnings\", 51, ThemeToken.Warn).Add(\"Failed\", 23, ThemeToken.Fail).Add(\"Skipped\", 14, ThemeToken.Skip).Show();\n",
       "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\nUi.Chart().Type(ConsoleMonster.Widgets.ChartType.Stacked).Build<StackedBar>().Add(\"Passed\", 412, ThemeToken.Pass).Add(\"Warnings\", 51, ThemeToken.Warn).Add(\"Failed\", 23, ThemeToken.Fail).Add(\"Skipped\", 14, ThemeToken.Skip).Show();\n",
@@ -1067,12 +1067,12 @@
         "ps7": {
           "host": "PowerShell 7.6",
           "version": "7.6",
-          "identical": true
+          "identical": false
         },
         "ps5": {
           "host": "Windows PowerShell 5.1",
           "version": "5.1",
-          "identical": true
+          "identical": false
         }
       }
     },
@@ -1082,11 +1082,11 @@
       "group": "charts",
       "summary": "A compact trend in one or more rows, with the latest value.",
       "width": 60,
-      "csharp": "double[] rate =\n{\n    18,\n    21,\n    19,\n    24,\n    27,\n    26,\n    31,\n    29,\n    34,\n    38,\n    36,\n    41,\n    39,\n    44,\n    47,\n    45,\n    50,\n    48,\n    53,\n    57,\n    54,\n    59,\n    62,\n    60\n};\nTerminal.Write(new Rows() { Gap = 1 }.Add(new Sparkline() { Label = \"rules/s\", Unit = \"/s\" }.AddRange(rate)).Add(new Sparkline() { Height = 3, Unit = \"/s\" }.AddRange(rate)));",
-      "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\ndouble[] rate =\n{\n    18,\n    21,\n    19,\n    24,\n    27,\n    26,\n    31,\n    29,\n    34,\n    38,\n    36,\n    41,\n    39,\n    44,\n    47,\n    45,\n    50,\n    48,\n    53,\n    57,\n    54,\n    59,\n    62,\n    60\n};\nTerminal.Write(new Rows() { Gap = 1 }.Add(new Sparkline() { Label = \"rules/s\", Unit = \"/s\" }.AddRange(rate)).Add(new Sparkline() { Height = 3, Unit = \"/s\" }.AddRange(rate)));",
+      "csharp": "double[] rate =\n{\n    18,\n    21,\n    19,\n    24,\n    27,\n    26,\n    31,\n    29,\n    34,\n    38,\n    36,\n    41,\n    39,\n    44,\n    47,\n    45,\n    50,\n    48,\n    53,\n    57,\n    54,\n    59,\n    62,\n    60\n};\nTerminal.Write(new Rows() { Gap = 1 }.Add(new Sparkline() { Title = \"rules/s\", Unit = \"/s\" }.AddRange(rate)).Add(new Sparkline() { Height = 3, Unit = \"/s\" }.AddRange(rate)));",
+      "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\ndouble[] rate =\n{\n    18,\n    21,\n    19,\n    24,\n    27,\n    26,\n    31,\n    29,\n    34,\n    38,\n    36,\n    41,\n    39,\n    44,\n    47,\n    45,\n    50,\n    48,\n    53,\n    57,\n    54,\n    59,\n    62,\n    60\n};\nTerminal.Write(new Rows() { Gap = 1 }.Add(new Sparkline() { Title = \"rules/s\", Unit = \"/s\" }.AddRange(rate)).Add(new Sparkline() { Height = 3, Unit = \"/s\" }.AddRange(rate)));",
       "csharpFile": "Program.cs",
-      "powershell": "$rate = 18, 21, 19, 24, 27, 26, 31, 29, 34, 38, 36, 41, 39, 44, 47, 45, 50, 48, 53, 57, 54, 59, 62, 60\nNew-ConsoleRows -Gap 1 -Content {\n    New-ConsoleChart -Label 'rules/s' -Unit '/s' -Type Sparkline -Values $rate\n    New-ConsoleChart -Height 3 -Unit '/s' -Type Sparkline -Values $rate\n} | Show-Console",
-      "powershellFull": "Import-Module ConsoleMonster\n\n$rate = 18, 21, 19, 24, 27, 26, 31, 29, 34, 38, 36, 41, 39, 44, 47, 45, 50, 48, 53, 57, 54, 59, 62, 60\nNew-ConsoleRows -Gap 1 -Content {\n    New-ConsoleChart -Label 'rules/s' -Unit '/s' -Type Sparkline -Values $rate\n    New-ConsoleChart -Height 3 -Unit '/s' -Type Sparkline -Values $rate\n} | Show-Console",
+      "powershell": "$rate = 18, 21, 19, 24, 27, 26, 31, 29, 34, 38, 36, 41, 39, 44, 47, 45, 50, 48, 53, 57, 54, 59, 62, 60\nNew-ConsoleRows -Gap 1 -Content {\n    New-ConsoleChart -Title 'rules/s' -Unit '/s' -Type Sparkline -Values $rate\n    New-ConsoleChart -Height 3 -Unit '/s' -Type Sparkline -Values $rate\n} | Show-Console",
+      "powershellFull": "Import-Module ConsoleMonster\n\n$rate = 18, 21, 19, 24, 27, 26, 31, 29, 34, 38, 36, 41, 39, 44, 47, 45, 50, 48, 53, 57, 54, 59, 62, 60\nNew-ConsoleRows -Gap 1 -Content {\n    New-ConsoleChart -Title 'rules/s' -Unit '/s' -Type Sparkline -Values $rate\n    New-ConsoleChart -Height 3 -Unit '/s' -Type Sparkline -Values $rate\n} | Show-Console",
       "powershellFile": "sparkline.ps1",
       "frame": {
         "w": 60,
@@ -1094,8 +1094,8 @@
         "dark": "<span class=\"f8b8f9a c7\">rules/s</span><span class=c24>                        </span><span class=\"f60a5fa c24\"><i class=g2582>▂</i><i class=g2583>▃</i><i class=g2582>▂</i><i class=\"g2583 c3\">▃▃▃</i><i class=\"g2584 c3\">▄▄▄</i><i class=\"g2585 c4\">▅▅▅▅</i><i class=\"g2586 c5\">▆▆▆▆▆</i><i class=\"g2587 c3\">▇▇▇</i><i class=\"g2588 c3\">███</i></span><span class=c1> </span><span class=B>60/s</span>\n\n<span class=c44>                                            </span><span class=f60a5fa><i class=g2581>▁</i><i class=g2582>▂</i><i class=g2581>▁</i><i class=\"g2583 c2\">▃▃</i><i class=g2585>▅</i><i class=g2586>▆</i><i class=g2585>▅</i><i class=g2587>▇</i><i class=g2588>█</i><i class=g2587>▇</i></span>\n<span class=c34>                                  </span><span class=f60a5fa><i class=g2581>▁</i><i class=\"g2582 c2\">▂▂</i><i class=g2584>▄</i><i class=g2583>▃</i><i class=g2585>▅</i><i class=g2587>▇</i><i class=g2586>▆</i><i class=g2588>█</i><i class=g2587>▇</i><i class=\"g2588 c11\">███████████</i></span>\n<span class=c31>                               </span><span class=\"f60a5fa c24\"><i class=g2587>▇</i><i class=g2588>█</i><i class=g2587>▇</i><i class=\"g2588 c21\">█████████████████████</i></span><span class=c1> </span><span class=B>60/s</span>",
         "light": "<span class=\"f6b7280 c7\">rules/s</span><span class=c24>                        </span><span class=\"f2563eb c24\"><i class=g2582>▂</i><i class=g2583>▃</i><i class=g2582>▂</i><i class=\"g2583 c3\">▃▃▃</i><i class=\"g2584 c3\">▄▄▄</i><i class=\"g2585 c4\">▅▅▅▅</i><i class=\"g2586 c5\">▆▆▆▆▆</i><i class=\"g2587 c3\">▇▇▇</i><i class=\"g2588 c3\">███</i></span><span class=c1> </span><span class=\"f111827 B\">60/s</span>\n\n<span class=c44>                                            </span><span class=f2563eb><i class=g2581>▁</i><i class=g2582>▂</i><i class=g2581>▁</i><i class=\"g2583 c2\">▃▃</i><i class=g2585>▅</i><i class=g2586>▆</i><i class=g2585>▅</i><i class=g2587>▇</i><i class=g2588>█</i><i class=g2587>▇</i></span>\n<span class=c34>                                  </span><span class=f2563eb><i class=g2581>▁</i><i class=\"g2582 c2\">▂▂</i><i class=g2584>▄</i><i class=g2583>▃</i><i class=g2585>▅</i><i class=g2587>▇</i><i class=g2586>▆</i><i class=g2588>█</i><i class=g2587>▇</i><i class=\"g2588 c11\">███████████</i></span>\n<span class=c31>                               </span><span class=\"f2563eb c24\"><i class=g2587>▇</i><i class=g2588>█</i><i class=g2587>▇</i><i class=\"g2588 c21\">█████████████████████</i></span><span class=c1> </span><span class=\"f111827 B\">60/s</span>"
       },
-      "csharpFluent": "double[] rate =\n{\n    18,\n    21,\n    19,\n    24,\n    27,\n    26,\n    31,\n    29,\n    34,\n    38,\n    36,\n    41,\n    39,\n    44,\n    47,\n    45,\n    50,\n    48,\n    53,\n    57,\n    54,\n    59,\n    62,\n    60\n};\nUi.Rows().Gap(1).Add(Ui.Chart().Type(ConsoleMonster.Widgets.ChartType.Sparkline).Label(\"rules/s\").Unit(\"/s\").Build<Sparkline>().AddRange(rate)).Add(Ui.Chart().Type(ConsoleMonster.Widgets.ChartType.Sparkline).Height(3).Unit(\"/s\").Build<Sparkline>().AddRange(rate)).Show();\n",
-      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\ndouble[] rate =\n{\n    18,\n    21,\n    19,\n    24,\n    27,\n    26,\n    31,\n    29,\n    34,\n    38,\n    36,\n    41,\n    39,\n    44,\n    47,\n    45,\n    50,\n    48,\n    53,\n    57,\n    54,\n    59,\n    62,\n    60\n};\nUi.Rows().Gap(1).Add(Ui.Chart().Type(ConsoleMonster.Widgets.ChartType.Sparkline).Label(\"rules/s\").Unit(\"/s\").Build<Sparkline>().AddRange(rate)).Add(Ui.Chart().Type(ConsoleMonster.Widgets.ChartType.Sparkline).Height(3).Unit(\"/s\").Build<Sparkline>().AddRange(rate)).Show();\n",
+      "csharpFluent": "double[] rate =\n{\n    18,\n    21,\n    19,\n    24,\n    27,\n    26,\n    31,\n    29,\n    34,\n    38,\n    36,\n    41,\n    39,\n    44,\n    47,\n    45,\n    50,\n    48,\n    53,\n    57,\n    54,\n    59,\n    62,\n    60\n};\nUi.Rows().Gap(1).Add(Ui.Chart().Type(ConsoleMonster.Widgets.ChartType.Sparkline).Title(\"rules/s\").Unit(\"/s\").Build<Sparkline>().AddRange(rate)).Add(Ui.Chart().Type(ConsoleMonster.Widgets.ChartType.Sparkline).Height(3).Unit(\"/s\").Build<Sparkline>().AddRange(rate)).Show();\n",
+      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\ndouble[] rate =\n{\n    18,\n    21,\n    19,\n    24,\n    27,\n    26,\n    31,\n    29,\n    34,\n    38,\n    36,\n    41,\n    39,\n    44,\n    47,\n    45,\n    50,\n    48,\n    53,\n    57,\n    54,\n    59,\n    62,\n    60\n};\nUi.Rows().Gap(1).Add(Ui.Chart().Type(ConsoleMonster.Widgets.ChartType.Sparkline).Title(\"rules/s\").Unit(\"/s\").Build<Sparkline>().AddRange(rate)).Add(Ui.Chart().Type(ConsoleMonster.Widgets.ChartType.Sparkline).Height(3).Unit(\"/s\").Build<Sparkline>().AddRange(rate)).Show();\n",
       "csharpFluentFile": "Program.cs",
       "apiMap": [
         {
@@ -1106,17 +1106,17 @@
           "note": "Inside Content: c.Chart(widget => …)."
         },
         {
-          "powershell": "New-ConsoleChart -Label …",
-          "csharp": "Label = …",
-          "fluent": ".Label(…)",
-          "memberId": "ConsoleMonster.Widgets.ChartOptions.Label",
+          "powershell": "New-ConsoleChart -Title …",
+          "csharp": "Title = …",
+          "fluent": ".Title(…)",
+          "memberId": "ConsoleMonster.Widgets.ChartOptions.Title",
           "note": null
         },
         {
-          "powershell": "New-ConsoleChart -Label …",
-          "csharp": "Label = …",
-          "fluent": ".Label(…)",
-          "memberId": "ConsoleMonster.Widgets.Sparkline.Label",
+          "powershell": "New-ConsoleChart -Title …",
+          "csharp": "Title = …",
+          "fluent": ".Title(…)",
+          "memberId": "ConsoleMonster.Widgets.Sparkline.Title",
           "note": null
         },
         {

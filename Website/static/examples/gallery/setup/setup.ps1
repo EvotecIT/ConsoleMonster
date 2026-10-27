@@ -69,7 +69,8 @@ $formOptions = @{
         $fieldOptions = @{
             Key = 'Components'
             Label = 'Components'
-            Type = 'MultiSelect'
+            Type = 'Select'
+            Multiple = $true
             Choices = $components
             Display = 'Name'
             CommandValue = 'Id'
@@ -110,7 +111,8 @@ $formOptions = @{
         $fieldOptions = @{
             Key = 'Password'
             Label = 'Password'
-            Type = 'Secret'
+            Type = 'Text'
+            AsSecret = $true
             VisibleWhen = { $Values.Account -eq 'Custom' }
             Page = 'Service'
             ParameterName = 'Password'
@@ -162,14 +164,14 @@ $dashboard = New-ConsoleDashboard -Title 'Installing Toolbox Agent' -Subtitle $a
     New-ConsolePanel -Title Steps -Content { New-ConsoleStatusList -WidgetId steps -Item $installSteps }
     New-ConsolePadding -Padding 1, 0 -Content { New-ConsoleProgress -Label Install -Total 40 }
 }
-Invoke-ConsoleDashboard -Dashboard $dashboard -ArgumentList (, $installSteps) -ScriptBlock {
-    param($Steps)
+Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {
+    $Steps = $using:installSteps
     foreach ($label in $Steps) {
         Update-Console -WidgetId steps -Key $label -Status Running
         Update-Console -Label $label -WidgetId 'progress'
         for ($i = 0; $i -lt 10; $i++) {
             Update-Console -Increment 1 -WidgetId 'progress'
-            Wait-ConsoleDashboard -Milliseconds 90
+            Wait-ConsoleDashboard -Seconds 0.09
         }
         Update-Console -WidgetId steps -Key $label -Status Pass
     }

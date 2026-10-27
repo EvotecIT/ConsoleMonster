@@ -44,9 +44,9 @@ IWidget Preview(Job job) => Ui.Rows().Gap(1).Content(c =>
     c.Text(cText => cText.Content(Markup.Escape(job.Description)).IsMarkup());
     c.KeyValue(cmKeyValue => cmKeyValue.Add("Group", Markup.Escape(job.Category)).Add("Duration", $"about {job.Minutes} min per server").Add("Changes", job.Changes ? "[warn]yes[/], makes changes" : "[pass]no[/], read only").Add("Parameter", "[accent]" + job.Id + "[/]"));
 });
-SelectPrompt<Server> ServerPrompt()
+SelectQuestionOptions ServerPrompt()
 {
-    SelectPrompt<Server> prompt = Ui.SelectPrompt<Server>().Title("Target server").AddChoices(ConsoleMonster.Interactive.Choice.From(servers, s => s.Name, s => s.Site)).Description("Type to filter; offline servers show why they cannot be picked.").Default(servers[0]);
+    SelectQuestionOptions prompt = Ui.SelectQuestion().Title("Target server").AddChoices(ConsoleMonster.Interactive.Choice.From(servers, s => s.Name, s => s.Site)).Description("Type to filter; offline servers show why they cannot be picked.").Default(servers[0]);
     foreach (Choice choice in prompt.Choices)
     {
         Server server = (Server)choice.Value!;
@@ -58,25 +58,25 @@ SelectPrompt<Server> ServerPrompt()
     return prompt;
 }
 
-MultiSelectPrompt<Job> TaskPrompt()
+SelectQuestionOptions TaskPrompt()
 {
     Choice[] choices = tasks.Select(t => new Choice(t, t.Name).Group(t.Category).Description(t.Description).Badge(Ui.RichText().Append(t.Changes ? "changes " : "", ThemeToken.Warn).Append($"~{t.Minutes} min", ThemeToken.Muted).Build()).Selected(t.Id is "PatchStatus" or "DiskSpace")).ToArray();
-    return Ui.MultiSelectPrompt<Job>().Title("Tasks").AddChoices(choices).Minimum(1).Configure(configured => configured.Preview = Preview).Default(tasks.Where(t => t.Id is "PatchStatus" or "DiskSpace").ToArray());
+    return Ui.SelectQuestion().Multiple().Title("Tasks").AddChoices(choices).Minimum(1).Configure(configured => configured.Preview = cmValue => cmValue is Job cmItem ? Preview(cmItem) : null).Default(tasks.Where(t => t.Id is "PatchStatus" or "DiskSpace").ToArray());
 }
 
 // Behaviour: each native prompt returns an answer; the tour performs no external action.
 Ui.Rule().Title("[bold]1 / 9 · Typed selection[/]").Show();
-Server server = ServerPrompt().Show();
+Server server = ServerPrompt().Show<Server>();
 Terminal.WriteMarkupLine("[muted]returned:[/] " + Markup.Escape(server.Name + " (Server)"));
 Ui.Rule().Title("[bold]2 / 9 · Multiple selection[/]").Show();
-IReadOnlyList<Job> selected = TaskPrompt().Show();
+IReadOnlyList<Job> selected = TaskPrompt().ShowMany<Job>();
 Terminal.WriteMarkupLine("[muted]returned:[/] " + string.Join(", ", selected.Select(t => t.Id)));
 Ui.Rule().Title("[bold]3 / 9 · Confirmation[/]").Show();
 Ui.ConfirmPrompt().Title("Restart the report agent on FS01?").Default(true).Show();
 Ui.Rule().Title("[bold]4 / 9 · Text[/]").Show();
-Ui.TextPrompt().Title("Share name").Default("Reports").Pattern("[A-Za-z][A-Za-z0-9_-]{1,23}").PatternMessage("Start with a letter; letters, digits, - and _ only").Description("Shown to users when they browse the server.").Show();
+Ui.TextQuestion().Title("Share name").Default("Reports").Pattern("[A-Za-z][A-Za-z0-9_-]{1,23}").PatternMessage("Start with a letter; letters, digits, - and _ only").Description("Shown to users when they browse the server.").Show();
 Ui.Rule().Title("[bold]5 / 9 · Secret[/]").Show();
-Ui.SecretPrompt().Title("Password for svc-backup").MinLength(8).Description("Try example-passphrase; at least 8 characters.").Show();
+Ui.TextQuestion().AsSecret().Title("Password for svc-backup").MinLength(8).Description("Try example-passphrase; at least 8 characters.").Show();
 Ui.Rule().Title("[bold]6 / 9 · Number[/]").Show();
 Ui.NumberPrompt().Title("Port").Integer().Minimum(1).Maximum(65535).Default(443).Show();
 Ui.Rule().Title("[bold]7 / 9 · Path[/]").Show();

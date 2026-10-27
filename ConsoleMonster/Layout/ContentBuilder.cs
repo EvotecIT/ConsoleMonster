@@ -24,7 +24,7 @@ namespace ConsoleMonster.Layout {
         /// <returns>The one widget or a Rows container in source order.</returns>
         public IWidget Build() => Compose(_content.ToArray());
 
-        internal static IWidget Compose(IWidget[] content) => content.Length == 0 ? new Rows() : content.Length == 1 ? content[0] : new Rows(content);
+        internal static IWidget Compose(IWidget[] content) => content.Length == 0 ? new Rows() : content.Length == 1 ? content[0] : new Rows(content) { ComposedContent = true };
         internal static IWidget Build(Action<ContentBuilder> content) => Compose(Collect(content));
         internal static IWidget[] Collect(Action<ContentBuilder> content) {
             if (content == null) { throw new ArgumentNullException(nameof(content)); }

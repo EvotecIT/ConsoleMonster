@@ -1,0 +1,35 @@
+{
+  "slug": "event-log-summary",
+  "title": "Event log summary",
+  "pitch": "Turn a day of System and Application events into one screen: the hourly trend, who is noisy, which IDs repeat and what was critical.",
+  "category": "Reports",
+  "tags": [
+    "event log",
+    "sparkline",
+    "triage"
+  ],
+  "terminal": {
+    "width": 100,
+    "height": 28
+  },
+  "runtime": {
+    "powershell": "7.4+",
+    "dotnet": "8.0+"
+  },
+  "addons": [],
+  "makeItYours": [
+    "Fill the counts from Get-WinEvent -FilterHashtable with Level 1 to 3 and StartTime set to 24 hours ago, grouped by hour, ProviderName and Id.",
+    "Add your own meaning for the event IDs you see every week, so the table explains them.",
+    "Run it per server or per role and keep the busiest hour beside your change calendar."
+  ],
+  "mode": "static",
+  "steps": 1,
+  "tier": "showcase",
+  "useCase": "Use it when the morning check has to answer what happened overnight before anyone opens Event Viewer.",
+  "featured": false,
+  "capture": {
+    "states": [
+      {}
+    ]
+  }
+}
