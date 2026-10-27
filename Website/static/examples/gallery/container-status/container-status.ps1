@@ -10,7 +10,7 @@ $containers = @(
     [pscustomobject] @{ Name = 'cache'; Image = 'redis:7.4'; Limit = 512; Cpu = @(3, 4, 4, 3); Memory = @(152, 153, 153, 154); Restarts = @(0, 0, 0, 0) }
     [pscustomobject] @{ Name = 'queue'; Image = 'rabbitmq:3.13'; Limit = 1024; Cpu = @(6, 7, 9, 8); Memory = @(301, 305, 309, 312); Restarts = @(1, 1, 1, 1) }
 )
-$events = [Collections.Generic.List[object]]::new()
+$events = @()
 
 # Layout: one complete screen per sample; restarts and memory pressure also go to the event feed.
 function New-ContainerFrame {
@@ -24,10 +24,10 @@ function New-ContainerFrame {
         $restarted = $Tick -gt 0 -and $container.Restarts[$Tick] -gt $container.Restarts[$Tick - 1]
         $status = if ($restarted -or $memoryPercent -ge 90) { 'Fail' } elseif ($memoryPercent -ge 80) { 'Warn' } else { 'Pass' }
         if ($restarted) {
-            $events.Insert(0, [pscustomobject] @{ Label = "$clock $($container.Name)"; Status = 'Fail'; Detail = "restarted after exit 137 · restart $($container.Restarts[$Tick])" })
+            $script:events = @([pscustomobject] @{ Label = "$clock $($container.Name)"; Status = 'Fail'; Detail = "restarted after exit 137 · restart $($container.Restarts[$Tick])" }) + $script:events
         }
         elseif ($memoryPercent -ge 90) {
-            $events.Insert(0, [pscustomobject] @{ Label = "$clock $($container.Name)"; Status = 'Warn'; Detail = "memory at $memoryPercent% of its $($container.Limit) MiB limit" })
+            $script:events = @([pscustomobject] @{ Label = "$clock $($container.Name)"; Status = 'Warn'; Detail = "memory at $memoryPercent% of its $($container.Limit) MiB limit" }) + $script:events
         }
         [pscustomobject] @{
             Container = $container.Name
@@ -43,7 +43,7 @@ function New-ContainerFrame {
     $restarting = @($rows | Where-Object -Property State -EQ -Value 'restarting').Count
     $memoryTotal = ($rows | Measure-Object -Property 'Memory MiB' -Sum).Sum
     $limitTotal = ($containers | Measure-Object -Property Limit -Sum).Sum
-    $feed = @($events | Select-Object -First 4)
+    $feed = @($script:events | Select-Object -First 4)
 
     New-ConsoleRows -Gap 1 -Content {
         New-ConsoleRule -Title "[bold]Containers[/] [muted]· docker-01.adatum.example.test · refresh 2s · $clock[/]"
