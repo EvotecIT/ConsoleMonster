@@ -104,8 +104,9 @@ SelectQuestionOptions TaskPrompt()
         .Title("Tasks")
         .AddChoices(choices)
         .Minimum(1)
-        .Configure(
-            configured => configured.Preview = cmValue => cmValue is Job cmItem ? Preview(cmItem) : null)
+        .Configure(configured => configured.Preview = cmValue => cmValue is Job cmItem
+            ? Preview(cmItem)
+            : null)
         .Default(tasks.Where(t => t.Id is "PatchStatus" or "DiskSpace").ToArray());
 }
 
