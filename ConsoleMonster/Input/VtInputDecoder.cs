@@ -392,6 +392,8 @@ namespace ConsoleMonster.Input {
                 string value = char.ConvertFromUtf32(code);
                 if ((modifiers & KeyModifiers.Control) != 0 && value.Length == 1 && char.IsLetter(value[0])) {
                     output.Add(InputEvent.Press(InputEvent.KeyFor(value[0]), modifiers));
+                } else if (code == '\\' && (modifiers & KeyModifiers.Control) != 0) {
+                    output.Add(InputEvent.Press(ConsoleKey.Oem5, modifiers));
                 } else if (value.Length == 1) {
                     output.Add(InputEvent.Character(value[0], modifiers));
                 } else {

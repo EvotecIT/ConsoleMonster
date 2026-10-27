@@ -26,7 +26,6 @@ namespace ConsoleMonster.FileSystem {
         private static readonly bool Windows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         // .NET Framework keeps the MAX_PATH limit; .NET 8 and later lift it on Windows.
         private static readonly bool LegacyPaths = RuntimeInformation.FrameworkDescription.StartsWith(".NET Framework", StringComparison.Ordinal);
-        private static readonly StringComparison PathComparison = Windows || RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
         private readonly Item[] _items;
 
         private FileOperation(FileOperationKind kind, IEnumerable<Item> items, string? destination, FileOperationOptions? options) {
@@ -109,7 +108,14 @@ namespace ConsoleMonster.FileSystem {
             List<Item> items = new List<Item>();
             HashSet<string> seen = new HashSet<string>(StringComparer.Ordinal);
             foreach (FileOperationError error in errors) {
-                if (seen.Add(error.Source + "\n" + error.Target)) { items.Add(new Item(error.Source, error.Target)); }
+                Item retry = new Item(error.Source, error.Target);
+                if (Kind == FileOperationKind.Move || Kind == FileOperationKind.DeletePermanently) {
+                    foreach (Item root in _items) {
+                        // Errors retain the original source spelling, including ancestors already removed.
+                        if (error.Source == root.Source || error.Source.StartsWith(root.Source + Path.DirectorySeparatorChar, StringComparison.Ordinal)) { retry = root; break; }
+                    }
+                }
+                if (seen.Add(retry.Source + "\n" + retry.Target)) { items.Add(retry); }
             }
             return new FileOperation(Kind, items, Destination, Options);
         }
@@ -146,14 +152,6 @@ namespace ConsoleMonster.FileSystem {
                 // .NET Framework refuses paths past MAX_PATH; keep the path so the item fails with PathTooLong when it runs.
                 return path.Length > 3 ? path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) : path;
             }
-        }
-
-        internal static bool SamePath(string left, string right) => string.Equals(Full(left), Full(right), PathComparison);
-
-        internal static bool IsInside(string path, string folder) {
-            string root = Full(folder);
-            string full = Full(path);
-            return full.Length > root.Length && full.StartsWith(root, PathComparison) && (full[root.Length] == Path.DirectorySeparatorChar || full[root.Length] == Path.AltDirectorySeparatorChar || root.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal));
         }
 
         /// <summary>Whether a path is a symbolic link (or, on runtimes without link APIs, any reparse point).</summary>
@@ -233,7 +231,7 @@ namespace ConsoleMonster.FileSystem {
         private enum Outcome { Done, Skipped, Failed, Stopped }
 
         /// <summary>The state of one execution: counters, the effective conflict policy and progress sampling.</summary>
-        private sealed class Run {
+        private sealed partial class Run {
             private readonly FileOperation _operation;
             private readonly FileOperationOptions _options;
             private readonly CancellationToken _token;
@@ -262,8 +260,9 @@ namespace ConsoleMonster.FileSystem {
 
             internal async Task<FileOperationResult> ExecuteAsync() {
                 Report(true);
-                foreach (Item item in _operation._items) {
-                    if (Stop()) { break; }
+                for (int index = 0; index < _operation._items.Length; index++) {
+                    if (Stop()) { _itemsTotal += _operation._items.Length - index; break; }
+                    Item item = _operation._items[index];
                     if (Kind == FileOperationKind.Delete || Kind == FileOperationKind.CreateFolder) { _itemsTotal++; } else { Scan(item.Source, item.Target); }
                 }
                 _phase = FileOperationPhase.Running;
@@ -306,7 +305,7 @@ namespace ConsoleMonster.FileSystem {
                 Stack<KeyValuePair<string, string?>> pending = new Stack<KeyValuePair<string, string?>>();
                 pending.Push(new KeyValuePair<string, string?>(source, target));
                 while (pending.Count > 0) {
-                    if (Stop()) { return; }
+                    if (Stop()) { _itemsTotal += pending.Count; return; }
                     KeyValuePair<string, string?> next = pending.Pop();
                     string path = next.Key;
                     string? to = next.Value;
@@ -334,15 +333,15 @@ namespace ConsoleMonster.FileSystem {
                     Fail(source, target, FileOperationErrorKind.NotFound, "It no longer exists.", null);
                     return;
                 }
-                if (Directory.Exists(source) && !IsLink(source) && (IsInside(target, source) || Kind == FileOperationKind.Copy && SamePath(source, target))) {
-                    Fail(source, target, FileOperationErrorKind.IntoItself, "A folder can't be " + (Kind == FileOperationKind.Copy ? "copied" : "moved") + " into itself.", null);
-                    return;
-                }
-                if (Kind == FileOperationKind.Move && SamePath(source, target) && string.Equals(Path.GetFileName(source), Path.GetFileName(target), StringComparison.Ordinal)) {
-                    Skip();
-                    return;
-                }
                 try {
+                    if (Directory.Exists(source) && !IsLink(source) && (IsInside(target, source) || Kind == FileOperationKind.Copy && SamePath(source, target))) {
+                        Fail(source, target, FileOperationErrorKind.IntoItself, "A folder can't be " + (Kind == FileOperationKind.Copy ? "copied" : "moved") + " into itself.", null);
+                        return;
+                    }
+                    if (Kind == FileOperationKind.Move && SamePath(source, target) && string.Equals(Path.GetFileName(source), Path.GetFileName(target), StringComparison.Ordinal)) {
+                        Skip();
+                        return;
+                    }
                     string? parent = Path.GetDirectoryName(target);
                     if (!string.IsNullOrEmpty(parent)) { Directory.CreateDirectory(parent); }
                 } catch (Exception error) when (IsFileError(error)) {
@@ -377,7 +376,8 @@ namespace ConsoleMonster.FileSystem {
                             return Outcome.Failed;
                         }
                     }
-                    try { Directory.CreateDirectory(target); } catch (Exception error) when (IsFileError(error)) {
+                    bool created = !Directory.Exists(target);
+                    try { CreateCopyDirectory(source, target, created); } catch (Exception error) when (IsFileError(error)) {
                         Fail(source, target, error);
                         return Outcome.Failed;
                     }
@@ -393,6 +393,10 @@ namespace ConsoleMonster.FileSystem {
                         if (outcome == Outcome.Stopped) { return Outcome.Stopped; }
                     }
                     if (_options.PreserveTimestamps) { CopyTimes(source, target, true); }
+                    if (created) {
+                        try { FinishCopyDirectory(source, target); }
+                        catch (Exception error) when (IsFileError(error)) { Fail(source, target, error); return Outcome.Failed; }
+                    }
                     if (move && whole) {
                         try { Directory.Delete(source, false); } catch (Exception error) when (IsFileError(error)) {
                             Fail(source, target, error);
@@ -474,7 +478,7 @@ namespace ConsoleMonster.FileSystem {
 
             private async Task CopyFileAsync(string source, string target, bool overwrite) {
                 string folder = Path.GetDirectoryName(target) ?? string.Empty;
-                string partial = Path.Combine(folder, "." + Path.GetFileName(target) + "." + Guid.NewGuid().ToString("N").Substring(0, 8) + ".partial");
+                string partial = TemporaryName(folder);
                 try {
                     using (FileStream input = new FileStream(source, FileMode.Open, FileAccess.Read, FileShare.Read | FileShare.Delete, _buffer.Length, true))
                     using (FileStream output = new FileStream(partial, FileMode.CreateNew, FileAccess.Write, FileShare.None, _buffer.Length, true)) {
@@ -531,18 +535,29 @@ namespace ConsoleMonster.FileSystem {
 #if NET8_0_OR_GREATER
                 FileSystemInfo info = folder ? new DirectoryInfo(source) : new FileInfo(source);
                 string link = info.LinkTarget ?? throw new IOException("'" + source + "' is no longer a link.");
-                if (overwrite) { DeleteFile(target); }
-                if (folder) { Directory.CreateSymbolicLink(target, link); } else { File.CreateSymbolicLink(target, link); }
+                string staged = TemporaryName(Path.GetDirectoryName(target) ?? string.Empty);
+                try {
+                    if (folder) { Directory.CreateSymbolicLink(staged, link); } else { File.CreateSymbolicLink(staged, link); }
+                    MoveFile(staged, target, overwrite, folder);
+                } finally {
+                    if (IsLink(staged)) { DeleteFile(staged); }
+                }
 #else
                 if (folder) { throw new IOException("Linked folders aren't copied on this runtime; '" + source + "' was left out."); }
-                if (overwrite) { DeleteFile(target); }
-                File.Copy(source, target);
+                string staged = TemporaryName(Path.GetDirectoryName(target) ?? string.Empty);
+                try {
+                    File.Copy(source, staged);
+                    if (overwrite) { Replace(staged, target); } else { File.Move(staged, target); }
+                } finally {
+                    if (File.Exists(staged)) { File.Delete(staged); }
+                }
 #endif
             }
 
             private static void MoveFile(string source, string target, bool overwrite, bool folderLink) {
-                if (folderLink) {
-                    if (overwrite) { DeleteFile(target); }
+                if (overwrite && (folderLink || Directory.Exists(target))) {
+                    ReplaceEntry(source, target, folderLink);
+                } else if (folderLink) {
                     Directory.Move(source, target);
                 } else if (overwrite) {
                     Replace(source, target);
@@ -556,16 +571,25 @@ namespace ConsoleMonster.FileSystem {
                 FileAttributes attributes = File.GetAttributes(target);
                 if ((attributes & FileAttributes.ReadOnly) != 0) { File.SetAttributes(target, attributes & ~FileAttributes.ReadOnly); }
 #if NET8_0_OR_GREATER
-                File.Move(replacement, target, true);
+                try { File.Move(replacement, target, true); }
 #else
-                File.Replace(replacement, target, null, true);
+                try { File.Replace(replacement, target, null, true); }
 #endif
+                catch {
+                    if (File.Exists(target)) { File.SetAttributes(target, attributes); }
+                    throw;
+                }
             }
 
             // Renames through a free intermediate name; case-insensitive volumes treat a case-only rename as a no-op otherwise.
             private static void CaseRename(string source, string target, bool folder) {
-                string step = Path.Combine(Path.GetDirectoryName(source) ?? string.Empty, "." + Guid.NewGuid().ToString("N").Substring(0, 8) + ".rename");
-                if (folder) { Directory.Move(source, step); Directory.Move(step, target); } else { File.Move(source, step); File.Move(step, target); }
+                string step = TemporaryName(Path.GetDirectoryName(source) ?? string.Empty);
+                MoveEntry(source, step, folder);
+                try { MoveEntry(step, target, folder); }
+                catch (Exception error) when (IsFileError(error)) {
+                    RestoreEntry(step, source, folder, error);
+                    throw;
+                }
             }
 
             private static void DeleteFile(string path) {

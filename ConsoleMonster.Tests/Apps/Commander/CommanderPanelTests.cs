@@ -225,6 +225,24 @@ namespace ConsoleMonster.Tests.Apps.Commander {
         }
 
         [Fact]
+        public async Task FolderSizes_RestartIncludesThePreviouslyComputingRow() {
+            using TempFolder temp = Sample();
+            using CommanderPanel panel = Open(temp.Path);
+            PanelEntry folder = panel.Find(Path.Combine(temp.Path, "zeta"))!;
+            // A cancelled scan resets its Computing row asynchronously. Hold that previous task
+            // so restart must wait for its actual completion before taking the pending snapshot.
+            folder.SetSizeState(EntrySizeState.Computing);
+            var previous = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            typeof(CommanderPanel).GetProperty(nameof(CommanderPanel.FolderSizes))!.SetValue(panel, previous.Task);
+            Task restarted = panel.StartFolderSizes();
+            folder.SetSizeState(EntrySizeState.Pending);
+            previous.SetResult(true);
+            await restarted;
+            Assert.Equal(EntrySizeState.Known, folder.SizeState);
+            Assert.Equal(150, folder.Size);
+        }
+
+        [Fact]
         public void State_RoundTripsFoldersAndSortOnly() {
             using TempFolder temp = Sample();
             using CommanderModel model = new CommanderModel(temp.Path, temp.Combine("zeta"));

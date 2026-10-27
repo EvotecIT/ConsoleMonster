@@ -273,7 +273,7 @@ namespace ConsoleMonster.FileSystem {
         /// <summary>Items skipped by a conflict answer or policy.</summary>
         public int Skipped { get; }
 
-        /// <summary>Items never reached because the operation was cancelled.</summary>
+        /// <summary>Items never reached because the operation was cancelled. A folder not yet scanned counts as one item.</summary>
         public int NotProcessed { get; }
 
         /// <summary>Bytes written.</summary>

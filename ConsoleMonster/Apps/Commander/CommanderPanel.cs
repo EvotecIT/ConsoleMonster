@@ -350,18 +350,23 @@ namespace ConsoleMonster.Apps.Commander {
         /// </summary>
         /// <returns>The scan, which completes when every folder is sized or the scan is cancelled.</returns>
         public Task StartFolderSizes() {
+            Task previous = FolderSizes;
             CancelSizes();
-            List<PanelEntry> folders = new List<PanelEntry>();
-            // Rows around the cursor first, so what's on screen fills in first.
-            for (int distance = 0; distance < _entries.Length; distance++) {
-                AddPending(folders, _cursor + distance);
-                if (distance != 0) { AddPending(folders, _cursor - distance); }
-            }
-            if (folders.Count == 0) { FolderSizes = Task.CompletedTask; return FolderSizes; }
+            PanelEntry[] entries = _entries;
+            int cursor = _cursor;
             CancellationTokenSource cancel = new CancellationTokenSource();
             _sizes = cancel;
             CancellationToken token = cancel.Token;
-            FolderSizes = Task.Run(() => {
+            FolderSizes = Task.Run(async () => {
+                // The old scan must finish resetting its Computing row before collecting pending work.
+                // Await on this worker so restarting a scan never blocks the UI thread.
+                await previous.ConfigureAwait(false);
+                if (token.IsCancellationRequested) { return; }
+                List<PanelEntry> folders = new List<PanelEntry>();
+                for (int distance = 0; distance < entries.Length; distance++) {
+                    AddPending(folders, entries, cursor + distance);
+                    if (distance != 0) { AddPending(folders, entries, cursor - distance); }
+                }
                 foreach (PanelEntry folder in folders) {
                     if (token.IsCancellationRequested) { break; }
                     folder.SetSizeState(EntrySizeState.Computing);
@@ -376,9 +381,9 @@ namespace ConsoleMonster.Apps.Commander {
             return FolderSizes;
         }
 
-        private void AddPending(List<PanelEntry> folders, int index) {
-            if (index < 0 || index >= _entries.Length) { return; }
-            PanelEntry entry = _entries[index];
+        private static void AddPending(List<PanelEntry> folders, PanelEntry[] entries, int index) {
+            if (index < 0 || index >= entries.Length) { return; }
+            PanelEntry entry = entries[index];
             if (entry.IsFolder && !entry.IsParent && !entry.IsLink && entry.SizeState == EntrySizeState.Pending) { folders.Add(entry); }
         }
 
@@ -401,6 +406,7 @@ namespace ConsoleMonster.Apps.Commander {
                 DirectoryInfo folder = pending.Pop();
                 try {
                     foreach (FileSystemInfo info in folder.EnumerateFileSystemInfos()) {
+                        if (token.IsCancellationRequested) { return total; }
                         // Links are counted as themselves, never followed, so a link loop can't run forever.
                         if ((info.Attributes & FileAttributes.ReparsePoint) != 0) { continue; }
                         if (info is DirectoryInfo child) { pending.Push(child); } else if (info is FileInfo file) { total += file.Length; }

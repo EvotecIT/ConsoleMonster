@@ -90,5 +90,16 @@ namespace ConsoleMonster.Tests.FileSystem {
             Assert.Throws<IOException>(() => FileTrash.Unavailable.MoveToTrash(file));
             Assert.True(File.Exists(file));
         }
+
+        [Fact]
+        public void WindowsRecycleBin_DoesNotIncludeAnUnselectedHtmlResourceFolder() {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || Environment.GetEnvironmentVariable("CONSOLEMONSTER_TEST_REAL_TRASH") != "1") { return; }
+            using TempFolder temp = new TempFolder();
+            string document = temp.File("page.htm", "<html></html>");
+            string resource = temp.File("page_files/keep.txt", "not selected");
+            FileTrash.Current.MoveToTrash(document);
+            Assert.False(File.Exists(document));
+            Assert.Equal("not selected", File.ReadAllText(resource));
+        }
     }
 }

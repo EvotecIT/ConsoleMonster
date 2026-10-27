@@ -304,13 +304,14 @@ namespace ConsoleMonster.Tests.Input {
 
         [Fact]
         public void Feed_KittyControlKeys_EmitsNormalizedKeys() {
-            List<InputEvent> events = Decode("\u001b[13u\u001b[9u\u001b[27u\u001b[127u\u001b[99;5u");
-            Assert.Equal(5, events.Count);
+            List<InputEvent> events = Decode("\u001b[13u\u001b[9u\u001b[27u\u001b[127u\u001b[99;5u\u001b[92;5u");
+            Assert.Equal(6, events.Count);
             Assert.True(events[0].Is(ConsoleKey.Enter));
             Assert.True(events[1].Is(ConsoleKey.Tab));
             Assert.True(events[2].Is(ConsoleKey.Escape));
             Assert.True(events[3].Is(ConsoleKey.Backspace));
             Assert.True(events[4].Is(ConsoleKey.C, KeyModifiers.Control));
+            Assert.True(KeyChord.Parse("Ctrl+\\").Matches(events[5]));
         }
 
         [Fact]

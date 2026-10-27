@@ -15,7 +15,7 @@ namespace ConsoleMonster.FileSystem {
     /// another mounted volume go to that volume's <c>.Trash/$uid</c> or <c>.Trash-$uid</c>, as the specification asks,
     /// because a trash on another volume would turn a rename into a full copy.
     /// </remarks>
-    public sealed class XdgTrash : ITrash {
+    public sealed partial class XdgTrash : ITrash {
         private readonly bool _volumeTrash;
 
         /// <summary>Uses the current user's home trash and per-volume trash directories.</summary>
@@ -59,8 +59,14 @@ namespace ConsoleMonster.FileSystem {
         private static string Trash(string full, string trash, string? topDirectory) {
             string files = Path.Combine(trash, "files");
             string info = Path.Combine(trash, "info");
-            Directory.CreateDirectory(files);
-            Directory.CreateDirectory(info);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
+                UnixDirectoryPermissions.PrivateDirectory(trash);
+                UnixDirectoryPermissions.PrivateDirectory(files);
+                UnixDirectoryPermissions.PrivateDirectory(info);
+            } else {
+                Directory.CreateDirectory(files);
+                Directory.CreateDirectory(info);
+            }
             string name = Path.GetFileName(full);
             string location = topDirectory == null ? full : full.Substring(topDirectory.TrimEnd('/').Length + 1);
             string record = "[Trash Info]\nPath=" + Escape(location) + "\nDeletionDate=" + DateTime.Now.ToString("yyyy-MM-dd'T'HH:mm:ss", CultureInfo.InvariantCulture) + "\n";
@@ -92,23 +98,15 @@ namespace ConsoleMonster.FileSystem {
             string? uid = UserId();
             if (uid == null) { return null; }
             string shared = Path.Combine(topDirectory, ".Trash");
-#if NET8_0_OR_GREATER
             // The shared .Trash is only trusted when it's a real, sticky directory.
-            if (Directory.Exists(shared) && !FileOperation.IsLink(shared) && (File.GetUnixFileMode(shared) & UnixFileMode.StickyBit) != 0) {
+            if (UnixDirectoryPermissions.IsStickyDirectory(shared)) {
                 string own = Path.Combine(shared, uid);
-                try { Directory.CreateDirectory(own); return own; } catch (IOException) { } catch (UnauthorizedAccessException) { }
+                try { UnixDirectoryPermissions.PrivateDirectory(own); return own; } catch (IOException) { } catch (UnauthorizedAccessException) { }
             }
-#endif
             string personal = Path.Combine(topDirectory, ".Trash-" + uid);
             try {
-                if (!Directory.Exists(personal)) {
-#if NET8_0_OR_GREATER
-                    Directory.CreateDirectory(personal, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
-#else
-                    Directory.CreateDirectory(personal);
-#endif
-                }
-                return FileOperation.IsLink(personal) ? null : personal;
+                UnixDirectoryPermissions.PrivateDirectory(personal);
+                return personal;
             } catch (IOException) { return null; } catch (UnauthorizedAccessException) { return null; }
         }
 

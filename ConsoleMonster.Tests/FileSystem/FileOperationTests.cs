@@ -263,6 +263,7 @@ namespace ConsoleMonster.Tests.FileSystem {
             FileOperationResult result = await FileOperation.Copy(new[] { a }, temp.Combine("dst")).RunAsync(cancel.Token);
             Assert.True(result.Canceled);
             Assert.Equal(0, result.Completed);
+            Assert.Equal(1, result.NotProcessed);
             Assert.False(Directory.Exists(temp.Combine("dst")));
         }
 
