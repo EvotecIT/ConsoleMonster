@@ -6,7 +6,10 @@ param(
 $ErrorActionPreference = 'Stop'
 Add-Type -Path (Join-Path $AssemblyDirectory 'ConsoleMonster.dll')
 Add-Type -Path (Join-Path $AssemblyDirectory 'ConsoleMonster.PowerShell.Display.dll')
-Add-Type -Path (Join-Path $PSScriptRoot 'Fixtures/RuntimeTypeBuilder.cs') -ReferencedAssemblies @(
+$fixtureOptions=@{}
+# PS7 may compile the net8 fixture references on .NET 10; suppress only assembly-version unification CS1701.
+if($PSVersionTable.PSVersion.Major -eq 7){$fixtureOptions.CompilerOptions=@('/nowarn:1701')}
+Add-Type -Path (Join-Path $PSScriptRoot 'Fixtures/RuntimeTypeBuilder.cs') @fixtureOptions -ReferencedAssemblies @(
     (Join-Path $AssemblyDirectory 'ConsoleMonster.dll'),
     (Join-Path $AssemblyDirectory 'ConsoleMonster.PowerShell.Display.dll'), [Console].Assembly.Location)
 Add-Type -TypeDefinition @'

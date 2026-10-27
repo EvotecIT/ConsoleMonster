@@ -15,7 +15,10 @@ try {
     $core=Join-Path $AssemblyDirectory 'ConsoleMonster.dll'
     Add-Type -Path $core
     Add-Type -Path (Join-Path $AssemblyDirectory 'ConsoleMonster.PowerShell.Display.dll')
-    Add-Type -Path (Join-Path $PSScriptRoot 'Fixtures/DisplayHostFixture.cs') -ReferencedAssemblies @($core,[Console].Assembly.Location)
+    $fixtureOptions=@{}
+    # PS7 may compile the net8 fixture references on .NET 10; suppress only assembly-version unification CS1701.
+    if($PSVersionTable.PSVersion.Major -eq 7){$fixtureOptions.CompilerOptions=@('/nowarn:1701')}
+    Add-Type -Path (Join-Path $PSScriptRoot 'Fixtures/DisplayHostFixture.cs') -ReferencedAssemblies @($core,[Console].Assembly.Location) @fixtureOptions
     $displayProfile=[ConsoleMonster.Terminal]::GetCurrentProfile()
     Assert-HostContract (-not [Console]::IsOutputRedirected -and $displayProfile.IsConsoleHandle) 'This proof requires a real non-redirected console process.'
     $script:HostBuilds=0

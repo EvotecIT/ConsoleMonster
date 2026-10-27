@@ -24610,6 +24610,118 @@
       "Reason": "Keyed value cells require the explicit native tree column schema.",
       "Alternative": "Populate TreeNode.Values to match Tree.ValueColumns and pass the tree to Show-Console.",
       "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "AsciiListDirection",
+      "CSharpTypeName": "System.String",
+      "Reason": "The reduced-tier connector belongs to an explicitly supplied directional cross-tab.",
+      "Alternative": "Set AsciiListDirection with ListDirection on a native Matrix, then pass it to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "ColumnAxisCaption",
+      "CSharpTypeName": "System.String",
+      "Reason": "The column-axis caption names the supplied matrix dimension rather than an inferred object property.",
+      "Alternative": "Set ColumnAxisCaption on a native Matrix before passing it to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "LegendLabels",
+      "CSharpTypeName": "System.Collections.Generic.IDictionary`2[ConsoleMonster.Styling.StatusKind,System.String]",
+      "Reason": "Application-supplied legend words describe matrix statuses without changing their semantics.",
+      "Alternative": "Populate Matrix.LegendLabels by StatusKind before passing the matrix to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "LegendMarkers",
+      "CSharpTypeName": "System.Collections.Generic.IDictionary`2[ConsoleMonster.Styling.StatusKind,System.String]",
+      "Reason": "Literal legend markers belong to an explicit matrix and do not alter its cell statuses or counts.",
+      "Alternative": "Populate Matrix.LegendMarkers with ASCII-safe glyphs for all-tier output and pass the matrix to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "ListDirection",
+      "CSharpTypeName": "System.String",
+      "Reason": "A directional connector describes the relationship between explicitly supplied row and column identities.",
+      "Alternative": "Set ListDirection and its AsciiListDirection alternative on a native Matrix, then pass it to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "MissingLegendLabel",
+      "CSharpTypeName": "System.String",
+      "Reason": "An absent observation needs application wording distinct from a supplied healthy result.",
+      "Alternative": "Set MissingLegendLabel on a native Matrix before passing it to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "RowAxisCaption",
+      "CSharpTypeName": "System.String",
+      "Reason": "The row-axis caption names the supplied matrix dimension rather than an inferred object property.",
+      "Alternative": "Set RowAxisCaption on a native Matrix before passing it to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "SelfLegendLabel",
+      "CSharpTypeName": "System.String",
+      "Reason": "The self-cell legend describes explicitly identified diagonal relationships.",
+      "Alternative": "Set SelfLegendLabel on a native Matrix before passing it to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Tree",
+      "Member": "TruncateLabelsInMiddle",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "Preserving both ends of an identity label is a native tree presentation choice.",
+      "Alternative": "Set TruncateLabelsInMiddle on the Tree returned by New-ConsoleTree before passing it to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Tree",
+      "Member": "TruncateNotesInMiddle",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "Preserving both ends of a detail or value note is independent of label truncation.",
+      "Alternative": "Set TruncateNotesInMiddle on a native Tree with node details or value columns before passing it to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.TreeNode",
+      "Member": "AsciiMarker",
+      "CSharpTypeName": "System.String",
+      "Reason": "The ASCII node marker is supplied independently of status semantics and the full-tier marker.",
+      "Alternative": "Set AsciiMarker on native TreeNode instances before passing their tree to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.TreeNode",
+      "Member": "BasicMarker",
+      "CSharpTypeName": "System.String",
+      "Reason": "A Basic-tier node marker can differ from both full Unicode and ASCII markers.",
+      "Alternative": "Set BasicMarker together with Marker and AsciiMarker on native TreeNode instances.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.TreeNode",
+      "Member": "Marker",
+      "CSharpTypeName": "System.String",
+      "Reason": "A literal node marker is application presentation rather than an inferred status.",
+      "Alternative": "Set Marker on native TreeNode instances and supply reduced-tier alternatives when needed.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.TreeNode",
+      "Member": "MarkerTone",
+      "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Styling.ThemeToken]",
+      "Reason": "The marker tone can express application meaning independently of the node status and label style.",
+      "Alternative": "Set MarkerTone to a ThemeToken on native TreeNode instances before passing their tree to Show-Console.",
+      "Disposition": "CSharpOnly"
     }
   ],
   "SchemaVersion": 2,
