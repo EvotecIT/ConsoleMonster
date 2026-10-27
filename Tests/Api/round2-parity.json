@@ -17776,12 +17776,12 @@
         {
           "Parameter": "Slug",
           "ParameterType": "System.String",
-          "Default": "",
+          "Default": null,
           "Sets": [
             {
               "Name": "__AllParameterSets",
               "Position": 0,
-              "Mandatory": true
+              "Mandatory": false
             }
           ],
           "CSharpType": "ConsoleMonster.PowerShell.ConsoleGallery",
