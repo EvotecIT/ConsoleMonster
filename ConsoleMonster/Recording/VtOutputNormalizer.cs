@@ -55,6 +55,9 @@ namespace ConsoleMonster.Sessions {
                         continue;
                     }
                     if (!_passthrough && !ModeledControl(control)) { PreparePassthrough(result, before, active); }
+                    // A buffer can become hidden before an unmodeled control suspends repair.
+                    // Make it exact while it is still reachable, on both entry and exit.
+                    if (!_passthrough && SwitchesScreen(control)) { MaterializeLatentStyles(result, before, active); }
                     CellBuffer? cells = !_passthrough && MayErase(control, 0) ? _styles.Snapshot() : null;
                     _styles.Feed(control);
                     if (_passthrough) {

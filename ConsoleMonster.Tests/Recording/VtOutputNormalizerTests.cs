@@ -105,6 +105,19 @@ namespace ConsoleMonster.Tests.Sessions {
             Assert.Contains("\u001b[4h \u001b[4l", text);
         }
 
+        [Theory]
+        [InlineData(47, true)]
+        [InlineData(1047, true)]
+        [InlineData(1049, true)]
+        [InlineData(1049, false)]
+        public void PassthroughOnAlternateScreenPreservesTheHiddenMainBlankStyle(int mode, bool position) {
+            string original = "\u001b[31m \u001b[?" + mode + "h\u001bH\u001b[?" + mode + "l" + (position ? "\u001b[1;2H" : string.Empty) + "\u0301";
+            var source = new VtScreen(12, 3); source.Feed(original);
+            var output = new VtScreen(12, 3); output.Feed(new VtOutputNormalizer(12, 3).Normalize(original));
+            Assert.Equal(" \u0301", source.Snapshot()[0, 0].Glyph);
+            Same(source.Snapshot(), output.Snapshot());
+        }
+
         [Fact]
         public void SegmentAndSynchronizedFrameBoundariesKeepTheirPaintedState() {
             var normalizer = new VtOutputNormalizer(12, 3);

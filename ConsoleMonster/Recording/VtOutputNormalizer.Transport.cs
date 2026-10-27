@@ -77,6 +77,11 @@ namespace ConsoleMonster.Sessions {
         private void PreparePassthrough(StringBuilder result, VtScreen.CursorState before, Style active) {
             // Unmodeled state can change the meaning of later tabs, spaces and glyphs. Materialize
             // latent source styles now, then keep subsequent transport verbatim until a real reset.
+            MaterializeLatentStyles(result, before, active);
+            _passthrough = true;
+        }
+
+        private void MaterializeLatentStyles(StringBuilder result, VtScreen.CursorState before, Style active) {
             for (int y = 0; y < _styles.Height; y++) {
                 for (int x = 0; x < _styles.Width; x++) {
                     Cell source = _styles.CellAt(x, y);
@@ -85,7 +90,14 @@ namespace ConsoleMonster.Sessions {
             }
             FlushCursor(result, before, preserveLatent: true);
             EmitStyle(result, active);
-            _passthrough = true;
+        }
+
+        private static bool SwitchesScreen(string control) {
+            if (!control.StartsWith("\u001b[?", StringComparison.Ordinal) || control[control.Length - 1] is not ('h' or 'l')) { return false; }
+            foreach (string value in control.Substring(3, control.Length - 4).Split(';')) {
+                if (int.TryParse(value, out int mode) && mode is 47 or 1047 or 1049) { return true; }
+            }
+            return false;
         }
 
         private static bool MayErase(string text, int start) {
