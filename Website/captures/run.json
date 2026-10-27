@@ -82,7 +82,7 @@
         "minDurationSeconds": 0.05,
         "maxDurationSeconds": 10
       },
-      "sha256": "728436d40005c9729a6e8b5ca66b8d4312f5ee4e09fcdb2af8e5382ba9fcc57e",
+      "sha256": "2e120ea2859c9d5daebf62f539ec5c272aa629fd982ab194e472896376ec972b",
       "screen": "dark",
       "width": 110,
       "height": 20
@@ -138,7 +138,7 @@
         "minDurationSeconds": 0.1,
         "maxDurationSeconds": 120
       },
-      "sha256": "83dd39440bed0e749b6627d025c30e268304b2caab300cb0219d28736eee3b9a",
+      "sha256": "d8914f54de8c8de7eba56802a49da40b5eb5ceaa524d3a70c719ed171e119388",
       "screen": "dark",
       "width": 110,
       "height": 30
@@ -178,7 +178,7 @@
         "minDurationSeconds": 0.1,
         "maxDurationSeconds": 120
       },
-      "sha256": "c6e5f3532136f20cc768c33410416bc7bf8edf6b3e515192a3c4f863bbd6c2a4",
+      "sha256": "cef74858fced3edf894d28e3594c3fcbe0a7b786f830fac02694c02269f3766e",
       "screen": "dark",
       "width": 100,
       "height": 24
@@ -194,7 +194,7 @@
         "minDurationSeconds": 0.1,
         "maxDurationSeconds": 120
       },
-      "sha256": "d288ae68f81ee04df1e570cea071f49f1d726fa07c66ee0d4addca07309c4af3",
+      "sha256": "92efb4c203ae39ee0fb0b2349fca956301760a7eb4b1cef204d171a2e671b98d",
       "screen": "dark",
       "width": 96,
       "height": 24
@@ -226,7 +226,7 @@
         "minDurationSeconds": 0.1,
         "maxDurationSeconds": 120
       },
-      "sha256": "f4be3f959e67b8a6ccb24970b9e549af31647f7c81ce67427d323e28dbf43b00",
+      "sha256": "f0835665b6b3c7f37755b98e824499d0c800f4c05f2eb150f4c3d61eccddfa45",
       "screen": "dark",
       "width": 100,
       "height": 14
@@ -250,7 +250,7 @@
         "minDurationSeconds": 0.2,
         "maxDurationSeconds": 180
       },
-      "sha256": "e2a4a888e0b3a3fc01cf1907848cac690aab6fd40f639fb0136505bf409a948d",
+      "sha256": "e3755be7458eb9d15fea6e4dfdc5ff74a9f2a07f9abda99d13f54bdea9f164f7",
       "screen": "dark",
       "width": 100,
       "height": 26
@@ -266,7 +266,7 @@
         "minDurationSeconds": 0.1,
         "maxDurationSeconds": 180
       },
-      "sha256": "0bde8ff429dcf2aedbac0b1c16e6f65c1efbb1afbb4b80d399b0779cf6846a4a",
+      "sha256": "c67577155393355737859585649518e0377b221036348faae923ca3968ea6973",
       "screen": "dark",
       "width": 100,
       "height": 30
@@ -282,7 +282,7 @@
         "minDurationSeconds": 0.1,
         "maxDurationSeconds": 120
       },
-      "sha256": "d7c01682c21297418ef9b60c66eba7fbee1ff0e76eb6e28e373654cc7ce0e112",
+      "sha256": "c3993c91b89e1d7b22237bc198ca105e859c247ec82c31f855c3fc4095819e6d",
       "screen": "dark",
       "width": 100,
       "height": 22
@@ -298,7 +298,7 @@
         "minDurationSeconds": 0.1,
         "maxDurationSeconds": 120
       },
-      "sha256": "28e20829c91529cac4ebfec354bb7132b38474a7bef4ffa2ea9a5fd89ec58101",
+      "sha256": "bc0d69d37cdbf51fa29ca2e60990479331ac19da9955935910c1e9358809a37d",
       "screen": "dark",
       "width": 100,
       "height": 24
@@ -1777,7 +1777,7 @@
         "minDurationSeconds": 0.5,
         "maxDurationSeconds": 180
       },
-      "sha256": "bb00bf7065875aefc454c5b3b054769cfcb77eac1cbfaa75f563716cc7e7cc09",
+      "sha256": "6e8e8ede3e1ba76ce04607cd1a488817b87dfbbeda126202ad8df0820fb68d01",
       "screen": "dark",
       "width": 120,
       "height": 40
