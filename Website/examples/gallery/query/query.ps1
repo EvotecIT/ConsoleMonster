@@ -37,6 +37,7 @@ $resolvers = [ordered] @{
 }
 
 # Layout: keep the dense report readable through wrapping and two balanced panels.
+$recordColumns = @('Name', 'Type', 'TTL', @{ Name = 'Data'; Flexible = $true })
 $report = New-ConsoleRows -Gap 1 -Content {
     New-ConsoleRule -Title '[bold]DNS query results[/] [muted]· example.test[/]'
     New-ConsolePadding -Padding 1, 0 -Content {
@@ -50,7 +51,7 @@ $report = New-ConsoleRows -Gap 1 -Content {
             [pscustomobject]@{ Key = 'DNSSEC'; Value = 'not signed'; Status = 'Warn' }
         }
     }
-    $records | New-ConsoleTable -Property Name, Type, TTL, Data -Expand -NoHeaderSeparator
+    $records | New-ConsoleTable -Property $recordColumns -Expand -NoHeaderSeparator
     New-ConsoleColumns -Content {
         New-ConsolePanel -Title Delegation -Content {
             New-ConsoleTree -Title '[bold].[/] [muted]root[/]' -Content {
