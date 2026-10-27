@@ -36,7 +36,8 @@ foreach (var state in states)
 var attention = servers.Where(server => server.State != "Compliant").ToArray();
 var overdue = new StatusList();
 foreach (var server in servers.Where(server => server.Days > 30))
-    overdue.Add(server.Host, StatusKind.Fail, $"{server.Days} days · {server.State.ToLowerInvariant()} · {server.Missing} missing");
+    overdue.Add(server.Host, StatusKind.Fail,
+        $"{server.Days} days · {server.State.ToLowerInvariant()} · {server.Missing} missing");
 
 // Layout: the fleet split first, then the hosts to fix, then the overdue call-out.
 var table = Table.For(attention)
@@ -61,5 +62,7 @@ var report = new Rows(
 // Behaviour: print once; schedule the overdue hosts into the next maintenance window.
 Terminal.Write(report);
 
-record Server(string Host, string Ring, string State, int Missing, string LastPatched, int Days, string Status);
+record Server(string Host, string Ring, string State, int Missing, string LastPatched, int Days,
+    string Status);
+
 record State(string Label, ThemeToken Role);

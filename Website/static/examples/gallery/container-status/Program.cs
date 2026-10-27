@@ -9,12 +9,48 @@ using ConsoleMonster.Widgets;
 // Data: four fictional samples, two seconds apart; no container engine is contacted.
 var containers = new Container[]
 {
-    new("web", "nginx:1.27", 256, new[] { 8, 9, 12, 10 }, new[] { 96, 98, 101, 99 }, new[] { 0, 0, 0, 0 }),
-    new("api", "adatum/api:4.2", 512, new[] { 34, 41, 3, 22 }, new[] { 410, 468, 120, 190 }, new[] { 2, 2, 3, 3 }),
-    new("worker", "adatum/worker:4.2", 896, new[] { 55, 61, 72, 78 }, new[] { 690, 742, 801, 846 }, new[] { 0, 0, 0, 0 }),
-    new("db", "postgres:16", 2048, new[] { 18, 22, 25, 21 }, new[] { 1210, 1225, 1240, 1236 }, new[] { 0, 0, 0, 0 }),
-    new("cache", "redis:7.4", 512, new[] { 3, 4, 4, 3 }, new[] { 152, 153, 153, 154 }, new[] { 0, 0, 0, 0 }),
-    new("queue", "rabbitmq:3.13", 1024, new[] { 6, 7, 9, 8 }, new[] { 301, 305, 309, 312 }, new[] { 1, 1, 1, 1 })
+    new(
+        "web",
+        "nginx:1.27",
+        256,
+        new[] { 8, 9, 12, 10 },
+        new[] { 96, 98, 101, 99 },
+        new[] { 0, 0, 0, 0 }),
+    new(
+        "api",
+        "adatum/api:4.2",
+        512,
+        new[] { 34, 41, 3, 22 },
+        new[] { 410, 468, 120, 190 },
+        new[] { 2, 2, 3, 3 }),
+    new(
+        "worker",
+        "adatum/worker:4.2",
+        896,
+        new[] { 55, 61, 72, 78 },
+        new[] { 690, 742, 801, 846 },
+        new[] { 0, 0, 0, 0 }),
+    new(
+        "db",
+        "postgres:16",
+        2048,
+        new[] { 18, 22, 25, 21 },
+        new[] { 1210, 1225, 1240, 1236 },
+        new[] { 0, 0, 0, 0 }),
+    new(
+        "cache",
+        "redis:7.4",
+        512,
+        new[] { 3, 4, 4, 3 },
+        new[] { 152, 153, 153, 154 },
+        new[] { 0, 0, 0, 0 }),
+    new(
+        "queue",
+        "rabbitmq:3.13",
+        1024,
+        new[] { 6, 7, 9, 8 },
+        new[] { 301, 305, 309, 312 },
+        new[] { 1, 1, 1, 1 })
 };
 var events = new List<Event>();
 
@@ -27,12 +63,22 @@ IWidget Frame(int tick)
     {
         int memoryPercent = (int)Math.Round(100.0 * container.Memory[tick] / container.Limit);
         bool restarted = tick > 0 && container.Restarts[tick] > container.Restarts[tick - 1];
-        string status = restarted || memoryPercent >= 90 ? "Fail" : memoryPercent >= 80 ? "Warn" : "Pass";
+        string status = restarted || memoryPercent >= 90
+            ? "Fail"
+            : memoryPercent >= 80 ? "Warn" : "Pass";
         if (restarted)
-            events.Insert(0, new Event($"{clock} {container.Name}", StatusKind.Fail, $"restarted after exit 137 · restart {container.Restarts[tick]}"));
+            events.Insert(
+                0,
+                new Event($"{clock} {container.Name}", StatusKind.Fail,
+                    $"restarted after exit 137 · restart {container.Restarts[tick]}"));
         else if (memoryPercent >= 90)
-            events.Insert(0, new Event($"{clock} {container.Name}", StatusKind.Warn, $"memory at {memoryPercent}% of its {container.Limit} MiB limit"));
-        rows.Add(new ContainerRow(container.Name, container.Image, restarted ? "restarting" : "running", container.Restarts[tick], container.Cpu[tick], container.Memory[tick], memoryPercent, status));
+            events.Insert(
+                0,
+                new Event($"{clock} {container.Name}", StatusKind.Warn,
+                    $"memory at {memoryPercent}% of its {container.Limit} MiB limit"));
+        rows.Add(new ContainerRow(container.Name, container.Image,
+            restarted ? "restarting" : "running", container.Restarts[tick], container.Cpu[tick],
+            container.Memory[tick], memoryPercent, status));
     }
     int restarting = rows.Count(row => row.State == "restarting");
     int memoryTotal = rows.Sum(row => row.Memory);
@@ -65,8 +111,10 @@ IWidget Frame(int tick)
     }
 
     return new Rows(
-        new Rule($"[bold]Containers[/] [muted]· docker-01.adatum.example.test · refresh 2s · {clock}[/]"),
-        new TextBlock($"[pass]{rows.Count - restarting} running[/]   [warn]{restarting} restarting[/]   [muted]memory {memoryTotal:N0} of {limitTotal:N0} MiB reserved[/]"),
+        new Rule(
+            $"[bold]Containers[/] [muted]· docker-01.adatum.example.test · refresh 2s · {clock}[/]"),
+        new TextBlock(
+            $"[pass]{rows.Count - restarting} running[/]   [warn]{restarting} restarting[/]   [muted]memory {memoryTotal:N0} of {limitTotal:N0} MiB reserved[/]"),
         table,
         new Columns(new Panel(cpu, "CPU %"), new Panel(memory, "Memory % of limit")),
         new Panel(feed, "Events"))
@@ -92,11 +140,15 @@ try
         }
     });
 }
-catch (OperationCanceledException cancelled) when (cancelled.CancellationToken == session.Cancellation)
+catch (OperationCanceledException cancelled)
+    when (cancelled.CancellationToken == session.Cancellation)
 {
     // Ctrl+C is a normal way to leave the dashboard, after the session restores the terminal.
 }
 
 record Container(string Name, string Image, int Limit, int[] Cpu, int[] Memory, int[] Restarts);
-record ContainerRow(string Container, string Image, string State, int Restarts, int Cpu, int Memory, int MemoryPercent, string Status);
+
+record ContainerRow(string Container, string Image, string State, int Restarts, int Cpu, int Memory,
+    int MemoryPercent, string Status);
+
 record Event(string Label, StatusKind Status, string Detail);

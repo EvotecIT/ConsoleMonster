@@ -21,22 +21,30 @@ var skus = new Sku[]
 var usage = skus.Select(sku =>
 {
     int percent = (int)Math.Round(100.0 * sku.Assigned / sku.Purchased);
-    StatusKind status = percent >= 90 ? StatusKind.Pass : percent >= 70 ? StatusKind.Warn : StatusKind.Fail;
+    StatusKind status = percent >= 90
+        ? StatusKind.Pass
+        : percent >= 70 ? StatusKind.Warn : StatusKind.Fail;
     int unused = sku.Purchased - sku.Assigned;
-    return new Usage(sku.Name, sku.Purchased, sku.Assigned, unused, percent, unused * sku.Price, status);
+    return new Usage(sku.Name, sku.Purchased, sku.Assigned, unused, percent, unused * sku.Price,
+        status);
 }).ToArray();
-var reclaim = usage.Where(sku => sku.Status != StatusKind.Pass).OrderByDescending(sku => sku.Waste).Take(3);
+var reclaim = usage.Where(sku => sku.Status != StatusKind.Pass)
+    .OrderByDescending(sku => sku.Waste)
+    .Take(3);
 int unusedSeats = usage.Sum(sku => sku.Unused);
 int monthlyWaste = usage.Sum(sku => sku.Waste);
 
 // Layout: utilisation bars beside the biggest savings, then the full ledger.
-var bars = Ui.Chart().Type(ChartType.Bar).Maximum(100).Unit("%").Build<BarChart>();
+var bars = Ui.Chart()
+    .Type(ConsoleMonster.Widgets.ChartType.Bar)
+    .Maximum(100)
+    .Unit("%")
+    .Build<BarChart>();
 foreach (var sku in usage)
     bars.Add(sku.Sku, sku.Used, sku.Status.ToToken());
 var savings = Ui.StatusList();
 foreach (var sku in reclaim)
     savings.Add(sku.Sku, sku.Status, $"{sku.Unused} unused · ${sku.Waste:N0}/mo");
-
 var table = Ui.Table(usage)
     .Column(row => row.Sku)
     .Column(row => row.Purchased)
@@ -44,21 +52,33 @@ var table = Ui.Table(usage)
     .Column(row => row.Unused)
     .Column("Used %", row => row.Used)
     .Column("Waste $", row => row.Waste)
-    .Column(row => row.Status, column => column.Presenter(CellPresenters.StatusWord))
-    .Expand();
+    .Column(row => row.Status, column => column.Presenter(CellPresenters.StatusWord));
+table.Expand();
+var report = Ui.Rows().Gap(1).Content(c3 =>
+{
+    c3.Rule("[bold]Microsoft 365 licenses[/] [muted]· adatum.example.test · October 2026[/]");
+    c3.Columns(cmColumns => cmColumns.Content(c2 =>
+    {
+        c2.Panel(cmPanel => cmPanel.Title("Assigned of purchased").Content(c =>
+        {
+            c.Add(bars);
+        }));
+        c2.Panel(cmPanel => cmPanel.Title("Reclaim first").Content(c =>
+        {
+            c.Add(savings);
+        }));
+    }));
+    c3.Add(table);
+    c3.Text(
+        c3Text => c3Text.Content(
+            $"[warn]${monthlyWaste:N0} a month[/] pays for {unusedSeats} unassigned seats. [muted]Reclaim before the renewal date.[/]")
+            .IsMarkup());
+});
 
 // Behaviour: print once; review the reclaim list with each license owner before removing seats.
-Ui.Rows().Gap(1).Content(c =>
-{
-    c.Rule("[bold]Microsoft 365 licenses[/] [muted]· adatum.example.test · October 2026[/]");
-    c.Columns(columns => columns.Content(row =>
-    {
-        row.Panel(panel => panel.Title("Assigned of purchased").Content(bars));
-        row.Panel(panel => panel.Title("Reclaim first").Content(savings));
-    }));
-    c.Add(table);
-    c.Text(text => text.Content($"[warn]${monthlyWaste:N0} a month[/] pays for {unusedSeats} unassigned seats. [muted]Reclaim before the renewal date.[/]").IsMarkup());
-}).Show();
+report.Show();
 
 record Sku(string Name, int Purchased, int Assigned, int Price);
-record Usage(string Sku, int Purchased, int Assigned, int Unused, int Used, int Waste, StatusKind Status);
+
+record Usage(string Sku, int Purchased, int Assigned, int Unused, int Used, int Waste,
+    StatusKind Status);

@@ -3,7 +3,8 @@ Import-Module -Name ConsoleMonster
 
 # Data: fictional counts already grouped from the System and Application logs of six servers.
 $errorsPerHour = @(4, 3, 5, 2, 3, 4, 6, 9, 14, 11, 8, 7, 6, 9, 31, 44, 27, 12, 8, 6, 5, 4, 6, 5)
-$warningsPerHour = @(12, 10, 11, 9, 10, 12, 15, 22, 30, 26, 21, 19, 18, 20, 41, 52, 38, 24, 19, 16, 14, 13, 15, 14)
+$warningsPerHour = @(12, 10, 11, 9, 10, 12, 15, 22, 30, 26, 21, 19, 18, 20, 41, 52, 38, 24, 19, 16,
+    14, 13, 15, 14)
 $sources = @(
     [pscustomobject] @{ Source = 'Service Control Manager'; Errors = 74 }
     [pscustomobject] @{ Source = 'Microsoft-Windows-DNS-Client'; Errors = 52 }
@@ -20,10 +21,14 @@ $eventIds = @(
     [pscustomobject] @{ Id = 153; Count = 17; Meaning = 'IO operation retried' }
 )
 $critical = @(
-    [pscustomobject] @{ Time = '14:52'; Host = 'sql-01'; Source = 'Kernel-Power'; Id = 41; Message = 'Rebooted without a clean shutdown' }
-    [pscustomobject] @{ Time = '15:07'; Host = 'sql-01'; Source = 'MSSQLSERVER'; Id = 824; Message = 'Logical consistency I/O error on tempdb' }
-    [pscustomobject] @{ Time = '15:31'; Host = 'fs-02'; Source = 'Disk'; Id = 7; Message = 'Bad block on \Device\Harddisk1\DR1' }
-    [pscustomobject] @{ Time = '16:10'; Host = 'web-03'; Source = 'Kernel-Power'; Id = 41; Message = 'Rebooted without a clean shutdown' }
+    [pscustomobject] @{ Time = '14:52'; Host = 'sql-01'; Source = 'Kernel-Power'; Id = 41
+        Message = 'Rebooted without a clean shutdown' }
+    [pscustomobject] @{ Time = '15:07'; Host = 'sql-01'; Source = 'MSSQLSERVER'; Id = 824
+        Message = 'Logical consistency I/O error on tempdb' }
+    [pscustomobject] @{ Time = '15:31'; Host = 'fs-02'; Source = 'Disk'; Id = 7
+        Message = 'Bad block on \Device\Harddisk1\DR1' }
+    [pscustomobject] @{ Time = '16:10'; Host = 'web-03'; Source = 'Kernel-Power'; Id = 41
+        Message = 'Rebooted without a clean shutdown' }
 )
 
 # Behaviour: hour 0 is midnight; the busiest hour and the totals come from the same counts the charts use.
@@ -38,23 +43,41 @@ $report = New-ConsoleRows -Gap 1 -Content {
     "[fail]$($critical.Count) critical[/]   [warn]$errorTotal errors[/]   [muted]$warningTotal warnings · busiest hour $('{0:00}:00' -f $peak)[/]"
     New-ConsoleColumns -Content {
         New-ConsolePanel -Title 'Errors per hour' -Content {
-            New-ConsoleChart -Type Sparkline -Label 'errors' -Height 3 -Role Fail -Values $errorsPerHour
+            $chartParameters = @{
+                Type = 'Sparkline'
+                Title = 'errors'
+                Height = 3
+                Role = 'Fail'
+                Values = $errorsPerHour
+            }
+            New-ConsoleChart @chartParameters
         }
         New-ConsolePanel -Title 'Warnings per hour' -Content {
-            New-ConsoleChart -Type Sparkline -Label 'warnings' -Height 3 -Role Warn -Values $warningsPerHour
+            $chartParameters = @{
+                Type = 'Sparkline'
+                Title = 'warnings'
+                Height = 3
+                Role = 'Warn'
+                Values = $warningsPerHour
+            }
+            New-ConsoleChart @chartParameters
         }
     }
     New-ConsoleColumns -Content {
         New-ConsolePanel -Title 'Noisiest sources' -Content {
-            $sources | ForEach-Object -Process { [pscustomobject] @{ Label = $_.Source; Value = $_.Errors } } |
-                New-ConsoleChart -Type Bar
+            $sources |
+                ForEach-Object -Process {
+                    [pscustomobject] @{ Label = $_.Source; Value = $_.Errors }
+                } |
+                    New-ConsoleChart -Type Bar
         }
         New-ConsolePanel -Title 'Top event IDs' -Content {
             New-ConsoleTable -InputObject $topIds -Property Id, Count, Meaning -Border None -Expand
         }
     }
     New-ConsolePanel -Title 'Critical events' -Content {
-        New-ConsoleTable -InputObject $critical -Property Time, Host, Source, Id, Message -Border None -Expand
+        New-ConsoleTable -InputObject $critical -Property Time, Host, Source, Id,
+            Message -Border None -Expand
     }
 }
 
