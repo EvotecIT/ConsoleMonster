@@ -1,32 +1,32 @@
-[?1h=[0;1;38;2;17;24;39mGet-ConsoleCapability[0m
-[0mShows what ConsoleMonster detected about the current terminal.[0m
+[?1h=[0;1;38;2;17;24;39mGet-ConsoleCapability
+[0mShows what ConsoleMonster detected about the current terminal.
 
-[0;1;38;2;37;99;235mSyntax[0m
-[0m  [0;1;38;2;17;24;39mGet-ConsoleCapability[0m [0;38;2;212;212;216m[[0;38;2;124;58;237m-Refresh[0;38;2;212;212;216m][0m [0;38;2;212;212;216m[<CommonParameters>][0m
+[0;1;38;2;37;99;235mSyntax
+[0m  [0;1;38;2;17;24;39mGet-ConsoleCapability[0m [0;38;2;212;212;216m[[0;38;2;124;58;237m-Refresh[0;38;2;212;212;216m][0m [0;38;2;212;212;216m[<CommonParameters>]
 
-[0;1;38;2;37;99;235mDescription[0m
-[0m  Shows what ConsoleMonster detected about the current terminal.[0m
+[0;1;38;2;37;99;235mDescription
+[0m  Shows what ConsoleMonster detected about the current terminal.
 
-[0m  Returns the terminal profile: kind, mode (Interactive, Stream, Plain), colour depth, glyph tier, size, VT support,[0m
-[0m  console font and the reasons behind each decision. -Refresh detects again (after a resize or font change).[0m
+  Returns the terminal profile: kind, mode (Interactive, Stream, Plain), colour depth, glyph tier, size, VT support,
+  console font and the reasons behind each decision. -Refresh detects again (after a resize or font change).
 
-[0;1;38;2;37;99;235mParameters[0m
-[0m  [0;38;2;138;138;148m╭───────────┬────────┬──────────┬──────────┬──────────┬───────────────────────────────────────────────────────╮[0m
-[0m  [0;38;2;138;138;148m│[0m [0;1;38;2;55;65;81mParameter[0m [0;38;2;138;138;148m│[0m [0;1;38;2;55;65;81mType[0m   [0;38;2;138;138;148m│[0m [0;1;38;2;55;65;81mRequired[0m [0;38;2;138;138;148m│[0m [0;1;38;2;55;65;81mPosition[0m [0;38;2;138;138;148m│[0m [0;1;38;2;55;65;81mPipeline[0m [0;38;2;138;138;148m│[0m [0;1;38;2;55;65;81mDescription[0m                                           [0;38;2;138;138;148m│[0m
-[0m  [0;38;2;138;138;148m├───────────┼────────┼──────────┼──────────┼──────────┼───────────────────────────────────────────────────────┤[0m
-[0m  [0;38;2;138;138;148m│[0m [0;38;2;124;58;237m-Refresh[0m  [0;38;2;138;138;148m│[0m [0;38;2;107;114;128mswitch[0m [0;38;2;138;138;148m│[0m [0;38;2;107;114;128mno[0m       [0;38;2;138;138;148m│[0m [0;38;2;107;114;128mnamed[0m    [0;38;2;138;138;148m│[0m [0;38;2;107;114;128mno[0m       [0;38;2;138;138;148m│[0m Detect again instead of returning the cached profile. [0;38;2;138;138;148m│[0m
-[0m  [0;38;2;138;138;148m╰───────────┴────────┴──────────┴──────────┴──────────┴───────────────────────────────────────────────────────╯[0m
-[0m  [0;38;2;107;114;128mCommon parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -OutVariable, -Verbose, -WarningAction[0m
-[0m  [0;38;2;107;114;128mand the others (about_CommonParameters).[0m
+[0;1;38;2;37;99;235mParameters
+[0m  [0;38;2;138;138;148m╭───────────┬────────┬──────────┬──────────┬──────────┬───────────────────────────────────────────────────────╮
+[0m  [0;38;2;138;138;148m│[0m [0;1;38;2;55;65;81mParameter[0m [0;38;2;138;138;148m│[0m [0;1;38;2;55;65;81mType[0m   [0;38;2;138;138;148m│[0m [0;1;38;2;55;65;81mRequired[0m [0;38;2;138;138;148m│[0m [0;1;38;2;55;65;81mPosition[0m [0;38;2;138;138;148m│[0m [0;1;38;2;55;65;81mPipeline[0m [0;38;2;138;138;148m│[0m [0;1;38;2;55;65;81mDescription[0m                                           [0;38;2;138;138;148m│
+[0m  [0;38;2;138;138;148m├───────────┼────────┼──────────┼──────────┼──────────┼───────────────────────────────────────────────────────┤
+[0m  [0;38;2;138;138;148m│[0m [0;38;2;124;58;237m-Refresh[0m  [0;38;2;138;138;148m│[0m [0;38;2;107;114;128mswitch[0m [0;38;2;138;138;148m│[0m [0;38;2;107;114;128mno[0m       [0;38;2;138;138;148m│[0m [0;38;2;107;114;128mnamed[0m    [0;38;2;138;138;148m│[0m [0;38;2;107;114;128mno[0m       [0;38;2;138;138;148m│[0m Detect again instead of returning the cached profile. [0;38;2;138;138;148m│
+[0m  [0;38;2;138;138;148m╰───────────┴────────┴──────────┴──────────┴──────────┴───────────────────────────────────────────────────────╯
+[0m  [0;38;2;107;114;128mCommon parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -OutVariable, -Verbose, -WarningAction
+[0m  [0;38;2;107;114;128mand the others (about_CommonParameters).
 
-[0;1;38;2;37;99;235mExamples[0m
-[0m  [0;1mExample 1[0m
-[0m     [0;38;2;13;148;136mGet-ConsoleCapability[0m | [0;38;2;13;148;136mSelect-Object[0m [0;38;2;37;99;235m-ExpandProperty[0m Decisions[0m
-[0m     Show the profile and the decisions[0m
+[0;1;38;2;37;99;235mExamples
+[0m  [0;1mExample 1
+[0m     [0;38;2;13;148;136mGet-ConsoleCapability[0m | [0;38;2;13;148;136mSelect-Object[0m [0;38;2;37;99;235m-ExpandProperty[0m Decisions
+     Show the profile and the decisions
 
-[0;1;38;2;37;99;235mInputs[0m
-[0m  [0;38;2;124;58;237mNone[0m
+[0;1;38;2;37;99;235mInputs
+[0m  [0;38;2;124;58;237mNone
 
-[0;1;38;2;37;99;235mOutputs[0m
-[0m  [0;38;2;124;58;237mConsoleMonster.Capabilities.TerminalProfile[0m
+[0;1;38;2;37;99;235mOutputs
+[0m  [0;38;2;124;58;237mConsoleMonster.Capabilities.TerminalProfile
 

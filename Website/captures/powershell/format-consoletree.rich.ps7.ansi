@@ -1,17 +1,17 @@
-[?1h=[0;1mmail.evotec.xyz certificate[0;38;2;139;143;154m  ·[31G  5 members[0m
-[0;38;2;139;143;154mSubject[0m       CN=mail.evotec.xyz[0m
-[0;38;2;139;143;154mIssuer[0m        CN=R11, O=Let's Encrypt, C=US[0m
-[0;38;2;139;143;154mKeyAlgorithm[0m  ECDSA P-256[0m
+[?1h=[0;1mmail.evotec.xyz certificate[0;38;2;139;143;154m  ·[31G  5 members
+Subject[0m       CN=mail.evotec.xyz
+[0;38;2;139;143;154mIssuer[0m        CN=R11, O=Let's Encrypt, C=US
+[0;38;2;139;143;154mKeyAlgorithm[0m  ECDSA P-256
 
-[0;1mSubjectAlternativeNames[0;38;2;139;143;154m  3 items[0m
-[0m  [0;38;2;139;143;154m[0][0m  mail.evotec.xyz[0m
-[0m  [0;38;2;139;143;154m[1][0m  autodiscover.evotec.xyz[0m
-[0m  [0;38;2;139;143;154m[2][0m  mta-sts.evotec.xyz[0m
+[0;1mSubjectAlternativeNames[0;38;2;139;143;154m  3 items
+[0m  [0;38;2;139;143;154m[0][0m  mail.evotec.xyz
+  [0;38;2;139;143;154m[1][0m  autodiscover.evotec.xyz
+  [0;38;2;139;143;154m[2][0m  mta-sts.evotec.xyz
 
-[0;1mChain[0;38;2;139;143;154m  3 items[0m
-[0m  [0;1mSubject[0m                  [0;1mKey[0m          [0;1mRevoked[0m
-[0m  [0;38;2;75;80;96m───────────────────────[0m  [0;38;2;75;80;96m───────────[0m  [0;38;2;75;80;96m───────[0m
-[0m  CN=mail.evotec.xyz       ECDSA P-256  [0;38;2;139;143;154m–[42G no[0m
-[0m  CN=R11, O=Let's Encrypt  RSA 2048     [0;38;2;139;143;154m–[42G no[0m
-[0m  CN=ISRG Root X1          RSA 4096     [0;38;2;139;143;154m–[42G no[0m
+[0;1mChain[0;38;2;139;143;154m  3 items
+[0m  [0;1mSubject[0m                  [0;1mKey[0m          [0;1mRevoked
+[0m  [0;38;2;75;80;96m───────────────────────[0m  [0;38;2;75;80;96m───────────[0m  [0;38;2;75;80;96m───────
+[0m  CN=mail.evotec.xyz       ECDSA P-256  [0;38;2;139;143;154m–[42G no
+[0m  CN=R11, O=Let's Encrypt  RSA 2048     [0;38;2;139;143;154m–[42G no
+[0m  CN=ISRG Root X1          RSA 4096     [0;38;2;139;143;154m–[42G no
 

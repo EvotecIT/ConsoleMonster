@@ -1,8 +1,8 @@
-[?1h=[0;38;2;138;138;148m──[0m [0;1;38;2;17;24;39mPowerShell's own colours[0m [0;38;2;138;138;148m────────────────────────────────────────────────────────────────────────[0m
-[33;1mWARNING: Certificate for mail.evotec.xyz expires in 12 days[0m
-[33;1mVERBOSE: Queried 4 domain controllers in 2 domains[0m
-[33;1mDEBUG: Cache hit for evotec.xyz[0m
-[0;38;2;138;138;148m──[0m [0;1;38;2;17;24;39mWith -Feature Streams: the theme's colours[0m [0;38;2;138;138;148m──────────────────────────────────────────────────────[0m
-[0;38;2;180;83;9mWARNING: Certificate for mail.evotec.xyz expires in 12 days[0m
-[0;38;2;3;105;161mVERBOSE: Queried 4 domain controllers in 2 domains[0m
-[0;38;2;107;114;128mDEBUG: Cache hit for evotec.xyz[0m
+[?1h=[0;38;2;138;138;148m──[0m [0;1;38;2;17;24;39mPowerShell's own colours[0m [0;38;2;138;138;148m────────────────────────────────────────────────────────────────────────
+[0;1;33mWARNING: Certificate for mail.evotec.xyz expires in 12 days
+VERBOSE: Queried 4 domain controllers in 2 domains
+DEBUG: Cache hit for evotec.xyz
+[0;38;2;138;138;148m──[0m [0;1;38;2;17;24;39mWith -Feature Streams: the theme's colours[0m [0;38;2;138;138;148m──────────────────────────────────────────────────────
+[0;38;2;180;83;9mWARNING: Certificate for mail.evotec.xyz expires in 12 days
+[0;38;2;3;105;161mVERBOSE: Queried 4 domain controllers in 2 domains
+[0;38;2;107;114;128mDEBUG: Cache hit for evotec.xyz

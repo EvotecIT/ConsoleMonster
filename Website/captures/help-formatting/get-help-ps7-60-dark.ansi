@@ -1,21 +1,21 @@
-[?1h=[0;1mGet-ConsoleCapability[0m
-[0mShows what ConsoleMonster detected about the current[0m
-[0mterminal.[0m
+[?1h=[0;1mGet-ConsoleCapability
+[0mShows what ConsoleMonster detected about the current
+terminal.
 
-[0;1;38;2;96;165;250mSyntax[0m
-[0m  [0;1mGet-ConsoleCapability[0m [0;38;2;58;61;69m[[0;38;2;192;132;252m-Refresh[0;38;2;58;61;69m][0m [0;38;2;58;61;69m[<CommonParameters>][0m
+[0;1;38;2;96;165;250mSyntax
+[0m  [0;1mGet-ConsoleCapability[0m [0;38;2;58;61;69m[[0;38;2;192;132;252m-Refresh[0;38;2;58;61;69m][0m [0;38;2;58;61;69m[<CommonParameters>]
 
-[0;1;38;2;96;165;250mDescription[0m
-[0m  Shows what ConsoleMonster detected about the current[0m
-[0m  terminal.[0m
+[0;1;38;2;96;165;250mDescription
+[0m  Shows what ConsoleMonster detected about the current
+  terminal.
 
-[0m  Returns the terminal profile: kind, mode (Interactive,[0m
-[0m  Stream, Plain), colour depth, glyph tier, size, VT[0m
-[0m  support, console font and the reasons behind each[0m
-[0m  decision. -Refresh detects again (after a resize or font[0m
-[0m  change).[0m
+  Returns the terminal profile: kind, mode (Interactive,
+  Stream, Plain), colour depth, glyph tier, size, VT
+  support, console font and the reasons behind each
+  decision. -Refresh detects again (after a resize or font
+  change).
 
-[0;38;2;96;165;250mRemarks[0m
-[0m  [0;38;2;139;143;154mGet-Help Get-ConsoleCapability -Examples / -Detailed /[0m
-[0m  [0;38;2;139;143;154m-Full[0m
+[0;38;2;96;165;250mRemarks
+[0m  [0;38;2;139;143;154mGet-Help Get-ConsoleCapability -Examples / -Detailed /
+[0m  [0;38;2;139;143;154m-Full
 

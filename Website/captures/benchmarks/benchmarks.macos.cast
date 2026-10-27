@@ -1,8 +1,8 @@
-{"cm_source":"74d765d9b63629f1","version":2,"width":110,"height":20,"title":"ConsoleMonster.Benchmarks 600","cm_timing":"logical-50ms-with-holds"}
+{"cm_source":"6c25dc8638bfdbc5","version":2,"width":110,"height":20,"title":"ConsoleMonster.Benchmarks 600","cm_timing":"logical-50ms-with-holds"}
 [0.000,"o","\u001B[?1h\u001B=ConsoleMonster benchmark (.NET 8.0.23, 140x45, 32 lanes)\r\n"]
-[0.050,"o","  event apply:        3,388,996 events/s on one thread\r\n"]
-[0.100,"o","  compose per frame:  3.573 ms\r\n"]
-[0.150,"o","  diff\u002BVT per frame:  0.882 ms\r\n"]
+[0.050,"o","  event apply:        7,013,070 events/s on one thread\r\n"]
+[0.100,"o","  compose per frame:  1.034 ms\r\n"]
+[0.150,"o","  diff\u002BVT per frame:  0.119 ms\r\n"]
 [0.200,"o","  chars per frame:    2,915 (diffed, 5,000 updates between frames)\r\n"]
-[0.250,"o","  alloc per frame:    240,954 bytes\r\n"]
-[0.300,"o","  render CPU at 15 fps: 6.7% of one core (\u002B apply cost 2.4% at 80k updates/s)\r\n"]
+[0.250,"o","  alloc per frame:    240,964 bytes\r\n"]
+[0.300,"o","  render CPU at 15 fps: 1.7% of one core (\u002B apply cost 1.1% at 80k updates/s)\r\n"]

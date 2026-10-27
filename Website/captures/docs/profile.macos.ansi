@@ -1,10 +1,10 @@
-[?1h=[0;1mThis console[0m
-[0;38;2;139;143;154mMode[0m             Interactive[0m
-[0;38;2;139;143;154mColorDepth[0m       TrueColor[0m
-[0;38;2;139;143;154mGlyphs[0m           Full[0m
-[0;38;2;139;143;154mWidth[0m            100[0m
-[0;38;2;139;143;154mHeight[0m           40[0m
-[0;38;2;139;143;154mThemePreference[0m  Dark[0m
+[?1h=[0;1mThis console
+[0;38;2;139;143;154mMode[0m             Interactive
+[0;38;2;139;143;154mColorDepth[0m       TrueColor
+[0;38;2;139;143;154mGlyphs[0m           Full
+[0;38;2;139;143;154mWidth[0m            100
+[0;38;2;139;143;154mHeight[0m           40
+[0;38;2;139;143;154mThemePreference[0m  Dark
 
   CONSOLEMONSTER_EMOJI_WIDTH: 2
   CONSOLEMONSTER_AMBIGUOUS_WIDTH: 1
