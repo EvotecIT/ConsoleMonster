@@ -31,6 +31,16 @@ Get-ChildItem
 
 The module runs on Windows PowerShell 5.1 and PowerShell 7. On PowerShell 7 it loads in its own assembly load context. Version 2 replaces the Spectre.Console and Terminal.Gui based 0.0.x module, whose functions (`New-SpectreImage`, `New-SpectreRule`, `New-Terminal*`) are removed; 0.0.4 stays available on the PowerShell Gallery.
 
+## Three ways to use ConsoleMonster output
+
+Choose the approach that fits what you are doing:
+
+- **Automatic:** run `Enable-ConsoleFormatting`, then use your normal commands. Known and registered types get ConsoleMonster views.
+- **Explicit:** pipe objects to `Show-ConsoleTable` or `Show-ConsoleObject` when you want to choose the view and properties. These commands work in scripts.
+- **Native `Format-*` restyled:** use `Enable-ConsoleFormatting -Feature FormatCommands` to render `Format-Table`, `Format-List` and `Format-Wide` at the console while keeping PowerShell's column choices. Redirected and captured output stays native.
+
+You do not need both automatic and explicit formatting. The `-Feature` options require ConsoleMonster 2.1.0 or later.
+
 ## .NET
 
 Make a console project and add the package:

@@ -121,11 +121,26 @@
     <h2 id="{{ side.id }}-title">{{ side.title }}</h2>
     <p>{{ side.body }}</p>
   </div>
+  {{~ if side.choices ~}}
+  {{~ for choice in side.choices ~}}
+  <div class="cm-choice">
+    <h3>{{ choice.title }}</h3>
+    <p>{{ choice.body }}</p>
+    <code class="cm-choice__command">{{ choice.command }}</code>
+    <ul class="cm-demos">
+      {{~ for l in choice.links ~}}
+      <li style="--key: var(--cm-s{{ l.key }})"><a href="{{ l.url }}"><strong class="cm-demos__title">{{ l.title }}</strong><p class="cm-demos__body">{{ l.body }}</p><code class="cm-demos__command">{{ l.command }}</code></a></li>
+      {{~ end ~}}
+    </ul>
+  </div>
+  {{~ end ~}}
+  {{~ else ~}}
   <ul class="cm-demos">
     {{~ for l in side.links ~}}
     <li style="--key: var(--cm-s{{ l.key }})"><a href="{{ l.url }}"><strong class="cm-demos__title">{{ l.title }}</strong><p class="cm-demos__body">{{ l.body }}</p><code class="cm-demos__command">{{ l.command }}</code></a></li>
     {{~ end ~}}
   </ul>
+  {{~ end ~}}
 </section>
 {{~ end ~}}
 <section class="cm-section cm-wrap cm-twins" aria-labelledby="cm-twins-title">

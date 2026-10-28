@@ -114,49 +114,63 @@
       {
         "id": "everyday-features",
         "title": "Everyday",
-        "body": "The output you already see, readable: tables, lists, trees, hashtables, arrays in cells, groups, errors, help and progress.",
-        "links": [
+        "body": "You don't need both. Formatting changes what you already type; Show-Console* is for when you want control.",
+        "choices": [
           {
-            "title": "Everyday output",
-            "url": "/guides/everyday-powershell/",
-            "key": 3,
-            "body": "A fixed service inventory, versions and hashtables, before and after.",
-            "command": "Enable-ConsoleFormatting"
+            "title": "Make everything nicer, automatically",
+            "body": "Turn on formatting, then use your normal PowerShell commands. See the same output before and after.",
+            "command": "Enable-ConsoleFormatting; Get-Process",
+            "links": [
+              {
+                "title": "Everyday output",
+                "url": "/guides/everyday-powershell/",
+                "key": 3,
+                "body": "A fixed service inventory, versions and hashtables, before and after.",
+                "command": "Enable-ConsoleFormatting"
+              },
+              {
+                "title": "Errors, help and progress",
+                "url": "/docs/help-and-defaults/",
+                "key": 4,
+                "body": "Opt in to compact errors and help, and theme native streams and progress.",
+                "command": "Enable-ConsoleFormatting -Feature Errors, Help, Streams"
+              }
+            ]
           },
           {
-            "title": "Tables",
-            "url": "/tables/",
-            "key": 6,
-            "body": "Priority columns, cards, presenters and totals.",
-            "command": "Show-ConsoleTable"
-          },
-          {
-            "title": "Arrays and groups",
-            "url": "/guides/everyday-powershell/#demo-shaping",
-            "key": 2,
-            "body": "Collections in cells and a heading per group.",
-            "command": "-GroupBy Site"
-          },
-          {
-            "title": "Lists and trees",
-            "url": "/guides/format-table/",
-            "key": 1,
-            "body": "Records, nested objects and hierarchies.",
-            "command": "Show-Console -View Tree"
-          },
-          {
-            "title": "Errors, help and progress",
-            "url": "/docs/help-and-defaults/",
-            "key": 4,
-            "body": "Readable errors, help pages and Write-Progress.",
-            "command": "Show-ConsoleHelp"
-          },
-          {
-            "title": "Every widget",
-            "url": "/widgets/",
-            "key": 5,
-            "body": "Panels, trees, charts and status lists, in one grammar.",
-            "command": "New-ConsoleTree"
+            "title": "Show any objects exactly how you want",
+            "body": "Choose the columns and groups for a particular result. The explicit commands are safe to use in scripts.",
+            "command": "$objects | Show-ConsoleTable -Property Name, Site, State -GroupBy Site",
+            "links": [
+              {
+                "title": "Tables",
+                "url": "/tables/",
+                "key": 6,
+                "body": "Priority columns, cards, presenters and totals.",
+                "command": "Show-ConsoleTable"
+              },
+              {
+                "title": "Arrays and groups",
+                "url": "/guides/everyday-powershell/#demo-shaping",
+                "key": 2,
+                "body": "Collections in cells and a heading per group.",
+                "command": "-GroupBy Site"
+              },
+              {
+                "title": "Lists and trees",
+                "url": "/guides/format-table/",
+                "key": 1,
+                "body": "Records, nested objects and hierarchies.",
+                "command": "Show-Console -View Tree"
+              },
+              {
+                "title": "Every widget",
+                "url": "/widgets/",
+                "key": 5,
+                "body": "Panels, trees, charts and status lists, in one grammar.",
+                "command": "New-ConsoleTree"
+              }
+            ]
           }
         ]
       },
