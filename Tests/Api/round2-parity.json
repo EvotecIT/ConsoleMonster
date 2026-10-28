@@ -24988,6 +24988,22 @@
       "Disposition": "CSharpOnly"
     },
     {
+      "CSharpType": "ConsoleMonster.Widgets.TextBlock",
+      "Member": "WrapSeparator",
+      "CSharpTypeName": "System.String",
+      "Reason": "Separator-aware wrapping is a layout option on an explicit TextBlock; New-ConsoleText returns RichText and does not expose this option.",
+      "Alternative": "Construct a TextBlock, set WrapSeparator, and pass the widget to Show-Console or use it as a ConsoleViewFrame footer.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.TreeNode",
+      "Member": "MeasureBareLabel",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "This per-node option includes a bare node in measurement of explicitly configured tree value columns.",
+      "Alternative": "Set MeasureBareLabel on a bare TreeNode in an explicit tree with ValueColumns, then pass the tree to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
       "CSharpType": "ConsoleMonster.Widgets.TreeNode",
       "Member": "Bare",
       "CSharpTypeName": "System.Boolean",
