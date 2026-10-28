@@ -31,6 +31,17 @@ public sealed class ConsoleViewSystemTests {
         Assert.DoesNotContain("expired deletions\n", text);
     }
 
+    [Fact]
+    public void Frame_AsciiMarkupStatesAndFooter_WrapWholeEntriesWithAsciiSeparators() {
+        ConsoleViewFrame frame = new ConsoleViewFrame(new ViewHeader("History", "[warn]1 warning[/] [muted]·[/] [fail]1 critical[/] [muted]·[/] [warn]2 pending[/]"));
+        frame.Footer = new TextBlock("[muted]latest change per link only [/]· [muted]no actor · expired deletions not shown[/]");
+        string text = TestTerminal.RenderText(frame, 35, glyphs: GlyphTier.Ascii);
+        Assert.DoesNotContain('·', text);
+        Assert.Contains("1 critical", text);
+        Assert.Contains("expired deletions not shown", text);
+        Assert.DoesNotContain("expired deletions\n", text);
+    }
+
     [Theory]
     [InlineData(45, "45s")]
     [InlineData(185, "3m")]

@@ -58,7 +58,10 @@ public sealed partial class Tree {
             string referenceMarker = (row.Reference & TreeReferenceKind.Cycle) != 0 ? context.Glyphs.Get(Glyph.Cycle)
                 : (row.Reference & TreeReferenceKind.Repeat) != 0 ? context.Glyphs.Get(Glyph.Repeat) : string.Empty;
             bool hasVisibleState = false, fullReferenceInValue = false;
-            int available = Math.Max(0, width - labelWidth);
+            int fittedLabelWidth = row.Node.Bare
+                ? FitLabel(Primary(row, int.MaxValue, true, context, TreeReferenceKind.Cycle | TreeReferenceKind.Repeat), width, context).Width
+                : labelWidth;
+            int available = Math.Max(0, width - Math.Max(labelWidth, fittedLabelWidth));
             foreach (int c in visible) {
                 StyledLine value = Value(row, c);
                 int wanted = context.Profile.Width < 80 ? value.Width : columnWidths[c];

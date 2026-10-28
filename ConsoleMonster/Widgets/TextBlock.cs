@@ -73,12 +73,11 @@ namespace ConsoleMonster.Widgets {
 
         private List<StyledLine> BuildLines(RenderContext context, int width) {
             string? separator = WrapSeparator == " · " ? " " + context.Glyphs.Get(Glyph.Dot) + " " : WrapSeparator;
-            string content = !IsMarkup && WrapSeparator == " · " ? Content.Replace(WrapSeparator, separator!) : Content;
-            StyledText text = IsMarkup ? context.Markup(content) : StyledText.FromPlain(content);
+            StyledText text = IsMarkup ? context.Markup(Content) : StyledText.FromPlain(Content);
             Style baseStyle = Role.HasValue ? context.Style(Role.Value) : Style.Plain;
             List<StyledLine> result = new List<StyledLine>();
             foreach (StyledLine raw in text.Lines) {
-                StyledLine line = raw.WithBaseStyle(baseStyle);
+                StyledLine line = (WrapSeparator == " · " ? FactFlow.TierSeparators(raw, context) : raw).WithBaseStyle(baseStyle);
                 if (line.Width <= width || width <= 0) {
                     result.Add(line);
                 } else if (Overflow == TextOverflow.Wrap) {

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Glyphs;
 using ConsoleMonster.Layout;
@@ -10,6 +11,25 @@ namespace ConsoleMonster.Widgets;
 
 /// <summary>Flows facts at separators without breaking a fact into unrelated words.</summary>
 public sealed class FactFlow : IWidget {
+    // Normalize only semantic fact separators, including those split across markup spans.
+    internal static StyledLine TierSeparators(StyledLine line, RenderContext context) {
+        string glyph = context.Glyphs.Get(Glyph.Dot);
+        if (glyph == "·") return line;
+        string plain = line.PlainText;
+        HashSet<int> offsets = new HashSet<int>();
+        for (int i = 0; i < plain.Length - 2; i++) {
+            if (plain[i] == ' ' && plain[i + 1] == '·' && plain[i + 2] == ' ') offsets.Add(i + 1);
+        }
+        if (offsets.Count == 0) return line;
+        List<TextSpan> spans = new List<TextSpan>();
+        int position = 0;
+        foreach (TextSpan span in line) {
+            StringBuilder text = new StringBuilder();
+            foreach (char ch in span.Text) { text.Append(offsets.Contains(position++) ? glyph : ch.ToString()); }
+            spans.Add(new TextSpan(text.ToString(), span.Style));
+        }
+        return new StyledLine(spans);
+    }
     // Preserve the styles of complete entries while breaking only at their separators.
     internal static List<StyledLine> WrapSeparated(StyledLine line, int width, string separator) {
         List<StyledLine> result = new List<StyledLine>();

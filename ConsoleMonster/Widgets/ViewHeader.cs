@@ -55,13 +55,13 @@ public sealed class ViewHeader : IWidget {
             if (Streaming) parts.Add("[muted]streaming[/]");
             return new FactFlow(parts).Lines(width, context);
         }
-        StyledLine state = context.Markup(State).Lines[0];
+        StyledLine state = FactFlow.TierSeparators(context.Markup(State).Lines[0], context);
         int leftWidth = context.Markup(Left(context)).Lines[0].Width;
         List<StyledLine> result = new List<StyledLine>();
         if (leftWidth + state.Width + 5 <= width) {
-            result.Add(Leader(Left(context), State, width, context));
+            result.Add(Leader(Left(context), state, width, context));
         } else if (context.Markup(title).Lines[0].Width + state.Width + 5 <= width) {
-            result.Add(Leader(title, State, width, context));
+            result.Add(Leader(title, state, width, context));
             if (Facts.Count > 0) { result.AddRange(new FactFlow(Facts) { Role = Styling.ThemeToken.Muted }.Lines(width, context)); }
         } else {
             result.Add(TextWrapper.Truncate(context.Markup(title).Lines[0], width, context.Ellipsis));
@@ -70,8 +70,10 @@ public sealed class ViewHeader : IWidget {
         }
         return result;
     }
-    private static StyledLine Leader(string left, string state, int width, RenderContext context) {
-        int count = Math.Max(3, width - context.Markup(left).Lines[0].Width - context.Markup(state).Lines[0].Width - 2);
-        return context.Markup(left + " [subtle]" + new string(context.Glyphs.Get(Glyph.RuleLine)[0], count) + "[/] " + state).Lines[0];
+    private static StyledLine Leader(string left, StyledLine state, int width, RenderContext context) {
+        int count = Math.Max(3, width - context.Markup(left).Lines[0].Width - state.Width - 2);
+        List<TextSpan> spans = new List<TextSpan>(context.Markup(left + " [subtle]" + new string(context.Glyphs.Get(Glyph.RuleLine)[0], count) + "[/] ").Lines[0]);
+        spans.AddRange(state);
+        return new StyledLine(spans);
     }
 }

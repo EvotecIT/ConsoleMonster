@@ -170,6 +170,20 @@ namespace ConsoleMonster.Tests.Widgets {
             Assert.Contains(capture.Context.Glyphs.Get(Glyph.Cycle), capture.Raw.ToPlainText());
         }
 
+        [Theory]
+        [InlineData(TreeReferenceKind.Cycle, "cycle")]
+        [InlineData(TreeReferenceKind.Repeat, "shown above")]
+        public void Render_LongBareReference_RetainsReferenceEvidence(TreeReferenceKind reference, string evidence) {
+            Tree tree = new Tree { ValuePlacement = TreeValuePlacement.AfterLabel, ShowValueHeaders = false };
+            tree.ValueColumns.Add(new TableColumn("State") { Priority = 10 });
+            TreeNode ordinary = tree.Add("Short"); ordinary.Values["State"] = "healthy";
+            TreeNode node = tree.Add(new string('L', 118)); node.Bare = true; node.Reference = reference; node.Values["State"] = "state";
+            Review184Capture capture = new Review184Capture(tree, 120, GlyphTier.Full, ColorDepth.None);
+            string text = capture.Raw.ToPlainText();
+            Assert.Contains(reference == TreeReferenceKind.Cycle ? capture.Context.Glyphs.Get(Glyph.Cycle) : capture.Context.Glyphs.Get(Glyph.Repeat), text);
+            Assert.Contains(evidence, text);
+        }
+
         [Fact]
         public void Render_AfterLabelWithTruncatedIdentity_RetainsHiddenCycleMarker() {
             Tree tree = new Tree { ValuePlacement = TreeValuePlacement.AfterLabel, ShowValueHeaders = false };
