@@ -78,7 +78,7 @@
           <div class="cm-hero__code" data-cm-tabs>
             <h2 class="cm-hero__take-title">{{ path.codeTitle }}</h2>
             {{~ ## Code tabs that are the two languages of one program follow the reader's language (site.js). ## ~}}
-            {{~ both_langs = false; for t in path.code; if t.source == "csharp"; both_langs = true; end; end ~}}
+            {{~ both_langs = false; for t in path.code; if t.source == "csharp" || t.source == "csharp-fluent"; both_langs = true; end; end ~}}
             <div class="cm-seg" role="tablist" aria-label="{{ path.codeTitle }}">
               {{~ for t in path.code ~}}
               <button type="button" role="tab" id="cm-code-{{ path.id }}-{{ for.index }}-tab" aria-controls="cm-code-{{ path.id }}-{{ for.index }}" aria-selected="{{ if for.first }}true{{ else }}false{{ end }}"{{ if !for.first }} tabindex="-1"{{ end }}{{ if both_langs && t.source }} data-cm-lang="{{ t.source }}"{{ end }} style="--key: var(--cm-s{{ for.index + 3 }})">{{ t.tab }}</button>
@@ -86,14 +86,25 @@
             </div>
             {{~ for t in path.code ~}}
             <div id="cm-code-{{ path.id }}-{{ for.index }}" role="tabpanel" aria-labelledby="cm-code-{{ path.id }}-{{ for.index }}-tab"{{ if !for.first }} hidden{{ end }}>
+              {{~ other_files = null ~}}
               {{~ if t.source == "csharp" ~}}
-              {{~ code_lang = "csharp"; code_label = "C#"; code_repo = pd.csharpRepo; code_text = pd.csharp; code_full = pd.csharpFull ~}}
+              {{~ code_lang = "csharp"; code_label = "C#"; code_repo = pd.csharpRepo; code_file = pd.csharpFile; code_text = pd.csharp; code_full = pd.csharpFull; other_files = pd.csharpFiles ~}}
+              {{~ else if t.source == "csharp-fluent" ~}}
+              {{~ code_lang = "csharp"; code_label = "C# fluent"; code_file = pd.csharpFluentFile; code_text = pd.csharpFluent; code_full = pd.csharpFluentFull; other_files = pd.csharpFluentFiles ~}}
               {{~ else if t.source == "powershell" ~}}
               {{~ code_lang = "powershell"; code_label = "PowerShell"; code_repo = pd.powershellRepo; code_text = pd.powershell; code_full = pd.powershellFull ~}}
               {{~ else ~}}
               {{~ code_lang = t.lang; code_label = t.label; code_text = t.text ~}}
               {{~ end ~}}
               {{ include "code" }}
+              {{~ ## A program of several files: the others, each whole under its name, as on the demo pages. ## ~}}
+              {{~ for k in other_files ~}}
+              <details class="cm-source">
+                <summary>{{ k.file }}</summary>
+                {{~ code_lang = "csharp"; code_label = t.tab; code_repo = k.codeRepo; code_file = k.file; code_text = k.code ~}}
+                {{ include "code" }}
+              </details>
+              {{~ end ~}}
             </div>
             {{~ end ~}}
           </div>

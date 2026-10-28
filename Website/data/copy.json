@@ -53,12 +53,16 @@
             {
               "tab": "C#",
               "source": "csharp"
+            },
+            {
+              "tab": "C# fluent",
+              "source": "csharp-fluent"
             }
           ]
         }
       ]
     },
-    "version": "2.0.1",
+    "version": "2.1.0",
     "packagesTitle": "Packages",
     "packages": [
       {

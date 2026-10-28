@@ -68,7 +68,9 @@ namespace ConsoleMonster.Examples.Showcases
             // <example>
             Menu menu = new Menu(Title)
             {
-                Layout = MenuLayout.Shell
+                Layout = MenuLayout.Shell,
+                // The invented data's fixed "now", so every recording shows the same header.
+                Subtitle = FleetData.NowText
             };
             FleetHistory history = new FleetHistory();
             // The form: a domain whose servers load, grouped checks with a preview, options, and the review with the command.
@@ -98,8 +100,6 @@ namespace ConsoleMonster.Examples.Showcases
             menu.Separator();
             menu.Exit("Quit");
             // </example>
-            // The invented data's fixed "now", so every recording shows the same header.
-            menu.Subtitle = FleetData.NowText;
             return menu;
         }
 

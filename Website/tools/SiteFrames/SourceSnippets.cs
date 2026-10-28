@@ -162,6 +162,13 @@ namespace SiteFrames {
                 lines = File.ReadAllText(sourceFile).Replace("\r\n", "\n").Split('\n');
                 Files[sourceFile] = lines;
             }
+            return Example(lines, method, sourceFile);
+        }
+
+        /// <summary>The example lines of a method in source text that is not a file of its own (a generated fluent translation).</summary>
+        public static string GetFromText(string code, string method, string name) => Example(code.Replace("\r\n", "\n").Split('\n'), method, name);
+
+        private static string Example(string[] lines, string method, string sourceFile) {
             int start = -1;
             for (int i = 0; i < lines.Length; i++) {
                 if (lines[i].Contains(" " + method + "(", StringComparison.Ordinal) && (lines[i].TrimStart().StartsWith("private static", StringComparison.Ordinal) || lines[i].TrimStart().StartsWith("public static", StringComparison.Ordinal))) {

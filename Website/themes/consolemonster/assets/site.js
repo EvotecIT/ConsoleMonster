@@ -326,7 +326,10 @@
       });
     });
     langTabs.forEach(function (tab) {
-      if (tab.getAttribute('data-cm-lang') === (lang === 'csharp-fluent' ? 'csharp' : lang) && tab.getAttribute('aria-selected') !== 'true' && tab.cmSelect) tab.cmSelect(tab, false);
+      // C# fluent selects its own tab where a tab set has one (the home page's program), and the C# tab where it does not.
+      var fluentTab = lang === 'csharp-fluent' && tab.parentNode.querySelector('[role="tab"][data-cm-lang="csharp-fluent"]');
+      var wanted = lang === 'csharp-fluent' && !fluentTab ? 'csharp' : lang;
+      if (tab.getAttribute('data-cm-lang') === wanted && tab.getAttribute('aria-selected') !== 'true' && tab.cmSelect) tab.cmSelect(tab, false);
     });
   };
   var setLang = function (lang) {
