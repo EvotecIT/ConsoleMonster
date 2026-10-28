@@ -39,5 +39,5 @@ public static class StatusScale {
 
     /// <summary>Formats a literal caller word with its severity glyph and semantic style.</summary>
     public static string Format(Severity severity, GlyphTier tier, string? word = null) =>
-        "[" + Role(severity).ToString().ToLowerInvariant() + "]" + Marker(severity, tier) + " " + Markup.Escape(word ?? Word(severity)) + "[/]";
+        "[" + Role(severity).ToString().ToLowerInvariant() + "]" + Marker(severity, tier) + (severity == Severity.Passed ? "[/] [text]" : " ") + Markup.Escape(word ?? Word(severity)) + "[/]";
 }

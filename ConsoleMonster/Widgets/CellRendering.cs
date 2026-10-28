@@ -134,11 +134,13 @@ namespace ConsoleMonster.Widgets {
             List<StyledLine> lines = new List<StyledLine>(text.Lines);
             if (cell.AssessmentSeverity.HasValue && lines.Count > 0) {
                 Severity severity = cell.AssessmentSeverity.Value;
-                lines[0] = WithMarker(StatusScale.Marker(severity, render.Glyphs.Tier), lines[0], render.Style(StatusScale.Role(severity)));
+                lines[0] = WithMarker(StatusScale.Marker(severity, render.Glyphs.Tier), lines[0], render.Style(StatusScale.Role(severity)),
+                    severity == Severity.Passed && ConsoleViewStyle.IsApplied(render) ? render.Style(ThemeToken.Text) : (Style?)null);
             }
             if (cell.Status.HasValue && lines.Count > 0) {
                 Style style = render.Style(cell.Status.Value);
-                lines[0] = WithMarker(render.Glyphs.StatusMarker(cell.Status.Value), lines[0], style);
+                lines[0] = WithMarker(render.Glyphs.StatusMarker(cell.Status.Value), lines[0], style,
+                    cell.Status.Value == StatusKind.Pass && ConsoleViewStyle.IsApplied(render) ? render.Style(ThemeToken.Text) : (Style?)null);
             }
             // A status cell's word ("✓ Passed") is a short value too.
             return new CellContent(lines, null, (cell.Status.HasValue || cell.AssessmentSeverity.HasValue) && lines.Count == 1 && lines[0].Width <= ShortValueWidth);

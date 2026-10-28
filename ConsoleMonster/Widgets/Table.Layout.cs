@@ -90,7 +90,8 @@ namespace ConsoleMonster.Widgets {
             }
             hiddenColumns.Sort();
             foreach (int hidden in hiddenColumns) {
-                layout.Hidden.Add(Markup.Strip(_columns[hidden].Header));
+                string name = Markup.Strip(_columns[hidden].Header);
+                if (!string.IsNullOrWhiteSpace(name)) { layout.Hidden.Add(name); }
             }
             if (layout.Hidden.Count > 0 && visible.Count == 1 && count > 1 && CardsBelow > 0) {
                 return new TableLayout(TableMode.Cards) { Record = BuildCards(presenter) };

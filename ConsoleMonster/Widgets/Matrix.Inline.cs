@@ -125,7 +125,8 @@ public sealed partial class Matrix {
             string marker = LegendMarkers.TryGetValue(status, out string? custom) ? custom : context.Glyphs.StatusSymbol(status);
             string label = LegendLabels.TryGetValue(status, out string? supplied) ? supplied : status.ToWord(context).ToLowerInvariant();
             ThemeToken role = LegendRoles.TryGetValue(status, out ThemeToken declared) ? declared : status.ToToken();
-            entries.Add("[" + role.ToString().ToLowerInvariant() + "]" + Markup.Escape(marker + " " + label + (ShowLegendCounts ? " " + count.ToString(CultureInfo.InvariantCulture) : string.Empty)) + "[/]");
+            entries.Add("[" + role.ToString().ToLowerInvariant() + "]" + Markup.Escape(marker) + "[/] [" + (status == StatusKind.Pass && ConsoleViewStyle.IsApplied(context) ? "text" : role.ToString().ToLowerInvariant()) + "]"
+                + Markup.Escape(label + (ShowLegendCounts ? " " + count.ToString(context.Culture) : string.Empty)) + "[/]");
         }
         long absent = (long)_rows.Count * _columns.Count - self - _cells.Values.Count(cell => !cell.Diagonal);
         if (absent > 0) entries.Add("[subtle]" + context.Glyphs.Get(Glyph.None) + "[/][muted] " + Markup.Escape(MissingLegendLabel ?? "none") + "[/]");

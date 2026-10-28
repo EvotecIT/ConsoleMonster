@@ -29,14 +29,13 @@ public sealed class ScoreGauge : IWidget {
     private FactFlow Build(int width, RenderContext context) {
         int cells = Math.Max(1, Width > 0 ? Width : width >= 78 ? 24 : 20);
         double ratio = Maximum > 0 && !double.IsNaN(Value) ? Math.Max(0, Math.Min(1, Value / Maximum)) : 0;
-        double fill = cells * ratio;
-        int whole = (int)Math.Floor(fill);
-        int eighths = (int)Math.Floor((fill - whole) * 8);
-        string partial = context.Glyphs.HorizontalFill(eighths);
-        string bar = new string(context.Glyphs.Get(Glyph.BlockFull)[0], whole) + partial;
-        int remaining = cells - whole - (partial.Length > 0 ? 1 : 0);
+        // Whole cells keep the fill and track contiguous in real console fonts; a partial block leaves
+        // an unpainted remainder which looks like a gap. The exact supplied score remains beside it.
+        int whole = (int)Math.Round(cells * ratio, MidpointRounding.AwayFromZero);
+        string bar = new string(context.Glyphs.Get(Glyph.BlockFull)[0], whole);
+        int remaining = cells - whole;
         string markup = "[strong]" + Value.ToString("0.##", context.Culture) + "[/][muted]/" + Maximum.ToString("0.##", context.Culture)
-            + "[/]  [" + Role.ToString().ToLowerInvariant() + "]" + bar + "[/][muted]"
+            + "[/]  [" + Role.ToString().ToLowerInvariant() + "]" + bar + "[/][subtle]"
             + new string(context.Glyphs.Get(Glyph.ShadeLight)[0], Math.Max(0, remaining)) + "[/]";
         List<string> details = new List<string>();
         foreach (KeyValuePair<string, string> part in Parts) {

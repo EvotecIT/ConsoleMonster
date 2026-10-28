@@ -44,7 +44,7 @@ namespace ConsoleMonster.Presenters {
                 // The usual "no limit" values (lockout duration, maximum password age): a dash, not 10675199 d.
                 return Unbounded(context);
             }
-            string text = Compact ? DisplayText.Duration(span) : Format(span, context.Culture);
+            string text = Compact ? DisplayText.Duration(span, context.Culture) : Format(span, context.Culture);
             return new PresentedValue(StyledLine.From(text, context.Render.Style(ThemeToken.Text)), HorizontalAlignment.Right) { Number = span.TotalSeconds };
         }
 
