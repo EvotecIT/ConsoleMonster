@@ -848,6 +848,26 @@
       "CSharpType": "ConsoleMonster.PowerShell.ConsoleHostFormatting",
       "Bindings": [
         {
+          "Parameter": "CompactErrors",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.PowerShell.ConsoleFormattingOptions",
+          "Member": "CompactErrors",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
           "Parameter": "Detailed",
           "ParameterType": "System.Management.Automation.SwitchParameter",
           "Default": false,
@@ -868,14 +888,34 @@
           "Static": false
         },
         {
+          "Parameter": "Exclude",
+          "ParameterType": "ConsoleMonster.PowerShell.ConsoleFormattingFeature[]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "Default",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.PowerShell.ConsoleFormattingOptions",
+          "Member": "Exclude",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "ConsoleMonster.PowerShell.ConsoleFormattingFeature[]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
           "Parameter": "Feature",
           "ParameterType": "ConsoleMonster.PowerShell.ConsoleFormattingFeature[]",
           "Default": null,
           "Sets": [
             {
-              "Name": "__AllParameterSets",
+              "Name": "Feature",
               "Position": -2147483648,
-              "Mandatory": false
+              "Mandatory": true
             }
           ],
           "CSharpType": "ConsoleMonster.PowerShell.ConsoleFormattingOptions",
@@ -904,6 +944,26 @@
           "Conversion": "Identity",
           "CSharpTypeName": "System.Boolean",
           "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Include",
+          "ParameterType": "ConsoleMonster.PowerShell.ConsoleFormattingFeature[]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "Default",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.PowerShell.ConsoleFormattingOptions",
+          "Member": "Include",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "ConsoleMonster.PowerShell.ConsoleFormattingFeature[]",
+          "Nullable": "Nullable",
           "Writable": true,
           "Static": false
         },
@@ -2276,6 +2336,12 @@
           "CSharpTypeName": "System.String"
         }
       ]
+    },
+    {
+      "Command": "Get-ConsoleFormatting",
+      "Job": "Get-ConsoleFormatting",
+      "CSharpType": "ConsoleMonster.PowerShell.CmdletGetConsoleFormatting",
+      "Bindings": []
     },
     {
       "Command": "Invoke-ConsoleDashboard",
@@ -25054,7 +25120,7 @@
   ],
   "SchemaVersion": 2,
   "BaselineCount": 144,
-  "ExpectedCount": 108,
+  "ExpectedCount": 109,
   "ConfigurableRoots": [
     "ConsoleMonster.Capabilities.CapabilityDetector",
     "ConsoleMonster.Changes.ChangePreviewOptions",

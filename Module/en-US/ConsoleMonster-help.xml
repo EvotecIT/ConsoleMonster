@@ -4708,7 +4708,7 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>Get-ConsoleFormatting</dev:code>
+        <dev:code>Enable-ConsoleFormatting -Include Help; Get-ConsoleFormatting</dev:code>
         <dev:remarks>
           <maml:para>Inspect the current session's formatting</maml:para>
         </dev:remarks>

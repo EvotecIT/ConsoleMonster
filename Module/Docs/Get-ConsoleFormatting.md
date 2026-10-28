@@ -25,7 +25,7 @@ Returns the enabled feature names, whether compact errors are enabled, and wheth
 
 ### EXAMPLE 1
 ```powershell
-Get-ConsoleFormatting
+Enable-ConsoleFormatting -Include Help; Get-ConsoleFormatting
 ```
 
 Inspect the current session's formatting

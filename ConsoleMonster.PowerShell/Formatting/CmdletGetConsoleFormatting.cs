@@ -8,7 +8,7 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example>
     /// <para>Inspect the current session's formatting</para>
-    /// <code>Get-ConsoleFormatting</code>
+    /// <code>Enable-ConsoleFormatting -Include Help; Get-ConsoleFormatting</code>
     /// </example>
     [Cmdlet(VerbsCommon.Get, "ConsoleFormatting")]
     [OutputType(typeof(PSObject))]
