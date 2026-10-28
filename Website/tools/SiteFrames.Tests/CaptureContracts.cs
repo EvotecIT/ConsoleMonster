@@ -100,7 +100,9 @@ namespace SiteFrames.Tests {
 
         [Fact]
         public void Render_RejectsAreaSelectionBeforeTouchingOutput() {
+            string? configuration = Environment.GetEnvironmentVariable("CONSOLEMONSTER_DEVELOPMENT_CONFIGURATION");
             Assert.Equal(2, Program.Main(new[] { "render", "nonexistent-website", "widgets" }));
+            Assert.Equal(configuration, Environment.GetEnvironmentVariable("CONSOLEMONSTER_DEVELOPMENT_CONFIGURATION"));
         }
     }
 }

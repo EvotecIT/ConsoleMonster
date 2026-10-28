@@ -101,6 +101,9 @@ module used by PowerShell 5.1. An optional area follows `Website`, for example
   time groups, and simulated pipelines advance their explicit clock. Their frame
   schedule does not depend on producer CPU speed. Measured and concurrent programs
   keep their normal native execution path.
+- Plain benchmark reports also execute in a native child. Its stdout forwards to the console and the hosted recorder
+  with each complete printed line in a synchronized update before ConPTY can coalesce it. Logical playback keeps those real lines and their measured values;
+  it does not insert estimated results or change the benchmark's work.
 - The fictional Fleet health app uses paced scripted keys, immediate inventory loading
   and a seeded `SimulatedClock`. `ScriptedInput.SkippedWait` records each pause
   through `ScreenCapture.Hold`; checkpoint workers pass those pauses through

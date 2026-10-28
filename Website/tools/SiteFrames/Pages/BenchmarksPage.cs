@@ -24,7 +24,8 @@ namespace SiteFrames.Pages {
             string sources = string.Join("\n", Directory.EnumerateFiles(root, "*", SearchOption.TopDirectoryOnly)
                 .Where(path => path.EndsWith(".cs", StringComparison.Ordinal) || path.EndsWith(".csproj", StringComparison.Ordinal))
                 .OrderBy(path => path, StringComparer.Ordinal).Select(path => Path.GetFileName(path) + "\n" + Site.ReadText(path)));
-            return Replay.Replays.Fingerprint(sources, "600;110x20;dark", CapturePins.Policy);
+            return Replay.Replays.Fingerprint(sources, "600;110x20;dark", CapturePins.Policy,
+                Site.ReadText(Path.Combine(site.Tool, "Capture", "CSharpRunner.Printed.cs")));
         }
 
         private static string CastPath(Site site) => CapturePlatforms.PathFor(site, Path.Combine(site.Captures, "benchmarks", "benchmarks.cast"));
@@ -45,7 +46,7 @@ namespace SiteFrames.Pages {
                 }
             }
             string exe = Path.Combine(site.Repository, "ConsoleMonster.Benchmarks", "bin", "Release", "net8.0", "ConsoleMonster.Benchmarks.dll");
-            List<OutputChunk> chunks = CSharpRunner.Record(exe, new[] { "600" }, 110, 20, PowerShellRunner.Environment("dark"), site.Repository, TimeSpan.FromMinutes(5));
+            List<OutputChunk> chunks = CSharpRunner.RecordPrinted(exe, new[] { "600" }, 110, 20, PowerShellRunner.Environment("dark"), site.Repository, TimeSpan.FromMinutes(5));
             Directory.CreateDirectory(Path.GetDirectoryName(CastPath(site))!);
             File.WriteAllText(CastPath(site), Replay.Replays.Stamp(Replay.Replays.ToCast(chunks, 110, 20, "ConsoleMonster.Benchmarks 600"), Fingerprint(site)), new UTF8Encoding(false));
             CaptureRun.Record(CastPath(site), "dark");
