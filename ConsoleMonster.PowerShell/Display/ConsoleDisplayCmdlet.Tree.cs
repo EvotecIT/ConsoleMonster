@@ -41,9 +41,12 @@ namespace ConsoleMonster.PowerShell {
             var trees = new List<IWidget>();
             var shape = Binding.PSShaping.Options();
             foreach (PSObject item in items) {
-                InspectorOptions options = PSFormatting.InspectorOptions(Depth, MaxItems, include, Exclude, MaxNodes, item);
+                InspectorOptions options = PSFormatting.InspectorOptions(Depth, MaxItems, include, Exclude, MaxNodes, item, rootDefaultDisplay: true);
 #pragma warning disable IL2026
-                trees.Add(InspectorTree.Build(ObjectInspector.Inspect(item, options), PSText.Markup(Title) ?? Binding.PSShaping.Title(item, shape)));
+                InspectNode node = ObjectInspector.Inspect(item, options);
+                string? label = PSText.Markup(Title);
+                if (label == null && (Exclude == null || Exclude.Length == 0) && (include == null || include.Length == 0 || (include.Length == 1 && include[0] == "*"))) { label = Binding.PSShaping.Title(item, shape); }
+                trees.Add(InspectorTree.Build(node, label));
 #pragma warning restore IL2026
             }
             return PSFormatting.Combine(trees);

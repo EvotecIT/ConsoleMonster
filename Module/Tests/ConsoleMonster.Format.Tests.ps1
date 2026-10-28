@@ -59,6 +59,21 @@ foreach ($width in 80, 120) {
         $text | Should -Match 'EQUAL120=True'
     }
 
+    It 'does not read excluded identity getters and retains full object-explorer members' {
+        $text = Invoke-FormatChild -Script @'
+$global:identityReads = 0
+$item = [pscustomobject] @{ Label = 'shown'; Extra = 'available' }
+$item | Add-Member -MemberType ScriptProperty -Name Name -Value { $global:identityReads++; 'hidden' }
+$set = New-Object System.Management.Automation.PSPropertySet('DefaultDisplayPropertySet', [string[]]@('Label'))
+$item | Add-Member -MemberType MemberSet -Name PSStandardMembers -Value $set -ErrorAction Stop
+$null = $item | Show-Console -View Tree -Exclude Name -AsString
+"READS=$global:identityReads"
+$item | Show-ConsoleObject -AsString -Width 80
+'@
+        $text | Should -Match 'READS=0'
+        $text | Should -Match 'Extra\s+available'
+    }
+
     It 'formats a table with presenters and a totals row as plain text' {
         $text = Invoke-FormatChild -Script "`$artifacts | Show-ConsoleTable -ShowTotals -Width 100 -Property Name, Kind, @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes' }, @{ Name = 'Time'; Presenter = 'Duration' }"
         $text | Should -Match 'Size'

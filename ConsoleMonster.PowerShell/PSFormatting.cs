@@ -323,7 +323,7 @@ namespace ConsoleMonster.PowerShell {
             return view;
         }
 
-        internal static InspectorOptions InspectorOptions(int depth, int maxItems, string[]? include, string[]? exclude, int maxNodes = 5000, object? root = null) {
+        internal static InspectorOptions InspectorOptions(int depth, int maxItems, string[]? include, string[]? exclude, int maxNodes = 5000, object? root = null, bool rootDefaultDisplay = false) {
             // PowerShell objects around dictionaries, collections, scalars and data values inspect as those; other objects
             // through their PowerShell properties (nested ones show only their default display set).
             InspectorOptions options = new InspectorOptions {
@@ -334,7 +334,7 @@ namespace ConsoleMonster.PowerShell {
                 Identity = PSObjectMemberSource.Identity
             };
             options.Sources.Add(new DirectoryEntryMemberSource());
-            options.Sources.Add(new PSObjectMemberSource { Root = root, RootDefaultDisplay = include == null || include.Length == 0 });
+            options.Sources.Add(new PSObjectMemberSource { Root = root, RootDefaultDisplay = rootDefaultDisplay && (include == null || include.Length == 0) });
             if (include != null) {
                 foreach (string name in include) {
                     options.Include.Add(name);
