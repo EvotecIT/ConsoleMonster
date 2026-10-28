@@ -41,6 +41,8 @@
 .cm-hero__install, .cm-hero__code { display: grid; gap: var(--cm-space-3); align-content: start; min-width: 0; }
 .cm-hero__code .cm-seg { justify-self: start; }
 .cm-hero__code > div { min-width: 0; }
+/* A program of several files lists its other files under the code, spaced as on the demo pages. */
+.cm-hero__code [role="tabpanel"]:not([hidden]) { display: grid; gap: var(--cm-space-3); }
 .cm-hero__take-title { margin: 0; font: 700 15px/1.3 var(--cm-mono); letter-spacing: -.015em; color: #e2e8f0; }
 .cm-hero__take .cm-code { margin: 0; background: #0b1019; box-shadow: inset 0 0 0 1px #273041; }
 .cm-hero__take .cm-code__bar { border-bottom-color: #273041; }
