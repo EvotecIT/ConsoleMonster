@@ -100,7 +100,7 @@ namespace ConsoleMonster.PowerShell {
                 FormattingSessionState.Current.DetailedErrors = options.Detailed;
             }
             if (!ours && !Display.DefaultDisplay.IsBrokerInstalled) {
-                source.SessionState.InvokeProvider.Item.Set("function:global:Out-Default", ScriptBlock.Create(ConsoleFormatting.ShimScript));
+                FormatCommandInstallation.SetGlobalFunction(source.SessionState, "Out-Default", ScriptBlock.Create(ConsoleFormatting.ShimScript));
             }
             ConsoleFormatting.RestoreCommandsWithModule(source.MyInvocation.MyCommand.Module);
                 }
@@ -145,7 +145,7 @@ namespace ConsoleMonster.PowerShell {
             ScriptBlock? existing = FormatCommandInstallation.GlobalFunction(source.SessionState, "Out-Default");
             if (existing != null && existing.ToString().IndexOf(ConsoleFormatting.Marker, StringComparison.OrdinalIgnoreCase) >= 0) {
                 if (ConsoleFormatting.SavedOutDefault != null) {
-                    source.SessionState.InvokeProvider.Item.Set("function:global:Out-Default", ConsoleFormatting.SavedOutDefault);
+                    FormatCommandInstallation.SetGlobalFunction(source.SessionState, "Out-Default", ConsoleFormatting.SavedOutDefault);
                 } else {
                     FormatCommandInstallation.RemoveGlobalFunction(source.MyInvocation.MyCommand.Module, "Out-Default");
                 }

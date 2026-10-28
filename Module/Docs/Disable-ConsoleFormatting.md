@@ -13,7 +13,7 @@ Without -Feature everything Enable-ConsoleFormatting turned on is turned off and
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Disable-ConsoleFormatting [-Feature <ConsoleFormattingFeature[]>] [<CommonParameters>]
+Disable-ConsoleFormatting [-Feature <ConsoleFormattingFeature[]>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION

@@ -19,6 +19,49 @@
         }
     }
 
+    It 'reports short enable and disable operations without exposing proxy source' {
+        $text = Invoke-DefaultsChild @'
+$VerbosePreference = 'SilentlyContinue'
+$before = $VerbosePreference
+$features = @('Output', 'FormatCommands', 'Progress', 'Help', 'Prompt', 'GridView')
+$on = @(Enable-ConsoleFormatting -Feature $features -Force -Verbose 4>&1)
+if ((Get-Command Format-Table).CommandType -ne 'Function') { throw 'Format-Table was not enabled.' }
+if ((Get-Command Write-Progress).CommandType -ne 'Function') { throw 'Progress was not enabled.' }
+$off = @(Disable-ConsoleFormatting -Verbose 4>&1)
+if ((Get-Command Format-Table).CommandType -ne 'Cmdlet') { throw 'Format-Table was not restored.' }
+if ((Get-Command Write-Progress).CommandType -ne 'Cmdlet') { throw 'Progress was not restored.' }
+if ($VerbosePreference -ne $before) { throw 'VerbosePreference changed.' }
+$messages = @($on + $off | ForEach-Object { [string] $_ })
+if (($messages -join "`n") -match '(?i)\[CmdletBinding|\bparam\s*\(|Set Item|function:\\') { throw 'Internal function source appeared in verbose output.' }
+if (-not ($on -match 'operation "Enable" on target "ConsoleMonster formatting: Output, Progress, FormatCommands, Help, GridView, Prompt"')) { throw 'Missing enable description.' }
+if (-not ($off -match 'operation "Disable" on target "ConsoleMonster formatting:')) { throw 'Missing disable description.' }
+'VERBOSE_OK'
+'@
+        $text | Should -Match 'VERBOSE_OK'
+    }
+
+    It 'keeps formatting unchanged for WhatIf and supports explicit confirmation' {
+        $text = Invoke-DefaultsChild @'
+$before = (Get-Command Format-Table).CommandType
+Enable-ConsoleFormatting -Feature Output, FormatCommands, Progress -WhatIf
+if ((Get-Command Format-Table).CommandType -ne $before) { throw 'WhatIf installed Format-Table.' }
+if ((Get-Command Write-Progress).CommandType -ne 'Cmdlet') { throw 'WhatIf installed Progress.' }
+Enable-ConsoleFormatting -Feature FormatCommands -Confirm:$false
+Disable-ConsoleFormatting -Feature FormatCommands -WhatIf
+if ((Get-Command Format-Table).CommandType -ne 'Function') { throw 'WhatIf removed Format-Table.' }
+Disable-ConsoleFormatting -Feature FormatCommands -Confirm:$false
+if ((Get-Command Format-Table).CommandType -ne $before) { throw 'Confirmed disable did not restore Format-Table.' }
+$WhatIfPreference = $true
+Enable-ConsoleFormatting -Feature FormatCommands
+if ((Get-Command Format-Table).CommandType -ne $before) { throw 'WhatIfPreference installed Format-Table.' }
+'WHATIF_OK'
+'@
+        $text | Should -Match 'operation "Enable" on target "ConsoleMonster formatting: Output, Progress, FormatCommands"'
+        $text | Should -Match 'operation "Disable" on target "ConsoleMonster formatting: FormatCommands"'
+        $text | Should -Not -Match '(?i)\[CmdletBinding|\bparam\s*\(|Set Item'
+        $text | Should -Match 'WHATIF_OK'
+    }
+
     It 'keeps foreign progress aliases while restoring each runspace output function' {
         $text = Invoke-DefaultsChild @'
 $first = [powershell]::Create()

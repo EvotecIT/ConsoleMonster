@@ -4,7 +4,8 @@ using ConsoleMonster.Views;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>
-    /// <para type="synopsis">Shows the default output of common types through ConsoleMonster for this session (opt-in).</para>
+    /// <para type="synopsis">Shows common types with ConsoleMonster. Explicit Format-* commands stay native unless FormatCommands is enabled.</para>
+    /// <para type="description">Explicit Format-Table, Format-List and Format-Wide remain native unless you opt in with Enable-ConsoleFormatting -Feature FormatCommands. This feature only changes direct console output; pipelines, captures and transcripts stay native.</para>
     /// <para type="description">Files and folders (Get-ChildItem), processes (Get-Process), services (Get-Service), JSON/REST and CSV records (PSCustomObject), members (Get-Member), commands (Get-Command), modules (Get-Module), history (Get-History), PowerShell 7 ping replies, .NET DNS entries and IP addresses, Windows network objects, event log records (Get-WinEvent), volumes (Get-Volume) and dictionaries (@{ }), plus any type registered with Register-ConsoleView, are shown as ConsoleMonster tables and records when they reach the console. Members group by member type with highlighted signatures and muted types; JSON/CSV records show at most 50 rows and 24 fields with omission hints and nested summaries; numeric and date-like CSV strings align right without conversion. Commands group by module from 12 rows and show alias targets and command-type chips; modules group repeated names and show versions, shortened paths and exported command counts; history shows id, start time, duration, status and highlighted command text. Windows network views register only on Windows; ping and .NET DNS/IP views work across platforms. It works by defining an Out-Default function for the session that hands objects to Out-ConsoleDefault; objects stay the same, pipelines into other commands, Format-* and Out-String keep PowerShell's behaviour, and redirected output, transcripts' plain text, jobs and remoting are not affected. Disable-ConsoleFormatting removes the function. FormatCommands separately opts Format-Table, Format-List and Format-Wide into host-only rendering; it is excluded from All. It preserves native column selection and labels. Explicit properties, calculated expressions, grouping and named views take precedence over built-in presentation defaults. A custom Out-Default is kept unless you pass -Force for a feature that uses it. Streams, ReadLine, GridView and Prompt do not replace Out-Default.</para>
     /// </summary>
 
@@ -40,7 +41,7 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>Theme the already loaded editor and native progress without replacing commands</para>
     ///   <code>Set-ConsoleTheme Dark; Enable-ConsoleFormatting -Feature ReadLine, Streams; Write-Progress -Activity 'Backup' -Status 'Copying archive.zip' -PercentComplete 42; Write-Progress -Activity 'Backup' -Completed</code>
     /// </example>
-    [Cmdlet(VerbsLifecycle.Enable, "ConsoleFormatting")]
+    [Cmdlet(VerbsLifecycle.Enable, "ConsoleFormatting", SupportsShouldProcess = true)]
     public sealed class CmdletEnableConsoleFormatting : PSCmdlet {
         /// <summary><para type="description">What to turn on: Output (the default: registered and built-in types as ConsoleMonster views), ErrorView (errors that reach the console in ConsoleMonster's error view, following $ErrorView: DetailedView adds the stack, CategoryView keeps PowerShell's), Progress (Write-Progress drawn as ConsoleMonster's progress area; Write-Progress uses a reversible native-parameter function proxy), Streams (native stream and progress colours), ReadLine (syntax, selection and available inline prediction colours for already loaded PSReadLine), or All (Output, ErrorView, Streams and ReadLine). Streams sets PSStyle.Formatting Warning, Verbose, Debug and Error on PowerShell 7.2+, and PSStyle.Progress.Style, or available Host.PrivateData warning, verbose, debug and progress foreground/background colours on older hosts. Native progress keeps its View and layout. ReadLine never imports PSReadLine and does nothing when it is absent; unsupported colour properties are skipped. PowerShell keeps its prefixes, records, preferences, redirection and transcript behaviour. Streams and ReadLine never replace Write-* commands or install an Out-Default function. Progress is the separate native-progress rendering feature, excluded from All; All keeps Write-Progress native and styles it through Streams. Re-enable Streams or ReadLine after changing themes; Shared native properties follow the most recently applied installation. Disabling its owner restores the latest surviving installation; the last owner restores the first original values, including later user edits. Use Show-ConsoleStatusLine or Write-ConsoleLogEntry for rich script messages. FormatCommands explicitly opts Format-Table, Format-List and Format-Wide into direct-host-only rendering, preserving native captures, jobs, remoting and transcripts; it is excluded from All. Help and Errors are separate direct-host opt-ins, excluded from All. Help renders native Get-Help, help and -? with paging. Errors uses the compact view; -Detailed includes stacks. GridView supplies the terminal grid only where Out-GridView is unavailable; a working native command is kept. Prompt adds a minimal shell prompt while preserving native fallback; oh-my-posh and Starship need Force. Features add up across calls; Disable-ConsoleFormatting turns them off.</para></summary>
         [Parameter]
@@ -63,10 +64,17 @@ namespace ConsoleMonster.PowerShell {
         public SwitchParameter Detailed { get; set; }
 
         /// <inheritdoc />
-        protected override void EndProcessing() => ConsoleHostFormatting.Enable(this, new ConsoleFormattingOptions {
-            Feature = Feature, Force = Force.IsPresent, BuiltIn = !NoBuiltIn.IsPresent,
-            Detailed = Detailed.IsPresent, ProfileSnippet = ProfileSnippet.IsPresent
-        });
+        protected override void EndProcessing() {
+            var options = new ConsoleFormattingOptions {
+                Feature = Feature, Force = Force.IsPresent, BuiltIn = !NoBuiltIn.IsPresent,
+                Detailed = Detailed.IsPresent, ProfileSnippet = ProfileSnippet.IsPresent
+            };
+            if (ProfileSnippet.IsPresent) { ConsoleHostFormatting.Enable(this, options); return; }
+            ConsoleFormattingFeature selected = ConsoleFormattingFeature.None;
+            foreach (ConsoleFormattingFeature item in Feature ?? new[] { ConsoleFormattingFeature.Output }) { selected |= item; }
+            if (selected == ConsoleFormattingFeature.None || !ShouldProcess("ConsoleMonster formatting: " + ConsoleFormatting.FeatureList(selected), "Enable")) { return; }
+            ConsoleHostFormatting.Enable(this, options);
+        }
 
 
 
@@ -85,14 +93,20 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>Keep the views, go back to PowerShell's progress</para>
     ///   <code>Disable-ConsoleFormatting -Feature Progress</code>
     /// </example>
-    [Cmdlet(VerbsLifecycle.Disable, "ConsoleFormatting")]
+    [Cmdlet(VerbsLifecycle.Disable, "ConsoleFormatting", SupportsShouldProcess = true)]
     public sealed class CmdletDisableConsoleFormatting : PSCmdlet {
         /// <summary><para type="description">What to turn off: Output, ErrorView, Progress, Streams, ReadLine, FormatCommands, Help, Errors, GridView, Prompt or All (Output, ErrorView, Streams and ReadLine). Streams and ReadLine restore exactly the saved native colour properties, even if they were edited while enabled; other properties stay untouched. Without -Feature every enabled feature is removed, including explicit Progress, FormatCommands, Help, Errors, GridView and Prompt.</para></summary>
         [Parameter]
         public ConsoleFormattingFeature[]? Feature { get; set; }
 
         /// <inheritdoc />
-        protected override void EndProcessing() => ConsoleHostFormatting.Disable(this, Feature);
+        protected override void EndProcessing() {
+            ConsoleFormattingFeature selected = ConsoleFormattingFeature.None;
+            if (Feature == null) { selected = ConsoleFormatting.Features; }
+            else { foreach (ConsoleFormattingFeature item in Feature) { selected |= item; } }
+            if (selected == ConsoleFormattingFeature.None || !ShouldProcess("ConsoleMonster formatting: " + ConsoleFormatting.FeatureList(selected), "Disable")) { return; }
+            ConsoleHostFormatting.Disable(this, Feature);
+        }
     }
 
     /// <summary>

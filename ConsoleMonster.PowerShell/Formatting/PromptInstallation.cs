@@ -85,7 +85,7 @@ namespace ConsoleMonster.PowerShell {
                     .Replace("__ARGUMENTS__", installation._original?.CmdletBinding == true ? string.Empty : "@__cmArguments");
                 Func<bool, InvocationInfo, PSHost, object[], Invocation> invoke = installation.Invoke;
                 ScriptBlock prompt = (ScriptBlock)ScriptBlock.Create(resource).Invoke(invoke, installation._original?.CmdletBinding == true)[0].BaseObject;
-                cmdlet.SessionState.InvokeProvider.Item.Set("Function:\\global:prompt", prompt);
+                FormatCommandInstallation.SetGlobalFunction(cmdlet.SessionState, "prompt", prompt);
                 installation._installed = FormatCommandInstallation.GlobalFunction(cmdlet.SessionState, "prompt");
                 state.Prompt = installation;
                 return true;
@@ -194,7 +194,7 @@ namespace ConsoleMonster.PowerShell {
             ScriptBlock? current = FormatCommandInstallation.GlobalFunction(installation._session, "prompt");
             if (current != null && current.ToString() == installation._installed?.ToString()) {
                 if (installation._saved == null) { FormatCommandInstallation.RemoveGlobalFunction(installation._module, "prompt"); }
-                else { installation._session.InvokeProvider.Item.Set("Function:\\global:prompt", installation._saved); }
+                else { FormatCommandInstallation.SetGlobalFunction(installation._session, "prompt", installation._saved); }
             }
             state.Prompt = null;
         }

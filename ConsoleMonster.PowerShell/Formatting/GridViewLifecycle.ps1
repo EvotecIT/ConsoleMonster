@@ -27,19 +27,19 @@ if ($Action -eq 'Save') {
 if ($Action -eq 'Install') {
     $options = [System.Management.Automation.ScopedItemOptions]::None
     if ($Saved.Function) { $options = $Saved.Function.Options -band [System.Management.Automation.ScopedItemOptions]::AllScope }
-    Microsoft.PowerShell.Management\Set-Item -LiteralPath Function:\global:Out-GridView -Value $Body -Options $options -Force -ErrorAction Stop
+    Microsoft.PowerShell.Management\Set-Item -LiteralPath Function:\global:Out-GridView -Value $Body -Options $options -Force -Verbose:$false -WhatIf:$false -Confirm:$false -ErrorAction Stop
     return
 }
 if ($Action -eq 'Restore' -or $Action -eq 'Rollback') {
     $current = ${function:global:Out-GridView}
     if (($current -and $current.ToString() -ceq $Body.ToString()) -or $Action -eq 'Rollback') {
         if ($Saved.Function) {
-            Microsoft.PowerShell.Management\Set-Item -LiteralPath Function:\global:Out-GridView -Value $Saved.Function.ScriptBlock -Options $Saved.Function.Options -Force -ErrorAction Stop
+            Microsoft.PowerShell.Management\Set-Item -LiteralPath Function:\global:Out-GridView -Value $Saved.Function.ScriptBlock -Options $Saved.Function.Options -Force -Verbose:$false -WhatIf:$false -Confirm:$false -ErrorAction Stop
             $restored = Microsoft.PowerShell.Management\Get-Item -LiteralPath Function:\Out-GridView
             $restored.Description = $Saved.Function.Description
             $restored.Visibility = $Saved.Function.Visibility
         } else {
-            Microsoft.PowerShell.Management\Remove-Item -LiteralPath Function:\Out-GridView -Force -ErrorAction Stop
+            Microsoft.PowerShell.Management\Remove-Item -LiteralPath Function:\Out-GridView -Force -Verbose:$false -WhatIf:$false -Confirm:$false -ErrorAction Stop
         }
     }
 }
