@@ -42,7 +42,7 @@ $progressBaseline = if ($PSVersionTable.PSVersion -ge [version] '7.2') {
 $null = Start-Transcript -LiteralPath ($EvidencePath + '.transcript.txt') -Force
 try {
     $native = @(Get-Command -Name Write-* -CommandType Cmdlet -ListImported)
-    if ($UseAll) { Enable-ConsoleFormatting -Feature All }
+    if ($UseAll) { Enable-ConsoleFormatting }
     else { Enable-ConsoleFormatting -Feature ReadLine, Streams }
     if ([ConsoleMonster.Terminal]::Theme.Name -cne $Theme) { throw 'Enabling formatting changed the requested theme.' }
     $applied = @{}

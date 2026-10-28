@@ -39,7 +39,7 @@ switch ($Phase) {
             try { [int]::Parse('abc') } catch { $record = $_ }
             $capture = { Get-ErrorFormattingSnapshot $record $directory }
             $before = & $capture
-            Enable-ConsoleFormatting -Feature Errors
+            Enable-ConsoleFormatting -Feature Errors -CompactErrors
             $after = & $capture
             foreach ($name in $before.PSObject.Properties.Name) {
                 if ($before.$name -cne $after.$name) {
@@ -65,15 +65,15 @@ switch ($Phase) {
             $global:cmErrorChecks.Add($(if ($global:cmDetailedError) { 'Detailed host cells equal the shared view, including stacks and causes' } else { 'Implicit host cells equal the shared compact view, including invocation span and folded causes' }))
             'COMPACT_HOST_CELLS_OK'
         }
-        Enable-ConsoleFormatting -Feature Errors
+        Enable-ConsoleFormatting -Feature Errors -CompactErrors
         'ERROR_HOST_INITIALIZED'
     }
     'BeginTranscript' {
-        Enable-ConsoleFormatting -Feature Errors
+        Enable-ConsoleFormatting -Feature Errors -CompactErrors
         $null = Start-Transcript -LiteralPath $global:cmErrorTranscript
     }
     'Detailed' {
-        Enable-ConsoleFormatting -Feature Errors -Detailed
+        Enable-ConsoleFormatting -Feature Errors -CompactErrors -Detailed
         $global:cmDetailedError = $true
     }
     'BeginNativeTranscript' {

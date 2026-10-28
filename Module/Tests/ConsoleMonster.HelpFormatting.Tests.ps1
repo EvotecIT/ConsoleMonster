@@ -91,7 +91,7 @@ try {
         $text = Invoke-HelpFormattingChild @'
 $nativeHelp = (Get-Command help).Definition
 $nativeGetHelp = Get-Command Get-Help
-Enable-ConsoleFormatting -Feature All
+Enable-ConsoleFormatting
 if ((Get-Command help).Definition -cne $nativeHelp) { throw 'All opted into Help' }
 Disable-ConsoleFormatting
 foreach ($remove in $false, $true) {
@@ -133,7 +133,7 @@ Enable-ConsoleFormatting -Feature Help, FormatCommands
 Disable-ConsoleFormatting -Feature Help
 if ((Get-Command help).Definition -cne $native -or (Get-Command Format-Table).CommandType -ne 'Function') { throw 'Selective disable changed another feature' }
 Enable-ConsoleFormatting -Feature Help
-Disable-ConsoleFormatting -Feature All
+Disable-ConsoleFormatting -Feature Output, FormatCommands, Errors, Streams, ReadLine
 if ((Get-Command help).Definition -ceq $native) { throw 'Disabling All also disabled Help' }
 Disable-ConsoleFormatting
 Set-Alias -Name help -Value Get-Item -Scope Global

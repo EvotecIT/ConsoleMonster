@@ -132,8 +132,8 @@
                 "title": "Errors, help and progress",
                 "url": "/docs/help-and-defaults/",
                 "key": 4,
-                "body": "Opt in to compact errors and help, and theme native streams and progress.",
-                "command": "Enable-ConsoleFormatting -Feature Errors, Help, Streams"
+                "body": "The default styles errors and native streams; opt in to compact errors and help.",
+                "command": "Enable-ConsoleFormatting -Feature Help"
               }
             ]
           },
@@ -540,7 +540,7 @@
       "use": {
         "title": "Turn it on",
         "label": "PowerShell 5.1 and 7",
-        "install": "Install-Module ConsoleMonster -Scope CurrentUser\nImport-Module ConsoleMonster\n# Not part of -Feature All: it is a separate opt-in, because scripts call these commands too.\nEnable-ConsoleFormatting -Feature FormatCommands",
+        "install": "Install-Module ConsoleMonster -Scope CurrentUser\nImport-Module ConsoleMonster\n# Included by default; use -Exclude FormatCommands to keep native formatting.\nEnable-ConsoleFormatting",
         "links": [
           {
             "title": "Enable-ConsoleFormatting",
@@ -703,7 +703,7 @@
       "use": {
         "title": "Use it in your session",
         "label": "PowerShell 5.1 and 7",
-        "install": "Install-Module ConsoleMonster -Scope CurrentUser\nEnable-ConsoleFormatting -Feature ErrorView",
+        "install": "Install-Module ConsoleMonster -Scope CurrentUser\nEnable-ConsoleFormatting -Feature Errors",
         "links": [
           {
             "title": "Show-Console -View Error",

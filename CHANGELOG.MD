@@ -1,5 +1,9 @@
 ### 2.1.0 - the everyday path
 
+## Unreleased
+
+- `Enable-ConsoleFormatting` now enables everyday output, native format commands, errors, stream colours and ReadLine colours by default. Use `-Exclude` to omit features or `-Feature` to select a minimal set. `Errors` replaces `ErrorView`; compact errors use `-CompactErrors`, and `All` is removed. Prompt, Help, Progress and GridView remain opt-in. `Get-ConsoleFormatting` reports the active features.
+
 ## Public API consistency (breaking changes)
 
 - I have made the command model consistent: `Show-*` displays a view, `New-*` returns its definition, `Invoke-*` waits for work, and `Start-*` returns an active handle. The six host-writing `Format-Console*` commands are now `Show-Console*`; duplicate display wrappers and compatibility aliases are removed.

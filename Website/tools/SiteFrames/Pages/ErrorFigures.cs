@@ -15,7 +15,7 @@ namespace SiteFrames.Pages {
         internal static void Render(Site site) {
             foreach (int width in new[] { 120, 60 }) {
                 JsonObject figure = new JsonObject {
-                    ["title"] = "Enable-ConsoleFormatting -Feature Errors",
+                    ["title"] = "Enable-ConsoleFormatting -Feature Errors -CompactErrors",
                     ["label"] = "A compact error with highlighted invocation and folded causes.",
                     ["frame"] = site.FrameAt(width, Run(site, width, Theme.Dark), Run(site, width, Theme.Light))
                 };

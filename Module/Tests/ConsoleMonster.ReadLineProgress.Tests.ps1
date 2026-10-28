@@ -132,9 +132,9 @@ Assert-StreamsState $streams
 '@.Replace('__FIRST__', $First)) | Should -Match 'INDEPENDENT_OK'
     }
 
-    It 'includes ReadLine in All and preserves snippet-only state for <FeatureName>' -ForEach @(
+    It 'includes ReadLine in the defaults and preserves snippet-only state for <FeatureName>' -ForEach @(
         @{ FeatureName = 'ReadLine' }
-        @{ FeatureName = 'All' }
+        @{ FeatureName = 'Output, FormatCommands, Errors, Streams, ReadLine' }
         @{ FeatureName = 'Streams, ReadLine' }
     ) {
         Invoke-NativeStylingChild (@'
@@ -145,17 +145,17 @@ if ($snippet -cnotcontains 'Enable-ConsoleFormatting -Feature __FEATURE__') { th
 Assert-NativeState $baseline (Get-ReadLineState)
 Assert-StreamsState $streamBaseline
 Assert-NativeCommands
-Enable-ConsoleFormatting -Feature All
+Enable-ConsoleFormatting
 Assert-ReadLineTheme
 Assert-NativeCommands -AllowOutputShim
-Disable-ConsoleFormatting -Feature All
+Disable-ConsoleFormatting -Feature Output, FormatCommands, Errors, Streams, ReadLine
 Assert-NativeState $baseline (Get-ReadLineState)
 Assert-StreamsState $streamBaseline
 'ALL_AND_SNIPPET_OK'
 '@.Replace('__FEATURE__', $FeatureName)) | Should -Match 'ALL_AND_SNIPPET_OK'
     }
 
-    It 'keeps every loaded Write cmdlet native with All and restores exact progress colors without changing View' {
+    It 'keeps every loaded Write cmdlet native with the defaults and restores exact progress colors without changing View' {
         Invoke-NativeStylingChild @'
 $native = @(Get-Command -Name Write-* -CommandType Cmdlet -ListImported)
 if ($native.Count -lt 8) { throw 'The native command oracle is incomplete.' }
@@ -163,7 +163,7 @@ $baseline = Get-ReadLineState
 Set-StreamsBaseline
 $streams = Get-StreamsState
 if ($PSVersionTable.PSVersion -ge [version] '7.2') { $PSStyle.Progress.View = 'Classic' }
-Enable-ConsoleFormatting -Feature All
+Enable-ConsoleFormatting
 Assert-NativeCommands -AllowOutputShim
 foreach ($command in $native) {
     $after = Get-Command $command.Name
@@ -176,22 +176,22 @@ if ($PSVersionTable.PSVersion -ge [version] '7.2') {
 }
 Set-StreamsBaseline -Variant 2
 Set-ReadLineBaseline -Variant 2
-Disable-ConsoleFormatting -Feature All
+Disable-ConsoleFormatting -Feature Output, FormatCommands, Errors, Streams, ReadLine
 Assert-NativeState $baseline (Get-ReadLineState)
 Assert-StreamsState $streams
-if ($PSVersionTable.PSVersion -ge [version] '7.2' -and $PSStyle.Progress.View -ne 'Minimal') { throw 'Disable All restored an unowned View.' }
+if ($PSVersionTable.PSVersion -ge [version] '7.2' -and $PSStyle.Progress.View -ne 'Minimal') { throw 'Disable the default set restored an unowned View.' }
 Assert-NativeCommands
 'ALL_NATIVE_COMMANDS_AND_PROGRESS_OK'
 '@ | Should -Match 'ALL_NATIVE_COMMANDS_AND_PROGRESS_OK'
     }
 
-    It 'keeps explicit native progress rendering outside All and unqualified Disable still removes it' {
+    It 'keeps explicit native progress rendering outside the defaults and unqualified Disable still removes it' {
         Invoke-NativeStylingChild @'
 Enable-ConsoleFormatting -Feature Progress
 if ((Get-Command Write-Progress).CommandType -ne 'Function') { throw 'Explicit Progress did not install its native-parameter proxy.' }
 $progressProxy = (Get-Command Write-Progress).Definition
-Disable-ConsoleFormatting -Feature All
-if ((Get-Command Write-Progress).Definition -cne $progressProxy) { throw 'Disable All removed the separate explicit Progress feature.' }
+Disable-ConsoleFormatting -Feature Output, FormatCommands, Errors, Streams, ReadLine
+if ((Get-Command Write-Progress).Definition -cne $progressProxy) { throw 'Disable the default set removed the separate explicit Progress feature.' }
 Disable-ConsoleFormatting
 Assert-NativeCommands
 'EXPLICIT_PROGRESS_OUTSIDE_ALL_OK'

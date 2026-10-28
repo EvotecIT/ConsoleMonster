@@ -1,4 +1,4 @@
-﻿Describe 'Unavailable Out-GridView fallback' {
+Describe 'Unavailable Out-GridView fallback' {
     BeforeAll {
         . (Join-Path $PSScriptRoot 'Support/Invoke-GridViewSession.ps1')
     }
@@ -48,17 +48,19 @@ if ($saved -cne ${function:global:Out-GridView}) { throw 'Native wrapper changed
 '@ | Should -Be 'NATIVE_OK'
     }
 
-    It 'requires explicit opt-in, excludes GridView from All, and installs no Out-Default or Write proxy' {
+    It 'requires explicit opt-in, keeps GridView outside the defaults, and installs no Out-Default or Write proxy' {
         Invoke-GridViewSession @'
 if (Get-Command Out-GridView -ErrorAction Ignore) { throw 'Missing-cmdlet namespace is not isolated.' }
-if (([int]((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.ConsoleFormattingFeature'))::All -band 256) -ne 0) { throw 'GridView is in All.' }
+Enable-ConsoleFormatting
+if ((Get-ConsoleFormatting).Features -contains 'GridView') { throw 'GridView is enabled by default.' }
+Disable-ConsoleFormatting
 $write = @(Get-Command Write-* | ForEach-Object { $_.Name + ':' + $_.CommandType + ':' + $_.Definition }) -join "`n"
 $default = ${function:global:Out-Default}
 Enable-ConsoleFormatting -Feature GridView
 if ((Get-Command Out-GridView).CommandType -ne 'Function') { throw 'Fallback missing.' }
 if ($default -cne ${function:global:Out-Default}) { throw 'GridView installed Out-Default.' }
 if ($write -cne (@(Get-Command Write-* | ForEach-Object { $_.Name + ':' + $_.CommandType + ':' + $_.Definition }) -join "`n")) { throw 'Write command changed.' }
-Disable-ConsoleFormatting -Feature All
+Disable-ConsoleFormatting -Feature Output, FormatCommands, Errors, Streams, ReadLine
 if (-not (Get-Command Out-GridView -ErrorAction Ignore)) { throw 'All removed opt-in.' }
 Disable-ConsoleFormatting
 if (Get-Command Out-GridView -ErrorAction Ignore) { throw 'Fallback not removed.' }

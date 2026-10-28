@@ -12,13 +12,15 @@ Describe 'Opt-in shell prompt contracts' {
         }
     }
 
-    It 'prints an explicit Prompt profile snippet without enabling it and excludes Prompt from All' {
+    It 'prints an explicit Prompt profile snippet without enabling it and keeps Prompt out of the default set' {
         Invoke-PromptChild @'
 $original = ${function:global:prompt}
 $snippet = Enable-ConsoleFormatting -Feature Prompt -ProfileSnippet
 if (($snippet -join "`n") -notmatch 'Enable-ConsoleFormatting -Feature Prompt') { throw 'Missing opt-in' }
 if ([int]((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.ConsoleFormattingFeature'))::Prompt -ne 512) { throw 'Wrong reserved bit' }
-if (([int]((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.ConsoleFormattingFeature'))::All -band 512) -ne 0) { throw 'All includes Prompt' }
+Enable-ConsoleFormatting
+if ((Get-ConsoleFormatting).Features -contains 'Prompt') { throw 'Defaults include Prompt' }
+Disable-ConsoleFormatting
 if (${function:global:prompt}.ToString() -cne $original.ToString()) { throw 'Snippet installed a prompt' }
 'OPT_IN_OK'
 '@ | Should -Match 'OPT_IN_OK'
@@ -159,7 +161,7 @@ if ($null -ne ${function:global:prompt}) { throw 'Created an original prompt' }
 $original = ${function:global:prompt}
 Enable-ConsoleFormatting -Feature Prompt
 $installed = ${function:global:prompt}.ToString()
-Disable-ConsoleFormatting -Feature All
+Disable-ConsoleFormatting -Feature Output, FormatCommands, Errors, Streams, ReadLine
 if (${function:global:prompt}.ToString() -cne $installed) { throw 'All removed explicit prompt' }
 Disable-ConsoleFormatting
 if (${function:global:prompt}.ToString() -cne $original.ToString()) { throw 'Final disable lost prompt' }

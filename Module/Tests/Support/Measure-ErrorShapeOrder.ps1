@@ -13,7 +13,7 @@ try {
     [ConsoleMonster.Terminal]::Profile = [ConsoleMonster.Terminal]::GetCurrentProfile().WithSize($Width, 100)
     foreach ($enabled in $false, $true) {
         Clear-Host
-        if ($enabled) { Enable-ConsoleFormatting -Feature Errors }
+        if ($enabled) { Enable-ConsoleFormatting -Feature Errors -CompactErrors }
         else { Disable-ConsoleFormatting }
         if ($enabled) { & $invocation mixed-output 2>&1 | Out-ConsoleDefault -Shim -TopLevel }
         else { & $invocation mixed-output 2>&1 | Microsoft.PowerShell.Core\Out-Default }

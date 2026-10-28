@@ -19,7 +19,7 @@ try {
         Clear-Host
         $start = [Console]::CursorTop
         if ($Enabled) {
-            Enable-ConsoleFormatting -Feature Errors
+            Enable-ConsoleFormatting -Feature Errors -CompactErrors
             & {
                 if ($Scenario -eq 'Transcript') { $null = Start-Transcript -LiteralPath $enabledPath }
                 if ($Scenario -eq 'Disable') { Disable-ConsoleFormatting -Feature Errors }

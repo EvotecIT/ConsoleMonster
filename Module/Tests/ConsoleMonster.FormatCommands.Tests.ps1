@@ -136,10 +136,10 @@ if ($script:evaluations -ne $nativeEvaluations) { throw "Expressions evaluated $
         $text | Should -Match 'alpha'
     }
 
-    It 'keeps FormatCommands outside All and restores custom functions on disable and removal' {
+    It 'enables FormatCommands by default and restores custom functions on disable and removal' {
         $text = Invoke-EverydayChild @'
-Enable-ConsoleFormatting -Feature All
-if ((Get-Command Format-Table).CommandType -ne 'Cmdlet') { throw 'All intercepted Format-Table' }
+Enable-ConsoleFormatting
+if ((Get-Command Format-Table).CommandType -ne 'Function') { throw 'Default did not enable Format-Table' }
 Disable-ConsoleFormatting
 function global:Format-Table { 'custom-table' }
 $original = (Get-Command Format-Table).Definition

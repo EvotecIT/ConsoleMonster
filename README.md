@@ -64,7 +64,7 @@ Enable-ConsoleFormatting
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/EvotecIT/ConsoleMonster/master/Website/static/readme/formatting-dark.png">
-  <img alt="Get-ChildItem and a hashtable after Enable-ConsoleFormatting" width="726" src="https://raw.githubusercontent.com/EvotecIT/ConsoleMonster/master/Website/static/readme/formatting-light.png">
+  <img alt="A service inventory, a version and a dictionary after Enable-ConsoleFormatting" width="726" src="https://raw.githubusercontent.com/EvotecIT/ConsoleMonster/master/Website/static/readme/formatting-light.png">
 </picture>
 
 To keep it in every session, add the lines `-ProfileSnippet` prints to your profile:
@@ -74,7 +74,7 @@ To keep it in every session, add the lines `-ProfileSnippet` prints to your prof
 if (-not (Test-Path -Path $PROFILE)) {
     $null = New-Item -ItemType File -Path $PROFILE -Force
 }
-Enable-ConsoleFormatting -Feature All -ProfileSnippet | Add-Content -Path $PROFILE
+Enable-ConsoleFormatting -ProfileSnippet | Add-Content -Path $PROFILE
 ```
 
 [Everyday PowerShell output](https://consolemonster.dev/guides/everyday-powershell/)

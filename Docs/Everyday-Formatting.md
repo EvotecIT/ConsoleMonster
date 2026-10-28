@@ -1,10 +1,10 @@
 # Everyday PowerShell formatting
 
-`Format-Table`, `Format-List` and `Format-Wide` use PowerShell's formatting unless you explicitly enable `FormatCommands`.
+`Enable-ConsoleFormatting` styles direct console output, including `Format-Table`, `Format-List` and `Format-Wide`. Use `-Exclude FormatCommands` to keep those commands native.
 
 ```powershell
 Import-Module ConsoleMonster
-Enable-ConsoleFormatting -Feature FormatCommands
+Enable-ConsoleFormatting
 
 Get-Process | Format-Table Name, Id, CPU -AutoSize
 Get-Process -Id $PID | Format-List Name, Id, Path
@@ -26,24 +26,23 @@ Get-Process | Format-Table Name, Id | Out-File ./processes.txt
 Get-Process | Format-Table Name, Id > ./processes.txt
 ```
 
-`-Feature All` enables default object views, errors, native stream/progress colors and ReadLine colors. All keeps Write-Progress native; the separate Progress function adapter requires explicit opt-in and is excluded from All. It deliberately excludes `FormatCommands`: overriding commands used in scripts requires a separate opt-in. Features add up, so use `Enable-ConsoleFormatting -Feature All, FormatCommands` when you want both. `Disable-ConsoleFormatting` removes all installed features. `Disable-ConsoleFormatting -Feature FormatCommands` restores only the three formatter functions; explicit `-Feature All` retains separately enabled `Progress` and `FormatCommands` features.
+The default enables Output, FormatCommands, Errors, Streams and ReadLine. Use `-Exclude FormatCommands, Errors` to omit features, or `-Feature Streams, ReadLine` for an explicit minimal set. Calls add features; `Get-ConsoleFormatting` shows the current selection. Help, Prompt, Progress, GridView and compact errors remain explicit choices. `Disable-ConsoleFormatting` restores all enabled features; `Disable-ConsoleFormatting -Feature FormatCommands` restores just the format commands.
 
 Custom functions are preserved unless `-Force` is supplied, then restored on disable or module removal. A custom alias named `Format-Table`, `Format-List` or `Format-Wide` prevents installation; remove it explicitly first. Aliases such as `ft`, `fl` and `fw` continue to resolve their normal command names.
 
 ## Compact host errors
 
-`Errors` is a separate opt-in for a message-first error view. It is excluded from `All` because changing an everyday
-error display should be an explicit session choice. Error-producing commands remain native.
+The standard error view is enabled by default. Add `-CompactErrors` for the message-first layout; error-producing commands remain native.
 
 ```powershell
 Import-Module ConsoleMonster
-Enable-ConsoleFormatting -Feature Errors
+Enable-ConsoleFormatting -Feature Errors -CompactErrors
 
 # At the prompt, errors use the compact view.
 try { [int]::Parse('production') } catch { $_ | Show-Console -Compact -View Error }
 
 # Include script and .NET stacks in subsequent host errors.
-Enable-ConsoleFormatting -Feature Errors -Detailed
+Enable-ConsoleFormatting -Feature Errors -CompactErrors -Detailed
 Disable-ConsoleFormatting -Feature Errors
 ```
 
@@ -137,7 +136,7 @@ PowerShell 7.2 and later use `$PSStyle.Formatting.Warning`, `.Verbose`, `.Debug`
 
 `Write-Warning`, `Write-Verbose`, `Write-Debug`, `Write-Information` and `Write-Progress` remain native cmdlets with Streams. Their records, preferences, `3>`, `-WarningVariable`, compiled-cmdlet warnings and transcripts retain PowerShell's behavior. The `WARNING:`, `VERBOSE:` and `DEBUG:` prefixes remain. Use `Show-ConsoleStatusLine` or `Write-ConsoleLogEntry` for rich messages in your own scripts.
 
-The original values are saved once for each native object and property while any installation owns it. If runspaces share a native preference, the most recently applied installation supplies its color. Disabling or removing that owner restores the latest surviving installation's color; removing an older owner leaves the current one active. The last owner restores the exact original value, including after user edits. Independent host objects retain their own baselines. Other settings are untouched. Streams alone does not install an `Out-Default` function, and it is included in `-Feature All`.
+The original values are saved once for each native object and property while any installation owns it. If runspaces share a native preference, the most recently applied installation supplies its color. Disabling or removing that owner restores the latest surviving installation's color; removing an older owner leaves the current one active. The last owner restores the exact original value, including after user edits. Independent host objects retain their own baselines. Other settings are untouched. Streams alone does not install an `Out-Default` function, and it is included in the default set.
 
 ## Command-line editor and native progress
 
@@ -174,7 +173,7 @@ string warningSgr = SgrEncoder.Encode(warning, ColorDepth.TrueColor);
 
 ## Out-GridView where the desktop grid is unavailable
 
-`GridView` is an explicit opt-in and is excluded from `All`:
+`GridView` is an explicit opt-in:
 
 ```powershell
 Enable-ConsoleFormatting -Feature GridView
@@ -301,7 +300,7 @@ See [module views](Module-Views.md), [output exports and clipboard](Output-Expor
 
 Custom prompts with dynamic parameters, a process block or pipeline input keep their native function and binding, including every input record and begin/end behaviour. Enabling the feature reports that the existing prompt was kept.
 
-`Enable-ConsoleFormatting -Feature Prompt` separately opts into the shortened path, cached git branch and dirty mark, last-command status and completed-history duration above two seconds. It is excluded from `All`. `-ProfileSnippet` prints the opt-in profile lines. oh-my-posh and Starship require `-Force`. Disable or module removal restores the original prompt, including its closure scope; later user replacements are kept. Captures, transcripts, recordings, remoting and nested prompts use the original prompt. PSReadLine handlers stay untouched. See [the guide](https://consolemonster.dev/docs/help-and-defaults/#minimal-shell-prompt) for cache timing, examples and renderer frames.
+`Enable-ConsoleFormatting -Feature Prompt` separately opts into the shortened path, cached git branch and dirty mark, last-command status and completed-history duration above two seconds. It is not enabled by default. `-ProfileSnippet` prints the opt-in profile lines. oh-my-posh and Starship require `-Force`. Disable or module removal restores the original prompt, including its closure scope; later user replacements are kept. Captures, transcripts, recordings, remoting and nested prompts use the original prompt. PSReadLine handlers stay untouched. See [the guide](https://consolemonster.dev/docs/help-and-defaults/#minimal-shell-prompt) for cache timing, examples and renderer frames.
 
 ## JSON, CSV and discovery output
 

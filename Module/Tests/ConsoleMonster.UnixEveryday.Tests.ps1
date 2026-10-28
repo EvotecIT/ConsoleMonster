@@ -16,7 +16,7 @@ $ErrorActionPreference = 'Stop'
 [Threading.Thread]::CurrentThread.CurrentCulture = [cultureinfo]'en-US'
 [Threading.Thread]::CurrentThread.CurrentUICulture = [cultureinfo]'en-US'
 Import-Module '__MODULE__'
-Enable-ConsoleFormatting -Feature All, FormatCommands
+Enable-ConsoleFormatting
 '--- registered'
 Get-ChildItem '__FILES__' | Sort-Object Name
 '--- table'

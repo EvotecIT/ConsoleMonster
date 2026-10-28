@@ -83,35 +83,29 @@ namespace ConsoleMonster.PowerShell {
         /// <summary>Registered and built-in types (files, processes, services, dictionaries) shown as ConsoleMonster views (the default).</summary>
         Output = 1,
 
-        /// <summary>Errors that reach the console shown with ConsoleMonster's error view (Show-Console -View Error), following $ErrorView.</summary>
-        ErrorView = 2,
+        /// <summary>Errors that reach the console, following $ErrorView; compact rendering is a separate option.</summary>
+        Errors = 2,
 
         /// <summary>Write-Progress drawn as ConsoleMonster's progress area (Write-Progress uses its native-parameter function proxy).</summary>
         Progress = 4,
 
-        /// <summary>Explicitly opts Format-Table, Format-List and Format-Wide into host-only rendering. Excluded from All.</summary>
+        /// <summary>Format-Table, Format-List and Format-Wide use host-only rendering.</summary>
         FormatCommands = 8,
 
         /// <summary>Native stream and progress colours from the active theme; commands, records and progress view stay native.</summary>
         Streams = 16,
 
-        /// <summary>Minimal host-only shell prompt with path, cached git state, status and completed command duration. Excluded from All.</summary>
+        /// <summary>Minimal host-only shell prompt with path, cached git state, status and completed command duration.</summary>
         Prompt = 512,
 
-        /// <summary>Falls back to Show-ConsoleGrid only when Out-GridView is unavailable; excluded from All.</summary>
+        /// <summary>Falls back to Show-ConsoleGrid only when Out-GridView is unavailable.</summary>
         GridView = 256,
 
-        /// <summary>Native command help displayed through HelpView only on a direct local host route. Excluded from All.</summary>
+        /// <summary>Native command help displayed through HelpView only on a direct local host route.</summary>
         Help = 32,
 
-        /// <summary>Compact, message-first errors only on a direct, non-recorded host route. Excluded from All.</summary>
-        Errors = 64,
-
         /// <summary>Syntax, selection and inline prediction colours for already loaded PSReadLine; editing behaviour stays native.</summary>
-        ReadLine = 128,
-
-        /// <summary>Default output, errors, native stream/progress and ReadLine colours. Progress rendering and FormatCommands require separate explicit opt-ins.</summary>
-        All = Output | ErrorView | Streams | ReadLine
+        ReadLine = 128
     }
 
     /// <summary>
@@ -120,6 +114,8 @@ namespace ConsoleMonster.PowerShell {
     /// to PowerShell's own Out-Default. Only output that would be displayed on the console is affected.
     /// </summary>
     internal static partial class ConsoleFormatting {
+        internal const ConsoleFormattingFeature Defaults = ConsoleFormattingFeature.Output | ConsoleFormattingFeature.FormatCommands
+            | ConsoleFormattingFeature.Errors | ConsoleFormattingFeature.Streams | ConsoleFormattingFeature.ReadLine;
         private static readonly object Gate = new object();
         private static Dictionary<string, ConsoleViewRegistration> Views => FormattingSessionState.Current.Views;
         private static readonly Dictionary<string, ConsoleViewRegistration> BuiltIns = new Dictionary<string, ConsoleViewRegistration>(StringComparer.OrdinalIgnoreCase);
@@ -155,8 +151,9 @@ namespace ConsoleMonster.PowerShell {
         }
 
         /// <summary>The profile lines that turn the formatting on in every session, with the given options (printed, never written).</summary>
-        internal static IReadOnlyList<string> ProfileSnippet(string? profilePath, bool noBuiltIn, bool force, ConsoleFormattingFeature features = ConsoleFormattingFeature.Output) {
-            string options = (features == ConsoleFormattingFeature.Output ? string.Empty : " -Feature " + FeatureList(features))
+        internal static IReadOnlyList<string> ProfileSnippet(string? profilePath, bool noBuiltIn, bool force, ConsoleFormattingFeature features, ConsoleFormattingFeature excluded, bool explicitFeatures, bool compactErrors) {
+            string options = (explicitFeatures ? " -Feature " + FeatureList(features) : excluded != ConsoleFormattingFeature.None ? " -Exclude " + FeatureList(excluded) : string.Empty)
+                + (compactErrors ? " -CompactErrors" : string.Empty)
                 + (noBuiltIn ? " -NoBuiltIn" : string.Empty) + (force ? " -Force" : string.Empty);
             return new[] {
                 "# ConsoleMonster: nicer default output in every session." + (string.IsNullOrEmpty(profilePath) ? string.Empty : " Add these lines to " + profilePath),
@@ -203,13 +200,10 @@ namespace ConsoleMonster.PowerShell {
             }
         }
 
-        /// <summary>The features as a -Feature argument: "All" or a comma-separated list.</summary>
+        /// <summary>The features as a comma-separated argument.</summary>
         internal static string FeatureList(ConsoleFormattingFeature features) {
-            if (features == ConsoleFormattingFeature.All) {
-                return "All";
-            }
             List<string> names = new List<string>();
-            foreach (ConsoleFormattingFeature feature in new[] { ConsoleFormattingFeature.Output, ConsoleFormattingFeature.ErrorView, ConsoleFormattingFeature.Progress, ConsoleFormattingFeature.FormatCommands, ConsoleFormattingFeature.Streams, ConsoleFormattingFeature.Help, ConsoleFormattingFeature.Errors, ConsoleFormattingFeature.ReadLine, ConsoleFormattingFeature.GridView, ConsoleFormattingFeature.Prompt }) {
+            foreach (ConsoleFormattingFeature feature in new[] { ConsoleFormattingFeature.Output, ConsoleFormattingFeature.FormatCommands, ConsoleFormattingFeature.Errors, ConsoleFormattingFeature.Streams, ConsoleFormattingFeature.ReadLine, ConsoleFormattingFeature.Progress, ConsoleFormattingFeature.Help, ConsoleFormattingFeature.GridView, ConsoleFormattingFeature.Prompt }) {
                 if ((features & feature) != 0) {
                     names.Add(feature.ToString());
                 }

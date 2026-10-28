@@ -6,18 +6,32 @@ namespace ConsoleMonster.PowerShell {
     public sealed class ConsoleFormattingOptions {
         /// <summary>The features to enable or disable; null selects the operation's default.</summary>
         public ConsoleFormattingFeature[]? Feature { get; set; }
+        /// <summary>Features to remove from the default set and disable if already installed.</summary>
+        public ConsoleFormattingFeature[]? Exclude { get; set; }
         /// <summary>Allows replacing supported existing host functions.</summary>
         public bool Force { get; set; }
         /// <summary>Includes built-in type views with the output feature.</summary>
         public bool BuiltIn { get; set; } = true;
         /// <summary>Includes detailed error stacks.</summary>
         public bool Detailed { get; set; }
+        /// <summary>Uses the compact error layout when the Errors feature is enabled.</summary>
+        public bool CompactErrors { get; set; }
         /// <summary>Returns profile setup lines through the host instead of changing the session.</summary>
         public bool ProfileSnippet { get; set; }
     }
 
     /// <summary>Installs and restores formatting in the source cmdlet's owning PowerShell runspace. The dependency-free core does not own PowerShell session state.</summary>
     public static class ConsoleHostFormatting {
+        internal static ConsoleFormattingFeature Combine(ConsoleFormattingFeature[]? features) {
+            ConsoleFormattingFeature result = ConsoleFormattingFeature.None;
+            if (features != null) { foreach (ConsoleFormattingFeature feature in features) { result |= feature; } }
+            return result;
+        }
+
+        internal static ConsoleFormattingFeature Selected(ConsoleFormattingOptions options) {
+            if (options.Feature != null && options.Exclude != null) { throw new ArgumentException("Feature and Exclude cannot be combined."); }
+            return options.Feature != null ? Combine(options.Feature) : ConsoleFormatting.Defaults & ~Combine(options.Exclude);
+        }
         /// <summary>Enables the requested features on the owning pipeline thread.</summary>
         /// <param name="source">The C# host cmdlet supplying its runspace, streams and module lifetime.</param>
         /// <param name="options">Feature and installation policy.</param>
@@ -25,16 +39,18 @@ namespace ConsoleMonster.PowerShell {
             if (source == null) { throw new ArgumentNullException(nameof(source)); }
             options ??= new ConsoleFormattingOptions();
 
-            ConsoleFormattingFeature wanted = ConsoleFormattingFeature.None;
-            foreach (ConsoleFormattingFeature feature in options.Feature ?? new[] { ConsoleFormattingFeature.Output }) {
-                wanted |= feature;
+            ConsoleFormattingFeature wanted = Selected(options);
+            if ((options.CompactErrors || options.Detailed) && (wanted & ConsoleFormattingFeature.Errors) == 0) {
+                throw new ArgumentException("CompactErrors and Detailed require the Errors feature.");
             }
+            if (options.Detailed && !options.CompactErrors) { throw new ArgumentException("Detailed requires CompactErrors."); }
             if (options.ProfileSnippet) {
-                foreach (string line in ConsoleFormatting.ProfileSnippet(Convert.ToString(source.SessionState.PSVariable.GetValue("PROFILE"), System.Globalization.CultureInfo.InvariantCulture), !options.BuiltIn, options.Force, wanted)) {
+                foreach (string line in ConsoleFormatting.ProfileSnippet(Convert.ToString(source.SessionState.PSVariable.GetValue("PROFILE"), System.Globalization.CultureInfo.InvariantCulture), !options.BuiltIn, options.Force, wanted, Combine(options.Exclude), options.Feature != null, options.CompactErrors)) {
                     source.WriteObject(options.Detailed && line.StartsWith("Enable-ConsoleFormatting", StringComparison.Ordinal) ? line + " -Detailed" : line);
                 }
                 return;
             }
+            if (options.Exclude != null) { Disable(source, options.Exclude); }
             if (wanted == ConsoleFormattingFeature.None) {
                 return;
             }
@@ -55,12 +71,14 @@ namespace ConsoleMonster.PowerShell {
                 if (wanted == ConsoleFormattingFeature.None) { return; }
             }
             const ConsoleFormattingFeature cosmetic = ConsoleFormattingFeature.Streams | ConsoleFormattingFeature.ReadLine;
-            if ((wanted & ~cosmetic) == ConsoleFormattingFeature.None) {
-                ApplyNativeColors(source, wanted);
-                ConsoleFormatting.Features |= wanted;
+            ConsoleFormattingFeature colours = wanted & cosmetic;
+            if (colours != ConsoleFormattingFeature.None) {
+                ApplyNativeColors(source, colours);
+                ConsoleFormatting.Features |= colours;
                 ConsoleFormatting.RestoreCommandsWithModule(source.MyInvocation.MyCommand.Module);
-                return;
             }
+            wanted &= ~cosmetic;
+            if (wanted == ConsoleFormattingFeature.None) { return; }
             ConsoleModuleViews.Discover(source);
             ScriptBlock? existing = FormatCommandInstallation.GlobalFunction(source.SessionState, "Out-Default");
             bool ours = Display.DefaultDisplay.IsBrokerInstalled || (existing != null && existing.ToString().IndexOf(ConsoleFormatting.Marker, StringComparison.OrdinalIgnoreCase) >= 0);
@@ -77,33 +95,45 @@ namespace ConsoleMonster.PowerShell {
                     return;
                 }
             }
+            if ((wanted & ConsoleFormattingFeature.Progress) != 0) {
+                ConsoleFormatting.Features |= ConsoleFormattingFeature.Progress;
+                ConsoleFormatting.RestoreCommandsWithModule(source.MyInvocation.MyCommand.Module);
+            }
             if ((wanted & ConsoleFormattingFeature.FormatCommands) != 0 && !FormatCommandInstallation.Install(source, options.Force)) {
                 wanted &= ~ConsoleFormattingFeature.FormatCommands;
                 if (wanted == ConsoleFormattingFeature.None) {
                     return;
                 }
             }
+            if ((wanted & ConsoleFormattingFeature.FormatCommands) != 0) {
+                ConsoleFormatting.Features |= ConsoleFormattingFeature.FormatCommands;
+                ConsoleFormatting.RestoreCommandsWithModule(source.MyInvocation.MyCommand.Module);
+            }
             if ((wanted & ConsoleFormattingFeature.Help) != 0 && !FormatCommandInstallation.InstallHelp(source, options.Force)) {
                 wanted &= ~ConsoleFormattingFeature.Help;
                 if (wanted == ConsoleFormattingFeature.None) { return; }
             }
+            if ((wanted & ConsoleFormattingFeature.Help) != 0) {
+                ConsoleFormatting.Features |= ConsoleFormattingFeature.Help;
+                ConsoleFormatting.RestoreCommandsWithModule(source.MyInvocation.MyCommand.Module);
+            }
             if ((wanted & ConsoleFormattingFeature.Output) != 0) {
                 ConsoleFormatting.TakeOverBuiltIns = options.BuiltIn;
             }
-            ApplyNativeColors(source, wanted);
             ConsoleFormatting.Features |= wanted;
+            ConsoleFormatting.RestoreCommandsWithModule(source.MyInvocation.MyCommand.Module);
             // Register the shared sink only after a feature actually installed. Refused progress/help
             // must not leave an Out-Default broker or module cleanup hook behind.
             EmbeddedDisplayIntegration.Join();
             EmbeddedDisplayIntegration.SetOutputEnabled((ConsoleFormatting.Features & ConsoleFormattingFeature.Output) != 0);
             if ((wanted & ConsoleFormattingFeature.Errors) != 0) {
                 FormattingSessionState.Current.DetailedErrors = options.Detailed;
+                FormattingSessionState.Current.CompactErrors = options.CompactErrors;
             }
             if (!ours && !Display.DefaultDisplay.IsBrokerInstalled) {
                 FormatCommandInstallation.SetGlobalFunction(source.SessionState, "Out-Default", ScriptBlock.Create(ConsoleFormatting.ShimScript));
             }
-            ConsoleFormatting.RestoreCommandsWithModule(source.MyInvocation.MyCommand.Module);
-                }
+        }
 
         /// <summary>Restores the requested features in the owning runspace.</summary>
         /// <param name="source">The C# host cmdlet supplying its runspace and module lifetime.</param>
@@ -112,9 +142,11 @@ namespace ConsoleMonster.PowerShell {
             if (source == null) { throw new ArgumentNullException(nameof(source)); }
 
             ConsoleFormattingFeature off = ConsoleFormattingFeature.None;
-            foreach (ConsoleFormattingFeature selectedFeature in feature ?? new[] { ConsoleFormattingFeature.All | ConsoleFormattingFeature.Progress | ConsoleFormattingFeature.FormatCommands | ConsoleFormattingFeature.Help | ConsoleFormattingFeature.Errors | ConsoleFormattingFeature.GridView | ConsoleFormattingFeature.Prompt }) {
+            foreach (ConsoleFormattingFeature selectedFeature in feature ?? new[] { ConsoleFormatting.Features }) {
                 off |= selectedFeature;
             }
+            off &= ConsoleFormatting.Features;
+            if (off == ConsoleFormattingFeature.None) { return; }
             if ((off & ConsoleFormattingFeature.Prompt) != 0) { PromptInstallation.Remove(FormattingSessionState.Current); }
             if ((off & ConsoleFormattingFeature.GridView) != 0) {
                 GridViewInstallation.Remove(FormattingSessionState.Current);
@@ -136,7 +168,7 @@ namespace ConsoleMonster.PowerShell {
             }
             ConsoleFormatting.Features &= ~off;
             EmbeddedDisplayIntegration.SetOutputEnabled((ConsoleFormatting.Features & ConsoleFormattingFeature.Output) != 0);
-            if ((off & ConsoleFormattingFeature.Errors) != 0) { FormattingSessionState.Current.DetailedErrors = false; }
+            if ((off & ConsoleFormattingFeature.Errors) != 0) { FormattingSessionState.Current.DetailedErrors = false; FormattingSessionState.Current.CompactErrors = false; }
             if ((ConsoleFormatting.Features & ~(ConsoleFormattingFeature.Streams | ConsoleFormattingFeature.ReadLine | ConsoleFormattingFeature.GridView | ConsoleFormattingFeature.Prompt)) != ConsoleFormattingFeature.None) {
                 return;
             }
@@ -151,13 +183,12 @@ namespace ConsoleMonster.PowerShell {
                 }
             }
             ConsoleFormatting.SavedOutDefault = null;
-                }
+        }
 
         private static void ApplyNativeColors(PSCmdlet source, ConsoleFormattingFeature wanted) {
-
             FormattingSessionState state = FormattingSessionState.Current;
             if ((wanted & ConsoleFormattingFeature.Streams) != 0) { state.Streams.Apply(source); }
             if ((wanted & ConsoleFormattingFeature.ReadLine) != 0) { state.ReadLine.Apply(source); }
-                }
+        }
     }
 }

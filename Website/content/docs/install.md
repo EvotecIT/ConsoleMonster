@@ -37,9 +37,9 @@ Choose the approach that fits what you are doing:
 
 - **Automatic:** run `Enable-ConsoleFormatting`, then use your normal commands. Known and registered types get ConsoleMonster views.
 - **Explicit:** pipe objects to `Show-ConsoleTable` or `Show-ConsoleObject` when you want to choose the view and properties. These commands work in scripts.
-- **Native `Format-*` restyled:** use `Enable-ConsoleFormatting -Feature FormatCommands` to render `Format-Table`, `Format-List` and `Format-Wide` at the console while keeping PowerShell's column choices. Redirected and captured output stays native.
+- **Native `Format-*` restyled:** the default `Enable-ConsoleFormatting` renders `Format-Table`, `Format-List` and `Format-Wide` at the console while keeping PowerShell's column choices. Use `-Exclude FormatCommands` to leave them native. Redirected and captured output stays native.
 
-You do not need both automatic and explicit formatting. The `-Feature` options require ConsoleMonster 2.1.0 or later.
+You do not need both automatic and explicit formatting.
 
 ## .NET
 

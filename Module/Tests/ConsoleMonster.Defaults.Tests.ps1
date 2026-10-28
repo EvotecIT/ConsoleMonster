@@ -1,4 +1,4 @@
-﻿Describe 'Enable-ConsoleFormatting features (ErrorView, Progress) and an exact Disable' {
+﻿Describe 'Enable-ConsoleFormatting features (Errors, Progress) and an exact Disable' {
     BeforeAll {
         . (Join-Path $PSScriptRoot 'Support\Invoke-TestChild.ps1')
         $script:ModulePath = Join-Path $PSScriptRoot '..\ConsoleMonster.psd1'
@@ -33,7 +33,7 @@ if ((Get-Command Write-Progress).CommandType -ne 'Cmdlet') { throw 'Progress was
 if ($VerbosePreference -ne $before) { throw 'VerbosePreference changed.' }
 $messages = @($on + $off | ForEach-Object { [string] $_ })
 if (($messages -join "`n") -match '(?i)\[CmdletBinding|\bparam\s*\(|Set Item|function:\\') { throw 'Internal function source appeared in verbose output.' }
-if (-not ($on -match 'operation "Enable" on target "ConsoleMonster formatting: Output, Progress, FormatCommands, Help, GridView, Prompt"')) { throw 'Missing enable description.' }
+if (-not ($on -match 'operation "Enable" on target "ConsoleMonster formatting: Output, FormatCommands, Progress, Help, GridView, Prompt"')) { throw 'Missing enable description.' }
 if (-not ($off -match 'operation "Disable" on target "ConsoleMonster formatting:')) { throw 'Missing disable description.' }
 'VERBOSE_OK'
 '@
@@ -56,7 +56,7 @@ Enable-ConsoleFormatting -Feature FormatCommands
 if ((Get-Command Format-Table).CommandType -ne $before) { throw 'WhatIfPreference installed Format-Table.' }
 'WHATIF_OK'
 '@
-        $text | Should -Match 'operation "Enable" on target "ConsoleMonster formatting: Output, Progress, FormatCommands"'
+        $text | Should -Match 'operation "Enable" on target "ConsoleMonster formatting: Output, FormatCommands, Progress"'
         $text | Should -Match 'operation "Disable" on target "ConsoleMonster formatting: FormatCommands"'
         $text | Should -Not -Match '(?i)\[CmdletBinding|\bparam\s*\(|Set Item'
         $text | Should -Match 'WHATIF_OK'
@@ -72,7 +72,7 @@ try {
         Import-Module $modulePath
         Set-Item function:global:Out-Default ([scriptblock]::Create("'$label'"))
         Set-Alias Write-Progress $alias -Scope Global
-        Enable-ConsoleFormatting -Feature All, Progress -Force
+        Enable-ConsoleFormatting -Feature Output, Errors, Progress -Force
     }
     $null = $first.AddScript($setup.ToString()).AddArgument((Get-Module ConsoleMonster).Path).AddArgument('FIRST').AddArgument('Write-Output').Invoke()
     $null = $second.AddScript($setup.ToString()).AddArgument((Get-Module ConsoleMonster).Path).AddArgument('SECOND').AddArgument('Write-Host').Invoke()
@@ -81,7 +81,7 @@ try {
     $second.Commands.Clear()
     $second.AddScript('"SECOND_STILL_ENABLED=$((Get-Command Out-Default).Definition -match ''ConsoleMonster'') SECOND_ALIAS=$((Get-Alias Write-Progress).Definition)"; Disable-ConsoleFormatting; "SECOND_FUNCTION=$((Get-Command Out-Default).Definition) SECOND_RESTORED_ALIAS=$((Get-Alias Write-Progress).Definition)"').Invoke()
     $first.Commands.Clear()
-    $first.AddScript('Disable-ConsoleFormatting -Feature ErrorView; "FIRST_OUTPUT_STILL_ENABLED=$((Get-Command Out-Default).Definition -match ''ConsoleMonster'')"; Disable-ConsoleFormatting -Feature Output; "FIRST_FUNCTION=$((Get-Command Out-Default).Definition)"').Invoke()
+    $first.AddScript('Disable-ConsoleFormatting -Feature Errors; "FIRST_OUTPUT_STILL_ENABLED=$((Get-Command Out-Default).Definition -match ''ConsoleMonster'')"; Disable-ConsoleFormatting -Feature Output; "FIRST_FUNCTION=$((Get-Command Out-Default).Definition)"').Invoke()
 } finally {
     $first.Dispose()
     $second.Dispose()
@@ -96,8 +96,8 @@ try {
 
     It 'restores the replaced function and prior removal hook for <feature>' -ForEach @(
         @{ feature = 'Output' }
-        @{ feature = 'ErrorView' }
-        @{ feature = 'All' }
+        @{ feature = 'Errors' }
+        @{ feature = 'Output, FormatCommands, Errors, Streams, ReadLine' }
     ) {
         $text = Invoke-DefaultsChild (@'
 function global:Out-Default { 'ORIGINAL_CALLBACK' }
@@ -159,7 +159,7 @@ Disable-ConsoleFormatting
 
     It 'shows errors with the ConsoleMonster error view, keeps CategoryView, and leaves other output alone without the Output feature' {
         $text = Invoke-DefaultsChild @'
-Enable-ConsoleFormatting -Feature ErrorView
+Enable-ConsoleFormatting -Feature Errors
 '== ours'
 Write-Error 'disk is full' 2>&1 | Out-ConsoleDefault -Force -Shim
 '== category'
@@ -169,7 +169,7 @@ $ErrorView = $null
 '== items'
 Get-Item $PSHOME | Out-ConsoleDefault -Force -Shim
 '== off'
-Disable-ConsoleFormatting -Feature ErrorView
+Disable-ConsoleFormatting -Feature Errors
 "SHIM=$([bool] (Get-Command Out-Default -CommandType Function -ErrorAction Ignore))"
 '@
         $ours = ($text -split '== category')[0]
@@ -184,11 +184,11 @@ Disable-ConsoleFormatting -Feature ErrorView
 
     It 'prints a profile snippet with the features' {
         $text = Invoke-DefaultsChild @'
-Enable-ConsoleFormatting -Feature ErrorView, Progress -ProfileSnippet
-Enable-ConsoleFormatting -Feature All -ProfileSnippet
+Enable-ConsoleFormatting -Feature Errors, Progress -ProfileSnippet
+Enable-ConsoleFormatting -ProfileSnippet
 '@
-        $text | Should -Match '(?m)^Enable-ConsoleFormatting -Feature ErrorView, Progress$'
-        $text | Should -Match '(?m)^Enable-ConsoleFormatting -Feature All$'
+        $text | Should -Match '(?m)^Enable-ConsoleFormatting -Feature Errors, Progress$'
+        $text | Should -Match '(?m)^Enable-ConsoleFormatting$'
     }
 
     It 'honours $ProgressPreference and writes PowerShell''s progress where the area cannot be drawn' {

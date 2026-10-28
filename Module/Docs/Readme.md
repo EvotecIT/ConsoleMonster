@@ -56,13 +56,11 @@ Turns off the ConsoleMonster default formatting (Enable-ConsoleFormatting), all 
 Without -Feature everything Enable-ConsoleFormatting turned on is turned off and the session is as it was: the Out-Default function goes (or the user's own function replaced with -Force comes back), the Write-Progress function is restored, and $ErrorView was never changed. With -Feature only those parts are turned off. Streams and ReadLine release their native colour settings. Shared properties keep the latest surviving installation; the last owner restores the first exact baseline, including subsequent edits to owned properties. The Out-Default function stays while any feature that uses it is on; Streams and ReadLine alone need no function. Registrations stay for the next Enable-ConsoleFormatting.
 
 ### [Enable-ConsoleFormatting](Enable-ConsoleFormatting.md)
-Shows common types with ConsoleMonster. Explicit Format-* commands stay native unless FormatCommands is enabled.
+Enables the everyday console views, native format commands and theme colours.
 
-Three ways to use ConsoleMonster output: Automatic: Enable-ConsoleFormatting makes ordinary output readable for known and registered types. Explicit: pipe objects to Show-ConsoleTable or Show-ConsoleObject for control in scripts. Native Format-Table, Format-List and Format-Wide: opt in with Enable-ConsoleFormatting -Feature FormatCommands to restyle direct console output while keeping PowerShell column choices. You do not need both automatic and explicit formatting. These -Feature options require ConsoleMonster 2.1.0 or later.
+By default, Output, FormatCommands, Errors, Streams and ReadLine are enabled. Format-Table, Format-List and Format-Wide keep PowerShell's column choices and change only direct console output; pipelines, captures, files, jobs, remoting and transcripts remain native. Use Exclude to remove features from the default set, or Feature to select a minimal set. Prompt, Help, Progress and GridView require explicit Feature selection. CompactErrors opts into the compact error layout. Get-ConsoleFormatting reports what is enabled. Disable-ConsoleFormatting restores the session.
 
-Explicit Format-Table, Format-List and Format-Wide remain native unless you opt in with Enable-ConsoleFormatting -Feature FormatCommands. This feature only changes direct console output; pipelines, captures and transcripts stay native.
-
-Files and folders (Get-ChildItem), processes (Get-Process), services (Get-Service), JSON/REST and CSV records (PSCustomObject), members (Get-Member), commands (Get-Command), modules (Get-Module), history (Get-History), PowerShell 7 ping replies, .NET DNS entries and IP addresses, Windows network objects, event log records (Get-WinEvent), volumes (Get-Volume), versions ([version]) and dictionaries (@{ }), plus any type registered with Register-ConsoleView, are shown as ConsoleMonster tables and records when they reach the console. Members group by member type with highlighted signatures and muted types; JSON/CSV records show at most 50 rows and 24 fields with omission hints and nested summaries; numeric and date-like CSV strings align right without conversion. Commands group by module from 12 rows and show alias targets and command-type chips; modules group repeated names and show versions, shortened paths and exported command counts; history shows id, start time, duration, status and highlighted command text. Windows network views register only on Windows; ping and .NET DNS/IP views work across platforms. It works by defining an Out-Default function for the session that hands objects to Out-ConsoleDefault; objects stay the same, pipelines into other commands, Format-* and Out-String keep PowerShell's behaviour, and redirected output, transcripts' plain text, jobs and remoting are not affected. Disable-ConsoleFormatting removes the function. FormatCommands separately opts Format-Table, Format-List and Format-Wide into host-only rendering; it is excluded from All. It preserves native column selection and labels. Explicit properties, calculated expressions, grouping and named views take precedence over built-in presentation defaults. A custom Out-Default is kept unless you pass -Force for a feature that uses it. Streams, ReadLine, GridView and Prompt do not replace Out-Default.
+Files, processes, services, structured records, commands, modules, history, IP addresses, volumes, versions, dictionaries and registered types get built-in or registered views. Explicit Show-Console commands remain available when you want to choose the view yourself. Custom Out-Default functions are kept unless Force is specified; Prompt does not replace oh-my-posh or Starship without Force.
 
 ### [Export-ConsoleDemo](Export-ConsoleDemo.md)
 Exports one embedded demo as a copyable PowerShell script.
@@ -98,6 +96,11 @@ Returns the terminal profile: kind, mode (Interactive, Stream, Plain), colour de
 Lists the copyable ConsoleMonster gallery demos .
 
 Returns the embedded gallery metadata, including slug, title, pitch, category, tags, terminal size, runtimes, add-ons, customization ideas, mode and snapshot count. Listing accepts a slug or wildcard pattern. Use Export-ConsoleDemo to save a script.
+
+### [Get-ConsoleFormatting](Get-ConsoleFormatting.md)
+Shows the formatting features enabled in this runspace.
+
+Returns the enabled feature names, whether compact errors are enabled, and whether built-in views are included. A refused installation is not reported as enabled.
 
 ### [Invoke-ConsoleDashboard](Invoke-ConsoleDashboard.md)
 Runs a console dashboard live while a script does the work.
@@ -497,7 +500,7 @@ Each call replaces the line (Write-Color style pieces, colours, -Markup, -Decora
 ### [Show-ConsoleTable](Show-ConsoleTable.md)
 Displays the table representation through the shared Show-Console implementation.
 
-Three ways to use ConsoleMonster output: Automatic: Enable-ConsoleFormatting makes ordinary output readable for known and registered types. Explicit: pipe objects to Show-ConsoleTable or Show-ConsoleObject for control in scripts. Native Format-Table, Format-List and Format-Wide: opt in with Enable-ConsoleFormatting -Feature FormatCommands to restyle direct console output while keeping PowerShell column choices. You do not need both automatic and explicit formatting. These -Feature options require ConsoleMonster 2.1.0 or later.
+Three ways to use ConsoleMonster output: Automatic: Enable-ConsoleFormatting makes ordinary output readable for known and registered types. Explicit: pipe objects to Show-ConsoleTable or Show-ConsoleObject for control in scripts. Native Format-Table, Format-List and Format-Wide: the default restyles direct console output while keeping PowerShell column choices; use -Exclude FormatCommands to leave them native. You do not need both automatic and explicit formatting.
 
 Table and List are idiomatic shortcuts to the same view construction and output path. AsWidget and AsString capture the result; export uses Export-ConsoleFrame.
 

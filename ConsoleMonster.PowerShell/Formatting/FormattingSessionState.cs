@@ -31,6 +31,7 @@ namespace ConsoleMonster.PowerShell {
         internal Dictionary<string, EmbeddedDisplayFile> DisplayFiles { get; } = new Dictionary<string, EmbeddedDisplayFile>(StringComparer.OrdinalIgnoreCase);
         internal ConsoleFormattingFeature Features { get; set; }
         internal bool DetailedErrors { get; set; }
+        internal bool CompactErrors { get; set; }
         internal ScriptBlock? SavedOutDefault { get; set; }
         internal bool ProgressEnabled { get; set; }
         internal RunspaceProgressState Progress { get; }
@@ -60,6 +61,7 @@ namespace ConsoleMonster.PowerShell {
             SessionProgress.Reset(Progress);
             Features = ConsoleFormattingFeature.None;
             DetailedErrors = false;
+            CompactErrors = false;
             ProgressEnabled = false;
             TakeOverBuiltIns = true;
             SavedOutDefault = null;

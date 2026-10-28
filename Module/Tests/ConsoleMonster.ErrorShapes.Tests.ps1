@@ -37,7 +37,7 @@ Describe 'Synthetic compact error shapes' {
         foreach ($record in $records) {
             if ($record -is [Management.Automation.ErrorRecord]) {
                 $native = $record | Out-String -Width $Width
-                Enable-ConsoleFormatting -Feature Errors
+                Enable-ConsoleFormatting -Feature Errors -CompactErrors
                 try { ($record | Out-String -Width $Width) | Should -BeExactly $native }
                 finally { Disable-ConsoleFormatting -Feature Errors }
                 $widgets.Add(($record | Show-Console -Compact -AsWidget -View Error))

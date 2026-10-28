@@ -52,15 +52,15 @@ Assert-StreamsUnownedState $unowned
         $text | Should -Match 'THEME_AND_RESTORE_OK'
     }
 
-    It 'includes native stream colours in All and restores them on Disable All' {
+    It 'includes native stream colours in the defaults and restores them on Disable the default set' {
         $text = Invoke-StreamsChild @'
 Set-StreamsBaseline
 $baseline = Get-StreamsState
 Set-ConsoleTheme -Theme Dark
-Enable-ConsoleFormatting -Feature All
+Enable-ConsoleFormatting
 Assert-StreamsState (Get-StreamsExpected)
 if (-not (Get-Command Out-Default -CommandType Function -ErrorAction Ignore)) { throw 'All did not install output formatting.' }
-Disable-ConsoleFormatting -Feature All
+Disable-ConsoleFormatting -Feature Output, FormatCommands, Errors, Streams, ReadLine
 Assert-StreamsState $baseline
 if (Get-Command Out-Default -CommandType Function -ErrorAction Ignore) { throw 'All left output formatting installed.' }
 'ALL_STREAMS_OK'
@@ -192,7 +192,7 @@ if (Get-Command Out-Default -CommandType Function -ErrorAction Ignore) { throw '
 
     It 'emits a <FeatureName> profile snippet without changing native state or installing commands' -ForEach @(
         @{ FeatureName = 'Streams' }
-        @{ FeatureName = 'All' }
+        @{ FeatureName = 'Output, FormatCommands, Errors, Streams, ReadLine' }
     ) {
         $text = Invoke-StreamsChild (@'
 $baseline = Get-StreamsState
