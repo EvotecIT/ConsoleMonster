@@ -334,7 +334,7 @@ namespace ConsoleMonster.PowerShell {
                 Identity = PSObjectMemberSource.Identity
             };
             options.Sources.Add(new DirectoryEntryMemberSource());
-            options.Sources.Add(new PSObjectMemberSource { Root = root });
+            options.Sources.Add(new PSObjectMemberSource { Root = root, RootDefaultDisplay = include == null || include.Length == 0 });
             if (include != null) {
                 foreach (string name in include) {
                     options.Include.Add(name);

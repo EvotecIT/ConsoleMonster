@@ -20,8 +20,12 @@ namespace ConsoleMonster.PowerShell {
         private CancellationTokenSource? _stop;
 
         /// <summary><para type="description">The form from New-ConsoleForm.</para></summary>
-        [Parameter(Mandatory = true, Position = 0, ValueFromPipeline = true)]
+        [Parameter(Position = 0)]
         public Form? Form { get; set; }
+
+        /// <summary><para type="description">A form from the pipeline.</para></summary>
+        [Parameter(ValueFromPipeline = true)]
+        public PSObject? InputObject { get; set; }
 
         /// <summary><para type="description">The app name presets and remembered choices are stored under.</para></summary>
         [Parameter]
@@ -61,9 +65,19 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
+            if (InputObject != null) {
+                if (Form != null || !(PSText.Unwrap(InputObject) is Form incoming)) {
+                    ThrowTerminatingError(new ErrorRecord(new ArgumentException("Read-ConsoleForm needs a form from New-ConsoleForm; use Read-ConsoleSelect to pick pipeline objects."), "ExpectedConsoleForm", ErrorCategory.InvalidArgument, InputObject));
+                    return;
+                }
+                Form = incoming;
+            }
             if (Form == null) {
+                ThrowTerminatingError(new ErrorRecord(new ArgumentException("Provide a form from New-ConsoleForm."), "MissingConsoleForm", ErrorCategory.InvalidArgument, null));
                 return;
             }
+            Form current = Form;
+            if (InputObject != null) { Form = null; }
             FormOptions options = PSOptions.Resolve(this, Options, () => new FormOptions {
                     Interactive = PSInteractive.Options(this, Mode),
                     AppName = AppName,
@@ -76,9 +90,9 @@ namespace ConsoleMonster.PowerShell {
             _stop = new CancellationTokenSource();
             FormResult result;
             try {
-                result = Form.Show(options, _stop.Token);
+                result = current.Show(options, _stop.Token);
             } catch (Exception ex) when (ex is PromptCanceledException || ex is PromptUnavailableException || ex is Input.InputClosedException) {
-                PSInteractive.Fail(this, ex, Form.Title);
+                PSInteractive.Fail(this, ex, current.Title);
                 return;
             }
             if (PassThru.IsPresent) {
@@ -86,7 +100,7 @@ namespace ConsoleMonster.PowerShell {
                 return;
             }
             if (result.Submitted) {
-                WriteObject(PSForms.ToObject(result.Values, Form, AsPlainText.IsPresent));
+                WriteObject(PSForms.ToObject(result.Values, current, AsPlainText.IsPresent));
             }
         }
 

@@ -7,7 +7,24 @@ using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell {
     public abstract partial class ConsoleDisplayCmdlet {
+        private IWidget BuildInspectorView(IReadOnlyList<PSObject> items) {
+            var views = new List<IWidget>();
+            foreach (PSObject item in items) {
+                InspectorOptions options = PSFormatting.InspectorOptions(Depth, MaxItems, Include, Exclude, MaxNodes, item);
+#pragma warning disable IL2026
+                views.Add(new InspectorView(ObjectInspector.Inspect(item, options), PSText.Markup(Title)));
+#pragma warning restore IL2026
+            }
+            return PSFormatting.Combine(views);
+        }
         private IWidget BuildTreeView(IReadOnlyList<PSObject> items) {
+            string[]? include = Include;
+            if (Property != null) {
+                if (Include != null || Property.Any(value => !(PSText.Unwrap(value) is string))) {
+                    throw new PSArgumentException("Tree -Property accepts member names or patterns and cannot be combined with -Include.");
+                }
+                include = Property.Select(value => (string)PSText.Unwrap(value)!).ToArray();
+            }
             bool hierarchy = ChildrenProperty != null || Children != null || LabelProperty != null || StatusProperty != null || DetailProperty != null;
             if (hierarchy || items.All(item => PSText.Unwrap(item) is TreeNode)) {
                 return ConsoleHostViews.Tree(items.Cast<object>().ToList(), new ConsoleTreeOptions {
@@ -22,10 +39,11 @@ namespace ConsoleMonster.PowerShell {
                 return tree;
             }
             var trees = new List<IWidget>();
+            var shape = Binding.PSShaping.Options();
             foreach (PSObject item in items) {
-                InspectorOptions options = PSFormatting.InspectorOptions(Depth, MaxItems, Include, Exclude, MaxNodes, item);
+                InspectorOptions options = PSFormatting.InspectorOptions(Depth, MaxItems, include, Exclude, MaxNodes, item);
 #pragma warning disable IL2026
-                trees.Add(InspectorTree.Build(ObjectInspector.Inspect(item, options), PSText.Markup(Title)));
+                trees.Add(InspectorTree.Build(ObjectInspector.Inspect(item, options), PSText.Markup(Title) ?? Binding.PSShaping.Title(item, shape)));
 #pragma warning restore IL2026
             }
             return PSFormatting.Combine(trees);

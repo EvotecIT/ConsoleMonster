@@ -14,6 +14,9 @@ namespace ConsoleMonster.PowerShell.Binding {
         /// <summary>The object an inspection starts from (shows all members), or null when every object shows all members.</summary>
         public object? Root { get; set; }
 
+        /// <summary>Use the PowerShell default display set for the inspection root when one is defined.</summary>
+        public bool RootDefaultDisplay { get; set; }
+
         /// <summary>
         /// The value to read for a PowerShell object: the wrapped object when it is a scalar, a collection or a data value
         /// (dictionary, data row, XML, JSON, file or folder), so the shared adapters read it; the PowerShell object itself
@@ -79,7 +82,7 @@ namespace ConsoleMonster.PowerShell.Binding {
                         yield return new InspectMember(captured.Name, () => Nested(captured.Value));
                     }
                 }
-                if (Root != null && !ReferenceEquals(Identity(item), Identity(Root))) {
+                if (Root != null && (RootDefaultDisplay || !ReferenceEquals(Identity(item), Identity(Root)))) {
                     yield break;
                 }
             }

@@ -159,6 +159,58 @@ try { Show-ConsoleMenu $menu -ErrorAction Stop } catch { "error=$($_.Exception.M
     }
 
     Context 'Accessible and line modes' {
+        It 'collects pipeline objects once and returns the selected object' {
+            $text = Invoke-PromptChild -InputText "2`n" -Script @'
+$items = @([pscustomobject]@{ Name = 'alpha'; Number = 1 }, [pscustomobject]@{ Name = 'beta'; Number = 2 })
+$picked = $items | Show-ConsoleMenu -Mode Accessible
+"picked=$($picked.Name):$($picked.Number)"
+'@
+            $text | Should -Match '1\) alpha'
+            $text | Should -Match '2\) beta'
+            $text | Should -Match 'picked=beta:2'
+        }
+
+        It 'emits one terminating error for a 300-object pipeline without an interactive user' {
+            $text = Invoke-PromptChild -NonInteractive -Script @'
+$Error.Clear()
+try { 1..300 | ForEach-Object { [pscustomobject]@{ Name = "item$_" } } | Show-ConsoleMenu -Mode None -ErrorAction Stop }
+catch { "id=$($_.FullyQualifiedErrorId.Split(',')[0])" }
+"errors=$($Error.Count)"
+'@
+            $text | Should -Match 'id=PromptNeedsValue'
+            $text | Should -Match 'errors=1'
+        }
+
+        It 'rejects non-form pipeline objects once and names the selection command' {
+            $text = Invoke-PromptChild -NonInteractive -Script @'
+$Error.Clear()
+try { 1..300 | Read-ConsoleForm -ErrorAction Stop }
+catch { "id=$($_.FullyQualifiedErrorId.Split(',')[0]) message=$($_.Exception.Message)" }
+"errors=$($Error.Count)"
+'@
+            $text | Should -Match 'id=ExpectedConsoleForm'
+            $text | Should -Match 'Read-ConsoleSelect'
+            $text | Should -Match 'errors=1'
+        }
+
+        It 'accepts forms from the pipeline' {
+            $text = Invoke-PromptChild -NonInteractive -Script @'
+$form = New-ConsoleForm 'Test' -Content { New-ConsoleField Name 'Name' -Default 'one' }
+$answer = $form | Read-ConsoleForm -Mode None
+"name=$($answer.Name)"
+'@
+            $text | Should -Match 'name=one'
+        }
+
+        It 'returns multiple original objects only when multiple selection is requested' {
+            $text = Invoke-PromptChild -InputText "1,3`n" -Script @'
+$items = 1..3 | ForEach-Object { [pscustomobject]@{ Name = "item$_"; Number = $_ } }
+$picked = @($items | Show-ConsoleMenu -Mode Accessible -Multiple)
+"picked=$(($picked | ForEach-Object Number) -join ',')"
+'@
+            $text | Should -Match 'picked=1,3'
+        }
+
         It 'numbers the choices and reads the answer as a line' {
             $text = Invoke-PromptChild -InputText "9`n2`n" -Script @'
 $v = Read-ConsoleSelect 'Environment' -Choices 'Production', 'Staging', 'Lab' -Mode Accessible

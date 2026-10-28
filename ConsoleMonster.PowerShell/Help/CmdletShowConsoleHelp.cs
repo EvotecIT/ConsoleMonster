@@ -23,9 +23,13 @@ namespace ConsoleMonster.PowerShell {
     [OutputType(typeof(string))]
     public sealed class CmdletShowConsoleHelp : PSCmdlet {
         /// <summary><para type="description">The command (a cmdlet, function, alias or script path), or an about topic.</para></summary>
-        [Parameter(Mandatory = true, Position = 0, ValueFromPipelineByPropertyName = true)]
+        [Parameter(Position = 0, ValueFromPipelineByPropertyName = true)]
         [ValidateNotNullOrEmpty]
         public string Name { get; set; } = string.Empty;
+
+        /// <summary><para type="description">A command name or command object from the pipeline.</para></summary>
+        [Parameter(ValueFromPipeline = true)]
+        public PSObject? InputObject { get; set; }
 
         /// <summary><para type="description">The width in columns (default: the console's width).</para></summary>
         [Parameter]
@@ -49,6 +53,23 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
+            if (InputObject != null) {
+                object? value = PSText.Unwrap(InputObject);
+                if (value is string text) { Name = text; }
+                else if (value is CommandInfo command) { Name = command.Name; }
+                else {
+                    object? name = InputObject.Properties["Name"]?.Value;
+                    if (name is string member && !string.IsNullOrWhiteSpace(member)) { Name = member; }
+                    else {
+                        ThrowTerminatingError(new ErrorRecord(new ArgumentException("Show-ConsoleHelp needs a command name or command object. Use Show-Console to display other pipeline objects."), "ExpectedCommandName", ErrorCategory.InvalidArgument, InputObject));
+                        return;
+                    }
+                }
+            }
+            if (string.IsNullOrWhiteSpace(Name)) {
+                ThrowTerminatingError(new ErrorRecord(new ArgumentException("Provide a command name to Show-ConsoleHelp."), "MissingCommandName", ErrorCategory.InvalidArgument, null));
+                return;
+            }
             PSOutputExport.Validate(this);
             if (!ConsoleHostHelp.TryCreate(Name, InvokeCommand, out IWidget? widget, out ErrorRecord? error, NoExamples.IsPresent, NoParameters.IsPresent)) {
                 WriteError(error!);

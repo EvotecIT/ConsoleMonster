@@ -29,6 +29,23 @@
         (Get-Command -Module ConsoleMonster -Name Show-Console,Show-ConsoleList,Show-ConsoleTable).Name | Sort-Object | Should -Be @('Show-Console', 'Show-ConsoleList', 'Show-ConsoleTable')
     }
 
+    It 'uses default display properties for a tree and allows all properties explicitly' {
+        $text = Invoke-FormatChild -Script @'
+$item = [pscustomobject] @{ Name = 'web01'; Label = 'selected'; Extra = 'hidden' }
+$set = New-Object System.Management.Automation.PSPropertySet('DefaultDisplayPropertySet', [string[]]@('Label'))
+$item | Add-Member -MemberType MemberSet -Name PSStandardMembers -Value $set -ErrorAction Stop
+"DEFAULT_BEGIN"
+$item | Show-Console -View Tree -AsString -Width 80
+"ALL_BEGIN"
+$item | Show-Console -View Tree -Property * -AsString -Width 80
+'@
+        $parts = $text -split 'ALL_BEGIN', 2
+        $parts[0] | Should -Match 'web01'
+        $parts[0] | Should -Match 'Label\s+selected'
+        $parts[0] | Should -Not -Match 'Extra\s+hidden'
+        $parts[1] | Should -Match 'Extra\s+hidden'
+    }
+
     It 'formats a table with presenters and a totals row as plain text' {
         $text = Invoke-FormatChild -Script "`$artifacts | Show-ConsoleTable -ShowTotals -Width 100 -Property Name, Kind, @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes' }, @{ Name = 'Time'; Presenter = 'Duration' }"
         $text | Should -Match 'Size'

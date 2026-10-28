@@ -64,7 +64,44 @@ namespace ConsoleMonster.PowerShell.Binding {
         /// <param name="options">Shape options.</param>
         /// <param name="budget">The pass budget, or null.</param>
         /// <returns>The title.</returns>
-        internal static string Title(object item, ShapeOptions options, ShapeBudget? budget = null) => ValueShaper.Title(item, options, budget);
+        internal static string Title(object item, ShapeOptions options, ShapeBudget? budget = null) {
+            if (item is PSObject ps) {
+                PSMemberSet? standard = ps.Members["PSStandardMembers"] as PSMemberSet;
+                string? preferred = (standard?.Members["DefaultDisplayProperty"] as PSPropertyInfo)?.Value as string;
+                if (!string.IsNullOrWhiteSpace(preferred)) {
+                    PSPropertyInfo? property = ps.Properties[preferred];
+                    if (property != null && property.IsGettable) {
+                        try {
+                            object? value = PSText.Unwrap(property.Value);
+                            if (value != null && ValueShaper.IsScalar(value)) {
+                                string title = ValueShaper.ScalarText(value, options);
+                                if (!string.IsNullOrWhiteSpace(title)) { return WithDisplayName(ps, title); }
+                            }
+                        } catch (GetValueException) {
+                            // A failing display property falls back to the normal identity rule.
+                        }
+                    }
+                }
+            }
+            string fallback = ValueShaper.Title(item, options, budget);
+            return item is PSObject wrapped ? WithDisplayName(wrapped, fallback) : fallback;
+        }
+
+        private static string WithDisplayName(PSObject item, string title) {
+            try {
+                object? name = PSText.Unwrap(item.Properties["Name"]?.Value);
+                object? display = PSText.Unwrap(item.Properties["DisplayName"]?.Value);
+                if (name is string nameText && display is string displayText
+                    && string.Equals(title, nameText, StringComparison.OrdinalIgnoreCase)
+                    && !string.IsNullOrWhiteSpace(displayText)
+                    && !string.Equals(nameText, displayText, StringComparison.OrdinalIgnoreCase)) {
+                    return title + " · " + displayText;
+                }
+            } catch (GetValueException) {
+                // Identity remains usable when an optional display-name getter fails.
+            }
+            return title;
+        }
 
         /// <summary>Registers a script block that turns objects of a type name into what is shown instead (Register-ConsoleView -Shaper).</summary>
         /// <param name="typeName">The type name (PowerShell type names included).</param>
