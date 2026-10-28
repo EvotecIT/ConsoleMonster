@@ -2,6 +2,7 @@ using System;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using ConsoleMonster.Capabilities;
 
 namespace ConsoleMonster.PowerShell.Display;
@@ -34,6 +35,14 @@ public static class DefaultDisplayHostGate {
         } catch (Exception) { return false; }
     }
     /// <summary>Checks profile safety independently of colour mode; real runspace/host checks still apply.</summary>
-    public static bool SupportsPhysicalProfile(TerminalProfile profile) => profile != null && profile.IsConsoleHandle
-        && !profile.IsOutputRedirected && !profile.IsContinuousIntegration && profile.Kind != TerminalKind.VisualStudioCode;
+    public static bool SupportsPhysicalProfile(TerminalProfile profile) => profile != null
+        && !profile.IsOutputRedirected && !profile.IsContinuousIntegration && profile.Kind != TerminalKind.VisualStudioCode
+        // IsConsoleHandle describes GetConsoleMode on Windows; a Unix tty never sets it.
+        // Read the actual stdout route so an overridden profile cannot turn a pipe into a tty.
+        && (profile.IsConsoleHandle || IsUnixTerminal());
+
+    private static bool IsUnixTerminal() {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && !RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) { return false; }
+        try { return !Console.IsOutputRedirected; } catch (Exception) { return false; }
+    }
 }

@@ -18,7 +18,7 @@ $ErrorActionPreference = 'Stop'
 Import-Module '__MODULE__'
 Enable-ConsoleFormatting -Feature All, FormatCommands
 '--- registered'
-Get-ChildItem '__FILES__' | Sort-Object Name | Out-Default
+Get-ChildItem '__FILES__' | Sort-Object Name
 '--- table'
 Get-ChildItem '__FILES__' | Sort-Object Name | Format-Table
 '--- list'
@@ -32,7 +32,7 @@ Get-Process -Id $PID | Format-Table -Property Id, Handles
         $file = Join-Path $TestDrive 'unix-views.ps1'
         $capture = Join-Path $TestDrive 'unix-views.ansi'
         [IO.File]::WriteAllText($file, $source)
-        & python3 (Join-Path $PSScriptRoot 'Support/formatting_pty.py') $script:Runtime $file $capture
+        & python3 (Join-Path $PSScriptRoot 'Support/formatting_pty.py') $script:Runtime $file $capture 30 120 --submissions
         $LASTEXITCODE | Should -Be 0
         $text = [IO.File]::ReadAllText($capture) -replace '\x1b\[[0-?]*[ -/]*[@-~]', ''
         $text | Should -Not -Match 'PrivateBuild|FileVersion|VersionInfo'

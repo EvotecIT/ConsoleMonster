@@ -210,11 +210,15 @@ $absent=$null -eq [ConsoleMonster.PowerShell.Display.DefaultDisplay]::Resolve([D
         Assert-Display (-not [ConsoleMonster.PowerShell.Display.DefaultDisplayHostGate]::IsTranscriptInactive([DisplayContract.ThrowingTranscriptState]::new())) 'Throwing transcription state was admitted.'
         Assert-Display ([ConsoleMonster.PowerShell.Display.DefaultDisplayHostGate]::IsTranscriptInactive($Host.UI)) 'Actual host transcription state could not be read.'
     }
-    Test-DisplayContract 'HostGate_PlainPhysicalProfile_AllowsLayoutAndRejectsSyntheticHandle' {
+    Test-DisplayContract 'HostGate_PlainProfile_RequiresWindowsHandleOrActualUnixTty' {
         $physical = [ConsoleMonster.Capabilities.TerminalProfile]::new([ConsoleMonster.Capabilities.ColorDepth]::None, [ConsoleMonster.Capabilities.GlyphTier]::Ascii,
             [ConsoleMonster.Capabilities.OutputMode]::Plain, 80, 30, [ConsoleMonster.Capabilities.TerminalKind]::WindowsTerminal, $false, $false, $true, $false)
         Assert-Display ([ConsoleMonster.PowerShell.Display.DefaultDisplayHostGate]::SupportsPhysicalProfile($physical)) 'Plain output disabled a physical host layout.'
-        Assert-Display (-not [ConsoleMonster.PowerShell.Display.DefaultDisplayHostGate]::SupportsPhysicalProfile($displayProfile)) 'Synthetic profile without a console handle passed.'
+        $unixTty = [Environment]::OSVersion.Platform -eq [PlatformID]::Unix -and -not [Console]::IsOutputRedirected
+        Assert-Display ([ConsoleMonster.PowerShell.Display.DefaultDisplayHostGate]::SupportsPhysicalProfile($displayProfile) -eq $unixTty) 'A handle-free profile must follow the actual Unix stdout route.'
+        $redirected = [ConsoleMonster.Capabilities.TerminalProfile]::new([ConsoleMonster.Capabilities.ColorDepth]::None, [ConsoleMonster.Capabilities.GlyphTier]::Ascii,
+            [ConsoleMonster.Capabilities.OutputMode]::Plain, 80, 30, [ConsoleMonster.Capabilities.TerminalKind]::Redirected, $false, $true, $false, $false)
+        Assert-Display (-not [ConsoleMonster.PowerShell.Display.DefaultDisplayHostGate]::SupportsPhysicalProfile($redirected)) 'A redirected profile passed the physical host gate.'
     }
     Test-DisplayContract 'SchemaV2_ConditionalTonesTemplatesAndScope_RenderWithoutLazyGetters' {
         $document = [ConsoleMonster.PowerShell.Display.ConsoleViewDocument]::Parse(@{
