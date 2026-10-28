@@ -15,7 +15,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleSummaryBar")]
     [OutputType(typeof(SummaryBar))]
-    public sealed class CmdletNewConsoleSummaryBar : PSCmdlet {
+    public sealed class CmdletNewConsoleSummaryBar : NoPipelineInputCmdlet {
         /// <summary><para type="description">Items done.</para></summary>
         [Parameter(Position = 1)]
         public double Value { get; set; }
@@ -47,7 +47,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter] public string? DoneLabel { get; set; }
 
         /// <inheritdoc />
-        protected override void ProcessRecord() {
+        protected override void ProcessWithoutPipelineInput() {
             SummaryBar bar = new SummaryBar(WidgetId) { BarWidth = BarWidth, Elapsed = Elapsed, ShowElapsed = !NoElapsed.IsPresent, DoneLabel = DoneLabel };
             bar.SetProgress(Value, Total);
             if (Counter != null) {

@@ -106,7 +106,7 @@ namespace ConsoleMonster.PowerShell {
             var definition = new SelectQuestionOptions { Title = "Select an item", Multiple = Multiple.IsPresent };
             var shape = Binding.PSShaping.Options();
             foreach (object? item in _pipelineItems) {
-                string label = item == null ? string.Empty : Binding.PSShaping.Title(item, shape);
+                string label = PSInteractive.ChoiceLabel(item, shape);
                 definition.Choices.Add(new Choice(item, label));
             }
             _stop = new CancellationTokenSource();

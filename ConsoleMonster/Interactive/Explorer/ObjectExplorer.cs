@@ -13,10 +13,18 @@ namespace ConsoleMonster.Interactive {
         /// <param name="value">The object, dictionary, JSON value or collection to explore.</param>
         /// <param name="options">Member adapters and expansion limits.</param>
         /// <param name="rootPath">The root PowerShell expression used in returned paths.</param>
-        public ObjectExplorer(object? value, InspectorOptions? options = null, string rootPath = "$x") {
+        public ObjectExplorer(object? value, InspectorOptions? options = null, string rootPath = "$x")
+            : this(value, options, rootPath, null) { }
+
+        /// <summary>Creates an explorer with a display label separate from the returned root expression.</summary>
+        /// <param name="value">The value to explore.</param>
+        /// <param name="options">Member adapters and expansion limits.</param>
+        /// <param name="rootPath">The root expression used in returned paths.</param>
+        /// <param name="rootLabel">The root label, or null to display the expression.</param>
+        public ObjectExplorer(object? value, InspectorOptions? options, string rootPath, string? rootLabel) {
             if (string.IsNullOrWhiteSpace(rootPath)) { throw new ArgumentException("A root expression is required.", nameof(rootPath)); }
             Options = options ?? new InspectorOptions();
-            Root = new ExplorerNode(rootPath, rootPath, () => value, Options, null);
+            Root = new ExplorerNode(rootLabel ?? rootPath, rootPath, () => value, Options, null);
         }
 
         /// <summary>The lazily inspected root.</summary>

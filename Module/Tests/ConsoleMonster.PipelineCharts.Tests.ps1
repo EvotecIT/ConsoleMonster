@@ -225,4 +225,11 @@ Describe 'ConsoleMonster pipeline charts' {
     It 'points ordinary records at the property-based chart view' {
         { [pscustomobject] @{ Name = 'web01'; Cpu = 42 } | New-ConsoleChart -Type Bar } | Should -Throw '*-Property <number> -Label <name>*'
     }
+
+    It 'preserves duplicate labels and uses bars when Type is omitted' {
+        $rows = @([pscustomobject]@{Name='alpha';Value=50}, [pscustomobject]@{Name='alpha';Value=40})
+        $chart = $rows | New-ConsoleChart -Property Value -Label Name
+        @($chart.Items.Label) | Should -Be @('alpha', 'alpha (2)')
+        @($chart.Items.Value) | Should -Be @(50, 40)
+    }
 }

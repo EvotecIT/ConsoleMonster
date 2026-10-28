@@ -71,11 +71,16 @@ $help = 'Get-Thing' | Show-ConsoleHelp -AsString
 "HELP=$($help -match 'Gets things from a store')"
 try { 1..300 | Show-ConsoleHelp -ErrorAction Stop } catch { "ID=$($_.FullyQualifiedErrorId.Split(',')[0]) MESSAGE=$($_.Exception.Message)" }
 "ERRORS=$($Error.Count)"
+$Error.Clear()
+try { 1..300 | ForEach-Object { [pscustomobject]@{Name='Get-Thing'} } | Show-ConsoleHelp -ErrorAction Stop } catch { "OBJECT=$($_.FullyQualifiedErrorId.Split(',')[0])" }
+"OBJECT_ERRORS=$($Error.Count)"
 '@
         $text | Should -Match 'HELP=True'
         $text | Should -Match 'ID=ExpectedCommandName'
         $text | Should -Match 'Use Show-Console'
         $text | Should -Match 'ERRORS=1'
+        $text | Should -Match 'OBJECT=ExpectedCommandName'
+        $text | Should -Match 'OBJECT_ERRORS=1'
     }
 
     It 'shows a function''s comment-based help: synopsis, syntax, parameters, examples and links' {

@@ -12,7 +12,7 @@ namespace ConsoleMonster.PowerShell {
     /// <example><para>List the welcome demos.</para><code>Get-ConsoleDemo 'welcome-*'</code></example>
     [Cmdlet(VerbsCommon.Get, "ConsoleDemo")]
     [OutputType(typeof(PSObject))]
-    public sealed class CmdletGetConsoleDemo : PSCmdlet {
+    public sealed class CmdletGetConsoleDemo : NoPipelineInputCmdlet {
         /// <summary><para type="description">Slug or wildcard pattern to list. Export requires one exact slug.</para></summary>
         [Parameter(Position = 0)]
         [ValidateNotNullOrEmpty]
@@ -20,7 +20,7 @@ namespace ConsoleMonster.PowerShell {
         public string Slug { get; set; } = "*";
 
         /// <inheritdoc />
-        protected override void ProcessRecord() {
+        protected override void ProcessWithoutPipelineInput() {
             try {
                 foreach (PSObject metadata in ConsoleGallery.List(Slug, InvokeCommand)) { WriteObject(metadata); }
             } catch (ItemNotFoundException error) {

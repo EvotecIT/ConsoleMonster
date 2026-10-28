@@ -14,7 +14,7 @@ namespace ConsoleMonster.PowerShell {
     /// <example><para>Show navigation hints.</para><code>New-ConsoleFooterBar -Hint ([ordered] @{ Enter = 'Accept'; Esc = 'Cancel' }) | Show-Console</code></example>
     [Cmdlet(VerbsCommon.New, "ConsoleFooterBar")]
     [OutputType(typeof(FooterBar))]
-    public sealed class CmdletNewConsoleFooterBar : PSCmdlet {
+    public sealed class CmdletNewConsoleFooterBar : NoPipelineInputCmdlet {
         /// <summary><para type="description">An ordered dictionary of key names and action labels.</para></summary>
         [Parameter(Position = 0)] public IDictionary? Hint { get; set; }
         /// <summary><para type="description">A message shown instead of key hints.</para></summary>

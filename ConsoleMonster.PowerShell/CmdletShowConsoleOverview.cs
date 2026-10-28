@@ -13,7 +13,7 @@ namespace ConsoleMonster.PowerShell {
     /// <example><para>Capture a compact plain-text overview.</para><code>Show-ConsoleOverview -Width 60 -AsString</code></example>
     [Cmdlet(VerbsCommon.Show, "ConsoleOverview", DefaultParameterSetName = "Render")]
     [OutputType(typeof(OverviewSnapshot), typeof(string))]
-    public sealed class CmdletShowConsoleOverview : PSCmdlet {
+    public sealed class CmdletShowConsoleOverview : NoPipelineInputCmdlet {
         private readonly CancellationTokenSource _stop = new CancellationTokenSource();
 
         /// <summary><para type="description">Registry section keys, in requested order. Built-ins: Resources, Disks, Network, Services, Updates, Security. Omit to collect all registered sections. Unknown keys produce an error.</para></summary>
@@ -44,7 +44,7 @@ namespace ConsoleMonster.PowerShell {
         public SwitchParameter AsWidget { get; set; }
 
         /// <inheritdoc />
-        protected override void ProcessRecord() {
+        protected override void ProcessWithoutPipelineInput() {
             PSOutputExport.Validate(this);
             try {
                 OverviewSnapshot snapshot = new OverviewCollector().CollectAsync(new OverviewOptions {

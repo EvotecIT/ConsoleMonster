@@ -37,7 +37,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Retry flaky servers twice, five seconds apart</para>
-    ///   <code>$servers | Invoke-ConsoleRun -Parallel -RetryCount 2 -RetryDelaySeconds 5 -Label Name { Restart-Computer $_.Name -Wait -For WinRM -Timeout 300 -ErrorAction Stop }</code>
+    ///   <code>$servers = 'server01', 'server02' | ForEach-Object { [pscustomobject]@{ Name = $_ } }; $servers | Invoke-ConsoleRun -Parallel -RetryCount 2 -RetryDelaySeconds 5 -Label Name { "Would restart $($_.Name)" }</code>
     /// </example>
     [Cmdlet(VerbsLifecycle.Invoke, "ConsoleRun")]
 

@@ -21,7 +21,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleMenuItem", DefaultParameterSetName = "Action")]
     [OutputType(typeof(MenuItem))]
-    public sealed class CmdletNewConsoleMenuItem : PSCmdlet {
+    public sealed class CmdletNewConsoleMenuItem : NoPipelineInputCmdlet {
         /// <summary><para type="description">The title.</para></summary>
         [Parameter(Position = 0)]
         public string? Label { get; set; }

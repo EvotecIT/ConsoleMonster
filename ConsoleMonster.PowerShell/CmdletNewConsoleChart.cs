@@ -17,8 +17,8 @@ namespace ConsoleMonster.PowerShell {
     public sealed class CmdletNewConsoleChart : PSCmdlet {
         private readonly List<object> _items = new List<object>();
         /// <summary><para type="description">The numeric chart kind: Bar, Stacked, Line, Scatter, Histogram or Sparkline.</para></summary>
-        [Parameter(Mandatory = true)]
-        public ChartType Type { get; set; }
+        [Parameter]
+        public ChartType Type { get; set; } = ChartType.Bar;
         /// <summary><para type="description">The live identifier; omitted uses the selected kind default.</para></summary>
         [Parameter(Position = 0)]
         public string? WidgetId { get; set; }
@@ -148,6 +148,7 @@ namespace ConsoleMonster.PowerShell {
             Binding.BoundColumn value = Column(rows, Property[0]);
             Binding.BoundColumn? label = Type == ChartType.Bar ? Column(rows, Label) : null;
             var samples = new List<double>(options.Values ?? Array.Empty<double>());
+            var labels = new HashSet<string>(StringComparer.Ordinal);
             int row = 0;
             foreach (PSObject item in rows) {
                 row++;
@@ -159,7 +160,7 @@ namespace ConsoleMonster.PowerShell {
                 }
                 if (label == null) { samples.Add(number); continue; }
                 string text = Convert.ToString(name, System.Globalization.CultureInfo.CurrentCulture) ?? string.Empty;
-                options.AddItem(text.Length == 0 ? row.ToString(System.Globalization.CultureInfo.InvariantCulture) : text, number);
+                options.AddItem(PipelineChart.UniqueLabel(text.Length == 0 ? row.ToString(System.Globalization.CultureInfo.InvariantCulture) : text, labels), number);
             }
             if (Type != ChartType.Bar) { options.Values = samples.ToArray(); }
         }

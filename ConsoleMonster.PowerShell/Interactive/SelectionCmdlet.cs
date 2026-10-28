@@ -7,6 +7,9 @@ namespace ConsoleMonster.PowerShell {
     public abstract class SelectionCmdlet : PromptCmdlet {
         private readonly List<object?> _items = new List<object?>();
 
+        /// <summary>Creates a selection prompt with a useful default question.</summary>
+        protected SelectionCmdlet() { Title = "Choose one"; }
+
         /// <summary><para type="description">The choices: any objects (strings, services, records). The chosen objects themselves are returned.</para></summary>
         [Parameter(Position = 1, ValueFromPipeline = true)]
 

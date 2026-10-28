@@ -13,7 +13,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleRule")]
     [OutputType(typeof(Rule))]
-    public sealed class CmdletNewConsoleRule : PSCmdlet {
+    public sealed class CmdletNewConsoleRule : NoPipelineInputCmdlet {
         /// <summary><para type="description">The title (markup allowed).</para></summary>
         [Parameter(Position = 0)]
         public object? Title { get; set; }
@@ -28,7 +28,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter] public Glyphs.BoxStyle? LineStyle { get; set; }
 
         /// <inheritdoc />
-        protected override void ProcessRecord() {
+        protected override void ProcessWithoutPipelineInput() {
             WriteObject(new Rule(PSText.Markup(Title)) { Alignment = Alignment, LineRole = LineRole, LineStyle = LineStyle });
         }
     }

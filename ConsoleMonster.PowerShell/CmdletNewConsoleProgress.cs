@@ -13,7 +13,7 @@ namespace ConsoleMonster.PowerShell {
     /// <example><para>Show work with no known total</para><code>New-ConsoleProgress resolve -Indeterminate -Label 'Resolving DNS' -Detail 'zone 4' | Show-Console</code></example>
     [Cmdlet(VerbsCommon.New, "ConsoleProgress", DefaultParameterSetName = "Bar")]
     [OutputType(typeof(ProgressBar), typeof(Spinner))]
-    public sealed class CmdletNewConsoleProgress : PSCmdlet {
+    public sealed class CmdletNewConsoleProgress : NoPipelineInputCmdlet {
         /// <summary><para type="description">The live identifier; default progress, or spinner with Indeterminate.</para></summary>
         [Parameter(Position = 0)]
         public string? WidgetId { get; set; }
@@ -63,7 +63,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Initial indeterminate completion time on the session clock, in seconds.</para></summary>
         [Parameter(ParameterSetName = "Indeterminate")] public double? FinishedSeconds { get; set; }
         /// <inheritdoc />
-        protected override void ProcessRecord() {
+        protected override void ProcessWithoutPipelineInput() {
             var options = new ProgressOptions { Indeterminate = Indeterminate.IsPresent };
             if (MyInvocation.BoundParameters.ContainsKey(nameof(StartedSeconds))) { options.Started = StartedSeconds.HasValue ? (TimeSpan?)TimeSpan.FromSeconds(StartedSeconds.Value) : null; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(FinishedSeconds))) { options.Finished = FinishedSeconds.HasValue ? (TimeSpan?)TimeSpan.FromSeconds(FinishedSeconds.Value) : null; }

@@ -33,7 +33,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleSimulatedClock")]
     [OutputType(typeof(SimulatedClock))]
-    public sealed class CmdletNewConsoleSimulatedClock : PSCmdlet {
+    public sealed class CmdletNewConsoleSimulatedClock : NoPipelineInputCmdlet {
         /// <summary><para type="description">Simulated seconds per real second while the script waits (default 1, real time); 0 never sleeps.</para></summary>
         [Parameter(Position = 0)]
         [ValidateRange(0, double.MaxValue)]

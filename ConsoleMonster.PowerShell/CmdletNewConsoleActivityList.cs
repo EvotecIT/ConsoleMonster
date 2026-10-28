@@ -19,7 +19,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleActivityList")]
     [OutputType(typeof(ActivityList))]
-    public sealed class CmdletNewConsoleActivityList : PSCmdlet {
+    public sealed class CmdletNewConsoleActivityList : NoPipelineInputCmdlet {
         /// <summary><para type="description">The live name used by Update-Console (default $progress, where Write-Progress also goes in Invoke-ConsoleDashboard).</para></summary>
         [Parameter(Position = 0)]
         public string WidgetId { get; set; } = ActivityList.ProgressTarget;
@@ -37,7 +37,7 @@ namespace ConsoleMonster.PowerShell {
         public SwitchParameter NoElapsed { get; set; }
 
         /// <inheritdoc />
-        protected override void ProcessRecord() {
+        protected override void ProcessWithoutPipelineInput() {
             WriteObject(new ActivityList(WidgetId) { MaxVisible = Math.Max(1, MaxVisible), ShowIds = ShowIds.IsPresent, ShowElapsed = !NoElapsed.IsPresent });
         }
     }

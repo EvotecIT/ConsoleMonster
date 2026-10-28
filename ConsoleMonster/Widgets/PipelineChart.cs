@@ -71,6 +71,18 @@ namespace ConsoleMonster.Widgets {
             return this;
         }
 
+        /// <summary>Returns a distinct display label and records it in the supplied set.</summary>
+        /// <param name="label">The original label.</param>
+        /// <param name="used">Labels already in use, using the caller's comparer.</param>
+        /// <returns>The original label, or a numbered variant when it was already used.</returns>
+        public static string UniqueLabel(string label, ISet<string> used) {
+            if (used == null) { throw new ArgumentNullException(nameof(used)); }
+            string candidate = label ?? string.Empty;
+            int duplicate = 1;
+            while (!used.Add(candidate)) { candidate = (label ?? string.Empty) + " (" + (++duplicate).ToString(CultureInfo.InvariantCulture) + ")"; }
+            return candidate;
+        }
+
         /// <summary>Parses a scalar number without treating booleans, dates, null or whitespace as zero.</summary>
         /// <param name="value">A numeric primitive, decimal or invariant numeric string.</param>
         /// <param name="number">The finite value when successful; zero otherwise.</param>
@@ -102,9 +114,7 @@ namespace ConsoleMonster.Widgets {
             HashSet<string> labels = new HashSet<string>(StringComparer.Ordinal);
             int index = 0;
             foreach (ChartItem item in Select(_samples, s => s.Value)) {
-                string label = item.Label;
-                int duplicate = 1;
-                while (!labels.Add(label)) { label = item.Label + " (" + (++duplicate).ToString(CultureInfo.InvariantCulture) + ")"; }
+                string label = UniqueLabel(item.Label, labels);
                 bars.Add(label, item.Value, Palette(index++));
                 text.Add(TextBlock.Plain(label + ": " + Value(item.Value)));
             }

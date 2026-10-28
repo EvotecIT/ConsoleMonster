@@ -12,13 +12,13 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommon.Get, "ConsoleCapability")]
     [OutputType(typeof(TerminalProfile))]
-    public sealed class CmdletGetConsoleCapability : PSCmdlet {
+    public sealed class CmdletGetConsoleCapability : NoPipelineInputCmdlet {
         /// <summary><para type="description">Detect again instead of returning the cached profile.</para></summary>
         [Parameter]
         public SwitchParameter Refresh { get; set; }
 
         /// <inheritdoc />
-        protected override void ProcessRecord() {
+        protected override void ProcessWithoutPipelineInput() {
             if (Refresh.IsPresent) {
                 Terminal.Refresh();
             }

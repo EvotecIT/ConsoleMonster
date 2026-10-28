@@ -88,6 +88,51 @@ foreach ($title in 'Project', 'Notes', 'Token', 'Port', 'Folder', 'Continue?', '
     }
 
     Context 'Without a user (redirected input, -NonInteractive)' {
+        It 'rejects 300 unexpected objects once for commands that do not accept pipeline input' {
+            $text = Invoke-PromptChild -NonInteractive -Script @'
+$commands = 'Get-ConsoleCapability', 'Get-ConsoleDemo', 'New-ConsoleActivityList', 'New-ConsoleColumnFormat', 'New-ConsoleFooterBar', 'New-ConsoleMenuItem', 'New-ConsoleProgress', 'New-ConsoleRule', 'New-ConsoleSimulatedClock', 'New-ConsoleSummaryBar', 'Show-ConsoleOverview', 'Show-ConsoleStatusLine'
+$service = Get-Service | Select-Object -First 1
+foreach ($command in $commands) {
+    $Error.Clear()
+    try { 1..300 | ForEach-Object { $service } | & $command -ErrorAction Stop | Out-Null }
+    catch { "RESULT=$command ID=$($_.FullyQualifiedErrorId.Split(',')[0]) COUNT=$($Error.Count)" }
+}
+'@
+            foreach ($command in 'Get-ConsoleCapability', 'Get-ConsoleDemo', 'New-ConsoleActivityList', 'New-ConsoleColumnFormat', 'New-ConsoleFooterBar', 'New-ConsoleMenuItem', 'New-ConsoleProgress', 'New-ConsoleRule', 'New-ConsoleSimulatedClock', 'New-ConsoleSummaryBar', 'Show-ConsoleOverview', 'Show-ConsoleStatusLine') {
+                $text | Should -Match ([regex]::Escape("RESULT=$command ID=UnexpectedPipelineInput COUNT=1"))
+            }
+        }
+
+        It 'reports a missing dashboard once for a pipeline of log entries' {
+            $text = Invoke-PromptChild -NonInteractive -Script @'
+$errors = @()
+1..300 | Write-ConsoleLogEntry -ErrorAction SilentlyContinue -ErrorVariable +errors
+"ERRORS=$($errors.Count) ID=$($errors[0].FullyQualifiedErrorId.Split(',')[0])"
+'@
+            $text | Should -Match 'ERRORS=1 ID=ConsoleMonsterNoSession'
+        }
+
+        It 'supports optional prompt titles and the Prompt alias' {
+            $text = Invoke-PromptChild -NonInteractive -Script @'
+$one = Read-ConsoleSelect -Choices 'alpha', 'beta' -Default 'beta'
+$two = Read-ConsoleText -Prompt 'Name' -Default 'worker'
+"ONE=$one TWO=$two"
+'@
+            $text | Should -Match 'ONE=beta TWO=worker'
+        }
+
+        It 'renders one explorer for multiple piped objects' {
+            $text = Invoke-PromptChild -NonInteractive -Script @'
+$values = @([pscustomobject]@{Name='alpha'}, [pscustomobject]@{Name='beta'})
+$result = @($values | Show-ConsoleObject -AsString -Depth 2)
+"COUNT=$($result.Count)"
+$result
+'@
+            $text | Should -Match 'COUNT=1'
+            $text | Should -Match 'alpha'
+            $text | Should -Match 'beta'
+        }
+
         It 'returns the default instead of waiting' {
             $text = Invoke-PromptChild -Script @'
 $v = Read-ConsoleSelect 'Environment' -Choices 'Production', 'Staging' -Default 'Staging'
@@ -159,6 +204,20 @@ try { Show-ConsoleMenu $menu -ErrorAction Stop } catch { "error=$($_.Exception.M
     }
 
     Context 'Accessible and line modes' {
+        It 'labels service choices by identity while returning the service itself' {
+            $text = Invoke-PromptChild -InputText "1`n" -Script @'
+$service = Get-Service | Select-Object -First 1
+$answer = $service | Read-ConsoleSelect -Title 'Service' -Mode Accessible
+"EXPECTED=$($service.Name)"
+"ANSWER=$($answer.Name)"
+'@
+            $name = [regex]::Match($text, '(?m)^EXPECTED=(.+)$').Groups[1].Value.Trim()
+            $name | Should -Not -BeNullOrEmpty
+            $text | Should -Match ([regex]::Escape("1) $name"))
+            $text | Should -Match ([regex]::Escape("ANSWER=$name"))
+            $text | Should -Not -Match 'System\.ServiceProcess\.ServiceController'
+        }
+
         It 'collects pipeline objects once and returns the selected object' {
             $text = Invoke-PromptChild -InputText "2`n" -Script @'
 $items = @([pscustomobject]@{ Name = 'alpha'; Number = 1 }, [pscustomobject]@{ Name = 'beta'; Number = 2 })
@@ -259,6 +318,20 @@ $v = @(Read-ConsoleSelect -Title 'Pick' -Choices 'a', 'b', 'c' -Mode Accessible 
     }
 
     Context 'Scripted keys (the rich prompts without a terminal)' {
+        It 'filters real service objects by the identity shown in the picker' {
+            $text = Invoke-PromptChild -Script @'
+$services = @(Get-Service | Select-Object -First 2)
+$target = $services[1]
+$keys = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('"' + $target.Name + '" Enter')
+$keys.Paced = $true
+([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = $keys
+$picked = $services | Read-ConsoleSelect -Title 'Services'
+"EXPECTED=$($target.Name) PICKED=$($picked.Name)"
+'@
+            $text | Should -Match 'EXPECTED=(\S+) PICKED=\1'
+            $text | Should -Not -Match 'System\.ServiceProcess\.ServiceController'
+        }
+
         It 'drives a selection and a multi-selection with keys' {
             $text = Invoke-PromptChild -Script @'
 ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('Down Enter')

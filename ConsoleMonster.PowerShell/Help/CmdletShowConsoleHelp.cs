@@ -23,7 +23,7 @@ namespace ConsoleMonster.PowerShell {
     [OutputType(typeof(string))]
     public sealed class CmdletShowConsoleHelp : PSCmdlet {
         /// <summary><para type="description">The command (a cmdlet, function, alias or script path), or an about topic.</para></summary>
-        [Parameter(Position = 0, ValueFromPipelineByPropertyName = true)]
+        [Parameter(Position = 0)]
         [ValidateNotNullOrEmpty]
         public string Name { get; set; } = string.Empty;
 
@@ -58,12 +58,8 @@ namespace ConsoleMonster.PowerShell {
                 if (value is string text) { Name = text; }
                 else if (value is CommandInfo command) { Name = command.Name; }
                 else {
-                    object? name = InputObject.Properties["Name"]?.Value;
-                    if (name is string member && !string.IsNullOrWhiteSpace(member)) { Name = member; }
-                    else {
-                        ThrowTerminatingError(new ErrorRecord(new ArgumentException("Show-ConsoleHelp needs a command name or command object. Use Show-Console to display other pipeline objects."), "ExpectedCommandName", ErrorCategory.InvalidArgument, InputObject));
-                        return;
-                    }
+                    ThrowTerminatingError(new ErrorRecord(new ArgumentException("Show-ConsoleHelp needs a command name or command object. Use Show-Console to display other pipeline objects."), "ExpectedCommandName", ErrorCategory.InvalidArgument, InputObject));
+                    return;
                 }
             }
             if (string.IsNullOrWhiteSpace(Name)) {

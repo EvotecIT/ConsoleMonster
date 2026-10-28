@@ -9,7 +9,7 @@ namespace ConsoleMonster.PowerShell {
     /// <example><para>Reserve four digits for progress counts.</para><code>New-ConsoleProgress -WidgetId build -Label Build -CountColumn (New-ConsoleColumnFormat -ReserveDigits 4)</code></example>
     [Cmdlet(VerbsCommon.New, "ConsoleColumnFormat")]
     [OutputType(typeof(ColumnFormat))]
-    public sealed class CmdletNewConsoleColumnFormat : PSCmdlet {
+    public sealed class CmdletNewConsoleColumnFormat : NoPipelineInputCmdlet {
         /// <summary><para type="description">Alignment within the column; numbers default to Right.</para></summary>
         [Parameter] public HorizontalAlignment Alignment { get; set; } = HorizontalAlignment.Right;
         /// <summary><para type="description">Minimum width in terminal cells.</para></summary>
