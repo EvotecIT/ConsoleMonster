@@ -21,6 +21,16 @@ public sealed class ConsoleViewSystemTests {
         Assert.DoesNotContain("W32Time\n", text);
     }
 
+    [Fact]
+    public void Frame_AsciiFooter_UsesAsciiSeparatorsAndKeepsEntriesWhole() {
+        ConsoleViewFrame frame = new ConsoleViewFrame(new ViewHeader("History"));
+        frame.Footer = TextBlock.Plain("latest change per link only · no actor · expired deletions not shown");
+        string text = TestTerminal.RenderText(frame, 60, glyphs: GlyphTier.Ascii);
+        Assert.DoesNotContain('·', text);
+        Assert.Contains("expired deletions not shown", text);
+        Assert.DoesNotContain("expired deletions\n", text);
+    }
+
     [Theory]
     [InlineData(45, "45s")]
     [InlineData(185, "3m")]

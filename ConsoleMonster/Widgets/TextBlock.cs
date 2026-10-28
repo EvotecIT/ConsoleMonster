@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using ConsoleMonster.Canvas;
+using ConsoleMonster.Glyphs;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
@@ -71,7 +72,9 @@ namespace ConsoleMonster.Widgets {
         }
 
         private List<StyledLine> BuildLines(RenderContext context, int width) {
-            StyledText text = IsMarkup ? context.Markup(Content) : StyledText.FromPlain(Content);
+            string? separator = WrapSeparator == " · " ? " " + context.Glyphs.Get(Glyph.Dot) + " " : WrapSeparator;
+            string content = !IsMarkup && WrapSeparator == " · " ? Content.Replace(WrapSeparator, separator!) : Content;
+            StyledText text = IsMarkup ? context.Markup(content) : StyledText.FromPlain(content);
             Style baseStyle = Role.HasValue ? context.Style(Role.Value) : Style.Plain;
             List<StyledLine> result = new List<StyledLine>();
             foreach (StyledLine raw in text.Lines) {
@@ -79,8 +82,8 @@ namespace ConsoleMonster.Widgets {
                 if (line.Width <= width || width <= 0) {
                     result.Add(line);
                 } else if (Overflow == TextOverflow.Wrap) {
-                    result.AddRange(!string.IsNullOrEmpty(WrapSeparator) && line.PlainText.Contains(WrapSeparator!)
-                        ? FactFlow.WrapSeparated(line, width, WrapSeparator!) : TextWrapper.Wrap(line, width));
+                    result.AddRange(!string.IsNullOrEmpty(separator) && line.PlainText.Contains(separator!)
+                        ? FactFlow.WrapSeparated(line, width, separator!) : TextWrapper.Wrap(line, width));
                 } else {
                     result.Add(TextWrapper.Truncate(line, width, Overflow == TextOverflow.Ellipsis ? context.Ellipsis : string.Empty));
                 }
