@@ -1,0 +1,165 @@
+using System;
+using System.Collections.Generic;
+using ConsoleMonster.Canvas;
+using ConsoleMonster.Layout;
+using ConsoleMonster.Views;
+using ConsoleMonster.Widgets;
+
+namespace ConsoleMonster.Frames;
+
+/// <summary>
+/// A static dashboard frame for summary output: title line, meters, <c>Needs attention</c>, overview sections packed
+/// side by side, detail sections, legend and footer. It prints once and scrolls like any output. The frame applies the
+/// width tiers, the length preference, the ordering and the footer hint, so every product frame follows the same rules.
+/// </summary>
+public sealed class DashboardFrame : IWidget {
+    private const int SectionGap = 2;
+
+    /// <summary>Creates a frame.</summary>
+    /// <param name="title">The literal title, usually the view name.</param>
+    public DashboardFrame(string title) { Header = new FrameHeader(title); }
+
+    /// <summary>The title line.</summary>
+    public FrameHeader Header { get; }
+    /// <summary>Headline meters, in priority order.</summary>
+    public IList<Meter> Meters { get; } = new List<Meter>();
+    /// <summary>The attention list; it prints first in the summary rows whenever it has items.</summary>
+    public AttentionList Attention { get; } = new AttentionList();
+    /// <summary>Overview and detail sections, in the order they print.</summary>
+    public IList<FrameSection> Sections { get; } = new List<FrameSection>();
+    /// <summary>The legend.</summary>
+    public FrameLegend Legend { get; } = new FrameLegend();
+    /// <summary>The footer.</summary>
+    public FrameFooter Footer { get; } = new FrameFooter();
+    /// <summary>An explicit length; null uses the session preference or Standard.</summary>
+    public ConsoleViewLength? Length { get; set; }
+    /// <summary>An explicit size and length policy, for previews and tests; null reads the destination.</summary>
+    public FrameScale? Scale { get; set; }
+    /// <summary>Below this terminal width the frame prints <see cref="Compact"/> and the meters as one counts line (default 80).</summary>
+    public int CompactBelow { get; set; } = 80;
+    /// <summary>The type's compact view for narrow terminals; null stacks the frame's own sections.</summary>
+    public Func<FrameScale, IWidget>? Compact { get; set; }
+
+    /// <inheritdoc />
+    public Size Measure(Constraints constraints, RenderContext context) {
+        context = ConsoleViewStyle.Apply(context);
+        (IWidget body, int width) = Compose(constraints.MaxWidth, context);
+        Size size = body.Measure(new Constraints(width, constraints.MaxHeight), context);
+        return new Size(Math.Min(constraints.MaxWidth, width + 2), size.Height);
+    }
+
+    /// <inheritdoc />
+    public void Render(Region region, RenderContext context) {
+        context = ConsoleViewStyle.Apply(context);
+        (IWidget body, int width) = Compose(region.Width, context);
+        body.Render(region.Sub(1, 0, Math.Min(width, Math.Max(0, region.Width - 1)), region.Height), context);
+    }
+
+    private (IWidget Body, int Width) Compose(int available, RenderContext context) {
+        FrameScale scale = Scale ?? FrameScale.For(context.Profile, Length);
+        int content = Math.Max(1, available - 2);
+        ViewHeader header = HeaderFor(context);
+        if (available < CompactBelow && Compact != null) {
+            Rows compact = new Rows(Compact(scale));
+            if (Meters.Count > 0) {
+                List<string> counts = new List<string>();
+                foreach (Meter meter in Meters) counts.Add(meter.CountsText(context));
+                compact.Add(new FactFlow(counts) { Role = Styling.ThemeToken.Muted });
+            }
+            return (compact, content);
+        }
+
+        List<IWidget> blocks = new List<IWidget>();
+        List<FrameSection> summary = new List<FrameSection>();
+        if (Attention.Count > 0) summary.Add(Attention.ToSection(scale));
+        foreach (FrameSection section in Sections) { if (section.Placement == FramePlacement.Summary) summary.Add(section); }
+        foreach (List<FrameSection> row in Pack(summary, content, scale, context)) blocks.Add(Row(row, content, scale, context));
+        if (scale.DetailCap != 0) {
+            foreach (FrameSection section in Sections) {
+                if (section.Placement == FramePlacement.Detail) blocks.Add(section.Build(content, scale, context));
+            }
+        }
+        Rows tail = new Rows();
+        if (!Legend.IsEmpty) tail.Add(Legend.Build(context));
+        tail.Add(Footer.Build());
+        blocks.Add(tail);
+
+        MeterRow meters = new MeterRow(Meters, scale);
+        int width = Math.Min(content, Math.Max(meters.Measure(new Constraints(content), context).Width, header.NaturalWidth(context)));
+        foreach (IWidget block in blocks) width = Math.Max(width, Math.Min(content, block.Measure(new Constraints(content), context).Width));
+
+        Rows top = new Rows(new Lane(new IWidget[] { header }, new[] { width }, 0));
+        if (Meters.Count > 0) top.Add(meters);
+        Rows body = new Rows(top) { Gap = 1 };
+        foreach (IWidget block in blocks) body.Add(block);
+        return (body, width);
+    }
+
+    private ViewHeader HeaderFor(RenderContext context) {
+        bool anyState = Header.States.Count > 0;
+        bool allEmpty = true;
+        foreach (FrameState state in Header.States) { if (!state.IsEmpty) allEmpty = false; }
+        ViewHeader header = Header.Build(context);
+        if (anyState && allEmpty) {
+            FrameHeader healthy = new FrameHeader(Header.Title) { ObservedAt = Header.ObservedAt };
+            foreach (string fact in Header.Facts) healthy.Facts.Add(fact);
+            healthy.States.Add(FrameState.Healthy("all healthy"));
+            header = healthy.Build(context);
+        }
+        return header;
+    }
+
+    /// <summary>Packs consecutive sections into rows while their minimum widths and gaps fit; order never changes.</summary>
+    private static List<List<FrameSection>> Pack(List<FrameSection> sections, int content, FrameScale scale, RenderContext context) {
+        List<List<FrameSection>> rows = new List<List<FrameSection>>();
+        List<FrameSection> current = new List<FrameSection>();
+        int used = 0;
+        foreach (FrameSection section in sections) {
+            int minimum = section.Minimum(content, scale, context);
+            bool alone = scale.Stacked || section.FullWidth || (current.Count > 0 && current[0].FullWidth);
+            if (current.Count > 0 && (alone || used + SectionGap + minimum > content)) { rows.Add(current); current = new List<FrameSection>(); used = 0; }
+            used += (current.Count > 0 ? SectionGap : 0) + minimum;
+            current.Add(section);
+        }
+        if (current.Count > 0) rows.Add(current);
+        return rows;
+    }
+
+    private static IWidget Row(List<FrameSection> row, int content, FrameScale scale, RenderContext context) {
+        int available = content - SectionGap * (row.Count - 1);
+        int[] minimum = new int[row.Count];
+        int[] natural = new int[row.Count];
+        int[] widths = new int[row.Count];
+        for (int i = 0; i < row.Count; i++) {
+            minimum[i] = row[i].Minimum(available, scale, context);
+            natural[i] = Math.Max(minimum[i], row[i].Natural(available, scale, context));
+        }
+        int sum = 0;
+        for (int i = 0; i < row.Count; i++) { widths[i] = minimum[i]; sum += minimum[i]; }
+        // Fixed-size sections reach their natural width first; growing sections share what is left.
+        int rest = Math.Max(0, available - sum);
+        foreach (bool growing in new[] { false, true }) {
+            for (int i = 0; i < row.Count && rest > 0; i++) {
+                if ((row[i].Grow > 0) != growing) continue;
+                int add = Math.Min(rest, natural[i] - widths[i]);
+                widths[i] += add; rest -= add;
+            }
+        }
+        double weights = 0;
+        foreach (FrameSection section in row) weights += Math.Max(0, section.Grow);
+        if (row.Count == 1 && (row[0].FullWidth || row[0].Grow > 0)) { widths[0] = Math.Min(available, row[0].MaxWidth ?? available); rest = 0; }
+        if (rest > 0 && weights > 0) {
+            int given = 0, last = -1;
+            for (int i = 0; i < row.Count; i++) {
+                if (row[i].Grow <= 0) continue;
+                int share = (int)Math.Floor(rest * row[i].Grow / weights);
+                if (row[i].MaxWidth.HasValue) share = Math.Min(share, Math.Max(0, row[i].MaxWidth!.Value - widths[i]));
+                widths[i] += share; given += share; last = i;
+            }
+            if (last >= 0 && !row[last].MaxWidth.HasValue) widths[last] += rest - given;
+        }
+        IWidget[] blocks = new IWidget[row.Count];
+        for (int i = 0; i < row.Count; i++) blocks[i] = row[i].Build(widths[i], scale, context);
+        return new Lane(blocks, widths, SectionGap);
+    }
+}
