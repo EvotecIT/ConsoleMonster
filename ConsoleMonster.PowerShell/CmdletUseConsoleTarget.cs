@@ -11,8 +11,8 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="description">Inside the script block every ConsoleMonster command (Write-ConsoleText, Show-ConsoleTable, Write-ConsoleText -Markup, live dashboards, prompts) writes to the target instead of the console. With -Path the output goes to a UTF-8 file, with -Writer to a TextWriter, with -Target to a target object (ConsoleMonster.Output.ITerminalTarget); with none of them it is returned as one string. -Width, -Glyphs and -ColorDepth lay the output out for the file or string; prompts there have nobody to answer and use their defaults. The script block's own output is passed through.</para>
     /// </summary>
     /// <example>
-    ///   <para>Save a report as plain text</para>
-    ///   <code>Use-ConsoleTarget -Path .\report.txt -Width 120 { $servers | Show-ConsoleTable; Write-ConsoleText -Markup '[pass]done[/]' }</code>
+    ///   <para>Capture a report as plain text</para>
+    ///   <code>Use-ConsoleTarget -Width 120 { Get-Process | Select-Object -First 5 Name, Id | Show-ConsoleTable; Write-ConsoleText -Markup '[pass]done[/]' }</code>
     /// </example>
     /// <example>
     ///   <para>Capture a table as a string</para>

@@ -9,14 +9,12 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="description">Writes every semantic token, foreground/background colour, explicit fallback tier and decoration as JSON or restricted PowerShell data. The current theme is unchanged. The file extension selects the format; the parent directory must already exist. JSON is UTF-8 without a BOM; PSD1 uses a UTF-8 BOM for Windows PowerShell 5.1.</para>
     /// </summary>
     /// <example>
-    /// <para>Export the current theme, edit its token definitions and apply it.</para>
-    /// <code>Export-ConsoleTheme -Path ./team-theme.json
-    /// Set-ConsoleTheme -Path ./team-theme.json</code>
+    /// <para>Preview exporting the current theme.</para>
+    /// <code>Export-ConsoleTheme -Path ./team-theme.json -WhatIf</code>
     /// </example>
     /// <example>
-    /// <para>Create a PowerShell data file from the accessible preset and return its file information.</para>
-    /// <code>Set-ConsoleTheme -Theme ColorBlindSafe
-    /// Export-ConsoleTheme -Path ./accessible.psd1 -PassThru</code>
+    /// <para>Preview exporting a PowerShell data file.</para>
+    /// <code>Export-ConsoleTheme -Path ./accessible.psd1 -WhatIf</code>
     /// </example>
     [Cmdlet(VerbsData.Export, "ConsoleTheme", SupportsShouldProcess = true)]
     [OutputType(typeof(FileInfo))]

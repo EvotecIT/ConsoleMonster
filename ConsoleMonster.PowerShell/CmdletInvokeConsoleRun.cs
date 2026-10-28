@@ -20,12 +20,12 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="description">$_ is the item, as in ForEach-Object. While it runs, a live view shows a summary line (done of total, percentage, time left, counts), one cell per item, the running items with their elapsed time and the failures; without an interactive console (redirected output, CI, a job) it prints one line per finished item and a summary instead. The output is the script block's ordinary output, in input order (or as each item finishes with -Unordered); an item's errors are written as error records and mark it as failed. While the live view is showing, ordinary output and native stream records are delivered when it ends. With -Parallel, while the live view is showing, host messages, warnings, information, verbose and debug messages, and errors also appear immediately in its log; Write-Progress appears in an activity list, with independent parent and child activities per worker. Without -Parallel, progress bars from the script block are hidden while the live view is showing. Without -Parallel the items run one at a time in the caller's scope, as with ForEach-Object, so variables set in the script block stay. -Parallel runs up to -ThrottleLimit items at a time in their own runspaces on Windows PowerShell 5.1 and PowerShell 7: variables of the caller are passed with $using:name, and -TimeoutSeconds stops an item that runs too long. -Label sets each item's label: a property name or a script block. -RetryCount runs a failed or timed-out item again (after -RetryDelaySeconds); only the last attempt's output and errors are kept, the item's cell shows the retry and the summary counts retried items. Ctrl+C stops the run: running items are stopped and the rest are counted as skipped.</para>
     /// </summary>
     /// <example>
-    ///   <para>Check servers in parallel</para>
-    ///   <code>$port = 443; $servers | Invoke-ConsoleRun -Parallel -ThrottleLimit 8 -Label Name { Test-NetConnection $_.Name -Port $using:port -InformationLevel Quiet }</code>
+    ///   <para>Inspect items in parallel</para>
+    ///   <code>$servers = 'web01', 'web02' | ForEach-Object { [pscustomobject]@{ Name = $_ } }; $servers | Invoke-ConsoleRun -Parallel -ThrottleLimit 8 -Label Name { $_.Name.ToUpperInvariant() }</code>
     /// </example>
     /// <example>
     ///   <para>One at a time, in the current scope</para>
-    ///   <code>Get-ChildItem *.log | Invoke-ConsoleRun { Compress-Archive $_ "$($_.BaseName).zip" -Force }</code>
+    ///   <code>Get-ChildItem -File | Select-Object -First 5 | Invoke-ConsoleRun { $_.Name }</code>
     /// </example>
     /// <example>
     ///   <para>Forty items in parallel with a title and a time limit: items that throw or run past 10 seconds are failures, listed when the run ends</para>

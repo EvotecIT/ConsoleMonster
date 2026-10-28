@@ -11,11 +11,11 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example>
     ///   <para>A table as an HTML page</para>
-    ///   <code>Get-Service | Select-Object -First 8 Name, Status, StartType | Show-ConsoleTable -AsWidget | Export-ConsoleFrame -Path .\services.html</code>
+    ///   <code>Get-Process | Select-Object -First 8 Name, Id | Show-ConsoleTable -AsWidget | Export-ConsoleFrame -Format Html</code>
     /// </example>
     /// <example>
     ///   <para>A dashboard as an SVG in a window frame, dark only</para>
-    ///   <code>$dashboard | Export-ConsoleFrame -Format Svg -Path .\run.svg -Width 120 -Height 36 -Theme Dark -Title 'Nightly run' -WindowChrome</code>
+    ///   <code>New-ConsoleText 'Nightly run' | Export-ConsoleFrame -Format Svg -Width 120 -Height 36 -Theme Dark -Title 'Nightly run' -WindowChrome</code>
     /// </example>
     [Cmdlet(VerbsData.Export, "ConsoleFrame")]
     [OutputType(typeof(string), typeof(byte[]), typeof(FileInfo))]

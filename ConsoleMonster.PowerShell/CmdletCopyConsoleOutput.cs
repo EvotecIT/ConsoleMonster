@@ -10,8 +10,8 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="description">Serializes input through the core or bundled Markdown add-on as Text (default), Markdown or Html and copies the source as Unicode text. Markdown uses GFM tables, property/value lists and nested tree bullets, including the shared value presenters and totals. Text is plain terminal output. A rendered frame or live-session snapshot retains a fenced fallback. Windows uses its native clipboard, macOS uses pbcopy, and Linux uses wl-copy (Wayland) or xclip (X11). SSH, a missing desktop/provider or a failing provider produces a non-terminating error; use -ErrorAction Stop to catch it. No output is written unless -PassThru succeeds. -WhatIf exports without accessing the clipboard.</para>
     /// </summary>
     /// <example>
-    ///   <para>Copy a process table into a Markdown report</para>
-    ///   <code>Get-Process | Select-Object -First 10 Name, Id | Show-ConsoleTable -AsWidget | Copy-ConsoleOutput -Format Markdown</code>
+    ///   <para>Preview copying a process table as Markdown</para>
+    ///   <code>Get-Process | Select-Object -First 10 Name, Id | Show-ConsoleTable -AsWidget | Copy-ConsoleOutput -Format Markdown -WhatIf</code>
     /// </example>
     [Cmdlet(VerbsCommon.Copy, "ConsoleOutput", SupportsShouldProcess = true)]
     [OutputType(typeof(string))]
