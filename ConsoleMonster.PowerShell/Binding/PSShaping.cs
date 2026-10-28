@@ -167,6 +167,12 @@ namespace ConsoleMonster.PowerShell.Binding {
                     return raw != null && ValueShaper.IsScalar(raw) && !(raw is bool) ? ValueShaper.ScalarText(raw) : null;
                 } catch (GetValueException) { return null; }
             }
+            PSMemberSet? standard = item.Members["PSStandardMembers"] as PSMemberSet;
+            string? preferred = (standard?.Members["DefaultDisplayProperty"] as PSPropertyInfo)?.Value as string;
+            if (!string.IsNullOrWhiteSpace(preferred)) {
+                string? preferredValue = Read(preferred!);
+                if (!string.IsNullOrWhiteSpace(preferredValue)) { return preferredValue; }
+            }
             string? name = Read("Name");
             if (!string.IsNullOrWhiteSpace(name)) {
                 string? display = Read("DisplayName");

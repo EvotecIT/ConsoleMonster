@@ -84,6 +84,17 @@ $root | Format-ConsoleTree -Depth 0 -Exclude Name -AsString
         $text | Should -Match 'READS=0'
     }
 
+    It 'uses an allowed default display property at the depth limit' {
+        $text = Invoke-FormatChild -Script @'
+$child = [pscustomobject]@{ Label = 'friendly'; Secret = 'hidden' }
+$default = [System.Management.Automation.PSNoteProperty]::new('DefaultDisplayProperty', 'Label')
+$child | Add-Member MemberSet PSStandardMembers ([System.Management.Automation.PSMemberInfo[]] @($default))
+[pscustomobject]@{ Child = $child } | Format-ConsoleTree -Depth 0 -Exclude Secret -AsString
+'@
+        $text | Should -Match 'Child\s+friendly'
+        $text | Should -Not -Match 'hidden'
+    }
+
     It 'bounds root identity reads and reports the node limit accurately' {
         $text = Invoke-FormatChild -Script @'
 $script:reads = 0
