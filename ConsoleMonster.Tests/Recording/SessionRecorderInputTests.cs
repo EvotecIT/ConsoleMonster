@@ -117,6 +117,7 @@ namespace ConsoleMonster.Tests {
             var options = WaitingOptions();
             using var recorder = SessionRecorder.Start(options);
             recorder.WaitForOutput("READY", TimeSpan.FromSeconds(10));
+            Assert.False(recorder.HasExited);
             using var cancel = new CancellationTokenSource();
             cancel.Cancel();
             Assert.Throws<OperationCanceledException>(() => recorder.WaitForOutput("READY", TimeSpan.FromSeconds(10), cancel.Token));
@@ -194,9 +195,10 @@ namespace ConsoleMonster.Tests {
 
         private SessionRecordingOptions WaitingOptions() {
             var options = Options();
-            options.Shell = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "powershell.exe" : "/bin/sh";
+            // These lifecycle checks need a ready, blocked child rather than PowerShell's startup work.
+            options.Shell = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "cmd.exe" : "/bin/sh";
             foreach (string argument in RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                ? new[] { "-NoLogo", "-NoProfile", "-Command", "[Console]::Write('READY'); Start-Sleep -Seconds 30" }
+                ? new[] { "/d", "/c", "echo READY & pause >nul" }
                 : new[] { "-c", "printf READY; sleep 30" }) { options.Arguments.Add(argument); }
             return options;
         }
