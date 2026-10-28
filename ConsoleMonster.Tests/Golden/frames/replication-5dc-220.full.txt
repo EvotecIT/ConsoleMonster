@@ -1,0 +1,24 @@
+ Replication · corp.contoso.com · 5 DCs · 3 sites · 8 partnerships ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── × 2 failing
+ Partnerships healthy          DCs reached                   Oldest inbound success        Pending operations            Naming contexts current
+ 6/8     ███████████████×××××  5/5     ████████████████████  2d 3h   NYC-DC01 ← LON-DC01   31                            32/40   ████████████████××××
+
+ Needs attention  2 of 8 partnerships · worst first ───────────────────────────────────────────── × 2  Matrix  worst naming context · age ─────────────────────────── inbound  Last success  all naming contexts ──── age
+ × LON-DC01 ← NYC-DC01  2d 3h  41 fails  8524 DNS lookup failure                                                 source →  LON-HQ               AMS-DC               NYC-BR    <15m       ━━━━━━━━━━━━━━━━━━━━━━━━━    26
+ × NYC-DC01 ← LON-DC01  2d 3h  38 fails  8524 DNS lookup failure                                       destination ↓       LON-DC01  LON-DC02   AMS-DC01  AMS-DC02   NYC-DC01  15m to 1h  ━━━━━━───────────────────     6
+                                                                                                       LON-HQ    LON-DC01  —         ✓ 15m      ✓ 14m     ·          × 2d      1h to 1d   ─────────────────────────     0
+                                                                                                                 LON-DC02  ✓ 9m      —          ·         ·          ·         >1d        ━━━━━━━╸─────────────────     8
+                                                                                                       AMS-DC    AMS-DC01  ✓ 52m     ·          —         ✓ 16m      ·
+                                                                                                                 AMS-DC02  ·         ·          ✓ 9m      —          ·
+                                                                                                       NYC-BR    NYC-DC01  × 2d      ·          ·         ·          —
+                                                                                                       cell: age of the oldest naming context
+
+ Inbound by DC  5 DCs by site · log axis ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── × 2 failing
+ DC        In  Fail  Last success, all naming contexts         Worst    DC        In  Fail  Last success, all naming contexts         Worst    DC        In  Fail  Last success, all naming contexts         Worst
+ ────────  ──  ────  ────────────────────────────────────────  ─────    ────────  ──  ────  ────────────────────────────────────────  ─────    ────────  ──  ────  ────────────────────────────────────────  ─────
+                     1m        10m     1h             1d   4d                               1m        10m     1h             1d   4d                               1m        10m     1h             1d   4d
+ LON-HQ  2 DCs · × 1 failing                                            AMS-DC  2 DCs · ✓ all current                                          NYC-BR  1 DC · × 1 failing
+ LON-DC01   3     1  ──━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━×───  2d 3h    AMS-DC01   2     0  ───━━━━━━━━━━━━━━━●─────────────────────    52m    NYC-DC01   1     1  ───━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━×───  2d 3h
+ LON-DC02   1     0  ──━━━━━━━━●─────────────────────────────     9m    AMS-DC02   1     0  ───━━━━━━━●─────────────────────────────     9m
+
+ ✓ current   × failing   · no partnership
+ 40 naming-context links · pipe to Format-Table for every row

@@ -8,8 +8,9 @@ using ConsoleMonster.Text;
 namespace ConsoleMonster.Frames;
 
 /// <summary>
-/// A headline tile under the title line: a label, then a value with a bar or a short fact. Meters keep their declared
-/// order; when they do not fit one line they wrap, so a meter is never dropped.
+/// A headline tile under the title line: a label, then a value with a bar or a short fact. Meters are declared in
+/// priority order: one line holds as many tiles as the width allows and lower-priority meters are left out on narrower
+/// terminals. Meters summarise; every problem they count must also be in the attention list.
 /// </summary>
 public sealed class Meter {
     internal const int TileWidth = 28;
@@ -19,14 +20,18 @@ public sealed class Meter {
     /// <param name="label">The literal label.</param><param name="healthy">Healthy items.</param><param name="warning">Warnings.</param>
     /// <param name="failing">Failing items.</param><param name="unknown">Items without a value.</param><param name="notEvaluated">Items that could not be evaluated.</param>
     /// <returns>The meter.</returns>
-    public static Meter Composition(string label, long healthy, long warning = 0, long failing = 0, long unknown = 0, long notEvaluated = 0) =>
-        new Meter(label) { Kind = MeterKind.Composition, Healthy = healthy, Warning = warning, Failing = failing, Unknown = unknown, NotEvaluated = notEvaluated };
+    public static Meter Composition(string label, long healthy, long warning = 0, long failing = 0, long unknown = 0, long notEvaluated = 0) {
+        if (healthy < 0 || warning < 0 || failing < 0 || unknown < 0 || notEvaluated < 0) throw new ArgumentOutOfRangeException(nameof(healthy), "Composition counts cannot be negative.");
+        return new Meter(label) { Kind = MeterKind.Composition, Healthy = healthy, Warning = warning, Failing = failing, Unknown = unknown, NotEvaluated = notEvaluated };
+    }
 
     /// <summary>A healthy part of a whole; the rest is drawn in the state the data owner gives it.</summary>
     /// <param name="label">The literal label.</param><param name="healthy">The healthy part.</param><param name="whole">The whole.</param>
     /// <param name="rest">The state of the remainder, for example <see cref="HealthState.NotEvaluated"/> for targets that did not answer.</param>
     /// <returns>The meter.</returns>
     public static Meter Ratio(string label, long healthy, long whole, HealthState rest = HealthState.Failing) {
+        if (healthy < 0 || whole < healthy) throw new ArgumentOutOfRangeException(nameof(healthy), "The healthy part must be between zero and the whole.");
+        if (rest == HealthState.Healthy || rest == HealthState.Critical) throw new ArgumentOutOfRangeException(nameof(rest), "The remainder must be a warning, failing, unknown or not-evaluated state.");
         Meter meter = new Meter(label) { Kind = MeterKind.Composition, Healthy = healthy };
         meter.Assign(rest, Math.Max(0, whole - healthy));
         return meter;
@@ -67,7 +72,7 @@ public sealed class Meter {
             case HealthState.Warning: Warning = value; break;
             case HealthState.Unknown: Unknown = value; break;
             case HealthState.NotEvaluated: NotEvaluated = value; break;
-            case HealthState.Healthy: Healthy += value; break;
+
             default: Failing = value; break;
         }
     }
@@ -116,6 +121,14 @@ public sealed class Meter {
             if (shares[i].value <= 0) continue;
             widths[i] = Math.Max(1, (int)Math.Round(cells * (double)shares[i].value / total, MidpointRounding.AwayFromZero));
             used += widths[i];
+        }
+        // Keep every problem share and, when present, one healthy cell inside the bar: trim the largest share first.
+        int room = cells - (Healthy > 0 ? 1 : 0);
+        while (used > room) {
+            int largest = -1;
+            for (int i = 0; i < widths.Length; i++) { if (widths[i] > 1 && (largest < 0 || widths[i] > widths[largest])) largest = i; }
+            if (largest < 0) break;
+            widths[largest]--; used--;
         }
         int healthy = Math.Max(0, cells - used);
         if (Healthy > 0 && healthy == 0 && used > 1) {

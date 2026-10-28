@@ -1,0 +1,54 @@
+ Replication · corp.contoso.com · 100 DCs · 20 sites · 238 partnerships ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────── × 4 failing · ? 2 not reached
+ Partnerships healthy          DCs reached                   Oldest inbound success        Pending operations            Naming contexts current
+ 230/238  █████████████████×?  98/100  ███████████████████?  1d 2h   MEX-DC02 ← MEX-DC03   58                            1,154/1,190  █████████████×?
+
+ Needs attention  6 of 238 partnerships · worst first ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── × 4 · ? 2
+ × MEX-DC02 ← MEX-DC03   1d 2h  31 fails  5 Access is denied
+ × JNB-DC01 ← LON-DC01   9h 0m  12 fails  8524 DNS lookup failure
+ × SIN-DC01 ← LON-DC01  6h 12m  19 fails  1722 RPC server unavailable
+ × LON-DC01 ← SIN-DC01   6h 8m  18 fails  1722 RPC server unavailable
+ ? BOM-DC03                  —            not reached (30 s timeout)
+ ? TYO-DC04                  —            not reached (30 s timeout)
+
+ Matrix  worst state · partnerships in that state ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────── inbound  Last success  all naming contexts ────── age
+     source →  LON-HQ  AMS-DC  FRA-DC  NYC-BR  TOR-BR  CHI-BR  SIN-BR  SYD-BR  TYO-BR  DUB-BR  MEX-BR  SAO-BR  JNB-BR  DXB-BR  MUC-BR  MAD-BR  WAW-BR  BOM-BR  HKG-BR  SEA-BR  <15m       ━━━━━━━━━━━━━━━━━━━━━━━━    1,046
+ destination ↓                                                                                                                                                                 15m to 1h  ━━╸─────────────────────      100
+ LON-HQ        ✓       ✓       ✓       ✓       ✓       ✓       × 1     ✓       ✓       ✓       ✓       ✓       ✓       ✓       ✓       ✓       ✓       ✓       ✓       ✓       1h to 1d   ╸───────────────────────       20
+ AMS-DC        ✓       ✓       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       >1d        ╸───────────────────────        4
+ FRA-DC        ✓       ·       ✓       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       unread     ? DC not reached             ? 20
+ NYC-BR        ✓       ·       ·       ✓       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·
+ TOR-BR        ✓       ·       ·       ·       ✓       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·
+ CHI-BR        ✓       ·       ·       ·       ·       ✓       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·
+ SIN-BR        × 1     ·       ·       ·       ·       ·       ✓       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·
+ SYD-BR        ✓       ·       ·       ·       ·       ·       ·       ✓       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·
+ TYO-BR        ✓       ·       ·       ·       ·       ·       ·       ·       ? 2     ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·
+ DUB-BR        ✓       ·       ·       ·       ·       ·       ·       ·       ·       ✓       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·
+ MEX-BR        ✓       ·       ·       ·       ·       ·       ·       ·       ·       ·       × 1     ·       ·       ·       ·       ·       ·       ·       ·       ·
+ SAO-BR        ✓       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ✓       ·       ·       ·       ·       ·       ·       ·       ·
+ JNB-BR        × 1     ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ✓       ·       ·       ·       ·       ·       ·       ·
+ DXB-BR        ✓       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ✓       ·       ·       ·       ·       ·       ·
+ MUC-BR        ✓       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ✓       ·       ·       ·       ·       ·
+ MAD-BR        ✓       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ✓       ·       ·       ·       ·
+ WAW-BR        ✓       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ✓       ·       ·       ·
+ BOM-BR        ✓       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ? 2     ·       ·
+ HKG-BR        ✓       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ✓       ·
+ SEA-BR        ✓       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ✓
+ cell: worst state · partnerships in that state
+
+ Inbound by DC  100 DCs by site · log axis ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── × 4 failing · ? 2 not reached
+ DC        In  Fail  Last success, all naming contexts          Worst    DC        In  Fail  Last success, all naming contexts          Worst    DC        In  Fail  Last success, all naming contexts          Worst
+ ────────  ──  ────  ────────────────────────────────────────  ──────    ────────  ──  ────  ────────────────────────────────────────  ──────    ────────  ──  ────  ────────────────────────────────────────  ──────
+                     1m        10m     1h             1d   4d                                1m        10m     1h             1d   4d                                1m        10m     1h             1d   4d
+ LON-HQ  10 DCs · × 1 failing                                            SYD-BR  3 DCs · ✓ all current                                           DXB-BR  5 DCs · ✓ all current
+ LON-DC01  21     1  ──━━━━━━━━━━━━━━━━━━━━━━━━━×────────────   6h 8m    TYO-BR  4 DCs · ? 1 not reached                                         MUC-BR  5 DCs · ✓ all current
+ AMS-DC  6 DCs · ✓ all current                                           TYO-DC04   2     0  ? not reached                                  ?    MAD-BR  5 DCs · ✓ all current
+ FRA-DC  6 DCs · ✓ all current                                           DUB-BR  4 DCs · ✓ all current                                           WAW-BR  5 DCs · ✓ all current
+ NYC-BR  5 DCs · ✓ all current                                           MEX-BR  5 DCs · × 1 failing                                             BOM-BR  5 DCs · ? 1 not reached
+ TOR-BR  4 DCs · ✓ all current                                           MEX-DC02   2     1  ──━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━×──────   1d 2h    BOM-DC03   2     0  ? not reached                                  ?
+ CHI-BR  4 DCs · ✓ all current                                           SAO-BR  5 DCs · ✓ all current                                           HKG-BR  5 DCs · ✓ all current
+ SIN-BR  4 DCs · × 1 failing                                             JNB-BR  5 DCs · × 1 failing                                             SEA-BR  5 DCs · ✓ all current
+ SIN-DC01   3     1  ──━━━━━━━━━━━━━━━━━━━━━━━━━×────────────  6h 12m    JNB-DC01   3     1  ───━━━━━━━━━━━━━━━━━━━━━━━━━×───────────   9h 0m
+ 94 current DCs not listed · $ConsoleViewLengthPreference = 'Full' lists every row
+
+ ✓ current   × failing   ? not reached   · no partnership
+ 1190 naming-context links · pipe to Format-Table for every row

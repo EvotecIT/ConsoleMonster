@@ -37,6 +37,7 @@ public sealed class Distribution : IWidget {
             count = Math.Max(count, FrameText.Number(bucket.Count, context).Length);
             if (bucket.Note == null) maximum = Math.Max(maximum, bucket.Count);
         }
+        if (!context.HasColor) count += 2;
         int bar = Math.Max(6, Math.Min(BarWidth, width - label - count - 4));
         List<StyledLine> lines = new List<StyledLine>();
         foreach (Bucket bucket in _buckets) {
@@ -50,6 +51,8 @@ public sealed class Distribution : IWidget {
             spans.AddRange(FrameText.Fit(FrameText.Line(middle, context), bar, false, context));
             spans.Add(new TextSpan("  "));
             string number = FrameText.Number(bucket.Count, context);
+            // Without colour a marked bucket keeps its state as a glyph before the count.
+            if (role.Length > 0 && bucket.Count > 0 && !context.HasColor) number = FrameText.Glyph(bucket.State!.Value, context) + " " + number;
             spans.AddRange(FrameText.Fit(FrameText.Line(role.Length == 0 || bucket.Count == 0 ? number : "[" + role + "]" + number + "[/]", context), count, true, context));
             StyledLine line = new StyledLine(spans);
             lines.Add(line.Width > width ? TextWrapper.Truncate(line, width, context.Ellipsis) : line);

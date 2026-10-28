@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using ConsoleMonster.Canvas;
-using ConsoleMonster.Capabilities;
+using ConsoleMonster.Glyphs;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 
@@ -77,39 +77,66 @@ internal static class FrameText {
         }
     }
 
+    // The frame's states reuse the library vocabulary: the health scale for healthy, warning, failing and unknown,
+    // and the assessment scale for critical and could-not-evaluate, so every tier keeps one glyph per meaning.
     internal static ThemeToken Role(HealthState state) {
         switch (state) {
-            case HealthState.Critical: return ThemeToken.Critical;
-            case HealthState.Failing: return ThemeToken.Fail;
-            case HealthState.Warning: return ThemeToken.Warn;
-            case HealthState.NotEvaluated: return ThemeToken.Gap;
+            case HealthState.Critical: return StatusScale.Role(Severity.Critical);
+            case HealthState.Failing: return StatusKind.Fail.ToToken();
+            case HealthState.Warning: return StatusKind.Warn.ToToken();
+            case HealthState.NotEvaluated: return StatusScale.Role(Severity.CouldNotEvaluate);
             case HealthState.Unknown: return ThemeToken.Muted;
-            default: return ThemeToken.Pass;
+            default: return StatusKind.Pass.ToToken();
         }
     }
 
     internal static string Tag(HealthState state) => Role(state).ToString().ToLowerInvariant();
 
     internal static string Glyph(HealthState state, RenderContext context) {
-        GlyphTier tier = context.Glyphs.Tier;
         switch (state) {
-            case HealthState.Critical: return tier == GlyphTier.Full ? "◆" : tier == GlyphTier.Basic ? "♦" : "*";
-            case HealthState.Failing: return tier == GlyphTier.Ascii ? "x" : "×";
-            case HealthState.Warning: return tier == GlyphTier.Full ? "▴" : "!";
-            case HealthState.NotEvaluated: return "?";
-            case HealthState.Unknown: return tier == GlyphTier.Full ? "◌" : tier == GlyphTier.Basic ? "○" : "o";
-            default: return tier == GlyphTier.Full ? "✓" : tier == GlyphTier.Basic ? "√" : "+";
+            case HealthState.Critical: return StatusScale.Marker(Severity.Critical, context.Glyphs.Tier);
+            case HealthState.Failing: return context.Glyphs.StatusSymbol(StatusKind.Fail);
+            case HealthState.Warning: return context.Glyphs.StatusSymbol(StatusKind.Warn);
+            case HealthState.NotEvaluated: return StatusScale.Marker(Severity.CouldNotEvaluate, context.Glyphs.Tier);
+            case HealthState.Unknown: return context.Glyphs.StatusMarker(StatusKind.Unknown);
+            default: return context.Glyphs.StatusSymbol(StatusKind.Pass);
         }
     }
+    internal static string Dot(RenderContext context) => context.Glyphs.Get(Glyphs.Glyph.Dot);
 
-    internal static string Dot(RenderContext context) => context.Glyphs.Tier == GlyphTier.Ascii ? "-" : "·";
-
-    internal static string Arrow(RenderContext context) => context.Glyphs.Tier == GlyphTier.Ascii ? "<-" : "←";
+    internal static string Arrow(RenderContext context) => context.Glyphs.Get(Glyphs.Glyph.ArrowLeft);
 
     internal static string Escape(string? text) => Markup.Escape(text ?? string.Empty);
 
+    private static readonly KeyValuePair<string, string>[] AsciiFolds = {
+        new KeyValuePair<string, string>("←", "<-"), new KeyValuePair<string, string>("→", "->"), new KeyValuePair<string, string>("↔", "<>"),
+        new KeyValuePair<string, string>("·", "-"), new KeyValuePair<string, string>("—", "-"), new KeyValuePair<string, string>("–", "-"),
+        new KeyValuePair<string, string>("…", "..."), new KeyValuePair<string, string>("\u00A0", " "), new KeyValuePair<string, string>("\u202F", " "),
+        new KeyValuePair<string, string>("\u2019", "'"), new KeyValuePair<string, string>("\u2018", "'"), new KeyValuePair<string, string>("\u201C", "\""),
+        new KeyValuePair<string, string>("\u201D", "\""), new KeyValuePair<string, string>("\u2009", " ")
+    };
+
+    /// <summary>
+    /// Folds the common typographic characters of literal product text for the ASCII tier, before measuring, so an
+    /// author's <c>DC01 ← DC02</c> or <c>a · b</c> never puts a non-ASCII character into ASCII output.
+    /// </summary>
+    internal static string Fold(string text, RenderContext context) {
+        if (context.Glyphs.Tier != Capabilities.GlyphTier.Ascii || string.IsNullOrEmpty(text)) return text;
+        foreach (KeyValuePair<string, string> fold in AsciiFolds) text = text.Replace(fold.Key, fold.Value);
+        // Anything left outside printable ASCII (culture separators, letters with accents) becomes '?', never a raw byte.
+        System.Text.StringBuilder? ascii = null;
+        for (int i = 0; i < text.Length; i++) {
+            char c = text[i];
+            if (c < 127 && (c >= ' ' || c == '\n')) { ascii?.Append(c); continue; }
+            if (ascii == null) ascii = new System.Text.StringBuilder(text, 0, i, text.Length);
+            if (char.IsHighSurrogate(c) && i + 1 < text.Length) i++;
+            ascii.Append('?');
+        }
+        return ascii?.ToString() ?? text;
+    }
+
     internal static StyledLine Line(string markup, RenderContext context) {
-        IReadOnlyList<StyledLine> lines = context.Markup(markup).Lines;
+        IReadOnlyList<StyledLine> lines = context.Markup(Fold(markup, context)).Lines;
         return lines.Count == 0 ? StyledLine.From(string.Empty) : lines[0];
     }
 
@@ -126,6 +153,8 @@ internal static class FrameText {
         if (!right && pad > 0) spans.Add(new TextSpan(new string(' ', pad)));
         return spans;
     }
+
+    internal static string Count(long value, string singular, string? plural, RenderContext context) => Number(value, context) + " " + (value == 1 ? singular : plural ?? singular + "s");
 
     internal static string Number(long value, RenderContext context) => value.ToString("N0", context.Culture ?? CultureInfo.CurrentCulture);
 }

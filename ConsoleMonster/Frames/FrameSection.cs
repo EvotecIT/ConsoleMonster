@@ -48,25 +48,35 @@ public sealed class FrameSection {
     /// <summary>Summary or detail.</summary>
     public FramePlacement Placement { get; set; }
     /// <summary>The narrowest useful width; null uses the content's natural width, so the section never shrinks below it.</summary>
-    public int? MinWidth { get; set; }
+    public int? MinWidth { get => _minWidth; set => _minWidth = value < 1 ? throw new ArgumentOutOfRangeException(nameof(value)) : value; }
     /// <summary>The widest the section may become, or null for no limit.</summary>
-    public int? MaxWidth { get; set; }
+    public int? MaxWidth { get => _maxWidth; set => _maxWidth = value < 1 ? throw new ArgumentOutOfRangeException(nameof(value)) : value; }
     /// <summary>Share of leftover row width; zero keeps the section at its natural width.</summary>
-    public double Grow { get; set; }
+    public double Grow { get => _grow; set => _grow = value < 0 || double.IsNaN(value) || double.IsInfinity(value) ? throw new ArgumentOutOfRangeException(nameof(value)) : value; }
+    private int? _minWidth;
+    private int? _maxWidth;
+    private double _grow;
     /// <summary>Whether the section always takes a row of its own.</summary>
     public bool FullWidth { get; set; }
 
-    private int _cachedWidth = -1;
-    private FrameScale? _cachedScale;
-    private RenderContext? _cachedContext;
-    private IWidget? _cached;
+    private BuiltSection? _built;
 
     internal IWidget Build(int width, FrameScale scale, RenderContext context) {
-        if (_cached != null && _cachedWidth == width && ReferenceEquals(_cachedScale, scale) && ReferenceEquals(_cachedContext, context)) return _cached;
-        _cachedWidth = width; _cachedScale = scale; _cachedContext = context;
-        return _cached = new SectionBlock(new SectionTitle(Title, Facts, States, Meta), Content(new FrameSectionContext(width, scale, context)));
+        BuiltSection? built = _built;
+        if (built != null && built.Width == width && ReferenceEquals(built.Scale, scale) && ReferenceEquals(built.Context, context)) return built.Widget;
+        // Build first and publish one immutable record, so a failed factory never leaves a widget under the wrong key.
+        IWidget widget = new SectionBlock(new SectionTitle(Title, Facts, States, Meta), Content(new FrameSectionContext(width, scale, context)));
+        _built = new BuiltSection(width, scale, context, widget);
+        return widget;
     }
 
+    private sealed class BuiltSection {
+        internal BuiltSection(int width, FrameScale scale, RenderContext context, IWidget widget) { Width = width; Scale = scale; Context = context; Widget = widget; }
+        internal int Width { get; }
+        internal FrameScale Scale { get; }
+        internal RenderContext Context { get; }
+        internal IWidget Widget { get; }
+    }
     /// <summary>The width the section wants: its title line or its content, whichever is wider, within its limits.</summary>
     internal int Natural(int available, FrameScale scale, RenderContext context) {
         int limit = Math.Min(available, MaxWidth ?? available);

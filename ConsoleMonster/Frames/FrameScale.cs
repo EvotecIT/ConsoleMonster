@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Views;
 
@@ -20,12 +21,36 @@ public sealed class FrameScale {
         Width = width; Height = height; IsSizeKnown = known; Length = length;
     }
 
-    /// <summary>Creates the policy for a profile. A missing length uses <see cref="LengthVariable"/>, then Standard.</summary>
+    private static readonly AsyncLocal<ConsoleViewLength?> Ambient = new AsyncLocal<ConsoleViewLength?>();
+
+    /// <summary>
+    /// Creates the policy for a profile. A missing length uses the length set by <see cref="UseLength(ConsoleViewLength)"/>,
+    /// then <see cref="LengthVariable"/>, then Standard. Redirected output keeps its width and uses the default height.
+    /// </summary>
     /// <param name="profile">The destination profile.</param><param name="length">An explicit length.</param><returns>The policy.</returns>
     public static FrameScale For(TerminalProfile profile, ConsoleViewLength? length = null) {
         if (profile == null) throw new ArgumentNullException(nameof(profile));
         bool known = profile.Width > 0 && profile.Height > 0 && !profile.IsOutputRedirected;
-        return new FrameScale(known ? profile.Width : UnknownWidth, known ? profile.Height : UnknownHeight, known, ResolveLength(length));
+        int width = profile.Width > 0 ? profile.Width : UnknownWidth;
+        return new FrameScale(width, known ? profile.Height : UnknownHeight, known, ResolveLength(length));
+    }
+
+    /// <summary>
+    /// Sets the length for frames built and rendered on the current flow until the scope is disposed. Hosts use it to pass a
+    /// session preference such as <c>$ConsoleViewLengthPreference</c> to every frame without each builder copying it.
+    /// </summary>
+    /// <param name="length">The length.</param><returns>A scope that restores the previous length.</returns>
+    public static IDisposable UseLength(ConsoleViewLength length) {
+        LengthScope scope = new LengthScope(Ambient.Value);
+        Ambient.Value = length;
+        return scope;
+    }
+
+    private sealed class LengthScope : IDisposable {
+        private readonly ConsoleViewLength? _previous;
+        private bool _disposed;
+        internal LengthScope(ConsoleViewLength? previous) { _previous = previous; }
+        public void Dispose() { if (!_disposed) { _disposed = true; Ambient.Value = _previous; } }
     }
 
     /// <summary>Creates the policy for an explicit size, for previews and tests.</summary>
@@ -46,6 +71,7 @@ public sealed class FrameScale {
 
     private static ConsoleViewLength ResolveLength(ConsoleViewLength? length) {
         if (length.HasValue) return length.Value;
+        if (Ambient.Value.HasValue) return Ambient.Value.Value;
         return TryParseLength(Environment.GetEnvironmentVariable(LengthVariable), out ConsoleViewLength value) ? value : ConsoleViewLength.Standard;
     }
 

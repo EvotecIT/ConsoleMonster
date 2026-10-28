@@ -73,8 +73,6 @@ public sealed class GroupedRows<T> : IWidget {
     /// <summary>The word for collapsed healthy rows (default <c>healthy</c>).</summary>
     public string HealthyWord { get; set; } = "healthy";
 
-    private string Count(long count) => Presenters.DisplayText.Count(count, Noun, PluralNoun);
-
     private sealed class Layout {
         internal int[] Widths = Array.Empty<int>();
         internal int Total;
@@ -169,7 +167,7 @@ public sealed class GroupedRows<T> : IWidget {
             layout.Groups.Add(lines);
         }
         if (collapsed > 0) {
-            layout.Notes.Add(FrameText.Line("[muted]" + FrameText.Number(collapsed, context) + " " + HealthyWord + " " + (collapsed == 1 ? Noun : PluralNoun ?? Noun + "s") + " not listed " + FrameText.Dot(context)
+            layout.Notes.Add(FrameText.Line("[muted]" + FrameText.Number(collapsed, context) + " " + FrameText.Escape(HealthyWord + " " + (collapsed == 1 ? Noun : PluralNoun ?? Noun + "s")) + " not listed " + FrameText.Dot(context)
                 + " $ConsoleViewLengthPreference = 'Full' lists every row[/]", context));
         }
         long hidden = _items.Count - collapsed - printed;
@@ -191,37 +189,38 @@ public sealed class GroupedRows<T> : IWidget {
 
     private List<List<StyledLine>> Flow(Layout layout, int width) {
         int flows = Math.Max(1, Math.Min(Scale.DetailColumns(layout.Total), (width + FlowGap) / (layout.Total + FlowGap)));
-        List<List<StyledLine>> result = new List<List<StyledLine>>();
-        if (flows == 1) {
-            List<StyledLine> lines = new List<StyledLine> { layout.Header, layout.Rule };
-            if (layout.Axis != null) lines.Add(layout.Axis);
-            int since = 0;
+        if (flows > 1) {
+            // Whole groups fill each column up to an even share; a group never splits across columns.
+            List<List<StyledLine>> columns = new List<List<StyledLine>>();
+            int target = (layout.Groups.Sum(group => group.Count) + flows - 1) / flows;
+            List<StyledLine> current = new List<StyledLine>();
             foreach (List<StyledLine> group in layout.Groups) {
-                foreach (StyledLine line in group) {
-                    if (since >= Scale.HeaderRepeat) { lines.Add(layout.Header); since = 0; }
-                    lines.Add(line); since++;
-                }
+                if (current.Count > 0 && current.Count + group.Count > target && columns.Count < flows - 1) { columns.Add(current); current = new List<StyledLine>(); }
+                current.AddRange(group);
             }
-            result.Add(lines);
-            return result;
+            columns.Add(current);
+            if (columns.Count > 1) {
+                foreach (List<StyledLine> column in columns) column.InsertRange(0, Head(layout));
+                return columns;
+            }
         }
-        int totalLines = layout.Groups.Sum(group => group.Count);
-        int target = (totalLines + flows - 1) / flows;
-        List<StyledLine> current = new List<StyledLine>();
-        int count = 0;
+        // One column: the header repeats so a reader who scrolls always sees the column names.
+        List<StyledLine> lines = Head(layout);
+        int since = 0;
         foreach (List<StyledLine> group in layout.Groups) {
-            if (count > 0 && count + group.Count > target && result.Count < flows - 1) { result.Add(current); current = new List<StyledLine>(); count = 0; }
-            current.AddRange(group); count += group.Count;
+            foreach (StyledLine line in group) {
+                if (since >= Scale.HeaderRepeat) { lines.Add(layout.Header); since = 0; }
+                lines.Add(line); since++;
+            }
         }
-        result.Add(current);
-        foreach (List<StyledLine> column in result) {
-            column.Insert(0, layout.Rule);
-            column.Insert(0, layout.Header);
-            if (layout.Axis != null) column.Insert(2, layout.Axis);
-        }
-        return result;
+        return new List<List<StyledLine>> { lines };
     }
 
+    private static List<StyledLine> Head(Layout layout) {
+        List<StyledLine> head = new List<StyledLine> { layout.Header, layout.Rule };
+        if (layout.Axis != null) head.Add(layout.Axis);
+        return head;
+    }
     /// <inheritdoc />
     public Size Measure(Constraints constraints, RenderContext context) {
         Layout layout = Build(constraints.MaxWidth, context);

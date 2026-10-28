@@ -20,15 +20,15 @@ public sealed class FrameHeader {
     /// <summary>When the data was observed; shown as local time, with the date when it is not today.</summary>
     public DateTimeOffset? ObservedAt { get; set; }
 
-    internal ViewHeader Build(RenderContext context) {
+    internal ViewHeader Build(RenderContext context, DateTimeOffset? now) {
         string state = FrameState.Join(States, context);
         if (ObservedAt.HasValue) {
-            string time = DisplayText.Time(ObservedAt.Value);
+            string time = DisplayText.Time(ObservedAt.Value, now);
             state = state.Length == 0 ? "[muted]" + Markup.Escape(time) + "[/]" : state + " [muted]" + FrameText.Dot(context) + " " + Markup.Escape(time) + "[/]";
         }
         List<string> facts = new List<string>();
-        foreach (string fact in Facts) { if (!string.IsNullOrWhiteSpace(fact)) facts.Add(Markup.Escape(fact)); }
-        return new ViewHeader(Title, state, facts.ToArray());
+        foreach (string fact in Facts) { if (!string.IsNullOrWhiteSpace(fact)) facts.Add(Markup.Escape(FrameText.Fold(fact, context))); }
+        return new ViewHeader(FrameText.Fold(Title, context), FrameText.Fold(state, context), facts.ToArray());
     }
 }
 

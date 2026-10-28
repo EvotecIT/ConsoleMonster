@@ -241,7 +241,7 @@ $absent=$null -eq [ConsoleMonster.PowerShell.Display.DefaultDisplay]::Resolve([D
     Test-DisplayContract 'SchemaV2_ExecutableNestedDataUnknownKeysAndExcessBudgets_Rejected' {
         Assert-Throws { [ConsoleMonster.PowerShell.Display.ConsoleViewDocument]::Parse(@{SchemaVersion=2;Views=@(@{TypeName='DisplayContract.Row';Tones=@(@{Property='Status';Fail=@{hidden={throw 'executed'}}})})}) }
         Assert-Throws { [ConsoleMonster.PowerShell.Display.ConsoleViewDocument]::Parse(@{SchemaVersion=2;Views=@(@{TypeName='DisplayContract.Row';Unknown='x'})}) }
-        Assert-Throws { [ConsoleMonster.PowerShell.Display.ConsoleViewDocument]::Parse(@{SchemaVersion=2;Views=@(@{TypeName='DisplayContract.Row';Budget=@{Records=2001}})}) }
+        Assert-Throws { [ConsoleMonster.PowerShell.Display.ConsoleViewDocument]::Parse(@{SchemaVersion=2;Views=@(@{TypeName='DisplayContract.Row';Budget=@{Records=50001}})}) }
         Assert-Throws { [ConsoleMonster.PowerShell.Display.ConsoleViewDocument]::Parse(@{SchemaVersion=2;Views=@(@{TypeName='DisplayContract.Row';Title='{Name.ToString()}'})}) }
     }
     Test-DisplayContract 'SchemaV2_CustomValueType_NeverInvokesApplicationFormattingInAnyPresentation' {
@@ -301,7 +301,7 @@ $absent=$null -eq [ConsoleMonster.PowerShell.Display.DefaultDisplay]::Resolve([D
             )) { Assert-Throws { [ConsoleMonster.PowerShell.Display.ConsoleViewDocument]::ParseText($source) } }
             Assert-Display ($global:DisplayParserExecution -eq 0) 'Document parsing executed input code.'
             Assert-Throws { [ConsoleMonster.PowerShell.Display.ConsoleViewDocument]::ParseText('@{ SchemaVersion=2; Views=@(@{ TypeName="DisplayContract.Row"; Unknown=1 }) }') }
-            Assert-Throws { [ConsoleMonster.PowerShell.Display.ConsoleViewDocument]::ParseText('@{ SchemaVersion=2; Views=@(@{ TypeName="DisplayContract.Row"; Budget=@{ Records=2001 } }) }') }
+            Assert-Throws { [ConsoleMonster.PowerShell.Display.ConsoleViewDocument]::ParseText('@{ SchemaVersion=2; Views=@(@{ TypeName="DisplayContract.Row"; Budget=@{ Records=50001 } }) }') }
         } finally { Remove-Variable DisplayParserExecution -Scope Global }
     }
     Test-DisplayContract 'Registration_CompiledBuilderAndScopeSelector_UsesOriginalReference' {
@@ -354,6 +354,26 @@ $absent=$null -eq [ConsoleMonster.PowerShell.Display.DefaultDisplay]::Resolve([D
         $widget=$views[0].Build($items,$context)
         Assert-Display ($widget -is [ConsoleMonster.Widgets.Table] -and $widget.Rows.Count -eq 1 -and $widget.Caption -match 'top-level rows') 'The tree budget returned a partial tree or lost its complete top-level fallback.'
         $lease.Dispose()
+    }
+    Test-DisplayContract 'Budget_SummaryFrames_AcceptTheRecordCeilingOnly' {
+        $budget = [ConsoleMonster.PowerShell.Display.DefaultDisplayBudget]::new(50000)
+        Assert-Display ($budget.Records -eq 50000 -and $budget.Bytes -eq 16MB) 'A summary-frame budget at the record ceiling was not kept.'
+        Assert-Throws { [ConsoleMonster.PowerShell.Display.DefaultDisplayBudget]::new(50001) }
+        Assert-Throws { [ConsoleMonster.PowerShell.Display.DefaultDisplayBudget]::new(1000, 16MB + 1) }
+    }
+    Test-DisplayContract 'Context_HeightLengthAndScale_FollowProfileAndPreference' {
+        $wide = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed(220, 60)
+        $context = [ConsoleMonster.PowerShell.Display.DefaultDisplayContext]::new($wide, 'scope', [ConsoleMonster.PowerShell.Display.DefaultDisplayMode]::Auto, [ConsoleMonster.Views.ConsoleViewLength]::Summary)
+        Assert-Display ($context.Height -eq 60 -and $context.Length -eq 'Summary' -and $context.Scale.MeterTiles -eq 7 -and $context.Scale.DetailCap -eq 0) 'The builder context lost the height, length or scale.'
+        $beforeLength = $env:CONSOLEMONSTER_VIEW_LENGTH
+        try {
+            $env:CONSOLEMONSTER_VIEW_LENGTH = 'Full'
+            $fallback = [ConsoleMonster.PowerShell.Display.DefaultDisplayContext]::new($wide, 'scope', [ConsoleMonster.PowerShell.Display.DefaultDisplayMode]::Auto)
+            Assert-Display ($fallback.Length -eq 'Full' -and $null -eq $fallback.Scale.DetailCap) 'The environment length fallback was ignored.'
+            $env:CONSOLEMONSTER_VIEW_LENGTH = 'Endless'
+            $invalid = [ConsoleMonster.PowerShell.Display.DefaultDisplayContext]::new($wide, 'scope', [ConsoleMonster.PowerShell.Display.DefaultDisplayMode]::Auto)
+            Assert-Display ($invalid.Length -eq 'Standard') 'An invalid length did not fall back to Standard.'
+        } finally { $env:CONSOLEMONSTER_VIEW_LENGTH = $beforeLength }
     }
     Test-DisplayContract 'Renderer_PlainModeAndOutputBudget_NoSgrAndBoundedResult' {
         $widget = [ConsoleMonster.Widgets.TextBlock]::new('[bold][fail]failed[/][/]')

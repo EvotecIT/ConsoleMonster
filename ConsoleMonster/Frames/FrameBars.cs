@@ -56,7 +56,7 @@ public static class FrameBars {
         string? open = null;
         for (int x = 0; x < width; x++) {
             string glyph; string style;
-            if (x == end) { glyph = dot; style = role; }
+            if (x == end) { glyph = !context.HasColor && state.HasValue && state.Value != HealthState.Healthy ? FrameText.Glyph(state.Value, context) : dot; style = role; }
             else if (x >= start && x < end) { glyph = segment; style = role; }
             else if (marker.HasValue && x == marker.Value) { glyph = mark; style = "subtle"; }
             else { glyph = track; style = "subtle"; }
@@ -67,12 +67,14 @@ public static class FrameBars {
         return text.ToString();
     }
 
-    /// <summary>A track with a Muted note in place of a bar, for values that were not reported.</summary>
+    /// <summary>A state glyph and a note in place of a bar, for values that were not reported.</summary>
     /// <param name="text">The literal note.</param><param name="state">The note's state.</param><param name="width">Cells.</param><param name="context">The destination.</param>
     /// <returns>Markup at most <paramref name="width"/> cells wide.</returns>
     public static string Note(string text, HealthState state, int width, RenderContext context) {
         if (context == null) throw new ArgumentNullException(nameof(context));
-        return "[" + FrameText.Tag(state) + "]" + FrameText.Glyph(state, context) + " " + FrameText.Escape(text) + "[/]";
+        string glyph = FrameText.Glyph(state, context);
+        string note = Text.TextWrapper.Truncate(FrameText.Fold(text ?? string.Empty, context), Math.Max(0, width - glyph.Length - 1), context.Ellipsis);
+        return "[" + FrameText.Tag(state) + "]" + glyph + (note.Length > 0 ? " " + FrameText.Escape(note) : string.Empty) + "[/]";
     }
 
     private static int Cell(double fraction, int width) {
@@ -93,7 +95,7 @@ public sealed class LogScale {
     /// <summary>Creates an axis.</summary>
     /// <param name="minimum">The smallest value, above zero.</param><param name="maximum">The largest value.</param>
     public LogScale(double minimum, double maximum) {
-        if (minimum <= 0 || maximum <= minimum) throw new ArgumentOutOfRangeException(nameof(minimum), "The axis needs 0 < minimum < maximum.");
+        if (minimum <= 0 || maximum <= minimum || double.IsInfinity(maximum) || double.IsNaN(minimum) || double.IsNaN(maximum)) throw new ArgumentOutOfRangeException(nameof(minimum), "The axis needs finite 0 < minimum < maximum.");
         Minimum = minimum; Maximum = maximum;
     }
     /// <summary>The smallest value.</summary>
@@ -112,7 +114,9 @@ public sealed class LogScale {
     public string Labels(int width, IEnumerable<KeyValuePair<double, string>> ticks) {
         char[] line = new string(' ', Math.Max(0, width)).ToCharArray();
         int next = 0;
+        if (ticks == null) throw new ArgumentNullException(nameof(ticks));
         foreach (KeyValuePair<double, string> tick in ticks) {
+            if (string.IsNullOrEmpty(tick.Value)) continue;
             int x = Math.Min(width - 1, (int)Math.Round(Fraction(tick.Key) * (width - 1), MidpointRounding.AwayFromZero));
             if (x + tick.Value.Length > width) x = width - tick.Value.Length;
             if (x < next || x < 0) continue;

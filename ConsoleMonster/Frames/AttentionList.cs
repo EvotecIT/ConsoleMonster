@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Layout;
-using ConsoleMonster.Presenters;
 using ConsoleMonster.Text;
 
 namespace ConsoleMonster.Frames;
@@ -42,17 +41,18 @@ public sealed class AttentionList {
     /// <summary>The items, in any order.</summary>
     public IList<AttentionItem> Items { get; } = new List<AttentionItem>();
     /// <summary>Identical state and reason for this many items or more become one grouped item (default 3).</summary>
-    public int GroupAtLeast { get; set; } = 3;
+    public int GroupAtLeast { get => _groupAtLeast; set => _groupAtLeast = value < 2 ? throw new ArgumentOutOfRangeException(nameof(value), "Grouping needs at least two items.") : value; }
+    private int _groupAtLeast = 3;
     /// <summary>The section title.</summary>
     public string Title { get; set; } = "Needs attention";
 
     internal int Count => Items.Count(item => item.State != HealthState.Healthy);
 
-    internal FrameSection ToSection(FrameScale scale) {
+    internal FrameSection ToSection(FrameScale scale, RenderContext context) {
         AttentionItem[] items = Items.Where(item => item.State != HealthState.Healthy).ToArray();
         string count = OutOf.HasValue
-            ? items.Length.ToString("N0", System.Globalization.CultureInfo.CurrentCulture) + " of " + DisplayText.Count(OutOf.Value, Noun, PluralNoun)
-            : DisplayText.Count(items.Length, Noun, PluralNoun);
+            ? FrameText.Number(items.Length, context) + " of " + FrameText.Count(OutOf.Value, Noun, PluralNoun, context)
+            : FrameText.Count(items.Length, Noun, PluralNoun, context);
         FrameSection section = new FrameSection(Title, context => new AttentionView(this, items, scale)) { Grow = 1 };
         section.Facts.Add(count);
         section.Facts.Add("worst first");
@@ -66,13 +66,13 @@ public sealed class AttentionList {
         private readonly FrameScale _scale;
         internal AttentionView(AttentionList list, AttentionItem[] items, FrameScale scale) { _list = list; _items = items; _scale = scale; }
 
-        private List<Entry> Entries() {
+        private List<Entry> Entries(RenderContext context) {
             List<Entry> entries = new List<Entry>();
             HashSet<AttentionItem> grouped = new HashSet<AttentionItem>();
             foreach (IGrouping<string, AttentionItem> same in _items.GroupBy(item => (int)item.State + "\n" + item.Reason)) {
                 AttentionItem[] members = same.ToArray();
                 if (_list.GroupAtLeast > 1 && members.Length >= _list.GroupAtLeast && members[0].Reason.Length > 0) {
-                    entries.Add(new Entry(members[0].State, DisplayText.Count(members.Length, _list.Noun, _list.PluralNoun), members[0].Reason, null,
+                    entries.Add(new Entry(members[0].State, FrameText.Count(members.Length, _list.Noun, _list.PluralNoun, context), members[0].Reason, null,
                         members.Select(item => item.Identity).ToArray(), members.Min(item => item.Order)));
                     foreach (AttentionItem item in members) grouped.Add(item);
                 }
@@ -82,10 +82,16 @@ public sealed class AttentionList {
                 .ThenBy(entry => entry.Identity, StringComparer.OrdinalIgnoreCase).ToList();
         }
 
-        private static int Compare(IComparable? a, IComparable? b) => a == null ? (b == null ? 0 : 1) : b == null ? -1 : a.CompareTo(b);
+        private static int Compare(IComparable? a, IComparable? b) {
+            if (a == null) return b == null ? 0 : 1;
+            if (b == null) return -1;
+            // Keys of different types never fail the frame; they sort by type name, then by their own order.
+            if (a.GetType() != b.GetType()) return string.CompareOrdinal(a.GetType().FullName, b.GetType().FullName);
+            return a.CompareTo(b);
+        }
 
         private List<StyledLine> Lines(int width, RenderContext context) {
-            List<Entry> entries = Entries();
+            List<Entry> entries = Entries(context);
             int cap = _scale.AttentionCap ?? int.MaxValue;
             int shown = Math.Min(entries.Count, cap);
             int identity = 0;
@@ -134,7 +140,9 @@ public sealed class AttentionList {
                 }
             }
             if (shown < entries.Count) {
-                lines.Add(FrameText.Line("[muted]+" + FrameText.Number(entries.Count - shown, context) + " more " + FrameText.Dot(context)
+                long hidden = 0;
+                for (int i = shown; i < entries.Count; i++) hidden += entries[i].Names?.Length ?? 1;
+                lines.Add(FrameText.Line("[muted]+" + FrameText.Number(hidden, context) + " more " + FrameText.Dot(context)
                     + " set $ConsoleViewLengthPreference = 'Standard' for every item[/]", context));
             }
             return lines;

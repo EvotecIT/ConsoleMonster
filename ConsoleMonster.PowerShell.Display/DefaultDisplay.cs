@@ -12,7 +12,7 @@ public static class DefaultDisplay {
     /// <summary>Stable assembly ABI epoch, independent of package versions.</summary>
     public const int AbiEpoch = 1;
     /// <summary>Implemented adapter feature level.</summary>
-    public const int FeatureLevel = 2;
+    public const int FeatureLevel = 3;
     internal static DisplayRunspaceState Current => Sessions.GetValue(Runspace.DefaultRunspace
         ?? throw new InvalidOperationException("Default display registration requires an owning PowerShell runspace."), owner => new DisplayRunspaceState(owner));
     /// <summary>Acquires one module import lease. Call from the owning runspace and dispose on removal.</summary>

@@ -1,0 +1,6 @@
+ compact replication view
+ Partnerships healthy 6/8 · DCs reached 5/5
+ Oldest inbound success 2d 3h · Pending operations 31
+ Naming contexts current 32/40
+ 40 naming-context links
+ pipe to Format-Table for every row

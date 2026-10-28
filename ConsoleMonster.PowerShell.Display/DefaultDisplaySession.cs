@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Management.Automation;
 using ConsoleMonster.Capabilities;
+using ConsoleMonster.Frames;
+using ConsoleMonster.Views;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Widgets;
 
@@ -151,7 +153,8 @@ public sealed partial class DefaultDisplaySession : IDisposable {
             }
             // A streamed scope keeps its opening pair across native messages and its final footer.
             profile = _stream?.Profile ?? CurrentHostColors(profile);
-            DefaultDisplayContext context = new DefaultDisplayContext(profile, operation.Scope, mode);
+            DefaultDisplayContext context = new DefaultDisplayContext(profile, operation.Scope, mode, ViewLength());
+            using IDisposable length = FrameScale.UseLength(context.Length);
             if (operation.SingleBuilder != null) {
                 encoded = DefaultDisplayRenderer.Prepare(operation.SingleBuilder(operation.Objects[0].BaseObject, context), profile, view.Budget.Bytes);
             } else if (operation.Collected) {
@@ -209,6 +212,18 @@ public sealed partial class DefaultDisplaySession : IDisposable {
         ConsoleColor foreground = raw.ForegroundColor;
         ConsoleColor background = raw.BackgroundColor;
         return profile.WithDefaultColors(Styling.Color.FromConsoleColor(foreground), Styling.Color.FromConsoleColor(background));
+    }
+    /// <summary>Reads <c>$ConsoleViewLengthPreference</c> as a string or enum only; other values never run application code.</summary>
+    private ConsoleViewLength? ViewLength() {
+        object? value;
+        try { value = _sink.SessionState.PSVariable.GetValue("ConsoleViewLengthPreference"); }
+        catch (Exception) { return null; }
+        if (value is PSObject wrapped) { value = wrapped.BaseObject; }
+        if (value == null) { return null; }
+        if (value is ConsoleViewLength typed && Enum.IsDefined(typeof(ConsoleViewLength), typed)) { return typed; }
+        if (value is string text && FrameScale.TryParseLength(text, out ConsoleViewLength parsed)) { return parsed; }
+        if (_state.Diagnostic("ConsoleViewLengthPreference")) { _sink.WriteVerbose("$ConsoleViewLengthPreference must be Summary, Standard or Full; ConsoleMonster views use the default length."); }
+        return null;
     }
     private bool PlainStyle() {
         try {

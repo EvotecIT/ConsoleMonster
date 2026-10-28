@@ -37,7 +37,13 @@ public sealed class DashboardFrame : IWidget {
     public FrameScale? Scale { get; set; }
     /// <summary>Below this terminal width the frame prints <see cref="Compact"/> and the meters as one counts line (default 80).</summary>
     public int CompactBelow { get; set; } = 80;
-    /// <summary>The type's compact view for narrow terminals; null stacks the frame's own sections.</summary>
+    /// <summary>The reference time for the observation time on the title line; null uses the clock. For previews and tests.</summary>
+    public DateTimeOffset? Now { get; set; }
+    /// <summary>
+    /// The type's compact view for narrow terminals; null stacks the frame's own sections. The compact view replaces the
+    /// title line, attention list and sections, so it must carry its own title line and list every problem; the frame adds
+    /// the meter counts and the footer.
+    /// </summary>
     public Func<FrameScale, IWidget>? Compact { get; set; }
 
     /// <inheritdoc />
@@ -53,6 +59,39 @@ public sealed class DashboardFrame : IWidget {
         context = ConsoleViewStyle.Apply(context);
         (IWidget body, int width) = Compose(region.Width, context);
         body.Render(region.Sub(1, 0, Math.Min(width, Math.Max(0, region.Width - 1)), region.Height), context);
+        if (context.Glyphs.Tier == Capabilities.GlyphTier.Ascii) AsciiCells(region);
+    }
+
+    /// <summary>
+    /// The ASCII tier's guarantee for everything inside the frame, including author widgets: text is folded before
+    /// measuring, and any cell still outside printable ASCII is replaced in place without changing the layout.
+    /// </summary>
+    private static void AsciiCells(Region region) {
+        for (int y = 0; y < region.Height; y++) {
+            for (int x = 0; x < region.Width; x++) {
+                Cell cell = region.Get(x, y);
+                if (cell.IsContinuation || string.IsNullOrEmpty(cell.Glyph) || IsAscii(cell.Glyph)) continue;
+                region.Put(x, y, Single(cell.Glyph[0]).ToString(), cell.Style, 1);
+                for (int c = 1; c < cell.Width && x + c < region.Width; c++) region.Put(x + c, y, " ", cell.Style, 1);
+            }
+        }
+    }
+
+    private static bool IsAscii(string glyph) {
+        foreach (char c in glyph) { if (c < ' ' || c > '~') return false; }
+        return true;
+    }
+
+    private static char Single(char c) {
+        switch (c) {
+            case '·': case '—': case '–': case '−': case '─': return '-';
+            case '←': return '<';
+            case '→': return '>';
+            case '…': return '.';
+            case '\u00A0': case '\u202F': case '\u2009': return ' ';
+            case '\u2018': case '\u2019': return '\'';
+            default: return '?';
+        }
     }
 
     private (IWidget Body, int Width) Compose(int available, RenderContext context) {
@@ -63,15 +102,16 @@ public sealed class DashboardFrame : IWidget {
             Rows compact = new Rows(Compact(scale));
             if (Meters.Count > 0) {
                 List<string> counts = new List<string>();
-                foreach (Meter meter in Meters) counts.Add(meter.CountsText(context));
+                foreach (Meter meter in Meters) counts.Add(FrameText.Fold(meter.CountsText(context), context));
                 compact.Add(new FactFlow(counts) { Role = Styling.ThemeToken.Muted });
             }
+            compact.Add(Footer.Build(context));
             return (compact, content);
         }
 
         List<IWidget> blocks = new List<IWidget>();
         List<FrameSection> summary = new List<FrameSection>();
-        if (Attention.Count > 0) summary.Add(Attention.ToSection(scale));
+        if (Attention.Count > 0) summary.Add(Attention.ToSection(scale, context));
         foreach (FrameSection section in Sections) { if (section.Placement == FramePlacement.Summary) summary.Add(section); }
         foreach (List<FrameSection> row in Pack(summary, content, scale, context)) blocks.Add(Row(row, content, scale, context));
         if (scale.DetailCap != 0) {
@@ -81,7 +121,7 @@ public sealed class DashboardFrame : IWidget {
         }
         Rows tail = new Rows();
         if (!Legend.IsEmpty) tail.Add(Legend.Build(context));
-        tail.Add(Footer.Build());
+        tail.Add(Footer.Build(context));
         blocks.Add(tail);
 
         MeterRow meters = new MeterRow(Meters, scale);
@@ -99,12 +139,12 @@ public sealed class DashboardFrame : IWidget {
         bool anyState = Header.States.Count > 0;
         bool allEmpty = true;
         foreach (FrameState state in Header.States) { if (!state.IsEmpty) allEmpty = false; }
-        ViewHeader header = Header.Build(context);
-        if (anyState && allEmpty) {
+        ViewHeader header = Header.Build(context, Now);
+        if (anyState && allEmpty && Attention.Count == 0) {
             FrameHeader healthy = new FrameHeader(Header.Title) { ObservedAt = Header.ObservedAt };
             foreach (string fact in Header.Facts) healthy.Facts.Add(fact);
             healthy.States.Add(FrameState.Healthy("all healthy"));
-            header = healthy.Build(context);
+            header = healthy.Build(context, Now);
         }
         return header;
     }

@@ -30,8 +30,8 @@ public sealed class FrameLegend {
 
     internal Legend Build(RenderContext context) {
         List<string> entries = new List<string>();
-        foreach ((HealthState state, string word) in _states) entries.Add("[" + FrameText.Tag(state) + "]" + FrameText.Glyph(state, context) + "[/] [muted]" + Markup.Escape(word) + "[/]");
-        entries.AddRange(_entries);
+        foreach ((HealthState state, string word) in _states) entries.Add("[" + FrameText.Tag(state) + "]" + FrameText.Glyph(state, context) + "[/] [muted]" + Markup.Escape(FrameText.Fold(word, context)) + "[/]");
+        foreach (string entry in _entries) entries.Add(FrameText.Fold(entry, context));
         return new Legend(entries.ToArray());
     }
 }
@@ -43,9 +43,9 @@ public sealed class FrameFooter {
     /// <summary>The hint; every row by default.</summary>
     public FrameHint Hint { get; set; } = FrameHint.EveryRow;
 
-    internal FactFlow Build() {
+    internal FactFlow Build(RenderContext context) {
         List<string> parts = new List<string>();
-        foreach (string count in Counts) { if (!string.IsNullOrWhiteSpace(count)) parts.Add(Markup.Escape(count)); }
+        foreach (string count in Counts) { if (!string.IsNullOrWhiteSpace(count)) parts.Add(Markup.Escape(FrameText.Fold(count, context))); }
         if (Hint == FrameHint.EveryRow) parts.Add("pipe to Format-Table for every row");
         else if (Hint == FrameHint.EveryProperty) parts.Add("pipe to Format-List for every property");
         return new FactFlow(parts) { Role = Styling.ThemeToken.Muted };
