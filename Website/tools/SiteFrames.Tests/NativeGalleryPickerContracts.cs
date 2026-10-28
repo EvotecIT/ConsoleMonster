@@ -49,9 +49,9 @@ namespace SiteFrames.Tests {
             environment["CONSOLEMONSTER_NONINTERACTIVE"] = null;
             environment["CONSOLEMONSTER_ACCESSIBLE"] = null;
             // cmd changes only stdout: stdin remains the attached ConPTY console. No -NonInteractive switch is used.
-            File.WriteAllText(launcher, "@echo off\r\n\"" + host.Executable + "\" -NoLogo -NoProfile -File \"picker.ps1\" > \"stdout.txt\"\r\n", Encoding.ASCII);
+            File.WriteAllText(launcher, "@echo off\r\n\"" + host.Executable + "\" -NoLogo -NoProfile -File \"" + script + "\" > \"" + log + "\"\r\n", Encoding.ASCII);
             try {
-                var chunks = TerminalCapture.Run("cmd.exe", new[] { "/d", "/c", "picker.cmd" }, 100, 24, environment, folder, TimeSpan.FromSeconds(12),
+                var chunks = TerminalCapture.Run("cmd.exe", new[] { "/d", "/c", launcher }, 100, 24, environment, folder, TimeSpan.FromSeconds(12),
                     readyText: "INPUT=False;OUTPUT=True", inputKeys: string.Empty, capturePath: capture);
                 string output = string.Concat(chunks.Select(chunk => Encoding.UTF8.GetString(chunk.Data)));
                 Assert.Contains("INPUT=False;OUTPUT=True", output, StringComparison.Ordinal);

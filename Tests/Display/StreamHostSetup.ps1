@@ -42,7 +42,8 @@ function global:Assert-StreamHost {
     $lines=@(for($i=0;$i -lt [Math]::Min(100,[Console]::BufferHeight);$i++){$text.Substring($i*$width,$width).TrimEnd()})
     $second=@($lines|Where-Object {$_ -match '\brow2\b'});$third=@($lines|Where-Object {$_ -match '\brow3\b'})
     $footer=@($lines|Where-Object {$_ -match '3 rows'})
-    $passed=$global:StreamHostRows -eq 3 -and $second.Count -eq 1 -and $third.Count -eq 1 -and $second[0] -match 'DFS Replication' -and $third[0] -match 'Backups' -and $third[0] -match ([regex]::Escape([string][char]0x2026)+'|\.\.\.') -and @($lines|Where-Object {$_ -match '\bDisplay\b'}).Count -eq 1 -and $footer.Count -eq 1 -and ([Array]::IndexOf($lines,'stream-native-tail')-[Array]::IndexOf($lines,$footer[0])) -ge 2
+    # A completed view does not leave an extra blank line before native output.
+    $passed=$global:StreamHostRows -eq 3 -and $second.Count -eq 1 -and $third.Count -eq 1 -and $second[0] -match 'DFS Replication' -and $third[0] -match 'Backups' -and $third[0] -match ([regex]::Escape([string][char]0x2026)+'|\.\.\.') -and @($lines|Where-Object {$_ -match '\bDisplay\b'}).Count -eq 1 -and $footer.Count -eq 1 -and ([Array]::IndexOf($lines,'stream-native-tail')-[Array]::IndexOf($lines,$footer[0])) -eq 1
     $modeCorrect=if($global:StreamHostPlain){$global:StreamHostMode -eq 'Plain' -and $global:StreamHostDepth -eq 'None'}else{$global:StreamHostMode -ne 'Plain' -and $global:StreamHostDepth -eq 'TrueColor'}
     $global:DisplayLoopResults.Add([pscustomobject]@{Name=$Name;Passed=[bool]($passed -and $modeCorrect);BufferWidth=$width;ProfileWidth=[ConsoleMonster.Terminal]::GetCurrentProfile().Width;Mode=$global:StreamHostMode;Depth=$global:StreamHostDepth;Lines=@($lines|Where-Object {$_})})
 }
