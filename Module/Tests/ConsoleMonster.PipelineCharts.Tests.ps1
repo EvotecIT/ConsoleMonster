@@ -67,7 +67,7 @@ Describe 'ConsoleMonster pipeline charts' {
         $text.Trim() | Should -Be "b: 3, 1`na: 2"
     }
 
-    It 'reports and skips malformed missing and nonfinite values without fabricating zeros' {
+    It 'counts malformed missing and nonfinite values without fabricating zeros' {
         $errors = @()
         $items = @(
             [pscustomobject]@{ Value = 'bad' }
@@ -78,9 +78,12 @@ Describe 'ConsoleMonster pipeline charts' {
             [pscustomobject]@{ Value = 4 }
         )
         $chart = $items | Show-Console -AsWidget -ErrorAction SilentlyContinue -ErrorVariable errors -View Chart
-        $errors.Count | Should -Be 5
+        $errors.Count | Should -Be 0
+        $chart.SkippedCount | Should -Be 5
         $chart.Samples.Count | Should -Be 1
         $chart.Samples[0].Value | Should -Be 4
+        $text = $items | Show-Console -AsString -View Chart
+        $text | Should -Match '5 rows without chartable values skipped'
     }
 
     It 'treats an unreadable numeric getter as invalid data' {
@@ -88,31 +91,39 @@ Describe 'ConsoleMonster pipeline charts' {
         $item | Add-Member -MemberType ScriptProperty -Name CPU -Value { throw 'unreadable' }
         $errors = @()
         $result = @($item | Show-Console -Property CPU -AsWidget -ErrorAction SilentlyContinue -ErrorVariable errors -View Chart)
-        $errors.Count | Should -BeGreaterThan 0
-        $result.Count | Should -Be 0
+        $errors.Count | Should -Be 0
+        $result.Count | Should -Be 1
+        $result[0].SkippedCount | Should -Be 1
     }
 
     It 'produces no output for an empty pipeline' {
         @(@() | Show-Console -AsString -View Chart).Count | Should -Be 0
     }
 
-    It 'reports an explicitly bound null sample through ErrorVariable without terminating' {
+    It 'counts an explicitly bound null sample without an error' {
         $errors = @()
         $result = @(Show-Console -InputObject $null -AsWidget -ErrorAction SilentlyContinue -ErrorVariable errors -View Chart)
-        $result.Count | Should -Be 0
-        $errors.Count | Should -Be 1
-        $errors[0].FullyQualifiedErrorId | Should -Be 'ConsoleMonsterChartValue,ConsoleMonster.PowerShell.CmdletShowConsole'
-        $errors[0].CategoryInfo.Category | Should -Be ([System.Management.Automation.ErrorCategory]::InvalidData)
+        $result.Count | Should -Be 1
+        $result[0].SkippedCount | Should -Be 1
+        $errors.Count | Should -Be 0
     }
 
-    It 'skips a pipeline null with an invalid-sample error and keeps valid samples' {
+    It 'counts a pipeline null and keeps valid samples' {
         $errors = @()
         $chart = 1, $null, 2 | Show-Console -AsWidget -ErrorAction SilentlyContinue -ErrorVariable errors -View Chart
-        $errors.Count | Should -Be 1
-        $errors[0].FullyQualifiedErrorId | Should -Be 'ConsoleMonsterChartValue,ConsoleMonster.PowerShell.CmdletShowConsole'
+        $errors.Count | Should -Be 0
+        $chart.SkippedCount | Should -Be 1
         $chart.Samples.Count | Should -Be 2
         $chart.Samples[0].Value | Should -Be 1
         $chart.Samples[1].Value | Should -Be 2
+    }
+
+    It 'does not validate pipeline rows beyond the unsorted bar limit' {
+        $errors = @()
+        $chart = 1, 2, $null, 'bad' | Show-Console -MaxRows 2 -AsWidget -View Chart -ErrorVariable errors
+        $chart.Samples.Count | Should -Be 2
+        $chart.SkippedCount | Should -Be 0
+        $errors.Count | Should -Be 0
     }
 
     It 'produces no output or errors when invoked without input' {

@@ -61,6 +61,17 @@ namespace ConsoleMonster.Widgets {
         /// <summary>A unit appended to values and bucket edges.</summary>
         public string? Unit { get; set; }
 
+        /// <summary>Number of input rows omitted because their data could not be charted.</summary>
+        public int SkippedCount { get; set; }
+
+        /// <summary>Wraps a chart with a single muted note about omitted input rows.</summary>
+        /// <param name="chart">The chart to display.</param>
+        /// <param name="count">The number of omitted rows.</param>
+        /// <returns>The chart, with a note when rows were omitted.</returns>
+        public static IWidget WithSkipped(IWidget chart, int count) => count > 0
+            ? (IWidget)new Rows(chart, TextBlock.Plain(count.ToString(CultureInfo.InvariantCulture) + " rows without chartable values skipped", ThemeToken.Muted))
+            : chart;
+
         /// <summary>Adds a finite sample. Labels are literal text; a null label joins the unnamed trend.</summary>
         /// <param name="label">The sample or group label.</param>
         /// <param name="value">A finite number; NaN and infinity are rejected.</param>
@@ -106,9 +117,9 @@ namespace ConsoleMonster.Widgets {
         /// <param name="textOnly">Whether to return numerical text instead of chart glyphs.</param>
         /// <returns>A widget for the selected samples; an empty chart has no rows.</returns>
         public IWidget Build(bool textOnly = false) {
-            if (_samples.Count == 0) { return new Rows(); }
-            if (Type == ChartType.Histogram) { return Distribution(textOnly); }
-            if (Type == ChartType.Sparkline) { return Trends(textOnly); }
+            if (_samples.Count == 0) { return WithSkipped(new Rows(), SkippedCount); }
+            if (Type == ChartType.Histogram) { return WithSkipped(Distribution(textOnly), SkippedCount); }
+            if (Type == ChartType.Sparkline) { return WithSkipped(Trends(textOnly), SkippedCount); }
             BarChart bars = new BarChart() { Signed = true, Unit = Unit };
             Rows text = new Rows();
             HashSet<string> labels = new HashSet<string>(StringComparer.Ordinal);
@@ -118,7 +129,7 @@ namespace ConsoleMonster.Widgets {
                 bars.Add(label, item.Value, Palette(index++));
                 text.Add(TextBlock.Plain(label + ": " + Value(item.Value)));
             }
-            return textOnly ? (IWidget)text : bars;
+            return WithSkipped(textOnly ? (IWidget)text : bars, SkippedCount);
         }
 
         /// <inheritdoc />

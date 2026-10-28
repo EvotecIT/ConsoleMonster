@@ -12,6 +12,9 @@ namespace ConsoleMonster.PowerShell {
     public abstract partial class ConsoleDisplayCmdlet {
         private IWidget? BuildChartView(IReadOnlyList<PSObject> input) {
             IReadOnlyList<PSObject> items = PSFormatting.Expand(input, PSShaping.Options());
+            if (MaxRows > 0 && Sort == PipelineChartSort.None && Type == ChartType.Bar && items.Count > MaxRows) {
+                items = items.Take(MaxRows).ToArray();
+            }
             object property = Property == null || Property.Length == 0 ? "Value" : Property.Length == 1 ? Property[0] : throw new PSArgumentException("Chart requires exactly one Property.");
             BoundColumn value = BindChartColumn(items, property);
             value.FormatString = null;
@@ -25,21 +28,22 @@ namespace ConsoleMonster.PowerShell {
                 throw new PSArgumentException("Chart reads the Value property by default and these objects have none. Choose the numeric property with -Property"
                     + (numeric.Count == 0 ? "." : " (for example -Property " + numeric[0] + "; numeric properties: " + string.Join(", ", numeric) + ")."));
             }
-            var chart = new PipelineChart { Type = Type, Sort = Sort, MaxRows = MaxRows, Bins = Bins, Unit = Unit };
+            var chart = new PipelineChart { Type = Type, Sort = Sort, MaxRows = MaxRows, Bins = Bins, Unit = Unit, SkippedCount = _nullChartInputs };
             int row = 0;
             foreach (PSObject item in items) {
                 row++;
+                if (MaxRows > 0 && Sort == PipelineChartSort.None && Type == ChartType.Bar && row > MaxRows) { break; }
                 object? raw = PSText.Unwrap(value.GetValue(item));
                 object? name = label == null ? null : PSText.Unwrap(label.GetValue(item));
                 if (!PipelineChart.TryNumber(raw, out double number) || name is FieldError) {
-                    WriteError(new ErrorRecord(new ArgumentException("Row " + row.ToString(CultureInfo.InvariantCulture) + " must have a finite numeric value and a readable label."), "ConsoleMonsterChartValue", ErrorCategory.InvalidData, item));
+                    chart.SkippedCount++;
                     continue;
                 }
                 string text = Convert.ToString(name, CultureInfo.InvariantCulture) ?? string.Empty;
                 if (text.Length == 0 && Type == ChartType.Bar) { text = row.ToString(CultureInfo.InvariantCulture); }
                 chart.Add(text, number);
             }
-            return chart.Samples.Count == 0 ? null : chart;
+            return chart.Samples.Count == 0 && chart.SkippedCount == 0 ? null : chart;
         }
 
         private static bool HasNumber(IReadOnlyList<PSObject> items, BoundColumn value) {

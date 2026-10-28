@@ -129,16 +129,17 @@ namespace ConsoleMonster.PowerShell {
                 PSItems.ChartData(options, PSItems.Items(Series));
             }
             _items.AddRange(PSItems.Items(Content));
-            if (Property != null && Property.Length > 0) { AddSelected(options); }
+            int skipped = 0;
+            if (Property != null && Property.Length > 0) { skipped = AddSelected(options); }
             else {
                 if (MyInvocation.BoundParameters.ContainsKey(nameof(Label))) { throw new PSArgumentException("Label picks the bar label of ordinary objects; use it with -Property."); }
                 PSItems.ChartData(options, _items);
             }
-            WriteObject(Chart.Create(options));
+            WriteObject(PipelineChart.WithSkipped(Chart.Create(options), skipped));
         }
 
         // Ordinary objects: the same property binding as Show-Console -View Chart, ending in the typed AddItem/Values inputs.
-        private void AddSelected(ChartOptions options) {
+        private int AddSelected(ChartOptions options) {
             if (Type != ChartType.Bar && Type != ChartType.Histogram && Type != ChartType.Sparkline) { throw new PSArgumentException("Property applies to Bar, Histogram and Sparkline charts; Line, Stacked and Scatter take series records."); }
             if (Property!.Length != 1) { throw new PSArgumentException("Chart requires exactly one Property."); }
             if (Type != ChartType.Bar && MyInvocation.BoundParameters.ContainsKey(nameof(Label))) { throw new PSArgumentException("Label applies to Bar charts."); }
@@ -150,12 +151,13 @@ namespace ConsoleMonster.PowerShell {
             var samples = new List<double>(options.Values ?? Array.Empty<double>());
             var labels = new HashSet<string>(StringComparer.Ordinal);
             int row = 0;
+            int skipped = 0;
             foreach (PSObject item in rows) {
                 row++;
                 object? raw = PSText.Unwrap(value.GetValue(item));
                 object? name = label == null ? null : PSText.Unwrap(label.GetValue(item));
                 if (!PipelineChart.TryNumber(raw, out double number) || name is Values.FieldError) {
-                    WriteError(new ErrorRecord(new ArgumentException("Row " + row.ToString(System.Globalization.CultureInfo.InvariantCulture) + " must have a finite numeric value and a readable label."), "ConsoleMonsterChartValue", ErrorCategory.InvalidData, item));
+                    skipped++;
                     continue;
                 }
                 if (label == null) { samples.Add(number); continue; }
@@ -163,6 +165,7 @@ namespace ConsoleMonster.PowerShell {
                 options.AddItem(PipelineChart.UniqueLabel(text.Length == 0 ? row.ToString(System.Globalization.CultureInfo.InvariantCulture) : text, labels), number);
             }
             if (Type != ChartType.Bar) { options.Values = samples.ToArray(); }
+            return skipped;
         }
 
         private static Binding.BoundColumn Column(IReadOnlyList<PSObject> rows, object property) {
