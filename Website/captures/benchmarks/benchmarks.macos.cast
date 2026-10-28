@@ -1,8 +1,8 @@
-{"cm_source":"6c25dc8638bfdbc5","version":2,"width":110,"height":20,"title":"ConsoleMonster.Benchmarks 600","cm_timing":"logical-50ms-with-holds"}
-[0.000,"o","\u001B[?1h\u001B=ConsoleMonster benchmark (.NET 8.0.23, 140x45, 32 lanes)\r\n"]
-[0.050,"o","  event apply:        4,805,447 events/s on one thread\r\n"]
-[0.100,"o","  compose per frame:  1.637 ms\r\n"]
-[0.150,"o","  diff\u002BVT per frame:  0.233 ms\r\n"]
-[0.200,"o","  chars per frame:    2,915 (diffed, 5,000 updates between frames)\r\n"]
-[0.250,"o","  alloc per frame:    241,008 bytes\r\n"]
-[0.300,"o","  render CPU at 15 fps: 2.8% of one core (\u002B apply cost 1.7% at 80k updates/s)\r\n"]
+{"cm_source":"6daae895b7e872b7","version":2,"width":110,"height":20,"title":"ConsoleMonster.Benchmarks 600","cm_timing":"logical-50ms-with-holds"}
+[0.000,"o","\u001B[?2026hConsoleMonster\u001B[16Gbenchmark\u001B[26G(.NET\u001B[32G8.0.23,\u001B[40G140x45,\u001B[48G32\u001B[51Glanes)\u001B[2;1H\u001B[?2026l"]
+[0.050,"o","\u001B[?2026h\u001B[3Gevent\u001B[9Gapply:\u001B[23G7,698,893\u001B[33Gevents/s\u001B[42Gon\u001B[45Gone\u001B[49Gthread\u001B[3;1H\u001B[?2026l"]
+[0.100,"o","\u001B[?2026h\u001B[3Gcompose\u001B[11Gper\u001B[15Gframe:\u001B[23G1.095\u001B[29Gms\u001B[4;1H\u001B[?2026l"]
+[0.150,"o","\u001B[?2026h\u001B[3Gdiff\u002BVT\u001B[11Gper\u001B[15Gframe:\u001B[23G0.113\u001B[29Gms\u001B[5;1H\u001B[?2026l"]
+[0.200,"o","\u001B[?2026h\u001B[3Gchars\u001B[9Gper\u001B[13Gframe:\u001B[23G2,915\u001B[29G(diffed,\u001B[38G5,000\u001B[44Gupdates\u001B[52Gbetween\u001B[60Gframes)\u001B[6;1H\u001B[?2026l"]
+[0.250,"o","\u001B[?2026h\u001B[3Galloc\u001B[9Gper\u001B[13Gframe:\u001B[23G241,055\u001B[31Gbytes\u001B[7;1H\u001B[?2026l"]
+[0.300,"o","\u001B[?2026h\u001B[3Grender\u001B[10GCPU\u001B[14Gat\u001B[17G15\u001B[20Gfps:\u001B[25G1.8%\u001B[30Gof\u001B[33Gone\u001B[37Gcore\u001B[42G(\u002B\u001B[45Gapply\u001B[51Gcost\u001B[56G1.0%\u001B[61Gat\u001B[64G80k\u001B[68Gupdates/s)\u001B[8;1H\u001B[?2026l"]

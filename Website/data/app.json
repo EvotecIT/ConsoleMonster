@@ -16,7 +16,7 @@
       "matches": 6,
       "parity": {
         "dark-ps7": {
-          "version": "7.5",
+          "version": "7.6",
           "identical": true
         },
         "dark-ps5": {
@@ -24,7 +24,7 @@
           "identical": true
         },
         "light-ps7": {
-          "version": "7.5",
+          "version": "7.6",
           "identical": true
         },
         "light-ps5": {
@@ -40,7 +40,7 @@
       "matches": 2,
       "parity": {
         "dark-ps7": {
-          "version": "7.5",
+          "version": "7.6",
           "identical": true
         },
         "dark-ps5": {
@@ -48,7 +48,7 @@
           "identical": true
         },
         "light-ps7": {
-          "version": "7.5",
+          "version": "7.6",
           "identical": true
         },
         "light-ps5": {
@@ -64,7 +64,7 @@
       "matches": 6,
       "parity": {
         "dark-ps7": {
-          "version": "7.5",
+          "version": "7.6",
           "identical": true
         },
         "dark-ps5": {
@@ -72,7 +72,7 @@
           "identical": true
         },
         "light-ps7": {
-          "version": "7.5",
+          "version": "7.6",
           "identical": true
         },
         "light-ps5": {
@@ -88,7 +88,7 @@
       "matches": 2,
       "parity": {
         "dark-ps7": {
-          "version": "7.5",
+          "version": "7.6",
           "identical": true
         },
         "dark-ps5": {
@@ -96,7 +96,7 @@
           "identical": true
         },
         "light-ps7": {
-          "version": "7.5",
+          "version": "7.6",
           "identical": true
         },
         "light-ps5": {
@@ -106,43 +106,44 @@
       }
     }
   ],
-  "csharpFluent": "var hosts = new[]\n{\n    new\n    {\n        Name = \"WEB01\",\n        Role = \"Web\",\n        Site = \"North\",\n        Status = \"Pass\"\n    },\n    new\n    {\n        Name = \"WEB02\",\n        Role = \"Web\",\n        Site = \"West\",\n        Status = \"Warn\"\n    },\n    new\n    {\n        Name = \"SQL01\",\n        Role = \"Database\",\n        Site = \"North\",\n        Status = \"Pass\"\n    },\n    new\n    {\n        Name = \"SQL02\",\n        Role = \"Database\",\n        Site = \"West\",\n        Status = \"Fail\"\n    },\n    new\n    {\n        Name = \"FS01\",\n        Role = \"Files\",\n        Site = \"North\",\n        Status = \"Pass\"\n    },\n    new\n    {\n        Name = \"JOB01\",\n        Role = \"Worker\",\n        Site = \"West\",\n        Status = \"Running\"\n    }\n};\nIWidget Results(string query)\n{\n    var matches = hosts.Where(host => host.Name.IndexOf(query,\n        StringComparison.OrdinalIgnoreCase) >= 0 || host.Role.IndexOf(query,\n            StringComparison.OrdinalIgnoreCase) >= 0 || host.Site.IndexOf(query,\n                StringComparison.OrdinalIgnoreCase) >= 0 || host.Status.IndexOf(query,\n                    StringComparison.OrdinalIgnoreCase) >= 0)\n        .ToArray();\n    TextBlock count = Ui.Text()\n        .Content(\"[bold]\" + matches.Length.ToString(CultureInfo.InvariantCulture) + \"[/] of \"\n            + hosts.Length.ToString(CultureInfo.InvariantCulture) + \" hosts\")\n        .IsMarkup();\n    Table table = Ui.Table(matches)\n        .Column(\"Host\", host => host.Name)\n        .Column(\"Role\", host => host.Role)\n        .Column(\"Site\", host => host.Site)\n        .Column(\n            \"Status\",\n            host => host.Status,\n            column => column.Presenter(CellPresenters.StatusWord));\n    table.HeaderSeparator(false);\n    if (matches.Length == 0)\n    {\n        return Ui.Rows().Content(c =>\n        {\n            c.Add(count);\n            c.Add(table);\n            c.Text(\n                cText => cText.Content(\n                    \"[muted]No matching hosts. Backspace to broaden the query.[/]\")\n                    .IsMarkup());\n        });\n    }\n\n    return Ui.Rows().Content(c =>\n    {\n        c.Add(count);\n        c.Add(table);\n    });\n}\n\nRows layout = Ui.Rows().Gap(1).Content(c =>\n{\n    c.Text(cText => cText.Content(\"[bold]Host inventory[/] [muted]· synthetic data[/]\").IsMarkup());\n    c.TextInput(cmTextInput => cmTextInput.Key(\"Query\")\n        .Label(\"Query\")\n        .Placeholder(\"Host, role, site or status\"));\n    c.Binding(\n        cmBinding => cmBinding.Configure(\n            cmDefinition => cmDefinition.Content = state => Results(state.Get<string>(\n                \"Query\", string.Empty))));\n});\nConsoleApp.Run(layout);\n",
-  "csharpFluentFull": "using System.Globalization;\nusing ConsoleMonster.Interactive;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Presenters;\nusing ConsoleMonster.Widgets;\nusing ConsoleMonster;\n\nvar hosts = new[]\n{\n    new\n    {\n        Name = \"WEB01\",\n        Role = \"Web\",\n        Site = \"North\",\n        Status = \"Pass\"\n    },\n    new\n    {\n        Name = \"WEB02\",\n        Role = \"Web\",\n        Site = \"West\",\n        Status = \"Warn\"\n    },\n    new\n    {\n        Name = \"SQL01\",\n        Role = \"Database\",\n        Site = \"North\",\n        Status = \"Pass\"\n    },\n    new\n    {\n        Name = \"SQL02\",\n        Role = \"Database\",\n        Site = \"West\",\n        Status = \"Fail\"\n    },\n    new\n    {\n        Name = \"FS01\",\n        Role = \"Files\",\n        Site = \"North\",\n        Status = \"Pass\"\n    },\n    new\n    {\n        Name = \"JOB01\",\n        Role = \"Worker\",\n        Site = \"West\",\n        Status = \"Running\"\n    }\n};\nIWidget Results(string query)\n{\n    var matches = hosts.Where(host => host.Name.IndexOf(query,\n        StringComparison.OrdinalIgnoreCase) >= 0 || host.Role.IndexOf(query,\n            StringComparison.OrdinalIgnoreCase) >= 0 || host.Site.IndexOf(query,\n                StringComparison.OrdinalIgnoreCase) >= 0 || host.Status.IndexOf(query,\n                    StringComparison.OrdinalIgnoreCase) >= 0)\n        .ToArray();\n    TextBlock count = Ui.Text()\n        .Content(\"[bold]\" + matches.Length.ToString(CultureInfo.InvariantCulture) + \"[/] of \"\n            + hosts.Length.ToString(CultureInfo.InvariantCulture) + \" hosts\")\n        .IsMarkup();\n    Table table = Ui.Table(matches)\n        .Column(\"Host\", host => host.Name)\n        .Column(\"Role\", host => host.Role)\n        .Column(\"Site\", host => host.Site)\n        .Column(\n            \"Status\",\n            host => host.Status,\n            column => column.Presenter(CellPresenters.StatusWord));\n    table.HeaderSeparator(false);\n    if (matches.Length == 0)\n    {\n        return Ui.Rows().Content(c =>\n        {\n            c.Add(count);\n            c.Add(table);\n            c.Text(\n                cText => cText.Content(\n                    \"[muted]No matching hosts. Backspace to broaden the query.[/]\")\n                    .IsMarkup());\n        });\n    }\n\n    return Ui.Rows().Content(c =>\n    {\n        c.Add(count);\n        c.Add(table);\n    });\n}\n\nRows layout = Ui.Rows().Gap(1).Content(c =>\n{\n    c.Text(cText => cText.Content(\"[bold]Host inventory[/] [muted]· synthetic data[/]\").IsMarkup());\n    c.TextInput(cmTextInput => cmTextInput.Key(\"Query\")\n        .Label(\"Query\")\n        .Placeholder(\"Host, role, site or status\"));\n    c.Binding(\n        cmBinding => cmBinding.Configure(\n            cmDefinition => cmDefinition.Content = state => Results(state.Get<string>(\n                \"Query\", string.Empty))));\n});\nConsoleApp.Run(layout);\n",
+  "csharpRepo": "Website/examples/app/live-filter.cs",
+  "csharpFluent": "var hosts = new[]\n{\n    new\n    {\n        Name = \"WEB01\",\n        Role = \"Web\",\n        Site = \"North\",\n        Status = \"Pass\"\n    },\n    new\n    {\n        Name = \"WEB02\",\n        Role = \"Web\",\n        Site = \"West\",\n        Status = \"Warn\"\n    },\n    new\n    {\n        Name = \"SQL01\",\n        Role = \"Database\",\n        Site = \"North\",\n        Status = \"Pass\"\n    },\n    new\n    {\n        Name = \"SQL02\",\n        Role = \"Database\",\n        Site = \"West\",\n        Status = \"Fail\"\n    },\n    new\n    {\n        Name = \"FS01\",\n        Role = \"Files\",\n        Site = \"North\",\n        Status = \"Pass\"\n    },\n    new\n    {\n        Name = \"JOB01\",\n        Role = \"Worker\",\n        Site = \"West\",\n        Status = \"Running\"\n    }\n};\nIWidget Results(string query)\n{\n    var matches = hosts.Where(host => host.Name.IndexOf(query,\n        StringComparison.OrdinalIgnoreCase) >= 0 || host.Role.IndexOf(query,\n            StringComparison.OrdinalIgnoreCase) >= 0 || host.Site.IndexOf(query,\n                StringComparison.OrdinalIgnoreCase) >= 0 || host.Status.IndexOf(query,\n                    StringComparison.OrdinalIgnoreCase) >= 0)\n        .ToArray();\n    TextBlock count = Ui.Markup(\"[bold]\" + matches.Length.ToString(CultureInfo.InvariantCulture)\n        + \"[/] of \" + hosts.Length.ToString(CultureInfo.InvariantCulture) + \" hosts\");\n    Table table = Ui.Table(matches)\n        .Column(\"Host\", host => host.Name)\n        .Column(\"Role\", host => host.Role)\n        .Column(\"Site\", host => host.Site)\n        .Column(\n            \"Status\",\n            host => host.Status,\n            column => column.Presenter(CellPresenters.StatusWord))\n        .HeaderSeparator(false);\n    if (matches.Length == 0)\n    {\n        return Ui.Rows().Content(c =>\n        {\n            c.Add(count);\n            c.Add(table);\n            c.Markup(\"[muted]No matching hosts. Backspace to broaden the query.[/]\");\n        });\n    }\n\n    return Ui.Rows().Content(c =>\n    {\n        c.Add(count);\n        c.Add(table);\n    });\n}\n\nRows layout = Ui.Rows().Gap(1).Content(c =>\n{\n    c.Markup(\"[bold]Host inventory[/] [muted]· synthetic data[/]\");\n    c.TextInput(textInput => textInput.Key(\"Query\")\n        .Label(\"Query\")\n        .Placeholder(\"Host, role, site or status\"));\n    c.Binding(binding => binding.Configure(o => o.Content = state => Results(state.Get<string>(\n        \"Query\", string.Empty))));\n});\nConsoleApp.Run(layout);\n",
+  "csharpFluentFull": "using System.Globalization;\nusing ConsoleMonster.Interactive;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Presenters;\nusing ConsoleMonster.Widgets;\nusing ConsoleMonster;\n\nvar hosts = new[]\n{\n    new\n    {\n        Name = \"WEB01\",\n        Role = \"Web\",\n        Site = \"North\",\n        Status = \"Pass\"\n    },\n    new\n    {\n        Name = \"WEB02\",\n        Role = \"Web\",\n        Site = \"West\",\n        Status = \"Warn\"\n    },\n    new\n    {\n        Name = \"SQL01\",\n        Role = \"Database\",\n        Site = \"North\",\n        Status = \"Pass\"\n    },\n    new\n    {\n        Name = \"SQL02\",\n        Role = \"Database\",\n        Site = \"West\",\n        Status = \"Fail\"\n    },\n    new\n    {\n        Name = \"FS01\",\n        Role = \"Files\",\n        Site = \"North\",\n        Status = \"Pass\"\n    },\n    new\n    {\n        Name = \"JOB01\",\n        Role = \"Worker\",\n        Site = \"West\",\n        Status = \"Running\"\n    }\n};\nIWidget Results(string query)\n{\n    var matches = hosts.Where(host => host.Name.IndexOf(query,\n        StringComparison.OrdinalIgnoreCase) >= 0 || host.Role.IndexOf(query,\n            StringComparison.OrdinalIgnoreCase) >= 0 || host.Site.IndexOf(query,\n                StringComparison.OrdinalIgnoreCase) >= 0 || host.Status.IndexOf(query,\n                    StringComparison.OrdinalIgnoreCase) >= 0)\n        .ToArray();\n    TextBlock count = Ui.Markup(\"[bold]\" + matches.Length.ToString(CultureInfo.InvariantCulture)\n        + \"[/] of \" + hosts.Length.ToString(CultureInfo.InvariantCulture) + \" hosts\");\n    Table table = Ui.Table(matches)\n        .Column(\"Host\", host => host.Name)\n        .Column(\"Role\", host => host.Role)\n        .Column(\"Site\", host => host.Site)\n        .Column(\n            \"Status\",\n            host => host.Status,\n            column => column.Presenter(CellPresenters.StatusWord))\n        .HeaderSeparator(false);\n    if (matches.Length == 0)\n    {\n        return Ui.Rows().Content(c =>\n        {\n            c.Add(count);\n            c.Add(table);\n            c.Markup(\"[muted]No matching hosts. Backspace to broaden the query.[/]\");\n        });\n    }\n\n    return Ui.Rows().Content(c =>\n    {\n        c.Add(count);\n        c.Add(table);\n    });\n}\n\nRows layout = Ui.Rows().Gap(1).Content(c =>\n{\n    c.Markup(\"[bold]Host inventory[/] [muted]· synthetic data[/]\");\n    c.TextInput(textInput => textInput.Key(\"Query\")\n        .Label(\"Query\")\n        .Placeholder(\"Host, role, site or status\"));\n    c.Binding(binding => binding.Configure(o => o.Content = state => Results(state.Get<string>(\n        \"Query\", string.Empty))));\n});\nConsoleApp.Run(layout);\n",
   "csharpFluentFile": "Program.cs",
   "apiMap": [
+    {
+      "powershell": "New-ConsoleText -Markup $text",
+      "csharp": "new TextBlock(text)",
+      "fluent": "Ui.Markup(text); c.Markup(text)",
+      "memberId": "M:ConsoleMonster.Ui.Markup",
+      "note": "Same text renderer; the helper selects markup parsing explicitly while Text keeps brackets literal."
+    },
+    {
+      "powershell": "New-ConsoleTable -InputObject $rows -Property …",
+      "csharp": "Table.For(rows)",
+      "fluent": "Ui.Table(rows)",
+      "memberId": "M:ConsoleMonster.Ui.Table",
+      "note": "Inside Content: c.Table(t => …)."
+    },
+    {
+      "powershell": "New-ConsoleTable -NoHeaderSeparator",
+      "csharp": "HeaderSeparator = false",
+      "fluent": ".HeaderSeparator(false)",
+      "memberId": "ConsoleMonster.Widgets.Table.HeaderSeparator",
+      "note": "BooleanInversion"
+    },
     {
       "powershell": "New-ConsoleRows",
       "csharp": "new Rows(…)",
       "fluent": "Ui.Rows()",
       "memberId": "M:ConsoleMonster.Ui.Rows",
-      "note": "Inside Content: c.Rows(widget => …)."
+      "note": "Inside Content: c.Rows(r => …)."
     },
     {
       "powershell": "New-ConsoleRows -Content { … }",
       "csharp": "new Rows(widgets)",
       "fluent": ".Content(c => { … })",
       "memberId": "M:ConsoleMonster.Layout.RowsFluent.Content"
-    },
-    {
-      "powershell": "New-ConsoleBinding -Content { … }",
-      "csharp": "Content = …",
-      "fluent": ".Content(c => { … })",
-      "memberId": "ConsoleMonster.Interactive.BindingOptions.Content",
-      "note": "The typed definition materializes the same AppBinding after callback and identity configuration. C# invokes a delegate-valued property before considering an extension with that name; Configure assigns the callback without invoking it."
-    },
-    {
-      "powershell": "New-ConsoleTextInput -Placeholder …",
-      "csharp": "Placeholder = …",
-      "fluent": ".Placeholder(…)",
-      "memberId": "ConsoleMonster.Interactive.TextInput.Placeholder",
-      "note": null
-    },
-    {
-      "powershell": "New-ConsoleTextInput -Placeholder …",
-      "csharp": "Placeholder = …",
-      "fluent": ".Placeholder(…)",
-      "memberId": "ConsoleMonster.Interactive.TextInputOptions.Placeholder",
-      "note": null
     },
     {
       "powershell": "New-ConsoleRows -Gap …",

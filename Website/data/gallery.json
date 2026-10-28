@@ -102,6 +102,15 @@
       "powershellFile": "assessment.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/assessment/assessment.ps1",
+      "csharpDownload": "/examples/gallery/assessment/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/assessment/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/assessment/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 706,
+        "csharp": 497,
+        "csharpFluent": 520
+      },
       "thumbnail": "/site/gallery/assessment.svg",
       "frame": {
         "w": 140,
@@ -182,11 +191,6 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 706,
-        "csharp": 497,
-        "csharpFluent": 520
-      },
       "replay": {
         "url": "/replays/gallery-assessment.json",
         "w": 140,
@@ -199,10 +203,6 @@
         "start": 9900,
         "hero": 0
       },
-      "powershellDownload": "/examples/gallery/assessment/assessment.ps1",
-      "csharpDownload": "/examples/gallery/assessment/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/assessment/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/assessment/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo assessment",
         "export": "Export-ConsoleDemo assessment -Path ./assessment.ps1",
@@ -317,6 +317,15 @@
       "powershellFile": "fleet.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/fleet/fleet.ps1",
+      "csharpDownload": "/examples/gallery/fleet/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/fleet/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/fleet/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 668,
+        "csharp": 508,
+        "csharpFluent": 515
+      },
       "thumbnail": "/site/gallery/fleet.svg",
       "frame": {
         "w": 160,
@@ -373,11 +382,6 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 668,
-        "csharp": 508,
-        "csharpFluent": 515
-      },
       "replay": {
         "url": "/replays/gallery-fleet.json",
         "w": 160,
@@ -390,10 +394,6 @@
         "start": 6300,
         "hero": 0
       },
-      "powershellDownload": "/examples/gallery/fleet/fleet.ps1",
-      "csharpDownload": "/examples/gallery/fleet/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/fleet/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/fleet/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo fleet",
         "export": "Export-ConsoleDemo fleet -Path ./fleet.ps1",
@@ -507,6 +507,15 @@
       "powershellFile": "stress.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/stress/stress.ps1",
+      "csharpDownload": "/examples/gallery/stress/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/stress/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/stress/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 114,
+        "csharp": 132,
+        "csharpFluent": 142
+      },
       "thumbnail": "/site/gallery/stress.svg",
       "frame": {
         "w": 140,
@@ -557,11 +566,6 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 114,
-        "csharp": 132,
-        "csharpFluent": 142
-      },
       "replay": {
         "url": "/replays/gallery-stress.json",
         "w": 140,
@@ -574,10 +578,6 @@
         "start": 5400,
         "hero": 0
       },
-      "powershellDownload": "/examples/gallery/stress/stress.ps1",
-      "csharpDownload": "/examples/gallery/stress/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/stress/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/stress/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo stress",
         "export": "Export-ConsoleDemo stress -Path ./stress.ps1",
@@ -690,6 +690,15 @@
       "powershellFile": "backup-runner.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/backup-runner/backup-runner.ps1",
+      "csharpDownload": "/examples/gallery/backup-runner/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/backup-runner/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/backup-runner/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 75,
+        "csharp": 76,
+        "csharpFluent": 78
+      },
       "thumbnail": "/site/gallery/backup-runner.svg",
       "frame": {
         "w": 100,
@@ -716,11 +725,6 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 75,
-        "csharp": 76,
-        "csharpFluent": 78
-      },
       "replay": {
         "url": "/replays/gallery-backup-runner.json",
         "w": 100,
@@ -733,10 +737,6 @@
         "start": 1800,
         "hero": 0
       },
-      "powershellDownload": "/examples/gallery/backup-runner/backup-runner.ps1",
-      "csharpDownload": "/examples/gallery/backup-runner/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/backup-runner/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/backup-runner/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo backup-runner",
         "export": "Export-ConsoleDemo backup-runner -Path ./backup-runner.ps1",
@@ -849,6 +849,15 @@
       "powershellFile": "build-steps.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/build-steps/build-steps.ps1",
+      "csharpDownload": "/examples/gallery/build-steps/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/build-steps/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/build-steps/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 50,
+        "csharp": 56,
+        "csharpFluent": 61
+      },
       "thumbnail": "/site/gallery/build-steps.svg",
       "frame": {
         "w": 88,
@@ -887,11 +896,6 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 50,
-        "csharp": 56,
-        "csharpFluent": 61
-      },
       "replay": {
         "url": "/replays/gallery-build-steps.json",
         "w": 88,
@@ -904,10 +908,6 @@
         "start": 3600,
         "hero": 0
       },
-      "powershellDownload": "/examples/gallery/build-steps/build-steps.ps1",
-      "csharpDownload": "/examples/gallery/build-steps/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/build-steps/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/build-steps/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo build-steps",
         "export": "Export-ConsoleDemo build-steps -Path ./build-steps.ps1",
@@ -1024,6 +1024,15 @@
       "powershellFile": "certificate-expiry.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/certificate-expiry/certificate-expiry.ps1",
+      "csharpDownload": "/examples/gallery/certificate-expiry/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/certificate-expiry/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/certificate-expiry/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 33,
+        "csharp": 47,
+        "csharpFluent": 46
+      },
       "thumbnail": "/site/gallery/certificate-expiry.svg",
       "frame": {
         "w": 100,
@@ -1038,16 +1047,7 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 33,
-        "csharp": 47,
-        "csharpFluent": 46
-      },
       "replay": null,
-      "powershellDownload": "/examples/gallery/certificate-expiry/certificate-expiry.ps1",
-      "csharpDownload": "/examples/gallery/certificate-expiry/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/certificate-expiry/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/certificate-expiry/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo certificate-expiry",
         "export": "Export-ConsoleDemo certificate-expiry -Path ./certificate-expiry.ps1",
@@ -1155,6 +1155,15 @@
       "powershellFile": "container-status.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/container-status/container-status.ps1",
+      "csharpDownload": "/examples/gallery/container-status/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/container-status/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/container-status/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 119,
+        "csharp": 157,
+        "csharpFluent": 183
+      },
       "thumbnail": "/site/gallery/container-status.svg",
       "frame": {
         "w": 100,
@@ -1187,11 +1196,6 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 119,
-        "csharp": 157,
-        "csharpFluent": 183
-      },
       "replay": {
         "url": "/replays/gallery-container-status.json",
         "w": 100,
@@ -1204,10 +1208,6 @@
         "start": 2700,
         "hero": 0
       },
-      "powershellDownload": "/examples/gallery/container-status/container-status.ps1",
-      "csharpDownload": "/examples/gallery/container-status/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/container-status/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/container-status/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo container-status",
         "export": "Export-ConsoleDemo container-status -Path ./container-status.ps1",
@@ -1324,6 +1324,15 @@
       "powershellFile": "disk-usage.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/disk-usage/disk-usage.ps1",
+      "csharpDownload": "/examples/gallery/disk-usage/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/disk-usage/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/disk-usage/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 53,
+        "csharp": 61,
+        "csharpFluent": 69
+      },
       "thumbnail": "/site/gallery/disk-usage.svg",
       "frame": {
         "w": 100,
@@ -1338,16 +1347,7 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 53,
-        "csharp": 61,
-        "csharpFluent": 69
-      },
       "replay": null,
-      "powershellDownload": "/examples/gallery/disk-usage/disk-usage.ps1",
-      "csharpDownload": "/examples/gallery/disk-usage/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/disk-usage/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/disk-usage/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo disk-usage",
         "export": "Export-ConsoleDemo disk-usage -Path ./disk-usage.ps1",
@@ -1459,6 +1459,15 @@
       "powershellFile": "event-log-summary.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/event-log-summary/event-log-summary.ps1",
+      "csharpDownload": "/examples/gallery/event-log-summary/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/event-log-summary/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/event-log-summary/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 86,
+        "csharp": 87,
+        "csharpFluent": 120
+      },
       "thumbnail": "/site/gallery/event-log-summary.svg",
       "frame": {
         "w": 100,
@@ -1473,16 +1482,7 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 86,
-        "csharp": 87,
-        "csharpFluent": 120
-      },
       "replay": null,
-      "powershellDownload": "/examples/gallery/event-log-summary/event-log-summary.ps1",
-      "csharpDownload": "/examples/gallery/event-log-summary/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/event-log-summary/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/event-log-summary/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo event-log-summary",
         "export": "Export-ConsoleDemo event-log-summary -Path ./event-log-summary.ps1",
@@ -1595,6 +1595,15 @@
       "powershellFile": "everyday-formatting.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/everyday-formatting/everyday-formatting.ps1",
+      "csharpDownload": "/examples/gallery/everyday-formatting/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/everyday-formatting/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/everyday-formatting/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 28,
+        "csharp": 48,
+        "csharpFluent": 47
+      },
       "thumbnail": "/site/gallery/everyday-formatting.svg",
       "frame": {
         "w": 88,
@@ -1609,16 +1618,7 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 28,
-        "csharp": 48,
-        "csharpFluent": 47
-      },
       "replay": null,
-      "powershellDownload": "/examples/gallery/everyday-formatting/everyday-formatting.ps1",
-      "csharpDownload": "/examples/gallery/everyday-formatting/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/everyday-formatting/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/everyday-formatting/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo everyday-formatting",
         "export": "Export-ConsoleDemo everyday-formatting -Path ./everyday-formatting.ps1",
@@ -1726,6 +1726,15 @@
       "powershellFile": "fleet-filter.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/fleet-filter/fleet-filter.ps1",
+      "csharpDownload": "/examples/gallery/fleet-filter/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/fleet-filter/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/fleet-filter/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 47,
+        "csharp": 61,
+        "csharpFluent": 59
+      },
       "thumbnail": "/site/gallery/fleet-filter.svg",
       "frame": {
         "w": 88,
@@ -1752,11 +1761,6 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 47,
-        "csharp": 61,
-        "csharpFluent": 59
-      },
       "replay": {
         "url": "/replays/gallery-fleet-filter.json",
         "w": 88,
@@ -1769,10 +1773,6 @@
         "start": 1800,
         "hero": 0
       },
-      "powershellDownload": "/examples/gallery/fleet-filter/fleet-filter.ps1",
-      "csharpDownload": "/examples/gallery/fleet-filter/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/fleet-filter/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/fleet-filter/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo fleet-filter",
         "export": "Export-ConsoleDemo fleet-filter -Path ./fleet-filter.ps1",
@@ -1889,6 +1889,15 @@
       "powershellFile": "license-usage.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/license-usage/license-usage.ps1",
+      "csharpDownload": "/examples/gallery/license-usage/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/license-usage/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/license-usage/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 57,
+        "csharp": 72,
+        "csharpFluent": 78
+      },
       "thumbnail": "/site/gallery/license-usage.svg",
       "frame": {
         "w": 100,
@@ -1903,16 +1912,7 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 57,
-        "csharp": 72,
-        "csharpFluent": 78
-      },
       "replay": null,
-      "powershellDownload": "/examples/gallery/license-usage/license-usage.ps1",
-      "csharpDownload": "/examples/gallery/license-usage/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/license-usage/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/license-usage/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo license-usage",
         "export": "Export-ConsoleDemo license-usage -Path ./license-usage.ps1",
@@ -2020,6 +2020,15 @@
       "powershellFile": "live-filter.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/live-filter/live-filter.ps1",
+      "csharpDownload": "/examples/gallery/live-filter/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/live-filter/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/live-filter/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 44,
+        "csharp": 55,
+        "csharpFluent": 55
+      },
       "thumbnail": "/site/gallery/live-filter.svg",
       "frame": {
         "w": 88,
@@ -2046,11 +2055,6 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 44,
-        "csharp": 55,
-        "csharpFluent": 55
-      },
       "replay": {
         "url": "/replays/gallery-live-filter.json",
         "w": 88,
@@ -2063,10 +2067,6 @@
         "start": 1800,
         "hero": 0
       },
-      "powershellDownload": "/examples/gallery/live-filter/live-filter.ps1",
-      "csharpDownload": "/examples/gallery/live-filter/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/live-filter/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/live-filter/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo live-filter",
         "export": "Export-ConsoleDemo live-filter -Path ./live-filter.ps1",
@@ -2179,6 +2179,15 @@
       "powershellFile": "log-tail.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/log-tail/log-tail.ps1",
+      "csharpDownload": "/examples/gallery/log-tail/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/log-tail/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/log-tail/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 43,
+        "csharp": 54,
+        "csharpFluent": 59
+      },
       "thumbnail": "/site/gallery/log-tail.svg",
       "frame": {
         "w": 88,
@@ -2217,11 +2226,6 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 43,
-        "csharp": 54,
-        "csharpFluent": 59
-      },
       "replay": {
         "url": "/replays/gallery-log-tail.json",
         "w": 88,
@@ -2234,10 +2238,6 @@
         "start": 3600,
         "hero": 0
       },
-      "powershellDownload": "/examples/gallery/log-tail/log-tail.ps1",
-      "csharpDownload": "/examples/gallery/log-tail/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/log-tail/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/log-tail/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo log-tail",
         "export": "Export-ConsoleDemo log-tail -Path ./log-tail.ps1",
@@ -2354,6 +2354,15 @@
       "powershellFile": "operations-calendar.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/operations-calendar/operations-calendar.ps1",
+      "csharpDownload": "/examples/gallery/operations-calendar/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/operations-calendar/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/operations-calendar/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 48,
+        "csharp": 39,
+        "csharpFluent": 61
+      },
       "thumbnail": "/site/gallery/operations-calendar.svg",
       "frame": {
         "w": 100,
@@ -2368,16 +2377,7 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 48,
-        "csharp": 39,
-        "csharpFluent": 61
-      },
       "replay": null,
-      "powershellDownload": "/examples/gallery/operations-calendar/operations-calendar.ps1",
-      "csharpDownload": "/examples/gallery/operations-calendar/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/operations-calendar/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/operations-calendar/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo operations-calendar",
         "export": "Export-ConsoleDemo operations-calendar -Path ./operations-calendar.ps1",
@@ -2486,6 +2486,15 @@
       "powershellFile": "parallel-patch.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/parallel-patch/parallel-patch.ps1",
+      "csharpDownload": "/examples/gallery/parallel-patch/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/parallel-patch/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/parallel-patch/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 197,
+        "csharp": 148,
+        "csharpFluent": 154
+      },
       "thumbnail": "/site/gallery/parallel-patch.svg",
       "frame": {
         "w": 120,
@@ -2506,11 +2515,6 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 197,
-        "csharp": 148,
-        "csharpFluent": 154
-      },
       "replay": {
         "url": "/replays/gallery-parallel-patch.json",
         "w": 120,
@@ -2523,10 +2527,6 @@
         "start": 900,
         "hero": 0
       },
-      "powershellDownload": "/examples/gallery/parallel-patch/parallel-patch.ps1",
-      "csharpDownload": "/examples/gallery/parallel-patch/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/parallel-patch/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/parallel-patch/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo parallel-patch",
         "export": "Export-ConsoleDemo parallel-patch -Path ./parallel-patch.ps1",
@@ -2639,6 +2639,15 @@
       "powershellFile": "patch-progress.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/patch-progress/patch-progress.ps1",
+      "csharpDownload": "/examples/gallery/patch-progress/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/patch-progress/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/patch-progress/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 55,
+        "csharp": 57,
+        "csharpFluent": 59
+      },
       "thumbnail": "/site/gallery/patch-progress.svg",
       "frame": {
         "w": 88,
@@ -2659,11 +2668,6 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 55,
-        "csharp": 57,
-        "csharpFluent": 59
-      },
       "replay": {
         "url": "/replays/gallery-patch-progress.json",
         "w": 88,
@@ -2676,10 +2680,6 @@
         "start": 900,
         "hero": 0
       },
-      "powershellDownload": "/examples/gallery/patch-progress/patch-progress.ps1",
-      "csharpDownload": "/examples/gallery/patch-progress/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/patch-progress/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/patch-progress/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo patch-progress",
         "export": "Export-ConsoleDemo patch-progress -Path ./patch-progress.ps1",
@@ -2793,6 +2793,15 @@
       "powershellFile": "pipeline.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/pipeline/pipeline.ps1",
+      "csharpDownload": "/examples/gallery/pipeline/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/pipeline/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/pipeline/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 257,
+        "csharp": 215,
+        "csharpFluent": 223
+      },
       "thumbnail": "/site/gallery/pipeline.svg",
       "frame": {
         "w": 140,
@@ -2861,11 +2870,6 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 257,
-        "csharp": 215,
-        "csharpFluent": 223
-      },
       "replay": {
         "url": "/replays/gallery-pipeline.json",
         "w": 140,
@@ -2878,10 +2882,6 @@
         "start": 8100,
         "hero": 0
       },
-      "powershellDownload": "/examples/gallery/pipeline/pipeline.ps1",
-      "csharpDownload": "/examples/gallery/pipeline/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/pipeline/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/pipeline/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo pipeline",
         "export": "Export-ConsoleDemo pipeline -Path ./pipeline.ps1",
@@ -2998,6 +2998,15 @@
       "powershellFile": "port-matrix.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/port-matrix/port-matrix.ps1",
+      "csharpDownload": "/examples/gallery/port-matrix/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/port-matrix/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/port-matrix/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 33,
+        "csharp": 53,
+        "csharpFluent": 54
+      },
       "thumbnail": "/site/gallery/port-matrix.svg",
       "frame": {
         "w": 100,
@@ -3012,16 +3021,7 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 33,
-        "csharp": 53,
-        "csharpFluent": 54
-      },
       "replay": null,
-      "powershellDownload": "/examples/gallery/port-matrix/port-matrix.ps1",
-      "csharpDownload": "/examples/gallery/port-matrix/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/port-matrix/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/port-matrix/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo port-matrix",
         "export": "Export-ConsoleDemo port-matrix -Path ./port-matrix.ps1",
@@ -3129,6 +3129,15 @@
       "powershellFile": "process-monitor.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/process-monitor/process-monitor.ps1",
+      "csharpDownload": "/examples/gallery/process-monitor/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/process-monitor/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/process-monitor/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 51,
+        "csharp": 70,
+        "csharpFluent": 72
+      },
       "thumbnail": "/site/gallery/process-monitor.svg",
       "frame": {
         "w": 100,
@@ -3155,11 +3164,6 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 51,
-        "csharp": 70,
-        "csharpFluent": 72
-      },
       "replay": {
         "url": "/replays/gallery-process-monitor.json",
         "w": 100,
@@ -3172,10 +3176,6 @@
         "start": 1800,
         "hero": 0
       },
-      "powershellDownload": "/examples/gallery/process-monitor/process-monitor.ps1",
-      "csharpDownload": "/examples/gallery/process-monitor/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/process-monitor/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/process-monitor/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo process-monitor",
         "export": "Export-ConsoleDemo process-monitor -Path ./process-monitor.ps1",
@@ -3289,6 +3289,15 @@
       "powershellFile": "prompt-tour.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/prompt-tour/prompt-tour.ps1",
+      "csharpDownload": "/examples/gallery/prompt-tour/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/prompt-tour/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/prompt-tour/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 187,
+        "csharp": 209,
+        "csharpFluent": 192
+      },
       "thumbnail": "/site/gallery/prompt-tour.svg",
       "frame": {
         "w": 112,
@@ -3351,11 +3360,6 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 187,
-        "csharp": 209,
-        "csharpFluent": 192
-      },
       "replay": {
         "url": "/replays/gallery-prompt-tour.json",
         "w": 112,
@@ -3368,10 +3372,6 @@
         "start": 7200,
         "hero": 0
       },
-      "powershellDownload": "/examples/gallery/prompt-tour/prompt-tour.ps1",
-      "csharpDownload": "/examples/gallery/prompt-tour/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/prompt-tour/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/prompt-tour/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo prompt-tour",
         "export": "Export-ConsoleDemo prompt-tour -Path ./prompt-tour.ps1",
@@ -3490,6 +3490,15 @@
       "powershellFile": "query.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/query/query.ps1",
+      "csharpDownload": "/examples/gallery/query/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/query/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/query/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 92,
+        "csharp": 100,
+        "csharpFluent": 108
+      },
       "thumbnail": "/site/gallery/query.svg",
       "frame": {
         "w": 144,
@@ -3504,16 +3513,7 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 92,
-        "csharp": 100,
-        "csharpFluent": 108
-      },
       "replay": null,
-      "powershellDownload": "/examples/gallery/query/query.ps1",
-      "csharpDownload": "/examples/gallery/query/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/query/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/query/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo query",
         "export": "Export-ConsoleDemo query -Path ./query.ps1",
@@ -3626,6 +3626,15 @@
       "powershellFile": "readiness-report.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/readiness-report/readiness-report.ps1",
+      "csharpDownload": "/examples/gallery/readiness-report/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/readiness-report/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/readiness-report/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 54,
+        "csharp": 58,
+        "csharpFluent": 63
+      },
       "thumbnail": "/site/gallery/readiness-report.svg",
       "frame": {
         "w": 88,
@@ -3640,16 +3649,7 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 54,
-        "csharp": 58,
-        "csharpFluent": 63
-      },
       "replay": null,
-      "powershellDownload": "/examples/gallery/readiness-report/readiness-report.ps1",
-      "csharpDownload": "/examples/gallery/readiness-report/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/readiness-report/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/readiness-report/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo readiness-report",
         "export": "Export-ConsoleDemo readiness-report -Path ./readiness-report.ps1",
@@ -3761,6 +3761,15 @@
       "powershellFile": "repository-status.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/repository-status/repository-status.ps1",
+      "csharpDownload": "/examples/gallery/repository-status/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/repository-status/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/repository-status/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 36,
+        "csharp": 43,
+        "csharpFluent": 44
+      },
       "thumbnail": "/site/gallery/repository-status.svg",
       "frame": {
         "w": 100,
@@ -3775,16 +3784,7 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 36,
-        "csharp": 43,
-        "csharpFluent": 44
-      },
       "replay": null,
-      "powershellDownload": "/examples/gallery/repository-status/repository-status.ps1",
-      "csharpDownload": "/examples/gallery/repository-status/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/repository-status/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/repository-status/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo repository-status",
         "export": "Export-ConsoleDemo repository-status -Path ./repository-status.ps1",
@@ -3896,6 +3896,15 @@
       "powershellFile": "scheduled-tasks.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/scheduled-tasks/scheduled-tasks.ps1",
+      "csharpDownload": "/examples/gallery/scheduled-tasks/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/scheduled-tasks/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/scheduled-tasks/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 63,
+        "csharp": 70,
+        "csharpFluent": 74
+      },
       "thumbnail": "/site/gallery/scheduled-tasks.svg",
       "frame": {
         "w": 100,
@@ -3910,16 +3919,7 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 63,
-        "csharp": 70,
-        "csharpFluent": 74
-      },
       "replay": null,
-      "powershellDownload": "/examples/gallery/scheduled-tasks/scheduled-tasks.ps1",
-      "csharpDownload": "/examples/gallery/scheduled-tasks/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/scheduled-tasks/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/scheduled-tasks/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo scheduled-tasks",
         "export": "Export-ConsoleDemo scheduled-tasks -Path ./scheduled-tasks.ps1",
@@ -4041,6 +4041,15 @@
       "powershellFile": "service-browser.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/service-browser/service-browser.ps1",
+      "csharpDownload": "/examples/gallery/service-browser/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/service-browser/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/service-browser/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 65,
+        "csharp": 104,
+        "csharpFluent": 119
+      },
       "thumbnail": "/site/gallery/service-browser.svg",
       "frame": {
         "w": 100,
@@ -4067,11 +4076,6 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 65,
-        "csharp": 104,
-        "csharpFluent": 119
-      },
       "replay": {
         "url": "/replays/gallery-service-browser.json",
         "w": 100,
@@ -4084,10 +4088,6 @@
         "start": 1800,
         "hero": 0
       },
-      "powershellDownload": "/examples/gallery/service-browser/service-browser.ps1",
-      "csharpDownload": "/examples/gallery/service-browser/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/service-browser/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/service-browser/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo service-browser",
         "export": "Export-ConsoleDemo service-browser -Path ./service-browser.ps1",
@@ -4201,6 +4201,15 @@
       "powershellFile": "setup.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/setup/setup.ps1",
+      "csharpDownload": "/examples/gallery/setup/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/setup/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/setup/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 266,
+        "csharp": 222,
+        "csharpFluent": 206
+      },
       "thumbnail": "/site/gallery/setup.svg",
       "frame": {
         "w": 112,
@@ -4251,11 +4260,6 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 266,
-        "csharp": 222,
-        "csharpFluent": 206
-      },
       "replay": {
         "url": "/replays/gallery-setup.json",
         "w": 112,
@@ -4268,10 +4272,6 @@
         "start": 5400,
         "hero": 0
       },
-      "powershellDownload": "/examples/gallery/setup/setup.ps1",
-      "csharpDownload": "/examples/gallery/setup/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/setup/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/setup/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo setup",
         "export": "Export-ConsoleDemo setup -Path ./setup.ps1",
@@ -4384,6 +4384,15 @@
       "powershellFile": "setup-basic.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/setup-basic/setup-basic.ps1",
+      "csharpDownload": "/examples/gallery/setup-basic/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/setup-basic/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/setup-basic/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 47,
+        "csharp": 57,
+        "csharpFluent": 59
+      },
       "thumbnail": "/site/gallery/setup-basic.svg",
       "frame": {
         "w": 88,
@@ -4410,11 +4419,6 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 47,
-        "csharp": 57,
-        "csharpFluent": 59
-      },
       "replay": {
         "url": "/replays/gallery-setup-basic.json",
         "w": 88,
@@ -4427,10 +4431,6 @@
         "start": 1800,
         "hero": 0
       },
-      "powershellDownload": "/examples/gallery/setup-basic/setup-basic.ps1",
-      "csharpDownload": "/examples/gallery/setup-basic/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/setup-basic/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/setup-basic/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo setup-basic",
         "export": "Export-ConsoleDemo setup-basic -Path ./setup-basic.ps1",
@@ -4547,6 +4547,15 @@
       "powershellFile": "stale-accounts.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/stale-accounts/stale-accounts.ps1",
+      "csharpDownload": "/examples/gallery/stale-accounts/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/stale-accounts/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/stale-accounts/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 87,
+        "csharp": 85,
+        "csharpFluent": 96
+      },
       "thumbnail": "/site/gallery/stale-accounts.svg",
       "frame": {
         "w": 100,
@@ -4561,16 +4570,7 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 87,
-        "csharp": 85,
-        "csharpFluent": 96
-      },
       "replay": null,
-      "powershellDownload": "/examples/gallery/stale-accounts/stale-accounts.ps1",
-      "csharpDownload": "/examples/gallery/stale-accounts/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/stale-accounts/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/stale-accounts/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo stale-accounts",
         "export": "Export-ConsoleDemo stale-accounts -Path ./stale-accounts.ps1",
@@ -4678,6 +4678,15 @@
       "powershellFile": "task-menu.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/task-menu/task-menu.ps1",
+      "csharpDownload": "/examples/gallery/task-menu/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/task-menu/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/task-menu/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 38,
+        "csharp": 40,
+        "csharpFluent": 49
+      },
       "thumbnail": "/site/gallery/task-menu.svg",
       "frame": {
         "w": 88,
@@ -4704,11 +4713,6 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 38,
-        "csharp": 40,
-        "csharpFluent": 49
-      },
       "replay": {
         "url": "/replays/gallery-task-menu.json",
         "w": 88,
@@ -4721,10 +4725,6 @@
         "start": 1800,
         "hero": 0
       },
-      "powershellDownload": "/examples/gallery/task-menu/task-menu.ps1",
-      "csharpDownload": "/examples/gallery/task-menu/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/task-menu/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/task-menu/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo task-menu",
         "export": "Export-ConsoleDemo task-menu -Path ./task-menu.ps1",
@@ -4839,6 +4839,15 @@
       "powershellFile": "tls-verdict.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/tls-verdict/tls-verdict.ps1",
+      "csharpDownload": "/examples/gallery/tls-verdict/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/tls-verdict/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/tls-verdict/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 98,
+        "csharp": 95,
+        "csharpFluent": 94
+      },
       "thumbnail": "/site/gallery/tls-verdict.svg",
       "frame": {
         "w": 120,
@@ -4859,11 +4868,6 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 98,
-        "csharp": 95,
-        "csharpFluent": 94
-      },
       "replay": {
         "url": "/replays/gallery-tls-verdict.json",
         "w": 120,
@@ -4876,10 +4880,6 @@
         "start": 6000,
         "hero": 0
       },
-      "powershellDownload": "/examples/gallery/tls-verdict/tls-verdict.ps1",
-      "csharpDownload": "/examples/gallery/tls-verdict/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/tls-verdict/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/tls-verdict/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo tls-verdict",
         "export": "Export-ConsoleDemo tls-verdict -Path ./tls-verdict.ps1",
@@ -4993,6 +4993,15 @@
       "powershellFile": "toolbox.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/toolbox/toolbox.ps1",
+      "csharpDownload": "/examples/gallery/toolbox/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/toolbox/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/toolbox/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 605,
+        "csharp": 477,
+        "csharpFluent": 475
+      },
       "thumbnail": "/site/gallery/toolbox.svg",
       "frame": {
         "w": 128,
@@ -5049,11 +5058,6 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 605,
-        "csharp": 477,
-        "csharpFluent": 475
-      },
       "featured": false,
       "replay": {
         "url": "/replays/gallery-toolbox.json",
@@ -5067,10 +5071,6 @@
         "start": 6300,
         "hero": 0
       },
-      "powershellDownload": "/examples/gallery/toolbox/toolbox.ps1",
-      "csharpDownload": "/examples/gallery/toolbox/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/toolbox/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/toolbox/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo toolbox",
         "export": "Export-ConsoleDemo toolbox -Path ./toolbox.ps1",
@@ -5187,6 +5187,15 @@
       "powershellFile": "update-compliance.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/update-compliance/update-compliance.ps1",
+      "csharpDownload": "/examples/gallery/update-compliance/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/update-compliance/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/update-compliance/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 65,
+        "csharp": 68,
+        "csharpFluent": 72
+      },
       "thumbnail": "/site/gallery/update-compliance.svg",
       "frame": {
         "w": 100,
@@ -5201,16 +5210,7 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 65,
-        "csharp": 68,
-        "csharpFluent": 72
-      },
       "replay": null,
-      "powershellDownload": "/examples/gallery/update-compliance/update-compliance.ps1",
-      "csharpDownload": "/examples/gallery/update-compliance/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/update-compliance/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/update-compliance/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo update-compliance",
         "export": "Export-ConsoleDemo update-compliance -Path ./update-compliance.ps1",
@@ -5295,6 +5295,15 @@
       "powershellFile": "welcome-compact.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/welcome-compact/welcome-compact.ps1",
+      "csharpDownload": "/examples/gallery/welcome-compact/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/welcome-compact/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/welcome-compact/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 17,
+        "csharp": 17,
+        "csharpFluent": 17
+      },
       "thumbnail": "/site/gallery/welcome-compact.svg",
       "frame": {
         "w": 88,
@@ -5309,16 +5318,7 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 17,
-        "csharp": 17,
-        "csharpFluent": 17
-      },
       "replay": null,
-      "powershellDownload": "/examples/gallery/welcome-compact/welcome-compact.ps1",
-      "csharpDownload": "/examples/gallery/welcome-compact/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/welcome-compact/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/welcome-compact/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo welcome-compact",
         "export": "Export-ConsoleDemo welcome-compact -Path ./welcome-compact.ps1",
@@ -5432,6 +5432,15 @@
       "powershellFile": "welcome-rich.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/welcome-rich/welcome-rich.ps1",
+      "csharpDownload": "/examples/gallery/welcome-rich/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/welcome-rich/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/welcome-rich/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 31,
+        "csharp": 36,
+        "csharpFluent": 42
+      },
       "thumbnail": "/site/gallery/welcome-rich.svg",
       "frame": {
         "w": 88,
@@ -5446,16 +5455,7 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 31,
-        "csharp": 36,
-        "csharpFluent": 42
-      },
       "replay": null,
-      "powershellDownload": "/examples/gallery/welcome-rich/welcome-rich.ps1",
-      "csharpDownload": "/examples/gallery/welcome-rich/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/welcome-rich/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/welcome-rich/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo welcome-rich",
         "export": "Export-ConsoleDemo welcome-rich -Path ./welcome-rich.ps1",
@@ -5563,6 +5563,15 @@
       "powershellFile": "worker-progress.ps1",
       "csharpFile": "Program.cs",
       "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/worker-progress/worker-progress.ps1",
+      "csharpDownload": "/examples/gallery/worker-progress/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/worker-progress/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/worker-progress/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 57,
+        "csharp": 64,
+        "csharpFluent": 80
+      },
       "thumbnail": "/site/gallery/worker-progress.svg",
       "frame": {
         "w": 88,
@@ -5601,11 +5610,6 @@
           "encoding": "UTF-8 SVG"
         }
       ],
-      "lines": {
-        "powershell": 57,
-        "csharp": 64,
-        "csharpFluent": 80
-      },
       "replay": {
         "url": "/replays/gallery-worker-progress.json",
         "w": 88,
@@ -5618,10 +5622,6 @@
         "start": 3600,
         "hero": 0
       },
-      "powershellDownload": "/examples/gallery/worker-progress/worker-progress.ps1",
-      "csharpDownload": "/examples/gallery/worker-progress/Program.cs",
-      "csharpFluentDownload": "/examples/gallery/worker-progress/Program.Fluent.cs",
-      "projectDownload": "/examples/gallery/worker-progress/GalleryDemo.csproj",
       "run": {
         "powershell": "Show-ConsoleDemo worker-progress",
         "export": "Export-ConsoleDemo worker-progress -Path ./worker-progress.ps1",

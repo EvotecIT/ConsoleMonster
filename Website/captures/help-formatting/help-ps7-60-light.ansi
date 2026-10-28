@@ -1,49 +1,32 @@
-[?1h=[0;1;38;2;17;24;39mGet-ConsoleCapability
-[0mShows what ConsoleMonster detected about the current
-terminal.
-
-[0;1;38;2;37;99;235mSyntax
-[0m  [0;1;38;2;17;24;39mGet-ConsoleCapability[0m [0;38;2;212;212;216m[[0;38;2;124;58;237m-Refresh[0;38;2;212;212;216m][0m [0;38;2;212;212;216m[<CommonParameters>]
-
-[0;1;38;2;37;99;235mDescription
-[0m  Shows what ConsoleMonster detected about the current
-  terminal.
-
-  Returns the terminal profile: kind, mode (Interactive,
-  Stream, Plain), colour depth, glyph tier, size, VT
-  support, console font and the reasons behind each
-  decision. -Refresh detects again (after a resize or font
-[0;38;2;107;114;128m───────────────────────────────────────────────────────────
-Page 1 of 3 · [0;38;2;37;99;235mSpace[0;38;2;107;114;128m next · [0;38;2;37;99;235mb[0;38;2;107;114;128m back · [0;38;2;37;99;235mq[0;38;2;107;114;128m quit[0m                                            change).
-
-[0;1;38;2;37;99;235mParameters
-[0m  [0;38;2;107;114;128m1 record
-
-[0m  [0;1;38;2;17;24;39m-Refresh
-[0m    [0;38;2;107;114;128mType[0m         [0;38;2;107;114;128mswitch
-[0m    [0;38;2;107;114;128mRequired[0m     [0;38;2;107;114;128mno
-[0m    [0;38;2;107;114;128mPosition[0m     [0;38;2;107;114;128mnamed
-[0m    [0;38;2;107;114;128mPipeline[0m     [0;38;2;107;114;128mno
-[0m    [0;38;2;107;114;128mDescription[0m  Detect again instead of returning the
-                 cached profile.
-  [0;38;2;107;114;128mCommon parameters: -Debug, -ErrorAction, -ErrorVariable,
-[0m  [0;38;2;107;114;128m-InformationAction, -OutVariable, -Verbose,
-[0m  [0;38;2;107;114;128m-WarningAction and the others (about_CommonParameters).
-───────────────────────────────────────────────────────────
-Page 2 of 3 · [0;38;2;37;99;235mSpace[0;38;2;107;114;128m next · [0;38;2;37;99;235mb[0;38;2;107;114;128m back · [0;38;2;37;99;235mq[0;38;2;107;114;128m quit[0m                                          [0;1;38;2;17;24;39mGet-ConsoleCapability
-[0mShows what ConsoleMonster detected about the current
-terminal.
-
-[0;1;38;2;37;99;235mSyntax
-[0m  [0;1;38;2;17;24;39mGet-ConsoleCapability[0m [0;38;2;212;212;216m[[0;38;2;124;58;237m-Refresh[0;38;2;212;212;216m][0m [0;38;2;212;212;216m[<CommonParameters>]
-
-[0;1;38;2;37;99;235mDescription
-[0m  Shows what ConsoleMonster detected about the current
-  terminal.
-
-  Returns the terminal profile: kind, mode (Interactive,
-  Stream, Plain), colour depth, glyph tier, size, VT
-  support, console font and the reasons behind each
-  decision. -Refresh detects again (after a resize or font
-[0;38;2;107;114;128m───────────────────────────────────────────────────────────
-Page 1 of 3 · [0;38;2;37;99;235mSpace[0;38;2;107;114;128m next · [0;38;2;37;99;235mb[0;38;2;107;114;128m back · [0;38;2;37;99;235mq[0;38;2;107;114;128m quit[0m                                          
+[0;1;38;2;17;24;39mGet-ConsoleCapability[2;1H[0mShows[7Gwhat[12GConsoleMonster[27Gdetected[36Gabout[42Gthe[46Gcurrent[3;1Hterminal.[5;1H[0;1;38;2;37;99;235mSyntax[6;3H[0;1;38;2;17;24;39mGet-ConsoleCapability[25G[0;38;2;212;212;216m[[0;38;2;124;58;237m-Refresh[0;38;2;212;212;216m][36G[<CommonParameters>][8;1H[0;1;38;2;37;99;235mDescription[9;3H[0mShows[9Gwhat[14GConsoleMonster[29Gdetected[38Gabout[44Gthe[48Gcurrent[10;3Hterminal.[12;3HReturns[11Gthe[15Gterminal[24Gprofile:[33Gkind,[39Gmode[44G(Interactive,[13;3HStream,[11GPlain),[19Gcolour[26Gdepth,[33Gglyph[39Gtier,[45Gsize,[51GVT[14;3Hsupport,[12Gconsole[20Gfont[25Gand[29Gthe[33Greasons[41Gbehind[48Geach[15;3Hdecision.[13G-Refresh[22Gdetects[30Gagain[36G(after[43Ga[45Gresize[52Gor[55Gfont[16;1H[0;38;2;107;114;128m───────────────────────────────────────────────────────────[17;1HPage[6G1[8Gof[11G3[13G·[15G[0;38;2;37;99;235mSpace[21G[0;38;2;107;114;128mnext[26G·[28G[0;38;2;37;99;235mb[30G[0;38;2;107;114;128mback[35G·[37G[0;38;2;37;99;235mq[39G[0;38;2;107;114;128mquit[1G[0m[42X[3Gchange).[18;1H
+[0;1;38;2;37;99;235mParameters[1G
+[3G[0;38;2;107;114;128m1[5Grecord[1G
+
+[3G[0;1;38;2;17;24;39m-Refresh[1G
+[5G[0;38;2;107;114;128mType[18Gswitch[1G
+[5GRequired[18Gno[1G
+[5GPosition[18Gnamed[1G
+[5GPipeline[18Gno[1G
+[5GDescription[18G[0mDetect[25Gagain[31Ginstead[39Gof[42Greturning[52Gthe[1G
+[18Gcached[25Gprofile.[1G
+[3G[0;38;2;107;114;128mCommon[10Gparameters:[22G-Debug,[30G-ErrorAction,[44G-ErrorVariable,[1G
+[3G-InformationAction,[23G-OutVariable,[37G-Verbose,[1G
+[3G-WarningAction[18Gand[22Gthe[26Gothers[33G(about_CommonParameters).[1G
+───────────────────────────────────────────────────────────[1G
+Page[6G2[8Gof[11G3[13G·[15G[0;38;2;37;99;235mSpace[21G[0;38;2;107;114;128mnext[26G·[28G[0;38;2;37;99;235mb[30G[0;38;2;107;114;128mback[35G·[37G[0;38;2;37;99;235mq[39G[0;38;2;107;114;128mquit[1G[0m[42X[0;1;38;2;17;24;39mGet-ConsoleCapability[1G
+[0mShows[7Gwhat[12GConsoleMonster[27Gdetected[36Gabout[42Gthe[46Gcurrent[1G
+terminal.[1G
+
+[0;1;38;2;37;99;235mSyntax[1G
+[3G[0;1;38;2;17;24;39mGet-ConsoleCapability[25G[0;38;2;212;212;216m[[0;38;2;124;58;237m-Refresh[0;38;2;212;212;216m][36G[<CommonParameters>][1G
+
+[0;1;38;2;37;99;235mDescription[1G
+[3G[0mShows[9Gwhat[14GConsoleMonster[29Gdetected[38Gabout[44Gthe[48Gcurrent[1G
+[3Gterminal.[1G
+
+[3GReturns[11Gthe[15Gterminal[24Gprofile:[33Gkind,[39Gmode[44G(Interactive,[1G
+[3GStream,[11GPlain),[19Gcolour[26Gdepth,[33Gglyph[39Gtier,[45Gsize,[51GVT[1G
+[3Gsupport,[12Gconsole[20Gfont[25Gand[29Gthe[33Greasons[41Gbehind[48Geach[1G
+[3Gdecision.[13G-Refresh[22Gdetects[30Gagain[36G(after[43Ga[45Gresize[52Gor[55Gfont[1G
+[0;38;2;107;114;128m───────────────────────────────────────────────────────────[1G
+Page[6G1[8Gof[11G3[13G·[15G[0;38;2;37;99;235mSpace[21G[0;38;2;107;114;128mnext[26G·[28G[0;38;2;37;99;235mb[30G[0;38;2;107;114;128mback[35G·[37G[0;38;2;37;99;235mq[39G[0;38;2;107;114;128mquit[1G[0m[42X

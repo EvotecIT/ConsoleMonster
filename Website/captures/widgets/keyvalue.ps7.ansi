@@ -1,5 +1,1 @@
-[?1h=[0;38;2;139;143;154mModule[0m      [0;1mConsoleMonster
-[0;38;2;139;143;154mVersion[0m     0.0.4 [0;38;2;139;143;154m→[20G[0m [0;1m2.0.0
-[0;38;2;139;143;154mFrameworks[0m  netstandard2.0, net472, net8.0
-[0;38;2;139;143;154mSigning[0m     [0;38;2;161;161;170m–[14G [0mskipped
-[0;38;2;139;143;154mTests[0m       [0;38;2;251;191;36m▴[14G [0m1 skipped on PowerShell 7
+[0;38;2;139;143;154mModule[13G[0;1mConsoleMonster[2;1H[0;38;2;139;143;154mVersion[13G[0m0.0.4[19G[0;38;2;139;143;154m→[21G[0;1m2.0.0[3;1H[0;38;2;139;143;154mFrameworks[13G[0mnetstandard2.0,[29Gnet472,[37Gnet8.0[4;1H[0;38;2;139;143;154mSigning[13G[0;38;2;161;161;170m–[15G[0mskipped[5;1H[0;38;2;139;143;154mTests[13G[0;38;2;251;191;36m▴[15G[0m1[17Gskipped[25Gon[28GPowerShell[39G7[6;1H

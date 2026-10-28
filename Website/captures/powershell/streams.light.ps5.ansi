@@ -1,8 +1,1 @@
-[2J[H[0;38;2;138;138;148m── [0;1;38;2;17;24;39mPowerShell's own colours[1C[0;38;2;138;138;148m────────────────────────────────────────────────────────────────────────
-[0;93mWARNING: Certificate for mail.evotec.xyz expires in 12 days
-VERBOSE: Queried 4 domain controllers in 2 domains
-DEBUG: Cache hit for evotec.xyz
-[0;38;2;138;138;148m── [0;1;38;2;17;24;39mWith -Feature Streams: the theme's colours[0m [0;38;2;138;138;148m──────────────────────────────────────────────────────
-[0;33mWARNING: Certificate for mail.evotec.xyz expires in 12 days
-[0;36mVERBOSE: Queried 4 domain controllers in 2 domains
-[0;90mDEBUG: Cache hit for evotec.xyz
+[0;38;2;138;138;148m──[4G[0;1;38;2;17;24;39mPowerShell's own colours[29G[0;38;2;138;138;148m────────────────────────────────────────────────────────────────────────[2;1H[0;93mWARNING:[10GCertificate[22Gfor[26Gmail.evotec.xyz[42Gexpires[50Gin[53G12[56Gdays[3;1HVERBOSE:[10GQueried[18G4[20Gdomain[27Gcontrollers[39Gin[42G2[44Gdomains[4;1HDEBUG:[8GCache[14Ghit[18Gfor[22Gevotec.xyz[5;1H[0;38;2;138;138;148m──[4G[0;1;38;2;17;24;39mWith -Feature Streams: the theme's colours[47G[0;38;2;138;138;148m──────────────────────────────────────────────────────[6;1H[0;33mWARNING:[10GCertificate[22Gfor[26Gmail.evotec.xyz[42Gexpires[50Gin[53G12[56Gdays[7;1H[0;36mVERBOSE:[10GQueried[18G4[20Gdomain[27Gcontrollers[39Gin[42G2[44Gdomains[8;1H[0;90mDEBUG:[8GCache[14Ghit[18Gfor[22Gevotec.xyz[9;1H

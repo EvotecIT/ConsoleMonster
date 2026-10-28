@@ -1,5 +1,1 @@
-[?1h=[0;38;2;139;143;154m00:02[0m        Discovered 4 domain controllers in 2 domains
-[0;38;2;139;143;154m00:31[0m [0;38;2;251;191;36m▴[8G WARN[0m DC02: replication partner DC05 last success 3h…
-[0;38;2;139;143;154m00:44[0m [0;38;2;248;113;113m✗[8G ERR[0m  DC02: USN rollback check failed (event 2095)
-[0;38;2;139;143;154m00:52[0m        Collected 186 rule inputs from DC01
-[0;38;2;139;143;154m00:53[0m [0;38;2;139;143;154mVERB[0m   [0;38;2;139;143;154mUsing cached schema snapshot
+[0;38;2;139;143;154m00:02[14G[0mDiscovered[25G4[27Gdomain[34Gcontrollers[46Gin[49G2[51Gdomains[2;1H[0;38;2;139;143;154m00:31[7G[0;38;2;251;191;36m▴[9GWARN[14G[0mDC02:[20Greplication[32Gpartner[40GDC05[45Glast[50Gsuccess[58G3h…[3;1H[0;38;2;139;143;154m00:44[7G[0;38;2;248;113;113m✗[9GERR[14G[0mDC02:[20GUSN[24Grollback[33Gcheck[39Gfailed[46G(event[53G2095)[4;1H[0;38;2;139;143;154m00:52[14G[0mCollected[24G186[28Grule[33Ginputs[40Gfrom[45GDC01[5;1H[0;38;2;139;143;154m00:53[7GVERB[14GUsing[20Gcached[27Gschema[34Gsnapshot[6;1H
