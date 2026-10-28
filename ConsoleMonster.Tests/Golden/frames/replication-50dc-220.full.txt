@@ -17,10 +17,8 @@
                                                                                  DUB-BR        ✓       ·       ·       ·       ·       ·       ·       ·       ·       ✓
                                                                                  cell: worst state · partnerships in that state
 
- Inbound by DC  50 DCs by site · log axis ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── × 2 failing · ? 1 not reached
- DC        In  Fail  Last success, all naming contexts          Worst    DC        In  Fail  Last success, all naming contexts          Worst    DC        In  Fail  Last success, all naming contexts          Worst
- ────────  ──  ────  ────────────────────────────────────────  ──────    ────────  ──  ────  ────────────────────────────────────────  ──────    ────────  ──  ────  ────────────────────────────────────────  ──────
-                     1m        10m     1h             1d   4d                                1m        10m     1h             1d   4d                                1m        10m     1h             1d   4d
+ Inbound by DC  50 DCs by site · last success · log axis ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── × 2 failing · ? 1 not reached
+ DC        In  Fail  1m        10m     1h             1d   4d   Worst    DC        In  Fail  1m        10m     1h             1d   4d   Worst    DC        In  Fail  1m        10m     1h             1d   4d   Worst
  LON-HQ  10 DCs · × 1 failing                                            FRA-DC  6 DCs · ✓ all current                                           CHI-BR  4 DCs · ✓ all current
  LON-DC01  11     1  ──━━━━━━━━━━━━━━━━━━━━━━━━━×────────────   6h 8m    FRA-DC01   3     0  ──━━━━━━━━━━━━━━━━●─────────────────────     59m    CHI-DC01   3     0  ──━━━━━━━━━━━━━━━━●─────────────────────     58m
  LON-DC02   2     0  ──━━━━━━━━━●────────────────────────────     11m    FRA-DC02   2     0  ──━━━━━━━━━━━●──────────────────────────     16m    CHI-DC02   2     0  ──━━━━━━━━━━●───────────────────────────     15m

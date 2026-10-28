@@ -35,10 +35,8 @@
  SEA-BR        ✓       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ·       ✓
  cell: worst state · partnerships in that state
 
- Inbound by DC  100 DCs by site · log axis ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── × 4 failing · ? 2 not reached
- DC        In  Fail  Last success, all naming contexts          Worst    DC        In  Fail  Last success, all naming contexts          Worst    DC        In  Fail  Last success, all naming contexts          Worst
- ────────  ──  ────  ────────────────────────────────────────  ──────    ────────  ──  ────  ────────────────────────────────────────  ──────    ────────  ──  ────  ────────────────────────────────────────  ──────
-                     1m        10m     1h             1d   4d                                1m        10m     1h             1d   4d                                1m        10m     1h             1d   4d
+ Inbound by DC  100 DCs by site · last success · log axis ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── × 4 failing · ? 2 not reached
+ DC        In  Fail  1m        10m     1h             1d   4d   Worst    DC        In  Fail  1m        10m     1h             1d   4d   Worst    DC        In  Fail  1m        10m     1h             1d   4d   Worst
  LON-HQ  10 DCs · × 1 failing                                            SYD-BR  3 DCs · ✓ all current                                           DXB-BR  5 DCs · ✓ all current
  LON-DC01  21     1  ──━━━━━━━━━━━━━━━━━━━━━━━━━×────────────   6h 8m    TYO-BR  4 DCs · ? 1 not reached                                         MUC-BR  5 DCs · ✓ all current
  AMS-DC  6 DCs · ✓ all current                                           TYO-DC04   2     0  ? not reached                                  ?    MAD-BR  5 DCs · ✓ all current

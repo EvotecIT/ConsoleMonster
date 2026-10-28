@@ -113,7 +113,7 @@ public sealed class DashboardFrame : IWidget {
         List<FrameSection> summary = new List<FrameSection>();
         if (Attention.Count > 0) summary.Add(Attention.ToSection(scale, context));
         foreach (FrameSection section in Sections) { if (section.Placement == FramePlacement.Summary) summary.Add(section); }
-        foreach (List<FrameSection> row in Pack(summary, content, scale, context)) blocks.Add(Row(row, content, scale, context));
+        blocks.AddRange(Summary(summary, content, scale, context));
         if (scale.DetailCap != 0) {
             foreach (FrameSection section in Sections) {
                 if (section.Placement == FramePlacement.Detail) blocks.Add(section.Build(content, scale, context));
@@ -149,23 +149,56 @@ public sealed class DashboardFrame : IWidget {
         return header;
     }
 
-    /// <summary>Packs consecutive sections into rows while their minimum widths and gaps fit; order never changes.</summary>
-    private static List<List<FrameSection>> Pack(List<FrameSection> sections, int content, FrameScale scale, RenderContext context) {
-        List<List<FrameSection>> rows = new List<List<FrameSection>>();
-        List<FrameSection> current = new List<FrameSection>();
-        int used = 0;
-        foreach (FrameSection section in sections) {
-            int minimum = section.Minimum(content, scale, context);
-            bool alone = scale.Stacked || section.FullWidth || (current.Count > 0 && current[0].FullWidth);
-            if (current.Count > 0 && (alone || used + SectionGap + minimum > content)) { rows.Add(current); current = new List<FrameSection>(); used = 0; }
-            used += (current.Count > 0 ? SectionGap : 0) + minimum;
-            current.Add(section);
+    /// <summary>
+    /// Lays out the summary sections. Consecutive sections pack into a row while their minimum widths and gaps fit, in
+    /// order. Later sections then drop into the shortest column of that row they fit, so no section waits below its
+    /// tallest neighbour; a section that fits no column, or takes the full width, starts the next row.
+    /// </summary>
+    private static List<IWidget> Summary(List<FrameSection> sections, int content, FrameScale scale, RenderContext context) {
+        List<IWidget> rows = new List<IWidget>();
+        int index = 0;
+        while (index < sections.Count) {
+            List<FrameSection> row = new List<FrameSection>();
+            int used = 0;
+            while (index < sections.Count) {
+                FrameSection section = sections[index];
+                int minimum = section.Minimum(content, scale, context);
+                bool alone = scale.Stacked || section.FullWidth || (row.Count > 0 && row[0].FullWidth);
+                if (row.Count > 0 && (alone || used + SectionGap + minimum > content)) break;
+                used += (row.Count > 0 ? SectionGap : 0) + minimum;
+                row.Add(section);
+                index++;
+            }
+            int[] widths = Widths(row, content, scale, context);
+            Rows[] columns = new Rows[row.Count];
+            int[] heights = new int[row.Count];
+            for (int i = 0; i < row.Count; i++) {
+                IWidget block = row[i].Build(widths[i], scale, context);
+                columns[i] = new Rows(block) { Gap = 1 };
+                heights[i] = block.Measure(new Constraints(widths[i]), context).Height;
+            }
+            while (row.Count > 1 && index < sections.Count && !sections[index].FullWidth) {
+                FrameSection section = sections[index];
+                int minimum = section.Minimum(content, scale, context);
+                int target = -1;
+                for (int i = 0; i < row.Count; i++) {
+                    if (minimum <= widths[i] && (target < 0 || heights[i] < heights[target])) target = i;
+                }
+                if (target < 0) break;
+                // A stacked section keeps its own width unless it grows, so its title line ends where its content does.
+                int width = section.Grow > 0 ? Math.Min(widths[target], section.MaxWidth ?? widths[target]) : Math.Max(minimum, section.Natural(widths[target], scale, context));
+                IWidget block = section.Build(width, scale, context);
+                columns[target].Add(new Lane(new[] { block }, new[] { width }, 0));
+                heights[target] += 1 + block.Measure(new Constraints(width), context).Height;
+                index++;
+            }
+            rows.Add(new Lane(columns, widths, SectionGap));
         }
-        if (current.Count > 0) rows.Add(current);
         return rows;
     }
 
-    private static IWidget Row(List<FrameSection> row, int content, FrameScale scale, RenderContext context) {
+    /// <summary>Shares a row's width: minimums first, then natural widths for fixed sections, then the rest by grow weight.</summary>
+    private static int[] Widths(List<FrameSection> row, int content, FrameScale scale, RenderContext context) {
         int available = content - SectionGap * (row.Count - 1);
         int[] minimum = new int[row.Count];
         int[] natural = new int[row.Count];
@@ -198,8 +231,6 @@ public sealed class DashboardFrame : IWidget {
             }
             if (last >= 0 && !row[last].MaxWidth.HasValue) widths[last] += rest - given;
         }
-        IWidget[] blocks = new IWidget[row.Count];
-        for (int i = 0; i < row.Count; i++) blocks[i] = row[i].Build(widths[i], scale, context);
-        return new Lane(blocks, widths, SectionGap);
+        return widths;
     }
 }

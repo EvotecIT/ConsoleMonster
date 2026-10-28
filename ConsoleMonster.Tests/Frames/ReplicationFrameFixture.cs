@@ -136,6 +136,7 @@ internal static class ReplicationFrameFixture {
         frame.Sections.Add(distribution);
         FrameSection inbound = new FrameSection("Inbound by DC", context => Inbound(estate, partnerships, context)) { Placement = FramePlacement.Detail };
         inbound.Facts.Add(estate.Controllers.Count + " DCs by site");
+        inbound.Facts.Add("last success");
         inbound.Facts.Add("log axis");
         inbound.States.Add(FrameState.Of(HealthState.Failing, partnerships.Where(p => p.Failing).Select(p => p.Destination).Distinct().Count(), "failing"));
         inbound.States.Add(FrameState.Of(HealthState.NotEvaluated, notReached, "not reached"));

@@ -26,7 +26,10 @@ public sealed class GroupedColumn<T> {
     public int? Width { get; set; }
     /// <summary>The widest the column may become before cells truncate.</summary>
     public int? MaxWidth { get; set; }
-    /// <summary>A literal line printed under the header rule in this column, for an axis's labels.</summary>
+    /// <summary>
+    /// Literal axis labels for a bar column, printed on the header line in place of <see cref="Header"/>; say what the bars
+    /// measure in the section facts. A table with an axis has no header rule, so its rows start right under the labels.
+    /// </summary>
     public string? Axis { get; set; }
 }
 
@@ -79,8 +82,7 @@ public sealed class GroupedRows<T> : IWidget {
         internal List<List<StyledLine>> Groups = new List<List<StyledLine>>();
         internal List<StyledLine> Notes = new List<StyledLine>();
         internal StyledLine Header = StyledLine.From(string.Empty);
-        internal StyledLine Rule = StyledLine.From(string.Empty);
-        internal StyledLine? Axis;
+        internal StyledLine? Rule;
     }
 
     private Layout Build(int width, RenderContext context) {
@@ -133,24 +135,19 @@ public sealed class GroupedRows<T> : IWidget {
         layout.Widths = widths;
         layout.Total = Math.Min(width, total);
 
+        // An axis column shows its scale on the header line, and the scale then edges the header instead of a rule,
+        // so the rows start right under it.
         List<TextSpan> header = new List<TextSpan>();
         List<TextSpan> rule = new List<TextSpan>();
         string line = context.Glyphs.Get(Glyphs.Glyph.RuleLine);
         for (int c = 0; c < columns; c++) {
             if (c > 0) { header.Add(new TextSpan("  ")); rule.Add(new TextSpan("  ")); }
-            header.AddRange(FrameText.Fit(FrameText.Line("[muted]" + FrameText.Escape(Columns[c].Header) + "[/]", context), widths[c], Columns[c].AlignRight, context));
+            string text = Columns[c].Axis ?? Columns[c].Header;
+            header.AddRange(FrameText.Fit(FrameText.Line("[muted]" + FrameText.Escape(text) + "[/]", context), widths[c], Columns[c].AlignRight && Columns[c].Axis == null, context));
             rule.AddRange(FrameText.Line("[subtle]" + new string(line[0], widths[c]) + "[/]", context));
         }
         layout.Header = new StyledLine(header);
-        layout.Rule = new StyledLine(rule);
-        if (Columns.Any(column => column.Axis != null)) {
-            List<TextSpan> axis = new List<TextSpan>();
-            for (int c = 0; c < columns; c++) {
-                if (c > 0) axis.Add(new TextSpan("  "));
-                axis.AddRange(FrameText.Fit(FrameText.Line("[muted]" + FrameText.Escape(Columns[c].Axis ?? string.Empty) + "[/]", context), widths[c], false, context));
-            }
-            layout.Axis = new StyledLine(axis);
-        }
+        if (!Columns.Any(column => column.Axis != null)) layout.Rule = new StyledLine(rule);
 
         r = 0;
         foreach ((string key, List<T> rows, List<T> shown) in plan) {
@@ -217,8 +214,8 @@ public sealed class GroupedRows<T> : IWidget {
     }
 
     private static List<StyledLine> Head(Layout layout) {
-        List<StyledLine> head = new List<StyledLine> { layout.Header, layout.Rule };
-        if (layout.Axis != null) head.Add(layout.Axis);
+        List<StyledLine> head = new List<StyledLine> { layout.Header };
+        if (layout.Rule != null) head.Add(layout.Rule);
         return head;
     }
     /// <inheritdoc />

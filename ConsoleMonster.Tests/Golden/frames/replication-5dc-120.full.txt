@@ -16,10 +16,8 @@
  NYC-BR    NYC-DC01  × 2d      ·          ·         ·          —
  cell: age of the oldest naming context
 
- Inbound by DC  5 DCs by site · log axis ────────────────────────────────────────────────────────────────── × 2 failing
- DC        In  Fail  Last success, all naming contexts         Worst
- ────────  ──  ────  ────────────────────────────────────────  ─────
-                     1m        10m     1h             1d   4d
+ Inbound by DC  5 DCs by site · last success · log axis ─────────────────────────────────────────────────── × 2 failing
+ DC        In  Fail  1m        10m     1h             1d   4d  Worst
  LON-HQ  2 DCs · × 1 failing
  LON-DC01   3     1  ──━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━×───  2d 3h
  LON-DC02   1     0  ──━━━━━━━━●─────────────────────────────     9m

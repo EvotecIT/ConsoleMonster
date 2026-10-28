@@ -58,6 +58,23 @@ public sealed class DashboardFrameTests {
     }
 
     [Fact]
+    public void Packing_SectionThatMissesTheRow_FlowsUnderTheShortestColumn() {
+        static FrameSection Block(string title, int lines, int width) =>
+            new FrameSection(title, context => TextBlock.Plain(string.Join("\n", Enumerable.Range(1, lines).Select(i => title.ToLowerInvariant() + " " + i)))) { MinWidth = width, MaxWidth = width };
+        DashboardFrame frame = new DashboardFrame("Masonry");
+        frame.Sections.Add(Block("Short", 3, 120));
+        frame.Sections.Add(Block("Tall", 14, 90));
+        frame.Sections.Add(Block("Later", 2, 44));
+        string[] lines = Lines(Render(frame, 220, 60));
+        int shortEnd = Array.FindIndex(lines, line => line.Contains("short 3"));
+        int later = Array.FindIndex(lines, line => line.Contains("Later"));
+        int tallEnd = Array.FindIndex(lines, line => line.Contains("tall 14"));
+        Assert.Equal(shortEnd + 2, later);
+        Assert.True(later < tallEnd, "The later section waited below the tallest column.");
+        Assert.Equal(lines[shortEnd].IndexOf("short 3", StringComparison.Ordinal), lines[later].IndexOf("Later", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void Packing_Laptop_GivesAttentionItsOwnRowWhenTheMatrixDoesNotFitBesideIt() {
         string[] lines = Lines(Render(ReplicationFrameFixture.Build(ReplicationFrameFixture.Create(5)), 120));
         string attention = Assert.Single(lines, line => line.Contains("Needs attention"));
