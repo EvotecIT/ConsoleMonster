@@ -55,7 +55,9 @@ public sealed partial class Tree {
         }
         foreach (TreeRow row in rows) {
             List<StyledLine> continuations = new List<StyledLine>();
-            StyledLine label = Label(row);
+            bool hasVisibleState = visible.Exists(c => IsState(ValueColumns[c]));
+            TreeReferenceKind suppressed = hasVisibleState ? TreeReferenceKind.Cycle | TreeReferenceKind.Repeat : TreeReferenceKind.None;
+            StyledLine label = Primary(row, int.MaxValue, true, context, suppressed);
             if (row.Node.Values.Count == 0 && row.Reference == TreeReferenceKind.None) {
                 List<TextSpan> standalone = new List<TextSpan>(FitLabel(label, width, context));
                 AppendEvidence(row, standalone, continuations, false);
@@ -72,6 +74,8 @@ public sealed partial class Tree {
             if (visible.Count < ValueColumns.Count) {
                 foreach (int c in System.Linq.Enumerable.Range(0, ValueColumns.Count)) {
                     if (visible.Contains(c) || context.Profile.Width < 80 && ValueColumns[c].Priority < 2) { continue; }
+                    // A hidden reference state is already represented by the label marker and evidence.
+                    if (IsState(ValueColumns[c]) && (row.Reference & (TreeReferenceKind.Cycle | TreeReferenceKind.Repeat)) != 0) { continue; }
                     StyledLine note = Value(row, c);
                     if (note.Width == 0) { continue; }
                     AppendEvidenceLine(note, spans, continuations);

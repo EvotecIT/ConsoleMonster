@@ -99,12 +99,12 @@ namespace ConsoleMonster.Widgets {
             }
         }
 
-        private StyledLine Primary(TreeRow row, int width, bool narrow, RenderContext context) {
+        private StyledLine Primary(TreeRow row, int width, bool narrow, RenderContext context, TreeReferenceKind suppressedReferences = TreeReferenceKind.None) {
             TreeNode node = row.Node;
             List<TextSpan> markers = new List<TextSpan>();
             string? marker = node.MarkerFor(context, compact: narrow);
             if (!string.IsNullOrEmpty(marker)) markers.Add(new TextSpan(marker + " ", node.MarkerStyle(context)));
-            string reference = narrow ? ReferenceGlyphs(row.Reference, context) : row.MarkersFor(context);
+            string reference = narrow ? ReferenceGlyphs(row.Reference & ~suppressedReferences, context) : row.MarkersFor(context);
             if (reference.Length > 0) markers.Add(new TextSpan(reference + " ", context.Style(ThemeToken.Muted)));
             StyledLine symbols = new StyledLine(markers);
             StyledLine label = context.Markup(node.LabelFor(context)).Lines[0];
