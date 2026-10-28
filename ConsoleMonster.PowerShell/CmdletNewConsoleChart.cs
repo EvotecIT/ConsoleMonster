@@ -17,6 +17,7 @@ namespace ConsoleMonster.PowerShell {
     public sealed class CmdletNewConsoleChart : PSCmdlet {
         private readonly List<object> _items = new List<object>();
         private int _nullInputs;
+        private Presenters.ICellPresenter? _valuePresenter;
         /// <summary><para type="description">The numeric chart kind: Bar, Stacked, Line, Scatter, Histogram or Sparkline.</para></summary>
         [Parameter]
         public ChartType Type { get; set; } = ChartType.Bar;
@@ -138,7 +139,9 @@ namespace ConsoleMonster.PowerShell {
                 PSItems.ChartData(options, _items);
             }
             if (skipped > 0) { WriteWarning(skipped.ToString(System.Globalization.CultureInfo.InvariantCulture) + " rows without chartable values skipped."); }
-            WriteObject(Chart.Create(options));
+            IWidget chart = Chart.Create(options);
+            if (chart is BarChart bar && _valuePresenter != null && !MyInvocation.BoundParameters.ContainsKey(nameof(Unit))) { bar.ValuePresenter = _valuePresenter; }
+            WriteObject(chart);
         }
 
         // Ordinary objects: the same property binding as Show-Console -View Chart, ending in the typed AddItem/Values inputs.
@@ -159,6 +162,10 @@ namespace ConsoleMonster.PowerShell {
                 row++;
                 object? raw = PSText.Unwrap(value.GetValue(item));
                 object? name = label == null ? null : PSText.Unwrap(label.GetValue(item));
+                if (_valuePresenter == null && raw != null && Type == ChartType.Bar) {
+                    var inferred = Presenters.CellPresenters.ForMember(value.Name, raw.GetType());
+                    if (inferred is Presenters.BytesPresenter) { _valuePresenter = inferred; }
+                }
                 if (!PipelineChart.TryNumber(raw, out double number) || name is Values.FieldError) {
                     skipped++;
                     continue;

@@ -271,4 +271,14 @@ Describe 'ConsoleMonster pipeline charts' {
         @($chart.Items.Label) | Should -Be @('alpha', 'alpha (2)')
         @($chart.Items.Value) | Should -Be @(50, 40)
     }
+
+    It 'preserves duplicate chart records and presents byte properties with units' {
+        $records = @([pscustomobject]@{Label='disk';Value=2}, [pscustomobject]@{Label='disk';Value=3})
+        $chart = $records | New-ConsoleChart
+        @($chart.Items.Label) | Should -Be @('disk', 'disk (2)')
+        @($chart.Items.Value) | Should -Be @(2, 3)
+        $bytes = [pscustomobject]@{Name='file';Length=[long] 1048576} | New-ConsoleChart -Property Length
+        $text = $bytes | Show-Console -AsString -Width 80
+        $text | Should -Match '1 MB'
+    }
 }
