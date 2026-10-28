@@ -10,7 +10,7 @@ using ConsoleMonster.Sessions;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>PowerShell host relay for the shared demo engine.</summary>
-    public abstract class ConsoleDemoCommand : PSCmdlet {
+    public abstract class ConsoleDemoCommand : NoPipelineInputCmdlet {
         private readonly CancellationTokenSource _stop = new CancellationTokenSource();
         /// <summary><para type="description">Plain PowerShell demo file with optional # demo: directives.</para></summary>
         [Parameter(Mandatory = true, Position = 0)] public string Path { get; set; } = string.Empty;

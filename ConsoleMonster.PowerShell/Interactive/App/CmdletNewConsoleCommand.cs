@@ -11,7 +11,7 @@ namespace ConsoleMonster.PowerShell {
     /// <example><para>Preview restarting selected services after confirmation.</para><code>$restart = New-ConsoleCommand -Key Restart -Label 'Preview restart' -Shortcut Ctrl+R -ConfirmPrompt 'Preview selected services?' -ScriptBlock { param($Row) Restart-Service -Name $Row.Name -WhatIf }; Get-Service | Show-ConsoleGrid -Command $restart</code></example>
     [Cmdlet(VerbsCommon.New, "ConsoleCommand")]
     [OutputType(typeof(AppCommand))]
-    public sealed class CmdletNewConsoleCommand : PSCmdlet {
+    public sealed class CmdletNewConsoleCommand : NoPipelineInputCmdlet {
         /// <summary><para type="description">Stable command identity.</para></summary>
         [Parameter(Mandatory = true, Position = 0)] [ValidateNotNullOrEmpty] public string Key { get; set; } = string.Empty;
         /// <summary><para type="description">Visible command text; defaults to Key.</para></summary>

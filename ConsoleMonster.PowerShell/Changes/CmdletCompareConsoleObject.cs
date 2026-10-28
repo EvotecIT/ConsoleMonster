@@ -15,7 +15,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsData.Compare, "ConsoleObject")]
     [OutputType(typeof(ObjectChange))]
-    public sealed class CmdletCompareConsoleObject : PSCmdlet {
+    public sealed class CmdletCompareConsoleObject : NoPipelineInputCmdlet {
         /// <summary><para type="description">The old objects.</para></summary>
         [Parameter(Position = 0, Mandatory = true)]
         [AllowEmptyCollection]
@@ -63,7 +63,7 @@ namespace ConsoleMonster.PowerShell {
         private readonly List<object?> _difference = new List<object?>();
 
         /// <inheritdoc />
-        protected override void ProcessRecord() {
+        protected override void ProcessWithoutPipelineInput() {
             if (DifferenceObject != null) {
                 _difference.AddRange(DifferenceObject);
             }
@@ -92,7 +92,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommon.Show, "ConsoleChanges", SupportsShouldProcess = true, ConfirmImpact = ConfirmImpact.Medium)]
     [OutputType(typeof(bool))]
-    public sealed class CmdletShowConsoleChanges : PSCmdlet {
+    public sealed class CmdletShowConsoleChanges : NoPipelineInputCmdlet {
         /// <summary><para type="description">The current objects.</para></summary>
         [Parameter(Position = 0, Mandatory = true)]
         [AllowEmptyCollection]

@@ -11,7 +11,7 @@ namespace ConsoleMonster.PowerShell {
     ///   <code>Send-ConsoleEvent -WidgetId dashboard -Operation status -Text 'deploying wave 2' -Status running</code>
     /// </example>
     [Cmdlet(VerbsCommunications.Send, "ConsoleEvent")]
-    public sealed class CmdletSendConsoleEvent : LiveCmdlet {
+    public sealed class CmdletSendConsoleEvent : NoPipelineLiveCmdlet {
         /// <summary><para type="description">The widget name.</para></summary>
         [Parameter(Position = 0, Mandatory = true)]
         public string WidgetId { get; set; } = string.Empty;
@@ -46,7 +46,7 @@ namespace ConsoleMonster.PowerShell {
         public long TimeMilliseconds { get; set; }
 
         /// <inheritdoc />
-        protected override void ProcessRecord() {
+        protected override void ProcessWithoutPipelineInput() {
             Send(new LiveEvent(WidgetId, Operation, Key, Text, Status, Value, Total, TimeMilliseconds));
         }
     }

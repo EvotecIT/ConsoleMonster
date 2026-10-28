@@ -20,7 +20,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsData.Export, "ConsoleTheme", SupportsShouldProcess = true)]
     [OutputType(typeof(FileInfo))]
-    public sealed class CmdletExportConsoleTheme : PSCmdlet {
+    public sealed class CmdletExportConsoleTheme : NoPipelineInputCmdlet {
         /// <summary><para type="description">The literal .json or .psd1 destination. An existing file is replaced after validation and ShouldProcess approval.</para></summary>
         [Parameter(Position = 0, Mandatory = true)]
         [ValidateNotNullOrEmpty]
@@ -31,7 +31,7 @@ namespace ConsoleMonster.PowerShell {
         public SwitchParameter PassThru { get; set; }
 
         /// <inheritdoc />
-        protected override void ProcessRecord() {
+        protected override void ProcessWithoutPipelineInput() {
             try {
                 string path = SessionState.Path.GetUnresolvedProviderPathFromPSPath(Path);
                 ConsoleThemeDataFile.CheckExtension(path);

@@ -37,7 +37,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleField")]
     [OutputType(typeof(Field))]
-    public sealed class CmdletNewConsoleField : PSCmdlet {
+    public sealed class CmdletNewConsoleField : NoPipelineInputCmdlet {
         /// <summary><para type="description">The key of the value in the result.</para></summary>
         [Parameter(Mandatory = true, Position = 0)]
         public string Key { get; set; } = string.Empty;

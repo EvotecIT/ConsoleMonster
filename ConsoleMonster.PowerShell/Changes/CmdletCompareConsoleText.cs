@@ -22,7 +22,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsData.Compare, "ConsoleText", DefaultParameterSetName = "Text")]
     [OutputType(typeof(string))]
-    public sealed class CmdletCompareConsoleText : PSCmdlet {
+    public sealed class CmdletCompareConsoleText : NoPipelineInputCmdlet {
         /// <summary><para type="description">The original text. Empty strings and null represent an empty document.</para></summary>
         [Parameter(Mandatory = true, Position = 0, ParameterSetName = "Text")]
         [AllowEmptyString]
@@ -69,7 +69,7 @@ namespace ConsoleMonster.PowerShell {
         public SwitchParameter AsUnified { get; set; }
 
         /// <inheritdoc />
-        protected override void ProcessRecord() {
+        protected override void ProcessWithoutPipelineInput() {
             string? before = ReferenceText;
             string? after = DifferenceText;
             TextDiffOptions options = new TextDiffOptions { Context = Context, IgnoreWhitespace = IgnoreWhitespace.IsPresent };

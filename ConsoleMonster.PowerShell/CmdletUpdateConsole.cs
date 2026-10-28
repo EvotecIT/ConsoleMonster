@@ -17,6 +17,18 @@ namespace ConsoleMonster.PowerShell {
     /// <example><para>Finish one run item</para><code>Update-Console -Run $run -Index 0 -Status Pass -Detail 'Uploaded'</code></example>
     [Cmdlet(VerbsData.Update, "Console", DefaultParameterSetName = "Fields")]
     public sealed class CmdletUpdateConsole : PSCmdlet {
+        /// <summary>Unsupported pipeline input for update modes that do not take rows or content.</summary>
+        [Parameter(ValueFromPipeline = true, DontShow = true, ParameterSetName = "Fields")]
+        [Parameter(ValueFromPipeline = true, DontShow = true, ParameterSetName = "Append")]
+        [Parameter(ValueFromPipeline = true, DontShow = true, ParameterSetName = "RemoveRow")]
+        [Parameter(ValueFromPipeline = true, DontShow = true, ParameterSetName = "ClearRows")]
+        [Parameter(ValueFromPipeline = true, DontShow = true, ParameterSetName = "Cells")]
+        [Parameter(ValueFromPipeline = true, DontShow = true, ParameterSetName = "AppendCells")]
+        [Parameter(ValueFromPipeline = true, DontShow = true, ParameterSetName = "ResizeCells")]
+        [Parameter(ValueFromPipeline = true, DontShow = true, ParameterSetName = "FlowNode")]
+        [Parameter(ValueFromPipeline = true, DontShow = true, ParameterSetName = "FlowEdge")]
+        [Parameter(ValueFromPipeline = true, DontShow = true, ParameterSetName = "Run")]
+        public PSObject? PipelineInput { get; set; }
         /// <summary><para type="description">The live widget identifier.</para></summary>
         [Parameter(ParameterSetName = "Fields", Mandatory = true, Position = 0)]
         [Parameter(ParameterSetName = "Append", Mandatory = true, Position = 0)]
@@ -174,6 +186,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
+            if (PipelineInput != null) { NoPipelineInputCmdlet.Reject(this, PipelineInput); return; }
             try {
                 if (ParameterSetName == "Run") {
                     if (Index.Length != 1) { throw new ArgumentException("The Run set requires exactly one Index."); }

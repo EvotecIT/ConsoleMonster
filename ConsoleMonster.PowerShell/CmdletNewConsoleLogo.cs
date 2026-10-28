@@ -14,7 +14,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleLogo")]
     [OutputType(typeof(Logo))]
-    public sealed class CmdletNewConsoleLogo : PSCmdlet {
+    public sealed class CmdletNewConsoleLogo : NoPipelineInputCmdlet {
         /// <summary><para type="description">The banner text.</para></summary>
         [Parameter(Position = 0, Mandatory = true)]
         public string Text { get; set; } = string.Empty;
@@ -36,7 +36,7 @@ namespace ConsoleMonster.PowerShell {
         public HorizontalAlignment Alignment { get; set; } = HorizontalAlignment.Left;
 
         /// <inheritdoc />
-        protected override void ProcessRecord() {
+        protected override void ProcessWithoutPipelineInput() {
             Logo logo = new Logo(Text, PSText.Markup(Tagline)) { Alignment = Alignment };
             if (StartColor != null && Color.TryParse(StartColor, out Color from)) {
                 logo.StartColor = from;

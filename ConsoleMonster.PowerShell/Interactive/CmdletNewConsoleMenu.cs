@@ -30,7 +30,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleMenu")]
     [OutputType(typeof(Menu))]
-    public sealed class CmdletNewConsoleMenu : PSCmdlet {
+    public sealed class CmdletNewConsoleMenu : NoPipelineInputCmdlet {
         /// <summary><para type="description">The title (the app name for the top menu).</para></summary>
         [Parameter(Mandatory = true, Position = 0)]
         public string Title { get; set; } = string.Empty;

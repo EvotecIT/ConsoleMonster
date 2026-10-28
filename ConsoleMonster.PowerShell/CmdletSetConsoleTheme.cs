@@ -17,7 +17,7 @@ namespace ConsoleMonster.PowerShell {
     ///   <code>Set-ConsoleTheme -Path ./team-theme.psd1</code>
     /// </example>
     [Cmdlet(VerbsCommon.Set, "ConsoleTheme", DefaultParameterSetName = "Name")]
-    public sealed class CmdletSetConsoleTheme : PSCmdlet {
+    public sealed class CmdletSetConsoleTheme : NoPipelineInputCmdlet {
         /// <summary><para type="description">The built-in theme: Dark, Light, HighContrast or ColorBlindSafe.</para></summary>
         [Parameter(Position = 0, Mandatory = true, ParameterSetName = "Name")]
         [ValidateSet("Dark", "Light", "HighContrast", "ColorBlindSafe")]
@@ -29,7 +29,7 @@ namespace ConsoleMonster.PowerShell {
         public string Path { get; set; } = string.Empty;
 
         /// <inheritdoc />
-        protected override void ProcessRecord() {
+        protected override void ProcessWithoutPipelineInput() {
             if (ParameterSetName == "Name") {
                 Terminal.Theme = Styling.Theme.FromName(Theme);
                 return;

@@ -23,7 +23,7 @@ namespace ConsoleMonster.PowerShell {
     ///   <code>Show-ConsoleReplay $dashboard .\deploy.jsonl -Inline -Paused</code>
     /// </example>
     [Cmdlet(VerbsCommon.Show, "ConsoleReplay")]
-    public sealed partial class CmdletShowConsoleReplay : PSCmdlet {
+    public sealed partial class CmdletShowConsoleReplay : NoPipelineInputCmdlet {
         private CancellationTokenSource? _stop;
 
         /// <summary><para type="description">The dashboard (or any widget tree) whose widget names match the recording.</para></summary>

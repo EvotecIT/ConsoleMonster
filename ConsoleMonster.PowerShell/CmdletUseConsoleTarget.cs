@@ -19,7 +19,7 @@ namespace ConsoleMonster.PowerShell {
     ///   <code>$text = Use-ConsoleTarget -Width 80 { Get-Service | Select-Object -First 5 | Show-ConsoleTable }</code>
     /// </example>
     [Cmdlet(VerbsOther.Use, "ConsoleTarget", DefaultParameterSetName = "String")]
-    public sealed class CmdletUseConsoleTarget : PSCmdlet {
+    public sealed class CmdletUseConsoleTarget : NoPipelineInputCmdlet {
         /// <summary><para type="description">The commands whose output goes to the target.</para></summary>
         [Parameter(Position = 0, Mandatory = true)]
         public ScriptBlock ScriptBlock { get; set; } = ScriptBlock.Create(string.Empty);

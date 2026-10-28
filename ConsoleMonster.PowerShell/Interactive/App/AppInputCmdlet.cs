@@ -3,7 +3,7 @@ using ConsoleMonster.Interactive;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>Shared native parameters for stable outer application inputs, supported on PowerShell 5.1 and 7.</summary>
-    public abstract class AppInputCmdlet : PSCmdlet {
+    public abstract class AppInputCmdlet : NoPipelineInputCmdlet {
         /// <summary><para type="description">Unique key in the application's state and final hashtable.</para></summary>
         [Parameter(Mandatory = true, Position = 0)]
         [ValidateNotNullOrEmpty]

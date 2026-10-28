@@ -16,7 +16,7 @@ namespace ConsoleMonster.PowerShell {
     /// <example><para>Follow a local Windows event log.</para><code>Watch-ConsoleLog -LogName Application -Tail 20</code></example>
     [Cmdlet(VerbsCommon.Watch, "ConsoleLog", DefaultParameterSetName = "Path")]
     [OutputType(typeof(string))]
-    public sealed class CmdletWatchConsoleLog : PSCmdlet {
+    public sealed class CmdletWatchConsoleLog : NoPipelineInputCmdlet {
         private readonly object _stopGate = new object();
         private CancellationTokenSource? _stop;
 

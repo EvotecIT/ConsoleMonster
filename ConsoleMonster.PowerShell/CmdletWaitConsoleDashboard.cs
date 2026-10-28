@@ -21,7 +21,7 @@ namespace ConsoleMonster.PowerShell {
     /// }</code>
     /// </example>
     [Cmdlet(VerbsLifecycle.Wait, "ConsoleDashboard")]
-    public sealed class CmdletWaitConsoleDashboard : LiveCmdlet {
+    public sealed class CmdletWaitConsoleDashboard : NoPipelineLiveCmdlet {
         private volatile LiveSession? _waitingSession;
         private volatile bool _stopping;
 
@@ -31,7 +31,7 @@ namespace ConsoleMonster.PowerShell {
         public double Seconds { get; set; }
 
         /// <inheritdoc />
-        protected override void ProcessRecord() {
+        protected override void ProcessWithoutPipelineInput() {
             LiveSession? session = ResolveSession();
             if (session == null) {
                 WriteError(new ErrorRecord(new PSInvalidOperationException("No console dashboard is running. Use Invoke-ConsoleDashboard first."),
