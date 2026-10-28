@@ -99,7 +99,7 @@ public sealed partial class Tree {
                 foreach (int c in System.Linq.Enumerable.Range(0, ValueColumns.Count)) {
                     if (visible.Contains(c) || context.Profile.Width < 80 && ValueColumns[c].Priority < 2) { continue; }
                     // A hidden reference state is already represented by the label marker and evidence.
-                    if (IsState(ValueColumns[c]) && referenceMarker.Length > 0 && (visibleReferenceAdded || label.PlainText.Contains(referenceMarker))) { continue; }
+                    if (IsState(ValueColumns[c]) && referenceMarker.Length > 0 && (visibleReferenceAdded || hiddenReferenceAdded || label.PlainText.Contains(referenceMarker))) { continue; }
                     StyledLine note = Value(row, c);
                     if (note.Width == 0) { continue; }
                     AppendEvidenceLine(note, spans, continuations);

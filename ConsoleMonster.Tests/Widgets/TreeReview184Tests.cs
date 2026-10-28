@@ -11,6 +11,20 @@ namespace ConsoleMonster.Tests.Widgets {
         [Theory]
         [InlineData(TreeReferenceKind.Cycle, GlyphTier.Full)]
         [InlineData(TreeReferenceKind.Repeat, GlyphTier.Ascii)]
+        public void Render_TwoHiddenReferenceColumnsAndClippedLabel_ShowsOneMarker(TreeReferenceKind reference, GlyphTier tier) {
+            Tree tree = new Tree { ValuePlacement = TreeValuePlacement.AfterLabel, ShowValueHeaders = false };
+            tree.ValueColumns.Add(new TableColumn("State") { Priority = 2 });
+            tree.ValueColumns.Add(new TableColumn("Relation") { Priority = 2 });
+            tree.Add("Member").Reference = reference;
+            Review184Capture capture = new Review184Capture(tree, 60, tier, ColorDepth.None);
+            string text = capture.Raw.ToPlainText();
+            string marker = capture.Context.Glyphs.Get(reference == TreeReferenceKind.Cycle ? Glyph.Cycle : Glyph.Repeat);
+            Assert.Equal(1, text.Split(new[] { marker }, StringSplitOptions.None).Length - 1);
+            Assert.Contains(reference == TreeReferenceKind.Cycle ? "cycle" : "shown above", text);
+        }
+        [Theory]
+        [InlineData(TreeReferenceKind.Cycle, GlyphTier.Full)]
+        [InlineData(TreeReferenceKind.Repeat, GlyphTier.Ascii)]
         public void Render_VisibleAndHiddenReferenceColumns_ShowsOneMarker(TreeReferenceKind reference, GlyphTier tier) {
             Tree tree = new Tree { ValuePlacement = TreeValuePlacement.AfterLabel, ShowValueHeaders = false };
             tree.ValueColumns.Add(new TableColumn("State") { Priority = 10 });
