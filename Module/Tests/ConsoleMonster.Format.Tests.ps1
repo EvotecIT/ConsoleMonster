@@ -165,12 +165,15 @@ $item | Add-Member -MemberType MemberSet -Name PSStandardMembers -Value $set -Er
 $item | Show-Console -View Tree -AsString -Width 80
 "ALL_BEGIN"
 $item | Show-Console -View Tree -Property * -AsString -Width 80
+"SWITCH_BEGIN"
+$item | Format-ConsoleTree -All -AsString -Width 80
 '@
-        $parts = $text -split 'ALL_BEGIN', 2
+        $parts = $text -split 'ALL_BEGIN|SWITCH_BEGIN'
         $parts[0] | Should -Match 'web01'
         $parts[0] | Should -Match 'Label\s+selected'
         $parts[0] | Should -Not -Match 'Extra\s+hidden'
         $parts[1] | Should -Match 'Extra\s+hidden'
+        $parts[2] | Should -Match 'Extra\s+hidden'
     }
 
     It 'exports the legacy tree command and uses the same tree path at both widths' {

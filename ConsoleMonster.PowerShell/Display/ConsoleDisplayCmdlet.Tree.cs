@@ -20,6 +20,10 @@ namespace ConsoleMonster.PowerShell {
         }
         private IWidget BuildTreeView(IReadOnlyList<PSObject> items) {
             string[]? include = Include;
+            if (All.IsPresent) {
+                if (Include != null || Property != null) { throw new PSArgumentException("Tree -All cannot be combined with -Include or -Property."); }
+                include = new[] { "*" };
+            }
             if (Property != null) {
                 if (Include != null || Property.Any(value => !(PSText.Unwrap(value) is string))) {
                     throw new PSArgumentException("Tree -Property accepts member names or patterns and cannot be combined with -Include.");

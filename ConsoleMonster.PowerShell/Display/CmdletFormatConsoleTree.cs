@@ -21,6 +21,8 @@ namespace ConsoleMonster.PowerShell {
         [Parameter] public override string[]? Include { get; set; }
         /// <summary><para type="description">Member names or patterns; use * to show all members.</para></summary>
         [Parameter] public override object[]? Property { get; set; }
+        /// <summary><para type="description">Shows all object members.</para></summary>
+        [Parameter] public override SwitchParameter All { get; set; }
         /// <summary><para type="description">Member names to exclude.</para></summary>
         [Parameter] public override string[]? Exclude { get; set; }
         /// <summary><para type="description">Root title.</para></summary>

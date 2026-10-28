@@ -24,6 +24,8 @@ namespace ConsoleMonster.PowerShell {
         public virtual object? Content { get; set; }
         /// <summary><para type="description">Property names, patterns or calculated column records.</para></summary>
         public virtual object[]? Property { get; set; }
+        /// <summary><para type="description">Shows all object members in a tree.</para></summary>
+        public virtual SwitchParameter All { get; set; }
         /// <summary><para type="description">Groups rows or records by a property or script block.</para></summary>
         public virtual object? GroupBy { get; set; }
         /// <summary><para type="description">The view title, including markup.</para></summary>

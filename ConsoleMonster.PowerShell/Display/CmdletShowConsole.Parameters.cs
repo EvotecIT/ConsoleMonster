@@ -22,6 +22,10 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public override object[]? Property { get; set; }
 
+        /// <summary><para type="description">Shows all object members in the Tree view.</para></summary>
+        [Parameter]
+        public override SwitchParameter All { get; set; }
+
         /// <summary><para type="description">Groups rows or records by a property or script block.</para></summary>
         [Parameter]
         public override object? GroupBy { get; set; }
