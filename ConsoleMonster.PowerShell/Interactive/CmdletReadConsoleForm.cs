@@ -11,8 +11,9 @@ namespace ConsoleMonster.PowerShell {
     /// <example>
     ///   <para>Run a wizard and use the answers</para>
     ///   <code>
-    /// $answers = Read-ConsoleForm $form -AppName 'ShareTool' -RememberLastChoices
-    /// if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }</code>
+    /// $form = New-ConsoleForm 'Example' -Content { New-ConsoleField Name 'Name' -Default 'example' }
+    /// $answers = Read-ConsoleForm $form
+    /// if ($answers) { Write-Host "Selected $($answers.Name)" }</code>
     /// </example>
     [Cmdlet(VerbsCommunications.Read, "ConsoleForm")]
     [OutputType(typeof(PSObject), typeof(FormResult))]

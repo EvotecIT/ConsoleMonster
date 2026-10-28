@@ -14,7 +14,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>A typed confirmation before deleting</para>
-    ///   <code>if (Read-ConsoleConfirm 'Remove 3 servers from the inventory?' -TypedConfirmation 'inventory' -Warning 'This cannot be undone.') { ... }</code>
+    ///   <code>if (Read-ConsoleConfirm 'Remove 3 servers from the inventory?' -TypedConfirmation 'inventory' -Warning 'This cannot be undone.') { Write-Host 'Would remove servers from the inventory' }</code>
     /// </example>
     [Cmdlet(VerbsCommunications.Read, "ConsoleConfirm")]
     [OutputType(typeof(bool))]
