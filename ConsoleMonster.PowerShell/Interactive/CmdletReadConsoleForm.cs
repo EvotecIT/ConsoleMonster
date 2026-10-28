@@ -24,6 +24,10 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(Position = 0)]
         public Form? Form { get; set; }
 
+        /// <summary><para type="description">Overrides the form title for this prompt.</para></summary>
+        [Parameter, Alias("Prompt")]
+        public string? Title { get; set; }
+
         /// <summary><para type="description">A form from the pipeline.</para></summary>
         [Parameter(ValueFromPipeline = true)]
         public PSObject? InputObject { get; set; }
@@ -90,11 +94,15 @@ namespace ConsoleMonster.PowerShell {
             options.Interactive ??= PSInteractive.Options(this, null);
             _stop = new CancellationTokenSource();
             FormResult result;
+            string originalTitle = current.Title;
             try {
+                if (Title != null) { current.Title = Title; }
                 result = current.Show(options, _stop.Token);
             } catch (Exception ex) when (ex is PromptCanceledException || ex is PromptUnavailableException || ex is Input.InputClosedException) {
                 PSInteractive.Fail(this, ex, current.Title);
                 return;
+            } finally {
+                current.Title = originalTitle;
             }
             if (PassThru.IsPresent) {
                 WriteObject(result);
