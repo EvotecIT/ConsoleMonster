@@ -62,7 +62,7 @@ namespace ConsoleMonster.Widgets {
                 while (end < layout.Rows.Count && lines < chunkLines) {
                     TableLayoutRow row = layout.Rows[end];
                     if (row.Cells == null && row.Source >= 0) {
-                        row.Cells = Present(_rows[row.Source], contexts);
+                        row.Cells = PresentDataRow(row.Source, contexts);
                     }
                     FitRow(row, layout, context);
                     // Do not let a following group or wrapped row push an existing block past its target.
@@ -122,7 +122,7 @@ namespace ConsoleMonster.Widgets {
             for (int i = first; i < end; i++) {
                 TableLayoutRow row = layout.Rows[i];
                 if (row.Cells == null && row.Source >= 0) {
-                    row.Cells = Present(_rows[row.Source], contexts);
+                    row.Cells = PresentDataRow(row.Source, contexts);
                 }
                 FitRow(row, layout, context);
                 rowLines.Add(headHeight + lines);
@@ -214,7 +214,10 @@ namespace ConsoleMonster.Widgets {
                 } else if ((Border == TableBorder.Minimal || Border == TableBorder.Rule)) {
                     DrawRule(region, y++, layout, string.Empty, " ", string.Empty, context.Glyphs.Get(Glyph.RuleLine), border);
                 }
-                y = DrawCells(region, y, layout, layout.Total.Lines!, layout.Total.Cells, layout.Total.VisualCells, layout.Total.Height, box, border, context);
+                y = DrawCells(region, y, layout, layout.Total.Lines!, layout.Total.Cells, layout.Total.VisualCells, layout.Total.BodyHeight, box, border, context);
+                if (layout.Total.Below != null) {
+                    foreach (StyledLine detail in layout.Total.Below) { region.Write(0, y++, detail); }
+                }
             }
             if (boxed) {
                 DrawRule(region, y++, layout, box.BottomLeft, box.BottomJoint, box.BottomRight, box.Horizontal, border);

@@ -30,7 +30,7 @@ public static class DisplayText {
     /// <param name="context">The destination's glyphs and styles.</param><returns>Escaped status markup.</returns>
     public static string Status(Styling.StatusKind status, string text, Canvas.RenderContext context) {
         string role = Styling.StatusKinds.ToToken(status).ToString().ToLowerInvariant();
-        string glyph = "[" + role + "]" + context.Glyphs.StatusMarker(status) + "[/]";
+        string glyph = "[" + role + "]" + Text.Markup.Escape(context.Glyphs.StatusMarker(status)) + "[/]";
         return glyph + (text.Length == 0 ? string.Empty : " [" + (status == Styling.StatusKind.Pass ? "text" : role) + "]" + Text.Markup.Escape(text) + "[/]");
     }
 }

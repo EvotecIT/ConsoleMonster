@@ -67,7 +67,7 @@ namespace ConsoleMonster.Widgets {
             TableColumn column = new TableColumn(source.Header) {
                 Key = source.Key, Alignment = source.Alignment, HeaderAlignment = source.HeaderAlignment, Gap = source.Gap,
                 ShortHeader = source.ShortHeader, Placement = source.Placement, BelowWidth = source.BelowWidth,
-                DimRepeats = source.DimRepeats, UnknownText = source.UnknownText, NotApplicableText = source.NotApplicableText,
+                DimRepeats = source.DimRepeats, UnknownText = source.UnknownText,
                 Wrap = true, MaxLines = TableColumn.Unlimited,
                 Priority = source.Priority, IsKey = source.IsKey, Flexible = source.Flexible, Weight = source.Weight,
                 MaxWidth = width, Presenter = source.Presenter, Aggregate = source.Aggregate

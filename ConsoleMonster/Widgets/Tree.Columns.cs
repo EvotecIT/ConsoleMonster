@@ -139,13 +139,13 @@ namespace ConsoleMonster.Widgets {
             return string.Join(" ", glyphs);
         }
 
-        private static string ReferenceWords(TreeRow row) {
+        private static string ReferenceWords(TreeRow row, bool includeCycleAndRepeat = true) {
             TreeReferenceKind reference = row.Reference;
             List<string> words = new List<string>();
             if ((reference & TreeReferenceKind.Cycle) != 0) {
-                if (!row.Node.HasLocalizedCycleNote) words.Add("cycle");
+                if (includeCycleAndRepeat && !row.Node.HasLocalizedCycleNote) words.Add("cycle");
             }
-            else if ((reference & TreeReferenceKind.Repeat) != 0) words.Add("shown above");
+            else if (includeCycleAndRepeat && (reference & TreeReferenceKind.Repeat) != 0) words.Add("shown above");
             if ((reference & TreeReferenceKind.Collapsed) != 0) words.Add("collapsed");
             if ((reference & TreeReferenceKind.Incomplete) != 0) words.Add("incomplete");
             return string.Join(" ", words);

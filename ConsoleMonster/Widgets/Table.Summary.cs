@@ -52,6 +52,25 @@ namespace ConsoleMonster.Widgets {
             return contents;
         }
 
+        // Use the source row so repeated values keep the same styling across chunk and window boundaries.
+        private CellContent[] PresentDataRow(int source, PresenterContext[] contexts) {
+            CellContent[] cells = Present(_rows[source], contexts);
+            if (source == 0 || _rowGroups[source] != _rowGroups[source - 1]) return cells;
+            for (int c = 0; c < _columns.Count; c++) {
+                if (!_columns[c].DimRepeats) continue;
+                TableCell previous = _rows[source - 1][c];
+                TableCell current = _rows[source][c];
+                if (current.HasValue != previous.HasValue || !(current.HasValue ? Equals(current.Value, previous.Value) : current.Markup == previous.Markup)) continue;
+                Color muted = contexts[c].Render.Style(ThemeToken.Muted).Color;
+                for (int line = 0; line < cells[c].Lines.Count; line++) {
+                    List<TextSpan> spans = new List<TextSpan>();
+                    foreach (TextSpan span in cells[c].Lines[line]) spans.Add(new TextSpan(span.Text, span.Style.WithColor(muted)));
+                    cells[c].Lines[line] = new StyledLine(spans);
+                }
+            }
+            return cells;
+        }
+
         private List<TableLayoutRow> BuildRows(PresenterContext presenter, StreamStats? stats = null) {
             PresenterContext[] contexts = ColumnContexts(presenter);
             List<TableLayoutRow> rows = new List<TableLayoutRow>();
@@ -71,16 +90,7 @@ namespace ConsoleMonster.Widgets {
                     }
                 }
                 groupRows.Add(r);
-                CellContent[] cells = Present(_rows[r], contexts);
-                for (int c = 0; c < _columns.Count; c++) {
-                    if (_columns[c].DimRepeats && r > 0 && _rowGroups[r] == _rowGroups[r - 1]) {
-                        TableCell previous = _rows[r - 1][c];
-                        TableCell current = _rows[r][c];
-                        if (current.HasValue == previous.HasValue && (current.HasValue ? Equals(current.Value, previous.Value) : current.Markup == previous.Markup)) {
-                            for (int line = 0; line < cells[c].Lines.Count; line++) { cells[c].Lines[line] = cells[c].Lines[line].WithBaseStyle(presenter.Render.Style(ThemeToken.Muted)); }
-                        }
-                    }
-                }
+                CellContent[] cells = PresentDataRow(r, contexts);
                 if (stats != null) {
                     stats.Add(cells);
                     rows.Add(new TableLayoutRow(TableRowKind.Data) { Source = r });

@@ -119,8 +119,7 @@ public sealed partial class DefaultDisplaySession : IDisposable {
         _status?.Dispose(); _status = null;
         if (_pending.Count > 0) {
             bool stream = _current?.Batch == DefaultDisplayBatch.Stream && !_nativeBatch;
-            bool collected = stream && _clock.ElapsedMilliseconds < 250
-                && (_current!.CollectedBuilder != null || _pending.Count == 1 && _singleBuilder != null);
+            bool collected = stream && _clock.ElapsedMilliseconds < 250;
             output.Add(new DefaultDisplayOperation(_nativeBatch ? null : _current, _pending.ToArray(), _scope,
                 singleBuilder: collected && _pending.Count == 1 ? _singleBuilder : null, collected: collected));
             if (stream && !collected) { _streamStarted = true; }

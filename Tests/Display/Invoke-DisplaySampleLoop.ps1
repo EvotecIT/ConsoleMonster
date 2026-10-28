@@ -8,6 +8,10 @@ $commands=@(
     '& { [DisplayHostContract.Row]::new(''small-a'',''a''); [DisplayHostContract.Row]::new(''small-b'',''a'') }',
     'Assert-Collect ''Sample_CompletedBatch_UsesCollectedBuilderOnce'' ($global:SampleClosed -eq 1 -and $global:AdaptiveRows -eq 0 -and $global:SampleHeaders -eq 0 -and (Test-CollectOrder @(''CLOSED<small-a,small-b>'')))',
     'Use-SampleView',
+    '$global:AdaptiveView.CollectedBuilder=$null; $global:AdaptiveView.SingleRecordBuilder=$null',
+    '& { [DisplayHostContract.Row]::new(''fallback-a'',''a''); [DisplayHostContract.Row]::new(''fallback-b'',''a'') }',
+    '$screen=[DisplayHostContract.ConsoleText]::Read(); Assert-Collect ''Sample_FastDefaultStream_UsesClosedTableWithoutOptionalBuilders'' ($global:SampleHeaders -eq 0 -and $global:AdaptiveFooters -eq 0 -and $global:AdaptiveRows -eq 2 -and $screen.Contains(''fallback-a'') -and $screen.Contains(''fallback-b''))',
+    'Use-SampleView',
     '& { for($i=1;$i -le 200;$i++){[DisplayHostContract.Row]::new((''row-{0:d3}'' -f $i),''a'')}; $global:OpenedAtLimit=$global:SampleHeaders -eq 1 -and $global:SampleClosed -eq 0 }',
     'Assert-Collect ''Sample_TwoHundredRows_OpensOneStreamWithoutBuildingRowsTwice'' ($global:OpenedAtLimit -and $global:AdaptiveRows -eq 200 -and $global:AdaptiveFooters -eq 1)',
     'Use-SampleView',
@@ -49,4 +53,4 @@ $process=Start-Process -FilePath $RuntimePath -ArgumentList @('-NoLogo','-NoProf
 if(-not $process.WaitForExit(30000)){Stop-Process -Id $process.Id;throw 'The owned sample test exceeded 30 seconds.'}
 $process.Refresh();$report=Get-Content -LiteralPath $ResultsPath -Raw|ConvertFrom-Json
 $report.Tests|Format-Table Name,Passed -AutoSize
-if($process.ExitCode -ne 0 -or $report.Failed -or $report.Tests.Count -ne 11 -or [DateTime]$report.RecordedUtc -lt $started){throw 'Sample host proof failed; see its result file.'}
+if($process.ExitCode -ne 0 -or $report.Failed -or $report.Tests.Count -ne 12 -or [DateTime]$report.RecordedUtc -lt $started){throw 'Sample host proof failed; see its result file.'}

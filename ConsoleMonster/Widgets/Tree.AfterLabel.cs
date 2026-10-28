@@ -57,7 +57,9 @@ public sealed partial class Tree {
             List<StyledLine> continuations = new List<StyledLine>();
             StyledLine label = Label(row);
             if (row.Node.Values.Count == 0 && row.Reference == TreeReferenceKind.None) {
-                result.Add(FitLabel(label, width, context)); continue;
+                List<TextSpan> standalone = new List<TextSpan>(FitLabel(label, width, context));
+                AppendEvidence(row, standalone, continuations, false);
+                result.Add(new StyledLine(standalone)); result.AddRange(continuations); continue;
             }
             label = row.Node.Bare ? FitLabel(label, width, context) : row.Node.TruncateLabelInMiddle ? TextWrapper.TruncateMiddle(label, labelWidth, context.Ellipsis) : TextWrapper.Truncate(label, labelWidth, context.Ellipsis);
             List<TextSpan> spans = new List<TextSpan>(label);
@@ -72,34 +74,45 @@ public sealed partial class Tree {
                     if (visible.Contains(c) || context.Profile.Width < 80 && ValueColumns[c].Priority < 2) { continue; }
                     StyledLine note = Value(row, c);
                     if (note.Width == 0) { continue; }
-                    string separator = " " + context.Glyphs.Get(Glyph.Dot) + " ";
-                    int remaining = width - new StyledLine(spans).Width - separator.Length;
-                    if (remaining >= note.Width) { spans.Add(new TextSpan(separator, context.Style(ThemeToken.Muted))); spans.AddRange(note); }
-                    else {
-                        int indent = Math.Min(4, Math.Max(0, width - 1));
-                        foreach (StyledLine wrapped in TextWrapper.Wrap(note, Math.Max(1, width - indent))) {
-                            List<TextSpan> detail = new List<TextSpan> { new TextSpan(new string(' ', indent)) };
-                            detail.AddRange(wrapped); continuations.Add(new StyledLine(detail));
-                        }
-                    }
+                    AppendEvidenceLine(note, spans, continuations);
                 }
             }
+            bool referenceInValue = visible.Exists(c => IsState(ValueColumns[c])) && !row.Node.HasLocalizedCycleNote;
+            AppendEvidence(row, spans, continuations, referenceInValue);
             result.Add(new StyledLine(spans));
             result.AddRange(continuations);
         }
         return result;
 
-        StyledLine Label(TreeRow row) {
-            List<TextSpan> spans = new List<TextSpan> { new TextSpan(row.Prefix, context.Style(ThemeToken.Subtle)) };
-            if ((row.Reference & TreeReferenceKind.Collapsed) != 0) { spans.Add(new TextSpan(context.Glyphs.Get(Glyph.Collapsed) + " ", context.Style(ThemeToken.Muted))); }
-            StyledLine label = context.Markup(row.Node.LabelFor(context)).Lines[0];
-            if ((row.Reference & TreeReferenceKind.Repeat) != 0) { label = label.WithBaseStyle(context.Style(ThemeToken.Muted)); }
-            spans.AddRange(label); return new StyledLine(spans);
+        StyledLine Label(TreeRow row) => Primary(row, int.MaxValue, true, context);
+        bool IsState(TableColumn column) => string.Equals(column.Id, "State", StringComparison.OrdinalIgnoreCase) || string.Equals(column.Id, "Relation", StringComparison.OrdinalIgnoreCase);
+        void AppendEvidence(TreeRow row, List<TextSpan> spans, List<StyledLine> continuations, bool referenceInValue) {
+            string words = ReferenceWords(row, !referenceInValue);
+            if (words.Length > 0) AppendEvidenceLine(StyledLine.From(words, context.Style(ThemeToken.Muted)), spans, continuations);
+            string? detail = row.DetailFor(context);
+            if (!string.IsNullOrEmpty(detail)) AppendEvidenceLine(StyledLine.From(detail!, context.Style(ThemeToken.Muted)), spans, continuations);
+            if (row.Node.Value != null) {
+                foreach (StyledLine line in CellRendering.Content(row.Node.Value, row.Node.Presenter, null, presenter).Lines) AppendEvidenceLine(line, spans, continuations);
+            }
+        }
+        void AppendEvidenceLine(StyledLine note, List<TextSpan> spans, List<StyledLine> continuations) {
+            if (note.Width == 0) return;
+            string separator = " " + context.Glyphs.Get(Glyph.Dot) + " ";
+            int remaining = width - new StyledLine(spans).Width - separator.Length;
+            if (continuations.Count == 0 && remaining >= note.Width) {
+                spans.Add(new TextSpan(separator, context.Style(ThemeToken.Muted))); spans.AddRange(note);
+            } else {
+                int indent = Math.Min(4, Math.Max(0, width - 1));
+                foreach (StyledLine wrapped in TextWrapper.Wrap(note, Math.Max(1, width - indent))) {
+                    List<TextSpan> detail = new List<TextSpan> { new TextSpan(new string(' ', indent)) };
+                    detail.AddRange(wrapped); continuations.Add(new StyledLine(detail));
+                }
+            }
         }
         StyledLine Value(TreeRow row, int c) {
             TableColumn column = ValueColumns[c];
-            bool state = string.Equals(column.Id, "State", StringComparison.OrdinalIgnoreCase) || string.Equals(column.Id, "Relation", StringComparison.OrdinalIgnoreCase);
-            if (state && (row.Reference & TreeReferenceKind.Cycle) != 0) { return StyledLine.From(context.Glyphs.Get(Glyph.Cycle) + " cycle", context.Style(ThemeToken.Muted)); }
+            bool state = IsState(column);
+            if (state && (row.Reference & TreeReferenceKind.Cycle) != 0) { return StyledLine.From(context.Glyphs.Get(Glyph.Cycle) + (row.Node.HasLocalizedCycleNote ? string.Empty : " cycle"), context.Style(ThemeToken.Muted)); }
             if (state && (row.Reference & TreeReferenceKind.Repeat) != 0) { return StyledLine.From(context.Glyphs.Get(Glyph.Repeat) + " shown above", context.Style(ThemeToken.Muted)); }
             return ColumnValue(row.Node, column, presenter);
         }

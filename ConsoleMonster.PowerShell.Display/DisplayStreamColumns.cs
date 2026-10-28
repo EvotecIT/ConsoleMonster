@@ -38,7 +38,8 @@ internal sealed class DisplayStreamColumns {
             desired[index] = Math.Min(limit, sampled ? Math.Max(1, content) : Math.Max(content, Math.Min(header, content == 0 ? 12 : Math.Max(4, content))));
             minimum[index] = Math.Max(1, column.MinWidth ?? Math.Min(desired[index], content == 0 ? 1 : IsNumeric(column, cell) ? content : 8));
             bool identity = column.IsKey || !hasKey && index == 0;
-            if (identity && sampled) { minimum[index] = Math.Max(minimum[index], Math.Min(limit, content)); }
+            // Sampled names inform the desired width, but must leave room for state and failure evidence.
+            if (identity && sampled) { minimum[index] = Math.Max(minimum[index], Math.Min(32, Math.Min(limit, content))); }
             if (identity && !sampled) {
                 // Reserve useful identity space before dropping detail columns. The first row cannot predict later
                 // names, so use the core table's 32-cell key comfort within the caller's maximum.
@@ -92,7 +93,7 @@ internal sealed class DisplayStreamColumns {
                 MinWidth = source.MinWidth, MaxWidth = source.MaxWidth, Width = source.Width,
                 Presenter = source.Presenter, Aggregate = source.Aggregate, Overflow = ColumnOverflow.Truncate, MaxLines = 1,
                 Gap = source.Gap, HeaderAlignment = source.HeaderAlignment, DimRepeats = source.DimRepeats,
-                ShortHeader = source.ShortHeader, UnknownText = source.UnknownText, NotApplicableText = source.NotApplicableText
+                ShortHeader = source.ShortHeader, UnknownText = source.UnknownText
             };
             foreach (var rule in source.RoleRules) { copy.RoleRules.Add(rule); }
             if (v >= selected.Count) {

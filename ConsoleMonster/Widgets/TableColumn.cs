@@ -46,9 +46,6 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Literal text for missing evidence, or null to keep the ordinary null presenter.</summary>
         public string? UnknownText { get; set; }
 
-        /// <summary>Literal text for an explicitly not-applicable value.</summary>
-        public string? NotApplicableText { get; set; }
-
         /// <summary>An identifier for the column (a property name), or null to use the header.</summary>
         public string? Key { get; set; }
 

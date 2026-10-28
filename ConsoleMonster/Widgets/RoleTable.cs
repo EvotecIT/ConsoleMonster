@@ -57,7 +57,7 @@ namespace ConsoleMonster.Widgets {
             };
             copy.HeaderAlignment = source.HeaderAlignment; copy.Gap = source.Gap; copy.ShortHeader = source.ShortHeader;
             copy.Placement = source.Placement; copy.BelowWidth = source.BelowWidth; copy.DimRepeats = source.DimRepeats;
-            copy.UnknownText = source.UnknownText; copy.NotApplicableText = source.NotApplicableText;
+            copy.UnknownText = source.UnknownText;
             foreach (var rule in source.RoleRules) copy.RoleRules.Add(rule);
             return copy;
         }
