@@ -9,6 +9,36 @@ using Xunit;
 namespace ConsoleMonster.Tests.Widgets {
     public sealed class TreeReview184Tests {
         [Theory]
+        [InlineData(TreeReferenceKind.Cycle, GlyphTier.Full)]
+        [InlineData(TreeReferenceKind.Repeat, GlyphTier.Ascii)]
+        public void Render_VisibleAndHiddenReferenceColumns_ShowsOneMarker(TreeReferenceKind reference, GlyphTier tier) {
+            Tree tree = new Tree { ValuePlacement = TreeValuePlacement.AfterLabel, ShowValueHeaders = false };
+            tree.ValueColumns.Add(new TableColumn("State") { Priority = 10 });
+            tree.ValueColumns.Add(new TableColumn("Relation") { Priority = 2 });
+            TreeNode node = tree.Add("Member"); node.Reference = reference; node.Values["State"] = "state";
+            Review184Capture capture = new Review184Capture(tree, 60, tier, ColorDepth.None);
+            string text = capture.Raw.ToPlainText();
+            string marker = capture.Context.Glyphs.Get(reference == TreeReferenceKind.Cycle ? Glyph.Cycle : Glyph.Repeat);
+            Assert.Equal(1, text.Split(new[] { marker }, StringSplitOptions.None).Length - 1);
+            Assert.Contains(reference == TreeReferenceKind.Cycle ? "cycle" : "shown above", text);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(3)]
+        [InlineData(12)]
+        public void Render_TwoVisibleReferenceColumns_KeepsExactlyOneMarker(int firstWidth) {
+            Tree tree = new Tree { ValuePlacement = TreeValuePlacement.AfterLabel, ShowValueHeaders = false };
+            tree.ValueColumns.Add(new TableColumn("State") { Priority = 10, Width = firstWidth });
+            tree.ValueColumns.Add(new TableColumn("Relation") { Priority = 9, Width = 12 });
+            TreeNode node = tree.Add("Member"); node.Reference = TreeReferenceKind.Cycle; node.Values["State"] = "state";
+            Review184Capture capture = new Review184Capture(tree, 120, GlyphTier.Full, ColorDepth.None);
+            string text = capture.Raw.ToPlainText();
+            string marker = capture.Context.Glyphs.Get(Glyph.Cycle);
+            Assert.Equal(1, text.Split(new[] { marker }, StringSplitOptions.None).Length - 1);
+            Assert.Contains("cycle", text);
+        }
+        [Theory]
         [InlineData(GlyphTier.Basic, ColorDepth.Ansi16, 59)]
         [InlineData(GlyphTier.Basic, ColorDepth.None, 60)]
         [InlineData(GlyphTier.Basic, ColorDepth.Ansi16, 80)]

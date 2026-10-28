@@ -33,6 +33,7 @@ public sealed class ConsoleViewFrame : IWidget, IContainer {
     private int ContentWidth(int available, RenderContext context) {
         int width = Math.Max(0, available - 2);
         int body = 0;
+        if (Footer != null) { ConfigureFooter(Footer); }
         foreach (IWidget child in Children) {
             Configure(child);
             if (!ReferenceEquals(child, Header)) { body = Math.Max(body, child.Measure(new Constraints(width), context).Width); }

@@ -10,6 +10,15 @@ using Xunit;
 namespace ConsoleMonster.Tests.Widgets;
 
 public sealed class ConsoleViewSystemTests {
+    [Theory]
+    [InlineData(GlyphTier.Full)]
+    [InlineData(GlyphTier.Ascii)]
+    public void Frame_FooterMeasurement_PreservesWholeEntryThatFits(GlyphTier tier) {
+        ConsoleViewFrame frame = new ConsoleViewFrame(new ViewHeader("H"));
+        frame.Footer = TextBlock.Plain("a · longword smallword");
+        string text = TestTerminal.RenderText(frame, 22, height: 10, glyphs: tier);
+        Assert.Contains("longword smallword", text);
+    }
     [Fact]
     public void Frame_NarrowTitleAndFooter_BreakBetweenCompleteEntries() {
         ConsoleViewFrame frame = new ConsoleViewFrame(new ViewHeader("GPOs", "× 1 broken link · ▴ 2 unlinked · ▴ 1 non-admin owner", "corp.contoso.com"));
