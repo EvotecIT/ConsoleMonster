@@ -107,8 +107,13 @@ namespace ConsoleMonster.PowerShell {
             }
             string rootLabel = RootPath;
             if (!MyInvocation.BoundParameters.ContainsKey(nameof(RootPath))) {
-                rootLabel = _items.Count == 1 && rootValue != null && (Exclude == null || Exclude.Length == 0)
-                    ? Binding.PSShaping.IdentityTitle(PSObject.AsPSObject(rootValue), Binding.PSShaping.Options()) : "input";
+                rootLabel = "input";
+                if (_items.Count == 1 && rootValue != null) {
+                    var budget = new Values.ShapeBudget(options.TimeBudget, options.MaxNodes);
+                    rootLabel = (Include == null || Include.Length == 0) && (Exclude == null || Exclude.Length == 0)
+                        ? Binding.PSShaping.IdentityTitle(PSObject.AsPSObject(rootValue), Binding.PSShaping.Options(), budget)
+                        : Binding.PSShaping.DepthLabel(rootValue, Include, Exclude, budget) ?? "input";
+                }
             }
             ObjectExplorer explorer = new ObjectExplorer(rootValue, options, RootPath, rootLabel) { Title = Title };
             try {

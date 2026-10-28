@@ -19,16 +19,16 @@ namespace ConsoleMonster.Data {
                     }
                 }
             }
-            unavailable = repeated.OrderBy(name => name, StringComparer.OrdinalIgnoreCase).ToArray();
+            unavailable = repeated.OrderBy(name => name, StringComparer.OrdinalIgnoreCase).Select(name => {
+                var errors = roots.Cast<InspectObject>().Select(root => root.Members.OfType<InspectError>().First(error => string.Equals(error.Name, name, StringComparison.OrdinalIgnoreCase)));
+                return name + " unavailable for " + roots.Count + " items" + (errors.All(IsAccessDenied) ? " (access denied)" : string.Empty);
+            }).ToArray();
             return roots.Select(root => Normalize(root, hideEmpty, repeated, true)).ToArray();
         }
 
         private static InspectNode Normalize(InspectNode node, bool hideEmpty, ISet<string> repeated, bool root) {
             if (node is InspectError error) {
-                bool denied = error.Message.IndexOf("access is denied", StringComparison.OrdinalIgnoreCase) >= 0
-                    || error.Message.IndexOf("access denied", StringComparison.OrdinalIgnoreCase) >= 0
-                    || error.Message.IndexOf("unauthorized", StringComparison.OrdinalIgnoreCase) >= 0;
-                return new InspectScalar(error.Name, "String", error.Path, denied ? "⊘ access denied" : "⊘ unavailable");
+                return new InspectScalar(error.Name, "InspectionUnavailable", error.Path, IsAccessDenied(error) ? "⊘ access denied" : "⊘ unavailable");
             }
             if (node is InspectCollection collection) {
                 return new InspectCollection(collection.Name, collection.TypeName, collection.Path,
@@ -43,11 +43,15 @@ namespace ConsoleMonster.Data {
                 if (hideEmpty && IsEmpty(member)) { empty++; continue; }
                 members.Add(Normalize(member, hideEmpty, repeated, false));
             }
-            if (empty > 0) { members.Add(new InspectScalar("+" + empty + " empty", "String", record.Path, string.Empty)); }
+            if (empty > 0) { members.Add(new InspectScalar("+" + empty + " empty", "InspectionEmptySummary", record.Path, string.Empty)); }
             return new InspectObject(record.Name, record.TypeName, record.Path, members);
         }
 
         private static bool IsEmpty(InspectNode node) => node is InspectScalar scalar && (scalar.Value == null || scalar.Value is string text && text.Length == 0)
             || node is InspectCollection collection && collection.Count == 0;
+
+        private static bool IsAccessDenied(InspectError error) => error.Message.IndexOf("access is denied", StringComparison.OrdinalIgnoreCase) >= 0
+            || error.Message.IndexOf("access denied", StringComparison.OrdinalIgnoreCase) >= 0
+            || error.Message.IndexOf("unauthorized", StringComparison.OrdinalIgnoreCase) >= 0;
     }
 }

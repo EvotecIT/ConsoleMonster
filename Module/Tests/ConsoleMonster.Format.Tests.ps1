@@ -61,6 +61,31 @@ $item | Format-ConsoleTree -Depth 1 -AsString
         $text | Should -Not -Match 'Extra\s+hidden'
     }
 
+    It 'uses calculated registered fields as the default tree fields' {
+        $text = Invoke-FormatChild -Script @'
+$item = [pscustomobject]@{ Name = 'root'; Used = 12; Extra = 'hidden' }
+$item.PSObject.TypeNames.Insert(0, 'Example.Calculated')
+Register-ConsoleView -TypeName 'Example.Calculated' -Property 'Name', @{ Name = 'Utilization'; Expression = { $_.Used * 2 } }
+$item | Format-ConsoleTree -Depth 1 -AsString
+'@
+        $text | Should -Match 'Utilization\s+24'
+        $text | Should -Not -Match 'Extra\s+hidden'
+    }
+
+    It 'does not evaluate calculated fields or unrelated getters when excluding members' {
+        $text = Invoke-FormatChild -Script @'
+$script:reads = 0
+$item = [pscustomobject]@{ Name = 'root'; Secret = 'hidden' }
+$item | Add-Member ScriptProperty Other { $script:reads++; 'unrelated' }
+$item.PSObject.TypeNames.Insert(0, 'Example.CalculatedFiltered')
+Register-ConsoleView -TypeName 'Example.CalculatedFiltered' -Property 'Name', @{ Name = 'Computed'; Expression = { $script:reads++; $_.Secret } }
+$item | Format-ConsoleTree -Depth 1 -Exclude Secret -WarningAction SilentlyContinue -AsString
+"READS=$script:reads"
+'@
+        $text | Should -Match 'Name\s+root'
+        $text | Should -Match 'READS=0'
+    }
+
     It 'uses a meaningful ToString when the object has no identity fields' {
         $text = Invoke-FormatChild -Script @'
 Add-Type 'public sealed class LabelOnly { public override string ToString() { return "friendly label"; } }'

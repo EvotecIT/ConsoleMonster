@@ -25,6 +25,17 @@
         $script:Capture.LastFrame.ToPlainText() | Should -Match '\$x.Owner'
     }
 
+    It 'does not evaluate a registered identity outside the included fields' {
+        $script:secretReads = 0
+        $item = [pscustomobject]@{ Label = 'visible' }
+        $item | Add-Member ScriptProperty Secret { $script:secretReads++; 'hidden' }
+        $item.PSObject.TypeNames.Insert(0, 'Example.ExplorerFilter')
+        Register-ConsoleView -TypeName 'Example.ExplorerFilter' -Property @{ Name = 'Secret'; Expression = { $_.Secret }; Key = $true }
+        ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('F10')
+        $null = $item | Show-ConsoleObject -Include Label -Mode Rich -PassThru
+        $script:secretReads | Should -Be 0
+    }
+
     It 'labels drilled PowerShell records without changing their indexed path' {
         $services = @(
             [pscustomobject]@{ Name = 'web'; Status = 'Running' }

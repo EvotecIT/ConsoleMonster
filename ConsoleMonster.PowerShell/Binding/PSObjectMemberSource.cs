@@ -20,6 +20,8 @@ namespace ConsoleMonster.PowerShell.Binding {
         /// <summary>Optional registered property selectors applied only to the root object.</summary>
         public string[]? RootProperties { get; set; }
 
+        internal IReadOnlyList<BoundColumn>? RootColumns { get; set; }
+
         /// <summary>
         /// The value to read for a PowerShell object: the wrapped object when it is a scalar, a collection or a data value
         /// (dictionary, data row, XML, JSON, file or folder), so the shared adapters read it; the PowerShell object itself
@@ -75,6 +77,17 @@ namespace ConsoleMonster.PowerShell.Binding {
         /// <inheritdoc />
         public IEnumerable<InspectMember> GetMembers(object value) {
             PSObject item = AsPSObject(value);
+            if (RootColumns != null && Root != null && ReferenceEquals(Identity(item), Identity(Root))) {
+                foreach (BoundColumn column in RootColumns) {
+                    BoundColumn captured = column;
+                    yield return new InspectMember(captured.Name, () => {
+                        object? result = captured.GetValue(item);
+                        if (result is FieldError error) { throw new InvalidOperationException(error.Message); }
+                        return Nested(result);
+                    });
+                }
+                yield break;
+            }
             if (RootProperties != null && Root != null && ReferenceEquals(Identity(item), Identity(Root))) {
                 var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                 foreach (string selector in RootProperties) {
