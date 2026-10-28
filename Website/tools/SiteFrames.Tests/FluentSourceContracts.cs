@@ -59,6 +59,57 @@ namespace SiteFrames.Tests {
         }
 
         [Theory]
+        [InlineData("more")]
+        [InlineData("hidden")]
+        [InlineData("example")]
+        public void FluentTranslationKeepsRegionEndingInsideInitializer(string region) {
+            string path = Source($$"""
+                using ConsoleMonster;
+                using ConsoleMonster.Widgets;
+                // <{{region}}>
+                var table = new Table {
+                    Expand = true,
+                    // </{{region}}>
+                    Title = "Report"
+                };
+                Terminal.Write(table);
+                """);
+            string fluent = CSharpRunner.FluentSource(path);
+            Assert.Contains("// <" + region + ">", fluent, StringComparison.Ordinal);
+            Assert.Contains("// </" + region + ">", fluent, StringComparison.Ordinal);
+            Assert.True(fluent.IndexOf("Expand", StringComparison.Ordinal) < fluent.IndexOf("// </" + region + ">", StringComparison.Ordinal), fluent);
+            Assert.True(fluent.IndexOf("// </" + region + ">", StringComparison.Ordinal) < fluent.IndexOf("Title", StringComparison.Ordinal), fluent);
+            if (region != "example") { _ = SourceSnippets.Program(fluent); }
+            CSharpRunner.Check(path, fluent);
+        }
+
+        [Theory]
+        [InlineData("more")]
+        [InlineData("hidden")]
+        [InlineData("example")]
+        public void FluentTranslationKeepsRegionStartingInsideInitializer(string region) {
+            string path = Source($$"""
+                using ConsoleMonster;
+                using ConsoleMonster.Widgets;
+                var table = new Table {
+                    Expand = true,
+                    // <{{region}}>
+                    Title = "Report"
+                };
+                // </{{region}}>
+                Terminal.Write(table);
+                """);
+            string fluent = CSharpRunner.FluentSource(path);
+            int expand = fluent.IndexOf("Expand", StringComparison.Ordinal);
+            int open = fluent.IndexOf("// <" + region + ">", StringComparison.Ordinal);
+            int title = fluent.IndexOf("Title", StringComparison.Ordinal);
+            int close = fluent.IndexOf("// </" + region + ">", StringComparison.Ordinal);
+            Assert.True(expand >= 0 && expand < open && open < title && title < close, fluent);
+            if (region != "example") { _ = SourceSnippets.Program(fluent); }
+            CSharpRunner.Check(path, fluent);
+        }
+
+        [Theory]
         [InlineData("int n = 0; Terminal.Write(new Rows(new TextBlock((++n).ToString()), new TextBlock(\"B\")) { Gap = n });")]
         [InlineData("Terminal.Write(new Panel(new TextBlock(\"Ready\"), ConsoleMonster.Text.RichText.Plain(\"Build\")));")]
         [InlineData("Terminal.Write(new Rows(new TextBlock(markup: \"Ready\"), new Rule(ConsoleMonster.Text.RichText.Plain(\"Build\"))));")]

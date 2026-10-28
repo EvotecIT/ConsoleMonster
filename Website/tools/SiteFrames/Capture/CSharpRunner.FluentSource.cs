@@ -13,6 +13,11 @@ namespace SiteFrames.Capture {
         /// <summary>Translates every file together, so a fluent tab never silently depends on initializer-only companions.</summary>
         public static IReadOnlyDictionary<string, string> FluentSources(string path, params string[] companions) => FluentSourcesCore(path, companions, null);
 
+        // Initializer comments and directives must remain attached to their original members.
+        private static bool HasInitializerBoundaryTrivia(InitializerExpressionSyntax? initializer) =>
+            initializer != null && initializer.DescendantTrivia().Any(trivia =>
+                !trivia.IsKind(SyntaxKind.WhitespaceTrivia) && !trivia.IsKind(SyntaxKind.EndOfLineTrivia));
+
         private static IReadOnlyDictionary<string, string> FluentSourcesCore(string path, string[] companions, IReadOnlyList<MetadataReference>? references) {
             var inputs = companions.Prepend(path).ToDictionary(file => file, file => {
                 string source = Site.ReadText(file);
@@ -114,11 +119,7 @@ namespace SiteFrames.Capture {
             private ExpressionSyntax Rewrite(BaseObjectCreationExpressionSyntax original, ObjectCreationExpressionSyntax visited) {
                 if (original.Initializer == null || model.GetTypeInfo(original).Type is not INamedTypeSymbol type
                     || !Owned(type)) { return visited; }
-                // Folding markers are editorial boundaries. Retain their initializer rather than dropping
-                // a closing marker attached to a brace while translating its setters.
-                if (original.Initializer.DescendantTrivia().Any(trivia => trivia.ToString().Contains("<more>", StringComparison.Ordinal)
-                    || trivia.ToString().Contains("</more>", StringComparison.Ordinal) || trivia.ToString().Contains("<hidden>", StringComparison.Ordinal)
-                    || trivia.ToString().Contains("</hidden>", StringComparison.Ordinal))) { return visited; }
+                if (HasInitializerBoundaryTrivia(original.Initializer)) { return visited; }
                 var setters = new List<(IPropertySymbol Property, ExpressionSyntax Value)>();
                 for (int i = 0; i < original.Initializer.Expressions.Count; i++) {
                     if (original.Initializer.Expressions[i] is not AssignmentExpressionSyntax assignment
