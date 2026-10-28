@@ -11,9 +11,9 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="synopsis">Explores an object's members with the keyboard.</para>
     /// <para type="description">Arrows move, Right and Left expand and collapse, Enter drills into a member, Backspace returns to its parent, and / searches displayed names and values. Ctrl+Enter or F10 accepts the selected node; Esc cancels. Nested values are read lazily and cycles, depth and collection sizes are bounded. In redirected, CI, line and non-interactive sessions, a static inspector is printed and no selection is returned. Objects parsed by ConvertFrom-Json use the same PowerShell member adapter as other objects.</para>
     /// </summary>
-    /// <example><para>Browse a nested configuration</para><code>$config | Show-ConsoleObject</code></example>
-    /// <example><para>Return a selected member value</para><code>$config | Show-ConsoleObject -PassThru</code></example>
-    /// <example><para>Return its PowerShell path</para><code>$config | Show-ConsoleObject -RootPath '$config' -PassThru Path</code></example>
+    /// <example><para>Browse a nested configuration</para><code>$config = [pscustomobject]@{ Name = 'example'; Settings = @{ Port = 443 } }; $config | Show-ConsoleObject</code></example>
+    /// <example><para>Return a selected member value</para><code>$config = [pscustomobject]@{ Name = 'example'; Settings = @{ Port = 443 } }; $config | Show-ConsoleObject -PassThru</code></example>
+    /// <example><para>Return its PowerShell path</para><code>$config = [pscustomobject]@{ Name = 'example'; Settings = @{ Port = 443 } }; $config | Show-ConsoleObject -RootPath '$config' -PassThru Path</code></example>
     [Cmdlet(VerbsCommon.Show, "ConsoleObject")]
     [OutputType(typeof(object), typeof(string))]
     public sealed class CmdletShowConsoleObject : PSCmdlet {

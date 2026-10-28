@@ -10,7 +10,7 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="synopsis">Creates one numeric chart representation from records or samples.</para>
     /// <para type="description">Type selects Bar, Stacked, Line, Scatter, Histogram or Sparkline. The shared C# Chart factory rejects options that do not apply to the selected kind. InputObject accepts chart records (Label and Value; Key, Label, Values and Role for series); Content emits the same records. For Bar, Histogram and Sparkline, -Property picks the number from ordinary objects and -Label (Bar only, default Name) their label, as Show-Console -View Chart does. Use Update-Console for live changes.</para>
     /// </summary>
-    /// <example><para>Chart a property of ordinary objects inside a report</para><code>$servers | New-ConsoleChart -Type Bar -Property Cpu -Label Name -Unit '%'</code></example>
+    /// <example><para>Chart a property of ordinary objects inside a report</para><code>$servers = [pscustomobject]@{ Name = 'web01'; Cpu = 42 }, [pscustomobject]@{ Name = 'web02'; Cpu = 27 }; $servers | New-ConsoleChart -Property Cpu -Label Name -Unit '%'</code></example>
     /// <example><para>Show resolver latency</para><code>[pscustomobject] @{ Label = 'Cloudflare'; Value = 12 } | New-ConsoleChart -Type Bar -Unit ' ms' | Show-Console</code></example>
     [Cmdlet(VerbsCommon.New, "ConsoleChart")]
     [OutputType(typeof(IWidget))]

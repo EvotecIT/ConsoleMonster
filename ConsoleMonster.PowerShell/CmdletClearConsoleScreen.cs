@@ -8,8 +8,8 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="description">On an interactive console the screen and its scrollback are cleared and the cursor goes to the top left, like Clear-Host. It does nothing where clearing would only lose output: redirected output, CI logs, plain mode (CONSOLEMONSTER_MODE=plain), background and thread jobs, and while a live dashboard owns the console. In the ISE and other hosts with a screen buffer it clears that buffer the way Clear-Host does.</para>
     /// </summary>
     /// <example>
-    ///   <para>Start a menu screen from a clean console</para>
-    ///   <code>Clear-ConsoleScreen; Show-ConsoleMenu -Title 'Tools' -Items $items</code>
+    ///   <para>Clear the screen before displaying a message</para>
+    ///   <code>Clear-ConsoleScreen; Write-ConsoleText 'Ready'</code>
     /// </example>
     [Cmdlet(VerbsCommon.Clear, "ConsoleScreen")]
     public sealed class CmdletClearConsoleScreen : PSCmdlet {

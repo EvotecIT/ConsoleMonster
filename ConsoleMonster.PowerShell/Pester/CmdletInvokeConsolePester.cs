@@ -23,7 +23,7 @@ namespace ConsoleMonster.PowerShell.Pester {
     ///   <code>
     /// $c = New-PesterConfiguration
     /// $c.Run.Path = '.\Tests'
-    /// $c.Filter.Tag = 'Unit'
+    /// $c.Filter.TagFilter = 'Unit'
     /// $r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.html -PassThru</code>
     /// </example>
     [Cmdlet(VerbsLifecycle.Invoke, "ConsolePester", DefaultParameterSetName = "Simple")]
