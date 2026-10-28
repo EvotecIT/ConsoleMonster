@@ -1,4 +1,4 @@
-﻿Describe 'Interactive cmdlets' {
+Describe 'Interactive cmdlets' {
     BeforeAll {
         $script:ModulePath = Join-Path $PSScriptRoot '..\ConsoleMonster.psd1'
         $script:Runtime = [System.Diagnostics.Process]::GetCurrentProcess().Path
@@ -122,10 +122,10 @@ $errors = @()
             $text | Should -Match 'ERRORS=1 ID=ConsoleMonsterNoSession'
         }
 
-        It 'supports optional prompt titles and the Prompt alias' {
+        It 'supports optional prompt titles' {
             $text = Invoke-PromptChild -NonInteractive -Script @'
 $one = Read-ConsoleSelect -Choices 'alpha', 'beta' -Default 'beta'
-$two = Read-ConsoleText -Prompt 'Name' -Default 'worker'
+$two = Read-ConsoleText -Title 'Name' -Default 'worker'
 "ONE=$one TWO=$two"
 '@
             $text | Should -Match 'ONE=beta TWO=worker'

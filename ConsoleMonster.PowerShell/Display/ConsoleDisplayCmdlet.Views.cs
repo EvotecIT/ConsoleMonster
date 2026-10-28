@@ -16,7 +16,7 @@ namespace ConsoleMonster.PowerShell {
                 case "auto": specific = "Property Depth ChildrenProperty"; break;
                 case "table": specific = "Property GroupBy ShowTotals MaxRows Border Caption CardsBelow NoHeaderSeparator Expand StatusProperty ShowGroupColumn NoSort Wrap TitleIndent WrapHeaders KeepAllColumns GroupHeadersAsRows RecordViewRows ShowKeyField NoHiddenColumns NoStableWidths NoHeader AlwaysCards RowTitles ShowSubtotals TotalLabel WrapLines TotalRowCount Presentation"; break;
                 case "list": specific = "Property GroupBy ShowEmpty Depth"; break;
-                case "tree": specific = "Property All ChildrenProperty Children LabelProperty StatusProperty DetailProperty Depth MaxItems MaxNodes Include Exclude"; break;
+                case "tree": specific = "ChildrenProperty Children LabelProperty StatusProperty DetailProperty Depth MaxItems MaxNodes Include Exclude"; break;
                 case "inspector": specific = "Depth MaxItems MaxNodes Include Exclude"; break;
                 case "chart": specific = "Property Label Type Sort MaxRows Bins Unit"; break;
                 case "code": specific = "Path Language LineNumbers FirstLine MaxLines Highlight Wrap NoTitle"; break;

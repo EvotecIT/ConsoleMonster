@@ -8,7 +8,7 @@ Describe 'ConsoleMonster tree golden output' {
 
     AfterAll { [System.Threading.Thread]::CurrentThread.CurrentCulture = $script:PreviousCulture }
 
-    It 'renders <Kind> at <Width> columns through both tree commands' -TestCases @(
+    It 'renders <Kind> at <Width> columns through the tree view' -TestCases @(
         @{ Kind = 'service'; Width = 80 }; @{ Kind = 'service'; Width = 120 }
         @{ Kind = 'process'; Width = 80 }; @{ Kind = 'process'; Width = 120 }
         @{ Kind = 'file'; Width = 80 }; @{ Kind = 'file'; Width = 120 }
@@ -17,16 +17,12 @@ Describe 'ConsoleMonster tree golden output' {
         param($Kind, $Width)
         $fixture = Get-TreeGoldenFixture $Kind
         $golden = [IO.File]::ReadAllText((Join-Path $PSScriptRoot "Fixtures/TreeGolden/$Kind-$Width.txt"), [Text.Encoding]::UTF8).Replace("`r`n", "`n").TrimEnd("`n")
-        foreach ($actual in @(
-            ($fixture | Show-Console -View Tree -Depth 1 -Width $Width -AsString)
-            ($fixture | Format-ConsoleTree -Depth 1 -Width $Width -AsString)
-        )) {
-            $actual.Replace("`r`n", "`n").TrimEnd("`n") | Should -BeExactly $golden
-        }
+        $actual = $fixture | Show-Console -View Tree -Depth 1 -Width $Width -AsString
+        $actual.Replace("`r`n", "`n").TrimEnd("`n") | Should -BeExactly $golden
     }
 
     It 'uses the shared Unicode boolean presenter without an extra separator' {
-        $widget = [pscustomobject]@{ Name = 'worker'; Ready = $true; Disabled = $false } | Format-ConsoleTree -Depth 1 -AsWidget
+        $widget = [pscustomobject]@{ Name = 'worker'; Ready = $true; Disabled = $false } | Show-Console -View Tree -Depth 1 -AsWidget
         $profileType = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile')
         $profile = $profileType::Fixed(80, 24, 'None', 'Full', 'Stream')
         $text = [ConsoleMonster.Terminal]::RenderText($widget, $profile)

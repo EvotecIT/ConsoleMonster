@@ -18,7 +18,7 @@ Describe 'ConsoleMonster public API vocabulary' {
         }
     }
 
-    It 'exports no command aliases and only the shared prompt parameter alias' {
+    It 'exports no command aliases and no custom parameter aliases' {
         $module = Get-Module ConsoleMonster
         $module.ExportedAliases.Count | Should -Be 0
         $manifest = Import-PowerShellDataFile (Join-Path $PSScriptRoot '../ConsoleMonster.psd1')
@@ -29,11 +29,7 @@ Describe 'ConsoleMonster public API vocabulary' {
                 # Common parameters belong to PowerShell, including its native aliases.
                 $property = $command.ImplementingType.GetProperty($parameter.Name)
                 if ($null -eq $property -or $property.DeclaringType.Namespace -notlike 'ConsoleMonster*') { continue }
-                if ($parameter.Name -eq 'Title' -and $command.Name -like 'Read-Console*') {
-                    @($parameter.Aliases) -join ',' | Should -Be 'Prompt'
-                } else {
-                    $parameter.Aliases.Count | Should -Be 0 -Because "$($command.Name) -$($parameter.Name) has one public name"
-                }
+                $parameter.Aliases.Count | Should -Be 0 -Because "$($command.Name) -$($parameter.Name) has one public name"
             }
         }
     }

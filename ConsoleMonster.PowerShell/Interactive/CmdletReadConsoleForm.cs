@@ -25,7 +25,7 @@ namespace ConsoleMonster.PowerShell {
         public Form? Form { get; set; }
 
         /// <summary><para type="description">Overrides the form title for this prompt.</para></summary>
-        [Parameter, Alias("Prompt")]
+        [Parameter]
         public string? Title { get; set; }
 
         /// <summary><para type="description">A form from the pipeline.</para></summary>

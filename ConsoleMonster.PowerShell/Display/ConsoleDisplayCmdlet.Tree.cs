@@ -20,16 +20,6 @@ namespace ConsoleMonster.PowerShell {
         }
         private IWidget BuildTreeView(IReadOnlyList<PSObject> items) {
             string[]? include = Include;
-            if (All.IsPresent) {
-                if (Include != null || Property != null) { throw new PSArgumentException("Tree -All cannot be combined with -Include or -Property."); }
-                include = new[] { "*" };
-            }
-            if (Property != null) {
-                if (Include != null || Property.Any(value => !(PSText.Unwrap(value) is string))) {
-                    throw new PSArgumentException("Tree -Property accepts member names or patterns and cannot be combined with -Include.");
-                }
-                include = Property.Select(value => (string)PSText.Unwrap(value)!).ToArray();
-            }
             bool hierarchy = ChildrenProperty != null || Children != null || LabelProperty != null || StatusProperty != null || DetailProperty != null;
             if (hierarchy || items.All(item => PSText.Unwrap(item) is TreeNode)) {
                 return ConsoleHostViews.Tree(items.Cast<object>().ToList(), new ConsoleTreeOptions {

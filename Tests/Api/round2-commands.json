@@ -1,6 +1,6 @@
 {
   "BaselineCount": 144,
-  "ExpectedCount": 109,
+  "ExpectedCount": 108,
   "Commands": [
     "Add-ConsoleItem",
     "Add-ConsoleRecordingMarker",
@@ -17,7 +17,6 @@
     "Export-ConsoleRecording",
     "Export-ConsoleTheme",
     "Format-ConsoleCommand",
-    "Format-ConsoleTree",
     "Get-ConsoleCapability",
     "Get-ConsoleDemo",
     "Get-ConsoleFormatting",
@@ -187,7 +186,8 @@
     "Read-ConsoleSelection",
     "Read-ConsoleMultiSelection",
     "New-ConsoleClock",
-    "New-ConsoleRunResult"
+    "New-ConsoleRunResult",
+    "Format-ConsoleTree"
   ],
   "Shortcuts": [
     {
