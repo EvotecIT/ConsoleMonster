@@ -10,6 +10,45 @@ namespace ConsoleMonster.Widgets;
 
 /// <summary>Flows facts at separators without breaking a fact into unrelated words.</summary>
 public sealed class FactFlow : IWidget {
+    // Preserve the styles of complete entries while breaking only at their separators.
+    internal static List<StyledLine> WrapSeparated(StyledLine line, int width, string separator) {
+        List<StyledLine> result = new List<StyledLine>();
+        string plain = line.PlainText;
+        List<TextSpan> current = new List<TextSpan>();
+        int position = 0;
+        while (position <= plain.Length) {
+            int next = plain.IndexOf(separator, position, StringComparison.Ordinal);
+            int end = next < 0 ? plain.Length : next;
+            StyledLine part = Slice(position, end);
+            List<TextSpan> joinedSpans = new List<TextSpan>(current);
+            if (current.Count > 0) joinedSpans.AddRange(Slice(position - separator.Length, position));
+            joinedSpans.AddRange(part);
+            StyledLine joined = new StyledLine(joinedSpans);
+            if (current.Count > 0 && joined.Width > width) {
+                result.Add(new StyledLine(current));
+                current.Clear();
+            } else if (current.Count > 0) {
+                current.AddRange(Slice(position - separator.Length, position));
+            }
+            if (part.Width > width) { result.AddRange(TextWrapper.Wrap(part, Math.Max(1, width))); }
+            else { current.AddRange(part); }
+            if (next < 0) break;
+            position = next + separator.Length;
+        }
+        if (current.Count > 0) result.Add(new StyledLine(current));
+        return result;
+
+        StyledLine Slice(int start, int end) {
+            List<TextSpan> spans = new List<TextSpan>();
+            int offset = 0;
+            foreach (TextSpan span in line) {
+                int from = Math.Max(start, offset), to = Math.Min(end, offset + span.Text.Length);
+                if (to > from) spans.Add(new TextSpan(span.Text.Substring(from - offset, to - from), span.Style));
+                offset += span.Text.Length;
+            }
+            return new StyledLine(spans);
+        }
+    }
     /// <summary>Creates a flow from markup parts.</summary>
     public FactFlow(params string[] parts) : this((IEnumerable<string>)parts) { }
     /// <summary>Creates a flow from markup parts; empty parts are omitted.</summary>

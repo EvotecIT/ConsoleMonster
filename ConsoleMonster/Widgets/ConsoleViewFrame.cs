@@ -45,8 +45,12 @@ public sealed class ConsoleViewFrame : IWidget, IContainer {
         if (Headline != null) { title.Add(Headline); }
         Rows view = new Rows(title) { Gap = 1 };
         foreach (IWidget block in Blocks) { view.Add(block); }
-        if (Footer != null) { view.Add(Footer); }
+        if (Footer != null) { ConfigureFooter(Footer); view.Add(Footer); }
         return view;
+    }
+    private static void ConfigureFooter(IWidget widget) {
+        if (widget is TextBlock text && text.WrapSeparator == null) { text.WrapSeparator = " · "; }
+        if (widget is IContainer container) { foreach (IWidget child in container.Children) { ConfigureFooter(child); } }
     }
     private static void Configure(IWidget widget) {
         if (widget is Table table) { table.Border = TableBorder.Rule; table.HeaderSeparator = true; table.Expand = false; }

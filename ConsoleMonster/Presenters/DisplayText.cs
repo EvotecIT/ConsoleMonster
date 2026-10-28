@@ -20,6 +20,14 @@ public static class DisplayText {
         if (duration.TotalSeconds >= 1 || duration == TimeSpan.Zero) { return duration.TotalSeconds.ToString("0.#", culture) + "s"; }
         return Math.Round(duration.TotalMilliseconds).ToString(culture) + " ms";
     }
+    /// <summary>Formats an age at minute precision, retaining seconds for ages below one minute.</summary>
+    /// <param name="age">The elapsed age; negative values are treated as zero.</param>
+    /// <returns>A compact age without an "ago" suffix.</returns>
+    public static string Age(TimeSpan age) {
+        if (age < TimeSpan.Zero) { age = TimeSpan.Zero; }
+        if (age.TotalMinutes >= 1 && age.TotalHours < 1) { return (int)age.TotalMinutes + "m"; }
+        return Duration(age);
+    }
     /// <summary>Formats local observation time, adding a date when it is not today.</summary>
     public static string Time(DateTimeOffset value, DateTimeOffset? now = null) {
         DateTimeOffset local = value.ToLocalTime();

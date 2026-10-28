@@ -43,6 +43,9 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Render a container without a guide and exclude its label from value-column sizing.</summary>
         public bool Bare { get; set; }
 
+        /// <summary>Include a bare node with values when sizing after-label value columns.</summary>
+        public bool MeasureBareLabel { get; set; }
+
         /// <summary>Use a middle ellipsis for this identity label, independently of sibling prose labels.</summary>
         public bool TruncateLabelInMiddle { get; set; }
 

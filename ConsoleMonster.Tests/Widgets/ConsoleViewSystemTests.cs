@@ -10,6 +10,40 @@ using Xunit;
 namespace ConsoleMonster.Tests.Widgets;
 
 public sealed class ConsoleViewSystemTests {
+    [Fact]
+    public void Frame_NarrowTitleAndFooter_BreakBetweenCompleteEntries() {
+        ConsoleViewFrame frame = new ConsoleViewFrame(new ViewHeader("GPOs", "× 1 broken link · ▴ 2 unlinked · ▴ 1 non-admin owner", "corp.contoso.com"));
+        frame.Footer = TextBlock.Plain("offsets: DC minus collector · reference age is not W32Time sync");
+        string text = TestTerminal.RenderText(frame, 60, glyphs: GlyphTier.Full);
+        Assert.Contains("▴ 1 non-admin owner", text);
+        Assert.Contains("reference age is not W32Time sync", text);
+        Assert.DoesNotContain("▴ 1\n", text);
+        Assert.DoesNotContain("W32Time\n", text);
+    }
+
+    [Theory]
+    [InlineData(45, "45s")]
+    [InlineData(185, "3m")]
+    [InlineData(3665, "1h 1m")]
+    public void DisplayText_Age_UsesMinutePrecisionWithoutChangingDurations(int seconds, string expected) {
+        TimeSpan span = TimeSpan.FromSeconds(seconds);
+        Assert.Equal(expected, ConsoleMonster.Presenters.DisplayText.Age(span));
+        if (seconds == 185) Assert.Equal("3m 05s", ConsoleMonster.Presenters.DisplayText.Duration(span));
+    }
+
+    [Fact]
+    public void AfterLabelTree_OptedInBareLeaf_AlignsValuesWithoutAChildGuide() {
+        Tree tree = new Tree { CompactGuides = true, ValuePlacement = TreeValuePlacement.AfterLabel, ShowValueHeaders = false };
+        tree.ValueColumns.Add(new TableColumn("State") { Priority = 9 });
+        TreeNode parent = tree.Add("HQ"); parent.Bare = true;
+        parent.Add("DC").Values["State"] = "healthy";
+        TreeNode empty = tree.Add("Long Empty Site"); empty.Bare = true; empty.MeasureBareLabel = true;
+        empty.Values["State"] = "no controllers";
+        string text = TestTerminal.RenderText(tree, 60, glyphs: GlyphTier.Full);
+        string emptyLine = Assert.Single(text.Split('\n'), line => line.Contains("Long Empty Site"));
+        Assert.StartsWith("Long Empty Site", emptyLine);
+        Assert.Contains("Long Empty Site  no controllers", emptyLine);
+    }
     [Theory]
     [InlineData(GlyphTier.Full, "✗ FAIL", "× FAIL")]
     [InlineData(GlyphTier.Basic, "× FAIL", "× FAIL")]

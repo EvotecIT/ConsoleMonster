@@ -162,6 +162,24 @@ namespace ConsoleMonster.Tests.Widgets {
         }
 
         [Fact]
+        public void Render_AfterLabelWithOneCellState_RetainsCycleMarker() {
+            Tree tree = new Tree { ValuePlacement = TreeValuePlacement.AfterLabel, ShowValueHeaders = false };
+            tree.ValueColumns.Add(new TableColumn("State") { Width = 1, Priority = 10 });
+            TreeNode node = tree.Add("CycleNode"); node.Reference = TreeReferenceKind.Cycle; node.Values["State"] = "value";
+            Review184Capture capture = new Review184Capture(tree, 120, GlyphTier.Full, ColorDepth.None);
+            Assert.Contains(capture.Context.Glyphs.Get(Glyph.Cycle), capture.Raw.ToPlainText());
+        }
+
+        [Fact]
+        public void Render_AfterLabelWithTruncatedIdentity_RetainsHiddenCycleMarker() {
+            Tree tree = new Tree { ValuePlacement = TreeValuePlacement.AfterLabel, ShowValueHeaders = false };
+            tree.ValueColumns.Add(new TableColumn("State") { Priority = 2 });
+            tree.Add("CycleNode").Reference = TreeReferenceKind.Cycle;
+            Review184Capture capture = new Review184Capture(tree, 60, GlyphTier.Full, ColorDepth.None);
+            Assert.Contains(capture.Context.Glyphs.Get(Glyph.Cycle), capture.Raw.ToPlainText());
+        }
+
+        [Fact]
         public void Render_AfterLabelWithoutVisibleState_RetainsReferenceMarkerBeforeIdentity() {
             Tree tree = new Tree { ValuePlacement = TreeValuePlacement.AfterLabel, ShowValueHeaders = false };
             tree.ValueColumns.Add(new TableColumn("Type") { Priority = 10 });

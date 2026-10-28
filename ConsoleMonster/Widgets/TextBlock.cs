@@ -32,6 +32,9 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Overflow handling (default wrap).</summary>
         public TextOverflow Overflow { get; set; } = TextOverflow.Wrap;
 
+        /// <summary>When set, wrap at this literal separator before breaking within an oversized entry.</summary>
+        public string? WrapSeparator { get; set; }
+
         /// <summary>Creates a text block from plain text (brackets are shown literally).</summary>
         /// <param name="text">The text.</param>
         /// <param name="role">An optional theme role.</param>
@@ -76,7 +79,8 @@ namespace ConsoleMonster.Widgets {
                 if (line.Width <= width || width <= 0) {
                     result.Add(line);
                 } else if (Overflow == TextOverflow.Wrap) {
-                    result.AddRange(TextWrapper.Wrap(line, width));
+                    result.AddRange(!string.IsNullOrEmpty(WrapSeparator) && line.PlainText.Contains(WrapSeparator!)
+                        ? FactFlow.WrapSeparated(line, width, WrapSeparator!) : TextWrapper.Wrap(line, width));
                 } else {
                     result.Add(TextWrapper.Truncate(line, width, Overflow == TextOverflow.Ellipsis ? context.Ellipsis : string.Empty));
                 }

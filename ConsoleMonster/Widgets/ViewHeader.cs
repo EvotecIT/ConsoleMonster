@@ -65,7 +65,7 @@ public sealed class ViewHeader : IWidget {
             if (Facts.Count > 0) { result.AddRange(new FactFlow(Facts) { Role = Styling.ThemeToken.Muted }.Lines(width, context)); }
         } else {
             result.Add(TextWrapper.Truncate(context.Markup(title).Lines[0], width, context.Ellipsis));
-            result.AddRange(new FactFlow(State).Lines(width, context));
+            result.AddRange(FactFlow.WrapSeparated(state, width, " " + context.Glyphs.Get(Glyph.Dot) + " "));
             if (Facts.Count > 0) { result.AddRange(new FactFlow(Facts) { Role = Styling.ThemeToken.Muted }.Lines(width, context)); }
         }
         return result;
