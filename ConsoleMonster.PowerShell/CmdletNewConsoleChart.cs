@@ -16,6 +16,7 @@ namespace ConsoleMonster.PowerShell {
     [OutputType(typeof(IWidget))]
     public sealed class CmdletNewConsoleChart : PSCmdlet {
         private readonly List<object> _items = new List<object>();
+        private int _nullInputs;
         /// <summary><para type="description">The numeric chart kind: Bar, Stacked, Line, Scatter, Histogram or Sparkline.</para></summary>
         [Parameter]
         public ChartType Type { get; set; } = ChartType.Bar;
@@ -97,6 +98,7 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (InputObject != null) { _items.AddRange(PSItems.Items(InputObject)); }
+            else if (MyInvocation.BoundParameters.ContainsKey(nameof(InputObject))) { _nullInputs++; }
         }
 
         /// <inheritdoc />
@@ -129,13 +131,14 @@ namespace ConsoleMonster.PowerShell {
                 PSItems.ChartData(options, PSItems.Items(Series));
             }
             _items.AddRange(PSItems.Items(Content));
-            int skipped = 0;
-            if (Property != null && Property.Length > 0) { skipped = AddSelected(options); }
+            int skipped = _nullInputs;
+            if (Property != null && Property.Length > 0) { skipped += AddSelected(options); }
             else {
                 if (MyInvocation.BoundParameters.ContainsKey(nameof(Label))) { throw new PSArgumentException("Label picks the bar label of ordinary objects; use it with -Property."); }
                 PSItems.ChartData(options, _items);
             }
-            WriteObject(PipelineChart.WithSkipped(Chart.Create(options), skipped));
+            if (skipped > 0) { WriteWarning(skipped.ToString(System.Globalization.CultureInfo.InvariantCulture) + " rows without chartable values skipped."); }
+            WriteObject(Chart.Create(options));
         }
 
         // Ordinary objects: the same property binding as Show-Console -View Chart, ending in the typed AddItem/Values inputs.

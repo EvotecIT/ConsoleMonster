@@ -12,11 +12,11 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Objects to display.</para></summary>
         [Parameter(ValueFromPipeline = true)] public override PSObject? InputObject { get; set; }
         /// <summary><para type="description">Maximum depth below the root.</para></summary>
-        [Parameter] public override int Depth { get; set; } = 3;
+        [Parameter, ValidateRange(0, int.MaxValue)] public override int Depth { get; set; } = 3;
         /// <summary><para type="description">Maximum collection items.</para></summary>
-        [Parameter] public override int MaxItems { get; set; } = 25;
+        [Parameter, ValidateRange(1, int.MaxValue)] public override int MaxItems { get; set; } = 25;
         /// <summary><para type="description">Maximum inspection nodes.</para></summary>
-        [Parameter] public override int MaxNodes { get; set; } = 5000;
+        [Parameter, ValidateRange(1, int.MaxValue)] public override int MaxNodes { get; set; } = 5000;
         /// <summary><para type="description">Member names to include.</para></summary>
         [Parameter] public override string[]? Include { get; set; }
         /// <summary><para type="description">Member names or patterns; use * to show all members.</para></summary>
@@ -28,7 +28,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Display the inspector instead of a tree.</para></summary>
         [Parameter] public SwitchParameter AsInspector { get; set; }
         /// <summary><para type="description">Output width.</para></summary>
-        [Parameter] public override int Width { get; set; }
+        [Parameter, ValidateRange(0, 1000)] public override int Width { get; set; }
         /// <summary><para type="description">Culture used for values.</para></summary>
         [Parameter] public override CultureInfo? Culture { get; set; }
         /// <summary><para type="description">Return input objects after display.</para></summary>

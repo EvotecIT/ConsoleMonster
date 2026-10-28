@@ -11,8 +11,7 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>Shared display construction and output for Show-Console and its Table/List shortcuts.</summary>
     public abstract partial class ConsoleDisplayCmdlet : TableConfigurationCmdlet {
         private readonly List<PSObject> _items = new List<PSObject>();
-        private int _nullChartInputs;
-        private int _chartRecords;
+        private readonly List<PSObject?> _chartInputs = new List<PSObject?>();
         private CancellationTokenSource? _paging;
         private volatile bool _stopped;
         /// <summary>The view selected by the concrete command.</summary>
@@ -128,12 +127,8 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (string.Equals(RequestedView, "Chart", StringComparison.OrdinalIgnoreCase) &&
-                (InputObject != null || MyInvocation.BoundParameters.ContainsKey(nameof(InputObject))) &&
-                MaxRows > 0 && Sort == PipelineChartSort.None && Type == ChartType.Bar && ++_chartRecords > MaxRows) { return; }
+                (InputObject != null || MyInvocation.BoundParameters.ContainsKey(nameof(InputObject)))) { _chartInputs.Add(InputObject); }
             if (InputObject != null) { _items.Add(InputObject); }
-            else if (string.Equals(RequestedView, "Chart", StringComparison.OrdinalIgnoreCase) && MyInvocation.BoundParameters.ContainsKey(nameof(InputObject))) {
-                _nullChartInputs++;
-            }
         }
         /// <inheritdoc />
         protected override void EndProcessing() {
@@ -146,7 +141,7 @@ namespace ConsoleMonster.PowerShell {
                 foreach (object item in PSItems.Items(Content)) { _items.Add(PSObject.AsPSObject(item)); }
             }
             string view = RequestedView;
-            if (_items.Count == 0 && _nullChartInputs == 0 && !string.Equals(view, "Rule", StringComparison.OrdinalIgnoreCase)) { return; }
+            if (_items.Count == 0 && _chartInputs.Count == 0 && !string.Equals(view, "Rule", StringComparison.OrdinalIgnoreCase)) { return; }
             IWidget? widget = BuildView(view, _items);
             if (widget == null) { return; }
             if (AsWidget.IsPresent) { WriteObject(Culture == null ? widget : (IWidget)new CultureScope(widget, Culture)); return; }

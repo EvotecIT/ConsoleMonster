@@ -126,6 +126,34 @@ Describe 'ConsoleMonster pipeline charts' {
         $errors.Count | Should -Be 0
     }
 
+    It 'fills the bar limit with valid samples after invalid input' {
+        $chart = $null, 1, 2, 'bad' | Show-Console -MaxRows 2 -AsWidget -View Chart
+        $chart.Samples.Count | Should -Be 2
+        $chart.Samples[0].Value | Should -Be 1
+        $chart.Samples[1].Value | Should -Be 2
+        $chart.SkippedCount | Should -Be 1
+    }
+
+    It 'keeps a mutable bar chart when selected rows are invalid' {
+        $warnings = @()
+        $chart = [pscustomobject]@{ Name = 'bad'; CPU = $null }, [pscustomobject]@{ Name = 'ok'; CPU = 3 } |
+            New-ConsoleChart -Property CPU -WarningAction SilentlyContinue -WarningVariable warnings
+        $chart.GetType().Name | Should -Be 'BarChart'
+        $chart.Items.Count | Should -Be 1
+        $warnings.Count | Should -Be 1
+        $chart | Add-ConsoleItem ([pscustomobject]@{ Label = 'later'; Value = 4 })
+        $chart.Items.Count | Should -Be 2
+    }
+
+    It 'counts null pipeline records without changing the returned bar chart type' {
+        $warnings = @()
+        $chart = $null, [pscustomobject]@{ Name = 'ok'; CPU = 3 } |
+            New-ConsoleChart -Property CPU -WarningAction SilentlyContinue -WarningVariable warnings
+        $chart.GetType().Name | Should -Be 'BarChart'
+        $chart.Items.Count | Should -Be 1
+        $warnings.Count | Should -Be 1
+    }
+
     It 'produces no output or errors when invoked without input' {
         $errors = @()
         @(Show-Console -AsWidget -ErrorAction SilentlyContinue -ErrorVariable errors -View Chart).Count | Should -Be 0

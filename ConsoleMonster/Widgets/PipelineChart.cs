@@ -64,11 +64,7 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Number of input rows omitted because their data could not be charted.</summary>
         public int SkippedCount { get; set; }
 
-        /// <summary>Wraps a chart with a single muted note about omitted input rows.</summary>
-        /// <param name="chart">The chart to display.</param>
-        /// <param name="count">The number of omitted rows.</param>
-        /// <returns>The chart, with a note when rows were omitted.</returns>
-        public static IWidget WithSkipped(IWidget chart, int count) => count > 0
+        private static IWidget WithSkipped(IWidget chart, int count) => count > 0
             ? (IWidget)new Rows(chart, TextBlock.Plain(count.ToString(CultureInfo.InvariantCulture) + " rows without chartable values skipped", ThemeToken.Muted))
             : chart;
 
