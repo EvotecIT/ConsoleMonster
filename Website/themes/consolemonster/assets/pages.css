@@ -78,9 +78,9 @@
    are the site's too, so the site's window keeps its own frame, and the screen keeps the engine's font (its rows rely on it)
    but takes the site's responsive cell size. */
 .cm-replay.cm-export[data-cm-player] figure.cm-window { display: block; overflow: visible; border-radius: 0; background: none; box-shadow: none; }
-.cm-replay.cm-export[data-cm-player] .cm-window__body .cm-screen.cm-screen--dark { width: max-content; min-width: 100%; padding: 12px var(--cm-pad) 14px; overflow: visible; line-height: var(--cm-cell); color: var(--cm-term-fg); background: var(--cm-term-bg); font-size: min(var(--cm-max-font), max(var(--cm-fit), var(--cm-min-font) - clamp(0px, (var(--cm-fit) - var(--cm-fit-font, var(--cm-min-font))) * 1000, 1px) * 1000)); }
+.cm-replay.cm-export[data-cm-player] .cm-window__body .cm-screen.cm-screen--dark { width: max-content; min-width: 100%; padding: 12px var(--cm-pad) 14px; overflow: visible; line-height: var(--cm-cell); color: var(--cm-term-fg); background: var(--cm-term-bg); font-size: min(var(--cm-max-font), max(var(--cm-fit), var(--cm-min-font) - (clamp(1px, (var(--cm-fit) - var(--cm-fit-font, var(--cm-min-font))) * 1000 + 1px, 2px) - 1px) * 1000)); }
 @supports (font-size: round(down, 13px, 1px)) {
-  .cm-replay.cm-export[data-cm-player] .cm-window__body .cm-screen.cm-screen--dark { font-size: round(down, min(var(--cm-max-font), max(var(--cm-fit), var(--cm-min-font) - clamp(0px, (var(--cm-fit) - var(--cm-fit-font, var(--cm-min-font))) * 1000, 1px) * 1000)), calc(1px / 38.4)); }
+  .cm-replay.cm-export[data-cm-player] .cm-window__body .cm-screen.cm-screen--dark { font-size: round(down, min(var(--cm-max-font), max(var(--cm-fit), var(--cm-min-font) - (clamp(1px, (var(--cm-fit) - var(--cm-fit-font, var(--cm-min-font))) * 1000 + 1px, 2px) - 1px) * 1000)), calc(1px / 38.4)); }
 }
 .cm-replay.cm-export[data-cm-player] .cm-window__body .cm-screen.cm-screen--dark span { height: var(--cm-cell); }.cm-player__note { margin: 0; color: var(--cm-muted); font-size: 14px; }
 

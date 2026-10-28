@@ -107,6 +107,12 @@ namespace SiteFrames.Pages {
             /// <summary>Additional source files needed by the full C# program, relative to the repository.</summary>
             public string[] CSharpCompanions { get; set; } = Array.Empty<string>();
 
+            /// <summary>
+            /// For a program whose Program.cs only starts the app: the companion (relative to the repository) and the method whose
+            /// <c>// &lt;example&gt;</c> lines both C# tabs lead with. That file is the tab's full program; Program.cs joins the other files.
+            /// </summary>
+            public (string File, string Method)? CSharpLead { get; set; }
+
             /// <summary>The share of the run the poster shows (default 0.6).</summary>
             public double PosterShare { get; set; } = 0.6;
 
@@ -142,6 +148,7 @@ namespace SiteFrames.Pages {
             yield return new Demo("app", "Fleet health check", 140, 40) {
                 CSharpProgram = "fleet.cs",
                 CSharpCompanions = new[] { Path.Combine("ConsoleMonster.Examples", "Showcases", "FleetHealth.cs"), Path.Combine("ConsoleMonster.Examples", "Showcases", "FleetData.cs") },
+                CSharpLead = (Path.Combine("ConsoleMonster.Examples", "Showcases", "FleetHealth.cs"), "Build"),
                 ProgramArguments = "--demo",
                 LogicalCheckpoints = true,
                 PowerShellTwin = Path.Combine("Module", "Examples", "Example-FleetHealth.ps1"),
@@ -299,6 +306,32 @@ namespace SiteFrames.Pages {
             }
             string program = Path.Combine(Path.GetDirectoryName(Path.Combine(site.Repository, demo.Project))!, "Program.cs");
             return File.Exists(program) ? program : null;
+        }
+
+        // Both C# tabs lead with the app's own code instead of the Program.cs that only starts it: the example lines of the lead
+        // file's method are the snippet, that file is the full program, and Program.cs moves to the front of the other files.
+        private static void Lead(Site site, JsonObject entry, string file, string method) {
+            string name = Path.GetFileName(file);
+            string path = Path.Combine(site.Repository, file);
+            JsonArray files = new JsonArray { new JsonObject { ["file"] = "Program.cs", ["code"] = entry["csharpFull"]!.GetValue<string>(), ["codeRepo"] = entry["csharpRepo"]!.GetValue<string>() } };
+            foreach (JsonNode? other in entry["csharpFiles"]!.AsArray()) {
+                if (other!["file"]!.GetValue<string>() != name) { files.Add(other.DeepClone()); }
+            }
+            entry["csharp"] = SourceSnippets.Get(path, method);
+            entry["csharpFull"] = Site.ReadText(path);
+            entry["csharpRepo"] = file.Replace('\\', '/');
+            entry["csharpFile"] = name;
+            entry["csharpFiles"] = files;
+            JsonArray fluentFiles = new JsonArray { new JsonObject { ["file"] = "Program.cs", ["code"] = entry["csharpFluentFull"]!.GetValue<string>() } };
+            string? fluent = null;
+            foreach (JsonNode? other in entry["csharpFluentFiles"]!.AsArray()) {
+                if (other!["file"]!.GetValue<string>() == name) { fluent = other["code"]!.GetValue<string>(); }
+                else { fluentFiles.Add(other.DeepClone()); }
+            }
+            entry["csharpFluent"] = SourceSnippets.GetFromText(fluent ?? throw new InvalidDataException("No fluent translation of " + file + "."), method, file);
+            entry["csharpFluentFull"] = fluent;
+            entry["csharpFluentFile"] = name;
+            entry["csharpFluentFiles"] = fluentFiles;
         }
 
         private static string[] Companions(Site site, Demo demo) => Array.ConvertAll(demo.CSharpCompanions, c => Path.Combine(site.Repository, c));
@@ -556,6 +589,9 @@ namespace SiteFrames.Pages {
                     }
                     if (files.Count > 0) {
                         entry["csharpFiles"] = files;
+                    }
+                    if (demo.CSharpLead != null) {
+                        Lead(site, entry, demo.CSharpLead.Value.File, demo.CSharpLead.Value.Method);
                     }
                 }
                 // A project demo shows its whole Program.cs: the capture built it (warnings are errors) and recorded that

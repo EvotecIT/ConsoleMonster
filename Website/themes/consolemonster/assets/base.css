@@ -183,7 +183,9 @@ main > .cm-band { contain-intrinsic-size: auto 900px; }
   color: var(--cm-term-fg);
   background: var(--cm-term-bg);
   font-family: var(--cm-mono);
-  font-size: min(var(--cm-max-font), max(var(--cm-fit), var(--cm-min-font) - clamp(0px, (var(--cm-fit) - var(--cm-fit-font, var(--cm-min-font))) * 1000, 1px) * 1000));
+  /* The step (1px - 1px, or 2px - 1px) has no zero bound on purpose: a minifier writes 0px as 0, and a unitless 0 among
+     lengths makes the whole declaration invalid, which left every frame at the inherited 16 px. */
+  font-size: min(var(--cm-max-font), max(var(--cm-fit), var(--cm-min-font) - (clamp(1px, (var(--cm-fit) - var(--cm-fit-font, var(--cm-min-font))) * 1000 + 1px, 2px) - 1px) * 1000));
   line-height: var(--cm-cell);
   white-space: pre;
   tab-size: 1;
@@ -195,7 +197,7 @@ main > .cm-band { contain-intrinsic-size: auto 900px; }
 /* Snap the font size so a cell (0.6em by 1.2em in JetBrains Mono) is a whole number of layout units (1/64 px): cells
    that are separate boxes then never drift against runs of text, and painted bars line up from row to row. */
 @supports (font-size: round(down, 13px, 1px)) {
-  .cm-screen { font-size: round(down, min(var(--cm-max-font), max(var(--cm-fit), var(--cm-min-font) - clamp(0px, (var(--cm-fit) - var(--cm-fit-font, var(--cm-min-font))) * 1000, 1px) * 1000)), calc(1px / 38.4)); }
+  .cm-screen { font-size: round(down, min(var(--cm-max-font), max(var(--cm-fit), var(--cm-min-font) - (clamp(1px, (var(--cm-fit) - var(--cm-fit-font, var(--cm-min-font))) * 1000 + 1px, 2px) - 1px) * 1000)), calc(1px / 38.4)); }
 }
 /* Beyond phones a frame never scales below 11.5 px, where its text stays readable: a frame that needs less than that to
    fit scrolls sideways at that size instead, and docs pages give frames wider than a reading column (cm-window--wide,
