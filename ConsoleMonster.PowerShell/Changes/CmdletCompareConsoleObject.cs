@@ -88,7 +88,7 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example>
     ///   <para>Preview a group membership change</para>
-    ///   <code>if (Show-ConsoleChanges -ReferenceObject $members -DifferenceObject $planned -Property SamAccountName -Title 'Domain Admins') { Set-Members $planned }</code>
+    ///   <code>Show-ConsoleChanges -ReferenceObject @([pscustomobject]@{ Name = 'Ada' }) -DifferenceObject @([pscustomobject]@{ Name = 'Grace' }) -Property Name -Title 'Members' -WhatIf</code>
     /// </example>
     [Cmdlet(VerbsCommon.Show, "ConsoleChanges", SupportsShouldProcess = true, ConfirmImpact = ConfirmImpact.Medium)]
     [OutputType(typeof(bool))]
