@@ -29,6 +29,49 @@
         (Get-Command -Module ConsoleMonster -Name Show-Console,Show-ConsoleList,Show-ConsoleTable).Name | Sort-Object | Should -Be @('Show-Console', 'Show-ConsoleList', 'Show-ConsoleTable')
     }
 
+    It 'keeps collection element identities at the tree depth limit' {
+        $text = Invoke-FormatChild -Script @'
+$item = [pscustomobject]@{ Name = 'root'; Children = @([pscustomobject]@{ Name = 'alpha' }, [pscustomobject]@{ Name = 'beta' }) }
+$item | Format-ConsoleTree -Depth 1 -AsString
+'@
+        $text | Should -Match 'alpha'
+        $text | Should -Match 'beta'
+        $text | Should -Not -Match 'PSCustomObject \(depth limit\)'
+    }
+
+    It 'uses a meaningful ToString as an identity when no name is available' {
+        $text = Invoke-FormatChild -Script @'
+Add-Type 'public sealed class LabelOnly { public override string ToString() { return "friendly label"; } }'
+[LabelOnly]::new() | Format-ConsoleTree -Depth 1 -AsString
+'@
+        $text | Should -Match 'friendly label'
+    }
+
+    It 'summarizes empty fields and repeated getter errors across tree roots' {
+        $text = Invoke-FormatChild -Script @'
+$items = 1..2 | ForEach-Object {
+    $item = [pscustomobject]@{ Name = "item$_"; Empty = $null }
+    $item | Add-Member ScriptProperty Broken { throw 'sensitive error details' }
+    $item
+}
+$items | Format-ConsoleTree -Depth 1 -AsString
+'@
+        $text | Should -Match '\+1 empty'
+        @([regex]::Matches($text, 'Broken unavailable for 2 items')).Count | Should -Be 1
+        $text | Should -Not -Match 'sensitive error details'
+    }
+
+    It 'keeps explicitly requested empty fields while shortening a getter error' {
+        $text = Invoke-FormatChild -Script @'
+$item = [pscustomobject]@{ Name = 'item'; Empty = $null }
+$item | Add-Member ScriptProperty Broken { throw 'sensitive error details' }
+$item | Format-ConsoleTree -Property * -Depth 1 -AsString
+'@
+        $text | Should -Match 'Empty'
+        $text | Should -Match 'unavailable'
+        $text | Should -Not -Match 'sensitive error details'
+    }
+
     It 'uses default display properties for a tree and allows all properties explicitly' {
         $text = Invoke-FormatChild -Script @'
 $item = [pscustomobject] @{ Name = 'web01'; Label = 'selected'; Extra = 'hidden' }

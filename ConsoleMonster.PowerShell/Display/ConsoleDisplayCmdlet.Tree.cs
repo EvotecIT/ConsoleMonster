@@ -3,6 +3,7 @@ using System.Linq;
 using System.Management.Automation;
 using ConsoleMonster.Data;
 using ConsoleMonster.Layout;
+using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell {
@@ -39,6 +40,8 @@ namespace ConsoleMonster.PowerShell {
                 return tree;
             }
             var trees = new List<IWidget>();
+            var inspected = new List<InspectNode>();
+            var titles = new List<string?>();
             var shape = Binding.PSShaping.Options();
             foreach (PSObject item in items) {
                 InspectorOptions options = PSFormatting.InspectorOptions(Depth, MaxItems, include, Exclude, MaxNodes, item, rootDefaultDisplay: true);
@@ -46,8 +49,15 @@ namespace ConsoleMonster.PowerShell {
                 InspectNode node = ObjectInspector.Inspect(item, options);
                 string? label = PSText.Markup(Title);
                 if (label == null && (Exclude == null || Exclude.Length == 0) && (include == null || include.Length == 0 || (include.Length == 1 && include[0] == "*"))) { label = Binding.PSShaping.Title(item, shape); }
-                trees.Add(InspectorTree.Build(node, label));
+                inspected.Add(node);
+                titles.Add(label);
 #pragma warning restore IL2026
+            }
+            bool hideEmpty = include == null || include.Length == 0;
+            IReadOnlyList<InspectNode> summarized = InspectionSummary.Prepare(inspected, hideEmpty, out IReadOnlyList<string> unavailable);
+            for (int index = 0; index < summarized.Count; index++) { trees.Add(InspectorTree.Build(summarized[index], titles[index])); }
+            foreach (string name in unavailable) {
+                trees.Add(TextBlock.Plain(name + " unavailable for " + items.Count + " items", ThemeToken.Muted));
             }
             return PSFormatting.Combine(trees);
         }

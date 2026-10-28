@@ -84,7 +84,22 @@ namespace ConsoleMonster.PowerShell.Binding {
                 }
             }
             string fallback = ValueShaper.Title(item, options, budget);
-            return item is PSObject wrapped ? WithDisplayName(wrapped, fallback) : fallback;
+            if (item is PSObject wrapped) {
+                object? raw = wrapped.BaseObject;
+                Type? type = raw?.GetType();
+                if (type != null && (string.Equals(fallback, type.FullName, StringComparison.Ordinal) ||
+                    string.Equals(fallback, type.Name, StringComparison.Ordinal) || wrapped.TypeNames.Contains(fallback))) {
+                    try {
+                        string? text = raw!.ToString();
+                        if (!string.IsNullOrWhiteSpace(text) && !string.Equals(text, type.FullName, StringComparison.Ordinal) &&
+                            !string.Equals(text, type.Name, StringComparison.Ordinal)) { fallback = text; }
+                    } catch (Exception ex) when (!(ex is PipelineStoppedException) && !(ex is OperationCanceledException)) {
+                        // A failing ToString must not prevent a view from rendering.
+                    }
+                }
+                return WithDisplayName(wrapped, fallback);
+            }
+            return fallback;
         }
 
         private static string WithDisplayName(PSObject item, string title) {

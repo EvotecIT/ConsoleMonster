@@ -182,6 +182,11 @@ namespace ConsoleMonster.Data {
             if (IsScalarValue(value))
                 return new InspectScalar(name, FriendlyTypeName(value.GetType()), path, value);
             if (depth > Math.Max(0, options.MaxDepth)) {
+                if (name == null && options.DepthLimitLabel != null && value != null && !TryGetEnumerable(value, out _)) {
+                    string? identityLabel = options.DepthLimitLabel(value);
+                    if (!string.IsNullOrWhiteSpace(identityLabel))
+                        return new InspectScalar(name, "String", path, identityLabel);
+                }
                 string limitedType =
                     value == null
                         ? "null"
