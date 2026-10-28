@@ -71,6 +71,27 @@ Disable-ConsoleFormatting
         $text | Should -Not -Match '[┌╭]'
     }
 
+    It 'renders versions through the built-in view while keeping captured values native' {
+        $text = Invoke-ViewChild -Script @'
+$version = [version] '2.0.0'
+$before = $version | Out-String
+Enable-ConsoleFormatting
+$after = $version | Out-String
+"SAME=$($before -ceq $after) TYPE=$($version.GetType().FullName)"
+'== rendered'
+$version | Out-ConsoleDefault -Force
+Disable-ConsoleFormatting
+Enable-ConsoleFormatting -NoBuiltIn
+'== native'
+$version | Out-ConsoleDefault -Force
+'@
+        $text | Should -Match 'SAME=True TYPE=System\.Version'
+        $rendered, $native = ($text -split '== rendered')[1] -split '== native'
+        $rendered | Should -Match 'Minor\s+0'
+        $rendered | Should -Not -Match '(?m)^\s*-{2,}\s+-{2,}'
+        $native | Should -Match '(?m)^\s*-{2,}\s+-{2,}'
+    }
+
     It 'keeps an existing Out-Default function unless -Force is used' {
         $text = Invoke-ViewChild -Script @'
 function global:Out-Default { process { $_ | Microsoft.PowerShell.Core\Out-Default } }

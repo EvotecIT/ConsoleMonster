@@ -18,7 +18,7 @@
           "line": "Better output for the commands you already run: one line turns it on for the session.",
           "url": "/guides/everyday-powershell/",
           "linkText": "Everyday PowerShell output",
-          "note": "Shows PowerShell's own output, then the same commands after Enable-ConsoleFormatting and Get-Service grouped by status. It plays once when it comes into view and stops on the after view; Play runs it again. Before and After under the player jump to each half. Recorded on PowerShell 7 from the script in the tab beside it.",
+          "note": "Shows PowerShell's own output, then the same service inventory, version and dictionary after Enable-ConsoleFormatting. It plays once when it comes into view and stops on the after view; Play runs it again. Before and After under the player jump to each half. Recorded at an interactive PowerShell 7 prompt from the script in the tab beside it.",
           "codeTitle": "Two lines",
           "code": [
             {
@@ -519,8 +519,8 @@
     },
     "formatting": {
       "title": "Before and after Enable-ConsoleFormatting",
-      "body": "An invented service inventory, a version and a hashtable, first as PowerShell shows them, then with ConsoleMonster turned on for the session, followed by the inventory grouped by status.",
-      "label": "Get-Process, Get-ChildItem and a hashtable before and after Enable-ConsoleFormatting, then Get-Service grouped by status",
+      "body": "An invented service inventory, a version and a hashtable, first as PowerShell shows them, then with ConsoleMonster turned on for the session.",
+      "label": "A service inventory, version and hashtable before and after Enable-ConsoleFormatting",
       "use": {
         "title": "Use it in every session",
         "label": "PowerShell 5.1 and 7",

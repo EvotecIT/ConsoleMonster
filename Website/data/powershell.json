@@ -862,7 +862,7 @@
       "commands": [
         {
           "name": "Enable-ConsoleFormatting",
-          "synopsis": "Shows the default output of common types through ConsoleMonster for this session (opt-in).",
+          "synopsis": "Shows common types with ConsoleMonster. Explicit Format-* commands stay native unless FormatCommands is enabled.",
           "url": "/powershell/commands/enable-consoleformatting/"
         }
       ]

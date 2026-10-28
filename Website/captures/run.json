@@ -5,16 +5,16 @@
   "scope": "produced-only",
   "requestedSet": "demos",
   "filters": {
-    "SITEFRAMES_DEMOS": "app"
+    "SITEFRAMES_DEMOS": "formatting"
   },
   "allSetsCompleted": false,
   "files": {
-    "demos/app.cast": {
+    "demos/formatting.cast": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "8453f40f2507d6ce511faf1e130f5707cf8156ea54f65f4dd99da4c6ed8866ba",
+      "sha256": "53373fdeff1d2503f91f9a1a261682e15a0a17553a226a05b3c9113e5336cf2a",
       "screen": "dark",
-      "width": 140,
+      "width": 100,
       "height": 40
     }
   }

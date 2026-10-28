@@ -277,6 +277,9 @@ namespace ConsoleMonster.PowerShell {
                 Hashtable("Status", ScriptBlock.Create("[string] $_.Status"), "StatusWord"),
                 "Name", "DisplayName"
             }, null, "System.ServiceProcess.ServiceController", null, true));
+            AddBuiltIn(ConsoleViewRegistration.Define("System.Version", ConsoleViewKind.Table, new object[] {
+                Hashtable("Version", ScriptBlock.Create("$_.ToString()"), null), "Major", "Minor", "Build", "Revision"
+            }, null, "System.Version", null, true));
             RegisterEverydayBuiltIns();
             // Get-WinEvent: time, id, the level as a status word, the source and the message's first line.
             AddBuiltIn(ConsoleViewRegistration.Define("System.Diagnostics.Eventing.Reader.EventLogRecord", ConsoleViewKind.Table, new object[] {

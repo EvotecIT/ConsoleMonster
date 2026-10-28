@@ -77,9 +77,11 @@ namespace SiteFrames.Capture {
         /// shown script is only the commands. Definitions such as functions run without a prompt. <paramref name="setup"/>
         /// is PowerShell the recording runs first (such as the folder to start in); it is never shown either.
         /// <paramref name="hostedOutput"/> selects a script's own hosted recorder sink without adding the checkpoint driver.
+        /// <paramref name="interactiveSession"/> submits the shown script at a real prompt, so implicit output routing is exercised.
         /// </summary>
-        public static List<OutputChunk> Run(Site site, PowerShellHost host, string script, int width, int height, Dictionary<string, string?> environment, string? workingDirectory = null, TimeSpan? timeout = null, bool allowErrors = false, bool showProgress = false, string? arguments = null, string? prompt = null, bool interactive = false, bool session = false, string? setup = null, bool recordCheckpoints = false, Action<string>? recording = null, bool hostedOutput = false) {
-            string runner = Path.Combine(Path.GetTempPath(), "cmsite-runner-" + Path.GetFileNameWithoutExtension(script) + "-" + host.Id + ".ps1");
+        public static List<OutputChunk> Run(Site site, PowerShellHost host, string script, int width, int height, Dictionary<string, string?> environment, string? workingDirectory = null, TimeSpan? timeout = null, bool allowErrors = false, bool showProgress = false, string? arguments = null, string? prompt = null, bool interactive = false, bool session = false, string? setup = null, bool recordCheckpoints = false, Action<string>? recording = null, bool hostedOutput = false, bool interactiveSession = false) {
+            if (interactiveSession && (!session || recordCheckpoints || hostedOutput)) { throw new ArgumentException("Interactive sessions need typed-session capture without a hosted output sink."); }
+            string runner = Path.Combine(Path.GetTempPath(), "cmsite-runner-" + Path.GetFileNameWithoutExtension(script) + "-" + host.Id + "-" + Guid.NewGuid().ToString("N") + ".ps1");
             string modules = ModuleLinkRoot(site);
             string directory = workingDirectory ?? Path.GetDirectoryName(script)!;
             StringBuilder sb = new StringBuilder();
@@ -108,7 +110,9 @@ namespace SiteFrames.Capture {
                 sb.Append("& '").Append(Path.Combine(site.Tool, "Capture", "CheckpointCapture.ps1").Replace("'", "''"))
                     .Append("' -Width ").Append(width).Append(" -Height ").Append(height).Append(" -ScriptBlock {\n");
             }
-            if (session) {
+            if (interactiveSession) {
+                sb.Append(InteractiveSessionSetup);
+            } else if (session) {
                 sb.Append(SessionDriver.Replace("{script}", script.Replace("'", "''")));
             } else {
                 sb.Append(". '").Append(script.Replace("'", "''")).Append("'");
@@ -125,9 +129,11 @@ namespace SiteFrames.Capture {
             try {
                 // Prompts refuse to ask in a -NonInteractive session; runs that answer them with scripted keys leave it out.
                 var args = new List<string> { "-NoLogo", "-NoProfile" };
-                if (!interactive) { args.Add("-NonInteractive"); }
+                if (!interactive && !interactiveSession) { args.Add("-NonInteractive"); }
+                if (interactiveSession) { args.Add("-NoExit"); }
                 args.AddRange(new[] { "-ExecutionPolicy", "Bypass", "-File", runner });
-                return TerminalCapture.Run(host.Executable, args, width, height, environment, directory, timeout ?? TimeSpan.FromMinutes(3), recording: recording, hostedOutput: recordCheckpoints || hostedOutput);
+                string? input = interactiveSession ? File.ReadAllText(script).Replace("\r\n", "\n").Replace("\n", "\r") + "\r$global:cmSiteDone = $true\rexit\r" : null;
+                return TerminalCapture.Run(host.Executable, args, width, height, environment, directory, timeout ?? TimeSpan.FromMinutes(3), inputText: input, readyMarker: interactiveSession ? "PS> " : null, recording: recording, hostedOutput: recordCheckpoints || hostedOutput);
             } finally {
                 File.Delete(runner);
             }
@@ -186,6 +192,15 @@ namespace SiteFrames.Capture {
         }
         // Plays a script as a typed session: a prompt and the command, then its output, for each top-level statement.
         internal static string SessionRecipe => SessionDriver;
+        internal static string InteractiveSessionRecipe => InteractiveSessionSetup;
+        private const string InteractiveSessionSetup =
+            "Remove-Module PSReadLine -ErrorAction SilentlyContinue\n" +
+            "function global:prompt {\n" +
+            "    $recorder = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Sessions.SessionRecorder', $true)\n" +
+            "    if ($global:cmSiteDone) { [Console]::Write(([string][char]27) + '[1A' + \"`r\" + ([string][char]27) + '[2K'); [Console]::Write($recorder::MarkerSequence('site:end')); return 'PS> ' }\n" +
+            "    [Console]::Write($recorder::MarkerSequence('site:output'))\n" +
+            "    'PS> '\n" +
+            "}\n";
         private const string SessionDriver =
             "$cmRecorder = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Sessions.SessionRecorder', $true)\n" +
             "$cmTokens = $null\n$cmErrors = $null\n" +

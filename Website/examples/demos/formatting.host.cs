@@ -7,9 +7,9 @@ public sealed class FormattingExample : PSCmdlet {
     protected override void ProcessRecord() {
         const string inventory = @"# Invented services: the same inventory before and after formatting is enabled.
 $services = @(
-    [pscustomobject] @{ Name = 'WebApi'; Status = 'Running'; StartType = 'Automatic' }
-    [pscustomobject] @{ Name = 'Worker'; Status = 'Running'; StartType = 'Automatic' }
-    [pscustomobject] @{ Name = 'Archive'; Status = 'Stopped'; StartType = 'Manual' }
+    [pscustomobject] @{ PSTypeName = 'System.ServiceProcess.ServiceController'; ServiceName = 'WebApi'; Status = 'Running'; ServicesDependedOn = @(); DisplayName = 'Web API' }
+    [pscustomobject] @{ PSTypeName = 'System.ServiceProcess.ServiceController'; ServiceName = 'Worker'; Status = 'Running'; ServicesDependedOn = @(); DisplayName = 'Background worker' }
+    [pscustomobject] @{ PSTypeName = 'System.ServiceProcess.ServiceController'; ServiceName = 'Archive'; Status = 'Stopped'; ServicesDependedOn = @(); DisplayName = 'Archive' }
 )
 ";
         InvokeCommand.InvokeScript(inventory + @"& {
@@ -20,6 +20,7 @@ $services = @(
 
 
         } | Microsoft.PowerShell.Core\Out-Default");
+        InvokeCommand.InvokeScript("Clear-Host");
         ConsoleHostFormatting.Enable(
             this,
             new ConsoleFormattingOptions { Feature = new[] { ConsoleFormattingFeature.Output } });
@@ -32,9 +33,6 @@ $services = @(
         [version] '2.0.0'
         [ordered] @{ Domain = 'evotec.xyz'; Records = 14; DNSSEC = $false }")) { output.Write(item); }
             output.Complete();
-            var services = InvokeCommand.InvokeScript(inventory + "$services").ToList();
-            ConsoleMonster.Terminal.Write(ConsoleHostViews.Table(services,
-                new ConsoleTableViewOptions { GroupBy = "Status" }, table => table.MaxRows = 6));
         } finally { ConsoleHostFormatting.Disable(
             this,
             new[] { ConsoleFormattingFeature.Output }); }
