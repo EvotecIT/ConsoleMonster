@@ -6,7 +6,7 @@ namespace ConsoleMonster.PowerShell {
     /// <example><para>Finish from inside the recorded child shell</para><code>Write-Host 'Deployment finished'
     /// Stop-ConsoleRecording</code></example>
     [Cmdlet(VerbsLifecycle.Stop, "ConsoleRecording")]
-    public sealed class CmdletStopConsoleRecording : PSCmdlet {
+    public sealed class CmdletStopConsoleRecording : NoPipelineInputCmdlet {
         /// <inheritdoc/>
         protected override void EndProcessing() {
             if (SessionState.PSVariable.GetValue("ConsoleRecording") is SessionRecorder recorder) { recorder.Stop(); return; }

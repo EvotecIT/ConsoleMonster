@@ -14,7 +14,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommunications.Read, "ConsoleNumber")]
     [OutputType(typeof(int), typeof(decimal))]
-    public sealed class CmdletReadConsoleNumber : PromptCmdlet {
+    public sealed class CmdletReadConsoleNumber : NonSelectionPromptCmdlet {
         /// <summary><para type="description">The default.</para></summary>
         [Parameter]
         public decimal? Default { get; set; }

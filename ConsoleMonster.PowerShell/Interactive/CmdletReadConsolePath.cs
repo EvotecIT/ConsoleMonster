@@ -14,7 +14,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommunications.Read, "ConsolePath")]
     [OutputType(typeof(string))]
-    public sealed class CmdletReadConsolePath : PromptCmdlet {
+    public sealed class CmdletReadConsolePath : NonSelectionPromptCmdlet {
         /// <summary><para type="description">What is accepted: Any, File or Folder.</para></summary>
         [Parameter]
         public PathKind Kind { get; set; } = PathKind.Any;

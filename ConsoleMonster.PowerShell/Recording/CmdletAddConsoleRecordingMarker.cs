@@ -7,7 +7,7 @@ namespace ConsoleMonster.PowerShell {
     /// <example><para>Mark a deployment step</para><code>Add-ConsoleRecordingMarker 'Deploy'</code></example>
     /// <example><para>Hold this screen during export without waiting while recording</para><code>Add-ConsoleRecordingMarker -HoldSeconds 3</code></example>
     [Cmdlet(VerbsCommon.Add, "ConsoleRecordingMarker")]
-    public sealed class CmdletAddConsoleRecordingMarker : PSCmdlet {
+    public sealed class CmdletAddConsoleRecordingMarker : NoPipelineInputCmdlet {
         /// <summary><para type="description">Chapter label.</para></summary>
         [Parameter(Position = 0)] [ValidateNotNullOrEmpty] public string? Label { get; set; }
         /// <summary><para type="description">Freezes the exported screen for this many seconds without sleeping during capture. The idle limit never trims this hold. Label is optional for a hold.</para></summary>

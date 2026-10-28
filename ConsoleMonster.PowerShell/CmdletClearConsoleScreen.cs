@@ -12,9 +12,9 @@ namespace ConsoleMonster.PowerShell {
     ///   <code>Clear-ConsoleScreen; Write-ConsoleText 'Ready'</code>
     /// </example>
     [Cmdlet(VerbsCommon.Clear, "ConsoleScreen")]
-    public sealed class CmdletClearConsoleScreen : PSCmdlet {
+    public sealed class CmdletClearConsoleScreen : NoPipelineInputCmdlet {
         /// <inheritdoc />
-        protected override void ProcessRecord() {
+        protected override void ProcessWithoutPipelineInput() {
             string host = Host?.Name ?? string.Empty;
             if (string.Equals(host, "ConsoleHost", StringComparison.Ordinal)) {
                 // Terminal.Clear checks redirection, CI, plain mode and a live owner itself.

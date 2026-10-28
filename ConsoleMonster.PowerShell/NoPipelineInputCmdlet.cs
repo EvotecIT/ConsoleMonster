@@ -11,8 +11,7 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected sealed override void ProcessRecord() {
             if (PipelineInput != null) {
-                string name = MyInvocation.MyCommand.Name;
-                ThrowTerminatingError(new ErrorRecord(new ArgumentException(name + " does not accept pipeline objects. To display them, pipe them to Show-ConsoleTable."), "UnexpectedPipelineInput", ErrorCategory.InvalidArgument, PipelineInput));
+                Reject(this, PipelineInput);
                 return;
             }
             ProcessWithoutPipelineInput();
@@ -20,5 +19,10 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary>Performs the command's normal per-record operation.</summary>
         protected virtual void ProcessWithoutPipelineInput() { }
+
+        internal static void Reject(PSCmdlet cmdlet, PSObject item) {
+            string name = cmdlet.MyInvocation.MyCommand.Name;
+            cmdlet.ThrowTerminatingError(new ErrorRecord(new ArgumentException(name + " does not accept pipeline objects. To display them, pipe them to Show-ConsoleTable."), "UnexpectedPipelineInput", ErrorCategory.InvalidArgument, item));
+        }
     }
 }

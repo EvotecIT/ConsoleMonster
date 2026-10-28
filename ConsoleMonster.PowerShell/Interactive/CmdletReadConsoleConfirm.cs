@@ -18,7 +18,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommunications.Read, "ConsoleConfirm")]
     [OutputType(typeof(bool))]
-    public sealed class CmdletReadConsoleConfirm : PromptCmdlet {
+    public sealed class CmdletReadConsoleConfirm : NonSelectionPromptCmdlet {
         /// <summary><para type="description">The default answer.</para></summary>
         [Parameter]
         public bool? Default { get; set; }

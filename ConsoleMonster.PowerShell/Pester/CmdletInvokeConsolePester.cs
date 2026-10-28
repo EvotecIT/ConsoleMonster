@@ -28,7 +28,7 @@ namespace ConsoleMonster.PowerShell.Pester {
     /// </example>
     [Cmdlet(VerbsLifecycle.Invoke, "ConsolePester", DefaultParameterSetName = "Simple")]
     [OutputType(typeof(PSObject))]
-    public sealed class CmdletInvokeConsolePester : PSCmdlet {
+    public sealed class CmdletInvokeConsolePester : NoPipelineInputCmdlet {
         /// <summary><para type="description">Test files or folders; omitted uses Pester's current-folder default.</para></summary>
         [Parameter(Position = 0, ParameterSetName = "Simple")]
         public string[]? Path { get; set; }

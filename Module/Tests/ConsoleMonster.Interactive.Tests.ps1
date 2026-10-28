@@ -90,7 +90,7 @@ foreach ($title in 'Project', 'Notes', 'Token', 'Port', 'Folder', 'Continue?', '
     Context 'Without a user (redirected input, -NonInteractive)' {
         It 'rejects 300 unexpected objects once for commands that do not accept pipeline input' {
             $text = Invoke-PromptChild -NonInteractive -Script @'
-$commands = 'Get-ConsoleCapability', 'Get-ConsoleDemo', 'New-ConsoleActivityList', 'New-ConsoleColumnFormat', 'New-ConsoleFooterBar', 'New-ConsoleMenuItem', 'New-ConsoleProgress', 'New-ConsoleRule', 'New-ConsoleSimulatedClock', 'New-ConsoleSummaryBar', 'Show-ConsoleOverview', 'Show-ConsoleStatusLine'
+$commands = 'Get-ConsoleCapability', 'Get-ConsoleDemo', 'New-ConsoleActivityList', 'New-ConsoleColumnFormat', 'New-ConsoleFooterBar', 'New-ConsoleMenuItem', 'New-ConsoleProgress', 'New-ConsoleRule', 'New-ConsoleSimulatedClock', 'New-ConsoleSummaryBar', 'Show-ConsoleOverview', 'Show-ConsoleStatusLine', 'Add-ConsoleRecordingMarker', 'Clear-ConsoleScreen', 'Invoke-ConsolePester', 'Stop-ConsoleRecording', 'Read-ConsoleConfirm', 'Read-ConsoleNumber', 'Read-ConsolePath', 'Read-ConsoleText'
 $service = Get-Service | Select-Object -First 1
 foreach ($command in $commands) {
     $Error.Clear()
@@ -98,9 +98,19 @@ foreach ($command in $commands) {
     catch { "RESULT=$command ID=$($_.FullyQualifiedErrorId.Split(',')[0]) COUNT=$($Error.Count)" }
 }
 '@
-            foreach ($command in 'Get-ConsoleCapability', 'Get-ConsoleDemo', 'New-ConsoleActivityList', 'New-ConsoleColumnFormat', 'New-ConsoleFooterBar', 'New-ConsoleMenuItem', 'New-ConsoleProgress', 'New-ConsoleRule', 'New-ConsoleSimulatedClock', 'New-ConsoleSummaryBar', 'Show-ConsoleOverview', 'Show-ConsoleStatusLine') {
+            foreach ($command in 'Get-ConsoleCapability', 'Get-ConsoleDemo', 'New-ConsoleActivityList', 'New-ConsoleColumnFormat', 'New-ConsoleFooterBar', 'New-ConsoleMenuItem', 'New-ConsoleProgress', 'New-ConsoleRule', 'New-ConsoleSimulatedClock', 'New-ConsoleSummaryBar', 'Show-ConsoleOverview', 'Show-ConsoleStatusLine', 'Add-ConsoleRecordingMarker', 'Clear-ConsoleScreen', 'Invoke-ConsolePester', 'Stop-ConsoleRecording', 'Read-ConsoleConfirm', 'Read-ConsoleNumber', 'Read-ConsolePath', 'Read-ConsoleText') {
                 $text | Should -Match ([regex]::Escape("RESULT=$command ID=UnexpectedPipelineInput COUNT=1"))
             }
+        }
+
+        It 'rejects invalid tabs once and still accepts a pipeline of pages' {
+            $text = Invoke-PromptChild -NonInteractive -Script @'
+try { 1..300 | New-ConsoleTabs -ErrorAction Stop | Out-Null } catch { "ERROR=$($_.FullyQualifiedErrorId.Split(',')[0])" }
+$tabs = @(New-ConsoleTab -Title First; New-ConsoleTab -Title Second) | New-ConsoleTabs
+"TYPE=$($tabs.GetType().Name)"
+'@
+            $text | Should -Match 'ERROR=ExpectedConsoleTab'
+            $text | Should -Match 'TYPE=Tabs'
         }
 
         It 'reports a missing dashboard once for a pipeline of log entries' {
