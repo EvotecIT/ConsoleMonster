@@ -226,13 +226,15 @@ jobs:
       - name: Test
         run: |
           python3 -B -m unittest discover -s ConsoleMonster.Tests/Input/Fixtures -p test_unix_input_pty.py -v
-          dotnet test ConsoleMonster.Tests/ConsoleMonster.Tests.csproj --configuration Release --no-build --framework ${{ matrix.framework }} --verbosity ${{ env.TEST_VERBOSITY }} --logger "console;verbosity=${{ env.TEST_VERBOSITY }}" --logger trx
+          dotnet test ConsoleMonster.Tests/ConsoleMonster.Tests.csproj --configuration Release --no-build --framework ${{ matrix.framework }} --verbosity ${{ env.TEST_VERBOSITY }} --logger "console;verbosity=${{ env.TEST_VERBOSITY }}" --logger trx --blame-hang-timeout 3m --blame-hang-dump-type none
         timeout-minutes: 15
       - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: test-results-macos-${{ matrix.framework }}
-          path: '**/*.trx'
+          path: |
+            **/*.trx
+            **/*Sequence.xml
 
   native-aot-linux:
     name: 'Native AOT (Ubuntu, net10.0)'

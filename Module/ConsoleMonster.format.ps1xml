@@ -58,8 +58,11 @@
         <TypeName>ConsoleMonster.Widgets.Calendar</TypeName>
         <TypeName>ConsoleMonster.Widgets.CellMap</TypeName>
         <TypeName>ConsoleMonster.Widgets.CodeView</TypeName>
+        <TypeName>ConsoleMonster.Widgets.ConsoleViewFrame</TypeName>
+        <TypeName>ConsoleMonster.Widgets.ContextWidget</TypeName>
         <TypeName>ConsoleMonster.Widgets.Dashboard</TypeName>
         <TypeName>ConsoleMonster.Widgets.ExceptionView</TypeName>
+        <TypeName>ConsoleMonster.Widgets.FactFlow</TypeName>
         <TypeName>ConsoleMonster.Widgets.Flow</TypeName>
         <TypeName>ConsoleMonster.Widgets.FooterBar</TypeName>
         <TypeName>ConsoleMonster.Widgets.HeaderBar</TypeName>
@@ -70,6 +73,7 @@
         <TypeName>ConsoleMonster.Widgets.Lanes</TypeName>
         <TypeName>ConsoleMonster.Widgets.LayoutRegion</TypeName>
         <TypeName>ConsoleMonster.Widgets.LayoutRegions</TypeName>
+        <TypeName>ConsoleMonster.Widgets.Legend</TypeName>
         <TypeName>ConsoleMonster.Widgets.LineChart</TypeName>
         <TypeName>ConsoleMonster.Widgets.LiveTable</TypeName>
         <TypeName>ConsoleMonster.Widgets.LogRegion</TypeName>
@@ -89,6 +93,7 @@
         <TypeName>ConsoleMonster.Widgets.RunProgress</TypeName>
         <TypeName>ConsoleMonster.Widgets.RunSummary</TypeName>
         <TypeName>ConsoleMonster.Widgets.RunView</TypeName>
+        <TypeName>ConsoleMonster.Widgets.ScoreGauge</TypeName>
         <TypeName>ConsoleMonster.Widgets.ScrollView</TypeName>
         <TypeName>ConsoleMonster.Widgets.ShellPrompt</TypeName>
         <TypeName>ConsoleMonster.Widgets.Sparkline</TypeName>
@@ -100,6 +105,8 @@
         <TypeName>ConsoleMonster.Widgets.Tabs</TypeName>
         <TypeName>ConsoleMonster.Widgets.TextBlock</TypeName>
         <TypeName>ConsoleMonster.Widgets.Tree</TypeName>
+        <TypeName>ConsoleMonster.Widgets.ViewHeader</TypeName>
+        <TypeName>ConsoleMonster.Widgets.ViewHint</TypeName>
         <TypeName>ConsoleMonster.Widgets.WatchView</TypeName>
       </ViewSelectedBy>
       <CustomControl>

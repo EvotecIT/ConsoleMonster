@@ -3,7 +3,7 @@
 
 I use the same domain names for cmdlet parameters, C# configuration and fluent calls. PowerShell keeps numeric duration parameters with units and default-off switches; C# keeps TimeSpan values and Boolean properties.
 
-The contract covers **108 commands**, **1140 parameters** and **327 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
+The contract covers **108 commands**, **1140 parameters** and **337 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
 
 Table and List remain named shortcuts to Show-Console’s shared view implementation. Read-* returns answers; New-ConsoleForm/Menu defines a question workflow; Show-ConsoleApp runs a persistent reactive application.
 
@@ -314,6 +314,47 @@ Native host hooks, runtime models and equivalent representations are listed indi
 | `ConsoleMonster.Widgets.TreeNode.BasicMarker` | CSharpOnly: A Basic-tier node marker can differ from both full Unicode and ASCII markers. | Set BasicMarker together with Marker and AsciiMarker on native TreeNode instances. |
 | `ConsoleMonster.Widgets.TreeNode.Marker` | CSharpOnly: A literal node marker is application presentation rather than an inferred status. | Set Marker on native TreeNode instances and supply reduced-tier alternatives when needed. |
 | `ConsoleMonster.Widgets.TreeNode.MarkerTone` | CSharpOnly: The marker tone can express application meaning independently of the node status and label style. | Set MarkerTone to a ThemeToken on native TreeNode instances before passing their tree to Show-Console. |
+| `ConsoleMonster.Widgets.BarChart.BarHeader` | CSharpOnly: The bar column caption belongs to a configured native chart. | Set BarHeader on the BarChart returned by New-ConsoleChart -Type Bar. |
+| `ConsoleMonster.Widgets.BarChart.BarWidth` | CSharpOnly: A fixed bar width is a native chart layout choice. | Set BarWidth on the BarChart returned by New-ConsoleChart -Type Bar. |
+| `ConsoleMonster.Widgets.BarChart.LabelHeader` | CSharpOnly: The label column caption describes the supplied chart identities. | Set LabelHeader on the BarChart returned by New-ConsoleChart -Type Bar. |
+| `ConsoleMonster.Widgets.BarChart.ShowTrack` | CSharpOnly: Showing unused bar capacity is a native chart presentation choice. | Set ShowTrack on the BarChart returned by New-ConsoleChart -Type Bar. |
+| `ConsoleMonster.Widgets.BarChart.SpanMissingValues` | CSharpOnly: Spanning an unavailable observation is an explicit native chart layout choice. | Set SpanMissingValues on the BarChart returned by New-ConsoleChart -Type Bar. |
+| `ConsoleMonster.Widgets.BarChart.ValueHeader` | CSharpOnly: The value column caption describes the supplied chart measure. | Set ValueHeader on the BarChart returned by New-ConsoleChart -Type Bar. |
+| `ConsoleMonster.Widgets.BarChart.ValuePresenter` | CSharpOnly: A custom measure presenter belongs to the native chart composition. | Assign ValuePresenter on the BarChart returned by New-ConsoleChart -Type Bar. |
+| `ConsoleMonster.Widgets.ConsoleViewFrame.Blocks` | CSharpOnly: Body blocks form an explicitly composed embedded view. | Add native widgets to ConsoleViewFrame.Blocks and pass the frame to Show-Console. |
+| `ConsoleMonster.Widgets.ConsoleViewFrame.Footer` | CSharpOnly: The footer is an optional widget in an explicitly composed embedded view. | Set ConsoleViewFrame.Footer and pass the frame to Show-Console. |
+| `ConsoleMonster.Widgets.ConsoleViewFrame.Headline` | CSharpOnly: The headline is an optional widget beneath an embedded view header. | Set ConsoleViewFrame.Headline and pass the frame to Show-Console. |
+| `ConsoleMonster.Widgets.FactFlow.Parts` | CSharpOnly: Fact entries are markup fragments supplied by an embedded view builder. | Populate FactFlow.Parts and pass the widget to Show-Console. |
+| `ConsoleMonster.Widgets.FactFlow.Role` | CSharpOnly: A fact tone is supplied by its native presentation builder. | Set FactFlow.Role before passing the widget to Show-Console. |
+| `ConsoleMonster.Widgets.FactFlow.Separator` | CSharpOnly: The separator is explicit presentation for a native fact flow. | Set FactFlow.Separator before passing the widget to Show-Console. |
+| `ConsoleMonster.Widgets.Legend.Entries` | CSharpOnly: Legend entries describe the application-supplied meanings of an explicit view. | Populate Legend.Entries and pass the widget to Show-Console. |
+| `ConsoleMonster.Widgets.Matrix.AdditionalLegendEntries` | CSharpOnly: Extra legend words describe application-supplied matrix annotations. | Populate Matrix.AdditionalLegendEntries before passing the matrix to Show-Console. |
+| `ConsoleMonster.Widgets.Matrix.CellNote` | CSharpOnly: A cell annotation describes the supplied matrix values. | Set Matrix.CellNote before passing the matrix to Show-Console. |
+| `ConsoleMonster.Widgets.Matrix.InlineAxes` | CSharpOnly: Inline axes are an explicit matrix presentation choice. | Set Matrix.InlineAxes before passing the matrix to Show-Console. |
+| `ConsoleMonster.Widgets.Matrix.LegendRoles` | CSharpOnly: Legend tones belong to the application-supplied matrix status meanings. | Populate Matrix.LegendRoles before passing the matrix to Show-Console. |
+| `ConsoleMonster.Widgets.Matrix.MinCellWidth` | CSharpOnly: The minimum matrix cell width is a native layout constraint. | Set Matrix.MinCellWidth before passing the matrix to Show-Console. |
+| `ConsoleMonster.Widgets.Matrix.ShortColumnAxisCaption` | CSharpOnly: A compact column caption is supplied independently of the full matrix caption. | Set Matrix.ShortColumnAxisCaption with ColumnAxisCaption on a native Matrix. |
+| `ConsoleMonster.Widgets.Matrix.ShortRowAxisCaption` | CSharpOnly: A compact row caption is supplied independently of the full matrix caption. | Set Matrix.ShortRowAxisCaption with RowAxisCaption on a native Matrix. |
+| `ConsoleMonster.Widgets.Matrix.ShowLegendCounts` | CSharpOnly: Legend counts are an explicit matrix summary presentation choice. | Set Matrix.ShowLegendCounts before passing the matrix to Show-Console. |
+| `ConsoleMonster.Widgets.PathHop.Bold` | CSharpOnly: Emphasis belongs to an explicitly supplied native path hop. | Set PathHop.Bold on a hop in a PathSet before passing the widget to Show-Console. |
+| `ConsoleMonster.Widgets.PathHop.Role` | CSharpOnly: A hop tone expresses application-supplied relationship meaning. | Set PathHop.Role on a hop in a PathSet before passing the widget to Show-Console. |
+| `ConsoleMonster.Widgets.PathSet.CompactBranches` | CSharpOnly: Compact connectors are an explicit native path layout choice. | Set PathSet.CompactBranches before passing the widget to Show-Console. |
+| `ConsoleMonster.Widgets.ScoreGauge.Maximum` | CSharpOnly: The gauge maximum is supplied by the application alongside its score. | Set ScoreGauge.Maximum and pass the gauge to Show-Console. |
+| `ConsoleMonster.Widgets.ScoreGauge.Parts` | CSharpOnly: Score components are labels and values supplied by the application. | Populate ScoreGauge.Parts and pass the gauge to Show-Console. |
+| `ConsoleMonster.Widgets.ScoreGauge.Role` | CSharpOnly: The finding tone is supplied by the application rather than computed by the gauge. | Set ScoreGauge.Role and pass the gauge to Show-Console. |
+| `ConsoleMonster.Widgets.ScoreGauge.Value` | CSharpOnly: The gauge displays an application-supplied score without calculating it. | Set ScoreGauge.Value and pass the gauge to Show-Console. |
+| `ConsoleMonster.Widgets.ScoreGauge.Width` | CSharpOnly: A fixed gauge width is an explicit native layout choice. | Set ScoreGauge.Width and pass the gauge to Show-Console. |
+| `ConsoleMonster.Widgets.TableRowRole.MarkerTone` | CSharpOnly: A row marker tone is supplied independently of the row label and status. | Set MarkerTone on a native TableRowRole used by the table builder. |
+| `ConsoleMonster.Widgets.Tree.CompactGuides` | CSharpOnly: Compact guides are an explicit native hierarchy layout choice. | Set CompactGuides on the Tree returned by New-ConsoleTree before passing it to Show-Console. |
+| `ConsoleMonster.Widgets.Tree.ValuePlacement` | CSharpOnly: Value placement selects the layout of explicitly supplied tree value columns. | Set ValuePlacement on the Tree returned by New-ConsoleTree before passing it to Show-Console. |
+| `ConsoleMonster.Widgets.TreeNode.Bare` | CSharpOnly: A bare node omits the ordinary hierarchy decoration in an explicit tree. | Set Bare on a native TreeNode before passing its tree to Show-Console. |
+| `ConsoleMonster.Widgets.TreeNode.TruncateLabelInMiddle` | CSharpOnly: Preserving both ends of one node label is a per-node layout choice. | Set TruncateLabelInMiddle on a native TreeNode before passing its tree to Show-Console. |
+| `ConsoleMonster.Widgets.ViewHeader.Facts` | CSharpOnly: Header facts are supplied by an embedded view builder. | Populate ViewHeader.Facts and pass the header or its ConsoleViewFrame to Show-Console. |
+| `ConsoleMonster.Widgets.ViewHeader.State` | CSharpOnly: The header state is supplied by the application and can contain status markup. | Set ViewHeader.State and pass the header or its ConsoleViewFrame to Show-Console. |
+| `ConsoleMonster.Widgets.ViewHeader.Streaming` | CSharpOnly: An open-stream header describes collection rather than a final verdict. | Set ViewHeader.Streaming in a native streaming-header builder. |
+| `ConsoleMonster.Widgets.ViewHeader.Title` | CSharpOnly: The embedded view title is literal application-supplied context. | Set ViewHeader.Title and pass the header or its ConsoleViewFrame to Show-Console. |
+| `ConsoleMonster.Widgets.ViewHint.Columns` | CSharpOnly: Hidden column names are supplied by the view layout owner. | Populate ViewHint.Columns and use the hint as a native view footer. |
+| `ConsoleMonster.Widgets.ViewHint.MoreRows` | CSharpOnly: The omitted-row count is supplied by the view collection owner. | Set ViewHint.MoreRows and use the hint as a native view footer. |
 
 ## .NET host integrations
 

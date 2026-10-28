@@ -24722,6 +24722,334 @@
       "Reason": "The marker tone can express application meaning independently of the node status and label style.",
       "Alternative": "Set MarkerTone to a ThemeToken on native TreeNode instances before passing their tree to Show-Console.",
       "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.BarChart",
+      "Member": "BarHeader",
+      "CSharpTypeName": "System.String",
+      "Reason": "The bar column caption belongs to a configured native chart.",
+      "Alternative": "Set BarHeader on the BarChart returned by New-ConsoleChart -Type Bar.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.BarChart",
+      "Member": "BarWidth",
+      "CSharpTypeName": "System.Nullable`1[System.Int32]",
+      "Reason": "A fixed bar width is a native chart layout choice.",
+      "Alternative": "Set BarWidth on the BarChart returned by New-ConsoleChart -Type Bar.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.BarChart",
+      "Member": "LabelHeader",
+      "CSharpTypeName": "System.String",
+      "Reason": "The label column caption describes the supplied chart identities.",
+      "Alternative": "Set LabelHeader on the BarChart returned by New-ConsoleChart -Type Bar.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.BarChart",
+      "Member": "ShowTrack",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "Showing unused bar capacity is a native chart presentation choice.",
+      "Alternative": "Set ShowTrack on the BarChart returned by New-ConsoleChart -Type Bar.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.BarChart",
+      "Member": "SpanMissingValues",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "Spanning an unavailable observation is an explicit native chart layout choice.",
+      "Alternative": "Set SpanMissingValues on the BarChart returned by New-ConsoleChart -Type Bar.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.BarChart",
+      "Member": "ValueHeader",
+      "CSharpTypeName": "System.String",
+      "Reason": "The value column caption describes the supplied chart measure.",
+      "Alternative": "Set ValueHeader on the BarChart returned by New-ConsoleChart -Type Bar.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.BarChart",
+      "Member": "ValuePresenter",
+      "CSharpTypeName": "ConsoleMonster.Presenters.ICellPresenter",
+      "Reason": "A custom measure presenter belongs to the native chart composition.",
+      "Alternative": "Assign ValuePresenter on the BarChart returned by New-ConsoleChart -Type Bar.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.ConsoleViewFrame",
+      "Member": "Blocks",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Layout.IWidget]",
+      "Reason": "Body blocks form an explicitly composed embedded view.",
+      "Alternative": "Add native widgets to ConsoleViewFrame.Blocks and pass the frame to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.ConsoleViewFrame",
+      "Member": "Footer",
+      "CSharpTypeName": "ConsoleMonster.Layout.IWidget",
+      "Reason": "The footer is an optional widget in an explicitly composed embedded view.",
+      "Alternative": "Set ConsoleViewFrame.Footer and pass the frame to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.ConsoleViewFrame",
+      "Member": "Headline",
+      "CSharpTypeName": "ConsoleMonster.Layout.IWidget",
+      "Reason": "The headline is an optional widget beneath an embedded view header.",
+      "Alternative": "Set ConsoleViewFrame.Headline and pass the frame to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.FactFlow",
+      "Member": "Parts",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+      "Reason": "Fact entries are markup fragments supplied by an embedded view builder.",
+      "Alternative": "Populate FactFlow.Parts and pass the widget to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.FactFlow",
+      "Member": "Role",
+      "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Styling.ThemeToken]",
+      "Reason": "A fact tone is supplied by its native presentation builder.",
+      "Alternative": "Set FactFlow.Role before passing the widget to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.FactFlow",
+      "Member": "Separator",
+      "CSharpTypeName": "System.String",
+      "Reason": "The separator is explicit presentation for a native fact flow.",
+      "Alternative": "Set FactFlow.Separator before passing the widget to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Legend",
+      "Member": "Entries",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+      "Reason": "Legend entries describe the application-supplied meanings of an explicit view.",
+      "Alternative": "Populate Legend.Entries and pass the widget to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "AdditionalLegendEntries",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+      "Reason": "Extra legend words describe application-supplied matrix annotations.",
+      "Alternative": "Populate Matrix.AdditionalLegendEntries before passing the matrix to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "CellNote",
+      "CSharpTypeName": "System.String",
+      "Reason": "A cell annotation describes the supplied matrix values.",
+      "Alternative": "Set Matrix.CellNote before passing the matrix to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "InlineAxes",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "Inline axes are an explicit matrix presentation choice.",
+      "Alternative": "Set Matrix.InlineAxes before passing the matrix to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "LegendRoles",
+      "CSharpTypeName": "System.Collections.Generic.IDictionary`2[ConsoleMonster.Styling.StatusKind,ConsoleMonster.Styling.ThemeToken]",
+      "Reason": "Legend tones belong to the application-supplied matrix status meanings.",
+      "Alternative": "Populate Matrix.LegendRoles before passing the matrix to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "MinCellWidth",
+      "CSharpTypeName": "System.Int32",
+      "Reason": "The minimum matrix cell width is a native layout constraint.",
+      "Alternative": "Set Matrix.MinCellWidth before passing the matrix to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "ShortColumnAxisCaption",
+      "CSharpTypeName": "System.String",
+      "Reason": "A compact column caption is supplied independently of the full matrix caption.",
+      "Alternative": "Set Matrix.ShortColumnAxisCaption with ColumnAxisCaption on a native Matrix.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "ShortRowAxisCaption",
+      "CSharpTypeName": "System.String",
+      "Reason": "A compact row caption is supplied independently of the full matrix caption.",
+      "Alternative": "Set Matrix.ShortRowAxisCaption with RowAxisCaption on a native Matrix.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "ShowLegendCounts",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "Legend counts are an explicit matrix summary presentation choice.",
+      "Alternative": "Set Matrix.ShowLegendCounts before passing the matrix to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.PathHop",
+      "Member": "Bold",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "Emphasis belongs to an explicitly supplied native path hop.",
+      "Alternative": "Set PathHop.Bold on a hop in a PathSet before passing the widget to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.PathHop",
+      "Member": "Role",
+      "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Styling.ThemeToken]",
+      "Reason": "A hop tone expresses application-supplied relationship meaning.",
+      "Alternative": "Set PathHop.Role on a hop in a PathSet before passing the widget to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.PathSet",
+      "Member": "CompactBranches",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "Compact connectors are an explicit native path layout choice.",
+      "Alternative": "Set PathSet.CompactBranches before passing the widget to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.ScoreGauge",
+      "Member": "Maximum",
+      "CSharpTypeName": "System.Double",
+      "Reason": "The gauge maximum is supplied by the application alongside its score.",
+      "Alternative": "Set ScoreGauge.Maximum and pass the gauge to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.ScoreGauge",
+      "Member": "Parts",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[System.Collections.Generic.KeyValuePair`2[System.String,System.String]]",
+      "Reason": "Score components are labels and values supplied by the application.",
+      "Alternative": "Populate ScoreGauge.Parts and pass the gauge to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.ScoreGauge",
+      "Member": "Role",
+      "CSharpTypeName": "ConsoleMonster.Styling.ThemeToken",
+      "Reason": "The finding tone is supplied by the application rather than computed by the gauge.",
+      "Alternative": "Set ScoreGauge.Role and pass the gauge to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.ScoreGauge",
+      "Member": "Value",
+      "CSharpTypeName": "System.Double",
+      "Reason": "The gauge displays an application-supplied score without calculating it.",
+      "Alternative": "Set ScoreGauge.Value and pass the gauge to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.ScoreGauge",
+      "Member": "Width",
+      "CSharpTypeName": "System.Int32",
+      "Reason": "A fixed gauge width is an explicit native layout choice.",
+      "Alternative": "Set ScoreGauge.Width and pass the gauge to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.TableRowRole",
+      "Member": "MarkerTone",
+      "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Styling.ThemeToken]",
+      "Reason": "A row marker tone is supplied independently of the row label and status.",
+      "Alternative": "Set MarkerTone on a native TableRowRole used by the table builder.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Tree",
+      "Member": "CompactGuides",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "Compact guides are an explicit native hierarchy layout choice.",
+      "Alternative": "Set CompactGuides on the Tree returned by New-ConsoleTree before passing it to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Tree",
+      "Member": "ValuePlacement",
+      "CSharpTypeName": "ConsoleMonster.Widgets.TreeValuePlacement",
+      "Reason": "Value placement selects the layout of explicitly supplied tree value columns.",
+      "Alternative": "Set ValuePlacement on the Tree returned by New-ConsoleTree before passing it to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.TreeNode",
+      "Member": "Bare",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "A bare node omits the ordinary hierarchy decoration in an explicit tree.",
+      "Alternative": "Set Bare on a native TreeNode before passing its tree to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.TreeNode",
+      "Member": "TruncateLabelInMiddle",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "Preserving both ends of one node label is a per-node layout choice.",
+      "Alternative": "Set TruncateLabelInMiddle on a native TreeNode before passing its tree to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.ViewHeader",
+      "Member": "Facts",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+      "Reason": "Header facts are supplied by an embedded view builder.",
+      "Alternative": "Populate ViewHeader.Facts and pass the header or its ConsoleViewFrame to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.ViewHeader",
+      "Member": "State",
+      "CSharpTypeName": "System.String",
+      "Reason": "The header state is supplied by the application and can contain status markup.",
+      "Alternative": "Set ViewHeader.State and pass the header or its ConsoleViewFrame to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.ViewHeader",
+      "Member": "Streaming",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "An open-stream header describes collection rather than a final verdict.",
+      "Alternative": "Set ViewHeader.Streaming in a native streaming-header builder.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.ViewHeader",
+      "Member": "Title",
+      "CSharpTypeName": "System.String",
+      "Reason": "The embedded view title is literal application-supplied context.",
+      "Alternative": "Set ViewHeader.Title and pass the header or its ConsoleViewFrame to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.ViewHint",
+      "Member": "Columns",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+      "Reason": "Hidden column names are supplied by the view layout owner.",
+      "Alternative": "Populate ViewHint.Columns and use the hint as a native view footer.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.ViewHint",
+      "Member": "MoreRows",
+      "CSharpTypeName": "System.Int64",
+      "Reason": "The omitted-row count is supplied by the view collection owner.",
+      "Alternative": "Set ViewHint.MoreRows and use the hint as a native view footer.",
+      "Disposition": "CSharpOnly"
     }
   ],
   "SchemaVersion": 2,
@@ -24870,8 +25198,11 @@
     "ConsoleMonster.Widgets.CellMap",
     "ConsoleMonster.Widgets.ChartOptions",
     "ConsoleMonster.Widgets.CodeView",
+    "ConsoleMonster.Widgets.ConsoleViewFrame",
+    "ConsoleMonster.Widgets.ContextWidget",
     "ConsoleMonster.Widgets.Dashboard",
     "ConsoleMonster.Widgets.ExceptionView",
+    "ConsoleMonster.Widgets.FactFlow",
     "ConsoleMonster.Widgets.Flow",
     "ConsoleMonster.Widgets.FooterBar",
     "ConsoleMonster.Widgets.HeaderBar",
@@ -24882,6 +25213,7 @@
     "ConsoleMonster.Widgets.Lanes",
     "ConsoleMonster.Widgets.LayoutRegion",
     "ConsoleMonster.Widgets.LayoutRegions",
+    "ConsoleMonster.Widgets.Legend",
     "ConsoleMonster.Widgets.LineChart",
     "ConsoleMonster.Widgets.LiveTable",
     "ConsoleMonster.Widgets.LiveWidget",
@@ -24904,6 +25236,7 @@
     "ConsoleMonster.Widgets.RunProgress",
     "ConsoleMonster.Widgets.RunSummary",
     "ConsoleMonster.Widgets.RunView",
+    "ConsoleMonster.Widgets.ScoreGauge",
     "ConsoleMonster.Widgets.ScrollView",
     "ConsoleMonster.Widgets.ShellPrompt",
     "ConsoleMonster.Widgets.Sparkline",
@@ -24917,6 +25250,8 @@
     "ConsoleMonster.Widgets.TextBlock",
     "ConsoleMonster.Widgets.Tree",
     "ConsoleMonster.Widgets.TreeHierarchyOptions",
+    "ConsoleMonster.Widgets.ViewHeader",
+    "ConsoleMonster.Widgets.ViewHint",
     "ConsoleMonster.Widgets.WatchView"
   ],
   "ConfigurableTypes": [
@@ -25143,6 +25478,7 @@
     "ConsoleMonster.Styling.ITheme",
     "ConsoleMonster.Styling.RichColor",
     "ConsoleMonster.Styling.RichStyle",
+    "ConsoleMonster.Styling.Severity",
     "ConsoleMonster.Styling.StatusKind",
     "ConsoleMonster.Styling.Style",
     "ConsoleMonster.Styling.TextDecoration",
@@ -25177,8 +25513,12 @@
     "ConsoleMonster.Widgets.CodeView",
     "ConsoleMonster.Widgets.ColumnAggregate",
     "ConsoleMonster.Widgets.ColumnOverflow",
+    "ConsoleMonster.Widgets.ColumnPlacement",
+    "ConsoleMonster.Widgets.ConsoleViewFrame",
+    "ConsoleMonster.Widgets.ContextWidget",
     "ConsoleMonster.Widgets.Dashboard",
     "ConsoleMonster.Widgets.ExceptionView",
+    "ConsoleMonster.Widgets.FactFlow",
     "ConsoleMonster.Widgets.Flow",
     "ConsoleMonster.Widgets.FlowBranch",
     "ConsoleMonster.Widgets.FlowEdge",
@@ -25196,6 +25536,7 @@
     "ConsoleMonster.Widgets.Lanes",
     "ConsoleMonster.Widgets.LayoutRegion",
     "ConsoleMonster.Widgets.LayoutRegions",
+    "ConsoleMonster.Widgets.Legend",
     "ConsoleMonster.Widgets.LineChart",
     "ConsoleMonster.Widgets.LiveTable",
     "ConsoleMonster.Widgets.LiveWidget",
@@ -25225,6 +25566,7 @@
     "ConsoleMonster.Widgets.RunProgress",
     "ConsoleMonster.Widgets.RunSummary",
     "ConsoleMonster.Widgets.RunView",
+    "ConsoleMonster.Widgets.ScoreGauge",
     "ConsoleMonster.Widgets.ScrollView",
     "ConsoleMonster.Widgets.ShellPrompt",
     "ConsoleMonster.Widgets.Sparkline",
@@ -25246,6 +25588,9 @@
     "ConsoleMonster.Widgets.TreeHierarchyOptions",
     "ConsoleMonster.Widgets.TreeNode",
     "ConsoleMonster.Widgets.TreeReferenceKind",
+    "ConsoleMonster.Widgets.TreeValuePlacement",
+    "ConsoleMonster.Widgets.ViewHeader",
+    "ConsoleMonster.Widgets.ViewHint",
     "ConsoleMonster.Widgets.WatchView"
   ],
   "RelatedBindings": [
