@@ -9,6 +9,16 @@ using Xunit;
 namespace ConsoleMonster.Tests.Widgets;
 
 public sealed class ConsoleViewLayoutTests {
+    [Theory]
+    [InlineData(60)]
+    [InlineData(120)]
+    public void StreamingHeader_NaturalFrameWidth_IncludesTheStreamingFact(int width) {
+        ViewHeader header = new ViewHeader("Users", null, "corp.contoso.com") { Streaming = true };
+        string text = TestTerminal.RenderText(new ConsoleViewFrame(header), width);
+        Assert.Single(text.Split('\n'), line => !string.IsNullOrWhiteSpace(line));
+        Assert.Contains("Users · corp.contoso.com · streaming", text);
+    }
+
     [Fact]
     public void Tree_EightyColumnsWithWideValues_KeepsIdentityAndContinuesRoles() {
         Tree tree = new Tree { ValuePlacement = TreeValuePlacement.AfterLabel, ShowValueHeaders = false };
