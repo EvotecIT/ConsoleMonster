@@ -8,7 +8,7 @@ namespace ConsoleMonster.Glyphs {
             GlyphTier.Full,
             new[] {
                 "✓", "✗", "▴", "◆", "–", "●", "○", "•", "→", "↑", "↓", "…", "·", "│", "›",
-                "█", "░", "▒", "▓", "▀", "▄", "├── ", "└── ", "│   ", "    ", "─", "░"
+                "█", "░", "▒", "▓", "▀", "▄", "├── ", "└── ", "│   ", "    ", "─", "░", "↺", "↪", "▸", "↔", "▶", "■", "←", "−", "≈", "—", "·", "├─→", "└─→"
             },
             new Dictionary<BoxStyle, BoxGlyphs> {
                 [BoxStyle.Rounded] = new BoxGlyphs(BoxStyle.Rounded, "╭─╮│╰╯├┤┬┴┼"),
@@ -18,7 +18,7 @@ namespace ConsoleMonster.Glyphs {
                 [BoxStyle.Ascii] = new BoxGlyphs(BoxStyle.Ascii, "+-+|+++++++"),
                 [BoxStyle.None] = new BoxGlyphs(BoxStyle.None, "           ")
             },
-            new[] { "○", "●", "✓", "✗", "▴", "–", "◆" },
+            new[] { "○", "●", "✓", "✗", "▴", "–", "◆", "◌", "·" },
             new[] { "▏", "▎", "▍", "▌", "▋", "▊", "▉", "█" },
             new[] { "▁", "▂", "▃", "▄", "▅", "▆", "▇", "█" },
             new[] { " ", "▁", "▂", "▃", "▄", "▅", "▆", "▇", "█" },
@@ -29,7 +29,7 @@ namespace ConsoleMonster.Glyphs {
             GlyphTier.Basic,
             new[] {
                 "√", "×", "!", "♦", "–", "►", "○", "•", "→", "↑", "↓", "…", "·", "│", "›",
-                "█", "░", "▒", "▓", "▀", "▄", "├── ", "└── ", "│   ", "    ", "─", "░"
+                "█", "░", "▒", "▓", "▀", "▄", "├── ", "└── ", "│   ", "    ", "─", "░", "@", "@", ">", "↔", "►", "■", "←", "-", "≈", "—", "·", "├─→", "└─→"
             },
             new Dictionary<BoxStyle, BoxGlyphs> {
                 [BoxStyle.Rounded] = new BoxGlyphs(BoxStyle.Single, "┌─┐│└┘├┤┬┴┼"),
@@ -39,7 +39,7 @@ namespace ConsoleMonster.Glyphs {
                 [BoxStyle.Ascii] = new BoxGlyphs(BoxStyle.Ascii, "+-+|+++++++"),
                 [BoxStyle.None] = new BoxGlyphs(BoxStyle.None, "           ")
             },
-            new[] { "○", "►", "√", "×", "!", "–", "♦" },
+            new[] { "○", "►", "√", "×", "!", "–", "♦", "○", "·" },
             new[] { "", "", "", "▌", "▌", "▌", "▌", "█" },
             new[] { "", "", "", "▄", "▄", "▄", "▄", "█" },
             new[] { " ", "░", "▒", "▓", "█" },
@@ -50,7 +50,7 @@ namespace ConsoleMonster.Glyphs {
             GlyphTier.Ascii,
             new[] {
                 "+", "x", "!", "i", "-", "*", ".", "*", ">", "^", "v", "...", "-", "|", ">",
-                "#", ".", ":", "#", "\"", "_", "|-- ", "`-- ", "|   ", "    ", "-", "-"
+                "#", ".", ":", "#", "\"", "_", "|-- ", "`-- ", "|   ", "    ", "-", "-", "@", "@", ">", "<>", ">", "#", "<-", "-", "about", "\\", ".", "|->", "`->"
             },
             new Dictionary<BoxStyle, BoxGlyphs> {
                 [BoxStyle.Rounded] = new BoxGlyphs(BoxStyle.Ascii, "+-+|+++++++"),
@@ -60,7 +60,7 @@ namespace ConsoleMonster.Glyphs {
                 [BoxStyle.Ascii] = new BoxGlyphs(BoxStyle.Ascii, "+-+|+++++++"),
                 [BoxStyle.None] = new BoxGlyphs(BoxStyle.None, "           ")
             },
-            new[] { "[WAIT]", "[BUSY]", "[OK]", "[FAIL]", "[WARN]", "[SKIP]", "[INFO]" },
+            new[] { "[WAIT]", "[BUSY]", "[OK]", "[FAIL]", "[WARN]", "[SKIP]", "[INFO]", "o", "." },
             new[] { "", "", "", "", "", "", "", "#" },
             new[] { "", "", "", ".", ".", ".", ".", "#" },
             new[] { " ", ".", ":", "-", "=", "+", "*", "#", "@" },

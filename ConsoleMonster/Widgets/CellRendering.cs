@@ -122,7 +122,7 @@ namespace ConsoleMonster.Widgets {
                     if (!tone.HasValue && rules != null) foreach (RoleRule rule in rules) {
                         if (rule.Matches(cell.Value, presented.Number)) { tone = rule.Role; break; }
                     }
-                    if (tone.HasValue) presented = DataBarTone(presented, tone.Value, context.Render);
+                    if (tone.HasValue) presented = DataBarTone(presented, tone.Value, context.Render, ((DataBarPresenter)presenter!).ShowRoleMarker);
                 }
                 // A status word held as text ("Warning" in a State column) is as short as a status enum.
                 bool status = presented.Role.HasValue && (presenter is StatusEnumPresenter || presenter is StatusPresenter);
@@ -132,12 +132,16 @@ namespace ConsoleMonster.Widgets {
             // Rich text values keep their own colours and line breaks, like markup cells.
             StyledText text = cell.Value is RichText rich ? rich.ToStyledText(render) : render.Markup(cell.Markup);
             List<StyledLine> lines = new List<StyledLine>(text.Lines);
+            if (cell.AssessmentSeverity.HasValue && lines.Count > 0) {
+                Severity severity = cell.AssessmentSeverity.Value;
+                lines[0] = WithMarker(StatusScale.Marker(severity, render.Glyphs.Tier), lines[0], render.Style(StatusScale.Role(severity)));
+            }
             if (cell.Status.HasValue && lines.Count > 0) {
                 Style style = render.Style(cell.Status.Value);
                 lines[0] = WithMarker(render.Glyphs.StatusMarker(cell.Status.Value), lines[0], style);
             }
             // A status cell's word ("✓ Passed") is a short value too.
-            return new CellContent(lines, null, cell.Status.HasValue && lines.Count == 1 && lines[0].Width <= ShortValueWidth);
+            return new CellContent(lines, null, (cell.Status.HasValue || cell.AssessmentSeverity.HasValue) && lines.Count == 1 && lines[0].Width <= ShortValueWidth);
         }
 
         // The widest a short value may be and still never break (a date with time and zone is about 25 cells).
@@ -165,7 +169,8 @@ namespace ConsoleMonster.Widgets {
             ThemeToken tone = presented.Role ?? ThemeToken.Series1;
             switch (presented.Visual) {
                 case CellVisualKind.Bar:
-                    BarDrawer.Draw(region, x, y, cells, presented.Fraction, context.Style(tone), context, false, BarShape.Block);
+                    if (ConsoleViewStyle.IsApplied(context)) DrawDataBar(region, x, y, cells, presented.Fraction, context.Style(presented.Role ?? ThemeToken.Muted), context);
+                    else BarDrawer.Draw(region, x, y, cells, presented.Fraction, context.Style(tone), context, false, BarShape.Block);
                     break;
                 case CellVisualKind.Progress:
                     BarDrawer.Draw(region, x, y, cells, presented.Fraction, context.Style(tone), context, true, BarShape.Line);

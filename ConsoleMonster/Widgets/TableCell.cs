@@ -24,6 +24,9 @@ namespace ConsoleMonster.Widgets {
         /// <summary>The status, when this is a status cell.</summary>
         public StatusKind? Status { get; private set; }
 
+        /// <summary>The assessment severity when this cell uses the assessment scale.</summary>
+        public Severity? AssessmentSeverity { get; private set; }
+
         /// <summary>The raw value of a value cell, or null.</summary>
         public object? Value { get; }
 
@@ -43,6 +46,7 @@ namespace ConsoleMonster.Widgets {
         internal TableCell WithRowRole(TableRowRole role) {
             TableCell copy = HasValue ? FromValue(Value) : new TableCell(Markup);
             copy.Status = Status;
+            copy.AssessmentSeverity = AssessmentSeverity;
             copy.RowRole = role;
             return copy;
         }
@@ -59,6 +63,10 @@ namespace ConsoleMonster.Widgets {
         public static TableCell ForStatus(StatusKind status, string? text = null) {
             return new TableCell(Text.Markup.Escape(text ?? status.ToWord())) { Status = status };
         }
+
+        /// <summary>Creates a severity cell whose glyph is chosen before destination measurement.</summary>
+        public static TableCell ForSeverity(Severity severity, string? text = null) =>
+            new TableCell(Text.Markup.Escape(text ?? StatusScale.Word(severity))) { AssessmentSeverity = severity };
 
         /// <summary>Converts a string (markup) to a cell.</summary>
         /// <param name="markup">The markup.</param>

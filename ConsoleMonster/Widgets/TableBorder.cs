@@ -14,6 +14,9 @@ namespace ConsoleMonster.Widgets {
         Minimal,
 
         /// <summary>No lines at all; columns separated by spaces.</summary>
-        None
+        None,
+
+        /// <summary>Borderless data with muted headers and one subtle rule segment per column.</summary>
+        Rule
     }
 }

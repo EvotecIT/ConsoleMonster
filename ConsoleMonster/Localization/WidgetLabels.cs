@@ -418,6 +418,10 @@ namespace ConsoleMonster.Localization {
                     return StatusSkip;
                 case StatusKind.Info:
                     return StatusInfo;
+                case StatusKind.Unknown:
+                    return "unknown";
+                case StatusKind.None:
+                    return "none";
                 default:
                     return StatusWait;
             }

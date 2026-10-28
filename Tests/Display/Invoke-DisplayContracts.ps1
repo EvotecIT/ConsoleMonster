@@ -317,6 +317,31 @@ $absent=$null -eq [ConsoleMonster.PowerShell.Display.DefaultDisplay]::Resolve([D
         Assert-Display ([ConsoleMonster.Terminal]::RenderText($registered[0].Build($items,$context),$displayProfile) -match 'built 1') 'A named compiled builder was not resolved from its owning lease.'
         $lease.Dispose()
     }
+    Test-DisplayContract 'SchemaV2_CompiledBuilderRuntimeType_UsesExactProducerIdentity' {
+        $lease=New-DisplayLease 'CompiledRuntimeType'
+        try {
+            $lease.RegisterBuilder('typed', $script:DisplayBuilder)
+            $doc=[ConsoleMonster.PowerShell.Display.ConsoleViewDocument]::Parse(@{SchemaVersion=2;Views=@(@{TypeName='DisplayContract.Row';Builder='typed'})})
+            $types=New-Object 'System.Collections.Generic.Dictionary[string,type]'
+            $types.Add('DisplayContract.Row',[DisplayContract.Row])
+            $views=$doc.Register($lease,[version]'1.0.0',$types)
+            Assert-Display ([object]::ReferenceEquals($views[0].RuntimeType,[DisplayContract.Row])) 'The document lost its importing producer CLR identity.'
+            $row=[DisplayContract.Row]::new('literal')
+            Assert-Display ([object]::ReferenceEquals($views[0],[ConsoleMonster.PowerShell.Display.DefaultDisplay]::Resolve($row))) 'The actual producer did not resolve its compiled view.'
+            $other=[pscustomobject]@{Name='literal'}; $other.PSObject.TypeNames.Insert(0,'DisplayContract.Row')
+            Assert-Display ($null -eq [ConsoleMonster.PowerShell.Display.DefaultDisplay]::Resolve($other)) 'A type-name impersonation selected a compiled producer view.'
+        } finally { $lease.Dispose() }
+    }
+    Test-DisplayContract 'SchemaV2_InvalidRuntimeType_RejectsTheWholeDocumentBeforeRegistration' {
+        $lease=New-DisplayLease 'InvalidRuntimeType' -Types @('DisplayContract.ScalarRow','DisplayContract.TreeRow')
+        try {
+            $doc=[ConsoleMonster.PowerShell.Display.ConsoleViewDocument]::Parse(@{SchemaVersion=2;Views=@(@{TypeName='DisplayContract.ScalarRow';Property='Number'},@{TypeName='DisplayContract.TreeRow';Property='Name'})})
+            $types=New-Object 'System.Collections.Generic.Dictionary[string,type]'
+            $types.Add('DisplayContract.ScalarRow',[DisplayContract.ScalarRow]); $types.Add('DisplayContract.TreeRow',[DisplayContract.Row])
+            Assert-Throws { $doc.Register($lease,[version]'1.0.0',$types) }
+            Assert-Display ($null -eq [ConsoleMonster.PowerShell.Display.DefaultDisplay]::Resolve([DisplayContract.ScalarRow]::new())) 'An invalid later binding left an earlier partial registration.'
+        } finally { $lease.Dispose() }
+    }
     Test-DisplayContract 'SchemaV2_TreeNodeBudget_FallsBackToCompleteTopLevelTable' {
         $lease=New-DisplayLease 'TreeBudget' -Types @('DisplayContract.TreeRow')
         $doc=[ConsoleMonster.PowerShell.Display.ConsoleViewDocument]::Parse(@{SchemaVersion=2;Views=@(@{TypeName='DisplayContract.TreeRow';View='Tree';Property=@('Name');Children='Children';Budget=@{Nodes=2;Depth=3};OverBudget='Table'})})

@@ -26,7 +26,7 @@ namespace ConsoleMonster.Canvas {
             Glyphs = glyphs ?? GlyphSet.For(profile.Glyphs);
             Tick = tick;
             Elapsed = elapsed;
-            _tokenStyles = new Style[(int)ThemeToken.Focus + 1];
+            _tokenStyles = new Style[(int)ThemeToken.Gap + 1];
             for (int i = 0; i < _tokenStyles.Length; i++) {
                 _tokenStyles[i] = theme.Resolve((ThemeToken)i, profile.ColorDepth);
             }

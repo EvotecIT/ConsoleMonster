@@ -17,7 +17,7 @@ public enum DefaultDisplayMode {
 public enum DefaultDisplayBatch {
     /// <summary>Build once per object.</summary>
     Single,
-    /// <summary>Deliver each arriving row without collecting the pipeline.</summary>
+    /// <summary>Sample within the row, time and byte limits, then deliver an append-only table; a fast completed sample can use a collected builder.</summary>
     Stream,
     /// <summary>Collect consecutive objects within the registration budget.</summary>
     Collect

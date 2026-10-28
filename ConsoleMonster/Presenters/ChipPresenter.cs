@@ -6,6 +6,7 @@ namespace ConsoleMonster.Presenters {
     public sealed class ChipPresenter : ICellPresenter {
         /// <inheritdoc />
         public PresentedValue Present(object? value, PresenterContext context) {
+            if (value is Severity) { return new StatusPresenter().Present(value, context); }
             PresentedValue text = CellPresenters.Text.Present(value, context);
             if (text.IsEmpty) { return text; }
             return new PresentedValue(StyledLine.From("[" + text.Line.PlainText + "]", context.Render.Style(ThemeToken.SurfaceAccent)));

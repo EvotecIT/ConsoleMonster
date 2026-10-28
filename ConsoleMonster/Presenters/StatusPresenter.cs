@@ -21,6 +21,11 @@ namespace ConsoleMonster.Presenters {
 
         /// <inheritdoc />
         public PresentedValue Present(object? value, PresenterContext context) {
+            if (value is Severity severity) {
+                Style severityStyle = context.Render.Style(StatusScale.Role(severity));
+                string word = ShowWord ? " " + StatusScale.Word(severity) : string.Empty;
+                return new PresentedValue(StyledLine.From(StatusScale.Marker(severity, context.Render.Glyphs.Tier) + word, severityStyle)) { Role = StatusScale.Role(severity) };
+            }
             StatusKind status;
             if (value is StatusKind kind) {
                 status = kind;
@@ -31,7 +36,7 @@ namespace ConsoleMonster.Presenters {
             Style style = context.Render.Style(status);
             string marker = context.Render.Glyphs.StatusMarker(status);
             List<TextSpan> spans = new List<TextSpan> { new TextSpan(marker, style) };
-            if (ShowWord && context.Render.Glyphs.Tier != GlyphTier.Ascii) {
+            if (ShowWord && (context.Render.Glyphs.Tier != GlyphTier.Ascii || Widgets.ConsoleViewStyle.IsApplied(context.Render))) {
                 spans.Add(new TextSpan(" " + context.Render.Labels.StatusWord(status), style));
             }
             return new PresentedValue(new StyledLine(spans)) { Role = status.ToToken() };

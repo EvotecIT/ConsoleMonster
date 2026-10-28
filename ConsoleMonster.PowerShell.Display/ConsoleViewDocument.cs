@@ -63,14 +63,26 @@ public sealed class ConsoleViewDocument {
         }
     }
     /// <summary>Resolves all builders and ownership before installing any registration.</summary>
-    public IReadOnlyList<DefaultDisplayRegistration> Register(ModuleLease lease, Version? version = null) {
+    public IReadOnlyList<DefaultDisplayRegistration> Register(ModuleLease lease, Version? version = null) => Register(lease, version, null);
+
+    /// <summary>Registers a data document with exact CLR identities supplied by the importing module.</summary>
+    /// <param name="lease">The importing module's lease.</param><param name="version">Optional view version.</param>
+    /// <param name="runtimeTypes">Exact type-name to CLR-type bindings for compiled builders, or null for data-only views.</param>
+    /// <returns>The installed registrations.</returns>
+    public IReadOnlyList<DefaultDisplayRegistration> Register(ModuleLease lease, Version? version, IReadOnlyDictionary<string, Type>? runtimeTypes) {
         if (lease == null) { throw new ArgumentNullException(nameof(lease)); }
         var builders = _views.Select(view => view.BuilderName == null ? view.Build : lease.State.Builder(lease, view.BuilderName)).ToArray();
-        foreach (DeclarativeView view in _views) { lease.ValidateOwnedType(view.TypeName); }
+        foreach (DeclarativeView view in _views) {
+            lease.ValidateOwnedType(view.TypeName);
+            if (runtimeTypes != null && runtimeTypes.TryGetValue(view.TypeName, out Type? runtimeType) && runtimeType.FullName != view.TypeName)
+                throw new ArgumentException("A runtime type must match its exact declared name.", nameof(runtimeTypes));
+        }
         List<DefaultDisplayRegistration> result = new List<DefaultDisplayRegistration>();
         for (int i = 0; i < _views.Count; i++) {
             DeclarativeView view = _views[i];
-            result.Add(lease.Register(view.TypeName, view.ViewId, version ?? lease.Version, view.Batch, view.ScopeKeys, builders[i], view.Budget));
+            Type? runtimeType = null;
+            runtimeTypes?.TryGetValue(view.TypeName, out runtimeType);
+            result.Add(lease.Register(view.TypeName, view.ViewId, version ?? lease.Version, view.Batch, view.ScopeKeys, builders[i], view.Budget, runtimeType: runtimeType));
         }
         return result.AsReadOnly();
     }

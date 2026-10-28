@@ -40,6 +40,12 @@ namespace ConsoleMonster.Widgets {
         /// <summary>An optional theme tone for the marker, independent of status semantics. Null preserves the status or text tone.</summary>
         public ThemeToken? MarkerTone { get; set; }
 
+        /// <summary>Render a container without a guide and exclude its label from value-column sizing.</summary>
+        public bool Bare { get; set; }
+
+        /// <summary>Use a middle ellipsis for this identity label, independently of sibling prose labels.</summary>
+        public bool TruncateLabelInMiddle { get; set; }
+
         internal Style MarkerStyle(Canvas.RenderContext context) => MarkerTone.HasValue ? context.Style(MarkerTone.Value)
             : Status.HasValue ? context.Style(Status.Value) : context.Style(ThemeToken.Text);
 

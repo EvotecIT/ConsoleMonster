@@ -43,7 +43,11 @@ namespace ConsoleMonster.Widgets {
             CellContent[] contents = new CellContent[_columns.Count];
             for (int c = 0; c < _columns.Count; c++) {
                 TableColumn column = _columns[c];
-                contents[c] = CellRendering.Content(cells[c], column.Presenter, (IReadOnlyList<RoleRule>)column.RoleRules, contexts[c]);
+                TableCell cell = cells[c];
+                if (cell.HasValue && cell.Value == null && column.UnknownText != null) {
+                    cell = new TableCell("[muted]" + Markup.Escape(column.UnknownText) + "[/]");
+                }
+                contents[c] = CellRendering.Content(cell, column.Presenter, (IReadOnlyList<RoleRule>)column.RoleRules, contexts[c]);
             }
             return contents;
         }
@@ -61,11 +65,22 @@ namespace ConsoleMonster.Widgets {
                     group = _rowGroups[r];
                     groupRows.Clear();
                     if (group >= 0) {
-                        rows.Add(GroupRow(group, presenter, visible.TryGetValue(group, out int count) ? count : 0));
+                        TableLayoutRow heading = GroupRow(group, presenter, visible.TryGetValue(group, out int count) ? count : 0);
+                        if (rows.Count > 0) heading.Height += Math.Max(0, GroupGap);
+                        rows.Add(heading);
                     }
                 }
                 groupRows.Add(r);
                 CellContent[] cells = Present(_rows[r], contexts);
+                for (int c = 0; c < _columns.Count; c++) {
+                    if (_columns[c].DimRepeats && r > 0 && _rowGroups[r] == _rowGroups[r - 1]) {
+                        TableCell previous = _rows[r - 1][c];
+                        TableCell current = _rows[r][c];
+                        if (current.HasValue == previous.HasValue && (current.HasValue ? Equals(current.Value, previous.Value) : current.Markup == previous.Markup)) {
+                            for (int line = 0; line < cells[c].Lines.Count; line++) { cells[c].Lines[line] = cells[c].Lines[line].WithBaseStyle(presenter.Render.Style(ThemeToken.Muted)); }
+                        }
+                    }
+                }
                 if (stats != null) {
                     stats.Add(cells);
                     rows.Add(new TableLayoutRow(TableRowKind.Data) { Source = r });
@@ -111,9 +126,10 @@ namespace ConsoleMonster.Widgets {
         internal StyledLine GroupLabel(int group, PresenterContext presenter, int shown) {
             int total = GroupRowCount(group);
             List<TextSpan> spans = new List<TextSpan>();
-            foreach (TextSpan span in presenter.Render.Markup(_groups[group]).Lines[0].WithBaseStyle(presenter.Render.Style(GroupHeadersAsRows ? ThemeToken.Accent : ThemeToken.Header).With(TextDecoration.Bold))) {
+            foreach (TextSpan span in presenter.Render.Markup(_groups[group]).Lines[0].WithBaseStyle(presenter.Render.Style(Border == TableBorder.Rule ? ThemeToken.Strong : GroupHeadersAsRows ? ThemeToken.Accent : ThemeToken.Header).With(TextDecoration.Bold))) {
                 spans.Add(span);
             }
+            if (!ShowGroupCounts) { return new StyledLine(spans); }
             string separator = presenter.Render.Glyphs.Tier == Capabilities.GlyphTier.Ascii ? " - " : " · ";
             string count = shown < total
                 ? Localization.WidgetLabels.Format(presenter.Render.Labels.GroupOf, shown.ToString("N0", presenter.Culture), total.ToString("N0", presenter.Culture))

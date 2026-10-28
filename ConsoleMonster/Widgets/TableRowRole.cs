@@ -21,6 +21,9 @@ namespace ConsoleMonster.Widgets {
         /// <summary>The ASCII marker; null uses <see cref="Marker"/>.</summary>
         public string? AsciiMarker { get; set; }
 
+        /// <summary>Optional marker-only role, without changing the rest of the row.</summary>
+        public ThemeToken? MarkerTone { get; set; }
+
         internal Style Style(RenderContext context) {
             ThemeToken? tone = Tone ?? (Muted ? ThemeToken.Muted : (ThemeToken?)null);
             Style style = tone.HasValue ? context.Style(tone.Value) : Styling.Style.Plain;

@@ -12,14 +12,15 @@ namespace ConsoleMonster.PowerShell.Display;
 /// <summary>A broker operation containing original objects; it never substitutes pipeline data.</summary>
 public sealed class DefaultDisplayOperation {
     internal DefaultDisplayOperation(DefaultDisplayRegistration? registration, IReadOnlyList<PSObject> objects, string scope, bool streamEnd = false, long nativeCount = 0,
-        Func<object, DefaultDisplayContext, IWidget>? singleBuilder = null) {
-        Registration = registration; Objects = objects; Scope = scope; StreamEnd = streamEnd; NativeCount = nativeCount; SingleBuilder = singleBuilder;
+        Func<object, DefaultDisplayContext, IWidget>? singleBuilder = null, bool collected = false) {
+        Registration = registration; Objects = objects; Scope = scope; StreamEnd = streamEnd; NativeCount = nativeCount; SingleBuilder = singleBuilder; Collected = collected;
     }
     internal DefaultDisplayRegistration? Registration { get; }
     internal string Scope { get; }
     internal bool StreamEnd { get; }
     internal long NativeCount { get; }
     internal Func<object, DefaultDisplayContext, IWidget>? SingleBuilder { get; }
+    internal bool Collected { get; }
     /// <summary>Whether the broker may attempt a registered builder before native fallback.</summary>
     public bool IsRich => Registration != null;
     /// <summary>Unmodified input wrappers, in their original order, for native delegation.</summary>
@@ -27,7 +28,7 @@ public sealed class DefaultDisplayOperation {
 }
 
 /// <summary>One invocation's bounded, consecutive batch state.</summary>
-public sealed class DefaultDisplaySession : IDisposable {
+public sealed partial class DefaultDisplaySession : IDisposable {
     private readonly DisplayRunspaceState _state;
     private readonly PSCmdlet _sink;
     private readonly bool _topLevel;
@@ -43,10 +44,12 @@ public sealed class DefaultDisplaySession : IDisposable {
     private CollectingStatusLine? _status;
     private DefaultDisplayStream? _stream;
     private bool _streamFailed;
+    private DefaultDisplayRegistration? _failedView;
+    private string _failedScope = string.Empty;
     private readonly DisplayPipelineLifetime? _lifetime;
-    private PSObject? _singlePending;
     private Func<object, DefaultDisplayContext, IWidget>? _singleBuilder;
     private bool _streamStarted;
+    private bool _separatorPending;
 
     internal DefaultDisplaySession(DisplayRunspaceState state, PSCmdlet sink, bool topLevel, bool transcript) {
         _state = state; _sink = sink; _topLevel = topLevel; _transcript = transcript;
@@ -59,7 +62,7 @@ public sealed class DefaultDisplaySession : IDisposable {
         if (value == null) { return output; }
         TerminalProfile profile = Terminal.GetCurrentProfile();
         DefaultDisplayRegistration? view = DefaultDisplayHostGate.CanRender(_sink, _topLevel, _transcript, profile) ? _state.Find(value) : null;
-        if (_lifetime == null && (view?.Batch == DefaultDisplayBatch.Collect || view?.SingleRecordBuilder != null)) { view = null; }
+        if (_lifetime == null && (view?.Batch == DefaultDisplayBatch.Collect || view?.Batch == DefaultDisplayBatch.Stream)) { view = null; }
         string scope = string.Empty;
         if (view != null) {
             try { scope = view.ScopeSelector?.Invoke(value.BaseObject) ?? DisplayData.Scope(value.BaseObject, view.ScopeKey); }
@@ -79,22 +82,11 @@ public sealed class DefaultDisplaySession : IDisposable {
             if (_nativeBatch) { _nativeCount++; }
             output.Add(new DefaultDisplayOperation(null, new[] { value }, scope)); return output;
         }
+        if (view.Batch == DefaultDisplayBatch.Stream && !_streamStarted) {
+            Sample(value, view, output);
+            return output;
+        }
         if (view.Batch != DefaultDisplayBatch.Collect) {
-            if (view.Batch == DefaultDisplayBatch.Stream && _singleBuilder != null && !_streamStarted) {
-                bool fits;
-                try { fits = DisplayData.Estimate(value.BaseObject, view.Budget.Bytes) <= view.Budget.Bytes; }
-                catch (Exception) { fits = false; }
-                if (!fits) {
-                    if (_singlePending != null) { output.Add(new DefaultDisplayOperation(null, new[] { _singlePending }, scope)); _singlePending = null; }
-                    output.Add(new DefaultDisplayOperation(null, new[] { value }, scope));
-                    _streamStarted = true; _streamFailed = true;
-                    return output;
-                }
-                if (_singlePending == null) { _singlePending = value; return output; }
-                output.Add(new DefaultDisplayOperation(view, new[] { _singlePending, value }, scope));
-                _singlePending = null; _streamStarted = true;
-                return output;
-            }
             output.Add(new DefaultDisplayOperation(view, new[] { value }, scope));
             return output;
         }
@@ -125,13 +117,17 @@ public sealed class DefaultDisplaySession : IDisposable {
     }
     private void Flush(List<DefaultDisplayOperation> output) {
         _status?.Dispose(); _status = null;
-        if (_singlePending != null) {
-            output.Add(new DefaultDisplayOperation(_current, new[] { _singlePending }, _scope, singleBuilder: _singleBuilder));
-            _singlePending = null;
+        if (_pending.Count > 0) {
+            bool stream = _current?.Batch == DefaultDisplayBatch.Stream && !_nativeBatch;
+            bool collected = stream && _clock.ElapsedMilliseconds < 250
+                && (_current!.CollectedBuilder != null || _pending.Count == 1 && _singleBuilder != null);
+            output.Add(new DefaultDisplayOperation(_nativeBatch ? null : _current, _pending.ToArray(), _scope,
+                singleBuilder: collected && _pending.Count == 1 ? _singleBuilder : null, collected: collected));
+            if (stream && !collected) { _streamStarted = true; }
+            _pending.Clear();
         }
-        if (_pending.Count > 0) { output.Add(new DefaultDisplayOperation(_nativeBatch ? null : _current, _pending.ToArray(), _scope)); _pending.Clear(); }
         if (_nativeCount > 0) { output.Add(new DefaultDisplayOperation(_current, Array.Empty<PSObject>(), _scope, nativeCount: _nativeCount)); _nativeCount = 0; }
-        if (_current?.Batch == DefaultDisplayBatch.Stream && (_singleBuilder == null || _streamStarted)) { output.Add(new DefaultDisplayOperation(_current, Array.Empty<PSObject>(), _scope, true)); }
+        if (_current?.Batch == DefaultDisplayBatch.Stream && _streamStarted && !_nativeBatch) { output.Add(new DefaultDisplayOperation(_current, Array.Empty<PSObject>(), _scope, true)); }
         _bytes = 0;
     }
     /// <summary>Builds and renders, returning false for native fallback. Diagnostics are verbose once per view/runspace.</summary>
@@ -151,7 +147,7 @@ public sealed class DefaultDisplaySession : IDisposable {
                 profile = profile.WithColorDepth(ColorDepth.None).WithMode(OutputMode.Plain);
             }
             if (_stream != null && !_stream.MatchesProfile(profile)) {
-                _stream.Dispose(); _stream = null; _streamFailed = true;
+                _stream.Dispose(); _stream = null; _streamFailed = true; _failedView = view; _failedScope = operation.Scope;
                 return operation.StreamEnd; // Never emit a stream's previous decoration/width after a route change.
             }
             // A streamed scope keeps its opening pair across native messages and its final footer.
@@ -159,16 +155,21 @@ public sealed class DefaultDisplaySession : IDisposable {
             DefaultDisplayContext context = new DefaultDisplayContext(profile, operation.Scope, mode);
             if (operation.SingleBuilder != null) {
                 encoded = DefaultDisplayRenderer.Prepare(operation.SingleBuilder(operation.Objects[0].BaseObject, context), profile, view.Budget.Bytes);
+            } else if (operation.Collected) {
+                object[] objects = operation.Objects.Select(value => value.BaseObject).ToArray();
+                IWidget widget = view.CollectedBuilder != null ? view.CollectedBuilder(objects, context)
+                    : DisplayStreamSample.BuildTable(view, context, objects);
+                encoded = DefaultDisplayRenderer.Prepare(widget, profile, view.Budget.Bytes);
             } else if (operation.NativeCount > 0) {
                 encoded = DefaultDisplayRenderer.Prepare(TextBlock.Plain(operation.NativeCount.ToString(context.Culture) + " rows · native output · collection budget exceeded", Styling.ThemeToken.Muted), profile);
             } else if (operation.StreamEnd) {
                 encoded = _stream?.Complete() ?? string.Empty;
                 _stream = null;
             } else {
-                if (_streamFailed && view.Batch == DefaultDisplayBatch.Stream) { return false; }
+                if (_streamFailed && ReferenceEquals(view, _failedView) && operation.Scope == _failedScope && view.Batch == DefaultDisplayBatch.Stream) { return false; }
                 object[] objects = operation.Objects.Select(value => value.BaseObject).ToArray();
                 if (view.Batch == DefaultDisplayBatch.Stream) {
-                    if (_stream == null) { _stream = new DefaultDisplayStream(view, context); }
+                    if (_stream == null) { _stream = new DefaultDisplayStream(view, context, objects); }
                     System.Text.StringBuilder block = new System.Text.StringBuilder();
                     foreach (object value in objects) {
                         block.Append(_stream.Append(value));
@@ -177,26 +178,30 @@ public sealed class DefaultDisplaySession : IDisposable {
                     encoded = block.ToString();
                 } else { encoded = DefaultDisplayRenderer.Prepare(view.Builder(objects, context), profile, view.Budget.Bytes); }
             }
-            if (encoded.Length > 0 && (operation.SingleBuilder != null || operation.NativeCount > 0 || operation.StreamEnd || view.Batch != DefaultDisplayBatch.Stream)) {
-                encoded += Environment.NewLine;
+            if (encoded.Length > 0) {
+                if (_separatorPending) { encoded = Environment.NewLine + encoded; }
                 long maximum = operation.NativeCount > 0 ? 16 * 1024 * 1024 : view.Budget.Bytes;
                 if ((long)encoded.Length * 2 > maximum) { throw new InvalidOperationException("The completed frame exceeds its output budget."); }
             }
         } catch (Exception ex) when (!(ex is PipelineStoppedException)) {
-            if (view.Batch == DefaultDisplayBatch.Stream) { _stream?.Dispose(); _stream = null; _streamFailed = true; }
+            if (view.Batch == DefaultDisplayBatch.Stream) { _stream?.Dispose(); _stream = null; _streamFailed = true; _failedView = view; _failedScope = operation.Scope; }
             if (_state.Diagnostic(view.ViewId)) { _sink.WriteVerbose("ConsoleMonster view '" + view.ViewId + "' used native formatting: " + ex.Message); }
             return false;
         }
         // Recheck after user code. A builder may have started transcription or changed the route.
         if (!DefaultDisplayHostGate.CanRender(_sink, _topLevel, _transcript, Terminal.GetCurrentProfile()) || _state.Mode(view.Lease) == DefaultDisplayMode.Off) { return false; }
         // One bounded host call. Host transport errors are not renderer errors: replay could duplicate a partial write.
-        if (encoded.Length > 0) { _sink.Host.UI.Write(encoded); }
+        if (encoded.Length > 0) {
+            _sink.Host.UI.Write(encoded);
+            _separatorPending = operation.SingleBuilder != null || operation.Collected || operation.NativeCount > 0 || operation.StreamEnd || view.Batch != DefaultDisplayBatch.Stream;
+        }
+        if (operation.StreamEnd) { _separatorPending = true; }
         return true;
     }
     /// <summary>Erases owned transient state without writing pipeline objects.</summary>
     public void Dispose() {
         if (_disposed) { return; }
-        _disposed = true; _lifetime?.Dispose(); _status?.Dispose(); _status = null; _stream?.Dispose(); _stream = null; _pending.Clear(); _singlePending = null;
+        _disposed = true; _lifetime?.Dispose(); _status?.Dispose(); _status = null; _stream?.Dispose(); _stream = null; _pending.Clear();
     }
     private TerminalProfile CurrentHostColors(TerminalProfile profile) {
         if (profile.Mode == OutputMode.Plain || profile.ColorDepth == ColorDepth.None) { return profile; }

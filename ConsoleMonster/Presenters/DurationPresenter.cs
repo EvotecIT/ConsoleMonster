@@ -20,6 +20,9 @@ namespace ConsoleMonster.Presenters {
         /// <summary>The unit of plain numbers.</summary>
         public TimeSpan NumberUnit { get; }
 
+        /// <summary>Use compact units such as 4m 31s while retaining the ordinary formatting by default.</summary>
+        public bool Compact { get; set; }
+
         /// <inheritdoc />
         public PresentedValue Present(object? value, PresenterContext context) {
             if (PresenterValues.IsNonFinite(value)) {
@@ -41,7 +44,7 @@ namespace ConsoleMonster.Presenters {
                 // The usual "no limit" values (lockout duration, maximum password age): a dash, not 10675199 d.
                 return Unbounded(context);
             }
-            string text = Format(span, context.Culture);
+            string text = Compact ? DisplayText.Duration(span) : Format(span, context.Culture);
             return new PresentedValue(StyledLine.From(text, context.Render.Style(ThemeToken.Text)), HorizontalAlignment.Right) { Number = span.TotalSeconds };
         }
 

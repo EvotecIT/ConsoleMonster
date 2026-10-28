@@ -23,6 +23,12 @@ namespace ConsoleMonster.Widgets {
         /// <summary>An optional status, rendered with its glyph and theme role.</summary>
         public StatusKind? Status { get; set; }
 
+        /// <summary>Optional label role, independent of the health marker.</summary>
+        public ThemeToken? Role { get; set; }
+
+        /// <summary>Whether the hop label is bold.</summary>
+        public bool Bold { get; set; }
+
         /// <summary>Plain text categories rendered by the existing chip presenter.</summary>
         public IList<string> Chips { get; } = new List<string>();
     }

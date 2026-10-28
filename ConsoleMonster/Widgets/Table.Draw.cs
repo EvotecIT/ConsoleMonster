@@ -113,7 +113,7 @@ namespace ConsoleMonster.Widgets {
             // A page that starts on a group heading draws it in place of the header separator (or of the top rule without
             // a header), as the whole table does for its first group, so two rules never stack.
             bool merge = !GroupHeadersAsRows && count > 0 && first < layout.Rows.Count && layout.Rows[first].Kind == TableRowKind.Group
-                && (ShowHeader ? HeaderSeparator && (IsBoxed || Border == TableBorder.Minimal) : IsBoxed);
+                && (ShowHeader ? HeaderSeparator && (IsBoxed || (Border == TableBorder.Minimal || Border == TableBorder.Rule)) : IsBoxed);
             headHeight = HeadHeight(layout, merge);
             rowLines = new List<int>();
             int end = Math.Min(layout.Rows.Count, first + Math.Max(0, count));
@@ -144,22 +144,22 @@ namespace ConsoleMonster.Widgets {
             int height = (!string.IsNullOrEmpty(Title) ? 1 : 0) + (boxed && !(mergeFirstGroup && !ShowHeader) ? 1 : 0);
             if (ShowHeader) {
                 // When the first group heading takes the separator's place, the separator line is not part of the head.
-                height += layout.HeaderHeight + (HeaderSeparator && (boxed || Border == TableBorder.Minimal) && !mergeFirstGroup ? 1 : 0);
+                height += layout.HeaderHeight + (HeaderSeparator && (boxed || (Border == TableBorder.Minimal || Border == TableBorder.Rule)) && !mergeFirstGroup ? 1 : 0);
             }
             return height;
         }
 
         private int TailHeight(TableLayout layout) {
             bool boxed = IsBoxed;
-            int height = (boxed ? 1 : 0) + (layout.HiddenMarker != null ? 1 : 0) + (layout.ShowingLine != null ? 1 : 0) + (!string.IsNullOrEmpty(Caption) ? 1 : 0);
+            int height = (boxed ? 1 : 0) + (layout.HiddenMarker != null ? 1 : 0) + (layout.ShowingLine != null ? 1 : 0) + layout.HintLines.Count + (!string.IsNullOrEmpty(Caption) ? 1 : 0);
             if (layout.Total != null) {
-                height += layout.Total.Height + (boxed || Border == TableBorder.Minimal ? 1 : 0);
+                height += layout.Total.Height + (boxed || (Border == TableBorder.Minimal || Border == TableBorder.Rule) ? 1 : 0);
             }
             return height;
         }
 
         private int DrawHead(Region region, int y, TableLayout layout, RenderContext context, bool mergeFirstGroup, int firstRow = 0) {
-            Style border = context.Style(ThemeToken.Border);
+            Style border = context.Style(Border == TableBorder.Rule ? ThemeToken.Subtle : ThemeToken.Border);
             bool boxed = IsBoxed;
             BoxGlyphs box = context.Glyphs.GetBox(BoxStyleFor(Border));
             bool section = GroupHeadersAsRows && firstRow < layout.Rows.Count && layout.Rows[firstRow].Kind == TableRowKind.Group;
@@ -178,7 +178,7 @@ namespace ConsoleMonster.Widgets {
                 } else if (boxed) {
                     // Close header columns above a spanning section; a cross would leave downward stubs.
                     DrawRule(region, y++, layout, box.LeftJoint, section ? box.BottomJoint : box.Cross, box.RightJoint, box.Horizontal, border);
-                } else if (Border == TableBorder.Minimal) {
+                } else if ((Border == TableBorder.Minimal || Border == TableBorder.Rule)) {
                     DrawRule(region, y++, layout, string.Empty, " ", string.Empty, context.Glyphs.Get(Glyph.RuleLine), border);
                 }
             }
@@ -187,27 +187,31 @@ namespace ConsoleMonster.Widgets {
 
         // mergeTop: the first row is a group heading drawn as the table's top rule (a boxed table without a header).
         private int DrawRows(Region region, int y, TableLayout layout, int start, int end, RenderContext context, bool mergeTop) {
-            Style border = context.Style(ThemeToken.Border);
+            Style border = context.Style(Border == TableBorder.Rule ? ThemeToken.Subtle : ThemeToken.Border);
             BoxGlyphs box = context.Glyphs.GetBox(BoxStyleFor(Border));
             for (int i = start; i < end; i++) {
                 TableLayoutRow row = layout.Rows[i];
                 if (row.Kind == TableRowKind.Group) {
+                    y += Math.Max(0, row.Height - 1);
                     y = DrawGroupRule(region, y, layout, row.Spanning!, box, border, context, mergeTop && i == start);
                 } else {
-                    y = DrawCells(region, y, layout, row.Lines!, row.Cells, row.VisualCells, row.Height, box, border, context);
+                    y = DrawCells(region, y, layout, row.Lines!, row.Cells, row.VisualCells, row.BodyHeight, box, border, context);
+                    if (row.Below != null) {
+                        foreach (StyledLine detail in row.Below) { region.Write(0, y++, detail); }
+                    }
                 }
             }
             return y;
         }
 
         private void DrawTail(Region region, int y, TableLayout layout, RenderContext context) {
-            Style border = context.Style(ThemeToken.Border);
+            Style border = context.Style(Border == TableBorder.Rule ? ThemeToken.Subtle : ThemeToken.Border);
             bool boxed = IsBoxed;
             BoxGlyphs box = context.Glyphs.GetBox(BoxStyleFor(Border));
             if (layout.Total != null) {
                 if (boxed) {
                     DrawRule(region, y++, layout, box.LeftJoint, box.Cross, box.RightJoint, box.Horizontal, border);
-                } else if (Border == TableBorder.Minimal) {
+                } else if ((Border == TableBorder.Minimal || Border == TableBorder.Rule)) {
                     DrawRule(region, y++, layout, string.Empty, " ", string.Empty, context.Glyphs.Get(Glyph.RuleLine), border);
                 }
                 y = DrawCells(region, y, layout, layout.Total.Lines!, layout.Total.Cells, layout.Total.VisualCells, layout.Total.Height, box, border, context);
@@ -216,6 +220,7 @@ namespace ConsoleMonster.Widgets {
                 DrawRule(region, y++, layout, box.BottomLeft, box.BottomJoint, box.BottomRight, box.Horizontal, border);
             }
             int indent = boxed ? 1 : 0;
+            foreach (StyledLine hint in layout.HintLines) { region.Write(indent, y++, hint); }
             if (layout.HiddenMarker != null && y < region.Height) {
                 region.Write(indent, y++, layout.HiddenMarker);
             }
@@ -237,13 +242,13 @@ namespace ConsoleMonster.Widgets {
             }
             for (int v = 0; v < layout.Widths.Length; v++) {
                 int span = layout.Widths[v] + (IsBoxed ? 2 : 0);
-                region.HorizontalLine(x, y, span, line, style);
+                if (Border != TableBorder.Rule || Markup.Strip(_columns[layout.Visible[v]].Header).Length > 0) { region.HorizontalLine(x, y, span, line, style); }
                 x += span;
                 if (v < layout.Widths.Length - 1) {
                     if (IsBoxed) {
                         region.Put(x++, y, joint, style);
                     } else {
-                        x += layout.Gap;
+                        x += layout.Gaps[v + 1];
                     }
                 }
             }
@@ -280,7 +285,7 @@ namespace ConsoleMonster.Widgets {
                 }
                 start = 2;
                 room = layout.TotalWidth - 6;
-            } else if (Border == TableBorder.Minimal) {
+            } else if ((Border == TableBorder.Minimal || Border == TableBorder.Rule)) {
                 DrawRule(region, y, layout, string.Empty, " ", string.Empty, context.Glyphs.Get(Glyph.RuleLine), border);
                 start = 1;
                 room = layout.TotalWidth - 3;
@@ -319,7 +324,8 @@ namespace ConsoleMonster.Widgets {
                     if (line < lines[v].Count) {
                         StyledLine text = lines[v][line];
                         int offset = 0;
-                        HorizontalAlignment alignment = layout.Alignments[v];
+                        HorizontalAlignment alignment = cells == null ? _columns[layout.Visible[v]].HeaderAlignment ?? layout.Alignments[v]
+                            : visual > 0 ? cells[layout.Visible[v]].Alignment ?? layout.Alignments[v] : layout.Alignments[v];
                         if (alignment == HorizontalAlignment.Right) {
                             offset = Math.Max(0, textWidth - text.Width);
                         } else if (alignment == HorizontalAlignment.Center) {
@@ -332,7 +338,7 @@ namespace ConsoleMonster.Widgets {
                         x++;
                         region.Put(x++, y, box.Vertical, border);
                     } else if (v < layout.Widths.Length - 1) {
-                        x += layout.Gap;
+                        x += layout.Gaps[v + 1];
                     }
                 }
             }

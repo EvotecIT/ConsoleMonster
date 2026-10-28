@@ -21,6 +21,7 @@ namespace ConsoleMonster.Widgets {
         public bool ShowValueHeaders { get; set; } = true;
 
         private List<StyledLine> ColumnLines(int width, RenderContext context) {
+            if (ValuePlacement == TreeValuePlacement.AfterLabel) { return AfterLabelLines(width, context); }
             List<TreeRow> rows = Flatten(context);
             PresenterContext presenter = Presentation.CreateContext(context);
             int[] widths = new int[ValueColumns.Count];
@@ -130,11 +131,10 @@ namespace ConsoleMonster.Widgets {
         }
 
         private static string ReferenceGlyphs(TreeReferenceKind reference, RenderContext context) {
-            bool ascii = context.Glyphs.Tier != Capabilities.GlyphTier.Full;
             List<string> glyphs = new List<string>();
-            if ((reference & TreeReferenceKind.Cycle) != 0) glyphs.Add(ascii ? "@" : "↺");
-            else if ((reference & TreeReferenceKind.Repeat) != 0) glyphs.Add(ascii ? "@" : "↪");
-            if ((reference & TreeReferenceKind.Collapsed) != 0) glyphs.Add(ascii ? ">" : "▸");
+            if ((reference & TreeReferenceKind.Cycle) != 0) glyphs.Add(context.Glyphs.Get(Glyphs.Glyph.Cycle));
+            else if ((reference & TreeReferenceKind.Repeat) != 0) glyphs.Add(context.Glyphs.Get(Glyphs.Glyph.Repeat));
+            if ((reference & TreeReferenceKind.Collapsed) != 0) glyphs.Add(context.Glyphs.Get(Glyphs.Glyph.Collapsed));
             if ((reference & TreeReferenceKind.Incomplete) != 0) glyphs.Add("?");
             return string.Join(" ", glyphs);
         }

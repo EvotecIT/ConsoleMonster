@@ -36,6 +36,10 @@ namespace ConsoleMonster.Widgets {
 
         internal int Height { get; set; } = 1;
 
+        internal List<StyledLine>? Below { get; set; }
+
+        internal int BodyHeight { get; set; } = 1;
+
         /// <summary>The source row index for a streaming layout, whose cells are presented again just before drawing.</summary>
         internal int Source { get; set; } = -1;
     }
@@ -54,6 +58,8 @@ namespace ConsoleMonster.Widgets {
         internal IReadOnlyList<Table>? Bands { get; set; }
 
         internal int Gap { get; set; }
+
+        internal int[] Gaps { get; set; } = new int[0];
 
         /// <summary>
         /// Whether the first body row is a group heading drawn in place of the header separator (a labelled rule closes the
@@ -77,11 +83,17 @@ namespace ConsoleMonster.Widgets {
 
         internal List<string> Hidden { get; } = new List<string>();
 
+        internal List<int> Below { get; } = new List<int>();
+
         internal StyledLine? HiddenMarker { get; set; }
 
         internal StyledLine? ShowingLine { get; set; }
 
+        internal List<StyledLine> HintLines { get; } = new List<StyledLine>();
+
         internal int TotalWidth { get; set; }
+
+        internal int AvailableWidth { get; set; }
 
         internal int TotalHeight { get; set; }
     }

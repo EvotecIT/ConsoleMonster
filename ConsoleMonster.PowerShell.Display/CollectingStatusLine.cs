@@ -16,7 +16,10 @@ internal sealed class CollectingStatusLine : IDisposable {
     internal void Update(int count, int width, bool plain) {
         try {
             if (_disabled) { return; }
-            if (!DefaultDisplayHostGate.IsTranscriptInactive(_sink.Host.UI)) { Dispose(); return; }
+            // Recheck after record inspection: user getters may have changed the output route.
+            if (!DefaultDisplayHostGate.CanRender(_sink, true, false, Terminal.GetCurrentProfile())) {
+                Dispose(); _disabled = true; return;
+            }
             Dispose();
             if (_disabled) { return; }
             if (_sink.Host.UI.RawUI.CursorPosition.X != 0) { _sink.Host.UI.WriteLine(); }
@@ -38,7 +41,8 @@ internal sealed class CollectingStatusLine : IDisposable {
         } catch (Exception) {
             _disabled = true;
             try {
-                if (_start.HasValue && _end.HasValue && Same(_sink.Host.UI.RawUI.CursorPosition, _end.Value)) {
+                if (CanAccessBuffer() && DefaultDisplayHostGate.IsTranscriptInactive(_sink.Host.UI)
+                    && _start.HasValue && _end.HasValue && Same(_sink.Host.UI.RawUI.CursorPosition, _end.Value)) {
                     _sink.Host.UI.RawUI.CursorPosition = _start.Value;
                     _sink.Host.UI.Write(new string(' ', _length));
                     _sink.Host.UI.RawUI.CursorPosition = _start.Value;
@@ -49,18 +53,20 @@ internal sealed class CollectingStatusLine : IDisposable {
     }
     public void Dispose() {
         try {
-            if (_start.HasValue && _end.HasValue && _length > 0 && DefaultDisplayHostGate.IsTranscriptInactive(_sink.Host.UI)) {
+            if (_start.HasValue && _end.HasValue && _length > 0 && CanAccessBuffer()) {
                 PSHostRawUserInterface raw = _sink.Host.UI.RawUI;
                 // Cursor equality is insufficient when a buffer scrolls. Every erasure verifies the owned characters.
                 Rectangle area = Area();
                 BufferCell[,] cells = raw.GetBufferContents(area);
                 for (int x = 0; x < _length; x++) { if (cells[0, x].Character != _text[x]) { _disabled = true; return; } }
                 bool unchanged = Same(raw.CursorPosition, _end.Value) && _end.Value.Y == _start.Value.Y + 1;
+                // RawUI erases existing cells without emitting text to a newly started transcript.
                 raw.SetBufferContents(area, new BufferCell(' ', raw.ForegroundColor, raw.BackgroundColor, BufferCellType.Complete));
                 if (unchanged) { raw.CursorPosition = _start.Value; }
             }
         } catch (Exception) { _disabled = true; } finally { _start = null; _end = null; }
     }
+    private static bool CanAccessBuffer() => !Console.IsOutputRedirected && !Console.IsErrorRedirected && Terminal.IsConsole(Terminal.Target);
     private Rectangle Area() => new Rectangle(_start!.Value.X, _start.Value.Y, _start.Value.X + _length - 1, _start.Value.Y);
     private static bool Same(Coordinates left, Coordinates right) => left.X == right.X && left.Y == right.Y;
 }

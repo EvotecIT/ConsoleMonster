@@ -42,6 +42,10 @@ public sealed class DefaultDisplayRegistration {
     public DefaultDisplayStreaming? Streaming { get; set; }
     /// <summary>Optional Stream-only presentation for a scope that closes with one original record. Configure before the scope starts.</summary>
     public Func<object, DefaultDisplayContext, IWidget>? SingleRecordBuilder { get; set; }
+    /// <summary>Optional presentation for a Stream sample that closes as a collected scope.</summary>
+    public Func<IReadOnlyList<object>, DefaultDisplayContext, IWidget>? CollectedBuilder { get; set; }
+    /// <summary>Optional header for an open Stream; its verdict must remain unknown until completion.</summary>
+    public Func<object, DefaultDisplayContext, IWidget>? StreamingHeaderBuilder { get; set; }
     /// <summary>Builds without host I/O, for explicit preview and presentation qualification.</summary>
     public IWidget Build(IReadOnlyList<object> objects, DefaultDisplayContext context) => Builder(objects, context);
 }

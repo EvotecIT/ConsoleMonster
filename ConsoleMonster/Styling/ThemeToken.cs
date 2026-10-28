@@ -78,6 +78,18 @@ namespace ConsoleMonster.Styling {
         Series6,
 
         /// <summary>The focused row or control in interactive prompts, menus and forms (carries a background).</summary>
-        Focus
+        Focus,
+
+        /// <summary>Emphasised foreground without a background fill.</summary>
+        Strong,
+
+        /// <summary>A low-severity finding.</summary>
+        Low,
+
+        /// <summary>A critical finding, always emphasised.</summary>
+        Critical,
+
+        /// <summary>An evidence gap that prevented evaluation.</summary>
+        Gap
     }
 }

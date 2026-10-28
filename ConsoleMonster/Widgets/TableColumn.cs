@@ -28,11 +28,35 @@ namespace ConsoleMonster.Widgets {
         /// <summary>The header (markup).</summary>
         public string Header { get; set; }
 
+        /// <summary>An optional short header used when the full header exceeds its value-driven width.</summary>
+        public string? ShortHeader { get; set; }
+
+        /// <summary>Optional cells before this column in an unboxed table; the first visible column has no gap.</summary>
+        public int? Gap { get; set; }
+
+        /// <summary>Where evidence moves when this column cannot fit.</summary>
+        public ColumnPlacement Placement { get; set; }
+
+        /// <summary>Largest content width at which a Below column moves under its row (default 80).</summary>
+        public int BelowWidth { get; set; } = 80;
+
+        /// <summary>Whether consecutive repeated values of this key are muted while remaining copyable.</summary>
+        public bool DimRepeats { get; set; }
+
+        /// <summary>Literal text for missing evidence, or null to keep the ordinary null presenter.</summary>
+        public string? UnknownText { get; set; }
+
+        /// <summary>Literal text for an explicitly not-applicable value.</summary>
+        public string? NotApplicableText { get; set; }
+
         /// <summary>An identifier for the column (a property name), or null to use the header.</summary>
         public string? Key { get; set; }
 
         /// <summary>Alignment; <c>null</c> = automatic (right for numeric columns, left otherwise). The header follows it.</summary>
         public HorizontalAlignment? Alignment { get; set; }
+
+        /// <summary>Optional header alignment independent of the cell values.</summary>
+        public HorizontalAlignment? HeaderAlignment { get; set; }
 
         /// <summary>
         /// Whether values may wrap onto several lines when space is short (default true). Setting it maps to

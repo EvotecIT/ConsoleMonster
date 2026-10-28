@@ -31,6 +31,12 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Whether the root label is shown.</summary>
         public bool ShowRoot { get; set; }
 
+        /// <summary>Use three-cell guides rather than the original four-cell guides.</summary>
+        public bool CompactGuides { get; set; }
+
+        /// <summary>Where value columns begin. Default views use AfterLabel.</summary>
+        public TreeValuePlacement ValuePlacement { get; set; }
+
         /// <summary>Wrap labels, values and notes with a hanging indent instead of shortening them (default false).</summary>
         public bool WrapLabels { get; set; }
 
@@ -153,11 +159,17 @@ namespace ConsoleMonster.Widgets {
                 TreeReferenceKind reference = child.Reference;
                 if (path.Contains(identity)) reference |= TreeReferenceKind.Cycle;
                 else if (DetectRepeatedNodes && seen.Contains(identity)) reference |= TreeReferenceKind.Repeat;
-                rows.Add(Row(indent + glyphs.Get(last ? Glyph.TreeLast : Glyph.TreeBranch), child, reference));
+                string branch = glyphs.Get(last ? Glyph.TreeLast : Glyph.TreeBranch);
+                string continuation = glyphs.Get(last ? Glyph.TreeSpace : Glyph.TreeVertical);
+                if (CompactGuides) {
+                    branch = context.Glyphs.Tier == Capabilities.GlyphTier.Ascii ? last ? "`- " : "|- " : last ? "└─ " : "├─ ";
+                    continuation = last ? "   " : context.Glyphs.Tier == Capabilities.GlyphTier.Ascii ? "|  " : "│  ";
+                }
+                rows.Add(Row(indent + (child.Bare ? string.Empty : branch), child, reference));
                 seen.Add(identity);
                 if (Stops(reference)) continue;
                 path.Add(identity);
-                Walk(child, indent + glyphs.Get(last ? Glyph.TreeSpace : Glyph.TreeVertical), rows, context, path, seen);
+                Walk(child, indent + (child.Bare ? string.Empty : continuation), rows, context, path, seen);
                 path.Remove(identity);
             }
         }
@@ -195,11 +207,10 @@ namespace ConsoleMonster.Widgets {
                 (Node.NoteFor(context) is string note ? note + " " : string.Empty) + Summary;
 
             public string MarkersFor(RenderContext context) {
-                bool ascii = context.Glyphs.Tier != Capabilities.GlyphTier.Full;
                 List<string> parts = new List<string>();
-                if ((Reference & TreeReferenceKind.Cycle) != 0) parts.Add((ascii ? "@" : "↺") + (Node.HasLocalizedCycleNote ? string.Empty : " cycle"));
-                else if ((Reference & TreeReferenceKind.Repeat) != 0) parts.Add((ascii ? "@" : "↪") + " shown above");
-                if ((Reference & TreeReferenceKind.Collapsed) != 0) parts.Add((ascii ? ">" : "▸") + " collapsed");
+                if ((Reference & TreeReferenceKind.Cycle) != 0) parts.Add(context.Glyphs.Get(Glyph.Cycle) + (Node.HasLocalizedCycleNote ? string.Empty : " cycle"));
+                else if ((Reference & TreeReferenceKind.Repeat) != 0) parts.Add(context.Glyphs.Get(Glyph.Repeat) + " shown above");
+                if ((Reference & TreeReferenceKind.Collapsed) != 0) parts.Add(context.Glyphs.Get(Glyph.Collapsed) + " collapsed");
                 if ((Reference & TreeReferenceKind.Incomplete) != 0) parts.Add("? incomplete");
                 return string.Join(" ", parts);
             }

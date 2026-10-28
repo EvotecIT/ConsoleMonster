@@ -55,6 +55,12 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Culture, clock and time zone used by cell presenters.</summary>
         public Presenters.PresentationOptions Presentation { get; set; } = new Presenters.PresentationOptions();
 
+        /// <summary>Table border style for this stream (ordinary streams retain no border).</summary>
+        public TableBorder Border { get; set; } = TableBorder.None;
+
+        /// <summary>Whether each group repeats the column header; false prints one header before the first group.</summary>
+        public bool RepeatHeaderPerGroup { get; set; } = true;
+
         /// <summary>
         /// Lazily renders group headings, data rows and closure summaries. Disposing the result disposes the input.
         /// The first block reads at most <see cref="SampleRows"/> records; subsequent records stream one at a time.
@@ -87,16 +93,24 @@ namespace ConsoleMonster.Widgets {
                 if (cards) {
                     selected = new int[_columns.Count];
                     for (int c = 0; c < selected.Length; c++) selected[c] = c;
+                } else if (layout.Below.Count > 0) {
+                    int[] complete = new int[selected.Length + layout.Below.Count];
+                    Array.Copy(selected, complete, selected.Length);
+                    layout.Below.CopyTo(complete, selected.Length);
+                    selected = complete;
                 }
                 List<TableColumn> frozen = new List<TableColumn>();
                 foreach (int c in selected) {
                     TableColumn copy = RoleTable.CopyColumn(_columns[c]);
                     int v = frozen.Count;
-                    if (!cards) {
+                    if (!cards && v < layout.Visible.Length) {
                         copy.Width = layout.Widths[v];
                         copy.MinWidth = null;
                         copy.MaxWidth = null;
                         copy.Alignment = layout.Alignments[v];
+                    } else if (!cards) {
+                        copy.Placement = ColumnPlacement.Below;
+                        copy.BelowWidth = int.MaxValue;
                     }
                     frozen.Add(copy);
                 }
@@ -105,6 +119,8 @@ namespace ConsoleMonster.Widgets {
                 bool hasGroup = false;
                 TState state = default!;
                 long count = 0;
+                TableCell[]? previousCells = null;
+                if (!RepeatHeaderPerGroup && !cards) yield return FrameComposer.RenderBlock(NewTable(frozen, true), width, context);
                 while (sample.Count > 0 || input.MoveNext()) {
                     Entry entry = sample.Count > 0 ? sample.Dequeue() : Project(input.Current);
                     bool opening = !hasGroup || !string.Equals(active, entry.Group, StringComparison.Ordinal);
@@ -117,14 +133,22 @@ namespace ConsoleMonster.Widgets {
                         state = _seed(active);
                         count = 0;
                         hasGroup = true;
-                        yield return FrameComposer.RenderBlock(new TextBlock("[bold]" + Markup.Escape(active) + "[/]") { Role = ThemeToken.Accent }, width, context);
+                        previousCells = null;
+                        if (active.Length > 0) yield return FrameComposer.RenderBlock(new TextBlock("[bold]" + Markup.Escape(active) + "[/]") { Role = Border == TableBorder.Rule ? ThemeToken.Strong : ThemeToken.Accent }, width, context);
                     }
                     state = _aggregate(state, entry.Item);
                     count++;
-                    Table body = NewTable(frozen, opening);
+                    Table body = NewTable(frozen, RepeatHeaderPerGroup && opening);
                     body.AlwaysCards = cards;
                     TableCell[] cells = new TableCell[selected.Length];
-                    for (int v = 0; v < cells.Length; v++) cells[v] = entry.Cells[selected[v]];
+                    for (int v = 0; v < cells.Length; v++) {
+                        int c = selected[v];
+                        TableCell cell = entry.Cells[c];
+                        TableCell? previous = previousCells == null ? null : previousCells[c];
+                        bool repeats = previous != null && cell.HasValue == previous.HasValue && (cell.HasValue ? Equals(cell.Value, previous.Value) : cell.Markup == previous.Markup);
+                        cells[v] = _columns[c].DimRepeats && repeats ? cell.WithTone(ThemeToken.Muted) : cell;
+                    }
+                    previousCells = entry.Cells;
                     body.AddRow(cells);
                     yield return FrameComposer.RenderBlock(body, width, context);
                 }
@@ -137,8 +161,8 @@ namespace ConsoleMonster.Widgets {
 
         private Table NewTable(IEnumerable<TableColumn> columns, bool header) {
             Table table = new Table {
-                Border = TableBorder.None, RecordViewRows = 0, CardsBelow = 60, ShowHeader = header,
-                HeaderSeparator = false, StableWidths = false, Presentation = Presentation
+                Border = Border, RecordViewRows = 0, CardsBelow = 60, ShowHeader = header,
+                HeaderSeparator = Border == TableBorder.Rule, StableWidths = false, Presentation = Presentation
             };
             foreach (TableColumn column in columns) table.AddColumn(column);
             return table;

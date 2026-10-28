@@ -10,7 +10,7 @@ using ConsoleMonster.Text;
 
 namespace ConsoleMonster.Widgets {
     /// <summary>A labelled status grid with contiguous axis bands, a counted legend and explicit narrow fallbacks.</summary>
-    public sealed class Matrix : IWidget {
+    public sealed partial class Matrix : IWidget {
         private readonly List<MatrixLabel> _rows;
         private readonly List<MatrixLabel> _columns;
         private readonly Dictionary<(int Row, int Column), MatrixCell> _cells = new Dictionary<(int, int), MatrixCell>();
@@ -51,6 +51,12 @@ namespace ConsoleMonster.Widgets {
         /// These do not change cell glyphs or counts. Use ASCII-safe glyphs for all-tier output.</summary>
         public IDictionary<StatusKind, string> LegendMarkers { get; } = new Dictionary<StatusKind, string>();
 
+        /// <summary>Optional semantic roles for caller-labelled matrix states.</summary>
+        public IDictionary<StatusKind, ThemeToken> LegendRoles { get; } = new Dictionary<StatusKind, ThemeToken>();
+
+        /// <summary>Additional markup legend entries for evidence not assignable to a cell.</summary>
+        public IList<string> AdditionalLegendEntries { get; } = new List<string>();
+
         /// <summary>The plain text self-cell legend word, or null for the built-in word.</summary>
         public string? SelfLegendLabel { get; set; }
 
@@ -59,6 +65,24 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>Show counts of supplied statuses, self cells and absent observations (default true).</summary>
         public bool ShowLegend { get; set; } = true;
+
+        /// <summary>Include observed cell counts after state labels in an inline legend (default true).</summary>
+        public bool ShowLegendCounts { get; set; } = true;
+
+        /// <summary>Use inline axis captions, a left band column and the full/short/numbered fit chain.</summary>
+        public bool InlineAxes { get; set; }
+
+        /// <summary>Minimum cell width for an inline grid (default one).</summary>
+        public int MinCellWidth { get; set; } = 1;
+
+        /// <summary>Abbreviated row caption for numbered grids.</summary>
+        public string? ShortRowAxisCaption { get; set; }
+
+        /// <summary>Abbreviated column caption for numbered grids.</summary>
+        public string? ShortColumnAxisCaption { get; set; }
+
+        /// <summary>An optional literal explanation of what each cell contains.</summary>
+        public string? CellNote { get; set; }
 
         /// <summary>Always render the non-healthy list instead of the grid.</summary>
         public bool NonHealthyOnly { get; set; }
@@ -117,6 +141,7 @@ namespace ConsoleMonster.Widgets {
         public void Render(Region region, RenderContext context) => WidgetLines.Render(Lines(region.Width, context), region);
 
         private List<StyledLine> Lines(int width, RenderContext context) {
+            if (InlineAxes) { return InlineLines(width, context); }
             List<StyledLine> lines = new List<StyledLine>();
             if (!string.IsNullOrEmpty(Title)) WidgetLines.Wrap(lines, context.Markup(Title!).Lines[0].WithBaseStyle(context.Style(ThemeToken.Accent).With(TextDecoration.Bold)), width);
             if (!string.IsNullOrEmpty(RowAxisCaption) || !string.IsNullOrEmpty(ColumnAxisCaption)) {

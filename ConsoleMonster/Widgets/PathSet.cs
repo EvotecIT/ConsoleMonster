@@ -11,7 +11,7 @@ using ConsoleMonster.Text;
 
 namespace ConsoleMonster.Widgets {
     /// <summary>Several labelled chains from one origin, wrapping at arrows and optionally marking shared hop identities.</summary>
-    public sealed class PathSet : IWidget {
+    public sealed partial class PathSet : IWidget {
         private readonly List<PathHop[]> _paths = new List<PathHop[]>();
 
         /// <summary>Creates a set of paths from one origin.</summary>
@@ -26,6 +26,9 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>Mark hops present in more than one distinct chain with an asterisk and a legend.</summary>
         public bool HighlightSharedHops { get; set; }
+
+        /// <summary>Show the origin once and use compact branching chains with four-cell hanging continuations.</summary>
+        public bool CompactBranches { get; set; }
 
         /// <summary>The most chains rendered (default 10; zero shows all); omitted chains are counted.</summary>
         public int MaxPaths { get; set; } = 10;
@@ -56,6 +59,7 @@ namespace ConsoleMonster.Widgets {
         public void Render(Region region, RenderContext context) => WidgetLines.Render(Lines(region.Width, context), region);
 
         private List<StyledLine> Lines(int width, RenderContext context) {
+            if (CompactBranches) return BranchLines(width, context);
             List<StyledLine> lines = new List<StyledLine>();
             if (!string.IsNullOrEmpty(Title)) WidgetLines.Wrap(lines, context.Markup(Title!).Lines[0].WithBaseStyle(context.Style(ThemeToken.Accent).With(TextDecoration.Bold)), width);
             Dictionary<string, int> counts = new Dictionary<string, int>(StringComparer.Ordinal);
