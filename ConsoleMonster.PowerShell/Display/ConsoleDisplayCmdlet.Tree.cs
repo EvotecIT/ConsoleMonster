@@ -44,11 +44,17 @@ namespace ConsoleMonster.PowerShell {
             var titles = new List<string?>();
             var shape = Binding.PSShaping.Options();
             foreach (PSObject item in items) {
+                ConsoleViewRegistration? registration = include == null ? ConsoleFormatting.Find(item) : null;
                 InspectorOptions options = PSFormatting.InspectorOptions(Depth, MaxItems, include, Exclude, MaxNodes, item, rootDefaultDisplay: true);
+                if (registration?.Property != null && registration.Property.Length > 0 && registration.Property.All(property => PSText.Unwrap(property) is string)) {
+                    Binding.PSObjectMemberSource? source = options.Sources.OfType<Binding.PSObjectMemberSource>().FirstOrDefault();
+                    if (source != null) { source.RootProperties = registration.Property.Select(property => (string)PSText.Unwrap(property)!).ToArray(); }
+                }
+                options.Budget = new ConsoleMonster.Values.ShapeBudget(options.TimeBudget, options.MaxNodes);
+                string? label = PSText.Markup(Title);
+                if (label == null && (Exclude == null || Exclude.Length == 0) && (include == null || include.Length == 0 || (include.Length == 1 && include[0] == "*"))) { label = Binding.PSShaping.IdentityTitle(item, shape, options.Budget); }
 #pragma warning disable IL2026
                 InspectNode node = ObjectInspector.Inspect(item, options);
-                string? label = PSText.Markup(Title);
-                if (label == null && (Exclude == null || Exclude.Length == 0) && (include == null || include.Length == 0 || (include.Length == 1 && include[0] == "*"))) { label = Binding.PSShaping.Title(item, shape); }
                 inspected.Add(node);
                 titles.Add(label);
 #pragma warning restore IL2026

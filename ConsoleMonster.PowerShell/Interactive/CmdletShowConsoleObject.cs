@@ -108,7 +108,7 @@ namespace ConsoleMonster.PowerShell {
             string rootLabel = RootPath;
             if (!MyInvocation.BoundParameters.ContainsKey(nameof(RootPath))) {
                 rootLabel = _items.Count == 1 && rootValue != null && (Exclude == null || Exclude.Length == 0)
-                    ? Binding.PSShaping.Title(rootValue, Binding.PSShaping.Options()) : "input";
+                    ? Binding.PSShaping.IdentityTitle(PSObject.AsPSObject(rootValue), Binding.PSShaping.Options()) : "input";
             }
             ObjectExplorer explorer = new ObjectExplorer(rootValue, options, RootPath, rootLabel) { Title = Title };
             try {

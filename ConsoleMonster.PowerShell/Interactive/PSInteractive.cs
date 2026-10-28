@@ -115,7 +115,7 @@ namespace ConsoleMonster.PowerShell {
         internal static string ChoiceLabel(object? value, Values.ShapeOptions shape) {
             object? raw = PSText.Unwrap(value);
             if (raw == null || raw is RichText || Values.ValueShaper.IsScalar(raw)) { return Text(value); }
-            return Binding.PSShaping.Title(PSObject.AsPSObject(value), shape);
+            return Binding.PSShaping.IdentityTitle(PSObject.AsPSObject(value), shape);
         }
 
         /// <summary>Builds choices from objects; the chosen objects themselves are returned to the script.</summary>

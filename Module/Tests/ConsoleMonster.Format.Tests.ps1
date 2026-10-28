@@ -39,6 +39,36 @@ $item | Format-ConsoleTree -Depth 1 -AsString
         $text | Should -Not -Match 'PSCustomObject \(depth limit\)'
     }
 
+    It 'uses a registered key for root and depth-limit identities' {
+        $text = Invoke-FormatChild -Script @'
+Register-ConsoleView -TypeName 'Example.Identity' -Property @{ Name = 'Label'; Expression = { $_.Label }; Key = $true }, 'Name'
+$child = [pscustomobject]@{ Name = 'fallback'; Label = 'preferred' }
+$child.PSObject.TypeNames.Insert(0, 'Example.Identity')
+$child | Format-ConsoleTree -Depth 1 -AsString
+[pscustomobject]@{ Children = @($child) } | Format-ConsoleTree -Depth 1 -AsString
+'@
+        @([regex]::Matches($text, 'preferred')).Count | Should -BeGreaterThan 1
+    }
+
+    It 'uses registered property names as the default tree fields' {
+        $text = Invoke-FormatChild -Script @'
+$item = [pscustomobject]@{ Name = 'root'; Label = 'shown'; Extra = 'hidden' }
+$item.PSObject.TypeNames.Insert(0, 'Example.Fields')
+Register-ConsoleView -TypeName 'Example.Fields' -Property 'Label'
+$item | Format-ConsoleTree -Depth 1 -AsString
+'@
+        $text | Should -Match 'Label\s+shown'
+        $text | Should -Not -Match 'Extra\s+hidden'
+    }
+
+    It 'uses a meaningful ToString when the object has no identity fields' {
+        $text = Invoke-FormatChild -Script @'
+Add-Type 'public sealed class LabelOnly { public override string ToString() { return "friendly label"; } }'
+[LabelOnly]::new() | Format-ConsoleTree -Depth 1 -AsString
+'@
+        $text | Should -Match 'friendly label'
+    }
+
     It 'preserves allowed depth-limit identities without reading excluded identity getters' {
         $text = Invoke-FormatChild -Script @'
 $script:reads = 0
@@ -52,6 +82,20 @@ $root | Format-ConsoleTree -Depth 0 -Exclude Name -AsString
 '@
         $text | Should -Match 'Child\s+alpha'
         $text | Should -Match 'READS=0'
+    }
+
+    It 'bounds root identity reads and reports the node limit accurately' {
+        $text = Invoke-FormatChild -Script @'
+$script:reads = 0
+$item = [pscustomobject]@{}
+$item | Add-Member ScriptProperty Name { $script:reads++; 'alpha' }
+$item | Add-Member ScriptProperty DisplayName { $script:reads++; 'Alpha Service' }
+$item | Format-ConsoleTree -MaxNodes 1 -AsString
+"READS=$script:reads"
+'@
+        $text | Should -Match 'READS=1'
+        $text | Should -Match 'node limit reached'
+        $text | Should -Not -Match 'time budget reached'
     }
 
     It 'uses the same collection limits through both tree entry points' {

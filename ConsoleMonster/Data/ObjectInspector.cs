@@ -39,7 +39,7 @@ namespace ConsoleMonster.Data {
             string? name = null
         ) {
             InspectorOptions actual = options ?? new InspectorOptions();
-            return InspectWithBudget(value, actual, new Values.ShapeBudget(actual.TimeBudget, Math.Max(1, actual.MaxNodes)), name);
+            return InspectWithBudget(value, actual, actual.Budget ?? new Values.ShapeBudget(actual.TimeBudget, Math.Max(1, actual.MaxNodes)), name);
         }
 
         // Shares the normal traversal and deadline owner while allowing an instance clock in focused contracts.
@@ -504,7 +504,7 @@ namespace ConsoleMonster.Data {
             // Registered shapers and XML/JSON normalisation run on each value, as in every other view.
             public Values.ShapeOptions Shape { get; }
 
-            public bool OutOfTime => _budget.Exhausted;
+            public bool OutOfTime => _budget.TimeExceeded;
 
             public Values.ShapeBudget Budget => _budget;
 

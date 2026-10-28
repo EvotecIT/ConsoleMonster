@@ -41,7 +41,10 @@ namespace ConsoleMonster.Values {
         public int MaxNodes { get; }
 
         /// <summary>Whether the allowance is spent (time or nodes).</summary>
-        public bool Exhausted => _nodes >= MaxNodes || (_time > TimeSpan.Zero && _elapsed() > _time);
+        public bool Exhausted => _nodes >= MaxNodes || TimeExceeded;
+
+        /// <summary>Whether the elapsed time allowance has expired.</summary>
+        public bool TimeExceeded => _time > TimeSpan.Zero && _elapsed() > _time;
 
         /// <summary>Whether the pass stopped reading at some point.</summary>
         public bool WasExceeded { get; private set; }
