@@ -46,6 +46,19 @@ $item | Show-Console -View Tree -Property * -AsString -Width 80
         $parts[1] | Should -Match 'Extra\s+hidden'
     }
 
+    It 'exports the legacy tree command and uses the same tree path at both widths' {
+        $text = Invoke-FormatChild -Script @'
+$item = [pscustomobject] @{ Name = 'worker-01'; State = 'ready'; Count = 3 }
+foreach ($width in 80, 120) {
+    $old = $item | Format-ConsoleTree -Depth 1 -Width $width -AsString
+    $current = $item | Show-Console -View Tree -Depth 1 -Width $width -AsString
+    "EQUAL${width}=$($old -ceq $current)"
+}
+'@
+        $text | Should -Match 'EQUAL80=True'
+        $text | Should -Match 'EQUAL120=True'
+    }
+
     It 'formats a table with presenters and a totals row as plain text' {
         $text = Invoke-FormatChild -Script "`$artifacts | Show-ConsoleTable -ShowTotals -Width 100 -Property Name, Kind, @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes' }, @{ Name = 'Time'; Presenter = 'Duration' }"
         $text | Should -Match 'Size'
