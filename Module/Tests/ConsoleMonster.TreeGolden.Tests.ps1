@@ -24,4 +24,14 @@ Describe 'ConsoleMonster tree golden output' {
             $actual.Replace("`r`n", "`n").TrimEnd("`n") | Should -BeExactly $golden
         }
     }
+
+    It 'uses the shared Unicode boolean presenter without an extra separator' {
+        $widget = [pscustomobject]@{ Name = 'worker'; Ready = $true; Disabled = $false } | Format-ConsoleTree -Depth 1 -AsWidget
+        $profileType = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile')
+        $profile = $profileType::Fixed(80, 24, 'None', 'Full', 'Stream')
+        $text = [ConsoleMonster.Terminal]::RenderText($widget, $profile)
+        $text | Should -Match ("Ready\s+" + [char]0x2713 + ' yes')
+        $text | Should -Match ("Disabled\s+" + [char]0x2013 + ' no')
+        $text | Should -Not -Match ("Disabled\s+-\s+" + [char]0x2013)
+    }
 }
