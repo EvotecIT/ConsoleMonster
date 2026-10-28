@@ -19,6 +19,46 @@ namespace SiteFrames.Tests {
         public void Dispose() => Directory.Delete(_folder, true);
 
         [Theory]
+        [InlineData("example")]
+        [InlineData("more")]
+        [InlineData("hidden")]
+        public void FluentChainsKeepRegionAndOrdinaryCommentsBetweenStatements(string region) {
+            string path = Source($$"""
+                using ConsoleMonster.Interactive;
+                var menu = new Menu("Fleet");
+                // <{{region}}>
+                menu.Item("First", item => item.Description("First item"));
+                // Explain the next item.
+                menu.Item("Second", item => item.Description("Second item"));
+                menu.Separator();
+                menu.Exit("Quit");
+                // </{{region}}>
+                // Keep the fixed subtitle after the example.
+                menu.Subtitle = "Fixed time";
+                """);
+
+            string fluent = CSharpRunner.FluentSource(path);
+            CSharpRunner.Check(path, fluent);
+            string[] ordered = { "// <" + region + ">", ".Item(\"First\"", "// Explain the next item.",
+                ".Item(\"Second\"", ".Separator()", ".Exit(\"Quit\")", "// </" + region + ">",
+                "// Keep the fixed subtitle after the example.", ".Subtitle(\"Fixed time\")" };
+            int position = -1;
+            foreach (string text in ordered) {
+                int next = fluent.IndexOf(text, position + 1, StringComparison.Ordinal);
+                Assert.True(next > position, $"Missing or misplaced '{text}' in:\n{fluent}");
+                position = next;
+            }
+            Assert.Contains("menu.Item(\"First\"", fluent, StringComparison.Ordinal);
+            Assert.Contains("menu.Subtitle(\"Fixed time\")", fluent, StringComparison.Ordinal);
+            if (region != "example") {
+                var snippets = SourceSnippets.Program(fluent);
+                Assert.DoesNotContain("// <" + region + ">", snippets.Full, StringComparison.Ordinal);
+                Assert.Contains(".Exit(\"Quit\")", snippets.Full, StringComparison.Ordinal);
+                Assert.Contains(".Subtitle(\"Fixed time\")", snippets.Short, StringComparison.Ordinal);
+            }
+        }
+
+        [Theory]
         [InlineData("int n = 0; Terminal.Write(new Rows(new TextBlock((++n).ToString()), new TextBlock(\"B\")) { Gap = n });")]
         [InlineData("Terminal.Write(new Panel(new TextBlock(\"Ready\"), ConsoleMonster.Text.RichText.Plain(\"Build\")));")]
         [InlineData("Terminal.Write(new Rows(new TextBlock(markup: \"Ready\"), new Rule(ConsoleMonster.Text.RichText.Plain(\"Build\"))));")]

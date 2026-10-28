@@ -14,7 +14,11 @@ namespace SiteFrames.Capture {
         public static IReadOnlyDictionary<string, string> FluentSources(string path, params string[] companions) => FluentSourcesCore(path, companions, null);
 
         private static IReadOnlyDictionary<string, string> FluentSourcesCore(string path, string[] companions, IReadOnlyList<MetadataReference>? references) {
-            var inputs = companions.Prepend(path).ToDictionary(file => file, file => SourceSnippets.Split(Site.ReadText(file)).Full, StringComparer.Ordinal);
+            var inputs = companions.Prepend(path).ToDictionary(file => file, file => {
+                string source = Site.ReadText(file);
+                _ = SourceSnippets.Split(source); // Validate regions while retaining their boundaries for translation.
+                return source;
+            }, StringComparer.Ordinal);
             CSharpCompilation compilation = CreateCompilation(path, inputs[path], companions: companions, sourceOverrides: inputs, references: references);
             var generated = new Dictionary<string, string>(StringComparer.Ordinal);
             foreach (SyntaxTree tree in compilation.SyntaxTrees.Where(tree => inputs.ContainsKey(tree.FilePath))) {
