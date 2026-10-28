@@ -186,9 +186,11 @@ Disable-ConsoleFormatting -Feature Errors
         $text = Invoke-DefaultsChild @'
 Enable-ConsoleFormatting -Feature Errors, Progress -ProfileSnippet
 Enable-ConsoleFormatting -ProfileSnippet
+Enable-ConsoleFormatting -Feature None -ProfileSnippet
 '@
         $text | Should -Match '(?m)^Enable-ConsoleFormatting -Feature Errors, Progress$'
         $text | Should -Match '(?m)^Enable-ConsoleFormatting$'
+        $text | Should -Match '(?m)^Enable-ConsoleFormatting -Feature None$'
     }
 
     It 'honours $ProgressPreference and writes PowerShell''s progress where the area cannot be drawn' {
