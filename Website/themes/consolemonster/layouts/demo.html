@@ -42,7 +42,7 @@
 <div class="cm-wrap cm-page cm-reel-page">
   {{~ ## The program comes first: the page is how to build it, and running the bundled copy is a shortcut after it. ## ~}}
   {{~ ps = d.source ? d.source.powershell : null; cs = d.source ? d.source.csharp : null; csf = d.source ? d.source.csharpFluent : null ~}}
-  {{~ ps_file = ps ? ps.file : (d.slug + ".ps1"); project = d.slug | string.capitalize | string.replace "-" "" ~}}
+  {{~ ps_file = ps ? ps.file : (d.slug + ".ps1"); project = ""; for part in (d.slug | string.split "-"); project = project + (part | string.capitalize); end ~}}
   {{~ ## A section header with one PowerShell | C# switch for the whole section (the reader's choice, kept across pages). ## ~}}
   <section class="cm-showcase cm-reel-sec" id="build" aria-labelledby="build-title">
     <header class="cm-reel-sec__head">
@@ -115,7 +115,7 @@
       </li>
       <li>
         <div class="cm-reel-steps__text"><h3>Save the project</h3><p>The project selects one C# style at a time and restores ConsoleMonster.</p></div>
-        <a class="cm-btn cm-btn--small" href="{{ d.projectDownload }}" download="{{ project }}.csproj">Download {{ project }}.csproj</a>
+        <div class="cm-reel-steps__file"><a class="cm-btn cm-btn--small" href="{{ d.projectDownload }}" download="{{ project }}.csproj">Download {{ project }}.csproj</a></div>
       </li>
       <li>
         <div class="cm-reel-steps__text"><h3>Save both programs</h3><p>Replace Program.cs and save Program.Fluent.cs beside it.</p></div>
@@ -137,7 +137,7 @@
       </li>
       <li>
         <div class="cm-reel-steps__text"><h3>Save the project</h3><p>The project selects one C# style at a time and restores ConsoleMonster.</p></div>
-        <a class="cm-btn cm-btn--small" href="{{ d.projectDownload }}" download="{{ project }}.csproj">Download {{ project }}.csproj</a>
+        <div class="cm-reel-steps__file"><a class="cm-btn cm-btn--small" href="{{ d.projectDownload }}" download="{{ project }}.csproj">Download {{ project }}.csproj</a></div>
       </li>
       <li>
         <div class="cm-reel-steps__text"><h3>Save both programs</h3><p>Replace Program.cs and save Program.Fluent.cs beside it.</p></div>

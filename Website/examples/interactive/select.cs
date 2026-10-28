@@ -19,7 +19,11 @@ Server[] servers = {
     // </more>
 };
 
-SelectPrompt<Server> prompt = new SelectPrompt<Server>("Target server", servers, s => s.Name, s => s.Site) {
+SelectPrompt<Server> prompt = new SelectPrompt<Server>(
+    "Target server",
+    servers,
+    s => s.Name,
+    s => s.Site) {
     Description = "Type to filter; offline servers show why they cannot be picked."
 };
 foreach (Choice choice in prompt.Choices) {

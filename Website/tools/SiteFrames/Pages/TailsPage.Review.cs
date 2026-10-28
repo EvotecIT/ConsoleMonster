@@ -23,13 +23,12 @@ namespace SiteFrames.Pages {
                 }) {
                     Dictionary<string, CellBuffer> frames = Run(site, width, theme);
                     foreach (KeyValuePair<string, CellBuffer> frame in ReviewStates(width, theme)) { frames.Add(frame.Key, frame.Value); }
-                    foreach (PowerShellHost host in PowerShellHost.All) {
+                    foreach (PowerShellHost host in PowerShellHost.Available) {
                         string path = Path.Combine(output, "tails-" + host.Id + "-" + width + "-" + name + ".ansi");
                         string arguments = "-Example '" + Example(site, "file.ps1").Replace("'", "''")
-                            + "' -Columns " + width + " -Appearance " + name + " -Navigation -Destination '" + path.Replace("'", "''")
-                            + "' -Receipt '" + (path + ".json").Replace("'", "''") + "'";
-                        PowerShellRunner.Run(site, host, Driver(site), width, Rows, PowerShellRunner.Environment(name),
-                            timeout: TimeSpan.FromSeconds(30), arguments: arguments);
+                            + "' -Columns " + width + " -Appearance " + name + " -Navigation -Receipt '" + (path + ".json").Replace("'", "''") + "'";
+                        File.WriteAllBytes(path, PowerShellRunner.Bytes(PowerShellRunner.Run(site, host, Driver(site), width, Rows, PowerShellRunner.Environment(name),
+                            timeout: TimeSpan.FromSeconds(30), arguments: arguments, hostedOutput: true)));
                         Dictionary<string, CellBuffer> native = FindFrames(File.ReadAllText(path), width);
                         foreach (string state in new[] { "following", "paused", "resumed" }) {
                             if (!native.ContainsKey(state)) { throw new InvalidOperationException(host.Id + " did not capture " + state); }

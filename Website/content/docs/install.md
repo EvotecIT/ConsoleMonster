@@ -13,17 +13,20 @@ Install the PowerShell module for scripts, or add the .NET package to a C# appli
 
 ## PowerShell
 
-Install the module for your account:
+Install the module for your account, import it and print a first table:
 
 ```powershell
 Install-Module ConsoleMonster -Scope CurrentUser
+Import-Module ConsoleMonster
+Get-Process | Sort-Object CPU -Descending | Select-Object -First 8 | Show-ConsoleTable
 ```
 
-Then import it and print a first table:
+Then look around. `Show-ConsoleDemo` lists the gallery's demos, grouped by what they are for, and runs the one you pick. `Enable-ConsoleFormatting` makes ordinary output readable for the rest of the session; [Everyday PowerShell output](/guides/everyday-powershell/) shows how to keep it in your profile.
 
 ```powershell
-Import-Module ConsoleMonster
-Get-Service | Select-Object -First 8 Name, Status, StartType | Show-ConsoleTable -Title 'Services' -StatusProperty Status
+Show-ConsoleDemo
+Enable-ConsoleFormatting
+Get-ChildItem
 ```
 
 The module runs on Windows PowerShell 5.1 and PowerShell 7. On PowerShell 7 it loads in its own assembly load context. Version 2 replaces the Spectre.Console and Terminal.Gui based 0.0.x module, whose functions (`New-SpectreImage`, `New-SpectreRule`, `New-Terminal*`) are removed; 0.0.4 stays available on the PowerShell Gallery.
@@ -42,6 +45,16 @@ Replace `Program.cs` with a first table, then start it with `dotnet run`:
 
 ```csharp
 using ConsoleMonster;
+using ConsoleMonster.Widgets;
+
+var files = new DirectoryInfo(".").GetFiles().Select(f => new { f.Name, f.Length });
+Table.For(files).Title("Files").Show();
+```
+
+Columns take presenters, totals and their own settings:
+
+```csharp
+using ConsoleMonster;
 using ConsoleMonster.Presenters;
 using ConsoleMonster.Widgets;
 
@@ -51,7 +64,7 @@ var artifacts = new[] {
 };
 Terminal.Write(Table.For(artifacts)
     .Column(a => a.Artifact, c => c
-        .IsKey()
+        .Key()
         .Overflow(ColumnOverflow.Never))
     .Column(a => a.Size, c => c
         .Presenter(CellPresenters.Bytes)

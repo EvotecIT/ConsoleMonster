@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net472;net8.0;net10.0</TargetFrameworks>
+    <VersionPrefix>2.1.0</VersionPrefix>
+    <!-- The display ABI epoch is an explicit assembly attribute, independent of package-version overrides. -->
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Description>Optional type-scoped, runspace-owned default display adapter for ConsoleMonster.</Description>
+    <Title>ConsoleMonster.PowerShell.Display</Title>
+    <PackageId>ConsoleMonster.PowerShell.Display</PackageId>
+    <PackageTags>console;terminal;powershell;formatting;display;consolemonster</PackageTags>
+    <PackageProjectUrl>https://consolemonster.dev/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/EvotecIT/ConsoleMonster</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <IsPackable>true</IsPackable>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReleaseNotes>Changes in each release: https://github.com/EvotecIT/ConsoleMonster/blob/master/CHANGELOG.MD</PackageReleaseNotes>
+    <NeutralLanguage>en</NeutralLanguage>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../ConsoleMonster/ConsoleMonster.csproj" />
+    <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" PrivateAssets="all" ExcludeAssets="runtime" />
+    <EmbeddedResource Include="Broker/OutDefault.ps1" LogicalName="ConsoleMonster.PowerShell.Display.OutDefault.ps1" />
+    <EmbeddedResource Include="Broker/DisplayMode.ps1" LogicalName="ConsoleMonster.PowerShell.Display.DisplayMode.ps1" />
+    <None Remove="README.md" />
+    <None Include="README.md" Pack="true" PackagePath="/" />
+    <None Include="../Website/static/site/icon-192.png" Pack="true" PackagePath="/icon.png" Visible="false" />
+  </ItemGroup>
+</Project>

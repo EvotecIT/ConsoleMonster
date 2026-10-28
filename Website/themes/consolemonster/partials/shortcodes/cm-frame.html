@@ -6,7 +6,7 @@
 <figure class="cm-figure{{ if ids.size > 1 }} cm-figure--strip{{ end }}"{{ if ids.size > 1 }} style="--cm-strip-cols: {{ strip_cols }}"{{ end }}>
 {{~ if a.frame != "false" ~}}
 <div class="cm-figure__frames">
-{{~ for id in ids; key = id | string.strip; fig = data.figures[key] ~}}
+{{~ for id in ids; key = id | string.strip; fig = data.figures[key]; if a.platform && data.figures[key + "-" + a.platform]; fig = data.figures[key + "-" + a.platform]; end ~}}
 {{~ screen_frame = fig.frame; screen_title = fig.title; screen_meta = fig.meta; screen_label = fig.label; screen_dark = !fig.frame.light ~}}
 {{ include "screen" }}
 {{~ end ~}}
@@ -14,7 +14,7 @@
 {{~ end ~}}
 {{~ ## The code that drew the frames, once per distinct script (side-by-side frames of one script under different
      settings share it), PowerShell first. ## ~}}
-{{~ if a.script != "false"; shown = []; for id in ids; fig = data.figures[id | string.strip]
+{{~ if a.script != "false"; shown = []; for id in ids; key = id | string.strip; fig = data.figures[key]; if a.platform && data.figures[key + "-" + a.platform]; fig = data.figures[key + "-" + a.platform]; end
       if fig.script && !(shown | array.contains fig.script); shown = shown | array.add fig.script ~}}
 <div class="cm-figure__code">
 {{~ style_entry = fig ~}}

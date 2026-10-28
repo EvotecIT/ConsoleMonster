@@ -1,0 +1,35 @@
+{
+  "slug": "scheduled-tasks",
+  "title": "Scheduled task health",
+  "pitch": "Read every task's last result and next run, then follow each failure from trigger to the action that broke.",
+  "category": "Reports",
+  "tags": [
+    "scheduled tasks",
+    "flow",
+    "troubleshooting"
+  ],
+  "terminal": {
+    "width": 100,
+    "height": 34
+  },
+  "runtime": {
+    "powershell": "7.4+",
+    "dotnet": "8.0+"
+  },
+  "addons": [],
+  "makeItYours": [
+    "Fill the task rows from Get-ScheduledTask piped to Get-ScheduledTaskInfo for LastRunTime, LastTaskResult and NextRunTime.",
+    "Translate the result codes you see most often into a cause and a fix for the failure panels.",
+    "Point it at several servers and add a Server column before the Task column."
+  ],
+  "mode": "static",
+  "steps": 1,
+  "tier": "showcase",
+  "useCase": "Use it when a job did not run overnight and you need to know whether the trigger, the task or the action failed.",
+  "featured": false,
+  "capture": {
+    "states": [
+      {}
+    ]
+  }
+}

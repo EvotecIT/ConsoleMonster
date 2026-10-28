@@ -44,14 +44,21 @@ namespace ConsoleMonster.PowerShell {
         private bool _errors;
         private bool _compactErrors;
         private bool _progress;
+        private bool _help;
 
         /// <summary>Starts native routing. Called once by the constructor.</summary>
         private void Begin() {
             ConsoleModuleViews.Discover(_host);
 
-            _active = _options.Force || (!_options.Transcript && ConsoleFormatting.Displayed(_host) && FormatCommandRouter.IsUntranscribed(_host));
+            _active = _options.Force || (!_options.Transcript && ConsoleFormatting.Displayed(_host) && FormatCommandRouter.IsUntranscribed(_host)
+                && (!_options.Shim || Display.DefaultDisplayHostGate.CanRender(_host, _options.TopLevel, _options.Transcript, Terminal.GetCurrentProfile())));
             if (_options.Shim) {
                 ConsoleFormattingFeature features = ConsoleFormatting.Features;
+                // Help proves its native producer and direct output pipe in Handle, including a script's
+                // explicit Out-Default. Automatic-only provenance remains required for default object views.
+                _help = (features & ConsoleFormattingFeature.Help) != 0 && !_options.Transcript
+                    && ConsoleFormatting.Displayed(_host) && FormatCommandRouter.IsUntranscribed(_host)
+                    && Display.DefaultDisplayHostGate.CanRender(_host, true, _options.Transcript, Terminal.GetCurrentProfile());
                 _types = (features & ConsoleFormattingFeature.Output) != 0;
                 _errors = _active && (features & ConsoleFormattingFeature.ErrorView) != 0 && (features & ConsoleFormattingFeature.Errors) == 0
                     && (_options.Force || !ErrorRedirected());
@@ -89,10 +96,10 @@ namespace ConsoleMonster.PowerShell {
                 _inner?.Process(item);
                 return;
             }
-            if (_active && _options.Shim && !_options.Transcript && _options.HelpSink != null
+            if (_help && _options.HelpSink != null
                 && HelpHostFormatting.FindSource(_options.HelpSink) is PSCmdlet source) {
                 if (HelpHostFormatting.IsQuit(source)) { return; }
-                if (HelpHostFormatting.CreateView(source, item, HelpHostFormatting.IsPaged(source)) is IWidget help) {
+                if (HelpHostFormatting.CreateView(source, item) is IWidget help) {
                     // Finish native output before drawing or pausing: help must not overtake a buffered table.
                     _inner!.End();
                     _inner.Dispose();

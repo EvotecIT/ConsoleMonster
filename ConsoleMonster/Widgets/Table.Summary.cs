@@ -43,9 +43,32 @@ namespace ConsoleMonster.Widgets {
             CellContent[] contents = new CellContent[_columns.Count];
             for (int c = 0; c < _columns.Count; c++) {
                 TableColumn column = _columns[c];
-                contents[c] = CellRendering.Content(cells[c], column.Presenter, (IReadOnlyList<RoleRule>)column.RoleRules, contexts[c]);
+                TableCell cell = cells[c];
+                if (cell.HasValue && cell.Value == null && column.UnknownText != null) {
+                    cell = new TableCell("[muted]" + Markup.Escape(column.UnknownText) + "[/]");
+                }
+                contents[c] = CellRendering.Content(cell, column.Presenter, (IReadOnlyList<RoleRule>)column.RoleRules, contexts[c]);
             }
             return contents;
+        }
+
+        // Use the source row so repeated values keep the same styling across chunk and window boundaries.
+        private CellContent[] PresentDataRow(int source, PresenterContext[] contexts) {
+            CellContent[] cells = Present(_rows[source], contexts);
+            if (source == 0 || _rowGroups[source] != _rowGroups[source - 1]) return cells;
+            for (int c = 0; c < _columns.Count; c++) {
+                if (!_columns[c].DimRepeats) continue;
+                TableCell previous = _rows[source - 1][c];
+                TableCell current = _rows[source][c];
+                if (current.HasValue != previous.HasValue || !(current.HasValue ? Equals(current.Value, previous.Value) : current.Markup == previous.Markup)) continue;
+                Color muted = contexts[c].Render.Style(ThemeToken.Muted).Color;
+                for (int line = 0; line < cells[c].Lines.Count; line++) {
+                    List<TextSpan> spans = new List<TextSpan>();
+                    foreach (TextSpan span in cells[c].Lines[line]) spans.Add(new TextSpan(span.Text, span.Style.WithColor(muted)));
+                    cells[c].Lines[line] = new StyledLine(spans);
+                }
+            }
+            return cells;
         }
 
         private List<TableLayoutRow> BuildRows(PresenterContext presenter, StreamStats? stats = null) {
@@ -61,11 +84,13 @@ namespace ConsoleMonster.Widgets {
                     group = _rowGroups[r];
                     groupRows.Clear();
                     if (group >= 0) {
-                        rows.Add(GroupRow(group, presenter, visible.TryGetValue(group, out int count) ? count : 0));
+                        TableLayoutRow heading = GroupRow(group, presenter, visible.TryGetValue(group, out int count) ? count : 0);
+                        if (rows.Count > 0) heading.Height += Math.Max(0, GroupGap);
+                        rows.Add(heading);
                     }
                 }
                 groupRows.Add(r);
-                CellContent[] cells = Present(_rows[r], contexts);
+                CellContent[] cells = PresentDataRow(r, contexts);
                 if (stats != null) {
                     stats.Add(cells);
                     rows.Add(new TableLayoutRow(TableRowKind.Data) { Source = r });
@@ -111,9 +136,10 @@ namespace ConsoleMonster.Widgets {
         internal StyledLine GroupLabel(int group, PresenterContext presenter, int shown) {
             int total = GroupRowCount(group);
             List<TextSpan> spans = new List<TextSpan>();
-            foreach (TextSpan span in presenter.Render.Markup(_groups[group]).Lines[0].WithBaseStyle(presenter.Render.Style(GroupHeadersAsRows ? ThemeToken.Accent : ThemeToken.Header).With(TextDecoration.Bold))) {
+            foreach (TextSpan span in presenter.Render.Markup(_groups[group]).Lines[0].WithBaseStyle(presenter.Render.Style(Border == TableBorder.Rule ? ThemeToken.Strong : GroupHeadersAsRows ? ThemeToken.Accent : ThemeToken.Header).With(TextDecoration.Bold))) {
                 spans.Add(span);
             }
+            if (!ShowGroupCounts) { return new StyledLine(spans); }
             string separator = presenter.Render.Glyphs.Tier == Capabilities.GlyphTier.Ascii ? " - " : " · ";
             string count = shown < total
                 ? Localization.WidgetLabels.Format(presenter.Render.Labels.GroupOf, shown.ToString("N0", presenter.Culture), total.ToString("N0", presenter.Culture))

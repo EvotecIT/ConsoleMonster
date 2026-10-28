@@ -71,7 +71,7 @@ if (`$text -notmatch 'alpha' -or `$text -notmatch 'gamma') { throw 'A shared-gro
 
     It 'rejects unsupported schema data' {
         $path = Join-Path $TestDrive 'invalid.consoleviews.psd1'
-        "@{ SchemaVersion = 2; Views = @() }" | Set-Content -LiteralPath $path
+        "@{ SchemaVersion = 3; Views = @() }" | Set-Content -LiteralPath $path
         $result = Invoke-TestChild -Runtime $script:ViewRuntime -Script @"
 `$ErrorActionPreference = 'Stop'
 Import-Module '$($script:ViewModule)'

@@ -2,11 +2,15 @@
 param([string] $ModulePath, [string] $ReceiptPath, [int] $Width)
 $ErrorActionPreference = 'Stop'
 try {
+    # This owned physical console exercises the interactive route, independently of its CI parent.
+    foreach ($name in 'CI', 'TF_BUILD', 'GITHUB_ACTIONS', 'GITLAB_CI', 'CODEX_CI', 'CONSOLEMONSTER_DEFAULT_VIEWS') {
+        [Environment]::SetEnvironmentVariable($name, $null, 'Process')
+    }
     Import-Module $ModulePath
     . (Join-Path $PSScriptRoot 'Read-TestConsoleFrame.ps1')
     . (Join-Path $PSScriptRoot 'New-ErrorShapeFixture.ps1')
     $invocation = New-ErrorShapeFixture -Directory (Split-Path $ReceiptPath) -MixedOutput
-    [ConsoleMonster.Terminal]::Profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed($Width, 100)
+    [ConsoleMonster.Terminal]::Profile = [ConsoleMonster.Terminal]::GetCurrentProfile().WithSize($Width, 100)
     foreach ($enabled in $false, $true) {
         Clear-Host
         if ($enabled) { Enable-ConsoleFormatting -Feature Errors }

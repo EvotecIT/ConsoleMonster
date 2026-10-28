@@ -37,9 +37,9 @@
     },
     "ConsoleMonsterVersion": {
       "type": "parameter",
-      "description": "The ConsoleMonster package version (default: 2.0.2).",
+      "description": "The ConsoleMonster package version (default: 2.1.0).",
       "datatype": "string",
-      "defaultValue": "2.0.2",
+      "defaultValue": "2.1.0",
       "replaces": "CONSOLEMONSTER_VERSION"
     },
     "NoAot": {
@@ -146,6 +146,24 @@
         },
         {
           "choice": "service-browser"
+        },
+        {
+          "choice": "update-compliance"
+        },
+        {
+          "choice": "license-usage"
+        },
+        {
+          "choice": "stale-accounts"
+        },
+        {
+          "choice": "event-log-summary"
+        },
+        {
+          "choice": "scheduled-tasks"
+        },
+        {
+          "choice": "container-status"
         }
       ],
       "defaultValue": "none"
@@ -670,6 +688,102 @@
         "service-browser/Program.Fluent.cs": "Program.Fluent.cs"
       },
       "condition": "(demo == \"service-browser\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "update-compliance/Program.cs",
+        "update-compliance/Program.Fluent.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "update-compliance/Program.cs": "Program.cs",
+        "update-compliance/Program.Fluent.cs": "Program.Fluent.cs"
+      },
+      "condition": "(demo == \"update-compliance\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "license-usage/Program.cs",
+        "license-usage/Program.Fluent.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "license-usage/Program.cs": "Program.cs",
+        "license-usage/Program.Fluent.cs": "Program.Fluent.cs"
+      },
+      "condition": "(demo == \"license-usage\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "stale-accounts/Program.cs",
+        "stale-accounts/Program.Fluent.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "stale-accounts/Program.cs": "Program.cs",
+        "stale-accounts/Program.Fluent.cs": "Program.Fluent.cs"
+      },
+      "condition": "(demo == \"stale-accounts\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "event-log-summary/Program.cs",
+        "event-log-summary/Program.Fluent.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "event-log-summary/Program.cs": "Program.cs",
+        "event-log-summary/Program.Fluent.cs": "Program.Fluent.cs"
+      },
+      "condition": "(demo == \"event-log-summary\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "scheduled-tasks/Program.cs",
+        "scheduled-tasks/Program.Fluent.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "scheduled-tasks/Program.cs": "Program.cs",
+        "scheduled-tasks/Program.Fluent.cs": "Program.Fluent.cs"
+      },
+      "condition": "(demo == \"scheduled-tasks\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "container-status/Program.cs",
+        "container-status/Program.Fluent.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "container-status/Program.cs": "Program.cs",
+        "container-status/Program.Fluent.cs": "Program.Fluent.cs"
+      },
+      "condition": "(demo == \"container-status\")"
     }
   ]
 }

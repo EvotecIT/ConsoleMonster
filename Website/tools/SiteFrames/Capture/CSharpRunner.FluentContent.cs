@@ -87,12 +87,7 @@ namespace SiteFrames.Capture {
                     if (value is ObjectCreationExpressionSyntax widget && value.GetAnnotations(ContentHelperAnnotation).SingleOrDefault() is SyntaxAnnotation helper) {
                         operation = helper.Data!;
                         arguments = widget.ArgumentList!.WithArguments(SyntaxFactory.SeparatedList(widget.ArgumentList.Arguments.Select(argument => argument.WithNameColon(null))));
-                        if (operation == "Text") {
-                            string text = name + "Text";
-                            for (int suffix = 2; used.Contains(text); suffix++) { text = name + "Text" + suffix; }
-                            arguments = SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.Argument(
-                                SyntaxFactory.ParseExpression(text + " => " + text + ".Content(" + arguments.Arguments[0].Expression + ").IsMarkup()"))));
-                        }
+                        if (operation == "Text") { operation = "Markup"; }
                     }
                     return SyntaxFactory.ExpressionStatement(SyntaxFactory.InvocationExpression(
                         SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.IdentifierName(name), SyntaxFactory.IdentifierName(operation)), arguments));

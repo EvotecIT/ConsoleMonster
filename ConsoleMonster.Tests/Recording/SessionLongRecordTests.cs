@@ -9,6 +9,8 @@ using ConsoleMonster.Sessions;
 using Xunit;
 
 namespace ConsoleMonster.Tests.Sessions {
+    // In-process recording and bounded redaction deadlines share the live-recording isolation.
+    [Collection("Live sessions")]
     public sealed class SessionLongRecordTests : IDisposable {
         private readonly string _folder = Path.Combine(Path.GetTempPath(), "ConsoleMonster-long-record-" + Guid.NewGuid().ToString("N"));
         private SessionRecordingOptions Options() => new SessionRecordingOptions {

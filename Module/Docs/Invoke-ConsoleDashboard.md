@@ -1,25 +1,25 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://github.com/EvotecIT/ConsoleMonster
+online version: https://consolemonster.dev/
 schema: 2.0.0
 ---
 # Invoke-ConsoleDashboard
 ## SYNOPSIS
 Runs a console dashboard live while a script does the work.
 
-The script runs in a runspace the module owns (or, with -Parallel, once per input item on a runspace pool, started as items arrive and limited by -ThrottleLimit). Inside it, $ConsoleSession and the Update-Console, Update-Console, Write-ConsoleLogEntry and related cmdlets update the screen; Write-Host, Write-Warning, Write-Verbose, errors and Console.WriteLine go to the dashboard's log region instead of scribbling over the screen. The screen is redrawn at about 15 frames per second however many updates arrive. Ctrl+C stops the script and always restores the terminal; the dashboard then leaves the alternate screen and prints its final state (or -Summary). Script output is returned when the dashboard ends. In redirected or CI output the dashboard becomes append-only lines. Variables from the caller are not visible inside the script: pass them with -ArgumentList and a param() block.
+The script runs in a runspace the module owns (or, with -Parallel, once per input item on a runspace pool, started as items arrive and limited by -ThrottleLimit). Inside it, $ConsoleSession, Update-Console and Write-ConsoleLogEntry update the screen; Write-Host, Write-Warning, Write-Verbose, errors and Console.WriteLine go to the dashboard's log region instead of scribbling over the screen. The screen is redrawn at about 15 frames per second however many updates arrive. Ctrl+C stops the script and always restores the terminal; the dashboard then leaves the alternate screen and prints its final state (or -Summary). Script output is returned when the dashboard ends. In redirected or CI output the dashboard becomes append-only lines. Variables and functions from the caller are not visible inside the script: read a variable with $using:name (as with ForEach-Object -Parallel), bring functions in with -ImportFunction, or pass values with -ArgumentList and a param() block.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Invoke-ConsoleDashboard [-Dashboard] <IWidget> [-ScriptBlock] <scriptblock> [-ArgumentList <Object[]>] [-InputObject <Object>] [-Parallel] [-ThrottleLimit <int>] [-ImportModule <string[]>] [-RecordPath <string>] [-AutoRecord <int>] [-Summary <IWidget>] [-Inline] [-Transient] [-Clock <SimulatedClock>] [-FramesPerSecond <int>] [-NoLive] [<CommonParameters>]
+Invoke-ConsoleDashboard [-Dashboard] <IWidget> [-ScriptBlock] <scriptblock> [-ArgumentList <Object[]>] [-InputObject <Object>] [-Parallel] [-ThrottleLimit <int>] [-ImportFunction <string[]>] [-ImportModule <string[]>] [-RecordPath <string>] [-AutoRecord <int>] [-Summary <IWidget>] [-Inline] [-Transient] [-Clock <SimulatedClock>] [-FramesPerSecond <int>] [-NoLive] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Runs a console dashboard live while a script does the work.
 
-The script runs in a runspace the module owns (or, with -Parallel, once per input item on a runspace pool, started as items arrive and limited by -ThrottleLimit). Inside it, $ConsoleSession and the Update-Console, Update-Console, Write-ConsoleLogEntry and related cmdlets update the screen; Write-Host, Write-Warning, Write-Verbose, errors and Console.WriteLine go to the dashboard's log region instead of scribbling over the screen. The screen is redrawn at about 15 frames per second however many updates arrive. Ctrl+C stops the script and always restores the terminal; the dashboard then leaves the alternate screen and prints its final state (or -Summary). Script output is returned when the dashboard ends. In redirected or CI output the dashboard becomes append-only lines. Variables from the caller are not visible inside the script: pass them with -ArgumentList and a param() block.
+The script runs in a runspace the module owns (or, with -Parallel, once per input item on a runspace pool, started as items arrive and limited by -ThrottleLimit). Inside it, $ConsoleSession, Update-Console and Write-ConsoleLogEntry update the screen; Write-Host, Write-Warning, Write-Verbose, errors and Console.WriteLine go to the dashboard's log region instead of scribbling over the screen. The screen is redrawn at about 15 frames per second however many updates arrive. Ctrl+C stops the script and always restores the terminal; the dashboard then leaves the alternate screen and prints its final state (or -Summary). Script output is returned when the dashboard ends. In redirected or CI output the dashboard becomes append-only lines. Variables and functions from the caller are not visible inside the script: read a variable with $using:name (as with ForEach-Object -Parallel), bring functions in with -ImportFunction, or pass values with -ArgumentList and a param() block.
 
 ## EXAMPLES
 
@@ -28,14 +28,23 @@ The script runs in a runspace the module owns (or, with -Parallel, once per inpu
 $d = New-ConsoleDashboard -Title 'Patch' -Content { New-ConsolePanel -Title 'Servers' -Content { New-ConsoleLanes }; New-ConsolePanel -Title 'Log' -Fill -Content { New-ConsoleLogRegion } }
 'SRV1', 'SRV2', 'SRV3' | Invoke-ConsoleDashboard $d -Parallel -ThrottleLimit 3 {
     param($Server)
-    Update-Console -Key $Server -Status Running -Total 5 -WidgetId 'lanes'
-    1..5 | ForEach-Object { Start-Sleep -Milliseconds 300; Update-Console -Key $Server -Result Pass -WidgetId 'lanes' }
+    Update-Console lanes -Key $Server -Status Running -Total 5
+    1..5 | ForEach-Object { Start-Sleep -Milliseconds 300; Update-Console lanes -Key $Server -Result Pass }
     Write-Host "$Server patched"
-    Update-Console -Key $Server -Complete -WidgetId 'lanes'
+    Update-Console lanes -Key $Server -Complete
 }
 ```
 
 Three servers processed in parallel, three at a time
+
+### EXAMPLE 2
+```powershell
+$frames = Get-Content ./frames.json | ConvertFrom-Json
+function Show-Frame($Frame) { Update-Console cpu -Append -Value $Frame.Cpu }
+Invoke-ConsoleDashboard $dashboard -ImportFunction Show-Frame { foreach ($frame in $using:frames) { Show-Frame $frame; Wait-ConsoleDashboard 0.5 } }
+```
+
+Use the caller's data and helper function inside the dashboard
 
 ## PARAMETERS
 
@@ -108,6 +117,22 @@ Redraw rate (default 15).
 
 ```yaml
 Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ImportFunction
+Functions from the caller's session to define in the dashboard runspaces, by name.
+
+```yaml
+Type: String[]
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

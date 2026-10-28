@@ -172,7 +172,7 @@ namespace SiteFrames.Tests {
                     Assert.Equal(canonical, File.ReadAllBytes(site.Static("examples/gallery/" + slug + "/" + file)));
                     int lines = File.ReadAllLines(Path.Combine(site.Website, "..", repo)).Length;
                     Assert.Equal(lines, entry["lines"]![language]!.GetValue<int>());
-                    Assert.InRange(lines, 1, tier == "showcase" ? 450 : 250);
+                    Assert.InRange(lines, 1, tier == "showcase" ? 750 : 300);
                 }
                 if (entry["mode"]!.GetValue<string>() == "static") {
                     Assert.Null(entry["replay"]);

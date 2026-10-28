@@ -16,7 +16,9 @@ namespace ConsoleMonster.PowerShell {
             throw new PSArgumentException("'" + PSWidgets.ToText(value) + "' is not a status for " + name + ".");
         }
 
-        internal static void RecordFields(object item, string names) {
+        internal static void RecordFields(object item, string names) => RecordFields(item, names, null);
+
+        internal static void RecordFields(object item, string names, string? hint) {
             var allowed = new HashSet<string>(names.Split(' '), StringComparer.OrdinalIgnoreCase);
             IEnumerable<string> fields;
             if (item is IDictionary dictionary) {
@@ -29,7 +31,7 @@ namespace ConsoleMonster.PowerShell {
                 fields = keys;
             }
             foreach (string name in fields) {
-                if (!allowed.Contains(name)) { throw new PSArgumentException("Unknown item field '" + name + "'. Use " + names + "."); }
+                if (!allowed.Contains(name)) { throw new PSArgumentException("Unknown item field '" + name + "'. Use " + names + "." + (hint == null ? string.Empty : " " + hint)); }
             }
         }
 

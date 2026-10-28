@@ -20,6 +20,8 @@ namespace SiteFrames.Capture {
         public static PowerShellHost Core { get; } = new PowerShellHost("ps7", "PowerShell 7", OperatingSystem.IsWindows() ? "pwsh.exe" : "pwsh");
 
         public static PowerShellHost[] All { get; } = { Core, Desktop };
+        public static IEnumerable<PowerShellHost> Available => OperatingSystem.IsWindows() ? All : new[] { Core };
+        public bool CanCapture => this != Desktop || OperatingSystem.IsWindows();
 
         public string Id { get; }
 
@@ -35,6 +37,7 @@ namespace SiteFrames.Capture {
     internal static class PowerShellRunner {
         public static Dictionary<string, string?> Environment(string theme, string color = "truecolor", string glyphs = "full", string? mode = null) {
             Dictionary<string, string?> env = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase) {
+                ["SITEFRAMES_CAPTURE_POLICY"] = CapturePins.Policy,
                 ["CONSOLEMONSTER_COLOR"] = color,
                 ["CONSOLEMONSTER_GLYPHS"] = glyphs,
                 ["CONSOLEMONSTER_THEME"] = theme,
@@ -45,6 +48,7 @@ namespace SiteFrames.Capture {
                 ["CONSOLEMONSTER_AMBIGUOUS_WIDTH"] = null,
                 ["NO_COLOR"] = null,
                 ["CI"] = null,
+                ["CODEX_CI"] = null,
                 ["TF_BUILD"] = null,
                 ["GITHUB_ACTIONS"] = null,
                 ["BUILD_BUILDID"] = null,
@@ -72,8 +76,9 @@ namespace SiteFrames.Capture {
         /// <c>PS&gt;</c> prompt (with the comment lines just above it) and then run, its output formatted on its own, so the
         /// shown script is only the commands. Definitions such as functions run without a prompt. <paramref name="setup"/>
         /// is PowerShell the recording runs first (such as the folder to start in); it is never shown either.
+        /// <paramref name="hostedOutput"/> selects a script's own hosted recorder sink without adding the checkpoint driver.
         /// </summary>
-        public static List<OutputChunk> Run(Site site, PowerShellHost host, string script, int width, int height, Dictionary<string, string?> environment, string? workingDirectory = null, TimeSpan? timeout = null, bool allowErrors = false, bool showProgress = false, string? arguments = null, string? prompt = null, bool interactive = false, bool session = false, string? setup = null) {
+        public static List<OutputChunk> Run(Site site, PowerShellHost host, string script, int width, int height, Dictionary<string, string?> environment, string? workingDirectory = null, TimeSpan? timeout = null, bool allowErrors = false, bool showProgress = false, string? arguments = null, string? prompt = null, bool interactive = false, bool session = false, string? setup = null, bool recordCheckpoints = false, Action<string>? recording = null, bool hostedOutput = false) {
             string runner = Path.Combine(Path.GetTempPath(), "cmsite-runner-" + Path.GetFileNameWithoutExtension(script) + "-" + host.Id + ".ps1");
             string modules = ModuleLinkRoot(site);
             string directory = workingDirectory ?? Path.GetDirectoryName(script)!;
@@ -98,6 +103,11 @@ namespace SiteFrames.Capture {
             if (setup != null) {
                 sb.Append(setup).Append('\n');
             }
+            if (recordCheckpoints && session) { throw new ArgumentException("A typed session cannot use logical live checkpoints."); }
+            if (recordCheckpoints) {
+                sb.Append("& '").Append(Path.Combine(site.Tool, "Capture", "CheckpointCapture.ps1").Replace("'", "''"))
+                    .Append("' -Width ").Append(width).Append(" -Height ").Append(height).Append(" -ScriptBlock {\n");
+            }
             if (session) {
                 sb.Append(SessionDriver.Replace("{script}", script.Replace("'", "''")));
             } else {
@@ -107,14 +117,17 @@ namespace SiteFrames.Capture {
                 }
                 sb.Append('\n');
             }
+            if (recordCheckpoints) { sb.Append("}\n"); }
             if (allowErrors) {
                 sb.Append("exit 0\n");
             }
             File.WriteAllText(runner, sb.ToString(), new UTF8Encoding(true));
             try {
                 // Prompts refuse to ask in a -NonInteractive session; runs that answer them with scripted keys leave it out.
-                string command = host.Executable + " -NoLogo -NoProfile" + (interactive ? string.Empty : " -NonInteractive") + " -ExecutionPolicy Bypass -File \"" + runner + "\"";
-                return PseudoConsole.Run(command, width, height, environment, directory, timeout ?? TimeSpan.FromMinutes(3));
+                var args = new List<string> { "-NoLogo", "-NoProfile" };
+                if (!interactive) { args.Add("-NonInteractive"); }
+                args.AddRange(new[] { "-ExecutionPolicy", "Bypass", "-File", runner });
+                return TerminalCapture.Run(host.Executable, args, width, height, environment, directory, timeout ?? TimeSpan.FromMinutes(3), recording: recording, hostedOutput: recordCheckpoints || hostedOutput);
             } finally {
                 File.Delete(runner);
             }
@@ -172,7 +185,9 @@ namespace SiteFrames.Capture {
             }
         }
         // Plays a script as a typed session: a prompt and the command, then its output, for each top-level statement.
+        internal static string SessionRecipe => SessionDriver;
         private const string SessionDriver =
+            "$cmRecorder = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Sessions.SessionRecorder', $true)\n" +
             "$cmTokens = $null\n$cmErrors = $null\n" +
             "$cmAst = [System.Management.Automation.Language.Parser]::ParseFile('{script}', [ref] $cmTokens, [ref] $cmErrors)\n" +
             "$cmComments = @($cmTokens | Where-Object { $_.Kind -eq 'Comment' -and $_.Text -notmatch '^#(end)?region' })\n" +
@@ -182,14 +197,15 @@ namespace SiteFrames.Capture {
             "    if ($cmTyped) {\n" +
             "        foreach ($cmComment in $cmComments) {\n" +
             "            if ($cmComment.Extent.StartOffset -ge $cmPrevious -and $cmComment.Extent.EndOffset -le $cmStatement.Extent.StartOffset) {\n" +
-            "                Start-Sleep -Milliseconds 600\n                Write-Host \"PS> $($cmComment.Text)\" -ForegroundColor Yellow\n" +
+            "                Start-Sleep -Milliseconds 600\n                [Console]::Write($cmRecorder::MarkerSequence('site:comment'))\n                Write-Host \"PS> $($cmComment.Text)\" -ForegroundColor Yellow\n" +
             "            }\n" +
             "        }\n" +
-            "        Start-Sleep -Milliseconds 700\n        Write-Host \"PS> $($cmStatement.Extent.Text)\" -ForegroundColor Yellow\n        Start-Sleep -Milliseconds 400\n" +
+            "        Start-Sleep -Milliseconds 700\n        [Console]::Write($cmRecorder::MarkerSequence('site:prompt'))\n        Write-Host \"PS> $($cmStatement.Extent.Text)\" -ForegroundColor Yellow\n        Start-Sleep -Milliseconds 400\n" +
             "    }\n" +
             "    $cmPrevious = $cmStatement.Extent.EndOffset\n" +
+            "    [Console]::Write($cmRecorder::MarkerSequence('site:output'))\n" +
             "    . ([scriptblock]::Create($cmStatement.Extent.Text)) | Out-Default\n" +
-            "}\n";
+            "}\n[Console]::Write($cmRecorder::MarkerSequence('site:end'))\n";
 
         /// <summary>The VT bytes of a run, joined.</summary>
         public static byte[] Bytes(List<OutputChunk> chunks) {

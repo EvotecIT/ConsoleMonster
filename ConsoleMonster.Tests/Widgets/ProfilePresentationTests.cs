@@ -14,6 +14,7 @@ using ConsoleMonster.Widgets;
 using Xunit;
 
 namespace ConsoleMonster.Tests.Widgets {
+    [Collection("Live sessions")]
     public sealed class ProfilePresentationTests {
         private static RenderContext Context(string language) => new RenderContext(
             TerminalProfile.Fixed(100, 40).WithLanguage(CultureInfo.GetCultureInfo(language)), Theme.Dark);
@@ -75,6 +76,12 @@ namespace ConsoleMonster.Tests.Widgets {
                 Environment.SetEnvironmentVariable("CONSOLEMONSTER_NOW", reference);
                 Assert.Equal(expected, new PresenterContext(Context("en")).Now);
                 Assert.Equal(expected, new PresentationOptions().CreateContext(Context("en")).Now);
+                Assert.Equal(DateTimeOffset.Parse(reference, CultureInfo.InvariantCulture), PresentationOptions.ReferenceNow());
+                WatchView watch = new WatchView().Update(new TextBlock("sample"), 1);
+                string pinnedTime = PresentationOptions.ReferenceNow().ToString("HH:mm:ss", CultureInfo.InvariantCulture);
+                Assert.Contains(pinnedTime, Render(watch, Context("en")));
+                watch.Update(new TextBlock("sample"), 2, time: expected.AddHours(1));
+                Assert.Contains(expected.AddHours(1).ToLocalTime().ToString("HH:mm:ss", CultureInfo.InvariantCulture), Render(watch, Context("en")));
                 Assert.Contains("3 h ago", ConsoleExporter.ToText(table, new ExportOptions { Culture = CultureInfo.InvariantCulture }));
                 table.Presentation.Now = expected.AddHours(1);
                 Assert.Contains("4 h ago", ConsoleExporter.ToText(table, new ExportOptions { Culture = CultureInfo.InvariantCulture }));

@@ -11,10 +11,10 @@ namespace ConsoleMonster.Rendering {
     /// <summary>Shared encoding of cell runs into text with SGR changes, used by every output.</summary>
     internal static class CellEncoder {
         /// <summary>Encodes a direct styled line with the same link policy as widget frames and live redraws.</summary>
-        internal static void AppendStyled(StringBuilder sb, StyledLine line, ColorDepth depth, bool hyperlinks) {
+        internal static void AppendStyled(StringBuilder sb, StyledLine line, ColorDepth depth, bool hyperlinks, TerminalProfile? profile = null) {
             if (!hyperlinks) {
                 foreach (TextSpan span in line) {
-                    SgrEncoder.Append(sb, span.Style, depth);
+                    SgrEncoder.Append(sb, span.Style, depth, profile);
                     TextSanitizer.Append(sb, span.Text);
                 }
                 return;
@@ -29,7 +29,7 @@ namespace ConsoleMonster.Rendering {
             // Region owns segmentation across styled spans (combining marks, surrogate pairs and ZWJ sequences).
             new Region(buffer).Write(0, 0, clean);
             Style? current = null;
-            AppendRun(sb, buffer, 0, 0, width, depth, ref current, hyperlinks: true);
+            AppendRun(sb, buffer, 0, 0, width, depth, ref current, hyperlinks: true, profile: profile);
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace ConsoleMonster.Rendering {
         /// (<c>CHA</c>), and an untrusted wide glyph is written over two blanks. If the terminal draws such a glyph wider or
         /// narrower than measured, only that glyph's own cells are affected; the rest of the row stays in its columns.
         /// </remarks>
-        public static void AppendRun(StringBuilder sb, CellBuffer buffer, int y, int start, int endExclusive, ColorDepth depth, ref Style? current, bool anchor = false, bool hyperlinks = false) {
+        public static void AppendRun(StringBuilder sb, CellBuffer buffer, int y, int start, int endExclusive, ColorDepth depth, ref Style? current, bool anchor = false, bool hyperlinks = false, TerminalProfile? profile = null) {
             bool drifting = false;
             string? link = null;
             string? raw = null;
@@ -65,7 +65,7 @@ namespace ConsoleMonster.Rendering {
                     link = target;
                 }
                 if (depth != ColorDepth.None && (!current.HasValue || !current.Value.Equals(cell.Style))) {
-                    SgrEncoder.Append(sb, cell.Style, depth);
+                    SgrEncoder.Append(sb, cell.Style, depth, profile);
                     current = cell.Style;
                 }
                 bool trusted = !anchor || GlyphTrust.IsTrusted(cell.Glyph);

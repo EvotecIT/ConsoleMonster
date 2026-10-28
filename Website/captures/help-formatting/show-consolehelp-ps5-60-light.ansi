@@ -1,31 +1,11 @@
-[?9001h[?1004h[?25l[2J[m[H]0;Administrator: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe[?25h[?25l[38;2;17;24;39m[1mGet-ConsoleCapability[m
-Shows what ConsoleMonster detected about the current
-terminal.[38;2;37;99;235m[1m[5;1HSyntax[m
-  [38;2;17;24;39m[1mGet-ConsoleCapability[m [38;2;212;212;216m[[38;2;124;58;237m-Refresh[38;2;212;212;216m] [<CommonParameters>][38;2;37;99;235m[1m[8;1HDescription[m
-  Shows what ConsoleMonster detected about the current
-  terminal.[12;1H  Returns the terminal profile: kind, mode (Interactive,
-  Stream, Plain), colour depth, glyph tier, size, VT
-  support, console font and the reasons behind each
-  decision. -Refresh detects again (after a resize or font
-  change).[38;2;37;99;235m[1m[18;1HParameters[m
-  [38;2;107;114;128m1 record[m[21;1H  [38;2;17;24;39m[1m-Refresh[m
-    [38;2;107;114;128mType         switch[m
-    [38;2;107;114;128mRequired     no[m
-    [38;2;107;114;128mPosition     named[m
-    [38;2;107;114;128mPipeline     no[m
-    [38;2;107;114;128mDescription  [mDetect again instead of returning the
-                 cached profile.
-  [38;2;107;114;128mCommon parameters: -Debug, -ErrorAction, -ErrorVariable,[m
-  [38;2;107;114;128m-InformationAction, -OutVariable, -Verbose,[m
-  [38;2;107;114;128m-WarningAction and the others (about_CommonParameters).[38;2;37;99;235m[1m[32;1HExamples[?25h[m
-  [1mExample 1[22m[K
-     [38;2;13;148;136mGet-ConsoleCapability [m| [38;2;13;148;136mSelect-Object [38;2;37;99;235m-ExpandProperty… [32;1H[m
-     Show the profile and the decisions
+[0;1;38;2;17;24;39mGet-ConsoleCapability[2;1H[0mShows[7Gwhat[12GConsoleMonster[27Gdetected[36Gabout[42Gthe[46Gcurrent[3;1Hterminal.[5;1H[0;1;38;2;37;99;235mSyntax[6;3H[0;1;38;2;17;24;39mGet-ConsoleCapability[25G[0;38;2;212;212;216m[[0;38;2;124;58;237m-Refresh[0;38;2;212;212;216m][36G[<CommonParameters>][8;1H[0;1;38;2;37;99;235mDescription[9;3H[0mShows[9Gwhat[14GConsoleMonster[29Gdetected[38Gabout[44Gthe[48Gcurrent[10;3Hterminal.[12;3HReturns[11Gthe[15Gterminal[24Gprofile:[33Gkind,[39Gmode[44G(Interactive,[13;3HStream,[11GPlain),[19Gcolour[26Gdepth,[33Gglyph[39Gtier,[45Gsize,[51GVT[14;3Hsupport,[12Gconsole[20Gfont[25Gand[29Gthe[33Greasons[41Gbehind[48Geach[15;3Hdecision.[13G-Refresh[22Gdetects[30Gagain[36G(after[43Ga[45Gresize[52Gor[55Gfont[16;3Hchange).[18;1H[0;1;38;2;37;99;235mParameters[19;3H[0;38;2;107;114;128m1[5Grecord[21;3H[0;1;38;2;17;24;39m-Refresh[22;5H[0;38;2;107;114;128mType[18Gswitch[23;5HRequired[18Gno[24;5HPosition[18Gnamed[25;5HPipeline[18Gno[26;5HDescription[18G[0mDetect[25Gagain[31Ginstead[39Gof[42Greturning[52Gthe[27;18Hcached[25Gprofile.[28;3H[0;38;2;107;114;128mCommon[10Gparameters:[22G-Debug,[30G-ErrorAction,[44G-ErrorVariable,[29;3H-InformationAction,[23G-OutVariable,[37G-Verbose,[30;3H-WarningAction[18Gand[22Gthe[26Gothers[33G(about_CommonParameters).[32;1H[0;1;38;2;37;99;235mExamples[1G
+[3G[0;1mExample 1[1G
+[6G[0;38;2;13;148;136mGet-ConsoleCapability[28G[0m|[30G[0;38;2;13;148;136mSelect-Object[44G[0;38;2;37;99;235m-ExpandProperty…[1G
+[6G[0mShow[11Gthe[15Gprofile[23Gand[27Gthe[31Gdecisions[1G
 
-[38;2;37;99;235m[1mInputs[m[K
-  [38;2;124;58;237mNone[K[m
+[0;1;38;2;37;99;235mInputs[1G
+[3G[0;38;2;124;58;237mNone[1G
 
-[38;2;37;99;235m[1mOutputs[m[K
-  [38;2;124;58;237mConsoleMonster.Capabilities.TerminalProfile[K[m
+[0;1;38;2;37;99;235mOutputs[1G
+[3G[0;38;2;124;58;237mConsoleMonster.Capabilities.TerminalProfile[1G
 
-[?9001l[?1004l

@@ -9,9 +9,11 @@ apis: [TerminalProfile, Get-ConsoleCapability]
 summary: "What ConsoleMonster detects about the console, and the decisions it records."
 ---
 
-Detection runs once and produces a `TerminalProfile`: the output mode, the colour depth, the glyph tier, the window size, the theme preference and the culture. Every value carries the reason it was chosen, which `Get-ConsoleCapability` (and `Terminal.Profile.Decisions` in C#) lists. The frames below are the script shown under the first one, run in a Windows console window with different environments.
+Detection runs once and produces a `TerminalProfile`: the output mode, the colour depth, the glyph tier, the window size, the theme preference and the culture. Every value carries the reason it was chosen, which `Get-ConsoleCapability` (and `Terminal.Profile.Decisions` in C#) lists. The frames below run the script shown under the first one with different environments. Each terminal names its capture platform; colour and glyph detection can differ while the cell-width policy stays pinned.
 
-{{< cm-frame id="profile-detected" caption="Nothing overridden: VT is available, the Windows build supports 24-bit colour, and the console font (Consolas) has no braille, so the glyph tier is Basic." >}}
+{{< cm-frame id="profile-detected" caption="Windows: colour, glyph tier and theme are detected; the capture fixes Unicode cell widths." >}}
+
+{{< cm-frame id="profile-detected" platform="macos" script="false" caption="macOS: the same script in a UTF-8 pseudo terminal, with the same cell-width policy." >}}
 
 ## What is detected
 

@@ -11,12 +11,12 @@ DNSSEC  [WARN] not signed
 | evotec.xyz        | MX   | 3600 | 10 evotec-xyz.mail.protection.outlook.com                      |
 | evotec.xyz        | TXT  | 3600 | v=spf1 include:spf.protection.outlook.com                      |
 |                   |      |      | include:_spf.google.com -all                                   |
-| _dmarc.evotec.xyz | TXT  | 3600 | [PASS] p=reject                                                |
+| _dmarc.evotec.xyz | TXT  | 3600 | [OK] p=reject                                                  |
 +-------------------+------+------+----------------------------------------------------------------+
 
 +- Tree ----------------------------------------+ +- Checks ----------------------------- 3 items -+
-| root                                          | | [PASS] SPF                           9 lookups |
+| root                                          | | [OK]   SPF                           9 lookups |
 | `-- xyz.  2 servers                           | | [WARN] MTA-STS                         missing |
-|     |-- [PASS] dana.ns.cloudflare.com  12 ms  | | [SKIP] BIMI                                    |
+|     |-- [OK] dana.ns.cloudflare.com  12 ms    | | [SKIP] BIMI                                    |
 |     `-- [FAIL] kirk.ns.cloudflare.com  tim... | |                                                |
 +-----------------------------------------------+ +------------------------------------------------+

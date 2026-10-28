@@ -80,6 +80,33 @@ namespace ConsoleMonster.Glyphs {
         RuleLine,
 
         /// <summary>Empty progress track when colour is unavailable (░ / ░ / -).</summary>
-        BarTrack
+        BarTrack,
+
+        /// <summary>A cycle reference.</summary>
+        Cycle,
+        /// <summary>A previously shown reference.</summary>
+        Repeat,
+        /// <summary>Collapsed children.</summary>
+        Collapsed,
+        /// <summary>A two-way relationship.</summary>
+        TwoWay,
+        /// <summary>A winning candidate.</summary>
+        Winner,
+        /// <summary>A blocked path or inheritance.</summary>
+        Blocked,
+        /// <summary>A left-pointing arrow.</summary>
+        ArrowLeft,
+        /// <summary>A negative numeric sign.</summary>
+        Minus,
+        /// <summary>An approximate value.</summary>
+        Approx,
+        /// <summary>A matrix diagonal.</summary>
+        Self,
+        /// <summary>No relationship.</summary>
+        None,
+        /// <summary>A path branch.</summary>
+        PathBranch,
+        /// <summary>The final path branch.</summary>
+        PathLast
     }
 }

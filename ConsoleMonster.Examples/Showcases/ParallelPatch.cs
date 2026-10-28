@@ -8,7 +8,7 @@ using ConsoleMonster.Live;
 
 namespace ConsoleMonster.Examples.Showcases {
     /// <summary>
-    /// Forty servers patched eight at a time with <see cref="ConsoleRun.ForEachAsync{TItem, TResult}"/>: the live view shows
+    /// Forty servers patched eight at a time with <c>ConsoleRun.ForEachAsync</c>: the live view shows
     /// the summary bar, one cell per server, the running items and the failures. Three servers fail and one runs past the
     /// four-second limit. The C# twin of the PowerShell parallel demo (parallel.ps1); the data is invented.
     /// </summary>

@@ -18,7 +18,13 @@ function New-DemoFrame {
             New-ConsolePanel -Title Workers -Content {
                 foreach ($worker in 1..$workerCount) {
                     $value = [Math]::Min(100, 12 + $worker * 5 + $Tick * 17)
-                    New-ConsoleProgress -WidgetId ('worker' + $worker) -Label ('worker-{0:00}' -f $worker) -Value $value -Total 100
+                    $progressParameters = @{
+                        WidgetId = ('worker' + $worker)
+                        Label = ('worker-{0:00}' -f $worker)
+                        Value = $value
+                        Total = 100
+                    }
+                    New-ConsoleProgress @progressParameters
                 }
             }
             New-ConsolePanel -Title Session -Content {
@@ -28,7 +34,8 @@ function New-DemoFrame {
                         'Workers' = '8'
                         'Dropped' = '[pass]0[/]'
                     })
-                New-ConsoleChart -Label 'updates/s' -Type Sparkline -Values @(120, 180, 160, 240, 210, (220 + $Tick * 15))
+                New-ConsoleChart -Title 'updates/s' -Type Sparkline -Values @(120, 180, 160, 240,
+                    210, (220 + $Tick * 15))
             }
         }
         '[muted]Ctrl+C stops the live run.[/]'
@@ -38,13 +45,13 @@ function New-DemoFrame {
 # Behaviour: update each frame in a bounded live run.
 $frames = @(0..4 | ForEach-Object -Process { New-DemoFrame -Tick $_ })
 $screen = New-ConsoleRegion -WidgetId demo -Content $frames[0]
-Invoke-ConsoleDashboard -Dashboard $screen -ArgumentList (, $frames) -ScriptBlock {
-    param($Frames)
+Invoke-ConsoleDashboard -Dashboard $screen -ScriptBlock {
+    $Frames = $using:frames
     foreach ($frame in $Frames) {
         if ($ConsoleSession.Cancellation.IsCancellationRequested) {
             break
         }
         Update-Console -WidgetId demo -Content $frame
-        Wait-ConsoleDashboard -Milliseconds 650
+        Wait-ConsoleDashboard -Seconds 0.65
     }
 }

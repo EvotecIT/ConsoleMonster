@@ -10,7 +10,11 @@ namespace ConsoleMonster.Live {
         // Resolve once at Start: a producer may run in a different PowerShell runspace or target scope.
         private RecordingTarget? _recordingTarget;
         private bool _delayClock;
+        private TimeSpan _checkpointHeartbeat;
         private long _playbackTicks;
+
+        // Simulated clocks retain quarter-second animation steps in full-viewport recordings.
+        internal bool RecordsViewportSteps => _recordingTarget?.SkipDelays == true && _recordingTarget.CaptureViewport;
 
         /// <summary>
         /// Pauses work cancellably. With <see cref="RecordingTarget.SkipDelays"/>, first applies earlier queued updates
@@ -25,7 +29,10 @@ namespace ConsoleMonster.Live {
         /// <exception cref="ArgumentOutOfRangeException">The interval is outside the WaitHandle timeout range.</exception>
         /// <exception cref="InvalidOperationException">The session is not running, or the dispatcher calls this method.</exception>
         /// <exception cref="OperationCanceledException">The session was cancelled or stopped.</exception>
-        public void Delay(TimeSpan delay) {
+        public void Delay(TimeSpan delay) => DelayCore(delay, Cancellation);
+
+        // Replay and watch producers supply their linked cancellation while sharing the same checkpoint admission.
+        internal void DelayCore(TimeSpan delay, CancellationToken cancellation) {
             if (delay < TimeSpan.Zero || delay.TotalMilliseconds > int.MaxValue) {
                 throw new ArgumentOutOfRangeException(nameof(delay));
             }
@@ -45,8 +52,8 @@ namespace ConsoleMonster.Live {
                     EnsureDelayAvailable();
                     throw new InvalidOperationException("The live session has stopped accepting updates.");
                 }
-                checkpoint.Task.Wait(Cancellation);
-                Cancellation.ThrowIfCancellationRequested();
+                checkpoint.Task.Wait(cancellation);
+                cancellation.ThrowIfCancellationRequested();
                 if (!checkpoint.Task.Result) {
                     throw new InvalidOperationException("The dashboard checkpoint could not be captured.", Failure);
                 }
@@ -57,8 +64,8 @@ namespace ConsoleMonster.Live {
             string? snapshot = Environment.GetEnvironmentVariable("CONSOLEMONSTER_SNAPSHOT");
             bool skip = snapshot == "1" || string.Equals(snapshot, "true", StringComparison.OrdinalIgnoreCase)
                 || string.Equals(snapshot, "yes", StringComparison.OrdinalIgnoreCase);
-            if (!skip) { Cancellation.WaitHandle.WaitOne(delay); }
-            Cancellation.ThrowIfCancellationRequested();
+            if (!skip) { cancellation.WaitHandle.WaitOne(delay); }
+            cancellation.ThrowIfCancellationRequested();
         }
 
         // Stop closes admission before signalling its token. Synchronize with that transition, then
@@ -90,9 +97,19 @@ namespace ConsoleMonster.Live {
                 }
                 lock (_outputGate) {
                     FlushUnrouted();
-                    RenderContext context = _context!.WithClock(0, Elapsed);
-                    _frame = FrameComposer.RenderBlock(_root, context.Profile.Width, context);
-                    _recordingTarget!.CaptureCheckpoint(_frame);
+                    RecordingTarget target = _recordingTarget!;
+                    if (target.CaptureViewport && !_output!.SupportsLiveFrames) {
+                        if (_options.StreamHeartbeat > TimeSpan.Zero && Elapsed - _checkpointHeartbeat >= _options.StreamHeartbeat) {
+                            Heartbeat();
+                            _checkpointHeartbeat = Elapsed;
+                        }
+                    } else {
+                        RenderContext context = _context!.WithClock(target.CaptureViewport ? target.CheckpointCount - 1 : 0, Elapsed);
+                        _frame = target.CaptureViewport
+                            ? FrameComposer.Compose(RootForFrame(context.Profile.Height), context.Profile.Width, context.Profile.Height, context)
+                            : FrameComposer.RenderBlock(_root, context.Profile.Width, context);
+                        target.CaptureCheckpoint(_frame);
+                    }
                 }
                 Interlocked.Increment(ref _eventsApplied);
                 checkpoint.TrySetResult(true);

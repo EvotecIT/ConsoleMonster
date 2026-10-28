@@ -24,6 +24,8 @@ env:
   TEST_VERBOSITY: minimal
   # Use the same exact Pester package on every supported host.
   PESTER_VERSION: '6.1.0'
+  # Hosted runners are throwaway, so the trash tests may use the real recycle bin and Trash there; local runs skip them.
+  CONSOLEMONSTER_TEST_REAL_TRASH: '1'
 
 jobs:
   dotnet-windows:
@@ -113,6 +115,9 @@ jobs:
 
       - name: Build the console test host (Debug)
         run: dotnet build ConsoleMonster.TestHost/ConsoleMonster.TestHost.csproj --configuration Debug -warnaserror
+
+      - name: Build native editor contracts before the module is loaded
+        run: dotnet build Website/tools/SiteFrames.Tests/SiteFrames.Tests.csproj --configuration Debug -warnaserror
 
       - name: Install Pester
         # Download with the hosted PowerShell 7 client; Run Pester still uses matrix.shell, including 5.1.
@@ -221,13 +226,15 @@ jobs:
       - name: Test
         run: |
           python3 -B -m unittest discover -s ConsoleMonster.Tests/Input/Fixtures -p test_unix_input_pty.py -v
-          dotnet test ConsoleMonster.Tests/ConsoleMonster.Tests.csproj --configuration Release --no-build --framework ${{ matrix.framework }} --verbosity ${{ env.TEST_VERBOSITY }} --logger "console;verbosity=${{ env.TEST_VERBOSITY }}" --logger trx
+          dotnet test ConsoleMonster.Tests/ConsoleMonster.Tests.csproj --configuration Release --no-build --framework ${{ matrix.framework }} --verbosity ${{ env.TEST_VERBOSITY }} --logger "console;verbosity=${{ env.TEST_VERBOSITY }}" --logger trx --blame-hang-timeout 3m --blame-hang-dump-type none
         timeout-minutes: 15
       - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: test-results-macos-${{ matrix.framework }}
-          path: '**/*.trx'
+          path: |
+            **/*.trx
+            **/*Sequence.xml
 
   native-aot-linux:
     name: 'Native AOT (Ubuntu, net10.0)'

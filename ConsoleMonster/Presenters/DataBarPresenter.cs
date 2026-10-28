@@ -25,6 +25,12 @@ namespace ConsoleMonster.Presenters {
         /// <summary>Cells the bar would like.</summary>
         public int BarWidth { get; }
 
+        /// <summary>Whether a matching health role adds a marker after the numeric value (default true).</summary>
+        public bool ShowRoleMarker { get; set; } = true;
+
+        /// <summary>Optional spaces before the value, keeping numeric labels aligned when role markers follow them.</summary>
+        public int ValuePadding { get; set; }
+
         /// <inheritdoc />
         public PresentedValue Present(object? value, PresenterContext context) {
             PresentedValue text = NumberFormat.Present(value, context);
@@ -32,7 +38,13 @@ namespace ConsoleMonster.Presenters {
                 return text;
             }
             double max = Maximum ?? context.ColumnMaximum ?? text.Number.Value;
-            return new PresentedValue(text.Line, HorizontalAlignment.Right) {
+            Text.StyledLine line = text.Line;
+            if (ValuePadding > 0) {
+                var spans = new System.Collections.Generic.List<Text.TextSpan> { new Text.TextSpan(new string(' ', System.Math.Min(100, ValuePadding)), default) };
+                spans.AddRange(line);
+                line = new Text.StyledLine(spans);
+            }
+            return new PresentedValue(line, ValuePadding > 0 ? HorizontalAlignment.Left : HorizontalAlignment.Right) {
                 Number = text.Number,
                 Visual = CellVisualKind.Bar,
                 Fraction = max <= 0 ? 0 : text.Number.Value / max,

@@ -52,12 +52,31 @@ Invoke-ConsoleDashboard $d -Inline {
     It 'Use-ConsoleProgress runs the script with the caller''s variables and returns its output' {
         $text = Invoke-ConsoleChild -Script @'
 $items = 1..3
+$ConsoleSession = 'outer-session'
 $result = Use-ConsoleProgress {
+    if ($null -ne $ConsoleSession) { throw 'The redirected fallback must not borrow the outer session.' }
     foreach ($i in $items) { Write-Progress -Activity 'Work' -PercentComplete ($i * 33) }
     "processed $($items.Count)"
 }
 "RESULT:$result"
+"RESTORED:$ConsoleSession"
 '@
         $text | Should -Match 'RESULT:processed 3'
+        $text | Should -Match 'RESTORED:outer-session'
+    }
+
+    It 'Use-ConsoleProgress exposes its own session for recorded waits and restores the caller scope' {
+        $target = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Testing.TestTerminal'))::Target(40, 12)
+        $target.SkipDelays = $true
+        $ConsoleSession = 'outer-session'
+        Use-ConsoleTarget -Target $target {
+            Use-ConsoleProgress {
+                $ConsoleSession | Should -BeOfType ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.LiveSession'))
+                Write-Progress -Activity 'Work' -PercentComplete 50
+                Wait-ConsoleDashboard -Seconds 0.11 -ErrorAction Stop
+            }
+        }
+        $target.CheckpointCount | Should -Be 1
+        $ConsoleSession | Should -BeExactly 'outer-session'
     }
 }

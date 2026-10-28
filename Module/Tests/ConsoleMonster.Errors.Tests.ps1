@@ -48,4 +48,15 @@ Show-Console -InputObject $inner -Width 120 -View Error
         $views.Count | Should -Be 1
         $views[0].GetType().Name | Should -Be 'ExceptionView'
     }
+
+    It 'shows a caught error as an error without -View' {
+        try { [int]::Parse('x') } catch { $record = $_ }
+        $views = @($record | Show-Console -AsWidget)
+        $views.Count | Should -Be 1
+        $views[0].GetType().Name | Should -Be 'ExceptionView'
+        @($record.Exception | Show-Console -AsWidget)[0].GetType().Name | Should -Be 'ExceptionView'
+        $text = $record | Show-Console -AsString -Width 100
+        $text | Should -Match 'FormatException'
+        $text | Should -Not -Match 'TargetSite'
+    }
 }

@@ -19,7 +19,7 @@ using SiteFrames.Replay;
 
 namespace SiteFrames.Pages {
     /// <summary>Runs the copyable gallery programs and exports their frames, storyboards and metadata.</summary>
-    internal static class GalleryPage {
+    internal static partial class GalleryPage {
         private static readonly HashSet<string> Categories = new HashSet<string>(StringComparer.Ordinal) {
             "Dashboards", "Wizards", "Terminal apps", "Everyday", "Welcome screens", "Reports"
         };
@@ -50,7 +50,9 @@ namespace SiteFrames.Pages {
                     throw new InvalidDataException("Invalid gallery metadata: " + Slug);
                 }
                 foreach (string path in new[] { PowerShell, CSharp, CSharpFluent }) {
-                    int limit = Tier == "showcase" ? 450 : 250;
+                    // Counted after the 100-column layout (SourceLayout, build/Format-ExampleScript.ps1): data rows take two or three
+                    // lines each and long commands splat their parameters.
+                    int limit = Tier == "showcase" ? 750 : 300;
                     if (!File.Exists(path) || File.ReadAllLines(path).Length > limit) {
                         throw new InvalidDataException(Slug + " needs a complete source of at most " + limit + " lines: " + path);
                     }
@@ -82,57 +84,41 @@ namespace SiteFrames.Pages {
             Parity.Transcript(File.ReadAllBytes(CapturePath(site, demo, demo.Steps - 1)), demo.Width, demo.Height);
 
         // Pin only portable inputs. Host versions and machine paths do not belong in deterministic data.
-        private static string Stamp(Site site, Demo demo) {
-            string[] parts = {
-                Site.ReadText(demo.PowerShell), Site.ReadText(demo.CSharp), Site.ReadText(demo.CSharpFluent), Site.ReadText(Path.Combine(site.Website, "..", "ConsoleMonster.PowerShell", "Gallery", "DemoCapture.ps1")), demo.Width.ToString(CultureInfo.InvariantCulture), demo.Height.ToString(CultureInfo.InvariantCulture),
-                demo.Metadata["capture"]!.ToJsonString(), "en-US/dark/truecolor/full/gallery-v3"
-            };
-            // Only clock recipes use this producer setting; ordinary gallery receipts retain their existing inputs.
-            if (demo.Metadata["capture"]!["actionClock"] != null) {
-                parts = parts.Append(Site.ReadText(Path.Combine(site.Website, "tools", "SiteFrames", "Capture", "GalleryCapture.ps1"))).ToArray();
-            }
-            return Replays.Fingerprint(parts);
-        }
+        private static string Stamp(Site site, Demo demo) => Replays.Fingerprint(
+            Site.ReadText(demo.PowerShell), Site.ReadText(demo.CSharp), Site.ReadText(demo.CSharpFluent), Site.ReadText(Path.Combine(site.Website, "..", "ConsoleMonster.PowerShell", "Gallery", "DemoCapture.ps1")), demo.Width.ToString(CultureInfo.InvariantCulture), demo.Height.ToString(CultureInfo.InvariantCulture),
+            demo.Metadata["capture"]!.ToJsonString(), CapturePins.Policy, Site.ReadText(Path.Combine(site.Tool, "Capture", "GalleryCapture.ps1")), "en-US/dark/truecolor/full/gallery-v4");
 
-        /// <summary>Captures every snapshot on PowerShell 7, on macOS, Linux or Windows; no pseudo-console is required.</summary>
+        /// <summary>Captures every PowerShell 7 snapshot through the recorder on macOS, Linux or Windows.</summary>
         public static int Capture(Site site) {
             string modules = PowerShellRunner.ModuleLinkRoot(site);
             string? selected = Environment.GetEnvironmentVariable("SITEFRAMES_GALLERY");
             foreach (Demo demo in Read(site).Where(demo => string.IsNullOrEmpty(selected) || selected.Split(',').Contains(demo.Slug, StringComparer.Ordinal))) {
-                string output = Path.Combine(Path.GetTempPath(), "cm-gallery-" + Guid.NewGuid().ToString("N"));
-                Directory.CreateDirectory(output);
-                try {
-                    ProcessStartInfo info = new ProcessStartInfo("pwsh") { UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true };
-                    foreach (string argument in new[] { "-NoLogo", "-NoProfile", "-NonInteractive", "-File", Path.Combine(site.Tool, "Capture", "GalleryCapture.ps1"),
-                        "-ModuleRoot", modules, "-Source", demo.PowerShell, "-Output", output,
-                        "-Width", demo.Width.ToString(CultureInfo.InvariantCulture), "-Height", demo.Height.ToString(CultureInfo.InvariantCulture),
-                        "-Steps", demo.Steps.ToString(CultureInfo.InvariantCulture) }) info.ArgumentList.Add(argument);
-                    foreach (KeyValuePair<string, string?> setting in PowerShellRunner.Environment("dark")) info.Environment[setting.Key] = setting.Value;
-                    // SiteFrames clears host overrides; captures use the Release module built for the website.
-                    info.Environment["CONSOLEMONSTER_DEVELOPMENT_CONFIGURATION"] = "Release";
-                    using (Process process = Process.Start(info)!) {
-                        var stdout = process.StandardOutput.ReadToEndAsync();
-                        var stderr = process.StandardError.ReadToEndAsync();
-                        if (!process.WaitForExit(60000)) {
-                            process.Kill(true);
-                            process.WaitForExit();
-                            throw new TimeoutException(demo.Slug + " PowerShell capture exceeded one minute.");
-                        }
-                        if (process.ExitCode != 0) throw new InvalidOperationException(demo.Slug + " PowerShell capture failed:\n" + stdout.GetAwaiter().GetResult() + stderr.GetAwaiter().GetResult());
-                    }
-                    for (int step = 0; step < demo.Steps; step++) {
-                        string path = CapturePath(site, demo, step);
-                        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-                        File.Copy(Path.Combine(output, step.ToString(CultureInfo.InvariantCulture) + ".ansi"), path, true);
-                        Stamps.Write(site, path, Stamp(site, demo));
-                    }
-                    Console.WriteLine("captured gallery " + demo.Slug + " (" + demo.Steps + " states)");
-                } finally {
-                    Site.RemoveTemporary(output);
+                var arguments = new[] { "-NoLogo", "-NoProfile", "-NonInteractive", "-File", Path.Combine(site.Tool, "Capture", "GalleryCapture.ps1"),
+                    "-ModuleRoot", modules, "-Source", demo.PowerShell,
+                    "-Width", demo.Width.ToString(CultureInfo.InvariantCulture), "-Height", demo.Height.ToString(CultureInfo.InvariantCulture),
+                    "-Steps", demo.Steps.ToString(CultureInfo.InvariantCulture) };
+                var environment = PowerShellRunner.Environment("dark");
+                environment["CONSOLEMONSTER_DEVELOPMENT_CONFIGURATION"] = "Release";
+                string? cast = null;
+                TerminalCapture.Run(PowerShellHost.Core.Executable, arguments, demo.Width, demo.Height,
+                    environment, demo.Folder, TimeSpan.FromMinutes(1), recording: text => cast = text, hostedOutput: true);
+                var states = RecordedStates(cast ?? throw new InvalidDataException("The recorder returned no gallery session."), demo.Steps);
+                for (int step = 0; step < demo.Steps; step++) {
+                    string path = CapturePath(site, demo, step);
+                    Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+                    CellBuffer frame = Parity.Transcript(System.Text.Encoding.UTF8.GetBytes(states[step]), demo.Width, demo.Height);
+                    var target = new ConsoleMonster.Output.RecordingTarget(CSharpRunner.Profile(demo.Width, demo.Height, ColorDepth.TrueColor, GlyphTier.Full));
+                    using (var writer = ConsoleMonster.Terminal.CreateOutput(target.Profile, target.Writer)) { writer.WriteBlock(frame); }
+                    File.WriteAllText(path, target.Output, new System.Text.UTF8Encoding(false));
+                    CaptureRun.Observe(File.ReadAllBytes(path), demo.Width, demo.Height);
+                    Stamps.Write(site, path, Stamp(site, demo));
+                    CaptureRun.Record(path, demo.Width, demo.Height, "dark");
                 }
+                Console.WriteLine("captured gallery " + demo.Slug + " (" + demo.Steps + " states)");
             }
             return 0;
         }
+
 
         /// <summary>Checks all three source programs cell by cell and by encoded frame bytes, then generates gallery data and downloadable sources.</summary>
         public static void Render(Site site, string? review = null) {
@@ -165,20 +151,7 @@ namespace SiteFrames.Pages {
                 site.Write(site.Static(thumbnail), FrameMinimap.Svg(poster, ColorDepth.TrueColor, Screen.Dark, demo.Width, poster.Height));
                 JsonObject entry = (JsonObject)demo.Metadata.DeepClone();
                 entry["id"] = demo.Slug;
-                JsonObject powershell = Source(demo.PowerShell, demo.Slug);
-                JsonObject csharp = Source(demo.CSharp, demo.Slug);
-                JsonObject fluent = Source(demo.CSharpFluent, demo.Slug);
-                entry["source"] = new JsonObject { ["powershell"] = powershell, ["csharp"] = csharp, ["csharpFluent"] = fluent };
-                entry["powershell"] = powershell["text"]!.GetValue<string>();
-                entry["csharp"] = csharp["text"]!.GetValue<string>();
-                entry["csharpFluent"] = fluent["text"]!.GetValue<string>();
-                entry["apiMap"] = ApiMappingNotes.ForPair(site, demo.CSharp, demo.CSharpFluent, demo.PowerShell);
-                entry["powershellRepo"] = powershell["repo"]!.GetValue<string>();
-                entry["csharpRepo"] = csharp["repo"]!.GetValue<string>();
-                entry["csharpFluentRepo"] = fluent["repo"]!.GetValue<string>();
-                entry["powershellFile"] = demo.Slug + ".ps1";
-                entry["csharpFile"] = "Program.cs";
-                entry["csharpFluentFile"] = "Program.Fluent.cs";
+                WriteSources(site, demo, entry);
                 entry["thumbnail"] = "/" + thumbnail;
                 entry["frame"] = site.Frame(poster, null);
                 entry["parity"] = parity;
@@ -189,17 +162,6 @@ namespace SiteFrames.Pages {
                 };
                 entry["featured"] = demo.Metadata["featured"]?.GetValue<bool>() ?? false;
                 entry["replay"] = null;
-                foreach (string file in new[] { demo.Slug + ".ps1", "Program.cs", "Program.Fluent.cs" }) {
-                    string target = site.Static("examples/gallery/" + demo.Slug + "/" + file);
-                    Directory.CreateDirectory(Path.GetDirectoryName(target)!);
-                    File.Copy(Path.Combine(demo.Folder, file), target, true);
-                }
-                entry["powershellDownload"] = "/examples/gallery/" + demo.Slug + "/" + demo.Slug + ".ps1";
-                entry["csharpDownload"] = "/examples/gallery/" + demo.Slug + "/Program.cs";
-                entry["csharpFluentDownload"] = "/examples/gallery/" + demo.Slug + "/Program.Fluent.cs";
-                string projectTarget = site.Static("examples/gallery/" + demo.Slug + "/GalleryDemo.csproj");
-                File.Copy(Path.Combine(site.Website, "examples", "gallery", "GalleryDemo.csproj.template"), projectTarget, true);
-                entry["projectDownload"] = "/examples/gallery/" + demo.Slug + "/GalleryDemo.csproj";
                 entry["run"] = new JsonObject {
                     ["powershell"] = "Show-ConsoleDemo " + demo.Slug,
                     ["export"] = "Export-ConsoleDemo " + demo.Slug + " -Path ./" + demo.Slug + ".ps1",
@@ -281,6 +243,7 @@ namespace SiteFrames.Pages {
                 File.WriteAllText(demo.CSharpFluent, source, new UTF8Encoding(false));
                 Console.WriteLine("gallery " + demo.Slug + ": fluent source regenerated");
             }
+            WritePublishedSources(site);
         }
 
         /// <summary>Compiles both C# styles independently, without needing terminal captures.</summary>

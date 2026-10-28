@@ -62,7 +62,7 @@ namespace ConsoleMonster.Examples.Showcases {
         }
 
         /// <summary>Builds the stable input and the display rebuilt after each committed edit.</summary>
-        /// <returns>The application layout, ready for <see cref="ConsoleApp.Run"/>.</returns>
+        /// <returns>The application layout, ready for <c>ConsoleApp.Run</c>.</returns>
         public static IWidget Build() {
             // <example>
             return new Rows(

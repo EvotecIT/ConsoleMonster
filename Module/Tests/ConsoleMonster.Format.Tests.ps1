@@ -120,12 +120,12 @@ $p = Get-Process -Id $PID
     It 'marks status fields in Show-ConsoleList records too' {
         $text = Invoke-FormatChild -Script "[pscustomobject] @{ Name = 'a'; Status = 'Failed'; Health = 'Healthy' } | Show-ConsoleList -Width 60"
         $text | Should -Match 'Status\s+\[FAIL\] Failed'
-        $text | Should -Match 'Health\s+\[PASS\] Healthy'
+        $text | Should -Match 'Health\s+\[OK\] Healthy'
     }
 
     It 'marks status columns with PowerShell''s own words in Show-ConsoleTable' {
         $text = Invoke-FormatChild -Script "@([pscustomobject] @{ Name = 'a'; Status = 'Success' }, [pscustomobject] @{ Name = 'b'; Status = 'Warning' }, [pscustomobject] @{ Name = 'c'; Status = 'Error' }) | Show-ConsoleTable -Width 60"
-        $text | Should -Match '\[PASS\] Success'
+        $text | Should -Match '\[OK\] Success'
         $text | Should -Match '\[WARN\] Warning'
         $text | Should -Match '\[FAIL\] Error'
     }

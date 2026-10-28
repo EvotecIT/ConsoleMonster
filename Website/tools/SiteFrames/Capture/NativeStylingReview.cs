@@ -2,6 +2,7 @@ using VtScreen = ConsoleMonster.Sessions.VtScreen;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.Json.Nodes;
 using ConsoleMonster.Canvas;
@@ -14,12 +15,11 @@ namespace SiteFrames.Capture {
         internal static int Run(Site site, string output, bool useAll = false) {
             Directory.CreateDirectory(output);
             JsonArray evidence = new JsonArray();
-            foreach (PowerShellHost host in PowerShellHost.All) {
+            foreach (PowerShellHost host in PowerShellHost.Available) {
                 string script = Path.Combine(site.Tool, "Capture", "NativeStyling.ps1");
-                string commandPrefix = host.Executable + " -NoLogo -NoProfile -File \"" + script + "\" -ModulePath \""
-                    + Path.Combine(site.Repository, "Module", "ConsoleMonster.psd1") + "\"";
+                string[] commandPrefix = { "-NoLogo", "-NoProfile", "-File", script, "-ModulePath", Path.Combine(site.Repository, "Module", "ConsoleMonster.psd1") };
                 string capabilitiesPath = Path.Combine(output, host.Id + "-capabilities");
-                PseudoConsole.Run(commandPrefix + " -Theme Dark -CapabilitiesOnly -EvidencePath \"" + capabilitiesPath + "\"", 120, 20,
+                TerminalCapture.Run(host.Executable, commandPrefix.Concat(new[] { "-Theme", "Dark", "-CapabilitiesOnly", "-EvidencePath", capabilitiesPath }), 120, 20,
                     CaptureEnvironment("Dark"), site.Repository, TimeSpan.FromSeconds(30), capturePath: capabilitiesPath + ".ansi");
                 JsonNode capabilities = JsonNode.Parse(File.ReadAllText(capabilitiesPath + ".json"))!;
                 foreach (string theme in new[] { "Dark", "Light", "HighContrast" }) {
@@ -33,12 +33,12 @@ namespace SiteFrames.Capture {
                                 continue;
                             }
                             string prefix = Path.Combine(output, id);
-                            string command = commandPrefix + " -Theme " + theme + " -EvidencePath \"" + prefix + "\" -Phase " + phase;
-                            if (useAll) { command += " -UseAll"; }
+                            var command = commandPrefix.Concat(new[] { "-Theme", theme, "-EvidencePath", prefix, "-Phase", phase }).ToList();
+                            if (useAll) { command.Add("-UseAll"); }
                             string? keys = phase == "progress" ? null : phase == "prediction" ? "\u001bOQGet-Pro" : "Get-Process -Name 'pwsh' | Select-Object -First 3";
                             if (phase == "selection") { keys += "\u001b[1;2H"; }
                             Dictionary<string, string?> environment = CaptureEnvironment(theme);
-                            List<OutputChunk> chunks = PseudoConsole.Run(command, width, 20, environment, site.Repository,
+                            List<OutputChunk> chunks = TerminalCapture.Run(host.Executable, command, width, 20, environment, site.Repository,
                                 TimeSpan.FromSeconds(30), inputText: keys, readyMarker: "CM_READY", capturePath: prefix + ".ansi", completionText: keys == null ? null : "\u001b[24~");
                             using MemoryStream bytes = new MemoryStream();
                             foreach (OutputChunk chunk in chunks) { bytes.Write(chunk.Data); }

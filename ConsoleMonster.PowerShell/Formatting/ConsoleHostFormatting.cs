@@ -63,7 +63,7 @@ namespace ConsoleMonster.PowerShell {
             }
             ConsoleModuleViews.Discover(source);
             ScriptBlock? existing = FormatCommandInstallation.GlobalFunction(source.SessionState, "Out-Default");
-            bool ours = existing != null && existing.ToString().IndexOf(ConsoleFormatting.Marker, StringComparison.OrdinalIgnoreCase) >= 0;
+            bool ours = Display.DefaultDisplay.IsBrokerInstalled || (existing != null && existing.ToString().IndexOf(ConsoleFormatting.Marker, StringComparison.OrdinalIgnoreCase) >= 0);
             if (existing != null && !ours) {
                 if (!options.Force) {
                     source.WriteWarning("An Out-Default function already exists in source session; it was kept. Use -Force to replace it.");
@@ -92,10 +92,14 @@ namespace ConsoleMonster.PowerShell {
             }
             ApplyNativeColors(source, wanted);
             ConsoleFormatting.Features |= wanted;
+            // Register the shared sink only after a feature actually installed. Refused progress/help
+            // must not leave an Out-Default broker or module cleanup hook behind.
+            EmbeddedDisplayIntegration.Join();
+            EmbeddedDisplayIntegration.SetOutputEnabled((ConsoleFormatting.Features & ConsoleFormattingFeature.Output) != 0);
             if ((wanted & ConsoleFormattingFeature.Errors) != 0) {
                 FormattingSessionState.Current.DetailedErrors = options.Detailed;
             }
-            if (!ours) {
+            if (!ours && !Display.DefaultDisplay.IsBrokerInstalled) {
                 source.SessionState.InvokeProvider.Item.Set("function:global:Out-Default", ScriptBlock.Create(ConsoleFormatting.ShimScript));
             }
             ConsoleFormatting.RestoreCommandsWithModule(source.MyInvocation.MyCommand.Module);
@@ -131,10 +135,13 @@ namespace ConsoleMonster.PowerShell {
                 FormattingSessionState.Current.ReadLine.Restore();
             }
             ConsoleFormatting.Features &= ~off;
+            EmbeddedDisplayIntegration.SetOutputEnabled((ConsoleFormatting.Features & ConsoleFormattingFeature.Output) != 0);
             if ((off & ConsoleFormattingFeature.Errors) != 0) { FormattingSessionState.Current.DetailedErrors = false; }
             if ((ConsoleFormatting.Features & ~(ConsoleFormattingFeature.Streams | ConsoleFormattingFeature.ReadLine | ConsoleFormattingFeature.GridView | ConsoleFormattingFeature.Prompt)) != ConsoleFormattingFeature.None) {
                 return;
             }
+            FormattingSessionState.Current.DisplayLease?.Dispose();
+            FormattingSessionState.Current.DisplayLease = null;
             ScriptBlock? existing = FormatCommandInstallation.GlobalFunction(source.SessionState, "Out-Default");
             if (existing != null && existing.ToString().IndexOf(ConsoleFormatting.Marker, StringComparison.OrdinalIgnoreCase) >= 0) {
                 if (ConsoleFormatting.SavedOutDefault != null) {

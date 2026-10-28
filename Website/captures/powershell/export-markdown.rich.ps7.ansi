@@ -1,7 +1,1 @@
-[?9001h[?1004h[?25l[2J[m[H| Name | Length | LastWriteTime |
-| :--- | ---: | :--- |
-| System.Management.Automation.dll | 18.8 MB | 2026-10-25 03:17 |
-| Microsoft.CodeAnalysis.CSharp.dll | 17.7 MB | 2026-10-25 03:17 |
-| System.Private.CoreLib.dll | 15.3 MB | 2026-10-25 03:17 |
-| PresentationFramework.dll | 15.1 MB | 2026-10-25 03:17 |
-| System.Windows.Forms.dll | 13.1 MB | 2026-10-25 03:17 |[10;1H]0;C:\Program Files\PowerShell\7\pwsh.exe[?25h[?9001l[?1004l
+|[3GName[8G|[10GLength[17G|[19GLastWriteTime[33G|[2;1H|[3G:---[8G|[10G---:[15G|[17G:---[22G|[3;1H|[3GConsoleMonster.dll[22G|[24G1[26GMB[29G|[31G2026-10-21[42G12:00[48G|[4;1H|[3GConsoleMonster.deps.json[28G|[30G4[32GKB[35G|[37G2026-10-21[48G12:00[54G|[5;1H|[3Gstart.ps1[13G|[15G512[19GB[21G|[23G2026-10-21[34G12:00[40G|[8;1H

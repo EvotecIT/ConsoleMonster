@@ -1,6 +1,6 @@
 {{~ ## A demo in docs and guides, by id, with heading (h2 or h3) and autoplay (true for one demo per page); see
      partials/demo.html. The output is one line, with its newlines written as character references, so the Markdown
      around it passes it through as an HTML block and the code inside keeps its blank lines and indentation. ## ~}}
-{{~ a = shortcode.attrs; demo_id = a.id; demo_heading = a.heading; demo_autoplay = a.autoplay == "true" ~}}
+{{~ a = shortcode.attrs; demo_id = a.id; demo_heading = a.heading; demo_autoplay = a.autoplay == "true"; demo_platform = a.platform ~}}
 {{~ capture demo_html ~}}{{ include "demo" }}{{~ end ~}}
 {{ demo_html | string.replace "\r\n" "\n" | string.replace "\n" "&#10;" }}

@@ -33,7 +33,7 @@ namespace ConsoleMonster.Rendering {
         /// <inheritdoc />
         public bool SupportsLiveFrames => false;
 
-        private ColorDepth Depth => Profile.Mode == OutputMode.Plain ? ColorDepth.None : Profile.ColorDepth;
+        private ColorDepth Depth => SgrEncoder.DepthFor(Profile);
 
         /// <inheritdoc />
         public void WriteBlock(CellBuffer buffer) {
@@ -45,9 +45,9 @@ namespace ConsoleMonster.Rendering {
             for (int y = 0; y < buffer.Height; y++) {
                 int end = CellEncoder.ContentEnd(buffer, y, depth);
                 Style? current = null;
-                CellEncoder.AppendRun(_sb, buffer, y, 0, end, depth, ref current);
+                CellEncoder.AppendRun(_sb, buffer, y, 0, end, depth, ref current, profile: Profile);
                 if (depth != ColorDepth.None && end > 0) {
-                    _sb.Append(SgrEncoder.Reset);
+                    SgrEncoder.AppendReset(_sb, Profile);
                 }
                 _sb.Append(Environment.NewLine);
             }
@@ -67,11 +67,11 @@ namespace ConsoleMonster.Rendering {
             _sb.Clear();
             ColorDepth depth = Depth;
             foreach (TextSpan span in line) {
-                SgrEncoder.Append(_sb, span.Style, depth);
+                SgrEncoder.Append(_sb, span.Style, depth, Profile);
                 TextSanitizer.Append(_sb, span.Text);
             }
             if (depth != ColorDepth.None && line.Count > 0) {
-                _sb.Append(SgrEncoder.Reset);
+                SgrEncoder.AppendReset(_sb, Profile);
             }
             if (newLine) {
                 _sb.Append(Environment.NewLine);

@@ -1,10 +1,1 @@
-[?9001h[?1004h[?25l[2J[m[H]0;Administrator: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe[?25h[?25l[1mBefore[22m -> [1mAfter[92m[22m
-+2 added  [91m-2 removed[90m
-… 1 unchanged line (1-1 / 1-1)
- 2  2   [mhost=web-01[90m
- 3    [91m- [mport=[91m[1m80[90m[22m
- 4    [91m- [mprotocol=[91m[1mhttp[90m[22m
-    3 [92m+ [mport=[92m[1m443[90m[22m
-    4 [92m+ [mprotocol=[92m[1mhttps[90m[22m
- 5  5   [mworkers=4[90m
-… 5 unchanged lines (6-10 / 6-10)[12;1H[?25h[m[?9001l[?1004l
+[0;1mBefore[8G[0m->[11G[0;1mAfter[2;1H[0;92m+2[4Gadded[11G[0;91m-2[14Gremoved[3;1H[0;90m…[3G1[5Gunchanged[15Gline[20G(1-1[25G/[27G1-1)[4;2H2[5G2[9G[0mhost=web-01[5;2H[0;90m3[7G[0;91m-[9G[0mport=[0;1;91m80[6;2H[0;90m4[7G[0;91m-[9G[0mprotocol=[0;1;91mhttp[7;5H[0;90m3[7G[0;92m+[9G[0mport=[0;1;92m443[8;5H[0;90m4[7G[0;92m+[9G[0mprotocol=[0;1;92mhttps[9;2H[0;90m5[5G5[9G[0mworkers=4[10;1H[0;90m…[3G5[5Gunchanged[15Glines[21G(6-10[27G/[29G6-10)[12;1H

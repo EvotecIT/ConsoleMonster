@@ -1,15 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <Title>ConsoleMonster.Graphics</Title>
     <TargetFrameworks>netstandard2.0;net472;net8.0;net10.0</TargetFrameworks>
-    <VersionPrefix>2.0.2</VersionPrefix>
+    <VersionPrefix>2.1.0</VersionPrefix>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IsPackable>true</IsPackable>
     <PackageId>ConsoleMonster.Graphics</PackageId>
     <Description>Portable PNG, GIF and APNG exports for ConsoleMonster, powered by ChartForgeX.</Description>
+    <PackageTags>console;terminal;png;gif;apng;screenshot;slides;consolemonster</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReleaseNotes>Changes in each release: https://github.com/EvotecIT/ConsoleMonster/blob/master/CHANGELOG.MD</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/EvotecIT/ConsoleMonster</RepositoryUrl>
-    <PackageProjectUrl>https://consolemonster.dev</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://consolemonster.dev/</PackageProjectUrl>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../ConsoleMonster.Generators/ConsoleMonster.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
@@ -19,5 +24,6 @@
     <EmbeddedResource Include="Fonts/JetBrainsMono.ttf" LogicalName="ConsoleMonster.Graphics.JetBrainsMono.ttf" />
     <None Include="Fonts/OFL.txt" Pack="true" PackagePath="licenses/JetBrainsMono-OFL.txt" />
     <None Include="README.md" Pack="true" PackagePath="/" />
+    <None Include="..\Website\static\site\icon-192.png" Pack="true" PackagePath="\icon.png" Visible="false" />
   </ItemGroup>
 </Project>

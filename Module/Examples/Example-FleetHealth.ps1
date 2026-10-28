@@ -182,7 +182,8 @@ $domainField = New-ConsoleField @domainSettings
 $serversSettings = @{
     Key         = 'Servers'
     Label        = 'Servers'
-    Type         = 'MultiSelect'
+    Type         = 'Select'
+    Multiple     = $true
     Page         = 'Scope'
     DependsOn    = 'Domain'
     Minimum      = 1
@@ -217,7 +218,8 @@ $serversField = New-ConsoleField @serversSettings
 $checksSettings = @{
     Key         = 'Checks'
     Label        = 'Checks'
-    Type         = 'MultiSelect'
+    Type         = 'Select'
+    Multiple     = $true
     Page         = 'Checks'
     Choices      = $checks
     Display      = 'Name'
@@ -270,7 +272,7 @@ $formatSettings = @{
 }
 $formatField = New-ConsoleField @formatSettings
 $reportField = New-ConsoleField Report 'Report folder' -Type Path -Kind Folder -Page Options `
-    -Default (Join-Path Reports Fleet) -ParameterName ReportPath
+    -Default 'Reports/Fleet' -ParameterName ReportPath
 $notifyField = New-ConsoleField Notify 'Email the report' -Type Toggle -Page Options -ParameterName Notify
 $emailSettings = @{
     Key        = 'Email'
@@ -348,7 +350,9 @@ $menu = New-ConsoleMenu 'Fleet health check' -Subtitle 'Tue 20 Oct 2026 · 09:30
             Categories = @($categories | Where-Object { $plan.Checks.Category -contains $_ })
         }
         $reportFolder = [string] $Values.Report
-        $plan | Add-Member -NotePropertyName ReportPath -NotePropertyValue (Join-Path $reportFolder $plan.ReportFile)
+        # An invented report name, kept portable in the showcase; this example writes no report file.
+        $reportDisplayPath = $reportFolder.TrimEnd('/', '\').Replace('\', '/') + '/' + $plan.ReportFile
+        $plan | Add-Member -NotePropertyName ReportPath -NotePropertyValue $reportDisplayPath
         $laneTotal = @{}
         foreach ($category in $plan.Categories) {
             $inCategory = @($plan.Checks | Where-Object Category -EQ $category)

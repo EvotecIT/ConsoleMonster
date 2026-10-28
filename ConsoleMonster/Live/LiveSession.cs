@@ -184,8 +184,10 @@ namespace ConsoleMonster.Live {
             if (target == null) { throw new ArgumentNullException(nameof(target)); }
             lock (_lifecycle) {
                 if (_state >= 2) { throw new InvalidOperationException("The session has stopped."); }
-                if (string.IsNullOrEmpty(target.WidgetId) || target.WidgetId == "$log" || !_targets.TryAdd(target.WidgetId, target)) {
-                    throw new ArgumentException("Target names must be unique, nonempty, and must not be '$log'.", nameof(target));
+                if (string.IsNullOrEmpty(target.WidgetId)) { throw new ArgumentException("A live widget needs a nonempty WidgetId.", nameof(target)); }
+                if (target.WidgetId == "$log") { throw new ArgumentException("'$log' is reserved for the session log; give the widget another WidgetId.", nameof(target)); }
+                if (!_targets.TryAdd(target.WidgetId, target)) {
+                    throw new ArgumentException(DuplicateWidgetId(target.WidgetId, _targets.TryGetValue(target.WidgetId, out ILiveTarget? existing) ? existing : null, target), nameof(target));
                 }
                 if (_discovered) { lock (_updateGate) { _additionalTargets[target.WidgetId] = target; _updateTargets[target.WidgetId] = target; } }
                 if (target is ILogTarget) { lock (_logTargets) { _logTargets.Add(target); } }
@@ -313,6 +315,30 @@ namespace ConsoleMonster.Live {
 
         /// <inheritdoc />
         public void Dispose() => Stop();
+
+        // Default ids are per kind (a bar chart is "bars"), so two widgets of one kind in a live tree need their own ids.
+        internal static string DuplicateWidgetId(string widgetId, ILiveTarget? first, ILiveTarget second) =>
+            "Two live widgets use the WidgetId '" + widgetId + "' (" + (first?.GetType().Name ?? "another widget") + " and " + second.GetType().Name
+            + "). Give each its own WidgetId (-WidgetId in PowerShell, the widgetId argument in C#), for example '" + widgetId + "-2'; a widget's default id comes from its kind.";
+
+        /// <summary>Checks a widget tree before it goes live: every live widget needs its own WidgetId.</summary>
+        /// <param name="root">The tree a session or dashboard will own.</param>
+        /// <exception cref="ArgumentException">Two live widgets share an id, or one uses the reserved '$log'.</exception>
+        internal static void ValidateWidgetIds(IWidget root) {
+            if (root == null) { throw new ArgumentNullException(nameof(root)); }
+            var seen = new Dictionary<string, ILiveTarget>(StringComparer.Ordinal);
+            var visited = new HashSet<IWidget>();
+            void Visit(IWidget widget) {
+                if (!visited.Add(widget)) { return; }
+                if (widget is ILiveTarget target && !string.IsNullOrEmpty(target.WidgetId)) {
+                    if (target.WidgetId == "$log") { throw new ArgumentException("'$log' is reserved for the session log; give the widget another WidgetId.", nameof(root)); }
+                    if (seen.TryGetValue(target.WidgetId, out ILiveTarget? first)) { throw new ArgumentException(DuplicateWidgetId(target.WidgetId, first, target), nameof(root)); }
+                    seen.Add(target.WidgetId, target);
+                }
+                if (widget is IContainer container) { foreach (IWidget child in container.Children) { Visit(child); } }
+            }
+            Visit(root);
+        }
 
         private void Discover(IWidget widget) {
             if (widget is ILiveTarget target) { Register(target); }

@@ -1,14 +1,14 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://github.com/EvotecIT/ConsoleMonster
+online version: https://consolemonster.dev/
 schema: 2.0.0
 ---
 # New-ConsoleFlow
 ## SYNOPSIS
 Builds a native flow strip of nodes, labelled edges and one side branch.
 
-Emit nodes first, then edges and an optional branch. Pipeline rows use Kind (Node, Edge or Branch), Key, Label, Status, and the edge/branch From and To fields. Labels are literal. The strip becomes vertical in a narrow terminal.
+Plain strings are steps, connected in order. Emit nodes first, then edges and an optional branch. Pipeline rows use Kind (Node, Edge or Branch), Key, Label, Status, and the edge/branch From and To fields. Kind can be left out for nodes and for edges with From and To; a node's Key defaults to its Label and an edge's Key to From->To. Labels are literal. The strip becomes vertical in a narrow terminal.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -19,11 +19,18 @@ New-ConsoleFlow [[-WidgetId] <string>] [[-Content] <scriptblock>] [-InputObject 
 ## DESCRIPTION
 Builds a native flow strip of nodes, labelled edges and one side branch.
 
-Emit nodes first, then edges and an optional branch. Pipeline rows use Kind (Node, Edge or Branch), Key, Label, Status, and the edge/branch From and To fields. Labels are literal. The strip becomes vertical in a narrow terminal.
+Plain strings are steps, connected in order. Emit nodes first, then edges and an optional branch. Pipeline rows use Kind (Node, Edge or Branch), Key, Label, Status, and the edge/branch From and To fields. Kind can be left out for nodes and for edges with From and To; a node's Key defaults to its Label and an edge's Key to From->To. Labels are literal. The strip becomes vertical in a narrow terminal.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
+```powershell
+'Build', 'Test', 'Deploy' | New-ConsoleFlow | Show-Console
+```
+
+Three steps in order
+
+### EXAMPLE 2
 ```powershell
 New-ConsoleFlow -Content {
     [pscustomobject] @{ Kind = 'Node'; Key = 'leaf'; Label = 'Leaf'; Status = 'Pass' }
@@ -53,7 +60,7 @@ Accept wildcard characters: False
 ```
 
 ### -InputObject
-Items or plain rows with Kind and the corresponding item properties.
+Step names, items or plain rows with Kind and the corresponding item properties.
 
 ```yaml
 Type: PSObject

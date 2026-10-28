@@ -14,3 +14,6 @@
 *.exe binary
 *.pfx binary
 *.snk binary
+
+# Preserve terminal regression bytes, including CR/LF and trailing blanks.
+ConsoleMonster.Tests/Recording/Fixtures/help-repeat/**/*.ansi binary

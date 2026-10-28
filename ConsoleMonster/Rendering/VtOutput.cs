@@ -44,6 +44,8 @@ namespace ConsoleMonster.Rendering {
         // OSC 8 is emitted only where it is known to work; other terminals would print the sequence or ignore it unevenly.
         private bool Hyperlinks => Profile.SupportsHyperlinks;
 
+        private ColorDepth Depth => SgrEncoder.DepthFor(Profile);
+
         /// <summary>Number of bytes (UTF-16 code units) written by the last frame; useful for benchmarks.</summary>
         public int LastFrameLength { get; private set; }
 
@@ -77,10 +79,10 @@ namespace ConsoleMonster.Rendering {
             }
             _sb.Clear();
             _sb.Append('\r');
-            ColorDepth depth = Profile.ColorDepth;
-            CellEncoder.AppendStyled(_sb, line, depth, Hyperlinks);
+            ColorDepth depth = Depth;
+            CellEncoder.AppendStyled(_sb, line, depth, Hyperlinks, Profile);
             if (depth != ColorDepth.None) {
-                _sb.Append(SgrEncoder.Reset);
+                SgrEncoder.AppendReset(_sb, Profile);
             }
             _sb.Append((char)27).Append("[K");
             if (final) {
@@ -94,10 +96,10 @@ namespace ConsoleMonster.Rendering {
                 throw new ArgumentNullException(nameof(line));
             }
             _sb.Clear();
-            ColorDepth depth = Profile.ColorDepth;
-            CellEncoder.AppendStyled(_sb, line, depth, Hyperlinks);
+            ColorDepth depth = Depth;
+            CellEncoder.AppendStyled(_sb, line, depth, Hyperlinks, Profile);
             if (depth != ColorDepth.None) {
-                _sb.Append(SgrEncoder.Reset);
+                SgrEncoder.AppendReset(_sb, Profile);
             }
             if (newLine) {
                 _sb.Append("\r\n");
@@ -114,7 +116,7 @@ namespace ConsoleMonster.Rendering {
             _invalidated = true;
             _outputMode = WindowsOutputModeScope.Activate(_writer);
             try {
-                _writer.Write(Esc + "?1049h" + Esc + "?25l" + Esc + "0m" + Esc + "2J" + Esc + "H");
+                _writer.Write(Esc + "?1049h" + Esc + "?25l" + SgrEncoder.ResetFor(Profile) + Esc + "2J" + Esc + "H");
                 _writer.Flush();
             } catch {
                 // A writer can fail after a partial screen switch. Attempt screen cleanup without hiding its failure.
@@ -132,13 +134,14 @@ namespace ConsoleMonster.Rendering {
             _sb.Append(Esc).Append("?2026h");
             bool full = _invalidated || _previous == null || _previous.Width != frame.Width || _previous.Height != frame.Height;
             Style? current = null;
-            ColorDepth depth = Profile.ColorDepth;
+            ColorDepth depth = Depth;
             if (full) {
-                _sb.Append(Esc).Append("0m").Append(Esc).Append("2J");
+                SgrEncoder.AppendReset(_sb, Profile);
+                _sb.Append(Esc).Append("2J");
                 for (int y = 0; y < frame.Height; y++) {
                     MoveTo(0, y);
                     current = null;
-                    CellEncoder.AppendRun(_sb, frame, y, 0, RowLimit(frame, y), depth, ref current, true, Hyperlinks);
+                    CellEncoder.AppendRun(_sb, frame, y, 0, RowLimit(frame, y), depth, ref current, true, Hyperlinks, Profile);
                 }
             } else {
                 List<DiffRun> runs = FrameDiff.Compute(_previous!, frame);
@@ -148,11 +151,11 @@ namespace ConsoleMonster.Rendering {
                         continue;
                     }
                     MoveTo(run.Start, run.Row);
-                    CellEncoder.AppendRun(_sb, frame, run.Row, run.Start, end, depth, ref current, true, Hyperlinks);
+                    CellEncoder.AppendRun(_sb, frame, run.Row, run.Start, end, depth, ref current, true, Hyperlinks, Profile);
                 }
             }
             if (depth != ColorDepth.None) {
-                _sb.Append(SgrEncoder.Reset);
+                SgrEncoder.AppendReset(_sb, Profile);
             }
             _sb.Append(Esc).Append("?2026l");
             if (_previous == null) {
@@ -186,7 +189,10 @@ namespace ConsoleMonster.Rendering {
             _live = false;
             _previous = null;
             try {
-                _writer.Write(Esc + "0m" + Esc + "?25h" + Esc + "?1049l");
+                string reset = SgrEncoder.ResetFor(Profile);
+                // DEC 1049 can restore saved attributes. Reapply an opted-in baseline on the normal screen too.
+                string restore = Profile.DefaultForeground.IsDefault && Profile.DefaultBackground.IsDefault ? string.Empty : reset;
+                _writer.Write(reset + Esc + "?25h" + Esc + "?1049l" + restore);
                 _writer.Flush();
             } finally {
                 _outputMode?.Dispose();
@@ -207,12 +213,12 @@ namespace ConsoleMonster.Rendering {
         }
 
         private void AppendLine(CellBuffer buffer, int y) {
-            ColorDepth depth = Profile.ColorDepth;
+            ColorDepth depth = Depth;
             int end = CellEncoder.ContentEnd(buffer, y, depth);
             Style? current = null;
-            CellEncoder.AppendRun(_sb, buffer, y, 0, end, depth, ref current, true, Hyperlinks);
+            CellEncoder.AppendRun(_sb, buffer, y, 0, end, depth, ref current, true, Hyperlinks, Profile);
             if (depth != ColorDepth.None && end > 0) {
-                _sb.Append(SgrEncoder.Reset);
+                SgrEncoder.AppendReset(_sb, Profile);
             }
             _sb.Append("\r\n");
         }

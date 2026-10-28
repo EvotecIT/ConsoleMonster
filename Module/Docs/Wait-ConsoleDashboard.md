@@ -1,7 +1,7 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://github.com/EvotecIT/ConsoleMonster
+online version: https://consolemonster.dev/
 schema: 2.0.0
 ---
 # Wait-ConsoleDashboard
@@ -13,7 +13,7 @@ Waits cancellably on the resolved live session and writes no output. A recording
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Wait-ConsoleDashboard -Milliseconds <int> [-Session <LiveSession>] [<CommonParameters>]
+Wait-ConsoleDashboard [-Seconds] <double> [-Session <LiveSession>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -31,7 +31,7 @@ $dashboard = New-ConsoleDashboard -Title 'Scan' -Content {
 Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {
     foreach ($count in 1..3) {
         Update-Console -WidgetId overall -Value $count
-        Wait-ConsoleDashboard -Milliseconds 250
+        Wait-ConsoleDashboard -Seconds 0.25
     }
 }
 ```
@@ -40,17 +40,17 @@ Update progress between cancellable pauses
 
 ## PARAMETERS
 
-### -Milliseconds
-The pause in milliseconds; zero captures a checkpoint without waiting.
+### -Seconds
+The pause in seconds, fractions allowed (0.25 is a quarter second); zero captures a checkpoint without waiting.
 
 ```yaml
-Type: Int32
+Type: Double
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
 
 Required: True
-Position: named
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

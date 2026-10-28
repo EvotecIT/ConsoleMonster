@@ -41,18 +41,21 @@ namespace SiteFrames.Capture {
                 bool options = type.Name.EndsWith("Options", StringComparison.Ordinal);
                 bool input = type.Name is "TextInput" or "Select" or "MultiSelect" or "Toggle" or "Button";
                 if (type.Name == "MultiSelect") { noun = "Select"; }
+                string? question = QuestionNoun(type);
+                if (question != null) { noun = question; }
                 INamedTypeSymbol ui = model.Compilation.GetTypeByMetadataName("ConsoleMonster.Ui")!;
-                IMethodSymbol? factory = ui.GetMembers(noun).OfType<IMethodSymbol>().FirstOrDefault(m => m.Arity == type.Arity && m.Parameters.All(p => p.IsOptional));
+                IMethodSymbol? factory = ui.GetMembers(noun).OfType<IMethodSymbol>().FirstOrDefault(m => (question != null ? m.Arity == 0 : m.Arity == type.Arity) && m.Parameters.All(p => p.IsOptional));
                 if (!options && factory == null) { return visited; } // data records retain ordinary C# construction
                 Namespaces.Add(type.ContainingNamespace.ToDisplayString());
                 if (factory != null) { Namespaces.Add(factory.ReturnType.ContainingNamespace.ToDisplayString()); }
                 if (stageArguments && NeedsArgumentStaging(original, type, ctor, buildDefinition: input || progress || chartType != null || type.Name is "AppBinding" or "AppCommand")) {
                     return StageArguments(original, visited, type, ctor);
                 }
-                string typeArgs = type.IsGenericType ? "<" + string.Join(", ", type.TypeArguments.Select(t => t.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat))) + ">" : string.Empty;
-                ExpressionSyntax result = SyntaxFactory.ParseExpression(options ? "Ui.Options<" + type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat) + ">()" : "Ui." + noun + typeArgs + "()");
+                string typeArgs = type.IsGenericType && question == null ? "<" + string.Join(", ", type.TypeArguments.Select(t => t.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat))) + ">" : string.Empty;
+                ExpressionSyntax result = SyntaxFactory.ParseExpression(options ? "new " + type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat) + "()" : "Ui." + noun + typeArgs + "()");
                 if (chartType != null) { result = Call(result, "Type", SyntaxFactory.ParseExpression("ConsoleMonster.Widgets.ChartType." + chartType)); }
                 if (type.Name == "Spinner") { result = Call(result, "Indeterminate"); }
+                if (question != null && QuestionVariant(type) is string variant) { result = Call(result, variant); }
                 bool build = input || progress || chartType != null || type.Name is "AppBinding" or "AppCommand";
                 var contentParameters = new HashSet<string>(StringComparer.Ordinal);
                 for (int i = 0; i < (visited.ArgumentList?.Arguments.Count ?? 0); i++) {
@@ -69,7 +72,7 @@ namespace SiteFrames.Capture {
                         if (contentParameters.Add(p.Name)) { result = Call(result, "Content", ConstructorContents(original, visited, ctor, p)); }
                         continue;
                     }
-                    if (type.Name == "TextBlock" && p.Name == "markup") { result = Call(Call(result, "Content", value), "IsMarkup"); continue; }
+                    if (type.Name == "TextBlock" && p.Name == "markup") { result = SyntaxFactory.ParseExpression("Ui.Markup(" + value + ")"); continue; }
                     if (type.Name == "Grid" && noun == "LayoutGrid" && p.Name == "columns") { member = "Columns"; }
                     if (type.Name == "Logo" && p.Name == "text") { member = "Text"; }
                     if (type.Name == "AppBinding" && p.Name == "content" || type.Name == "AppCommand" && p.Name == "action") {
@@ -121,7 +124,7 @@ namespace SiteFrames.Capture {
                         } else {
                             result = property.Type.TypeKind == TypeKind.Delegate
                                 ? Call(result, "Configure", SyntaxFactory.ParseExpression(Callback(property.Name, assignment.Right)))
-                                : Call(result, property.Name, assignment.Right);
+                                : Call(result, FluentSourceRewriter.FluentName(property), assignment.Right);
                         }
                     }
                 }
@@ -135,13 +138,15 @@ namespace SiteFrames.Capture {
             private string Unique(string stem, params SyntaxNode[] scope) {
                 var names = model.SyntaxTree.GetRoot().DescendantTokens().Concat(scope.SelectMany(node => node.DescendantTokens()))
                     .Where(t => t.IsKind(SyntaxKind.IdentifierToken)).Select(t => t.ValueText).ToHashSet(StringComparer.Ordinal);
-                string name = "cm" + char.ToUpperInvariant(stem[0]) + stem.Substring(1);
-                for (int suffix = 2; names.Contains(name); suffix++) { name = "cm" + stem + suffix; }
+                string basis = BuilderParameter(stem);
+                string name = basis;
+                for (int suffix = 2; names.Contains(name); suffix++) { name = basis + suffix; }
                 return name;
             }
 
             public override SyntaxNode? VisitInvocationExpression(InvocationExpressionSyntax node) {
                 var visited = (InvocationExpressionSyntax)base.VisitInvocationExpression(node)!;
+                if (QuestionShow(node, visited) is ExpressionSyntax typedShow) { return typedShow.WithTriviaFrom(node); }
                 if (node.Expression is MemberAccessExpressionSyntax originalSetter && visited.Expression is MemberAccessExpressionSyntax setter
                     && model.GetSymbolInfo(node).Symbol is IMethodSymbol setterMethod && setterMethod.Name.EndsWith(originalSetter.Name.Identifier.ValueText, StringComparison.Ordinal)
                     && (setterMethod.ReducedFrom ?? setterMethod).ContainingType.Name.EndsWith("Fluent", StringComparison.Ordinal)
@@ -177,6 +182,11 @@ namespace SiteFrames.Capture {
                 if (factory?.Expression is not MemberAccessExpressionSyntax factoryAccess) { return visited; }
                 string noun = factoryAccess.Name.Identifier.ValueText;
                 if (noun is "Options" or "RichText") { return visited; }
+                if (factory.ArgumentList.Arguments.Count > 0 && value == factory && noun is "Text" or "Markup" or "Rule") {
+                    return visited.WithExpression(((MemberAccessExpressionSyntax)visited.Expression).WithName(SyntaxFactory.IdentifierName(noun)))
+                        .WithArgumentList(factory.ArgumentList);
+                }
+                if (noun == "Markup") { noun = "Text"; }
                 if (factory.ArgumentList.Arguments.Count > 0) {
                     return visited.WithExpression(((MemberAccessExpressionSyntax)visited.Expression).WithName(SyntaxFactory.IdentifierName(noun)));
                 }

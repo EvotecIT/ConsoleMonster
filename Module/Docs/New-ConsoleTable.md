@@ -1,7 +1,7 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://github.com/EvotecIT/ConsoleMonster
+online version: https://consolemonster.dev/
 schema: 2.0.0
 ---
 # New-ConsoleTable
@@ -130,7 +130,7 @@ Accept wildcard characters: False
 ```
 
 ### -Expand
-Fill the available width (spare width goes to the widest text column).
+Fill the available width. The text columns share the spare width in proportion to their widths, while number, date and status columns keep their natural width; a column hashtable's Weight (or Flexible) decides the share instead, and Width or MaxWidth holds.
 
 ```yaml
 Type: SwitchParameter

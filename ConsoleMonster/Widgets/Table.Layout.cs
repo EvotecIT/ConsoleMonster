@@ -27,12 +27,14 @@ namespace ConsoleMonster.Widgets {
             StyledLine[] headers = new StyledLine[count];
             int[] desired = new int[count];
             int[] minimum = new int[count];
+            _freeText = new bool[count];
             for (int c = 0; c < count; c++) {
-                Style headerStyle = HeaderSeparator ? context.Style(ThemeToken.Header) : context.Style(ThemeToken.Header).With(TextDecoration.Underline);
+                Style headerStyle = Border == TableBorder.Rule ? context.Style(ThemeToken.Muted)
+                    : HeaderSeparator ? context.Style(ThemeToken.Header) : context.Style(ThemeToken.Header).With(TextDecoration.Underline);
                 headers[c] = context.Markup(_columns[c].Header).Lines[0].WithBaseStyle(headerStyle);
-                desired[c] = ShowHeader ? headers[c].Width : 0;
+                desired[c] = Border == TableBorder.Rule ? 0 : ShowHeader ? headers[c].Width : 0;
                 // Headers stay whole up to a word's length; very long headers may shorten.
-                minimum[c] = ShowHeader ? Math.Min(headers[c].Width, WordCap) : 1;
+                minimum[c] = Border == TableBorder.Rule ? 1 : ShowHeader ? Math.Min(headers[c].Width, WordCap) : 1;
             }
             // Streaming: every data row is presented and measured once here, then only its index is kept; its cells are
             // presented again when its block is drawn. Column widths still come from every row.
@@ -44,11 +46,12 @@ namespace ConsoleMonster.Widgets {
                     continue;
                 }
                 for (int c = 0; c < count; c++) {
-                    Measure(row.Cells[c], _columns[c], ref desired[c], ref minimum[c]);
+                    Measure(row.Cells[c], _columns[c], ref desired[c], ref minimum[c], ref _freeText[c]);
                 }
             }
             _keyComfort = stats != null ? stats.KeyComfort() : KeyComfort(rows);
             for (int c = 0; c < count; c++) {
+                if (desired[c] == 0 && Border == TableBorder.Rule) { desired[c] = ShowHeader ? headers[c].Width : 1; }
                 ApplyColumnLimits(c, desired, minimum);
             }
 
@@ -57,29 +60,38 @@ namespace ConsoleMonster.Widgets {
             for (int c = 0; c < count; c++) {
                 visible.Add(c);
             }
-            if (KeepAllColumns && count > 1 && SumOf(minimum, visible) + Overhead(count, gap) > maxWidth) {
+            if (KeepAllColumns && count > 1 && SumOf(minimum, visible) + Overhead(visible, gap) > maxWidth) {
                 List<Table> bands = BuildColumnBands(maxWidth, minimum, gap);
                 Rows widgets = new Rows();
                 foreach (Table band in bands) widgets.Add(band);
                 return new TableLayout(TableMode.Grid) { Record = widgets, Bands = bands };
             }
-            if (_rows.Count > 0 && CardsBelow > 0 && maxWidth < CardsBelow && count > 1 && SumOf(minimum, visible) + Overhead(count, gap) > maxWidth) {
+            // A natural-width default view may be narrower than its terminal. Its tier still comes from that destination.
+            int cardViewport = Border == TableBorder.Rule ? context.Profile.Width : maxWidth;
+            if (_rows.Count > 0 && CardsBelow > 0 && cardViewport < CardsBelow && count > 1 && SumOf(minimum, visible) + Overhead(visible, gap) > maxWidth) {
                 return new TableLayout(TableMode.Cards) { Record = BuildCards(presenter) };
             }
             // Hide columns by ascending priority (ties: rightmost first) until the minimums fit; the key column stays.
-            TableLayout layout = new TableLayout(TableMode.Grid) { Gap = gap };
+            TableLayout layout = new TableLayout(TableMode.Grid) { Gap = gap, AvailableWidth = maxWidth };
             List<int> hiddenColumns = new List<int>();
-            while (visible.Count > 1 && SumOf(minimum, visible) + Overhead(visible.Count, gap) > maxWidth) {
+            for (int c = 0; c < count; c++) {
+                if (c != KeyColumn && !_columns[c].IsKey && _columns[c].Placement == ColumnPlacement.Below && maxWidth <= _columns[c].BelowWidth) {
+                    visible.Remove(c); layout.Below.Add(c);
+                }
+            }
+            while (visible.Count > 1 && SumOf(minimum, visible) + Overhead(visible, gap) > maxWidth) {
                 int victim = PickHidden(visible);
                 if (victim < 0) {
                     break;
                 }
                 visible.Remove(victim);
-                hiddenColumns.Add(victim);
+                if (_columns[victim].Placement == ColumnPlacement.Below) { layout.Below.Add(victim); }
+                else { hiddenColumns.Add(victim); }
             }
             hiddenColumns.Sort();
             foreach (int hidden in hiddenColumns) {
-                layout.Hidden.Add(Markup.Strip(_columns[hidden].Header));
+                string name = Markup.Strip(_columns[hidden].Header);
+                if (!string.IsNullOrWhiteSpace(name)) { layout.Hidden.Add(name); }
             }
             if (layout.Hidden.Count > 0 && visible.Count == 1 && count > 1 && CardsBelow > 0) {
                 return new TableLayout(TableMode.Cards) { Record = BuildCards(presenter) };
@@ -91,15 +103,20 @@ namespace ConsoleMonster.Widgets {
                 visibleDesired[v] = desired[visible[v]];
                 visibleMinimum[v] = minimum[visible[v]];
             }
-            int available = Math.Max(visible.Count, maxWidth - Overhead(visible.Count, gap));
+            int available = Math.Max(visible.Count, maxWidth - Overhead(visible, gap));
             int[] widths = Distribute(visibleDesired, visibleMinimum, available, visible);
             WidenForGroupHeadings(widths, visible, rows, maxWidth, gap);
             layout.Visible = visible.ToArray();
+            layout.Gaps = new int[visible.Count];
+            for (int v = 1; v < visible.Count; v++) layout.Gaps[v] = Math.Max(0, _columns[visible[v]].Gap ?? gap);
             layout.Widths = widths;
             layout.Alignments = new HorizontalAlignment[visible.Count];
             layout.HeaderLines = new List<StyledLine>[visible.Count];
             for (int v = 0; v < visible.Count; v++) {
                 int c = visible[v];
+                if (_columns[c].ShortHeader != null && headers[c].Width > widths[v]) {
+                    headers[c] = context.Markup(_columns[c].ShortHeader!).Lines[0].WithBaseStyle(context.Style(ThemeToken.Muted));
+                }
                 layout.Alignments[v] = _columns[c].Alignment ?? (stats != null ? stats.Alignment(c) ?? AutomaticAlignment(c, rows) : AutomaticAlignment(c, rows));
                 layout.HeaderLines[v] = ShowHeader ? Fit(new List<StyledLine> { headers[c] }, widths[v], WrapHeaders ? ColumnOverflow.Wrap : ColumnOverflow.Truncate, 0, context) : new List<StyledLine>();
                 layout.HeaderHeight = Math.Max(layout.HeaderHeight, layout.HeaderLines[v].Count);
@@ -112,7 +129,7 @@ namespace ConsoleMonster.Widgets {
             }
             // A first group heading takes the place of the header separator, or of a boxed table's top rule without a header.
             layout.MergeFirstGroup = !GroupHeadersAsRows && layout.Rows.Count > 0 && layout.Rows[0].Kind == TableRowKind.Group
-                && (ShowHeader ? HeaderSeparator && (IsBoxed || Border == TableBorder.Minimal) : IsBoxed);
+                && (ShowHeader ? HeaderSeparator && (IsBoxed || (Border == TableBorder.Minimal || Border == TableBorder.Rule)) : IsBoxed);
             if (total != null) {
                 FitRow(total, layout, context);
                 layout.Total = total;
@@ -130,7 +147,7 @@ namespace ConsoleMonster.Widgets {
             }
         }
 
-        private static void Measure(CellContent content, TableColumn column, ref int desired, ref int minimum) {
+        private static void Measure(CellContent content, TableColumn column, ref int desired, ref int minimum, ref bool freeText) {
             int text = content.TextWidth;
             int want = content.HasVisual ? text + 1 + content.Presented!.VisualWidth : text;
             desired = Math.Max(desired, want);
@@ -145,6 +162,9 @@ namespace ConsoleMonster.Widgets {
                 // only the space left over.
                 minimum = Math.Max(minimum, text);
                 return;
+            }
+            if (!content.IsEmpty) {
+                freeText = true;
             }
             switch (column.Overflow) {
                 case ColumnOverflow.Never:
@@ -228,6 +248,13 @@ namespace ConsoleMonster.Widgets {
 
         private int Overhead(int columns, int gap) => IsBoxed ? (columns * 3) + 1 : gap * Math.Max(0, columns - 1);
 
+        private int Overhead(IReadOnlyList<int> columns, int gap) {
+            if (IsBoxed) return Overhead(columns.Count, gap);
+            int total = 0;
+            for (int v = 1; v < columns.Count; v++) total += Math.Max(0, _columns[columns[v]].Gap ?? gap);
+            return total;
+        }
+
         private static int SumOf(int[] values, List<int> indexes) {
             int sum = 0;
             foreach (int i in indexes) {
@@ -242,7 +269,7 @@ namespace ConsoleMonster.Widgets {
             int sum = TrackAllocator.Sum(widths);
             if (sum <= available) {
                 if (Expand && count > 0) {
-                    widths[FlexibleColumn(desired, visible)] += available - sum;
+                    Widen(widths, available - sum, visible);
                 }
                 return widths;
             }
@@ -289,7 +316,7 @@ namespace ConsoleMonster.Widgets {
         // Key columns shrink only with the most important columns (down to their comfortable minimum); others by priority.
         private int ShrinkPriority(int column) {
             if (column != KeyColumn && !_columns[column].IsKey) {
-                return _columns[column].Priority;
+                return _columns[column].Priority - (Border == TableBorder.Rule && _columns[column].Flexible ? 100000 : 0);
             }
             int highest = _columns[column].Priority;
             foreach (TableColumn other in _columns) {
@@ -298,24 +325,85 @@ namespace ConsoleMonster.Widgets {
             return highest;
         }
 
-        private int FlexibleColumn(int[] desired, List<int> visible) {
-            for (int v = 0; v < visible.Count; v++) {
-                if (_columns[visible[v]].Flexible) {
-                    return v;
+        // Whether each column holds free text (values that may wrap or shorten), from the last layout's measure pass.
+        private bool[] _freeText = Array.Empty<bool>();
+
+        // Spare width when the table expands: columns with a Weight share it by weight; otherwise Flexible columns share it
+        // evenly; otherwise the free-text columns share it in proportion to their widths, so numbers, dates and status words
+        // keep their natural width. Fixed and maximum widths hold; what the chosen columns cannot take passes to the next
+        // group, and only a table with no other room widens every column.
+        private void Widen(int[] widths, int spare, List<int> visible) {
+            Func<TableColumn, bool>[] groups = {
+                column => column.Weight > 0,
+                column => column.Flexible,
+                column => IsFreeText(column),
+                column => true
+            };
+            for (int g = 0; g < groups.Length && spare > 0; g++) {
+                int[] shares = new int[visible.Count];
+                for (int v = 0; v < visible.Count; v++) {
+                    TableColumn column = _columns[visible[v]];
+                    if (!column.Width.HasValue && groups[g](column)) {
+                        shares[v] = g == 0 ? column.Weight : g == 1 ? 1 : Math.Max(1, widths[v]);
+                    }
                 }
+                spare = Grow(widths, shares, spare, visible);
             }
-            int best = 0;
-            for (int v = 0; v < visible.Count; v++) {
-                if (_columns[visible[v]].Overflow == ColumnOverflow.Wrap && desired[v] > desired[best]) {
-                    best = v;
-                }
-            }
-            return best;
         }
+
+        // Shares spare width by the shares, largest remainders first; columns that reach their maximum drop out. Returns what is left.
+        private int Grow(int[] widths, int[] shares, int spare, List<int> visible) {
+            while (spare > 0) {
+                long total = 0;
+                for (int v = 0; v < visible.Count; v++) {
+                    if (shares[v] > 0 && !AtMaximum(widths[v], visible[v])) { total += shares[v]; }
+                }
+                if (total == 0) {
+                    return spare;
+                }
+                int given = 0;
+                int[] extra = new int[visible.Count];
+                long[] remainders = new long[visible.Count];
+                for (int v = 0; v < visible.Count; v++) {
+                    if (shares[v] <= 0 || AtMaximum(widths[v], visible[v])) { remainders[v] = -1; continue; }
+                    long exact = (long)spare * shares[v];
+                    extra[v] = (int)(exact / total);
+                    remainders[v] = exact % total;
+                    given += extra[v];
+                }
+                for (int left = spare - given; left > 0; left--) {
+                    int best = -1;
+                    for (int v = 0; v < visible.Count; v++) {
+                        if (remainders[v] >= 0 && (best < 0 || remainders[v] > remainders[best])) { best = v; }
+                    }
+                    extra[best]++;
+                    remainders[best] = -1;
+                    given++;
+                }
+                int used = 0;
+                for (int v = 0; v < visible.Count; v++) {
+                    int room = _columns[visible[v]].MaxWidth is int max ? Math.Max(0, max - widths[v]) : int.MaxValue;
+                    int add = Math.Min(extra[v], room);
+                    widths[v] += add;
+                    used += add;
+                }
+                if (used == 0) {
+                    return spare;
+                }
+                spare -= used;
+            }
+            return spare;
+        }
+
+        private bool IsFreeText(TableColumn column) {
+            int index = _columns.IndexOf(column);
+            return index >= 0 && index < _freeText.Length && _freeText[index];
+        }
+
+        private bool AtMaximum(int width, int column) => _columns[column].MaxWidth is int max && width >= max;
 
         private void FitRow(TableLayoutRow row, TableLayout layout, RenderContext context) {
             if (row.Cells == null) {
-                row.Height = 1;
                 return;
             }
             int visibleCount = layout.Visible.Length;
@@ -335,11 +423,31 @@ namespace ConsoleMonster.Widgets {
                 row.VisualCells[v] = visual;
                 height = Math.Max(height, row.Lines[v].Count);
             }
+            row.BodyHeight = height;
+            row.Below = null;
+            if (layout.Below.Count > 0) {
+                int indent = layout.Visible.Length > 1 ? layout.Widths[0] + layout.Gaps[1] : 2;
+                int lineWidth = Math.Max(1, layout.AvailableWidth - indent);
+                row.Below = new List<StyledLine>();
+                foreach (int c in layout.Below) {
+                    foreach (StyledLine line in row.Cells[c].Lines) {
+                        if (line.Width == 0) { continue; }
+                        foreach (StyledLine wrapped in TextWrapper.Wrap(line.WithBaseStyle(context.Style(ThemeToken.Muted)), lineWidth)) {
+                            List<TextSpan> spans = new List<TextSpan> { new TextSpan(new string(' ', indent)) };
+                            spans.AddRange(wrapped); row.Below.Add(new StyledLine(spans));
+                        }
+                    }
+                }
+                height += row.Below.Count;
+            }
             row.Height = height;
         }
 
         private void FinishLayout(TableLayout layout, int maxWidth, RenderContext context) {
-            layout.TotalWidth = TrackAllocator.Sum(layout.Widths) + Overhead(layout.Visible.Length, layout.Gap);
+            layout.TotalWidth = TrackAllocator.Sum(layout.Widths) + Overhead(layout.Visible, layout.Gap);
+            foreach (TableLayoutRow row in layout.Rows) {
+                if (row.Below != null) { foreach (StyledLine detail in row.Below) { layout.TotalWidth = Math.Max(layout.TotalWidth, detail.Width); } }
+            }
             if (layout.Hidden.Count > 0 && ShowHiddenColumns) {
                 string names = string.Join(", ", layout.Hidden.ToArray());
                 string text = Localization.WidgetLabels.Format(layout.Hidden.Count == 1 ? context.Labels.OneHiddenColumn : context.Labels.ManyHiddenColumns, layout.Hidden.Count.ToString(CultureInfo.InvariantCulture), names);
@@ -362,6 +470,14 @@ namespace ConsoleMonster.Widgets {
                 layout.ShowingLine = TextWrapper.Truncate(StyledLine.From(text, context.Style(ThemeToken.Muted)), Math.Max(1, maxWidth - (IsBoxed ? 1 : 0)), context.Ellipsis);
             }
             int height = 0;
+            if (Border == TableBorder.Rule && (layout.HiddenMarker != null || layout.ShowingLine != null)) {
+                ViewHint hint = new ViewHint { MoreRows = Math.Max(0, all - shown) };
+                if (ShowHiddenColumns) foreach (string column in layout.Hidden) hint.Columns.Add(column);
+                layout.HintLines.AddRange(hint.Lines(maxWidth, context));
+                layout.HiddenMarker = null; layout.ShowingLine = null;
+                foreach (StyledLine line in layout.HintLines) layout.TotalWidth = Math.Max(layout.TotalWidth, line.Width);
+                height += layout.HintLines.Count;
+            }
             if (!string.IsNullOrEmpty(Title)) {
                 height++;
             }
@@ -369,13 +485,13 @@ namespace ConsoleMonster.Widgets {
                 height += layout.MergeFirstGroup && !ShowHeader ? 1 : 2;
             }
             if (ShowHeader) {
-                height += layout.HeaderHeight + (HeaderSeparator && (IsBoxed || Border == TableBorder.Minimal) && !layout.MergeFirstGroup ? 1 : 0);
+                height += layout.HeaderHeight + (HeaderSeparator && (IsBoxed || (Border == TableBorder.Minimal || Border == TableBorder.Rule)) && !layout.MergeFirstGroup ? 1 : 0);
             }
             foreach (TableLayoutRow row in layout.Rows) {
                 height += row.Height;
             }
             if (layout.Total != null) {
-                height += layout.Total.Height + (IsBoxed || Border == TableBorder.Minimal ? 1 : 0);
+                height += layout.Total.Height + (IsBoxed || (Border == TableBorder.Minimal || Border == TableBorder.Rule) ? 1 : 0);
             }
             if (layout.HiddenMarker != null) {
                 height++;
@@ -405,11 +521,11 @@ namespace ConsoleMonster.Widgets {
             if (label == 0 || widths.Length == 0) {
                 return;
             }
-            int free = maxWidth - (TrackAllocator.Sum(widths) + Overhead(visible.Count, gap));
+            int free = maxWidth - (TrackAllocator.Sum(widths) + Overhead(visible, gap));
             if (free <= 0) {
                 return;
             }
-            bool ruled = !GroupHeadersAsRows && (IsBoxed || Border == TableBorder.Minimal);
+            bool ruled = !GroupHeadersAsRows && (IsBoxed || (Border == TableBorder.Minimal || Border == TableBorder.Rule));
             if (ruled) {
                 // Boxed "├─ label ─┼": the label, a space either side and a rule glyph either side; Minimal "─ label ─ ".
                 int want = label + (IsBoxed ? 2 : 4);
@@ -423,7 +539,7 @@ namespace ConsoleMonster.Widgets {
                 }
             }
             int needed = label + (IsBoxed ? GroupHeadersAsRows ? 4 : 6 : ruled ? 3 : 0);
-            int extra = Math.Min(needed - (TrackAllocator.Sum(widths) + Overhead(visible.Count, gap)), free);
+            int extra = Math.Min(needed - (TrackAllocator.Sum(widths) + Overhead(visible, gap)), free);
             if (extra <= 0) {
                 return;
             }

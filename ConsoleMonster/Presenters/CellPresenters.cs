@@ -82,6 +82,21 @@ namespace ConsoleMonster.Presenters {
         }
 
         /// <summary>
+        /// The presenter every table infers for a column without one, from its name and a sample value: plain digits for an
+        /// integer identifier (Id, Port...), or a status marker for status words (a State of "running"). PowerShell tables and
+        /// typed C# tables (<see cref="Widgets.Table.For{T}(System.Collections.Generic.IEnumerable{T})"/>) share it, so the same data looks the same.
+        /// </summary>
+        /// <param name="name">The column or member name.</param>
+        /// <param name="sample">The first non-null value.</param>
+        /// <returns>The inferred presenter, or null.</returns>
+        public static ICellPresenter? ForColumn(string? name, object? sample) {
+            // StatusKind and table cells already draw their own status and styling.
+            if (sample == null || sample is StatusKind || sample is Widgets.TableCell) { return null; }
+            if (IdentifierPresenter.LooksLikeIdentifier(name) && ForMember(name, sample.GetType()) == Identifier) { return Identifier; }
+            return ForStatus(name, sample);
+        }
+
+        /// <summary>
         /// The member-name and value-type presenter used by tables, also for record fields, trees and key/value lists:
         /// identifiers, byte counts, dates, durations, booleans and recognized status words.
         /// </summary>

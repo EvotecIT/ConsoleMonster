@@ -6,7 +6,7 @@ using ConsoleMonster.Text;
 namespace ConsoleMonster.Widgets {
     /// <summary>
     /// Builds a <see cref="Tree"/> from an inspection: objects and collections become branches (with their type or item
-    /// count), scalar members become leaves showing the presented value. Used by <c>Show-ConsoleTree</c>.
+    /// count), scalar members become leaves showing the presented value. Used by <c>Show-Console -View Tree</c>.
     /// </summary>
     public static class InspectorTree {
         /// <summary>Builds a tree for an inspection root.</summary>

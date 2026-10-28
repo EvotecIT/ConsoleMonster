@@ -2,7 +2,7 @@
     [int] $Width,
     [ValidateSet('All', 'Artifacts', 'Checks', 'Certificate', 'List')][string] $Part = 'All'
 )
-# Tables and complex data from PowerShell: Show-ConsoleTable, Show-ConsoleList and Show-ConsoleTree with
+# Tables and complex data from PowerShell: Show-ConsoleTable, Show-ConsoleList and Show-Console -View Tree with
 # presenters, column options, groups, totals and nested objects. -Width lays the output out for a given width (try 120, 80
 # and 50 to see columns hide and rows turn into cards). The data is synthetic.
 Import-Module ConsoleMonster

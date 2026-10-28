@@ -18,6 +18,10 @@ namespace ConsoleMonster.Styling {
                     return ThemeToken.Skip;
                 case StatusKind.Info:
                     return ThemeToken.Info;
+                case StatusKind.Unknown:
+                    return ThemeToken.Muted;
+                case StatusKind.None:
+                    return ThemeToken.Subtle;
                 default:
                     return ThemeToken.Pending;
             }
@@ -127,6 +131,10 @@ namespace ConsoleMonster.Styling {
                     return "SKIP";
                 case StatusKind.Info:
                     return "INFO";
+                case StatusKind.Unknown:
+                    return "UNKNOWN";
+                case StatusKind.None:
+                    return "NONE";
                 default:
                     return "WAIT";
             }

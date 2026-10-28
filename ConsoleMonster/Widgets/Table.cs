@@ -86,7 +86,13 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Whether group labels occupy full-width section rows instead of labelled border rules (default false).</summary>
         public bool GroupHeadersAsRows { get; set; }
 
-        /// <summary>Whether the table fills the available width (spare width goes to the flexible column).</summary>
+        /// <summary>Append automatic row counts to group headings (default true).</summary>
+        public bool ShowGroupCounts { get; set; } = true;
+
+        /// <summary>Blank lines before each group after the first (default zero).</summary>
+        public int GroupGap { get; set; }
+
+        /// <summary>Whether the table fills the available width: the free-text columns share the spare width in proportion to their widths, unless columns set <see cref="TableColumn.Weight"/> or <see cref="TableColumn.Flexible"/>; number, date and status columns keep their natural width.</summary>
         public bool Expand { get; set; }
 
         /// <summary>
@@ -97,6 +103,9 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>Shows the rows as record cards at any width (the Cards view of Show-Console).</summary>
         public bool AlwaysCards { get; set; }
+
+        /// <summary>Show the record count beneath cards (default true). Omitted-row notices remain visible when false.</summary>
+        public bool ShowCardCount { get; set; } = true;
 
         /// <summary>A table with at most this many rows renders as a record view (default 1; 0 disables).</summary>
         public int RecordViewRows { get; set; } = 1;

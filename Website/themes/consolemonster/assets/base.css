@@ -172,6 +172,8 @@ main > .cm-band { contain-intrinsic-size: auto 900px; }
   --cm-pad: 14px;
   --cm-max-font: 13.5px;
   --cm-min-font: 9px;
+  /* The size that fits the terminal's columns in the window; font-size below takes it between the minimum and maximum. */
+  --cm-fit: calc((100cqi - 2 * var(--cm-pad) - 2px) / (var(--cols, 80) * .6));
   display: block;
   width: max-content;
   /* At least its terminal's width, so frames of the same size are the same width whatever their longest line. */
@@ -181,7 +183,7 @@ main > .cm-band { contain-intrinsic-size: auto 900px; }
   color: var(--cm-term-fg);
   background: var(--cm-term-bg);
   font-family: var(--cm-mono);
-  font-size: clamp(var(--cm-min-font), calc((100cqi - 2 * var(--cm-pad) - 2px) / (var(--cols, 80) * .6)), var(--cm-max-font));
+  font-size: min(var(--cm-max-font), max(var(--cm-fit), var(--cm-min-font) - clamp(0px, (var(--cm-fit) - var(--cm-fit-font, var(--cm-min-font))) * 1000, 1px) * 1000));
   line-height: var(--cm-cell);
   white-space: pre;
   tab-size: 1;
@@ -193,7 +195,7 @@ main > .cm-band { contain-intrinsic-size: auto 900px; }
 /* Snap the font size so a cell (0.6em by 1.2em in JetBrains Mono) is a whole number of layout units (1/64 px): cells
    that are separate boxes then never drift against runs of text, and painted bars line up from row to row. */
 @supports (font-size: round(down, 13px, 1px)) {
-  .cm-screen { font-size: round(down, clamp(var(--cm-min-font), calc((100cqi - 2 * var(--cm-pad) - 2px) / (var(--cols, 80) * .6)), var(--cm-max-font)), calc(1px / 38.4)); }
+  .cm-screen { font-size: round(down, min(var(--cm-max-font), max(var(--cm-fit), var(--cm-min-font) - clamp(0px, (var(--cm-fit) - var(--cm-fit-font, var(--cm-min-font))) * 1000, 1px) * 1000)), calc(1px / 38.4)); }
 }
 /* Beyond phones a frame never scales below 11.5 px, where its text stays readable: a frame that needs less than that to
    fit scrolls sideways at that size instead, and docs pages give frames wider than a reading column (cm-window--wide,
@@ -341,6 +343,8 @@ main > .cm-band { contain-intrinsic-size: auto 900px; }
 .cm-tablewrap { max-width: 100%; overflow-x: auto; }
 .cm-prose table, .cm-table { width: 100%; border-collapse: collapse; font-size: 15px; }
 .cm-prose th, .cm-prose td, .cm-table th, .cm-table td { padding: 9px 12px; border-bottom: 1px solid var(--cm-line); text-align: left; vertical-align: top; }
+/* Phones take tighter cells, so a three-column map of command names fits the screen instead of scrolling a few pixels. */
+@media (max-width: 560px) { .cm-prose th, .cm-prose td, .cm-table th, .cm-table td { padding-inline: 8px; } }
 .cm-prose th, .cm-table th { font: 600 13px/1.3 var(--cm-mono); color: var(--cm-ink); border-bottom-color: var(--cm-line-strong); }
 .cm-prose hr { border: 0; border-top: 1px solid var(--cm-line); margin: 2.4em 0; }
 
@@ -412,7 +416,7 @@ main > .cm-band { contain-intrinsic-size: auto 900px; }
 .cm-band--dark .cm-facts dd { color: #f8fafc; }
 @media (max-width: 560px) { .cm-band { margin-top: 64px; padding: 64px 0; } }
 
-/* On phones the whole grid scales to the window width down to 5.5 px, so a 100-column frame fits a 400 px screen and can be
-   zoomed; only a wider frame scrolls inside its window. */
-/* Phones keep the legible minimum (9 px cells): a frame that does not fit at it scrolls sideways and says so in its bar. */
-@media (max-width: 700px) { .cm-screen { --cm-pad: 6px; } }
+/* Phones keep the legible minimum (9 px cells): a frame that does not fit at it scrolls sideways and says so in its bar.
+   A frame that would fit whole at 8 px (up to about 70 columns on a 390 px phone) takes that size instead of scrolling a
+   few pixels; --cm-fit-font is that limit, and font-size switches between it and the minimum without an in-between size. */
+@media (max-width: 700px) { .cm-screen { --cm-pad: 6px; --cm-fit-font: 8px; } }

@@ -11,7 +11,7 @@ using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.Live {
-    /// <summary>Options for <see cref="ConsoleRun.ForEachAsync{TItem, TResult}"/> and <see cref="RunMonitor"/>.</summary>
+    /// <summary>Options for <c>ConsoleRun.ForEachAsync</c> and <see cref="RunMonitor"/>.</summary>
     public sealed class RunOptions {
         private int _throttleLimit = Math.Max(1, Environment.ProcessorCount);
 
@@ -23,6 +23,22 @@ namespace ConsoleMonster.Live {
 
         /// <summary>The time one item may take, or null for no limit; an item past it is cancelled and counts as failed.</summary>
         public TimeSpan? Timeout { get; set; }
+
+        private int _retryCount;
+
+        /// <summary>How many more times a failed or timed-out item runs before it counts as failed (default 0). Cancelling the run does not retry.</summary>
+        public int RetryCount {
+            get => _retryCount;
+            set => _retryCount = value < 0 ? throw new ArgumentOutOfRangeException(nameof(value)) : value;
+        }
+
+        private TimeSpan _retryDelay;
+
+        /// <summary>The pause before each retry (default none).</summary>
+        public TimeSpan RetryDelay {
+            get => _retryDelay;
+            set => _retryDelay = value < TimeSpan.Zero ? throw new ArgumentOutOfRangeException(nameof(value)) : value;
+        }
 
         /// <summary>A title above the live view (markup), or null.</summary>
         public string? Title { get; set; }
@@ -40,11 +56,12 @@ namespace ConsoleMonster.Live {
         public Action<string>? Print { get; set; }
     }
 
-    /// <summary>The outcome of one item of <see cref="ConsoleRun.ForEachAsync{TItem, TResult}"/>.</summary>
+    /// <summary>The outcome of one item of <c>ConsoleRun.ForEachAsync</c>.</summary>
     /// <typeparam name="TItem">The item type.</typeparam>
     /// <typeparam name="TResult">The result type.</typeparam>
     public sealed class RunResult<TItem, TResult> {
-        internal RunResult(int index, TItem item, TResult value, Exception? error, TimeSpan duration, bool timedOut) {
+        internal RunResult(int index, TItem item, TResult value, Exception? error, TimeSpan duration, bool timedOut, int attempts = 1) {
+            Attempts = attempts;
             Index = index;
             Item = item;
             Value = value;
@@ -73,12 +90,15 @@ namespace ConsoleMonster.Live {
 
         /// <summary>Whether the item succeeded.</summary>
         public bool Succeeded => Error == null;
+
+        /// <summary>How many times the item ran: 1, or more when <see cref="RunOptions.RetryCount"/> retried it.</summary>
+        public int Attempts { get; }
     }
 
     /// <summary>
     /// Shows a run of many items while it happens: the live <see cref="RunView"/> on an interactive terminal, or one line per
     /// finished item (and a summary at the end) in redirected output and CI. Safe to call from any thread.
-    /// <see cref="ConsoleRun.ForEachAsync{TItem, TResult}"/> and Invoke-ConsoleRun use it; other runners can too.
+    /// <c>ConsoleRun.ForEachAsync</c> and Invoke-ConsoleRun use it; other runners can too.
     /// </summary>
     public sealed class RunMonitor : IDisposable {
         private readonly RunOptions _options;
@@ -95,7 +115,7 @@ namespace ConsoleMonster.Live {
             Tracker = new RunTracker(total);
             IsLive = _options.Live ?? Terminal.GetCurrentProfile().Mode == OutputMode.Interactive;
             if (IsLive) {
-                Rows view = new Rows().Add(new RunView(Tracker) { Title = _options.Title }, LayoutSize.Fraction(1, 1))
+                Rows view = new Rows().Add(new RunView(Tracker) { Title = _options.Title, RetryCount = _options.RetryCount }, LayoutSize.Fraction(1, 1))
                     .Add(new ActivityList()).Add(new LogRegion { PreferredHeight = 5 });
                 _session = new LiveSession(view, _options.Session ?? new LiveSessionOptions { Mode = LiveMode.Inline, PrintFinalState = true });
                 _session.Start();
@@ -134,6 +154,21 @@ namespace ConsoleMonster.Live {
         /// <param name="index">Its position (0-based).</param>
         /// <param name="label">Its label.</param>
         public void Started(int index, string label) => Tracker.Started(index, label);
+
+        /// <summary>An item failed and runs again: it stays running, its cell shows the retry and the summary counts it.</summary>
+        /// <param name="index">Its position (0-based).</param>
+        /// <param name="label">Its label.</param>
+        /// <param name="attempt">The attempt about to start (2 for the first retry).</param>
+        /// <param name="message">Why the previous attempt failed.</param>
+        public void Retrying(int index, string label, int attempt, string? message = null) {
+            Tracker.Retrying(index, label, attempt);
+            if (!IsLive) {
+                Localization.WidgetLabels labels = Localization.WidgetLabels.Current;
+                string retry = Localization.WidgetLabels.Format(labels.RetryAttempt, (attempt - 1).ToString(CultureInfo.InvariantCulture), _options.RetryCount.ToString(CultureInfo.InvariantCulture));
+                Print(_glyphs!.StatusSymbol(StatusKind.Warn) + " " + label + " (" + retry + ")"
+                    + (string.IsNullOrEmpty(message) ? string.Empty : ": " + message!.Replace("\r\n", " ").Replace('\n', ' ')));
+            }
+        }
 
         /// <summary>An item finished.</summary>
         /// <param name="index">Its position (0-based).</param>
@@ -175,6 +210,9 @@ namespace ConsoleMonster.Live {
             if (snapshot.Skipped > 0) {
                 parts.Add(Localization.WidgetLabels.Format(labels.SkippedCount, snapshot.Skipped.ToString(CultureInfo.InvariantCulture)));
             }
+            if (snapshot.Retried > 0) {
+                parts.Add(Localization.WidgetLabels.Format(labels.RetriedCount, snapshot.Retried.ToString(CultureInfo.InvariantCulture)));
+            }
             Print(Localization.WidgetLabels.Format(snapshot.Total == 1 ? labels.OneItem : labels.ManyItems, snapshot.Total.ToString(CultureInfo.InvariantCulture)) + ": " + string.Join(", ", parts.ToArray()) + " (" + NumberFormat.Duration(snapshot.Elapsed) + ")");
         }
 
@@ -193,7 +231,7 @@ namespace ConsoleMonster.Live {
     }
 
     /// <summary>Runs work over many items with a live view of the run (the C# side of Invoke-ConsoleRun).</summary>
-    public static class ConsoleRun {
+    public static partial class ConsoleRun {
         /// <summary>
         /// Runs <paramref name="body"/> for every item, at most <see cref="RunOptions.ThrottleLimit"/> at a time, showing the run
         /// (summary line, item cells, running items, failures; one line per item when the output is not interactive). An
@@ -253,29 +291,44 @@ namespace ConsoleMonster.Live {
             return results.Where(result => result != null).Select(result => result!).ToList();
         }
 
+        // Each attempt gets its own timeout; a failed attempt with retries left reports Retrying, waits RetryDelay and runs again.
         private static async Task<RunResult<TItem, TResult>> RunOne<TItem, TResult>(TItem item, int index, Func<TItem, CancellationToken, Task<TResult>> body, RunOptions options, RunMonitor monitor, CancellationToken cancellationToken) {
             string label = monitor.LabelOf(item);
             monitor.Started(index, label);
             DateTime started = DateTime.UtcNow;
-            using (CancellationTokenSource itemToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken)) {
-                if (options.Timeout.HasValue) {
-                    itemToken.CancelAfter(options.Timeout.Value);
-                }
-                try {
-                    TResult value = await body(item, itemToken.Token).ConfigureAwait(false);
-                    TimeSpan duration = DateTime.UtcNow - started;
-                    monitor.Finished(index, StatusKind.Pass, label, duration);
-                    return new RunResult<TItem, TResult>(index, item, value, null, duration, false);
-                } catch (Exception ex) {
-                    TimeSpan duration = DateTime.UtcNow - started;
-                    bool timedOut = ex is OperationCanceledException && !cancellationToken.IsCancellationRequested && itemToken.IsCancellationRequested;
-                    if (ex is OperationCanceledException && cancellationToken.IsCancellationRequested) {
-                        monitor.Finished(index, StatusKind.Skip, label, duration);
-                        return new RunResult<TItem, TResult>(index, item, default!, ex, duration, false);
+            for (int attempt = 1; ; attempt++) {
+                using (CancellationTokenSource itemToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken)) {
+                    if (options.Timeout.HasValue) {
+                        itemToken.CancelAfter(options.Timeout.Value);
                     }
-                    string message = timedOut ? "timed out after " + NumberFormat.Duration(options.Timeout!.Value) : ex.Message;
-                    monitor.Finished(index, StatusKind.Fail, label, duration, message, timedOut);
-                    return new RunResult<TItem, TResult>(index, item, default!, timedOut ? new TimeoutException(message, ex) : ex, duration, timedOut);
+                    try {
+                        TResult value = await body(item, itemToken.Token).ConfigureAwait(false);
+                        TimeSpan duration = DateTime.UtcNow - started;
+                        monitor.Finished(index, StatusKind.Pass, label, duration);
+                        return new RunResult<TItem, TResult>(index, item, value, null, duration, false, attempt);
+                    } catch (Exception ex) {
+                        TimeSpan duration = DateTime.UtcNow - started;
+                        bool timedOut = ex is OperationCanceledException && !cancellationToken.IsCancellationRequested && itemToken.IsCancellationRequested;
+                        if (cancellationToken.IsCancellationRequested) {
+                            monitor.Finished(index, StatusKind.Skip, label, duration);
+                            return new RunResult<TItem, TResult>(index, item, default!, ex as OperationCanceledException ?? new OperationCanceledException("The run was canceled.", ex, cancellationToken), duration, false, attempt);
+                        }
+                        string message = timedOut ? "timed out after " + NumberFormat.Duration(options.Timeout!.Value) : ex.Message;
+                        if (attempt <= options.RetryCount) {
+                            monitor.Retrying(index, label, attempt + 1, message);
+                            try {
+                                cancellationToken.ThrowIfCancellationRequested();
+                                if (options.RetryDelay > TimeSpan.Zero) { await Task.Delay(options.RetryDelay, cancellationToken).ConfigureAwait(false); }
+                                cancellationToken.ThrowIfCancellationRequested();
+                                continue;
+                            } catch (OperationCanceledException canceled) {
+                                monitor.Finished(index, StatusKind.Skip, label, DateTime.UtcNow - started);
+                                return new RunResult<TItem, TResult>(index, item, default!, canceled, DateTime.UtcNow - started, false, attempt);
+                            }
+                        }
+                        monitor.Finished(index, StatusKind.Fail, label, duration, message, timedOut);
+                        return new RunResult<TItem, TResult>(index, item, default!, timedOut ? new TimeoutException(message, ex) : ex, duration, timedOut, attempt);
+                    }
                 }
             }
         }

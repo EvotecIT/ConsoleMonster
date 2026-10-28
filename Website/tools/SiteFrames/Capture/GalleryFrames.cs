@@ -14,14 +14,21 @@ namespace SiteFrames.Capture {
     internal static class GalleryFrames {
         internal static CellBuffer Run(GalleryPage.Demo demo, int step, bool fluent = false) {
             JsonNode state = demo.Metadata["capture"]!["states"]![step]!;
+            string? ready = state["ready"]?.GetValue<string>() ?? demo.Metadata["capture"]!["ready"]?.GetValue<string>();
             string? actionClock = demo.Metadata["capture"]!["actionClock"]?.GetValue<string>();
             if (actionClock != null && actionClock != "Frozen") { throw new InvalidDataException(demo.Slug + ": unsupported actionClock " + actionClock); }
             var profile = CSharpRunner.Profile(demo.Width, demo.Height, ColorDepth.TrueColor, GlyphTier.Full);
-            var target = new RecordingTarget(profile, state["keys"]?.GetValue<string>()) {
+            var target = new RecordingTarget(profile, ready == null ? state["keys"]?.GetValue<string>() : string.Empty) {
                 Theme = Theme.Dark, SkipDelays = true,
                 Checkpoints = state["checkpoint"] == null ? Array.Empty<int>() : new[] { state["checkpoint"]!.GetValue<int>() }
             };
-            if (target.Input is ConsoleMonster.Input.ScriptedInput input) input.RealTime = state["realTime"]?.GetValue<bool>() ?? false;
+            if (target.Input is ConsoleMonster.Input.ScriptedInput input) {
+                input.RealTime = state["realTime"]?.GetValue<bool>() ?? false;
+                if (ready != null) {
+                    input.WaitForOutput(target.Screens, ready, TimeSpan.FromSeconds(30));
+                    input.Append(state["keys"]?.GetValue<string>() ?? string.Empty);
+                }
+            }
             string? previousStorage = Environment.GetEnvironmentVariable("CONSOLEMONSTER_STORAGE_ROOT");
             string storage = Path.Combine(Path.GetTempPath(), "cm-gallery-presets-" + Guid.NewGuid().ToString("N"));
             Environment.SetEnvironmentVariable("CONSOLEMONSTER_STORAGE_ROOT", storage);

@@ -23,6 +23,12 @@ namespace ConsoleMonster.Styling {
         Skip,
 
         /// <summary>Informational.</summary>
-        Info
+        Info,
+
+        /// <summary>Evidence was not reported or collected.</summary>
+        Unknown,
+
+        /// <summary>No relationship or item exists.</summary>
+        None
     }
 }

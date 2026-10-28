@@ -123,7 +123,7 @@ namespace SiteFrames.Pages {
 
         /// <summary>Captures a shown interactive example using the same scripted driver as the interactive gallery.</summary>
         internal static void CaptureExample(Site site, Story story) {
-            foreach (PowerShellHost host in PowerShellHost.All) { CaptureTwin(site, story, host); }
+            foreach (PowerShellHost host in PowerShellHost.Available) { CaptureTwin(site, story, host); }
         }
 
         /// <summary>Requires the shown example's current source and every styled screen to match its C# twin.</summary>
@@ -185,6 +185,8 @@ namespace SiteFrames.Pages {
                     story.Depth == ColorDepth.None ? "none" : story.Depth == ColorDepth.Ansi16 ? "16" : "truecolor", story.Glyphs.ToString().ToLowerInvariant());
                 if (story.Area != "interactive") { environment["CONSOLEMONSTER_DEVELOPMENT_CONFIGURATION"] = "Release"; }
                 PowerShellRunner.Run(site, host ?? PowerShellHost.Core, wrapper, story.Width, story.Height, environment, Path.GetDirectoryName(script), interactive: true);
+                CaptureRun.Observe(File.ReadAllBytes(output), story.Width, story.Height);
+                CaptureRun.Record(output, story.Width, story.Height, environment["CONSOLEMONSTER_THEME"]);
             } finally {
                 File.Delete(wrapper);
             }

@@ -102,6 +102,12 @@ namespace ConsoleMonster.Localization {
         /// <summary>Running rows in a summary: <c>{0} running</c>.</summary>
         public string RunningCount { get; set; } = "{0} running";
 
+        /// <summary>Run items that needed another attempt: <c>{0} retried</c>.</summary>
+        public string RetriedCount { get; set; } = "{0} retried";
+
+        /// <summary>A run item's repeated attempt: <c>retry {0} of {1}</c>.</summary>
+        public string RetryAttempt { get; set; } = "retry {0} of {1}";
+
         /// <summary>Failed rows in a summary: <c>{0} failed</c>.</summary>
         public string FailedCount { get; set; } = "{0} failed";
 
@@ -412,6 +418,10 @@ namespace ConsoleMonster.Localization {
                     return StatusSkip;
                 case StatusKind.Info:
                     return StatusInfo;
+                case StatusKind.Unknown:
+                    return "unknown";
+                case StatusKind.None:
+                    return "none";
                 default:
                     return StatusWait;
             }

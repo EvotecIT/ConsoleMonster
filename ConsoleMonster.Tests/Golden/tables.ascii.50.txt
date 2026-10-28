@@ -59,13 +59,13 @@ evotec.xyz
 evotec.xyz · mail security checks  -  7 records
 
 SPF
-  Status  [PASS]
+  Status  [OK]
   Detail  9 DNS lookups (limit 10); ends with -all
   Took    84 ms
   RFC     7208
 
 DMARC
-  Status  [PASS]
+  Status  [OK]
   Detail  p=reject, aggregate and forensic reports
           configured
   Took    41 ms
@@ -177,7 +177,7 @@ Domain controllers  5
     Duration  16 s
     Score     #######    72 %
   DC09.eu.ad.adatum.com
-    Result    [PASS]
+    Result    [OK]
     Passed    30
     Failed    0
     Warnings  0

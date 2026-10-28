@@ -1,13 +1,1 @@
-[?9001h[?1004h[?25l[2J[m[HCPU time - highest first
-jobs: 72 s
-web: 34 s
-api: 18 s[6;1HResponse-time distribution
-[12 ms, 26 ms): 3
-[26 ms, 40 ms): 3
-[40 ms, 54 ms): 0
-[54 ms, 68 ms): 1
-[68 ms, 82 ms): 2
-[82 ms, 96 ms]: 3[14;1HLatency over time (ms) - one line per host
-api-west: 12, 18, 16, 22, 19, 25, 24, 28
-api-east: 8, 9, 12, 10, 15, 14, 13, 18
-]0;C:\Program Files\PowerShell\7\pwsh.exe[?25h[?9001l[?1004l
+CPU[5Gtime[10G-[12Ghighest[20Gfirst[2;1Hjobs:[7G72[10Gs[3;1Hweb:[6G34[9Gs[4;1Hapi:[6G18[9Gs[6;1HResponse-time[15Gdistribution[7;1H[12[5Gms,[9G26[12Gms):[17G3[8;1H[26[5Gms,[9G40[12Gms):[17G3[9;1H[40[5Gms,[9G54[12Gms):[17G0[10;1H[54[5Gms,[9G68[12Gms):[17G1[11;1H[68[5Gms,[9G82[12Gms):[17G2[12;1H[82[5Gms,[9G96[12Gms]:[17G3[14;1HLatency[9Gover[14Gtime[19G(ms)[24G-[26Gone[30Gline[35Gper[39Ghost[15;1Hapi-west:[11G12,[15G18,[19G16,[23G22,[27G19,[31G25,[35G24,[39G28[16;1Hapi-east:[11G8,[14G9,[17G12,[21G10,[25G15,[29G14,[33G13,[37G18[17;1H

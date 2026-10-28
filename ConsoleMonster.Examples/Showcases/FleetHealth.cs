@@ -11,6 +11,7 @@ using ConsoleMonster.Input;
 using ConsoleMonster.Interactive;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
+using ConsoleMonster.Output;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 using ConsoleMonster.Widgets;
@@ -115,7 +116,12 @@ namespace ConsoleMonster.Examples.Showcases
             string storage = Path.Combine(Path.GetTempPath(), "consolemonster-fleet-demo-" + Guid.NewGuid().ToString("N").Substring(0, 8));
             try
             {
-                Run(new FleetHealthOptions(), new InteractiveOptions { Input = new ScriptedInput(DemoKeys) { RealTime = true } }, storage);
+                RecordingTarget? target = Terminal.Target as RecordingTarget;
+                bool recording = target?.SkipDelays == true && target.CaptureViewport;
+                var input = new ScriptedInput(DemoKeys) { RealTime = !recording, Paced = recording };
+                if (recording) { input.SkippedWait = target!.Screens.Hold; }
+                Run(recording ? FleetHealthOptions.Instant : new FleetHealthOptions(),
+                    new InteractiveOptions { Input = input }, storage);
             }
             finally
             {
@@ -179,7 +185,7 @@ namespace ConsoleMonster.Examples.Showcases
             format.ParameterName = "Format";
             PathField report = run.Path("Report", "Report folder");
             report.PathKind = PathKind.Folder;
-            report.Default = Path.Combine("Reports", "Fleet");
+            report.Default = "Reports/Fleet";
             report.ParameterName = "ReportPath";
             ToggleField notify = run.Toggle("Notify", "Email the report");
             notify.ParameterName = "Notify";
@@ -442,7 +448,7 @@ namespace ConsoleMonster.Examples.Showcases
                 Checks = FleetData.Checks.Where(c => chosen.Contains(c.Id)).ToList();
                 Parallel = (int)values.Get<decimal>("Parallel", 4m);
                 Format = values.Get<string>("Format") ?? "Html";
-                ReportFolder = values.Get<string>("Report") ?? Path.Combine("Reports", "Fleet");
+                ReportFolder = values.Get<string>("Report") ?? "Reports/Fleet";
                 Notify = values.Get<bool>("Notify");
                 Email = values.Get<string>("Email");
             }
@@ -458,7 +464,8 @@ namespace ConsoleMonster.Examples.Showcases
             public int Total => Servers.Count * Checks.Count;
             public IEnumerable<string> Categories => FleetData.Categories.Where(c => Checks.Any(k => k.Category == c));
             public string ReportFile => "fleet-" + FleetData.Now.ToString("yyyyMMdd-HHmm", CultureInfo.InvariantCulture) + "." + Format.ToLowerInvariant();
-            public string ReportPath => Path.Combine(ReportFolder, ReportFile);
+            // This showcase describes an invented report; it does not write a native filesystem path.
+            public string ReportPath => ReportFolder.TrimEnd('/', '\\').Replace('\\', '/') + "/" + ReportFile;
 
             public int LaneTotal(string category) => Servers.Count * Checks.Count(c => c.Category == category);
             public int Cell(int server, int check) => server * Checks.Count + check;

@@ -24,11 +24,32 @@ namespace ConsoleMonster.Widgets {
         /// <summary>The status, when this is a status cell.</summary>
         public StatusKind? Status { get; private set; }
 
+        /// <summary>The assessment severity when this cell uses the assessment scale.</summary>
+        public Severity? AssessmentSeverity { get; private set; }
+
         /// <summary>The raw value of a value cell, or null.</summary>
         public object? Value { get; }
 
         /// <summary>Whether this is a value cell (formatted by the column's presenter).</summary>
         public bool HasValue { get; }
+
+        internal TableRowRole? RowRole { get; private set; }
+
+        /// <summary>Returns a copy with a cell tone, retaining the raw value, status and existing emphasis.</summary>
+        /// <param name="tone">The theme role supplied by the caller; it is not inferred from the numeric value.</param>
+        /// <returns>A new cell; this cell is unchanged.</returns>
+        public TableCell WithTone(ThemeToken tone) => WithRowRole(new TableRowRole {
+            Tone = tone, Bold = RowRole?.Bold ?? false, Muted = RowRole?.Muted ?? false,
+            Marker = RowRole?.Marker, AsciiMarker = RowRole?.AsciiMarker
+        });
+
+        internal TableCell WithRowRole(TableRowRole role) {
+            TableCell copy = HasValue ? FromValue(Value) : new TableCell(Markup);
+            copy.Status = Status;
+            copy.AssessmentSeverity = AssessmentSeverity;
+            copy.RowRole = role;
+            return copy;
+        }
 
         /// <summary>Creates a value cell: the column's presenter formats it, and totals and tone rules read it.</summary>
         /// <param name="value">The raw value (null is an empty cell).</param>
@@ -42,6 +63,10 @@ namespace ConsoleMonster.Widgets {
         public static TableCell ForStatus(StatusKind status, string? text = null) {
             return new TableCell(Text.Markup.Escape(text ?? status.ToWord())) { Status = status };
         }
+
+        /// <summary>Creates a severity cell whose glyph is chosen before destination measurement.</summary>
+        public static TableCell ForSeverity(Severity severity, string? text = null) =>
+            new TableCell(Text.Markup.Escape(text ?? StatusScale.Word(severity))) { AssessmentSeverity = severity };
 
         /// <summary>Converts a string (markup) to a cell.</summary>
         /// <param name="markup">The markup.</param>

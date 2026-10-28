@@ -30,7 +30,7 @@ namespace ConsoleMonster.Styling {
             _styles = styles;
         }
 
-        private static int TokenCount => (int)ThemeToken.Focus + 1;
+        private static int TokenCount => (int)ThemeToken.Gap + 1;
 
         /// <summary>Enumerates the canonical token table without runtime enum-array generation, including on NativeAOT.</summary>
         internal static IEnumerable<ThemeToken> AllTokens() {

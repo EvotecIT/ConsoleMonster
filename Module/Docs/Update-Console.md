@@ -1,7 +1,7 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://github.com/EvotecIT/ConsoleMonster
+online version: https://consolemonster.dev/
 schema: 2.0.0
 ---
 # Update-Console
@@ -86,6 +86,13 @@ Update-Console build -Value 5 -Total 20 -Label 'Compile'
 Advance a build and change its label
 
 ### EXAMPLE 2
+```powershell
+Update-Console results -Row ([pscustomobject] @{ Server = 'web01'; State = 'Pass'; Ms = 12 })
+```
+
+Add or replace a live table row with an ordinary record
+
+### EXAMPLE 3
 ```powershell
 Update-Console -Run $run -Index 0 -Status Pass -Detail 'Uploaded'
 ```
@@ -447,7 +454,7 @@ Accept wildcard characters: False
 ```
 
 ### -Row
-A row with Key and Values properties, retaining typed cells.
+A record with the live table's column properties (keyed by its KeyProperty), or a Key and Values descriptor that retains typed cells.
 
 ```yaml
 Type: Object

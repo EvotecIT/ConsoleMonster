@@ -62,12 +62,21 @@ $rows = @(
     }
 )
 
-$rows | Show-ConsoleTable -Title '[bold]Build artifacts[/] [muted]· ConsoleMonster 2.0.0[/]' -ShowTotals -MaxRows 5 -TotalRowCount 1234 -Presentation (@{ Now = $now }) -Property @(
-    @{ Name = 'Artifact'; Key = $true; Overflow = 'Never' }
-    @{ Name = 'Kind'; Priority = 3 }
-    @{ Name = 'Size'; Priority = 9; Presenter = 'Bytes'; Aggregate = 'Sum' }
-    @{ Name = 'Built'; Header = 'Built in'; Priority = 6; Presenter = 'Duration'; Aggregate = 'Sum' }
-    @{ Name = 'Created'; Priority = 4; Presenter = 'DateRelative' }
-    @{ Name = 'Path'; Priority = 1; Overflow = 'TruncateMiddle'; MinWidth = 20; MaxWidth = 40 }
-    @{ Name = 'SHA256'; Priority = 0; Overflow = 'Truncate'; MaxWidth = 14 }
-)
+$tableParameters = @{
+    Title = '[bold]Build artifacts[/] [muted]· ConsoleMonster 2.0.0[/]'
+    ShowTotals = $true
+    MaxRows = 5
+    TotalRowCount = 1234
+    Presentation = (@{ Now = $now })
+}
+$rows |
+    Show-ConsoleTable @tableParameters -Property @(
+        @{ Name = 'Artifact'; Key = $true; Overflow = 'Never' }
+        @{ Name = 'Kind'; Priority = 3 }
+        @{ Name = 'Size'; Priority = 9; Presenter = 'Bytes'; Aggregate = 'Sum' }
+        @{ Name = 'Built'; Header = 'Built in'; Priority = 6; Presenter = 'Duration'
+            Aggregate = 'Sum' }
+        @{ Name = 'Created'; Priority = 4; Presenter = 'DateRelative' }
+        @{ Name = 'Path'; Priority = 1; Overflow = 'TruncateMiddle'; MinWidth = 20; MaxWidth = 40 }
+        @{ Name = 'SHA256'; Priority = 0; Overflow = 'Truncate'; MaxWidth = 14 }
+    )

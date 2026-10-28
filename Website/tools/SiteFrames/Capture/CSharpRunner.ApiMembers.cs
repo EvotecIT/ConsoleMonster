@@ -35,10 +35,10 @@ namespace SiteFrames.Capture {
         }
 
         private static IReadOnlyCollection<string> ConfiguredMembers(Compilation compilation) {
-            var result = new HashSet<string>(StringComparer.Ordinal);
+            var result = new List<string>();
             foreach (SyntaxTree tree in compilation.SyntaxTrees.Where(t => t.FilePath != "GlobalUsings.g.cs")) {
                 SemanticModel model = compilation.GetSemanticModel(tree);
-                foreach (SyntaxNode node in tree.GetRoot().DescendantNodes()) {
+                foreach (SyntaxNode node in tree.GetRoot().DescendantNodes().OrderBy(node => node is InvocationExpressionSyntax { Expression: MemberAccessExpressionSyntax call } ? call.Name.SpanStart : node.SpanStart)) {
                     if (node is BaseObjectCreationExpressionSyntax created && model.GetTypeInfo(created).Type is INamedTypeSymbol createdType && createdType.ContainingAssembly.Name.StartsWith("ConsoleMonster", StringComparison.Ordinal)) { result.Add("C:" + createdType.ToDisplayString()); }
                     if (node is InvocationExpressionSyntax invocation && model.GetSymbolInfo(invocation).Symbol is IMethodSymbol invoked) {
                         IMethodSymbol method = invoked.ReducedFrom ?? invoked;
@@ -51,7 +51,12 @@ namespace SiteFrames.Capture {
                     } else if (node is InvocationExpressionSyntax call && call.Expression is MemberAccessExpressionSyntax member
                         && model.GetSymbolInfo(call).Symbol is IMethodSymbol
                         && model.GetTypeInfo(member.Expression).Type is INamedTypeSymbol receiver) {
-                        Add(result, Find(receiver, member.Name.Identifier.ValueText));
+                        string name = member.Name.Identifier.ValueText;
+                        var method = (IMethodSymbol)model.GetSymbolInfo(call).Symbol!;
+                        var parameters = (method.ReducedFrom ?? method).Parameters;
+                        bool boolean = parameters.Length > 1 && parameters[1].Type.SpecialType == SpecialType.System_Boolean || parameters.Length == 1 && method.IsExtensionMethod;
+                        var flag = boolean ? Find(receiver, "Is" + name) : null;
+                        Add(result, flag?.Type.SpecialType == SpecialType.System_Boolean ? flag : Find(receiver, name));
                     } else if (node is ArgumentSyntax argument && model.GetOperation(argument) is IArgumentOperation operation
                         && operation.Parameter is IParameterSymbol parameter && parameter.ContainingSymbol is IMethodSymbol owner) {
                         if (owner.ContainingNamespace.ToDisplayString().StartsWith("ConsoleMonster", StringComparison.Ordinal)) {
@@ -62,7 +67,7 @@ namespace SiteFrames.Capture {
                     }
                 }
             }
-            return result.OrderBy(value => value, StringComparer.Ordinal).ToArray();
+            return result.Distinct(StringComparer.Ordinal).ToArray();
         }
 
         private static IPropertySymbol? Find(INamedTypeSymbol type, string name) {
@@ -74,7 +79,7 @@ namespace SiteFrames.Capture {
             return null;
         }
 
-        private static void Add(HashSet<string> result, IPropertySymbol? property) {
+        private static void Add(ICollection<string> result, IPropertySymbol? property) {
             if (property == null || !property.ContainingNamespace.ToDisplayString().StartsWith("ConsoleMonster", StringComparison.Ordinal)) { return; }
             var owner = property.ContainingType.OriginalDefinition;
             string name = owner.MetadataName;

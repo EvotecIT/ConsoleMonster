@@ -17,7 +17,6 @@ namespace SiteFrames.Pages {
     /// <summary>Real file-tail examples, native PowerShell captures and navigation evidence for the live-tails guide.</summary>
     internal static partial class TailsPage {
         private const int Rows = 12;
-        private const string Keys = "wait:300 PgUp wait:300 End wait:300 q";
         private static readonly int[] Widths = { 120, 60 };
 
         private static string Example(Site site, string name) => Path.Combine(site.Website, "examples", "tails", name);
@@ -31,18 +30,20 @@ namespace SiteFrames.Pages {
 
         /// <summary>Captures the exact native script on each PowerShell host; every run ends after one source poll.</summary>
         public static void Capture(Site site) {
-            foreach (PowerShellHost host in PowerShellHost.All) {
+            foreach (PowerShellHost host in PowerShellHost.Available) {
                 foreach (int width in Widths) {
                     foreach (string theme in new[] { "dark", "light" }) {
                         string path = CapturePath(site, host, width, theme);
                         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
                         string arguments = "-Example '" + Example(site, "file.ps1").Replace("'", "''")
-                            + "' -Columns " + width + " -Appearance " + theme + " -Destination '" + path.Replace("'", "''") + "'";
-                        PowerShellRunner.Run(site, host, Driver(site), width, Rows, PowerShellRunner.Environment(theme),
-                            timeout: TimeSpan.FromSeconds(30), arguments: arguments);
-                        // The wrapper saved the target's VT, excluding ConPTY's host startup/exit text.
+                            + "' -Columns " + width + " -Appearance " + theme;
+                        List<OutputChunk> chunks = PowerShellRunner.Run(site, host, Driver(site), width, Rows, PowerShellRunner.Environment(theme),
+                            timeout: TimeSpan.FromSeconds(30), arguments: arguments, hostedOutput: true);
+                        File.WriteAllBytes(path, PowerShellRunner.Bytes(chunks));
                         FindFrames(File.ReadAllText(path), width);
+                        CaptureRun.Observe(File.ReadAllBytes(path), width, Rows);
                         Stamps.Write(site, path, Fingerprint(site, width, theme));
+                        CaptureRun.Record(path, width, Rows, theme);
                         Console.WriteLine("captured tails " + host.Id + " " + width + " " + theme);
                     }
                 }
@@ -102,8 +103,10 @@ namespace SiteFrames.Pages {
                 ConsoleInput.Override = new ScriptedInput(string.Empty) { EndsQuietly = true };
                 RecordingTarget snapshot = CSharpRunner.Execute(Example(site, "file.cs"), profile, theme, null);
                 CellBuffer following = FindFrames(snapshot.Output, width)["following"];
-                ConsoleInput.Override = new ScriptedInput(Keys) { RealTime = true };
-                RecordingTarget navigation = CSharpRunner.Execute(Example(site, "navigate.cs"), profile, theme, null);
+                RecordingTarget navigation = new RecordingTarget(profile) { Theme = theme };
+                using NavigationInput input = new NavigationInput(navigation, width);
+                ConsoleInput.Override = input;
+                CSharpRunner.Execute(Example(site, "navigate.cs"), profile, theme, null, recording: navigation);
                 Dictionary<string, CellBuffer> frames = FindFrames(navigation.Output, width);
                 if (!frames.ContainsKey("paused") || !frames.ContainsKey("resumed")) {
                     throw new InvalidOperationException("tails navigation did not draw PgUp and End states.");
@@ -123,7 +126,7 @@ namespace SiteFrames.Pages {
 
         // Snapshot only complete synchronized updates on the alternate screen. Stop restores the empty primary screen,
         // which is intentionally not evidence of the live view that was visible before restoration.
-        private static Dictionary<string, CellBuffer> FindFrames(string vt, int width) {
+        private static Dictionary<string, CellBuffer> FindFrames(string vt, int width, bool requireFollowing = true) {
             const string boundary = "\u001b[?2026l";
             VtScreen screen = new VtScreen(width, Rows);
             Dictionary<string, CellBuffer> result = new Dictionary<string, CellBuffer>(StringComparer.Ordinal);
@@ -137,7 +140,7 @@ namespace SiteFrames.Pages {
                 if (text.Contains("Paused", StringComparison.Ordinal)) { result["paused"] = frame; paused = true; }
                 else if (text.Contains("Following", StringComparison.Ordinal)) { result[paused ? "resumed" : "following"] = frame; }
             }
-            if (!result.ContainsKey("following")) { throw new InvalidOperationException("No complete following tail frame was captured."); }
+            if (requireFollowing && !result.ContainsKey("following")) { throw new InvalidOperationException("No complete following tail frame was captured."); }
             return result;
         }
 

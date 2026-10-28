@@ -2377,6 +2377,21 @@
           "Static": false
         },
         {
+          "Parameter": "ImportFunction",
+          "ParameterType": "System.String[]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "HostPolicy",
+          "Reason": "Defines the caller's PowerShell functions in the owning dashboard runspaces; C# work runs in the caller's own code."
+        },
+        {
           "Parameter": "ImportModule",
           "ParameterType": "System.String[]",
           "Default": null,
@@ -3502,6 +3517,46 @@
           "Reason": "Schedules the callbacks in owning PowerShell worker runspaces."
         },
         {
+          "Parameter": "RetryCount",
+          "ParameterType": "System.Int32",
+          "Default": 0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Live.RunOptions",
+          "Member": "RetryCount",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "RetryDelaySeconds",
+          "ParameterType": "System.Double",
+          "Default": 0.0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Live.RunOptions",
+          "Member": "RetryDelay",
+          "MemberKind": "Property",
+          "Conversion": "SecondsToTimeSpan",
+          "CSharpTypeName": "System.TimeSpan",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
           "Parameter": "ScriptBlock",
           "ParameterType": "System.Management.Automation.ScriptBlock",
           "Default": null,
@@ -4220,7 +4275,7 @@
             {
               "Name": "__AllParameterSets",
               "Position": -2147483648,
-              "Mandatory": true
+              "Mandatory": false
             }
           ],
           "CSharpType": "ConsoleMonster.PowerShell.ConsoleCalendarOptions",
@@ -4594,7 +4649,7 @@
         {
           "Parameter": "Label",
           "ParameterType": "System.Object",
-          "Default": null,
+          "Default": "Name",
           "Sets": [
             {
               "Name": "__AllParameterSets",
@@ -4603,13 +4658,12 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Widgets.ChartOptions",
-          "Member": "Label",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
+          "Member": "AddItem",
+          "MemberKind": "Method",
+          "Conversion": "HostAdaptation",
           "CSharpTypeName": "System.String",
-          "Nullable": "Nullable",
-          "Writable": true,
-          "Static": false
+          "Argument": "label",
+          "Reason": "Reads each Bar label from ordinary objects through the shared property binder and passes it as the typed AddItem label."
         },
         {
           "Parameter": "LabelColumn",
@@ -4632,26 +4686,6 @@
           "Static": false
         },
         {
-          "Parameter": "MaxLegendColumns",
-          "ParameterType": "System.Int32",
-          "Default": 0,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Widgets.ChartOptions",
-          "Member": "MaxLegendColumns",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Int32",
-          "Nullable": "NotNull",
-          "Writable": true,
-          "Static": false
-        },
-        {
           "Parameter": "Maximum",
           "ParameterType": "System.Nullable`1[System.Double]",
           "Default": null,
@@ -4668,6 +4702,26 @@
           "Conversion": "Identity",
           "CSharpTypeName": "System.Nullable`1[System.Double]",
           "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "MaxLegendColumns",
+          "ParameterType": "System.Int32",
+          "Default": 0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.ChartOptions",
+          "Member": "MaxLegendColumns",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
           "Writable": true,
           "Static": false
         },
@@ -4772,6 +4826,25 @@
           "Static": false
         },
         {
+          "Parameter": "Property",
+          "ParameterType": "System.Object[]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.ChartOptions",
+          "Member": "AddItem",
+          "MemberKind": "Method",
+          "Conversion": "HostAdaptation",
+          "CSharpTypeName": "System.Double",
+          "Argument": "value",
+          "Reason": "Reads the number from ordinary objects through the shared property binder and adds each row with the typed AddItem value (Values for Histogram and Sparkline)."
+        },
+        {
           "Parameter": "Role",
           "ParameterType": "System.Nullable`1[ConsoleMonster.Styling.ThemeToken]",
           "Default": null,
@@ -4848,6 +4921,26 @@
           "Conversion": "Identity",
           "CSharpTypeName": "System.Boolean",
           "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Title",
+          "ParameterType": "System.Object",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.ChartOptions",
+          "Member": "Title",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "Nullable",
           "Writable": true,
           "Static": false
         },
@@ -6116,6 +6209,27 @@
           "Reason": "Positional arguments supplied to the PowerShell callback; C# closes over its typed arguments."
         },
         {
+          "Parameter": "AsSecret",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.Field",
+          "Member": "Kind",
+          "MemberKind": "Property",
+          "Conversion": "EnumDiscriminator",
+          "CSharpTypeName": "ConsoleMonster.Interactive.FieldKind",
+          "Reason": "Selects the secret Field subclass for -Type Text; Field.Kind records the immutable kind.",
+          "Nullable": "Unknown",
+          "Writable": false,
+          "Static": false
+        },
+        {
           "Parameter": "Badge",
           "ParameterType": "System.Object",
           "Default": null,
@@ -6465,6 +6579,26 @@
           "Static": false
         },
         {
+          "Parameter": "Maximum",
+          "ParameterType": "System.Nullable`1[System.Decimal]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.NumberField",
+          "Member": "Maximum",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Nullable`1[System.Decimal]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
           "Parameter": "MaxLength",
           "ParameterType": "System.Int32",
           "Default": 2147483647,
@@ -6505,7 +6639,7 @@
           "Static": false
         },
         {
-          "Parameter": "Maximum",
+          "Parameter": "Minimum",
           "ParameterType": "System.Nullable`1[System.Decimal]",
           "Default": null,
           "Sets": [
@@ -6516,7 +6650,7 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Interactive.NumberField",
-          "Member": "Maximum",
+          "Member": "Minimum",
           "MemberKind": "Property",
           "Conversion": "Identity",
           "CSharpTypeName": "System.Nullable`1[System.Decimal]",
@@ -6545,9 +6679,9 @@
           "Static": false
         },
         {
-          "Parameter": "Minimum",
-          "ParameterType": "System.Nullable`1[System.Decimal]",
-          "Default": null,
+          "Parameter": "Multiline",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
           "Sets": [
             {
               "Name": "__AllParameterSets",
@@ -6555,13 +6689,35 @@
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.Interactive.NumberField",
-          "Member": "Minimum",
+          "CSharpType": "ConsoleMonster.Interactive.Field",
+          "Member": "Kind",
           "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Nullable`1[System.Decimal]",
-          "Nullable": "Nullable",
-          "Writable": true,
+          "Conversion": "EnumDiscriminator",
+          "CSharpTypeName": "ConsoleMonster.Interactive.FieldKind",
+          "Reason": "Selects the text-area Field subclass for -Type Text; Field.Kind records the immutable kind.",
+          "Nullable": "Unknown",
+          "Writable": false,
+          "Static": false
+        },
+        {
+          "Parameter": "Multiple",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.Field",
+          "Member": "Kind",
+          "MemberKind": "Property",
+          "Conversion": "EnumDiscriminator",
+          "CSharpTypeName": "ConsoleMonster.Interactive.FieldKind",
+          "Reason": "Selects the multiple-choice Field subclass for -Type Select; Field.Kind records the immutable kind.",
+          "Nullable": "Unknown",
+          "Writable": false,
           "Static": false
         },
         {
@@ -9702,6 +9858,26 @@
           "Conversion": "LayoutDecorator",
           "CSharpTypeName": null,
           "Reason": "Wraps the constructed widget with fractional layout sizing."
+        },
+        {
+          "Parameter": "Gap",
+          "ParameterType": "System.Int32",
+          "Default": 0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Layout.Panel",
+          "Member": "Gap",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
         },
         {
           "Parameter": "HeaderRight",
@@ -17776,12 +17952,12 @@
         {
           "Parameter": "Slug",
           "ParameterType": "System.String",
-          "Default": "",
+          "Default": null,
           "Sets": [
             {
               "Name": "__AllParameterSets",
               "Position": 0,
-              "Mandatory": true
+              "Mandatory": false
             }
           ],
           "CSharpType": "ConsoleMonster.PowerShell.ConsoleGallery",
@@ -21732,20 +21908,20 @@
       "CSharpType": "ConsoleMonster.Live.LiveSession",
       "Bindings": [
         {
-          "Parameter": "Milliseconds",
-          "ParameterType": "System.Int32",
+          "Parameter": "Seconds",
+          "ParameterType": "System.Double",
           "Default": 0,
           "Sets": [
             {
               "Name": "__AllParameterSets",
-              "Position": -2147483648,
+              "Position": 0,
               "Mandatory": true
             }
           ],
           "CSharpType": "ConsoleMonster.Live.LiveSession",
           "Member": "Delay",
           "MemberKind": "Method",
-          "Conversion": "MillisecondsToTimeSpan",
+          "Conversion": "SecondsToTimeSpan",
           "CSharpTypeName": "System.TimeSpan",
           "Argument": "delay",
           "Reason": "The parameter selects the documented operation or adapts pipeline data to its typed argument."
@@ -23413,6 +23589,14 @@
     },
     {
       "CSharpType": "ConsoleMonster.Output.RecordingTarget",
+      "Member": "CaptureViewport",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "The recording host chooses full terminal viewport checkpoints rather than compact blocks; ordinary scripts use their current terminal layout.",
+      "Alternative": "Use Export-ConsoleFrame or Invoke-ConsoleRecording; C# capture hosts configure their RecordingTarget before starting the session.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Output.RecordingTarget",
       "Member": "Checkpoints",
       "CSharpTypeName": "System.Int32[]",
       "Reason": "The fixture driver receives captured checkpoint notifications; normal scripts use Wait-ConsoleDashboard.",
@@ -23441,6 +23625,22 @@
       "CSharpTypeName": "System.TimeSpan",
       "Reason": "Per-provider cooperative timeout policy belongs to the C# overview host; PowerShell exposes the caller collection budget.",
       "Alternative": "Use Show-ConsoleOverview -BudgetMilliseconds to bound the whole collection.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Sessions.SessionRecordingOptions",
+      "Member": "SessionTimeout",
+      "CSharpTypeName": "System.Nullable`1[System.TimeSpan]",
+      "Reason": "A native automation host may bound the complete child lifetime, including readiness and scripted input, independently of its exit wait.",
+      "Alternative": "Use Invoke-ConsoleRecording -TimeoutSeconds for the PowerShell adapter; C# hosts set SessionTimeout for unattended input sequences.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Sessions.SessionRecordingOptions",
+      "Member": "RespondToCursorQueries",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "Only an unattended Unix pseudo-terminal host should emulate cursor replies; an interactive PowerShell recording forwards them to the real terminal.",
+      "Alternative": "Use Invoke-ConsoleRecording for the native PowerShell route; C# capture hosts opt into terminal replies when no real terminal is attached.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24082,6 +24282,774 @@
       "Reason": "The inter-region gap belongs to the typed responsive container.",
       "Alternative": "Set Gap on LayoutRegions before passing it to Show-ConsoleApp.",
       "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.FileSystem.FileOperationOptions",
+      "Member": "ConflictPolicy",
+      "CSharpTypeName": "ConsoleMonster.FileSystem.FileConflictPolicy",
+      "Reason": "File operations have no cmdlet in round 2: they belong to full-screen apps such as the Commander, which drive them from C# or from the .NET type in PowerShell.",
+      "Alternative": "PowerShell calls the [ConsoleMonster.FileSystem.FileOperation] type directly; Copy-Item, Move-Item and Remove-Item cover scripted file work.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.FileSystem.FileOperationOptions",
+      "Member": "PreserveTimestamps",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "File operations have no cmdlet in round 2: they belong to full-screen apps such as the Commander, which drive them from C# or from the .NET type in PowerShell.",
+      "Alternative": "PowerShell calls the [ConsoleMonster.FileSystem.FileOperation] type directly; Copy-Item, Move-Item and Remove-Item cover scripted file work.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.FileSystem.FileOperationOptions",
+      "Member": "ResolveConflict",
+      "CSharpTypeName": "System.Func`3[ConsoleMonster.FileSystem.FileConflict,System.Threading.CancellationToken,System.Threading.Tasks.Task`1[ConsoleMonster.FileSystem.FileConflictResolution]]",
+      "Reason": "File operations have no cmdlet in round 2: they belong to full-screen apps such as the Commander, which drive them from C# or from the .NET type in PowerShell.",
+      "Alternative": "PowerShell calls the [ConsoleMonster.FileSystem.FileOperation] type directly; Copy-Item, Move-Item and Remove-Item cover scripted file work.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.FileSystem.FileOperationOptions",
+      "Member": "Progress",
+      "CSharpTypeName": "System.IProgress`1[ConsoleMonster.FileSystem.FileOperationProgress]",
+      "Reason": "File operations have no cmdlet in round 2: they belong to full-screen apps such as the Commander, which drive them from C# or from the .NET type in PowerShell.",
+      "Alternative": "PowerShell calls the [ConsoleMonster.FileSystem.FileOperation] type directly; Copy-Item, Move-Item and Remove-Item cover scripted file work.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.FileSystem.FileOperationOptions",
+      "Member": "Trash",
+      "CSharpTypeName": "ConsoleMonster.FileSystem.ITrash",
+      "Reason": "File operations have no cmdlet in round 2: they belong to full-screen apps such as the Commander, which drive them from C# or from the .NET type in PowerShell.",
+      "Alternative": "PowerShell calls the [ConsoleMonster.FileSystem.FileOperation] type directly; Copy-Item, Move-Item and Remove-Item cover scripted file work.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.FileSystem.FileOperationOptions",
+      "Member": "ProgressInterval",
+      "CSharpTypeName": "System.TimeSpan",
+      "Reason": "File operations have no cmdlet in round 2: they belong to full-screen apps such as the Commander, which drive them from C# or from the .NET type in PowerShell.",
+      "Alternative": "PowerShell calls the [ConsoleMonster.FileSystem.FileOperation] type directly; Copy-Item, Move-Item and Remove-Item cover scripted file work.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.FileSystem.FileOperationOptions",
+      "Member": "BufferSize",
+      "CSharpTypeName": "System.Int32",
+      "Reason": "File operations have no cmdlet in round 2: they belong to full-screen apps such as the Commander, which drive them from C# or from the .NET type in PowerShell.",
+      "Alternative": "PowerShell calls the [ConsoleMonster.FileSystem.FileOperation] type directly; Copy-Item, Move-Item and Remove-Item cover scripted file work.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.BarChart",
+      "Member": "AxisLabel",
+      "CSharpTypeName": "System.String",
+      "Reason": "An axis caption describes the supplied numeric model; automatic chart input does not infer that caption.",
+      "Alternative": "Set AxisLabel on the BarChart returned by New-ConsoleChart -Type Bar.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.BarChart",
+      "Member": "MissingText",
+      "CSharpTypeName": "System.String",
+      "Reason": "The fallback for an absent metric is presentation policy for an explicitly configured bar chart.",
+      "Alternative": "Set MissingText on the BarChart returned by New-ConsoleChart -Type Bar.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.ChartItem",
+      "Member": "MissingText",
+      "CSharpTypeName": "System.String",
+      "Reason": "A missing observation carries its own explanation; ordinary numeric chart input supplies values and labels.",
+      "Alternative": "Use BarChart.AddMissing for an absent observation, or set MissingText on an existing BarChart.Items entry.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.ChartItem",
+      "Member": "Status",
+      "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Styling.StatusKind]",
+      "Reason": "An explicit observation status is independent of numeric thresholds and must be supplied by the application.",
+      "Alternative": "Set Status on an existing BarChart.Items entry, or supply status to BarChart.AddMissing.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "IsHealthy",
+      "CSharpTypeName": "System.Func`2[System.Nullable`1[ConsoleMonster.Styling.StatusKind],System.Boolean]",
+      "Reason": "The matrix attention list needs an application-supplied health policy rather than inferring health from labels.",
+      "Alternative": "Assign IsHealthy in a native Matrix builder and pass the resulting widget to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "MaxGridSize",
+      "CSharpTypeName": "System.Int32",
+      "Reason": "The grid-to-list boundary belongs to an explicit cross-tab model, which automatic object tables do not construct.",
+      "Alternative": "Set MaxGridSize on Matrix before passing it to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "MaxListRows",
+      "CSharpTypeName": "System.Int32",
+      "Reason": "The attention-list budget applies to an explicit matrix rather than the ordinary object table row limit.",
+      "Alternative": "Set MaxListRows on Matrix before passing it to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "NonHealthyOnly",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "Selecting the attention view requires a supplied matrix and its health policy.",
+      "Alternative": "Set NonHealthyOnly on Matrix before passing it to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "ShowLegend",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "A matrix legend summarizes supplied cross-tab observations; automatic object views have no matrix legend.",
+      "Alternative": "Set ShowLegend on Matrix before passing it to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "Title",
+      "CSharpTypeName": "System.String",
+      "Reason": "The cross-tab title belongs to an explicitly constructed matrix with fixed axes.",
+      "Alternative": "Set Title on Matrix before passing it to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.MatrixLabel",
+      "Member": "ShortText",
+      "CSharpTypeName": "System.String",
+      "Reason": "A shortened axis label must retain the identity of its full label and cannot be inferred from record projection.",
+      "Alternative": "Set ShortText on MatrixLabel when constructing the matrix axes.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.PathHop",
+      "Member": "Chips",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+      "Reason": "Per-hop annotations belong to the caller-supplied path model and preserve their explicit order.",
+      "Alternative": "Add chips to PathHop before adding the chain to PathSet and showing the widget.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.PathHop",
+      "Member": "Status",
+      "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Styling.StatusKind]",
+      "Reason": "Per-hop status is supplied independently of the hop label and shared-path identity.",
+      "Alternative": "Set Status on PathHop before adding the chain to PathSet and showing the widget.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.PathSet",
+      "Member": "HighlightSharedHops",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "Shared-hop highlighting requires explicit path identities rather than an inferred object hierarchy.",
+      "Alternative": "Set HighlightSharedHops on PathSet and pass the widget to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.PathSet",
+      "Member": "MaxHops",
+      "CSharpTypeName": "System.Int32",
+      "Reason": "The accepted chain length is a budget for an explicitly supplied path model.",
+      "Alternative": "Set MaxHops on PathSet before adding chains and passing the widget to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.PathSet",
+      "Member": "MaxPaths",
+      "CSharpTypeName": "System.Int32",
+      "Reason": "The path-list display limit applies to explicit chains rather than automatic tree children.",
+      "Alternative": "Set MaxPaths on PathSet and pass the widget to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.PathSet",
+      "Member": "Title",
+      "CSharpTypeName": "System.String",
+      "Reason": "The common-origin path view has its own title outside automatic object projection.",
+      "Alternative": "Set Title on PathSet and pass the widget to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.TableRowRole",
+      "Member": "AsciiMarker",
+      "CSharpTypeName": "System.String",
+      "Reason": "The reduced-tier marker is part of an explicit whole-row role, independent of per-column role rules.",
+      "Alternative": "Set AsciiMarker on TableRowRole and supply that role to native Table.AddRow.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.TableRowRole",
+      "Member": "Bold",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "Whole-row emphasis follows the application-supplied row classification.",
+      "Alternative": "Set Bold on TableRowRole and supply that role to native Table.AddRow.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.TableRowRole",
+      "Member": "Marker",
+      "CSharpTypeName": "System.String",
+      "Reason": "A whole-row marker belongs to an explicit row role rather than an inferred status column.",
+      "Alternative": "Set Marker on TableRowRole and supply that role to native Table.AddRow.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.TableRowRole",
+      "Member": "Muted",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "Whole-row muting follows the application-supplied row classification.",
+      "Alternative": "Set Muted on TableRowRole and supply that role to native Table.AddRow.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.TableRowRole",
+      "Member": "Tone",
+      "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Styling.ThemeToken]",
+      "Reason": "A whole-row semantic tone is independent of the ordinary column presentation policy.",
+      "Alternative": "Set Tone on TableRowRole and supply that role to native Table.AddRow.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Tree",
+      "Member": "CollapsedSummary",
+      "CSharpTypeName": "System.Func`2[ConsoleMonster.Widgets.TreeNode,System.String]",
+      "Reason": "A collapsed-node aggregate requires a typed application callback and does not enumerate descendants itself.",
+      "Alternative": "Assign CollapsedSummary in a native Tree builder and pass the widget to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Tree",
+      "Member": "DetectRepeatedNodes",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "Repeated-node references depend on explicit graph identity rather than label equality.",
+      "Alternative": "Set DetectRepeatedNodes on a native Tree with identified nodes and pass it to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Tree",
+      "Member": "ShowValueHeaders",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "Value headers belong to explicitly configured tree value columns.",
+      "Alternative": "Set ShowValueHeaders on a native Tree with ValueColumns and pass it to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Tree",
+      "Member": "ValueColumns",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Widgets.TableColumn]",
+      "Reason": "Aligned tree values require an explicit keyed column schema rather than an inferred node label.",
+      "Alternative": "Configure native Tree.ValueColumns and TreeNode.Values, then pass the tree to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.TreeHierarchyOptions",
+      "Member": "CollapsedSummary",
+      "CSharpTypeName": "System.Func`2[System.Object,System.String]",
+      "Reason": "An object aggregate for a collapsed node is application-specific and must not trigger another child traversal.",
+      "Alternative": "Supply CollapsedSummary through TreeHierarchyOptions when calling TreeHierarchy.Add; New-ConsoleTree retains its bounded object traversal.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.TreeHierarchyOptions",
+      "Member": "DetectRepeatedNodes",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "Cross-branch deduplication needs an explicit identity policy; the ordinary PowerShell adapter keeps its wrapped-object identity rules.",
+      "Alternative": "Configure DetectRepeatedNodes and Identity through TreeHierarchyOptions passed to TreeHierarchy.Add.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.TreeHierarchyOptions",
+      "Member": "IdentityComparer",
+      "CSharpTypeName": "System.Collections.Generic.IEqualityComparer`1[System.Object]",
+      "Reason": "A custom identity comparer belongs to a native application graph rather than PowerShell wrapped-object identity.",
+      "Alternative": "Supply IdentityComparer with Identity through TreeHierarchyOptions passed to TreeHierarchy.Add.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.TreeHierarchyOptions",
+      "Member": "IsIncomplete",
+      "CSharpTypeName": "System.Func`2[System.Object,System.Boolean]",
+      "Reason": "Knowing whether application-owned children are incomplete requires a pure application callback.",
+      "Alternative": "Supply IsIncomplete through TreeHierarchyOptions passed to TreeHierarchy.Add; use MaxItems, MaxNodes and Depth for ordinary PowerShell traversal budgets.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.TreeNode",
+      "Member": "Identity",
+      "CSharpTypeName": "System.Object",
+      "Reason": "Stable graph identity is supplied independently of a node label or display value.",
+      "Alternative": "Set Identity when building native TreeNode instances and pass the tree to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.TreeNode",
+      "Member": "Reference",
+      "CSharpTypeName": "ConsoleMonster.Widgets.TreeReferenceKind",
+      "Reason": "A node reference records an explicit cycle or previously shown node rather than deriving it from text.",
+      "Alternative": "Set Reference on a native TreeNode with an identity-aware tree builder.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.TreeNode",
+      "Member": "ReferenceSummary",
+      "CSharpTypeName": "System.String",
+      "Reason": "Reference wording belongs to the explicitly identified native node.",
+      "Alternative": "Set ReferenceSummary on a native TreeNode before showing the tree.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.TreeNode",
+      "Member": "Values",
+      "CSharpTypeName": "System.Collections.Generic.IDictionary`2[System.String,ConsoleMonster.Widgets.TableCell]",
+      "Reason": "Keyed value cells require the explicit native tree column schema.",
+      "Alternative": "Populate TreeNode.Values to match Tree.ValueColumns and pass the tree to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "AsciiListDirection",
+      "CSharpTypeName": "System.String",
+      "Reason": "The reduced-tier connector belongs to an explicitly supplied directional cross-tab.",
+      "Alternative": "Set AsciiListDirection with ListDirection on a native Matrix, then pass it to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "ColumnAxisCaption",
+      "CSharpTypeName": "System.String",
+      "Reason": "The column-axis caption names the supplied matrix dimension rather than an inferred object property.",
+      "Alternative": "Set ColumnAxisCaption on a native Matrix before passing it to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "LegendLabels",
+      "CSharpTypeName": "System.Collections.Generic.IDictionary`2[ConsoleMonster.Styling.StatusKind,System.String]",
+      "Reason": "Application-supplied legend words describe matrix statuses without changing their semantics.",
+      "Alternative": "Populate Matrix.LegendLabels by StatusKind before passing the matrix to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "LegendMarkers",
+      "CSharpTypeName": "System.Collections.Generic.IDictionary`2[ConsoleMonster.Styling.StatusKind,System.String]",
+      "Reason": "Literal legend markers belong to an explicit matrix and do not alter its cell statuses or counts.",
+      "Alternative": "Populate Matrix.LegendMarkers with ASCII-safe glyphs for all-tier output and pass the matrix to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "ListDirection",
+      "CSharpTypeName": "System.String",
+      "Reason": "A directional connector describes the relationship between explicitly supplied row and column identities.",
+      "Alternative": "Set ListDirection and its AsciiListDirection alternative on a native Matrix, then pass it to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "MissingLegendLabel",
+      "CSharpTypeName": "System.String",
+      "Reason": "An absent observation needs application wording distinct from a supplied healthy result.",
+      "Alternative": "Set MissingLegendLabel on a native Matrix before passing it to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "RowAxisCaption",
+      "CSharpTypeName": "System.String",
+      "Reason": "The row-axis caption names the supplied matrix dimension rather than an inferred object property.",
+      "Alternative": "Set RowAxisCaption on a native Matrix before passing it to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "SelfLegendLabel",
+      "CSharpTypeName": "System.String",
+      "Reason": "The self-cell legend describes explicitly identified diagonal relationships.",
+      "Alternative": "Set SelfLegendLabel on a native Matrix before passing it to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Tree",
+      "Member": "TruncateLabelsInMiddle",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "Preserving both ends of an identity label is a native tree presentation choice.",
+      "Alternative": "Set TruncateLabelsInMiddle on the Tree returned by New-ConsoleTree before passing it to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Tree",
+      "Member": "TruncateNotesInMiddle",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "Preserving both ends of a detail or value note is independent of label truncation.",
+      "Alternative": "Set TruncateNotesInMiddle on a native Tree with node details or value columns before passing it to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.TreeNode",
+      "Member": "AsciiMarker",
+      "CSharpTypeName": "System.String",
+      "Reason": "The ASCII node marker is supplied independently of status semantics and the full-tier marker.",
+      "Alternative": "Set AsciiMarker on native TreeNode instances before passing their tree to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.TreeNode",
+      "Member": "BasicMarker",
+      "CSharpTypeName": "System.String",
+      "Reason": "A Basic-tier node marker can differ from both full Unicode and ASCII markers.",
+      "Alternative": "Set BasicMarker together with Marker and AsciiMarker on native TreeNode instances.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.TreeNode",
+      "Member": "Marker",
+      "CSharpTypeName": "System.String",
+      "Reason": "A literal node marker is application presentation rather than an inferred status.",
+      "Alternative": "Set Marker on native TreeNode instances and supply reduced-tier alternatives when needed.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.TreeNode",
+      "Member": "MarkerTone",
+      "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Styling.ThemeToken]",
+      "Reason": "The marker tone can express application meaning independently of the node status and label style.",
+      "Alternative": "Set MarkerTone to a ThemeToken on native TreeNode instances before passing their tree to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.BarChart",
+      "Member": "BarHeader",
+      "CSharpTypeName": "System.String",
+      "Reason": "The bar column caption belongs to a configured native chart.",
+      "Alternative": "Set BarHeader on the BarChart returned by New-ConsoleChart -Type Bar.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.BarChart",
+      "Member": "BarWidth",
+      "CSharpTypeName": "System.Nullable`1[System.Int32]",
+      "Reason": "A fixed bar width is a native chart layout choice.",
+      "Alternative": "Set BarWidth on the BarChart returned by New-ConsoleChart -Type Bar.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.BarChart",
+      "Member": "LabelHeader",
+      "CSharpTypeName": "System.String",
+      "Reason": "The label column caption describes the supplied chart identities.",
+      "Alternative": "Set LabelHeader on the BarChart returned by New-ConsoleChart -Type Bar.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.BarChart",
+      "Member": "ShowTrack",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "Showing unused bar capacity is a native chart presentation choice.",
+      "Alternative": "Set ShowTrack on the BarChart returned by New-ConsoleChart -Type Bar.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.BarChart",
+      "Member": "SpanMissingValues",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "Spanning an unavailable observation is an explicit native chart layout choice.",
+      "Alternative": "Set SpanMissingValues on the BarChart returned by New-ConsoleChart -Type Bar.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.BarChart",
+      "Member": "ValueHeader",
+      "CSharpTypeName": "System.String",
+      "Reason": "The value column caption describes the supplied chart measure.",
+      "Alternative": "Set ValueHeader on the BarChart returned by New-ConsoleChart -Type Bar.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.BarChart",
+      "Member": "ValuePresenter",
+      "CSharpTypeName": "ConsoleMonster.Presenters.ICellPresenter",
+      "Reason": "A custom measure presenter belongs to the native chart composition.",
+      "Alternative": "Assign ValuePresenter on the BarChart returned by New-ConsoleChart -Type Bar.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.ConsoleViewFrame",
+      "Member": "Blocks",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Layout.IWidget]",
+      "Reason": "Body blocks form an explicitly composed embedded view.",
+      "Alternative": "Add native widgets to ConsoleViewFrame.Blocks and pass the frame to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.ConsoleViewFrame",
+      "Member": "Footer",
+      "CSharpTypeName": "ConsoleMonster.Layout.IWidget",
+      "Reason": "The footer is an optional widget in an explicitly composed embedded view.",
+      "Alternative": "Set ConsoleViewFrame.Footer and pass the frame to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.ConsoleViewFrame",
+      "Member": "Headline",
+      "CSharpTypeName": "ConsoleMonster.Layout.IWidget",
+      "Reason": "The headline is an optional widget beneath an embedded view header.",
+      "Alternative": "Set ConsoleViewFrame.Headline and pass the frame to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.FactFlow",
+      "Member": "Parts",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+      "Reason": "Fact entries are markup fragments supplied by an embedded view builder.",
+      "Alternative": "Populate FactFlow.Parts and pass the widget to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.FactFlow",
+      "Member": "Role",
+      "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Styling.ThemeToken]",
+      "Reason": "A fact tone is supplied by its native presentation builder.",
+      "Alternative": "Set FactFlow.Role before passing the widget to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.FactFlow",
+      "Member": "Separator",
+      "CSharpTypeName": "System.String",
+      "Reason": "The separator is explicit presentation for a native fact flow.",
+      "Alternative": "Set FactFlow.Separator before passing the widget to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Legend",
+      "Member": "Entries",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+      "Reason": "Legend entries describe the application-supplied meanings of an explicit view.",
+      "Alternative": "Populate Legend.Entries and pass the widget to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "AdditionalLegendEntries",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+      "Reason": "Extra legend words describe application-supplied matrix annotations.",
+      "Alternative": "Populate Matrix.AdditionalLegendEntries before passing the matrix to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "CellNote",
+      "CSharpTypeName": "System.String",
+      "Reason": "A cell annotation describes the supplied matrix values.",
+      "Alternative": "Set Matrix.CellNote before passing the matrix to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "InlineAxes",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "Inline axes are an explicit matrix presentation choice.",
+      "Alternative": "Set Matrix.InlineAxes before passing the matrix to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "LegendRoles",
+      "CSharpTypeName": "System.Collections.Generic.IDictionary`2[ConsoleMonster.Styling.StatusKind,ConsoleMonster.Styling.ThemeToken]",
+      "Reason": "Legend tones belong to the application-supplied matrix status meanings.",
+      "Alternative": "Populate Matrix.LegendRoles before passing the matrix to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "MinCellWidth",
+      "CSharpTypeName": "System.Int32",
+      "Reason": "The minimum matrix cell width is a native layout constraint.",
+      "Alternative": "Set Matrix.MinCellWidth before passing the matrix to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "ShortColumnAxisCaption",
+      "CSharpTypeName": "System.String",
+      "Reason": "A compact column caption is supplied independently of the full matrix caption.",
+      "Alternative": "Set Matrix.ShortColumnAxisCaption with ColumnAxisCaption on a native Matrix.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "ShortRowAxisCaption",
+      "CSharpTypeName": "System.String",
+      "Reason": "A compact row caption is supplied independently of the full matrix caption.",
+      "Alternative": "Set Matrix.ShortRowAxisCaption with RowAxisCaption on a native Matrix.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "ShowLegendCounts",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "Legend counts are an explicit matrix summary presentation choice.",
+      "Alternative": "Set Matrix.ShowLegendCounts before passing the matrix to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.PathHop",
+      "Member": "Bold",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "Emphasis belongs to an explicitly supplied native path hop.",
+      "Alternative": "Set PathHop.Bold on a hop in a PathSet before passing the widget to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.PathHop",
+      "Member": "Role",
+      "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Styling.ThemeToken]",
+      "Reason": "A hop tone expresses application-supplied relationship meaning.",
+      "Alternative": "Set PathHop.Role on a hop in a PathSet before passing the widget to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.PathSet",
+      "Member": "CompactBranches",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "Compact connectors are an explicit native path layout choice.",
+      "Alternative": "Set PathSet.CompactBranches before passing the widget to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.ScoreGauge",
+      "Member": "Maximum",
+      "CSharpTypeName": "System.Double",
+      "Reason": "The gauge maximum is supplied by the application alongside its score.",
+      "Alternative": "Set ScoreGauge.Maximum and pass the gauge to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.ScoreGauge",
+      "Member": "Parts",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[System.Collections.Generic.KeyValuePair`2[System.String,System.String]]",
+      "Reason": "Score components are labels and values supplied by the application.",
+      "Alternative": "Populate ScoreGauge.Parts and pass the gauge to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.ScoreGauge",
+      "Member": "Role",
+      "CSharpTypeName": "ConsoleMonster.Styling.ThemeToken",
+      "Reason": "The finding tone is supplied by the application rather than computed by the gauge.",
+      "Alternative": "Set ScoreGauge.Role and pass the gauge to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.ScoreGauge",
+      "Member": "Value",
+      "CSharpTypeName": "System.Double",
+      "Reason": "The gauge displays an application-supplied score without calculating it.",
+      "Alternative": "Set ScoreGauge.Value and pass the gauge to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.ScoreGauge",
+      "Member": "Width",
+      "CSharpTypeName": "System.Int32",
+      "Reason": "A fixed gauge width is an explicit native layout choice.",
+      "Alternative": "Set ScoreGauge.Width and pass the gauge to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.TableRowRole",
+      "Member": "MarkerTone",
+      "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Styling.ThemeToken]",
+      "Reason": "A row marker tone is supplied independently of the row label and status.",
+      "Alternative": "Set MarkerTone on a native TableRowRole used by the table builder.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Tree",
+      "Member": "CompactGuides",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "Compact guides are an explicit native hierarchy layout choice.",
+      "Alternative": "Set CompactGuides on the Tree returned by New-ConsoleTree before passing it to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Tree",
+      "Member": "ValuePlacement",
+      "CSharpTypeName": "ConsoleMonster.Widgets.TreeValuePlacement",
+      "Reason": "Value placement selects the layout of explicitly supplied tree value columns.",
+      "Alternative": "Set ValuePlacement on the Tree returned by New-ConsoleTree before passing it to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.TreeNode",
+      "Member": "Bare",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "A bare node omits the ordinary hierarchy decoration in an explicit tree.",
+      "Alternative": "Set Bare on a native TreeNode before passing its tree to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.TreeNode",
+      "Member": "TruncateLabelInMiddle",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "Preserving both ends of one node label is a per-node layout choice.",
+      "Alternative": "Set TruncateLabelInMiddle on a native TreeNode before passing its tree to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.ViewHeader",
+      "Member": "Facts",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+      "Reason": "Header facts are supplied by an embedded view builder.",
+      "Alternative": "Populate ViewHeader.Facts and pass the header or its ConsoleViewFrame to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.ViewHeader",
+      "Member": "State",
+      "CSharpTypeName": "System.String",
+      "Reason": "The header state is supplied by the application and can contain status markup.",
+      "Alternative": "Set ViewHeader.State and pass the header or its ConsoleViewFrame to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.ViewHeader",
+      "Member": "Streaming",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "An open-stream header describes collection rather than a final verdict.",
+      "Alternative": "Set ViewHeader.Streaming in a native streaming-header builder.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.ViewHeader",
+      "Member": "Title",
+      "CSharpTypeName": "System.String",
+      "Reason": "The embedded view title is literal application-supplied context.",
+      "Alternative": "Set ViewHeader.Title and pass the header or its ConsoleViewFrame to Show-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.ViewHint",
+      "Member": "Columns",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+      "Reason": "Hidden column names are supplied by the view layout owner.",
+      "Alternative": "Populate ViewHint.Columns and use the hint as a native view footer.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.ViewHint",
+      "Member": "MoreRows",
+      "CSharpTypeName": "System.Int64",
+      "Reason": "The omitted-row count is supplied by the view collection owner.",
+      "Alternative": "Set ViewHint.MoreRows and use the hint as a native view footer.",
+      "Disposition": "CSharpOnly"
     }
   ],
   "SchemaVersion": 2,
@@ -24104,6 +25072,7 @@
     "ConsoleMonster.Export.FrameExporter",
     "ConsoleMonster.Export.Recording",
     "ConsoleMonster.Export.RecordingExportOptions",
+    "ConsoleMonster.FileSystem.FileOperationOptions",
     "ConsoleMonster.Graphics.GraphicsExportOptions",
     "ConsoleMonster.Interactive.AppBinding",
     "ConsoleMonster.Interactive.AppCommand",
@@ -24229,8 +25198,11 @@
     "ConsoleMonster.Widgets.CellMap",
     "ConsoleMonster.Widgets.ChartOptions",
     "ConsoleMonster.Widgets.CodeView",
+    "ConsoleMonster.Widgets.ConsoleViewFrame",
+    "ConsoleMonster.Widgets.ContextWidget",
     "ConsoleMonster.Widgets.Dashboard",
     "ConsoleMonster.Widgets.ExceptionView",
+    "ConsoleMonster.Widgets.FactFlow",
     "ConsoleMonster.Widgets.Flow",
     "ConsoleMonster.Widgets.FooterBar",
     "ConsoleMonster.Widgets.HeaderBar",
@@ -24241,6 +25213,7 @@
     "ConsoleMonster.Widgets.Lanes",
     "ConsoleMonster.Widgets.LayoutRegion",
     "ConsoleMonster.Widgets.LayoutRegions",
+    "ConsoleMonster.Widgets.Legend",
     "ConsoleMonster.Widgets.LineChart",
     "ConsoleMonster.Widgets.LiveTable",
     "ConsoleMonster.Widgets.LiveWidget",
@@ -24248,18 +25221,22 @@
     "ConsoleMonster.Widgets.Logo",
     "ConsoleMonster.Widgets.LogRegion",
     "ConsoleMonster.Widgets.MarkdownView",
+    "ConsoleMonster.Widgets.Matrix",
+    "ConsoleMonster.Widgets.PathSet",
     "ConsoleMonster.Widgets.Phases",
     "ConsoleMonster.Widgets.PipelineChart",
     "ConsoleMonster.Widgets.ProgressBar",
     "ConsoleMonster.Widgets.ProgressOptions",
     "ConsoleMonster.Widgets.RecordView",
     "ConsoleMonster.Widgets.RegionWidget",
+    "ConsoleMonster.Widgets.RoleTable",
     "ConsoleMonster.Widgets.Rule",
     "ConsoleMonster.Widgets.RunCompletion",
     "ConsoleMonster.Widgets.RunDashboard",
     "ConsoleMonster.Widgets.RunProgress",
     "ConsoleMonster.Widgets.RunSummary",
     "ConsoleMonster.Widgets.RunView",
+    "ConsoleMonster.Widgets.ScoreGauge",
     "ConsoleMonster.Widgets.ScrollView",
     "ConsoleMonster.Widgets.ShellPrompt",
     "ConsoleMonster.Widgets.Sparkline",
@@ -24273,6 +25250,8 @@
     "ConsoleMonster.Widgets.TextBlock",
     "ConsoleMonster.Widgets.Tree",
     "ConsoleMonster.Widgets.TreeHierarchyOptions",
+    "ConsoleMonster.Widgets.ViewHeader",
+    "ConsoleMonster.Widgets.ViewHint",
     "ConsoleMonster.Widgets.WatchView"
   ],
   "ConfigurableTypes": [
@@ -24316,6 +25295,12 @@
     "ConsoleMonster.Export.RecordingMarker",
     "ConsoleMonster.Export.RecordingPace",
     "ConsoleMonster.Export.WindowChromeStyle",
+    "ConsoleMonster.FileSystem.FileConflictPolicy",
+    "ConsoleMonster.FileSystem.FileOperationKind",
+    "ConsoleMonster.FileSystem.FileOperationOptions",
+    "ConsoleMonster.FileSystem.FileOperationPhase",
+    "ConsoleMonster.FileSystem.FileOperationProgress",
+    "ConsoleMonster.FileSystem.ITrash",
     "ConsoleMonster.Glyphs.BoxStyle",
     "ConsoleMonster.Glyphs.GlyphIcon",
     "ConsoleMonster.Graphics.GraphicsBackground",
@@ -24493,6 +25478,7 @@
     "ConsoleMonster.Styling.ITheme",
     "ConsoleMonster.Styling.RichColor",
     "ConsoleMonster.Styling.RichStyle",
+    "ConsoleMonster.Styling.Severity",
     "ConsoleMonster.Styling.StatusKind",
     "ConsoleMonster.Styling.Style",
     "ConsoleMonster.Styling.TextDecoration",
@@ -24527,8 +25513,12 @@
     "ConsoleMonster.Widgets.CodeView",
     "ConsoleMonster.Widgets.ColumnAggregate",
     "ConsoleMonster.Widgets.ColumnOverflow",
+    "ConsoleMonster.Widgets.ColumnPlacement",
+    "ConsoleMonster.Widgets.ConsoleViewFrame",
+    "ConsoleMonster.Widgets.ContextWidget",
     "ConsoleMonster.Widgets.Dashboard",
     "ConsoleMonster.Widgets.ExceptionView",
+    "ConsoleMonster.Widgets.FactFlow",
     "ConsoleMonster.Widgets.Flow",
     "ConsoleMonster.Widgets.FlowBranch",
     "ConsoleMonster.Widgets.FlowEdge",
@@ -24546,6 +25536,7 @@
     "ConsoleMonster.Widgets.Lanes",
     "ConsoleMonster.Widgets.LayoutRegion",
     "ConsoleMonster.Widgets.LayoutRegions",
+    "ConsoleMonster.Widgets.Legend",
     "ConsoleMonster.Widgets.LineChart",
     "ConsoleMonster.Widgets.LiveTable",
     "ConsoleMonster.Widgets.LiveWidget",
@@ -24554,6 +25545,10 @@
     "ConsoleMonster.Widgets.Logo",
     "ConsoleMonster.Widgets.LogRegion",
     "ConsoleMonster.Widgets.MarkdownView",
+    "ConsoleMonster.Widgets.Matrix",
+    "ConsoleMonster.Widgets.MatrixLabel",
+    "ConsoleMonster.Widgets.PathHop",
+    "ConsoleMonster.Widgets.PathSet",
     "ConsoleMonster.Widgets.Phases",
     "ConsoleMonster.Widgets.PipelineChart",
     "ConsoleMonster.Widgets.PipelineChartSort",
@@ -24564,12 +25559,14 @@
     "ConsoleMonster.Widgets.RecordItemKind",
     "ConsoleMonster.Widgets.RecordView",
     "ConsoleMonster.Widgets.RegionWidget",
+    "ConsoleMonster.Widgets.RoleTable",
     "ConsoleMonster.Widgets.Rule",
     "ConsoleMonster.Widgets.RunCompletion",
     "ConsoleMonster.Widgets.RunDashboard",
     "ConsoleMonster.Widgets.RunProgress",
     "ConsoleMonster.Widgets.RunSummary",
     "ConsoleMonster.Widgets.RunView",
+    "ConsoleMonster.Widgets.ScoreGauge",
     "ConsoleMonster.Widgets.ScrollView",
     "ConsoleMonster.Widgets.ShellPrompt",
     "ConsoleMonster.Widgets.Sparkline",
@@ -24583,12 +25580,17 @@
     "ConsoleMonster.Widgets.TableBorder",
     "ConsoleMonster.Widgets.TableCell",
     "ConsoleMonster.Widgets.TableColumn",
+    "ConsoleMonster.Widgets.TableRowRole",
     "ConsoleMonster.Widgets.Tabs",
     "ConsoleMonster.Widgets.TextBlock",
     "ConsoleMonster.Widgets.TextOverflow",
     "ConsoleMonster.Widgets.Tree",
     "ConsoleMonster.Widgets.TreeHierarchyOptions",
     "ConsoleMonster.Widgets.TreeNode",
+    "ConsoleMonster.Widgets.TreeReferenceKind",
+    "ConsoleMonster.Widgets.TreeValuePlacement",
+    "ConsoleMonster.Widgets.ViewHeader",
+    "ConsoleMonster.Widgets.ViewHint",
     "ConsoleMonster.Widgets.WatchView"
   ],
   "RelatedBindings": [
@@ -24891,11 +25893,11 @@
     },
     {
       "CSharpType": "ConsoleMonster.Widgets.Sparkline",
-      "Member": "Label",
-      "MemberId": "ConsoleMonster.Widgets.Sparkline.Label",
+      "Member": "Title",
+      "MemberId": "ConsoleMonster.Widgets.Sparkline.Title",
       "CSharpTypeName": "System.String",
       "Command": "New-ConsoleChart",
-      "Parameter": "Label",
+      "Parameter": "Title",
       "Reason": "The shared factory/view adapter applies this option to the resulting Sparkline."
     },
     {
@@ -26720,6 +27722,15 @@
       "Command": "New-ConsoleTab",
       "Parameter": "Content",
       "Reason": "The page definition retains the same region subtree when materialized."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.RunView",
+      "Member": "RetryCount",
+      "MemberId": "ConsoleMonster.Widgets.RunView.RetryCount",
+      "CSharpTypeName": "System.Int32",
+      "Command": "Invoke-ConsoleRun",
+      "Parameter": "RetryCount",
+      "Reason": "The run monitor copies RunOptions.RetryCount to its view for the retry note on running items."
     }
   ],
   "Endings": [
@@ -26812,7 +27823,7 @@
     {
       "Kind": "DelegateProperty",
       "Method": "Configure",
-      "Pattern": ".Configure(item => item.{Member} = \u2026)",
+      "Pattern": ".Configure(item => item.{Member} = …)",
       "Reason": "C# invokes a delegate-valued property before considering an extension with that name; Configure assigns the callback without invoking it."
     }
   ],
@@ -26821,11 +27832,12 @@
       "PropertyType": "System.Boolean",
       "EnabledPattern": ".{Member}()",
       "DisabledPattern": ".{Member}(false)",
-      "ExplicitValuePattern": ".{Member}(value)"
+      "ExplicitValuePattern": ".{Member}(value)",
+      "IsPrefix": "A Boolean IsX property keeps its .NET name; the fluent setter is X()/X(bool). This is a mechanical grammar exception, not an alias."
     },
     "Content": {
-      "PowerShellPattern": "-Content { \u2026 }",
-      "FluentPattern": ".Content(c => { \u2026 })",
+      "PowerShellPattern": "-Content { … }",
+      "FluentPattern": ".Content(c => { … })",
       "BuilderType": "ConsoleMonster.Layout.ContentBuilder",
       "Bindings": [
         {
@@ -26976,6 +27988,50 @@
             "ConsoleMonster.Widgets.Histogram",
             "ConsoleMonster.Widgets.Sparkline",
             "ConsoleMonster.Widgets.ChartOptions"
+          ],
+          "Discriminators": [
+            {
+              "InitializerType": "ConsoleMonster.Widgets.BarChart",
+              "Parameter": "Type",
+              "Member": "Type",
+              "EnumType": "ChartType",
+              "Value": "Bar"
+            },
+            {
+              "InitializerType": "ConsoleMonster.Widgets.StackedBar",
+              "Parameter": "Type",
+              "Member": "Type",
+              "EnumType": "ChartType",
+              "Value": "Stacked"
+            },
+            {
+              "InitializerType": "ConsoleMonster.Widgets.LineChart",
+              "Parameter": "Type",
+              "Member": "Type",
+              "EnumType": "ChartType",
+              "Value": "Line"
+            },
+            {
+              "InitializerType": "ConsoleMonster.Widgets.ScatterPlot",
+              "Parameter": "Type",
+              "Member": "Type",
+              "EnumType": "ChartType",
+              "Value": "Scatter"
+            },
+            {
+              "InitializerType": "ConsoleMonster.Widgets.Histogram",
+              "Parameter": "Type",
+              "Member": "Type",
+              "EnumType": "ChartType",
+              "Value": "Histogram"
+            },
+            {
+              "InitializerType": "ConsoleMonster.Widgets.Sparkline",
+              "Parameter": "Type",
+              "Member": "Type",
+              "EnumType": "ChartType",
+              "Value": "Sparkline"
+            }
           ]
         },
         {
@@ -27181,6 +28237,14 @@
             "ConsoleMonster.Widgets.ProgressBar",
             "ConsoleMonster.Widgets.Spinner",
             "ConsoleMonster.Widgets.ProgressOptions"
+          ],
+          "Discriminators": [
+            {
+              "InitializerType": "ConsoleMonster.Widgets.Spinner",
+              "Parameter": "Indeterminate",
+              "Member": "Indeterminate",
+              "Switch": true
+            }
           ]
         },
         {
@@ -27234,6 +28298,14 @@
             "ConsoleMonster.Interactive.Select",
             "ConsoleMonster.Interactive.MultiSelect",
             "ConsoleMonster.Interactive.SelectInputOptions"
+          ],
+          "Discriminators": [
+            {
+              "InitializerType": "ConsoleMonster.Interactive.MultiSelect",
+              "Parameter": "Multiple",
+              "Member": "Multiple",
+              "Switch": true
+            }
           ]
         },
         {
@@ -27282,7 +28354,7 @@
           "ReturnType": "ConsoleMonster.Widgets.TextBlock",
           "ContentBuilder": true,
           "Pattern": "Ui.Text()",
-          "Reason": "PowerShell returns rich text for cells as well as display; Ui.Text is its literal display wrapper. Explicit markup uses Content(markup).IsMarkup().",
+          "Reason": "PowerShell returns RichText for cell or display use; Ui.Text/c.Text display literal text and Ui.Markup/c.Markup select -Markup parsing.",
           "InitializerTypes": [
             "ConsoleMonster.Widgets.TextBlock"
           ]
@@ -27400,28 +28472,8 @@
       ],
       "CSharpOnlyFactories": [
         {
-          "Noun": "Options",
-          "Reason": "Generic empty C# configuration; it adds no widget or job."
-        },
-        {
           "Noun": "Grid",
           "Reason": "C# viewer model; Show-ConsoleGrid combines its construction and execution in PowerShell."
-        },
-        {
-          "Noun": "SelectPrompt",
-          "Reason": "Typed scalar Read-ConsoleSelect renderer; preserves the result type."
-        },
-        {
-          "Noun": "MultiSelectPrompt",
-          "Reason": "Typed collection Read-ConsoleSelect -Multiple renderer."
-        },
-        {
-          "Noun": "TextPrompt",
-          "Reason": "Typed Read-ConsoleText question renderer."
-        },
-        {
-          "Noun": "SecretPrompt",
-          "Reason": "Typed Read-ConsoleText -AsSecret question renderer."
         },
         {
           "Noun": "NumberPrompt",
@@ -27458,6 +28510,18 @@
         {
           "Noun": "DatePrompt",
           "Reason": "Typed Read-ConsoleDate question renderer, including inclusive ranges."
+        },
+        {
+          "Noun": "TextQuestion",
+          "Reason": "Read-ConsoleText's typed question definition (AsSecret, Multiline); the chain ends in Show() rather than a widget."
+        },
+        {
+          "Noun": "SelectQuestion",
+          "Reason": "Read-ConsoleSelect's question definition (Multiple); the chain ends in Show(), Show<T>() or ShowMany<T>() rather than a widget."
+        },
+        {
+          "Noun": "Markup",
+          "Reason": "Explicit markup variant of New-ConsoleText -Markup; Text remains literal. ContentBuilder.Markup has the same string input."
         }
       ],
       "PrimaryInputs": [
@@ -27572,10 +28636,19 @@
           "Parameter": "Title",
           "Position": 0,
           "Reason": "The rule title is the primary separator input."
+        },
+        {
+          "Noun": "Markup",
+          "Argument": "markup",
+          "Command": "New-ConsoleText",
+          "Parameter": "Markup",
+          "Position": null,
+          "Reason": "Explicit -Markup value; unlike Text it is named in PowerShell, because a string cannot select two positional parameter meanings."
         }
       ],
       "Pattern": "Ui.{Noun}()",
-      "NestedPattern": "c.{Noun}(widget => \u2026)",
+      "NestedPattern": "c.{Noun}({Parameter} => …)",
+      "NestedParameterNaming": "Use the shared teaching-code callback name (Table t, Rows r, Panel p, KeyValue kv, Chart chart; otherwise lower camel case), with a numeric suffix on local collisions.",
       "DataConstructionExceptions": [
         {
           "CSharpType": "ConsoleMonster.Interactive.Choice",
@@ -27614,6 +28687,98 @@
           "Reason": "A passive flow data record, equivalent to a node or edge row in PowerShell."
         }
       ]
-    }
+    },
+    "Markup": {
+      "Command": "New-ConsoleText",
+      "Parameter": "Markup",
+      "PowerShellPattern": "New-ConsoleText -Markup $text",
+      "InitializerPattern": "new TextBlock(text)",
+      "FluentPattern": "Ui.Markup(text)",
+      "NestedPattern": "c.Markup(text)",
+      "LiteralPattern": "Ui.Text(text) / c.Text(text)",
+      "Reason": "Same text renderer; the helper selects markup parsing explicitly while Text keeps brackets literal."
+    },
+    "OperationOptions": [
+      {
+        "CSharpType": "ConsoleMonster.Live.ConsoleRun",
+        "Member": "ForEachAsync",
+        "OptionsType": "ConsoleMonster.Live.RunOptions",
+        "Argument": "configure",
+        "Pattern": "options => options.Param(value)",
+        "Reason": "Configure fresh defaults once, then call the existing operation owner; object options remain supported."
+      },
+      {
+        "CSharpType": "ConsoleMonster.Interactive.Menu",
+        "Member": "Run",
+        "OptionsType": "ConsoleMonster.Interactive.MenuOptions",
+        "Argument": "configure",
+        "Pattern": "options => options.Param(value)",
+        "Reason": "Configure fresh defaults once, then call the existing operation owner; object options remain supported."
+      },
+      {
+        "CSharpType": "ConsoleMonster.Interactive.Menu",
+        "Member": "RunAsync",
+        "OptionsType": "ConsoleMonster.Interactive.MenuOptions",
+        "Argument": "configure",
+        "Pattern": "options => options.Param(value)",
+        "Reason": "Configure fresh defaults once, then call the existing operation owner; object options remain supported."
+      },
+      {
+        "CSharpType": "ConsoleMonster.Interactive.Grid",
+        "Member": "Show",
+        "OptionsType": "ConsoleMonster.Interactive.GridOptions",
+        "Argument": "configure",
+        "Pattern": "options => options.Param(value)",
+        "Reason": "Configure fresh defaults once, then call the existing operation owner; object options remain supported."
+      },
+      {
+        "CSharpType": "ConsoleMonster.Interactive.Form",
+        "Member": "Show",
+        "OptionsType": "ConsoleMonster.Interactive.FormOptions",
+        "Argument": "configure",
+        "Pattern": "options => options.Param(value)",
+        "Reason": "Configure fresh defaults once, then call the existing operation owner; object options remain supported."
+      },
+      {
+        "CSharpType": "ConsoleMonster.Interactive.Form",
+        "Member": "ShowAsync",
+        "OptionsType": "ConsoleMonster.Interactive.FormOptions",
+        "Argument": "configure",
+        "Pattern": "options => options.Param(value)",
+        "Reason": "Configure fresh defaults once, then call the existing operation owner; object options remain supported."
+      },
+      {
+        "CSharpType": "ConsoleMonster.Interactive.ConsoleApp",
+        "Member": "Run",
+        "OptionsType": "ConsoleMonster.Interactive.ConsoleAppOptions",
+        "Argument": "configure",
+        "Pattern": "options => options.Param(value)",
+        "Reason": "Configure fresh defaults once, then call the existing operation owner; object options remain supported."
+      },
+      {
+        "CSharpType": "ConsoleMonster.Interactive.ConsoleApp",
+        "Member": "RunAsync",
+        "OptionsType": "ConsoleMonster.Interactive.ConsoleAppOptions",
+        "Argument": "configure",
+        "Pattern": "options => options.Param(value)",
+        "Reason": "Configure fresh defaults once, then call the existing operation owner; object options remain supported."
+      },
+      {
+        "CSharpType": "ConsoleMonster.UiConstruction",
+        "Member": "CreateSession",
+        "OptionsType": "ConsoleMonster.Live.LiveSessionOptions",
+        "Argument": "configure",
+        "Pattern": "options => options.Param(value)",
+        "Reason": "Configure fresh defaults once, then call the existing operation owner; object options remain supported."
+      },
+      {
+        "CSharpType": "ConsoleMonster.WidgetPipeline",
+        "Member": "Export",
+        "OptionsType": "ConsoleMonster.Export.ExportOptions",
+        "Argument": "configure",
+        "Pattern": "options => options.Width(100)",
+        "Reason": "Configure fresh defaults before the existing core/add-on export dispatcher."
+      }
+    ]
   }
 }

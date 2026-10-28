@@ -1,7 +1,7 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://github.com/EvotecIT/ConsoleMonster
+online version: https://consolemonster.dev/
 schema: 2.0.0
 ---
 # Complete-ConsoleRun
@@ -25,7 +25,7 @@ Marks unfinished items skipped, releases held log lines, restores the terminal a
 
 ### EXAMPLE 1
 ```powershell
-$summary = Complete-ConsoleRun $run -PassThru; $summary.Items | Where-Object State -eq Fail
+$summary = Complete-ConsoleRun $run -PassThru; $summary.Items | Where-Object Status -eq Fail
 ```
 
 Keep a structured final result

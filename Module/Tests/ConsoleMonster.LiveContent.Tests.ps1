@@ -50,6 +50,82 @@ Invoke-ConsoleDashboard $d {
         $text | Should -Match 'sync  running'
     }
 
+    It 'reads caller variables with $using: and caller functions with -ImportFunction' {
+        $text = Invoke-ContentChild -Script @'
+$frames = @(1, 2, 3)
+$map = @{ web01 = 'up' }
+function Get-Double($n) { $n * 2 }
+$d = New-ConsoleDashboard -Title 'Frames' -Content { New-ConsoleProgress p -Total 3 }
+$seq = Invoke-ConsoleDashboard $d -ImportFunction Get-Double { foreach ($f in $using:frames) { Update-Console p -Value $f; Get-Double $f } }
+"SEQ=$($seq -join ',')"
+$par = 'a', 'b' | Invoke-ConsoleDashboard $d -Parallel -ImportFunction Get-Double { param($Item) "$Item$(Get-Double $using:frames.Count)$($using:map['web01'])" }
+"PAR=$(($par | Sort-Object) -join ',')"
+try { Invoke-ConsoleDashboard $d -ImportFunction Missing-Thing { } } catch { "MISSING=$($_.Exception.Message)" }
+'@
+        $text | Should -Match 'SEQ=2,4,6'
+        $text | Should -Match 'PAR=a6up,b6up'
+        $text | Should -Match "MISSING=ImportFunction found no function named 'Missing-Thing'"
+    }
+
+    It 'stops a dashboard with two widgets of one default id where it is built' {
+        { New-ConsoleDashboard -Title 'Report' -Content { New-ConsoleChart -Type Bar; New-ConsoleChart -Type Bar } } | Should -Throw "*WidgetId 'bars'*-WidgetId*"
+        { New-ConsoleDashboard -Title 'Report' -Content { New-ConsoleChart -Type Bar; New-ConsoleChart bars-2 -Type Bar } } | Should -Not -Throw
+    }
+
+    It 'upserts ordinary records into a live table through its KeyProperty and columns' {
+        $text = Invoke-ContentChild -Script @'
+$d = New-ConsoleDashboard -Title 'Health' -Content { New-ConsoleProgress build -Total 2; New-ConsoleTable results -Live -KeyProperty Server -Property Server, State, Ms }
+Invoke-ConsoleDashboard $d {
+    Update-Console results -Row ([pscustomobject] @{ Server = 'web01'; State = 'Pass'; Ms = 12 })
+    Update-Console results -Row ([pscustomobject] @{ Server = 'web01'; State = 'Fail'; Ms = 99 })
+    Update-Console results -Row @{ Server = 'web02'; State = 'Warn'; Ms = 50 }
+    try { Update-Console results -Row ([pscustomobject] @{ Host = 'x' }) } catch { 'E1 ' + $_.Exception.Message }
+    try { Update-Console build -Row ([pscustomobject] @{ Server = 'x' }) } catch { 'E2 ' + $_.Exception.Message }
+}
+'@
+        $text | Should -Match 'web01  Pass  12'
+        $text | Should -Match 'web01  Fail  99'
+        $text | Should -Match 'web02  Warn  50'
+        $text | Should -Match "E1 The row has no 'Server' value"
+        $text | Should -Match 'E2 ProgressBar does not support Row'
+    }
+
+    It 'updates ordinary live rows with calculated and renamed columns intact' {
+        $text = Invoke-ContentChild -Script @'
+$table = [pscustomobject] @{ Server = 'web01'; Cpu = 3 } | New-ConsoleTable results -Live -KeyProperty Server -Property @(
+    'Server'
+    @{ Name = 'CPU %'; Expression = 'Cpu'; FormatString = 'F1' }
+    @{ Name = 'Doubled'; Expression = { $_.Cpu * 2 }; FormatString = 'F1' }
+)
+$dashboard = New-ConsoleDashboard -Title 'Health' -Content { $table }
+Invoke-ConsoleDashboard $dashboard {
+    Update-Console results -Row ([pscustomobject] @{ Server = 'web01'; Cpu = 12 })
+    Update-Console results -Row @{ Server = 'web02'; Cpu = 5 }
+}
+$table | Export-ConsoleFrame -Format Text -Width 70
+'@
+        $text | Should -Match 'web01\s+12\.0\s+24\.0'
+        $text | Should -Match 'web02\s+5\.0\s+10\.0'
+    }
+
+    It 'updates calculated Columns on a live table that starts empty' {
+        $text = Invoke-ContentChild -Script @'
+$table = New-ConsoleTable results -Live -KeyProperty Server -Columns @(
+    'Server'
+    @{ Name = 'CPU %'; Expression = 'Cpu'; FormatString = 'F1' }
+    @{ Name = 'Doubled'; Expression = { $_.Cpu * 2 }; FormatString = 'F1' }
+)
+$dashboard = New-ConsoleDashboard -Title 'Health' -Content { $table }
+Invoke-ConsoleDashboard $dashboard {
+    Update-Console results -Row ([pscustomobject] @{ Server = 'web01'; Cpu = 12 })
+    Update-Console results -Row @{ Server = 'web02'; Cpu = 5 }
+}
+$table | Export-ConsoleFrame -Format Text -Width 70
+'@
+        $text | Should -Match 'web01\s+12\.0\s+24\.0'
+        $text | Should -Match 'web02\s+5\.0\s+10\.0'
+    }
+
     It 'returns the output of a script block as a string with Use-ConsoleTarget' {
         $text = Invoke-ContentChild -Script @'
 $captured = Use-ConsoleTarget -Width 30 {

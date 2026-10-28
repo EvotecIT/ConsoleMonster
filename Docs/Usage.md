@@ -160,6 +160,9 @@ Tables negotiate their width instead of overflowing it:
 
 - Each column can set a `Priority`, `MinWidth`/`MaxWidth` and an `Overflow`: `Wrap` (with `MaxLines`), `Truncate`,
   `TruncateMiddle` (paths, DNS names) or `Never`.
+- An expanded table (`-Expand`) shares its spare width among the text columns in proportion to their widths; numbers,
+  dates and status words keep their natural width. A column's `Weight` (or `Flexible`) takes the share instead, and
+  `Width` or `MaxWidth` holds.
 - Wrapped text breaks after spaces first, then after separators, and only then by character. Path, list and query
   separators (`\ / ; , | & ?`) win over the dots, dashes and colons inside a name (`. - : =`) when the next segment fits
   on one line, so a line ends with its separator: `evotec-xyz.mail.protection.` / `outlook.com`,
@@ -226,7 +229,7 @@ From PowerShell, `Show-ConsoleTable`, `Show-ConsoleList` and `Show-Console -View
 built-in Format cmdlets:
 
 - `-Property` accepts names, wildcards and calculated properties, as Format-Table does. A hashtable with column options
-  (`Priority`, `Key`, `Overflow`, `MaxLines`, `MinWidth`, `MaxWidth`, `Presenter`, `Aggregate`, `WarnAbove`,
+  (`Priority`, `Key`, `Overflow`, `MaxLines`, `MinWidth`, `MaxWidth`, `Weight`, `Presenter`, `Aggregate`, `WarnAbove`,
   `Identifier`, ...) configures that column.
 - Identifier columns (`Id`, `ProcessId`, `PID`, ports, `Index`, `Year`, handle and build numbers) show their digits
   without thousands separators and are never totalled; `Identifier = $true` (or `Presenter = 'Identifier'`) does the
@@ -686,7 +689,7 @@ Highlighters.Register(new RegexHighlighter("ini2").Rule(@"^\s*;.*$", HighlightRo
 
 ```powershell
 $reason = Read-ConsoleText 'Change reason' -Multiline -MaxLines 10
-New-ConsoleField Reason 'Change reason' -Type TextArea -MaxLines 10
+New-ConsoleField Reason 'Change reason' -Type Text -Multiline -MaxLines 10
 ```
 
 `TextAreaPrompt` and `TextAreaField` take notes and change reasons: soft wrap, Enter for a new line, Ctrl+Enter (or
@@ -946,7 +949,7 @@ An explicit input source takes precedence. Clear the variable before returning t
 `CONSOLEMONSTER_SNAPSHOT=1` prints an initialized `ConsoleApp` when no scripted input is supplied and skips dashboard
 pauses. It does not fabricate answers or select application data. Scripted input still runs the real application.
 
-Use `Wait-ConsoleDashboard -Milliseconds 650` inside `Invoke-ConsoleDashboard`, or
+Use `Wait-ConsoleDashboard -Seconds 0.65` inside `Invoke-ConsoleDashboard`, or
 `live.Delay(TimeSpan.FromMilliseconds(650))` in C#, to pause cancellably between updates. A `RecordingTarget` with
 `SkipDelays = true` applies earlier queued updates and stores compact frames in `Screens` instead of sleeping.
 Its optional zero-based `Checkpoints` array selects delay calls to retain; `CheckpointCount` reports all calls.

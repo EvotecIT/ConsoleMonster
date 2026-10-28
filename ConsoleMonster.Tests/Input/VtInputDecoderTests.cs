@@ -77,7 +77,7 @@ namespace ConsoleMonster.Tests.Input {
         [Fact]
         public void Feed_PrintableAndControls_NormalizesEvents() {
             List<InputEvent> events = Decode("a!\r\n\t\b\u007f\0\u0001\u001a\u001c\u001f");
-            Assert.Equal(9, events.Count);
+            Assert.Equal(10, events.Count);
             Assert.True(events[0].IsChar('a'));
             Assert.True(events[1].IsChar('!'));
             Assert.True(events[2].Is(ConsoleKey.Enter));
@@ -87,6 +87,8 @@ namespace ConsoleMonster.Tests.Input {
             Assert.True(events[6].Is(ConsoleKey.Spacebar, KeyModifiers.Control));
             Assert.True(events[7].Is(ConsoleKey.A, KeyModifiers.Control));
             Assert.True(events[8].Is(ConsoleKey.Z, KeyModifiers.Control));
+            // FS is Ctrl+\; the other separator controls have no key and stay dropped.
+            Assert.True(events[9].Is(ConsoleKey.Oem5, KeyModifiers.Control));
         }
 
         [Fact]
@@ -302,13 +304,14 @@ namespace ConsoleMonster.Tests.Input {
 
         [Fact]
         public void Feed_KittyControlKeys_EmitsNormalizedKeys() {
-            List<InputEvent> events = Decode("\u001b[13u\u001b[9u\u001b[27u\u001b[127u\u001b[99;5u");
-            Assert.Equal(5, events.Count);
+            List<InputEvent> events = Decode("\u001b[13u\u001b[9u\u001b[27u\u001b[127u\u001b[99;5u\u001b[92;5u");
+            Assert.Equal(6, events.Count);
             Assert.True(events[0].Is(ConsoleKey.Enter));
             Assert.True(events[1].Is(ConsoleKey.Tab));
             Assert.True(events[2].Is(ConsoleKey.Escape));
             Assert.True(events[3].Is(ConsoleKey.Backspace));
             Assert.True(events[4].Is(ConsoleKey.C, KeyModifiers.Control));
+            Assert.True(KeyChord.Parse("Ctrl+\\").Matches(events[5]));
         }
 
         [Fact]

@@ -62,7 +62,7 @@ namespace ConsoleMonster.Widgets {
     }
 
     /// <summary>Turns cells into content and draws visuals; one implementation for every widget that shows cells.</summary>
-    internal static class CellRendering {
+    internal static partial class CellRendering {
         /// <summary>Fits presented cell lines consistently in tables, record views and narrow cards.</summary>
         internal static List<StyledLine> FitLines(List<StyledLine> lines, int width, ColumnOverflow overflow, int maxLines, RenderContext context) {
             List<StyledLine> result = new List<StyledLine>();
@@ -95,11 +95,35 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>Presents a cell: raw values through the column presenter and tone rules, markup as written, status cells with marker.</summary>
         internal static CellContent Content(TableCell cell, ICellPresenter? presenter, IReadOnlyList<RoleRule>? rules, PresenterContext context) {
+            CellContent content = CoreContent(cell, presenter, rules, context);
+            if (cell.RowRole == null) return content;
+            TableRowRole role = cell.RowRole;
+            List<StyledLine> lines = new List<StyledLine>();
+            foreach (StyledLine line in content.Lines) lines.Add(role.Apply(line, context.Render));
+            PresentedValue? presented = content.Presented;
+            if (presented != null) presented = new PresentedValue(role.Apply(presented.Line, context.Render), presented.Alignment) {
+                Role = role.Tone ?? (role.Muted ? ThemeToken.Muted : presented.Role), Visual = presented.Visual,
+                Fraction = presented.Fraction, Series = presented.Series, VisualWidth = presented.VisualWidth,
+                Number = presented.Number, IsEmpty = presented.IsEmpty
+            };
+            IWidget? widget = content.Widget == null ? null : new RowRoleWidget(content.Widget, role);
+            return new CellContent(lines, presented, content.Atomic, widget);
+        }
+
+        private static CellContent CoreContent(TableCell cell, ICellPresenter? presenter, IReadOnlyList<RoleRule>? rules, PresenterContext context) {
             if (cell.HasValue && WidgetCellLayout.GetWidget(cell.Value) is IWidget widget) {
                 return new CellContent(WidgetCellLayout.Lines(widget, context.Render.Profile.Width, context.Render), null, widget: widget);
             }
             if (cell.HasValue && !(cell.Value is RichText)) {
-                PresentedValue presented = CellPresenters.Present(cell.Value, presenter, rules, context);
+                bool dataBar = presenter is DataBarPresenter;
+                PresentedValue presented = CellPresenters.Present(cell.Value, presenter, dataBar ? null : rules, context);
+                if (dataBar) {
+                    ThemeToken? tone = cell.RowRole?.Tone;
+                    if (!tone.HasValue && rules != null) foreach (RoleRule rule in rules) {
+                        if (rule.Matches(cell.Value, presented.Number)) { tone = rule.Role; break; }
+                    }
+                    if (tone.HasValue) presented = DataBarTone(presented, tone.Value, context.Render, ((DataBarPresenter)presenter!).ShowRoleMarker);
+                }
                 // A status word held as text ("Warning" in a State column) is as short as a status enum.
                 bool status = presented.Role.HasValue && (presenter is StatusEnumPresenter || presenter is StatusPresenter);
                 return new CellContent(new List<StyledLine> { presented.Line }, presented, (IsShortValue(cell.Value) || status) && presented.Line.Width <= ShortValueWidth);
@@ -108,19 +132,18 @@ namespace ConsoleMonster.Widgets {
             // Rich text values keep their own colours and line breaks, like markup cells.
             StyledText text = cell.Value is RichText rich ? rich.ToStyledText(render) : render.Markup(cell.Markup);
             List<StyledLine> lines = new List<StyledLine>(text.Lines);
+            if (cell.AssessmentSeverity.HasValue && lines.Count > 0) {
+                Severity severity = cell.AssessmentSeverity.Value;
+                lines[0] = WithMarker(StatusScale.Marker(severity, render.Glyphs.Tier), lines[0], render.Style(StatusScale.Role(severity)),
+                    severity == Severity.Passed && ConsoleViewStyle.IsApplied(render) ? render.Style(ThemeToken.Text) : (Style?)null);
+            }
             if (cell.Status.HasValue && lines.Count > 0) {
                 Style style = render.Style(cell.Status.Value);
-                List<TextSpan> spans = new List<TextSpan> { new TextSpan(render.Glyphs.StatusMarker(cell.Status.Value), style) };
-                if (render.Glyphs.Tier != GlyphTier.Ascii || lines[0].Width > 0) {
-                    spans.Add(new TextSpan(" ", style));
-                    foreach (TextSpan span in lines[0]) {
-                        spans.Add(new TextSpan(span.Text, style.Combine(span.Style)));
-                    }
-                }
-                lines[0] = new StyledLine(spans);
+                lines[0] = WithMarker(render.Glyphs.StatusMarker(cell.Status.Value), lines[0], style,
+                    cell.Status.Value == StatusKind.Pass && ConsoleViewStyle.IsApplied(render) ? render.Style(ThemeToken.Text) : (Style?)null);
             }
             // A status cell's word ("✓ Passed") is a short value too.
-            return new CellContent(lines, null, cell.Status.HasValue && lines.Count == 1 && lines[0].Width <= ShortValueWidth);
+            return new CellContent(lines, null, (cell.Status.HasValue || cell.AssessmentSeverity.HasValue) && lines.Count == 1 && lines[0].Width <= ShortValueWidth);
         }
 
         // The widest a short value may be and still never break (a date with time and zone is about 25 cells).
@@ -148,7 +171,8 @@ namespace ConsoleMonster.Widgets {
             ThemeToken tone = presented.Role ?? ThemeToken.Series1;
             switch (presented.Visual) {
                 case CellVisualKind.Bar:
-                    BarDrawer.Draw(region, x, y, cells, presented.Fraction, context.Style(tone), context, false, BarShape.Block);
+                    if (ConsoleViewStyle.IsApplied(context)) DrawDataBar(region, x, y, cells, presented.Fraction, context.Style(presented.Role ?? ThemeToken.Muted), context);
+                    else BarDrawer.Draw(region, x, y, cells, presented.Fraction, context.Style(tone), context, false, BarShape.Block);
                     break;
                 case CellVisualKind.Progress:
                     BarDrawer.Draw(region, x, y, cells, presented.Fraction, context.Style(tone), context, true, BarShape.Line);

@@ -219,7 +219,12 @@ namespace ConsoleMonster.Widgets {
             int slash = key.IndexOf('/');
             string idText = slash >= 0 ? key.Substring(0, slash) : key;
             if (!int.TryParse(idText, NumberStyles.Integer, CultureInfo.InvariantCulture, out id)) {
-                id = idText.GetHashCode();
+                // String.GetHashCode is process-randomized; ids also select a spinner phase and can be displayed.
+                unchecked {
+                    uint hash = 2166136261;
+                    foreach (char c in idText) { hash = (hash ^ c) * 16777619; }
+                    id = (int)hash;
+                }
             }
             if (slash >= 0 && int.TryParse(key.Substring(slash + 1), NumberStyles.Integer, CultureInfo.InvariantCulture, out int p)) {
                 parent = p;

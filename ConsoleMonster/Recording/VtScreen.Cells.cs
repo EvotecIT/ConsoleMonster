@@ -8,25 +8,15 @@ namespace ConsoleMonster.Sessions {
         private void Print(string glyph) {
             CellBuffer screen = Current;
             Style style = _link != null ? _style.WithLink(_link) : _style;
-            int px = _pendingWrap ? _x : _x - 1;
-            if (px >= 0) {
-                if (screen[px, _y].IsContinuation && px > 0) { px--; }
-                Cell previous = screen[px, _y];
+            if (TryJoiningCell(glyph, out int px, out Cell previous)) {
                 string joined = previous.Glyph + glyph;
                 // Use the canonical grapheme segmenter even when a cluster spans UTF-8 reads or cast events.
-                foreach (TextCluster cluster in DisplayWidth.Clusters(joined)) {
-                    // A cell stores at most two columns. Keep a wider logical cluster in adjacent cell groups
-                    // (Indic consonants or split ZWJ emoji), without inserting padding into its text.
-                    if (cluster.Length == joined.Length && cluster.Width <= 2) {
-                        if (joined.Length > 4096) { throw new FormatException("The terminal grapheme exceeds the playback input limit."); }
-                        glyph = joined;
-                        style = previous.Style;
-                        screen.Set(px, _y, " ", previous.Style);
-                        _x = px;
-                        _pendingWrap = false;
-                    }
-                    break;
-                }
+                if (joined.Length > 4096) { throw new FormatException("The terminal grapheme exceeds the playback input limit."); }
+                glyph = joined;
+                style = previous.Style;
+                screen.Set(px, _y, " ", previous.Style);
+                _x = px;
+                _pendingWrap = false;
             }
             int width = DisplayWidth.Measure(glyph);
             if (width == 0) { return; }

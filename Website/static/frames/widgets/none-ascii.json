@@ -2,8 +2,8 @@
   "markup": {
     "w": 60,
     "h": 2,
-    "dark": "Deployed in 48 s: <i class=n>√</i> 12 passed <i class=n>▲</i> 2 warned x 1 failed\nDecorations: bold dim underline struck  invert",
-    "light": "Deployed in 48 s: <i class=n>√</i> 12 passed <i class=n>▲</i> 2 warned x 1 failed\nDecorations: bold dim underline struck  invert"
+    "dark": "Deployed in 48 s: + 12 passed * 2 warned x 1 failed\nDecorations: bold dim underline struck  invert",
+    "light": "Deployed in 48 s: + 12 passed * 2 warned x 1 failed\nDecorations: bold dim underline struck  invert"
   },
   "rule": {
     "w": 60,
@@ -20,14 +20,14 @@
   "columns": {
     "w": 60,
     "h": 5,
-    "dark": "+- Results -----------------+ +- Problems -----------------+\n| <i class=n>√</i> 412 passed              | | x 23 failed                |\n| <i class=n>▲</i> 51 warnings             | | - 14 skipped               |\n+---------------------------+ +----------------------------+\n-- 2 domains, 10 controllers -------------------------------",
-    "light": "+- Results -----------------+ +- Problems -----------------+\n| <i class=n>√</i> 412 passed              | | x 23 failed                |\n| <i class=n>▲</i> 51 warnings             | | - 14 skipped               |\n+---------------------------+ +----------------------------+\n-- 2 domains, 10 controllers -------------------------------"
+    "dark": "+- Results -----------------+ +- Problems -----------------+\n| + 412 passed              | | x 23 failed                |\n| * 51 warnings             | | - 14 skipped               |\n+---------------------------+ +----------------------------+\n-- 2 domains, 10 controllers -------------------------------",
+    "light": "+- Results -----------------+ +- Problems -----------------+\n| + 412 passed              | | x 23 failed                |\n| * 51 warnings             | | - 14 skipped               |\n+---------------------------+ +----------------------------+\n-- 2 domains, 10 controllers -------------------------------"
   },
   "grid": {
     "w": 60,
     "h": 9,
-    "dark": "+- DC01 ---------------------+ +- DC02 --------------------+\n| <i class=n>√</i> healthy                  | | <i class=n>▲</i> lagging                 |\n+----------------------------+ +---------------------------+\n+- DC03 ---------------------+ +- DC04 --------------------+\n| <i class=n>√</i> healthy                  | | x offline                 |\n+----------------------------+ +---------------------------+\n+- DC05 ---------------------+\n| <i class=n>√</i> healthy                  |\n+----------------------------+",
-    "light": "+- DC01 ---------------------+ +- DC02 --------------------+\n| <i class=n>√</i> healthy                  | | <i class=n>▲</i> lagging                 |\n+----------------------------+ +---------------------------+\n+- DC03 ---------------------+ +- DC04 --------------------+\n| <i class=n>√</i> healthy                  | | x offline                 |\n+----------------------------+ +---------------------------+\n+- DC05 ---------------------+\n| <i class=n>√</i> healthy                  |\n+----------------------------+"
+    "dark": "+- DC01 ---------------------+ +- DC02 --------------------+\n| + healthy                  | | * lagging                 |\n+----------------------------+ +---------------------------+\n+- DC03 ---------------------+ +- DC04 --------------------+\n| + healthy                  | | x offline                 |\n+----------------------------+ +---------------------------+\n+- DC05 ---------------------+\n| + healthy                  |\n+----------------------------+",
+    "light": "+- DC01 ---------------------+ +- DC02 --------------------+\n| + healthy                  | | * lagging                 |\n+----------------------------+ +---------------------------+\n+- DC03 ---------------------+ +- DC04 --------------------+\n| + healthy                  | | x offline                 |\n+----------------------------+ +---------------------------+\n+- DC05 ---------------------+\n| + healthy                  |\n+----------------------------+"
   },
   "align": {
     "w": 60,
@@ -50,14 +50,14 @@
   "statuslist": {
     "w": 60,
     "h": 6,
-    "dark": "[PASS] Restore NuGet packages                          1.6 s\n[PASS] Compile ConsoleMonster                          4.7 s\n[WARN] Run Pester on PowerShell 7                  1 skipped\n[SKIP] Sign module files                             skipped\n[BUSY] Pack ConsoleMonster.2.0.0.nupkg\n[WAIT] Publish to PowerShell Gallery",
-    "light": "[PASS] Restore NuGet packages                          1.6 s\n[PASS] Compile ConsoleMonster                          4.7 s\n[WARN] Run Pester on PowerShell 7                  1 skipped\n[SKIP] Sign module files                             skipped\n[BUSY] Pack ConsoleMonster.2.0.0.nupkg\n[WAIT] Publish to PowerShell Gallery"
+    "dark": "[OK]   Restore NuGet packages                          1.6 s\n[OK]   Compile ConsoleMonster                          4.7 s\n[WARN] Run Pester on PowerShell 7                  1 skipped\n[SKIP] Sign module files                             skipped\n[BUSY] Pack ConsoleMonster.2.0.0.nupkg\n[WAIT] Publish to PowerShell Gallery",
+    "light": "[OK]   Restore NuGet packages                          1.6 s\n[OK]   Compile ConsoleMonster                          4.7 s\n[WARN] Run Pester on PowerShell 7                  1 skipped\n[SKIP] Sign module files                             skipped\n[BUSY] Pack ConsoleMonster.2.0.0.nupkg\n[WAIT] Publish to PowerShell Gallery"
   },
   "tree": {
     "w": 60,
     "h": 8,
-    "dark": "evotec.xyz\n|-- [PASS] MX  2 records\n|   `-- evotec-xyz.mail.protection.outlook.com  priority 0\n|-- [WARN] SPF  9 of 10 DNS lookups\n|   |-- include:spf.protection.outlook.com\n|   `-- include:_spf.salesforce.com\n|-- [FAIL] DMARC  p=none\n`-- [PASS] DKIM  selector1, selector2",
-    "light": "evotec.xyz\n|-- [PASS] MX  2 records\n|   `-- evotec-xyz.mail.protection.outlook.com  priority 0\n|-- [WARN] SPF  9 of 10 DNS lookups\n|   |-- include:spf.protection.outlook.com\n|   `-- include:_spf.salesforce.com\n|-- [FAIL] DMARC  p=none\n`-- [PASS] DKIM  selector1, selector2"
+    "dark": "evotec.xyz\n|-- [OK] MX  2 records\n|   `-- evotec-xyz.mail.protection.outlook.com  priority 0\n|-- [WARN] SPF  9 of 10 DNS lookups\n|   |-- include:spf.protection.outlook.com\n|   `-- include:_spf.salesforce.com\n|-- [FAIL] DMARC  p=none\n`-- [OK] DKIM  selector1, selector2",
+    "light": "evotec.xyz\n|-- [OK] MX  2 records\n|   `-- evotec-xyz.mail.protection.outlook.com  priority 0\n|-- [WARN] SPF  9 of 10 DNS lookups\n|   |-- include:spf.protection.outlook.com\n|   `-- include:_spf.salesforce.com\n|-- [FAIL] DMARC  p=none\n`-- [OK] DKIM  selector1, selector2"
   },
   "progress": {
     "w": 60,
@@ -68,14 +68,14 @@
   "phases": {
     "w": 60,
     "h": 2,
-    "dark": "[PASS] Discover 2.1s &gt; [PASS] Collect 14s\n[BUSY] Evaluate 64% &gt; [WAIT] Report",
-    "light": "[PASS] Discover 2.1s &gt; [PASS] Collect 14s\n[BUSY] Evaluate 64% &gt; [WAIT] Report"
+    "dark": "[OK] Discover 2.1s &gt; [OK] Collect 14s &gt; [BUSY] Evaluate 64%\n[WAIT] Report",
+    "light": "[OK] Discover 2.1s &gt; [OK] Collect 14s &gt; [BUSY] Evaluate 64%\n[WAIT] Report"
   },
   "spinner": {
     "w": 60,
     "h": 3,
-    "dark": "|      Resolving DNS records  zone 4 of 9\n[PASS] Schema snapshot  cached\n[FAIL] Certificate chain  expired 3 days ago",
-    "light": "|      Resolving DNS records  zone 4 of 9\n[PASS] Schema snapshot  cached\n[FAIL] Certificate chain  expired 3 days ago"
+    "dark": "|      Resolving DNS records  zone 4 of 9\n[OK]   Schema snapshot  cached\n[FAIL] Certificate chain  expired 3 days ago",
+    "light": "|      Resolving DNS records  zone 4 of 9\n[OK]   Schema snapshot  cached\n[FAIL] Certificate chain  expired 3 days ago"
   },
   "log": {
     "w": 60,
@@ -92,8 +92,8 @@
   "stacked": {
     "w": 60,
     "h": 3,
-    "dark": "#################################################======+++--\n# Passed   412  82%   = Warnings  51  10%\n+ Failed    23   4%   - Skipped   14   2%",
-    "light": "#################################################======+++--\n# Passed   412  82%   = Warnings  51  10%\n+ Failed    23   4%   - Skipped   14   2%"
+    "dark": "#################################################======+++--\n# Passed   412  82%   = Warnings  51  10%\n+ Failed    23   5%   - Skipped   14   3%",
+    "light": "#################################################======+++--\n# Passed   412  82%   = Warnings  51  10%\n+ Failed    23   5%   - Skipped   14   3%"
   },
   "sparkline": {
     "w": 60,

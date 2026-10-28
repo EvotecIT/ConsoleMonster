@@ -21,6 +21,16 @@ namespace ConsoleMonster.Presenters {
 
         /// <inheritdoc />
         public PresentedValue Present(object? value, PresenterContext context) {
+            if (value is Severity severity) {
+                Style severityStyle = context.Render.Style(StatusScale.Role(severity));
+                string word = ShowWord ? " " + StatusScale.Word(severity) : string.Empty;
+                StyledLine line = new StyledLine(new[] {
+                    new TextSpan(StatusScale.Marker(severity, context.Render.Glyphs.Tier), severityStyle),
+                    new TextSpan(word, severity == Severity.Passed && Widgets.ConsoleViewStyle.IsApplied(context.Render)
+                        ? context.Render.Style(ThemeToken.Text) : severityStyle)
+                });
+                return new PresentedValue(line) { Role = StatusScale.Role(severity) };
+            }
             StatusKind status;
             if (value is StatusKind kind) {
                 status = kind;
@@ -31,8 +41,9 @@ namespace ConsoleMonster.Presenters {
             Style style = context.Render.Style(status);
             string marker = context.Render.Glyphs.StatusMarker(status);
             List<TextSpan> spans = new List<TextSpan> { new TextSpan(marker, style) };
-            if (ShowWord && context.Render.Glyphs.Tier != GlyphTier.Ascii) {
-                spans.Add(new TextSpan(" " + context.Render.Labels.StatusWord(status), style));
+            if (ShowWord && (context.Render.Glyphs.Tier != GlyphTier.Ascii || Widgets.ConsoleViewStyle.IsApplied(context.Render))) {
+                spans.Add(new TextSpan(" " + context.Render.Labels.StatusWord(status), status == StatusKind.Pass && Widgets.ConsoleViewStyle.IsApplied(context.Render)
+                    ? context.Render.Style(ThemeToken.Text) : style));
             }
             return new PresentedValue(new StyledLine(spans)) { Role = status.ToToken() };
         }

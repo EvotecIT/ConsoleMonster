@@ -6,31 +6,25 @@ using ConsoleMonster.Widgets;
 using ConsoleMonster;
 
 // Data: fictional inputs kept in memory.
-string[] tasks =
-{
-    "Health report",
-    "Inspect queue",
-    "Preview cleanup"
-};
+string[] tasks = { "Health report", "Inspect queue", "Preview cleanup" };
+
 // Layout: construct the widgets shown on screen.
 Rows layout = Ui.Rows().Gap(1).Content(c3 =>
 {
-    c3.Text(c3Text => c3Text.Content("[bold]Server toolbox[/] [muted]· operations[/]").IsMarkup());
-    c3.Select(cmSelect => cmSelect.Key("Task").AddChoices(tasks.Select(task => new Choice(task))).Label("Task").Value(tasks[0]));
-    c3.Binding(cmBinding => cmBinding.Configure(cmDefinition => cmDefinition.Content = state =>
+    c3.Markup("[bold]Server toolbox[/] [muted]· operations[/]");
+    c3.Select(select => select.Key("Task")
+        .AddChoices(tasks.Select(task => new Choice(task)))
+        .Label("Task")
+        .Value(tasks[0]));
+    c3.Binding(binding => binding.Configure(o => o.Content = state =>
     {
         string task = state.Get<string>("Task", tasks[0]);
         string[] lines = task == tasks[0] ? new[]
         {
-            "[pass]web-01 reachable[/]",
-            "CPU 24% · memory 61%"
+            "[pass]web-01 reachable[/]", "CPU 24% · memory 61%"
         }
 
-        : task == tasks[1] ? new[]
-        {
-            "[accent]12 jobs waiting[/]",
-            "Oldest job 4 minutes"
-        }
+        : task == tasks[1] ? new[] { "[accent]12 jobs waiting[/]", "Oldest job 4 minutes" }
 
         : new[]
         {
@@ -39,9 +33,10 @@ Rows layout = Ui.Rows().Gap(1).Content(c3 =>
         };
         return Ui.Panel().Title("Preview").Content(c2 =>
         {
-            c2.Rows(cmRows => cmRows.Content(c =>
+            c2.Rows(r => r.Content(c =>
             {
-                foreach (var cWidget in (lines.Select(line => Ui.Text().Content(line).IsMarkup()).ToArray() ?? global::System.Array.Empty<global::ConsoleMonster.Layout.IWidget>()))
+                foreach (var cWidget in (lines.Select(line => Ui.Markup(line))
+                    .ToArray() ?? Array.Empty<IWidget>()))
                 {
                     c.Add(cWidget);
                 }
@@ -49,5 +44,6 @@ Rows layout = Ui.Rows().Gap(1).Content(c3 =>
         });
     }));
 });
+
 // Behaviour: edit controls to update the view; Escape exits the app.
 ConsoleApp.Run(layout);

@@ -1,7 +1,7 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://github.com/EvotecIT/ConsoleMonster
+online version: https://consolemonster.dev/
 schema: 2.0.0
 ---
 # Show-Console
@@ -1051,13 +1051,13 @@ Accept wildcard characters: False
 ```
 
 ### -Type
-Numeric chart representation: Bar, Histogram or Sparkline.
+Numeric chart representation: Bar, Histogram or Sparkline. Line, Stacked and Scatter charts take series; build them with New-ConsoleChart.
 
 ```yaml
 Type: ChartType
 Parameter Sets: Objects, Path, Content
 Aliases: None
-Possible values: Bar, Stacked, Line, Scatter, Histogram, Sparkline
+Possible values: Bar, Histogram, Sparkline
 
 Required: False
 Position: named

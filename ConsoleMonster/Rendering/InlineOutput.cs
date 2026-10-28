@@ -62,6 +62,8 @@ namespace ConsoleMonster.Rendering {
 
         private bool Hyperlinks => Profile.SupportsHyperlinks;
 
+        private ColorDepth Depth => SgrEncoder.DepthFor(Profile);
+
         /// <inheritdoc />
         public void WriteBlock(CellBuffer buffer) {
             if (buffer == null) {
@@ -70,7 +72,7 @@ namespace ConsoleMonster.Rendering {
             _sb.Clear();
             ClearArea();
             for (int y = 0; y < buffer.Height; y++) {
-                AppendRow(buffer, y, CellEncoder.ContentEnd(buffer, y, Profile.ColorDepth));
+                AppendRow(buffer, y, CellEncoder.ContentEnd(buffer, y, Depth));
                 _sb.Append("\r\n");
             }
             Redraw();
@@ -129,7 +131,7 @@ namespace ConsoleMonster.Rendering {
                 bool changed = full || y >= _drawn || !RowEquals(_previous!, frame, y);
                 if (changed) {
                     _sb.Append('\r');
-                    AppendRow(frame, y, CellEncoder.ContentEnd(frame, y, Profile.ColorDepth));
+                    AppendRow(frame, y, CellEncoder.ContentEnd(frame, y, Depth));
                     _sb.Append(Esc).Append('K');
                 }
                 if (y < height - 1) {
@@ -168,7 +170,8 @@ namespace ConsoleMonster.Rendering {
             _live = false;
             _sb.Clear();
             ClearArea();
-            _sb.Append(Esc).Append("0m").Append(Esc).Append("?25h");
+            SgrEncoder.AppendReset(_sb, Profile);
+            _sb.Append(Esc).Append("?25h");
             _previous = null;
             try { Emit(); }
             finally {
@@ -207,7 +210,7 @@ namespace ConsoleMonster.Rendering {
             if (_previous != null && width > 0 && width < _drawnWidth) {
                 up = 0;
                 for (int y = 0; y < _drawn && y < _previous.Height; y++) {
-                    int length = Math.Max(1, CellEncoder.ContentEnd(_previous, y, Profile.ColorDepth));
+                    int length = Math.Max(1, CellEncoder.ContentEnd(_previous, y, Depth));
                     up += (length + width - 1) / width;
                 }
                 up -= 1;
@@ -227,7 +230,7 @@ namespace ConsoleMonster.Rendering {
             }
             for (int y = 0; y < _previous.Height; y++) {
                 _sb.Append('\r');
-                AppendRow(_previous, y, CellEncoder.ContentEnd(_previous, y, Profile.ColorDepth));
+                AppendRow(_previous, y, CellEncoder.ContentEnd(_previous, y, Depth));
                 _sb.Append(Esc).Append('K');
                 if (y < _previous.Height - 1) {
                     _sb.Append("\r\n");
@@ -238,19 +241,19 @@ namespace ConsoleMonster.Rendering {
         }
 
         private void AppendRow(CellBuffer buffer, int y, int end) {
-            ColorDepth depth = Profile.ColorDepth;
+            ColorDepth depth = Depth;
             Style? current = null;
-            CellEncoder.AppendRun(_sb, buffer, y, 0, Math.Max(0, end), depth, ref current, true, Hyperlinks);
+            CellEncoder.AppendRun(_sb, buffer, y, 0, Math.Max(0, end), depth, ref current, true, Hyperlinks, Profile);
             if (depth != ColorDepth.None) {
-                _sb.Append(SgrEncoder.Reset);
+                SgrEncoder.AppendReset(_sb, Profile);
             }
         }
 
         private void AppendStyled(StyledLine line) {
-            ColorDepth depth = Profile.ColorDepth;
-            CellEncoder.AppendStyled(_sb, line, depth, Hyperlinks);
+            ColorDepth depth = Depth;
+            CellEncoder.AppendStyled(_sb, line, depth, Hyperlinks, Profile);
             if (depth != ColorDepth.None) {
-                _sb.Append(SgrEncoder.Reset);
+                SgrEncoder.AppendReset(_sb, Profile);
             }
             _sb.Append(Esc).Append('K');
         }

@@ -8,16 +8,18 @@
         </Description>
         <PackageId>ConsoleMonster.Templates</PackageId>
         <PackageType>Template</PackageType>
-        <VersionPrefix>2.0.2</VersionPrefix>
-        <AssemblyVersion>2.0.2</AssemblyVersion>
-        <FileVersion>2.0.2</FileVersion>
+        <VersionPrefix>2.1.0</VersionPrefix>
+        <AssemblyVersion>2.1.0</AssemblyVersion>
+        <FileVersion>2.1.0</FileVersion>
         <TargetFramework>netstandard2.0</TargetFramework>
         <PackageTags>dotnet-new;templates;console;terminal;dashboard;consolemonster</PackageTags>
-        <PackageProjectUrl>https://github.com/EvotecIT/ConsoleMonster</PackageProjectUrl>
+        <PackageProjectUrl>https://consolemonster.dev/</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <RepositoryUrl>https://github.com/EvotecIT/ConsoleMonster</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageIcon>icon.png</PackageIcon>
+        <PackageReleaseNotes>Changes in each release: https://github.com/EvotecIT/ConsoleMonster/blob/master/CHANGELOG.MD</PackageReleaseNotes>
         <IsPackable>true</IsPackable>
         <IncludeBuildOutput>false</IncludeBuildOutput>
         <IncludeContentInPack>true</IncludeContentInPack>
@@ -32,10 +34,11 @@
     <ItemGroup>
         <Content Include="content\**\*" Exclude="content\**\bin\**;content\**\obj\**" />
         <None Include="README.md" Pack="true" PackagePath="\" />
+        <None Include="..\..\Website\static\site\icon-192.png" Pack="true" PackagePath="\icon.png" Visible="false" />
     </ItemGroup>
 
     <ItemGroup>
-        <GalleryDemo Include="readiness-report;fleet-filter;setup-basic;worker-progress;build-steps;live-filter;task-menu;patch-progress;log-tail;welcome-compact;welcome-rich;everyday-formatting;assessment;stress;fleet;setup;pipeline;toolbox;query;parallel-patch;prompt-tour;certificate-expiry;disk-usage;process-monitor;port-matrix;repository-status;backup-runner;tls-verdict;operations-calendar;service-browser">
+        <GalleryDemo Include="readiness-report;fleet-filter;setup-basic;worker-progress;build-steps;live-filter;task-menu;patch-progress;log-tail;welcome-compact;welcome-rich;everyday-formatting;assessment;stress;fleet;setup;pipeline;toolbox;query;parallel-patch;prompt-tour;certificate-expiry;disk-usage;process-monitor;port-matrix;repository-status;backup-runner;tls-verdict;operations-calendar;service-browser;update-compliance;license-usage;stale-accounts;event-log-summary;scheduled-tasks;container-status">
             <Link>content/ConsoleMonsterApp/gallery/%(Identity)/Program.cs</Link>
             <PackagePath>content/content/ConsoleMonsterApp/gallery/%(Identity)/</PackagePath>
         </GalleryDemo>

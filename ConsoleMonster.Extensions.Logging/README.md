@@ -3,6 +3,10 @@
 A `Microsoft.Extensions.Logging` provider that writes log entries the ConsoleMonster way. It depends only on
 `Microsoft.Extensions.Logging.Abstractions` and ConsoleMonster.
 
+```bash
+dotnet add package ConsoleMonster.Extensions.Logging
+```
+
 ```csharp
 using ConsoleMonster.Extensions.Logging;
 using Microsoft.Extensions.Logging;
@@ -55,3 +59,6 @@ using (log.BeginScope("order {Id}", 1042)) {
 The provider is added once: a second `AddConsoleMonster` keeps the first call's options. Without dependency
 injection, use `loggerFactory.AddConsoleMonster()`. The provider is thread-safe and works with
 trimming and native AOT on .NET 8 and later.
+
+[Logging](https://consolemonster.dev/docs/logging/) · [Hosting dashboard](https://consolemonster.dev/docs/hosting/) ·
+[ConsoleMonster](https://consolemonster.dev/)

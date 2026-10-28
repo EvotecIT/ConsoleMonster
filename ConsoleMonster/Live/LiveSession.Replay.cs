@@ -19,7 +19,8 @@ namespace ConsoleMonster.Live {
 
         /// <summary>Replays already decoded events with the same timing, cancellation and drain policy as a recording reader.</summary>
         /// <param name="root">Target widget tree.</param>
-        /// <param name="events">Events in recording order.</param>
+        /// <param name="events">Events in recording order. A recording target with SkipDelays captures logical time groups
+        /// without real waits, unless an explicit ReplayDelay scheduler is supplied.</param>
         /// <param name="options">Session configuration.</param>
         /// <param name="speed">Playback multiplier; zero or negative disables waits.</param>
         /// <param name="ct">Playback cancellation.</param>
@@ -35,9 +36,19 @@ namespace ConsoleMonster.Live {
                 using (CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(ct, session.Cancellation)) {
                     TimeSpan baseline = session.RealElapsed;
                     TimeSpan requestedDelay = TimeSpan.Zero;
+                    bool checkpoints = session._recordingTarget?.SkipDelays == true && configuration.ReplayDelay == null;
                     foreach (LiveEvent liveEvent in events) {
                         linked.Token.ThrowIfCancellationRequested();
-                        if (speed > 0) {
+                        if (checkpoints) {
+                            double milliseconds = Math.Max(0, liveEvent.Time / (speed > 0 ? speed : 1));
+                            if (milliseconds > TimeSpan.MaxValue.TotalMilliseconds) { throw new FormatException("Replay time is too large."); }
+                            TimeSpan due = TimeSpan.FromMilliseconds(milliseconds);
+                            if (due > requestedDelay) {
+                                session.DelayCore(TimeSpan.Zero, linked.Token);
+                                session.AdvanceDelayClock(due - requestedDelay);
+                                requestedDelay = due;
+                            }
+                        } else if (speed > 0) {
                             double milliseconds = Math.Max(0, liveEvent.Time / speed);
                             if (milliseconds > TimeSpan.MaxValue.TotalMilliseconds) { throw new FormatException("Replay time is too large."); }
                             TimeSpan due = TimeSpan.FromMilliseconds(milliseconds);
@@ -52,6 +63,7 @@ namespace ConsoleMonster.Live {
                         linked.Token.ThrowIfCancellationRequested();
                         session.Post(liveEvent);
                     }
+                    if (checkpoints) { session.DelayCore(TimeSpan.Zero, linked.Token); }
                 }
             }
         }

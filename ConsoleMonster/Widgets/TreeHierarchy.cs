@@ -20,6 +20,18 @@ namespace ConsoleMonster.Widgets {
         /// itself. An item that is already on the path from the top is shown once more with a "(cycle)" note and not followed.
         /// </summary>
         public Func<object, object>? Identity { get; set; }
+
+        /// <summary>Suppress identities already shown on another branch, using explicit repeat markers (default false).</summary>
+        public bool DetectRepeatedNodes { get; set; }
+
+        /// <summary>An optional identity comparer. Null preserves reference identity, including for custom identities.</summary>
+        public IEqualityComparer<object>? IdentityComparer { get; set; }
+
+        /// <summary>Produces a plain text aggregate when descendants are omitted at the depth limit.</summary>
+        public Func<object, string>? CollapsedSummary { get; set; }
+
+        /// <summary>Reports incomplete source data independently of configured depth or size limits.</summary>
+        public Func<object, bool>? IsIncomplete { get; set; }
     }
 
     /// <summary>
@@ -49,22 +61,29 @@ namespace ConsoleMonster.Widgets {
             if (children == null) {
                 throw new ArgumentNullException(nameof(children));
             }
+            if (Stops(parent.Reference)) return 0;
             Walk<T> walk = new Walk<T>(node, children, options ?? new TreeHierarchyOptions());
             walk.Level(parent, items, 0);
             return walk.Added;
         }
 
+        private static bool Stops(TreeReferenceKind reference) => (reference & (TreeReferenceKind.Cycle | TreeReferenceKind.Repeat | TreeReferenceKind.Collapsed)) != 0;
+
         private sealed class Walk<T> {
             private readonly Func<T, TreeNode> _node;
             private readonly Func<T, IEnumerable<T>?> _children;
             private readonly TreeHierarchyOptions _options;
-            private readonly HashSet<object> _path = new HashSet<object>(Values.ValueShaper.ReferenceIdentity.Instance);
+            private readonly HashSet<object> _path;
+            private readonly HashSet<object> _seen;
             private bool _limitNoted;
 
             public Walk(Func<T, TreeNode> node, Func<T, IEnumerable<T>?> children, TreeHierarchyOptions options) {
                 _node = node;
                 _children = children;
                 _options = options;
+                IEqualityComparer<object> comparer = options.IdentityComparer ?? Values.ValueShaper.ReferenceIdentity.Instance;
+                _path = new HashSet<object>(comparer);
+                _seen = new HashSet<object>(comparer);
             }
 
             public int Added { get; private set; }
@@ -88,19 +107,36 @@ namespace ConsoleMonster.Widgets {
                     Added++;
                     TreeNode child = _node(item) ?? new TreeNode(string.Empty);
                     parent.Add(child);
+                    if (_options.IsIncomplete?.Invoke(item!) == true) child.Reference |= TreeReferenceKind.Incomplete;
                     object identity = _options.Identity?.Invoke(item!) ?? item!;
                     if (_path.Contains(identity)) {
+                        child.Reference |= TreeReferenceKind.Cycle;
+                        child.HasLocalizedCycleNote = true;
+                        Func<Localization.WidgetLabels, string?>? localizedNote = child.LocalizedNote;
                         string? note = child.Detail;
-                        child.LocalizedNote = labels => string.IsNullOrEmpty(note) ? labels.TreeCycle : note + " " + labels.TreeCycle;
+                        child.LocalizedNote = labels => {
+                            string? detail = localizedNote == null ? note : localizedNote(labels);
+                            return string.IsNullOrEmpty(detail) ? labels.TreeCycle : detail + " " + labels.TreeCycle;
+                        };
                         continue;
                     }
+                    if (_options.DetectRepeatedNodes && !_seen.Add(identity)) {
+                        child.Reference |= TreeReferenceKind.Repeat;
+                        continue;
+                    }
+                    // A terminal reference is still an identity already shown to the user.
+                    // Record it before stopping so a later occurrence cannot build an invisible repeated subtree.
+                    if (Stops(child.Reference)) continue;
                     IEnumerable<T>? next = _children(item);
                     if (next == null) {
                         continue;
                     }
                     if (depth >= _options.Depth) {
                         if (HasAny(next)) {
-                            child.Add(string.Empty).LocalizedLabel = labels => "[muted]" + Markup.Escape(labels.TreeDepthLimit) + "[/]";
+                            if (_options.CollapsedSummary != null) {
+                                child.Reference |= TreeReferenceKind.Collapsed;
+                                child.ReferenceSummary = _options.CollapsedSummary(item!);
+                            } else child.Add(string.Empty).LocalizedLabel = labels => "[muted]" + Markup.Escape(labels.TreeDepthLimit) + "[/]";
                         }
                         continue;
                     }

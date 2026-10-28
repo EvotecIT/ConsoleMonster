@@ -9,7 +9,7 @@ namespace ConsoleMonster.Widgets {
             for (int c = 0; c < _columns.Count; c++) {
                 if (c == key) continue;
                 columns.Add(c);
-                if (columns.Count > 2 && SumOf(minimum, columns) + Overhead(columns.Count, gap) > width) {
+                if (columns.Count > 2 && SumOf(minimum, columns) + Overhead(columns, gap) > width) {
                     columns.RemoveAt(columns.Count - 1);
                     bands.Add(ColumnBand(columns, bands.Count == 0, width, minimum, gap));
                     columns = new List<int> { key, c };
@@ -23,15 +23,15 @@ namespace ConsoleMonster.Widgets {
         private Table ColumnBand(List<int> columns, bool first, int width, int[] minimum, int gap) {
             Table band = new Table {
                 Title = first ? Title : null, TitleIndent = TitleIndent,
-                RecordViewRows = 0, CardsBelow = 0, WrapHeaders = WrapHeaders, ShowKeyField = ShowKeyField,
+                RecordViewRows = 0, CardsBelow = 0, WrapHeaders = WrapHeaders, ShowKeyField = ShowKeyField, ShowCardCount = ShowCardCount,
                 Border = Border, ShowHeader = ShowHeader, HeaderSeparator = HeaderSeparator,
                 GroupHeadersAsRows = GroupHeadersAsRows,
                 WrapLines = WrapLines, Expand = Expand, Presentation = Presentation,
                 ShowTotals = ShowTotals, ShowSubtotals = ShowSubtotals, AutoTotals = AutoTotals,
                 MaxRows = MaxRows, TotalRowCount = TotalRowCount, TotalLabel = TotalLabel
             };
-            bool oversized = SumOf(minimum, columns) + Overhead(columns.Count, gap) > width;
-            int room = width - Overhead(columns.Count, gap);
+            bool oversized = SumOf(minimum, columns) + Overhead(columns, gap) > width;
+            int room = width - Overhead(columns, gap);
             for (int i = 0; i < columns.Count; i++) {
                 int c = columns[i];
                 // An oversized key/value pair still needs both fields. Let the key wrap more tightly, rather
@@ -65,8 +65,11 @@ namespace ConsoleMonster.Widgets {
 
         private static TableColumn WrappingColumn(TableColumn source, int width) {
             TableColumn column = new TableColumn(source.Header) {
-                Key = source.Key, Alignment = source.Alignment, Wrap = true, MaxLines = TableColumn.Unlimited,
-                Priority = source.Priority, IsKey = source.IsKey, Flexible = source.Flexible,
+                Key = source.Key, Alignment = source.Alignment, HeaderAlignment = source.HeaderAlignment, Gap = source.Gap,
+                ShortHeader = source.ShortHeader, Placement = source.Placement, BelowWidth = source.BelowWidth,
+                DimRepeats = source.DimRepeats, UnknownText = source.UnknownText,
+                Wrap = true, MaxLines = TableColumn.Unlimited,
+                Priority = source.Priority, IsKey = source.IsKey, Flexible = source.Flexible, Weight = source.Weight,
                 MaxWidth = width, Presenter = source.Presenter, Aggregate = source.Aggregate
             };
             foreach (var rule in source.RoleRules) column.RoleRules.Add(rule);

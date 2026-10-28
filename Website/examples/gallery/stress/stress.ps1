@@ -17,7 +17,8 @@ $sampleCpu = @(
     80, 97, 114, 57, 74, 91, 108, 51, 68, 85, 102, 45,
     62, 79, 96, 113, 56, 73, 90, 107, 50, 67, 84, 101
 )
-$messages = 'cache miss for key 412', 'retrying request 28 (attempt 2)', 'connection pool at 76% capacity', 'GC pause 8 ms', 'flushed 960 records'
+$messages = 'cache miss for key 412', 'retrying request 28 (attempt 2)',
+    'connection pool at 76% capacity', 'GC pause 8 ms', 'flushed 960 records'
 $culture = [cultureinfo]::InvariantCulture
 # Layout: all thirty-two lanes, the update sparkline, CPU chart and session counters remain visible.
 function New-StressFrame {
@@ -43,7 +44,8 @@ function New-StressFrame {
                 $lane.Warned = $warned
                 $lane.Passed = $done - $failed - $warned
                 $lane.Status = if ($tick -eq 6) { 'Pass' } else { 'Running' }
-                $lane.Detail = $actions[($id + $tick) % $actions.Count] + ' item ' + $done.ToString('#,0', $culture)
+                $lane.Detail = $actions[($id + $tick) % $actions.Count] + ' item ' + $done.ToString('#,0',
+                    $culture)
             }
             [pscustomobject]$lane
         }
@@ -51,15 +53,27 @@ function New-StressFrame {
     $stats = [ordered]@{
         'Updates posted' = $posted.ToString('#,0', $culture)
         'Updates applied' = $posted.ToString('#,0', $culture)
-        'Update rate' = if ($samples) { $sampleRates[$samples - 1].ToString('#,0', $culture) + '/s' } else { '-' }
+        'Update rate' = if ($samples) {
+            $sampleRates[$samples - 1].ToString('#,0', $culture) + '/s'
+        }
+        else { '-' }
         Frames = ($tick * 15).ToString('#,0', $culture)
         'Frame rate' = if ($tick) { '15.0 fps' } else { '-' }
-        CPU = if ($samples) { $sampleCpu[$samples - 1].ToString('#,0', $culture) + '%' } else { '-' }
-        'CPU share' = if ($samples) { ($sampleCpu[$samples - 1] / 8).ToString('0.0', $culture) + '% of 8 cores' } else { '-' }
+        CPU = if ($samples) { $sampleCpu[$samples - 1].ToString('#,0', $culture) + '%' }
+        else { '-' }
+        'CPU share' = if ($samples) {
+            ($sampleCpu[$samples - 1] / 8).ToString('0.0', $culture) + '% of 8 cores'
+        }
+        else { '-' }
         'Stray writes' = ($tick * 4).ToString($culture)
         'Dropped / errors' = '0 / 0'
     }
-    $dashboard = New-ConsoleDashboard -Title '[bold]Stress test[/]' -Subtitle '32 workers · captured tool output · 6s' -Footer '[muted]32 workers    15 frames/s    Ctrl+C stop[/]' -Content {
+    $dashboardParameters = @{
+        Title = '[bold]Stress test[/]'
+        Subtitle = '32 workers · captured tool output · 6s'
+        Footer = '[muted]32 workers    15 frames/s    Ctrl+C stop[/]'
+    }
+    $dashboard = New-ConsoleDashboard @dashboardParameters -Content {
         New-ConsoleColumns -Content {
             New-ConsolePanel -Title Workers -Weight 2.2 -Content { $lanes }
             New-ConsolePanel -Title Session -Content {
@@ -69,7 +83,8 @@ function New-StressFrame {
                 New-ConsoleChart -WidgetId rate -Height 3 -Unit '/s' -Type Sparkline -Values $values
                 New-ConsoleRule -Title 'CPU % (100% = one core)'
                 New-ConsoleChart -WidgetId cpu -Height 6 -Minimum 0 -Unit '%' -Content {
-                    [pscustomobject]@{ Key = 'cpu'; Role = 'Accent2'; Values = @($sampleCpu | Select-Object -First $samples) }
+                    [pscustomobject]@{ Key = 'cpu'; Role = 'Accent2'
+                        Values = @($sampleCpu | Select-Object -First $samples) }
                 } -Type Line
             }
         }
@@ -77,7 +92,8 @@ function New-StressFrame {
             New-ConsoleLogRegion -Height 6 -NoElapsed -Content {
                 for ($i = 0; $i -lt $tick * 4; $i++) {
                     $level = if ($i % 7 -eq 0) { 'err' } else { 'info' }
-                    [pscustomobject]@{ Message = ('stray-' + ($i % 4) + "-${i}: FakeLib: " + $messages[$i % 5]); Level = $level }
+                    [pscustomobject]@{ Message = ('stray-' + ($i % 4) + "-${i}: FakeLib: " + $messages[$i % 5])
+                        Level = $level }
                 }
             }
         }
@@ -93,6 +109,6 @@ Invoke-ConsoleDashboard -Dashboard $screen -ArgumentList (, $frames) -ScriptBloc
     param($Frames)
     foreach ($frame in $Frames) {
         Update-Console -WidgetId stress -Content $frame
-        Wait-ConsoleDashboard -Milliseconds 1000
+        Wait-ConsoleDashboard -Seconds 1
     }
 }

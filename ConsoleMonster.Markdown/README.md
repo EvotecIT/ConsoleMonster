@@ -6,11 +6,15 @@ In PowerShell, import ConsoleMonster and read a file or supply content:
 
 ```powershell
 Import-Module ConsoleMonster
-Show-ConsoleMarkdown -Path .\README.md
-Show-ConsoleMarkdown -Content '# Deployment notes' -NoPager
+Show-Console -View Markdown -Path .\README.md
+Show-Console -View Markdown -Content '# Deployment notes' -NoPager
 ```
 
-For .NET, install the `ConsoleMonster.Markdown` package:
+For .NET, add the package:
+
+```bash
+dotnet add package ConsoleMonster.Markdown
+```
 
 ```csharp
 using ConsoleMonster.Markdown;
@@ -36,3 +40,5 @@ string markdown = MarkdownExporter.Export(table, new ExportOptions { Width = 80 
 PowerShell keeps `$rows | Export-ConsoleFrame -Format Markdown`, `-Format FencedText`, `Copy-ConsoleOutput -Format Markdown` and `Export-ConsoleRecording -Format Markdown`. The module bundles the add-on and loads it only when Markdown display or export is requested. The core never emits Markdown; a core `.md` export request names this package.
 
 OfficeIMO's document model owns fenced blocks and recording documents, including safe fence selection. Semantic tables, records and trees use direct text in this bridge: they already have presented cell values, group/subtotal boundaries and literal escaping that must stay intact without reparsing or a document-builder row limit. Their output is unchanged. Fenced content containing backticks may use a shorter tilde fence; the content remains literal and the goldens cover that change.
+
+[ConsoleMonster](https://consolemonster.dev/) · [Add-ons](https://consolemonster.dev/docs/add-ons/)

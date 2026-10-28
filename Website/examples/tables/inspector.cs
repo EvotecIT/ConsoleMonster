@@ -12,8 +12,18 @@ Dictionary<string, object?> zone = new() {
         ["Expire"] = TimeSpan.FromSeconds(604800)
     },
     ["NameServers"] = new List<Dictionary<string, object?>> {
-        new() { ["Host"] = "dana.ns.cloudflare.com", ["Address"] = "108.162.192.103", ["LatencyMs"] = 12 },
-        new() { ["Host"] = "kirk.ns.cloudflare.com", ["Address"] = "172.64.33.149", ["LatencyMs"] = 14 }
+        new()
+        {
+            ["Host"] = "dana.ns.cloudflare.com",
+            ["Address"] = "108.162.192.103",
+            ["LatencyMs"] = 12
+        },
+        new()
+        {
+            ["Host"] = "kirk.ns.cloudflare.com",
+            ["Address"] = "172.64.33.149",
+            ["LatencyMs"] = 14
+        }
     },
     ["Tags"] = new[] { "production", "cloudflare", "doh" }
 };

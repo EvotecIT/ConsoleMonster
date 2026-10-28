@@ -34,7 +34,7 @@ namespace ConsoleMonster.Glyphs {
 
         /// <summary>
         /// The marker shown for a status. Full and Basic return one symbol; Ascii returns a bracketed word such as
-        /// <c>[PASS]</c> so status stays readable without colour.
+        /// <c>[OK]</c> so status stays readable without colour.
         /// </summary>
         /// <param name="status">The status.</param>
         /// <returns>The marker text.</returns>

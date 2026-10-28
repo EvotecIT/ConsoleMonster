@@ -124,6 +124,7 @@ namespace ConsoleMonster.Live {
                 }
                 if (session != null) {
                     session.Post(new LiveEvent(view.WidgetId, "update", value: runs, text: status) { Payload = content });
+                    if (!Delay(session, TimeSpan.Zero, token)) { break; }
                 } else {
                     view.Update(content, runs, status);
                     if (o.Print != null) {
@@ -137,11 +138,19 @@ namespace ConsoleMonster.Live {
                 }
                 if (o.Delay != null) {
                     o.Delay(o.PollInterval, token);
+                } else if (session != null) {
+                    if (!Delay(session, o.PollInterval, token)) { break; }
                 } else {
                     token.WaitHandle.WaitOne(o.PollInterval);
                 }
             }
             return runs;
+        }
+
+        // Cancellation ends a watch by returning its run count, including when a checkpoint is waiting for the dispatcher.
+        private static bool Delay(LiveSession session, TimeSpan interval, CancellationToken token) {
+            try { session.DelayCore(interval, token); return true; }
+            catch (OperationCanceledException) when (token.IsCancellationRequested) { return false; }
         }
     }
 }

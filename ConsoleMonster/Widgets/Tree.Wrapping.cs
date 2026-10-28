@@ -14,8 +14,9 @@ namespace ConsoleMonster.Widgets {
             foreach (TreeRow row in Flatten(context)) {
                 TreeNode node = row.Node;
                 StyledLine guide = StyledLine.From(row.Prefix, context.Style(ThemeToken.Border));
-                StyledLine marker = node.Status.HasValue
-                    ? StyledLine.From(context.Glyphs.StatusMarker(node.Status.Value) + " ", context.Style(node.Status.Value))
+                string? markerText = node.MarkerFor(context);
+                StyledLine marker = !string.IsNullOrEmpty(markerText)
+                    ? StyledLine.From(markerText + " ", node.MarkerStyle(context))
                     : StyledLine.Empty;
                 // Keep the outcome before spending cells on the tree guide; leave at least one cell for the label.
                 int markerWidth = Math.Min(marker.Width, Math.Max(0, width - 1));
@@ -31,7 +32,7 @@ namespace ConsoleMonster.Widgets {
                     content.Add(new TextSpan("  "));
                     AddLines(content, CellRendering.Content(node.Value, node.Presenter, null, presenter).Lines);
                 }
-                string? note = node.NoteFor(context);
+                string? note = row.NoteFor(context);
                 if (!string.IsNullOrEmpty(note)) content.Add(new TextSpan("  " + note, context.Style(ThemeToken.Muted)));
                 IReadOnlyList<StyledLine> wrapped = TextWrapper.Wrap(new StyledLine(content), Math.Max(1, width - indent));
                 for (int i = 0; i < wrapped.Count; i++) {

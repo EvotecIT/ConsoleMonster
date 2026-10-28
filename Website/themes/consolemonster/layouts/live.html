@@ -36,6 +36,17 @@
     {{~ code_lang = "text"; code_label = "Result line"; code_text = st.result.line ~}}
     {{ include "code" }}
     {{~ end ~}}
+    {{~ for platform_entry in st.platforms; alternative = platform_entry.value ~}}
+    <details class="cm-source">
+      <summary>{{ alternative.platformLabel }} stress recording</summary>
+      {{~ player_data = alternative; player_title = alternative.command; player_meta = [alternative.platformLabel, alternative.w + "×" + alternative.h, "24-bit", "Full"]; player_label = "The actual stress run on " + alternative.platformLabel; player_max = 13; player_autoplay = false ~}}
+      {{ include "player" }}
+      {{~ if alternative.result ~}}
+      {{~ code_lang = "text"; code_label = alternative.platformLabel + " result"; code_text = alternative.result.line ~}}
+      {{ include "code" }}
+      {{~ end ~}}
+    </details>
+    {{~ end ~}}
     <div class="cm-live__code">
       {{~ code_lang = "csharp"; code_label = "C#"; code_file = st.csharpFile; code_text = st.csharp; code_full = st.csharpFull ~}}
       {{ include "code" }}

@@ -25,6 +25,9 @@ namespace ConsoleMonster.Glyphs {
                     return glyphs.Get(Glyph.Running);
                 case StatusKind.Info:
                     return glyphs.Get(Glyph.Info);
+                case StatusKind.Unknown:
+                case StatusKind.None:
+                    return glyphs.StatusMarker(status);
                 default:
                     return glyphs.Get(Glyph.Pending);
             }
@@ -39,19 +42,20 @@ namespace ConsoleMonster.Glyphs {
         /// <returns>One cell of text.</returns>
         public static string Icon(this IGlyphSet glyphs, GlyphIcon icon) {
             int tier = glyphs.Tier == Capabilities.GlyphTier.Full ? 0 : glyphs.Tier == Capabilities.GlyphTier.Basic ? 1 : 2;
+            bool consoleView = ReferenceEquals(glyphs, GlyphSet.ConsoleViewFull) || ReferenceEquals(glyphs, GlyphSet.ConsoleViewBasic) || ReferenceEquals(glyphs, GlyphSet.ConsoleViewAscii);
             switch (icon) {
                 case GlyphIcon.Warning:
                     return glyphs.Get(Glyph.Warning);
                 case GlyphIcon.Done:
                     return glyphs.Get(Glyph.Check);
                 case GlyphIcon.Targets:
-                    return Pick(tier, "●", "●", "o");
+                    return Pick(tier, "●", consoleView ? "○" : "●", "o");
                 case GlyphIcon.Tasks:
                     return Pick(tier, "■", "■", "#");
                 case GlyphIcon.Settings:
                     return Pick(tier, "◆", "♦", "*");
                 case GlyphIcon.Favorite:
-                    return Pick(tier, "★", "☼", "*");
+                    return consoleView ? "*" : Pick(tier, "★", "☼", "*");
                 case GlyphIcon.Run:
                     return Pick(tier, "►", "►", ">");
                 case GlyphIcon.Back:

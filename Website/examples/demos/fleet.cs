@@ -5,8 +5,11 @@ using ConsoleMonster.Examples.Showcases;
 // other files, FleetHealth.cs and FleetData.cs, go next to this Program.cs.
 //   dotnet run              the app
 //   dotnet run -- --demo    the app pressing every key itself at a viewer's pace, with a fixed clock and outcomes
-if (args.Contains("--demo")) {
+if (args.Contains("--demo"))
+{
     FleetHealth.Demo();
-} else {
+}
+else
+{
     FleetHealth.Show();
 }

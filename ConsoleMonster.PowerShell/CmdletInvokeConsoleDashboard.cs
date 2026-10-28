@@ -7,7 +7,7 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Runs a console dashboard live while a script does the work.</para>
-    /// <para type="description">The script runs in a runspace the module owns (or, with -Parallel, once per input item on a runspace pool, started as items arrive and limited by -ThrottleLimit). Inside it, $ConsoleSession and the Update-Console, Update-Console, Write-ConsoleLogEntry and related cmdlets update the screen; Write-Host, Write-Warning, Write-Verbose, errors and Console.WriteLine go to the dashboard's log region instead of scribbling over the screen. The screen is redrawn at about 15 frames per second however many updates arrive. Ctrl+C stops the script and always restores the terminal; the dashboard then leaves the alternate screen and prints its final state (or -Summary). Script output is returned when the dashboard ends. In redirected or CI output the dashboard becomes append-only lines. Variables from the caller are not visible inside the script: pass them with -ArgumentList and a param() block.</para>
+    /// <para type="description">The script runs in a runspace the module owns (or, with -Parallel, once per input item on a runspace pool, started as items arrive and limited by -ThrottleLimit). Inside it, $ConsoleSession, Update-Console and Write-ConsoleLogEntry update the screen; Write-Host, Write-Warning, Write-Verbose, errors and Console.WriteLine go to the dashboard's log region instead of scribbling over the screen. The screen is redrawn at about 15 frames per second however many updates arrive. Ctrl+C stops the script and always restores the terminal; the dashboard then leaves the alternate screen and prints its final state (or -Summary). Script output is returned when the dashboard ends. In redirected or CI output the dashboard becomes append-only lines. Variables and functions from the caller are not visible inside the script: read a variable with $using:name (as with ForEach-Object -Parallel), bring functions in with -ImportFunction, or pass values with -ArgumentList and a param() block.</para>
     /// </summary>
     /// <example>
     ///   <para>Three servers processed in parallel, three at a time</para>
@@ -15,11 +15,18 @@ namespace ConsoleMonster.PowerShell {
     /// $d = New-ConsoleDashboard -Title 'Patch' -Content { New-ConsolePanel -Title 'Servers' -Content { New-ConsoleLanes }; New-ConsolePanel -Title 'Log' -Fill -Content { New-ConsoleLogRegion } }
     /// 'SRV1', 'SRV2', 'SRV3' | Invoke-ConsoleDashboard $d -Parallel -ThrottleLimit 3 {
     ///     param($Server)
-    ///     Update-Console -Key $Server -Status Running -Total 5 -WidgetId 'lanes'
-    ///     1..5 | ForEach-Object { Start-Sleep -Milliseconds 300; Update-Console -Key $Server -Result Pass -WidgetId 'lanes' }
+    ///     Update-Console lanes -Key $Server -Status Running -Total 5
+    ///     1..5 | ForEach-Object { Start-Sleep -Milliseconds 300; Update-Console lanes -Key $Server -Result Pass }
     ///     Write-Host "$Server patched"
-    ///     Update-Console -Key $Server -Complete -WidgetId 'lanes'
+    ///     Update-Console lanes -Key $Server -Complete
     /// }</code>
+    /// </example>
+    /// <example>
+    ///   <para>Use the caller's data and helper function inside the dashboard</para>
+    ///   <code>
+    /// $frames = Get-Content ./frames.json | ConvertFrom-Json
+    /// function Show-Frame($Frame) { Update-Console cpu -Append -Value $Frame.Cpu }
+    /// Invoke-ConsoleDashboard $dashboard -ImportFunction Show-Frame { foreach ($frame in $using:frames) { Show-Frame $frame; Wait-ConsoleDashboard 0.5 } }</code>
     /// </example>
     [Cmdlet(VerbsLifecycle.Invoke, "ConsoleDashboard")]
     public sealed class CmdletInvokeConsoleDashboard : PSCmdlet, IDisposable {
@@ -53,6 +60,10 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Maximum concurrent runspaces with -Parallel (default 4).</para></summary>
         [Parameter]
         public int ThrottleLimit { get; set; } = 4;
+
+        /// <summary><para type="description">Functions from the caller's session to define in the dashboard runspaces, by name.</para></summary>
+        [Parameter]
+        public string[]? ImportFunction { get; set; }
 
         /// <summary><para type="description">Modules to import into the dashboard runspaces.</para></summary>
         [Parameter]
@@ -146,10 +157,18 @@ namespace ConsoleMonster.PowerShell {
                 options.Profile = hostProfile;
                 options.Output = Terminal.CreateOutput(hostProfile, _hostQueue);
             }
-            _script = ScriptBlock.ToString();
+            var usings = new System.Collections.Hashtable(StringComparer.OrdinalIgnoreCase);
+            _script = Unbrace(PSUsing.Rewrite(ScriptBlock, SessionState, usings));
+            var functions = new System.Collections.Generic.Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            foreach (string name in ImportFunction ?? Array.Empty<string>()) {
+                if (!(SessionState.InvokeCommand.GetCommand(name, CommandTypes.Function) is FunctionInfo function)) {
+                    throw new PSArgumentException("ImportFunction found no function named '" + name + "' in this session.");
+                }
+                functions[function.Name] = function.Definition;
+            }
             _session = new LiveSession(WithProgress(Dashboard), options);
             try {
-                _host = new DashboardRunspaceHost(_session, ImportModule);
+                _host = new DashboardRunspaceHost(_session, ImportModule, usings, functions);
                 _session.Start();
                 if (Parallel.IsPresent) {
                     _host.OpenPool(ThrottleLimit);
@@ -160,6 +179,9 @@ namespace ConsoleMonster.PowerShell {
                 throw;
             }
         }
+
+        // Ast text keeps the literal's braces; AddScript needs the body so a param() block still binds the arguments.
+        private static string Unbrace(string text) => text.Length >= 2 && text[0] == '{' && text[text.Length - 1] == '}' ? text.Substring(1, text.Length - 2) : text;
 
         /// <inheritdoc />
         protected override void ProcessRecord() {

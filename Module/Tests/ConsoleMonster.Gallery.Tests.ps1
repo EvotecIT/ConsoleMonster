@@ -137,6 +137,17 @@ try {
         { Show-ConsoleDemo no-such-demo -StaticSnapshot } | Should -Throw -ErrorId 'ConsoleDemoNotFound*'
     }
 
+    It 'lists demos as a table and asks for a slug only when nobody can pick one' {
+        (Get-ConsoleDemo fleet).PSObject.TypeNames[0] | Should -BeExactly 'ConsoleMonster.ConsoleDemo'
+        $table = Get-ConsoleDemo 'welcome-*' | Out-String -Width 120
+        $table | Should -Match 'Slug\s+Category\s+Mode\s+Title'
+        $table | Should -Match 'welcome-compact\s+Welcome screens\s+static\s+Three-line welcome'
+        (Get-Command Show-ConsoleDemo).Parameters.Slug.Attributes.Where({ $_ -is [System.Management.Automation.ParameterAttribute] }).Mandatory | Should -BeFalse
+        $lines = Invoke-TestChild -Runtime $script:GalleryRuntime -Script "Import-Module '$($script:GalleryModulePath.Replace("'", "''"))'; try { Show-ConsoleDemo } catch { `$_.FullyQualifiedErrorId; `$_.Exception.Message }"
+        $lines | Should -Contain 'ConsoleDemoSlugRequired,ConsoleMonster.PowerShell.CmdletShowConsoleDemo'
+        $lines | Should -Contain 'Name the demo to run, for example Show-ConsoleDemo fleet. Get-ConsoleDemo lists every slug.'
+    }
+
     It 'exports the canonical script verbatim and returns its file information' {
         $path = Join-Path $TestDrive 'readiness-report.ps1'
         $file = Export-ConsoleDemo readiness-report -Path $path -PassThru
@@ -209,6 +220,46 @@ try {
         $embedded | Should -Not -Match 'Restore\s+running'
         $embedded | Should -BeExactly $exported
         $embedded | Should -BeExactly (Invoke-GalleryChild -Body 'Show-ConsoleDemo build-steps -StaticSnapshot -Step 1')
+    }
+
+    It 'applies the declared <ClockMode> clock to direct capture and restores the caller clock' -ForEach @(
+        @{ ClockMode = 'Frozen'; ExpectedSeconds = 0 }
+        @{ ClockMode = 'Inherited'; ExpectedSeconds = 7 }
+    ) {
+        $body = @(
+            "`$driver = '$($script:GalleryCapturePath.Replace("'", "''"))'"
+            "`$mode = '$ClockMode'"
+            @'
+$interactive = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions', $true)
+$clock = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.SimulatedClock', $true))::new()
+$clock.Advance([double] 7)
+$original = $interactive::Default
+$previous = $original.Clone()
+$previous.ActionClock = [Delegate]::CreateDelegate([Func[TimeSpan]], $clock, 'Read')
+$interactive::Default = $previous
+try {
+    $metadata = Get-ConsoleDemo fleet
+    if ($mode -eq 'Frozen') {
+        $metadata.capture | Add-Member -NotePropertyName actionClock -NotePropertyValue 'Frozen' -Force
+    }
+    $frame = & $driver -Metadata $metadata -Step 0 -Demo {
+        $seconds = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions', $true))::Default.ActionClock.Invoke().TotalSeconds
+        [ConsoleMonster.Terminal]::WriteMarkupLine("Clock=$seconds")
+    }
+    [pscustomobject] @{
+        Text = $frame.ToPlainText()
+        Restored = [object]::ReferenceEquals($interactive::Default, $previous)
+        Seconds = $interactive::Default.ActionClock.Invoke().TotalSeconds
+    } | ConvertTo-Json -Compress
+} finally {
+    $interactive::Default = $original
+}
+'@
+        )
+        $result = Invoke-GalleryChild -Body ($body -join "`n") | ConvertFrom-Json
+        $result.Text.Trim() | Should -BeExactly "Clock=$ExpectedSeconds"
+        $result.Restored | Should -BeTrue
+        $result.Seconds | Should -Be 7
     }
 
     It 'keeps the loaded fleet defaults selected in the native editor' {

@@ -12,7 +12,7 @@ using ConsoleMonster.Rendering;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>Runs reactive input widgets in an ordinary layout, with callbacks on the input thread and live cell diffing.</summary>
-    public static class ConsoleApp {
+    public static partial class ConsoleApp {
         /// <summary>Runs until Escape, input completion, cancellation or a requested exit, and returns the final state.</summary>
         /// <param name="layout">A layout containing named inputs and dependent display bindings.</param>
         /// <param name="state">Shared values, or null to create an empty state.</param>

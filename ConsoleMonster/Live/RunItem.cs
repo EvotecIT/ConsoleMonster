@@ -29,8 +29,8 @@ namespace ConsoleMonster.Live {
 
     /// <summary>An immutable observation of one declared item.</summary>
     public sealed class RunItemSnapshot {
-        internal RunItemSnapshot(int index, RunItem item, StatusKind status, string phase, string message, TimeSpan duration, int completionOrder) {
-            Index = index; Item = item; Status = status; Phase = phase; Message = message; Duration = duration;
+        internal RunItemSnapshot(int index, RunItem item, StatusKind status, string label, string detail, TimeSpan duration, int completionOrder) {
+            Index = index; Item = item; Status = status; Label = label; Detail = detail; Duration = duration;
             CompletionOrder = completionOrder;
         }
         /// <summary>The zero-based input position, also used for updates.</summary>
@@ -39,10 +39,10 @@ namespace ConsoleMonster.Live {
         public RunItem Item { get; }
         /// <summary>The current state.</summary>
         public StatusKind Status { get; }
-        /// <summary>The current phase, for example collecting or evaluating.</summary>
-        public string Phase { get; }
-        /// <summary>The completion message, retained in full for the final summary.</summary>
-        public string Message { get; }
+        /// <summary>The current phase label, for example collecting or evaluating (Update-Console -Run -Label).</summary>
+        public string Label { get; }
+        /// <summary>The completion detail, retained in full for the final summary (Update-Console -Run -Detail).</summary>
+        public string Detail { get; }
         /// <summary>The elapsed running time or final duration.</summary>
         public TimeSpan Duration { get; }
         /// <summary>One-based completion order, or zero while pending or running.</summary>
@@ -50,7 +50,7 @@ namespace ConsoleMonster.Live {
         /// <summary>Formats the literal fallback text for a completion event; the event state carries its outcome.</summary>
         /// <returns>Name, target, duration and a one-line message.</returns>
         public override string ToString() => Item.Label + (Item.Target.Length > 0 ? "   " + Item.Target : "") + "   " + NumberFormat.Duration(Duration)
-            + (Message.Length > 0 ? ": " + Message.Replace("\r", " ").Replace("\n", " ") : "");
+            + (Detail.Length > 0 ? ": " + Detail.Replace("\r", " ").Replace("\n", " ") : "");
     }
 
     public sealed partial class RunSnapshot {

@@ -24,6 +24,11 @@ namespace ConsoleMonster.Presenters {
             ["warning"] = StatusKind.Warn, ["degraded"] = StatusKind.Warn, ["paused"] = StatusKind.Warn, ["pending"] = StatusKind.Warn,
             ["startpending"] = StatusKind.Warn, ["stoppending"] = StatusKind.Warn, ["continuepending"] = StatusKind.Warn,
             ["pausepending"] = StatusKind.Warn, ["suspended"] = StatusKind.Warn, ["unknown"] = StatusKind.Warn,
+            // Container, pod and service lifecycle words (Docker, Kubernetes, systemd).
+            ["restarting"] = StatusKind.Warn, ["starting"] = StatusKind.Warn, ["stopping"] = StatusKind.Warn, ["removing"] = StatusKind.Warn,
+            ["terminating"] = StatusKind.Warn, ["reloading"] = StatusKind.Warn, ["activating"] = StatusKind.Warn,
+            ["deactivating"] = StatusKind.Warn, ["exited"] = StatusKind.Skip, ["created"] = StatusKind.Skip, ["dead"] = StatusKind.Fail,
+            ["crashloopbackoff"] = StatusKind.Fail, ["oomkilled"] = StatusKind.Fail, ["imagepullbackoff"] = StatusKind.Fail,
             // PowerShell's own words (streams, event levels, test results).
             ["warn"] = StatusKind.Warn, ["failure"] = StatusKind.Fail, ["skip"] = StatusKind.Skip,
             ["info"] = StatusKind.Info, ["information"] = StatusKind.Info, ["informational"] = StatusKind.Info,

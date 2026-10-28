@@ -29,22 +29,20 @@ $ErrorActionPreference = 'Stop'
 [Threading.Thread]::CurrentThread.CurrentUICulture = [cultureinfo]'en-US'
 Import-Module '__MODULE__'
 . '__SAMPLE__'
-foreach ($view in '__VIEWS__' -split ',') {
-    Write-Host "### $view before ###"
-    Get-EverydayViewSample $view | Microsoft.PowerShell.Core\Out-Default
-    Enable-ConsoleFormatting -Feature Output
-    Write-Host "### $view after ###"
-    Get-EverydayViewSample $view | Out-Default
-    Disable-ConsoleFormatting -Feature Output
-}
 '@
 $source = $source.Replace('__MODULE__', $modulePath.Replace("'", "''"))
 $source = $source.Replace('__SAMPLE__', $samplePath.Replace("'", "''"))
-$source = $source.Replace('__VIEWS__', ($views -join ','))
+foreach ($view in $views) {
+    # One command per host submission: an explicit Out-Default inside a script stays native.
+    $source += "`nWrite-Host '### $view before ###'`n"
+    $source += "Get-EverydayViewSample '$view' | Microsoft.PowerShell.Core\Out-Default`n"
+    $source += "Enable-ConsoleFormatting -Feature Output`nWrite-Host '### $view after ###'`n"
+    $source += "Get-EverydayViewSample '$view'`nDisable-ConsoleFormatting -Feature Output`n"
+}
 $scriptPath = Join-Path $OutputDirectory 'capture.ps1'
 $ansiPath = Join-Path $OutputDirectory 'all-views.ansi'
 [IO.File]::WriteAllText($scriptPath, $source, [Text.UTF8Encoding]::new($true))
-& python3 (Join-Path $PSScriptRoot 'formatting_pty.py') ([Diagnostics.Process]::GetCurrentProcess().Path) $scriptPath $ansiPath 120 $Width
+& python3 (Join-Path $PSScriptRoot 'formatting_pty.py') ([Diagnostics.Process]::GetCurrentProcess().Path) $scriptPath $ansiPath 120 $Width --submissions
 if ($LASTEXITCODE -ne 0) { throw "Terminal capture failed with exit code $LASTEXITCODE." }
 $ansi = [IO.File]::ReadAllText($ansiPath)
 $matches = [regex]::Matches($ansi, '### ([a-z-]+) (before|after) ###')

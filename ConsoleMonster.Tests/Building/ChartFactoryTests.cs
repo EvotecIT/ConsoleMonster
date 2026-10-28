@@ -66,8 +66,8 @@ namespace ConsoleMonster.Tests.Building {
 
         [Fact]
         public void InitializerAndFluentOptionsUseTheSameDataAndDefaults() {
-            var initializer = new ChartOptions { Type = ChartType.Sparkline, Label = "CPU", Height = 2, Role = ThemeToken.Accent, Values = new[] { 0.0, 0.5, 1.0 } };
-            ChartOptions fluent = new ChartOptions().Type(ChartType.Sparkline).Label("CPU").Height(2).Role(ThemeToken.Accent).Values(new[] { 0.0, 0.5, 1.0 });
+            var initializer = new ChartOptions { Type = ChartType.Sparkline, Title = "CPU", Height = 2, Role = ThemeToken.Accent, Values = new[] { 0.0, 0.5, 1.0 } };
+            ChartOptions fluent = new ChartOptions().Type(ChartType.Sparkline).Title("CPU").Height(2).Role(ThemeToken.Accent).Values(new[] { 0.0, 0.5, 1.0 });
             var render = new global::ConsoleMonster.Export.ExportOptions { Width = 60 };
             Assert.Equal(global::ConsoleMonster.Export.ConsoleExporter.ToText(Chart.Create(initializer), render), global::ConsoleMonster.Export.ConsoleExporter.ToText(Chart.Create(fluent), render));
             Assert.Equal(1, Assert.IsType<Sparkline>(Chart.Create(new ChartOptions { Type = ChartType.Sparkline })).Height);

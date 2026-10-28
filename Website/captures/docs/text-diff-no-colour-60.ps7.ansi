@@ -1,10 +1,1 @@
-[?9001h[?1004h[?25l[2J[m[H]0;Administrator: C:\Program Files\PowerShell\7\pwsh.exe[?25h[?25lBefore -> After
-+2 added  -2 removed
-... 1 unchanged line (1-1 / 1-1)
- 2  2   host=web-01
- 3    - port=80
- 4    - protocol=http
-    3 + port=443
-    4 + protocol=https
- 5  5   workers=4
-... 5 unchanged lines (6-10 / 6-10)[12;1H[?25h[?9001l[?1004l
+Before[8G->[11GAfter[2;1H+2[4Gadded[11G-2[14Gremoved[3;1H...[5G1[7Gunchanged[17Gline[22G(1-1[27G/[29G1-1)[4;2H2[5G2[9Ghost=web-01[5;2H3[7G-[9Gport=80[6;2H4[7G-[9Gprotocol=http[7;5H3[7G+[9Gport=443[8;5H4[7G+[9Gprotocol=https[9;2H5[5G5[9Gworkers=4[10;1H...[5G5[7Gunchanged[17Glines[23G(6-10[29G/[31G6-10)[12;1H

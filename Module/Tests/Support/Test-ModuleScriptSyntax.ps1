@@ -12,10 +12,13 @@ powershell.exe -NoProfile -File ./Module/Tests/Support/Test-ModuleScriptSyntax.p
 [CmdletBinding()]
 param(
     [ValidateNotNullOrEmpty()]
-    [string] $ModuleRoot = (Join-Path $PSScriptRoot '../..')
+    [string] $ModuleRoot
 )
 
 $ErrorActionPreference = 'Stop'
+if (-not $PSBoundParameters.ContainsKey('ModuleRoot')) {
+    $ModuleRoot = Join-Path $PSScriptRoot '../..'
+}
 $scripts = @(Get-ChildItem -LiteralPath $ModuleRoot -Filter '*.ps1' -File -Recurse -Force | Sort-Object FullName)
 if ($scripts.Count -eq 0) {
     throw "No PowerShell scripts found under $ModuleRoot."

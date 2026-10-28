@@ -57,7 +57,7 @@ namespace ConsoleMonster.Tests.Rendering {
             ProgressBar progress = new ProgressBar("Build") { Value = 37, Total = 80, LabelWidth = 6 };
             StackedBar stacked = new StackedBar().Add("Passed", 70, ThemeToken.Pass).Add("Failed", 20, ThemeToken.Fail).Add("Skipped", 10, ThemeToken.Skip);
             BarChart bars = new BarChart().Add("Kerberos", 6).Add("DNS", 3).Add("PKI", 1);
-            Sparkline spark = new Sparkline { Label = "rate", Height = 1 };
+            Sparkline spark = new Sparkline { Title = "rate", Height = 1 };
             Sparkline area = new Sparkline("area") { Height = 3 };
             LineChart chart = new LineChart { Height = 6 };
             Histogram histogram = new Histogram(new double[] { 0, 1, 2, 4, 8 }) { Height = 4 };

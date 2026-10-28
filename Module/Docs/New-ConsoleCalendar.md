@@ -1,7 +1,7 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://github.com/EvotecIT/ConsoleMonster
+online version: https://consolemonster.dev/
 schema: 2.0.0
 ---
 # New-ConsoleCalendar
@@ -13,7 +13,7 @@ Returns a passive widget. Pipeline rows provide Date, Status and Label propertie
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleCalendar -Year <int> [-Month <int>] [-View <CalendarView>] [-InputObject <psobject[]>] [-DateProperty <string>] [-StatusProperty <string>] [-LabelProperty <string>] [-FirstDayOfWeek <DayOfWeek>] [-Culture <cultureinfo>] [-Today <DateTime>] [-NoLegend] [<CommonParameters>]
+New-ConsoleCalendar [-Year <int>] [-Month <int>] [-View <CalendarView>] [-InputObject <psobject[]>] [-DateProperty <string>] [-StatusProperty <string>] [-LabelProperty <string>] [-FirstDayOfWeek <DayOfWeek>] [-Culture <cultureinfo>] [-Today <DateTime>] [-NoLegend] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -31,6 +31,13 @@ $calendar = $backups | New-ConsoleCalendar -Year 2026 -Month 10; $calendar | Sho
 Display backup outcomes for October.
 
 ### EXAMPLE 2
+```powershell
+New-ConsoleCalendar | Show-Console
+```
+
+Show this month.
+
+### EXAMPLE 3
 ```powershell
 New-ConsoleCalendar -Year 2026 -View Year -FirstDayOfWeek Monday
 ```
@@ -120,7 +127,7 @@ Accept wildcard characters: False
 ```
 
 ### -Month
-Gregorian month, required in Month view.
+Gregorian month for Month view; without Year and Month the current month is shown.
 
 ```yaml
 Type: Int32
@@ -200,7 +207,7 @@ Accept wildcard characters: False
 ```
 
 ### -Year
-Gregorian year to display.
+Gregorian year to display; default the current year (or the year of Today).
 
 ```yaml
 Type: Int32
@@ -208,7 +215,7 @@ Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
 
-Required: True
+Required: False
 Position: named
 Default value: None
 Accept pipeline input: False

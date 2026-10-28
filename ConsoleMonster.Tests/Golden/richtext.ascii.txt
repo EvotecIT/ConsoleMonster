@@ -14,10 +14,10 @@ rich text
 | +--------+--------+--------------------+----------------+    |
 | | Server | Result | Path               | Note           |    |
 | +--------+--------+--------------------+----------------+    |
-| | SRV01  | √ PASS | C:\Suppo...Monster | replication    |    |
+| | SRV01  | + PASS | C:\Suppo...Monster | replication    |    |
 | |        |        |                    | healthy across |    |
 | |        |        |                    | sites          |    |
-| | SRV02  | × FAIL | D:\Data\...ly.xlsx | [red]literal[/ |    |
+| | SRV02  | x FAIL | D:\Data\...ly.xlsx | [red]literal[/ |    |
 | |        |        |                    | ] data         |    |
 | +--------+--------+--------------------+----------------+    |
 +--------------------------------------------------------------+
@@ -25,17 +25,17 @@ rich text
 +--------+--------+
 | Server | Result |
 +--------+--------+
-| SRV03  | √ PASS |
+| SRV03  | + PASS |
 +--------+--------+
 
 Owner   Przemysław Kłys
-Status  × FAIL
+Status  x FAIL
 
 Certificate
 Expires  in 22 d
 
 ad.evotec.xyz
-`-- [PASS] Site Warsaw
+`-- [OK] Site Warsaw
     `-- [WARN] SRV01  2 warnings
 
 [WARN] DNS scavenging                                     7 days
@@ -49,7 +49,7 @@ SRV01 ####################################################### 12
 SRV02 ################################                         7
 
 ##########################################################======
-# √ PASS 40  90%   = × FAIL  4   9%
+# + PASS 40  91%   = x FAIL  4   9%
 
 5|        ***************               ************************
 0|**************************************************************

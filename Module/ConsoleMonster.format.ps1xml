@@ -58,8 +58,11 @@
         <TypeName>ConsoleMonster.Widgets.Calendar</TypeName>
         <TypeName>ConsoleMonster.Widgets.CellMap</TypeName>
         <TypeName>ConsoleMonster.Widgets.CodeView</TypeName>
+        <TypeName>ConsoleMonster.Widgets.ConsoleViewFrame</TypeName>
+        <TypeName>ConsoleMonster.Widgets.ContextWidget</TypeName>
         <TypeName>ConsoleMonster.Widgets.Dashboard</TypeName>
         <TypeName>ConsoleMonster.Widgets.ExceptionView</TypeName>
+        <TypeName>ConsoleMonster.Widgets.FactFlow</TypeName>
         <TypeName>ConsoleMonster.Widgets.Flow</TypeName>
         <TypeName>ConsoleMonster.Widgets.FooterBar</TypeName>
         <TypeName>ConsoleMonster.Widgets.HeaderBar</TypeName>
@@ -70,22 +73,27 @@
         <TypeName>ConsoleMonster.Widgets.Lanes</TypeName>
         <TypeName>ConsoleMonster.Widgets.LayoutRegion</TypeName>
         <TypeName>ConsoleMonster.Widgets.LayoutRegions</TypeName>
+        <TypeName>ConsoleMonster.Widgets.Legend</TypeName>
         <TypeName>ConsoleMonster.Widgets.LineChart</TypeName>
         <TypeName>ConsoleMonster.Widgets.LiveTable</TypeName>
         <TypeName>ConsoleMonster.Widgets.LogRegion</TypeName>
         <TypeName>ConsoleMonster.Widgets.Logo</TypeName>
         <TypeName>ConsoleMonster.Widgets.MarkdownView</TypeName>
+        <TypeName>ConsoleMonster.Widgets.Matrix</TypeName>
+        <TypeName>ConsoleMonster.Widgets.PathSet</TypeName>
         <TypeName>ConsoleMonster.Widgets.Phases</TypeName>
         <TypeName>ConsoleMonster.Widgets.PipelineChart</TypeName>
         <TypeName>ConsoleMonster.Widgets.ProgressBar</TypeName>
         <TypeName>ConsoleMonster.Widgets.RecordView</TypeName>
         <TypeName>ConsoleMonster.Widgets.RegionWidget</TypeName>
+        <TypeName>ConsoleMonster.Widgets.RoleTable</TypeName>
         <TypeName>ConsoleMonster.Widgets.Rule</TypeName>
         <TypeName>ConsoleMonster.Widgets.RunCompletion</TypeName>
         <TypeName>ConsoleMonster.Widgets.RunDashboard</TypeName>
         <TypeName>ConsoleMonster.Widgets.RunProgress</TypeName>
         <TypeName>ConsoleMonster.Widgets.RunSummary</TypeName>
         <TypeName>ConsoleMonster.Widgets.RunView</TypeName>
+        <TypeName>ConsoleMonster.Widgets.ScoreGauge</TypeName>
         <TypeName>ConsoleMonster.Widgets.ScrollView</TypeName>
         <TypeName>ConsoleMonster.Widgets.ShellPrompt</TypeName>
         <TypeName>ConsoleMonster.Widgets.Sparkline</TypeName>
@@ -97,6 +105,8 @@
         <TypeName>ConsoleMonster.Widgets.Tabs</TypeName>
         <TypeName>ConsoleMonster.Widgets.TextBlock</TypeName>
         <TypeName>ConsoleMonster.Widgets.Tree</TypeName>
+        <TypeName>ConsoleMonster.Widgets.ViewHeader</TypeName>
+        <TypeName>ConsoleMonster.Widgets.ViewHint</TypeName>
         <TypeName>ConsoleMonster.Widgets.WatchView</TypeName>
       </ViewSelectedBy>
       <CustomControl>
@@ -110,6 +120,46 @@
           </CustomEntry>
         </CustomEntries>
       </CustomControl>
+    </View>
+    <View>
+      <Name>ConsoleMonster.ConsoleDemo</Name>
+      <ViewSelectedBy>
+        <TypeName>ConsoleMonster.ConsoleDemo</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Slug</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Category</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Mode</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Title</Label>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>slug</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>category</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>mode</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>title</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
     </View>
   </ViewDefinitions>
 </Configuration>

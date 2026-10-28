@@ -79,7 +79,7 @@ namespace SiteFrames.Pages {
             foreach (int width in Widths) {
                 foreach (string theme in Themes) {
                     foreach (string state in States) {
-                        foreach (PowerShellHost host in PowerShellHost.All) {
+                        foreach (PowerShellHost host in PowerShellHost.Available) {
                             Dictionary<string, string?> environment = PowerShellRunner.Environment(theme);
                             environment["CM_SITE_APP_STATE"] = state;
                             environment["CM_SITE_APP_WIDTH"] = width.ToString(Site.Culture);
@@ -89,6 +89,8 @@ namespace SiteFrames.Pages {
                             string path = CapturePath(site, width, theme, state, host);
                             Directory.CreateDirectory(Path.GetDirectoryName(path)!);
                             File.WriteAllBytes(path, vt);
+                            Stamps.Write(site, path, Fingerprint(site, width, theme, state));
+                            CaptureRun.Record(path, width, Height + 4, theme);
                             Console.WriteLine("captured " + Path.GetRelativePath(site.Website, path));
                         }
                     }
@@ -143,6 +145,8 @@ namespace SiteFrames.Pages {
                                 problems.Add(key + " has no " + parityKey + " capture; run SiteFrames capture Website app.");
                                 continue;
                             }
+                            string? stale = Stamps.Check(site, path, Fingerprint(site, width, theme, state), "app");
+                            if (stale != null) { problems.Add(stale); }
                             CellBuffer actual = Parity.Transcript(File.ReadAllBytes(path), width, Height + 4);
                             ParityResult result = Parity.Compare(expected, actual);
                             parity[parityKey] = new JsonObject {
@@ -178,6 +182,10 @@ namespace SiteFrames.Pages {
             }, ExamplePath(site)));
             WidgetsPage.Report(problems, "app");
         }
+
+        private static string Fingerprint(Site site, int width, string theme, string state) => Stamps.Of(
+            Twins.Script(site, "app", Id), PowerShellRunner.Environment(theme), width.ToString(Site.Culture),
+            Height.ToString(Site.Culture), state, Site.ReadText(Path.Combine(site.Tool, "Capture", "AppCapture.ps1")));
 
         /// <summary>
         /// Writes eight standalone exporter HTML, SVG and text frames to a caller-selected review folder. This path

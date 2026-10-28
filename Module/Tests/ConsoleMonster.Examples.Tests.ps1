@@ -336,7 +336,7 @@ BeforeAll {
                 "Preset 'Nightly"
                 'Invoke-FleetCheck -Domain corp.contoso.com'
                 'Check map'
-                ('Report saved: ' + (Join-Path (Join-Path Reports Fleet) 'fleet-20261020-0930.html'))
+                'Report saved: Reports/Fleet/fleet-20261020-0930.html'
                 '121 checks on 11 servers in corp.contoso.com. 4 need action now; 7 warnings to review.'
                 'Queued 4 failed checks for a rerun'
                 # The history row of the new run (the run's own screens say "7 warnings").
@@ -354,7 +354,7 @@ BeforeAll {
                 "all sites' applied"
                 'Invoke-FleetCheck -Domain corp.contoso.com'
                 '110 checks on 11 servers in corp.contoso.com. 4 need action now; 6 warnings to review.'
-                ('Report saved: ' + (Join-Path (Join-Path Reports Fleet) 'fleet-20261020-0930.html'))
+                'Report saved: Reports/Fleet/fleet-20261020-0930.html'
                 'Queued 4 failed checks for a rerun'
                 '4 runs'
             )

@@ -24,7 +24,7 @@ foreach (Server server in servers) {
 KeyValueList summary = new KeyValueList();
 summary.AddValue("Servers", 3);
 summary.AddValue("Failed", 1);
-Sparkline cpu = new Sparkline { Label = "CPU" };
+Sparkline cpu = new Sparkline { Title = "CPU" };
 cpu.AddRange(load);
 
 Terminal.Write(new Rows(

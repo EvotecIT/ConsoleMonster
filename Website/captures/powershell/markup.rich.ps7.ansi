@@ -1,4 +1,1 @@
-[?9001h[?1004h[?25l[2J[m[91m[1m[HMarkup[m in the[3m[1CSpectre.Console[23m dialect:[38;5;72m[1Ccadetblue[m,[38;5;244m[1Cgrey50[m,[38;5;31m[1Cdeepskyblue3
-]0;C:\Program Files\PowerShell\7\pwsh.exe[?25h[m[38;2;255;136;0m#ff8800[m, [38;2;120;200;90mrgb(120,200,90)[m, [38;5;208mcolor(208) [mand [97m[48;2;248;113;113m theme roles [m
-[brackets] are literal, [nosuchcolour] is an escaped literal tag, and links use OSC 8
-[?9001l[?1004l
+[0;1;91mMarkup[8G[0min[11Gthe[15G[0;3mSpectre.Console[31G[0mdialect:[40G[0;38;5;72mcadetblue[0m,[51G[0;38;5;244mgrey50[0m,[59G[0;38;5;31mdeepskyblue3[2;1H[0;38;2;255;136;0m#ff8800[0m,[10G[0;38;2;120;200;90mrgb(120,200,90)[0m,[27G[0;38;5;208mcolor(208)[38G[0mand[42G[0;97;48;2;248;113;113m theme roles [3;1H[0m[brackets][12Gare[16Gliteral,[25G[nosuchcolour][40Gis[43Gan[46Gescaped[54Gliteral[62Gtag,[67Gand[71Glinks[77Guse[81GOSC[85G8[4;1H

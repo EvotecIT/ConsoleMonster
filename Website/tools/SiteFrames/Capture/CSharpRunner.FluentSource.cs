@@ -40,6 +40,11 @@ namespace SiteFrames.Capture {
                 generated[tree.FilePath] = root.NormalizeWhitespace(indentation: "    ", eol: "\n").ToFullString() + "\n";
             }
             checkedProgram = CreateCompilation(path, generated[path], companions: companions, sourceOverrides: generated, references: references);
+            foreach (SyntaxTree tree in checkedProgram.SyntaxTrees.Where(tree => generated.ContainsKey(tree.FilePath))) {
+                var ergonomics = new FluentErgonomicsRewriter(checkedProgram.GetSemanticModel(tree));
+                generated[tree.FilePath] = ergonomics.Visit(tree.GetRoot())!.NormalizeWhitespace(indentation: "    ", eol: "\n").ToFullString() + "\n";
+            }
+            checkedProgram = CreateCompilation(path, generated[path], companions: companions, sourceOverrides: generated, references: references);
             var diagnostics = checkedProgram.GetDiagnostics();
             foreach (SyntaxTree tree in checkedProgram.SyntaxTrees.Where(tree => generated.ContainsKey(tree.FilePath))) {
                 var unused = diagnostics.Where(diagnostic => diagnostic.Id == "CS8019" && diagnostic.Location.SourceTree == tree)
@@ -49,6 +54,15 @@ namespace SiteFrames.Capture {
                     generated[tree.FilePath] = tree.GetRoot().RemoveNodes(unused, SyntaxRemoveOptions.KeepExteriorTrivia)!
                         .NormalizeWhitespace(indentation: "    ", eol: "\n").ToFullString() + "\n";
                 }
+            }
+            checkedProgram = CreateCompilation(path, generated[path], companions: companions, sourceOverrides: generated, references: references);
+            foreach (SyntaxTree tree in checkedProgram.SyntaxTrees.Where(tree => generated.ContainsKey(tree.FilePath))) {
+                var names = new ExampleNames(checkedProgram.GetSemanticModel(tree));
+                generated[tree.FilePath] = ReadableSource(names.Visit(tree.GetRoot())!);
+            }
+            checkedProgram = CreateCompilation(path, generated[path], companions: companions, sourceOverrides: generated, references: references);
+            foreach (SyntaxTree tree in checkedProgram.SyntaxTrees.Where(tree => generated.ContainsKey(tree.FilePath))) {
+                generated[tree.FilePath] = LayoutSource(tree, checkedProgram.GetSemanticModel(tree));
             }
             return generated;
         }
@@ -62,7 +76,7 @@ namespace SiteFrames.Capture {
                     && model.GetSymbolInfo(member).Symbol is IPropertySymbol property
                     && property.SetMethod?.DeclaredAccessibility == Accessibility.Public
                     && model.GetTypeInfo(member.Expression).Type is INamedTypeSymbol receiver && Owned(receiver)
-                    && HasSetter(receiver, property.Type.TypeKind == TypeKind.Delegate ? "Configure" : property.Name)
+                    && HasSetter(receiver, property.Type.TypeKind == TypeKind.Delegate ? "Configure" : FluentName(property))
                     && visited.Expression is AssignmentExpressionSyntax { Left: MemberAccessExpressionSyntax rewrittenMember } rewritten) {
                     return visited.WithExpression(Setter(rewrittenMember.Expression, receiver, property, rewritten.Right));
                 }
@@ -75,7 +89,7 @@ namespace SiteFrames.Capture {
                     && model.GetTypeInfo(node).ConvertedType is INamedTypeSymbol { DelegateInvokeMethod.ReturnsVoid: true }
                     && model.GetSymbolInfo(member).Symbol is IPropertySymbol property
                     && model.GetTypeInfo(member.Expression).Type is INamedTypeSymbol receiver && Owned(receiver)
-                    && HasSetter(receiver, property.Type.TypeKind == TypeKind.Delegate ? "Configure" : property.Name)
+                    && HasSetter(receiver, property.Type.TypeKind == TypeKind.Delegate ? "Configure" : FluentName(property))
                     && visited.ExpressionBody is AssignmentExpressionSyntax { Left: MemberAccessExpressionSyntax rewrittenMember } rewritten) {
                     return visited.WithExpressionBody(Setter(rewrittenMember.Expression, receiver, property, rewritten.Right));
                 }
@@ -108,7 +122,7 @@ namespace SiteFrames.Capture {
                         || property.SetMethod?.DeclaredAccessibility != Accessibility.Public
                         || property.GetAttributes().Any(attribute => attribute.AttributeClass?.ToDisplayString() == "ConsoleMonster.NoFluentAttribute")
                         || visited.Initializer!.Expressions[i] is not AssignmentExpressionSyntax converted
-                        || converted.Right is InitializerExpressionSyntax || !HasSetter(type, property.Type.TypeKind == TypeKind.Delegate ? "Configure" : property.Name)) {
+                        || converted.Right is InitializerExpressionSyntax || !HasSetter(type, property.Type.TypeKind == TypeKind.Delegate ? "Configure" : FluentName(property))) {
                         // Moving only some members would reorder callback/kind setters or collection initialization.
                         return visited;
                     }
@@ -137,7 +151,7 @@ namespace SiteFrames.Capture {
 
             private ExpressionSyntax Setter(ExpressionSyntax receiver, INamedTypeSymbol type, IPropertySymbol property, ExpressionSyntax value) {
                 bool callback = property.Type.TypeKind == TypeKind.Delegate;
-                string method = callback ? "Configure" : property.Name;
+                string method = callback ? "Configure" : FluentName(property);
                 Namespaces.Add(SetterNamespace(type, method)!);
                 if (property.Name == "Content" && type.AllInterfaces.Any(i => i.ToDisplayString() == "ConsoleMonster.Layout.IContentOwner")) {
                     return ContentCall(receiver, new[] { value });
@@ -155,6 +169,9 @@ namespace SiteFrames.Capture {
                     receiver, SyntaxFactory.IdentifierName(method)), property.Type.SpecialType == SpecialType.System_Boolean && value.IsKind(SyntaxKind.TrueLiteralExpression)
                         ? SyntaxFactory.ArgumentList() : SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.Argument(value))));
             }
+
+            internal static string FluentName(IPropertySymbol property) => property.Type.SpecialType == SpecialType.System_Boolean
+                && property.Name.Length > 2 && property.Name.StartsWith("Is", StringComparison.Ordinal) && char.IsUpper(property.Name[2]) ? property.Name.Substring(2) : property.Name;
 
             private bool HasSetter(INamedTypeSymbol type, string member) => SetterNamespace(type, member) != null;
 

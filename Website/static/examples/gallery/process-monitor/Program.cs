@@ -12,38 +12,40 @@ var processes = new Process[]
     new("api-host", 4120, 12, 220),
     new("file-watcher", 4131, 3, 48)
 };
-double[] cpuHistory =
-{
-    38,
-    45,
-    51,
-    48,
-    56
-};
+double[] cpuHistory = { 38, 45, 51, 48, 56 };
+
 // Layout: build a complete frame from one set of counters.
 IWidget Frame(int tick)
 {
-    var rows = processes.Select(process => new ProcessRow(process.Name, process.Pid, process.Cpu + tick * 3, process.Memory + tick * 16)).ToArray();
+    var rows = processes.Select(process => new ProcessRow(process.Name, process.Pid,
+        process.Cpu + tick * 3, process.Memory + tick * 16))
+        .ToArray();
     var table = Table.For(rows)
         .Column(row => row.Name)
         .Column(row => row.Pid, column => column.Presenter = CellPresenters.Identifier)
         .Column("CPU %", row => row.Cpu)
         .Column("Memory MiB", row => row.Memory);
     table.Expand = true;
-
     Sparkline history = new Sparkline
     {
-        Label = "CPU %"
+        Title = "CPU %"
     };
     history.AddRange(cpuHistory.Concat(new[] { 56.0 + tick * 5 }));
-    return new Rows(new Rule("[bold]Process monitor[/] [muted]· refresh 1s[/]"), new TextBlock($"[accent]CPU {56 + tick * 5}%[/]   Memory {1640 + tick * 64} MiB   [muted]4 processes[/]"), table, new Panel() { Title = "CPU history", Content = history }, new TextBlock("[muted]Ctrl+C stops monitoring. Final counters stay in scrollback.[/]"))
+    return new Rows(
+        new Rule("[bold]Process monitor[/] [muted]· refresh 1s[/]"),
+        new TextBlock(
+            ($"[accent]CPU {56 + tick * 5}%[/]   Memory {1640 + tick * 64} MiB   [muted]4 "
+                + $"processes[/]")),
+        table,
+        new Panel() { Title = "CPU history", Content = history },
+        new TextBlock("[muted]Ctrl+C stops monitoring. Final counters stay in scrollback.[/]"))
     {
         Gap = 1
     };
 }
 
 // Behaviour: update each frame in a bounded live run.
-RegionWidget screen = new RegionWidget(widgetId: "processes", content: Frame(0));
+RegionWidget screen = new RegionWidget("processes", Frame(0));
 using LiveSession session = new LiveSession(screen);
 try
 {
@@ -56,7 +58,8 @@ try
         }
     });
 }
-catch (OperationCanceledException cancelled)when (cancelled.CancellationToken == session.Cancellation)
+catch (OperationCanceledException cancelled)
+    when (cancelled.CancellationToken == session.Cancellation)
 {
     // Ctrl+C is a normal way to leave the demo, after the session restores the terminal.
     return;

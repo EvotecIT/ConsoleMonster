@@ -24,6 +24,12 @@ namespace ConsoleMonster.Presenters {
         /// <summary>Fixed decimals, or null for automatic.</summary>
         public int? Decimals { get; }
 
+        /// <summary>An optional semantic role for a zero value.</summary>
+        public ThemeToken? ZeroRole { get; set; }
+
+        /// <summary>An optional semantic role for a nonzero value.</summary>
+        public ThemeToken? NonZeroRole { get; set; }
+
         /// <inheritdoc />
         public PresentedValue Present(object? value, PresenterContext context) {
             if (!PresenterValues.TryGetNumber(value, out double number) || value is TimeSpan) {
@@ -36,10 +42,11 @@ namespace ConsoleMonster.Presenters {
                     ? ColumnFormat(Math.Max(context.ColumnDecimals.Value, PresenterContext.DecimalsNeeded(value)))
                     : "#,0.##";
             string text = number.ToString(format, context.Culture);
+            ThemeToken role = (number == 0 ? ZeroRole : NonZeroRole) ?? ThemeToken.Text;
             StyledLine line = Unit == null
-                ? StyledLine.From(text, context.Render.Style(ThemeToken.Text))
-                : new StyledLine(new[] { new TextSpan(text, context.Render.Style(ThemeToken.Text)), new TextSpan(" " + Unit, context.Render.Style(ThemeToken.Muted)) });
-            return new PresentedValue(line, HorizontalAlignment.Right) { Number = number };
+                ? StyledLine.From(text, context.Render.Style(role))
+                : new StyledLine(new[] { new TextSpan(text, context.Render.Style(role)), new TextSpan((Unit == "%" && Widgets.ConsoleViewStyle.IsApplied(context.Render) ? string.Empty : " ") + Unit, context.Render.Style(ThemeToken.Muted)) });
+            return new PresentedValue(line, HorizontalAlignment.Right) { Number = number, Role = number == 0 ? ZeroRole : NonZeroRole };
         }
 
         // Fixed decimals for a column (never fewer than the value itself needs, so a value is never rounded away).

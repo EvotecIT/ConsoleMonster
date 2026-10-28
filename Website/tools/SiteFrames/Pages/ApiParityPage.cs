@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json.Nodes;
+using SiteFrames.Capture;
 
 namespace SiteFrames.Pages {
     /// <summary>Publishes the member decisions from the same contract consumed by the parity gate and demo notes.</summary>
@@ -21,13 +22,15 @@ namespace SiteFrames.Pages {
                 body.AppendLine("Callback properties use `" + rule!["Pattern"]!.GetValue<string>().Replace("{Member}", "Action", StringComparison.Ordinal) + "`. " + rule["Reason"]!.GetValue<string>() + "\n");
             }
             body.AppendLine("## Fluent construction and nesting\n");
-            body.AppendLine("Ui is the fluent entry point: New-ConsolePanel becomes Ui.Panel(), named settings stay in the chain, and nested Content uses c.Panel(panel => …). Initializers retain constructors. Factories accept no positional configuration; the recorded primary inputs below are the only exceptions. Chart, Progress and kind-selected inputs materialize their existing typed options through the shared Build operation.\n");
+            body.AppendLine("Ui is the fluent entry point: New-ConsolePanel becomes Ui.Panel(), named settings stay in the chain, and nested Content uses c.Panel(p => …). Initializers retain constructors. Factories accept no positional configuration; the recorded primary inputs below are the only exceptions. Chart, Progress and kind-selected inputs materialize their existing typed options through the shared Build operation.\n");
+            body.AppendLine("Literal text uses `Ui.Text(text)` or `c.Text(text)`; PowerShell `-Markup` uses `Ui.Markup(markup)` or `c.Markup(markup)`. Boolean properties named IsX keep that property in initializers and use `.X()` / `.X(false)` in fluent chains. Adjacent configuration stays in one chain.\n");
+            body.AppendLine("Operation options use a typed configure callback, for example `ConsoleRun.ForEachAsync(items, work, o => o.ThrottleLimit(2).Title(\"Build\"))`. The operation creates fresh defaults, invokes the callback once and delegates to its existing implementation. `Ui.Options<T>()` is removed.\n");
             body.AppendLine("| PowerShell constructor | Fluent entry | Nested builder |\n| --- | --- | --- |");
             foreach (JsonNode? node in map["FluentGrammar"]!["Entry"]!["Factories"]!.AsArray()) {
                 JsonObject factory = node!.AsObject();
                 string noun = factory["Noun"]!.GetValue<string>();
                 body.AppendLine("| `" + factory["Command"]!.GetValue<string>() + "` | `" + factory["Pattern"]!.GetValue<string>() + "` | "
-                    + (factory["ContentBuilder"]!.GetValue<bool>() ? "`c." + noun + "(widget => …)`" : "Definition, not display content") + " |");
+                    + (factory["ContentBuilder"]!.GetValue<bool>() ? "`c." + noun + "(" + CSharpRunner.BuilderParameter(noun) + " => …)`" : "Definition, not display content") + " |");
             }
             body.AppendLine("\n| Primary fluent input | PowerShell input | Reason |\n| --- | --- | --- |");
             foreach (JsonNode? node in map["FluentGrammar"]!["Entry"]!["PrimaryInputs"]!.AsArray()) {
@@ -63,10 +66,58 @@ namespace SiteFrames.Pages {
                     body.AppendLine("| `" + Cell(integration["CSharpType"]!.GetValue<string>() + "." + member!.GetValue<string>()) + "` (" + Cell(integration["Package"]!.GetValue<string>()) + ") | `dotnet run`: " + Cell(integration["Reason"]!.GetValue<string>()) + " |");
                 }
             }
-            string markdown = body.ToString();
+            string markdown = body.ToString().Replace("\r\n", "\n", StringComparison.Ordinal);
             site.Write(Path.Combine(site.Repository, "Docs", "Api-Parity.md"), markdown);
             site.Write(Path.Combine(site.Website, "content", "docs", "api-parity.md"),
-                "---\ntitle: PowerShell and C# API parity\ndescription: \"The shared parameter and fluent vocabulary, including every C# host-only member decision.\"\nslug: api-parity\norder: 16\ngroup: hosts\ncard: three-fluent\n---\n\n" + markdown.Replace("# PowerShell and C# API parity\n\n", string.Empty, StringComparison.Ordinal));
+                "---\ntitle: PowerShell and C# API parity\ndescription: \"The shared parameter and fluent vocabulary, including every C# host-only member decision.\"\nslug: api-parity\norder: 16\ngroup: hosts\ncard: three-fluent\n---\n\n" + SiteTables(markdown.Replace("# PowerShell and C# API parity\n\n", string.Empty, StringComparison.Ordinal)));
+        }
+
+        // The site's Markdown renderer escapes '>' inside code in a table cell twice (c.Panel(widget =&gt; …) on the page), and a
+        // pipe table cannot scroll on its own. The site copy writes each table as HTML in the scrolling region the guides use.
+        private static string SiteTables(string markdown) {
+            var output = new StringBuilder();
+            string[] lines = markdown.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
+            for (int i = 0; i < lines.Length; i++) {
+                if (!lines[i].StartsWith('|') || i + 1 >= lines.Length || !lines[i + 1].StartsWith("| ---", StringComparison.Ordinal)) {
+                    output.Append(lines[i]);
+                    if (i < lines.Length - 1) output.Append('\n');
+                    continue;
+                }
+                output.Append("<div class=\"cm-migration-map\" tabindex=\"0\" role=\"region\" aria-label=\"Scrollable table\">\n<table>\n<thead><tr>");
+                foreach (string cell in Cells(lines[i])) output.Append("<th>").Append(Inline(cell)).Append("</th>");
+                output.Append("</tr></thead>\n<tbody>\n");
+                for (i += 2; i < lines.Length && lines[i].StartsWith('|'); i++) {
+                    output.Append("<tr>");
+                    foreach (string cell in Cells(lines[i])) output.Append("<td>").Append(Inline(cell)).Append("</td>");
+                    output.Append("</tr>\n");
+                }
+                // An HTML block runs to the next blank line, so a heading straight after the table needs one.
+                output.Append("</tbody>\n</table>\n</div>\n");
+                if (i < lines.Length && lines[i].Length > 0) output.Append('\n');
+                i--;
+            }
+            return output.ToString();
+        }
+
+        private static string[] Cells(string row) {
+            var cells = new System.Collections.Generic.List<string>();
+            var cell = new StringBuilder();
+            for (int i = 1; i < row.Length; i++) {
+                if (row[i] == '\\' && i + 1 < row.Length && row[i + 1] == '|') { cell.Append('|'); i++; }
+                else if (row[i] == '|') { cells.Add(cell.ToString().Trim()); cell.Clear(); }
+                else cell.Append(row[i]);
+            }
+            return cells.ToArray();
+        }
+
+        private static string Inline(string text) {
+            string[] parts = text.Split('`');
+            var html = new StringBuilder();
+            for (int i = 0; i < parts.Length; i++) {
+                string escaped = parts[i].Replace("&", "&amp;", StringComparison.Ordinal).Replace("<", "&lt;", StringComparison.Ordinal).Replace(">", "&gt;", StringComparison.Ordinal);
+                html.Append(i % 2 == 1 ? "<code>" + escaped + "</code>" : escaped);
+            }
+            return html.ToString();
         }
 
         private static string Cell(string value) => value.Replace("|", "\\|", StringComparison.Ordinal).Replace("\n", " ", StringComparison.Ordinal);

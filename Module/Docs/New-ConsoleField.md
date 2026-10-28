@@ -1,7 +1,7 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://github.com/EvotecIT/ConsoleMonster
+online version: https://consolemonster.dev/
 schema: 2.0.0
 ---
 # New-ConsoleField
@@ -13,7 +13,7 @@ A field has a name (its key in the result), a label, help shown while it has foc
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleField [-Key] <string> [[-Label] <string>] [-Type <ConsoleFieldType>] [-Page <string>] [-Help <string>] [-ParameterName <string>] [-Required] [-Default <Object>] [-Placeholder <string>] [-Choices <Object[]>] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-Badge <Object>] [-DisabledReason <Object>] [-Selected <Object>] [-CommandValue <Object>] [-Preview <scriptblock>] [-LoadChoices <scriptblock>] [-ArgumentList <Object[]>] [-DependsOn <string[]>] [-VisibleWhen <scriptblock>] [-Validator <scriptblock>] [-Minimum <Decimal>] [-Maximum <Decimal>] [-Step <Decimal>] [-Integer] [-Kind <PathKind>] [-MustExist] [-Extension <string[]>] [-OnText <string>] [-OffText <string>] [-Pattern <string>] [-PatternMessage <string>] [-MinLength <int>] [-MaxLength <int>] [-MaxLines <int>] [-Height <int>] [-CommandPlaceholder <string>] [-NoRemember] [<CommonParameters>]
+New-ConsoleField [-Key] <string> [[-Label] <string>] [-Type <ConsoleFieldType>] [-Multiple] [-AsSecret] [-Multiline] [-Page <string>] [-Help <string>] [-ParameterName <string>] [-Required] [-Default <Object>] [-Placeholder <string>] [-Choices <Object[]>] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-Badge <Object>] [-DisabledReason <Object>] [-Selected <Object>] [-CommandValue <Object>] [-Preview <scriptblock>] [-LoadChoices <scriptblock>] [-ArgumentList <Object[]>] [-DependsOn <string[]>] [-VisibleWhen <scriptblock>] [-Validator <scriptblock>] [-Minimum <Decimal>] [-Maximum <Decimal>] [-Step <Decimal>] [-Integer] [-Kind <PathKind>] [-MustExist] [-Extension <string[]>] [-OnText <string>] [-OffText <string>] [-Pattern <string>] [-PatternMessage <string>] [-MinLength <int>] [-MaxLength <int>] [-MaxLines <int>] [-Height <int>] [-CommandPlaceholder <string>] [-NoRemember] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -26,7 +26,7 @@ A field has a name (its key in the result), a label, help shown while it has foc
 ### EXAMPLE 1
 ```powershell
 New-ConsoleField Site 'Site' -Type Select -Choices 'Warsaw', 'Berlin' -ParameterName Site
-New-ConsoleField Server 'Servers' -Type MultiSelect -DependsOn Site -LoadChoices { param($Values) Get-AppServer -Site $Values.Site } -Display Name -ParameterName Server
+New-ConsoleField Server 'Servers' -Type Select -Multiple -DependsOn Site -LoadChoices { param($Values) Get-AppServer -Site $Values.Site } -Display Name -ParameterName Server
 ```
 
 Dependent fields: picking a site loads its servers
@@ -41,7 +41,7 @@ A conditional field
 
 ### EXAMPLE 3
 ```powershell
-New-ConsoleField Servers 'Servers' -Type MultiSelect -DependsOn Domain -ParameterName ComputerName -LoadChoices {
+New-ConsoleField Servers 'Servers' -Type Select -Multiple -DependsOn Domain -ParameterName ComputerName -LoadChoices {
     param($Values)
     Get-AppServer -Domain $Values.Domain | ForEach-Object {
         [pscustomobject] @{ Name = $_.Name; Site = $_.Site; Role = $_.Role; Offline = $_.OfflineReason; Online = -not $_.OfflineReason }
@@ -53,7 +53,7 @@ Loaded servers grouped by site, with their role as a badge, offline ones disable
 
 ### EXAMPLE 4
 ```powershell
-New-ConsoleField Checks 'Checks' -Type MultiSelect -Choices $checks -Display Name -CommandValue Id -GroupBy Category -Badge { "~$($_.Seconds) s" } -ParameterName Check
+New-ConsoleField Checks 'Checks' -Type Select -Multiple -Choices $checks -Display Name -CommandValue Id -GroupBy Category -Badge { "~$($_.Seconds) s" } -ParameterName Check
 ```
 
 Checks offered by name, returned and shown in the command as their ids, with a typical time as a badge
@@ -65,6 +65,22 @@ More arguments for the -LoadChoices script.
 
 ```yaml
 Type: Object[]
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -AsSecret
+For Text: a masked secret, returned as SecureString unless Read-ConsoleForm -AsPlainText.
+
+```yaml
+Type: SwitchParameter
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -93,7 +109,7 @@ Accept wildcard characters: False
 ```
 
 ### -Choices
-The choices of a Select or MultiSelect field (any objects).
+The choices of a Select field (any objects).
 
 ```yaml
 Type: Object[]
@@ -253,7 +269,7 @@ Accept wildcard characters: False
 ```
 
 ### -Height
-The visible rows of the text area dialog (TextArea, default 8).
+The visible rows of the text area dialog (Text -Multiline, default 8).
 
 ```yaml
 Type: Int32
@@ -365,7 +381,7 @@ Accept wildcard characters: False
 ```
 
 ### -Maximum
-The largest number, or the most choices of a MultiSelect field.
+The largest number, or the most choices of a Select -Multiple field.
 
 ```yaml
 Type: Decimal
@@ -381,7 +397,7 @@ Accept wildcard characters: False
 ```
 
 ### -MaxLength
-The most characters (TextArea).
+The most characters (Text).
 
 ```yaml
 Type: Int32
@@ -397,7 +413,7 @@ Accept wildcard characters: False
 ```
 
 ### -MaxLines
-The most lines (TextArea).
+The most lines (Text -Multiline).
 
 ```yaml
 Type: Int32
@@ -413,7 +429,7 @@ Accept wildcard characters: False
 ```
 
 ### -Minimum
-The smallest number, or the fewest choices of a MultiSelect field.
+The smallest number, or the fewest choices of a Select -Multiple field.
 
 ```yaml
 Type: Decimal
@@ -433,6 +449,38 @@ The fewest characters of a text or secret field.
 
 ```yaml
 Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Multiline
+For Text: several lines, edited in a text area dialog.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Multiple
+For Select: several choices instead of one.
+
+```yaml
+Type: SwitchParameter
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -653,13 +701,13 @@ Accept wildcard characters: False
 ```
 
 ### -Type
-The kind: Text (default), Secret, Number, Toggle, Select, MultiSelect or Path.
+The kind: Text (default), Number, Toggle, Select or Path. -Multiple, -AsSecret and -Multiline choose the variant, as on Read-ConsoleSelect and Read-ConsoleText.
 
 ```yaml
 Type: ConsoleFieldType
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: Text, Secret, Number, Toggle, Select, MultiSelect, Path, TextArea
+Possible values: Text, Number, Toggle, Select, Path
 
 Required: False
 Position: named

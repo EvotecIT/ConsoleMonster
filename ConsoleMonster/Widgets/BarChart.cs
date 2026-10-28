@@ -42,8 +42,9 @@ namespace ConsoleMonster.Widgets {
         public BarShape Shape { get; set; } = BarShape.Block;
 
         /// <summary>
-        /// Layout of the value column on the right (default right-aligned). Its width never shrinks during a session, so
-        /// the bars keep their scale when a value grows from 9 to 10.
+        /// Layout of the value column on the right (default right-aligned). Its numeric width never shrinks during a
+        /// session, so the bars keep their scale when a value grows from 9 to 10. Missing explanations use only the
+        /// current frame's available space and do not reserve width after a measurement arrives.
         /// </summary>
         public ColumnFormat ValueColumn {
             get => _valueColumn.Format;
@@ -54,6 +55,46 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>A unit appended to values (for example <c>ms</c>).</summary>
         public string? Unit { get; set; }
+
+        /// <summary>A shared plain text label below the bars, for example elapsed time since an observation.</summary>
+        public string? AxisLabel { get; set; }
+
+        /// <summary>The plain text shown for non-finite values; null retains the tier-appropriate dash.</summary>
+        public string? MissingText { get; set; }
+
+        /// <summary>Let a missing measurement's explanation span the bar and value columns.</summary>
+        public bool SpanMissingValues { get; set; }
+
+        /// <summary>Draw the unused portion of each bar as a muted track.</summary>
+        public bool ShowTrack { get; set; }
+
+        /// <summary>Optional maximum bar width in cells; null uses all available room.</summary>
+        public int? BarWidth { get; set; }
+
+        /// <summary>Optional presenter for measured values, such as compact durations.</summary>
+        public Presenters.ICellPresenter? ValuePresenter { get; set; }
+
+        /// <summary>Optional label-column heading; any heading enables a segmented table header.</summary>
+        public string? LabelHeader { get; set; }
+        /// <summary>Optional bar-column heading.</summary>
+        public string? BarHeader { get; set; }
+        /// <summary>Optional value-column heading.</summary>
+        public string? ValueHeader { get; set; }
+        private bool HasHeaders => LabelHeader != null || BarHeader != null || ValueHeader != null;
+
+        /// <summary>Adds an item without a measurement, preserving its status and explanatory text.</summary>
+        /// <param name="label">The plain text label.</param>
+        /// <param name="text">The missing-measurement explanation, or null for the chart default.</param>
+        /// <param name="status">An optional status.</param>
+        /// <param name="key">Stable identity, or null to use the label.</param>
+        /// <returns>This chart.</returns>
+        public BarChart AddMissing(string label, string? text = null, StatusKind? status = null, string? key = null) {
+            Add(label, double.NaN, null, key);
+            ChartItem item = Find(key ?? label)!;
+            item.MissingText = text;
+            item.Status = status;
+            return this;
+        }
 
         /// <summary>
         /// The value from which a bar is a warning (warning colour), or null. With <see cref="Critical"/> below it, lower
@@ -130,8 +171,20 @@ namespace ConsoleMonster.Widgets {
 
         /// <inheritdoc />
         public override Size Measure(Constraints constraints, RenderContext context) {
-            int rows = _items.Count;
-            return new Size(constraints.MaxWidth, constraints.IsHeightUnbounded ? rows : Math.Min(rows, constraints.MaxHeight));
+            if (_items.Count == 0) return new Size(0, 0);
+            int rows = _items.Count + (!string.IsNullOrEmpty(AxisLabel) ? 1 : 0) + (HasHeaders ? 2 : 0);
+            return new Size(ChartWidth(constraints.MaxWidth, context), constraints.IsHeightUnbounded ? rows : Math.Min(rows, constraints.MaxHeight));
+        }
+
+        private int ChartWidth(int available, RenderContext context) {
+            if (!BarWidth.HasValue) return available;
+            int labels = 0, values = 0;
+            foreach (ChartItem item in _items) {
+                labels = Math.Max(labels, DisplayWidth.Measure(item.Label));
+                if (NumberFormat.IsFinite(item.Value)) values = Math.Max(values, DisplayWidth.Measure(ValueText(item, context)));
+            }
+            int gap = HasHeaders ? 2 : 1;
+            return Math.Min(available, labels + gap + Math.Max(1, BarWidth.Value) + (ShowValues ? gap + values : 0));
         }
 
         /// <inheritdoc />
@@ -139,33 +192,55 @@ namespace ConsoleMonster.Widgets {
             if (_items.Count == 0) {
                 return;
             }
+            region = region.Sub(0, 0, ChartWidth(region.Width, context), region.Height);
             int labelWidth = 0;
             int valueWidth = 0;
+            int numericWidth = 0;
             bool fixedMax = Maximum.HasValue && NumberFormat.IsFinite(Maximum.Value);
             double max = fixedMax ? Math.Max(0, Maximum!.Value) : 0;
             double min = 0;
             foreach (ChartItem item in _items) {
                 labelWidth = Math.Max(labelWidth, DisplayWidth.Measure(item.Label));
-                valueWidth = Math.Max(valueWidth, DisplayWidth.Measure(ValueText(item, context)));
+                if (!SpanMissingValues || NumberFormat.IsFinite(item.Value)) valueWidth = Math.Max(valueWidth, DisplayWidth.Measure(ValueText(item, context)));
+                if (NumberFormat.IsFinite(item.Value)) numericWidth = Math.Max(numericWidth, DisplayWidth.Measure(ValueText(item, context)));
                 if (!fixedMax && NumberFormat.IsFinite(item.Value)) {
                     max = Math.Max(max, item.Value);
                 }
                 if (Signed && NumberFormat.IsFinite(item.Value)) { min = Math.Min(min, item.Value); }
             }
+            int barReserve = 4;
             if (ShowValues) {
-                valueWidth = _valueColumn.Resolve(valueWidth, DisplayWidth.Measure(Unit ?? string.Empty), fixedMax ? DisplayWidth.Measure(FormatValue(Maximum!.Value)) : 0);
+                // Missing explanations are transient text, not part of the remembered numeric column width.
+                valueWidth = Math.Max(valueWidth, _valueColumn.Resolve(numericWidth, DisplayWidth.Measure(Unit ?? string.Empty), fixedMax ? DisplayWidth.Measure(FormatValue(Maximum!.Value, context)) : 0));
+                int labelReserve = Math.Min(labelWidth, Math.Max(1, region.Width / 3));
+                int valueReserve = Math.Min(valueWidth, DisplayWidth.Measure(context.Ellipsis) + 2);
+                barReserve = Math.Min(barReserve, Math.Max(0, region.Width - labelReserve - valueReserve - 2));
+                valueWidth = Math.Min(valueWidth, Math.Max(0, region.Width - labelReserve - barReserve - 2));
             }
             // Leave a small useful bar, rather than reserving two thirds of every row for empty space.
             int suffix = ShowValues ? valueWidth + 2 : 1;
-            labelWidth = Math.Min(labelWidth, Math.Max(0, region.Width - suffix - 4));
-            int barX = labelWidth + 1;
-            int barWidth = region.Width - barX - (ShowValues ? valueWidth + 1 : 0);
+            labelWidth = Math.Min(labelWidth, Math.Max(0, region.Width - suffix - barReserve));
+            int gap = HasHeaders ? 2 : 1;
+            int barX = labelWidth + gap;
+            int barWidth = Math.Max(0, region.Width - barX - (ShowValues ? valueWidth + gap : 0));
             Style muted = context.Style(ThemeToken.Muted);
-            for (int i = 0; i < _items.Count && i < region.Height; i++) {
+            int rowOffset = HasHeaders ? 2 : 0;
+            if (HasHeaders) {
+                region.Write(0, 0, TextWrapper.Truncate(LabelHeader ?? string.Empty, labelWidth, context.Ellipsis), muted);
+                region.Write(barX, 0, TextWrapper.Truncate(BarHeader ?? string.Empty, barWidth, context.Ellipsis), muted);
+                region.Write(region.Width - valueWidth, 0, TextWrapper.Truncate(ValueHeader ?? string.Empty, valueWidth, context.Ellipsis), muted);
+                foreach (var segment in new[] { (0, labelWidth), (barX, barWidth), (region.Width - valueWidth, valueWidth) }) region.HorizontalLine(segment.Item1, 1, segment.Item2, context.Glyphs.Get(Glyph.RuleLine), context.Style(ThemeToken.Subtle));
+            }
+            for (int i = 0; i < _items.Count && i + rowOffset < region.Height; i++) {
+                int y = i + rowOffset;
                 ChartItem item = _items[i];
-                region.Write(0, i, TextWrapper.Truncate(RichLines.Line(item.LabelText, item.Label, context.Style(ThemeToken.Text), context), labelWidth, context.Ellipsis));
+                region.Write(0, y, TextWrapper.Truncate(RichLines.Line(item.LabelText, item.Label, context.Style(ThemeToken.Text), context), labelWidth, context.Ellipsis));
+                if (SpanMissingValues && !NumberFormat.IsFinite(item.Value)) {
+                    region.Write(barX, y, TextWrapper.Truncate(ValueText(item, context), Math.Max(0, region.Width - barX), context.Ellipsis), item.Status.HasValue ? context.Style(item.Status.Value) : muted);
+                    continue;
+                }
                 double fraction = max <= 0 || !NumberFormat.IsFinite(item.Value) ? 0 : item.Value / max;
-                StatusKind? reached = item.Role.HasValue ? null : Threshold(item.Value);
+                StatusKind? reached = item.Status ?? (item.Role.HasValue ? null : Threshold(item.Value));
                 ThemeToken role = item.Role ?? (reached.HasValue ? reached.Value.ToToken() : Role);
                 if (min < 0 && barWidth > 1) {
                     double scale = Math.Max(Math.Abs(min), Math.Abs(max));
@@ -174,28 +249,31 @@ namespace ConsoleMonster.Widgets {
                     int length = NumberFormat.IsFinite(item.Value) ? Math.Max(0, (int)Math.Round(Math.Min(1, Math.Abs(item.Value / scale) / span) * (barWidth - 1))) : 0;
                     length = Math.Min(length, item.Value < 0 ? zero : barWidth - zero - 1);
                     int start = item.Value < 0 ? barX + zero - length : barX + zero + 1;
-                    BarDrawer.Draw(region, start, i, length, 1, context.Style(role), context, false, Shape);
-                    region.Write(barX + zero, i, "|", context.Style(ThemeToken.Border));
+                    BarDrawer.Draw(region, start, y, length, 1, context.Style(role), context, false, Shape);
+                    region.Write(barX + zero, y, "|", context.Style(ThemeToken.Border));
                 } else {
-                    BarDrawer.Draw(region, barX, i, barWidth, fraction, context.Style(role), context, false, Shape);
+                    if (ShowTrack) CellRendering.DrawDataBar(region, barX, y, barWidth, fraction, context.Style(role), context);
+                    else BarDrawer.Draw(region, barX, y, barWidth, fraction, context.Style(role), context, false, Shape);
                 }
                 if (ShowValues) {
-                    StatColumn.Write(region, region.Width - valueWidth, i, valueWidth, ValueText(item, context), reached.HasValue ? context.Style(reached.Value) : muted, ValueColumn.Alignment, context.Ellipsis);
+                    StatColumn.Write(region, region.Width - valueWidth, y, valueWidth, ValueText(item, context), reached.HasValue ? context.Style(reached.Value) : muted, ValueColumn.Alignment, context.Ellipsis);
                 }
             }
+            if (!string.IsNullOrEmpty(AxisLabel)) region.Write(0, _items.Count + rowOffset, TextWrapper.Truncate(AxisLabel!, region.Width, context.Ellipsis), muted);
         }
 
         private string FormatValue(double value) => NumberFormat.Compact(value) + (Unit ?? string.Empty);
 
         // The value with a status symbol in front when it crossed a threshold and colour cannot show it (never colour alone).
         private string ValueText(ChartItem item, RenderContext context) {
-            string text = FormatValue(item.Value, context);
-            StatusKind? reached = item.Role.HasValue ? null : Threshold(item.Value);
-            return reached.HasValue && !context.HasColor ? context.Glyphs.StatusSymbol(reached.Value) + " " + text : text;
+            string text = NumberFormat.IsFinite(item.Value) ? FormatValue(item.Value, context) : item.MissingText ?? MissingText ?? NumberFormat.Missing(context.Glyphs.Tier);
+            StatusKind? reached = item.Status ?? (item.Role.HasValue ? null : Threshold(item.Value));
+            return reached.HasValue && (item.Status.HasValue || !context.HasColor) ? context.Glyphs.StatusSymbol(reached.Value) + " " + text : text;
         }
 
         // NaN and infinite values draw no bar and show a dash instead of "InfinityM".
-        private string FormatValue(double value, RenderContext context) => NumberFormat.IsFinite(value) ? FormatValue(value) : NumberFormat.Missing(context.Glyphs.Tier);
+        private string FormatValue(double value, RenderContext context) => NumberFormat.IsFinite(value)
+            ? ValuePresenter?.Present(value, new Presenters.PresentationOptions().CreateContext(context)).Text ?? FormatValue(value) : NumberFormat.Missing(context.Glyphs.Tier);
 
         private ChartItem? Find(string label) {
             foreach (ChartItem item in _items) {

@@ -2,9 +2,15 @@
 
 # Record a run, replay it and save it as a page. The dashboard is defined once: the run and the replay
 # both draw into its widgets by name.
-$dashboard = New-ConsoleDashboard -Title '[bold]Deploy[/]' -Subtitle 'web farm · 4 servers' -Content {
+$dashboardParameters = @{
+    Title = '[bold]Deploy[/]'
+    Subtitle = 'web farm · 4 servers'
+}
+$dashboard = New-ConsoleDashboard @dashboardParameters -Content {
     New-ConsolePhases -Phase 'Stage', 'Swap', 'Verify'
-    New-ConsolePanel -Title 'Servers' -Content { New-ConsoleStatusList -WidgetId servers -Item 'web01', 'web02', 'web03', 'web04' }
+    New-ConsolePanel -Title 'Servers' -Content {
+        New-ConsoleStatusList -WidgetId servers -Item 'web01', 'web02', 'web03', 'web04'
+    }
     New-ConsolePanel -Title 'Log' -Fill -Content { New-ConsoleLogRegion }
 }
 $recording = Join-Path ([IO.Path]::GetTempPath()) 'deploy.jsonl'
@@ -15,7 +21,7 @@ Invoke-ConsoleDashboard $dashboard -RecordPath $recording {
         Update-Console -Key $phase -Status Running -WidgetId 'phases'
         foreach ($server in 'web01', 'web02', 'web03', 'web04') {
             Update-Console -WidgetId servers -Key $server -Status Running -Detail $phase
-            Start-Sleep -Milliseconds 250
+            Wait-ConsoleDashboard -Seconds 0.25
             Update-Console -WidgetId servers -Key $server -Status Pass -Detail $phase
         }
         Write-ConsoleLogEntry "$phase done on 4 servers"
@@ -27,4 +33,10 @@ Invoke-ConsoleDashboard $dashboard -RecordPath $recording {
 Show-ConsoleReplay -PlaybackMode Automatic $dashboard $recording -Speed 2
 
 # 3. Save it as a page with a player.
-Export-ConsoleRecording $dashboard $recording -Format Html -Destination (Join-Path ([IO.Path]::GetTempPath()) 'deploy.html') -Width 100 -Height 16
+$recordingParameters = @{
+    Format = 'Html'
+    Destination = (Join-Path ([IO.Path]::GetTempPath()) 'deploy.html')
+    Width = 100
+    Height = 16
+}
+$null = Export-ConsoleRecording $dashboard $recording @recordingParameters
