@@ -38,7 +38,7 @@ public sealed class FrameSection {
     /// <summary>The literal title.</summary>
     public string Title { get; }
     /// <summary>The content factory.</summary>
-    public Func<FrameSectionContext, IWidget> Content { get; }
+    internal Func<FrameSectionContext, IWidget> Content { get; }
     /// <summary>Literal Muted facts after the title.</summary>
     public IList<string> Facts { get; } = new List<string>();
     /// <summary>The section's states at its right edge, worst first.</summary>

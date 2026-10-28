@@ -61,7 +61,7 @@ public sealed class GroupedRows<T> : IWidget {
     /// <summary>The columns.</summary>
     public IList<GroupedColumn<T>> Columns { get; } = new List<GroupedColumn<T>>();
     /// <summary>The frame's scale.</summary>
-    public FrameScale Scale { get; }
+    internal FrameScale Scale { get; }
     /// <summary>Builds a group's heading; null shows the key only.</summary>
     public Func<string, IReadOnlyList<T>, GroupHeading>? Heading { get; set; }
     /// <summary>Whether a row is healthy, for collapsing large sections; null never collapses.</summary>

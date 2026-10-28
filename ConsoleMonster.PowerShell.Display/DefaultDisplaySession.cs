@@ -153,8 +153,10 @@ public sealed partial class DefaultDisplaySession : IDisposable {
             }
             // A streamed scope keeps its opening pair across native messages and its final footer.
             profile = _stream?.Profile ?? CurrentHostColors(profile);
-            DefaultDisplayContext context = new DefaultDisplayContext(profile, operation.Scope, mode, ViewLength());
-            using IDisposable length = FrameScale.UseLength(context.Length);
+            DefaultDisplayContext context = new DefaultDisplayContext(profile, operation.Scope, mode);
+            // Frames read the session's length from this scope; without a preference they use the environment default.
+            ConsoleViewLength? preference = ViewLength();
+            using IDisposable? length = preference.HasValue ? FrameScale.UseLength(preference.Value) : null;
             if (operation.SingleBuilder != null) {
                 encoded = DefaultDisplayRenderer.Prepare(operation.SingleBuilder(operation.Objects[0].BaseObject, context), profile, view.Budget.Bytes);
             } else if (operation.Collected) {

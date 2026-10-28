@@ -26,7 +26,7 @@ public sealed class FrameLegend {
     /// <param name="symbol">The literal symbol.</param><param name="word">The literal word.</param>
     public void Add(string symbol, string word) => _entries.Add("[subtle]" + Markup.Escape(symbol ?? string.Empty) + "[/] [muted]" + Markup.Escape(word ?? string.Empty) + "[/]");
     /// <summary>Whether the legend has entries.</summary>
-    public bool IsEmpty => _entries.Count == 0 && _states.Count == 0;
+    internal bool IsEmpty => _entries.Count == 0 && _states.Count == 0;
 
     internal Legend Build(RenderContext context) {
         List<string> entries = new List<string>();

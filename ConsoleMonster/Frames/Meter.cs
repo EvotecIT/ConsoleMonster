@@ -55,7 +55,7 @@ public sealed class Meter {
         new Meter(label) { Kind = MeterKind.Value, Note = reason, State = HealthState.Unknown, ValueText = null };
 
     /// <summary>The literal label.</summary>
-    public string Label { get; }
+    internal string Label { get; }
     private MeterKind Kind { get; set; }
     private long Healthy { get; set; }
     private long Warning { get; set; }

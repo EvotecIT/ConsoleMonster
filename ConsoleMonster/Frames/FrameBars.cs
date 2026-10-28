@@ -14,7 +14,7 @@ public static class FrameBars {
     /// <summary>A line data bar.</summary>
     /// <param name="fraction">Filled share, 0 to 1.</param><param name="width">Cells.</param>
     /// <param name="state">The fill's state; null draws a neutral fill.</param><param name="context">The destination.</param><returns>Markup exactly <paramref name="width"/> cells wide.</returns>
-    public static string Line(double fraction, int width, HealthState? state, RenderContext context) {
+    internal static string Line(double fraction, int width, HealthState? state, RenderContext context) {
         if (context == null) throw new ArgumentNullException(nameof(context));
         if (width <= 0) return string.Empty;
         fraction = double.IsNaN(fraction) ? 0 : Math.Max(0, Math.Min(1, fraction));

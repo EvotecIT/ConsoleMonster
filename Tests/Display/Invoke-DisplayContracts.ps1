@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)] [string] $AssemblyDirectory,
     [Parameter(Mandatory = $true)] [string] $ResultsPath
@@ -361,18 +361,24 @@ $absent=$null -eq [ConsoleMonster.PowerShell.Display.DefaultDisplay]::Resolve([D
         Assert-Throws { [ConsoleMonster.PowerShell.Display.DefaultDisplayBudget]::new(50001) }
         Assert-Throws { [ConsoleMonster.PowerShell.Display.DefaultDisplayBudget]::new(1000, 16MB + 1) }
     }
-    Test-DisplayContract 'Context_HeightLengthAndScale_FollowProfileAndPreference' {
+    Test-DisplayContract 'Frame_ViewLength_FollowsEnvironmentDefault' {
         $wide = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed(220, 60)
-        $context = [ConsoleMonster.PowerShell.Display.DefaultDisplayContext]::new($wide, 'scope', [ConsoleMonster.PowerShell.Display.DefaultDisplayMode]::Auto, [ConsoleMonster.Views.ConsoleViewLength]::Summary)
-        Assert-Display ($context.Height -eq 60 -and $context.Length -eq 'Summary' -and $context.Scale.MeterTiles -eq 7 -and $context.Scale.DetailCap -eq 0) 'The builder context lost the height, length or scale.'
+        $content = [Func[ConsoleMonster.Frames.FrameSectionContext, ConsoleMonster.Layout.IWidget]] { param($section) [ConsoleMonster.Widgets.TextBlock]::Plain('detail rows') }
+        $frame = [ConsoleMonster.Frames.DashboardFrame]::new('Contract frame')
+        $detail = [ConsoleMonster.Frames.FrameSection]::new('Every row', $content)
+        $detail.Placement = [ConsoleMonster.Frames.FramePlacement]::Detail
+        $frame.Sections.Add($detail)
         $beforeLength = $env:CONSOLEMONSTER_VIEW_LENGTH
         try {
+            $env:CONSOLEMONSTER_VIEW_LENGTH = 'Summary'
+            $summary = [ConsoleMonster.PowerShell.Display.DefaultDisplayRenderer]::Prepare($frame, $wide, 1048576)
+            Assert-Display ($summary -match 'Contract frame' -and $summary -notmatch 'detail rows') 'The Summary length still printed detail.'
             $env:CONSOLEMONSTER_VIEW_LENGTH = 'Full'
-            $fallback = [ConsoleMonster.PowerShell.Display.DefaultDisplayContext]::new($wide, 'scope', [ConsoleMonster.PowerShell.Display.DefaultDisplayMode]::Auto)
-            Assert-Display ($fallback.Length -eq 'Full' -and $null -eq $fallback.Scale.DetailCap) 'The environment length fallback was ignored.'
+            $full = [ConsoleMonster.PowerShell.Display.DefaultDisplayRenderer]::Prepare($frame, $wide, 1048576)
+            Assert-Display ($full -match 'detail rows') 'The Full length lost detail.'
             $env:CONSOLEMONSTER_VIEW_LENGTH = 'Endless'
-            $invalid = [ConsoleMonster.PowerShell.Display.DefaultDisplayContext]::new($wide, 'scope', [ConsoleMonster.PowerShell.Display.DefaultDisplayMode]::Auto)
-            Assert-Display ($invalid.Length -eq 'Standard') 'An invalid length did not fall back to Standard.'
+            $invalid = [ConsoleMonster.PowerShell.Display.DefaultDisplayRenderer]::Prepare($frame, $wide, 1048576)
+            Assert-Display ($invalid -match 'detail rows') 'An invalid length did not fall back to Standard.'
         } finally { $env:CONSOLEMONSTER_VIEW_LENGTH = $beforeLength }
     }
     Test-DisplayContract 'Renderer_PlainModeAndOutputBudget_NoSgrAndBoundedResult' {

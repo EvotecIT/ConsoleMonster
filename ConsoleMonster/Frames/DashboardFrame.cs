@@ -34,11 +34,11 @@ public sealed class DashboardFrame : IWidget {
     /// <summary>An explicit length; null uses the session preference or Standard.</summary>
     public ConsoleViewLength? Length { get; set; }
     /// <summary>An explicit size and length policy, for previews and tests; null reads the destination.</summary>
-    public FrameScale? Scale { get; set; }
+    internal FrameScale? Scale { get; set; }
     /// <summary>Below this terminal width the frame prints <see cref="Compact"/> and the meters as one counts line (default 80).</summary>
-    public int CompactBelow { get; set; } = 80;
+    internal int CompactBelow { get; set; } = 80;
     /// <summary>The reference time for the observation time on the title line; null uses the clock. For previews and tests.</summary>
-    public DateTimeOffset? Now { get; set; }
+    internal DateTimeOffset? Now { get; set; }
     /// <summary>
     /// The type's compact view for narrow terminals; null stacks the frame's own sections. The compact view replaces the
     /// title line, attention list and sections, so it must carry its own title line and list every problem; the frame adds
