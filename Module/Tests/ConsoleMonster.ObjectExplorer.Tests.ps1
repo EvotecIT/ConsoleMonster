@@ -41,6 +41,16 @@
         [object]::ReferenceEquals((& ([scriptblock]::Create($path))), $services[0]) | Should -BeTrue
     }
 
+    It 'opens one rich explorer for pipeline items and returns their indexed path' {
+        $x = @([pscustomobject]@{ Name = 'web' }, [pscustomobject]@{ Name = 'metrics' })
+        ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('F10')
+        $path = $x | Show-ConsoleObject -Mode Rich -PassThru Path
+        $path | Should -Be '$x[0]'
+        [object]::ReferenceEquals((& ([scriptblock]::Create($path))), $x[0]) | Should -BeTrue
+        $script:Capture.LastFrame.ToPlainText() | Should -Match '\[0\]\s+web'
+        $script:Capture.LastFrame.ToPlainText() | Should -Match '\[1\]\s+metrics'
+    }
+
     It 'binds the bare PassThru switch followed by Path' {
         $value = [pscustomobject]@{ Name = 'web-01'; Owner = [pscustomobject]@{ Name = 'Ada' } }
         $selected = $value | Show-ConsoleObject -Mode Rich -RootPath '$config' -PassThru Path
