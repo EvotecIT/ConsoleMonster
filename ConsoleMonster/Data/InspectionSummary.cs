@@ -25,7 +25,10 @@ namespace ConsoleMonster.Data {
 
         private static InspectNode Normalize(InspectNode node, bool hideEmpty, ISet<string> repeated, bool root) {
             if (node is InspectError error) {
-                return new InspectScalar(error.Name, "String", error.Path, "⊘ unavailable");
+                bool denied = error.Message.IndexOf("access is denied", StringComparison.OrdinalIgnoreCase) >= 0
+                    || error.Message.IndexOf("access denied", StringComparison.OrdinalIgnoreCase) >= 0
+                    || error.Message.IndexOf("unauthorized", StringComparison.OrdinalIgnoreCase) >= 0;
+                return new InspectScalar(error.Name, "String", error.Path, denied ? "⊘ access denied" : "⊘ unavailable");
             }
             if (node is InspectCollection collection) {
                 return new InspectCollection(collection.Name, collection.TypeName, collection.Path,

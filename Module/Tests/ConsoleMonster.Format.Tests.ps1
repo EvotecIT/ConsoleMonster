@@ -39,12 +39,31 @@ $item | Format-ConsoleTree -Depth 1 -AsString
         $text | Should -Not -Match 'PSCustomObject \(depth limit\)'
     }
 
-    It 'uses a meaningful ToString as an identity when no name is available' {
+    It 'preserves allowed depth-limit identities without reading excluded identity getters' {
         $text = Invoke-FormatChild -Script @'
-Add-Type 'public sealed class LabelOnly { public override string ToString() { return "friendly label"; } }'
-[LabelOnly]::new() | Format-ConsoleTree -Depth 1 -AsString
+$script:reads = 0
+$child = [pscustomobject]@{ Secret = 'hidden' }
+$child | Add-Member ScriptProperty Name { $script:reads++; 'alpha' }
+$root = [pscustomobject]@{ Child = $child }
+$root | Format-ConsoleTree -Depth 0 -Exclude Secret -AsString
+$script:reads = 0
+$root | Format-ConsoleTree -Depth 0 -Exclude Name -AsString
+"READS=$script:reads"
 '@
-        $text | Should -Match 'friendly label'
+        $text | Should -Match 'Child\s+alpha'
+        $text | Should -Match 'READS=0'
+    }
+
+    It 'uses the same collection limits through both tree entry points' {
+        $text = Invoke-FormatChild -Script @'
+$item = [pscustomobject]@{ Name = 'root'; Children = @(1..60) }
+$old = $item | Format-ConsoleTree -Depth 2 -AsString
+$current = $item | Show-Console -View Tree -Depth 2 -AsString
+"MATCH=$($old -ceq $current)"
+"HAS60=$($old -match '60')"
+'@
+        $text | Should -Match 'MATCH=True'
+        $text | Should -Match 'HAS60=True'
     }
 
     It 'summarizes empty fields and repeated getter errors across tree roots' {
@@ -70,6 +89,16 @@ $item | Format-ConsoleTree -Property * -Depth 1 -AsString
         $text | Should -Match 'Empty'
         $text | Should -Match 'unavailable'
         $text | Should -Not -Match 'sensitive error details'
+    }
+
+    It 'identifies access-denied getters without displaying their exception details' {
+        $text = Invoke-FormatChild -Script @'
+$item = [pscustomobject]@{ Name = 'item' }
+$item | Add-Member ScriptProperty Secret { throw 'Access is denied. Private details.' }
+$item | Format-ConsoleTree -Property * -Depth 1 -AsString
+'@
+        $text | Should -Match 'access denied'
+        $text | Should -Not -Match 'Private details'
     }
 
     It 'uses default display properties for a tree and allows all properties explicitly' {

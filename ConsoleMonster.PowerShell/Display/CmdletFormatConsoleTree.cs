@@ -14,9 +14,9 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Maximum depth below the root.</para></summary>
         [Parameter, ValidateRange(0, int.MaxValue)] public override int Depth { get; set; } = 3;
         /// <summary><para type="description">Maximum collection items.</para></summary>
-        [Parameter, ValidateRange(1, int.MaxValue)] public override int MaxItems { get; set; } = 25;
+        [Parameter, ValidateRange(1, int.MaxValue)] public override int MaxItems { get; set; } = 100;
         /// <summary><para type="description">Maximum inspection nodes.</para></summary>
-        [Parameter, ValidateRange(1, int.MaxValue)] public override int MaxNodes { get; set; } = 5000;
+        [Parameter, ValidateRange(1, int.MaxValue)] public override int MaxNodes { get; set; } = 1000;
         /// <summary><para type="description">Member names to include.</para></summary>
         [Parameter] public override string[]? Include { get; set; }
         /// <summary><para type="description">Member names or patterns; use * to show all members.</para></summary>

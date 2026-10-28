@@ -39,7 +39,7 @@ namespace ConsoleMonster.Data {
             string? name = null
         ) {
             InspectorOptions actual = options ?? new InspectorOptions();
-            return InspectWithBudget(value, actual, new Values.ShapeBudget(actual.TimeBudget, int.MaxValue), name);
+            return InspectWithBudget(value, actual, new Values.ShapeBudget(actual.TimeBudget, Math.Max(1, actual.MaxNodes)), name);
         }
 
         // Shares the normal traversal and deadline owner while allowing an instance clock in focused contracts.
@@ -182,8 +182,8 @@ namespace ConsoleMonster.Data {
             if (IsScalarValue(value))
                 return new InspectScalar(name, FriendlyTypeName(value.GetType()), path, value);
             if (depth > Math.Max(0, options.MaxDepth)) {
-                if (name == null && options.DepthLimitLabel != null && value != null && !TryGetEnumerable(value, out _)) {
-                    string? identityLabel = options.DepthLimitLabel(value);
+                if (options.DepthLimitLabel != null && value != null && !TryGetEnumerable(value, out _)) {
+                    string? identityLabel = options.DepthLimitLabel(value, walk.Budget);
                     if (!string.IsNullOrWhiteSpace(identityLabel))
                         return new InspectScalar(name, "String", path, identityLabel);
                 }
@@ -505,6 +505,8 @@ namespace ConsoleMonster.Data {
             public Values.ShapeOptions Shape { get; }
 
             public bool OutOfTime => _budget.Exhausted;
+
+            public Values.ShapeBudget Budget => _budget;
 
             public Dictionary<object, string> Ancestors { get; } = new Dictionary<object, string>(ReferenceComparer.Instance);
 

@@ -84,22 +84,7 @@ namespace ConsoleMonster.PowerShell.Binding {
                 }
             }
             string fallback = ValueShaper.Title(item, options, budget);
-            if (item is PSObject wrapped) {
-                object? raw = wrapped.BaseObject;
-                Type? type = raw?.GetType();
-                if (type != null && (string.Equals(fallback, type.FullName, StringComparison.Ordinal) ||
-                    string.Equals(fallback, type.Name, StringComparison.Ordinal) || wrapped.TypeNames.Contains(fallback))) {
-                    try {
-                        string? text = raw!.ToString();
-                        if (!string.IsNullOrWhiteSpace(text) && !string.Equals(text, type.FullName, StringComparison.Ordinal) &&
-                            !string.Equals(text, type.Name, StringComparison.Ordinal)) { fallback = text; }
-                    } catch (Exception ex) when (!(ex is PipelineStoppedException) && !(ex is OperationCanceledException)) {
-                        // A failing ToString must not prevent a view from rendering.
-                    }
-                }
-                return WithDisplayName(wrapped, fallback);
-            }
-            return fallback;
+            return item is PSObject wrapped ? WithDisplayName(wrapped, fallback) : fallback;
         }
 
         private static string WithDisplayName(PSObject item, string title) {
@@ -116,6 +101,27 @@ namespace ConsoleMonster.PowerShell.Binding {
                 // Identity remains usable when an optional display-name getter fails.
             }
             return title;
+        }
+
+        // At the depth limit only read identity fields that the caller's member filters permit.
+        internal static string? DepthLabel(object value, string[]? include, string[]? exclude, ShapeBudget budget) {
+            PSObject item = PSObject.AsPSObject(value);
+            string? Read(string name) {
+                if (include != null && include.Length > 0 && !Array.Exists(include, pattern => new WildcardPattern(pattern, WildcardOptions.IgnoreCase).IsMatch(name))) { return null; }
+                if (exclude != null && Array.Exists(exclude, pattern => new WildcardPattern(pattern, WildcardOptions.IgnoreCase).IsMatch(name))) { return null; }
+                PSPropertyInfo? property = item.Properties[name];
+                if (property == null || !property.IsGettable || !budget.TryTake()) { return null; }
+                try {
+                    object? raw = PSText.Unwrap(budget.Guard(name, () => property.Value));
+                    return raw != null && ValueShaper.IsScalar(raw) && !(raw is bool) ? ValueShaper.ScalarText(raw) : null;
+                } catch (GetValueException) { return null; }
+            }
+            string? name = Read("Name");
+            if (!string.IsNullOrWhiteSpace(name)) {
+                string? display = Read("DisplayName");
+                return !string.IsNullOrWhiteSpace(display) && !string.Equals(name, display, StringComparison.OrdinalIgnoreCase) ? name + " · " + display : name;
+            }
+            return Read("DisplayName") ?? Read("Id");
         }
 
         /// <summary>Registers a script block that turns objects of a type name into what is shown instead (Register-ConsoleView -Shaper).</summary>

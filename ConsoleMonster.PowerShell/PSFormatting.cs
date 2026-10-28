@@ -335,16 +335,7 @@ namespace ConsoleMonster.PowerShell {
             };
             options.Sources.Add(new DirectoryEntryMemberSource());
             options.Sources.Add(new PSObjectMemberSource { Root = root, RootDefaultDisplay = rootDefaultDisplay && (include == null || include.Length == 0) });
-            if (rootDefaultDisplay && (exclude == null || exclude.Length == 0) &&
-                (include == null || include.Length == 0 || (include.Length == 1 && include[0] == "*"))) {
-                options.DepthLimitLabel = value => {
-                    PSObject wrapped = PSObject.AsPSObject(value);
-                    string label = PSShaping.Title(wrapped, PSShaping.Options());
-                    string typeName = wrapped.BaseObject?.GetType().FullName ?? string.Empty;
-                    string shortType = wrapped.BaseObject?.GetType().Name ?? string.Empty;
-                    return label == typeName || label == shortType || label == "PSCustomObject" ? null : label;
-                };
-            }
+            if (rootDefaultDisplay) { options.DepthLimitLabel = (value, budget) => PSShaping.DepthLabel(value, include, exclude, budget); }
             if (include != null) {
                 foreach (string name in include) {
                     options.Include.Add(name);
