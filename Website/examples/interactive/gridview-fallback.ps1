@@ -1,6 +1,6 @@
 ﻿# On a desktop with working Out-GridView, the native window remains in charge.
 Import-Module ConsoleMonster
-Enable-ConsoleFormatting -Feature GridView
+Enable-ConsoleFormatting -Include GridView
 $nodes = @(
     [pscustomobject] @{ Name = 'api-east'; Region = 'eu-west'; Version = '2.4.1' }
     [pscustomobject] @{ Name = 'worker-west'; Region = 'eu-west'; Version = '2.4.0' }

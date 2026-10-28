@@ -178,7 +178,7 @@ namespace SiteFrames.Pages {
             };
             yield return new Demo("shaping", "Show-ConsoleTable -GroupBy Site", 100, 40) { CSharpProgram = "shaping.host.cs", Script = "shaping.ps1", Static = true };
             // Format-Table, Format-List and Format-Wide before and after enabling the default FormatCommands feature.
-            yield return new Demo("format-commands", "Enable-ConsoleFormatting -Feature FormatCommands", 100, 46) { CSharpProgram = "format-commands.host.cs",
+            yield return new Demo("format-commands", "Enable-ConsoleFormatting", 100, 46) { CSharpProgram = "format-commands.host.cs",
                 Script = "format-commands.ps1",
                 Session = true,
 

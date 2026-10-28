@@ -1,6 +1,6 @@
 # Native PowerShell help in the console
 
-`Enable-ConsoleFormatting -Feature Help` gives help typed at the prompt the existing `Show-ConsoleHelp` view. It is an
+`Enable-ConsoleFormatting -Include Help` gives help typed at the prompt the existing `Show-ConsoleHelp` view. It is an
 explicit session choice on Windows PowerShell 5.1 and PowerShell 7. It is not enabled by default, because help objects
 are also useful script output and the interception of native formatting should be a deliberate choice.
 
@@ -11,7 +11,7 @@ for quit.
 
 ```powershell
 Import-Module ConsoleMonster
-Enable-ConsoleFormatting -Feature Help
+Enable-ConsoleFormatting -Include Help
 
 Get-Help Get-Process
 Get-Help Get-Process -Detailed

@@ -6,6 +6,8 @@ namespace ConsoleMonster.PowerShell {
     public sealed class ConsoleFormattingOptions {
         /// <summary>The features to enable or disable; null selects the operation's default.</summary>
         public ConsoleFormattingFeature[]? Feature { get; set; }
+        /// <summary>Features to add to the default set.</summary>
+        public ConsoleFormattingFeature[]? Include { get; set; }
         /// <summary>Features to remove from the default set and disable if already installed.</summary>
         public ConsoleFormattingFeature[]? Exclude { get; set; }
         /// <summary>Allows replacing supported existing host functions.</summary>
@@ -29,8 +31,8 @@ namespace ConsoleMonster.PowerShell {
         }
 
         internal static ConsoleFormattingFeature Selected(ConsoleFormattingOptions options) {
-            if (options.Feature != null && options.Exclude != null) { throw new ArgumentException("Feature and Exclude cannot be combined."); }
-            return options.Feature != null ? Combine(options.Feature) : ConsoleFormatting.Defaults & ~Combine(options.Exclude);
+            if (options.Feature != null && (options.Exclude != null || options.Include != null)) { throw new ArgumentException("Feature cannot be combined with Include or Exclude."); }
+            return options.Feature != null ? Combine(options.Feature) : (ConsoleFormatting.Defaults | Combine(options.Include)) & ~Combine(options.Exclude);
         }
         /// <summary>Enables the requested features on the owning pipeline thread.</summary>
         /// <param name="source">The C# host cmdlet supplying its runspace, streams and module lifetime.</param>
@@ -45,12 +47,13 @@ namespace ConsoleMonster.PowerShell {
             }
             if (options.Detailed && !options.CompactErrors) { throw new ArgumentException("Detailed requires CompactErrors."); }
             if (options.ProfileSnippet) {
-                foreach (string line in ConsoleFormatting.ProfileSnippet(Convert.ToString(source.SessionState.PSVariable.GetValue("PROFILE"), System.Globalization.CultureInfo.InvariantCulture), !options.BuiltIn, options.Force, wanted, Combine(options.Exclude), options.Feature != null, options.CompactErrors)) {
+                foreach (string line in ConsoleFormatting.ProfileSnippet(Convert.ToString(source.SessionState.PSVariable.GetValue("PROFILE"), System.Globalization.CultureInfo.InvariantCulture), !options.BuiltIn, options.Force, wanted, Combine(options.Include), Combine(options.Exclude), options.Feature != null, options.CompactErrors)) {
                     source.WriteObject(options.Detailed && line.StartsWith("Enable-ConsoleFormatting", StringComparison.Ordinal) ? line + " -Detailed" : line);
                 }
                 return;
             }
-            if (options.Exclude != null) { Disable(source, options.Exclude); }
+            if (options.Feature != null) { Disable(source, new[] { ConsoleFormatting.Features & ~wanted }); }
+            else if (options.Exclude != null) { Disable(source, options.Exclude); }
             if (wanted == ConsoleFormattingFeature.None) {
                 return;
             }

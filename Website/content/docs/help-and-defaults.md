@@ -12,7 +12,7 @@ summary: "Show-ConsoleHelp, the error view and the progress area, with optional 
 
 These features change how PowerShell's own output looks for the session, never what commands return. `Disable-ConsoleFormatting` restores the session.
 
-`Enable-ConsoleFormatting` enables Output, FormatCommands, Errors, Streams and ReadLine. Explicit `Format-Table`, `Format-List` and `Format-Wide` retain PowerShell's column choices and only change output sent straight to the console. Use `-Exclude FormatCommands` to keep them native, or `-Feature` to select a minimal set. For an explicit view, use `Show-ConsoleTable` or `Show-ConsoleObject`.
+`Enable-ConsoleFormatting` enables Output, FormatCommands, Errors, Streams and ReadLine. Explicit `Format-Table`, `Format-List` and `Format-Wide` retain PowerShell's column choices and only change output sent straight to the console. Use `-Include Help` to add an opt-in and `-Exclude FormatCommands` to keep those commands native. Advanced: `-Feature` replaces the defaults with exactly the selected features. For an explicit view, use `Show-ConsoleTable` or `Show-ConsoleObject`.
 
 1. Choose the default set or individual features:
 
@@ -23,9 +23,9 @@ These features change how PowerShell's own output looks for the session, never w
    Enable-ConsoleFormatting -Exclude FormatCommands    # keep native Format-* commands
    Enable-ConsoleFormatting -Feature Streams, ReadLine # minimal selection
    Enable-ConsoleFormatting -CompactErrors             # opt in to compact errors
-   Enable-ConsoleFormatting -Feature Help              # opt in to styled help
-   Enable-ConsoleFormatting -Feature Progress          # opt in to the progress adapter
-   Enable-ConsoleFormatting -Feature Prompt            # opt in to the prompt
+   Enable-ConsoleFormatting -Include Help              # opt in to styled help
+   Enable-ConsoleFormatting -Include Progress          # opt in to the progress adapter
+   Enable-ConsoleFormatting -Include Prompt            # opt in to the prompt
    ```
 
 2. To keep it on in every session, add the lines `-ProfileSnippet` prints to your profile. It only prints them; this appends them to `$PROFILE`, creating the file when there is none:
@@ -46,7 +46,7 @@ These features change how PowerShell's own output looks for the session, never w
 ### Use the view for native help
 
 ```powershell
-Enable-ConsoleFormatting -Feature Help
+Enable-ConsoleFormatting -Include Help
 Get-Help Get-Process -Full
 Get-Process -?
 help Get-Process -Examples
@@ -73,7 +73,7 @@ records the proof for Windows PowerShell 5.1 and PowerShell 7.
 Enable the compact layout explicitly:
 
 ```powershell
-Enable-ConsoleFormatting -Feature Errors -CompactErrors
+Enable-ConsoleFormatting -CompactErrors
 ```
 
 Subsequent commands typed at the prompt use the new layout when they fail. This one deliberately produces an error:
@@ -89,7 +89,7 @@ exceptions fold into a muted count, and PowerShell 7 adds a `Get-Error for detai
 {{< cm-frame ids="errors-120,errors-60" caption="The shared compact view at 120 and 60 columns. Its complete C# program compiles to produce these frames; switch the site theme for the light rendering." >}}
 
 ```powershell
-Enable-ConsoleFormatting -Feature Errors -CompactErrors -Detailed  # include stacks and causes
+Enable-ConsoleFormatting -CompactErrors -Detailed  # include stacks and causes
 Disable-ConsoleFormatting -Feature Errors
 
 # The same view on demand, including inside a catch block or an export.
@@ -107,11 +107,11 @@ With the default `Errors` feature, errors that reach the console use the same vi
 
 {{< cm-demo id="progress" heading="h2" >}}
 
-The default keeps `Write-Progress` native and styles it through `Streams`, preserving its View and restoring exact owned colors on disable. With an explicit `-Feature Progress`, `Write-Progress` uses the native-metadata ConsoleMonster function adapter for the session, so existing loops get ConsoleMonster's progress area: one row per activity below the cursor, nested with `-ParentId`, with a bar, the percentage, the status and the elapsed time. Output written in between appears above the area, and the area disappears when every activity completes. `$ProgressPreference` is honoured. Progress written by compiled cmdlets such as `Copy-Item` is still drawn by PowerShell.
+The default keeps `Write-Progress` native and styles it through `Streams`, preserving its View and restoring exact owned colors on disable. With `-Include Progress`, `Write-Progress` uses the native-metadata ConsoleMonster function adapter for the session, so existing loops get ConsoleMonster's progress area: one row per activity below the cursor, nested with `-ParentId`, with a bar, the percentage, the status and the elapsed time. Output written in between appears above the area, and the area disappears when every activity completes. `$ProgressPreference` is honoured. Progress written by compiled cmdlets such as `Copy-Item` is still drawn by PowerShell.
 
 ## Warning, verbose and debug colours
 
-With `-Feature Streams`, PowerShell's own warning, verbose and debug messages (and errors on PowerShell 7.2 and later) take the active theme's colours, so they match the rest of the output and stay readable on a light background. Choose the theme first, or enable `Streams` again after `Set-ConsoleTheme`.
+With the default `Streams` feature, PowerShell's own warning, verbose and debug messages (and errors on PowerShell 7.2 and later) take the active theme's colours, so they match the rest of the output and stay readable on a light background. Choose the theme first, or enable `Streams` again after `Set-ConsoleTheme`.
 
 {{< cm-frame ids="streams-ps5,streams-ps7" caption="The same script on Windows PowerShell 5.1 and PowerShell 7; switch the site's theme to see the light-theme run." >}}
 
@@ -119,20 +119,20 @@ Only the colours change. `Write-Warning`, `Write-Verbose` and `Write-Debug` stay
 
 ## Minimal shell prompt
 
-Opt in with `Prompt`; selecting it alone does not enable default output formatting:
+Add `Prompt` to the default output formatting:
 
 ```powershell
 Import-Module ConsoleMonster
 Set-ConsoleTheme -Theme Dark  # use Light for a light terminal background
-Enable-ConsoleFormatting -Feature Prompt
-Enable-ConsoleFormatting -Feature Prompt -ProfileSnippet  # prints profile lines
+Enable-ConsoleFormatting -Include Prompt
+Enable-ConsoleFormatting -Include Prompt -ProfileSnippet  # prints profile lines
 ```
 
 The prompt shows the shortened path, git branch with `*` for index or working-tree changes, and a success or failure mark. A completed command taking **more than two seconds** also shows its duration, using PowerShell's own history timestamps. An old nonzero native exit code does not mark a later successful PowerShell command as failed. PSReadLine handlers and key bindings stay as they are.
 
 Git is optional: one asynchronous probe runs per session, with a 100 ms child-process budget and a five-second cache. The prompt never waits for it. The first prompt can omit git until the next prompt; changed state can take five seconds to appear. Missing git, an unavailable repository or an expired probe omits that segment. Submodule contents are not scanned.
 
-An existing oh-my-posh or Starship prompt is kept. Use `Enable-ConsoleFormatting -Feature Prompt -Force` to replace it explicitly. Other custom prompts are backed up, including their closure scope. `Disable-ConsoleFormatting -Feature Prompt`, disabling all enabled features without a feature argument, or `Remove-Module ConsoleMonster` restores the original. A prompt you install later is kept.
+An existing oh-my-posh or Starship prompt is kept. Use `Enable-ConsoleFormatting -Include Prompt -Force` to replace it explicitly. Other custom prompts are backed up, including their closure scope. `Disable-ConsoleFormatting -Feature Prompt`, disabling all enabled features without a feature argument, or `Remove-Module ConsoleMonster` restores the original. A prompt you install later is kept.
 
 Only the top-level local console prompt is themed. Assigned, piped, redirected, transcribed, recorded, job, remote and nested prompt calls use the original prompt. Native output, error records, preferences, `$?` and `$LASTEXITCODE` retain their behavior. Engines whose status or transcription state cannot be checked keep native output.
 

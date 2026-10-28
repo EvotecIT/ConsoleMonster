@@ -30,7 +30,7 @@ Get-Process | Sort-Object CPU -Descending | Select-Object -First 8 | Show-Consol
 
 ## Start in C#
 
-<!-- example: Website/content/docs/install.md#3 -->
+<!-- example: Website/content/docs/install.md#6 -->
 ```bash
 dotnet new console -n FirstTable
 cd FirstTable
@@ -39,7 +39,7 @@ dotnet add package ConsoleMonster
 
 Replace `Program.cs`, then `dotnet run`:
 
-<!-- example: Website/content/docs/install.md#4 -->
+<!-- example: Website/content/docs/install.md#7 -->
 ```csharp
 using ConsoleMonster;
 using ConsoleMonster.Widgets;

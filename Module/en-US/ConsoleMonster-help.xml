@@ -1645,19 +1645,19 @@ $tree | Show-Console</dev:code>
       <command:noun>ConsoleFormatting</command:noun>
       <maml:description>
         <maml:para>Enables the everyday console views, native format commands and theme colours.</maml:para>
-        <maml:para>Three ways to use ConsoleMonster output: Automatic: enable formatting, then use ordinary commands for known and registered types. Explicit: pipe any objects to Show-ConsoleTable to choose columns, a title and grouping, or to Show-ConsoleObject to explore their members. These commands do not change session formatting; Show-ConsoleObject -StaticSnapshot avoids interactive input in scripts. Native Format commands: FormatCommands styles direct console output while keeping PowerShell's column choices; it is included by default or can be selected with -Feature FormatCommands. You do not need both automatic and explicit formatting. The -Feature parameter requires ConsoleMonster 2.1.0 or later.</maml:para>
-        <maml:para>By default, Output, FormatCommands, Errors, Streams and ReadLine are enabled. Format-Table, Format-List and Format-Wide keep PowerShell's column choices and change only direct console output; pipelines, captures, files, jobs, remoting and transcripts remain native. Use Exclude to remove features from the default set, or Feature to select a minimal set. Prompt, Help, Progress and GridView require explicit Feature selection. CompactErrors opts into the compact error layout. Get-ConsoleFormatting reports what is enabled. Disable-ConsoleFormatting restores the session.</maml:para>
+        <maml:para>Three ways to use ConsoleMonster output: Automatic: enable formatting, then use ordinary commands for known and registered types. Explicit: pipe any objects to Show-ConsoleTable to choose columns, a title and grouping, or to Show-ConsoleObject to explore their members. These commands do not change session formatting; Show-ConsoleObject -StaticSnapshot avoids interactive input in scripts. Native Format commands: FormatCommands styles direct console output while keeping PowerShell's column choices; it is included by default; use -Exclude FormatCommands to leave it native. You do not need both automatic and explicit formatting. The -Feature parameter requires ConsoleMonster 2.1.0 or later.</maml:para>
+        <maml:para>By default, Output, FormatCommands, Errors, Streams and ReadLine are enabled. Format-Table, Format-List and Format-Wide keep PowerShell's column choices and change only direct console output; pipelines, captures, files, jobs, remoting and transcripts remain native. Use Include to add opt-in features and Exclude to remove features from the default set. Feature replaces the default set with exactly the selected features. Prompt, Help, Progress and GridView require Include or Feature. CompactErrors opts into the compact error layout. Get-ConsoleFormatting reports what is enabled. Disable-ConsoleFormatting restores the session.</maml:para>
         <maml:para>Files, processes, services, structured records, commands, modules, history, IP addresses, volumes, versions, dictionaries and registered types get built-in or registered views. Explicit Show-Console commands remain available when you want to choose the view yourself. Custom Out-Default functions are kept unless Force is specified; Prompt does not replace oh-my-posh or Starship without Force.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Enables the everyday console views, native format commands and theme colours.</maml:para>
-      <maml:para>Three ways to use ConsoleMonster output: Automatic: enable formatting, then use ordinary commands for known and registered types. Explicit: pipe any objects to Show-ConsoleTable to choose columns, a title and grouping, or to Show-ConsoleObject to explore their members. These commands do not change session formatting; Show-ConsoleObject -StaticSnapshot avoids interactive input in scripts. Native Format commands: FormatCommands styles direct console output while keeping PowerShell's column choices; it is included by default or can be selected with -Feature FormatCommands. You do not need both automatic and explicit formatting. The -Feature parameter requires ConsoleMonster 2.1.0 or later.</maml:para>
-      <maml:para>By default, Output, FormatCommands, Errors, Streams and ReadLine are enabled. Format-Table, Format-List and Format-Wide keep PowerShell's column choices and change only direct console output; pipelines, captures, files, jobs, remoting and transcripts remain native. Use Exclude to remove features from the default set, or Feature to select a minimal set. Prompt, Help, Progress and GridView require explicit Feature selection. CompactErrors opts into the compact error layout. Get-ConsoleFormatting reports what is enabled. Disable-ConsoleFormatting restores the session.</maml:para>
+      <maml:para>Three ways to use ConsoleMonster output: Automatic: enable formatting, then use ordinary commands for known and registered types. Explicit: pipe any objects to Show-ConsoleTable to choose columns, a title and grouping, or to Show-ConsoleObject to explore their members. These commands do not change session formatting; Show-ConsoleObject -StaticSnapshot avoids interactive input in scripts. Native Format commands: FormatCommands styles direct console output while keeping PowerShell's column choices; it is included by default; use -Exclude FormatCommands to leave it native. You do not need both automatic and explicit formatting. The -Feature parameter requires ConsoleMonster 2.1.0 or later.</maml:para>
+      <maml:para>By default, Output, FormatCommands, Errors, Streams and ReadLine are enabled. Format-Table, Format-List and Format-Wide keep PowerShell's column choices and change only direct console output; pipelines, captures, files, jobs, remoting and transcripts remain native. Use Include to add opt-in features and Exclude to remove features from the default set. Feature replaces the default set with exactly the selected features. Prompt, Help, Progress and GridView require Include or Feature. CompactErrors opts into the compact error layout. Get-ConsoleFormatting reports what is enabled. Disable-ConsoleFormatting restores the session.</maml:para>
       <maml:para>Files, processes, services, structured records, commands, modules, history, IP addresses, volumes, versions, dictionaries and registered types get built-in or registered views. Explicit Show-Console commands remain available when you want to choose the view yourself. Custom Out-Default functions are kept unless Force is specified; Prompt does not replace oh-my-posh or Starship without Force.</maml:para>
     </maml:description>
     <command:syntax>
-      <command:syntaxItem parameterSetName="Feature">
+      <command:syntaxItem parameterSetName="Default">
         <maml:name>Enable-ConsoleFormatting</maml:name>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>CompactErrors</maml:name>
@@ -1684,9 +1684,9 @@ $tree | Show-Console</dev:code>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>Feature</maml:name>
+          <maml:name>Exclude</maml:name>
           <maml:description>
-            <maml:para>Choose only these features: Output, FormatCommands, Errors, Streams, ReadLine, Prompt, Help, Progress or GridView. The default without Feature enables Output, FormatCommands, Errors, Streams and ReadLine. Features add up across calls; use Disable-ConsoleFormatting to restore them. FormatCommands keeps native column selections and changes only direct host output. Streams and ReadLine change native colours without replacing Write-* commands. Progress replaces Write-Progress only when explicitly selected. Help, GridView and Prompt are explicit opt-ins.</maml:para>
+            <maml:para>Turns on the default set except these features, and disables any excluded feature already enabled. Cannot be combined with Feature.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">ConsoleFormattingFeature[]</command:parameterValue>
           <command:parameterValueGroup>
@@ -1719,6 +1719,30 @@ $tree | Show-Console</dev:code>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Include</maml:name>
+          <maml:description>
+            <maml:para>Adds these opt-in features to the default set. Can be combined with Exclude, but not Feature.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">ConsoleFormattingFeature[]</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Output</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Errors</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Progress</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">FormatCommands</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Streams</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Help</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">ReadLine</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">GridView</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Prompt</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>ConsoleFormattingFeature[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>NoBuiltIn</maml:name>
           <maml:description>
@@ -1744,7 +1768,7 @@ $tree | Show-Console</dev:code>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
       </command:syntaxItem>
-      <command:syntaxItem parameterSetName="Exclude">
+      <command:syntaxItem parameterSetName="Feature">
         <maml:name>Enable-ConsoleFormatting</maml:name>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>CompactErrors</maml:name>
@@ -1771,9 +1795,9 @@ $tree | Show-Console</dev:code>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>Exclude</maml:name>
+          <maml:name>Feature</maml:name>
           <maml:description>
-            <maml:para>Turns on the default set except these features, and disables any excluded feature already enabled. Cannot be combined with Feature.</maml:para>
+            <maml:para>Choose only these features: Output, FormatCommands, Errors, Streams, ReadLine, Prompt, Help, Progress or GridView. The default without Feature enables Output, FormatCommands, Errors, Streams and ReadLine. Feature replaces the default set with exactly these features; use Include for defaults plus opt-ins. Use Disable-ConsoleFormatting to restore the session. FormatCommands keeps native column selections and changes only direct host output. Streams and ReadLine change native colours without replacing Write-* commands. Progress replaces Write-Progress only when explicitly selected. Help, GridView and Prompt are explicit opt-ins.</maml:para>
           </maml:description>
           <command:parameterValue required="true" variableLength="false">ConsoleFormattingFeature[]</command:parameterValue>
           <command:parameterValueGroup>
@@ -1857,12 +1881,12 @@ $tree | Show-Console</dev:code>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Exclude</maml:name>
         <maml:description>
           <maml:para>Turns on the default set except these features, and disables any excluded feature already enabled. Cannot be combined with Feature.</maml:para>
         </maml:description>
-        <command:parameterValue required="true" variableLength="false">ConsoleFormattingFeature[]</command:parameterValue>
+        <command:parameterValue required="false" variableLength="false">ConsoleFormattingFeature[]</command:parameterValue>
         <command:parameterValueGroup>
           <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Output</command:parameterValue>
@@ -1881,12 +1905,12 @@ $tree | Show-Console</dev:code>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Feature</maml:name>
         <maml:description>
-          <maml:para>Choose only these features: Output, FormatCommands, Errors, Streams, ReadLine, Prompt, Help, Progress or GridView. The default without Feature enables Output, FormatCommands, Errors, Streams and ReadLine. Features add up across calls; use Disable-ConsoleFormatting to restore them. FormatCommands keeps native column selections and changes only direct host output. Streams and ReadLine change native colours without replacing Write-* commands. Progress replaces Write-Progress only when explicitly selected. Help, GridView and Prompt are explicit opt-ins.</maml:para>
+          <maml:para>Choose only these features: Output, FormatCommands, Errors, Streams, ReadLine, Prompt, Help, Progress or GridView. The default without Feature enables Output, FormatCommands, Errors, Streams and ReadLine. Feature replaces the default set with exactly these features; use Include for defaults plus opt-ins. Use Disable-ConsoleFormatting to restore the session. FormatCommands keeps native column selections and changes only direct host output. Streams and ReadLine change native colours without replacing Write-* commands. Progress replaces Write-Progress only when explicitly selected. Help, GridView and Prompt are explicit opt-ins.</maml:para>
         </maml:description>
-        <command:parameterValue required="false" variableLength="false">ConsoleFormattingFeature[]</command:parameterValue>
+        <command:parameterValue required="true" variableLength="false">ConsoleFormattingFeature[]</command:parameterValue>
         <command:parameterValueGroup>
           <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Output</command:parameterValue>
@@ -1913,6 +1937,30 @@ $tree | Show-Console</dev:code>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
           <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Include</maml:name>
+        <maml:description>
+          <maml:para>Adds these opt-in features to the default set. Can be combined with Exclude, but not Feature.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">ConsoleFormattingFeature[]</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Output</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Errors</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Progress</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">FormatCommands</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Streams</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Help</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">ReadLine</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">GridView</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Prompt</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>ConsoleFormattingFeature[]</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -1958,14 +2006,14 @@ $tree | Show-Console</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>Enable-ConsoleFormatting -Feature Output, FormatCommands; 'synthetic' | Get-Member -Name Length, Substring; Get-Command Get-Date | Format-Table Name, Source</dev:code>
+        <dev:code>Enable-ConsoleFormatting; 'synthetic' | Get-Member -Name Length, Substring; Get-Command Get-Date | Format-Table Name, Source</dev:code>
         <dev:remarks>
           <maml:para>Inspect members with the built-in view, while keeping an explicit native column selection</maml:para>
         </dev:remarks>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>Enable-ConsoleFormatting -Feature GridView; Get-Process | Out-GridView -Title 'Choose processes' -OutputMode Single</dev:code>
+        <dev:code>Enable-ConsoleFormatting -Include GridView; Get-Process | Out-GridView -Title 'Choose processes' -OutputMode Single</dev:code>
         <dev:remarks>
           <maml:para>Use the terminal grid where Out-GridView is unavailable; working native commands stay unchanged</maml:para>
         </dev:remarks>
@@ -1979,9 +2027,9 @@ $tree | Show-Console</dev:code>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 4</maml:title>
-        <dev:code>Set-ConsoleTheme -Theme Dark; Enable-ConsoleFormatting -Feature Prompt</dev:code>
+        <dev:code>Set-ConsoleTheme -Theme Dark; Enable-ConsoleFormatting -Include Prompt</dev:code>
         <dev:remarks>
-          <maml:para>Use a minimal themed shell prompt, separately from default output formatting</maml:para>
+          <maml:para>Add a minimal themed shell prompt to the default formatting</maml:para>
         </dev:remarks>
       </command:example>
       <command:example>
@@ -2000,14 +2048,14 @@ $tree | Show-Console</dev:code>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 7</maml:title>
-        <dev:code>Set-ConsoleTheme Light; Enable-ConsoleFormatting -Feature Streams; Write-Warning 'Disk space is low'; Write-Verbose 'Checking backup' -Verbose</dev:code>
+        <dev:code>Set-ConsoleTheme Light; Enable-ConsoleFormatting -Include Streams; Write-Warning 'Disk space is low'; Write-Verbose 'Checking backup' -Verbose</dev:code>
         <dev:remarks>
           <maml:para>Use the active theme for native stream messages, keeping PowerShell's prefixes and stream behaviour</maml:para>
         </dev:remarks>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 8</maml:title>
-        <dev:code>Set-ConsoleTheme Dark; Enable-ConsoleFormatting -Feature ReadLine, Streams; Write-Progress -Activity 'Backup' -Status 'Copying archive.zip' -PercentComplete 42; Write-Progress -Activity 'Backup' -Completed</dev:code>
+        <dev:code>Set-ConsoleTheme Dark; Enable-ConsoleFormatting -Include ReadLine, Streams; Write-Progress -Activity 'Backup' -Status 'Copying archive.zip' -PercentComplete 42; Write-Progress -Activity 'Backup' -Completed</dev:code>
         <dev:remarks>
           <maml:para>Theme the already loaded editor and native progress without replacing commands</maml:para>
         </dev:remarks>
@@ -4625,12 +4673,12 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
       <command:noun>ConsoleFormatting</command:noun>
       <maml:description>
         <maml:para>Shows the formatting features enabled in this runspace.</maml:para>
-        <maml:para>Returns the enabled feature names, whether compact errors are enabled, and whether built-in views are included. A refused installation is not reported as enabled.</maml:para>
+        <maml:para>Returns the enabled feature names, whether compact errors are enabled, and whether built-in views are included. A refused installation is not reported as enabled. AddOptIns shows how to add Help, Prompt, Progress or GridView.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Shows the formatting features enabled in this runspace.</maml:para>
-      <maml:para>Returns the enabled feature names, whether compact errors are enabled, and whether built-in views are included. A refused installation is not reported as enabled.</maml:para>
+      <maml:para>Returns the enabled feature names, whether compact errors are enabled, and whether built-in views are included. A refused installation is not reported as enabled. AddOptIns shows how to add Help, Prompt, Progress or GridView.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
@@ -35910,13 +35958,13 @@ Show-ConsoleStatusLine "Copied $($files.Count) files" -Status Pass -ShowElapsed 
       <command:noun>ConsoleTable</command:noun>
       <maml:description>
         <maml:para>Displays the table representation through the shared Show-Console implementation.</maml:para>
-        <maml:para>Three ways to use ConsoleMonster output: Automatic: Enable-ConsoleFormatting makes ordinary output readable for known and registered types. Explicit: pipe any objects to Show-ConsoleTable to choose columns, a title and grouping, or to Show-ConsoleObject to explore their members. These commands do not change session formatting; Show-ConsoleObject -StaticSnapshot avoids interactive input in scripts. Native Format-Table, Format-List and Format-Wide: FormatCommands restyles direct console output while keeping PowerShell's column choices; it is included by default or can be selected with -Feature FormatCommands. You do not need both automatic and explicit formatting. The -Feature parameter requires ConsoleMonster 2.1.0 or later.</maml:para>
+        <maml:para>Three ways to use ConsoleMonster output: Automatic: Enable-ConsoleFormatting makes ordinary output readable for known and registered types. Explicit: pipe any objects to Show-ConsoleTable to choose columns, a title and grouping, or to Show-ConsoleObject to explore their members. These commands do not change session formatting; Show-ConsoleObject -StaticSnapshot avoids interactive input in scripts. Native Format-Table, Format-List and Format-Wide: FormatCommands restyles direct console output while keeping PowerShell's column choices; it is included by default use -Exclude FormatCommands to leave it native. You do not need both automatic and explicit formatting. The -Feature parameter requires ConsoleMonster 2.1.0 or later.</maml:para>
         <maml:para>Table and List are idiomatic shortcuts to the same view construction and output path. AsWidget and AsString capture the result; export uses Export-ConsoleFrame.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Displays the table representation through the shared Show-Console implementation.</maml:para>
-      <maml:para>Three ways to use ConsoleMonster output: Automatic: Enable-ConsoleFormatting makes ordinary output readable for known and registered types. Explicit: pipe any objects to Show-ConsoleTable to choose columns, a title and grouping, or to Show-ConsoleObject to explore their members. These commands do not change session formatting; Show-ConsoleObject -StaticSnapshot avoids interactive input in scripts. Native Format-Table, Format-List and Format-Wide: FormatCommands restyles direct console output while keeping PowerShell's column choices; it is included by default or can be selected with -Feature FormatCommands. You do not need both automatic and explicit formatting. The -Feature parameter requires ConsoleMonster 2.1.0 or later.</maml:para>
+      <maml:para>Three ways to use ConsoleMonster output: Automatic: Enable-ConsoleFormatting makes ordinary output readable for known and registered types. Explicit: pipe any objects to Show-ConsoleTable to choose columns, a title and grouping, or to Show-ConsoleObject to explore their members. These commands do not change session formatting; Show-ConsoleObject -StaticSnapshot avoids interactive input in scripts. Native Format-Table, Format-List and Format-Wide: FormatCommands restyles direct console output while keeping PowerShell's column choices; it is included by default use -Exclude FormatCommands to leave it native. You do not need both automatic and explicit formatting. The -Feature parameter requires ConsoleMonster 2.1.0 or later.</maml:para>
       <maml:para>Table and List are idiomatic shortcuts to the same view construction and output path. AsWidget and AsString capture the result; export uses Export-ConsoleFrame.</maml:para>
     </maml:description>
     <command:syntax>

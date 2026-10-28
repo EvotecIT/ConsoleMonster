@@ -465,6 +465,8 @@ Describe 'Examples run headless' -Tag 'Examples' {
         $keys = if ($case['Input']) { "`$scriptedKeys = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('$($case['Input'])'); `$scriptedKeys.RealTime = $realTime; `$scriptedKeys.Paced = $paced; ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = `$scriptedKeys" } else { '' }
         $arguments = if ($case['Arguments']) { $case['Arguments'] } else { '' }
         $pager = if ($case['NoNativePager']) { "function global:Out-ConsoleExamplePager { param(`$PagerArguments) process { `$_ } }; `$env:PAGER = 'Out-ConsoleExamplePager'" } else { '' }
+        # Clear-Host needs a real console on Windows; the example's interactive recording covers it.
+        $clearHost = if ($Path -like '*/demos/formatting.ps1' -or $Path -like '*\demos\formatting.ps1') { 'function global:Clear-Host {}' } else { '' }
         $invoke = "& '$Path' $arguments | Out-String | Out-Null"
         if ($case['ProjectLauncher']) {
             $project = $script:LauncherProject.Replace("'", "''")
@@ -499,6 +501,7 @@ $keys
 $screen
 $(if ($case['Snapshot']) { '$env:CONSOLEMONSTER_SNAPSHOT = "1"' })
 $pager
+$clearHost
 $location
 try {
     $invoke

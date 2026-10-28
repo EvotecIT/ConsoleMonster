@@ -151,8 +151,8 @@ namespace ConsoleMonster.PowerShell {
         }
 
         /// <summary>The profile lines that turn the formatting on in every session, with the given options (printed, never written).</summary>
-        internal static IReadOnlyList<string> ProfileSnippet(string? profilePath, bool noBuiltIn, bool force, ConsoleFormattingFeature features, ConsoleFormattingFeature excluded, bool explicitFeatures, bool compactErrors) {
-            string options = (explicitFeatures ? " -Feature " + FeatureList(features) : excluded != ConsoleFormattingFeature.None ? " -Exclude " + FeatureList(excluded) : string.Empty)
+        internal static IReadOnlyList<string> ProfileSnippet(string? profilePath, bool noBuiltIn, bool force, ConsoleFormattingFeature features, ConsoleFormattingFeature included, ConsoleFormattingFeature excluded, bool explicitFeatures, bool compactErrors) {
+            string options = (explicitFeatures ? " -Feature " + FeatureList(features) : (included != ConsoleFormattingFeature.None ? " -Include " + FeatureList(included) : string.Empty) + (excluded != ConsoleFormattingFeature.None ? " -Exclude " + FeatureList(excluded) : string.Empty))
                 + (compactErrors ? " -CompactErrors" : string.Empty)
                 + (noBuiltIn ? " -NoBuiltIn" : string.Empty) + (force ? " -Force" : string.Empty);
             return new[] {

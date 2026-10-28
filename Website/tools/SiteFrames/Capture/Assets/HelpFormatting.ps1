@@ -9,7 +9,7 @@
 # Capture-only setup: the published example is executed whole and shown verbatim.
 # Resolve the host sink after installing the adapter, as the next interactive prompt does.
 if ($Formatted) {
-    Enable-ConsoleFormatting -Feature Help
+    Enable-ConsoleFormatting -Include Help
 }
 if ($Paged) {
     $keys = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('wait:300 Space wait:150 b wait:150 q Space')

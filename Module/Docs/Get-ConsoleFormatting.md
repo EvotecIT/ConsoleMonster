@@ -8,7 +8,7 @@ schema: 2.0.0
 ## SYNOPSIS
 Shows the formatting features enabled in this runspace.
 
-Returns the enabled feature names, whether compact errors are enabled, and whether built-in views are included. A refused installation is not reported as enabled.
+Returns the enabled feature names, whether compact errors are enabled, and whether built-in views are included. A refused installation is not reported as enabled. AddOptIns shows how to add Help, Prompt, Progress or GridView.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -19,7 +19,7 @@ Get-ConsoleFormatting [<CommonParameters>]
 ## DESCRIPTION
 Shows the formatting features enabled in this runspace.
 
-Returns the enabled feature names, whether compact errors are enabled, and whether built-in views are included. A refused installation is not reported as enabled.
+Returns the enabled feature names, whether compact errors are enabled, and whether built-in views are included. A refused installation is not reported as enabled. AddOptIns shows how to add Help, Prompt, Progress or GridView.
 
 ## EXAMPLES
 

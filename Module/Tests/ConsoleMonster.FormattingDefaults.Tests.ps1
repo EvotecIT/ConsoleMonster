@@ -24,6 +24,41 @@ Disable-ConsoleFormatting
         $result | Should -Match 'OFF=0'
     }
 
+    It 'includes help alongside defaults, supports exclusions and records the profile choice' {
+        $result = Invoke-FormattingScenario @'
+Enable-ConsoleFormatting -Include Help
+$first = Get-ConsoleFormatting
+"FIRST=$($first.Features -join ',')"
+Enable-ConsoleFormatting -Include Help -Exclude FormatCommands
+$state = Get-ConsoleFormatting
+"ON=$($state.Features -join ',')"
+"HOW=$($state.AddOptIns)"
+Enable-ConsoleFormatting -Include Help -Exclude FormatCommands -ProfileSnippet
+Enable-ConsoleFormatting -Include Help -Exclude Help
+"EXCLUDED=$((Get-ConsoleFormatting).Features -contains 'Help')"
+Disable-ConsoleFormatting
+'@
+        $result | Should -Match 'FIRST=Output,FormatCommands,Errors,Streams,ReadLine,Help'
+        $result | Should -Match 'ON=Output,Errors,Streams,ReadLine,Help'
+        $result | Should -Match 'HOW=Enable-ConsoleFormatting -Include Help'
+        $result | Should -Match 'Enable-ConsoleFormatting -Include Help -Exclude FormatCommands'
+        $result | Should -Match 'EXCLUDED=False'
+    }
+
+    It 'rejects Include with Feature and replaces earlier choices with explicit Feature' {
+        $result = Invoke-FormattingScenario @'
+try { Enable-ConsoleFormatting -Include Help -Feature Output -ErrorAction Stop; throw 'NOT_REJECTED' } catch { if ($_.Exception.Message -eq 'NOT_REJECTED') { throw } }
+Enable-ConsoleFormatting
+Enable-ConsoleFormatting -Feature Streams
+"ON=$((Get-ConsoleFormatting).Features -join ',')"
+Enable-ConsoleFormatting -Feature None
+"NONE=$((Get-ConsoleFormatting).Features.Count)"
+Disable-ConsoleFormatting
+'@
+        $result | Should -Match 'ON=Streams'
+        $result | Should -Match 'NONE=0'
+    }
+
     It 'excludes selected defaults and disables a previously enabled feature' {
         $result = Invoke-FormattingScenario @'
 Enable-ConsoleFormatting -Feature Prompt -Force

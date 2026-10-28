@@ -116,7 +116,7 @@ The Windows views register only on Windows. None of these views performs network
 The default includes the three Format commands. With formatting on, the commands you already type draw ConsoleMonster views, with their parameters (`-Property`, `-GroupBy`, `-AutoSize`, `-Wrap`, `-View`, `-Column`) mapped. Only output that goes straight to the console changes: `$x = ... | Format-Table`, `| Out-String`, `| Out-File`, `>`, jobs, remoting and transcripts keep PowerShell's formatting records and text.
 
 ```powershell
-Enable-ConsoleFormatting -Feature FormatCommands
+Enable-ConsoleFormatting
 Enable-ConsoleFormatting                              # everyday defaults
 Enable-ConsoleFormatting -Exclude FormatCommands      # leave Format-* native
 Disable-ConsoleFormatting -Feature FormatCommands       # just this one off again
@@ -131,10 +131,10 @@ Disable-ConsoleFormatting -Feature FormatCommands       # just this one off agai
 ```powershell
 Import-Module ConsoleMonster
 Set-ConsoleTheme -Theme Light
-Enable-ConsoleFormatting -Feature ReadLine, Streams
+Enable-ConsoleFormatting -Include ReadLine, Streams
 Write-Progress -Activity 'Backup' -Status 'Copying archive.zip' -PercentComplete 42
 Write-Progress -Activity 'Backup' -Completed
-Enable-ConsoleFormatting -Feature ReadLine, Streams -ProfileSnippet
+Enable-ConsoleFormatting -Include ReadLine, Streams -ProfileSnippet
 Disable-ConsoleFormatting -Feature ReadLine, Streams
 ```
 
@@ -142,7 +142,7 @@ ReadLine is included in the default set. When runspaces share native preferences
 ## Out-GridView without a desktop
 
 ```powershell
-Enable-ConsoleFormatting -Feature GridView
+Enable-ConsoleFormatting -Include GridView
 Get-Process | Out-GridView -Title 'Choose processes' -OutputMode Single
 Disable-ConsoleFormatting -Feature GridView
 ```
@@ -184,12 +184,12 @@ Get-Service | Select-Object -First 8 Name, Status, StartType | Copy-ConsoleOutpu
 
 ## Warning, verbose and debug messages
 
-`Enable-ConsoleFormatting -Feature Streams` (included by default) gives PowerShell's own warning, verbose and debug messages the theme's colours on Windows PowerShell 5.1 and PowerShell 7. Their `WARNING:` and `VERBOSE:` prefixes, preferences and redirection stay PowerShell's; [Help, errors and progress](/docs/help-and-defaults/#warning-verbose-and-debug-colours) has the details.
+The default `Streams` feature gives PowerShell's own warning, verbose and debug messages the theme's colours on Windows PowerShell 5.1 and PowerShell 7. Their `WARNING:` and `VERBOSE:` prefixes, preferences and redirection stay PowerShell's; [Help, errors and progress](/docs/help-and-defaults/#warning-verbose-and-debug-colours) has the details.
 
 {{< cm-frame ids="streams-ps5,streams-ps7" caption="Before and after `-Feature Streams`; the light-theme runs show when the site is light." >}}
 
 ## More from the same switch
 
-- `Enable-ConsoleFormatting` adds default output, Format commands, the [error view and themed stream colours](/docs/help-and-defaults/), and ReadLine colours. `-Feature Progress` adds the progress area. The native `Write-Progress` adapter requires a separate opt-in.
+- `Enable-ConsoleFormatting` adds default output, Format commands, the [error view and themed stream colours](/docs/help-and-defaults/), and ReadLine colours. `-Include Progress` adds the progress area. The native `Write-Progress` adapter requires a separate opt-in.
 - `Register-ConsoleView` adds your own types in the session, including columns computed by script blocks; `Register-ConsoleView -Path` loads a `.consoleviews.psd1` file from anywhere.
 - `Show-ConsoleTable`, `Show-ConsoleList` and `Show-Console -View Tree` give the same views on demand, with column options; see [Coming from Format-Table](/guides/format-table/).

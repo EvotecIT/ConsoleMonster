@@ -26,7 +26,7 @@ Get-Process | Format-Table Name, Id | Out-File ./processes.txt
 Get-Process | Format-Table Name, Id > ./processes.txt
 ```
 
-The default enables Output, FormatCommands, Errors, Streams and ReadLine. Use `-Exclude FormatCommands, Errors` to omit features, or `-Feature Streams, ReadLine` for an explicit minimal set. Calls add features; `Get-ConsoleFormatting` shows the current selection. Help, Prompt, Progress, GridView and compact errors remain explicit choices. `Disable-ConsoleFormatting` restores all enabled features; `Disable-ConsoleFormatting -Feature FormatCommands` restores just the format commands.
+The default enables Output, FormatCommands, Errors, Streams and ReadLine. Use `-Include Help` to add an opt-in, `-Exclude FormatCommands, Errors` to omit features, or `-Feature Streams, ReadLine` to select an exact minimal set. `Get-ConsoleFormatting` shows the current selection. Help, Prompt, Progress, GridView and compact errors remain explicit choices. `Disable-ConsoleFormatting` restores all enabled features; `Disable-ConsoleFormatting -Feature FormatCommands` restores just the format commands.
 
 Custom functions are preserved unless `-Force` is supplied, then restored on disable or module removal. A custom alias named `Format-Table`, `Format-List` or `Format-Wide` prevents installation; remove it explicitly first. Aliases such as `ft`, `fl` and `fw` continue to resolve their normal command names.
 
@@ -36,13 +36,13 @@ The standard error view is enabled by default. Add `-CompactErrors` for the mess
 
 ```powershell
 Import-Module ConsoleMonster
-Enable-ConsoleFormatting -Feature Errors -CompactErrors
+Enable-ConsoleFormatting -CompactErrors
 
 # At the prompt, errors use the compact view.
 try { [int]::Parse('production') } catch { $_ | Show-Console -Compact -View Error }
 
 # Include script and .NET stacks in subsequent host errors.
-Enable-ConsoleFormatting -Feature Errors -CompactErrors -Detailed
+Enable-ConsoleFormatting -CompactErrors -Detailed
 Disable-ConsoleFormatting -Feature Errors
 ```
 
@@ -122,13 +122,13 @@ Use `Streams` to give PowerShell's own messages the active theme's warning, info
 
 ```powershell
 Set-ConsoleTheme -Theme Light
-Enable-ConsoleFormatting -Feature Streams
+Enable-ConsoleFormatting -Include Streams
 Write-Warning 'Disk space is low'
 Write-Verbose 'Checking backup' -Verbose
 Write-Debug 'Using the local cache' -Debug
 
 # Prints the corresponding profile lines; does not change the profile or settings.
-Enable-ConsoleFormatting -Feature Streams -ProfileSnippet
+Enable-ConsoleFormatting -Include Streams -ProfileSnippet
 Disable-ConsoleFormatting -Feature Streams
 ```
 
@@ -145,13 +145,13 @@ The original values are saved once for each native object and property while any
 ```powershell
 Import-Module ConsoleMonster
 Set-ConsoleTheme -Theme Light
-Enable-ConsoleFormatting -Feature ReadLine, Streams
+Enable-ConsoleFormatting -Include ReadLine, Streams
 
 # Type commands and select text in the normal PowerShell editor.
 Write-Progress -Id 1 -Activity 'Backup' -Status 'Copying archive.zip' -PercentComplete 42
 Write-Progress -Id 1 -Activity 'Backup' -Completed
 
-Enable-ConsoleFormatting -Feature ReadLine, Streams -ProfileSnippet
+Enable-ConsoleFormatting -Include ReadLine, Streams -ProfileSnippet
 Disable-ConsoleFormatting -Feature ReadLine, Streams
 ```
 
@@ -176,7 +176,7 @@ string warningSgr = SgrEncoder.Encode(warning, ColorDepth.TrueColor);
 `GridView` is an explicit opt-in:
 
 ```powershell
-Enable-ConsoleFormatting -Feature GridView
+Enable-ConsoleFormatting -Include GridView
 Get-Process | Out-GridView -Title 'Choose processes' -OutputMode Single
 Disable-ConsoleFormatting -Feature GridView
 ```
@@ -231,7 +231,7 @@ Enable default formatting to use the registered views for members, commands, mod
 
 ```powershell
 Import-Module ConsoleMonster
-Enable-ConsoleFormatting -Feature Output, FormatCommands
+Enable-ConsoleFormatting
 
 'synthetic' | Get-Member -Name Length, Substring
 Get-Command Get-Date, Get-Item
@@ -300,7 +300,7 @@ See [module views](Module-Views.md), [output exports and clipboard](Output-Expor
 
 Custom prompts with dynamic parameters, a process block or pipeline input keep their native function and binding, including every input record and begin/end behaviour. Enabling the feature reports that the existing prompt was kept.
 
-`Enable-ConsoleFormatting -Feature Prompt` separately opts into the shortened path, cached git branch and dirty mark, last-command status and completed-history duration above two seconds. It is not enabled by default. `-ProfileSnippet` prints the opt-in profile lines. oh-my-posh and Starship require `-Force`. Disable or module removal restores the original prompt, including its closure scope; later user replacements are kept. Captures, transcripts, recordings, remoting and nested prompts use the original prompt. PSReadLine handlers stay untouched. See [the guide](https://consolemonster.dev/docs/help-and-defaults/#minimal-shell-prompt) for cache timing, examples and renderer frames.
+`Enable-ConsoleFormatting -Include Prompt` separately opts into the shortened path, cached git branch and dirty mark, last-command status and completed-history duration above two seconds. It is not enabled by default. `-ProfileSnippet` prints the opt-in profile lines. oh-my-posh and Starship require `-Force`. Disable or module removal restores the original prompt, including its closure scope; later user replacements are kept. Captures, transcripts, recordings, remoting and nested prompts use the original prompt. PSReadLine handlers stay untouched. See [the guide](https://consolemonster.dev/docs/help-and-defaults/#minimal-shell-prompt) for cache timing, examples and renderer frames.
 
 ## JSON, CSV and discovery output
 

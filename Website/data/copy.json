@@ -133,7 +133,7 @@
                 "url": "/docs/help-and-defaults/",
                 "key": 4,
                 "body": "The default styles errors and native streams; opt in to compact errors and help.",
-                "command": "Enable-ConsoleFormatting -Feature Help"
+                "command": "Enable-ConsoleFormatting -Include Help"
               }
             ]
           },
@@ -534,8 +534,8 @@
       }
     },
     "format-commands": {
-      "title": "Before and after -Feature FormatCommands",
-      "body": "The same three commands before and after Enable-ConsoleFormatting -Feature FormatCommands. Only output that goes straight to the console changes; assignments, pipelines, files, jobs and transcripts keep PowerShell's own formatting.",
+      "title": "Format commands by default",
+      "body": "The same three commands before and after Enable-ConsoleFormatting. Only output that goes straight to the console changes; assignments, pipelines, files, jobs and transcripts keep PowerShell's own formatting.",
       "label": "Format-Table, Format-List and Format-Wide as PowerShell draws them, then as ConsoleMonster draws them",
       "use": {
         "title": "Turn it on",
@@ -703,7 +703,7 @@
       "use": {
         "title": "Use it in your session",
         "label": "PowerShell 5.1 and 7",
-        "install": "Install-Module ConsoleMonster -Scope CurrentUser\nEnable-ConsoleFormatting -Feature Errors",
+        "install": "Install-Module ConsoleMonster -Scope CurrentUser\nEnable-ConsoleFormatting",
         "links": [
           {
             "title": "Show-Console -View Error",
@@ -719,7 +719,7 @@
       "use": {
         "title": "Use it in your session",
         "label": "PowerShell 5.1 and 7",
-        "install": "Install-Module ConsoleMonster -Scope CurrentUser\nEnable-ConsoleFormatting -Feature Progress",
+        "install": "Install-Module ConsoleMonster -Scope CurrentUser\nEnable-ConsoleFormatting -Include Progress",
         "links": [
           {
             "title": "Use-ConsoleProgress",

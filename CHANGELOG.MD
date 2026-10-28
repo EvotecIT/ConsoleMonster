@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- `Enable-ConsoleFormatting` now enables everyday output, native format commands, errors, stream colours and ReadLine colours by default. Use `-Exclude` to omit features or `-Feature` to select a minimal set. `Errors` replaces `ErrorView`; compact errors use `-CompactErrors`, and `All` is removed. Prompt, Help, Progress and GridView remain opt-in. `Get-ConsoleFormatting` reports the active features.
+- `Enable-ConsoleFormatting` now enables everyday output, native format commands, errors, stream colours and ReadLine colours by default. Use `-Include` to add opt-ins, `-Exclude` to omit features, or `-Feature` to select an exact set. `Errors` replaces `ErrorView`; compact errors use `-CompactErrors`, and `All` is removed. Prompt, Help, Progress and GridView remain opt-in. `Get-ConsoleFormatting` reports the active features.
 
 ## Public API consistency (breaking changes)
 

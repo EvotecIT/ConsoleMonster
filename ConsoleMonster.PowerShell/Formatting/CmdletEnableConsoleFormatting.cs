@@ -5,26 +5,26 @@ using ConsoleMonster.Views;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Enables the everyday console views, native format commands and theme colours.</para>
-    /// <para type="description">Three ways to use ConsoleMonster output: Automatic: enable formatting, then use ordinary commands for known and registered types. Explicit: pipe any objects to Show-ConsoleTable to choose columns, a title and grouping, or to Show-ConsoleObject to explore their members. These commands do not change session formatting; Show-ConsoleObject -StaticSnapshot avoids interactive input in scripts. Native Format commands: FormatCommands styles direct console output while keeping PowerShell's column choices; it is included by default or can be selected with -Feature FormatCommands. You do not need both automatic and explicit formatting. The -Feature parameter requires ConsoleMonster 2.1.0 or later.</para>
-    /// <para type="description">By default, Output, FormatCommands, Errors, Streams and ReadLine are enabled. Format-Table, Format-List and Format-Wide keep PowerShell's column choices and change only direct console output; pipelines, captures, files, jobs, remoting and transcripts remain native. Use Exclude to remove features from the default set, or Feature to select a minimal set. Prompt, Help, Progress and GridView require explicit Feature selection. CompactErrors opts into the compact error layout. Get-ConsoleFormatting reports what is enabled. Disable-ConsoleFormatting restores the session.</para>
+    /// <para type="description">Three ways to use ConsoleMonster output: Automatic: enable formatting, then use ordinary commands for known and registered types. Explicit: pipe any objects to Show-ConsoleTable to choose columns, a title and grouping, or to Show-ConsoleObject to explore their members. These commands do not change session formatting; Show-ConsoleObject -StaticSnapshot avoids interactive input in scripts. Native Format commands: FormatCommands styles direct console output while keeping PowerShell's column choices; it is included by default; use -Exclude FormatCommands to leave it native. You do not need both automatic and explicit formatting. The -Feature parameter requires ConsoleMonster 2.1.0 or later.</para>
+    /// <para type="description">By default, Output, FormatCommands, Errors, Streams and ReadLine are enabled. Format-Table, Format-List and Format-Wide keep PowerShell's column choices and change only direct console output; pipelines, captures, files, jobs, remoting and transcripts remain native. Use Include to add opt-in features and Exclude to remove features from the default set. Feature replaces the default set with exactly the selected features. Prompt, Help, Progress and GridView require Include or Feature. CompactErrors opts into the compact error layout. Get-ConsoleFormatting reports what is enabled. Disable-ConsoleFormatting restores the session.</para>
     /// <para type="description">Files, processes, services, structured records, commands, modules, history, IP addresses, volumes, versions, dictionaries and registered types get built-in or registered views. Explicit Show-Console commands remain available when you want to choose the view yourself. Custom Out-Default functions are kept unless Force is specified; Prompt does not replace oh-my-posh or Starship without Force.</para>
     /// </summary>
 
     /// <example>
     ///   <para>Inspect members with the built-in view, while keeping an explicit native column selection</para>
-    ///   <code>Enable-ConsoleFormatting -Feature Output, FormatCommands; 'synthetic' | Get-Member -Name Length, Substring; Get-Command Get-Date | Format-Table Name, Source</code>
+    ///   <code>Enable-ConsoleFormatting; 'synthetic' | Get-Member -Name Length, Substring; Get-Command Get-Date | Format-Table Name, Source</code>
     /// </example>
     /// <example>
     ///   <para>Use the terminal grid where Out-GridView is unavailable; working native commands stay unchanged</para>
-    ///   <code>Enable-ConsoleFormatting -Feature GridView; Get-Process | Out-GridView -Title 'Choose processes' -OutputMode Single</code>
+    ///   <code>Enable-ConsoleFormatting -Include GridView; Get-Process | Out-GridView -Title 'Choose processes' -OutputMode Single</code>
     /// </example>
     /// <example>
     ///   <para>Turn it on for the session</para>
     ///   <code>Enable-ConsoleFormatting; Get-ChildItem; Get-Process | Select-Object -First 10</code>
     /// </example>
     /// <example>
-    ///   <para>Use a minimal themed shell prompt, separately from default output formatting</para>
-    ///   <code>Set-ConsoleTheme -Theme Dark; Enable-ConsoleFormatting -Feature Prompt</code>
+    ///   <para>Add a minimal themed shell prompt to the default formatting</para>
+    ///   <code>Set-ConsoleTheme -Theme Dark; Enable-ConsoleFormatting -Include Prompt</code>
     /// </example>
     /// <example>
     ///   <para>The lines to keep it on in every session (printed, never written to the profile)</para>
@@ -36,20 +36,24 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Use the active theme for native stream messages, keeping PowerShell's prefixes and stream behaviour</para>
-    ///   <code>Set-ConsoleTheme Light; Enable-ConsoleFormatting -Feature Streams; Write-Warning 'Disk space is low'; Write-Verbose 'Checking backup' -Verbose</code>
+    ///   <code>Set-ConsoleTheme Light; Enable-ConsoleFormatting -Include Streams; Write-Warning 'Disk space is low'; Write-Verbose 'Checking backup' -Verbose</code>
     /// </example>
     /// <example>
     ///   <para>Theme the already loaded editor and native progress without replacing commands</para>
-    ///   <code>Set-ConsoleTheme Dark; Enable-ConsoleFormatting -Feature ReadLine, Streams; Write-Progress -Activity 'Backup' -Status 'Copying archive.zip' -PercentComplete 42; Write-Progress -Activity 'Backup' -Completed</code>
+    ///   <code>Set-ConsoleTheme Dark; Enable-ConsoleFormatting -Include ReadLine, Streams; Write-Progress -Activity 'Backup' -Status 'Copying archive.zip' -PercentComplete 42; Write-Progress -Activity 'Backup' -Completed</code>
     /// </example>
-    [Cmdlet(VerbsLifecycle.Enable, "ConsoleFormatting", SupportsShouldProcess = true, DefaultParameterSetName = "Feature")]
+    [Cmdlet(VerbsLifecycle.Enable, "ConsoleFormatting", SupportsShouldProcess = true, DefaultParameterSetName = "Default")]
     public sealed class CmdletEnableConsoleFormatting : PSCmdlet {
-        /// <summary><para type="description">Choose only these features: Output, FormatCommands, Errors, Streams, ReadLine, Prompt, Help, Progress or GridView. The default without Feature enables Output, FormatCommands, Errors, Streams and ReadLine. Features add up across calls; use Disable-ConsoleFormatting to restore them. FormatCommands keeps native column selections and changes only direct host output. Streams and ReadLine change native colours without replacing Write-* commands. Progress replaces Write-Progress only when explicitly selected. Help, GridView and Prompt are explicit opt-ins.</para></summary>
-        [Parameter(ParameterSetName = "Feature")]
+        /// <summary><para type="description">Choose only these features: Output, FormatCommands, Errors, Streams, ReadLine, Prompt, Help, Progress or GridView. The default without Feature enables Output, FormatCommands, Errors, Streams and ReadLine. Feature replaces the default set with exactly these features; use Include for defaults plus opt-ins. Use Disable-ConsoleFormatting to restore the session. FormatCommands keeps native column selections and changes only direct host output. Streams and ReadLine change native colours without replacing Write-* commands. Progress replaces Write-Progress only when explicitly selected. Help, GridView and Prompt are explicit opt-ins.</para></summary>
+        [Parameter(Mandatory = true, ParameterSetName = "Feature")]
         public ConsoleFormattingFeature[]? Feature { get; set; }
 
+        /// <summary><para type="description">Adds these opt-in features to the default set. Can be combined with Exclude, but not Feature.</para></summary>
+        [Parameter(ParameterSetName = "Default")]
+        public ConsoleFormattingFeature[]? Include { get; set; }
+
         /// <summary><para type="description">Turns on the default set except these features, and disables any excluded feature already enabled. Cannot be combined with Feature.</para></summary>
-        [Parameter(Mandatory = true, ParameterSetName = "Exclude")]
+        [Parameter(ParameterSetName = "Default")]
         public ConsoleFormattingFeature[]? Exclude { get; set; }
 
         /// <summary><para type="description">Uses the compact message-first error layout. Errors must be enabled.</para></summary>
@@ -75,12 +79,11 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void EndProcessing() {
             var options = new ConsoleFormattingOptions {
-                Feature = Feature, Exclude = Exclude, Force = Force.IsPresent, BuiltIn = !NoBuiltIn.IsPresent,
+                Feature = Feature, Include = Include, Exclude = Exclude, Force = Force.IsPresent, BuiltIn = !NoBuiltIn.IsPresent,
                 Detailed = Detailed.IsPresent, CompactErrors = CompactErrors.IsPresent, ProfileSnippet = ProfileSnippet.IsPresent
             };
             if (ProfileSnippet.IsPresent) { ConsoleHostFormatting.Enable(this, options); return; }
             ConsoleFormattingFeature selected = ConsoleHostFormatting.Selected(options);
-            if (selected == ConsoleFormattingFeature.None && Exclude == null) { return; }
             if (!ShouldProcess("ConsoleMonster formatting: " + ConsoleFormatting.FeatureList(selected), "Enable")) { return; }
             ConsoleHostFormatting.Enable(this, options);
         }
