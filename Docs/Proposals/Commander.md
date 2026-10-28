@@ -1,6 +1,6 @@
 # ConsoleMonster Commander UX spec
 
-Status: approved direction, 25 October 2026. ConsoleMonster Commander is the phase 3 flagship: a two-panel, keyboard-first file manager in the Norton/Midnight Commander tradition, built only on ConsoleMonster's own full-screen controls. This spec fixes what the app does so phase 3's data grid, tabs and terminal handoff are designed for a real consumer.
+Status: proposed phase 3 application; not shipped. The library supplies file operations and a panel model for building file tools, but no Commander application or host. ConsoleMonster Commander is the phase 3 flagship: a two-panel, keyboard-first file manager in the Norton/Midnight Commander tradition, built only on ConsoleMonster's own full-screen controls. This spec fixes what the app does so phase 3's data grid, tabs and terminal handoff are designed for a real consumer.
 
 ## Screen layout
 

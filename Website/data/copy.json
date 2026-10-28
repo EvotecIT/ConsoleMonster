@@ -184,7 +184,7 @@
             "url": "/docs/live-runs/",
             "key": 2,
             "body": "Many servers at once, with failures and a time limit.",
-            "command": "ForEach-ConsoleItem -Parallel"
+            "command": "Invoke-ConsoleRun -Parallel"
           },
           {
             "title": "Test runs",
@@ -450,7 +450,7 @@
   "demos": {
     "parallel": {
       "title": "Forty servers, eight at a time",
-      "body": "ForEach-ConsoleItem runs a script block for every item, here in parallel with a time limit. Three servers fail and one hangs; the run keeps going, and the failures are listed when it ends.",
+      "body": "Invoke-ConsoleRun runs a script block for every item, here in parallel with a time limit. Three servers fail and one hangs; the run keeps going, and the failures are listed when it ends.",
       "label": "A parallel run of 40 items with a summary bar, a cell per item, the running items and the failures",
       "try": {
         "run": "pwsh ./parallel.ps1",

@@ -3,19 +3,16 @@
 Granular tasks: validation, review follow-ups and small fixes. Decisions, the next rounds and the backlog are in
 [ROADMAP.md](ROADMAP.md).
 
-## Before the first wide 2.0 release
+## Validation and follow-ups
 - Validate on Windows Server 2016 (16 colours), 2019, 2022, 2025, Server Core, VS Code, SSH (ConPTY) and the PowerShell ISE fallback.
-- Owner review of the prototype screenshots.
-- Finish the package signing setup before public release. The module build has a configured signer; `Build/project.build.json` leaves package signing unconfigured for local validation.
 - Heat strip widget from the v1 widget list.
 - Per-widget narration options for stream mode.
-- Light background detection in Windows Terminal: needs an OSC 11 query that never consumes user input (today `CONSOLEMONSTER_THEME=light` is required there).
 - Live-table filtering and horizontal scrolling as an alternative to hiding columns; column sorting already ships
-  through `New-ConsoleLiveTable -SortBy -Descending`.
+  through the live table APIs.
 - Inspector: PowerShell format data (`*.format.ps1xml`) views as an input to column selection.
 
 ## Follow-ups from the pre-PR review (review.md, 2026-10-17)
-The review's high findings and M1-M4, M6 and M7 are fixed. Still open, with the review's labels:
+The review's high findings and M1-M4, M6 and M7 were fixed. Recheck these historical follow-ups against current code before implementing them:
 - M5: print-once memory grows with rows x width (50,000 rows used about 570 MB). Negotiate widths over all rows or a
   bounded sample, then render and emit in bands; or cap rows with a warning.
 - L1: the width re-probe after a resize or font change overwrites explicit `CONSOLEMONSTER_*_WIDTH` values and skips
@@ -33,7 +30,6 @@ The review's high findings and M1-M4, M6 and M7 are fixed. Still open, with the 
 - L10: a custom glyph set with empty spinner frames divides by zero; `CellBuffer` width times height is unchecked;
   tabs in cell text are dropped.
 - L11: calculated-property errors (`BoundColumn.LastError`) are never shown; warn once per failing column.
-- L12: reconcile the module and package signing configuration before the public release.
 - Rows measures auto-sized children without a height limit but lays them out with the remaining height, so a log region with fewer entries than `PreferredHeight` takes extra blank rows in print-once layouts (live dashboards rely on the stable height).
 - L13: brace-less bodies in `Binding/PSObjectMemberSource.cs` and `Binding/PropertyBinder.cs`; three-part
   `COLORFGBG` values are rejected.
@@ -43,7 +39,7 @@ The review's high findings and M1-M4, M6 and M7 are fixed. Still open, with the 
   sideways. Record a compact phone rendering (a `data-compact` replay with its own poster moment, as the assessment
   replay on /live/ has) and use it below 700 px.
 
-## v1.x (only with a real consumer)
+## Future work (only with a real consumer)
 - Declarative JSON layouts with data binding.
 - Spectre.Console adapter (widgets as `IRenderable`).
 - Remote sources (named pipe or HTTP event stream) so a console can watch another process or service.

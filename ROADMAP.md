@@ -6,7 +6,7 @@ live in [TODO.md](TODO.md).
 The aim: ConsoleMonster is complete enough that moving a product onto it never needs a ConsoleMonster change made for
 that product. Gaps are closed with general extension points, not per-product shims.
 
-## Done (2.0)
+## Shipped through 2.1.0
 
 - A zero-dependency .NET library (netstandard2.0, net472, net8.0) and a thin binary PowerShell module for Windows
   PowerShell 5.1 and PowerShell 7, laid out library-first.
@@ -21,8 +21,8 @@ that product. Gaps are closed with general extension points, not per-product shi
   a `Write-Progress` bridge.
 - `Terminal.Status`, screen and cursor helpers, and markup without a newline.
 - Prompts, forms and wizards, menus and the app shell, a multi-line text area and an interactive grid.
-- Exceptions and PowerShell errors, a dependency-free highlighting engine (`CodeView`, `Show-ConsoleCode`,
-  `Show-ConsoleJson`), and Pester runs with a live dashboard.
+- Exceptions and PowerShell errors, a dependency-free highlighting engine (`CodeView`, `Show-Console -View Code`,
+  `Show-Console -View Json`), and Pester runs with a live dashboard.
 - Export to HTML, SVG, text and asciicast, with the HTML recording player as one native script and a data format that
   sites reuse; public test helpers (`TestTerminal`, `GoldenFile`, `ScreenCapture`,
   `Assert-ConsoleOutput`).
@@ -35,8 +35,8 @@ that product. Gaps are closed with general extension points, not per-product shi
   hide-completed, collapse-when-finished and transient modes, and column summaries in stream output.
 - Built-in labels in English, Polish, German, Spanish, French and Italian, following the UI language, including the
   test-run view.
-- Replaceable regions (`RegionWidget`, `LiveSession.Region`, `New-ConsoleRegion`, `Set-ConsoleRegion`) and keyed live tables
-  (`LiveTable`, `New-ConsoleLiveTable`, `Update-ConsoleLiveTable`) with stable widths, a recent-rows window and sorting.
+- Replaceable regions (`RegionWidget`, `LiveSession.Region`, `New-ConsoleRegion`, `Update-Console`) and keyed live tables
+  (`LiveTable`, `New-ConsoleTable`, `Update-Console`) with stable widths, a recent-rows window and sorting.
 - Emoji and symbol fallback per glyph tier, extensible by apps, with opt-in `:shortcode:` emoji in markup and an
   `Emoji` cell presenter.
 - `Use-ConsoleTarget` to send PowerShell output to a file, a writer, a target or a string.
@@ -56,7 +56,7 @@ that product. Gaps are closed with general extension points, not per-product shi
 
 ## Next
 
-The agreed order. Steps 1–4 shipped in 2.0.x (the everyday-path PR, followed by one PowerShell grammar for every widget and
+The agreed order. Steps 1–4 shipped by 2.1.0 (the everyday-path PR, followed by one PowerShell grammar for every widget and
 the documentation and website round). Steps 5 and 6 are next; product trials in step 5 happen in the referenced
 repositories.
 
@@ -74,8 +74,7 @@ repositories.
    `dotnet new` template, outside the zero-dependency core; a decision paper on a command-line layer
    (`Docs/Proposals/Command-Line-Layer.md`, written as part of this step). (Done.)
 
-   Shipped alongside steps 1–4: one PowerShell grammar for every widget (item commands such as `New-ConsoleTreeNode`,
-   `New-ConsoleStatusItem` and `New-ConsoleLogEntry`, hierarchical objects into `New-ConsoleTree`, and
+   Shipped alongside steps 1–4: one PowerShell grammar for widgets (hierarchical objects into `New-ConsoleTree` and
    `Add-ConsoleItem` for widgets made earlier; see `Docs/PowerShell-Conventions.md`), command help with real examples
    for every cmdlet, and website pages and demos for the everyday path, live runs, help and defaults, Linux and SSH, and
    the .NET packages.
@@ -106,7 +105,8 @@ Grouped under the step they would join; the rest stays unscheduled.
   `Watch-ConsoleSession` to attach from another terminal, including over SSH; per-log highlighting in log regions.
 - With better defaults (step 3): collapsing long JSON arrays; one shared highlighting engine for tools that keep their
   own today (PSPublishModule could consume ConsoleMonster's).
-- With .NET (step 4): an AOT-compiled `cmon` command-line tool.
+- With .NET (step 4): a possible AOT-compiled `cmon` command-line tool; no tool is shipped today.
+- Commander phase 3: a two-panel file manager built on the existing file operations and panel model. The application and host are not shipped.
 - Raster output is available through the optional ConsoleMonster.Graphics package: PNG, GIF and APNG. Further ChartForgeX integration remains a separate proposal.
 
 - With export/raster work: **MP4 without dependencies.** `-Format Mp4` through Media Foundation on Windows and
