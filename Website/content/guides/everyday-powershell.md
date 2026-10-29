@@ -128,6 +128,8 @@ Disable-ConsoleFormatting -Feature FormatCommands       # just this one off agai
 
 `ReadLine` colors the already loaded PSReadLine editor from the active theme, including selection and available inline predictions. `Streams` also colors native progress: `$PSStyle.Progress.Style` on PowerShell 7.2+, or available host progress colors on Windows PowerShell 5.1. The user's progress view, editing mode, key bindings and prediction behavior stay as configured. Missing PSReadLine and unsupported color properties are skipped.
 
+This example also enables the default formatting features and turns them off at the end.
+
 ```powershell
 Import-Module ConsoleMonster
 Set-ConsoleTheme -Theme Light
@@ -135,7 +137,7 @@ Enable-ConsoleFormatting -Include ReadLine, Streams
 Write-Progress -Activity 'Backup' -Status 'Copying archive.zip' -PercentComplete 42
 Write-Progress -Activity 'Backup' -Completed
 Enable-ConsoleFormatting -Include ReadLine, Streams -ProfileSnippet
-Disable-ConsoleFormatting -Feature ReadLine, Streams
+Disable-ConsoleFormatting
 ```
 
 ReadLine is included in the default set. When runspaces share native preferences, the most recently applied installation supplies the colors. Disabling or removing that owner restores the latest surviving installation's colors; the last owner restores the first exact baseline, even after user edits. Re-enable after changing themes. Selecting only `ReadLine` and `Streams` keeps native `Write-*` commands and installs no `Out-Default` function. The defaults also keep every Write-* cmdlet native. The separate `Progress` feature explicitly opts into the native-metadata `Write-Progress` function adapter.

@@ -136,6 +136,17 @@ if ($script:evaluations -ne $nativeEvaluations) { throw "Expressions evaluated $
         $text | Should -Match 'alpha'
     }
 
+    It 'honours NoBuiltIn for FormatCommands without Output' {
+        $text = Invoke-EverydayChild @'
+Enable-ConsoleFormatting -Feature FormatCommands -NoBuiltIn
+if ((Get-ConsoleFormatting).BuiltIn) { throw 'Built-in views remained enabled.' }
+Enable-ConsoleFormatting -Feature FormatCommands
+if (-not (Get-ConsoleFormatting).BuiltIn) { throw 'Built-in views were not restored.' }
+'NO_BUILTIN_OK'
+'@
+        $text | Should -Match 'NO_BUILTIN_OK'
+    }
+
     It 'enables FormatCommands by default and restores custom functions on disable and removal' {
         $text = Invoke-EverydayChild @'
 Enable-ConsoleFormatting

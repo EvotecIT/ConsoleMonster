@@ -19,6 +19,97 @@ namespace SiteFrames.Tests {
         public void Dispose() => Directory.Delete(_folder, true);
 
         [Theory]
+        [InlineData("example")]
+        [InlineData("more")]
+        [InlineData("hidden")]
+        public void FluentChainsKeepRegionAndOrdinaryCommentsBetweenStatements(string region) {
+            string path = Source($$"""
+                using ConsoleMonster.Interactive;
+                var menu = new Menu("Fleet");
+                // <{{region}}>
+                menu.Item("First", item => item.Description("First item"));
+                // Explain the next item.
+                menu.Item("Second", item => item.Description("Second item"));
+                menu.Separator();
+                menu.Exit("Quit");
+                // </{{region}}>
+                // Keep the fixed subtitle after the example.
+                menu.Subtitle = "Fixed time";
+                """);
+
+            string fluent = CSharpRunner.FluentSource(path);
+            CSharpRunner.Check(path, fluent);
+            string[] ordered = { "// <" + region + ">", ".Item(\"First\"", "// Explain the next item.",
+                ".Item(\"Second\"", ".Separator()", ".Exit(\"Quit\")", "// </" + region + ">",
+                "// Keep the fixed subtitle after the example.", ".Subtitle(\"Fixed time\")" };
+            int position = -1;
+            foreach (string text in ordered) {
+                int next = fluent.IndexOf(text, position + 1, StringComparison.Ordinal);
+                Assert.True(next > position, $"Missing or misplaced '{text}' in:\n{fluent}");
+                position = next;
+            }
+            Assert.Contains("menu.Item(\"First\"", fluent, StringComparison.Ordinal);
+            Assert.Contains("menu.Subtitle(\"Fixed time\")", fluent, StringComparison.Ordinal);
+            if (region != "example") {
+                var snippets = SourceSnippets.Program(fluent);
+                Assert.DoesNotContain("// <" + region + ">", snippets.Full, StringComparison.Ordinal);
+                Assert.Contains(".Exit(\"Quit\")", snippets.Full, StringComparison.Ordinal);
+                Assert.Contains(".Subtitle(\"Fixed time\")", snippets.Short, StringComparison.Ordinal);
+            }
+        }
+
+        [Theory]
+        [InlineData("more")]
+        [InlineData("hidden")]
+        [InlineData("example")]
+        public void FluentTranslationKeepsRegionEndingInsideInitializer(string region) {
+            string path = Source($$"""
+                using ConsoleMonster;
+                using ConsoleMonster.Widgets;
+                // <{{region}}>
+                var table = new Table {
+                    Expand = true,
+                    // </{{region}}>
+                    Title = "Report"
+                };
+                Terminal.Write(table);
+                """);
+            string fluent = CSharpRunner.FluentSource(path);
+            Assert.Contains("// <" + region + ">", fluent, StringComparison.Ordinal);
+            Assert.Contains("// </" + region + ">", fluent, StringComparison.Ordinal);
+            Assert.True(fluent.IndexOf("Expand", StringComparison.Ordinal) < fluent.IndexOf("// </" + region + ">", StringComparison.Ordinal), fluent);
+            Assert.True(fluent.IndexOf("// </" + region + ">", StringComparison.Ordinal) < fluent.IndexOf("Title", StringComparison.Ordinal), fluent);
+            if (region != "example") { _ = SourceSnippets.Program(fluent); }
+            CSharpRunner.Check(path, fluent);
+        }
+
+        [Theory]
+        [InlineData("more")]
+        [InlineData("hidden")]
+        [InlineData("example")]
+        public void FluentTranslationKeepsRegionStartingInsideInitializer(string region) {
+            string path = Source($$"""
+                using ConsoleMonster;
+                using ConsoleMonster.Widgets;
+                var table = new Table {
+                    Expand = true,
+                    // <{{region}}>
+                    Title = "Report"
+                };
+                // </{{region}}>
+                Terminal.Write(table);
+                """);
+            string fluent = CSharpRunner.FluentSource(path);
+            int expand = fluent.IndexOf("Expand", StringComparison.Ordinal);
+            int open = fluent.IndexOf("// <" + region + ">", StringComparison.Ordinal);
+            int title = fluent.IndexOf("Title", StringComparison.Ordinal);
+            int close = fluent.IndexOf("// </" + region + ">", StringComparison.Ordinal);
+            Assert.True(expand >= 0 && expand < open && open < title && title < close, fluent);
+            if (region != "example") { _ = SourceSnippets.Program(fluent); }
+            CSharpRunner.Check(path, fluent);
+        }
+
+        [Theory]
         [InlineData("int n = 0; Terminal.Write(new Rows(new TextBlock((++n).ToString()), new TextBlock(\"B\")) { Gap = n });")]
         [InlineData("Terminal.Write(new Panel(new TextBlock(\"Ready\"), ConsoleMonster.Text.RichText.Plain(\"Build\")));")]
         [InlineData("Terminal.Write(new Rows(new TextBlock(markup: \"Ready\"), new Rule(ConsoleMonster.Text.RichText.Plain(\"Build\"))));")]
@@ -249,9 +340,18 @@ namespace SiteFrames.Tests {
                 CSharpRunner.Check(path, Site.ReadText(path));
                 SourceStyles.Add(site, new JsonObject(), path);
             }
-            SourceStyles.Add(site, new JsonObject(), Path.Combine(website, "examples", "demos", "fleet.cs"),
+            var fleet = SourceStyles.Add(site, new JsonObject(), Path.Combine(website, "examples", "demos", "fleet.cs"),
                 Path.Combine(site.Repository, "ConsoleMonster.Examples", "Showcases", "FleetHealth.cs"),
                 Path.Combine(site.Repository, "ConsoleMonster.Examples", "Showcases", "FleetData.cs"));
+            var health = fleet["csharpFluentFiles"]!.AsArray().Single(file => file!["file"]!.GetValue<string>() == "FleetHealth.cs")!;
+            string excerpt = SourceSnippets.GetFromText(health["code"]!.GetValue<string>(), "Build", "FleetHealth.cs");
+            string[] menu = { "\"Presets\"", "\"New check\"", "\"History\"", ".Separator()", ".Exit(\"Quit\")" };
+            int position = -1;
+            foreach (string item in menu) {
+                int next = excerpt.IndexOf(item, position + 1, StringComparison.Ordinal);
+                Assert.True(next > position, $"Missing or misplaced {item} in:\n{excerpt}");
+                position = next;
+            }
         }
 
         [Fact]

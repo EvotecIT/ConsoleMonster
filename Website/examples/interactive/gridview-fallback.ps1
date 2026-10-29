@@ -1,5 +1,6 @@
 ﻿# On a desktop with working Out-GridView, the native window remains in charge.
 Import-Module ConsoleMonster
+$previousFeatures = @((Get-ConsoleFormatting).Features)
 Enable-ConsoleFormatting -Include GridView
 $nodes = @(
     [pscustomobject] @{ Name = 'api-east'; Region = 'eu-west'; Version = '2.4.1' }
@@ -9,5 +10,10 @@ $nodes = @(
 try {
     $nodes | Out-GridView -Title 'Choose nodes' -OutputMode Multiple
 } finally {
-    Disable-ConsoleFormatting -Feature GridView
+    $addedFeatures = @((Get-ConsoleFormatting).Features | Where-Object {
+        $_ -notin $previousFeatures
+    })
+    if ($addedFeatures.Count -gt 0) {
+        Disable-ConsoleFormatting -Feature $addedFeatures
+    }
 }

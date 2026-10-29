@@ -120,6 +120,8 @@ captures for each of the six shapes and eight runtime/width/theme combinations.
 
 Use `Streams` to give PowerShell's own messages the active theme's warning, information, muted and failure tones. Choose the theme before enabling it, or re-enable `Streams` to apply a new theme.
 
+These examples also enable the default formatting features. Disabling formatting at the end restores the session.
+
 ```powershell
 Set-ConsoleTheme -Theme Light
 Enable-ConsoleFormatting -Include Streams
@@ -129,7 +131,7 @@ Write-Debug 'Using the local cache' -Debug
 
 # Prints the corresponding profile lines; does not change the profile or settings.
 Enable-ConsoleFormatting -Include Streams -ProfileSnippet
-Disable-ConsoleFormatting -Feature Streams
+Disable-ConsoleFormatting
 ```
 
 PowerShell 7.2 and later use `$PSStyle.Formatting.Warning`, `.Verbose`, `.Debug` and `.Error`. Windows PowerShell 5.1 uses the host's available `$Host.PrivateData` warning, verbose, debug and progress foreground/background colors. Theme tones with a transparent background use the host's current background. Hosts with missing or unwritable properties are left alone; this includes headless and remoting hosts. PowerShell controls when colors appear, including its own redirected-output and transcript rules.
@@ -140,7 +142,7 @@ The original values are saved once for each native object and property while any
 
 ## Command-line editor and native progress
 
-`ReadLine` applies the active theme to the already loaded PSReadLine editor: commands, parameters, strings, variables, numbers, operators, comments, keywords, types, errors, selected text and available inline predictions. It uses the same syntax roles as ConsoleMonster's code highlighter, a contrasting selection background and muted prediction text. It is included in `All`. If PSReadLine is absent, the feature does nothing; it does not import the module or enable predictions. The terminal profile controls colour depth; explicit no-colour or plain-text settings keep the editor's colours unchanged. Closing or disposing an owning runspace releases its editor and native stream/progress colours, restoring the latest surviving owner or the original baseline.
+`ReadLine` applies the active theme to the already loaded PSReadLine editor: commands, parameters, strings, variables, numbers, operators, comments, keywords, types, errors, selected text and available inline predictions. It uses the same syntax roles as ConsoleMonster's code highlighter, a contrasting selection background and muted prediction text. It is included in the default set. If PSReadLine is absent, the feature does nothing; it does not import the module or enable predictions. The terminal profile controls colour depth; explicit no-colour or plain-text settings keep the editor's colours unchanged. Closing or disposing an owning runspace releases its editor and native stream/progress colours, restoring the latest surviving owner or the original baseline.
 
 ```powershell
 Import-Module ConsoleMonster
@@ -152,7 +154,7 @@ Write-Progress -Id 1 -Activity 'Backup' -Status 'Copying archive.zip' -PercentCo
 Write-Progress -Id 1 -Activity 'Backup' -Completed
 
 Enable-ConsoleFormatting -Include ReadLine, Streams -ProfileSnippet
-Disable-ConsoleFormatting -Feature ReadLine, Streams
+Disable-ConsoleFormatting
 ```
 
 `Streams` also sets `$PSStyle.Progress.Style` on PowerShell 7.2 and later, keeping `View`, width and other progress preferences as you set them. On Windows PowerShell 5.1 it sets the host's available progress foreground/background colors. Unsupported or unwritable properties are skipped. `Write-Progress` keeps native records, preferences and completion behavior. The separate `Progress` feature installs the native-metadata `Write-Progress` function adapter; selecting only `ReadLine` and `Streams` installs neither that function adapter nor an `Out-Default` function.

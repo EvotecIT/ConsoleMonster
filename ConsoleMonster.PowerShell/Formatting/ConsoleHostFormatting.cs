@@ -120,7 +120,7 @@ namespace ConsoleMonster.PowerShell {
                 ConsoleFormatting.Features |= ConsoleFormattingFeature.Help;
                 ConsoleFormatting.RestoreCommandsWithModule(source.MyInvocation.MyCommand.Module);
             }
-            if ((wanted & ConsoleFormattingFeature.Output) != 0) {
+            if ((wanted & (ConsoleFormattingFeature.Output | ConsoleFormattingFeature.FormatCommands)) != 0) {
                 ConsoleFormatting.TakeOverBuiltIns = options.BuiltIn;
             }
             ConsoleFormatting.Features |= wanted;

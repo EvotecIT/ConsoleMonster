@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json.Nodes;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using SiteFrames.Capture;
 
 namespace SiteFrames.Pages {
@@ -23,8 +25,17 @@ namespace SiteFrames.Pages {
                 Generated.Add(key, generated);
             }
             (string shortForm, string full) snippet;
-            try { snippet = SourceSnippets.Program(generated[path]); }
-            catch (InvalidOperationException error) { throw new InvalidDataException(path + ": " + error.Message, error); }
+            try {
+                // Fluent tabs have historically displayed the whole translated program. Keep that
+                // presentation while retaining fold boundaries during the translation itself.
+                string visible = SourceSnippets.Split(generated[path]).Full;
+                if (generated[path].Contains("// <more>", StringComparison.Ordinal)
+                    || generated[path].Contains("// <hidden>", StringComparison.Ordinal)) {
+                    visible = SourceLayout.Format(CSharpSyntaxTree.ParseText(visible).GetRoot()
+                        .NormalizeWhitespace(indentation: "    ", eol: "\n").ToFullString());
+                }
+                snippet = SourceSnippets.Program(visible);
+            } catch (InvalidOperationException error) { throw new InvalidDataException(path + ": " + error.Message, error); }
             var (shortForm, full) = snippet;
             string script = Path.ChangeExtension(path, ".ps1");
             if (entry["powershell"] == null && entry["script"] == null && File.Exists(script)) {

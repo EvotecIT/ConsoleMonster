@@ -22,6 +22,7 @@ namespace SiteFrames.Capture {
                 return Rewrite(node, SyntaxFactory.ObjectCreationExpression(SyntaxFactory.ParseTypeName(type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)), visited.ArgumentList, visited.Initializer));
             }
             private ExpressionSyntax Rewrite(BaseObjectCreationExpressionSyntax original, ObjectCreationExpressionSyntax visited, bool stageArguments = true) {
+                if (HasInitializerBoundaryTrivia(original.Initializer)) { return visited; }
                 // Moving a declaration into Content or an argument-staging lambda would
                 // change its caller scope. Keep this uncommon authoring form intact.
                 if (HasArgumentDeclarations(original)) { return visited; }
