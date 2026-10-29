@@ -340,4 +340,76 @@ public sealed class DashboardFrameTests {
         frame.Attention.Items.Add(new AttentionItem(HealthState.Failing, "B", "y", "text"));
         Assert.Contains("B", Render(frame, 100));
     }
+
+    [Fact]
+    public void Attention_GroupedMixedOrderKeys_RetainsEveryIdentity() {
+        DashboardFrame frame = new DashboardFrame("Mixed group");
+        frame.Attention.Items.Add(new AttentionItem(HealthState.Failing, "SRV01", "no answer", 5));
+        frame.Attention.Items.Add(new AttentionItem(HealthState.Failing, "SRV02", "no answer", "text"));
+        frame.Attention.Items.Add(new AttentionItem(HealthState.Failing, "SRV03", "no answer", 2));
+        string text = Render(frame, 100);
+        Assert.Contains("SRV01, SRV02, SRV03", text);
+        Assert.Single(Lines(text), line => line.Contains("no answer"));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Attention_SummaryBudget_CountsRenderedLinesAndOmittedTargets(bool grouped) {
+        DashboardFrame frame = new DashboardFrame("Servers");
+        for (int i = 0; i < 200; i++) {
+            string reason = grouped ? "query timed out" : "query timed out while collecting every pending volume and service for the current server state " + i;
+            frame.Attention.Items.Add(new AttentionItem(HealthState.Failing, "SRV" + i.ToString("000"), reason));
+        }
+        string text = Render(frame, 80, 20, length: ConsoleViewLength.Summary);
+        string[] lines = Lines(text);
+        int start = Array.FindIndex(lines, line => line.Contains("Needs attention")) + 1;
+        int more = Array.FindIndex(lines, line => line.Contains(" more "));
+        Assert.InRange(more - start, 1, 6);
+        int named = System.Text.RegularExpressions.Regex.Matches(text, @"SRV\d{3}").Count;
+        Assert.InRange(named, 1, 199);
+        Assert.Contains("+" + (200 - named) + " more", text);
+        Assert.Contains("SRV199", Render(frame, 80, 20, length: ConsoleViewLength.Standard));
+        Assert.Contains("SRV199", Render(frame, 80, 20, length: ConsoleViewLength.Full));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void GroupedRows_ShortCells_PreserveDistinctHeadingsAndStates(bool collapsed) {
+        string[] groups = Enumerable.Range(0, collapsed ? 60 : 2).Select(i => i % 2 == 0 ? "LON-HQ" : "LON-DR").ToArray();
+        GroupedRows<string> rows = new GroupedRows<string>(groups, value => value, FrameScale.Of(120, 40));
+        rows.Columns.Add(new GroupedColumn<string>("DC", (_, _) => "A"));
+        rows.IsHealthy = _ => collapsed;
+        rows.Heading = (_, _) => {
+            GroupHeading heading = new GroupHeading();
+            heading.States.Add(FrameState.Of(HealthState.Warning, 1, "pending"));
+            return heading;
+        };
+        string text = TestTerminal.RenderText(rows, 118, 0, GlyphTier.Full, CultureInfo.InvariantCulture);
+        Assert.Contains("LON-HQ  ▴ 1 pending", text);
+        Assert.Contains("LON-DR  ▴ 1 pending", text);
+        if (collapsed) Assert.Contains("60 healthy rows not listed", text);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Packing_CappedGrow_ReassignsSpaceRegardlessOfSectionOrder(bool cappedFirst) {
+        int growingWidth = 0, cappedWidth = 0;
+        FrameSection growing = new FrameSection("Growing", context => {
+            growingWidth = context.Width;
+            return TextBlock.Plain("growing");
+        }) { MinWidth = 20, Grow = 1 };
+        FrameSection capped = new FrameSection("Capped", context => {
+            cappedWidth = context.Width;
+            return TextBlock.Plain("capped");
+        }) { MinWidth = 20, MaxWidth = 30, Grow = 1 };
+        DashboardFrame frame = new DashboardFrame("Allocation");
+        frame.Sections.Add(cappedFirst ? capped : growing);
+        frame.Sections.Add(cappedFirst ? growing : capped);
+        Render(frame, 120);
+        Assert.Equal(30, cappedWidth);
+        Assert.Equal(86, growingWidth);
+    }
 }

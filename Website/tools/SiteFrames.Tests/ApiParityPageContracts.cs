@@ -30,6 +30,10 @@ namespace SiteFrames.Tests {
                 Assert.Contains(page.Split('\n'), line => line.StartsWith("## ", StringComparison.Ordinal));
                 Assert.DoesNotContain('\r', document);
                 Assert.DoesNotContain('\r', page);
+                Assert.Contains("``ConsoleMonster.Frames.GroupedColumn`1.AlignRight``", document);
+                Assert.Contains("<code>ConsoleMonster.Frames.GroupedColumn`1.AlignRight</code>", page);
+                Assert.Contains("<code>ConsoleMonster.Frames.GroupedRows`1.Heading</code>", page);
+                Assert.DoesNotContain("<code></code>", page);
             } finally {
                 if (Directory.Exists(temporary)) { Directory.Delete(temporary, recursive: true); }
             }

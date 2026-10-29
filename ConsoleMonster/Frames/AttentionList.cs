@@ -73,7 +73,7 @@ public sealed class AttentionList {
                 AttentionItem[] members = same.ToArray();
                 if (_list.GroupAtLeast > 1 && members.Length >= _list.GroupAtLeast && members[0].Reason.Length > 0) {
                     entries.Add(new Entry(members[0].State, FrameText.Count(members.Length, _list.Noun, _list.PluralNoun, context), members[0].Reason, null,
-                        members.Select(item => item.Identity).ToArray(), members.Min(item => item.Order)));
+                        members.Select(item => item.Identity).ToArray(), members.Select(item => item.Order).OrderBy(order => order, Comparer<IComparable?>.Create(Compare)).First()));
                     foreach (AttentionItem item in members) grouped.Add(item);
                 }
             }
@@ -110,8 +110,10 @@ public sealed class AttentionList {
             bool narrow = false;
             for (int i = 0; i < shown && !narrow; i++) narrow = WideWidth(entries[i], identity, valueWidths, context) > width;
             List<StyledLine> lines = new List<StyledLine>();
+            int represented = 0;
             for (int i = 0; i < shown; i++) {
                 Entry entry = entries[i];
+                List<StyledLine> itemLines = new List<StyledLine>();
                 string tag = FrameText.Tag(entry.State);
                 List<TextSpan> spans = new List<TextSpan>();
                 spans.AddRange(FrameText.Line("[" + tag + "]" + FrameText.Glyph(entry.State, context) + "[/] ", context));
@@ -127,25 +129,58 @@ public sealed class AttentionList {
                 }
                 StyledLine reason = FrameText.Line("[muted]" + FrameText.Escape(entry.Reason) + "[/]", context);
                 if (narrow) {
-                    lines.Add(Truncate(new StyledLine(spans), width, context));
-                    if (reason.Width > 0) lines.Add(Truncate(Indent(reason, 2), width, context));
+                    itemLines.Add(Truncate(new StyledLine(spans), width, context));
+                    if (reason.Width > 0) itemLines.Add(Truncate(Indent(reason, 2), width, context));
                 } else {
                     spans.Add(new TextSpan("  "));
                     spans.AddRange(reason);
-                    lines.Add(Truncate(new StyledLine(spans), width, context));
+                    itemLines.Add(Truncate(new StyledLine(spans), width, context));
                 }
+                if (itemLines.Count > cap - lines.Count) break;
+                lines.AddRange(itemLines);
                 if (entry.Names != null) {
-                    StyledLine names = FrameText.Line("[muted]" + FrameText.Escape(string.Join(", ", entry.Names)) + "[/]", context);
-                    foreach (StyledLine wrapped in TextWrapper.Wrap(names, Math.Max(1, width - 2))) lines.Add(Indent(wrapped, 2));
-                }
+                    if (_scale.AttentionCap.HasValue) represented += SummaryNames(entry.Names, width, cap - lines.Count, context, lines);
+                    else {
+                        StyledLine names = FrameText.Line("[muted]" + FrameText.Escape(string.Join(", ", entry.Names)) + "[/]", context);
+                        foreach (StyledLine wrapped in TextWrapper.Wrap(names, Math.Max(1, width - 2))) lines.Add(Indent(wrapped, 2));
+                        represented += entry.Names.Length;
+                    }
+                } else represented++;
+                if (lines.Count >= cap) break;
             }
-            if (shown < entries.Count) {
-                long hidden = 0;
-                for (int i = shown; i < entries.Count; i++) hidden += entries[i].Names?.Length ?? 1;
+            long hidden = _items.Length - represented;
+            if (hidden > 0) {
                 lines.Add(FrameText.Line("[muted]+" + FrameText.Number(hidden, context) + " more " + FrameText.Dot(context)
                     + " set $ConsoleViewLengthPreference = 'Standard' for every item[/]", context));
             }
             return lines;
+        }
+
+        // Keep whole identities within the Summary line budget, so the omitted count names targets, not wrapped lines.
+        private static int SummaryNames(string[] names, int width, int limit, RenderContext context, List<StyledLine> lines) {
+            int inner = Math.Max(1, width - 2);
+            int used = 0, shown = 0;
+            string pending = string.Empty;
+            foreach (string name in names) {
+                if (used >= limit) break;
+                string literal = FrameText.Escape(name);
+                string candidate = pending.Length == 0 ? literal : pending + ", " + literal;
+                if (FrameText.Width(candidate, context) <= inner) { pending = candidate; shown++; continue; }
+                if (pending.Length > 0) {
+                    lines.Add(Indent(FrameText.Line("[muted]" + pending + "[/]", context), 2));
+                    used++; pending = string.Empty;
+                    if (used >= limit) break;
+                }
+                StyledLine single = FrameText.Line("[muted]" + literal + "[/]", context);
+                if (single.Width > inner) {
+                    IReadOnlyList<StyledLine> wrapped = TextWrapper.Wrap(single, inner);
+                    if (wrapped.Count > limit - used) break;
+                    foreach (StyledLine part in wrapped) lines.Add(Indent(part, 2));
+                    used += wrapped.Count; shown++;
+                } else { pending = literal; shown++; }
+            }
+            if (pending.Length > 0) lines.Add(Indent(FrameText.Line("[muted]" + pending + "[/]", context), 2));
+            return shown;
         }
 
         private static int WideWidth(Entry entry, int identity, int[] values, RenderContext context) {

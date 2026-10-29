@@ -218,18 +218,22 @@ public sealed class DashboardFrame : IWidget {
                 widths[i] += add; rest -= add;
             }
         }
-        double weights = 0;
-        foreach (FrameSection section in row) weights += Math.Max(0, section.Grow);
         if (row.Count == 1 && (row[0].FullWidth || row[0].Grow > 0)) { widths[0] = Math.Min(available, row[0].MaxWidth ?? available); rest = 0; }
-        if (rest > 0 && weights > 0) {
+        while (rest > 0) {
+            double weights = 0;
+            for (int i = 0; i < row.Count; i++) {
+                if (widths[i] < (row[i].MaxWidth ?? available)) weights += Math.Max(0, row[i].Grow);
+            }
+            if (weights <= 0) break;
             int given = 0, last = -1;
             for (int i = 0; i < row.Count; i++) {
-                if (row[i].Grow <= 0) continue;
+                if (row[i].Grow <= 0 || widths[i] >= (row[i].MaxWidth ?? available)) continue;
                 int share = (int)Math.Floor(rest * row[i].Grow / weights);
                 if (row[i].MaxWidth.HasValue) share = Math.Min(share, Math.Max(0, row[i].MaxWidth!.Value - widths[i]));
                 widths[i] += share; given += share; last = i;
             }
-            if (last >= 0 && !row[last].MaxWidth.HasValue) widths[last] += rest - given;
+            rest -= given;
+            if (given == 0 && last >= 0) { widths[last]++; rest--; }
         }
         return widths;
     }

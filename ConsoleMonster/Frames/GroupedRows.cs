@@ -152,7 +152,9 @@ public sealed class GroupedRows<T> : IWidget {
         r = 0;
         foreach ((string key, List<T> rows, List<T> shown) in plan) {
             if (shown.Count == 0 && !collapse) continue;
-            List<StyledLine> lines = new List<StyledLine> { GroupLine(key, rows, layout.Total, context) };
+            StyledLine heading = GroupLine(key, rows, context);
+            layout.Total = Math.Min(width, Math.Max(layout.Total, heading.Width));
+            List<StyledLine> lines = new List<StyledLine> { heading };
             foreach (T _ in shown) {
                 List<TextSpan> spans = new List<TextSpan>();
                 for (int c = 0; c < columns; c++) {
@@ -172,7 +174,7 @@ public sealed class GroupedRows<T> : IWidget {
         return layout;
     }
 
-    private StyledLine GroupLine(string key, IReadOnlyList<T> rows, int width, RenderContext context) {
+    private StyledLine GroupLine(string key, IReadOnlyList<T> rows, RenderContext context) {
         GroupHeading heading = Heading?.Invoke(key, rows) ?? new GroupHeading();
         List<string> facts = new List<string>();
         foreach (string fact in heading.Facts) { if (!string.IsNullOrWhiteSpace(fact)) facts.Add(FrameText.Escape(fact)); }
@@ -180,8 +182,7 @@ public sealed class GroupedRows<T> : IWidget {
         string markup = "[strong bold]" + FrameText.Escape(key) + "[/]";
         if (facts.Count > 0) markup += "  [muted]" + string.Join(" " + FrameText.Dot(context) + " ", facts) + "[/]";
         if (state.Length > 0) markup += (facts.Count > 0 ? " [muted]" + FrameText.Dot(context) + "[/] " : "  ") + state;
-        StyledLine result = FrameText.Line(markup, context);
-        return result.Width > width ? TextWrapper.Truncate(result, width, context.Ellipsis) : result;
+        return FrameText.Line(markup, context);
     }
 
     private List<List<StyledLine>> Flow(Layout layout, int width) {
