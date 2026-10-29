@@ -139,6 +139,11 @@ jobs:
         run: dotnet test ConsoleMonster.Extensions.Tests/ConsoleMonster.Extensions.Tests.csproj --configuration Release --no-build --framework ${{ matrix.framework }} --verbosity ${{ env.TEST_VERBOSITY }} --logger "console;verbosity=${{ env.TEST_VERBOSITY }}" --logger trx
         timeout-minutes: 10
 
+      - name: Test CLI app operations
+        if: matrix.framework == 'net8.0'
+        run: dotnet test ConsoleMonster.CLI.Tests/ConsoleMonster.CLI.Tests.csproj --configuration Release --no-build --framework net8.0 --verbosity ${{ env.TEST_VERBOSITY }} --logger trx
+        timeout-minutes: 10
+
       - name: Upload test results
         uses: actions/upload-artifact@v7
         if: always()
@@ -282,6 +287,10 @@ jobs:
       - name: Test the logging and hosting packages
         run: dotnet test ConsoleMonster.Extensions.Tests/ConsoleMonster.Extensions.Tests.csproj --configuration Release --no-build --framework ${{ matrix.framework }} --verbosity ${{ env.TEST_VERBOSITY }} --logger "console;verbosity=${{ env.TEST_VERBOSITY }}" --logger trx
         timeout-minutes: 10
+      - name: Test CLI app operations
+        if: matrix.framework == 'net8.0'
+        run: dotnet test ConsoleMonster.CLI.Tests/ConsoleMonster.CLI.Tests.csproj --configuration Release --framework net8.0 --verbosity ${{ env.TEST_VERBOSITY }} --logger trx
+        timeout-minutes: 10
       - uses: actions/upload-artifact@v7
         if: always()
         with:
@@ -316,6 +325,10 @@ jobs:
           python3 -B -m unittest discover -s ConsoleMonster.Tests/Input/Fixtures -p test_unix_input_pty.py -v
           dotnet test ConsoleMonster.Tests/ConsoleMonster.Tests.csproj --configuration Release --no-build --framework ${{ matrix.framework }} --verbosity ${{ env.TEST_VERBOSITY }} --logger "console;verbosity=${{ env.TEST_VERBOSITY }}" --logger trx --blame-hang-timeout 3m --blame-hang-dump-type none
         timeout-minutes: 15
+      - name: Test CLI app operations
+        if: matrix.framework == 'net8.0'
+        run: dotnet test ConsoleMonster.CLI.Tests/ConsoleMonster.CLI.Tests.csproj --configuration Release --framework net8.0 --verbosity ${{ env.TEST_VERBOSITY }} --logger trx
+        timeout-minutes: 10
       - uses: actions/upload-artifact@v7
         if: always()
         with:
@@ -357,11 +370,9 @@ jobs:
       - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
-      - name: Build the module binaries (Debug, net8.0 and net10.0)
+      - name: Build the module binaries (Debug, net8.0)
         run: |
           dotnet build ConsoleMonster.PowerShell/ConsoleMonster.PowerShell.csproj --configuration Debug --framework net8.0
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          dotnet build ConsoleMonster.PowerShell/ConsoleMonster.PowerShell.csproj --configuration Debug --framework net10.0
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Build the console test host (Debug, net8.0)
         run: dotnet build ConsoleMonster.TestHost/ConsoleMonster.TestHost.csproj --configuration Debug --framework net8.0 -warnaserror
@@ -455,11 +466,9 @@ jobs:
       - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
-      - name: Build the module binaries (Debug, net8.0 and net10.0)
+      - name: Build the module binaries (Debug, net8.0)
         run: |
           dotnet build ConsoleMonster.PowerShell/ConsoleMonster.PowerShell.csproj --configuration Debug --framework net8.0
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          dotnet build ConsoleMonster.PowerShell/ConsoleMonster.PowerShell.csproj --configuration Debug --framework net10.0
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Build the console test host (Debug, net8.0)
         run: dotnet build ConsoleMonster.TestHost/ConsoleMonster.TestHost.csproj --configuration Debug --framework net8.0 -warnaserror

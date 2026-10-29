@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <AssemblyName>ConsoleMonster.CLI</AssemblyName>
+        <Description>Application-owned Commander and file operations for the future cmon host.</Description>
+        <IsPackable>false</IsPackable>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\ConsoleMonster\ConsoleMonster.csproj" />
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+            <_Parameter1>ConsoleMonster.CLI.Tests</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
+</Project>
