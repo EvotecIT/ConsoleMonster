@@ -24,11 +24,11 @@ public sealed class ViewHeader : IWidget {
     public bool Streaming { get; set; }
     /// <summary>The natural width before applying the compact title layout.</summary>
     public int NaturalWidth(RenderContext context) => context.Markup(Left(context)).Lines[0].Width
-        + (Streaming ? context.Glyphs.Get(Glyph.Dot).Length + 2 + "streaming".Length : State.Length == 0 ? 0 : context.Markup(State).Lines[0].Width + 5);
+        + (Streaming ? context.Glyphs.Get(Glyph.Dot).Length + 2 + "streaming".Length : State.Length == 0 ? 0 : FactFlow.TierSeparators(context.Markup(State).Lines[0], context).Width + 5);
     /// <summary>Natural compact width when the full title/facts/state line cannot fit.</summary>
     public int CompactWidth(int available, RenderContext context) {
         int title = context.Markup("[accent bold]" + Markup.Escape(Title) + "[/]").Lines[0].Width;
-        int state = context.Markup(State).Lines[0].Width;
+        int state = FactFlow.TierSeparators(context.Markup(State).Lines[0], context).Width;
         int first = title + state + 5 <= available ? title + state + 5 : Math.Max(title, state);
         int facts = Facts.Count == 0 ? 0 : new FactFlow(Facts).Measure(new Constraints(available), context).Width;
         return Math.Min(available, Math.Max(first, facts));
@@ -66,7 +66,7 @@ public sealed class ViewHeader : IWidget {
             if (Facts.Count > 0) { result.AddRange(new FactFlow(Facts) { Role = Styling.ThemeToken.Muted }.Lines(width, context)); }
         } else {
             result.Add(TextWrapper.Truncate(context.Markup(title).Lines[0], width, context.Ellipsis));
-            foreach (StyledLine part in FactFlow.WrapSeparated(rawState, width, " · ")) result.Add(FactFlow.TierSeparators(part, context));
+            result.AddRange(FactFlow.WrapSeparated(rawState, width, " · ", convert: part => FactFlow.TierSeparators(part, context)));
             if (Facts.Count > 0) { result.AddRange(new FactFlow(Facts) { Role = Styling.ThemeToken.Muted }.Lines(width, context)); }
         }
         return result;

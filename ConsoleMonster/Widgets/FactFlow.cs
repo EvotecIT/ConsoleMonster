@@ -31,7 +31,7 @@ public sealed class FactFlow : IWidget {
         return new StyledLine(spans);
     }
     // Preserve the styles of complete entries while breaking only at their separators.
-    internal static List<StyledLine> WrapSeparated(StyledLine line, int width, string separator) {
+    internal static List<StyledLine> WrapSeparated(StyledLine line, int width, string separator, bool preserveSeparator = false, Func<StyledLine, StyledLine>? convert = null) {
         List<StyledLine> result = new List<StyledLine>();
         string plain = line.PlainText;
         List<TextSpan> current = new List<TextSpan>();
@@ -39,24 +39,27 @@ public sealed class FactFlow : IWidget {
         while (position <= plain.Length) {
             int next = plain.IndexOf(separator, position, StringComparison.Ordinal);
             int end = next < 0 ? plain.Length : next;
-            StyledLine part = Slice(position, end);
-            List<TextSpan> joinedSpans = new List<TextSpan>(current);
-            if (current.Count > 0) joinedSpans.AddRange(Slice(position - separator.Length, position));
-            joinedSpans.AddRange(part);
-            StyledLine joined = new StyledLine(joinedSpans);
-            if (current.Count > 0 && joined.Width > width) {
-                result.Add(new StyledLine(current));
+            List<TextSpan> token = new List<TextSpan>();
+            if (preserveSeparator && position > 0) token.AddRange(Slice(position - separator.Length, position));
+            token.AddRange(Slice(position, end));
+            List<TextSpan> joined = new List<TextSpan>(current);
+            if (!preserveSeparator && current.Count > 0) joined.AddRange(Slice(position - separator.Length, position));
+            joined.AddRange(token);
+            if (current.Count > 0 && Convert(new StyledLine(joined)).Width > width) {
+                result.Add(Convert(new StyledLine(current)));
                 current.Clear();
-            } else if (current.Count > 0) {
-                current.AddRange(Slice(position - separator.Length, position));
+                joined = token;
             }
-            if (part.Width > width) { result.AddRange(TextWrapper.Wrap(part, Math.Max(1, width))); }
-            else { current.AddRange(part); }
+            StyledLine fitted = Convert(new StyledLine(joined));
+            if (fitted.Width > width) { result.AddRange(TextWrapper.Wrap(fitted, Math.Max(1, width))); current.Clear(); }
+            else { current = joined; }
             if (next < 0) break;
             position = next + separator.Length;
         }
-        if (current.Count > 0) result.Add(new StyledLine(current));
+        if (current.Count > 0) result.Add(Convert(new StyledLine(current)));
         return result;
+
+        StyledLine Convert(StyledLine value) => convert == null ? value : convert(value);
 
         StyledLine Slice(int start, int end) {
             List<TextSpan> spans = new List<TextSpan>();

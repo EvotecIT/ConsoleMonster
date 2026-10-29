@@ -78,15 +78,17 @@ namespace ConsoleMonster.Widgets {
             List<StyledLine> result = new List<StyledLine>();
             foreach (StyledLine raw in text.Lines) {
                 StyledLine line = raw.WithBaseStyle(baseStyle);
-                if (line.Width <= width || width <= 0) {
-                    result.Add(WrapSeparator == " · " ? FactFlow.TierSeparators(line, context) : line);
+                StyledLine convertedLine = WrapSeparator == " · " ? FactFlow.TierSeparators(line, context) : line;
+                if (convertedLine.Width <= width || width <= 0) {
+                    result.Add(convertedLine);
                 } else if (Overflow == TextOverflow.Wrap) {
                     IEnumerable<StyledLine> wrapped = !string.IsNullOrEmpty(separator) && line.PlainText.Contains(separator!)
-                        ? FactFlow.WrapSeparated(line, width, separator!) : TextWrapper.Wrap(line, width);
-                    foreach (StyledLine part in wrapped) result.Add(WrapSeparator == " · " ? FactFlow.TierSeparators(part, context) : part);
+                        ? FactFlow.WrapSeparated(line, width, separator!, preserveSeparator: separator != " · ",
+                            convert: separator == " · " ? part => FactFlow.TierSeparators(part, context) : null)
+                        : TextWrapper.Wrap(convertedLine, width);
+                    result.AddRange(wrapped);
                 } else {
-                    StyledLine converted = WrapSeparator == " · " ? FactFlow.TierSeparators(line, context) : line;
-                    result.Add(TextWrapper.Truncate(converted, width, Overflow == TextOverflow.Ellipsis ? context.Ellipsis : string.Empty));
+                    result.Add(TextWrapper.Truncate(convertedLine, width, Overflow == TextOverflow.Ellipsis ? context.Ellipsis : string.Empty));
                 }
             }
             return result;

@@ -1,7 +1,10 @@
 using System;
 using System.Linq;
 using ConsoleMonster.Capabilities;
+using ConsoleMonster.Canvas;
+using ConsoleMonster.Glyphs;
 using ConsoleMonster.Layout;
+using ConsoleMonster.Rendering;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Testing;
 using ConsoleMonster.Widgets;
@@ -10,6 +13,38 @@ using Xunit;
 namespace ConsoleMonster.Tests.Widgets;
 
 public sealed class ConsoleViewSystemTests {
+    [Theory]
+    [InlineData("/etc/passwd")]
+    [InlineData("/etc//passwd/")]
+    public void TextBlock_CustomSeparator_PreservesPathAcrossWraps(string path) {
+        TextBlock text = TextBlock.Plain(path); text.WrapSeparator = "/";
+        string rendered = TestTerminal.RenderText(text, 6, height: 5, glyphs: GlyphTier.Full);
+        Assert.Equal(path, string.Concat(rendered.Split('\n').Select(line => line.Trim())));
+    }
+
+    [Fact]
+    public void MultiCellDot_WrapsBeforeRenderingWithoutClippingText() {
+        RenderContext context = new RenderContext(TestTerminal.Profile(5, 5), Theme.Dark, new WideDotGlyphSet());
+        TextBlock text = TextBlock.Plain("a · b"); text.WrapSeparator = " · ";
+        string block = FrameComposer.Compose(text, 5, 5, context).ToPlainText();
+        string header = FrameComposer.Compose(new ViewHeader("H", "a · b"), 5, 5, context).ToPlainText();
+        Assert.Contains("a", block); Assert.Contains("b", block);
+        Assert.Contains("a", header); Assert.Contains("b", header);
+    }
+
+    private sealed class WideDotGlyphSet : IGlyphSet {
+        private readonly IGlyphSet _base = GlyphSet.Full;
+        public GlyphTier Tier => _base.Tier;
+        public bool SupportsBraille => _base.SupportsBraille;
+        public bool SupportsHalfBlocks => _base.SupportsHalfBlocks;
+        public System.Collections.Generic.IReadOnlyList<string> SpinnerFrames => _base.SpinnerFrames;
+        public System.Collections.Generic.IReadOnlyList<string> VerticalRamp => _base.VerticalRamp;
+        public string Get(Glyph glyph) => glyph == Glyph.Dot ? "++" : _base.Get(glyph);
+        public BoxGlyphs GetBox(BoxStyle style) => _base.GetBox(style);
+        public string StatusMarker(StatusKind status) => _base.StatusMarker(status);
+        public string HorizontalFill(int eighths) => _base.HorizontalFill(eighths);
+        public string VerticalFill(int eighths) => _base.VerticalFill(eighths);
+    }
     [Theory]
     [InlineData(TextOverflow.Clip, 3)]
     [InlineData(TextOverflow.Ellipsis, 6)]
