@@ -8,9 +8,9 @@
         </Description>
         <PackageId>ConsoleMonster.Templates</PackageId>
         <PackageType>Template</PackageType>
-        <VersionPrefix>2.1.0</VersionPrefix>
-        <AssemblyVersion>2.1.0</AssemblyVersion>
-        <FileVersion>2.1.0</FileVersion>
+        <VersionPrefix>2.1.1</VersionPrefix>
+        <AssemblyVersion>2.1.1</AssemblyVersion>
+        <FileVersion>2.1.1</FileVersion>
         <TargetFramework>netstandard2.0</TargetFramework>
         <PackageTags>dotnet-new;templates;console;terminal;dashboard;consolemonster</PackageTags>
         <PackageProjectUrl>https://consolemonster.dev/</PackageProjectUrl>
