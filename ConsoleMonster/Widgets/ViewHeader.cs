@@ -55,7 +55,8 @@ public sealed class ViewHeader : IWidget {
             if (Streaming) parts.Add("[muted]streaming[/]");
             return new FactFlow(parts).Lines(width, context);
         }
-        StyledLine state = FactFlow.TierSeparators(context.Markup(State).Lines[0], context);
+        StyledLine rawState = context.Markup(State).Lines[0];
+        StyledLine state = FactFlow.TierSeparators(rawState, context);
         int leftWidth = context.Markup(Left(context)).Lines[0].Width;
         List<StyledLine> result = new List<StyledLine>();
         if (leftWidth + state.Width + 5 <= width) {
@@ -65,7 +66,7 @@ public sealed class ViewHeader : IWidget {
             if (Facts.Count > 0) { result.AddRange(new FactFlow(Facts) { Role = Styling.ThemeToken.Muted }.Lines(width, context)); }
         } else {
             result.Add(TextWrapper.Truncate(context.Markup(title).Lines[0], width, context.Ellipsis));
-            result.AddRange(FactFlow.WrapSeparated(state, width, " " + context.Glyphs.Get(Glyph.Dot) + " "));
+            foreach (StyledLine part in FactFlow.WrapSeparated(rawState, width, " · ")) result.Add(FactFlow.TierSeparators(part, context));
             if (Facts.Count > 0) { result.AddRange(new FactFlow(Facts) { Role = Styling.ThemeToken.Muted }.Lines(width, context)); }
         }
         return result;

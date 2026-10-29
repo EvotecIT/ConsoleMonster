@@ -72,19 +72,21 @@ namespace ConsoleMonster.Widgets {
         }
 
         private List<StyledLine> BuildLines(RenderContext context, int width) {
-            string? separator = WrapSeparator == " · " ? " " + context.Glyphs.Get(Glyph.Dot) + " " : WrapSeparator;
+            string? separator = WrapSeparator;
             StyledText text = IsMarkup ? context.Markup(Content) : StyledText.FromPlain(Content);
             Style baseStyle = Role.HasValue ? context.Style(Role.Value) : Style.Plain;
             List<StyledLine> result = new List<StyledLine>();
             foreach (StyledLine raw in text.Lines) {
-                StyledLine line = (WrapSeparator == " · " ? FactFlow.TierSeparators(raw, context) : raw).WithBaseStyle(baseStyle);
+                StyledLine line = raw.WithBaseStyle(baseStyle);
                 if (line.Width <= width || width <= 0) {
-                    result.Add(line);
+                    result.Add(WrapSeparator == " · " ? FactFlow.TierSeparators(line, context) : line);
                 } else if (Overflow == TextOverflow.Wrap) {
-                    result.AddRange(!string.IsNullOrEmpty(separator) && line.PlainText.Contains(separator!)
-                        ? FactFlow.WrapSeparated(line, width, separator!) : TextWrapper.Wrap(line, width));
+                    IEnumerable<StyledLine> wrapped = !string.IsNullOrEmpty(separator) && line.PlainText.Contains(separator!)
+                        ? FactFlow.WrapSeparated(line, width, separator!) : TextWrapper.Wrap(line, width);
+                    foreach (StyledLine part in wrapped) result.Add(WrapSeparator == " · " ? FactFlow.TierSeparators(part, context) : part);
                 } else {
-                    result.Add(TextWrapper.Truncate(line, width, Overflow == TextOverflow.Ellipsis ? context.Ellipsis : string.Empty));
+                    StyledLine converted = WrapSeparator == " · " ? FactFlow.TierSeparators(line, context) : line;
+                    result.Add(TextWrapper.Truncate(converted, width, Overflow == TextOverflow.Ellipsis ? context.Ellipsis : string.Empty));
                 }
             }
             return result;

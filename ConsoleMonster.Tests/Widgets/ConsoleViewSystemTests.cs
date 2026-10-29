@@ -11,6 +11,27 @@ namespace ConsoleMonster.Tests.Widgets;
 
 public sealed class ConsoleViewSystemTests {
     [Theory]
+    [InlineData(TextOverflow.Clip, 3)]
+    [InlineData(TextOverflow.Ellipsis, 6)]
+    public void TextBlock_AsciiTruncation_ConvertsSeparatorBeforeClipping(TextOverflow overflow, int width) {
+        TextBlock text = TextBlock.Plain("a · b more");
+        text.WrapSeparator = " · "; text.Overflow = overflow;
+        string rendered = TestTerminal.RenderText(text, width, height: 1, glyphs: GlyphTier.Ascii);
+        Assert.Contains("a -", rendered);
+        Assert.DoesNotContain('·', rendered);
+    }
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Frame_AsciiWrapping_PreservesLiteralHyphensAlongsideFactSeparators(bool markup) {
+        string input = markup ? "[warn]first[/] [muted]·[/] [warn]alpha - bravo[/]" : "first · alpha - bravo";
+        ConsoleViewFrame frame = new ConsoleViewFrame(new ViewHeader("H", input));
+        frame.Footer = markup ? new TextBlock(input) : TextBlock.Plain(input);
+        string text = TestTerminal.RenderText(frame, 14, height: 20, glyphs: GlyphTier.Ascii);
+        Assert.Equal(2, System.Text.RegularExpressions.Regex.Matches(text, @"alpha\s*-\s*bravo").Count);
+        Assert.DoesNotContain('·', text);
+    }
+    [Theory]
     [InlineData(GlyphTier.Full)]
     [InlineData(GlyphTier.Ascii)]
     public void Frame_FooterMeasurement_PreservesWholeEntryThatFits(GlyphTier tier) {
