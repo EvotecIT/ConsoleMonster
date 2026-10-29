@@ -19063,8 +19063,7 @@
           "Argument": "name",
           "MemberKind": "Method",
           "Conversion": "CommandName",
-          "CSharpTypeName": "System.String",
-          "Reason": "Accepts a command name or command object and resolves its name."
+          "CSharpTypeName": "System.String"
         },
         {
           "Parameter": "NoExamples",
