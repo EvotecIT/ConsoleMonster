@@ -1,16 +1,16 @@
-# Tests on every push and pull request: xUnit on .NET Framework 4.7.2, .NET 8 and .NET 10, and Pester on Windows PowerShell 5.1 and
-# PowerShell 7 against the development binaries on Windows; xUnit, Pester on PowerShell 7, native AOT and terminal probes on Ubuntu;
-# the same xUnit and Pester on macOS for pull requests only. No secrets, no publishing.
+# PRs test Windows and Linux; default-branch pushes and manual runs retain the full matrix.
 name: Test
 
 on:
   push:
-    paths-ignore:
-      - '*.md'
-      - 'Docs/**'
-      - '.gitignore'
+    branches: [master]
   pull_request:
   workflow_dispatch:
+
+# Unique non-PR groups also prevent queued default-branch runs replacing each other.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
@@ -28,7 +28,88 @@ env:
   CONSOLEMONSTER_TEST_REAL_TRASH: '1'
 
 jobs:
+  changes:
+    name: Select test coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      build: ${{ steps.paths.outputs.build }}
+    steps:
+      - uses: actions/checkout@v7
+        if: github.event_name == 'pull_request'
+        with:
+          fetch-depth: 0
+      - name: Detect build and test inputs
+        id: paths
+        shell: python
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          import os
+          import subprocess
+
+          def docs_only(path):
+              # These Markdown, generated docs, schemas, examples and assets are real test/build inputs.
+              if path == 'README.md' or path.startswith(('ConsoleMonster', 'Module/', 'Tests/', 'Templates/', 'Docs/')):
+                  return False
+              if any(part.lower() in ('schema', 'schemas') for part in path.split('/')):
+                  return False
+              if path.startswith('Website/'):
+                  if path == 'Website/static/site/icon-192.png':
+                      return False
+                  # Website content, examples, data and tools are exercised by Pester and the module build.
+                  return path.startswith(('Website/themes/', 'Website/static/site/', 'Website/static/readme/'))
+              return path.endswith('.md')
+
+          build = True
+          if os.environ['EVENT_NAME'] == 'pull_request':
+              # Complete PR diff, including both sides of renames, deletions and earlier commits.
+              paths = subprocess.check_output([
+                  'git', 'diff', '--name-only', '--no-renames', '-z',
+                  os.environ['BASE_SHA'] + '...' + os.environ['HEAD_SHA'],
+              ]).decode('utf-8').split('\0')
+              paths = [path for path in paths if path]
+              build = not paths or not all(docs_only(path) for path in paths)
+              for path in paths:
+                  print(('test input: ' if not docs_only(path) else 'presentation/docs: ') + path)
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write('build=' + str(build).lower() + '\n')
+
+  test-result:
+    name: Test result
+    needs: [changes, dotnet-windows, native-aot, pester, dotnet-linux, dotnet-macos, native-aot-linux, pester-linux, pester-macos]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require the selected test coverage
+        shell: python
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          import json
+          import os
+
+          results = json.loads(os.environ['RESULTS'])
+          changes = results.pop('changes')
+          build = changes.get('outputs', {}).get('build')
+          if changes['result'] != 'success' or build not in ('true', 'false'):
+              raise SystemExit('Test coverage selection did not succeed.')
+          for name, job in results.items():
+              skipped = build == 'false' or (
+                  os.environ['EVENT_NAME'] == 'pull_request' and name in ('dotnet-macos', 'pester-macos')
+              )
+              expected = 'skipped' if skipped else 'success'
+              if job['result'] != expected:
+                  raise SystemExit(name + ': expected ' + expected + ', got ' + job['result'])
+          print('Presentation/docs-only PR: heavy jobs skipped.' if build == 'false' else 'All selected tests passed.')
+
   dotnet-windows:
+    needs: changes
+    if: needs.changes.outputs.build == 'true'
     name: 'xUnit (Windows, ${{ matrix.framework }})'
     runs-on: windows-latest
     strategy:
@@ -58,6 +139,10 @@ jobs:
         run: dotnet test ConsoleMonster.Extensions.Tests/ConsoleMonster.Extensions.Tests.csproj --configuration Release --no-build --framework ${{ matrix.framework }} --verbosity ${{ env.TEST_VERBOSITY }} --logger "console;verbosity=${{ env.TEST_VERBOSITY }}" --logger trx
         timeout-minutes: 10
 
+      - name: Test CLI app operations
+        if: matrix.framework == 'net8.0' && hashFiles('ConsoleMonster.CLI.Tests/ConsoleMonster.CLI.Tests.csproj') != ''
+        run: dotnet test ConsoleMonster.CLI.Tests/ConsoleMonster.CLI.Tests.csproj --configuration Release --framework net8.0 --verbosity ${{ env.TEST_VERBOSITY }} --logger trx
+        timeout-minutes: 10
       - name: Upload test results
         uses: actions/upload-artifact@v7
         if: always()
@@ -66,6 +151,8 @@ jobs:
           path: '**/*.trx'
 
   native-aot:
+    needs: changes
+    if: needs.changes.outputs.build == 'true'
     name: 'Native AOT (Windows, ${{ matrix.framework }})'
     runs-on: windows-latest
     strategy:
@@ -83,6 +170,8 @@ jobs:
         run: ./Artefacts/AotSmoke/AotSmoke.exe
 
   pester:
+    needs: changes
+    if: needs.changes.outputs.build == 'true'
     name: 'Pester (${{ matrix.name }})'
     runs-on: windows-latest
     strategy:
@@ -164,6 +253,8 @@ jobs:
           path: pester-results.xml
 
   dotnet-linux:
+    needs: changes
+    if: needs.changes.outputs.build == 'true'
     name: 'xUnit (Ubuntu, ${{ matrix.framework }})'
     runs-on: ubuntu-latest
     strategy:
@@ -195,6 +286,10 @@ jobs:
       - name: Test the logging and hosting packages
         run: dotnet test ConsoleMonster.Extensions.Tests/ConsoleMonster.Extensions.Tests.csproj --configuration Release --no-build --framework ${{ matrix.framework }} --verbosity ${{ env.TEST_VERBOSITY }} --logger "console;verbosity=${{ env.TEST_VERBOSITY }}" --logger trx
         timeout-minutes: 10
+      - name: Test CLI app operations
+        if: matrix.framework == 'net8.0' && hashFiles('ConsoleMonster.CLI.Tests/ConsoleMonster.CLI.Tests.csproj') != ''
+        run: dotnet test ConsoleMonster.CLI.Tests/ConsoleMonster.CLI.Tests.csproj --configuration Release --framework net8.0 --verbosity ${{ env.TEST_VERBOSITY }} --logger trx
+        timeout-minutes: 10
       - uses: actions/upload-artifact@v7
         if: always()
         with:
@@ -202,9 +297,10 @@ jobs:
           path: '**/*.trx'
 
   dotnet-macos:
+    needs: changes
     name: 'xUnit (macOS, ${{ matrix.framework }})'
-    # Pull requests only: macOS runners cost more, and Ubuntu already covers Unix on every push.
-    if: github.event_name == 'pull_request'
+    # Full macOS coverage on default-branch pushes and manual runs.
+    if: needs.changes.outputs.build == 'true' && github.event_name != 'pull_request'
     # Keep macOS validation on an explicit supported ARM64 image.
     runs-on: macos-15
     strategy:
@@ -228,6 +324,10 @@ jobs:
           python3 -B -m unittest discover -s ConsoleMonster.Tests/Input/Fixtures -p test_unix_input_pty.py -v
           dotnet test ConsoleMonster.Tests/ConsoleMonster.Tests.csproj --configuration Release --no-build --framework ${{ matrix.framework }} --verbosity ${{ env.TEST_VERBOSITY }} --logger "console;verbosity=${{ env.TEST_VERBOSITY }}" --logger trx --blame-hang-timeout 3m --blame-hang-dump-type none
         timeout-minutes: 15
+      - name: Test CLI app operations
+        if: matrix.framework == 'net8.0' && hashFiles('ConsoleMonster.CLI.Tests/ConsoleMonster.CLI.Tests.csproj') != ''
+        run: dotnet test ConsoleMonster.CLI.Tests/ConsoleMonster.CLI.Tests.csproj --configuration Release --framework net8.0 --verbosity ${{ env.TEST_VERBOSITY }} --logger trx
+        timeout-minutes: 10
       - uses: actions/upload-artifact@v7
         if: always()
         with:
@@ -237,6 +337,8 @@ jobs:
             **/*Sequence.xml
 
   native-aot-linux:
+    needs: changes
+    if: needs.changes.outputs.build == 'true'
     name: 'Native AOT (Ubuntu, net10.0)'
     runs-on: ubuntu-latest
     steps:
@@ -252,6 +354,8 @@ jobs:
           LANG=C ./Artefacts/AotSmoke/AotSmoke
 
   pester-linux:
+    needs: changes
+    if: needs.changes.outputs.build == 'true'
     name: 'Pester and terminal probes (Ubuntu, PowerShell 7)'
     runs-on: ubuntu-latest
     defaults:
@@ -347,9 +451,10 @@ jobs:
           path: pester-results.xml
 
   pester-macos:
+    needs: changes
     name: 'Pester (macOS, PowerShell 7)'
-    # Pull requests only, as for xUnit on macOS.
-    if: github.event_name == 'pull_request'
+    # Full macOS coverage on default-branch pushes and manual runs.
+    if: needs.changes.outputs.build == 'true' && github.event_name != 'pull_request'
     runs-on: macos-15
     defaults:
       run:
