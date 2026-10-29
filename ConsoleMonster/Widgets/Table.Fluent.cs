@@ -1,6 +1,6 @@
 namespace ConsoleMonster.Widgets {
-    // The generated half of TableFluent holds property setters and collection adders; these are the hand-written semantic helpers.
-    public static partial class TableFluent {
+    // Generated widget extensions share this namespace class; these are the hand-written table helpers.
+    public static partial class WidgetsFluent {
         /// <summary>
         /// Adds a totals row that sums every numeric column (<see cref="Table.ShowTotals"/> with <see cref="Table.AutoTotals"/>);
         /// columns with their own <see cref="TableColumn.Aggregate"/> keep it.

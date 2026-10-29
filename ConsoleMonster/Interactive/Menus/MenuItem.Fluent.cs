@@ -2,7 +2,7 @@ using System;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>Invariant-preserving overloads alongside generated menu-item property methods.</summary>
-    public static partial class MenuItemFluent {
+    public static partial class InteractiveFluent {
         /// <summary>Makes the item open a submenu built in place.</summary>
         /// <param name="item">The menu item.</param>
         /// <param name="configure">Adds the submenu's items.</param>
