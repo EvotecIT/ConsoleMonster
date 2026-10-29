@@ -340,9 +340,18 @@ namespace SiteFrames.Tests {
                 CSharpRunner.Check(path, Site.ReadText(path));
                 SourceStyles.Add(site, new JsonObject(), path);
             }
-            SourceStyles.Add(site, new JsonObject(), Path.Combine(website, "examples", "demos", "fleet.cs"),
+            var fleet = SourceStyles.Add(site, new JsonObject(), Path.Combine(website, "examples", "demos", "fleet.cs"),
                 Path.Combine(site.Repository, "ConsoleMonster.Examples", "Showcases", "FleetHealth.cs"),
                 Path.Combine(site.Repository, "ConsoleMonster.Examples", "Showcases", "FleetData.cs"));
+            var health = fleet["csharpFluentFiles"]!.AsArray().Single(file => file!["file"]!.GetValue<string>() == "FleetHealth.cs")!;
+            string excerpt = SourceSnippets.GetFromText(health["code"]!.GetValue<string>(), "Build", "FleetHealth.cs");
+            string[] menu = { "\"Presets\"", "\"New check\"", "\"History\"", ".Separator()", ".Exit(\"Quit\")" };
+            int position = -1;
+            foreach (string item in menu) {
+                int next = excerpt.IndexOf(item, position + 1, StringComparison.Ordinal);
+                Assert.True(next > position, $"Missing or misplaced {item} in:\n{excerpt}");
+                position = next;
+            }
         }
 
         [Fact]
