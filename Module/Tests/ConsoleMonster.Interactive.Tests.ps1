@@ -208,8 +208,10 @@ try { Read-ConsoleForm $missing -ErrorAction Stop } catch { "error=$($_.Exceptio
             $text = Invoke-PromptChild -Script @'
 $menu = New-ConsoleMenu 'Tool' -Content { New-ConsoleMenuItem 'Run' -Action { 'ran' } }
 try { Show-ConsoleMenu $menu -ErrorAction Stop } catch { "error=$($_.Exception.Message)" }
+try { $menu | Show-ConsoleMenu -ErrorAction Stop } catch { "pipeline=$($_.Exception.Message)" }
 '@
             $text | Should -Match "error=Menu 'Tool' needs an interactive session\."
+            $text | Should -Match "pipeline=Menu 'Tool' needs an interactive session\."
         }
     }
 
