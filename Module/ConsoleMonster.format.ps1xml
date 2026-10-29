@@ -26,6 +26,8 @@
       <ViewSelectedBy>
         <TypeName>ConsoleMonster.Changes.ChangeView</TypeName>
         <TypeName>ConsoleMonster.Changes.TextDiffView</TypeName>
+        <TypeName>ConsoleMonster.Frames.DashboardFrame</TypeName>
+        <TypeName>ConsoleMonster.Frames.Distribution</TypeName>
         <TypeName>ConsoleMonster.Interactive.AppBinding</TypeName>
         <TypeName>ConsoleMonster.Interactive.Button</TypeName>
         <TypeName>ConsoleMonster.Interactive.DataGrid</TypeName>
