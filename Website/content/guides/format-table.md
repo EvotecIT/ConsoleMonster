@@ -59,7 +59,7 @@ Get-Service | Select-Object -First 8 Name, Status, StartType | Show-ConsoleTable
 
 ## Format-Table itself
 
-`Format-Table`, `Format-List` and `Format-Wide` stay PowerShell's own unless you turn on `Enable-ConsoleFormatting -Feature FormatCommands`. Then the commands you already type draw ConsoleMonster views when their output goes straight to the console, and keep PowerShell's records everywhere else; [Everyday PowerShell output](/guides/everyday-powershell/#format-table-format-list-and-format-wide) shows it before and after.
+`Enable-ConsoleFormatting` also styles `Format-Table`, `Format-List` and `Format-Wide` by default; use `-Exclude FormatCommands` to leave them native. Then the commands you already type draw ConsoleMonster views when their output goes straight to the console, and keep PowerShell's records everywhere else; [Everyday PowerShell output](/guides/everyday-powershell/#format-table-format-list-and-format-wide) shows it before and after.
 
 ## When the console is narrow
 

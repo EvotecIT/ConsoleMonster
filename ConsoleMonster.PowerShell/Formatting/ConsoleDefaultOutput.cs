@@ -60,9 +60,9 @@ namespace ConsoleMonster.PowerShell {
                     && ConsoleFormatting.Displayed(_host) && FormatCommandRouter.IsUntranscribed(_host)
                     && Display.DefaultDisplayHostGate.CanRender(_host, true, _options.Transcript, Terminal.GetCurrentProfile());
                 _types = (features & ConsoleFormattingFeature.Output) != 0;
-                _errors = _active && (features & ConsoleFormattingFeature.ErrorView) != 0 && (features & ConsoleFormattingFeature.Errors) == 0
+                _errors = _active && (features & ConsoleFormattingFeature.Errors) != 0 && !FormattingSessionState.Current.CompactErrors
                     && (_options.Force || !ErrorRedirected());
-                _compactErrors = _active && (features & ConsoleFormattingFeature.Errors) != 0 && _options.TopLevel
+                _compactErrors = _active && (features & ConsoleFormattingFeature.Errors) != 0 && FormattingSessionState.Current.CompactErrors && _options.TopLevel
                     && !_options.Transcript && !ErrorRedirected() && FormatCommandRouter.IsUnrecordedHost(_host);
                 _progress = (features & ConsoleFormattingFeature.Progress) != 0;
                 if (_progress && _options.TopLevel) {
@@ -153,12 +153,13 @@ namespace ConsoleMonster.PowerShell {
             _inner?.End();
         }
 
-        // The error view of Enable-ConsoleFormatting -Feature ErrorView: the type, the message, the category and id, the
+        // The error view of Enable-ConsoleFormatting -Feature Errors: the type, the message, the category and id, the
         // position in the script (and the stack with $ErrorView = 'DetailedView'). CategoryView keeps PowerShell's view.
         private bool WriteErrorView(ErrorRecord record) {
             // Upstream commands can start transcription or disable the feature after _host pipeline's BeginProcessing.
-            if (_compactErrors && ((ConsoleFormatting.Features & ConsoleFormattingFeature.Errors) == 0
-                || _options.Transcript || ErrorRedirected() || !FormatCommandRouter.IsUnrecordedHost(_host))) { return false; }
+            if ((ConsoleFormatting.Features & ConsoleFormattingFeature.Errors) == 0 || _options.Transcript
+                || (!_options.Force && (ErrorRedirected() || !FormatCommandRouter.IsUntranscribed(_host)))
+                || (_compactErrors && (!FormattingSessionState.Current.CompactErrors || !FormatCommandRouter.IsUnrecordedHost(_host)))) { return false; }
             string view = Convert.ToString(_host.SessionState.PSVariable.GetValue("ErrorView"), System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
             if (string.Equals(view, "CategoryView", StringComparison.OrdinalIgnoreCase)) {
                 return false;

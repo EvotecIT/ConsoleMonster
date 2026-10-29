@@ -862,14 +862,14 @@
       "commands": [
         {
           "name": "Enable-ConsoleFormatting",
-          "synopsis": "Shows the default output of common types through ConsoleMonster for this session (opt-in).",
+          "synopsis": "Enables the everyday console views, native format commands and theme colours.",
           "url": "/powershell/commands/enable-consoleformatting/"
         }
       ]
     },
     {
       "verb": "Get",
-      "count": 2,
+      "count": 3,
       "commands": [
         {
           "name": "Get-ConsoleCapability",
@@ -880,6 +880,11 @@
           "name": "Get-ConsoleDemo",
           "synopsis": "Lists the copyable ConsoleMonster gallery demos .",
           "url": "/powershell/commands/get-consoledemo/"
+        },
+        {
+          "name": "Get-ConsoleFormatting",
+          "synopsis": "Shows the formatting features enabled in this runspace.",
+          "url": "/powershell/commands/get-consoleformatting/"
         }
       ]
     },

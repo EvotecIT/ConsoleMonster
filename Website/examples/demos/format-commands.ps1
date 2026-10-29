@@ -12,7 +12,7 @@ $services | Format-Table Name, Status, StartType -AutoSize
 $services[0] | Format-List Name, Status, StartType
 $services | Format-Wide Name -Column 3
 
-Enable-ConsoleFormatting -Feature FormatCommands
+Enable-ConsoleFormatting
 
 # The same commands, drawn by ConsoleMonster
 $services | Format-Table Name, Status, StartType -AutoSize

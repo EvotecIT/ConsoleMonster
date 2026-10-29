@@ -87,7 +87,7 @@ namespace ConsoleMonster.PowerShell {
                     CommandMetadata metadata = new CommandMetadata(native);
                     string proxy = ProxyCommand.GetCmdletBindingAttribute(metadata) + "\nparam(\n" + ProxyCommand.GetParamBlock(metadata) + "\n)\n"
                         + body.Replace("__COMMAND__", name);
-                    cmdlet.SessionState.InvokeProvider.Item.Set("Function:\\global:" + name, ScriptBlock.Create(proxy));
+                    SetGlobalFunction(cmdlet.SessionState, name, ScriptBlock.Create(proxy));
                     installation._installed[name] = GlobalFunction(cmdlet.SessionState, name)!;
                 }
                 return installation;
@@ -124,10 +124,15 @@ namespace ConsoleMonster.PowerShell {
                 if (pair.Value == null) {
                     RemoveGlobalFunction(_module, pair.Key);
                 } else {
-                    _session.InvokeProvider.Item.Set("Function:\\global:" + pair.Key, pair.Value);
+                    SetGlobalFunction(_session, pair.Key, pair.Value);
                 }
             }
         }
+
+        // The public cmdlet has already confirmed the operation. Keep provider details and
+        // function bodies out of its verbose output and do not prompt a second time.
+        internal static void SetGlobalFunction(SessionState session, string name, ScriptBlock body) => session.InvokeCommand.InvokeScript(true,
+            ScriptBlock.Create("param($name, $body) Microsoft.PowerShell.Management\\Set-Item -LiteralPath ('Function:\\global:' + $name) -Value $body -Verbose:$false -WhatIf:$false -Confirm:$false -ErrorAction Stop"), null, name, body);
 
         // The function drive's content binding understands scopes; Get-Item does not resolve global:name metadata.
         internal static ScriptBlock? GlobalFunction(SessionState session, string name) => session.PSVariable.GetValue("function:global:" + name) as ScriptBlock;
@@ -135,6 +140,6 @@ namespace ConsoleMonster.PowerShell {
         // Removing a function has no scope-qualified provider path. The defining module's root scope sees the global
         // slots and excludes temporary functions in the caller's scope.
         internal static void RemoveGlobalFunction(PSModuleInfo module, string name) => module.Invoke(
-            ScriptBlock.Create("param($name) Microsoft.PowerShell.Management\\Remove-Item -LiteralPath ('Function:' + $name) -Force"), name);
+            ScriptBlock.Create("param($name) Microsoft.PowerShell.Management\\Remove-Item -LiteralPath ('Function:' + $name) -Force -Verbose:$false -WhatIf:$false -Confirm:$false"), name);
     }
 }

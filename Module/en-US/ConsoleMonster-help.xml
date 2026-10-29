@@ -133,9 +133,9 @@
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$log = New-ConsoleLogRegion -Height 5
-$log | Add-ConsoleItem { [pscustomobject]@{ Message = 'Discovered 4 domain controllers'; AtSeconds = 2 } }
-$log | Add-ConsoleItem { [pscustomobject]@{ Message = 'DC02 lags by 42 minutes'; Level = 'Warning'; AtSeconds = 31 } }
+        <dev:code>$log = New-ConsoleLogRegion -Height 5&#xD;
+$log | Add-ConsoleItem { [pscustomobject]@{ Message = 'Discovered 4 domain controllers'; AtSeconds = 2 } }&#xD;
+$log | Add-ConsoleItem { [pscustomobject]@{ Message = 'DC02 lags by 42 minutes'; Level = 'Warning'; AtSeconds = 31 } }&#xD;
 $log | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Add log lines as the script goes, then show the log</maml:para>
@@ -143,10 +143,10 @@ $log | Show-Console</dev:code>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$tree = New-ConsoleTree 'Shares'
-foreach ($share in Get-SmbShare) {
-    $tree | Add-ConsoleItem { [pscustomobject]@{ Label = $share.Name; Detail = $share.Path } }
-}
+        <dev:code>$tree = New-ConsoleTree 'Shares'&#xD;
+foreach ($share in Get-SmbShare) {&#xD;
+    $tree | Add-ConsoleItem { [pscustomobject]@{ Label = $share.Name; Detail = $share.Path } }&#xD;
+}&#xD;
 $tree | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Grow a tree in a loop</maml:para>
@@ -483,8 +483,8 @@ $tree | Show-Console</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>It 'renders the report table' {
-    $rows | Show-ConsoleTable -AsWidget | Assert-ConsoleOutput -GoldenPath "$PSScriptRoot\Golden\report.txt" -Width 80
+        <dev:code>It 'renders the report table' {&#xD;
+    $rows | Show-ConsoleTable -AsWidget | Assert-ConsoleOutput -GoldenPath "$PSScriptRoot\Golden\report.txt" -Width 80&#xD;
 }</dev:code>
         <dev:remarks>
           <maml:para>A table snapshot in a Pester test</maml:para>
@@ -1558,20 +1558,18 @@ $tree | Show-Console</dev:code>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Feature</maml:name>
           <maml:description>
-            <maml:para>What to turn off: Output, ErrorView, Progress, Streams, ReadLine, FormatCommands, Help, Errors, GridView, Prompt or All (Output, ErrorView, Streams and ReadLine). Streams and ReadLine restore exactly the saved native colour properties, even if they were edited while enabled; other properties stay untouched. Without -Feature every enabled feature is removed, including explicit Progress, FormatCommands, Help, Errors, GridView and Prompt.</maml:para>
+            <maml:para>The features to restore. Without Feature, all enabled features are restored. Streams and ReadLine restore the exact saved native colour properties.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">ConsoleFormattingFeature[]</command:parameterValue>
           <command:parameterValueGroup>
             <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Output</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">ErrorView</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Errors</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Progress</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">FormatCommands</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Streams</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Help</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Errors</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">ReadLine</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">All</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">GridView</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Prompt</command:parameterValue>
           </command:parameterValueGroup>
@@ -1587,20 +1585,18 @@ $tree | Show-Console</dev:code>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Feature</maml:name>
         <maml:description>
-          <maml:para>What to turn off: Output, ErrorView, Progress, Streams, ReadLine, FormatCommands, Help, Errors, GridView, Prompt or All (Output, ErrorView, Streams and ReadLine). Streams and ReadLine restore exactly the saved native colour properties, even if they were edited while enabled; other properties stay untouched. Without -Feature every enabled feature is removed, including explicit Progress, FormatCommands, Help, Errors, GridView and Prompt.</maml:para>
+          <maml:para>The features to restore. Without Feature, all enabled features are restored. Streams and ReadLine restore the exact saved native colour properties.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">ConsoleFormattingFeature[]</command:parameterValue>
         <command:parameterValueGroup>
           <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Output</command:parameterValue>
-          <command:parameterValue required="false" variableLength="false">ErrorView</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Errors</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Progress</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">FormatCommands</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Streams</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Help</command:parameterValue>
-          <command:parameterValue required="false" variableLength="false">Errors</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">ReadLine</command:parameterValue>
-          <command:parameterValue required="false" variableLength="false">All</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">GridView</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Prompt</command:parameterValue>
         </command:parameterValueGroup>
@@ -1648,21 +1644,37 @@ $tree | Show-Console</dev:code>
       <command:verb>Enable</command:verb>
       <command:noun>ConsoleFormatting</command:noun>
       <maml:description>
-        <maml:para>Shows the default output of common types through ConsoleMonster for this session (opt-in).</maml:para>
-        <maml:para>Files and folders (Get-ChildItem), processes (Get-Process), services (Get-Service), JSON/REST and CSV records (PSCustomObject), members (Get-Member), commands (Get-Command), modules (Get-Module), history (Get-History), PowerShell 7 ping replies, .NET DNS entries and IP addresses, Windows network objects, event log records (Get-WinEvent), volumes (Get-Volume) and dictionaries (@{ }), plus any type registered with Register-ConsoleView, are shown as ConsoleMonster tables and records when they reach the console. Members group by member type with highlighted signatures and muted types; JSON/CSV records show at most 50 rows and 24 fields with omission hints and nested summaries; numeric and date-like CSV strings align right without conversion. Commands group by module from 12 rows and show alias targets and command-type chips; modules group repeated names and show versions, shortened paths and exported command counts; history shows id, start time, duration, status and highlighted command text. Windows network views register only on Windows; ping and .NET DNS/IP views work across platforms. It works by defining an Out-Default function for the session that hands objects to Out-ConsoleDefault; objects stay the same, pipelines into other commands, Format-* and Out-String keep PowerShell's behaviour, and redirected output, transcripts' plain text, jobs and remoting are not affected. Disable-ConsoleFormatting removes the function. FormatCommands separately opts Format-Table, Format-List and Format-Wide into host-only rendering; it is excluded from All. It preserves native column selection and labels. Explicit properties, calculated expressions, grouping and named views take precedence over built-in presentation defaults. A custom Out-Default is kept unless you pass -Force for a feature that uses it. Streams, ReadLine, GridView and Prompt do not replace Out-Default.</maml:para>
+        <maml:para>Enables the everyday console views, native format commands and theme colours.</maml:para>
+        <maml:para>Three ways to use ConsoleMonster output: Automatic: enable formatting, then use ordinary commands for known and registered types. Explicit: pipe any objects to Show-ConsoleTable to choose columns, a title and grouping, or to Show-ConsoleObject to explore their members. These commands do not change session formatting; Show-ConsoleObject -StaticSnapshot avoids interactive input in scripts. Native Format commands: FormatCommands styles direct console output while keeping PowerShell's column choices; it is included by default; use -Exclude FormatCommands to leave it native. You do not need both automatic and explicit formatting. The -Feature parameter requires ConsoleMonster 2.1.0 or later.</maml:para>
+        <maml:para>By default, Output, FormatCommands, Errors, Streams and ReadLine are enabled. Format-Table, Format-List and Format-Wide keep PowerShell's column choices and change only direct console output; pipelines, captures, files, jobs, remoting and transcripts remain native. Use Include to add opt-in features and Exclude to remove features from the default set. Feature replaces the default set with exactly the selected features. Prompt, Help, Progress and GridView require Include or Feature. CompactErrors opts into the compact error layout. Get-ConsoleFormatting reports what is enabled. Disable-ConsoleFormatting restores the session.</maml:para>
+        <maml:para>Files, processes, services, structured records, commands, modules, history, IP addresses, volumes, versions, dictionaries and registered types get built-in or registered views. Explicit Show-Console commands remain available when you want to choose the view yourself. Custom Out-Default functions are kept unless Force is specified; Prompt does not replace oh-my-posh or Starship without Force.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
-      <maml:para>Shows the default output of common types through ConsoleMonster for this session (opt-in).</maml:para>
-      <maml:para>Files and folders (Get-ChildItem), processes (Get-Process), services (Get-Service), JSON/REST and CSV records (PSCustomObject), members (Get-Member), commands (Get-Command), modules (Get-Module), history (Get-History), PowerShell 7 ping replies, .NET DNS entries and IP addresses, Windows network objects, event log records (Get-WinEvent), volumes (Get-Volume) and dictionaries (@{ }), plus any type registered with Register-ConsoleView, are shown as ConsoleMonster tables and records when they reach the console. Members group by member type with highlighted signatures and muted types; JSON/CSV records show at most 50 rows and 24 fields with omission hints and nested summaries; numeric and date-like CSV strings align right without conversion. Commands group by module from 12 rows and show alias targets and command-type chips; modules group repeated names and show versions, shortened paths and exported command counts; history shows id, start time, duration, status and highlighted command text. Windows network views register only on Windows; ping and .NET DNS/IP views work across platforms. It works by defining an Out-Default function for the session that hands objects to Out-ConsoleDefault; objects stay the same, pipelines into other commands, Format-* and Out-String keep PowerShell's behaviour, and redirected output, transcripts' plain text, jobs and remoting are not affected. Disable-ConsoleFormatting removes the function. FormatCommands separately opts Format-Table, Format-List and Format-Wide into host-only rendering; it is excluded from All. It preserves native column selection and labels. Explicit properties, calculated expressions, grouping and named views take precedence over built-in presentation defaults. A custom Out-Default is kept unless you pass -Force for a feature that uses it. Streams, ReadLine, GridView and Prompt do not replace Out-Default.</maml:para>
+      <maml:para>Enables the everyday console views, native format commands and theme colours.</maml:para>
+      <maml:para>Three ways to use ConsoleMonster output: Automatic: enable formatting, then use ordinary commands for known and registered types. Explicit: pipe any objects to Show-ConsoleTable to choose columns, a title and grouping, or to Show-ConsoleObject to explore their members. These commands do not change session formatting; Show-ConsoleObject -StaticSnapshot avoids interactive input in scripts. Native Format commands: FormatCommands styles direct console output while keeping PowerShell's column choices; it is included by default; use -Exclude FormatCommands to leave it native. You do not need both automatic and explicit formatting. The -Feature parameter requires ConsoleMonster 2.1.0 or later.</maml:para>
+      <maml:para>By default, Output, FormatCommands, Errors, Streams and ReadLine are enabled. Format-Table, Format-List and Format-Wide keep PowerShell's column choices and change only direct console output; pipelines, captures, files, jobs, remoting and transcripts remain native. Use Include to add opt-in features and Exclude to remove features from the default set. Feature replaces the default set with exactly the selected features. Prompt, Help, Progress and GridView require Include or Feature. CompactErrors opts into the compact error layout. Get-ConsoleFormatting reports what is enabled. Disable-ConsoleFormatting restores the session.</maml:para>
+      <maml:para>Files, processes, services, structured records, commands, modules, history, IP addresses, volumes, versions, dictionaries and registered types get built-in or registered views. Explicit Show-Console commands remain available when you want to choose the view yourself. Custom Out-Default functions are kept unless Force is specified; Prompt does not replace oh-my-posh or Starship without Force.</maml:para>
     </maml:description>
     <command:syntax>
-      <command:syntaxItem parameterSetName="__AllParameterSets">
+      <command:syntaxItem parameterSetName="Default">
         <maml:name>Enable-ConsoleFormatting</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>CompactErrors</maml:name>
+          <maml:description>
+            <maml:para>Uses the compact message-first error layout. Errors must be enabled.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Detailed</maml:name>
           <maml:description>
-            <maml:para>Includes script and .NET stack frames in the opt-in Errors layout. Used only with -Feature Errors; the default layout folds inner exceptions and hides stacks.</maml:para>
+            <maml:para>Includes script and .NET stack frames in the compact error layout. Requires CompactErrors.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
           <dev:type>
@@ -1672,22 +1684,131 @@ $tree | Show-Console</dev:code>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>Feature</maml:name>
+          <maml:name>Exclude</maml:name>
           <maml:description>
-            <maml:para>What to turn on: Output (the default: registered and built-in types as ConsoleMonster views), ErrorView (errors that reach the console in ConsoleMonster's error view, following $ErrorView: DetailedView adds the stack, CategoryView keeps PowerShell's), Progress (Write-Progress drawn as ConsoleMonster's progress area; Write-Progress uses a reversible native-parameter function proxy), Streams (native stream and progress colours), ReadLine (syntax, selection and available inline prediction colours for already loaded PSReadLine), or All (Output, ErrorView, Streams and ReadLine). Streams sets PSStyle.Formatting Warning, Verbose, Debug and Error on PowerShell 7.2+, and PSStyle.Progress.Style, or available Host.PrivateData warning, verbose, debug and progress foreground/background colours on older hosts. Native progress keeps its View and layout. ReadLine never imports PSReadLine and does nothing when it is absent; unsupported colour properties are skipped. PowerShell keeps its prefixes, records, preferences, redirection and transcript behaviour. Streams and ReadLine never replace Write-* commands or install an Out-Default function. Progress is the separate native-progress rendering feature, excluded from All; All keeps Write-Progress native and styles it through Streams. Re-enable Streams or ReadLine after changing themes; Shared native properties follow the most recently applied installation. Disabling its owner restores the latest surviving installation; the last owner restores the first original values, including later user edits. Use Show-ConsoleStatusLine or Write-ConsoleLogEntry for rich script messages. FormatCommands explicitly opts Format-Table, Format-List and Format-Wide into direct-host-only rendering, preserving native captures, jobs, remoting and transcripts; it is excluded from All. Help and Errors are separate direct-host opt-ins, excluded from All. Help renders native Get-Help, help and -? with paging. Errors uses the compact view; -Detailed includes stacks. GridView supplies the terminal grid only where Out-GridView is unavailable; a working native command is kept. Prompt adds a minimal shell prompt while preserving native fallback; oh-my-posh and Starship need Force. Features add up across calls; Disable-ConsoleFormatting turns them off.</maml:para>
+            <maml:para>Turns on the default set except these features, and disables any excluded feature already enabled. Cannot be combined with Feature.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">ConsoleFormattingFeature[]</command:parameterValue>
           <command:parameterValueGroup>
             <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Output</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">ErrorView</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Errors</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Progress</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">FormatCommands</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Streams</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Help</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Errors</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">ReadLine</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">All</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">GridView</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Prompt</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>ConsoleFormattingFeature[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Force</maml:name>
+          <maml:description>
+            <maml:para>Replaces an existing Out-Default function, Write-Progress alias, or an Out-GridView function/alias when the native grid is unavailable (Disable-ConsoleFormatting puts it back). A working native Out-GridView is always kept. Prompt requires Force to replace oh-my-posh or Starship.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Include</maml:name>
+          <maml:description>
+            <maml:para>Adds these opt-in features to the default set. Can be combined with Exclude, but not Feature.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">ConsoleFormattingFeature[]</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Output</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Errors</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Progress</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">FormatCommands</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Streams</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Help</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">ReadLine</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">GridView</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Prompt</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>ConsoleFormattingFeature[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>NoBuiltIn</maml:name>
+          <maml:description>
+            <maml:para>Only takes over the types registered with Register-ConsoleView, not the built-in ones (files, processes, services, dictionaries). The built-in views still pick the columns of Show-ConsoleTable and the other commands.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>ProfileSnippet</maml:name>
+          <maml:description>
+            <maml:para>Prints the lines to add to your PowerShell profile so every session starts with ConsoleMonster's formatting, with the options you passed, and changes nothing: the profile is never edited and formatting is not enabled. Pipe them to Add-Content $PROFILE yourself if you want them.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+      <command:syntaxItem parameterSetName="Feature">
+        <maml:name>Enable-ConsoleFormatting</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>CompactErrors</maml:name>
+          <maml:description>
+            <maml:para>Uses the compact message-first error layout. Errors must be enabled.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Detailed</maml:name>
+          <maml:description>
+            <maml:para>Includes script and .NET stack frames in the compact error layout. Requires CompactErrors.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Feature</maml:name>
+          <maml:description>
+            <maml:para>Choose only these features: Output, FormatCommands, Errors, Streams, ReadLine, Prompt, Help, Progress or GridView. The default without Feature enables Output, FormatCommands, Errors, Streams and ReadLine. Feature replaces the default set with exactly these features; use Include for defaults plus opt-ins. Use Disable-ConsoleFormatting to restore the session. FormatCommands keeps native column selections and changes only direct host output. Streams and ReadLine change native colours without replacing Write-* commands. Progress replaces Write-Progress only when explicitly selected. Help, GridView and Prompt are explicit opt-ins.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">ConsoleFormattingFeature[]</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Output</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Errors</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Progress</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">FormatCommands</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Streams</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Help</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">ReadLine</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">GridView</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Prompt</command:parameterValue>
           </command:parameterValueGroup>
@@ -1737,9 +1858,21 @@ $tree | Show-Console</dev:code>
     </command:syntax>
     <command:parameters>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>CompactErrors</maml:name>
+        <maml:description>
+          <maml:para>Uses the compact message-first error layout. Errors must be enabled.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Detailed</maml:name>
         <maml:description>
-          <maml:para>Includes script and .NET stack frames in the opt-in Errors layout. Used only with -Feature Errors; the default layout folds inner exceptions and hides stacks.</maml:para>
+          <maml:para>Includes script and .NET stack frames in the compact error layout. Requires CompactErrors.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
@@ -1749,22 +1882,44 @@ $tree | Show-Console</dev:code>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
-        <maml:name>Feature</maml:name>
+        <maml:name>Exclude</maml:name>
         <maml:description>
-          <maml:para>What to turn on: Output (the default: registered and built-in types as ConsoleMonster views), ErrorView (errors that reach the console in ConsoleMonster's error view, following $ErrorView: DetailedView adds the stack, CategoryView keeps PowerShell's), Progress (Write-Progress drawn as ConsoleMonster's progress area; Write-Progress uses a reversible native-parameter function proxy), Streams (native stream and progress colours), ReadLine (syntax, selection and available inline prediction colours for already loaded PSReadLine), or All (Output, ErrorView, Streams and ReadLine). Streams sets PSStyle.Formatting Warning, Verbose, Debug and Error on PowerShell 7.2+, and PSStyle.Progress.Style, or available Host.PrivateData warning, verbose, debug and progress foreground/background colours on older hosts. Native progress keeps its View and layout. ReadLine never imports PSReadLine and does nothing when it is absent; unsupported colour properties are skipped. PowerShell keeps its prefixes, records, preferences, redirection and transcript behaviour. Streams and ReadLine never replace Write-* commands or install an Out-Default function. Progress is the separate native-progress rendering feature, excluded from All; All keeps Write-Progress native and styles it through Streams. Re-enable Streams or ReadLine after changing themes; Shared native properties follow the most recently applied installation. Disabling its owner restores the latest surviving installation; the last owner restores the first original values, including later user edits. Use Show-ConsoleStatusLine or Write-ConsoleLogEntry for rich script messages. FormatCommands explicitly opts Format-Table, Format-List and Format-Wide into direct-host-only rendering, preserving native captures, jobs, remoting and transcripts; it is excluded from All. Help and Errors are separate direct-host opt-ins, excluded from All. Help renders native Get-Help, help and -? with paging. Errors uses the compact view; -Detailed includes stacks. GridView supplies the terminal grid only where Out-GridView is unavailable; a working native command is kept. Prompt adds a minimal shell prompt while preserving native fallback; oh-my-posh and Starship need Force. Features add up across calls; Disable-ConsoleFormatting turns them off.</maml:para>
+          <maml:para>Turns on the default set except these features, and disables any excluded feature already enabled. Cannot be combined with Feature.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">ConsoleFormattingFeature[]</command:parameterValue>
         <command:parameterValueGroup>
           <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Output</command:parameterValue>
-          <command:parameterValue required="false" variableLength="false">ErrorView</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Errors</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Progress</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">FormatCommands</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Streams</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Help</command:parameterValue>
-          <command:parameterValue required="false" variableLength="false">Errors</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">ReadLine</command:parameterValue>
-          <command:parameterValue required="false" variableLength="false">All</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">GridView</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Prompt</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>ConsoleFormattingFeature[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Feature</maml:name>
+        <maml:description>
+          <maml:para>Choose only these features: Output, FormatCommands, Errors, Streams, ReadLine, Prompt, Help, Progress or GridView. The default without Feature enables Output, FormatCommands, Errors, Streams and ReadLine. Feature replaces the default set with exactly these features; use Include for defaults plus opt-ins. Use Disable-ConsoleFormatting to restore the session. FormatCommands keeps native column selections and changes only direct host output. Streams and ReadLine change native colours without replacing Write-* commands. Progress replaces Write-Progress only when explicitly selected. Help, GridView and Prompt are explicit opt-ins.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">ConsoleFormattingFeature[]</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Output</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Errors</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Progress</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">FormatCommands</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Streams</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Help</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">ReadLine</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">GridView</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Prompt</command:parameterValue>
         </command:parameterValueGroup>
@@ -1782,6 +1937,30 @@ $tree | Show-Console</dev:code>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
           <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Include</maml:name>
+        <maml:description>
+          <maml:para>Adds these opt-in features to the default set. Can be combined with Exclude, but not Feature.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">ConsoleFormattingFeature[]</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Output</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Errors</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Progress</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">FormatCommands</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Streams</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Help</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">ReadLine</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">GridView</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Prompt</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>ConsoleFormattingFeature[]</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -1827,14 +2006,14 @@ $tree | Show-Console</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>Enable-ConsoleFormatting -Feature Output, FormatCommands; 'synthetic' | Get-Member -Name Length, Substring; Get-Command Get-Date | Format-Table Name, Source</dev:code>
+        <dev:code>Enable-ConsoleFormatting; 'synthetic' | Get-Member -Name Length, Substring; Get-Command Get-Date | Format-Table Name, Source</dev:code>
         <dev:remarks>
           <maml:para>Inspect members with the built-in view, while keeping an explicit native column selection</maml:para>
         </dev:remarks>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>Enable-ConsoleFormatting -Feature GridView; Get-Process | Out-GridView -Title 'Choose processes' -OutputMode Single</dev:code>
+        <dev:code>Enable-ConsoleFormatting -Include GridView; Get-Process | Out-GridView -Title 'Choose processes' -OutputMode Single</dev:code>
         <dev:remarks>
           <maml:para>Use the terminal grid where Out-GridView is unavailable; working native commands stay unchanged</maml:para>
         </dev:remarks>
@@ -1848,9 +2027,9 @@ $tree | Show-Console</dev:code>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 4</maml:title>
-        <dev:code>Set-ConsoleTheme -Theme Dark; Enable-ConsoleFormatting -Feature Prompt</dev:code>
+        <dev:code>Set-ConsoleTheme -Theme Dark; Enable-ConsoleFormatting -Include Prompt</dev:code>
         <dev:remarks>
-          <maml:para>Use a minimal themed shell prompt, separately from default output formatting</maml:para>
+          <maml:para>Add a minimal themed shell prompt to the default formatting</maml:para>
         </dev:remarks>
       </command:example>
       <command:example>
@@ -1862,21 +2041,21 @@ $tree | Show-Console</dev:code>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 6</maml:title>
-        <dev:code>Enable-ConsoleFormatting -Feature All</dev:code>
+        <dev:code>Enable-ConsoleFormatting -Exclude FormatCommands</dev:code>
         <dev:remarks>
-          <maml:para>Default output, the error view, native stream/progress and ReadLine colours</maml:para>
+          <maml:para>Exclude native format command styling from the default set</maml:para>
         </dev:remarks>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 7</maml:title>
-        <dev:code>Set-ConsoleTheme Light; Enable-ConsoleFormatting -Feature Streams; Write-Warning 'Disk space is low'; Write-Verbose 'Checking backup' -Verbose</dev:code>
+        <dev:code>Set-ConsoleTheme Light; Enable-ConsoleFormatting -Include Streams; Write-Warning 'Disk space is low'; Write-Verbose 'Checking backup' -Verbose</dev:code>
         <dev:remarks>
           <maml:para>Use the active theme for native stream messages, keeping PowerShell's prefixes and stream behaviour</maml:para>
         </dev:remarks>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 8</maml:title>
-        <dev:code>Set-ConsoleTheme Dark; Enable-ConsoleFormatting -Feature ReadLine, Streams; Write-Progress -Activity 'Backup' -Status 'Copying archive.zip' -PercentComplete 42; Write-Progress -Activity 'Backup' -Completed</dev:code>
+        <dev:code>Set-ConsoleTheme Dark; Enable-ConsoleFormatting -Include ReadLine, Streams; Write-Progress -Activity 'Backup' -Status 'Copying archive.zip' -PercentComplete 42; Write-Progress -Activity 'Backup' -Completed</dev:code>
         <dev:remarks>
           <maml:para>Theme the already loaded editor and native progress without replacing commands</maml:para>
         </dev:remarks>
@@ -4071,8 +4250,8 @@ $tree | Show-Console</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>Invoke-ConsoleRecording { Get-Service | Show-ConsoleTable } -Destination .\services.cast
-Export-ConsoleRecording .\services.cast .\services.gif -Pace Slow -Preset Slide16x9
+        <dev:code>Invoke-ConsoleRecording { Get-Service | Show-ConsoleTable } -Destination .\services.cast&#xD;
+Export-ConsoleRecording .\services.cast .\services.gif -Pace Slow -Preset Slide16x9&#xD;
 Export-ConsoleRecording .\services.cast .\services.png -Preset Slide16x9</dev:code>
         <dev:remarks>
           <maml:para>Record a script, then make a paced 1920x1080 GIF and a closing PNG for a slide</maml:para>
@@ -4080,7 +4259,7 @@ Export-ConsoleRecording .\services.cast .\services.png -Preset Slide16x9</dev:co
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Svg -Destination .\run.svg
+        <dev:code>Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Svg -Destination .\run.svg&#xD;
 Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -Destination .\run.html -Width 120 -Height 36</dev:code>
         <dev:remarks>
           <maml:para>An animated SVG and an HTML player of the same run</maml:para>
@@ -4180,7 +4359,7 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>Export-ConsoleTheme -Path ./team-theme.json
+        <dev:code>Export-ConsoleTheme -Path ./team-theme.json&#xD;
             Set-ConsoleTheme -Path ./team-theme.json</dev:code>
         <dev:remarks>
           <maml:para>Export the current theme, edit its token definitions and apply it.</maml:para>
@@ -4188,7 +4367,7 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>Set-ConsoleTheme -Theme ColorBlindSafe
+        <dev:code>Set-ConsoleTheme -Theme ColorBlindSafe&#xD;
             Export-ConsoleTheme -Path ./accessible.psd1 -PassThru</dev:code>
         <dev:remarks>
           <maml:para>Create a PowerShell data file from the accessible preset and return its file information.</maml:para>
@@ -4482,6 +4661,56 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
         <dev:code>Get-ConsoleDemo 'welcome-*'</dev:code>
         <dev:remarks>
           <maml:para>List the welcome demos.</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
+      <command:name>Get-ConsoleFormatting</command:name>
+      <command:verb>Get</command:verb>
+      <command:noun>ConsoleFormatting</command:noun>
+      <maml:description>
+        <maml:para>Shows the formatting features enabled in this runspace.</maml:para>
+        <maml:para>Returns the enabled feature names, whether compact errors are enabled, and whether built-in views are included. A refused installation is not reported as enabled. AddOptIns shows how to add Help, Prompt, Progress or GridView.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Shows the formatting features enabled in this runspace.</maml:para>
+      <maml:para>Returns the enabled feature names, whether compact errors are enabled, and whether built-in views are included. A refused installation is not reported as enabled. AddOptIns shows how to add Help, Prompt, Progress or GridView.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>Get-ConsoleFormatting</maml:name>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters />
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
+        </dev:type>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>Enable-ConsoleFormatting -Include Help; Get-ConsoleFormatting</dev:code>
+        <dev:remarks>
+          <maml:para>Inspect the current session's formatting</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>
@@ -4908,13 +5137,13 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$d = New-ConsoleDashboard -Title 'Patch' -Content { New-ConsolePanel -Title 'Servers' -Content { New-ConsoleLanes }; New-ConsolePanel -Title 'Log' -Fill -Content { New-ConsoleLogRegion } }
-'SRV1', 'SRV2', 'SRV3' | Invoke-ConsoleDashboard $d -Parallel -ThrottleLimit 3 {
-    param($Server)
-    Update-Console lanes -Key $Server -Status Running -Total 5
-    1..5 | ForEach-Object { Start-Sleep -Milliseconds 300; Update-Console lanes -Key $Server -Result Pass }
-    Write-Host "$Server patched"
-    Update-Console lanes -Key $Server -Complete
+        <dev:code>$d = New-ConsoleDashboard -Title 'Patch' -Content { New-ConsolePanel -Title 'Servers' -Content { New-ConsoleLanes }; New-ConsolePanel -Title 'Log' -Fill -Content { New-ConsoleLogRegion } }&#xD;
+'SRV1', 'SRV2', 'SRV3' | Invoke-ConsoleDashboard $d -Parallel -ThrottleLimit 3 {&#xD;
+    param($Server)&#xD;
+    Update-Console lanes -Key $Server -Status Running -Total 5&#xD;
+    1..5 | ForEach-Object { Start-Sleep -Milliseconds 300; Update-Console lanes -Key $Server -Result Pass }&#xD;
+    Write-Host "$Server patched"&#xD;
+    Update-Console lanes -Key $Server -Complete&#xD;
 }</dev:code>
         <dev:remarks>
           <maml:para>Three servers processed in parallel, three at a time</maml:para>
@@ -4922,8 +5151,8 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$frames = Get-Content ./frames.json | ConvertFrom-Json
-function Show-Frame($Frame) { Update-Console cpu -Append -Value $Frame.Cpu }
+        <dev:code>$frames = Get-Content ./frames.json | ConvertFrom-Json&#xD;
+function Show-Frame($Frame) { Update-Console cpu -Append -Value $Frame.Cpu }&#xD;
 Invoke-ConsoleDashboard $dashboard -ImportFunction Show-Frame { foreach ($frame in $using:frames) { Show-Frame $frame; Wait-ConsoleDashboard 0.5 } }</dev:code>
         <dev:remarks>
           <maml:para>Use the caller's data and helper function inside the dashboard</maml:para>
@@ -5383,9 +5612,9 @@ Invoke-ConsoleDashboard $dashboard -ImportFunction Show-Frame { foreach ($frame 
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$c = New-PesterConfiguration
-$c.Run.Path = '.\Tests'
-$c.Filter.Tag = 'Unit'
+        <dev:code>$c = New-PesterConfiguration&#xD;
+$c.Run.Path = '.\Tests'&#xD;
+$c.Filter.Tag = 'Unit'&#xD;
 $r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.html -PassThru</dev:code>
         <dev:remarks>
           <maml:para>A configuration, on the full screen, with the final dashboard saved</maml:para>
@@ -6685,9 +6914,9 @@ $r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.htm
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 3</maml:title>
-        <dev:code>1..40 | Invoke-ConsoleRun -Parallel -ThrottleLimit 8 -TimeoutSeconds 10 -Title 'Patching web farm' -Label { "web$('{0:d2}' -f $_)" } {
-    Start-Sleep -Milliseconds (Get-Random -Minimum 200 -Maximum 1500)
-    if ($_ % 13 -eq 0) { throw "web$_ did not come back after the reboot" }
+        <dev:code>1..40 | Invoke-ConsoleRun -Parallel -ThrottleLimit 8 -TimeoutSeconds 10 -Title 'Patching web farm' -Label { "web$('{0:d2}' -f $_)" } {&#xD;
+    Start-Sleep -Milliseconds (Get-Random -Minimum 200 -Maximum 1500)&#xD;
+    if ($_ % 13 -eq 0) { throw "web$_ did not come back after the reboot" }&#xD;
 }</dev:code>
         <dev:remarks>
           <maml:para>Forty items in parallel with a title and a time limit: items that throw or run past 10 seconds are failures, listed when the run ends</maml:para>
@@ -6842,11 +7071,11 @@ $r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.htm
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$dashboard = New-ConsoleDashboard -Title 'Checks' -Content { New-ConsolePanel -Title 'Running' -Content { New-ConsoleActivityList -WidgetId running -MaxVisible 4 } }
-Invoke-ConsoleDashboard $dashboard {
-    Update-Console -WidgetId running -Key 1 -Label 'SRV01 · Free space'
-    Start-Sleep -Seconds 1
-    Update-Console -WidgetId running -Key 1 -Complete
+        <dev:code>$dashboard = New-ConsoleDashboard -Title 'Checks' -Content { New-ConsolePanel -Title 'Running' -Content { New-ConsoleActivityList -WidgetId running -MaxVisible 4 } }&#xD;
+Invoke-ConsoleDashboard $dashboard {&#xD;
+    Update-Console -WidgetId running -Key 1 -Label 'SRV01 · Free space'&#xD;
+    Start-Sleep -Seconds 1&#xD;
+    Update-Console -WidgetId running -Key 1 -Complete&#xD;
 }</dev:code>
         <dev:remarks>
           <maml:para>The checks running on four workers</maml:para>
@@ -8082,7 +8311,7 @@ Invoke-ConsoleDashboard $dashboard {
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$states = @('Pass') * 28 + @('Fail') * 2 + @('Warn') + @('Running') * 4
+        <dev:code>$states = @('Pass') * 28 + @('Fail') * 2 + @('Warn') + @('Running') * 4&#xD;
 New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Forty items part-way through a run</maml:para>
@@ -8358,6 +8587,10 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
             <command:parameterValue required="false" variableLength="false">Series5</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Series6</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Focus</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Strong</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Low</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Critical</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Gap</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>ThemeToken</maml:name>
@@ -8736,6 +8969,10 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
           <command:parameterValue required="false" variableLength="false">Series5</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Series6</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Focus</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Strong</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Low</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Critical</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Gap</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>ThemeToken</maml:name>
@@ -9264,10 +9501,10 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleColumns -FixedWidth 0, 0, 17 -CollapseBelow 90 -Content {
-    New-ConsolePanel -Title 'Failures' -Weight 1.5 -Content { New-ConsoleTable -WidgetId failures -Live -Columns 'Server', 'Check' }
-    New-ConsolePanel -Title 'Slowest' -Content { New-ConsoleTable -WidgetId slowest -Live -Columns 'Check', 'Took' }
-    New-ConsolePanel -Title 'Durations' -Content { New-ConsoleChart -WidgetId durations -Height 5 -Type Histogram -Edges 0, 2, 4, 8 }
+        <dev:code>New-ConsoleColumns -FixedWidth 0, 0, 17 -CollapseBelow 90 -Content {&#xD;
+    New-ConsolePanel -Title 'Failures' -Weight 1.5 -Content { New-ConsoleTable -WidgetId failures -Live -Columns 'Server', 'Check' }&#xD;
+    New-ConsolePanel -Title 'Slowest' -Content { New-ConsoleTable -WidgetId slowest -Live -Columns 'Check', 'Took' }&#xD;
+    New-ConsolePanel -Title 'Durations' -Content { New-ConsoleChart -WidgetId durations -Height 5 -Type Histogram -Edges 0, 2, 4, 8 }&#xD;
 }</dev:code>
         <dev:remarks>
           <maml:para>Two tables sharing the width and a histogram 17 cells wide, stacking below 90 cells</maml:para>
@@ -9622,6 +9859,8 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
             <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Unknown</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>StatusKind</maml:name>
@@ -9754,6 +9993,8 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
           <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Unknown</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>StatusKind</maml:name>
@@ -11704,7 +11945,7 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>New-ConsoleField Site 'Site' -Type Select -Choices 'Warsaw', 'Berlin' -ParameterName Site
+        <dev:code>New-ConsoleField Site 'Site' -Type Select -Choices 'Warsaw', 'Berlin' -ParameterName Site&#xD;
 New-ConsoleField Server 'Servers' -Type Select -Multiple -DependsOn Site -LoadChoices { param($Values) Get-AppServer -Site $Values.Site } -Display Name -ParameterName Server</dev:code>
         <dev:remarks>
           <maml:para>Dependent fields: picking a site loads its servers</maml:para>
@@ -11712,7 +11953,7 @@ New-ConsoleField Server 'Servers' -Type Select -Multiple -DependsOn Site -LoadCh
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleField Notify 'Send an email' -Type Toggle
+        <dev:code>New-ConsoleField Notify 'Send an email' -Type Toggle&#xD;
 New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -match '@' }</dev:code>
         <dev:remarks>
           <maml:para>A conditional field</maml:para>
@@ -11720,11 +11961,11 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 3</maml:title>
-        <dev:code>New-ConsoleField Servers 'Servers' -Type Select -Multiple -DependsOn Domain -ParameterName ComputerName -LoadChoices {
-    param($Values)
-    Get-AppServer -Domain $Values.Domain | ForEach-Object {
-        [pscustomobject] @{ Name = $_.Name; Site = $_.Site; Role = $_.Role; Offline = $_.OfflineReason; Online = -not $_.OfflineReason }
-    }
+        <dev:code>New-ConsoleField Servers 'Servers' -Type Select -Multiple -DependsOn Domain -ParameterName ComputerName -LoadChoices {&#xD;
+    param($Values)&#xD;
+    Get-AppServer -Domain $Values.Domain | ForEach-Object {&#xD;
+        [pscustomobject] @{ Name = $_.Name; Site = $_.Site; Role = $_.Role; Offline = $_.OfflineReason; Online = -not $_.OfflineReason }&#xD;
+    }&#xD;
 } -Display Name -CommandValue Name -GroupBy Site -Badge Role -DisabledReason Offline -Selected Online</dev:code>
         <dev:remarks>
           <maml:para>Loaded servers grouped by site, with their role as a badge, offline ones disabled and online ones selected; the command shows their names</maml:para>
@@ -11862,10 +12103,10 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleFlow -Content {
-    [pscustomobject] @{ Kind = 'Node'; Key = 'leaf'; Label = 'Leaf'; Status = 'Pass' }
-    [pscustomobject] @{ Kind = 'Node'; Key = 'issuer'; Label = 'Intermediate'; Status = 'Fail' }
-    [pscustomobject] @{ Kind = 'Edge'; Key = 'chain'; From = 'leaf'; To = 'issuer'; Label = 'expired'; Status = 'Fail'; Cut = $true }
+        <dev:code>New-ConsoleFlow -Content {&#xD;
+    [pscustomobject] @{ Kind = 'Node'; Key = 'leaf'; Label = 'Leaf'; Status = 'Pass' }&#xD;
+    [pscustomobject] @{ Kind = 'Node'; Key = 'issuer'; Label = 'Intermediate'; Status = 'Fail' }&#xD;
+    [pscustomobject] @{ Kind = 'Edge'; Key = 'chain'; From = 'leaf'; To = 'issuer'; Label = 'expired'; Status = 'Fail'; Cut = $true }&#xD;
 }</dev:code>
         <dev:remarks>
           <maml:para>A certificate path with a broken connection</maml:para>
@@ -12434,10 +12675,10 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$form = New-ConsoleForm 'New share' -Command 'New-AppShare' -PageDescriptions @{ Basics = 'Name and location of the share.'; Access = 'How people can use the share.' } -Content {
-    New-ConsoleField Name 'Share name' -Page Basics -Required -ParameterName Name
-    New-ConsoleField Path 'Folder' -Type Path -Kind Folder -MustExist -Page Basics -ParameterName Path
-    New-ConsoleField ReadOnly 'Read only' -Type Toggle -Page Access -ParameterName ReadOnly
+        <dev:code>$form = New-ConsoleForm 'New share' -Command 'New-AppShare' -PageDescriptions @{ Basics = 'Name and location of the share.'; Access = 'How people can use the share.' } -Content {&#xD;
+    New-ConsoleField Name 'Share name' -Page Basics -Required -ParameterName Name&#xD;
+    New-ConsoleField Path 'Folder' -Type Path -Kind Folder -MustExist -Page Basics -ParameterName Path&#xD;
+    New-ConsoleField ReadOnly 'Read only' -Type Toggle -Page Access -ParameterName ReadOnly&#xD;
 }</dev:code>
         <dev:remarks>
           <maml:para>A two-page wizard</maml:para>
@@ -12445,10 +12686,10 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$form = New-ConsoleForm 'New share' -Command 'New-AppShare' -Content {
-    New-ConsoleField Name 'Share name' -Required -ParameterName Name
-    New-ConsoleField ReadOnly 'Read only' -Type Toggle -ParameterName ReadOnly
-    [pscustomobject]@{ Name = 'Archive'; Values = @{ Name = 'Archive'; ReadOnly = $true }; Description = 'A read-only archive share.' }
+        <dev:code>$form = New-ConsoleForm 'New share' -Command 'New-AppShare' -Content {&#xD;
+    New-ConsoleField Name 'Share name' -Required -ParameterName Name&#xD;
+    New-ConsoleField ReadOnly 'Read only' -Type Toggle -ParameterName ReadOnly&#xD;
+    [pscustomobject]@{ Name = 'Archive'; Values = @{ Name = 'Archive'; ReadOnly = $true }; Description = 'A read-only archive share.' }&#xD;
 }</dev:code>
         <dev:remarks>
           <maml:para>A form that comes with a preset</maml:para>
@@ -12548,6 +12789,8 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -
             <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Unknown</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>StatusKind</maml:name>
@@ -12656,6 +12899,8 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -
           <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Unknown</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>StatusKind</maml:name>
@@ -12815,6 +13060,10 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -
             <command:parameterValue required="false" variableLength="false">Series5</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Series6</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Focus</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Strong</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Low</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Critical</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Gap</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>ThemeToken</maml:name>
@@ -12965,6 +13214,10 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -
           <command:parameterValue required="false" variableLength="false">Series5</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Series6</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Focus</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Strong</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Low</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Critical</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Gap</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>ThemeToken</maml:name>
@@ -13062,10 +13315,10 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleKeyValue -Content {
-    [pscustomobject]@{ Key = 'Version'; Value = '0.0.4 [muted]→[/] [bold]2.0.0[/]'; Markup = $true }
-    [pscustomobject]@{ Key = 'Signing'; Value = 'skipped'; Status = 'Skip' }
-    [pscustomobject]@{ Key = 'Tests'; Value = '1 skipped on PowerShell 7'; Status = 'Warn' }
+        <dev:code>New-ConsoleKeyValue -Content {&#xD;
+    [pscustomobject]@{ Key = 'Version'; Value = '0.0.4 [muted]→[/] [bold]2.0.0[/]'; Markup = $true }&#xD;
+    [pscustomobject]@{ Key = 'Signing'; Value = 'skipped'; Status = 'Skip' }&#xD;
+    [pscustomobject]@{ Key = 'Tests'; Value = '1 skipped on PowerShell 7'; Status = 'Warn' }&#xD;
 } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Pairs with status marks</maml:para>
@@ -13073,8 +13326,8 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 3</maml:title>
-        <dev:code>New-ConsoleKeyValue -InputObject ([ordered] @{ Module = 'ConsoleMonster'; Frameworks = 'netstandard2.0, net472, net8.0' }) -Content {
-    [pscustomobject]@{ Key = 'Signing'; Value = 'skipped'; Status = 'Skip' }
+        <dev:code>New-ConsoleKeyValue -InputObject ([ordered] @{ Module = 'ConsoleMonster'; Frameworks = 'netstandard2.0, net472, net8.0' }) -Content {&#xD;
+    [pscustomobject]@{ Key = 'Signing'; Value = 'skipped'; Status = 'Skip' }&#xD;
 } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>A hashtable and pairs together</maml:para>
@@ -13126,6 +13379,8 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -
             <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Unknown</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>StatusKind</maml:name>
@@ -13382,6 +13637,8 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -
           <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Unknown</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>StatusKind</maml:name>
@@ -13639,10 +13896,10 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleLanes -Content {
-    [pscustomobject]@{ Key = 'DC01'; Total = 40; Status = 'Pass'; Passed = 40; Value = 40 }
-    [pscustomobject]@{ Key = 'DC02'; Total = 40; Status = 'Running'; Passed = 21; Warned = 1; Detail = 'replication'; Value = 22 }
-    [pscustomobject]@{ Key = 'DC03'; Total = 40 }
+        <dev:code>New-ConsoleLanes -Content {&#xD;
+    [pscustomobject]@{ Key = 'DC01'; Total = 40; Status = 'Pass'; Passed = 40; Value = 40 }&#xD;
+    [pscustomobject]@{ Key = 'DC02'; Total = 40; Status = 'Running'; Passed = 21; Warned = 1; Detail = 'replication'; Value = 22 }&#xD;
+    [pscustomobject]@{ Key = 'DC03'; Total = 40 }&#xD;
 } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Lanes at different points, printed once</maml:para>
@@ -14262,10 +14519,10 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>New-ConsoleLogRegion -Height 5 -Content {
-    [pscustomobject]@{ Message = 'Discovered 4 domain controllers in 2 domains'; Level = 'Info'; AtSeconds = 2 }
-    [pscustomobject]@{ Message = 'DC02: USN rollback check failed (event 2095)'; Level = 'Error'; AtSeconds = 44 }
-    [pscustomobject]@{ Message = 'Using cached schema snapshot'; Level = 'Verbose'; AtSeconds = 53 }
+        <dev:code>New-ConsoleLogRegion -Height 5 -Content {&#xD;
+    [pscustomobject]@{ Message = 'Discovered 4 domain controllers in 2 domains'; Level = 'Info'; AtSeconds = 2 }&#xD;
+    [pscustomobject]@{ Message = 'DC02: USN rollback check failed (event 2095)'; Level = 'Error'; AtSeconds = 44 }&#xD;
+    [pscustomobject]@{ Message = 'Using cached schema snapshot'; Level = 'Verbose'; AtSeconds = 53 }&#xD;
 } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>A short log printed once</maml:para>
@@ -14504,11 +14761,11 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$menu = New-ConsoleMenu 'Backup helper' -Content {
-    New-ConsoleMenuItem 'Back up now' -Hotkey b -Action { Start-Backup }
-    New-ConsoleMenuItem 'Settings' -Hotkey s -Form $settings
-    New-ConsoleMenuItem -Exit
-}
+        <dev:code>$menu = New-ConsoleMenu 'Backup helper' -Content {&#xD;
+    New-ConsoleMenuItem 'Back up now' -Hotkey b -Action { Start-Backup }&#xD;
+    New-ConsoleMenuItem 'Settings' -Hotkey s -Form $settings&#xD;
+    New-ConsoleMenuItem -Exit&#xD;
+}&#xD;
 Show-ConsoleMenu $menu -Layout Classic</dev:code>
         <dev:remarks>
           <maml:para>A small script menu</maml:para>
@@ -14516,12 +14773,12 @@ Show-ConsoleMenu $menu -Layout Classic</dev:code>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$menu = New-ConsoleMenu 'Backup helper' -Content {
-    [pscustomobject]@{ Name = 'Weekly'; Form = $settings; Values = @{ Target = 'Weekly'; Compress = $true }; Description = 'The Sunday backup.' }
-    New-ConsoleMenuItem 'Presets' -Hotkey p -Presets
-    New-ConsoleMenuItem 'Settings' -Hotkey s -Form $settings
-    New-ConsoleMenuItem -Exit
-}
+        <dev:code>$menu = New-ConsoleMenu 'Backup helper' -Content {&#xD;
+    [pscustomobject]@{ Name = 'Weekly'; Form = $settings; Values = @{ Target = 'Weekly'; Compress = $true }; Description = 'The Sunday backup.' }&#xD;
+    New-ConsoleMenuItem 'Presets' -Hotkey p -Presets&#xD;
+    New-ConsoleMenuItem 'Settings' -Hotkey s -Form $settings&#xD;
+    New-ConsoleMenuItem -Exit&#xD;
+}&#xD;
 Show-ConsoleMenu $menu -Layout Shell</dev:code>
         <dev:remarks>
           <maml:para>An app with built-in presets for its form</maml:para>
@@ -15907,8 +16164,8 @@ Show-ConsoleMenu $menu -Layout Shell</dev:code>
         <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Review</maml:name>
           <maml:description>
-            <maml:para>A review built each time it shows: a hashtable with Rows (an ordered hashtable of label = value), Command (the
-equivalent command line), Problems (strings that block running), Run (a scriptblock) and optionally Title,
+            <maml:para>A review built each time it shows: a hashtable with Rows (an ordered hashtable of label = value), Command (the&#xD;
+equivalent command line), Problems (strings that block running), Run (a scriptblock) and optionally Title,&#xD;
 Description and RunText.</maml:para>
           </maml:description>
           <command:parameterValue required="true" variableLength="false">ScriptBlock</command:parameterValue>
@@ -16625,8 +16882,8 @@ Description and RunText.</maml:para>
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Review</maml:name>
         <maml:description>
-          <maml:para>A review built each time it shows: a hashtable with Rows (an ordered hashtable of label = value), Command (the
-equivalent command line), Problems (strings that block running), Run (a scriptblock) and optionally Title,
+          <maml:para>A review built each time it shows: a hashtable with Rows (an ordered hashtable of label = value), Command (the&#xD;
+equivalent command line), Problems (strings that block running), Run (a scriptblock) and optionally Title,&#xD;
 Description and RunText.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="false">ScriptBlock</command:parameterValue>
@@ -16825,6 +17082,8 @@ Description and RunText.</maml:para>
             <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Unknown</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>StatusKind</maml:name>
@@ -16933,6 +17192,8 @@ Description and RunText.</maml:para>
           <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Unknown</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>StatusKind</maml:name>
@@ -16987,15 +17248,15 @@ Description and RunText.</maml:para>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>New-ConsoleMenuItem 'Back up now' -Action {
-    $dashboard = New-ConsoleDashboard -Title 'Backup' -Content { New-ConsoleStatusList -Item 'Scan files', 'Copy changes' }
-    $null = $MenuContext.Run($dashboard, {
-        Update-Console status -Key 'Scan files' -Status Pass
-        Update-Console status -Key 'Copy changes' -Status Pass
-        New-ConsoleMenuRunResult 'Backup finished' -Summary '1 284 files copied, 312 MB.' -Figure ([ordered] @{ files = '1 284'; copied = '312 MB' }) -Next @{
-            'Show where the log is' = { $MenuContext.Toast('Log: D:\Backups\backup.log') }
-        }
-    })
+        <dev:code>New-ConsoleMenuItem 'Back up now' -Action {&#xD;
+    $dashboard = New-ConsoleDashboard -Title 'Backup' -Content { New-ConsoleStatusList -Item 'Scan files', 'Copy changes' }&#xD;
+    $null = $MenuContext.Run($dashboard, {&#xD;
+        Update-Console status -Key 'Scan files' -Status Pass&#xD;
+        Update-Console status -Key 'Copy changes' -Status Pass&#xD;
+        New-ConsoleMenuRunResult 'Backup finished' -Summary '1 284 files copied, 312 MB.' -Figure ([ordered] @{ files = '1 284'; copied = '312 MB' }) -Next @{&#xD;
+            'Show where the log is' = { $MenuContext.Toast('Log: D:\Backups\backup.log') }&#xD;
+        }&#xD;
+    })&#xD;
 }</dev:code>
         <dev:remarks>
           <maml:para>A backup run that reports what it did</maml:para>
@@ -17258,6 +17519,10 @@ Description and RunText.</maml:para>
             <command:parameterValue required="false" variableLength="false">Series5</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Series6</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Focus</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Strong</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Low</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Critical</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Gap</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>ThemeToken</maml:name>
@@ -17411,6 +17676,8 @@ Description and RunText.</maml:para>
             <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Unknown</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>StatusKind</maml:name>
@@ -17509,6 +17776,10 @@ Description and RunText.</maml:para>
           <command:parameterValue required="false" variableLength="false">Series5</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Series6</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Focus</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Strong</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Low</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Critical</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Gap</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>ThemeToken</maml:name>
@@ -17662,6 +17933,8 @@ Description and RunText.</maml:para>
           <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Unknown</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>StatusKind</maml:name>
@@ -17899,11 +18172,11 @@ Description and RunText.</maml:para>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>New-ConsolePhases -Content {
-    [pscustomobject]@{ Label = 'Discover'; Status = 'Pass'; Detail = '2.1s' }
-    [pscustomobject]@{ Label = 'Collect'; Status = 'Pass'; Detail = '14s' }
-    [pscustomobject]@{ Label = 'Evaluate'; Status = 'Running'; Detail = '64%' }
-    [pscustomobject]@{ Label = 'Report' }
+        <dev:code>New-ConsolePhases -Content {&#xD;
+    [pscustomobject]@{ Label = 'Discover'; Status = 'Pass'; Detail = '2.1s' }&#xD;
+    [pscustomobject]@{ Label = 'Collect'; Status = 'Pass'; Detail = '14s' }&#xD;
+    [pscustomobject]@{ Label = 'Evaluate'; Status = 'Running'; Detail = '64%' }&#xD;
+    [pscustomobject]@{ Label = 'Report' }&#xD;
 } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>A run part-way through</maml:para>
@@ -18038,6 +18311,8 @@ Description and RunText.</maml:para>
             <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Unknown</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>StatusKind</maml:name>
@@ -18170,6 +18445,8 @@ Description and RunText.</maml:para>
             <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Unknown</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>StatusKind</maml:name>
@@ -18354,6 +18631,8 @@ Description and RunText.</maml:para>
           <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Unknown</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>StatusKind</maml:name>
@@ -18824,6 +19103,10 @@ Description and RunText.</maml:para>
             <command:parameterValue required="false" variableLength="false">Series5</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Series6</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Focus</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Strong</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Low</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Critical</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Gap</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>ThemeToken</maml:name>
@@ -18915,6 +19198,10 @@ Description and RunText.</maml:para>
           <command:parameterValue required="false" variableLength="false">Series5</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Series6</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Focus</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Strong</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Low</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Critical</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Gap</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>ThemeToken</maml:name>
@@ -19591,17 +19878,17 @@ Description and RunText.</maml:para>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>New-ConsoleMenuItem 'Run checks' -Action {
-    $clock = New-ConsoleSimulatedClock -Speed 7
-    $dashboard = New-ConsoleDashboard -Title 'Checks' -Content { New-ConsoleSummaryBar -Total 3; New-ConsoleLogRegion -Height 5 }
-    $null = $MenuContext.Run($dashboard, {
-        foreach ($done in 1..3) {
-            $clock.Wait(4.5)
-            Update-Console -Counter @{ passed = $done } -WidgetId 'summary' -Value $done
-            Write-ConsoleLogEntry "Check $done passed"
-        }
-        New-ConsoleMenuRunResult 'Checks finished'
-    }, $clock)
+        <dev:code>New-ConsoleMenuItem 'Run checks' -Action {&#xD;
+    $clock = New-ConsoleSimulatedClock -Speed 7&#xD;
+    $dashboard = New-ConsoleDashboard -Title 'Checks' -Content { New-ConsoleSummaryBar -Total 3; New-ConsoleLogRegion -Height 5 }&#xD;
+    $null = $MenuContext.Run($dashboard, {&#xD;
+        foreach ($done in 1..3) {&#xD;
+            $clock.Wait(4.5)&#xD;
+            Update-Console -Counter @{ passed = $done } -WidgetId 'summary' -Value $done&#xD;
+            Write-ConsoleLogEntry "Check $done passed"&#xD;
+        }&#xD;
+        New-ConsoleMenuRunResult 'Checks finished'&#xD;
+    }, $clock)&#xD;
 }</dev:code>
         <dev:remarks>
           <maml:para>A menu run on a simulated clock seven times faster than real time</maml:para>
@@ -19609,10 +19896,10 @@ Description and RunText.</maml:para>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$clock = New-ConsoleSimulatedClock -Speed 10
-Invoke-ConsoleDashboard $dashboard -Clock $clock -ArgumentList $clock, $entries {
-    param($Clock, $Entries)
-    foreach ($entry in $Entries) { $Clock.WaitUntil($entry.Seconds); Write-ConsoleLogEntry $entry.Text }
+        <dev:code>$clock = New-ConsoleSimulatedClock -Speed 10&#xD;
+Invoke-ConsoleDashboard $dashboard -Clock $clock -ArgumentList $clock, $entries {&#xD;
+    param($Clock, $Entries)&#xD;
+    foreach ($entry in $Entries) { $Clock.WaitUntil($entry.Seconds); Write-ConsoleLogEntry $entry.Text }&#xD;
 }</dev:code>
         <dev:remarks>
           <maml:para>A dashboard replaying logged work at its recorded pace, ten times faster</maml:para>
@@ -19760,9 +20047,9 @@ Invoke-ConsoleDashboard $dashboard -Clock $clock -ArgumentList $clock, $entries 
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>New-ConsoleStack -Content {
-    New-ConsoleChart -WidgetId latency -Type Line
-    New-ConsoleAlign -Horizontal Right -Content { New-ConsoleText -Markup '[pass]LIVE[/]' }
+        <dev:code>New-ConsoleStack -Content {&#xD;
+    New-ConsoleChart -WidgetId latency -Type Line&#xD;
+    New-ConsoleAlign -Horizontal Right -Content { New-ConsoleText -Markup '[pass]LIVE[/]' }&#xD;
 }</dev:code>
         <dev:remarks>
           <maml:para>A chart with a status badge in its top-right corner</maml:para>
@@ -19934,11 +20221,11 @@ Invoke-ConsoleDashboard $dashboard -Clock $clock -ArgumentList $clock, $entries 
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>New-ConsoleStatusList -Content {
-    [pscustomobject]@{ Label = 'Restore NuGet packages'; Status = 'Pass'; Detail = '1.6 s' }
-    [pscustomobject]@{ Label = 'Compile ConsoleMonster'; Status = 'Pass'; Detail = '4.7 s' }
-    [pscustomobject]@{ Label = 'Run Pester on PowerShell 7'; Status = 'Warn'; Detail = '1 skipped' }
-    [pscustomobject]@{ Label = 'Pack ConsoleMonster.2.0.0.nupkg'; Status = 'Running' }
+        <dev:code>New-ConsoleStatusList -Content {&#xD;
+    [pscustomobject]@{ Label = 'Restore NuGet packages'; Status = 'Pass'; Detail = '1.6 s' }&#xD;
+    [pscustomobject]@{ Label = 'Compile ConsoleMonster'; Status = 'Pass'; Detail = '4.7 s' }&#xD;
+    [pscustomobject]@{ Label = 'Run Pester on PowerShell 7'; Status = 'Warn'; Detail = '1 skipped' }&#xD;
+    [pscustomobject]@{ Label = 'Pack ConsoleMonster.2.0.0.nupkg'; Status = 'Running' }&#xD;
 } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>A build checklist</maml:para>
@@ -19960,7 +20247,7 @@ Invoke-ConsoleDashboard $dashboard -Clock $clock -ArgumentList $clock, $entries 
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 4</maml:title>
-        <dev:code>$steps = New-ConsoleStatusList -Item 'Scan files', 'Copy changes', 'Verify'
+        <dev:code>$steps = New-ConsoleStatusList -Item 'Scan files', 'Copy changes', 'Verify'&#xD;
 Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps }) { Update-Console status -Key 'Scan files' -Status Pass -Detail '2.4 s' }</dev:code>
         <dev:remarks>
           <maml:para>A live checklist: items start pending and are updated from the dashboard script</maml:para>
@@ -20352,6 +20639,7 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
             <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Minimal</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Rule</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>TableBorder</maml:name>
@@ -20674,6 +20962,7 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
             <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Minimal</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Rule</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>TableBorder</maml:name>
@@ -21080,6 +21369,7 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
             <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Minimal</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Rule</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>TableBorder</maml:name>
@@ -21402,6 +21692,7 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
           <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Minimal</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Rule</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>TableBorder</maml:name>
@@ -22066,6 +22357,10 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
             <command:parameterValue required="false" variableLength="false">Series5</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Series6</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Focus</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Strong</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Low</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Critical</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Gap</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>ThemeToken</maml:name>
@@ -22226,6 +22521,10 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
           <command:parameterValue required="false" variableLength="false">Series5</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Series6</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Focus</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Strong</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Low</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Critical</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Gap</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>ThemeToken</maml:name>
@@ -22423,6 +22722,10 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
             <command:parameterValue required="false" variableLength="false">Series5</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Series6</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Focus</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Strong</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Low</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Critical</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Gap</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>ThemeToken</maml:name>
@@ -22756,6 +23059,10 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
           <command:parameterValue required="false" variableLength="false">Series5</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Series6</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Focus</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Strong</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Low</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Critical</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Gap</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>ThemeToken</maml:name>
@@ -23544,15 +23851,15 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>New-ConsoleTree '[bold]evotec.xyz[/]' -Content {
-    [pscustomobject]@{ Label = 'MX'; Status = 'Pass'; Detail = '2 records'; Children = @(&amp; {
-        [pscustomobject]@{ Label = 'evotec-xyz.mail.protection.outlook.com'; Detail = 'priority 0' }
-    }) }
-    [pscustomobject]@{ Label = 'SPF'; Status = 'Warn'; Detail = '9 of 10 DNS lookups'; Children = @(&amp; {
-        'include:spf.protection.outlook.com'
-        'include:_spf.salesforce.com'
-    }) }
-    [pscustomobject]@{ Label = 'DMARC'; Status = 'Fail'; Detail = 'p=none' }
+        <dev:code>New-ConsoleTree '[bold]evotec.xyz[/]' -Content {&#xD;
+    [pscustomobject]@{ Label = 'MX'; Status = 'Pass'; Detail = '2 records'; Children = @(&amp; {&#xD;
+        [pscustomobject]@{ Label = 'evotec-xyz.mail.protection.outlook.com'; Detail = 'priority 0' }&#xD;
+    }) }&#xD;
+    [pscustomobject]@{ Label = 'SPF'; Status = 'Warn'; Detail = '9 of 10 DNS lookups'; Children = @(&amp; {&#xD;
+        'include:spf.protection.outlook.com'&#xD;
+        'include:_spf.salesforce.com'&#xD;
+    }) }&#xD;
+    [pscustomobject]@{ Label = 'DMARC'; Status = 'Fail'; Detail = 'p=none' }&#xD;
 } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>A mail domain with records and their state</maml:para>
@@ -23567,12 +23874,12 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 3</maml:title>
-        <dev:code>$groups = @(
-    [pscustomobject] @{ Name = 'Domain Admins'; Health = 'Warn'; Note = '6 members'; Members = @(
-        [pscustomobject] @{ Name = 'Tier 0 operators'; Health = 'Pass'; Members = @([pscustomobject] @{ Name = 'anna.k' }) }
-        [pscustomobject] @{ Name = 'svc-backup'; Health = 'Fail'; Note = 'password never expires' }
-    ) }
-)
+        <dev:code>$groups = @(&#xD;
+    [pscustomobject] @{ Name = 'Domain Admins'; Health = 'Warn'; Note = '6 members'; Members = @(&#xD;
+        [pscustomobject] @{ Name = 'Tier 0 operators'; Health = 'Pass'; Members = @([pscustomobject] @{ Name = 'anna.k' }) }&#xD;
+        [pscustomobject] @{ Name = 'svc-backup'; Health = 'Fail'; Note = 'password never expires' }&#xD;
+    ) }&#xD;
+)&#xD;
 $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusProperty Health -DetailProperty Note | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Hierarchical objects with a status per node</maml:para>
@@ -23934,12 +24241,12 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
       <command:noun>ConsoleDefault</command:noun>
       <maml:description>
         <maml:para>Shows objects of registered types through ConsoleMonster and passes everything else to PowerShell's Out-Default.</maml:para>
-        <maml:para>This is what Enable-ConsoleFormatting puts behind Out-Default. Consecutive objects of registered types (Register-ConsoleView; after Enable-ConsoleFormatting also files and folders, processes, services, commands, modules, event log records, IP addresses, volumes and dictionaries) are collected and shown as one ConsoleMonster view; any other object, format data from Format-*, errors and strings go to PowerShell's Out-Default unchanged. It only takes over when the output is displayed on a real local console: redirected output, jobs, remoting and other hosts get PowerShell's default output (-Force renders anyway). The objects themselves are never changed.</maml:para>
+        <maml:para>This is what Enable-ConsoleFormatting puts behind Out-Default. Consecutive objects of registered types (Register-ConsoleView; after Enable-ConsoleFormatting also files and folders, processes, services, commands, modules, event log records, IP addresses, volumes, versions and dictionaries) are collected and shown as one ConsoleMonster view; any other object, format data from Format-*, errors and strings go to PowerShell's Out-Default unchanged. It only takes over when the output is displayed on a real local console: redirected output, jobs, remoting and other hosts get PowerShell's default output (-Force renders anyway). The objects themselves are never changed.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Shows objects of registered types through ConsoleMonster and passes everything else to PowerShell's Out-Default.</maml:para>
-      <maml:para>This is what Enable-ConsoleFormatting puts behind Out-Default. Consecutive objects of registered types (Register-ConsoleView; after Enable-ConsoleFormatting also files and folders, processes, services, commands, modules, event log records, IP addresses, volumes and dictionaries) are collected and shown as one ConsoleMonster view; any other object, format data from Format-*, errors and strings go to PowerShell's Out-Default unchanged. It only takes over when the output is displayed on a real local console: redirected output, jobs, remoting and other hosts get PowerShell's default output (-Force renders anyway). The objects themselves are never changed.</maml:para>
+      <maml:para>This is what Enable-ConsoleFormatting puts behind Out-Default. Consecutive objects of registered types (Register-ConsoleView; after Enable-ConsoleFormatting also files and folders, processes, services, commands, modules, event log records, IP addresses, volumes, versions and dictionaries) are collected and shown as one ConsoleMonster view; any other object, format data from Format-*, errors and strings go to PowerShell's Out-Default unchanged. It only takes over when the output is displayed on a real local console: redirected output, jobs, remoting and other hosts get PowerShell's default output (-Force renders anyway). The objects themselves are never changed.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
@@ -25055,7 +25362,7 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$answers = Read-ConsoleForm $form -AppName 'ShareTool' -RememberLastChoices
+        <dev:code>$answers = Read-ConsoleForm $form -AppName 'ShareTool' -RememberLastChoices&#xD;
 if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }</dev:code>
         <dev:remarks>
           <maml:para>Run a wizard and use the answers</maml:para>
@@ -27242,9 +27549,9 @@ if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }</dev:code
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Shaper</maml:name>
           <maml:description>
-            <maml:para>A script block that turns each object of the type into what is shown instead ($_ is the object), for example an
-ordered dictionary of the fields worth showing. It applies in every command (Show-ConsoleTable, -List, -Tree,
-Show-Console, Show-ConsoleGrid, Compare-ConsoleObject, Out-ConsoleDefault), also to deserialized objects whose type
+            <maml:para>A script block that turns each object of the type into what is shown instead ($_ is the object), for example an&#xD;
+ordered dictionary of the fields worth showing. It applies in every command (Show-ConsoleTable, -List, -Tree,&#xD;
+Show-Console, Show-ConsoleGrid, Compare-ConsoleObject, Out-ConsoleDefault), also to deserialized objects whose type&#xD;
 names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group), only the shaper is registered.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
@@ -27376,9 +27683,9 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Shaper</maml:name>
         <maml:description>
-          <maml:para>A script block that turns each object of the type into what is shown instead ($_ is the object), for example an
-ordered dictionary of the fields worth showing. It applies in every command (Show-ConsoleTable, -List, -Tree,
-Show-Console, Show-ConsoleGrid, Compare-ConsoleObject, Out-ConsoleDefault), also to deserialized objects whose type
+          <maml:para>A script block that turns each object of the type into what is shown instead ($_ is the object), for example an&#xD;
+ordered dictionary of the fields worth showing. It applies in every command (Show-ConsoleTable, -List, -Tree,&#xD;
+Show-Console, Show-ConsoleGrid, Compare-ConsoleObject, Out-ConsoleDefault), also to deserialized objects whose type&#xD;
 names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group), only the shaper is registered.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
@@ -27819,8 +28126,8 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$last = Read-ConsoleForm $form -PassThru
-Set-ConsoleFormValue $form $last
+        <dev:code>$last = Read-ConsoleForm $form -PassThru&#xD;
+Set-ConsoleFormValue $form $last&#xD;
 Read-ConsoleForm $form</dev:code>
         <dev:remarks>
           <maml:para>Start a form from the answers of its last run</maml:para>
@@ -28038,6 +28345,7 @@ Read-ConsoleForm $form</dev:code>
             <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Minimal</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Rule</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>TableBorder</maml:name>
@@ -28329,6 +28637,10 @@ Read-ConsoleForm $form</dev:code>
             <command:parameterValue required="false" variableLength="false">Series5</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Series6</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Focus</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Strong</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Low</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Critical</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Gap</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>ThemeToken</maml:name>
@@ -28926,6 +29238,7 @@ Read-ConsoleForm $form</dev:code>
             <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Minimal</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Rule</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>TableBorder</maml:name>
@@ -29205,6 +29518,10 @@ Read-ConsoleForm $form</dev:code>
             <command:parameterValue required="false" variableLength="false">Series5</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Series6</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Focus</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Strong</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Low</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Critical</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Gap</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>ThemeToken</maml:name>
@@ -29814,6 +30131,7 @@ Read-ConsoleForm $form</dev:code>
             <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Minimal</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Rule</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>TableBorder</maml:name>
@@ -30105,6 +30423,10 @@ Read-ConsoleForm $form</dev:code>
             <command:parameterValue required="false" variableLength="false">Series5</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Series6</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Focus</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Strong</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Low</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Critical</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Gap</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>ThemeToken</maml:name>
@@ -30702,6 +31024,7 @@ Read-ConsoleForm $form</dev:code>
           <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Minimal</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Rule</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>TableBorder</maml:name>
@@ -31005,6 +31328,10 @@ Read-ConsoleForm $form</dev:code>
           <command:parameterValue required="false" variableLength="false">Series5</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Series6</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Focus</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Strong</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Low</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Critical</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Gap</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>ThemeToken</maml:name>
@@ -32142,10 +32469,10 @@ Read-ConsoleForm $form</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>Show-ConsoleApp -Content {
-                New-ConsoleTextInput -Key Query -OnChange { param($Value, $State) $State.Edits = 1 + $State.Edits }
-                New-ConsoleTable -Bind { $services | Where-Object Name -Like "*$($State.Query)*" } -Property Name, Status
-                New-ConsoleBinding -Content { "Edits: $($State.Edits)" }
+        <dev:code>Show-ConsoleApp -Content {&#xD;
+                New-ConsoleTextInput -Key Query -OnChange { param($Value, $State) $State.Edits = 1 + $State.Edits }&#xD;
+                New-ConsoleTable -Bind { $services | Where-Object Name -Like "*$($State.Query)*" } -Property Name, Status&#xD;
+                New-ConsoleBinding -Content { "Edits: $($State.Edits)" }&#xD;
             } -PassThru</dev:code>
         <dev:remarks>
           <maml:para>Filter application data without leaving PowerShell.</maml:para>
@@ -32153,9 +32480,9 @@ Read-ConsoleForm $form</dev:code>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code># Using the object directly
-            $capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(80, 24)
-            $keys = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('"abc" Escape')
+        <dev:code># Using the object directly&#xD;
+            $capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(80, 24)&#xD;
+            $keys = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('"abc" Escape')&#xD;
             Show-ConsoleApp -Content { New-ConsoleTextInput -Key Query } -InputSource $keys -Capture $capture -PassThru</dev:code>
         <dev:remarks>
           <maml:para>Capture a scripted run without a physical console.</maml:para>
@@ -35308,6 +35635,10 @@ Read-ConsoleForm $form</dev:code>
             <command:parameterValue required="false" variableLength="false">Series5</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Series6</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Focus</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Strong</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Low</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Critical</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Gap</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>ThemeToken</maml:name>
@@ -35365,6 +35696,8 @@ Read-ConsoleForm $form</dev:code>
             <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Unknown</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>StatusKind</maml:name>
@@ -35491,6 +35824,10 @@ Read-ConsoleForm $form</dev:code>
           <command:parameterValue required="false" variableLength="false">Series5</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Series6</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Focus</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Strong</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Low</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Critical</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Gap</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>ThemeToken</maml:name>
@@ -35548,6 +35885,8 @@ Read-ConsoleForm $form</dev:code>
           <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Unknown</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>StatusKind</maml:name>
@@ -35596,7 +35935,7 @@ Read-ConsoleForm $form</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>foreach ($file in $files) { Show-ConsoleStatusLine 'Copying ', $file.Name -Color Gray, Cyan -Spinner -ShowElapsed; Copy-Item $file.FullName $target }
+        <dev:code>foreach ($file in $files) { Show-ConsoleStatusLine 'Copying ', $file.Name -Color Gray, Cyan -Spinner -ShowElapsed; Copy-Item $file.FullName $target }&#xD;
 Show-ConsoleStatusLine "Copied $($files.Count) files" -Status Pass -ShowElapsed -Complete</dev:code>
         <dev:remarks>
           <maml:para>A copy loop with a spinner and elapsed time</maml:para>
@@ -35619,11 +35958,13 @@ Show-ConsoleStatusLine "Copied $($files.Count) files" -Status Pass -ShowElapsed 
       <command:noun>ConsoleTable</command:noun>
       <maml:description>
         <maml:para>Displays the table representation through the shared Show-Console implementation.</maml:para>
+        <maml:para>Three ways to use ConsoleMonster output: Automatic: Enable-ConsoleFormatting makes ordinary output readable for known and registered types. Explicit: pipe any objects to Show-ConsoleTable to choose columns, a title and grouping, or to Show-ConsoleObject to explore their members. These commands do not change session formatting; Show-ConsoleObject -StaticSnapshot avoids interactive input in scripts. Native Format-Table, Format-List and Format-Wide: FormatCommands restyles direct console output while keeping PowerShell's column choices; it is included by default use -Exclude FormatCommands to leave it native. You do not need both automatic and explicit formatting. The -Feature parameter requires ConsoleMonster 2.1.0 or later.</maml:para>
         <maml:para>Table and List are idiomatic shortcuts to the same view construction and output path. AsWidget and AsString capture the result; export uses Export-ConsoleFrame.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Displays the table representation through the shared Show-Console implementation.</maml:para>
+      <maml:para>Three ways to use ConsoleMonster output: Automatic: Enable-ConsoleFormatting makes ordinary output readable for known and registered types. Explicit: pipe any objects to Show-ConsoleTable to choose columns, a title and grouping, or to Show-ConsoleObject to explore their members. These commands do not change session formatting; Show-ConsoleObject -StaticSnapshot avoids interactive input in scripts. Native Format-Table, Format-List and Format-Wide: FormatCommands restyles direct console output while keeping PowerShell's column choices; it is included by default use -Exclude FormatCommands to leave it native. You do not need both automatic and explicit formatting. The -Feature parameter requires ConsoleMonster 2.1.0 or later.</maml:para>
       <maml:para>Table and List are idiomatic shortcuts to the same view construction and output path. AsWidget and AsString capture the result; export uses Export-ConsoleFrame.</maml:para>
     </maml:description>
     <command:syntax>
@@ -35677,6 +36018,7 @@ Show-ConsoleStatusLine "Copied $($files.Count) files" -Status Pass -ShowElapsed 
             <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Minimal</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Rule</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>TableBorder</maml:name>
@@ -36119,6 +36461,7 @@ Show-ConsoleStatusLine "Copied $($files.Count) files" -Status Pass -ShowElapsed 
             <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Minimal</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Rule</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>TableBorder</maml:name>
@@ -36561,6 +36904,7 @@ Show-ConsoleStatusLine "Copied $($files.Count) files" -Status Pass -ShowElapsed 
           <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Minimal</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Rule</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>TableBorder</maml:name>
@@ -37368,14 +37712,14 @@ Show-ConsoleStatusLine "Copied $($files.Count) files" -Status Pass -ShowElapsed 
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$files = @(Get-ChildItem *.log)
-$run = Start-ConsoleRun -Items $files -Title 'Archive logs' -Label Name -Target DirectoryName
-try {
-    for ($i = 0; $i -lt $files.Count; $i++) {
-        Update-Console -Run $run -Index $i -Status Running -Label 'archiving'
-        try { Compress-Archive $files[$i].FullName "$($files[$i].FullName).zip" -ErrorAction Stop; Update-Console -Run $run -Index $i -Status Pass }
-        catch { Update-Console -Run $run -Index $i -Status Fail -Detail $_.Exception.Message }
-    }
+        <dev:code>$files = @(Get-ChildItem *.log)&#xD;
+$run = Start-ConsoleRun -Items $files -Title 'Archive logs' -Label Name -Target DirectoryName&#xD;
+try {&#xD;
+    for ($i = 0; $i -lt $files.Count; $i++) {&#xD;
+        Update-Console -Run $run -Index $i -Status Running -Label 'archiving'&#xD;
+        try { Compress-Archive $files[$i].FullName "$($files[$i].FullName).zip" -ErrorAction Stop; Update-Console -Run $run -Index $i -Status Pass }&#xD;
+        catch { Update-Console -Run $run -Index $i -Status Fail -Detail $_.Exception.Message }&#xD;
+    }&#xD;
 } finally { Complete-ConsoleRun $run }</dev:code>
         <dev:remarks>
           <maml:para>Track a script without changing its output</maml:para>
@@ -37427,7 +37771,7 @@ try {
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>Write-Host 'Deployment finished'
+        <dev:code>Write-Host 'Deployment finished'&#xD;
             Stop-ConsoleRecording</dev:code>
         <dev:remarks>
           <maml:para>Finish from inside the recorded child shell</maml:para>
@@ -37671,6 +38015,8 @@ try {
             <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Unknown</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>StatusKind</maml:name>
@@ -37704,6 +38050,8 @@ try {
             <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Unknown</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>StatusKind</maml:name>
@@ -37980,6 +38328,8 @@ try {
             <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Unknown</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>StatusKind</maml:name>
@@ -38052,6 +38402,8 @@ try {
             <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Unknown</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>StatusKind</maml:name>
@@ -38190,6 +38542,8 @@ try {
             <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Unknown</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>StatusKind</maml:name>
@@ -38262,6 +38616,8 @@ try {
             <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Unknown</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>StatusKind</maml:name>
@@ -38358,6 +38714,8 @@ try {
             <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Unknown</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>StatusKind</maml:name>
@@ -38634,6 +38992,8 @@ try {
           <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Unknown</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>StatusKind</maml:name>
@@ -38691,6 +39051,8 @@ try {
           <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Unknown</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>StatusKind</maml:name>
@@ -38912,11 +39274,11 @@ try {
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>Use-ConsoleProgress {
-    foreach ($i in 1..50) {
-        Write-Progress -Activity 'Copying' -Status "File $i of 50" -PercentComplete ($i * 2)
-        Start-Sleep -Milliseconds 50
-    }
+        <dev:code>Use-ConsoleProgress {&#xD;
+    foreach ($i in 1..50) {&#xD;
+        Write-Progress -Activity 'Copying' -Status "File $i of 50" -PercentComplete ($i * 2)&#xD;
+        Start-Sleep -Milliseconds 50&#xD;
+    }&#xD;
 }</dev:code>
         <dev:remarks>
           <maml:para>An existing loop, unchanged</maml:para>
@@ -39462,14 +39824,14 @@ try {
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$dashboard = New-ConsoleDashboard -Title 'Scan' -Content {
-    New-ConsoleProgress -WidgetId overall -Label Targets -Total 3
-}
-Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {
-    foreach ($count in 1..3) {
-        Update-Console -WidgetId overall -Value $count
-        Wait-ConsoleDashboard -Seconds 0.25
-    }
+        <dev:code>$dashboard = New-ConsoleDashboard -Title 'Scan' -Content {&#xD;
+    New-ConsoleProgress -WidgetId overall -Label Targets -Total 3&#xD;
+}&#xD;
+Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {&#xD;
+    foreach ($count in 1..3) {&#xD;
+        Update-Console -WidgetId overall -Value $count&#xD;
+        Wait-ConsoleDashboard -Seconds 0.25&#xD;
+    }&#xD;
 }</dev:code>
         <dev:remarks>
           <maml:para>Update progress between cancellable pauses</maml:para>
@@ -40668,6 +41030,10 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {
             <command:parameterValue required="false" variableLength="false">Series5</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Series6</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Focus</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Strong</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Low</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Critical</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Gap</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>ThemeToken</maml:name>
@@ -41101,6 +41467,10 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {
           <command:parameterValue required="false" variableLength="false">Series5</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Series6</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Focus</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Strong</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Low</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Critical</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Gap</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>ThemeToken</maml:name>

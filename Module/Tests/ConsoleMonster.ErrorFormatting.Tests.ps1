@@ -24,7 +24,7 @@ try {
     try { [int]::Parse('abc') } catch { $record = $_ }
     $capture = { Get-ErrorFormattingSnapshot $record $directory }
     $before = & $capture
-    Enable-ConsoleFormatting -Feature Errors
+    Enable-ConsoleFormatting -Feature Errors -CompactErrors
     $after = & $capture
     foreach ($name in $before.PSObject.Properties.Name) {
         if ($before.$name -cne $after.$name) { throw "Native capture changed: $name" }
@@ -41,7 +41,7 @@ try {
 $ErrorActionPreference = 'Continue'
 $errorView = $ErrorView
 $writeError = Get-Command Write-Error
-Enable-ConsoleFormatting -Feature Errors
+Enable-ConsoleFormatting -Feature Errors -CompactErrors
 $record = [Management.Automation.ErrorRecord]::new([InvalidOperationException]::new('Synthetic failure'), 'SyntheticError', 'InvalidOperation', 'synthetic-target')
 $Error.Clear()
 Write-Error -ErrorRecord $record -ErrorVariable held 2>$null
@@ -65,12 +65,10 @@ Disable-ConsoleFormatting
         $text | Should -Match 'ERROR_STATE_NATIVE_OK'
     }
 
-    It 'excludes Errors from All and prints its explicit Detailed profile snippet' {
+    It 'prints the explicit compact Detailed profile snippet' {
         $text = Invoke-ErrorFormattingChild @'
-$flags = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.ConsoleFormattingFeature'))
-if (($flags::All -band $flags::Errors) -ne 0) { throw 'Errors became implicit.' }
-$snippet = Enable-ConsoleFormatting -Feature Errors -Detailed -ProfileSnippet
-if ($snippet[-1] -cne 'Enable-ConsoleFormatting -Feature Errors -Detailed') { throw 'Wrong profile snippet.' }
+$snippet = Enable-ConsoleFormatting -Feature Errors -CompactErrors -Detailed -ProfileSnippet
+if ($snippet[-1] -cne 'Enable-ConsoleFormatting -Feature Errors -CompactErrors -Detailed') { throw 'Wrong profile snippet.' }
 if (Get-Command Out-Default -CommandType Function -ErrorAction Ignore) { throw 'Snippet changed the session.' }
 'EXPLICIT_ONLY_OK'
 '@
@@ -81,10 +79,10 @@ if (Get-Command Out-Default -CommandType Function -ErrorAction Ignore) { throw '
         $text = Invoke-ErrorFormattingChild @'
 function global:Out-Default { 'user-owned' }
 $saved = ${function:global:Out-Default}.ToString()
-Enable-ConsoleFormatting -Feature Errors -Force
+Enable-ConsoleFormatting -Feature Errors -CompactErrors -Force
 Disable-ConsoleFormatting -Feature Errors
 if (${function:global:Out-Default}.ToString() -cne $saved) { throw 'Disable did not restore the function.' }
-Enable-ConsoleFormatting -Feature Errors -Force
+Enable-ConsoleFormatting -Feature Errors -CompactErrors -Force
 Remove-Module ConsoleMonster
 if (${function:global:Out-Default}.ToString() -cne $saved) { throw 'Removal did not restore the function.' }
 'RESTORE_EXACT_OK'
@@ -114,7 +112,7 @@ if ($widget.DetailsHint) {
 $module = (Get-Module ConsoleMonster).Path
 $script = { param($module, $enabled)
     Import-Module $module
-    if ($enabled) { Enable-ConsoleFormatting -Feature Errors }
+    if ($enabled) { Enable-ConsoleFormatting -Feature Errors -CompactErrors }
     try { [int]::Parse('abc') } catch { $_ | Out-String -Width 100 }
 }
 $jobs = @(Start-Job $script -ArgumentList $module,$false; Start-Job $script -ArgumentList $module,$true)

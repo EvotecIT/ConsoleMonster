@@ -162,6 +162,29 @@ try {
         $ast.ParamBlock | Should -BeNullOrEmpty
     }
 
+    It 'runs the already loaded module when a higher version is available by name' {
+        $root = Join-Path $TestDrive 'side-by-side'
+        $other = Join-Path $root 'ConsoleMonster/99.0.0'
+        $null = New-Item -ItemType Directory -Path $other -Force
+        Set-Content -LiteralPath (Join-Path $other 'ConsoleMonster.psm1') -Value "throw 'The wrong module was imported'" -Encoding UTF8
+        New-ModuleManifest -Path (Join-Path $other 'ConsoleMonster.psd1') -RootModule 'ConsoleMonster.psm1' -ModuleVersion '99.0.0'
+        $body = @'
+$ErrorActionPreference = 'Stop'
+$WarningPreference = 'Stop'
+$env:PSModulePath = '__ROOT__' + [IO.Path]::PathSeparator + $env:PSModulePath
+Import-Module '__MODULE__' -ErrorAction Stop
+$before = (Get-Command Show-ConsoleDemo).Module.Path
+Show-ConsoleDemo welcome-compact
+Show-ConsoleDemo welcome-compact -StaticSnapshot
+if ((Get-Command Show-ConsoleDemo).Module.Path -ne $before) { throw 'The loaded module changed.' }
+'loaded-module-preserved'
+'@.Replace('__ROOT__', $root.Replace("'", "''")).Replace('__MODULE__', $script:GalleryModulePath.Replace("'", "''"))
+        $lines = Invoke-TestChild -Runtime $script:GalleryRuntime -Script $body
+        $LASTEXITCODE | Should -Be 0 -Because ($lines -join "`n")
+        $lines | Should -Contain 'loaded-module-preserved'
+        ($lines -join "`n") | Should -Match 'Welcome, explorer'
+    }
+
     It 'preserves an existing file unless Force is explicit and honors WhatIf' {
         $path = Join-Path $TestDrive 'existing.ps1'
         [IO.File]::WriteAllText($path, 'keep my edits')

@@ -848,6 +848,26 @@
       "CSharpType": "ConsoleMonster.PowerShell.ConsoleHostFormatting",
       "Bindings": [
         {
+          "Parameter": "CompactErrors",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.PowerShell.ConsoleFormattingOptions",
+          "Member": "CompactErrors",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
           "Parameter": "Detailed",
           "ParameterType": "System.Management.Automation.SwitchParameter",
           "Default": false,
@@ -868,14 +888,34 @@
           "Static": false
         },
         {
+          "Parameter": "Exclude",
+          "ParameterType": "ConsoleMonster.PowerShell.ConsoleFormattingFeature[]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "Default",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.PowerShell.ConsoleFormattingOptions",
+          "Member": "Exclude",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "ConsoleMonster.PowerShell.ConsoleFormattingFeature[]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
           "Parameter": "Feature",
           "ParameterType": "ConsoleMonster.PowerShell.ConsoleFormattingFeature[]",
           "Default": null,
           "Sets": [
             {
-              "Name": "__AllParameterSets",
+              "Name": "Feature",
               "Position": -2147483648,
-              "Mandatory": false
+              "Mandatory": true
             }
           ],
           "CSharpType": "ConsoleMonster.PowerShell.ConsoleFormattingOptions",
@@ -904,6 +944,26 @@
           "Conversion": "Identity",
           "CSharpTypeName": "System.Boolean",
           "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Include",
+          "ParameterType": "ConsoleMonster.PowerShell.ConsoleFormattingFeature[]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "Default",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.PowerShell.ConsoleFormattingOptions",
+          "Member": "Include",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "ConsoleMonster.PowerShell.ConsoleFormattingFeature[]",
+          "Nullable": "Nullable",
           "Writable": true,
           "Static": false
         },
@@ -2276,6 +2336,12 @@
           "CSharpTypeName": "System.String"
         }
       ]
+    },
+    {
+      "Command": "Get-ConsoleFormatting",
+      "Job": "Get-ConsoleFormatting",
+      "CSharpType": "ConsoleMonster.PowerShell.CmdletGetConsoleFormatting",
+      "Bindings": []
     },
     {
       "Command": "Invoke-ConsoleDashboard",
@@ -24287,7 +24353,7 @@
       "CSharpType": "ConsoleMonster.FileSystem.FileOperationOptions",
       "Member": "ConflictPolicy",
       "CSharpTypeName": "ConsoleMonster.FileSystem.FileConflictPolicy",
-      "Reason": "File operations have no cmdlet in round 2: they belong to full-screen apps such as the Commander, which drive them from C# or from the .NET type in PowerShell.",
+      "Reason": "File operations and the Commander panel model are building blocks for file tools. There is no shipped Commander app or file-operation cmdlet.",
       "Alternative": "PowerShell calls the [ConsoleMonster.FileSystem.FileOperation] type directly; Copy-Item, Move-Item and Remove-Item cover scripted file work.",
       "Disposition": "CSharpOnly"
     },
@@ -24295,7 +24361,7 @@
       "CSharpType": "ConsoleMonster.FileSystem.FileOperationOptions",
       "Member": "PreserveTimestamps",
       "CSharpTypeName": "System.Boolean",
-      "Reason": "File operations have no cmdlet in round 2: they belong to full-screen apps such as the Commander, which drive them from C# or from the .NET type in PowerShell.",
+      "Reason": "File operations and the Commander panel model are building blocks for file tools. There is no shipped Commander app or file-operation cmdlet.",
       "Alternative": "PowerShell calls the [ConsoleMonster.FileSystem.FileOperation] type directly; Copy-Item, Move-Item and Remove-Item cover scripted file work.",
       "Disposition": "CSharpOnly"
     },
@@ -24303,7 +24369,7 @@
       "CSharpType": "ConsoleMonster.FileSystem.FileOperationOptions",
       "Member": "ResolveConflict",
       "CSharpTypeName": "System.Func`3[ConsoleMonster.FileSystem.FileConflict,System.Threading.CancellationToken,System.Threading.Tasks.Task`1[ConsoleMonster.FileSystem.FileConflictResolution]]",
-      "Reason": "File operations have no cmdlet in round 2: they belong to full-screen apps such as the Commander, which drive them from C# or from the .NET type in PowerShell.",
+      "Reason": "File operations and the Commander panel model are building blocks for file tools. There is no shipped Commander app or file-operation cmdlet.",
       "Alternative": "PowerShell calls the [ConsoleMonster.FileSystem.FileOperation] type directly; Copy-Item, Move-Item and Remove-Item cover scripted file work.",
       "Disposition": "CSharpOnly"
     },
@@ -24311,7 +24377,7 @@
       "CSharpType": "ConsoleMonster.FileSystem.FileOperationOptions",
       "Member": "Progress",
       "CSharpTypeName": "System.IProgress`1[ConsoleMonster.FileSystem.FileOperationProgress]",
-      "Reason": "File operations have no cmdlet in round 2: they belong to full-screen apps such as the Commander, which drive them from C# or from the .NET type in PowerShell.",
+      "Reason": "File operations and the Commander panel model are building blocks for file tools. There is no shipped Commander app or file-operation cmdlet.",
       "Alternative": "PowerShell calls the [ConsoleMonster.FileSystem.FileOperation] type directly; Copy-Item, Move-Item and Remove-Item cover scripted file work.",
       "Disposition": "CSharpOnly"
     },
@@ -24319,7 +24385,7 @@
       "CSharpType": "ConsoleMonster.FileSystem.FileOperationOptions",
       "Member": "Trash",
       "CSharpTypeName": "ConsoleMonster.FileSystem.ITrash",
-      "Reason": "File operations have no cmdlet in round 2: they belong to full-screen apps such as the Commander, which drive them from C# or from the .NET type in PowerShell.",
+      "Reason": "File operations and the Commander panel model are building blocks for file tools. There is no shipped Commander app or file-operation cmdlet.",
       "Alternative": "PowerShell calls the [ConsoleMonster.FileSystem.FileOperation] type directly; Copy-Item, Move-Item and Remove-Item cover scripted file work.",
       "Disposition": "CSharpOnly"
     },
@@ -24327,7 +24393,7 @@
       "CSharpType": "ConsoleMonster.FileSystem.FileOperationOptions",
       "Member": "ProgressInterval",
       "CSharpTypeName": "System.TimeSpan",
-      "Reason": "File operations have no cmdlet in round 2: they belong to full-screen apps such as the Commander, which drive them from C# or from the .NET type in PowerShell.",
+      "Reason": "File operations and the Commander panel model are building blocks for file tools. There is no shipped Commander app or file-operation cmdlet.",
       "Alternative": "PowerShell calls the [ConsoleMonster.FileSystem.FileOperation] type directly; Copy-Item, Move-Item and Remove-Item cover scripted file work.",
       "Disposition": "CSharpOnly"
     },
@@ -24335,7 +24401,7 @@
       "CSharpType": "ConsoleMonster.FileSystem.FileOperationOptions",
       "Member": "BufferSize",
       "CSharpTypeName": "System.Int32",
-      "Reason": "File operations have no cmdlet in round 2: they belong to full-screen apps such as the Commander, which drive them from C# or from the .NET type in PowerShell.",
+      "Reason": "File operations and the Commander panel model are building blocks for file tools. There is no shipped Commander app or file-operation cmdlet.",
       "Alternative": "PowerShell calls the [ConsoleMonster.FileSystem.FileOperation] type directly; Copy-Item, Move-Item and Remove-Item cover scripted file work.",
       "Disposition": "CSharpOnly"
     },
@@ -25054,7 +25120,7 @@
   ],
   "SchemaVersion": 2,
   "BaselineCount": 144,
-  "ExpectedCount": 108,
+  "ExpectedCount": 109,
   "ConfigurableRoots": [
     "ConsoleMonster.Capabilities.CapabilityDetector",
     "ConsoleMonster.Changes.ChangePreviewOptions",

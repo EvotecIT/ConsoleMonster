@@ -1,4 +1,4 @@
 ﻿Import-Module ConsoleMonster
 
-Enable-ConsoleFormatting -Feature Help
+Enable-ConsoleFormatting -Include Help
 Get-ConsoleCapability -?

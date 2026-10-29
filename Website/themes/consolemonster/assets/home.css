@@ -65,6 +65,10 @@ html:not(.cm-js) .cm-quick .cm-quick__cmd[hidden] { display: flex !important; }
 /* The Everyday and Monster sections: the same three-column grid of equal cards, each with its title, what it shows and
    the command on separate lines, the command along the bottom edge. */
 .cm-side .cm-demos { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-rows: 1fr; gap: var(--cm-space-4); }
+.cm-choice + .cm-choice { margin-top: var(--cm-space-7); }
+.cm-choice h3 { margin: 0 0 var(--cm-space-2); }
+.cm-choice > p { margin: 0 0 var(--cm-space-2); color: var(--cm-muted); }
+.cm-choice__command { display: block; margin-bottom: var(--cm-space-4); overflow-wrap: anywhere; }
 .cm-twins { display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); gap: var(--cm-space-7); align-items: start; }
 .cm-twins__output { display: grid; gap: var(--cm-space-4); min-width: 0; }
 .cm-twins__output .cm-section__head { margin-bottom: var(--cm-space-2); }

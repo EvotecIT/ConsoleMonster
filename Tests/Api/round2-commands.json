@@ -1,6 +1,6 @@
 {
   "BaselineCount": 144,
-  "ExpectedCount": 108,
+  "ExpectedCount": 109,
   "Commands": [
     "Add-ConsoleItem",
     "Add-ConsoleRecordingMarker",
@@ -19,6 +19,7 @@
     "Format-ConsoleCommand",
     "Get-ConsoleCapability",
     "Get-ConsoleDemo",
+    "Get-ConsoleFormatting",
     "Invoke-ConsoleDashboard",
     "Invoke-ConsolePester",
     "Invoke-ConsolePresentation",

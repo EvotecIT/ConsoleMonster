@@ -55,7 +55,7 @@ transcripts stay PowerShell's.
 Enable-ConsoleFormatting
 ```
 
-![Get-ChildItem and a hashtable after Enable-ConsoleFormatting](https://raw.githubusercontent.com/EvotecIT/ConsoleMonster/master/Website/static/readme/formatting-light.png)
+![A service inventory, a version and a dictionary after Enable-ConsoleFormatting](https://raw.githubusercontent.com/EvotecIT/ConsoleMonster/master/Website/static/readme/formatting-light.png)
 
 To keep it in every session, add the lines `-ProfileSnippet` prints to your profile:
 
@@ -63,7 +63,7 @@ To keep it in every session, add the lines `-ProfileSnippet` prints to your prof
 if (-not (Test-Path -Path $PROFILE)) {
     $null = New-Item -ItemType File -Path $PROFILE -Force
 }
-Enable-ConsoleFormatting -Feature All -ProfileSnippet | Add-Content -Path $PROFILE
+Enable-ConsoleFormatting -ProfileSnippet | Add-Content -Path $PROFILE
 ```
 
 [Everyday PowerShell output](https://consolemonster.dev/guides/everyday-powershell/)

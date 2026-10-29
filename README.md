@@ -30,7 +30,7 @@ Get-Process | Sort-Object CPU -Descending | Select-Object -First 8 | Show-Consol
 
 ## Start in C#
 
-<!-- example: Website/content/docs/install.md#3 -->
+<!-- example: Website/content/docs/install.md#6 -->
 ```bash
 dotnet new console -n FirstTable
 cd FirstTable
@@ -39,7 +39,7 @@ dotnet add package ConsoleMonster
 
 Replace `Program.cs`, then `dotnet run`:
 
-<!-- example: Website/content/docs/install.md#4 -->
+<!-- example: Website/content/docs/install.md#7 -->
 ```csharp
 using ConsoleMonster;
 using ConsoleMonster.Widgets;
@@ -64,7 +64,7 @@ Enable-ConsoleFormatting
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/EvotecIT/ConsoleMonster/master/Website/static/readme/formatting-dark.png">
-  <img alt="Get-ChildItem and a hashtable after Enable-ConsoleFormatting" width="751" src="https://raw.githubusercontent.com/EvotecIT/ConsoleMonster/master/Website/static/readme/formatting-light.png">
+  <img alt="A service inventory, a version and a dictionary after Enable-ConsoleFormatting" width="726" src="https://raw.githubusercontent.com/EvotecIT/ConsoleMonster/master/Website/static/readme/formatting-light.png">
 </picture>
 
 To keep it in every session, add the lines `-ProfileSnippet` prints to your profile:
@@ -74,7 +74,7 @@ To keep it in every session, add the lines `-ProfileSnippet` prints to your prof
 if (-not (Test-Path -Path $PROFILE)) {
     $null = New-Item -ItemType File -Path $PROFILE -Force
 }
-Enable-ConsoleFormatting -Feature All -ProfileSnippet | Add-Content -Path $PROFILE
+Enable-ConsoleFormatting -ProfileSnippet | Add-Content -Path $PROFILE
 ```
 
 [Everyday PowerShell output](https://consolemonster.dev/guides/everyday-powershell/)

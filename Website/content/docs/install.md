@@ -31,6 +31,42 @@ Get-ChildItem
 
 The module runs on Windows PowerShell 5.1 and PowerShell 7. On PowerShell 7 it loads in its own assembly load context. Version 2 replaces the Spectre.Console and Terminal.Gui based 0.0.x module, whose functions (`New-SpectreImage`, `New-SpectreRule`, `New-Terminal*`) are removed; 0.0.4 stays available on the PowerShell Gallery.
 
+## Three ways to use ConsoleMonster output
+
+Choose the approach that fits what you are doing:
+
+- **Automatic:** run `Enable-ConsoleFormatting`, then use your normal commands. Known and registered types get ConsoleMonster views.
+- **Explicit:** pipe any objects to `Show-ConsoleTable` to choose columns, a title and grouping, or to `Show-ConsoleObject` to explore their members. These commands do not change session formatting. Use `Show-ConsoleObject -StaticSnapshot` in a script when you do not want interactive input.
+- **Native `Format-*` restyled:** `FormatCommands` renders `Format-Table`, `Format-List` and `Format-Wide` at the console while keeping PowerShell's column choices. It is included by default. Use `-Exclude FormatCommands` to leave them native. Redirected and captured output stays native.
+
+You do not need both automatic and explicit formatting.
+
+The `-Feature` parameter requires ConsoleMonster 2.1.0 or later. To try each approach separately:
+
+```powershell
+Import-Module ConsoleMonster
+Enable-ConsoleFormatting
+Get-ChildItem
+Disable-ConsoleFormatting
+```
+
+```powershell
+Import-Module ConsoleMonster
+$servers = @(
+    [pscustomobject]@{ Name = 'web-01'; Site = 'North'; State = 'Running' }
+    [pscustomobject]@{ Name = 'db-01'; Site = 'South'; State = 'Stopped' }
+)
+$servers | Show-ConsoleTable -Property Name, Site, State -Title 'Servers' -GroupBy Site
+$servers[0] | Show-ConsoleObject -StaticSnapshot
+```
+
+```powershell
+Import-Module ConsoleMonster
+Enable-ConsoleFormatting
+Get-Process | Select-Object -First 5 | Format-Table Name, Id
+Disable-ConsoleFormatting -Feature FormatCommands
+```
+
 ## .NET
 
 Make a console project and add the package:

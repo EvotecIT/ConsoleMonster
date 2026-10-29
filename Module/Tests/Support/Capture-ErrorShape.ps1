@@ -11,7 +11,7 @@ $invocation = New-ErrorShapeFixture -Directory $Directory -MixedOutput:($Shape -
 $nativeView = if ($PSVersionTable.PSVersion.Major -ge 7) { 'ConciseView' } else { 'NormalView' }
 $ErrorView = $nativeView
 Disable-ConsoleFormatting
-if ($Style -eq 'compact') { Enable-ConsoleFormatting -Feature Errors }
+if ($Style -eq 'compact') { Enable-ConsoleFormatting -Feature Errors -CompactErrors }
 try {
     if ($Shape -eq 'mixed-output') {
         if ($Style -eq 'compact') {

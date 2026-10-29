@@ -18,7 +18,7 @@
           "line": "Better output for the commands you already run: one line turns it on for the session.",
           "url": "/guides/everyday-powershell/",
           "linkText": "Everyday PowerShell output",
-          "note": "Shows PowerShell's own output, then the same commands after Enable-ConsoleFormatting and Get-Service grouped by status. It plays once when it comes into view and stops on the after view; Play runs it again. Before and After under the player jump to each half. Recorded on PowerShell 7 from the script in the tab beside it.",
+          "note": "Shows PowerShell's own output, then the same service inventory, version and dictionary after Enable-ConsoleFormatting. It plays once when it comes into view and stops on the after view; Play runs it again. Before and After under the player jump to each half. Recorded at an interactive PowerShell 7 prompt from the script in the tab beside it.",
           "codeTitle": "Two lines",
           "code": [
             {
@@ -114,49 +114,63 @@
       {
         "id": "everyday-features",
         "title": "Everyday",
-        "body": "The output you already see, readable: tables, lists, trees, hashtables, arrays in cells, groups, errors, help and progress.",
-        "links": [
+        "body": "You don't need both. Formatting changes what you already type; Show-Console* is for when you want control.",
+        "choices": [
           {
-            "title": "Everyday output",
-            "url": "/guides/everyday-powershell/",
-            "key": 3,
-            "body": "A fixed service inventory, versions and hashtables, before and after.",
-            "command": "Enable-ConsoleFormatting"
+            "title": "Make everything nicer, automatically",
+            "body": "Turn on formatting, then use your normal PowerShell commands. See the same output before and after.",
+            "command": "Enable-ConsoleFormatting; Get-Process",
+            "links": [
+              {
+                "title": "Everyday output",
+                "url": "/guides/everyday-powershell/",
+                "key": 3,
+                "body": "A fixed service inventory, versions and hashtables, before and after.",
+                "command": "Enable-ConsoleFormatting"
+              },
+              {
+                "title": "Errors, help and progress",
+                "url": "/docs/help-and-defaults/",
+                "key": 4,
+                "body": "The default styles errors and native streams; opt in to compact errors and help.",
+                "command": "Enable-ConsoleFormatting -Include Help"
+              }
+            ]
           },
           {
-            "title": "Tables",
-            "url": "/tables/",
-            "key": 6,
-            "body": "Priority columns, cards, presenters and totals.",
-            "command": "Show-ConsoleTable"
-          },
-          {
-            "title": "Arrays and groups",
-            "url": "/guides/everyday-powershell/#demo-shaping",
-            "key": 2,
-            "body": "Collections in cells and a heading per group.",
-            "command": "-GroupBy Site"
-          },
-          {
-            "title": "Lists and trees",
-            "url": "/guides/format-table/",
-            "key": 1,
-            "body": "Records, nested objects and hierarchies.",
-            "command": "Show-Console -View Tree"
-          },
-          {
-            "title": "Errors, help and progress",
-            "url": "/docs/help-and-defaults/",
-            "key": 4,
-            "body": "Readable errors, help pages and Write-Progress.",
-            "command": "Show-ConsoleHelp"
-          },
-          {
-            "title": "Every widget",
-            "url": "/widgets/",
-            "key": 5,
-            "body": "Panels, trees, charts and status lists, in one grammar.",
-            "command": "New-ConsoleTree"
+            "title": "Show any objects exactly how you want",
+            "body": "Choose the columns and groups for a particular result. The explicit commands are safe to use in scripts.",
+            "command": "$objects | Show-ConsoleTable -Property Name, Site, State -GroupBy Site",
+            "links": [
+              {
+                "title": "Tables",
+                "url": "/tables/",
+                "key": 6,
+                "body": "Priority columns, cards, presenters and totals.",
+                "command": "Show-ConsoleTable"
+              },
+              {
+                "title": "Arrays and groups",
+                "url": "/guides/everyday-powershell/#demo-shaping",
+                "key": 2,
+                "body": "Collections in cells and a heading per group.",
+                "command": "-GroupBy Site"
+              },
+              {
+                "title": "Lists and trees",
+                "url": "/guides/format-table/",
+                "key": 1,
+                "body": "Records, nested objects and hierarchies.",
+                "command": "Show-Console -View Tree"
+              },
+              {
+                "title": "Every widget",
+                "url": "/widgets/",
+                "key": 5,
+                "body": "Panels, trees, charts and status lists, in one grammar.",
+                "command": "New-ConsoleTree"
+              }
+            ]
           }
         ]
       },
@@ -184,7 +198,7 @@
             "url": "/docs/live-runs/",
             "key": 2,
             "body": "Many servers at once, with failures and a time limit.",
-            "command": "ForEach-ConsoleItem -Parallel"
+            "command": "Invoke-ConsoleRun -Parallel"
           },
           {
             "title": "Test runs",
@@ -450,7 +464,7 @@
   "demos": {
     "parallel": {
       "title": "Forty servers, eight at a time",
-      "body": "ForEach-ConsoleItem runs a script block for every item, here in parallel with a time limit. Three servers fail and one hangs; the run keeps going, and the failures are listed when it ends.",
+      "body": "Invoke-ConsoleRun runs a script block for every item, here in parallel with a time limit. Three servers fail and one hangs; the run keeps going, and the failures are listed when it ends.",
       "label": "A parallel run of 40 items with a summary bar, a cell per item, the running items and the failures",
       "try": {
         "run": "pwsh ./parallel.ps1",
@@ -505,8 +519,8 @@
     },
     "formatting": {
       "title": "Before and after Enable-ConsoleFormatting",
-      "body": "An invented service inventory, a version and a hashtable, first as PowerShell shows them, then with ConsoleMonster turned on for the session, followed by the inventory grouped by status.",
-      "label": "Get-Process, Get-ChildItem and a hashtable before and after Enable-ConsoleFormatting, then Get-Service grouped by status",
+      "body": "An invented service inventory, a version and a hashtable, first as PowerShell shows them, then with ConsoleMonster turned on for the session.",
+      "label": "A service inventory, version and hashtable before and after Enable-ConsoleFormatting",
       "use": {
         "title": "Use it in every session",
         "label": "PowerShell 5.1 and 7",
@@ -520,13 +534,13 @@
       }
     },
     "format-commands": {
-      "title": "Before and after -Feature FormatCommands",
-      "body": "The same three commands before and after Enable-ConsoleFormatting -Feature FormatCommands. Only output that goes straight to the console changes; assignments, pipelines, files, jobs and transcripts keep PowerShell's own formatting.",
+      "title": "Format commands by default",
+      "body": "The same three commands before and after Enable-ConsoleFormatting. Only output that goes straight to the console changes; assignments, pipelines, files, jobs and transcripts keep PowerShell's own formatting.",
       "label": "Format-Table, Format-List and Format-Wide as PowerShell draws them, then as ConsoleMonster draws them",
       "use": {
         "title": "Turn it on",
         "label": "PowerShell 5.1 and 7",
-        "install": "Install-Module ConsoleMonster -Scope CurrentUser\nImport-Module ConsoleMonster\n# Not part of -Feature All: it is a separate opt-in, because scripts call these commands too.\nEnable-ConsoleFormatting -Feature FormatCommands",
+        "install": "Install-Module ConsoleMonster -Scope CurrentUser\nImport-Module ConsoleMonster\n# Included by default; use -Exclude FormatCommands to keep native formatting.\nEnable-ConsoleFormatting",
         "links": [
           {
             "title": "Enable-ConsoleFormatting",
@@ -689,7 +703,7 @@
       "use": {
         "title": "Use it in your session",
         "label": "PowerShell 5.1 and 7",
-        "install": "Install-Module ConsoleMonster -Scope CurrentUser\nEnable-ConsoleFormatting -Feature ErrorView",
+        "install": "Install-Module ConsoleMonster -Scope CurrentUser\nEnable-ConsoleFormatting",
         "links": [
           {
             "title": "Show-Console -View Error",
@@ -705,7 +719,7 @@
       "use": {
         "title": "Use it in your session",
         "label": "PowerShell 5.1 and 7",
-        "install": "Install-Module ConsoleMonster -Scope CurrentUser\nEnable-ConsoleFormatting -Feature Progress",
+        "install": "Install-Module ConsoleMonster -Scope CurrentUser\nEnable-ConsoleFormatting -Include Progress",
         "links": [
           {
             "title": "Use-ConsoleProgress",

@@ -136,10 +136,21 @@ if ($script:evaluations -ne $nativeEvaluations) { throw "Expressions evaluated $
         $text | Should -Match 'alpha'
     }
 
-    It 'keeps FormatCommands outside All and restores custom functions on disable and removal' {
+    It 'honours NoBuiltIn for FormatCommands without Output' {
         $text = Invoke-EverydayChild @'
-Enable-ConsoleFormatting -Feature All
-if ((Get-Command Format-Table).CommandType -ne 'Cmdlet') { throw 'All intercepted Format-Table' }
+Enable-ConsoleFormatting -Feature FormatCommands -NoBuiltIn
+if ((Get-ConsoleFormatting).BuiltIn) { throw 'Built-in views remained enabled.' }
+Enable-ConsoleFormatting -Feature FormatCommands
+if (-not (Get-ConsoleFormatting).BuiltIn) { throw 'Built-in views were not restored.' }
+'NO_BUILTIN_OK'
+'@
+        $text | Should -Match 'NO_BUILTIN_OK'
+    }
+
+    It 'enables FormatCommands by default and restores custom functions on disable and removal' {
+        $text = Invoke-EverydayChild @'
+Enable-ConsoleFormatting
+if ((Get-Command Format-Table).CommandType -ne 'Function') { throw 'Default did not enable Format-Table' }
 Disable-ConsoleFormatting
 function global:Format-Table { 'custom-table' }
 $original = (Get-Command Format-Table).Definition

@@ -13,7 +13,7 @@ Without -Feature everything Enable-ConsoleFormatting turned on is turned off and
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Disable-ConsoleFormatting [-Feature <ConsoleFormattingFeature[]>] [<CommonParameters>]
+Disable-ConsoleFormatting [-Feature <ConsoleFormattingFeature[]>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -40,13 +40,13 @@ Keep the views, go back to PowerShell's progress
 ## PARAMETERS
 
 ### -Feature
-What to turn off: Output, ErrorView, Progress, Streams, ReadLine, FormatCommands, Help, Errors, GridView, Prompt or All (Output, ErrorView, Streams and ReadLine). Streams and ReadLine restore exactly the saved native colour properties, even if they were edited while enabled; other properties stay untouched. Without -Feature every enabled feature is removed, including explicit Progress, FormatCommands, Help, Errors, GridView and Prompt.
+The features to restore. Without Feature, all enabled features are restored. Streams and ReadLine restore the exact saved native colour properties.
 
 ```yaml
 Type: ConsoleFormattingFeature[]
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: None, Output, ErrorView, Progress, FormatCommands, Streams, Help, Errors, ReadLine, All, GridView, Prompt
+Possible values: None, Output, Errors, Progress, FormatCommands, Streams, Help, ReadLine, GridView, Prompt
 
 Required: False
 Position: named

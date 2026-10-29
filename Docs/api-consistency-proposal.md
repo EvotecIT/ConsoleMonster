@@ -121,7 +121,7 @@ Primary routes: `Use-ConsoleProgress { ... Write-Progress ... }` for existing sc
 | `New-ConsoleSummaryBar` → same | Keep progress/counters definition. | P,D,E,T |
 | `Update-ConsoleSummaryBar` → same | Keep live progress/counter update. | P,D,E,T |
 
-The only command-name alias I would retain is the **opt-in session alias `Write-Progress` → `Write-ConsoleProgress`** installed by `Enable-ConsoleFormatting -Feature Progress`. Existing scripts use the native name and its exact binding contract; this adapter deliberately intercepts them. It must restore the previous alias on disable. It is excluded from `All`. There is no permanent exported Write-Progress alias and no alias for a renamed ConsoleMonster command.
+The only command-name alias I would retain is the **opt-in session alias `Write-Progress` → `Write-ConsoleProgress`** installed by `Enable-ConsoleFormatting -Feature Progress`. Existing scripts use the native name and its exact binding contract; this adapter deliberately intercepts them. It must restore the previous alias on disable. It is not enabled by default. There is no permanent exported Write-Progress alias and no alias for a renamed ConsoleMonster command.
 
 ### Charts
 

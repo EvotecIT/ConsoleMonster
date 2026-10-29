@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Management.Automation;
 using System.Text;
+using System.Text.RegularExpressions;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Rendering;
 
@@ -55,7 +56,11 @@ namespace ConsoleMonster.PowerShell {
             if (step < 0) { throw new ArgumentOutOfRangeException(nameof(step)); }
             if (!staticSnapshot && step != 0) { throw new ArgumentException("Use Step with StaticSnapshot.", nameof(step)); }
             string resolved = Resolve(slug);
-            ScriptBlock demo = ScriptBlock.Create(PSDemoResources.Script(resolved));
+            // Standalone exports need their import; the in-process runner already has the
+            // caller's module and must not resolve a different installed version by name.
+            string source = Regex.Replace(PSDemoResources.Script(resolved),
+                @"(?im)^[ \t]*Import-Module[ \t]+(?:-Name[ \t]+)?ConsoleMonster[ \t]*(?=\r?$)", string.Empty);
+            ScriptBlock demo = ScriptBlock.Create(source);
             if (staticSnapshot) {
                 ScriptBlock capture = ScriptBlock.Create(PSDemoResources.CaptureScript());
                 ScriptBlock invokeCapture = ScriptBlock.Create("param($capture, $demo, $json, $step) & $capture -Demo $demo -Metadata (Microsoft.PowerShell.Utility\\ConvertFrom-Json -InputObject $json) -Step $step");

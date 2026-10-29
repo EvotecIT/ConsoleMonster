@@ -54,6 +54,9 @@ namespace SiteFrames.Pages {
             /// <summary>Whether the recording plays the script as typed commands, each after a prompt (see PowerShellRunner).</summary>
             public bool Session { get; set; }
 
+            /// <summary>Submits commands at a real interactive prompt, including its implicit output routing.</summary>
+            public bool InteractiveSession { get; set; }
+
             /// <summary>Runs a synthetic live example with the recorder target's logical viewport checkpoints.</summary>
             public bool LogicalCheckpoints { get; set; }
 
@@ -167,14 +170,15 @@ namespace SiteFrames.Pages {
             yield return new Demo("formatting", "Enable-ConsoleFormatting", 100, 40) { CSharpProgram = "formatting.host.cs",
                 Script = "formatting.ps1",
                 Session = true,
+                InteractiveSession = true,
 
                 PosterShare = 1,
                 Fps = 5,
                 Chapters = new[] { ("Before", "# PowerShell's own output"), ("After", "# The same objects now") }
             };
             yield return new Demo("shaping", "Show-ConsoleTable -GroupBy Site", 100, 40) { CSharpProgram = "shaping.host.cs", Script = "shaping.ps1", Static = true };
-            // Format-Table, Format-List and Format-Wide before and after the separate FormatCommands opt-in.
-            yield return new Demo("format-commands", "Enable-ConsoleFormatting -Feature FormatCommands", 100, 46) { CSharpProgram = "format-commands.host.cs",
+            // Format-Table, Format-List and Format-Wide before and after enabling the default FormatCommands feature.
+            yield return new Demo("format-commands", "Enable-ConsoleFormatting", 100, 46) { CSharpProgram = "format-commands.host.cs",
                 Script = "format-commands.ps1",
                 Session = true,
 
@@ -187,6 +191,7 @@ namespace SiteFrames.Pages {
                 Script = "module-views.ps1",
                 Companions = new[] { "Contoso.Servers/Contoso.Servers.consoleviews.psd1", "Contoso.Servers/Contoso.Servers.psm1", "Contoso.Servers/Contoso.Servers.psd1" },
                 Session = true,
+                InteractiveSession = true,
                 Static = true
             };
             yield return new Demo("help", "Show-ConsoleHelp", 100, 50) { CSharpProgram = "help.host.cs", Script = "help.ps1", Session = true, PosterShare = 1 };
@@ -276,7 +281,7 @@ namespace SiteFrames.Pages {
                 text.Append('\n').Append(Site.ReadText(Path.Combine(site.Tool, "Replay", "RecordedSteps.cs")));
                 text.Append('\n').Append(Site.ReadText(Path.Combine(site.Tool, "Frames", "FrameDefaults.cs")));
                 text.Append(demo.Static ? "\nrecorded-transcript" : "\nrecorded-steps");
-                if (demo.Session) { text.Append('\n').Append(PowerShellRunner.SessionRecipe); }
+                if (demo.Session) { text.Append('\n').Append(demo.InteractiveSession ? PowerShellRunner.InteractiveSessionRecipe : PowerShellRunner.SessionRecipe); }
             }
             if (demo.LogicalCheckpoints) {
                 text.Append("\nlogical-viewport-v2\n");
@@ -370,7 +375,7 @@ namespace SiteFrames.Pages {
                     environment["TMP"] = temp;
                     environment["TMPDIR"] = temp;
                     try {
-                        chunks = PowerShellRunner.Run(site, PowerShellHost.Core, Script(site, demo.Script), demo.Width, demo.Height, environment, allowErrors: demo.AllowErrors, showProgress: demo.ShowProgress, arguments: demo.Arguments, prompt: demo.Prompt, session: demo.Session, setup: demo.Setup, recordCheckpoints: demo.LogicalCheckpoints, recording: recorded);
+                        chunks = PowerShellRunner.Run(site, PowerShellHost.Core, Script(site, demo.Script), demo.Width, demo.Height, environment, allowErrors: demo.AllowErrors, showProgress: demo.ShowProgress, arguments: demo.Arguments, prompt: demo.Prompt, session: demo.Session, setup: demo.Setup, recordCheckpoints: demo.LogicalCheckpoints, recording: recorded, interactiveSession: demo.InteractiveSession);
                     } finally {
                         Site.RemoveTemporary(temp);
                     }
@@ -401,13 +406,27 @@ namespace SiteFrames.Pages {
                 Directory.CreateDirectory(Path.GetDirectoryName(path)!);
                 // Window titles (OSC 0 and 2) carry the executable's path; nothing on the site shows them.
                 string sourceCast = recorded == null ? Replays.ToCast(chunks, demo.Width, demo.Height, demo.Title)
-                    : RecordedSteps.ToCast(nativeRecording ?? throw new InvalidDataException("The recorder returned no native session."), demo.Title, demo.Static);
+                    : RecordedSteps.ToCast(demo.InteractiveSession && demo.Static
+                        ? ThroughSessionEnd(nativeRecording ?? throw new InvalidDataException("The recorder returned no native session."))
+                        : nativeRecording ?? throw new InvalidDataException("The recorder returned no native session."), demo.Title, demo.Static);
                 string cast = System.Text.RegularExpressions.Regex.Replace(sourceCast, @"\\u001B\][02];(?:[^""\\]|\\\\)*?(?:\\u0007|\\u001B\\\\)", string.Empty);
                 string? source = Source(site, demo);
                 File.WriteAllText(path, source != null ? Replays.Stamp(cast, Replays.Fingerprint(source, CapturePins.Policy)) : cast, new System.Text.UTF8Encoding(false));
                 CaptureRun.Record(path, "dark");
                 Console.WriteLine("recorded demo " + demo.Id + " in " + watch.Elapsed.TotalSeconds.ToString("0.0", CultureInfo.InvariantCulture) + " s");
             }
+        }
+
+        private static string ThroughSessionEnd(string recording) {
+            var lines = recording.Replace("\r\n", "\n").Split('\n');
+            for (int i = 1; i < lines.Length; i++) {
+                if (lines[i].Length == 0) { continue; }
+                var entry = JsonNode.Parse(lines[i])?.AsArray();
+                if (entry?[1]?.GetValue<string>() == "m" && entry[2]?.GetValue<string>() == "site:end") {
+                    return string.Join("\n", lines.Take(i + 1)) + "\n";
+                }
+            }
+            throw new InvalidDataException("Interactive session has no final checkpoint.");
         }
 
 

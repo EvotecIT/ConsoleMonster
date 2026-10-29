@@ -53,9 +53,9 @@ namespace SiteFrames {
             JsonObject widgets = Load(site, "widgets");
             JsonObject live = Load(site, "live");
             List<ImageSpec> images = new List<ImageSpec>();
-            void Demo(string id, string demo, string title, int rows = 0) {
+            void Demo(string id, string demo, string title, int rows = 0, string? startAt = null) {
                 JsonNode? still = demos[demo]?["poster"] ?? demos[demo]?["frame"];
-                Add(id, title, still, rows);
+                Add(id, title, still, rows, startAt);
             }
             void Figure(string id, string figure, string title) => Add(id, title, figures[figure]?["frame"]);
             void Widget(string id, string widget, string title) {
@@ -63,7 +63,7 @@ namespace SiteFrames {
                 Add(id, title, example?["frame"]);
             }
             // rows > 0 keeps the top of the frame: the first part of a longer screen, as it was drawn.
-            void Add(string id, string title, JsonNode? frame, int rows = 0) {
+            void Add(string id, string title, JsonNode? frame, int rows = 0, string? startAt = null) {
                 string? dark = frame?["dark"]?.GetValue<string>() ?? frame?["darkOnly"]?.GetValue<string>();
                 if (frame == null || dark == null) {
                     WidgetsPage.Report(new List<string> { "README image " + id + " has no frame to draw from." }, "readme");
@@ -75,11 +75,18 @@ namespace SiteFrames {
                 // Blank rows at the bottom of a screen (a run that ended above the last row) are not drawn.
                 string[] darkRows = dark.Split('\n');
                 string[]? lightRows = light?.Split('\n');
+                if (startAt != null) {
+                    int first = Array.FindIndex(darkRows, row => System.Net.WebUtility.HtmlDecode(Regex.Replace(row, "<[^>]*>", string.Empty)).Contains(startAt, StringComparison.Ordinal));
+                    if (first < 0) { throw new InvalidDataException("README image " + id + " is missing " + startAt + "."); }
+                    darkRows = darkRows.Skip(first).ToArray();
+                    lightRows = lightRows?.Skip(first).ToArray();
+                    height = darkRows.Length;
+                }
                 int keep = rows > 0 ? Math.Min(rows, height) : height;
                 while (keep > 1 && Blank(darkRows, keep - 1) && (lightRows == null || Blank(lightRows, keep - 1))) {
                     keep--;
                 }
-                if (keep < height) {
+                if (keep < height || startAt != null) {
                     dark = string.Join("\n", darkRows.Take(keep));
                     light = lightRows == null ? null : string.Join("\n", lightRows.Take(keep));
                     height = keep;
@@ -92,9 +99,8 @@ namespace SiteFrames {
                 WidgetsPage.Report(new List<string> { "README image hero has no command for its title in data/live.json." }, "readme");
             }
             Add("hero", command ?? "dotnet run", live["assessment"]?["poster"]);
-            // Get-ChildItem and a hashtable after Enable-ConsoleFormatting: the top 25 rows of the recording's last screen, which
-            // end with the hashtable; recheck the crop when the formatting recording changes.
-            Demo("formatting", "formatting", "Enable-ConsoleFormatting", 25);
+            // Start at the enabling command; native output above it belongs to the before half of the recording.
+            Demo("formatting", "formatting", "Enable-ConsoleFormatting", startAt: "Enable-ConsoleFormatting");
             Figure("files", "files", "Get-ChildItem | Show-ConsoleTable");
             Widget("widgets", "bar", "New-ConsoleBarChart");
             Demo("parallel", "parallel", "Invoke-ConsoleRun -Parallel");
