@@ -15,10 +15,10 @@ namespace ConsoleMonster.PowerShell.Binding {
         public object? Root { get; set; }
 
         /// <summary>Use the PowerShell default display set for the inspection root when one is defined.</summary>
-        public bool RootDefaultDisplay { get; set; }
+        internal bool RootDefaultDisplay { get; set; }
 
         /// <summary>Optional registered property selectors applied only to the root object.</summary>
-        public string[]? RootProperties { get; set; }
+        internal string[]? RootProperties { get; set; }
 
         internal IReadOnlyList<BoundColumn>? RootColumns { get; set; }
 

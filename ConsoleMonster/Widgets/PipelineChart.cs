@@ -82,7 +82,7 @@ namespace ConsoleMonster.Widgets {
         /// <param name="label">The original label.</param>
         /// <param name="used">Labels already in use, using the caller's comparer.</param>
         /// <returns>The original label, or a numbered variant when it was already used.</returns>
-        public static string UniqueLabel(string label, ISet<string> used) {
+        internal static string UniqueLabel(string label, ISet<string> used) {
             if (used == null) { throw new ArgumentNullException(nameof(used)); }
             string candidate = label ?? string.Empty;
             int duplicate = 1;

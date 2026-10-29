@@ -17,8 +17,11 @@ Describe 'ConsoleMonster tree golden output' {
         param($Kind, $Width)
         $fixture = Get-TreeGoldenFixture $Kind
         $golden = [IO.File]::ReadAllText((Join-Path $PSScriptRoot "Fixtures/TreeGolden/$Kind-$Width.txt"), [Text.Encoding]::UTF8).Replace("`r`n", "`n").TrimEnd("`n")
-        $actual = $fixture | Show-Console -View Tree -Depth 1 -Width $Width -AsString
-        $actual.Replace("`r`n", "`n").TrimEnd("`n") | Should -BeExactly $golden
+        $policy = [ConsoleMonster.Terminal]::UseProfilePolicy({ param($profile) $profile.WithGlyphs('Ascii') })
+        try {
+            $actual = $fixture | Show-Console -View Tree -Depth 1 -Width $Width -AsString
+            $actual.Replace("`r`n", "`n").TrimEnd("`n") | Should -BeExactly $golden
+        } finally { $policy.Dispose() }
     }
 
     It 'uses the shared Unicode boolean presenter without an extra separator' {

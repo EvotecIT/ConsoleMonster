@@ -13,7 +13,6 @@ Choose the tool you use today. Each guide maps familiar commands to ConsoleMonst
 
 | Coming from | Start here | Main change |
 | --- | --- | --- |
-| ConsoleMonster 2.0.x | [Moving from 2.0](/docs/moving-from-2/) | Replace removed commands with their 2.1 equivalents. |
 | Spectre.Console in C# | [Rendering, prompts and live output](/guides/spectre-console/) | Compose widgets and update live handles. |
 | PwshSpectreConsole | [PowerShell command mappings](/guides/pwshspectreconsole/) | Use Show for display, New for definitions and Read for answers; also run on Windows PowerShell 5.1. |
 | Out-GridView, GraphicalTools or ConsoleGuiTools | [Grids and object exploration](/guides/microsoft-grid-tools/) | Keep selection in the terminal and pass ordinary objects onward. |

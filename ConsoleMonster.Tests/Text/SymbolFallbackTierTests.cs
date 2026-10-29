@@ -29,7 +29,7 @@ namespace ConsoleMonster.Tests.Text {
             Assert.DoesNotContain('\u200D', actual);
             if (tier == GlyphTier.Ascii) Assert.All(actual, value => Assert.InRange((int)value, 0x20, 0x7E));
             if (tier == GlyphTier.Basic) Assert.All(actual, value =>
-                Assert.True(value <= '~' || "√×•§↑↓→←■·".Contains(value)));
+                Assert.True(value <= '~' || "√×•§↑↓→←■·□".Contains(value)));
         }
 
         [Theory]
@@ -73,6 +73,17 @@ namespace ConsoleMonster.Tests.Text {
             Assert.Equal("+ selected", SymbolFallback.Apply("✓ selected", GlyphTier.Ascii));
             Assert.Equal("[OK] done", SymbolFallback.Apply("✅ done", GlyphTier.Ascii));
             Assert.Equal("[OK] done", SymbolFallback.Apply("✔️ done", GlyphTier.Ascii));
+        }
+
+        [Theory]
+        [InlineData("△", "↑", "^")]
+        [InlineData("▽", "↓", "v")]
+        [InlineData("☐", "□", "[ ]")]
+        [InlineData("🚦", "•", "*")]
+        [InlineData("🛑", "■", "#")]
+        public void Apply_StatusSymbolsRetainTheirMeaning(string symbol, string basic, string ascii) {
+            Assert.Equal(basic, SymbolFallback.Apply(symbol, GlyphTier.Basic).TrimEnd());
+            Assert.Equal(ascii, SymbolFallback.Apply(symbol, GlyphTier.Ascii).TrimEnd());
         }
 
         [Theory]

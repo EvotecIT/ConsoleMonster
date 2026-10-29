@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace ConsoleMonster.Data {
     /// <summary>Prepares bounded inspection results for concise object views.</summary>
-    public static class InspectionSummary {
+    internal static class InspectionSummary {
         /// <summary>Removes empty members and repeated root getter errors, retaining their counts.</summary>
         /// <param name="roots">Already inspected roots.</param>
         /// <param name="hideEmpty">Whether to omit empty members.</param>

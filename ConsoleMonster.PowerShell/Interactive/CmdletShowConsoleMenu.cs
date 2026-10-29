@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Management.Automation;
 using System.Threading;
 using ConsoleMonster.Interactive;
@@ -16,19 +15,10 @@ namespace ConsoleMonster.PowerShell {
     [Cmdlet(VerbsCommon.Show, "ConsoleMenu")]
     public sealed class CmdletShowConsoleMenu : PSCmdlet {
         private CancellationTokenSource? _stop;
-        private readonly List<object?> _pipelineItems = new List<object?>();
 
         /// <summary><para type="description">The menu from New-ConsoleMenu.</para></summary>
-        [Parameter(Position = 0)]
-        public Menu? Menu { get; set; }
-
-        /// <summary><para type="description">Objects to select from when using the pipeline.</para></summary>
-        [Parameter(ValueFromPipeline = true)]
-        public PSObject? InputObject { get; set; }
-
-        /// <summary><para type="description">Allows selecting multiple pipeline objects.</para></summary>
-        [Parameter]
-        public SwitchParameter Multiple { get; set; }
+        [Parameter(Position = 0, ValueFromPipeline = true)]
+        public PSObject? Menu { get; set; }
 
         /// <summary><para type="description">The layout: Auto (the menu's own, or Shell when items open content), Classic, Shell or Inline.</para></summary>
         [Parameter]
@@ -60,27 +50,8 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            if (InputObject != null) {
-                _pipelineItems.Add(InputObject);
-            }
-        }
-
-        /// <inheritdoc />
-        protected override void EndProcessing() {
-            if (_pipelineItems.Count > 0) {
-                if (Menu != null) {
-                    ThrowTerminatingError(new ErrorRecord(new ArgumentException("Provide a menu or pipeline objects, not both."), "MenuAndInput", ErrorCategory.InvalidArgument, null));
-                    return;
-                }
-                if (_pipelineItems.Count == 1 && PSText.Unwrap(_pipelineItems[0]) is Menu pipedMenu) {
-                    Menu = pipedMenu;
-                } else {
-                    ShowChoices();
-                    return;
-                }
-            }
-            if (Menu == null) {
-                ThrowTerminatingError(new ErrorRecord(new ArgumentException("Provide a menu or pipe objects to select."), "MissingMenu", ErrorCategory.InvalidArgument, null));
+            if (!(PSText.Unwrap(Menu) is Menu current)) {
+                ThrowTerminatingError(new ErrorRecord(new ArgumentException("Show-ConsoleMenu needs a menu from New-ConsoleMenu; use Read-ConsoleSelect to pick pipeline objects."), "ExpectedConsoleMenu", ErrorCategory.InvalidArgument, Menu));
                 return;
             }
             MenuOptions options = PSOptions.Resolve(this, Options, () => new MenuOptions {
@@ -94,33 +65,11 @@ namespace ConsoleMonster.PowerShell {
             options.Interactive ??= PSInteractive.Options(this, null);
             _stop = new CancellationTokenSource();
             try {
-                Menu.Run(options, _stop.Token);
+                current.Run(options, _stop.Token);
             } catch (Exception ex) when (ex is PromptCanceledException || ex is PromptUnavailableException || ex is Input.InputClosedException) {
-                PSInteractive.Fail(this, ex, Menu.Title);
+                PSInteractive.Fail(this, ex, current.Title);
             } catch (OperationCanceledException) {
                 // The pipeline was stopped (Ctrl+C); the screen has been restored.
-            }
-        }
-
-        private void ShowChoices() {
-            var definition = new SelectQuestionOptions { Title = "Select an item", Multiple = Multiple.IsPresent };
-            var shape = Binding.PSShaping.Options();
-            foreach (object? item in _pipelineItems) {
-                string label = PSInteractive.ChoiceLabel(item, shape);
-                definition.Choices.Add(new Choice(item, label));
-            }
-            _stop = new CancellationTokenSource();
-            try {
-                object? answer = Question.Select(definition).Show(PSInteractive.Options(this, Mode), _stop.Token);
-                if (Multiple.IsPresent) {
-                    foreach (object? value in (IReadOnlyList<object?>)answer!) { WriteObject(value); }
-                } else {
-                    WriteObject(answer);
-                }
-            } catch (Exception ex) when (ex is PromptCanceledException || ex is PromptUnavailableException || ex is Input.InputClosedException) {
-                PSInteractive.Fail(this, ex, "Select an item");
-            } catch (OperationCanceledException) {
-                // The pipeline was stopped.
             }
         }
 

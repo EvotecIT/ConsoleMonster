@@ -21,7 +21,7 @@ namespace ConsoleMonster.Interactive {
         /// <param name="options">Member adapters and expansion limits.</param>
         /// <param name="rootPath">The root expression used in returned paths.</param>
         /// <param name="rootLabel">The root label, or null to display the expression.</param>
-        public ObjectExplorer(object? value, InspectorOptions? options, string rootPath, string? rootLabel) {
+        internal ObjectExplorer(object? value, InspectorOptions? options, string rootPath, string? rootLabel) {
             if (string.IsNullOrWhiteSpace(rootPath)) { throw new ArgumentException("A root expression is required.", nameof(rootPath)); }
             Options = options ?? new InspectorOptions();
             Root = new ExplorerNode(rootLabel ?? rootPath, rootPath, () => value, Options, null);

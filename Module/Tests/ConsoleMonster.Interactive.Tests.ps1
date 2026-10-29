@@ -91,7 +91,7 @@ foreach ($title in 'Project', 'Notes', 'Token', 'Port', 'Folder', 'Continue?', '
         It 'rejects 300 unexpected objects once for commands that do not accept pipeline input' {
             $text = Invoke-PromptChild -NonInteractive -Script @'
 $commands = 'Get-ConsoleCapability', 'Get-ConsoleDemo', 'New-ConsoleActivityList', 'New-ConsoleColumnFormat', 'New-ConsoleFooterBar', 'New-ConsoleMenuItem', 'New-ConsoleProgress', 'New-ConsoleRule', 'New-ConsoleSimulatedClock', 'New-ConsoleSummaryBar', 'Show-ConsoleOverview', 'Show-ConsoleStatusLine', 'Add-ConsoleRecordingMarker', 'Clear-ConsoleScreen', 'Invoke-ConsolePester', 'Stop-ConsoleRecording', 'Read-ConsoleConfirm', 'Read-ConsoleNumber', 'Read-ConsolePath', 'Read-ConsoleText'
-$service = Get-Service | Select-Object -First 1
+$service = [pscustomobject]@{ Name = "sample" }
 foreach ($command in $commands) {
     $Error.Clear()
     try { 1..300 | ForEach-Object { $service } | & $command -ErrorAction Stop | Out-Null }
@@ -214,7 +214,7 @@ try { Show-ConsoleMenu $menu -ErrorAction Stop } catch { "error=$($_.Exception.M
     }
 
     Context 'Accessible and line modes' {
-        It 'labels service choices by identity while returning the service itself' {
+        It 'labels service choices by identity while returning the service itself' -Skip:(-not (Get-Command Get-Service -ErrorAction SilentlyContinue)) {
             $text = Invoke-PromptChild -InputText "1`n" -Script @'
 $service = Get-Service | Select-Object -First 1
 $answer = $service | Read-ConsoleSelect -Title 'Service' -Mode Accessible
@@ -228,17 +228,6 @@ $answer = $service | Read-ConsoleSelect -Title 'Service' -Mode Accessible
             $text | Should -Not -Match 'System\.ServiceProcess\.ServiceController'
         }
 
-        It 'collects pipeline objects once and returns the selected object' {
-            $text = Invoke-PromptChild -InputText "2`n" -Script @'
-$items = @([pscustomobject]@{ Name = 'alpha'; Number = 1 }, [pscustomobject]@{ Name = 'beta'; Number = 2 })
-$picked = $items | Show-ConsoleMenu -Mode Accessible
-"picked=$($picked.Name):$($picked.Number)"
-'@
-            $text | Should -Match '1\) alpha'
-            $text | Should -Match '2\) beta'
-            $text | Should -Match 'picked=beta:2'
-        }
-
         It 'emits one terminating error for a 300-object pipeline without an interactive user' {
             $text = Invoke-PromptChild -NonInteractive -Script @'
 $Error.Clear()
@@ -246,7 +235,7 @@ try { 1..300 | ForEach-Object { [pscustomobject]@{ Name = "item$_" } } | Show-Co
 catch { "id=$($_.FullyQualifiedErrorId.Split(',')[0])" }
 "errors=$($Error.Count)"
 '@
-            $text | Should -Match 'id=PromptNeedsValue'
+            $text | Should -Match 'id=ExpectedConsoleMenu'
             $text | Should -Match 'errors=1'
         }
 
@@ -269,15 +258,6 @@ $answer = $form | Read-ConsoleForm -Mode None
 "name=$($answer.Name)"
 '@
             $text | Should -Match 'name=one'
-        }
-
-        It 'returns multiple original objects only when multiple selection is requested' {
-            $text = Invoke-PromptChild -InputText "1,3`n" -Script @'
-$items = 1..3 | ForEach-Object { [pscustomobject]@{ Name = "item$_"; Number = $_ } }
-$picked = @($items | Show-ConsoleMenu -Mode Accessible -Multiple)
-"picked=$(($picked | ForEach-Object Number) -join ',')"
-'@
-            $text | Should -Match 'picked=1,3'
         }
 
         It 'numbers the choices and reads the answer as a line' {
@@ -328,7 +308,7 @@ $v = @(Read-ConsoleSelect -Title 'Pick' -Choices 'a', 'b', 'c' -Mode Accessible 
     }
 
     Context 'Scripted keys (the rich prompts without a terminal)' {
-        It 'filters real service objects by the identity shown in the picker' {
+        It 'filters real service objects by the identity shown in the picker' -Skip:(-not (Get-Command Get-Service -ErrorAction SilentlyContinue)) {
             $text = Invoke-PromptChild -Script @'
 $services = @(Get-Service | Select-Object -First 2)
 $target = $services[1]
