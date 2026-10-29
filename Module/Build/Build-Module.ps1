@@ -107,7 +107,7 @@ Build-Module -ModuleName 'ConsoleMonster' -RunMode $RunMode {
         NETProjectName                       = 'ConsoleMonster.PowerShell'
         NETProjectPath                       = '..\ConsoleMonster.PowerShell\ConsoleMonster.PowerShell.csproj'
         NETConfiguration                     = 'Release'
-        NETFramework                         = 'net8.0', 'net10.0', 'net472'
+        NETFramework                         = 'net8.0', 'net472'
         NETHandleAssemblyWithSameName        = $true
         NETAssemblyLoadContext               = $true
         NETAssemblyTypeAcceleratorMode       = 'AllowList'

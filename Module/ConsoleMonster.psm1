@@ -15,8 +15,8 @@ $PowerForgeDevelopmentBinaryRoot = [IO.Path]::GetFullPath([IO.Path]::Combine($PS
 $PowerForgeDevelopmentBinaryMode = 'Auto'
 $PowerForgeDevelopmentBinaryEnvironmentVariable = 'CONSOLEMONSTER_USE_DEVELOPMENT_BINARIES'
 $PowerForgeDevelopmentConfigurationEnvironmentVariable = 'CONSOLEMONSTER_DEVELOPMENT_CONFIGURATION'
-$PowerForgeDevelopmentCoreFrameworks = @('net8.0', 'net10.0', 'net472')
-$PowerForgeDevelopmentDesktopFrameworks = @('net472', 'net8.0', 'net10.0')
+$PowerForgeDevelopmentCoreFrameworks = @('net8.0', 'net472')
+$PowerForgeDevelopmentDesktopFrameworks = @('net472', 'net8.0')
 $PowerForgeDevelopmentUseAssemblyLoadContext = $true
 $PowerForgeDevelopmentEnabled = $false
 if ($PowerForgeDevelopmentBinaryMode -eq 'Auto') {
