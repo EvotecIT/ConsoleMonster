@@ -55,7 +55,8 @@ jobs:
   # timers. Each failing scenario is retried before the job fails. It runs only when the website itself changed (an
   # engine-only change is covered by verify-site), and skips the checks verify-site already runs.
   render-budget:
-    runs-on: ubuntu-latest
+    # Playwright 1.58.2 supports Ubuntu 24.04; ubuntu-latest may select a newer image.
+    runs-on: ubuntu-24.04
     # Renderer/browser downloads exhausted 30 minutes before measurement; keep the performance budgets unchanged.
     timeout-minutes: 45
     steps:
