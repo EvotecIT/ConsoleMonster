@@ -82,8 +82,10 @@ namespace ConsoleMonster.Tests.Text {
         [InlineData("🚦", "•", "*")]
         [InlineData("🛑", "■", "#")]
         public void Apply_StatusSymbolsRetainTheirMeaning(string symbol, string basic, string ascii) {
-            Assert.Equal(basic, SymbolFallback.Apply(symbol, GlyphTier.Basic).TrimEnd());
-            Assert.Equal(ascii, SymbolFallback.Apply(symbol, GlyphTier.Ascii).TrimEnd());
+            var basicProfile = TestTerminal.Profile(glyphs: GlyphTier.Basic);
+            var asciiProfile = TestTerminal.Profile(glyphs: GlyphTier.Ascii);
+            Assert.Equal(basic, SymbolFallback.Apply(symbol, basicProfile.Glyphs, basicProfile.WidthProfile).TrimEnd());
+            Assert.Equal(ascii, SymbolFallback.Apply(symbol, asciiProfile.Glyphs, asciiProfile.WidthProfile).TrimEnd());
         }
 
         [Theory]

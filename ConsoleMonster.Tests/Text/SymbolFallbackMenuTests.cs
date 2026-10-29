@@ -12,25 +12,25 @@ namespace ConsoleMonster.Tests.Text {
         private static readonly HashSet<int> Wgl4 = LoadWgl4();
         public static IEnumerable<object[]> MenuSymbols() {
             int[] scalars = { 0x2610, 0x2611, 0x2612, 0x2699, 0x23ED, 0x23F9, 0x23FB };
-            string[] basic = { "·", "√", "×", "*", "»", "■", "○" };
+            string[] basic = { "□", "√", "×", "*", "»", "■", "○" };
             string[] ascii = { "-", "+", "x", "*", ">", "#", "O" };
             for (int i = 0; i < scalars.Length; i++) {
                 foreach (bool selector in new[] { false, true }) {
-                    yield return new object[] { scalars[i], selector, GlyphTier.Basic, basic[i] };
-                    yield return new object[] { scalars[i], selector, GlyphTier.Ascii, ascii[i] };
+                    yield return new object[] { scalars[i], selector, GlyphTier.Basic, basic[i], basic[i] };
+                    yield return new object[] { scalars[i], selector, GlyphTier.Ascii, ascii[i], i == 0 ? "[ ]" : ascii[i] };
                 }
             }
         }
 
         [Theory]
         [MemberData(nameof(MenuSymbols))]
-        public void MenuSymbols_ReducedTier_UseCompleteAlignedSemanticGlyphs(int scalar, bool selector, GlyphTier tier, string expected) {
+        public void MenuSymbols_ReducedTier_UseCompleteAlignedSemanticGlyphs(int scalar, bool selector, GlyphTier tier, string expected, string text) {
             string symbol = char.ConvertFromUtf32(scalar) + (selector ? "\uFE0F" : string.Empty);
             Assert.Equal(expected, SymbolFallback.GetGlyph(symbol, tier));
             Assert.Equal(expected + " ", SymbolFallback.GetPrefix(symbol, tier));
-            Assert.Equal(expected, SymbolFallback.Apply(symbol, tier).TrimEnd());
-            Assert.Equal(expected + " Label", SymbolFallback.Apply(symbol + "Label", tier));
-            Assert.Equal(expected + " Label", SymbolFallback.Apply(symbol + " Label", tier));
+            Assert.Equal(text, SymbolFallback.Apply(symbol, tier).TrimEnd());
+            Assert.Equal(text + " Label", SymbolFallback.Apply(symbol + "Label", tier));
+            Assert.Equal(text + " Label", SymbolFallback.Apply(symbol + " Label", tier));
             Assert.Equal(2, DisplayWidth.Measure(SymbolFallback.GetPrefix(symbol, tier)));
             Assert.Equal(symbol, SymbolFallback.Apply(symbol, GlyphTier.Full));
             Assert.Equal(symbol, SymbolFallback.GetGlyph(symbol, GlyphTier.Full));

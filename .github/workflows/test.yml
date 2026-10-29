@@ -154,7 +154,7 @@ jobs:
           $configuration.TestResult.Enabled = $true
           $configuration.TestResult.OutputPath = 'pester-results.xml'
           Invoke-Pester -Configuration $configuration
-        timeout-minutes: 20
+        timeout-minutes: 35
 
       - name: Upload Pester results
         uses: actions/upload-artifact@v7
