@@ -23,7 +23,7 @@ switch ($Name) {
     'Format-ConsoleCommand' { $parameters.Command = 'Get-Item'; $parameters.Arguments = @{} }
     { $_ -in @('Register-ConsoleView', 'Unregister-ConsoleView') } { $parameters.TypeName = 'ConsoleMonster.Audit' }
     'Set-ConsoleTheme' { $parameters.Theme = 'Dark' }
-    'Compare-ConsoleObject' { $parameters.ReferenceObject = @('a'); $parameters.DifferenceObject = @('b') }
+    'Compare-ConsoleObject' { $parameters.ReferenceObject = @('a'); $parameters.PassThru = $true }
     'Show-ConsoleChanges' { $parameters.ReferenceObject = @('a'); $parameters.DifferenceObject = @('b') }
     'Compare-ConsoleText' { $parameters.ReferenceText = 'a'; $parameters.DifferenceText = 'b' }
     { $_ -in @('Invoke-ConsoleRun', 'Use-ConsoleProgress', 'Use-ConsoleTarget') } { $parameters.ScriptBlock = {} }

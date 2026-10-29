@@ -11,7 +11,8 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     public abstract partial class ConsoleDisplayCmdlet {
         private IWidget? BuildChartView(IReadOnlyList<PSObject> input) {
-            IReadOnlyList<PSObject> items = PSFormatting.Expand(input, PSShaping.Options());
+            IReadOnlyList<PSObject?> chartItems = NormalizeChartInputs(input);
+            IReadOnlyList<PSObject> items = chartItems.Where(item => item != null).Select(item => item!).ToArray();
             object property = Property == null || Property.Length == 0 ? "Value" : Property.Length == 1 ? Property[0] : throw new PSArgumentException("Chart requires exactly one Property.");
             BoundColumn value = BindChartColumn(items, property);
             value.FormatString = null;
@@ -27,8 +28,6 @@ namespace ConsoleMonster.PowerShell {
             }
             var chart = new PipelineChart { Type = Type, Sort = Sort, MaxRows = MaxRows, Bins = Bins, Unit = Unit };
             int row = 0;
-            IEnumerable<PSObject?> chartItems = _chartInputs.Count > 1 || (_chartInputs.Count == 1 && _chartInputs[0] == null)
-                ? (IEnumerable<PSObject?>)_chartInputs : items;
             foreach (PSObject? item in chartItems) {
                 if (MaxRows > 0 && Sort == PipelineChartSort.None && Type == ChartType.Bar && chart.Samples.Count >= MaxRows) { break; }
                 row++;
@@ -44,6 +43,21 @@ namespace ConsoleMonster.PowerShell {
                 chart.Add(text, number);
             }
             return chart.Samples.Count == 0 && chart.SkippedCount == 0 ? null : chart;
+        }
+
+        // Keep null observations in their original positions while sharing the display normalizer's
+        // single-collection and multiple-data-container rules for both binding and evaluation.
+        private IReadOnlyList<PSObject?> NormalizeChartInputs(IReadOnlyList<PSObject> input) {
+            var shape = PSShaping.Options();
+            if (_chartInputs.Count == 0) { return PSFormatting.Expand(input, shape); }
+            IEnumerable<PSObject?> source = _chartInputs.Concat(input.Skip(_chartInputs.Count(item => item != null)));
+            bool expand = input.Count == 1 || input.All(item => item.BaseObject is System.Data.DataTable || item.BaseObject is System.Data.DataSet);
+            var rows = new List<PSObject?>();
+            foreach (PSObject? item in source) {
+                if (item == null || !expand) { rows.Add(item); }
+                else { rows.AddRange(PSFormatting.Expand(new[] { item }, shape)); }
+            }
+            return rows;
         }
 
         private static bool HasNumber(IReadOnlyList<PSObject> items, BoundColumn value) {

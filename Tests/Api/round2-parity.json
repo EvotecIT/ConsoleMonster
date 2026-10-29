@@ -485,21 +485,6 @@
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
-        },
-        {
-          "Parameter": "PipelineInput",
-          "ParameterType": "System.Management.Automation.PSObject",
-          "Default": null,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "MemberKind": "HostPolicy",
-          "Conversion": "PipelineInputPolicy",
-          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
