@@ -25,10 +25,10 @@ On an interactive console the screen and its scrollback are cleared and the curs
 
 ### EXAMPLE 1
 ```powershell
-Clear-ConsoleScreen; Show-ConsoleMenu -Title 'Tools' -Items $items
+Clear-ConsoleScreen; Write-ConsoleText 'Ready'
 ```
 
-Start a menu screen from a clean console
+Clear the screen before displaying a message
 
 ## PARAMETERS
 
@@ -37,7 +37,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 

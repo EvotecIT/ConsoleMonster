@@ -1,6 +1,6 @@
 {
   "BaselineCount": 144,
-  "ExpectedCount": 108,
+  "ExpectedCount": 109,
   "Commands": [
     "Add-ConsoleItem",
     "Add-ConsoleRecordingMarker",

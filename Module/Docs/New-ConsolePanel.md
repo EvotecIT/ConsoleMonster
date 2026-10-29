@@ -55,7 +55,7 @@ The semantic border colour.
 Type: ThemeToken
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: Text, Muted, Subtle, Accent, Accent2, Pass, Fail, Warn, Info, Skip, Running, Pending, Border, Title, Header, Highlight, Surface, SurfaceAccent, Series1, Series2, Series3, Series4, Series5, Series6, Focus
+Possible values: Text, Muted, Subtle, Accent, Accent2, Pass, Fail, Warn, Info, Skip, Running, Pending, Border, Title, Header, Highlight, Surface, SurfaceAccent, Series1, Series2, Series3, Series4, Series5, Series6, Focus, Strong, Low, Critical, Gap
 
 Required: False
 Position: named
@@ -247,7 +247,7 @@ Status colour and title glyph for a verdict.
 Type: StatusKind
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: Pending, Running, Pass, Fail, Warn, Skip, Info
+Possible values: Pending, Running, Pass, Fail, Warn, Skip, Info, Unknown, None
 
 Required: False
 Position: named

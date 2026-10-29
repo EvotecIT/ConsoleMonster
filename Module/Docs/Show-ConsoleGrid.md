@@ -25,7 +25,7 @@ An Out-GridView for the console, on Windows PowerShell 5.1 and PowerShell 7. Typ
 
 ### EXAMPLE 1
 ```powershell
-Get-Service | Show-ConsoleGrid -Property Name, Status, StartType -Title 'Services' -Command @{ Restart = { param($Row) Restart-Service $Row.Name -ErrorAction Stop; "Restarted $($Row.Name)" } }
+Get-Service | Show-ConsoleGrid -Property Name, Status, StartType -Title 'Services' -Command @{ Restart = { param($Row) Restart-Service $Row.Name -WhatIf } }
 ```
 
 Restart selected services with confirmation and embedded output

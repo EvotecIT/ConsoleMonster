@@ -13,12 +13,12 @@ A default is shown as a hint (Enter on an empty box accepts it, Tab puts it in t
 ## SYNTAX
 ### Text (Default)
 ```powershell
-Read-ConsoleText [-Title] <string> [-Default <string>] [-Placeholder <string>] [-Required] [-MinLength <int>] [-MaxLength <int>] [-Pattern <string>] [-PatternMessage <string>] [-Validator <scriptblock>] [-History <string[]>] [-PrefillDefault] [-Multiline] [-MaxLines <int>] [-Height <int>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
+Read-ConsoleText [[-Title] <string>] [-Default <string>] [-Placeholder <string>] [-Required] [-MinLength <int>] [-MaxLength <int>] [-Pattern <string>] [-PatternMessage <string>] [-Validator <scriptblock>] [-History <string[]>] [-PrefillDefault] [-Multiline] [-MaxLines <int>] [-Height <int>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
 ```
 
 ### Secret
 ```powershell
-Read-ConsoleText [-Title] <string> -AsSecret [-MinLength <int>] [-Validator <scriptblock>] [-AsPlainText] [-Hidden] [-AllowEmpty] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
+Read-ConsoleText [[-Title] <string>] -AsSecret [-MinLength <int>] [-Validator <scriptblock>] [-AsPlainText] [-Hidden] [-AllowEmpty] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -373,7 +373,7 @@ Parameter Sets: Text, Secret
 Aliases: None
 Possible values:
 
-Required: True
+Required: False
 Position: 0
 Default value: None
 Accept pipeline input: False
@@ -401,7 +401,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 

@@ -30,10 +30,6 @@ Describe 'ConsoleMonster pipeline input audit' {
         $match = [regex]::Match(($output -join "`n"), 'AUDIT_RESULT:(\{[^\r\n]*\})')
         $match.Success | Should -BeTrue
         $result = $match.Groups[1].Value | ConvertFrom-Json
-        if ($Name -in @('Enable-ConsoleFormatting', 'Disable-ConsoleFormatting', 'Show-ConsoleDemo', 'Export-ConsoleDemo', 'Register-ConsoleView', 'Unregister-ConsoleView') -and $result.Errors -gt 1) {
-            Set-ItResult -Skipped -Because 'This command is being changed in the gallery and formatting work in PR #88.'
-            return
-        }
         if ($result.FirstId -match '^(MissingMandatoryParameter|AmbiguousParameterSet)') {
             Set-ItResult -Skipped -Because 'This command needs a safe argument fixture before its pipeline behavior can be exercised.'
             return

@@ -21,11 +21,6 @@ Update-Console [-WidgetId] <string> [-Session <LiveSession>] [-Key <string>] [-L
 Update-Console [-WidgetId] <string> -Value <Object> -Append [-Session <LiveSession>] [-Key <string>] [<CommonParameters>]
 ```
 
-### Row
-```powershell
-Update-Console [-WidgetId] <string> -Row <Object> [-Session <LiveSession>] [<CommonParameters>]
-```
-
 ### RemoveRow
 ```powershell
 Update-Console [-WidgetId] <string> -Key <string> -RemoveRow [-Session <LiveSession>] [<CommonParameters>]
@@ -51,11 +46,6 @@ Update-Console [-WidgetId] <string> -AppendCells [-Session <LiveSession>] [-Stat
 Update-Console [-WidgetId] <string> -CellCount <int> [-Session <LiveSession>] [<CommonParameters>]
 ```
 
-### Content
-```powershell
-Update-Console [-WidgetId] <string> -Content <Object> [-Session <LiveSession>] [<CommonParameters>]
-```
-
 ### FlowNode
 ```powershell
 Update-Console [-WidgetId] <string> -Status <StatusKind> -NodeKey <string> [-Session <LiveSession>] [<CommonParameters>]
@@ -69,6 +59,16 @@ Update-Console [-WidgetId] <string> -Status <StatusKind> -EdgeKey <string> [-Ses
 ### Run
 ```powershell
 Update-Console [-Run] <LiveRun> -Status <StatusKind> -Index <int[]> [-Label <Object>] [-Detail <Object>] [-DurationSeconds <Double>] [<CommonParameters>]
+```
+
+### Row
+```powershell
+Update-Console [-WidgetId] <string> -Row <Object> [-Session <LiveSession>] [<CommonParameters>]
+```
+
+### Content
+```powershell
+Update-Console [-WidgetId] <string> -Content <Object> [-Session <LiveSession>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -444,7 +444,7 @@ The result of completed lane steps.
 Type: StatusKind
 Parameter Sets: Fields
 Aliases: None
-Possible values: Pending, Running, Pass, Fail, Warn, Skip, Info
+Possible values: Pending, Running, Pass, Fail, Warn, Skip, Info, Unknown, None
 
 Required: False
 Position: named
@@ -490,7 +490,7 @@ The session, otherwise ConsoleSession or the current session.
 
 ```yaml
 Type: LiveSession
-Parameter Sets: Fields, Append, Row, RemoveRow, ClearRows, Cells, AppendCells, ResizeCells, Content, FlowNode, FlowEdge
+Parameter Sets: Fields, Append, RemoveRow, ClearRows, Cells, AppendCells, ResizeCells, FlowNode, FlowEdge, Row, Content
 Aliases: None
 Possible values:
 
@@ -508,7 +508,7 @@ The new state.
 Type: StatusKind
 Parameter Sets: Fields, Cells, AppendCells, FlowNode, FlowEdge, Run
 Aliases: None
-Possible values: Pending, Running, Pass, Fail, Warn, Skip, Info
+Possible values: Pending, Running, Pass, Fail, Warn, Skip, Info, Unknown, None
 
 Required: False
 Position: named
@@ -554,7 +554,7 @@ The live widget identifier.
 
 ```yaml
 Type: String
-Parameter Sets: Fields, Append, Row, RemoveRow, ClearRows, Cells, AppendCells, ResizeCells, Content, FlowNode, FlowEdge
+Parameter Sets: Fields, Append, RemoveRow, ClearRows, Cells, AppendCells, ResizeCells, FlowNode, FlowEdge, Row, Content
 Aliases: None
 Possible values:
 

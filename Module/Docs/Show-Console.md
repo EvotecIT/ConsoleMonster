@@ -129,7 +129,7 @@ Table border style; default Rounded.
 Type: TableBorder
 Parameter Sets: Objects, Path, Content
 Aliases: None
-Possible values: Rounded, Square, Double, Minimal, None
+Possible values: Rounded, Square, Double, Minimal, None, Rule
 
 Required: False
 Position: named
@@ -497,7 +497,7 @@ Theme role for a rule line; default Border.
 Type: ThemeToken
 Parameter Sets: Objects, Path, Content
 Aliases: None
-Possible values: Text, Muted, Subtle, Accent, Accent2, Pass, Fail, Warn, Info, Skip, Running, Pending, Border, Title, Header, Highlight, Surface, SurfaceAccent, Series1, Series2, Series3, Series4, Series5, Series6, Focus
+Possible values: Text, Muted, Subtle, Accent, Accent2, Pass, Fail, Warn, Info, Skip, Running, Pending, Border, Title, Header, Highlight, Surface, SurfaceAccent, Series1, Series2, Series3, Series4, Series5, Series6, Focus, Strong, Low, Critical, Gap
 
 Required: False
 Position: named

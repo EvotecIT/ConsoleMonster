@@ -25,19 +25,17 @@ Writes every semantic token, foreground/background colour, explicit fallback tie
 
 ### EXAMPLE 1
 ```powershell
-Export-ConsoleTheme -Path ./team-theme.json
-            Set-ConsoleTheme -Path ./team-theme.json
+Export-ConsoleTheme -Path ./team-theme.json -WhatIf
 ```
 
-Export the current theme, edit its token definitions and apply it.
+Preview exporting the current theme.
 
 ### EXAMPLE 2
 ```powershell
-Set-ConsoleTheme -Theme ColorBlindSafe
-            Export-ConsoleTheme -Path ./accessible.psd1 -PassThru
+Export-ConsoleTheme -Path ./accessible.psd1 -WhatIf
 ```
 
-Create a PowerShell data file from the accessible preset and return its file information.
+Preview exporting a PowerShell data file.
 
 ## PARAMETERS
 
@@ -78,7 +76,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 

@@ -25,10 +25,10 @@ Serializes input through the core or bundled Markdown add-on as Text (default), 
 
 ### EXAMPLE 1
 ```powershell
-Get-Process | Select-Object -First 10 Name, Id | Show-ConsoleTable -AsWidget | Copy-ConsoleOutput -Format Markdown
+Get-Process | Select-Object -First 10 Name, Id | Show-ConsoleTable -AsWidget | Copy-ConsoleOutput -Format Markdown -WhatIf
 ```
 
-Copy a process table into a Markdown report
+Preview copying a process table as Markdown
 
 ## PARAMETERS
 

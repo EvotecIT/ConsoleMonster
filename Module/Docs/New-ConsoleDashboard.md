@@ -135,7 +135,7 @@ Initial header status.
 Type: StatusKind
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: Pending, Running, Pass, Fail, Warn, Skip, Info
+Possible values: Pending, Running, Pass, Fail, Warn, Skip, Info, Unknown, None
 
 Required: False
 Position: named

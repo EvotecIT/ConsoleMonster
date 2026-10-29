@@ -25,10 +25,10 @@ Creates a passive command definition. Work runs in an isolated runspace with exp
 
 ### EXAMPLE 1
 ```powershell
-$restart = New-ConsoleCommand -Key Restart -Label 'Restart service' -Shortcut Ctrl+R -ConfirmPrompt 'Restart selected services?' -ScriptBlock { param($Row) Restart-Service -Name $Row.Name -ErrorAction Stop }; Get-Service | Show-ConsoleGrid -Command $restart
+$restart = New-ConsoleCommand -Key Restart -Label 'Preview restart' -Shortcut Ctrl+R -ConfirmPrompt 'Preview selected services?' -ScriptBlock { param($Row) Restart-Service -Name $Row.Name -WhatIf }; Get-Service | Show-ConsoleGrid -Command $restart
 ```
 
-Restart selected services after confirmation without closing the viewer.
+Preview restarting selected services after confirmation.
 
 ## PARAMETERS
 
@@ -165,7 +165,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 

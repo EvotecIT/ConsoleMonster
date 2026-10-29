@@ -88,7 +88,7 @@ Border: Rounded, Square, Double, Minimal or None.
 Type: TableBorder
 Parameter Sets: Objects, Live, Bind
 Aliases: None
-Possible values: Rounded, Square, Double, Minimal, None
+Possible values: Rounded, Square, Double, Minimal, None, Rule
 
 Required: False
 Position: named

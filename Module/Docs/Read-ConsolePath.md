@@ -13,7 +13,7 @@ Matching entries of the typed folder are listed under the box (folders first); T
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Read-ConsolePath [-Title] <string> [-Kind <PathKind>] [-MustExist] [-Default <string>] [-Extension <string[]>] [-BasePath <string>] [-ShowHidden] [-Suggestions <int>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
+Read-ConsolePath [[-Title] <string>] [-Kind <PathKind>] [-MustExist] [-Default <string>] [-Extension <string[]>] [-BasePath <string>] [-ShowHidden] [-Suggestions <int>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -217,7 +217,7 @@ Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
 
-Required: True
+Required: False
 Position: 0
 Default value: None
 Accept pipeline input: False
@@ -229,7 +229,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 

@@ -25,14 +25,14 @@ $_ is the item, as in ForEach-Object. While it runs, a live view shows a summary
 
 ### EXAMPLE 1
 ```powershell
-$port = 443; $servers | Invoke-ConsoleRun -Parallel -ThrottleLimit 8 -Label Name { Test-NetConnection $_.Name -Port $using:port -InformationLevel Quiet }
+$servers = 'web01', 'web02' | ForEach-Object { [pscustomobject]@{ Name = $_ } }; $servers | Invoke-ConsoleRun -Parallel -ThrottleLimit 8 -Label Name { $_.Name.ToUpperInvariant() }
 ```
 
-Check servers in parallel
+Inspect items in parallel
 
 ### EXAMPLE 2
 ```powershell
-Get-ChildItem *.log | Invoke-ConsoleRun { Compress-Archive $_ "$($_.BaseName).zip" -Force }
+Get-ChildItem -File | Select-Object -First 5 | Invoke-ConsoleRun { $_.Name }
 ```
 
 One at a time, in the current scope
@@ -49,7 +49,7 @@ Forty items in parallel with a title and a time limit: items that throw or run p
 
 ### EXAMPLE 4
 ```powershell
-$servers | Invoke-ConsoleRun -Parallel -RetryCount 2 -RetryDelaySeconds 5 -Label Name { Restart-Computer $_.Name -Wait -For WinRM -Timeout 300 -ErrorAction Stop }
+$servers = 'server01', 'server02' | ForEach-Object { [pscustomobject]@{ Name = $_ } }; $servers | Invoke-ConsoleRun -Parallel -RetryCount 2 -RetryDelaySeconds 5 -Label Name { "Would restart $($_.Name)" }
 ```
 
 Retry flaky servers twice, five seconds apart

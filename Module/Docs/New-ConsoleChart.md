@@ -13,7 +13,7 @@ Type selects Bar, Stacked, Line, Scatter, Histogram or Sparkline. The shared C# 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleChart [[-WidgetId] <string>] [[-InputObject] <psobject>] -Type <ChartType> [-Unit <string>] [-Title <Object>] [-Property <Object[]>] [-Label <Object>] [-Height <Int32>] [-Minimum <Double>] [-Maximum <Double>] [-Role <ThemeToken>] [-Shape <BarShape>] [-Warning <Double>] [-Critical <Double>] [-NoLatest] [-Edges <double[]>] [-Values <double[]>] [-ValueColumn <ColumnFormat>] [-CountColumn <ColumnFormat>] [-PercentColumn <ColumnFormat>] [-LabelColumn <ColumnFormat>] [-Content <scriptblock>] [-Series <Object[]>] [-NoValues] [-Signed] [-NoLegend] [-MaxLegendColumns <int>] [-Capacity <Int32>] [<CommonParameters>]
+New-ConsoleChart [[-WidgetId] <string>] [[-InputObject] <psobject>] [-Type <ChartType>] [-Unit <string>] [-Title <Object>] [-Property <Object[]>] [-Label <Object>] [-Height <Int32>] [-Minimum <Double>] [-Maximum <Double>] [-Role <ThemeToken>] [-Shape <BarShape>] [-Warning <Double>] [-Critical <Double>] [-NoLatest] [-Edges <double[]>] [-Values <double[]>] [-ValueColumn <ColumnFormat>] [-CountColumn <ColumnFormat>] [-PercentColumn <ColumnFormat>] [-LabelColumn <ColumnFormat>] [-Content <scriptblock>] [-Series <Object[]>] [-NoValues] [-Signed] [-NoLegend] [-MaxLegendColumns <int>] [-Capacity <Int32>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,7 +25,7 @@ Type selects Bar, Stacked, Line, Scatter, Histogram or Sparkline. The shared C# 
 
 ### EXAMPLE 1
 ```powershell
-$servers | New-ConsoleChart -Type Bar -Property Cpu -Label Name -Unit '%'
+$servers = [pscustomobject]@{ Name = 'web01'; Cpu = 42 }, [pscustomobject]@{ Name = 'web02'; Cpu = 27 }; $servers | New-ConsoleChart -Property Cpu -Label Name -Unit '%'
 ```
 
 Chart a property of ordinary objects inside a report
@@ -318,7 +318,7 @@ The chart theme role.
 Type: ThemeToken
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: Text, Muted, Subtle, Accent, Accent2, Pass, Fail, Warn, Info, Skip, Running, Pending, Border, Title, Header, Highlight, Surface, SurfaceAccent, Series1, Series2, Series3, Series4, Series5, Series6, Focus
+Possible values: Text, Muted, Subtle, Accent, Accent2, Pass, Fail, Warn, Info, Skip, Running, Pending, Border, Title, Header, Highlight, Surface, SurfaceAccent, Series1, Series2, Series3, Series4, Series5, Series6, Focus, Strong, Low, Critical, Gap
 
 Required: False
 Position: named
@@ -400,7 +400,7 @@ Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values: Bar, Stacked, Line, Scatter, Histogram, Sparkline
 
-Required: True
+Required: False
 Position: named
 Default value: None
 Accept pipeline input: False

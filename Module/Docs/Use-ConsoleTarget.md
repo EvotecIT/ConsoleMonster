@@ -40,10 +40,10 @@ Inside the script block every ConsoleMonster command (Write-ConsoleText, Show-Co
 
 ### EXAMPLE 1
 ```powershell
-Use-ConsoleTarget -Path .\report.txt -Width 120 { $servers | Show-ConsoleTable; Write-ConsoleText -Markup '[pass]done[/]' }
+Use-ConsoleTarget -Width 120 { Get-Process | Select-Object -First 5 Name, Id | Show-ConsoleTable; Write-ConsoleText -Markup '[pass]done[/]' }
 ```
 
-Save a report as plain text
+Capture a report as plain text
 
 ### EXAMPLE 2
 ```powershell
@@ -187,7 +187,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 
