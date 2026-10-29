@@ -104,12 +104,12 @@ namespace SiteFrames.Capture {
                     int end = index + 1;
                     while (end < originals.Length && originals[end] is ExpressionStatementSyntax { Expression: InvocationExpressionSyntax call }
                         && changed[end] is ExpressionStatementSyntax { Expression: InvocationExpressionSyntax updated }
+                        && !HasBoundaryTrivia(changed[end - 1].GetTrailingTrivia())
+                        && !HasBoundaryTrivia(changed[end].GetLeadingTrivia())
                         && RootReceiver(call) is IdentifierNameSyntax receiver && receiver.Identifier.ValueText == name
                         && ReturnsReceiver(call)
                         && !call.DescendantNodes().OfType<ArgumentSyntax>().Any(arg => arg.DescendantTokens().Any(token => token.ValueText == name))) {
-                        var comments = changed[end].GetLeadingTrivia().Where(trivia => !trivia.IsKind(SyntaxKind.WhitespaceTrivia) && !trivia.IsKind(SyntaxKind.EndOfLineTrivia));
                         value = updated.ReplaceNode(RootReceiver(updated)!, value);
-                        if (comments.Any()) { value = value.WithLeadingTrivia(comments.Concat(new[] { SyntaxFactory.ElasticCarriageReturnLineFeed })); }
                         end++;
                     }
                     if (declaration) {
@@ -119,6 +119,9 @@ namespace SiteFrames.Capture {
                     index = end - 1;
                 }
             }
+            // Comments and directives belong between statements, not at the start of a combined chain.
+            private static bool HasBoundaryTrivia(SyntaxTriviaList trivia) => trivia.Any(item =>
+                !item.IsKind(SyntaxKind.WhitespaceTrivia) && !item.IsKind(SyntaxKind.EndOfLineTrivia));
             private bool ReturnsReceiver(InvocationExpressionSyntax call) {
                 if (model.GetSymbolInfo(call).Symbol is not IMethodSymbol method || method.ReturnsVoid
                     || !SymbolEqualityComparer.Default.Equals(method.ReturnType, model.GetTypeInfo(RootReceiver(call)!).Type)) { return false; }
