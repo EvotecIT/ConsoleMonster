@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using ConsoleMonster.Canvas;
+using ConsoleMonster.Glyphs;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
@@ -31,6 +32,9 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>Overflow handling (default wrap).</summary>
         public TextOverflow Overflow { get; set; } = TextOverflow.Wrap;
+
+        /// <summary>When set, wrap at this literal separator before breaking within an oversized entry.</summary>
+        public string? WrapSeparator { get; set; }
 
         /// <summary>Creates a text block from plain text (brackets are shown literally).</summary>
         /// <param name="text">The text.</param>
@@ -68,17 +72,23 @@ namespace ConsoleMonster.Widgets {
         }
 
         private List<StyledLine> BuildLines(RenderContext context, int width) {
+            string? separator = WrapSeparator;
             StyledText text = IsMarkup ? context.Markup(Content) : StyledText.FromPlain(Content);
             Style baseStyle = Role.HasValue ? context.Style(Role.Value) : Style.Plain;
             List<StyledLine> result = new List<StyledLine>();
             foreach (StyledLine raw in text.Lines) {
                 StyledLine line = raw.WithBaseStyle(baseStyle);
-                if (line.Width <= width || width <= 0) {
-                    result.Add(line);
+                StyledLine convertedLine = WrapSeparator == " · " ? FactFlow.TierSeparators(line, context) : line;
+                if (convertedLine.Width <= width || width <= 0) {
+                    result.Add(convertedLine);
                 } else if (Overflow == TextOverflow.Wrap) {
-                    result.AddRange(TextWrapper.Wrap(line, width));
+                    IEnumerable<StyledLine> wrapped = !string.IsNullOrEmpty(separator) && line.PlainText.Contains(separator!)
+                        ? FactFlow.WrapSeparated(line, width, separator!, preserveSeparator: separator != " · ",
+                            convert: separator == " · " ? part => FactFlow.TierSeparators(part, context) : null)
+                        : TextWrapper.Wrap(convertedLine, width);
+                    result.AddRange(wrapped);
                 } else {
-                    result.Add(TextWrapper.Truncate(line, width, Overflow == TextOverflow.Ellipsis ? context.Ellipsis : string.Empty));
+                    result.Add(TextWrapper.Truncate(convertedLine, width, Overflow == TextOverflow.Ellipsis ? context.Ellipsis : string.Empty));
                 }
             }
             return result;

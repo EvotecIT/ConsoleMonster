@@ -16,7 +16,7 @@ public sealed partial class Tree {
         List<int> labelWidths = new List<int>();
         int desired = 0;
         foreach (TreeRow row in rows) {
-            if (row.Node.Bare || row.Node.Values.Count == 0) { continue; }
+            if (row.Node.Bare && !row.Node.MeasureBareLabel || row.Node.Values.Count == 0) { continue; }
             int length = Label(row).Width;
             labelWidths.Add(length); desired = Math.Max(desired, length);
         }
@@ -55,7 +55,24 @@ public sealed partial class Tree {
         }
         foreach (TreeRow row in rows) {
             List<StyledLine> continuations = new List<StyledLine>();
-            StyledLine label = Label(row);
+            string referenceMarker = (row.Reference & TreeReferenceKind.Cycle) != 0 ? context.Glyphs.Get(Glyph.Cycle)
+                : (row.Reference & TreeReferenceKind.Repeat) != 0 ? context.Glyphs.Get(Glyph.Repeat) : string.Empty;
+            bool hasVisibleState = false, fullReferenceInValue = false;
+            int fittedLabelWidth = row.Node.Bare
+                ? FitLabel(Primary(row, int.MaxValue, true, context, TreeReferenceKind.Cycle | TreeReferenceKind.Repeat), width, context).Width
+                : labelWidth;
+            int available = Math.Max(0, width - Math.Max(labelWidth, fittedLabelWidth));
+            foreach (int c in visible) {
+                StyledLine value = Value(row, c);
+                int wanted = context.Profile.Width < 80 ? value.Width : columnWidths[c];
+                int fittedWidth = Math.Min(wanted, Math.Max(0, available - 2));
+                if (IsState(ValueColumns[c]) && referenceMarker.Length > 0) {
+                    hasVisibleState |= TextWrapper.Truncate(value, fittedWidth, context.Ellipsis).PlainText.Contains(referenceMarker);
+                }
+                available = Math.Max(0, available - fittedWidth - 2);
+            }
+            TreeReferenceKind suppressed = hasVisibleState ? TreeReferenceKind.Cycle | TreeReferenceKind.Repeat : TreeReferenceKind.None;
+            StyledLine label = Primary(row, int.MaxValue, true, context, suppressed);
             if (row.Node.Values.Count == 0 && row.Reference == TreeReferenceKind.None) {
                 List<TextSpan> standalone = new List<TextSpan>(FitLabel(label, width, context));
                 AppendEvidence(row, standalone, continuations, false);
@@ -63,21 +80,33 @@ public sealed partial class Tree {
             }
             label = row.Node.Bare ? FitLabel(label, width, context) : row.Node.TruncateLabelInMiddle ? TextWrapper.TruncateMiddle(label, labelWidth, context.Ellipsis) : TextWrapper.Truncate(label, labelWidth, context.Ellipsis);
             List<TextSpan> spans = new List<TextSpan>(label);
+            bool hiddenReferenceAdded = false;
+            bool visibleReferenceAdded = false;
             spans.Add(new TextSpan(new string(' ', Math.Max(0, labelWidth - label.Width))));
             foreach (int c in visible) {
                 StyledLine value = Value(row, c);
                 int desiredValue = context.Profile.Width < 80 ? value.Width : columnWidths[c];
-                AppendColumn(spans, value, Math.Min(desiredValue, Math.Max(0, width - new StyledLine(spans).Width - 2)), ValueColumns[c].Alignment ?? HorizontalAlignment.Left, context);
+                int fittedWidth = Math.Min(desiredValue, Math.Max(0, width - new StyledLine(spans).Width - 2));
+                bool referenceState = IsState(ValueColumns[c]) && referenceMarker.Length > 0;
+                if (referenceState && visibleReferenceAdded) value = StyledLine.Empty;
+                if (referenceState && TextWrapper.Truncate(value, fittedWidth, context.Ellipsis).PlainText.Contains(referenceMarker)) {
+                    visibleReferenceAdded = true;
+                    fullReferenceInValue = fittedWidth >= value.Width;
+                }
+                AppendColumn(spans, value, fittedWidth, ValueColumns[c].Alignment ?? HorizontalAlignment.Left, context);
             }
             if (visible.Count < ValueColumns.Count) {
                 foreach (int c in System.Linq.Enumerable.Range(0, ValueColumns.Count)) {
                     if (visible.Contains(c) || context.Profile.Width < 80 && ValueColumns[c].Priority < 2) { continue; }
+                    // A hidden reference state is already represented by the label marker and evidence.
+                    if (IsState(ValueColumns[c]) && referenceMarker.Length > 0 && (visibleReferenceAdded || hiddenReferenceAdded || label.PlainText.Contains(referenceMarker))) { continue; }
                     StyledLine note = Value(row, c);
                     if (note.Width == 0) { continue; }
                     AppendEvidenceLine(note, spans, continuations);
+                    if (IsState(ValueColumns[c]) && referenceMarker.Length > 0) hiddenReferenceAdded = true;
                 }
             }
-            bool referenceInValue = visible.Exists(c => IsState(ValueColumns[c])) && !row.Node.HasLocalizedCycleNote;
+            bool referenceInValue = (fullReferenceInValue || hiddenReferenceAdded) && !row.Node.HasLocalizedCycleNote;
             AppendEvidence(row, spans, continuations, referenceInValue);
             result.Add(new StyledLine(spans));
             result.AddRange(continuations);

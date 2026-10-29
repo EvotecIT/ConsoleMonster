@@ -1,12 +1,57 @@
 using System;
 using System.Linq;
 using ConsoleMonster.Capabilities;
+using ConsoleMonster.Glyphs;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
 using Xunit;
 
 namespace ConsoleMonster.Tests.Widgets {
     public sealed class TreeReview184Tests {
+        [Theory]
+        [InlineData(TreeReferenceKind.Cycle, GlyphTier.Full)]
+        [InlineData(TreeReferenceKind.Repeat, GlyphTier.Ascii)]
+        public void Render_TwoHiddenReferenceColumnsAndClippedLabel_ShowsOneMarker(TreeReferenceKind reference, GlyphTier tier) {
+            Tree tree = new Tree { ValuePlacement = TreeValuePlacement.AfterLabel, ShowValueHeaders = false };
+            tree.ValueColumns.Add(new TableColumn("State") { Priority = 2 });
+            tree.ValueColumns.Add(new TableColumn("Relation") { Priority = 2 });
+            tree.Add("Member").Reference = reference;
+            Review184Capture capture = new Review184Capture(tree, 60, tier, ColorDepth.None);
+            string text = capture.Raw.ToPlainText();
+            string marker = capture.Context.Glyphs.Get(reference == TreeReferenceKind.Cycle ? Glyph.Cycle : Glyph.Repeat);
+            Assert.Equal(1, text.Split(new[] { marker }, StringSplitOptions.None).Length - 1);
+            Assert.Contains(reference == TreeReferenceKind.Cycle ? "cycle" : "shown above", text);
+        }
+        [Theory]
+        [InlineData(TreeReferenceKind.Cycle, GlyphTier.Full)]
+        [InlineData(TreeReferenceKind.Repeat, GlyphTier.Ascii)]
+        public void Render_VisibleAndHiddenReferenceColumns_ShowsOneMarker(TreeReferenceKind reference, GlyphTier tier) {
+            Tree tree = new Tree { ValuePlacement = TreeValuePlacement.AfterLabel, ShowValueHeaders = false };
+            tree.ValueColumns.Add(new TableColumn("State") { Priority = 10 });
+            tree.ValueColumns.Add(new TableColumn("Relation") { Priority = 2 });
+            TreeNode node = tree.Add("Member"); node.Reference = reference; node.Values["State"] = "state";
+            Review184Capture capture = new Review184Capture(tree, 60, tier, ColorDepth.None);
+            string text = capture.Raw.ToPlainText();
+            string marker = capture.Context.Glyphs.Get(reference == TreeReferenceKind.Cycle ? Glyph.Cycle : Glyph.Repeat);
+            Assert.Equal(1, text.Split(new[] { marker }, StringSplitOptions.None).Length - 1);
+            Assert.Contains(reference == TreeReferenceKind.Cycle ? "cycle" : "shown above", text);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(3)]
+        [InlineData(12)]
+        public void Render_TwoVisibleReferenceColumns_KeepsExactlyOneMarker(int firstWidth) {
+            Tree tree = new Tree { ValuePlacement = TreeValuePlacement.AfterLabel, ShowValueHeaders = false };
+            tree.ValueColumns.Add(new TableColumn("State") { Priority = 10, Width = firstWidth });
+            tree.ValueColumns.Add(new TableColumn("Relation") { Priority = 9, Width = 12 });
+            TreeNode node = tree.Add("Member"); node.Reference = TreeReferenceKind.Cycle; node.Values["State"] = "state";
+            Review184Capture capture = new Review184Capture(tree, 120, GlyphTier.Full, ColorDepth.None);
+            string text = capture.Raw.ToPlainText();
+            string marker = capture.Context.Glyphs.Get(Glyph.Cycle);
+            Assert.Equal(1, text.Split(new[] { marker }, StringSplitOptions.None).Length - 1);
+            Assert.Contains("cycle", text);
+        }
         [Theory]
         [InlineData(GlyphTier.Basic, ColorDepth.Ansi16, 59)]
         [InlineData(GlyphTier.Basic, ColorDepth.None, 60)]
@@ -158,6 +203,76 @@ namespace ConsoleMonster.Tests.Widgets {
             Assert.DoesNotContain("+2 columns", capture.Decoded);
             Assert.Contains(tier == GlyphTier.Ascii ? "..." : "…", lines[1]);
             Assert.True(lines[0].IndexOf("Type", StringComparison.Ordinal) >= 48);
+        }
+
+        [Fact]
+        public void Render_AfterLabelWithOneCellState_RetainsCycleMarker() {
+            Tree tree = new Tree { ValuePlacement = TreeValuePlacement.AfterLabel, ShowValueHeaders = false };
+            tree.ValueColumns.Add(new TableColumn("State") { Width = 1, Priority = 10 });
+            TreeNode node = tree.Add("CycleNode"); node.Reference = TreeReferenceKind.Cycle; node.Values["State"] = "value";
+            Review184Capture capture = new Review184Capture(tree, 120, GlyphTier.Full, ColorDepth.None);
+            Assert.Contains(capture.Context.Glyphs.Get(Glyph.Cycle), capture.Raw.ToPlainText());
+        }
+
+        [Theory]
+        [InlineData(TreeReferenceKind.Cycle, "cycle")]
+        [InlineData(TreeReferenceKind.Repeat, "shown above")]
+        public void Render_LongBareReference_RetainsReferenceEvidence(TreeReferenceKind reference, string evidence) {
+            Tree tree = new Tree { ValuePlacement = TreeValuePlacement.AfterLabel, ShowValueHeaders = false };
+            tree.ValueColumns.Add(new TableColumn("State") { Priority = 10 });
+            TreeNode ordinary = tree.Add("Short"); ordinary.Values["State"] = "healthy";
+            TreeNode node = tree.Add(new string('L', 118)); node.Bare = true; node.Reference = reference; node.Values["State"] = "state";
+            Review184Capture capture = new Review184Capture(tree, 120, GlyphTier.Full, ColorDepth.None);
+            string text = capture.Raw.ToPlainText();
+            Assert.Contains(reference == TreeReferenceKind.Cycle ? capture.Context.Glyphs.Get(Glyph.Cycle) : capture.Context.Glyphs.Get(Glyph.Repeat), text);
+            Assert.Contains(evidence, text);
+        }
+
+        [Fact]
+        public void Render_AfterLabelWithTruncatedIdentity_RetainsHiddenCycleMarker() {
+            Tree tree = new Tree { ValuePlacement = TreeValuePlacement.AfterLabel, ShowValueHeaders = false };
+            tree.ValueColumns.Add(new TableColumn("State") { Priority = 2 });
+            tree.Add("CycleNode").Reference = TreeReferenceKind.Cycle;
+            Review184Capture capture = new Review184Capture(tree, 60, GlyphTier.Full, ColorDepth.None);
+            Assert.Contains(capture.Context.Glyphs.Get(Glyph.Cycle), capture.Raw.ToPlainText());
+        }
+
+        [Fact]
+        public void Render_AfterLabelWithoutVisibleState_RetainsReferenceMarkerBeforeIdentity() {
+            Tree tree = new Tree { ValuePlacement = TreeValuePlacement.AfterLabel, ShowValueHeaders = false };
+            tree.ValueColumns.Add(new TableColumn("Type") { Priority = 10 });
+            tree.ValueColumns.Add(new TableColumn("State") { Priority = 2 });
+            TreeNode node = tree.Add("CycleNode"); node.Reference = TreeReferenceKind.Cycle; node.Values["Type"] = "group";
+            Review184Capture capture = new Review184Capture(tree, 60, GlyphTier.Full, ColorDepth.None);
+            string text = capture.Raw.ToPlainText();
+            string glyph = capture.Context.Glyphs.Get(Glyph.Cycle);
+            Assert.Equal(1, text.Split(new[] { glyph }, StringSplitOptions.None).Length - 1);
+            Assert.Contains(glyph + " CycleNode", text);
+            Assert.Contains("cycle", text);
+        }
+
+        [Theory]
+        [InlineData(GlyphTier.Full, 120)]
+        [InlineData(GlyphTier.Full, 60)]
+        [InlineData(GlyphTier.Ascii, 120)]
+        [InlineData(GlyphTier.Ascii, 60)]
+        public void Render_AfterLabelReferenceWithVisibleState_ShowsOneMarkerAfterIdentity(GlyphTier tier, int width) {
+            Tree tree = new Tree { ValuePlacement = TreeValuePlacement.AfterLabel, ShowValueHeaders = false };
+            tree.ValueColumns.Add(new TableColumn("State") { Priority = 10 });
+            TreeNode cycle = tree.Add("CycleNode"); cycle.Reference = TreeReferenceKind.Cycle; cycle.Values["State"] = "original";
+            TreeNode repeat = tree.Add("RepeatNode"); repeat.Reference = TreeReferenceKind.Repeat; repeat.Values["State"] = "original";
+            Review184Capture capture = new Review184Capture(tree, width, tier, ColorDepth.None);
+            string[] lines = capture.Raw.ToPlainText().Split('\n');
+            string cycleLine = Assert.Single(lines, line => line.Contains("CycleNode"));
+            string repeatLine = Assert.Single(lines, line => line.Contains("RepeatNode"));
+            string cycleGlyph = capture.Context.Glyphs.Get(Glyph.Cycle);
+            string repeatGlyph = capture.Context.Glyphs.Get(Glyph.Repeat);
+            Assert.Equal(1, cycleLine.Split(new[] { cycleGlyph }, StringSplitOptions.None).Length - 1);
+            Assert.Equal(1, repeatLine.Split(new[] { repeatGlyph }, StringSplitOptions.None).Length - 1);
+            Assert.True(cycleLine.IndexOf("CycleNode", StringComparison.Ordinal) < cycleLine.IndexOf(cycleGlyph, StringComparison.Ordinal));
+            Assert.True(repeatLine.IndexOf("RepeatNode", StringComparison.Ordinal) < repeatLine.IndexOf(repeatGlyph, StringComparison.Ordinal));
+            Assert.Contains("cycle", cycleLine);
+            Assert.Contains("shown above", repeatLine);
         }
 
         [Theory]

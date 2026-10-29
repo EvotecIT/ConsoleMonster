@@ -1,7 +1,10 @@
 using System;
 using System.Linq;
 using ConsoleMonster.Capabilities;
+using ConsoleMonster.Canvas;
+using ConsoleMonster.Glyphs;
 using ConsoleMonster.Layout;
+using ConsoleMonster.Rendering;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Testing;
 using ConsoleMonster.Widgets;
@@ -10,6 +13,123 @@ using Xunit;
 namespace ConsoleMonster.Tests.Widgets;
 
 public sealed class ConsoleViewSystemTests {
+    [Theory]
+    [InlineData("/etc/passwd")]
+    [InlineData("/etc//passwd/")]
+    public void TextBlock_CustomSeparator_PreservesPathAcrossWraps(string path) {
+        TextBlock text = TextBlock.Plain(path); text.WrapSeparator = "/";
+        string rendered = TestTerminal.RenderText(text, 6, height: 5, glyphs: GlyphTier.Full);
+        Assert.Equal(path, string.Concat(rendered.Split('\n').Select(line => line.Trim())));
+    }
+
+    [Fact]
+    public void MultiCellDot_WrapsBeforeRenderingWithoutClippingText() {
+        RenderContext context = new RenderContext(TestTerminal.Profile(5, 5), Theme.Dark, new WideDotGlyphSet());
+        TextBlock text = TextBlock.Plain("a · b"); text.WrapSeparator = " · ";
+        string block = FrameComposer.Compose(text, 5, 5, context).ToPlainText();
+        string header = FrameComposer.Compose(new ViewHeader("H", "a · b"), 5, 5, context).ToPlainText();
+        Assert.Contains("a", block); Assert.Contains("b", block);
+        Assert.Contains("a", header); Assert.Contains("b", header);
+    }
+
+    private sealed class WideDotGlyphSet : IGlyphSet {
+        private readonly IGlyphSet _base = GlyphSet.Full;
+        public GlyphTier Tier => _base.Tier;
+        public bool SupportsBraille => _base.SupportsBraille;
+        public bool SupportsHalfBlocks => _base.SupportsHalfBlocks;
+        public System.Collections.Generic.IReadOnlyList<string> SpinnerFrames => _base.SpinnerFrames;
+        public System.Collections.Generic.IReadOnlyList<string> VerticalRamp => _base.VerticalRamp;
+        public string Get(Glyph glyph) => glyph == Glyph.Dot ? "++" : _base.Get(glyph);
+        public BoxGlyphs GetBox(BoxStyle style) => _base.GetBox(style);
+        public string StatusMarker(StatusKind status) => _base.StatusMarker(status);
+        public string HorizontalFill(int eighths) => _base.HorizontalFill(eighths);
+        public string VerticalFill(int eighths) => _base.VerticalFill(eighths);
+    }
+    [Theory]
+    [InlineData(TextOverflow.Clip, 3)]
+    [InlineData(TextOverflow.Ellipsis, 6)]
+    public void TextBlock_AsciiTruncation_ConvertsSeparatorBeforeClipping(TextOverflow overflow, int width) {
+        TextBlock text = TextBlock.Plain("a · b more");
+        text.WrapSeparator = " · "; text.Overflow = overflow;
+        string rendered = TestTerminal.RenderText(text, width, height: 1, glyphs: GlyphTier.Ascii);
+        Assert.Contains("a -", rendered);
+        Assert.DoesNotContain('·', rendered);
+    }
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Frame_AsciiWrapping_PreservesLiteralHyphensAlongsideFactSeparators(bool markup) {
+        string input = markup ? "[warn]first[/] [muted]·[/] [warn]alpha - bravo[/]" : "first · alpha - bravo";
+        ConsoleViewFrame frame = new ConsoleViewFrame(new ViewHeader("H", input));
+        frame.Footer = markup ? new TextBlock(input) : TextBlock.Plain(input);
+        string text = TestTerminal.RenderText(frame, 14, height: 20, glyphs: GlyphTier.Ascii);
+        Assert.Equal(2, System.Text.RegularExpressions.Regex.Matches(text, @"alpha\s*-\s*bravo").Count);
+        Assert.DoesNotContain('·', text);
+    }
+    [Theory]
+    [InlineData(GlyphTier.Full)]
+    [InlineData(GlyphTier.Ascii)]
+    public void Frame_FooterMeasurement_PreservesWholeEntryThatFits(GlyphTier tier) {
+        ConsoleViewFrame frame = new ConsoleViewFrame(new ViewHeader("H"));
+        frame.Footer = TextBlock.Plain("a · longword smallword");
+        string text = TestTerminal.RenderText(frame, 22, height: 10, glyphs: tier);
+        Assert.Contains("longword smallword", text);
+    }
+    [Fact]
+    public void Frame_NarrowTitleAndFooter_BreakBetweenCompleteEntries() {
+        ConsoleViewFrame frame = new ConsoleViewFrame(new ViewHeader("GPOs", "× 1 broken link · ▴ 2 unlinked · ▴ 1 non-admin owner", "corp.contoso.com"));
+        frame.Footer = TextBlock.Plain("offsets: DC minus collector · reference age is not W32Time sync");
+        string text = TestTerminal.RenderText(frame, 60, glyphs: GlyphTier.Full);
+        Assert.Contains("▴ 1 non-admin owner", text);
+        Assert.Contains("reference age is not W32Time sync", text);
+        Assert.DoesNotContain("▴ 1\n", text);
+        Assert.DoesNotContain("W32Time\n", text);
+    }
+
+    [Fact]
+    public void Frame_AsciiFooter_UsesAsciiSeparatorsAndKeepsEntriesWhole() {
+        ConsoleViewFrame frame = new ConsoleViewFrame(new ViewHeader("History"));
+        frame.Footer = TextBlock.Plain("latest change per link only · no actor · expired deletions not shown");
+        string text = TestTerminal.RenderText(frame, 60, glyphs: GlyphTier.Ascii);
+        Assert.DoesNotContain('·', text);
+        Assert.Contains("expired deletions not shown", text);
+        Assert.DoesNotContain("expired deletions\n", text);
+    }
+
+    [Fact]
+    public void Frame_AsciiMarkupStatesAndFooter_WrapWholeEntriesWithAsciiSeparators() {
+        ConsoleViewFrame frame = new ConsoleViewFrame(new ViewHeader("History", "[warn]1 warning[/] [muted]·[/] [fail]1 critical[/] [muted]·[/] [warn]2 pending[/]"));
+        frame.Footer = new TextBlock("[muted]latest change per link only [/]· [muted]no actor · expired deletions not shown[/]");
+        string text = TestTerminal.RenderText(frame, 35, glyphs: GlyphTier.Ascii);
+        Assert.DoesNotContain('·', text);
+        Assert.Contains("1 critical", text);
+        Assert.Contains("expired deletions not shown", text);
+        Assert.DoesNotContain("expired deletions\n", text);
+    }
+
+    [Theory]
+    [InlineData(45, "45s")]
+    [InlineData(185, "3m")]
+    [InlineData(3665, "1h 1m")]
+    public void DisplayText_Age_UsesMinutePrecisionWithoutChangingDurations(int seconds, string expected) {
+        TimeSpan span = TimeSpan.FromSeconds(seconds);
+        Assert.Equal(expected, ConsoleMonster.Presenters.DisplayText.Age(span));
+        if (seconds == 185) Assert.Equal("3m 05s", ConsoleMonster.Presenters.DisplayText.Duration(span));
+    }
+
+    [Fact]
+    public void AfterLabelTree_OptedInBareLeaf_AlignsValuesWithoutAChildGuide() {
+        Tree tree = new Tree { CompactGuides = true, ValuePlacement = TreeValuePlacement.AfterLabel, ShowValueHeaders = false };
+        tree.ValueColumns.Add(new TableColumn("State") { Priority = 9 });
+        TreeNode parent = tree.Add("HQ"); parent.Bare = true;
+        parent.Add("DC").Values["State"] = "healthy";
+        TreeNode empty = tree.Add("Long Empty Site"); empty.Bare = true; empty.MeasureBareLabel = true;
+        empty.Values["State"] = "no controllers";
+        string text = TestTerminal.RenderText(tree, 60, glyphs: GlyphTier.Full);
+        string emptyLine = Assert.Single(text.Split('\n'), line => line.Contains("Long Empty Site"));
+        Assert.StartsWith("Long Empty Site", emptyLine);
+        Assert.Contains("Long Empty Site  no controllers", emptyLine);
+    }
     [Theory]
     [InlineData(GlyphTier.Full, "✗ FAIL", "× FAIL")]
     [InlineData(GlyphTier.Basic, "× FAIL", "× FAIL")]

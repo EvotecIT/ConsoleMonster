@@ -182,6 +182,33 @@ Describe 'PowerShell and C# API parity' {
         }
     }
 
+    It 'renders separator-wrapped text and measured bare nodes through native widget objects' {
+        $core = [ConsoleMonster.Terminal].Assembly
+        $textType = $core.GetType('ConsoleMonster.Widgets.TextBlock')
+        $treeType = $core.GetType('ConsoleMonster.Widgets.Tree')
+        $columnType = $core.GetType('ConsoleMonster.Widgets.TableColumn')
+        $cellType = $core.GetType('ConsoleMonster.Widgets.TableCell')
+        $placementType = $core.GetType('ConsoleMonster.Widgets.TreeValuePlacement')
+        $separator = ' ' + [char]0x00b7 + ' '
+        $text = $textType::Plain((@('first phrase', 'second phrase', 'third phrase') -join $separator), $null)
+        $text.WrapSeparator = $separator
+        $rendered = $text | Show-Console -AsString -Width 25
+        $rendered | Should -Match 'second phrase'
+        $rendered | Should -Not -Match 'second\r?\nphrase'
+
+        $tree = $treeType::new($null)
+        $tree.ValuePlacement = [Enum]::Parse($placementType, 'AfterLabel')
+        $tree.ShowValueHeaders = $false
+        $column = $columnType::new('State')
+        $column.Priority = 9
+        $tree.ValueColumns.Add($column)
+        $node = $tree.Add('Long Empty Site', $null, $null)
+        $node.Bare = $true
+        $node.MeasureBareLabel = $true
+        $node.Values['State'] = $cellType::new('no controllers')
+        $tree | Show-Console -AsString -Width 60 | Should -Match 'Long Empty Site\s+no controllers'
+    }
+
     It 'keeps pipeline endings on the same C# display and export operations' {
         foreach ($ending in $script:Parity.Endings) {
             @($script:ApiCommands | Where-Object Name -EQ $ending.Command).Count | Should -Be 1
