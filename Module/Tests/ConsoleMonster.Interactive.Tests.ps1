@@ -234,10 +234,11 @@ $answer = $service | Read-ConsoleSelect -Title 'Service' -Mode Accessible
             $text = Invoke-PromptChild -NonInteractive -Script @'
 $Error.Clear()
 try { 1..300 | ForEach-Object { [pscustomobject]@{ Name = "item$_" } } | Show-ConsoleMenu -Mode None -ErrorAction Stop }
-catch { "id=$($_.FullyQualifiedErrorId.Split(',')[0])" }
+catch { "id=$($_.FullyQualifiedErrorId.Split(',')[0]) message=$($_.Exception.Message)" }
 "errors=$($Error.Count)"
 '@
             $text | Should -Match 'id=ExpectedConsoleMenu'
+            $text | Should -Match 'Get-Service \| Read-ConsoleSelect'
             $text | Should -Match 'errors=1'
         }
 
