@@ -9,7 +9,7 @@
     FormatsToProcess       = @('ConsoleMonster.format.ps1xml')
     FunctionsToExport      = @()
     GUID                   = '7ef2133c-55a5-47e6-809e-6010f6e65e09'
-    ModuleVersion          = '2.1.1'
+    ModuleVersion          = '2.1.2'
     PowerShellVersion      = '5.1'
     PrivateData            = @{
         PSData = @{

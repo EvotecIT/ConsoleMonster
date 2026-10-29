@@ -9,9 +9,9 @@
         <AssemblyName>ConsoleMonster.Extensions.Logging</AssemblyName>
         <AssemblyTitle>ConsoleMonster.Extensions.Logging</AssemblyTitle>
         <RootNamespace>ConsoleMonster.Extensions.Logging</RootNamespace>
-        <VersionPrefix>2.1.1</VersionPrefix>
-        <AssemblyVersion>2.1.1</AssemblyVersion>
-        <FileVersion>2.1.1</FileVersion>
+        <VersionPrefix>2.1.2</VersionPrefix>
+        <AssemblyVersion>2.1.2</AssemblyVersion>
+        <FileVersion>2.1.2</FileVersion>
         <TargetFrameworks>netstandard2.0;net472;net8.0;net10.0</TargetFrameworks>
         <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
         <PackageId>ConsoleMonster.Extensions.Logging</PackageId>
