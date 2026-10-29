@@ -43,7 +43,7 @@ namespace ConsoleMonster.PowerShell {
     ///   <code>Set-ConsoleTheme Dark; Enable-ConsoleFormatting -Include ReadLine, Streams; Write-Progress -Activity 'Backup' -Status 'Copying archive.zip' -PercentComplete 42; Write-Progress -Activity 'Backup' -Completed</code>
     /// </example>
     [Cmdlet(VerbsLifecycle.Enable, "ConsoleFormatting", SupportsShouldProcess = true, DefaultParameterSetName = "Default")]
-    public sealed class CmdletEnableConsoleFormatting : PSCmdlet {
+    public sealed class CmdletEnableConsoleFormatting : NoPipelineInputCmdlet {
         /// <summary><para type="description">Choose only these features: Output, FormatCommands, Errors, Streams, ReadLine, Prompt, Help, Progress or GridView. The default without Feature enables Output, FormatCommands, Errors, Streams and ReadLine. Feature replaces the default set with exactly these features; use Include for defaults plus opt-ins. Use Disable-ConsoleFormatting to restore the session. FormatCommands keeps native column selections and changes only direct host output. Streams and ReadLine change native colours without replacing Write-* commands. Progress replaces Write-Progress only when explicitly selected. Help, GridView and Prompt are explicit opt-ins.</para></summary>
         [Parameter(Mandatory = true, ParameterSetName = "Feature")]
         public ConsoleFormattingFeature[]? Feature { get; set; }
@@ -106,7 +106,7 @@ namespace ConsoleMonster.PowerShell {
     ///   <code>Disable-ConsoleFormatting -Feature Progress</code>
     /// </example>
     [Cmdlet(VerbsLifecycle.Disable, "ConsoleFormatting", SupportsShouldProcess = true)]
-    public sealed class CmdletDisableConsoleFormatting : PSCmdlet {
+    public sealed class CmdletDisableConsoleFormatting : NoPipelineInputCmdlet {
         /// <summary><para type="description">The features to restore. Without Feature, all enabled features are restored. Streams and ReadLine restore the exact saved native colour properties.</para></summary>
         [Parameter]
         public ConsoleFormattingFeature[]? Feature { get; set; }
@@ -130,7 +130,7 @@ namespace ConsoleMonster.PowerShell {
     ///   <code>Register-ConsoleView -TypeName 'Contoso.Server' -View Table -Property Name, @{ Name = 'State'; Expression = { $_.State }; Presenter = 'StatusWord' }, Uptime</code>
     /// </example>
     [Cmdlet(VerbsLifecycle.Register, "ConsoleView", DefaultParameterSetName = "Register")]
-    public sealed class CmdletRegisterConsoleView : PSCmdlet {
+    public sealed class CmdletRegisterConsoleView : NoPipelineInputCmdlet {
         /// <summary><para type="description">The type names (as in PSObject.TypeNames).</para></summary>
         [Parameter(Position = 0, Mandatory = true, ParameterSetName = "Register")]
         public string[] TypeName { get; set; } = Array.Empty<string>();

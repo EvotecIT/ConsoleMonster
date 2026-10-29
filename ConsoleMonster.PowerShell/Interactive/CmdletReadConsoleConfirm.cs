@@ -10,15 +10,15 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example>
     ///   <para>A question with a default</para>
-    ///   <code>if (Read-ConsoleConfirm 'Restart the service now?' -Default $true) { Restart-Service Spooler }</code>
+    ///   <code>if (Read-ConsoleConfirm 'Restart the service now?' -Default $false) { Restart-Service Spooler -WhatIf }</code>
     /// </example>
     /// <example>
     ///   <para>A typed confirmation before deleting</para>
-    ///   <code>if (Read-ConsoleConfirm 'Remove 3 servers from the inventory?' -TypedConfirmation 'inventory' -Warning 'This cannot be undone.') { ... }</code>
+    ///   <code>if (Read-ConsoleConfirm 'Remove 3 servers from the inventory?' -TypedConfirmation 'inventory' -Warning 'This cannot be undone.') { Write-Host 'Would remove servers from the inventory' }</code>
     /// </example>
     [Cmdlet(VerbsCommunications.Read, "ConsoleConfirm")]
     [OutputType(typeof(bool))]
-    public sealed class CmdletReadConsoleConfirm : PromptCmdlet {
+    public sealed class CmdletReadConsoleConfirm : NonSelectionPromptCmdlet {
         /// <summary><para type="description">The default answer.</para></summary>
         [Parameter]
         public bool? Default { get; set; }

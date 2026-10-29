@@ -11,7 +11,7 @@ namespace ConsoleMonster.PowerShell {
     /// <example><para>Show a compact build header.</para><code>New-ConsoleHeaderBar 'Build' -Subtitle 'Release' -Status Pass -Detail 'Ready' | Show-Console</code></example>
     [Cmdlet(VerbsCommon.New, "ConsoleHeaderBar")]
     [OutputType(typeof(HeaderBar))]
-    public sealed class CmdletNewConsoleHeaderBar : PSCmdlet {
+    public sealed class CmdletNewConsoleHeaderBar : NoPipelineInputCmdlet {
         /// <summary><para type="description">The header's title.</para></summary>
         [Parameter(Mandatory = true, Position = 0)] public object Title { get; set; } = string.Empty;
         /// <summary><para type="description">Text qualifying the title.</para></summary>

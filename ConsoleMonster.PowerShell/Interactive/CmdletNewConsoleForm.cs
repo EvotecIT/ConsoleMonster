@@ -28,7 +28,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleForm")]
     [OutputType(typeof(Form))]
-    public sealed class CmdletNewConsoleForm : PSCmdlet {
+    public sealed class CmdletNewConsoleForm : NoPipelineInputCmdlet {
         /// <summary><para type="description">The title.</para></summary>
         [Parameter(Mandatory = true, Position = 0)]
         public string Title { get; set; } = string.Empty;

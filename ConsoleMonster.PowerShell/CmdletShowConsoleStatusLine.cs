@@ -22,7 +22,7 @@ namespace ConsoleMonster.PowerShell {
     ///   <code>Show-ConsoleStatusLine 'You have waited ' -Color Green -BackgroundColor Blue -ShowTimestamp -ShowElapsed; Start-Sleep 5; Show-ConsoleStatusLine 'Done' -Status Pass -Complete</code>
     /// </example>
     [Cmdlet(VerbsCommon.Show, "ConsoleStatusLine")]
-    public sealed class CmdletShowConsoleStatusLine : PSCmdlet {
+    public sealed class CmdletShowConsoleStatusLine : NoPipelineInputCmdlet {
         private static string? _lastFallback;
 
         /// <summary><para type="description">Text pieces, shown literally (strings, or rich text from New-ConsoleText).</para></summary>
@@ -83,7 +83,7 @@ namespace ConsoleMonster.PowerShell {
         public SwitchParameter Complete { get; set; }
 
         /// <inheritdoc />
-        protected override void ProcessRecord() {
+        protected override void ProcessWithoutPipelineInput() {
             RichText content = PSRichText.Build(Text, Color, BackgroundColor, Markup, Decoration, null, Role, null);
             TerminalProfile profile = Terminal.GetCurrentProfile();
             bool inPlace = !HostOutput.UseHost(this, profile) && profile.Mode == OutputMode.Interactive && profile.SupportsVirtualTerminal;

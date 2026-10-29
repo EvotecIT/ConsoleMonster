@@ -13,7 +13,7 @@ Returns one DateTime at midnight with unspecified kind, or one DateRange with -R
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Read-ConsoleDate [-Title] <string> [-Default <Object>] [-Range] [-Selection <DateSelectionOptions>] [-InputObject <psobject>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
+Read-ConsoleDate [[-Title] <string>] [-Default <Object>] [-Range] [-Selection <DateSelectionOptions>] [-InputObject <psobject>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -169,7 +169,7 @@ Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
 
-Required: True
+Required: False
 Position: 0
 Default value: None
 Accept pipeline input: False

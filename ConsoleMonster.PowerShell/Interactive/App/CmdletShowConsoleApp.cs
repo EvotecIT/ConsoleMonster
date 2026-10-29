@@ -31,7 +31,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommon.Show, "ConsoleApp")]
     [OutputType(typeof(Hashtable))]
-    public sealed class CmdletShowConsoleApp : PSCmdlet {
+    public sealed class CmdletShowConsoleApp : NoPipelineInputCmdlet {
         /// <summary><para type="description">Host focus, cancel and palette gestures. Set a gesture to null to release it to the app registry.</para></summary>
         [Parameter] public AppHostKeys Keys { get; set; } = new AppHostKeys();
         /// <summary><para type="description">Allows the terminal to generate Ctrl+C and Ctrl+backslash signals instead of app input events.</para></summary>

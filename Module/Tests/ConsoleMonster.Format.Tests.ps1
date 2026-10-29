@@ -1,4 +1,4 @@
-﻿Describe 'Structured Show-Console cmdlets' {
+Describe 'Structured Show-Console cmdlets' {
     BeforeAll {
         . (Join-Path $PSScriptRoot 'Support\Invoke-TestChild.ps1')
         $script:ModulePath = Join-Path $PSScriptRoot '..\ConsoleMonster.psd1'
@@ -27,6 +27,180 @@
     It 'exports the structured Show cmdlets' {
         Import-Module $script:ModulePath -Force
         (Get-Command -Module ConsoleMonster -Name Show-Console,Show-ConsoleList,Show-ConsoleTable).Name | Sort-Object | Should -Be @('Show-Console', 'Show-ConsoleList', 'Show-ConsoleTable')
+        (Get-Command Show-Console).Parameters.ContainsKey('All') | Should -BeFalse
+        { [pscustomobject]@{ Name = 'one' } | Show-Console -View Tree -Property '*' -AsString -ErrorAction Stop } | Should -Throw '*Property*'
+    }
+
+    It 'keeps collection element identities at the tree depth limit' {
+        $text = Invoke-FormatChild -Script @'
+$item = [pscustomobject]@{ Name = 'root'; Children = @([pscustomobject]@{ Name = 'alpha' }, [pscustomobject]@{ Name = 'beta' }) }
+$item | Show-Console -View Tree -Depth 1 -AsString
+'@
+        $text | Should -Match 'alpha'
+        $text | Should -Match 'beta'
+        $text | Should -Not -Match 'PSCustomObject \(depth limit\)'
+    }
+
+    It 'uses a registered key for root and depth-limit identities' {
+        $text = Invoke-FormatChild -Script @'
+Register-ConsoleView -TypeName 'Example.Identity' -Property @{ Name = 'Label'; Expression = { $_.Label }; Key = $true }, 'Name'
+$child = [pscustomobject]@{ Name = 'fallback'; Label = 'preferred' }
+$child.PSObject.TypeNames.Insert(0, 'Example.Identity')
+$child | Show-Console -View Tree -Depth 1 -AsString
+[pscustomobject]@{ Children = @($child) } | Show-Console -View Tree -Depth 1 -AsString
+'@
+        @([regex]::Matches($text, 'preferred')).Count | Should -BeGreaterThan 1
+    }
+
+    It 'uses registered property names as the default tree fields' {
+        $text = Invoke-FormatChild -Script @'
+$item = [pscustomobject]@{ Name = 'root'; Label = 'shown'; Extra = 'hidden' }
+$item.PSObject.TypeNames.Insert(0, 'Example.Fields')
+Register-ConsoleView -TypeName 'Example.Fields' -Property 'Label'
+$item | Show-Console -View Tree -Depth 1 -AsString
+'@
+        $text | Should -Match 'Label\s+shown'
+        $text | Should -Not -Match 'Extra\s+hidden'
+    }
+
+    It 'uses calculated registered fields as the default tree fields' {
+        $text = Invoke-FormatChild -Script @'
+$item = [pscustomobject]@{ Name = 'root'; Used = 12; Extra = 'hidden' }
+$item.PSObject.TypeNames.Insert(0, 'Example.Calculated')
+Register-ConsoleView -TypeName 'Example.Calculated' -Property 'Name', @{ Name = 'Utilization'; Expression = { $_.Used * 2 } }
+$item | Show-Console -View Tree -Depth 1 -AsString
+'@
+        $text | Should -Match 'Utilization\s+24'
+        $text | Should -Not -Match 'Extra\s+hidden'
+    }
+
+    It 'does not evaluate calculated fields or unrelated getters when excluding members' {
+        $text = Invoke-FormatChild -Script @'
+$script:reads = 0
+$item = [pscustomobject]@{ Name = 'root'; Secret = 'hidden' }
+$item | Add-Member ScriptProperty Other { $script:reads++; 'unrelated' }
+$item.PSObject.TypeNames.Insert(0, 'Example.CalculatedFiltered')
+Register-ConsoleView -TypeName 'Example.CalculatedFiltered' -Property 'Name', @{ Name = 'Computed'; Expression = { $script:reads++; $_.Secret } }
+$item | Show-Console -View Tree -Depth 1 -Exclude Secret -WarningAction SilentlyContinue -AsString
+"READS=$script:reads"
+'@
+        $text | Should -Match 'Name\s+root'
+        $text | Should -Match 'READS=0'
+    }
+
+    It 'uses a meaningful ToString when the object has no identity fields' {
+        $text = Invoke-FormatChild -Script @'
+Add-Type 'public sealed class LabelOnly { public override string ToString() { return "friendly label"; } }'
+[LabelOnly]::new() | Show-Console -View Tree -Depth 1 -AsString
+'@
+        $text | Should -Match 'friendly label'
+    }
+
+    It 'preserves allowed depth-limit identities without reading excluded identity getters' {
+        $text = Invoke-FormatChild -Script @'
+$script:reads = 0
+$child = [pscustomobject]@{ Secret = 'hidden' }
+$child | Add-Member ScriptProperty Name { $script:reads++; 'alpha' }
+$root = [pscustomobject]@{ Child = $child }
+$root | Show-Console -View Tree -Depth 0 -Exclude Secret -AsString
+$script:reads = 0
+$root | Show-Console -View Tree -Depth 0 -Exclude Name -AsString
+"READS=$script:reads"
+'@
+        $text | Should -Match 'Child\s+alpha'
+        $text | Should -Match 'READS=0'
+    }
+
+    It 'uses an allowed default display property at the depth limit' {
+        $text = Invoke-FormatChild -Script @'
+$child = [pscustomobject]@{ Label = 'friendly'; Secret = 'hidden' }
+$default = [System.Management.Automation.PSNoteProperty]::new('DefaultDisplayProperty', 'Label')
+$child | Add-Member MemberSet PSStandardMembers ([System.Management.Automation.PSMemberInfo[]] @($default))
+[pscustomobject]@{ Child = $child } | Show-Console -View Tree -Depth 0 -Exclude Secret -AsString
+'@
+        $text | Should -Match 'Child\s+friendly'
+        $text | Should -Not -Match 'hidden'
+    }
+
+    It 'bounds root identity reads and reports the node limit accurately' {
+        $text = Invoke-FormatChild -Script @'
+$script:reads = 0
+$item = [pscustomobject]@{}
+$item | Add-Member ScriptProperty Name { $script:reads++; 'alpha' }
+$item | Add-Member ScriptProperty DisplayName { $script:reads++; 'Alpha Service' }
+$item | Show-Console -View Tree -MaxNodes 1 -AsString
+"READS=$script:reads"
+'@
+        $text | Should -Match 'READS=1'
+        $text | Should -Match 'node limit reached'
+        $text | Should -Not -Match 'time budget reached'
+    }
+
+    It 'summarizes empty fields and repeated getter errors across tree roots' {
+        $text = Invoke-FormatChild -Script @'
+$items = 1..2 | ForEach-Object {
+    $item = [pscustomobject]@{ Name = "item$_"; Empty = $null }
+    $item | Add-Member ScriptProperty Broken { throw 'sensitive error details' }
+    $item
+}
+$items | Show-Console -View Tree -Depth 1 -AsString
+'@
+        $text | Should -Match '\+1 empty'
+        @([regex]::Matches($text, 'Broken unavailable for 2 items')).Count | Should -Be 1
+        $text | Should -Not -Match 'sensitive error details'
+    }
+
+    It 'keeps explicitly requested empty fields while shortening a getter error' {
+        $text = Invoke-FormatChild -Script @'
+$item = [pscustomobject]@{ Name = 'item'; Empty = $null }
+$item | Add-Member ScriptProperty Broken { throw 'sensitive error details' }
+$item | Show-Console -View Tree -Include * -Depth 1 -AsString
+'@
+        $text | Should -Match 'Empty'
+        $text | Should -Match 'unavailable'
+        $text | Should -Not -Match 'sensitive error details'
+    }
+
+    It 'identifies access-denied getters without displaying their exception details' {
+        $text = Invoke-FormatChild -Script @'
+$item = [pscustomobject]@{ Name = 'item' }
+$item | Add-Member ScriptProperty Secret { throw 'Access is denied. Private details.' }
+$item | Show-Console -View Tree -Include * -Depth 1 -AsString
+'@
+        $text | Should -Match 'access denied'
+        $text | Should -Not -Match 'Private details'
+    }
+
+    It 'uses default display properties for a tree and allows all properties explicitly' {
+        $text = Invoke-FormatChild -Script @'
+$item = [pscustomobject] @{ Name = 'web01'; Label = 'selected'; Extra = 'hidden' }
+$set = New-Object System.Management.Automation.PSPropertySet('DefaultDisplayPropertySet', [string[]]@('Label'))
+$item | Add-Member -MemberType MemberSet -Name PSStandardMembers -Value $set -ErrorAction Stop
+"DEFAULT_BEGIN"
+$item | Show-Console -View Tree -AsString -Width 80
+"ALL_BEGIN"
+$item | Show-Console -View Tree -Include * -AsString -Width 80
+'@
+        $parts = $text -split 'ALL_BEGIN'
+        $parts[0] | Should -Match 'web01'
+        $parts[0] | Should -Match 'Label\s+selected'
+        $parts[0] | Should -Not -Match 'Extra\s+hidden'
+        $parts[1] | Should -Match 'Extra\s+hidden'
+    }
+
+    It 'does not read excluded identity getters and retains full object-explorer members' {
+        $text = Invoke-FormatChild -Script @'
+$global:identityReads = 0
+$item = [pscustomobject] @{ Label = 'shown'; Extra = 'available' }
+$item | Add-Member -MemberType ScriptProperty -Name Name -Value { $global:identityReads++; 'hidden' }
+$set = New-Object System.Management.Automation.PSPropertySet('DefaultDisplayPropertySet', [string[]]@('Label'))
+$item | Add-Member -MemberType MemberSet -Name PSStandardMembers -Value $set -ErrorAction Stop
+$null = $item | Show-Console -View Tree -Exclude Name -AsString
+"READS=$global:identityReads"
+$item | Show-ConsoleObject -AsString -Width 80
+'@
+        $text | Should -Match 'READS=0'
+        $text | Should -Match 'Extra\s+available'
     }
 
     It 'formats a table with presenters and a totals row as plain text' {

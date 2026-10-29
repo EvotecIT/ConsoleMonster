@@ -13,7 +13,7 @@ Shows the question with the answers inline (the default focused); Y and N answer
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Read-ConsoleConfirm [-Title] <string> [-Default <Boolean>] [-Destructive] [-TypedConfirmation <string>] [-Warning <string>] [-YesText <string>] [-NoText <string>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
+Read-ConsoleConfirm [[-Title] <string>] [-Default <Boolean>] [-Destructive] [-TypedConfirmation <string>] [-Warning <string>] [-YesText <string>] [-NoText <string>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,14 +25,14 @@ Shows the question with the answers inline (the default focused); Y and N answer
 
 ### EXAMPLE 1
 ```powershell
-if (Read-ConsoleConfirm 'Restart the service now?' -Default $true) { Restart-Service Spooler }
+if (Read-ConsoleConfirm 'Restart the service now?' -Default $false) { Restart-Service Spooler -WhatIf }
 ```
 
 A question with a default
 
 ### EXAMPLE 2
 ```powershell
-if (Read-ConsoleConfirm 'Remove 3 servers from the inventory?' -TypedConfirmation 'inventory' -Warning 'This cannot be undone.') { ... }
+if (Read-ConsoleConfirm 'Remove 3 servers from the inventory?' -TypedConfirmation 'inventory' -Warning 'This cannot be undone.') { Write-Host 'Would remove servers from the inventory' }
 ```
 
 A typed confirmation before deleting
@@ -160,7 +160,7 @@ Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
 
-Required: True
+Required: False
 Position: 0
 Default value: None
 Accept pipeline input: False
@@ -220,7 +220,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 

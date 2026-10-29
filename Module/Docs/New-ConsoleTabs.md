@@ -13,7 +13,7 @@ Combines pages from New-ConsoleTab in display order. Only the selected page rece
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleTabs [-Tab] <LayoutRegion[]> [-SelectedIndex <int>] [<CommonParameters>]
+New-ConsoleTabs [[-Tab] <LayoutRegion[]>] [-SelectedIndex <int>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -57,10 +57,10 @@ Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
 
-Required: True
+Required: False
 Position: 0
 Default value: None
-Accept pipeline input: True (ByValue)
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
@@ -69,7 +69,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `ConsoleMonster.Widgets.LayoutRegion[]`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 

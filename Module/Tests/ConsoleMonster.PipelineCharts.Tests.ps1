@@ -67,7 +67,7 @@ Describe 'ConsoleMonster pipeline charts' {
         $text.Trim() | Should -Be "b: 3, 1`na: 2"
     }
 
-    It 'reports and skips malformed missing and nonfinite values without fabricating zeros' {
+    It 'counts malformed missing and nonfinite values without fabricating zeros' {
         $errors = @()
         $items = @(
             [pscustomobject]@{ Value = 'bad' }
@@ -78,9 +78,12 @@ Describe 'ConsoleMonster pipeline charts' {
             [pscustomobject]@{ Value = 4 }
         )
         $chart = $items | Show-Console -AsWidget -ErrorAction SilentlyContinue -ErrorVariable errors -View Chart
-        $errors.Count | Should -Be 5
+        $errors.Count | Should -Be 0
+        $chart.SkippedCount | Should -Be 5
         $chart.Samples.Count | Should -Be 1
         $chart.Samples[0].Value | Should -Be 4
+        $text = $items | Show-Console -AsString -View Chart
+        $text | Should -Match '5 rows without chartable values skipped'
     }
 
     It 'treats an unreadable numeric getter as invalid data' {
@@ -88,31 +91,67 @@ Describe 'ConsoleMonster pipeline charts' {
         $item | Add-Member -MemberType ScriptProperty -Name CPU -Value { throw 'unreadable' }
         $errors = @()
         $result = @($item | Show-Console -Property CPU -AsWidget -ErrorAction SilentlyContinue -ErrorVariable errors -View Chart)
-        $errors.Count | Should -BeGreaterThan 0
-        $result.Count | Should -Be 0
+        $errors.Count | Should -Be 0
+        $result.Count | Should -Be 1
+        $result[0].SkippedCount | Should -Be 1
     }
 
     It 'produces no output for an empty pipeline' {
         @(@() | Show-Console -AsString -View Chart).Count | Should -Be 0
     }
 
-    It 'reports an explicitly bound null sample through ErrorVariable without terminating' {
+    It 'counts an explicitly bound null sample without an error' {
         $errors = @()
         $result = @(Show-Console -InputObject $null -AsWidget -ErrorAction SilentlyContinue -ErrorVariable errors -View Chart)
-        $result.Count | Should -Be 0
-        $errors.Count | Should -Be 1
-        $errors[0].FullyQualifiedErrorId | Should -Be 'ConsoleMonsterChartValue,ConsoleMonster.PowerShell.CmdletShowConsole'
-        $errors[0].CategoryInfo.Category | Should -Be ([System.Management.Automation.ErrorCategory]::InvalidData)
+        $result.Count | Should -Be 1
+        $result[0].SkippedCount | Should -Be 1
+        $errors.Count | Should -Be 0
     }
 
-    It 'skips a pipeline null with an invalid-sample error and keeps valid samples' {
+    It 'counts a pipeline null and keeps valid samples' {
         $errors = @()
         $chart = 1, $null, 2 | Show-Console -AsWidget -ErrorAction SilentlyContinue -ErrorVariable errors -View Chart
-        $errors.Count | Should -Be 1
-        $errors[0].FullyQualifiedErrorId | Should -Be 'ConsoleMonsterChartValue,ConsoleMonster.PowerShell.CmdletShowConsole'
+        $errors.Count | Should -Be 0
+        $chart.SkippedCount | Should -Be 1
         $chart.Samples.Count | Should -Be 2
         $chart.Samples[0].Value | Should -Be 1
         $chart.Samples[1].Value | Should -Be 2
+    }
+
+    It 'does not validate pipeline rows beyond the unsorted bar limit' {
+        $errors = @()
+        $chart = 1, 2, $null, 'bad' | Show-Console -MaxRows 2 -AsWidget -View Chart -ErrorVariable errors
+        $chart.Samples.Count | Should -Be 2
+        $chart.SkippedCount | Should -Be 0
+        $errors.Count | Should -Be 0
+    }
+
+    It 'fills the bar limit with valid samples after invalid input' {
+        $chart = $null, 1, 2, 'bad' | Show-Console -MaxRows 2 -AsWidget -View Chart
+        $chart.Samples.Count | Should -Be 2
+        $chart.Samples[0].Value | Should -Be 1
+        $chart.Samples[1].Value | Should -Be 2
+        $chart.SkippedCount | Should -Be 1
+    }
+
+    It 'keeps a mutable bar chart when selected rows are invalid' {
+        $warnings = @()
+        $chart = [pscustomobject]@{ Name = 'bad'; CPU = $null }, [pscustomobject]@{ Name = 'ok'; CPU = 3 } |
+            New-ConsoleChart -Property CPU -WarningAction SilentlyContinue -WarningVariable warnings
+        $chart.GetType().Name | Should -Be 'BarChart'
+        $chart.Items.Count | Should -Be 1
+        $warnings.Count | Should -Be 1
+        $chart | Add-ConsoleItem ([pscustomobject]@{ Label = 'later'; Value = 4 })
+        $chart.Items.Count | Should -Be 2
+    }
+
+    It 'counts null pipeline records without changing the returned bar chart type' {
+        $warnings = @()
+        $chart = $null, [pscustomobject]@{ Name = 'ok'; CPU = 3 } |
+            New-ConsoleChart -Property CPU -WarningAction SilentlyContinue -WarningVariable warnings
+        $chart.GetType().Name | Should -Be 'BarChart'
+        $chart.Items.Count | Should -Be 1
+        $warnings.Count | Should -Be 1
     }
 
     It 'produces no output or errors when invoked without input' {
@@ -224,5 +263,22 @@ Describe 'ConsoleMonster pipeline charts' {
 
     It 'points ordinary records at the property-based chart view' {
         { [pscustomobject] @{ Name = 'web01'; Cpu = 42 } | New-ConsoleChart -Type Bar } | Should -Throw '*-Property <number> -Label <name>*'
+    }
+
+    It 'preserves duplicate labels and uses bars when Type is omitted' {
+        $rows = @([pscustomobject]@{Name='alpha';Value=50}, [pscustomobject]@{Name='alpha';Value=40})
+        $chart = $rows | New-ConsoleChart -Property Value -Label Name
+        @($chart.Items.Label) | Should -Be @('alpha', 'alpha (2)')
+        @($chart.Items.Value) | Should -Be @(50, 40)
+    }
+
+    It 'preserves duplicate chart records and presents byte properties with units' {
+        $records = @([pscustomobject]@{Label='disk';Value=2}, [pscustomobject]@{Label='disk';Value=3})
+        $chart = $records | New-ConsoleChart
+        @($chart.Items.Label) | Should -Be @('disk', 'disk (2)')
+        @($chart.Items.Value) | Should -Be @(2, 3)
+        $bytes = [pscustomobject]@{Name='file';Length=[long] 1048576} | New-ConsoleChart -Property Length
+        $text = $bytes | Show-Console -AsString -Width 80
+        $text | Should -Match '1 MB'
     }
 }

@@ -135,7 +135,7 @@ The outcome (default Pass): Pass, Fail, Warn or Skip, or PowerShell's words such
 Type: StatusKind
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: Pending, Running, Pass, Fail, Warn, Skip, Info
+Possible values: Pending, Running, Pass, Fail, Warn, Skip, Info, Unknown, None
 
 Required: False
 Position: named
@@ -181,7 +181,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 

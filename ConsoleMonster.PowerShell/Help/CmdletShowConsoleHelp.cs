@@ -23,9 +23,9 @@ namespace ConsoleMonster.PowerShell {
     [OutputType(typeof(string))]
     public sealed class CmdletShowConsoleHelp : PSCmdlet {
         /// <summary><para type="description">The command (a cmdlet, function, alias or script path), or an about topic.</para></summary>
-        [Parameter(Mandatory = true, Position = 0, ValueFromPipelineByPropertyName = true)]
+        [Parameter(Position = 0, ValueFromPipeline = true)]
         [ValidateNotNullOrEmpty]
-        public string Name { get; set; } = string.Empty;
+        public PSObject? Name { get; set; }
 
         /// <summary><para type="description">The width in columns (default: the console's width).</para></summary>
         [Parameter]
@@ -49,8 +49,14 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
+            object? value = PSText.Unwrap(Name);
+            string? name = value is CommandInfo command ? command.Name : value as string;
+            if (string.IsNullOrWhiteSpace(name)) {
+                ThrowTerminatingError(new ErrorRecord(new ArgumentException("Show-ConsoleHelp needs a command name or command object. Use Show-Console to display other pipeline objects."), "ExpectedCommandName", ErrorCategory.InvalidArgument, Name));
+                return;
+            }
             PSOutputExport.Validate(this);
-            if (!ConsoleHostHelp.TryCreate(Name, InvokeCommand, out IWidget? widget, out ErrorRecord? error, NoExamples.IsPresent, NoParameters.IsPresent)) {
+            if (!ConsoleHostHelp.TryCreate(name!, InvokeCommand, out IWidget? widget, out ErrorRecord? error, NoExamples.IsPresent, NoParameters.IsPresent)) {
                 WriteError(error!);
                 return;
             }

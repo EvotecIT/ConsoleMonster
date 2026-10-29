@@ -17,8 +17,8 @@ namespace ConsoleMonster.PowerShell {
         private CancellationTokenSource? _stop;
 
         /// <summary><para type="description">The menu from New-ConsoleMenu.</para></summary>
-        [Parameter(Mandatory = true, Position = 0, ValueFromPipeline = true)]
-        public Menu? Menu { get; set; }
+        [Parameter(Position = 0, ValueFromPipeline = true)]
+        public PSObject? Menu { get; set; }
 
         /// <summary><para type="description">The layout: Auto (the menu's own, or Shell when items open content), Classic, Shell or Inline.</para></summary>
         [Parameter]
@@ -50,7 +50,8 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            if (Menu == null) {
+            if (!(PSText.Unwrap(Menu) is Menu current)) {
+                ThrowTerminatingError(new ErrorRecord(new ArgumentException("Show-ConsoleMenu needs a menu from New-ConsoleMenu. To pick pipeline objects, use: Get-Service | Read-ConsoleSelect"), "ExpectedConsoleMenu", ErrorCategory.InvalidArgument, Menu));
                 return;
             }
             MenuOptions options = PSOptions.Resolve(this, Options, () => new MenuOptions {
@@ -64,9 +65,9 @@ namespace ConsoleMonster.PowerShell {
             options.Interactive ??= PSInteractive.Options(this, null);
             _stop = new CancellationTokenSource();
             try {
-                Menu.Run(options, _stop.Token);
+                current.Run(options, _stop.Token);
             } catch (Exception ex) when (ex is PromptCanceledException || ex is PromptUnavailableException || ex is Input.InputClosedException) {
-                PSInteractive.Fail(this, ex, Menu.Title);
+                PSInteractive.Fail(this, ex, current.Title);
             } catch (OperationCanceledException) {
                 // The pipeline was stopped (Ctrl+C); the screen has been restored.
             }

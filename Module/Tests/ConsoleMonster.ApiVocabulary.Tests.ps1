@@ -18,7 +18,7 @@ Describe 'ConsoleMonster public API vocabulary' {
         }
     }
 
-    It 'exports no aliases and declares no compatibility parameter aliases' {
+    It 'exports no command aliases and no custom parameter aliases' {
         $module = Get-Module ConsoleMonster
         $module.ExportedAliases.Count | Should -Be 0
         $manifest = Import-PowerShellDataFile (Join-Path $PSScriptRoot '../ConsoleMonster.psd1')

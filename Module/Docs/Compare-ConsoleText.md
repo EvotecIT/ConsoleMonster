@@ -30,21 +30,21 @@ Shows the reference and difference side by side at 120 columns or more, and inli
 
 ### EXAMPLE 1
 ```powershell
-Compare-ConsoleText -ReferenceText $before -DifferenceText $after -Context 1
+Compare-ConsoleText -ReferenceText 'port=80' -DifferenceText 'port=443' -Context 1
 ```
 
 Compare configuration strings with one line of context.
 
 ### EXAMPLE 2
 ```powershell
-Compare-ConsoleText -ReferencePath .\before.txt -DifferencePath .\after.txt -IgnoreWhitespace
+Compare-ConsoleText -ReferenceText 'port = 80' -DifferenceText 'port=80' -IgnoreWhitespace
 ```
 
-Compare files using the current PowerShell location and ignore whitespace within lines.
+Compare strings while ignoring whitespace within lines.
 
 ### EXAMPLE 3
 ```powershell
-Compare-ConsoleText -ReferenceText $before -DifferenceText $after -ReferenceName 'Deployed' -DifferenceName 'Proposed' -AsUnified | Set-Content .\changes.diff
+Compare-ConsoleText -ReferenceText 'port=80' -DifferenceText 'port=443' -ReferenceName 'Deployed' -DifferenceName 'Proposed' -AsUnified
 ```
 
 Return a unified diff with custom side names for storage or further processing.
@@ -200,7 +200,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 

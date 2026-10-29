@@ -87,6 +87,14 @@ namespace ConsoleMonster.Tests.Interactive {
         }
 
         [Fact]
+        public void ControlQ_CancelsEvenWhenAFilterIsActive() {
+            GridResult result = Show(Servers(), "\"sql\" Ctrl+Q", out RecordingSurface surface);
+            Assert.False(result.Accepted);
+            Assert.Empty(result.Items);
+            Assert.Contains(surface.Frames, f => f.ToPlainText().Contains("6 of 30 rows"));
+        }
+
+        [Fact]
         public void Paging_KeepsTheFocusedRowVisible() {
             GridResult result = Show(Servers(GridSelection.Single), "PageDown PageDown Ctrl+Enter", out RecordingSurface surface, height: 14);
             string name = (string)result.Items.Single()!;

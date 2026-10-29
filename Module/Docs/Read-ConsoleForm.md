@@ -13,7 +13,7 @@ The form opens on the alternate screen (or in the scrollback with -Inline). Fiel
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Read-ConsoleForm [-Form] <Form> [-AppName <string>] [-RememberLastChoices] [-StorageRoot <string>] [-Inline] [-Preset <string>] [-PassThru] [-AsPlainText] [-Mode <InteractionMode>] [-Options <FormOptions>] [<CommonParameters>]
+Read-ConsoleForm [[-Form] <psobject>] [-AppName <string>] [-RememberLastChoices] [-StorageRoot <string>] [-Inline] [-Preset <string>] [-PassThru] [-AsPlainText] [-Mode <InteractionMode>] [-Options <FormOptions>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,8 +25,9 @@ The form opens on the alternate screen (or in the scrollback with -Inline). Fiel
 
 ### EXAMPLE 1
 ```powershell
-$answers = Read-ConsoleForm $form -AppName 'ShareTool' -RememberLastChoices
-if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }
+$form = New-ConsoleForm 'Example' -Content { New-ConsoleField Name 'Name' -Default 'example' }
+$answers = Read-ConsoleForm $form
+if ($answers) { Write-Host "Selected $($answers.Name)" }
 ```
 
 Run a wizard and use the answers
@@ -69,12 +70,12 @@ Accept wildcard characters: False
 The form from New-ConsoleForm.
 
 ```yaml
-Type: Form
+Type: PSObject
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
 
-Required: True
+Required: False
 Position: 0
 Default value: None
 Accept pipeline input: True (ByValue)
@@ -198,7 +199,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `ConsoleMonster.Interactive.Form`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 

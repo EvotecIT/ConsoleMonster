@@ -14,9 +14,9 @@ namespace ConsoleMonster.PowerShell {
         private CancellationTokenSource? _stop;
 
         /// <summary><para type="description">The question.</para></summary>
-        [Parameter(Mandatory = true, Position = 0)]
+        [Parameter(Position = 0)]
 
-        public string Title { get; set; } = string.Empty;
+        public string Title { get; set; } = "Enter a value";
 
         /// <summary><para type="description">Help text under the question.</para></summary>
         [Parameter]

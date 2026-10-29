@@ -44,7 +44,7 @@ Mail security checks from a hashtable
 
 ### EXAMPLE 3
 ```powershell
-$checks | ForEach-Object { [pscustomobject]@{ Label = $_.Name; Status = $_.Result; Detail = $_.Duration } } | New-ConsoleStatusList | Show-Console
+$checks = [pscustomobject]@{ Name = 'Build'; Result = 'Pass'; Duration = '2 s' }; $checks | ForEach-Object { [pscustomobject]@{ Label = $_.Name; Status = $_.Result; Detail = $_.Duration } } | New-ConsoleStatusList | Show-Console
 ```
 
 Items from objects in the pipeline

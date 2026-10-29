@@ -61,6 +61,13 @@ namespace ConsoleMonster.Widgets {
         /// <summary>A unit appended to values and bucket edges.</summary>
         public string? Unit { get; set; }
 
+        /// <summary>Number of input rows omitted because their data could not be charted.</summary>
+        public int SkippedCount { get; set; }
+
+        private static IWidget WithSkipped(IWidget chart, int count) => count > 0
+            ? (IWidget)new Rows(chart, TextBlock.Plain(count.ToString(CultureInfo.InvariantCulture) + " rows without chartable values skipped", ThemeToken.Muted))
+            : chart;
+
         /// <summary>Adds a finite sample. Labels are literal text; a null label joins the unnamed trend.</summary>
         /// <param name="label">The sample or group label.</param>
         /// <param name="value">A finite number; NaN and infinity are rejected.</param>
@@ -69,6 +76,18 @@ namespace ConsoleMonster.Widgets {
             if (!NumberFormat.IsFinite(value)) { throw new ArgumentOutOfRangeException(nameof(value), "Chart samples must be finite."); }
             _samples.Add(new ChartItem(label ?? string.Empty, value));
             return this;
+        }
+
+        /// <summary>Returns a distinct display label and records it in the supplied set.</summary>
+        /// <param name="label">The original label.</param>
+        /// <param name="used">Labels already in use, using the caller's comparer.</param>
+        /// <returns>The original label, or a numbered variant when it was already used.</returns>
+        internal static string UniqueLabel(string label, ISet<string> used) {
+            if (used == null) { throw new ArgumentNullException(nameof(used)); }
+            string candidate = label ?? string.Empty;
+            int duplicate = 1;
+            while (!used.Add(candidate)) { candidate = (label ?? string.Empty) + " (" + (++duplicate).ToString(CultureInfo.InvariantCulture) + ")"; }
+            return candidate;
         }
 
         /// <summary>Parses a scalar number without treating booleans, dates, null or whitespace as zero.</summary>
@@ -94,21 +113,19 @@ namespace ConsoleMonster.Widgets {
         /// <param name="textOnly">Whether to return numerical text instead of chart glyphs.</param>
         /// <returns>A widget for the selected samples; an empty chart has no rows.</returns>
         public IWidget Build(bool textOnly = false) {
-            if (_samples.Count == 0) { return new Rows(); }
-            if (Type == ChartType.Histogram) { return Distribution(textOnly); }
-            if (Type == ChartType.Sparkline) { return Trends(textOnly); }
+            if (_samples.Count == 0) { return WithSkipped(new Rows(), SkippedCount); }
+            if (Type == ChartType.Histogram) { return WithSkipped(Distribution(textOnly), SkippedCount); }
+            if (Type == ChartType.Sparkline) { return WithSkipped(Trends(textOnly), SkippedCount); }
             BarChart bars = new BarChart() { Signed = true, Unit = Unit };
             Rows text = new Rows();
             HashSet<string> labels = new HashSet<string>(StringComparer.Ordinal);
             int index = 0;
             foreach (ChartItem item in Select(_samples, s => s.Value)) {
-                string label = item.Label;
-                int duplicate = 1;
-                while (!labels.Add(label)) { label = item.Label + " (" + (++duplicate).ToString(CultureInfo.InvariantCulture) + ")"; }
+                string label = UniqueLabel(item.Label, labels);
                 bars.Add(label, item.Value, Palette(index++));
                 text.Add(TextBlock.Plain(label + ": " + Value(item.Value)));
             }
-            return textOnly ? (IWidget)text : bars;
+            return WithSkipped(textOnly ? (IWidget)text : bars, SkippedCount);
         }
 
         /// <inheritdoc />

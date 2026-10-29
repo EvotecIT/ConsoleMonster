@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Management.Automation;
 using System.Threading;
 using ConsoleMonster.Data;
@@ -10,13 +11,14 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="synopsis">Explores an object's members with the keyboard.</para>
     /// <para type="description">Arrows move, Right and Left expand and collapse, Enter drills into a member, Backspace returns to its parent, and / searches displayed names and values. Ctrl+Enter or F10 accepts the selected node; Esc cancels. Nested values are read lazily and cycles, depth and collection sizes are bounded. In redirected, CI, line and non-interactive sessions, a static inspector is printed and no selection is returned. Objects parsed by ConvertFrom-Json use the same PowerShell member adapter as other objects.</para>
     /// </summary>
-    /// <example><para>Browse a nested configuration</para><code>$config | Show-ConsoleObject</code></example>
-    /// <example><para>Return a selected member value</para><code>$config | Show-ConsoleObject -PassThru</code></example>
-    /// <example><para>Return its PowerShell path</para><code>$config | Show-ConsoleObject -RootPath '$config' -PassThru Path</code></example>
+    /// <example><para>Browse a nested configuration</para><code>$config = [pscustomobject]@{ Name = 'example'; Settings = @{ Port = 443 } }; $config | Show-ConsoleObject</code></example>
+    /// <example><para>Return a selected member value</para><code>$config = [pscustomobject]@{ Name = 'example'; Settings = @{ Port = 443 } }; $config | Show-ConsoleObject -PassThru</code></example>
+    /// <example><para>Return its PowerShell path</para><code>$config = [pscustomobject]@{ Name = 'example'; Settings = @{ Port = 443 } }; $config | Show-ConsoleObject -RootPath '$config' -PassThru Path</code></example>
     [Cmdlet(VerbsCommon.Show, "ConsoleObject")]
     [OutputType(typeof(object), typeof(string))]
     public sealed class CmdletShowConsoleObject : PSCmdlet {
         private readonly CancellationTokenSource _stop = new CancellationTokenSource();
+        private readonly List<PSObject?> _items = new List<PSObject?>();
 
         /// <summary><para type="description">The object to browse, supplied directly or through the pipeline.</para></summary>
         [Parameter(Mandatory = true, ValueFromPipeline = true)]
@@ -82,17 +84,38 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
+            _items.Add(InputObject);
+        }
+
+        /// <inheritdoc />
+        protected override void EndProcessing() {
+            try { ShowCollected(); } finally { _stop.Dispose(); }
+        }
+
+        private void ShowCollected() {
+            if (_items.Count == 0) { return; }
+            object? rootValue = _items.Count == 1 ? _items[0] : _items.ToArray();
             PSOutputExport.Validate(this);
-            InspectorOptions options = PSFormatting.InspectorOptions(Depth, MaxItems, Include, Exclude, MaxNodes, InputObject);
+            InspectorOptions options = PSFormatting.InspectorOptions(Depth, MaxItems, Include, Exclude, MaxNodes, rootValue);
             InteractiveOptions interactive = PSInteractive.Options(this, Mode);
             if (StaticSnapshot.IsPresent || AsString.IsPresent || AsWidget.IsPresent || interactive.ResolveMode() != InteractionMode.Rich) {
-                InspectNode root = ObjectInspector.Inspect(InputObject, options);
+                InspectNode root = ObjectInspector.Inspect(rootValue, options);
                 InspectorView view = new InspectorView(root, Title);
                 if (AsWidget.IsPresent) { WriteObject(view); }
                 else { PSFormatting.Emit(this, view, Width, null, AsString.IsPresent); }
                 return;
             }
-            ObjectExplorer explorer = new ObjectExplorer(InputObject, options, RootPath) { Title = Title };
+            string rootLabel = RootPath;
+            if (!MyInvocation.BoundParameters.ContainsKey(nameof(RootPath))) {
+                rootLabel = "input";
+                if (_items.Count == 1 && rootValue != null) {
+                    var budget = new Values.ShapeBudget(options.TimeBudget, options.MaxNodes);
+                    rootLabel = (Include == null || Include.Length == 0) && (Exclude == null || Exclude.Length == 0)
+                        ? Binding.PSShaping.IdentityTitle(PSObject.AsPSObject(rootValue), Binding.PSShaping.Options(), budget)
+                        : Binding.PSShaping.DepthLabel(rootValue, Include, Exclude, budget) ?? "input";
+                }
+            }
+            ObjectExplorer explorer = new ObjectExplorer(rootValue, options, RootPath, rootLabel) { Title = Title };
             try {
                 ExplorerNode? selected = explorer.Show(interactive, _stop.Token);
                 if (PassThru.IsPresent && selected != null && selected.Error == null) {
@@ -106,7 +129,5 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void StopProcessing() => _stop.Cancel();
 
-        /// <inheritdoc />
-        protected override void EndProcessing() => _stop.Dispose();
     }
 }

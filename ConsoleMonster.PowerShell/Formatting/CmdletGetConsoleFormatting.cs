@@ -12,7 +12,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommon.Get, "ConsoleFormatting")]
     [OutputType(typeof(PSObject))]
-    public sealed class CmdletGetConsoleFormatting : PSCmdlet {
+    public sealed class CmdletGetConsoleFormatting : NoPipelineInputCmdlet {
         /// <inheritdoc />
         protected override void EndProcessing() {
             FormattingSessionState state = FormattingSessionState.Current;

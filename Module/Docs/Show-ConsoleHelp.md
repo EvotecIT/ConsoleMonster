@@ -13,7 +13,7 @@ Reads the help PowerShell has for the command (Get-Help -Full): cmdlet help file
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Show-ConsoleHelp [-Name] <string> [-Width <int>] [-AsString] [-NoExamples] [-AsWidget] [-NoParameters] [<CommonParameters>]
+Show-ConsoleHelp [[-Name] <psobject>] [-Width <int>] [-AsString] [-NoExamples] [-AsWidget] [-NoParameters] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -75,15 +75,15 @@ Accept wildcard characters: False
 The command (a cmdlet, function, alias or script path), or an about topic.
 
 ```yaml
-Type: String
+Type: PSObject
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
 
-Required: True
+Required: False
 Position: 0
 Default value: None
-Accept pipeline input: True (ByPropertyName)
+Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
@@ -140,7 +140,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `System.String`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 

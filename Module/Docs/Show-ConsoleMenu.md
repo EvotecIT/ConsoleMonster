@@ -13,7 +13,7 @@ Shell is an app: a title bar with the breadcrumb, a sidebar (it folds into the b
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Show-ConsoleMenu [-Menu] <Menu> [-Layout <MenuLayout>] [-AppName <string>] [-RememberLastChoices] [-StorageRoot <string>] [-NoCommandPalette] [-Mode <InteractionMode>] [-Options <MenuOptions>] [<CommonParameters>]
+Show-ConsoleMenu [[-Menu] <psobject>] [-Layout <MenuLayout>] [-AppName <string>] [-RememberLastChoices] [-StorageRoot <string>] [-NoCommandPalette] [-Mode <InteractionMode>] [-Options <MenuOptions>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -68,12 +68,12 @@ Accept wildcard characters: False
 The menu from New-ConsoleMenu.
 
 ```yaml
-Type: Menu
+Type: PSObject
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
 
-Required: True
+Required: False
 Position: 0
 Default value: None
 Accept pipeline input: True (ByValue)
@@ -165,7 +165,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `ConsoleMonster.Interactive.Menu`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 

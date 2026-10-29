@@ -14,7 +14,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommon.Format, "ConsoleCommand")]
     [OutputType(typeof(string))]
-    public sealed class CmdletFormatConsoleCommand : PSCmdlet {
+    public sealed class CmdletFormatConsoleCommand : NoPipelineInputCmdlet {
         /// <summary><para type="description">The command text, which is never executed.</para></summary>
         [Parameter(Mandatory = true)]
         public string Command { get; set; } = string.Empty;
@@ -28,7 +28,7 @@ namespace ConsoleMonster.PowerShell {
         public CommandStyle Style { get; set; } = CommandStyle.PowerShell;
 
         /// <inheritdoc />
-        protected override void ProcessRecord() {
+        protected override void ProcessWithoutPipelineInput() {
             // Command names may be case-sensitive (for example POSIX -o and -O), unlike form field names.
             List<KeyValuePair<string, object?>> arguments = new List<KeyValuePair<string, object?>>();
             foreach (DictionaryEntry argument in Arguments) {

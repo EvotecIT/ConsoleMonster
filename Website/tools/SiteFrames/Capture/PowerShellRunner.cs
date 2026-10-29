@@ -182,13 +182,23 @@ namespace SiteFrames.Capture {
                     process.StandardOutput.ReadToEnd();
                     string error = process.StandardError.ReadToEnd();
                     process.WaitForExit();
-                    if (process.ExitCode != 0) {
+                    if (process.ExitCode != 0 && !LinksTo(link, target)) {
                         throw new InvalidOperationException("Could not link " + link + " to " + target + ": " + error);
                     }
                 }
             } else {
-                Directory.CreateSymbolicLink(link, target);
+                try {
+                    Directory.CreateSymbolicLink(link, target);
+                } catch (IOException) when (LinksTo(link, target)) {
+                    // Another capture created this checkout's same link after the existence check.
+                }
             }
+        }
+
+        private static bool LinksTo(string link, string target) {
+            string? actual = new DirectoryInfo(link).LinkTarget;
+            return actual != null && string.Equals(Path.GetFullPath(actual).TrimEnd('\\', '/'),
+                Path.GetFullPath(target).TrimEnd('\\', '/'), StringComparison.OrdinalIgnoreCase);
         }
         // Plays a script as a typed session: a prompt and the command, then its output, for each top-level statement.
         internal static string SessionRecipe => SessionDriver;

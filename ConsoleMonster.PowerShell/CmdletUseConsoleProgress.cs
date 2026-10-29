@@ -22,7 +22,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsOther.Use, "ConsoleProgress")]
     [OutputType(typeof(object))]
-    public sealed class CmdletUseConsoleProgress : PSCmdlet {
+    public sealed class CmdletUseConsoleProgress : NoPipelineInputCmdlet {
         private const string ProgressProxy = @"
 [CmdletBinding()]
 param(

@@ -25,7 +25,7 @@ namespace ConsoleMonster.PowerShell {
     ///   <code>Watch-Console -Title 'Disk space' -PollIntervalSeconds 10 -Differences { Get-Volume | Where-Object DriveLetter | Select-Object DriveLetter, FileSystemLabel, SizeRemaining, Size }</code>
     /// </example>
     [Cmdlet(VerbsCommon.Watch, "Console")]
-    public sealed class CmdletWatchConsole : PSCmdlet {
+    public sealed class CmdletWatchConsole : NoPipelineInputCmdlet {
         private readonly CancellationTokenSource _stop = new CancellationTokenSource();
 
         /// <summary><para type="description">The script block to run.</para></summary>

@@ -18,7 +18,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommunications.Read, "ConsoleText", DefaultParameterSetName = "Text")]
     [OutputType(typeof(string), typeof(System.Security.SecureString))]
-    public sealed class CmdletReadConsoleText : PromptCmdlet {
+    public sealed class CmdletReadConsoleText : NonSelectionPromptCmdlet {
         /// <summary><para type="description">The default answer.</para></summary>
         [Parameter(ParameterSetName = "Text")]
         public string? Default { get; set; }

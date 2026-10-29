@@ -8,7 +8,7 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example><para>Remove a custom result view.</para><code>Unregister-ConsoleView -TypeName 'Contoso.Server'</code></example>
     [Cmdlet(VerbsLifecycle.Unregister, "ConsoleView", DefaultParameterSetName = "Type", SupportsShouldProcess = true)]
-    public sealed class CmdletUnregisterConsoleView : PSCmdlet {
+    public sealed class CmdletUnregisterConsoleView : NoPipelineInputCmdlet {
         /// <summary><para type="description">Type names whose registrations should be removed.</para></summary>
         [Parameter(Mandatory = true, Position = 0, ParameterSetName = "Type")]
         public string[] TypeName { get; set; } = Array.Empty<string>();

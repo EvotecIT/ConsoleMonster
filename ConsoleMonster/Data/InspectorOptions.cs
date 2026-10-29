@@ -62,6 +62,12 @@ namespace ConsoleMonster.Data {
         /// </summary>
         public Func<object, object>? Identity { get; set; }
 
+        /// <summary>Optional identity label for objects beyond the depth limit. Return null when no useful label exists.</summary>
+        internal Func<object, Values.ShapeBudget, string?>? DepthLimitLabel { get; set; }
+
+        /// <summary>Optional shared budget used for identity reads and inspection.</summary>
+        internal Values.ShapeBudget? Budget { get; set; }
+
         /// <summary>How long one inspection may spend reading values (default 2 seconds; zero or less for no limit).</summary>
         public TimeSpan TimeBudget { get; set; } = TimeSpan.FromSeconds(2);
     }

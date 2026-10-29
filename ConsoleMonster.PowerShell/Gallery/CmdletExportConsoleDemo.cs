@@ -11,7 +11,7 @@ namespace ConsoleMonster.PowerShell {
     /// <example><para>Save a demo to customize.</para><code>Export-ConsoleDemo assessment -Path ./assessment.ps1</code></example>
     [Cmdlet(VerbsData.Export, "ConsoleDemo", SupportsShouldProcess = true)]
     [OutputType(typeof(FileInfo))]
-    public sealed class CmdletExportConsoleDemo : PSCmdlet {
+    public sealed class CmdletExportConsoleDemo : NoPipelineInputCmdlet {
         /// <summary><para type="description">The exact gallery slug.</para></summary>
         [Parameter(Mandatory = true, Position = 0)] [ValidateNotNullOrEmpty]
         public string Slug { get; set; } = string.Empty;
@@ -23,7 +23,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Returns the saved file.</para></summary>
         [Parameter] public SwitchParameter PassThru { get; set; }
         /// <inheritdoc />
-        protected override void ProcessRecord() {
+        protected override void ProcessWithoutPipelineInput() {
             string? slug = PSDemoResources.Find(Slug);
             if (slug == null) { NotFound(); return; }
             try {

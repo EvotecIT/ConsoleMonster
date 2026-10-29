@@ -39,7 +39,7 @@ namespace ConsoleMonster.Data {
             string? name = null
         ) {
             InspectorOptions actual = options ?? new InspectorOptions();
-            return InspectWithBudget(value, actual, new Values.ShapeBudget(actual.TimeBudget, int.MaxValue), name);
+            return InspectWithBudget(value, actual, actual.Budget ?? new Values.ShapeBudget(actual.TimeBudget, Math.Max(1, actual.MaxNodes)), name);
         }
 
         // Shares the normal traversal and deadline owner while allowing an instance clock in focused contracts.
@@ -172,16 +172,22 @@ namespace ConsoleMonster.Data {
             catch (Exception ex) when (!IsCancellation(ex)) {
                 return new InspectError(name, "Error", path, ex.Message);
             }
-            if (walk.Remaining <= 0 || walk.OutOfTime) {
+            if (walk.Remaining <= 0 || walk.Budget.Exhausted) {
                 return NodeLimit(name, path, options, walk);
             }
             walk.Remaining--;
+            if (!walk.Budget.TryTake()) { return NodeLimit(name, path, options, walk); }
             // Scalars cost nothing to show: they are values at any depth, never "(depth limit)".
             if (value == null)
                 return new InspectScalar(name, "null", path, null);
             if (IsScalarValue(value))
                 return new InspectScalar(name, FriendlyTypeName(value.GetType()), path, value);
             if (depth > Math.Max(0, options.MaxDepth)) {
+                if (options.DepthLimitLabel != null && value != null && !TryGetEnumerable(value, out _)) {
+                    string? identityLabel = options.DepthLimitLabel(value, walk.Budget);
+                    if (!string.IsNullOrWhiteSpace(identityLabel))
+                        return new InspectScalar(name, "String", path, identityLabel);
+                }
                 string limitedType =
                     value == null
                         ? "null"
@@ -262,7 +268,7 @@ namespace ConsoleMonster.Data {
                     if (!MemberIncluded(member.Name, options) || (!data && Values.ValueShaper.IsPlumbing(member.Name)))
                         continue;
                     string childPath = MemberPath(path, member.Name);
-                    if (walk.Remaining <= 0 || walk.OutOfTime) {
+                    if (walk.Remaining <= 0 || walk.Budget.Exhausted) {
                         // Out of nodes or time: one marker instead of reading (and listing) every remaining member.
                         members.Add(NodeLimit(member.Name, childPath, options, walk));
                         break;
@@ -346,7 +352,11 @@ namespace ConsoleMonster.Data {
             if (enumerationError != null)
                 return new InspectError(name, typeName, path, enumerationError.Message);
             List<InspectNode> nodes = new List<InspectNode>();
-            for (int index = 0; index < values.Count && walk.Remaining > 0; index++)
+            for (int index = 0; index < values.Count && walk.Remaining > 0; index++) {
+                if (walk.Budget.Exhausted && !walk.OutOfTime) {
+                    nodes.Add(NodeLimit(null, path + "[" + index.ToString(CultureInfo.InvariantCulture) + "]", options, walk));
+                    break;
+                }
                 nodes.Add(
                     Build(
                         values[index],
@@ -357,6 +367,7 @@ namespace ConsoleMonster.Data {
                         walk
                     )
                 );
+            }
             // Items the node budget left out count as omitted ("+N more").
             more |= nodes.Count < values.Count;
             int? count = TryCount(value);
@@ -499,7 +510,9 @@ namespace ConsoleMonster.Data {
             // Registered shapers and XML/JSON normalisation run on each value, as in every other view.
             public Values.ShapeOptions Shape { get; }
 
-            public bool OutOfTime => _budget.Exhausted;
+            public bool OutOfTime => _budget.TimeExceeded;
+
+            public Values.ShapeBudget Budget => _budget;
 
             public Dictionary<object, string> Ancestors { get; } = new Dictionary<object, string>(ReferenceComparer.Instance);
 

@@ -234,7 +234,7 @@ $tree | Show-Console</dev:code>
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -516,7 +516,7 @@ $tree | Show-Console</dev:code>
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -529,9 +529,9 @@ $tree | Show-Console</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>Clear-ConsoleScreen; Show-ConsoleMenu -Title 'Tools' -Items $items</dev:code>
+        <dev:code>Clear-ConsoleScreen; Write-ConsoleText 'Ready'</dev:code>
         <dev:remarks>
-          <maml:para>Start a menu screen from a clean console</maml:para>
+          <maml:para>Clear the screen before displaying a message</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>
@@ -1145,7 +1145,7 @@ $tree | Show-Console</dev:code>
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -1164,21 +1164,21 @@ $tree | Show-Console</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>Compare-ConsoleText -ReferenceText $before -DifferenceText $after -Context 1</dev:code>
+        <dev:code>Compare-ConsoleText -ReferenceText 'port=80' -DifferenceText 'port=443' -Context 1</dev:code>
         <dev:remarks>
           <maml:para>Compare configuration strings with one line of context.</maml:para>
         </dev:remarks>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>Compare-ConsoleText -ReferencePath .\before.txt -DifferencePath .\after.txt -IgnoreWhitespace</dev:code>
+        <dev:code>Compare-ConsoleText -ReferenceText 'port = 80' -DifferenceText 'port=80' -IgnoreWhitespace</dev:code>
         <dev:remarks>
-          <maml:para>Compare files using the current PowerShell location and ignore whitespace within lines.</maml:para>
+          <maml:para>Compare strings while ignoring whitespace within lines.</maml:para>
         </dev:remarks>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 3</maml:title>
-        <dev:code>Compare-ConsoleText -ReferenceText $before -DifferenceText $after -ReferenceName 'Deployed' -DifferenceName 'Proposed' -AsUnified | Set-Content .\changes.diff</dev:code>
+        <dev:code>Compare-ConsoleText -ReferenceText 'port=80' -DifferenceText 'port=443' -ReferenceName 'Deployed' -DifferenceName 'Proposed' -AsUnified</dev:code>
         <dev:remarks>
           <maml:para>Return a unified diff with custom side names for storage or further processing.</maml:para>
         </dev:remarks>
@@ -1306,7 +1306,7 @@ $tree | Show-Console</dev:code>
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -1530,9 +1530,9 @@ $tree | Show-Console</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>Get-Process | Select-Object -First 10 Name, Id | Show-ConsoleTable -AsWidget | Copy-ConsoleOutput -Format Markdown</dev:code>
+        <dev:code>Get-Process | Select-Object -First 10 Name, Id | Show-ConsoleTable -AsWidget | Copy-ConsoleOutput -Format Markdown -WhatIf</dev:code>
         <dev:remarks>
-          <maml:para>Copy a process table into a Markdown report</maml:para>
+          <maml:para>Preview copying a process table as Markdown</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>
@@ -1610,7 +1610,7 @@ $tree | Show-Console</dev:code>
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -1993,7 +1993,7 @@ $tree | Show-Console</dev:code>
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -2183,7 +2183,7 @@ $tree | Show-Console</dev:code>
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -2813,14 +2813,14 @@ $tree | Show-Console</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>Get-Service | Select-Object -First 8 Name, Status, StartType | Show-ConsoleTable -AsWidget | Export-ConsoleFrame -Path .\services.html</dev:code>
+        <dev:code>Get-Process | Select-Object -First 8 Name, Id | Show-ConsoleTable -AsWidget | Export-ConsoleFrame -Format Html</dev:code>
         <dev:remarks>
           <maml:para>A table as an HTML page</maml:para>
         </dev:remarks>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$dashboard | Export-ConsoleFrame -Format Svg -Path .\run.svg -Width 120 -Height 36 -Theme Dark -Title 'Nightly run' -WindowChrome</dev:code>
+        <dev:code>New-ConsoleText 'Nightly run' | Export-ConsoleFrame -Format Svg -Width 120 -Height 36 -Theme Dark -Title 'Nightly run' -WindowChrome</dev:code>
         <dev:remarks>
           <maml:para>A dashboard as an SVG in a window frame, dark only</maml:para>
         </dev:remarks>
@@ -4226,7 +4226,7 @@ $tree | Show-Console</dev:code>
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -4340,7 +4340,7 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -4359,18 +4359,16 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>Export-ConsoleTheme -Path ./team-theme.json&#xD;
-            Set-ConsoleTheme -Path ./team-theme.json</dev:code>
+        <dev:code>Export-ConsoleTheme -Path ./team-theme.json -WhatIf</dev:code>
         <dev:remarks>
-          <maml:para>Export the current theme, edit its token definitions and apply it.</maml:para>
+          <maml:para>Preview exporting the current theme.</maml:para>
         </dev:remarks>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>Set-ConsoleTheme -Theme ColorBlindSafe&#xD;
-            Export-ConsoleTheme -Path ./accessible.psd1 -PassThru</dev:code>
+        <dev:code>Export-ConsoleTheme -Path ./accessible.psd1 -WhatIf</dev:code>
         <dev:remarks>
-          <maml:para>Create a PowerShell data file from the accessible preset and return its file information.</maml:para>
+          <maml:para>Preview exporting a PowerShell data file.</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>
@@ -4482,7 +4480,7 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -4557,7 +4555,7 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -4632,7 +4630,7 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -4689,7 +4687,7 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -5586,7 +5584,7 @@ Invoke-ConsoleDashboard $dashboard -ImportFunction Show-Frame { foreach ($frame 
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -5614,7 +5612,7 @@ Invoke-ConsoleDashboard $dashboard -ImportFunction Show-Frame { foreach ($frame 
         <maml:title>EXAMPLE 2</maml:title>
         <dev:code>$c = New-PesterConfiguration&#xD;
 $c.Run.Path = '.\Tests'&#xD;
-$c.Filter.Tag = 'Unit'&#xD;
+$c.Filter.TagFilter = 'Unit'&#xD;
 $r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.html -PassThru</dev:code>
         <dev:remarks>
           <maml:para>A configuration, on the full screen, with the final dashboard saved</maml:para>
@@ -5887,7 +5885,7 @@ $r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.htm
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -6565,7 +6563,7 @@ $r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.htm
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -6900,14 +6898,14 @@ $r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.htm
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$port = 443; $servers | Invoke-ConsoleRun -Parallel -ThrottleLimit 8 -Label Name { Test-NetConnection $_.Name -Port $using:port -InformationLevel Quiet }</dev:code>
+        <dev:code>$servers = 'web01', 'web02' | ForEach-Object { [pscustomobject]@{ Name = $_ } }; $servers | Invoke-ConsoleRun -Parallel -ThrottleLimit 8 -Label Name { $_.Name.ToUpperInvariant() }</dev:code>
         <dev:remarks>
-          <maml:para>Check servers in parallel</maml:para>
+          <maml:para>Inspect items in parallel</maml:para>
         </dev:remarks>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>Get-ChildItem *.log | Invoke-ConsoleRun { Compress-Archive $_ "$($_.BaseName).zip" -Force }</dev:code>
+        <dev:code>Get-ChildItem -File | Select-Object -First 5 | Invoke-ConsoleRun { $_.Name }</dev:code>
         <dev:remarks>
           <maml:para>One at a time, in the current scope</maml:para>
         </dev:remarks>
@@ -6924,7 +6922,7 @@ $r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.htm
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 4</maml:title>
-        <dev:code>$servers | Invoke-ConsoleRun -Parallel -RetryCount 2 -RetryDelaySeconds 5 -Label Name { Restart-Computer $_.Name -Wait -For WinRM -Timeout 300 -ErrorAction Stop }</dev:code>
+        <dev:code>$servers = 'server01', 'server02' | ForEach-Object { [pscustomobject]@{ Name = $_ } }; $servers | Invoke-ConsoleRun -Parallel -RetryCount 2 -RetryDelaySeconds 5 -Label Name { "Would restart $($_.Name)" }</dev:code>
         <dev:remarks>
           <maml:para>Retry flaky servers twice, five seconds apart</maml:para>
         </dev:remarks>
@@ -7052,7 +7050,7 @@ $r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.htm
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -7371,7 +7369,7 @@ Invoke-ConsoleDashboard $dashboard {&#xD;
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -7614,7 +7612,7 @@ Invoke-ConsoleDashboard $dashboard {&#xD;
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -8650,12 +8648,12 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Type</maml:name>
           <maml:description>
             <maml:para>The numeric chart kind: Bar, Stacked, Line, Scatter, Histogram or Sparkline.</maml:para>
           </maml:description>
-          <command:parameterValue required="true" variableLength="false">ChartType</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">ChartType</command:parameterValue>
           <command:parameterValueGroup>
             <command:parameterValue required="false" variableLength="false">Bar</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Stacked</command:parameterValue>
@@ -9032,12 +9030,12 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Type</maml:name>
         <maml:description>
           <maml:para>The numeric chart kind: Bar, Stacked, Line, Scatter, Histogram or Sparkline.</maml:para>
         </maml:description>
-        <command:parameterValue required="true" variableLength="false">ChartType</command:parameterValue>
+        <command:parameterValue required="false" variableLength="false">ChartType</command:parameterValue>
         <command:parameterValueGroup>
           <command:parameterValue required="false" variableLength="false">Bar</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Stacked</command:parameterValue>
@@ -9135,7 +9133,7 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$servers | New-ConsoleChart -Type Bar -Property Cpu -Label Name -Unit '%'</dev:code>
+        <dev:code>$servers = [pscustomobject]@{ Name = 'web01'; Cpu = 42 }, [pscustomobject]@{ Name = 'web02'; Cpu = 27 }; $servers | New-ConsoleChart -Property Cpu -Label Name -Unit '%'</dev:code>
         <dev:remarks>
           <maml:para>Chart a property of ordinary objects inside a report</maml:para>
         </dev:remarks>
@@ -9280,7 +9278,7 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -9729,7 +9727,7 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -9748,9 +9746,9 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$restart = New-ConsoleCommand -Key Restart -Label 'Restart service' -Shortcut Ctrl+R -ConfirmPrompt 'Restart selected services?' -ScriptBlock { param($Row) Restart-Service -Name $Row.Name -ErrorAction Stop }; Get-Service | Show-ConsoleGrid -Command $restart</dev:code>
+        <dev:code>$restart = New-ConsoleCommand -Key Restart -Label 'Preview restart' -Shortcut Ctrl+R -ConfirmPrompt 'Preview selected services?' -ScriptBlock { param($Row) Restart-Service -Name $Row.Name -WhatIf }; Get-Service | Show-ConsoleGrid -Command $restart</dev:code>
         <dev:remarks>
-          <maml:para>Restart selected services after confirmation without closing the viewer.</maml:para>
+          <maml:para>Preview restarting selected services after confirmation.</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>
@@ -10309,7 +10307,7 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -10576,7 +10574,7 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -11926,7 +11924,7 @@ New-ConsoleCellMap -Status $states -Count 40 | Show-Console</dev:code>
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -12331,7 +12329,7 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -12656,7 +12654,7 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -12936,7 +12934,7 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -14257,7 +14255,7 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -14742,7 +14740,7 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -16957,7 +16955,7 @@ Description and RunText.</maml:para>
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -17229,7 +17227,7 @@ Description and RunText.</maml:para>
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -18680,7 +18678,7 @@ Description and RunText.</maml:para>
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -19245,7 +19243,7 @@ Description and RunText.</maml:para>
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -19779,7 +19777,7 @@ Description and RunText.</maml:para>
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -19859,7 +19857,7 @@ Description and RunText.</maml:para>
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -20240,7 +20238,7 @@ Invoke-ConsoleDashboard $dashboard -Clock $clock -ArgumentList $clock, $entries 
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 3</maml:title>
-        <dev:code>$checks | ForEach-Object { [pscustomobject]@{ Label = $_.Name; Status = $_.Result; Detail = $_.Duration } } | New-ConsoleStatusList | Show-Console</dev:code>
+        <dev:code>$checks = [pscustomobject]@{ Name = 'Build'; Result = 'Pass'; Duration = '2 s' }; $checks | ForEach-Object { [pscustomobject]@{ Label = $_.Name; Status = $_.Result; Detail = $_.Duration } } | New-ConsoleStatusList | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Items from objects in the pipeline</maml:para>
         </dev:remarks>
@@ -20472,7 +20470,7 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -22132,12 +22130,12 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="True (ByValue)" position="0" aliases="None">
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>Tab</maml:name>
           <maml:description>
             <maml:para>Pages returned by New-ConsoleTab, in display order.</maml:para>
           </maml:description>
-          <command:parameterValue required="true" variableLength="false">LayoutRegion[]</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">LayoutRegion[]</command:parameterValue>
           <dev:type>
             <maml:name>LayoutRegion[]</maml:name>
             <maml:uri />
@@ -22159,12 +22157,12 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="True (ByValue)" position="0" aliases="None">
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="None">
         <maml:name>Tab</maml:name>
         <maml:description>
           <maml:para>Pages returned by New-ConsoleTab, in display order.</maml:para>
         </maml:description>
-        <command:parameterValue required="true" variableLength="false">LayoutRegion[]</command:parameterValue>
+        <command:parameterValue required="false" variableLength="false">LayoutRegion[]</command:parameterValue>
         <dev:type>
           <maml:name>LayoutRegion[]</maml:name>
           <maml:uri />
@@ -22175,7 +22173,7 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>ConsoleMonster.Widgets.LayoutRegion[]</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -23122,7 +23120,7 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -23394,7 +23392,7 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -24207,7 +24205,7 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -24551,12 +24549,12 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>Title</maml:name>
           <maml:description>
             <maml:para>The question.</maml:para>
           </maml:description>
-          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
             <maml:uri />
@@ -24692,12 +24690,12 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
         <maml:name>Title</maml:name>
         <maml:description>
           <maml:para>The question.</maml:para>
         </maml:description>
-        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
           <maml:uri />
@@ -24744,7 +24742,7 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -24763,14 +24761,14 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>if (Read-ConsoleConfirm 'Restart the service now?' -Default $true) { Restart-Service Spooler }</dev:code>
+        <dev:code>if (Read-ConsoleConfirm 'Restart the service now?' -Default $false) { Restart-Service Spooler -WhatIf }</dev:code>
         <dev:remarks>
           <maml:para>A question with a default</maml:para>
         </dev:remarks>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>if (Read-ConsoleConfirm 'Remove 3 servers from the inventory?' -TypedConfirmation 'inventory' -Warning 'This cannot be undone.') { ... }</dev:code>
+        <dev:code>if (Read-ConsoleConfirm 'Remove 3 servers from the inventory?' -TypedConfirmation 'inventory' -Warning 'This cannot be undone.') { Write-Host 'Would remove servers from the inventory' }</dev:code>
         <dev:remarks>
           <maml:para>A typed confirmation before deleting</maml:para>
         </dev:remarks>
@@ -24897,12 +24895,12 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>Title</maml:name>
           <maml:description>
             <maml:para>The question.</maml:para>
           </maml:description>
-          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
             <maml:uri />
@@ -25014,12 +25012,12 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
         <maml:name>Title</maml:name>
         <maml:description>
           <maml:para>The question.</maml:para>
         </maml:description>
-        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
           <maml:uri />
@@ -25103,14 +25101,14 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="0" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="0" aliases="None">
           <maml:name>Form</maml:name>
           <maml:description>
             <maml:para>The form from New-ConsoleForm.</maml:para>
           </maml:description>
-          <command:parameterValue required="true" variableLength="false">Form</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">PSObject</command:parameterValue>
           <dev:type>
-            <maml:name>Form</maml:name>
+            <maml:name>PSObject</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -25232,14 +25230,14 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="0" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="0" aliases="None">
         <maml:name>Form</maml:name>
         <maml:description>
           <maml:para>The form from New-ConsoleForm.</maml:para>
         </maml:description>
-        <command:parameterValue required="true" variableLength="false">Form</command:parameterValue>
+        <command:parameterValue required="false" variableLength="false">PSObject</command:parameterValue>
         <dev:type>
-          <maml:name>Form</maml:name>
+          <maml:name>PSObject</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -25338,7 +25336,7 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>ConsoleMonster.Interactive.Form</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -25362,8 +25360,9 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$answers = Read-ConsoleForm $form -AppName 'ShareTool' -RememberLastChoices&#xD;
-if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }</dev:code>
+        <dev:code>$form = New-ConsoleForm 'Example' -Content { New-ConsoleField Name 'Name' -Default 'example' }&#xD;
+$answers = Read-ConsoleForm $form&#xD;
+if ($answers) { Write-Host "Selected $($answers.Name)" }</dev:code>
         <dev:remarks>
           <maml:para>Run a wizard and use the answers</maml:para>
         </dev:remarks>
@@ -25514,12 +25513,12 @@ if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }</dev:code
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>Title</maml:name>
           <maml:description>
             <maml:para>The question.</maml:para>
           </maml:description>
-          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
             <maml:uri />
@@ -25667,12 +25666,12 @@ if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }</dev:code
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
         <maml:name>Title</maml:name>
         <maml:description>
           <maml:para>The question.</maml:para>
         </maml:description>
-        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
           <maml:uri />
@@ -25695,7 +25694,7 @@ if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }</dev:code
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -25887,12 +25886,12 @@ if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }</dev:code
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>Title</maml:name>
           <maml:description>
             <maml:para>The question.</maml:para>
           </maml:description>
-          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
             <maml:uri />
@@ -26045,12 +26044,12 @@ if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }</dev:code
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
         <maml:name>Title</maml:name>
         <maml:description>
           <maml:para>The question.</maml:para>
         </maml:description>
-        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
           <maml:uri />
@@ -26061,7 +26060,7 @@ if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }</dev:code
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -26279,12 +26278,12 @@ if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }</dev:code
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>Title</maml:name>
           <maml:description>
             <maml:para>The question.</maml:para>
           </maml:description>
-          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
             <maml:uri />
@@ -26516,12 +26515,12 @@ if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }</dev:code
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>Title</maml:name>
           <maml:description>
             <maml:para>The question.</maml:para>
           </maml:description>
-          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
             <maml:uri />
@@ -26753,12 +26752,12 @@ if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }</dev:code
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
         <maml:name>Title</maml:name>
         <maml:description>
           <maml:para>The question.</maml:para>
         </maml:description>
-        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
           <maml:uri />
@@ -27012,12 +27011,12 @@ if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }</dev:code
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>Title</maml:name>
           <maml:description>
             <maml:para>The question.</maml:para>
           </maml:description>
-          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
             <maml:uri />
@@ -27153,12 +27152,12 @@ if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }</dev:code
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>Title</maml:name>
           <maml:description>
             <maml:para>The question.</maml:para>
           </maml:description>
-          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
             <maml:uri />
@@ -27426,12 +27425,12 @@ if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }</dev:code
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
         <maml:name>Title</maml:name>
         <maml:description>
           <maml:para>The question.</maml:para>
         </maml:description>
-        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
           <maml:uri />
@@ -27454,7 +27453,7 @@ if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }</dev:code
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -27752,7 +27751,7 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -28013,7 +28012,7 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -28223,7 +28222,7 @@ Read-ConsoleForm $form</dev:code>
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -32450,7 +32449,7 @@ Read-ConsoleForm $form</dev:code>
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -32769,7 +32768,7 @@ Read-ConsoleForm $form</dev:code>
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -32788,7 +32787,7 @@ Read-ConsoleForm $form</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>if (Show-ConsoleChanges -ReferenceObject $members -DifferenceObject $planned -Property SamAccountName -Title 'Domain Admins') { Set-Members $planned }</dev:code>
+        <dev:code>Show-ConsoleChanges -ReferenceObject @([pscustomobject]@{ Name = 'Ada' }) -DifferenceObject @([pscustomobject]@{ Name = 'Grace' }) -Property Name -Title 'Members' -WhatIf</dev:code>
         <dev:remarks>
           <maml:para>Preview a group membership change</maml:para>
         </dev:remarks>
@@ -32892,7 +32891,7 @@ Read-ConsoleForm $form</dev:code>
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -33286,7 +33285,7 @@ Read-ConsoleForm $form</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>Get-Service | Show-ConsoleGrid -Property Name, Status, StartType -Title 'Services' -Command @{ Restart = { param($Row) Restart-Service $Row.Name -ErrorAction Stop; "Restarted $($Row.Name)" } }</dev:code>
+        <dev:code>Get-Service | Show-ConsoleGrid -Property Name, Status, StartType -Title 'Services' -Command @{ Restart = { param($Row) Restart-Service $Row.Name -WhatIf } }</dev:code>
         <dev:remarks>
           <maml:para>Restart selected services with confirmation and embedded output</maml:para>
         </dev:remarks>
@@ -33342,14 +33341,14 @@ Read-ConsoleForm $form</dev:code>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="True (ByPropertyName)" position="0" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="0" aliases="None">
           <maml:name>Name</maml:name>
           <maml:description>
             <maml:para>The command (a cmdlet, function, alias or script path), or an about topic.</maml:para>
           </maml:description>
-          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">PSObject</command:parameterValue>
           <dev:type>
-            <maml:name>String</maml:name>
+            <maml:name>PSObject</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -33417,14 +33416,14 @@ Read-ConsoleForm $form</dev:code>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="True (ByPropertyName)" position="0" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="0" aliases="None">
         <maml:name>Name</maml:name>
         <maml:description>
           <maml:para>The command (a cmdlet, function, alias or script path), or an about topic.</maml:para>
         </maml:description>
-        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <command:parameterValue required="false" variableLength="false">PSObject</command:parameterValue>
         <dev:type>
-          <maml:name>String</maml:name>
+          <maml:name>PSObject</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -33469,7 +33468,7 @@ Read-ConsoleForm $form</dev:code>
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>System.String</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -34006,14 +34005,14 @@ Read-ConsoleForm $form</dev:code>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="0" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="0" aliases="None">
           <maml:name>Menu</maml:name>
           <maml:description>
             <maml:para>The menu from New-ConsoleMenu.</maml:para>
           </maml:description>
-          <command:parameterValue required="true" variableLength="false">Menu</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">PSObject</command:parameterValue>
           <dev:type>
-            <maml:name>Menu</maml:name>
+            <maml:name>PSObject</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -34117,14 +34116,14 @@ Read-ConsoleForm $form</dev:code>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="0" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="0" aliases="None">
         <maml:name>Menu</maml:name>
         <maml:description>
           <maml:para>The menu from New-ConsoleMenu.</maml:para>
         </maml:description>
-        <command:parameterValue required="true" variableLength="false">Menu</command:parameterValue>
+        <command:parameterValue required="false" variableLength="false">PSObject</command:parameterValue>
         <dev:type>
-          <maml:name>Menu</maml:name>
+          <maml:name>PSObject</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -34199,7 +34198,7 @@ Read-ConsoleForm $form</dev:code>
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>ConsoleMonster.Interactive.Menu</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -34648,21 +34647,21 @@ Read-ConsoleForm $form</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$config | Show-ConsoleObject</dev:code>
+        <dev:code>$config = [pscustomobject]@{ Name = 'example'; Settings = @{ Port = 443 } }; $config | Show-ConsoleObject</dev:code>
         <dev:remarks>
           <maml:para>Browse a nested configuration</maml:para>
         </dev:remarks>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$config | Show-ConsoleObject -PassThru</dev:code>
+        <dev:code>$config = [pscustomobject]@{ Name = 'example'; Settings = @{ Port = 443 } }; $config | Show-ConsoleObject -PassThru</dev:code>
         <dev:remarks>
           <maml:para>Return a selected member value</maml:para>
         </dev:remarks>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 3</maml:title>
-        <dev:code>$config | Show-ConsoleObject -RootPath '$config' -PassThru Path</dev:code>
+        <dev:code>$config = [pscustomobject]@{ Name = 'example'; Settings = @{ Port = 443 } }; $config | Show-ConsoleObject -RootPath '$config' -PassThru Path</dev:code>
         <dev:remarks>
           <maml:para>Return its PowerShell path</maml:para>
         </dev:remarks>
@@ -34865,7 +34864,7 @@ Read-ConsoleForm $form</dev:code>
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -35175,7 +35174,7 @@ Read-ConsoleForm $form</dev:code>
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -35498,7 +35497,7 @@ Read-ConsoleForm $form</dev:code>
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -35922,7 +35921,7 @@ Read-ConsoleForm $form</dev:code>
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -37693,7 +37692,7 @@ Show-ConsoleStatusLine "Copied $($files.Count) files" -Status Pass -ShowElapsed 
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -37758,7 +37757,7 @@ try {&#xD;
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -37855,7 +37854,7 @@ try {&#xD;
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -38159,45 +38158,6 @@ try {&#xD;
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
       </command:syntaxItem>
-      <command:syntaxItem parameterSetName="Row">
-        <maml:name>Update-Console</maml:name>
-        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="named" aliases="None">
-          <maml:name>Row</maml:name>
-          <maml:description>
-            <maml:para>A record with the live table's column properties (keyed by its KeyProperty), or a Key and Values descriptor that retains typed cells.</maml:para>
-          </maml:description>
-          <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
-          <dev:type>
-            <maml:name>Object</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>Session</maml:name>
-          <maml:description>
-            <maml:para>The session, otherwise ConsoleSession or the current session.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">LiveSession</command:parameterValue>
-          <dev:type>
-            <maml:name>LiveSession</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
-          <maml:name>WidgetId</maml:name>
-          <maml:description>
-            <maml:para>The live widget identifier.</maml:para>
-          </maml:description>
-          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
-          <dev:type>
-            <maml:name>String</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-      </command:syntaxItem>
       <command:syntaxItem parameterSetName="RemoveRow">
         <maml:name>Update-Console</maml:name>
         <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
@@ -38463,45 +38423,6 @@ try {&#xD;
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
       </command:syntaxItem>
-      <command:syntaxItem parameterSetName="Content">
-        <maml:name>Update-Console</maml:name>
-        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="named" aliases="None">
-          <maml:name>Content</maml:name>
-          <maml:description>
-            <maml:para>The replacement widget or a script block producing widgets; null clears the region.</maml:para>
-          </maml:description>
-          <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
-          <dev:type>
-            <maml:name>Object</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>Session</maml:name>
-          <maml:description>
-            <maml:para>The session, otherwise ConsoleSession or the current session.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">LiveSession</command:parameterValue>
-          <dev:type>
-            <maml:name>LiveSession</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
-          <maml:name>WidgetId</maml:name>
-          <maml:description>
-            <maml:para>The live widget identifier.</maml:para>
-          </maml:description>
-          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
-          <dev:type>
-            <maml:name>String</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-      </command:syntaxItem>
       <command:syntaxItem parameterSetName="FlowNode">
         <maml:name>Update-Console</maml:name>
         <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
@@ -38719,6 +38640,84 @@ try {&#xD;
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>StatusKind</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+      <command:syntaxItem parameterSetName="Row">
+        <maml:name>Update-Console</maml:name>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="named" aliases="None">
+          <maml:name>Row</maml:name>
+          <maml:description>
+            <maml:para>A record with the live table's column properties (keyed by its KeyProperty), or a Key and Values descriptor that retains typed cells.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+          <dev:type>
+            <maml:name>Object</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Session</maml:name>
+          <maml:description>
+            <maml:para>The session, otherwise ConsoleSession or the current session.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">LiveSession</command:parameterValue>
+          <dev:type>
+            <maml:name>LiveSession</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+          <maml:name>WidgetId</maml:name>
+          <maml:description>
+            <maml:para>The live widget identifier.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+      <command:syntaxItem parameterSetName="Content">
+        <maml:name>Update-Console</maml:name>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="named" aliases="None">
+          <maml:name>Content</maml:name>
+          <maml:description>
+            <maml:para>The replacement widget or a script block producing widgets; null clears the region.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+          <dev:type>
+            <maml:name>Object</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Session</maml:name>
+          <maml:description>
+            <maml:para>The session, otherwise ConsoleSession or the current session.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">LiveSession</command:parameterValue>
+          <dev:type>
+            <maml:name>LiveSession</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+          <maml:name>WidgetId</maml:name>
+          <maml:description>
+            <maml:para>The live widget identifier.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -39255,7 +39254,7 @@ try {&#xD;
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -39711,7 +39710,7 @@ try {&#xD;
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -39724,9 +39723,9 @@ try {&#xD;
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>Use-ConsoleTarget -Path .\report.txt -Width 120 { $servers | Show-ConsoleTable; Write-ConsoleText -Markup '[pass]done[/]' }</dev:code>
+        <dev:code>Use-ConsoleTarget -Width 120 { Get-Process | Select-Object -First 5 Name, Id | Show-ConsoleTable; Write-ConsoleText -Markup '[pass]done[/]' }</dev:code>
         <dev:remarks>
-          <maml:para>Save a report as plain text</maml:para>
+          <maml:para>Capture a report as plain text</maml:para>
         </dev:remarks>
       </command:example>
       <command:example>
@@ -39811,7 +39810,7 @@ try {&#xD;
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -40032,7 +40031,7 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {&#xD;
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>
@@ -40480,7 +40479,7 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {&#xD;
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
       </command:inputType>
     </command:inputTypes>

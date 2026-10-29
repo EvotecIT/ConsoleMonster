@@ -161,7 +161,6 @@
     "Write-ConsoleProgress",
     "Format-ConsoleTable",
     "Format-ConsoleList",
-    "Format-ConsoleTree",
     "Format-ConsoleCode",
     "Format-ConsoleJson",
     "Format-ConsoleError",
@@ -187,7 +186,8 @@
     "Read-ConsoleSelection",
     "Read-ConsoleMultiSelection",
     "New-ConsoleClock",
-    "New-ConsoleRunResult"
+    "New-ConsoleRunResult",
+    "Format-ConsoleTree"
   ],
   "Shortcuts": [
     {

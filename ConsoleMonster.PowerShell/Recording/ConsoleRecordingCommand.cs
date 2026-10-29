@@ -8,7 +8,7 @@ using ConsoleMonster.Sessions;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>Common PowerShell argument translation and terminal relay for recording commands.</summary>
-    public abstract class ConsoleRecordingCommand : PSCmdlet, IDisposable {
+    public abstract class ConsoleRecordingCommand : NoPipelineInputCmdlet, IDisposable {
         private SessionRecorder? _recorder;
         private RecordingOutputRelay? _relay;
         private volatile bool _stopping;

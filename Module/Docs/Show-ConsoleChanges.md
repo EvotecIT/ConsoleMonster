@@ -25,7 +25,7 @@ Compares -ReferenceObject with -DifferenceObject (as Compare-ConsoleObject does)
 
 ### EXAMPLE 1
 ```powershell
-if (Show-ConsoleChanges -ReferenceObject $members -DifferenceObject $planned -Property SamAccountName -Title 'Domain Admins') { Set-Members $planned }
+Show-ConsoleChanges -ReferenceObject @([pscustomobject]@{ Name = 'Ada' }) -DifferenceObject @([pscustomobject]@{ Name = 'Grace' }) -Property Name -Title 'Members' -WhatIf
 ```
 
 Preview a group membership change
@@ -197,7 +197,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 

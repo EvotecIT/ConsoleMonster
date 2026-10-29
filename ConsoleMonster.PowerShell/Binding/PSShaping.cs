@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Management.Automation;
@@ -64,7 +65,121 @@ namespace ConsoleMonster.PowerShell.Binding {
         /// <param name="options">Shape options.</param>
         /// <param name="budget">The pass budget, or null.</param>
         /// <returns>The title.</returns>
-        internal static string Title(object item, ShapeOptions options, ShapeBudget? budget = null) => ValueShaper.Title(item, options, budget);
+        internal static string Title(object item, ShapeOptions options, ShapeBudget? budget = null) {
+            if (item is PSObject ps) {
+                PSMemberSet? standard = ps.Members["PSStandardMembers"] as PSMemberSet;
+                string? preferred = (standard?.Members["DefaultDisplayProperty"] as PSPropertyInfo)?.Value as string;
+                if (!string.IsNullOrWhiteSpace(preferred)) {
+                    PSPropertyInfo? property = ps.Properties[preferred];
+                    if (property != null && property.IsGettable) {
+                        try {
+                            object? value = PSText.Unwrap(ReadIdentity(property, budget));
+                            if (value != null && ValueShaper.IsScalar(value)) {
+                                string title = ValueShaper.ScalarText(value, options);
+                                if (!string.IsNullOrWhiteSpace(title)) { return WithDisplayName(ps, title, budget); }
+                            }
+                        } catch (GetValueException) {
+                            // A failing display property falls back to the normal identity rule.
+                        }
+                    }
+                }
+            }
+            string fallback = ValueShaper.Title(item, options, budget);
+            return item is PSObject wrapped ? WithDisplayName(wrapped, fallback, budget) : fallback;
+        }
+
+        /// <summary>Uses an explicitly registered view key before PowerShell's ordinary identity rule.</summary>
+        internal static string IdentityTitle(PSObject item, ShapeOptions options, ShapeBudget? budget = null) {
+            ConsoleViewRegistration? view = ConsoleFormatting.Find(item);
+            if (view?.Property != null) {
+                foreach (object property in view.Property) {
+                    if (!(property is IDictionary definition)) { continue; }
+                    object? keyFlag = null;
+                    foreach (DictionaryEntry entry in definition) {
+                        if (string.Equals(Convert.ToString(entry.Key, CultureInfo.InvariantCulture), "Key", StringComparison.OrdinalIgnoreCase)) { keyFlag = entry.Value; break; }
+                    }
+                    if (!LanguagePrimitives.IsTrue(keyFlag) || (budget != null && !budget.TryTake())) { continue; }
+                    try {
+                        IReadOnlyList<BoundColumn> columns = PropertyBinder.Bind(new[] { item }, new[] { property }, options, null);
+                        if (columns.Count != 1) { continue; }
+                        object? raw = budget == null ? columns[0].GetValue(item) : budget.Guard(columns[0].Name, () => columns[0].GetValue(item));
+                        raw = PSText.Unwrap(raw);
+                        if (raw != null && ValueShaper.IsScalar(raw) && !(raw is bool)) {
+                            string title = ValueShaper.ScalarText(raw, options);
+                            if (!string.IsNullOrWhiteSpace(title)) { return WithDisplayName(item, title, budget); }
+                        }
+                    } catch (Exception ex) when (!(ex is PipelineStoppedException) && !(ex is OperationCanceledException)) {
+                        // An unavailable registered key falls back to the ordinary identity rule.
+                    }
+                }
+            }
+            string fallback = Title(item, options, budget);
+            object? value = item.BaseObject;
+            Type? type = value?.GetType();
+            if (type != null && (fallback == type.Name || fallback == type.FullName || item.TypeNames.Contains(fallback)) &&
+                (budget == null || budget.TryTake())) {
+                try {
+                    object? result = budget == null ? value!.ToString() : budget.Guard(type, () => value!.ToString());
+                    if (result is string text && !string.IsNullOrWhiteSpace(text) && text != type.Name && text != type.FullName) { return text; }
+                } catch (Exception ex) when (!(ex is PipelineStoppedException) && !(ex is OperationCanceledException)) {
+                    // An unavailable ToString leaves the type name as the fallback.
+                }
+            }
+            return fallback;
+        }
+
+        private static object? ReadIdentity(PSPropertyInfo? property, ShapeBudget? budget) {
+            if (property == null || !property.IsGettable || (budget != null && !budget.TryTake())) { return null; }
+            return budget == null ? property.Value : budget.Guard(property.Name, () => property.Value);
+        }
+
+        private static string WithDisplayName(PSObject item, string title, ShapeBudget? budget) {
+            try {
+                object? name = PSText.Unwrap(ReadIdentity(item.Properties["Name"], budget));
+                object? display = PSText.Unwrap(ReadIdentity(item.Properties["DisplayName"], budget));
+                if (name is string nameText && display is string displayText
+                    && string.Equals(title, nameText, StringComparison.OrdinalIgnoreCase)
+                    && !string.IsNullOrWhiteSpace(displayText)
+                    && !string.Equals(nameText, displayText, StringComparison.OrdinalIgnoreCase)) {
+                    return title + " · " + displayText;
+                }
+            } catch (GetValueException) {
+                // Identity remains usable when an optional display-name getter fails.
+            }
+            return title;
+        }
+
+        // At the depth limit only read identity fields that the caller's member filters permit.
+        internal static string? DepthLabel(object value, string[]? include, string[]? exclude, ShapeBudget budget) {
+            PSObject item = PSObject.AsPSObject(value);
+            if ((exclude == null || exclude.Length == 0) && (include == null || include.Length == 0 || (include.Length == 1 && include[0] == "*"))) {
+                string title = IdentityTitle(item, Options(), budget);
+                Type? type = item.BaseObject?.GetType();
+                if (!string.IsNullOrWhiteSpace(title) && title != "PSCustomObject" && title != type?.Name && title != type?.FullName && !item.TypeNames.Contains(title)) { return title; }
+            }
+            string? Read(string name) {
+                if (include != null && include.Length > 0 && !Array.Exists(include, pattern => new WildcardPattern(pattern, WildcardOptions.IgnoreCase).IsMatch(name))) { return null; }
+                if (exclude != null && Array.Exists(exclude, pattern => new WildcardPattern(pattern, WildcardOptions.IgnoreCase).IsMatch(name))) { return null; }
+                PSPropertyInfo? property = item.Properties[name];
+                if (property == null || !property.IsGettable || !budget.TryTake()) { return null; }
+                try {
+                    object? raw = PSText.Unwrap(budget.Guard(name, () => property.Value));
+                    return raw != null && ValueShaper.IsScalar(raw) && !(raw is bool) ? ValueShaper.ScalarText(raw) : null;
+                } catch (GetValueException) { return null; }
+            }
+            PSMemberSet? standard = item.Members["PSStandardMembers"] as PSMemberSet;
+            string? preferred = (standard?.Members["DefaultDisplayProperty"] as PSPropertyInfo)?.Value as string;
+            if (!string.IsNullOrWhiteSpace(preferred)) {
+                string? preferredValue = Read(preferred!);
+                if (!string.IsNullOrWhiteSpace(preferredValue)) { return preferredValue; }
+            }
+            string? name = Read("Name");
+            if (!string.IsNullOrWhiteSpace(name)) {
+                string? display = Read("DisplayName");
+                return !string.IsNullOrWhiteSpace(display) && !string.Equals(name, display, StringComparison.OrdinalIgnoreCase) ? name + " · " + display : name;
+            }
+            return Read("DisplayName") ?? Read("Id");
+        }
 
         /// <summary>Registers a script block that turns objects of a type name into what is shown instead (Register-ConsoleView -Shaper).</summary>
         /// <param name="typeName">The type name (PowerShell type names included).</param>

@@ -13,6 +13,7 @@ namespace ConsoleMonster.PowerShell {
     public abstract class LiveCmdlet : PSCmdlet {
         // Unknown target names already reported per session, so a loop with a typo warns once, not per update.
         private static readonly ConditionalWeakTable<LiveSession, ConcurrentDictionary<string, bool>> Warned = new ConditionalWeakTable<LiveSession, ConcurrentDictionary<string, bool>>();
+        private bool _noSessionReported;
 
         /// <summary>
         /// <para type="description">The live session to update. Defaults to $ConsoleSession or the running dashboard.</para>
@@ -28,7 +29,10 @@ namespace ConsoleMonster.PowerShell {
         protected void Send(LiveEvent liveEvent) {
             LiveSession? session = ResolveSession();
             if (session == null) {
-                WriteError(new ErrorRecord(new PSInvalidOperationException("No console dashboard is running. Use Invoke-ConsoleDashboard first."), "ConsoleMonsterNoSession", ErrorCategory.InvalidOperation, null));
+                if (!_noSessionReported) {
+                    _noSessionReported = true;
+                    WriteError(new ErrorRecord(new PSInvalidOperationException("No console dashboard is running. Use Invoke-ConsoleDashboard first."), "ConsoleMonsterNoSession", ErrorCategory.InvalidOperation, null));
+                }
                 return;
             }
             if (liveEvent.WidgetId != LiveSession.MarkerTarget && !session.TryGetTarget(liveEvent.WidgetId, out _) && Warned.GetOrCreateValue(session).TryAdd(liveEvent.WidgetId, true)) {

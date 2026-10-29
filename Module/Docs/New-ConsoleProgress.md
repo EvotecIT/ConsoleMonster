@@ -243,7 +243,7 @@ The initial state; default Running.
 Type: StatusKind
 Parameter Sets: Bar, Indeterminate
 Aliases: None
-Possible values: Pending, Running, Pass, Fail, Warn, Skip, Info
+Possible values: Pending, Running, Pass, Fail, Warn, Skip, Info, Unknown, None
 
 Required: False
 Position: named
@@ -305,7 +305,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 

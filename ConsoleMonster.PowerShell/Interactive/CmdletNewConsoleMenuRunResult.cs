@@ -29,7 +29,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleMenuRunResult")]
     [OutputType(typeof(MenuRunResult))]
-    public sealed class CmdletNewConsoleMenuRunResult : PSCmdlet {
+    public sealed class CmdletNewConsoleMenuRunResult : NoPipelineInputCmdlet {
         /// <summary><para type="description">The result title.</para></summary>
         [Parameter(Position = 0, Mandatory = true)]
         public string Title { get; set; } = string.Empty;
@@ -66,7 +66,7 @@ namespace ConsoleMonster.PowerShell {
         public Layout.IWidget? Details { get; set; }
 
         /// <inheritdoc />
-        protected override void ProcessRecord() {
+        protected override void ProcessWithoutPipelineInput() {
             MenuRunResult result = new MenuRunResult(Title, Status) { Summary = Summary, Details = Details };
             if (Elapsed.HasValue) {
                 result.Elapsed = Elapsed.Value;

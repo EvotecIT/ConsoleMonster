@@ -117,6 +117,21 @@
           "MemberKind": "Method",
           "Conversion": "Identity",
           "CSharpTypeName": "System.String"
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -254,7 +269,23 @@
       "Command": "Clear-ConsoleScreen",
       "Job": "Clear-ConsoleScreen",
       "CSharpType": "ConsoleMonster.Terminal",
-      "Bindings": []
+      "Bindings": [
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
+        }
+      ]
     },
     {
       "Command": "Compare-ConsoleObject",
@@ -622,6 +653,21 @@
           "MemberKind": "Method",
           "Conversion": "Identity",
           "CSharpTypeName": "System.String"
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -696,6 +742,21 @@
           "Conversion": "Identity",
           "CSharpTypeName": null,
           "Reason": "The parameter selects the documented operation or adapts pipeline data to its typed argument."
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -839,6 +900,21 @@
           "MemberKind": "Method",
           "Conversion": "Identity",
           "CSharpTypeName": "ConsoleMonster.PowerShell.ConsoleFormattingFeature[]"
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -1006,6 +1082,21 @@
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -1082,6 +1173,21 @@
           "Conversion": "Identity",
           "CSharpTypeName": "System.String",
           "Argument": "slug"
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -2185,6 +2291,21 @@
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -2226,6 +2347,21 @@
           "CSharpTypeName": "System.String",
           "Argument": "path",
           "Reason": "Uses the shared JSON/PSD1 writer; ThemeFile.Save alone writes JSON."
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -2287,6 +2423,21 @@
           "MemberKind": "Method",
           "Conversion": "Identity",
           "CSharpTypeName": "ConsoleMonster.Interactive.CommandStyle"
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -2309,6 +2460,21 @@
           "MemberKind": "HostPolicy",
           "Conversion": "HostPolicy",
           "Reason": "Requests fresh detection instead of the host-cached terminal profile."
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -2334,6 +2500,21 @@
           "MemberKind": "Method",
           "Conversion": "Identity",
           "CSharpTypeName": "System.String"
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -2341,7 +2522,23 @@
       "Command": "Get-ConsoleFormatting",
       "Job": "Get-ConsoleFormatting",
       "CSharpType": "ConsoleMonster.PowerShell.CmdletGetConsoleFormatting",
-      "Bindings": []
+      "Bindings": [
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
+        }
+      ]
     },
     {
       "Command": "Invoke-ConsoleDashboard",
@@ -2920,6 +3117,21 @@
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -3128,6 +3340,21 @@
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -3504,6 +3731,21 @@
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -3796,6 +4038,21 @@
           "MemberKind": "Constructor",
           "Conversion": "Identity",
           "CSharpTypeName": "System.String"
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -3961,6 +4218,21 @@
           "MemberKind": "Constructor",
           "Conversion": "Identity",
           "CSharpTypeName": "System.String"
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -4126,6 +4398,21 @@
           "Nullable": "Nullable",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -5018,7 +5305,7 @@
             {
               "Name": "__AllParameterSets",
               "Position": -2147483648,
-              "Mandatory": true
+              "Mandatory": false
             }
           ],
           "CSharpType": "ConsoleMonster.Widgets.ChartOptions",
@@ -5216,6 +5503,21 @@
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -5503,6 +5805,21 @@
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -5897,6 +6214,21 @@
           "Writable": true,
           "Static": false,
           "Reason": "The switch leaves printable input to the application registry."
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -6084,6 +6416,21 @@
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -7105,6 +7452,21 @@
           "Nullable": "Nullable",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -7329,6 +7691,21 @@
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -7551,6 +7928,21 @@
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -7719,6 +8111,21 @@
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -8685,6 +9092,21 @@
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -8826,6 +9248,21 @@
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -9555,6 +9992,21 @@
           "Nullable": "Nullable",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -9718,6 +10170,21 @@
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -10583,6 +11050,21 @@
           "Nullable": "Nullable",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -10846,6 +11328,21 @@
           "Nullable": "Nullable",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -11213,6 +11710,21 @@
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -11238,6 +11750,21 @@
           "MemberKind": "Constructor",
           "Conversion": "Identity",
           "CSharpTypeName": "System.Double"
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -11568,6 +12095,21 @@
           "MemberKind": "Constructor",
           "Conversion": "Identity",
           "CSharpTypeName": "System.String"
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -12291,7 +12833,7 @@
             {
               "Name": "__AllParameterSets",
               "Position": 0,
-              "Mandatory": true
+              "Mandatory": false
             }
           ],
           "CSharpType": "ConsoleMonster.Widgets.Tabs",
@@ -12321,6 +12863,21 @@
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Accepts tab pages from the pipeline and rejects other objects once."
         }
       ]
     },
@@ -12800,6 +13357,21 @@
           "Nullable": "Nullable",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -12985,6 +13557,21 @@
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -13510,6 +14097,21 @@
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -13833,12 +14435,12 @@
         {
           "Parameter": "Title",
           "ParameterType": "System.String",
-          "Default": "",
+          "Default": "Enter a value",
           "Sets": [
             {
               "Name": "__AllParameterSets",
               "Position": 0,
-              "Mandatory": true
+              "Mandatory": false
             }
           ],
           "CSharpType": "ConsoleMonster.Interactive.ConfirmPrompt",
@@ -13908,6 +14510,21 @@
           "Nullable": "Nullable",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -13919,12 +14536,12 @@
         {
           "Parameter": "Title",
           "ParameterType": "System.String",
-          "Default": "",
+          "Default": "Enter a value",
           "Sets": [
             {
               "Name": "__AllParameterSets",
               "Position": 0,
-              "Mandatory": true
+              "Mandatory": false
             }
           ],
           "CSharpType": "ConsoleMonster.Interactive.DatePrompt",
@@ -14134,13 +14751,13 @@
         },
         {
           "Parameter": "Form",
-          "ParameterType": "ConsoleMonster.Interactive.Form",
+          "ParameterType": "System.Management.Automation.PSObject",
           "Default": null,
           "Sets": [
             {
               "Name": "__AllParameterSets",
               "Position": 0,
-              "Mandatory": true
+              "Mandatory": false
             }
           ],
           "CSharpType": "ConsoleMonster.Interactive.Form",
@@ -14488,12 +15105,12 @@
         {
           "Parameter": "Title",
           "ParameterType": "System.String",
-          "Default": "",
+          "Default": "Enter a value",
           "Sets": [
             {
               "Name": "__AllParameterSets",
               "Position": 0,
-              "Mandatory": true
+              "Mandatory": false
             }
           ],
           "CSharpType": "ConsoleMonster.Interactive.NumberPrompt",
@@ -14524,6 +15141,21 @@
           "Nullable": "Nullable",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -14751,12 +15383,12 @@
         {
           "Parameter": "Title",
           "ParameterType": "System.String",
-          "Default": "",
+          "Default": "Enter a value",
           "Sets": [
             {
               "Name": "__AllParameterSets",
               "Position": 0,
-              "Mandatory": true
+              "Mandatory": false
             }
           ],
           "CSharpType": "ConsoleMonster.Interactive.PathPrompt",
@@ -14767,6 +15399,21 @@
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -15123,12 +15770,12 @@
         {
           "Parameter": "Title",
           "ParameterType": "System.String",
-          "Default": "",
+          "Default": "Choose one",
           "Sets": [
             {
               "Name": "__AllParameterSets",
               "Position": 0,
-              "Mandatory": true
+              "Mandatory": false
             }
           ],
           "CSharpType": "ConsoleMonster.Interactive.SelectQuestionOptions",
@@ -15540,12 +16187,12 @@
         {
           "Parameter": "Title",
           "ParameterType": "System.String",
-          "Default": "",
+          "Default": "Enter a value",
           "Sets": [
             {
               "Name": "__AllParameterSets",
               "Position": 0,
-              "Mandatory": true
+              "Mandatory": false
             }
           ],
           "CSharpType": "ConsoleMonster.Interactive.TextQuestionOptions",
@@ -15576,6 +16223,21 @@
           "Nullable": "Nullable",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -15731,6 +16393,21 @@
           "MemberKind": "Constructor",
           "Conversion": "Identity",
           "CSharpTypeName": "ConsoleMonster.Views.ConsoleViewKind"
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -15898,6 +16575,21 @@
           "MemberKind": "Constructor",
           "Conversion": "Identity",
           "CSharpTypeName": "System.String"
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -15987,6 +16679,21 @@
           "CSharpTypeName": "System.String",
           "Argument": "name",
           "Reason": "The Theme parameter selects a built-in preset through Theme.FromName before assigning Terminal.Theme."
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -17807,6 +18514,21 @@
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -18007,6 +18729,21 @@
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -18068,6 +18805,21 @@
           "MemberKind": "Method",
           "Conversion": "Identity",
           "CSharpTypeName": "System.Int32"
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -18373,20 +19125,20 @@
         },
         {
           "Parameter": "Name",
-          "ParameterType": "System.String",
-          "Default": "",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
           "Sets": [
             {
               "Name": "__AllParameterSets",
               "Position": 0,
-              "Mandatory": true
+              "Mandatory": false
             }
           ],
           "CSharpType": "ConsoleMonster.PowerShell.ConsoleHostHelp",
           "Member": "TryCreate",
           "Argument": "name",
           "MemberKind": "Method",
-          "Conversion": "Identity",
+          "Conversion": "CommandName",
           "CSharpTypeName": "System.String"
         },
         {
@@ -18712,13 +19464,13 @@
         },
         {
           "Parameter": "Menu",
-          "ParameterType": "ConsoleMonster.Interactive.Menu",
+          "ParameterType": "System.Management.Automation.PSObject",
           "Default": null,
           "Sets": [
             {
               "Name": "__AllParameterSets",
               "Position": 0,
-              "Mandatory": true
+              "Mandatory": false
             }
           ],
           "CSharpType": "ConsoleMonster.Interactive.Menu",
@@ -19217,6 +19969,21 @@
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -19425,6 +20192,21 @@
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -19649,6 +20431,21 @@
           "Nullable": "Nullable",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -19873,6 +20670,21 @@
           "MemberKind": "Method",
           "Conversion": "Identity",
           "CSharpTypeName": "System.String"
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -20882,6 +21694,21 @@
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -20889,7 +21716,23 @@
       "Command": "Stop-ConsoleRecording",
       "Job": "Stop-ConsoleRecording",
       "CSharpType": "ConsoleMonster.Sessions.SessionRecorder",
-      "Bindings": []
+      "Bindings": [
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
+        }
+      ]
     },
     {
       "Command": "Unregister-ConsoleView",
@@ -20932,6 +21775,21 @@
           "MemberKind": "Method",
           "Conversion": "Identity",
           "CSharpTypeName": "System.String"
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -21684,6 +22542,66 @@
           "MemberKind": "Method",
           "Conversion": "Identity",
           "CSharpTypeName": "System.String"
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "Fields",
+              "Position": -2147483648,
+              "Mandatory": false
+            },
+            {
+              "Name": "Append",
+              "Position": -2147483648,
+              "Mandatory": false
+            },
+            {
+              "Name": "RemoveRow",
+              "Position": -2147483648,
+              "Mandatory": false
+            },
+            {
+              "Name": "ClearRows",
+              "Position": -2147483648,
+              "Mandatory": false
+            },
+            {
+              "Name": "Cells",
+              "Position": -2147483648,
+              "Mandatory": false
+            },
+            {
+              "Name": "AppendCells",
+              "Position": -2147483648,
+              "Mandatory": false
+            },
+            {
+              "Name": "ResizeCells",
+              "Position": -2147483648,
+              "Mandatory": false
+            },
+            {
+              "Name": "FlowNode",
+              "Position": -2147483648,
+              "Mandatory": false
+            },
+            {
+              "Name": "FlowEdge",
+              "Position": -2147483648,
+              "Mandatory": false
+            },
+            {
+              "Name": "Run",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ],
       "SetBindings": [
@@ -21822,6 +22740,21 @@
           "MemberKind": "HostPolicy",
           "Conversion": "ScriptBlockCallback",
           "Reason": "Runs the callback on the owning PowerShell pipeline/runspace; C# uses a typed delegate and cancellation token."
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -21965,6 +22898,21 @@
           "Conversion": "Identity",
           "CSharpTypeName": "System.IO.TextWriter",
           "Argument": "writer"
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -21976,7 +22924,7 @@
         {
           "Parameter": "Seconds",
           "ParameterType": "System.Double",
-          "Default": 0,
+          "Default": 0.0,
           "Sets": [
             {
               "Name": "__AllParameterSets",
@@ -22006,6 +22954,21 @@
           "MemberKind": "HostPolicy",
           "Conversion": "Receiver",
           "Reason": "The LiveSession receiving the event/update or lifetime operation; omission uses the owning current session."
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -22148,6 +23111,21 @@
           "Nullable": "Nullable",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -22367,6 +23345,21 @@
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -23488,7 +24481,7 @@
       "Member": "ProcessEvents",
       "CSharpTypeName": "System.Action`1[ConsoleMonster.Interactive.AppState]",
       "Reason": "Show-ConsoleApp reserves this owning-thread hook for draining its registered callbacks; replacing it would detach the PowerShell callback lifecycle.",
-      "Alternative": "Use New-ConsoleBinding and the inputs\u2019 OnChange/OnClick script blocks.",
+      "Alternative": "Use New-ConsoleBinding and the inputs’ OnChange/OnClick script blocks.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -23714,7 +24707,7 @@
       "Member": "Arguments",
       "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
       "Reason": "The PowerShell recording adapter constructs safe child-shell arguments from the script; C# hosts can launch a different approved child command.",
-      "Alternative": "Use the child script or the presenter\u2019s explicit shell/working-directory setup.",
+      "Alternative": "Use the child script or the presenter’s explicit shell/working-directory setup.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -23722,7 +24715,7 @@
       "Member": "Environment",
       "CSharpTypeName": "System.Collections.Generic.IDictionary`2[System.String,System.String]",
       "Reason": "The cmdlet preserves its documented isolated child environment; C# hosts may construct a separate per-child environment map.",
-      "Alternative": "Use the child script or the presenter\u2019s explicit shell/working-directory setup.",
+      "Alternative": "Use the child script or the presenter’s explicit shell/working-directory setup.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -23730,7 +24723,7 @@
       "Member": "WorkingDirectory",
       "CSharpTypeName": "System.String",
       "Reason": "PowerShell resolves script/provider paths before recording; C# hosts can specify the native child process working directory.",
-      "Alternative": "Use the child script or the presenter\u2019s explicit shell/working-directory setup.",
+      "Alternative": "Use the child script or the presenter’s explicit shell/working-directory setup.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -23785,7 +24778,7 @@
       "CSharpType": "ConsoleMonster.TestRuns.TestRunSummary",
       "Member": "ShowFailures",
       "CSharpTypeName": "System.Boolean",
-      "Reason": "Controls a custom summary\u2019s failure section; the PowerShell adapter preserves its standard result summary.",
+      "Reason": "Controls a custom summary’s failure section; the PowerShell adapter preserves its standard result summary.",
       "Alternative": "Invoke-ConsolePester owns its consistent final summary; custom C# test hosts can compose a summary widget.",
       "Disposition": "CSharpOnly"
     },
@@ -23833,7 +24826,7 @@
       "CSharpType": "ConsoleMonster.Values.ShapeOptions",
       "Member": "Culture",
       "CSharpTypeName": "System.Globalization.CultureInfo",
-      "Reason": "PowerShell\u2019s owning adapter resolves the command/runspace culture; C# shapers can supply a culture directly.",
+      "Reason": "PowerShell’s owning adapter resolves the command/runspace culture; C# shapers can supply a culture directly.",
       "Alternative": "PowerShell uses its canonical PSObject/member shaping and explicit Property/Culture selection.",
       "Disposition": "CSharpOnly"
     },
@@ -23865,7 +24858,7 @@
       "CSharpType": "ConsoleMonster.Values.ShapeOptions",
       "Member": "MaxNodes",
       "CSharpTypeName": "System.Int32",
-      "Reason": "Bounds custom C# shaping graphs; PowerShell uses the host\u2019s bounded projection and explicit inspector limits.",
+      "Reason": "Bounds custom C# shaping graphs; PowerShell uses the host’s bounded projection and explicit inspector limits.",
       "Alternative": "PowerShell uses its canonical PSObject/member shaping and explicit Property/Culture selection.",
       "Disposition": "CSharpOnly"
     },
@@ -23922,7 +24915,7 @@
       "Member": "BasePath",
       "CSharpTypeName": "System.String",
       "Reason": "PowerShell supplies its current filesystem provider path for source diagnostics; C# hosts choose their own base path.",
-      "Alternative": "Use Show-Console\u2019s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
+      "Alternative": "Use Show-Console’s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -23930,7 +24923,7 @@
       "Member": "DetailsHint",
       "CSharpTypeName": "System.String",
       "Reason": "The PowerShell adapter generates the native Get-Error hint; C# hosts supply wording for their own error-detail route.",
-      "Alternative": "Use Show-Console\u2019s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
+      "Alternative": "Use Show-Console’s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -23938,7 +24931,7 @@
       "Member": "Provider",
       "CSharpTypeName": "ConsoleMonster.Views.IConsoleViewProvider",
       "Reason": "Native view providers are a C# extension point; cmdlets use the shared built-in and registered PowerShell view owners.",
-      "Alternative": "Use Show-Console\u2019s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
+      "Alternative": "Use Show-Console’s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -23946,7 +24939,7 @@
       "Member": "Shape",
       "CSharpTypeName": "ConsoleMonster.Values.ShapeOptions",
       "Reason": "PowerShell owns PSObject shaping and runspace selectors; native C# hosts supply their own ShapeOptions.",
-      "Alternative": "Use Show-Console\u2019s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
+      "Alternative": "Use Show-Console’s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -23954,14 +24947,14 @@
       "Member": "Sources",
       "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Data.IMemberSource]",
       "Reason": "Native member-source implementations are the AOT/C# extension point; cmdlets install the canonical PSObject source.",
-      "Alternative": "Use Show-Console\u2019s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
+      "Alternative": "Use Show-Console’s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
       "Disposition": "CSharpOnly"
     },
     {
       "CSharpType": "ConsoleMonster.Widgets.Dashboard",
       "Member": "CompactSummary",
       "CSharpTypeName": "System.Func`1[System.String]",
-      "Reason": "A C# embedding host may supply a separate compact widget; PowerShell uses the dashboard\u2019s normal compact summary.",
+      "Reason": "A C# embedding host may supply a separate compact widget; PowerShell uses the dashboard’s normal compact summary.",
       "Alternative": "Use New-ConsoleDashboard and the normal adaptive dashboard layout.",
       "Disposition": "CSharpOnly"
     },
@@ -23969,7 +24962,7 @@
       "CSharpType": "ConsoleMonster.Widgets.Dashboard",
       "Member": "MinimumSize",
       "CSharpTypeName": "ConsoleMonster.Layout.Size",
-      "Reason": "Controls an embedded C# dashboard\u2019s compact-mode threshold; the PowerShell host keeps its supported adaptive threshold.",
+      "Reason": "Controls an embedded C# dashboard’s compact-mode threshold; the PowerShell host keeps its supported adaptive threshold.",
       "Alternative": "Use New-ConsoleDashboard and the normal adaptive dashboard layout.",
       "Disposition": "CSharpOnly"
     },
@@ -24001,8 +24994,8 @@
       "CSharpType": "ConsoleMonster.Widgets.InspectorView",
       "Member": "Presentation",
       "CSharpTypeName": "ConsoleMonster.Presenters.PresentationOptions",
-      "Reason": "A C# host can pin a static inspector\u2019s clock/time zone; PowerShell uses the owning host\u2019s current value presentation.",
-      "Alternative": "Use Show-ConsoleObject\u2019s standard inspector presentation.",
+      "Reason": "A C# host can pin a static inspector’s clock/time zone; PowerShell uses the owning host’s current value presentation.",
+      "Alternative": "Use Show-ConsoleObject’s standard inspector presentation.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24010,7 +25003,7 @@
       "Member": "ShowHeader",
       "CSharpTypeName": "System.Boolean",
       "Reason": "Controls a directly embedded static inspector; PowerShell chooses its header according to the inspector route.",
-      "Alternative": "Use Show-ConsoleObject\u2019s standard inspector presentation.",
+      "Alternative": "Use Show-ConsoleObject’s standard inspector presentation.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24041,7 +25034,7 @@
       "CSharpType": "ConsoleMonster.Widgets.RecordView",
       "Member": "Presentation",
       "CSharpTypeName": "ConsoleMonster.Presenters.PresentationOptions",
-      "Reason": "A C# host can pin a record\u2019s clock/time zone; PowerShell list values use their explicit Culture and owning-host context.",
+      "Reason": "A C# host can pin a record’s clock/time zone; PowerShell list values use their explicit Culture and owning-host context.",
       "Alternative": "Use Show-ConsoleList and its Property/Depth/ShowEmpty/Culture controls.",
       "Disposition": "CSharpOnly"
     },
@@ -24153,7 +25146,7 @@
       "CSharpType": "ConsoleMonster.Widgets.TextBlock",
       "Member": "Content",
       "CSharpTypeName": "System.String",
-      "Reason": "TextBlock stores one string; PowerShell\u2019s canonical text command returns RichText pieces usable in cells as well as block rendering.",
+      "Reason": "TextBlock stores one string; PowerShell’s canonical text command returns RichText pieces usable in cells as well as block rendering.",
       "Alternative": "Use New-ConsoleText -Text/-Markup/-Role/-Alignment/-Overflow; its RichText result is also a widget.",
       "Disposition": "EquivalentRepresentation"
     },
@@ -24177,7 +25170,7 @@
       "CSharpType": "ConsoleMonster.Widgets.TextBlock",
       "Member": "Role",
       "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Styling.ThemeToken]",
-      "Reason": "TextBlock stores a block role; PowerShell applies the same Role through RichText\u2019s base style.",
+      "Reason": "TextBlock stores a block role; PowerShell applies the same Role through RichText’s base style.",
       "Alternative": "Use New-ConsoleText -Text/-Markup/-Role/-Alignment/-Overflow; its RichText result is also a widget.",
       "Disposition": "EquivalentRepresentation"
     },
@@ -25131,6 +26124,14 @@
       "CSharpTypeName": "System.Int64",
       "Reason": "The omitted-row count is supplied by the view collection owner.",
       "Alternative": "Set ViewHint.MoreRows and use the hint as a native view footer.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.PipelineChart",
+      "Member": "SkippedCount",
+      "CSharpTypeName": "System.Int32",
+      "Reason": "A C# host can report observations omitted before adding chart samples.",
+      "Alternative": "Show-Console -View Chart counts unchartable pipeline rows automatically.",
       "Disposition": "CSharpOnly"
     }
   ],

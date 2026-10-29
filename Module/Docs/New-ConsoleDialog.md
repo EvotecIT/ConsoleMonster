@@ -169,7 +169,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-- ``ConsoleMonster.Interactive.FormDialog`1[[ConsoleMonster.Interactive.AppState, ConsoleMonster, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null]]``
+- ``ConsoleMonster.Interactive.FormDialog`1[[ConsoleMonster.Interactive.AppState, ConsoleMonster, Version=2.1.1.0, Culture=neutral, PublicKeyToken=null]]``
 
 ## RELATED LINKS
 

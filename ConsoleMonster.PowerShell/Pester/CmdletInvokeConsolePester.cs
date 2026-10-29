@@ -23,12 +23,12 @@ namespace ConsoleMonster.PowerShell.Pester {
     ///   <code>
     /// $c = New-PesterConfiguration
     /// $c.Run.Path = '.\Tests'
-    /// $c.Filter.Tag = 'Unit'
+    /// $c.Filter.TagFilter = 'Unit'
     /// $r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.html -PassThru</code>
     /// </example>
     [Cmdlet(VerbsLifecycle.Invoke, "ConsolePester", DefaultParameterSetName = "Simple")]
     [OutputType(typeof(PSObject))]
-    public sealed class CmdletInvokeConsolePester : PSCmdlet {
+    public sealed class CmdletInvokeConsolePester : NoPipelineInputCmdlet {
         /// <summary><para type="description">Test files or folders; omitted uses Pester's current-folder default.</para></summary>
         [Parameter(Position = 0, ParameterSetName = "Simple")]
         public string[]? Path { get; set; }

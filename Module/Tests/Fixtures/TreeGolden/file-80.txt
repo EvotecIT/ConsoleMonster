@@ -1,0 +1,5 @@
+report.txt
+|-- Name  report.txt
+|-- Length  1.5 KB
+|-- Extension  .txt
+`-- +1 empty

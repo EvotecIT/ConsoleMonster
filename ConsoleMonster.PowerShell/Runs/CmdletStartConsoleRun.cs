@@ -28,7 +28,7 @@ namespace ConsoleMonster.PowerShell {
     /// <example><para>Use append-only output in CI</para><code>$run = Start-ConsoleRun -Items $checks -Label Name -Target Server -Group Category -NoLive -ProgressEvery 20</code></example>
     [Cmdlet(VerbsLifecycle.Start, "ConsoleRun")]
     [OutputType(typeof(LiveRun))]
-    public sealed class CmdletStartConsoleRun : PSCmdlet {
+    public sealed class CmdletStartConsoleRun : NoPipelineInputCmdlet {
         /// <summary><para type="description">The complete input list. Updates identify each item by zero-based position.</para></summary>
         [Parameter(Mandatory = true)] [AllowEmptyCollection]
         public PSObject[] Items { get; set; } = Array.Empty<PSObject>();

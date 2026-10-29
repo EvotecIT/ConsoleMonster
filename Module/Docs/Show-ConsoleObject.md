@@ -25,21 +25,21 @@ Arrows move, Right and Left expand and collapse, Enter drills into a member, Bac
 
 ### EXAMPLE 1
 ```powershell
-$config | Show-ConsoleObject
+$config = [pscustomobject]@{ Name = 'example'; Settings = @{ Port = 443 } }; $config | Show-ConsoleObject
 ```
 
 Browse a nested configuration
 
 ### EXAMPLE 2
 ```powershell
-$config | Show-ConsoleObject -PassThru
+$config = [pscustomobject]@{ Name = 'example'; Settings = @{ Port = 443 } }; $config | Show-ConsoleObject -PassThru
 ```
 
 Return a selected member value
 
 ### EXAMPLE 3
 ```powershell
-$config | Show-ConsoleObject -RootPath '$config' -PassThru Path
+$config = [pscustomobject]@{ Name = 'example'; Settings = @{ Port = 443 } }; $config | Show-ConsoleObject -RootPath '$config' -PassThru Path
 ```
 
 Return its PowerShell path

@@ -10,6 +10,8 @@ namespace ConsoleMonster.PowerShell {
         // Adapt records once; the shared factory validates the complete typed definition before building a chart.
         internal static void ChartData(ChartOptions options, IEnumerable<object> input) {
             var samples = new List<double>(options.Values ?? Array.Empty<double>());
+            var labels = new HashSet<string>(StringComparer.Ordinal);
+            foreach (ChartItem existing in options.Items) { labels.Add(existing.Key); }
             foreach (object item in input) {
                 object? raw = PSText.Unwrap(item);
                 if (raw == null) { throw new PSArgumentException("Chart data cannot contain null."); }
@@ -31,18 +33,29 @@ namespace ConsoleMonster.PowerShell {
                         options.Series.Add(parsed);
                     }
                 } else {
-                    if (raw is ChartItem bar) { options.Items.Add(bar); }
+                    if (raw is ChartItem bar) { AddChartItem(options, bar, labels); }
                     else if (raw is IDictionary dictionary && !HasField(dictionary, "Label")) {
-                        foreach (DictionaryEntry entry in dictionary) { options.Items.Add(new ChartItem(PSWidgets.ToText(entry.Key), ChartNumber(entry.Value))); }
+                        foreach (DictionaryEntry entry in dictionary) { AddChartItem(options, new ChartItem(PSWidgets.ToText(entry.Key), ChartNumber(entry.Value)), labels); }
                     } else {
                         string? problem = null;
                         ChartItem? parsed = BarItemFrom(record, ref problem);
                         if (parsed == null) { throw new PSArgumentException(problem ?? "A bar needs Label and a finite numeric Value."); }
-                        options.Items.Add(parsed);
+                        AddChartItem(options, parsed, labels);
                     }
                 }
             }
             if (options.Type == ChartType.Histogram || options.Type == ChartType.Sparkline) { options.Values = samples.ToArray(); }
+        }
+
+        private static void AddChartItem(ChartOptions options, ChartItem item, ISet<string> labels) {
+            if (options.Type != ChartType.Bar || !string.Equals(item.Key, item.Label, StringComparison.Ordinal)) {
+                labels.Add(item.Key);
+                options.Items.Add(item);
+                return;
+            }
+            string label = PipelineChart.UniqueLabel(item.Label, labels);
+            if (label == item.Label) { options.Items.Add(item); return; }
+            options.Items.Add(new ChartItem(label, item.Value, item.Role, label) { MissingText = item.MissingText, Status = item.Status });
         }
 
         private static ChartSeries Series(string key, object? values, ThemeToken? role = null) {

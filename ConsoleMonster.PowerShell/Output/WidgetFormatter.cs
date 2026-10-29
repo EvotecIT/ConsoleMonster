@@ -25,7 +25,10 @@ namespace ConsoleMonster.PowerShell {
                 case ConsoleRendering rendering:
                     return Render(rendering.Widget, host, rendering.DisplayOnly && string.IsNullOrEmpty(outputRendering) ? "Host" : outputRendering, rendering.Width, rendering.Culture);
                 case IWidget widget:
-                    return Render(widget, host, outputRendering, 0, null);
+                    // PowerShell's custom format view wraps before the last terminal cell. Reserve its content margin
+                    // only for an interactive host; redirected output and explicit ConsoleRendering widths keep their size.
+                    int hostWidth = !Console.IsOutputRedirected ? HostWidth(host) : 0;
+                    return Render(widget, host, outputRendering, hostWidth > 1 ? hostWidth - 1 : 0, null);
                 default:
                     // A deserialized rendering carries its plain text as its ToString.
                     return (value is PSObject other ? other.ToString() : Convert.ToString(raw, CultureInfo.CurrentCulture)) ?? string.Empty;

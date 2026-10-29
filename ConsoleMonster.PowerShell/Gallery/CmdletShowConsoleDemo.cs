@@ -13,7 +13,7 @@ namespace ConsoleMonster.PowerShell {
     /// <example><para>Render a deterministic snapshot.</para><code>Show-ConsoleDemo assessment -StaticSnapshot -Step 0</code></example>
     [Cmdlet(VerbsCommon.Show, "ConsoleDemo")]
     [OutputType(typeof(PSObject))]
-    public sealed class CmdletShowConsoleDemo : PSCmdlet {
+    public sealed class CmdletShowConsoleDemo : NoPipelineInputCmdlet {
         /// <summary><para type="description">Exact demo slug from Get-ConsoleDemo. Without it, the demos are listed to pick from.</para></summary>
         [Parameter(Position = 0)]
         [ValidateNotNullOrEmpty]
@@ -29,7 +29,7 @@ namespace ConsoleMonster.PowerShell {
         public int Step { get; set; }
 
         /// <inheritdoc />
-        protected override void ProcessRecord() {
+        protected override void ProcessWithoutPipelineInput() {
             if (Slug == null) {
                 Slug = Pick();
                 if (Slug == null) { return; }

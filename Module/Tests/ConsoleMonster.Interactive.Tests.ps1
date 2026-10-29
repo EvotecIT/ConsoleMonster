@@ -1,4 +1,4 @@
-﻿Describe 'Interactive cmdlets' {
+Describe 'Interactive cmdlets' {
     BeforeAll {
         $script:ModulePath = Join-Path $PSScriptRoot '..\ConsoleMonster.psd1'
         $script:Runtime = [System.Diagnostics.Process]::GetCurrentProcess().Path
@@ -88,6 +88,61 @@ foreach ($title in 'Project', 'Notes', 'Token', 'Port', 'Folder', 'Continue?', '
     }
 
     Context 'Without a user (redirected input, -NonInteractive)' {
+        It 'rejects 300 unexpected objects once for commands that do not accept pipeline input' {
+            $text = Invoke-PromptChild -NonInteractive -Script @'
+$commands = 'Get-ConsoleCapability', 'Get-ConsoleDemo', 'New-ConsoleActivityList', 'New-ConsoleColumnFormat', 'New-ConsoleFooterBar', 'New-ConsoleMenuItem', 'New-ConsoleProgress', 'New-ConsoleRule', 'New-ConsoleSimulatedClock', 'New-ConsoleSummaryBar', 'Show-ConsoleOverview', 'Show-ConsoleStatusLine', 'Add-ConsoleRecordingMarker', 'Clear-ConsoleScreen', 'Invoke-ConsolePester', 'Stop-ConsoleRecording', 'Read-ConsoleConfirm', 'Read-ConsoleNumber', 'Read-ConsolePath', 'Read-ConsoleText'
+$service = [pscustomobject]@{ Name = "sample" }
+foreach ($command in $commands) {
+    $Error.Clear()
+    try { 1..300 | ForEach-Object { $service } | & $command -ErrorAction Stop | Out-Null }
+    catch { "RESULT=$command ID=$($_.FullyQualifiedErrorId.Split(',')[0]) COUNT=$($Error.Count)" }
+}
+'@
+            foreach ($command in 'Get-ConsoleCapability', 'Get-ConsoleDemo', 'New-ConsoleActivityList', 'New-ConsoleColumnFormat', 'New-ConsoleFooterBar', 'New-ConsoleMenuItem', 'New-ConsoleProgress', 'New-ConsoleRule', 'New-ConsoleSimulatedClock', 'New-ConsoleSummaryBar', 'Show-ConsoleOverview', 'Show-ConsoleStatusLine', 'Add-ConsoleRecordingMarker', 'Clear-ConsoleScreen', 'Invoke-ConsolePester', 'Stop-ConsoleRecording', 'Read-ConsoleConfirm', 'Read-ConsoleNumber', 'Read-ConsolePath', 'Read-ConsoleText') {
+                $text | Should -Match ([regex]::Escape("RESULT=$command ID=UnexpectedPipelineInput COUNT=1"))
+            }
+        }
+
+        It 'rejects invalid tabs once and still accepts a pipeline of pages' {
+            $text = Invoke-PromptChild -NonInteractive -Script @'
+try { 1..300 | New-ConsoleTabs -ErrorAction Stop | Out-Null } catch { "ERROR=$($_.FullyQualifiedErrorId.Split(',')[0])" }
+$tabs = @(New-ConsoleTab -Title First; New-ConsoleTab -Title Second) | New-ConsoleTabs
+"TYPE=$($tabs.GetType().Name)"
+'@
+            $text | Should -Match 'ERROR=ExpectedConsoleTab'
+            $text | Should -Match 'TYPE=Tabs'
+        }
+
+        It 'reports a missing dashboard once for a pipeline of log entries' {
+            $text = Invoke-PromptChild -NonInteractive -Script @'
+$errors = @()
+1..300 | Write-ConsoleLogEntry -ErrorAction SilentlyContinue -ErrorVariable +errors
+"ERRORS=$($errors.Count) ID=$($errors[0].FullyQualifiedErrorId.Split(',')[0])"
+'@
+            $text | Should -Match 'ERRORS=1 ID=ConsoleMonsterNoSession'
+        }
+
+        It 'supports optional prompt titles' {
+            $text = Invoke-PromptChild -NonInteractive -Script @'
+$one = Read-ConsoleSelect -Choices 'alpha', 'beta' -Default 'beta'
+$two = Read-ConsoleText -Title 'Name' -Default 'worker'
+"ONE=$one TWO=$two"
+'@
+            $text | Should -Match 'ONE=beta TWO=worker'
+        }
+
+        It 'renders one explorer for multiple piped objects' {
+            $text = Invoke-PromptChild -NonInteractive -Script @'
+$values = @([pscustomobject]@{Name='alpha'}, [pscustomobject]@{Name='beta'})
+$result = @($values | Show-ConsoleObject -AsString -Depth 2)
+"COUNT=$($result.Count)"
+$result
+'@
+            $text | Should -Match 'COUNT=1'
+            $text | Should -Match 'alpha'
+            $text | Should -Match 'beta'
+        }
+
         It 'returns the default instead of waiting' {
             $text = Invoke-PromptChild -Script @'
 $v = Read-ConsoleSelect 'Environment' -Choices 'Production', 'Staging' -Default 'Staging'
@@ -153,12 +208,61 @@ try { Read-ConsoleForm $missing -ErrorAction Stop } catch { "error=$($_.Exceptio
             $text = Invoke-PromptChild -Script @'
 $menu = New-ConsoleMenu 'Tool' -Content { New-ConsoleMenuItem 'Run' -Action { 'ran' } }
 try { Show-ConsoleMenu $menu -ErrorAction Stop } catch { "error=$($_.Exception.Message)" }
+try { $menu | Show-ConsoleMenu -ErrorAction Stop } catch { "pipeline=$($_.Exception.Message)" }
 '@
             $text | Should -Match "error=Menu 'Tool' needs an interactive session\."
+            $text | Should -Match "pipeline=Menu 'Tool' needs an interactive session\."
         }
     }
 
     Context 'Accessible and line modes' {
+        It 'labels service choices by identity while returning the service itself' -Skip:(-not (Get-Command Get-Service -ErrorAction SilentlyContinue)) {
+            $text = Invoke-PromptChild -InputText "1`n" -Script @'
+$service = Get-Service | Select-Object -First 1
+$answer = $service | Read-ConsoleSelect -Title 'Service' -Mode Accessible
+"EXPECTED=$($service.Name)"
+"ANSWER=$($answer.Name)"
+'@
+            $name = [regex]::Match($text, '(?m)^EXPECTED=(.+)$').Groups[1].Value.Trim()
+            $name | Should -Not -BeNullOrEmpty
+            $text | Should -Match ([regex]::Escape("1) $name"))
+            $text | Should -Match ([regex]::Escape("ANSWER=$name"))
+            $text | Should -Not -Match 'System\.ServiceProcess\.ServiceController'
+        }
+
+        It 'emits one terminating error for a 300-object pipeline without an interactive user' {
+            $text = Invoke-PromptChild -NonInteractive -Script @'
+$Error.Clear()
+try { 1..300 | ForEach-Object { [pscustomobject]@{ Name = "item$_" } } | Show-ConsoleMenu -Mode None -ErrorAction Stop }
+catch { "id=$($_.FullyQualifiedErrorId.Split(',')[0]) message=$($_.Exception.Message)" }
+"errors=$($Error.Count)"
+'@
+            $text | Should -Match 'id=ExpectedConsoleMenu'
+            $text | Should -Match 'Get-Service \| Read-ConsoleSelect'
+            $text | Should -Match 'errors=1'
+        }
+
+        It 'rejects non-form pipeline objects once and names the selection command' {
+            $text = Invoke-PromptChild -NonInteractive -Script @'
+$Error.Clear()
+try { 1..300 | Read-ConsoleForm -ErrorAction Stop }
+catch { "id=$($_.FullyQualifiedErrorId.Split(',')[0]) message=$($_.Exception.Message)" }
+"errors=$($Error.Count)"
+'@
+            $text | Should -Match 'id=ExpectedConsoleForm'
+            $text | Should -Match 'Read-ConsoleSelect'
+            $text | Should -Match 'errors=1'
+        }
+
+        It 'accepts forms from the pipeline' {
+            $text = Invoke-PromptChild -NonInteractive -Script @'
+$form = New-ConsoleForm 'Test' -Content { New-ConsoleField Name 'Name' -Default 'one' }
+$answer = $form | Read-ConsoleForm -Mode None
+"name=$($answer.Name)"
+'@
+            $text | Should -Match 'name=one'
+        }
+
         It 'numbers the choices and reads the answer as a line' {
             $text = Invoke-PromptChild -InputText "9`n2`n" -Script @'
 $v = Read-ConsoleSelect 'Environment' -Choices 'Production', 'Staging', 'Lab' -Mode Accessible
@@ -207,6 +311,20 @@ $v = @(Read-ConsoleSelect -Title 'Pick' -Choices 'a', 'b', 'c' -Mode Accessible 
     }
 
     Context 'Scripted keys (the rich prompts without a terminal)' {
+        It 'filters real service objects by the identity shown in the picker' -Skip:(-not (Get-Command Get-Service -ErrorAction SilentlyContinue)) {
+            $text = Invoke-PromptChild -Script @'
+$services = @(Get-Service | Select-Object -First 2)
+$target = $services[1]
+$keys = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('"' + $target.Name + '" Enter')
+$keys.Paced = $true
+([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = $keys
+$picked = $services | Read-ConsoleSelect -Title 'Services'
+"EXPECTED=$($target.Name) PICKED=$($picked.Name)"
+'@
+            $text | Should -Match 'EXPECTED=(\S+) PICKED=\1'
+            $text | Should -Not -Match 'System\.ServiceProcess\.ServiceController'
+        }
+
         It 'drives a selection and a multi-selection with keys' {
             $text = Invoke-PromptChild -Script @'
 ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('Down Enter')

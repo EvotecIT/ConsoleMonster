@@ -25,14 +25,14 @@ Pipe any New-Console* widget (or Show-ConsoleTable -AsWidget) and get a self-con
 
 ### EXAMPLE 1
 ```powershell
-Get-Service | Select-Object -First 8 Name, Status, StartType | Show-ConsoleTable -AsWidget | Export-ConsoleFrame -Path .\services.html
+Get-Process | Select-Object -First 8 Name, Id | Show-ConsoleTable -AsWidget | Export-ConsoleFrame -Format Html
 ```
 
 A table as an HTML page
 
 ### EXAMPLE 2
 ```powershell
-$dashboard | Export-ConsoleFrame -Format Svg -Path .\run.svg -Width 120 -Height 36 -Theme Dark -Title 'Nightly run' -WindowChrome
+New-ConsoleText 'Nightly run' | Export-ConsoleFrame -Format Svg -Width 120 -Height 36 -Theme Dark -Title 'Nightly run' -WindowChrome
 ```
 
 A dashboard as an SVG in a window frame, dark only

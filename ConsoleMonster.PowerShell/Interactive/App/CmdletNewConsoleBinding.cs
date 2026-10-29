@@ -10,7 +10,7 @@ namespace ConsoleMonster.PowerShell {
     /// <example><para>Display the current input.</para><code>Show-ConsoleApp -Content { New-ConsoleTextInput -Key Query; New-ConsoleBinding -Content { "Query: $($State.Query)" } }</code></example>
     [Cmdlet(VerbsCommon.New, "ConsoleBinding")]
     [OutputType(typeof(AppBinding))]
-    public sealed class CmdletNewConsoleBinding : PSCmdlet {
+    public sealed class CmdletNewConsoleBinding : NoPipelineInputCmdlet {
         /// <summary><para type="description">Display builder, invoked initially and after state changes on the parent input thread.</para></summary>
         [Parameter(Mandatory = true, Position = 1)]
         public ScriptBlock Content { get; set; } = null!;

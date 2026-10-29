@@ -111,6 +111,13 @@ namespace ConsoleMonster.PowerShell {
             return LanguagePrimitives.ConvertTo<string>(raw) ?? string.Empty;
         }
 
+        /// <summary>Uses the shared object identity for a choice while retaining literal scalar and rich text.</summary>
+        internal static string ChoiceLabel(object? value, Values.ShapeOptions shape) {
+            object? raw = PSText.Unwrap(value);
+            if (raw == null || raw is RichText || Values.ValueShaper.IsScalar(raw)) { return Text(value); }
+            return Binding.PSShaping.IdentityTitle(PSObject.AsPSObject(value), shape);
+        }
+
         /// <summary>Builds choices from objects; the chosen objects themselves are returned to the script.</summary>
         public static List<Choice> Choices(IEnumerable<object?> items, object? display, object? group, object? description, object? badge, object? hotkey, object? disabled, object? selected) {
             return Choices(items, new ChoiceSelectors { Display = display, Group = group, Description = description, Badge = badge, Hotkey = hotkey, Disabled = disabled, Selected = selected });
@@ -122,6 +129,7 @@ namespace ConsoleMonster.PowerShell {
         /// </summary>
         public static List<Choice> Choices(IEnumerable<object?> items, ChoiceSelectors selectors) {
             List<Choice> choices = new List<Choice>();
+            Values.ShapeOptions shape = Binding.PSShaping.Options();
             object? display = selectors.Display;
             object? group = selectors.Group;
             object? description = selectors.Description;
@@ -143,7 +151,7 @@ namespace ConsoleMonster.PowerShell {
                 }
                 object? title = display != null ? Select(item, display) : null;
                 object? value = selectors.CommandValue != null ? CommandValue(item, selectors.CommandValue) : item;
-                Choice choice = new Choice(value, title != null ? Text(title) : Text(item));
+                Choice choice = new Choice(value, title != null ? Text(title) : ChoiceLabel(item, shape));
                 if (PSText.Unwrap(title) is RichText richTitle) {
                     choice.RichTitle = richTitle;
                 }

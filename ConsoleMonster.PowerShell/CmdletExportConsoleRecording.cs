@@ -25,7 +25,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsData.Export, "ConsoleRecording", DefaultParameterSetName = "Session")]
     [OutputType(typeof(string), typeof(FileInfo))]
-    public sealed partial class CmdletExportConsoleRecording : PSCmdlet {
+    public sealed partial class CmdletExportConsoleRecording : NoPipelineInputCmdlet {
         private readonly System.Threading.CancellationTokenSource _exportStop = new System.Threading.CancellationTokenSource();
         /// <summary><para type="description">The dashboard (or widget tree) the recording was made with.</para></summary>
         [Parameter(Mandatory = true, Position = 0, ParameterSetName = "Dashboard")]

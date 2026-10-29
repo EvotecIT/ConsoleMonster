@@ -10,19 +10,19 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example>
     /// <para>Compare configuration strings with one line of context.</para>
-    /// <code>Compare-ConsoleText -ReferenceText $before -DifferenceText $after -Context 1</code>
+    /// <code>Compare-ConsoleText -ReferenceText 'port=80' -DifferenceText 'port=443' -Context 1</code>
     /// </example>
     /// <example>
-    /// <para>Compare files using the current PowerShell location and ignore whitespace within lines.</para>
-    /// <code>Compare-ConsoleText -ReferencePath .\before.txt -DifferencePath .\after.txt -IgnoreWhitespace</code>
+    /// <para>Compare strings while ignoring whitespace within lines.</para>
+    /// <code>Compare-ConsoleText -ReferenceText 'port = 80' -DifferenceText 'port=80' -IgnoreWhitespace</code>
     /// </example>
     /// <example>
     /// <para>Return a unified diff with custom side names for storage or further processing.</para>
-    /// <code>Compare-ConsoleText -ReferenceText $before -DifferenceText $after -ReferenceName 'Deployed' -DifferenceName 'Proposed' -AsUnified | Set-Content .\changes.diff</code>
+    /// <code>Compare-ConsoleText -ReferenceText 'port=80' -DifferenceText 'port=443' -ReferenceName 'Deployed' -DifferenceName 'Proposed' -AsUnified</code>
     /// </example>
     [Cmdlet(VerbsData.Compare, "ConsoleText", DefaultParameterSetName = "Text")]
     [OutputType(typeof(string))]
-    public sealed class CmdletCompareConsoleText : PSCmdlet {
+    public sealed class CmdletCompareConsoleText : NoPipelineInputCmdlet {
         /// <summary><para type="description">The original text. Empty strings and null represent an empty document.</para></summary>
         [Parameter(Mandatory = true, Position = 0, ParameterSetName = "Text")]
         [AllowEmptyString]
@@ -69,7 +69,7 @@ namespace ConsoleMonster.PowerShell {
         public SwitchParameter AsUnified { get; set; }
 
         /// <inheritdoc />
-        protected override void ProcessRecord() {
+        protected override void ProcessWithoutPipelineInput() {
             string? before = ReferenceText;
             string? after = DifferenceText;
             TextDiffOptions options = new TextDiffOptions { Context = Context, IgnoreWhitespace = IgnoreWhitespace.IsPresent };

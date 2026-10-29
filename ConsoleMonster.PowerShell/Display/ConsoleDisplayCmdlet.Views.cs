@@ -17,6 +17,7 @@ namespace ConsoleMonster.PowerShell {
                 case "table": specific = "Property GroupBy ShowTotals MaxRows Border Caption CardsBelow NoHeaderSeparator Expand StatusProperty ShowGroupColumn NoSort Wrap TitleIndent WrapHeaders KeepAllColumns GroupHeadersAsRows RecordViewRows ShowKeyField NoHiddenColumns NoStableWidths NoHeader AlwaysCards RowTitles ShowSubtotals TotalLabel WrapLines TotalRowCount Presentation"; break;
                 case "list": specific = "Property GroupBy ShowEmpty Depth"; break;
                 case "tree": specific = "ChildrenProperty Children LabelProperty StatusProperty DetailProperty Depth MaxItems MaxNodes Include Exclude"; break;
+                case "inspector": specific = "Depth MaxItems MaxNodes Include Exclude"; break;
                 case "chart": specific = "Property Label Type Sort MaxRows Bins Unit"; break;
                 case "code": specific = "Path Language LineNumbers FirstLine MaxLines Highlight Wrap NoTitle"; break;
                 case "json": specific = "Path Depth LineNumbers FirstLine MaxLines Highlight Wrap NoTitle"; break;
@@ -39,6 +40,7 @@ namespace ConsoleMonster.PowerShell {
                 case "table": return BuildTableView(items);
                 case "list": return ConsoleHostViews.List(items, Property, GroupBy, ShowEmpty.IsPresent, Depth, PSText.Markup(Title), Culture, this);
                 case "tree": return BuildTreeView(items);
+                case "inspector": return BuildInspectorView(items);
                 case "chart": return BuildChartView(items);
                 case "code": case "json": return BuildCodeView(items, view.Equals("Json", StringComparison.OrdinalIgnoreCase));
                 case "error": return BuildErrorView(items);

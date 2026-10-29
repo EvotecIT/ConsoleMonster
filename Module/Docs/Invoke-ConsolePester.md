@@ -39,7 +39,7 @@ The tests of the current folder
 ```powershell
 $c = New-PesterConfiguration
 $c.Run.Path = '.\Tests'
-$c.Filter.Tag = 'Unit'
+$c.Filter.TagFilter = 'Unit'
 $r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.html -PassThru
 ```
 
@@ -276,7 +276,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 

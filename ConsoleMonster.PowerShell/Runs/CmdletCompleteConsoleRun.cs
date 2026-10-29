@@ -11,7 +11,7 @@ namespace ConsoleMonster.PowerShell {
     /// <example><para>Keep a structured final result</para><code>$summary = Complete-ConsoleRun $run -PassThru; $summary.Items | Where-Object Status -eq Fail</code></example>
     [Cmdlet(VerbsLifecycle.Complete, "ConsoleRun")]
     [OutputType(typeof(RunSnapshot))]
-    public sealed class CmdletCompleteConsoleRun : PSCmdlet {
+    public sealed class CmdletCompleteConsoleRun : NoPipelineInputCmdlet {
         /// <summary><para type="description">The handle returned by Start-ConsoleRun.</para></summary>
         [Parameter(Mandatory = true, Position = 0)] public LiveRun Run { get; set; } = null!;
         /// <summary><para type="description">Return the final structured snapshot.</para></summary>

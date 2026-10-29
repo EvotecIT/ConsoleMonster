@@ -15,7 +15,7 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example>
     ///   <para>Restart selected services with confirmation and embedded output</para>
-    ///   <code>Get-Service | Show-ConsoleGrid -Property Name, Status, StartType -Title 'Services' -Command @{ Restart = { param($Row) Restart-Service $Row.Name -ErrorAction Stop; "Restarted $($Row.Name)" } }</code>
+    ///   <code>Get-Service | Show-ConsoleGrid -Property Name, Status, StartType -Title 'Services' -Command @{ Restart = { param($Row) Restart-Service $Row.Name -WhatIf } }</code>
     /// </example>
     /// <example>
     ///   <para>Browse processes sorted by memory</para>

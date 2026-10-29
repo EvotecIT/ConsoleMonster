@@ -41,7 +41,7 @@ namespace ConsoleMonster.PowerShell {
                     Form.Apply(PSForms.ToFieldValues(map, Form));
                     break;
                 default:
-                    WriteError(new ErrorRecord(new PSArgumentException("-Value takes a hashtable of field values or the result of a form run."), "ConsoleMonsterFormValue", ErrorCategory.InvalidArgument, Values));
+                    ThrowTerminatingError(new ErrorRecord(new PSArgumentException("-Values takes a hashtable of field values or the result of a form run."), "ConsoleMonsterFormValue", ErrorCategory.InvalidArgument, Values));
                     break;
             }
         }

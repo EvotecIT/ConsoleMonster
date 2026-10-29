@@ -3,7 +3,7 @@
 
 I use the same domain names for cmdlet parameters, C# configuration and fluent calls. PowerShell keeps numeric duration parameters with units and default-off switches; C# keeps TimeSpan values and Boolean properties.
 
-The contract covers **109 commands**, **1143 parameters** and **337 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
+The contract covers **109 commands**, **1206 parameters** and **337 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
 
 Table and List remain named shortcuts to Show-Console’s shared view implementation. Read-* returns answers; New-ConsoleForm/Menu defines a question workflow; Show-ConsoleApp runs a persistent reactive application.
 
@@ -347,6 +347,8 @@ Native host hooks, runtime models and equivalent representations are listed indi
 | `ConsoleMonster.Widgets.TableRowRole.MarkerTone` | CSharpOnly: A row marker tone is supplied independently of the row label and status. | Set MarkerTone on a native TableRowRole used by the table builder. |
 | `ConsoleMonster.Widgets.Tree.CompactGuides` | CSharpOnly: Compact guides are an explicit native hierarchy layout choice. | Set CompactGuides on the Tree returned by New-ConsoleTree before passing it to Show-Console. |
 | `ConsoleMonster.Widgets.Tree.ValuePlacement` | CSharpOnly: Value placement selects the layout of explicitly supplied tree value columns. | Set ValuePlacement on the Tree returned by New-ConsoleTree before passing it to Show-Console. |
+| `ConsoleMonster.Widgets.TextBlock.WrapSeparator` | CSharpOnly: Separator-aware wrapping is a layout option on an explicit TextBlock; New-ConsoleText returns RichText and does not expose this option. | Construct a TextBlock, set WrapSeparator, and pass the widget to Show-Console or use it as a ConsoleViewFrame footer. |
+| `ConsoleMonster.Widgets.TreeNode.MeasureBareLabel` | CSharpOnly: This per-node option includes a bare node in measurement of explicitly configured tree value columns. | Set MeasureBareLabel on a bare TreeNode in an explicit tree with ValueColumns, then pass the tree to Show-Console. |
 | `ConsoleMonster.Widgets.TreeNode.Bare` | CSharpOnly: A bare node omits the ordinary hierarchy decoration in an explicit tree. | Set Bare on a native TreeNode before passing its tree to Show-Console. |
 | `ConsoleMonster.Widgets.TreeNode.TruncateLabelInMiddle` | CSharpOnly: Preserving both ends of one node label is a per-node layout choice. | Set TruncateLabelInMiddle on a native TreeNode before passing its tree to Show-Console. |
 | `ConsoleMonster.Widgets.ViewHeader.Facts` | CSharpOnly: Header facts are supplied by an embedded view builder. | Populate ViewHeader.Facts and pass the header or its ConsoleViewFrame to Show-Console. |
@@ -355,6 +357,7 @@ Native host hooks, runtime models and equivalent representations are listed indi
 | `ConsoleMonster.Widgets.ViewHeader.Title` | CSharpOnly: The embedded view title is literal application-supplied context. | Set ViewHeader.Title and pass the header or its ConsoleViewFrame to Show-Console. |
 | `ConsoleMonster.Widgets.ViewHint.Columns` | CSharpOnly: Hidden column names are supplied by the view layout owner. | Populate ViewHint.Columns and use the hint as a native view footer. |
 | `ConsoleMonster.Widgets.ViewHint.MoreRows` | CSharpOnly: The omitted-row count is supplied by the view collection owner. | Set ViewHint.MoreRows and use the hint as a native view footer. |
+| `ConsoleMonster.Widgets.PipelineChart.SkippedCount` | CSharpOnly: A C# host can report observations omitted before adding chart samples. | Show-Console -View Chart counts unchartable pipeline rows automatically. |
 
 ## .NET host integrations
 
