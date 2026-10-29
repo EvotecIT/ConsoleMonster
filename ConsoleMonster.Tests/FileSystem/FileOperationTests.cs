@@ -501,12 +501,16 @@ namespace ConsoleMonster.Tests.FileSystem {
             ConsoleMonster.Interactive.AppCommand command = FileOperation.Copy(new[] { a, temp.Combine("ghost.txt") }, temp.Combine("dst")).ToAppCommand("copy", "Copy", result => seen = result);
             using ConsoleMonster.Interactive.AppActionSession session = new ConsoleMonster.Interactive.AppActionSession(default);
             Assert.True(session.Start(command, Array.Empty<object?>()));
-            Assert.True(SpinWait.SpinUntil(() => !session.IsBusy, TimeSpan.FromSeconds(10)));
+            using CancellationTokenSource watchdog = new CancellationTokenSource();
+            Task completion = session.Completion;
+            Task timeout = Task.Delay(TimeSpan.FromSeconds(30), watchdog.Token);
+            Assert.Same(completion, await Task.WhenAny(completion, timeout));
+            watchdog.Cancel();
+            await completion;
             Assert.NotNull(seen);
             Assert.Contains(session.Output, entry => entry.Level == "err" && entry.Text.Contains("ghost.txt"));
             Assert.Contains(session.Output, entry => entry.Text.StartsWith("1 done, 1 failed", StringComparison.Ordinal));
             Assert.True(File.Exists(temp.Combine("dst", "a.txt")));
-            await Task.CompletedTask;
         }
 
         private static bool IsRoot() => string.Equals(Environment.UserName, "root", StringComparison.Ordinal);
