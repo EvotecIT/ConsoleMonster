@@ -16,6 +16,7 @@ namespace ConsoleMonster.Graphics {
     /// </summary>
     /// <remarks>Keys, live events and rendering may arrive on different threads, so every state change takes one lock.</remarks>
     public sealed partial class TopologyDiagram : LiveWidget {
+        private const double NaturalPixelsPerColumn = 10.0;
         private readonly object _gate = new object();
         private readonly TopologyChart _chart;
         private readonly Dictionary<string, string> _values = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -24,6 +25,8 @@ namespace ConsoleMonster.Graphics {
         private TopologyCellLayout? _layout;
         private int _layoutWidth = -1;
         private int _layoutReserve = -1;
+        private int _layoutNatural = -1;
+        private bool _layoutCompacted;
         private TopologyResolvedScenario? _scenario;
         private int? _step;
         private string? _focus;
@@ -230,12 +233,26 @@ namespace ConsoleMonster.Graphics {
         internal TopologyCellLayout Layout(int width) {
             int reserve = Math.Min(64, _values.Values.Select(value => DisplayWidth.Measure(value)).DefaultIfEmpty(0).Max());
             if (_values.Count > 0) reserve = Math.Max(reserve, 8);
-            bool fits = _layout != null && reserve <= _layoutReserve && (_layoutWidth == width || _layout.Columns <= width && width <= _layoutWidth);
+            int columns = Math.Max(20, Math.Min(1000, width));
+            // The projection fills the columns it is given, so a small diagram in a wide terminal would get huge boxes.
+            // Aim for the diagram's natural size, about one cell per 10 layout pixels, without dropping any text for it.
+            int natural = Math.Max(20, Math.Min(columns, (int)Math.Ceiling(Prepared.Width / NaturalPixelsPerColumn) + reserve));
+            bool fits = _layout != null && reserve <= _layoutReserve && (_layoutWidth == width
+                || _layout.Columns <= width && (width <= _layoutWidth || !_layoutCompacted && natural == _layoutNatural));
             if (!fits) {
-                _layout = TopologyCellLayout.Create(Prepared, new TopologyCellLayoutOptions {
-                    MaximumColumns = Math.Max(20, Math.Min(1000, width)), ReservedValueWidth = reserve, CompactToFit = true
+                TopologyCellLayout layout = TopologyCellLayout.Create(Prepared, new TopologyCellLayoutOptions {
+                    MaximumColumns = natural, ReservedValueWidth = reserve
                 });
+                // Only a terminal too narrow for the full text drops subtitles and shortens labels.
+                _layoutCompacted = layout.Columns > columns;
+                if (_layoutCompacted) {
+                    layout = TopologyCellLayout.Create(Prepared, new TopologyCellLayoutOptions {
+                        MaximumColumns = columns, ReservedValueWidth = reserve, CompactToFit = true
+                    });
+                }
+                _layout = layout;
                 _layoutWidth = width;
+                _layoutNatural = natural;
                 _layoutReserve = reserve;
             }
 

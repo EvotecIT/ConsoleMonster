@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using ChartForgeX.Primitives;
 using ChartForgeX.Topology;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
@@ -124,6 +125,40 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             Assert.Equal("link-down", view.ScenarioId);
             view.NextScenario(1);
             Assert.Equal("replicate", view.ScenarioId);
+        }
+
+        [Fact]
+        public void Layout_SmallDiagramInAWideTerminal_KeepsItsNaturalSize() {
+            TopologyChart chart = TopologyChart.Create()
+                // Sized like a markup diagram: the canvas fits the two nodes.
+                .WithLayout(TopologyLayoutMode.Layered, TopologyLayoutDirection.LeftToRight)
+                .WithViewport(480, 240, 28)
+                .AddAutoNode("a", "A", TopologyNodeKind.Server)
+                .AddAutoNode("b", "B", TopologyNodeKind.Server)
+                .AddEdge("a-b", "a", "b", "calls", direction: VisualLinkDirection.Forward);
+            var view = new TopologyDiagram(chart);
+
+            string[] lines = Text(view, 200).Replace("\r\n", "\n").Split('\n');
+
+            Assert.True(lines.Max(line => line.TrimEnd().Length) <= 80, "A two-node diagram should not stretch across 200 columns:\n" + string.Join("\n", lines));
+            Assert.True(lines.Count(line => line.Contains("│")) <= 8, "Node boxes should stay a few rows tall.");
+        }
+
+        [Fact]
+        public void Layout_SmallCanvasWithLongText_KeepsSubtitlesAndLabelsInAWideTerminal() {
+            TopologyChart chart = TopologyChart.Create()
+                .WithLayout(TopologyLayoutMode.Layered, TopologyLayoutDirection.LeftToRight)
+                .WithViewport(300, 200, 28)
+                .AddAutoNode("a", "Inventory reconciler", TopologyNodeKind.Service, subtitle: "Nightly at 02:00")
+                .AddAutoNode("b", "Warehouse ledger", TopologyNodeKind.Database)
+                .AddEdge("a-b", "a", "b", "posts stock adjustments", direction: VisualLinkDirection.Forward);
+            var view = new TopologyDiagram(chart);
+
+            string text = Text(view, 200);
+
+            Assert.Contains("Inventory reconciler", text, StringComparison.Ordinal);
+            Assert.Contains("Nightly at 02:00", text, StringComparison.Ordinal);
+            Assert.Contains("posts stock adjustments", text, StringComparison.Ordinal);
         }
 
         [Fact]
