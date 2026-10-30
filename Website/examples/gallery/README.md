@@ -13,7 +13,9 @@ Install ConsoleMonster, then browse and run the PowerShell demos:
 Import-Module ConsoleMonster
 Get-ConsoleDemo | Select-Object Slug, Title, Category
 Show-ConsoleDemo fleet
-(Get-ConsoleDemo fleet).Source | Set-Content -Path ./fleet.ps1 -Encoding UTF8
+$source = (Get-ConsoleDemo fleet).Source
+$encoding = New-Object Text.UTF8Encoding -ArgumentList $true
+[IO.File]::WriteAllText((Join-Path $PWD 'fleet.ps1'), $source, $encoding)
 ```
 
 Use `Get-ConsoleDemo | Where-Object Tier -eq showcase` to browse the larger
