@@ -26,30 +26,30 @@ Get-Process | Format-Table Name, Id | Out-File ./processes.txt
 Get-Process | Format-Table Name, Id > ./processes.txt
 ```
 
-The default enables Output, FormatCommands, Errors, Streams and ReadLine. Use `-Include Help` to add an opt-in, `-Exclude FormatCommands, Errors` to omit features, or `-Feature Streams, ReadLine` to select an exact minimal set. `Get-ConsoleFormatting` shows the current selection. Help, Prompt, Progress, GridView and compact errors remain explicit choices. `Disable-ConsoleFormatting` restores all enabled features; `Disable-ConsoleFormatting -Feature FormatCommands` restores just the format commands.
+The default enables Output, FormatCommands, Errors, Streams and ReadLine. Use `-Include Help` to add an opt-in, `-Exclude FormatCommands, Errors` to omit features, and omit other default features with `-Exclude` for a minimal set. `Get-ConsoleFormatting` shows the current selection. Help, Prompt, Progress, GridView and compact errors remain explicit choices. `Disable-ConsoleFormatting` restores all enabled features; `Disable-ConsoleFormatting -Feature FormatCommands` restores just the format commands.
 
 Custom functions are preserved unless `-Force` is supplied, then restored on disable or module removal. A custom alias named `Format-Table`, `Format-List` or `Format-Wide` prevents installation; remove it explicitly first. Aliases such as `ft`, `fl` and `fw` continue to resolve their normal command names.
 
 ## Compact host errors
 
-The standard error view is enabled by default. Add `-CompactErrors` for the message-first layout; error-producing commands remain native.
+The standard error view is enabled by default. Choose `-ErrorLayout Compact` for the message-first layout; error-producing commands remain native.
 
 ```powershell
 Import-Module ConsoleMonster
-Enable-ConsoleFormatting -CompactErrors
+Enable-ConsoleFormatting -ErrorLayout Compact
 
 # At the prompt, errors use the compact view.
-try { [int]::Parse('production') } catch { $_ | Show-Console -Compact -View Error }
+try { [int]::Parse('production') } catch { $_ | Show-Console -ErrorLayout Compact -View Error }
 
 # Include script and .NET stacks in subsequent host errors.
-Enable-ConsoleFormatting -CompactErrors -Detailed
+Enable-ConsoleFormatting -ErrorLayout Detailed
 Disable-ConsoleFormatting -Feature Errors
 ```
 
 The message comes first. Only its label uses the error tone; the invocation line uses the PowerShell highlighter and a
 caret marks the failing expression. The script, line and column come from `InvocationInfo`. Category and target stay
-visible; inner exceptions fold into a muted count. PowerShell 7 adds a muted `Get-Error for details` hint. `-Detailed`
-includes stacks and causes. `Show-Console -View Error -Compact` provides the same view explicitly, including `-AsWidget`
+visible; inner exceptions fold into a muted count. PowerShell 7 adds a muted `Get-Error for details` hint. `-ErrorLayout Detailed`
+includes stacks and causes. `Show-Console -View Error -ErrorLayout Compact` provides the same view explicitly, including `-AsWidget`
 and exports.
 
 `$ErrorView` is never changed: disabling the feature returns display control to PowerShell;
@@ -204,7 +204,7 @@ GridResult selected = grid.Show();
 
 ## Parameter mapping
 
-The proxies use the parameter metadata of the current PowerShell runtime. On the direct-host route they retain the native property expressions' raw values while the native formatter supplies labels, grouping and layout records. Those values pass through the same shaping budgets and presenters as `Show-ConsoleTable` and `Show-ConsoleList`: status glyphs and tones, byte units, dates, durations and joined collections. Calculated expressions and getters are read once. Conditional table views keep their selected row expressions.
+The proxies use the parameter metadata of the current PowerShell runtime. On the direct-host route they retain the native property expressions' raw values while the native formatter supplies labels, grouping and layout records. Those values pass through the same shaping budgets and presenters as `Show-ConsoleTable` and `Show-Console -View List`: status glyphs and tones, byte units, dates, durations and joined collections. Calculated expressions and getters are read once. Conditional table views keep their selected row expressions.
 
 An explicit `FormatString` keeps the native cell text. Known status values still receive their status glyph and tone. Native views with custom controls or unsupported conditional list layouts keep native text and status tones rather than approximating their controls.
 
@@ -271,15 +271,16 @@ members.AddValues("Substring", "string Substring(int startIndex)");
 Terminal.Write(members);
 ```
 
-## Export a native view explicitly
+## Export a selected view
 
-Use the same adapter independently of session formatting when you need a widget for export or composition.
-Already-created native format records contain strings, so this explicit record-only route retains their cell text and status tones. Use `$rows | Export-ConsoleFrame -Format Markdown` for automatic display, or `$rows | Show-ConsoleTable -AsWidget | Export-ConsoleFrame -Format Markdown` for an explicit table with its full value presenters.
+Use a constructor for a customized table, or pipe objects directly to the exporter
+for automatic view selection. Native format records contain preformatted strings;
+export the original objects to preserve value presenters and table semantics.
 
 ```powershell
 Get-Process |
-    Microsoft.PowerShell.Utility\Format-Table Name, Id |
-    Out-ConsoleFormatCommand -AsWidget |
+    Select-Object -First 5 ProcessName, Id |
+    New-ConsoleTable |
     Export-ConsoleFrame -Path ./processes.html
 ```
 

@@ -110,12 +110,12 @@ using (ScriptedInput input = new ScriptedInput("\"sql\" Escape")) {
 The capture includes the initial inventory and the final filtered state. Intermediate rendering may coalesce several
 edits, while the final state contains the complete query. Use the first and last frames for deterministic snapshots.
 
-For one initialized frame in CI or redirected output, pass `StaticSnapshot = true` in `ConsoleAppOptions`, or use
-`Show-ConsoleApp -StaticSnapshot` in PowerShell. `CONSOLEMONSTER_SNAPSHOT=1` selects the same behaviour when no input source is supplied. `CONSOLEMONSTER_INPUT` supplies scripted keys for an unchanged app. Explicit input wins. This draws once without reading input. A running interactive application
+For one initialized frame in CI or redirected output, set `Mode = InteractionMode.Snapshot` in the app's
+`InteractiveOptions`, or use `Show-ConsoleApp -Mode Snapshot` in PowerShell. `CONSOLEMONSTER_SNAPSHOT=1` selects the same behaviour when no input source is supplied. `CONSOLEMONSTER_INPUT` supplies scripted keys for an unchanged app. Explicit input wins. This draws once without reading input. A running interactive application
 requires interactive input or an explicitly supplied input source.
 
-Applications use a full-screen live session. `ConsoleAppOptions.Live` and `Show-ConsoleApp -Live` accept full-screen
-settings; inline mode is rejected before state initialization or input acquisition because its moving screen origin
+Applications use a full-screen live session. C# hosts configure it through `ConsoleAppOptions.Live`;
+PowerShell uses the app's full-screen defaults. Inline mode is rejected before state initialization or input acquisition because its moving screen origin
 cannot provide reliable click coordinates.
 
 Text-area edits and programmatic value changes are safe between renderer frames. Navigation uses the current text

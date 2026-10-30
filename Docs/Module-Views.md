@@ -33,7 +33,7 @@ Enable-ConsoleFormatting
 Get-ContosoServer
 
 # Explicit formatting and export use the same registered columns.
-Get-ContosoServer | Show-ConsoleTable -AsWidget | Export-ConsoleFrame -Format Markdown
+Get-ContosoServer | New-ConsoleTable | Export-ConsoleFrame -Format Markdown
 ```
 
 Files extend the existing `Register-ConsoleView` registry. An explicit registration takes precedence over automatically discovered module data. Registrations belong to the current PowerShell runspace. Disabling session formatting preserves registrations for later use.
