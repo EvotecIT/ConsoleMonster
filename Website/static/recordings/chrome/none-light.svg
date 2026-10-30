@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="326.4" height="74.4" viewBox="0 0 326.4 74.4" role="img" aria-label="Build report">
+<title>Build report</title>
+<style>
+svg{--cm-fg:#24292f;--cm-bg:#ffffff;--cm-chrome:#1f1f1f;--cm-chrome-fg:#a0a0a0}
+svg{--cm-chrome:#e5e7eb;--cm-chrome-fg:#6b7280;--cm-chrome-title:#111827;--cm-tab:#ffffff;--cm-desk:#c9c9cf;--cm-close:#ff5f57;--cm-minimise:#febc2e;--cm-zoom:#28c840}
+.cm-t{font-family:'Cascadia Mono', 'Cascadia Code', 'DejaVu Sans Mono', Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;font-size:14px;text-anchor:middle;dominant-baseline:alphabetic;font-variant-ligatures:none}
+.cm-s{shape-rendering:crispEdges}
+.cm-title{font-family:'Cascadia Mono', 'Cascadia Code', 'DejaVu Sans Mono', Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;font-size:13px;font-weight:400;fill:var(--cm-chrome-title);text-anchor:middle;dominant-baseline:alphabetic}
+.s0{fill:#111827;font-weight:bold;}
+</style>
+<g class="cm-layer" transform="translate(12 12)"><rect width="326.4" height="74.4" x="-12" y="-12" fill="#ffffff"/><path d="M8.4 8.4H8.4A4.2 4.2 0 0 0 4.2 12.6V16.8M294 8.4H294A4.2 4.2 0 0 1 298.2 12.6V16.8" fill="none" stroke-width="1.2" stroke="#8a8a94"/><path class="cm-s" d="M8.4 7.8h4.2v1.2h-4.2zM12.6 7.8h4.2v1.2h-4.2zM75.6 7.8h109.2v1.2h-109.2zM184.8 7.8h109.2v1.2h-109.2z" fill="#8a8a94"/><text class="cm-t s0" x="29.4 37.8 46.2 54.6 63" y="14">Build</text><path class="cm-s" d="M3.6 16.8h1.2v8.4h-1.2zM3.6 25.2h1.2v8.4h-1.2zM297.6 16.8h1.2v8.4h-1.2zM297.6 25.2h1.2v8.4h-1.2z" fill="#8a8a94"/><text class="cm-t" x="21 37.8 46.2 63 79.8 88.2 96.6 105 113.4 121.8 138.6 147 155.4 163.8 172.2 180.6" y="30.8" fill="#24292f">8of8checkspassed</text><path d="M8.4 42H8.4A4.2 4.2 0 0 1 4.2 37.8V33.6M294 42H294A4.2 4.2 0 0 0 298.2 37.8V33.6" fill="none" stroke-width="1.2" stroke="#8a8a94"/><path class="cm-s" d="M8.4 41.4h142.8v1.2h-142.8zM151.2 41.4h142.8v1.2h-142.8z" fill="#8a8a94"/></g>
+</svg>

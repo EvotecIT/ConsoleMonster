@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="2.4" height="4.8" viewBox="0 0 2.4 4.8" role="img" aria-label="A long caption at the minimum width">
+<title>A long caption at the minimum width</title>
+<style>
+svg{--cm-fg:#cccccc;--cm-bg:#0c0c0c;--cm-chrome:#1f1f1f;--cm-chrome-fg:#a0a0a0}
+svg{--cm-chrome:#1f2a3c;--cm-chrome-fg:#8b8f9a;--cm-chrome-title:#e2e8f0;--cm-tab:#0c0c0c;--cm-desk:#3a3a3f;--cm-close:#ce534c;--cm-minimise:#c59a2a;--cm-zoom:#26a443}
+.cm-t{font-family:'Cascadia Mono', 'Cascadia Code', 'DejaVu Sans Mono', Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;font-size:4px;text-anchor:middle;dominant-baseline:alphabetic;font-variant-ligatures:none}
+.cm-s{shape-rendering:crispEdges}
+.cm-title{font-family:'Cascadia Mono', 'Cascadia Code', 'DejaVu Sans Mono', Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;font-size:13px;font-weight:400;fill:var(--cm-chrome-title);text-anchor:middle;dominant-baseline:alphabetic}
+</style>
+<g class="cm-layer" transform="translate(0 0)"><rect width="2.4" height="4.8" x="0" y="0" fill="#0c0c0c"/><text class="cm-t" x="1.2" y="4" fill="#cccccc">x</text></g>
+</svg>

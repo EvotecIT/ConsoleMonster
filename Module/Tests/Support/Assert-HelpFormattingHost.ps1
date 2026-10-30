@@ -14,7 +14,7 @@ if (-not (Get-Module ConsoleMonster)) {
 }
 # Use the loaded module's root so PS5.1 sees one path to the fixture's about topic,
 # including when the native site runner imports through its module junction.
-Import-Module (Join-Path (Get-Module ConsoleMonster).ModuleBase 'Tests/Fixtures/HelpFormatting/HelpFormatting.psd1')
+Import-Module (Join-Path (Get-Module ConsoleMonster).ModuleBase '../Tests/Fixtures/HelpFormatting/HelpFormatting.psd1')
 . (Join-Path $PSScriptRoot 'Get-HelpFormattingCapture.ps1')
 . (Join-Path $PSScriptRoot 'Read-TestConsoleFrame.ps1')
 $directory = Join-Path ([IO.Path]::GetTempPath()) ([guid]::NewGuid().ToString('N'))

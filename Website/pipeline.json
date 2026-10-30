@@ -100,7 +100,7 @@
       "sourceRoot": "..",
       "sourceUrl": "https://github.com/EvotecIT/ConsoleMonster/blob/master/{root}/{pathNoRoot}#L{line}",
       "includeNamespace": "ConsoleMonster",
-      "quickStartTypes": "Terminal,LiveSession,Table,Panel,DashboardBuilder,ConsoleExporter",
+      "quickStartTypes": "Terminal,LiveSession,Table,Panel,Dashboard,ConsoleExporter",
       "relatedContentManifest": "./config/api-related-content.json",
       "coverageReport": "./_reports/apidocs-coverage.json",
       "injectCriticalCss": true,

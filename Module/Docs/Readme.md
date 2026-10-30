@@ -458,3 +458,7 @@ Writes a line to the log region of a running dashboard.
 Writes coloured text with optional markup, alignment, wrapping and a text log.
 
 Text is literal; Color and BackgroundColor apply per piece. Role, Decoration, Link and Gradient apply to the message. Indent adds spaces and Alignment places text within Width. ShowTimestamp adds a timestamp. NoNewLine continues the current line. LogFile appends plain text with timestamps; new logs use UTF-8 and existing logs retain their encoding. Redirected output is plain text.
+
+## About Topics
+
+### [about_ConsoleMonster](About/about_ConsoleMonster.md)

@@ -131,10 +131,17 @@ function Get-Findings {
         Flexible = $true
     }
     if ($rows.Count) {
-        $rows | New-ConsoleTable -Property $columns -Border Minimal -NoSort
+        $rows | New-ConsoleTable -Property $columns -Border Minimal -NoSort -RecordViewRows 0
     }
     else {
-        New-ConsoleTable -WidgetId findings -Border Minimal -Live -Property $columns
+        $tableParameters = @{
+            WidgetId = 'findings'
+            Border = 'Minimal'
+            Live = $true
+            Property = $columns
+            RecordViewRows = 0
+        }
+        New-ConsoleTable @tableParameters
     }
 }
 function Get-History {
@@ -151,7 +158,7 @@ function Get-History {
         @{ Name = 'Duration'; Expression = { $_.Elapsed.ToString('hh\:mm\:ss') }
             Presenter = 'Text' }
     )
-    $rows | New-ConsoleTable -Property $columns -Border Minimal -NoSort
+    $rows | New-ConsoleTable -Property $columns -Border Minimal -NoSort -RecordViewRows 0
 }
 function Get-Preview {
     param(
@@ -310,10 +317,24 @@ function Get-RunBody {
                     @{ Name = 'Took'; Presenter = 'Text' }
                 )
                 if ($rows.Count) {
-                    $rows | New-ConsoleTable -Property $columns -Border Minimal -NoSort
+                    $tableParameters = @{
+                        Property = $columns
+                        Border = 'Minimal'
+                        NoSort = $true
+                        RecordViewRows = 0
+                    }
+                    $rows |
+                        New-ConsoleTable @tableParameters
                 }
                 else {
-                    New-ConsoleTable -WidgetId slowest -Border Minimal -Live -Property $columns
+                    $tableParameters = @{
+                        WidgetId = 'slowest'
+                        Border = 'Minimal'
+                        Live = $true
+                        Property = $columns
+                        RecordViewRows = 0
+                    }
+                    New-ConsoleTable @tableParameters
                 }
             }
             New-ConsolePanel -Title Durations -Content {

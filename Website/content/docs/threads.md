@@ -83,7 +83,6 @@ Workers update widgets through handles taken from the session. Everything below 
 The C# tab of the dashboard demo above uses `Parallel.ForEachAsync` with a `LanesHandle`. Code deeper down does not need the session at all: an ambient `TerminalScope` flows with the code it wraps, across `await` and `Task.Run`, and `TerminalScope.Report`, `Advance` and `SetState` go to the widget and key the scope names (`TerminalScope.Log` to the session's log). Outside a scope they do nothing, so the same code runs without a dashboard.
 
 ```csharp
-using ConsoleMonster.Building;
 using ConsoleMonster.Live;
 using ConsoleMonster.Widgets;
 

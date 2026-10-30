@@ -683,10 +683,12 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ArgumentList (, $events) -ScriptB
             break
         }
         $delay = [int][Math]::Truncate(($event.Time - $previous) / 4)
-        # A null detail lets phases calculate their elapsed duration.
+        # Preserve omitted strings so widgets infer phase durations and completion status.
+        $key = if ($null -eq $event.Key) { [NullString]::Value } else { $event.Key }
         $text = if ($null -eq $event.Text) { [NullString]::Value } else { $event.Text }
+        $state = if ($null -eq $event.State) { [NullString]::Value } else { $event.State }
         $update = New-Object ConsoleMonster.Live.LiveEvent -ArgumentList $event.Target,
-            $event.Operation, $event.Key, $text, $event.State, $event.Value,
+            $event.Operation, $key, $text, $state, $event.Value,
             $event.Total, $event.Time, $false
         $ConsoleSession.Post($update)
         Wait-ConsoleDashboard -Seconds ($delay / 1000)

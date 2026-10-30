@@ -2,7 +2,7 @@ Describe 'Opt-in native help formatting contracts' {
     BeforeAll {
         . (Join-Path $PSScriptRoot 'Support/Invoke-TestChild.ps1')
         $script:HelpModule = Join-Path $PSScriptRoot '../ConsoleMonster.psd1'
-        $script:HelpFixture = Join-Path $PSScriptRoot 'Fixtures/HelpFormatting/HelpFormatting.psd1'
+        $script:HelpFixture = Join-Path $PSScriptRoot '../../Tests/Fixtures/HelpFormatting/HelpFormatting.psd1'
         $script:HelpCapture = Join-Path $PSScriptRoot 'Support/Get-HelpFormattingCapture.ps1'
         $script:HelpRuntime = [Diagnostics.Process]::GetCurrentProcess().Path
         function Invoke-HelpFormattingChild {

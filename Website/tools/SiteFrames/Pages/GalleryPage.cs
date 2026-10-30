@@ -164,7 +164,8 @@ namespace SiteFrames.Pages {
                 entry["replay"] = null;
                 entry["run"] = new JsonObject {
                     ["powershell"] = "Show-ConsoleDemo " + demo.Slug,
-                    ["export"] = "Export-ConsoleDemo " + demo.Slug + " -Path ./" + demo.Slug + ".ps1",
+                    ["export"] = "$source = (Get-ConsoleDemo " + demo.Slug + ").Source\n" +
+                        "[IO.File]::WriteAllText(\"$PWD/" + demo.Slug + ".ps1\", $source, [Text.UTF8Encoding]::new($true))",
                     ["csharp"] = "dotnet new consolemonster --demo " + demo.Slug,
                     ["csharpFluent"] = "dotnet new consolemonster --demo " + demo.Slug + " --DemoStyle Fluent"
                 };

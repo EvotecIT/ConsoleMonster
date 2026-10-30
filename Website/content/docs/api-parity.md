@@ -12,7 +12,7 @@ I use the same domain names for cmdlet parameters, C# configuration and fluent c
 
 The contract covers **89 commands**, **1034 parameters** and **317 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
 
-Table and List remain named shortcuts to Show-Console’s shared view implementation. Read-* returns answers; New-ConsoleForm/Menu defines a question workflow; Show-ConsoleApp runs a persistent reactive application.
+Show-ConsoleTable is the table shortcut to Show-Console’s shared view implementation. Lists and trees use Show-Console -View List and Show-Console -View Tree. Read-* returns answers; New-ConsoleForm/Menu defines a question workflow; Show-ConsoleApp runs a persistent reactive application.
 
 Typed Options on export, form, menu and replay operations expose the corresponding C# configuration. I can pass a PowerShell hashtable, for example `Export-ConsoleFrame -Format Html -Options @{ Width = 100; Padding = 8 }`. Options and individual settings are mutually exclusive; the supplied request is not modified.
 

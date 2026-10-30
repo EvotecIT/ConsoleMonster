@@ -113,7 +113,7 @@ Get-Service | Select-Object Name
     }
 
     It 'uses the same reader for explicit about-topic help' {
-        Import-Module (Join-Path $PSScriptRoot 'Fixtures/HelpFormatting/HelpFormatting.psd1') -Force
+        Import-Module (Join-Path $PSScriptRoot '../../Tests/Fixtures/HelpFormatting/HelpFormatting.psd1') -Force
         $actual = Show-ConsoleHelp about_ConsoleMonsterMarkdown   -AsWidget | Export-ConsoleFrame -Format Text -Width 60
         $actual | Should -Match 'Markdown topic'
         $actual | Should -Not -Match '# Markdown topic'
