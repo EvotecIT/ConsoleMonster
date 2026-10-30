@@ -8,8 +8,7 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example>
     /// <para>Embed an empty listing in an application</para>
-    /// <code>$listing = New-Object ConsoleMonster.Interactive.Grid -ArgumentList 'Inventory'
-    /// Show-ConsoleApp -Mode Snapshot -Content { New-ConsoleDataGrid -Key Inventory -Grid $listing -Height 18 }</code>
+    /// <code>Show-ConsoleApp -Mode Snapshot -Content { New-ConsoleDataGrid -Key Inventory -Grid 'Inventory' -Height 18 }</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleDataGrid")]
     [OutputType(typeof(DataGrid))]

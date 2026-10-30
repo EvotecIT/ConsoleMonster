@@ -6,6 +6,8 @@ param(
 $ErrorActionPreference = 'Stop'
 Add-Type -Path (Join-Path $AssemblyDirectory 'ConsoleMonster.dll')
 Add-Type -Path (Join-Path $AssemblyDirectory 'ConsoleMonster.PowerShell.Display.dll')
+$displayRenderer = [ConsoleMonster.PowerShell.Display.DefaultDisplay].Assembly.GetType("ConsoleMonster.PowerShell.Display.DefaultDisplayRenderer", $true)
+$displayHostGate = [ConsoleMonster.PowerShell.Display.DefaultDisplay].Assembly.GetType("ConsoleMonster.PowerShell.Display.DefaultDisplayHostGate", $true)
 $fixtureOptions=@{}
 # PS7 may compile the net8 fixture references on .NET 10; suppress only assembly-version unification CS1701.
 if($PSVersionTable.PSVersion.Major -eq 7){$fixtureOptions.CompilerOptions=@('/nowarn:1701')}
@@ -204,21 +206,21 @@ $absent=$null -eq [ConsoleMonster.PowerShell.Display.DefaultDisplay]::Resolve([D
         } finally {$pipeline.Dispose();$runspace.Dispose();$lease.Dispose()}
     }
     Test-DisplayContract 'HostGate_TranscriptActiveUnknownOrThrowing_FailsClosed' {
-        Assert-Display ([ConsoleMonster.PowerShell.Display.DefaultDisplayHostGate]::IsTranscriptInactive([DisplayContract.TranscriptState]::new($false))) 'Known inactive transcription was rejected.'
-        Assert-Display (-not [ConsoleMonster.PowerShell.Display.DefaultDisplayHostGate]::IsTranscriptInactive([DisplayContract.TranscriptState]::new($true))) 'Active transcription was admitted.'
-        Assert-Display (-not [ConsoleMonster.PowerShell.Display.DefaultDisplayHostGate]::IsTranscriptInactive([object]::new())) 'Unknown transcription was admitted.'
-        Assert-Display (-not [ConsoleMonster.PowerShell.Display.DefaultDisplayHostGate]::IsTranscriptInactive([DisplayContract.ThrowingTranscriptState]::new())) 'Throwing transcription state was admitted.'
-        Assert-Display ([ConsoleMonster.PowerShell.Display.DefaultDisplayHostGate]::IsTranscriptInactive($Host.UI)) 'Actual host transcription state could not be read.'
+        Assert-Display ($displayHostGate::IsTranscriptInactive([DisplayContract.TranscriptState]::new($false))) 'Known inactive transcription was rejected.'
+        Assert-Display (-not $displayHostGate::IsTranscriptInactive([DisplayContract.TranscriptState]::new($true))) 'Active transcription was admitted.'
+        Assert-Display (-not $displayHostGate::IsTranscriptInactive([object]::new())) 'Unknown transcription was admitted.'
+        Assert-Display (-not $displayHostGate::IsTranscriptInactive([DisplayContract.ThrowingTranscriptState]::new())) 'Throwing transcription state was admitted.'
+        Assert-Display ($displayHostGate::IsTranscriptInactive($Host.UI)) 'Actual host transcription state could not be read.'
     }
     Test-DisplayContract 'HostGate_PlainProfile_RequiresWindowsHandleOrActualUnixTty' {
         $physical = [ConsoleMonster.Capabilities.TerminalProfile]::new([ConsoleMonster.Capabilities.ColorDepth]::None, [ConsoleMonster.Capabilities.GlyphTier]::Ascii,
             [ConsoleMonster.Capabilities.OutputMode]::Plain, 80, 30, [ConsoleMonster.Capabilities.TerminalKind]::WindowsTerminal, $false, $false, $true, $false)
-        Assert-Display ([ConsoleMonster.PowerShell.Display.DefaultDisplayHostGate]::SupportsPhysicalProfile($physical)) 'Plain output disabled a physical host layout.'
+        Assert-Display ($displayHostGate::SupportsPhysicalProfile($physical)) 'Plain output disabled a physical host layout.'
         $unixTty = [Environment]::OSVersion.Platform -eq [PlatformID]::Unix -and -not [Console]::IsOutputRedirected
-        Assert-Display ([ConsoleMonster.PowerShell.Display.DefaultDisplayHostGate]::SupportsPhysicalProfile($displayProfile) -eq $unixTty) 'A handle-free profile must follow the actual Unix stdout route.'
+        Assert-Display ($displayHostGate::SupportsPhysicalProfile($displayProfile) -eq $unixTty) 'A handle-free profile must follow the actual Unix stdout route.'
         $redirected = [ConsoleMonster.Capabilities.TerminalProfile]::new([ConsoleMonster.Capabilities.ColorDepth]::None, [ConsoleMonster.Capabilities.GlyphTier]::Ascii,
             [ConsoleMonster.Capabilities.OutputMode]::Plain, 80, 30, [ConsoleMonster.Capabilities.TerminalKind]::Redirected, $false, $true, $false, $false)
-        Assert-Display (-not [ConsoleMonster.PowerShell.Display.DefaultDisplayHostGate]::SupportsPhysicalProfile($redirected)) 'A redirected profile passed the physical host gate.'
+        Assert-Display (-not $displayHostGate::SupportsPhysicalProfile($redirected)) 'A redirected profile passed the physical host gate.'
     }
     Test-DisplayContract 'SchemaV2_ConditionalTonesTemplatesAndScope_RenderWithoutLazyGetters' {
         $document = [ConsoleMonster.PowerShell.Display.ConsoleViewDocument]::Parse(@{
@@ -383,10 +385,10 @@ $absent=$null -eq [ConsoleMonster.PowerShell.Display.DefaultDisplay]::Resolve([D
     }
     Test-DisplayContract 'Renderer_PlainModeAndOutputBudget_NoSgrAndBoundedResult' {
         $widget = [ConsoleMonster.Widgets.TextBlock]::new('[bold][fail]failed[/][/]')
-        $encoded = [ConsoleMonster.PowerShell.Display.DefaultDisplayRenderer]::Prepare($widget, $displayProfile, 4096)
+        $encoded = $displayRenderer::Prepare($widget, $displayProfile, 4096)
         Assert-Display (-not $encoded.Contains([string][char]27)) 'Plain mode retained escape sequences.'
         Assert-Display ($encoded -match 'failed') 'Plain mode lost the layout text.'
-        Assert-Throws { [ConsoleMonster.PowerShell.Display.DefaultDisplayRenderer]::Prepare($widget, $displayProfile, 1) }
+        Assert-Throws { $displayRenderer::Prepare($widget, $displayProfile, 1) }
     }
     Test-DisplayContract 'Stream_ImmediateRows_OneHeaderStableWidthsAndOneSummary' {
         $lease=New-DisplayLease 'Stream'

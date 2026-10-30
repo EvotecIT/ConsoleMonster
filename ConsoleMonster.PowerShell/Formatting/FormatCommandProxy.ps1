@@ -7,7 +7,8 @@ begin {
     $cmAdapter = [System.Management.Automation.CmdletInfo]::new('Out-ConsoleFormatCommand', (Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.CmdletOutConsoleFormatCommand'))
     if (((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.FormatCommandRouter'))::IsDirectHost($PSCmdlet)) {
         if ('__COMMAND__' -ne 'Format-Wide') {
-            $cmCapture = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.NativeFormatCapture'))::new($PSCmdlet, '__COMMAND__'.Substring(7), $PSBoundParameters)
+            $cmCaptureType = (Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.NativeFormatCapture', $true)
+            $cmCapture = [Activator]::CreateInstance($cmCaptureType, [object[]] @($PSCmdlet, '__COMMAND__'.Substring(7), $PSBoundParameters))
         }
         $cmTarget = { & $cmNative @PSBoundParameters | & $cmAdapter }
     } else {

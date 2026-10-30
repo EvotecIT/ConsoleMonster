@@ -15,6 +15,7 @@ try {
     $core=Join-Path $AssemblyDirectory 'ConsoleMonster.dll'
     Add-Type -Path $core
     Add-Type -Path (Join-Path $AssemblyDirectory 'ConsoleMonster.PowerShell.Display.dll')
+    $displayRenderer = [ConsoleMonster.PowerShell.Display.DefaultDisplay].Assembly.GetType("ConsoleMonster.PowerShell.Display.DefaultDisplayRenderer", $true)
     $fixtureOptions=@{}
     # PS7 may compile the net8 fixture references on .NET 10; suppress only assembly-version unification CS1701.
     if($PSVersionTable.PSVersion.Major -eq 7){$fixtureOptions.CompilerOptions=@('/nowarn:1701')}
@@ -69,7 +70,7 @@ try {
     Test-HostContract 'WidgetFailure_PreparationWritesNoPartialFrame' {
         $widget=[DisplayHostContract.BrokenWidget]::new()
         $thrown=$false
-        try{[ConsoleMonster.PowerShell.Display.DefaultDisplayRenderer]::Prepare($widget,$displayProfile)|Out-Null}catch{$thrown=$true}
+        try{$displayRenderer::Prepare($widget,$displayProfile)|Out-Null}catch{$thrown=$true}
         Assert-HostContract $thrown 'A partial-render failure was not surfaced before host write.'
     }
     $lease.Dispose();$lease=$null

@@ -174,7 +174,7 @@ $domainSettings = @{
     CommandValue = 'Name'
     Describe     = { "$($_.Count) servers · $($_.Sites)" }
     Badge        = { "$($_.Count) servers" }
-    Help         = 'Choosing a domain loads its servers from the inventory.'
+    Description         = 'Choosing a domain loads its servers from the inventory.'
 }
 $domainField = New-ConsoleField @domainSettings
 # The servers load in their own runspace when the domain changes: grouped by site, offline ones disabled,
@@ -188,7 +188,7 @@ $serversSettings = @{
     DependsOn    = 'Domain'
     Minimum      = 1
     ParameterName    = 'ComputerName'
-    Help         = 'Grouped by site; offline servers cannot be picked. Space toggles, Ctrl+A selects all.'
+    Description         = 'Grouped by site; offline servers cannot be picked. Space toggles, Ctrl+A selects all.'
     ArgumentList = $servers, $loadDelay
     LoadChoices  = {
         param($Values, $Inventory, $Delay)
@@ -212,7 +212,7 @@ $serversSettings = @{
     Badge        = 'Role'
     Describe     = 'Detail'
     DisabledReason     = 'Offline'
-    Selected     = 'Online'
+    Default     = @{ Property = 'Online' }
 }
 $serversField = New-ConsoleField @serversSettings
 $checksSettings = @{
@@ -229,8 +229,8 @@ $checksSettings = @{
     Minimum      = 1
     ParameterName    = 'Check'
     Badge        = { '~{0} s' -f $_.Seconds.ToString('0.#', [cultureinfo]::InvariantCulture) }
-    Selected     = { $_.Id -in 'SecureChannel', 'TimeOffset', 'ForwardRecord' }
-    Help         = 'Grouped by category; the preview shows what a healthy server reports.'
+    Default     = { $_.Id -in 'SecureChannel', 'TimeOffset', 'ForwardRecord' }
+    Description         = 'Grouped by category; the preview shows what a healthy server reports.'
     Preview      = {
         New-ConsoleText $_.About
         New-ConsoleKeyValue -Markup -InputObject ([ordered] @{
@@ -289,10 +289,10 @@ $formSettings = @{
     Command     = 'Invoke-FleetCheck'
     SubmitText  = 'Run checks'
     Description = 'Checks the health of every chosen server.'
-    Field       = @(
+    Content     = {
         $domainField, $serversField, $checksField, $parallelField
         $formatField, $reportField, $notifyField, $emailField
-    )
+    }
 }
 $form = New-ConsoleForm @formSettings
 
@@ -653,7 +653,7 @@ $menu = New-ConsoleMenu 'Fleet health check' -Subtitle 'Tue 20 Oct 2026 · 09:30
             $details = if ($state.Findings.Count) {
                 $actualColumn = @{ Name = 'Actual'; Flexible = $true; Markup = $true }
                 $columns = 'Server', 'Check', 'Expected', $actualColumn
-                $state.Findings.Values | New-ConsoleTable -Property $columns -Border Minimal 
+                $state.Findings.Values | New-ConsoleTable -Property $columns -Border Minimal
             }
             $next = [ordered] @{
                 'Open the report' = { $MenuContext.Toast("Opened $script:lastReport", 'Info') }
@@ -710,7 +710,7 @@ $menu = New-ConsoleMenu 'Fleet health check' -Subtitle 'Tue 20 Oct 2026 · 09:30
             @{ Name = 'Result'; Markup = $true }
             @{ Name = 'Took'; Alignment = 'Right' }
         )
-        $rows | New-ConsoleTable -Property $columns -Border Minimal -NoSort 
+        $rows | New-ConsoleTable -Property $columns -Border Minimal -NoSort
     }
     New-ConsoleMenuItem -Separator
     New-ConsoleMenuItem 'Quit' -Exit

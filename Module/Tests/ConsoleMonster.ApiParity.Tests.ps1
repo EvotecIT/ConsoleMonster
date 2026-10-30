@@ -1,25 +1,37 @@
-function Get-ConsoleApiFluentTypeName([string] $typeName) {
-    $namespace = $typeName.Substring(0, $typeName.LastIndexOf('.'))
-    $name = $namespace.Substring($namespace.LastIndexOf('.') + 1)
-    return "$namespace.$($name)Fluent"
-}
-
 Describe 'PowerShell and C# API parity' {
     BeforeAll {
         Import-Module (Join-Path $PSScriptRoot '../ConsoleMonster.psd1') -Force
         . (Join-Path $PSScriptRoot 'Support/Get-ConsoleApiMetadata.ps1')
         $script:Parity = Get-Content (Join-Path $PSScriptRoot '../../Tests/Api/round2-parity.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+        $script:ApprovedCommands = Get-Content (Join-Path $PSScriptRoot '../../Tests/Api/round2-commands.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+        $script:ApprovedPublicTypes = Get-Content (Join-Path $PSScriptRoot '../../Tests/Api/approved-public-types.json') -Raw -Encoding UTF8 | ConvertFrom-Json
         $script:ApiCommands = @(Get-Command -Module ConsoleMonster -CommandType Cmdlet)
-        $assemblies = @([ConsoleMonster.Terminal].Assembly, (Get-Command Show-Console).ImplementingType.Assembly)
-        foreach ($name in 'ConsoleMonster.Markdown', 'ConsoleMonster.Graphics') {
-            $path = Join-Path (Split-Path (Get-Command Show-Console).ImplementingType.Assembly.Location) ($name + '.dll')
-            $assemblies += [Reflection.Assembly]::LoadFrom($path)
-        }
+        $script:ApiModuleAssembly = (Get-Command Show-Console).ImplementingType.Assembly
+        $assemblies = @(Get-ConsoleApiAssemblies $script:ApiModuleAssembly)
         $nullabilityType = [object].Assembly.GetType('System.Reflection.NullabilityInfoContext')
         $script:ApiNullability = if ($null -ne $nullabilityType) { [Activator]::CreateInstance($nullabilityType) } else { $null }
         $script:ApiTypes = @{}
         foreach ($assembly in $assemblies) {
             foreach ($type in $assembly.GetExportedTypes()) { $script:ApiTypes[$type.FullName] = $type }
+        }
+    }
+
+    It 'exports exactly the reviewed command surface' {
+        $approved = @($script:ApprovedCommands.Commands)
+        $approved.Count | Should -Be $script:ApprovedCommands.ExpectedCount
+        @($approved | Sort-Object -Unique).Count | Should -Be $approved.Count -Because 'every approved command appears once'
+        Compare-Object @((Get-Module ConsoleMonster).ExportedCommands.Keys | Sort-Object) @($approved | Sort-Object) | Should -BeNullOrEmpty -Because 'new exports require an explicit surface decision'
+    }
+
+    It 'ships exactly the reviewed public types across the library and integration assemblies' {
+        $assemblies = @(Get-ConsoleApiAssemblies $script:ApiModuleAssembly (Join-Path $PSScriptRoot '../..') -IncludeIntegrations)
+        $approved = $script:ApprovedPublicTypes.PSObject.Properties
+        Compare-Object @($assemblies.GetName().Name | Sort-Object) @($approved.Name | Sort-Object) | Should -BeNullOrEmpty
+        foreach ($assembly in $assemblies) {
+            $name = $assembly.GetName().Name
+            $expected = @($script:ApprovedPublicTypes.$name)
+            @($expected | Sort-Object -Unique).Count | Should -Be $expected.Count -Because "$name approves each type once"
+            Compare-Object @($assembly.GetExportedTypes().FullName | Sort-Object) @($expected | Sort-Object) | Should -BeNullOrEmpty -Because "$name public type changes require an explicit surface decision"
         }
     }
 
@@ -53,9 +65,15 @@ Describe 'PowerShell and C# API parity' {
                 $override.ParameterSet | Should -BeIn @($binding.Sets.Name)
             }
         }
+        foreach ($shortcut in $script:ApprovedCommands.Shortcuts) {
+            $entry = $script:Parity.Commands | Where-Object Command -EQ $shortcut.Name
+            $entry.ShortcutOf | Should -BeExactly $shortcut.ShortcutOf
+            $entry.Job | Should -BeExactly $shortcut.ShortcutOf
+        }
         foreach ($job in ($script:Parity.Commands | Group-Object Job | Where-Object Count -GT 1)) {
-            $job.Name | Should -Be Show-Console
-            @($job.Group | Where-Object ShortcutOf -EQ Show-Console).Command | Sort-Object | Should -Be @('Show-ConsoleList', 'Show-ConsoleTable')
+            $shortcuts = @($script:ApprovedCommands.Shortcuts | Where-Object ShortcutOf -EQ $job.Name)
+            $shortcuts.Count | Should -BeGreaterThan 0
+            Compare-Object @($job.Group.Command | Sort-Object) @(@($shortcuts.Name) + @($job.Name) | Sort-Object) | Should -BeNullOrEmpty
         }
     }
 
@@ -85,9 +103,7 @@ Describe 'PowerShell and C# API parity' {
                 if ($binding.FluentMember) {
                     $fluent = $script:ApiTypes[(Get-ConsoleApiFluentTypeName $binding.CSharpType)]
                     $fluent | Should -Not -BeNullOrEmpty -Because "$label needs a real fluent collection operation"
-                    @($fluent.GetMethods() | Where-Object {
-                        $_.Name -eq $binding.FluentMember -and $_.GetParameters()[0].ParameterType -eq $type
-                    }).Count | Should -BeGreaterThan 0 -Because "$label generates this call in How it maps"
+                    @(Get-ConsoleApiFluentMethods $fluent $type | Where-Object Name -EQ $binding.FluentMember).Count | Should -BeGreaterThan 0 -Because "$label generates this call in How it maps"
                 }
                 if ($binding.MemberKind -eq 'Property') {
                     $member = $type.GetProperty($binding.Member)
@@ -99,7 +115,7 @@ Describe 'PowerShell and C# API parity' {
                         $fluent = $script:ApiTypes[(Get-ConsoleApiFluentTypeName $binding.CSharpType)]
                         $fluent | Should -Not -BeNullOrEmpty -Because "$label needs both Boolean fluent overloads"
                         $methodName = if ($binding.Member -cmatch '^Is[A-Z]') { $binding.Member.Substring(2) } else { $binding.Member }
-                        $overloads = @($fluent.GetMethods() | Where-Object { $_.Name -eq $methodName -and $_.GetParameters()[0].ParameterType -eq $type })
+                        $overloads = @(Get-ConsoleApiFluentMethods $fluent $type | Where-Object Name -EQ $methodName)
                         @($overloads | Where-Object { $_.GetParameters().Count -eq 1 }).Count | Should -BeGreaterThan 0 -Because "$label maps to a parameterless fluent switch"
                         @($overloads | Where-Object { $_.GetParameters().Count -eq 2 -and $_.GetParameters()[1].ParameterType -eq [bool] }).Count | Should -BeGreaterThan 0 -Because "$label also accepts an explicit false"
                     }
@@ -177,15 +193,17 @@ Describe 'PowerShell and C# API parity' {
             }
             $decisions[$key] = $true
         }
+        $uncovered = @{}
         foreach ($type in $graph.Values) {
             foreach ($property in $type.GetProperties()) {
                 if (-not (Test-ConsoleApiConfigurationProperty $property)) { continue }
                 $key = (Get-ConsoleApiOwnerName $property.DeclaringType) + '.' + $property.Name
                 $reachable = $covered.ContainsKey($key) -or $decisions.ContainsKey($key) -or
                     (-not $property.GetMethod.IsStatic -and ($typed.ContainsKey($type.FullName) -or $typed.ContainsKey((Get-ConsoleApiOwnerName $property.DeclaringType))))
-                $reachable | Should -BeTrue -Because "$key needs a PowerShell route or a specific C#-only decision"
+                if (-not $reachable) { $uncovered[$key] = $true }
             }
         }
+        @($uncovered.Keys | Sort-Object) | Should -BeNullOrEmpty -Because 'every public configuration member needs a PowerShell route or a specific C#-only decision'
     }
 
     It 'renders separator-wrapped text and measured bare nodes through native widget objects' {
@@ -198,7 +216,7 @@ Describe 'PowerShell and C# API parity' {
         $separator = ' ' + [char]0x00b7 + ' '
         $text = $textType::Plain((@('first phrase', 'second phrase', 'third phrase') -join $separator), $null)
         $text.WrapSeparator = $separator
-        $rendered = $text | Show-Console -AsString -Width 25
+        $rendered = $text | Export-ConsoleFrame -Format Text -Width 25
         $rendered | Should -Match 'second phrase'
         $rendered | Should -Not -Match 'second\r?\nphrase'
 
@@ -212,7 +230,7 @@ Describe 'PowerShell and C# API parity' {
         $node.Bare = $true
         $node.MeasureBareLabel = $true
         $node.Values['State'] = $cellType::new('no controllers')
-        $tree | Show-Console -AsString -Width 60 | Should -Match 'Long Empty Site\s+no controllers'
+        $tree | Export-ConsoleFrame -Format Text -Width 60 | Should -Match 'Long Empty Site\s+no controllers'
     }
 
     It 'keeps pipeline endings on the same C# display and export operations' {
@@ -237,7 +255,7 @@ Describe 'PowerShell and C# API parity' {
         $rules[0].Reason | Should -Not -BeNullOrEmpty
         foreach ($name in 'ConsoleMonster.Interactive.MenuItem', 'ConsoleMonster.Interactive.SelectQuestionOptions') {
             $type = $script:ApiTypes[$name]
-            $methods = @($script:ApiTypes[(Get-ConsoleApiFluentTypeName $name)].GetMethods() | Where-Object { $_.GetParameters()[0].ParameterType -eq $type })
+            $methods = @(Get-ConsoleApiFluentMethods $script:ApiTypes[(Get-ConsoleApiFluentTypeName $name)] $type)
             @($methods | Where-Object Name -EQ Configure).Count | Should -Be 1
             foreach ($property in $type.GetProperties()) {
                 if ($null -ne $property.GetSetMethod($false) -and [Delegate].IsAssignableFrom($property.PropertyType)) {
@@ -321,7 +339,7 @@ Describe 'PowerShell and C# API parity' {
             if ($parameters.Count -eq 0) { continue }
             $parameters.Count | Should -Be 1 -Because 'configuration belongs in the chain; a factory can accept one recorded primary input'
             $primary = @($rule.PrimaryInputs | Where-Object { $_.Noun -ceq $method.Name -and $_.Argument -ceq $parameters[0].Name })
-            $primary.Count | Should -Be 1
+            $primary.Count | Should -Be 1 -Because "Ui.$($method.Name)($($parameters[0].Name)) needs a recorded primary input"
             $command = $script:ApiCommands | Where-Object Name -EQ $primary[0].Command
             if ($null -eq $primary[0].Position) {
                 $method.Name | Should -BeExactly 'Markup' -Because '-Markup is the explicit named text representation'
