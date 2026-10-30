@@ -20,9 +20,14 @@ namespace SiteFrames.Capture {
                 var values = supplied.Where(argument => argument.Parameter == parameter.Name).OrderBy(argument => argument.SourceIndex).ToArray();
                 if (values.Length == 0) {
                     if (!parameter.IsOptional) { return null; }
-                    ExpressionSyntax value = parameter.ExplicitDefaultValue == null
-                        ? SyntaxFactory.LiteralExpression(SyntaxKind.DefaultLiteralExpression)
-                        : SyntaxFactory.ParseExpression(SymbolDisplay.FormatPrimitive(parameter.ExplicitDefaultValue, quoteStrings: true, useHexadecimalNumbers: false));
+                    ExpressionSyntax value;
+                    if (parameter.ExplicitDefaultValue == null) {
+                        value = SyntaxFactory.LiteralExpression(SyntaxKind.DefaultLiteralExpression);
+                    } else {
+                        string? literal = SymbolDisplay.FormatPrimitive(parameter.ExplicitDefaultValue, quoteStrings: true, useHexadecimalNumbers: false);
+                        if (literal == null) { return null; }
+                        value = SyntaxFactory.ParseExpression(literal);
+                    }
                     if (parameter.Type.TypeKind == TypeKind.Enum && parameter.ExplicitDefaultValue != null) {
                         value = SyntaxFactory.CastExpression(SyntaxFactory.ParseTypeName(parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)), value);
                     }

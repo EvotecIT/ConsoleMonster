@@ -64,6 +64,7 @@ namespace ConsoleMonster.Extensions.Tests {
                 await trackedWorker.StartAsync(CancellationToken.None);
                 clock.Advance(4);
                 worker.Work.SetException(new InvalidOperationException("template missing"));
+                await HostingTests.WaitFor(tracker, "ReportBuilder", ServiceState.Failed);
                 Assert.Equal(ServiceState.Failed, tracker.Snapshot().Single(item => item.Name == "ReportBuilder").State);
                 DateTimeOffset failedSince = tracker.Snapshot().Single(item => item.Name == "ReportBuilder").Since;
                 clock.Advance(3);
