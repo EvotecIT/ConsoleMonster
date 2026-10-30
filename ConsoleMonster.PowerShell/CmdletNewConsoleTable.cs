@@ -34,6 +34,19 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public object[]? Property { get; set; }
 
+        /// <summary><para type="description">Groups rows by a property or script block.</para></summary>
+        [Parameter] public object? GroupBy { get; set; }
+        /// <summary><para type="description">Adds totals for numeric columns.</para></summary>
+        [Parameter] public SwitchParameter ShowTotals { get; set; }
+        /// <summary><para type="description">Uses cards below this width; zero keeps a grid.</para></summary>
+        [Parameter, ValidateRange(0, int.MaxValue)] public int CardsBelow { get; set; } = 60;
+        /// <summary><para type="description">Keeps groups in input order.</para></summary>
+        [Parameter] public SwitchParameter NoSort { get; set; }
+        /// <summary><para type="description">Wraps long cell values without limiting their line count.</para></summary>
+        [Parameter] public SwitchParameter Wrap { get; set; }
+        /// <summary><para type="description">Keeps the grouping property in the table columns.</para></summary>
+        [Parameter] public SwitchParameter ShowGroupColumn { get; set; }
+
         /// <summary><para type="description">A property whose values are statuses (pass/fail/warn/skip/running).</para></summary>
         [Parameter]
         public string? StatusProperty { get; set; }
@@ -71,9 +84,9 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">For Live, keeps this many recent rows; zero keeps all.</para></summary>
         [Parameter, ValidateRange(0, int.MaxValue)] public int MaxRows { get; set; }
         /// <summary><para type="description">For Live, the column index or header used for sorting.</para></summary>
-        [Parameter(ParameterSetName = "Live")] public object? SortColumn { get; set; }
+        [Parameter(ParameterSetName = "Live")] public object? SortBy { get; set; }
         /// <summary><para type="description">For Live, sorts larger values first.</para></summary>
-        [Parameter(ParameterSetName = "Live")] public SwitchParameter SortDescending { get; set; }
+        [Parameter(ParameterSetName = "Live")] public SwitchParameter Descending { get; set; }
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
@@ -95,8 +108,8 @@ namespace ConsoleMonster.PowerShell {
             Table table = Table ?? BuildTable(_items, boundRows: boundRows);
             if (Live.IsPresent) {
                 if (table.Columns.Count == 0) { throw new PSArgumentException("Live tables require columns or input objects that define them."); }
-                var live = new LiveTable(table, WidgetId) { MaxRows = MaxRows, SortDescending = SortDescending.IsPresent, KeyProperty = KeyProperty };
-                if (SortColumn != null) { live.SortColumn = ResolveColumn(table, PSWidgets.ToText(SortColumn)); }
+                var live = new LiveTable(table, WidgetId) { MaxRows = MaxRows, SortDescending = Descending.IsPresent, KeyProperty = KeyProperty };
+                if (SortBy != null) { live.SortColumn = ResolveColumn(table, PSWidgets.ToText(SortBy)); }
                 if (boundRows == null) { PSItems.AddAll(this, live, _items, KeyProperty); }
                 else {
                     foreach (var row in boundRows) {
@@ -129,7 +142,7 @@ namespace ConsoleMonster.PowerShell {
                     object? column = PSText.Unwrap(descriptor);
                     table.AddColumn(column is System.Collections.IDictionary record ? Binding.PropertyBinder.ColumnFrom(record) : new TableColumn(Text.Markup.Escape(PSWidgets.ToText(column))));
                 }
-            } else { table = ConsoleHostViews.TableModelCore(items, new ConsoleTableViewOptions { Property = property }, cmdlet ?? this,
+            } else { table = ConsoleHostViews.TableModelCore(items, new ConsoleTableViewOptions { Property = property, GroupBy = GroupBy, ShowTotals = ShowTotals.IsPresent, NoSort = NoSort.IsPresent, ShowGroupColumn = ShowGroupColumn.IsPresent }, cmdlet ?? this,
                 boundRows == null ? null : (row, values, identity) => boundRows.Add((row, values, identity))); }
             if (StatusProperty != null) {
                 foreach (TableColumn column in table.Columns) {
@@ -146,13 +159,15 @@ namespace ConsoleMonster.PowerShell {
             table.Border = Border;
             table.Expand = Expand.IsPresent;
             table.HeaderSeparator = !NoHeaderSeparator.IsPresent;
+            table.CardsBelow = CardsBelow;
+            if (Wrap.IsPresent) { table.WrapLines = 0; }
             ApplyTableConfiguration(table);
             return table;
         }
 
         private static int ResolveColumn(Table table, string name) {
             if (int.TryParse(name, out int index)) {
-                if (index < 0 || index >= table.Columns.Count) { throw new PSArgumentOutOfRangeException(nameof(SortColumn)); }
+                if (index < 0 || index >= table.Columns.Count) { throw new PSArgumentOutOfRangeException(nameof(SortBy)); }
                 return index;
             }
             for (int i = 0; i < table.Columns.Count; i++) {

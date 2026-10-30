@@ -8,10 +8,9 @@ using ConsoleMonster.Layout;
 using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>Shared display construction and output for Show-Console and its Table/List shortcuts.</summary>
+    /// <summary>Shared display construction and output for Show-Console and Show-ConsoleTable.</summary>
     public abstract partial class ConsoleDisplayCmdlet : TableConfigurationCmdlet {
         private readonly List<PSObject> _items = new List<PSObject>();
-        private readonly List<PSObject?> _chartInputs = new List<PSObject?>();
         private CancellationTokenSource? _paging;
         private volatile bool _stopped;
         /// <summary>The view selected by the concrete command.</summary>
@@ -34,8 +33,6 @@ namespace ConsoleMonster.PowerShell {
         public virtual int Width { get; set; }
         /// <summary><para type="description">The culture used for values.</para></summary>
         public virtual CultureInfo? Culture { get; set; }
-        /// <summary><para type="description">Returns plain text instead of displaying it.</para></summary>
-        public virtual SwitchParameter AsString { get; set; }
         /// <summary><para type="description">Returns the constructed widget.</para></summary>
         public virtual SwitchParameter AsWidget { get; set; }
         /// <summary><para type="description">Returns the original input after display.</para></summary>
@@ -64,20 +61,10 @@ namespace ConsoleMonster.PowerShell {
         public virtual SwitchParameter ShowEmpty { get; set; }
         /// <summary><para type="description">Maximum nesting depth; default three.</para></summary>
         public virtual int Depth { get; set; } = 3;
-        /// <summary><para type="description">The property containing a hierarchy node children.</para></summary>
-        public virtual string? ChildrenProperty { get; set; }
-        /// <summary><para type="description">Produces children for a hierarchy node.</para></summary>
-        public virtual ScriptBlock? Children { get; set; }
-        /// <summary><para type="description">The hierarchy label property.</para></summary>
-        public virtual string? LabelProperty { get; set; }
-        /// <summary><para type="description">The hierarchy detail property.</para></summary>
-        public virtual string? DetailProperty { get; set; }
         /// <summary><para type="description">Maximum inspected items per collection; default 100.</para></summary>
         public virtual int MaxItems { get; set; } = 100;
         /// <summary><para type="description">Maximum hierarchy nodes; default 1000.</para></summary>
         public virtual int MaxNodes { get; set; } = 1000;
-        /// <summary><para type="description">Object members to include.</para></summary>
-        public virtual string[]? Include { get; set; }
         /// <summary><para type="description">Object members omitted without reading their getters.</para></summary>
         public virtual string[]? Exclude { get; set; }
         /// <summary><para type="description">Code language; default Auto.</para></summary>
@@ -92,42 +79,24 @@ namespace ConsoleMonster.PowerShell {
         public virtual int MaxLines { get; set; } = 2000;
         /// <summary><para type="description">Hides a code file title.</para></summary>
         public virtual SwitchParameter NoTitle { get; set; }
-        /// <summary><para type="description">Numeric chart representation: Bar, Histogram or Sparkline.</para></summary>
-        public virtual ChartType Type { get; set; }
-        /// <summary><para type="description">The chart label property or expression; default Name.</para></summary>
-        public virtual object Label { get; set; } = "Name";
-        /// <summary><para type="description">Chart ordering.</para></summary>
-        public virtual PipelineChartSort Sort { get; set; }
-        /// <summary><para type="description">Histogram bins; default ten.</para></summary>
-        public virtual int Bins { get; set; } = 10;
-        /// <summary><para type="description">The chart numeric unit.</para></summary>
-        public virtual string? Unit { get; set; }
         /// <summary><para type="description">Shows framework stack frames in error views.</para></summary>
         public virtual SwitchParameter ShowFrameworkFrames { get; set; }
         /// <summary><para type="description">Maximum application frames per error; default eight.</para></summary>
-        public virtual int MaxFrames { get; set; } = 8;
+        public virtual int MaxStackFrames { get; set; } = 8;
         /// <summary><para type="description">Hides error stack frames.</para></summary>
         public virtual SwitchParameter NoStack { get; set; }
-        /// <summary><para type="description">Uses the compact everyday error layout.</para></summary>
-        public virtual SwitchParameter Compact { get; set; }
+        /// <summary><para type="description">Error detail: Compact, Standard or Detailed.</para></summary>
+        public virtual string ErrorLayout { get; set; } = "Standard";
         /// <summary><para type="description">Maximum inner errors; default four.</para></summary>
         public virtual int MaxInner { get; set; } = 4;
         /// <summary><para type="description">Suppresses default-on source excerpts in error views.</para></summary>
         public virtual SwitchParameter NoSource { get; set; }
         /// <summary><para type="description">Disables default-on Markdown paging.</para></summary>
         public virtual SwitchParameter NoPager { get; set; }
-        /// <summary><para type="description">The rule title alignment; default Left.</para></summary>
-        public virtual HorizontalAlignment Alignment { get; set; }
-        /// <summary><para type="description">Theme role for a rule line; default Border.</para></summary>
-        public virtual Styling.ThemeToken LineRole { get; set; } = Styling.ThemeToken.Border;
-        /// <summary><para type="description">Optional rule line glyph style.</para></summary>
-        public virtual Glyphs.BoxStyle? LineStyle { get; set; }
         /// <inheritdoc />
         protected override void BeginProcessing() { PSOutputExport.Validate(this); ValidateView(RequestedView); }
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            if (string.Equals(RequestedView, "Chart", StringComparison.OrdinalIgnoreCase) &&
-                (InputObject != null || MyInvocation.BoundParameters.ContainsKey(nameof(InputObject)))) { _chartInputs.Add(InputObject); }
             if (InputObject != null) { _items.Add(InputObject); }
         }
         /// <inheritdoc />
@@ -141,7 +110,7 @@ namespace ConsoleMonster.PowerShell {
                 foreach (object item in PSItems.Items(Content)) { _items.Add(PSObject.AsPSObject(item)); }
             }
             string view = RequestedView;
-            if (_items.Count == 0 && _chartInputs.Count == 0 && !string.Equals(view, "Rule", StringComparison.OrdinalIgnoreCase)) { return; }
+            if (_items.Count == 0) { return; }
             IWidget? widget = BuildView(view, _items);
             if (widget == null) { return; }
             if (AsWidget.IsPresent) { WriteObject(Culture == null ? widget : (IWidget)new CultureScope(widget, Culture)); return; }
@@ -149,12 +118,12 @@ namespace ConsoleMonster.PowerShell {
                 _paging = stop;
                 try {
                     if (_stopped) { stop.Cancel(); }
-                    if (string.Equals(view, "Markdown", StringComparison.OrdinalIgnoreCase) && !NoPager.IsPresent && !AsString.IsPresent && FormatCommandRouter.IsDirectHostOutput(this)) {
+                    if (string.Equals(view, "Markdown", StringComparison.OrdinalIgnoreCase) && !NoPager.IsPresent && FormatCommandRouter.IsDirectHostOutput(this)) {
                         if (Interactive.WidgetPager.TryShow(widget, "Markdown", PSInteractive.Options(this, null), stop.Token, contentWidth: Width > 0 ? Width : (int?)null)) { return; }
                     }
                     stop.Token.ThrowIfCancellationRequested();
-                    PSFormatting.Emit(this, widget, Width, Culture, AsString.IsPresent, PassThru.IsPresent,
-                        appendBlankLine: !string.Equals(view, "Rule", StringComparison.OrdinalIgnoreCase) && !_items.Exists(item => PSText.Unwrap(item) is IWidget));
+                    PSFormatting.Emit(this, widget, Width, Culture, false, PassThru.IsPresent,
+                        appendBlankLine: !_items.Exists(item => PSText.Unwrap(item) is IWidget));
                     if (PassThru.IsPresent) { foreach (PSObject item in _items) { WriteObject(item); } }
                 } catch (OperationCanceledException) when (_stopped) { }
                 finally { _paging = null; }

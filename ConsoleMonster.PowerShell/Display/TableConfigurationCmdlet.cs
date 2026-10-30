@@ -31,9 +31,6 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Suppresses the default-on header row.</para></summary>
         public virtual SwitchParameter NoHeader { get; set; }
 
-        /// <summary><para type="description">Uses record cards at every width.</para></summary>
-        public virtual SwitchParameter AlwaysCards { get; set; }
-
         /// <summary><para type="description">Optional per-row titles for record and card views.</para></summary>
         public virtual string[]? RowTitles { get; set; }
 
@@ -64,7 +61,6 @@ namespace ConsoleMonster.PowerShell {
             if (MyInvocation.BoundParameters.ContainsKey(nameof(NoHiddenColumns))) { table.ShowHiddenColumns = !NoHiddenColumns.IsPresent; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(NoStableWidths))) { table.StableWidths = !NoStableWidths.IsPresent; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(NoHeader))) { table.ShowHeader = !NoHeader.IsPresent; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(AlwaysCards))) { table.AlwaysCards = AlwaysCards.IsPresent; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(RowTitles))) { table.RowTitles = RowTitles; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(ShowSubtotals))) { table.ShowSubtotals = ShowSubtotals.IsPresent; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(TotalLabel))) { table.TotalLabel = TotalLabel; }
