@@ -1,0 +1,27 @@
+Active Directory replication
+How one attribute change reaches every domain controller
+
+                                                   ╭╌ Site: HQ ╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╮             ╭╌ Site: Warsaw ╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╮
+                                                   ╎                               ╎             ╎                               ╎
+                                                   ╎                               ╎             ╎                               ╎
+┌────────┐                   ┏━━━━━━━━━━━┓         ╎ ┏━━━━━━━┓           ┌───────┐ ╎             ╎ ┌───────┐           ┌───────┐ ╎
+│ Admin  │──── signs in ────▶┃ ADMIN-PC  ┃━━ LDAP ━━▶┃ DC01 ●┃─── RPC ──▶│ DC02 ●│─── Site link ──▶│ DC03 ▲│─── RPC ──▶│ DC04 ●│ ╎
+└────────┘                   ┗━━━━━━━━━━━┛         ╎ ┗━━━━━━━┛           └───────┘ ╎             ╎ └───────┘           └───────┘ ╎
+                                                   ╰╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╯             ╰╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╯
+
+● Healthy   ▲ Warning   ━━▶ active step
+
+Replicate a change  (1/2)  ·  step 2 of 9
+A title change written on DC01 reaches DC04
+  1. Admin → ADMIN-PC  request  Set-ADUser -Title
+▶ 2. ADMIN-PC → DC01  request  LDAP modify
+     {
+       "dn": "CN=Ana Nowak,OU=Users,DC=ad,DC=evotec,DC=xyz",
+       "replace": { "title": "Site manager" }
+     }
+  3. DC01 → ADMIN-PC  response  Success
+  4. DC01  at  Commit locally
+  5. DC01 → DC02  message  Change notification after 15 s
+  6. DC02 → DC01  request  DRSGetNCChanges
+  7. DC01 → DC02  response  1 object, 1 attribute
+  ↓ 2 more

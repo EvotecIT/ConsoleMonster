@@ -15,5 +15,6 @@
     <ItemGroup>
         <ProjectReference Include="..\ConsoleMonster.Extensions.Logging\ConsoleMonster.Extensions.Logging.csproj" />
         <ProjectReference Include="..\ConsoleMonster.Hosting\ConsoleMonster.Hosting.csproj" />
+        <ProjectReference Include="..\ConsoleMonster.Graphics\ConsoleMonster.Graphics.csproj" />
     </ItemGroup>
 </Project>

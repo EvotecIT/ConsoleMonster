@@ -1,0 +1,41 @@
+TierBridge file journey
+
+                                                .. TierBridge ............................................
+                                                :                                                        :
+                                                :                                                        :
+                                                :                                                        :
+                                                :                    +-------------+                     :     #===============#
+                                                :                    | Inspection  |                     :     #   Approver    #
+                                                :                +-->|             |                     : #===#               #
+                    .. Source zone (Tier 2) ..  : +----------+   |   |             |       #===========# : #   #               #
+                    :                        :+-->| Watcher  |---+   +-------------+   +--># Approval  #<==#   #===============#
+                    :                        :| : |          |   |                     |   #           # : |
+                    :                        :| : |          |   |                     |   #           # : |
+                    :                        :| : |          |   |   +-------------+   |   #           # : |
+                    :                        :| : +----------+   |   | Quarantine !|   |   #===========# : |
+                    :                        :| :                +-->|             |---+                 : |
++------------+      : +-------------+        :| :                    |             |                     : |
+| Requester  |      : | Drop share  |        :| :                    +-------------+                     : |
+|            |------->|             |---------+ :                                                        : |
+|            |      : |             |        :  '........................................................' | .. Target zone (Tier 0) ..
++------------+      : +-------------+        :                                                             | :                        :
+                    '........................'                                                             | :                        :
+                                                                                                           | :                        :
+                                                                                                           | : +---------------+      :
+                                                                                                           | : | Target share  |      :
+                                                                                                           +-->|               |      :
+                                                                                                             : |               |      :
+                                                                                                             : +---------------+      :
+                                                                                                             '........................'
+
+! Warning   ==> active step
+
+Approved file  -  step 8 of 9
+  ^ 2 earlier
+  3. Watcher -> Inspection  request  Inspect
+  4. Inspection -> Watcher  response  Needs approval
+  5. Watcher -> Quarantine  request  Hold
+  6. Quarantine -> Approval  message  Request approval
+  7. Approval -> Approver  message  Ask the owner
+> 8. Approver -> Approval  request  Approve
+  9. Approval -> Target share  request  Release
