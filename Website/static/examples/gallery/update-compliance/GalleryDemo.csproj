@@ -8,7 +8,7 @@
     <DemoStyle Condition="'$(DemoStyle)' == ''">Initializer</DemoStyle>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="ConsoleMonster" Version="2.0.2" />
+    <PackageReference Include="ConsoleMonster" Version="2.1.2" />
     <Compile Include="Program.cs" Condition="'$(DemoStyle)' == 'Initializer'" />
     <Compile Include="Program.Fluent.cs" Condition="'$(DemoStyle)' == 'Fluent'" />
   </ItemGroup>
