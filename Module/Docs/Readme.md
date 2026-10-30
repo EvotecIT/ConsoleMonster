@@ -359,6 +359,11 @@ Runs an embedded ConsoleMonster gallery demo in the current PowerShell runspace.
 
 Without a slug, it lists the demos to pick from, grouped by category. Executes the same self-contained PowerShell source offered by Get-ConsoleDemo (the Source property). The demo runs in a child scope of the current runspace and uses the current host and loaded ConsoleMonster commands. No child process, download or temporary script file is used. Live demos can be interrupted normally. -Mode Snapshot selects a recorded state using scripted input or queued live updates controlled by the runner. The copied source has no capture parameters. Demo output and errors follow the normal PowerShell streams.
 
+### [Show-ConsoleDiagram](Show-ConsoleDiagram.md)
+Shows a ChartForgeX architecture or topology diagram in the terminal, with use case playback.
+
+Reads a Markdown file with ChartForgeX visual fences, or a plain architecture file without fences, and draws the diagram in terminal cells: boxes, routed connections, dashed groups and a legend. When the diagram has use cases, the first one is selected and its steps, payloads and keys are shown. In an interactive console, Left and Right step through the use case, Space plays it, Tab switches use cases, Up and Down move the focus between nodes, D shows the focused node's details and Esc ends the view. In redirected, CI, line and non-interactive sessions, or with -StaticSnapshot, one static view is printed at the chosen step. Markup errors stop the command with the file line and diagnostic code; warnings are written as PowerShell warnings.
+
 ### [Show-ConsoleGrid](Show-ConsoleGrid.md)
 Shows pipeline objects in an interactive grid and returns the rows you choose.
 

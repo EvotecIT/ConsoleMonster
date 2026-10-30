@@ -101,6 +101,18 @@ dashes and heavy lines for their WGL4 equivalents. `diagram.ToPng()` renders the
 diagram with the active step through ChartForgeX, for terminals that can show
 images; live values and focus stay in the cell drawing.
 
+A small diagram keeps its natural size, about one cell per ten layout pixels,
+instead of stretching across a wide terminal.
+
+From PowerShell, `Show-ConsoleDiagram` reads a Markdown file with ChartForgeX
+fences, or a plain architecture file, and opens the same view with its keys.
+Outside an interactive console it prints one static view:
+
+```powershell
+Show-ConsoleDiagram -Path ./ad-replication.md
+Show-ConsoleDiagram -Path ./ad-replication.md -Scenario replicate -Step 6 -StaticSnapshot
+```
+
 JetBrains Mono is embedded under the SIL Open Font License; see
 `licenses/JetBrainsMono-OFL.txt`. Installed font and emoji/CJK fallbacks depend
 on the host. Use the embedded default and fixed inputs for repeatable slides.

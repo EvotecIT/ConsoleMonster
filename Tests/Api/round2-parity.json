@@ -16267,6 +16267,185 @@
       ]
     },
     {
+      "Command": "Show-ConsoleDiagram",
+      "Job": "Show-ConsoleDiagram",
+      "CSharpType": "ConsoleMonster.Graphics.TopologyDiagram",
+      "Bindings": [
+        {
+          "Parameter": "Path",
+          "ParameterType": "System.String",
+          "Default": "",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Graphics.TopologyDiagram",
+          "Member": ".ctor",
+          "MemberKind": "Constructor",
+          "Conversion": "HostAdaptation",
+          "CSharpTypeName": "ChartForgeX.Topology.TopologyChart",
+          "Argument": "chart",
+          "Reason": "Reads the provider path with ChartForgeX.Markup and passes the parsed architecture, topology or flow diagram as the chart."
+        },
+        {
+          "Parameter": "Diagram",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "HostPolicy",
+          "Reason": "Chooses which diagram in a Markdown file with several visual fences becomes the chart."
+        },
+        {
+          "Parameter": "Scenario",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Graphics.TopologyDiagram",
+          "Member": "SelectScenario",
+          "MemberKind": "Method",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Argument": "scenarioId"
+        },
+        {
+          "Parameter": "Step",
+          "ParameterType": "System.Int32",
+          "Default": 0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Graphics.TopologyDiagram",
+          "Member": "Step",
+          "MemberKind": "Method",
+          "Conversion": "HostAdaptation",
+          "CSharpTypeName": "System.Int32",
+          "Argument": "index",
+          "Reason": "Converts the one-based step number people read in the step list to the zero-based index."
+        },
+        {
+          "Parameter": "Mode",
+          "ParameterType": "System.Nullable`1[ConsoleMonster.Interactive.InteractionMode]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.InteractiveOptions",
+          "Member": "Mode",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Interactive.InteractionMode]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Width",
+          "ParameterType": "System.Int32",
+          "Default": 0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Export.ExportOptions",
+          "Member": "Width",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Reason": "The display/capture boundary resolves zero against the terminal, falling back to 100 cells.",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "StaticSnapshot",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "SnapshotPolicy",
+          "Reason": "Draws the diagram once instead of running TopologyDiagramApp.Run."
+        },
+        {
+          "Parameter": "AsString",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "ShellOutputPolicy",
+          "Reason": "Selects ConsoleExporter.ToText instead of Terminal.Write."
+        },
+        {
+          "Parameter": "AsWidget",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "ShellOutputPolicy",
+          "Reason": "Returns the constructed IWidget; C# construction already returns the widget."
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
+        }
+      ]
+    },
+    {
       "Command": "Show-ConsoleGrid",
       "Job": "Show-ConsoleGrid",
       "CSharpType": "ConsoleMonster.Interactive.Grid",
@@ -21234,6 +21413,54 @@
       "Disposition": "CSharpOnly"
     },
     {
+      "CSharpType": "ConsoleMonster.Graphics.TopologyDiagram",
+      "Member": "ShowLegend",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "The command always draws the status legend under the diagram; hosts embedding the widget may hide it.",
+      "Alternative": "Get the widget with Show-ConsoleDiagram -AsWidget, set the property, and draw it with Show-ConsoleApp or Out-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Graphics.TopologyDiagram",
+      "Member": "ShowStepPanel",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "The command always shows the use case panel when the diagram has use cases; hosts embedding the widget may hide it.",
+      "Alternative": "Get the widget with Show-ConsoleDiagram -AsWidget, set the property, and draw it with Show-ConsoleApp or Out-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Graphics.TopologyDiagram",
+      "Member": "ShowDetails",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "The keyboard view toggles node details with D; the static view shows them for a focused node only.",
+      "Alternative": "Get the widget with Show-ConsoleDiagram -AsWidget, set the property, and draw it with Show-ConsoleApp or Out-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Graphics.TopologyDiagram",
+      "Member": "ShowKeys",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "TopologyDiagramApp.Run turns the key hints on for the keyboard view and restores them afterwards.",
+      "Alternative": "Get the widget with Show-ConsoleDiagram -AsWidget, set the property, and draw it with Show-ConsoleApp or Out-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Graphics.TopologyDiagram",
+      "Member": "MaxPayloadLines",
+      "CSharpTypeName": "System.Int32",
+      "Reason": "The command keeps the widget default of eight payload lines, which fits common terminal heights.",
+      "Alternative": "Get the widget with Show-ConsoleDiagram -AsWidget, set the property, and draw it with Show-ConsoleApp or Out-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Graphics.TopologyDiagram",
+      "Member": "MaxStepLines",
+      "CSharpTypeName": "System.Int32",
+      "Reason": "The command keeps the widget default of seven step lines around the active step.",
+      "Alternative": "Get the widget with Show-ConsoleDiagram -AsWidget, set the property, and draw it with Show-ConsoleApp or Out-Console.",
+      "Disposition": "CSharpOnly"
+    },
+    {
       "CSharpType": "ConsoleMonster.Help.CommandLineHelp",
       "Member": "Commands",
       "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Help.HelpCommand]",
@@ -24822,7 +25049,7 @@
   ],
   "SchemaVersion": 2,
   "BaselineCount": 144,
-  "ExpectedCount": 89,
+  "ExpectedCount": 90,
   "ConfigurableRoots": [
     "ConsoleMonster.Capabilities.CapabilityDetector",
     "ConsoleMonster.Changes.ChangePreviewOptions",
@@ -24843,6 +25070,7 @@
     "ConsoleMonster.Frames.Distribution",
     "ConsoleMonster.Frames.GroupedRows`1",
     "ConsoleMonster.Graphics.GraphicsExportOptions",
+    "ConsoleMonster.Graphics.TopologyDiagram",
     "ConsoleMonster.Interactive.AppBinding",
     "ConsoleMonster.Interactive.AppCommand",
     "ConsoleMonster.Interactive.AppInputOptions",
@@ -25071,6 +25299,7 @@
     "ConsoleMonster.Graphics.GraphicsExportOptions",
     "ConsoleMonster.Graphics.GraphicsFit",
     "ConsoleMonster.Graphics.GraphicsPreset",
+    "ConsoleMonster.Graphics.TopologyDiagram",
     "ConsoleMonster.Help.CommandLineHelp",
     "ConsoleMonster.Help.HelpCommand",
     "ConsoleMonster.Help.HelpExample",
