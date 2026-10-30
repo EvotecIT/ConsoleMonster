@@ -26,7 +26,7 @@ Get-Process | Format-Table Name, Id | Out-File ./processes.txt
 Get-Process | Format-Table Name, Id > ./processes.txt
 ```
 
-The default enables Output, FormatCommands, Errors, Streams and ReadLine. Use `-Include Help` to add an opt-in, `-Exclude FormatCommands, Errors` to omit features, and omit other default features with `-Exclude` for a minimal set. `Get-ConsoleFormatting` shows the current selection. Help, Prompt, Progress, GridView and compact errors remain explicit choices. `Disable-ConsoleFormatting` restores all enabled features; `Disable-ConsoleFormatting -Feature FormatCommands` restores just the format commands.
+The default enables Output, FormatCommands, Errors, Streams and ReadLine. Use `-Include Help` to add an opt-in, `-Exclude FormatCommands, Errors` to omit features. `Get-ConsoleFormatting` shows the current selection. Help, Prompt, Progress, GridView and compact errors remain explicit choices. `Disable-ConsoleFormatting` restores all enabled features; `Disable-ConsoleFormatting -Feature FormatCommands` restores just the format commands.
 
 Custom functions are preserved unless `-Force` is supplied, then restored on disable or module removal. A custom alias named `Format-Table`, `Format-List` or `Format-Wide` prevents installation; remove it explicitly first. Aliases such as `ft`, `fl` and `fw` continue to resolve their normal command names.
 
