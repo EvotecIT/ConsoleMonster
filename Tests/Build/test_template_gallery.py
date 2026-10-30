@@ -56,6 +56,8 @@ class TemplateGalleryTests(unittest.TestCase):
             cls.dotnet("pack", str(REPO / library / (library + ".csproj")), "-c", "Release",
                        "-o", str(cls.library_feed), "--artifacts-path", str(cls.root / "library-artifacts"),
                        "-p:UseSharedCompilation=false")
+        cls.version = cls.dotnet("msbuild", str(REPO / "ConsoleMonster/ConsoleMonster.csproj"),
+                                "-nologo", "-getProperty:PackageVersion").strip()
         cls.package_hive = cls.root / "package-hive"
         for slug in SLUGS:
             if not (GALLERY / slug / "Program.cs").is_file():
@@ -103,7 +105,7 @@ class TemplateGalleryTests(unittest.TestCase):
         name = "Gallery" + (slug or "Default").replace("-", "") + suffix
         output = self.root / name
         arguments = ["new", "consolemonster", "--debug:custom-hive", str(hive),
-                     "--name", name, "--output", str(output)]
+                     "--name", name, "--output", str(output), "--ConsoleMonsterVersion", self.version]
         if framework is not None:
             arguments.extend(["--Framework", framework])
         if not aot:
@@ -167,7 +169,7 @@ class TemplateGalleryTests(unittest.TestCase):
                 tree = ET.parse(project)
                 references = tree.findall(".//PackageReference")
                 self.assertEqual([r.attrib["Include"] for r in references], ["ConsoleMonster"])
-                self.assertEqual(references[0].attrib["Version"], "2.0.2")
+                self.assertEqual(references[0].attrib["Version"], self.version)
                 self.assertIsNone(tree.find(".//PublishAot"))
                 assembly = self.compile(project)
                 metadata = json.loads((GALLERY / slug / "metadata.json").read_text(encoding="utf-8"))
