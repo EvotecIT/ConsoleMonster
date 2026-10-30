@@ -25,6 +25,6 @@
         <ProjectReference Include="../../examples/demos/logging/Shop.csproj" ReferenceOutputAssembly="false" />
         <ProjectReference Include="../TemplateDemo/TemplateDemo.csproj" ReferenceOutputAssembly="false" />
         <!-- Compiles the C# programs the site shows (Website/examples/**/*.cs), so their frames come from running them. -->
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0" />
     </ItemGroup>
 </Project>
