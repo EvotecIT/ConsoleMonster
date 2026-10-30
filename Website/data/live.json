@@ -445,7 +445,8 @@
             "memberId": "ConsoleMonster.Widgets.Dashboard.Content",
             "note": null
           }
-        ]
+        ],
+        "csharpRepo": "Website/examples/live/stress.cs"
       }
     }
   },

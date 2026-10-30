@@ -70,8 +70,9 @@ Enable-ConsoleFormatting -ProfileSnippet | Add-Content -Path $PROFILE
 
 ## Tables, lists and trees
 
-`Show-ConsoleTable`, `Show-ConsoleList` and `Show-Console -View Tree` take pipeline input and fit the window.
-`Format-Table`, `Format-List` and `Format-Wide` stay PowerShell's own unless you turn on `-Feature FormatCommands`.
+`Show-ConsoleTable`, `Show-Console -View List` and `Show-Console -View Tree` take pipeline input and fit the window.
+`Enable-ConsoleFormatting` styles direct console output from `Format-Table`, `Format-List` and `Format-Wide` by default,
+while keeping PowerShell's column choices. Use `-Exclude FormatCommands` to leave their output native.
 
 ```powershell
 Import-Module ConsoleMonster
@@ -187,8 +188,8 @@ $files = @(
         Name = 'start.ps1'; Length = 512; LastWriteTime = $recordedAt
     }
 )
-$files | Show-ConsoleTable -Property Name, Length, LastWriteTime `
-    -Presentation @{ TimeZone = [TimeZoneInfo]::Utc } -AsWidget |
+$files | New-ConsoleTable -Property Name, Length, LastWriteTime `
+    -Presentation @{ TimeZone = [TimeZoneInfo]::Utc }  |
     Export-ConsoleFrame -Format Markdown
 ```
 
@@ -218,7 +219,7 @@ $dashboard = New-ConsoleDashboard -Title 'Workers' -Content {
 
 ## Compatibility
 
-- **PowerShell** 5.1 and 7. On 5.1 one ConsoleMonster version loads per session; restart it after an upgrade.
+- **PowerShell** 5.1 and 7, with net472 and net8.0 payloads. On 5.1 one ConsoleMonster version loads per session; restart it after an upgrade.
 - **.NET** netstandard2.0, net472, net8.0 and net10.0, no package dependencies, AOT compatible on net8.0 and net10.0
   ([trimming notes](https://consolemonster.dev/docs/install/)).
 - **Consoles** are [detected](https://consolemonster.dev/docs/capabilities/) (colour, glyphs, size, CI, redirection);
