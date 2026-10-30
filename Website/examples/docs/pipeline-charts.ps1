@@ -20,10 +20,10 @@ New-ConsoleRows -Content {
         New-ConsoleChart -Property CPU -Unit ' s'
     New-ConsoleText ''
     New-ConsoleText -Markup '[bold]Response-time distribution[/]'
-    $latency | New-ConsoleChart -Type Histogram -Edges 0, 20, 40, 60, 80, 100 -Unit ' ms'
+    $latency | New-ConsoleChart -Type Histogram -Edges 12, 26, 40, 54, 68, 82, 96 -Unit ' ms'
     New-ConsoleText ''
     New-ConsoleText -Markup '[bold]Latency over time (ms) - one line per host[/]'
-    foreach ($group in $samples | Group-Object Host) {
-        New-ConsoleChart -Type Sparkline -Title ($group.Name + ' · ms') -Values $group.Group.Latency
+    foreach ($group in $samples | Group-Object Host | Sort-Object Name -Descending) {
+        New-ConsoleChart -Type Sparkline -Title $group.Name -Values $group.Group.Latency
     }
 } | Show-Console

@@ -683,8 +683,10 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ArgumentList (, $events) -ScriptB
             break
         }
         $delay = [int][Math]::Truncate(($event.Time - $previous) / 4)
+        # A null detail lets phases calculate their elapsed duration.
+        $text = if ($null -eq $event.Text) { [NullString]::Value } else { $event.Text }
         $update = New-Object ConsoleMonster.Live.LiveEvent -ArgumentList $event.Target,
-            $event.Operation, $event.Key, $event.Text, $event.State, $event.Value,
+            $event.Operation, $event.Key, $text, $event.State, $event.Value,
             $event.Total, $event.Time, $false
         $ConsoleSession.Post($update)
         Wait-ConsoleDashboard -Seconds ($delay / 1000)

@@ -25,8 +25,13 @@ $services = @(
             this,
             new ConsoleFormattingOptions {
                 Include = new[] { ConsoleFormattingFeature.Output },
-                Exclude = new[] { ConsoleFormattingFeature.FormatCommands, ConsoleFormattingFeature.Errors,
-                    ConsoleFormattingFeature.Streams, ConsoleFormattingFeature.ReadLine }
+                Exclude = new[]
+                {
+                    ConsoleFormattingFeature.FormatCommands,
+                    ConsoleFormattingFeature.Errors,
+                    ConsoleFormattingFeature.Streams,
+                    ConsoleFormattingFeature.ReadLine
+                }
             });
         try {
             using var output = new ConsoleDefaultOutput(

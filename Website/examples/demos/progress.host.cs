@@ -9,8 +9,14 @@ public sealed class ProgressExample : PSCmdlet {
             this,
             new ConsoleFormattingOptions {
                 Include = new[] { ConsoleFormattingFeature.Progress },
-                Exclude = new[] { ConsoleFormattingFeature.Output, ConsoleFormattingFeature.FormatCommands,
-                    ConsoleFormattingFeature.Errors, ConsoleFormattingFeature.Streams, ConsoleFormattingFeature.ReadLine }
+                Exclude = new[]
+                {
+                    ConsoleFormattingFeature.Output,
+                    ConsoleFormattingFeature.FormatCommands,
+                    ConsoleFormattingFeature.Errors,
+                    ConsoleFormattingFeature.Streams,
+                    ConsoleFormattingFeature.ReadLine
+                }
             });
         try { InvokeCommand.InvokeScript(@"Use-ConsoleProgress {
         $sites = 'Warsaw', 'Dublin', 'Berlin'
