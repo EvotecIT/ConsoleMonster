@@ -5,12 +5,12 @@ using ConsoleMonster.Layout;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>
-    /// What Show-ConsoleTable, Show-ConsoleList, Show-Console -View Tree, Show-Console -View Json, Show-Console -View Code and
+    /// What Show-ConsoleTable, Show-Console -View List, Show-Console -View Tree, Show-Console -View Json, Show-Console -View Code and
     /// Show-Console -View Error write to the pipeline in PowerShell 7.2 and later: the rendered view, drawn in colour when it
     /// reaches the console (through ConsoleMonster's format view) and as plain text when it is captured (Out-String,
     /// Out-File, <c>&gt;</c>, a variable shown later), as PowerShell's $PSStyle.OutputRendering decides.
     /// </summary>
-    public sealed class ConsoleRendering {
+    internal sealed class ConsoleRendering {
         /// <summary>Creates a rendering.</summary>
         /// <param name="widget">The view.</param>
         /// <param name="width">The width it was asked for (-Width), or 0 for the console's.</param>

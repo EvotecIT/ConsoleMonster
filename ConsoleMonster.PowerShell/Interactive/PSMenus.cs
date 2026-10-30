@@ -23,12 +23,17 @@ namespace ConsoleMonster.PowerShell {
             if (content == null) {
                 return items;
             }
-            foreach (PSObject output in content.Invoke()) {
+            return CollectItems(content.Invoke(), presets, cmdlet);
+        }
+
+        internal static List<MenuItem> CollectItems(IEnumerable<PSObject> outputItems, List<MenuPreset>? presets, PSCmdlet? cmdlet) {
+            var items = new List<MenuItem>();
+            foreach (PSObject output in outputItems) {
                 if (output?.BaseObject is MenuItem item) {
                     items.Add(item);
                 } else if (presets != null && output != null && (output.BaseObject is MenuPreset || PSPresets.IsRecord(output))) {
                     presets.Add(PSPresets.Menu(output, cmdlet ?? throw new PSArgumentException("Preset records require the owning menu command.")));
-                }
+                } else { throw new PSArgumentException("New-ConsoleMenu takes New-ConsoleMenuItem values or preset records. To pick objects, use Read-ConsoleSelect."); }
             }
             return items;
         }

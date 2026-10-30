@@ -5,14 +5,14 @@ using ConsoleMonster.Layout;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Layers console widgets on top of each other in the same space.</para>
-    /// <para type="description">Each widget the scriptblock emits is a layer, bottom first; later layers paint over earlier ones and replace only the cells they write. Combine with New-ConsoleAlign to place an overlay, such as a badge in a corner of a chart. To place widgets one below another, use New-ConsoleRows.</para>
+    /// <para type="description">Each widget the scriptblock emits is a layer, bottom first; later layers paint over earlier ones and replace only the cells they write. Combine with New-ConsoleRegion to place an overlay, such as a badge in a corner of a chart. To place widgets one below another, use New-ConsoleRows.</para>
     /// </summary>
     /// <example>
     ///   <para>A chart with a status badge in its top-right corner</para>
     ///   <code>
     /// New-ConsoleStack -Content {
     ///     New-ConsoleChart -WidgetId latency -Type Line
-    ///     New-ConsoleAlign -Horizontal Right -Content { New-ConsoleText -Markup '[pass]LIVE[/]' }
+    ///     New-ConsoleRegion -Horizontal Right -Content { New-ConsoleText -Markup '[pass]LIVE[/]' }
     /// }</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleStack")]

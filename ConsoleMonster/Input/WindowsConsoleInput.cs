@@ -12,7 +12,7 @@ namespace ConsoleMonster.Input {
     /// read), mouse button transitions, window resizes and focus changes. While it is open, Quick Edit, line input, echo
     /// and Ctrl+C processing are off, so mouse buttons and Ctrl+C arrive as events; the original mode is restored on disposal.
     /// </summary>
-    public sealed partial class WindowsConsoleInput : IInputSource, IConsoleInputMode {
+    internal sealed partial class WindowsConsoleInput : IInputSource, IConsoleInputMode {
         private const int PasteThreshold = 3;
         private readonly IntPtr _handle;
         private readonly uint _originalMode;

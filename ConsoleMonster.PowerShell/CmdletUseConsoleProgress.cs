@@ -63,7 +63,7 @@ $__cmProgressBridge.Host((@($Object | ForEach-Object { if ($_ -is [System.Collec
         /// <summary><para type="description">Redraw rate (default 15).</para></summary>
         [Parameter]
         [ValidateRange(1, 60)]
-        public int FramesPerSecond { get; set; } = 15;
+        public double FramesPerSecond { get; set; } = 15;
 
         /// <summary><para type="description">Disables live redraws and uses append-only output.</para></summary>
         [Parameter] public SwitchParameter NoLive { get; set; }
@@ -135,7 +135,7 @@ $__cmProgressBridge.Host((@($Object | ForEach-Object { if ($_ -is [System.Collec
     }
 
     /// <summary>Receives calls from the Write-Progress and Write-Host stand-ins inside Use-ConsoleProgress.</summary>
-    public sealed class ProgressBridge {
+    internal sealed class ProgressBridge {
         private readonly ILiveDispatcher _session;
         private readonly System.Text.StringBuilder _pending = new System.Text.StringBuilder();
 

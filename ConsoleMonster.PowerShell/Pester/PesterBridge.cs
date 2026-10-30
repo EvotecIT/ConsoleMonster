@@ -9,7 +9,7 @@ namespace ConsoleMonster.PowerShell.Pester {
     /// <see cref="TestRun"/>. Called on the pipeline thread from inside Pester's plugin steps; it never throws back into
     /// Pester (a problem is recorded in <see cref="Faults"/> and the run goes on).
     /// </summary>
-    public sealed class PesterBridge {
+    internal sealed class PesterBridge {
         private readonly TestRun _run;
 
         internal PesterBridge(TestRun run) {

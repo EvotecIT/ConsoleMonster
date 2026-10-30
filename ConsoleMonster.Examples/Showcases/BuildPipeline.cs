@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using ConsoleMonster.Building;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
@@ -76,14 +75,14 @@ namespace ConsoleMonster.Examples.Showcases {
                 .Add("Elapsed", "-");
             ProgressBar progress = new ProgressBar("Overall", "overall") { Total = Steps.Length, LabelWidth = 8 };
 
-            Dashboard dashboard = new DashboardBuilder("[bold]Module build[/]")
+            Dashboard dashboard = Ui.Dashboard().Title("[bold]Module build[/]")
                 .Subtitle("Build-Module ConsoleMonster")
-                .Add(new Padding(phases, 1, 0, 1, 1))
-                .Columns(c => c
-                    .Panel("Steps", steps, 1.5)
-                    .Panel("Module", new Rows(module, new Rule(), progress), 1))
-                .Panel("Output", new LogRegion { PreferredHeight = 8 }, fill: true)
-                .BuildDashboard();
+                .Content(body => body
+                    .Add(new Padding(phases, 1, 0, 1, 1))
+                    .Columns(columns => columns.Content(c => c
+                        .Panel("Steps", steps, 1.5)
+                        .Panel("Module", new Rows(module, new Rule(), progress), 1)))
+                    .Panel("Output", new LogRegion { PreferredHeight = 8 }, fill: true));
 
             Table summary = new Table { Border = TableBorder.Minimal, Title = "[bold]Build summary[/] [muted]ConsoleMonster 2.0.0[/]" };
             summary.AddColumn("Phase");

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using ConsoleMonster.Building;
 using ConsoleMonster.Interactive;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
@@ -156,11 +155,11 @@ namespace ConsoleMonster.Examples.Showcases {
                 list.Set(step, step, StatusKind.Pending);
             }
             ProgressBar progress = new ProgressBar("Install", "progress") { Total = steps.Length * 10, LabelWidth = 22 };
-            Dashboard dashboard = new DashboardBuilder("Installing")
+            Dashboard dashboard = Ui.Dashboard().Title("Installing")
                 .Subtitle(Markup.Escape(values.Get<string>("Path")))
-                .Panel("Steps", list)
-                .Add(new Padding(progress, 1, 0, 1, 0))
-                .BuildDashboard();
+                .Content(body => body
+                    .Panel("Steps", list)
+                    .Add(new Padding(progress, 1, 0, 1, 0)));
             context.Run(dashboard, run => {
                 StatusListHandle handle = list.Handle(run.Session);
                 ProgressHandle bar = progress.Handle(run.Session);

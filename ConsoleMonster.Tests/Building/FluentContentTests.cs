@@ -43,7 +43,7 @@ namespace ConsoleMonster.Tests.Building {
             Action<ContentBuilder> build = c => { c.Text("First"); c.Text("Second"); };
             IContainer[] containers = {
                 new Panel().Content(build), new Rows().Content(build), new Columns().Content(build),
-                new Stack().Content(build), new Grid(2).Content(build), new Align().Content(build), new Padding().Content(build),
+                new Stack().Content(build), new LayoutGrid(2).Content(build), new Align().Content(build), new Padding().Content(build),
                 new Dashboard("Build", new Rows()).Content(build), new RegionWidget("main").Content(build),
                 new ScrollView().Content(build)
             };

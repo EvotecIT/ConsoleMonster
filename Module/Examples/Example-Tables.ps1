@@ -2,17 +2,17 @@
     [int] $Width,
     [ValidateSet('All', 'Artifacts', 'Checks', 'Certificate', 'List')][string] $Part = 'All'
 )
-# Tables and complex data from PowerShell: Show-ConsoleTable, Show-ConsoleList and Show-Console -View Tree with
+# Tables and complex data from PowerShell: Show-ConsoleTable, Show-Console -View List and -View Tree with
 # presenters, column options, groups, totals and nested objects. -Width lays the output out for a given width (try 120, 80
 # and 50 to see columns hide and rows turn into cards). The data is synthetic.
 Import-Module ConsoleMonster
 
 $now = Get-Date
 $artifacts = @(
-    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.nupkg'; Kind = 'NuGet'; Length = 1482113; Time = [timespan]::FromSeconds(48.2); Created = $now.AddMinutes(-12); Path = 'C:\Support\GitHub\ConsoleMonster\Artefacts\Packed\ConsoleMonster.2.0.0.nupkg'; Signed = $true }
-    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.snupkg'; Kind = 'Symbols'; Length = 402331; Time = [timespan]::FromSeconds(3.1); Created = $now.AddMinutes(-12); Path = 'C:\Support\GitHub\ConsoleMonster\Artefacts\Packed\ConsoleMonster.2.0.0.snupkg'; Signed = $true }
-    [pscustomobject] @{ Name = 'ConsoleMonster-2.0.0.zip'; Kind = 'Module'; Length = 2904576; Time = [timespan]::FromSeconds(11.7); Created = $now.AddMinutes(-11); Path = 'C:\Support\GitHub\ConsoleMonster\Artefacts\Packed\ConsoleMonster-2.0.0.zip'; Signed = $true }
-    [pscustomobject] @{ Name = 'Docs.zip'; Kind = 'Module'; Length = 51302; Time = [timespan]::FromSeconds(1.2); Created = $now.AddDays(-2); Path = 'C:\Support\GitHub\ConsoleMonster\Artefacts\Packed\Docs.zip'; Signed = $false }
+    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.nupkg'; Kind = 'NuGet'; Length = 1482113; Time = [timespan]::FromSeconds(48.2); Created = $now.AddMinutes(-12); Path = 'artifacts/ConsoleMonster.2.0.0.nupkg'; Signed = $true }
+    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.snupkg'; Kind = 'Symbols'; Length = 402331; Time = [timespan]::FromSeconds(3.1); Created = $now.AddMinutes(-12); Path = 'artifacts/ConsoleMonster.2.0.0.snupkg'; Signed = $true }
+    [pscustomobject] @{ Name = 'ConsoleMonster-2.0.0.zip'; Kind = 'Module'; Length = 2904576; Time = [timespan]::FromSeconds(11.7); Created = $now.AddMinutes(-11); Path = 'artifacts/ConsoleMonster-2.0.0.zip'; Signed = $true }
+    [pscustomobject] @{ Name = 'Docs.zip'; Kind = 'Module'; Length = 51302; Time = [timespan]::FromSeconds(1.2); Created = $now.AddDays(-2); Path = 'artifacts/Docs.zip'; Signed = $false }
 )
 $common = @{}
 if ($Width -gt 0) {
@@ -48,5 +48,5 @@ $certificate = [pscustomobject] @{
         [pscustomobject] @{ Subject = 'CN=ISRG Root X1'; Expires = $now.AddYears(8); Key = 'RSA 4096' }
     )
 }
-if ($Part -in 'All', 'Certificate') { $certificate | Show-ConsoleObject @common -StaticSnapshot -Title 'mail.evotec.xyz certificate' }
-if ($Part -in 'All', 'List') { $artifacts[0] | Show-ConsoleList @common -Property Name, Kind, @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes' }, @{ Name = 'Time'; Header = 'Built in'; Presenter = 'Duration' }, Signed, Path }
+if ($Part -in 'All', 'Certificate') { $certificate | Show-Console -View Tree @common -Title 'mail.evotec.xyz certificate' }
+if ($Part -in 'All', 'List') { $artifacts[0] | Show-Console -View List @common -Property Name, Kind, @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes' }, @{ Name = 'Time'; Header = 'Built in'; Presenter = 'Duration' }, Signed, Path }

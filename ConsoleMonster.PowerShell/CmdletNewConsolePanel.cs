@@ -16,7 +16,7 @@ namespace ConsoleMonster.PowerShell {
     [Cmdlet(VerbsCommon.New, "ConsolePanel")]
     [OutputType(typeof(IWidget))]
     public sealed class CmdletNewConsolePanel : ContainerCmdlet {
-        /// <summary><para type="description">The panel content: a scriptblock that emits widgets, text or objects, a widget, a string, or objects (one object is shown as labelled fields, several as a table, through the same rules as Show-ConsoleList and Show-ConsoleTable).</para></summary>
+        /// <summary><para type="description">The panel content: a scriptblock that emits widgets, text or objects, a widget, a string, or objects (one object is shown as labelled fields, several as a table, through the same rules as Show-Console -View List and Show-ConsoleTable).</para></summary>
         [Parameter(Position = 0, ValueFromPipeline = true)]
         [AllowNull, AllowEmptyCollection]
         public override object? Content { get; set; }

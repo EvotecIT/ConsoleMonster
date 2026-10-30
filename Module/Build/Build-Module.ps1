@@ -123,6 +123,8 @@ Build-Module -ModuleName 'ConsoleMonster' -RunMode $RunMode {
             'ConsoleMonster.Styling.StatusKind'
             'ConsoleMonster.Text.RichText'
             'ConsoleMonster.Interactive.InteractionMode'
+            'ConsoleMonster.Interactive.CommandLine'
+            'ConsoleMonster.Live.SimulatedClock'
             'ConsoleMonster.Capabilities.GlyphTier'
             'ConsoleMonster.Capabilities.ColorDepth'
         )

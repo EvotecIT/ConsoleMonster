@@ -10,7 +10,7 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example><para>Show the local login overview.</para><code>Show-ConsoleOverview</code></example>
     /// <example><para>Return selected data for a script.</para><code>$snapshot = Show-ConsoleOverview -Section Resources,Disks -AsObject</code></example>
-    /// <example><para>Capture a compact plain-text overview.</para><code>Show-ConsoleOverview -Width 60 -AsString</code></example>
+    /// <example><para>Capture a compact plain-text overview.</para><code>Show-ConsoleOverview -Width 60 -AsWidget | Export-ConsoleFrame -Format Text</code></example>
     [Cmdlet(VerbsCommon.Show, "ConsoleOverview", DefaultParameterSetName = "Render")]
     [OutputType(typeof(OverviewSnapshot), typeof(string))]
     public sealed class CmdletShowConsoleOverview : NoPipelineInputCmdlet {

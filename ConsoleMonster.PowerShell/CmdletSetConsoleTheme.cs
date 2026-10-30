@@ -9,12 +9,13 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="description">Select a built-in preset or load a validated JSON/PSD1 theme. Dark suits dark terminals, Light suits light backgrounds, HighContrast uses saturated primaries and ColorBlindSafe uses blue/orange status contrast. Files use the built-in token names. PSD1 files are imported as restricted data and never executed. Invalid files leave the current theme unchanged.</para>
     /// </summary>
     /// <example>
-    ///   <para>Use the light theme</para>
-    ///   <code>Set-ConsoleTheme -Theme Light</code>
+    /// <para>Use the light theme for this session</para>
+    /// <code>Set-ConsoleTheme -Theme Light</code>
     /// </example>
     /// <example>
-    ///   <para>Load a team theme exported as JSON or a PowerShell data file.</para>
-    ///   <code>Set-ConsoleTheme -Path ./team-theme.psd1</code>
+    /// <para>Load an existing theme exported by Export-ConsoleTheme</para>
+    /// <code># Requires an existing team-theme.psd1 file. Changes the active session theme.
+    /// Set-ConsoleTheme -Path ./team-theme.psd1</code>
     /// </example>
     [Cmdlet(VerbsCommon.Set, "ConsoleTheme", DefaultParameterSetName = "Name")]
     public sealed class CmdletSetConsoleTheme : NoPipelineInputCmdlet {

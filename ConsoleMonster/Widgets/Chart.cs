@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using ConsoleMonster.Layout;
 
@@ -82,6 +83,37 @@ namespace ConsoleMonster.Widgets {
                     sparkline.AddRange(o.Values ?? Array.Empty<double>());
                     return sparkline;
             }
+        }
+
+        /// <summary>Returns a distinct display label and records it in the supplied set.</summary>
+        /// <param name="label">The original label.</param>
+        /// <param name="used">Labels already in use, using the caller's comparer.</param>
+        /// <returns>The original label, or a numbered variant when it was already used.</returns>
+        internal static string UniqueLabel(string label, ISet<string> used) {
+            if (used == null) { throw new ArgumentNullException(nameof(used)); }
+            string candidate = label ?? string.Empty;
+            int duplicate = 1;
+            while (!used.Add(candidate)) { candidate = (label ?? string.Empty) + " (" + (++duplicate).ToString(CultureInfo.InvariantCulture) + ")"; }
+            return candidate;
+        }
+
+        /// <summary>Parses a scalar number without treating booleans, dates, null or whitespace as zero.</summary>
+        /// <param name="value">A numeric primitive, decimal or invariant numeric string.</param>
+        /// <param name="number">The finite value when successful; zero otherwise.</param>
+        /// <returns>Whether the input is a finite numeric scalar.</returns>
+        internal static bool TryNumber(object? value, out double number) {
+            number = 0;
+            if (value == null || value.GetType().IsEnum) { return false; }
+            TypeCode code = System.Type.GetTypeCode(value.GetType());
+            bool numeric = code >= TypeCode.SByte && code <= TypeCode.Decimal;
+            double parsed;
+            if (numeric) {
+                parsed = Convert.ToDouble(value, CultureInfo.InvariantCulture);
+            } else if (code != TypeCode.String ||
+                !double.TryParse((string)value, NumberStyles.Float, CultureInfo.InvariantCulture, out parsed)) { return false; }
+            if (!NumberFormat.IsFinite(parsed)) { return false; }
+            number = parsed;
+            return true;
         }
 
         private static string DefaultId(ChartType type) {

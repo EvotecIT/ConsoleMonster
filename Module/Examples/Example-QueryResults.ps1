@@ -3,7 +3,7 @@
 # DNS and mail-security query results, printed once (no live view).
 # Works the same in Windows Terminal, conhost, redirected output and CONSOLEMONSTER_MODE=plain.
 
-Show-Console -Title '[bold]DNS query results[/] [muted]· evotec.xyz[/]' -View Rule
+New-ConsoleRule -Title '[bold]DNS query results[/] [muted]· evotec.xyz[/]'  | Show-Console
 
 [ordered] @{
     Domain       = 'evotec.xyz'

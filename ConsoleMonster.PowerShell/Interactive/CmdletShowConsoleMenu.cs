@@ -9,8 +9,12 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="description">Shell is an app: a title bar with the breadcrumb, a sidebar (it folds into the breadcrumb in narrow windows), the content pane with the open item's list, form, page or review, and a footer generated from the keys that work right now. Classic is one centred menu; Inline is a list in the scrollback for scripts. Everywhere: Esc goes back, Ctrl+K (or :) opens the command palette, ? shows every key, Ctrl+Q leaves (asking first when a form has unsaved changes). Item actions run on the pipeline thread. Selections and form values survive navigation; -AppName stores presets, and with -RememberLastChoices the last choices.</para>
     /// </summary>
     /// <example>
-    ///   <para>Run a menu as an app</para>
-    ///   <code>Show-ConsoleMenu $menu -Layout Shell -AppName 'ServerToolbox' -RememberLastChoices</code>
+    /// <para>Run a menu as an application</para>
+    /// <code>$menu = New-ConsoleMenu 'Server toolbox' -Content {
+    ///     New-ConsoleMenuItem 'Current time' -Action { $MenuContext.Toast((Get-Date).ToString('u')) }
+    ///     New-ConsoleMenuItem -Exit
+    /// }
+    /// Show-ConsoleMenu $menu -Layout Shell</code>
     /// </example>
     [Cmdlet(VerbsCommon.Show, "ConsoleMenu")]
     public sealed class CmdletShowConsoleMenu : PSCmdlet {
@@ -45,23 +49,20 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public InteractionMode? Mode { get; set; }
 
-        /// <summary><para type="description">Typed C# MenuOptions configuration. Use this instead of individual interaction settings; omitted host devices use the owning PowerShell runspace and the supplied object is not modified.</para></summary>
-        [Parameter, ValidateNotNull] public MenuOptions? Options { get; set; }
-
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (!(PSText.Unwrap(Menu) is Menu current)) {
                 ThrowTerminatingError(new ErrorRecord(new ArgumentException("Show-ConsoleMenu needs a menu from New-ConsoleMenu. To pick pipeline objects, use: Get-Service | Read-ConsoleSelect"), "ExpectedConsoleMenu", ErrorCategory.InvalidArgument, Menu));
                 return;
             }
-            MenuOptions options = PSOptions.Resolve(this, Options, () => new MenuOptions {
+            MenuOptions options = new MenuOptions {
                     Layout = Layout,
                     Interactive = PSInteractive.Options(this, Mode),
                     AppName = AppName,
                     RememberLastChoices = RememberLastChoices.IsPresent,
                     StorageRoot = StorageRoot,
                     CommandPalette = !NoCommandPalette.IsPresent
-                }, nameof(Layout), nameof(AppName), nameof(RememberLastChoices), nameof(StorageRoot), nameof(NoCommandPalette), nameof(Mode)).Clone();
+                };
             options.Interactive ??= PSInteractive.Options(this, null);
             _stop = new CancellationTokenSource();
             try {

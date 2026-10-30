@@ -12,15 +12,19 @@ using ConsoleMonster.Replay;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Rewinds a recorded run: an in-terminal player with a timeline, markers, failures, warnings and log search.</para>
-    /// <para type="description">Plays a recording (written by Invoke-ConsoleDashboard -RecordPath or -AutoRecord) into the same dashboard and lets you move through it: space plays and pauses, left and right step frame by frame, + and - change the speed, PgUp and PgDn scrub, Home and End jump to the ends, n/p jump to the next or previous marker, f/F to failures, w/W to warnings, l/L to log entries, and / searches the log text (Enter for the next match). Markers are added while recording with Send-ConsoleEvent -WidgetId '$marker' -Operation mark -Text 'label'. Without -Path the newest automatic recording is played. Without an interactive console the markers are printed as lines.</para>
+    /// <para type="description">Plays a recording (written by Invoke-ConsoleDashboard -RecordingPath or -AutoRecord) into the same dashboard and lets you move through it: space plays and pauses, left and right step frame by frame, + and - change the speed, PgUp and PgDn scrub, Home and End jump to the ends, n/p jump to the next or previous marker, f/F to failures, w/W to warnings, l/L to log entries, and / searches the log text (Enter for the next match). The replay timeline includes markers already present in the dashboard recording. Without -RecordingPath the newest automatic recording is played. Without an interactive console the markers are printed as lines.</para>
     /// </summary>
     /// <example>
-    ///   <para>Rewind the last automatically recorded run</para>
-    ///   <code>Show-ConsoleReplay -Dashboard $dashboard</code>
+    /// <para>Play an existing matching dashboard recording</para>
+    /// <code># Requires build.jsonl recorded with this dashboard definition.
+    /// $dashboard = New-ConsoleDashboard -Title Build -Content { New-ConsoleStatusList -WidgetId steps -Content { 'Compile' } }
+    /// Show-ConsoleReplay -Dashboard $dashboard -RecordingPath ./build.jsonl</code>
     /// </example>
     /// <example>
-    ///   <para>Play a recording inline, paused at the start</para>
-    ///   <code>Show-ConsoleReplay $dashboard .\deploy.jsonl -Inline -Paused</code>
+    /// <para>Start an existing recording inline and paused</para>
+    /// <code># Requires build.jsonl recorded with this dashboard definition.
+    /// $dashboard = New-ConsoleDashboard -Title Build -Content { New-ConsoleStatusList -WidgetId steps -Content { 'Compile' } }
+    /// Show-ConsoleReplay -Dashboard $dashboard -RecordingPath ./build.jsonl -Inline -Paused</code>
     /// </example>
     [Cmdlet(VerbsCommon.Show, "ConsoleReplay")]
     public sealed partial class CmdletShowConsoleReplay : NoPipelineInputCmdlet {
@@ -32,7 +36,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">The recording file; default the newest file in the automatic recording folder.</para></summary>
         [Parameter(Position = 1)]
-        public string? Path { get; set; }
+        public string? RecordingPath { get; set; }
 
         /// <summary><para type="description">The run name in the header (default the recorded dashboard title, or the file name for other widget trees). A recorded dashboard's own header and footer are not replayed: its title, subtitle and status show in the player's header.</para></summary>
         [Parameter]
@@ -68,13 +72,10 @@ namespace ConsoleMonster.PowerShell {
         [Parameter, ValidateRange(1, int.MaxValue)]
         public int MaxFrames { get; set; } = 3000;
 
-        /// <summary><para type="description">Typed C# ReplayOptions, including input, capture and session configuration. Use this instead of individual player settings; the request is not modified. Omit Session to retain PowerShell's native host relay.</para></summary>
-        [Parameter, ValidateNotNull] public ReplayOptions? Options { get; set; }
-
         /// <inheritdoc />
         protected override void EndProcessing() {
-            string path = Path == null ? Newest() : SessionState.Path.GetUnresolvedProviderPathFromPSPath(Path);
-            ReplayOptions options = PSOptions.Resolve(this, Options, () => new ReplayOptions {
+            string path = RecordingPath == null ? Newest() : SessionState.Path.GetUnresolvedProviderPathFromPSPath(RecordingPath);
+            ReplayOptions options = new ReplayOptions {
                 Title = Title,
                 Speed = Speed,
                 PlaybackMode = PlaybackMode,
@@ -83,7 +84,7 @@ namespace ConsoleMonster.PowerShell {
                 Inline = Inline.IsPresent,
                 AutoPlay = !Paused.IsPresent,
                 Height = Height > 0 ? Height : (int?)null
-            }, nameof(Title), nameof(Speed), nameof(PlaybackMode), nameof(FramesPerSecond), nameof(MaxFrames), nameof(Inline), nameof(Paused), nameof(Height)).Clone();
+            };
             options.Title ??= Dashboard is Widgets.Dashboard ? null : System.IO.Path.GetFileNameWithoutExtension(path);
             if (options.PlaybackMode == Replay.PlaybackMode.Automatic) {
                 PlayAutomatic(path, options);
@@ -116,7 +117,7 @@ namespace ConsoleMonster.PowerShell {
             string folder = LiveSessionOptions.DefaultRecordingFolder;
             FileInfo? newest = Directory.Exists(folder) ? new DirectoryInfo(folder).GetFiles("*.jsonl").OrderByDescending(f => f.LastWriteTimeUtc).FirstOrDefault() : null;
             if (newest == null) {
-                ThrowTerminatingError(new ErrorRecord(new FileNotFoundException("No automatic recordings in '" + folder + "'. Record with Invoke-ConsoleDashboard -AutoRecord or pass -Path."), "NoRecording", ErrorCategory.ObjectNotFound, folder));
+                ThrowTerminatingError(new ErrorRecord(new FileNotFoundException("No automatic recordings in '" + folder + "'. Record with Invoke-ConsoleDashboard -AutoRecord or pass -RecordingPath."), "NoRecording", ErrorCategory.ObjectNotFound, folder));
             }
             return newest!.FullName;
         }

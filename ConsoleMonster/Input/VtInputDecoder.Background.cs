@@ -1,7 +1,7 @@
 using System.Diagnostics;
 
 namespace ConsoleMonster.Input {
-    public sealed partial class VtInputDecoder {
+    internal sealed partial class VtInputDecoder {
         private readonly Stopwatch _backgroundReplyAge = new Stopwatch();
 
         /// <summary>Abandons a truncated startup reply so later typing can never remain trapped behind it.</summary>

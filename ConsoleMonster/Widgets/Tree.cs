@@ -115,6 +115,7 @@ namespace ConsoleMonster.Widgets {
                 }
                 StyledLine label = FitLabel(context.Markup(node.LabelFor(context)).Lines[0], Math.Max(1, region.Width - x), context);
                 x = region.Write(x, i, label);
+                x += Math.Min(node.LabelPadding, Math.Max(0, region.Width - x));
                 if (node.Value != null) {
                     StyledLine value = CellRendering.Content(node.Value, node.Presenter, null, presenter).Lines[0];
                     if (region.Width - x - 2 >= 4) {
@@ -216,7 +217,7 @@ namespace ConsoleMonster.Widgets {
             }
 
             public int Width(RenderContext context) {
-                int width = DisplayWidth.Measure(Prefix) + context.Markup(Node.LabelFor(context)).Width;
+                int width = DisplayWidth.Measure(Prefix) + context.Markup(Node.LabelFor(context)).Width + Node.LabelPadding;
                 string? marker = Node.MarkerFor(context);
                 if (!string.IsNullOrEmpty(marker)) {
                     width += DisplayWidth.Measure(marker!) + 1;

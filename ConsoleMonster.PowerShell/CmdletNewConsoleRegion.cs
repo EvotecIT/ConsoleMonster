@@ -12,6 +12,10 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>A panel whose content switches from a spinner to a table</para>
     ///   <code>New-ConsolePanel -Title 'Result' -Content { New-ConsoleRegion -WidgetId main -Content { New-ConsoleProgress -Label 'Querying' -Indeterminate -WidgetId 'spinner' } }</code>
     /// </example>
+    /// <example>
+    /// <para>Align content inside a padded region</para>
+    /// <code>New-ConsoleRegion -Horizontal Center -Padding 1 -Content { New-ConsoleText 'Ready' } | Show-Console</code>
+    /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleRegion")]
     [OutputType(typeof(IWidget))]
     public sealed class CmdletNewConsoleRegion : ContainerCmdlet {

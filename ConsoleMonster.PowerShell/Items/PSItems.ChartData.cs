@@ -53,7 +53,7 @@ namespace ConsoleMonster.PowerShell {
                 options.Items.Add(item);
                 return;
             }
-            string label = PipelineChart.UniqueLabel(item.Label, labels);
+            string label = Chart.UniqueLabel(item.Label, labels);
             if (label == item.Label) { options.Items.Add(item); return; }
             options.Items.Add(new ChartItem(label, item.Value, item.Role, label) { MissingText = item.MissingText, Status = item.Status });
         }
@@ -67,7 +67,7 @@ namespace ConsoleMonster.PowerShell {
         }
 
         private static double ChartNumber(object? value) {
-            if (!PipelineChart.TryNumber(PSText.Unwrap(value), out double number)) { throw new PSArgumentException("A chart requires a finite numeric Value."); }
+            if (!Chart.TryNumber(PSText.Unwrap(value), out double number)) { throw new PSArgumentException("A chart requires a finite numeric Value."); }
             return number;
         }
 

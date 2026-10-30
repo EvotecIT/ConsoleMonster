@@ -10,7 +10,7 @@ using ConsoleMonster.Styling;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>Adapts restricted PowerShell data and PSD1 syntax to the core theme-file model.</summary>
-    public static class ConsoleThemeDataFile {
+    internal static class ConsoleThemeDataFile {
         /// <summary>Loads a JSON theme or restricted PSD1 data using the same validation as Set-ConsoleTheme.</summary>
         /// <param name="path">The resolved filesystem path.</param>
         /// <remarks>PSD1 loading runs in the caller's current PowerShell runspace; it never executes the data file.</remarks>

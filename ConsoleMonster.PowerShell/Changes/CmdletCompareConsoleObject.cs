@@ -10,8 +10,17 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="description">Like Compare-Object, with a much better display: objects are matched by -Property (or by Id, Name, Key and similar members), then compared property by property, nested objects by path. The view shows the counts by kind and a table of the changes in the design-system tones (added in green, removed in red, changed in yellow), with line diffs of long and multi-line values; -View picks Summary, Table, SideBySide or Unified. -PassThru returns the structured changes (ConsoleMonster.Changes.ObjectChange) instead.</para>
     /// </summary>
     /// <example>
-    ///   <para>What changed between two exports</para>
-    ///   <code>Compare-ConsoleObject (Import-Csv .\before.csv) (Import-Csv .\after.csv) -Property SamAccountName</code>
+    /// <para>Compare two small inventories</para>
+    /// <code>$before = @([pscustomobject]@{ Name = 'web01'; Port = 80 })
+    /// $after = @([pscustomobject]@{ Name = 'web01'; Port = 443 })
+    /// Compare-ConsoleObject -ReferenceObject $before -DifferenceObject $after -Property Name</code>
+    /// </example>
+    /// <example>
+    /// <para>Ask before accepting a configuration change</para>
+    /// <code>$before = @([pscustomobject]@{ Name = 'web01'; Port = 80 })
+    /// $after = @([pscustomobject]@{ Name = 'web01'; Port = 443 })
+    /// $accepted = Compare-ConsoleObject -ReferenceObject $before -DifferenceObject $after -Property Name -Question 'Accept these changes?'
+    /// $accepted</code>
     /// </example>
     [Cmdlet(VerbsData.Compare, "ConsoleObject", DefaultParameterSetName = "Compare", SupportsShouldProcess = true)]
     [OutputType(typeof(ObjectChange))]

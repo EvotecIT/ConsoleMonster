@@ -68,6 +68,9 @@ namespace ConsoleMonster.Widgets {
         }
         private string? _note;
 
+        // Inspection key alignment belongs to terminal layout, not the semantic label used by exports.
+        internal int LabelPadding { get; set; }
+
         internal Func<Localization.WidgetLabels, string>? LocalizedLabel { get; set; }
         internal Func<Localization.WidgetLabels, string?>? LocalizedNote { get; set; }
         // The hierarchy walker already supplied a localized cycle note; render its structural glyph once.

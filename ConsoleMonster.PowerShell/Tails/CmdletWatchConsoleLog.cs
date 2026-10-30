@@ -11,9 +11,16 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="synopsis">Follows a log file or a local Windows event log with a live, scrollable log view.</para>
     /// <para type="description">File lines are decoded incrementally and followed across observed truncation and rotation. Event logs use Get-WinEvent on Windows. The view follows new entries; scrolling pauses following and End resumes it. Filter and Highlight are literal case-insensitive substrings. Piped, redirected, CI and -NoLive output is ordinary literal text and never reads keyboard input. Count is source polls, as in Watch-Console: one takes a snapshot, zero follows until q, Escape or Ctrl+C. Capacity bounds retained history. The default interval is 0.25 seconds.</para>
     /// </summary>
-    /// <example><para>Follow a file and emphasize a component.</para><code>Watch-ConsoleLog -Path ./service.log -Highlight database</code></example>
-    /// <example><para>Capture the current matching lines as ordinary strings.</para><code>Watch-ConsoleLog -Path ./service.log -Tail 50 -Filter ERROR -Count 1 | Out-File ./errors.txt</code></example>
-    /// <example><para>Follow a local Windows event log.</para><code>Watch-ConsoleLog -LogName Application -Tail 20</code></example>
+    /// <example>
+    /// <para>Inspect an existing log and highlight a component</para>
+    /// <code># Requires an existing service.log file; reads two snapshots without changing the file.
+    /// Watch-ConsoleLog -Path ./service.log -Highlight database -Count 2</code>
+    /// </example>
+    /// <example>
+    /// <para>Return matching lines from an existing log as strings</para>
+    /// <code># Requires an existing service.log file.
+    /// Watch-ConsoleLog -Path ./service.log -Tail 50 -Filter ERROR -Count 1</code>
+    /// </example>
     [Cmdlet(VerbsCommon.Watch, "ConsoleLog", DefaultParameterSetName = "Path")]
     [OutputType(typeof(string))]
     public sealed class CmdletWatchConsoleLog : NoPipelineInputCmdlet {

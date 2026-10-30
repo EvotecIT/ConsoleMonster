@@ -140,6 +140,15 @@ namespace ConsoleMonster.Tests.Live {
         [InlineData(null)]
         [InlineData("")]
         public void CombinedUpdatesPreserveExplicitClears(string? clear) {
+            var dashboard = new Dashboard("Old") { Detail = "Old detail", Status = StatusKind.Running };
+            var titleEvents = ConsoleUpdate.Events(dashboard, new WidgetUpdate { Label = clear });
+            var detailEvents = ConsoleUpdate.Events(dashboard, new WidgetUpdate { Detail = clear });
+            var statusEvents = ConsoleUpdate.Events(dashboard, new WidgetUpdate { Status = StatusKind.Pass });
+            foreach (LiveEvent item in titleEvents.Concat(detailEvents).Concat(statusEvents)) { dashboard.Apply(item); }
+            Assert.Equal(string.Empty, dashboard.Title);
+            Assert.Equal(clear, dashboard.Detail);
+            Assert.Equal(StatusKind.Pass, dashboard.Status);
+
             var spinner = new Spinner("Old") { Detail = "Old detail" };
             Apply(spinner, new WidgetUpdate { Restart = true, Label = clear, Status = StatusKind.Pass, Detail = clear });
             Assert.Equal(string.Empty, spinner.Label);

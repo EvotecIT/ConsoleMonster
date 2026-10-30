@@ -5,7 +5,7 @@ using ConsoleMonster.Interop;
 namespace ConsoleMonster.Output {
 
     /// <summary>Polls the current Windows console font without creating a thread or timer.</summary>
-    public sealed class ConsoleFontWatcher {
+    internal sealed class ConsoleFontWatcher {
         private readonly TimeSpan _pollingInterval;
         private readonly Func<TimeSpan> _clock;
         private readonly FontReader _reader;

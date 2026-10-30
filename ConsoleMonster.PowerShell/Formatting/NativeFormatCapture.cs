@@ -7,7 +7,7 @@ using ConsoleMonster.Values;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>Retains raw values while the direct-host native formatter evaluates its selected columns.</summary>
-    public sealed class NativeFormatCapture {
+    internal sealed class NativeFormatCapture {
         private readonly PSCmdlet _cmdlet;
         private readonly string _kind;
         private readonly IDictionary _parameters;

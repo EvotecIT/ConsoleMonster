@@ -72,7 +72,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary>
         /// Panel content from anything: a scriptblock (its output), a widget, a string, or other objects, which go through
-        /// the shared value rules (one object as a record, several as a table, as Show-ConsoleList and Show-ConsoleTable
+        /// the shared value rules (one object as a record, several as a table, as Show-Console -View List and Show-ConsoleTable
         /// show them). Widgets and text keep their place among the objects.
         /// </summary>
         public static List<IWidget> CollectAny(object? content, PSCmdlet cmdlet) {

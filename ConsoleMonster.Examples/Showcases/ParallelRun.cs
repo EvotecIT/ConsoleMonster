@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using ConsoleMonster.Building;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
@@ -87,18 +86,18 @@ namespace ConsoleMonster.Examples.Showcases {
                 findings.Add(category, 0);
             }
             Lanes targets = new Lanes { MaxLabelWidth = 28 };
-            Dashboard dashboard = new DashboardBuilder("[bold]Nightly checks[/]")
+            Dashboard dashboard = Ui.Dashboard().Title("[bold]Nightly checks[/]")
                 .Subtitle("ad.adatum.com forest assessment · 12 targets · " + ParallelRunRecording.TotalRules + " rules")
-                .Add(new Prioritized(new Padding(phases, 1, 0, 1, 1), 10, 1, 30))
-                .Columns(c => c
-                    .Panel("Targets", new Prioritized(targets, 8, 4, 40), 1.7, ParallelRunRecording.Workers + " workers")
-                    .Panel("Results", new Rows(results, new Rule(), summary), 1))
-                .Columns(c => c
-                    .Panel("Throughput", throughput, 1.2, "rules/s")
-                    .Panel("Rule duration", durations, 1)
-                    .Panel("Failures by category", findings, 1))
-                .Panel("Log", new LogRegion { PreferredHeight = 6 }, fill: true)
-                .BuildDashboard();
+                .Content(body => body
+                    .Add(new Prioritized(new Padding(phases, 1, 0, 1, 1), 10, 1, 30))
+                    .Columns(columns => columns.Content(c => c
+                        .Panel("Targets", new Prioritized(targets, 8, 4, 40), 1.7, ParallelRunRecording.Workers + " workers")
+                        .Panel("Results", new Rows(results, new Rule(), summary), 1)))
+                    .Columns(columns => columns.Content(c => c
+                        .Panel("Throughput", throughput, 1.2, "rules/s")
+                        .Panel("Rule duration", durations, 1)
+                        .Panel("Failures by category", findings, 1)))
+                    .Panel("Log", new LogRegion { PreferredHeight = 6 }, fill: true));
             // Below 60 x 20 the dashboard shows one status line plus the phases and the lanes that fit.
             dashboard.MinimumSize = new Size(60, 20);
             dashboard.CompactSummary = () => CompactSummary(results);

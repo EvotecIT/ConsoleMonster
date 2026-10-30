@@ -17,7 +17,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Through a pager</para>
-    ///   <code>Show-ConsoleHelp Show-ConsoleTable | more</code>
+    ///   <code>Show-ConsoleHelp Show-ConsoleTable -AsWidget | Export-ConsoleFrame -Format Text</code>
     /// </example>
     [Cmdlet(VerbsCommon.Show, "ConsoleHelp")]
     [OutputType(typeof(string))]

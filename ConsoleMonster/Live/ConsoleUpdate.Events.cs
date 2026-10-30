@@ -12,7 +12,11 @@ namespace ConsoleMonster.Live {
             string id = target.WidgetId;
             void Add(string operation, string? key = null, string? text = null, string? status = null, double value = 0, double total = 0, object? payload = null) =>
                 events.Add(new LiveEvent(id, operation, key, text, status, value, total) { Payload = payload });
-            if (target is ActivityList) {
+            if (target is Dashboard) {
+                if (u.Has(nameof(u.Label))) { Add("title", text: u.Label); }
+                if (u.Has(nameof(u.Detail))) { Add("detail", text: u.Detail); }
+                if (u.Has(nameof(u.Status))) { Add("state", status: u.Status.ToString()); }
+            } else if (target is ActivityList) {
                 if (u.Complete) { Add("complete", u.Key); }
                 else {
                     if (u.Has(nameof(u.Label))) { Add("label", u.Key, u.Label); }

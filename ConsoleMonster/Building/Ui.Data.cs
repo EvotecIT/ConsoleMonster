@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using ConsoleMonster.Building;
 using ConsoleMonster.Interactive;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Text;
@@ -22,8 +21,5 @@ namespace ConsoleMonster {
 
         /// <summary>Creates a rich-text composer.</summary><returns>The composer.</returns>
         public static RichTextBuilder RichText() => new RichTextBuilder();
-
-        /// <summary>Creates the C# dashboard composition helper.</summary><returns>The empty helper.</returns>
-        public static DashboardBuilder DashboardLayout() => new DashboardBuilder(string.Empty);
     }
 }

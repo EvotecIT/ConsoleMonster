@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>Connects native help to the existing help view after proving its direct console destination.</summary>
-    public static class HelpHostFormatting {
+    internal static class HelpHostFormatting {
         private sealed class PagingState { internal bool Quit; }
         private static readonly ConditionalWeakTable<object, PagingState> PagedPipes = new ConditionalWeakTable<object, PagingState>();
         /// <summary>Finds the native Get-Help command physically connected to the implicit Out-Default shim.</summary>

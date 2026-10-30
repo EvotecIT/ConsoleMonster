@@ -36,7 +36,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public object[]? FooterHints { get; set; }
 
-        /// <summary><para type="description">Live name of the dashboard (for Send-ConsoleEvent title/status updates).</para></summary>
+        /// <summary><para type="description">Live name of the dashboard (for Update-Console title, detail and status updates).</para></summary>
         [Parameter(Position = 0)]
         public string WidgetId { get; set; } = "dashboard";
 

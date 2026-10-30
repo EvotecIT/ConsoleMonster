@@ -11,9 +11,22 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="synopsis">Creates a month or year calendar with dated operational outcomes.</para>
     /// <para type="description">Returns a passive widget. Pipeline rows provide Date, Status and Label properties, with explicit property overrides. Duplicate dates retain every row; the displayed status uses Fail, Warn, Running, Pending, Pass, Info, Skip precedence. Dates retain calendar components without time-zone conversion. ISO week labels describe the Monday in each row, including with a Sunday-first display.</para>
     /// </summary>
-    /// <example><para>Display backup outcomes for October.</para><code>$calendar = $backups | New-ConsoleCalendar -Year 2026 -Month 10; $calendar | Show-Console</code></example>
-    /// <example><para>Show this month.</para><code>New-ConsoleCalendar | Show-Console</code></example>
-    /// <example><para>Build a year view with Monday-first weeks.</para><code>New-ConsoleCalendar -Year 2026 -View Year -FirstDayOfWeek Monday</code></example>
+    /// <example>
+    /// <para>Display backup outcomes for October</para>
+    /// <code>$backups = @(
+    ///     [pscustomobject]@{ Date = [datetime]'2026-10-01'; Status = 'Pass'; Label = 'Backup verified' }
+    ///     [pscustomobject]@{ Date = [datetime]'2026-10-02'; Status = 'Warn'; Label = 'Backup delayed' }
+    /// )
+    /// $backups | New-ConsoleCalendar -Year 2026 -Month 10 | Show-Console</code>
+    /// </example>
+    /// <example>
+    /// <para>Show this month</para>
+    /// <code>New-ConsoleCalendar | Show-Console</code>
+    /// </example>
+    /// <example>
+    /// <para>Build a year view with Monday-first weeks</para>
+    /// <code>New-ConsoleCalendar -Year 2026 -View Year -FirstDayOfWeek Monday</code>
+    /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleCalendar")]
     [OutputType(typeof(Calendar))]
     public sealed class CmdletNewConsoleCalendar : PSCmdlet {

@@ -7,21 +7,21 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates a cell map: one status symbol per item of a run, with a legend of counts.</para>
-    /// <para type="description">The map Invoke-ConsoleRun shows for many items, as a widget of its own: each item is one cell in its status colour (pass, fail, warn, skip, running, pending), wrapping to the width, followed by a legend with each state's count. States come from -Status or the pipeline, in the shared status vocabulary (PowerShell's words such as Success and Error work too). -Count adds pending cells for items not started yet. -Columns and -RowLabels turn it into a labelled grid (one row per server, one column per check) with one legend below, which -LegendLines lets wrap. To add cells later, pipe the map to Add-ConsoleItem; in a live dashboard, update cells with Update-Console.</para>
+    /// <para type="description">The map Invoke-ConsoleRun shows for many items, as a widget of its own: each item is one cell in its status colour (pass, fail, warn, skip, running, pending), wrapping to the width, followed by a legend with each state's count. States come from -InputObject or the pipeline, in the shared status vocabulary (PowerShell's words such as Success and Error work too). -Count adds pending cells for items not started yet. -Columns and -RowLabels turn it into a labelled grid (one row per server, one column per check) with one legend below, which -LegendLines lets wrap. In a live dashboard, update cells with Update-Console.</para>
     /// </summary>
     /// <example>
     ///   <para>Forty items part-way through a run</para>
     ///   <code>
     /// $states = @('Pass') * 28 + @('Fail') * 2 + @('Warn') + @('Running') * 4
-    /// New-ConsoleCellMap -Status $states -Count 40 | Show-Console</code>
+    /// New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</code>
     /// </example>
     /// <example>
     ///   <para>States from objects</para>
-    ///   <code>$results | ForEach-Object Result | New-ConsoleCellMap | Show-Console</code>
+    ///   <code>@([pscustomobject]@{ Result = 'Pass' }, [pscustomobject]@{ Result = 'Warn' }) | ForEach-Object Result | New-ConsoleCellMap | Show-Console</code>
     /// </example>
     /// <example>
     ///   <para>A grid of three servers by four checks, with the server names beside the rows</para>
-    ///   <code>New-ConsoleCellMap -WidgetId checks -Count 12 -Columns 4 -RowLabels 'SRV01', 'SRV02', 'SRV03' -LegendLines 2 -Status Pass, Pass, Fail, Warn, Pass | Show-Console</code>
+    ///   <code>New-ConsoleCellMap -WidgetId checks -Count 12 -Columns 4 -RowLabels 'SRV01', 'SRV02', 'SRV03' -LegendLines 2 -InputObject Pass, Pass, Fail, Warn, Pass | Show-Console</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleCellMap")]
     [OutputType(typeof(CellMap))]
@@ -30,7 +30,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">The item states, in order: Pass, Fail, Warn, Skip, Info, Running or Pending (pipeline input works too).</para></summary>
         [Parameter(Position = 1, ValueFromPipeline = true)]
-        public object[]? Status { get; set; }
+        public object[]? InputObject { get; set; }
 
         /// <summary><para type="description">The total number of items; cells beyond the given states are pending.</para></summary>
         [Parameter]
@@ -69,8 +69,8 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            if (Status != null) {
-                foreach (object state in Status) {
+            if (InputObject != null) {
+                foreach (object state in InputObject) {
                     _states.AddRange(PSItems.Items(state));
                 }
             }

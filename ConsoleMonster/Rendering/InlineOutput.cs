@@ -15,7 +15,7 @@ namespace ConsoleMonster.Rendering {
     /// area stays at the bottom), and when the session ends the area is cleared so the final state can be printed into the
     /// scrollback (or left out for a transient area). Frames are as tall as the content, not the window.
     /// </summary>
-    public sealed class InlineOutput : ITerminalOutput {
+    internal sealed class InlineOutput : ITerminalOutput {
         private const string Esc = "\u001b[";
         private readonly ITerminalWriter _writer;
         private readonly bool _ownsWriter;

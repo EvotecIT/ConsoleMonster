@@ -203,6 +203,9 @@ jobs:
       - name: Build the module binaries (Debug, loaded by Module/ConsoleMonster.psm1 in development mode)
         run: dotnet build ConsoleMonster.PowerShell/ConsoleMonster.PowerShell.csproj --configuration Debug
 
+      - name: Build integration assemblies for the public API contract
+        run: dotnet build ConsoleMonster.Extensions.Tests/ConsoleMonster.Extensions.Tests.csproj --configuration Debug -warnaserror
+
       - name: Build the console test host (Debug)
         run: dotnet build ConsoleMonster.TestHost/ConsoleMonster.TestHost.csproj --configuration Debug -warnaserror
 
@@ -374,6 +377,8 @@ jobs:
         run: |
           dotnet build ConsoleMonster.PowerShell/ConsoleMonster.PowerShell.csproj --configuration Debug --framework net8.0
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Build integration assemblies for the public API contract
+        run: dotnet build ConsoleMonster.Extensions.Tests/ConsoleMonster.Extensions.Tests.csproj --configuration Debug --framework net8.0 -warnaserror
       - name: Build the console test host (Debug, net8.0)
         run: dotnet build ConsoleMonster.TestHost/ConsoleMonster.TestHost.csproj --configuration Debug --framework net8.0 -warnaserror
       - name: Import smoke (exports match the manifest)
@@ -470,6 +475,8 @@ jobs:
         run: |
           dotnet build ConsoleMonster.PowerShell/ConsoleMonster.PowerShell.csproj --configuration Debug --framework net8.0
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Build integration assemblies for the public API contract
+        run: dotnet build ConsoleMonster.Extensions.Tests/ConsoleMonster.Extensions.Tests.csproj --configuration Debug --framework net8.0 -warnaserror
       - name: Build the console test host (Debug, net8.0)
         run: dotnet build ConsoleMonster.TestHost/ConsoleMonster.TestHost.csproj --configuration Debug --framework net8.0 -warnaserror
       - name: Install Pester

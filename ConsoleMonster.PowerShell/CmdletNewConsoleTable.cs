@@ -9,12 +9,22 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="description">Columns come from -Property or from the first object's properties (or hashtable keys). Property descriptors accept presenter names or configured C# ICellPresenter instances. Columns size to their content, numbers are right-aligned, long values wrap. A -StatusProperty column shows status markers (pass, fail, warn...) as the row's one colour signal.</para>
     /// </summary>
     /// <example>
-    ///   <para>Services as a table with a status column</para>
-    ///   <code>Get-Service | Select-Object -First 8 Name, Status, StartType | New-ConsoleTable -Title 'Services' | Show-Console</code>
+    /// <para>Build a table with a status column</para>
+    /// <code>@(
+    ///     [pscustomobject]@{ Name = 'web01'; Status = 'Pass'; Region = 'East' }
+    ///     [pscustomobject]@{ Name = 'web02'; Status = 'Warn'; Region = 'West' }
+    /// ) | New-ConsoleTable -Property Name, Status, Region -StatusProperty Status -Title 'Servers' | Show-Console</code>
     /// </example>
     /// <example>
-    ///   <para>Filter objects from current application state.</para>
-    ///   <code>Show-ConsoleApp -Content { New-ConsoleTextInput -Key Query; New-ConsoleTable -Bind { $items | Where-Object Name -Like "*$($State.Query)*" } -Property Name, Status -StatusProperty Status }</code>
+    /// <para>Filter objects from current application state</para>
+    /// <code>$items = @(
+    ///     [pscustomobject]@{ Name = 'web01'; Status = 'Pass' }
+    ///     [pscustomobject]@{ Name = 'web02'; Status = 'Warn' }
+    /// )
+    /// Show-ConsoleApp -Content {
+    ///     New-ConsoleTextInput -Key Query
+    ///     New-ConsoleTable -Bind { $items | Where-Object Name -Like "*$($State.Query)*" } -Property Name, Status -StatusProperty Status
+    /// }</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleTable", DefaultParameterSetName = "Objects")]
     [OutputType(typeof(Table), typeof(AppBinding))]
@@ -75,8 +85,6 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(Mandatory = true, ParameterSetName = "Live")] public SwitchParameter Live { get; set; }
         /// <summary><para type="description">The live widget identifier; default table.</para></summary>
         [Parameter(Position = 0, ParameterSetName = "Live")] public string WidgetId { get; set; } = "table";
-        /// <summary><para type="description">Explicit column descriptors: header strings or the same column records accepted by Property.</para></summary>
-        [Parameter] public object[]? Columns { get; set; }
         /// <summary><para type="description">For Live, the input property used as the stable row key; omitted uses the first column.</para></summary>
         [Parameter(ParameterSetName = "Live")] public string? KeyProperty { get; set; }
         /// <summary><para type="description">For Live, a table model supplying columns and presentation options.</para></summary>
@@ -102,8 +110,7 @@ namespace ConsoleMonster.PowerShell {
                 WriteObject(script.CreateBinding(state => BuildTable(script.Invoke(state), script.Cmdlet)));
                 return;
             }
-            if (Columns != null && Property != null) { throw new PSArgumentException("Use Columns or Property, not both."); }
-            if (Columns != null && Table != null) { throw new PSArgumentException("Use Columns or Table, not both."); }
+            if (Property != null && Table != null) { throw new PSArgumentException("Use Property or Table, not both."); }
             var boundRows = Live.IsPresent && Table == null ? new List<(PSObject Input, object?[] Values, object? Identity)>() : null;
             Table table = Table ?? BuildTable(_items, boundRows: boundRows);
             if (Live.IsPresent) {
@@ -133,12 +140,12 @@ namespace ConsoleMonster.PowerShell {
         private Table BuildTable(IReadOnlyList<PSObject> items, PSCmdlet? cmdlet = null, List<(PSObject Input, object?[] Values, object? Identity)>? boundRows = null) {
             // The same columns and cell values as Show-ConsoleTable (registered views, PowerShell's table views, data keys,
             // shared value rules); -StatusProperty shows that column as status markers.
-            object[]? property = Columns ?? (Property != null && Property.Length > 0 ? Property : null);
+            object[]? property = Property != null && Property.Length > 0 ? Property : null;
             Values.ShapeOptions shape = Binding.PSShaping.Options();
             Table table;
-            if (items.Count == 0 && Columns != null) {
+            if (items.Count == 0 && property != null) {
                 table = new Table();
-                foreach (object descriptor in Columns) {
+                foreach (object descriptor in property) {
                     object? column = PSText.Unwrap(descriptor);
                     table.AddColumn(column is System.Collections.IDictionary record ? Binding.PropertyBinder.ColumnFrom(record) : new TableColumn(Text.Markup.Escape(PSWidgets.ToText(column))));
                 }

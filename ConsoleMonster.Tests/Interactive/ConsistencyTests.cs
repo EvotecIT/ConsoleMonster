@@ -172,7 +172,7 @@ namespace ConsoleMonster.Tests.Interactive
             SameRow(Bar(new HeaderBar("Patching") { Subtitle = "5 servers", Detail = "running", Status = StatusKind.Running, ShowElapsed = true }, tier, TimeSpan.FromSeconds(12)), frame, 0, "dashboard");
             FooterLook(frame, Height - 1, tier, "dashboard");
             Assert.Contains("ctrl+c stop", frame.GetRowText(Height - 1));
-            Dashboard built = new ConsoleMonster.Building.DashboardBuilder("Patching").Add(new ProgressBar("Overall", "overall")).BuildDashboard();
+            Dashboard built = Ui.Dashboard().Title("Patching").Content(body => body.Add(new ProgressBar("Overall", "overall")));
             CellBuffer builtFrame = new CellBuffer(Width, Height);
             built.Render(new Region(builtFrame), Context(tier));
             for (int x = 0; x < Width; x++)

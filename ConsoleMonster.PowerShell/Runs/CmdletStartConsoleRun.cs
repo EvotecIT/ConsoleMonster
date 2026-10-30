@@ -12,26 +12,29 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="description">Declares the queued items and returns a LiveRun handle. Use Update-Console as workers start or finish and Complete-ConsoleRun in a finally block. Finished items stream above the live dashboard; failures and warnings remain pinned. The dashboard uses at most 40 percent of terminal height by default. CI and redirected hosts use append-only lines with periodic totals. This command does not execute work or change its results or exit code. Name, Target and Group accept property names or script blocks evaluated once, before the session starts. Interactive keys are opt-in: p pauses the log, f filters it to problems, g toggles groups, and ? shows help.</para>
     /// </summary>
     /// <example>
-    /// <para>Track a script without changing its output</para>
-    /// <code>
-    /// $files = @(Get-ChildItem *.log)
-    /// $run = Start-ConsoleRun -Items $files -Title 'Archive logs' -Label Name -Target DirectoryName
+    /// <para>Track file inspections without modifying the files</para>
+    /// <code>$files = @(Get-ChildItem -File | Select-Object -First 5)
+    /// $run = Start-ConsoleRun -InputObject $files -Title 'Inspect files' -Label Name -Target DirectoryName
     /// try {
     ///     for ($i = 0; $i -lt $files.Count; $i++) {
-    ///         Update-Console -Run $run -Index $i -Status Running -Label 'archiving'
-    ///         try { Compress-Archive $files[$i].FullName "$($files[$i].FullName).zip" -ErrorAction Stop; Update-Console -Run $run -Index $i -Status Pass }
-    ///         catch { Update-Console -Run $run -Index $i -Status Fail -Detail $_.Exception.Message }
+    ///         Update-Console -Run $run -Index $i -Status Running
+    ///         Update-Console -Run $run -Index $i -Status Pass -Detail "$($files[$i].Length) bytes"
     ///     }
-    /// } finally { Complete-ConsoleRun $run }
-    /// </code>
+    /// } finally { Complete-ConsoleRun $run }</code>
     /// </example>
-    /// <example><para>Use append-only output in CI</para><code>$run = Start-ConsoleRun -Items $checks -Label Name -Target Server -Group Category -NoLive -ProgressEvery 20</code></example>
+    /// <example>
+    /// <para>Use append-only progress output in CI</para>
+    /// <code>$checks = @([pscustomobject]@{ Name = 'DNS'; Server = 'web01'; Category = 'Network' })
+    /// $run = Start-ConsoleRun -InputObject $checks -Label Name -Target Server -Group Category -NoLive -ProgressEvery 20
+    /// Update-Console -Run $run -Index 0 -Status Pass
+    /// Complete-ConsoleRun $run</code>
+    /// </example>
     [Cmdlet(VerbsLifecycle.Start, "ConsoleRun")]
     [OutputType(typeof(LiveRun))]
     public sealed class CmdletStartConsoleRun : NoPipelineInputCmdlet {
         /// <summary><para type="description">The complete input list. Updates identify each item by zero-based position.</para></summary>
         [Parameter(Mandatory = true)] [AllowEmptyCollection]
-        public PSObject[] Items { get; set; } = Array.Empty<PSObject>();
+        public PSObject[] InputObject { get; set; } = Array.Empty<PSObject>();
         /// <summary><para type="description">The literal run title.</para></summary>
         [Parameter] public string Title { get; set; } = "Run";
         /// <summary><para type="description">A name property or script block ($_ is the item). Default the item's display title.</para></summary>
@@ -57,19 +60,16 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Hides default-on category progress.</para></summary>
         [Parameter] public SwitchParameter NoGroups { get; set; }
-        /// <summary><para type="description">Exclusive typed session configuration. The run owns its output lifetime and applies run-specific layout and cancellation settings.</para></summary>
-        [Parameter] public LiveSessionOptions? Session { get; set; }
-
         /// <inheritdoc />
         protected override void EndProcessing() {
             List<RunItem> items = new List<RunItem>();
-            foreach (PSObject item in Items) {
+            foreach (PSObject item in InputObject) {
                 items.Add(new RunItem(Read(item, Label, PSWidgets.ToText(item)), Read(item, Target, ""), Read(item, Group, "")));
             }
             TerminalProfile profile = Terminal.GetCurrentProfile();
             bool host = HostOutput.UseHost(this, profile);
             HostQueueWriter? queue = host ? new HostQueueWriter() : null;
-            LiveSessionOptions session = Session ?? new LiveSessionOptions();
+            LiveSessionOptions session = new LiveSessionOptions();
             session.CaptureConsole = !host;
             session.Discoverable = false;
             if (host) { session.Profile = profile.WithMode(OutputMode.Plain); session.Output = new LineOutput(queue!, session.Profile); }

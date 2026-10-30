@@ -13,7 +13,7 @@ namespace ConsoleMonster.Interactive {
     /// save, paste with line breaks kept, a line and length limit, required/minimum checks and a validator with an inline
     /// error, and a counter. In line mode the answer is read line by line until an empty line.
     /// </summary>
-    public sealed class TextAreaPrompt : Prompt<string> {
+    internal sealed class TextAreaPrompt : Prompt<string> {
         /// <summary>Creates the prompt.</summary>
         /// <param name="title">The question.</param>
         public TextAreaPrompt(string title) : base(title) {

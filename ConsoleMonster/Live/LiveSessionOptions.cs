@@ -44,13 +44,16 @@ namespace ConsoleMonster.Live {
             }
         }
 
-        private int _framesPerSecond = 15;
+        private double _framesPerSecond = 15;
         private TimeSpan _stopTimeout = TimeSpan.FromSeconds(2);
 
         /// <summary>Maximum frame frequency, clamped to 1–60; defaults to 15.</summary>
-        public int FramesPerSecond {
+        public double FramesPerSecond {
             get => _framesPerSecond;
-            set => _framesPerSecond = Math.Max(1, Math.Min(60, value));
+            set {
+                if (double.IsNaN(value) || double.IsInfinity(value)) { throw new ArgumentOutOfRangeException(nameof(value)); }
+                _framesPerSecond = Math.Max(1, Math.Min(60, value));
+            }
         }
 
         /// <summary>Captures standard output and error while running; defaults to true.</summary>

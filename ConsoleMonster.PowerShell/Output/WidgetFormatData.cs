@@ -11,7 +11,7 @@ namespace ConsoleMonster.PowerShell {
     /// view that draws it (<see cref="WidgetFormatter"/>). Nothing is listed by hand: Module/Build/Update-ConsoleFormatData.ps1
     /// writes the file and a test fails when it is out of date.
     /// </summary>
-    public static class WidgetFormatData {
+    internal static class WidgetFormatData {
         /// <summary>The name of the view.</summary>
         public const string ViewName = "ConsoleMonster.Widget";
 

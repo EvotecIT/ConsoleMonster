@@ -12,9 +12,27 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="synopsis">Updates a live widget or a caller-managed run through one validated operation.</para>
     /// <para type="description">WidgetId is position zero. Fields are checked against the resolved widget before any events are posted. Structural sets separate table rows, cell batches, content replacement and run items. Unknown targets and unsupported fields are terminating errors.</para>
     /// </summary>
-    /// <example><para>Advance a build and change its label</para><code>Update-Console build -Value 5 -Total 20 -Label 'Compile'</code></example>
-    /// <example><para>Add or replace a live table row with an ordinary record</para><code>Update-Console results -Row ([pscustomobject] @{ Server = 'web01'; State = 'Pass'; Ms = 12 })</code></example>
-    /// <example><para>Finish one run item</para><code>Update-Console -Run $run -Index 0 -Status Pass -Detail 'Uploaded'</code></example>
+    /// <example>
+    /// <para>Advance a progress widget and change its label</para>
+    /// <code>$dashboard = New-ConsoleDashboard -Title Build -Content { New-ConsoleProgress -WidgetId build -Total 20 }
+    /// Invoke-ConsoleDashboard $dashboard { Update-Console build -Value 5 -Total 20 -Label 'Compile' }</code>
+    /// </example>
+    /// <example>
+    /// <para>Add or replace a live table row with an ordinary record</para>
+    /// <code>$dashboard = New-ConsoleDashboard -Title Results -Content {
+    ///     New-ConsoleTable -WidgetId results -Live -Property Server, State, Ms -KeyProperty Server
+    /// }
+    /// Invoke-ConsoleDashboard $dashboard {
+    ///     Update-Console results -Row ([pscustomobject]@{ Server = 'web01'; State = 'Pass'; Ms = 12 })
+    /// }</code>
+    /// </example>
+    /// <example>
+    /// <para>Finish one caller-managed run item</para>
+    /// <code>$items = @([pscustomobject]@{ Name = 'Report' })
+    /// $run = Start-ConsoleRun -InputObject $items -Label Name -NoLive
+    /// Update-Console -Run $run -Index 0 -Status Pass -Detail 'Uploaded'
+    /// Complete-ConsoleRun $run</code>
+    /// </example>
     [Cmdlet(VerbsData.Update, "Console", DefaultParameterSetName = "Fields")]
     public sealed class CmdletUpdateConsole : PSCmdlet {
         /// <summary>Unsupported pipeline input for update modes that do not take rows or content.</summary>

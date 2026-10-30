@@ -57,23 +57,20 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public InteractionMode? Mode { get; set; }
 
-        /// <summary><para type="description">Typed C# FormOptions configuration. Use this instead of individual interaction settings; omitted host devices use the owning PowerShell runspace and the supplied object is not modified.</para></summary>
-        [Parameter, ValidateNotNull] public FormOptions? Options { get; set; }
-
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (!(PSText.Unwrap(Form) is Form current)) {
                 ThrowTerminatingError(new ErrorRecord(new ArgumentException("Read-ConsoleForm needs a form from New-ConsoleForm; use Read-ConsoleSelect to pick pipeline objects."), "ExpectedConsoleForm", ErrorCategory.InvalidArgument, Form));
                 return;
             }
-            FormOptions options = PSOptions.Resolve(this, Options, () => new FormOptions {
+            FormOptions options = new FormOptions {
                     Interactive = PSInteractive.Options(this, Mode),
                     AppName = AppName,
                     RememberLastChoices = RememberLastChoices.IsPresent,
                     StorageRoot = StorageRoot,
                     Inline = Inline.IsPresent,
                     Preset = Preset
-                }, nameof(AppName), nameof(RememberLastChoices), nameof(StorageRoot), nameof(Inline), nameof(Preset), nameof(Mode)).Clone();
+                };
             options.Interactive ??= PSInteractive.Options(this, null);
             _stop = new CancellationTokenSource();
             FormResult result;

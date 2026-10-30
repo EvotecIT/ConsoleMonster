@@ -15,8 +15,8 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>Two tables sharing the width and a histogram 17 cells wide, stacking below 90 cells</para>
     ///   <code>
     /// New-ConsoleColumns -FixedWidth 0, 0, 17 -CollapseBelow 90 -Content {
-    ///     New-ConsolePanel -Title 'Failures' -Weight 1.5 -Content { New-ConsoleTable -WidgetId failures -Live -Columns 'Server', 'Check' }
-    ///     New-ConsolePanel -Title 'Slowest' -Content { New-ConsoleTable -WidgetId slowest -Live -Columns 'Check', 'Took' }
+    ///     New-ConsolePanel -Title 'Failures' -Weight 1.5 -Content { New-ConsoleTable -WidgetId failures -Live -Property 'Server', 'Check' }
+    ///     New-ConsolePanel -Title 'Slowest' -Content { New-ConsoleTable -WidgetId slowest -Live -Property 'Check', 'Took' }
     ///     New-ConsolePanel -Title 'Durations' -Content { New-ConsoleChart -WidgetId durations -Height 5 -Type Histogram -Edges 0, 2, 4, 8 }
     /// }</code>
     /// </example>

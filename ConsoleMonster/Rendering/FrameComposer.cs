@@ -4,7 +4,7 @@ using ConsoleMonster.Layout;
 
 namespace ConsoleMonster.Rendering {
     /// <summary>Renders widgets into cell buffers: full-screen frames for live sessions and sized blocks for print-once output.</summary>
-    public static class FrameComposer {
+    internal static class FrameComposer {
         /// <summary>Renders a widget as a full-screen frame.</summary>
         /// <param name="root">The root widget.</param>
         /// <param name="width">Screen width.</param>

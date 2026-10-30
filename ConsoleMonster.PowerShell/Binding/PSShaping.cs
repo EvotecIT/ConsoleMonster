@@ -65,7 +65,9 @@ namespace ConsoleMonster.PowerShell.Binding {
         /// <param name="options">Shape options.</param>
         /// <param name="budget">The pass budget, or null.</param>
         /// <returns>The title.</returns>
-        internal static string Title(object item, ShapeOptions options, ShapeBudget? budget = null) {
+        internal static string Title(object item, ShapeOptions options, ShapeBudget? budget = null) => Title(item, options, budget, null);
+
+        private static string Title(object item, ShapeOptions options, ShapeBudget? budget, ISet<string>? identityProperties) {
             if (item is PSObject ps) {
                 PSMemberSet? standard = ps.Members["PSStandardMembers"] as PSMemberSet;
                 string? preferred = (standard?.Members["DefaultDisplayProperty"] as PSPropertyInfo)?.Value as string;
@@ -76,7 +78,10 @@ namespace ConsoleMonster.PowerShell.Binding {
                             object? value = PSText.Unwrap(ReadIdentity(property, budget));
                             if (value != null && ValueShaper.IsScalar(value)) {
                                 string title = ValueShaper.ScalarText(value, options);
-                                if (!string.IsNullOrWhiteSpace(title)) { return WithDisplayName(ps, title, budget); }
+                                if (!string.IsNullOrWhiteSpace(title)) {
+                                    identityProperties?.Add(preferred!);
+                                    return WithDisplayName(ps, title, budget, identityProperties);
+                                }
                             }
                         } catch (GetValueException) {
                             // A failing display property falls back to the normal identity rule.
@@ -84,12 +89,12 @@ namespace ConsoleMonster.PowerShell.Binding {
                     }
                 }
             }
-            string fallback = ValueShaper.Title(item, options, budget);
-            return item is PSObject wrapped ? WithDisplayName(wrapped, fallback, budget) : fallback;
+            string fallback = ValueShaper.Title(item, options, budget, true, identityProperties);
+            return item is PSObject wrapped ? WithDisplayName(wrapped, fallback, budget, identityProperties) : fallback;
         }
 
         /// <summary>Uses an explicitly registered view key before PowerShell's ordinary identity rule.</summary>
-        internal static string IdentityTitle(PSObject item, ShapeOptions options, ShapeBudget? budget = null) {
+        internal static string IdentityTitle(PSObject item, ShapeOptions options, ShapeBudget? budget = null, ISet<string>? identityProperties = null) {
             ConsoleViewRegistration? view = ConsoleFormatting.Find(item);
             if (view?.Property != null) {
                 foreach (object property in view.Property) {
@@ -106,21 +111,29 @@ namespace ConsoleMonster.PowerShell.Binding {
                         raw = PSText.Unwrap(raw);
                         if (raw != null && ValueShaper.IsScalar(raw) && !(raw is bool)) {
                             string title = ValueShaper.ScalarText(raw, options);
-                            if (!string.IsNullOrWhiteSpace(title)) { return WithDisplayName(item, title, budget); }
+                            if (!string.IsNullOrWhiteSpace(title)) {
+                                identityProperties?.Add(columns[0].Name);
+                                string? sourceProperty = columns[0].SourceProperty(item);
+                                if (sourceProperty != null) { identityProperties?.Add(sourceProperty); }
+                                return WithDisplayName(item, title, budget, identityProperties);
+                            }
                         }
                     } catch (Exception ex) when (!(ex is PipelineStoppedException) && !(ex is OperationCanceledException)) {
                         // An unavailable registered key falls back to the ordinary identity rule.
                     }
                 }
             }
-            string fallback = Title(item, options, budget);
+            string fallback = Title(item, options, budget, identityProperties);
             object? value = item.BaseObject;
             Type? type = value?.GetType();
             if (type != null && (fallback == type.Name || fallback == type.FullName || item.TypeNames.Contains(fallback)) &&
                 (budget == null || budget.TryTake())) {
                 try {
                     object? result = budget == null ? value!.ToString() : budget.Guard(type, () => value!.ToString());
-                    if (result is string text && !string.IsNullOrWhiteSpace(text) && text != type.Name && text != type.FullName) { return text; }
+                    if (result is string text && !string.IsNullOrWhiteSpace(text) && text != type.Name && text != type.FullName) {
+                        identityProperties?.Clear();
+                        return text;
+                    }
                 } catch (Exception ex) when (!(ex is PipelineStoppedException) && !(ex is OperationCanceledException)) {
                     // An unavailable ToString leaves the type name as the fallback.
                 }
@@ -133,7 +146,7 @@ namespace ConsoleMonster.PowerShell.Binding {
             return budget == null ? property.Value : budget.Guard(property.Name, () => property.Value);
         }
 
-        private static string WithDisplayName(PSObject item, string title, ShapeBudget? budget) {
+        private static string WithDisplayName(PSObject item, string title, ShapeBudget? budget, ISet<string>? identityProperties) {
             try {
                 object? name = PSText.Unwrap(ReadIdentity(item.Properties["Name"], budget));
                 object? display = PSText.Unwrap(ReadIdentity(item.Properties["DisplayName"], budget));
@@ -141,6 +154,8 @@ namespace ConsoleMonster.PowerShell.Binding {
                     && string.Equals(title, nameText, StringComparison.OrdinalIgnoreCase)
                     && !string.IsNullOrWhiteSpace(displayText)
                     && !string.Equals(nameText, displayText, StringComparison.OrdinalIgnoreCase)) {
+                    identityProperties?.Add("Name");
+                    identityProperties?.Add("DisplayName");
                     return title + " · " + displayText;
                 }
             } catch (GetValueException) {

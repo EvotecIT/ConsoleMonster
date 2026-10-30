@@ -1,6 +1,6 @@
 ﻿param(
     [ValidateSet('All', 'Table', 'Cards', 'Lanes', 'WriteColor', 'Padding', 'Status', 'Log')][string] $Part = 'All',
-    [string] $LogFolder = $env:TEMP
+    [string] $LogFolder = [IO.Path]::GetTempPath()
 )
 # Rich text everywhere: multicolour cells and headers, cards and tree labels, coloured lane names in a live dashboard,
 # Literal and rich text, padding, centring and gradients, an updating status line and log files.
@@ -67,16 +67,16 @@ if (Show 'Lanes') {
 if (Show 'WriteColor') {
     Write-ConsoleText 'Text pieces with independent colours' -Role Muted
     Write-ConsoleText -Text 'Green ', 'red ', 'magenta ', 'and cyan' -Color Green, Red, Magenta, Cyan
-    Write-ConsoleText '1. ', 'Option 1' -Color Yellow, Green -StartTab 1
+    Write-ConsoleText '1. ', 'Option 1' -Color Yellow, Green -Indent 4
     Write-ConsoleText -Text 'My text', ' is ', 'colourful' -Color Yellow, Red, Green -BackgroundColor Green, Green, Yellow
 }
 
 if (Show 'Padding') {
-    Write-ConsoleText ' MENU ' -PadCenter 40 -PadCharacter '═' -Color Cyan -Decoration Bold
-    Write-ConsoleText '1.', ' Backup', ' (nightly)' -Color Yellow, White, DarkGray -PadRight 30 -PadCharacter '.'
-    Write-ConsoleText '2.', ' Restore' -Color Yellow, White -PadRight 30 -PadCharacter '.'
-    Write-ConsoleText '中文 ', '👍 ', 'emoji and CJK' -Color Magenta, White, Green -PadLeft 40 -PadCharacter '·'
-    Write-ConsoleText 'ConsoleMonster — rich text everywhere' -Gradient '#00c6ff', '#ff00aa' -Decoration Bold -HorizontalCenter -Width 60
+    Write-ConsoleText ' MENU ' -Alignment Center -Width 40 -Color Cyan -Decoration Bold
+    Write-ConsoleText '1.', ' Backup', ' (nightly)' -Color Yellow, White, DarkGray -Indent 4
+    Write-ConsoleText '2.', ' Restore' -Color Yellow, White -Indent 4
+    Write-ConsoleText '中文 ', '👍 ', 'emoji and CJK' -Color Magenta, White, Green -Alignment Right -Width 40
+    Write-ConsoleText 'ConsoleMonster — rich text everywhere' -Gradient '#00c6ff', '#ff00aa' -Decoration Bold -Alignment Center -Width 60
     Write-ConsoleText '█████████████████████████████████████████' -Gradient Pass, Fail
     Write-ConsoleText '[info] ', "Path exists`n2. Line`n3. Line" -Color Yellow, White -ShowTimestamp -SplitLines "`n" -TimestampFormat 'HH:mm:ss'
     Write-ConsoleText 'A long message that wraps under the time stamp, so the left edge stays clean and readable even when narrow.' -ShowTimestamp -Wrap -Width 60 -TimestampFormat 'HH:mm:ss' -Color Gray
@@ -92,14 +92,10 @@ if (Show 'Status') {
 }
 
 if (Show 'Log') {
-    $base = Join-Path $LogFolder 'consolemonster-richtext'
-    Remove-Item "$base.*" -ErrorAction SilentlyContinue
-    foreach ($format in 'Text', 'Csv', 'JsonLines') {
-        $path = $base + '.' + @{ Text = 'log'; Csv = 'csv'; JsonLines = 'jsonl' }[$format]
-        Write-ConsoleText 'Backup ', 'started' -Color White, Green -LogFile $path -LogFormat $format -Level Info -Category Backup -NoConsoleOutput
-        Write-ConsoleText 'Disk ', 'C: 91% full; consider cleanup' -LogFile $path -LogFormat $format -Level Warning -Category Disk -NoConsoleOutput
-        Write-ConsoleText 'Copy failed: ', '"\\nas01\backup" is offline' -LogFile $path -LogFormat $format -Level Error -Category Backup -NoConsoleOutput
-        Write-ConsoleText "$format log" -Role Accent -Decoration Bold
-        Get-Content -LiteralPath $path -Encoding UTF8 | ForEach-Object { Write-ConsoleText '  ', $_ -Color DarkGray, Gray }
-    }
+    $path = Join-Path $LogFolder 'consolemonster-richtext.log'
+    Write-ConsoleText 'Backup ', 'started' -Color White, Green -LogFile $path
+    Write-ConsoleText 'Data disk: ', '91% full; consider cleanup' -Color Gray, Yellow -LogFile $path
+    Write-ConsoleText 'Copy failed: ', 'backup storage is offline' -Color Gray, Red -LogFile $path
+    Write-ConsoleText 'Plain-text log' -Role Accent -Decoration Bold
+    Get-Content -LiteralPath $path -Encoding UTF8 | ForEach-Object { Write-ConsoleText '  ', $_ -Color DarkGray, Gray }
 }

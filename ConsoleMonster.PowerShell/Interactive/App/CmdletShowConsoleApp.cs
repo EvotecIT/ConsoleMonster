@@ -13,22 +13,26 @@ using ConsoleMonster.Styling;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Runs native input controls and dependent displays in a console application.</para>
-    /// <para type="description">Builds the layout once, then runs input synchronously on the caller's PowerShell thread. Callbacks are queued by controls and drained before input reads; dependent builders run on that same thread. Escape exits. Cancellation restores the terminal through the core runner. Use -StaticSnapshot to capture or print initialized values without interactive input. CONSOLEMONSTER_SNAPSHOT=1 also selects an initialized snapshot when no input source is supplied; CONSOLEMONSTER_INPUT supplies scripted keys centrally. Nothing is sent to the pipeline unless -PassThru requests one ordinary hashtable.</para>
+    /// <para type="description">Builds the layout once, then runs input synchronously on the caller's PowerShell thread. Callbacks are queued by controls and drained before input reads; dependent builders run on that same thread. Escape exits. Cancellation restores the terminal through the core runner. Use -Mode Snapshot to capture or print initialized values without interactive input. CONSOLEMONSTER_SNAPSHOT=1 also selects an initialized snapshot when no input source is supplied; CONSOLEMONSTER_INPUT supplies scripted keys centrally. Nothing is sent to the pipeline unless -PassThru requests one ordinary hashtable.</para>
     /// </summary>
     /// <example>
-    /// <para>Filter application data without leaving PowerShell.</para>
-    /// <code>Show-ConsoleApp -Content {
+    /// <para>Filter application data without leaving PowerShell</para>
+    /// <code>$servers = @(
+    ///     [pscustomobject]@{ Name = 'web01'; Status = 'Pass' }
+    ///     [pscustomobject]@{ Name = 'web02'; Status = 'Warn' }
+    /// )
+    /// Show-ConsoleApp -Content {
     ///     New-ConsoleTextInput -Key Query -OnChange { param($Value, $State) $State.Edits = 1 + $State.Edits }
-    ///     New-ConsoleTable -Bind { $services | Where-Object Name -Like "*$($State.Query)*" } -Property Name, Status
+    ///     New-ConsoleTable -Bind { $servers | Where-Object Name -Like "*$($State.Query)*" } -Property Name, Status
     ///     New-ConsoleBinding -Content { "Edits: $($State.Edits)" }
     /// } -PassThru</code>
     /// </example>
     /// <example>
-    /// <para>Capture a scripted run without a physical console.</para>
-    /// <code># Using the object directly
-    /// $capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(80, 24)
-    /// $keys = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('"abc" Escape')
-    /// Show-ConsoleApp -Content { New-ConsoleTextInput -Key Query } -InputSource $keys -Capture $capture -PassThru</code>
+    /// <para>Print initialized values without reading keyboard input</para>
+    /// <code>Show-ConsoleApp -Mode Snapshot -Content {
+    ///     New-ConsoleTextInput -Key Query -Value 'web'
+    ///     New-ConsoleBinding -Content { "Query: $($State.Query)" }
+    /// } -PassThru</code>
     /// </example>
     [Cmdlet(VerbsCommon.Show, "ConsoleApp", DefaultParameterSetName = "Footer")]
     [OutputType(typeof(Hashtable))]
@@ -47,7 +51,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter] public AppActions? Actions { get; set; }
         /// <summary><para type="description">Context key bar, normally a FooterBar reading the app's command registry.</para></summary>
         [Parameter(ParameterSetName = "Footer")] public object? Footer { get; set; }
-        /// <summary><para type="description">Key and label records shown in the application footer.</para></summary>
+        /// <summary><para type="description">Dictionaries mapping key names to labels, or typed KeyHint values.</para></summary>
         [Parameter(ParameterSetName = "Hints")] public object[]? FooterHints { get; set; }
         /// <summary><para type="description">Optional heading above the application content.</para></summary>
         [Parameter] public object? Title { get; set; }
@@ -85,7 +89,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public string? SelectionKey { get; set; }
 
-        /// <summary><para type="description">Interaction mode override, as in Read-ConsoleText. A running app requires Rich; use -StaticSnapshot without interactive input.</para></summary>
+        /// <summary><para type="description">Interaction mode override, as in Read-ConsoleText. A running app requires Rich; use -Mode Snapshot without interactive input.</para></summary>
         [Parameter]
         public InteractionMode? Mode { get; set; }
 
@@ -104,10 +108,6 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Core theme used to render controls and dependent widgets.</para></summary>
         [Parameter]
         public ITheme? Theme { get; set; }
-
-        /// <summary><para type="description">Optional full-screen live rendering settings, passed directly to the core runner. Inline mode is rejected before input or state initialization.</para></summary>
-        [Parameter]
-        public LiveSessionOptions? Live { get; set; }
 
         /// <summary><para type="description">Default width below which columns stack; explicit column thresholds take precedence.</para></summary>
         [Parameter, ValidateRange(0, int.MaxValue)] public int ReflowBelow { get; set; } = 60;
@@ -147,10 +147,8 @@ namespace ConsoleMonster.PowerShell {
                     callbacks.Attach(layout);
                     ConsoleAppOptions options = new ConsoleAppOptions {
                         Interactive = interactive,
-                        Live = Live,
                         Mouse = !NoMouse.IsPresent,
                         ReflowBelow = ReflowBelow,
-                        StaticSnapshot = Mode == InteractionMode.Snapshot,
                         ProcessEvents = callbacks.Drain,
                         SelectionKey = SelectionKey,
                         Keys = Keys, SignalKeys = SignalKeys.IsPresent, HandleInput = HandleInput,

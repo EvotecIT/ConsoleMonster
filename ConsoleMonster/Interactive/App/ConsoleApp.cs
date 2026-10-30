@@ -35,7 +35,7 @@ namespace ConsoleMonster.Interactive {
                 interactive.Capture = recording.Screens;
             }
             TerminalProfile profile = interactive.ResolveProfile();
-            bool snapshot = settings.StaticSnapshot || (SnapshotRequested() && interactive.Input == null && ConsoleInput.Override == null);
+            bool snapshot = interactive.ResolveMode() == InteractionMode.Snapshot || (SnapshotRequested() && interactive.Input == null && ConsoleInput.Override == null);
             if (!snapshot && interactive.ResolveMode() != InteractionMode.Rich) { throw new PromptUnavailableException(AppMessages.Get("Unavailable", profile.Language)); }
             cancellationToken.ThrowIfCancellationRequested();
             AppState values = state ?? new AppState();

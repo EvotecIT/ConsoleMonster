@@ -16,7 +16,7 @@ namespace ConsoleMonster.Interactive {
             PromptLabels labels = interactive.ResolveLabels();
             InteractionMode mode = interactive.ResolveMode();
             ChoiceStore store = new ChoiceStore(options.AppName ?? menu.Title, options.StorageRoot);
-            if (mode == InteractionMode.None) {
+            if (mode == InteractionMode.None || mode == InteractionMode.Snapshot) {
                 throw new PromptUnavailableException("Menu '" + menu.Title + "' needs an interactive session.") { Prompt = menu.Title };
             }
             MenuLayout layout = options.Layout != MenuLayout.Auto ? options.Layout : menu.Layout != MenuLayout.Auto ? menu.Layout : menu.HasContent ? MenuLayout.Shell : MenuLayout.Classic;

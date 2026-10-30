@@ -13,7 +13,7 @@ namespace ConsoleMonster.PowerShell {
     /// PowerShell removes it for Out-String, Out-File and redirection; PlainText and Windows PowerShell 5.1 (no $PSStyle) get
     /// plain text, since 5.1 would keep escape codes in captured output. Format-List * still lists the properties.</para>
     /// </summary>
-    public static class WidgetFormatter {
+    internal static class WidgetFormatter {
         /// <summary>The text for a widget or a rendering (called by the format view).</summary>
         /// <param name="value">A widget, a <see cref="ConsoleRendering"/>, a PowerShell object around one, or a deserialized rendering.</param>
         /// <param name="host">The host (for the width), or null.</param>

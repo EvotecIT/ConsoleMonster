@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
-using ConsoleMonster.Building;
 using ConsoleMonster.Glyphs;
 using ConsoleMonster.Interactive;
 using ConsoleMonster.Layout;
@@ -215,7 +214,9 @@ namespace ConsoleMonster.Examples.Showcases
             {
                 PreferredHeight = 6
             };
-            Dashboard dashboard = new DashboardBuilder("[bold]Server toolbox[/]").Subtitle(servers.Count + " servers · " + tasks.Count + " tasks" + (options.Get<bool>("DryRun") ? " · dry run" : string.Empty)).Panel("Servers", lanes).Add(new Padding(overall, 1, 0, 1, 0)).Panel("Log", log, fill: true).BuildDashboard();
+            Dashboard dashboard = Ui.Dashboard().Title("[bold]Server toolbox[/]").Subtitle(servers.Count + " servers · " + tasks.Count + " tasks" + (options.Get<bool>("DryRun") ? " · dry run" : string.Empty))
+                .Content(body => body
+                    .Panel("Servers", lanes).Add(new Padding(overall, 1, 0, 1, 0)).Panel("Log", log, fill: true));
             int throttle = (int)options.Get<decimal>("Parallel", 4m);
             context.Run(dashboard, run => Work(run, lanes, overall, log, servers, tasks, throttle));
         }

@@ -7,7 +7,11 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="synopsis">Creates an embeddable, lazy object tree for Show-ConsoleApp.</para>
     /// <para type="description">Uses the same member adapters, paths, cycle guards and expansion budget as Show-ConsoleObject. Arrows expand and collapse; Enter drills into the selected subtree.</para>
     /// </summary>
-    /// <example><para>Browse a configuration alongside other inputs.</para><code>New-ConsoleTreeSelect -Key Members -InputObject $config</code></example>
+    /// <example>
+    /// <para>Browse a nested configuration</para>
+    /// <code>$config = [pscustomobject]@{ Name = 'example'; Settings = @{ Port = 443; Enabled = $true } }
+    /// Show-ConsoleApp -Content { New-ConsoleTreeSelect -Key Members -InputObject $config }</code>
+    /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleTreeSelect")]
     [OutputType(typeof(TreeSelect))]
     public sealed class CmdletNewConsoleTreeSelect : AppInputCmdlet {

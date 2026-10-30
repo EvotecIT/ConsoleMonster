@@ -7,7 +7,7 @@ using ConsoleMonster.Values;
 
 namespace ConsoleMonster.PowerShell.Binding {
     /// <summary>Groups PowerShell objects by a property name or script block.</summary>
-    public static class GroupBinder {
+    internal static class GroupBinder {
         private const string NoKey = "(none)";
 
         /// <summary>Groups objects in the order their keys first appear (case-insensitive keys).</summary>

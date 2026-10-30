@@ -8,7 +8,7 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates a checklist of items with status markers.</para>
-    /// <para type="description">Items come from a script block of Key/Label/Status records calls (each with its own status and detail), from the pipeline, from -InputObject (labels mapped to statuses) or from -Item (labels added as pending, for a live checklist). Statuses use the shared vocabulary: Pass, Fail, Warn, Skip, Info, Running, Pending and PowerShell's words such as Success, Warning and Error. Status is always shown with a symbol (or a [PASS]-style word in ASCII mode), never by colour alone. To add items later, pipe the list to Add-ConsoleItem; in a live dashboard, update items with Update-Console.</para>
+    /// <para type="description">Content or the pipeline accepts Key/Label/Status records and strings. Records can include Detail; strings begin as pending checklist items. InputObject also accepts a dictionary mapping labels to statuses. Layout selects a vertical List or a horizontal Strip. Statuses use the shared vocabulary: Pass, Fail, Warn, Skip, Info, Running, Pending and PowerShell's words such as Success, Warning and Error. Status is always shown with a symbol (or a [PASS]-style word in ASCII mode), never by colour alone. In a live dashboard, update items with Update-Console.</para>
     /// </summary>
     /// <example>
     ///   <para>A build checklist</para>
@@ -31,8 +31,16 @@ namespace ConsoleMonster.PowerShell {
     /// <example>
     ///   <para>A live checklist: items start pending and are updated from the dashboard script</para>
     ///   <code>
-    /// $steps = New-ConsoleStatusList -Item 'Scan files', 'Copy changes', 'Verify'
+    /// $steps = 'Scan files', 'Copy changes', 'Verify' | New-ConsoleStatusList -WidgetId status
     /// Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps }) { Update-Console status -Key 'Scan files' -Status Pass -Detail '2.4 s' }</code>
+    /// </example>
+    /// <example>
+    /// <para>Show build phases as a compact strip</para>
+    /// <code>New-ConsoleStatusList -Layout Strip -StepCounter -Content {
+    ///     @{ Key = 'restore'; Label = 'Restore'; Status = 'Pass' }
+    ///     @{ Key = 'build'; Label = 'Build'; Status = 'Running' }
+    ///     @{ Key = 'test'; Label = 'Test'; Status = 'Pending' }
+    /// } | Show-Console</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleStatusList")]
     [OutputType(typeof(StatusList), typeof(Phases))]
@@ -60,7 +68,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(Position = 0)]
         public string WidgetId { get; set; } = "status";
 
-        /// <summary><para type="description">Shared DetailColumn layout settings from New-ConsoleColumnFormat.</para></summary>
+        /// <summary><para type="description">Shared DetailColumn layout settings as a hashtable, for example @{ MinWidth = 6; Alignment = 'Right' }.</para></summary>
         [Parameter] public Layout.ColumnFormat? DetailColumn { get; set; }
 
         /// <inheritdoc />

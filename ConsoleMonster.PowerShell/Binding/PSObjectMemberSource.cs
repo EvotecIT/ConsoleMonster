@@ -10,7 +10,7 @@ namespace ConsoleMonster.PowerShell.Binding {
     /// adapted properties), the default display property set first. Nested objects that have a default display property set
     /// show only that set; the root object shows all its properties. Plumbing members are left out by the shared value rules.
     /// </summary>
-    public sealed class PSObjectMemberSource : IMemberSource {
+    internal sealed class PSObjectMemberSource : IMemberSource {
         /// <summary>The object an inspection starts from (shows all members), or null when every object shows all members.</summary>
         public object? Root { get; set; }
 

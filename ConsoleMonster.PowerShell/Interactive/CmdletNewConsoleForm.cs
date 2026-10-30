@@ -11,7 +11,11 @@ namespace ConsoleMonster.PowerShell {
     /// <example>
     ///   <para>A two-page wizard</para>
     ///   <code>
-    /// $form = New-ConsoleForm 'New share' -Command 'New-AppShare' -PageDescriptions @{ Basics = 'Name and location of the share.'; Access = 'How people can use the share.' } -Content {
+    /// function New-SharePlan {
+    ///     param([string]$Name, [string]$Path, [switch]$ReadOnly)
+    ///     [pscustomobject]@{ Name = $Name; Path = $Path; ReadOnly = [bool]$ReadOnly }
+    /// }
+    /// $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -PageDescriptions @{ Basics = 'Name and location of the share.'; Access = 'How people can use the share.' } -Content {
     ///     New-ConsoleField Name 'Share name' -Page Basics -Required -ParameterName Name
     ///     New-ConsoleField Path 'Folder' -Type Path -Kind Folder -MustExist -Page Basics -ParameterName Path
     ///     New-ConsoleField ReadOnly 'Read only' -Type Toggle -Page Access -ParameterName ReadOnly
@@ -20,7 +24,11 @@ namespace ConsoleMonster.PowerShell {
     /// <example>
     ///   <para>A form that comes with a preset</para>
     ///   <code>
-    /// $form = New-ConsoleForm 'New share' -Command 'New-AppShare' -Content {
+    /// function New-SharePlan {
+    ///     param([string]$Name, [string]$Path, [switch]$ReadOnly)
+    ///     [pscustomobject]@{ Name = $Name; Path = $Path; ReadOnly = [bool]$ReadOnly }
+    /// }
+    /// $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {
     ///     New-ConsoleField Name 'Share name' -Required -ParameterName Name
     ///     New-ConsoleField ReadOnly 'Read only' -Type Toggle -ParameterName ReadOnly
     ///     [pscustomobject]@{ Name = 'Archive'; Values = @{ Name = 'Archive'; ReadOnly = $true }; Description = 'A read-only archive share.' }
@@ -28,7 +36,12 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleForm")]
     [OutputType(typeof(Form))]
-    public sealed class CmdletNewConsoleForm : NoPipelineInputCmdlet {
+    public sealed class CmdletNewConsoleForm : PSCmdlet {
+        private readonly List<PSObject> _piped = new List<PSObject>();
+        /// <summary><para type="description">Fields or preset records from the pipeline.</para></summary>
+        [Parameter(ValueFromPipeline = true)] public PSObject? InputObject { get; set; }
+        /// <inheritdoc />
+        protected override void ProcessRecord() { if (InputObject != null) { _piped.Add(InputObject); } }
         /// <summary><para type="description">The title.</para></summary>
         [Parameter(Mandatory = true, Position = 0)]
         public string Title { get; set; } = string.Empty;
@@ -36,10 +49,6 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">A scriptblock whose New-ConsoleField output becomes the fields.</para></summary>
         [Parameter(Position = 1)]
         public ScriptBlock? Content { get; set; }
-
-        /// <summary><para type="description">Fields created beforehand.</para></summary>
-        [Parameter]
-        public Field[]? Field { get; set; }
 
         /// <summary><para type="description">A sentence under the title.</para></summary>
         [Parameter]
@@ -85,20 +94,18 @@ namespace ConsoleMonster.PowerShell {
             };
             List<Field> fields = new List<Field>();
             List<FormPreset> presets = new List<FormPreset>();
-            if (Field != null) {
-                fields.AddRange(Field);
-            }
             if (Preset != null) {
                 foreach (object preset in Preset) { presets.Add(PSPresets.Form(preset, this)); }
             }
-            if (Content != null) {
-                foreach (PSObject output in Content.Invoke()) {
-                    if (output?.BaseObject is Field field) {
-                        fields.Add(field);
-                    } else if (output != null && (output.BaseObject is FormPreset || PSPresets.IsRecord(output))) {
-                        presets.Add(PSPresets.Form(output, this));
-                    }
-                }
+            var collected = new List<PSObject>();
+            if (Content != null) { collected.AddRange(Content.Invoke()); }
+            collected.AddRange(_piped);
+            foreach (PSObject output in collected) {
+                if (output?.BaseObject is Field field) {
+                    fields.Add(field);
+                } else if (output != null && (output.BaseObject is FormPreset || PSPresets.IsRecord(output))) {
+                    presets.Add(PSPresets.Form(output, this));
+                } else { throw new PSArgumentException("New-ConsoleForm takes fields from New-ConsoleField or preset records. To pick objects, use Read-ConsoleSelect."); }
             }
             Dictionary<string, FormPage> pages = new Dictionary<string, FormPage>(System.StringComparer.OrdinalIgnoreCase);
             foreach (Field field in fields) {

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using ConsoleMonster.Building;
 using ConsoleMonster.Interactive;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
@@ -70,7 +69,9 @@ namespace ConsoleMonster.Examples.Showcases {
                 lanes.Add(s.Name, s.Name, 6);
             }
             LogRegion log = new LogRegion { PreferredHeight = 6 };
-            Dashboard dashboard = new DashboardBuilder("[bold]Patching[/]").Subtitle("5 servers").Panel("Servers", lanes).Panel("Log", log, fill: true).BuildDashboard();
+            Dashboard dashboard = Ui.Dashboard().Title("[bold]Patching[/]").Subtitle("5 servers")
+                .Content(body => body
+                    .Panel("Servers", lanes).Panel("Log", log, fill: true));
             using (LiveSession session = new LiveSession(dashboard, new LiveSessionOptions { PrintFinalState = true })) {
                 session.Run(s => {
                     LanesHandle handle = lanes.Handle(s);

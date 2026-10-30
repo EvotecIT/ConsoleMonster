@@ -12,7 +12,7 @@ namespace ConsoleMonster.Rendering {
     /// never any cursor movement. Stream keeps colour when the profile allows it (CI logs render ANSI); Plain never emits
     /// escape sequences. Live frames are ignored: a live session narrates events as lines instead.
     /// </summary>
-    public sealed class LineOutput : ITerminalOutput {
+    internal sealed class LineOutput : ITerminalOutput {
         private readonly ITerminalWriter _writer;
         private readonly bool _ownsWriter;
         private readonly StringBuilder _sb = new StringBuilder(4096);

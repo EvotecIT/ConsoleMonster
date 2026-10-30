@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>Conservative output-route check used by the runtime-native Format-* proxies.</summary>
-    public static class FormatCommandRouter {
+    internal static class FormatCommandRouter {
         private const BindingFlags Flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
         /// <summary>Whether this command feeds the installed Out-Default directly on a local, non-transcribed console.</summary>

@@ -46,13 +46,15 @@ namespace ConsoleMonster.PowerShell {
                 }
                 options.Budget = new ConsoleMonster.Values.ShapeBudget(options.TimeBudget, options.MaxNodes);
                 string? label = PSText.Markup(Title);
-                if (label == null && (Exclude == null || Exclude.Length == 0) && (include == null || include.Length == 0 || (include.Length == 1 && include[0] == "*"))) { label = Binding.PSShaping.IdentityTitle(item, shape, options.Budget); }
+                var identityProperties = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
+                if (label == null && (Exclude == null || Exclude.Length == 0) && (include == null || include.Length == 0 || (include.Length == 1 && include[0] == "*"))) { label = Binding.PSShaping.IdentityTitle(item, shape, options.Budget, identityProperties); }
 #pragma warning disable IL2026
                 InspectNode node = ObjectInspector.Inspect(item, options);
                 if (node is InspectLimit limit && limit.TypeName == "Limit") {
                     node = new InspectObject(null, node.TypeName, node.Path, new[] { limit });
                 }
-                inspected.Add(node);
+                identityProperties.UnionWith(identityProperties.Select(name => Binding.PropertyBinder.SourceProperty(name, item) ?? name).ToArray());
+                inspected.Add(InspectorTree.OmitIdentity(node, identityProperties));
                 titles.Add(label);
 #pragma warning restore IL2026
             }

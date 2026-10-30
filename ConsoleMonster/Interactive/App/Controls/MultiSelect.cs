@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>A filtered multi-choice layout input. Space or Enter toggles a choice; standard list shortcuts remain available.</summary>
-    public sealed class MultiSelect : SelectionInputBase {
+    internal sealed class MultiSelect : SelectionInputBase {
         /// <summary>Creates a multi-choice input honoring enabled choices marked as initially selected.</summary>
         /// <param name="key">The application-state key.</param>
         /// <param name="choices">Available choices, configured before running.</param>

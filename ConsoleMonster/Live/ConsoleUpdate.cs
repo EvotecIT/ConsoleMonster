@@ -49,6 +49,7 @@ namespace ConsoleMonster.Live {
         }
 
         private static string Allowed(ILiveTarget target) {
+            if (target is Dashboard) { return "Label Detail Status"; }
             if (target is ActivityList) { return "Key ParentKey Label Detail Value Total Remaining Complete"; }
             if (target is CellMap) { return "Index Status AppendCells Count CellCount"; }
             if (target is Lanes) { return "Key Label Detail Total Status Result Increment Complete"; }

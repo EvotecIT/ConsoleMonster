@@ -7,7 +7,7 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates an aligned key/value list from a hashtable, an object's properties or Key/Value records pairs.</para>
-    /// <para type="description">Pairs come from a hashtable (use [ordered] to keep order), from an object's properties, or from a script block of Key/Value records calls when a pair needs a status marker, markup or a presenter. Keys are muted and aligned; values wrap. Values are shown literally unless -Markup is used. To add pairs later, pipe the list to Add-ConsoleItem; in a live dashboard, update pairs with Update-Console.</para>
+    /// <para type="description">Pairs come from a hashtable (use [ordered] to keep order), from an object's properties, or from a script block of Key/Value records calls when a pair needs a status marker, markup or a presenter. Keys are muted and aligned; values wrap. Values are shown literally unless -Markup is used. In a live dashboard, update pairs with Update-Console.</para>
     /// </summary>
     /// <example>
     ///   <para>A summary block</para>
@@ -25,7 +25,7 @@ namespace ConsoleMonster.PowerShell {
     /// <example>
     ///   <para>A hashtable and pairs together</para>
     ///   <code>
-    /// New-ConsoleKeyValue -InputObject ([ordered] @{ Module = 'ConsoleMonster'; Frameworks = 'netstandard2.0, net472, net8.0' }) -Content {
+    /// New-ConsoleKeyValue -InputObject ([ordered] @{ Module = 'ConsoleMonster'; Frameworks = 'net472, net8.0' }) -Content {
     ///     [pscustomobject]@{ Key = 'Signing'; Value = 'skipped'; Status = 'Skip' }
     /// } | Show-Console</code>
     /// </example>
@@ -49,7 +49,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(Position = 0)]
         public string WidgetId { get; set; } = "keyvalue";
 
-        /// <summary><para type="description">Shared NumberColumn layout settings from New-ConsoleColumnFormat.</para></summary>
+        /// <summary><para type="description">Shared NumberColumn layout settings as a hashtable, for example @{ MinWidth = 6; Alignment = 'Right' }.</para></summary>
         [Parameter] public Layout.ColumnFormat? NumberColumn { get; set; }
 
         /// <summary><para type="description">Cells between the key column and values.</para></summary>

@@ -1,5 +1,5 @@
 namespace ConsoleMonster.Layout {
-    /// <summary>How a row or column claims space inside <see cref="Rows"/>, <see cref="Columns"/> or <see cref="Grid"/>.</summary>
+    /// <summary>How a row or column claims space inside <see cref="Rows"/>, <see cref="Columns"/> or <see cref="LayoutGrid"/>.</summary>
     public enum LayoutSizeKind {
         /// <summary>As much as the child measures.</summary>
         Auto = 0,

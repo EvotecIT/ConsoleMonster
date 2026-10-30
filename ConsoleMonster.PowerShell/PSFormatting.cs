@@ -368,17 +368,17 @@ namespace ConsoleMonster.PowerShell {
         /// <summary>
         /// The output of a structured Show-Console command, so every PowerShell consumer gets it:
         /// <list type="bullet">
-        /// <item>-AsString: one string of plain text;</item>
+        /// <item>a caller requesting plain text: one rendered string;</item>
         /// <item>followed by another command (| Out-String, | Out-File, | Set-Content, | more): the rendered lines as strings;</item>
         /// <item>PowerShell 7.2+ on a local console, typed at the prompt (or run by -Command) and last in its pipeline: a
         /// <see cref="ConsoleRendering"/> object that ConsoleMonster's format view draws in colour, while $x = ..., &gt; file,
         /// -OutVariable, *&gt; and Out-String get plain text through $PSStyle.OutputRendering;</item>
         /// <item>otherwise (inside a script or function, Windows PowerShell 5.1, jobs, remoting, other hosts,
         /// Use-ConsoleTarget): drawn through the host as before, so a function's output never gains a table object; use
-        /// -AsString to capture there.</item>
+        /// AsWidget followed by Export-ConsoleFrame -Format Text to capture there.</item>
         /// </list>
-        /// With -PassThru the view is drawn through the host and the input objects are written instead; -AsString and
-        /// -PassThru together are refused, as one stream would mix text and objects.
+        /// With pass-through enabled the view is drawn through the host and the input objects are written instead; plain-text rendering and
+        /// pass-through together are refused, as one stream would mix text and objects.
         /// </summary>
         internal static void Emit(PSCmdlet cmdlet, IWidget widget, int width, CultureInfo? culture, bool asString, bool passThru = false, bool appendBlankLine = true) {
             if (asString && passThru) {

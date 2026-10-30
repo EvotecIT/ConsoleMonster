@@ -4,7 +4,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using ConsoleMonster.Building;
 using ConsoleMonster.Glyphs;
 using ConsoleMonster.Highlighting;
 using ConsoleMonster.Input;
@@ -535,7 +534,19 @@ namespace ConsoleMonster.Examples.Showcases
                 {
                     Height = 5
                 };
-                Dashboard = new DashboardBuilder("[bold]" + Title + "[/]").Subtitle(Markup.Escape(plan.Domain)).Add(Summary).Add(Phases).Columns(c => c.Panel("Check map", Cells, 1.0).Panel("Categories", new Rows(Lanes, new Rule(), facts), 1.15).Panel("Running", Running, 0.95, plan.Parallel + " workers")).Columns(c => c.Panel("Failures", Failures, 1.52).Panel("Slowest checks", Slowest, 1).AddFixed(new Panel(Durations, "Durations") { PaddingLeft = 0, PaddingRight = 0 }, 17)).Panel("Log", new LogRegion("log") { PreferredHeight = 6 }, fill: true).BuildDashboard();
+                Dashboard = Ui.Dashboard().Title("[bold]" + Title + "[/]")
+                    .Subtitle(Markup.Escape(plan.Domain))
+                    .Content(body => body
+                        .Add(Summary).Add(Phases)
+                        .Columns(columns => columns.Content(c => c
+                            .Panel("Check map", Cells, 1.0)
+                            .Panel("Categories", new Rows(Lanes, new Rule(), facts), 1.15)
+                            .Panel("Running", Running, 0.95, plan.Parallel + " workers")))
+                        .Columns(columns => columns.Content(c => c
+                            .Panel("Failures", Failures, 1.52)
+                            .Panel("Slowest checks", Slowest, 1)
+                            .Add(new Panel(Durations, "Durations") { PaddingLeft = 0, PaddingRight = 0 }, LayoutSize.Fixed(17))))
+                        .Panel("Log", new LogRegion("log") { PreferredHeight = 6 }, fill: true));
             }
 
             public SummaryBar Summary { get; }

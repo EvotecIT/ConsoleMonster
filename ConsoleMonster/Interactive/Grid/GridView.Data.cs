@@ -113,6 +113,8 @@ namespace ConsoleMonster.Interactive {
             InteractiveOptions interactive = options.Interactive ?? InteractiveOptions.Default;
             PromptLabels labels = interactive.ResolveLabels();
             switch (interactive.ResolveMode()) {
+                case InteractionMode.Snapshot:
+                    throw new PromptUnavailableException("A grid needs an interactive session. Render its source rows as a table for a static view.");
                 case InteractionMode.None:
                     throw new PromptUnavailableException("Grid '" + grid.Title + "' needs an interactive session.") { Prompt = grid.Title };
                 case InteractionMode.Line:
