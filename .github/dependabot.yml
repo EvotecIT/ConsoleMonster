@@ -1,15 +1,22 @@
 version: 2
 updates:
-  - package-ecosystem: nuget
-    directory: /Sources
+  - package-ecosystem: github-actions
+    directory: /
     schedule:
-      interval: daily
-    cooldown:
-      default-days: 7
-      include:
-        - '*'
+      interval: weekly
     open-pull-requests-limit: 1
     groups:
-      all-dependencies:
-        patterns:
-          - '*'
+      github-actions:
+        patterns: ['*']
+  - package-ecosystem: nuget
+    directories:
+      - '/**/*'
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+      include: ['*']
+    open-pull-requests-limit: 1
+    groups:
+      nuget:
+        patterns: ['*']

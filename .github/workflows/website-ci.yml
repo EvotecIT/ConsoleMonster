@@ -36,11 +36,12 @@ permissions:
   packages: read
 
 concurrency:
-  group: website-ci-${{ github.ref }}
-  cancel-in-progress: true
+  group: website-ci-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   verify-site:
+    if: github.event_name == 'pull_request'
     uses: EvotecIT/PSPublishModule/.github/workflows/powerforge-website-ci.yml@actions-next
     with:
       website_root: Website
@@ -48,6 +49,19 @@ jobs:
       powerforge_lock_path: ./Website/.powerforge/engine-lock.json
       powerforge_repository: EvotecIT/PSPublishModule
       powerforge_ref: actions-next
+
+  verify-site-trusted:
+    if: github.event_name != 'pull_request'
+    uses: EvotecIT/PSPublishModule/.github/workflows/powerforge-website-run.yml@actions-next
+    with:
+      website_root: Website
+      pipeline_config: Website/pipeline.json
+      powerforge_lock_path: ./Website/.powerforge/engine-lock.json
+      powerforge_repository: EvotecIT/PSPublishModule
+      powerforge_ref: actions-next
+      pipeline_mode: ci
+      credential_mode: standard
+      use_playwright_cache: true
 
   # Rendering budget: builds the site, serves it and drives it in headless Chromium (Website/build/perf/site-perf.cjs).
   # Fails when tier switches, width switches, the home page's paths or a page at rest go over Website/build/perf/budget.json:
