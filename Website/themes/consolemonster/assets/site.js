@@ -208,7 +208,8 @@
     var full = figure.querySelector('.cm-code__full');
     // A shortened sample copies its full program, which is what compiles and runs.
     var code = full ? full.querySelector('pre') : figure.querySelector('pre');
-    var text = code ? code.innerText.replace(/\n$/, '') : '';
+    // textContent, not innerText: the full program sits in a collapsed <details>, and innerText of unrendered content is empty.
+    var text = code ? code.textContent.replace(/\n$/, '') : '';
     var done = function (label) { button.textContent = label; setTimeout(function () { button.textContent = 'Copy'; }, 1600); };
     // Without clipboard access (an insecure origin, a refused permission, an older browser) the code is selected, so
     // Ctrl+C or the context menu copies it; a shortened sample opens its full program first.
@@ -225,7 +226,7 @@
       try { copied = document.execCommand && document.execCommand('copy'); } catch (e) { copied = false; }
       done(copied ? 'Copied' : 'Selected: copy with your keyboard');
     };
-    if (navigator.clipboard && navigator.clipboard.writeText) {
+    if (text && navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(function () { done('Copied'); }, fallback);
     } else {
       fallback();
