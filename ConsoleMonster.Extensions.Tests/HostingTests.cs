@@ -45,7 +45,7 @@ namespace ConsoleMonster.Extensions.Tests {
 
         private static ServiceStatus Find(IConsoleDashboard dashboard, string name) => dashboard.Snapshot().Single(item => item.Name == name);
 
-        private static async Task<ServiceStatus> WaitFor(IConsoleDashboard dashboard, string name, ServiceState state) {
+        internal static async Task<ServiceStatus> WaitFor(IConsoleDashboard dashboard, string name, ServiceState state) {
             for (int i = 0; i < 200; i++) {
                 ServiceStatus status = Find(dashboard, name);
                 if (status.State == state) {

@@ -32,7 +32,7 @@ namespace ConsoleMonster.Extensions.Tests {
         }
 
         private sealed class Worker : BackgroundService {
-            // Synchronous continuations let the test advance its clock only after the completion observer has run.
+            // The test observes the terminal state before advancing its controlled clock.
             internal TaskCompletionSource<bool> Work { get; } = new TaskCompletionSource<bool>();
             protected override Task ExecuteAsync(CancellationToken stoppingToken) => Work.Task;
         }
@@ -163,6 +163,8 @@ namespace ConsoleMonster.Extensions.Tests {
                     } else {
                         service.Work.SetCanceled();
                     }
+                    // Hosting 10 runs ExecuteAsync on a background task, including its synchronous prefix.
+                    await HostingTests.WaitFor(tracker, "Worker", expected);
                     Assert.Equal(expected, tracker.Snapshot().Single().State);
                     clock.Advance(25);
                     await tracked.StopAsync(CancellationToken.None);
