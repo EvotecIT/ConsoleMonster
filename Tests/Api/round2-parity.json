@@ -24217,7 +24217,7 @@
       "Member": "Values",
       "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24225,7 +24225,7 @@
       "Member": "GroupAtLeast",
       "CSharpTypeName": "System.Int32",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24233,7 +24233,7 @@
       "Member": "Items",
       "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Frames.AttentionItem]",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24241,7 +24241,7 @@
       "Member": "Noun",
       "CSharpTypeName": "System.String",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24249,7 +24249,7 @@
       "Member": "OutOf",
       "CSharpTypeName": "System.Nullable`1[System.Int64]",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24257,7 +24257,7 @@
       "Member": "PluralNoun",
       "CSharpTypeName": "System.String",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24265,7 +24265,7 @@
       "Member": "Title",
       "CSharpTypeName": "System.String",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24273,7 +24273,7 @@
       "Member": "Compact",
       "CSharpTypeName": "System.Func`2[ConsoleMonster.Frames.FrameScale,ConsoleMonster.Layout.IWidget]",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24281,7 +24281,7 @@
       "Member": "Length",
       "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Views.ConsoleViewLength]",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24289,7 +24289,7 @@
       "Member": "Meters",
       "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Frames.Meter]",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24297,7 +24297,7 @@
       "Member": "Sections",
       "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Frames.FrameSection]",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24305,7 +24305,7 @@
       "Member": "BarWidth",
       "CSharpTypeName": "System.Int32",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24313,7 +24313,7 @@
       "Member": "Counts",
       "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24321,7 +24321,7 @@
       "Member": "Hint",
       "CSharpTypeName": "ConsoleMonster.Frames.FrameHint",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24329,7 +24329,7 @@
       "Member": "Facts",
       "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24337,7 +24337,7 @@
       "Member": "ObservedAt",
       "CSharpTypeName": "System.Nullable`1[System.DateTimeOffset]",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24345,7 +24345,7 @@
       "Member": "States",
       "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Frames.FrameState]",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24353,7 +24353,7 @@
       "Member": "Title",
       "CSharpTypeName": "System.String",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24361,7 +24361,7 @@
       "Member": "Facts",
       "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24369,7 +24369,7 @@
       "Member": "FullWidth",
       "CSharpTypeName": "System.Boolean",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24377,7 +24377,7 @@
       "Member": "Grow",
       "CSharpTypeName": "System.Double",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24385,7 +24385,7 @@
       "Member": "MaxWidth",
       "CSharpTypeName": "System.Nullable`1[System.Int32]",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24393,7 +24393,7 @@
       "Member": "Meta",
       "CSharpTypeName": "System.String",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24401,7 +24401,7 @@
       "Member": "MinWidth",
       "CSharpTypeName": "System.Nullable`1[System.Int32]",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24409,7 +24409,7 @@
       "Member": "Placement",
       "CSharpTypeName": "ConsoleMonster.Frames.FramePlacement",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24417,7 +24417,7 @@
       "Member": "States",
       "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Frames.FrameState]",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24425,7 +24425,7 @@
       "Member": "AlignRight",
       "CSharpTypeName": "System.Boolean",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24433,7 +24433,7 @@
       "Member": "Axis",
       "CSharpTypeName": "System.String",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24441,7 +24441,7 @@
       "Member": "MaxWidth",
       "CSharpTypeName": "System.Nullable`1[System.Int32]",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24449,7 +24449,7 @@
       "Member": "Width",
       "CSharpTypeName": "System.Nullable`1[System.Int32]",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24457,7 +24457,7 @@
       "Member": "Columns",
       "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Frames.GroupedColumn`1[T]]",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24465,7 +24465,7 @@
       "Member": "Heading",
       "CSharpTypeName": "System.Func`3[System.String,System.Collections.Generic.IReadOnlyList`1[T],ConsoleMonster.Frames.GroupHeading]",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24473,7 +24473,7 @@
       "Member": "HealthyWord",
       "CSharpTypeName": "System.String",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24481,7 +24481,7 @@
       "Member": "IsHealthy",
       "CSharpTypeName": "System.Func`2[T,System.Boolean]",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24489,7 +24489,7 @@
       "Member": "Noun",
       "CSharpTypeName": "System.String",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -24497,7 +24497,7 @@
       "Member": "PluralNoun",
       "CSharpTypeName": "System.String",
       "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code and register it with DefaultDisplay.RegisterModule; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
       "Disposition": "CSharpOnly"
     },
     {

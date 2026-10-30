@@ -166,8 +166,9 @@ public sealed class DashboardFrameTests {
 
     [Fact]
     public void Header_ObservedToday_ShowsTimeOnly() {
-        DashboardFrame frame = new DashboardFrame("Replication") { Now = new DateTimeOffset(2026, 10, 28, 12, 0, 0, TimeSpan.Zero) };
-        frame.Header.ObservedAt = new DateTimeOffset(2026, 10, 28, 10, 42, 0, TimeSpan.Zero);
+        TimeSpan localOffset = TimeZoneInfo.Local.GetUtcOffset(new DateTime(2026, 10, 28, 12, 0, 0));
+        DashboardFrame frame = new DashboardFrame("Replication") { Now = new DateTimeOffset(2026, 10, 28, 12, 0, 0, localOffset) };
+        frame.Header.ObservedAt = new DateTimeOffset(2026, 10, 28, 10, 42, 0, localOffset);
         frame.Header.States.Add(FrameState.Of(HealthState.Failing, 2, "failing"));
         string first = Lines(Render(frame, 100))[0];
         Assert.Contains("× 2 failing · " + frame.Header.ObservedAt.Value.ToLocalTime().ToString("HH:mm", CultureInfo.CurrentCulture), first);
