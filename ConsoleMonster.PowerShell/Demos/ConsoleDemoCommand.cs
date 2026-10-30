@@ -32,7 +32,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter] public string? Shell { get; set; }
         /// <summary>Runs and drains the child on the pipeline thread; no PowerShell scriptblock is invoked on a reader thread.</summary>
         protected void RunDemo(string? destination, bool presenter) {
-            if (presenter && Console.IsInputRedirected) { throw new InvalidOperationException("Live presenter mode needs a terminal. Use Invoke-ConsolePresentation for unattended recording."); }
+            if (presenter && Console.IsInputRedirected) { throw new InvalidOperationException("Live presenter mode needs a terminal. Use Show-ConsolePresentation -Destination for unattended recording."); }
             string source = SessionState.Path.GetUnresolvedProviderPathFromPSPath(Path);
             DemoScript script = DemoScript.Read(source);
             bool temporary = destination == null;

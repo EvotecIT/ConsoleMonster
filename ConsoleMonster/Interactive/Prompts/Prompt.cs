@@ -74,6 +74,8 @@ namespace ConsoleMonster.Interactive {
             InteractiveOptions o = options ?? InteractiveOptions.Default;
             PromptLabels labels = o.ResolveLabels();
             switch (o.ResolveMode()) {
+                case InteractionMode.Snapshot:
+                    throw new PromptUnavailableException("A snapshot has no answer. Use Snapshot(options) to render the initialized prompt.");
                 case InteractionMode.None:
                     if (HasDefault) {
                         return Default;

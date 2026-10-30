@@ -21,7 +21,8 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Renders one snapshot instead of running live interactions.</para></summary>
         [Parameter]
-        public SwitchParameter StaticSnapshot { get; set; }
+        [ValidateSet("Rich", "Snapshot")]
+        public Interactive.InteractionMode Mode { get; set; } = Interactive.InteractionMode.Rich;
 
         /// <summary><para type="description">Deterministic snapshot state, starting at zero. See the demo's Steps metadata for its snapshot count.</para></summary>
         [Parameter]
@@ -42,11 +43,11 @@ namespace ConsoleMonster.PowerShell {
                 return;
             }
 
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(Step)) && !StaticSnapshot.IsPresent) {
-                ThrowTerminatingError(new ErrorRecord(new PSArgumentException("Use -Step with -StaticSnapshot."),
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(Step)) && Mode != Interactive.InteractionMode.Snapshot) {
+                ThrowTerminatingError(new ErrorRecord(new PSArgumentException("Use -Step with -Mode Snapshot."),
                     "ConsoleDemoSnapshotRequired", ErrorCategory.InvalidArgument, Step));
             }
-            foreach (PSObject result in ConsoleGallery.Show(slug, InvokeCommand, StaticSnapshot.IsPresent, Step)) { WriteObject(result); }
+            foreach (PSObject result in ConsoleGallery.Show(slug, InvokeCommand, Mode == Interactive.InteractionMode.Snapshot, Step)) { WriteObject(result); }
         }
 
         // The demos as a list to pick from; Esc picks nothing. Without a user to ask, it says how to name one.

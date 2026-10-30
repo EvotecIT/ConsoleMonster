@@ -32,10 +32,6 @@ namespace ConsoleMonster.PowerShell {
         [ValidateRange(0, 1000)]
         public int Width { get; set; }
 
-        /// <summary><para type="description">Returns the help as one string of plain text instead of drawing it.</para></summary>
-        [Parameter]
-        public SwitchParameter AsString { get; set; }
-
         /// <summary><para type="description">Leaves out the examples.</para></summary>
         [Parameter]
         public SwitchParameter NoExamples { get; set; }
@@ -61,7 +57,7 @@ namespace ConsoleMonster.PowerShell {
                 return;
             }
             if (AsWidget.IsPresent) { WriteObject(widget); }
-            else { PSFormatting.Emit(this, widget!, Width, null, AsString.IsPresent); }
+            else { PSFormatting.Emit(this, widget!, Width, null, false); }
         }
     }
 }

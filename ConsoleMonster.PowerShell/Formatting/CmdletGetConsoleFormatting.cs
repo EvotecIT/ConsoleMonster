@@ -21,8 +21,7 @@ namespace ConsoleMonster.PowerShell {
             result.Properties.Add(new PSNoteProperty("Features", names.Length == 0 ? Array.Empty<string>() : names.Split(new[] { ", " }, StringSplitOptions.None)));
             result.Properties.Add(new PSNoteProperty("AddOptIns", "Enable-ConsoleFormatting -Include Help"));
             result.Properties.Add(new PSNoteProperty("OptionalFeatures", new[] { "Help", "Prompt", "Progress", "GridView" }));
-            result.Properties.Add(new PSNoteProperty("CompactErrors", state.CompactErrors));
-            result.Properties.Add(new PSNoteProperty("DetailedErrors", state.DetailedErrors));
+            result.Properties.Add(new PSNoteProperty("ErrorLayout", state.DetailedErrors ? "Detailed" : state.CompactErrors ? "Compact" : "Standard"));
             result.Properties.Add(new PSNoteProperty("BuiltIn", state.TakeOverBuiltIns));
             WriteObject(result);
         }

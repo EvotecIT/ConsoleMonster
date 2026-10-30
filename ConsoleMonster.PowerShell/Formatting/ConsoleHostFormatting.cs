@@ -4,8 +4,6 @@ using System.Management.Automation;
 namespace ConsoleMonster.PowerShell {
     /// <summary>PowerShell session formatting configuration, shared by the cmdlets and C# runspace hosts.</summary>
     public sealed class ConsoleFormattingOptions {
-        /// <summary>The features to enable or disable; null selects the operation's default.</summary>
-        public ConsoleFormattingFeature[]? Feature { get; set; }
         /// <summary>Features to add to the default set.</summary>
         public ConsoleFormattingFeature[]? Include { get; set; }
         /// <summary>Features to remove from the default set and disable if already installed.</summary>
@@ -14,10 +12,10 @@ namespace ConsoleMonster.PowerShell {
         public bool Force { get; set; }
         /// <summary>Includes built-in type views with the output feature.</summary>
         public bool BuiltIn { get; set; } = true;
-        /// <summary>Includes detailed error stacks.</summary>
-        public bool Detailed { get; set; }
-        /// <summary>Uses the compact error layout when the Errors feature is enabled.</summary>
-        public bool CompactErrors { get; set; }
+        /// <summary>Error detail: Compact, Standard or Detailed.</summary>
+        public string ErrorLayout { get; set; } = "Standard";
+        internal bool Detailed => string.Equals(ErrorLayout, "Detailed", StringComparison.OrdinalIgnoreCase);
+        internal bool CompactErrors => !string.Equals(ErrorLayout, "Standard", StringComparison.OrdinalIgnoreCase);
         /// <summary>Returns profile setup lines through the host instead of changing the session.</summary>
         public bool ProfileSnippet { get; set; }
     }
@@ -31,8 +29,7 @@ namespace ConsoleMonster.PowerShell {
         }
 
         internal static ConsoleFormattingFeature Selected(ConsoleFormattingOptions options) {
-            if (options.Feature != null && (options.Exclude != null || options.Include != null)) { throw new ArgumentException("Feature cannot be combined with Include or Exclude."); }
-            return options.Feature != null ? Combine(options.Feature) : (ConsoleFormatting.Defaults | Combine(options.Include)) & ~Combine(options.Exclude);
+            return (ConsoleFormatting.Defaults | Combine(options.Include)) & ~Combine(options.Exclude);
         }
         /// <summary>Enables the requested features on the owning pipeline thread.</summary>
         /// <param name="source">The C# host cmdlet supplying its runspace, streams and module lifetime.</param>
@@ -40,20 +37,21 @@ namespace ConsoleMonster.PowerShell {
         public static void Enable(PSCmdlet source, ConsoleFormattingOptions? options = null) {
             if (source == null) { throw new ArgumentNullException(nameof(source)); }
             options ??= new ConsoleFormattingOptions();
+            if (!string.Equals(options.ErrorLayout, "Standard", StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(options.ErrorLayout, "Compact", StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(options.ErrorLayout, "Detailed", StringComparison.OrdinalIgnoreCase)) { throw new ArgumentException("ErrorLayout must be Compact, Standard or Detailed.", nameof(options)); }
 
             ConsoleFormattingFeature wanted = Selected(options);
             if ((options.CompactErrors || options.Detailed) && (wanted & ConsoleFormattingFeature.Errors) == 0) {
-                throw new ArgumentException("CompactErrors and Detailed require the Errors feature.");
+                throw new ArgumentException("ErrorLayout requires the Errors feature.");
             }
-            if (options.Detailed && !options.CompactErrors) { throw new ArgumentException("Detailed requires CompactErrors."); }
             if (options.ProfileSnippet) {
-                foreach (string line in ConsoleFormatting.ProfileSnippet(Convert.ToString(source.SessionState.PSVariable.GetValue("PROFILE"), System.Globalization.CultureInfo.InvariantCulture), !options.BuiltIn, options.Force, wanted, Combine(options.Include), Combine(options.Exclude), options.Feature != null, options.CompactErrors)) {
-                    source.WriteObject(options.Detailed && line.StartsWith("Enable-ConsoleFormatting", StringComparison.Ordinal) ? line + " -Detailed" : line);
+                foreach (string line in ConsoleFormatting.ProfileSnippet(Convert.ToString(source.SessionState.PSVariable.GetValue("PROFILE"), System.Globalization.CultureInfo.InvariantCulture), !options.BuiltIn, options.Force, Combine(options.Include), Combine(options.Exclude), options.ErrorLayout)) {
+                    source.WriteObject(line);
                 }
                 return;
             }
-            if (options.Feature != null) { Disable(source, new[] { ConsoleFormatting.Features & ~wanted }); }
-            else if (options.Exclude != null) { Disable(source, options.Exclude); }
+            if (options.Exclude != null) { Disable(source, options.Exclude); }
             if (wanted == ConsoleFormattingFeature.None) {
                 return;
             }

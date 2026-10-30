@@ -8,7 +8,6 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="description">The host-only sink used by Enable-ConsoleFormatting -Feature FormatCommands. PowerShell still resolves properties, calculated expressions, grouping and named views. Unrecognized formatting records are passed to the native Out-Default. Use -AsWidget to export the same view with Export-ConsoleFrame.</para>
     /// </summary>
     /// <example><para>Export a native table using ConsoleMonster's frame exporter</para><code>Get-Process | Microsoft.PowerShell.Utility\Format-Table Name, Id | Out-ConsoleFormatCommand -AsWidget | Export-ConsoleFrame -Path processes.html</code></example>
-    [Cmdlet(VerbsData.Out, "ConsoleFormatCommand")]
     public sealed class CmdletOutConsoleFormatCommand : PSCmdlet {
         private readonly List<PSObject> _records = new List<PSObject>();
 

@@ -10,9 +10,9 @@ namespace ConsoleMonster.PowerShell {
     [Cmdlet(VerbsCommon.Show, "ConsolePresentation")]
     [OutputType(typeof(FileInfo))]
     public sealed class CmdletShowConsolePresentation : ConsoleDemoCommand {
-        /// <summary><para type="description">Optional asciicast recording path.</para></summary>
-        [Parameter] public string? RecordingPath { get; set; }
+        /// <summary><para type="description">Records the complete presentation unattended to this asciicast path. Without it, keys control the presentation and temporary output is removed.</para></summary>
+        [Parameter] public string? Destination { get; set; }
         /// <inheritdoc />
-        protected override void EndProcessing() => RunDemo(RecordingPath, true);
+        protected override void EndProcessing() => RunDemo(Destination, Destination == null);
     }
 }

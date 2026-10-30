@@ -35,7 +35,7 @@ namespace ConsoleMonster.PowerShell {
     /// Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps }) { Update-Console status -Key 'Scan files' -Status Pass -Detail '2.4 s' }</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleStatusList")]
-    [OutputType(typeof(StatusList))]
+    [OutputType(typeof(StatusList), typeof(Phases))]
     public sealed class CmdletNewConsoleStatusList : PSCmdlet {
         private readonly List<object> _piped = new List<object>();
         private readonly List<IDictionary> _dictionaries = new List<IDictionary>();
@@ -49,9 +49,12 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(ValueFromPipeline = true, Position = 1)]
         public PSObject? InputObject { get; set; }
 
-        /// <summary><para type="description">Item keys to add as pending (for a live checklist).</para></summary>
-        [Parameter]
-        public object[]? Item { get; set; }
+        /// <summary><para type="description">List stacks the items; Strip shows ordered phases.</para></summary>
+        [Parameter, ValidateSet("List", "Strip")]
+        public string Layout { get; set; } = "List";
+
+        /// <summary><para type="description">Adds step counters to the Strip layout.</para></summary>
+        [Parameter] public SwitchParameter StepCounter { get; set; }
 
         /// <summary><para type="description">The live name (default status).</para></summary>
         [Parameter(Position = 0)]
@@ -74,25 +77,23 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void EndProcessing() {
-            StatusList list = new StatusList(WidgetId);
-            if (Item != null) {
-                foreach (object item in Item) {
-                    list.Set(PSText.PlainText(item), PSText.LiteralMarkup(item), StatusKind.Pending);
-                }
-            }
+            bool strip = string.Equals(Layout, "Strip", System.StringComparison.OrdinalIgnoreCase);
+            if (!strip && StepCounter.IsPresent) { throw new PSArgumentException("StepCounter applies to Layout Strip."); }
+            if (strip && DetailColumn != null) { throw new PSArgumentException("DetailColumn applies to Layout List."); }
+            ConsoleMonster.Layout.IWidget list = strip ? (ConsoleMonster.Layout.IWidget)new Phases(WidgetId) { StepCounter = StepCounter.IsPresent } : new StatusList(WidgetId);
             foreach (IDictionary dictionary in _dictionaries) {
                 foreach (DictionaryEntry entry in dictionary) {
                     string label = PSWidgets.ToText(entry.Key);
                     if (!Binding.StatusArguments.TryParse(entry.Value, out StatusKind status)) {
                         throw new PSArgumentException("The value for '" + label + "' is not a status.");
                     }
-                    list.Set(label, Text.Markup.Escape(label), status);
+                    PSItems.AddAll(this, list, new object[] { new StatusItem(label, Text.Markup.Escape(label), status) });
                 }
             }
             ScriptBlock? content = Content;
             PSItems.AddAll(this, list, PSItems.Items(content));
             PSItems.AddAll(this, list, _piped);
-            if (DetailColumn != null) { list.DetailColumn = DetailColumn; }
+            if (DetailColumn != null && list is StatusList checklist) { checklist.DetailColumn = DetailColumn; }
             WriteObject(list);
         }
     }

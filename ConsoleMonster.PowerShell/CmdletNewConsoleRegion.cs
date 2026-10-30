@@ -16,7 +16,7 @@ namespace ConsoleMonster.PowerShell {
     [OutputType(typeof(IWidget))]
     public sealed class CmdletNewConsoleRegion : ContainerCmdlet {
         /// <summary><para type="description">The region name used by Update-Console.</para></summary>
-        [Parameter(Position = 0, Mandatory = true)]
+        [Parameter(Position = 0)]
         public string WidgetId { get; set; } = string.Empty;
 
         /// <summary><para type="description">A script block whose widgets are the first content.</para></summary>
@@ -36,10 +36,26 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter Fill { get; set; }
 
+        /// <summary><para type="description">Horizontal placement within the available space.</para></summary>
+        [Parameter] public HorizontalAlignment Horizontal { get; set; } = HorizontalAlignment.Left;
+        /// <summary><para type="description">Vertical placement within the available space.</para></summary>
+        [Parameter] public VerticalAlignment Vertical { get; set; } = VerticalAlignment.Top;
+        /// <summary><para type="description">Padding as one value for all sides, two for horizontal and vertical, or four for left, top, right and bottom.</para></summary>
+        [Parameter, ValidateCount(1, 4), ValidateRange(0, int.MaxValue)]
+        public int[]? Padding { get; set; }
+
         /// <inheritdoc />
         protected override IWidget Build(List<IWidget> children) {
             IWidget? content = children.Count == 0 ? null : children.Count == 1 ? children[0] : new Rows(children.ToArray());
-            return PSWidgets.WithSize(new RegionWidget(WidgetId, content), Weight, Height, Fill.IsPresent);
+            if (content != null && (Horizontal != HorizontalAlignment.Left || Vertical != VerticalAlignment.Top)) { content = new Align(content, Horizontal, Vertical); }
+            if (Padding != null) {
+                if (Padding.Length == 3) { throw new PSArgumentException("Padding takes one, two or four values."); }
+                int left = Padding[0], top = Padding.Length == 1 ? left : Padding[1];
+                int right = Padding.Length < 4 ? left : Padding[2], bottom = Padding.Length < 4 ? top : Padding[3];
+                content = new ConsoleMonster.Layout.Padding(content ?? new Rows(), left, top, right, bottom);
+            }
+            IWidget region = string.IsNullOrEmpty(WidgetId) ? content ?? new Rows() : new RegionWidget(WidgetId, content);
+            return PSWidgets.WithSize(region, Weight, Height, Fill.IsPresent);
         }
     }
 }

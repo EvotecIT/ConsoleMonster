@@ -54,7 +54,7 @@ namespace ConsoleMonster.PowerShell {
                 }
             }
             SelectionQuestion question = Question.Select(definition);
-            if (StaticSnapshot.IsPresent) { PSFormatting.Write(this, question.Snapshot(Options()), 0); return; }
+            if (Mode == InteractionMode.Snapshot) { PSFormatting.Write(this, question.Snapshot(Options()), 0); return; }
             object? answer;
             try { answer = question.Show(Options(), Token); }
             catch (System.Exception error) when (error is PromptCanceledException || error is PromptUnavailableException || error is Input.InputClosedException) { PSInteractive.Fail(this, error, Title); throw; }

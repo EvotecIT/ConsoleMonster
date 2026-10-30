@@ -14,7 +14,6 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>Show processes the ConsoleMonster way once</para>
     ///   <code>Get-Process | Out-ConsoleDefault</code>
     /// </example>
-    [Cmdlet(VerbsData.Out, "ConsoleDefault")]
     public sealed class CmdletOutConsoleDefault : PSCmdlet {
         private ConsoleDefaultOutput? _output;
 

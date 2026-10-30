@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Management.Automation;
+using ConsoleMonster.Widgets;
 using System.Threading;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Input;
@@ -29,7 +30,7 @@ namespace ConsoleMonster.PowerShell {
     /// $keys = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('"abc" Escape')
     /// Show-ConsoleApp -Content { New-ConsoleTextInput -Key Query } -InputSource $keys -Capture $capture -PassThru</code>
     /// </example>
-    [Cmdlet(VerbsCommon.Show, "ConsoleApp")]
+    [Cmdlet(VerbsCommon.Show, "ConsoleApp", DefaultParameterSetName = "Footer")]
     [OutputType(typeof(Hashtable))]
     public sealed class CmdletShowConsoleApp : NoPipelineInputCmdlet {
         /// <summary><para type="description">Host focus, cancel and palette gestures. Set a gesture to null to release it to the app registry.</para></summary>
@@ -45,7 +46,17 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">App-thread action service for starting the shared worker from registry and dialog callbacks.</para></summary>
         [Parameter] public AppActions? Actions { get; set; }
         /// <summary><para type="description">Context key bar, normally a FooterBar reading the app's command registry.</para></summary>
-        [Parameter] public IWidget? Footer { get; set; }
+        [Parameter(ParameterSetName = "Footer")] public object? Footer { get; set; }
+        /// <summary><para type="description">Key and label records shown in the application footer.</para></summary>
+        [Parameter(ParameterSetName = "Hints")] public object[]? FooterHints { get; set; }
+        /// <summary><para type="description">Optional heading above the application content.</para></summary>
+        [Parameter] public object? Title { get; set; }
+        /// <summary><para type="description">Text qualifying the application title.</para></summary>
+        [Parameter] public object? Subtitle { get; set; }
+        /// <summary><para type="description">Current detail beside the application heading.</para></summary>
+        [Parameter] public object? Detail { get; set; }
+        /// <summary><para type="description">Semantic status in the application heading.</para></summary>
+        [Parameter, Binding.StatusKindTransformation] public Styling.StatusKind? Status { get; set; }
         /// <summary><para type="description">Minimum terminal width; smaller windows show a resize message without losing focus.</para></summary>
         [Parameter, ValidateRange(0, 10000)] public int MinimumWidth { get; set; }
         /// <summary><para type="description">Minimum terminal height; zero permits any height.</para></summary>
@@ -61,10 +72,6 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Returns final named values as one ordinary hashtable. Callback output is discarded.</para></summary>
         [Parameter]
         public SwitchParameter PassThru { get; set; }
-
-        /// <summary><para type="description">Prints or captures one initialized snapshot without reading input; usable in CI or redirected output.</para></summary>
-        [Parameter]
-        public SwitchParameter StaticSnapshot { get; set; }
 
         /// <summary><para type="description">Disables optional terminal mouse reporting while retaining keyboard operation.</para></summary>
         [Parameter]
@@ -115,6 +122,17 @@ namespace ConsoleMonster.PowerShell {
             try {
                 stop.Token.ThrowIfCancellationRequested();
                 IWidget layout = new Rows(PSWidgets.Collect(Content).ToArray());
+                if (Title != null || Subtitle != null || Detail != null || Status.HasValue) {
+                    var header = new HeaderBar(PSText.Markup(Title) ?? string.Empty) { Subtitle = PSText.Markup(Subtitle), Detail = PSText.Markup(Detail), Status = Status };
+                    layout = new Rows(header, PSWidgets.WithSize(layout, 0, 0, true));
+                }
+                IWidget? footer = PSWidgets.AsWidget(Footer);
+                if (Footer != null && footer == null) { throw new PSArgumentException("Footer must be text or a widget."); }
+                if (FooterHints != null) {
+                    var hints = new FooterBar();
+                    foreach (KeyHint hint in PSFooterHints.Read(FooterHints)) { hints.Hints.Add(hint); }
+                    footer = hints;
+                }
                 InteractiveOptions interactive = PSInteractive.Options(this, Mode);
                 if (InputSource != null) {
                     interactive.Input = InputSource;
@@ -132,11 +150,11 @@ namespace ConsoleMonster.PowerShell {
                         Live = Live,
                         Mouse = !NoMouse.IsPresent,
                         ReflowBelow = ReflowBelow,
-                        StaticSnapshot = StaticSnapshot.IsPresent,
+                        StaticSnapshot = Mode == InteractionMode.Snapshot,
                         ProcessEvents = callbacks.Drain,
                         SelectionKey = SelectionKey,
                         Keys = Keys, SignalKeys = SignalKeys.IsPresent, HandleInput = HandleInput,
-                        TerminalHandoff = TerminalHandoff, Dialogs = Dialogs, Actions = Actions, Footer = Footer,
+                        TerminalHandoff = TerminalHandoff, Dialogs = Dialogs, Actions = Actions, Footer = footer,
                         MinimumWidth = MinimumWidth, MinimumHeight = MinimumHeight
                     };
                     foreach (AppCommand command in Command) { options.Command.Add(command); }

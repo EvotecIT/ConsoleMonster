@@ -151,9 +151,9 @@ namespace ConsoleMonster.PowerShell {
         }
 
         /// <summary>The profile lines that turn the formatting on in every session, with the given options (printed, never written).</summary>
-        internal static IReadOnlyList<string> ProfileSnippet(string? profilePath, bool noBuiltIn, bool force, ConsoleFormattingFeature features, ConsoleFormattingFeature included, ConsoleFormattingFeature excluded, bool explicitFeatures, bool compactErrors) {
-            string options = (explicitFeatures ? " -Feature " + (features == ConsoleFormattingFeature.None ? "None" : FeatureList(features)) : (included != ConsoleFormattingFeature.None ? " -Include " + FeatureList(included) : string.Empty) + (excluded != ConsoleFormattingFeature.None ? " -Exclude " + FeatureList(excluded) : string.Empty))
-                + (compactErrors ? " -CompactErrors" : string.Empty)
+        internal static IReadOnlyList<string> ProfileSnippet(string? profilePath, bool noBuiltIn, bool force, ConsoleFormattingFeature included, ConsoleFormattingFeature excluded, string errorLayout) {
+            string options = (included != ConsoleFormattingFeature.None ? " -Include " + FeatureList(included) : string.Empty) + (excluded != ConsoleFormattingFeature.None ? " -Exclude " + FeatureList(excluded) : string.Empty)
+                + (!string.Equals(errorLayout, "Standard", StringComparison.OrdinalIgnoreCase) ? " -ErrorLayout " + errorLayout : string.Empty)
                 + (noBuiltIn ? " -NoBuiltIn" : string.Empty) + (force ? " -Force" : string.Empty);
             return new[] {
                 "# ConsoleMonster: nicer default output in every session." + (string.IsNullOrEmpty(profilePath) ? string.Empty : " Add these lines to " + profilePath),

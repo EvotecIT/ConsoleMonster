@@ -44,10 +44,6 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsLifecycle.Enable, "ConsoleFormatting", SupportsShouldProcess = true, DefaultParameterSetName = "Default")]
     public sealed class CmdletEnableConsoleFormatting : NoPipelineInputCmdlet {
-        /// <summary><para type="description">Choose only these features: Output, FormatCommands, Errors, Streams, ReadLine, Prompt, Help, Progress or GridView. The default without Feature enables Output, FormatCommands, Errors, Streams and ReadLine. Feature replaces the default set with exactly these features; use Include for defaults plus opt-ins. Use Disable-ConsoleFormatting to restore the session. FormatCommands keeps native column selections and changes only direct host output. Streams and ReadLine change native colours without replacing Write-* commands. Progress replaces Write-Progress only when explicitly selected. Help, GridView and Prompt are explicit opt-ins.</para></summary>
-        [Parameter(Mandatory = true, ParameterSetName = "Feature")]
-        public ConsoleFormattingFeature[]? Feature { get; set; }
-
         /// <summary><para type="description">Adds these opt-in features to the default set. Can be combined with Exclude, but not Feature.</para></summary>
         [Parameter(ParameterSetName = "Default")]
         public ConsoleFormattingFeature[]? Include { get; set; }
@@ -56,9 +52,9 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(ParameterSetName = "Default")]
         public ConsoleFormattingFeature[]? Exclude { get; set; }
 
-        /// <summary><para type="description">Uses the compact message-first error layout. Errors must be enabled.</para></summary>
-        [Parameter]
-        public SwitchParameter CompactErrors { get; set; }
+        /// <summary><para type="description">Error detail: Compact, Standard or Detailed. Errors must be enabled.</para></summary>
+        [Parameter, ValidateSet("Compact", "Standard", "Detailed")]
+        public string ErrorLayout { get; set; } = "Standard";
 
         /// <summary><para type="description">Replaces an existing Out-Default function, Write-Progress alias, or an Out-GridView function/alias when the native grid is unavailable (Disable-ConsoleFormatting puts it back). A working native Out-GridView is always kept. Prompt requires Force to replace oh-my-posh or Starship.</para></summary>
         [Parameter]
@@ -72,15 +68,11 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter ProfileSnippet { get; set; }
 
-        /// <summary><para type="description">Includes script and .NET stack frames in the compact error layout. Requires CompactErrors.</para></summary>
-        [Parameter]
-        public SwitchParameter Detailed { get; set; }
-
         /// <inheritdoc />
         protected override void EndProcessing() {
             var options = new ConsoleFormattingOptions {
-                Feature = Feature, Include = Include, Exclude = Exclude, Force = Force.IsPresent, BuiltIn = !NoBuiltIn.IsPresent,
-                Detailed = Detailed.IsPresent, CompactErrors = CompactErrors.IsPresent, ProfileSnippet = ProfileSnippet.IsPresent
+                Include = Include, Exclude = Exclude, Force = Force.IsPresent, BuiltIn = !NoBuiltIn.IsPresent,
+                ErrorLayout = ErrorLayout, ProfileSnippet = ProfileSnippet.IsPresent
             };
             if (ProfileSnippet.IsPresent) { ConsoleHostFormatting.Enable(this, options); return; }
             ConsoleFormattingFeature selected = ConsoleHostFormatting.Selected(options);

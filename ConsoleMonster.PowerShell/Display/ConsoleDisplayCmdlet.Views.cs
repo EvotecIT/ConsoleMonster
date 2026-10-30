@@ -60,10 +60,10 @@ namespace ConsoleMonster.PowerShell {
             });
 
         private IWidget BuildErrorView(IReadOnlyList<PSObject> items) => Views.ConsoleView.BuildErrors(
-            items.Select(item => (object?)PSErrors.Describe(PSText.Unwrap(item)!, ErrorLayout != "Standard")).ToArray(),
+            items.Select(item => (object?)PSErrors.Describe(PSText.Unwrap(item)!, !string.Equals(ErrorLayout, "Standard", StringComparison.OrdinalIgnoreCase))).ToArray(),
             new Views.ConsoleViewOptions {
                 ShowFrameworkFrames = ShowFrameworkFrames.IsPresent, MaxFrames = MaxStackFrames,
-                ShowStack = !NoStack.IsPresent, MaxInner = MaxInner, ShowSource = !NoSource.IsPresent,
+                ShowStack = !NoStack.IsPresent && !string.Equals(ErrorLayout, "Compact", StringComparison.OrdinalIgnoreCase), MaxInner = MaxInner, ShowSource = !NoSource.IsPresent,
                 Compact = !string.Equals(ErrorLayout, "Standard", StringComparison.OrdinalIgnoreCase),
                 DetailsHint = string.Equals(ErrorLayout, "Compact", StringComparison.OrdinalIgnoreCase) && InvokeCommand.GetCommand("Get-Error", CommandTypes.Cmdlet) != null
                     ? Localization.WidgetLabels.For(Terminal.GetCurrentProfile().Language).GetErrorDetails : null,

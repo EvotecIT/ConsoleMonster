@@ -116,6 +116,10 @@ namespace ConsoleMonster.PowerShell {
                 case KeyValueList list:
                     return TryAddPair(list, item);
                 case StatusList status:
+                    if (item is string statusName) {
+                        status.Set(statusName, Text.Markup.Escape(statusName), StatusKind.Pending);
+                        return true;
+                    }
                     if (StatusItemFrom(item, ref problem) is StatusItem statusItem) {
                         status.Set(statusItem.Key, statusItem.Label, statusItem.Status, statusItem.Detail);
                         return true;

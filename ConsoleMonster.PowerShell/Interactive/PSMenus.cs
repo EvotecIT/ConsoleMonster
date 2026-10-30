@@ -7,7 +7,7 @@ using ConsoleMonster.Styling;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>Menu helpers for the cmdlets: collecting items from a scriptblock and running actions on the pipeline thread.</summary>
-    internal static class PSMenus {
+    internal static partial class PSMenus {
         /// <summary>Runs a content scriptblock and keeps the menu items it outputs.</summary>
         /// <param name="content">The scriptblock.</param>
         /// <returns>The items.</returns>
@@ -42,10 +42,11 @@ namespace ConsoleMonster.PowerShell {
         /// <param name="context">The menu context.</param>
         /// <param name="variables">More variables to define.</param>
         public static void Invoke(ScriptBlock script, MenuContext context, params KeyValuePair<string, object?>[] variables) {
+            PSObject adapted = Context(context);
             List<PSVariable> list = new List<PSVariable> {
-                new PSVariable("_", context),
-                new PSVariable("PSItem", context),
-                new PSVariable("MenuContext", context)
+                new PSVariable("_", adapted),
+                new PSVariable("PSItem", adapted),
+                new PSVariable("MenuContext", adapted)
             };
             foreach (KeyValuePair<string, object?> v in variables) {
                 list.Add(new PSVariable(v.Key, v.Value));

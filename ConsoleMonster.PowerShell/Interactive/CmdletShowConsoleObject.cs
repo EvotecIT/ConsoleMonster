@@ -66,22 +66,6 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public string[]? Exclude { get; set; }
 
-        /// <summary><para type="description">Rich runs the keyboard explorer. Line, Accessible and None print the static inspector.</para></summary>
-        [Parameter]
-        public InteractionMode? Mode { get; set; }
-
-        /// <summary><para type="description">Width used by the static fallback; zero detects the host width.</para></summary>
-        [Parameter]
-        [ValidateRange(0, 10000)]
-        public int Width { get; set; }
-
-        /// <summary><para type="description">Prints a static inspector without reading keys.</para></summary>
-        [Parameter] public SwitchParameter StaticSnapshot { get; set; }
-        /// <summary><para type="description">Returns one plain-text static inspector.</para></summary>
-        [Parameter] public SwitchParameter AsString { get; set; }
-        /// <summary><para type="description">Returns the static inspector widget.</para></summary>
-        [Parameter] public SwitchParameter AsWidget { get; set; }
-
         /// <inheritdoc />
         protected override void ProcessRecord() {
             _items.Add(InputObject);
@@ -97,14 +81,8 @@ namespace ConsoleMonster.PowerShell {
             object? rootValue = _items.Count == 1 ? _items[0] : _items.ToArray();
             PSOutputExport.Validate(this);
             InspectorOptions options = PSFormatting.InspectorOptions(Depth, MaxItems, Include, Exclude, MaxNodes, rootValue);
-            InteractiveOptions interactive = PSInteractive.Options(this, Mode);
-            if (StaticSnapshot.IsPresent || AsString.IsPresent || AsWidget.IsPresent || interactive.ResolveMode() != InteractionMode.Rich) {
-                InspectNode root = ObjectInspector.Inspect(rootValue, options);
-                InspectorView view = new InspectorView(root, Title);
-                if (AsWidget.IsPresent) { WriteObject(view); }
-                else { PSFormatting.Emit(this, view, Width, null, AsString.IsPresent); }
-                return;
-            }
+            InteractiveOptions interactive = PSInteractive.Options(this, null);
+            if (interactive.ResolveMode() != InteractionMode.Rich) { throw new PromptUnavailableException("Show-ConsoleObject needs interactive input. For a static object tree use: Get-Process | Show-Console -View Tree -Depth 1."); }
             string rootLabel = RootPath;
             if (!MyInvocation.BoundParameters.ContainsKey(nameof(RootPath))) {
                 rootLabel = "input";
