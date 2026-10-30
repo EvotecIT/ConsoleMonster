@@ -10,7 +10,7 @@ updates:
         patterns: ['*']
   - package-ecosystem: nuget
     directories:
-      - '/**'
+      - '/**/*'
     schedule:
       interval: weekly
     cooldown:

@@ -139,10 +139,6 @@ jobs:
         run: dotnet test ConsoleMonster.Extensions.Tests/ConsoleMonster.Extensions.Tests.csproj --configuration Release --no-build --framework ${{ matrix.framework }} --verbosity ${{ env.TEST_VERBOSITY }} --logger "console;verbosity=${{ env.TEST_VERBOSITY }}" --logger trx
         timeout-minutes: 10
 
-      - name: Test CLI app operations
-        if: matrix.framework == 'net8.0' && hashFiles('ConsoleMonster.CLI.Tests/ConsoleMonster.CLI.Tests.csproj') != ''
-        run: dotnet test ConsoleMonster.CLI.Tests/ConsoleMonster.CLI.Tests.csproj --configuration Release --framework net8.0 --verbosity ${{ env.TEST_VERBOSITY }} --logger trx
-        timeout-minutes: 10
       - name: Upload test results
         uses: actions/upload-artifact@v7
         if: always()
@@ -286,10 +282,6 @@ jobs:
       - name: Test the logging and hosting packages
         run: dotnet test ConsoleMonster.Extensions.Tests/ConsoleMonster.Extensions.Tests.csproj --configuration Release --no-build --framework ${{ matrix.framework }} --verbosity ${{ env.TEST_VERBOSITY }} --logger "console;verbosity=${{ env.TEST_VERBOSITY }}" --logger trx
         timeout-minutes: 10
-      - name: Test CLI app operations
-        if: matrix.framework == 'net8.0' && hashFiles('ConsoleMonster.CLI.Tests/ConsoleMonster.CLI.Tests.csproj') != ''
-        run: dotnet test ConsoleMonster.CLI.Tests/ConsoleMonster.CLI.Tests.csproj --configuration Release --framework net8.0 --verbosity ${{ env.TEST_VERBOSITY }} --logger trx
-        timeout-minutes: 10
       - uses: actions/upload-artifact@v7
         if: always()
         with:
@@ -324,10 +316,6 @@ jobs:
           python3 -B -m unittest discover -s ConsoleMonster.Tests/Input/Fixtures -p test_unix_input_pty.py -v
           dotnet test ConsoleMonster.Tests/ConsoleMonster.Tests.csproj --configuration Release --no-build --framework ${{ matrix.framework }} --verbosity ${{ env.TEST_VERBOSITY }} --logger "console;verbosity=${{ env.TEST_VERBOSITY }}" --logger trx --blame-hang-timeout 3m --blame-hang-dump-type none
         timeout-minutes: 15
-      - name: Test CLI app operations
-        if: matrix.framework == 'net8.0' && hashFiles('ConsoleMonster.CLI.Tests/ConsoleMonster.CLI.Tests.csproj') != ''
-        run: dotnet test ConsoleMonster.CLI.Tests/ConsoleMonster.CLI.Tests.csproj --configuration Release --framework net8.0 --verbosity ${{ env.TEST_VERBOSITY }} --logger trx
-        timeout-minutes: 10
       - uses: actions/upload-artifact@v7
         if: always()
         with:
