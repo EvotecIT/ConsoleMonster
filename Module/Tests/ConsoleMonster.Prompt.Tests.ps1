@@ -15,8 +15,8 @@ Describe 'Opt-in shell prompt contracts' {
     It 'prints an explicit Prompt profile snippet without enabling it and keeps Prompt out of the default set' {
         Invoke-PromptChild @'
 $original = ${function:global:prompt}
-$snippet = Enable-ConsoleFormatting -Feature Prompt -ProfileSnippet
-if (($snippet -join "`n") -notmatch 'Enable-ConsoleFormatting -Feature Prompt') { throw 'Missing opt-in' }
+$snippet = Enable-ConsoleFormatting -Include Prompt -Exclude Output, FormatCommands, Errors, Streams, ReadLine -ProfileSnippet
+if (($snippet -join "`n") -notmatch 'Enable-ConsoleFormatting -Include Prompt -Exclude Output, FormatCommands, Errors, Streams, ReadLine') { throw 'Missing opt-in' }
 if ([int]((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.ConsoleFormattingFeature'))::Prompt -ne 512) { throw 'Wrong reserved bit' }
 Enable-ConsoleFormatting
 if ((Get-ConsoleFormatting).Features -contains 'Prompt') { throw 'Defaults include Prompt' }
@@ -35,8 +35,8 @@ if (${function:global:prompt}.ToString() -cne $original.ToString()) { throw 'Sni
 $privateValue = 'ORIGINAL_CLOSURE'
 $original = { $privateValue }.GetNewClosure()
 Set-Item Function:global:prompt $original
-Enable-ConsoleFormatting -Feature Prompt
-Enable-ConsoleFormatting -Feature Prompt
+Enable-ConsoleFormatting -Include Prompt -Exclude Output, FormatCommands, Errors, Streams, ReadLine
+Enable-ConsoleFormatting -Include Prompt -Exclude Output, FormatCommands, Errors, Streams, ReadLine
 if (${function:global:prompt}.ToString() -ceq $original.ToString()) { throw 'Prompt was not installed' }
 __ENDING__
 if (${function:global:prompt}.ToString() -cne $original.ToString()) { throw 'Definition not restored' }
@@ -53,9 +53,9 @@ if ((prompt) -cne 'ORIGINAL_CLOSURE') { throw 'Closure scope not restored' }
         $source = @'
 $original = [scriptblock]::Create("'__ENGINE__ ORIGINAL'")
 Set-Item Function:global:prompt $original
-Enable-ConsoleFormatting -Feature Prompt -WarningVariable warnings
+Enable-ConsoleFormatting -Include Prompt -Exclude Output, FormatCommands, Errors, Streams, ReadLine -WarningVariable warnings
 if (@($warnings).Count -ne 1 -or ${function:global:prompt}.ToString() -cne $original.ToString()) { throw 'Protected prompt replaced' }
-Enable-ConsoleFormatting -Feature Prompt -Force
+Enable-ConsoleFormatting -Include Prompt -Exclude Output, FormatCommands, Errors, Streams, ReadLine -Force
 if (${function:global:prompt}.ToString() -ceq $original.ToString()) { throw 'Force did not install' }
 Disable-ConsoleFormatting
 if (${function:global:prompt}.ToString() -cne $original.ToString()) { throw 'Force lost original' }
@@ -68,7 +68,7 @@ if (${function:global:prompt}.ToString() -cne $original.ToString()) { throw 'For
         Invoke-PromptChild @'
 $names = 'Out-Default','Write-Error','Write-Warning','Write-Verbose','Write-Debug','Write-Information','Write-Progress','Get-History'
 $before = @($names | ForEach-Object { (Get-Command $_).Definition }) -join "`n"
-Enable-ConsoleFormatting -Feature Prompt
+Enable-ConsoleFormatting -Include Prompt -Exclude Output, FormatCommands, Errors, Streams, ReadLine
 $after = @($names | ForEach-Object { (Get-Command $_).Definition }) -join "`n"
 if ($before -cne $after) { throw 'A core command changed' }
 function global:prompt { 'LATER_USER_PROMPT' }
@@ -101,7 +101,7 @@ function global:prompt {
 }
 $Error.Clear()
 $baseline = $ErrorActionPreference, $WarningPreference, $VerbosePreference, $DebugPreference, $InformationPreference, $ProgressPreference
-Enable-ConsoleFormatting -Feature Prompt
+Enable-ConsoleFormatting -Include Prompt -Exclude Output, FormatCommands, Errors, Streams, ReadLine
 & $native -NoLogo -NoProfile -NonInteractive -Command 'exit 7'
 $assigned = prompt
 if ($assigned -cne 'ORIGINAL:False/7' -or $LASTEXITCODE -ne 7) { throw "Status lost: $assigned/$LASTEXITCODE" }
@@ -146,7 +146,7 @@ Disable-ConsoleFormatting
         Invoke-PromptChild @'
 Remove-Item Function:prompt
 Remove-Variable LASTEXITCODE -Scope Global -ErrorAction Ignore
-Enable-ConsoleFormatting -Feature Prompt
+Enable-ConsoleFormatting -Include Prompt -Exclude Output, FormatCommands, Errors, Streams, ReadLine
 $text = prompt
 if ($text -notlike 'PS *> ') { throw "Default fallback lost: $text" }
 if ($null -ne $ExecutionContext.SessionState.PSVariable.Get('global:LASTEXITCODE')) { throw 'Created LASTEXITCODE' }
@@ -159,7 +159,7 @@ if ($null -ne ${function:global:prompt}) { throw 'Created an original prompt' }
     It 'leaves Prompt enabled when Disable All removes only the default features' {
         Invoke-PromptChild @'
 $original = ${function:global:prompt}
-Enable-ConsoleFormatting -Feature Prompt
+Enable-ConsoleFormatting -Include Prompt -Exclude Output, FormatCommands, Errors, Streams, ReadLine
 $installed = ${function:global:prompt}.ToString()
 Disable-ConsoleFormatting -Feature Output, FormatCommands, Errors, Streams, ReadLine
 if (${function:global:prompt}.ToString() -cne $installed) { throw 'All removed explicit prompt' }
@@ -214,7 +214,7 @@ $first = [powershell]::Create()
 $second = [powershell]::Create()
 try {
     # The setup is literal source in each runspace, rather than interpolation of the test's own prompt.
-    $setup = 'Import-Module ''__MODULE__''; function global:prompt { ''__VALUE__'' }; Enable-ConsoleFormatting -Feature Prompt; ${function:global:prompt}.ToString()'
+    $setup = 'Import-Module ''__MODULE__''; function global:prompt { ''__VALUE__'' }; Enable-ConsoleFormatting -Include Prompt -Exclude Output, FormatCommands, Errors, Streams, ReadLine; ${function:global:prompt}.ToString()'
     $a = $first.AddScript($setup.Replace('__VALUE__', 'FIRST')).Invoke()
     $b = $second.AddScript($setup.Replace('__VALUE__', 'SECOND')).Invoke()
     $first.Commands.Clear()

@@ -21,7 +21,7 @@ Microsoft documents [Show-Command](https://learn.microsoft.com/en-us/powershell/
 | --- | --- | --- |
 | `Show-Command -Name Get-Service` | `New-ConsoleForm` and `New-ConsoleField` | Define fields explicitly; no automatic metadata-to-form bridge. |
 | Type parameters, then Run | `Read-ConsoleForm`, then an explicit command call | Submission returns answers; your script chooses what to execute. |
-| `Show-Command -PassThru` | `Read-ConsoleForm -PassThru` / `Format-ConsoleCommand` | Full form result includes `Submitted`, `Values` and `CommandLine`; a preview is text. |
+| `Show-Command -PassThru` | `Read-ConsoleForm -PassThru` | Full form result includes `Submitted`, `Values` and `CommandLine`; a preview is text. |
 | Browse available commands | `Show-ConsoleHelp` / `Get-Command` | Help and discovery are separate from form entry. |
 | Parameter-set tabs | Explicit fields/pages and validation | Model only the supported task; no automatic parameter-set parity. |
 
@@ -130,15 +130,14 @@ $command = Show-Command -Name Invoke-Command -PassThru
 ```powershell
 $server = $servers | Read-ConsoleSelect 'Inventory target' -Display Name
 $arguments = @{ Server = $server.Name; IncludeStopped = $true }
-$command = Format-ConsoleCommand -Command 'Get-ServerInventory' -Arguments $arguments
-Write-ConsoleText -Text $command
+$arguments | Show-Console -View List -Title 'Inventory arguments'
 # Preview only. If your function exists, call it explicitly with @arguments.
 ```
 
 </div>
 </div>
 
-`Format-ConsoleCommand` quotes values for a copyable command string and does not execute it. The right side models a custom `Get-ServerInventory` command; it does not require that function just to create the preview. Only execute your real function after validating and selecting its arguments.
+The right side previews the selected arguments as a record. Forms provide copyable command text in their structured result; C# callers can use `CommandLine.Build`. Call your real function with the validated splat when execution is intended.
 
 ## Differences to know
 

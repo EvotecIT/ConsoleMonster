@@ -17,7 +17,7 @@ function ConvertTo-TestEverydayText {
         $scope = [ConsoleMonster.Terminal]::Use($target)
         try {
             [ConsoleMonster.Terminal]::Profile = $profile
-            $items | Out-ConsoleDefault -Force
+            $items | & ([Management.Automation.CmdletInfo]::new('Out-ConsoleDefault', (Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.CmdletOutConsoleDefault'))) -Force
             $target.Transcript().ToPlainText().TrimEnd()
         } finally {
             $scope.Dispose()

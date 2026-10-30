@@ -63,7 +63,7 @@ try {
     )
     $expected = @{}
     foreach ($case in $cases) { $expected[$case.Kind] = Get-Capture ("Microsoft.PowerShell.Utility\Format-" + $case.Kind) $case.Arguments }
-    Enable-ConsoleFormatting -Feature FormatCommands
+    Enable-ConsoleFormatting -Include FormatCommands -Exclude Output, Errors, Streams, ReadLine
     foreach ($case in $cases) {
         $actual = Get-Capture ('Format-' + $case.Kind) $case.Arguments
         foreach ($property in $actual.PSObject.Properties.Name) {
@@ -90,7 +90,7 @@ try {
             [pscustomobject]@{Name='two';State='Fail';Bytes=4096L;Date=[datetime]'2026-10-22';Duration=[timespan]::FromMinutes(3);Tags=@('x','y')}
         )
         $columns = @('Name','State','Bytes','Date','Duration','Tags')
-        $wanted = $values | Show-ConsoleTable -Property $columns -AsString -Width ([Console]::BufferWidth)
+        $wanted = $values | New-ConsoleTable -Property $columns   | Export-ConsoleFrame -Format Text -Width ([Console]::BufferWidth)
         $wanted = ($wanted -replace "`r", '').TrimEnd("`n") + "`n"
         $lineCount = @($wanted.TrimEnd("`n") -split "`n").Count
         $frameWidth = @($wanted.TrimEnd("`n") -split "`n" | ForEach-Object { $_.Length } | Measure-Object -Maximum).Maximum

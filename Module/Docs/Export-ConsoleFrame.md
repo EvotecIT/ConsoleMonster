@@ -8,34 +8,34 @@ schema: 2.0.0
 ## SYNOPSIS
 Exports a widget, a rendered frame or a live-session snapshot to PNG, HTML, SVG, Markdown or text.
 
-Pipe any New-Console* widget (or Show-ConsoleTable -AsWidget) and get a self-contained HTML page (inline CSS, selectable text, a dark and a light rendering that follow the viewer's prefers-color-scheme), an SVG image (box, block and braille characters drawn as shapes, selectable text, no external assets) or plain text. Cell geometry is kept exactly. OSC 8 links become links (web and mail links only; javascript: and other schemes are dropped). Markdown uses the bundled ConsoleMonster.Markdown add-on lazily: tables, records and trees retain their semantics; FencedText preserves the terminal layout. Other objects use the automatic view. Several widgets are stacked. Without -Path the document is written to the pipeline.
+Pipe any New-Console* widget (or New-ConsoleTable) and get a self-contained HTML page (inline CSS, selectable text, a dark and a light rendering that follow the viewer's prefers-color-scheme), an SVG image (box, block and braille characters drawn as shapes, selectable text, no external assets) or plain text. Cell geometry is kept exactly. OSC 8 links become links (web and mail links only; javascript: and other schemes are dropped). Markdown uses the bundled ConsoleMonster.Markdown add-on lazily: tables, records and trees retain their semantics; FencedText preserves the terminal layout. Other objects use the automatic view. Several widgets are stacked. Without -Path the document is written to the pipeline.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Export-ConsoleFrame [-InputObject] <Object> [[-Path] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-Theme <ExportTheme>] [-Title <string>] [-WindowChrome] [-ChromeStyle <WindowChromeStyle>] [-FontSize <double>] [-PassThru] [-Preset <string>] [-Fit <string>] [-Background <string>] [-BackgroundColor <string>] [-BackgroundEndColor <string>] [-FontFamily <string>] [-Options <ExportOptions>] [-MaxFontSize <double>] [-FontFallbacks <string[]>] [<CommonParameters>]
+Export-ConsoleFrame [-InputObject] <Object> [[-Path] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-Theme <ExportTheme>] [-Title <string>] [-ChromeStyle <WindowChromeStyle>] [-FontSize <double>] [-PassThru] [-Preset <string>] [-Fit <string>] [-Background <string>] [-BackgroundColor <string>] [-BackgroundEndColor <string>] [-FontFamily <string>] [-MaxFontSize <double>] [-FontFallbacks <string[]>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Exports a widget, a rendered frame or a live-session snapshot to PNG, HTML, SVG, Markdown or text.
 
-Pipe any New-Console* widget (or Show-ConsoleTable -AsWidget) and get a self-contained HTML page (inline CSS, selectable text, a dark and a light rendering that follow the viewer's prefers-color-scheme), an SVG image (box, block and braille characters drawn as shapes, selectable text, no external assets) or plain text. Cell geometry is kept exactly. OSC 8 links become links (web and mail links only; javascript: and other schemes are dropped). Markdown uses the bundled ConsoleMonster.Markdown add-on lazily: tables, records and trees retain their semantics; FencedText preserves the terminal layout. Other objects use the automatic view. Several widgets are stacked. Without -Path the document is written to the pipeline.
+Pipe any New-Console* widget (or New-ConsoleTable) and get a self-contained HTML page (inline CSS, selectable text, a dark and a light rendering that follow the viewer's prefers-color-scheme), an SVG image (box, block and braille characters drawn as shapes, selectable text, no external assets) or plain text. Cell geometry is kept exactly. OSC 8 links become links (web and mail links only; javascript: and other schemes are dropped). Markdown uses the bundled ConsoleMonster.Markdown add-on lazily: tables, records and trees retain their semantics; FencedText preserves the terminal layout. Other objects use the automatic view. Several widgets are stacked. Without -Path the document is written to the pipeline.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-Get-Process | Select-Object -First 8 Name, Id | Show-ConsoleTable -AsWidget | Export-ConsoleFrame -Format Html
+Get-Process | Select-Object -First 8 Name, Id | New-ConsoleTable | Export-ConsoleFrame -Format Html
 ```
 
-A table as an HTML page
+Export a table as an HTML page
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleText 'Nightly run' | Export-ConsoleFrame -Format Svg -Width 120 -Height 36 -Theme Dark -Title 'Nightly run' -WindowChrome
+New-ConsoleText 'Nightly run' | Export-ConsoleFrame -Format Svg -Width 120 -Height 36 -Theme Dark -Title 'Nightly run' -ChromeStyle MacOS
 ```
 
-A dashboard as an SVG in a window frame, dark only
+Export an SVG with a dark window frame
 
 ## PARAMETERS
 
@@ -88,7 +88,7 @@ Accept wildcard characters: False
 ```
 
 ### -ChromeStyle
-MacOS (default), Windows, Linux or None. Specifying a style enables chrome unless -WindowChrome:$false is explicit. None always hides chrome.
+None (default), MacOS, Windows or Linux. Choose a window style to show chrome; None hides it.
 
 ```yaml
 Type: WindowChromeStyle
@@ -98,7 +98,7 @@ Possible values: None, MacOS, Windows, Linux
 
 Required: False
 Position: named
-Default value: MacOS
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -231,22 +231,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Options
-Typed C# ExportOptions, including custom themes, glyphs, culture and document settings. Use this instead of individual frame-rendering settings; the object is not modified.
-
-```yaml
-Type: ExportOptions
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -PassThru
 With -Path, also writes the file to the pipeline.
 
@@ -312,7 +296,7 @@ Accept wildcard characters: False
 ```
 
 ### -Title
-The page title and, with -WindowChrome, the title bar text.
+The page title and, with a ChromeStyle other than None, the title bar text.
 
 ```yaml
 Type: String
@@ -332,22 +316,6 @@ Width in cells for widgets (default 0: terminal width, falling back to 100).
 
 ```yaml
 Type: Int32
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -WindowChrome
-Draws a window frame with a title bar around the screen.
-
-```yaml
-Type: SwitchParameter
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

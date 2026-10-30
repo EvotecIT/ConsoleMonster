@@ -25,12 +25,17 @@ Renders a widget at a fixed width, glyph tier and culture (invariant by default)
 
 ### EXAMPLE 1
 ```powershell
-It 'renders the report table' {
-    $rows | Show-ConsoleTable -AsWidget | Assert-ConsoleOutput -GoldenPath "$PSScriptRoot\Golden\report.txt" -Width 80
+# Requires Pester and the reviewed Golden/report.txt snapshot beside the test file.
+            It 'renders the report table' {
+    $goldenPath = Join-Path $PSScriptRoot 'Golden/report.txt'
+    if (-not (Test-Path -LiteralPath $goldenPath -PathType Leaf)) { throw 'Provide a reviewed golden file before running this example.' }
+    if ($env:CONSOLEMONSTER_UPDATE_GOLDEN -eq '1') { throw 'Golden updates must be disabled for this comparison.' }
+    $rows = @([pscustomobject]@{ Name = 'web01'; Status = 'Pass' })
+    $rows | New-ConsoleTable | Assert-ConsoleOutput -GoldenPath $goldenPath -Width 80
 }
 ```
 
-A table snapshot in a Pester test
+Compare a table with an existing Pester golden file
 
 ## PARAMETERS
 

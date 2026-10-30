@@ -153,7 +153,7 @@ if ($Width -gt 0) {
 }
 # Sample data includes its own timestamp; a real login uses the server clock.
 $observedAt = if ($Sample) { [datetime] '2026-10-21T12:00:00' } else { Get-Date }
-Show-Console -Title "[bold]$($data.Host)[/] [muted]· $($observedAt.ToString('yyyy-MM-dd HH:mm', $invariant))[/]" -View Rule
+New-ConsoleRule -Title "[bold]$($data.Host)[/] [muted]· $($observedAt.ToString('yyyy-MM-dd HH:mm', $invariant))[/]"  | Show-Console
 New-ConsoleColumns -Gap 2 -Content {
     New-ConsolePanel -Title 'System' -Content (New-ConsoleKeyValue -InputObject $facts)
     New-ConsolePanel -Title 'Health' -Content (New-ConsoleStatusList -InputObject $health)

@@ -24,7 +24,9 @@ $services = @(
             this,
             new ConsoleFormattingOptions
             {
-                Feature = new[] { ConsoleFormattingFeature.FormatCommands }
+                Include = new[] { ConsoleFormattingFeature.FormatCommands },
+                Exclude = new[] { ConsoleFormattingFeature.Output, ConsoleFormattingFeature.Errors,
+                    ConsoleFormattingFeature.Streams, ConsoleFormattingFeature.ReadLine }
             });
         try { InvokeCommand.InvokeScript(inventory + @"# The same commands, drawn by ConsoleMonster
         $services | Format-Table Name, Status, StartType -AutoSize

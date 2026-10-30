@@ -25,10 +25,11 @@ Uses the same member adapters, paths, cycle guards and expansion budget as Show-
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleTreeSelect -Key Members -InputObject $config
+$config = [pscustomobject]@{ Name = 'example'; Settings = @{ Port = 443; Enabled = $true } }
+Show-ConsoleApp -Content { New-ConsoleTreeSelect -Key Members -InputObject $config }
 ```
 
-Browse a configuration alongside other inputs.
+Browse a nested configuration
 
 ## PARAMETERS
 

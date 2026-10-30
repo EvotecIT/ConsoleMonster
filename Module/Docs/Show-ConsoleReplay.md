@@ -8,34 +8,38 @@ schema: 2.0.0
 ## SYNOPSIS
 Rewinds a recorded run: an in-terminal player with a timeline, markers, failures, warnings and log search.
 
-Plays a recording (written by Invoke-ConsoleDashboard -RecordPath or -AutoRecord) into the same dashboard and lets you move through it: space plays and pauses, left and right step frame by frame, + and - change the speed, PgUp and PgDn scrub, Home and End jump to the ends, n/p jump to the next or previous marker, f/F to failures, w/W to warnings, l/L to log entries, and / searches the log text (Enter for the next match). Markers are added while recording with Send-ConsoleEvent -WidgetId '$marker' -Operation mark -Text 'label'. Without -Path the newest automatic recording is played. Without an interactive console the markers are printed as lines.
+Plays a recording (written by Invoke-ConsoleDashboard -RecordingPath or -AutoRecord) into the same dashboard and lets you move through it: space plays and pauses, left and right step frame by frame, + and - change the speed, PgUp and PgDn scrub, Home and End jump to the ends, n/p jump to the next or previous marker, f/F to failures, w/W to warnings, l/L to log entries, and / searches the log text (Enter for the next match). The replay timeline includes markers already present in the dashboard recording. Without -RecordingPath the newest automatic recording is played. Without an interactive console the markers are printed as lines.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Show-ConsoleReplay [-Dashboard] <IWidget> [[-Path] <string>] [-Title <string>] [-Speed <double>] [-Inline] [-Paused] [-Height <int>] [-PlaybackMode <PlaybackMode>] [-FramesPerSecond <double>] [-MaxFrames <int>] [-Options <ReplayOptions>] [<CommonParameters>]
+Show-ConsoleReplay [-Dashboard] <IWidget> [[-RecordingPath] <string>] [-Title <string>] [-Speed <double>] [-Inline] [-Paused] [-Height <int>] [-PlaybackMode <PlaybackMode>] [-FramesPerSecond <double>] [-MaxFrames <int>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Rewinds a recorded run: an in-terminal player with a timeline, markers, failures, warnings and log search.
 
-Plays a recording (written by Invoke-ConsoleDashboard -RecordPath or -AutoRecord) into the same dashboard and lets you move through it: space plays and pauses, left and right step frame by frame, + and - change the speed, PgUp and PgDn scrub, Home and End jump to the ends, n/p jump to the next or previous marker, f/F to failures, w/W to warnings, l/L to log entries, and / searches the log text (Enter for the next match). Markers are added while recording with Send-ConsoleEvent -WidgetId '$marker' -Operation mark -Text 'label'. Without -Path the newest automatic recording is played. Without an interactive console the markers are printed as lines.
+Plays a recording (written by Invoke-ConsoleDashboard -RecordingPath or -AutoRecord) into the same dashboard and lets you move through it: space plays and pauses, left and right step frame by frame, + and - change the speed, PgUp and PgDn scrub, Home and End jump to the ends, n/p jump to the next or previous marker, f/F to failures, w/W to warnings, l/L to log entries, and / searches the log text (Enter for the next match). The replay timeline includes markers already present in the dashboard recording. Without -RecordingPath the newest automatic recording is played. Without an interactive console the markers are printed as lines.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-Show-ConsoleReplay -Dashboard $dashboard
+# Requires build.jsonl recorded with this dashboard definition.
+            $dashboard = New-ConsoleDashboard -Title Build -Content { New-ConsoleStatusList -WidgetId steps -Content { 'Compile' } }
+Show-ConsoleReplay -Dashboard $dashboard -RecordingPath ./build.jsonl
 ```
 
-Rewind the last automatically recorded run
+Play an existing matching dashboard recording
 
 ### EXAMPLE 2
 ```powershell
-Show-ConsoleReplay $dashboard .\deploy.jsonl -Inline -Paused
+# Requires build.jsonl recorded with this dashboard definition.
+            $dashboard = New-ConsoleDashboard -Title Build -Content { New-ConsoleStatusList -WidgetId steps -Content { 'Compile' } }
+Show-ConsoleReplay -Dashboard $dashboard -RecordingPath ./build.jsonl -Inline -Paused
 ```
 
-Play a recording inline, paused at the start
+Start an existing recording inline and paused
 
 ## PARAMETERS
 
@@ -119,38 +123,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Options
-Typed C# ReplayOptions, including input, capture and session configuration. Use this instead of individual player settings; the request is not modified. Omit Session to retain PowerShell's native host relay.
-
-```yaml
-Type: ReplayOptions
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Path
-The recording file; default the newest file in the automatic recording folder.
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: 1
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -Paused
 Opens paused at the start.
 
@@ -178,6 +150,22 @@ Possible values: Interactive, Automatic
 
 Required: False
 Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -RecordingPath
+The recording file; default the newest file in the automatic recording folder.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: 1
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

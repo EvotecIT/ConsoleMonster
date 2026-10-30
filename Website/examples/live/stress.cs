@@ -1,6 +1,6 @@
+using ConsoleMonster;
 using System.Diagnostics;
 using System.Globalization;
-using ConsoleMonster.Building;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
@@ -34,15 +34,17 @@ KeyValueList stats = new KeyValueList("stats")
 Sparkline rate = new Sparkline("rate").Height(3).Unit("/s");
 LineChart cpu = new LineChart("cpu").Height(6).Minimum(0).Unit("%");
 cpu.AddSeries("cpu", ThemeToken.Accent2);
-Dashboard dashboard = new DashboardBuilder("[bold]Stress test[/]")
+Dashboard dashboard = Ui.Dashboard().Title("[bold]Stress test[/]")
     .Subtitle(Workers + " workers · random Console.WriteLine · " + seconds + "s")
-    .Columns(c => c.Panel("Workers", lanes, 2.2)
-        .Panel(
-            "Session",
-            new Rows(stats, new Rule("updates/s"), rate, new Rule("CPU % (100% = one core)"), cpu),
-            1))
-    .Panel("Captured output", new LogRegion { PreferredHeight = 6 }, true)
-    .BuildDashboard();
+    .Content(body => body
+        .Columns(columns => columns.Content(c => c.Add(new Panel(lanes, "Workers").Fill(2.2))
+            .Add(new Panel(new Rows(
+                    stats,
+                    new Rule("updates/s"),
+                    rate,
+                    new Rule("CPU % (100% = one core)"),
+                    cpu), "Session").Fill(1))))
+        .Add(new Panel(new LogRegion { PreferredHeight = 6 }, "Captured output").Fill()));
 string result = string.Empty;
 using (LiveSession session = new LiveSession(dashboard))
 {

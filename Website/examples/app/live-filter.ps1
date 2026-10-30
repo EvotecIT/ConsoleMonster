@@ -6,13 +6,13 @@ Builds a native PowerShell application with a Query input, matching count and
 ordinary table. Matching is literal and case-insensitive across all columns.
 Import ConsoleMonster before running this example.
 .PARAMETER AppOptions
-Optional Show-ConsoleApp parameters, such as StaticSnapshot for redirected output.
+Optional Show-ConsoleApp parameters, such as Mode Snapshot for redirected output.
 .OUTPUTS
 None. The application draws to the terminal or the supplied capture.
 .EXAMPLE
 ./live-filter.ps1
 .EXAMPLE
-./live-filter.ps1 -AppOptions @{ StaticSnapshot = $true }
+./live-filter.ps1 -AppOptions @{ Mode = 'Snapshot' }
 #>
 [CmdletBinding()]
 param([hashtable] $AppOptions = @{})

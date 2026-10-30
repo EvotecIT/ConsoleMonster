@@ -124,12 +124,13 @@ namespace SiteFrames.Tests {
         [InlineData("var command = new ConsoleMonster.Interactive.AppCommand(\"run\", \"Run\", (_, __) => System.Threading.Tasks.Task.CompletedTask); var button = new ConsoleMonster.Interactive.Button(command); if (button.Key != \"run\") throw new System.InvalidOperationException(\"Lost command key\"); Terminal.Write(new Rows(button, new TextBlock(\"Command\")));")]
         [InlineData("var prompt = new ConsoleMonster.Interactive.SelectPrompt<int>(\"Pick\", new[] { 1 }, group: _ => \"Group\"); if (prompt.Choices[0].Group != \"Group\" || prompt.Choices[0].Label != \"1\") throw new System.InvalidOperationException(\"Lost grouping\"); Terminal.Write(new Rows(new TextBlock(\"Grouped\")));")]
         [InlineData("var prompt = new ConsoleMonster.Interactive.MultiSelectPrompt<int>(\"Pick\", new[] { 1 }, group: _ => \"Group\"); if (prompt.Choices[0].Group != \"Group\" || prompt.Choices[0].Label != \"1\") throw new System.InvalidOperationException(\"Lost grouping\"); Terminal.Write(new Rows(new TextBlock(\"Grouped\")));")]
+        [InlineData("IWidget? Preview(int job) => new TextBlock(\"Job \" + job); var prompt = new ConsoleMonster.Interactive.MultiSelectPrompt<int>(\"Tasks\", new[] { 7 }) { Preview = Preview }; Terminal.Write(prompt.Preview!(7)!);")]
         [InlineData("int n = 0; IWidget child = new TextBlock(\"Child\"); var dashboard = new Dashboard((++n).ToString(), child, (++n).ToString()); if (dashboard.Title != \"1\" || dashboard.WidgetId != \"2\") throw new System.InvalidOperationException(\"Reordered identity\"); Terminal.Write(new Rows(new TextBlock(\"Order retained\")));")]
         [InlineData("var data = new ConsoleMonster.Dates.CalendarData(); var calendar = new Calendar(2026, 10, data); if (!object.ReferenceEquals(calendar.Data, data)) throw new System.InvalidOperationException(\"Copied shared model\"); Terminal.Write(new Rows(calendar));")]
         [InlineData("string trace = \"\"; Func<int, string> Display() { trace += \"d\"; return _ => \"Label\"; } Func<int, string?> Group() { trace += \"g\"; return _ => \"Group\"; } var prompt = new ConsoleMonster.Interactive.SelectPrompt<int>(\"Pick\", new[] { 1 }, group: Group(), display: Display()); if (trace != \"gd\") throw new System.InvalidOperationException(trace); Terminal.Write(new Rows(new TextBlock(prompt.Choices[0].Label)));")]
         [InlineData("IWidget? child = null; Terminal.Write(new Rows(new Panel(child, \"Empty\"), new TextBlock(\"Empty\")));")]
         [InlineData("IWidget[]? children = null; Terminal.Write(new Rows(new Rows(children!), new TextBlock(\"Empty\")));")]
-        [InlineData("int columns = 2; Terminal.Write(new Grid(columns, TextBlock.Plain(\"First\"), TextBlock.Plain(\"Second\")));")]
+        [InlineData("int columns = 2; Terminal.Write(new LayoutGrid(columns, TextBlock.Plain(\"First\"), TextBlock.Plain(\"Second\")));")]
         [InlineData("Terminal.Write(new Rows(new Calendar(2026, 10, marks: null)));")]
         [InlineData("System.Collections.Generic.IEnumerable<ConsoleMonster.Dates.CalendarMark>? marks = null; Terminal.Write(new Rows(new Calendar(2026, 10, marks)));")]
         [InlineData("string MakeTitle(out string title) { title = \"Title\"; return title; } string MakeId() => \"id\"; var dashboard = new Dashboard(MakeTitle(out var title), new TextBlock(\"Child\"), MakeId()); Terminal.Write(new Rows(new TextBlock(title)));")]
@@ -210,7 +211,7 @@ namespace SiteFrames.Tests {
                 IWidget Layout() { trace += "L"; return new Rows(new TextBlock("Ready")); }
                 AppState State() { trace += "S"; return new AppState(); }
                 int Width() { trace += "W"; return 60; }
-                ConsoleApp.Run(Layout(), State(), new ConsoleAppOptions { StaticSnapshot = true, ReflowBelow = Width() });
+                ConsoleApp.Run(Layout(), State(), new ConsoleAppOptions { Interactive = new InteractiveOptions { Mode = InteractionMode.Snapshot }, ReflowBelow = Width() });
                 if (trace != "LSW") throw new InvalidOperationException(trace);
                 """ : $$"""
                 string PathFor() { trace += "P"; return "{{output}}"; }

@@ -638,8 +638,8 @@ $dashboardParameters = @{
     Footer = '[muted]Discover · Collect · Evaluate · Report    Ctrl+C stop[/]'
 }
 $dashboard = New-ConsoleDashboard @dashboardParameters -Content {
-    New-ConsolePadding -Padding 1, 0, 1, 1 -Content {
-        New-ConsolePhases -Content {
+    New-ConsoleRegion -Padding 1, 0, 1, 1 -Content {
+        New-ConsoleStatusList -Layout Strip -WidgetId phases -Content {
             foreach ($phase in 'Discover', 'Collect', 'Evaluate', 'Report') {
                 [pscustomobject]@{ Label = $phase; Status = 'Pending' }
             }
@@ -683,23 +683,10 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ArgumentList (, $events) -ScriptB
             break
         }
         $delay = [int][Math]::Truncate(($event.Time - $previous) / 4)
-        $fields = @{
-            WidgetId = $event.Target
-            Operation = $event.Operation
-            Value = $event.Value
-            Total = $event.Total
-            TimeMilliseconds = $event.Time
-        }
-        if ($null -ne $event.Key) {
-            $fields.Key = $event.Key
-        }
-        if ($null -ne $event.Text) {
-            $fields.Text = $event.Text
-        }
-        if ($null -ne $event.State) {
-            $fields.Status = $event.State
-        }
-        Send-ConsoleEvent @fields
+        $update = New-Object ConsoleMonster.Live.LiveEvent -ArgumentList $event.Target,
+            $event.Operation, $event.Key, $event.Text, $event.State, $event.Value,
+            $event.Total, $event.Time, $false
+        $ConsoleSession.Post($update)
         Wait-ConsoleDashboard -Seconds ($delay / 1000)
         $previous = $event.Time
     }

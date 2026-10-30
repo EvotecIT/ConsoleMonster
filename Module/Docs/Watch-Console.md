@@ -13,7 +13,7 @@ Like watch: every -PollIntervalSeconds seconds the script block runs and its out
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Watch-Console [-ScriptBlock] <scriptblock> [-PollIntervalSeconds <double>] [-Count <int>] [-Differences] [-Title <Object>] [-NoLive] [-Session <LiveSessionOptions>] [<CommonParameters>]
+Watch-Console [-ScriptBlock] <scriptblock> [-PollIntervalSeconds <double>] [-Count <int>] [-Differences] [-Title <Object>] [-NoLive] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,24 +25,24 @@ Like watch: every -PollIntervalSeconds seconds the script block runs and its out
 
 ### EXAMPLE 1
 ```powershell
-Watch-Console { Get-Process | Sort-Object CPU -Descending | Select-Object -First 10 } -PollIntervalSeconds 2 -Differences
+Watch-Console { Get-Process | Select-Object -First 5 Name, Id, CPU } -Count 3 -PollIntervalSeconds 1
 ```
 
-Watch the busiest processes
+Watch a bounded process sample
 
 ### EXAMPLE 2
 ```powershell
-Watch-Console { Get-Service Spooler } -Count 3 -PollIntervalSeconds 5 | Out-File watch.log
+Watch-Console { Get-Process -Id $PID | Select-Object Name, Id, CPU } -Count 3 -PollIntervalSeconds 1 | Out-String
 ```
 
-Three snapshots of a service, printed to a log
+Capture repeated process snapshots as text
 
 ### EXAMPLE 3
 ```powershell
-Watch-Console -Title 'Disk space' -PollIntervalSeconds 10 -Differences { Get-Volume | Where-Object DriveLetter | Select-Object DriveLetter, FileSystemLabel, SizeRemaining, Size }
+Watch-Console -Title 'Disk space' -PollIntervalSeconds 1 -Count 3 -Differences { Get-PSDrive -PSProvider FileSystem | Select-Object Name, Used, Free }
 ```
 
-Free space per drive with a title, changed cells highlighted
+Highlight changes in file-system drive space
 
 ## PARAMETERS
 
@@ -121,22 +121,6 @@ Possible values:
 
 Required: True
 Position: 0
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Session
-Typed live-session configuration for the watch; omit for inline output with its final frame retained.
-
-```yaml
-Type: LiveSessionOptions
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

@@ -43,7 +43,7 @@ $null = Start-Transcript -LiteralPath ($EvidencePath + '.transcript.txt') -Force
 try {
     $native = @(Get-Command -Name Write-* -CommandType Cmdlet -ListImported)
     if ($UseAll) { Enable-ConsoleFormatting }
-    else { Enable-ConsoleFormatting -Feature ReadLine, Streams }
+    else { Enable-ConsoleFormatting -Exclude Output, FormatCommands, Errors }
     if ([ConsoleMonster.Terminal]::Theme.Name -cne $Theme) { throw 'Enabling formatting changed the requested theme.' }
     $applied = @{}
     foreach ($entry in @{ CommandColor = 'Series6'; SelectionColor = 'Focus'; InlinePredictionColor = 'Muted' }.GetEnumerator()) {

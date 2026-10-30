@@ -19,7 +19,7 @@ Describe 'ConsoleMonster changes, replay and engine fixes' {
         $recording = Join-Path $TestDrive 'redirected.jsonl'
         $text = Invoke-ChangesChild @"
 `$d = New-ConsoleDashboard -Title 'Redirected' -Content { New-ConsoleLanes -WidgetId lanes; New-ConsoleLogRegion }
-Invoke-ConsoleDashboard `$d -RecordPath '$recording' {
+Invoke-ConsoleDashboard `$d -RecordingPath '$recording' {
     Write-ConsoleLogEntry -Message 'first line' -Level info
     Start-Sleep -Milliseconds 400
     Write-ConsoleLogEntry -Message 'second line' -Level warn
@@ -58,31 +58,49 @@ $after | Compare-ConsoleObject -ReferenceObject $before -Property Name -View Sum
         $text | Should -Match 'Ram'
     }
 
-    It 'honours -WhatIf, -Force and -Confirm:$false in Show-ConsoleChanges' {
+    It 'honours WhatIf Force and Confirm in Compare-ConsoleObject with Question' {
         $text = Invoke-ChangesChild @'
 $before = @([pscustomobject]@{ Name = 'anna' }, [pscustomobject]@{ Name = 'bob' })
 $after = @([pscustomobject]@{ Name = 'anna' })
-"WHATIF=$(Show-ConsoleChanges -ReferenceObject $before -DifferenceObject $after -Property Name -WhatIf)"
-"FORCE=$(Show-ConsoleChanges -ReferenceObject $before -DifferenceObject $after -Property Name -Force)"
-"CONFIRMFALSE=$(Show-ConsoleChanges -ReferenceObject $before -DifferenceObject $after -Property Name -Confirm:$false)"
-"NONE=$(Show-ConsoleChanges -ReferenceObject $after -DifferenceObject $after -Property Name -Force)"
-try { Show-ConsoleChanges -ReferenceObject $before -DifferenceObject $after -Property Name | Out-Null; 'ASKED' } catch { 'NONINTERACTIVE' }
+"WHATIF=$(Compare-ConsoleObject -Question 'Apply these changes?' -ReferenceObject $before -DifferenceObject $after -Property Name -WhatIf)"
+"FORCE=$(Compare-ConsoleObject -Question 'Apply these changes?' -ReferenceObject $before -DifferenceObject $after -Property Name -Force)"
+"CONFIRMFALSE=$(Compare-ConsoleObject -Question 'Apply these changes?' -ReferenceObject $before -DifferenceObject $after -Property Name -Confirm:$false)"
+"NONE=$(Compare-ConsoleObject -Question 'Apply these changes?' -ReferenceObject $after -DifferenceObject $after -Property Name -Force)"
+try { Compare-ConsoleObject -Question 'Apply these changes?' -ReferenceObject $before -DifferenceObject $after -Property Name | Out-Null; 'ASKED' } catch { 'NONINTERACTIVE' }
 '@
         $text | Should -Match 'WHATIF=False'
         $text | Should -Match 'FORCE=True'
         $text | Should -Match 'CONFIRMFALSE=True'
         $text | Should -Match 'NONE=False'
-        $text | Should -Match 'No changes'
+        $text | Should -Match '\+0 added\s+-0 removed\s+~0 changed'
         $text | Should -Match 'NONINTERACTIVE'
+        foreach ($answer in @(@{ Key = 'y'; Expected = 'True' }, @{ Key = 'n'; Expected = 'False' })) {
+            $interactive = Invoke-ChangesChild (@'
+$options = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::new()
+$options.Mode = 'Rich'
+$options.Capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(100, 20)
+$inputSource = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('__KEY__')
+$options.Input = $inputSource
+([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default = $options
+$before = @([pscustomobject]@{ Name = 'one'; Count = 1 })
+$after = @([pscustomobject]@{ Name = 'one'; Count = 2 })
+$decisions = @(Compare-ConsoleObject -ReferenceObject $before -DifferenceObject $after -Property Name -Title PREVIEW_ONCE -Question 'Accept the change?' -ErrorAction Stop)
+"DECISIONS=$($decisions.Count) VALUE=$($decisions[0]) REMAINING=$($inputSource.Remaining)"
+"QUESTION=$($options.Capture.LastFrame.ToPlainText())"
+'@.Replace('__KEY__', $answer.Key))
+            ([regex]::Matches($interactive, 'PREVIEW_ONCE')).Count | Should -Be 1
+            $interactive | Should -Match ("DECISIONS=1 VALUE=" + $answer.Expected + ' REMAINING=0')
+            $interactive | Should -Match 'Accept the change\?'
+        }
     }
 
     It 'prints the markers of a recording with Show-ConsoleReplay outside an interactive console' {
         $recording = Join-Path $TestDrive 'replay.jsonl'
         $text = Invoke-ChangesChild @"
 `$d = New-ConsoleDashboard -Title 'Recorded' -Content { New-ConsoleLanes -WidgetId lanes; New-ConsoleLogRegion }
-Invoke-ConsoleDashboard `$d -RecordPath '$recording' {
+Invoke-ConsoleDashboard `$d -RecordingPath '$recording' {
     Update-Console -WidgetId lanes -Key one -Status Running
-    Send-ConsoleEvent -WidgetId '`$marker' -Operation mark -Text 'Wave 2 started'
+    `$ConsoleSession.Post(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.LiveEvent'))::new('`$marker', 'mark', `$null, 'Wave 2 started'))
     Write-ConsoleLogEntry -Message 'disk almost full' -Level warn
     Update-Console -WidgetId lanes -Key two -Result Fail
     Update-Console -WidgetId lanes -Key one -Complete

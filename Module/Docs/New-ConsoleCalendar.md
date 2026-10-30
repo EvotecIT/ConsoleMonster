@@ -25,24 +25,28 @@ Returns a passive widget. Pipeline rows provide Date, Status and Label propertie
 
 ### EXAMPLE 1
 ```powershell
-$calendar = $backups | New-ConsoleCalendar -Year 2026 -Month 10; $calendar | Show-Console
+$backups = @(
+    [pscustomobject]@{ Date = [datetime]'2026-10-01'; Status = 'Pass'; Label = 'Backup verified' }
+    [pscustomobject]@{ Date = [datetime]'2026-10-02'; Status = 'Warn'; Label = 'Backup delayed' }
+)
+$backups | New-ConsoleCalendar -Year 2026 -Month 10 | Show-Console
 ```
 
-Display backup outcomes for October.
+Display backup outcomes for October
 
 ### EXAMPLE 2
 ```powershell
 New-ConsoleCalendar | Show-Console
 ```
 
-Show this month.
+Show this month
 
 ### EXAMPLE 3
 ```powershell
 New-ConsoleCalendar -Year 2026 -View Year -FirstDayOfWeek Monday
 ```
 
-Build a year view with Monday-first weeks.
+Build a year view with Monday-first weeks
 
 ## PARAMETERS
 

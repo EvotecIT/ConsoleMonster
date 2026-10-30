@@ -29,16 +29,16 @@ if ($fenced -notmatch '^```text') { throw 'FencedText did not use the add-on.' }
     }
 
     It 'renders inline content and literal markup without interpreting document text as console markup' {
-        $text = Show-Console -Content '# Notes' -AsString -Width 60 -View Markdown
+        $text = Show-Console -Content '# Notes'   -View Markdown -AsWidget | Export-ConsoleFrame -Format Text -Width 60
         $text | Should -Match 'Notes'
         $text | Should -Not -Match '# Notes'
-        Show-Console -Content '`[fail]literal[/]`' -AsString -View Markdown | Should -Match '\[fail\]literal\[/\]'
-        Show-Console -Content '' -AsString -View Markdown | Should -BeOfType ([string])
+        Show-Console -Content '`[fail]literal[/]`'  -View Markdown -AsWidget | Export-ConsoleFrame -Format Text | Should -Match '\[fail\]literal\[/\]'
+        Show-Console -Content ''  -View Markdown -AsWidget | Export-ConsoleFrame -Format Text | Should -BeOfType ([string])
     }
 
     It 'joins source lines before parsing reference links and block structure' {
         $lines = @('[Read the guide][guide]', '', '[guide]: https://example.org/guide')
-        $actual = $lines | Show-Console -AsString -Width 60 -View Markdown
+        $actual = $lines | Show-Console   -View Markdown -AsWidget | Export-ConsoleFrame -Format Text -Width 60
         $actual.Trim() | Should -BeExactly 'Read the guide (https://example.org/guide)'
     }
 
@@ -47,18 +47,18 @@ if ($fenced -notmatch '^```text') { throw 'FencedText did not use the add-on.' }
         [IO.File]::WriteAllText($path, '# Saved notes')
         Push-Location $TestDrive
         try {
-            $expected = Show-Console -Content '# Saved notes' -AsString -Width 60 -View Markdown
-            Show-Console -Path './notes [final].md' -AsString -Width 60 -View Markdown | Should -BeExactly $expected
-            Show-Console -Path 'TestDrive:/notes [final].md' -AsString -Width 60 -View Markdown | Should -BeExactly $expected
-            Show-Console -Path ('Microsoft.PowerShell.Core\FileSystem::' + $path) -AsString -Width 60 -View Markdown | Should -BeExactly $expected
+            $expected = Show-Console -Content '# Saved notes'   -View Markdown -AsWidget | Export-ConsoleFrame -Format Text -Width 60
+            Show-Console -Path './notes [final].md'   -View Markdown -AsWidget | Export-ConsoleFrame -Format Text -Width 60 | Should -BeExactly $expected
+            Show-Console -Path 'TestDrive:/notes [final].md'   -View Markdown -AsWidget | Export-ConsoleFrame -Format Text -Width 60 | Should -BeExactly $expected
+            Show-Console -Path ('Microsoft.PowerShell.Core\FileSystem::' + $path)   -View Markdown -AsWidget | Export-ConsoleFrame -Format Text -Width 60 | Should -BeExactly $expected
         } finally {
             Pop-Location
         }
     }
 
     It 'rejects non-file providers and reports missing files' {
-        { Show-Console -Path 'Variable:/PSVersionTable' -AsString -ErrorAction Stop -View Markdown } | Should -Throw '*FileSystem*'
-        { Show-Console -Path (Join-Path $TestDrive 'missing.md') -AsString -ErrorAction Stop -View Markdown } | Should -Throw
+        { Show-Console -Path 'Variable:/PSVersionTable'  -ErrorAction Stop -View Markdown -AsWidget | Export-ConsoleFrame -Format Text } | Should -Throw '*FileSystem*'
+        { Show-Console -Path (Join-Path $TestDrive 'missing.md')  -ErrorAction Stop -View Markdown -AsWidget | Export-ConsoleFrame -Format Text } | Should -Throw
     }
 
     It 'uses native code highlighting, quotes and table rendering at the requested width' {
@@ -74,7 +74,7 @@ if ($fenced -notmatch '^```text') { throw 'FencedText did not use the add-on.' }
 Get-Service | Select-Object Name
 ```
 '@
-        $actual = Show-Console -Content $source -AsString -Width 60 -View Markdown
+        $actual = Show-Console -Content $source   -View Markdown -AsWidget | Export-ConsoleFrame -Format Text -Width 60
         $actual | Should -Match 'Keep the rollback plan'
         $actual | Should -Match 'web-01'
         $actual | Should -Match 'powershell'
@@ -95,9 +95,11 @@ Get-Service | Select-Object Name
 
     It 'keeps the complete rendering in files and explicit string assignment' {
         $source = '# Assignment' + "`n`n" + '[Guide](https://example.org/guide)'
-        $text = Show-Console -Content $source -AsString -Width 60 -View Markdown
+        $text = Show-Console -Content $source   -View Markdown -AsWidget | Export-ConsoleFrame -Format Text -Width 60
         $path = Join-Path $TestDrive 'rendered.txt'
-        Show-Console -Content $source -NoPager -Width 60 -View Markdown | Set-Content -LiteralPath $path -Encoding UTF8
+        Use-ConsoleTarget -Width 60 -Glyphs Full {
+            Show-Console -Content $source -NoPager -Width 60 -View Markdown | Set-Content -LiteralPath $path -Encoding UTF8
+        } | Out-Null
         (Get-Content -LiteralPath $path -Raw).Replace("`r", '').Trim() | Should -BeExactly $text.Replace("`r", '').Trim()
         $text | Should -Not -Match ([char]27)
     }
@@ -112,7 +114,7 @@ Get-Service | Select-Object Name
 
     It 'uses the same reader for explicit about-topic help' {
         Import-Module (Join-Path $PSScriptRoot 'Fixtures/HelpFormatting/HelpFormatting.psd1') -Force
-        $actual = Show-ConsoleHelp about_ConsoleMonsterMarkdown -AsString -Width 60
+        $actual = Show-ConsoleHelp about_ConsoleMonsterMarkdown   -AsWidget | Export-ConsoleFrame -Format Text -Width 60
         $actual | Should -Match 'Markdown topic'
         $actual | Should -Not -Match '# Markdown topic'
         $actual | Should -Match '\[literal brackets\]'

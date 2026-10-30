@@ -54,14 +54,14 @@ $svc | Show-ConsoleTable -OutVariable captured | Out-Null
         Get-Result $out 'ESCAPES' | Should -Be 'False'
     }
 
-    It 'captures -AsString on every PowerShell version' {
+    It 'captures constructed table text on every PowerShell version' {
         $out = Invoke-OutputChild @'
-$text = $svc | Show-ConsoleTable -AsString
+$text = $svc | New-ConsoleTable  | Export-ConsoleFrame -Format Text
 "TYPE=$($text.GetType().Name)"
 "TABLE=$($text -match 'alpha' -and $text -match 'beta')"
-$list = $svc | Show-ConsoleList -AsString
+$list = $svc | Show-Console -View List  -AsWidget | Export-ConsoleFrame -Format Text
 "LIST=$($list -match 'Running')"
-$json = $svc | Show-Console -AsString -View Json
+$json = $svc | Show-Console  -View Json -AsWidget | Export-ConsoleFrame -Format Text
 "JSON=$($json -match '"Name": "alpha"')"
 '@
         Get-Result $out 'TYPE' | Should -Be 'String'
@@ -88,16 +88,16 @@ $svc | Show-ConsoleTable *> (Join-Path $folder 'all.txt')
             Get-Result $out 'REDIRECT' | Should -Be 'True'
         } else {
             # Windows PowerShell 5.1 has no $PSStyle to keep escape codes out of captured text: the table is drawn through
-            # the host (use -AsString to capture there).
+            # the host (use Export-ConsoleFrame -Format Text to capture there).
             Get-Result $out 'ASSIGNED' | Should -Be 'False'
             Get-Result $out 'REDIRECT' | Should -Be 'False'
             ($out -join "`n") | Should -Match 'alpha'
         }
     }
 
-    It 'gives Show-Console the same output model: -AsString, plain lines when piped, the rendering at the prompt on 7.2+' {
+    It 'preserves captured text and native Show-Console output routes' {
         $out = Invoke-OutputChild @'
-$text = $svc | Show-Console -AsString
+$text = $svc | New-ConsoleTable | Export-ConsoleFrame -Format Text
 "TYPE=$($text.GetType().Name) $($text -match 'alpha')"
 $piped = $svc | Show-Console | Out-String
 "PIPED=$($piped -match 'beta' -and -not $piped.Contains([char] 27))"
@@ -122,11 +122,11 @@ $t = Get-Content (Join-Path $folder 'transcript.txt') -Raw
         Get-Result $out 'TRANSCRIPTESC' | Should -Be 'False'
     }
 
-    It 'keeps -PassThru writing the input objects, and refuses -AsString with -PassThru' {
+    It 'keeps PassThru returning original objects and rejects mixed widget output' {
         $out = Invoke-OutputChild @'
 $passed = @($svc | Show-ConsoleTable -PassThru | Where-Object Status -eq 'Running')
 "PASSED=$($passed.Count) $($passed[0].Name)"
-try { $svc | Show-ConsoleTable -AsString -PassThru | Out-Null; 'BOTH=accepted' } catch { "BOTH=$($_.FullyQualifiedErrorId -like 'AsStringWithPassThru*')" }
+try { $svc | Show-Console -View List -AsWidget -PassThru | Out-Null; 'BOTH=accepted' } catch { "BOTH=$($_.Exception.Message -like '*Choose AsWidget or PassThru*')" }
 '@
         Get-Result $out 'PASSED' | Should -Be '1 alpha'
         Get-Result $out 'BOTH' | Should -Be 'True'
@@ -185,7 +185,7 @@ Describe 'Widgets draw themselves' {
             "'== shown'"
             '$t'
             "'== aswidget'"
-            "[pscustomobject] @{ Name = 'gamma' } | Show-ConsoleTable -AsWidget"
+            "[pscustomobject] @{ Name = 'gamma' } | New-ConsoleTable"
             "'== outstring'"
             '($t | Out-String).Trim()'
             "'== list'"

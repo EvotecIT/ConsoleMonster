@@ -24,7 +24,7 @@ try {
     try { [int]::Parse('abc') } catch { $record = $_ }
     $capture = { Get-ErrorFormattingSnapshot $record $directory }
     $before = & $capture
-    Enable-ConsoleFormatting -Feature Errors -CompactErrors
+    Enable-ConsoleFormatting -Include Errors -Exclude Output, FormatCommands, Streams, ReadLine -ErrorLayout Compact
     $after = & $capture
     foreach ($name in $before.PSObject.Properties.Name) {
         if ($before.$name -cne $after.$name) { throw "Native capture changed: $name" }
@@ -41,7 +41,7 @@ try {
 $ErrorActionPreference = 'Continue'
 $errorView = $ErrorView
 $writeError = Get-Command Write-Error
-Enable-ConsoleFormatting -Feature Errors -CompactErrors
+Enable-ConsoleFormatting -Include Errors -Exclude Output, FormatCommands, Streams, ReadLine -ErrorLayout Compact
 $record = [Management.Automation.ErrorRecord]::new([InvalidOperationException]::new('Synthetic failure'), 'SyntheticError', 'InvalidOperation', 'synthetic-target')
 $Error.Clear()
 Write-Error -ErrorRecord $record -ErrorVariable held 2>$null
@@ -65,10 +65,10 @@ Disable-ConsoleFormatting
         $text | Should -Match 'ERROR_STATE_NATIVE_OK'
     }
 
-    It 'prints the explicit compact Detailed profile snippet' {
+    It 'prints the explicit Detailed profile snippet' {
         $text = Invoke-ErrorFormattingChild @'
-$snippet = Enable-ConsoleFormatting -Feature Errors -CompactErrors -Detailed -ProfileSnippet
-if ($snippet[-1] -cne 'Enable-ConsoleFormatting -Feature Errors -CompactErrors -Detailed') { throw 'Wrong profile snippet.' }
+$snippet = Enable-ConsoleFormatting -Include Errors -Exclude Output, FormatCommands, Streams, ReadLine -ErrorLayout Detailed -ProfileSnippet
+if ($snippet[-1] -cne 'Enable-ConsoleFormatting -Include Errors -Exclude Output, FormatCommands, Streams, ReadLine -ErrorLayout Detailed') { throw 'Wrong profile snippet.' }
 if (Get-Command Out-Default -CommandType Function -ErrorAction Ignore) { throw 'Snippet changed the session.' }
 'EXPLICIT_ONLY_OK'
 '@
@@ -79,10 +79,10 @@ if (Get-Command Out-Default -CommandType Function -ErrorAction Ignore) { throw '
         $text = Invoke-ErrorFormattingChild @'
 function global:Out-Default { 'user-owned' }
 $saved = ${function:global:Out-Default}.ToString()
-Enable-ConsoleFormatting -Feature Errors -CompactErrors -Force
+Enable-ConsoleFormatting -Include Errors -Exclude Output, FormatCommands, Streams, ReadLine -ErrorLayout Compact -Force
 Disable-ConsoleFormatting -Feature Errors
 if (${function:global:Out-Default}.ToString() -cne $saved) { throw 'Disable did not restore the function.' }
-Enable-ConsoleFormatting -Feature Errors -CompactErrors -Force
+Enable-ConsoleFormatting -Include Errors -Exclude Output, FormatCommands, Streams, ReadLine -ErrorLayout Compact -Force
 Remove-Module ConsoleMonster
 if (${function:global:Out-Default}.ToString() -cne $saved) { throw 'Removal did not restore the function.' }
 'RESTORE_EXACT_OK'
@@ -93,7 +93,7 @@ if (${function:global:Out-Default}.ToString() -cne $saved) { throw 'Removal did 
     It 'maps the original invocation and folds causes through the shared compact view' {
         $text = Invoke-ErrorFormattingChild @'
 try { [int]::Parse('abc') } catch { $record = $_ }
-$widget = $record | Show-Console -Compact -AsWidget -View Error
+$widget = $record | Show-Console -ErrorLayout Compact -AsWidget -View Error
 $text = [ConsoleMonster.Terminal]::RenderText($widget, ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Testing.TestTerminal'))::Profile(120))
 if ($text -notmatch '^Error: Exception calling' -or $text -notmatch '\^+' -or $text -notmatch '\[int\]::Parse') { throw 'Missing compact invocation.' }
 if ($text -notmatch '\+1 inner exception' -or $text -match 'Caused by') { throw 'Causes were not folded.' }
@@ -112,7 +112,7 @@ if ($widget.DetailsHint) {
 $module = (Get-Module ConsoleMonster).Path
 $script = { param($module, $enabled)
     Import-Module $module
-    if ($enabled) { Enable-ConsoleFormatting -Feature Errors -CompactErrors }
+    if ($enabled) { Enable-ConsoleFormatting -Include Errors -Exclude Output, FormatCommands, Streams, ReadLine -ErrorLayout Compact }
     try { [int]::Parse('abc') } catch { $_ | Out-String -Width 100 }
 }
 $jobs = @(Start-Job $script -ArgumentList $module,$false; Start-Job $script -ArgumentList $module,$true)
@@ -131,13 +131,13 @@ try {
         $text = Invoke-ErrorFormattingChild @'
 $expression = "[int]::Parse('" + ('abc' * 45) + "')"
 $record = & ([scriptblock]::Create('try { ' + $expression + ' } catch { $_ }'))
-$widget = $record | Show-Console -Compact -AsWidget -View Error
+$widget = $record | Show-Console -ErrorLayout Compact -AsWidget -View Error
 $text = [ConsoleMonster.Terminal]::RenderText($widget, ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Testing.TestTerminal'))::Profile(200))
 $marker = @($text -split "`n" | Where-Object { $_.TrimStart().StartsWith('^') })
 if ($marker.Count -ne 1 -or $marker[0].Trim().Length -ne $expression.Length) { throw 'Original single-line extent was shortened.' }
 $multi = "[int]::Parse(`n    'abc'`n)"
 $record = & ([scriptblock]::Create('try { ' + $multi + ' } catch { $_ }'))
-$widget = $record | Show-Console -Compact -AsWidget -View Error
+$widget = $record | Show-Console -ErrorLayout Compact -AsWidget -View Error
 $text = [ConsoleMonster.Terminal]::RenderText($widget, ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Testing.TestTerminal'))::Profile(200))
 $marker = @($text -split "`n" | Where-Object { $_.TrimStart().StartsWith('^') })
 if ($marker.Count -ne 1 -or $marker[0].Trim().Length -ne '[int]::Parse('.Length) { throw 'Multiline extent did not end at the source line boundary.' }

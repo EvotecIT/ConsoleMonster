@@ -25,10 +25,14 @@ Marks unfinished items skipped, releases held log lines, restores the terminal a
 
 ### EXAMPLE 1
 ```powershell
-$summary = Complete-ConsoleRun $run -PassThru; $summary.Items | Where-Object Status -eq Fail
+$checks = @([pscustomobject]@{ Name = 'DNS'; Server = 'web01' })
+$run = Start-ConsoleRun -InputObject $checks -Label Name -NoLive
+Update-Console -Run $run -Index 0 -Status Fail -Detail 'Sample failure'
+$summary = Complete-ConsoleRun $run -PassThru
+$summary.Items | Where-Object Status -eq Fail
 ```
 
-Keep a structured final result
+Return a structured summary of a completed run
 
 ## PARAMETERS
 

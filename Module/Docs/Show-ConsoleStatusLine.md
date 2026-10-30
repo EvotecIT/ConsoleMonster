@@ -25,18 +25,22 @@ Each call replaces the line (Write-Color style pieces, colours, -Markup, -Decora
 
 ### EXAMPLE 1
 ```powershell
-foreach ($file in $files) { Show-ConsoleStatusLine 'Copying ', $file.Name -Color Gray, Cyan -Spinner -ShowElapsed; Copy-Item $file.FullName $target }
-Show-ConsoleStatusLine "Copied $($files.Count) files" -Status Pass -ShowElapsed -Complete
+$servers = 'web01', 'web02', 'sql01'
+foreach ($server in $servers) {
+    Show-ConsoleStatusLine 'Checking ', $server -Color Gray, Cyan -Spinner -ShowElapsed
+    Start-Sleep -Milliseconds 100
+}
+Show-ConsoleStatusLine "Checked $($servers.Count) servers" -Status Pass -ShowElapsed -Complete
 ```
 
-A copy loop with a spinner and elapsed time
+Show progress through a sample inventory
 
 ### EXAMPLE 2
 ```powershell
-Show-ConsoleStatusLine 'You have waited ' -Color Green -BackgroundColor Blue -ShowTimestamp -ShowElapsed; Start-Sleep 5; Show-ConsoleStatusLine 'Done' -Status Pass -Complete
+Show-ConsoleStatusLine 'Waiting' -Color Green -ShowTimestamp -ShowElapsed; Start-Sleep -Seconds 1; Show-ConsoleStatusLine 'Done' -Status Pass -Complete
 ```
 
-A waiting line with a clock (PSWriteColor issue #15)
+Show a waiting line with a clock
 
 ## PARAMETERS
 

@@ -1,6 +1,6 @@
+using ConsoleMonster;
 using System.Diagnostics;
 using System.Globalization;
-using ConsoleMonster.Building;
 using ConsoleMonster.Glyphs;
 using ConsoleMonster.Interactive;
 using ConsoleMonster.Layout;
@@ -292,13 +292,13 @@ void Execute(MenuContext context, List<Server> servers, List<MaintenanceTask> se
     {
         PreferredHeight = 6
     };
-    Dashboard dashboard = new DashboardBuilder("[bold]Server toolbox[/]")
+    Dashboard dashboard = Ui.Dashboard().Title("[bold]Server toolbox[/]")
         .Subtitle(servers.Count + " servers · " + selected.Count + " tasks"
             + (values.Get<bool>("DryRun") ? " · dry run" : string.Empty))
-        .Panel("Servers", lanes)
-        .Add(new Padding(overall, 1, 0, 1, 0))
-        .Panel("Log", log, true)
-        .BuildDashboard();
+                .Content(body => body
+                    .Panel(new Panel(lanes, "Servers"))
+            .Add(new Padding(overall, 1, 0, 1, 0))
+            .Add(new Panel(log, "Log").Fill()));
     int throttle = (int)values.Get<decimal>("Parallel", 4m);
     context.Run(dashboard, run => Work(run, lanes, overall, log, servers, selected, throttle));
 }

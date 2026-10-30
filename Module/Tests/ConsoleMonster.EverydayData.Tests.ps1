@@ -249,7 +249,7 @@ Describe 'Everyday structured data and discovery views' {
         $rows = @(Get-EverydayViewSample csv)
         $native = $rows | Out-String -Width 96
         try {
-            Enable-ConsoleFormatting -Feature Output
+            Enable-ConsoleFormatting -Include Output -Exclude FormatCommands, Errors, Streams, ReadLine
             $captured = @($rows | Select-Object -First 2)
             [object]::ReferenceEquals($rows[0], $captured[0]) | Should -BeTrue
             $rows | Select-Object Name, Count | Export-Csv (Join-Path $TestDrive 'rows.csv') -NoTypeInformation
@@ -283,7 +283,7 @@ Describe 'Everyday structured data and discovery views' {
     }
 
     It 'does not register Windows network views on Unix' -Skip:([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) {
-        $text = Get-EverydayViewSample net-ip | Show-ConsoleTable -AsString
+        $text = Get-EverydayViewSample net-ip | New-ConsoleTable  | Export-ConsoleFrame -Format Text
         $text | Should -Match 'PrefixLength'
         $text | Should -Not -Match '(?m)^\s*Prefix\s'
     }

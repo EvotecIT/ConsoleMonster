@@ -27,7 +27,7 @@ namespace SiteFrames.Tests {
         }
 
         [Theory]
-        [InlineData("var widget = new Grid(2, new TextBlock(\"Ready\"));", "New-ConsoleLayoutGrid -Content { … }", "new Grid(columns, widgets)")]
+        [InlineData("var widget = new LayoutGrid(2, new TextBlock(\"Ready\"));", "New-ConsoleLayoutGrid -Content { … }", "new LayoutGrid(columns, widgets)")]
         [InlineData("var widget = new ScrollView(new TextBlock(\"Ready\"));", "New-ConsoleScrollView -Content { … }", "Content = widget")]
         public void ContentNotesUseTheActualContainerAndConstructor(string body, string powerShell, string initializer) {
             string path = Source("container-" + powerShell.Split(' ')[0], "using ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n" + body);

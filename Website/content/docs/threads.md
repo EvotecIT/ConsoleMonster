@@ -54,7 +54,7 @@ Import-Module ConsoleMonster
 
 $servers = 'web01', 'web02', 'web03', 'web04'
 $dashboard = New-ConsoleDashboard -Title 'Patching' -Content {
-    New-ConsolePanel -Title 'Servers' -Content { New-ConsoleStatusList -WidgetId servers -Item $servers }
+    New-ConsolePanel -Title 'Servers' -Content { $servers | New-ConsoleStatusList -WidgetId servers }
     New-ConsolePanel -Title 'Log' -Fill -Content { New-ConsoleLogRegion }
 }
 
@@ -88,9 +88,8 @@ using ConsoleMonster.Live;
 using ConsoleMonster.Widgets;
 
 string[] servers = { "web01", "web02", "web03" };
-Dashboard dashboard = new DashboardBuilder("Patching")
-    .Panel("Servers", new Lanes(), out Lanes lanes)
-    .BuildDashboard();
+Lanes lanes = new Lanes();
+Dashboard dashboard = new Dashboard("Patching", new ConsoleMonster.Layout.Panel(lanes, "Servers"));
 foreach (string server in servers) {
     lanes.Add(server, server, 2);
 }

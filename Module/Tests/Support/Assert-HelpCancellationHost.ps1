@@ -108,7 +108,7 @@ public sealed class ConsoleMonsterHelpLeaseObserver : IDisposable {
         Cancel = @{}
         Quit = @{}
     }
-    Enable-ConsoleFormatting -Feature Help
+    Enable-ConsoleFormatting -Include Help -Exclude Output, FormatCommands, Errors, Streams, ReadLine
     [ConsoleMonster.Terminal]::Profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed([Console]::BufferWidth, 10, 'None')
     [IO.File]::WriteAllText($ResultPath + '.pid.txt', [string]$PID)
     'HELP_CANCELLATION_INITIALIZED'

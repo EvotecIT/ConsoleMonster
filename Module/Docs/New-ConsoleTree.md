@@ -46,7 +46,7 @@ A mail domain with records and their state
 
 ### EXAMPLE 2
 ```powershell
-Get-Item C:\Support\Reports | New-ConsoleTree -Children { if ($_.PSIsContainer) { Get-ChildItem $_.FullName } } -Depth 3 | Show-Console
+Get-Item . | New-ConsoleTree -Children { if ($_.PSIsContainer) { Get-ChildItem $_.FullName } } -Depth 3 | Show-Console
 ```
 
 Folders and files from the pipeline, three levels deep

@@ -26,7 +26,7 @@ $rows = @(
 function Save-Frame {
     param([string] $Name, [object] $Widget)
     $Widget | Export-ConsoleFrame -Format Text -Path (Join-Path $OutputDirectory ($Name + '.txt')) -Width 96
-    $Widget | Export-ConsoleFrame -Format Html -Path (Join-Path $OutputDirectory ($Name + '.html')) -Width 96 -Title $Name -WindowChrome
+    $Widget | Export-ConsoleFrame -Format Html -Path (Join-Path $OutputDirectory ($Name + '.html')) -Width 96 -Title $Name -ChromeStyle MacOS
 }
 
 foreach ($kind in 'Table', 'List', 'Wide') {
@@ -35,7 +35,7 @@ foreach ($kind in 'Table', 'List', 'Wide') {
     $command = Get-Command ("Microsoft.PowerShell.Utility\Format-$kind")
     $before = $rows | & $command @parameters | Out-String -Width 96
     Save-Frame "1-$($kind.ToLowerInvariant())-before" (New-ConsoleText $before.TrimEnd())
-    $after = if ($kind -eq 'Wide') { $rows | & $command @parameters | Out-ConsoleFormatCommand -AsWidget }
+    $after = if ($kind -eq 'Wide') { $rows | & $command @parameters | & ([Management.Automation.CmdletInfo]::new('Out-ConsoleFormatCommand', (Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.CmdletOutConsoleFormatCommand'))) -AsWidget }
         else { Convert-TestNativeView -Rows $rows -Kind $kind -Arguments $parameters }
     Save-Frame "1-$($kind.ToLowerInvariant())-after" $after
 }
@@ -55,13 +55,13 @@ foreach ($kind in 'Table','List') {
 }
 
 $markdownColumns = @('Name', 'State', @{Name='Bytes';Aggregate='Sum'}, 'Date','Duration','Tags')
-$valueRows | Show-ConsoleTable -Property $markdownColumns -GroupBy State -ShowGroupColumn -AsWidget -ShowTotals | Export-ConsoleFrame -Format Markdown |
+$valueRows | New-ConsoleTable -Property $markdownColumns -GroupBy State -ShowGroupColumn  -ShowTotals | Export-ConsoleFrame -Format Markdown |
     Set-Content -LiteralPath (Join-Path $OutputDirectory '3-markdown-table.md') -Encoding UTF8
-$valueRows | Show-ConsoleList -Property $valueColumns -AsWidget | Export-ConsoleFrame -Format Markdown |
+$valueRows | Show-Console -View List -Property $valueColumns -AsWidget | Export-ConsoleFrame -Format Markdown |
     Set-Content -LiteralPath (Join-Path $OutputDirectory '3-markdown-list.md') -Encoding UTF8
 $valueRows[0] | Show-Console -Title 'Service' -AsWidget -View Tree | Export-ConsoleFrame -Format Markdown |
     Set-Content -LiteralPath (Join-Path $OutputDirectory '3-markdown-tree.md') -Encoding UTF8
-$valueRows | Show-ConsoleTable -Property $valueColumns -AsWidget -Width 100 | Export-ConsoleFrame -Format FencedText |
+$valueRows | New-ConsoleTable -Property $valueColumns   | Export-ConsoleFrame -Format FencedText |
     Set-Content -LiteralPath (Join-Path $OutputDirectory '3-text-layout.md') -Encoding UTF8
 
 $alignmentRows = @(
@@ -71,37 +71,29 @@ $alignmentRows = @(
 $alignmentColumns = @('Name', @{ Name = 'Centered'; Expression = 'Centered'; Alignment = 'Center' }, 'Count')
 $alignmentBefore = $alignmentRows | Microsoft.PowerShell.Utility\Format-Table -Property $alignmentColumns | Out-String -Width 96
 Save-Frame '1-alignment-before' (New-ConsoleText $alignmentBefore.TrimEnd())
-Save-Frame '1-alignment-after' ($alignmentRows | Microsoft.PowerShell.Utility\Format-Table -Property $alignmentColumns | Out-ConsoleFormatCommand -AsWidget)
+Save-Frame '1-alignment-after' ($alignmentRows | Microsoft.PowerShell.Utility\Format-Table -Property $alignmentColumns | & ([Management.Automation.CmdletInfo]::new('Out-ConsoleFormatCommand', (Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.CmdletOutConsoleFormatCommand'))) -AsWidget)
 
 $moduleBefore = Get-EverydayValue | Microsoft.PowerShell.Utility\Format-Table -Property Name, State, Site, HiddenDetail | Out-String -Width 96
 Save-Frame '2-module-views-before' (New-ConsoleText $moduleBefore.TrimEnd())
-$moduleAfter = Get-EverydayValue | Show-ConsoleTable -AsWidget
+$moduleAfter = Get-EverydayValue | New-ConsoleTable
 Save-Frame '2-module-views-after' $moduleAfter
 
-$table = $rows | Show-ConsoleTable -Property Name, State, Site -AsWidget
-Save-Frame '3-export-before' (New-ConsoleText ($rows | Show-ConsoleTable -Property Name, State, Site -AsString -Width 96))
+$table = $rows | New-ConsoleTable -Property Name, State, Site
+Save-Frame '3-export-before' (New-ConsoleText ($rows | New-ConsoleTable -Property Name, State, Site   | Export-ConsoleFrame -Format Text -Width 96))
 Save-Frame '3-export-after' $table
-$rows | Show-ConsoleTable -Property Name, State, Site -AsWidget -Width 96 | Export-ConsoleFrame -Format Markdown | Set-Content -LiteralPath (Join-Path $OutputDirectory '3-export-result.md') -Encoding UTF8
-$rows | Show-ConsoleTable -Property Name, State, Site -AsWidget -Width 96 | Export-ConsoleFrame -Format Html | Set-Content -LiteralPath (Join-Path $OutputDirectory '3-export-result.html') -Encoding UTF8
+$rows | New-ConsoleTable -Property Name, State, Site   | Export-ConsoleFrame -Format Markdown | Set-Content -LiteralPath (Join-Path $OutputDirectory '3-export-result.md') -Encoding UTF8
+$rows | New-ConsoleTable -Property Name, State, Site   | Export-ConsoleFrame -Format Html | Set-Content -LiteralPath (Join-Path $OutputDirectory '3-export-result.html') -Encoding UTF8
 
-$plain = $rows | Show-ConsoleTable -Property Name, State -AsString -Width 96
+$plain = $rows | New-ConsoleTable -Property Name, State   | Export-ConsoleFrame -Format Text -Width 96
 Save-Frame '3-clipboard-before' (New-ConsoleText $plain)
-$savedSsh = [Environment]::GetEnvironmentVariable('SSH_CONNECTION', 'Process')
-try {
-    [Environment]::SetEnvironmentVariable('SSH_CONNECTION', 'synthetic-review-session', 'Process')
-    $copyErrors = @()
-    $plain | Copy-ConsoleOutput -Format Markdown -ErrorAction SilentlyContinue -ErrorVariable copyErrors
-    Save-Frame '3-clipboard-after-ssh' (New-ConsolePanel -Title 'Copy-ConsoleOutput over SSH' -Content (New-ConsoleText ($copyErrors[0].ToString())))
-} finally { [Environment]::SetEnvironmentVariable('SSH_CONNECTION', $savedSsh, 'Process') }
-
 $beforeLinks = $rows | Microsoft.PowerShell.Utility\Format-Table Name, Url | Out-String -Width 96
 Save-Frame '4-links-before' (New-ConsoleText $beforeLinks.TrimEnd())
-$links = $rows | Show-ConsoleTable -AsWidget -Property Name, @{
+$links = $rows | New-ConsoleTable  -Property Name, @{
     Name = 'Report'
     Expression = { New-ConsoleText 'Open report' -Link $_.Url }
 }, @{ Name = 'Path'; Expression = 'Path'; Presenter = 'Link' }
 Save-Frame '4-links-after' $links
-$links | Export-ConsoleFrame -Format Html -Path (Join-Path $OutputDirectory '4-links-compact.html') -Width 48 -Title 'Links at 48 columns' -WindowChrome
+$links | Export-ConsoleFrame -Format Html -Path (Join-Path $OutputDirectory '4-links-compact.html') -Width 48 -Title 'Links at 48 columns' -ChromeStyle MacOS
 
 @'
 # Everyday-formatting review frames

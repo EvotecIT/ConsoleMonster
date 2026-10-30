@@ -38,7 +38,7 @@ $global:editorBaseline = Get-ReadLineState
 $global:streamsBaseline = Get-StreamsState
 $global:unownedEditor = Get-ReadLineUnowned
 Set-ConsoleTheme Light
-Enable-ConsoleFormatting -Feature ReadLine, Streams
+Enable-ConsoleFormatting -Include ReadLine, Streams -Exclude Output, FormatCommands, Errors
 $global:editorDesired = Get-ReadLineState
 $global:streamsDesired = Get-StreamsState
 Assert-ReadLineTheme
@@ -46,7 +46,7 @@ Assert-StreamsState (Get-StreamsExpected)
 '@
         $null = Invoke-OwnershipRunspace $second @'
 Set-ConsoleTheme HighContrast
-Enable-ConsoleFormatting -Feature ReadLine, Streams
+Enable-ConsoleFormatting -Include ReadLine, Streams -Exclude Output, FormatCommands, Errors
 $global:editorDesired = Get-ReadLineState
 $global:streamsDesired = Get-StreamsState
 Assert-ReadLineTheme
@@ -57,7 +57,7 @@ Assert-StreamsState (Get-StreamsExpected)
 Set-ReadLineBaseline -Variant 1
 Set-StreamsBaseline -Variant 1
 Set-ConsoleTheme Dark
-Enable-ConsoleFormatting -Feature ReadLine, Streams
+Enable-ConsoleFormatting -Include ReadLine, Streams -Exclude Output, FormatCommands, Errors
 $global:editorDesired = Get-ReadLineState
 $global:streamsDesired = Get-StreamsState
 Assert-ReadLineTheme

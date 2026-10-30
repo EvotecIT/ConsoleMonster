@@ -29,7 +29,7 @@ if ($readline) {
 }
 $handler = if ($readline) { (Get-PSReadLineOption).AddToHistoryHandler }
 
-Enable-ConsoleFormatting -Feature Prompt
+Enable-ConsoleFormatting -Include Prompt -Exclude Output, FormatCommands, Errors, Streams, ReadLine
 $assigned = prompt
 $captured = prompt | Out-String
 if ($captured -cne $native -or $assigned -cne 'ORIGINAL_NATIVE> ') { throw 'Capture changed prompt bytes.' }
@@ -44,7 +44,7 @@ try {
 } finally {
     if (Test-Path -LiteralPath $file) { Remove-Item -LiteralPath $file }
 }
-Enable-ConsoleFormatting -Feature Prompt
+Enable-ConsoleFormatting -Include Prompt -Exclude Output, FormatCommands, Errors, Streams, ReadLine
 $table = [pscustomobject]@{ Name = 'sample'; Value = 42 } | Format-Table | Out-String
 if ($table -cne $nativeTable) { throw 'Native format pipeline changed.' }
 $target = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Output.RecordingTarget'))::new([ConsoleMonster.Terminal]::GetCurrentProfile())
@@ -58,7 +58,7 @@ if (($preferences -join '|') -cne ($after -join '|')) { throw 'Preferences chang
 if ($readline -and -not [object]::ReferenceEquals($handler, (Get-PSReadLineOption).AddToHistoryHandler)) { throw 'ReadLine handler changed.' }
 Disable-ConsoleFormatting
 if (${function:global:prompt}.ToString() -cne $original.ToString()) { throw 'Native closure restoration failed.' }
-Enable-ConsoleFormatting -Feature Prompt
+Enable-ConsoleFormatting -Include Prompt -Exclude Output, FormatCommands, Errors, Streams, ReadLine
 Remove-Module ConsoleMonster -Force
 if (${function:global:prompt}.ToString() -cne $original.ToString()) { throw 'Native module-removal restoration failed.' }
 
@@ -88,5 +88,5 @@ $fallbackRoutes = foreach ($route in 'SimpleMerge', 'Merge', 'AllStreams', 'Supp
     AttachedConsole = $true
 } | ConvertTo-Json | Set-Content -LiteralPath ($ResultPath + '.fallback.json') -Encoding UTF8
 Set-ConsoleTheme -Theme Dark
-Enable-ConsoleFormatting -Feature Prompt
+Enable-ConsoleFormatting -Include Prompt -Exclude Output, FormatCommands, Errors, Streams, ReadLine
 [Console]::WriteLine('PROMPT_HOST_CONTRACTS_OK')

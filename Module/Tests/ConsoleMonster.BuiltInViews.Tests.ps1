@@ -27,14 +27,14 @@
     }
 
     It 'groups members and preserves complete overloaded signatures' {
-        $text = $script:members | Show-ConsoleTable -AsString -Width 160
+        $text = $script:members | New-ConsoleTable   | Export-ConsoleFrame -Format Text -Width 160
         $text | Should -Match 'Method'
         $text | Should -Match 'Property'
         $text | Should -Match 'string Substring\(int startIndex\), string Substring\(int startIndex, int length\)'
         $text | Should -Match 'int Length \{get;\}'
         $worker = [System.ComponentModel.BackgroundWorker]::new()
         try {
-            $worker | Get-Member -Name DoWork | Show-ConsoleTable -AsString -Width 160 | Should -Match 'Event.*1'
+            $worker | Get-Member -Name DoWork | New-ConsoleTable   | Export-ConsoleFrame -Format Text -Width 160 | Should -Match 'Event.*1'
         } finally {
             $worker.Dispose()
         }
@@ -44,22 +44,17 @@
         $other = @([datetime]'2026-10-22' | Get-Member -Name Day, AddDays)
         $rows = @($script:members) + $other
         foreach ($width in 60, 120) {
-            $layout = $rows | Show-ConsoleTable -AsWidget
-            $widgets = @($layout.Children)
-            $widgets.Count | Should -Be 2
-            $widgets[0].Title | Should -Be 'TypeName: System.String'
-            $widgets[1].Title | Should -Be 'TypeName: System.DateTime'
-            foreach ($widget in $widgets) {
-                $widget.GroupHeadersAsRows | Should -BeTrue
-                $text = $widget | Export-ConsoleFrame -Format Text -Width $width
-                $groups = @($text -split "`n" | Where-Object { $_ -match '(Method|Property) · [0-9]+' })
-                $groups.Count | Should -Be 2
-                foreach ($group in $groups) {
-                    ([regex]::Matches($group, '│')).Count | Should -Be 2
-                    $group | Should -Not -Match '┼|─'
-                }
-                $text | Should -Not -Match '┼'
+            $text = Use-ConsoleTarget -Width $width -Glyphs Full { $rows | Show-ConsoleTable }
+            ([regex]::Matches($text, 'TypeName:')).Count | Should -Be 2
+            $text | Should -Match 'TypeName: System.String'
+            $text | Should -Match 'TypeName: System.DateTime'
+            $groups = @($text -split "`n" | Where-Object { $_ -match '(Method|Property) · [0-9]+' })
+            $groups.Count | Should -Be 4
+            foreach ($group in $groups) {
+                ([regex]::Matches($group, '│')).Count | Should -Be 2
+                $group | Should -Not -Match '┼|─'
             }
+            $text | Should -Not -Match '┼'
             $native = Convert-TestNativeView -Rows $script:members
             $nativeText = $native | Export-ConsoleFrame -Format Text -Width $width
             $nativeText | Should -Match 'TypeName: System.String'
@@ -71,7 +66,7 @@
     }
 
     It 'shows small command results without module groups and keeps literal type chips' {
-        $text = $script:commands | Show-ConsoleTable -AsString -Width 120
+        $text = $script:commands | New-ConsoleTable   | Export-ConsoleFrame -Format Text -Width 120
         $text | Should -Not -Match 'Demo.Inventory ·'
         $text | Should -Match '\[Function\]'
         $text | Should -Match '\[Alias\]'
@@ -81,7 +76,7 @@
     It 'shows module versions shortened paths and exported command counts' {
         $value = [psobject]::AsPSObject($script:demoModule)
         $value | Add-Member -NotePropertyName Path -NotePropertyValue 'C:\Demo\Inventory\Demo.Inventory.psm1' -Force
-        $widget = $value | Show-ConsoleTable -AsWidget
+        $widget = $value | New-ConsoleTable
         $text = $widget | Export-ConsoleFrame -Format Text -Width 160
         $text | Should -Match 'Version'
         $text | Should -Match 'Inventory\\Demo.Inventory.psm1'
@@ -91,7 +86,7 @@
     }
 
     It 'shows history identifiers durations statuses and literal command text' {
-        $text = $script:history | Show-ConsoleTable -AsString -Width 120
+        $text = $script:history | New-ConsoleTable   | Export-ConsoleFrame -Format Text -Width 120
         $text | Should -Match '101'
         $text | Should -Match '2[.,]0 s'
         $text | Should -Match 'Completed'
@@ -102,7 +97,7 @@
     It 'honours explicit properties and calculated expressions for every built-in family' {
         foreach ($rows in @($script:members), @($script:commands), @($script:modules), @($script:history)) {
             $script:reads = 0
-            $text = $rows | Show-ConsoleTable -Property @{ Label = 'Chosen'; Expression = { $script:reads++; 'literal [pass]value[/]' } } -AsString
+            $text = $rows | New-ConsoleTable -Property @{ Label = 'Chosen'; Expression = { $script:reads++; 'literal [pass]value[/]' } }  | Export-ConsoleFrame -Format Text
             $text | Should -Match 'Chosen'
             $text | Should -Match '\[pass\]value\[/\]'
             $script:reads | Should -Be $rows.Count
@@ -138,18 +133,18 @@
     It 'lets user registrations override built-ins and restores them after removal' {
         try {
             Register-ConsoleView -TypeName Microsoft.PowerShell.Commands.MemberDefinition -View Table -Property @{ Name = 'OwnerChoice'; Expression = { 'custom' } }
-            $text = $script:members | Show-ConsoleTable -AsString
+            $text = $script:members | New-ConsoleTable  | Export-ConsoleFrame -Format Text
             $text | Should -Match 'OwnerChoice'
             $text | Should -Not -Match 'Definition'
         } finally {
             Unregister-ConsoleView -TypeName Microsoft.PowerShell.Commands.MemberDefinition
         }
-        $script:members | Show-ConsoleTable -AsString | Should -Match 'Definition'
+        $script:members | New-ConsoleTable  | Export-ConsoleFrame -Format Text | Should -Match 'Definition'
     }
 
     It 'preserves the native empty shape when an explicit wildcard matches no history properties' {
         $records = @($script:history | Microsoft.PowerShell.Utility\Format-Table N*)
-        $widget = @($records | Out-ConsoleFormatCommand -AsWidget)
+        $widget = @($records | & ([Management.Automation.CmdletInfo]::new('Out-ConsoleFormatCommand', (Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.CmdletOutConsoleFormatCommand'))) -AsWidget)
         $widget.Count | Should -Be 0
     }
 }

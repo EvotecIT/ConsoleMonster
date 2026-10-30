@@ -1,4 +1,5 @@
-using ConsoleMonster.Building;
+using ConsoleMonster;
+using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
@@ -7,10 +8,11 @@ using ConsoleMonster.Widgets;
 // goes to the log panel.
 string[] servers = Enumerable.Range(1, 12).Select(n => $"web{n:00}").ToArray();
 string[] steps = { "copying", "stopping", "swapping", "starting" };
-Dashboard dashboard = new DashboardBuilder("Patching the web farm")
-    .Panel("Servers", new Lanes(), out Lanes lanes, false, "12 at once")
-    .Panel("Log", new LogRegion(), true)
-    .BuildDashboard();
+Lanes lanes = new Lanes();
+Dashboard dashboard = Ui.Dashboard().Title("Patching the web farm")
+    .Content(body => body
+        .Panel(new Panel(lanes, "Servers") { HeaderRight = "12 at once" })
+        .Add(new Panel(new LogRegion(), "Log").Fill()));
 foreach (string server in servers)
 {
     lanes.Add(server, server, steps.Length);

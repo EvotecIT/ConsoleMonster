@@ -13,7 +13,7 @@ Returns one DateTime at midnight with unspecified kind, or one DateRange with -R
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Read-ConsoleDate [[-Title] <string>] [-Default <Object>] [-Range] [-Selection <DateSelectionOptions>] [-InputObject <psobject>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
+Read-ConsoleDate [[-Title] <string>] [-Default <Object>] [-Range] [-Selection <DateSelectionOptions>] [-InputObject <psobject>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -87,7 +87,7 @@ Forces how to ask: Rich (in-place prompt), Line (question and typed answer), Acc
 Type: InteractionMode
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: Rich, Line, Accessible, None
+Possible values: Rich, Line, Accessible, None, Snapshot
 
 Required: False
 Position: named
@@ -133,22 +133,6 @@ Shared date bounds, culture, today and immutable marked-day model.
 
 ```yaml
 Type: DateSelectionOptions
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -StaticSnapshot
-Prints the initialized rich prompt without reading input or returning an answer. Useful for documentation and unattended previews.
-
-```yaml
-Type: SwitchParameter
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

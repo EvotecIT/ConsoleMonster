@@ -25,8 +25,8 @@ Describe 'Composed full-screen controls' {
 
     It 'builds tab pages and modal fields without starting an input loop' {
         $pages = @(
-            New-ConsoleTab -Title First -Content { New-ConsoleTextInput -Key Filter -Value alpha }
-            New-ConsoleTab -Title Second -Content { New-ConsoleToggle -Key Enabled -Value $true }
+            @{ Title = 'First'; Content = (New-ConsoleTextInput -Key Filter -Value alpha) }
+            @{ Title = 'Second'; Content = (New-ConsoleToggle -Key Enabled -Value $true) }
         )
         $tabs = $pages | New-ConsoleTabs -SelectedIndex 1
         $tabs.SelectedIndex | Should -Be 1

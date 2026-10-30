@@ -36,7 +36,7 @@ foreach ($view in $views) {
     # One command per host submission: an explicit Out-Default inside a script stays native.
     $source += "`nWrite-Host '### $view before ###'`n"
     $source += "Get-EverydayViewSample '$view' | Microsoft.PowerShell.Core\Out-Default`n"
-    $source += "Enable-ConsoleFormatting -Feature Output`nWrite-Host '### $view after ###'`n"
+    $source += "Enable-ConsoleFormatting -Include Output -Exclude FormatCommands, Errors, Streams, ReadLine`nWrite-Host '### $view after ###'`n"
     $source += "Get-EverydayViewSample '$view'`nDisable-ConsoleFormatting -Feature Output`n"
 }
 $scriptPath = Join-Path $OutputDirectory 'capture.ps1'

@@ -37,7 +37,7 @@ $services = @(
 
 # Behaviour: explicit arguments enter isolated, cancellable action runspaces.
 $actions = foreach ($definition in @(@('Restart', 'F5'), @('Stop', 'F7'), @('Start', 'F9'))) {
-    New-ConsoleCommand -Key $definition[0] -Label $definition[0] -Shortcut $definition[1] `
+    New-ConsoleCommand -Key $definition[0] -Label $definition[0] -Hotkey $definition[1] `
         -ConfirmPrompt ($definition[0] + ' {Selection}?') -ArgumentList $definition[0], 'Lab' `
         -ImportModule Microsoft.PowerShell.Utility -ScriptBlock {
             param($Row, $Operation, $Environment)
@@ -56,7 +56,7 @@ $actions = foreach ($definition in @(@('Restart', 'F5'), @('Stop', 'F7'), @('Sta
 $services |
     Show-ConsoleGrid -Title 'Service browser' -Property Name, Status, StartType, DisplayName,
         ProcessId, Account, DependsOn, Description `
-        -Hide DisplayName, ProcessId, Account, DependsOn, Description -Command $actions `
+        -Exclude DisplayName, ProcessId, Account, DependsOn, Description -Command $actions `
         -Refresh {
             param($Row, $CommandKey)
             $Row.Status = if ($CommandKey -eq 'Stop') { 'Stopped' } else { 'Running' }

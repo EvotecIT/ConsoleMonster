@@ -4,7 +4,9 @@
 # in the log panel instead of writing over the screen.
 $dashboard = New-ConsoleDashboard -Title 'Deploy' -Content {
     New-ConsolePanel -Title 'Servers' -HeaderRight '3 workers' -Content {
-        New-ConsoleLanes -WidgetId servers -Lane 'SRV1', 'SRV2', 'SRV3' -Total 4
+        New-ConsoleLanes -WidgetId servers -Content {
+            foreach ($server in 'SRV1', 'SRV2', 'SRV3') { @{ Key = $server; Total = 4 } }
+        }
     }
     New-ConsolePanel -Title 'Log' -Fill -Content { New-ConsoleLogRegion }
 }

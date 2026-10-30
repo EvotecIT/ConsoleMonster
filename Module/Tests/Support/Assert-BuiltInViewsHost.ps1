@@ -65,7 +65,7 @@ function Assert-DisplayedFrame {
         $widget = Convert-TestNativeView -Rows $Rows -Arguments $Arguments
         $wanted = $widget | Export-ConsoleFrame -Format Text -Width $width
     } else {
-        $wanted = $Rows | Show-ConsoleTable -AsString -Width $width
+        $wanted = $Rows | New-ConsoleTable   | Export-ConsoleFrame -Format Text -Width $width
     }
     $wanted = ($wanted -replace "`r", '').TrimEnd("`n") + "`n"
     $lineCount = @($wanted.TrimEnd("`n") -split "`n").Count
@@ -97,7 +97,7 @@ try {
     }
     $nativeDefaults = @{}
     foreach ($name in $data.Keys) { $nativeDefaults[$name] = $data[$name] | Out-String -Width 120 }
-    Enable-ConsoleFormatting -Feature Output, FormatCommands
+    Enable-ConsoleFormatting -Include Output, FormatCommands -Exclude Errors, Streams, ReadLine
     foreach ($name in $data.Keys) {
         foreach ($kind in 'Table', 'List', 'Wide') {
             $actual = Get-NativeCapture $data[$name] "Format-$kind"
@@ -123,7 +123,7 @@ try {
     Disable-ConsoleFormatting
     foreach ($enabled in $false, $true) {
         $path = Join-Path $temporary ("transcript-$enabled.txt")
-        if ($enabled) { Enable-ConsoleFormatting -Feature Output, FormatCommands }
+        if ($enabled) { Enable-ConsoleFormatting -Include Output, FormatCommands -Exclude Errors, Streams, ReadLine }
         $null = Start-Transcript -LiteralPath $path
         Write-Host CM_PROOF_BEGIN
         foreach ($name in 'Member', 'Command', 'Module', 'History') {
@@ -143,7 +143,7 @@ try {
         Import-Module $Path
         $rows = @('synthetic' | Get-Member -Name Length)
         $before = $rows | Format-Table | Out-String
-        Enable-ConsoleFormatting -Feature Output, FormatCommands
+        Enable-ConsoleFormatting -Include Output, FormatCommands -Exclude Errors, Streams, ReadLine
         $after = $rows | Format-Table | Out-String
         $before -ceq $after
     }

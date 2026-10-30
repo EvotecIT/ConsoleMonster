@@ -24,17 +24,45 @@ Describe 'Structured Show-Console cmdlets' {
         }
     }
 
-    It 'exports the structured Show cmdlets' {
+    It 'selects tree members through the current Property contract' {
         Import-Module $script:ModulePath -Force
-        (Get-Command -Module ConsoleMonster -Name Show-Console,Show-ConsoleList,Show-ConsoleTable).Name | Sort-Object | Should -Be @('Show-Console', 'Show-ConsoleList', 'Show-ConsoleTable')
-        (Get-Command Show-Console).Parameters.ContainsKey('All') | Should -BeFalse
-        { [pscustomobject]@{ Name = 'one' } | Show-Console -View Tree -Property '*' -AsString -ErrorAction Stop } | Should -Throw '*Property*'
+        $text = [pscustomobject]@{ Name = 'one'; Secret = 'hidden'; Port = 8080 } | Show-Console -View Tree -Property Port -AsWidget | Export-ConsoleFrame -Format Text
+        $text | Should -Match '8080'
+        $text | Should -Not -Match 'hidden'
+        $script:calculatedReads = 0
+        $item = [pscustomobject]@{
+            Name = 'one'; Count = 3; Secret = 'hidden'
+            Child = [pscustomobject]@{ Name = 'inner'; Count = 7; Secret = 'nested-hidden' }
+        }
+        $twice = @{ Name = 'Twice'; Expression = { $script:calculatedReads++; $_.Count * 2 } }
+        $mixed = $item | Show-Console -View Tree -Property Name, $twice -AsWidget | Export-ConsoleFrame -Format Text
+        $mixed | Should -Match 'Twice\s+6'
+        $script:calculatedReads | Should -Be 1
+
+        $script:calculatedReads = 0
+        $nested = $item | Show-Console -View Tree -Property Name, $twice, 'Ch*' -Depth 3 -AsWidget | Export-ConsoleFrame -Format Text
+        $nested | Should -Match 'Child'
+        $nested | Should -Match 'Name\s+inner'
+        ([regex]::Matches($nested, 'Twice')).Count | Should -Be 1
+        $script:calculatedReads | Should -Be 1
+        $nested | Should -Not -Match 'hidden'
+
+        $script:calculatedReads = 0
+        $excluded = $item | Show-Console -View Tree -Property Name, $twice, 'Ch*' -Exclude Twice -Depth 3 -AsWidget | Export-ConsoleFrame -Format Text
+        $excluded | Should -Match 'Name\s+inner'
+        $excluded | Should -Not -Match 'Twice|hidden'
+        $script:calculatedReads | Should -Be 0
+
+        $alias = $item | Show-Console -View Tree -Property @{ Name = 'Name'; Expression = { 'selected-name' } } -AsWidget | Export-ConsoleFrame -Format Text
+        $alias | Should -Match 'Name\s+selected-name'
+        $empty = $item | Show-Console -View Tree -Property @{ Name = 'EmptyValue'; Expression = { $null } } -AsWidget | Export-ConsoleFrame -Format Text
+        $empty | Should -Match '(?m)EmptyValue\s*$'
     }
 
     It 'keeps collection element identities at the tree depth limit' {
         $text = Invoke-FormatChild -Script @'
 $item = [pscustomobject]@{ Name = 'root'; Children = @([pscustomobject]@{ Name = 'alpha' }, [pscustomobject]@{ Name = 'beta' }) }
-$item | Show-Console -View Tree -Depth 1 -AsString
+$item | Show-Console -View Tree -Depth 1  -AsWidget | Export-ConsoleFrame -Format Text
 '@
         $text | Should -Match 'alpha'
         $text | Should -Match 'beta'
@@ -46,8 +74,8 @@ $item | Show-Console -View Tree -Depth 1 -AsString
 Register-ConsoleView -TypeName 'Example.Identity' -Property @{ Name = 'Label'; Expression = { $_.Label }; Key = $true }, 'Name'
 $child = [pscustomobject]@{ Name = 'fallback'; Label = 'preferred' }
 $child.PSObject.TypeNames.Insert(0, 'Example.Identity')
-$child | Show-Console -View Tree -Depth 1 -AsString
-[pscustomobject]@{ Children = @($child) } | Show-Console -View Tree -Depth 1 -AsString
+$child | Show-Console -View Tree -Depth 1  -AsWidget | Export-ConsoleFrame -Format Text
+[pscustomobject]@{ Children = @($child) } | Show-Console -View Tree -Depth 1  -AsWidget | Export-ConsoleFrame -Format Text
 '@
         @([regex]::Matches($text, 'preferred')).Count | Should -BeGreaterThan 1
     }
@@ -57,7 +85,7 @@ $child | Show-Console -View Tree -Depth 1 -AsString
 $item = [pscustomobject]@{ Name = 'root'; Label = 'shown'; Extra = 'hidden' }
 $item.PSObject.TypeNames.Insert(0, 'Example.Fields')
 Register-ConsoleView -TypeName 'Example.Fields' -Property 'Label'
-$item | Show-Console -View Tree -Depth 1 -AsString
+$item | Show-Console -View Tree -Depth 1  -AsWidget | Export-ConsoleFrame -Format Text
 '@
         $text | Should -Match 'Label\s+shown'
         $text | Should -Not -Match 'Extra\s+hidden'
@@ -68,7 +96,7 @@ $item | Show-Console -View Tree -Depth 1 -AsString
 $item = [pscustomobject]@{ Name = 'root'; Used = 12; Extra = 'hidden' }
 $item.PSObject.TypeNames.Insert(0, 'Example.Calculated')
 Register-ConsoleView -TypeName 'Example.Calculated' -Property 'Name', @{ Name = 'Utilization'; Expression = { $_.Used * 2 } }
-$item | Show-Console -View Tree -Depth 1 -AsString
+$item | Show-Console -View Tree -Depth 1  -AsWidget | Export-ConsoleFrame -Format Text
 '@
         $text | Should -Match 'Utilization\s+24'
         $text | Should -Not -Match 'Extra\s+hidden'
@@ -81,7 +109,7 @@ $item = [pscustomobject]@{ Name = 'root'; Secret = 'hidden' }
 $item | Add-Member ScriptProperty Other { $script:reads++; 'unrelated' }
 $item.PSObject.TypeNames.Insert(0, 'Example.CalculatedFiltered')
 Register-ConsoleView -TypeName 'Example.CalculatedFiltered' -Property 'Name', @{ Name = 'Computed'; Expression = { $script:reads++; $_.Secret } }
-$item | Show-Console -View Tree -Depth 1 -Exclude Secret -WarningAction SilentlyContinue -AsString
+$item | Show-Console -View Tree -Depth 1 -Exclude Secret -WarningAction SilentlyContinue  -AsWidget | Export-ConsoleFrame -Format Text
 "READS=$script:reads"
 '@
         $text | Should -Match 'Name\s+root'
@@ -91,7 +119,7 @@ $item | Show-Console -View Tree -Depth 1 -Exclude Secret -WarningAction Silently
     It 'uses a meaningful ToString when the object has no identity fields' {
         $text = Invoke-FormatChild -Script @'
 Add-Type 'public sealed class LabelOnly { public override string ToString() { return "friendly label"; } }'
-[LabelOnly]::new() | Show-Console -View Tree -Depth 1 -AsString
+[LabelOnly]::new() | Show-Console -View Tree -Depth 1  -AsWidget | Export-ConsoleFrame -Format Text
 '@
         $text | Should -Match 'friendly label'
     }
@@ -102,9 +130,9 @@ $script:reads = 0
 $child = [pscustomobject]@{ Secret = 'hidden' }
 $child | Add-Member ScriptProperty Name { $script:reads++; 'alpha' }
 $root = [pscustomobject]@{ Child = $child }
-$root | Show-Console -View Tree -Depth 0 -Exclude Secret -AsString
+$root | Show-Console -View Tree -Depth 0 -Exclude Secret  -AsWidget | Export-ConsoleFrame -Format Text
 $script:reads = 0
-$root | Show-Console -View Tree -Depth 0 -Exclude Name -AsString
+$root | Show-Console -View Tree -Depth 0 -Exclude Name  -AsWidget | Export-ConsoleFrame -Format Text
 "READS=$script:reads"
 '@
         $text | Should -Match 'Child\s+alpha'
@@ -116,7 +144,7 @@ $root | Show-Console -View Tree -Depth 0 -Exclude Name -AsString
 $child = [pscustomobject]@{ Label = 'friendly'; Secret = 'hidden' }
 $default = [System.Management.Automation.PSNoteProperty]::new('DefaultDisplayProperty', 'Label')
 $child | Add-Member MemberSet PSStandardMembers ([System.Management.Automation.PSMemberInfo[]] @($default))
-[pscustomobject]@{ Child = $child } | Show-Console -View Tree -Depth 0 -Exclude Secret -AsString
+[pscustomobject]@{ Child = $child } | Show-Console -View Tree -Depth 0 -Exclude Secret  -AsWidget | Export-ConsoleFrame -Format Text
 '@
         $text | Should -Match 'Child\s+friendly'
         $text | Should -Not -Match 'hidden'
@@ -128,7 +156,7 @@ $script:reads = 0
 $item = [pscustomobject]@{}
 $item | Add-Member ScriptProperty Name { $script:reads++; 'alpha' }
 $item | Add-Member ScriptProperty DisplayName { $script:reads++; 'Alpha Service' }
-$item | Show-Console -View Tree -MaxNodes 1 -AsString
+$item | Show-Console -View Tree -MaxNodes 1  -AsWidget | Export-ConsoleFrame -Format Text
 "READS=$script:reads"
 '@
         $text | Should -Match 'READS=1'
@@ -143,7 +171,7 @@ $items = 1..2 | ForEach-Object {
     $item | Add-Member ScriptProperty Broken { throw 'sensitive error details' }
     $item
 }
-$items | Show-Console -View Tree -Depth 1 -AsString
+$items | Show-Console -View Tree -Depth 1  -AsWidget | Export-ConsoleFrame -Format Text
 '@
         $text | Should -Match '\+1 empty'
         @([regex]::Matches($text, 'Broken unavailable for 2 items')).Count | Should -Be 1
@@ -154,7 +182,7 @@ $items | Show-Console -View Tree -Depth 1 -AsString
         $text = Invoke-FormatChild -Script @'
 $item = [pscustomobject]@{ Name = 'item'; Empty = $null }
 $item | Add-Member ScriptProperty Broken { throw 'sensitive error details' }
-$item | Show-Console -View Tree -Include * -Depth 1 -AsString
+$item | Show-Console -View Tree -Property * -Depth 1  -AsWidget | Export-ConsoleFrame -Format Text
 '@
         $text | Should -Match 'Empty'
         $text | Should -Match 'unavailable'
@@ -165,7 +193,7 @@ $item | Show-Console -View Tree -Include * -Depth 1 -AsString
         $text = Invoke-FormatChild -Script @'
 $item = [pscustomobject]@{ Name = 'item' }
 $item | Add-Member ScriptProperty Secret { throw 'Access is denied. Private details.' }
-$item | Show-Console -View Tree -Include * -Depth 1 -AsString
+$item | Show-Console -View Tree -Property * -Depth 1  -AsWidget | Export-ConsoleFrame -Format Text
 '@
         $text | Should -Match 'access denied'
         $text | Should -Not -Match 'Private details'
@@ -177,9 +205,9 @@ $item = [pscustomobject] @{ Name = 'web01'; Label = 'selected'; Extra = 'hidden'
 $set = New-Object System.Management.Automation.PSPropertySet('DefaultDisplayPropertySet', [string[]]@('Label'))
 $item | Add-Member -MemberType MemberSet -Name PSStandardMembers -Value $set -ErrorAction Stop
 "DEFAULT_BEGIN"
-$item | Show-Console -View Tree -AsString -Width 80
+$item | Show-Console -View Tree   -AsWidget | Export-ConsoleFrame -Format Text -Width 80
 "ALL_BEGIN"
-$item | Show-Console -View Tree -Include * -AsString -Width 80
+$item | Show-Console -View Tree -Property *   -AsWidget | Export-ConsoleFrame -Format Text -Width 80
 '@
         $parts = $text -split 'ALL_BEGIN'
         $parts[0] | Should -Match 'web01'
@@ -195,9 +223,9 @@ $item = [pscustomobject] @{ Label = 'shown'; Extra = 'available' }
 $item | Add-Member -MemberType ScriptProperty -Name Name -Value { $global:identityReads++; 'hidden' }
 $set = New-Object System.Management.Automation.PSPropertySet('DefaultDisplayPropertySet', [string[]]@('Label'))
 $item | Add-Member -MemberType MemberSet -Name PSStandardMembers -Value $set -ErrorAction Stop
-$null = $item | Show-Console -View Tree -Exclude Name -AsString
+$null = $item | Show-Console -View Tree -Exclude Name  -AsWidget | Export-ConsoleFrame -Format Text
 "READS=$global:identityReads"
-$item | Show-ConsoleObject -AsString -Width 80
+$item | Show-Console -View Tree -Property * -AsWidget | Export-ConsoleFrame -Format Text -Width 80
 '@
         $text | Should -Match 'READS=0'
         $text | Should -Match 'Extra\s+available'
@@ -291,8 +319,8 @@ $p = Get-Process -Id $PID
         $default | Should -Match '\| yes\s+\|'
     }
 
-    It 'marks status fields in Show-ConsoleList records too' {
-        $text = Invoke-FormatChild -Script "[pscustomobject] @{ Name = 'a'; Status = 'Failed'; Health = 'Healthy' } | Show-ConsoleList -Width 60"
+    It 'marks status fields in Show-Console -View List records too' {
+        $text = Invoke-FormatChild -Script "[pscustomobject] @{ Name = 'a'; Status = 'Failed'; Health = 'Healthy' } | Show-Console -View List -Width 60"
         $text | Should -Match 'Status\s+\[FAIL\] Failed'
         $text | Should -Match 'Health\s+\[OK\] Healthy'
     }
@@ -307,7 +335,7 @@ $p = Get-Process -Id $PID
     It 'uses a table or record command explicitly and puts object content in a panel' {
         $text = Invoke-FormatChild -Script @'
 '== one'; [pscustomobject] @{ Name = 'alpha'; Port = 8080; Size = 3 } | Show-ConsoleTable -Width 60
-'== record'; [pscustomobject] @{ Name = 'alpha'; Port = 8080; Size = 3 } | Show-ConsoleList -Width 60
+'== record'; [pscustomobject] @{ Name = 'alpha'; Port = 8080; Size = 3 } | Show-Console -View List -Width 60
 '== panel'; New-ConsolePanel -Title 'Server' -Content ([pscustomobject] @{ Name = 'alpha'; Port = 8080 }) | Show-Console -Width 60
 '@
         $parts = $text -split '== \w+'
@@ -324,9 +352,9 @@ $p = Get-Process -Id $PID
         $text = Invoke-FormatChild -Script (@'
 Add-Type -Path '__FIXTURE__'
 $wide = [ConsoleMonsterWideTreeFixture]::new()
-"DEFAULT=$(($wide | Show-Console -AsString -View Tree).Split("`n").Count)"
-"SHALLOW=$(($wide | Show-Console -Depth 1 -AsString -View Tree).Split("`n").Count)"
-"SMALL=$(([pscustomobject] @{ a = 1; b = @{ c = @{ d = 1 } } } | Show-Console -AsString -View Tree).Split("`n").Count)"
+"DEFAULT=$(($wide | Show-Console  -View Tree -AsWidget | Export-ConsoleFrame -Format Text).TrimEnd().Split("`n").Count)"
+"SHALLOW=$(($wide | Show-Console -Depth 1  -View Tree -AsWidget | Export-ConsoleFrame -Format Text).TrimEnd().Split("`n").Count)"
+"SMALL=$(([pscustomobject] @{ a = 1; b = @{ c = @{ d = 1 } } } | Show-Console  -View Tree -AsWidget | Export-ConsoleFrame -Format Text).TrimEnd().Split("`n").Count)"
 '@.Replace('__FIXTURE__', $fixture))
         [int] ($text -replace '(?s).*DEFAULT=(\d+).*', '$1') | Should -BeGreaterThan 300
         [int] ($text -replace '(?s).*SHALLOW=(\d+).*', '$1') | Should -BeLessThan 300
@@ -351,13 +379,13 @@ $o | Add-Member -MemberType MemberSet -Name PSStandardMembers -Value ([System.Ma
     }
 
     It 'formats a record list and hides empty values' {
-        $text = Invoke-FormatChild -Script "`$artifacts[0] | Show-ConsoleList -Width 80 -Property Name, Kind, @{ Name = 'Length'; Presenter = 'Bytes' }, Notes"
+        $text = Invoke-FormatChild -Script "`$artifacts[0] | Show-Console -View List -Width 80 -Property Name, Kind, @{ Name = 'Length'; Presenter = 'Bytes' }, Notes"
         $text | Should -Match 'ConsoleMonster\.2\.0\.0\.nupkg'
         $text | Should -Match 'Length\s+1\.41 MB'
         $text | Should -Not -Match 'Notes'
     }
 
-    It 'shows nested objects as a tree with +N more and as an inspector with a nested table' {
+    It 'shows nested objects and complete child records through tree captures' {
         $script = @'
 $cert = [pscustomobject] @{
     Subject = 'CN=mail.evotec.xyz'
@@ -369,15 +397,16 @@ $cert = [pscustomobject] @{
 }
 $cert | Show-Console -MaxItems 2 -Title 'mail.evotec.xyz' -Width 80 -View Tree
 '=====SPLIT====='
-$cert | Show-ConsoleObject -StaticSnapshot -Title 'mail.evotec.xyz' -Width 80
+$cert | Show-Console -View Tree -Title 'mail.evotec.xyz' -Width 80
 '@
         $text = Invoke-FormatChild -Script $script
         $parts = $text -split '=====SPLIT====='
         $parts[0] | Should -Match 'Subject\s+CN=mail\.evotec\.xyz'
         $parts[0] | Should -Match '\+2 more'
         $parts[1] | Should -Match 'Chain\s+2 items'
-        $parts[1] | Should -Match 'Subject\s+Key'
-        $parts[1] | Should -Match 'CN=R11\s+RSA 2048'
+        $parts[1] | Should -Match 'Subject\s+CN=mail\.evotec\.xyz'
+        $parts[1] | Should -Match 'Key\s+ECDSA P-256'
+        $parts[1] | Should -Match '(?s)Subject\s+CN=R11.*Key\s+RSA 2048'
     }
 
     It 'shows a hashtable by its keys and marks cycles' {
@@ -387,7 +416,7 @@ $h.Self = $h
 $h | Show-Console -Depth 3 -Width 80 -View Tree
 '@
         $text = Invoke-FormatChild -Script $script
-        $text | Should -Match 'Name\s+root'
+        $text | Should -Match '(?m)^root$'
         $text | Should -Match 'A\s+1'
         $text | Should -Match 'Self\s+\(cycle: \$\)'
         $text | Should -Not -Match 'SyncRoot'
@@ -395,9 +424,9 @@ $h | Show-Console -Depth 3 -Width 80 -View Tree
 
     It 'keeps the title and caption when a single dictionary is shown as a record' {
         $script = @'
-@{ a = 1 } | Show-ConsoleTable -Title 'Config' -Caption 'from defaults' -Width 60 -AsString
+@{ a = 1; b = 2; c = 3 } | New-ConsoleTable -Title 'Config' -Caption 'from defaults'   | Export-ConsoleFrame -Format Text -Width 60
 '=====SPLIT====='
-@(@{ a = 1 }, [pscustomobject] @{ Name = 'svc'; Port = 8080 }) | Show-ConsoleTable -Title 'Config' -Width 60 -AsString
+@(@{ a = 1 }, [pscustomobject] @{ Name = 'svc'; Port = 8080 }) | New-ConsoleTable -Title 'Config'   | Export-ConsoleFrame -Format Text -Width 60
 '@
         $text = Invoke-FormatChild -Script $script
         $parts = $text -split '=====SPLIT====='
@@ -412,13 +441,13 @@ $h | Show-Console -Depth 3 -Width 80 -View Tree
 
     It 'shows a lone dictionary without a heading unless the caller gives a title' {
         $script = @'
-@{ Domain = 'evotec.xyz'; Records = 14 } | Show-ConsoleTable -Width 60 -AsString
+@{ Domain = 'evotec.xyz'; Records = 14 } | Show-Console -Width 60
 '=====SPLIT====='
-@{ Domain = 'evotec.xyz'; Records = 14 } | Show-ConsoleList -Width 60 -AsString
+@{ Domain = 'evotec.xyz'; Records = 14 } | Show-Console -View List   -AsWidget | Export-ConsoleFrame -Format Text -Width 60
 '=====SPLIT====='
-@{ Domain = 'evotec.xyz'; Records = 14 } | Show-ConsoleTable -Title 'Mail' -Width 60 -AsString
+@{ Domain = 'evotec.xyz'; Records = 14 } | Show-Console -View List -Title 'Mail' -AsWidget | Export-ConsoleFrame -Format Text -Width 60
 '=====SPLIT====='
-@{ Name = 'alpha'; Port = 8080 } | Show-ConsoleList -Width 60 -AsString
+@{ Name = 'alpha'; Port = 8080 } | Show-Console -View List   -AsWidget | Export-ConsoleFrame -Format Text -Width 60
 '@
         $text = Invoke-FormatChild -Script $script
         $parts = $text -split '=====SPLIT====='

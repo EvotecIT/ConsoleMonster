@@ -131,10 +131,10 @@ function Get-Findings {
         Flexible = $true
     }
     if ($rows.Count) {
-        $rows | Show-ConsoleTable -Property $columns -Border Minimal -NoSort -AsWidget
+        $rows | New-ConsoleTable -Property $columns -Border Minimal -NoSort
     }
     else {
-        New-ConsoleTable -WidgetId findings -Border Minimal -Live -Columns $columns
+        New-ConsoleTable -WidgetId findings -Border Minimal -Live -Property $columns
     }
 }
 function Get-History {
@@ -151,7 +151,7 @@ function Get-History {
         @{ Name = 'Duration'; Expression = { $_.Elapsed.ToString('hh\:mm\:ss') }
             Presenter = 'Text' }
     )
-    $rows | Show-ConsoleTable -Property $columns -Border Minimal -NoSort -AsWidget
+    $rows | New-ConsoleTable -Property $columns -Border Minimal -NoSort
 }
 function Get-Preview {
     param(
@@ -199,7 +199,7 @@ function Get-RunBody {
             Value = $Done
         }
         New-ConsoleSummaryBar @summaryBarParameters
-        New-ConsolePhases -Content {
+        New-ConsoleStatusList -Layout Strip -WidgetId phases -Content {
             $names = @('Discover', 'Connect', 'Check', 'Report')
             for ($i = 0; $i -lt $names.Count; $i++) {
                 $status = if ($i -lt $Phase) {
@@ -258,7 +258,7 @@ function Get-RunBody {
                     $states[$w.Cell] = 'Running'
                 }
                 $cellMapParameters = @{
-                    Status = $states
+                    InputObject = $states
                     Columns = $plan.Checks.Count
                     RowLabels = $plan.Targets.Name
                     LegendLines = 2
@@ -310,10 +310,10 @@ function Get-RunBody {
                     @{ Name = 'Took'; Presenter = 'Text' }
                 )
                 if ($rows.Count) {
-                    $rows | Show-ConsoleTable -Property $columns -Border Minimal -NoSort -AsWidget
+                    $rows | New-ConsoleTable -Property $columns -Border Minimal -NoSort
                 }
                 else {
-                    New-ConsoleTable -WidgetId slowest -Border Minimal -Live -Columns $columns
+                    New-ConsoleTable -WidgetId slowest -Border Minimal -Live -Property $columns
                 }
             }
             New-ConsolePanel -Title Durations -Content {
@@ -383,7 +383,7 @@ function Invoke-Work {
                         Status = 'Warn'
                         Summary = "$done of $($Work.Count) operations completed."
                     }
-                    return New-ConsoleMenuRunResult @menuRunResultParameters
+                    return $menuRunResultParameters
                 }
             }
             foreach ($group in @($Work | Group-Object -Property { $_.Check.Id })) {
@@ -398,7 +398,7 @@ function Invoke-Work {
                             Status = 'Warn'
                             Summary = "$done of $($Work.Count) operations completed."
                         }
-                        return New-ConsoleMenuRunResult @menuRunResultParameters
+                        return $menuRunResultParameters
                     }
                     $done += [math]::Min($plan.Parallel, $group.Count - $offset)
                 }
@@ -414,7 +414,7 @@ function Invoke-Work {
                         Status = 'Warn'
                         Summary = "$done of $($Work.Count) operations completed."
                     }
-                    return New-ConsoleMenuRunResult @menuRunResultParameters
+                    return $menuRunResultParameters
                 }
             }
             $result = Get-Result -Work $Work
@@ -448,7 +448,7 @@ function Get-Result {
                 Summary = $plan.Report
                 Details = Get-Findings -Work $plan.CompletedWork
             }
-            $MenuContext.ShowResult((New-ConsoleMenuRunResult @reportParameters))
+            $MenuContext.ShowResult(($reportParameters))
         }
     }
     if (@($Work | Where-Object -Property Status -EQ -Value Fail).Count) {
@@ -461,7 +461,7 @@ function Get-Result {
         }
     }
     $next['View history'] = {
-        $MenuContext.ShowResult((New-ConsoleMenuRunResult -Title 'Run history' -Details (Get-History)))
+        $MenuContext.ShowResult((@{ Title = 'Run history'; Details = (Get-History) }))
     }
     $menuRunResultParameters = @{
         Title = 'Fleet check finished'
@@ -470,17 +470,17 @@ function Get-Result {
         Details = (Get-Findings -Work $Work)
         Next = $next
     }
-    New-ConsoleMenuRunResult @menuRunResultParameters -Figure ([ordered] @{
+    (@{ Figure = ([ordered] @{
             passed = @($Work | Where-Object -Property Status -EQ -Value Pass).Count
             warnings = @($Work | Where-Object -Property Status -EQ -Value Warn).Count
             failed = @($Work | Where-Object -Property Status -EQ -Value Fail).Count
-        }) -FigureStatus @{
+        }); FigureStatus = @{
         passed = 'Pass'
         warnings = $(if (@($Work | Where-Object -Property Status -EQ -Value Warn).Count) { 'Warn' }
         else { 'Pass' })
         failed = $(if (@($Work | Where-Object -Property Status -EQ -Value Fail).Count) { 'Fail' }
         else { 'Pass' })
-    }
+    } } + $menuRunResultParameters)
 }
 function Get-OptionFields {
     param(
@@ -577,9 +577,9 @@ $checkForm = New-ConsoleForm @formParameters -Content {
         GroupBy = 'Site'
         Badge = 'Role'
         DisabledReason = 'Offline'
-        Selected = 'Online'
         Describe = 'Detail'
-        Default = $plan.Targets.Name
+        Default = $(if ($plan.Targets.Count) { $plan.Targets.Name }
+        else { @{ Property = 'Online' } })
         ArgumentList = (, $inventory)
     }
     New-ConsoleField @fieldParameters -LoadChoices {

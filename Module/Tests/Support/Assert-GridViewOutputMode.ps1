@@ -19,7 +19,7 @@ $options.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Inp
 $options.Mode = [ConsoleMonster.Interactive.InteractionMode]::Rich
 ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default = $options
 $row = [pscustomobject]@{ Name = 'alpha'; Id = 1 }
-Enable-ConsoleFormatting -Feature GridView
+Enable-ConsoleFormatting -Include GridView -Exclude Output, FormatCommands, Errors, Streams, ReadLine
 if ('__ENTRY__' -eq 'Fallback') { $picked = @($row | Out-GridView -PassThru -ErrorAction Stop) }
 elseif ('__SCENARIO__' -eq 'Unavailable') {
     $failed = $false

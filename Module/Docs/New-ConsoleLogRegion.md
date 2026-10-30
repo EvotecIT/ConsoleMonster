@@ -8,7 +8,7 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a log region: the newest lines of a log, bottom-aligned.
 
-Printed once, the lines come from a script block of Message/Level records calls (each with a level and a time) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry. To add lines to a log made earlier, pipe it to Add-ConsoleItem.
+Printed once, the lines come from a script block of Message/Level records calls (each with a level and a time) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -19,7 +19,7 @@ New-ConsoleLogRegion [[-WidgetId] <string>] [[-Content] <scriptblock>] [-InputOb
 ## DESCRIPTION
 Creates a log region: the newest lines of a log, bottom-aligned.
 
-Printed once, the lines come from a script block of Message/Level records calls (each with a level and a time) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry. To add lines to a log made earlier, pipe it to Add-ConsoleItem.
+Printed once, the lines come from a script block of Message/Level records calls (each with a level and a time) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry.
 
 ## EXAMPLES
 
@@ -108,7 +108,7 @@ Accept wildcard characters: False
 ```
 
 ### -LevelColumn
-Shared LevelColumn layout settings from New-ConsoleColumnFormat.
+Shared LevelColumn layout settings as a hashtable, for example @{ MinWidth = 6; Alignment = 'Right' }.
 
 ```yaml
 Type: ColumnFormat

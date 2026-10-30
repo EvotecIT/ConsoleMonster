@@ -48,6 +48,8 @@ PowerShell objects, dictionaries, collections and `ConvertFrom-Json` output shar
 
 Redirected output, CI, `-NonInteractive`, line mode and accessible mode print the static inspector instead. They return no selected value and never wait for input, which also makes the command safe in SSH sessions without a terminal. On 16-colour and no-colour terminals the screen keeps its text markers and keyboard navigation.
 
+`Show-ConsoleObject` needs a rich interactive terminal. For a static inspector, use `$server | Show-Console -View Tree`; use `New-ConsoleTree` to construct an explicit hierarchy for a layout.
+
 ## Related
 
 [The interactive grid](/interactive/) picks rows from a collection, and [PowerShell conventions](/docs/powershell-conventions/) covers composition and capturing output.

@@ -13,7 +13,7 @@ Matching entries of the typed folder are listed under the box (folders first); T
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Read-ConsolePath [[-Title] <string>] [-Kind <PathKind>] [-MustExist] [-Default <string>] [-Extension <string[]>] [-BasePath <string>] [-ShowHidden] [-Suggestions <int>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
+Read-ConsolePath [[-Title] <string>] [-Kind <PathKind>] [-MustExist] [-Default <string>] [-Extension <string[]>] [-BasePath <string>] [-ShowHidden] [-Suggestions <int>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -119,7 +119,7 @@ Forces how to ask: Rich (in-place prompt), Line (question and typed answer), Acc
 Type: InteractionMode
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: Rich, Line, Accessible, None
+Possible values: Rich, Line, Accessible, None, Snapshot
 
 Required: False
 Position: named
@@ -162,22 +162,6 @@ Accept wildcard characters: False
 
 ### -ShowHidden
 Includes hidden files and folders in completion suggestions.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -StaticSnapshot
-Prints the initialized rich prompt without reading input or returning an answer. Useful for documentation and unattended previews.
 
 ```yaml
 Type: SwitchParameter

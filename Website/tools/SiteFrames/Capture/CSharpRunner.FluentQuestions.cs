@@ -51,12 +51,16 @@ namespace SiteFrames.Capture {
                 var visited = (AssignmentExpressionSyntax)base.VisitAssignmentExpression(node)!;
                 if (node.Left is not MemberAccessExpressionSyntax { Name.Identifier.ValueText: "Preview" } member
                     || model.GetTypeInfo(member.Expression).Type is not INamedTypeSymbol { TypeArguments.Length: 1 } receiver || QuestionNoun(receiver) != "SelectQuestion") { return visited; }
+                return visited.WithRight(QuestionPreview(receiver, visited.Right, node));
+            }
+
+            private ExpressionSyntax QuestionPreview(INamedTypeSymbol receiver, ExpressionSyntax callback, SyntaxNode scope) {
+                if (callback.IsKind(SyntaxKind.NullLiteralExpression)) { return callback; }
                 string item = receiver.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
-                string value = Unique("value", node);
-                ExpressionSyntax preview = visited.Right is SimpleLambdaExpressionSyntax { ExpressionBody: ExpressionSyntax body } lambda
+                string value = Unique("value", scope);
+                return callback is SimpleLambdaExpressionSyntax { ExpressionBody: ExpressionSyntax body } lambda
                     ? SyntaxFactory.ParseExpression(value + " => " + value + " is " + item + " " + lambda.Parameter.Identifier.ValueText + " ? " + body + " : null")
-                    : SyntaxFactory.ParseExpression(value + " => " + value + " is " + item + " " + Unique("item", node) + " ? " + Callable(visited.Right, item) + "(" + Unique("item", node) + ") : null");
-                return visited.WithRight(preview);
+                    : SyntaxFactory.ParseExpression(value + " => " + value + " is " + item + " " + Unique("item", scope) + " ? " + Callable(callback, item) + "(" + Unique("item", scope) + ") : null");
             }
 
             // A name or member access is invoked directly; anything else is typed first so "(x)(y)" never reads as a cast.

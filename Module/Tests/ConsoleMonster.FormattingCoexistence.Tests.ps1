@@ -14,7 +14,7 @@ $beforeHelp = ${function:global:help}.ToString()
 $beforePrompt = ${function:global:prompt}.ToString()
 $features = 'Output', 'FormatCommands', 'Help', 'Errors', 'Streams', 'ReadLine', 'GridView', 'Prompt'
 foreach ($finish in 'Disable', 'Remove') {
-    Enable-ConsoleFormatting -Feature $features -Force
+    Enable-ConsoleFormatting -Include $features -Exclude @('Output', 'FormatCommands', 'Errors', 'Streams', 'ReadLine' | Where-Object { $_ -notin @($features) }) -Force
     if ((Get-Command Format-Table).CommandType -ne 'Function') { throw 'Format proxy was not installed' }
     if (${function:global:help}.ToString() -ceq $beforeHelp) { throw 'Help proxy was not installed' }
     Disable-ConsoleFormatting -Feature Help

@@ -19,13 +19,13 @@ try {
         Clear-Host
         $start = [Console]::CursorTop
         if ($Enabled) {
-            Enable-ConsoleFormatting -Feature Errors -CompactErrors
+            Enable-ConsoleFormatting -Include Errors -Exclude Output, FormatCommands, Streams, ReadLine -ErrorLayout Compact
             & {
                 if ($Scenario -eq 'Transcript') { $null = Start-Transcript -LiteralPath $enabledPath }
                 if ($Scenario -eq 'Disable') { Disable-ConsoleFormatting -Feature Errors }
                 Write-Host BEGIN_SUBMISSION_ERROR
                 $record
-            } | Out-ConsoleDefault -Shim -TopLevel
+            } | & ([Management.Automation.CmdletInfo]::new('Out-ConsoleDefault', (Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.CmdletOutConsoleDefault'))) -Shim -TopLevel
         } else {
             Disable-ConsoleFormatting
             & {

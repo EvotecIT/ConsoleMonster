@@ -35,7 +35,7 @@ Invoke-ConsoleRecording {
 } @recording
 ```
 
-`-Destination` selects the export and saves the original cast alongside it. Markers become named chapters in the HTML player. Its chapter menu and on-track ticks seek to a chapter; hover or focus a tick to see its name. **?** opens keyboard help for Space, the arrow keys and number-key chapter shortcuts.
+`-Path` selects the export and saves the original cast alongside it. Markers become named chapters in the HTML player. Its chapter menu and on-track ticks seek to a chapter; hover or focus a tick to see its name. **?** opens keyboard help for Space, the arrow keys and number-key chapter shortcuts.
 
 In C#, `SessionRecorder.Start` owns the child, `AddMarker` adds a chapter, and `WaitForExit` drains output and finalizes the cast. `SessionRecording.Read` loads it for the existing exporter. `SendInput` forwards input without storing it; `Resize` records terminal size changes. `Stop` or disposal stops that recorder's child.
 
@@ -51,7 +51,7 @@ This longer, real `Invoke-ConsoleRecording` capture inspects a synthetic Git rep
 
 {{< cm-session-recording >}}
 
-The [recording script](/examples/recording/record-session.ps1) uses `Invoke-ConsolePresentation` with a [plain PowerShell demo](/examples/recording/demo.ps1). It types commands into one real child terminal and detects readiness through OSC 133 marks, so the visible prompt can change on any operating system. The synthetic repository lives under the output folder. A synthetic token becomes `API_TOKEN=[REDACTED] (redacted)` before the cast is written. See [Talks and demos](/docs/talks-and-demos/) for directives, presenter controls and slide exports.
+The [recording script](/examples/recording/record-session.ps1) uses `Show-ConsolePresentation` with a [plain PowerShell demo](/examples/recording/demo.ps1). It types commands into one real child terminal and detects readiness through OSC 133 marks, so the visible prompt can change on any operating system. The synthetic repository lives under the output folder. A synthetic token becomes `API_TOKEN=[REDACTED] (redacted)` before the cast is written. See [Talks and demos](/docs/talks-and-demos/) for directives, presenter controls and slide exports.
 
 Download the [HTML player](/recordings/session.html), [animated SVG](/recordings/session.svg), [asciicast v2](/recordings/session.cast), [text](/recordings/session.txt), [Markdown](/recordings/session.md) or [final frame](/recordings/session-final-dark.svg). To reproduce the typed session, save both source files together in an empty folder.
 
@@ -73,10 +73,10 @@ Without `-Path`, filenames use the date, time and a unique suffix under Document
 ### Export the same cast in another format
 
 ```powershell
-Export-ConsoleRecording -Path ./command-review.cast -Destination ./command-review.svg
-Export-ConsoleRecording -Path ./command-review.cast -Destination ./command-review.txt
-Export-ConsoleRecording -Path ./command-review.cast -Destination ./command-review.md
-Export-ConsoleRecording -Path ./command-review.cast -Destination ./command-review-final.svg `
+Export-ConsoleRecording -InputRecordingPath ./command-review.cast -OutputPath ./command-review.svg
+Export-ConsoleRecording -InputRecordingPath ./command-review.cast -OutputPath ./command-review.txt
+Export-ConsoleRecording -InputRecordingPath ./command-review.cast -OutputPath ./command-review.md
+Export-ConsoleRecording -InputRecordingPath ./command-review.cast -OutputPath ./command-review-final.svg `
     -FinalFrame -Theme Light -ChromeStyle Windows
 ```
 
@@ -90,7 +90,7 @@ Input bytes are forwarded but never stored. A password prompt that disables term
 Invoke-ConsoleRecording {
     Write-Host 'account=sample-account'
     Write-Host 'api_key=synthetic-demo-value'
-} -Destination ./redacted.html -Redact 'sample-account' `
+} -Path ./redacted.html -Redact 'sample-account' `
     -IdleLimitSeconds 2 -MaxBytes 10485760 -TimeoutSeconds 600
 ```
 
@@ -112,7 +112,7 @@ When a host cannot create a pseudo-console, explicitly select `-InProcess`:
 Invoke-ConsoleRecording {
     Add-ConsoleRecordingMarker 'Summary'
     Write-Host 'PowerShell output only'
-} -InProcess -Destination ./summary.html
+} -InProcess -Path ./summary.html
 ```
 
 It captures PowerShell host and pipeline output in an in-process runspace. The cast header and metadata say **in-process output only**, and the command prints a warning. Native terminal behaviour, cursor movement and resize handling need pseudo-console mode.
@@ -151,7 +151,7 @@ New-ConsolePanel -Title 'Build' -Content { New-ConsoleText '8 of 8 checks passed
 
 MacOS has a 28px bar and three coloured dots. Windows has a 32px tab bar, prompt glyph, plus sign and line controls. Linux has a 36px header, a bold title and a round close control. Titles truncate within the space reserved for them. The bar uses the theme's `Surface` background and the control glyphs use `Muted`; only the macOS dots keep their traffic-light colours.
 
-`-WindowChrome` keeps the MacOS default. `-ChromeStyle` by itself enables the chosen style. `-WindowChrome:$false` or `-ChromeStyle None` hides the frame. Frame and recording exports still omit chrome when neither parameter is supplied; `Invoke-ConsoleRecording` includes it by default. Text, Markdown and asciicast contain terminal content, so chrome does not add characters to those formats.
+`-ChromeStyle MacOS`, `Windows` or `Linux` adds the chosen frame; `-ChromeStyle None` hides it. Text, Markdown and asciicast contain terminal content, so chrome adds no characters to those formats.
 
 Record and export a Windows-style player, then a Linux-style final frame from the same cast:
 
@@ -160,13 +160,13 @@ Import-Module ConsoleMonster
 Invoke-ConsoleRecording {
     Add-ConsoleRecordingMarker 'Build'
     Write-Host '8 of 8 checks passed' -ForegroundColor Green
-} -Destination ./chrome-demo.html -ChromeStyle Windows -Theme Light
+} -Path ./chrome-demo.html -ChromeStyle Windows -Theme Light
 
-Export-ConsoleRecording -Path ./chrome-demo.cast -Destination ./chrome-demo-final.svg `
+Export-ConsoleRecording -InputRecordingPath ./chrome-demo.cast -OutputPath ./chrome-demo-final.svg `
     -FinalFrame -ChromeStyle Linux -Theme Light -Title 'Build report'
 ```
 
-In C#, both option types keep `WindowChrome` as the on/off control. `ChromeStyle` defaults to `MacOS`; setting it alone does not enable the frame. `WindowChrome = false` and `ChromeStyle = None` each hide it:
+In C#, set `ChromeStyle` on the export options. `WindowChromeStyle.None` hides the frame:
 
 ```csharp
 using ConsoleMonster.Export;
@@ -174,7 +174,7 @@ using ConsoleMonster.Widgets;
 
 var options = new ExportOptions {
     Width = 36, Theme = ExportTheme.Light, Title = "Build report",
-    WindowChrome = true, ChromeStyle = WindowChromeStyle.Windows
+    ChromeStyle = WindowChromeStyle.Windows
 };
 File.WriteAllText("build.svg", ConsoleExporter.ToSvg(TextBlock.Plain("8 of 8 checks passed"), options));
 ```
@@ -199,10 +199,10 @@ For 225 new characters on three lines, the reading budgets are 8.456 / 5.597 / 3
 In the pipeline recording used to check these presets, the same cast exports to a 1920×1080 GIF lasting 15.51 seconds at Source, 19.51 at Fast, 23.51 at Normal and 31.51 at Slow. These exports disable idle capping and include a two-second final hold and the playable cadence for retained instantaneous redraws. The preset changes the delays, without dropping screens or rerecording the demo.
 
 ```powershell
-Export-ConsoleRecording ./run.cast -Destination ./run.gif -Preset Slide16x9 -Pace Normal
-Export-ConsoleRecording ./run.cast -Destination ./run-slow.gif -Preset Slide16x9 -Pace Slow
+Export-ConsoleRecording ./run.cast -OutputPath ./run.gif -Preset Slide16x9 -Pace Normal
+Export-ConsoleRecording ./run.cast -OutputPath ./run-slow.gif -Preset Slide16x9 -Pace Slow
 # Keep the cast's source delays, with no reading holds or idle compression.
-Export-ConsoleRecording ./run.cast -Destination ./run-source.html -Pace Source -IdleLimitSeconds 0
+Export-ConsoleRecording ./run.cast -OutputPath ./run-source.html -Pace Source -IdleLimitSeconds 0
 ```
 
 `-IdleLimitSeconds 2` caps source delays on an unchanged screen. It never shortens reading holds, explicit marker holds or the final hold (`-HoldLastFrameSeconds 2`). Source timestamps in new casts are preserved; the cast's `idle_time_limit` header is only a hint to other players. An older cast whose timestamps were already compressed cannot recover the lost pause.
@@ -221,11 +221,11 @@ A hold freezes the screen as it was when the marker arrived, including when late
 Trim with source positions, or with unique chapter labels. The start is included and the end is excluded. `-TrimEndChapter Cleanup` stops before that chapter and its hold. Earlier output is still replayed to reconstruct the screen at the new start.
 
 ```powershell
-Export-ConsoleRecording ./run.cast -Destination ./results.gif -Preset Slide16x9 `
+Export-ConsoleRecording ./run.cast -OutputPath ./results.gif -Preset Slide16x9 `
     -TrimStartChapter Install -TrimEndChapter Cleanup `
     -ChapterSpeeds @{ Install = 4; Results = 1 } -ChapterHoldSeconds 2
 # Time boundaries use positions in the original cast, before speed and holds.
-Export-ConsoleRecording ./run.cast -Destination ./excerpt.svg -TrimStartSeconds 4 -TrimEndSeconds 18
+Export-ConsoleRecording ./run.cast -OutputPath ./excerpt.svg -TrimStartSeconds 4 -TrimEndSeconds 18
 ```
 
 Chapter speed multiplies `-Speed` for source and reading delays; explicit holds keep their requested duration. GIF, APNG, HTML/player data and animated SVG share this timeline. Raw session asciicast, text/transcripts and still PNG/SVG exports retain their source content and positions.
@@ -234,7 +234,7 @@ In C#, use `RecordingExportOptions.Pace`, `IdleLimit`, `ChapterHold`, `TrimStart
 
 ### Record dashboard updates
 
-A live dashboard can record the widget updates it applies instead of terminal bytes. Use `Invoke-ConsoleDashboard -RecordPath` in PowerShell, or `LiveSessionOptions.RecordPath` / `RecordWriter` in C#. Replay into the same dashboard with `Show-ConsoleReplay -PlaybackMode Automatic`, `Show-ConsoleReplay` or `LiveSession.Replay`. Dashboard recordings use JSON lines and export to asciicast v3; whole terminal sessions use asciicast v2.
+A live dashboard can record the widget updates it applies instead of terminal bytes. Use `Invoke-ConsoleDashboard -RecordingPath` in PowerShell, or `LiveSessionOptions.RecordPath` / `RecordWriter` in C#. Replay into the same dashboard with `Show-ConsoleReplay -PlaybackMode Automatic`, `Show-ConsoleReplay` or `LiveSession.Replay`. Dashboard recordings use JSON lines and export to asciicast v3; whole terminal sessions use asciicast v2.
 
 {{< cm-demo id="record" heading="h4" >}}
 

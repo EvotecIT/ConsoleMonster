@@ -6,36 +6,36 @@ schema: 2.0.0
 ---
 # Write-ConsoleText
 ## SYNOPSIS
-Writes multicolour text to the console and, optionally, to a log file: Write-Color compatible, with markup, styles, gradients, padding, wrapping and structured logs.
+Writes coloured text with optional markup, alignment, wrapping and a text log.
 
-Writes literal text pieces with Color and BackgroundColor, optional Role and Decoration, links, gradients and terminal-cell padding. ShowTimestamp adds a wall-clock timestamp formatted with TimestampFormat. NoNewLine continues the current line. LogFile records text, CSV or JSON Lines; LogTimestamp and LogFormat control that destination independently. Redirected output is plain text, and jobs and remoting retain the structured rendering. New log files use UTF-8 without a byte order mark; existing logs keep their encoding.
+Text is literal; Color and BackgroundColor apply per piece. Role, Decoration, Link and Gradient apply to the message. Indent adds spaces and Alignment places text within Width. ShowTimestamp adds a timestamp. NoNewLine continues the current line. LogFile appends plain text with timestamps; new logs use UTF-8 and existing logs retain their encoding. Redirected output is plain text.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Write-ConsoleText [[-Text] <Object[]>] [-Color <Object[]>] [-BackgroundColor <Object[]>] [-StartTab <int>] [-LinesBefore <int>] [-LinesAfter <int>] [-StartSpaces <int>] [-LogFile <string>] [-TimestampFormat <string>] [-LogTimestamp <bool>] [-LogRetry <int>] [-Encoding <string>] [-ShowTimestamp] [-NoNewLine] [-HorizontalCenter] [-NoConsoleOutput] [-Markup <string>] [-Decoration <string[]>] [-Link <string>] [-Role <ThemeToken>] [-Gradient <Object[]>] [-PadLeft <int>] [-PadRight <int>] [-PadCenter <int>] [-PadCharacter <char>] [-Wrap] [-Width <int>] [-SplitLines <string>] [-LogFormat <string>] [-LogSeparator <string>] [-Level <string>] [-Category <string>] [<CommonParameters>]
+Write-ConsoleText [[-Text] <Object[]>] [-Indent <int>] [-Alignment <HorizontalAlignment>] [-Color <Object[]>] [-BackgroundColor <Object[]>] [-LinesBefore <int>] [-LinesAfter <int>] [-LogFile <string>] [-TimestampFormat <string>] [-ShowTimestamp] [-NoNewLine] [-Markup <string>] [-Decoration <string[]>] [-Link <string>] [-Role <ThemeToken>] [-Gradient <Object[]>] [-Wrap] [-Width <int>] [-SplitLines <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Writes multicolour text to the console and, optionally, to a log file: Write-Color compatible, with markup, styles, gradients, padding, wrapping and structured logs.
+Writes coloured text with optional markup, alignment, wrapping and a text log.
 
-Writes literal text pieces with Color and BackgroundColor, optional Role and Decoration, links, gradients and terminal-cell padding. ShowTimestamp adds a wall-clock timestamp formatted with TimestampFormat. NoNewLine continues the current line. LogFile records text, CSV or JSON Lines; LogTimestamp and LogFormat control that destination independently. Redirected output is plain text, and jobs and remoting retain the structured rendering. New log files use UTF-8 without a byte order mark; existing logs keep their encoding.
+Text is literal; Color and BackgroundColor apply per piece. Role, Decoration, Link and Gradient apply to the message. Indent adds spaces and Alignment places text within Width. ShowTimestamp adds a timestamp. NoNewLine continues the current line. LogFile appends plain text with timestamps; new logs use UTF-8 and existing logs retain their encoding. Redirected output is plain text.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-Write-ConsoleText -Text 'Updating group: ', $Group -Color Gray, Green -StartTab 1
+Write-ConsoleText -Text 'Checking group: ', 'Operators' -Color Gray, Green -Indent 4
 ```
 
-Write-Color style
+Colour two pieces and indent the message
 
 ### EXAMPLE 2
 ```powershell
-Write-ConsoleText '1.', ' Option one' -Color Yellow, Green -PadRight 30 -LogFile .\menu.csv -LogFormat Csv -Level Info
+Write-ConsoleText 'Maintenance complete' -Role Pass -Alignment Center -Width 60
 ```
 
-A menu with padding and a log file in CSV
+Centre a heading within sixty columns
 
 ### EXAMPLE 3
 ```powershell
@@ -46,14 +46,14 @@ A multi-line message aligned under the time stamp
 
 ## PARAMETERS
 
-### -BackgroundColor
-Background colour per piece.
+### -Alignment
+Left, Center or Right within the available width.
 
 ```yaml
-Type: Object[]
+Type: HorizontalAlignment
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values:
+Possible values: Left, Center, Right
 
 Required: False
 Position: named
@@ -62,11 +62,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Category
-A category for the log record.
+### -BackgroundColor
+Background colour per piece.
 
 ```yaml
-Type: String
+Type: Object[]
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -110,22 +110,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Encoding
-The encoding of a new log file: utf8 without a byte order mark by default (Write-Color defaults to unicode, which is UTF-16 LE); Write-Color's names mean the same here (unicode, string and unknown are UTF-16 LE, bigendianunicode UTF-16 BE, utf32 UTF-32 LE), plus utf8BOM and utf8NoBOM. Appending to an existing file always keeps that file's encoding (detected from its byte order mark, or UTF-16 text without one), so a UTF-16 log from Write-Color stays UTF-16; when -Encoding names a different one, a warning says so.
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values: unknown, string, unicode, bigendianunicode, utf8, utf8BOM, utf8NoBOM, utf7, utf32, ascii, default, oem
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -Gradient
 Two colours: the text is coloured from the first to the second (per character; steps on 16-colour terminals).
 
@@ -142,27 +126,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -HorizontalCenter
-Centres each line in the window (measured in terminal cells, so emoji and CJK centre correctly).
+### -Indent
+Spaces before the text.
 
 ```yaml
-Type: SwitchParameter
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Level
-A level for the log record (Info, Warning, Error...).
-
-```yaml
-Type: String
+Type: Int32
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -238,70 +206,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -LogFormat
-The log format: Text (the Write-Color layout), Csv or JsonLines.
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values: Text, Csv, JsonLines
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -LogRetry
-Attempts to write the log file before giving up with a warning (default 2).
-
-```yaml
-Type: Int32
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -LogSeparator
-The CSV separator (default a comma).
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -LogTimestamp
-Whether log lines start with the time (default $true).
-
-```yaml
-Type: Boolean
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -Markup
 Markup added after the pieces ([bold lime]Ready[/] in [muted]3s[/]).
 
@@ -318,91 +222,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -NoConsoleOutput
-Writes only to the log file.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -NoNewLine
 Leaves the line open, so the next output continues on it.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -PadCenter
-Centres the text within this many cells.
-
-```yaml
-Type: Int32
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -PadCharacter
-The padding character (default a space).
-
-```yaml
-Type: Char
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -PadLeft
-Pads the text on the left to this many cells (right-aligned).
-
-```yaml
-Type: Int32
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -PadRight
-Pads the text on the right to this many cells.
-
-```yaml
-Type: Int32
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -462,38 +286,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -StartSpaces
-Spaces before the text.
-
-```yaml
-Type: Int32
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -StartTab
-Tabs before the text (eight cells each).
-
-```yaml
-Type: Int32
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -Text
 Text pieces, shown literally (strings, or rich text from New-ConsoleText).
 
@@ -527,7 +319,7 @@ Accept wildcard characters: False
 ```
 
 ### -Width
-The width for -Wrap and -HorizontalCenter (default the window width).
+The width for -Wrap and -Alignment (default the window width).
 
 ```yaml
 Type: Int32

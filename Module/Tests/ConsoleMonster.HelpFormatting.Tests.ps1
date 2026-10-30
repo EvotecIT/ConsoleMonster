@@ -75,7 +75,7 @@ $directory = Join-Path ([IO.Path]::GetTempPath()) ([guid]::NewGuid().ToString('N
 $null = New-Item -ItemType Directory -Path $directory
 try {
     $before = Get-HelpFormattingCapture '__INVOCATION__' $directory
-    Enable-ConsoleFormatting -Feature Help
+    Enable-ConsoleFormatting -Include Help -Exclude Output, FormatCommands, Errors, Streams, ReadLine
     $after = Get-HelpFormattingCapture '__INVOCATION__' $directory
     foreach ($name in $before.PSObject.Properties.Name) {
         if ($before.$name -cne $after.$name) { throw "Native help changed: $name" }
@@ -95,8 +95,8 @@ Enable-ConsoleFormatting
 if ((Get-Command help).Definition -cne $nativeHelp) { throw 'All opted into Help' }
 Disable-ConsoleFormatting
 foreach ($remove in $false, $true) {
-    Enable-ConsoleFormatting -Feature Help
-    Enable-ConsoleFormatting -Feature Help
+    Enable-ConsoleFormatting -Include Help -Exclude Output, FormatCommands, Errors, Streams, ReadLine
+    Enable-ConsoleFormatting -Include Help -Exclude Output, FormatCommands, Errors, Streams, ReadLine
     if (-not [object]::ReferenceEquals((Get-Command Get-Help), $nativeGetHelp)) { throw 'Get-Help was replaced' }
     if ($remove) { Remove-Module ConsoleMonster } else { Disable-ConsoleFormatting }
     if ((Get-Command help).Definition -cne $nativeHelp) { throw 'Native help was not restored exactly' }
@@ -111,13 +111,13 @@ foreach ($remove in $false, $true) {
         $text = Invoke-HelpFormattingChild @'
 function global:help { param([string]$Name) "custom:$Name" }
 $custom = (Get-Command help).Definition
-Enable-ConsoleFormatting -Feature Help -WarningVariable warnings
+Enable-ConsoleFormatting -Include Help -Exclude Output, FormatCommands, Errors, Streams, ReadLine -WarningVariable warnings
 if ($warnings.Count -ne 1 -or (Get-Command help).Definition -cne $custom) { throw 'Custom help was overwritten without Force' }
-Enable-ConsoleFormatting -Feature Help -Force
+Enable-ConsoleFormatting -Include Help -Exclude Output, FormatCommands, Errors, Streams, ReadLine -Force
 if (-not (Get-Command help).Parameters.ContainsKey('Full')) { throw 'Forced Help lost the native parameter surface' }
 Disable-ConsoleFormatting
 if ((Get-Command help).Definition -cne $custom) { throw 'Custom help was not restored' }
-Enable-ConsoleFormatting -Feature Help -Force
+Enable-ConsoleFormatting -Include Help -Exclude Output, FormatCommands, Errors, Streams, ReadLine -Force
 function global:help { 'new owner' }
 Disable-ConsoleFormatting
 if ((help) -cne 'new owner') { throw 'A later user function was overwritten' }
@@ -129,15 +129,15 @@ if ((help) -cne 'new owner') { throw 'A later user function was overwritten' }
     It 'preserves feature independence and leaves user help aliases alone' {
         $text = Invoke-HelpFormattingChild @'
 $native = (Get-Command help).Definition
-Enable-ConsoleFormatting -Feature Help, FormatCommands
+Enable-ConsoleFormatting -Include Help, FormatCommands -Exclude Output, Errors, Streams, ReadLine
 Disable-ConsoleFormatting -Feature Help
 if ((Get-Command help).Definition -cne $native -or (Get-Command Format-Table).CommandType -ne 'Function') { throw 'Selective disable changed another feature' }
-Enable-ConsoleFormatting -Feature Help
+Enable-ConsoleFormatting -Include Help -Exclude Output, FormatCommands, Errors, Streams, ReadLine
 Disable-ConsoleFormatting -Feature Output, FormatCommands, Errors, Streams, ReadLine
 if ((Get-Command help).Definition -ceq $native) { throw 'Disabling All also disabled Help' }
 Disable-ConsoleFormatting
 Set-Alias -Name help -Value Get-Item -Scope Global
-Enable-ConsoleFormatting -Feature Help -Force -WarningVariable warning
+Enable-ConsoleFormatting -Include Help -Exclude Output, FormatCommands, Errors, Streams, ReadLine -Force -WarningVariable warning
 if ($warning.Count -ne 1 -or (Get-Alias help).Definition -ne 'Get-Item' -or (Get-Command Out-Default).CommandType -ne 'Cmdlet') { throw 'A user help alias was overwritten' }
 Remove-Item Alias:help
 'INDEPENDENT_HELP_OK'
@@ -150,7 +150,7 @@ Remove-Item Alias:help
 $names = [pscustomobject]@{ Name='Get-HelpFormattingValue' }, [pscustomobject]@{ Name='Get-HelpFormattingShort' }
 $before = $names | Get-Help -Full | Out-String -Width 100
 $errorId = try { Get-Help Get-HelpFormattingValue -Full -Examples } catch { $_.FullyQualifiedErrorId }
-Enable-ConsoleFormatting -Feature Help
+Enable-ConsoleFormatting -Include Help -Exclude Output, FormatCommands, Errors, Streams, ReadLine
 $after = $names | Get-Help -Full | Out-String -Width 100
 if ($before -cne $after) { throw 'Pipeline help property binding changed' }
 $afterError = try { Get-Help Get-HelpFormattingValue -Full -Examples } catch { $_.FullyQualifiedErrorId }
@@ -162,7 +162,7 @@ foreach ($kind in 'Start-Job', 'Start-ThreadJob') {
         Import-Module $modulePath
         Import-Module $fixturePath
         $before = Get-Help Get-HelpFormattingValue -Full | Out-String -Width 100
-        Enable-ConsoleFormatting -Feature Help
+        Enable-ConsoleFormatting -Include Help -Exclude Output, FormatCommands, Errors, Streams, ReadLine
         $after = Get-Help Get-HelpFormattingValue -Full | Out-String -Width 100
         if ($before -cne $after) { throw 'Job help changed' }
         Get-Help Get-HelpFormattingValue -Full
@@ -190,7 +190,7 @@ try {
         Import-Module $module
         Import-Module $fixture
         $before = Get-Help Get-HelpFormattingValue -Full | Out-String -Width 100
-        Enable-ConsoleFormatting -Feature Help
+        Enable-ConsoleFormatting -Include Help -Exclude Output, FormatCommands, Errors, Streams, ReadLine
         $after = Get-Help Get-HelpFormattingValue -Full | Out-String -Width 100
         if ($before -cne $after) { throw 'Remoting text changed' }
         Get-Help Get-HelpFormattingValue -Full

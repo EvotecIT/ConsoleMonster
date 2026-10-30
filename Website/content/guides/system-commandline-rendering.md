@@ -25,7 +25,7 @@ The retired package targeted .NET Standard 2.0; it was not a Windows-only produc
 | `ConsoleRenderer` | `Terminal.Write`, `ConsoleExporter` | Print to a terminal or render a document explicitly. |
 | `ContentView`, `TextSpan`, `TextSpanFormatter` | `TextBlock`, `RichText`, `Markup` | Different content/style model; rewrite formatters as presenters or rich text. |
 | `TableView<T>` | `Table.For(rows)` / `Table<T>` | Typed columns and presenters, width negotiation and narrow cards. |
-| `StackLayoutView`, `GridView` | `Rows`, `Columns`, `ConsoleMonster.Layout.Grid` | Widget composition rather than the old View tree. |
+| `StackLayoutView`, `GridView` | `Rows`, `Columns`, `ConsoleMonster.Layout.LayoutGrid` | Widget composition rather than the old View tree. |
 | `Region`, `RenderToRegion` | `RegionWidget` and `LiveSession.Region` for mutable content | Not a direct absolute-coordinate Region replacement. |
 | `OutputMode` | `TerminalProfile` and capability detection | Choose an explicit fixed profile for reproducible tests. |
 | `IConsole` injection | `ConsoleTarget`, `Terminal.Render`, `ConsoleExporter` | Different output boundary; keep parser injection separate. |

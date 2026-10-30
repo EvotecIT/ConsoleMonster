@@ -23,7 +23,11 @@ $services = @(
         InvokeCommand.InvokeScript("Clear-Host");
         ConsoleHostFormatting.Enable(
             this,
-            new ConsoleFormattingOptions { Feature = new[] { ConsoleFormattingFeature.Output } });
+            new ConsoleFormattingOptions {
+                Include = new[] { ConsoleFormattingFeature.Output },
+                Exclude = new[] { ConsoleFormattingFeature.FormatCommands, ConsoleFormattingFeature.Errors,
+                    ConsoleFormattingFeature.Streams, ConsoleFormattingFeature.ReadLine }
+            });
         try {
             using var output = new ConsoleDefaultOutput(
                 this,

@@ -315,7 +315,8 @@ BeforeAll {
             Arguments = "-Preset Docs -OutputDirectory '$($TestDrive.Replace("'", "''"))/recording-demo'"
             Expect = @('Build succeeded. 24 tests passed.', 'Build report', 'API_TOKEN=')
         }
-        'Website/examples/app/live-filter.ps1' = @{ Arguments = '-AppOptions @{ StaticSnapshot = $true }'; Expect = @('6 of 6 hosts', 'SQL01', 'SQL02') }
+        'Website/examples/app/live-filter.ps1' = @{ Arguments = "-AppOptions @{ Mode = 'Snapshot' }"; Expect = @('6 of 6 hosts', 'SQL01', 'SQL02') }
+        'Website/examples/docs/object-explorer.ps1' = @{ Input = 'F10'; Paced = $true; Screen = '120x30'; Expect = @('Server configuration', '$server', 'Owner', 'Services', 'Enabled') }
         # Keep native help's external-pager choice independent of the launcher's PAGER setting in headless runs.
         'Website/examples/help-formatting/help.ps1' = @{ NoNativePager = $true }
         'Module/Examples/Example-InlineProgress.ps1' = @{ Arguments = '-Delay 5' }

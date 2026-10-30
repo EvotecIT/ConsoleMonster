@@ -8,7 +8,7 @@ $setup = @'
 param($modulePath, [bool] $enable = $true)
 $global:ProgressPreference = 'Continue'
 Import-Module $modulePath
-if ($enable) { Enable-ConsoleFormatting -Feature Progress }
+if ($enable) { Enable-ConsoleFormatting -Include Progress -Exclude Output, FormatCommands, Errors, Streams, ReadLine }
 $global:activities = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Widgets.ActivityList'))::new()
 $global:engine = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.ProgressBridge')).Assembly.GetType('ConsoleMonster.PowerShell.SessionProgress')
 $flags = [System.Reflection.BindingFlags] 'Static, NonPublic'
@@ -110,13 +110,13 @@ End-ProgressPipeline
     Invoke-Owner $second @'
 "DISABLED_HANDLED=$(Report-Progress DisabledBeta) DISABLED_ACTIVITIES=$($activities.Count)"
 End-ProgressPipeline
-Enable-ConsoleFormatting -Feature Progress
+Enable-ConsoleFormatting -Include Progress -Exclude Output, FormatCommands, Errors, Streams, ReadLine
 "SECOND_AFTER_RELEASE=$(Report-Progress BetaAfterRelease) SECOND_ACTIVITIES=$($activities.Count)"
 '@
     Invoke-Owner $first 'End-ProgressPipeline; Disable-ConsoleFormatting'
     Invoke-Owner $second '"SECOND_SURVIVED=$($activities.Count) SECOND_LABEL=$(([ConsoleMonster.Terminal].Assembly.GetType(''ConsoleMonster.Export.ConsoleExporter''))::ToText($activities).Contains(''BetaAfterRelease''))"'
     Invoke-Owner $first @'
-Enable-ConsoleFormatting -Feature Progress
+Enable-ConsoleFormatting -Include Progress -Exclude Output, FormatCommands, Errors, Streams, ReadLine
 $constructor = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.ProgressBridge')).GetConstructor([System.Reflection.BindingFlags] 'Instance, NonPublic', $null, [type[]] @(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.ILiveDispatcher'))), $null)
 $override.SetValue($null, $constructor.Invoke(@(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.ImmediateDispatcher'))::new($activities))), $null)
 "NATIVE_STARTED=$(Report-Progress AlphaNative)"
@@ -139,7 +139,7 @@ $null = Report-Progress BetaClosing
     # Closing the foreground owner also releases the terminal; an unrelated closed runspace must not clear its successor.
     $second.Dispose()
     Invoke-Owner $first @'
-Enable-ConsoleFormatting -Feature Progress
+Enable-ConsoleFormatting -Include Progress -Exclude Output, FormatCommands, Errors, Streams, ReadLine
 $constructor = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.ProgressBridge')).GetConstructor([System.Reflection.BindingFlags] 'Instance, NonPublic', $null, [type[]] @(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.ILiveDispatcher'))), $null)
 $override.SetValue($null, $constructor.Invoke(@(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.ImmediateDispatcher'))::new($activities))), $null)
 "AFTER_OWNER_CLOSED=$(Report-Progress AlphaAfterClose)"

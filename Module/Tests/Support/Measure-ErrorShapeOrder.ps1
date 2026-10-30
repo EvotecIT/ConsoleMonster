@@ -13,9 +13,9 @@ try {
     [ConsoleMonster.Terminal]::Profile = [ConsoleMonster.Terminal]::GetCurrentProfile().WithSize($Width, 100)
     foreach ($enabled in $false, $true) {
         Clear-Host
-        if ($enabled) { Enable-ConsoleFormatting -Feature Errors -CompactErrors }
+        if ($enabled) { Enable-ConsoleFormatting -Include Errors -Exclude Output, FormatCommands, Streams, ReadLine -ErrorLayout Compact }
         else { Disable-ConsoleFormatting }
-        if ($enabled) { & $invocation mixed-output 2>&1 | Out-ConsoleDefault -Shim -TopLevel }
+        if ($enabled) { & $invocation mixed-output 2>&1 | & ([Management.Automation.CmdletInfo]::new('Out-ConsoleDefault', (Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.CmdletOutConsoleDefault'))) -Shim -TopLevel }
         else { & $invocation mixed-output 2>&1 | Microsoft.PowerShell.Core\Out-Default }
         Write-Host ''
         $text = [ConsoleMonsterTestConsoleFrame]::LastFrame([Console]::CursorTop, [Console]::BufferWidth)

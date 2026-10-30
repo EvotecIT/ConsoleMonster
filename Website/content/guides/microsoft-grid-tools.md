@@ -35,7 +35,7 @@ ConsoleGuiTools points readers to a [community continuation, PSTui](https://gith
 | `Out-ConsoleGridView -OutputMode ...` | `Show-ConsoleGrid -OutputMode ...` | Check filter grammar and key bindings. |
 | `Out-ConsoleGridView -Filter` | `Show-ConsoleGrid -Filter` | Text looks similar but the grammars differ. |
 | `Show-ObjectTree` | `Show-ConsoleObject` | Keyboard explorer; `-PassThru` explicitly returns a selection. |
-| A fixed inventory report | `Show-ConsoleTable` | No interactive selection; `-AsString` for logs/tests. |
+| A fixed inventory report | `Show-ConsoleTable` | No interactive selection; `Export-ConsoleFrame -Format Text` for logs and captures. |
 
 </div>
 
@@ -103,7 +103,7 @@ $server = $servers | Out-ConsoleGridView -OutputMode Single
 ```powershell
 $server = $servers | Show-ConsoleGrid -OutputMode Single -Title 'Review one server'
 if ($null -ne $server) {
-    $server | Show-ConsoleList
+    $server | Show-Console -View List
 }
 ```
 
@@ -196,7 +196,7 @@ The default explorer is a viewer. Use `-PassThru` only when you want selected va
 - `Show-ConsoleGrid` defaults to `Multiple`. Explicit `None`, `Single` and `Multiple` make migrated pipelines easier to review.
 - ConsoleMonster is not an `ogv` or `ocgv` alias. The optional GridView formatting feature is an unavailable-host adapter; prefer the explicit command when migrating scripts.
 - Filter syntax, selection keys, hidden columns and sorting are ConsoleMonster behavior. Follow the on-screen key hints and keep object projection in `Select-Object` or `-Property`.
-- An unattended host cannot make an interactive choice. Supply the selection in script parameters; use `Show-ConsoleTable -AsString` for a noninteractive report. A fallback or snapshot is not approval.
+- An unattended host cannot make an interactive choice. Supply the selection in script parameters; use `New-ConsoleTable | Export-ConsoleFrame -Format Text` for a noninteractive report. A fallback or snapshot is not approval.
 
 ## Next
 

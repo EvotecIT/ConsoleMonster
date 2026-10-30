@@ -51,9 +51,10 @@ $edges = @(
     [pscustomobject] @{ Kind = 'Edge'; Key = 'anchor'; From = 'intermediate'; To = 'root'
         Label = 'anchor' }
 )
-$flow = @($nodes; $edges) | New-ConsoleFlow -WidgetId chain
-if ($expired) {
-    $flow | Add-ConsoleItem {
+ $flow = New-ConsoleFlow -WidgetId chain -Content {
+    $nodes
+    $edges
+    if ($expired) {
         [pscustomobject] @{ Kind = 'Branch'; From = 'intermediate'; Label = 'expired 2026-09-30'
             Status = 'Fail' }
     }
@@ -68,7 +69,7 @@ $exitCode = if ($expired) { 1 } else { 0 }
 New-ConsoleRows -Gap 1 {
     '[bold accent]TLS verdict[/]  [muted]Follow the chain. Verify the trust.[/]'
     New-ConsolePanel -Title 'Connection ledger' {
-        $steps | New-ConsolePhases -StepCounter
+        $steps | New-ConsoleStatusList -Layout Strip -WidgetId phases -StepCounter
     }
     New-ConsoleKeyValue -Columns 2 -KeyRole Accent -Content {
         foreach ($pair in $context) {

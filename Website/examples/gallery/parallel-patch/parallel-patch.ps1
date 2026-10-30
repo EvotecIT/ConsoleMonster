@@ -115,7 +115,7 @@ function New-PatchSummary {
             }) -Value $done
         New-ConsolePanel -Title 'Host outcomes' -Content {
             $mapOptions = @{
-                Status = $states
+                InputObject = $states
                 Columns = 10
                 LegendLines = 2
                 RowLabels = 'web01–10', 'web11–20', 'web21–30', 'web31–40'

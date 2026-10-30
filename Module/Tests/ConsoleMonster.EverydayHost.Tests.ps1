@@ -9,17 +9,17 @@ Import-Module '__MODULE__'
 . '__SAMPLE__'
 Write-Host '### before ###'
 Get-EverydayViewSample json-nested
-Enable-ConsoleFormatting -Feature Output
+Enable-ConsoleFormatting -Include Output -Exclude FormatCommands, Errors, Streams, ReadLine
 Write-Host '### after ###'
 Get-EverydayViewSample json-nested
 Disable-ConsoleFormatting -Feature Output
 Write-Host '### disabled ###'
 Get-EverydayViewSample json-nested
-Enable-ConsoleFormatting -Feature Output -NoBuiltIn
+Enable-ConsoleFormatting -Include Output -Exclude FormatCommands, Errors, Streams, ReadLine -NoBuiltIn
 Write-Host '### no-built-in ###'
 Get-EverydayViewSample json-nested
 Disable-ConsoleFormatting
-Enable-ConsoleFormatting -Feature Output
+Enable-ConsoleFormatting -Include Output -Exclude FormatCommands, Errors, Streams, ReadLine
 Write-Host '### explicit ###'
 & '__EXPLICIT__'
 Write-Host '### pipeline ###'

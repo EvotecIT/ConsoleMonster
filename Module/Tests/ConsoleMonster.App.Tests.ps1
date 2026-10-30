@@ -123,7 +123,7 @@ Describe 'Native console applications' {
             New-ConsoleSelect -Key Sites -Choices 'Warsaw', 'Berlin' -Value Warsaw -Multiple
             New-ConsoleButton -Key Apply -OnClick { $calls.Add('click') }
             New-ConsoleTable -Bind { param($State) [pscustomobject]@{ Query = $State.Query } } -Property Query
-        } -StaticSnapshot -Mode None -InputSource $inputSource -Capture $capture -PassThru
+        } -Mode Snapshot -InputSource $inputSource -Capture $capture -PassThru
 
         $result.GetType() | Should -Be ([hashtable])
         $result.Count | Should -Be 6
@@ -178,15 +178,15 @@ Describe 'Native console applications' {
         $query.Value = 'outside'
         $calls.Count | Should -Be 1
         $freshCapture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(80, 24)
-        $fresh = Show-ConsoleApp -Content { New-ConsoleTextInput -Key Other -Value clean } -StaticSnapshot -Capture $freshCapture -PassThru
+        $fresh = Show-ConsoleApp -Content { New-ConsoleTextInput -Key Other -Value clean } -Mode Snapshot -Capture $freshCapture -PassThru
         $fresh.Count | Should -Be 1
         $fresh.Other | Should -Be 'clean'
     }
 
     It 'emits no success output without PassThru and rejects inputs inside a dependent binding' {
         $capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(80, 24)
-        @(Show-ConsoleApp -Content { New-ConsoleTextInput -Key Query } -StaticSnapshot -Capture $capture).Count | Should -Be 0
-        { Show-ConsoleApp -Content { New-ConsoleBinding -Content { New-ConsoleToggle -Key Nested } } -StaticSnapshot -Capture $capture -ErrorAction Stop } | Should -Throw
+        @(Show-ConsoleApp -Content { New-ConsoleTextInput -Key Query } -Mode Snapshot -Capture $capture).Count | Should -Be 0
+        { Show-ConsoleApp -Content { New-ConsoleBinding -Content { New-ConsoleToggle -Key Nested } } -Mode Snapshot -Capture $capture -ErrorAction Stop } | Should -Throw
         { Show-ConsoleTable -Bind { [pscustomobject]@{ Name = 'host' } } -ErrorAction Stop } |
             Should -Throw '*parameter*Bind*'
     }

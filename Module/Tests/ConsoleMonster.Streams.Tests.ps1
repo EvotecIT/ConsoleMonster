@@ -34,7 +34,7 @@ $baseline = Get-StreamsState
 $unowned = Get-StreamsUnownedState
 Set-ConsoleTheme -Theme __THEME__
 $expected = Get-StreamsExpected
-Enable-ConsoleFormatting -Feature Streams
+Enable-ConsoleFormatting -Include Streams -Exclude Output, FormatCommands, Errors, ReadLine
 Assert-StreamsState $expected
 if ($PSVersionTable.PSVersion -lt [version] '7.2') {
     # Fixed owner-approved colours catch role collisions in the mapper, independently of the computed oracle.
@@ -74,7 +74,7 @@ if (Get-Command Out-Default -CommandType Function -ErrorAction Ignore) { throw '
 [ConsoleMonster.Terminal]::Profile = [ConsoleMonster.Terminal]::Profile.WithColorDepth('None')
 Set-ConsoleTheme -Theme HighContrast
 $baseline = Get-StreamsState
-Enable-ConsoleFormatting -Feature Streams
+Enable-ConsoleFormatting -Include Streams -Exclude Output, FormatCommands, Errors, ReadLine
 Assert-StreamsState (Get-StreamsExpected)
 if (-not $PSStyle.Formatting.Warning.Contains(';38;2;')) { throw 'The native warning preference lost true colour.' }
 Disable-ConsoleFormatting
@@ -91,7 +91,7 @@ $global:streamsCustomCalls = 0
 function global:Out-Default { $global:streamsCustomCalls++; 'CUSTOM_OUTPUT' }
 $definition = (Get-Command Out-Default -CommandType Function).Definition
 Set-ConsoleTheme -Theme Light
-Enable-ConsoleFormatting -Feature Streams -WarningVariable enableWarnings
+Enable-ConsoleFormatting -Include Streams -Exclude Output, FormatCommands, Errors, ReadLine -WarningVariable enableWarnings
 Assert-StreamsState (Get-StreamsExpected)
 if (@($enableWarnings).Count) { throw 'A custom Out-Default blocked Streams.' }
 if ((Get-Command Out-Default -CommandType Function).Definition -cne $definition) { throw 'Streams replaced custom output formatting.' }
@@ -108,7 +108,7 @@ if ($global:streamsCustomCalls -ne 0) { throw 'Streams invoked custom output for
 Set-StreamsBaseline
 $baseline = Get-StreamsState
 Set-ConsoleTheme -Theme Light
-Enable-ConsoleFormatting -Feature Streams
+Enable-ConsoleFormatting -Include Streams -Exclude Output, FormatCommands, Errors, ReadLine
 Assert-StreamsState (Get-StreamsExpected)
 # A caller changes both an owned property and a neighbouring unowned property while Streams is active.
 Set-StreamsBaseline -Variant 1
@@ -116,7 +116,7 @@ if ($PSVersionTable.PSVersion -ge [version] '7.2') { $PSStyle.Formatting.TableHe
 else { $Host.PrivateData.ErrorForegroundColor = [ConsoleColor]::Blue }
 $unowned = Get-StreamsUnownedState
 Set-ConsoleTheme -Theme HighContrast
-Enable-ConsoleFormatting -Feature Streams
+Enable-ConsoleFormatting -Include Streams -Exclude Output, FormatCommands, Errors, ReadLine
 Assert-StreamsState (Get-StreamsExpected)
 Set-StreamsBaseline -Variant 2
 Disable-ConsoleFormatting -Feature Streams
@@ -125,7 +125,7 @@ Assert-StreamsUnownedState $unowned
 # A later enable starts a new ownership interval with the latest caller baseline.
 Set-StreamsBaseline -Variant 1
 $nextBaseline = Get-StreamsState
-Enable-ConsoleFormatting -Feature Streams
+Enable-ConsoleFormatting -Include Streams -Exclude Output, FormatCommands, Errors, ReadLine
 Disable-ConsoleFormatting
 Assert-StreamsState $nextBaseline
 Set-StreamsBaseline -Variant 2
@@ -145,7 +145,7 @@ Assert-StreamsState $afterDisable
 Set-StreamsBaseline
 $baseline = Get-StreamsState
 Set-ConsoleTheme -Theme Dark
-Enable-ConsoleFormatting -Feature Output, Streams
+Enable-ConsoleFormatting -Include Output, Streams -Exclude FormatCommands, Errors, ReadLine
 $expected = Get-StreamsExpected
 Disable-ConsoleFormatting -Feature __FIRST__
 if ('__FIRST__' -eq 'Streams') {
@@ -173,12 +173,12 @@ Set-StreamsBaseline
 $baseline = Get-StreamsState
 $owner = (Get-Command Enable-ConsoleFormatting).Module
 $owner.OnRemove = { 'PREVIOUS_STREAMS_REMOVE_HOOK' }
-Enable-ConsoleFormatting -Feature Streams
+Enable-ConsoleFormatting -Include Streams -Exclude Output, FormatCommands, Errors, ReadLine
 if (__REENABLE__) {
     Disable-ConsoleFormatting
     Set-StreamsBaseline -Variant 1
     $baseline = Get-StreamsState
-    Enable-ConsoleFormatting -Feature Streams
+    Enable-ConsoleFormatting -Include Streams -Exclude Output, FormatCommands, Errors, ReadLine
 }
 Set-StreamsBaseline -Variant 2
 Remove-Module ConsoleMonster -ErrorAction Stop
@@ -191,24 +191,24 @@ if (Get-Command Out-Default -CommandType Function -ErrorAction Ignore) { throw '
     }
 
     It 'emits a <FeatureName> profile snippet without changing native state or installing commands' -ForEach @(
-        @{ FeatureName = 'Streams' }
-        @{ FeatureName = 'Output, FormatCommands, Errors, Streams, ReadLine' }
+        @{ FeatureName = 'Streams'; Options = '-Include Streams -Exclude Output, FormatCommands, Errors, ReadLine' }
+        @{ FeatureName = 'Output, FormatCommands, Errors, Streams, ReadLine'; Options = '-Include Output, FormatCommands, Errors, Streams, ReadLine' }
     ) {
         $text = Invoke-StreamsChild (@'
 $baseline = Get-StreamsState
 $unowned = Get-StreamsUnownedState
 $owner = (Get-Command Enable-ConsoleFormatting).Module
 $hook = $owner.OnRemove
-$snippet = @(Enable-ConsoleFormatting -Feature __FEATURE__ -ProfileSnippet)
+$snippet = @(Enable-ConsoleFormatting __OPTIONS__ -ProfileSnippet)
 if ($snippet -cnotcontains 'Import-Module ConsoleMonster') { throw 'Missing module import in the profile snippet.' }
-if ($snippet -cnotcontains 'Enable-ConsoleFormatting -Feature __FEATURE__') { throw 'Wrong feature in the profile snippet.' }
+if ($snippet -cnotcontains 'Enable-ConsoleFormatting __OPTIONS__') { throw 'Wrong feature in the profile snippet.' }
 Assert-StreamsState $baseline
 Assert-StreamsUnownedState $unowned
 if (-not [object]::ReferenceEquals($hook, $owner.OnRemove)) { throw 'The profile snippet installed a removal hook.' }
 if (Get-Command Out-Default -CommandType Function -ErrorAction Ignore) { throw 'The profile snippet installed output formatting.' }
 if (Get-Alias Write-Progress -ErrorAction Ignore) { throw 'The profile snippet installed progress formatting.' }
 'PROFILE_SNIPPET_NO_EFFECTS_OK'
-'@.Replace('__FEATURE__', $FeatureName))
+'@.Replace('__OPTIONS__', $Options))
         $text | Should -Match 'PROFILE_SNIPPET_NO_EFFECTS_OK'
     }
 
@@ -227,7 +227,7 @@ if ('__PREFERENCE__' -eq 'Stop') {
     if ($before.WarningCount -ne 1 -or -not $before.Completed -or $before.Success -cne 'native success') { throw 'The native warning oracle did not capture one warning and continue.' }
     if ($before.WarningTypes -cne 'System.Management.Automation.WarningRecord') { throw 'The native oracle did not return a warning record.' }
 }
-Enable-ConsoleFormatting -Feature Streams
+Enable-ConsoleFormatting -Include Streams -Exclude Output, FormatCommands, Errors, ReadLine
 $after = Get-StreamsWarningOracle -Preference __PREFERENCE__ -Path $path
 Assert-StreamsOracle $before $after
 'WARNING_ORACLE_OK'
@@ -242,7 +242,7 @@ if ($before.VerboseType -cne 'System.Management.Automation.VerboseRecord' -or $b
 if ($before.DebugType -cne 'System.Management.Automation.DebugRecord' -or $before.DebugCount -ne 1) { throw 'The debug oracle is empty or not native.' }
 if ($before.InformationType -cne 'System.Management.Automation.InformationRecord' -or $before.InformationCount -ne 1) { throw 'The information oracle is empty or not native.' }
 if ($before.InformationTags -cne 'streams|native') { throw 'The native information tags are missing.' }
-Enable-ConsoleFormatting -Feature Streams
+Enable-ConsoleFormatting -Include Streams -Exclude Output, FormatCommands, Errors, ReadLine
 $after = Get-StreamsCaptureOracle -Directory '__DIRECTORY__'
 Assert-StreamsOracle $before $after
 'CAPTURE_ORACLE_OK'
@@ -258,7 +258,7 @@ $command = 'Write-StreamsFixtureWarning'
 $before = Get-StreamsWarningOracle -Preference Continue -Path '__PATH__' -Command $command
 if ($before.WarningCount -ne 1 -or $before.WarningMessages -cne 'streams warning oracle') { throw 'The compiled cmdlet did not write the native warning.' }
 if ($before.WarningTypes -cne 'System.Management.Automation.WarningRecord') { throw 'The compiled cmdlet warning is not a WarningRecord.' }
-Enable-ConsoleFormatting -Feature Streams
+Enable-ConsoleFormatting -Include Streams -Exclude Output, FormatCommands, Errors, ReadLine
 $after = Get-StreamsWarningOracle -Preference Continue -Path '__PATH__' -Command $command
 Assert-StreamsOracle $before $after
 'COMPILED_WARNING_OK'
@@ -289,7 +289,7 @@ foreach ($stream in 'WARNING', 'VERBOSE', 'DEBUG') {
 }
 # Windows PowerShell 5.1 does not transcribe the native information stream in this host path.
 if ($before.Count -lt 3) { throw 'The native transcript oracle is empty or incomplete.' }
-Enable-ConsoleFormatting -Feature Streams
+Enable-ConsoleFormatting -Include Streams -Exclude Output, FormatCommands, Errors, ReadLine
 $after = @(Get-TranscriptStreamLines '__AFTER__')
 if (($after -join "`n") -cne ($before -join "`n")) { throw 'Streams changed native transcript text.' }
 if (($after -join "`n").Contains([string] [char]27)) { throw 'Streams leaked ANSI into the transcript.' }
@@ -328,8 +328,8 @@ function Invoke-StreamsRunspace($shell, $body) {
 }
 $setup = "Import-Module '__MODULE__' -ErrorAction Stop`n. '__SUPPORT__'`n"
 try {
-    Invoke-StreamsRunspace $first ($setup + 'Set-StreamsBaseline; $global:baseline = Get-StreamsState; Enable-ConsoleFormatting -Feature Streams; Assert-StreamsState (Get-StreamsExpected)')
-    Invoke-StreamsRunspace $second ($setup + 'if ($PSVersionTable.PSVersion -lt [version] "7.2") { Set-StreamsBaseline -Variant 1 }; $global:baseline = Get-StreamsState; Enable-ConsoleFormatting -Feature Streams; Assert-StreamsState (Get-StreamsExpected)')
+    Invoke-StreamsRunspace $first ($setup + 'Set-StreamsBaseline; $global:baseline = Get-StreamsState; Enable-ConsoleFormatting -Include Streams -Exclude Output, FormatCommands, Errors, ReadLine; Assert-StreamsState (Get-StreamsExpected)')
+    Invoke-StreamsRunspace $second ($setup + 'if ($PSVersionTable.PSVersion -lt [version] "7.2") { Set-StreamsBaseline -Variant 1 }; $global:baseline = Get-StreamsState; Enable-ConsoleFormatting -Include Streams -Exclude Output, FormatCommands, Errors, ReadLine; Assert-StreamsState (Get-StreamsExpected)')
     Invoke-StreamsRunspace $first 'Disable-ConsoleFormatting -Feature Streams; if ($PSVersionTable.PSVersion -lt [version] "7.2") { Assert-StreamsState $global:baseline }; Remove-Module ConsoleMonster'
     Invoke-StreamsRunspace $second 'Assert-StreamsState (Get-StreamsExpected); Remove-Module ConsoleMonster'
     if ($PSVersionTable.PSVersion -lt [version] '7.2') { Invoke-StreamsRunspace $second 'Assert-StreamsState $global:baseline' }
@@ -352,7 +352,7 @@ $shell = [powershell]::Create()
 try {
     $runspace.Open()
     $shell.Runspace = $runspace
-    $null = $shell.AddScript('Import-Module ''__MODULE__'' -ErrorAction Stop; Enable-ConsoleFormatting -Feature Streams; Disable-ConsoleFormatting -Feature Streams; Enable-ConsoleFormatting -Feature Streams; Remove-Module ConsoleMonster -ErrorAction Stop').Invoke()
+    $null = $shell.AddScript('Import-Module ''__MODULE__'' -ErrorAction Stop; Enable-ConsoleFormatting -Include Streams -Exclude Output, FormatCommands, Errors, ReadLine; Disable-ConsoleFormatting -Feature Streams; Enable-ConsoleFormatting -Include Streams -Exclude Output, FormatCommands, Errors, ReadLine; Remove-Module ConsoleMonster -ErrorAction Stop').Invoke()
     if ($shell.HadErrors) { throw ($shell.Streams.Error | Out-String) }
     'UNAVAILABLE_HOST_OK'
 } finally { $shell.Dispose(); $runspace.Dispose() }
@@ -369,7 +369,7 @@ $shell = [powershell]::Create()
 try {
     $runspace.Open()
     $shell.Runspace = $runspace
-    $null = $shell.AddScript('Import-Module ''__MODULE__'' -ErrorAction Stop; Set-ConsoleTheme Dark; Enable-ConsoleFormatting -Feature Streams').Invoke()
+    $null = $shell.AddScript('Import-Module ''__MODULE__'' -ErrorAction Stop; Set-ConsoleTheme Dark; Enable-ConsoleFormatting -Include Streams -Exclude Output, FormatCommands, Errors, ReadLine').Invoke()
     if ($shell.HadErrors) { throw ($shell.Streams.Error | Out-String) }
     if ($data.WarningForegroundColor -ne [ConsoleColor]::Yellow) { throw 'A rejected sibling setter prevented the writable warning colour.' }
     if ($data.VerboseAttempts -ne 1 -or $data.VerboseWrites -ne 0) { throw 'The rejecting property was not exercised.' }

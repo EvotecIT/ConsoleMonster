@@ -177,7 +177,7 @@ Accept wildcard characters: False
 ```
 
 ### -WidgetId
-Live name of the dashboard (for Send-ConsoleEvent title/status updates).
+Live name of the dashboard (for Update-Console title, detail and status updates).
 
 ```yaml
 Type: String

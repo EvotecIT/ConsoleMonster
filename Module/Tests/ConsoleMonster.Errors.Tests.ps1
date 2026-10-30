@@ -51,11 +51,11 @@ Show-Console -InputObject $inner -Width 120 -View Error
 
     It 'shows a caught error as an error without -View' {
         try { [int]::Parse('x') } catch { $record = $_ }
-        $views = @($record | Show-Console -AsWidget)
+        $views = @($record | Show-Console -View Error -AsWidget)
         $views.Count | Should -Be 1
         $views[0].GetType().Name | Should -Be 'ExceptionView'
-        @($record.Exception | Show-Console -AsWidget)[0].GetType().Name | Should -Be 'ExceptionView'
-        $text = $record | Show-Console -AsString -Width 100
+        @($record.Exception | Show-Console -View Error -AsWidget)[0].GetType().Name | Should -Be 'ExceptionView'
+        $text = $record | Show-Console -View Error -AsWidget | Export-ConsoleFrame -Format Text -Width 100
         $text | Should -Match 'FormatException'
         $text | Should -Not -Match 'TargetSite'
     }

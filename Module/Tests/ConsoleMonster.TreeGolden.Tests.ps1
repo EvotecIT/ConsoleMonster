@@ -19,7 +19,7 @@ Describe 'ConsoleMonster tree golden output' {
         $golden = [IO.File]::ReadAllText((Join-Path $PSScriptRoot "Fixtures/TreeGolden/$Kind-$Width.txt"), [Text.Encoding]::UTF8).Replace("`r`n", "`n").TrimEnd("`n")
         $policy = [ConsoleMonster.Terminal]::UseProfilePolicy({ param($profile) $profile.WithGlyphs('Ascii') })
         try {
-            $actual = $fixture | Show-Console -View Tree -Depth 1 -Width $Width -AsString
+            $actual = $fixture | Show-Console -View Tree -Depth 1   -AsWidget | Export-ConsoleFrame -Format Text -Width $Width
             $actual.Replace("`r`n", "`n").TrimEnd("`n") | Should -BeExactly $golden
         } finally { $policy.Dispose() }
     }

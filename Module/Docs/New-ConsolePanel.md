@@ -81,7 +81,7 @@ Accept wildcard characters: False
 ```
 
 ### -Content
-The panel content: a scriptblock that emits widgets, text or objects, a widget, a string, or objects (one object is shown as labelled fields, several as a table, through the same rules as Show-ConsoleList and Show-ConsoleTable).
+The panel content: a scriptblock that emits widgets, text or objects, a widget, a string, or objects (one object is shown as labelled fields, several as a table, through the same rules as Show-Console -View List and Show-ConsoleTable).
 
 ```yaml
 Type: Object

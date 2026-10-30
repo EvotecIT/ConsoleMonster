@@ -11,18 +11,18 @@ $invocation = New-ErrorShapeFixture -Directory $Directory -MixedOutput:($Shape -
 $nativeView = if ($PSVersionTable.PSVersion.Major -ge 7) { 'ConciseView' } else { 'NormalView' }
 $ErrorView = $nativeView
 Disable-ConsoleFormatting
-if ($Style -eq 'compact') { Enable-ConsoleFormatting -Feature Errors -CompactErrors }
+if ($Style -eq 'compact') { Enable-ConsoleFormatting -Include Errors -Exclude Output, FormatCommands, Streams, ReadLine -ErrorLayout Compact }
 try {
     if ($Shape -eq 'mixed-output') {
         if ($Style -eq 'compact') {
-            & $invocation 2>&1 | Out-ConsoleDefault -Shim -TopLevel
+            & $invocation 2>&1 | & ([Management.Automation.CmdletInfo]::new('Out-ConsoleDefault', (Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.CmdletOutConsoleDefault'))) -Shim -TopLevel
         } else {
             & $invocation 2>&1 | Microsoft.PowerShell.Core\Out-Default
         }
     } else {
         $record = Get-ErrorShapeRecords -Shape $Shape -Invocation $invocation
         if ($record -isnot [Management.Automation.ErrorRecord]) { throw 'The fixture did not produce an ErrorRecord.' }
-        if ($Style -eq 'compact') { $record | Out-ConsoleDefault -Shim -TopLevel }
+        if ($Style -eq 'compact') { $record | & ([Management.Automation.CmdletInfo]::new('Out-ConsoleDefault', (Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.CmdletOutConsoleDefault'))) -Shim -TopLevel }
         else { $record | Microsoft.PowerShell.Core\Out-Default }
     }
 } finally { Disable-ConsoleFormatting }

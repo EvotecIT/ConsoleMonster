@@ -1,5 +1,3 @@
 worker (42)
-|-- Name  worker
-|-- Id  42
-|-- CPU  3
-`-- +1 empty
+├── CPU  3
+└── +1 empty

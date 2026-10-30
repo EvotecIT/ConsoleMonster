@@ -17,48 +17,48 @@ try {
     $env:CM_DEMO_ROOT = Join-Path $OutputDirectory ('fixture-' + [guid]::NewGuid().ToString('N') + '/demo')
     $cast = Join-Path $OutputDirectory 'session.cast'
     $presentationParameters = @{
-        Path = (Join-Path $PSScriptRoot 'demo.ps1')
-        Destination = $cast
+        ScriptPath = (Join-Path $PSScriptRoot 'demo.ps1')
+        Path = $cast
         Width = 100
         Height = 28
         Seed = 42
         IdleLimitSeconds = 0
         Redact = ([regex]::Escape([Environment]::MachineName)), ([regex]::Escape($OutputDirectory))
     }
-    Invoke-ConsolePresentation @presentationParameters
-    Export-ConsoleRecording -Path $cast -Destination (Join-Path $OutputDirectory 'session.html')
-    Export-ConsoleRecording -Path $cast -Destination (Join-Path $OutputDirectory 'session.svg')
+    Show-ConsolePresentation @presentationParameters
+    Export-ConsoleRecording -RecordingPath $cast -Path (Join-Path $OutputDirectory 'session.html')
+    Export-ConsoleRecording -RecordingPath $cast -Path (Join-Path $OutputDirectory 'session.svg')
     $recordingParameters = @{
-        Path = $cast
+        RecordingPath = $cast
         Format = 'Gif'
         Preset = $Preset
-        WindowChrome = $true
-        Destination = (Join-Path $OutputDirectory 'session.gif')
+        ChromeStyle = 'MacOS'
+        Path = (Join-Path $OutputDirectory 'session.gif')
     }
     Export-ConsoleRecording @recordingParameters
     $recordingParameters = @{
-        Path = $cast
+        RecordingPath = $cast
         Format = 'Png'
         Preset = $Preset
         PerChapter = $true
-        WindowChrome = $true
-        Destination = (Join-Path $OutputDirectory 'slides')
+        ChromeStyle = 'MacOS'
+        Path = (Join-Path $OutputDirectory 'slides')
     }
     Export-ConsoleRecording @recordingParameters
     $recordingParameters = @{
-        Path = $cast
+        RecordingPath = $cast
         FinalFrame = $true
         Theme = 'Light'
-        WindowChrome = $true
-        Destination = (Join-Path $OutputDirectory 'session-final-light.svg')
+        ChromeStyle = 'MacOS'
+        Path = (Join-Path $OutputDirectory 'session-final-light.svg')
     }
     Export-ConsoleRecording @recordingParameters
     $recordingParameters = @{
-        Path = $cast
+        RecordingPath = $cast
         FinalFrame = $true
         Theme = 'Dark'
-        WindowChrome = $true
-        Destination = (Join-Path $OutputDirectory 'session-final-dark.svg')
+        ChromeStyle = 'MacOS'
+        Path = (Join-Path $OutputDirectory 'session-final-dark.svg')
     }
     Export-ConsoleRecording @recordingParameters
 } finally {

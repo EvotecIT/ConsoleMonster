@@ -25,10 +25,12 @@ Mouse wheel scrolls the viewport. Tab navigation reveals focused inputs. Lists, 
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleScrollView -Content { $details } -Height 12
+New-ConsoleScrollView -Content {
+    1..20 | ForEach-Object { New-ConsoleText "Detail line $_" }
+} -Height 12
 ```
 
-A scrollable detail pane.
+Build a scrollable detail pane
 
 ## PARAMETERS
 

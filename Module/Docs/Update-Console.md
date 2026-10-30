@@ -80,24 +80,33 @@ WidgetId is position zero. Fields are checked against the resolved widget before
 
 ### EXAMPLE 1
 ```powershell
-Update-Console build -Value 5 -Total 20 -Label 'Compile'
+$dashboard = New-ConsoleDashboard -Title Build -Content { New-ConsoleProgress -WidgetId build -Total 20 }
+Invoke-ConsoleDashboard $dashboard { Update-Console build -Value 5 -Total 20 -Label 'Compile' }
 ```
 
-Advance a build and change its label
+Advance a progress widget and change its label
 
 ### EXAMPLE 2
 ```powershell
-Update-Console results -Row ([pscustomobject] @{ Server = 'web01'; State = 'Pass'; Ms = 12 })
+$dashboard = New-ConsoleDashboard -Title Results -Content {
+    New-ConsoleTable -WidgetId results -Live -Property Server, State, Ms -KeyProperty Server
+}
+Invoke-ConsoleDashboard $dashboard {
+    Update-Console results -Row ([pscustomobject]@{ Server = 'web01'; State = 'Pass'; Ms = 12 })
+}
 ```
 
 Add or replace a live table row with an ordinary record
 
 ### EXAMPLE 3
 ```powershell
+$items = @([pscustomobject]@{ Name = 'Report' })
+$run = Start-ConsoleRun -InputObject $items -Label Name -NoLive
 Update-Console -Run $run -Index 0 -Status Pass -Detail 'Uploaded'
+Complete-ConsoleRun $run
 ```
 
-Finish one run item
+Finish one caller-managed run item
 
 ## PARAMETERS
 

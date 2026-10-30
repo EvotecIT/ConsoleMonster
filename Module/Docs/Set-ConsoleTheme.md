@@ -33,14 +33,15 @@ Select a built-in preset or load a validated JSON/PSD1 theme. Dark suits dark te
 Set-ConsoleTheme -Theme Light
 ```
 
-Use the light theme
+Use the light theme for this session
 
 ### EXAMPLE 2
 ```powershell
-Set-ConsoleTheme -Path ./team-theme.psd1
+# Requires an existing team-theme.psd1 file. Changes the active session theme.
+            Set-ConsoleTheme -Path ./team-theme.psd1
 ```
 
-Load a team theme exported as JSON or a PowerShell data file.
+Load an existing theme exported by Export-ConsoleTheme
 
 ## PARAMETERS
 

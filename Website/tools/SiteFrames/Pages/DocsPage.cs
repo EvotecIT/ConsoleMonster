@@ -140,7 +140,7 @@ namespace SiteFrames.Pages {
                 Figures.Add("streams-" + host.Id, new JsonObject {
                     ["title"] = version,
                     ["file"] = "streams.ps1",
-                    ["label"] = "Warning, verbose and debug messages before and after Enable-ConsoleFormatting -Feature Streams in " + version,
+                    ["label"] = "Warning, verbose and debug messages before and after Enable-ConsoleFormatting -Include Streams in " + version,
                     ["meta"] = new JsonArray(),
                     ["frame"] = site.Frame(dark, light),
                     ["script"] = example["script"]!.DeepClone(),

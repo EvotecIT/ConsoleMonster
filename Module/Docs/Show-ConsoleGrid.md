@@ -13,7 +13,7 @@ An Out-GridView for the console, on Windows PowerShell 5.1 and PowerShell 7. Typ
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Show-ConsoleGrid [[-Property] <Object[]>] [-InputObject <psobject>] [-Title <string>] [-OutputMode <GridSelection>] [-Filter <string>] [-SortBy <string>] [-Descending] [-Hide <string[]>] [-Command <Object[]>] [-RefreshRow <scriptblock>] [-Culture <cultureinfo>] [-Mode <InteractionMode>] [<CommonParameters>]
+Show-ConsoleGrid [[-Property] <Object[]>] [-InputObject <psobject>] [-Title <string>] [-OutputMode <GridSelection>] [-Filter <string>] [-SortBy <string>] [-Descending] [-Exclude <string[]>] [-Command <Object[]>] [-RefreshRow <scriptblock>] [-Culture <cultureinfo>] [-Mode <InteractionMode>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,10 +25,14 @@ An Out-GridView for the console, on Windows PowerShell 5.1 and PowerShell 7. Typ
 
 ### EXAMPLE 1
 ```powershell
-Get-Service | Show-ConsoleGrid -Property Name, Status, StartType -Title 'Services' -Command @{ Restart = { param($Row) Restart-Service $Row.Name -WhatIf } }
+$servers = @(
+    [pscustomobject]@{ Name = 'web01'; Status = 'Pass'; Region = 'East' }
+    [pscustomobject]@{ Name = 'web02'; Status = 'Warn'; Region = 'West' }
+)
+$servers | Show-ConsoleGrid -Property Name, Status, Region -Title 'Servers' -Command @{ Inspect = { param($Row) $Row | Select-Object Name, Status, Region } }
 ```
 
-Restart selected services with confirmation and embedded output
+Inspect selected objects with an embedded command
 
 ### EXAMPLE 2
 ```powershell
@@ -87,11 +91,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Filter
-The filter to start with.
+### -Exclude
+Columns hidden at the start (F2 shows them again).
 
 ```yaml
-Type: String
+Type: String[]
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -103,11 +107,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Hide
-Columns hidden at the start (F2 shows them again).
+### -Filter
+The filter to start with.
 
 ```yaml
-Type: String[]
+Type: String
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -142,7 +146,7 @@ Forces how to ask: Rich (the grid), Line or Accessible (a numbered list), or Non
 Type: InteractionMode
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: Rich, Line, Accessible, None
+Possible values: Rich, Line, Accessible, None, Snapshot
 
 Required: False
 Position: named

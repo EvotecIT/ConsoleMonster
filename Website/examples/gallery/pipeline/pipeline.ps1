@@ -82,8 +82,8 @@ $dashboardParameters = @{
     Footer = '[muted]Prepare · Restore · Build · Test · Docs · Sign · Package · Publish    Ctrl+C stop[/]'
 }
 $dashboard = New-ConsoleDashboard @dashboardParameters -Content {
-    New-ConsolePadding -Padding 1, 0, 1, 1 -Content {
-        New-ConsolePhases -Content {
+    New-ConsoleRegion -Padding 1, 0, 1, 1 -Content {
+        New-ConsoleStatusList -Layout Strip -WidgetId phases -Content {
             $offset = 0
             foreach ($phase in $phaseNames) {
                 $group = @($steps | Where-Object -Property Phase -EQ -Value $phase)

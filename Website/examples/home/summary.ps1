@@ -3,7 +3,7 @@
 $rate = 18, 21, 19, 24, 27, 26, 31, 29, 34, 38, 36, 41, 39, 44, 47, 45, 50, 48, 53, 57
 New-ConsolePanel -Title '[bold]Nightly checks[/]' -HeaderRight 'lab01.contoso.com' -Content {
     New-ConsoleRows -Content {
-        New-ConsolePhases -Content {
+        New-ConsoleStatusList -Layout Strip -WidgetId phases -Content {
             [pscustomobject] @{ Key = 'Discover'; Label = 'Discover'; Status = 'Pass'
                 Detail = '2.1s' }
             [pscustomobject] @{ Key = 'Collect'; Label = 'Collect'; Status = 'Pass'

@@ -46,7 +46,7 @@ def main():
         "[Console]::WriteLine('CM-BASELINE')",
         "[Console]::ReadLine() > $null",
         "$before = & stty -g",
-        "Invoke-ConsoleRecording -Interactive -Shell " + quote(shell) + " -Destination " + quote(cast) + " -Title PTY-check -TimeoutSeconds 30 | Out-Null",
+        "Invoke-ConsoleRecording -Interactive -Shell " + quote(shell) + " -Path " + quote(cast) + " -Title PTY-check -TimeoutSeconds 30 | Out-Null",
         "$after = & stty -g",
         "@{before=$before; after=$after} | ConvertTo-Json | Set-Content " + quote(directory / "mode.json"),
         "[Console]::WriteLine('CM-RETURNED')",

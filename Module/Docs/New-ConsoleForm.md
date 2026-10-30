@@ -13,7 +13,7 @@ The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleForm [-Title] <string> [[-Content] <scriptblock>] [-Field <Field[]>] [-Description <string>] [-PageDescriptions <IDictionary>] [-Command <string>] [-CommandStyle <CommandStyle>] [-NoReview] [-SubmitText <string>] [-StorageKey <string>] [-Preset <Object[]>] [<CommonParameters>]
+New-ConsoleForm [-Title] <string> [[-Content] <scriptblock>] [-InputObject <psobject>] [-Description <string>] [-PageDescriptions <IDictionary>] [-Command <string>] [-CommandStyle <CommandStyle>] [-NoReview] [-SubmitText <string>] [-StorageKey <string>] [-Preset <Object[]>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,7 +25,11 @@ The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page 
 
 ### EXAMPLE 1
 ```powershell
-$form = New-ConsoleForm 'New share' -Command 'New-AppShare' -PageDescriptions @{ Basics = 'Name and location of the share.'; Access = 'How people can use the share.' } -Content {
+function New-SharePlan {
+    param([string]$Name, [string]$Path, [switch]$ReadOnly)
+    [pscustomobject]@{ Name = $Name; Path = $Path; ReadOnly = [bool]$ReadOnly }
+}
+$form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -PageDescriptions @{ Basics = 'Name and location of the share.'; Access = 'How people can use the share.' } -Content {
     New-ConsoleField Name 'Share name' -Page Basics -Required -ParameterName Name
     New-ConsoleField Path 'Folder' -Type Path -Kind Folder -MustExist -Page Basics -ParameterName Path
     New-ConsoleField ReadOnly 'Read only' -Type Toggle -Page Access -ParameterName ReadOnly
@@ -36,7 +40,11 @@ A two-page wizard
 
 ### EXAMPLE 2
 ```powershell
-$form = New-ConsoleForm 'New share' -Command 'New-AppShare' -Content {
+function New-SharePlan {
+    param([string]$Name, [string]$Path, [switch]$ReadOnly)
+    [pscustomobject]@{ Name = $Name; Path = $Path; ReadOnly = [bool]$ReadOnly }
+}
+$form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {
     New-ConsoleField Name 'Share name' -Required -ParameterName Name
     New-ConsoleField ReadOnly 'Read only' -Type Toggle -ParameterName ReadOnly
     [pscustomobject]@{ Name = 'Archive'; Values = @{ Name = 'Archive'; ReadOnly = $true }; Description = 'A read-only archive share.' }
@@ -111,11 +119,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Field
-Fields created beforehand.
+### -InputObject
+Fields or preset records from the pipeline.
 
 ```yaml
-Type: Field[]
+Type: PSObject
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -123,7 +131,7 @@ Possible values:
 Required: False
 Position: named
 Default value: None
-Accept pipeline input: False
+Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 

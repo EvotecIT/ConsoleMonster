@@ -6,7 +6,7 @@ schema: 2.0.0
 ---
 # Register-ConsoleView
 ## SYNOPSIS
-Registers how a type is shown by Enable-ConsoleFormatting and Out-ConsoleDefault.
+Registers how a type is shown by Enable-ConsoleFormatting.
 
 Objects whose type names include -TypeName are shown in the given view when they reach the console. -Property picks the columns as in Show-ConsoleTable (names, calculated properties with Presenter options), -GroupBy groups rows under headings, and types with the same -Group are shown together (files and folders). Unregister-ConsoleView removes a registration. Modules can register their own types when they load, or ship a data-only ModuleName.consoleviews.psd1 file without a dependency on ConsoleMonster. Use -Path to import a view file explicitly.
 
@@ -22,7 +22,7 @@ Register-ConsoleView [-Path] <string[]> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Registers how a type is shown by Enable-ConsoleFormatting and Out-ConsoleDefault.
+Registers how a type is shown by Enable-ConsoleFormatting.
 
 Objects whose type names include -TypeName are shown in the given view when they reach the console. -Property picks the columns as in Show-ConsoleTable (names, calculated properties with Presenter options), -GroupBy groups rows under headings, and types with the same -Group are shown together (files and folders). Unregister-ConsoleView removes a registration. Modules can register their own types when they load, or ship a data-only ModuleName.consoleviews.psd1 file without a dependency on ConsoleMonster. Use -Path to import a view file explicitly.
 

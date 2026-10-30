@@ -18,7 +18,7 @@ param(
 
 Import-Module ConsoleMonster
 if (-not $Native) {
-    Enable-ConsoleFormatting -Feature Output, FormatCommands
+    Enable-ConsoleFormatting -Include Output, FormatCommands
 }
 
 switch ($Surface) {

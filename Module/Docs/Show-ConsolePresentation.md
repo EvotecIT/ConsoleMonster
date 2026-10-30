@@ -8,27 +8,28 @@ schema: 2.0.0
 ## SYNOPSIS
 Presents a scripted demo one command at a time in a real shell.
 
-Enter types and runs; Space types without running; b moves back without undoing side effects; s skips; q quits. The terminal title shows the step counter. Optional -RecordingPath saves the same child output as asciicast; without it temporary capture files are removed on exit. Stop or cancellation terminates only the owned child and restores the title.
+Enter types and runs; Space types without running; b moves back without undoing side effects; s skips; q quits. The terminal title shows the step counter. ScriptPath selects the input demo script. Optional -Path saves the same child output as asciicast; without it temporary capture files are removed on exit. Stop or cancellation terminates only the owned child and restores the title.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Show-ConsolePresentation [-Path] <string> [-RecordingPath <string>] [-Width <int>] [-Height <int>] [-Seed <int>] [-StepTimeoutSeconds <double>] [-Jitter <double>] [-IdleLimitSeconds <double>] [-Redact <string[]>] [-Shell <string>] [<CommonParameters>]
+Show-ConsolePresentation [-ScriptPath] <string> [-Path <string>] [-Width <int>] [-Height <int>] [-Seed <int>] [-StepTimeoutSeconds <double>] [-Jitter <double>] [-IdleLimitSeconds <double>] [-Redact <string[]>] [-Shell <string>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Presents a scripted demo one command at a time in a real shell.
 
-Enter types and runs; Space types without running; b moves back without undoing side effects; s skips; q quits. The terminal title shows the step counter. Optional -RecordingPath saves the same child output as asciicast; without it temporary capture files are removed on exit. Stop or cancellation terminates only the owned child and restores the title.
+Enter types and runs; Space types without running; b moves back without undoing side effects; s skips; q quits. The terminal title shows the step counter. ScriptPath selects the input demo script. Optional -Path saves the same child output as asciicast; without it temporary capture files are removed on exit. Stop or cancellation terminates only the owned child and restores the title.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-Show-ConsolePresentation -Path ./demo.ps1 -RecordingPath ./talk.cast
+# WhatIf previews the operation without executing the script or writing the recording.
+            Show-ConsolePresentation -ScriptPath ./demo.ps1 -Path ./talk.cast -WhatIf
 ```
 
-Present and record
+Preview presenting and recording a demo script
 
 ## PARAMETERS
 
@@ -81,23 +82,7 @@ Accept wildcard characters: False
 ```
 
 ### -Path
-Plain PowerShell demo file with optional # demo: directives.
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: True
-Position: 0
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -RecordingPath
-Optional asciicast recording path.
+The asciicast output file. Supplying Path records the complete presentation unattended. Without it, keys control the presentation and temporary output is removed.
 
 ```yaml
 Type: String
@@ -123,6 +108,22 @@ Possible values:
 
 Required: False
 Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ScriptPath
+The input PowerShell demo script, with optional # demo: directives.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: True
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

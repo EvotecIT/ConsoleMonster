@@ -12,4 +12,4 @@ $certificate = [pscustomobject] @{
         [pscustomobject] @{ Subject = 'CN=ISRG Root X1'; Key = 'RSA 4096'; Revoked = $false }
     )
 }
-$certificate | Show-ConsoleObject -StaticSnapshot -Title 'mail.evotec.xyz certificate'
+$certificate | Show-Console -View Tree -Title 'mail.evotec.xyz certificate'

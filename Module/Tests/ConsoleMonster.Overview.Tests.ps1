@@ -29,8 +29,8 @@ try {
     $body = [System.Linq.Expressions.Expression]::Constant($held.Task, $taskType)
     $provider = [System.Linq.Expressions.Expression]::Lambda($providerType, $body, [System.Linq.Expressions.ParameterExpression[]]@($token)).Compile()
     [void]([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Overview.OverviewSectionRegistry'))::Default.Register($name, 'Controlled resources', $provider)
-    $budget = if ($mode -eq 'Completed') { 750 } else { 1 }
-    $snapshot = Show-ConsoleOverview -Section $name -BudgetMilliseconds $budget -AsObject
+    $budget = if ($mode -eq 'Completed') { 0.75 } else { 0.001 }
+    $snapshot = Show-ConsoleOverview -Section $name -BudgetSeconds $budget -AsObject
     [pscustomobject]@{
         SectionCount = $snapshot.Sections.Count
         Name = $snapshot.Sections[0].Name
@@ -104,7 +104,7 @@ try {
     }
 
     It 'captures plain text within the requested narrow width' {
-        $text = Show-ConsoleOverview -Section Resources,Disks,Network -Width 60 -AsString
+        $text = Show-ConsoleOverview -Section Resources,Disks,Network   -AsWidget | Export-ConsoleFrame -Format Text -Width 60
         $text.GetType().FullName | Should -Be 'System.String'
         $text.IndexOf([char]27) | Should -Be -1
         foreach ($line in $text.Split([char]10)) {
@@ -117,18 +117,18 @@ try {
     }
 
     It 'rejects an out of range collection budget' {
-        { Show-ConsoleOverview -BudgetMilliseconds 901 -AsObject -ErrorAction Stop } | Should -Throw
+        { Show-ConsoleOverview -BudgetSeconds 0.901 -AsObject -ErrorAction Stop } | Should -Throw
     }
 
     It 'keeps snapshot and text output parameter sets separate' {
-        { Show-ConsoleOverview -AsObject -AsString -ErrorAction Stop } | Should -Throw
+        { Show-ConsoleOverview -AsObject  -ErrorAction Stop -AsWidget | Export-ConsoleFrame -Format Text } | Should -Throw
     }
 
     It 'loads generated help for every public parameter and the examples' {
         $help = Get-Help Show-ConsoleOverview -Full
         [string]$help.Synopsis | Should -Match 'read-only summary'
         @($help.examples.example).Count | Should -Be 3
-        foreach ($name in 'Section', 'AsObject', 'Width', 'AsString', 'BudgetMilliseconds') {
+        foreach ($name in 'Section', 'AsObject', 'Width', 'AsWidget', 'BudgetSeconds') {
             $parameter = @($help.parameters.parameter | Where-Object Name -eq $name)
             $parameter.Count | Should -Be 1
             [string]($parameter[0].description.Text -join ' ') | Should -Not -BeNullOrEmpty

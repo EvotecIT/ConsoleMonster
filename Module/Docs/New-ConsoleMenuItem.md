@@ -28,17 +28,17 @@ New-ConsoleMenuItem [[-Label] <string>] -Form <Form> [-Hotkey <Char>] [-Descript
 
 ### Select
 ```powershell
-New-ConsoleMenuItem [[-Label] <string>] -Select <Object[]> [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-ChoiceBadge <Object>] [-ChoiceDisabledReason <Object>] [-Preview <scriptblock>] [-Selected <Object>] [-OnChange <scriptblock>] [<CommonParameters>]
+New-ConsoleMenuItem [[-Label] <string>] -Select <Object[]> [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-ChoiceBadge <Object>] [-ChoiceDisabledReason <Object>] [-Preview <scriptblock>] [-Default <Object>] [-OnChange <scriptblock>] [<CommonParameters>]
 ```
 
 ### MultiSelect
 ```powershell
-New-ConsoleMenuItem [[-Label] <string>] -MultiSelect <Object[]> [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-ChoiceBadge <Object>] [-ChoiceDisabledReason <Object>] [-Preview <scriptblock>] [-Selected <Object>] [-Minimum <Int32>] [-Maximum <Int32>] [-OnChange <scriptblock>] [<CommonParameters>]
+New-ConsoleMenuItem [[-Label] <string>] -MultiSelect <Object[]> [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-ChoiceBadge <Object>] [-ChoiceDisabledReason <Object>] [-Preview <scriptblock>] [-Default <Object>] [-Minimum <Int32>] [-Maximum <Int32>] [-OnChange <scriptblock>] [<CommonParameters>]
 ```
 
 ### LoadChoices
 ```powershell
-New-ConsoleMenuItem [[-Label] <string>] -LoadChoices <scriptblock> [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [-ArgumentList <Object[]>] [-Single] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-ChoiceBadge <Object>] [-ChoiceDisabledReason <Object>] [-Preview <scriptblock>] [-Selected <Object>] [-Minimum <Int32>] [-Maximum <Int32>] [-OnChange <scriptblock>] [<CommonParameters>]
+New-ConsoleMenuItem [[-Label] <string>] -LoadChoices <scriptblock> [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [-ArgumentList <Object[]>] [-Single] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-ChoiceBadge <Object>] [-ChoiceDisabledReason <Object>] [-Preview <scriptblock>] [-Default <Object>] [-Minimum <Int32>] [-Maximum <Int32>] [-OnChange <scriptblock>] [<CommonParameters>]
 ```
 
 ### Page
@@ -75,17 +75,34 @@ What the item does follows from the parameter you give: -Action (a scriptblock, 
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleMenuItem 'Tasks' -Hotkey k -MultiSelect $tasks -Display Name -GroupBy Category -Preview { $_.Description }
+$tasks = @(
+    [pscustomobject]@{ Name = 'Backup'; Category = 'Files'; Description = 'Preview a backup'; Enabled = $true }
+    [pscustomobject]@{ Name = 'Verify'; Category = 'Files'; Description = 'Verify a backup'; Enabled = $false }
+)
+$menu = New-ConsoleMenu 'Tasks' -Content {
+    New-ConsoleMenuItem 'Tasks' -Hotkey k -MultiSelect $tasks -Display Name -GroupBy Category -Preview { $_.Description } -Default { $_.Enabled }
+    New-ConsoleMenuItem -Exit
+}
+Show-ConsoleMenu $menu
 ```
 
-A multi-selection with a computed badge
+Build a multiple-choice item with an initial selection
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleMenuItem 'Clear cache' -Action { if ($MenuContext.Confirm('Clear the cache?')) { Clear-AppCache; $MenuContext.Toast('Cache cleared') } }
+$menu = New-ConsoleMenu 'Inventory' -Content {
+    New-ConsoleMenuItem 'Preview refresh' -Action {
+        if ($MenuContext.Confirm('Preview an inventory refresh?')) {
+            $MenuContext.Toast('Preview ready')
+            $MenuContext.ShowResult(@{ Title = 'Refresh preview'; Status = 'Pass'; Summary = 'No inventory changes were made.' })
+        }
+    }
+    New-ConsoleMenuItem -Exit
+}
+Show-ConsoleMenu $menu
 ```
 
-An action that asks first and shows a toast
+Confirm an action and return a result record
 
 ## PARAMETERS
 
@@ -155,6 +172,22 @@ Accept wildcard characters: False
 
 ### -ChoiceDisabledReason
 Disabled reason for each selection choice: a property name or scriptblock; null or empty enables the choice. With -LoadChoices, use a property name. The item's own disabled reason remains -DisabledReason.
+
+```yaml
+Type: Object
+Parameter Sets: Select, MultiSelect, LoadChoices
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Default
+Pre-selected choices: the objects or their texts, or a scriptblock returning $true for static choices. With -LoadChoices, pass initial values; they are matched when the choices arrive.
 
 ```yaml
 Type: Object
@@ -533,22 +566,6 @@ Aliases: None
 Possible values:
 
 Required: True
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Selected
-Pre-selected choices: the objects or their texts, or a scriptblock returning $true for static choices. With -LoadChoices, pass initial values; they are matched when the choices arrive.
-
-```yaml
-Type: Object
-Parameter Sets: Select, MultiSelect, LoadChoices
-Aliases: None
-Possible values:
-
-Required: False
 Position: named
 Default value: None
 Accept pipeline input: False

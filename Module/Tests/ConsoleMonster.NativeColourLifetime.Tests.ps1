@@ -37,7 +37,7 @@ $options = Get-PSReadLineOption
 $options.CommandColor = "$([char]27)[0m"
 $before = $options.CommandColor
 __SETUP__
-Enable-ConsoleFormatting -Feature ReadLine
+Enable-ConsoleFormatting -Include ReadLine -Exclude Output, FormatCommands, Errors, Streams
 if ($options.CommandColor -cne $before) { throw 'No-colour setting introduced editor colour sequences.' }
 Disable-ConsoleFormatting
 'NO_COLOUR_OK'
@@ -60,7 +60,7 @@ $env:CONSOLEMONSTER_MODE = 'stream'
 if ($PSVersionTable.PSVersion.Major -ge 7) { $PSStyle.OutputRendering = 'Ansi' }
 Import-Module '__MODULE__'
 Import-Module PSReadLine
-Enable-ConsoleFormatting -Feature ReadLine
+Enable-ConsoleFormatting -Include ReadLine -Exclude Output, FormatCommands, Errors, Streams
 $expected = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Rendering.SgrEncoder'))::Encode([ConsoleMonster.Terminal]::Theme.Resolve('Series6', '__DEPTH__'), '__DEPTH__')
 if ((Get-PSReadLineOption).CommandColor -cne $expected) { throw 'Editor colours exceeded or ignored the profile depth.' }
 Disable-ConsoleFormatting
@@ -95,7 +95,7 @@ function Invoke-Owner($shell, $code) {
     $result
 }
 try {
-    $setup = "Import-Module '__MODULE__'; Import-Module PSReadLine; Set-ConsoleTheme Light; Enable-ConsoleFormatting -Feature ReadLine, Streams"
+    $setup = "Import-Module '__MODULE__'; Import-Module PSReadLine; Set-ConsoleTheme Light; Enable-ConsoleFormatting -Include ReadLine, Streams -Exclude Output, FormatCommands, Errors"
     $null = Invoke-Owner $first $setup
     $firstColour = (Get-PSReadLineOption).CommandColor
     $firstProgress = if ($PSVersionTable.PSVersion.Major -ge 7) { $PSStyle.Progress.Style } else { $null }

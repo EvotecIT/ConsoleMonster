@@ -40,7 +40,7 @@ foreach ($width in 20, 21, 40, 41, 80) {
             if ($grouped) { $parameters.GroupBy = 'Group' }
             $records = @($values | Microsoft.PowerShell.Utility\Format-Wide Name @parameters)
             $native = $records | Microsoft.PowerShell.Utility\Out-String -Width $width
-            $widget = $records | Out-ConsoleFormatCommand -AsWidget
+            $widget = $records | & ([Management.Automation.CmdletInfo]::new('Out-ConsoleFormatCommand', (Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.CmdletOutConsoleFormatCommand'))) -AsWidget
             $actual = [ConsoleMonster.Terminal]::RenderText($widget, $profile)
             $native = (($native -replace "`r", '').Trim("`n") -split "`n" | ForEach-Object { $_.TrimEnd() }) -join "`n"
             $actual = (($actual -replace "`r", '').Trim("`n") -split "`n" | ForEach-Object { $_.TrimEnd() }) -join "`n"
@@ -96,7 +96,7 @@ try {
         }
     }
     $before = Invoke-Cases 'Microsoft.PowerShell.Utility'
-    Enable-ConsoleFormatting -Feature FormatCommands
+    Enable-ConsoleFormatting -Include FormatCommands -Exclude Output, Errors, Streams, ReadLine
     $after = Invoke-Cases ''
     foreach ($name in $before.PSObject.Properties.Name) {
         if ($before.$name -cne $after.$name) { throw "Native mismatch: $name" }
@@ -116,7 +116,7 @@ foreach ($kind in 'Table', 'List', 'Wide') {
     $command = Get-Command "Microsoft.PowerShell.Utility\Format-$kind"
     $native[$kind] = Get-EverydayValue | & $command -View "Everyday$kind" | Out-String
 }
-Enable-ConsoleFormatting -Feature FormatCommands
+Enable-ConsoleFormatting -Include FormatCommands -Exclude Output, Errors, Streams, ReadLine
 foreach ($kind in 'Table', 'List', 'Wide') {
     $command = Get-Command "Format-$kind"
     $actual = Get-EverydayValue | & $command -View "Everyday$kind" | Out-String
@@ -128,7 +128,7 @@ $script:evaluations = 0
 Get-EverydayValue | Microsoft.PowerShell.Utility\Format-Table @{Name='Name';Expression={ $script:evaluations++; $_.Name }} | Out-String | Out-Null
 $nativeEvaluations = $script:evaluations
 $script:evaluations = 0
-Get-EverydayValue | Format-Table @{Name='Name';Expression={ $script:evaluations++; $_.Name }} | Out-ConsoleFormatCommand -AsWidget | Export-ConsoleFrame -Format Text
+Get-EverydayValue | Format-Table @{Name='Name';Expression={ $script:evaluations++; $_.Name }} | & ([Management.Automation.CmdletInfo]::new('Out-ConsoleFormatCommand', (Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.CmdletOutConsoleFormatCommand'))) -AsWidget | Export-ConsoleFrame -Format Text
 if ($script:evaluations -ne $nativeEvaluations) { throw "Expressions evaluated $script:evaluations times instead of native $nativeEvaluations" }
 'PARAMETERS_AND_VIEWS_OK'
 '@
@@ -138,9 +138,9 @@ if ($script:evaluations -ne $nativeEvaluations) { throw "Expressions evaluated $
 
     It 'honours NoBuiltIn for FormatCommands without Output' {
         $text = Invoke-EverydayChild @'
-Enable-ConsoleFormatting -Feature FormatCommands -NoBuiltIn
+Enable-ConsoleFormatting -Include FormatCommands -Exclude Output, Errors, Streams, ReadLine -NoBuiltIn
 if ((Get-ConsoleFormatting).BuiltIn) { throw 'Built-in views remained enabled.' }
-Enable-ConsoleFormatting -Feature FormatCommands
+Enable-ConsoleFormatting -Include FormatCommands -Exclude Output, Errors, Streams, ReadLine
 if (-not (Get-ConsoleFormatting).BuiltIn) { throw 'Built-in views were not restored.' }
 'NO_BUILTIN_OK'
 '@
@@ -154,12 +154,12 @@ if ((Get-Command Format-Table).CommandType -ne 'Function') { throw 'Default did 
 Disable-ConsoleFormatting
 function global:Format-Table { 'custom-table' }
 $original = (Get-Command Format-Table).Definition
-Enable-ConsoleFormatting -Feature FormatCommands -WarningAction SilentlyContinue
+Enable-ConsoleFormatting -Include FormatCommands -Exclude Output, Errors, Streams, ReadLine -WarningAction SilentlyContinue
 if ((Get-Command Format-Table).Definition -cne $original) { throw 'Custom function was overwritten' }
-Enable-ConsoleFormatting -Feature FormatCommands -Force
+Enable-ConsoleFormatting -Include FormatCommands -Exclude Output, Errors, Streams, ReadLine -Force
 Disable-ConsoleFormatting
 if ((Get-Command Format-Table).Definition -cne $original) { throw 'Custom function not restored' }
-Enable-ConsoleFormatting -Feature FormatCommands -Force
+Enable-ConsoleFormatting -Include FormatCommands -Exclude Output, Errors, Streams, ReadLine -Force
 Remove-Module ConsoleMonster
 if ((Get-Command Format-Table).Definition -cne $original) { throw 'Module removal did not restore function' }
 'RESTORATION_OK'
@@ -174,7 +174,7 @@ $widget = $row | Microsoft.PowerShell.Utility\Format-Table -Property @{
     Name='Left'; Expression='A'; Alignment='Left'
 }, @{ Name='Center'; Expression='B'; Alignment='Center' }, @{
     Name='Right'; Expression='C'; Alignment='Right'
-}, Numeric | Out-ConsoleFormatCommand -AsWidget
+}, Numeric | & ([Management.Automation.CmdletInfo]::new('Out-ConsoleFormatCommand', (Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.CmdletOutConsoleFormatCommand'))) -AsWidget
 $actual = @($widget.Columns | ForEach-Object { [string]$_.Alignment }) -join ','
 if ($actual -ne 'Left,Center,Right,Right') { throw "Native alignment mapping was $actual" }
 'ALIGNMENT_OK'
@@ -192,18 +192,18 @@ $name = 'Format-__KIND__'
 Set-Item ("Function:\global:" + $name) { 'GLOBAL_ORIGINAL' }
 & {
     Set-Item ("Function:local:" + $name) { 'LOCAL_ORIGINAL' }
-    Enable-ConsoleFormatting -Feature FormatCommands -Force
+    Enable-ConsoleFormatting -Include FormatCommands -Exclude Output, Errors, Streams, ReadLine -Force
 }
 Disable-ConsoleFormatting
 if ((& $name) -ne 'GLOBAL_ORIGINAL') { throw 'Local function replaced the global backup' }
-Enable-ConsoleFormatting -Feature FormatCommands -Force
+Enable-ConsoleFormatting -Include FormatCommands -Exclude Output, Errors, Streams, ReadLine -Force
 & {
     Set-Item ("Function:local:" + $name) { 'LOCAL_SHADOW' }
     Disable-ConsoleFormatting
     if ((& $name) -ne 'LOCAL_SHADOW') { throw 'Disable changed a local shadow' }
 }
 if ((& $name) -ne 'GLOBAL_ORIGINAL') { throw 'Disable under a shadow left the global proxy installed' }
-Enable-ConsoleFormatting -Feature FormatCommands -Force
+Enable-ConsoleFormatting -Include FormatCommands -Exclude Output, Errors, Streams, ReadLine -Force
 Set-Item ("Function:\global:" + $name) { # ConsoleMonster FormatCommands proxy
     'USER_REPLACEMENT'
 }
@@ -219,7 +219,7 @@ if ((& $name) -ne 'USER_REPLACEMENT') { throw 'Disable replaced a new user funct
 function global:Out-Default { 'GLOBAL_OUT_DEFAULT' }
 & {
     function Out-Default { 'LOCAL_OUT_DEFAULT' }
-    Enable-ConsoleFormatting -Feature FormatCommands -Force
+    Enable-ConsoleFormatting -Include FormatCommands -Exclude Output, Errors, Streams, ReadLine -Force
 }
 & {
     function Out-Default { 'LOCAL_DISABLE_SHADOW' }
@@ -241,7 +241,7 @@ foreach ($kind in 'Table', 'List', 'Wide') {
         Import-Module $module
         Import-Module $fixture
         $before = Get-EverydayValue | & "Microsoft.PowerShell.Utility\Format-$kind" -Property Name | Out-String
-        Enable-ConsoleFormatting -Feature FormatCommands
+        Enable-ConsoleFormatting -Include FormatCommands -Exclude Output, Errors, Streams, ReadLine
         $after = Get-EverydayValue | & "Format-$kind" -Property Name | Out-String
         if ($before -cne $after) { throw "Job output changed: $kind" }
         Get-EverydayValue | & "Format-$kind" -Property Name
@@ -270,7 +270,7 @@ try {
         Import-Module $fixture
         foreach ($kind in 'Table', 'List', 'Wide') {
             $expected = Get-EverydayValue | & "Microsoft.PowerShell.Utility\Format-$kind" -Property Name | Out-String
-            Enable-ConsoleFormatting -Feature FormatCommands
+            Enable-ConsoleFormatting -Include FormatCommands -Exclude Output, Errors, Streams, ReadLine
             $actual = Get-EverydayValue | & "Format-$kind" -Property Name | Out-String
             if ($expected -cne $actual) { throw "Remote native output changed: $kind" }
         }
@@ -294,7 +294,7 @@ try {
         param($module, $label)
         Import-Module $module
         Set-Item Function:\global:Format-Table ([scriptblock]::Create("'$label'"))
-        Enable-ConsoleFormatting -Feature FormatCommands -Force
+        Enable-ConsoleFormatting -Include FormatCommands -Exclude Output, Errors, Streams, ReadLine -Force
     }
     $null = $first.AddScript($setup.ToString()).AddArgument((Get-Module ConsoleMonster).Path).AddArgument('FIRST').Invoke()
     $null = $second.AddScript($setup.ToString()).AddArgument((Get-Module ConsoleMonster).Path).AddArgument('SECOND').Invoke()
@@ -323,7 +323,7 @@ try {
         Get-EverydayValue | & "Microsoft.PowerShell.Utility\Format-$kind" -Property Name | Microsoft.PowerShell.Core\Out-Default
     }
     'BASELINE_END' | Microsoft.PowerShell.Core\Out-Default
-    Enable-ConsoleFormatting -Feature FormatCommands
+    Enable-ConsoleFormatting -Include FormatCommands -Exclude Output, Errors, Streams, ReadLine
     'ENABLED_BEGIN' | Microsoft.PowerShell.Core\Out-Default
     foreach ($kind in 'Table', 'List', 'Wide') {
         $expected = Get-EverydayValue | & "Microsoft.PowerShell.Utility\Format-$kind" -Property Name | Out-String

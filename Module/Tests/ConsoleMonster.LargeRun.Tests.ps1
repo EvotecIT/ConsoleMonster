@@ -9,7 +9,7 @@ Describe 'Large run progress' {
         $code = @'
 Import-Module '__MODULE__' -Force
 $items = @([pscustomobject]@{Name='Alpha';Target='host-1';Group='DNS'}, [pscustomobject]@{Name='Beta';Target='host-2';Group='DNS'}, [pscustomobject]@{Name='Gamma';Target='host-3';Group='Storage'})
-$run = Start-ConsoleRun -Items $items -Label { $_.Name } -Target Target -Group Group -Title 'Batch checks' -NoLive -ProgressEvery 2 -ProgressIntervalSeconds 0 -ReportPath 'reports/checks.html'
+$run = Start-ConsoleRun -InputObject $items -Label { $_.Name } -Target Target -Group Group -Title 'Batch checks' -NoLive -ProgressEvery 2 -ProgressIntervalSeconds 0 -ReportPath 'reports/checks.html'
 try {
     Update-Console -Run $run -Index 0 -Status Running -Label 'collecting'
     Update-Console -Run $run -Index 0 -Status Pass
@@ -37,7 +37,7 @@ Complete-ConsoleRun $run
     ) {
         $code = @'
 Import-Module '__MODULE__' -Force
-$run = Start-ConsoleRun -Items @('one check') -NoLive -ProgressIntervalSeconds 0
+$run = Start-ConsoleRun -InputObject @('one check') -NoLive -ProgressIntervalSeconds 0
 try {
     try {
         Update-Console -Run $run -Index 0 -Status '__STATE__' -ErrorAction Stop
@@ -61,7 +61,7 @@ try {
 Import-Module '__MODULE__' -Force
 $script:offeredRun = $null
 try {
-    Start-ConsoleRun -Items @('unpublished') -NoLive -ErrorAction Stop | ForEach-Object {
+    Start-ConsoleRun -InputObject @('unpublished') -NoLive -ErrorAction Stop | ForEach-Object {
         $script:offeredRun = $_
         throw 'Handle publication failed'
     }
@@ -82,13 +82,13 @@ try {
 Import-Module '__MODULE__' -Force
 $run = $null
 try {
-    $run = Start-ConsoleRun -Items @('unpublished') -NoLive -InformationAction Stop -ErrorAction Stop
+    $run = Start-ConsoleRun -InputObject @('unpublished') -NoLive -InformationAction Stop -ErrorAction Stop
     throw 'The host-output failure was ignored'
 } catch {
     "HOST_ERROR=$($_.FullyQualifiedErrorId)"
 }
 "NO_HANDLE=$($null -eq $run)"
-$next = Start-ConsoleRun -Items @('next check') -NoLive -ProgressIntervalSeconds 0
+$next = Start-ConsoleRun -InputObject @('next check') -NoLive -ProgressIntervalSeconds 0
 try { Update-Console -Run $next -Index 0 -Status Pass }
 finally { $summary = Complete-ConsoleRun $next -PassThru }
 "NEXT=$($summary.Passed),$($summary.IsFinished)"
@@ -102,7 +102,7 @@ finally { $summary = Complete-ConsoleRun $next -PassThru }
     It 'accepts an empty run and completes without inventing work' {
         $code = @'
 Import-Module '__MODULE__' -Force
-$run = Start-ConsoleRun -Items @() -NoLive -ProgressIntervalSeconds 0
+$run = Start-ConsoleRun -InputObject @() -NoLive -ProgressIntervalSeconds 0
 $summary = Complete-ConsoleRun $run -PassThru
 "EMPTY=$($summary.Total),$($summary.Done),$($summary.IsFinished)"
 '@
@@ -112,7 +112,7 @@ $summary = Complete-ConsoleRun $run -PassThru
     It 'receives timed host progress while a background worker is running' {
         $code = @'
 Import-Module '__MODULE__' -Force
-$run = Start-ConsoleRun -Items @('slow check') -NoLive -ProgressEvery 0 -ProgressIntervalSeconds 0.1
+$run = Start-ConsoleRun -InputObject @('slow check') -NoLive -ProgressEvery 0 -ProgressIntervalSeconds 0.1
 $worker = [powershell]::Create()
 $null = $worker.AddScript('param($run) Start-Sleep -Milliseconds 800; $run.Finished(0, [ConsoleMonster.Styling.StatusKind]::Pass, "worker done")').AddArgument($run)
 try {
@@ -135,7 +135,7 @@ try {
 $ErrorActionPreference = 'Stop'
 Import-Module '__MODULE__' -Force
 Add-Type -Path '__FIXTURE__'
-$run = Start-ConsoleRun -Items @('deferred check') -NoLive -ProgressIntervalSeconds 0
+$run = Start-ConsoleRun -InputObject @('deferred check') -NoLive -ProgressIntervalSeconds 0
 try {
 $queues = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.CmdletCompleteConsoleRun')).Assembly.GetType('ConsoleMonster.PowerShell.LiveRunHostQueues').GetField('Queues', 'Static,NonPublic').GetValue($null)
 $lookup = $queues.GetType().GetMethod('TryGetValue')
@@ -175,7 +175,7 @@ Complete-ConsoleRun $run
 
     It 'filters the PassThru snapshot by item Status, as the help shows' {
         Import-Module (Join-Path $PSScriptRoot '..\ConsoleMonster.psd1') -Force
-        $run = Start-ConsoleRun -Items a, b -NoLive
+        $run = Start-ConsoleRun -InputObject a, b -NoLive
         Update-Console -Run $run -Index 0 -Status Pass
         Update-Console -Run $run -Index 1 -Status Fail -Detail 'refused'
         $summary = Complete-ConsoleRun $run -PassThru 6>$null
@@ -190,7 +190,7 @@ Complete-ConsoleRun $run
         $code = @'
 $ErrorActionPreference = 'Stop'
 Import-Module '__MODULE__' -Force
-$run = Start-ConsoleRun -Items @('final check') -NoLive -ProgressIntervalSeconds 0
+$run = Start-ConsoleRun -InputObject @('final check') -NoLive -ProgressIntervalSeconds 0
 try {
     try {
         Complete-ConsoleRun $run -InformationAction Stop -ErrorAction Stop

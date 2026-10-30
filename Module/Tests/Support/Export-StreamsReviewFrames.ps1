@@ -160,7 +160,7 @@ try {
         @($streams)
     }
     $baseline = Read-StreamConfiguration
-    if ('__STATE__' -eq 'after') { Enable-ConsoleFormatting -Feature Streams }
+    if ('__STATE__' -eq 'after') { Enable-ConsoleFormatting -Include Streams -Exclude Output, FormatCommands, Errors, ReadLine }
     $configuration = Read-StreamConfiguration
     $commands = foreach ($name in 'Write-Warning', 'Write-Verbose', 'Write-Debug') {
         $command = Get-Command $name
@@ -259,7 +259,7 @@ foreach ($theme in 'Light', 'Dark') {
             $styles.Add([pscustomobject]@{ Stream = $configuration.Name; Style = $resolved })
         }
         $frame | Export-ConsoleFrame -Format Text -Path ($basePath + '.txt') -Theme $theme
-        $frame | Export-ConsoleFrame -Format Html -Path ($basePath + '.html') -Theme $theme -WindowChrome -Title ($name + ' | reconstructed native configuration')
+        $frame | Export-ConsoleFrame -Format Html -Path ($basePath + '.html') -Theme $theme -ChromeStyle MacOS -Title ($name + ' | reconstructed native configuration')
         $exported = [IO.File]::ReadAllText($basePath + '.txt').Replace("`r`n", "`n").TrimEnd([char[]]"`r`n")
         if ($exported -cne $plain) { throw 'Frame export changed captured native text.' }
         $receipt | Add-Member -NotePropertyName Provenance -NotePropertyValue $provenance

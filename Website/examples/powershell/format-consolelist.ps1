@@ -19,6 +19,6 @@ $artifacts = @(
 )
 
 $artifacts[0] |
-    Show-ConsoleList -Property Name, Kind, @{ Name = 'Length'; Header = 'Size'
+    Show-Console -View List -Property Name, Kind, @{ Name = 'Length'; Header = 'Size'
         Presenter = 'Bytes' }, @{ Name = 'Time'; Header = 'Built in'
             Presenter = 'Duration' }, @{ Name = 'Signed'; Presenter = 'Boolean' }, Path

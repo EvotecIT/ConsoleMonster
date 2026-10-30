@@ -1,4 +1,4 @@
-using ConsoleMonster.Building;
+using ConsoleMonster;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
@@ -74,13 +74,13 @@ KeyValueList module = new KeyValueList("module")
     .Add("Run mode", "Build [muted](publish disabled)[/]")
     .Add("Elapsed", "-");
 ProgressBar progress = new ProgressBar("Overall", "overall").Total(plan.Length).LabelWidth(8);
-Dashboard dashboard = new DashboardBuilder("[bold]Module build[/]")
+Dashboard dashboard = Ui.Dashboard().Title("[bold]Module build[/]")
     .Subtitle("Build-Module ConsoleMonster")
-    .Add(new Padding(phases, 1, 0, 1, 1))
-    .Columns(c => c.Panel("Steps", steps, 1.5)
-        .Panel("Module", new Rows(module, new Rule(), progress), 1))
-    .Panel("Output", new LogRegion { PreferredHeight = 8 }, true)
-    .BuildDashboard();
+    .Content(body => body
+        .Add(new Padding(phases, 1, 0, 1, 1))
+        .Columns(columns => columns.Content(c => c.Add(new Panel(steps, "Steps").Fill(1.5))
+            .Add(new Panel(new Rows(module, new Rule(), progress), "Module").Fill(1))))
+        .Add(new Panel(new LogRegion { PreferredHeight = 8 }, "Output").Fill()));
 Table summary = new Table()
     .Border(TableBorder.Minimal)
     .Title("[bold]Build summary[/] [muted]ConsoleMonster 2.0.0[/]")

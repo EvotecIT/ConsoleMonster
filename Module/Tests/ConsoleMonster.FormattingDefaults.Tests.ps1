@@ -15,12 +15,12 @@ Describe 'Everyday formatting defaults' {
         $result = Invoke-FormattingScenario @'
 Enable-ConsoleFormatting
 "ON=$((Get-ConsoleFormatting).Features -join ',')"
-"COMPACT=$((Get-ConsoleFormatting).CompactErrors)"
+"LAYOUT=$((Get-ConsoleFormatting).ErrorLayout)"
 Disable-ConsoleFormatting
 "OFF=$((Get-ConsoleFormatting).Features.Count)"
 '@
         $result | Should -Match 'ON=Output,FormatCommands,Errors,Streams,ReadLine'
-        $result | Should -Match 'COMPACT=False'
+        $result | Should -Match 'LAYOUT=Standard'
         $result | Should -Match 'OFF=0'
     }
 
@@ -45,13 +45,12 @@ Disable-ConsoleFormatting
         $result | Should -Match 'EXCLUDED=False'
     }
 
-    It 'rejects Include with Feature and replaces earlier choices with explicit Feature' {
+    It 'selects an exact subset and disables all defaults with Exclude' {
         $result = Invoke-FormattingScenario @'
-try { Enable-ConsoleFormatting -Include Help -Feature Output -ErrorAction Stop; throw 'NOT_REJECTED' } catch { if ($_.Exception.Message -eq 'NOT_REJECTED') { throw } }
 Enable-ConsoleFormatting
-Enable-ConsoleFormatting -Feature Streams
+Enable-ConsoleFormatting -Include Streams -Exclude Output, FormatCommands, Errors, ReadLine
 "ON=$((Get-ConsoleFormatting).Features -join ',')"
-Enable-ConsoleFormatting -Feature None
+Enable-ConsoleFormatting -Exclude Output, FormatCommands, Errors, Streams, ReadLine
 "NONE=$((Get-ConsoleFormatting).Features.Count)"
 Disable-ConsoleFormatting
 '@
@@ -61,7 +60,7 @@ Disable-ConsoleFormatting
 
     It 'excludes selected defaults and disables a previously enabled feature' {
         $result = Invoke-FormattingScenario @'
-Enable-ConsoleFormatting -Feature Prompt -Force
+Enable-ConsoleFormatting -Include Prompt -Exclude Output, FormatCommands, Errors, Streams, ReadLine -Force
 Enable-ConsoleFormatting -Exclude FormatCommands, Prompt
 "ON=$((Get-ConsoleFormatting).Features -join ',')"
 Disable-ConsoleFormatting
@@ -72,24 +71,25 @@ Disable-ConsoleFormatting
 
     It 'accepts an explicit feature set and preserves it in the profile snippet' {
         $result = Invoke-FormattingScenario @'
-Enable-ConsoleFormatting -Feature Errors -CompactErrors
-"ON=$((Get-ConsoleFormatting).Features -join ',') COMPACT=$((Get-ConsoleFormatting).CompactErrors)"
-Enable-ConsoleFormatting -Feature Errors -CompactErrors -ProfileSnippet
+Enable-ConsoleFormatting -Include Errors -Exclude Output, FormatCommands, Streams, ReadLine -ErrorLayout Compact
+"ON=$((Get-ConsoleFormatting).Features -join ',') LAYOUT=$((Get-ConsoleFormatting).ErrorLayout)"
+Enable-ConsoleFormatting -Include Errors -Exclude Output, FormatCommands, Streams, ReadLine -ErrorLayout Compact -ProfileSnippet
 Enable-ConsoleFormatting -Exclude FormatCommands, Streams -ProfileSnippet
 Disable-ConsoleFormatting
 '@
-        $result | Should -Match 'ON=Errors COMPACT=True'
-        $result | Should -Match 'Enable-ConsoleFormatting -Feature Errors -CompactErrors'
+        $result | Should -Match 'ON=Errors LAYOUT=Compact'
+        $result | Should -Match 'Enable-ConsoleFormatting -Include Errors -Exclude Output, FormatCommands, Streams, ReadLine -ErrorLayout Compact'
         $result | Should -Match 'Enable-ConsoleFormatting -Exclude FormatCommands, Streams'
     }
 
-    It 'rejects conflicting selections without changing the session' {
+    It 'lets Exclude take precedence when the same feature is included' {
         $result = Invoke-FormattingScenario @'
-try { Enable-ConsoleFormatting -Feature Output -Exclude Errors -ErrorAction Stop } catch { 'REJECTED' }
+Enable-ConsoleFormatting -Include Output -Exclude Output
+"OUTPUT=$((Get-ConsoleFormatting).Features -contains 'Output')"
 "ON=$((Get-ConsoleFormatting).Features.Count)"
 '@
-        $result | Should -Match 'REJECTED'
-        $result | Should -Match 'ON=0'
+        $result | Should -Match 'OUTPUT=False'
+        $result | Should -Match 'ON=4'
     }
 
     It 'keeps explicit format records and captured text native with the default set' {
@@ -122,7 +122,7 @@ Disable-ConsoleFormatting
     It 'restores an installed progress proxy when a later feature fails to install' {
         $result = Invoke-FormattingScenario @'
 Set-Item Function:global:Format-Table { 'read-only formatter' } -Options ReadOnly
-try { Enable-ConsoleFormatting -Feature Progress, FormatCommands -Force -ErrorAction Stop; throw 'Expected installation to fail' }
+try { Enable-ConsoleFormatting -Include Progress, FormatCommands -Exclude Output, Errors, Streams, ReadLine -Force -ErrorAction Stop; throw 'Expected installation to fail' }
 catch { if ($_.Exception.Message -eq 'Expected installation to fail') { throw } }
 if ((Get-Command Write-Progress).CommandType -ne 'Function') { throw 'Progress was not installed first' }
 Disable-ConsoleFormatting

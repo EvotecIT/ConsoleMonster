@@ -25,7 +25,8 @@ Writes a line to the log region of a running dashboard.
 
 ### EXAMPLE 1
 ```powershell
-Write-ConsoleLogEntry 'DC03 responded slowly' -Level warn
+$dashboard = New-ConsoleDashboard -Title 'Connectivity' -Content { New-ConsoleLogRegion }
+Invoke-ConsoleDashboard $dashboard { Write-ConsoleLogEntry 'DC03 responded slowly' -Level warn }
 ```
 
 Log a warning

@@ -6,7 +6,7 @@
         $script:GalleryCulture = [Threading.Thread]::CurrentThread.CurrentCulture
         $script:GalleryUICulture = [Threading.Thread]::CurrentThread.CurrentUICulture
         $script:GalleryPreviousConfiguration = $env:CONSOLEMONSTER_DEVELOPMENT_CONFIGURATION
-        $env:CONSOLEMONSTER_DEVELOPMENT_CONFIGURATION = 'Release'
+        $env:CONSOLEMONSTER_DEVELOPMENT_CONFIGURATION = 'Debug'
         # Name-based imports in the unchanged standalone scripts need a discoverable module.
         # Its development loader also needs the sibling project link to find this checkout's binaries.
         $script:GalleryModuleLinkRoot = Join-Path $TestDrive 'modules'
@@ -39,7 +39,7 @@
                 '$env:CONSOLEMONSTER_MODE = ''Plain'''
                 '$env:CONSOLEMONSTER_INPUT = $null'
                 '$env:CONSOLEMONSTER_SNAPSHOT = $null'
-                '$env:CONSOLEMONSTER_DEVELOPMENT_CONFIGURATION = ''Release'''
+                '$env:CONSOLEMONSTER_DEVELOPMENT_CONFIGURATION = ''Debug'''
                 "`$env:PSModulePath = '$($script:GalleryModuleLinkRoot.Replace("'", "''"))' + [IO.Path]::PathSeparator + `$env:PSModulePath"
                 'Import-Module ConsoleMonster -Force -ErrorAction Stop'
                 $Body
@@ -59,7 +59,7 @@
             )
 
             $path = Join-Path $TestDrive "interactive-$Slug.ps1"
-            $null = Export-ConsoleDemo $Slug -Path $path -PassThru
+            [IO.File]::WriteAllText($path, (Get-ConsoleDemo $Slug).Source, [Text.UTF8Encoding]::new($true))
             $body = @(
                 "`$slug = '$($Slug.Replace("'", "''"))'"
                 "`$keys = '$($Keys.Replace("'", "''"))'"
@@ -134,7 +134,7 @@ try {
         (@(Get-ConsoleDemo 'welcome-*').Slug -join ',') | Should -BeExactly 'welcome-compact,welcome-rich'
         @(Get-ConsoleDemo 'no-such-demo-*').Count | Should -Be 0
         { Get-ConsoleDemo no-such-demo } | Should -Throw -ErrorId 'ConsoleDemoNotFound*'
-        { Show-ConsoleDemo no-such-demo -StaticSnapshot } | Should -Throw -ErrorId 'ConsoleDemoNotFound*'
+        { Show-ConsoleDemo no-such-demo -Mode Snapshot } | Should -Throw -ErrorId 'ConsoleDemoNotFound*'
     }
 
     It 'lists demos as a table and asks for a slug only when nobody can pick one' {
@@ -148,11 +148,9 @@ try {
         $lines | Should -Contain 'Name the demo to run, for example Show-ConsoleDemo fleet. Get-ConsoleDemo lists every slug.'
     }
 
-    It 'exports the canonical script verbatim and returns its file information' {
+    It 'offers canonical source that can be saved and parsed as an ordinary script' {
         $path = Join-Path $TestDrive 'readiness-report.ps1'
-        $file = Export-ConsoleDemo readiness-report -Path $path -PassThru
-        $file | Should -BeOfType [IO.FileInfo]
-        $file.FullName | Should -Be $path
+        [IO.File]::WriteAllText($path, (Get-ConsoleDemo readiness-report).Source, [Text.UTF8Encoding]::new($true))
         $canonical = Join-Path $PSScriptRoot '../../Website/examples/gallery/readiness-report/readiness-report.ps1'
         [IO.File]::ReadAllText($path) | Should -BeExactly ([IO.File]::ReadAllText($canonical))
         $tokens = $null
@@ -175,7 +173,7 @@ $env:PSModulePath = '__ROOT__' + [IO.Path]::PathSeparator + $env:PSModulePath
 Import-Module '__MODULE__' -ErrorAction Stop
 $before = (Get-Command Show-ConsoleDemo).Module.Path
 Show-ConsoleDemo welcome-compact
-Show-ConsoleDemo welcome-compact -StaticSnapshot
+Show-ConsoleDemo welcome-compact -Mode Snapshot
 if ((Get-Command Show-ConsoleDemo).Module.Path -ne $before) { throw 'The loaded module changed.' }
 'loaded-module-preserved'
 '@.Replace('__ROOT__', $root.Replace("'", "''")).Replace('__MODULE__', $script:GalleryModulePath.Replace("'", "''"))
@@ -185,46 +183,25 @@ if ((Get-Command Show-ConsoleDemo).Module.Path -ne $before) { throw 'The loaded 
         ($lines -join "`n") | Should -Match 'Welcome, explorer'
     }
 
-    It 'preserves an existing file unless Force is explicit and honors WhatIf' {
-        $path = Join-Path $TestDrive 'existing.ps1'
-        [IO.File]::WriteAllText($path, 'keep my edits')
-        { Export-ConsoleDemo fleet-filter -Path $path -PassThru } | Should -Throw -ErrorId 'ConsoleDemoExportFailed*'
-        [IO.File]::ReadAllText($path) | Should -BeExactly 'keep my edits'
-        Export-ConsoleDemo fleet-filter -Path $path -Force -WhatIf -PassThru
-        [IO.File]::ReadAllText($path) | Should -BeExactly 'keep my edits'
-        $null = Export-ConsoleDemo fleet-filter -Path $path -Force -PassThru
-        [IO.File]::ReadAllText($path) | Should -Not -BeExactly 'keep my edits'
-        $unused = Join-Path $TestDrive 'whatif.ps1'
-        Export-ConsoleDemo fleet-filter -Path $unused -WhatIf -PassThru
-        Test-Path -LiteralPath $unused | Should -BeFalse
-    }
 
-    It 'rejects unknown exports, wildcard exports and missing destination directories without creating files' {
-        $path = Join-Path $TestDrive 'unknown.ps1'
-        { Export-ConsoleDemo no-such-demo -Path $path -PassThru } | Should -Throw -ErrorId 'ConsoleDemoNotFound*'
-        { Export-ConsoleDemo 'welcome-*' -Path $path -PassThru } | Should -Throw -ErrorId 'ConsoleDemoNotFound*'
-        Test-Path -LiteralPath $path | Should -BeFalse
-        { Export-ConsoleDemo fleet-filter -Path (Join-Path $TestDrive 'missing/demo.ps1') -PassThru } | Should -Throw -ErrorId 'ConsoleDemoExportFailed*'
-        { Export-ConsoleDemo fleet-filter -Path 'Variable:GalleryDemoExport' -PassThru } | Should -Throw -ErrorId 'ConsoleDemoExportFailed*'
-    }
 
-    It 'exports <Slug> byte for byte with its BOM and runs a runner-selected snapshot' -ForEach @(
+    It 'saves the Source of <Slug> byte for byte with its BOM and runs a runner-selected snapshot' -ForEach @(
         Get-ChildItem (Join-Path $PSScriptRoot '../../Website/examples/gallery/*/metadata.json') | ForEach-Object { @{ Slug = $_.Directory.Name } }
     ) {
         $path = Join-Path $TestDrive "$Slug.ps1"
-        $null = Export-ConsoleDemo $Slug -Path $path -Force -PassThru
+        [IO.File]::WriteAllText($path, (Get-ConsoleDemo $Slug).Source, [Text.UTF8Encoding]::new($true))
         $canonical = Join-Path $PSScriptRoot "../../Website/examples/gallery/$Slug/$Slug.ps1"
         $bytes = [IO.File]::ReadAllBytes($path)
         [Convert]::ToBase64String($bytes) | Should -BeExactly ([Convert]::ToBase64String([IO.File]::ReadAllBytes($canonical)))
         ($bytes[0..2] -join ',') | Should -BeExactly '239,187,191'
-        $text = Invoke-GalleryChild -Body "Show-ConsoleDemo '$Slug' -StaticSnapshot -Step 0"
+        $text = Invoke-GalleryChild -Body "Show-ConsoleDemo '$Slug' -Mode Snapshot -Step 0"
         $text.Trim() | Should -Not -BeNullOrEmpty
     }
 
     It 'drives the selected state in the runner for both embedded and exported ordinary scripts' {
         $path = Join-Path $TestDrive 'standalone.ps1'
-        $null = Export-ConsoleDemo build-steps -Path $path -PassThru
-        $embedded = Invoke-GalleryChild -Body 'Show-ConsoleDemo build-steps -StaticSnapshot -Step 1'
+        [IO.File]::WriteAllText($path, (Get-ConsoleDemo build-steps).Source, [Text.UTF8Encoding]::new($true))
+        $embedded = Invoke-GalleryChild -Body 'Show-ConsoleDemo build-steps -Mode Snapshot -Step 1'
         $body = @(
             "Set-Location '$($TestDrive.Replace("'", "''"))'"
             "`$frame = & '$($script:GalleryCapturePath.Replace("'", "''"))' -Demo { & '$($path.Replace("'", "''"))' } -Metadata (Get-ConsoleDemo build-steps) -Step 1"
@@ -242,7 +219,7 @@ try {
         $embedded | Should -Match 'Compile\s+running'
         $embedded | Should -Not -Match 'Restore\s+running'
         $embedded | Should -BeExactly $exported
-        $embedded | Should -BeExactly (Invoke-GalleryChild -Body 'Show-ConsoleDemo build-steps -StaticSnapshot -Step 1')
+        $embedded | Should -BeExactly (Invoke-GalleryChild -Body 'Show-ConsoleDemo build-steps -Mode Snapshot -Step 1')
     }
 
     It 'applies the declared <ClockMode> clock to direct capture and restores the caller clock' -ForEach @(
@@ -286,12 +263,12 @@ try {
     }
 
     It 'keeps the loaded fleet defaults selected in the native editor' {
-        $text = Invoke-GalleryChild -Body 'Show-ConsoleDemo fleet -StaticSnapshot -Step 1'
+        $text = Invoke-GalleryChild -Body 'Show-ConsoleDemo fleet -Mode Snapshot -Step 1'
         $text | Should -Match '5 of 5 selected'
     }
 
     It 'captures toolbox targets only after their defaults have loaded' {
-        $text = Invoke-GalleryChild -Body 'Show-ConsoleDemo toolbox -StaticSnapshot -Step 1'
+        $text = Invoke-GalleryChild -Body 'Show-ConsoleDemo toolbox -Mode Snapshot -Step 1'
         $text | Should -Match '4 of 9 selected'
     }
 

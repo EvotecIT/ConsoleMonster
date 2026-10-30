@@ -219,8 +219,8 @@ namespace ConsoleMonster.Widgets {
                 return string.Join(" ", parts);
             }
 
-            public int Width(RenderContext context) {
-                int width = DisplayWidth.Measure(Prefix) + context.Markup(Node.LabelFor(context)).Width + Node.LabelPadding;
+            public int Width(RenderContext context, bool includePadding = true) {
+                int width = DisplayWidth.Measure(Prefix) + context.Markup(Node.LabelFor(context)).Width + (includePadding ? Node.LabelPadding : 0);
                 string? marker = Node.MarkerFor(context);
                 if (!string.IsNullOrEmpty(marker)) {
                     width += DisplayWidth.Measure(marker!) + 1;

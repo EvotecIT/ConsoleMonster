@@ -37,7 +37,7 @@ $progress = Get-StreamsState
 $unowned = Get-ReadLineUnowned
 $streamUnowned = Get-StreamsUnownedState
 Set-ConsoleTheme __THEME__
-Enable-ConsoleFormatting -Feature ReadLine, Streams
+Enable-ConsoleFormatting -Include ReadLine, Streams -Exclude Output, FormatCommands, Errors
 Assert-ReadLineTheme
 Assert-StreamsState (Get-StreamsExpected)
 if ($PSVersionTable.PSVersion -lt [version] '7.2' -and $Host.PrivateData.ProgressForegroundColor -ne [ConsoleColor]::__PROGRESS__) { throw 'Wrong native progress palette.' }
@@ -57,7 +57,7 @@ Assert-StreamsState $progress
     ) {
         Invoke-NativeStylingChild -WithoutReadLine (@'
 if (Get-Module PSReadLine) { throw 'The missing-module oracle already loaded PSReadLine.' }
-Enable-ConsoleFormatting -Feature __FEATURES__
+Enable-ConsoleFormatting -Include __FEATURES__ -Exclude @('Output', 'FormatCommands', 'Errors', 'Streams', 'ReadLine' | Where-Object { $_ -notin @('__FEATURES__' -split ',\s*') })
 if (Get-Module PSReadLine) { throw 'Cosmetic styling imported PSReadLine.' }
 Assert-NativeCommands
 Disable-ConsoleFormatting
@@ -75,11 +75,11 @@ Set-ReadLineBaseline
 Set-StreamsBaseline
 $first = Get-ReadLineState
 $streams = Get-StreamsState
-Enable-ConsoleFormatting -Feature ReadLine, Streams
+Enable-ConsoleFormatting -Include ReadLine, Streams -Exclude Output, FormatCommands, Errors
 Set-ReadLineBaseline -Variant 1
 Set-StreamsBaseline -Variant 1
 Set-ConsoleTheme HighContrast
-Enable-ConsoleFormatting -Feature ReadLine, Streams
+Enable-ConsoleFormatting -Include ReadLine, Streams -Exclude Output, FormatCommands, Errors
 Assert-ReadLineTheme
 Assert-StreamsState (Get-StreamsExpected)
 Set-ReadLineBaseline -Variant 2
@@ -97,13 +97,13 @@ Assert-NativeState $unowned (Get-ReadLineUnowned)
 
     It 'starts a fresh baseline after disable and reenable and restores on module removal' {
         Invoke-NativeStylingChild @'
-Enable-ConsoleFormatting -Feature ReadLine, Streams
+Enable-ConsoleFormatting -Include ReadLine, Streams -Exclude Output, FormatCommands, Errors
 Disable-ConsoleFormatting
 Set-ReadLineBaseline -Variant 1
 Set-StreamsBaseline -Variant 1
 $second = Get-ReadLineState
 $streams = Get-StreamsState
-Enable-ConsoleFormatting -Feature ReadLine, Streams
+Enable-ConsoleFormatting -Include ReadLine, Streams -Exclude Output, FormatCommands, Errors
 Remove-Module ConsoleMonster
 Assert-NativeState $second (Get-ReadLineState)
 Assert-StreamsState $streams
@@ -119,7 +119,7 @@ Assert-StreamsState $streams
         Invoke-NativeStylingChild (@'
 $baseline = Get-ReadLineState
 $streams = Get-StreamsState
-Enable-ConsoleFormatting -Feature Output, ReadLine, Streams
+Enable-ConsoleFormatting -Include Output, ReadLine, Streams -Exclude FormatCommands, Errors
 Disable-ConsoleFormatting -Feature __FIRST__
 if ('__FIRST__' -eq 'ReadLine') { Assert-NativeState $baseline (Get-ReadLineState) } else { Assert-ReadLineTheme }
 if ('__FIRST__' -eq 'Streams') { Assert-StreamsState $streams } else { Assert-StreamsState (Get-StreamsExpected) }
@@ -133,15 +133,15 @@ Assert-StreamsState $streams
     }
 
     It 'includes ReadLine in the defaults and preserves snippet-only state for <FeatureName>' -ForEach @(
-        @{ FeatureName = 'ReadLine' }
-        @{ FeatureName = 'Output, FormatCommands, Errors, Streams, ReadLine' }
-        @{ FeatureName = 'Streams, ReadLine' }
+        @{ FeatureName = 'ReadLine'; Options = '-Include ReadLine -Exclude Output, FormatCommands, Errors, Streams' }
+        @{ FeatureName = 'Output, FormatCommands, Errors, Streams, ReadLine'; Options = '-Include Output, FormatCommands, Errors, Streams, ReadLine' }
+        @{ FeatureName = 'Streams, ReadLine'; Options = '-Include Streams, ReadLine -Exclude Output, FormatCommands, Errors' }
     ) {
         Invoke-NativeStylingChild (@'
 $baseline = Get-ReadLineState
 $streamBaseline = Get-StreamsState
-$snippet = @(Enable-ConsoleFormatting -Feature __FEATURE__ -ProfileSnippet)
-if ($snippet -cnotcontains 'Enable-ConsoleFormatting -Feature __FEATURE__') { throw 'Profile snippet lost the requested feature.' }
+$snippet = @(Enable-ConsoleFormatting __OPTIONS__ -ProfileSnippet)
+if ($snippet -cnotcontains 'Enable-ConsoleFormatting __OPTIONS__') { throw 'Profile snippet lost the requested feature.' }
 Assert-NativeState $baseline (Get-ReadLineState)
 Assert-StreamsState $streamBaseline
 Assert-NativeCommands
@@ -152,7 +152,7 @@ Disable-ConsoleFormatting -Feature Output, FormatCommands, Errors, Streams, Read
 Assert-NativeState $baseline (Get-ReadLineState)
 Assert-StreamsState $streamBaseline
 'ALL_AND_SNIPPET_OK'
-'@.Replace('__FEATURE__', $FeatureName)) | Should -Match 'ALL_AND_SNIPPET_OK'
+'@.Replace('__OPTIONS__', $Options)) | Should -Match 'ALL_AND_SNIPPET_OK'
     }
 
     It 'keeps every loaded Write cmdlet native with the defaults and restores exact progress colors without changing View' {
@@ -187,7 +187,7 @@ Assert-NativeCommands
 
     It 'keeps explicit native progress rendering outside the defaults and unqualified Disable still removes it' {
         Invoke-NativeStylingChild @'
-Enable-ConsoleFormatting -Feature Progress
+Enable-ConsoleFormatting -Include Progress -Exclude Output, FormatCommands, Errors, Streams, ReadLine
 if ((Get-Command Write-Progress).CommandType -ne 'Function') { throw 'Explicit Progress did not install its native-parameter proxy.' }
 $progressProxy = (Get-Command Write-Progress).Definition
 Disable-ConsoleFormatting -Feature Output, FormatCommands, Errors, Streams, ReadLine
@@ -202,7 +202,7 @@ Assert-NativeCommands
         Invoke-NativeStylingChild @'
 function global:Out-Default { 'USER_OUTPUT' }
 $definition = (Get-Command Out-Default).Definition
-Enable-ConsoleFormatting -Feature ReadLine, Streams -WarningVariable warnings
+Enable-ConsoleFormatting -Include ReadLine, Streams -Exclude Output, FormatCommands, Errors -WarningVariable warnings
 if (@($warnings).Count) { throw 'A custom output command blocked cosmetic styling.' }
 Assert-ReadLineTheme
 Disable-ConsoleFormatting
@@ -236,7 +236,7 @@ __END_BODY__
     $before = Invoke-ProgressOracle ''
     $records = $before | ConvertFrom-Json
     if ($records.Count -ne 2 -or $records[0].ActivityId -ne 7 -or $records[0].ParentActivityId -ne 2 -or $records[0].PercentComplete -ne 42 -or $records[1].RecordType -ne 1) { throw "The native progress oracle is incomplete: $before" }
-    $after = Invoke-ProgressOracle 'Enable-ConsoleFormatting -Feature ReadLine, Streams; '
+    $after = Invoke-ProgressOracle 'Enable-ConsoleFormatting -Include ReadLine, Streams -Exclude Output, FormatCommands, Errors; '
     if ($after -cne $before) { throw 'Styling changed native progress records.' }
     $shell.Commands.Clear()
     $shell.Streams.Progress.Clear()
@@ -270,7 +270,7 @@ if ($PSVersionTable.PSVersion -ge [version] '7.2') {
     $original = $PSStyle.Progress.Style
     $PSStyle.Progress.View = 'Classic'
     $width = $PSStyle.Progress.MaxWidth
-    Enable-ConsoleFormatting -Feature ReadLine, Streams
+    Enable-ConsoleFormatting -Include ReadLine, Streams -Exclude Output, FormatCommands, Errors
     if ($PSStyle.Progress.View -ne 'Classic' -or $PSStyle.Progress.MaxWidth -ne $width) { throw 'Styling changed progress layout.' }
     $PSStyle.Progress.View = 'Minimal'
     $PSStyle.Progress.Style = "$([char]27)[31m"
@@ -278,7 +278,7 @@ if ($PSVersionTable.PSVersion -ge [version] '7.2') {
     if ($PSStyle.Progress.View -ne 'Minimal' -or $PSStyle.Progress.Style -cne $original) { throw 'Disable restored the wrong progress properties.' }
 } else {
     $baseline = Get-StreamsState
-    Enable-ConsoleFormatting -Feature Streams
+    Enable-ConsoleFormatting -Include Streams -Exclude Output, FormatCommands, Errors, ReadLine
     $Host.PrivateData.ProgressForegroundColor = 'Magenta'
     $Host.PrivateData.ProgressBackgroundColor = 'White'
     Disable-ConsoleFormatting

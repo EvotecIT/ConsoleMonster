@@ -13,7 +13,7 @@ Creates a passive command definition. Work runs in an isolated runspace with exp
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleCommand [-Key] <string> -ScriptBlock <scriptblock> [-Label <string>] [-Shortcut <string>] [-ConfirmPrompt <string>] [-ProgressDialog] [-ArgumentList <Object[]>] [-ImportModule <string[]>] [<CommonParameters>]
+New-ConsoleCommand [-Key] <string> -ScriptBlock <scriptblock> [-Label <string>] [-Hotkey <string>] [-ConfirmPrompt <string>] [-ProgressDialog] [-ArgumentList <Object[]>] [-ImportModule <string[]>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,10 +25,14 @@ Creates a passive command definition. Work runs in an isolated runspace with exp
 
 ### EXAMPLE 1
 ```powershell
-$restart = New-ConsoleCommand -Key Restart -Label 'Preview restart' -Shortcut Ctrl+R -ConfirmPrompt 'Preview selected services?' -ScriptBlock { param($Row) Restart-Service -Name $Row.Name -WhatIf }; Get-Service | Show-ConsoleGrid -Command $restart
+$inspect = New-ConsoleCommand -Key Inspect -Label 'Inspect process' -Hotkey Ctrl+I -ConfirmPrompt 'Inspect the selected process?' -ScriptBlock {
+    param($Row)
+    $Row | Select-Object Name, Id
+}
+Get-Process | Select-Object -First 8 | Show-ConsoleGrid -Command $inspect
 ```
 
-Preview restarting selected services after confirmation.
+Confirm before inspecting a selected object
 
 ## PARAMETERS
 
@@ -50,6 +54,22 @@ Accept wildcard characters: False
 
 ### -ConfirmPrompt
 Optional modal confirmation text. {Selection} expands to the focused row label or marked-row count. No is the initial answer.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Hotkey
+Optional key chord, for example Ctrl+R or F5.
 
 ```yaml
 Type: String
@@ -138,22 +158,6 @@ Aliases: None
 Possible values:
 
 Required: True
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Shortcut
-Optional key chord, for example Ctrl+R or F5.
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
 Position: named
 Default value: None
 Accept pipeline input: False

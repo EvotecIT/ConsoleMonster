@@ -1,7 +1,7 @@
-Import-Module ConsoleMonster
+﻿Import-Module ConsoleMonster
 
 $recording = @{
-    Destination = './command-review.html'
+    Path = './command-review.html'
     Title = 'Command review'
     Width = 88
     Height = 10

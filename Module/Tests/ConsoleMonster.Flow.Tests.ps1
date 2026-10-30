@@ -2,13 +2,13 @@
     Import-Module (Join-Path $PSScriptRoot '../ConsoleMonster.psd1') -Force
 }
 Describe 'Native flow strip' {
-    It 'builds pipeline rows and grows through the item grammar' {
+    It 'builds pipeline nodes and Content edges through the item grammar' {
         $nodes = @(
             [pscustomobject] @{ Kind = 'Node'; Key = 'a'; Label = 'client'; Status = 'Success' }
             [pscustomobject] @{ Kind = 'Node'; Key = 'b'; Label = 'issuer'; Status = 'Failed' }
         )
-        $flow = $nodes | New-ConsoleFlow -WidgetId path
-        $flow | Add-ConsoleItem {
+        $flow = New-ConsoleFlow -WidgetId path -Content {
+            $nodes
             [pscustomobject] @{ Kind = 'Edge'; Key = 'verify'; From = 'a'; To = 'b'; Label = 'signature'; Status = 'Fail'; Cut = $true }
             [pscustomobject] @{ Kind = 'Branch'; From = 'b'; Label = 'expired 2026-09-30'; Status = 'Fail' }
         }

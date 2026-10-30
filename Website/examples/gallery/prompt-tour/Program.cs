@@ -1,6 +1,5 @@
 // A guided tour of typed prompts, task previews and a dashboard paused for confirmation.
 using ConsoleMonster;
-using ConsoleMonster.Building;
 using ConsoleMonster.Interactive;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
@@ -157,11 +156,11 @@ LogRegion log = new LogRegion
 {
     PreferredHeight = 6
 };
-Dashboard dashboard = new DashboardBuilder("[bold]Patching[/]")
+Dashboard dashboard = Ui.Dashboard().Title("[bold]Patching[/]")
     .Subtitle("5 servers")
-    .Panel("Servers", lanes)
-    .Panel("Log", log, true)
-    .BuildDashboard();
+    .Content(body => body
+        .Panel(new Panel(lanes, "Servers"))
+        .Add(new Panel(log, "Log").Fill()));
 using (LiveSession session = new LiveSession(dashboard))
 {
     try

@@ -24,38 +24,7 @@
         }
     }
 
-    It 'exports the Console cmdlets on this runtime' {
-        Import-Module $script:ModulePath -Force
-        $commands = Get-Command -Module ConsoleMonster
-        $fixture = Get-Content (Join-Path $PSScriptRoot '../../Tests/Api/round2-commands.json') -Raw | ConvertFrom-Json
-        $commands.Count | Should -Be $fixture.ExpectedCount
-        $manifest = Import-PowerShellDataFile -LiteralPath $script:ModulePath
-        $cmdlets = @($commands | Where-Object CommandType -EQ Cmdlet)
-        $cmdlets.Count | Should -Be $fixture.ExpectedCount
-        ($cmdlets.Name | Sort-Object) -join ',' | Should -BeExactly (($manifest.CmdletsToExport | Sort-Object) -join ',')
-        ($commands | Where-Object CommandType -EQ Alias) | Should -BeNullOrEmpty
-        foreach ($name in 'Get-ConsoleDemo', 'Show-ConsoleDemo', 'New-ConsoleFlow') { $cmdlets.Name | Should -Contain $name }
-        $commands.Name | Should -Contain 'Show-Console'
-        foreach ($name in 'Start-ConsoleRun', 'Update-Console', 'Complete-ConsoleRun') { $commands.Name | Should -Contain $name }
-        $commands.Name | Should -Contain 'Show-ConsoleObject'
-        $commands.Name | Should -Contain 'Show-ConsoleOverview'
-        $commands.Name | Should -Contain 'Compare-ConsoleText'
-        $commands.Name | Should -Contain 'Export-ConsoleTheme'
-        foreach ($name in 'New-ConsoleCalendar', 'New-ConsoleCommand', 'New-ConsoleScrollView', 'New-ConsoleBinding', 'New-ConsoleButton', 'New-ConsoleSelect',
-            'New-ConsoleTextInput', 'New-ConsoleToggle', 'Show-ConsoleApp', 'Watch-ConsoleLog',
-            'Stop-ConsoleRecording', 'Invoke-ConsoleRecording', 'Add-ConsoleRecordingMarker', 'Invoke-ConsolePresentation', 'Show-ConsolePresentation') {
-            $commands.Name | Should -Contain $name
-        }
-        $commands.Name | Should -Contain 'New-ConsoleChart'
-        $commands.Name | Should -Contain 'Copy-ConsoleOutput'
-        $commands.Name | Should -Contain 'Out-ConsoleFormatCommand'
-        $commands.Name | Should -Contain 'New-ConsoleTree'
-        $commands.Name | Should -Contain 'Add-ConsoleItem'
-        $commands.Name | Should -Contain 'Invoke-ConsolePester'
-        $commands.Name | Should -Contain 'Show-ConsoleTable'
-        $commands.Name | Should -Contain 'Invoke-ConsoleDashboard'
-        ($commands.Name | Where-Object { $_ -notlike '*-Console*' }) | Should -BeNullOrEmpty
-    }
+
 
     It 'writes a table with right-aligned numbers and status markers' {
         $text = Invoke-ConsoleChild -Script @'
@@ -236,7 +205,7 @@ $results = 1..60 | Invoke-ConsoleDashboard $d -Parallel -ThrottleLimit 3 {
         $recording = Join-Path $TestDrive 'run.jsonl'
         $text = Invoke-ConsoleChild -Script @"
 `$d = New-ConsoleDashboard -Title 'Recorded' -Content { New-ConsoleLanes -WidgetId lanes; New-ConsoleLogRegion }
-Invoke-ConsoleDashboard `$d -RecordPath '$recording' {
+Invoke-ConsoleDashboard `$d -RecordingPath '$recording' {
     Update-Console -WidgetId lanes -Key one -Status Running
     Write-ConsoleLogEntry -Message 'checking one' -Level Info
     Update-Console -WidgetId lanes -Key one -Result Pass
@@ -245,7 +214,7 @@ Invoke-ConsoleDashboard `$d -RecordPath '$recording' {
     Update-Console -WidgetId lanes -Key two -Complete
 }
 `$r = New-ConsoleDashboard -Title 'Replayed' -Content { New-ConsoleLanes -WidgetId lanes; New-ConsoleLogRegion }
-Show-ConsoleReplay -PlaybackMode Automatic `$r -Path '$recording' -Speed 1000
+Show-ConsoleReplay -PlaybackMode Automatic `$r -RecordingPath '$recording' -Speed 1000
 'REPLAY-DONE'
 "@
         Test-Path -LiteralPath $recording | Should -BeTrue

@@ -16,40 +16,34 @@ switch ($Name) {
     'New-ConsoleTreeSelect' { $parameters.InputObject = [pscustomobject]@{ Name = 'sample' } }
     'New-ConsoleCommand' { $parameters.Key = 'audit'; $parameters.ScriptBlock = {} }
     'New-ConsoleSelect' { $parameters.Key = 'audit'; $parameters.Choices = @('choice') }
-    { $_ -in @('New-ConsoleDashboard', 'New-ConsoleDialog', 'New-ConsoleForm', 'New-ConsoleHeaderBar', 'New-ConsoleMenu', 'New-ConsoleMenuRunResult', 'New-ConsoleTab') } { $parameters.Title = 'audit' }
+    { $_ -in @('New-ConsoleDashboard', 'New-ConsoleDialog', 'New-ConsoleForm', 'New-ConsoleMenu') } { $parameters.Title = 'audit' }
     'New-ConsoleBinding' { $parameters.Content = {} }
     'New-ConsoleLogo' { $parameters.Text = 'audit' }
     'New-ConsoleRegion' { $parameters.WidgetId = 'audit' }
-    'Format-ConsoleCommand' { $parameters.Command = 'Get-Item'; $parameters.Arguments = @{} }
     { $_ -in @('Register-ConsoleView', 'Unregister-ConsoleView') } { $parameters.TypeName = 'ConsoleMonster.Audit' }
     'Set-ConsoleTheme' { $parameters.Theme = 'Dark' }
     'Compare-ConsoleObject' { $parameters.ReferenceObject = @('a'); $parameters.PassThru = $true }
-    'Show-ConsoleChanges' { $parameters.ReferenceObject = @('a'); $parameters.DifferenceObject = @('b') }
     'Compare-ConsoleText' { $parameters.ReferenceText = 'a'; $parameters.DifferenceText = 'b' }
     { $_ -in @('Invoke-ConsoleRun', 'Use-ConsoleProgress', 'Use-ConsoleTarget') } { $parameters.ScriptBlock = {} }
-    'Start-ConsoleRun' { $parameters.Items = @('audit') }
+    'Start-ConsoleRun' { $parameters.InputObject = @('audit') }
     'Export-ConsoleTheme' { $parameters.Path = 'theme.json' }
-    'Export-ConsoleDemo' { $parameters.Slug = 'fleet-filter'; $parameters.Path = 'demo.ps1' }
-    'Send-ConsoleEvent' { $parameters.WidgetId = 'audit'; $parameters.Operation = 'set' }
     'Show-ConsoleApp' { $parameters.Content = {} }
     'Wait-ConsoleDashboard' { $parameters.Seconds = 0 }
     'Watch-Console' { $parameters.ScriptBlock = {}; $parameters.Count = 1; $parameters.NoLive = $true }
     'Watch-ConsoleLog' { Set-Content -LiteralPath 'audit.log' -Value 'audit'; $parameters.Path = 'audit.log'; $parameters.Count = 1; $parameters.NoLive = $true }
-    'Export-ConsoleRecording' { $parameters.Path = 'missing.cast' }
-    'Show-ConsolePresentation' { $parameters.Path = 'missing.cast' }
-    'Add-ConsoleItem' { $parameters.Item = 'audit' }
+    'Export-ConsoleRecording' { $parameters.RecordingPath = 'missing.cast' }
+    'Show-ConsolePresentation' { $parameters.ScriptPath = 'missing.ps1' }
     'Assert-ConsoleOutput' { [IO.File]::WriteAllText((Join-Path $ScratchPath 'golden.txt'), 'audit'); $parameters.GoldenPath = 'golden.txt'; $parameters.PassThru = $true; $records = @('audit') * 300 }
-    'Complete-ConsoleRun' { $parameters.Run = Start-ConsoleRun -Items @('audit') -NoLive }
+    'Complete-ConsoleRun' { $parameters.Run = Start-ConsoleRun -InputObject @('audit') -NoLive }
     'Invoke-ConsoleDashboard' { $parameters.Dashboard = New-ConsoleText 'audit'; $parameters.ScriptBlock = {}; $parameters.Parallel = $true }
-    'Invoke-ConsolePresentation' { Set-Content -LiteralPath 'audit.ps1' -Value "Write-Output 'audit'"; $parameters.Path = 'audit.ps1'; $parameters.Destination = 'audit.cast' }
-    'Invoke-ConsoleRecording' { $parameters.ScriptBlock = {}; $parameters.Destination = 'audit.cast' }
+    'Invoke-ConsoleRecording' { $parameters.ScriptBlock = {}; $parameters.Path = 'audit.cast' }
     'Set-ConsoleFormValue' { $parameters.Form = New-ConsoleForm -Title 'audit' -Content { New-ConsoleField -Key 'Name' } }
     'Show-ConsoleReplay' { $parameters.Dashboard = New-ConsoleText 'audit' }
     'New-ConsoleDataGrid' { $type = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.Grid'); $parameters.Grid = $type::new('audit'); $parameters.Key = 'audit' }
     'Update-Console' { $parameters.WidgetId = 'audit'; $parameters.Status = 'Pending' }
 }
 if ($command.Parameters.ContainsKey('WhatIf')) { $parameters.WhatIf = $true }
-if ($Name -in @('Read-ConsoleConfirm', 'Read-ConsoleDate', 'Read-ConsoleNumber', 'Read-ConsolePath', 'Read-ConsoleSelect', 'Read-ConsoleText', 'Show-ConsoleMenu', 'Show-ConsoleObject')) { $parameters.Mode = 'None' }
+if ($Name -in @('Read-ConsoleConfirm', 'Read-ConsoleDate', 'Read-ConsoleNumber', 'Read-ConsolePath', 'Read-ConsoleSelect', 'Read-ConsoleText', 'Show-ConsoleMenu')) { $parameters.Mode = 'None' }
 $terminating = $null
 $produced = 0
 try { $records | & $command @parameters *>&1 | ForEach-Object { $produced++ } } catch { $terminating = $_; if ($auditErrors.Count -eq 0) { $auditErrors += $_ } }

@@ -2,7 +2,7 @@ using ConsoleMonster;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Widgets;
 
-Terminal.Write(new Grid(
+Terminal.Write(new LayoutGrid(
     3,
     new Panel(new TextBlock("[pass]√ healthy[/]"), "DC01"),
     new Panel(new TextBlock("[warn]▲ lagging[/]"), "DC02"),
