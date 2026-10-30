@@ -16,7 +16,7 @@ Files and folders, processes, services, JSON and CSV records, commands, modules,
 
 Typed records with their own PowerShell table view keep its columns and expressions. An explicit `Register-ConsoleView` registration takes precedence.
 
-> `Enable-ConsoleFormatting` also styles `Format-Table`, `Format-List` and `Format-Wide` when output goes straight to the console. Use `-Exclude FormatCommands` to keep those commands native. For views on demand, use `Show-ConsoleTable` or `Show-ConsoleList`.
+> `Enable-ConsoleFormatting` also styles `Format-Table`, `Format-List` and `Format-Wide` when output goes straight to the console. Use `-Exclude FormatCommands` to keep those commands native. For views on demand, use `Show-ConsoleTable` or `Show-Console -View List`.
 
 To keep it on in every session, print the lines for your profile and paste them in (nothing is written for you):
 
@@ -173,13 +173,13 @@ A module can describe how its objects look without depending on ConsoleMonster: 
 
 ## Reports and the clipboard
 
-`Export-ConsoleFrame -Format Markdown`, `Html` or `FencedText` creates a document from ordinary objects or widgets, including inside scripts and on Windows PowerShell 5.1. `Copy-ConsoleOutput -Format Markdown` puts the document on the clipboard:
+`Export-ConsoleFrame -Format Markdown`, `Html` or `FencedText` creates a document from ordinary objects or widgets, including inside scripts and on Windows PowerShell 5.1. `Export-ConsoleFrame -Format Markdown | Set-Clipboard` puts the document on the clipboard:
 
 ```powershell
 Import-Module ConsoleMonster
 
-Get-Service | Select-Object -First 8 Name, Status, StartType | Show-ConsoleTable -AsWidget | Export-ConsoleFrame -Format Markdown | Set-Content -Path ./services.md -Encoding UTF8
-Get-Service | Select-Object -First 8 Name, Status, StartType | Copy-ConsoleOutput -Format Markdown
+Get-Service | Select-Object -First 8 Name, Status, StartType | New-ConsoleTable | Export-ConsoleFrame -Format Markdown | Set-Content -Path ./services.md -Encoding UTF8
+Get-Service | Select-Object -First 8 Name, Status, StartType | Export-ConsoleFrame -Format Markdown | Set-Clipboard
 ```
 
 [Coming from Format-Table](/guides/format-table/) shows the Markdown a table becomes.
@@ -188,10 +188,10 @@ Get-Service | Select-Object -First 8 Name, Status, StartType | Copy-ConsoleOutpu
 
 The default `Streams` feature gives PowerShell's own warning, verbose and debug messages the theme's colours on Windows PowerShell 5.1 and PowerShell 7. Their `WARNING:` and `VERBOSE:` prefixes, preferences and redirection stay PowerShell's; [Help, errors and progress](/docs/help-and-defaults/#warning-verbose-and-debug-colours) has the details.
 
-{{< cm-frame ids="streams-ps5,streams-ps7" caption="Before and after `-Feature Streams`; the light-theme runs show when the site is light." >}}
+{{< cm-frame ids="streams-ps5,streams-ps7" caption="Before and after `-Include Streams`; the light-theme runs show when the site is light." >}}
 
 ## More from the same switch
 
 - `Enable-ConsoleFormatting` adds default output, Format commands, the [error view and themed stream colours](/docs/help-and-defaults/), and ReadLine colours. `-Include Progress` adds the progress area. The native `Write-Progress` adapter requires a separate opt-in.
 - `Register-ConsoleView` adds your own types in the session, including columns computed by script blocks; `Register-ConsoleView -Path` loads a `.consoleviews.psd1` file from anywhere.
-- `Show-ConsoleTable`, `Show-ConsoleList` and `Show-Console -View Tree` give the same views on demand, with column options; see [Coming from Format-Table](/guides/format-table/).
+- `Show-ConsoleTable`, `Show-Console -View List` and `Show-Console -View Tree` give the same views on demand, with column options; see [Coming from Format-Table](/guides/format-table/).

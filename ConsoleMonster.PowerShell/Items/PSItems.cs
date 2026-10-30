@@ -9,8 +9,8 @@ using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>
-    /// Maps item objects (from the New-Console*Item cmdlets, plain values and pipeline input) onto the existing add methods of
-    /// a widget. Containers use it for their script block and pipeline input; Add-ConsoleItem uses it for a widget made
+    /// Maps item objects (records, plain values and pipeline input) onto the existing add methods of
+    /// a widget. Containers use it for their script block and pipeline input. The shared item builder also handles widgets made
     /// earlier. No rendering or layout logic lives here: every item ends in one of the widget's own public methods.
     /// </summary>
     internal static partial class PSItems {
@@ -116,6 +116,10 @@ namespace ConsoleMonster.PowerShell {
                 case KeyValueList list:
                     return TryAddPair(list, item);
                 case StatusList status:
+                    if (item is string statusName) {
+                        status.Set(statusName, Text.Markup.Escape(statusName), StatusKind.Pending);
+                        return true;
+                    }
                     if (StatusItemFrom(item, ref problem) is StatusItem statusItem) {
                         status.Set(statusItem.Key, statusItem.Label, statusItem.Status, statusItem.Detail);
                         return true;
@@ -368,6 +372,6 @@ namespace ConsoleMonster.PowerShell {
             return null;
         }
 
-        private static bool TryNumber(object item, out double value) => PipelineChart.TryNumber(PSText.Unwrap(item), out value);
+        private static bool TryNumber(object item, out double value) => Chart.TryNumber(PSText.Unwrap(item), out value);
     }
 }

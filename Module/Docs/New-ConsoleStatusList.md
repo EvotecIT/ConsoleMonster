@@ -8,18 +8,18 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a checklist of items with status markers.
 
-Items come from a script block of Key/Label/Status records calls (each with its own status and detail), from the pipeline, from -InputObject (labels mapped to statuses) or from -Item (labels added as pending, for a live checklist). Statuses use the shared vocabulary: Pass, Fail, Warn, Skip, Info, Running, Pending and PowerShell's words such as Success, Warning and Error. Status is always shown with a symbol (or a [PASS]-style word in ASCII mode), never by colour alone. To add items later, pipe the list to Add-ConsoleItem; in a live dashboard, update items with Update-Console.
+Content or the pipeline accepts Key/Label/Status records and strings. Records can include Detail; strings begin as pending checklist items. InputObject also accepts a dictionary mapping labels to statuses. Layout selects a vertical List or a horizontal Strip. Statuses use the shared vocabulary: Pass, Fail, Warn, Skip, Info, Running, Pending and PowerShell's words such as Success, Warning and Error. Status is always shown with a symbol (or a [PASS]-style word in ASCII mode), never by colour alone. In a live dashboard, update items with Update-Console.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleStatusList [[-WidgetId] <string>] [[-InputObject] <psobject>] [[-Content] <scriptblock>] [-Item <Object[]>] [-DetailColumn <ColumnFormat>] [<CommonParameters>]
+New-ConsoleStatusList [[-WidgetId] <string>] [[-InputObject] <psobject>] [[-Content] <scriptblock>] [-Layout <string>] [-StepCounter] [-DetailColumn <ColumnFormat>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Creates a checklist of items with status markers.
 
-Items come from a script block of Key/Label/Status records calls (each with its own status and detail), from the pipeline, from -InputObject (labels mapped to statuses) or from -Item (labels added as pending, for a live checklist). Statuses use the shared vocabulary: Pass, Fail, Warn, Skip, Info, Running, Pending and PowerShell's words such as Success, Warning and Error. Status is always shown with a symbol (or a [PASS]-style word in ASCII mode), never by colour alone. To add items later, pipe the list to Add-ConsoleItem; in a live dashboard, update items with Update-Console.
+Content or the pipeline accepts Key/Label/Status records and strings. Records can include Detail; strings begin as pending checklist items. InputObject also accepts a dictionary mapping labels to statuses. Layout selects a vertical List or a horizontal Strip. Statuses use the shared vocabulary: Pass, Fail, Warn, Skip, Info, Running, Pending and PowerShell's words such as Success, Warning and Error. Status is always shown with a symbol (or a [PASS]-style word in ASCII mode), never by colour alone. In a live dashboard, update items with Update-Console.
 
 ## EXAMPLES
 
@@ -51,11 +51,22 @@ Items from objects in the pipeline
 
 ### EXAMPLE 4
 ```powershell
-$steps = New-ConsoleStatusList -Item 'Scan files', 'Copy changes', 'Verify'
+$steps = 'Scan files', 'Copy changes', 'Verify' | New-ConsoleStatusList -WidgetId status
 Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps }) { Update-Console status -Key 'Scan files' -Status Pass -Detail '2.4 s' }
 ```
 
 A live checklist: items start pending and are updated from the dashboard script
+
+### EXAMPLE 5
+```powershell
+New-ConsoleStatusList -Layout Strip -StepCounter -Content {
+                @{ Key = 'restore'; Label = 'Restore'; Status = 'Pass' }
+                @{ Key = 'build'; Label = 'Build'; Status = 'Running' }
+                @{ Key = 'test'; Label = 'Test'; Status = 'Pending' }
+            } | Show-Console
+```
+
+Show build phases as a compact strip
 
 ## PARAMETERS
 
@@ -76,7 +87,7 @@ Accept wildcard characters: False
 ```
 
 ### -DetailColumn
-Shared DetailColumn layout settings from New-ConsoleColumnFormat.
+Shared DetailColumn layout settings as a hashtable, for example @{ MinWidth = 6; Alignment = 'Right' }.
 
 ```yaml
 Type: ColumnFormat
@@ -107,11 +118,27 @@ Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
-### -Item
-Item keys to add as pending (for a live checklist).
+### -Layout
+List stacks the items; Strip shows ordered phases.
 
 ```yaml
-Type: Object[]
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: List, Strip
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -StepCounter
+Adds step counters to the Strip layout.
+
+```yaml
+Type: SwitchParameter
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -149,6 +176,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 - `ConsoleMonster.Widgets.StatusList`
+- `ConsoleMonster.Widgets.Phases`
 
 ## RELATED LINKS
 

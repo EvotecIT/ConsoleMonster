@@ -14,7 +14,7 @@ namespace ConsoleMonster.Output {
     /// in scrollback. It never reads console input: the cursor position comes from GetConsoleScreenBufferInfo, which inside
     /// Windows Terminal (ConPTY) reports the same advances as the terminal's own cursor report.
     /// </summary>
-    public static class TerminalWidthProbe {
+    internal static class TerminalWidthProbe {
         private static readonly object Sync = new object();
         private static readonly string[] Samples = {
             "\U0001F600",

@@ -47,7 +47,7 @@ Capture a report as plain text
 
 ### EXAMPLE 2
 ```powershell
-$text = Use-ConsoleTarget -Width 80 { Get-Service | Select-Object -First 5 | Show-ConsoleTable }
+$text = Use-ConsoleTarget -Width 80 { Get-Process | Select-Object -First 5 | Show-ConsoleTable }
 ```
 
 Capture a table as a string

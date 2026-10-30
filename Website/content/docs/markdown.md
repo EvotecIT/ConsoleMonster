@@ -22,7 +22,7 @@ Level-one headings use a double rule and level-two headings use a single rule. L
 
 Use `Show-Console -View Markdown -Path .\README.md` to read a file. Paths are literal, resolve from PowerShell's current FileSystem location, and support FileSystem drives. `-Content` takes source text; pipeline strings are joined before parsing, so reference links and multi-line blocks retain their meaning.
 
-`-Width` sets the layout width. `-NoPager` prints the whole document, and `-AsString` returns the complete rendering as one plain string for assignment or saving. A downstream pipeline command receives plain lines.
+`-Width` sets the layout width. `-NoPager` prints the whole document. For a plain-text capture, pipe a Markdown widget from `ConsoleMonster.Markdown` to `Export-ConsoleFrame -Format Text`; the exporter returns text when no output path is supplied.
 
 {{< cm-frame id="markdown-60" script="false" caption="At 60 columns the same source reflows. Table cells and quote content remain complete, and a terminal without OSC 8 shows the link's destination." >}}
 
@@ -30,7 +30,7 @@ Use `Show-Console -View Markdown -Path .\README.md` to read a file. Paths are li
 
 When a document is taller than a rich interactive screen, the shared pager opens automatically. Use the arrows to move, Space or Page Down to advance, Page Up to go back, Home or End to jump, and q or Escape to close. Its header shows the visible line range and total. Resizing reflows the document and keeps the viewport within its new bounds.
 
-Piped, redirected, transcribed, job, remoting, CI and non-interactive output never opens the pager. The static path prints the complete document; use `-AsString` when capturing from scripts on either PowerShell runtime.
+Piped, redirected, transcribed, job, remoting, CI and non-interactive output never opens the pager. The static path prints the complete document. The exporter captures widget output on either PowerShell runtime.
 
 ## C# composition
 
@@ -49,7 +49,7 @@ The core never emits Markdown; the `ConsoleMonster.Markdown` add-on owns Markdow
 ```powershell
 $rows | Export-ConsoleFrame -Format Markdown
 $widget | Export-ConsoleFrame -Format FencedText
-Export-ConsoleRecording -Path ./talk.cast -Format Markdown -Destination ./talk.md
+Export-ConsoleRecording -InputRecordingPath ./talk.cast -Format Markdown -OutputPath ./talk.md
 ```
 
 In C#, add the package and call `MarkdownExporter.Export(widget, options)` or `MarkdownExporter.ExportRecording(recording)`. Frames and live snapshots become fenced text; terminal recordings retain scrollback. Dashboard events export timestamped frames. Semantic tables, records and trees retain the existing cell presenters, groups and totals. OfficeIMO owns document blocks and safe fences; backtick-containing frames may use shorter tilde fences with identical literal content.

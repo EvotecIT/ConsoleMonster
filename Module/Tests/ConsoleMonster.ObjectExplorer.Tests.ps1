@@ -20,7 +20,7 @@
 
     It 'returns the selected original PowerShell member value' {
         $value = [pscustomobject]@{ Name = 'web-01'; Owner = [pscustomobject]@{ Name = 'Ada' } }
-        $selected = $value | Show-ConsoleObject -Mode Rich -PassThru
+        $selected = $value | Show-ConsoleObject -PassThru
         $selected | Should -Be 'Ada'
         $script:Capture.LastFrame.ToPlainText() | Should -Match '\$x.Owner'
     }
@@ -32,7 +32,7 @@
         $item.PSObject.TypeNames.Insert(0, 'Example.ExplorerFilter')
         Register-ConsoleView -TypeName 'Example.ExplorerFilter' -Property @{ Name = 'Secret'; Expression = { $_.Secret }; Key = $true }
         ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('F10')
-        $null = $item | Show-ConsoleObject -Include Label -Mode Rich -PassThru
+        $null = $item | Show-ConsoleObject -Include Label -PassThru
         $script:secretReads | Should -Be 0
     }
 
@@ -44,7 +44,7 @@
         ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('Enter F10')
         ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input.Paced = $true
         $x = [pscustomobject]@{ Services = $services }
-        $path = $x | Show-ConsoleObject -Mode Rich -PassThru Path
+        $path = $x | Show-ConsoleObject -PassThru Path
         $path | Should -Be '$x.Services[0]'
         $script:Capture.LastFrame.ToPlainText() | Should -Match '\[0\]\s+web'
         $script:Capture.LastFrame.ToPlainText() | Should -Match '\[1\]\s+metrics'
@@ -55,7 +55,7 @@
     It 'opens one rich explorer for pipeline items and returns their indexed path' {
         $x = @([pscustomobject]@{ Name = 'web' }, [pscustomobject]@{ Name = 'metrics' })
         ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('F10')
-        $path = $x | Show-ConsoleObject -Mode Rich -PassThru Path
+        $path = $x | Show-ConsoleObject -PassThru Path
         $path | Should -Be '$x[0]'
         [object]::ReferenceEquals((& ([scriptblock]::Create($path))), $x[0]) | Should -BeTrue
         $script:Capture.LastFrame.ToPlainText() | Should -Match '\[0\]\s+web'
@@ -64,27 +64,28 @@
 
     It 'binds the bare PassThru switch followed by Path' {
         $value = [pscustomobject]@{ Name = 'web-01'; Owner = [pscustomobject]@{ Name = 'Ada' } }
-        $selected = $value | Show-ConsoleObject -Mode Rich -RootPath '$config' -PassThru Path
+        $selected = $value | Show-ConsoleObject -RootPath '$config' -PassThru Path
         $selected | Should -Be '$config.Owner.Name'
     }
 
     It 'explores ConvertFrom-Json records with the same adapters' {
         $value = Get-Content (Join-Path $PSScriptRoot 'Fixtures/ObjectExplorer.json') -Raw | ConvertFrom-Json
-        $selected = $value | Show-ConsoleObject -Mode Rich -PassThru
+        $selected = $value | Show-ConsoleObject -PassThru
         $selected | Should -Be 'Ada'
     }
 
     It 'returns no selection while browsing or cancelling' {
         $value = [pscustomobject]@{ Name = 'web-01'; Owner = [pscustomobject]@{ Name = 'Ada' } }
-        @($value | Show-ConsoleObject -Mode Rich).Count | Should -Be 0
+        @($value | Show-ConsoleObject).Count | Should -Be 0
         ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('Escape')
-        @($value | Show-ConsoleObject -Mode Rich -PassThru).Count | Should -Be 0
+        @($value | Show-ConsoleObject -PassThru).Count | Should -Be 0
     }
 
-    It 'prints a static inspector without prompting or returning a selected node' {
+    It 'captures a static member tree without starting an input loop' {
         $warned = @()
-        $result = @([pscustomobject]@{ Name = 'web-01' } | Show-ConsoleObject -Mode None -PassThru -WarningVariable warned)
-        $result.Count | Should -Be 0
+        $result = @([pscustomobject]@{ Name = 'web-01' } | Show-Console -View Tree -AsWidget -WarningVariable warned | Export-ConsoleFrame -Format Text)
+        $result.Count | Should -Be 1
+        $result[0] | Should -Match 'web-01'
         $warned.Count | Should -Be 0
     }
 
@@ -102,11 +103,11 @@
         $lazy = [System.Lazy[string]]::new([System.Func[string]] { throw 'The factory must stay uncreated.' })
         try {
             ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('F10')
-            $selected = Show-ConsoleObject -InputObject $completion.Task -Mode Rich -PassThru
+            $selected = Show-ConsoleObject -InputObject $completion.Task -PassThru
             [object]::ReferenceEquals($selected, $completion.Task) | Should -BeTrue
             $completion.Task.IsCompleted | Should -BeFalse
             ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('F10')
-            $null = Show-ConsoleObject -InputObject $lazy -Mode Rich -PassThru
+            $null = Show-ConsoleObject -InputObject $lazy -PassThru
             $lazy.IsValueCreated | Should -BeFalse
         } finally {
             $completion.SetResult(42)
@@ -118,9 +119,9 @@
         $map.Add(1, 'integer')
         $map.Add('1', 'string')
         ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('F10')
-        $first = $map | Show-ConsoleObject -RootPath '$map' -Mode Rich -PassThru Path
+        $first = $map | Show-ConsoleObject -RootPath '$map' -PassThru Path
         ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('Down F10')
-        $second = $map | Show-ConsoleObject -RootPath '$map' -Mode Rich -PassThru Path
+        $second = $map | Show-ConsoleObject -RootPath '$map' -PassThru Path
         $first | Should -Not -Be $second
         $values = @(& ([scriptblock]::Create($first)); & ([scriptblock]::Create($second)))
         $values | Should -Contain 'integer'
@@ -132,7 +133,7 @@
         $map = @{ Keys = 'wrong'; get_Keys = 'wrong'; PSBase = 'wrong'; GetEnumerator = 'wrong' }
         $map.Add($key, 'target')
         ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('/ "target" Enter F10')
-        $expression = $map | Show-ConsoleObject -RootPath '$map' -Mode Rich -PassThru Path
+        $expression = $map | Show-ConsoleObject -RootPath '$map' -PassThru Path
         (& ([scriptblock]::Create($expression))) | Should -Be 'target'
     }
 }

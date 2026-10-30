@@ -11,7 +11,7 @@ namespace ConsoleMonster.Interactive {
     /// of visible rows scrolled to keep the caret in view, a placeholder while empty, and the caret reported to the
     /// <see cref="CaretSlot"/>. The layout it computes is what Up and Down move through.
     /// </summary>
-    public sealed class TextArea : InputControl {
+    internal sealed class TextArea : InputControl {
         private readonly TextAreaEditor _editor;
         private readonly CaretSlot? _caret;
         private int _layoutWidth;

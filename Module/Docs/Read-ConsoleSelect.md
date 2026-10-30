@@ -13,12 +13,12 @@ Typing filters the list (fuzzy, matches highlighted). Choices can be grouped (-G
 ## SYNTAX
 ### Single (Default)
 ```powershell
-Read-ConsoleSelect [[-Title] <string>] [[-Choices] <Object[]>] [-Default <Object>] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-Badge <Object>] [-Hotkey <Object>] [-DisabledReason <scriptblock>] [-Preview <scriptblock>] [-PageSize <int>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
+Read-ConsoleSelect [[-Title] <string>] [[-Choices] <Object[]>] [-Default <Object>] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-Badge <Object>] [-Hotkey <Object>] [-DisabledReason <scriptblock>] [-Preview <scriptblock>] [-PageSize <int>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [<CommonParameters>]
 ```
 
 ### Multiple
 ```powershell
-Read-ConsoleSelect [[-Title] <string>] [[-Choices] <Object[]>] -Multiple [-Default <Object>] [-Minimum <Int32>] [-Maximum <Int32>] [-Collapsed] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-Badge <Object>] [-Hotkey <Object>] [-DisabledReason <scriptblock>] [-Preview <scriptblock>] [-PageSize <int>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
+Read-ConsoleSelect [[-Title] <string>] [[-Choices] <Object[]>] -Multiple [-Default <Object>] [-Minimum <Int32>] [-Maximum <Int32>] [-Collapsed] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-Badge <Object>] [-Hotkey <Object>] [-DisabledReason <scriptblock>] [-Preview <scriptblock>] [-PageSize <int>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -30,17 +30,21 @@ Typing filters the list (fuzzy, matches highlighted). Choices can be grouped (-G
 
 ### EXAMPLE 1
 ```powershell
-$service = Get-Service | Read-ConsoleSelect 'Service to restart' -Display DisplayName -Describe Name -GroupBy Status
+$servers = @(
+    [pscustomobject]@{ Name = 'web01'; Region = 'East'; Status = 'Pass' }
+    [pscustomobject]@{ Name = 'web02'; Region = 'West'; Status = 'Warn' }
+)
+$server = $servers | Read-ConsoleSelect 'Server to inspect' -Display Name -Describe Status -GroupBy Region
 ```
 
-Pick a service
+Pick an object from a small inventory
 
 ### EXAMPLE 2
 ```powershell
 $environment = Read-ConsoleSelect 'Environment' -Choices 'Production', 'Staging', 'Lab' -Default 'Staging'
 ```
 
-Strings with a default
+Choose from strings with a default
 
 ## PARAMETERS
 
@@ -243,7 +247,7 @@ Forces how to ask: Rich (in-place prompt), Line (question and typed answer), Acc
 Type: InteractionMode
 Parameter Sets: Single, Multiple
 Aliases: None
-Possible values: Rich, Line, Accessible, None
+Possible values: Rich, Line, Accessible, None, Snapshot
 
 Required: False
 Position: named
@@ -305,22 +309,6 @@ Content for the preview pane ($_ is the focused choice): text, rich text, a widg
 
 ```yaml
 Type: ScriptBlock
-Parameter Sets: Single, Multiple
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -StaticSnapshot
-Prints the initialized rich prompt without reading input or returning an answer. Useful for documentation and unattended previews.
-
-```yaml
-Type: SwitchParameter
 Parameter Sets: Single, Multiple
 Aliases: None
 Possible values:

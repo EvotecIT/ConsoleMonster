@@ -25,24 +25,30 @@ Creates rich text: multicolour words for table cells, calculated properties, tit
 
 ### EXAMPLE 1
 ```powershell
-Get-Service | Show-ConsoleTable -Property Name, @{ Name = 'Status'; Expression = { if ($_.Status -eq 'Running') { New-ConsoleText 'Running' -Color Green } else { New-ConsoleText $_.Status -Role Fail -Decoration Bold } } }
+@(
+                [pscustomobject]@{ Name = 'web01'; Status = 'Pass' }
+                [pscustomobject]@{ Name = 'web02'; Status = 'Fail' }
+            ) | Show-ConsoleTable -Property Name, @{
+                Name = 'Status'
+                Expression = { New-ConsoleText $_.Status -Role $_.Status -Decoration Bold }
+            }
 ```
 
-A status cell from a calculated property
+Build status cells from a calculated property
 
 ### EXAMPLE 2
 ```powershell
 New-ConsoleText 'SRV', '01', ' online' -Color Cyan, Yellow, Green | Show-Console
 ```
 
-Multicolour words, Write-Color style
+Colour separate text pieces
 
 ### EXAMPLE 3
 ```powershell
-New-ConsoleText -Markup '[bold]ConsoleMonster[/] [muted]2.0[/]'; New-ConsoleText 'ConsoleMonster' -Gradient '#00c6ff', '#ff00aa'
+New-ConsoleText -Markup '[bold]ConsoleMonster[/] [muted]ready[/]'; New-ConsoleText 'ConsoleMonster' -Gradient '#00c6ff', '#ff00aa'
 ```
 
-Markup and a gradient
+Use markup and a gradient
 
 ## PARAMETERS
 

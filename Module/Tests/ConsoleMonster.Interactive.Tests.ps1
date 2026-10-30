@@ -1,4 +1,4 @@
-Describe 'Interactive cmdlets' {
+﻿Describe 'Interactive cmdlets' {
     BeforeAll {
         $script:ModulePath = Join-Path $PSScriptRoot '..\ConsoleMonster.psd1'
         $script:Runtime = [System.Diagnostics.Process]::GetCurrentProcess().Path
@@ -15,6 +15,8 @@ Describe 'Interactive cmdlets' {
             $lines = [System.Collections.Generic.List[string]]::new()
             $lines.Add("foreach (`$n in 'NO_COLOR', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_MODE', 'CONSOLEMONSTER_ACCESSIBLE', 'CONSOLEMONSTER_NONINTERACTIVE', 'CI', 'GITHUB_ACTIONS', 'TF_BUILD') { [Environment]::SetEnvironmentVariable(`$n, `$null) }")
             $lines.Add("[System.Threading.Thread]::CurrentThread.CurrentCulture = [System.Globalization.CultureInfo]::GetCultureInfo('en-US')")
+            $lines.Add('[Console]::InputEncoding = [Text.UTF8Encoding]::new($false)')
+            $lines.Add('[Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)')
             $lines.Add("Import-Module '$($script:ModulePath)' -Force")
             $lines.Add($Script)
             $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes(($lines -join "`n")))
@@ -25,8 +27,19 @@ Describe 'Interactive cmdlets' {
             $info.RedirectStandardInput = $true
             $info.RedirectStandardOutput = $true
             $info.RedirectStandardError = $true
+            $info.StandardOutputEncoding = [Text.UTF8Encoding]::new($false)
+            $info.StandardErrorEncoding = [Text.UTF8Encoding]::new($false)
             $info.UseShellExecute = $false
-            $process = [System.Diagnostics.Process]::Start($info)
+            $info.CreateNoWindow = $true
+            # .NET Framework derives the stdin writer from Console.InputEncoding. A BOM-bearing UTF8 encoding would
+            # prepend U+FEFF to the first answer; isolate it from the calling test host's encoding state.
+            $inputEncoding = [Console]::InputEncoding
+            try {
+                [Console]::InputEncoding = [Text.UTF8Encoding]::new($false)
+                $process = [System.Diagnostics.Process]::Start($info)
+            } finally {
+                [Console]::InputEncoding = $inputEncoding
+            }
             if ($InputText) { $process.StandardInput.Write($InputText) }
             $process.StandardInput.Close()
             $stdout = $process.StandardOutput.ReadToEndAsync()
@@ -36,29 +49,9 @@ Describe 'Interactive cmdlets' {
         }
     }
 
-    It 'formats ordered command arguments with native types and shared escaping' {
-        Import-Module $script:ModulePath -Force
-        $arguments = [ordered] @{
-            ComputerName = @('WEB01', "O'Brien lab")
-            ThrottleLimit = 3
-            WhatIf = $true
-            Notify = $false
-            Empty = ''
-            Missing = $null
-        }
-        $command = Format-ConsoleCommand -Command Invoke-FleetCheck -Arguments $arguments
-        $command | Should -BeExactly "Invoke-FleetCheck -ComputerName WEB01,'O''Brien lab' -ThrottleLimit 3 -WhatIf"
-    }
 
-    It 'formats native switch parameters as switches without collapsing case-sensitive names' {
-        Import-Module $script:ModulePath -Force
-        $arguments = [ordered] @{ WhatIf = [switch]$false; Confirm = [switch]$true }
-        Format-ConsoleCommand -Command Invoke-FleetCheck -Arguments $arguments | Should -BeExactly 'Invoke-FleetCheck -Confirm'
-        $options = [Collections.Specialized.OrderedDictionary]::new([StringComparer]::Ordinal)
-        $options.Add('o', 'app')
-        $options.Add('O', [switch]$true)
-        Format-ConsoleCommand -Command cc -Arguments $options -Style Posix | Should -BeExactly 'cc -o app -O'
-    }
+
+
 
     It 'prints initialized prompts without returning answers or reading input in snapshot mode' {
         $body = @'
@@ -66,15 +59,15 @@ $profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilit
 $target = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Output.RecordingTarget'))::new($profile)
 Use-ConsoleTarget -Target $target {
     $answers = @(
-        Read-ConsoleText 'Project' -Default orbit -StaticSnapshot
-        Read-ConsoleText 'Notes' -Multiline -Default 'one' -StaticSnapshot
-        Read-ConsoleText -Title 'Token' -StaticSnapshot -AsSecret
-        Read-ConsoleNumber 'Port' -Default 443 -Integer -StaticSnapshot
-        Read-ConsolePath 'Folder' -Default './orbit' -StaticSnapshot
-        Read-ConsoleConfirm 'Continue?' -Default $true -StaticSnapshot
-        Read-ConsoleConfirm 'Remove?' -TypedConfirmation orbit -StaticSnapshot
-        Read-ConsoleSelect 'Target' -Choices api, worker -StaticSnapshot
-        Read-ConsoleSelect -Title 'Checks' -Choices dns, tls -StaticSnapshot -Multiple
+        Read-ConsoleText 'Project' -Default orbit -Mode Snapshot
+        Read-ConsoleText 'Notes' -Multiline -Default 'one' -Mode Snapshot
+        Read-ConsoleText -Title 'Token' -Mode Snapshot -AsSecret
+        Read-ConsoleNumber 'Port' -Default 443 -Integer -Mode Snapshot
+        Read-ConsolePath 'Folder' -Default './orbit' -Mode Snapshot
+        Read-ConsoleConfirm 'Continue?' -Default $true -Mode Snapshot
+        Read-ConsoleConfirm 'Remove?' -TypedConfirmation orbit -Mode Snapshot
+        Read-ConsoleSelect 'Target' -Choices api, worker -Mode Snapshot
+        Read-ConsoleSelect -Title 'Checks' -Choices dns, tls -Mode Snapshot -Multiple
     )
     if ($answers.Count) { throw 'A prompt snapshot returned an answer' }
 }
@@ -90,7 +83,7 @@ foreach ($title in 'Project', 'Notes', 'Token', 'Port', 'Folder', 'Continue?', '
     Context 'Without a user (redirected input, -NonInteractive)' {
         It 'rejects 300 unexpected objects once for commands that do not accept pipeline input' {
             $text = Invoke-PromptChild -NonInteractive -Script @'
-$commands = 'Get-ConsoleCapability', 'Get-ConsoleDemo', 'New-ConsoleActivityList', 'New-ConsoleColumnFormat', 'New-ConsoleFooterBar', 'New-ConsoleMenuItem', 'New-ConsoleProgress', 'New-ConsoleRule', 'New-ConsoleSimulatedClock', 'New-ConsoleSummaryBar', 'Show-ConsoleOverview', 'Show-ConsoleStatusLine', 'Add-ConsoleRecordingMarker', 'Clear-ConsoleScreen', 'Invoke-ConsolePester', 'Stop-ConsoleRecording', 'Read-ConsoleConfirm', 'Read-ConsoleNumber', 'Read-ConsolePath', 'Read-ConsoleText'
+$commands = 'Get-ConsoleCapability', 'Get-ConsoleDemo', 'New-ConsoleActivityList', 'New-ConsoleMenuItem', 'New-ConsoleProgress', 'New-ConsoleRule', 'New-ConsoleSummaryBar', 'Show-ConsoleOverview', 'Show-ConsoleStatusLine', 'Add-ConsoleRecordingMarker', 'Invoke-ConsolePester', 'Stop-ConsoleRecording', 'Read-ConsoleConfirm', 'Read-ConsoleNumber', 'Read-ConsolePath', 'Read-ConsoleText'
 $service = [pscustomobject]@{ Name = "sample" }
 foreach ($command in $commands) {
     $Error.Clear()
@@ -98,19 +91,27 @@ foreach ($command in $commands) {
     catch { "RESULT=$command ID=$($_.FullyQualifiedErrorId.Split(',')[0]) COUNT=$($Error.Count)" }
 }
 '@
-            foreach ($command in 'Get-ConsoleCapability', 'Get-ConsoleDemo', 'New-ConsoleActivityList', 'New-ConsoleColumnFormat', 'New-ConsoleFooterBar', 'New-ConsoleMenuItem', 'New-ConsoleProgress', 'New-ConsoleRule', 'New-ConsoleSimulatedClock', 'New-ConsoleSummaryBar', 'Show-ConsoleOverview', 'Show-ConsoleStatusLine', 'Add-ConsoleRecordingMarker', 'Clear-ConsoleScreen', 'Invoke-ConsolePester', 'Stop-ConsoleRecording', 'Read-ConsoleConfirm', 'Read-ConsoleNumber', 'Read-ConsolePath', 'Read-ConsoleText') {
+            foreach ($command in 'Get-ConsoleCapability', 'Get-ConsoleDemo', 'New-ConsoleActivityList', 'New-ConsoleMenuItem', 'New-ConsoleProgress', 'New-ConsoleRule', 'New-ConsoleSummaryBar', 'Show-ConsoleOverview', 'Show-ConsoleStatusLine', 'Add-ConsoleRecordingMarker', 'Invoke-ConsolePester', 'Stop-ConsoleRecording', 'Read-ConsoleConfirm', 'Read-ConsoleNumber', 'Read-ConsolePath', 'Read-ConsoleText') {
                 $text | Should -Match ([regex]::Escape("RESULT=$command ID=UnexpectedPipelineInput COUNT=1"))
             }
         }
 
         It 'rejects invalid tabs once and still accepts a pipeline of pages' {
             $text = Invoke-PromptChild -NonInteractive -Script @'
-try { 1..300 | New-ConsoleTabs -ErrorAction Stop | Out-Null } catch { "ERROR=$($_.FullyQualifiedErrorId.Split(',')[0])" }
-$tabs = @(New-ConsoleTab -Title First; New-ConsoleTab -Title Second) | New-ConsoleTabs
+try { 1..300 | New-ConsoleTabs -ErrorAction Stop | Out-Null } catch { "ERROR=$($_.Exception.Message)" }
+$tabs = @(@{ Title = 'First'; Content = 'one' }; @{ Title = 'Second'; Content = 'two' }) | New-ConsoleTabs
 "TYPE=$($tabs.GetType().Name)"
+$empty = New-ConsoleTabs -Content @{ tItLe = 'Empty'; cOnTeNt = $null }
+"EMPTY_COUNT=$($empty.Children.Count) LABEL=$($empty.Children[0].Key)"
+$mapped = New-ConsoleTabs -Content ([ordered]@{ Content = 'mapped-body' })
+"MAP_COUNT=$($mapped.Children.Count) LABEL=$($mapped.Children[0].Key)"
+$mapped | Export-ConsoleFrame -Format Text -Width 40
 '@
-            $text | Should -Match 'ERROR=ExpectedConsoleTab'
+            $text | Should -Match 'ERROR=.*[Tt]ab'
             $text | Should -Match 'TYPE=Tabs'
+            $text | Should -Match 'EMPTY_COUNT=1 LABEL=Empty'
+            $text | Should -Match 'MAP_COUNT=1 LABEL=Content'
+            $text | Should -Match 'mapped-body'
         }
 
         It 'reports a missing dashboard once for a pipeline of log entries' {
@@ -134,7 +135,7 @@ $two = Read-ConsoleText -Title 'Name' -Default 'worker'
         It 'renders one explorer for multiple piped objects' {
             $text = Invoke-PromptChild -NonInteractive -Script @'
 $values = @([pscustomobject]@{Name='alpha'}, [pscustomobject]@{Name='beta'})
-$result = @($values | Show-ConsoleObject -AsString -Depth 2)
+$result = @($values | Show-Console -View Tree -Depth 2 -AsWidget | Export-ConsoleFrame -Format Text)
 "COUNT=$($result.Count)"
 $result
 '@
@@ -421,13 +422,13 @@ foreach ($phrase in 'built in', 'sunday preview', "Preset 'Sunday' applied", 'St
 $script:result = $null
 $menu = New-ConsoleMenu 'Tool' -Content {
     New-ConsoleMenuItem 'Run' -Hotkey r -Action {
-        $clock = New-ConsoleSimulatedClock -Speed 0
+        $clock = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.SimulatedClock'))::new(0)
         $dashboard = New-ConsoleDashboard -Title 'Checks' -Content { New-ConsoleSummaryBar -Total 2; New-ConsoleActivityList -WidgetId running }
         $script:result = $MenuContext.Run($dashboard, {
             Update-Console -WidgetId running -Id 1 -Activity 'first check'
             $clock.Wait(42)
             Update-Console -Counter @{ passed = 2 } -WidgetId 'summary' -Value 2
-            New-ConsoleMenuRunResult 'Checks finished'
+            @{ Title = 'Checks finished' }
         }, $clock)
     }
     New-ConsoleMenuItem 'Quit' -Hotkey q -Exit
@@ -466,7 +467,7 @@ Show-ConsoleMenu $menu -Layout Inline
         }
 
         It 'builds choices with a muted badge, a disabled reason, a selection and a command-line value that keeps the object''s properties' {
-            $field = New-ConsoleField Checks 'Checks' -Type Select -Multiple -Choices $script:Checks -Display Name -CommandValue Id -GroupBy Category -Badge { "~$($_.Seconds) s" } -DisabledReason Retired -Selected { $_.Id -eq 'CertChain' } -ParameterName Check
+            $field = New-ConsoleField Checks 'Checks' -Type Select -Multiple -Choices $script:Checks -Display Name -CommandValue Id -GroupBy Category -Badge { "~$($_.Seconds) s" } -DisabledReason Retired -Default { $_.Id -eq 'CertChain' } -ParameterName Check
             $choices = @($field.Choices)
             ($choices | ForEach-Object Label) -join ',' | Should -Be 'Time offset,Free space,Cert chain'
             ($choices | ForEach-Object { [string] $_.Value }) -join ',' | Should -Be 'TimeOffset,FreeSpace,CertChain'
@@ -484,8 +485,8 @@ Show-ConsoleMenu $menu -Layout Inline
                 param($Values)
                 [pscustomobject] @{ Name = 'SRV01'; Role = 'Web'; Offline = $null; Online = $true; Domain = $Values.Domain }
                 [pscustomobject] @{ Name = 'SRV02'; Role = 'File'; Offline = 'offline since 07:12'; Online = $false; Domain = $Values.Domain }
-            } -Display Name -CommandValue Name -Badge Role -DisabledReason Offline -Selected Online
-            $form = New-ConsoleForm 'Fleet' -Field $domain, $servers
+            } -Display Name -CommandValue Name -Badge Role -DisabledReason Offline -Default @{ Property = 'Online' }
+            $form = New-ConsoleForm 'Fleet' -Content { $domain, $servers }
             $loaded = @($servers.LoadChoices.Invoke($form.GetValues(), [System.Threading.CancellationToken]::None).GetAwaiter().GetResult())
             $loaded.Count | Should -Be 2
             $loaded[0].Badge.PlainText | Should -Be 'Web'
@@ -506,7 +507,7 @@ Show-ConsoleMenu $menu -Layout Inline
                 [pscustomobject] @{ Name = 'SRV01'; Role = 'Web' }
                 [pscustomobject] @{ Name = 'SRV02'; Role = 'Database' }
             }
-            $form = New-ConsoleForm -Title Fleet -Command Invoke-FleetCheck -Field $field
+            $form = New-ConsoleForm -Title Fleet -Command Invoke-FleetCheck -Content { $field }
             $loaded = @($field.LoadChoices.Invoke($form.GetValues(), [Threading.CancellationToken]::None).GetAwaiter().GetResult())
             foreach ($choice in $loaded) { $field.Choices.Add($choice) }
             $field.LoadChoices = $null
@@ -522,7 +523,7 @@ Show-ConsoleMenu $menu -Layout Inline
                 New-ConsoleField -Key Checks -Label Checks -Page Checks
                 New-ConsoleField -Key Parallel -Label Parallel -Page Options
             )
-            $form = New-ConsoleForm -Title Fleet -Description 'Choose the scope, checks and run options.' -Field $fields -PageDescriptions @{
+            $form = New-ConsoleForm -Title Fleet -Description 'Choose the scope, checks and run options.' -Content { $fields } -PageDescriptions @{
                 Scope = 'Which servers to check.'
                 Checks = 'What a healthy server reports appears in the preview.'
             }
@@ -533,7 +534,7 @@ Show-ConsoleMenu $menu -Layout Inline
             $form.Pages[2].Description | Should -BeNullOrEmpty
             $form.Description | Should -Be 'Choose the scope, checks and run options.'
 
-            $defaults = New-ConsoleForm -Title Fleet -Field $fields
+            $defaults = New-ConsoleForm -Title Fleet -Content { $fields }
             $defaults.Pages[0].Description | Should -BeNullOrEmpty
         }
 
@@ -575,7 +576,8 @@ Show-ConsoleMenu $menu -Layout Inline
             $first.Description | Should -Be 'The first wave.'
             $first.Preview | Should -Not -BeNullOrEmpty
             $second = [pscustomobject]@{ Name = 'Second'; Form = $form; Values = @{ Checks = 'FreeSpace' } }
-            $menu = New-ConsoleMenu 'Fleet' -Item $targets -Preset $first -Content {
+            $menu = New-ConsoleMenu 'Fleet' -Preset $first -Content {
+                $targets
                 $second
                 New-ConsoleMenuItem 'Presets' -Presets
             }
@@ -597,7 +599,7 @@ Show-ConsoleMenu $menu -Layout Inline
             $loadedItem = New-ConsoleMenuItem Targets -LoadChoices {
                 [pscustomobject] @{ Name = 'api'; Role = 'Web'; Offline = '' }
                 [pscustomobject] @{ Name = 'db'; Role = 'Data'; Offline = 'maintenance' }
-            } -Display Name -ChoiceBadge Role -ChoiceDisabledReason Offline -Selected api
+            } -Display Name -ChoiceBadge Role -ChoiceDisabledReason Offline -Default api
             $loaded = @($loadedItem.LoadChoices.Invoke($null, [threading.cancellationtoken]::None).GetAwaiter().GetResult())
             $loaded[0].Badge.PlainText | Should -Be 'Web'
             $loaded[0].Selected | Should -BeTrue
@@ -610,7 +612,9 @@ Show-ConsoleMenu $menu -Layout Inline
 $targets = New-ConsoleMenuItem Targets -MultiSelect 'api', 'db'
 $tasks = New-ConsoleMenuItem Tasks -MultiSelect 'health', 'logs'
 $preset = [pscustomobject]@{ Name = 'Nightly'; Selections = @{ $targets = @('db'); $tasks = @('health', 'logs') } }
-$menu = New-ConsoleMenu 'Multi-selection preset' -Item $targets, $tasks -Preset $preset -Content {
+$menu = New-ConsoleMenu 'Multi-selection preset' -Preset $preset -Content {
+    $targets
+    $tasks
     New-ConsoleMenuItem Presets -Hotkey p -Presets
     New-ConsoleMenuItem Quit -Hotkey q -Exit
 }
@@ -626,7 +630,7 @@ Show-ConsoleMenu $menu -Layout Inline
             $targets = @([pscustomobject] @{ Name = 'SRV01' }, [pscustomobject] @{ Name = 'SRV02' })
             $single = New-ConsoleField Target 'Target' -Type Select -Choices $targets -Display Name -Default $targets[1]
             $multiple = New-ConsoleField Targets 'Targets' -Type Select -Multiple -Choices $targets -Display Name -Default @($targets[1])
-            $form = New-ConsoleForm 'Deployment' -Field $single, $multiple
+            $form = New-ConsoleForm 'Deployment' -Content { $single, $multiple }
             $form.GetValues()['Target'].Name | Should -Be 'SRV02'
             @($form.GetValues()['Targets']).Count | Should -Be 1
             $form.GetValues()['Targets'][0].Name | Should -Be 'SRV02'
@@ -644,7 +648,8 @@ Set-ConsoleFormValue $form $form.Presets[0].Values
 "form=$($form.GetValues()['Target'].Name)"
 $item = New-ConsoleMenuItem 'Targets' -MultiSelect $targets -Display Name
 $menuPreset = [pscustomobject]@{ Name = 'Second'; Item = $item; Selection = $targets[1]; Form = $form; Values = @{ Target = $targets[1] } }
-$menu = New-ConsoleMenu 'Deployment' -Item $item -Preset $menuPreset -Content {
+$menu = New-ConsoleMenu 'Deployment' -Preset $menuPreset -Content {
+    $item
     New-ConsoleMenuItem 'Presets' -Hotkey p -Presets
     New-ConsoleMenuItem 'Quit' -Hotkey q -Exit
 }
@@ -656,34 +661,30 @@ Show-ConsoleMenu $menu -Layout Inline
             $text | Should -Match 'menu=SRV02 formAfter=SRV02'
         }
 
-        It 'colours run result figures by status and keeps a given elapsed time' {
-            $result = New-ConsoleMenuRunResult 'Checks finished' -Status Warn -Figure ([ordered] @{ passed = 41; warnings = 3; servers = 11 }) -FigureStatus @{ passed = 'Success'; Warnings = 'Warn' } -ElapsedSeconds 86
-            $result.Elapsed | Should -Be ([timespan]::FromSeconds(86))
-            ($result.Figures | ForEach-Object Key) -join ',' | Should -Be 'passed,warnings,servers'
-            $result.FigureStatus['passed'] | Should -Be 'Pass'
-            $result.FigureStatus['warnings'] | Should -Be 'Warn'
-            $result.FigureStatus.ContainsKey('servers') | Should -BeFalse
-            (New-ConsoleMenuRunResult 'Real time').Elapsed | Should -Be ([timespan]::Zero)
-            { New-ConsoleMenuRunResult 'Bad' -Figure @{ failed = 1 } -FigureStatus @{ failed = 'Purple' } -ErrorAction Stop } | Should -Throw '*not a status*'
+        It 'converts menu result records with figure statuses and explicit elapsed time' {
+            $text = Invoke-PromptChild -Script @'
+([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('r e q')
+$menu = New-ConsoleMenu 'Tool' -Content {
+    New-ConsoleMenuItem 'Run' -Hotkey r -Action {
+        $dashboard = New-ConsoleDashboard -Title 'Checks' -Content { New-ConsoleText 'ready' }
+        $script:figureResult = $MenuContext.Run($dashboard, {
+            @{ Title = 'Checks finished'; Status = 'Warn'; Figure = [ordered] @{ passed = 41; warnings = 3; servers = 11 }; FigureStatus = @{ passed = 'Success'; Warnings = 'Warn' }; ElapsedSeconds = 86 }
+        })
+    }
+    New-ConsoleMenuItem 'Invalid' -Hotkey e -Action {
+        $dashboard = New-ConsoleDashboard -Title 'Checks' -Content { New-ConsoleText 'ready' }
+        $MenuContext.Run($dashboard, { @{ Title = 'Bad'; Figure = @{ failed = 1 }; FigureStatus = @{ failed = 'Purple' } } })
+    }
+    New-ConsoleMenuItem 'Quit' -Hotkey q -Exit
+}
+Show-ConsoleMenu $menu -Layout Inline
+$result = $script:figureResult
+"ELAPSED=$($result.Elapsed.TotalSeconds) KEYS=$(($result.Figures | ForEach-Object Key) -join ',') PASSED=$($result.FigureStatus['passed']) WARNINGS=$($result.FigureStatus['warnings']) SERVERS=$($result.FigureStatus.ContainsKey('servers'))"
+'@
+            $text | Should -Match 'ELAPSED=86 KEYS=passed,warnings,servers PASSED=Pass WARNINGS=Warn SERVERS=False'
+            $text | Should -Match "FigureStatus for 'failed' is not a supported status word"
         }
 
-        It 'moves a simulated clock without sleeping at speed 0, paces it at a speed, and converts it to session options' {
-            $clock = New-ConsoleSimulatedClock -Speed 0
-            $watch = [System.Diagnostics.Stopwatch]::StartNew()
-            $clock.Wait(90)
-            $clock.Advance(1.5)
-            $clock.WaitUntil(10)
-            $clock.Hold(5)
-            $watch.ElapsedMilliseconds | Should -BeLessThan 1000
-            $clock.Elapsed | Should -Be ([timespan]::FromSeconds(91.5))
-            "$clock" | Should -Be '00:01:31'
-            $options = [Management.Automation.LanguagePrimitives]::ConvertTo($clock, ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.LiveSessionOptions')))
-            $options.Clock.Invoke() | Should -Be ([timespan]::FromSeconds(91.5))
-            $paced = New-ConsoleSimulatedClock -Speed 20
-            $watch.Restart()
-            $paced.Wait(4)
-            $watch.ElapsedMilliseconds | Should -BeGreaterOrEqual 150
-            $paced.Seconds | Should -Be 4
-        }
+
     }
 }

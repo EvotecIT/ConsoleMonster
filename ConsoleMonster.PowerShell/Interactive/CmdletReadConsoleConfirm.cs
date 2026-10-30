@@ -10,7 +10,7 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example>
     ///   <para>A question with a default</para>
-    ///   <code>if (Read-ConsoleConfirm 'Restart the service now?' -Default $false) { Restart-Service Spooler -WhatIf }</code>
+    ///   <code>if (Read-ConsoleConfirm 'Inspect the current process?' -Default $false) { Get-Process -Id $PID }</code>
     /// </example>
     /// <example>
     ///   <para>A typed confirmation before deleting</para>

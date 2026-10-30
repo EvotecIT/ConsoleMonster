@@ -14,7 +14,9 @@ Import-Module ConsoleMonster
 $workers = 0..31 | ForEach-Object { 'w{0:00}' -f $_ }
 $dashboard = New-ConsoleDashboard -Title '[bold]Stress test[/]' -Subtitle "32 worker runspaces · Console.WriteLine · Write-Host · $Seconds s" -Content {
     New-ConsoleColumns -Content {
-        New-ConsolePanel -Title 'Workers' -Weight 2.2 -Content { New-ConsoleLanes -WidgetId workers -Lane $workers -Total 250000 }
+        New-ConsolePanel -Title 'Workers' -Weight 2.2 -Content { New-ConsoleLanes -WidgetId workers -Content {
+            foreach ($worker in $workers) { @{ Key = $worker; Total = 250000 } }
+        } }
         New-ConsolePanel -Title 'Session' -Content {
             New-ConsoleKeyValue -WidgetId stats -InputObject ([ordered] @{
                     'Updates posted' = 0

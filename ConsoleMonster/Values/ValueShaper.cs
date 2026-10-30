@@ -570,7 +570,11 @@ namespace ConsoleMonster.Values {
         /// <param name="budget">The pass budget, or null.</param>
         /// <param name="withId">Whether to add the Id after a name.</param>
         /// <returns>The title.</returns>
-        public static string Title(object record, ShapeOptions? options = null, ShapeBudget? budget = null, bool withId = true) {
+        public static string Title(object record, ShapeOptions? options = null, ShapeBudget? budget = null, bool withId = true) =>
+            Title(record, options, budget, withId, null);
+
+        // Track only fields that actually contribute to the header; failed candidates remain visible in a tree.
+        internal static string Title(object record, ShapeOptions? options, ShapeBudget? budget, bool withId, ISet<string>? identityProperties) {
             if (record == null) {
                 return string.Empty;
             }
@@ -596,6 +600,7 @@ namespace ConsoleMonster.Values {
                 string? text = TitleText(ReadAt(index), idLike, o);
                 if (text != null) {
                     title = text;
+                    identityProperties?.Add(names[index]);
                     fromName = !IdNames.Contains(names[index], StringComparer.OrdinalIgnoreCase);
                     break;
                 }
@@ -606,6 +611,7 @@ namespace ConsoleMonster.Values {
                 for (int i = 0; i < fields.Count && i < 24; i++) {
                     if (ReadAt(i) is string text && text.Length > 0 && text.Length <= 60 && text.IndexOf('\n') < 0) {
                         title = text;
+                        identityProperties?.Add(names[i]);
                         break;
                     }
                 }
@@ -619,6 +625,7 @@ namespace ConsoleMonster.Values {
                         object? id = ReadAt(i);
                         string? idText = id == null || !IsScalar(id) || id is bool ? null : IdentifierText(id);
                         if (!string.IsNullOrEmpty(idText) && !string.Equals(idText, title, StringComparison.OrdinalIgnoreCase)) {
+                            identityProperties?.Add(names[i]);
                             return title + " (" + idText + ")";
                         }
                         break;

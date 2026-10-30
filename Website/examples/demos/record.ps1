@@ -7,16 +7,16 @@ $dashboardParameters = @{
     Subtitle = 'web farm · 4 servers'
 }
 $dashboard = New-ConsoleDashboard @dashboardParameters -Content {
-    New-ConsolePhases -Phase 'Stage', 'Swap', 'Verify'
+    New-ConsoleStatusList -Layout Strip -WidgetId phases -Content { 'Stage', 'Swap', 'Verify' }
     New-ConsolePanel -Title 'Servers' -Content {
-        New-ConsoleStatusList -WidgetId servers -Item 'web01', 'web02', 'web03', 'web04'
+        New-ConsoleStatusList -WidgetId servers -Content { 'web01', 'web02', 'web03', 'web04' }
     }
     New-ConsolePanel -Title 'Log' -Fill -Content { New-ConsoleLogRegion }
 }
 $recording = Join-Path ([IO.Path]::GetTempPath()) 'deploy.jsonl'
 
 # 1. Run it, writing every update to the recording.
-Invoke-ConsoleDashboard $dashboard -RecordPath $recording {
+Invoke-ConsoleDashboard $dashboard -RecordingPath $recording {
     foreach ($phase in 'Stage', 'Swap', 'Verify') {
         Update-Console -Key $phase -Status Running -WidgetId 'phases'
         foreach ($server in 'web01', 'web02', 'web03', 'web04') {
@@ -35,7 +35,7 @@ Show-ConsoleReplay -PlaybackMode Automatic $dashboard $recording -Speed 2
 # 3. Save it as a page with a player.
 $recordingParameters = @{
     Format = 'Html'
-    Destination = (Join-Path ([IO.Path]::GetTempPath()) 'deploy.html')
+    Path = (Join-Path ([IO.Path]::GetTempPath()) 'deploy.html')
     Width = 100
     Height = 16
 }

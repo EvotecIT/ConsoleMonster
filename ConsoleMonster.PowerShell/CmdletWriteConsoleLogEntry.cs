@@ -8,7 +8,8 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example>
     ///   <para>Log a warning</para>
-    ///   <code>Write-ConsoleLogEntry 'DC03 responded slowly' -Level warn</code>
+    ///   <code>$dashboard = New-ConsoleDashboard -Title 'Connectivity' -Content { New-ConsoleLogRegion }
+    /// Invoke-ConsoleDashboard $dashboard { Write-ConsoleLogEntry 'DC03 responded slowly' -Level warn }</code>
     /// </example>
     [Cmdlet(VerbsCommunications.Write, "ConsoleLogEntry")]
     public sealed class CmdletWriteConsoleLogEntry : LiveCmdlet {

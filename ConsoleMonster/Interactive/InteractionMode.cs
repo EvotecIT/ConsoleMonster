@@ -17,6 +17,9 @@ namespace ConsoleMonster.Interactive {
         Accessible,
 
         /// <summary>No user is there to answer (CI, redirected input, <c>-NonInteractive</c>): prompts return their default or fail with a clear message.</summary>
-        None
+        None,
+
+        /// <summary>Render an initialized application or PowerShell prompt without reading input. A typed prompt's answer-returning Show method cannot return a snapshot; use its Snapshot method.</summary>
+        Snapshot
     }
 }

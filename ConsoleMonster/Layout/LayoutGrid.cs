@@ -8,13 +8,13 @@ namespace ConsoleMonster.Layout {
     /// become narrower than <see cref="MinColumnWidth"/>, the grid uses fewer columns. In a live frame with spare height,
     /// rows grow equally so the grid fills its region.
     /// </summary>
-    public sealed class Grid : IContainer, IContentOwner {
+    public sealed class LayoutGrid : IContainer, IContentOwner {
         private readonly List<IWidget> _children = new List<IWidget>();
 
         /// <summary>Creates a grid.</summary>
         /// <param name="columns">Number of columns (at least 1).</param>
         /// <param name="children">Initial children.</param>
-        public Grid(int columns, params IWidget[] children) {
+        public LayoutGrid(int columns, params IWidget[] children) {
             Columns = Math.Max(1, columns);
             if (children != null) {
                 foreach (IWidget child in children) {
@@ -46,7 +46,7 @@ namespace ConsoleMonster.Layout {
         /// <summary>Adds a cell.</summary>
         /// <param name="child">The child.</param>
         /// <returns>This instance.</returns>
-        public Grid Add(IWidget child) {
+        public LayoutGrid Add(IWidget child) {
             _children.Add(child ?? throw new ArgumentNullException(nameof(child)));
             return this;
         }

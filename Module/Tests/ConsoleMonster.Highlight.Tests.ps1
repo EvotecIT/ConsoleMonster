@@ -42,11 +42,11 @@ Describe 'Show-ConsoleCode, Show-Console -View Json and smart highlighting' {
 
     It 'writes JSON through the shared value rules: re-indented strings, mixed arrays, any key, cycles, no warnings' {
         $text = Invoke-HighlightChild @'
-'== string'; '{"a":1,"b":[1,2]}' | Show-Console -AsString -View Json
-'== plain'; 'hello' | Show-Console -AsString -View Json
-'== mixed'; Show-Console -InputObject @(1, 'two', @{ k = 3 }, $null) -AsString -View Json
-'== keys'; @{ 1 = 'one'; [guid]::Empty = 2 } | Show-Console -AsString -View Json
-'== cycle'; $a = [pscustomobject] @{ Name = 'a' }; $a | Add-Member -NotePropertyName Self -NotePropertyValue $a; $a | Show-Console -AsString -View Json
+'== string'; '{"a":1,"b":[1,2]}' | Show-Console  -View Json -AsWidget | Export-ConsoleFrame -Format Text
+'== plain'; 'hello' | Show-Console  -View Json -AsWidget | Export-ConsoleFrame -Format Text
+'== mixed'; Show-Console -InputObject @(1, 'two', @{ k = 3 }, $null)  -View Json -AsWidget | Export-ConsoleFrame -Format Text
+'== keys'; @{ 1 = 'one'; [guid]::Empty = 2 } | Show-Console  -View Json -AsWidget | Export-ConsoleFrame -Format Text
+'== cycle'; $a = [pscustomobject] @{ Name = 'a' }; $a | Add-Member -NotePropertyName Self -NotePropertyValue $a; $a | Show-Console  -View Json -AsWidget | Export-ConsoleFrame -Format Text
 '@
         $parts = $text -split '== \w+'
         $parts[1] | Should -Match '"b": \[\s*1,\s*2\s*\]'

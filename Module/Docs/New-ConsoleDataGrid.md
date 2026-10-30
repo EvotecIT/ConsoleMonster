@@ -25,10 +25,10 @@ The listing retains original objects and stable row identities. Each grid has it
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleDataGrid -Key Left -Grid $listing -Height 18
+Show-ConsoleApp -Mode Snapshot -Content { New-ConsoleDataGrid -Key Inventory -Grid 'Inventory' -Height 18 }
 ```
 
-Embed an existing listing.
+Embed an empty listing in an application
 
 ## PARAMETERS
 

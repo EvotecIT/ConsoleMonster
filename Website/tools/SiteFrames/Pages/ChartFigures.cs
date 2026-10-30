@@ -5,6 +5,7 @@ using System.Text.Json.Nodes;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Export;
+using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
@@ -105,12 +106,20 @@ namespace SiteFrames.Pages {
 
         /// <summary>Reproduces narrow exporter chrome with real chart content, including the reported 20-column frame.</summary>
         private static void ReviewChrome(string output) {
-            PipelineChart chart = new PipelineChart { Type = ChartType.Sparkline };
-            foreach (double sample in new[] { 1.0, 2.0, 3.0 }) {
-                chart.Add("long-host-name.example.org", sample).Add("日本語の長いホスト名", sample + 1);
-            }
             foreach (ExportTheme theme in new[] { ExportTheme.Light, ExportTheme.Dark }) {
                 foreach (int width in new[] { 12, 20, 36, 60 }) {
+                    var chart = new Rows();
+                    string[] labels = { "long-host-name.example.org", "日本語の長いホスト名" };
+                    int labelWidth = Math.Min(ConsoleMonster.Text.DisplayWidth.Measure(labels[0]), width - 6);
+                    for (int i = 0; i < labels.Length; i++) {
+                        IWidget trend = Chart.Create(new ChartOptions {
+                            Type = ChartType.Sparkline, Role = i == 0 ? ThemeToken.Series1 : ThemeToken.Series2,
+                            Values = new[] { 1.0 + i, 2.0 + i, 3.0 + i }
+                        });
+                        chart.Add(new Columns { CollapseBelow = 0 }
+                            .Add(new TextBlock(labels[i]) { IsMarkup = false, Role = ThemeToken.Muted, Overflow = TextOverflow.Ellipsis }, LayoutSize.Fixed(labelWidth))
+                            .Add(trend, LayoutSize.Fixed(5)));
+                    }
                     foreach (bool longTitle in new[] { false, true }) {
                         string title = longTitle ? "Long labels / " + width + " columns" : "Chart";
                         string name = longTitle ? "long-labels-" : "short-title-";

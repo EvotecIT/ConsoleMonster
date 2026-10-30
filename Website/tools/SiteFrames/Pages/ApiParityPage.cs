@@ -16,8 +16,8 @@ namespace SiteFrames.Pages {
             body.AppendLine("# PowerShell and C# API parity\n");
             body.AppendLine("I use the same domain names for cmdlet parameters, C# configuration and fluent calls. PowerShell keeps numeric duration parameters with units and default-off switches; C# keeps TimeSpan values and Boolean properties.\n");
             body.AppendLine("The contract covers **" + commands.Count + " commands**, **" + commands.Sum(command => command!["Bindings"]!.AsArray().Count) + " parameters** and **" + map["ConfigurableTypes"]!.AsArray().Count + " reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.\n");
-            body.AppendLine("Table and List remain named shortcuts to Show-Console’s shared view implementation. Read-* returns answers; New-ConsoleForm/Menu defines a question workflow; Show-ConsoleApp runs a persistent reactive application.\n");
-            body.AppendLine("Typed Options on export, form, menu and replay operations expose the corresponding C# configuration. I can pass a PowerShell hashtable, for example `Export-ConsoleFrame -Format Html -Options @{ Width = 100; Padding = 8 }`. Options and individual settings are mutually exclusive; the supplied request is not modified.\n");
+            body.AppendLine("Show-ConsoleTable displays tables. Show-Console -View List and Show-Console -View Tree display lists and trees. Read-* returns answers; New-ConsoleForm/Menu defines a question workflow; Show-ConsoleApp runs a persistent reactive application.\n");
+            body.AppendLine("PowerShell exports use individual parameters, for example `Export-ConsoleFrame -Format Html -Width 100`. C# export calls accept typed ExportOptions configuration.\n");
             foreach (JsonNode? rule in map["FluentExceptions"]!.AsArray()) {
                 body.AppendLine("Callback properties use `" + rule!["Pattern"]!.GetValue<string>().Replace("{Member}", "Action", StringComparison.Ordinal) + "`. " + rule["Reason"]!.GetValue<string>() + "\n");
             }

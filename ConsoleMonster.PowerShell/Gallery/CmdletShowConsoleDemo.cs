@@ -6,11 +6,11 @@ using ConsoleMonster.Text;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Runs an embedded ConsoleMonster gallery demo in the current PowerShell runspace.</para>
-    /// <para type="description">Without a slug, it lists the demos to pick from, grouped by category. Executes the same self-contained PowerShell source offered by Export-ConsoleDemo -Path. The demo runs in a child scope of the current runspace and uses the current host and loaded ConsoleMonster commands. No child process, download or temporary script file is used. Live demos can be interrupted normally. -StaticSnapshot selects a recorded state using scripted input or queued live updates controlled by the runner. The copied source has no capture parameters. Demo output and errors follow the normal PowerShell streams.</para>
+    /// <para type="description">Without a slug, it lists the demos to pick from, grouped by category. Executes the same self-contained PowerShell source offered by Get-ConsoleDemo (the Source property). The demo runs in a child scope of the current runspace and uses the current host and loaded ConsoleMonster commands. No child process, download or temporary script file is used. Live demos can be interrupted normally. -Mode Snapshot selects a recorded state using scripted input or queued live updates controlled by the runner. The copied source has no capture parameters. Demo output and errors follow the normal PowerShell streams.</para>
     /// </summary>
     /// <example><para>Pick a demo from the list and run it.</para><code>Show-ConsoleDemo</code></example>
     /// <example><para>Run the fleet demo.</para><code>Show-ConsoleDemo fleet</code></example>
-    /// <example><para>Render a deterministic snapshot.</para><code>Show-ConsoleDemo assessment -StaticSnapshot -Step 0</code></example>
+    /// <example><para>Render a deterministic snapshot.</para><code>Show-ConsoleDemo assessment -Mode Snapshot -Step 0</code></example>
     [Cmdlet(VerbsCommon.Show, "ConsoleDemo")]
     [OutputType(typeof(PSObject))]
     public sealed class CmdletShowConsoleDemo : NoPipelineInputCmdlet {
@@ -21,7 +21,8 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Renders one snapshot instead of running live interactions.</para></summary>
         [Parameter]
-        public SwitchParameter StaticSnapshot { get; set; }
+        [ValidateSet("Rich", "Snapshot")]
+        public Interactive.InteractionMode Mode { get; set; } = Interactive.InteractionMode.Rich;
 
         /// <summary><para type="description">Deterministic snapshot state, starting at zero. See the demo's Steps metadata for its snapshot count.</para></summary>
         [Parameter]
@@ -42,11 +43,11 @@ namespace ConsoleMonster.PowerShell {
                 return;
             }
 
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(Step)) && !StaticSnapshot.IsPresent) {
-                ThrowTerminatingError(new ErrorRecord(new PSArgumentException("Use -Step with -StaticSnapshot."),
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(Step)) && Mode != Interactive.InteractionMode.Snapshot) {
+                ThrowTerminatingError(new ErrorRecord(new PSArgumentException("Use -Step with -Mode Snapshot."),
                     "ConsoleDemoSnapshotRequired", ErrorCategory.InvalidArgument, Step));
             }
-            foreach (PSObject result in ConsoleGallery.Show(slug, InvokeCommand, StaticSnapshot.IsPresent, Step)) { WriteObject(result); }
+            foreach (PSObject result in ConsoleGallery.Show(slug, InvokeCommand, Mode == Interactive.InteractionMode.Snapshot, Step)) { WriteObject(result); }
         }
 
         // The demos as a list to pick from; Esc picks nothing. Without a user to ask, it says how to name one.

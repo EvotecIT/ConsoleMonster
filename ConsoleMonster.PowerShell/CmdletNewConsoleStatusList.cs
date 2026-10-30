@@ -8,7 +8,7 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates a checklist of items with status markers.</para>
-    /// <para type="description">Items come from a script block of Key/Label/Status records calls (each with its own status and detail), from the pipeline, from -InputObject (labels mapped to statuses) or from -Item (labels added as pending, for a live checklist). Statuses use the shared vocabulary: Pass, Fail, Warn, Skip, Info, Running, Pending and PowerShell's words such as Success, Warning and Error. Status is always shown with a symbol (or a [PASS]-style word in ASCII mode), never by colour alone. To add items later, pipe the list to Add-ConsoleItem; in a live dashboard, update items with Update-Console.</para>
+    /// <para type="description">Content or the pipeline accepts Key/Label/Status records and strings. Records can include Detail; strings begin as pending checklist items. InputObject also accepts a dictionary mapping labels to statuses. Layout selects a vertical List or a horizontal Strip. Statuses use the shared vocabulary: Pass, Fail, Warn, Skip, Info, Running, Pending and PowerShell's words such as Success, Warning and Error. Status is always shown with a symbol (or a [PASS]-style word in ASCII mode), never by colour alone. In a live dashboard, update items with Update-Console.</para>
     /// </summary>
     /// <example>
     ///   <para>A build checklist</para>
@@ -31,11 +31,19 @@ namespace ConsoleMonster.PowerShell {
     /// <example>
     ///   <para>A live checklist: items start pending and are updated from the dashboard script</para>
     ///   <code>
-    /// $steps = New-ConsoleStatusList -Item 'Scan files', 'Copy changes', 'Verify'
+    /// $steps = 'Scan files', 'Copy changes', 'Verify' | New-ConsoleStatusList -WidgetId status
     /// Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps }) { Update-Console status -Key 'Scan files' -Status Pass -Detail '2.4 s' }</code>
     /// </example>
+    /// <example>
+    /// <para>Show build phases as a compact strip</para>
+    /// <code>New-ConsoleStatusList -Layout Strip -StepCounter -Content {
+    ///     @{ Key = 'restore'; Label = 'Restore'; Status = 'Pass' }
+    ///     @{ Key = 'build'; Label = 'Build'; Status = 'Running' }
+    ///     @{ Key = 'test'; Label = 'Test'; Status = 'Pending' }
+    /// } | Show-Console</code>
+    /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleStatusList")]
-    [OutputType(typeof(StatusList))]
+    [OutputType(typeof(StatusList), typeof(Phases))]
     public sealed class CmdletNewConsoleStatusList : PSCmdlet {
         private readonly List<object> _piped = new List<object>();
         private readonly List<IDictionary> _dictionaries = new List<IDictionary>();
@@ -49,15 +57,18 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(ValueFromPipeline = true, Position = 1)]
         public PSObject? InputObject { get; set; }
 
-        /// <summary><para type="description">Item keys to add as pending (for a live checklist).</para></summary>
-        [Parameter]
-        public object[]? Item { get; set; }
+        /// <summary><para type="description">List stacks the items; Strip shows ordered phases.</para></summary>
+        [Parameter, ValidateSet("List", "Strip")]
+        public string Layout { get; set; } = "List";
+
+        /// <summary><para type="description">Adds step counters to the Strip layout.</para></summary>
+        [Parameter] public SwitchParameter StepCounter { get; set; }
 
         /// <summary><para type="description">The live name (default status).</para></summary>
         [Parameter(Position = 0)]
         public string WidgetId { get; set; } = "status";
 
-        /// <summary><para type="description">Shared DetailColumn layout settings from New-ConsoleColumnFormat.</para></summary>
+        /// <summary><para type="description">Shared DetailColumn layout settings as a hashtable, for example @{ MinWidth = 6; Alignment = 'Right' }.</para></summary>
         [Parameter] public Layout.ColumnFormat? DetailColumn { get; set; }
 
         /// <inheritdoc />
@@ -74,25 +85,23 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void EndProcessing() {
-            StatusList list = new StatusList(WidgetId);
-            if (Item != null) {
-                foreach (object item in Item) {
-                    list.Set(PSText.PlainText(item), PSText.LiteralMarkup(item), StatusKind.Pending);
-                }
-            }
+            bool strip = string.Equals(Layout, "Strip", System.StringComparison.OrdinalIgnoreCase);
+            if (!strip && StepCounter.IsPresent) { throw new PSArgumentException("StepCounter applies to Layout Strip."); }
+            if (strip && DetailColumn != null) { throw new PSArgumentException("DetailColumn applies to Layout List."); }
+            ConsoleMonster.Layout.IWidget list = strip ? (ConsoleMonster.Layout.IWidget)new Phases(WidgetId) { StepCounter = StepCounter.IsPresent } : new StatusList(WidgetId);
             foreach (IDictionary dictionary in _dictionaries) {
                 foreach (DictionaryEntry entry in dictionary) {
                     string label = PSWidgets.ToText(entry.Key);
                     if (!Binding.StatusArguments.TryParse(entry.Value, out StatusKind status)) {
                         throw new PSArgumentException("The value for '" + label + "' is not a status.");
                     }
-                    list.Set(label, Text.Markup.Escape(label), status);
+                    PSItems.AddAll(this, list, new object[] { new StatusItem(label, Text.Markup.Escape(label), status) });
                 }
             }
             ScriptBlock? content = Content;
             PSItems.AddAll(this, list, PSItems.Items(content));
             PSItems.AddAll(this, list, _piped);
-            if (DetailColumn != null) { list.DetailColumn = DetailColumn; }
+            if (DetailColumn != null && list is StatusList checklist) { checklist.DetailColumn = DetailColumn; }
             WriteObject(list);
         }
     }

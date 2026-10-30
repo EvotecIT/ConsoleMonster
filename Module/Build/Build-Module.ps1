@@ -33,7 +33,7 @@ Build-Module -ModuleName 'ConsoleMonster' -RunMode $RunMode {
         # Copyright statement for this module
         Copyright            = "(c) 2011 - $((Get-Date).Year) Przemyslaw Klys @ Evotec. All rights reserved."
         # Description of the functionality provided by this module
-        Description          = 'Readable output for the commands you already run, and tables, trees, charts, live runs, dashboards, menus and forms when you need more. One engine for Windows PowerShell 5.1, PowerShell 7 and .NET, with no dependencies and plain text when output is redirected.'
+        Description          = 'Readable output for the commands you already run, and tables, trees, charts, live runs, dashboards, menus and forms when you need more. One engine for Windows PowerShell 5.1, PowerShell 7 and .NET, with no extra modules to install and plain text when output is redirected.'
         # Tags applied to this module. These help with module discovery in online galleries.
         Tags                 = @('Windows', 'MacOS', 'Linux', 'Console', 'Terminal', 'Formatting', 'Table', 'Tree', 'Chart', 'Progress', 'Dashboard', 'Menu', 'Prompt', 'TUI', 'ANSI')
         # A URL to the main website for this project: docs, the gallery, the command reference.
@@ -107,7 +107,7 @@ Build-Module -ModuleName 'ConsoleMonster' -RunMode $RunMode {
         NETProjectName                       = 'ConsoleMonster.PowerShell'
         NETProjectPath                       = '..\ConsoleMonster.PowerShell\ConsoleMonster.PowerShell.csproj'
         NETConfiguration                     = 'Release'
-        NETFramework                         = 'net8.0', 'net10.0', 'net472'
+        NETFramework                         = 'net8.0', 'net472'
         NETHandleAssemblyWithSameName        = $true
         NETAssemblyLoadContext               = $true
         NETAssemblyTypeAcceleratorMode       = 'AllowList'
@@ -123,6 +123,9 @@ Build-Module -ModuleName 'ConsoleMonster' -RunMode $RunMode {
             'ConsoleMonster.Styling.StatusKind'
             'ConsoleMonster.Text.RichText'
             'ConsoleMonster.Interactive.InteractionMode'
+            'ConsoleMonster.Interactive.CommandLine'
+            'ConsoleMonster.Live.SimulatedClock'
+            'ConsoleMonster.Live.LiveEvent'
             'ConsoleMonster.Capabilities.GlyphTier'
             'ConsoleMonster.Capabilities.ColorDepth'
         )

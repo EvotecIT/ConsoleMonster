@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using ConsoleMonster.Interop;
 
 namespace ConsoleMonster.Input {
-    public sealed partial class WindowsConsoleInput {
+    internal sealed partial class WindowsConsoleInput {
         // Windows numbers the right button before the middle button in its state mask.
         // A double-click record is the second press, so it participates in normal transitions.
         private static void TranslateMouse(ConsoleInputRecord record, List<InputEvent> output, ref uint previousButtons) {

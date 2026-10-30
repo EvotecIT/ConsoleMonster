@@ -13,7 +13,7 @@ The scriptblock runs once and its New-ConsoleMenuItem output becomes the items, 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleMenu [-Title] <string> [[-Content] <scriptblock>] [-Item <MenuItem[]>] [-Preset <Object[]>] [-Description <string>] [-Subtitle <string>] [-Layout <MenuLayout>] [<CommonParameters>]
+New-ConsoleMenu [-Title] <string> [[-Content] <scriptblock>] [-InputObject <psobject>] [-Preset <Object[]>] [-Description <string>] [-Subtitle <string>] [-Layout <MenuLayout>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,18 +25,32 @@ The scriptblock runs once and its New-ConsoleMenuItem output becomes the items, 
 
 ### EXAMPLE 1
 ```powershell
+$settings = New-ConsoleForm 'Settings' -Content {
+    New-ConsoleField Target 'Target' -Default Weekly
+    New-ConsoleField Compress 'Compress' -Type Toggle -Default $true
+}
 $menu = New-ConsoleMenu 'Backup helper' -Content {
-    New-ConsoleMenuItem 'Back up now' -Hotkey b -Action { Start-Backup }
+    New-ConsoleMenuItem 'Preview backup' -Hotkey b -Action {
+        $dashboard = New-ConsoleDashboard -Title 'Backup preview' -Content { New-ConsoleStatusList -WidgetId steps -Content { 'Inspect plan' } }
+        $null = $MenuContext.Run($dashboard, {
+            Update-Console steps -Key 'Inspect plan' -Status Pass
+            @{ Title = 'Backup preview'; Status = 'Pass'; Summary = 'No files were copied.' }
+        })
+    }
     New-ConsoleMenuItem 'Settings' -Hotkey s -Form $settings
     New-ConsoleMenuItem -Exit
 }
 Show-ConsoleMenu $menu -Layout Classic
 ```
 
-A small script menu
+Build a small script menu
 
 ### EXAMPLE 2
 ```powershell
+$settings = New-ConsoleForm 'Settings' -Content {
+    New-ConsoleField Target 'Target' -Default Weekly
+    New-ConsoleField Compress 'Compress' -Type Toggle -Default $true
+}
 $menu = New-ConsoleMenu 'Backup helper' -Content {
     [pscustomobject]@{ Name = 'Weekly'; Form = $settings; Values = @{ Target = 'Weekly'; Compress = $true }; Description = 'The Sunday backup.' }
     New-ConsoleMenuItem 'Presets' -Hotkey p -Presets
@@ -46,7 +60,7 @@ $menu = New-ConsoleMenu 'Backup helper' -Content {
 Show-ConsoleMenu $menu -Layout Shell
 ```
 
-An app with built-in presets for its form
+Offer a preset for a menu form
 
 ## PARAMETERS
 
@@ -82,11 +96,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Item
-Items created beforehand.
+### -InputObject
+Menu items or preset records from the pipeline.
 
 ```yaml
-Type: MenuItem[]
+Type: PSObject
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -94,7 +108,7 @@ Possible values:
 Required: False
 Position: named
 Default value: None
-Accept pipeline input: False
+Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ConsoleMonster.Input {
     /// <summary>Decodes VT and xterm terminal input into normalized input events.</summary>
-    public sealed partial class VtInputDecoder {
+    internal sealed partial class VtInputDecoder {
         private const char Escape = '\u001b';
         private const int MaximumCsiLength = 64;
         private readonly StringBuilder _pending = new StringBuilder();

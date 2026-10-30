@@ -6,9 +6,9 @@ function Convert-TestNativeView {
         [ValidateSet('Table', 'List')][string] $Kind = 'Table',
         [hashtable] $Arguments = @{}
     )
-    $capture = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.NativeFormatCapture'))::new($PSCmdlet, $Kind, $Arguments)
+    $capture = [Activator]::CreateInstance((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.NativeFormatCapture'), [object[]]@($PSCmdlet, $Kind, $Arguments))
     $parameters = $capture.Prepare($Rows[0])
     $Rows | ForEach-Object { $capture.BeginItem($_); $_ } |
         & ('Microsoft.PowerShell.Utility\Format-' + $Kind) @parameters |
-        Out-ConsoleFormatCommand -Capture $capture -AsWidget
+        & ([Management.Automation.CmdletInfo]::new('Out-ConsoleFormatCommand', (Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.CmdletOutConsoleFormatCommand'))) -Capture $capture -AsWidget
 }

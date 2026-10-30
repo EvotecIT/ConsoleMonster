@@ -121,7 +121,7 @@ if ([regex]::Matches($text, 'leaf').Count -ne 2) { throw 'Shared content was rej
                 ($list | Get-WidgetText) | Should -Match 'Owner\s+build'
                 $list = New-ConsoleKeyValue -Content { $record }
                 $list.Items.Count | Should -Be 2
-                $list = New-ConsoleKeyValue | Add-ConsoleItem $record -PassThru
+                $list = New-ConsoleKeyValue -Content { $record }
                 $list.Items.Count | Should -Be 2
             }
             $pair = [pscustomobject] @{ Key = 'Signing'; Value = $null } | New-ConsoleKeyValue
@@ -158,32 +158,28 @@ if ([regex]::Matches($text, 'leaf').Count -ne 2) { throw 'Shared content was rej
 
         It 'adds ordinary live rows with the original calculated bindings and formatting' {
             $script:liveUpdateReads = 0
-            $table = [pscustomobject] @{ Server = 'web01'; Cpu = 3 } | New-ConsoleTable -Live -KeyProperty Server -Property @(
+            $table = [pscustomobject] @{ Server = 'web01'; Cpu = 3 } | New-ConsoleTable -Live -WidgetId rows -KeyProperty Server -Property @(
                 'Server'
                 @{ Name = 'CPU %'; Expression = 'Cpu'; FormatString = 'F1' }
                 @{ Name = 'Doubled'; Expression = { $script:liveUpdateReads++; $_.Cpu * 2 }; FormatString = 'F1' }
             )
-            $null = $table | Add-ConsoleItem ([pscustomobject] @{ Server = 'web02'; Cpu = 5 }) -PassThru
+            Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Rows' -Content { $table }) { Update-Console -WidgetId rows -Row ([pscustomobject] @{ Server = 'web02'; Cpu = 5 }) } | Out-Null
             $script:liveUpdateReads | Should -Be 2
             $text = $table | Get-WidgetText
             $text | Should -Match 'web02\s*[\u2502|]\s*5[.,]0\s*[\u2502|]\s*10[.,]0'
             $table.Keys | Should -Be @('web01', 'web02')
         }
 
-        It 'adds to empty live tables using calculated <Selection> descriptors' -TestCases @(
-            @{ Selection = 'Columns' }
-            @{ Selection = 'Property' }
-        ) {
-            param($Selection)
+        It 'updates an empty live table using calculated Property descriptors' {
             $script:emptyLiveReads = 0
             $selectionArgument = @{}
-            $selectionArgument[$Selection] = @(
+            $selectionArgument['Property'] = @(
                 'Server'
                 @{ Name = 'CPU %'; Expression = 'Cpu'; FormatString = 'F1' }
                 @{ Name = 'Doubled'; Expression = { $script:emptyLiveReads++; $_.Cpu * 2 }; FormatString = 'F1' }
             )
-            $table = New-ConsoleTable -Live -KeyProperty Server @selectionArgument
-            $null = $table | Add-ConsoleItem ([pscustomobject] @{ Server = 'web01'; Cpu = 12 }) -PassThru
+            $table = New-ConsoleTable -Live -WidgetId rows -KeyProperty Server @selectionArgument
+            Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Rows' -Content { $table }) { Update-Console -WidgetId rows -Row ([pscustomobject] @{ Server = 'web01'; Cpu = 12 }) } | Out-Null
             $text = $table | Get-WidgetText
             $script:emptyLiveReads | Should -Be 1
             $text | Should -Match 'web01\s*[\u2502|]\s*12[.,]0\s*[\u2502|]\s*24[.,]0'
@@ -219,10 +215,10 @@ if ([regex]::Matches($text, 'leaf').Count -ne 2) { throw 'Shared content was rej
             { @{ Label = 'Build'; Status = 'Passs' } | New-ConsoleStatusList } | Should -Throw '*not a status*'
         }
 
-        It 'builds phases from status items and keeps -Phase' {
-            $text = New-ConsolePhases -Content { [pscustomobject]@{ Label = 'Build'; Status = 'Pass'; Detail = '14s' }; [pscustomobject]@{ Label = 'Test'; Status = 'Running' } } | Get-WidgetText
+        It 'builds a strip layout from status records and strings' {
+            $text = New-ConsoleStatusList -Layout Strip -WidgetId phases -Content { [pscustomobject]@{ Label = 'Build'; Status = 'Pass'; Detail = '14s' }; [pscustomobject]@{ Label = 'Test'; Status = 'Running' } } | Get-WidgetText
             $text | Should -Match 'Build 14s'
-            (New-ConsolePhases -Phase 'Restore', 'Pack' | Get-WidgetText) | Should -Match 'Restore.*Pack'
+            (New-ConsoleStatusList -Layout Strip -WidgetId phases -Content { 'Restore', 'Pack' } | Get-WidgetText) | Should -Match 'Restore.*Pack'
         }
 
         It 'colours bars and stacked segments with -Role' {
@@ -258,10 +254,10 @@ if ([regex]::Matches($text, 'leaf').Count -ne 2) { throw 'Shared content was rej
             $lanes = New-ConsoleLanes -Content { [pscustomobject]@{ Key = 'DC01'; Total = 40; Status = 'Pass'; Value = 40 }; [pscustomobject]@{ Key = 'DC02'; Total = 20; Status = 'Running'; Value = 5 } }
             $lanes.Items.Count | Should -Be 2
             $lanes.Items[1].Total | Should -Be 20
-            (New-ConsoleLanes -WidgetId servers -Lane 'A', 'B' -Total 3).Items.Count | Should -Be 2
+            (New-ConsoleLanes -WidgetId servers -Content { @{ Key = 'A'; Total = 3 }; @{ Key = 'B'; Total = 3 } }).Items.Count | Should -Be 2
         }
 
-        It 'preserves lane time boundaries through containers and Add-ConsoleItem' {
+        It 'preserves lane time boundaries through pipeline and Content records' {
             $lane = [pscustomobject]@{ Key = 'build'; Total = 5; Status = 'Pass'; Passed = 5; StartedSeconds = 2; FinishedSeconds = 9; Value = 5 }
             $lanes = $lane | New-ConsoleLanes -Columns Description, Elapsed, Status
             $lanes.Items[0].Started.TotalSeconds | Should -Be 2
@@ -269,14 +265,13 @@ if ([regex]::Matches($text, 'leaf').Count -ne 2) { throw 'Shared content was rej
             $lanes.Items[0].Passed | Should -Be 5
             $text = $lanes | Get-WidgetText
             $text | Should -Match '7(?:\.0)?s'
-            $more = New-ConsoleLanes
-            $more | Add-ConsoleItem $lane
+            $more = New-ConsoleLanes -Content { $lane }
             $more.Items[0].Started.TotalSeconds | Should -Be 2
             $more.Items[0].Finished.TotalSeconds | Should -Be 9
         }
 
         It 'pads and sets progress status, sparkline role and latest value' {
-            (New-ConsolePadding -Padding 2, 1 -Content { 'padded' } | Get-WidgetText -Width 20) | Should -Match '^\s*\n  padded'
+            (New-ConsoleRegion -Padding 2, 1 -Content { 'padded' } | Get-WidgetText -Width 20) | Should -Match '^\s*\n  padded'
             (New-ConsoleProgress -Label 'Docs' -Value 100 -Total 100 -Status Pass).Status | Should -Be 'Pass'
             $spark = 1, 2, 3 | New-ConsoleChart -Role Fail -NoLatest -Type Sparkline
             $spark.Values.Count | Should -Be 3
@@ -284,13 +279,13 @@ if ([regex]::Matches($text, 'leaf').Count -ne 2) { throw 'Shared content was rej
         }
 
         It 'draws a cell map and a summary bar' {
-            $map = New-ConsoleCellMap -Status Pass, Pass, Fail -Count 5
+            $map = New-ConsoleCellMap -InputObject Pass, Pass, Fail -Count 5
             $map.Count | Should -Be 5
             (New-ConsoleSummaryBar -Total 4 -Counter ([ordered] @{ passed = 2; failed = 1 }) -Value 3 | Get-WidgetText) | Should -Match '3/4'
         }
 
         It 'draws a cell map as a labelled grid with a wrapping legend' {
-            $map = New-ConsoleCellMap -Status Pass, Fail, Warn, Pass, Skip -Count 6 -Columns 3 -RowLabels 'SRV01', 'SRV02' -LegendLines 2
+            $map = New-ConsoleCellMap -InputObject Pass, Fail, Warn, Pass, Skip -Count 6 -Columns 3 -RowLabels 'SRV01', 'SRV02' -LegendLines 2
             $map.Columns | Should -Be 3
             $map.RowLabels -join ',' | Should -Be 'SRV01,SRV02'
             $map.LegendLines | Should -Be 2
@@ -320,12 +315,12 @@ if ([regex]::Matches($text, 'leaf').Count -ne 2) { throw 'Shared content was rej
         }
 
         It 'takes live table columns with options and an activity list with its settings' {
-            $table = New-ConsoleTable -WidgetId slowest -Live -Columns 'Check', @{ Name = 'Took'; Alignment = 'Right' }, @{ Name = 'Actual'; Flexible = $true; Markup = $true }
+            $table = New-ConsoleTable -WidgetId slowest -Live -Property 'Check', @{ Name = 'Took'; Alignment = 'Right' }, @{ Name = 'Actual'; Flexible = $true; Markup = $true }
             $table.Table.Columns[0].Alignment | Should -Not -Be 'Right'
             $table.Table.Columns[1].Alignment | Should -Be 'Right'
             $table.Table.Columns[2].Flexible | Should -BeTrue
-            { New-ConsoleTable -WidgetId bad -ErrorAction Stop -Live -Columns @{ Name = 'Took'; Align = 'Right' } } | Should -Throw '*Align*'
-            $list = New-ConsoleActivityList -MaxVisible 3 -ShowIds -NoElapsed
+            { New-ConsoleTable -WidgetId bad -ErrorAction Stop -Live -Property @{ Name = 'Took'; Align = 'Right' } } | Should -Throw '*Align*'
+            $list = New-ConsoleActivityList -MaxRows 3 -ShowIds -NoElapsed
             $list.WidgetId | Should -Be '$progress'
             $list.MaxVisible | Should -Be 3
             $list.ShowIds | Should -BeTrue
@@ -334,35 +329,34 @@ if ([regex]::Matches($text, 'leaf').Count -ne 2) { throw 'Shared content was rej
         }
     }
 
-    Context 'Add-ConsoleItem' {
+    Context 'Content records' {
         It 'copies rich log entries once and preserves a selected physical line' {
             $source = New-ConsoleLogRegion
             $source.Write([ConsoleMonster.Text.RichText]::FromMarkup("[pass]first`nsecond[/]"))
             $entries = @($source.Entries)
-            $all = New-ConsoleLogRegion | Add-ConsoleItem $entries -PassThru
+            $all = New-ConsoleLogRegion -Content { $entries }
             (@($all.Entries).Text -join '|') | Should -Be 'first|second'
-            $selected = New-ConsoleLogRegion | Add-ConsoleItem $entries[1] -PassThru
+            $selected = New-ConsoleLogRegion -Content { $entries[1] }
             @($selected.Entries).Count | Should -Be 1
             @($selected.Entries)[0].Text | Should -Be 'second'
             ($selected | Get-WidgetText) | Should -Match 'second'
             ($selected | Get-WidgetText) | Should -Not -Match 'first'
             $message = [pscustomobject]@{ Message = "third`nfourth" }
-            $expanded = New-ConsoleLogRegion | Add-ConsoleItem $message -PassThru
+            $expanded = New-ConsoleLogRegion -Content { $message }
             (@($expanded.Entries).Text -join '|') | Should -Be 'third|fourth'
         }
 
-        It 'grows widgets made earlier and passes them on with -PassThru' {
-            $tree = New-ConsoleTree 'Shares'
-            $tree | Add-ConsoleItem { [pscustomobject]@{ Label = 'Reports'; Detail = 'D:\Reports' } }
+        It 'builds trees charts and live rows from Content and pipeline input' {
+            $tree = New-ConsoleTree 'Shares' -Content { [pscustomobject]@{ Label = 'Reports'; Detail = 'D:\Reports' } }
             ($tree | Get-WidgetText) | Should -Match 'Reports\s+D:\\Reports'
-            $spark = New-ConsoleChart -Type Sparkline | Add-ConsoleItem ([double[]] (3, 5, 8)) -PassThru
+            $spark = [double[]] (3, 5, 8) | New-ConsoleChart -Type Sparkline
             $spark.Values.Count | Should -Be 3
-            $table = New-ConsoleTable -Live -Columns Job, State | Add-ConsoleItem @{ Job = 'nightly'; State = 'ok' }, ([pscustomobject] @{ Job = 'weekly'; State = 'running' }) -PassThru
+            $table = @{ Job = 'nightly'; State = 'ok' }, ([pscustomobject] @{ Job = 'weekly'; State = 'running' }) | New-ConsoleTable -Live -Property Job, State
             $table.Keys.Count | Should -Be 2
         }
 
         It 'explains what a widget takes when an item does not fit' {
-            { New-ConsoleTree 'x' | Add-ConsoleItem 42 } | Should -Throw '*records with Label and Children*'
+            { New-ConsoleTree 'x' -Content { 42 } } | Should -Throw '*records with Label and Children*'
         }
     }
     Context 'Validation and plain objects' {
@@ -380,7 +374,7 @@ if ([regex]::Matches($text, 'leaf').Count -ne 2) { throw 'Shared content was rej
         It 'takes items from arrays emitted as one object and from plain objects' {
             (New-ConsoleStatusList -Content { , @(([pscustomobject]@{ Label = 'a' }), ([pscustomobject]@{ Label = 'b' })) }).Items.Count | Should -Be 2
             ([pscustomobject] @{ Label = 'DNS'; Value = 4; Role = 'Fail' } | New-ConsoleChart -Type Bar).Items[0].Role | Should -Be 'Fail'
-            $pairs = New-ConsoleKeyValue | Add-ConsoleItem ([pscustomobject] @{ Domain = 'evotec.xyz'; Records = 14 }) -PassThru
+            $pairs = New-ConsoleKeyValue -Content { [pscustomobject] @{ Domain = 'evotec.xyz'; Records = 14 } }
             ($pairs | Get-WidgetText) | Should -Match 'Records\s+14'
         }
     }

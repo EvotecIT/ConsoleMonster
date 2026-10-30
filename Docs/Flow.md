@@ -9,8 +9,8 @@ $nodes = @(
     [pscustomobject] @{ Kind = 'Node'; Key = 'client'; Label = 'client'; Status = 'Pass' }
     [pscustomobject] @{ Kind = 'Node'; Key = 'issuer'; Label = 'issuer'; Status = 'Fail' }
 )
-$flow = $nodes | New-ConsoleFlow -WidgetId chain
-$flow | Add-ConsoleItem {
+$flow = New-ConsoleFlow -WidgetId chain -Content {
+    $nodes
     [pscustomobject] @{ Kind = 'Edge'; Key = 'trust'; From = 'client'; To = 'issuer'; Label = 'issuer'; Status = 'Fail'; Cut = $true }
     [pscustomobject] @{ Kind = 'Branch'; From = 'issuer'; Label = 'expired 2026-09-30'; Status = 'Fail' }
 }
@@ -55,7 +55,7 @@ reconnects it. Omitting `-Cut` preserves connectivity. The C# equivalent is
 `flow.Handle(session).Edge("trust", StatusKind.Fail, cut: true)`.
 
 The [TLS verdict showcase](../Website/examples/gallery/tls-verdict/tls-verdict.ps1)
-adds a numbered `New-ConsolePhases -StepCounter` ledger, paired context with
+adds a numbered `New-ConsoleStatusList -Layout Strip -StepCounter` ledger, paired context with
 `New-ConsoleKeyValue -Columns 2`, and a double-bordered `New-ConsolePanel -Verdict`. A verdict with `-Status`
 includes the theme's status glyph in its centred title, including in ASCII and
 without colour.

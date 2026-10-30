@@ -9,7 +9,7 @@ namespace ConsoleMonster.Rendering {
     /// reset plus the new attributes, which is robust on every VT implementation (conhost, Windows Terminal, xterm.js)
     /// and keeps frames independent of any previous terminal state.
     /// </summary>
-    public static class SgrEncoder {
+    internal static class SgrEncoder {
         /// <summary>The reset sequence.</summary>
         public const string Reset = "\u001b[0m";
 

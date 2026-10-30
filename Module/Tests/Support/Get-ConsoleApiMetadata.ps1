@@ -1,3 +1,51 @@
+function Get-ConsoleApiFluentTypeName {
+    param([string] $TypeName)
+    $namespace = $TypeName.Substring(0, $TypeName.LastIndexOf('.'))
+    $name = $namespace.Substring($namespace.LastIndexOf('.') + 1)
+    return "$namespace.$($name)Fluent"
+}
+
+function Get-ConsoleApiAssemblies {
+    param([Parameter(Mandatory = $true)][Reflection.Assembly] $ModuleAssembly, [string] $RepositoryRoot, [switch] $IncludeIntegrations)
+    $directory = Split-Path $ModuleAssembly.Location
+    $framework = Split-Path $directory -Leaf
+    $configuration = Split-Path (Split-Path $directory) -Leaf
+    $names = @('ConsoleMonster', 'ConsoleMonster.PowerShell', 'ConsoleMonster.PowerShell.Display', 'ConsoleMonster.Markdown', 'ConsoleMonster.Graphics')
+    if ($IncludeIntegrations) { $names += 'ConsoleMonster.Hosting', 'ConsoleMonster.Extensions.Logging' }
+    foreach ($name in $names) {
+        $path = Join-Path $directory ($name + '.dll')
+        if ($IncludeIntegrations -and $RepositoryRoot -and $name -in @('ConsoleMonster.Hosting', 'ConsoleMonster.Extensions.Logging')) {
+            $consumerPath = Join-Path $RepositoryRoot "ConsoleMonster.Extensions.Tests/bin/$configuration/$framework/$name.dll"
+            if (Test-Path -LiteralPath $consumerPath) { $path = $consumerPath }
+        }
+        if (-not (Test-Path -LiteralPath $path) -and $RepositoryRoot) {
+            $path = Join-Path $RepositoryRoot "$name/bin/$configuration/$framework/$name.dll"
+        }
+        if (-not (Test-Path -LiteralPath $path)) { throw "Build the shipped assembly before checking its API: $path" }
+        if ($PSVersionTable.PSEdition -eq 'Core' -and $name -notin @('ConsoleMonster.Hosting', 'ConsoleMonster.Extensions.Logging')) {
+            $context = [System.Runtime.Loader.AssemblyLoadContext]::GetLoadContext($ModuleAssembly)
+            $context.LoadFromAssemblyPath([IO.Path]::GetFullPath($path))
+        } else {
+            [Reflection.Assembly]::LoadFrom($path)
+        }
+    }
+}
+
+function Get-ConsoleApiFluentMethods {
+    param([Type] $FluentType, [Type] $OwnerType)
+    foreach ($method in $FluentType.GetMethods([Reflection.BindingFlags]'Public,Static,DeclaredOnly')) {
+        $parameters = $method.GetParameters()
+        if ($parameters.Count -eq 0) { continue }
+        if ($parameters[0].ParameterType -eq $OwnerType) { $method; continue }
+        if ($method.IsGenericMethodDefinition -and $method.GetGenericArguments().Count -eq 1 -and $parameters[0].ParameterType.IsGenericParameter) {
+            $constraints = @($parameters[0].ParameterType.GetGenericParameterConstraints())
+            if ($constraints.Count -gt 0 -and @($constraints | Where-Object { -not $_.IsAssignableFrom($OwnerType) }).Count -eq 0) {
+                $method.MakeGenericMethod([Type[]] @($OwnerType))
+            }
+        }
+    }
+}
+
 function Get-ConsoleApiTypeName {
     param([Parameter(Mandatory = $true)][Type] $Type)
     if ($Type.IsByRef) { return (Get-ConsoleApiTypeName $Type.GetElementType()) + '&' }

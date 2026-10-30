@@ -14,11 +14,11 @@ The cases from Support\TypeCases.ps1 (Name and Make, a script that creates the i
 #>
 $commands = [ordered] @{
     'Show-ConsoleTable'   = { param($x, $y) $x | Show-ConsoleTable -Width 120 }
-    'Show-ConsoleList'    = { param($x, $y) $x | Show-ConsoleList -Width 120 }
+    'Show-Console -View List'    = { param($x, $y) $x | Show-Console -View List -Width 120 }
     'Show-Console -View Tree'    = { param($x, $y) $x | Show-Console -Width 120 -View Tree }
     'Show-Console -View Json'    = { param($x, $y) $x | Show-Console -Width 120 -View Json }
     'Show-Console'          = { param($x, $y) $x | Show-Console -Width 120 }
-    'Out-ConsoleDefault'    = { param($x, $y) $x | Out-ConsoleDefault -Force }
+    'Out-ConsoleDefault'    = { param($x, $y) $x | & ([Management.Automation.CmdletInfo]::new('Out-ConsoleDefault', (Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.CmdletOutConsoleDefault'))) -Force }
     'Compare-ConsoleObject' = { param($x, $y) Compare-ConsoleObject -ReferenceObject $x -DifferenceObject $y }
 }
 $ErrorActionPreference = 'Stop'

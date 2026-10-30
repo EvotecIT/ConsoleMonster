@@ -14,7 +14,7 @@ if ([Console]::IsOutputRedirected -or [Console]::IsInputRedirected) { throw 'A n
 . (Join-Path $PSScriptRoot 'Invoke-GridViewSession.ps1')
 $script = @'
 $rows = @([pscustomobject]@{Name='alpha';Id=1}, [pscustomobject]@{Name='beta';Id=2})
-Enable-ConsoleFormatting -Feature GridView
+Enable-ConsoleFormatting -Include GridView -Exclude Output, FormatCommands, Errors, Streams, ReadLine
 if ((Get-Command Out-GridView).CommandType -ne 'Function') { throw 'Fallback missing.' }
 [Console]::Out.WriteLine('GRIDVIEW_READY')
 $picked = @($rows | Out-GridView -Title 'Native keyboard proof' __ARGS__)
@@ -39,7 +39,7 @@ try {
 $before = Get-Command Out-GridView
 $empty = @()
 $original = @($empty | Out-GridView -PassThru | Out-String)
-Enable-ConsoleFormatting -Feature GridView -Force
+Enable-ConsoleFormatting -Include GridView -Exclude Output, FormatCommands, Errors, Streams, ReadLine -Force
 if ((Get-Command Out-GridView) -ne $before) { throw 'Native command replaced.' }
 $after = @($empty | Out-GridView -PassThru | Out-String)
 if (($original -join '') -cne ($after -join '')) { throw 'Native capture changed.' }
@@ -47,7 +47,7 @@ Disable-ConsoleFormatting
 'NATIVE_CAPTURE_OK'
 '@
     $body = @'
-Enable-ConsoleFormatting -Feature GridView
+Enable-ConsoleFormatting -Include GridView -Exclude Output, FormatCommands, Errors, Streams, ReadLine
 $rows = @([pscustomobject]@{Name='alpha';Id=1}, [pscustomobject]@{Name='beta';Id=2})
 $file = '__PATH__/empty.txt'
 ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.NonInteractive = $true
@@ -70,7 +70,7 @@ Disable-ConsoleFormatting
         param($helper)
         . $helper
         Invoke-GridViewSession @'
-Enable-ConsoleFormatting -Feature GridView
+Enable-ConsoleFormatting -Include GridView -Exclude Output, FormatCommands, Errors, Streams, ReadLine
 $rows = @([pscustomobject]@{Name='job-alpha';Id=1})
 $result = @($rows | Out-GridView -PassThru -WarningAction SilentlyContinue)
 if ($result.Count -ne 0) { throw 'Job fabricated a selection.' }

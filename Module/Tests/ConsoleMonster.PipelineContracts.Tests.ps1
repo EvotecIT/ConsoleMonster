@@ -13,7 +13,7 @@ Describe 'Supported comparison and chart pipeline contracts' {
             [pscustomobject]@{ Name = 'new'; Value = 4 }
         )
         $errors = @()
-        $piped = @($after | Compare-ConsoleObject -ReferenceObject $before -Property Name -PassThru -ErrorAction Stop -ErrorVariable errors)
+        $piped = @($after | Compare-ConsoleObject -ReferenceObject $before -Property Name -PassThru -ErrorAction Stop -ErrorVariable errors -WarningAction SilentlyContinue -WarningVariable warnings)
         $explicit = @(Compare-ConsoleObject -ReferenceObject $before -DifferenceObject $after -Property Name -PassThru -ErrorAction Stop)
         $errors.Count | Should -Be 0
         $piped.Count | Should -Be 3
@@ -47,16 +47,18 @@ Describe 'Supported comparison and chart pipeline contracts' {
             }
         }
         $errors = @()
+        $warnings = @()
         $chart = & {
             # Unary comma keeps the actual data container on both PowerShell runtimes.
             ,($containers[0])
             if ($WithNull) { $null }
             ,($containers[1])
-        } | Show-Console -View Chart -Property Value -Label Name -AsWidget -ErrorAction Stop -ErrorVariable errors
+        } | New-ConsoleChart -Property Value -Label Name -ErrorAction Stop -ErrorVariable errors -WarningAction SilentlyContinue -WarningVariable warnings
         $errors.Count | Should -Be 0
-        $chart.Samples.Count | Should -Be 4
-        ($chart.Samples | ForEach-Object Label) -join ',' | Should -Be 'row1,row2,row3,row4'
-        ($chart.Samples | ForEach-Object Value) -join ',' | Should -Be '1,2,3,4'
-        $chart.SkippedCount | Should -Be ([int]$WithNull)
+        $chart.Items.Count | Should -Be 4
+        ($chart.Items | ForEach-Object Label) -join ',' | Should -Be 'row1,row2,row3,row4'
+        ($chart.Items | ForEach-Object Value) -join ',' | Should -Be '1,2,3,4'
+        $warnings.Count | Should -Be ([int]$WithNull)
+        if ($WithNull) { $warnings[0] | Should -Match '1 rows without chartable values skipped' }
     }
 }

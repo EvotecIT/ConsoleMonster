@@ -51,7 +51,7 @@ namespace ConsoleMonster.PowerShell.Binding {
     }
 
     /// <summary>Completes status words for a <see cref="StatusKind"/> parameter.</summary>
-    public sealed class StatusKindCompleter : IArgumentCompleter {
+    internal sealed class StatusKindCompleter : IArgumentCompleter {
         /// <inheritdoc />
         public IEnumerable<CompletionResult> CompleteArgument(string commandName, string parameterName, string wordToComplete, CommandAst commandAst, IDictionary fakeBoundParameters) =>
             WordCompletion.Complete(StatusKinds.Words, wordToComplete);
@@ -78,7 +78,7 @@ namespace ConsoleMonster.PowerShell.Binding {
     }
 
     /// <summary>Completes log level words.</summary>
-    public sealed class LogLevelCompleter : IArgumentCompleter {
+    internal sealed class LogLevelCompleter : IArgumentCompleter {
         /// <inheritdoc />
         public IEnumerable<CompletionResult> CompleteArgument(string commandName, string parameterName, string wordToComplete, CommandAst commandAst, IDictionary fakeBoundParameters) =>
             WordCompletion.Complete(LogLevels.Words, wordToComplete);

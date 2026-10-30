@@ -1,6 +1,6 @@
 namespace ConsoleMonster.Canvas {
     /// <summary>A horizontal run of cells that changed between two frames.</summary>
-    public readonly struct DiffRun {
+    internal readonly struct DiffRun {
         /// <summary>Creates a run.</summary>
         /// <param name="row">Row.</param>
         /// <param name="start">First column.</param>

@@ -18,7 +18,7 @@
     }
 
     It 'renders a calendar through Show-Console' {
-        $text = New-ConsoleCalendar -Year 2026 -Month 10 -Culture en-US | Show-Console -AsString -Width 40
+        $text = New-ConsoleCalendar -Year 2026 -Month 10 -Culture en-US | Export-ConsoleFrame -Format Text -Width 40
         $text | Should -Match 'October 2026'
         $text | Should -Not -Match 'CalendarData'
     }
@@ -56,7 +56,7 @@
         $fixed = New-ConsoleCalendar -Today ([datetime]'2025-02-14') -Culture en-US
         $fixed.Year | Should -Be 2025
         $fixed.Month | Should -Be 2
-        ($fixed | Show-Console -AsString -Width 40) | Should -Match 'February 2025'
+        ($fixed | Export-ConsoleFrame -Format Text -Width 40) | Should -Match 'February 2025'
         (New-ConsoleCalendar -View Year).Year | Should -Be ([datetime]::Today.Year)
     }
 }

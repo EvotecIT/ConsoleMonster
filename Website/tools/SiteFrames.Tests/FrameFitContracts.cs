@@ -81,8 +81,8 @@ namespace SiteFrames.Tests {
             Assert.NotEmpty(CodeGuard.Presentation("bash", "dotnet new console -n Demo\ncd Demo\ndotnet add package ConsoleMonster"));
             Assert.NotEmpty(CodeGuard.Presentation("powershell", "dotnet new console -n Demo\nSet-Location Demo"));
             Assert.Empty(CodeGuard.Presentation("terminal", "dotnet new console -n Demo\ncd Demo\ndotnet add package ConsoleMonster"));
-            Assert.Empty(CodeGuard.Presentation("powershell", "Install-Module ConsoleMonster -Scope CurrentUser\n./live-filter.ps1 -AppOptions @{ StaticSnapshot = $true }\nGet-Process"));
-            Assert.Empty(CodeGuard.Presentation("powershell", "Enable-ConsoleFormatting -Feature Errors"));
+            Assert.Empty(CodeGuard.Presentation("powershell", "Install-Module ConsoleMonster -Scope CurrentUser\n./live-filter.ps1 -AppOptions @{ Mode = 'Snapshot' }\nGet-Process"));
+            Assert.Empty(CodeGuard.Presentation("powershell", "Enable-ConsoleFormatting -Include Errors"));
         }
 
         [Fact]

@@ -35,7 +35,7 @@ The [live dashboards page](/live/) shows larger programs built the same way, rec
 ```powershell
 Import-Module ConsoleMonster
 
-New-ConsoleLanes -WidgetId servers -Lane 'DC01', 'DC02' -Total 40 -HideCompleted -Columns Standard, Rate | Show-Console
+'DC01', 'DC02' | New-ConsoleLanes -WidgetId servers -Total 40 -HideCompleted -Column Standard, Rate | Show-Console
 New-ConsoleProgress -Label 'Upload' -Total 500MB -Column Description, Bar, Percent, ByteRate, Remaining | Show-Console
 ```
 
@@ -73,13 +73,13 @@ $controllers = @(
 )
 $d = New-ConsoleDashboard -Title 'Domain health' -Content {
     New-ConsolePanel -Title 'Domain controllers' -Content { New-ConsoleRegion -WidgetId main -Content { New-ConsoleProgress -Label 'Querying' -Indeterminate -WidgetId 'spinner' } }
-    New-ConsolePanel -Title 'Jobs' -Fill -Content { New-ConsoleTable -WidgetId jobs -MaxRows 8 -Live -Columns 'Job', 'State', 'Took' }
+    New-ConsolePanel -Title 'Jobs' -Fill -Content { New-ConsoleTable -WidgetId jobs -MaxRows 8 -Live -Property 'Job', 'State', 'Took' }
 }
 Invoke-ConsoleDashboard $d {
     Update-Console -WidgetId jobs -Row ([pscustomobject]@{ Key = 'dns@DC01'; Values = @('dns', 'Running', ([timespan]::Zero)) })
     Start-Sleep -Seconds 1
     Update-Console -WidgetId jobs -Row ([pscustomobject]@{ Key = 'dns@DC01'; Values = @('dns', 'Done', ([timespan]::FromSeconds(1))) })
-    Update-Console -WidgetId main -Content { $using:controllers | Show-ConsoleTable -AsWidget }
+    Update-Console -WidgetId main -Content { $using:controllers | New-ConsoleTable }
     Start-Sleep -Seconds 1
 }
 ```

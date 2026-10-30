@@ -13,7 +13,7 @@ using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell.Binding {
     /// <summary>Resolves Format-Table style property selections and calculated columns.</summary>
-    public static class PropertyBinder {
+    internal static class PropertyBinder {
         private static readonly string[] ValidKeys = {
             "Name",
             "N",

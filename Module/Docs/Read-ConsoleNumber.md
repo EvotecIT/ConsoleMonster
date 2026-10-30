@@ -13,7 +13,7 @@ Whole numbers with -Integer (returns [int]), decimals otherwise (returns [decima
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Read-ConsoleNumber [[-Title] <string>] [-Default <Decimal>] [-Minimum <Decimal>] [-Maximum <Decimal>] [-Step <decimal>] [-Integer] [-Validator <scriptblock>] [-Culture <cultureinfo>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
+Read-ConsoleNumber [[-Title] <string>] [-Default <Decimal>] [-Minimum <Decimal>] [-Maximum <Decimal>] [-Step <decimal>] [-Integer] [-Validator <scriptblock>] [-Culture <cultureinfo>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -135,7 +135,7 @@ Forces how to ask: Rich (in-place prompt), Line (question and typed answer), Acc
 Type: InteractionMode
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: Rich, Line, Accessible, None
+Possible values: Rich, Line, Accessible, None, Snapshot
 
 Required: False
 Position: named
@@ -149,22 +149,6 @@ The parameter of your script that supplies this value without a prompt (named in
 
 ```yaml
 Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -StaticSnapshot
-Prints the initialized rich prompt without reading input or returning an answer. Useful for documentation and unattended previews.
-
-```yaml
-Type: SwitchParameter
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

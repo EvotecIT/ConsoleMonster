@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>net472;net8.0;net10.0</TargetFrameworks>
+        <TargetFrameworks>net472;net8.0</TargetFrameworks>
         <Title>ConsoleMonster PowerShell Module</Title>
         <Description>Thin PowerShell cmdlets over the ConsoleMonster library: print-once tables, trees, panels and charts, and live dashboards with captured PowerShell streams. Windows PowerShell 5.1 and PowerShell 7.</Description>
         <AssemblyName>ConsoleMonster.PowerShell</AssemblyName>

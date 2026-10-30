@@ -13,7 +13,7 @@ Declares the queued items and returns a LiveRun handle. Use Update-Console as wo
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Start-ConsoleRun -Items <psobject[]> [-Title <string>] [-Label <Object>] [-Target <Object>] [-Group <Object>] [-NoLive] [-InteractiveKeys] [-ShowTrend] [-HeightPercent <int>] [-ProgressEvery <int>] [-ProgressIntervalSeconds <double>] [-ReportPath <string>] [-NoGroups] [-Session <LiveSessionOptions>] [<CommonParameters>]
+Start-ConsoleRun -InputObject <psobject[]> [-Title <string>] [-Label <Object>] [-Target <Object>] [-Group <Object>] [-NoLive] [-InteractiveKeys] [-ShowTrend] [-HeightPercent <int>] [-ProgressEvery <int>] [-ProgressIntervalSeconds <double>] [-ReportPath <string>] [-NoGroups] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,25 +25,27 @@ Declares the queued items and returns a LiveRun handle. Use Update-Console as wo
 
 ### EXAMPLE 1
 ```powershell
-$files = @(Get-ChildItem *.log)
-$run = Start-ConsoleRun -Items $files -Title 'Archive logs' -Label Name -Target DirectoryName
+$files = @(Get-ChildItem -File | Select-Object -First 5)
+$run = Start-ConsoleRun -InputObject $files -Title 'Inspect files' -Label Name -Target DirectoryName
 try {
     for ($i = 0; $i -lt $files.Count; $i++) {
-        Update-Console -Run $run -Index $i -Status Running -Label 'archiving'
-        try { Compress-Archive $files[$i].FullName "$($files[$i].FullName).zip" -ErrorAction Stop; Update-Console -Run $run -Index $i -Status Pass }
-        catch { Update-Console -Run $run -Index $i -Status Fail -Detail $_.Exception.Message }
+        Update-Console -Run $run -Index $i -Status Running
+        Update-Console -Run $run -Index $i -Status Pass -Detail "$($files[$i].Length) bytes"
     }
 } finally { Complete-ConsoleRun $run }
 ```
 
-Track a script without changing its output
+Track file inspections without modifying the files
 
 ### EXAMPLE 2
 ```powershell
-$run = Start-ConsoleRun -Items $checks -Label Name -Target Server -Group Category -NoLive -ProgressEvery 20
+$checks = @([pscustomobject]@{ Name = 'DNS'; Server = 'web01'; Category = 'Network' })
+$run = Start-ConsoleRun -InputObject $checks -Label Name -Target Server -Group Category -NoLive -ProgressEvery 20
+Update-Console -Run $run -Index 0 -Status Pass
+Complete-ConsoleRun $run
 ```
 
-Use append-only output in CI
+Use append-only progress output in CI
 
 ## PARAMETERS
 
@@ -79,6 +81,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -InputObject
+The complete input list. Updates identify each item by zero-based position.
+
+```yaml
+Type: PSObject[]
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: True
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -InteractiveKeys
 Enable optional p/f/g/? keys when keyboard input is available.
 
@@ -89,22 +107,6 @@ Aliases: None
 Possible values:
 
 Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Items
-The complete input list. Updates identify each item by zero-based position.
-
-```yaml
-Type: PSObject[]
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: True
 Position: named
 Default value: None
 Accept pipeline input: False
@@ -196,22 +198,6 @@ Optional report location shown in the final summary.
 
 ```yaml
 Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Session
-Exclusive typed session configuration. The run owns its output lifetime and applies run-specific layout and cancellation settings.
-
-```yaml
-Type: LiveSessionOptions
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

@@ -40,14 +40,14 @@ Describe 'In-app command actions' {
     It 'collects pipeline content into one scroll container' {
         $scroll = @('First', 'Second') | New-ConsoleScrollView -Height 5
         @($scroll).Count | Should -Be 1
-        $text = $scroll | Show-Console -AsString -Width 40
+        $text = $scroll | Export-ConsoleFrame -Format Text -Width 40
         $text | Should -Match 'First'
         $text | Should -Match 'Second'
     }
 
     It 'runs explicit arguments and modules in isolation for marked rows and keeps the grid open' {
         $CallerOnly = 'must not cross runspaces'
-        $command = New-ConsoleCommand -Key Check -Label Check -Shortcut F5 -ConfirmPrompt 'Check services?' `
+        $command = New-ConsoleCommand -Key Check -Label Check -Hotkey F5 -ConfirmPrompt 'Check services?' `
             -ArgumentList 'Lab' -ImportModule Microsoft.PowerShell.Utility -ScriptBlock {
                 param($Row, $Environment)
                 "Row=$($Row.Name);Argument=$Environment;Caller=$CallerOnly"
@@ -71,7 +71,7 @@ Describe 'In-app command actions' {
     }
 
     It 'cancels an isolated action while retaining its streamed output' {
-        $command = New-ConsoleCommand -Key Wait -Label Wait -Shortcut F5 -ScriptBlock {
+        $command = New-ConsoleCommand -Key Wait -Label Wait -Hotkey F5 -ScriptBlock {
             param($Row)
             'Operation started'
             Start-Sleep -Seconds 60
@@ -83,7 +83,7 @@ Describe 'In-app command actions' {
     }
 
     It 'bounds cancellation of a native call and prevents another runspace for that command until it exits' {
-        $command = New-ConsoleCommand -Key Native -Shortcut F5 -ScriptBlock {
+        $command = New-ConsoleCommand -Key Native -Hotkey F5 -ScriptBlock {
             param($Row)
             if ($Row.Name -eq 'One') {
                 'Native operation started'
@@ -107,7 +107,7 @@ Describe 'In-app command actions' {
         $script:RefreshThread = 0
         $script:RefreshKey = ''
         $thread = [Threading.Thread]::CurrentThread.ManagedThreadId
-        $command = New-ConsoleCommand -Key Restart -Shortcut F5 -ScriptBlock { param($Row) "Restarted $($Row.Name)" }
+        $command = New-ConsoleCommand -Key Restart -Hotkey F5 -ScriptBlock { param($Row) "Restarted $($Row.Name)" }
         $text = Invoke-ActionGrid $command 'F5 wait:4000 Escape' {
             param($Row, $CommandKey)
             $script:RefreshCalls++

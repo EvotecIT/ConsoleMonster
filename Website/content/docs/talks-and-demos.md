@@ -51,8 +51,8 @@ The driver wraps the shell's actual prompt in OSC 133 semantic marks. It never s
 
 ```powershell
 Import-Module ConsoleMonster
-Invoke-ConsolePresentation -Path ./demo.ps1 -Destination ./talk.cast -Seed 42
-Export-ConsoleRecording -Path ./talk.cast -Format Gif -Preset Slide16x9 -WindowChrome -Destination ./talk.gif
+Show-ConsolePresentation -ScriptPath ./demo.ps1 -Path ./talk.cast -Seed 42
+Export-ConsoleRecording -InputRecordingPath ./talk.cast -Format Gif -Preset Slide16x9 -ChromeStyle MacOS -OutputPath ./talk.gif
 ```
 
 PNG, GIF and APNG run in-process without an external executable or a download. Use GIF for animated slides.
@@ -81,7 +81,7 @@ Every slide preset centres the complete window inside a safe inset of 6% of the 
 The surrounding background uses the theme colour by default. Choose a solid colour or a soft gradient with hex colours:
 
 ```powershell
-Export-ConsoleRecording ./talk.cast -Format Png -Preset Slide16x9 -Fit Terminal -Background Solid -BackgroundColor '#1b2638' -Destination ./terminal.png
+Export-ConsoleRecording ./talk.cast -Format Png -Preset Slide16x9 -Fit Terminal -Background Solid -BackgroundColor '#1b2638' -OutputPath ./terminal.png
 ```
 
 Use `-Theme Dark`, `Light` or `HighContrast`, and `-ChromeStyle MacOS`, `Windows`, `Linux` or `None`. The embedded JetBrains Mono font makes default text consistent across operating systems. `-FontFamily 'Consolas'` chooses an installed font; C# also accepts additional fallback families. Emoji and CJK coverage depends on installed fonts. Box drawing, blocks and braille use geometric cell shapes, so they join without font seams.
@@ -103,12 +103,12 @@ The pace and hold survive in the cast. Explicit `-Pace` at export overrides reco
 
 ```powershell
 # Final frame, or a moment in source-recording time.
-Export-ConsoleRecording ./talk.cast -Format Png -Preset Slide16x9 -Destination ./final.png
-Export-ConsoleRecording ./talk.cast -Format Png -AtSeconds 04 -Preset Slide16x9 -Destination ./moment.png
+Export-ConsoleRecording ./talk.cast -Format Png -Preset Slide16x9 -OutputPath ./final.png
+Export-ConsoleRecording ./talk.cast -Format Png -AtSeconds 04 -Preset Slide16x9 -OutputPath ./moment.png
 
 # A chapter's completed view, or numbered slides for every chapter.
-Export-ConsoleRecording ./talk.cast -Format Png -Chapter Report -Preset Slide16x9 -Destination ./report.png
-Export-ConsoleRecording ./talk.cast -Format Png -PerChapter -Preset Slide16x9 -Destination ./slides
+Export-ConsoleRecording ./talk.cast -Format Png -Chapter Report -Preset Slide16x9 -OutputPath ./report.png
+Export-ConsoleRecording ./talk.cast -Format Png -PerChapter -Preset Slide16x9 -OutputPath ./slides
 
 # Export any widget or rendered frame too.
 New-ConsoleText 'Ready for the talk' | Export-ConsoleFrame -Format Png -Preset Social -Path ./ready.png
@@ -119,11 +119,11 @@ New-ConsoleText 'Ready for the talk' | Export-ConsoleFrame -Format Png -Preset S
 ## Present live
 
 ```powershell
-Show-ConsolePresentation -Path ./demo.ps1
-Show-ConsolePresentation -Path ./demo.ps1 -RecordingPath ./on-stage.cast
+Show-ConsolePresentation -ScriptPath ./demo.ps1
+Show-ConsolePresentation -ScriptPath ./demo.ps1 -Path ./on-stage.cast
 ```
 
-The terminal title shows the current step. Commands run in a dedicated real PowerShell shell; closing the demo stops that child and restores the title. Without `-Record`, temporary recording files are removed on exit.
+The terminal title shows the current step. Commands run in a dedicated real PowerShell shell; closing the demo stops that child and restores the title. Without `-Path`, keys control the presentation and temporary recording files are removed on exit.
 
 | Key | Action |
 |---|---|

@@ -15,11 +15,11 @@ ConsoleMonster lets the same rendering script run on Windows PowerShell 5.1 and 
 
 | PwshSpectreConsole | ConsoleMonster | Note |
 | --- | --- | --- |
-| `Format-SpectreTable` | `Show-ConsoleTable` | Direct display; `-AsWidget` for composition, `-AsString` for plain text. |
+| `Format-SpectreTable` | `Show-ConsoleTable` | Direct display; construct with `New-ConsoleTable` and export text with `Export-ConsoleFrame`. |
 | `Format-SpectreTree` | `Show-Console -View Tree`, `New-ConsoleTree` | Build explicit nodes or supply hierarchical data. |
 | `Format-SpectrePanel` | `New-ConsolePanel` then `Show-Console` | Builder returns a widget; does not draw it. |
 | `Write-SpectreHost` | `Write-ConsoleText -Markup` | Escape untrusted bracketed text; semantic roles are available. |
-| `Write-SpectreRule` | `Show-Console -View Rule` | `New-ConsoleRule` constructs a reusable definition. |
+| `Write-SpectreRule` | `New-ConsoleRule \| Show-Console` | `New-ConsoleRule` constructs a reusable definition. |
 | `Read-SpectreSelection`, `Read-SpectreSelectionGrouped` | `Read-ConsoleSelect -Display ... -GroupBy ...` | Returns the selected original object. |
 | `Read-SpectreMultiSelection`, grouped variant | `Read-ConsoleSelect -Multiple` | Returns chosen objects; check cancellation behavior. |
 | `Read-SpectreText`, `Read-SpectreConfirm` | `Read-ConsoleText`, `Read-ConsoleConfirm` | Defaults and validation use different parameters. |
@@ -27,7 +27,7 @@ ConsoleMonster lets the same rendering script run on Windows PowerShell 5.1 and 
 | `Invoke-SpectreCommandWithStatus` | `Show-ConsoleStatusLine` with `try/finally` | Explicitly complete the status line. |
 | `Invoke-SpectreLive` | `Invoke-ConsoleDashboard` | Session handles update named widgets. |
 | `Write-SpectreFigletText` | `New-ConsoleLogo` then `Show-Console` | Different lettering; no `.flf` font loading. |
-| `New-SpectreChartItem`, `Format-SpectreBarChart` | `Show-Console -View Chart` or record rows piped to `New-ConsoleChart -Type Bar` | Ordinary object rows work with the display command. |
+| `New-SpectreChartItem`, `Format-SpectreBarChart` | `New-ConsoleChart -Type Bar \| Show-Console` | The constructor accepts ordinary records and returns a widget. |
 | `Format-SpectreBreakdownChart` | `New-ConsoleChart -Type Stacked` | Proportions, with ConsoleMonster's own legend/layout. |
 | `Format-SpectreGrid`, `Format-SpectreColumns`, `Format-SpectreRows` | `New-ConsoleLayoutGrid`, `New-ConsoleColumns`, `New-ConsoleRows` | Definitions; pipe the result to `Show-Console`. |
 | `Format-SpectreJson`, `Format-SpectreException` | `Show-Console -View Json`, `Show-Console -View Error` | Display JSON or an error; do not emit new error records. |
@@ -65,13 +65,13 @@ $servers | Format-SpectreTable
 
 ```powershell
 $servers | Show-ConsoleTable -Property Name, Site, Pending, Status -Title 'Patch inventory'
-$text = $servers | Show-ConsoleTable -Property Name, Pending -AsString
+$text = $servers | New-ConsoleTable -Property Name, Pending | Export-ConsoleFrame -Format Text
 ```
 
 </div>
 </div>
 
-`Show-ConsoleTable` displays directly, rather than producing native `Format-Table` records. Keep the rows if later commands need objects. `-AsString` is plain text; use `Export-ConsoleFrame -Format Markdown` when you want a document.
+`Show-ConsoleTable` displays directly, rather than producing native `Format-Table` records. Keep the rows if later commands need objects. `Export-ConsoleFrame -Format Text` captures plain text; use `Export-ConsoleFrame -Format Markdown` when you want a document.
 
 {{< cm-try ids="migration-report-100,migration-report-48" project="InventoryReport" >}}
 
@@ -197,7 +197,7 @@ Write-SpectreHost '[yellow]SQL01 needs review[/]'
 
 ```powershell
 New-ConsoleLogo 'Ops' | Show-Console
-Show-Console -View Rule 'Patch inventory'
+New-ConsoleRule -Title 'Patch inventory' | Show-Console
 Write-ConsoleText -Markup '[warn]SQL01 needs review[/]'
 ```
 
@@ -226,7 +226,7 @@ Format-SpectreBarChart -Data $items -Label 'Pending patches'
 **ConsoleMonster**
 
 ```powershell
-$servers | Show-Console -View Chart -Label Name -Property Pending -Type Bar
+$servers | New-ConsoleChart -Label Name -Property Pending -Type Bar | Show-Console
 # For composition, build the chart and pass the widget to a panel/dashboard.
 ```
 
@@ -236,7 +236,7 @@ $servers | Show-Console -View Chart -Label Name -Property Pending -Type Bar
 ## Differences to know
 
 - `New-*` creates definitions, `Show-*` renders or opens a viewer, `Read-*` returns answers, `Invoke-*` executes and waits, and `Start-ConsoleRun` returns a running handle. The names describe lifetimes rather than mirror Spectre's method names.
-- `Show-* -AsString` and `-AsWidget` suppress host display. Export commands own file formats. The native PowerShell pipeline remains objects until a deliberate display/export boundary.
+- Constructors return widgets without drawing. Export commands return text or write files. The native PowerShell pipeline remains objects until a deliberate display/export boundary.
 - PowerShell 5.1 uses the .NET Framework build; PowerShell 7 isolates the binary module in its own assembly load context. Test scripts on the hosts you support; running in PowerShell 7 does not establish native 5.1 proof.
 - A Nerd Font is unnecessary for built-in rendering. ASCII/plain fallback is available; custom glyphs and emoji still need a font that contains them.
 - No automatic conversion exists for Spectre renderables or Figlet fonts. Calendar output uses `New-ConsoleCalendar` with a month or year view. Check the [roadmap](https://github.com/EvotecIT/ConsoleMonster/blob/master/ROADMAP.md) before replacing those paths.

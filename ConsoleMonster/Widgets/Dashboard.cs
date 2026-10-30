@@ -77,6 +77,12 @@ namespace ConsoleMonster.Widgets {
                     Detail = liveEvent.Text;
                     Status = StatusKinds.TryParse(liveEvent.Status, out StatusKind kind) ? kind : (StatusKind?)null;
                     break;
+                case "detail":
+                    Detail = liveEvent.Text;
+                    break;
+                case "state":
+                    Status = StatusKinds.TryParse(liveEvent.Status, out StatusKind state) ? state : (StatusKind?)null;
+                    break;
                 case "footer":
                     Footer = liveEvent.Text;
                     break;
@@ -85,7 +91,7 @@ namespace ConsoleMonster.Widgets {
 
         /// <inheritdoc />
         public override string? Describe(LiveEvent liveEvent) {
-            return liveEvent.Operation == "status" && !string.IsNullOrEmpty(liveEvent.Text) ? Markup.Strip(liveEvent.Text) : null;
+            return (liveEvent.Operation == "status" || liveEvent.Operation == "detail") && !string.IsNullOrEmpty(liveEvent.Text) ? Markup.Strip(liveEvent.Text) : null;
         }
 
         /// <inheritdoc />

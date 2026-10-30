@@ -7,14 +7,14 @@ Import-Module ConsoleMonster
 
 Get-Process |
     Select-Object -First 10 Name, Id, WorkingSet64 |
-    Show-ConsoleTable -AsWidget | Export-ConsoleFrame -Format Markdown |
+    New-ConsoleTable | Export-ConsoleFrame -Format Markdown |
     Set-Content -Path .\processes.md -Encoding UTF8
 
-$html = Get-Process -Id $PID | Show-ConsoleList -AsWidget | Export-ConsoleFrame -Format Html
+$html = Get-Process -Id $PID | Show-Console -View List -AsWidget | Export-ConsoleFrame -Format Html
 $html | Set-Content -Path .\process.html -Encoding UTF8
 ```
 
-Display commands use `-AsString` to capture plain text or `-AsWidget` to return a composable view. Neither draws to the host. Where supported, `-PassThru` displays and returns original input; choose one output mode. Export a customized view with `Show-ConsoleTable -AsWidget | Export-ConsoleFrame`. For the automatic view, pipe objects straight to the exporter.
+Construct a customized table with `New-ConsoleTable | Export-ConsoleFrame`. `Show-Console -AsWidget` returns other composable views without drawing. Where supported, `-PassThru` displays and returns original input. For the automatic view, pipe objects straight to the exporter.
 
 Width 0 resolves the current target/terminal, falling back to 100 columns. Positive widths are explicit. A specified culture controls the same presenters as normal display.
 
@@ -29,16 +29,16 @@ Get-Process -Id $PID | Export-ConsoleFrame -Format Markdown -Width 100
 
 The same view discovery and registration apply as for normal output, including
 module-provided views. Other objects use ConsoleMonster's object-to-table
-export. `Out-ConsoleDefault` only routes host output; document export uses this command.
+export. The internal host-output adapter routes normal display; document export uses this command.
 The opt-in `Format-Table`, `Format-List` and `Format-Wide` proxies retain
-PowerShell's native parameters. Use `Show-Console* -AsWidget | Export-ConsoleFrame` to export a selected view.
+PowerShell's native parameters. Use a table constructor or `Show-Console -AsWidget` to export a selected view.
 
 ## Export widgets, rendered frames and files
 
 ```powershell
-Get-Service |
-    Select-Object -First 8 Name, Status |
-    Show-ConsoleTable -AsWidget |
+Get-Process |
+    Select-Object -First 8 ProcessName, Id |
+    New-ConsoleTable |
     Export-ConsoleFrame -Path .\services.md -Width 90
 
 New-ConsolePanel -Title 'Status' -Content { New-ConsoleText 'All checks complete' } |
@@ -64,69 +64,37 @@ direct bullets; complex items retain their indexes. Markdown includes every
 column without console-width truncation.
 
 Use `-Format FencedText` to preserve borders and the exact console layout in a fenced `text`
-block. The fence grows around backticks in the content. `-AsString` and
-`Export-ConsoleFrame -Format Text` retain their plain-text output. Widgets without
+block. The fence grows around backticks in the content. `Export-ConsoleFrame -Format Text` returns plain text. Widgets without
 a semantic Markdown representation, and already-rendered frames or live snapshots,
 use a fenced fallback because their source fields are unavailable. Terminal
 escape sequences are not included. HTML uses the existing self-contained frame
 exporter, with selectable text, safe web/mail links and light/dark rendering.
 
 ```powershell
-Get-Process | Select-Object -First 5 Name, Id | Show-ConsoleTable -AsWidget | Export-ConsoleFrame -Format Markdown
-Get-Process | Select-Object -First 5 Name, Id | Show-ConsoleTable -AsWidget | Export-ConsoleFrame -Format FencedText
+Get-Process | Select-Object -First 5 Name, Id | New-ConsoleTable | Export-ConsoleFrame -Format Markdown
+Get-Process | Select-Object -First 5 Name, Id | New-ConsoleTable | Export-ConsoleFrame -Format FencedText
 ```
 
 ## Copy to the operating-system clipboard
 
+Export the document, then use PowerShell's normal clipboard command:
+
 ```powershell
 Get-Process |
-    Select-Object -First 10 Name, Id |
-    Show-ConsoleTable -AsWidget |
-    Copy-ConsoleOutput -Format Markdown
+    Select-Object -First 10 ProcessName, Id |
+    New-ConsoleTable |
+    Export-ConsoleFrame -Format Markdown |
+    Set-Clipboard
 
-New-ConsoleText 'Deployment complete' | Copy-ConsoleOutput
-
-Get-Service |
-    Select-Object -First 8 Name, Status |
-    Copy-ConsoleOutput -Format Html -Width 90
+New-ConsoleText 'Deployment complete' |
+    Export-ConsoleFrame -Format Text |
+    Set-Clipboard
 ```
 
-`Copy-ConsoleOutput` accepts widgets, frames, live sessions, literal strings and
-objects. `-Format Text` is the default and returns plain text. `FencedText` adds a Markdown fence; `Markdown` preserves supported table and tree semantics. These formats copy the serialized source
-as Unicode clipboard **text**; HTML is copied as HTML source, rather than a
-native rich-HTML clipboard payload. Use a widget to preserve a customized view,
-or pipeline objects directly to get a table. `-PassThru` returns the document
-after a successful copy. `-WhatIf` previews the operation without accessing the
-clipboard.
-
-| Platform | Provider |
-| --- | --- |
-| Windows | Native Unicode clipboard; no external command or STA host required |
-| macOS | `pbcopy` on `PATH` |
-| Linux Wayland | `wl-copy` from wl-clipboard, with `WAYLAND_DISPLAY` present |
-| Linux X11 | `xclip`, with `DISPLAY` present |
-
-On a mixed Wayland/X11 desktop, X11 is used when `wl-copy` is missing. A provider
-that starts and fails is reported as a failure. Clipboard providers receive
-UTF-8 data through standard input, with a bounded wait. Content is never put in
-command arguments.
-
-SSH sessions (`SSH_CONNECTION`, `SSH_CLIENT` or `SSH_TTY`), Linux sessions
-without a local display, missing commands, a busy Windows clipboard and failing
-providers produce a non-terminating `ConsoleClipboardUnavailable` error. No
-success output is returned. To handle the failure in a script:
-
-```powershell
-$widget = Get-Service | Select-Object -First 8 Name, Status | Show-ConsoleTable -AsWidget
-try {
-    $widget | Copy-ConsoleOutput -Format Markdown -ErrorAction Stop
-} catch {
-    $widget | Export-ConsoleFrame -Path .\report.md
-}
-```
-
-Copying over SSH does not target the connecting computer's clipboard. Export to
-a string or file and copy it locally instead.
+The exported document is ordinary text. HTML output copies the HTML source;
+it is not a native rich-HTML clipboard payload. Clipboard availability and
+remote-session behavior follow `Set-Clipboard` on the current platform. Export
+to a file when the destination has no usable clipboard.
 
 ## .NET
 

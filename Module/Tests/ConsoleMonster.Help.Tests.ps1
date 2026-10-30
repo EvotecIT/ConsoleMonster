@@ -67,7 +67,7 @@ function Get-Thing {
     It 'accepts command names from the pipeline and rejects other objects once' {
         $text = Invoke-HelpChild @'
 $Error.Clear()
-$help = 'Get-Thing' | Show-ConsoleHelp -AsString
+$help = 'Get-Thing' | Show-ConsoleHelp  -AsWidget | Export-ConsoleFrame -Format Text
 "HELP=$($help -match 'Gets things from a store')"
 try { 1..300 | Show-ConsoleHelp -ErrorAction Stop } catch { "ID=$($_.FullyQualifiedErrorId.Split(',')[0]) MESSAGE=$($_.Exception.Message)" }
 "ERRORS=$($Error.Count)"
@@ -84,7 +84,7 @@ try { 1..300 | ForEach-Object { [pscustomobject]@{Name='Get-Thing'} } | Show-Con
     }
 
     It 'shows a function''s comment-based help: synopsis, syntax, parameters, examples and links' {
-        $text = Invoke-HelpChild 'Show-ConsoleHelp Get-Thing -Width 100 -AsString'
+        $text = Invoke-HelpChild 'Show-ConsoleHelp Get-Thing -AsWidget | Export-ConsoleFrame -Format Text -Width 100'
         $text | Should -Match '(?m)^Get-Thing\s*$'
         $text | Should -Match 'Gets things from a store\.'
         $text | Should -Match 'Get-Thing \[-Name\] <String> \[-Store <String>\] \[-Force\] \[<CommonParameters>\]'
@@ -97,7 +97,7 @@ try { 1..300 | ForEach-Object { [pscustomobject]@{Name='Get-Thing'} } | Show-Con
     }
 
     It 'shows a cmdlet''s syntax and parameters, also without help files' {
-        $text = Invoke-HelpChild 'Show-ConsoleHelp Get-Item -Width 120 -AsString'
+        $text = Invoke-HelpChild 'Show-ConsoleHelp Get-Item -AsWidget | Export-ConsoleFrame -Format Text -Width 120'
         $text | Should -Match 'Syntax'
         $text | Should -Match 'Get-Item \[-Path\] <String\[\]>'
         $text | Should -Match '-LiteralPath'
@@ -113,12 +113,12 @@ $ExecutionContext.InvokeCommand.CommandNotFoundAction = {
     if ($name -eq 'Get-Thin*') { $script:literalWildcardLookups++ }
 }
 Write-HelpStep 'wildcard single begin'
-Show-ConsoleHelp 'Get-Thin*' -Width 100 -AsString
+Show-ConsoleHelp 'Get-Thin*'   -AsWidget | Export-ConsoleFrame -Format Text -Width 100
 Write-HelpStep 'wildcard single end'
 function Get-Thinner { <# .SYNOPSIS
 Makes things thinner. #> param() }
 Write-HelpStep 'wildcard multiple begin'
-Show-ConsoleHelp 'Get-Thin*' -Width 100 -AsString
+Show-ConsoleHelp 'Get-Thin*'   -AsWidget | Export-ConsoleFrame -Format Text -Width 100
 Write-HelpStep 'wildcard multiple end'
 $ExecutionContext.InvokeCommand.CommandNotFoundAction = $null
 "WILDCARD_LOOKUPS=$script:literalWildcardLookups"
@@ -133,7 +133,7 @@ $ExecutionContext.InvokeCommand.CommandNotFoundAction = $null
 Write-HelpStep 'script path begin'
 $path = Join-Path ([IO.Path]::GetTempPath()) "cm-help-$PID.ps1"
 Set-Content -LiteralPath $path -Value "<#`n.SYNOPSIS`nCleans the cache.`n.EXAMPLE`nPS C:\> .\clean.ps1 -Days 7`n#>`nparam([int] `$Days = 30)"
-Show-ConsoleHelp $path -Width 100 -AsString
+Show-ConsoleHelp $path   -AsWidget | Export-ConsoleFrame -Format Text -Width 100
 Remove-Item -LiteralPath $path
 Write-HelpStep 'script path end'
 '@
@@ -162,13 +162,13 @@ Write-HelpStep 'program end'
             $text = Invoke-HelpChild @'
 Write-HelpStep 'foreign catalog single begin'
 '== single'
-Show-ConsoleHelp 'Get-Thin*' -Width 100 -AsString
+Show-ConsoleHelp 'Get-Thin*'   -AsWidget | Export-ConsoleFrame -Format Text -Width 100
 Write-HelpStep 'foreign catalog single end'
 function Get-Thinner { <# .SYNOPSIS
 Makes things thinner. #> param() }
 Write-HelpStep 'foreign catalog multiple begin'
 '== multiple'
-Show-ConsoleHelp 'Get-Thin*' -Width 100 -AsString
+Show-ConsoleHelp 'Get-Thin*'   -AsWidget | Export-ConsoleFrame -Format Text -Width 100
 Write-HelpStep 'foreign catalog multiple end'
 '@
         } finally {

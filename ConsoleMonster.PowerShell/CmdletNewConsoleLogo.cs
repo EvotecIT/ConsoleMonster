@@ -10,7 +10,7 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example>
     ///   <para>A banner with a tagline</para>
-    ///   <code>New-ConsoleLogo -Text 'DEPLOY' -Tagline 'production · 14 servers' -StartColor '#22d3ee' -EndColor '#a78bfa' | Show-Console</code>
+    ///   <code>New-ConsoleLogo -Text 'DEPLOY' -Subtitle 'production · 14 servers' -StartColor '#22d3ee' -EndColor '#a78bfa' | Show-Console</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleLogo")]
     [OutputType(typeof(Logo))]
@@ -21,7 +21,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">A muted tagline under the banner (markup allowed).</para></summary>
         [Parameter]
-        public object? Tagline { get; set; }
+        public object? Subtitle { get; set; }
 
         /// <summary><para type="description">Gradient start colour.</para></summary>
         [Parameter]
@@ -37,7 +37,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void ProcessWithoutPipelineInput() {
-            Logo logo = new Logo(Text, PSText.Markup(Tagline)) { Alignment = Alignment };
+            Logo logo = new Logo(Text, PSText.Markup(Subtitle)) { Alignment = Alignment };
             if (StartColor != null && Color.TryParse(StartColor, out Color from)) {
                 logo.StartColor = from;
             }

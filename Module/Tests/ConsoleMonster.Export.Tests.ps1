@@ -25,7 +25,7 @@ Describe 'ConsoleMonster exports' {
 
     It 'exports SVG and text, and picks the format from the extension' {
         $svg = Join-Path $TestDrive 'bar.svg'
-        $file = New-ConsolePanel -Title 'Failures' -Content { New-ConsoleChart -InputObject @{ DNS = 3; Kerberos = 1 } -Type Bar } | Export-ConsoleFrame -Path $svg -Width 50 -Theme Dark -Title 'Chart' -WindowChrome -PassThru
+        $file = New-ConsolePanel -Title 'Failures' -Content { New-ConsoleChart -InputObject @{ DNS = 3; Kerberos = 1 } -Type Bar } | Export-ConsoleFrame -Path $svg -Width 50 -Theme Dark -Title 'Chart' -ChromeStyle MacOS -PassThru
         $file | Should -BeOfType System.IO.FileInfo
         $content = Get-Content -LiteralPath $svg -Raw -Encoding UTF8
         $content | Should -Match '^<svg xmlns="http://www.w3.org/2000/svg"'
@@ -36,9 +36,9 @@ Describe 'ConsoleMonster exports' {
         $text | Should -Match 'DNS'
     }
 
-    It 'exports Show-ConsoleTable -AsWidget and plain objects as tables' {
+    It 'exports constructed tables and plain objects as tables' {
         $rows = @([pscustomobject] @{ Name = 'FS01'; Free = 41 }, [pscustomobject] @{ Name = 'WEB01'; Free = 12 })
-        $widget = $rows | Show-ConsoleTable -AsWidget
+        $widget = $rows | New-ConsoleTable
         $widget.GetType().Name | Should -Be 'Table'
         $text = $widget | Export-ConsoleFrame -Format Text -Width 40
         $text | Should -Match 'Name'
@@ -66,7 +66,7 @@ Describe 'ConsoleMonster exports' {
         [IO.File]::WriteAllLines($recording, $lines)
         $dashboard = New-ConsoleDashboard -Title 'Build' -Content { New-ConsoleProgress -WidgetId build -Label 'Build' -Total 10 }
 
-        $html = Export-ConsoleRecording -Dashboard $dashboard -Path $recording -Format Html -Width 60 -Height 8
+        $html = Export-ConsoleRecording -Dashboard $dashboard -RecordingPath $recording -Format Html -Width 60 -Height 8
         $html | Should -Match '<script>'
         $html | Should -Match '"frames":\[\[0,'
         $html | Should -Match 'ConsoleMonsterPlayer'
@@ -75,12 +75,12 @@ Describe 'ConsoleMonster exports' {
         # Text keeps its existing dashboard HTML fallback; Markdown is owned by the bundled add-on.
         foreach ($extension in 'txt') {
             $fallbackPath = Join-Path $TestDrive ('run.' + $extension)
-            Export-ConsoleRecording -Dashboard $dashboard -Path $recording -Destination $fallbackPath -Width 60 -Height 8
+            Export-ConsoleRecording -Dashboard $dashboard -RecordingPath $recording -Path $fallbackPath -Width 60 -Height 8
             Get-Content -LiteralPath $fallbackPath -Raw -Encoding UTF8 | Should -Match 'ConsoleMonsterPlayer'
         }
         foreach ($extension in 'md', 'markdown') {
             $markdownPath = Join-Path $TestDrive ('run.' + $extension)
-            Export-ConsoleRecording -Dashboard $dashboard -Path $recording -Destination $markdownPath -Width 60 -Height 16
+            Export-ConsoleRecording -Dashboard $dashboard -RecordingPath $recording -Path $markdownPath -Width 60 -Height 16
             $markdown = Get-Content -LiteralPath $markdownPath -Raw -Encoding UTF8
             $markdown | Should -Match '^### 00:00:00'
             $markdown | Should -Match '```text'
@@ -89,22 +89,22 @@ Describe 'ConsoleMonster exports' {
         }
 
         $dataPath = Join-Path $TestDrive 'run.json'
-        $fenced = Export-ConsoleRecording -Dashboard $dashboard -Path $recording -Format FencedText -Width 60 -Height 8
-        $fenced | Should -Be (Export-ConsoleRecording -Dashboard $dashboard -Path $recording -Format Markdown -Width 60 -Height 8)
-        Export-ConsoleRecording -Dashboard $dashboard -Path $recording -Destination $dataPath -Width 60 -Height 8
+        $fenced = Export-ConsoleRecording -Dashboard $dashboard -RecordingPath $recording -Format FencedText -Width 60 -Height 8
+        $fenced | Should -Be (Export-ConsoleRecording -Dashboard $dashboard -RecordingPath $recording -Format Markdown -Width 60 -Height 8)
+        Export-ConsoleRecording -Dashboard $dashboard -RecordingPath $recording -Path $dataPath -Width 60 -Height 8
         $data = Get-Content -LiteralPath $dataPath -Raw -Encoding UTF8 | ConvertFrom-Json
         $data.format | Should -Be 'consolemonster-player'
         $data.width | Should -Be 60
         @($data.frames).Count | Should -BeGreaterThan 1
-        (Export-ConsoleRecording -Dashboard $dashboard -Path $recording -Format PlayerData -Width 60 -Height 8 | ConvertFrom-Json).height | Should -Be 8
+        (Export-ConsoleRecording -Dashboard $dashboard -RecordingPath $recording -Format PlayerData -Width 60 -Height 8 | ConvertFrom-Json).height | Should -Be 8
 
         $svgPath = Join-Path $TestDrive 'run.svg'
-        Export-ConsoleRecording -Dashboard $dashboard -Path $recording -Destination $svgPath -Width 60 -Height 8
+        Export-ConsoleRecording -Dashboard $dashboard -RecordingPath $recording -Path $svgPath -Width 60 -Height 8
         $svg = Get-Content -LiteralPath $svgPath -Raw -Encoding UTF8
         $svg | Should -Match '@keyframes cm-play'
         $svg | Should -Not -Match '<script'
 
-        $cast = Export-ConsoleRecording -Dashboard $dashboard -Path $recording -Format Asciicast -Width 60 -Height 8
+        $cast = Export-ConsoleRecording -Dashboard $dashboard -RecordingPath $recording -Format Asciicast -Width 60 -Height 8
         $castLines = @($cast -split "`n" | Where-Object { $_ })
         $header = $castLines[0] | ConvertFrom-Json
         $header.version | Should -Be 3

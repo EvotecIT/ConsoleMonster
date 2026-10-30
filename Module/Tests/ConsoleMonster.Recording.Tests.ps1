@@ -16,7 +16,11 @@
         { [RecordingCleanupProbe]::Validate($command) } | Should -Not -Throw
     }
 
-    It 'restores the demo title and removes temporary output after task or cleanup failures' {
+    It 'previews without reading the script and restores demo resources after failures' {
+        $preview = Join-Path $TestDrive 'preview/never.cast'
+        Show-ConsolePresentation -ScriptPath (Join-Path $TestDrive 'missing.ps1') -Path $preview -WhatIf -ErrorAction Stop
+        Test-Path (Split-Path $preview -Parent) | Should -BeFalse
+
         $command = (Get-Command Show-ConsolePresentation).ImplementingType.BaseType
         { [RecordingCleanupProbe]::ValidateDemo($command) } | Should -Not -Throw
     }
@@ -31,9 +35,9 @@
     It 'keeps the recording title on a final frame and honors an explicit override' {
         $cast = Join-Path $TestDrive 'named.cast'
         [IO.File]::WriteAllLines($cast, @('{"version":2,"width":40,"height":4,"title":"Build report"}', '[0,"o","Complete"]'))
-        [xml] $named = Export-ConsoleRecording -Path $cast -FinalFrame -WindowChrome
+        [xml] $named = Export-ConsoleRecording -RecordingPath $cast -FinalFrame -ChromeStyle MacOS
         [string] $named.svg.title | Should -Be 'Build report'
-        [xml] $custom = Export-ConsoleRecording -Path $cast -FinalFrame -WindowChrome -Title 'Custom report'
+        [xml] $custom = Export-ConsoleRecording -RecordingPath $cast -FinalFrame -ChromeStyle MacOS -Title 'Custom report'
         [string] $custom.svg.title | Should -Be 'Custom report'
     }
 
@@ -42,21 +46,26 @@
         $mask = ([char] 0x2022).ToString() * 7
         Invoke-ConsoleRecording {
             Write-Host 'API_TOKEN=synthetic-value (redacted)' -ForegroundColor DarkGray
-        } -Destination $html -Width 60 -Height 4 -Redact 'synthetic-value' -RedactionText $mask | Out-Null
+        } -Path $html -Width 60 -Height 4 -Redact 'synthetic-value' -RedactionText $mask | Out-Null
         $cast = [IO.Path]::ChangeExtension($html, '.cast')
         Get-Content $cast -Raw | Should -Not -Match 'synthetic-value'
-        $text = Export-ConsoleRecording -Path $cast -Format Text
+        $text = Export-ConsoleRecording -RecordingPath $cast -Format Text
         $text | Should -Match ([regex]::Escape("API_TOKEN=$mask (redacted)"))
     }
 
     It 'records a real child and exports every session format' {
         $html = Join-Path $TestDrive 'native.html'
+        $preview = Join-Path $TestDrive 'preview/never.cast'
+        $script:recordingPreviewInvoked = $false
+        Invoke-ConsoleRecording { $script:recordingPreviewInvoked = $true; throw 'Preview ran the recording script' } -Path $preview -InProcess -WhatIf
+        $script:recordingPreviewInvoked | Should -BeFalse
+        Test-Path (Split-Path $preview -Parent) | Should -BeFalse
         Invoke-ConsoleRecording {
             Add-ConsoleRecordingMarker 'Native program' -HoldSeconds 3
             git --version
             Write-Host 'password=synthetic-test-value'
             Write-Host 'Session complete' -ForegroundColor Green
-        } -Destination $html -Width 40 -Height 8 -Title 'Test recording' | Out-Null
+        } -Path $html -Width 40 -Height 8 -Title 'Test recording' | Out-Null
 
         $cast = [IO.Path]::ChangeExtension($html, '.cast')
         $lines = @(Get-Content -LiteralPath $cast)
@@ -68,15 +77,15 @@
             $recordedEvent.Count | Should -Be 3
         }
         Get-Content -LiteralPath $html -Raw | Should -Match 'ConsoleMonsterPlayer'
-        $data = Export-ConsoleRecording -Path $cast -Format PlayerData | ConvertFrom-Json
+        $data = Export-ConsoleRecording -RecordingPath $cast -Format PlayerData | ConvertFrom-Json
         $data.width | Should -Be 40
         $data.markers[0][1] | Should -Be 'Native program'
         ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Sessions.SessionRecording'))::Read($cast).Markers[0].Hold.TotalSeconds | Should -Be 3
-        Export-ConsoleRecording -Path $cast -Format Text | Should -Match 'Session complete'
-        Export-ConsoleRecording -Path $cast -Format Markdown | Should -Match '```'
-        Export-ConsoleRecording -Path $cast -Format Svg | Should -Match '@keyframes cm-play'
-        Export-ConsoleRecording -Path $cast -FinalFrame | Should -Match '<svg'
-        $exported = Export-ConsoleRecording -Path $cast -Format Asciicast
+        Export-ConsoleRecording -RecordingPath $cast -Format Text | Should -Match 'Session complete'
+        Export-ConsoleRecording -RecordingPath $cast -Format Markdown | Should -Match '```'
+        Export-ConsoleRecording -RecordingPath $cast -Format Svg | Should -Match '@keyframes cm-play'
+        Export-ConsoleRecording -RecordingPath $cast -FinalFrame | Should -Match '<svg'
+        $exported = Export-ConsoleRecording -RecordingPath $cast -Format Asciicast
         (($exported -split "`n")[0] | ConvertFrom-Json).version | Should -Be 2
     }
 
@@ -88,17 +97,17 @@
             Write-Warning 'Warning output'
             'Pipeline output'
             Write-Host 'token=synthetic-fallback-secret'
-        } -Destination $destination -InProcess -WarningAction SilentlyContinue | Out-Null
+        } -Path $destination -InProcess -WarningAction SilentlyContinue | Out-Null
         $cast = [IO.Path]::ChangeExtension($destination, '.cast')
         $raw = Get-Content -LiteralPath $cast -Raw
         # The shared hosted-output sink also serves C# hosts; the mode still states its output-only limitation.
         (($raw -split "`n")[0] | ConvertFrom-Json).consolemonster.mode | Should -BeExactly 'in-process output only'
         $raw | Should -Not -Match 'synthetic-fallback-secret'
-        $text = Export-ConsoleRecording -Path $cast -Format Text
+        $text = Export-ConsoleRecording -RecordingPath $cast -Format Text
         $text | Should -Match 'Host output'
         $text | Should -Match 'Warning output'
         $text | Should -Match 'Pipeline output'
-        (Export-ConsoleRecording -Path $cast -Format PlayerData | ConvertFrom-Json).markers[0][1] | Should -Be 'Fallback chapter'
+        (Export-ConsoleRecording -RecordingPath $cast -Format PlayerData | ConvertFrom-Json).markers[0][1] | Should -Be 'Fallback chapter'
     }
 
     It 'stops from inside the recorded child and leaves a valid cast' {
@@ -108,8 +117,8 @@
             Stop-ConsoleRecording
             Start-Sleep -Seconds 10
             Write-Host 'After stopping'
-        } -Destination $cast | Out-Null
-        $text = Export-ConsoleRecording -Path $cast -Format Text
+        } -Path $cast | Out-Null
+        $text = Export-ConsoleRecording -RecordingPath $cast -Format Text
         $text | Should -Match 'Before stopping'
         $text | Should -Not -Match 'After stopping'
         Test-Path -LiteralPath ($cast + '.json') | Should -BeTrue
@@ -118,7 +127,7 @@
     It 'refuses an existing destination before executing the script' {
         $destination = Join-Path $TestDrive 'existing.html'
         Set-Content -LiteralPath $destination -Value 'Keep this file'
-        { Invoke-ConsoleRecording { throw 'Script must not run' } -Destination $destination } | Should -Throw '*already exists*'
+        { Invoke-ConsoleRecording { throw 'Script must not run' } -Path $destination } | Should -Throw '*already exists*'
         Get-Content -LiteralPath $destination -Raw | Should -Match 'Keep this file'
         Test-Path -LiteralPath ([IO.Path]::ChangeExtension($destination, '.cast')) | Should -BeFalse
     }
@@ -131,7 +140,7 @@
         $windows = [Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT
         # A headless Unix PTY has no emulator to answer ConsoleHost/PSReadLine cursor-position queries.
         $shell = if ($windows) { '' } else { " -Shell '/bin/sh'" }
-        $script = "Import-Module '$($module.Replace("'", "''"))'; Invoke-ConsoleRecording -Interactive -Destination '$($inner.Replace("'", "''"))'$shell -Width 50 -Height 10; [Console]::WriteLine('OUTER-DONE')"
+        $script = "Import-Module '$($module.Replace("'", "''"))'; Invoke-ConsoleRecording -Interactive -Path '$($inner.Replace("'", "''"))'$shell -Width 50 -Height 10; [Console]::WriteLine('OUTER-DONE')"
         $options = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Sessions.SessionRecordingOptions'))::new()
         $options.Path = $outer
         $options.Shell = $runtime
@@ -179,11 +188,11 @@
             $recorder.Dispose()
         }
         $recorder.ExitCode | Should -Be 0
-        Export-ConsoleRecording -Path $outer -Format Text | Should -Match 'OUTER-DONE'
-        $text = Export-ConsoleRecording -Path $inner -Format Text
+        Export-ConsoleRecording -RecordingPath $outer -Format Text | Should -Match 'OUTER-DONE'
+        $text = Export-ConsoleRecording -RecordingPath $inner -Format Text
         $text | Should -Match 'INTERACTIVE-CHECK' -Because ([IO.File]::ReadAllText($inner))
         $text | Should -Not -Match 'OUTER-DONE'
-        $playerJson = Export-ConsoleRecording -Path $inner -Format PlayerData
+        $playerJson = Export-ConsoleRecording -RecordingPath $inner -Format PlayerData
         $player = $playerJson | ConvertFrom-Json
         $markerCount = if ($null -eq $player.markers) { 0 } else { $player.markers.Count }
         $markerCount | Should -Be 1 -Because ("Inner recording:`n" + [IO.File]::ReadAllText($inner) + "`nPlayerData:`n" + $playerJson)
@@ -192,21 +201,21 @@
 
     It 'surfaces a child failure and retains its recording' {
         $cast = Join-Path $TestDrive 'failed.cast'
-        { Invoke-ConsoleRecording { Write-Host 'Failure recorded'; exit 7 } -Destination $cast -ErrorAction Stop } | Should -Throw '*code 7*'
-        Export-ConsoleRecording -Path $cast -Format Text | Should -Match 'Failure recorded'
+        { Invoke-ConsoleRecording { Write-Host 'Failure recorded'; exit 7 } -Path $cast -ErrorAction Stop } | Should -Throw '*code 7*'
+        Export-ConsoleRecording -RecordingPath $cast -Format Text | Should -Match 'Failure recorded'
     }
 
     It 'surfaces a fallback script failure and retains its recording' {
         $cast = Join-Path $TestDrive 'fallback-failed.cast'
-        { Invoke-ConsoleRecording { throw 'Fallback failure recorded' } -Destination $cast -InProcess -WarningAction SilentlyContinue -ErrorAction Stop } | Should -Throw '*Fallback failure recorded*'
-        Export-ConsoleRecording -Path $cast -Format Text | Should -Match 'Fallback failure recorded'
+        { Invoke-ConsoleRecording { throw 'Fallback failure recorded' } -Path $cast -InProcess -WarningAction SilentlyContinue -ErrorAction Stop } | Should -Throw '*Fallback failure recorded*'
+        Export-ConsoleRecording -RecordingPath $cast -Format Text | Should -Match 'Fallback failure recorded'
     }
 
     It 'surfaces a fallback nonzero exit after finalizing its recording' {
         $cast = Join-Path $TestDrive 'fallback-exit.cast'
-        { Invoke-ConsoleRecording { Write-Host 'Before fallback exit'; exit 7 } -Destination $cast -InProcess -WarningAction SilentlyContinue -ErrorAction Stop } | Should -Throw '*code 7*'
+        { Invoke-ConsoleRecording { Write-Host 'Before fallback exit'; exit 7 } -Path $cast -InProcess -WarningAction SilentlyContinue -ErrorAction Stop } | Should -Throw '*code 7*'
         Test-Path -LiteralPath ($cast + '.json') | Should -BeTrue
-        Export-ConsoleRecording -Path $cast -Format Text | Should -Match 'Before fallback exit'
+        Export-ConsoleRecording -RecordingPath $cast -Format Text | Should -Match 'Before fallback exit'
     }
 
     It 'stops a fallback script cleanly without recording later output' {
@@ -216,8 +225,8 @@
             Stop-ConsoleRecording
             Start-Sleep -Seconds 20
             throw 'After fallback stop'
-        } -Destination $cast -InProcess -TimeoutSeconds 5 -WarningAction SilentlyContinue -ErrorAction Stop | Out-Null
-        $text = Export-ConsoleRecording -Path $cast -Format Text
+        } -Path $cast -InProcess -TimeoutSeconds 5 -WarningAction SilentlyContinue -ErrorAction Stop | Out-Null
+        $text = Export-ConsoleRecording -RecordingPath $cast -Format Text
         $text | Should -Match 'Before fallback stop'
         $text | Should -Not -Match 'After fallback stop'
     }
@@ -231,7 +240,7 @@
             Stop-ConsoleRecording
             Start-Sleep -Seconds 60
             throw 'Stop after cap failed'
-        } -Destination $cast -MaxBytes 1024 -Redact 'private-sample' -TimeoutSeconds 15 -WarningAction SilentlyContinue | Out-Null
+        } -Path $cast -MaxBytes 1024 -Redact 'private-sample' -TimeoutSeconds 15 -WarningAction SilentlyContinue | Out-Null
         (Get-Item -LiteralPath $cast).Length | Should -BeLessOrEqual 1024
         Get-Content -LiteralPath $cast -Raw | Should -Not -Match 'private-sample'
         (Get-Content -LiteralPath ($cast + '.json') -Raw | ConvertFrom-Json).sizeLimitReached | Should -BeTrue
@@ -241,7 +250,7 @@
         foreach ($format in 'html', 'json', 'svg', 'final') {
             $destination = Join-Path $TestDrive ('title-' + $format + $(if ($format -eq 'final') { '.svg' } else { '.' + $format }))
             $parameters = @{
-                Destination = $destination
+                Path = $destination
                 Title = 'private-project'
                 Redact = 'private-project'
                 InProcess = $true

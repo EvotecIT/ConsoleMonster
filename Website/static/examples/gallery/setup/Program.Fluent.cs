@@ -148,15 +148,16 @@ StatusList install = Ui.StatusList("steps");
 foreach (string label in installSteps)
     install.Add(label, StatusKind.Pending);
 ProgressBar bar = (ProgressBar)Ui.Progress().Label("Install").Total(40).Build();
-Dashboard dashboard = Ui.DashboardLayout()
+Dashboard dashboard = Ui.Dashboard()
     .Title("Installing Toolbox Agent")
     .Subtitle(Markup.Escape(answers.Values.Get<string>("Path")))
-    .Panel("Steps", install)
-    .Add(Ui.Padding().Bottom(0).Right(1).Top(0).Left(1).Content(c =>
+    .Content(body => body.Panel(Ui.Panel().Title("Steps").Content(c =>
+    {
+        c.Add(install);
+    })).Padding(padding => padding.Bottom(0).Right(1).Top(0).Left(1).Content(c =>
     {
         c.Add(bar);
-    }))
-    .BuildDashboard();
+    })));
 using (LiveSession session = dashboard.CreateSession())
 {
     try

@@ -13,12 +13,12 @@ PNG selects the final frame, -AtSeconds a source time, -Chapter a completed chap
 ## SYNTAX
 ### Session (Default)
 ```powershell
-Export-ConsoleRecording [-Path] <string> [[-Destination] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-FramesPerSecond <double>] [-Speed <double>] [-Theme <ExportTheme>] [-Title <string>] [-WindowChrome] [-ChromeStyle <WindowChromeStyle>] [-PassThru] [-FinalFrame] [-Preset <string>] [-Fit <string>] [-Background <string>] [-BackgroundColor <string>] [-BackgroundEndColor <string>] [-FontFamily <string>] [-AtSeconds <double>] [-Chapter <string>] [-PerChapter] [-IdleLimitSeconds <double>] [-LoopCount <int>] [-Options <RecordingExportOptions>] [-MaxFontSize <double>] [-FontFallbacks <string[]>] [-Pace <RecordingPace>] [-ChapterHoldSeconds <double>] [-HoldLastFrameSeconds <double>] [-TrimStartSeconds <double>] [-TrimEndSeconds <double>] [-TrimStartChapter <string>] [-TrimEndChapter <string>] [-ChapterSpeeds <hashtable>] [<CommonParameters>]
+Export-ConsoleRecording [-RecordingPath] <string> [[-Path] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-FramesPerSecond <double>] [-Speed <double>] [-Theme <ExportTheme>] [-Title <string>] [-ChromeStyle <WindowChromeStyle>] [-PassThru] [-FinalFrame] [-Preset <string>] [-Fit <string>] [-Background <string>] [-BackgroundColor <string>] [-BackgroundEndColor <string>] [-FontFamily <string>] [-AtSeconds <double>] [-Chapter <string>] [-PerChapter] [-IdleLimitSeconds <double>] [-LoopCount <int>] [-MaxFontSize <double>] [-FontFallbacks <string[]>] [-Pace <RecordingPace>] [-ChapterHoldSeconds <double>] [-HoldLastFrameSeconds <double>] [-TrimStartSeconds <double>] [-TrimEndSeconds <double>] [-TrimStartChapter <string>] [-TrimEndChapter <string>] [-ChapterSpeeds <hashtable>] [<CommonParameters>]
 ```
 
 ### Dashboard
 ```powershell
-Export-ConsoleRecording [-Dashboard] <IWidget> [-Path] <string> [[-Destination] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-FramesPerSecond <double>] [-Speed <double>] [-Theme <ExportTheme>] [-Title <string>] [-WindowChrome] [-ChromeStyle <WindowChromeStyle>] [-PassThru] [-Preset <string>] [-Fit <string>] [-Background <string>] [-BackgroundColor <string>] [-BackgroundEndColor <string>] [-FontFamily <string>] [-IdleLimitSeconds <double>] [-LoopCount <int>] [-Options <RecordingExportOptions>] [-MaxFontSize <double>] [-FontFallbacks <string[]>] [-Pace <RecordingPace>] [-ChapterHoldSeconds <double>] [-HoldLastFrameSeconds <double>] [-TrimStartSeconds <double>] [-TrimEndSeconds <double>] [-TrimStartChapter <string>] [-TrimEndChapter <string>] [-ChapterSpeeds <hashtable>] [<CommonParameters>]
+Export-ConsoleRecording [-Dashboard] <IWidget> [-RecordingPath] <string> [[-Path] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-FramesPerSecond <double>] [-Speed <double>] [-Theme <ExportTheme>] [-Title <string>] [-ChromeStyle <WindowChromeStyle>] [-PassThru] [-Preset <string>] [-Fit <string>] [-Background <string>] [-BackgroundColor <string>] [-BackgroundEndColor <string>] [-FontFamily <string>] [-IdleLimitSeconds <double>] [-LoopCount <int>] [-MaxFontSize <double>] [-FontFallbacks <string[]>] [-Pace <RecordingPace>] [-ChapterHoldSeconds <double>] [-HoldLastFrameSeconds <double>] [-TrimStartSeconds <double>] [-TrimEndSeconds <double>] [-TrimStartChapter <string>] [-TrimEndChapter <string>] [-ChapterSpeeds <hashtable>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -30,20 +30,21 @@ PNG selects the final frame, -AtSeconds a source time, -Chapter a completed chap
 
 ### EXAMPLE 1
 ```powershell
-Invoke-ConsoleRecording { Get-Service | Show-ConsoleTable } -Destination .\services.cast
-Export-ConsoleRecording .\services.cast .\services.gif -Pace Slow -Preset Slide16x9
-Export-ConsoleRecording .\services.cast .\services.png -Preset Slide16x9
+# Requires an existing session.cast recorded by Invoke-ConsoleRecording.
+            Export-ConsoleRecording -RecordingPath ./session.cast -Format Text
 ```
 
-Record a script, then make a paced 1920x1080 GIF and a closing PNG for a slide
+Return a text document from an existing terminal recording
 
 ### EXAMPLE 2
 ```powershell
-Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Svg -Destination .\run.svg
-Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -Destination .\run.html -Width 120 -Height 36
+# Requires run.jsonl recorded with this dashboard definition.
+            $dashboard = New-ConsoleDashboard -Title 'Build' -Content { New-ConsoleStatusList -WidgetId steps -Content { 'Compile' } }
+Export-ConsoleRecording -Dashboard $dashboard -RecordingPath ./run.jsonl -Format Svg
+Export-ConsoleRecording -Dashboard $dashboard -RecordingPath ./run.jsonl -Format Html -Width 120 -Height 36
 ```
 
-An animated SVG and an HTML player of the same run
+Return SVG and HTML from an existing matching dashboard recording
 
 ## PARAMETERS
 
@@ -160,7 +161,7 @@ Accept wildcard characters: False
 ```
 
 ### -ChromeStyle
-MacOS (default), Windows, Linux or None. Specifying a style enables chrome unless -WindowChrome:$false is explicit. None always hides chrome.
+None (default), MacOS, Windows or Linux. Choose a window style to show chrome; None hides it.
 
 ```yaml
 Type: WindowChromeStyle
@@ -170,7 +171,7 @@ Possible values: None, MacOS, Windows, Linux
 
 Required: False
 Position: named
-Default value: MacOS
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -186,22 +187,6 @@ Possible values:
 
 Required: True
 Position: 0
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Destination
-The file to write, or a directory with -PerChapter. Graphics require a destination; text formats can go to the pipeline.
-
-```yaml
-Type: String
-Parameter Sets: Session, Dashboard
-Aliases: None
-Possible values:
-
-Required: False
-Position: 1
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -383,22 +368,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Options
-Typed C# RecordingExportOptions, including sampling limits, markers, custom themes and playback settings. Use this instead of individual playback settings; the object is not modified.
-
-```yaml
-Type: RecordingExportOptions
-Parameter Sets: Session, Dashboard
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -Pace
 Slow, Normal (default), Fast or Source. Adds reading time after output settles. Explicitly specifying Pace overrides recorded demo pace directives. Source adds no reading time; use IdleLimitSeconds 0 to retain all source delays.
 
@@ -416,7 +385,7 @@ Accept wildcard characters: False
 ```
 
 ### -PassThru
-With -Destination, also writes the file to the pipeline.
+With -Path, also writes the file to the pipeline.
 
 ```yaml
 Type: SwitchParameter
@@ -432,7 +401,7 @@ Accept wildcard characters: False
 ```
 
 ### -Path
-Session .cast file, or dashboard .jsonl with -Dashboard.
+The file to write, or a directory with -PerChapter. Graphics require a destination; text formats can go to the pipeline.
 
 ```yaml
 Type: String
@@ -440,8 +409,8 @@ Parameter Sets: Session, Dashboard
 Aliases: None
 Possible values:
 
-Required: True
-Position: 0
+Required: False
+Position: 1
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -474,6 +443,22 @@ Possible values: Docs, Slide16x9, Slide4x3, Social
 
 Required: False
 Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -RecordingPath
+Session .cast file, or dashboard .jsonl with -Dashboard.
+
+```yaml
+Type: String
+Parameter Sets: Session, Dashboard
+Aliases: None
+Possible values:
+
+Required: True
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -596,22 +581,6 @@ Dashboard playback width in cells (default 0: terminal width, falling back to 10
 
 ```yaml
 Type: Int32
-Parameter Sets: Session, Dashboard
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -WindowChrome
-Draws a window frame with a title bar in HTML, SVG and graphics exports.
-
-```yaml
-Type: SwitchParameter
 Parameter Sets: Session, Dashboard
 Aliases: None
 Possible values:

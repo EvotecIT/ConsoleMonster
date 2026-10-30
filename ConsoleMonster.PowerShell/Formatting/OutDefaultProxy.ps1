@@ -2,9 +2,11 @@
 [CmdletBinding()]
 param([switch] $Transcript, [Parameter(ValueFromPipeline = $true)] [psobject] $InputObject)
 begin {
-    $cmTarget = if (Get-Command -Name 'ConsoleMonster\Out-ConsoleDefault' -CommandType Cmdlet -ErrorAction Ignore) {
+    $cmCommand = Get-Command -Name 'ConsoleMonster\Show-Console' -CommandType Cmdlet -ErrorAction Ignore
+    $cmTarget = if ($null -ne $cmCommand) {
+        $cmAdapter = [System.Management.Automation.CmdletInfo]::new('Out-ConsoleDefault', $cmCommand.ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.CmdletOutConsoleDefault'))
         $cmHelpSink = $PSCmdlet
-        { ConsoleMonster\Out-ConsoleDefault -Transcript:$Transcript -Shim -TopLevel:($MyInvocation.CommandOrigin -eq 'Runspace') -HelpSink $cmHelpSink }
+        { & $cmAdapter -Transcript:$Transcript -Shim -TopLevel:($MyInvocation.CommandOrigin -eq 'Runspace') -HelpSink $cmHelpSink }
     } else { { Microsoft.PowerShell.Core\Out-Default -Transcript:$Transcript } }
     $cmPipeline = $cmTarget.GetSteppablePipeline($MyInvocation.CommandOrigin)
     $cmPipeline.Begin($PSCmdlet)

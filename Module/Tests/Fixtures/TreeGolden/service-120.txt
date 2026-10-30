@@ -1,6 +1,4 @@
 ExampleSvc · Example Service
-|-- Name  ExampleSvc
-|-- DisplayName  Example Service
-|-- Status  [OK] Running
-|-- CanStop  yes
-`-- +1 empty
+├── Status   ✓ Running
+├── CanStop  ✓ yes
+└── +1 empty

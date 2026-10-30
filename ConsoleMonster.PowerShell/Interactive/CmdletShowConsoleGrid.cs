@@ -14,12 +14,16 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="description">An Out-GridView for the console, on Windows PowerShell 5.1 and PowerShell 7. Typing filters the rows (every word must appear in a shown column); Up/Down, PgUp/PgDn and Ctrl+Home/Ctrl+End move; F3 sorts by the next column (Shift+F3 the previous one) and F4 reverses the order; Space marks rows (Ctrl+A marks all shown rows); Enter shows the focused row with every column; F2 chooses the columns; Ctrl+Enter (or F10) returns the marked rows, or the focused row when none is marked; Esc clears the filter, then cancels. Columns come from -Property with the same options as Show-ConsoleTable (presenters, priorities, widths, tone rules); the original objects are returned. The screen has the same header bar, panel and footer as menus and forms. In line mode the rows are a numbered list. Without an interactive user (redirected output, a job, CI) the rows are printed as a table with a warning and nothing is returned; -Mode None fails with an error instead.</para>
     /// </summary>
     /// <example>
-    ///   <para>Restart selected services with confirmation and embedded output</para>
-    ///   <code>Get-Service | Show-ConsoleGrid -Property Name, Status, StartType -Title 'Services' -Command @{ Restart = { param($Row) Restart-Service $Row.Name -WhatIf } }</code>
+    /// <para>Inspect selected objects with an embedded command</para>
+    /// <code>$servers = @(
+    ///     [pscustomobject]@{ Name = 'web01'; Status = 'Pass'; Region = 'East' }
+    ///     [pscustomobject]@{ Name = 'web02'; Status = 'Warn'; Region = 'West' }
+    /// )
+    /// $servers | Show-ConsoleGrid -Property Name, Status, Region -Title 'Servers' -Command @{ Inspect = { param($Row) $Row | Select-Object Name, Status, Region } }</code>
     /// </example>
     /// <example>
-    ///   <para>Browse processes sorted by memory</para>
-    ///   <code>Get-Process | Show-ConsoleGrid -Property Name, Id, @{ Name = 'Memory'; Expression = { $_.WorkingSet64 }; Presenter = 'Bytes' } -SortBy Memory -Descending -OutputMode None</code>
+    /// <para>Browse processes sorted by memory</para>
+    /// <code>Get-Process | Show-ConsoleGrid -Property Name, Id, @{ Name = 'Memory'; Expression = { $_.WorkingSet64 }; Presenter = 'Bytes' } -SortBy Memory -Descending -OutputMode None</code>
     /// </example>
     [Cmdlet(VerbsCommon.Show, "ConsoleGrid")]
     [OutputType(typeof(object))]
@@ -57,7 +61,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Columns hidden at the start (F2 shows them again).</para></summary>
         [Parameter]
-        public string[]? Hide { get; set; }
+        public string[]? Exclude { get; set; }
 
         /// <summary><para type="description">In-app commands or a hashtable of action keys and script blocks. Use New-ConsoleCommand for shortcuts, optional confirmation and explicit arguments/modules. Ctrl+K opens actions; F6 cancels work.</para></summary>
         [Parameter]
@@ -139,7 +143,7 @@ namespace ConsoleMonster.PowerShell {
                 if (SortBy != null && (string.Equals(columns[c].Name, SortBy, StringComparison.OrdinalIgnoreCase) || string.Equals(header, SortBy, StringComparison.OrdinalIgnoreCase))) {
                     options.SortColumn = c;
                 }
-                if (Hide != null && Array.Exists(Hide, h => string.Equals(h, columns[c].Name, StringComparison.OrdinalIgnoreCase) || string.Equals(h, header, StringComparison.OrdinalIgnoreCase))) {
+                if (Exclude != null && Array.Exists(Exclude, h => string.Equals(h, columns[c].Name, StringComparison.OrdinalIgnoreCase) || string.Equals(h, header, StringComparison.OrdinalIgnoreCase))) {
                     options.HiddenColumns.Add(header);
                 }
             }

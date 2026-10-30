@@ -8,7 +8,7 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates an aligned key/value list from a hashtable, an object's properties or Key/Value records pairs.
 
-Pairs come from a hashtable (use [ordered] to keep order), from an object's properties, or from a script block of Key/Value records calls when a pair needs a status marker, markup or a presenter. Keys are muted and aligned; values wrap. Values are shown literally unless -Markup is used. To add pairs later, pipe the list to Add-ConsoleItem; in a live dashboard, update pairs with Update-Console.
+Pairs come from a hashtable (use [ordered] to keep order), from an object's properties, or from a script block of Key/Value records calls when a pair needs a status marker, markup or a presenter. Keys are muted and aligned; values wrap. Values are shown literally unless -Markup is used. In a live dashboard, update pairs with Update-Console.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -19,7 +19,7 @@ New-ConsoleKeyValue [[-WidgetId] <string>] [[-InputObject] <Object>] [[-Content]
 ## DESCRIPTION
 Creates an aligned key/value list from a hashtable, an object's properties or Key/Value records pairs.
 
-Pairs come from a hashtable (use [ordered] to keep order), from an object's properties, or from a script block of Key/Value records calls when a pair needs a status marker, markup or a presenter. Keys are muted and aligned; values wrap. Values are shown literally unless -Markup is used. To add pairs later, pipe the list to Add-ConsoleItem; in a live dashboard, update pairs with Update-Console.
+Pairs come from a hashtable (use [ordered] to keep order), from an object's properties, or from a script block of Key/Value records calls when a pair needs a status marker, markup or a presenter. Keys are muted and aligned; values wrap. Values are shown literally unless -Markup is used. In a live dashboard, update pairs with Update-Console.
 
 ## EXAMPLES
 
@@ -43,7 +43,7 @@ Pairs with status marks
 
 ### EXAMPLE 3
 ```powershell
-New-ConsoleKeyValue -InputObject ([ordered] @{ Module = 'ConsoleMonster'; Frameworks = 'netstandard2.0, net472, net8.0' }) -Content {
+New-ConsoleKeyValue -InputObject ([ordered] @{ Module = 'ConsoleMonster'; Frameworks = 'net472, net8.0' }) -Content {
     [pscustomobject]@{ Key = 'Signing'; Value = 'skipped'; Status = 'Skip' }
 } | Show-Console
 ```
@@ -165,7 +165,7 @@ Accept wildcard characters: False
 ```
 
 ### -NumberColumn
-Shared NumberColumn layout settings from New-ConsoleColumnFormat.
+Shared NumberColumn layout settings as a hashtable, for example @{ MinWidth = 6; Alignment = 'Right' }.
 
 ```yaml
 Type: ColumnFormat

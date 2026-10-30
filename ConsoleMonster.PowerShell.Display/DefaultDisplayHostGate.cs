@@ -8,7 +8,7 @@ using ConsoleMonster.Capabilities;
 namespace ConsoleMonster.PowerShell.Display;
 
 /// <summary>Conservative host routing shared by embedded default display consumers.</summary>
-public static class DefaultDisplayHostGate {
+internal static class DefaultDisplayHostGate {
     /// <summary>Returns false when transcript state cannot be positively read as inactive.</summary>
     public static bool IsTranscriptInactive(object? hostUserInterface) {
         if (hostUserInterface == null) { return false; }

@@ -135,8 +135,9 @@ none owns focus. `Activate(key)` shows a region and requests its first enabled
 input; `Swap(first, second)` exchanges existing subtrees and retains their state.
 Configure the set of inputs before starting the app.
 
-PowerShell composes the same pages with `New-ConsoleTab -Title Files -Content
-{ ... }` and `$pages | New-ConsoleTabs -SelectedIndex 0`.
+PowerShell composes the same pages with title/content records inside
+`New-ConsoleTabs -SelectedIndex 0 -Content { @{ Title = 'Files'; Content = $files } }`,
+where `$files` is the page's widget.
 
 ## Forms and background operations
 

@@ -3,7 +3,8 @@ process {
     $percent = if ($PSBoundParameters.ContainsKey('PercentComplete')) { $PercentComplete } else { -1 }
     $remaining = if ($PSBoundParameters.ContainsKey('SecondsRemaining')) { $SecondsRemaining } else { -1 }
     $parent = if ($PSBoundParameters.ContainsKey('ParentId')) { $ParentId } else { -1 }
-    [ConsoleMonster.PowerShell.NativeProgress]::Write(
+    $cmProgress = (Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.NativeProgress', $true)
+    $cmProgress::Write(
         $PSCmdlet,
         $Id,
         $parent,

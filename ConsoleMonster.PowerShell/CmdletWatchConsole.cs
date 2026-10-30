@@ -13,16 +13,16 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="description">Like watch: every -PollIntervalSeconds seconds the script block runs and its output replaces the previous one, shaped as Show-ConsoleTable and the other commands shape it (objects as a table, one dictionary as a record, text as it is). The heading shows the interval, -Title, the run number and the time. -Differences highlights the cells that changed since the previous run. A run that fails shows its error and the watch goes on. Warnings, errors and Write-Host text from the script block are shown under its output in the view (an error marks the run in the heading) instead of interrupting it. Ctrl+C ends the watch and the last frame stays in the scrollback; -Count ends it after that many runs. Piped into another command (Out-File, Out-String), or without an interactive console (redirected output, CI, a job), every run is printed instead, so use -Count there; assigning the result to a variable at the prompt does not capture the live view, so pipe it instead.</para>
     /// </summary>
     /// <example>
-    ///   <para>Watch the busiest processes</para>
-    ///   <code>Watch-Console { Get-Process | Sort-Object CPU -Descending | Select-Object -First 10 } -PollIntervalSeconds 2 -Differences</code>
+    /// <para>Watch a bounded process sample</para>
+    /// <code>Watch-Console { Get-Process | Select-Object -First 5 Name, Id, CPU } -Count 3 -PollIntervalSeconds 1</code>
     /// </example>
     /// <example>
-    ///   <para>Three snapshots of a service, printed to a log</para>
-    ///   <code>Watch-Console { Get-Service Spooler } -Count 3 -PollIntervalSeconds 5 | Out-File watch.log</code>
+    /// <para>Capture repeated process snapshots as text</para>
+    /// <code>Watch-Console { Get-Process -Id $PID | Select-Object Name, Id, CPU } -Count 3 -PollIntervalSeconds 1 | Out-String</code>
     /// </example>
     /// <example>
-    ///   <para>Free space per drive with a title, changed cells highlighted</para>
-    ///   <code>Watch-Console -Title 'Disk space' -PollIntervalSeconds 10 -Differences { Get-Volume | Where-Object DriveLetter | Select-Object DriveLetter, FileSystemLabel, SizeRemaining, Size }</code>
+    /// <para>Highlight changes in file-system drive space</para>
+    /// <code>Watch-Console -Title 'Disk space' -PollIntervalSeconds 1 -Count 3 -Differences { Get-PSDrive -PSProvider FileSystem | Select-Object Name, Used, Free }</code>
     /// </example>
     [Cmdlet(VerbsCommon.Watch, "Console")]
     public sealed class CmdletWatchConsole : NoPipelineInputCmdlet {
@@ -53,9 +53,6 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Disables live redraws and uses append-only output.</para></summary>
         [Parameter] public SwitchParameter NoLive { get; set; }
 
-        /// <summary><para type="description">Typed live-session configuration for the watch; omit for inline output with its final frame retained.</para></summary>
-        [Parameter] public LiveSessionOptions? Session { get; set; }
-
         /// <inheritdoc />
         protected override void EndProcessing() {
             Capabilities.TerminalProfile profile = Terminal.GetCurrentProfile();
@@ -70,7 +67,7 @@ namespace ConsoleMonster.PowerShell {
                 Title = Title != null ? PSText.Markup(Title) : Text.Markup.Escape(ScriptBlock.ToString().Trim()),
                 Live = live,
                 // Ctrl+C stops the pipeline the PowerShell way (StopProcessing); the session keeps the last frame.
-                Session = Session ?? new LiveSessionOptions { Mode = LiveMode.Inline, PrintFinalState = true, HandleCancelKey = false },
+                Session = new LiveSessionOptions { Mode = LiveMode.Inline, PrintFinalState = true, HandleCancelKey = false },
                 Print = widget => PSFormatting.Emit(this, widget, 0, null, false)
             };
             try {

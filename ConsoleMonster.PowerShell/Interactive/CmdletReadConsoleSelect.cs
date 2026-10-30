@@ -8,12 +8,16 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="description">Typing filters the list (fuzzy, matches highlighted). Choices can be grouped (-GroupBy), described (-Describe, shown for the focused choice), tagged (-Badge), picked by a key (-Hotkey; '/' then filters), disabled with a reason (-DisabledReason) and previewed (-Preview, beside the list when the window is wide). The chosen object itself is returned (a service, a record), not its text. In remoting and the ISE the choices are numbered and the host reads the answer.</para>
     /// </summary>
     /// <example>
-    ///   <para>Pick a service</para>
-    ///   <code>$service = Get-Service | Read-ConsoleSelect 'Service to restart' -Display DisplayName -Describe Name -GroupBy Status</code>
+    /// <para>Pick an object from a small inventory</para>
+    /// <code>$servers = @(
+    ///     [pscustomobject]@{ Name = 'web01'; Region = 'East'; Status = 'Pass' }
+    ///     [pscustomobject]@{ Name = 'web02'; Region = 'West'; Status = 'Warn' }
+    /// )
+    /// $server = $servers | Read-ConsoleSelect 'Server to inspect' -Display Name -Describe Status -GroupBy Region</code>
     /// </example>
     /// <example>
-    ///   <para>Strings with a default</para>
-    ///   <code>$environment = Read-ConsoleSelect 'Environment' -Choices 'Production', 'Staging', 'Lab' -Default 'Staging'</code>
+    /// <para>Choose from strings with a default</para>
+    /// <code>$environment = Read-ConsoleSelect 'Environment' -Choices 'Production', 'Staging', 'Lab' -Default 'Staging'</code>
     /// </example>
     [Cmdlet(VerbsCommunications.Read, "ConsoleSelect", DefaultParameterSetName = "Single")]
     public sealed class CmdletReadConsoleSelect : SelectionCmdlet {
@@ -54,7 +58,7 @@ namespace ConsoleMonster.PowerShell {
                 }
             }
             SelectionQuestion question = Question.Select(definition);
-            if (StaticSnapshot.IsPresent) { PSFormatting.Write(this, question.Snapshot(Options()), 0); return; }
+            if (Mode == InteractionMode.Snapshot) { PSFormatting.Write(this, question.Snapshot(Options()), 0); return; }
             object? answer;
             try { answer = question.Show(Options(), Token); }
             catch (System.Exception error) when (error is PromptCanceledException || error is PromptUnavailableException || error is Input.InputClosedException) { PSInteractive.Fail(this, error, Title); throw; }

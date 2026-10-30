@@ -16,7 +16,7 @@ $states = @(
 $report = New-ConsoleRows -Gap 1 -Content {
     New-ConsoleRule -Title '[bold]Application connectivity[/] [muted]· core services[/]'
     New-ConsolePanel -Title ($ports -join '   |   ') -Content {
-        New-ConsoleCellMap -Status $states -Columns 3 -RowLabels $hosts -LegendLines 2
+        New-ConsoleCellMap -InputObject $states -Columns 3 -RowLabels $hosts -LegendLines 2
     }
     New-ConsolePanel -Title 'Exceptions to investigate' -Content {
         New-ConsoleStatusList -Content {

@@ -28,6 +28,7 @@ namespace ConsoleMonster.Widgets {
                 int indent = firstPrefix.Width;
                 List<TextSpan> content = new List<TextSpan>();
                 AddLines(content, context.Markup(node.LabelFor(context)).Lines);
+                if (node.LabelPadding > 0) { content.Add(new TextSpan(new string(' ', node.LabelPadding))); }
                 if (node.Value != null) {
                     content.Add(new TextSpan("  "));
                     AddLines(content, CellRendering.Content(node.Value, node.Presenter, null, presenter).Lines);

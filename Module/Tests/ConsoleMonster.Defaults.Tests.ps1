@@ -24,7 +24,7 @@
 $VerbosePreference = 'SilentlyContinue'
 $before = $VerbosePreference
 $features = @('Output', 'FormatCommands', 'Progress', 'Help', 'Prompt', 'GridView')
-$on = @(Enable-ConsoleFormatting -Feature $features -Force -Verbose 4>&1)
+$on = @(Enable-ConsoleFormatting -Include $features -Exclude @('Output', 'FormatCommands', 'Errors', 'Streams', 'ReadLine' | Where-Object { $_ -notin @($features) }) -Force -Verbose 4>&1)
 if ((Get-Command Format-Table).CommandType -ne 'Function') { throw 'Format-Table was not enabled.' }
 if ((Get-Command Write-Progress).CommandType -ne 'Function') { throw 'Progress was not enabled.' }
 $off = @(Disable-ConsoleFormatting -Verbose 4>&1)
@@ -43,16 +43,16 @@ if (-not ($off -match 'operation "Disable" on target "ConsoleMonster formatting:
     It 'keeps formatting unchanged for WhatIf and supports explicit confirmation' {
         $text = Invoke-DefaultsChild @'
 $before = (Get-Command Format-Table).CommandType
-Enable-ConsoleFormatting -Feature Output, FormatCommands, Progress -WhatIf
+Enable-ConsoleFormatting -Include Output, FormatCommands, Progress -Exclude Errors, Streams, ReadLine -WhatIf
 if ((Get-Command Format-Table).CommandType -ne $before) { throw 'WhatIf installed Format-Table.' }
 if ((Get-Command Write-Progress).CommandType -ne 'Cmdlet') { throw 'WhatIf installed Progress.' }
-Enable-ConsoleFormatting -Feature FormatCommands -Confirm:$false
+Enable-ConsoleFormatting -Include FormatCommands -Exclude Output, Errors, Streams, ReadLine -Confirm:$false
 Disable-ConsoleFormatting -Feature FormatCommands -WhatIf
 if ((Get-Command Format-Table).CommandType -ne 'Function') { throw 'WhatIf removed Format-Table.' }
 Disable-ConsoleFormatting -Feature FormatCommands -Confirm:$false
 if ((Get-Command Format-Table).CommandType -ne $before) { throw 'Confirmed disable did not restore Format-Table.' }
 $WhatIfPreference = $true
-Enable-ConsoleFormatting -Feature FormatCommands
+Enable-ConsoleFormatting -Include FormatCommands -Exclude Output, Errors, Streams, ReadLine
 if ((Get-Command Format-Table).CommandType -ne $before) { throw 'WhatIfPreference installed Format-Table.' }
 'WHATIF_OK'
 '@
@@ -72,7 +72,7 @@ try {
         Import-Module $modulePath
         Set-Item function:global:Out-Default ([scriptblock]::Create("'$label'"))
         Set-Alias Write-Progress $alias -Scope Global
-        Enable-ConsoleFormatting -Feature Output, Errors, Progress -Force
+        Enable-ConsoleFormatting -Include Output, Errors, Progress -Exclude FormatCommands, Streams, ReadLine -Force
     }
     $null = $first.AddScript($setup.ToString()).AddArgument((Get-Module ConsoleMonster).Path).AddArgument('FIRST').AddArgument('Write-Output').Invoke()
     $null = $second.AddScript($setup.ToString()).AddArgument((Get-Module ConsoleMonster).Path).AddArgument('SECOND').AddArgument('Write-Host').Invoke()
@@ -103,7 +103,7 @@ try {
 function global:Out-Default { 'ORIGINAL_CALLBACK' }
 $owner = (Get-Command Enable-ConsoleFormatting).Module
 $owner.OnRemove = { 'PREVIOUS_REMOVE' }
-Enable-ConsoleFormatting -Feature __FEATURE__ -Force
+Enable-ConsoleFormatting -Include __FEATURE__ -Exclude @('Output', 'FormatCommands', 'Errors', 'Streams', 'ReadLine' | Where-Object { $_ -notin @('__FEATURE__' -split ',\s*') }) -Force
 Remove-Module ConsoleMonster
 "RESTORED_FUNCTION=$((Get-Command Out-Default -CommandType Function).Definition)"
 '@.Replace('__FEATURE__', $feature))
@@ -114,10 +114,10 @@ Remove-Module ConsoleMonster
     It 'restores the latest alias on module removal after disabling and enabling again' {
         $text = Invoke-DefaultsChild @'
 Set-Alias Write-Progress Write-Output -Scope Global
-Enable-ConsoleFormatting -Feature Progress -Force
+Enable-ConsoleFormatting -Include Progress -Exclude Output, FormatCommands, Errors, Streams, ReadLine -Force
 Disable-ConsoleFormatting
 Set-Alias Write-Progress Write-Host -Scope Global
-Enable-ConsoleFormatting -Feature Progress -Force
+Enable-ConsoleFormatting -Include Progress -Exclude Output, FormatCommands, Errors, Streams, ReadLine -Force
 Remove-Module ConsoleMonster
 "RESTORED_ALIAS=$((Get-Alias Write-Progress).Definition)"
 '@
@@ -126,7 +126,7 @@ Remove-Module ConsoleMonster
 
     It 'installs a native-parameter Write-Progress function and restores the cmdlet' {
         $text = Invoke-DefaultsChild @'
-Enable-ConsoleFormatting -Feature Progress
+Enable-ConsoleFormatting -Include Progress -Exclude Output, FormatCommands, Errors, Streams, ReadLine
 "PROXY=$((Get-Command Write-Progress).CommandType) NATIVE_ID=$((Get-Command Write-Progress).Parameters['Id'].ParameterType.FullName)"
 foreach ($i in 1..3) { Write-Progress -Activity 'Copying' -PercentComplete ($i * 30) }
 Write-Progress -Activity 'Copying' -Completed
@@ -145,9 +145,9 @@ function global:Write-MyProgress { param($Activity) }
 Set-Alias -Name Write-Progress -Value Write-MyProgress -Scope Global
 function global:Out-Default { process { $_ | Microsoft.PowerShell.Core\Out-Default } }
 $definition = (Get-Command Out-Default -CommandType Function).Definition
-Enable-ConsoleFormatting -Feature Progress -WarningVariable w -WarningAction SilentlyContinue
+Enable-ConsoleFormatting -Include Progress -Exclude Output, FormatCommands, Errors, Streams, ReadLine -WarningVariable w -WarningAction SilentlyContinue
 "KEPT=$((Get-Alias Write-Progress).Definition) WARNED=$($w.Count)"
-Enable-ConsoleFormatting -Feature Output, Progress -Force
+Enable-ConsoleFormatting -Include Output, Progress -Exclude FormatCommands, Errors, Streams, ReadLine -Force
 "KEPT_FORCE=$((Get-Alias Write-Progress).Definition) SHIM=$((Get-Command Out-Default -CommandType Function).Definition -match 'Out-ConsoleDefault')"
 Disable-ConsoleFormatting
 "RESTORED=$((Get-Alias Write-Progress).Definition) SAME=$((Get-Command Out-Default -CommandType Function).Definition -eq $definition)"
@@ -159,15 +159,15 @@ Disable-ConsoleFormatting
 
     It 'shows errors with the ConsoleMonster error view, keeps CategoryView, and leaves other output alone without the Output feature' {
         $text = Invoke-DefaultsChild @'
-Enable-ConsoleFormatting -Feature Errors
+Enable-ConsoleFormatting -Include Errors -Exclude Output, FormatCommands, Streams, ReadLine
 '== ours'
-Write-Error 'disk is full' 2>&1 | Out-ConsoleDefault -Force -Shim
+Write-Error 'disk is full' 2>&1 | & ([Management.Automation.CmdletInfo]::new('Out-ConsoleDefault', (Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.CmdletOutConsoleDefault'))) -Force -Shim
 '== category'
 $ErrorView = 'CategoryView'
-Write-Error 'disk is full' 2>&1 | Out-ConsoleDefault -Force -Shim
+Write-Error 'disk is full' 2>&1 | & ([Management.Automation.CmdletInfo]::new('Out-ConsoleDefault', (Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.CmdletOutConsoleDefault'))) -Force -Shim
 $ErrorView = $null
 '== items'
-Get-Item $PSHOME | Out-ConsoleDefault -Force -Shim
+Get-Item $PSHOME | & ([Management.Automation.CmdletInfo]::new('Out-ConsoleDefault', (Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.CmdletOutConsoleDefault'))) -Force -Shim
 '== off'
 Disable-ConsoleFormatting -Feature Errors
 "SHIM=$([bool] (Get-Command Out-Default -CommandType Function -ErrorAction Ignore))"
@@ -184,18 +184,18 @@ Disable-ConsoleFormatting -Feature Errors
 
     It 'prints a profile snippet with the features' {
         $text = Invoke-DefaultsChild @'
-Enable-ConsoleFormatting -Feature Errors, Progress -ProfileSnippet
+Enable-ConsoleFormatting -Include Errors, Progress -Exclude Output, FormatCommands, Streams, ReadLine -ProfileSnippet
 Enable-ConsoleFormatting -ProfileSnippet
-Enable-ConsoleFormatting -Feature None -ProfileSnippet
+Enable-ConsoleFormatting -Exclude Output, FormatCommands, Errors, Streams, ReadLine -ProfileSnippet
 '@
-        $text | Should -Match '(?m)^Enable-ConsoleFormatting -Feature Errors, Progress$'
+        $text | Should -Match '(?m)^Enable-ConsoleFormatting -Include Errors, Progress -Exclude Output, FormatCommands, Streams, ReadLine$'
         $text | Should -Match '(?m)^Enable-ConsoleFormatting$'
-        $text | Should -Match '(?m)^Enable-ConsoleFormatting -Feature None$'
+        $text | Should -Match '(?m)^Enable-ConsoleFormatting -Exclude Output, FormatCommands, Errors, Streams, ReadLine$'
     }
 
     It 'honours $ProgressPreference and writes PowerShell''s progress where the area cannot be drawn' {
         $text = Invoke-DefaultsChild @'
-Enable-ConsoleFormatting -Feature Progress
+Enable-ConsoleFormatting -Include Progress -Exclude Output, FormatCommands, Errors, Streams, ReadLine
 $ProgressPreference = 'SilentlyContinue'
 Write-Progress -Activity 'quiet'
 $ProgressPreference = 'Continue'
@@ -208,7 +208,7 @@ Write-Progress -Activity 'loud' -Status 'half' -PercentComplete 50
 
     It 'restores native Write-Progress on module removal and preserves custom functions unless Force is used' {
         $text = Invoke-DefaultsChild @'
-Enable-ConsoleFormatting -Feature Progress
+Enable-ConsoleFormatting -Include Progress -Exclude Output, FormatCommands, Errors, Streams, ReadLine
 Remove-Module ConsoleMonster
 "GONE=$((Get-Command Write-Progress).CommandType -eq 'Cmdlet')"
 Write-Progress -Activity 'after removal' -Completed
@@ -220,10 +220,10 @@ Write-Progress -Activity 'after removal' -Completed
 function global:Write-Progress { param($Activity) 'MINE' }
 $owner = (Get-Command Enable-ConsoleFormatting).Module
 $before = $owner.OnRemove
-Enable-ConsoleFormatting -Feature Progress -WarningVariable w -WarningAction SilentlyContinue
+Enable-ConsoleFormatting -Include Progress -Exclude Output, FormatCommands, Errors, Streams, ReadLine -WarningVariable w -WarningAction SilentlyContinue
 "WARNED=$($w.Count) ALIAS=$([bool] (Get-Alias Write-Progress -ErrorAction Ignore)) CALL=$(Write-Progress -Activity x)"
 "SHIM=$([bool] (Get-Command Out-Default -CommandType Function -ErrorAction Ignore)) HOOK_UNCHANGED=$([object]::ReferenceEquals($before, $owner.OnRemove))"
-Enable-ConsoleFormatting -Feature Output, Progress -WarningAction SilentlyContinue
+Enable-ConsoleFormatting -Include Output, Progress -Exclude FormatCommands, Errors, Streams, ReadLine -WarningAction SilentlyContinue
 "MIXED_OUTPUT=$((Get-Command Out-Default -CommandType Function).Definition -match 'ConsoleMonster') MIXED_ALIAS=$([bool] (Get-Alias Write-Progress -ErrorAction Ignore))"
 Disable-ConsoleFormatting
 '@

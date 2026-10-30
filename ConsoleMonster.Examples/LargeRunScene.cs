@@ -49,7 +49,7 @@ namespace ConsoleMonster.Examples {
             RenderContext context = new RenderContext(profile, theme, tick: 4);
             CellBuffer viewport = new CellBuffer(width, height);
             if (final) {
-                CellBuffer summary = FrameComposer.RenderBlock(Summary(tracker), width, context);
+                CellBuffer summary = Terminal.Render(Summary(tracker), profile, theme);
                 int shown = Math.Min(height, summary.Height);
                 viewport.Blit(summary, 0, summary.Height - shown, width, shown, 0, 0);
                 return viewport;

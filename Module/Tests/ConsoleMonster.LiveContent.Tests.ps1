@@ -37,7 +37,7 @@ Invoke-ConsoleDashboard $d {
 
     It 'adds, updates and removes live table rows by key' {
         $text = Invoke-ContentChild -Script @'
-$d = New-ConsoleDashboard -Title 'Jobs' -Content { New-ConsoleTable -WidgetId jobs -MaxRows 10 -Live -Columns 'Job', 'State' }
+$d = New-ConsoleDashboard -Title 'Jobs' -Content { New-ConsoleTable -WidgetId jobs -MaxRows 10 -Live -Property 'Job', 'State' }
 Invoke-ConsoleDashboard $d {
     Update-Console -WidgetId jobs -Row ([pscustomobject]@{ Key = 1; Values = @('backup', 'running') })
     Update-Console -WidgetId jobs -Row ([pscustomobject]@{ Key = 1; Values = @('backup', 'done') })
@@ -108,9 +108,9 @@ $table | Export-ConsoleFrame -Format Text -Width 70
         $text | Should -Match 'web02\s+5\.0\s+10\.0'
     }
 
-    It 'updates calculated Columns on a live table that starts empty' {
+    It 'updates calculated Property descriptors on a live table that starts empty' {
         $text = Invoke-ContentChild -Script @'
-$table = New-ConsoleTable results -Live -KeyProperty Server -Columns @(
+$table = New-ConsoleTable results -Live -KeyProperty Server -Property @(
     'Server'
     @{ Name = 'CPU %'; Expression = 'Cpu'; FormatString = 'F1' }
     @{ Name = 'Doubled'; Expression = { $_.Cpu * 2 }; FormatString = 'F1' }
@@ -147,7 +147,7 @@ $captured
 
     It 'writes to a file with Use-ConsoleTarget -Path' {
         $file = Join-Path $TestDrive 'report.txt'
-        $null = Invoke-ContentChild -Script "Use-ConsoleTarget -Path '$file' -Width 40 { Show-Console -View Rule -Title 'Report'; Write-ConsoleText -Markup '[muted]end[/]' }"
+        $null = Invoke-ContentChild -Script "Use-ConsoleTarget -Path '$file' -Width 40 { New-ConsoleRule 'Report' | Show-Console; Write-ConsoleText -Markup '[muted]end[/]' }"
         $content = Get-Content -LiteralPath $file
         $content[0] | Should -Match 'Report'
         $content[0].Length | Should -Be 40
@@ -190,7 +190,7 @@ Invoke-ConsoleDashboard $d {
 
     It 'shows the time of a simulated clock in the header and the log with Invoke-ConsoleDashboard -Clock' {
         $text = Invoke-ContentChild -Script @'
-$clock = New-ConsoleSimulatedClock -Speed 0
+$clock = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.SimulatedClock'))::new(0)
 $d = New-ConsoleDashboard -Title 'Replay' -Content { New-ConsoleLogRegion -Height 3 }
 Invoke-ConsoleDashboard $d -Clock $clock -ArgumentList $clock {
     param($Clock)

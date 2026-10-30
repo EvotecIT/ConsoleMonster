@@ -29,11 +29,11 @@
 '== many'
 1..3 | ForEach-Object { [pscustomobject] @{ Name = "srv0$_"; Count = $_ } } | Show-Console -Width 60
 '== tree'
-[pscustomobject] @{ Name = 'root'; Children = @([pscustomobject] @{ Name = 'leaf'; Children = @() }) } | Show-Console -ChildrenProperty Children -Width 60 -View Tree
+[pscustomobject] @{ Name = 'root'; Children = @([pscustomobject] @{ Name = 'leaf'; Children = @() }) } | New-ConsoleTree -ChildrenProperty Children | Export-ConsoleFrame -Format Text -Width 60
 '== numbers'
 3, 9 | Show-Console -Width 40
 '== cards'
-1..2 | ForEach-Object { [pscustomobject] @{ Name = "srv0$_"; Count = $_ } } | Show-ConsoleList -Width 60
+1..2 | ForEach-Object { [pscustomobject] @{ Name = "srv0$_"; Count = $_ } } | Show-Console -View List -Width 60
 '@
         # One object is a record: its title (Name) and its other fields.
         $text | Should -Match 'srv01\s*\n\s+Up\s+(?:.\s+)?yes'
@@ -79,11 +79,11 @@ Enable-ConsoleFormatting
 $after = $version | Out-String
 "SAME=$($before -ceq $after) TYPE=$($version.GetType().FullName)"
 '== rendered'
-$version | Out-ConsoleDefault -Force
+$version | & ([Management.Automation.CmdletInfo]::new('Out-ConsoleDefault', (Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.CmdletOutConsoleDefault'))) -Force
 Disable-ConsoleFormatting
 Enable-ConsoleFormatting -NoBuiltIn
 '== native'
-$version | Out-ConsoleDefault -Force
+$version | & ([Management.Automation.CmdletInfo]::new('Out-ConsoleDefault', (Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.CmdletOutConsoleDefault'))) -Force
 '@
         $text | Should -Match 'SAME=True TYPE=System\.Version'
         $rendered, $native = ($text -split '== rendered')[1] -split '== native'
@@ -107,13 +107,13 @@ Enable-ConsoleFormatting -WarningVariable w -WarningAction SilentlyContinue
         $text = Invoke-ViewChild -Script @'
 Register-ConsoleView -TypeName 'Contoso.Server' -View Table -Property Name, @{ Name = 'State'; Expression = { $_.State }; Presenter = 'StatusWord' }
 $servers = 1..2 | ForEach-Object { $o = [pscustomobject] @{ Name = "srv0$_"; State = 'Running' }; $o.PSObject.TypeNames.Insert(0, 'Contoso.Server'); $o }
-@($servers) + @('a plain string') | Out-ConsoleDefault -Force
+@($servers) + @('a plain string') | & ([Management.Automation.CmdletInfo]::new('Out-ConsoleDefault', (Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.CmdletOutConsoleDefault'))) -Force
 Unregister-ConsoleView -TypeName 'Contoso.Server'
 '== built-in'
-$servers | Out-ConsoleDefault -Force
-Enable-ConsoleFormatting -Feature Output -NoBuiltIn
+$servers | & ([Management.Automation.CmdletInfo]::new('Out-ConsoleDefault', (Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.CmdletOutConsoleDefault'))) -Force
+Enable-ConsoleFormatting -Include Output -Exclude FormatCommands, Errors, Streams, ReadLine -NoBuiltIn
 '== native'
-$servers | Out-ConsoleDefault -Force
+$servers | & ([Management.Automation.CmdletInfo]::new('Out-ConsoleDefault', (Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.CmdletOutConsoleDefault'))) -Force
 '@
         $text | Should -Match 'srv01.+Running'
         $text | Should -Match 'a plain string'
@@ -132,14 +132,14 @@ try {
     [IO.File]::WriteAllText($path, $xml)
     $row = [pscustomobject] @{ Name = 'srv01'; Internal = 'private-data' }
     $row.PSObject.TypeNames.Insert(0, 'Contoso.NativeRecord')
-    Enable-ConsoleFormatting -Feature Output
-    $row | Out-ConsoleDefault -Force
+    Enable-ConsoleFormatting -Include Output -Exclude FormatCommands, Errors, Streams, ReadLine
+    $row | & ([Management.Automation.CmdletInfo]::new('Out-ConsoleDefault', (Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.CmdletOutConsoleDefault'))) -Force
     Update-FormatData -PrependPath $path -ErrorAction Stop
     '== native'
-    $row | Out-ConsoleDefault -Force
+    $row | & ([Management.Automation.CmdletInfo]::new('Out-ConsoleDefault', (Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.CmdletOutConsoleDefault'))) -Force
     Register-ConsoleView -TypeName System.Management.Automation.PSCustomObject -Property @{ Label = 'Chosen'; Expression = { 'explicit-view' } }
     '== explicit'
-    $row | Out-ConsoleDefault -Force
+    $row | & ([Management.Automation.CmdletInfo]::new('Out-ConsoleDefault', (Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.CmdletOutConsoleDefault'))) -Force
 } finally {
     Disable-ConsoleFormatting
     Remove-Item -LiteralPath $path
@@ -172,7 +172,7 @@ try {
     '== native'
     $values | Format-Table | Out-String
     '== console'
-    $values | Show-ConsoleTable -AsString
+    $values | New-ConsoleTable  | Export-ConsoleFrame -Format Text
 } finally {
     Remove-Item -LiteralPath $path
 }
@@ -192,12 +192,12 @@ $data = [System.Collections.Generic.Dictionary[string, object]]::new([StringComp
 $data.Add('Name', 'first')
 $data.Add('name', 'second')
 '== both'
-Show-ConsoleTable -InputObject $data -Property Name, name -AsString
+New-ConsoleTable -InputObject $data -Property Name, name  | Export-ConsoleFrame -Format Text
 '== lower'
-Show-ConsoleTable -InputObject $data -Property name -AsString
+New-ConsoleTable -InputObject $data -Property name  | Export-ConsoleFrame -Format Text
 '== grouped'
 $data.Add('Size', 7)
-Show-ConsoleTable -InputObject $data -Property Name, name, Size -GroupBy Name -AsString
+New-ConsoleTable -InputObject $data -Property Name, name, Size -GroupBy Name  | Export-ConsoleFrame -Format Text
 '@
         $sections = $text -split '== lower'
         $sections[0] | Should -Match 'Name.+name'
@@ -215,10 +215,10 @@ Show-ConsoleTable -InputObject $data -Property Name, name, Size -GroupBy Name -A
 Register-ConsoleView -TypeName 'Review.Shape' -Shaper { [ordered] @{ Shaped = 'replacement' } }
 $value = [pscustomobject] @{ Original = 'unshaped' }
 $value.PSObject.TypeNames.Insert(0, 'Review.Shape')
-$value | Out-ConsoleDefault -Force
+$value | & ([Management.Automation.CmdletInfo]::new('Out-ConsoleDefault', (Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.CmdletOutConsoleDefault'))) -Force
 Register-ConsoleView -TypeName 'Review.Shape' -View Table -Property @{ Name = 'OnlyCustom'; Expression = { 'kept' } }
 Register-ConsoleView -TypeName 'Review.Shape' -Shaper { [ordered] @{ Shaped = 'updated' } }
-$value | Out-ConsoleDefault -Force
+$value | & ([Management.Automation.CmdletInfo]::new('Out-ConsoleDefault', (Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.CmdletOutConsoleDefault'))) -Force
 '@
         $text | Should -Match 'replacement'
         $text | Should -Not -Match 'unshaped'
@@ -297,8 +297,8 @@ $text = Watch-Console { Write-Host 'host text'; Write-Warning 'careful'; Write-E
 
     It 'unrolls a collection that arrives as one object, as Out-Default does' {
         $text = Invoke-ViewChild -Script @'
-@(@(1, 2), @(3, 4)) | Out-ConsoleDefault -Force
-Write-Output -NoEnumerate @(5, 6) | Out-ConsoleDefault -Force
+@(@(1, 2), @(3, 4)) | & ([Management.Automation.CmdletInfo]::new('Out-ConsoleDefault', (Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.CmdletOutConsoleDefault'))) -Force
+Write-Output -NoEnumerate @(5, 6) | & ([Management.Automation.CmdletInfo]::new('Out-ConsoleDefault', (Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.CmdletOutConsoleDefault'))) -Force
 '@
         $text | Should -Match '1\s*\n2\s*\n3\s*\n4\s*\n5\s*\n6'
         $text | Should -Not -Match 'SyncRoot'

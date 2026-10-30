@@ -3,51 +3,35 @@
   "producer": "windows",
   "complete": true,
   "scope": "produced-only",
-  "requestedSet": "demos",
+  "requestedSet": "live",
   "filters": {
-    "SITEFRAMES_DEMOS": "hosting,logging,template"
+    "SITEFRAMES_LIVE": "size-100x30,size-64x20,size-50x12"
   },
   "allSetsCompleted": false,
   "files": {
-    "demos/hosting.cast": {
+    "live/size-100x30.cast": {
       "platform": "windows",
       "category": "neutral",
-      "comparison": {
-        "class": "live-measured",
-        "reason": "Actual hosted-service startup and shutdown durations, background work and log ordering.",
-        "minFrames": 3,
-        "maxFrames": 2000,
-        "minDurationSeconds": 0.1,
-        "maxDurationSeconds": 120
-      },
-      "sha256": "8c5dec335b6e3cd1d3cd182f15841de69ab2ad50ca8520ec832bbde753df4b22",
-      "screen": "dark",
-      "width": 110,
-      "height": 30
-    },
-    "demos/logging.cast": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "dad4ed329f57538dedc3c4240688f792a327b13944761b2fcd709842e19a5c59",
-      "screen": "dark",
-      "width": 110,
-      "height": 30
-    },
-    "demos/template.cast": {
-      "platform": "windows",
-      "category": "neutral",
-      "comparison": {
-        "class": "live-measured",
-        "reason": "Actual service startup and shutdown durations and background batches in the runnable application template.",
-        "minFrames": 5,
-        "maxFrames": 4000,
-        "minDurationSeconds": 0.2,
-        "maxDurationSeconds": 180
-      },
-      "sha256": "4469ece5f869e6393f73ae09f2c938597b9b223b806f44d3d12bfe8fa647b573",
+      "sha256": "beb5b79dae95fe1c57e8adac6535b66d0aca566a40411976f2bb6873f00c0a39",
       "screen": "dark",
       "width": 100,
-      "height": 26
+      "height": 30
+    },
+    "live/size-50x12.cast": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "cd260b80c845463e8aa34c443b2deafa4b3eb0fa6195df3112df0fe57860a22f",
+      "screen": "dark",
+      "width": 50,
+      "height": 12
+    },
+    "live/size-64x20.cast": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "7a2378ee4222b0d178d713f9f6efd33c795cd04e94cb2ad3b57e3953ce8a2545",
+      "screen": "dark",
+      "width": 64,
+      "height": 20
     }
   }
 }

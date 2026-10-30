@@ -4,8 +4,8 @@
     }
 
     It 'spaces several content children with -Gap and keeps them dense by default' {
-        $dense = New-ConsolePanel -Title Report -Content { New-ConsoleText 'one'; New-ConsoleText 'two' } | Show-Console -AsString -Width 30
-        $spaced = New-ConsolePanel -Title Report -Gap 1 -Content { New-ConsoleText 'one'; New-ConsoleText 'two' } | Show-Console -AsString -Width 30
+        $dense = New-ConsolePanel -Title Report -Content { New-ConsoleText 'one'; New-ConsoleText 'two' } | Export-ConsoleFrame -Format Text -Width 30
+        $spaced = New-ConsolePanel -Title Report -Gap 1 -Content { New-ConsoleText 'one'; New-ConsoleText 'two' } | Export-ConsoleFrame -Format Text -Width 30
         @($spaced -split "`n").Count | Should -Be (@($dense -split "`n").Count + 1)
         $panel = New-ConsolePanel -Gap 2 -Content { New-ConsoleText 'one'; New-ConsoleText 'two' }
         $panel.Gap | Should -Be 2

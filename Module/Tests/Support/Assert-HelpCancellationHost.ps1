@@ -42,7 +42,7 @@ if ($Phase -eq 'Initialize') {
         throw 'This host already has a qualification state. Clean it up before restarting.'
     }
     Import-Module (Join-Path $PSScriptRoot '../../ConsoleMonster.psd1')
-    Import-Module (Join-Path $PSScriptRoot '../Fixtures/HelpFormatting/HelpFormatting.psd1')
+    Import-Module (Join-Path $PSScriptRoot '../../../Tests/Fixtures/HelpFormatting/HelpFormatting.psd1')
     . (Join-Path $PSScriptRoot 'Read-TestConsoleFrame.ps1')
     if (([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::IsAcquired -or $null -ne ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::Override) {
         throw 'The fresh host must have no input lease or override.'
@@ -108,7 +108,7 @@ public sealed class ConsoleMonsterHelpLeaseObserver : IDisposable {
         Cancel = @{}
         Quit = @{}
     }
-    Enable-ConsoleFormatting -Feature Help
+    Enable-ConsoleFormatting -Include Help -Exclude Output, FormatCommands, Errors, Streams, ReadLine
     [ConsoleMonster.Terminal]::Profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed([Console]::BufferWidth, 10, 'None')
     [IO.File]::WriteAllText($ResultPath + '.pid.txt', [string]$PID)
     'HELP_CANCELLATION_INITIALIZED'

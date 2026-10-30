@@ -40,7 +40,7 @@ Import-Module '__MODULE__'
 __DEFINITION__
 $before = @(__CALL__) -join '|'
 if ($before -cne '__EXPECTED__') { throw "Invalid native fixture: $before" }
-Enable-ConsoleFormatting -Feature Prompt -WarningAction SilentlyContinue
+Enable-ConsoleFormatting -Include Prompt -Exclude Output, FormatCommands, Errors, Streams, ReadLine -WarningAction SilentlyContinue
 $during = @(__CALL__) -join '|'
 if ($during -cne $before) { throw "Original prompt changed while enabled: $during" }
 Disable-ConsoleFormatting

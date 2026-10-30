@@ -12,7 +12,7 @@ summary: "Show-ConsoleHelp, the error view and the progress area, with optional 
 
 These features change how PowerShell's own output looks for the session, never what commands return. `Disable-ConsoleFormatting` restores the session.
 
-`Enable-ConsoleFormatting` enables Output, FormatCommands, Errors, Streams and ReadLine. Explicit `Format-Table`, `Format-List` and `Format-Wide` retain PowerShell's column choices and only change output sent straight to the console. Use `-Include Help` to add an opt-in and `-Exclude FormatCommands` to keep those commands native. Advanced: `-Feature` replaces the defaults with exactly the selected features. For an explicit view, use `Show-ConsoleTable` or `Show-ConsoleObject`.
+`Enable-ConsoleFormatting` enables Output, FormatCommands, Errors, Streams and ReadLine. Explicit `Format-Table`, `Format-List` and `Format-Wide` retain PowerShell's column choices and only change output sent straight to the console. Use `-Include Help` to add an opt-in and `-Exclude FormatCommands` to keep those commands native. For an explicit view, use `Show-ConsoleTable` or `Show-ConsoleObject`.
 
 1. Choose the default set or individual features:
 
@@ -21,8 +21,8 @@ These features change how PowerShell's own output looks for the session, never w
    Enable-ConsoleFormatting                            # everyday defaults
    Get-ConsoleFormatting                               # see what is enabled
    Enable-ConsoleFormatting -Exclude FormatCommands    # keep native Format-* commands
-   Enable-ConsoleFormatting -Feature Streams, ReadLine # minimal selection
-   Enable-ConsoleFormatting -CompactErrors             # opt in to compact errors
+   Enable-ConsoleFormatting -Exclude Output, FormatCommands, Errors # streams and ReadLine only
+   Enable-ConsoleFormatting -ErrorLayout Compact       # opt in to compact errors
    Enable-ConsoleFormatting -Include Help              # opt in to styled help
    Enable-ConsoleFormatting -Include Progress          # opt in to the progress adapter
    Enable-ConsoleFormatting -Include Prompt            # opt in to the prompt
@@ -73,7 +73,7 @@ records the proof for Windows PowerShell 5.1 and PowerShell 7.
 Enable the compact layout explicitly:
 
 ```powershell
-Enable-ConsoleFormatting -CompactErrors
+Enable-ConsoleFormatting -ErrorLayout Compact
 ```
 
 Subsequent commands typed at the prompt use the new layout when they fail. This one deliberately produces an error:
@@ -89,11 +89,11 @@ exceptions fold into a muted count, and PowerShell 7 adds a `Get-Error for detai
 {{< cm-frame ids="errors-120,errors-60" caption="The shared compact view at 120 and 60 columns. Its complete C# program compiles to produce these frames; switch the site theme for the light rendering." >}}
 
 ```powershell
-Enable-ConsoleFormatting -CompactErrors -Detailed  # include stacks and causes
+Enable-ConsoleFormatting -ErrorLayout Detailed  # include stacks and causes
 Disable-ConsoleFormatting -Feature Errors
 
 # The same view on demand, including inside a catch block or an export.
-try { [int]::Parse('production') } catch { $_ | Show-Console -Compact -View Error }
+try { [int]::Parse('production') } catch { $_ | Show-Console -ErrorLayout Compact -View Error }
 ```
 
 Compact errors are optional. Error-producing cmdlets remain native, and `$Error`, `-ErrorVariable`, `2>`,

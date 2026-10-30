@@ -13,7 +13,7 @@ The script runs in a runspace the module owns (or, with -Parallel, once per inpu
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Invoke-ConsoleDashboard [-Dashboard] <IWidget> [-ScriptBlock] <scriptblock> [-ArgumentList <Object[]>] [-InputObject <Object>] [-Parallel] [-ThrottleLimit <int>] [-ImportFunction <string[]>] [-ImportModule <string[]>] [-RecordPath <string>] [-AutoRecord <int>] [-Summary <IWidget>] [-Inline] [-Transient] [-Clock <SimulatedClock>] [-FramesPerSecond <int>] [-NoLive] [<CommonParameters>]
+Invoke-ConsoleDashboard [-Dashboard] <IWidget> [-ScriptBlock] <scriptblock> [-ArgumentList <Object[]>] [-InputObject <Object>] [-Parallel] [-ThrottleLimit <int>] [-ImportFunction <string[]>] [-ImportModule <string[]>] [-RecordingPath <string>] [-AutoRecord <int>] [-Summary <IWidget>] [-Inline] [-Transient] [-Clock <SimulatedClock>] [-FramesPerSecond <double>] [-NoLive] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,26 +25,32 @@ The script runs in a runspace the module owns (or, with -Parallel, once per inpu
 
 ### EXAMPLE 1
 ```powershell
-$d = New-ConsoleDashboard -Title 'Patch' -Content { New-ConsolePanel -Title 'Servers' -Content { New-ConsoleLanes }; New-ConsolePanel -Title 'Log' -Fill -Content { New-ConsoleLogRegion } }
-'SRV1', 'SRV2', 'SRV3' | Invoke-ConsoleDashboard $d -Parallel -ThrottleLimit 3 {
+$dashboard = New-ConsoleDashboard -Title 'Checks' -Content {
+    New-ConsolePanel -Title 'Servers' -Content { New-ConsoleLanes -WidgetId servers }
+    New-ConsolePanel -Title 'Log' -Fill -Content { New-ConsoleLogRegion }
+}
+'SRV1', 'SRV2', 'SRV3' | Invoke-ConsoleDashboard $dashboard -Parallel -ThrottleLimit 3 {
     param($Server)
-    Update-Console lanes -Key $Server -Status Running -Total 5
-    1..5 | ForEach-Object { Start-Sleep -Milliseconds 300; Update-Console lanes -Key $Server -Result Pass }
-    Write-Host "$Server patched"
-    Update-Console lanes -Key $Server -Complete
+    Update-Console servers -Key $Server -Status Running -Total 5
+    1..5 | ForEach-Object { Update-Console servers -Key $Server -Result Pass }
+    Write-Host "$Server checked"
+    Update-Console servers -Key $Server -Complete
 }
 ```
 
-Three servers processed in parallel, three at a time
+Process three sample servers in parallel
 
 ### EXAMPLE 2
 ```powershell
-$frames = Get-Content ./frames.json | ConvertFrom-Json
+$frames = @([pscustomobject]@{ Cpu = 20 }, [pscustomobject]@{ Cpu = 45 })
+$dashboard = New-ConsoleDashboard -Title 'CPU samples' -Content { New-ConsoleChart -WidgetId cpu -Type Sparkline }
 function Show-Frame($Frame) { Update-Console cpu -Append -Value $Frame.Cpu }
-Invoke-ConsoleDashboard $dashboard -ImportFunction Show-Frame { foreach ($frame in $using:frames) { Show-Frame $frame; Wait-ConsoleDashboard 0.5 } }
+Invoke-ConsoleDashboard $dashboard -ImportFunction Show-Frame {
+    foreach ($frame in $using:frames) { Show-Frame $frame; Wait-ConsoleDashboard 0.5 }
+}
 ```
 
-Use the caller's data and helper function inside the dashboard
+Use caller data and a helper function in the dashboard
 
 ## PARAMETERS
 
@@ -65,7 +71,7 @@ Accept wildcard characters: False
 ```
 
 ### -AutoRecord
-Records the run automatically to the local ConsoleMonster\Recordings folder and keeps only this many recent runs (within 50 MB together), for Show-ConsoleReplay. Ignored with -RecordPath.
+Records the run automatically to the local ConsoleMonster\Recordings folder and keeps only this many recent runs (within 50 MB together), for Show-ConsoleReplay. Ignored with -RecordingPath.
 
 ```yaml
 Type: Int32
@@ -81,7 +87,7 @@ Accept wildcard characters: False
 ```
 
 ### -Clock
-A run clock (New-ConsoleSimulatedClock) for the header clock, the summary bar's times and log times, instead of real time. Pass it to the script with -ArgumentList to move it forward there.
+An optional C# run clock implementing IClock for the header clock, the summary bar's times and log times, instead of real time. Pass it to the script with -ArgumentList to move it forward there.
 
 ```yaml
 Type: SimulatedClock
@@ -116,7 +122,7 @@ Accept wildcard characters: False
 Redraw rate (default 15).
 
 ```yaml
-Type: Int32
+Type: Double
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -224,7 +230,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -RecordPath
+### -RecordingPath
 Record every update as JSON lines for Show-ConsoleReplay -PlaybackMode Automatic.
 
 ```yaml

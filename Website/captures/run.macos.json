@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "producer": "macos",
+  "complete": true,
+  "scope": "produced-only",
+  "requestedSet": "docs",
+  "filters": {},
+  "allSetsCompleted": false,
+  "files": {
+    "docs/profile.macos.ansi": {
+      "platform": "macos",
+      "category": "terminal-profile",
+      "sha256": "a9a6755542b12895db4531c43d32fe11e4e3150e2bc11e34257221d0e4b450a8",
+      "screen": "dark",
+      "width": 100,
+      "height": 40
+    },
+    "docs/profile-detected.macos.ansi": {
+      "platform": "macos",
+      "category": "terminal-profile",
+      "sha256": "5ab29551ede6ac575306188c80387caa28390a9d51aecbcd39627b901ad792a0",
+      "width": 100,
+      "height": 40
+    },
+    "docs/profile-ci.macos.ansi": {
+      "platform": "macos",
+      "category": "terminal-profile",
+      "sha256": "004ee30e4201c427dc4057195ea5be717dec63816b3ed64c65496aa7ba5527fc",
+      "screen": "dark",
+      "width": 100,
+      "height": 40
+    }
+  }
+}

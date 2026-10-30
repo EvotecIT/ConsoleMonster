@@ -117,8 +117,8 @@
       "csharp": "Terminal.Write(new Rule(\"[bold]Replication[/]\"));\nTerminal.Write(new Rule());",
       "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Widgets;\n\nTerminal.Write(new Rule(\"[bold]Replication[/]\"));\nTerminal.Write(new Rule());",
       "csharpFile": "Program.cs",
-      "powershell": "Show-Console -Title '[bold]Replication[/]' -View Rule\nShow-Console -View Rule",
-      "powershellFull": "Import-Module ConsoleMonster\n\nShow-Console -Title '[bold]Replication[/]' -View Rule\nShow-Console -View Rule",
+      "powershell": "New-ConsoleRule -Title '[bold]Replication[/]'  | Show-Console\nNew-ConsoleRule | Show-Console",
+      "powershellFull": "Import-Module ConsoleMonster\n\nNew-ConsoleRule -Title '[bold]Replication[/]'  | Show-Console\nNew-ConsoleRule | Show-Console",
       "powershellFile": "rule.ps1",
       "frame": {
         "w": 60,
@@ -131,6 +131,13 @@
       "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Widgets;\n\nUi.Rule().Title(\"[bold]Replication[/]\").Show();\nUi.Rule().Show();\n",
       "csharpFluentFile": "Program.cs",
       "apiMap": [
+        {
+          "powershell": "New-ConsoleRule",
+          "csharp": "new Rule(…)",
+          "fluent": "Ui.Rule()",
+          "memberId": "M:ConsoleMonster.Ui.Rule",
+          "note": "Inside Content: c.Rule(rule => …)."
+        },
         {
           "powershell": "New-ConsoleRule -Title …",
           "csharp": "Title = …",
@@ -213,7 +220,7 @@
           "powershell": "New-ConsolePanel -Content { … }",
           "csharp": "Content = widget",
           "fluent": ".Content(c => { … })",
-          "memberId": "M:ConsoleMonster.Layout.PanelFluent.Content"
+          "memberId": "M:ConsoleMonster.Layout.LayoutFluent.Content"
         },
         {
           "powershell": "New-ConsoleText -Markup $text",
@@ -277,7 +284,13 @@
           "powershell": "New-ConsolePanel -Content { … }",
           "csharp": "Content = widget",
           "fluent": ".Content(c => { … })",
-          "memberId": "M:ConsoleMonster.Layout.PanelFluent.Content"
+          "memberId": "M:ConsoleMonster.Layout.LayoutFluent.Content"
+        },
+        {
+          "powershell": "New-ConsoleColumns -Content { … }",
+          "csharp": "new Columns(widgets)",
+          "fluent": ".Content(c => { … })",
+          "memberId": "M:ConsoleMonster.Layout.LayoutFluent.Content"
         },
         {
           "powershell": "New-ConsoleText -Markup $text",
@@ -292,13 +305,6 @@
           "fluent": "Ui.Rows()",
           "memberId": "M:ConsoleMonster.Ui.Rows",
           "note": "Inside Content: c.Rows(r => …)."
-        },
-        {
-          "powershell": "New-ConsoleColumns",
-          "csharp": "new Columns(…)",
-          "fluent": "Ui.Columns()",
-          "memberId": "M:ConsoleMonster.Ui.Columns",
-          "note": "Inside Content: c.Columns(columns => …)."
         }
       ],
       "parity": {
@@ -320,8 +326,8 @@
       "group": "layout",
       "summary": "Equal cells in a fixed number of columns, filled left to right.",
       "width": 60,
-      "csharp": "Terminal.Write(new Grid(\n    3,\n    new Panel(new TextBlock(\"[pass]√ healthy[/]\"), \"DC01\"),\n    new Panel(new TextBlock(\"[warn]▲ lagging[/]\"), \"DC02\"),\n    new Panel(new TextBlock(\"[pass]√ healthy[/]\"), \"DC03\"),\n    new Panel(new TextBlock(\"[fail]✗ offline[/]\"), \"DC04\"),\n    new Panel(new TextBlock(\"[pass]√ healthy[/]\"), \"DC05\")));",
-      "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\nTerminal.Write(new Grid(\n    3,\n    new Panel(new TextBlock(\"[pass]√ healthy[/]\"), \"DC01\"),\n    new Panel(new TextBlock(\"[warn]▲ lagging[/]\"), \"DC02\"),\n    new Panel(new TextBlock(\"[pass]√ healthy[/]\"), \"DC03\"),\n    new Panel(new TextBlock(\"[fail]✗ offline[/]\"), \"DC04\"),\n    new Panel(new TextBlock(\"[pass]√ healthy[/]\"), \"DC05\")));",
+      "csharp": "Terminal.Write(new LayoutGrid(\n    3,\n    new Panel(new TextBlock(\"[pass]√ healthy[/]\"), \"DC01\"),\n    new Panel(new TextBlock(\"[warn]▲ lagging[/]\"), \"DC02\"),\n    new Panel(new TextBlock(\"[pass]√ healthy[/]\"), \"DC03\"),\n    new Panel(new TextBlock(\"[fail]✗ offline[/]\"), \"DC04\"),\n    new Panel(new TextBlock(\"[pass]√ healthy[/]\"), \"DC05\")));",
+      "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\nTerminal.Write(new LayoutGrid(\n    3,\n    new Panel(new TextBlock(\"[pass]√ healthy[/]\"), \"DC01\"),\n    new Panel(new TextBlock(\"[warn]▲ lagging[/]\"), \"DC02\"),\n    new Panel(new TextBlock(\"[pass]√ healthy[/]\"), \"DC03\"),\n    new Panel(new TextBlock(\"[fail]✗ offline[/]\"), \"DC04\"),\n    new Panel(new TextBlock(\"[pass]√ healthy[/]\"), \"DC05\")));",
       "csharpFile": "Program.cs",
       "powershell": "New-ConsoleLayoutGrid -Columns 3 -Content {\n    New-ConsolePanel -Title 'DC01' -Content { '[pass]√ healthy[/]' }\n    New-ConsolePanel -Title 'DC02' -Content { '[warn]▲ lagging[/]' }\n    New-ConsolePanel -Title 'DC03' -Content { '[pass]√ healthy[/]' }\n    New-ConsolePanel -Title 'DC04' -Content { '[fail]✗ offline[/]' }\n    New-ConsolePanel -Title 'DC05' -Content { '[pass]√ healthy[/]' }\n} | Show-Console",
       "powershellFull": "Import-Module ConsoleMonster\n\nNew-ConsoleLayoutGrid -Columns 3 -Content {\n    New-ConsolePanel -Title 'DC01' -Content { '[pass]√ healthy[/]' }\n    New-ConsolePanel -Title 'DC02' -Content { '[warn]▲ lagging[/]' }\n    New-ConsolePanel -Title 'DC03' -Content { '[pass]√ healthy[/]' }\n    New-ConsolePanel -Title 'DC04' -Content { '[fail]✗ offline[/]' }\n    New-ConsolePanel -Title 'DC05' -Content { '[pass]√ healthy[/]' }\n} | Show-Console",
@@ -339,7 +345,7 @@
       "apiMap": [
         {
           "powershell": "New-ConsoleLayoutGrid",
-          "csharp": "new Grid(…)",
+          "csharp": "new LayoutGrid(…)",
           "fluent": "Ui.LayoutGrid()",
           "memberId": "M:ConsoleMonster.Ui.LayoutGrid",
           "note": "Inside Content: c.LayoutGrid(layoutGrid => …)."
@@ -348,14 +354,20 @@
           "powershell": "New-ConsoleLayoutGrid -Columns …",
           "csharp": "Columns = …",
           "fluent": ".Columns(…)",
-          "memberId": "ConsoleMonster.Layout.Grid.Columns",
+          "memberId": "ConsoleMonster.Layout.LayoutGrid.Columns",
           "note": null
         },
         {
-          "powershell": "New-ConsoleLayoutGrid -Content { … }",
-          "csharp": "new Grid(columns, widgets)",
+          "powershell": "New-ConsolePanel -Content { … }",
+          "csharp": "Content = widget",
           "fluent": ".Content(c => { … })",
-          "memberId": "M:ConsoleMonster.Layout.GridFluent.Content"
+          "memberId": "M:ConsoleMonster.Layout.LayoutFluent.Content"
+        },
+        {
+          "powershell": "New-ConsoleLayoutGrid -Content { … }",
+          "csharp": "new LayoutGrid(columns, widgets)",
+          "fluent": ".Content(c => { … })",
+          "memberId": "M:ConsoleMonster.Layout.LayoutFluent.Content"
         },
         {
           "powershell": "New-ConsolePanel",
@@ -363,13 +375,6 @@
           "fluent": "Ui.Panel()",
           "memberId": "M:ConsoleMonster.Layout.ContentBuilder.Panel",
           "note": "Inside Content: c.Panel(p => …)."
-        },
-        {
-          "powershell": "New-ConsolePanel -Title …",
-          "csharp": "Title = …",
-          "fluent": ".Title(…)",
-          "memberId": "ConsoleMonster.Layout.Panel.Title",
-          "note": null
         },
         {
           "powershell": "New-ConsoleText -Markup $text",
@@ -401,8 +406,8 @@
       "csharp": "Panel left = new Panel(new Align(new TextBlock(\"[bold]centred[/]\")), \"Align\");\nPanel right = new Panel(new Padding(new TextBlock(\"two cells of padding\"), 2, 1, 2, 1), \"Padding\");\nTerminal.Write(new Columns(left, right));",
       "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\nPanel left = new Panel(new Align(new TextBlock(\"[bold]centred[/]\")), \"Align\");\nPanel right = new Panel(new Padding(new TextBlock(\"two cells of padding\"), 2, 1, 2, 1), \"Padding\");\nTerminal.Write(new Columns(left, right));",
       "csharpFile": "Program.cs",
-      "powershell": "New-ConsoleColumns -Content {\n    New-ConsolePanel -Title 'Align' -Content { New-ConsoleAlign -Content { '[bold]centred[/]' } }\n    New-ConsolePanel -Title 'Padding' -Content {\n        New-ConsolePadding -Padding 2, 1 -Content { 'two cells of padding' }\n    }\n} | Show-Console",
-      "powershellFull": "Import-Module ConsoleMonster\n\nNew-ConsoleColumns -Content {\n    New-ConsolePanel -Title 'Align' -Content { New-ConsoleAlign -Content { '[bold]centred[/]' } }\n    New-ConsolePanel -Title 'Padding' -Content {\n        New-ConsolePadding -Padding 2, 1 -Content { 'two cells of padding' }\n    }\n} | Show-Console",
+      "powershell": "New-ConsoleColumns -Content {\n    New-ConsolePanel -Title 'Align' -Content {\n        New-ConsoleRegion -Horizontal Center -Content { '[bold]centred[/]' }\n    }\n    New-ConsolePanel -Title 'Padding' -Content {\n        New-ConsoleRegion -Padding 2, 1 -Content { 'two cells of padding' }\n    }\n} | Show-Console",
+      "powershellFull": "Import-Module ConsoleMonster\n\nNew-ConsoleColumns -Content {\n    New-ConsolePanel -Title 'Align' -Content {\n        New-ConsoleRegion -Horizontal Center -Content { '[bold]centred[/]' }\n    }\n    New-ConsolePanel -Title 'Padding' -Content {\n        New-ConsoleRegion -Padding 2, 1 -Content { 'two cells of padding' }\n    }\n} | Show-Console",
       "powershellFile": "align.ps1",
       "frame": {
         "w": 60,
@@ -433,20 +438,20 @@
           "powershell": "New-ConsolePanel -Content { … }",
           "csharp": "Content = widget",
           "fluent": ".Content(c => { … })",
-          "memberId": "M:ConsoleMonster.Layout.PanelFluent.Content"
+          "memberId": "M:ConsoleMonster.Layout.LayoutFluent.Content"
         },
         {
-          "powershell": "New-ConsoleAlign",
-          "csharp": "new Align(…)",
-          "fluent": "Ui.Align()",
-          "memberId": "M:ConsoleMonster.Layout.ContentBuilder.Align",
-          "note": "Inside Content: c.Align(align => …)."
-        },
-        {
-          "powershell": "New-ConsoleAlign -Content { … }",
-          "csharp": "Content = widget",
+          "powershell": "New-ConsoleColumns -Content { … }",
+          "csharp": "new Columns(widgets)",
           "fluent": ".Content(c => { … })",
-          "memberId": "M:ConsoleMonster.Layout.AlignFluent.Content"
+          "memberId": "M:ConsoleMonster.Layout.LayoutFluent.Content"
+        },
+        {
+          "powershell": "New-ConsoleRegion -Content { … }",
+          "csharp": "Content = …",
+          "fluent": ".Content(c => { … })",
+          "memberId": "ConsoleMonster.Layout.Align.Content",
+          "note": null
         },
         {
           "powershell": "New-ConsoleText -Markup $text",
@@ -478,8 +483,8 @@
       "csharp": "Sparkline load = new Sparkline()\n{\n    Height = 3,\n    ShowLatest = false\n}\n    .AddRange(new double[] { 12, 14, 13, 18, 22, 26, 25, 31, 36, 34, 40, 44 })\n    .AddRange(new double[] { 41, 47, 52, 49, 55, 61, 58, 64, 70, 66, 73, 79 });\nAlign badge = new Align(new TextBlock(\"[pass] LIVE [/]\"), HorizontalAlignment.Right);\nTerminal.Write(new Panel(new Stack(load, badge), \"Stack\") { HeaderRight = \"badge over a chart\" });",
       "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\nSparkline load = new Sparkline()\n{\n    Height = 3,\n    ShowLatest = false\n}\n    .AddRange(new double[] { 12, 14, 13, 18, 22, 26, 25, 31, 36, 34, 40, 44 })\n    .AddRange(new double[] { 41, 47, 52, 49, 55, 61, 58, 64, 70, 66, 73, 79 });\nAlign badge = new Align(new TextBlock(\"[pass] LIVE [/]\"), HorizontalAlignment.Right);\nTerminal.Write(new Panel(new Stack(load, badge), \"Stack\") { HeaderRight = \"badge over a chart\" });",
       "csharpFile": "Program.cs",
-      "powershell": "$load = 12, 14, 13, 18, 22, 26, 25, 31, 36, 34, 40, 44, 41, 47, 52, 49, 55, 61, 58, 64, 70, 66, 73,\n    79\nNew-ConsolePanel -Title 'Stack' -HeaderRight 'badge over a chart' -Content {\n    New-ConsoleStack -Content {\n        New-ConsoleChart -Height 3 -NoLatest -Type Sparkline -Values $load\n        New-ConsoleAlign -Horizontal Right -Content { '[pass] LIVE [/]' }\n    }\n} | Show-Console",
-      "powershellFull": "Import-Module ConsoleMonster\n\n$load = 12, 14, 13, 18, 22, 26, 25, 31, 36, 34, 40, 44, 41, 47, 52, 49, 55, 61, 58, 64, 70, 66, 73,\n    79\nNew-ConsolePanel -Title 'Stack' -HeaderRight 'badge over a chart' -Content {\n    New-ConsoleStack -Content {\n        New-ConsoleChart -Height 3 -NoLatest -Type Sparkline -Values $load\n        New-ConsoleAlign -Horizontal Right -Content { '[pass] LIVE [/]' }\n    }\n} | Show-Console",
+      "powershell": "$load = 12, 14, 13, 18, 22, 26, 25, 31, 36, 34, 40, 44, 41, 47, 52, 49, 55, 61, 58, 64, 70, 66, 73,\n    79\nNew-ConsolePanel -Title 'Stack' -HeaderRight 'badge over a chart' -Content {\n    New-ConsoleStack -Content {\n        New-ConsoleChart -Height 3 -NoLatest -Type Sparkline -Values $load\n        New-ConsoleRegion -Horizontal Right -Content { '[pass] LIVE [/]' }\n    }\n} | Show-Console",
+      "powershellFull": "Import-Module ConsoleMonster\n\n$load = 12, 14, 13, 18, 22, 26, 25, 31, 36, 34, 40, 44, 41, 47, 52, 49, 55, 61, 58, 64, 70, 66, 73,\n    79\nNew-ConsolePanel -Title 'Stack' -HeaderRight 'badge over a chart' -Content {\n    New-ConsoleStack -Content {\n        New-ConsoleChart -Height 3 -NoLatest -Type Sparkline -Values $load\n        New-ConsoleRegion -Horizontal Right -Content { '[pass] LIVE [/]' }\n    }\n} | Show-Console",
       "powershellFile": "stack.ps1",
       "frame": {
         "w": 60,
@@ -514,17 +519,16 @@
           "note": "BooleanInversion"
         },
         {
-          "powershell": "New-ConsoleAlign",
-          "csharp": "new Align(…)",
-          "fluent": "Ui.Align()",
-          "memberId": "M:ConsoleMonster.Ui.Align",
-          "note": "Inside Content: c.Align(align => …)."
-        },
-        {
-          "powershell": "New-ConsoleAlign -Content { … }",
+          "powershell": "New-ConsolePanel -Content { … }",
           "csharp": "Content = widget",
           "fluent": ".Content(c => { … })",
-          "memberId": "M:ConsoleMonster.Layout.AlignFluent.Content"
+          "memberId": "M:ConsoleMonster.Layout.LayoutFluent.Content"
+        },
+        {
+          "powershell": "New-ConsoleStack -Content { … }",
+          "csharp": "new Stack(widgets)",
+          "fluent": ".Content(c => { … })",
+          "memberId": "M:ConsoleMonster.Layout.LayoutFluent.Content"
         },
         {
           "powershell": "New-ConsoleText -Markup $text",
@@ -799,8 +803,8 @@
       "csharp": "Terminal.Write(new Phases()\n    .Set(\"Discover\", StatusKind.Pass, default, \"2.1s\")\n    .Set(\"Collect\", StatusKind.Pass, default, \"14s\")\n    .Set(\"Evaluate\", StatusKind.Running, default, \"64%\")\n    .Set(\"Report\", StatusKind.Pending));",
       "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\nTerminal.Write(new Phases()\n    .Set(\"Discover\", StatusKind.Pass, default, \"2.1s\")\n    .Set(\"Collect\", StatusKind.Pass, default, \"14s\")\n    .Set(\"Evaluate\", StatusKind.Running, default, \"64%\")\n    .Set(\"Report\", StatusKind.Pending));",
       "csharpFile": "Program.cs",
-      "powershell": "New-ConsolePhases -Content {\n    [pscustomobject]@{ Label = 'Discover'; Status = 'Pass'; Detail = '2.1s' }\n    [pscustomobject]@{ Label = 'Collect'; Status = 'Pass'; Detail = '14s' }\n    [pscustomobject]@{ Label = 'Evaluate'; Status = 'Running'; Detail = '64%' }\n    [pscustomobject]@{ Label = 'Report' }\n} | Show-Console",
-      "powershellFull": "Import-Module ConsoleMonster\n\nNew-ConsolePhases -Content {\n    [pscustomobject]@{ Label = 'Discover'; Status = 'Pass'; Detail = '2.1s' }\n    [pscustomobject]@{ Label = 'Collect'; Status = 'Pass'; Detail = '14s' }\n    [pscustomobject]@{ Label = 'Evaluate'; Status = 'Running'; Detail = '64%' }\n    [pscustomobject]@{ Label = 'Report' }\n} | Show-Console",
+      "powershell": "New-ConsoleStatusList -Layout Strip -WidgetId phases -Content {\n    [pscustomobject]@{ Label = 'Discover'; Status = 'Pass'; Detail = '2.1s' }\n    [pscustomobject]@{ Label = 'Collect'; Status = 'Pass'; Detail = '14s' }\n    [pscustomobject]@{ Label = 'Evaluate'; Status = 'Running'; Detail = '64%' }\n    [pscustomobject]@{ Label = 'Report' }\n} | Show-Console",
+      "powershellFull": "Import-Module ConsoleMonster\n\nNew-ConsoleStatusList -Layout Strip -WidgetId phases -Content {\n    [pscustomobject]@{ Label = 'Discover'; Status = 'Pass'; Detail = '2.1s' }\n    [pscustomobject]@{ Label = 'Collect'; Status = 'Pass'; Detail = '14s' }\n    [pscustomobject]@{ Label = 'Evaluate'; Status = 'Running'; Detail = '64%' }\n    [pscustomobject]@{ Label = 'Report' }\n} | Show-Console",
       "powershellFile": "phases.ps1",
       "frame": {
         "w": 60,
@@ -813,20 +817,6 @@
       "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Styling;\n\nUi.Phases()\n    .Set(\"Discover\", StatusKind.Pass, default, \"2.1s\")\n    .Set(\"Collect\", StatusKind.Pass, default, \"14s\")\n    .Set(\"Evaluate\", StatusKind.Running, default, \"64%\")\n    .Set(\"Report\", StatusKind.Pending)\n    .Show();\n",
       "csharpFluentFile": "Program.cs",
       "apiMap": [
-        {
-          "powershell": "New-ConsolePhases",
-          "csharp": "new Phases(…)",
-          "fluent": "Ui.Phases()",
-          "memberId": "M:ConsoleMonster.Ui.Phases",
-          "note": "Inside Content: c.Phases(phases => …)."
-        },
-        {
-          "powershell": "New-ConsolePhases -Phase …",
-          "csharp": "Phases.Set(…)",
-          "fluent": "Phases.Set(…)",
-          "memberId": "A:ConsoleMonster.Widgets.Phases.Set.key",
-          "note": "Each phase record supplies Key, Status, Label and Detail. The key argument receives …."
-        },
         {
           "powershell": "| Show-Console",
           "csharp": "Terminal.Write(widget)",
@@ -1392,8 +1382,8 @@
       "csharp": "Terminal.Write(new Logo(\"Monster\", \"[muted]zero-dependency console rendering[/]\"));",
       "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Widgets;\n\nTerminal.Write(new Logo(\"Monster\", \"[muted]zero-dependency console rendering[/]\"));",
       "csharpFile": "Program.cs",
-      "powershell": "New-ConsoleLogo 'Monster' -Tagline '[muted]zero-dependency console rendering[/]' | Show-Console",
-      "powershellFull": "Import-Module ConsoleMonster\n\nNew-ConsoleLogo 'Monster' -Tagline '[muted]zero-dependency console rendering[/]' | Show-Console",
+      "powershell": "New-ConsoleLogo 'Monster' -Subtitle '[muted]zero-dependency console rendering[/]' | Show-Console",
+      "powershellFull": "Import-Module ConsoleMonster\n\nNew-ConsoleLogo 'Monster' -Subtitle '[muted]zero-dependency console rendering[/]' | Show-Console",
       "powershellFile": "logo.ps1",
       "frame": {
         "w": 60,
@@ -1421,7 +1411,7 @@
           "note": null
         },
         {
-          "powershell": "New-ConsoleLogo -Tagline …",
+          "powershell": "New-ConsoleLogo -Subtitle …",
           "csharp": "Tagline = …",
           "fluent": ".Tagline(…)",
           "memberId": "ConsoleMonster.Widgets.Logo.Tagline",

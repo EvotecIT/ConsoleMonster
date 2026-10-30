@@ -5,7 +5,7 @@ using ConsoleMonster.Views;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Enables the everyday console views, native format commands and theme colours.</para>
-    /// <para type="description">Three ways to use ConsoleMonster output: Automatic: enable formatting, then use ordinary commands for known and registered types. Explicit: pipe any objects to Show-ConsoleTable to choose columns, a title and grouping, or to Show-ConsoleObject to explore their members. These commands do not change session formatting; Show-ConsoleObject -StaticSnapshot avoids interactive input in scripts. Native Format commands: FormatCommands styles direct console output while keeping PowerShell's column choices; it is included by default; use -Exclude FormatCommands to leave it native. You do not need both automatic and explicit formatting. The -Feature parameter requires ConsoleMonster 2.1.0 or later.</para>
+    /// <para type="description">Three ways to use ConsoleMonster output: Automatic: enable formatting, then use ordinary commands for known and registered types. Explicit: pipe any objects to Show-ConsoleTable to choose columns, a title and grouping, or to Show-ConsoleObject to explore their members. These commands do not change session formatting; Show-ConsoleObject -Mode Snapshot avoids interactive input in scripts. Native Format commands: FormatCommands styles direct console output while keeping PowerShell's column choices; it is included by default; use -Exclude FormatCommands to leave it native. You do not need both automatic and explicit formatting. The -Feature parameter requires ConsoleMonster 2.1.0 or later.</para>
     /// <para type="description">By default, Output, FormatCommands, Errors, Streams and ReadLine are enabled. Format-Table, Format-List and Format-Wide keep PowerShell's column choices and change only direct console output; pipelines, captures, files, jobs, remoting and transcripts remain native. Use Include to add opt-in features and Exclude to remove features from the default set. Feature replaces the default set with exactly the selected features. Prompt, Help, Progress and GridView require Include or Feature. CompactErrors opts into the compact error layout. Get-ConsoleFormatting reports what is enabled. Disable-ConsoleFormatting restores the session.</para>
     /// <para type="description">Files, processes, services, structured records, commands, modules, history, IP addresses, volumes, versions, dictionaries and registered types get built-in or registered views. Explicit Show-Console commands remain available when you want to choose the view yourself. Custom Out-Default functions are kept unless Force is specified; Prompt does not replace oh-my-posh or Starship without Force.</para>
     /// </summary>
@@ -44,10 +44,6 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsLifecycle.Enable, "ConsoleFormatting", SupportsShouldProcess = true, DefaultParameterSetName = "Default")]
     public sealed class CmdletEnableConsoleFormatting : NoPipelineInputCmdlet {
-        /// <summary><para type="description">Choose only these features: Output, FormatCommands, Errors, Streams, ReadLine, Prompt, Help, Progress or GridView. The default without Feature enables Output, FormatCommands, Errors, Streams and ReadLine. Feature replaces the default set with exactly these features; use Include for defaults plus opt-ins. Use Disable-ConsoleFormatting to restore the session. FormatCommands keeps native column selections and changes only direct host output. Streams and ReadLine change native colours without replacing Write-* commands. Progress replaces Write-Progress only when explicitly selected. Help, GridView and Prompt are explicit opt-ins.</para></summary>
-        [Parameter(Mandatory = true, ParameterSetName = "Feature")]
-        public ConsoleFormattingFeature[]? Feature { get; set; }
-
         /// <summary><para type="description">Adds these opt-in features to the default set. Can be combined with Exclude, but not Feature.</para></summary>
         [Parameter(ParameterSetName = "Default")]
         public ConsoleFormattingFeature[]? Include { get; set; }
@@ -56,9 +52,9 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(ParameterSetName = "Default")]
         public ConsoleFormattingFeature[]? Exclude { get; set; }
 
-        /// <summary><para type="description">Uses the compact message-first error layout. Errors must be enabled.</para></summary>
-        [Parameter]
-        public SwitchParameter CompactErrors { get; set; }
+        /// <summary><para type="description">Error detail: Compact, Standard or Detailed. Errors must be enabled.</para></summary>
+        [Parameter, ValidateSet("Compact", "Standard", "Detailed")]
+        public string ErrorLayout { get; set; } = "Standard";
 
         /// <summary><para type="description">Replaces an existing Out-Default function, Write-Progress alias, or an Out-GridView function/alias when the native grid is unavailable (Disable-ConsoleFormatting puts it back). A working native Out-GridView is always kept. Prompt requires Force to replace oh-my-posh or Starship.</para></summary>
         [Parameter]
@@ -72,15 +68,11 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter ProfileSnippet { get; set; }
 
-        /// <summary><para type="description">Includes script and .NET stack frames in the compact error layout. Requires CompactErrors.</para></summary>
-        [Parameter]
-        public SwitchParameter Detailed { get; set; }
-
         /// <inheritdoc />
         protected override void EndProcessing() {
             var options = new ConsoleFormattingOptions {
-                Feature = Feature, Include = Include, Exclude = Exclude, Force = Force.IsPresent, BuiltIn = !NoBuiltIn.IsPresent,
-                Detailed = Detailed.IsPresent, CompactErrors = CompactErrors.IsPresent, ProfileSnippet = ProfileSnippet.IsPresent
+                Include = Include, Exclude = Exclude, Force = Force.IsPresent, BuiltIn = !NoBuiltIn.IsPresent,
+                ErrorLayout = ErrorLayout, ProfileSnippet = ProfileSnippet.IsPresent
             };
             if (ProfileSnippet.IsPresent) { ConsoleHostFormatting.Enable(this, options); return; }
             ConsoleFormattingFeature selected = ConsoleHostFormatting.Selected(options);
@@ -122,7 +114,7 @@ namespace ConsoleMonster.PowerShell {
     }
 
     /// <summary>
-    /// <para type="synopsis">Registers how a type is shown by Enable-ConsoleFormatting and Out-ConsoleDefault.</para>
+    /// <para type="synopsis">Registers how a type is shown by Enable-ConsoleFormatting.</para>
     /// <para type="description">Objects whose type names include -TypeName are shown in the given view when they reach the console. -Property picks the columns as in Show-ConsoleTable (names, calculated properties with Presenter options), -GroupBy groups rows under headings, and types with the same -Group are shown together (files and folders). Unregister-ConsoleView removes a registration. Modules can register their own types when they load, or ship a data-only ModuleName.consoleviews.psd1 file without a dependency on ConsoleMonster. Use -Path to import a view file explicitly.</para>
     /// </summary>
     /// <example>

@@ -1,12 +1,12 @@
-Describe 'ConsoleMonster Markdown, HTML and clipboard output' {
+﻿Describe 'ConsoleMonster Markdown and HTML output' {
     BeforeAll {
         Import-Module (Join-Path $PSScriptRoot '..\ConsoleMonster.psd1') -Force
     }
 
     It 'exports every display view as one Markdown string or HTML page' {
         $commands = @(
-            @{ Name = 'Show-ConsoleTable'; Input = [pscustomobject] @{ Name = 'export-marker'; Count = 12 } }
-            @{ Name = 'Show-ConsoleList'; Input = [pscustomobject] @{ Name = 'export-marker'; Count = 12 } }
+            @{ Name = 'New-ConsoleTable'; Input = [pscustomobject] @{ Name = 'export-marker'; Count = 12 } }
+            @{ Name = 'Show-Console'; View = 'List'; Input = [pscustomobject] @{ Name = 'export-marker'; Count = 12 } }
             @{ Name = 'Show-Console'; View = 'Tree'; Input = [pscustomobject] @{ Name = 'export-marker'; Count = 12 } }
             @{ Name = 'Show-Console'; View = 'Code'; Input = 'export-marker' }
             @{ Name = 'Show-Console'; View = 'Json'; Input = '{"Name":"export-marker"}' }
@@ -16,7 +16,8 @@ Describe 'ConsoleMonster Markdown, HTML and clipboard output' {
             foreach ($format in 'FencedText', 'Markdown', 'Html') {
                 $viewArgs = @{}
                 if ($command.ContainsKey('View')) { $viewArgs.View = $command.View }
-                $result = @($command.Input | & $command.Name @viewArgs -AsWidget | Export-ConsoleFrame -Format $format -Width 70)
+                if ($command.Name -eq 'Show-Console') { $viewArgs.AsWidget = $true }
+                $result = @($command.Input | & $command.Name @viewArgs | Export-ConsoleFrame -Format $format -Width 70)
                 $result.Count | Should -Be 1 -Because $command.Name
                 $result[0] | Should -BeOfType string
                 $result[0] | Should -Match 'export-marker'
@@ -25,7 +26,7 @@ Describe 'ConsoleMonster Markdown, HTML and clipboard output' {
                     $result[0] | Should -Match '\n```\n$'
                 } elseif ($format -eq 'Html') {
                     $result[0] | Should -Match '^<!DOCTYPE html>'
-                } elseif ($command.Name -in @('Show-ConsoleTable','Show-ConsoleList')) {
+                } elseif ($command.Name -eq 'New-ConsoleTable') {
                     $result[0] | Should -Match '(?m)^\|.*\|$'
                     $result[0] | Should -Match '(?m)^\| :---'
                 } elseif ($command.View -eq 'Tree') {
@@ -37,25 +38,19 @@ Describe 'ConsoleMonster Markdown, HTML and clipboard output' {
     }
 
     It 'rejects incompatible output switches before processing even empty input' {
-        foreach ($view in 'Auto', 'Table', 'List', 'Tree', 'Code', 'Json', 'Error', 'Markdown', 'Rule') {
-            { Show-Console -View $view -AsWidget -AsString -ErrorAction Stop } | Should -Throw '*Choose one output mode*'
-            { Show-Console -View $view -AsWidget -PassThru -ErrorAction Stop } | Should -Throw '*Choose one output mode*'
-            { Show-Console -View $view -AsString -PassThru -ErrorAction Stop } | Should -Throw '*Choose one output mode*'
-        }
-        foreach ($name in 'Show-ConsoleTable', 'Show-ConsoleList') {
-            { & $name -AsWidget -AsString -ErrorAction Stop } | Should -Throw '*Choose one output mode*'
-            { & $name -AsWidget -PassThru -ErrorAction Stop } | Should -Throw '*Choose one output mode*'
+        foreach ($view in 'List', 'Tree', 'Code', 'Json', 'Error', 'Markdown') {
+            { Show-Console -View $view -AsWidget -PassThru -ErrorAction Stop } | Should -Throw '*Choose AsWidget or PassThru*'
         }
     }
 
     It 'preserves widget, string and input-object contracts' {
         $row = [pscustomobject] @{ Name = 'source-marker'; Count = 12 }
-        ($row | Show-ConsoleTable -AsWidget) | Should -BeOfType ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Widgets.Table'))
-        ($row | Show-ConsoleTable -AsString) | Should -BeOfType string
+        ($row | New-ConsoleTable ) | Should -BeOfType ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Widgets.Table'))
+        ($row | New-ConsoleTable  | Export-ConsoleFrame -Format Text) | Should -BeOfType string
         $pass = @($row | Show-ConsoleTable -PassThru)
         $pass.Count | Should -Be 1
         [object]::ReferenceEquals($row, $pass[0]) | Should -BeTrue
-        ($row | Show-ConsoleTable -AsString:$false -AsWidget | Export-ConsoleFrame -Format Markdown) | Should -Match 'source-marker'
+        ($row | New-ConsoleTable   | Export-ConsoleFrame -Format Markdown) | Should -Match 'source-marker'
     }
 
     It 'infers semantic Markdown paths and escapes literal markup and embedded backticks' {
@@ -112,31 +107,10 @@ Describe 'ConsoleMonster Markdown, HTML and clipboard output' {
     }
 
     It 'returns no document for empty export input' {
-        @(@() | Show-ConsoleTable -AsWidget | Export-ConsoleFrame -Format Markdown).Count | Should -Be 0
         @(@() | Export-ConsoleFrame -Format Markdown).Count | Should -Be 0
     }
 
-    It 'previews clipboard copying for every input kind and format without accessing any provider' {
-        foreach ($format in 'Text', 'Markdown', 'Html') {
-            foreach ($inputValue in @('literal text', (New-ConsoleText 'widget'), [pscustomobject] @{ Name = 'row' })) {
-                @($inputValue | Copy-ConsoleOutput -Format $format -WhatIf -PassThru).Count | Should -Be 0
-            }
-        }
-    }
 
-    It 'reports SSH clipboard failure without overwriting any clipboard and respects ErrorAction' {
-        $saved = [Environment]::GetEnvironmentVariable('SSH_CONNECTION', 'Process')
-        try {
-            [Environment]::SetEnvironmentVariable('SSH_CONNECTION', 'synthetic-test-session', 'Process')
-            $copyErrors = @()
-            $result = @('synthetic clipboard text' | Copy-ConsoleOutput -Format Markdown -PassThru -ErrorAction SilentlyContinue -ErrorVariable copyErrors)
-            $result.Count | Should -Be 0
-            $copyErrors.Count | Should -Be 1
-            $copyErrors[0].FullyQualifiedErrorId | Should -Match '^ConsoleClipboardUnavailable'
-            $copyErrors[0].ToString() | Should -Match 'SSH'
-            { 'synthetic clipboard text' | Copy-ConsoleOutput -Format Html -ErrorAction Stop } | Should -Throw '*SSH*'
-        } finally {
-            [Environment]::SetEnvironmentVariable('SSH_CONNECTION', $saved, 'Process')
-        }
-    }
+
+
 }

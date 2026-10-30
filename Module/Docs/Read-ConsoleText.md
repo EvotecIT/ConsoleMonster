@@ -13,12 +13,12 @@ A default is shown as a hint (Enter on an empty box accepts it, Tab puts it in t
 ## SYNTAX
 ### Text (Default)
 ```powershell
-Read-ConsoleText [[-Title] <string>] [-Default <string>] [-Placeholder <string>] [-Required] [-MinLength <int>] [-MaxLength <int>] [-Pattern <string>] [-PatternMessage <string>] [-Validator <scriptblock>] [-History <string[]>] [-PrefillDefault] [-Multiline] [-MaxLines <int>] [-Height <int>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
+Read-ConsoleText [[-Title] <string>] [-Default <string>] [-Placeholder <string>] [-Required] [-MinLength <int>] [-MaxLength <int>] [-Pattern <string>] [-PatternMessage <string>] [-Validator <scriptblock>] [-History <string[]>] [-PrefillDefault] [-Multiline] [-MaxLines <int>] [-Height <int>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [<CommonParameters>]
 ```
 
 ### Secret
 ```powershell
-Read-ConsoleText [[-Title] <string>] -AsSecret [-MinLength <int>] [-Validator <scriptblock>] [-AsPlainText] [-Hidden] [-AllowEmpty] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
+Read-ConsoleText [[-Title] <string>] -AsSecret [-MinLength <int>] [-Validator <scriptblock>] [-AsPlainText] [-Hidden] [-AllowEmpty] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -227,7 +227,7 @@ Forces how to ask: Rich (in-place prompt), Line (question and typed answer), Acc
 Type: InteractionMode
 Parameter Sets: Text, Secret
 Aliases: None
-Possible values: Rich, Line, Accessible, None
+Possible values: Rich, Line, Accessible, None, Snapshot
 
 Required: False
 Position: named
@@ -338,22 +338,6 @@ Refuses an empty answer.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: Text
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -StaticSnapshot
-Prints the initialized rich prompt without reading input or returning an answer. Useful for documentation and unattended previews.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: Text, Secret
 Aliases: None
 Possible values:
 

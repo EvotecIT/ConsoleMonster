@@ -23,7 +23,7 @@ $options.Capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.I
 $options.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('F10')
 ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default = $options
 $row = [pscustomobject]@{ Name = 'alpha'; Id = 1 }
-Enable-ConsoleFormatting -Feature GridView
+Enable-ConsoleFormatting -Include GridView -Exclude Output, FormatCommands, Errors, Streams, ReadLine
 if ((Get-Command Out-GridView).CommandType -ne 'Function') { throw 'The unusable desktop stub won command resolution.' }
 $picked = @($row | Out-GridView -PassThru -ErrorAction Stop)
 if ($picked.Count -ne 1 -or -not [object]::ReferenceEquals($picked[0], $row)) { throw 'Terminal selection lost the original row.' }
@@ -39,7 +39,7 @@ $before = Get-Command Out-GridView -CommandType Cmdlet -ErrorAction Ignore
 if (-not $before) { throw 'The Windows native baseline is missing.' }
 function global:Out-GridView { 'user native wrapper' }
 $saved = ${function:global:Out-GridView}
-Enable-ConsoleFormatting -Feature GridView -Force
+Enable-ConsoleFormatting -Include GridView -Exclude Output, FormatCommands, Errors, Streams, ReadLine -Force
 if ($saved -cne ${function:global:Out-GridView}) { throw 'Native wrapper changed.' }
 if ((Get-Command Out-GridView -CommandType Cmdlet).ImplementingType -ne $before.ImplementingType) { throw 'Native changed.' }
 Disable-ConsoleFormatting
@@ -56,7 +56,7 @@ if ((Get-ConsoleFormatting).Features -contains 'GridView') { throw 'GridView is 
 Disable-ConsoleFormatting
 $write = @(Get-Command Write-* | ForEach-Object { $_.Name + ':' + $_.CommandType + ':' + $_.Definition }) -join "`n"
 $default = ${function:global:Out-Default}
-Enable-ConsoleFormatting -Feature GridView
+Enable-ConsoleFormatting -Include GridView -Exclude Output, FormatCommands, Errors, Streams, ReadLine
 if ((Get-Command Out-GridView).CommandType -ne 'Function') { throw 'Fallback missing.' }
 if ($default -cne ${function:global:Out-Default}) { throw 'GridView installed Out-Default.' }
 if ($write -cne (@(Get-Command Write-* | ForEach-Object { $_.Name + ':' + $_.CommandType + ':' + $_.Definition }) -join "`n")) { throw 'Write command changed.' }
@@ -70,8 +70,8 @@ if (Get-Command Out-GridView -ErrorAction Ignore) { throw 'Fallback not removed.
 
     It 'prints a profile snippet without changing commands' {
         Invoke-GridViewSession @'
-$snippet = Enable-ConsoleFormatting -Feature GridView -ProfileSnippet
-if (($snippet -join "`n") -notmatch 'Enable-ConsoleFormatting -Feature GridView') { throw 'Snippet lost feature.' }
+$snippet = Enable-ConsoleFormatting -Include GridView -Exclude Output, FormatCommands, Errors, Streams, ReadLine -ProfileSnippet
+if (($snippet -join "`n") -notmatch 'Enable-ConsoleFormatting -Include GridView -Exclude Output, FormatCommands, Errors, Streams, ReadLine') { throw 'Snippet lost feature.' }
 if (Get-Command Out-GridView -ErrorAction Ignore) { throw 'Snippet installed commands.' }
 'SNIPPET_OK'
 '@ | Should -Be 'SNIPPET_OK'
@@ -83,7 +83,7 @@ if (Get-Command Out-GridView -ErrorAction Ignore) { throw 'Snippet installed com
             [Environment]::SetEnvironmentVariable('SSH_CONNECTION', '192.0.2.1 1234 192.0.2.2 22')
             Invoke-GridViewSession -Native @'
 $native = Get-Command Out-GridView -CommandType Cmdlet
-Enable-ConsoleFormatting -Feature GridView
+Enable-ConsoleFormatting -Include GridView -Exclude Output, FormatCommands, Errors, Streams, ReadLine
 if ((Get-Command Out-GridView).CommandType -ne 'Function') { throw 'SSH did not get a terminal fallback.' }
 Disable-ConsoleFormatting
 if ((Get-Command Out-GridView) -ne $native) { throw 'Native SSH command was changed.' }
@@ -100,10 +100,10 @@ $function.Description = 'original function description'
 $body = $function.ScriptBlock
 Set-Alias -Name Out-GridView -Value Get-Date -Scope Global -Option ReadOnly -Description 'original alias description'
 $warnings = @()
-Enable-ConsoleFormatting -Feature GridView -WarningVariable warnings
+Enable-ConsoleFormatting -Include GridView -Exclude Output, FormatCommands, Errors, Streams, ReadLine -WarningVariable warnings
 if ($warnings.Count -ne 1 -or (Get-Alias Out-GridView).Definition -ne 'Get-Date') { throw 'Custom alias was not kept.' }
-Enable-ConsoleFormatting -Feature GridView -Force
-Enable-ConsoleFormatting -Feature GridView -Force
+Enable-ConsoleFormatting -Include GridView -Exclude Output, FormatCommands, Errors, Streams, ReadLine -Force
+Enable-ConsoleFormatting -Include GridView -Exclude Output, FormatCommands, Errors, Streams, ReadLine -Force
 Disable-ConsoleFormatting -Feature GridView
 $alias = Get-Alias Out-GridView
 $restored = Get-Item Function:\Out-GridView
@@ -130,7 +130,7 @@ $description = $original.Description
 $visibility = $original.Visibility
 Import-Module $savedModulePath
 $warnings = @()
-Enable-ConsoleFormatting -Feature GridView -Force -WarningVariable warnings
+Enable-ConsoleFormatting -Include GridView -Exclude Output, FormatCommands, Errors, Streams, ReadLine -Force -WarningVariable warnings
 if ($warnings.Count -ne 1 -or $warnings[0].Message -notmatch 'kept') { throw 'The preserved alias was not reported.' }
 if (${function:global:Out-GridView}) { throw 'An unreachable fallback function was left installed.' }
 if ((Get-Command Out-GridView).CommandType -ne 'Alias') { throw 'Original alias resolution changed.' }
@@ -149,7 +149,7 @@ Set-Alias -Name Out-GridView -Value Get-Date -Scope Global
 function Invoke-LocalGridProbe {
     Set-Alias -Name Out-GridView -Value Write-Output -Scope Local
     $warnings = @()
-    Enable-ConsoleFormatting -Feature GridView -Force -WarningVariable warnings
+    Enable-ConsoleFormatting -Include GridView -Exclude Output, FormatCommands, Errors, Streams, ReadLine -Force -WarningVariable warnings
     if ($warnings.Count -ne 1) { throw 'Local command precedence was not reported.' }
     if ((Get-Command Out-GridView).Definition -ne 'Write-Output') { throw 'Caller-local alias was changed.' }
     if (${function:global:Out-GridView}) { throw 'Unreachable global fallback survived rollback.' }
@@ -164,15 +164,15 @@ Disable-ConsoleFormatting
     It 'restores on module removal and repeated enable/disable without changing later user commands' {
         Invoke-GridViewSession @'
 function global:Out-GridView { 'original' }
-Enable-ConsoleFormatting -Feature GridView -Force
+Enable-ConsoleFormatting -Include GridView -Exclude Output, FormatCommands, Errors, Streams, ReadLine -Force
 Disable-ConsoleFormatting
-Enable-ConsoleFormatting -Feature GridView -Force
+Enable-ConsoleFormatting -Include GridView -Exclude Output, FormatCommands, Errors, Streams, ReadLine -Force
 Remove-Module ConsoleMonster
 if ((Out-GridView) -ne 'original') { throw 'Module removal lost function.' }
 'REMOVE_OK'
 '@ | Should -Be 'REMOVE_OK'
         Invoke-GridViewSession @'
-Enable-ConsoleFormatting -Feature GridView
+Enable-ConsoleFormatting -Include GridView -Exclude Output, FormatCommands, Errors, Streams, ReadLine
 function global:Out-GridView { 'new user function' }
 Disable-ConsoleFormatting
 if ((Out-GridView) -ne 'new user function') { throw 'Later user replacement was removed.' }
@@ -194,7 +194,7 @@ $options.Capture = $capture
 $options.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('__KEYS__')
 ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default = $options
 $values = @([pscustomobject]@{ Name = 'alpha'; Id = 1 }, [pscustomobject]@{ Name = 'beta'; Id = 2 })
-Enable-ConsoleFormatting -Feature GridView
+Enable-ConsoleFormatting -Include GridView -Exclude Output, FormatCommands, Errors, Streams, ReadLine
 $selected = @($values | Out-GridView -Title 'My selection' __ARGS__)
 if (($selected.Name -join ',') -cne '__EXPECTED__') { throw ('Wrong selection: ' + ($selected.Name -join ',')) }
 foreach ($row in $selected) { if (-not [object]::ReferenceEquals($row, $values[$row.Id - 1])) { throw 'Object identity lost.' } }
@@ -207,7 +207,7 @@ Disable-ConsoleFormatting
 
     It 'keeps native parameter-set conflicts and rejects invalid output modes' {
         Invoke-GridViewSession @'
-Enable-ConsoleFormatting -Feature GridView
+Enable-ConsoleFormatting -Include GridView -Exclude Output, FormatCommands, Errors, Streams, ReadLine
 foreach ($arguments in @(@{PassThru=$true;Wait=$true}, @{PassThru=$true;OutputMode='Single'}, @{OutputMode='invalid'})) {
     $failed = $false
     try { 1 | Out-GridView @arguments } catch [Management.Automation.ParameterBindingException] { $failed = $true }
@@ -224,7 +224,7 @@ $options.Capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.I
 $options.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('Ctrl+A F10')
 ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default = $options
 $values = @([pscustomobject]@{Name='alpha'}, [pscustomobject]@{Name='beta'})
-Enable-ConsoleFormatting -Feature GridView
+Enable-ConsoleFormatting -Include GridView -Exclude Output, FormatCommands, Errors, Streams, ReadLine
 $selected = @(Out-GridView -InputObject $values -PassThru -OutVariable captured)
 if (($selected.Name -join ',') -ne 'alpha,beta' -or ($captured.Name -join ',') -ne 'alpha,beta') { throw 'Explicit collection/capture lost rows.' }
 'INPUT_OK'
@@ -234,10 +234,10 @@ if (($selected.Name -join ',') -ne 'alpha,beta' -or ($captured.Name -join ',') -
     It 'restores a function without an alias and preserves a user alias added while enabled' {
         Invoke-GridViewSession @'
 function global:Out-GridView { 'original' }
-Enable-ConsoleFormatting -Feature GridView -Force
+Enable-ConsoleFormatting -Include GridView -Exclude Output, FormatCommands, Errors, Streams, ReadLine -Force
 Disable-ConsoleFormatting -Feature GridView
 if ((Out-GridView) -ne 'original') { throw 'Original function lost.' }
-Enable-ConsoleFormatting -Feature GridView -Force
+Enable-ConsoleFormatting -Include GridView -Exclude Output, FormatCommands, Errors, Streams, ReadLine -Force
 Set-Alias -Name Out-GridView -Value Get-Date -Scope Global -Description 'later alias'
 Disable-ConsoleFormatting
 if ((Get-Alias Out-GridView).Description -ne 'later alias') { throw 'Later alias lost.' }
@@ -250,7 +250,7 @@ if ((Out-GridView) -ne 'original') { throw 'Original function under later alias 
     It 'restores ReadOnly and AllScope function options and keeps constants even with Force' {
         Invoke-GridViewSession @'
 Set-Item Function:\global:Out-GridView -Value { 'original-options' } -Options ReadOnly,AllScope
-Enable-ConsoleFormatting -Feature GridView -Force
+Enable-ConsoleFormatting -Include GridView -Exclude Output, FormatCommands, Errors, Streams, ReadLine -Force
 Disable-ConsoleFormatting
 if ((Out-GridView) -ne 'original-options' -or (Get-Item Function:\Out-GridView).Options -ne 'ReadOnly, AllScope') { throw 'Function options lost.' }
 'OPTIONS_OK'
@@ -258,7 +258,7 @@ if ((Out-GridView) -ne 'original-options' -or (Get-Item Function:\Out-GridView).
         Invoke-GridViewSession @'
 Set-Alias -Name Out-GridView -Value Get-Date -Scope Global -Option Constant
 $warnings=@()
-Enable-ConsoleFormatting -Feature GridView -Force -WarningVariable warnings
+Enable-ConsoleFormatting -Include GridView -Exclude Output, FormatCommands, Errors, Streams, ReadLine -Force -WarningVariable warnings
 if ($warnings.Count -ne 1 -or (Get-Alias Out-GridView).Options -ne 'Constant') { throw 'Constant was replaced.' }
 Disable-ConsoleFormatting
 'CONSTANT_OK'
@@ -269,7 +269,7 @@ Disable-ConsoleFormatting
         Invoke-GridViewSession @'
 ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::new()
 ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.NonInteractive = $true
-Enable-ConsoleFormatting -Feature GridView
+Enable-ConsoleFormatting -Include GridView -Exclude Output, FormatCommands, Errors, Streams, ReadLine
 $values = @([pscustomobject]@{Name='alpha'; Id=1}, [pscustomobject]@{Name='beta';Id=2})
 $warnings = @()
 $capture = @($values | Out-GridView -PassThru -WarningVariable warnings)

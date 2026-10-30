@@ -9,16 +9,22 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="description">-Text takes pieces that are shown literally (data is never interpreted); -Color and -BackgroundColor take one colour per piece, and pieces beyond the colours use the first colour, as Write-Color does. Colours are ConsoleColor names exactly as Write-Host shows them, theme roles (Pass, Fail, Warn, Info, Muted, Accent) that follow the light or dark theme, #RRGGBB, rgb(r,g,b) or r,g,b. -Markup adds Spectre-compatible markup ([bold lime]Ready[/]); -Decoration adds Bold, Dim, Italic, Underline, Strikethrough or Invert; -Link makes the text a hyperlink where the terminal supports it; -Gradient colours the text from one colour to another. The result works as a cell value (also from a calculated property), as the title or label of any widget, with Write-ConsoleLogEntry and Update-Console, and with Show-Console. Without colour (NO_COLOR, redirected output) the text stays plain.</para>
     /// </summary>
     /// <example>
-    ///   <para>A status cell from a calculated property</para>
-    ///   <code>Get-Service | Show-ConsoleTable -Property Name, @{ Name = 'Status'; Expression = { if ($_.Status -eq 'Running') { New-ConsoleText 'Running' -Color Green } else { New-ConsoleText $_.Status -Role Fail -Decoration Bold } } }</code>
+    /// <para>Build status cells from a calculated property</para>
+    /// <code>@(
+    ///     [pscustomobject]@{ Name = 'web01'; Status = 'Pass' }
+    ///     [pscustomobject]@{ Name = 'web02'; Status = 'Fail' }
+    /// ) | Show-ConsoleTable -Property Name, @{
+    ///     Name = 'Status'
+    ///     Expression = { New-ConsoleText $_.Status -Role $_.Status -Decoration Bold }
+    /// }</code>
     /// </example>
     /// <example>
-    ///   <para>Multicolour words, Write-Color style</para>
-    ///   <code>New-ConsoleText 'SRV', '01', ' online' -Color Cyan, Yellow, Green | Show-Console</code>
+    /// <para>Colour separate text pieces</para>
+    /// <code>New-ConsoleText 'SRV', '01', ' online' -Color Cyan, Yellow, Green | Show-Console</code>
     /// </example>
     /// <example>
-    ///   <para>Markup and a gradient</para>
-    ///   <code>New-ConsoleText -Markup '[bold]ConsoleMonster[/] [muted]2.0[/]'; New-ConsoleText 'ConsoleMonster' -Gradient '#00c6ff', '#ff00aa'</code>
+    /// <para>Use markup and a gradient</para>
+    /// <code>New-ConsoleText -Markup '[bold]ConsoleMonster[/] [muted]ready[/]'; New-ConsoleText 'ConsoleMonster' -Gradient '#00c6ff', '#ff00aa'</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleText")]
     [OutputType(typeof(RichText))]

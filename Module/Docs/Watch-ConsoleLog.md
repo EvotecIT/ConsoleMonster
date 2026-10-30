@@ -30,24 +30,19 @@ File lines are decoded incrementally and followed across observed truncation and
 
 ### EXAMPLE 1
 ```powershell
-Watch-ConsoleLog -Path ./service.log -Highlight database
+# Requires an existing service.log file; reads two snapshots without changing the file.
+            Watch-ConsoleLog -Path ./service.log -Highlight database -Count 2
 ```
 
-Follow a file and emphasize a component.
+Inspect an existing log and highlight a component
 
 ### EXAMPLE 2
 ```powershell
-Watch-ConsoleLog -Path ./service.log -Tail 50 -Filter ERROR -Count 1 | Out-File ./errors.txt
+# Requires an existing service.log file.
+            Watch-ConsoleLog -Path ./service.log -Tail 50 -Filter ERROR -Count 1
 ```
 
-Capture the current matching lines as ordinary strings.
-
-### EXAMPLE 3
-```powershell
-Watch-ConsoleLog -LogName Application -Tail 20
-```
-
-Follow a local Windows event log.
+Return matching lines from an existing log as strings
 
 ## PARAMETERS
 

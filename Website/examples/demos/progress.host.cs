@@ -7,7 +7,17 @@ public sealed class ProgressExample : PSCmdlet {
     protected override void ProcessRecord() {
         ConsoleHostFormatting.Enable(
             this,
-            new ConsoleFormattingOptions { Feature = new[] { ConsoleFormattingFeature.Progress } });
+            new ConsoleFormattingOptions {
+                Include = new[] { ConsoleFormattingFeature.Progress },
+                Exclude = new[]
+                {
+                    ConsoleFormattingFeature.Output,
+                    ConsoleFormattingFeature.FormatCommands,
+                    ConsoleFormattingFeature.Errors,
+                    ConsoleFormattingFeature.Streams,
+                    ConsoleFormattingFeature.ReadLine
+                }
+            });
         try { InvokeCommand.InvokeScript(@"Use-ConsoleProgress {
         $sites = 'Warsaw', 'Dublin', 'Berlin'
         for ($i = 0; $i -lt $sites.Count; $i++) {

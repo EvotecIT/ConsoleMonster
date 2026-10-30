@@ -31,7 +31,7 @@ namespace ConsoleMonster.PowerShell {
                 TrimStart = MyInvocation.BoundParameters.ContainsKey(nameof(TrimStartSeconds)) ? RecordingTimeline.FromMilliseconds(TrimStartSeconds * 1000) : (TimeSpan?)null,
                 TrimEnd = MyInvocation.BoundParameters.ContainsKey(nameof(TrimEndSeconds)) ? RecordingTimeline.FromMilliseconds(TrimEndSeconds * 1000) : (TimeSpan?)null,
                 TrimStartChapter = TrimStartChapter, TrimEndChapter = TrimEndChapter,
-                WindowChrome = MyInvocation.BoundParameters.ContainsKey(nameof(WindowChrome)) ? WindowChrome.IsPresent : MyInvocation.BoundParameters.ContainsKey(nameof(ChromeStyle)),
+                WindowChrome = ChromeStyle != WindowChromeStyle.None,
                 ChromeStyle = ChromeStyle
             };
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Pace))) { options.Pace = Pace; }

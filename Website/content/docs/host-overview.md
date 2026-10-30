@@ -44,19 +44,18 @@ The built-in keys are `Resources`, `Disks`, `Network`, `Services`, `Updates` and
 
 ## Use the data, or keep it out of the way
 
-`-AsObject` returns the snapshot for another report, and `-AsString` the rendered plain text, on PowerShell 5.1 and 7. In a terminal profile, keep collection inside an interactive-session check:
+`-AsObject` returns the snapshot for another report on PowerShell 5.1 and 7. In a terminal profile, keep collection inside an interactive-session check:
 
 ```powershell
 $snapshot = Show-ConsoleOverview -Section Resources,Disks -AsObject
 $snapshot.Sections | ForEach-Object {
     $_.Items | Select-Object Label,Value,Percentage
 }
-Show-ConsoleOverview -Width 80 -AsString | Set-Content -Path ./host-summary.txt
 
 # In $PROFILE: only for an interactive session whose output is not redirected.
 if ([Environment]::UserInteractive -and -not [Console]::IsOutputRedirected) {
     Import-Module ConsoleMonster
-    Show-ConsoleOverview -Section Resources,Disks,Network -BudgetMilliseconds 500
+    Show-ConsoleOverview -Section Resources,Disks,Network -BudgetSeconds 0.5
 }
 ```
 

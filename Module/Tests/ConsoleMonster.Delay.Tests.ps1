@@ -100,7 +100,7 @@ $scope = [ConsoleMonster.Terminal]::Use($target)
 try {
     $log = New-ConsoleLogRegion -WidgetId log -Height 1
     Invoke-ConsoleDashboard $log -Transient {
-        Send-ConsoleEvent -WidgetId log -Operation write -Text 'source timestamp' -Status info -TimeMilliseconds 123000
+        $ConsoleSession.Post(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.LiveEvent'))::new('log', 'write', $null, 'source timestamp', 'info', 0, 0, 123000, $false))
         Wait-ConsoleDashboard -Seconds 0
     }
 } finally { $scope.Dispose() }

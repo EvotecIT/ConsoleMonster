@@ -14,7 +14,7 @@ if (-not (Get-Module ConsoleMonster)) {
 }
 # Use the loaded module's root so PS5.1 sees one path to the fixture's about topic,
 # including when the native site runner imports through its module junction.
-Import-Module (Join-Path (Get-Module ConsoleMonster).ModuleBase 'Tests/Fixtures/HelpFormatting/HelpFormatting.psd1')
+Import-Module (Join-Path (Get-Module ConsoleMonster).ModuleBase '../Tests/Fixtures/HelpFormatting/HelpFormatting.psd1')
 . (Join-Path $PSScriptRoot 'Get-HelpFormattingCapture.ps1')
 . (Join-Path $PSScriptRoot 'Read-TestConsoleFrame.ps1')
 $directory = Join-Path ([IO.Path]::GetTempPath()) ([guid]::NewGuid().ToString('N'))
@@ -48,7 +48,7 @@ try {
     )
     $baseline = @{}
     foreach ($case in $cases) { $baseline[$case] = Get-HelpFormattingCapture $case $directory }
-    Enable-ConsoleFormatting -Feature Help
+    Enable-ConsoleFormatting -Include Help -Exclude Output, FormatCommands, Errors, Streams, ReadLine
     foreach ($case in $cases) {
         $actual = Get-HelpFormattingCapture $case $directory
         foreach ($name in $actual.PSObject.Properties.Name) {
@@ -131,7 +131,7 @@ try {
     'HELP_BASELINE_BEGIN' | Microsoft.PowerShell.Core\Out-Default
     & { Get-Help Get-HelpFormattingShort -Full } | Microsoft.PowerShell.Core\Out-Default
     'HELP_BASELINE_END' | Microsoft.PowerShell.Core\Out-Default
-    Enable-ConsoleFormatting -Feature Help
+    Enable-ConsoleFormatting -Include Help -Exclude Output, FormatCommands, Errors, Streams, ReadLine
     'HELP_ENABLED_BEGIN' | Microsoft.PowerShell.Core\Out-Default
     & { Get-Help Get-HelpFormattingShort -Full } | Out-Default
     'HELP_ENABLED_END' | Microsoft.PowerShell.Core\Out-Default

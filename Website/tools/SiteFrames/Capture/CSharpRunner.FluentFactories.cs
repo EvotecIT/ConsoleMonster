@@ -13,7 +13,7 @@ namespace SiteFrames.Capture {
             public HashSet<string> Namespaces { get; } = new(StringComparer.Ordinal);
             private static readonly Dictionary<string, string> Names = new(StringComparer.Ordinal) {
                 ["TextBlock"] = "Text", ["KeyValueList"] = "KeyValue", ["RegionWidget"] = "Region", ["AppBinding"] = "Binding",
-                ["AppCommand"] = "Command", ["Grid"] = "LayoutGrid", ["DashboardBuilder"] = "DashboardLayout", ["RichTextBuilder"] = "RichText", ["ReviewModel"] = "Review"
+                ["AppCommand"] = "Command", ["Grid"] = "LayoutGrid", ["RichTextBuilder"] = "RichText", ["ReviewModel"] = "Review"
             };
             public override SyntaxNode? VisitObjectCreationExpression(ObjectCreationExpressionSyntax node) => Rewrite(node, (ObjectCreationExpressionSyntax)base.VisitObjectCreationExpression(node)!);
             public override SyntaxNode? VisitImplicitObjectCreationExpression(ImplicitObjectCreationExpressionSyntax node) {
@@ -117,15 +117,19 @@ namespace SiteFrames.Capture {
                             || model.GetSymbolInfo(originalAssignment.Left).Symbol is not IPropertySymbol property
                             || visited.Initializer.Expressions[i] is not AssignmentExpressionSyntax assignment) { return visited; }
                         if (assignment.Right is InitializerExpressionSyntax collection) {
-                            INamedTypeSymbol? fluent = model.Compilation.GetTypeByMetadataName(type.ContainingNamespace.ToDisplayString() + "." + type.Name + "Fluent");
+                            INamedTypeSymbol? fluent = model.Compilation.GetTypeByMetadataName(type.ContainingNamespace.ToDisplayString() + "." + type.ContainingNamespace.Name + "Fluent");
                             ITypeSymbol? item = (property.Type as INamedTypeSymbol)?.AllInterfaces.Prepend(property.Type as INamedTypeSymbol).FirstOrDefault(t => t?.OriginalDefinition.ToDisplayString() == "System.Collections.Generic.ICollection<T>")?.TypeArguments[0];
-                            IMethodSymbol? add = fluent?.GetMembers().OfType<IMethodSymbol>().FirstOrDefault(m => m.Name.StartsWith("Add", StringComparison.Ordinal) && m.Parameters.Length == 2 && SymbolEqualityComparer.Default.Equals(m.Parameters[1].Type, item));
+                            IMethodSymbol? add = fluent?.GetMembers().OfType<IMethodSymbol>().Where(method => method.IsExtensionMethod)
+                                .Select(method => method.ReduceExtensionMethod(type)).FirstOrDefault(method => method != null && method.Name.StartsWith("Add", StringComparison.Ordinal)
+                                    && method.Parameters.Length == 1 && SymbolEqualityComparer.Default.Equals(method.Parameters[0].Type, item));
                             if (add == null || collection.Expressions.Any(value => value is InitializerExpressionSyntax)) { return visited; }
                             foreach (ExpressionSyntax value in collection.Expressions) { result = Call(result, add.Name, value); }
                         } else {
+                            ExpressionSyntax value = property.Name == "Preview" && question == "SelectQuestion"
+                                ? QuestionPreview(type, assignment.Right, originalAssignment) : assignment.Right;
                             result = property.Type.TypeKind == TypeKind.Delegate
-                                ? Call(result, "Configure", SyntaxFactory.ParseExpression(Callback(property.Name, assignment.Right)))
-                                : Call(result, FluentSourceRewriter.FluentName(property), assignment.Right);
+                                ? Call(result, "Configure", SyntaxFactory.ParseExpression(Callback(property.Name, value)))
+                                : Call(result, FluentSourceRewriter.FluentName(property), value);
                         }
                     }
                 }

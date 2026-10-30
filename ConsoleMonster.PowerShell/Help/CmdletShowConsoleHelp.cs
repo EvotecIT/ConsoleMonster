@@ -17,7 +17,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Through a pager</para>
-    ///   <code>Show-ConsoleHelp Show-ConsoleTable | more</code>
+    ///   <code>Show-ConsoleHelp Show-ConsoleTable -AsWidget | Export-ConsoleFrame -Format Text</code>
     /// </example>
     [Cmdlet(VerbsCommon.Show, "ConsoleHelp")]
     [OutputType(typeof(string))]
@@ -31,10 +31,6 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         [ValidateRange(0, 1000)]
         public int Width { get; set; }
-
-        /// <summary><para type="description">Returns the help as one string of plain text instead of drawing it.</para></summary>
-        [Parameter]
-        public SwitchParameter AsString { get; set; }
 
         /// <summary><para type="description">Leaves out the examples.</para></summary>
         [Parameter]
@@ -61,7 +57,7 @@ namespace ConsoleMonster.PowerShell {
                 return;
             }
             if (AsWidget.IsPresent) { WriteObject(widget); }
-            else { PSFormatting.Emit(this, widget!, Width, null, AsString.IsPresent); }
+            else { PSFormatting.Emit(this, widget!, Width, null, false); }
         }
     }
 }

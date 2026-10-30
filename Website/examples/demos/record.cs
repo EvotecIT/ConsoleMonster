@@ -1,4 +1,5 @@
-using ConsoleMonster.Building;
+using ConsoleMonster;
+using ConsoleMonster.Layout;
 using ConsoleMonster.Export;
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
@@ -14,12 +15,12 @@ foreach (string server in servers)
     list.Set(server, server, StatusKind.Pending);
 }
 
-Dashboard dashboard = new DashboardBuilder("[bold]Deploy[/]")
+Dashboard dashboard = Ui.Dashboard().Title("[bold]Deploy[/]")
     .Subtitle("web farm · 4 servers")
-    .Add(phases)
-    .Panel("Servers", list)
-    .Panel("Log", new LogRegion(), true)
-    .BuildDashboard();
+    .Content(body => body
+        .Add(phases)
+        .Panel(new Panel(list, "Servers"))
+        .Add(new Panel(new LogRegion(), "Log").Fill()));
 string recording = Path.Combine(Path.GetTempPath(), "deploy.jsonl");
 
 // 1. Run it, writing every update to the recording.

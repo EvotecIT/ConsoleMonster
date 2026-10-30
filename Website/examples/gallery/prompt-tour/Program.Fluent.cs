@@ -139,12 +139,16 @@ Lanes lanes = Ui.Lanes();
 foreach (Server host in servers.Take(5))
     lanes.Add(host.Name, host.Name, 6);
 LogRegion log = Ui.LogRegion().PreferredHeight(6);
-Dashboard dashboard = Ui.DashboardLayout()
+Dashboard dashboard = Ui.Dashboard()
     .Title("[bold]Patching[/]")
     .Subtitle("5 servers")
-    .Panel("Servers", lanes)
-    .Panel("Log", log, true)
-    .BuildDashboard();
+    .Content(body => body.Panel(Ui.Panel().Title("Servers").Content(c =>
+    {
+        c.Add(lanes);
+    })).Add(Ui.Panel().Title("Log").Content(c =>
+    {
+        c.Add(log);
+    }).Fill()));
 using (LiveSession session = dashboard.CreateSession())
 {
     try

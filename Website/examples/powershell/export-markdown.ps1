@@ -13,6 +13,6 @@ $files = @(
         Name = 'start.ps1'; Length = 512; LastWriteTime = $recordedAt
     }
 )
-$files | Show-ConsoleTable -Property Name, Length, LastWriteTime `
-    -Presentation @{ TimeZone = [TimeZoneInfo]::Utc } -AsWidget |
+$files | New-ConsoleTable -Property Name, Length, LastWriteTime `
+    -Presentation @{ TimeZone = [TimeZoneInfo]::Utc }  |
     Export-ConsoleFrame -Format Markdown

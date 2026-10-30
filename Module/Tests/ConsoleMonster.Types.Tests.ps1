@@ -12,7 +12,7 @@ Describe 'Every input type through every command' {
         $casesPath = Join-Path $PSScriptRoot 'Support\TypeCases.ps1'
         $sweepPath = Join-Path $PSScriptRoot 'Support\Invoke-TypeSweep.ps1'
         $runtime = [System.Diagnostics.Process]::GetCurrentProcess().Path
-        $script:Commands = @('Show-ConsoleTable', 'Show-ConsoleList', 'Show-Console -View Tree', 'Show-Console -View Json', 'Show-Console', 'Out-ConsoleDefault', 'Compare-ConsoleObject')
+        $script:Commands = @('Show-ConsoleTable', 'Show-Console -View List', 'Show-Console -View Tree', 'Show-Console -View Json', 'Show-Console', 'Out-ConsoleDefault', 'Compare-ConsoleObject')
         $script = @(
             "foreach (`$n in 'NO_COLOR', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_GLYPHS', 'CONSOLEMONSTER_MODE', 'CI', 'GITHUB_ACTIONS', 'TF_BUILD', 'TERM', 'WT_SESSION', 'COLUMNS', 'LINES') { [Environment]::SetEnvironmentVariable(`$n, `$null) }"
             "[System.Threading.Thread]::CurrentThread.CurrentCulture = [System.Globalization.CultureInfo]::GetCultureInfo('en-US')"
@@ -52,7 +52,7 @@ Describe 'Every input type through every command' {
     }
 
     It 'never reveals the length of a secure string' {
-        foreach ($command in 'Show-ConsoleTable', 'Show-ConsoleList', 'Show-Console -View Tree', 'Show-Console -View Json', 'Show-Console') {
+        foreach ($command in 'Show-ConsoleTable', 'Show-Console -View List', 'Show-Console -View Tree', 'Show-Console -View Json', 'Show-Console') {
             ($script:Cells["SecureString|$command"].Text -join "`n") | Should -Not -Match 'Length' -Because $command
         }
     }
@@ -62,7 +62,7 @@ Describe 'Every input type through every command' {
         ($script:Cells['ListOfHashtables|Show-ConsoleTable'].Text -join "`n") | Should -Match 'Name\W+Size'
         ($script:Cells['NestedDictionary|Show-ConsoleTable'].Text -join "`n") | Should -Match 'Port=8080, Tls=yes'
         ($script:Cells['NonStringKeys|Show-Console -View Json'].Text -join "`n") | Should -Match '"Monday": "start"'
-        ($script:Cells['Ordered|Show-ConsoleList'].Text -join "`n") | Should -Match '(?s)Zulu.*Alpha.*Mike'
+        ($script:Cells['Ordered|Show-Console -View List'].Text -join "`n") | Should -Match '(?s)Zulu.*Alpha.*Mike'
     }
 
     It 'shows collections as their items and nested records by their title' {
@@ -75,7 +75,7 @@ Describe 'Every input type through every command' {
     }
 
     It 'marks a failing getter instead of losing the record' {
-        ($script:Cells['ThrowingGetter|Show-ConsoleList'].Text -join "`n") | Should -Match 'script getter failed'
+        ($script:Cells['ThrowingGetter|Show-Console -View List'].Text -join "`n") | Should -Match 'script getter failed'
         ($script:Cells['ThrowingGetter|Show-ConsoleTable'].Text -join "`n") | Should -Match 'script getter failed'
     }
 

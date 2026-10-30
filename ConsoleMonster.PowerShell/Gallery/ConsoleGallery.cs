@@ -26,23 +26,12 @@ namespace ConsoleMonster.PowerShell {
                 foreach (PSObject metadata in invokeCommand.InvokeScript("param($json) Microsoft.PowerShell.Utility\\ConvertFrom-Json -InputObject $json -ErrorAction Stop",
                     true, System.Management.Automation.Runspaces.PipelineResultTypes.None, null, PSDemoResources.Metadata(candidate))) {
                     metadata.TypeNames.Insert(0, WidgetFormatData.DemoTypeName);
+                    metadata.Properties.Add(new PSNoteProperty("Source", PSDemoResources.Script(candidate)));
                     results.Add(metadata);
                 }
             }
             if (!found && !WildcardPattern.ContainsWildcardCharacters(slug)) { throw NotFound(slug); }
             return results;
-        }
-
-        /// <summary>Saves the complete copyable script as UTF-8 with a BOM, preserving an existing file unless Force is explicit.</summary>
-        /// <param name="slug">The exact demo slug.</param>
-        /// <param name="path">The resolved filesystem destination.</param>
-        /// <param name="force">Whether to replace an existing file.</param>
-        /// <returns>The saved file.</returns>
-        public static FileInfo Export(string slug, string path, bool force = false) {
-            string source = PSDemoResources.Script(Resolve(slug));
-            using (var stream = new FileStream(path, force ? FileMode.Create : FileMode.CreateNew, FileAccess.Write))
-            using (var writer = new StreamWriter(stream, new UTF8Encoding(true))) { writer.Write(source); }
-            return new FileInfo(path);
         }
 
         /// <summary>Runs a demo in a child scope, or displays a deterministic state through the existing capture harness.</summary>

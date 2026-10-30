@@ -29,17 +29,16 @@ namespace ConsoleMonster.PowerShell {
         /// <summary>Reject competing output modes before input is rendered, including an empty pipeline.</summary>
         internal static void Validate(PSCmdlet cmdlet) {
             int modes = 0;
-            foreach (string name in new[] { "AsString", "AsWidget", "PassThru" }) {
+            foreach (string name in new[] { "AsWidget", "PassThru" }) {
                 if (cmdlet.MyInvocation.BoundParameters.TryGetValue(name, out object? value)
                     && LanguagePrimitives.IsTrue(value)) {
                     modes++;
                 }
             }
             if (modes > 1) {
-                bool originalConflict = cmdlet.MyInvocation.BoundParameters.ContainsKey("AsString") && cmdlet.MyInvocation.BoundParameters.ContainsKey("PassThru");
                 cmdlet.ThrowTerminatingError(new ErrorRecord(new ArgumentException(
-                    "Choose one output mode: -AsString, -AsWidget or -PassThru. Exported documents cannot be mixed with widgets or input objects."),
-                    originalConflict ? "AsStringWithPassThru" : "IncompatibleOutputOptions", ErrorCategory.InvalidArgument, null));
+                    "Choose AsWidget or PassThru. Export-ConsoleFrame -Format Text returns a text document."),
+                    "IncompatibleOutputOptions", ErrorCategory.InvalidArgument, null));
             }
         }
 

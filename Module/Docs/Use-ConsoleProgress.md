@@ -13,7 +13,7 @@ The script runs on the pipeline thread with the caller's variables. While it run
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Use-ConsoleProgress [-ScriptBlock] <scriptblock> [-Keep] [-FramesPerSecond <int>] [-NoLive] [<CommonParameters>]
+Use-ConsoleProgress [-ScriptBlock] <scriptblock> [-Keep] [-FramesPerSecond <double>] [-NoLive] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -41,7 +41,7 @@ An existing loop, unchanged
 Redraw rate (default 15).
 
 ```yaml
-Type: Int32
+Type: Double
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

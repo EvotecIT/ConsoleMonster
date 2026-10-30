@@ -19,9 +19,9 @@ namespace ConsoleMonster.Layout {
 
         /// <summary>Adds a LayoutGrid configured with the same chain as Ui.LayoutGrid().</summary>
         /// <param name="configure">Configures the empty widget before adding it.</param><returns>This builder.</returns>
-        public ContentBuilder LayoutGrid(Action<ConsoleMonster.Layout.Grid>? configure = null) { var widget = Ui.LayoutGrid(); configure?.Invoke(widget); return Add(widget); }
+        public ContentBuilder LayoutGrid(Action<ConsoleMonster.Layout.LayoutGrid>? configure = null) { var widget = Ui.LayoutGrid(); configure?.Invoke(widget); return Add(widget); }
         /// <summary>Adds a configured LayoutGrid instance.</summary><param name="widget">The widget.</param><returns>This builder.</returns>
-        public ContentBuilder LayoutGrid(ConsoleMonster.Layout.Grid widget) => Add(widget);
+        public ContentBuilder LayoutGrid(ConsoleMonster.Layout.LayoutGrid widget) => Add(widget);
 
         /// <summary>Adds a Panel configured with the same chain as Ui.Panel().</summary>
         /// <param name="configure">Configures the empty widget before adding it.</param><returns>This builder.</returns>

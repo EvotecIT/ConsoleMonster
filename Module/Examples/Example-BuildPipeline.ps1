@@ -17,9 +17,9 @@ $steps = @(
 )
 
 $dashboard = New-ConsoleDashboard -Title '[bold]Module build[/]' -Subtitle 'Build-Module ConsoleMonster' -Gap 1 -Content {
-    New-ConsolePhases -Phase 'Prepare', 'Restore', 'Build', 'Test', 'Docs', 'Package', 'Publish'
+    New-ConsoleStatusList -Layout Strip -WidgetId phases -Content { 'Prepare', 'Restore', 'Build', 'Test', 'Docs', 'Package', 'Publish' }
     New-ConsoleColumns -Content {
-        New-ConsolePanel -Title 'Steps' -Weight 1.5 -Content { New-ConsoleStatusList -WidgetId steps -Item $steps.Label }
+        New-ConsolePanel -Title 'Steps' -Weight 1.5 -Content { New-ConsoleStatusList -WidgetId steps -Content { $steps.Label } }
         New-ConsolePanel -Title 'Module' -Content {
             New-ConsoleKeyValue -WidgetId module -InputObject ([ordered] @{ Module = 'ConsoleMonster'; Version = '2.0.0'; Frameworks = 'netstandard2.0 · net472 · net8.0'; Elapsed = '-' })
             New-ConsoleRule
@@ -30,7 +30,7 @@ $dashboard = New-ConsoleDashboard -Title '[bold]Module build[/]' -Subtitle 'Buil
 }
 
 # Planned step durations drive the displayed clocks; dashboard waits keep normal playback paced in real time.
-$clock = New-ConsoleSimulatedClock
+$clock = New-Object ConsoleMonster.Live.SimulatedClock -ArgumentList (0)
 Invoke-ConsoleDashboard $dashboard -Clock $clock -ArgumentList $clock, $steps {
     param($Clock, $Steps)
     $phase = $null

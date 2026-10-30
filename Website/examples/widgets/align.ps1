@@ -1,8 +1,10 @@
 ﻿Import-Module ConsoleMonster
 
 New-ConsoleColumns -Content {
-    New-ConsolePanel -Title 'Align' -Content { New-ConsoleAlign -Content { '[bold]centred[/]' } }
+    New-ConsolePanel -Title 'Align' -Content {
+        New-ConsoleRegion -Horizontal Center -Content { '[bold]centred[/]' }
+    }
     New-ConsolePanel -Title 'Padding' -Content {
-        New-ConsolePadding -Padding 2, 1 -Content { 'two cells of padding' }
+        New-ConsoleRegion -Padding 2, 1 -Content { 'two cells of padding' }
     }
 } | Show-Console

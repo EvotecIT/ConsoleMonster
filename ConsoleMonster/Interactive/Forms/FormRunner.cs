@@ -19,6 +19,8 @@ namespace ConsoleMonster.Interactive {
             ChoiceStore? store = options.Store();
             form.SeedDefaults();
             switch (interactive.ResolveMode()) {
+                case InteractionMode.Snapshot:
+                    throw new PromptUnavailableException("A form needs answers. Use None with field defaults for an unattended result.");
                 case InteractionMode.None:
                     return NonInteractive(form, labels);
                 case InteractionMode.Line:

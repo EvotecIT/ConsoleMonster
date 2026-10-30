@@ -40,7 +40,7 @@ namespace ConsoleMonster.Widgets {
             foreach (KeyValueItem item in _items) {
                 children.Add(new KeyValueList { Gap = Gap, MaxKeyFraction = MaxKeyFraction, KeyRole = KeyRole, Presentation = Presentation, NumberColumn = NumberColumn }.Add(item));
             }
-            return new Grid(count, children.ToArray());
+            return new LayoutGrid(count, children.ToArray());
         }
 
         /// <summary>Preferred key fraction when the natural label and value widths cannot both fit (default 0.4).</summary>

@@ -8,39 +8,39 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a cell map: one status symbol per item of a run, with a legend of counts.
 
-The map Invoke-ConsoleRun shows for many items, as a widget of its own: each item is one cell in its status colour (pass, fail, warn, skip, running, pending), wrapping to the width, followed by a legend with each state's count. States come from -Status or the pipeline, in the shared status vocabulary (PowerShell's words such as Success and Error work too). -Count adds pending cells for items not started yet. -Columns and -RowLabels turn it into a labelled grid (one row per server, one column per check) with one legend below, which -LegendLines lets wrap. To add cells later, pipe the map to Add-ConsoleItem; in a live dashboard, update cells with Update-Console.
+The map Invoke-ConsoleRun shows for many items, as a widget of its own: each item is one cell in its status colour (pass, fail, warn, skip, running, pending), wrapping to the width, followed by a legend with each state's count. States come from -InputObject or the pipeline, in the shared status vocabulary (PowerShell's words such as Success and Error work too). -Count adds pending cells for items not started yet. -Columns and -RowLabels turn it into a labelled grid (one row per server, one column per check) with one legend below, which -LegendLines lets wrap. In a live dashboard, update cells with Update-Console.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleCellMap [[-WidgetId] <string>] [[-Status] <Object[]>] [-Count <int>] [-MaxRows <int>] [-NoLegend] [-Columns <int>] [-RowLabels <string[]>] [-LegendLines <int>] [-Gap <int>] [-Window <CellMap+CellWindow>] [-NoSpinRunning] [<CommonParameters>]
+New-ConsoleCellMap [[-WidgetId] <string>] [[-InputObject] <Object[]>] [-Count <int>] [-MaxRows <int>] [-NoLegend] [-Columns <int>] [-RowLabels <string[]>] [-LegendLines <int>] [-Gap <int>] [-Window <CellMap+CellWindow>] [-NoSpinRunning] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Creates a cell map: one status symbol per item of a run, with a legend of counts.
 
-The map Invoke-ConsoleRun shows for many items, as a widget of its own: each item is one cell in its status colour (pass, fail, warn, skip, running, pending), wrapping to the width, followed by a legend with each state's count. States come from -Status or the pipeline, in the shared status vocabulary (PowerShell's words such as Success and Error work too). -Count adds pending cells for items not started yet. -Columns and -RowLabels turn it into a labelled grid (one row per server, one column per check) with one legend below, which -LegendLines lets wrap. To add cells later, pipe the map to Add-ConsoleItem; in a live dashboard, update cells with Update-Console.
+The map Invoke-ConsoleRun shows for many items, as a widget of its own: each item is one cell in its status colour (pass, fail, warn, skip, running, pending), wrapping to the width, followed by a legend with each state's count. States come from -InputObject or the pipeline, in the shared status vocabulary (PowerShell's words such as Success and Error work too). -Count adds pending cells for items not started yet. -Columns and -RowLabels turn it into a labelled grid (one row per server, one column per check) with one legend below, which -LegendLines lets wrap. In a live dashboard, update cells with Update-Console.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
 $states = @('Pass') * 28 + @('Fail') * 2 + @('Warn') + @('Running') * 4
-New-ConsoleCellMap -Status $states -Count 40 | Show-Console
+New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console
 ```
 
 Forty items part-way through a run
 
 ### EXAMPLE 2
 ```powershell
-$results | ForEach-Object Result | New-ConsoleCellMap | Show-Console
+@([pscustomobject]@{ Result = 'Pass' }, [pscustomobject]@{ Result = 'Warn' }) | ForEach-Object Result | New-ConsoleCellMap | Show-Console
 ```
 
 States from objects
 
 ### EXAMPLE 3
 ```powershell
-New-ConsoleCellMap -WidgetId checks -Count 12 -Columns 4 -RowLabels 'SRV01', 'SRV02', 'SRV03' -LegendLines 2 -Status Pass, Pass, Fail, Warn, Pass | Show-Console
+New-ConsoleCellMap -WidgetId checks -Count 12 -Columns 4 -RowLabels 'SRV01', 'SRV02', 'SRV03' -LegendLines 2 -InputObject Pass, Pass, Fail, Warn, Pass | Show-Console
 ```
 
 A grid of three servers by four checks, with the server names beside the rows
@@ -92,6 +92,22 @@ Required: False
 Position: named
 Default value: None
 Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -InputObject
+The item states, in order: Pass, Fail, Warn, Skip, Info, Running or Pending (pipeline input works too).
+
+```yaml
+Type: Object[]
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: 1
+Default value: None
+Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
@@ -172,22 +188,6 @@ Required: False
 Position: named
 Default value: None
 Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Status
-The item states, in order: Pass, Fail, Warn, Skip, Info, Running or Pending (pipeline input works too).
-
-```yaml
-Type: Object[]
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: 1
-Default value: None
-Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 

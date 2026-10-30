@@ -10,23 +10,27 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="description">The script runs in a runspace the module owns (or, with -Parallel, once per input item on a runspace pool, started as items arrive and limited by -ThrottleLimit). Inside it, $ConsoleSession, Update-Console and Write-ConsoleLogEntry update the screen; Write-Host, Write-Warning, Write-Verbose, errors and Console.WriteLine go to the dashboard's log region instead of scribbling over the screen. The screen is redrawn at about 15 frames per second however many updates arrive. Ctrl+C stops the script and always restores the terminal; the dashboard then leaves the alternate screen and prints its final state (or -Summary). Script output is returned when the dashboard ends. In redirected or CI output the dashboard becomes append-only lines. Variables and functions from the caller are not visible inside the script: read a variable with $using:name (as with ForEach-Object -Parallel), bring functions in with -ImportFunction, or pass values with -ArgumentList and a param() block.</para>
     /// </summary>
     /// <example>
-    ///   <para>Three servers processed in parallel, three at a time</para>
-    ///   <code>
-    /// $d = New-ConsoleDashboard -Title 'Patch' -Content { New-ConsolePanel -Title 'Servers' -Content { New-ConsoleLanes }; New-ConsolePanel -Title 'Log' -Fill -Content { New-ConsoleLogRegion } }
-    /// 'SRV1', 'SRV2', 'SRV3' | Invoke-ConsoleDashboard $d -Parallel -ThrottleLimit 3 {
+    /// <para>Process three sample servers in parallel</para>
+    /// <code>$dashboard = New-ConsoleDashboard -Title 'Checks' -Content {
+    ///     New-ConsolePanel -Title 'Servers' -Content { New-ConsoleLanes -WidgetId servers }
+    ///     New-ConsolePanel -Title 'Log' -Fill -Content { New-ConsoleLogRegion }
+    /// }
+    /// 'SRV1', 'SRV2', 'SRV3' | Invoke-ConsoleDashboard $dashboard -Parallel -ThrottleLimit 3 {
     ///     param($Server)
-    ///     Update-Console lanes -Key $Server -Status Running -Total 5
-    ///     1..5 | ForEach-Object { Start-Sleep -Milliseconds 300; Update-Console lanes -Key $Server -Result Pass }
-    ///     Write-Host "$Server patched"
-    ///     Update-Console lanes -Key $Server -Complete
+    ///     Update-Console servers -Key $Server -Status Running -Total 5
+    ///     1..5 | ForEach-Object { Update-Console servers -Key $Server -Result Pass }
+    ///     Write-Host "$Server checked"
+    ///     Update-Console servers -Key $Server -Complete
     /// }</code>
     /// </example>
     /// <example>
-    ///   <para>Use the caller's data and helper function inside the dashboard</para>
-    ///   <code>
-    /// $frames = Get-Content ./frames.json | ConvertFrom-Json
+    /// <para>Use caller data and a helper function in the dashboard</para>
+    /// <code>$frames = @([pscustomobject]@{ Cpu = 20 }, [pscustomobject]@{ Cpu = 45 })
+    /// $dashboard = New-ConsoleDashboard -Title 'CPU samples' -Content { New-ConsoleChart -WidgetId cpu -Type Sparkline }
     /// function Show-Frame($Frame) { Update-Console cpu -Append -Value $Frame.Cpu }
-    /// Invoke-ConsoleDashboard $dashboard -ImportFunction Show-Frame { foreach ($frame in $using:frames) { Show-Frame $frame; Wait-ConsoleDashboard 0.5 } }</code>
+    /// Invoke-ConsoleDashboard $dashboard -ImportFunction Show-Frame {
+    ///     foreach ($frame in $using:frames) { Show-Frame $frame; Wait-ConsoleDashboard 0.5 }
+    /// }</code>
     /// </example>
     [Cmdlet(VerbsLifecycle.Invoke, "ConsoleDashboard")]
     public sealed class CmdletInvokeConsoleDashboard : PSCmdlet, IDisposable {
@@ -71,9 +75,9 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Record every update as JSON lines for Show-ConsoleReplay -PlaybackMode Automatic.</para></summary>
         [Parameter]
-        public string? RecordPath { get; set; }
+        public string? RecordingPath { get; set; }
 
-        /// <summary><para type="description">Records the run automatically to the local ConsoleMonster\Recordings folder and keeps only this many recent runs (within 50 MB together), for Show-ConsoleReplay. Ignored with -RecordPath.</para></summary>
+        /// <summary><para type="description">Records the run automatically to the local ConsoleMonster\Recordings folder and keeps only this many recent runs (within 50 MB together), for Show-ConsoleReplay. Ignored with -RecordingPath.</para></summary>
         [Parameter]
         [ValidateRange(0, 1000)]
         public int AutoRecord { get; set; }
@@ -90,13 +94,13 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter Transient { get; set; }
 
-        /// <summary><para type="description">A run clock (New-ConsoleSimulatedClock) for the header clock, the summary bar's times and log times, instead of real time. Pass it to the script with -ArgumentList to move it forward there.</para></summary>
+        /// <summary><para type="description">An optional C# run clock implementing IClock for the header clock, the summary bar's times and log times, instead of real time. Pass it to the script with -ArgumentList to move it forward there.</para></summary>
         [Parameter]
         public SimulatedClock? Clock { get; set; }
 
         /// <summary><para type="description">Redraw rate (default 15).</para></summary>
         [Parameter]
-        public int FramesPerSecond { get; set; } = 15;
+        public double FramesPerSecond { get; set; } = 15;
 
         private bool Cancelled => _stopping || (_session != null && _session.Cancellation.IsCancellationRequested);
 
@@ -143,7 +147,7 @@ namespace ConsoleMonster.PowerShell {
                 Mode = Inline.IsPresent ? LiveMode.Inline : LiveMode.FullScreen,
                 PrintFinalState = !Transient.IsPresent,
                 Summary = Summary,
-                RecordPath = RecordPath == null ? null : SessionState.Path.GetUnresolvedProviderPathFromPSPath(RecordPath),
+                RecordPath = RecordingPath == null ? null : SessionState.Path.GetUnresolvedProviderPathFromPSPath(RecordingPath),
                 AutoRecord = AutoRecord,
                 RecordingName = "dashboard",
                 Clock = Clock == null ? null : new Func<TimeSpan>(Clock.Read)

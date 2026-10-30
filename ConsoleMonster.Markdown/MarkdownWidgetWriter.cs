@@ -45,7 +45,7 @@ namespace ConsoleMonster.Markdown {
         }
 
         // Only layout-only wrappers are transparent. Content-bearing or third-party containers retain their full frame.
-        private static bool Transparent(IWidget widget) => widget is Rows || widget is Columns || widget is Grid || widget is Stack
+        private static bool Transparent(IWidget widget) => widget is Rows || widget is Columns || widget is LayoutGrid || widget is Stack
             || widget is Align || widget is Padding || widget is Sized || widget is Prioritized || widget is RegionWidget;
 
         private static void Table(StringBuilder output, Table table, RenderContext context) {

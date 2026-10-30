@@ -34,7 +34,7 @@ namespace ConsoleMonster.Widgets {
                 widths[c] = Math.Max(1, column.Width ?? Math.Max(column.MinWidth ?? 1, Math.Min(column.MaxWidth ?? int.MaxValue, desired)));
                 visible.Add(c);
             }
-            foreach (TreeRow row in rows) labelDesired = Math.Max(labelDesired, row.Width(context) + ValueWidth(row.Node, presenter));
+            foreach (TreeRow row in rows) labelDesired = Math.Max(labelDesired, row.Width(context, includePadding: false) + ValueWidth(row.Node, presenter));
             int labelReserve = width >= 120 ? (int)Math.Ceiling(width * 0.4) : Math.Min(labelDesired, 28);
             if (width >= 120) ShrinkColumns(visible, widths, Math.Max(0, width - labelReserve));
             while (width >= 60 && visible.Count > 0 && ColumnsWidth(visible, widths) + labelReserve > width) {

@@ -55,7 +55,7 @@ function Assert-PromptFallback {
         }
         $results = foreach ($enabled in $false, $true) {
             if ($enabled) {
-                Enable-ConsoleFormatting -Feature Prompt
+                Enable-ConsoleFormatting -Include Prompt -Exclude Output, FormatCommands, Errors, Streams, ReadLine
             }
             $Error.Clear()
             $observed = @()

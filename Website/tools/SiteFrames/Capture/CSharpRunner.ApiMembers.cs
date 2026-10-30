@@ -44,6 +44,9 @@ namespace SiteFrames.Capture {
                         IMethodSymbol method = invoked.ReducedFrom ?? invoked;
                         if (method.ContainingNamespace.ToDisplayString().StartsWith("ConsoleMonster", StringComparison.Ordinal) || method.ContainingType.ToDisplayString() == "System.Console") {
                             result.Add("M:" + method.ContainingType.ToDisplayString() + "." + method.Name);
+                            if (invoked.ReducedFrom != null && invoked.ReceiverType is INamedTypeSymbol extensionReceiver) {
+                                result.Add("M:" + method.ContainingType.ToDisplayString() + "." + method.Name + ":" + extensionReceiver.OriginalDefinition.ToDisplayString());
+                            }
                         }
                     }
                     if (node is AssignmentExpressionSyntax assignment && model.GetSymbolInfo(assignment.Left).Symbol is IPropertySymbol property) {

@@ -13,12 +13,12 @@ Collects CPU, memory, local fixed disks, network addresses and safely available 
 ## SYNTAX
 ### Render (Default)
 ```powershell
-Show-ConsoleOverview [[-Section] <string[]>] [-Width <int>] [-AsString] [-BudgetMilliseconds <int>] [-AsWidget] [<CommonParameters>]
+Show-ConsoleOverview [[-Section] <string[]>] [-Width <int>] [-BudgetSeconds <double>] [-AsWidget] [<CommonParameters>]
 ```
 
 ### Object
 ```powershell
-Show-ConsoleOverview [[-Section] <string[]>] [-AsObject] [-BudgetMilliseconds <int>] [<CommonParameters>]
+Show-ConsoleOverview [[-Section] <string[]>] [-AsObject] [-BudgetSeconds <double>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -44,7 +44,7 @@ Return selected data for a script.
 
 ### EXAMPLE 3
 ```powershell
-Show-ConsoleOverview -Width 60 -AsString
+Show-ConsoleOverview -Width 60 -AsWidget | Export-ConsoleFrame -Format Text
 ```
 
 Capture a compact plain-text overview.
@@ -57,22 +57,6 @@ Returns the immutable OverviewSnapshot instead of drawing it.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: Object
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -AsString
-Returns one plain-text string for capture or redirection on PowerShell 5.1 and 7.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: Render
 Aliases: None
 Possible values:
 
@@ -99,11 +83,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -BudgetMilliseconds
+### -BudgetSeconds
 The caller's collection budget in milliseconds, from 1 to 900; default 750. Slow sections become pending markers. Native scheduling and rendering time are outside this waiting budget.
 
 ```yaml
-Type: Int32
+Type: Double
 Parameter Sets: Render, Object
 Aliases: None
 Possible values:

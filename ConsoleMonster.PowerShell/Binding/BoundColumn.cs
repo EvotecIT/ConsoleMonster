@@ -6,7 +6,7 @@ using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell.Binding {
     /// <summary>A table column bound to a property name or calculated property expression.</summary>
-    public sealed class BoundColumn {
+    internal sealed class BoundColumn {
         private readonly object _expression;
 
         /// <summary>Creates a bound column.</summary>

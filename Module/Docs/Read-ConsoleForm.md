@@ -13,7 +13,7 @@ The form opens on the alternate screen (or in the scrollback with -Inline). Fiel
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Read-ConsoleForm [[-Form] <psobject>] [-AppName <string>] [-RememberLastChoices] [-StorageRoot <string>] [-Inline] [-Preset <string>] [-PassThru] [-AsPlainText] [-Mode <InteractionMode>] [-Options <FormOptions>] [<CommonParameters>]
+Read-ConsoleForm [[-Form] <psobject>] [-AppName <string>] [-RememberLastChoices] [-StorageRoot <string>] [-Inline] [-Preset <string>] [-PassThru] [-AsPlainText] [-Mode <InteractionMode>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -105,23 +105,7 @@ Forces how to ask: Rich, Line, Accessible or None.
 Type: InteractionMode
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: Rich, Line, Accessible, None
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Options
-Typed C# FormOptions configuration. Use this instead of individual interaction settings; omitted host devices use the owning PowerShell runspace and the supplied object is not modified.
-
-```yaml
-Type: FormOptions
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
+Possible values: Rich, Line, Accessible, None, Snapshot
 
 Required: False
 Position: named

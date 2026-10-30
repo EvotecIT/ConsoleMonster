@@ -13,7 +13,7 @@ Letters A-Z, digits and - . : ! / _ are drawn with half blocks (four rows tall) 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleLogo [-Text] <string> [-Tagline <Object>] [-StartColor <string>] [-EndColor <string>] [-Alignment <HorizontalAlignment>] [<CommonParameters>]
+New-ConsoleLogo [-Text] <string> [-Subtitle <Object>] [-StartColor <string>] [-EndColor <string>] [-Alignment <HorizontalAlignment>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,7 +25,7 @@ Letters A-Z, digits and - . : ! / _ are drawn with half blocks (four rows tall) 
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleLogo -Text 'DEPLOY' -Tagline 'production · 14 servers' -StartColor '#22d3ee' -EndColor '#a78bfa' | Show-Console
+New-ConsoleLogo -Text 'DEPLOY' -Subtitle 'production · 14 servers' -StartColor '#22d3ee' -EndColor '#a78bfa' | Show-Console
 ```
 
 A banner with a tagline
@@ -80,7 +80,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Tagline
+### -Subtitle
 A muted tagline under the banner (markup allowed).
 
 ```yaml

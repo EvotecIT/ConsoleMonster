@@ -8,29 +8,66 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates retained tabs with keyboard and pointer navigation.
 
-Combines pages from New-ConsoleTab in display order. Only the selected page receives input; switching pages retains each page's values and focus for the next visit.
+Content emits records with Title and Content, or an ordered dictionary mapping page titles to widgets or script blocks. A dictionary containing both Title and Content is a page record, including when Content is null. Only the selected page receives input; switching pages retains its values and focus.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleTabs [[-Tab] <LayoutRegion[]>] [-SelectedIndex <int>] [<CommonParameters>]
+New-ConsoleTabs [[-Content] <Object>] [-InputObject <psobject>] [-SelectedIndex <int>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Creates retained tabs with keyboard and pointer navigation.
 
-Combines pages from New-ConsoleTab in display order. Only the selected page receives input; switching pages retains each page's values and focus for the next visit.
+Content emits records with Title and Content, or an ordered dictionary mapping page titles to widgets or script blocks. A dictionary containing both Title and Content is a page record, including when Content is null. Only the selected page receives input; switching pages retains its values and focus.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-$pages | New-ConsoleTabs | Show-ConsoleApp
+Show-ConsoleApp -Mode Snapshot -Content {
+    New-ConsoleTabs -Content ([ordered]@{
+        Search = { New-ConsoleTextInput -Key Query }
+        About = { New-ConsoleText 'Inventory browser' }
+    })
+}
 ```
 
-Compose two pages.
+Compose two retained pages.
 
 ## PARAMETERS
+
+### -Content
+Page records or an ordered dictionary of page titles and content.
+
+```yaml
+Type: Object
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -InputObject
+Page records from the pipeline.
+
+```yaml
+Type: PSObject
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
 
 ### -SelectedIndex
 Initial zero-based active page.
@@ -43,22 +80,6 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Tab
-Pages returned by New-ConsoleTab, in display order.
-
-```yaml
-Type: LayoutRegion[]
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

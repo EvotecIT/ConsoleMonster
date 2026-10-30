@@ -12,12 +12,29 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="description">What the item does follows from the parameter you give: -Action (a scriptblock, run on the pipeline thread with $MenuContext), -Submenu (a menu or a scriptblock of items), -Form (with -OnSubmit, which gets $Values and $FormResult), -Select or -MultiSelect (the chosen objects stay on the item: $item.Selection), -LoadChoices (loaded in its own runspace with a spinner), -Page (content built each time it shows), -Review (a summary with the equivalent command and Run), -Presets, -Separator or -Exit. -Badge and -Detail can be scriptblocks, recomputed every time the menu draws; -DisabledReason returns why the item is unavailable.</para>
     /// </summary>
     /// <example>
-    ///   <para>A multi-selection with a computed badge</para>
-    ///   <code>New-ConsoleMenuItem 'Tasks' -Hotkey k -MultiSelect $tasks -Display Name -GroupBy Category -Preview { $_.Description }</code>
+    /// <para>Build a multiple-choice item with an initial selection</para>
+    /// <code>$tasks = @(
+    ///     [pscustomobject]@{ Name = 'Backup'; Category = 'Files'; Description = 'Preview a backup'; Enabled = $true }
+    ///     [pscustomobject]@{ Name = 'Verify'; Category = 'Files'; Description = 'Verify a backup'; Enabled = $false }
+    /// )
+    /// $menu = New-ConsoleMenu 'Tasks' -Content {
+    ///     New-ConsoleMenuItem 'Tasks' -Hotkey k -MultiSelect $tasks -Display Name -GroupBy Category -Preview { $_.Description } -Default { $_.Enabled }
+    ///     New-ConsoleMenuItem -Exit
+    /// }
+    /// Show-ConsoleMenu $menu</code>
     /// </example>
     /// <example>
-    ///   <para>An action that asks first and shows a toast</para>
-    ///   <code>New-ConsoleMenuItem 'Clear cache' -Action { if ($MenuContext.Confirm('Clear the cache?')) { Clear-AppCache; $MenuContext.Toast('Cache cleared') } }</code>
+    /// <para>Confirm an action and return a result record</para>
+    /// <code>$menu = New-ConsoleMenu 'Inventory' -Content {
+    ///     New-ConsoleMenuItem 'Preview refresh' -Action {
+    ///         if ($MenuContext.Confirm('Preview an inventory refresh?')) {
+    ///             $MenuContext.Toast('Preview ready')
+    ///             $MenuContext.ShowResult(@{ Title = 'Refresh preview'; Status = 'Pass'; Summary = 'No inventory changes were made.' })
+    ///         }
+    ///     }
+    ///     New-ConsoleMenuItem -Exit
+    /// }
+    /// Show-ConsoleMenu $menu</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleMenuItem", DefaultParameterSetName = "Action")]
     [OutputType(typeof(MenuItem))]
@@ -130,7 +147,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(ParameterSetName = "Select")]
         [Parameter(ParameterSetName = "MultiSelect")]
         [Parameter(ParameterSetName = "LoadChoices")]
-        public object? Selected { get; set; }
+        public object? Default { get; set; }
 
         /// <summary><para type="description">The fewest values of a multi-selection.</para></summary>
         [Parameter(ParameterSetName = "MultiSelect")]
@@ -204,27 +221,27 @@ namespace ConsoleMonster.PowerShell {
                 List<object?> values = new List<object?>(multiple ? MultiSelect! : Select!);
                 List<Choice> choices = PSInteractive.Choices(values, new ChoiceSelectors {
                     Display = Display, Group = GroupBy, Description = Describe, Badge = ChoiceBadge,
-                    Disabled = ChoiceDisabledReason, Selected = Selected, MutedBadge = true
+                    Disabled = ChoiceDisabledReason, Selected = Default, MutedBadge = true
                 });
                 if (multiple) {
                     item.MultiSelect(choices);
                 } else {
                     item.Select(choices);
-                    Choice? fallback = PSInteractive.Find(choices, Selected);
+                    Choice? fallback = PSInteractive.Find(choices, Default);
                     if (fallback != null) {
                         item.SetSelection(new[] { fallback.Value });
                     }
                 }
                 ApplyChoiceSettings(item);
             } else if (LoadChoices != null) {
-                if (PSText.Unwrap(ChoiceBadge) is ScriptBlock || PSText.Unwrap(ChoiceDisabledReason) is ScriptBlock || PSText.Unwrap(Selected) is ScriptBlock) {
-                    ThrowTerminatingError(new ErrorRecord(new PSArgumentException("With -LoadChoices, -ChoiceBadge and -ChoiceDisabled take property names, and -Selected takes initial values rather than a scriptblock."),
+                if (PSText.Unwrap(ChoiceBadge) is ScriptBlock || PSText.Unwrap(ChoiceDisabledReason) is ScriptBlock || PSText.Unwrap(Default) is ScriptBlock) {
+                    ThrowTerminatingError(new ErrorRecord(new PSArgumentException("With -LoadChoices, -ChoiceBadge and -ChoiceDisabled take property names, and -Default takes initial values rather than a scriptblock."),
                         "ConsoleMonsterChoiceLoaderSelector", ErrorCategory.InvalidArgument, Label));
                     return;
                 }
                 item.LoadChoices = PSInteractive.MenuLoader(LoadChoices, new ChoiceSelectors {
                     Display = Display, Group = GroupBy, Description = Describe, Badge = ChoiceBadge, Disabled = ChoiceDisabledReason,
-                    Selected = Selected, MutedBadge = true
+                    Selected = Default, MutedBadge = true
                 }, ArgumentList);
                 item.Kind = Single.IsPresent ? MenuItemKind.Select : MenuItemKind.MultiSelect;
                 ApplyChoiceSettings(item);

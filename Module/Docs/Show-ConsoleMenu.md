@@ -13,7 +13,7 @@ Shell is an app: a title bar with the breadcrumb, a sidebar (it folds into the b
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Show-ConsoleMenu [[-Menu] <psobject>] [-Layout <MenuLayout>] [-AppName <string>] [-RememberLastChoices] [-StorageRoot <string>] [-NoCommandPalette] [-Mode <InteractionMode>] [-Options <MenuOptions>] [<CommonParameters>]
+Show-ConsoleMenu [[-Menu] <psobject>] [-Layout <MenuLayout>] [-AppName <string>] [-RememberLastChoices] [-StorageRoot <string>] [-NoCommandPalette] [-Mode <InteractionMode>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,10 +25,14 @@ Shell is an app: a title bar with the breadcrumb, a sidebar (it folds into the b
 
 ### EXAMPLE 1
 ```powershell
-Show-ConsoleMenu $menu -Layout Shell -AppName 'ServerToolbox' -RememberLastChoices
+$menu = New-ConsoleMenu 'Server toolbox' -Content {
+    New-ConsoleMenuItem 'Current time' -Action { $MenuContext.Toast((Get-Date).ToString('u')) }
+    New-ConsoleMenuItem -Exit
+}
+Show-ConsoleMenu $menu -Layout Shell
 ```
 
-Run a menu as an app
+Run a menu as an application
 
 ## PARAMETERS
 
@@ -87,7 +91,7 @@ Forces how to interact: Rich, Line or Accessible.
 Type: InteractionMode
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: Rich, Line, Accessible, None
+Possible values: Rich, Line, Accessible, None, Snapshot
 
 Required: False
 Position: named
@@ -101,22 +105,6 @@ Turns the command palette off.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Options
-Typed C# MenuOptions configuration. Use this instead of individual interaction settings; omitted host devices use the owning PowerShell runspace and the supplied object is not modified.
-
-```yaml
-Type: MenuOptions
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

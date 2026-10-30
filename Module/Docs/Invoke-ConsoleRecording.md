@@ -13,12 +13,12 @@ Runs the script in an isolated child process, or opens a child shell with Intera
 ## SYNTAX
 ### Script (Default)
 ```powershell
-Invoke-ConsoleRecording [-ScriptBlock] <scriptblock> -Destination <string> [-Theme <ExportTheme>] [-NoWindowChrome] [-ChromeStyle <WindowChromeStyle>] [-FinalFrame] [-RecordingPath <string>] [-Folder <string>] [-Title <string>] [-Shell <string>] [-Width <int>] [-Height <int>] [-Redact <string[]>] [-RedactionText <string>] [-MaxBytes <long>] [-IdleLimitSeconds <double>] [-InProcess] [-TimeoutSeconds <double>] [<CommonParameters>]
+Invoke-ConsoleRecording [-ScriptBlock] <scriptblock> -Path <string> [-Theme <ExportTheme>] [-ChromeStyle <WindowChromeStyle>] [-FinalFrame] [-RecordingPath <string>] [-Title <string>] [-Shell <string>] [-Width <int>] [-Height <int>] [-Redact <string[]>] [-RedactionText <string>] [-MaxBytes <long>] [-IdleLimitSeconds <double>] [-InProcess] [-TimeoutSeconds <double>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### Interactive
 ```powershell
-Invoke-ConsoleRecording -Interactive [-Destination <string>] [-Folder <string>] [-Title <string>] [-Shell <string>] [-Width <int>] [-Height <int>] [-Redact <string[]>] [-RedactionText <string>] [-MaxBytes <long>] [-IdleLimitSeconds <double>] [-InProcess] [-TimeoutSeconds <double>] [<CommonParameters>]
+Invoke-ConsoleRecording -Interactive [-Path <string>] [-Title <string>] [-Shell <string>] [-Width <int>] [-Height <int>] [-Redact <string[]>] [-RedactionText <string>] [-MaxBytes <long>] [-IdleLimitSeconds <double>] [-InProcess] [-TimeoutSeconds <double>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -30,22 +30,22 @@ Runs the script in an isolated child process, or opens a child shell with Intera
 
 ### EXAMPLE 1
 ```powershell
-Invoke-ConsoleRecording { Add-ConsoleRecordingMarker 'Build'; git --version; Write-Host 'Done' -ForegroundColor Green } -Destination ./demo.html
+Invoke-ConsoleRecording { Add-ConsoleRecordingMarker 'Build'; Get-Date; Write-Host 'Done' -ForegroundColor Green } -Path ./demo.html -WhatIf
 ```
 
-Record native coloured output and a chapter
+Preview recording coloured output and a chapter
 
 ### EXAMPLE 2
 ```powershell
-Invoke-ConsoleRecording -Interactive -Destination ./session.cast
+Invoke-ConsoleRecording -Interactive -Path ./session.cast -WhatIf
 ```
 
-Record an interactive shell
+Preview recording a child shell
 
 ## PARAMETERS
 
 ### -ChromeStyle
-MacOS (default), Windows, Linux or None. None or -NoWindowChrome hides chrome.
+MacOS (default), Windows, Linux or None. Choose None to hide chrome.
 
 ```yaml
 Type: WindowChromeStyle
@@ -60,44 +60,12 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Destination
-Export path for a script; Interactive writes a cast here, or uses a timestamped name when omitted.
-
-```yaml
-Type: String
-Parameter Sets: Script, Interactive
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -FinalFrame
 Export the final frame as a static SVG.
 
 ```yaml
 Type: SwitchParameter
 Parameter Sets: Script
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Folder
-Folder for automatic cast names.
-
-```yaml
-Type: String
-Parameter Sets: Script, Interactive
 Aliases: None
 Possible values:
 
@@ -188,12 +156,12 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -NoWindowChrome
-Hides the default export title bar.
+### -Path
+Export path for a script; Interactive writes a cast here, or uses a timestamped name when omitted.
 
 ```yaml
-Type: SwitchParameter
-Parameter Sets: Script
+Type: String
+Parameter Sets: Script, Interactive
 Aliases: None
 Possible values:
 

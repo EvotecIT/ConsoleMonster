@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 
 namespace ConsoleMonster.Input {
-    public sealed partial class VtInputDecoder {
+    internal sealed partial class VtInputDecoder {
         // SGR 1006 uses decimal button/modifier bits and one-based cell coordinates.
         // Consume unsupported reports without turning motion, wheels or extra buttons into clicks.
         private static void DecodeMouse(string parameters, char final, List<InputEvent> output) {

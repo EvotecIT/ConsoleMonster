@@ -182,8 +182,8 @@ namespace SiteFrames.Capture {
 
             private string? SetterNamespace(INamedTypeSymbol type, string member) {
                 for (INamedTypeSymbol? current = type; current != null; current = current.BaseType) {
-                    INamedTypeSymbol? fluent = compilation.GetTypeByMetadataName(current.ContainingNamespace.ToDisplayString() + "." + current.Name + "Fluent");
-                    if (fluent?.GetMembers(member).OfType<IMethodSymbol>().Any(method => method.Parameters.Length >= 2) == true) { return current.ContainingNamespace.ToDisplayString(); }
+                    INamedTypeSymbol? fluent = compilation.GetTypeByMetadataName(current.ContainingNamespace.ToDisplayString() + "." + current.ContainingNamespace.Name + "Fluent");
+                    if (fluent?.GetMembers(member).OfType<IMethodSymbol>().Any(method => method.IsExtensionMethod && method.ReduceExtensionMethod(type) != null) == true) { return current.ContainingNamespace.ToDisplayString(); }
                 }
                 return null;
             }

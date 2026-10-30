@@ -10,10 +10,19 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="description">Like Compare-Object, with a much better display: objects are matched by -Property (or by Id, Name, Key and similar members), then compared property by property, nested objects by path. The view shows the counts by kind and a table of the changes in the design-system tones (added in green, removed in red, changed in yellow), with line diffs of long and multi-line values; -View picks Summary, Table, SideBySide or Unified. -PassThru returns the structured changes (ConsoleMonster.Changes.ObjectChange) instead.</para>
     /// </summary>
     /// <example>
-    ///   <para>What changed between two exports</para>
-    ///   <code>Compare-ConsoleObject (Import-Csv .\before.csv) (Import-Csv .\after.csv) -Property SamAccountName</code>
+    /// <para>Compare two small inventories</para>
+    /// <code>$before = @([pscustomobject]@{ Name = 'web01'; Port = 80 })
+    /// $after = @([pscustomobject]@{ Name = 'web01'; Port = 443 })
+    /// Compare-ConsoleObject -ReferenceObject $before -DifferenceObject $after -Property Name</code>
     /// </example>
-    [Cmdlet(VerbsData.Compare, "ConsoleObject")]
+    /// <example>
+    /// <para>Ask before accepting a configuration change</para>
+    /// <code>$before = @([pscustomobject]@{ Name = 'web01'; Port = 80 })
+    /// $after = @([pscustomobject]@{ Name = 'web01'; Port = 443 })
+    /// $accepted = Compare-ConsoleObject -ReferenceObject $before -DifferenceObject $after -Property Name -Question 'Accept these changes?'
+    /// $accepted</code>
+    /// </example>
+    [Cmdlet(VerbsData.Compare, "ConsoleObject", DefaultParameterSetName = "Compare", SupportsShouldProcess = true)]
     [OutputType(typeof(ObjectChange))]
     public sealed class CmdletCompareConsoleObject : PSCmdlet {
         /// <summary><para type="description">The old objects.</para></summary>
@@ -57,8 +66,21 @@ namespace ConsoleMonster.PowerShell {
         public object? Title { get; set; }
 
         /// <summary><para type="description">Returns the changes as objects instead of showing them.</para></summary>
-        [Parameter]
+        [Parameter(ParameterSetName = "Compare")]
         public SwitchParameter PassThru { get; set; }
+
+        /// <summary><para type="description">Shows the changes, asks this question and returns a Boolean answer.</para></summary>
+        [Parameter(Mandatory = true, ParameterSetName = "Confirm")]
+        public string? Question { get; set; }
+        /// <summary><para type="description">Text that must be typed to confirm the preview.</para></summary>
+        [Parameter(ParameterSetName = "Confirm")]
+        public string? TypedConfirmation { get; set; }
+        /// <summary><para type="description">Accepts a nonempty change set without asking. WhatIf still returns false.</para></summary>
+        [Parameter(ParameterSetName = "Confirm")]
+        public SwitchParameter Force { get; set; }
+        /// <summary><para type="description">Uses a yes/no question for removals unless TypedConfirmation is supplied.</para></summary>
+        [Parameter(ParameterSetName = "Confirm")]
+        public SwitchParameter NoTypedWhenDestructive { get; set; }
 
         private readonly List<object?> _difference = new List<object?>();
 
@@ -79,97 +101,20 @@ namespace ConsoleMonster.PowerShell {
                 return;
             }
             PSFormatting.Write(this, new ChangeView(changes, View) { Title = PSText.Markup(Title), MoreHint = "-PassThru or -View SideBySide" }, 0);
-        }
-    }
-
-    /// <summary>
-    /// <para type="synopsis">Shows the changes an action would make and asks before making them: the what-if pattern.</para>
-    /// <para type="description">Compares -ReferenceObject with -DifferenceObject (as Compare-ConsoleObject does), shows the preview, then asks for confirmation and returns $true or $false; act only on $true. Changes that remove objects need the number of removals typed (or the -TypedConfirmation text). It honours the caller's -WhatIf: the preview is shown and $false returned without asking. -Force (or -Confirm:$false) skips the question and returns $true when there are changes. Use it inside your own functions: if (Show-ConsoleChanges -ReferenceObject $current -DifferenceObject $planned -Property Name) { apply }.</para>
-    /// </summary>
-    /// <example>
-    ///   <para>Preview a group membership change</para>
-    ///   <code>Show-ConsoleChanges -ReferenceObject @([pscustomobject]@{ Name = 'Ada' }) -DifferenceObject @([pscustomobject]@{ Name = 'Grace' }) -Property Name -Title 'Members' -WhatIf</code>
-    /// </example>
-    [Cmdlet(VerbsCommon.Show, "ConsoleChanges", SupportsShouldProcess = true, ConfirmImpact = ConfirmImpact.Medium)]
-    [OutputType(typeof(bool))]
-    public sealed class CmdletShowConsoleChanges : NoPipelineInputCmdlet {
-        /// <summary><para type="description">The current objects.</para></summary>
-        [Parameter(Position = 0, Mandatory = true)]
-        [AllowEmptyCollection]
-        [AllowNull]
-        public object[]? ReferenceObject { get; set; }
-
-        /// <summary><para type="description">The objects after the change.</para></summary>
-        [Parameter(Position = 1, Mandatory = true)]
-        [AllowEmptyCollection]
-        [AllowNull]
-        public object[]? DifferenceObject { get; set; }
-
-        /// <summary><para type="description">The properties that identify an object (matching key).</para></summary>
-        [Parameter]
-        public string[]? Property { get; set; }
-
-        /// <summary><para type="description">Properties or paths left out of the comparison.</para></summary>
-        [Parameter]
-        public string[]? Ignore { get; set; }
-
-        /// <summary><para type="description">The view of the preview: Full (default), Summary, Table, SideBySide or Unified.</para></summary>
-        [Parameter]
-        public ChangeViewMode View { get; set; } = ChangeViewMode.Full;
-
-        /// <summary><para type="description">A title (markup).</para></summary>
-        [Parameter]
-        public object? Title { get; set; }
-
-        /// <summary><para type="description">The question (default "Apply these changes?").</para></summary>
-        [Parameter]
-        public string? Question { get; set; }
-
-        /// <summary><para type="description">Text that must be typed to confirm (for example the name of what is changed).</para></summary>
-        [Parameter]
-        public string? TypedConfirmation { get; set; }
-
-        /// <summary><para type="description">Skips the question and returns $true when there are changes.</para></summary>
-        [Parameter]
-        public SwitchParameter Force { get; set; }
-
-        /// <summary><para type="description">Keeps a yes/no confirmation for removals instead of requiring the removal count. An explicit TypedConfirmation still takes precedence.</para></summary>
-        [Parameter] public SwitchParameter NoTypedWhenDestructive { get; set; }
-
-        /// <inheritdoc />
-        protected override void EndProcessing() {
-            ChangeSet changes = PSChanges.Compare(ReferenceObject, DifferenceObject, Property, null, Ignore, 3, false);
-            ChangePreviewOptions options = new ChangePreviewOptions { Title = PSText.Markup(Title), Mode = View, Question = Question, TypedConfirmation = TypedConfirmation, TypedWhenDestructive = !NoTypedWhenDestructive.IsPresent };
-            PSFormatting.Write(this, new ChangeView(changes, View) { Title = options.Title, MoreHint = "-View SideBySide" }, 0);
-            if (!changes.HasChanges) {
-                HostOutput.WriteMarkup(this, "[muted]" + Text.Markup.Escape(Localization.WidgetLabels.Current.ChangesNone) + "[/]");
-                WriteObject(false);
-                return;
+            if (Question != null) {
+                if (!changes.HasChanges) { WriteObject(false); return; }
+                string target = PSText.PlainText(Title ?? string.Empty);
+                string summary = changes.Added + " added, " + changes.Removed + " removed, " + changes.Changed + " changed";
+                bool whatIf = MyInvocation.BoundParameters.TryGetValue("WhatIf", out object? preview)
+                    ? LanguagePrimitives.IsTrue(preview) : LanguagePrimitives.IsTrue(SessionState.PSVariable.GetValue("WhatIfPreference"));
+                if (whatIf) { ShouldProcess(target.Length == 0 ? summary : target, summary); WriteObject(false); return; }
+                bool noConfirm = MyInvocation.BoundParameters.TryGetValue("Confirm", out object? confirm) && !LanguagePrimitives.IsTrue(confirm);
+                if (Force.IsPresent || noConfirm) { WriteObject(true); return; }
+                var options = new ChangePreviewOptions { Title = PSText.Markup(Title), Mode = View, Question = Question,
+                    TypedConfirmation = TypedConfirmation, TypedWhenDestructive = !NoTypedWhenDestructive.IsPresent,
+                    Interactive = PSInteractive.Options(this, null) };
+                WriteObject(ChangePreview.Ask(changes, options));
             }
-            string target = PSText.PlainText(Title ?? string.Empty);
-            string summary = changes.Added + " added, " + changes.Removed + " removed, " + changes.Changed + " changed";
-            if (WhatIfRequested()) {
-                ShouldProcess(target.Length == 0 ? summary : target, summary);
-                WriteObject(false);
-                return;
-            }
-            if (Force.IsPresent || ConfirmDeclinedExplicitly()) {
-                WriteObject(true);
-                return;
-            }
-            options.Interactive = PSInteractive.Options(this, null);
-            WriteObject(ChangePreview.Ask(changes, options));
-        }
-
-        private bool WhatIfRequested() {
-            if (MyInvocation.BoundParameters.TryGetValue("WhatIf", out object? value)) {
-                return value is SwitchParameter s ? s.IsPresent : LanguagePrimitives.IsTrue(value);
-            }
-            return LanguagePrimitives.IsTrue(SessionState.PSVariable.GetValue("WhatIfPreference"));
-        }
-
-        private bool ConfirmDeclinedExplicitly() {
-            return MyInvocation.BoundParameters.TryGetValue("Confirm", out object? value) && value is SwitchParameter s && !s.IsPresent;
         }
     }
 

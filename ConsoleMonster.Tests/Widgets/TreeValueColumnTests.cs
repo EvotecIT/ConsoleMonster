@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using ConsoleMonster.Capabilities;
+using ConsoleMonster.Data;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Testing;
 using ConsoleMonster.Widgets;
@@ -8,6 +9,20 @@ using Xunit;
 
 namespace ConsoleMonster.Tests.Widgets {
     public sealed class TreeValueColumnTests {
+        [Fact]
+        public void Render_InspectorPaddingDoesNotHideAFittingRightValueColumn() {
+            Tree tree = InspectorTree.Build(new InspectObject(null, "Record", "$", new InspectNode[] {
+                new InspectScalar("A", "String", "$.A", "visible"),
+                new InspectScalar("LongPropertyName", "String", "$.LongPropertyName", "")
+            }));
+            tree.ValuePlacement = TreeValuePlacement.Right;
+            tree.ValueColumns.Add(new TableColumn("Evidence") { Width = 33 });
+            tree.Root.Children[0].Values["Evidence"] = TableCell.FromValue("keep-me");
+            string text = TestTerminal.RenderText(tree, 60);
+            Assert.Contains("keep-me", text);
+            Assert.DoesNotContain("+1 columns", text);
+        }
+
         [Fact]
         public void Render_ValuesAtDifferentDepths_ShareRightAlignedColumnEnds() {
             Tree tree = new Tree("Inventory");

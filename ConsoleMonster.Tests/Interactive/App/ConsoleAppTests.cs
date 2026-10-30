@@ -188,9 +188,8 @@ namespace ConsoleMonster.Tests.Interactive.App {
             ConsoleAppOptions options = AppTestHarness.Options("\"unused\"", out ScreenCapture capture);
             ScriptedInput input = (ScriptedInput)options.Interactive!.Input!;
             int remaining = input.Remaining;
-            options.Interactive.Mode = InteractionMode.None;
+            options.Interactive.Mode = InteractionMode.Snapshot;
             options.Interactive.NonInteractive = true;
-            options.StaticSnapshot = true;
             AppState result = ConsoleApp.Run(new Rows(query, summary), options: options);
             Assert.Equal("seed", result["query"]);
             Assert.Equal(remaining, input.Remaining);

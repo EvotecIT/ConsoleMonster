@@ -5,7 +5,7 @@ using System.Management.Automation.Language;
 
 namespace ConsoleMonster.PowerShell.Binding {
     /// <summary>Completes the presenter names that <c>CellPresenters.FromName</c> understands (Bytes, Duration, Date...).</summary>
-    public sealed class PresenterNameCompleter : IArgumentCompleter {
+    internal sealed class PresenterNameCompleter : IArgumentCompleter {
         private static readonly string[] Names = {
             "Auto", "Text", "Number", "Bytes", "Duration", "Date", "DateRelative", "DateBoth", "Boolean", "Status", "StatusWord",
             "Progress", "DataBar", "Sparkline", "Link", "Markup", "Emoji", "Identifier", "Chip", "MemberSignature"

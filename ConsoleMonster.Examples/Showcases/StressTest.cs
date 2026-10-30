@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
-using ConsoleMonster.Building;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
@@ -70,15 +69,16 @@ namespace ConsoleMonster.Examples.Showcases {
 
             // Keep the finite stress run's complete log so delivery is verified by identity, not attempted-write counts.
             capturedOutput = new LogRegion { PreferredHeight = 6, Capacity = int.MaxValue };
+            LogRegion output = capturedOutput;
             Lanes workers = lanes;
             Rows session = new Rows(stats, new Rule("updates/s"), rate, new Rule("CPU % (100% = one core)"), cpu);
-            return new DashboardBuilder("[bold]Stress test[/]")
+            return Ui.Dashboard().Title("[bold]Stress test[/]")
                 .Subtitle(Workers + " workers · random Console.WriteLine · " + seconds + "s")
-                .Columns(c => c
-                    .Panel("Workers", workers, 1.6)
-                    .Panel("Session", session, 1))
-                .Panel("Captured output", capturedOutput, fill: true)
-                .BuildDashboard();
+                .Content(body => body
+                    .Columns(columns => columns.Content(c => c
+                        .Add(new Panel(workers, "Workers").Fill(1.6))
+                        .Add(new Panel(session, "Session").Fill(1))))
+                    .Add(new Panel(output, "Captured output").Fill()));
 
         }
 

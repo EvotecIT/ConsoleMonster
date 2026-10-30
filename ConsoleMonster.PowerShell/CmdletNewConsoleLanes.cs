@@ -4,11 +4,11 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates a lanes widget: one row per worker, server or item of a parallel workload.</para>
-    /// <para type="description">Each lane shows a status marker (a spinner while running), a progress bar, pass/fail/warning counts and what it is doing now. Lanes can be declared up front with -Lane (names sharing one -Total), with a script block of Key/Label records calls (each with its own total, progress, status and counts), from the pipeline, or appear on their first Update-Console in a live dashboard. To add lanes later, pipe the widget to Add-ConsoleItem.</para>
+    /// <para type="description">Each lane shows a status marker (a spinner while running), a progress bar, pass/fail/warning counts and what it is doing now. Declare lanes with names or Key/Label/Total records emitted by Content or the pipeline. Records can include progress, status and counts. A lane can also appear on its first Update-Console call in a live dashboard.</para>
     /// </summary>
     /// <example>
     ///   <para>Lanes for three servers with 40 steps each</para>
-    ///   <code>New-ConsoleLanes -WidgetId servers -Lane 'DC01', 'DC02', 'DC03' -Total 40</code>
+    ///   <code>'DC01', 'DC02', 'DC03' | ForEach-Object { @{ Key = $_; Label = $_; Total = 40 } } | New-ConsoleLanes -WidgetId servers</code>
     /// </example>
     /// <example>
     ///   <para>Lanes at different points, printed once</para>
@@ -36,14 +36,6 @@ namespace ConsoleMonster.PowerShell {
 
         private readonly System.Collections.Generic.List<object> _piped = new System.Collections.Generic.List<object>();
 
-        /// <summary><para type="description">Lanes to declare up front (key and label).</para></summary>
-        [Parameter]
-        public object[]? Lane { get; set; }
-
-        /// <summary><para type="description">Planned steps per declared lane.</para></summary>
-        [Parameter]
-        public double Total { get; set; }
-
         /// <summary><para type="description">Bar shape: Line (thin stroke) or Block (solid blocks). Default Line.</para></summary>
         [Parameter]
         public BarShape Shape { get; set; } = BarShape.Line;
@@ -64,9 +56,9 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter Transient { get; set; }
 
-        /// <summary><para type="description">Shared CountColumn layout settings from New-ConsoleColumnFormat.</para></summary>
+        /// <summary><para type="description">Shared CountColumn layout settings as a hashtable, for example @{ MinWidth = 6; Alignment = 'Right' }.</para></summary>
         [Parameter] public Layout.ColumnFormat? CountColumn { get; set; }
-        /// <summary><para type="description">Shared PercentColumn layout settings from New-ConsoleColumnFormat.</para></summary>
+        /// <summary><para type="description">Shared PercentColumn layout settings as a hashtable, for example @{ MinWidth = 6; Alignment = 'Right' }.</para></summary>
         [Parameter] public Layout.ColumnFormat? PercentColumn { get; set; }
 
         /// <summary><para type="description">Maximum lane label width in cells; default 28.</para></summary>
@@ -106,17 +98,6 @@ namespace ConsoleMonster.PowerShell {
                 CollapseWhenFinished = CollapseWhenFinished.IsPresent,
                 Transient = Transient.IsPresent
             };
-            if (Lane != null) {
-                foreach (object lane in Lane) {
-                    Text.RichText? rich = PSText.Rich(lane);
-                    if (rich != null) {
-                        lanes.Add(rich.PlainText, rich, Total);
-                    } else {
-                        string label = PSText.PlainText(lane);
-                        lanes.Add(label, label, Total);
-                    }
-                }
-            }
             PSItems.AddAll(this, lanes, PSItems.Items(content));
             PSItems.AddAll(this, lanes, _piped);
             if (CountColumn != null) { lanes.CountColumn = CountColumn; }

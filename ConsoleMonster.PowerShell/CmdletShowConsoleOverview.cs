@@ -10,7 +10,7 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example><para>Show the local login overview.</para><code>Show-ConsoleOverview</code></example>
     /// <example><para>Return selected data for a script.</para><code>$snapshot = Show-ConsoleOverview -Section Resources,Disks -AsObject</code></example>
-    /// <example><para>Capture a compact plain-text overview.</para><code>Show-ConsoleOverview -Width 60 -AsString</code></example>
+    /// <example><para>Capture a compact plain-text overview.</para><code>Show-ConsoleOverview -Width 60 -AsWidget | Export-ConsoleFrame -Format Text</code></example>
     [Cmdlet(VerbsCommon.Show, "ConsoleOverview", DefaultParameterSetName = "Render")]
     [OutputType(typeof(OverviewSnapshot), typeof(string))]
     public sealed class CmdletShowConsoleOverview : NoPipelineInputCmdlet {
@@ -30,14 +30,10 @@ namespace ConsoleMonster.PowerShell {
         [ValidateRange(0, 32767)]
         public int Width { get; set; }
 
-        /// <summary><para type="description">Returns one plain-text string for capture or redirection on PowerShell 5.1 and 7.</para></summary>
-        [Parameter(ParameterSetName = "Render")]
-        public SwitchParameter AsString { get; set; }
-
         /// <summary><para type="description">The caller's collection budget in milliseconds, from 1 to 900; default 750. Slow sections become pending markers. Native scheduling and rendering time are outside this waiting budget.</para></summary>
         [Parameter]
-        [ValidateRange(1, 900)]
-        public int BudgetMilliseconds { get; set; } = 750;
+        [ValidateRange(0.001, 0.9)]
+        public double BudgetSeconds { get; set; } = 0.75;
 
         /// <summary><para type="description">Returns the view widget without drawing or acquiring input.</para></summary>
         [Parameter(ParameterSetName = "Render")]
@@ -49,11 +45,11 @@ namespace ConsoleMonster.PowerShell {
             try {
                 OverviewSnapshot snapshot = new OverviewCollector().CollectAsync(new OverviewOptions {
                     Sections = Section,
-                    CollectionBudget = TimeSpan.FromMilliseconds(BudgetMilliseconds)
+                    CollectionBudget = TimeSpan.FromSeconds(BudgetSeconds)
                 }, _stop.Token).GetAwaiter().GetResult();
                 if (AsObject.IsPresent) { WriteObject(snapshot); }
                 else if (AsWidget.IsPresent) { WriteObject(new OverviewWidget(snapshot)); }
-                else { PSFormatting.Emit(this, new OverviewWidget(snapshot), Width, null, AsString.IsPresent); }
+                else { PSFormatting.Emit(this, new OverviewWidget(snapshot), Width, null, false); }
             } finally { _stop.Dispose(); }
         }
 

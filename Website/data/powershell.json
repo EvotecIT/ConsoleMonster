@@ -107,8 +107,8 @@
       }
     },
     "format-consolelist": {
-      "script": "# Build artifacts as a module build reports them.\n$artifacts = @(\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.nupkg'; Kind = 'NuGet'; Length = 1482113\n        Time = [timespan]::FromSeconds(48.2); Signed = $true\n        Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.nupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.snupkg'; Kind = 'NuGet'; Length = 402331\n        Time = [timespan]::FromSeconds(3.1); Signed = $true\n        Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.snupkg' }\n    # … 6 more lines in the full program\n)\n\n$artifacts[0] |\n    Show-ConsoleList -Property Name, Kind, @{ Name = 'Length'; Header = 'Size'\n        Presenter = 'Bytes' }, @{ Name = 'Time'; Header = 'Built in'\n            Presenter = 'Duration' }, @{ Name = 'Signed'; Presenter = 'Boolean' }, Path",
-      "scriptFull": "Import-Module ConsoleMonster\n\n# Build artifacts as a module build reports them.\n$artifacts = @(\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.nupkg'; Kind = 'NuGet'; Length = 1482113\n        Time = [timespan]::FromSeconds(48.2); Signed = $true\n        Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.nupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.snupkg'; Kind = 'NuGet'; Length = 402331\n        Time = [timespan]::FromSeconds(3.1); Signed = $true\n        Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.snupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster-2.0.0.zip'; Kind = 'Module'; Length = 2904576\n        Time = [timespan]::FromSeconds(11.7); Signed = $true\n        Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster-2.0.0.zip' }\n    [pscustomobject] @{ Name = 'Docs.zip'; Kind = 'Module'; Length = 51302\n        Time = [timespan]::FromSeconds(1.2); Signed = $false\n        Path = 'D:\\Builds\\ConsoleMonster\\Packed\\Docs.zip' }\n)\n\n$artifacts[0] |\n    Show-ConsoleList -Property Name, Kind, @{ Name = 'Length'; Header = 'Size'\n        Presenter = 'Bytes' }, @{ Name = 'Time'; Header = 'Built in'\n            Presenter = 'Duration' }, @{ Name = 'Signed'; Presenter = 'Boolean' }, Path",
+      "script": "# Build artifacts as a module build reports them.\n$artifacts = @(\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.nupkg'; Kind = 'NuGet'; Length = 1482113\n        Time = [timespan]::FromSeconds(48.2); Signed = $true\n        Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.nupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.snupkg'; Kind = 'NuGet'; Length = 402331\n        Time = [timespan]::FromSeconds(3.1); Signed = $true\n        Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.snupkg' }\n    # … 6 more lines in the full program\n)\n\n$artifacts[0] |\n    Show-Console -View List -Property Name, Kind, @{ Name = 'Length'; Header = 'Size'\n        Presenter = 'Bytes' }, @{ Name = 'Time'; Header = 'Built in'\n            Presenter = 'Duration' }, @{ Name = 'Signed'; Presenter = 'Boolean' }, Path",
+      "scriptFull": "Import-Module ConsoleMonster\n\n# Build artifacts as a module build reports them.\n$artifacts = @(\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.nupkg'; Kind = 'NuGet'; Length = 1482113\n        Time = [timespan]::FromSeconds(48.2); Signed = $true\n        Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.nupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.snupkg'; Kind = 'NuGet'; Length = 402331\n        Time = [timespan]::FromSeconds(3.1); Signed = $true\n        Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.snupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster-2.0.0.zip'; Kind = 'Module'; Length = 2904576\n        Time = [timespan]::FromSeconds(11.7); Signed = $true\n        Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster-2.0.0.zip' }\n    [pscustomobject] @{ Name = 'Docs.zip'; Kind = 'Module'; Length = 51302\n        Time = [timespan]::FromSeconds(1.2); Signed = $false\n        Path = 'D:\\Builds\\ConsoleMonster\\Packed\\Docs.zip' }\n)\n\n$artifacts[0] |\n    Show-Console -View List -Property Name, Kind, @{ Name = 'Length'; Header = 'Size'\n        Presenter = 'Bytes' }, @{ Name = 'Time'; Header = 'Built in'\n            Presenter = 'Duration' }, @{ Name = 'Signed'; Presenter = 'Boolean' }, Path",
       "rich": {
         "ps7": {
           "host": "PowerShell 7.6",
@@ -129,23 +129,23 @@
       }
     },
     "format-consoletree": {
-      "script": "$certificate = [pscustomobject] @{\n    Subject                 = 'CN=mail.evotec.xyz'\n    Issuer                  = \"CN=R11, O=Let's Encrypt, C=US\"\n    KeyAlgorithm            = 'ECDSA P-256'\n    SubjectAlternativeNames = @('mail.evotec.xyz', 'autodiscover.evotec.xyz', 'mta-sts.evotec.xyz')\n    Chain                   = @(\n        [pscustomobject] @{ Subject = 'CN=mail.evotec.xyz'; Key = 'ECDSA P-256'; Revoked = $false }\n        [pscustomobject] @{ Subject = \"CN=R11, O=Let's Encrypt\"; Key = 'RSA 2048'\n            Revoked = $false }\n        [pscustomobject] @{ Subject = 'CN=ISRG Root X1'; Key = 'RSA 4096'; Revoked = $false }\n    )\n}\n$certificate | Show-ConsoleObject -StaticSnapshot -Title 'mail.evotec.xyz certificate'",
-      "scriptFull": "Import-Module ConsoleMonster\n\n$certificate = [pscustomobject] @{\n    Subject                 = 'CN=mail.evotec.xyz'\n    Issuer                  = \"CN=R11, O=Let's Encrypt, C=US\"\n    KeyAlgorithm            = 'ECDSA P-256'\n    SubjectAlternativeNames = @('mail.evotec.xyz', 'autodiscover.evotec.xyz', 'mta-sts.evotec.xyz')\n    Chain                   = @(\n        [pscustomobject] @{ Subject = 'CN=mail.evotec.xyz'; Key = 'ECDSA P-256'; Revoked = $false }\n        [pscustomobject] @{ Subject = \"CN=R11, O=Let's Encrypt\"; Key = 'RSA 2048'\n            Revoked = $false }\n        [pscustomobject] @{ Subject = 'CN=ISRG Root X1'; Key = 'RSA 4096'; Revoked = $false }\n    )\n}\n$certificate | Show-ConsoleObject -StaticSnapshot -Title 'mail.evotec.xyz certificate'",
+      "script": "$certificate = [pscustomobject] @{\n    Subject                 = 'CN=mail.evotec.xyz'\n    Issuer                  = \"CN=R11, O=Let's Encrypt, C=US\"\n    KeyAlgorithm            = 'ECDSA P-256'\n    SubjectAlternativeNames = @('mail.evotec.xyz', 'autodiscover.evotec.xyz', 'mta-sts.evotec.xyz')\n    Chain                   = @(\n        [pscustomobject] @{ Subject = 'CN=mail.evotec.xyz'; Key = 'ECDSA P-256'; Revoked = $false }\n        [pscustomobject] @{ Subject = \"CN=R11, O=Let's Encrypt\"; Key = 'RSA 2048'\n            Revoked = $false }\n        [pscustomobject] @{ Subject = 'CN=ISRG Root X1'; Key = 'RSA 4096'; Revoked = $false }\n    )\n}\n$certificate | Show-Console -View Tree -Title 'mail.evotec.xyz certificate'",
+      "scriptFull": "Import-Module ConsoleMonster\n\n$certificate = [pscustomobject] @{\n    Subject                 = 'CN=mail.evotec.xyz'\n    Issuer                  = \"CN=R11, O=Let's Encrypt, C=US\"\n    KeyAlgorithm            = 'ECDSA P-256'\n    SubjectAlternativeNames = @('mail.evotec.xyz', 'autodiscover.evotec.xyz', 'mta-sts.evotec.xyz')\n    Chain                   = @(\n        [pscustomobject] @{ Subject = 'CN=mail.evotec.xyz'; Key = 'ECDSA P-256'; Revoked = $false }\n        [pscustomobject] @{ Subject = \"CN=R11, O=Let's Encrypt\"; Key = 'RSA 2048'\n            Revoked = $false }\n        [pscustomobject] @{ Subject = 'CN=ISRG Root X1'; Key = 'RSA 4096'; Revoked = $false }\n    )\n}\n$certificate | Show-Console -View Tree -Title 'mail.evotec.xyz certificate'",
       "rich": {
         "ps7": {
           "host": "PowerShell 7.6",
           "frame": {
-            "w": 47,
-            "h": 16,
-            "dark": "<span class=\"B c27\">mail.evotec.xyz certificate</span><span class=c2>  </span><i class=\"n f8b8f9a\">·</i><span class=c2>  </span><span class=\"f8b8f9a c1\">5</span><span class=c1> </span><span class=f8b8f9a>members</span>\n<span class=\"f8b8f9a c7\">Subject</span>       CN=mail.evotec.xyz\n<span class=\"f8b8f9a c6\">Issuer</span>        CN=R11, O=Let's Encrypt, C=US\n<span class=\"f8b8f9a c12\">KeyAlgorithm</span>  ECDSA P-256\n\n<span class=\"B c23\">SubjectAlternativeNames</span><span class=c2>  </span><span class=\"f8b8f9a c1\">3</span><span class=c1> </span><span class=f8b8f9a>items</span>\n<span class=c2>  </span><span class=\"f8b8f9a c3\">[0]</span>  mail.evotec.xyz\n<span class=c2>  </span><span class=\"f8b8f9a c3\">[1]</span>  autodiscover.evotec.xyz\n<span class=c2>  </span><span class=\"f8b8f9a c3\">[2]</span>  mta-sts.evotec.xyz\n\n<span class=\"B c5\">Chain</span><span class=c2>  </span><span class=\"f8b8f9a c1\">3</span><span class=c1> </span><span class=f8b8f9a>items</span>\n<span class=c2>  </span><span class=\"B c7\">Subject</span><span class=c18>                  </span><span class=\"B c3\">Key</span><span class=c10>          </span><span class=B>Revoked</span>\n<span class=c2>  </span><i class=\"g2500 c23 f4b5060\">───────────────────────</i><span class=c2>  </span><i class=\"g2500 c11 f4b5060\">───────────</i><span class=c2>  </span><i class=\"g2500 c7 f4b5060\">───────</i>\n<span class=c40>  CN=mail.evotec.xyz       ECDSA P-256  </span><i class=\"n f8b8f9a\">–</i><span class=c1> </span><span class=f8b8f9a>no</span>\n<span class=c40>  CN=R11, O=Let's Encrypt  RSA 2048     </span><i class=\"n f8b8f9a\">–</i><span class=c1> </span><span class=f8b8f9a>no</span>\n<span class=c40>  CN=ISRG Root X1          RSA 4096     </span><i class=\"n f8b8f9a\">–</i><span class=c1> </span><span class=f8b8f9a>no</span>"
+            "w": 51,
+            "h": 21,
+            "dark": "<span class=B>mail.evotec.xyz certificate</span>\n<span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i></span> Subject           CN=mail.evotec.xyz\n<span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i></span> Issuer            CN=R11, O=Let's Encrypt, C=US\n<span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i></span> KeyAlgorithm      ECDSA P-256\n<span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i></span><span class=c26> SubjectAlternativeNames  </span><span class=\"f8b8f9a c1\">3</span><span class=c1> </span><span class=f8b8f9a>items</span>\n<i class=\"g2502 f4b5060\">│</i><span class=c3>   </span><span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i></span> [0]  mail.evotec.xyz\n<i class=\"g2502 f4b5060\">│</i><span class=c3>   </span><span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i></span> [1]  autodiscover.evotec.xyz\n<i class=\"g2502 f4b5060\">│</i><span class=c3>   </span><span class=\"f4b5060 c3\"><i class=g2514>└</i><i class=\"g2500 c2\">──</i></span> [2]  mta-sts.evotec.xyz\n<span class=\"f4b5060 c3\"><i class=g2514>└</i><i class=\"g2500 c2\">──</i></span><span class=c19> Chain             </span><span class=\"f8b8f9a c1\">3</span><span class=c1> </span><span class=f8b8f9a>items</span>\n<span class=c4>    </span><span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i></span><span class=c6> [0]  </span><span class=f8b8f9a>PSCustomObject</span>\n<span class=c4>    </span><i class=\"g2502 f4b5060\">│</i><span class=c3>   </span><span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i></span> Subject  CN=mail.evotec.xyz\n<span class=c4>    </span><i class=\"g2502 f4b5060\">│</i><span class=c3>   </span><span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i></span> Key      ECDSA P-256\n<span class=c4>    </span><i class=\"g2502 f4b5060\">│</i><span class=c3>   </span><span class=\"f4b5060 c3\"><i class=g2514>└</i><i class=\"g2500 c2\">──</i></span><span class=c10> Revoked  </span><i class=\"n f8b8f9a\">–</i><span class=c1> </span><span class=f8b8f9a>no</span>\n<span class=c4>    </span><span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i></span><span class=c6> [1]  </span><span class=f8b8f9a>PSCustomObject</span>\n<span class=c4>    </span><i class=\"g2502 f4b5060\">│</i><span class=c3>   </span><span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i></span> Subject  CN=R11, O=Let's Encrypt\n<span class=c4>    </span><i class=\"g2502 f4b5060\">│</i><span class=c3>   </span><span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i></span> Key      RSA 2048\n<span class=c4>    </span><i class=\"g2502 f4b5060\">│</i><span class=c3>   </span><span class=\"f4b5060 c3\"><i class=g2514>└</i><i class=\"g2500 c2\">──</i></span><span class=c10> Revoked  </span><i class=\"n f8b8f9a\">–</i><span class=c1> </span><span class=f8b8f9a>no</span>\n<span class=c4>    </span><span class=\"f4b5060 c3\"><i class=g2514>└</i><i class=\"g2500 c2\">──</i></span><span class=c6> [2]  </span><span class=f8b8f9a>PSCustomObject</span>\n<span class=c8>        </span><span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i></span> Subject  CN=ISRG Root X1\n<span class=c8>        </span><span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i></span> Key      RSA 4096\n<span class=c8>        </span><span class=\"f4b5060 c3\"><i class=g2514>└</i><i class=\"g2500 c2\">──</i></span><span class=c10> Revoked  </span><i class=\"n f8b8f9a\">–</i><span class=c1> </span><span class=f8b8f9a>no</span>"
           }
         },
         "ps5": {
           "host": "Windows PowerShell 5.1",
           "frame": {
-            "w": 47,
-            "h": 16,
-            "dark": "<span class=\"B c27\">mail.evotec.xyz certificate</span><span class=c2>  </span><i class=\"n f8b8f9a\">·</i><span class=c2>  </span><span class=\"f8b8f9a c1\">5</span><span class=c1> </span><span class=f8b8f9a>members</span>\n<span class=\"f8b8f9a c7\">Subject</span>       CN=mail.evotec.xyz\n<span class=\"f8b8f9a c6\">Issuer</span>        CN=R11, O=Let's Encrypt, C=US\n<span class=\"f8b8f9a c12\">KeyAlgorithm</span>  ECDSA P-256\n\n<span class=\"B c23\">SubjectAlternativeNames</span><span class=c2>  </span><span class=\"f8b8f9a c1\">3</span><span class=c1> </span><span class=f8b8f9a>items</span>\n<span class=c2>  </span><span class=\"f8b8f9a c3\">[0]</span>  mail.evotec.xyz\n<span class=c2>  </span><span class=\"f8b8f9a c3\">[1]</span>  autodiscover.evotec.xyz\n<span class=c2>  </span><span class=\"f8b8f9a c3\">[2]</span>  mta-sts.evotec.xyz\n\n<span class=\"B c5\">Chain</span><span class=c2>  </span><span class=\"f8b8f9a c1\">3</span><span class=c1> </span><span class=f8b8f9a>items</span>\n<span class=c2>  </span><span class=\"B c7\">Subject</span><span class=c18>                  </span><span class=\"B c3\">Key</span><span class=c10>          </span><span class=B>Revoked</span>\n<span class=c2>  </span><i class=\"g2500 c23 f4b5060\">───────────────────────</i><span class=c2>  </span><i class=\"g2500 c11 f4b5060\">───────────</i><span class=c2>  </span><i class=\"g2500 c7 f4b5060\">───────</i>\n<span class=c40>  CN=mail.evotec.xyz       ECDSA P-256  </span><i class=\"n f8b8f9a\">–</i><span class=c1> </span><span class=f8b8f9a>no</span>\n<span class=c40>  CN=R11, O=Let's Encrypt  RSA 2048     </span><i class=\"n f8b8f9a\">–</i><span class=c1> </span><span class=f8b8f9a>no</span>\n<span class=c40>  CN=ISRG Root X1          RSA 4096     </span><i class=\"n f8b8f9a\">–</i><span class=c1> </span><span class=f8b8f9a>no</span>"
+            "w": 51,
+            "h": 21,
+            "dark": "<span class=B>mail.evotec.xyz certificate</span>\n<span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i></span> Subject           CN=mail.evotec.xyz\n<span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i></span> Issuer            CN=R11, O=Let's Encrypt, C=US\n<span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i></span> KeyAlgorithm      ECDSA P-256\n<span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i></span><span class=c26> SubjectAlternativeNames  </span><span class=\"f8b8f9a c1\">3</span><span class=c1> </span><span class=f8b8f9a>items</span>\n<i class=\"g2502 f4b5060\">│</i><span class=c3>   </span><span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i></span> [0]  mail.evotec.xyz\n<i class=\"g2502 f4b5060\">│</i><span class=c3>   </span><span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i></span> [1]  autodiscover.evotec.xyz\n<i class=\"g2502 f4b5060\">│</i><span class=c3>   </span><span class=\"f4b5060 c3\"><i class=g2514>└</i><i class=\"g2500 c2\">──</i></span> [2]  mta-sts.evotec.xyz\n<span class=\"f4b5060 c3\"><i class=g2514>└</i><i class=\"g2500 c2\">──</i></span><span class=c19> Chain             </span><span class=\"f8b8f9a c1\">3</span><span class=c1> </span><span class=f8b8f9a>items</span>\n<span class=c4>    </span><span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i></span><span class=c6> [0]  </span><span class=f8b8f9a>PSCustomObject</span>\n<span class=c4>    </span><i class=\"g2502 f4b5060\">│</i><span class=c3>   </span><span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i></span> Subject  CN=mail.evotec.xyz\n<span class=c4>    </span><i class=\"g2502 f4b5060\">│</i><span class=c3>   </span><span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i></span> Key      ECDSA P-256\n<span class=c4>    </span><i class=\"g2502 f4b5060\">│</i><span class=c3>   </span><span class=\"f4b5060 c3\"><i class=g2514>└</i><i class=\"g2500 c2\">──</i></span><span class=c10> Revoked  </span><i class=\"n f8b8f9a\">–</i><span class=c1> </span><span class=f8b8f9a>no</span>\n<span class=c4>    </span><span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i></span><span class=c6> [1]  </span><span class=f8b8f9a>PSCustomObject</span>\n<span class=c4>    </span><i class=\"g2502 f4b5060\">│</i><span class=c3>   </span><span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i></span> Subject  CN=R11, O=Let's Encrypt\n<span class=c4>    </span><i class=\"g2502 f4b5060\">│</i><span class=c3>   </span><span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i></span> Key      RSA 2048\n<span class=c4>    </span><i class=\"g2502 f4b5060\">│</i><span class=c3>   </span><span class=\"f4b5060 c3\"><i class=g2514>└</i><i class=\"g2500 c2\">──</i></span><span class=c10> Revoked  </span><i class=\"n f8b8f9a\">–</i><span class=c1> </span><span class=f8b8f9a>no</span>\n<span class=c4>    </span><span class=\"f4b5060 c3\"><i class=g2514>└</i><i class=\"g2500 c2\">──</i></span><span class=c6> [2]  </span><span class=f8b8f9a>PSCustomObject</span>\n<span class=c8>        </span><span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i></span> Subject  CN=ISRG Root X1\n<span class=c8>        </span><span class=\"f4b5060 c3\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i></span> Key      RSA 4096\n<span class=c8>        </span><span class=\"f4b5060 c3\"><i class=g2514>└</i><i class=\"g2500 c2\">──</i></span><span class=c10> Revoked  </span><i class=\"n f8b8f9a\">–</i><span class=c1> </span><span class=f8b8f9a>no</span>"
           }
         }
       }
@@ -173,15 +173,15 @@
       }
     },
     "write-consoletext": {
-      "script": "Write-ConsoleText -Text 'Deploying ', 'FS01', ' to ', 'Production' -Color Gray, Cyan, Gray, Yellow\nWrite-ConsoleText -Markup '[pass]√[/] copied 1,204 files' -StartTab 1\nWrite-ConsoleText -Text 'Status: ', 'healthy' -Color DarkGray, Green -StartSpaces 8\n$textParameters = @{\n    Text = 'Collecting inventory '\n    Color = 'Gray'\n    PadRight = 40\n    PadCharacter = '.'\n    NoNewLine = $true\n}\nWrite-ConsoleText @textParameters\nWrite-ConsoleText -Text ' done' -Color Green\nWrite-ConsoleText -Text 'Release 2026.10 is live' -Gradient '#38bdf8', '#c084fc' -HorizontalCenter",
-      "scriptFull": "Import-Module ConsoleMonster\n\nWrite-ConsoleText -Text 'Deploying ', 'FS01', ' to ', 'Production' -Color Gray, Cyan, Gray, Yellow\nWrite-ConsoleText -Markup '[pass]√[/] copied 1,204 files' -StartTab 1\nWrite-ConsoleText -Text 'Status: ', 'healthy' -Color DarkGray, Green -StartSpaces 8\n$textParameters = @{\n    Text = 'Collecting inventory '\n    Color = 'Gray'\n    PadRight = 40\n    PadCharacter = '.'\n    NoNewLine = $true\n}\nWrite-ConsoleText @textParameters\nWrite-ConsoleText -Text ' done' -Color Green\nWrite-ConsoleText -Text 'Release 2026.10 is live' -Gradient '#38bdf8', '#c084fc' -HorizontalCenter",
+      "script": "Write-ConsoleText -Text 'Deploying ', 'FS01', ' to ', 'Production' -Color Gray, Cyan, Gray, Yellow\nWrite-ConsoleText -Markup '[pass]√[/] copied 1,204 files' -Indent 4\nWrite-ConsoleText -Text 'Status: ', 'healthy' -Color DarkGray, Green -Indent 8\n$textParameters = @{\n    Text = 'Collecting inventory '\n    Color = 'Gray'\n    NoNewLine = $true\n}\nWrite-ConsoleText @textParameters\nWrite-ConsoleText -Text ' done' -Color Green\nWrite-ConsoleText -Text 'Release 2026.10 is live' -Gradient '#38bdf8', '#c084fc' -Alignment Center",
+      "scriptFull": "Import-Module ConsoleMonster\n\nWrite-ConsoleText -Text 'Deploying ', 'FS01', ' to ', 'Production' -Color Gray, Cyan, Gray, Yellow\nWrite-ConsoleText -Markup '[pass]√[/] copied 1,204 files' -Indent 4\nWrite-ConsoleText -Text 'Status: ', 'healthy' -Color DarkGray, Green -Indent 8\n$textParameters = @{\n    Text = 'Collecting inventory '\n    Color = 'Gray'\n    NoNewLine = $true\n}\nWrite-ConsoleText @textParameters\nWrite-ConsoleText -Text ' done' -Color Green\nWrite-ConsoleText -Text 'Release 2026.10 is live' -Gradient '#38bdf8', '#c084fc' -Alignment Center",
       "rich": {
         "ps7": {
           "host": "PowerShell 7.6",
           "frame": {
             "w": 61,
             "h": 5,
-            "dark": "<span class=\"fcccccc c9\">Deploying</span><span class=c1> </span><span class=\"f61d6d6 c4\">FS01</span><span class=c1> </span><span class=\"fcccccc c2\">to</span><span class=c1> </span><span class=ff9f1a5>Production</span>\n<span class=c8>        </span><i class=\"n f4ade80\">√</i> copied 1,204 files\n<span class=c8>        </span><span class=\"f767676 c7\">Status:</span><span class=c1> </span><span class=f16c60c>healthy</span>\n<span class=\"fcccccc c10\">Collecting</span><span class=c1> </span><span class=\"fcccccc c9\">inventory</span><span class=c21> ................... </span><span class=f16c60c>done</span>\n<span class=c38>                                      </span><span class=\"f38bdf8 c1\">R</span><span class=\"f3fbaf8 c1\">e</span><span class=\"f46b7f8 c1\">l</span><span class=\"f4db4f9 c1\">e</span><span class=\"f55b1f9 c1\">a</span><span class=\"f5caef9 c1\">s</span><span class=\"f63abf9 c1\">e</span><span class=c1> </span><span class=\"f6aa8f9 c1\">2</span><span class=\"f71a5fa c1\">0</span><span class=\"f78a2fa c1\">2</span><span class=\"f809ffa c1\">6</span><span class=\"f879cfa c1\">.</span><span class=\"f8e99fb c1\">1</span><span class=\"f9596fb c1\">0</span><span class=c1> </span><span class=\"f9c93fb c1\">i</span><span class=\"fa390fb c1\">s</span><span class=c1> </span><span class=\"fab8dfb c1\">l</span><span class=\"fb28afc c1\">i</span><span class=\"fb987fc c1\">v</span><span class=fc084fc>e</span>"
+            "dark": "<span class=\"fcccccc c9\">Deploying</span><span class=c1> </span><span class=\"f61d6d6 c4\">FS01</span><span class=c1> </span><span class=\"fcccccc c2\">to</span><span class=c1> </span><span class=ff9f1a5>Production</span>\n<span class=c4>    </span><i class=\"n f4ade80\">√</i> copied 1,204 files\n<span class=c8>        </span><span class=\"f767676 c7\">Status:</span><span class=c1> </span><span class=f16c60c>healthy</span>\n<span class=\"fcccccc c10\">Collecting</span><span class=c1> </span><span class=\"fcccccc c9\">inventory</span><span class=c2>  </span><span class=f16c60c>done</span>\n<span class=c38>                                      </span><span class=\"f38bdf8 c1\">R</span><span class=\"f3fbaf8 c1\">e</span><span class=\"f46b7f8 c1\">l</span><span class=\"f4db4f9 c1\">e</span><span class=\"f55b1f9 c1\">a</span><span class=\"f5caef9 c1\">s</span><span class=\"f63abf9 c1\">e</span><span class=c1> </span><span class=\"f6aa8f9 c1\">2</span><span class=\"f71a5fa c1\">0</span><span class=\"f78a2fa c1\">2</span><span class=\"f809ffa c1\">6</span><span class=\"f879cfa c1\">.</span><span class=\"f8e99fb c1\">1</span><span class=\"f9596fb c1\">0</span><span class=c1> </span><span class=\"f9c93fb c1\">i</span><span class=\"fa390fb c1\">s</span><span class=c1> </span><span class=\"fab8dfb c1\">l</span><span class=\"fb28afc c1\">i</span><span class=\"fb987fc c1\">v</span><span class=fc084fc>e</span>"
           }
         },
         "ps5": {
@@ -189,7 +189,7 @@
           "frame": {
             "w": 61,
             "h": 5,
-            "dark": "<span class=\"fcccccc c9\">Deploying</span><span class=c1> </span><span class=\"f61d6d6 c4\">FS01</span><span class=c1> </span><span class=\"fcccccc c2\">to</span><span class=c1> </span><span class=ff9f1a5>Production</span>\n<span class=c8>        </span><i class=\"n f4ade80\">√</i> copied 1,204 files\n<span class=c8>        </span><span class=\"f767676 c7\">Status:</span><span class=c1> </span><span class=f16c60c>healthy</span>\n<span class=\"fcccccc c10\">Collecting</span><span class=c1> </span><span class=\"fcccccc c9\">inventory</span><span class=c21> ................... </span><span class=f16c60c>done</span>\n<span class=c38>                                      </span><span class=\"f38bdf8 c1\">R</span><span class=\"f3fbaf8 c1\">e</span><span class=\"f46b7f8 c1\">l</span><span class=\"f4db4f9 c1\">e</span><span class=\"f55b1f9 c1\">a</span><span class=\"f5caef9 c1\">s</span><span class=\"f63abf9 c1\">e</span><span class=c1> </span><span class=\"f6aa8f9 c1\">2</span><span class=\"f71a5fa c1\">0</span><span class=\"f78a2fa c1\">2</span><span class=\"f809ffa c1\">6</span><span class=\"f879cfa c1\">.</span><span class=\"f8e99fb c1\">1</span><span class=\"f9596fb c1\">0</span><span class=c1> </span><span class=\"f9c93fb c1\">i</span><span class=\"fa390fb c1\">s</span><span class=c1> </span><span class=\"fab8dfb c1\">l</span><span class=\"fb28afc c1\">i</span><span class=\"fb987fc c1\">v</span><span class=fc084fc>e</span>"
+            "dark": "<span class=\"fcccccc c9\">Deploying</span><span class=c1> </span><span class=\"f61d6d6 c4\">FS01</span><span class=c1> </span><span class=\"fcccccc c2\">to</span><span class=c1> </span><span class=ff9f1a5>Production</span>\n<span class=c4>    </span><i class=\"n f4ade80\">√</i> copied 1,204 files\n<span class=c8>        </span><span class=\"f767676 c7\">Status:</span><span class=c1> </span><span class=f16c60c>healthy</span>\n<span class=\"fcccccc c10\">Collecting</span><span class=c1> </span><span class=\"fcccccc c9\">inventory</span><span class=c2>  </span><span class=f16c60c>done</span>\n<span class=c38>                                      </span><span class=\"f38bdf8 c1\">R</span><span class=\"f3fbaf8 c1\">e</span><span class=\"f46b7f8 c1\">l</span><span class=\"f4db4f9 c1\">e</span><span class=\"f55b1f9 c1\">a</span><span class=\"f5caef9 c1\">s</span><span class=\"f63abf9 c1\">e</span><span class=c1> </span><span class=\"f6aa8f9 c1\">2</span><span class=\"f71a5fa c1\">0</span><span class=\"f78a2fa c1\">2</span><span class=\"f809ffa c1\">6</span><span class=\"f879cfa c1\">.</span><span class=\"f8e99fb c1\">1</span><span class=\"f9596fb c1\">0</span><span class=c1> </span><span class=\"f9c93fb c1\">i</span><span class=\"fa390fb c1\">s</span><span class=c1> </span><span class=\"fab8dfb c1\">l</span><span class=\"fb28afc c1\">i</span><span class=\"fb987fc c1\">v</span><span class=fc084fc>e</span>"
           }
         }
       }
@@ -217,8 +217,8 @@
       }
     },
     "export-markdown": {
-      "script": "# Invented package artifacts, exported as a Markdown table for a report.\n$recordedAt = [datetimeoffset] '2026-10-21T12:00:00Z'\n$files = @(\n    [pscustomobject] @{\n        Name = 'ConsoleMonster.dll'; Length = 1048576; LastWriteTime = $recordedAt\n    }\n    [pscustomobject] @{\n        Name = 'ConsoleMonster.deps.json'; Length = 4096; LastWriteTime = $recordedAt\n    }\n    [pscustomobject] @{\n        Name = 'start.ps1'; Length = 512; LastWriteTime = $recordedAt\n    }\n)\n$files | Show-ConsoleTable -Property Name, Length, LastWriteTime `\n    -Presentation @{ TimeZone = [TimeZoneInfo]::Utc } -AsWidget |\n    Export-ConsoleFrame -Format Markdown",
-      "scriptFull": "Import-Module ConsoleMonster\n\n# Invented package artifacts, exported as a Markdown table for a report.\n$recordedAt = [datetimeoffset] '2026-10-21T12:00:00Z'\n$files = @(\n    [pscustomobject] @{\n        Name = 'ConsoleMonster.dll'; Length = 1048576; LastWriteTime = $recordedAt\n    }\n    [pscustomobject] @{\n        Name = 'ConsoleMonster.deps.json'; Length = 4096; LastWriteTime = $recordedAt\n    }\n    [pscustomobject] @{\n        Name = 'start.ps1'; Length = 512; LastWriteTime = $recordedAt\n    }\n)\n$files | Show-ConsoleTable -Property Name, Length, LastWriteTime `\n    -Presentation @{ TimeZone = [TimeZoneInfo]::Utc } -AsWidget |\n    Export-ConsoleFrame -Format Markdown",
+      "script": "# Invented package artifacts, exported as a Markdown table for a report.\n$recordedAt = [datetimeoffset] '2026-10-21T12:00:00Z'\n$files = @(\n    [pscustomobject] @{\n        Name = 'ConsoleMonster.dll'; Length = 1048576; LastWriteTime = $recordedAt\n    }\n    [pscustomobject] @{\n        Name = 'ConsoleMonster.deps.json'; Length = 4096; LastWriteTime = $recordedAt\n    }\n    [pscustomobject] @{\n        Name = 'start.ps1'; Length = 512; LastWriteTime = $recordedAt\n    }\n)\n$files | New-ConsoleTable -Property Name, Length, LastWriteTime `\n    -Presentation @{ TimeZone = [TimeZoneInfo]::Utc }  |\n    Export-ConsoleFrame -Format Markdown",
+      "scriptFull": "Import-Module ConsoleMonster\n\n# Invented package artifacts, exported as a Markdown table for a report.\n$recordedAt = [datetimeoffset] '2026-10-21T12:00:00Z'\n$files = @(\n    [pscustomobject] @{\n        Name = 'ConsoleMonster.dll'; Length = 1048576; LastWriteTime = $recordedAt\n    }\n    [pscustomobject] @{\n        Name = 'ConsoleMonster.deps.json'; Length = 4096; LastWriteTime = $recordedAt\n    }\n    [pscustomobject] @{\n        Name = 'start.ps1'; Length = 512; LastWriteTime = $recordedAt\n    }\n)\n$files | New-ConsoleTable -Property Name, Length, LastWriteTime `\n    -Presentation @{ TimeZone = [TimeZoneInfo]::Utc }  |\n    Export-ConsoleFrame -Format Markdown",
       "rich": {
         "ps7": {
           "host": "PowerShell 7.6",
@@ -259,15 +259,15 @@
       }
     },
     "streams": {
-      "script": "# Show every stream for this demo.\n$VerbosePreference = 'Continue'\n$DebugPreference = 'Continue'\n\nShow-Console -Title \"PowerShell's own colours\" -View Rule\nWrite-Warning 'Certificate for mail.evotec.xyz expires in 12 days'\nWrite-Verbose 'Queried 4 domain controllers in 2 domains'\nWrite-Debug 'Cache hit for evotec.xyz'\n\nEnable-ConsoleFormatting -Feature Streams\n\nShow-Console -Title 'With -Feature Streams: the theme''s colours' -View Rule\nWrite-Warning 'Certificate for mail.evotec.xyz expires in 12 days'\nWrite-Verbose 'Queried 4 domain controllers in 2 domains'\nWrite-Debug 'Cache hit for evotec.xyz'\n\nDisable-ConsoleFormatting -Feature Streams",
-      "scriptFull": "Import-Module ConsoleMonster\n\n# Show every stream for this demo.\n$VerbosePreference = 'Continue'\n$DebugPreference = 'Continue'\n\nShow-Console -Title \"PowerShell's own colours\" -View Rule\nWrite-Warning 'Certificate for mail.evotec.xyz expires in 12 days'\nWrite-Verbose 'Queried 4 domain controllers in 2 domains'\nWrite-Debug 'Cache hit for evotec.xyz'\n\nEnable-ConsoleFormatting -Feature Streams\n\nShow-Console -Title 'With -Feature Streams: the theme''s colours' -View Rule\nWrite-Warning 'Certificate for mail.evotec.xyz expires in 12 days'\nWrite-Verbose 'Queried 4 domain controllers in 2 domains'\nWrite-Debug 'Cache hit for evotec.xyz'\n\nDisable-ConsoleFormatting -Feature Streams",
+      "script": "# Show every stream for this demo.\n$VerbosePreference = 'Continue'\n$DebugPreference = 'Continue'\n\nNew-ConsoleRule -Title \"PowerShell's own colours\" | Show-Console\nWrite-Warning 'Certificate for mail.evotec.xyz expires in 12 days'\nWrite-Verbose 'Queried 4 domain controllers in 2 domains'\nWrite-Debug 'Cache hit for evotec.xyz'\n\nEnable-ConsoleFormatting -Include Streams\n\nNew-ConsoleRule -Title 'With -Include Streams: the theme''s colours' | Show-Console\nWrite-Warning 'Certificate for mail.evotec.xyz expires in 12 days'\nWrite-Verbose 'Queried 4 domain controllers in 2 domains'\nWrite-Debug 'Cache hit for evotec.xyz'\n\nDisable-ConsoleFormatting -Feature Streams",
+      "scriptFull": "Import-Module ConsoleMonster\n\n# Show every stream for this demo.\n$VerbosePreference = 'Continue'\n$DebugPreference = 'Continue'\n\nNew-ConsoleRule -Title \"PowerShell's own colours\" | Show-Console\nWrite-Warning 'Certificate for mail.evotec.xyz expires in 12 days'\nWrite-Verbose 'Queried 4 domain controllers in 2 domains'\nWrite-Debug 'Cache hit for evotec.xyz'\n\nEnable-ConsoleFormatting -Include Streams\n\nNew-ConsoleRule -Title 'With -Include Streams: the theme''s colours' | Show-Console\nWrite-Warning 'Certificate for mail.evotec.xyz expires in 12 days'\nWrite-Verbose 'Queried 4 domain controllers in 2 domains'\nWrite-Debug 'Cache hit for evotec.xyz'\n\nDisable-ConsoleFormatting -Feature Streams",
       "rich": {
         "ps7": {
           "host": "PowerShell 7.6",
           "frame": {
             "w": 100,
             "h": 8,
-            "dark": "<i class=\"g2500 c2 f4b5060\">──</i><span class=c1> </span><span class=\"B c24\">PowerShell's own colours</span><span class=c1> </span><i class=\"g2500 c72 f4b5060\">────────────────────────────────────────────────────────────────────────</i>\n<span class=\"fc19c00 B\">WARNING: Certificate for mail.evotec.xyz expires in 12 days</span>\n<span class=\"fc19c00 B\">VERBOSE: Queried 4 domain controllers in 2 domains</span>\n<span class=\"fc19c00 B\">DEBUG: Cache hit for evotec.xyz</span>\n<i class=\"g2500 c2 f4b5060\">──</i><span class=c1> </span><span class=\"B c42\">With -Feature Streams: the theme's colours</span><span class=c1> </span><i class=\"g2500 c54 f4b5060\">──────────────────────────────────────────────────────</i>\n<span class=\"ffbbf24 c8\">WARNING:</span><span class=c1> </span><span class=\"ffbbf24 c11\">Certificate</span><span class=c1> </span><span class=\"ffbbf24 c3\">for</span><span class=c1> </span><span class=\"ffbbf24 c15\">mail.evotec.xyz</span><span class=c1> </span><span class=\"ffbbf24 c7\">expires</span><span class=c1> </span><span class=\"ffbbf24 c2\">in</span><span class=c1> </span><span class=\"ffbbf24 c2\">12</span><span class=c1> </span><span class=ffbbf24>days</span>\n<span class=\"f38bdf8 c8\">VERBOSE:</span><span class=c1> </span><span class=\"f38bdf8 c7\">Queried</span><span class=c1> </span><span class=\"f38bdf8 c1\">4</span><span class=c1> </span><span class=\"f38bdf8 c6\">domain</span><span class=c1> </span><span class=\"f38bdf8 c11\">controllers</span><span class=c1> </span><span class=\"f38bdf8 c2\">in</span><span class=c1> </span><span class=\"f38bdf8 c1\">2</span><span class=c1> </span><span class=f38bdf8>domains</span>\n<span class=\"f8b8f9a c6\">DEBUG:</span><span class=c1> </span><span class=\"f8b8f9a c5\">Cache</span><span class=c1> </span><span class=\"f8b8f9a c3\">hit</span><span class=c1> </span><span class=\"f8b8f9a c3\">for</span><span class=c1> </span><span class=f8b8f9a>evotec.xyz</span>"
+            "dark": "<i class=\"g2500 c2 f4b5060\">──</i><span class=c1> </span><span class=\"B c24\">PowerShell's own colours</span><span class=c1> </span><i class=\"g2500 c72 f4b5060\">────────────────────────────────────────────────────────────────────────</i>\n<span class=\"fc19c00 B\">WARNING: Certificate for mail.evotec.xyz expires in 12 days</span>\n<span class=\"fc19c00 B\">VERBOSE: Queried 4 domain controllers in 2 domains</span>\n<span class=\"fc19c00 B\">DEBUG: Cache hit for evotec.xyz</span>\n<i class=\"g2500 c2 f4b5060\">──</i><span class=c1> </span><span class=\"B c42\">With -Include Streams: the theme's colours</span><span class=c1> </span><i class=\"g2500 c54 f4b5060\">──────────────────────────────────────────────────────</i>\n<span class=\"ffbbf24 c8\">WARNING:</span><span class=c1> </span><span class=\"ffbbf24 c11\">Certificate</span><span class=c1> </span><span class=\"ffbbf24 c3\">for</span><span class=c1> </span><span class=\"ffbbf24 c15\">mail.evotec.xyz</span><span class=c1> </span><span class=\"ffbbf24 c7\">expires</span><span class=c1> </span><span class=\"ffbbf24 c2\">in</span><span class=c1> </span><span class=\"ffbbf24 c2\">12</span><span class=c1> </span><span class=ffbbf24>days</span>\n<span class=\"f38bdf8 c8\">VERBOSE:</span><span class=c1> </span><span class=\"f38bdf8 c7\">Queried</span><span class=c1> </span><span class=\"f38bdf8 c1\">4</span><span class=c1> </span><span class=\"f38bdf8 c6\">domain</span><span class=c1> </span><span class=\"f38bdf8 c11\">controllers</span><span class=c1> </span><span class=\"f38bdf8 c2\">in</span><span class=c1> </span><span class=\"f38bdf8 c1\">2</span><span class=c1> </span><span class=f38bdf8>domains</span>\n<span class=\"f8b8f9a c6\">DEBUG:</span><span class=c1> </span><span class=\"f8b8f9a c5\">Cache</span><span class=c1> </span><span class=\"f8b8f9a c3\">hit</span><span class=c1> </span><span class=\"f8b8f9a c3\">for</span><span class=c1> </span><span class=f8b8f9a>evotec.xyz</span>"
           }
         },
         "ps5": {
@@ -275,7 +275,7 @@
           "frame": {
             "w": 100,
             "h": 8,
-            "dark": "<i class=\"g2500 c2 f4b5060\">──</i><span class=c1> </span><span class=\"B c24\">PowerShell's own colours</span><span class=c1> </span><i class=\"g2500 c72 f4b5060\">────────────────────────────────────────────────────────────────────────</i>\n<span class=\"ff9f1a5 c8\">WARNING:</span><span class=c1> </span><span class=\"ff9f1a5 c11\">Certificate</span><span class=c1> </span><span class=\"ff9f1a5 c3\">for</span><span class=c1> </span><span class=\"ff9f1a5 c15\">mail.evotec.xyz</span><span class=c1> </span><span class=\"ff9f1a5 c7\">expires</span><span class=c1> </span><span class=\"ff9f1a5 c2\">in</span><span class=c1> </span><span class=\"ff9f1a5 c2\">12</span><span class=c1> </span><span class=ff9f1a5>days</span>\n<span class=\"ff9f1a5 c8\">VERBOSE:</span><span class=c1> </span><span class=\"ff9f1a5 c7\">Queried</span><span class=c1> </span><span class=\"ff9f1a5 c1\">4</span><span class=c1> </span><span class=\"ff9f1a5 c6\">domain</span><span class=c1> </span><span class=\"ff9f1a5 c11\">controllers</span><span class=c1> </span><span class=\"ff9f1a5 c2\">in</span><span class=c1> </span><span class=\"ff9f1a5 c1\">2</span><span class=c1> </span><span class=ff9f1a5>domains</span>\n<span class=\"ff9f1a5 c6\">DEBUG:</span><span class=c1> </span><span class=\"ff9f1a5 c5\">Cache</span><span class=c1> </span><span class=\"ff9f1a5 c3\">hit</span><span class=c1> </span><span class=\"ff9f1a5 c3\">for</span><span class=c1> </span><span class=ff9f1a5>evotec.xyz</span>\n<i class=\"g2500 c2 f4b5060\">──</i><span class=c1> </span><span class=\"B c42\">With -Feature Streams: the theme's colours</span><span class=c1> </span><i class=\"g2500 c54 f4b5060\">──────────────────────────────────────────────────────</i>\n<span class=\"ff9f1a5 c8\">WARNING:</span><span class=c1> </span><span class=\"ff9f1a5 c11\">Certificate</span><span class=c1> </span><span class=\"ff9f1a5 c3\">for</span><span class=c1> </span><span class=\"ff9f1a5 c15\">mail.evotec.xyz</span><span class=c1> </span><span class=\"ff9f1a5 c7\">expires</span><span class=c1> </span><span class=\"ff9f1a5 c2\">in</span><span class=c1> </span><span class=\"ff9f1a5 c2\">12</span><span class=c1> </span><span class=ff9f1a5>days</span>\n<span class=\"f61d6d6 c8\">VERBOSE:</span><span class=c1> </span><span class=\"f61d6d6 c7\">Queried</span><span class=c1> </span><span class=\"f61d6d6 c1\">4</span><span class=c1> </span><span class=\"f61d6d6 c6\">domain</span><span class=c1> </span><span class=\"f61d6d6 c11\">controllers</span><span class=c1> </span><span class=\"f61d6d6 c2\">in</span><span class=c1> </span><span class=\"f61d6d6 c1\">2</span><span class=c1> </span><span class=f61d6d6>domains</span>\n<span class=\"f767676 c6\">DEBUG:</span><span class=c1> </span><span class=\"f767676 c5\">Cache</span><span class=c1> </span><span class=\"f767676 c3\">hit</span><span class=c1> </span><span class=\"f767676 c3\">for</span><span class=c1> </span><span class=f767676>evotec.xyz</span>"
+            "dark": "<i class=\"g2500 c2 f4b5060\">──</i><span class=c1> </span><span class=\"B c24\">PowerShell's own colours</span><span class=c1> </span><i class=\"g2500 c72 f4b5060\">────────────────────────────────────────────────────────────────────────</i>\n<span class=\"ff9f1a5 c8\">WARNING:</span><span class=c1> </span><span class=\"ff9f1a5 c11\">Certificate</span><span class=c1> </span><span class=\"ff9f1a5 c3\">for</span><span class=c1> </span><span class=\"ff9f1a5 c15\">mail.evotec.xyz</span><span class=c1> </span><span class=\"ff9f1a5 c7\">expires</span><span class=c1> </span><span class=\"ff9f1a5 c2\">in</span><span class=c1> </span><span class=\"ff9f1a5 c2\">12</span><span class=c1> </span><span class=ff9f1a5>days</span>\n<span class=\"ff9f1a5 c8\">VERBOSE:</span><span class=c1> </span><span class=\"ff9f1a5 c7\">Queried</span><span class=c1> </span><span class=\"ff9f1a5 c1\">4</span><span class=c1> </span><span class=\"ff9f1a5 c6\">domain</span><span class=c1> </span><span class=\"ff9f1a5 c11\">controllers</span><span class=c1> </span><span class=\"ff9f1a5 c2\">in</span><span class=c1> </span><span class=\"ff9f1a5 c1\">2</span><span class=c1> </span><span class=ff9f1a5>domains</span>\n<span class=\"ff9f1a5 c6\">DEBUG:</span><span class=c1> </span><span class=\"ff9f1a5 c5\">Cache</span><span class=c1> </span><span class=\"ff9f1a5 c3\">hit</span><span class=c1> </span><span class=\"ff9f1a5 c3\">for</span><span class=c1> </span><span class=ff9f1a5>evotec.xyz</span>\n<i class=\"g2500 c2 f4b5060\">──</i><span class=c1> </span><span class=\"B c42\">With -Include Streams: the theme's colours</span><span class=c1> </span><i class=\"g2500 c54 f4b5060\">──────────────────────────────────────────────────────</i>\n<span class=\"ff9f1a5 c8\">WARNING:</span><span class=c1> </span><span class=\"ff9f1a5 c11\">Certificate</span><span class=c1> </span><span class=\"ff9f1a5 c3\">for</span><span class=c1> </span><span class=\"ff9f1a5 c15\">mail.evotec.xyz</span><span class=c1> </span><span class=\"ff9f1a5 c7\">expires</span><span class=c1> </span><span class=\"ff9f1a5 c2\">in</span><span class=c1> </span><span class=\"ff9f1a5 c2\">12</span><span class=c1> </span><span class=ff9f1a5>days</span>\n<span class=\"f61d6d6 c8\">VERBOSE:</span><span class=c1> </span><span class=\"f61d6d6 c7\">Queried</span><span class=c1> </span><span class=\"f61d6d6 c1\">4</span><span class=c1> </span><span class=\"f61d6d6 c6\">domain</span><span class=c1> </span><span class=\"f61d6d6 c11\">controllers</span><span class=c1> </span><span class=\"f61d6d6 c2\">in</span><span class=c1> </span><span class=\"f61d6d6 c1\">2</span><span class=c1> </span><span class=f61d6d6>domains</span>\n<span class=\"f767676 c6\">DEBUG:</span><span class=c1> </span><span class=\"f767676 c5\">Cache</span><span class=c1> </span><span class=\"f767676 c3\">hit</span><span class=c1> </span><span class=\"f767676 c3\">for</span><span class=c1> </span><span class=f767676>evotec.xyz</span>"
           }
         }
       },
@@ -285,7 +285,7 @@
           "frame": {
             "w": 100,
             "h": 8,
-            "dark": "<i class=\"g2500 c2 f8a8a94\">──</i><span class=c1> </span><span class=\"f111827 B c24\">PowerShell's own colours</span><span class=c1> </span><i class=\"g2500 c72 f8a8a94\">────────────────────────────────────────────────────────────────────────</i>\n<span class=\"fc19c00 B\">WARNING: Certificate for mail.evotec.xyz expires in 12 days</span>\n<span class=\"fc19c00 B\">VERBOSE: Queried 4 domain controllers in 2 domains</span>\n<span class=\"fc19c00 B\">DEBUG: Cache hit for evotec.xyz</span>\n<i class=\"g2500 c2 f8a8a94\">──</i><span class=c1> </span><span class=\"f111827 B c42\">With -Feature Streams: the theme's colours</span><span class=c1> </span><i class=\"g2500 c54 f8a8a94\">──────────────────────────────────────────────────────</i>\n<span class=\"fb45309 c8\">WARNING:</span><span class=c1> </span><span class=\"fb45309 c11\">Certificate</span><span class=c1> </span><span class=\"fb45309 c3\">for</span><span class=c1> </span><span class=\"fb45309 c15\">mail.evotec.xyz</span><span class=c1> </span><span class=\"fb45309 c7\">expires</span><span class=c1> </span><span class=\"fb45309 c2\">in</span><span class=c1> </span><span class=\"fb45309 c2\">12</span><span class=c1> </span><span class=fb45309>days</span>\n<span class=\"f0369a1 c8\">VERBOSE:</span><span class=c1> </span><span class=\"f0369a1 c7\">Queried</span><span class=c1> </span><span class=\"f0369a1 c1\">4</span><span class=c1> </span><span class=\"f0369a1 c6\">domain</span><span class=c1> </span><span class=\"f0369a1 c11\">controllers</span><span class=c1> </span><span class=\"f0369a1 c2\">in</span><span class=c1> </span><span class=\"f0369a1 c1\">2</span><span class=c1> </span><span class=f0369a1>domains</span>\n<span class=\"f6b7280 c6\">DEBUG:</span><span class=c1> </span><span class=\"f6b7280 c5\">Cache</span><span class=c1> </span><span class=\"f6b7280 c3\">hit</span><span class=c1> </span><span class=\"f6b7280 c3\">for</span><span class=c1> </span><span class=f6b7280>evotec.xyz</span>"
+            "dark": "<i class=\"g2500 c2 f8a8a94\">──</i><span class=c1> </span><span class=\"f111827 B c24\">PowerShell's own colours</span><span class=c1> </span><i class=\"g2500 c72 f8a8a94\">────────────────────────────────────────────────────────────────────────</i>\n<span class=\"fc19c00 B\">WARNING: Certificate for mail.evotec.xyz expires in 12 days</span>\n<span class=\"fc19c00 B\">VERBOSE: Queried 4 domain controllers in 2 domains</span>\n<span class=\"fc19c00 B\">DEBUG: Cache hit for evotec.xyz</span>\n<i class=\"g2500 c2 f8a8a94\">──</i><span class=c1> </span><span class=\"f111827 B c42\">With -Include Streams: the theme's colours</span><span class=c1> </span><i class=\"g2500 c54 f8a8a94\">──────────────────────────────────────────────────────</i>\n<span class=\"fb45309 c8\">WARNING:</span><span class=c1> </span><span class=\"fb45309 c11\">Certificate</span><span class=c1> </span><span class=\"fb45309 c3\">for</span><span class=c1> </span><span class=\"fb45309 c15\">mail.evotec.xyz</span><span class=c1> </span><span class=\"fb45309 c7\">expires</span><span class=c1> </span><span class=\"fb45309 c2\">in</span><span class=c1> </span><span class=\"fb45309 c2\">12</span><span class=c1> </span><span class=fb45309>days</span>\n<span class=\"f0369a1 c8\">VERBOSE:</span><span class=c1> </span><span class=\"f0369a1 c7\">Queried</span><span class=c1> </span><span class=\"f0369a1 c1\">4</span><span class=c1> </span><span class=\"f0369a1 c6\">domain</span><span class=c1> </span><span class=\"f0369a1 c11\">controllers</span><span class=c1> </span><span class=\"f0369a1 c2\">in</span><span class=c1> </span><span class=\"f0369a1 c1\">2</span><span class=c1> </span><span class=f0369a1>domains</span>\n<span class=\"f6b7280 c6\">DEBUG:</span><span class=c1> </span><span class=\"f6b7280 c5\">Cache</span><span class=c1> </span><span class=\"f6b7280 c3\">hit</span><span class=c1> </span><span class=\"f6b7280 c3\">for</span><span class=c1> </span><span class=f6b7280>evotec.xyz</span>"
           }
         },
         "ps5": {
@@ -293,7 +293,7 @@
           "frame": {
             "w": 100,
             "h": 8,
-            "dark": "<i class=\"g2500 c2 f8a8a94\">──</i><span class=c1> </span><span class=\"f111827 B c24\">PowerShell's own colours</span><span class=c1> </span><i class=\"g2500 c72 f8a8a94\">────────────────────────────────────────────────────────────────────────</i>\n<span class=\"ff9f1a5 c8\">WARNING:</span><span class=c1> </span><span class=\"ff9f1a5 c11\">Certificate</span><span class=c1> </span><span class=\"ff9f1a5 c3\">for</span><span class=c1> </span><span class=\"ff9f1a5 c15\">mail.evotec.xyz</span><span class=c1> </span><span class=\"ff9f1a5 c7\">expires</span><span class=c1> </span><span class=\"ff9f1a5 c2\">in</span><span class=c1> </span><span class=\"ff9f1a5 c2\">12</span><span class=c1> </span><span class=ff9f1a5>days</span>\n<span class=\"ff9f1a5 c8\">VERBOSE:</span><span class=c1> </span><span class=\"ff9f1a5 c7\">Queried</span><span class=c1> </span><span class=\"ff9f1a5 c1\">4</span><span class=c1> </span><span class=\"ff9f1a5 c6\">domain</span><span class=c1> </span><span class=\"ff9f1a5 c11\">controllers</span><span class=c1> </span><span class=\"ff9f1a5 c2\">in</span><span class=c1> </span><span class=\"ff9f1a5 c1\">2</span><span class=c1> </span><span class=ff9f1a5>domains</span>\n<span class=\"ff9f1a5 c6\">DEBUG:</span><span class=c1> </span><span class=\"ff9f1a5 c5\">Cache</span><span class=c1> </span><span class=\"ff9f1a5 c3\">hit</span><span class=c1> </span><span class=\"ff9f1a5 c3\">for</span><span class=c1> </span><span class=ff9f1a5>evotec.xyz</span>\n<i class=\"g2500 c2 f8a8a94\">──</i><span class=c1> </span><span class=\"f111827 B c42\">With -Feature Streams: the theme's colours</span><span class=c1> </span><i class=\"g2500 c54 f8a8a94\">──────────────────────────────────────────────────────</i>\n<span class=\"fc19c00 c8\">WARNING:</span><span class=c1> </span><span class=\"fc19c00 c11\">Certificate</span><span class=c1> </span><span class=\"fc19c00 c3\">for</span><span class=c1> </span><span class=\"fc19c00 c15\">mail.evotec.xyz</span><span class=c1> </span><span class=\"fc19c00 c7\">expires</span><span class=c1> </span><span class=\"fc19c00 c2\">in</span><span class=c1> </span><span class=\"fc19c00 c2\">12</span><span class=c1> </span><span class=fc19c00>days</span>\n<span class=\"f3a96dd c8\">VERBOSE:</span><span class=c1> </span><span class=\"f3a96dd c7\">Queried</span><span class=c1> </span><span class=\"f3a96dd c1\">4</span><span class=c1> </span><span class=\"f3a96dd c6\">domain</span><span class=c1> </span><span class=\"f3a96dd c11\">controllers</span><span class=c1> </span><span class=\"f3a96dd c2\">in</span><span class=c1> </span><span class=\"f3a96dd c1\">2</span><span class=c1> </span><span class=f3a96dd>domains</span>\n<span class=\"f767676 c6\">DEBUG:</span><span class=c1> </span><span class=\"f767676 c5\">Cache</span><span class=c1> </span><span class=\"f767676 c3\">hit</span><span class=c1> </span><span class=\"f767676 c3\">for</span><span class=c1> </span><span class=f767676>evotec.xyz</span>"
+            "dark": "<i class=\"g2500 c2 f8a8a94\">──</i><span class=c1> </span><span class=\"f111827 B c24\">PowerShell's own colours</span><span class=c1> </span><i class=\"g2500 c72 f8a8a94\">────────────────────────────────────────────────────────────────────────</i>\n<span class=\"ff9f1a5 c8\">WARNING:</span><span class=c1> </span><span class=\"ff9f1a5 c11\">Certificate</span><span class=c1> </span><span class=\"ff9f1a5 c3\">for</span><span class=c1> </span><span class=\"ff9f1a5 c15\">mail.evotec.xyz</span><span class=c1> </span><span class=\"ff9f1a5 c7\">expires</span><span class=c1> </span><span class=\"ff9f1a5 c2\">in</span><span class=c1> </span><span class=\"ff9f1a5 c2\">12</span><span class=c1> </span><span class=ff9f1a5>days</span>\n<span class=\"ff9f1a5 c8\">VERBOSE:</span><span class=c1> </span><span class=\"ff9f1a5 c7\">Queried</span><span class=c1> </span><span class=\"ff9f1a5 c1\">4</span><span class=c1> </span><span class=\"ff9f1a5 c6\">domain</span><span class=c1> </span><span class=\"ff9f1a5 c11\">controllers</span><span class=c1> </span><span class=\"ff9f1a5 c2\">in</span><span class=c1> </span><span class=\"ff9f1a5 c1\">2</span><span class=c1> </span><span class=ff9f1a5>domains</span>\n<span class=\"ff9f1a5 c6\">DEBUG:</span><span class=c1> </span><span class=\"ff9f1a5 c5\">Cache</span><span class=c1> </span><span class=\"ff9f1a5 c3\">hit</span><span class=c1> </span><span class=\"ff9f1a5 c3\">for</span><span class=c1> </span><span class=ff9f1a5>evotec.xyz</span>\n<i class=\"g2500 c2 f8a8a94\">──</i><span class=c1> </span><span class=\"f111827 B c42\">With -Include Streams: the theme's colours</span><span class=c1> </span><i class=\"g2500 c54 f8a8a94\">──────────────────────────────────────────────────────</i>\n<span class=\"fc19c00 c8\">WARNING:</span><span class=c1> </span><span class=\"fc19c00 c11\">Certificate</span><span class=c1> </span><span class=\"fc19c00 c3\">for</span><span class=c1> </span><span class=\"fc19c00 c15\">mail.evotec.xyz</span><span class=c1> </span><span class=\"fc19c00 c7\">expires</span><span class=c1> </span><span class=\"fc19c00 c2\">in</span><span class=c1> </span><span class=\"fc19c00 c2\">12</span><span class=c1> </span><span class=fc19c00>days</span>\n<span class=\"f3a96dd c8\">VERBOSE:</span><span class=c1> </span><span class=\"f3a96dd c7\">Queried</span><span class=c1> </span><span class=\"f3a96dd c1\">4</span><span class=c1> </span><span class=\"f3a96dd c6\">domain</span><span class=c1> </span><span class=\"f3a96dd c11\">controllers</span><span class=c1> </span><span class=\"f3a96dd c2\">in</span><span class=c1> </span><span class=\"f3a96dd c1\">2</span><span class=c1> </span><span class=f3a96dd>domains</span>\n<span class=\"f767676 c6\">DEBUG:</span><span class=c1> </span><span class=\"f767676 c5\">Cache</span><span class=c1> </span><span class=\"f767676 c3\">hit</span><span class=c1> </span><span class=\"f767676 c3\">for</span><span class=c1> </span><span class=f767676>evotec.xyz</span>"
           }
         }
       }
@@ -311,35 +311,19 @@
         },
         {
           "name": "Write-ConsoleText",
-          "synopsis": "Writes multicolour text to the console and, optionally, to a log file: Write-Color compatible, with markup, styles, gradients, padding, wrapping and structured logs.",
+          "synopsis": "Writes coloured text with optional markup, alignment, wrapping and a text log.",
           "url": "/powershell/commands/write-consoletext/"
         }
       ]
     },
     {
-      "verb": "Format",
-      "count": 1,
-      "commands": [
-        {
-          "name": "Format-ConsoleCommand",
-          "synopsis": "Builds a copyable command line from named values without executing it.",
-          "url": "/powershell/commands/format-consolecommand/"
-        }
-      ]
-    },
-    {
       "verb": "New",
-      "count": 48,
+      "count": 39,
       "commands": [
         {
           "name": "New-ConsoleActivityList",
           "synopsis": "Creates an activity list: the work in progress right now, one row per activity, with a spinner or a bar and the time it has taken.",
           "url": "/powershell/commands/new-consoleactivitylist/"
-        },
-        {
-          "name": "New-ConsoleAlign",
-          "synopsis": "Aligns console widgets left, centre or right, and top, middle or bottom, inside their space.",
-          "url": "/powershell/commands/new-consolealign/"
         },
         {
           "name": "New-ConsoleBinding",
@@ -365,11 +349,6 @@
           "name": "New-ConsoleChart",
           "synopsis": "Creates one numeric chart representation from records or samples.",
           "url": "/powershell/commands/new-consolechart/"
-        },
-        {
-          "name": "New-ConsoleColumnFormat",
-          "synopsis": "Creates shared numeric or detail-column layout settings.",
-          "url": "/powershell/commands/new-consolecolumnformat/"
         },
         {
           "name": "New-ConsoleColumns",
@@ -412,19 +391,9 @@
           "url": "/powershell/commands/new-consoleflow/"
         },
         {
-          "name": "New-ConsoleFooterBar",
-          "synopsis": "Creates a reusable footer with key hints, messages and linked segments.",
-          "url": "/powershell/commands/new-consolefooterbar/"
-        },
-        {
           "name": "New-ConsoleForm",
           "synopsis": "Creates a form or wizard from fields (New-ConsoleField) for Read-ConsoleForm or a menu item.",
           "url": "/powershell/commands/new-consoleform/"
-        },
-        {
-          "name": "New-ConsoleHeaderBar",
-          "synopsis": "Creates a header with a title, breadcrumbs, detail and optional elapsed time.",
-          "url": "/powershell/commands/new-consoleheaderbar/"
         },
         {
           "name": "New-ConsoleKeyValue",
@@ -462,24 +431,9 @@
           "url": "/powershell/commands/new-consolemenuitem/"
         },
         {
-          "name": "New-ConsoleMenuRunResult",
-          "synopsis": "Creates the result a menu run returns: a title, a status, a summary, figures and next actions.",
-          "url": "/powershell/commands/new-consolemenurunresult/"
-        },
-        {
-          "name": "New-ConsolePadding",
-          "synopsis": "Adds empty space around console widgets.",
-          "url": "/powershell/commands/new-consolepadding/"
-        },
-        {
           "name": "New-ConsolePanel",
           "synopsis": "Creates a bordered panel with a title around other console widgets.",
           "url": "/powershell/commands/new-consolepanel/"
-        },
-        {
-          "name": "New-ConsolePhases",
-          "synopsis": "Creates a phase strip for pipelines: Restore › Build › Test › Pack.",
-          "url": "/powershell/commands/new-consolephases/"
         },
         {
           "name": "New-ConsoleProgress",
@@ -512,11 +466,6 @@
           "url": "/powershell/commands/new-consoleselect/"
         },
         {
-          "name": "New-ConsoleSimulatedClock",
-          "synopsis": "Creates a run clock (ConsoleMonster.Live.SimulatedClock) the script moves forward, for simulated runs whose screen shows simulated time.",
-          "url": "/powershell/commands/new-consolesimulatedclock/"
-        },
-        {
           "name": "New-ConsoleStack",
           "synopsis": "Layers console widgets on top of each other in the same space.",
           "url": "/powershell/commands/new-consolestack/"
@@ -530,11 +479,6 @@
           "name": "New-ConsoleSummaryBar",
           "synopsis": "Creates a summary bar: one line with progress, done of total, the time left and result counters.",
           "url": "/powershell/commands/new-consolesummarybar/"
-        },
-        {
-          "name": "New-ConsoleTab",
-          "synopsis": "Creates a retained tab page for New-ConsoleTabs.",
-          "url": "/powershell/commands/new-consoletab/"
         },
         {
           "name": "New-ConsoleTable",
@@ -638,22 +582,17 @@
     },
     {
       "verb": "Show",
-      "count": 14,
+      "count": 12,
       "commands": [
         {
           "name": "Show-Console",
-          "synopsis": "Displays pipeline input in its automatic or explicit representation.",
+          "synopsis": "Shows objects, text and widgets in a readable view that fits the terminal.",
           "url": "/powershell/commands/show-console/"
         },
         {
           "name": "Show-ConsoleApp",
           "synopsis": "Runs native input controls and dependent displays in a console application.",
           "url": "/powershell/commands/show-consoleapp/"
-        },
-        {
-          "name": "Show-ConsoleChanges",
-          "synopsis": "Shows the changes an action would make and asks before making them: the what-if pattern.",
-          "url": "/powershell/commands/show-consolechanges/"
         },
         {
           "name": "Show-ConsoleDemo",
@@ -669,11 +608,6 @@
           "name": "Show-ConsoleHelp",
           "synopsis": "Shows a command's help: synopsis, highlighted syntax, a parameter table and highlighted examples.",
           "url": "/powershell/commands/show-consolehelp/"
-        },
-        {
-          "name": "Show-ConsoleList",
-          "synopsis": "Displays the list representation through the shared Show-Console implementation.",
-          "url": "/powershell/commands/show-consolelist/"
         },
         {
           "name": "Show-ConsoleMenu",
@@ -707,20 +641,15 @@
         },
         {
           "name": "Show-ConsoleTable",
-          "synopsis": "Displays the table representation through the shared Show-Console implementation.",
+          "synopsis": "Shows objects as a table with fitted columns, readable values and optional grouping.",
           "url": "/powershell/commands/show-consoletable/"
         }
       ]
     },
     {
       "verb": "Export",
-      "count": 4,
+      "count": 3,
       "commands": [
-        {
-          "name": "Export-ConsoleDemo",
-          "synopsis": "Exports one embedded demo as a copyable PowerShell script.",
-          "url": "/powershell/commands/export-consoledemo/"
-        },
         {
           "name": "Export-ConsoleFrame",
           "synopsis": "Exports a widget, a rendered frame or a live-session snapshot to PNG, HTML, SVG, Markdown or text.",
@@ -740,7 +669,7 @@
     },
     {
       "verb": "Invoke",
-      "count": 5,
+      "count": 4,
       "commands": [
         {
           "name": "Invoke-ConsoleDashboard",
@@ -751,11 +680,6 @@
           "name": "Invoke-ConsolePester",
           "synopsis": "Runs Pester tests with a live ConsoleMonster dashboard and a summary table.",
           "url": "/powershell/commands/invoke-consolepester/"
-        },
-        {
-          "name": "Invoke-ConsolePresentation",
-          "synopsis": "Types a scripted PowerShell demo into a real terminal and records it.",
-          "url": "/powershell/commands/invoke-consolepresentation/"
         },
         {
           "name": "Invoke-ConsoleRecording",
@@ -771,13 +695,8 @@
     },
     {
       "verb": "Add",
-      "count": 2,
+      "count": 1,
       "commands": [
-        {
-          "name": "Add-ConsoleItem",
-          "synopsis": "Adds items to a console widget made earlier: tree nodes, pairs, status items, bars, series, log lines, lanes or values.",
-          "url": "/powershell/commands/add-consoleitem/"
-        },
         {
           "name": "Add-ConsoleRecordingMarker",
           "synopsis": "Adds a chapter or an export hold to a recorded terminal session.",
@@ -793,17 +712,6 @@
           "name": "Assert-ConsoleOutput",
           "synopsis": "Compares console output with a golden file (for Pester and other tests).",
           "url": "/powershell/commands/assert-consoleoutput/"
-        }
-      ]
-    },
-    {
-      "verb": "Clear",
-      "count": 1,
-      "commands": [
-        {
-          "name": "Clear-ConsoleScreen",
-          "synopsis": "Clears the console screen, safely.",
-          "url": "/powershell/commands/clear-consolescreen/"
         }
       ]
     },
@@ -831,17 +739,6 @@
           "name": "Complete-ConsoleRun",
           "synopsis": "Finishes a run dashboard and prints its full summary into scrollback.",
           "url": "/powershell/commands/complete-consolerun/"
-        }
-      ]
-    },
-    {
-      "verb": "Copy",
-      "count": 1,
-      "commands": [
-        {
-          "name": "Copy-ConsoleOutput",
-          "synopsis": "Copies widgets, frames, text or pipeline objects to the operating-system clipboard.",
-          "url": "/powershell/commands/copy-consoleoutput/"
         }
       ]
     },
@@ -878,7 +775,7 @@
         },
         {
           "name": "Get-ConsoleDemo",
-          "synopsis": "Lists the copyable ConsoleMonster gallery demos .",
+          "synopsis": "Lists gallery demos and returns their complete PowerShell source.",
           "url": "/powershell/commands/get-consoledemo/"
         },
         {
@@ -889,40 +786,13 @@
       ]
     },
     {
-      "verb": "Out",
-      "count": 2,
-      "commands": [
-        {
-          "name": "Out-ConsoleDefault",
-          "synopsis": "Shows objects of registered types through ConsoleMonster and passes everything else to PowerShell's Out-Default.",
-          "url": "/powershell/commands/out-consoledefault/"
-        },
-        {
-          "name": "Out-ConsoleFormatCommand",
-          "synopsis": "Renders native PowerShell formatting records through ConsoleMonster.",
-          "url": "/powershell/commands/out-consoleformatcommand/"
-        }
-      ]
-    },
-    {
       "verb": "Register",
       "count": 1,
       "commands": [
         {
           "name": "Register-ConsoleView",
-          "synopsis": "Registers how a type is shown by Enable-ConsoleFormatting and Out-ConsoleDefault.",
+          "synopsis": "Registers how a type is shown by Enable-ConsoleFormatting.",
           "url": "/powershell/commands/register-consoleview/"
-        }
-      ]
-    },
-    {
-      "verb": "Send",
-      "count": 1,
-      "commands": [
-        {
-          "name": "Send-ConsoleEvent",
-          "synopsis": "Sends a raw live event to any widget of a running dashboard.",
-          "url": "/powershell/commands/send-consoleevent/"
         }
       ]
     },

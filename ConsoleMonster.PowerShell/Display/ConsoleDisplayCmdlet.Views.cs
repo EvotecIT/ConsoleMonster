@@ -10,20 +10,20 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     public abstract partial class ConsoleDisplayCmdlet {
         private void ValidateView(string view) {
-            const string common = "InputObject Content Title Width Culture AsString AsWidget PassThru View";
+            if (AsWidget.IsPresent && (view.Equals("Table", StringComparison.OrdinalIgnoreCase) || view.Equals("Auto", StringComparison.OrdinalIgnoreCase))) {
+                throw new PSArgumentException("Use New-ConsoleTable to build a table, for example: Get-Process | New-ConsoleTable -Property ProcessName, Id. AsWidget captures List, Tree, Code, Json, Error or Markdown views.");
+            }
+            const string common = "InputObject Content Title Width Culture AsWidget PassThru View";
             string specific;
             switch (view.ToLowerInvariant()) {
-                case "auto": specific = "Property Depth ChildrenProperty"; break;
-                case "table": specific = "Property GroupBy ShowTotals MaxRows Border Caption CardsBelow NoHeaderSeparator Expand StatusProperty ShowGroupColumn NoSort Wrap TitleIndent WrapHeaders KeepAllColumns GroupHeadersAsRows RecordViewRows ShowKeyField NoHiddenColumns NoStableWidths NoHeader AlwaysCards RowTitles ShowSubtotals TotalLabel WrapLines TotalRowCount Presentation"; break;
+                case "auto": specific = "Property Depth"; break;
+                case "table": specific = "Property GroupBy ShowTotals MaxRows Border Caption CardsBelow NoHeaderSeparator Expand StatusProperty ShowGroupColumn NoSort Wrap TitleIndent WrapHeaders KeepAllColumns GroupHeadersAsRows RecordViewRows ShowKeyField NoHiddenColumns NoStableWidths NoHeader RowTitles ShowSubtotals TotalLabel WrapLines TotalRowCount Presentation"; break;
                 case "list": specific = "Property GroupBy ShowEmpty Depth"; break;
-                case "tree": specific = "ChildrenProperty Children LabelProperty StatusProperty DetailProperty Depth MaxItems MaxNodes Include Exclude"; break;
-                case "inspector": specific = "Depth MaxItems MaxNodes Include Exclude"; break;
-                case "chart": specific = "Property Label Type Sort MaxRows Bins Unit"; break;
+                case "tree": specific = "Property Depth MaxItems MaxNodes Exclude"; break;
                 case "code": specific = "Path Language LineNumbers FirstLine MaxLines Highlight Wrap NoTitle"; break;
                 case "json": specific = "Path Depth LineNumbers FirstLine MaxLines Highlight Wrap NoTitle"; break;
-                case "error": specific = "ShowFrameworkFrames MaxFrames NoStack Compact MaxInner NoSource"; break;
+                case "error": specific = "ShowFrameworkFrames MaxStackFrames NoStack ErrorLayout MaxInner NoSource"; break;
                 case "markdown": specific = "Path NoPager"; break;
-                case "rule": specific = "Alignment LineRole LineStyle"; break;
                 default: throw new PSArgumentException("Unknown View '" + view + "'.");
             }
             var allowed = new HashSet<string>((common + " " + specific).Split(' '), StringComparer.OrdinalIgnoreCase);
@@ -40,14 +40,10 @@ namespace ConsoleMonster.PowerShell {
                 case "table": return BuildTableView(items);
                 case "list": return ConsoleHostViews.List(items, Property, GroupBy, ShowEmpty.IsPresent, Depth, PSText.Markup(Title), Culture, this);
                 case "tree": return BuildTreeView(items);
-                case "inspector": return BuildInspectorView(items);
-                case "chart": return BuildChartView(items);
                 case "code": case "json": return BuildCodeView(items, view.Equals("Json", StringComparison.OrdinalIgnoreCase));
                 case "error": return BuildErrorView(items);
                 case "markdown": return MarkdownExportBridge.Parse(string.Join("\n", items.Select(PSText.PlainText)));
-                case "rule": return new Rule(PSText.Markup(Title) ?? (items.Count == 0 ? null : PSText.Markup(items[0]))) { Alignment = Alignment, LineRole = LineRole, LineStyle = LineStyle };
                 default:
-                    if (ChildrenProperty != null) { return BuildTreeView(items); }
                     // `catch { $_ | Show-Console }` means the error, not the ErrorRecord's object graph.
                     if (items.Count > 0 && items.All(item => PSText.Unwrap(item) is ErrorRecord || PSText.Unwrap(item) is Exception)) { return BuildErrorView(items); }
                     return PSOutputExport.Widget(items.Cast<object>().ToList(), this, Property, PSText.Markup(Title), Depth);
@@ -64,12 +60,12 @@ namespace ConsoleMonster.PowerShell {
             });
 
         private IWidget BuildErrorView(IReadOnlyList<PSObject> items) => Views.ConsoleView.BuildErrors(
-            items.Select(item => (object?)PSErrors.Describe(PSText.Unwrap(item)!, Compact.IsPresent)).ToArray(),
+            items.Select(item => (object?)PSErrors.Describe(PSText.Unwrap(item)!, !string.Equals(ErrorLayout, "Standard", StringComparison.OrdinalIgnoreCase))).ToArray(),
             new Views.ConsoleViewOptions {
-                ShowFrameworkFrames = ShowFrameworkFrames.IsPresent, MaxFrames = MaxFrames,
-                ShowStack = !NoStack.IsPresent, MaxInner = MaxInner, ShowSource = !NoSource.IsPresent,
-                Compact = Compact.IsPresent,
-                DetailsHint = Compact.IsPresent && InvokeCommand.GetCommand("Get-Error", CommandTypes.Cmdlet) != null
+                ShowFrameworkFrames = ShowFrameworkFrames.IsPresent, MaxFrames = MaxStackFrames,
+                ShowStack = !NoStack.IsPresent && !string.Equals(ErrorLayout, "Compact", StringComparison.OrdinalIgnoreCase), MaxInner = MaxInner, ShowSource = !NoSource.IsPresent,
+                Compact = !string.Equals(ErrorLayout, "Standard", StringComparison.OrdinalIgnoreCase),
+                DetailsHint = string.Equals(ErrorLayout, "Compact", StringComparison.OrdinalIgnoreCase) && InvokeCommand.GetCommand("Get-Error", CommandTypes.Cmdlet) != null
                     ? Localization.WidgetLabels.For(Terminal.GetCurrentProfile().Language).GetErrorDetails : null,
                 BasePath = SessionState.Path.CurrentFileSystemLocation.ProviderPath
             });

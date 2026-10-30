@@ -9,7 +9,7 @@ $load = 12, 18, 31, 64, 47, 38, 55, 70, 72, 41
 New-ConsoleRows -Gap 1 -Content {
     New-ConsoleColumns -Gap 1 -Content {
         New-ConsolePanel -Title 'Servers' -Content {
-            $servers | Show-ConsoleTable -AsWidget -ShowTotals -Property @(
+            $servers | New-ConsoleTable  -ShowTotals -Property @(
                 @{ Name = 'Name'; Key = $true }
                 'Role'
                 @{ Name = 'Ram'; Presenter = 'Bytes' }

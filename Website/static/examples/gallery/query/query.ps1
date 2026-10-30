@@ -40,7 +40,7 @@ $resolvers = [ordered] @{
 $recordColumns = @('Name', 'Type', 'TTL', @{ Name = 'Data'; Flexible = $true })
 $report = New-ConsoleRows -Gap 1 -Content {
     New-ConsoleRule -Title '[bold]DNS query results[/] [muted]· example.test[/]'
-    New-ConsolePadding -Padding 1, 0 -Content {
+    New-ConsoleRegion -Padding 1, 0 -Content {
         New-ConsoleKeyValue -Content {
             [pscustomobject]@{ Key = 'Domain'; Value = '[bold]example.test[/]'; Markup = $true }
             [pscustomobject]@{ Key = 'Resolver'

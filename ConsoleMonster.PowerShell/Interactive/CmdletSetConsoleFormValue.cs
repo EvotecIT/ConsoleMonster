@@ -8,15 +8,22 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="description">Each named field takes its value and shows it at once, text and number boxes included; fields not named keep theirs. -Values maps field names (ignoring case) to values: a string, a number, a bool, or a list for a multi-choice field; a value that names a choice (the object, its title or its text) takes that choice. Choice fields whose options load from a field that changed load again, and a value given for such a field is chosen once its options arrive. Unknown names and values a field cannot take are ignored. -Values also takes the result of an earlier run of the form (Read-ConsoleForm -PassThru, or $FormResult in -OnSubmit) to fill in every field again. Call it from a menu action or handler while the menu runs, or before the form is shown.</para>
     /// </summary>
     /// <example>
-    ///   <para>A menu action that fills in the form opened from another item</para>
-    ///   <code>New-ConsoleMenuItem 'Use the lab' -Action { Set-ConsoleFormValue -Form $form -Values @{ Domain = 'lab.example.test'; Parallel = 2 }; $MenuContext.Toast('Lab values applied') }</code>
+    /// <para>Apply a preset before showing a form</para>
+    /// <code>$form = New-ConsoleForm 'Connection' -Content {
+    ///     New-ConsoleField Domain 'Domain'
+    ///     New-ConsoleField Parallel 'Parallel workers' -Type Number -Integer -Minimum 1
+    /// }
+    /// Set-ConsoleFormValue -Form $form -Values @{ Domain = 'lab.example.test'; Parallel = 2 }
+    /// Read-ConsoleForm $form</code>
     /// </example>
     /// <example>
-    ///   <para>Start a form from the answers of its last run</para>
-    ///   <code>
+    /// <para>Start a form from the answers of its last run</para>
+    /// <code>$form = New-ConsoleForm 'Connection' -Content { New-ConsoleField Domain 'Domain' -Default 'lab.example.test' }
     /// $last = Read-ConsoleForm $form -PassThru
-    /// Set-ConsoleFormValue $form $last
-    /// Read-ConsoleForm $form</code>
+    /// if ($last) {
+    ///     Set-ConsoleFormValue -Form $form -Values $last
+    ///     Read-ConsoleForm $form
+    /// }</code>
     /// </example>
     [Cmdlet(VerbsCommon.Set, "ConsoleFormValue")]
     public sealed class CmdletSetConsoleFormValue : PSCmdlet {

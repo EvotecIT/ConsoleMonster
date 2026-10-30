@@ -8,7 +8,7 @@ schema: 2.0.0
 ## SYNOPSIS
 Layers console widgets on top of each other in the same space.
 
-Each widget the scriptblock emits is a layer, bottom first; later layers paint over earlier ones and replace only the cells they write. Combine with New-ConsoleAlign to place an overlay, such as a badge in a corner of a chart. To place widgets one below another, use New-ConsoleRows.
+Each widget the scriptblock emits is a layer, bottom first; later layers paint over earlier ones and replace only the cells they write. Combine with New-ConsoleRegion to place an overlay, such as a badge in a corner of a chart. To place widgets one below another, use New-ConsoleRows.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -19,7 +19,7 @@ New-ConsoleStack [[-Content] <Object>] [-Weight <double>] [-Height <int>] [-Fill
 ## DESCRIPTION
 Layers console widgets on top of each other in the same space.
 
-Each widget the scriptblock emits is a layer, bottom first; later layers paint over earlier ones and replace only the cells they write. Combine with New-ConsoleAlign to place an overlay, such as a badge in a corner of a chart. To place widgets one below another, use New-ConsoleRows.
+Each widget the scriptblock emits is a layer, bottom first; later layers paint over earlier ones and replace only the cells they write. Combine with New-ConsoleRegion to place an overlay, such as a badge in a corner of a chart. To place widgets one below another, use New-ConsoleRows.
 
 ## EXAMPLES
 
@@ -27,7 +27,7 @@ Each widget the scriptblock emits is a layer, bottom first; later layers paint o
 ```powershell
 New-ConsoleStack -Content {
     New-ConsoleChart -WidgetId latency -Type Line
-    New-ConsoleAlign -Horizontal Right -Content { New-ConsoleText -Markup '[pass]LIVE[/]' }
+    New-ConsoleRegion -Horizontal Right -Content { New-ConsoleText -Markup '[pass]LIVE[/]' }
 }
 ```
 

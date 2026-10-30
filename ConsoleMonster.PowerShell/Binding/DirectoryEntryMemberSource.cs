@@ -9,7 +9,7 @@ namespace ConsoleMonster.PowerShell.Binding {
     /// PowerShell's adapter, whose property listing binds to the directory first (minutes when the directory cannot be
     /// reached). Each read is guarded by the shared stall budget like any other getter.
     /// </summary>
-    public sealed class DirectoryEntryMemberSource : IMemberSource {
+    internal sealed class DirectoryEntryMemberSource : IMemberSource {
         private const string TypeName = "System.DirectoryServices.DirectoryEntry";
         private static readonly string[] Names = { "Path", "Name", "SchemaClassName", "Guid" };
 

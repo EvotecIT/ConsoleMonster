@@ -7,14 +7,9 @@ Locale: en-US
 ---
 # ConsoleMonster Module
 ## Description
-Readable output for the commands you already run, and tables, trees, charts, live runs, dashboards, menus and forms when you need more. One engine for Windows PowerShell 5.1, PowerShell 7 and .NET, with no dependencies and plain text when output is redirected.
+Readable output for the commands you already run, and tables, trees, charts, live runs, dashboards, menus and forms when you need more. One engine for Windows PowerShell 5.1, PowerShell 7 and .NET, with no extra modules to install and plain text when output is redirected.
 
 ## ConsoleMonster Cmdlets
-### [Add-ConsoleItem](Add-ConsoleItem.md)
-Adds items to a console widget made earlier: tree nodes, pairs, status items, bars, series, log lines, lanes or values.
-
-The PowerShell way to grow a widget after it was created, instead of calling its .NET methods. Pipe the widget in and give the items as a script block or values; they are the same item commands the widget's own script block takes: Label/Children records for New-ConsoleTree, Key/Value records for New-ConsoleKeyValue, Key/Label/Status records for New-ConsoleStatusList and New-ConsolePhases, Label/Value records for New-ConsoleChart -Type Bar or Stacked, Key/Values records for New-ConsoleChart -Type Line or Scatter, Message/Level records for New-ConsoleLogRegion and Key/Label records for New-ConsoleLanes. Sparklines and histograms take numbers, a cell map takes status words, and a live table takes objects or hashtables using the table's selected properties and calculated columns. -PassThru writes the widget on, so it can go straight to Show-Console. For a widget inside a running dashboard, use Update-Console and Write-ConsoleLogEntry instead.
-
 ### [Add-ConsoleRecordingMarker](Add-ConsoleRecordingMarker.md)
 Adds a chapter or an export hold to a recorded terminal session.
 
@@ -24,11 +19,6 @@ Inside a recorded child shell, sends an OSC marker to the parent recorder. The m
 Compares console output with a golden file (for Pester and other tests).
 
 Renders a widget at a fixed width, glyph tier and culture (invariant by default), so the result does not depend on the machine, and compares the text with a golden file. The first run writes the file and fails so it can be reviewed; a difference fails with the first differing line, both versions and the column where they part. Set CONSOLEMONSTER_UPDATE_GOLDEN=1 to rewrite golden files after an intended change. Strings are compared as they are. In Pester the thrown error fails the test; see the README for a Should operator built on it.
-
-### [Clear-ConsoleScreen](Clear-ConsoleScreen.md)
-Clears the console screen, safely.
-
-On an interactive console the screen and its scrollback are cleared and the cursor goes to the top left, like Clear-Host. It does nothing where clearing would only lose output: redirected output, CI logs, plain mode (CONSOLEMONSTER_MODE=plain), background and thread jobs, and while a live dashboard owns the console. In the ISE and other hosts with a screen buffer it clears that buffer the way Clear-Host does.
 
 ### [Compare-ConsoleObject](Compare-ConsoleObject.md)
 Compares two sets of objects and shows what was added, removed and changed, property by property.
@@ -45,11 +35,6 @@ Finishes a run dashboard and prints its full summary into scrollback.
 
 Marks unfinished items skipped, releases held log lines, restores the terminal and prints totals, groups, full wrapped problems and the report path. Safe to call more than once. If deferred host output cannot finish within five seconds, reports a timeout and retains it for a later call. Put it in finally so cancellation or errors restore the terminal. PassThru returns the structured snapshot; ordinary results and the script's exit code are unchanged.
 
-### [Copy-ConsoleOutput](Copy-ConsoleOutput.md)
-Copies widgets, frames, text or pipeline objects to the operating-system clipboard.
-
-Serializes input through the core or bundled Markdown add-on as Text (default), Markdown or Html and copies the source as Unicode text. Markdown uses GFM tables, property/value lists and nested tree bullets, including the shared value presenters and totals. Text is plain terminal output. A rendered frame or live-session snapshot retains a fenced fallback. Windows uses its native clipboard, macOS uses pbcopy, and Linux uses wl-copy (Wayland) or xclip (X11). SSH, a missing desktop/provider or a failing provider produces a non-terminating error; use -ErrorAction Stop to catch it. No output is written unless -PassThru succeeds. -WhatIf exports without accessing the clipboard.
-
 ### [Disable-ConsoleFormatting](Disable-ConsoleFormatting.md)
 Turns off the ConsoleMonster default formatting (Enable-ConsoleFormatting), all of it or some features.
 
@@ -58,21 +43,16 @@ Without -Feature everything Enable-ConsoleFormatting turned on is turned off and
 ### [Enable-ConsoleFormatting](Enable-ConsoleFormatting.md)
 Enables the everyday console views, native format commands and theme colours.
 
-Three ways to use ConsoleMonster output: Automatic: enable formatting, then use ordinary commands for known and registered types. Explicit: pipe any objects to Show-ConsoleTable to choose columns, a title and grouping, or to Show-ConsoleObject to explore their members. These commands do not change session formatting; Show-ConsoleObject -StaticSnapshot avoids interactive input in scripts. Native Format commands: FormatCommands styles direct console output while keeping PowerShell's column choices; it is included by default; use -Exclude FormatCommands to leave it native. You do not need both automatic and explicit formatting. The -Feature parameter requires ConsoleMonster 2.1.0 or later.
+Three ways to use ConsoleMonster output: Automatic: enable formatting, then use ordinary commands for known and registered types. Explicit: pipe any objects to Show-ConsoleTable to choose columns, a title and grouping, or to Show-ConsoleObject to explore their members. These commands do not change session formatting; Show-ConsoleObject -Mode Snapshot avoids interactive input in scripts. Native Format commands: FormatCommands styles direct console output while keeping PowerShell's column choices; it is included by default; use -Exclude FormatCommands to leave it native. You do not need both automatic and explicit formatting. The -Feature parameter requires ConsoleMonster 2.1.0 or later.
 
 By default, Output, FormatCommands, Errors, Streams and ReadLine are enabled. Format-Table, Format-List and Format-Wide keep PowerShell's column choices and change only direct console output; pipelines, captures, files, jobs, remoting and transcripts remain native. Use Include to add opt-in features and Exclude to remove features from the default set. Feature replaces the default set with exactly the selected features. Prompt, Help, Progress and GridView require Include or Feature. CompactErrors opts into the compact error layout. Get-ConsoleFormatting reports what is enabled. Disable-ConsoleFormatting restores the session.
 
 Files, processes, services, structured records, commands, modules, history, IP addresses, volumes, versions, dictionaries and registered types get built-in or registered views. Explicit Show-Console commands remain available when you want to choose the view yourself. Custom Out-Default functions are kept unless Force is specified; Prompt does not replace oh-my-posh or Starship without Force.
 
-### [Export-ConsoleDemo](Export-ConsoleDemo.md)
-Exports one embedded demo as a copyable PowerShell script.
-
-Use Get-ConsoleDemo to list slugs. Saves the canonical script as UTF-8 with a BOM for PowerShell 5.1. The destination folder must exist. Existing files are preserved unless Force is explicit.
-
 ### [Export-ConsoleFrame](Export-ConsoleFrame.md)
 Exports a widget, a rendered frame or a live-session snapshot to PNG, HTML, SVG, Markdown or text.
 
-Pipe any New-Console* widget (or Show-ConsoleTable -AsWidget) and get a self-contained HTML page (inline CSS, selectable text, a dark and a light rendering that follow the viewer's prefers-color-scheme), an SVG image (box, block and braille characters drawn as shapes, selectable text, no external assets) or plain text. Cell geometry is kept exactly. OSC 8 links become links (web and mail links only; javascript: and other schemes are dropped). Markdown uses the bundled ConsoleMonster.Markdown add-on lazily: tables, records and trees retain their semantics; FencedText preserves the terminal layout. Other objects use the automatic view. Several widgets are stacked. Without -Path the document is written to the pipeline.
+Pipe any New-Console* widget (or New-ConsoleTable) and get a self-contained HTML page (inline CSS, selectable text, a dark and a light rendering that follow the viewer's prefers-color-scheme), an SVG image (box, block and braille characters drawn as shapes, selectable text, no external assets) or plain text. Cell geometry is kept exactly. OSC 8 links become links (web and mail links only; javascript: and other schemes are dropped). Markdown uses the bundled ConsoleMonster.Markdown add-on lazily: tables, records and trees retain their semantics; FencedText preserves the terminal layout. Other objects use the automatic view. Several widgets are stacked. Without -Path the document is written to the pipeline.
 
 ### [Export-ConsoleRecording](Export-ConsoleRecording.md)
 Exports a terminal session or dashboard recording to slide images, animations, video, a player or asciicast.
@@ -84,20 +64,15 @@ Exports the current ConsoleMonster theme as a starting file for a user or team.
 
 Writes every semantic token, foreground/background colour, explicit fallback tier and decoration as JSON or restricted PowerShell data. The current theme is unchanged. The file extension selects the format; the parent directory must already exist. JSON is UTF-8 without a BOM; PSD1 uses a UTF-8 BOM for Windows PowerShell 5.1.
 
-### [Format-ConsoleCommand](Format-ConsoleCommand.md)
-Builds a copyable command line from named values without executing it.
-
-Formats strings, numbers, switches and lists through the same quoting rules as forms. Use an ordered dictionary to retain argument order. Null, empty strings and false switches are omitted. The result is a plain string, suitable for a review's equivalent command.
-
 ### [Get-ConsoleCapability](Get-ConsoleCapability.md)
 Shows what ConsoleMonster detected about the current terminal.
 
 Returns the terminal profile: kind, mode (Interactive, Stream, Plain), colour depth, glyph tier, size, VT support, console font and the reasons behind each decision. -Refresh detects again (after a resize or font change).
 
 ### [Get-ConsoleDemo](Get-ConsoleDemo.md)
-Lists the copyable ConsoleMonster gallery demos .
+Lists gallery demos and returns their complete PowerShell source.
 
-Returns the embedded gallery metadata, including slug, title, pitch, category, tags, terminal size, runtimes, add-ons, customization ideas, mode and snapshot count. Listing accepts a slug or wildcard pattern. Use Export-ConsoleDemo to save a script.
+Returns each demo's title, category, tags, terminal size and Source. Slug accepts an exact name or wildcard pattern. Source is the complete script, ready to inspect or save with Set-Content.
 
 ### [Get-ConsoleFormatting](Get-ConsoleFormatting.md)
 Shows the formatting features enabled in this runspace.
@@ -112,12 +87,7 @@ The script runs in a runspace the module owns (or, with -Parallel, once per inpu
 ### [Invoke-ConsolePester](Invoke-ConsolePester.md)
 Runs Pester tests with a live ConsoleMonster dashboard and a summary table.
 
-Takes the parameters of Invoke-Pester (Path, ExcludePath, TagFilter, ExcludeTagFilter, FullNameFilter, Container, Output, CI, PassThru) or a -Configuration (a PesterConfiguration or a hashtable), and runs Pester 5 or 6, imported when first needed. While the tests run, an inline area (or the full screen with -FullScreen) shows the run totals and the clock, the test files as lanes with passed, failed and skipped counts, the running test, and with -FullScreen the failures (expected against actual, the file and line as a link), the slowest tests and a histogram of durations. When the run ends a table of results by file, the failures and the totals are written to the scrollback, and -ExportHtml saves the final dashboard. In redirected output, jobs and CI logs the output is one line per failure and a summary line. Pester's result object is returned with -PassThru (or Run.PassThru), Run.Throw and Run.Exit (-CI) are applied after the summary, and Write-Host output from tests appears above the inline area. Pester has no public reporter API, so the live view uses Pester's internal plugin steps through a guarded adapter; when the internals are not what it expects (or with Run.Parallel or Output None) Pester runs unchanged with its own output and the summary table follows. Works on Windows PowerShell 5.1 and PowerShell 7.
-
-### [Invoke-ConsolePresentation](Invoke-ConsolePresentation.md)
-Types a scripted PowerShell demo into a real terminal and records it.
-
-Runs plain PowerShell with optional chapter, export pace, export hold, recording pause, setup, type-only, narration, WPM and output-wait directives. Uses OSC 133 readiness marks independent of visible prompt text and operating system. Character jitter uses a fixed seed; use fixed data and environment for repeatable output.
+Takes the parameters of Invoke-Pester (Path, ExcludePath, TagFilter, ExcludeTagFilter, FullNameFilter, Container, Output, CI, PassThru) or a -Configuration (a PesterConfiguration or a hashtable), and runs Pester 5 or 6, imported when first needed. While the tests run, an inline area (or the full screen with -FullScreen) shows the run totals and the clock, the test files as lanes with passed, failed and skipped counts, the running test, and with -FullScreen the failures (expected against actual, the file and line as a link), the slowest tests and a histogram of durations. When the run ends a table of results by file, the failures and the totals are written to the scrollback, and -ReportPath saves the final dashboard. In redirected output, jobs and CI logs the output is one line per failure and a summary line. Pester's result object is returned with -PassThru (or Run.PassThru), Run.Throw and Run.Exit (-CI) are applied after the summary, and Write-Host output from tests appears above the inline area. Pester has no public reporter API, so the live view uses Pester's internal plugin steps through a guarded adapter; when the internals are not what it expects (or with Run.Parallel or Output None) Pester runs unchanged with its own output and the summary table follows. Works on Windows PowerShell 5.1 and PowerShell 7.
 
 ### [Invoke-ConsoleRecording](Invoke-ConsoleRecording.md)
 Records a script or an interactive child shell and saves the result.
@@ -132,12 +102,7 @@ $_ is the item, as in ForEach-Object. While it runs, a live view shows a summary
 ### [New-ConsoleActivityList](New-ConsoleActivityList.md)
 Creates an activity list: the work in progress right now, one row per activity, with a spinner or a bar and the time it has taken.
 
-Each activity has an id, a title, an optional status, a percentage (or none, which spins) and an optional parent it is indented under; finished activities disappear, and an empty list takes no space. Update it with Update-Console from the script of a running dashboard or menu run. -MaxVisible caps the rows (more are summed up in one line). The default name, $progress, is also where Write-Progress goes in Invoke-ConsoleDashboard, so a list with that name shows the script's progress records; give another name for activities of your own.
-
-### [New-ConsoleAlign](New-ConsoleAlign.md)
-Aligns console widgets left, centre or right, and top, middle or bottom, inside their space.
-
-The content keeps its measured size and is placed within the space the parent gives it. Horizontal alignment uses the full width; vertical alignment applies when the parent gives more rows than the content needs (-Height or -Fill). Widgets that already use the full width, such as progress bars, only move vertically.
+Each activity has an id, a title, an optional status, a percentage (or none, which spins) and an optional parent it is indented under; finished activities disappear, and an empty list takes no space. Update it with Update-Console from the script of a running dashboard or menu run. -MaxRows caps the rows (more are summed up in one line). The default name, $progress, is also where Write-Progress goes in Invoke-ConsoleDashboard, so a list with that name shows the script's progress records; give another name for activities of your own.
 
 ### [New-ConsoleBinding](New-ConsoleBinding.md)
 Creates a display rebuilt from application state on the owning PowerShell input thread.
@@ -157,17 +122,12 @@ Returns a passive widget. Pipeline rows provide Date, Status and Label propertie
 ### [New-ConsoleCellMap](New-ConsoleCellMap.md)
 Creates a cell map: one status symbol per item of a run, with a legend of counts.
 
-The map Invoke-ConsoleRun shows for many items, as a widget of its own: each item is one cell in its status colour (pass, fail, warn, skip, running, pending), wrapping to the width, followed by a legend with each state's count. States come from -Status or the pipeline, in the shared status vocabulary (PowerShell's words such as Success and Error work too). -Count adds pending cells for items not started yet. -Columns and -RowLabels turn it into a labelled grid (one row per server, one column per check) with one legend below, which -LegendLines lets wrap. To add cells later, pipe the map to Add-ConsoleItem; in a live dashboard, update cells with Update-Console.
+The map Invoke-ConsoleRun shows for many items, as a widget of its own: each item is one cell in its status colour (pass, fail, warn, skip, running, pending), wrapping to the width, followed by a legend with each state's count. States come from -InputObject or the pipeline, in the shared status vocabulary (PowerShell's words such as Success and Error work too). -Count adds pending cells for items not started yet. -Columns and -RowLabels turn it into a labelled grid (one row per server, one column per check) with one legend below, which -LegendLines lets wrap. In a live dashboard, update cells with Update-Console.
 
 ### [New-ConsoleChart](New-ConsoleChart.md)
 Creates one numeric chart representation from records or samples.
 
-Type selects Bar, Stacked, Line, Scatter, Histogram or Sparkline. The shared C# Chart factory rejects options that do not apply to the selected kind. InputObject accepts chart records (Label and Value; Key, Label, Values and Role for series); Content emits the same records. For Bar, Histogram and Sparkline, -Property picks the number from ordinary objects and -Label (Bar only, default Name) their label, as Show-Console -View Chart does. Use Update-Console for live changes.
-
-### [New-ConsoleColumnFormat](New-ConsoleColumnFormat.md)
-Creates shared numeric or detail-column layout settings.
-
-Pass the result to a widget's CountColumn, PercentColumn, ValueColumn or DetailColumn parameter. MinWidth is measured in cells; ReserveDigits reserves room for numbers before they grow. Widths remain stable during live updates unless -AllowShrink is specified.
+Type selects Bar, Stacked, Line, Scatter, Histogram or Sparkline. The shared C# Chart factory rejects options that do not apply to the selected kind. InputObject accepts chart records (Label and Value; Key, Label, Values and Role for series); Content emits the same records. For Bar, Histogram and Sparkline, -Property picks the number from ordinary objects and -Label (Bar only, default Name) their label. Use Update-Console for live changes.
 
 ### [New-ConsoleColumns](New-ConsoleColumns.md)
 Places console widgets side by side.
@@ -202,37 +162,27 @@ Construction does not read input. AppDialogs.Show hosts the form on the owning a
 ### [New-ConsoleField](New-ConsoleField.md)
 Creates a form field for New-ConsoleForm.
 
-A field has a name (its key in the result), a label, help shown while it has focus, a default, validation (-Required, -Validator and the type's own checks) and the command-line parameter it supplies (-ParameterName) for the equivalent command. -VisibleWhen shows it only while a condition on the other values holds ($Values). -DependsOn resets it when those fields change; with -LoadChoices its options are loaded again in their own runspace (a spinner shows, Esc cancels), from the current values ($Values). Choices are built from any objects: -Display, -GroupBy, -Describe, -Badge, -DisabledReason and -Selected read each object (a property name, or a scriptblock for choices given with -Choices; loaded choices take property names), and -CommandValue picks the text the equivalent command shows and the field returns.
+A field has a name (its key in the result), a label, help shown while it has focus, a default, validation (-Required, -Validator and the type's own checks) and the command-line parameter it supplies (-ParameterName) for the equivalent command. -VisibleWhen shows it only while a condition on the other values holds ($Values). -DependsOn resets it when those fields change; with -LoadChoices its options are loaded again in their own runspace (a spinner shows, Esc cancels), from the current values ($Values). Choices are built from any objects: -Display, -GroupBy, -Describe, -Badge and -DisabledReason read each object (a property name, or a scriptblock for choices given with -Choices; loaded choices take property names). For Select fields, -Default @{ Property = 'Online' } selects choices whose Online property is true; -Default also accepts initial values. -CommandValue picks the text the equivalent command shows and the field returns.
 
 ### [New-ConsoleFlow](New-ConsoleFlow.md)
 Builds a native flow strip of nodes, labelled edges and one side branch.
 
 Plain strings are steps, connected in order. Emit nodes first, then edges and an optional branch. Pipeline rows use Kind (Node, Edge or Branch), Key, Label, Status, and the edge/branch From and To fields. Kind can be left out for nodes and for edges with From and To; a node's Key defaults to its Label and an edge's Key to From->To. Labels are literal. The strip becomes vertical in a narrow terminal.
 
-### [New-ConsoleFooterBar](New-ConsoleFooterBar.md)
-Creates a reusable footer with key hints, messages and linked segments.
-
-Hint maps key names to their labels. Segment accepts FooterSegment values or hashtables with Text, Link and Role. The footer is a widget and does not read input or start a session.
-
 ### [New-ConsoleForm](New-ConsoleForm.md)
 Creates a form or wizard from fields (New-ConsoleField) for Read-ConsoleForm or a menu item.
 
 The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Use -PageDescriptions to give each page its own sentence under the title. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back. Presets the form comes with (New-ConsoleForm -Preset, in the scriptblock or -Preset) are listed before the saved ones.
 
-### [New-ConsoleHeaderBar](New-ConsoleHeaderBar.md)
-Creates a header with a title, breadcrumbs, detail and optional elapsed time.
-
-Returns a reusable HeaderBar widget without opening a session. Status is a semantic outcome; Detail is the text beside it. HeaderRight supplies independent right-aligned content.
-
 ### [New-ConsoleKeyValue](New-ConsoleKeyValue.md)
 Creates an aligned key/value list from a hashtable, an object's properties or Key/Value records pairs.
 
-Pairs come from a hashtable (use [ordered] to keep order), from an object's properties, or from a script block of Key/Value records calls when a pair needs a status marker, markup or a presenter. Keys are muted and aligned; values wrap. Values are shown literally unless -Markup is used. To add pairs later, pipe the list to Add-ConsoleItem; in a live dashboard, update pairs with Update-Console.
+Pairs come from a hashtable (use [ordered] to keep order), from an object's properties, or from a script block of Key/Value records calls when a pair needs a status marker, markup or a presenter. Keys are muted and aligned; values wrap. Values are shown literally unless -Markup is used. In a live dashboard, update pairs with Update-Console.
 
 ### [New-ConsoleLanes](New-ConsoleLanes.md)
 Creates a lanes widget: one row per worker, server or item of a parallel workload.
 
-Each lane shows a status marker (a spinner while running), a progress bar, pass/fail/warning counts and what it is doing now. Lanes can be declared up front with -Lane (names sharing one -Total), with a script block of Key/Label records calls (each with its own total, progress, status and counts), from the pipeline, or appear on their first Update-Console in a live dashboard. To add lanes later, pipe the widget to Add-ConsoleItem.
+Each lane shows a status marker (a spinner while running), a progress bar, pass/fail/warning counts and what it is doing now. Declare lanes with names or Key/Label/Total records emitted by Content or the pipeline. Records can include progress, status and counts. A lane can also appear on its first Update-Console call in a live dashboard.
 
 ### [New-ConsoleLayoutGrid](New-ConsoleLayoutGrid.md)
 Lays console widgets out in an equal-width grid.
@@ -247,7 +197,7 @@ Letters A-Z, digits and - . : ! / _ are drawn with half blocks (four rows tall) 
 ### [New-ConsoleLogRegion](New-ConsoleLogRegion.md)
 Creates a log region: the newest lines of a log, bottom-aligned.
 
-Printed once, the lines come from a script block of Message/Level records calls (each with a level and a time) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry. To add lines to a log made earlier, pipe it to Add-ConsoleItem.
+Printed once, the lines come from a script block of Message/Level records calls (each with a level and a time) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry.
 
 ### [New-ConsoleMenu](New-ConsoleMenu.md)
 Creates a menu from items (New-ConsoleMenuItem) for Show-ConsoleMenu.
@@ -259,25 +209,10 @@ Creates a menu item: an action, a submenu, a form, a selection, a page, a review
 
 What the item does follows from the parameter you give: -Action (a scriptblock, run on the pipeline thread with $MenuContext), -Submenu (a menu or a scriptblock of items), -Form (with -OnSubmit, which gets $Values and $FormResult), -Select or -MultiSelect (the chosen objects stay on the item: $item.Selection), -LoadChoices (loaded in its own runspace with a spinner), -Page (content built each time it shows), -Review (a summary with the equivalent command and Run), -Presets, -Separator or -Exit. -Badge and -Detail can be scriptblocks, recomputed every time the menu draws; -DisabledReason returns why the item is unavailable.
 
-### [New-ConsoleMenuRunResult](New-ConsoleMenuRunResult.md)
-Creates the result a menu run returns: a title, a status, a summary, figures and next actions.
-
-Return it from the script block of $MenuContext.Run (a live dashboard started from a menu action): when the run ends, the menu shows it as a result screen with the figures as large values and the next actions as items. -Figure maps labels to values (use [ordered] to keep order); -Next maps action titles to script blocks, which run with $MenuContext like any menu action. -FigureStatus colours the figures that need attention (Pass, Warn, Fail by label). -Status takes the shared status vocabulary (default Pass). The time shown with the result is the run's time on its session clock (real time, or a simulated clock given to the run); -ElapsedSeconds overrides it.
-
-### [New-ConsolePadding](New-ConsolePadding.md)
-Adds empty space around console widgets.
-
--Padding takes one, two or four numbers of cells: all sides; left and right, then top and bottom; or left, top, right and bottom (the order of the .NET Padding widget). Strings in the script block are markup text. Use New-ConsoleAlign to place content inside its space instead.
-
 ### [New-ConsolePanel](New-ConsolePanel.md)
 Creates a bordered panel with a title around other console widgets.
 
 -Content is a scriptblock, a widget, text or any objects (objects are shown as a record or a table; several pieces are stacked vertically). Borders follow the detected glyph tier: rounded on modern fonts, single lines on Consolas, +-| in ASCII mode. Inside New-ConsoleColumns, panels share the row height.
-
-### [New-ConsolePhases](New-ConsolePhases.md)
-Creates a phase strip for pipelines: Restore › Build › Test › Pack.
-
-Phases come from -Phase (names, all pending) or from a script block of Key/Label/Status records calls, each with its status and a detail such as a duration. The active phase is emphasised and finished phases show their detail. To add phases later, pipe the strip to Add-ConsoleItem; in a live dashboard, update phases with Update-Console, which also measures their duration.
 
 ### [New-ConsoleProgress](New-ConsoleProgress.md)
 Creates a progress bar or an indeterminate activity indicator.
@@ -309,30 +244,20 @@ Creates a named select input for Show-ConsoleApp.
 
 Choices use the shared prompt conversion and retain original objects as values. Keep the input in the stable outer layout. Disabled choices cannot be selected.
 
-### [New-ConsoleSimulatedClock](New-ConsoleSimulatedClock.md)
-Creates a run clock (ConsoleMonster.Live.SimulatedClock) the script moves forward, for simulated runs whose screen shows simulated time.
-
-A live session reads the clock for the header clock, the summary bar's elapsed time and time left, the times of log lines and activities, and the run result's duration, so a demo or a replay of logged work shows its own time instead of the wall clock. Give it to a menu run as the third argument of $MenuContext.Run($dashboard, { ... }, $clock), or to Invoke-ConsoleDashboard -Clock. In the script, $clock.Wait(seconds) and $clock.WaitUntil(seconds) move it forward in small steps, sleeping 1/-Speed of each simulated second (never at speed 0, which runs at once); $clock.Advance(seconds) jumps without waiting and $clock.Hold(seconds) waits real time with the clock standing still. $clock.Elapsed is the time on the clock. Once the dashboard is stopped (Ctrl+C) waits stop sleeping, so the script reaches its end at once.
-
 ### [New-ConsoleStack](New-ConsoleStack.md)
 Layers console widgets on top of each other in the same space.
 
-Each widget the scriptblock emits is a layer, bottom first; later layers paint over earlier ones and replace only the cells they write. Combine with New-ConsoleAlign to place an overlay, such as a badge in a corner of a chart. To place widgets one below another, use New-ConsoleRows.
+Each widget the scriptblock emits is a layer, bottom first; later layers paint over earlier ones and replace only the cells they write. Combine with New-ConsoleRegion to place an overlay, such as a badge in a corner of a chart. To place widgets one below another, use New-ConsoleRows.
 
 ### [New-ConsoleStatusList](New-ConsoleStatusList.md)
 Creates a checklist of items with status markers.
 
-Items come from a script block of Key/Label/Status records calls (each with its own status and detail), from the pipeline, from -InputObject (labels mapped to statuses) or from -Item (labels added as pending, for a live checklist). Statuses use the shared vocabulary: Pass, Fail, Warn, Skip, Info, Running, Pending and PowerShell's words such as Success, Warning and Error. Status is always shown with a symbol (or a [PASS]-style word in ASCII mode), never by colour alone. To add items later, pipe the list to Add-ConsoleItem; in a live dashboard, update items with Update-Console.
+Content or the pipeline accepts Key/Label/Status records and strings. Records can include Detail; strings begin as pending checklist items. InputObject also accepts a dictionary mapping labels to statuses. Layout selects a vertical List or a horizontal Strip. Statuses use the shared vocabulary: Pass, Fail, Warn, Skip, Info, Running, Pending and PowerShell's words such as Success, Warning and Error. Status is always shown with a symbol (or a [PASS]-style word in ASCII mode), never by colour alone. In a live dashboard, update items with Update-Console.
 
 ### [New-ConsoleSummaryBar](New-ConsoleSummaryBar.md)
 Creates a summary bar: one line with progress, done of total, the time left and result counters.
 
 The line Invoke-ConsoleRun ends its view with, as a widget of its own: a thin bar, done of total, the percentage, the time left (estimated from -ElapsedSeconds and the share done) and counters in a fixed order with zeros dimmed rather than hidden. -Counter maps labels to counts; a label that is a status word (passed, failed, warnings, skipped, running) takes that status's symbol and colour. Without -Total only the count done shows.
-
-### [New-ConsoleTab](New-ConsoleTab.md)
-Creates a retained tab page for New-ConsoleTabs.
-
-Collects the page widgets once and preserves their input values when another tab is selected. Pass the page to New-ConsoleTabs to mount it in a full-screen application.
 
 ### [New-ConsoleTable](New-ConsoleTable.md)
 Creates a console table from pipeline objects.
@@ -342,7 +267,7 @@ Columns come from -Property or from the first object's properties (or hashtable 
 ### [New-ConsoleTabs](New-ConsoleTabs.md)
 Creates retained tabs with keyboard and pointer navigation.
 
-Combines pages from New-ConsoleTab in display order. Only the selected page receives input; switching pages retains each page's values and focus for the next visit.
+Content emits records with Title and Content, or an ordered dictionary mapping page titles to widgets or script blocks. A dictionary containing both Title and Content is a page record, including when Content is null. Only the selected page receives input; switching pages retains its values and focus.
 
 ### [New-ConsoleText](New-ConsoleText.md)
 Creates rich text: multicolour words for table cells, calculated properties, titles, labels, log lines or output on its own.
@@ -368,16 +293,6 @@ Three ways in, one tree out. Nodes: a script block of Label/Children records cal
 Creates an embeddable, lazy object tree for Show-ConsoleApp.
 
 Uses the same member adapters, paths, cycle guards and expansion budget as Show-ConsoleObject. Arrows expand and collapse; Enter drills into the selected subtree.
-
-### [Out-ConsoleDefault](Out-ConsoleDefault.md)
-Shows objects of registered types through ConsoleMonster and passes everything else to PowerShell's Out-Default.
-
-This is what Enable-ConsoleFormatting puts behind Out-Default. Consecutive objects of registered types (Register-ConsoleView; after Enable-ConsoleFormatting also files and folders, processes, services, commands, modules, event log records, IP addresses, volumes, versions and dictionaries) are collected and shown as one ConsoleMonster view; any other object, format data from Format-*, errors and strings go to PowerShell's Out-Default unchanged. It only takes over when the output is displayed on a real local console: redirected output, jobs, remoting and other hosts get PowerShell's default output (-Force renders anyway). The objects themselves are never changed.
-
-### [Out-ConsoleFormatCommand](Out-ConsoleFormatCommand.md)
-Renders native PowerShell formatting records through ConsoleMonster.
-
-The host-only sink used by Enable-ConsoleFormatting -Feature FormatCommands. PowerShell still resolves properties, calculated expressions, grouping and named views. Unrecognized formatting records are passed to the native Out-Default. Use -AsWidget to export the same view with Export-ConsoleFrame.
 
 ### [Read-ConsoleConfirm](Read-ConsoleConfirm.md)
 Asks a yes/no question and returns $true or $false.
@@ -415,14 +330,9 @@ Asks for a line of text.
 A default is shown as a hint (Enter on an empty box accepts it, Tab puts it in the box to edit). -Required, -MinLength, -MaxLength, -Pattern and -Validator check the answer; problems show inline under the box until fixed. -History offers earlier answers with Up and Down.
 
 ### [Register-ConsoleView](Register-ConsoleView.md)
-Registers how a type is shown by Enable-ConsoleFormatting and Out-ConsoleDefault.
+Registers how a type is shown by Enable-ConsoleFormatting.
 
 Objects whose type names include -TypeName are shown in the given view when they reach the console. -Property picks the columns as in Show-ConsoleTable (names, calculated properties with Presenter options), -GroupBy groups rows under headings, and types with the same -Group are shown together (files and folders). Unregister-ConsoleView removes a registration. Modules can register their own types when they load, or ship a data-only ModuleName.consoleviews.psd1 file without a dependency on ConsoleMonster. Use -Path to import a view file explicitly.
-
-### [Send-ConsoleEvent](Send-ConsoleEvent.md)
-Sends a raw live event to any widget of a running dashboard.
-
-The general form behind Update-Console, for custom widgets and less common operations (for example the dashboard's title or status). Operations are defined by each widget.
 
 ### [Set-ConsoleFormValue](Set-ConsoleFormValue.md)
 Sets field values of a form, whether or not it is shown.
@@ -435,24 +345,19 @@ Selects the theme used by every ConsoleMonster widget.
 Select a built-in preset or load a validated JSON/PSD1 theme. Dark suits dark terminals, Light suits light backgrounds, HighContrast uses saturated primaries and ColorBlindSafe uses blue/orange status contrast. Files use the built-in token names. PSD1 files are imported as restricted data and never executed. Invalid files leave the current theme unchanged.
 
 ### [Show-Console](Show-Console.md)
-Displays pipeline input in its automatic or explicit representation.
+Shows objects, text and widgets in a readable view that fits the terminal.
 
-Table and List are idiomatic shortcuts to the same view construction and output path. AsWidget and AsString capture the result; export uses Export-ConsoleFrame.
+Pipe objects to choose a view automatically, or use View for a table, list, object tree, source code, JSON, error or Markdown. Property chooses fields; Width sets the available space. Use New-ConsoleChart, New-ConsoleRule and New-ConsoleTree to construct those widgets. AsWidget returns a view for layout or Export-ConsoleFrame; PassThru returns the original objects after showing them.
 
 ### [Show-ConsoleApp](Show-ConsoleApp.md)
 Runs native input controls and dependent displays in a console application.
 
-Builds the layout once, then runs input synchronously on the caller's PowerShell thread. Callbacks are queued by controls and drained before input reads; dependent builders run on that same thread. Escape exits. Cancellation restores the terminal through the core runner. Use -StaticSnapshot to capture or print initialized values without interactive input. CONSOLEMONSTER_SNAPSHOT=1 also selects an initialized snapshot when no input source is supplied; CONSOLEMONSTER_INPUT supplies scripted keys centrally. Nothing is sent to the pipeline unless -PassThru requests one ordinary hashtable.
-
-### [Show-ConsoleChanges](Show-ConsoleChanges.md)
-Shows the changes an action would make and asks before making them: the what-if pattern.
-
-Compares -ReferenceObject with -DifferenceObject (as Compare-ConsoleObject does), shows the preview, then asks for confirmation and returns $true or $false; act only on $true. Changes that remove objects need the number of removals typed (or the -TypedConfirmation text). It honours the caller's -WhatIf: the preview is shown and $false returned without asking. -Force (or -Confirm:$false) skips the question and returns $true when there are changes. Use it inside your own functions: if (Show-ConsoleChanges -ReferenceObject $current -DifferenceObject $planned -Property Name) { apply }.
+Builds the layout once, then runs input synchronously on the caller's PowerShell thread. Callbacks are queued by controls and drained before input reads; dependent builders run on that same thread. Escape exits. Cancellation restores the terminal through the core runner. Use -Mode Snapshot to capture or print initialized values without interactive input. CONSOLEMONSTER_SNAPSHOT=1 also selects an initialized snapshot when no input source is supplied; CONSOLEMONSTER_INPUT supplies scripted keys centrally. Nothing is sent to the pipeline unless -PassThru requests one ordinary hashtable.
 
 ### [Show-ConsoleDemo](Show-ConsoleDemo.md)
 Runs an embedded ConsoleMonster gallery demo in the current PowerShell runspace.
 
-Without a slug, it lists the demos to pick from, grouped by category. Executes the same self-contained PowerShell source offered by Export-ConsoleDemo -Path. The demo runs in a child scope of the current runspace and uses the current host and loaded ConsoleMonster commands. No child process, download or temporary script file is used. Live demos can be interrupted normally. -StaticSnapshot selects a recorded state using scripted input or queued live updates controlled by the runner. The copied source has no capture parameters. Demo output and errors follow the normal PowerShell streams.
+Without a slug, it lists the demos to pick from, grouped by category. Executes the same self-contained PowerShell source offered by Get-ConsoleDemo (the Source property). The demo runs in a child scope of the current runspace and uses the current host and loaded ConsoleMonster commands. No child process, download or temporary script file is used. Live demos can be interrupted normally. -Mode Snapshot selects a recorded state using scripted input or queued live updates controlled by the runner. The copied source has no capture parameters. Demo output and errors follow the normal PowerShell streams.
 
 ### [Show-ConsoleGrid](Show-ConsoleGrid.md)
 Shows pipeline objects in an interactive grid and returns the rows you choose.
@@ -463,11 +368,6 @@ An Out-GridView for the console, on Windows PowerShell 5.1 and PowerShell 7. Typ
 Shows a command's help: synopsis, highlighted syntax, a parameter table and highlighted examples.
 
 Reads the help PowerShell has for the command (Get-Help -Full): cmdlet help files, comment-based help of functions and scripts, or the help PowerShell generates when there is none. It shows the name and synopsis, the syntax of each parameter set (parameter names, value types and optional parts told apart), the description, a parameter table (type, required, position, pipeline input, default, description), the examples with highlighted PowerShell code, inputs, outputs, notes and related links. Piped on (| more, | Out-Host -Paging, | Out-File) it writes plain lines, so pagers and files get readable text. About topics use the shared Markdown reader, retaining literal HTML and safe link handling. Works on Windows PowerShell 5.1 and PowerShell 7.
-
-### [Show-ConsoleList](Show-ConsoleList.md)
-Displays the list representation through the shared Show-Console implementation.
-
-Table and List are idiomatic shortcuts to the same view construction and output path. AsWidget and AsString capture the result; export uses Export-ConsoleFrame.
 
 ### [Show-ConsoleMenu](Show-ConsoleMenu.md)
 Shows a menu until the user exits.
@@ -487,12 +387,12 @@ Collects CPU, memory, local fixed disks, network addresses and safely available 
 ### [Show-ConsolePresentation](Show-ConsolePresentation.md)
 Presents a scripted demo one command at a time in a real shell.
 
-Enter types and runs; Space types without running; b moves back without undoing side effects; s skips; q quits. The terminal title shows the step counter. Optional -RecordingPath saves the same child output as asciicast; without it temporary capture files are removed on exit. Stop or cancellation terminates only the owned child and restores the title.
+Enter types and runs; Space types without running; b moves back without undoing side effects; s skips; q quits. The terminal title shows the step counter. ScriptPath selects the input demo script. Optional -Path saves the same child output as asciicast; without it temporary capture files are removed on exit. Stop or cancellation terminates only the owned child and restores the title.
 
 ### [Show-ConsoleReplay](Show-ConsoleReplay.md)
 Rewinds a recorded run: an in-terminal player with a timeline, markers, failures, warnings and log search.
 
-Plays a recording (written by Invoke-ConsoleDashboard -RecordPath or -AutoRecord) into the same dashboard and lets you move through it: space plays and pauses, left and right step frame by frame, + and - change the speed, PgUp and PgDn scrub, Home and End jump to the ends, n/p jump to the next or previous marker, f/F to failures, w/W to warnings, l/L to log entries, and / searches the log text (Enter for the next match). Markers are added while recording with Send-ConsoleEvent -WidgetId '$marker' -Operation mark -Text 'label'. Without -Path the newest automatic recording is played. Without an interactive console the markers are printed as lines.
+Plays a recording (written by Invoke-ConsoleDashboard -RecordingPath or -AutoRecord) into the same dashboard and lets you move through it: space plays and pauses, left and right step frame by frame, + and - change the speed, PgUp and PgDn scrub, Home and End jump to the ends, n/p jump to the next or previous marker, f/F to failures, w/W to warnings, l/L to log entries, and / searches the log text (Enter for the next match). The replay timeline includes markers already present in the dashboard recording. Without -RecordingPath the newest automatic recording is played. Without an interactive console the markers are printed as lines.
 
 ### [Show-ConsoleStatusLine](Show-ConsoleStatusLine.md)
 Shows one status line that updates in place, with an optional spinner, clock and elapsed time.
@@ -500,11 +400,9 @@ Shows one status line that updates in place, with an optional spinner, clock and
 Each call replaces the line (Write-Color style pieces, colours, -Markup, -Decoration and -Role as in Write-ConsoleText). -Spinner, -ShowTimestamp and -ShowElapsed keep refreshing about ten times a second between calls. -Complete writes the final line (with -Status Pass, Fail or Warn for a marker) and moves on. The refresh stops by itself when other output or the prompt moves the cursor, so it never draws over them. In redirected output, CI, transcripts, jobs and other non-console hosts each call writes a normal line instead (unchanged repeats are skipped).
 
 ### [Show-ConsoleTable](Show-ConsoleTable.md)
-Displays the table representation through the shared Show-Console implementation.
+Shows objects as a table with fitted columns, readable values and optional grouping.
 
-Three ways to use ConsoleMonster output: Automatic: Enable-ConsoleFormatting makes ordinary output readable for known and registered types. Explicit: pipe any objects to Show-ConsoleTable to choose columns, a title and grouping, or to Show-ConsoleObject to explore their members. These commands do not change session formatting; Show-ConsoleObject -StaticSnapshot avoids interactive input in scripts. Native Format-Table, Format-List and Format-Wide: FormatCommands restyles direct console output while keeping PowerShell's column choices; it is included by default use -Exclude FormatCommands to leave it native. You do not need both automatic and explicit formatting. The -Feature parameter requires ConsoleMonster 2.1.0 or later.
-
-Table and List are idiomatic shortcuts to the same view construction and output path. AsWidget and AsString capture the result; export uses Export-ConsoleFrame.
+Pipe objects and choose columns with Property, including calculated properties. GroupBy adds group headings, ShowTotals sums numeric columns, and Wrap keeps long text readable. Narrow output uses labelled cards below CardsBelow. This command displays the table immediately. Use New-ConsoleTable to place a table in a layout or pass it to Export-ConsoleFrame. Enable-ConsoleFormatting is the separate opt-in for ordinary prompt output.
 
 ### [Start-ConsoleRun](Start-ConsoleRun.md)
 Starts a bounded run dashboard for work scheduled by your script.
@@ -557,6 +455,10 @@ Writes a line to the log region of a running dashboard.
 -Level sets the tag: info, warn, err, verbose, debug, pass or skip, or PowerShell's words (Information, Warning, Error, Success...). Errors, warnings, passes and skips carry a status marker; only warnings and errors are coloured. Write-Host in a dashboard runspace reaches the same log automatically.
 
 ### [Write-ConsoleText](Write-ConsoleText.md)
-Writes multicolour text to the console and, optionally, to a log file: Write-Color compatible, with markup, styles, gradients, padding, wrapping and structured logs.
+Writes coloured text with optional markup, alignment, wrapping and a text log.
 
-Writes literal text pieces with Color and BackgroundColor, optional Role and Decoration, links, gradients and terminal-cell padding. ShowTimestamp adds a wall-clock timestamp formatted with TimestampFormat. NoNewLine continues the current line. LogFile records text, CSV or JSON Lines; LogTimestamp and LogFormat control that destination independently. Redirected output is plain text, and jobs and remoting retain the structured rendering. New log files use UTF-8 without a byte order mark; existing logs keep their encoding.
+Text is literal; Color and BackgroundColor apply per piece. Role, Decoration, Link and Gradient apply to the message. Indent adds spaces and Alignment places text within Width. ShowTimestamp adds a timestamp. NoNewLine continues the current line. LogFile appends plain text with timestamps; new logs use UTF-8 and existing logs retain their encoding. Redirected output is plain text.
+
+## About Topics
+
+### [about_ConsoleMonster](About/about_ConsoleMonster.md)

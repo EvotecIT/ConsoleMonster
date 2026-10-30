@@ -1,14 +1,16 @@
-using ConsoleMonster.Building;
+using ConsoleMonster;
+using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
 
 // Three servers deployed in parallel. Handles post updates from any thread; Console.WriteLine from any of them lands
 // in the log panel instead of writing over the screen.
-Dashboard dashboard = new DashboardBuilder("Deploy")
-    .Panel("Servers", new Lanes(), out Lanes lanes, false, "3 workers")
-    .Panel("Log", new LogRegion(), true)
-    .BuildDashboard();
+Lanes lanes = new Lanes();
+Dashboard dashboard = Ui.Dashboard().Title("Deploy")
+    .Content(body => body
+        .Panel(new Panel(lanes, "Servers") { HeaderRight = "3 workers" })
+        .Add(new Panel(new LogRegion(), "Log").Fill()));
 string[] steps = { "copying files", "stopping the site", "swapping folders", "starting the site" };
 foreach (string server in new[] { "SRV1", "SRV2", "SRV3" }
 

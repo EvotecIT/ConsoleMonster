@@ -42,10 +42,6 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public override CultureInfo? Culture { get; set; }
 
-        /// <summary><para type="description">Returns plain text instead of displaying it.</para></summary>
-        [Parameter]
-        public override SwitchParameter AsString { get; set; }
-
         /// <summary><para type="description">Returns the constructed widget.</para></summary>
         [Parameter]
         public override SwitchParameter AsWidget { get; set; }
@@ -102,22 +98,6 @@ namespace ConsoleMonster.PowerShell {
         [Parameter, ValidateRange(0, int.MaxValue)]
         public override int Depth { get; set; } = 3;
 
-        /// <summary><para type="description">The property containing a hierarchy node children.</para></summary>
-        [Parameter]
-        public override string? ChildrenProperty { get; set; }
-
-        /// <summary><para type="description">Produces children for a hierarchy node.</para></summary>
-        [Parameter]
-        public override ScriptBlock? Children { get; set; }
-
-        /// <summary><para type="description">The hierarchy label property.</para></summary>
-        [Parameter]
-        public override string? LabelProperty { get; set; }
-
-        /// <summary><para type="description">The hierarchy detail property.</para></summary>
-        [Parameter]
-        public override string? DetailProperty { get; set; }
-
         /// <summary><para type="description">Maximum inspected items per collection; default 100.</para></summary>
         [Parameter, ValidateRange(1, int.MaxValue)]
         public override int MaxItems { get; set; } = 100;
@@ -125,10 +105,6 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Maximum hierarchy nodes; default 1000.</para></summary>
         [Parameter, ValidateRange(1, int.MaxValue)]
         public override int MaxNodes { get; set; } = 1000;
-
-        /// <summary><para type="description">Object members to include.</para></summary>
-        [Parameter]
-        public override string[]? Include { get; set; }
 
         /// <summary><para type="description">Object members omitted without reading their getters.</para></summary>
         [Parameter]
@@ -143,141 +119,107 @@ namespace ConsoleMonster.PowerShell {
         public override SwitchParameter LineNumbers { get; set; }
 
         /// <summary><para type="description">Line numbers or ranges to highlight.</para></summary>
-        [Parameter]
+        [Parameter(DontShow = true)]
         public override string[]? Highlight { get; set; }
 
         /// <summary><para type="description">The first code line number; default one.</para></summary>
-        [Parameter]
+        [Parameter(DontShow = true)]
         public override int FirstLine { get; set; } = 1;
 
         /// <summary><para type="description">Maximum displayed code lines; default 2000.</para></summary>
-        [Parameter]
+        [Parameter(DontShow = true)]
         public override int MaxLines { get; set; } = 2000;
 
         /// <summary><para type="description">Hides a code file title.</para></summary>
-        [Parameter]
+        [Parameter(DontShow = true)]
         public override SwitchParameter NoTitle { get; set; }
 
-        /// <summary><para type="description">Numeric chart representation: Bar, Histogram or Sparkline. Line, Stacked and Scatter charts take series; build them with New-ConsoleChart.</para></summary>
-        [Parameter]
-        [ValidateSet("Bar", "Histogram", "Sparkline")]
-        public override ChartType Type { get; set; }
-
-        /// <summary><para type="description">The chart label property or expression; default Name.</para></summary>
-        [Parameter]
-        public override object Label { get; set; } = "Name";
-
-        /// <summary><para type="description">Chart ordering.</para></summary>
-        [Parameter]
-        public override PipelineChartSort Sort { get; set; }
-
-        /// <summary><para type="description">Histogram bins; default ten.</para></summary>
-        [Parameter, ValidateRange(1, 128)]
-        public override int Bins { get; set; } = 10;
-
-        /// <summary><para type="description">The chart numeric unit.</para></summary>
-        [Parameter]
-        public override string? Unit { get; set; }
-
         /// <summary><para type="description">Shows framework stack frames in error views.</para></summary>
-        [Parameter]
+        [Parameter(DontShow = true)]
         public override SwitchParameter ShowFrameworkFrames { get; set; }
 
         /// <summary><para type="description">Maximum application frames per error; default eight.</para></summary>
-        [Parameter]
-        public override int MaxFrames { get; set; } = 8;
+        [Parameter(DontShow = true)]
+        public override int MaxStackFrames { get; set; } = 8;
 
         /// <summary><para type="description">Hides error stack frames.</para></summary>
-        [Parameter]
+        [Parameter(DontShow = true)]
         public override SwitchParameter NoStack { get; set; }
 
-        /// <summary><para type="description">Uses the compact everyday error layout.</para></summary>
-        [Parameter]
-        public override SwitchParameter Compact { get; set; }
+        /// <summary><para type="description">Error detail: Compact, Standard or Detailed.</para></summary>
+        [Parameter, ValidateSet("Compact", "Standard", "Detailed")]
+        public override string ErrorLayout { get; set; } = "Standard";
 
         /// <summary><para type="description">Maximum inner errors; default four.</para></summary>
         [Parameter, ValidateRange(0, int.MaxValue)]
         public override int MaxInner { get; set; } = 4;
 
         /// <summary><para type="description">Suppresses default-on source excerpts in error views.</para></summary>
-        [Parameter]
+        [Parameter(DontShow = true)]
         public override SwitchParameter NoSource { get; set; }
 
         /// <summary><para type="description">Disables default-on Markdown paging.</para></summary>
         [Parameter]
         public override SwitchParameter NoPager { get; set; }
 
-        /// <summary><para type="description">The rule title alignment; default Left.</para></summary>
-        [Parameter]
-        public override HorizontalAlignment Alignment { get; set; }
-
-        /// <summary><para type="description">Theme role for a rule line; default Border.</para></summary>
-        [Parameter] public override Styling.ThemeToken LineRole { get; set; } = Styling.ThemeToken.Border;
-        /// <summary><para type="description">Optional rule line glyph style.</para></summary>
-        [Parameter] public override Glyphs.BoxStyle? LineStyle { get; set; }
-
         /// <summary><para type="description">Optional title indentation in cells.</para></summary>
-        [Parameter]
+        [Parameter(DontShow = true)]
         public override int? TitleIndent { get; set; }
 
         /// <summary><para type="description">Wraps column headings.</para></summary>
-        [Parameter]
+        [Parameter(DontShow = true)]
         public override SwitchParameter WrapHeaders { get; set; }
 
         /// <summary><para type="description">Renders consecutive grids when all columns cannot fit.</para></summary>
-        [Parameter]
+        [Parameter(DontShow = true)]
         public override SwitchParameter KeepAllColumns { get; set; }
 
         /// <summary><para type="description">Renders group headings as full-width rows.</para></summary>
-        [Parameter]
+        [Parameter(DontShow = true)]
         public override SwitchParameter GroupHeadersAsRows { get; set; }
 
         /// <summary><para type="description">Uses labelled records at or below this row count; zero disables.</para></summary>
-        [Parameter]
+        [Parameter(DontShow = true)]
         public override int RecordViewRows { get; set; } = 1;
 
         /// <summary><para type="description">Repeats the full key in record and card layouts.</para></summary>
-        [Parameter]
+        [Parameter(DontShow = true)]
         public override SwitchParameter ShowKeyField { get; set; }
 
         /// <summary><para type="description">Suppresses the default-on hidden-column footer.</para></summary>
-        [Parameter]
+        [Parameter(DontShow = true)]
         public override SwitchParameter NoHiddenColumns { get; set; }
 
         /// <summary><para type="description">Allows column widths to shrink between renders.</para></summary>
-        [Parameter]
+        [Parameter(DontShow = true)]
         public override SwitchParameter NoStableWidths { get; set; }
 
         /// <summary><para type="description">Suppresses the default-on header row.</para></summary>
-        [Parameter]
+        [Parameter(DontShow = true)]
         public override SwitchParameter NoHeader { get; set; }
 
-        /// <summary><para type="description">Uses record cards at every width.</para></summary>
-        [Parameter]
-        public override SwitchParameter AlwaysCards { get; set; }
-
         /// <summary><para type="description">Optional per-row titles for record and card views.</para></summary>
-        [Parameter]
+        [Parameter(DontShow = true)]
         public override string[]? RowTitles { get; set; }
 
         /// <summary><para type="description">Shows group subtotals.</para></summary>
-        [Parameter]
+        [Parameter(DontShow = true)]
         public override SwitchParameter ShowSubtotals { get; set; }
 
         /// <summary><para type="description">Text for the totals row.</para></summary>
-        [Parameter]
+        [Parameter(DontShow = true)]
         public override string? TotalLabel { get; set; }
 
         /// <summary><para type="description">Maximum wrapped lines per value; zero has no limit.</para></summary>
-        [Parameter]
+        [Parameter(DontShow = true)]
         public override int WrapLines { get; set; } = 3;
 
         /// <summary><para type="description">Total count when the input contains a subset.</para></summary>
-        [Parameter]
+        [Parameter(DontShow = true)]
         public override int? TotalRowCount { get; set; }
 
         /// <summary><para type="description">Typed culture, clock and time-zone configuration for values.</para></summary>
-        [Parameter]
+        [Parameter(DontShow = true)]
         public override ConsoleMonster.Presenters.PresentationOptions? Presentation { get; set; }
 
     }

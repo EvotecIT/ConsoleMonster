@@ -17,7 +17,7 @@ namespace ConsoleMonster {
 
         /// <summary>Empty layout grid; configure Columns before adding cells.</summary>
         /// <returns>The empty layout grid; configure Columns before adding cells.</returns>
-        public static ConsoleMonster.Layout.Grid LayoutGrid() => new ConsoleMonster.Layout.Grid(2);
+        public static ConsoleMonster.Layout.LayoutGrid LayoutGrid() => new ConsoleMonster.Layout.LayoutGrid(2);
 
         /// <summary>Empty panel; configure Title and Content in the chain.</summary>
         /// <returns>The empty panel; configure Title and Content in the chain.</returns>

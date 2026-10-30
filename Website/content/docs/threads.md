@@ -54,7 +54,7 @@ Import-Module ConsoleMonster
 
 $servers = 'web01', 'web02', 'web03', 'web04'
 $dashboard = New-ConsoleDashboard -Title 'Patching' -Content {
-    New-ConsolePanel -Title 'Servers' -Content { New-ConsoleStatusList -WidgetId servers -Item $servers }
+    New-ConsolePanel -Title 'Servers' -Content { $servers | New-ConsoleStatusList -WidgetId servers }
     New-ConsolePanel -Title 'Log' -Fill -Content { New-ConsoleLogRegion }
 }
 
@@ -83,14 +83,12 @@ Workers update widgets through handles taken from the session. Everything below 
 The C# tab of the dashboard demo above uses `Parallel.ForEachAsync` with a `LanesHandle`. Code deeper down does not need the session at all: an ambient `TerminalScope` flows with the code it wraps, across `await` and `Task.Run`, and `TerminalScope.Report`, `Advance` and `SetState` go to the widget and key the scope names (`TerminalScope.Log` to the session's log). Outside a scope they do nothing, so the same code runs without a dashboard.
 
 ```csharp
-using ConsoleMonster.Building;
 using ConsoleMonster.Live;
 using ConsoleMonster.Widgets;
 
 string[] servers = { "web01", "web02", "web03" };
-Dashboard dashboard = new DashboardBuilder("Patching")
-    .Panel("Servers", new Lanes(), out Lanes lanes)
-    .BuildDashboard();
+Lanes lanes = new Lanes();
+Dashboard dashboard = new Dashboard("Patching", new ConsoleMonster.Layout.Panel(lanes, "Servers"));
 foreach (string server in servers) {
     lanes.Add(server, server, 2);
 }

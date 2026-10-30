@@ -3,7 +3,7 @@ using System.Management.Automation;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>Routes native Write-Progress data to the optional progress area or the original host stream.</summary>
-    public static class NativeProgress {
+    internal static class NativeProgress {
         /// <summary>Preserves native preferences and record semantics; the proxy supplies runtime-native parameters.</summary>
         /// <param name="cmdlet">The native-parameter proxy executing on its pipeline thread.</param>
         /// <param name="id">The native activity identifier.</param>

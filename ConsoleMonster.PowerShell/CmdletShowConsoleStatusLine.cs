@@ -12,14 +12,17 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="description">Each call replaces the line (Write-Color style pieces, colours, -Markup, -Decoration and -Role as in Write-ConsoleText). -Spinner, -ShowTimestamp and -ShowElapsed keep refreshing about ten times a second between calls. -Complete writes the final line (with -Status Pass, Fail or Warn for a marker) and moves on. The refresh stops by itself when other output or the prompt moves the cursor, so it never draws over them. In redirected output, CI, transcripts, jobs and other non-console hosts each call writes a normal line instead (unchanged repeats are skipped).</para>
     /// </summary>
     /// <example>
-    ///   <para>A copy loop with a spinner and elapsed time</para>
-    ///   <code>
-    /// foreach ($file in $files) { Show-ConsoleStatusLine 'Copying ', $file.Name -Color Gray, Cyan -Spinner -ShowElapsed; Copy-Item $file.FullName $target }
-    /// Show-ConsoleStatusLine "Copied $($files.Count) files" -Status Pass -ShowElapsed -Complete</code>
+    /// <para>Show progress through a sample inventory</para>
+    /// <code>$servers = 'web01', 'web02', 'sql01'
+    /// foreach ($server in $servers) {
+    ///     Show-ConsoleStatusLine 'Checking ', $server -Color Gray, Cyan -Spinner -ShowElapsed
+    ///     Start-Sleep -Milliseconds 100
+    /// }
+    /// Show-ConsoleStatusLine "Checked $($servers.Count) servers" -Status Pass -ShowElapsed -Complete</code>
     /// </example>
     /// <example>
-    ///   <para>A waiting line with a clock (PSWriteColor issue #15)</para>
-    ///   <code>Show-ConsoleStatusLine 'You have waited ' -Color Green -BackgroundColor Blue -ShowTimestamp -ShowElapsed; Start-Sleep 5; Show-ConsoleStatusLine 'Done' -Status Pass -Complete</code>
+    /// <para>Show a waiting line with a clock</para>
+    /// <code>Show-ConsoleStatusLine 'Waiting' -Color Green -ShowTimestamp -ShowElapsed; Start-Sleep -Seconds 1; Show-ConsoleStatusLine 'Done' -Status Pass -Complete</code>
     /// </example>
     [Cmdlet(VerbsCommon.Show, "ConsoleStatusLine")]
     public sealed class CmdletShowConsoleStatusLine : NoPipelineInputCmdlet {

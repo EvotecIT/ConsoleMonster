@@ -7,33 +7,45 @@ using ConsoleMonster.Interactive;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates a form field for New-ConsoleForm.</para>
-    /// <para type="description">A field has a name (its key in the result), a label, help shown while it has focus, a default, validation (-Required, -Validator and the type's own checks) and the command-line parameter it supplies (-ParameterName) for the equivalent command. -VisibleWhen shows it only while a condition on the other values holds ($Values). -DependsOn resets it when those fields change; with -LoadChoices its options are loaded again in their own runspace (a spinner shows, Esc cancels), from the current values ($Values). Choices are built from any objects: -Display, -GroupBy, -Describe, -Badge, -DisabledReason and -Selected read each object (a property name, or a scriptblock for choices given with -Choices; loaded choices take property names), and -CommandValue picks the text the equivalent command shows and the field returns.</para>
+    /// <para type="description">A field has a name (its key in the result), a label, help shown while it has focus, a default, validation (-Required, -Validator and the type's own checks) and the command-line parameter it supplies (-ParameterName) for the equivalent command. -VisibleWhen shows it only while a condition on the other values holds ($Values). -DependsOn resets it when those fields change; with -LoadChoices its options are loaded again in their own runspace (a spinner shows, Esc cancels), from the current values ($Values). Choices are built from any objects: -Display, -GroupBy, -Describe, -Badge and -DisabledReason read each object (a property name, or a scriptblock for choices given with -Choices; loaded choices take property names). For Select fields, -Default @{ Property = 'Online' } selects choices whose Online property is true; -Default also accepts initial values. -CommandValue picks the text the equivalent command shows and the field returns.</para>
     /// </summary>
     /// <example>
-    ///   <para>Dependent fields: picking a site loads its servers</para>
-    ///   <code>
-    /// New-ConsoleField Site 'Site' -Type Select -Choices 'Warsaw', 'Berlin' -ParameterName Site
-    /// New-ConsoleField Server 'Servers' -Type Select -Multiple -DependsOn Site -LoadChoices { param($Values) Get-AppServer -Site $Values.Site } -Display Name -ParameterName Server</code>
+    /// <para>Load dependent choices from the selected site</para>
+    /// <code>$form = New-ConsoleForm 'Server selection' -Content {
+    ///     New-ConsoleField Site 'Site' -Type Select -Choices 'Warsaw', 'Berlin' -Default Warsaw
+    ///     New-ConsoleField Server 'Server' -Type Select -DependsOn Site -LoadChoices {
+    ///         param($Values)
+    ///         [pscustomobject]@{ Name = "$($Values.Site)-web01" }
+    ///         [pscustomobject]@{ Name = "$($Values.Site)-web02" }
+    ///     } -Display Name -ParameterName Server
+    /// }
+    /// Read-ConsoleForm $form</code>
     /// </example>
     /// <example>
-    ///   <para>A conditional field</para>
-    ///   <code>
-    /// New-ConsoleField Notify 'Send an email' -Type Toggle
-    /// New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -match '@' }</code>
+    /// <para>Show a field only when a toggle is enabled</para>
+    /// <code>$form = New-ConsoleForm 'Notifications' -Content {
+    ///     New-ConsoleField Notify 'Send an email' -Type Toggle
+    ///     New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -match '@' }
+    /// }
+    /// Read-ConsoleForm $form</code>
     /// </example>
     /// <example>
-    ///   <para>Loaded servers grouped by site, with their role as a badge, offline ones disabled and online ones selected; the command shows their names</para>
-    ///   <code>
-    /// New-ConsoleField Servers 'Servers' -Type Select -Multiple -DependsOn Domain -ParameterName ComputerName -LoadChoices {
-    ///     param($Values)
-    ///     Get-AppServer -Domain $Values.Domain | ForEach-Object {
-    ///         [pscustomobject] @{ Name = $_.Name; Site = $_.Site; Role = $_.Role; Offline = $_.OfflineReason; Online = -not $_.OfflineReason }
-    ///     }
-    /// } -Display Name -CommandValue Name -GroupBy Site -Badge Role -DisabledReason Offline -Selected Online</code>
+    /// <para>Group loaded choices, disable unavailable ones and select defaults by property</para>
+    /// <code>$form = New-ConsoleForm 'Servers' -Content {
+    ///     New-ConsoleField Servers 'Servers' -Type Select -Multiple -ParameterName ComputerName -LoadChoices {
+    ///         [pscustomobject]@{ Name = 'web01'; Site = 'East'; Role = 'Web'; Offline = ''; Online = $true }
+    ///         [pscustomobject]@{ Name = 'web02'; Site = 'West'; Role = 'Web'; Offline = 'Maintenance'; Online = $false }
+    ///     } -Display Name -CommandValue Name -GroupBy Site -Badge Role -DisabledReason Offline -Default @{ Property = 'Online' }
+    /// }
+    /// Read-ConsoleForm $form</code>
     /// </example>
     /// <example>
-    ///   <para>Checks offered by name, returned and shown in the command as their ids, with a typical time as a badge</para>
-    ///   <code>New-ConsoleField Checks 'Checks' -Type Select -Multiple -Choices $checks -Display Name -CommandValue Id -GroupBy Category -Badge { "~$($_.Seconds) s" } -ParameterName Check</code>
+    /// <para>Return choice identifiers and show a duration badge</para>
+    /// <code>$checks = @(
+    ///     [pscustomobject]@{ Id = 'dns'; Name = 'DNS lookup'; Category = 'Network'; Seconds = 2 }
+    ///     [pscustomobject]@{ Id = 'disk'; Name = 'Free space'; Category = 'Storage'; Seconds = 1 }
+    /// )
+    /// New-ConsoleField Checks 'Checks' -Type Select -Multiple -Choices $checks -Display Name -CommandValue Id -GroupBy Category -Badge { "~$($_.Seconds) s" } -ParameterName Check</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleField")]
     [OutputType(typeof(Field))]
@@ -66,9 +78,9 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public string? Page { get; set; }
 
-        /// <summary><para type="description">Help shown while the field has focus.</para></summary>
+        /// <summary><para type="description">Description shown while the field has focus.</para></summary>
         [Parameter]
-        public string? Help { get; set; }
+        public string? Description { get; set; }
 
         /// <summary><para type="description">The parameter the field supplies in the equivalent command (Name, -Key or --name).</para></summary>
         [Parameter]
@@ -109,10 +121,6 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Why a choice cannot be picked: a property name or a scriptblock returning the reason. Nothing, $false or an empty string leaves the choice available; $true disables it without a reason. Disabled choices are dimmed and show the reason while they have focus.</para></summary>
         [Parameter]
         public object? DisabledReason { get; set; }
-
-        /// <summary><para type="description">Whether a choice starts selected: a property name or a scriptblock returning $true. With -LoadChoices, use a property name. Works for loaded choices too, so the choices a loader marks are chosen once they arrive (a preset's values take their place when one is applied).</para></summary>
-        [Parameter]
-        public object? Selected { get; set; }
 
         /// <summary><para type="description">The value of a choice: the text the equivalent command shows and the field returns, a property name or a scriptblock. The returned text keeps the choice object's properties, so $_.Name still works in -Preview and in the submitted values; presets and remembered choices store the text.</para></summary>
         [Parameter]
@@ -213,7 +221,7 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void EndProcessing() {
             Field field = Create();
-            field.Help = Help;
+            field.Help = Description;
             field.ParameterName = ParameterName;
             field.Required = Required.IsPresent || field.Required && AsSecret.IsPresent;
             if (NoRemember.IsPresent) {
@@ -282,6 +290,14 @@ namespace ConsoleMonster.PowerShell {
                     return path;
                 case ConsoleFieldType.Select:
                     bool multiple = Multiple.IsPresent;
+                    object? initial = Default;
+                    object? defaultBy = Default is ScriptBlock ? Default : null;
+                    if (PSText.Unwrap(Default) is System.Collections.IDictionary rule && rule.Contains("Property")) {
+                        PSItems.RecordFields(rule, "Property");
+                        defaultBy = PSItems.Field(rule, "Property");
+                        if (!(defaultBy is string property) || string.IsNullOrWhiteSpace(property)) { throw new PSArgumentException("A Default selection rule needs Property with a nonempty property name."); }
+                    }
+                    if (defaultBy != null) { initial = null; }
                     ChoiceField choice = new ChoiceField(Key, Label, multiple) {
                         Minimum = Minimum.HasValue ? (int)Minimum.Value : (int?)null,
                         Maximum = Maximum.HasValue ? (int)Maximum.Value : (int?)null
@@ -293,8 +309,8 @@ namespace ConsoleMonster.PowerShell {
                         Badge = Badge,
                         MutedBadge = true,
                         Disabled = DisabledReason,
-                        Selected = multiple ? Default : null,
-                        SelectedBy = Selected,
+                        Selected = multiple ? initial : null,
+                        SelectedBy = defaultBy,
                         CommandValue = CommandValue
                     };
                     if (Choices != null) {
@@ -309,17 +325,17 @@ namespace ConsoleMonster.PowerShell {
                         ScriptBlock preview = Preview;
                         choice.Preview = c => PSInteractive.ToWidget(PSInteractive.InvokeWith(preview, c.Value));
                     }
-                    if (Default != null) {
+                    if (initial != null) {
                         if (multiple) {
                             List<object?> values = new List<object?>();
-                            foreach (object? d in PSInteractive.Enumerate(Default)) {
+                            foreach (object? d in PSInteractive.Enumerate(initial)) {
                                 Choice? match = PSInteractive.Find(choice.Choices, d);
                                 values.Add(match != null ? match.Value : PSInteractive.ChoiceDefault(d, CommandValue));
                             }
                             choice.Default = values;
                         } else {
-                            Choice? match = PSInteractive.Find(choice.Choices, Default);
-                            choice.Default = match != null ? match.Value : PSInteractive.ChoiceDefault(PSText.Unwrap(Default), CommandValue);
+                            Choice? match = PSInteractive.Find(choice.Choices, initial);
+                            choice.Default = match != null ? match.Value : PSInteractive.ChoiceDefault(PSText.Unwrap(initial), CommandValue);
                         }
                     }
                     return choice;

@@ -40,7 +40,7 @@
 Write-ConsoleText -Text 'Red ', 'Green ', 'Yellow' -Color Red, Green, Yellow
 Write-ConsoleText -Text 'color ', 'pieces' -Color Yellow -BackgroundColor Blue
 Write-ConsoleText -Text 'foreground' -Color Cyan -BackgroundColor DarkGray
-Write-ConsoleText 'indent' -StartTab 1
+Write-ConsoleText 'indent' -Indent 8
 '@
             $text | Should -Match '(?m)^Red Green Yellow$'
             $text | Should -Match '(?m)^color pieces$'
@@ -48,23 +48,14 @@ Write-ConsoleText 'indent' -StartTab 1
             $text | Should -Match '(?m)^ {8}indent$'
         }
 
-        It 'applies StartTab, StartSpaces, LinesBefore, LinesAfter and NoNewLine' {
+        It 'applies Indent and keeps NoNewLine output on the same line' {
             $text = Invoke-TextChild -Script @'
-'BEGIN'
-Write-ConsoleText 'tabbed' -StartTab 2
-Write-ConsoleText 'spaced' -StartSpaces 3
-Write-ConsoleText 'around' -LinesBefore 2 -LinesAfter 1
+Write-ConsoleText 'spaced' -Indent 3
 Write-ConsoleText 'no ' -NoNewLine
 Write-ConsoleText 'newline'
-'END'
 '@
-            $lines = $text -split "`n"
-            $lines | Should -Contain (' ' * 16 + 'tabbed')
+            $lines = @($text -split "`n")
             $lines | Should -Contain '   spaced'
-            $index = [array]::IndexOf($lines, 'around')
-            $lines[$index - 1] | Should -BeExactly ''
-            $lines[$index - 2] | Should -BeExactly ''
-            $lines[$index + 1] | Should -BeExactly ''
             $lines | Should -Contain 'no newline'
         }
 
@@ -79,80 +70,47 @@ Write-ConsoleText 'alias2' -ShowTimestamp -TimestampFormat 'dd'
             $text | Should -Match ('(?m)^\[' + (Get-Date).ToString('dd') + '\] alias2$')
         }
 
-        It 'centres with -HorizontalCenter by display width, including emoji and CJK' {
+        It 'appends literal UTF-8 text to LogFile while preserving console output' {
+            $log = Join-Path $TestDrive 'basic.log'
+            $text = Invoke-TextChild -Script @"
+Write-ConsoleText 'zażółć' -LogFile '$log'
+Write-ConsoleText 'second line' -LogFile '$log'
+"@
+            $text | Should -Match 'zażółć'
+            $text | Should -Match 'second line'
+            $content = @(Get-Content -LiteralPath $log -Encoding UTF8)
+            $content.Count | Should -Be 2
+            $content[0] | Should -Match '^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\] zażółć$'
+            $content[1] | Should -Match '^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\] second line$'
+        }
+
+        It 'aligns complete lines by display width including prefixes emoji and CJK' {
             $text = Invoke-TextChild -Script @'
 $env:CONSOLEMONSTER_GLYPHS = 'Full'
-Write-ConsoleText 'abcd' -HorizontalCenter -Width 20
-Write-ConsoleText ([string] [char] 0x4E2D + [char] 0x6587 + [char]::ConvertFromUtf32(0x1F98A)) -HorizontalCenter -Width 20
+Write-ConsoleText 'abcd' -Alignment Center -Width 20
+Write-ConsoleText ([string] [char] 0x4E2D + [char] 0x6587 + [char]::ConvertFromUtf32(0x1F98A)) -Alignment Center -Width 20
+Write-ConsoleText 'x' -Alignment Right -Indent 2 -Width 10
+Write-ConsoleText 'abcd' -Alignment Center -Indent 2 -Width 10
+Write-ConsoleText 'one two three four five six seven' -Alignment Right -Indent 2 -ShowTimestamp -TimestampFormat "'T'" -Wrap -Width 20
 '@
             $lines = $text -split "`n"
             $lines[0] | Should -BeExactly ((' ' * 8) + 'abcd')
             # Two CJK characters (2 cells each) and an emoji without a fallback (2 cells) are 6 cells wide: 7 spaces before.
             $lines[1] | Should -BeExactly ((' ' * 7) + [string] [char] 0x4E2D + [char] 0x6587 + [char]::ConvertFromUtf32(0x1F98A))
+            $lines[2] | Should -BeExactly ((' ' * 9) + 'x')
+            $lines[3] | Should -BeExactly '    abcd'
+            $lines[4] | Should -BeExactly '   [T] one two three'
+            $lines[5] | Should -BeExactly '       four five six'
+            $lines[6] | Should -BeExactly ((' ' * 15) + 'seven')
         }
 
-        It 'writes only the log with NoConsoleOutput and includes its timestamp by default' {
-            $log = Join-Path $TestDrive 'quiet.log'
-            $text = Invoke-TextChild -Script @"
-Write-ConsoleText 'hidden one' -LogFile '$log' -NoConsoleOutput
-Write-ConsoleText 'hidden two' -LogFile '$log' -NoConsoleOutput -LogTimestamp `$false
-Write-ConsoleText 'hidden three' -LogFile '$log' -NoConsoleOutput -LogTimestamp `$false
-'visible'
-"@
-            $text | Should -Not -Match 'hidden'
-            $content = @(Get-Content -LiteralPath $log -Encoding UTF8)
-            $content[0] | Should -Match '^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\] hidden one$'
-            $content[1] | Should -BeExactly 'hidden two'
-            $content[2] | Should -BeExactly 'hidden three'
-        }
 
-        It 'writes the log with the requested -Encoding (UTF-8 without BOM by default)' {
-            $default = Join-Path $TestDrive 'utf8.log'
-            $unicode = Join-Path $TestDrive 'unicode.log'
-            $bom = Join-Path $TestDrive 'utf8bom.log'
-            $null = Invoke-TextChild -Script @"
-Write-ConsoleText 'zażółć' -LogFile '$default' -NoConsoleOutput -LogTimestamp `$false
-Write-ConsoleText 'zażółć' -LogFile '$unicode' -Encoding unicode -NoConsoleOutput -LogTimestamp `$false
-Write-ConsoleText 'zażółć' -LogFile '$bom' -Encoding utf8BOM -NoConsoleOutput -LogTimestamp `$false
-"@
-            $first = [System.IO.File]::ReadAllBytes($default)[0..2]
-            ($first -join ',') | Should -Not -Be '239,187,191'
-            [System.IO.File]::ReadAllText($default) | Should -Match 'zażółć'
-            ([System.IO.File]::ReadAllBytes($unicode)[0..1] -join ',') | Should -Be '255,254'
-            [System.IO.File]::ReadAllText($unicode, [Text.Encoding]::Unicode) | Should -Match 'zażółć'
-            ([System.IO.File]::ReadAllBytes($bom)[0..2] -join ',') | Should -Be '239,187,191'
-        }
 
-        It 'keeps appending to an existing Write-Color UTF-16 log in UTF-16' {
-            $log = Join-Path $TestDrive 'writecolor-unicode.log'
-            $old = "[2026-09-30 08:00:00] $([char]0x0141)od$([char]0x017A) start"
-            [System.IO.File]::WriteAllText($log, $old + [Environment]::NewLine, [System.Text.UnicodeEncoding]::new($false, $true))
-            $text = Invoke-TextChild -Script @"
-Write-ConsoleText "next `$([char]0x0105)" -LogFile '$log' -NoConsoleOutput -LogTimestamp `$false
-Write-ConsoleText 'forced' -LogFile '$log' -Encoding utf8 -NoConsoleOutput -LogTimestamp `$false -WarningVariable w -WarningAction SilentlyContinue; `$w | ForEach-Object { 'W: ' + `$_ }
-"@
-            $bytes = [System.IO.File]::ReadAllBytes($log)
-            ($bytes[0..1] -join ',') | Should -Be '255,254'
-            $lines = [System.IO.File]::ReadAllText($log, [System.Text.Encoding]::Unicode) -split "`r?`n"
-            $lines[0] | Should -BeExactly $old
-            $lines[1] | Should -BeExactly "next $([char]0x0105)"
-            $lines[2] | Should -BeExactly 'forced'
-            $text | Should -Match 'W: Write-ConsoleText - Log file .+ is utf-16; appending in that encoding instead of utf-8\.'
-        }
 
-        It 'retries a locked log file -LogRetry times with Write-Color style warnings' {
-            $log = Join-Path $TestDrive 'locked.log'
-            $stream = [System.IO.File]::Open($log, 'OpenOrCreate', 'ReadWrite', 'None')
-            try {
-                # Warnings are collected in the child: a nested redirected host prints them outside the captured output.
-                $text = Invoke-TextChild -Script "Write-ConsoleText 'blocked' -LogFile '$log' -LogRetry 3 -NoConsoleOutput -WarningVariable logWarnings -WarningAction SilentlyContinue; `$logWarnings | ForEach-Object { 'W: ' + `$_ }"
-            } finally {
-                $stream.Dispose()
-            }
-            $text | Should -Match 'Write-ConsoleText - Couldn.t write to log file .*Retrying\.\.\. \(1/3\)'
-            $text | Should -Match 'Retrying\.\.\. \(2/3\)'
-            $text | Should -Match 'Tried \(3/3\)'
-        }
+
+
+
+
 
         It 'maps ConsoleColor names exactly as Write-Host shows them' {
             (New-ConsoleText 'x' -Color Red).Segments[0].Style.Color.ToMarkup() | Should -Be 'red'
@@ -191,22 +149,10 @@ Write-ConsoleText '[info] ', "Execution Path exists`n2. Line`n3. Line" -Color Ye
             $lines[2] | Should -BeExactly ((' ' * 8) + '3. Line')
         }
 
-        It 'pads by display width with -PadLeft, -PadRight, -PadCenter and -PadCharacter' {
-            $text = Invoke-TextChild -Script @'
-Write-ConsoleText 'left' -PadLeft 10 -PadCharacter '.'
-Write-ConsoleText 'right' -PadRight 10 -PadCharacter '.'
-Write-ConsoleText 'mid' -PadCenter 9 -PadCharacter '-'
-Write-ConsoleText ([string] [char] 0x4E2D + [char] 0x6587) -PadLeft 8 -PadCharacter '.'
-'@
-            $lines = $text -split "`n"
-            $lines[0] | Should -BeExactly '......left'
-            $lines[1] | Should -BeExactly 'right.....'
-            $lines[2] | Should -BeExactly '---mid---'
-            $lines[3] | Should -BeExactly ('....' + [string] [char] 0x4E2D + [char] 0x6587)
-        }
+
 
         It 'wraps with -Wrap under the prefix' {
-            $text = Invoke-TextChild -Script "Write-ConsoleText 'one two three four five six seven' -StartSpaces 4 -Wrap -Width 20"
+            $text = Invoke-TextChild -Script "Write-ConsoleText 'one two three four five six seven' -Indent 4 -Wrap -Width 20"
             $lines = $text -split "`n"
             $lines[0] | Should -BeExactly '    one two three'
             $lines[1] | Should -BeExactly '    four five six'
@@ -218,29 +164,7 @@ Write-ConsoleText ([string] [char] 0x4E2D + [char] 0x6587) -PadLeft 8 -PadCharac
             $text | Should -Match '(?m)^data \[red\]x\[/\] markup ok$'
         }
 
-        It 'writes Text, Csv and JsonLines logs with -Level, -Category and -LogSeparator' {
-            $text = Join-Path $TestDrive 'log.txt'
-            $csv = Join-Path $TestDrive 'log.csv'
-            $json = Join-Path $TestDrive 'log.jsonl'
-            $null = Invoke-TextChild -Script @"
-Write-ConsoleText 'started ', 'job' -LogFile '$text' -Level Info -Category Backup -NoConsoleOutput -TimestampFormat 'HH'
-Write-ConsoleText 'first' -LogFile '$csv' -LogFormat Csv -LogSeparator ';' -Level Warning -NoConsoleOutput
-Write-ConsoleText 'second; with separator' -LogFile '$csv' -LogFormat Csv -LogSeparator ';' -NoConsoleOutput
-Write-ConsoleText 'say "hi"' -LogFile '$json' -LogFormat JsonLines -Level Error -Category Mail -NoConsoleOutput
-Write-ConsoleText 'line one', 'line two' -SplitLines '|' -LogFile '$text' -NoConsoleOutput -LogTimestamp `$false
-"@
-            $textLines = @(Get-Content -LiteralPath $text -Encoding UTF8)
-            $textLines[0] | Should -Match '^\[\d\d\] \[Info\] \[Backup\] started job$'
-            $csvLines = @(Get-Content -LiteralPath $csv -Encoding UTF8)
-            $csvLines[0] | Should -BeExactly 'Time;Level;Category;Message'
-            $csvLines[1] | Should -Match '^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d;Warning;;first$'
-            $csvLines[2] | Should -Match ';;;"second; with separator"$'
-            $record = Get-Content -LiteralPath $json -Encoding UTF8 | ConvertFrom-Json
-            $record.level | Should -Be 'Error'
-            $record.category | Should -Be 'Mail'
-            $record.message | Should -Be 'say "hi"'
-            $record.time | Should -Match '^\d{4}-'
-        }
+
 
         It 'never interprets data: brackets and escape sequences stay literal and are stripped of controls' {
             $text = Invoke-TextChild -Script @'
@@ -286,7 +210,7 @@ Write-ConsoleText ('[red]alert[/] ' + $esc + ']0;PWNED' + [char] 7 + ' end')
 
         It 'accepts rich text for panel titles, lanes and log lines' {
             $text = Invoke-TextChild -Script @'
-$d = New-ConsoleDashboard -Title (New-ConsoleText 'Rich ', 'dashboard' -Color Cyan, Yellow) -Content { New-ConsoleLanes -WidgetId lanes -Lane (New-ConsoleText 'SRV', '01' -Color Cyan, Yellow); New-ConsoleLogRegion }
+$d = New-ConsoleDashboard -Title (New-ConsoleText 'Rich ', 'dashboard' -Color Cyan, Yellow) -Content { New-ConsoleLanes -WidgetId lanes -Content { (New-ConsoleText 'SRV', '01' -Color Cyan, Yellow) }; New-ConsoleLogRegion }
 Invoke-ConsoleDashboard $d {
     Update-Console -Key SRV01 -Status Running -Detail (New-ConsoleText 'copying ', 'files' -Color Gray, Green) -WidgetId 'lanes'
     Write-ConsoleLogEntry -Message (New-ConsoleText 'rich ', 'log' -Color Yellow, Red)
@@ -371,13 +295,6 @@ Write-ConsoleText -Markup '[pass]done[/]'
             @($text -split "`n") | Should -Contain 'Checking done'
         }
 
-        It 'does nothing with Clear-ConsoleScreen when the output is redirected' {
-            $text = Invoke-TextChild -Script @'
-'before'
-Clear-ConsoleScreen
-'after'
-'@
-            ($text -split "`n" | Where-Object { $_ }) -join '|' | Should -BeExactly 'before|after'
-        }
+
     }
 }

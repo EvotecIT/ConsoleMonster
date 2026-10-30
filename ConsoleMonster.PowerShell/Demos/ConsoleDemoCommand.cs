@@ -12,8 +12,8 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>PowerShell host relay for the shared demo engine.</summary>
     public abstract class ConsoleDemoCommand : NoPipelineInputCmdlet {
         private readonly CancellationTokenSource _stop = new CancellationTokenSource();
-        /// <summary><para type="description">Plain PowerShell demo file with optional # demo: directives.</para></summary>
-        [Parameter(Mandatory = true, Position = 0)] public string Path { get; set; } = string.Empty;
+        /// <summary><para type="description">The input PowerShell demo script, with optional # demo: directives.</para></summary>
+        [Parameter(Mandatory = true, Position = 0)] public string ScriptPath { get; set; } = string.Empty;
         /// <summary><para type="description">Terminal width in cells.</para></summary>
         [Parameter, ValidateRange(0, 1000)] public int Width { get; set; }
         /// <summary><para type="description">Terminal height in cells.</para></summary>
@@ -32,8 +32,8 @@ namespace ConsoleMonster.PowerShell {
         [Parameter] public string? Shell { get; set; }
         /// <summary>Runs and drains the child on the pipeline thread; no PowerShell scriptblock is invoked on a reader thread.</summary>
         protected void RunDemo(string? destination, bool presenter) {
-            if (presenter && Console.IsInputRedirected) { throw new InvalidOperationException("Live presenter mode needs a terminal. Use Invoke-ConsolePresentation for unattended recording."); }
-            string source = SessionState.Path.GetUnresolvedProviderPathFromPSPath(Path);
+            if (presenter && Console.IsInputRedirected) { throw new InvalidOperationException("Live presenter mode needs a terminal. Use Show-ConsolePresentation -Destination for unattended recording."); }
+            string source = SessionState.Path.GetUnresolvedProviderPathFromPSPath(ScriptPath);
             DemoScript script = DemoScript.Read(source);
             bool temporary = destination == null;
             string output = destination == null ? System.IO.Path.Combine(System.IO.Path.GetTempPath(), "consolemonster-demo-" + Guid.NewGuid().ToString("N") + ".cast") : SessionState.Path.GetUnresolvedProviderPathFromPSPath(destination);

@@ -16,7 +16,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Capture a table as a string</para>
-    ///   <code>$text = Use-ConsoleTarget -Width 80 { Get-Service | Select-Object -First 5 | Show-ConsoleTable }</code>
+    ///   <code>$text = Use-ConsoleTarget -Width 80 { Get-Process | Select-Object -First 5 | Show-ConsoleTable }</code>
     /// </example>
     [Cmdlet(VerbsOther.Use, "ConsoleTarget", DefaultParameterSetName = "String")]
     public sealed class CmdletUseConsoleTarget : NoPipelineInputCmdlet {

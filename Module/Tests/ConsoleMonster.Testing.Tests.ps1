@@ -30,10 +30,15 @@
         $text | Should -Match '╭─ Box'
     }
 
-    It 'Show-ConsoleTable -AsWidget keeps -Culture' {
-        $text = [pscustomobject] @{ Name = 'A'; Size = 1234.5 } , [pscustomobject] @{ Name = 'B'; Size = 2.25 } |
-            Show-ConsoleTable -AsWidget -Culture ([cultureinfo] 'pl-PL') | Export-ConsoleFrame -Format Text -Width 40
-        $text | Should -Match '1.234,5'
+    It 'formats constructed tables using the current culture' {
+        $thread = [Threading.Thread]::CurrentThread
+        $previous = $thread.CurrentCulture
+        try {
+            $thread.CurrentCulture = [cultureinfo] 'pl-PL'
+            $text = [pscustomobject] @{ Name = 'A'; Size = 1234.5 }, [pscustomobject] @{ Name = 'B'; Size = 2.25 } |
+                New-ConsoleTable | Export-ConsoleFrame -Format Text -Width 40
+            $text | Should -Match '1.234,5'
+        } finally { $thread.CurrentCulture = $previous }
     }
 
     It 'shows Write-Progress from a dashboard runspace as an activity (stream lines when redirected)' {

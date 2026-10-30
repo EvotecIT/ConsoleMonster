@@ -13,7 +13,7 @@ Arrows move, Right and Left expand and collapse, Enter drills into a member, Bac
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Show-ConsoleObject [[-SelectionOutput] <string>] -InputObject <psobject> [-PassThru] [-RootPath <string>] [-Title <string>] [-Depth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-Include <string[]>] [-Exclude <string[]>] [-Mode <InteractionMode>] [-Width <int>] [-StaticSnapshot] [-AsString] [-AsWidget] [<CommonParameters>]
+Show-ConsoleObject [[-SelectionOutput] <string>] -InputObject <psobject> [-PassThru] [-RootPath <string>] [-Title <string>] [-Depth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-Include <string[]>] [-Exclude <string[]>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -45,38 +45,6 @@ $config = [pscustomobject]@{ Name = 'example'; Settings = @{ Port = 443 } }; $co
 Return its PowerShell path
 
 ## PARAMETERS
-
-### -AsString
-Returns one plain-text static inspector.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -AsWidget
-Returns the static inspector widget.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
 
 ### -Depth
 Maximum member depth below the root; default 8.
@@ -174,22 +142,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Mode
-Rich runs the keyboard explorer. Line, Accessible and None print the static inspector.
-
-```yaml
-Type: InteractionMode
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values: Rich, Line, Accessible, None
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -PassThru
 Returns the selected value after F10 or Ctrl+Enter. Add the positional word Path to return its expression instead.
 
@@ -238,43 +190,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -StaticSnapshot
-Prints a static inspector without reading keys.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -Title
 The screen title.
 
 ```yaml
 Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Width
-Width used by the static fallback; zero detects the host width.
-
-```yaml
-Type: Int32
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

@@ -10,21 +10,19 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="synopsis">Records a script or an interactive child shell and saves the result.</para>
     /// <para type="description">Runs the script in an isolated child process, or opens a child shell with Interactive until it exits. Caller variables and functions are not inherited. The selected shell must be pwsh or powershell. Saves a local v2 cast plus metadata, then uses the existing renderer for an HTML player, animated SVG, text, Markdown or a final-frame SVG. -InProcess explicitly selects the limited PowerShell output fallback.</para>
     /// </summary>
-    /// <example><para>Record native coloured output and a chapter</para><code>Invoke-ConsoleRecording { Add-ConsoleRecordingMarker 'Build'; git --version; Write-Host 'Done' -ForegroundColor Green } -Destination ./demo.html</code></example>
-    /// <example><para>Record an interactive shell</para><code>Invoke-ConsoleRecording -Interactive -Destination ./session.cast</code></example>
-    [Cmdlet(VerbsLifecycle.Invoke, "ConsoleRecording", DefaultParameterSetName = "Script")]
+    /// <example><para>Preview recording coloured output and a chapter</para><code>Invoke-ConsoleRecording { Add-ConsoleRecordingMarker 'Build'; Get-Date; Write-Host 'Done' -ForegroundColor Green } -Path ./demo.html -WhatIf</code></example>
+    /// <example><para>Preview recording a child shell</para><code>Invoke-ConsoleRecording -Interactive -Path ./session.cast -WhatIf</code></example>
+    [Cmdlet(VerbsLifecycle.Invoke, "ConsoleRecording", DefaultParameterSetName = "Script", SupportsShouldProcess = true)]
     [OutputType(typeof(FileInfo))]
     public sealed partial class CmdletInvokeConsoleRecording : ConsoleRecordingCommand {
         /// <summary><para type="description">Script to run in the recorded PowerShell child.</para></summary>
         [Parameter(Mandatory = true, Position = 0, ParameterSetName = "Script")] public ScriptBlock ScriptBlock { get; set; } = null!;
         /// <summary><para type="description">Export path for a script; Interactive writes a cast here, or uses a timestamped name when omitted.</para></summary>
         [Parameter(Mandatory = true, ParameterSetName = "Script")]
-        [Parameter(ParameterSetName = "Interactive")] public string Destination { get; set; } = string.Empty;
+        [Parameter(ParameterSetName = "Interactive")] public string Path { get; set; } = string.Empty;
         /// <summary><para type="description">Export colours.</para></summary>
         [Parameter(ParameterSetName = "Script")] public ExportTheme Theme { get; set; } = ExportTheme.Dark;
-        /// <summary><para type="description">Hides the default export title bar.</para></summary>
-        [Parameter(ParameterSetName = "Script")] public SwitchParameter NoWindowChrome { get; set; }
-        /// <summary><para type="description">MacOS (default), Windows, Linux or None. None or -NoWindowChrome hides chrome.</para></summary>
+        /// <summary><para type="description">MacOS (default), Windows, Linux or None. Choose None to hide chrome.</para></summary>
         [Parameter(ParameterSetName = "Script"), PSDefaultValue(Value = WindowChromeStyle.MacOS, Help = "MacOS")] public WindowChromeStyle ChromeStyle { get; set; } = WindowChromeStyle.MacOS;
 
         /// <summary><para type="description">Export the final frame as a static SVG.</para></summary>
@@ -35,9 +33,11 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc/>
         protected override void EndProcessing() {
+            string target = string.IsNullOrWhiteSpace(Path) ? "interactive recording in the current directory" : SessionState.Path.GetUnresolvedProviderPathFromPSPath(Path);
+            if (!ShouldProcess(target, Interactive.IsPresent ? "Record a child shell" : "Run and record the script")) { return; }
             if (Interactive.IsPresent) { RecordInteractive(); return; }
             SessionRecordingOptions options = Options();
-            string destination = SessionState.Path.GetUnresolvedProviderPathFromPSPath(Destination);
+            string destination = SessionState.Path.GetUnresolvedProviderPathFromPSPath(Path);
             string extension = System.IO.Path.GetExtension(destination).ToLowerInvariant();
             if (extension != ".html" && extension != ".htm" && extension != ".svg" && extension != ".cast" && extension != ".txt" && extension != ".md" && extension != ".markdown" && extension != ".json") { throw new ArgumentException("Use an HTML, SVG, cast, text, Markdown or player-data JSON destination."); }
             if (FinalFrame.IsPresent && extension != ".svg") { throw new ArgumentException("A final-frame export needs an .svg destination."); }
@@ -60,10 +60,10 @@ namespace ConsoleMonster.PowerShell {
             if (!string.Equals(cast, destination, StringComparison.OrdinalIgnoreCase)) {
                 if (File.Exists(destination)) { throw new IOException("The export destination already exists: " + destination); }
                 SessionRecording recording = SessionRecording.Read(cast);
-                string document = FinalFrame.IsPresent ? recording.ExportFinalSvg(new ExportOptions { Theme = Theme, Title = recording.Title, WindowChrome = !NoWindowChrome.IsPresent, ChromeStyle = ChromeStyle })
-                    : extension == ".json" ? recording.ExportPlayerData(new RecordingExportOptions { Theme = Theme, Title = recording.Title, WindowChrome = !NoWindowChrome.IsPresent, ChromeStyle = ChromeStyle })
+                string document = FinalFrame.IsPresent ? recording.ExportFinalSvg(new ExportOptions { Theme = Theme, Title = recording.Title, WindowChrome = ChromeStyle != WindowChromeStyle.None, ChromeStyle = ChromeStyle })
+                    : extension == ".json" ? recording.ExportPlayerData(new RecordingExportOptions { Theme = Theme, Title = recording.Title, WindowChrome = ChromeStyle != WindowChromeStyle.None, ChromeStyle = ChromeStyle })
                     : PSOutputExport.IsMarkdown(PSOutputExport.FormatFor(null, destination)) ? MarkdownExportBridge.Recording(recording)
-                    : recording.Export(ConsoleExporter.FormatFor(destination), new RecordingExportOptions { Theme = Theme, Title = recording.Title, WindowChrome = !NoWindowChrome.IsPresent, ChromeStyle = ChromeStyle });
+                    : recording.Export(ConsoleExporter.FormatFor(destination), new RecordingExportOptions { Theme = Theme, Title = recording.Title, WindowChrome = ChromeStyle != WindowChromeStyle.None, ChromeStyle = ChromeStyle });
                 File.WriteAllText(destination, document, new UTF8Encoding(false));
             }
             WriteObject(new FileInfo(destination));

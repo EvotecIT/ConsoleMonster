@@ -3,7 +3,7 @@ $checks = @(
     [pscustomobject]@{ Name = 'Read inventory'; Target = 'node-01'; Category = 'Inventory' }
     [pscustomobject]@{ Name = 'Check storage'; Target = 'node-02'; Category = 'Storage' }
 )
-$run = Start-ConsoleRun -Items $checks -Label Name -Target Target -Group { $_.Category } -Title 'Fleet checks'
+$run = Start-ConsoleRun -InputObject $checks -Label Name -Target Target -Group { $_.Category } -Title 'Fleet checks'
 try {
     Update-Console -Run $run -Index 0 -Status Running -Label 'collecting'
     Update-Console -Run $run -Index 0 -Status Pass

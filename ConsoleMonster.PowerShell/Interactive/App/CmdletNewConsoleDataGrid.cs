@@ -6,7 +6,10 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="synopsis">Creates a named, embeddable data grid for Show-ConsoleApp.</para>
     /// <para type="description">The listing retains original objects and stable row identities. Each grid has its own cursor, marks and prefix search. Rows and lazy cells are rendered through the shared DataGrid control.</para>
     /// </summary>
-    /// <example><para>Embed an existing listing.</para><code>New-ConsoleDataGrid -Key Left -Grid $listing -Height 18</code></example>
+    /// <example>
+    /// <para>Embed an empty listing in an application</para>
+    /// <code>Show-ConsoleApp -Mode Snapshot -Content { New-ConsoleDataGrid -Key Inventory -Grid 'Inventory' -Height 18 }</code>
+    /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleDataGrid")]
     [OutputType(typeof(DataGrid))]
     public sealed class CmdletNewConsoleDataGrid : AppInputCmdlet {

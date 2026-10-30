@@ -1,6 +1,5 @@
 // A complete installer: location, components, service, connection, review and progress.
 using ConsoleMonster;
-using ConsoleMonster.Building;
 using ConsoleMonster.Interactive;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
@@ -166,11 +165,11 @@ ProgressBar bar = new ProgressBar("Install")
 {
     Total = 40
 };
-Dashboard dashboard = new DashboardBuilder("Installing Toolbox Agent")
+Dashboard dashboard = Ui.Dashboard().Title("Installing Toolbox Agent")
     .Subtitle(Markup.Escape(answers.Values.Get<string>("Path")))
-    .Panel("Steps", install)
-    .Add(new Padding() { Bottom = 0, Right = 1, Top = 0, Left = 1, Content = bar })
-    .BuildDashboard();
+    .Content(body => body
+        .Panel(new Panel(install, "Steps"))
+        .Add(new Padding() { Bottom = 0, Right = 1, Top = 0, Left = 1, Content = bar }));
 using (LiveSession session = new LiveSession(dashboard))
 {
     try

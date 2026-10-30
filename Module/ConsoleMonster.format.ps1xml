@@ -33,16 +33,14 @@
         <TypeName>ConsoleMonster.Interactive.DataGrid</TypeName>
         <TypeName>ConsoleMonster.Interactive.DatePicker</TypeName>
         <TypeName>ConsoleMonster.Interactive.LogViewport</TypeName>
-        <TypeName>ConsoleMonster.Interactive.MultiSelect</TypeName>
         <TypeName>ConsoleMonster.Interactive.Select</TypeName>
-        <TypeName>ConsoleMonster.Interactive.TextArea</TypeName>
         <TypeName>ConsoleMonster.Interactive.TextInput</TypeName>
         <TypeName>ConsoleMonster.Interactive.Toggle</TypeName>
         <TypeName>ConsoleMonster.Interactive.TreeSelect</TypeName>
         <TypeName>ConsoleMonster.Layout.Align</TypeName>
         <TypeName>ConsoleMonster.Layout.Columns</TypeName>
         <TypeName>ConsoleMonster.Layout.CultureScope</TypeName>
-        <TypeName>ConsoleMonster.Layout.Grid</TypeName>
+        <TypeName>ConsoleMonster.Layout.LayoutGrid</TypeName>
         <TypeName>ConsoleMonster.Layout.Padding</TypeName>
         <TypeName>ConsoleMonster.Layout.Panel</TypeName>
         <TypeName>ConsoleMonster.Layout.Prioritized</TypeName>
@@ -84,7 +82,6 @@
         <TypeName>ConsoleMonster.Widgets.Matrix</TypeName>
         <TypeName>ConsoleMonster.Widgets.PathSet</TypeName>
         <TypeName>ConsoleMonster.Widgets.Phases</TypeName>
-        <TypeName>ConsoleMonster.Widgets.PipelineChart</TypeName>
         <TypeName>ConsoleMonster.Widgets.ProgressBar</TypeName>
         <TypeName>ConsoleMonster.Widgets.RecordView</TypeName>
         <TypeName>ConsoleMonster.Widgets.RegionWidget</TypeName>

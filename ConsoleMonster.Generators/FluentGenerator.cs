@@ -188,7 +188,10 @@ namespace ConsoleMonster.Generators {
             // Compare complete value-parameter signatures, including inherited instance methods.
             var existing = new List<IMethodSymbol>();
             for (INamedTypeSymbol? current = type; current != null; current = current.BaseType) { existing.AddRange(current.GetMembers().OfType<IMethodSymbol>()); }
-            INamedTypeSymbol? handWritten = compilation.GetTypeByMetadataName(type.ContainingNamespace.ToDisplayString() + "." + type.Name + "Fluent");
+            // All fluent extensions in a namespace share one public class. Keep the hand-written
+            // semantic helpers in that same partial class so signature checks still see them.
+            string fluentClass = type.ContainingNamespace.Name + "Fluent";
+            INamedTypeSymbol? handWritten = compilation.GetTypeByMetadataName(type.ContainingNamespace.ToDisplayString() + "." + fluentClass);
             if (handWritten != null) { existing.AddRange(handWritten.GetMembers().OfType<IMethodSymbol>()); }
             bool Taken(string name, params ITypeSymbol[] parameters) => existing.Any(m => {
                 int offset = m.IsExtensionMethod ? 1 : 0;
@@ -310,8 +313,7 @@ namespace ConsoleMonster.Generators {
                 .Append("#nullable enable\n\n")
                 .Append("namespace ").Append(type.ContainingNamespace.ToDisplayString()).Append(" {\n")
                 .Append("    /// <summary>The fluent methods of <see cref=\"").Append(docId).Append("\"/>, generated from its public properties: A property-named method sets a property and <c>Add...</c> adds to a collection, both returning the same instance.</summary>\n")
-                .Append("    [global::System.CodeDom.Compiler.GeneratedCode(\"ConsoleMonster.Generators\", \"1.0.0\")]\n")
-                .Append("    public static partial class ").Append(type.Name).Append("Fluent {\n")
+                .Append("    public static partial class ").Append(fluentClass).Append(" {\n")
                 .Append(body.ToString().TrimEnd('\n')).Append('\n')
                 .Append("    }\n}\n");
             return source.ToString();

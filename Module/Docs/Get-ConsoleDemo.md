@@ -6,9 +6,9 @@ schema: 2.0.0
 ---
 # Get-ConsoleDemo
 ## SYNOPSIS
-Lists the copyable ConsoleMonster gallery demos .
+Lists gallery demos and returns their complete PowerShell source.
 
-Returns the embedded gallery metadata, including slug, title, pitch, category, tags, terminal size, runtimes, add-ons, customization ideas, mode and snapshot count. Listing accepts a slug or wildcard pattern. Use Export-ConsoleDemo to save a script.
+Returns each demo's title, category, tags, terminal size and Source. Slug accepts an exact name or wildcard pattern. Source is the complete script, ready to inspect or save with Set-Content.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -17,9 +17,9 @@ Get-ConsoleDemo [[-Slug] <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Lists the copyable ConsoleMonster gallery demos .
+Lists gallery demos and returns their complete PowerShell source.
 
-Returns the embedded gallery metadata, including slug, title, pitch, category, tags, terminal size, runtimes, add-ons, customization ideas, mode and snapshot count. Listing accepts a slug or wildcard pattern. Use Export-ConsoleDemo to save a script.
+Returns each demo's title, category, tags, terminal size and Source. Slug accepts an exact name or wildcard pattern. Source is the complete script, ready to inspect or save with Set-Content.
 
 ## EXAMPLES
 
@@ -36,6 +36,13 @@ Get-ConsoleDemo 'welcome-*'
 ```
 
 List the welcome demos.
+
+### EXAMPLE 3
+```powershell
+(Get-ConsoleDemo assessment).Source
+```
+
+Read a complete demo without running it.
 
 ## PARAMETERS
 

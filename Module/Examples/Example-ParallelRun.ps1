@@ -9,7 +9,9 @@ $rules = 'LDAP signing required', 'SMB signing enforced', 'Replication latency p
 
 $dashboard = New-ConsoleDashboard -Title '[bold]Nightly checks[/]' -Subtitle "ad.adatum.com · $($servers.Count) domain controllers" -Gap 1 -Content {
     New-ConsoleColumns -Content {
-        New-ConsolePanel -Title 'Domain controllers' -Weight 2.3 -Content { New-ConsoleLanes -WidgetId lanes -Lane $servers -Total $rules.Count }
+        New-ConsolePanel -Title 'Domain controllers' -Weight 2.3 -Content { New-ConsoleLanes -WidgetId lanes -Content {
+            foreach ($server in $servers) { @{ Key = $server; Total = $rules.Count } }
+        } }
         New-ConsolePanel -Title 'Results' -Content {
             New-ConsoleChart -WidgetId results -InputObject ([ordered] @{ Passed = 0; Warnings = 0; Failed = 0 }) -Type Stacked
             New-ConsoleRule

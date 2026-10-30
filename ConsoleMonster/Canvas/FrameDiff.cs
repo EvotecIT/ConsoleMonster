@@ -7,7 +7,7 @@ namespace ConsoleMonster.Canvas {
     /// gap between them is small, because repositioning the cursor costs more bytes than rewriting a few cells. Runs never
     /// start or end inside a wide grapheme.
     /// </summary>
-    public static class FrameDiff {
+    internal static class FrameDiff {
         /// <summary>Computes changed runs.</summary>
         /// <param name="previous">The frame currently on screen.</param>
         /// <param name="current">The new frame.</param>

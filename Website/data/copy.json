@@ -347,7 +347,7 @@
     },
     "lists": {
       "title": "Lists and trees",
-      "body": "Show-ConsoleList shows one object as a record view. Show-ConsoleObject -StaticSnapshot walks nested objects and collections, with depth, item and node limits."
+      "body": "Show-Console -View List shows one object as a record view. Show-Console -View Tree walks nested objects and collections, with depth, item and node limits."
     },
     "consoles": {
       "title": "The same command on other consoles",
@@ -910,7 +910,7 @@
     {
       "title": "Coming from Format-Table",
       "url": "/guides/format-table/",
-      "body": "Show-ConsoleTable, Show-ConsoleList and Show-Console -View Tree beside the built-in Format cmdlets."
+      "body": "Show-ConsoleTable, Show-Console -View List and Show-Console -View Tree beside the built-in Format cmdlets."
     },
     {
       "title": "Hosts, CI and transcripts",

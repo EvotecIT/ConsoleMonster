@@ -13,7 +13,7 @@ try {
     if ([Console]::IsOutputRedirected) { throw 'A native console is required.' }
     Import-Module (Join-Path $PSScriptRoot '../../ConsoleMonster.psd1')
     . (Join-Path $PSScriptRoot 'Read-TestConsoleFrame.ps1')
-    Enable-ConsoleFormatting -Feature FormatCommands
+    Enable-ConsoleFormatting -Include FormatCommands -Exclude Output, Errors, Streams, ReadLine
     $count = 0
     foreach ($width in 40, 41, 80) {
         $profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed($width, 40, 'None')

@@ -5,7 +5,7 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates a log region: the newest lines of a log, bottom-aligned.</para>
-    /// <para type="description">Printed once, the lines come from a script block of Message/Level records calls (each with a level and a time) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry. To add lines to a log made earlier, pipe it to Add-ConsoleItem.</para>
+    /// <para type="description">Printed once, the lines come from a script block of Message/Level records calls (each with a level and a time) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry.</para>
     /// </summary>
     /// <example>
     ///   <para>A short log printed once</para>
@@ -53,7 +53,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter Wrap { get; set; }
 
-        /// <summary><para type="description">Shared LevelColumn layout settings from New-ConsoleColumnFormat.</para></summary>
+        /// <summary><para type="description">Shared LevelColumn layout settings as a hashtable, for example @{ MinWidth = 6; Alignment = 'Right' }.</para></summary>
         [Parameter] public Layout.ColumnFormat? LevelColumn { get; set; }
 
         /// <inheritdoc />

@@ -41,6 +41,9 @@
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
             <_Parameter1>ConsoleMonster.Tests</_Parameter1>
         </AssemblyAttribute>
+        <InternalsVisibleTo Include="ConsoleMonster.Extensions.Tests" />
+        <InternalsVisibleTo Include="ConsoleMonster.TestHost" />
+        <InternalsVisibleTo Include="ConsoleMonster.Benchmarks" />
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
             <_Parameter1>SiteFrames</_Parameter1>
         </AssemblyAttribute>
@@ -49,6 +52,12 @@
         </AssemblyAttribute>
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
             <_Parameter1>ConsoleMonster.PowerShell.Display</_Parameter1>
+        </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+            <_Parameter1>ConsoleMonster.CLI</_Parameter1>
+        </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+            <_Parameter1>ConsoleMonster.CLI.Tests</_Parameter1>
         </AssemblyAttribute>
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
             <_Parameter1>ConsoleMonster.Graphics</_Parameter1>

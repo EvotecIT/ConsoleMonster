@@ -27,9 +27,9 @@
     It 'rejects video extensions without touching an existing destination' {
         $target = Join-Path $TestDrive 'unsupported.MP4'
         [IO.File]::WriteAllText($target, 'keep existing output')
-        { Export-ConsoleRecording -Path (Join-Path $TestDrive 'unused.cast') -Destination $target } | Should -Throw "*MP4 export isn't available yet; use GIF for slides*"
+        { Export-ConsoleRecording -RecordingPath (Join-Path $TestDrive 'unused.cast') -Path $target } | Should -Throw "*MP4 export isn't available yet; use GIF for slides*"
         { 'frame' | Export-ConsoleFrame -Path $target } | Should -Throw "*MP4 export isn't available yet; use GIF for slides*"
-        { Export-ConsoleRecording -Path (Join-Path $TestDrive 'unused.cast') -Format Mp4 -Destination $target } | Should -Throw '*Mp4*'
+        { Export-ConsoleRecording -RecordingPath (Join-Path $TestDrive 'unused.cast') -Format Mp4 -Path $target } | Should -Throw '*Mp4*'
         [IO.File]::ReadAllText($target) | Should -Be 'keep existing output'
     }
 
@@ -44,18 +44,18 @@
             '[1.1,"o","\r\ntwo"]'
         ))
         $slides = Join-Path $TestDrive 'slides'
-        $files = @(Export-ConsoleRecording $cast -Format Png -PerChapter -Destination $slides -Preset Slide16x9 -PassThru)
+        $files = @(Export-ConsoleRecording $cast -Format Png -PerChapter -Path $slides -Preset Slide16x9 -PassThru)
         $files.Count | Should -Be 2
         $files[0].Name | Should -Be 'slide-001.png'
-        Export-ConsoleRecording $cast -Format Png -AtSeconds 00.2 -Preset Social -Fit Terminal -Background Gradient -BackgroundColor '#142238' -BackgroundEndColor '#090e17' -Destination (Join-Path $TestDrive 'at.png')
-        Export-ConsoleRecording $cast -Format Png -Chapter First -Destination (Join-Path $TestDrive 'chapter.png')
+        Export-ConsoleRecording $cast -Format Png -AtSeconds 00.2 -Preset Social -Fit Terminal -Background Gradient -BackgroundColor '#142238' -BackgroundEndColor '#090e17' -Path (Join-Path $TestDrive 'at.png')
+        Export-ConsoleRecording $cast -Format Png -Chapter First -Path (Join-Path $TestDrive 'chapter.png')
         foreach ($format in @('Gif', 'Apng')) {
             $target = Join-Path $TestDrive ('talk.' + $format.ToLowerInvariant())
-            Export-ConsoleRecording $cast -Format $format -Destination $target -LoopCount 2 -IdleLimitSeconds 0.5
+            Export-ConsoleRecording $cast -Format $format -Path $target -LoopCount 2 -IdleLimitSeconds 0.5
             (Get-Item $target).Length | Should -BeGreaterThan 100
         }
-        { Export-ConsoleRecording $cast -Format Gif -AtSeconds 01 -Destination (Join-Path $TestDrive 'bad.gif') } | Should -Throw '*PNG selector*'
-        { Export-ConsoleRecording $cast -Format Png -AtSeconds 01 -PerChapter -Destination $slides } | Should -Throw '*Choose one*'
+        { Export-ConsoleRecording $cast -Format Gif -AtSeconds 01 -Path (Join-Path $TestDrive 'bad.gif') } | Should -Throw '*PNG selector*'
+        { Export-ConsoleRecording $cast -Format Png -AtSeconds 01 -PerChapter -Path $slides } | Should -Throw '*Choose one*'
     }
 
     It 'records typed commands in a real PowerShell child with a custom prompt' -Skip:([Environment]::OSVersion.Platform -eq 'Win32NT') {
@@ -71,7 +71,7 @@ Write-Host ('answer=' + (6 * 7))
 # demo: hold 3
 '@)
         $cast = Join-Path $TestDrive 'typed.cast'
-        Invoke-ConsolePresentation -Path $demo -Destination $cast -Width 50 -Height 8 | Should -BeOfType ([IO.FileInfo])
+        Show-ConsolePresentation -ScriptPath $demo -Path $cast -Width 50 -Height 8 | Should -BeOfType ([IO.FileInfo])
         $text = Export-ConsoleRecording $cast -Format Text
         $text | Should -Match 'answer=42'
         $text | Should -Match '任意>'
@@ -79,6 +79,6 @@ Write-Host ('answer=' + (6 * 7))
         @($markers | Where-Object { $_.Hold.TotalSeconds -eq 3 }).Count | Should -Be 1
         @($markers | Where-Object { $_.Pace -eq 'Slow' }).Count | Should -Be 1
         Get-Content $cast -Raw | Should -Not -Match 'do-not-record-setup'
-        { Show-ConsolePresentation -Path $demo } | Should -Throw '*needs a terminal*'
+        { Show-ConsolePresentation -ScriptPath $demo } | Should -Throw '*needs a terminal*'
     }
 }

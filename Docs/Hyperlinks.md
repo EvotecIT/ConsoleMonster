@@ -15,7 +15,7 @@ Get-ChildItem -File | Show-ConsoleTable -Property Name, Length, @{
     Presenter = 'Link'
 }
 
-Get-Item ./report.txt | Show-ConsoleList -Property Name, @{
+Get-Item ./report.txt | Show-Console -View List -Property Name, @{
     Name = 'FullName'
     Presenter = 'Link'
 }

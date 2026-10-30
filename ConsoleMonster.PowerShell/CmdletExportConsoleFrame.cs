@@ -7,15 +7,15 @@ using ConsoleMonster.Export;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Exports a widget, a rendered frame or a live-session snapshot to PNG, HTML, SVG, Markdown or text.</para>
-    /// <para type="description">Pipe any New-Console* widget (or Show-ConsoleTable -AsWidget) and get a self-contained HTML page (inline CSS, selectable text, a dark and a light rendering that follow the viewer's prefers-color-scheme), an SVG image (box, block and braille characters drawn as shapes, selectable text, no external assets) or plain text. Cell geometry is kept exactly. OSC 8 links become links (web and mail links only; javascript: and other schemes are dropped). Markdown uses the bundled ConsoleMonster.Markdown add-on lazily: tables, records and trees retain their semantics; FencedText preserves the terminal layout. Other objects use the automatic view. Several widgets are stacked. Without -Path the document is written to the pipeline.</para>
+    /// <para type="description">Pipe any New-Console* widget (or New-ConsoleTable) and get a self-contained HTML page (inline CSS, selectable text, a dark and a light rendering that follow the viewer's prefers-color-scheme), an SVG image (box, block and braille characters drawn as shapes, selectable text, no external assets) or plain text. Cell geometry is kept exactly. OSC 8 links become links (web and mail links only; javascript: and other schemes are dropped). Markdown uses the bundled ConsoleMonster.Markdown add-on lazily: tables, records and trees retain their semantics; FencedText preserves the terminal layout. Other objects use the automatic view. Several widgets are stacked. Without -Path the document is written to the pipeline.</para>
     /// </summary>
     /// <example>
-    ///   <para>A table as an HTML page</para>
-    ///   <code>Get-Process | Select-Object -First 8 Name, Id | Show-ConsoleTable -AsWidget | Export-ConsoleFrame -Format Html</code>
+    /// <para>Export a table as an HTML page</para>
+    /// <code>Get-Process | Select-Object -First 8 Name, Id | New-ConsoleTable | Export-ConsoleFrame -Format Html</code>
     /// </example>
     /// <example>
-    ///   <para>A dashboard as an SVG in a window frame, dark only</para>
-    ///   <code>New-ConsoleText 'Nightly run' | Export-ConsoleFrame -Format Svg -Width 120 -Height 36 -Theme Dark -Title 'Nightly run' -WindowChrome</code>
+    /// <para>Export an SVG with a dark window frame</para>
+    /// <code>New-ConsoleText 'Nightly run' | Export-ConsoleFrame -Format Svg -Width 120 -Height 36 -Theme Dark -Title 'Nightly run' -ChromeStyle MacOS</code>
     /// </example>
     [Cmdlet(VerbsData.Export, "ConsoleFrame")]
     [OutputType(typeof(string), typeof(byte[]), typeof(FileInfo))]
@@ -50,18 +50,14 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public ExportTheme Theme { get; set; } = ExportTheme.Auto;
 
-        /// <summary><para type="description">The page title and, with -WindowChrome, the title bar text.</para></summary>
+        /// <summary><para type="description">The page title and, with a ChromeStyle other than None, the title bar text.</para></summary>
         [Parameter]
         public string? Title { get; set; }
 
-        /// <summary><para type="description">Draws a window frame with a title bar around the screen.</para></summary>
+        /// <summary><para type="description">None (default), MacOS, Windows or Linux. Choose a window style to show chrome; None hides it.</para></summary>
         [Parameter]
-        public SwitchParameter WindowChrome { get; set; }
-
-        /// <summary><para type="description">MacOS (default), Windows, Linux or None. Specifying a style enables chrome unless -WindowChrome:$false is explicit. None always hides chrome.</para></summary>
-        [Parameter]
-        [PSDefaultValue(Value = WindowChromeStyle.MacOS, Help = "MacOS")]
-        public WindowChromeStyle ChromeStyle { get; set; } = WindowChromeStyle.MacOS;
+        [PSDefaultValue(Value = WindowChromeStyle.None, Help = "None")]
+        public WindowChromeStyle ChromeStyle { get; set; } = WindowChromeStyle.None;
 
         /// <summary><para type="description">Natural-size font in pixels (default 14). Slide presets fit automatically, up to 72 pixels.</para></summary>
         [Parameter]
@@ -88,9 +84,6 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Installed raster font; omitted uses embedded JetBrains Mono.</para></summary>
         [Parameter] public string? FontFamily { get; set; }
 
-        /// <summary><para type="description">Typed C# ExportOptions, including custom themes, glyphs, culture and document settings. Use this instead of individual frame-rendering settings; the object is not modified.</para></summary>
-        [Parameter, ValidateNotNull] public ExportOptions? Options { get; set; }
-
         /// <summary><para type="description">Maximum raster font size in pixels; default 72.</para></summary>
         [Parameter, ValidateRange(0.01, 4096)] public double MaxFontSize { get; set; } = 72;
         /// <summary><para type="description">Additional raster font-family fallbacks, in preferred order.</para></summary>
@@ -115,14 +108,14 @@ namespace ConsoleMonster.PowerShell {
             bool graphics = string.Equals(requested, "Png", System.StringComparison.OrdinalIgnoreCase);
             string format = graphics ? "Svg" : PSOutputExport.FormatFor(Format, Path);
             if (format == "Asciicast") { format = "Text"; }
-            ExportOptions options = PSOptions.Resolve(this, Options, () => new ExportOptions {
+            ExportOptions options = new ExportOptions {
                 Width = Width,
                 Height = Height,
                 Theme = Theme,
                 Title = Title,
-                WindowChrome = (MyInvocation.BoundParameters.ContainsKey(nameof(WindowChrome)) ? WindowChrome.IsPresent : MyInvocation.BoundParameters.ContainsKey(nameof(ChromeStyle))), ChromeStyle = ChromeStyle,
+                WindowChrome = ChromeStyle != WindowChromeStyle.None, ChromeStyle = ChromeStyle,
                 FontSize = FontSize
-            }, nameof(Width), nameof(Height), nameof(Theme), nameof(Title), nameof(WindowChrome), nameof(ChromeStyle), nameof(FontSize));
+            };
             if (graphics) {
                 string? target = Path == null ? null : SessionState.Path.GetUnresolvedProviderPathFromPSPath(Path);
                 object result = GraphicsExportBridge.Frame(_items, target, Preset, FontFamily, Fit, Background, BackgroundColor, BackgroundEndColor, options, this, MaxFontSize, FontFallbacks);

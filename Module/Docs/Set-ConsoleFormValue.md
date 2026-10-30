@@ -25,16 +25,24 @@ Each named field takes its value and shows it at once, text and number boxes inc
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleMenuItem 'Use the lab' -Action { Set-ConsoleFormValue -Form $form -Values @{ Domain = 'lab.example.test'; Parallel = 2 }; $MenuContext.Toast('Lab values applied') }
+$form = New-ConsoleForm 'Connection' -Content {
+    New-ConsoleField Domain 'Domain'
+    New-ConsoleField Parallel 'Parallel workers' -Type Number -Integer -Minimum 1
+}
+Set-ConsoleFormValue -Form $form -Values @{ Domain = 'lab.example.test'; Parallel = 2 }
+Read-ConsoleForm $form
 ```
 
-A menu action that fills in the form opened from another item
+Apply a preset before showing a form
 
 ### EXAMPLE 2
 ```powershell
+$form = New-ConsoleForm 'Connection' -Content { New-ConsoleField Domain 'Domain' -Default 'lab.example.test' }
 $last = Read-ConsoleForm $form -PassThru
-Set-ConsoleFormValue $form $last
-Read-ConsoleForm $form
+if ($last) {
+    Set-ConsoleFormValue -Form $form -Values $last
+    Read-ConsoleForm $form
+}
 ```
 
 Start a form from the answers of its last run

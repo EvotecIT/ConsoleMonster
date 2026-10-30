@@ -13,17 +13,17 @@ Columns come from -Property or from the first object's properties (or hashtable 
 ## SYNTAX
 ### Objects (Default)
 ```powershell
-New-ConsoleTable [[-InputObject] <psobject[]>] [-Property <Object[]>] [-StatusProperty <string>] [-Title <Object>] [-Caption <Object>] [-Border <TableBorder>] [-NoHeaderSeparator] [-Expand] [-Columns <Object[]>] [-MaxRows <int>] [-TitleIndent <Int32>] [-WrapHeaders] [-KeepAllColumns] [-GroupHeadersAsRows] [-RecordViewRows <int>] [-ShowKeyField] [-NoHiddenColumns] [-NoStableWidths] [-NoHeader] [-AlwaysCards] [-RowTitles <string[]>] [-ShowSubtotals] [-TotalLabel <string>] [-WrapLines <int>] [-TotalRowCount <Int32>] [-Presentation <PresentationOptions>] [<CommonParameters>]
+New-ConsoleTable [[-InputObject] <psobject[]>] [-Property <Object[]>] [-GroupBy <Object>] [-ShowTotals] [-CardsBelow <int>] [-NoSort] [-Wrap] [-ShowGroupColumn] [-StatusProperty <string>] [-Title <Object>] [-Caption <Object>] [-Border <TableBorder>] [-NoHeaderSeparator] [-Expand] [-MaxRows <int>] [<CommonParameters>]
 ```
 
 ### Live
 ```powershell
-New-ConsoleTable [[-WidgetId] <string>] [[-InputObject] <psobject[]>] -Live [-Property <Object[]>] [-StatusProperty <string>] [-Title <Object>] [-Caption <Object>] [-Border <TableBorder>] [-NoHeaderSeparator] [-Expand] [-Columns <Object[]>] [-KeyProperty <string>] [-Table <Table>] [-MaxRows <int>] [-SortColumn <Object>] [-SortDescending] [-TitleIndent <Int32>] [-WrapHeaders] [-KeepAllColumns] [-GroupHeadersAsRows] [-RecordViewRows <int>] [-ShowKeyField] [-NoHiddenColumns] [-NoStableWidths] [-NoHeader] [-AlwaysCards] [-RowTitles <string[]>] [-ShowSubtotals] [-TotalLabel <string>] [-WrapLines <int>] [-TotalRowCount <Int32>] [-Presentation <PresentationOptions>] [<CommonParameters>]
+New-ConsoleTable [[-WidgetId] <string>] [[-InputObject] <psobject[]>] -Live [-Property <Object[]>] [-GroupBy <Object>] [-ShowTotals] [-CardsBelow <int>] [-NoSort] [-Wrap] [-ShowGroupColumn] [-StatusProperty <string>] [-Title <Object>] [-Caption <Object>] [-Border <TableBorder>] [-NoHeaderSeparator] [-Expand] [-KeyProperty <string>] [-Table <Table>] [-MaxRows <int>] [-SortBy <Object>] [-Descending] [<CommonParameters>]
 ```
 
 ### Bind
 ```powershell
-New-ConsoleTable -Bind <scriptblock> [-Property <Object[]>] [-StatusProperty <string>] [-Title <Object>] [-Caption <Object>] [-Border <TableBorder>] [-NoHeaderSeparator] [-Expand] [-Columns <Object[]>] [-MaxRows <int>] [-TitleIndent <Int32>] [-WrapHeaders] [-KeepAllColumns] [-GroupHeadersAsRows] [-RecordViewRows <int>] [-ShowKeyField] [-NoHiddenColumns] [-NoStableWidths] [-NoHeader] [-AlwaysCards] [-RowTitles <string[]>] [-ShowSubtotals] [-TotalLabel <string>] [-WrapLines <int>] [-TotalRowCount <Int32>] [-Presentation <PresentationOptions>] [<CommonParameters>]
+New-ConsoleTable -Bind <scriptblock> [-Property <Object[]>] [-GroupBy <Object>] [-ShowTotals] [-CardsBelow <int>] [-NoSort] [-Wrap] [-ShowGroupColumn] [-StatusProperty <string>] [-Title <Object>] [-Caption <Object>] [-Border <TableBorder>] [-NoHeaderSeparator] [-Expand] [-MaxRows <int>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -35,35 +35,29 @@ Columns come from -Property or from the first object's properties (or hashtable 
 
 ### EXAMPLE 1
 ```powershell
-Get-Service | Select-Object -First 8 Name, Status, StartType | New-ConsoleTable -Title 'Services' | Show-Console
+@(
+                [pscustomobject]@{ Name = 'web01'; Status = 'Pass'; Region = 'East' }
+                [pscustomobject]@{ Name = 'web02'; Status = 'Warn'; Region = 'West' }
+            ) | New-ConsoleTable -Property Name, Status, Region -StatusProperty Status -Title 'Servers' | Show-Console
 ```
 
-Services as a table with a status column
+Build a table with a status column
 
 ### EXAMPLE 2
 ```powershell
-Show-ConsoleApp -Content { New-ConsoleTextInput -Key Query; New-ConsoleTable -Bind { $items | Where-Object Name -Like "*$($State.Query)*" } -Property Name, Status -StatusProperty Status }
+$items = @(
+    [pscustomobject]@{ Name = 'web01'; Status = 'Pass' }
+    [pscustomobject]@{ Name = 'web02'; Status = 'Warn' }
+)
+Show-ConsoleApp -Content {
+    New-ConsoleTextInput -Key Query
+    New-ConsoleTable -Bind { $items | Where-Object Name -Like "*$($State.Query)*" } -Property Name, Status -StatusProperty Status
+}
 ```
 
-Filter objects from current application state.
+Filter objects from current application state
 
 ## PARAMETERS
-
-### -AlwaysCards
-Uses record cards at every width.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: Objects, Live, Bind
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
 
 ### -Bind
 Application-dependent object producer. Receives param($State) and injected $State as a native hashtable on the owning input thread. Emit objects, not widgets; columns and formatting use the same builder as ordinary tables.
@@ -113,12 +107,28 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Columns
-Explicit column descriptors: header strings or the same column records accepted by Property.
+### -CardsBelow
+Uses cards below this width; zero keeps a grid.
 
 ```yaml
-Type: Object[]
+Type: Int32
 Parameter Sets: Objects, Live, Bind
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Descending
+For Live, sorts larger values first.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Live
 Aliases: None
 Possible values:
 
@@ -145,11 +155,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -GroupHeadersAsRows
-Renders group headings as full-width rows.
+### -GroupBy
+Groups rows by a property or script block.
 
 ```yaml
-Type: SwitchParameter
+Type: Object
 Parameter Sets: Objects, Live, Bind
 Aliases: None
 Possible values:
@@ -174,22 +184,6 @@ Required: False
 Position: 0
 Default value: None
 Accept pipeline input: True (ByValue)
-Accept wildcard characters: False
-```
-
-### -KeepAllColumns
-Renders consecutive grids when all columns cannot fit.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: Objects, Live, Bind
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
@@ -241,22 +235,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -NoHeader
-Suppresses the default-on header row.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: Objects, Live, Bind
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -NoHeaderSeparator
 Underline the header instead of drawing a separator row under it.
 
@@ -273,43 +251,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -NoHiddenColumns
-Suppresses the default-on hidden-column footer.
+### -NoSort
+Keeps groups in input order.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: Objects, Live, Bind
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -NoStableWidths
-Allows column widths to shrink between renders.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: Objects, Live, Bind
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Presentation
-Typed culture, clock and time-zone configuration for values.
-
-```yaml
-Type: PresentationOptions
 Parameter Sets: Objects, Live, Bind
 Aliases: None
 Possible values:
@@ -337,40 +283,8 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -RecordViewRows
-Uses labelled records at or below this row count; zero disables.
-
-```yaml
-Type: Int32
-Parameter Sets: Objects, Live, Bind
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -RowTitles
-Optional per-row titles for record and card views.
-
-```yaml
-Type: String[]
-Parameter Sets: Objects, Live, Bind
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -ShowKeyField
-Repeats the full key in record and card layouts.
+### -ShowGroupColumn
+Keeps the grouping property in the table columns.
 
 ```yaml
 Type: SwitchParameter
@@ -385,8 +299,8 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ShowSubtotals
-Shows group subtotals.
+### -ShowTotals
+Adds totals for numeric columns.
 
 ```yaml
 Type: SwitchParameter
@@ -401,27 +315,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -SortColumn
+### -SortBy
 For Live, the column index or header used for sorting.
 
 ```yaml
 Type: Object
-Parameter Sets: Live
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -SortDescending
-For Live, sorts larger values first.
-
-```yaml
-Type: SwitchParameter
 Parameter Sets: Live
 Aliases: None
 Possible values:
@@ -481,54 +379,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -TitleIndent
-Optional title indentation in cells.
-
-```yaml
-Type: Int32
-Parameter Sets: Objects, Live, Bind
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -TotalLabel
-Text for the totals row.
-
-```yaml
-Type: String
-Parameter Sets: Objects, Live, Bind
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -TotalRowCount
-Total count when the input contains a subset.
-
-```yaml
-Type: Int32
-Parameter Sets: Objects, Live, Bind
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -WidgetId
 The live widget identifier; default table.
 
@@ -545,27 +395,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -WrapHeaders
-Wraps column headings.
+### -Wrap
+Wraps long cell values without limiting their line count.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: Objects, Live, Bind
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -WrapLines
-Maximum wrapped lines per value; zero has no limit.
-
-```yaml
-Type: Int32
 Parameter Sets: Objects, Live, Bind
 Aliases: None
 Possible values:

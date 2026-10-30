@@ -15,7 +15,7 @@ namespace ConsoleMonster.Rendering {
     /// screen, diffed against the previous frame and written in one synchronized update (DEC mode 2026), so the screen never
     /// shows a half-drawn frame. The bottom-right cell is never written, which avoids an unwanted scroll on any terminal.
     /// </summary>
-    public sealed class VtOutput : ITerminalOutput {
+    internal sealed class VtOutput : ITerminalOutput {
         private const string Esc = "\u001b[";
         private readonly ITerminalWriter _writer;
         private readonly bool _ownsWriter;

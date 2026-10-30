@@ -27,8 +27,8 @@ Keep your inventory collection and application logic, then replace the rendering
 | `ConfirmationPrompt` | `ConfirmPrompt`, `TypedConfirmPrompt` | Typed confirmation is available for consequential actions. |
 | `BarChart`, `BreakdownChart` | `BarChart`, `StackedBar` | A stacked total is the nearest breakdown equivalent. |
 | `FigletText` | `Logo` | Built-in pixel lettering; no `.flf` font loader equivalent. |
-| `Grid`, `Columns`, `Rows` | `ConsoleMonster.Layout.Grid`, `Columns`, `Rows` | Grid layout is distinct from the interactive grid. |
-| `Layout` | `DashboardBuilder`, `Rows`, `Columns`, `RegionWidget` | Compose the layout explicitly; no named split-tree API clone. |
+| `Grid`, `Columns`, `Rows` | `ConsoleMonster.Layout.LayoutGrid`, `Columns`, `Rows` | Grid layout is distinct from the interactive grid. |
+| `Layout` | `Dashboard`, `Rows`, `Columns`, `RegionWidget` | Compose the layout explicitly; no named split-tree API clone. |
 | `Calendar` | `ConsoleMonster.Widgets.Calendar` | Month and year views with dated outcomes, culture-aware labels and ISO weeks. See the [operations calendar](/demos/operations-calendar/). |
 | Emoji shortcodes, `Spectre.Console.Cli` | No direct equivalent | Use literal Unicode for emoji; keep a separate command-line parser. |
 
@@ -261,21 +261,20 @@ AnsiConsole.Write(layout);
 **ConsoleMonster**
 
 ```csharp
-Terminal.Write(new ConsoleMonster.Layout.Grid(2,
+Terminal.Write(new ConsoleMonster.Layout.LayoutGrid(2,
     new TextBlock("Warsaw"), new TextBlock("Dublin")));
 Terminal.Write(new Columns(
     new Panel(new TextBlock("FS01")), new Panel(new TextBlock("SQL01"))));
-var dashboard = new DashboardBuilder("Inventory")
-    .Panel("Inventory", new TextBlock("FS01"))
-    .Panel("Notes", new TextBlock("12 pending on SQL01"))
-    .BuildDashboard();
+var dashboard = new Dashboard("Inventory", new Rows(
+    new Panel(new TextBlock("FS01"), "Inventory"),
+    new Panel(new TextBlock("12 pending on SQL01"), "Notes")));
 Terminal.Write(dashboard);
 ```
 
 </div>
 </div>
 
-`DashboardBuilder` is a dashboard composition API, not a translation of Spectre's named split tree. Use `Rows`/`Columns` for exact local arrangements and named `RegionWidget` objects when content changes.
+`Dashboard` takes a composed body. Use `Rows`/`Columns` for exact local arrangements and named `RegionWidget` objects when content changes.
 
 ## Differences to know
 

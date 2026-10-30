@@ -13,9 +13,9 @@ Each layer can be used without the ones above it.
 | L0 Terminal | Capability detection (VT, colour depth, glyph tier from the console font, size, redirection, CI) with `CONSOLEMONSTER_COLOR`, `CONSOLEMONSTER_GLYPHS`, `CONSOLEMONSTER_MODE`, `CONSOLEMONSTER_THEME`, `CONSOLEMONSTER_CULTURE` and `NO_COLOR` overrides; light/dark background detection; UTF-16 output through `WriteConsoleW` on Windows consoles, UTF-8 when redirected; Ctrl+C restore. |
 | L1 Text and style | Display-width measurement (Unicode 17), Spectre-compatible markup (`[bold red]text[/]`, `[pass]`), semantic themes mapped to 24-bit, 256 and 16 colours, glyph sets (Full, Basic, ASCII). |
 | L2 Canvas | Cell buffer, braille and half-block pixel canvases, frame diff. |
-| L3 Layout and widgets | `IWidget` / `IContainer`; Rows, Columns, Grid, Panel, Padding, Align, Stack; rich text, text, rule, table (width negotiation, cards, groups, totals), record view, object inspector, tree, key/value, status list, spinner, progress, lanes, phases, bar and stacked bar, sparkline, histogram, line/scatter chart, log region, logo, dashboard; cell presenters shared by tables, cards, key/value lists and trees. |
+| L3 Layout and widgets | `IWidget` / `IContainer`; Rows, Columns, LayoutGrid, Panel, Padding, Align, Stack; rich text, text, rule, table (width negotiation, cards, groups, totals), record view, object inspector, tree, key/value, status list, spinner, progress, lanes, phases, bar and stacked bar, sparkline, histogram, line/scatter chart, log region, logo, dashboard; cell presenters shared by tables, cards, key/value lists and trees. |
 | L4 Live | `LiveSession`: lock-free update queue, ~15 fps coalesced diff rendering, resize, font and too-small handling, typed handles and names, ambient `TerminalScope`, Console.Out/Error capture into the log region, JSON-lines record and replay. |
-| L5 Surfaces | The C# object model and a fluent builder; 98 thin PowerShell cmdlets with a plain `Console` noun. |
+| L5 Surfaces | The C# object model and a fluent builder; thin PowerShell cmdlets with a plain `Console` noun. |
 
 Every widget renders in every mode: a live dashboard becomes append-only lines when output is redirected or in CI,
 and plain ASCII lines without colour with `CONSOLEMONSTER_MODE=plain`. Status is never shown by colour alone.
@@ -40,7 +40,7 @@ $dashboard = New-ConsoleDashboard -Title 'Patch' -Gap 1 -Content {
 }
 ```
 
-Containers take a script block of children. Item widgets accept ordinary records through the pipeline or a Content block, with documented Label, Key, Status, Detail, Role and Value properties. Trees nest records through Children; chart series use Key and Values. New-ConsoleMenuItem and New-ConsoleField remain behavior-bearing workflow definitions. A widget made earlier grows with `Add-ConsoleItem`. [PowerShell conventions](PowerShell-Conventions.md)
+Containers take a script block of children. Item widgets accept ordinary records through the pipeline or a Content block, with documented Label, Key, Status, Detail, Role and Value properties. Trees nest records through Children; chart series use Key and Values. New-ConsoleMenuItem and New-ConsoleField remain behavior-bearing workflow definitions. Build item collections with `-Content { foreach (...) { ... } }`. Tabs, menu-run results and numeric-column formats are ordinary records accepted by their parent. [PowerShell conventions](PowerShell-Conventions.md)
 lists every widget with its cmdlet form, its live update command and its .NET method form.
 
 ```powershell
@@ -62,7 +62,7 @@ New-ConsoleColumns -Content {
 } | Show-Console
 
 # Hierarchical objects become a tree; -Depth, -MaxItems and -MaxNodes keep it bounded.
-Get-Item C:\Support\Reports | New-ConsoleTree -Children { if ($_.PSIsContainer) { Get-ChildItem $_.FullName } } -Depth 2 | Show-Console
+Get-Item . | New-ConsoleTree -Children { if ($_.PSIsContainer) { Get-ChildItem $_.FullName } } -Depth 2 | Show-Console
 ```
 
 Where cmdlet output goes:
@@ -88,21 +88,23 @@ Dashboard problems are reported once the screen is restored:
   warnings and errors.
 - `LiveSession.GetCounters()` returns the counters, for example `$ConsoleSession.GetCounters()` inside the dashboard script.
 - A dashboard that can't start fails with a clear error before it touches the screen. Examples are an unwritable
-  `-RecordPath` or another dashboard already running.
+  `-RecordingPath` or another dashboard already running.
 
 ## C#
 
 ```csharp
 using ConsoleMonster;
 using ConsoleMonster.Building;
+using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
 
-Dashboard dashboard = new DashboardBuilder("Deploy")
-    .Panel("Servers", new Lanes(), out Lanes lanes, caption: "4 workers")
-    .Panel("Log", new LogRegion(), out LogRegion log, fill: true)
-    .BuildDashboard();
+Lanes lanes = new Lanes();
+LogRegion log = new LogRegion();
+Dashboard dashboard = new Dashboard("Deploy", new Rows(
+    new Panel(lanes, "Servers") { Caption = "4 workers" },
+    new Panel(log, "Log").Fill()));
 
 using (LiveSession session = new LiveSession(dashboard)) {
     session.Run(s => {
@@ -117,7 +119,7 @@ using (LiveSession session = new LiveSession(dashboard)) {
 }
 ```
 
-`DashboardBuilder` is the one builder: it hands live widgets back through `out` parameters for typed handles.
+Keep live widgets in named variables when constructing a dashboard, then obtain their typed handles from the running session.
 
 ### Three ways to write it
 
@@ -225,7 +227,7 @@ The object inspector (`InspectorView`, `ObjectInspector.Inspect`) shows .NET obj
   On net8.0 it is marked `RequiresUnreferencedCode`. For trimmed or AOT builds, set `UseReflection = false` and pass
   dictionaries or your own `IMemberSource`.
 
-From PowerShell, `Show-ConsoleTable`, `Show-ConsoleList` and `Show-Console -View Tree` take pipeline input like the
+From PowerShell, `Show-ConsoleTable`, `Show-Console -View List` and `Show-Console -View Tree` take pipeline input like the
 built-in Format cmdlets:
 
 - `-Property` accepts names, wildcards and calculated properties, as Format-Table does. A hashtable with column options
@@ -235,18 +237,18 @@ built-in Format cmdlets:
   without thousands separators and are never totalled; `Identifier = $true` (or `Presenter = 'Identifier'`) does the
   same for any other column.
 - Without `-Property`, an object's DefaultDisplayPropertySet is used.
-- `-GroupBy`, `-Total`, `-Top N`, `-Width` and `-Culture` work as their names say. `-PassThru` also writes the input
+- `-GroupBy`, `-ShowTotals`, `-MaxRows N`, `-Width` and `-Culture` work as their names say. `-PassThru` also writes the input
   objects to the pipeline.
 - Redirected output is plain text.
 
 ```powershell
-Get-ChildItem C:\Windows\Logs -Recurse -File | Show-ConsoleTable -GroupBy Extension -Total -MaxRows 20 -Property @(
+Get-ChildItem -File | Show-ConsoleTable -GroupBy Extension -ShowTotals -MaxRows 20 -Property @(
     @{ Name = 'Name'; Key = $true }
     @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes'; Priority = 9 }
     @{ Name = 'LastWriteTime'; Header = 'Changed'; Presenter = 'DateRelative'; Priority = 5 }
     @{ Name = 'FullName'; Header = 'Path'; Overflow = 'TruncateMiddle'; Priority = 1 }
 )
-Get-Item C:\Windows\explorer.exe | Show-ConsoleObject -StaticSnapshot -Depth 2
+Get-Item . | Show-Console -View Tree -Depth 2
 ```
 
 `Module/Examples/Example-Tables.ps1 -Width 80` and `ConsoleMonster.Examples tables 80` show DNS records, mail-security
@@ -369,7 +371,7 @@ int found = await Terminal.StatusAsync("Scanning…", async ctx => await ScanAsy
 
 `Terminal.Clear()` clears the screen and scrollback, and `Terminal.HideCursor()` hides the cursor until its handle is
 disposed or `Terminal.ShowCursor()` is called. The cursor also comes back when the process exits or Ctrl+C ends it.
-In PowerShell, `Clear-ConsoleScreen` clears the console and `Write-ConsoleText -Markup -NoNewLine` leaves the line open. All of
+In PowerShell, `Write-ConsoleText -Markup -NoNewLine` leaves the line open. All of
 them are safe in redirected output and CI: clearing and the cursor do nothing there, and markup becomes plain text.
 Clearing also does nothing while a live dashboard owns the console.
 
@@ -554,7 +556,7 @@ lanes.Transient = true;              // nothing left at the end (with PrintFinal
 ```
 
 ```powershell
-New-ConsoleLanes -WidgetId servers -Lane 'DC01', 'DC02' -Total 40 -HideCompleted -Columns Standard, Rate
+'DC01', 'DC02' | New-ConsoleLanes -WidgetId servers -Total 40 -HideCompleted -Column Standard, Rate
 New-ConsoleProgress -Label 'Upload' -Total 500MB -Column Description, Bar, Percent, ByteRate, Remaining
 ```
 
@@ -582,10 +584,10 @@ widths only grow, so rows never jitter; `MaxRows` keeps only the most recent row
 In stream mode each added or updated row prints as a line.
 
 ```csharp
-Dashboard dashboard = new DashboardBuilder("Domain health")
-    .Region("Domain controllers", "main", new Spinner("Querying domain controllers"))
-    .Panel("Jobs", new LiveTable(new Table().AddColumn("Job").AddColumn("State").AddColumn("Took"), "jobs") { MaxRows = 8 }, out LiveTable jobs, fill: true)
-    .BuildDashboard();
+LiveTable jobs = new LiveTable(new Table().AddColumn("Job").AddColumn("State").AddColumn("Took"), "jobs") { MaxRows = 8 };
+Dashboard dashboard = new Dashboard("Domain health", new Rows(
+    new Panel(new RegionWidget("main", new Spinner("Querying domain controllers")), "Domain controllers"),
+    new Panel(jobs, "Jobs").Fill()));
 using (LiveSession session = new LiveSession(dashboard)) {
     session.Start();
     LiveTableHandle rows = jobs.Handle(session);
@@ -598,11 +600,11 @@ using (LiveSession session = new LiveSession(dashboard)) {
 ```powershell
 $d = New-ConsoleDashboard -Title 'Domain health' -Content {
     New-ConsolePanel -Title 'Domain controllers' -Content { New-ConsoleRegion -WidgetId main -Content { New-ConsoleProgress -Label 'Querying' -Indeterminate -WidgetId 'spinner' } }
-    New-ConsolePanel -Title 'Jobs' -Fill -Content { New-ConsoleTable -WidgetId jobs -MaxRows 8 -Live -Columns 'Job', 'State', 'Took' }
+    New-ConsolePanel -Title 'Jobs' -Fill -Content { New-ConsoleTable -WidgetId jobs -MaxRows 8 -Live -Property 'Job', 'State', 'Took' }
 }
 Invoke-ConsoleDashboard $d {
     Update-Console -WidgetId jobs -Row ([pscustomobject]@{ Key = 'dns@DC01'; Values = @('dns', 'Running', ([timespan]::Zero)) })
-    Update-Console -WidgetId main -Content { $controllers | Show-ConsoleTable -AsWidget }
+    Update-Console -WidgetId main -Content { $controllers | New-ConsoleTable }
     Update-Console -WidgetId jobs -Key 'dns@DC01' -RemoveRow
 }
 ```
@@ -629,7 +631,7 @@ never in CI, redirected or plain output, and it is cleared when the run ends, on
 
 ```powershell
 Invoke-ConsolePester .\Tests                                    # inline: files as lanes, the running test, failures
-Invoke-ConsolePester -Configuration $config -FullScreen -ExportHtml .\pester.html -PassThru
+Invoke-ConsolePester -Configuration $config -FullScreen -Path .\pester.html -PassThru
 ```
 
 - The header bar shows the totals and the clock, the files are lanes with passed, failed and skipped counts, and the
@@ -815,7 +817,7 @@ same action path. It never restarts a local service.
 
 ```powershell
 Compare-ConsoleObject (Import-Csv .\before.csv) (Import-Csv .\after.csv) -Property SamAccountName -Ignore 'Last*'
-if (Show-ConsoleChanges -ReferenceObject $members -DifferenceObject $planned -Property SamAccountName -Title 'Domain Admins') {
+if (Compare-ConsoleObject -Question 'Apply these changes?' -ReferenceObject $members -DifferenceObject $planned -Property SamAccountName -Title 'Domain Admins') {
     Set-GroupMembers $planned
 }
 ```
@@ -828,7 +830,7 @@ as line diffs. An added or removed object lists its compared properties one per 
 `-Ignore` takes names, paths and wildcards; `-PassThru` returns the changes as objects instead
 (`ConsoleMonster.Changes.ObjectChange`, with `Values` for added and removed objects).
 
-`Show-ConsoleChanges` is the what-if pattern for your own functions: it shows the preview, asks, and returns `$true` or
+`Compare-ConsoleObject -Question 'Apply these changes?'` is the what-if pattern for your own functions: it shows the preview, asks, and returns `$true` or
 `$false`. Changes that remove objects ask for the number of removals to be typed (or `-TypedConfirmation` text). It
 honours the caller's `-WhatIf` (preview only, `$false`) and `-Confirm:$false` or `-Force` (no question). In C#:
 `ObjectDiff.Compare(before, after, options)`, `new ChangeView(changes)` and `ChangePreview.Confirm(changes)`.
@@ -839,7 +841,7 @@ honours the caller's `-WhatIf` (preview only, `$false`) and `-Confirm:$false` or
 Invoke-ConsoleDashboard $dashboard -AutoRecord 10 { ... }           # keep the last ten runs
 Show-ConsoleReplay $dashboard                                       # rewind the newest one
 Show-ConsoleReplay $dashboard .\deploy.jsonl -Inline -Paused
-Send-ConsoleEvent -WidgetId '$marker' -Operation mark -Text 'Wave 2'  # a marker to jump to, while recording
+$ConsoleSession.Mark('Wave 2')                                    # a marker while recording
 ```
 
 `Show-ConsoleReplay` (`ReplayPlayer.Play` in C#) plays a recording into the same dashboard and lets you move through
@@ -861,16 +863,16 @@ recorded as a picture, together with later changes of the live widgets inside it
 Any widget, rendered frame or live-session snapshot can be saved as a self-contained file:
 
 ```powershell
-Get-Service | Select-Object -First 8 Name, Status, StartType | Show-ConsoleTable -AsWidget | Export-ConsoleFrame -Path .\services.html
-$dashboard | Export-ConsoleFrame -Path .\run.svg -Width 120 -Height 36 -Title 'Nightly run' -WindowChrome
-Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Destination .\run.svg      # animated, no script
-Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Destination .\run.html     # player with scrubbing
-Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Destination .\run.json     # data for the player script
-Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Destination .\run.cast     # asciicast v3
+Get-Service | Select-Object -First 8 Name, Status, StartType | New-ConsoleTable | Export-ConsoleFrame -Path .\services.html
+$dashboard | Export-ConsoleFrame -Path .\run.svg -Width 120 -Height 36 -Title 'Nightly run' -ChromeStyle MacOS
+Export-ConsoleRecording -Dashboard $dashboard -InputRecordingPath .\run.jsonl -OutputPath .\run.svg      # animated, no script
+Export-ConsoleRecording -Dashboard $dashboard -InputRecordingPath .\run.jsonl -OutputPath .\run.html     # player with scrubbing
+Export-ConsoleRecording -Dashboard $dashboard -InputRecordingPath .\run.jsonl -OutputPath .\run.json     # data for the player script
+Export-ConsoleRecording -Dashboard $dashboard -InputRecordingPath .\run.jsonl -OutputPath .\run.cast     # asciicast v3
 ```
 
 ```csharp
-string html = ConsoleExporter.ToHtml(widget, new ExportOptions { Width = 120, Title = "Nightly run", WindowChrome = true });
+string html = ConsoleExporter.ToHtml(widget, new ExportOptions { Width = 120, Title = "Nightly run", ChromeStyle = WindowChromeStyle.MacOS });
 string svg = ConsoleExporter.ToSvg(session);            // what a live session shows now
 string text = ConsoleExporter.ToText(frame);
 string player = Recording.ExportHtml(dashboard, File.OpenText("run.jsonl"));
@@ -900,7 +902,7 @@ string player = Recording.ExportHtml(dashboard, File.OpenText("run.jsonl"));
   <script type="application/json" id="patch-run">...Recording.ExportPlayerData output...</script>
   ```
 
-  `Recording.ExportPlayerData` (or `Export-ConsoleRecording -Destination run.json`) writes the data:
+  `Recording.ExportPlayerData` (or `Export-ConsoleRecording -OutputPath run.json`) writes the data:
   `{"format":"consolemonster-player","version":1,"title","width","height","fps","duration","chrome","css","rows":[html],
   "frames":[[startMs,[rowIndex,...]]]}`. `ConsoleMonsterPlayer.mount(element, data)` and `ConsoleMonsterPlayer.scan()`
   mount players added later; `data-cm-start` opens one at a time in milliseconds.
@@ -925,7 +927,7 @@ bool ok = new ConfirmPrompt("Deploy?").Show(TestTerminal.Interactive("y", captur
 
 ```powershell
 It 'renders the report' {
-    $rows | Show-ConsoleTable -AsWidget | Assert-ConsoleOutput -GoldenPath "$PSScriptRoot\Golden\report.txt" -Width 80
+    $rows | New-ConsoleTable | Assert-ConsoleOutput -GoldenPath "$PSScriptRoot\Golden\report.txt" -Width 80
 }
 ```
 
@@ -939,7 +941,7 @@ It 'renders the report' {
 
 ### Capture an ordinary program
 
-The gallery programs contain only their data, layout and behaviour. `Show-ConsoleDemo assessment -StaticSnapshot -Step 3`
+The gallery programs contain only their data, layout and behaviour. `Show-ConsoleDemo assessment -Mode Snapshot -Step 3`
 selects a state using the runner's capture recipe; an exported `assessment.ps1` has no capture parameters.
 
 For a script or console program of your own, `CONSOLEMONSTER_INPUT` supplies the same key syntax as `ScriptedInput`:
@@ -965,14 +967,13 @@ using (Terminal.Use(target)) {
 CellBuffer first = target.Screens.Frames[0];
 ```
 
-`Send-ConsoleEvent -TimeMilliseconds` retains the original event time when forwarding timestamped updates.
-Omitting it lets the live session stamp the event normally.
+Custom C# live targets receive events through `LiveSession.Post`. Ordinary PowerShell updates use `Update-Console`.
 
 A capture host can set `CONSOLEMONSTER_STORAGE_ROOT` to an isolated folder so menus cannot read saved user presets.
 An explicit `StorageRoot` still wins. `New-ConsoleForm -PageDescriptions @{ Scope = "Which servers to check." }`
 maps page guidance to the same `Form.Page(name, description)` API used in C#.
 
-For equivalent commands outside a form, use `Format-ConsoleCommand -Command Invoke-FleetCheck -Arguments ([ordered]@{ ComputerName = @('WEB01', 'SQL01'); WhatIf = $true })`. C# uses `CommandLine.Build(command, arguments)`. Both use the existing form quoting rules for strings, lists, numbers and switches; neither executes the result.
+C# callers can build equivalent command text with `CommandLine.Build(command, arguments)`. Forms use the same quoting rules for strings, lists, numbers and switches without executing the result.
 
 ## Targets: tests, redirection and hosting
 
@@ -1081,7 +1082,7 @@ table shows `71,5 %`, `1,41 MB` and `1 234`; the words around them follow the UI
   the profile's decisions.
 - `TerminalProfile.WithCulture(culture)` for `Terminal.Write`, `LiveSessionOptions.Culture` for a live session, and
   `PresentationOptions.Culture` for one table, record view, key/value list or tree.
-- `-Culture en-US` on `Show-ConsoleTable`, `Show-ConsoleList` and `Show-Console -View Tree`.
+- `-Culture en-US` on `Show-ConsoleTable`, `Show-Console -View List` and `Show-Console -View Tree`.
 
 The most specific setting wins: the widget's `PresentationOptions.Culture`, then `-Culture` or the session option, then
 the profile (`CONSOLEMONSTER_CULTURE`), then the current culture. Live dashboard counters (lanes, rates, clocks) and the
@@ -1099,7 +1100,7 @@ inspector's item counts use invariant digits regardless, because they are compac
 | A numeric series, or `-Chart` | A bar chart. |
 | Strings | Highlighted code when a language is detected (JSON, PowerShell, XML, YAML, C#...), otherwise text. |
 
-Use the named commands to choose a view explicitly: `Show-ConsoleTable`, `Show-ConsoleList`, `Show-Console -View Tree`, `Show-ConsoleObject`, `Show-Console -View Chart`, `Show-Console -View Code` or `Show-ConsoleGrid`. The grid
+Use the named commands to choose a view explicitly: `Show-ConsoleTable`, `Show-Console -View List`, `Show-Console -View Tree`, `Show-ConsoleObject`, `New-ConsoleChart | Show-Console`, `Show-Console -View Code` or `Show-ConsoleGrid`. The grid
 returns what you pick.
 
 `Enable-ConsoleFormatting` (opt-in, for the session) shows the default output of files and folders (`Get-ChildItem`),
@@ -1110,7 +1111,7 @@ transcripts keep native output. See [everyday formatting](Everyday-Formatting.md
 [module-owned views](Module-Views.md) for dependency-free registration, [exports and clipboard](Output-Exports.md), and
 [terminal links](Hyperlinks.md).
 
-`Enable-ConsoleFormatting -Feature Streams` applies the active theme to native warning, verbose and debug colors,
+`Enable-ConsoleFormatting -Include Streams` applies the active theme to native warning, verbose and debug colors,
 and to error colors on PowerShell 7.2+. It is included in `All`. PowerShell keeps its own message prefixes,
 stream commands, preferences and capture behavior. Disable restores the saved color settings. See
 [native stream colors](Everyday-Formatting.md#native-stream-colors) for the runtime differences and profile snippet.

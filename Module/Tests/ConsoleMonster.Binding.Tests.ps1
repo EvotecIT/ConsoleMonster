@@ -82,7 +82,7 @@ $c = $columns[0].Column
 $presenterType = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Presenters.NumberPresenter')
 $presenter = $presenterType::new('%')
 $table = [pscustomobject] @{ Score = 95 } | New-ConsoleTable -Property @(@{ Name = 'Score'; Presenter = $presenter })
-'BINDING:' + (@{ Same = [object]::ReferenceEquals($presenter, $table.Columns[0].Presenter); Text = ($table | Show-Console -AsString) } | ConvertTo-Json -Compress)
+'BINDING:' + (@{ Same = [object]::ReferenceEquals($presenter, $table.Columns[0].Presenter); Text = ($table | Export-ConsoleFrame -Format Text) } | ConvertTo-Json -Compress)
 '@
         $result.Same | Should -BeTrue
         $result.Text | Should -Match '95 %'
@@ -203,7 +203,7 @@ $byScript = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('Conso
 $item = [pscustomobject]@{ Name = 'root'; Child = [pscustomobject]@{ Value = 17 } }
 $options = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Data.InspectorOptions'))::new()
 $options.UseReflection = $false
-$options.Sources.Add(((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.PSObjectMemberSource'))::new())
+$options.Sources.Add([Activator]::CreateInstance((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.PSObjectMemberSource'), $true))
 $tree = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Data.ObjectInspector'))::Inspect($item, $options)
 $child = $tree.Members | Where-Object Name -eq 'Child'
 'BINDING:' + (@{ TypeName = $tree.TypeName; ChildType = $child.TypeName; Field = $child.Members[0].Name; Value = $child.Members[0].Value } | ConvertTo-Json -Compress)
@@ -220,10 +220,10 @@ $value = @{ Name = 'root'; Child = @{ A = 1 } }
 $wrapped = [System.Management.Automation.PSObject]::AsPSObject($value)
 $options = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Data.InspectorOptions'))::new()
 $options.UseReflection = $false
-$options.Sources.Add(((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.PSObjectMemberSource'))::new())
+$options.Sources.Add([Activator]::CreateInstance((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.PSObjectMemberSource'), $true))
 $options.Unwrap = [System.Delegate]::CreateDelegate(
     [System.Func[object, object]],
-    ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.PSObjectMemberSource')).GetMethod('UnwrapPSObject')
+    ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.PSObjectMemberSource')).GetMethod('UnwrapPSObject', [Reflection.BindingFlags]'Static,Public,NonPublic')
 )
 $tree = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Data.ObjectInspector'))::Inspect($wrapped, $options)
 $child = $tree.Members | Where-Object Name -eq 'Child'
@@ -249,10 +249,10 @@ $value.Self = $value
 $wrapped = [System.Management.Automation.PSObject]::AsPSObject($value)
 $options = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Data.InspectorOptions'))::new()
 $options.UseReflection = $false
-$options.Sources.Add(((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.PSObjectMemberSource'))::new())
+$options.Sources.Add([Activator]::CreateInstance((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.PSObjectMemberSource'), $true))
 $options.Unwrap = [System.Delegate]::CreateDelegate(
     [System.Func[object, object]],
-    ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.PSObjectMemberSource')).GetMethod('UnwrapPSObject')
+    ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.PSObjectMemberSource')).GetMethod('UnwrapPSObject', [Reflection.BindingFlags]'Static,Public,NonPublic')
 )
 $tree = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Data.ObjectInspector'))::Inspect($wrapped, $options)
 $cycle = $tree.Members[0]
@@ -271,10 +271,10 @@ $values = [System.Collections.ArrayList]::new()
 $wrapped = [System.Management.Automation.PSObject]::AsPSObject($values)
 $options = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Data.InspectorOptions'))::new()
 $options.UseReflection = $false
-$options.Sources.Add(((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.PSObjectMemberSource'))::new())
+$options.Sources.Add([Activator]::CreateInstance((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.PSObjectMemberSource'), $true))
 $options.Unwrap = [System.Delegate]::CreateDelegate(
     [System.Func[object, object]],
-    ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.PSObjectMemberSource')).GetMethod('UnwrapPSObject')
+    ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.PSObjectMemberSource')).GetMethod('UnwrapPSObject', [Reflection.BindingFlags]'Static,Public,NonPublic')
 )
 $tree = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Data.ObjectInspector'))::Inspect($wrapped, $options)
 'BINDING:' + (@{

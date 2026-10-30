@@ -26,7 +26,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Folders and files from the pipeline, three levels deep</para>
-    ///   <code>Get-Item C:\Support\Reports | New-ConsoleTree -Children { if ($_.PSIsContainer) { Get-ChildItem $_.FullName } } -Depth 3 | Show-Console</code>
+    ///   <code>Get-Item . | New-ConsoleTree -Children { if ($_.PSIsContainer) { Get-ChildItem $_.FullName } } -Depth 3 | Show-Console</code>
     /// </example>
     /// <example>
     ///   <para>Hierarchical objects with a status per node</para>

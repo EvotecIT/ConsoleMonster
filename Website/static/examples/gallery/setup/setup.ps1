@@ -73,7 +73,7 @@ $formOptions = @{
             Required = $true
             Page = 'Location'
             ParameterName = 'Path'
-            Help = 'Created during installation. Tab completes folder names.'
+            Description = 'Created during installation. Tab completes folder names.'
         }
         New-ConsoleField @fieldOptions
         $fieldOptions = @{
@@ -84,7 +84,7 @@ $formOptions = @{
             Default = $dataFolder
             Page = 'Location'
             ParameterName = 'DataPath'
-            Help = 'Logs, reports and the local queue.'
+            Description = 'Logs, reports and the local queue.'
         }
         New-ConsoleField @fieldOptions
         $fieldParameters = @{
@@ -107,12 +107,12 @@ $formOptions = @{
             GroupBy = 'Group'
             Badge = 'Size'
             Describe = 'Description'
-            Selected = 'Selected'
+            Default = @{ Property = 'Selected' }
             DisabledReason = 'Disabled'
             Minimum = 1
             Page = 'Components'
             ParameterName = 'Component'
-            Help = 'Space toggles, Ctrl+A selects all, Enter closes the list.'
+            Description = 'Space toggles, Ctrl+A selects all, Enter closes the list.'
         }
         New-ConsoleField @fieldOptions
         $fieldOptions = @{
@@ -169,7 +169,7 @@ $formOptions = @{
             Required = $true
             Page = 'Connection'
             ParameterName = 'Region'
-            Help = 'Choosing a region loads its servers.'
+            Description = 'Choosing a region loads its servers.'
         }
         New-ConsoleField @fieldOptions
         $fieldParameters = @{
@@ -186,7 +186,7 @@ $formOptions = @{
             Badge = 'Latency'
             Describe = 'City'
             DisabledReason = 'Disabled'
-            Help = 'Loaded for the chosen region; Esc cancels loading.'
+            Description = 'Loaded for the chosen region; Esc cancels loading.'
         }
         New-ConsoleField @fieldParameters -LoadChoices {
             param($Values, $Endpoints)
@@ -238,9 +238,9 @@ $dashboardParameters = @{
 }
 $dashboard = New-ConsoleDashboard @dashboardParameters -Content {
     New-ConsolePanel -Title Steps -Content {
-        New-ConsoleStatusList -WidgetId steps -Item $installSteps
+        New-ConsoleStatusList -WidgetId steps -Content { $installSteps }
     }
-    New-ConsolePadding -Padding 1, 0 -Content { New-ConsoleProgress -Label Install -Total 40 }
+    New-ConsoleRegion -Padding 1, 0 -Content { New-ConsoleProgress -Label Install -Total 40 }
 }
 Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {
     $Steps = $using:installSteps

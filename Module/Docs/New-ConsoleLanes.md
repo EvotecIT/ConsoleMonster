@@ -8,24 +8,24 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a lanes widget: one row per worker, server or item of a parallel workload.
 
-Each lane shows a status marker (a spinner while running), a progress bar, pass/fail/warning counts and what it is doing now. Lanes can be declared up front with -Lane (names sharing one -Total), with a script block of Key/Label records calls (each with its own total, progress, status and counts), from the pipeline, or appear on their first Update-Console in a live dashboard. To add lanes later, pipe the widget to Add-ConsoleItem.
+Each lane shows a status marker (a spinner while running), a progress bar, pass/fail/warning counts and what it is doing now. Declare lanes with names or Key/Label/Total records emitted by Content or the pipeline. Records can include progress, status and counts. A lane can also appear on its first Update-Console call in a live dashboard.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleLanes [[-WidgetId] <string>] [[-Content] <scriptblock>] [-InputObject <psobject>] [-Lane <Object[]>] [-Total <double>] [-Shape <BarShape>] [-Columns <Object[]>] [-HideCompleted] [-CollapseWhenFinished] [-Transient] [-CountColumn <ColumnFormat>] [-PercentColumn <ColumnFormat>] [-MaxLabelWidth <int>] [-NoDetail] [-CountSkipped] [-NoDimPending] [-BoldActive] [-ShowRunningCount] [-CollapseWhen <StatusKind>] [-RateWindowSeconds <double>] [<CommonParameters>]
+New-ConsoleLanes [[-WidgetId] <string>] [[-Content] <scriptblock>] [-InputObject <psobject>] [-Shape <BarShape>] [-Columns <Object[]>] [-HideCompleted] [-CollapseWhenFinished] [-Transient] [-CountColumn <ColumnFormat>] [-PercentColumn <ColumnFormat>] [-MaxLabelWidth <int>] [-NoDetail] [-CountSkipped] [-NoDimPending] [-BoldActive] [-ShowRunningCount] [-CollapseWhen <StatusKind>] [-RateWindowSeconds <double>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Creates a lanes widget: one row per worker, server or item of a parallel workload.
 
-Each lane shows a status marker (a spinner while running), a progress bar, pass/fail/warning counts and what it is doing now. Lanes can be declared up front with -Lane (names sharing one -Total), with a script block of Key/Label records calls (each with its own total, progress, status and counts), from the pipeline, or appear on their first Update-Console in a live dashboard. To add lanes later, pipe the widget to Add-ConsoleItem.
+Each lane shows a status marker (a spinner while running), a progress bar, pass/fail/warning counts and what it is doing now. Declare lanes with names or Key/Label/Total records emitted by Content or the pipeline. Records can include progress, status and counts. A lane can also appear on its first Update-Console call in a live dashboard.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleLanes -WidgetId servers -Lane 'DC01', 'DC02', 'DC03' -Total 40
+'DC01', 'DC02', 'DC03' | ForEach-Object { @{ Key = $_; Label = $_; Total = 40 } } | New-ConsoleLanes -WidgetId servers
 ```
 
 Lanes for three servers with 40 steps each
@@ -124,7 +124,7 @@ Accept wildcard characters: False
 ```
 
 ### -CountColumn
-Shared CountColumn layout settings from New-ConsoleColumnFormat.
+Shared CountColumn layout settings as a hashtable, for example @{ MinWidth = 6; Alignment = 'Right' }.
 
 ```yaml
 Type: ColumnFormat
@@ -187,22 +187,6 @@ Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
-### -Lane
-Lanes to declare up front (key and label).
-
-```yaml
-Type: Object[]
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -MaxLabelWidth
 Maximum lane label width in cells; default 28.
 
@@ -252,7 +236,7 @@ Accept wildcard characters: False
 ```
 
 ### -PercentColumn
-Shared PercentColumn layout settings from New-ConsoleColumnFormat.
+Shared PercentColumn layout settings as a hashtable, for example @{ MinWidth = 6; Alignment = 'Right' }.
 
 ```yaml
 Type: ColumnFormat
@@ -304,22 +288,6 @@ Shows a separate count of running lanes.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Total
-Planned steps per declared lane.
-
-```yaml
-Type: Double
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

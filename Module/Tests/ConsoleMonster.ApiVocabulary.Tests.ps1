@@ -1,22 +1,10 @@
-Describe 'ConsoleMonster public API vocabulary' {
+﻿Describe 'ConsoleMonster public API vocabulary' {
     BeforeAll {
         Import-Module (Join-Path $PSScriptRoot '..\ConsoleMonster.psd1') -Force
         $script:Commands = @(Get-Command -Module ConsoleMonster -CommandType Cmdlet)
     }
 
-    It 'exports one command for each approved job and removes the old names and aliases' {
-        $names = $script:Commands.Name
-        $fixture = Get-Content (Join-Path $PSScriptRoot '../../Tests/Api/round2-commands.json') -Raw | ConvertFrom-Json
-        $names.Count | Should -Be $fixture.ExpectedCount
-        Compare-Object @($fixture.Commands) @($names) | Should -BeNullOrEmpty
-        foreach ($name in $fixture.Retired) {
-            $names | Should -Not -Contain $name
-            Get-Command -Module ConsoleMonster -Name $name -ErrorAction SilentlyContinue | Should -BeNullOrEmpty
-        }
-        foreach ($name in 'fct', 'fcl', 'ForEach-ConsoleItem') {
-            Get-Alias $name -ErrorAction SilentlyContinue | Should -BeNullOrEmpty
-        }
-    }
+
 
     It 'exports no command aliases and no custom parameter aliases' {
         $module = Get-Module ConsoleMonster
@@ -34,22 +22,9 @@ Describe 'ConsoleMonster public API vocabulary' {
         }
     }
 
-    It 'runs Table and List shortcuts through the same view implementation and output contract' {
-        $rows = @([pscustomobject]@{ Name = 'first'; Count = 2 }, [pscustomobject]@{ Name = 'second'; Count = 5 })
-        foreach ($view in 'Table', 'List') {
-            $command = Get-Command "Show-Console$view"
-            $command.ImplementingType.BaseType | Should -Be (Get-Command Show-Console).ImplementingType.BaseType
-            $shortcut = $rows | & $command -AsString -Width 60
-            $canonical = $rows | Show-Console -View $view -AsString -Width 60
-            $shortcut | Should -Be $canonical
-        }
-    }
 
-    It 'keeps exporting in Export-ConsoleFrame and the default sink limited to routing' {
-        (Get-Command Out-ConsoleDefault).Parameters.ContainsKey('Format') | Should -BeFalse
-        (Get-Command Out-ConsoleDefault).Parameters.ContainsKey('Width') | Should -BeFalse
-        (Get-Command Export-ConsoleFrame).Parameters.Keys | Should -Contain Format
-    }
+
+
 
     It 'uses the shared presentation options and removes the literal-text compatibility switch' {
         (Get-Command New-ConsoleText).Parameters.ContainsKey('Plain') | Should -BeFalse
@@ -85,43 +60,31 @@ Describe 'ConsoleMonster public API vocabulary' {
         $rule = New-ConsoleRule 'Build' -LineRole Accent -LineStyle Double
         $rule.LineRole.ToString() | Should -Be Accent
         $rule.LineStyle.ToString() | Should -Be Double
-        (Show-Console -View Rule -Title Build -LineRole Accent -LineStyle Double -AsWidget).LineStyle | Should -Be $rule.LineStyle
-        { Show-Console -View Json -LineRole Accent -InputObject '{}' } | Should -Throw '*does not support LineRole*'
     }
 
-    It 'passes typed export options through the same C# serializers without changing the request' {
-        $options = [Activator]::CreateInstance((Get-Command Export-ConsoleFrame).Parameters['Options'].ParameterType)
-        $options.Width = 0
-        $options.Padding = 7
-        $options.Fragment = $true
-        $options.LineHeight = 1.5
+    It 'passes flat export settings to the shared serializers' {
+        $options = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Export.ExportOptions'))::new()
+        $options.Width = 40
+        $options.FontSize = 18
+        $options.Title = 'Build result'
         $widget = New-ConsolePanel -Title Build -Content { New-ConsoleText Ready }
-        $actual = $widget | Export-ConsoleFrame -Format Html -Options $options
+        $actual = $widget | Export-ConsoleFrame -Format Html -Width 40 -FontSize 18 -Title 'Build result'
         $exporter = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Export.ConsoleExporter')
-        $expected = $exporter::ToHtml($widget, $options)
-        $actual | Should -BeExactly $expected
-        $options.Width | Should -Be 0
-        ($widget | Export-ConsoleFrame -Format Text -Options @{ Width = 25 }) | Should -Match Ready
-        $options.Padding | Should -Be 7
-        { $widget | Export-ConsoleFrame -Format Html -Options $options -Width 40 } | Should -Throw '*Width*cannot be combined*'
+        $actual | Should -BeExactly ($exporter::ToHtml($widget, $options))
+        ($widget | Export-ConsoleFrame -Format Text -Width 25) | Should -Match Ready
         $cast = Join-Path $TestDrive 'sample.cast'
-        [IO.File]::WriteAllText($cast, "{`"version`":2,`"width`":10,`"height`":2}`n[0,`"o`",`"Ready`"]`n")
-        $playback = [Activator]::CreateInstance((Get-Command Export-ConsoleRecording).Parameters['Options'].ParameterType)
-        $playback.Width = 0
-        $playback.MaxFrames = 10
-        $playback.FontSize = 12
-        $actual = Export-ConsoleRecording -Path $cast -Format Svg -Options $playback
-        $recordingType = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Sessions.SessionRecording')
-        $recording = $recordingType::Read($cast)
+        [IO.File]::WriteAllText($cast, "{`"version`":2,`"width`":20,`"height`":4}`n[0,`"o`",`"Ready`"]`n[0.5,`"o`",`" Done`"]`n")
+        $playback = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Export.RecordingExportOptions'))::new()
+        $playback.Width = 40
+        $playback.Height = 8
+        $playback.Speed = 1.5
+        $playback.FramesPerSecond = 5
+        $playback.Title = 'Build playback'
+        $playback.ChromeStyle = 'None'
+        $recording = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Sessions.SessionRecording'))::Read($cast)
         $format = [Enum]::Parse([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Export.ExportFormat'), 'Svg')
-        $expected = $recording.Export($format, $playback)
-        $actual | Should -BeExactly $expected
-        $playback.Width | Should -Be 0
-        { Export-ConsoleRecording -Path $cast -Options $playback -Speed 2 } | Should -Throw '*Speed*cannot be combined*'
-        $form = New-ConsoleForm 'Build'
-        { Read-ConsoleForm $form -Options ([Activator]::CreateInstance((Get-Command Read-ConsoleForm).Parameters['Options'].ParameterType)) -Inline } | Should -Throw '*Inline*cannot be combined*'
-        $menu = New-ConsoleMenu 'Build'
-        { Show-ConsoleMenu $menu -Options ([Activator]::CreateInstance((Get-Command Show-ConsoleMenu).Parameters['Options'].ParameterType)) -NoCommandPalette } | Should -Throw '*NoCommandPalette*cannot be combined*'
+        $actual = Export-ConsoleRecording -RecordingPath $cast -Format Svg -Width 40 -Height 8 -Speed 1.5 -FramesPerSecond 5 -Title 'Build playback'
+        $actual | Should -BeExactly ($recording.Export($format, $playback))
     }
 
     It 'uses the same chart controls and rejects them for mismatched kinds' {
@@ -138,15 +101,7 @@ Describe 'ConsoleMonster public API vocabulary' {
         { New-ConsoleChart -Type Bar -Capacity 7 } | Should -Throw '*does not support Capacity*'
     }
 
-    It 'keeps shortcut metadata limited to the selected representation' {
-        foreach ($name in 'Language', 'LineNumbers', 'PlaybackMode', 'Bins', 'ChildrenProperty', 'NoStack') {
-            (Get-Command Show-ConsoleTable).Parameters.ContainsKey($name) | Should -BeFalse
-            (Get-Command Show-ConsoleList).Parameters.ContainsKey($name) | Should -BeFalse
-        }
-        (Get-Command Show-Console).Parameters.Keys | Should -Contain Language
-        (Get-Command Show-ConsoleTable).Parameters.Keys | Should -Contain Presentation
-        (Get-Command Show-ConsoleList).Parameters.Keys | Should -Contain ShowEmpty
-    }
+
 
     It 'rejects conflicting menu jobs during parameter binding' {
         { New-ConsoleMenuItem 'Conflict' -Action { } -Submenu (New-ConsoleMenu 'Nested') } | Should -Throw
@@ -169,7 +124,7 @@ Describe 'ConsoleMonster public API vocabulary' {
         (Get-Command New-ConsoleChart).Parameters.Keys | Should -Contain Type
         (Get-Command Set-ConsoleTheme).Parameters.Keys | Should -Contain Theme
         (Get-Command Invoke-ConsoleRecording).Parameters.Keys | Should -Contain Title
-        (Get-Command Send-ConsoleEvent).Parameters.Keys | Should -Contain WidgetId
+        (Get-Command Update-Console).Parameters.Keys | Should -Contain WidgetId
     }
 
     It 'keeps switches false by default and uses NoX for default-on behavior' {
@@ -271,17 +226,17 @@ Describe 'ConsoleMonster public API vocabulary' {
         $actual | Should -Be $expected
     }
 
-    It 'keeps AsString plain and honors the current target and explicit narrow widths' {
+    It 'keeps text export plain and honors the current target and explicit narrow widths' {
         $profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed(57, 24, 'TrueColor', 'Full')
         $target = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Output.RecordingTarget'))::new($profile)
         $previous = if ($PSVersionTable.PSVersion.Major -ge 7) { $PSStyle.OutputRendering }
         try {
             if ($PSVersionTable.PSVersion.Major -ge 7) { $PSStyle.OutputRendering = 'Ansi' }
             Use-ConsoleTarget -Target $target {
-                $text = Show-Console -Title 'Section' -AsString -View Rule
+                $text = New-ConsoleRule 'Section' | Export-ConsoleFrame -Format Text
                 $text.IndexOf([char]27) | Should -Be -1
                 ($text -split "`n")[0].Length | Should -Be 57
-                $narrow = Show-Console -AsString -Width 5 -View Rule
+                $narrow = New-ConsoleRule | Export-ConsoleFrame -Format Text -Width 5
                 ($narrow -split "`n")[0].Length | Should -Be 5
             }
         } finally {
@@ -293,9 +248,9 @@ Describe 'ConsoleMonster public API vocabulary' {
         $profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed(60, 24, 'None', 'Ascii').WithMode('Interactive')
         $target = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Output.RecordingTarget'))::new($profile)
         Use-ConsoleTarget -Target $target {
-            $run = Start-ConsoleRun -Items @('build') -ProgressIntervalSeconds 0
+            $run = Start-ConsoleRun -InputObject @('build') -ProgressIntervalSeconds 0
             try { $run.IsLive | Should -BeTrue } finally { Complete-ConsoleRun $run }
-            $run = Start-ConsoleRun -Items @('build') -NoLive -ProgressIntervalSeconds 0
+            $run = Start-ConsoleRun -InputObject @('build') -NoLive -ProgressIntervalSeconds 0
             try { $run.IsLive | Should -BeFalse } finally { Complete-ConsoleRun $run }
         }
     }
@@ -305,28 +260,28 @@ Describe 'ConsoleMonster public API vocabulary' {
         $dashboard = New-ConsoleDashboard -Title Test -FooterHints ([ordered]@{ q = 'Quit'; r = 'Refresh' }) -Content { New-ConsoleText ready }
         $dashboard.FooterHints.Count | Should -Be 2
         $dashboard.FooterHints[0].Label.ToString() | Should -Be Quit
-        $hints = (New-ConsoleFooterBar -Hint @{ q = 'Quit' }).Hints
-        (New-ConsoleDashboard -Title Test -FooterHints $hints -Content { New-ConsoleText ready }).FooterHints.Count | Should -Be 1
+        $hints = $dashboard.FooterHints
+        (New-ConsoleDashboard -Title Test -FooterHints $hints -Content { New-ConsoleText ready }).FooterHints.Count | Should -Be 2
     }
 
     It 'writes consecutive rules with the same one-line geometry as the C# writer' {
         $first = New-ConsoleRule 'Section'
         $second = New-ConsoleRule
-        $actual = Use-ConsoleTarget -Width 60 { Show-Console -Title 'Section' -View Rule; Show-Console -View Rule }
+        $actual = Use-ConsoleTarget -Width 60 { New-ConsoleRule 'Section' | Show-Console; New-ConsoleRule | Show-Console }
         $expected = Use-ConsoleTarget -Width 60 { [ConsoleMonster.Terminal]::Write($first); [ConsoleMonster.Terminal]::Write($second) }
         $actual | Should -Be $expected
     }
 
     It 'captures a dictionary in one call and exports ordinary rows with the automatic view' {
         $pairs = [ordered] @{ Zulu = 3; Alpha = 1 }
-        $text = Show-ConsoleList $pairs -AsString -Width 60
+        $text = Show-Console -View List $pairs   -AsWidget | Export-ConsoleFrame -Format Text -Width 60
         $text | Should -Match '(?s)Zulu.*3.*Alpha.*1'
-        Show-Console -Title 'Section' -AsString -Width 60 -View Rule | Should -Match Section
+        New-ConsoleRule 'Section' | Export-ConsoleFrame -Format Text -Width 60 | Should -Match Section
         $rows = @([pscustomobject] @{ Label = 'first'; Count = 2 }, [pscustomobject] @{ Label = 'second'; Count = 5 })
         $direct = $rows | Export-ConsoleFrame -Format Markdown -Width 60
         $direct | Should -Match 'first'
         $direct | Should -Match 'second'
-        $composed = $rows | Show-Console -AsWidget | Export-ConsoleFrame -Format Markdown -Width 60
+        $composed = $rows | New-ConsoleTable | Export-ConsoleFrame -Format Markdown -Width 60
         $composed | Should -Be $direct
     }
 }

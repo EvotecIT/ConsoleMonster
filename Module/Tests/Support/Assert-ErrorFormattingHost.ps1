@@ -39,7 +39,7 @@ switch ($Phase) {
             try { [int]::Parse('abc') } catch { $record = $_ }
             $capture = { Get-ErrorFormattingSnapshot $record $directory }
             $before = & $capture
-            Enable-ConsoleFormatting -Feature Errors -CompactErrors
+            Enable-ConsoleFormatting -Include Errors -Exclude Output, FormatCommands, Streams, ReadLine -ErrorLayout Compact
             $after = & $capture
             foreach ($name in $before.PSObject.Properties.Name) {
                 if ($before.$name -cne $after.$name) {
@@ -54,7 +54,7 @@ switch ($Phase) {
             throw [InvalidOperationException]::new('Inventory load failed.', [IO.IOException]::new('Synthetic source unavailable.', [Exception]::new('Synthetic root cause.')))
         }
         function global:v {
-            $widget = $Error[0] | Show-Console -Compact -AsWidget -View Error
+            $widget = $Error[0] | Show-Console -ErrorLayout Compact -AsWidget -View Error
             $widget.ShowStack = $global:cmDetailedError
             $expected = [ConsoleMonster.Terminal]::RenderText($widget, [ConsoleMonster.Terminal]::Profile.WithSize(($Host.UI.RawUI.WindowSize.Width - 1), 200))
             $expected = ($expected -replace "`r", '').TrimEnd("`n") + "`n"
@@ -65,15 +65,15 @@ switch ($Phase) {
             $global:cmErrorChecks.Add($(if ($global:cmDetailedError) { 'Detailed host cells equal the shared view, including stacks and causes' } else { 'Implicit host cells equal the shared compact view, including invocation span and folded causes' }))
             'COMPACT_HOST_CELLS_OK'
         }
-        Enable-ConsoleFormatting -Feature Errors -CompactErrors
+        Enable-ConsoleFormatting -Include Errors -Exclude Output, FormatCommands, Streams, ReadLine -ErrorLayout Compact
         'ERROR_HOST_INITIALIZED'
     }
     'BeginTranscript' {
-        Enable-ConsoleFormatting -Feature Errors -CompactErrors
+        Enable-ConsoleFormatting -Include Errors -Exclude Output, FormatCommands, Streams, ReadLine -ErrorLayout Compact
         $null = Start-Transcript -LiteralPath $global:cmErrorTranscript
     }
     'Detailed' {
-        Enable-ConsoleFormatting -Feature Errors -CompactErrors -Detailed
+        Enable-ConsoleFormatting -Include Errors -Exclude Output, FormatCommands, Streams, ReadLine -ErrorLayout Detailed
         $global:cmDetailedError = $true
     }
     'BeginNativeTranscript' {

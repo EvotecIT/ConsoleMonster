@@ -8,7 +8,12 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="synopsis">Creates a clipped vertical viewport for a small widget tree inside an app.</para>
     /// <para type="description">Mouse wheel scrolls the viewport. Tab navigation reveals focused inputs. Lists, grids and logs keep their own row windows for large data.</para>
     /// </summary>
-    /// <example><para>A scrollable detail pane.</para><code>New-ConsoleScrollView -Content { $details } -Height 12</code></example>
+    /// <example>
+    /// <para>Build a scrollable detail pane</para>
+    /// <code>New-ConsoleScrollView -Content {
+    ///     1..20 | ForEach-Object { New-ConsoleText "Detail line $_" }
+    /// } -Height 12</code>
+    /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleScrollView")]
     [OutputType(typeof(IWidget))]
     public sealed class CmdletNewConsoleScrollView : ContainerCmdlet {

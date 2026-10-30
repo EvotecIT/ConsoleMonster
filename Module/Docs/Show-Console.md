@@ -6,111 +6,93 @@ schema: 2.0.0
 ---
 # Show-Console
 ## SYNOPSIS
-Displays pipeline input in its automatic or explicit representation.
+Shows objects, text and widgets in a readable view that fits the terminal.
 
-Table and List are idiomatic shortcuts to the same view construction and output path. AsWidget and AsString capture the result; export uses Export-ConsoleFrame.
+Pipe objects to choose a view automatically, or use View for a table, list, object tree, source code, JSON, error or Markdown. Property chooses fields; Width sets the available space. Use New-ConsoleChart, New-ConsoleRule and New-ConsoleTree to construct those widgets. AsWidget returns a view for layout or Export-ConsoleFrame; PassThru returns the original objects after showing them.
 
 ## SYNTAX
 ### Objects (Default)
 ```powershell
-Show-Console [[-InputObject] <psobject>] [-View <string>] [-Property <Object[]>] [-GroupBy <Object>] [-Title <Object>] [-Caption <Object>] [-Width <int>] [-Culture <cultureinfo>] [-AsString] [-AsWidget] [-PassThru] [-ShowTotals] [-MaxRows <int>] [-Border <TableBorder>] [-CardsBelow <int>] [-NoHeaderSeparator] [-Expand] [-StatusProperty <string>] [-ShowGroupColumn] [-NoSort] [-Wrap] [-ShowEmpty] [-Depth <int>] [-ChildrenProperty <string>] [-Children <scriptblock>] [-LabelProperty <string>] [-DetailProperty <string>] [-MaxItems <int>] [-MaxNodes <int>] [-Include <string[]>] [-Exclude <string[]>] [-Language <string>] [-LineNumbers] [-Highlight <string[]>] [-FirstLine <int>] [-MaxLines <int>] [-NoTitle] [-Type <ChartType>] [-Label <Object>] [-Sort <PipelineChartSort>] [-Bins <int>] [-Unit <string>] [-ShowFrameworkFrames] [-MaxFrames <int>] [-NoStack] [-Compact] [-MaxInner <int>] [-NoSource] [-NoPager] [-Alignment <HorizontalAlignment>] [-LineRole <ThemeToken>] [-LineStyle <BoxStyle>] [-TitleIndent <Int32>] [-WrapHeaders] [-KeepAllColumns] [-GroupHeadersAsRows] [-RecordViewRows <int>] [-ShowKeyField] [-NoHiddenColumns] [-NoStableWidths] [-NoHeader] [-AlwaysCards] [-RowTitles <string[]>] [-ShowSubtotals] [-TotalLabel <string>] [-WrapLines <int>] [-TotalRowCount <Int32>] [-Presentation <PresentationOptions>] [<CommonParameters>]
+Show-Console [[-InputObject] <psobject>] [-View <string>] [-Property <Object[]>] [-GroupBy <Object>] [-Title <Object>] [-Caption <Object>] [-Width <int>] [-Culture <cultureinfo>] [-AsWidget] [-PassThru] [-ShowTotals] [-MaxRows <int>] [-Border <TableBorder>] [-CardsBelow <int>] [-NoHeaderSeparator] [-Expand] [-StatusProperty <string>] [-ShowGroupColumn] [-NoSort] [-Wrap] [-ShowEmpty] [-Depth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-Exclude <string[]>] [-Language <string>] [-LineNumbers] [-ErrorLayout <string>] [-MaxInner <int>] [-NoPager] [<CommonParameters>]
 ```
 
 ### Path
 ```powershell
-Show-Console -Path <string> [-View <string>] [-Property <Object[]>] [-GroupBy <Object>] [-Title <Object>] [-Caption <Object>] [-Width <int>] [-Culture <cultureinfo>] [-AsString] [-AsWidget] [-PassThru] [-ShowTotals] [-MaxRows <int>] [-Border <TableBorder>] [-CardsBelow <int>] [-NoHeaderSeparator] [-Expand] [-StatusProperty <string>] [-ShowGroupColumn] [-NoSort] [-Wrap] [-ShowEmpty] [-Depth <int>] [-ChildrenProperty <string>] [-Children <scriptblock>] [-LabelProperty <string>] [-DetailProperty <string>] [-MaxItems <int>] [-MaxNodes <int>] [-Include <string[]>] [-Exclude <string[]>] [-Language <string>] [-LineNumbers] [-Highlight <string[]>] [-FirstLine <int>] [-MaxLines <int>] [-NoTitle] [-Type <ChartType>] [-Label <Object>] [-Sort <PipelineChartSort>] [-Bins <int>] [-Unit <string>] [-ShowFrameworkFrames] [-MaxFrames <int>] [-NoStack] [-Compact] [-MaxInner <int>] [-NoSource] [-NoPager] [-Alignment <HorizontalAlignment>] [-LineRole <ThemeToken>] [-LineStyle <BoxStyle>] [-TitleIndent <Int32>] [-WrapHeaders] [-KeepAllColumns] [-GroupHeadersAsRows] [-RecordViewRows <int>] [-ShowKeyField] [-NoHiddenColumns] [-NoStableWidths] [-NoHeader] [-AlwaysCards] [-RowTitles <string[]>] [-ShowSubtotals] [-TotalLabel <string>] [-WrapLines <int>] [-TotalRowCount <Int32>] [-Presentation <PresentationOptions>] [<CommonParameters>]
+Show-Console -Path <string> [-View <string>] [-Property <Object[]>] [-GroupBy <Object>] [-Title <Object>] [-Caption <Object>] [-Width <int>] [-Culture <cultureinfo>] [-AsWidget] [-PassThru] [-ShowTotals] [-MaxRows <int>] [-Border <TableBorder>] [-CardsBelow <int>] [-NoHeaderSeparator] [-Expand] [-StatusProperty <string>] [-ShowGroupColumn] [-NoSort] [-Wrap] [-ShowEmpty] [-Depth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-Exclude <string[]>] [-Language <string>] [-LineNumbers] [-ErrorLayout <string>] [-MaxInner <int>] [-NoPager] [<CommonParameters>]
 ```
 
 ### Content
 ```powershell
-Show-Console -Content <Object> [-View <string>] [-Property <Object[]>] [-GroupBy <Object>] [-Title <Object>] [-Caption <Object>] [-Width <int>] [-Culture <cultureinfo>] [-AsString] [-AsWidget] [-PassThru] [-ShowTotals] [-MaxRows <int>] [-Border <TableBorder>] [-CardsBelow <int>] [-NoHeaderSeparator] [-Expand] [-StatusProperty <string>] [-ShowGroupColumn] [-NoSort] [-Wrap] [-ShowEmpty] [-Depth <int>] [-ChildrenProperty <string>] [-Children <scriptblock>] [-LabelProperty <string>] [-DetailProperty <string>] [-MaxItems <int>] [-MaxNodes <int>] [-Include <string[]>] [-Exclude <string[]>] [-Language <string>] [-LineNumbers] [-Highlight <string[]>] [-FirstLine <int>] [-MaxLines <int>] [-NoTitle] [-Type <ChartType>] [-Label <Object>] [-Sort <PipelineChartSort>] [-Bins <int>] [-Unit <string>] [-ShowFrameworkFrames] [-MaxFrames <int>] [-NoStack] [-Compact] [-MaxInner <int>] [-NoSource] [-NoPager] [-Alignment <HorizontalAlignment>] [-LineRole <ThemeToken>] [-LineStyle <BoxStyle>] [-TitleIndent <Int32>] [-WrapHeaders] [-KeepAllColumns] [-GroupHeadersAsRows] [-RecordViewRows <int>] [-ShowKeyField] [-NoHiddenColumns] [-NoStableWidths] [-NoHeader] [-AlwaysCards] [-RowTitles <string[]>] [-ShowSubtotals] [-TotalLabel <string>] [-WrapLines <int>] [-TotalRowCount <Int32>] [-Presentation <PresentationOptions>] [<CommonParameters>]
+Show-Console -Content <Object> [-View <string>] [-Property <Object[]>] [-GroupBy <Object>] [-Title <Object>] [-Caption <Object>] [-Width <int>] [-Culture <cultureinfo>] [-AsWidget] [-PassThru] [-ShowTotals] [-MaxRows <int>] [-Border <TableBorder>] [-CardsBelow <int>] [-NoHeaderSeparator] [-Expand] [-StatusProperty <string>] [-ShowGroupColumn] [-NoSort] [-Wrap] [-ShowEmpty] [-Depth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-Exclude <string[]>] [-Language <string>] [-LineNumbers] [-ErrorLayout <string>] [-MaxInner <int>] [-NoPager] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Displays pipeline input in its automatic or explicit representation.
+Shows objects, text and widgets in a readable view that fits the terminal.
 
-Table and List are idiomatic shortcuts to the same view construction and output path. AsWidget and AsString capture the result; export uses Export-ConsoleFrame.
+Pipe objects to choose a view automatically, or use View for a table, list, object tree, source code, JSON, error or Markdown. Property chooses fields; Width sets the available space. Use New-ConsoleChart, New-ConsoleRule and New-ConsoleTree to construct those widgets. AsWidget returns a view for layout or Export-ConsoleFrame; PassThru returns the original objects after showing them.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-Get-Service | Show-Console
+Get-Process | Select-Object -First 5 | Show-Console
 ```
 
-Display pipeline input
+Show a few running processes
+
+### EXAMPLE 2
+```powershell
+Get-Process | Select-Object -First 3 | Show-Console -View List -Property ProcessName, Id, WorkingSet64
+```
+
+Read selected fields as a list
+
+### EXAMPLE 3
+```powershell
+Get-Item . | Show-Console -View Tree -Depth 1 -Property Name, FullName, LastWriteTime
+```
+
+Inspect a file object's members with a bounded tree
+
+### EXAMPLE 4
+```powershell
+Show-Console -View Code -Language PowerShell -LineNumbers -Content {
+    'Get-Process | Select-Object -First 5'
+}
+```
+
+Show a PowerShell snippet with line numbers
+
+### EXAMPLE 5
+```powershell
+Show-Console -Content {
+    New-ConsolePanel -Title 'Build summary' -Content {
+        New-ConsoleRows -Gap 1 -Content {
+            New-ConsoleText 'All checks passed' -Role Pass
+            New-ConsoleRule -Title 'Ready to review'
+        }
+    }
+}
+```
+
+Compose a panel with native PowerShell script blocks
+
+### EXAMPLE 6
+```powershell
+Get-Process | Select-Object -First 3 |
+                Show-Console -View List -Property ProcessName, Id -AsWidget |
+                Export-ConsoleFrame -Format Text
+```
+
+Return a plain-text document for another pipeline command
 
 ## PARAMETERS
-
-### -Alignment
-The rule title alignment; default Left.
-
-```yaml
-Type: HorizontalAlignment
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values: Left, Center, Right
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -AlwaysCards
-Uses record cards at every width.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -AsString
-Returns plain text instead of displaying it.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
 
 ### -AsWidget
 Returns the constructed widget.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Bins
-Histogram bins; default ten.
-
-```yaml
-Type: Int32
 Parameter Sets: Objects, Path, Content
 Aliases: None
 Possible values:
@@ -170,54 +152,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Children
-Produces children for a hierarchy node.
-
-```yaml
-Type: ScriptBlock
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -ChildrenProperty
-The property containing a hierarchy node children.
-
-```yaml
-Type: String
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Compact
-Uses the compact everyday error layout.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -Content
 A widget, text or script block producing display content.
 
@@ -266,14 +200,14 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -DetailProperty
-The hierarchy detail property.
+### -ErrorLayout
+Error detail: Compact, Standard or Detailed.
 
 ```yaml
 Type: String
 Parameter Sets: Objects, Path, Content
 Aliases: None
-Possible values:
+Possible values: Compact, Standard, Detailed
 
 Required: False
 Position: named
@@ -314,75 +248,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -FirstLine
-The first code line number; default one.
-
-```yaml
-Type: Int32
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -GroupBy
 Groups rows or records by a property or script block.
 
 ```yaml
 Type: Object
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -GroupHeadersAsRows
-Renders group headings as full-width rows.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Highlight
-Line numbers or ranges to highlight.
-
-```yaml
-Type: String[]
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Include
-Object members to include.
-
-```yaml
-Type: String[]
 Parameter Sets: Objects, Path, Content
 Aliases: None
 Possible values:
@@ -407,54 +277,6 @@ Required: False
 Position: 0
 Default value: None
 Accept pipeline input: True (ByValue)
-Accept wildcard characters: False
-```
-
-### -KeepAllColumns
-Renders consecutive grids when all columns cannot fit.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Label
-The chart label property or expression; default Name.
-
-```yaml
-Type: Object
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -LabelProperty
-The hierarchy label property.
-
-```yaml
-Type: String
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
@@ -490,54 +312,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -LineRole
-Theme role for a rule line; default Border.
-
-```yaml
-Type: ThemeToken
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values: Text, Muted, Subtle, Accent, Accent2, Pass, Fail, Warn, Info, Skip, Running, Pending, Border, Title, Header, Highlight, Surface, SurfaceAccent, Series1, Series2, Series3, Series4, Series5, Series6, Focus, Strong, Low, Critical, Gap
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -LineStyle
-Optional rule line glyph style.
-
-```yaml
-Type: BoxStyle
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values: Rounded, Single, Double, Heavy, Ascii, None
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -MaxFrames
-Maximum application frames per error; default eight.
-
-```yaml
-Type: Int32
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -MaxInner
 Maximum inner errors; default four.
 
@@ -556,22 +330,6 @@ Accept wildcard characters: False
 
 ### -MaxItems
 Maximum inspected items per collection; default 100.
-
-```yaml
-Type: Int32
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -MaxLines
-Maximum displayed code lines; default 2000.
 
 ```yaml
 Type: Int32
@@ -618,40 +376,8 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -NoHeader
-Suppresses the default-on header row.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -NoHeaderSeparator
 Underlines headers rather than drawing a separator.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -NoHiddenColumns
-Suppresses the default-on hidden-column footer.
 
 ```yaml
 Type: SwitchParameter
@@ -698,70 +424,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -NoSource
-Suppresses default-on source excerpts in error views.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -NoStableWidths
-Allows column widths to shrink between renders.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -NoStack
-Hides error stack frames.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -NoTitle
-Hides a code file title.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -PassThru
 Returns the original input after display.
 
@@ -794,22 +456,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Presentation
-Typed culture, clock and time-zone configuration for values.
-
-```yaml
-Type: PresentationOptions
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -Property
 Property names, patterns or calculated column records.
 
@@ -826,56 +472,8 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -RecordViewRows
-Uses labelled records at or below this row count; zero disables.
-
-```yaml
-Type: Int32
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -RowTitles
-Optional per-row titles for record and card views.
-
-```yaml
-Type: String[]
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -ShowEmpty
 Keeps empty fields in record views.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -ShowFrameworkFrames
-Shows framework stack frames in error views.
 
 ```yaml
 Type: SwitchParameter
@@ -906,38 +504,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ShowKeyField
-Repeats the full key in record and card layouts.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -ShowSubtotals
-Shows group subtotals.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -ShowTotals
 Shows a totals row for numeric columns.
 
@@ -946,22 +512,6 @@ Type: SwitchParameter
 Parameter Sets: Objects, Path, Content
 Aliases: None
 Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Sort
-Chart ordering.
-
-```yaml
-Type: PipelineChartSort
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values: None, Ascending, Descending
 
 Required: False
 Position: named
@@ -1002,94 +552,14 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -TitleIndent
-Optional title indentation in cells.
-
-```yaml
-Type: Int32
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -TotalLabel
-Text for the totals row.
-
-```yaml
-Type: String
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -TotalRowCount
-Total count when the input contains a subset.
-
-```yaml
-Type: Int32
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Type
-Numeric chart representation: Bar, Histogram or Sparkline. Line, Stacked and Scatter charts take series; build them with New-ConsoleChart.
-
-```yaml
-Type: ChartType
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values: Bar, Histogram, Sparkline
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Unit
-The chart numeric unit.
-
-```yaml
-Type: String
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -View
-Auto, Table, List, Tree, Chart, Code, Json, Error, Markdown or Rule.
+Auto, Table, List, Tree, Code, Json, Error or Markdown. Tree inspects object members; New-ConsoleTree builds node hierarchies.
 
 ```yaml
 Type: String
 Parameter Sets: Objects, Path, Content
 Aliases: None
-Possible values: Auto, Table, List, Tree, Chart, Code, Json, Error, Markdown, Rule
+Possible values: Auto, Table, List, Tree, Code, Json, Error, Markdown
 
 Required: False
 Position: named
@@ -1119,38 +589,6 @@ Wraps long table values or code lines.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -WrapHeaders
-Wraps column headings.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -WrapLines
-Maximum wrapped lines per value; zero has no limit.
-
-```yaml
-Type: Int32
 Parameter Sets: Objects, Path, Content
 Aliases: None
 Possible values:

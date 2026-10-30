@@ -1,4 +1,4 @@
 ﻿Import-Module ConsoleMonster
 
-Show-Console -Title '[bold]Replication[/]' -View Rule
-Show-Console -View Rule
+New-ConsoleRule -Title '[bold]Replication[/]'  | Show-Console
+New-ConsoleRule | Show-Console

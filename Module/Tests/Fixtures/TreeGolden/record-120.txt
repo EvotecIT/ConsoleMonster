@@ -1,5 +1,4 @@
 worker-01
-|-- Name  worker-01
-|-- Status  [OK] Running
-|-- Ready  yes
-`-- +1 empty
+├── Status  ✓ Running
+├── Ready   ✓ yes
+└── +1 empty

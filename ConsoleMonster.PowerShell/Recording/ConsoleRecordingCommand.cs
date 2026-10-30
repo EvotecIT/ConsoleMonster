@@ -20,8 +20,6 @@ namespace ConsoleMonster.PowerShell {
         }
         /// <summary><para type="description">Local asciicast v2 output; omitted names are timestamped.</para></summary>
         [Parameter(ParameterSetName = "Script")] public string? RecordingPath { get; set; }
-        /// <summary><para type="description">Folder for automatic cast names.</para></summary>
-        [Parameter] public string? Folder { get; set; }
         /// <summary><para type="description">Recording title.</para></summary>
         [Parameter] public string Title { get; set; } = "Console session";
         /// <summary><para type="description">Shell executable. The default is the current PowerShell executable.</para></summary>
@@ -51,7 +49,6 @@ namespace ConsoleMonster.PowerShell {
                 Width = Width, Height = Height, MaxBytes = MaxBytes, IdleLimit = TimeSpan.FromSeconds(IdleLimitSeconds),
                 WorkingDirectory = SessionState.Path.CurrentFileSystemLocation.Path, InProcess = InProcess.IsPresent, Timeout = TimeSpan.FromSeconds(TimeoutSeconds)
             };
-            if (Folder != null) { options.Folder = SessionState.Path.GetUnresolvedProviderPathFromPSPath(Folder); }
             foreach (string pattern in Redact) { options.Redact.Add(pattern); }
             return options;
         }
