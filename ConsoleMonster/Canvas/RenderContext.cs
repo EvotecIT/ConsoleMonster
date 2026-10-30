@@ -79,7 +79,10 @@ namespace ConsoleMonster.Canvas {
         /// <returns>The style.</returns>
         public Style Series(int index) => _tokenStyles[(int)ThemeToken.Series1 + (Math.Abs(index) % 6)];
 
-        /// <summary>Parses markup with this context's theme and colour depth (cached).</summary>
+        /// <summary>
+        /// Parses markup with this context's theme and colour depth (cached). The text stays as written on every glyph tier:
+        /// only ConsoleMonster's own markers, borders and spinners follow the tier.
+        /// </summary>
         /// <param name="markup">The markup.</param>
         /// <returns>The styled text.</returns>
         public StyledText Markup(string markup) {
@@ -87,7 +90,7 @@ namespace ConsoleMonster.Canvas {
                 return StyledText.FromPlain(string.Empty);
             }
             if (!_markupCache.TryGetValue(markup, out StyledText? text)) {
-                text = global::ConsoleMonster.Glyphs.SymbolFallback.Apply(Text.Markup.Parse(markup, Theme, Depth), Glyphs.Tier, Profile.WidthProfile);
+                text = Text.Markup.Parse(markup, Theme, Depth);
                 if (_markupCache.Count < 4096) {
                     _markupCache[markup] = text;
                 }

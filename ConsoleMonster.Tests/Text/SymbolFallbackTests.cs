@@ -43,7 +43,7 @@ namespace ConsoleMonster.Tests.Text {
         [InlineData(GlyphTier.Full)]
         [InlineData(GlyphTier.Basic)]
         [InlineData(GlyphTier.Ascii)]
-        public void Table_WithEmoji_KeepsItsWidthsPerTier(GlyphTier tier) {
+        public void Table_WithEmoji_KeepsCellTextAndWidthsPerTier(GlyphTier tier) {
             Table table = new Table().AddColumn("Check").AddColumn("Result");
             table.AddValues("✅ backup", "ok");
             table.AddValues("⚠️ disk", "80% full");
@@ -60,7 +60,6 @@ namespace ConsoleMonster.Tests.Text {
             try {
                 Markup.Shortcodes = true;
                 Assert.Equal("🚀 go :nope: 10:30", Markup.Parse(":rocket: go :nope: 10:30").Lines[0].PlainText);
-                Assert.Equal("» go", TestTerminal.RenderText(new TextBlock(":rocket: go"), 20, glyphs: GlyphTier.Basic).TrimEnd());
             } finally {
                 Markup.Shortcodes = false;
             }
