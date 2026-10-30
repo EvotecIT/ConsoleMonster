@@ -130,7 +130,7 @@ Describe 'ConsoleMonster pipeline charts' {
         $text[0].Contains([char]27) | Should -BeFalse
         $path = Join-Path $TestDrive 'chart.txt'
         $chart | Export-ConsoleFrame -Format Text -Width 60 -Path $path
-        (Get-Content $path -Raw) | Should -BeExactly $text[0]
+        (Get-Content $path -Raw -Encoding UTF8) | Should -BeExactly $text[0]
     }
 
     It 'rejects ambiguous property selections and invalid histogram edges' {

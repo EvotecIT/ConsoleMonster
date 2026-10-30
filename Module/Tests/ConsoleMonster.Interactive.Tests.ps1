@@ -15,6 +15,8 @@
             $lines = [System.Collections.Generic.List[string]]::new()
             $lines.Add("foreach (`$n in 'NO_COLOR', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_MODE', 'CONSOLEMONSTER_ACCESSIBLE', 'CONSOLEMONSTER_NONINTERACTIVE', 'CI', 'GITHUB_ACTIONS', 'TF_BUILD') { [Environment]::SetEnvironmentVariable(`$n, `$null) }")
             $lines.Add("[System.Threading.Thread]::CurrentThread.CurrentCulture = [System.Globalization.CultureInfo]::GetCultureInfo('en-US')")
+            $lines.Add('[Console]::InputEncoding = [Text.UTF8Encoding]::new($false)')
+            $lines.Add('[Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)')
             $lines.Add("Import-Module '$($script:ModulePath)' -Force")
             $lines.Add($Script)
             $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes(($lines -join "`n")))
@@ -25,9 +27,19 @@
             $info.RedirectStandardInput = $true
             $info.RedirectStandardOutput = $true
             $info.RedirectStandardError = $true
+            $info.StandardOutputEncoding = [Text.UTF8Encoding]::new($false)
+            $info.StandardErrorEncoding = [Text.UTF8Encoding]::new($false)
             $info.UseShellExecute = $false
             $info.CreateNoWindow = $true
-            $process = [System.Diagnostics.Process]::Start($info)
+            # .NET Framework derives the stdin writer from Console.InputEncoding. A BOM-bearing UTF8 encoding would
+            # prepend U+FEFF to the first answer; isolate it from the calling test host's encoding state.
+            $inputEncoding = [Console]::InputEncoding
+            try {
+                [Console]::InputEncoding = [Text.UTF8Encoding]::new($false)
+                $process = [System.Diagnostics.Process]::Start($info)
+            } finally {
+                [Console]::InputEncoding = $inputEncoding
+            }
             if ($InputText) { $process.StandardInput.Write($InputText) }
             $process.StandardInput.Close()
             $stdout = $process.StandardOutput.ReadToEndAsync()
