@@ -1,3 +1,9 @@
+function Get-ConsoleApiFluentTypeName([string] $typeName) {
+    $namespace = $typeName.Substring(0, $typeName.LastIndexOf('.'))
+    $name = $namespace.Substring($namespace.LastIndexOf('.') + 1)
+    return "$namespace.$($name)Fluent"
+}
+
 Describe 'PowerShell and C# API parity' {
     BeforeAll {
         Import-Module (Join-Path $PSScriptRoot '../ConsoleMonster.psd1') -Force
@@ -77,7 +83,7 @@ Describe 'PowerShell and C# API parity' {
                 $type = $script:ApiTypes[$binding.CSharpType]
                 $type | Should -Not -BeNullOrEmpty -Because $label
                 if ($binding.FluentMember) {
-                    $fluent = $script:ApiTypes[$binding.CSharpType + 'Fluent']
+                    $fluent = $script:ApiTypes[(Get-ConsoleApiFluentTypeName $binding.CSharpType)]
                     $fluent | Should -Not -BeNullOrEmpty -Because "$label needs a real fluent collection operation"
                     @($fluent.GetMethods() | Where-Object {
                         $_.Name -eq $binding.FluentMember -and $_.GetParameters()[0].ParameterType -eq $type
@@ -90,10 +96,10 @@ Describe 'PowerShell and C# API parity' {
                     ($null -ne $member.GetSetMethod($false)) | Should -Be $binding.Writable -Because $label
                     $member.GetMethod.IsStatic | Should -Be $binding.Static -Because $label
                     if ($binding.ParameterType -eq 'System.Management.Automation.SwitchParameter' -and $binding.CSharpTypeName -eq $script:Parity.FluentGrammar.Boolean.PropertyType -and $binding.Writable -and -not $binding.Static) {
-                        $fluent = $script:ApiTypes[$binding.CSharpType + 'Fluent']
+                        $fluent = $script:ApiTypes[(Get-ConsoleApiFluentTypeName $binding.CSharpType)]
                         $fluent | Should -Not -BeNullOrEmpty -Because "$label needs both Boolean fluent overloads"
                         $methodName = if ($binding.Member -cmatch '^Is[A-Z]') { $binding.Member.Substring(2) } else { $binding.Member }
-                        $overloads = @($fluent.GetMethods() | Where-Object Name -EQ $methodName)
+                        $overloads = @($fluent.GetMethods() | Where-Object { $_.Name -eq $methodName -and $_.GetParameters()[0].ParameterType -eq $type })
                         @($overloads | Where-Object { $_.GetParameters().Count -eq 1 }).Count | Should -BeGreaterThan 0 -Because "$label maps to a parameterless fluent switch"
                         @($overloads | Where-Object { $_.GetParameters().Count -eq 2 -and $_.GetParameters()[1].ParameterType -eq [bool] }).Count | Should -BeGreaterThan 0 -Because "$label also accepts an explicit false"
                     }
@@ -231,7 +237,7 @@ Describe 'PowerShell and C# API parity' {
         $rules[0].Reason | Should -Not -BeNullOrEmpty
         foreach ($name in 'ConsoleMonster.Interactive.MenuItem', 'ConsoleMonster.Interactive.SelectQuestionOptions') {
             $type = $script:ApiTypes[$name]
-            $methods = @($script:ApiTypes[($name + 'Fluent')].GetMethods())
+            $methods = @($script:ApiTypes[(Get-ConsoleApiFluentTypeName $name)].GetMethods() | Where-Object { $_.GetParameters()[0].ParameterType -eq $type })
             @($methods | Where-Object Name -EQ Configure).Count | Should -Be 1
             foreach ($property in $type.GetProperties()) {
                 if ($null -ne $property.GetSetMethod($false) -and [Delegate].IsAssignableFrom($property.PropertyType)) {

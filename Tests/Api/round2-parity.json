@@ -29233,56 +29233,56 @@
         {
           "Command": "New-ConsolePanel",
           "CSharpType": "ConsoleMonster.Layout.Panel",
-          "FluentType": "ConsoleMonster.Layout.PanelFluent",
+          "FluentType": "ConsoleMonster.Layout.LayoutFluent",
           "Member": "Content",
           "InitializerPattern": "Content = widget"
         },
         {
           "Command": "New-ConsoleRows",
           "CSharpType": "ConsoleMonster.Layout.Rows",
-          "FluentType": "ConsoleMonster.Layout.RowsFluent",
+          "FluentType": "ConsoleMonster.Layout.LayoutFluent",
           "Member": "Content",
           "InitializerPattern": "new Rows(widgets)"
         },
         {
           "Command": "New-ConsoleColumns",
           "CSharpType": "ConsoleMonster.Layout.Columns",
-          "FluentType": "ConsoleMonster.Layout.ColumnsFluent",
+          "FluentType": "ConsoleMonster.Layout.LayoutFluent",
           "Member": "Content",
           "InitializerPattern": "new Columns(widgets)"
         },
         {
           "Command": "New-ConsoleStack",
           "CSharpType": "ConsoleMonster.Layout.Stack",
-          "FluentType": "ConsoleMonster.Layout.StackFluent",
+          "FluentType": "ConsoleMonster.Layout.LayoutFluent",
           "Member": "Content",
           "InitializerPattern": "new Stack(widgets)"
         },
         {
           "Command": "New-ConsoleLayoutGrid",
           "CSharpType": "ConsoleMonster.Layout.Grid",
-          "FluentType": "ConsoleMonster.Layout.GridFluent",
+          "FluentType": "ConsoleMonster.Layout.LayoutFluent",
           "Member": "Content",
           "InitializerPattern": "new Grid(columns, widgets)"
         },
         {
           "Command": "New-ConsolePadding",
           "CSharpType": "ConsoleMonster.Layout.Padding",
-          "FluentType": "ConsoleMonster.Layout.PaddingFluent",
+          "FluentType": "ConsoleMonster.Layout.LayoutFluent",
           "Member": "Content",
           "InitializerPattern": "Content = widget"
         },
         {
           "Command": "New-ConsoleAlign",
           "CSharpType": "ConsoleMonster.Layout.Align",
-          "FluentType": "ConsoleMonster.Layout.AlignFluent",
+          "FluentType": "ConsoleMonster.Layout.LayoutFluent",
           "Member": "Content",
           "InitializerPattern": "Content = widget"
         },
         {
           "Command": "New-ConsoleScrollView",
           "CSharpType": "ConsoleMonster.Widgets.ScrollView",
-          "FluentType": "ConsoleMonster.Widgets.ScrollViewFluent",
+          "FluentType": "ConsoleMonster.Widgets.WidgetsFluent",
           "Member": "Content",
           "InitializerPattern": "Content = widget"
         }

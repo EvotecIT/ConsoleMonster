@@ -115,7 +115,8 @@ namespace SiteFrames.Pages {
                 JsonObject binding = contentNode!.AsObject();
                 string methodId = "M:" + binding["FluentType"]!.GetValue<string>() + ".Content";
                 string command = binding["Command"]!.GetValue<string>();
-                if (!used.Contains(methodId) || commands != null && !commands.Contains(command + " -Content")) { continue; }
+                string receiverId = methodId + ":" + binding["CSharpType"]!.GetValue<string>();
+                if (!used.Contains(receiverId) || commands != null && !commands.Contains(command + " -Content")) { continue; }
                 contentCommands.Add(command);
                 result.Add(new JsonObject {
                     ["powershell"] = command + " " + contentRule["PowerShellPattern"]!.GetValue<string>(),
