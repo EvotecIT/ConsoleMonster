@@ -52,6 +52,55 @@ text has no dither speckles; gradients can show gentle bands. Unchanged screens
 share a delay, and changed regions use GIF sub-frames with retained disposal.
 APNG remains available for full-colour playback in applications that support it.
 
+## Topology diagrams and use case playback
+
+`TopologyDiagram` draws a ChartForgeX topology in the terminal: boxes, routed
+edges, dashed group boundaries and a status legend. ChartForgeX lays the diagram
+out and projects it into cells (`TopologyCellLayout`); the widget only styles and
+draws those cells, so the terminal shows the same diagram as the SVG and PNG
+exports. A diagram wider than the terminal drops subtitles, then shortens labels,
+then drops edge labels until it fits.
+
+When the topology has use cases (ChartForgeX scenarios, for example from a
+`chartforgex architecture v1` file), the widget shows a player under the diagram:
+the steps, the active step highlighted on the diagram, and its request or
+response payload.
+
+```csharp
+using ConsoleMonster.Graphics;
+
+var diagram = new TopologyDiagram(chart);   // a ChartForgeX TopologyChart
+diagram.Run();
+```
+
+Keys: `p` or Space play and pause, `n` or Right next step, `b` or Left previous
+step, `r` or Home restart, `e` or End last step, `x` clear the step, `s` or Tab
+next use case (Shift+Tab previous), Up and Down focus a node, `d` show or hide its
+details, Esc quit.
+
+For dashboards, keep the diagram in a live session and update node values and
+statuses from any thread:
+
+```csharp
+using ChartForgeX.Topology;
+using ConsoleMonster.Graphics;
+using ConsoleMonster.Live;
+
+var diagram = new TopologyDiagram(chart).SelectScenario(null);
+using var session = new LiveSession(diagram, new LiveSessionOptions());
+session.Start();
+var nodes = diagram.Handle(session);
+nodes.Value("dc03", "lag 42 min", TopologyHealthStatus.Critical);
+```
+
+Nodes keep room for values of up to eight cells, so typical values do not move
+the layout; a longer value lays the diagram out again once.
+
+Full, Basic and ASCII glyph tiers are covered: Basic swaps rounded corners,
+dashes and heavy lines for their WGL4 equivalents. `diagram.ToPng()` renders the
+diagram with the active step through ChartForgeX, for terminals that can show
+images; live values and focus stay in the cell drawing.
+
 JetBrains Mono is embedded under the SIL Open Font License; see
 `licenses/JetBrainsMono-OFL.txt`. Installed font and emoji/CJK fallbacks depend
 on the host. Use the embedded default and fixed inputs for repeatable slides.
