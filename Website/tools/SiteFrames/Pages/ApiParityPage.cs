@@ -45,8 +45,8 @@ namespace SiteFrames.Pages {
                 foreach (JsonNode? node in command["SetBindings"]?.AsArray() ?? new JsonArray()) {
                     JsonObject row = node!.AsObject();
                     body.AppendLine("| `" + Cell(command["Command"]!.GetValue<string>() + " -" + row["Parameter"]!.GetValue<string>()) + "` | "
-                        + Cell(row["ParameterSet"]!.GetValue<string>()) + " | `" + Cell(row["CSharpType"]!.GetValue<string>() + "." + row["Member"]!.GetValue<string>())
-                        + "` | " + Cell(row["Reason"]?.GetValue<string>() ?? row["Conversion"]!.GetValue<string>()) + " |");
+                        + Cell(row["ParameterSet"]!.GetValue<string>()) + " | " + Code(row["CSharpType"]!.GetValue<string>() + "." + row["Member"]!.GetValue<string>())
+                        + " | " + Cell(row["Reason"]?.GetValue<string>() ?? row["Conversion"]!.GetValue<string>()) + " |");
                 }
             }
             body.AppendLine("## Individual member decisions\n");
@@ -54,7 +54,7 @@ namespace SiteFrames.Pages {
             body.AppendLine("| C# member | Disposition and reason | PowerShell route or alternative |\n| --- | --- | --- |");
             foreach (JsonNode? node in map["CSharpOnly"]!.AsArray()) {
                 JsonObject row = node!.AsObject();
-                body.AppendLine("| `" + Cell(row["CSharpType"]!.GetValue<string>() + "." + row["Member"]!.GetValue<string>()) + "` | "
+                body.AppendLine("| " + Code(row["CSharpType"]!.GetValue<string>() + "." + row["Member"]!.GetValue<string>()) + " | "
                     + Cell(row["Disposition"]!.GetValue<string>() + ": " + row["Reason"]!.GetValue<string>()) + " | " + Cell(row["Alternative"]!.GetValue<string>()) + " |");
             }
             body.AppendLine("\n## .NET host integrations\n");
@@ -63,7 +63,7 @@ namespace SiteFrames.Pages {
             foreach (JsonNode? node in map["IntegrationOptions"]!.AsArray()) {
                 JsonObject integration = node!.AsObject();
                 foreach (JsonNode? member in integration["Members"]!.AsArray()) {
-                    body.AppendLine("| `" + Cell(integration["CSharpType"]!.GetValue<string>() + "." + member!.GetValue<string>()) + "` (" + Cell(integration["Package"]!.GetValue<string>()) + ") | `dotnet run`: " + Cell(integration["Reason"]!.GetValue<string>()) + " |");
+                    body.AppendLine("| " + Code(integration["CSharpType"]!.GetValue<string>() + "." + member!.GetValue<string>()) + " (" + Cell(integration["Package"]!.GetValue<string>()) + ") | `dotnet run`: " + Cell(integration["Reason"]!.GetValue<string>()) + " |");
                 }
             }
             string markdown = body.ToString().Replace("\r\n", "\n", StringComparison.Ordinal);
@@ -111,13 +111,27 @@ namespace SiteFrames.Pages {
         }
 
         private static string Inline(string text) {
-            string[] parts = text.Split('`');
             var html = new StringBuilder();
-            for (int i = 0; i < parts.Length; i++) {
-                string escaped = parts[i].Replace("&", "&amp;", StringComparison.Ordinal).Replace("<", "&lt;", StringComparison.Ordinal).Replace(">", "&gt;", StringComparison.Ordinal);
-                html.Append(i % 2 == 1 ? "<code>" + escaped + "</code>" : escaped);
+            int start = 0;
+            while (start < text.Length) {
+                int open = text.IndexOf('`', start);
+                if (open < 0) { html.Append(EscapeHtml(text.Substring(start))); break; }
+                int length = 1;
+                while (open + length < text.Length && text[open + length] == '`') length++;
+                int close = text.IndexOf(new string('`', length), open + length, StringComparison.Ordinal);
+                if (close < 0) { html.Append(EscapeHtml(text.Substring(start))); break; }
+                html.Append(EscapeHtml(text.Substring(start, open - start)));
+                html.Append("<code>").Append(EscapeHtml(text.Substring(open + length, close - open - length))).Append("</code>");
+                start = close + length;
             }
             return html.ToString();
+        }
+
+        private static string EscapeHtml(string value) => value.Replace("&", "&amp;", StringComparison.Ordinal).Replace("<", "&lt;", StringComparison.Ordinal).Replace(">", "&gt;", StringComparison.Ordinal);
+
+        private static string Code(string value) {
+            string fence = value.Contains('`') ? "``" : "`";
+            return fence + Cell(value) + fence;
         }
 
         private static string Cell(string value) => value.Replace("|", "\\|", StringComparison.Ordinal).Replace("\n", " ", StringComparison.Ordinal);

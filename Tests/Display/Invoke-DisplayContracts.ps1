@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)] [string] $AssemblyDirectory,
     [Parameter(Mandatory = $true)] [string] $ResultsPath
@@ -241,7 +241,7 @@ $absent=$null -eq [ConsoleMonster.PowerShell.Display.DefaultDisplay]::Resolve([D
     Test-DisplayContract 'SchemaV2_ExecutableNestedDataUnknownKeysAndExcessBudgets_Rejected' {
         Assert-Throws { [ConsoleMonster.PowerShell.Display.ConsoleViewDocument]::Parse(@{SchemaVersion=2;Views=@(@{TypeName='DisplayContract.Row';Tones=@(@{Property='Status';Fail=@{hidden={throw 'executed'}}})})}) }
         Assert-Throws { [ConsoleMonster.PowerShell.Display.ConsoleViewDocument]::Parse(@{SchemaVersion=2;Views=@(@{TypeName='DisplayContract.Row';Unknown='x'})}) }
-        Assert-Throws { [ConsoleMonster.PowerShell.Display.ConsoleViewDocument]::Parse(@{SchemaVersion=2;Views=@(@{TypeName='DisplayContract.Row';Budget=@{Records=2001}})}) }
+        Assert-Throws { [ConsoleMonster.PowerShell.Display.ConsoleViewDocument]::Parse(@{SchemaVersion=2;Views=@(@{TypeName='DisplayContract.Row';Budget=@{Records=50001}})}) }
         Assert-Throws { [ConsoleMonster.PowerShell.Display.ConsoleViewDocument]::Parse(@{SchemaVersion=2;Views=@(@{TypeName='DisplayContract.Row';Title='{Name.ToString()}'})}) }
     }
     Test-DisplayContract 'SchemaV2_CustomValueType_NeverInvokesApplicationFormattingInAnyPresentation' {
@@ -301,7 +301,7 @@ $absent=$null -eq [ConsoleMonster.PowerShell.Display.DefaultDisplay]::Resolve([D
             )) { Assert-Throws { [ConsoleMonster.PowerShell.Display.ConsoleViewDocument]::ParseText($source) } }
             Assert-Display ($global:DisplayParserExecution -eq 0) 'Document parsing executed input code.'
             Assert-Throws { [ConsoleMonster.PowerShell.Display.ConsoleViewDocument]::ParseText('@{ SchemaVersion=2; Views=@(@{ TypeName="DisplayContract.Row"; Unknown=1 }) }') }
-            Assert-Throws { [ConsoleMonster.PowerShell.Display.ConsoleViewDocument]::ParseText('@{ SchemaVersion=2; Views=@(@{ TypeName="DisplayContract.Row"; Budget=@{ Records=2001 } }) }') }
+            Assert-Throws { [ConsoleMonster.PowerShell.Display.ConsoleViewDocument]::ParseText('@{ SchemaVersion=2; Views=@(@{ TypeName="DisplayContract.Row"; Budget=@{ Records=50001 } }) }') }
         } finally { Remove-Variable DisplayParserExecution -Scope Global }
     }
     Test-DisplayContract 'Registration_CompiledBuilderAndScopeSelector_UsesOriginalReference' {
@@ -354,6 +354,32 @@ $absent=$null -eq [ConsoleMonster.PowerShell.Display.DefaultDisplay]::Resolve([D
         $widget=$views[0].Build($items,$context)
         Assert-Display ($widget -is [ConsoleMonster.Widgets.Table] -and $widget.Rows.Count -eq 1 -and $widget.Caption -match 'top-level rows') 'The tree budget returned a partial tree or lost its complete top-level fallback.'
         $lease.Dispose()
+    }
+    Test-DisplayContract 'Budget_SummaryFrames_AcceptTheRecordCeilingOnly' {
+        $budget = [ConsoleMonster.PowerShell.Display.DefaultDisplayBudget]::new(50000)
+        Assert-Display ($budget.Records -eq 50000 -and $budget.Bytes -eq 16MB) 'A summary-frame budget at the record ceiling was not kept.'
+        Assert-Throws { [ConsoleMonster.PowerShell.Display.DefaultDisplayBudget]::new(50001) }
+        Assert-Throws { [ConsoleMonster.PowerShell.Display.DefaultDisplayBudget]::new(1000, 16MB + 1) }
+    }
+    Test-DisplayContract 'Frame_ViewLength_FollowsEnvironmentDefault' {
+        $wide = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed(220, 60)
+        $content = [Func[ConsoleMonster.Frames.FrameSectionContext, ConsoleMonster.Layout.IWidget]] { param($section) [ConsoleMonster.Widgets.TextBlock]::Plain('detail rows') }
+        $frame = [ConsoleMonster.Frames.DashboardFrame]::new('Contract frame')
+        $detail = [ConsoleMonster.Frames.FrameSection]::new('Every row', $content)
+        $detail.Placement = [ConsoleMonster.Frames.FramePlacement]::Detail
+        $frame.Sections.Add($detail)
+        $beforeLength = $env:CONSOLEMONSTER_VIEW_LENGTH
+        try {
+            $env:CONSOLEMONSTER_VIEW_LENGTH = 'Summary'
+            $summary = [ConsoleMonster.PowerShell.Display.DefaultDisplayRenderer]::Prepare($frame, $wide, 1048576)
+            Assert-Display ($summary -match 'Contract frame' -and $summary -notmatch 'detail rows') 'The Summary length still printed detail.'
+            $env:CONSOLEMONSTER_VIEW_LENGTH = 'Full'
+            $full = [ConsoleMonster.PowerShell.Display.DefaultDisplayRenderer]::Prepare($frame, $wide, 1048576)
+            Assert-Display ($full -match 'detail rows') 'The Full length lost detail.'
+            $env:CONSOLEMONSTER_VIEW_LENGTH = 'Endless'
+            $invalid = [ConsoleMonster.PowerShell.Display.DefaultDisplayRenderer]::Prepare($frame, $wide, 1048576)
+            Assert-Display ($invalid -match 'detail rows') 'An invalid length did not fall back to Standard.'
+        } finally { $env:CONSOLEMONSTER_VIEW_LENGTH = $beforeLength }
     }
     Test-DisplayContract 'Renderer_PlainModeAndOutputBudget_NoSgrAndBoundedResult' {
         $widget = [ConsoleMonster.Widgets.TextBlock]::new('[bold][fail]failed[/][/]')

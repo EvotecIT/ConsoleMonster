@@ -52,13 +52,15 @@ public sealed class DefaultDisplayRegistration {
 
 /// <summary>Bounded collection and declarative layout limits.</summary>
 public sealed class DefaultDisplayBudget {
-    /// <summary>Creates positive limits; collection limits cannot exceed the broker ceiling.</summary>
+    /// <summary>Creates positive limits; collection limits cannot exceed the broker ceilings (50,000 records, 16 MB).</summary>
     public DefaultDisplayBudget(int records = 2000, long bytes = 16 * 1024 * 1024, int nodes = 400, int depth = 3, int children = 25) {
-        if (records < 1 || records > 2000 || bytes < 1 || bytes > 16 * 1024 * 1024 || nodes < 1 || nodes > 400 || depth < 0 || depth > 64 || children < 1 || children > 25) {
+        if (records < 1 || records > MaximumRecords || bytes < 1 || bytes > 16 * 1024 * 1024 || nodes < 1 || nodes > 400 || depth < 0 || depth > 64 || children < 1 || children > 25) {
             throw new ArgumentOutOfRangeException(nameof(records), "View budgets must be positive and within the broker ceilings.");
         }
         Records = records; Bytes = bytes; Nodes = nodes; Depth = depth; Children = children;
     }
+    /// <summary>The broker's record ceiling. Summary frames over large estates declare budgets up to it; the byte ceiling still bounds memory.</summary>
+    public const int MaximumRecords = 50000;
     /// <summary>Maximum held records.</summary>
     public int Records { get; }
     /// <summary>Maximum estimated held bytes.</summary>
