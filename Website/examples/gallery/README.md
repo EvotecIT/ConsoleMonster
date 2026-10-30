@@ -13,7 +13,7 @@ Install ConsoleMonster, then browse and run the PowerShell demos:
 Import-Module ConsoleMonster
 Get-ConsoleDemo | Select-Object Slug, Title, Category
 Show-ConsoleDemo fleet
-Export-ConsoleDemo fleet -Path ./fleet.ps1
+(Get-ConsoleDemo fleet).Source | Set-Content -Path ./fleet.ps1 -Encoding UTF8
 ```
 
 Use `Get-ConsoleDemo | Where-Object Tier -eq showcase` to browse the larger
@@ -22,7 +22,7 @@ with presets, scope selection, a review, live check progress, and results.
 `Show-ConsoleDemo fleet-filter` opens the smaller searchable host list.
 
 Edit `fleet.ps1`, then run it from your shell. The copied program has no capture
-parameters. `Show-ConsoleDemo fleet -StaticSnapshot -Step 0` selects a state through
+parameters. `Show-ConsoleDemo fleet -Mode Snapshot -Step 0` selects a state through
 the runner. `steps` in the metadata gives the number of available states, starting
 at zero. Live dashboards finish after a short simulated run; apps exit with Escape.
 

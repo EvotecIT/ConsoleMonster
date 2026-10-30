@@ -60,7 +60,7 @@ The input stretches to the width of the terminal; the table keeps its natural wi
 
 ## Redirected output and CI
 
-An interactive application needs a keyboard. Without an interactive terminal, `Show-ConsoleApp` and `ConsoleApp.Run` report that prompting is unavailable, unless the caller asks for a static snapshot. Pass `-Mode Snapshot` to `Show-ConsoleApp` to print the first screen once and exit. In C#, pass `new ConsoleAppOptions { StaticSnapshot = true }` as the `options` argument of `ConsoleApp.Run`. A snapshot draws the layout once; it does not read a query.
+An interactive application needs a keyboard. Without an interactive terminal, `Show-ConsoleApp` and `ConsoleApp.Run` report that prompting is unavailable, unless the caller asks for a static snapshot. Pass `-Mode Snapshot` to `Show-ConsoleApp` to print the first screen once and exit. In C#, pass `new ConsoleAppOptions { Interactive = new InteractiveOptions { Mode = InteractionMode.Snapshot } }` as the `options` argument of `ConsoleApp.Run`. A snapshot draws the layout once; it does not read a query.
 
 ## Related
 

@@ -22112,7 +22112,7 @@
       "Member": "Branch",
       "CSharpTypeName": "System.String",
       "Reason": "PowerShell supplies its cached Git branch; a C# shell host supplies its own repository state.",
-      "Alternative": "Enable-ConsoleFormatting -Feature Prompt obtains this data from the owning PowerShell session.",
+      "Alternative": "Enable-ConsoleFormatting -Include Prompt obtains this data from the owning PowerShell session.",
       "Disposition": "RuntimeOwned"
     },
     {
@@ -22120,7 +22120,7 @@
       "Member": "Dirty",
       "CSharpTypeName": "System.Boolean",
       "Reason": "PowerShell supplies its cached Git worktree state; a C# shell host supplies its own state.",
-      "Alternative": "Enable-ConsoleFormatting -Feature Prompt obtains this data from the owning PowerShell session.",
+      "Alternative": "Enable-ConsoleFormatting -Include Prompt obtains this data from the owning PowerShell session.",
       "Disposition": "RuntimeOwned"
     },
     {
@@ -22128,7 +22128,7 @@
       "Member": "Duration",
       "CSharpTypeName": "System.TimeSpan",
       "Reason": "PowerShell supplies the completed command duration; a C# shell host supplies its own clock result.",
-      "Alternative": "Enable-ConsoleFormatting -Feature Prompt obtains this data from the owning PowerShell session.",
+      "Alternative": "Enable-ConsoleFormatting -Include Prompt obtains this data from the owning PowerShell session.",
       "Disposition": "RuntimeOwned"
     },
     {
@@ -22136,7 +22136,7 @@
       "Member": "Home",
       "CSharpTypeName": "System.String",
       "Reason": "PowerShell supplies its user home; a C# shell host supplies its own home for path shortening.",
-      "Alternative": "Enable-ConsoleFormatting -Feature Prompt obtains this data from the owning PowerShell session.",
+      "Alternative": "Enable-ConsoleFormatting -Include Prompt obtains this data from the owning PowerShell session.",
       "Disposition": "RuntimeOwned"
     },
     {
@@ -22144,7 +22144,7 @@
       "Member": "Path",
       "CSharpTypeName": "System.String",
       "Reason": "PowerShell supplies its current provider location; a C# shell host supplies its own path.",
-      "Alternative": "Enable-ConsoleFormatting -Feature Prompt obtains this data from the owning PowerShell session.",
+      "Alternative": "Enable-ConsoleFormatting -Include Prompt obtains this data from the owning PowerShell session.",
       "Disposition": "RuntimeOwned"
     },
     {
@@ -22152,7 +22152,7 @@
       "Member": "Succeeded",
       "CSharpTypeName": "System.Boolean",
       "Reason": "PowerShell supplies the last native/pipeline outcome; a C# shell host supplies its own command result.",
-      "Alternative": "Enable-ConsoleFormatting -Feature Prompt obtains this data from the owning PowerShell session.",
+      "Alternative": "Enable-ConsoleFormatting -Include Prompt obtains this data from the owning PowerShell session.",
       "Disposition": "RuntimeOwned"
     },
     {
