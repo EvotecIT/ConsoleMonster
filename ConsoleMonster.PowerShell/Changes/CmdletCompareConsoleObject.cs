@@ -113,7 +113,7 @@ namespace ConsoleMonster.PowerShell {
                 var options = new ChangePreviewOptions { Title = PSText.Markup(Title), Mode = View, Question = Question,
                     TypedConfirmation = TypedConfirmation, TypedWhenDestructive = !NoTypedWhenDestructive.IsPresent,
                     Interactive = PSInteractive.Options(this, null) };
-                WriteObject(ChangePreview.Confirm(changes, options));
+                WriteObject(ChangePreview.Ask(changes, options));
             }
         }
     }

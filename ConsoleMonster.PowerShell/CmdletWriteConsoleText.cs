@@ -120,10 +120,9 @@ namespace ConsoleMonster.PowerShell {
                 TimestampFormat = TimestampFormat,
                 SplitLines = SplitLines,
                 Wrap = Wrap.IsPresent,
-                HorizontalCenter = Alignment == Layout.HorizontalAlignment.Center
+                Alignment = Alignment
             };
             HostOutput.WriteLines(this, (context, width) => {
-                layout.PadLeft = Alignment == Layout.HorizontalAlignment.Right ? width : 0;
                 return layout.Lines(body, context, width);
             }, !NoNewLine.IsPresent, Width);
             if (!string.IsNullOrEmpty(LogFile) && (Text != null || Markup != null)) {

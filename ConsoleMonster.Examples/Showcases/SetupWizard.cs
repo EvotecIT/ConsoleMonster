@@ -158,7 +158,7 @@ namespace ConsoleMonster.Examples.Showcases {
             Dashboard dashboard = Ui.Dashboard().Title("Installing")
                 .Subtitle(Markup.Escape(values.Get<string>("Path")))
                 .Content(body => body
-                    .Panel("Steps", list)
+                    .Panel(new Panel(list, "Steps"))
                     .Add(new Padding(progress, 1, 0, 1, 0)));
             context.Run(dashboard, run => {
                 StatusListHandle handle = list.Handle(run.Session);

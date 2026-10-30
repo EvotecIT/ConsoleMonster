@@ -115,15 +115,18 @@ namespace ConsoleMonster.Widgets {
                 }
                 StyledLine label = FitLabel(context.Markup(node.LabelFor(context)).Lines[0], Math.Max(1, region.Width - x), context);
                 x = region.Write(x, i, label);
-                x += Math.Min(node.LabelPadding, Math.Max(0, region.Width - x));
-                if (node.Value != null) {
-                    StyledLine value = CellRendering.Content(node.Value, node.Presenter, null, presenter).Lines[0];
+                StyledLine? value = node.Value == null ? null : CellRendering.Content(node.Value, node.Presenter, null, presenter).Lines[0];
+                string? note = row.NoteFor(context);
+                // Alignment is optional: values and branch details keep the space they would have without padding.
+                int contentWidth = value == null ? 0 : 2 + Math.Max(4, value.Width);
+                if (!string.IsNullOrEmpty(note)) contentWidth += 2 + Math.Max(4, DisplayWidth.Measure(note!));
+                x += Math.Min(node.LabelPadding, Math.Max(0, region.Width - x - contentWidth));
+                if (value != null) {
                     if (region.Width - x - 2 >= 4) {
                         x = region.Write(x + 2, i, TextWrapper.Truncate(value, region.Width - x - 2, context.Ellipsis));
                     }
                 }
                 int noteSpace = region.Width - x - 2;
-                string? note = row.NoteFor(context);
                 if (!string.IsNullOrEmpty(note) && noteSpace >= 4) {
                     region.Write(x + 2, i, FitNote(StyledLine.From(note!, muted), noteSpace, context));
                 }

@@ -216,7 +216,7 @@ namespace ConsoleMonster.Examples.Showcases
             };
             Dashboard dashboard = Ui.Dashboard().Title("[bold]Server toolbox[/]").Subtitle(servers.Count + " servers · " + tasks.Count + " tasks" + (options.Get<bool>("DryRun") ? " · dry run" : string.Empty))
                 .Content(body => body
-                    .Panel("Servers", lanes).Add(new Padding(overall, 1, 0, 1, 0)).Panel("Log", log, fill: true));
+                    .Panel(new Panel(lanes, "Servers")).Add(new Padding(overall, 1, 0, 1, 0)).Add(new Panel(log, "Log").Fill()));
             int throttle = (int)options.Get<decimal>("Parallel", 4m);
             context.Run(dashboard, run => Work(run, lanes, overall, log, servers, tasks, throttle));
         }

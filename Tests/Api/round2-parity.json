@@ -20459,7 +20459,7 @@
           "Writable": true,
           "Static": false,
           "Nullable": "NotNull",
-          "Reason": "Center enables HorizontalCenter; Right sets PadLeft to the resolved output width; Left keeps ordinary alignment.",
+          "Reason": "Selects completed-line alignment in ConsoleTextLayout.Lines. Center matches HorizontalCenter; Right includes indentation and timestamps rather than padding the unprefixed body; Left keeps ordinary alignment.",
           "Parameter": "Alignment",
           "ParameterType": "ConsoleMonster.Layout.HorizontalAlignment",
           "Default": "Left",

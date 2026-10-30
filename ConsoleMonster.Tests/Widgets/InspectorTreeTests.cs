@@ -10,6 +10,22 @@ using Xunit;
 namespace ConsoleMonster.Tests.Widgets {
     public sealed class InspectorTreeTests {
         [Theory]
+        [InlineData(24)]
+        [InlineData(40)]
+        public void Render_AlignmentLeavesRoomForValuesAndBranchDetails(int width) {
+            var root = new InspectObject(null, "Record", "$", new InspectNode[] {
+                new InspectScalar("A", "String", "$.A", "visible"),
+                new InspectObject("B", "Child", "$.B", Array.Empty<InspectNode>()),
+                new InspectCollection("C", "Array", "$.C", Array.Empty<InspectNode>(), 3, 0, null, 0),
+                new InspectScalar("LongPropertyName", "String", "$.LongPropertyName", "")
+            });
+            string[] rows = TestTerminal.RenderText(InspectorTree.Build(root), width).Split('\n');
+            Assert.Contains(rows, row => row.Contains("A ") && row.EndsWith("visible", StringComparison.Ordinal));
+            Assert.Contains(rows, row => row.Contains("B ") && row.EndsWith("Child", StringComparison.Ordinal));
+            Assert.Contains(rows, row => row.Contains("C ") && row.EndsWith("3 items", StringComparison.Ordinal));
+        }
+
+        [Theory]
         [InlineData(80)]
         [InlineData(120)]
         public void AutomaticIdentity_OmitsOnlyHeaderMembersAndKeepsExplicitTitleMembers(int width) {

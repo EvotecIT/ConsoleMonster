@@ -9,7 +9,7 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     public abstract partial class ConsoleDisplayCmdlet {
         private IWidget BuildTreeView(IReadOnlyList<PSObject> items) {
-            string[]? include = Property?.OfType<string>().ToArray();
+            string[]? include = Property?.Select(PSText.Unwrap).OfType<string>().ToArray();
             var trees = new List<IWidget>();
             var inspected = new List<InspectNode>();
             var titles = new List<string?>();
@@ -22,6 +22,9 @@ namespace ConsoleMonster.PowerShell {
                     Binding.PSObjectMemberSource? source = options.Sources.OfType<Binding.PSObjectMemberSource>().FirstOrDefault();
                     if (source != null) {
                         source.RootColumns = Binding.PropertyBinder.Bind(new[] { item }, Property, shape, this);
+                        foreach (Binding.BoundColumn column in source.RootColumns) {
+                            if (options.Include.Count > 0 && !options.Include.Contains(column.Name)) { options.Include.Add(column.Name); }
+                        }
                         options.Unwrap = value => ReferenceEquals(value, item) ? value : Binding.PSObjectMemberSource.UnwrapPSObject(value);
                     }
                 }
@@ -47,7 +50,7 @@ namespace ConsoleMonster.PowerShell {
                 options.Budget = new ConsoleMonster.Values.ShapeBudget(options.TimeBudget, options.MaxNodes);
                 string? label = PSText.Markup(Title);
                 var identityProperties = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
-                if (label == null && (Exclude == null || Exclude.Length == 0) && (include == null || include.Length == 0 || (include.Length == 1 && include[0] == "*"))) { label = Binding.PSShaping.IdentityTitle(item, shape, options.Budget, identityProperties); }
+                if (label == null && (Exclude == null || Exclude.Length == 0) && (Property == null || (Property.Length == 1 && PSText.Unwrap(Property[0]) is string selector && selector == "*"))) { label = Binding.PSShaping.IdentityTitle(item, shape, options.Budget, identityProperties); }
 #pragma warning disable IL2026
                 InspectNode node = ObjectInspector.Inspect(item, options);
                 if (node is InspectLimit limit && limit.TypeName == "Limit") {
@@ -58,7 +61,7 @@ namespace ConsoleMonster.PowerShell {
                 titles.Add(label);
 #pragma warning restore IL2026
             }
-            bool hideEmpty = include == null || include.Length == 0;
+            bool hideEmpty = Property == null;
             IReadOnlyList<InspectNode> summarized = InspectionSummary.Prepare(inspected, hideEmpty, out IReadOnlyList<string> unavailable);
             for (int index = 0; index < summarized.Count; index++) {
                 Tree tree = InspectorTree.Build(summarized[index], titles[index]);

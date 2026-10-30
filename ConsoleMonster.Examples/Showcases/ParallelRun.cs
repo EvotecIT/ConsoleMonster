@@ -91,13 +91,13 @@ namespace ConsoleMonster.Examples.Showcases {
                 .Content(body => body
                     .Add(new Prioritized(new Padding(phases, 1, 0, 1, 1), 10, 1, 30))
                     .Columns(columns => columns.Content(c => c
-                        .Panel("Targets", new Prioritized(targets, 8, 4, 40), 1.7, ParallelRunRecording.Workers + " workers")
-                        .Panel("Results", new Rows(results, new Rule(), summary), 1)))
+                        .Add((new Panel(new Prioritized(targets, 8, 4, 40), "Targets") { HeaderRight = ParallelRunRecording.Workers + " workers" }).Fill(1.7))
+                        .Add(new Panel(new Rows(results, new Rule(), summary), "Results").Fill(1))))
                     .Columns(columns => columns.Content(c => c
-                        .Panel("Throughput", throughput, 1.2, "rules/s")
-                        .Panel("Rule duration", durations, 1)
-                        .Panel("Failures by category", findings, 1)))
-                    .Panel("Log", new LogRegion { PreferredHeight = 6 }, fill: true));
+                        .Add((new Panel(throughput, "Throughput") { HeaderRight = "rules/s" }).Fill(1.2))
+                        .Add(new Panel(durations, "Rule duration").Fill(1))
+                        .Add(new Panel(findings, "Failures by category").Fill(1))))
+                    .Add(new Panel(new LogRegion { PreferredHeight = 6 }, "Log").Fill()));
             // Below 60 x 20 the dashboard shows one status line plus the phases and the lanes that fit.
             dashboard.MinimumSize = new Size(60, 20);
             dashboard.CompactSummary = () => CompactSummary(results);

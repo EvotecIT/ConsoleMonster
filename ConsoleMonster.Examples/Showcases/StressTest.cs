@@ -76,9 +76,9 @@ namespace ConsoleMonster.Examples.Showcases {
                 .Subtitle(Workers + " workers · random Console.WriteLine · " + seconds + "s")
                 .Content(body => body
                     .Columns(columns => columns.Content(c => c
-                        .Panel("Workers", workers, 1.6)
-                        .Panel("Session", session, 1)))
-                    .Panel("Captured output", output, fill: true));
+                        .Add(new Panel(workers, "Workers").Fill(1.6))
+                        .Add(new Panel(session, "Session").Fill(1))))
+                    .Add(new Panel(output, "Captured output").Fill()));
 
         }
 

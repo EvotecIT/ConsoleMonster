@@ -80,9 +80,9 @@ namespace ConsoleMonster.Examples.Showcases {
                 .Content(body => body
                     .Add(new Padding(phases, 1, 0, 1, 1))
                     .Columns(columns => columns.Content(c => c
-                        .Panel("Steps", steps, 1.5)
-                        .Panel("Module", new Rows(module, new Rule(), progress), 1)))
-                    .Panel("Output", new LogRegion { PreferredHeight = 8 }, fill: true));
+                        .Add(new Panel(steps, "Steps").Fill(1.5))
+                        .Add(new Panel(new Rows(module, new Rule(), progress), "Module").Fill(1))))
+                    .Add(new Panel(new LogRegion { PreferredHeight = 8 }, "Output").Fill()));
 
             Table summary = new Table { Border = TableBorder.Minimal, Title = "[bold]Build summary[/] [muted]ConsoleMonster 2.0.0[/]" };
             summary.AddColumn("Phase");

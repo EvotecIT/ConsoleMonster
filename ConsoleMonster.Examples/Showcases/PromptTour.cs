@@ -71,7 +71,7 @@ namespace ConsoleMonster.Examples.Showcases {
             LogRegion log = new LogRegion { PreferredHeight = 6 };
             Dashboard dashboard = Ui.Dashboard().Title("[bold]Patching[/]").Subtitle("5 servers")
                 .Content(body => body
-                    .Panel("Servers", lanes).Panel("Log", log, fill: true));
+                    .Panel(new Panel(lanes, "Servers")).Add(new Panel(log, "Log").Fill()));
             using (LiveSession session = new LiveSession(dashboard, new LiveSessionOptions { PrintFinalState = true })) {
                 session.Run(s => {
                     LanesHandle handle = lanes.Handle(s);

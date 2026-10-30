@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,7 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates retained tabs with keyboard and pointer navigation.</para>
-    /// <para type="description">Content emits records with Title and Content, or an ordered dictionary mapping page titles to widgets or script blocks. Only the selected page receives input; switching pages retains its values and focus.</para>
+    /// <para type="description">Content emits records with Title and Content, or an ordered dictionary mapping page titles to widgets or script blocks. A dictionary containing both Title and Content is a page record, including when Content is null. Only the selected page receives input; switching pages retains its values and focus.</para>
     /// </summary>
     /// <example><para>Compose two retained pages.</para><code>Show-ConsoleApp -Mode Snapshot -Content {
     ///     New-ConsoleTabs -Content ([ordered]@{
@@ -46,9 +47,12 @@ namespace ConsoleMonster.PowerShell {
 
         private void Add(object item) {
             if (PSText.Unwrap(item) is LayoutRegion page) { _pages.Add(page); return; }
-            if (PSText.Unwrap(item) is IDictionary dictionary && PSItems.Field(item, "Content") == null) {
-                foreach (DictionaryEntry entry in dictionary) { AddPage(PSWidgets.ToText(entry.Key), entry.Value); }
-                return;
+            if (PSText.Unwrap(item) is IDictionary dictionary) {
+                string[] keys = dictionary.Keys.Cast<object>().Select(PSWidgets.ToText).ToArray();
+                if (!keys.Contains("Title", StringComparer.OrdinalIgnoreCase) || !keys.Contains("Content", StringComparer.OrdinalIgnoreCase)) {
+                    foreach (DictionaryEntry entry in dictionary) { AddPage(PSWidgets.ToText(entry.Key), entry.Value); }
+                    return;
+                }
             }
             PSItems.RecordFields(item, "Title Content");
             string title = PSWidgets.ToText(PSItems.Field(item, "Title"));

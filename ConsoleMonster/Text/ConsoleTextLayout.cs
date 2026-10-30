@@ -39,6 +39,9 @@ namespace ConsoleMonster.Text {
         /// <summary>Centres each line in the width.</summary>
         public bool HorizontalCenter { get; set; }
 
+        // PowerShell's alignment selection shares the completed-line layout, including prefixes and wrapping.
+        internal Layout.HorizontalAlignment Alignment { get; set; }
+
         /// <summary>Pads each line on the left to this many cells (right-aligned).</summary>
         public int PadLeft { get; set; }
 
@@ -97,8 +100,9 @@ namespace ConsoleMonster.Text {
                     }
                     spans.AddRange(pieces[w]);
                     StyledLine line = new StyledLine(spans);
-                    if (HorizontalCenter && line.Width < width) {
-                        List<TextSpan> centred = new List<TextSpan> { new TextSpan(new string(' ', (width - line.Width) / 2), Style.Plain) };
+                    if ((HorizontalCenter || Alignment != Layout.HorizontalAlignment.Left) && line.Width < width) {
+                        int offset = Alignment == Layout.HorizontalAlignment.Right ? width - line.Width : (width - line.Width) / 2;
+                        List<TextSpan> centred = new List<TextSpan> { new TextSpan(new string(' ', offset), Style.Plain) };
                         centred.AddRange(line);
                         line = new StyledLine(centred);
                     }
