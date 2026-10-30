@@ -194,6 +194,9 @@
   "postActions": [],
   "sources": [
     {
+      "rename": {
+        "ConsoleMonsterApp.template.proj": "ConsoleMonsterApp.csproj"
+      },
       "modifiers": [
         {
           "condition": "(demo != \"none\")",
