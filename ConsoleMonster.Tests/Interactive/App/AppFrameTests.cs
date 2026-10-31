@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using ConsoleMonster.Capabilities;
 using ConsoleMonster.Input;
 using ConsoleMonster.Interactive;
 using ConsoleMonster.Layout;
@@ -57,14 +58,24 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Assert.StartsWith("╰", rows[output - 1].TrimStart());
         }
 
-        /// <summary>The command palette is one dialog with one title: the list inside it has no frame of its own.</summary>
+        /// <summary>
+        /// The command palette is one dialog with one title: the list inside it has no frame of its own, and the focused
+        /// row's highlight spans the dialog's inner width.
+        /// </summary>
         [Fact]
         public void Palette_HasOneFrameAndOneTitle() {
             (IWidget layout, ConsoleAppOptions options) = DeployConsole("Ctrl+K", 90, 24, out ScreenCapture capture);
+            options.Interactive!.Profile = options.Interactive.Profile!.WithColorDepth(ColorDepth.TrueColor);
             ConsoleApp.Run(layout, options: options);
             string frame = capture.LastFrame!.ToPlainText();
             Assert.Contains("Roll back last change", frame);
             Assert.Single(Regex.Matches(frame, "Commands ─").Cast<Match>());
+            string[] rows = frame.Split('\n');
+            int y = Array.FindIndex(rows, row => row.Contains("Deploy now"));
+            int start = rows[y].IndexOf("Deploy now", StringComparison.Ordinal);
+            int border = rows[y].IndexOf('│', start);
+            Assert.NotEqual(capture.LastFrame![start, y + 1].Style.BackgroundColor, capture.LastFrame[start, y].Style.BackgroundColor);
+            Assert.Equal(capture.LastFrame[start, y].Style.BackgroundColor, capture.LastFrame[border - 2, y].Style.BackgroundColor);
         }
     }
 }

@@ -34,9 +34,17 @@ namespace ConsoleMonster.Interactive {
             return _background.Measure(constraints, context);
         }
 
+        [ThreadStatic] private static int _painting;
+
+        /// <summary>Whether an overlay (a dialog or a popup) is painting: lists then span the full inner width.</summary>
+        internal static bool IsPainting => _painting > 0;
+
+        /// <summary>Brackets the paint of something drawn over the content, so its lists fill their box.</summary>
+        internal static IDisposable Painting() => new PaintScope();
+
         public void Render(Region region, RenderContext context) {
             if (Inline) {
-                _dialog.Render(region, context);
+                using (Painting()) { _dialog.Render(region, context); }
                 return;
             }
             _background.Render(region, context);
@@ -56,7 +64,12 @@ namespace ConsoleMonster.Interactive {
             Rect place = DialogChrome.Place(region.Width, region.Height, Math.Min(width, Math.Max(size.Width, 10)), size.Height, top);
             Region area = region.Sub(place.X, place.Y, place.Width, place.Height);
             area.Fill(Style.Plain);
-            dialog.Render(area, context);
+            using (Painting()) { dialog.Render(area, context); }
+        }
+
+        private sealed class PaintScope : IDisposable {
+            internal PaintScope() { _painting++; }
+            public void Dispose() => _painting--;
         }
 
         internal static void Dim(Region region, RenderContext context) {

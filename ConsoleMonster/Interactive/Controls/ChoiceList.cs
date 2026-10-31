@@ -87,7 +87,10 @@ namespace ConsoleMonster.Interactive {
         /// <summary>The narrowest a row gets when titles are short.</summary>
         public int MinRowWidth { get; set; } = 40;
 
-        /// <summary>Whether rows always span the available width (dialogs whose description line uses the full width).</summary>
+        /// <summary>
+        /// Whether rows always span the available width (dialogs whose description line uses the full width). Lists drawn
+        /// in an overlay (a dialog or a dropdown popup) always do, so the focus bar reaches the box's border.
+        /// </summary>
         public bool FillWidth { get; set; }
 
         /// <summary>
@@ -95,7 +98,7 @@ namespace ConsoleMonster.Interactive {
         /// <see cref="MaxRowWidth"/>, so a short list stays compact instead of spreading badges across the pane.
         /// </summary>
         public int RowWidth(RenderContext context, int available) {
-            if (FillWidth) {
+            if (FillWidth || Overlay.IsPainting) {
                 return available;
             }
             int widest = 0;

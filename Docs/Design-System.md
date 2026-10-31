@@ -31,7 +31,7 @@ Light and high-contrast themes define the same roles (`Theme.BuiltIn.cs`).
 - Content starts one column from the left edge (header, footer, log lines), or one column inside a panel border plus
   one column of padding.
 - Panels inside an app frame have one blank row under the title border (`new Padding(inner, 1, 1, 1, 0)`).
-- Dialogs have one blank row under the top border and one column either side (`DialogChrome.Frame`).
+- Dialogs have one blank row under the top border, one above the bottom border and one column either side (`DialogChrome.Frame`), so buttons never sit on the frame. Lists inside a dialog or a dropdown popup span the full inner width, so the focus bar reaches the border.
 - Two spaces separate footer hints. Inline facts are separated by " · " (ASCII " | ").
 - The breadcrumb separator is " › " (ASCII " > ").
 

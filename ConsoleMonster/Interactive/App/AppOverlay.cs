@@ -59,7 +59,7 @@ namespace ConsoleMonster.Interactive {
                 if (place.Width <= 0 || place.Height <= 0) { continue; }
                 Region area = region.Sub(place.X - region.Bounds.X, place.Y - region.Bounds.Y, place.Width, place.Height);
                 area.Fill(Style.Plain);
-                popup.Content.Render(area, context);
+                using (Overlay.Painting()) { popup.Content.Render(area, context); }
                 placed.Add(new Placed(popup.Owner, place, popup.Anchor));
             }
             IWidget? dialog = _actions.ModalLayer(context, body.Width, body.Height, out int maxWidth);
