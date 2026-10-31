@@ -318,7 +318,7 @@
     },
     {
       "verb": "New",
-      "count": 40,
+      "count": 41,
       "commands": [
         {
           "name": "New-ConsoleActivityList",
@@ -459,6 +459,11 @@
           "name": "New-ConsoleRule",
           "synopsis": "Creates a horizontal rule, optionally with a title.",
           "url": "/powershell/commands/new-consolerule/"
+        },
+        {
+          "name": "New-ConsoleScreen",
+          "synopsis": "Creates a screen for Show-ConsoleApp: its content, its breadcrumb title and the keys that work on it.",
+          "url": "/powershell/commands/new-consolescreen/"
         },
         {
           "name": "New-ConsoleScrollView",

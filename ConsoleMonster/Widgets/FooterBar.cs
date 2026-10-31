@@ -69,11 +69,21 @@ namespace ConsoleMonster.Widgets {
         /// <summary>The hints, in order.</summary>
         public List<KeyHint> Hints { get; } = new List<KeyHint>();
 
-        /// <summary>Reads current registry hints at render time, for example from the focused panel or active dialog.</summary>
+        /// <summary>Reads current registry hints at render time, for example from the focused panel or active dialog. In an app, a footer with neither hints nor a source shows the app's key bindings.</summary>
         public Func<IEnumerable<KeyHint>>? HintsSource { get; set; }
         private IReadOnlyList<KeyHint>? _appHints;
         internal void RefreshHints() => Volatile.Write(ref _appHints, HintsSource == null ? null : new List<KeyHint>(HintsSource()));
         internal void ReleaseHints() => Volatile.Write(ref _appHints, null);
+        // An app footer with no hints of its own shows the app's key map, from the same snapshot as the frame's screen.
+        [ThreadStatic] private static FooterBar? _frameOwner;
+        [ThreadStatic] private static IReadOnlyList<KeyHint>? _frameHints;
+        internal static IDisposable FrameHints(FooterBar? owner, IReadOnlyList<KeyHint>? hints) => new HintScope(owner, hints);
+        private sealed class HintScope : IDisposable {
+            private readonly FooterBar? _owner;
+            private readonly IReadOnlyList<KeyHint>? _hints;
+            internal HintScope(FooterBar? owner, IReadOnlyList<KeyHint>? hints) { _owner = _frameOwner; _hints = _frameHints; _frameOwner = owner; _frameHints = hints; }
+            public void Dispose() { _frameOwner = _owner; _frameHints = _hints; }
+        }
 
         /// <summary>Keeps every registry entry in a fixed slot, shortening labels rather than hiding unavailable or trailing commands.</summary>
         public bool FixedSlots { get; set; }
@@ -109,7 +119,7 @@ namespace ConsoleMonster.Widgets {
             }
             int rightWidth = right?.Width ?? 0;
             int available = region.Width - Indent - (rightWidth > 0 ? rightWidth + 2 : 0) - 1;
-            IReadOnlyList<KeyHint> hints = Volatile.Read(ref _appHints) ?? (HintsSource == null ? Hints : new List<KeyHint>(HintsSource()));
+            IReadOnlyList<KeyHint> hints = (ReferenceEquals(_frameOwner, this) ? _frameHints : null) ?? Volatile.Read(ref _appHints) ?? (HintsSource == null ? Hints : new List<KeyHint>(HintsSource()));
             StyledLine left = Message != null ? TextWrapper.Truncate(Message, Math.Max(1, available), context.Ellipsis)
                 : FixedSlots ? SlotLine(hints, context, available) : Line(hints, context, available, KeepLast);
             region.Write(Indent, 0, left);

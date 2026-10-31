@@ -105,7 +105,7 @@ application data folder elsewhere), with `pid`, `port`, `token` and `protocol`. 
 `Module/Examples/Example-DebugSocket.ps1` is a complete client: it starts an app, connects, types, waits, reads the
 screen and the control tree, and quits.
 
-### Wire protocol (version 1)
+### Wire protocol (version 2)
 
 TCP on 127.0.0.1. Each request and each reply is one JSON object on one line (UTF-8, ending with `\n`, at most 1 MiB).
 A request has `cmd` and optionally `id`, which the reply repeats. Numbers may be sent as JSON numbers or strings; replies
@@ -131,9 +131,11 @@ Every successful reply has `"ok":true`. A failed one has `"ok":false`, `error` (
 
 A tree node has `type`, and when they apply `id` (the widget id), `key`, `label`, `focused`, `disabled`, `bounds`
 (`x`, `y`, `width`, `height` in screen cells) and `children`. `root` is null when no app or dashboard is running (a prompt or menu on its own has no control tree). Bounds are reported
-for input controls. The tree is read while the app runs, so it is a snapshot. `layout` is false
-until the layout pass can report why each control has its size; it will then add the measured size and the constraint
-that decided it.
+for input controls. The tree is read while the app runs, so it is a snapshot. `layout` is true once an app frame has been drawn while the socket runs, and a node that a row or
+column layout placed in the last app frame has `layout`: `measured` (the `width` and `height` it asked for),
+`arranged` (the size it was given) and `rule`, which says why: `fixed 3`, `fill 1` (with `min 16` when it has a
+minimum) or `auto`, followed by `, shrunk` when it got less than it asked for or `, collapsed` when it got nothing.
+Version 2 added these layout fields; version 1 clients can ignore them.
 
 ### Security model
 
@@ -158,4 +160,3 @@ that decided it.
 
 - A child process handed the terminal (`TerminalHandoff`) still needs a real console.
 - The debug socket drives a headless terminal; it does not mirror a real console window.
-- Layout reasons in `tree` wait for the layout pass described in the app navigation work.

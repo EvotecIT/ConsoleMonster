@@ -58,6 +58,10 @@ The input stretches to the width of the terminal; the table keeps its natural wi
 
 {{< cm-frame ids="app-live-filter-initial-120,app-live-filter-filtered-120" script="false" caption="The same program at 120 columns. Both widths are rendered in light and dark, and the saved Windows PowerShell 5.1 and PowerShell 7 output is checked against the C# program cell by cell." >}}
 
+## Screens and keys
+
+An app with more than one screen declares each screen once with `New-ConsoleScreen` (`AppScreens` in C#). Assign a screen's key to `$State.Screen` to open it; Escape or Backspace goes back, the header shows where you are, and each screen keeps its own focused input. Keys are declared with `-KeyBinding` on a screen or on the app, and the footer is built from them, so it lists exactly the keys that work. `New-ConsoleSelect -Dropdown` opens its list over the content. The [screens and keys example](/interactive/#screens) shows a small program in PowerShell and C#, with a recording of it running.
+
 ## Redirected output and CI
 
 An interactive application needs a keyboard. Without an interactive terminal, `Show-ConsoleApp` and `ConsoleApp.Run` report that prompting is unavailable, unless the caller asks for a static snapshot. Pass `-Mode Snapshot` to `Show-ConsoleApp` to print the first screen once and exit. In C#, pass `new ConsoleAppOptions { Interactive = new InteractiveOptions { Mode = InteractionMode.Snapshot } }` as the `options` argument of `ConsoleApp.Run`. A snapshot draws the layout once; it does not read a query.

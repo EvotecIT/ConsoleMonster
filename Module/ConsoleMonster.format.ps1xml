@@ -30,6 +30,7 @@
         <TypeName>ConsoleMonster.Frames.Distribution</TypeName>
         <TypeName>ConsoleMonster.Graphics.ConsoleImage</TypeName>
         <TypeName>ConsoleMonster.Interactive.AppBinding</TypeName>
+        <TypeName>ConsoleMonster.Interactive.AppScreens</TypeName>
         <TypeName>ConsoleMonster.Interactive.Button</TypeName>
         <TypeName>ConsoleMonster.Interactive.DataGrid</TypeName>
         <TypeName>ConsoleMonster.Interactive.DatePicker</TypeName>

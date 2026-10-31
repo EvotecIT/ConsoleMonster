@@ -85,6 +85,16 @@ namespace ConsoleMonster.Layout {
                 return;
             }
             int[] widths = ComputeWidths(region.Width, region.Height, context);
+            if (LayoutNotes.IsRecording) {
+                // The allocator offers fixed columns first, then each auto column what is left; fill columns take the rest.
+                int offered = Math.Max(0, region.Width - Gap * (_children.Count - 1));
+                for (int i = 0; i < _children.Count; i++) { if (_sizes[i].Kind == LayoutSizeKind.Fixed) { offered -= widths[i]; } }
+                for (int i = 0; i < _children.Count; i++) {
+                    int offer = _sizes[i].Kind == LayoutSizeKind.Auto ? Math.Max(0, offered) : widths[i];
+                    LayoutNotes.Record(_children[i], _sizes[i], _children[i].Measure(new Constraints(offer, region.Height), context), new Size(widths[i], region.Height), false);
+                    if (_sizes[i].Kind == LayoutSizeKind.Auto) { offered -= widths[i]; }
+                }
+            }
             int x = 0;
             for (int i = 0; i < _children.Count; i++) {
                 if (widths[i] > 0) {

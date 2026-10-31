@@ -86,8 +86,8 @@ namespace ConsoleMonster.Headless {
             }
             return Ok(new Dictionary<string, object?> {
                 ["root"] = root, ["focus"] = focus, ["truncated"] = budget <= 0,
-                // Layout reasons need the layout pass that records each control's measured size and constraint.
-                ["layout"] = false
+                // Nodes laid out by rows and columns in the last app frame carry their measured and arranged size and the rule.
+                ["layout"] = LayoutNotes.HasFrame
             });
         }
 
@@ -96,6 +96,13 @@ namespace ConsoleMonster.Headless {
             if (budget-- <= 0 || depth > 64) { return null; }
             Dictionary<string, object?> node = new Dictionary<string, object?> { ["type"] = widget.GetType().Name };
             if (widget is ILiveTarget target && !string.IsNullOrEmpty(target.WidgetId)) { node["id"] = target.WidgetId; }
+            if (LayoutNotes.Get(widget) is LayoutNote note) {
+                node["layout"] = new Dictionary<string, object?> {
+                    ["measured"] = new Dictionary<string, object?> { ["width"] = note.Measured.Width, ["height"] = note.Measured.Height },
+                    ["arranged"] = new Dictionary<string, object?> { ["width"] = note.Arranged.Width, ["height"] = note.Arranged.Height },
+                    ["rule"] = note.Rule
+                };
+            }
             if (widget is InputControl input) {
                 node["key"] = input.Key;
                 if (input.Label != null) { node["label"] = input.Label; }

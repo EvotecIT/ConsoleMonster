@@ -46,6 +46,8 @@ namespace ConsoleMonster.Interactive {
             return false;
         }
 
+        internal override bool Takes(KeyChord chord, RenderContext context) => chord.Modifiers == KeyModifiers.None
+            && (chord.Key == ConsoleKey.Spacebar || chord.Key == ConsoleKey.Enter || chord.Key == ConsoleKey.LeftArrow || chord.Key == ConsoleKey.RightArrow);
         /// <inheritdoc />
         protected override Size MeasureContent(Constraints constraints, RenderContext context) =>
             new Size(constraints.MaxWidth, Math.Min(1, constraints.MaxHeight));

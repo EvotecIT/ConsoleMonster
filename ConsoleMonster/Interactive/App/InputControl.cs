@@ -56,6 +56,9 @@ namespace ConsoleMonster.Interactive {
             internal set { lock (_gate) { _focused = value; } Invalidate(); }
         }
 
+        /// <summary>Keys that apply while this control has focus. They reach the control before its own keys (so Enter can open the selected row) and feed the app footer.</summary>
+        public System.Collections.Generic.IList<KeyBinding> Bindings { get; } = new System.Collections.Generic.List<KeyBinding>();
+
         /// <summary>The committed value, independent of the concrete control's value type.</summary>
         public object? CurrentValue => Read(ReadValueCore);
 
@@ -126,6 +129,36 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Handles pointer input while the same value/render lock is held. Coordinates are in the control's arranged buffer.</summary>
         protected virtual bool HandlePointerCore(InputEvent input, RenderContext context) => false;
         internal virtual void CancelPointer() { }
+
+        // A pointer event inside this control's popup on the app overlay layer, in frame coordinates.
+        internal bool HandlePopupInput(InputEvent input, RenderContext context) {
+            object? before;
+            object? after;
+            bool handled;
+            lock (_gate) {
+                if (!_enabled) { return false; }
+                before = ReadValueCore();
+                handled = HandlePopupPointerCore(input, context);
+                after = ReadValueCore();
+            }
+            Notify(before, after);
+            if (handled) { Invalidate(); }
+            return handled;
+        }
+
+        internal void ClosePopup() {
+            lock (_gate) { ClosePopupCore(); }
+            Invalidate();
+        }
+
+        // Keys the control itself takes right now (an open dropdown takes Enter and Escape). The app footer lists them and hides
+        // the bindings they shadow; the control still handles them itself.
+        internal virtual void AddOwnKeys(System.Collections.Generic.List<KeyBinding> keys, RenderContext context) { }
+        // Whether the focused control would take this key itself, so the app footer does not list a binding it hides.
+        // Kept next to each control's key handling.
+        internal virtual bool Takes(KeyChord chord, RenderContext context) => false;
+        internal virtual bool HandlePopupPointerCore(InputEvent input, RenderContext context) => false;
+        internal virtual void ClosePopupCore() { }
 
         /// <summary>Measures the existing control content without its border.</summary>
         /// <param name="constraints">Available content size.</param>

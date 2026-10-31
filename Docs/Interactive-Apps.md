@@ -77,6 +77,69 @@ To run the complete example from a console application referencing the examples 
 AppState state = LiveFilterApp.Run();
 ```
 
+## Screens, keys and the overlay layer
+
+An app with more than one screen declares them once. Adjacent `New-ConsoleScreen` commands (or an `AppScreens` in C#)
+make a screen stack: the first screen is where the app starts, assigning a key to `$State.Screen` (or calling
+`Push`) opens a screen, and Escape or Backspace returns when the focused input does not use them. Inputs inside a
+screen keep their values while other screens show, and each screen remembers its focused input. A header bar without
+crumbs of its own shows the open screens, so the path is never wired by hand.
+
+Keys are declared once, where they apply: on the focused input, on a screen or on the app. A key goes to the focused
+input's bindings, then the input, then the current screen, then the app. The footer is built from the same list, so it
+shows exactly the keys that work: a binding hidden by a nearer one with the same key is not listed, and while a
+dropdown is open the footer shows its keys. `'1-12'` in PowerShell, or `KeyBinding.Numbered` in C#, opens numbered
+items: `5` opens item 5 at once, `1` waits for a second digit (`1` `2` opens 12) or Enter. Letter and digit keys also
+work on other keyboard layouts: `q` matches the Q key on a Cyrillic layout and `1` the 1 key on a French one.
+
+```powershell
+Import-Module ConsoleMonster
+
+$jobs = @(
+    [pscustomobject]@{ Name = 'nightly-backup'; Status = 'Pass'; Schedule = 'Nightly' }
+    [pscustomobject]@{ Name = 'web-deploy'; Status = 'Running'; Schedule = 'Hourly' }
+    [pscustomobject]@{ Name = 'sql-index'; Status = 'Fail'; Schedule = 'Weekly' }
+)
+
+Show-ConsoleApp -Title 'Job monitor' -Content {
+    New-ConsoleScreen -Key overview -Title Overview -KeyBinding ([ordered]@{
+        '1-3' = 'open', { param($Number, $State) $State.Job = $Number; $State.Screen = 'job' }
+    }) -Content {
+        $jobs | New-ConsoleTable -Property Name, Status, Schedule -StatusProperty Status
+    }
+    New-ConsoleScreen -Key job -Title { $jobs[$State.Job - 1].Name } -Content {
+        New-ConsoleBinding -Content { $jobs[$State.Job - 1] | New-ConsoleKeyValue }
+        New-ConsoleSelect -Key Schedule -Choices 'Hourly', 'Nightly', 'Weekly' -Dropdown
+    }
+}
+```
+
+The same app in C# uses `AppScreens`, `AppScreen` and `KeyBinding`:
+
+```csharp
+AppState state = new AppState();
+AppScreens screens = new AppScreens();
+screens.Add(new AppScreen("overview", "Overview", new AppBinding(_ => Overview())) {
+    Bindings = { KeyBinding.Numbered("open", () => jobs.Count, number => { state["Job"] = number; screens.Push("job"); }) }
+});
+screens.Add(new AppScreen("job", "Job", new Rows(new AppBinding(s => Detail(s)), schedule)) {
+    TitleSource = s => jobs[s.Get("Job", 1) - 1].Name
+});
+ConsoleApp.Run(new Rows().Add(new HeaderBar("Job monitor"), LayoutSize.Fixed(1)).Add(screens, LayoutSize.Fraction()), state);
+```
+
+The [job monitor showcase](../ConsoleMonster.Examples/Showcases/JobMonitor.cs) is the complete program: twelve jobs
+fed by a background producer, a diagram or card view of one job, a restart confirmation, a settings screen with a
+dropdown and a live log. Run it with `dotnet run --project ConsoleMonster.Examples -- jobs`.
+
+Dropdowns, dialogs and toasts draw on the app's overlay layer. The content is painted first and records where each
+control was arranged; the layer then paints the open dropdown list below its control (above it when there is no room
+below), the open dialog over a dimmed body, and a toast in the footer row. `New-ConsoleSelect -Dropdown` (or
+`Select.Dropdown`) shows one row and opens its list on Enter, Space, Down or a click; Escape, Tab or a click elsewhere
+closes it. `AppDialogs.Show(FormDialog<T>, ...)` opens a dialog and `AppDialogs.Show(Toast)` a toast; closing a dialog
+returns to the input that had focus. The layer idea comes from SharpConsoleUI; ConsoleMonster does not add windows or
+compositing.
+
 ## Keyboard and empty results
 
 Typing and Backspace update the query immediately. Tab moves to the next input, Shift+Tab moves back, and Escape

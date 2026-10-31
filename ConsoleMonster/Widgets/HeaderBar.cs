@@ -24,7 +24,7 @@ namespace ConsoleMonster.Widgets {
         /// <summary>The title (markup).</summary>
         public string Title { get; set; }
 
-        /// <summary>Breadcrumb steps after the title, plain text ("Tasks", "Review &amp; run").</summary>
+        /// <summary>Breadcrumb steps after the title, plain text ("Tasks", "Review &amp; run"). Left empty inside an app with <see cref="AppScreens"/>, the bar shows the open screens.</summary>
         public IList<string> Crumbs { get; } = new List<string>();
 
         /// <summary>A subtitle after the title, separated by a dot (markup).</summary>
@@ -102,7 +102,7 @@ namespace ConsoleMonster.Widgets {
                 left.Add(new TextSpan(span.Text, accent.Combine(span.Style)));
             }
             string breadcrumb = " " + InteractiveGlyphs.For(context).Breadcrumb + " ";
-            foreach (string crumb in Crumbs) {
+            foreach (string crumb in Crumbs.Count > 0 ? Crumbs : AppScreens.AmbientCrumbs ?? (IEnumerable<string>)Crumbs) {
                 left.Add(new TextSpan(breadcrumb, quiet));
                 left.Add(new TextSpan(crumb, text));
             }

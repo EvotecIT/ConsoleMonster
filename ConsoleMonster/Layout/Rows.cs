@@ -69,6 +69,11 @@ namespace ConsoleMonster.Layout {
         /// <inheritdoc />
         public void Render(Region region, RenderContext context) {
             int[] heights = ComputeHeights(region.Width, region.Height, context);
+            if (LayoutNotes.IsRecording) {
+                for (int i = 0; i < _children.Count; i++) {
+                    LayoutNotes.Record(_children[i], _sizes[i], _children[i].Measure(new Constraints(region.Width), context), new Size(region.Width, heights[i]), true);
+                }
+            }
             int y = 0;
             for (int i = 0; i < _children.Count; i++) {
                 if (heights[i] > 0) {

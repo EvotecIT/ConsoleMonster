@@ -9854,6 +9854,107 @@
       ]
     },
     {
+      "Command": "New-ConsoleScreen",
+      "Job": "New-ConsoleScreen",
+      "CSharpType": "ConsoleMonster.Interactive.AppScreen",
+      "Bindings": [
+        {
+          "Parameter": "Key",
+          "ParameterType": "System.String",
+          "Default": "",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.AppScreen",
+          "Member": ".ctor",
+          "MemberKind": "Constructor",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Argument": "key"
+        },
+        {
+          "Parameter": "Content",
+          "ParameterType": "System.Management.Automation.ScriptBlock",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 1,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.AppScreen",
+          "Member": ".ctor",
+          "MemberKind": "Constructor",
+          "Conversion": "ContentScript",
+          "CSharpTypeName": "ConsoleMonster.Layout.IWidget",
+          "Argument": "content",
+          "Reason": "The script block's widgets become the screen content, as rows when it emits several."
+        },
+        {
+          "Parameter": "Title",
+          "ParameterType": "System.Object",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.AppScreen",
+          "Member": "Title",
+          "MemberKind": "Property",
+          "Conversion": "TextOrStateScript",
+          "CSharpTypeName": "System.String",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false,
+          "Reason": "Text sets Title; a script block sets TitleSource and is invoked with $State on the app's input thread."
+        },
+        {
+          "Parameter": "KeyBinding",
+          "ParameterType": "System.Object",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.AppScreen",
+          "Member": "Bindings",
+          "MemberKind": "Property",
+          "Conversion": "KeyBindings",
+          "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Interactive.KeyBinding]",
+          "Nullable": "Unknown",
+          "Writable": false,
+          "Static": false,
+          "Reason": "An ordered dictionary of key to label and script block becomes KeyBinding entries; '1-N' becomes KeyBinding.Numbered."
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
+        }
+      ]
+    },
+    {
       "Command": "New-ConsoleScrollView",
       "Job": "New-ConsoleScrollView",
       "CSharpType": "ConsoleMonster.Widgets.ScrollView",
@@ -10166,6 +10267,26 @@
           ],
           "CSharpType": "ConsoleMonster.Interactive.SelectInputOptions",
           "Member": "Radio",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Dropdown",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.SelectInputOptions",
+          "Member": "Dropdown",
           "MemberKind": "Property",
           "Conversion": "Identity",
           "CSharpTypeName": "System.Boolean",
@@ -15986,7 +16107,7 @@
           "Default": null,
           "Sets": [
             {
-              "Name": "Footer",
+              "Name": "__AllParameterSets",
               "Position": -2147483648,
               "Mandatory": false
             }
@@ -16001,29 +16122,8 @@
           "Static": false
         },
         {
-          "CSharpType": "ConsoleMonster.Widgets.FooterBar",
-          "Member": "Hints",
-          "MemberKind": "Property",
-          "Conversion": "NestedConfiguration",
-          "CSharpTypeName": "System.Collections.Generic.List`1[ConsoleMonster.Widgets.KeyHint]",
-          "Reason": "The shell spelling selects this explicit nested option or typed collection.",
-          "Nullable": "Unknown",
-          "Writable": false,
-          "Static": false,
-          "Parameter": "FooterHints",
-          "ParameterType": "System.Object[]",
-          "Default": null,
-          "Sets": [
-            {
-              "Name": "Hints",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ]
-        },
-        {
-          "Parameter": "HandleInput",
-          "ParameterType": "System.Func`3[ConsoleMonster.Interactive.AppState,ConsoleMonster.Input.InputEvent,System.Boolean]",
+          "Parameter": "KeyBinding",
+          "ParameterType": "System.Object",
           "Default": null,
           "Sets": [
             {
@@ -16033,13 +16133,14 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Interactive.ConsoleAppOptions",
-          "Member": "HandleInput",
+          "Member": "KeyBindings",
           "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Func`3[ConsoleMonster.Interactive.AppState,ConsoleMonster.Input.InputEvent,System.Boolean]",
-          "Nullable": "Nullable",
-          "Writable": true,
-          "Static": false
+          "Conversion": "KeyBindings",
+          "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Interactive.KeyBinding]",
+          "Nullable": "Unknown",
+          "Writable": false,
+          "Static": false,
+          "Reason": "An ordered dictionary of key to label and script block becomes KeyBinding entries; '1-N' becomes KeyBinding.Numbered."
         },
         {
           "Parameter": "InputSource",
@@ -21871,11 +21972,43 @@
       "Disposition": "RuntimeModel"
     },
     {
+      "CSharpType": "ConsoleMonster.Interactive.AppScreens",
+      "Member": "BackKeys",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Input.KeyChord]",
+      "Reason": "PowerShell apps go back with Escape and Backspace; C# hosts can choose other back keys.",
+      "Alternative": "Assign $State.Screen from a -KeyBinding script to open any screen, including the previous one.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.AppScreens",
+      "Member": "StateKey",
+      "CSharpTypeName": "System.String",
+      "Reason": "PowerShell screen stacks keep the current screen in $State.Screen; C# hosts can rename the state key when Screen is taken.",
+      "Alternative": "Read and assign $State.Screen.",
+      "Disposition": "CSharpOnly"
+    },
+    {
       "CSharpType": "ConsoleMonster.Interactive.ConsoleAppOptions",
       "Member": "ProcessEvents",
       "CSharpTypeName": "System.Action`1[ConsoleMonster.Interactive.AppState]",
       "Reason": "Show-ConsoleApp reserves this owning-thread hook for draining its registered callbacks; replacing it would detach the PowerShell callback lifecycle.",
       "Alternative": "Use New-ConsoleBinding and the inputs’ OnChange/OnClick script blocks.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.ConsoleAppOptions",
+      "Member": "HandleInput",
+      "CSharpTypeName": "System.Func`3[ConsoleMonster.Interactive.AppState,ConsoleMonster.Input.InputEvent,System.Boolean]",
+      "Reason": "Raw event routing ahead of the focused input, for C# hosts that need events other than keys.",
+      "Alternative": "Show-ConsoleApp -KeyBinding and New-ConsoleScreen -KeyBinding declare keys, and the footer lists them.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.InputControl",
+      "Member": "Bindings",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Interactive.KeyBinding]",
+      "Reason": "Per-input keys run before the input itself; PowerShell apps bind keys to a screen or to the app.",
+      "Alternative": "New-ConsoleScreen -KeyBinding or Show-ConsoleApp -KeyBinding; read the focused input from $State.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -21893,6 +22026,14 @@
       "CSharpTypeName": "ConsoleMonster.Interactive.InteractiveOptions",
       "Reason": "This static process-wide default belongs to an embedding host; PowerShell resolves interaction per owning runspace.",
       "Alternative": "Use per-command -Mode or typed operation options.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.KeyBinding",
+      "Member": "Available",
+      "CSharpTypeName": "System.Func`1[System.Boolean]",
+      "Reason": "A dimmed, inactive binding needs a predicate evaluated on every footer refresh; C# hosts supply it.",
+      "Alternative": "A -KeyBinding script can check $State and return without doing anything.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -22382,6 +22523,14 @@
       "CSharpTypeName": "System.String",
       "Reason": "PowerShell generates its own native Get-Error hint; C# embedding hosts supply another detail action.",
       "Alternative": "Use Show-Console -View Error with its source/stack flags.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.FooterBar",
+      "Member": "Hints",
+      "CSharpTypeName": "System.Collections.Generic.List`1[ConsoleMonster.Widgets.KeyHint]",
+      "Reason": "App footers are built from the key bindings, so a hint cannot promise a key that does nothing; C# hosts can still draw a fixed footer.",
+      "Alternative": "Show-ConsoleApp -KeyBinding fills the footer; New-ConsoleDashboard -FooterHints sets dashboard hints.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -25124,8 +25273,8 @@
       "CSharpType": "ConsoleMonster.Widgets.FooterBar",
       "Member": "FixedSlots",
       "CSharpTypeName": "System.Boolean",
-      "Reason": "Native app footers can reserve a slot for every command and shorten labels. Show-ConsoleApp -FooterHints builds the ordinary adaptive hint list.",
-      "Alternative": "Use -FooterHints for the supported hint layout; pass a configured FooterBar through Show-ConsoleApp -Footer for native fixed-slot composition.",
+      "Reason": "Native app footers can reserve a slot for every command and shorten labels. Show-ConsoleApp builds the ordinary adaptive hint list from its key bindings.",
+      "Alternative": "Use -KeyBinding for the supported hint layout; pass a configured FooterBar through Show-ConsoleApp -Footer for native fixed-slot composition.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -25133,7 +25282,7 @@
       "Member": "HintsSource",
       "CSharpTypeName": "System.Func`1[System.Collections.Generic.IEnumerable`1[ConsoleMonster.Widgets.KeyHint]]",
       "Reason": "Native app registries can supply render-time hints for the current focus/dialog. The PowerShell hint parameter is a concrete hint sequence and does not turn a scriptblock into a render-thread callback.",
-      "Alternative": "Use -FooterHints for fixed hints, or pass a typed FooterBar with a thread-safe native HintsSource through -Footer.",
+      "Alternative": "Use -KeyBinding, which feeds the footer, or pass a typed FooterBar with a thread-safe native HintsSource through -Footer.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -25141,7 +25290,7 @@
       "Member": "Indent",
       "CSharpTypeName": "System.Int32",
       "Reason": "Native footer composition can change its first drawing column. The PowerShell built-in footer retains the standard one-cell inset.",
-      "Alternative": "Use Show-ConsoleApp -FooterHints for the standard inset, or pass a configured FooterBar through -Footer.",
+      "Alternative": "Use Show-ConsoleApp -KeyBinding for the standard inset, or pass a configured FooterBar through -Footer.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -25149,14 +25298,14 @@
       "Member": "KeepLast",
       "CSharpTypeName": "System.Boolean",
       "Reason": "Native footers can preserve a final help/key-map hint when earlier hints overflow. The PowerShell footer keeps the standard adaptive list policy.",
-      "Alternative": "Choose the -FooterHints sequence for ordinary hints, or pass a configured FooterBar through -Footer for custom overflow retention.",
+      "Alternative": "Order -KeyBinding entries for ordinary hints, or pass a configured FooterBar through -Footer for custom overflow retention.",
       "Disposition": "CSharpOnly"
     },
     {
       "CSharpType": "ConsoleMonster.Widgets.FooterBar",
       "Member": "Message",
       "CSharpTypeName": "ConsoleMonster.Text.StyledLine",
-      "Reason": "Native toast hosts can replace hints with a styled message line. PowerShell -FooterHints defines hints rather than a transient toast state.",
+      "Reason": "Native toast hosts can replace hints with a styled message line. PowerShell -KeyBinding defines hints rather than a transient toast state.",
       "Alternative": "Pass a configured FooterBar through Show-ConsoleApp -Footer for native message-state composition.",
       "Disposition": "CSharpOnly"
     },
@@ -25203,7 +25352,7 @@
   ],
   "SchemaVersion": 2,
   "BaselineCount": 144,
-  "ExpectedCount": 91,
+  "ExpectedCount": 92,
   "ConfigurableRoots": [
     "ConsoleMonster.Capabilities.CapabilityDetector",
     "ConsoleMonster.Changes.ChangePreviewOptions",
@@ -25230,6 +25379,8 @@
     "ConsoleMonster.Interactive.AppBinding",
     "ConsoleMonster.Interactive.AppCommand",
     "ConsoleMonster.Interactive.AppInputOptions",
+    "ConsoleMonster.Interactive.AppScreen",
+    "ConsoleMonster.Interactive.AppScreens",
     "ConsoleMonster.Interactive.BindingOptions",
     "ConsoleMonster.Interactive.Button",
     "ConsoleMonster.Interactive.ButtonInputOptions",
@@ -25479,6 +25630,8 @@
     "ConsoleMonster.Interactive.AppDispatcher",
     "ConsoleMonster.Interactive.AppHostKeys",
     "ConsoleMonster.Interactive.AppInputOptions",
+    "ConsoleMonster.Interactive.AppScreen",
+    "ConsoleMonster.Interactive.AppScreens",
     "ConsoleMonster.Interactive.BindingOptions",
     "ConsoleMonster.Interactive.Button",
     "ConsoleMonster.Interactive.ButtonInputOptions",
@@ -25734,6 +25887,24 @@
     "ConsoleMonster.Widgets.WatchView"
   ],
   "RelatedBindings": [
+    {
+      "CSharpType": "ConsoleMonster.Interactive.AppScreen",
+      "Member": "TitleSource",
+      "MemberId": "ConsoleMonster.Interactive.AppScreen.TitleSource",
+      "CSharpTypeName": "System.Func`2[ConsoleMonster.Interactive.AppState,System.String]",
+      "Command": "New-ConsoleScreen",
+      "Parameter": "Title",
+      "Reason": "A script block title becomes TitleSource and runs with $State on the app input thread."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.SelectionInputBase",
+      "Member": "Dropdown",
+      "MemberId": "ConsoleMonster.Interactive.SelectionInputBase.Dropdown",
+      "CSharpTypeName": "System.Boolean",
+      "Command": "New-ConsoleSelect",
+      "Parameter": "Dropdown",
+      "Reason": "The shared selection factory applies Dropdown to both single and multiple controls."
+    },
     {
       "CSharpType": "ConsoleMonster.Widgets.ProgressBar",
       "Member": "Label",
@@ -28558,6 +28729,10 @@
         {
           "Command": "New-ConsoleImage",
           "Reason": "The image widget lives in ConsoleMonster.Graphics with its decoder, so the dependency-free core Ui has no factory for it; C# constructs ConsoleImage directly."
+        },
+        {
+          "Command": "New-ConsoleScreen",
+          "Reason": "AppScreen is a navigation definition: adjacent screens become one AppScreens stack in the content that emits them. It is not display content on its own."
         }
       ],
       "CSharpOnlyFactories": [
@@ -28631,7 +28806,7 @@
         },
         {
           "Noun": "FooterBar",
-          "Reason": "Show-ConsoleApp -FooterHints builds the same footer; Footer accepts an explicitly composed widget."
+          "Reason": "Show-ConsoleApp builds the same footer from -KeyBinding; Footer accepts an explicitly composed widget."
         },
         {
           "Noun": "MenuRunResult",

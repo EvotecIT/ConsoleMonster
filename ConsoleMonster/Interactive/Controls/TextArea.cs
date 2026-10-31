@@ -50,6 +50,9 @@ namespace ConsoleMonster.Interactive {
         /// <inheritdoc />
         protected override object ReadValueCore() => _editor.Text;
 
+        internal override bool Takes(Input.KeyChord chord, RenderContext context) => LineEditor.Takes(chord) || chord.Key == ConsoleKey.Enter || chord.Key == ConsoleKey.UpArrow
+            || chord.Key == ConsoleKey.DownArrow || chord.Key == ConsoleKey.PageUp || chord.Key == ConsoleKey.PageDown;
+
         /// <inheritdoc />
         protected override bool HandleInputCore(Input.InputEvent input, RenderContext context) {
             // Input and callbacks can change text several times before the renderer draws again.

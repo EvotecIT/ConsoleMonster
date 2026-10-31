@@ -38,14 +38,18 @@ namespace ConsoleMonster.Input {
         /// <summary>Whether this is a character chord.</summary>
         public bool IsCharacter => Char != '\0';
 
-        /// <summary>Whether an event is this chord.</summary>
+        /// <summary>
+        /// Whether an event is this chord. A Latin letter or digit chord also matches the same key on another layout: a
+        /// Cyrillic layout typing <c>й</c> on the Q key matches <c>q</c>, and a French layout typing <c>&amp;</c> on the 1 key
+        /// matches <c>1</c>. A typed Latin character always matches exactly, so remapped layouts keep their labels.
+        /// </summary>
         /// <param name="input">The event.</param>
         /// <returns>True on a match.</returns>
         public bool Matches(InputEvent input) {
             if (input == null || input.Kind != InputEventKind.Key) {
                 return false;
             }
-            return IsCharacter ? input.IsChar(Char) : input.Key == Key && input.Modifiers == Modifiers;
+            return IsCharacter ? input.IsChar(Char) || KeyLayout.SameKey(Char, input) : input.Key == Key && input.Modifiers == Modifiers;
         }
 
         /// <summary>

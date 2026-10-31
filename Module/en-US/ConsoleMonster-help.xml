@@ -17277,6 +17277,167 @@ Description and RunText.</maml:para>
   </command:command>
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
     <command:details>
+      <command:name>New-ConsoleScreen</command:name>
+      <command:verb>New</command:verb>
+      <command:noun>ConsoleScreen</command:noun>
+      <maml:description>
+        <maml:para>Creates a screen for Show-ConsoleApp: its content, its breadcrumb title and the keys that work on it.</maml:para>
+        <maml:para>Put New-ConsoleScreen commands next to each other in the app content: together they are one screen stack, and the first is where the app starts. To open a screen, assign its key to $State.Screen in a key binding or callback; assigning a screen that is already open goes back to it. Escape or Backspace returns to the previous screen when the focused input does not use them. Inputs inside a screen keep their values while other screens show, and each screen remembers its focused input. The app header (Show-ConsoleApp -Title) shows the open screens as breadcrumbs, and the footer lists the keys that work on the current screen.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Creates a screen for Show-ConsoleApp: its content, its breadcrumb title and the keys that work on it.</maml:para>
+      <maml:para>Put New-ConsoleScreen commands next to each other in the app content: together they are one screen stack, and the first is where the app starts. To open a screen, assign its key to $State.Screen in a key binding or callback; assigning a screen that is already open goes back to it. Escape or Backspace returns to the previous screen when the focused input does not use them. Inputs inside a screen keep their values while other screens show, and each screen remembers its focused input. The app header (Show-ConsoleApp -Title) shows the open screens as breadcrumbs, and the footer lists the keys that work on the current screen.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>New-ConsoleScreen</maml:name>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="None">
+          <maml:name>Content</maml:name>
+          <maml:description>
+            <maml:para>Inputs and widgets on the screen, built once when the app starts. Use New-ConsoleBinding inside it for parts that change with state.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">ScriptBlock</command:parameterValue>
+          <dev:type>
+            <maml:name>ScriptBlock</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+          <maml:name>Key</maml:name>
+          <maml:description>
+            <maml:para>The key that opens the screen, unique within the app. The current key is $State.Screen.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>KeyBinding</maml:name>
+          <maml:description>
+            <maml:para>Keys that work on this screen, as an ordered dictionary of key to 'label', { action }. The action receives $State; '1-12' opens numbered items and passes the number first: param($Number, $State).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+          <dev:type>
+            <maml:name>Object</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Title</maml:name>
+          <maml:description>
+            <maml:para>The breadcrumb title: text, or a script block that builds it from $State (the item a screen shows). Defaults to the key.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+          <dev:type>
+            <maml:name>Object</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="None">
+        <maml:name>Content</maml:name>
+        <maml:description>
+          <maml:para>Inputs and widgets on the screen, built once when the app starts. Use New-ConsoleBinding inside it for parts that change with state.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">ScriptBlock</command:parameterValue>
+        <dev:type>
+          <maml:name>ScriptBlock</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <maml:name>Key</maml:name>
+        <maml:description>
+          <maml:para>The key that opens the screen, unique within the app. The current key is $State.Screen.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>KeyBinding</maml:name>
+        <maml:description>
+          <maml:para>Keys that work on this screen, as an ordered dictionary of key to 'label', { action }. The action receives $State; '1-12' opens numbered items and passes the number first: param($Number, $State).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+        <dev:type>
+          <maml:name>Object</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Title</maml:name>
+        <maml:description>
+          <maml:para>The breadcrumb title: text, or a script block that builds it from $State (the item a screen shows). Defaults to the key.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+        <dev:type>
+          <maml:name>Object</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>ConsoleMonster.Interactive.AppScreen</maml:name>
+        </dev:type>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>$servers = @(&#xD;
+                [pscustomobject]@{ Name = 'web01'; Role = 'Web'; Status = 'Pass' }&#xD;
+                [pscustomobject]@{ Name = 'sql01'; Role = 'Database'; Status = 'Fail' }&#xD;
+            )&#xD;
+            Show-ConsoleApp -Title Servers -Content {&#xD;
+                New-ConsoleScreen -Key list -Title Servers -KeyBinding ([ordered]@{&#xD;
+                    '1-2' = 'open', { param($Number, $State) $State.Server = $Number; $State.Screen = 'server' }&#xD;
+                }) -Content {&#xD;
+                    'Type a number to open a server.'&#xD;
+                    $servers | New-ConsoleTable -Property Name, Role, Status -StatusProperty Status&#xD;
+                }&#xD;
+                New-ConsoleScreen -Key server -Title { $servers[$State.Server - 1].Name } -Content {&#xD;
+                    New-ConsoleBinding -Content { $servers[$State.Server - 1] | New-ConsoleKeyValue }&#xD;
+                }&#xD;
+            }</dev:code>
+        <dev:remarks>
+          <maml:para>Open a server from a numbered list, and go back with Escape</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
       <command:name>New-ConsoleScrollView</command:name>
       <command:verb>New</command:verb>
       <command:noun>ConsoleScrollView</command:noun>
@@ -17525,6 +17686,18 @@ Description and RunText.</maml:para>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Dropdown</maml:name>
+          <maml:description>
+            <maml:para>Shows one row with the current choice; Enter, Space, Down or a click opens the list over the content below.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>Key</maml:name>
           <maml:description>
@@ -17668,6 +17841,18 @@ Description and RunText.</maml:para>
         <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
         <dev:type>
           <maml:name>Object</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Dropdown</maml:name>
+        <maml:description>
+          <maml:para>Shows one row with the current choice; Enter, Space, Down or a click opens the list over the content below.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -26653,15 +26838,15 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
       <command:noun>ConsoleApp</command:noun>
       <maml:description>
         <maml:para>Runs native input controls and dependent displays in a console application.</maml:para>
-        <maml:para>Builds the layout once, then runs input synchronously on the caller's PowerShell thread. Callbacks are queued by controls and drained before input reads; dependent builders run on that same thread. Escape exits. Cancellation restores the terminal through the core runner. Use -Mode Snapshot to capture or print initialized values without interactive input. CONSOLEMONSTER_SNAPSHOT=1 also selects an initialized snapshot when no input source is supplied; CONSOLEMONSTER_INPUT supplies scripted keys centrally. Nothing is sent to the pipeline unless -PassThru requests one ordinary hashtable.</maml:para>
+        <maml:para>Builds the layout once, then runs input synchronously on the caller's PowerShell thread. Callbacks are queued by controls and drained before input reads; dependent builders and key bindings run on that same thread. Adjacent New-ConsoleScreen commands make a screen stack. The footer lists the keys that work: the focused input's, the current screen's and -KeyBinding. Escape exits from the first screen. Cancellation restores the terminal through the core runner. Use -Mode Snapshot to capture or print initialized values without interactive input. CONSOLEMONSTER_SNAPSHOT=1 also selects an initialized snapshot when no input source is supplied; CONSOLEMONSTER_INPUT supplies scripted keys centrally. Nothing is sent to the pipeline unless -PassThru requests one ordinary hashtable.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Runs native input controls and dependent displays in a console application.</maml:para>
-      <maml:para>Builds the layout once, then runs input synchronously on the caller's PowerShell thread. Callbacks are queued by controls and drained before input reads; dependent builders run on that same thread. Escape exits. Cancellation restores the terminal through the core runner. Use -Mode Snapshot to capture or print initialized values without interactive input. CONSOLEMONSTER_SNAPSHOT=1 also selects an initialized snapshot when no input source is supplied; CONSOLEMONSTER_INPUT supplies scripted keys centrally. Nothing is sent to the pipeline unless -PassThru requests one ordinary hashtable.</maml:para>
+      <maml:para>Builds the layout once, then runs input synchronously on the caller's PowerShell thread. Callbacks are queued by controls and drained before input reads; dependent builders and key bindings run on that same thread. Adjacent New-ConsoleScreen commands make a screen stack. The footer lists the keys that work: the focused input's, the current screen's and -KeyBinding. Escape exits from the first screen. Cancellation restores the terminal through the core runner. Use -Mode Snapshot to capture or print initialized values without interactive input. CONSOLEMONSTER_SNAPSHOT=1 also selects an initialized snapshot when no input source is supplied; CONSOLEMONSTER_INPUT supplies scripted keys centrally. Nothing is sent to the pipeline unless -PassThru requests one ordinary hashtable.</maml:para>
     </maml:description>
     <command:syntax>
-      <command:syntaxItem parameterSetName="Footer">
+      <command:syntaxItem parameterSetName="__AllParameterSets">
         <maml:name>Show-ConsoleApp</maml:name>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Actions</maml:name>
@@ -26738,23 +26923,11 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Footer</maml:name>
           <maml:description>
-            <maml:para>Context key bar, normally a FooterBar reading the app's command registry.</maml:para>
+            <maml:para>A custom footer widget instead of the key hints built from the app's key bindings.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
           <dev:type>
             <maml:name>Object</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>HandleInput</maml:name>
-          <maml:description>
-            <maml:para>App-thread command registry routing before the focused input. Return true when consumed.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">Func`3</command:parameterValue>
-          <dev:type>
-            <maml:name>Func`3</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -26772,310 +26945,13 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>Keys</maml:name>
+          <maml:name>KeyBinding</maml:name>
           <maml:description>
-            <maml:para>Host focus, cancel and palette gestures. Set a gesture to null to release it to the app registry.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">AppHostKeys</command:parameterValue>
-          <dev:type>
-            <maml:name>AppHostKeys</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>MinimumHeight</maml:name>
-          <maml:description>
-            <maml:para>Minimum terminal height; zero permits any height.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
-          <dev:type>
-            <maml:name>Int32</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>MinimumWidth</maml:name>
-          <maml:description>
-            <maml:para>Minimum terminal width; smaller windows show a resize message without losing focus.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
-          <dev:type>
-            <maml:name>Int32</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>Mode</maml:name>
-          <maml:description>
-            <maml:para>Interaction mode override, as in Read-ConsoleText. A running app requires Rich; use -Mode Snapshot without interactive input.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">InteractionMode</command:parameterValue>
-          <command:parameterValueGroup>
-            <command:parameterValue required="false" variableLength="false">Rich</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Line</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Accessible</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Snapshot</command:parameterValue>
-          </command:parameterValueGroup>
-          <dev:type>
-            <maml:name>InteractionMode</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>NoMouse</maml:name>
-          <maml:description>
-            <maml:para>Disables optional terminal mouse reporting while retaining keyboard operation.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
-          <dev:type>
-            <maml:name>SwitchParameter</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>PassThru</maml:name>
-          <maml:description>
-            <maml:para>Returns final named values as one ordinary hashtable. Callback output is discarded.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
-          <dev:type>
-            <maml:name>SwitchParameter</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>Profile</maml:name>
-          <maml:description>
-            <maml:para>Terminal capabilities and dimensions; defaults to the existing interactive profile resolution.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">TerminalProfile</command:parameterValue>
-          <dev:type>
-            <maml:name>TerminalProfile</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>ReflowBelow</maml:name>
-          <maml:description>
-            <maml:para>Default width below which columns stack; explicit column thresholds take precedence.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
-          <dev:type>
-            <maml:name>Int32</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>SelectionKey</maml:name>
-          <maml:description>
-            <maml:para>App-state key containing the selected row or row collection supplied to commands.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
-          <dev:type>
-            <maml:name>String</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>SignalKeys</maml:name>
-          <maml:description>
-            <maml:para>Allows the terminal to generate Ctrl+C and Ctrl+backslash signals instead of app input events.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
-          <dev:type>
-            <maml:name>SwitchParameter</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>Status</maml:name>
-          <maml:description>
-            <maml:para>Semantic status in the application heading.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">StatusKind</command:parameterValue>
-          <command:parameterValueGroup>
-            <command:parameterValue required="false" variableLength="false">Pending</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Running</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Pass</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Fail</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Unknown</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
-          </command:parameterValueGroup>
-          <dev:type>
-            <maml:name>StatusKind</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>Subtitle</maml:name>
-          <maml:description>
-            <maml:para>Text qualifying the application title.</maml:para>
+            <maml:para>App-wide keys, as an ordered dictionary of key to 'label', { action }. They work after the focused input and the current screen; the action receives $State. '1-12' opens numbered items and passes the number first: param($Number, $State).</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
           <dev:type>
             <maml:name>Object</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>TerminalHandoff</maml:name>
-          <maml:description>
-            <maml:para>Child-terminal and last-output service attached for this app run.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">TerminalHandoff</command:parameterValue>
-          <dev:type>
-            <maml:name>TerminalHandoff</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>Theme</maml:name>
-          <maml:description>
-            <maml:para>Core theme used to render controls and dependent widgets.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">ITheme</command:parameterValue>
-          <dev:type>
-            <maml:name>ITheme</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>Title</maml:name>
-          <maml:description>
-            <maml:para>Optional heading above the application content.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
-          <dev:type>
-            <maml:name>Object</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-      </command:syntaxItem>
-      <command:syntaxItem parameterSetName="Hints">
-        <maml:name>Show-ConsoleApp</maml:name>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>Actions</maml:name>
-          <maml:description>
-            <maml:para>App-thread action service for starting the shared worker from registry and dialog callbacks.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">AppActions</command:parameterValue>
-          <dev:type>
-            <maml:name>AppActions</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>Capture</maml:name>
-          <maml:description>
-            <maml:para>Memory capture instead of terminal output; also supplies default screen dimensions.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">ScreenCapture</command:parameterValue>
-          <dev:type>
-            <maml:name>ScreenCapture</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>Command</maml:name>
-          <maml:description>
-            <maml:para>Shared command definitions for shortcuts and the in-app palette.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">AppCommand[]</command:parameterValue>
-          <dev:type>
-            <maml:name>AppCommand[]</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
-          <maml:name>Content</maml:name>
-          <maml:description>
-            <maml:para>Layout script emitting stable inputs and widgets. Invoked once on the caller's thread.</maml:para>
-          </maml:description>
-          <command:parameterValue required="true" variableLength="false">ScriptBlock</command:parameterValue>
-          <dev:type>
-            <maml:name>ScriptBlock</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>Detail</maml:name>
-          <maml:description>
-            <maml:para>Current detail beside the application heading.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
-          <dev:type>
-            <maml:name>Object</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>Dialogs</maml:name>
-          <maml:description>
-            <maml:para>Typed modal form service attached for this app run.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">AppDialogs</command:parameterValue>
-          <dev:type>
-            <maml:name>AppDialogs</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>FooterHints</maml:name>
-          <maml:description>
-            <maml:para>Dictionaries mapping key names to labels, or typed KeyHint values.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">Object[]</command:parameterValue>
-          <dev:type>
-            <maml:name>Object[]</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>HandleInput</maml:name>
-          <maml:description>
-            <maml:para>App-thread command registry routing before the focused input. Return true when consumed.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">Func`3</command:parameterValue>
-          <dev:type>
-            <maml:name>Func`3</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>InputSource</maml:name>
-          <maml:description>
-            <maml:para>Input source, including ScriptedInput for examples and tests. Uses the existing core input lease.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">IInputSource</command:parameterValue>
-          <dev:type>
-            <maml:name>IInputSource</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -27356,35 +27232,11 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Footer</maml:name>
         <maml:description>
-          <maml:para>Context key bar, normally a FooterBar reading the app's command registry.</maml:para>
+          <maml:para>A custom footer widget instead of the key hints built from the app's key bindings.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
         <dev:type>
           <maml:name>Object</maml:name>
-          <maml:uri />
-        </dev:type>
-        <dev:defaultValue>None</dev:defaultValue>
-      </command:parameter>
-      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
-        <maml:name>FooterHints</maml:name>
-        <maml:description>
-          <maml:para>Dictionaries mapping key names to labels, or typed KeyHint values.</maml:para>
-        </maml:description>
-        <command:parameterValue required="false" variableLength="false">Object[]</command:parameterValue>
-        <dev:type>
-          <maml:name>Object[]</maml:name>
-          <maml:uri />
-        </dev:type>
-        <dev:defaultValue>None</dev:defaultValue>
-      </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-        <maml:name>HandleInput</maml:name>
-        <maml:description>
-          <maml:para>App-thread command registry routing before the focused input. Return true when consumed.</maml:para>
-        </maml:description>
-        <command:parameterValue required="false" variableLength="false">Func`3</command:parameterValue>
-        <dev:type>
-          <maml:name>Func`3</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -27397,6 +27249,18 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
         <command:parameterValue required="false" variableLength="false">IInputSource</command:parameterValue>
         <dev:type>
           <maml:name>IInputSource</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>KeyBinding</maml:name>
+        <maml:description>
+          <maml:para>App-wide keys, as an ordered dictionary of key to 'label', { action }. They work after the focused input and the current screen; the action receives $State. '1-12' opens numbered items and passes the number first: param($Number, $State).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+        <dev:type>
+          <maml:name>Object</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -27637,6 +27501,18 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
+        <dev:code>Show-ConsoleApp -Title Counter -KeyBinding ([ordered]@{&#xD;
+                '+' = 'add', { param($State) $State.Count = 1 + $State.Count }&#xD;
+                r = 'reset', { param($State) $State.Count = 0 }&#xD;
+            }) -Content {&#xD;
+                New-ConsoleBinding -Content { "Count: $([int] $State.Count)" }&#xD;
+            } -PassThru</dev:code>
+        <dev:remarks>
+          <maml:para>Add app-wide keys; the footer lists them</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 3</maml:title>
         <dev:code>Show-ConsoleApp -Mode Snapshot -Content {&#xD;
                 New-ConsoleTextInput -Key Query -Value 'web'&#xD;
                 New-ConsoleBinding -Content { "Query: $($State.Query)" }&#xD;

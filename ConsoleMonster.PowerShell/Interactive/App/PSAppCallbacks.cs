@@ -11,10 +11,11 @@ namespace ConsoleMonster.PowerShell {
     internal sealed class PSAppCallbacks : IDisposable {
         private static readonly ConditionalWeakTable<InputControl, Registration> Registrations = new ConditionalWeakTable<InputControl, Registration>();
         private readonly PSCmdlet _owner;
+        private readonly AppState _state;
         private readonly ConcurrentQueue<Action<AppState>> _pending = new ConcurrentQueue<Action<AppState>>();
         private readonly List<Action> _detach = new List<Action>();
 
-        internal PSAppCallbacks(PSCmdlet owner) { _owner = owner; }
+        internal PSAppCallbacks(PSCmdlet owner, AppState state) { _owner = owner; _state = state; }
 
         internal static void Register(InputControl control, ScriptBlock? change, ScriptBlock? click = null) {
             if (change != null || click != null) {
@@ -22,7 +23,25 @@ namespace ConsoleMonster.PowerShell {
             }
         }
 
+        /// <summary>Key binding scripts run synchronously on the input thread, where keys are handled.</summary>
+        internal void AttachKeys(IEnumerable<KeyBinding> bindings) {
+            foreach (KeyBinding binding in bindings) {
+                if (PSKeyBindings.Action(binding) is PSKeyAction action) {
+                    _detach.Add(action.Script.Attach(_owner));
+                    action.State = _state;
+                    _detach.Add(() => action.State = null);
+                }
+            }
+        }
+
         internal void Attach(IWidget widget) {
+            if (widget is AppScreens screens) {
+                foreach (AppScreen screen in screens.Screens) {
+                    if (PSScreens.TitleScript(screen) is PSAppScript title) { _detach.Add(title.Attach(_owner)); }
+                    AttachKeys(screen.Bindings);
+                }
+            }
+            if (widget is InputControl input) { AttachKeys(input.Bindings); }
             if (widget is AppBinding binding) {
                 PSAppScript? script = PSAppScript.BindingScript(binding);
                 if (script != null) { _detach.Add(script.Attach(_owner)); }

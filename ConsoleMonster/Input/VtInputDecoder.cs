@@ -421,7 +421,7 @@ namespace ConsoleMonster.Input {
                 return;
             }
             if (IsPrintable(character) && (modifiers & (KeyModifiers.Control | KeyModifiers.Alt)) == 0) {
-                for (int i = 0; i < repeat; i++) output.Add(InputEvent.Character(character));
+                for (int i = 0; i < repeat; i++) output.Add(InputEvent.Character(character, modifiers, (ConsoleKey)virtualKey));
                 return;
             }
             for (int i = 0; i < repeat; i++) output.Add(InputEvent.Press((ConsoleKey)virtualKey, modifiers));
