@@ -174,6 +174,11 @@ Creates a form or wizard from fields (New-ConsoleField) for Read-ConsoleForm or 
 
 The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Use -PageDescriptions to give each page its own sentence under the title. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back. Presets the form comes with (New-ConsoleForm -Preset, in the scriptblock or -Preset) are listed before the saved ones.
 
+### [New-ConsoleImage](New-ConsoleImage.md)
+Creates an image to place inside panels, columns and dashboards.
+
+Inside layouts and live dashboards the image is drawn with half blocks on terminals with 256 colours or more, so it redraws cleanly with the rest of the screen; redirected and no-colour output gets [image: name WxH]. To print an image on its own with the terminal's real pixels, use Show-ConsoleImage.
+
 ### [New-ConsoleKeyValue](New-ConsoleKeyValue.md)
 Creates an aligned key/value list from a hashtable, an object's properties or Key/Value records pairs.
 
@@ -368,6 +373,11 @@ An Out-GridView for the console, on Windows PowerShell 5.1 and PowerShell 7. Typ
 Shows a command's help: synopsis, highlighted syntax, a parameter table and highlighted examples.
 
 Reads the help PowerShell has for the command (Get-Help -Full): cmdlet help files, comment-based help of functions and scripts, or the help PowerShell generates when there is none. It shows the name and synopsis, the syntax of each parameter set (parameter names, value types and optional parts told apart), the description, a parameter table (type, required, position, pipeline input, default, description), the examples with highlighted PowerShell code, inputs, outputs, notes and related links. Piped on (| more, | Out-Host -Paging, | Out-File) it writes plain lines, so pagers and files get readable text. About topics use the shared Markdown reader, retaining literal HTML and safe link handling. Works on Windows PowerShell 5.1 and PowerShell 7.
+
+### [Show-ConsoleImage](Show-ConsoleImage.md)
+Shows an image in the console, at the size you ask for in cells.
+
+Draws real pixels in terminals with an image protocol: Kitty and Ghostty (Kitty graphics), iTerm2 and WezTerm (iTerm2 inline images) and Windows Terminal (Sixel). Other terminals with 256 colours or more get half blocks. Redirected, CI, remote, 16-colour and no-colour output, the ISE and sessions with a transcript running get one line, [image: name WxH]. Get-ConsoleCapability shows the protocol in ImageProtocol. The aspect ratio is always kept. To put an image inside a panel or dashboard, use New-ConsoleImage.
 
 ### [Show-ConsoleMenu](Show-ConsoleMenu.md)
 Shows a menu until the user exits.
