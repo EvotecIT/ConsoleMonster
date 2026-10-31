@@ -4942,12 +4942,12 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
       <command:noun>ConsoleRecording</command:noun>
       <maml:description>
         <maml:para>Records a script, an app on a headless terminal, or an interactive child shell and saves the result.</maml:para>
-        <maml:para>Runs the script in an isolated child process, or opens a child shell with Interactive until it exits. Caller variables and functions are not inherited. The selected shell must be pwsh or powershell. With -Headless the script runs here, against a headless terminal of -Width by -Height cells, and -Keys drives it (key names, quoted text, wait:250 pauses, resize:80x24); the recording holds exactly what an app shows, including its log panel, footer and dialogs, and the app ends when the keys run out. Saves a local v2 cast plus metadata, then uses the existing renderer for an HTML player, animated SVG, text, Markdown or a final-frame SVG; Export-ConsoleRecording turns the cast into GIF or APNG. -InProcess explicitly selects the limited PowerShell output fallback.</maml:para>
+        <maml:para>Runs the script in an isolated child process, or opens a child shell with Interactive until it exits. Caller variables and functions are not inherited. The selected shell must be pwsh or powershell. With -Headless the script runs here, against a headless terminal of -Width by -Height cells, and -InputScript drives it (key names, quoted text, wait:250 pauses, resize:80x24); the recording holds exactly what an app shows, including its log panel, footer and dialogs, and the app ends when the keys run out. Saves a local v2 cast plus metadata, then uses the existing renderer for an HTML player, animated SVG, text, Markdown or a final-frame SVG; Export-ConsoleRecording turns the cast into GIF or APNG. -InProcess explicitly selects the limited PowerShell output fallback.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Records a script, an app on a headless terminal, or an interactive child shell and saves the result.</maml:para>
-      <maml:para>Runs the script in an isolated child process, or opens a child shell with Interactive until it exits. Caller variables and functions are not inherited. The selected shell must be pwsh or powershell. With -Headless the script runs here, against a headless terminal of -Width by -Height cells, and -Keys drives it (key names, quoted text, wait:250 pauses, resize:80x24); the recording holds exactly what an app shows, including its log panel, footer and dialogs, and the app ends when the keys run out. Saves a local v2 cast plus metadata, then uses the existing renderer for an HTML player, animated SVG, text, Markdown or a final-frame SVG; Export-ConsoleRecording turns the cast into GIF or APNG. -InProcess explicitly selects the limited PowerShell output fallback.</maml:para>
+      <maml:para>Runs the script in an isolated child process, or opens a child shell with Interactive until it exits. Caller variables and functions are not inherited. The selected shell must be pwsh or powershell. With -Headless the script runs here, against a headless terminal of -Width by -Height cells, and -InputScript drives it (key names, quoted text, wait:250 pauses, resize:80x24); the recording holds exactly what an app shows, including its log panel, footer and dialogs, and the app ends when the keys run out. Saves a local v2 cast plus metadata, then uses the existing renderer for an HTML player, animated SVG, text, Markdown or a final-frame SVG; Export-ConsoleRecording turns the cast into GIF or APNG. -InProcess explicitly selects the limited PowerShell output fallback.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="Script">
@@ -5238,7 +5238,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>Keys</maml:name>
+          <maml:name>InputScript</maml:name>
           <maml:description>
             <maml:para>Input for -Headless: key names (Down, Enter, Ctrl+K, F2), repeats (Down*3), quoted text, paste:"text", resize:80x24 and wait:250 pauses. Input ends after the last key.</maml:para>
           </maml:description>
@@ -5615,6 +5615,18 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>InputScript</maml:name>
+        <maml:description>
+          <maml:para>Input for -Headless: key names (Down, Enter, Ctrl+K, F2), repeats (Down*3), quoted text, paste:"text", resize:80x24 and wait:250 pauses. Input ends after the last key.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Interactive</maml:name>
         <maml:description>
@@ -5623,18 +5635,6 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
         <command:parameterValue required="true" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
           <maml:name>SwitchParameter</maml:name>
-          <maml:uri />
-        </dev:type>
-        <dev:defaultValue>None</dev:defaultValue>
-      </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-        <maml:name>Keys</maml:name>
-        <maml:description>
-          <maml:para>Input for -Headless: key names (Down, Enter, Ctrl+K, F2), repeats (Down*3), quoted text, paste:"text", resize:80x24 and wait:250 pauses. Input ends after the last key.</maml:para>
-        </maml:description>
-        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
-        <dev:type>
-          <maml:name>String</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -5814,7 +5814,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 3</maml:title>
-        <dev:code>Invoke-ConsoleRecording -Headless -Width 100 -Height 30 -Keys 'wait:800 Down Down wait:600 Enter wait:1200 q' -Path ./app.cast -WhatIf {&#xD;
+        <dev:code>Invoke-ConsoleRecording -Headless -Width 100 -Height 30 -InputScript 'wait:800 Down Down wait:600 Enter wait:1200 q' -Path ./app.cast -WhatIf {&#xD;
                 Show-ConsoleApp -Content { New-ConsoleSelect -Key Color -Choices Red, Green, Blue }&#xD;
             }&#xD;
             Export-ConsoleRecording -RecordingPath ./app.cast -Path ./app.gif -WhatIf</dev:code>

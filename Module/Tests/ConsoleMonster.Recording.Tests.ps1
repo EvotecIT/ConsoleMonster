@@ -131,7 +131,7 @@
         $language = $env:CONSOLEMONSTER_LANGUAGE
         $env:CONSOLEMONSTER_LANGUAGE = 'en'
         try {
-            $file = Invoke-ConsoleRecording -Headless -Width 60 -Height 14 -Keys 'Down Enter wait:150 Escape' -Path $cast {
+            $file = Invoke-ConsoleRecording -Headless -Width 60 -Height 14 -InputScript 'Down Enter wait:150 Escape' -Path $cast {
                 Show-ConsoleApp -Content {
                     New-ConsoleSelect -Key Color -Choices $choices
                     New-ConsoleBinding -WidgetId Picked -Content { param($State) "Picked $($State.Color)" }

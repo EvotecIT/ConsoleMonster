@@ -8,7 +8,7 @@ schema: 2.0.0
 ## SYNOPSIS
 Records a script, an app on a headless terminal, or an interactive child shell and saves the result.
 
-Runs the script in an isolated child process, or opens a child shell with Interactive until it exits. Caller variables and functions are not inherited. The selected shell must be pwsh or powershell. With -Headless the script runs here, against a headless terminal of -Width by -Height cells, and -Keys drives it (key names, quoted text, wait:250 pauses, resize:80x24); the recording holds exactly what an app shows, including its log panel, footer and dialogs, and the app ends when the keys run out. Saves a local v2 cast plus metadata, then uses the existing renderer for an HTML player, animated SVG, text, Markdown or a final-frame SVG; Export-ConsoleRecording turns the cast into GIF or APNG. -InProcess explicitly selects the limited PowerShell output fallback.
+Runs the script in an isolated child process, or opens a child shell with Interactive until it exits. Caller variables and functions are not inherited. The selected shell must be pwsh or powershell. With -Headless the script runs here, against a headless terminal of -Width by -Height cells, and -InputScript drives it (key names, quoted text, wait:250 pauses, resize:80x24); the recording holds exactly what an app shows, including its log panel, footer and dialogs, and the app ends when the keys run out. Saves a local v2 cast plus metadata, then uses the existing renderer for an HTML player, animated SVG, text, Markdown or a final-frame SVG; Export-ConsoleRecording turns the cast into GIF or APNG. -InProcess explicitly selects the limited PowerShell output fallback.
 
 ## SYNTAX
 ### Script (Default)
@@ -18,7 +18,7 @@ Invoke-ConsoleRecording [-ScriptBlock] <scriptblock> -Path <string> [-Theme <Exp
 
 ### Headless
 ```powershell
-Invoke-ConsoleRecording [-ScriptBlock] <scriptblock> -Path <string> -Headless [-Theme <ExportTheme>] [-ChromeStyle <WindowChromeStyle>] [-FinalFrame] [-Keys <string>] [-RecordingPath <string>] [-Title <string>] [-Shell <string>] [-Width <int>] [-Height <int>] [-Redact <string[]>] [-RedactionText <string>] [-MaxBytes <long>] [-IdleLimitSeconds <double>] [-InProcess] [-TimeoutSeconds <double>] [-WhatIf] [-Confirm] [<CommonParameters>]
+Invoke-ConsoleRecording [-ScriptBlock] <scriptblock> -Path <string> -Headless [-Theme <ExportTheme>] [-ChromeStyle <WindowChromeStyle>] [-FinalFrame] [-InputScript <string>] [-RecordingPath <string>] [-Title <string>] [-Shell <string>] [-Width <int>] [-Height <int>] [-Redact <string[]>] [-RedactionText <string>] [-MaxBytes <long>] [-IdleLimitSeconds <double>] [-InProcess] [-TimeoutSeconds <double>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### Interactive
@@ -29,7 +29,7 @@ Invoke-ConsoleRecording -Interactive [-Path <string>] [-Title <string>] [-Shell 
 ## DESCRIPTION
 Records a script, an app on a headless terminal, or an interactive child shell and saves the result.
 
-Runs the script in an isolated child process, or opens a child shell with Interactive until it exits. Caller variables and functions are not inherited. The selected shell must be pwsh or powershell. With -Headless the script runs here, against a headless terminal of -Width by -Height cells, and -Keys drives it (key names, quoted text, wait:250 pauses, resize:80x24); the recording holds exactly what an app shows, including its log panel, footer and dialogs, and the app ends when the keys run out. Saves a local v2 cast plus metadata, then uses the existing renderer for an HTML player, animated SVG, text, Markdown or a final-frame SVG; Export-ConsoleRecording turns the cast into GIF or APNG. -InProcess explicitly selects the limited PowerShell output fallback.
+Runs the script in an isolated child process, or opens a child shell with Interactive until it exits. Caller variables and functions are not inherited. The selected shell must be pwsh or powershell. With -Headless the script runs here, against a headless terminal of -Width by -Height cells, and -InputScript drives it (key names, quoted text, wait:250 pauses, resize:80x24); the recording holds exactly what an app shows, including its log panel, footer and dialogs, and the app ends when the keys run out. Saves a local v2 cast plus metadata, then uses the existing renderer for an HTML player, animated SVG, text, Markdown or a final-frame SVG; Export-ConsoleRecording turns the cast into GIF or APNG. -InProcess explicitly selects the limited PowerShell output fallback.
 
 ## EXAMPLES
 
@@ -49,7 +49,7 @@ Preview recording a child shell
 
 ### EXAMPLE 3
 ```powershell
-Invoke-ConsoleRecording -Headless -Width 100 -Height 30 -Keys 'wait:800 Down Down wait:600 Enter wait:1200 q' -Path ./app.cast -WhatIf {
+Invoke-ConsoleRecording -Headless -Width 100 -Height 30 -InputScript 'wait:800 Down Down wait:600 Enter wait:1200 q' -Path ./app.cast -WhatIf {
     Show-ConsoleApp -Content { New-ConsoleSelect -Key Color -Choices Red, Green, Blue }
 }
 Export-ConsoleRecording -RecordingPath ./app.cast -Path ./app.gif -WhatIf
@@ -155,6 +155,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -InputScript
+Input for -Headless: key names (Down, Enter, Ctrl+K, F2), repeats (Down*3), quoted text, paste:"text", resize:80x24 and wait:250 pauses. Input ends after the last key.
+
+```yaml
+Type: String
+Parameter Sets: Headless
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Interactive
 Records an interactive child shell until it exits or stops recording.
 
@@ -165,22 +181,6 @@ Aliases: None
 Possible values:
 
 Required: True
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Keys
-Input for -Headless: key names (Down, Enter, Ctrl+K, F2), repeats (Down*3), quoted text, paste:"text", resize:80x24 and wait:250 pauses. Input ends after the last key.
-
-```yaml
-Type: String
-Parameter Sets: Headless
-Aliases: None
-Possible values:
-
-Required: False
 Position: named
 Default value: None
 Accept pipeline input: False

@@ -41,7 +41,7 @@ A recording made in the process holds the composed screen: the app's own control
 footer, dialogs and prompts. It is an asciicast v2 file, so every existing export works on it.
 
 ```powershell
-Invoke-ConsoleRecording -Headless -Width 100 -Height 30 -Keys 'wait:800 Down Down wait:600 Enter wait:1200 Escape' -Path ./app.cast {
+Invoke-ConsoleRecording -Headless -Width 100 -Height 30 -InputScript 'wait:800 Down Down wait:600 Enter wait:1200 Escape' -Path ./app.cast {
     Show-ConsoleApp -Content {
         New-ConsoleSelect -Key Color -Choices Red, Green, Blue
         New-ConsoleBinding -WidgetId Picked -Content { param($State) "Picked $($State.Color)" }

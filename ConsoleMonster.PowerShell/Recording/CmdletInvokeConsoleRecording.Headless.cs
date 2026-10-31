@@ -8,7 +8,7 @@ namespace ConsoleMonster.PowerShell {
         private string RecordHeadless(SessionRecordingOptions options) {
             HeadlessTerminal terminal = HeadlessTerminal.LikeConsole(Terminal.ResolveWidth(Width), Height);
             using (SessionRecorder recorder = terminal.Record(options)) {
-                if (!string.IsNullOrEmpty(Keys)) { terminal.Send(Keys!); }
+                if (!string.IsNullOrEmpty(InputScript)) { terminal.Send(InputScript!); }
                 terminal.CompleteInput();
                 using (Terminal.Use(terminal)) { ScriptBlock.Invoke(); }
                 return recorder.Path;
