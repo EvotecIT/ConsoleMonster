@@ -110,6 +110,9 @@ using (ScriptedInput input = new ScriptedInput("\"sql\" Escape")) {
 The capture includes the initial inventory and the final filtered state. Intermediate rendering may coalesce several
 edits, while the final state contains the complete query. Use the first and last frames for deterministic snapshots.
 
+To run the whole app as a terminal would show it (live session, log panel, footer, dialogs), to record it as a GIF, or
+to drive it from a browser or an agent, use the headless driver: see [Headless-Driver.md](Headless-Driver.md).
+
 For one initialized frame in CI or redirected output, set `Mode = InteractionMode.Snapshot` in the app's
 `InteractiveOptions`, or use `Show-ConsoleApp -Mode Snapshot` in PowerShell. `CONSOLEMONSTER_SNAPSHOT=1` selects the same behaviour when no input source is supplied. `CONSOLEMONSTER_INPUT` supplies scripted keys for an unchanged app. Explicit input wins. This draws once without reading input. A running interactive application
 requires interactive input or an explicitly supplied input source.
