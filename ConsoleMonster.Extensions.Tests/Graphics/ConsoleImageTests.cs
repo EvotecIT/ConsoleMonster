@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using ChartForgeX;
@@ -18,6 +19,32 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
         // 2x2 PNG: red, green / blue, transparent white. Small enough to pass through to Kitty and iTerm2 unchanged.
         private const string DotPng = "iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAGElEQVR4nGP4z8Dwn6GB4T8DA8N/EGAAAELVCHmF7Ec3AAAAAElFTkSuQmCC";
         private const string Esc = "\u001b";
+
+        [Fact]
+        public void FromFile_RejectsOversizedInputBeforeAllocatingItsContents() {
+            string path = Path.GetTempFileName();
+            try {
+                File.WriteAllBytes(path, Convert.FromBase64String(DotPng));
+                ConsoleImage image = ConsoleImage.FromFile(path);
+                Assert.Equal(2, image.PixelWidth);
+                Assert.Equal(2, image.PixelHeight);
+                Assert.Equal(Path.GetFileName(path), image.Name);
+                using (FileStream file = File.OpenWrite(path)) {
+                    file.SetLength(new RasterDecodeOptions().MaximumEncodedBytes + 1L);
+                }
+#if NET8_0_OR_GREATER
+                long allocated = GC.GetAllocatedBytesForCurrentThread();
+#endif
+                InvalidDataException error = Assert.Throws<InvalidDataException>(() => ConsoleImage.FromFile(path));
+                Assert.Contains("byte limit", error.Message);
+#if NET8_0_OR_GREATER
+                Assert.True(GC.GetAllocatedBytesForCurrentThread() - allocated < 1024 * 1024,
+                    "An oversized file must be rejected before its contents are allocated.");
+#endif
+            } finally {
+                File.Delete(path);
+            }
+        }
 
         [Fact]
         public void Write_Kitty_SendsPngInOneFramedChunkAndContinuesBelowTheImage() {

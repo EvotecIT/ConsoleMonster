@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Management.Automation;
+using ChartForgeX.Raster;
 using ConsoleMonster.Graphics;
 
 namespace ConsoleMonster.PowerShell {
@@ -46,24 +47,29 @@ namespace ConsoleMonster.PowerShell {
                 ThrowTerminatingError(new ErrorRecord(new ArgumentException(MyInvocation.MyCommand.Name + " needs -Path or -Bytes."), "ConsoleImageSourceMissing", ErrorCategory.InvalidArgument, null));
             }
             string source = path;
-            byte[] data;
             try {
                 source = SessionState.Path.GetUnresolvedProviderPathFromPSPath(path);
-                data = File.ReadAllBytes(source);
             } catch (Exception error) when (error is IOException || error is UnauthorizedAccessException || error is NotSupportedException
                 || error is ArgumentException || error is SessionStateException) {
                 WriteError(new ErrorRecord(error, "ConsoleImageUnreadable", ErrorCategory.ReadError, source));
                 return null;
             }
-            return Decode(data, source, Label ?? System.IO.Path.GetFileName(source));
+            return Decode(null, source, Label ?? System.IO.Path.GetFileName(source));
         }
 
         // The failures ChartForgeX reports for damaged or truncated images: one bad file is an error, not the end of a pipeline.
-        private ConsoleImage? Decode(byte[] data, string source, string? name) {
+        private ConsoleImage? Decode(byte[]? data, string source, string? name) {
             try {
-                return new ConsoleImage(data, name) { Width = Width, Height = Height };
-            } catch (Exception error) when (error is IOException || error is NotSupportedException || error is ArgumentException
+                ConsoleImage image = data == null ? new ConsoleImage(RasterImageDecoder.Read(source), name) : new ConsoleImage(data, name);
+                image.Width = Width;
+                image.Height = Height;
+                return image;
+            } catch (Exception error) when (error is IOException || error is InvalidDataException || error is UnauthorizedAccessException || error is NotSupportedException || error is ArgumentException
                 || error is ArithmeticException || error is IndexOutOfRangeException) {
+                if (data == null && (error is IOException || error is UnauthorizedAccessException)) {
+                    WriteError(new ErrorRecord(error, "ConsoleImageUnreadable", ErrorCategory.ReadError, source));
+                    return null;
+                }
                 WriteError(new ErrorRecord(new InvalidDataException("'" + source + "' cannot be read as an image. " + error.Message, error),
                     "ConsoleImageInvalid", ErrorCategory.InvalidData, source));
                 return null;

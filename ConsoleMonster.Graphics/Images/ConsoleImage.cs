@@ -56,7 +56,7 @@ namespace ConsoleMonster.Graphics {
         /// <returns>The image.</returns>
         public static ConsoleImage FromFile(string path) {
             if (string.IsNullOrWhiteSpace(path)) { throw new ArgumentException("Give the path of an image file.", nameof(path)); }
-            return new ConsoleImage(File.ReadAllBytes(path), Path.GetFileName(path));
+            return new ConsoleImage(RasterImageDecoder.Read(path), Path.GetFileName(path));
         }
 
         /// <summary>The name shown by the text placeholder, <c>[image: name WxH]</c>.</summary>
