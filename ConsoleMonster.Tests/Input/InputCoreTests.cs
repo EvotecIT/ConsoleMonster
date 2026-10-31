@@ -90,6 +90,26 @@ namespace ConsoleMonster.Tests.Input {
             return output;
         }
 
+        /// <summary>
+        /// A Latin letter or digit chord works on other layouts: the key behind a Windows record (Greek on W, French '&amp;'
+        /// on 1) or the standard Cyrillic positions for VT input. A typed Latin character keeps its label (QWERTZ 'z' on the
+        /// Y key is z), and a shifted symbol on a digit key is not that digit.
+        /// </summary>
+        [Fact]
+        public void CharacterChord_MatchesTheSameKeyOnAnotherLayout() {
+            // One record per read: a burst of characters in one read is a paste.
+            InputEvent[] windows = { Translate(Key(0x57, 'ς', 0))[0], Translate(Key(0x31, '&', 0))[0], Translate(Key(0x31, '!', ConsoleInputNative.ShiftPressed))[0], Translate(Key(0x59, 'z', 0))[0] };
+            Assert.True(new KeyChord('w').Matches(windows[0]));
+            Assert.True(new KeyChord('1').Matches(windows[1]));
+            Assert.False(new KeyChord('1').Matches(windows[2]));
+            Assert.True(new KeyChord('z').Matches(windows[3]));
+            Assert.False(new KeyChord('y').Matches(windows[3]));
+            Assert.True(new KeyChord('q').Matches(InputEvent.Character('й')));
+            Assert.True(new KeyChord('Q').Matches(InputEvent.Character('Й')));
+            Assert.False(new KeyChord('q').Matches(InputEvent.Character('Й')));
+            Assert.False(new KeyChord('w').Matches(InputEvent.Character('й')));
+        }
+
         [Fact]
         public void Translate_CtrlLetter_BecomesControlKeyWithoutCharacter() {
             List<InputEvent> events = Translate(Key(0x4B, (char)0x0B, ConsoleInputNative.LeftCtrl), Key(0x4B, (char)0x0B, ConsoleInputNative.LeftCtrl, false));

@@ -78,7 +78,7 @@ namespace ConsoleMonster.Input {
             char c = info.KeyChar;
             if (c >= ' ' && c != '\u007f') {
                 bool altGr = (modifiers & (KeyModifiers.Control | KeyModifiers.Alt)) == (KeyModifiers.Control | KeyModifiers.Alt);
-                return InputEvent.Character(c, altGr ? KeyModifiers.None : modifiers);
+                return InputEvent.Character(c, altGr ? KeyModifiers.None : modifiers, altGr ? 0 : info.Key);
             }
             return InputEvent.Press(info.Key, modifiers);
         }
