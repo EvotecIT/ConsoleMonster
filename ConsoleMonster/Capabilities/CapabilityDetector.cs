@@ -132,6 +132,7 @@ namespace ConsoleMonster.Capabilities {
             int height = env.IsOutputRedirected ? Dimension("LINES", TerminalProfile.DefaultHeight) : Positive(env.WindowHeight, TerminalProfile.DefaultHeight);
             TerminalKind kind = DetectKind();
             bool hyperlinks = DetectHyperlinks(kind, decisions);
+            ImageProtocol images = DetectImages(decisions);
             decisions.Add("mode: " + mode + " (" + modeReason + ")");
             decisions.Add("colour: " + color + " (" + colorReason + ")");
             decisions.Add("glyphs: " + glyphs + " (" + glyphReason + ")");
@@ -144,7 +145,7 @@ namespace ConsoleMonster.Capabilities {
             decisions.Add("size: " + width.ToString(CultureInfo.InvariantCulture) + "x" + height.ToString(CultureInfo.InvariantCulture) + (env.IsOutputRedirected ? " (COLUMNS/LINES or defaults)" : " (visible window or defaults)"));
             return new TerminalProfile(color, glyphs, mode, width, height, kind, vt,
                 env.IsOutputRedirected, env.IsConsoleHandle, ci, env.ConsoleFontFace, decisions.AsReadOnly(), widths, probeWidths, themePreference, culture, hyperlinks) {
-                WidthFromColumns = columns > 0
+                WidthFromColumns = columns > 0, ImageSupport = images
             };
         }
 
@@ -217,7 +218,7 @@ namespace ConsoleMonster.Capabilities {
             return new TerminalProfile(profile.ColorDepth, glyphs, profile.Mode, profile.Width, profile.Height,
                 profile.Kind, profile.SupportsVirtualTerminal, profile.IsOutputRedirected, profile.IsConsoleHandle,
                 profile.IsContinuousIntegration, fontFace, decisions.AsReadOnly(), profile.WidthProfile, profile.ProbeWidths,
-                profile.ThemePreference, profile.Culture, profile.HyperlinkSupport).WithLanguage(profile.Language)
+                profile.ThemePreference, profile.Culture, profile.HyperlinkSupport) { ImageSupport = profile.ImageSupport }.WithLanguage(profile.Language)
                 .WithDefaultColors(profile.DefaultForeground, profile.DefaultBackground);
         }
 

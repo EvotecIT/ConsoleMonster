@@ -145,6 +145,24 @@ namespace ConsoleMonster.Capabilities {
         /// <summary>The detected or explicitly configured support, preserved when copying a profile into another mode.</summary>
         internal bool HyperlinkSupport => _supportsHyperlinks;
 
+        /// <summary>
+        /// How this output may draw an inline image: the detected or configured protocol (<see cref="WithImageProtocol"/>) on
+        /// interactive VT output with 256 colours or more, and half blocks on other line output with those colours. Redirected,
+        /// CI, plain, no-colour and 16-colour output always get <see cref="Capabilities.ImageProtocol.None"/>, a text
+        /// placeholder, so image sequences never reach logs or files.
+        /// </summary>
+        public ImageProtocol ImageProtocol {
+            get {
+                if (IsOutputRedirected || IsContinuousIntegration || Mode == OutputMode.Plain || ColorDepth < ColorDepth.Ansi256 || ImageSupport == ImageProtocol.None) {
+                    return ImageProtocol.None;
+                }
+                return Mode == OutputMode.Interactive && SupportsVirtualTerminal ? ImageSupport : ImageProtocol.HalfBlock;
+            }
+        }
+
+        /// <summary>The detected or configured image protocol before the output guards; half blocks unless detection found more.</summary>
+        internal ImageProtocol ImageSupport { get; set; } = ImageProtocol.HalfBlock;
+
         /// <summary>Whether standard output is redirected to a file, pipe or log.</summary>
         public bool IsOutputRedirected { get; }
 
@@ -240,7 +258,8 @@ namespace ConsoleMonster.Capabilities {
         public TerminalProfile WithCulture(CultureInfo? culture) {
             return new TerminalProfile(ColorDepth, Glyphs, Mode, Width, Height, Kind, SupportsVirtualTerminal, IsOutputRedirected,
                 IsConsoleHandle, IsContinuousIntegration, FontFace, Decisions, WidthProfile, ProbeWidths, ThemePreference, culture, _supportsHyperlinks) {
-                Language = Language, DefaultForeground = DefaultForeground, DefaultBackground = DefaultBackground, WidthFromColumns = WidthFromColumns
+                Language = Language, DefaultForeground = DefaultForeground, DefaultBackground = DefaultBackground, WidthFromColumns = WidthFromColumns,
+                ImageSupport = ImageSupport
             };
         }
 
@@ -278,6 +297,18 @@ namespace ConsoleMonster.Capabilities {
         /// <returns>A new profile.</returns>
         public TerminalProfile WithHyperlinks(bool supportsHyperlinks) => Copy(supportsHyperlinks: supportsHyperlinks);
 
+        /// <summary>
+        /// Returns a copy that draws images with a chosen protocol, for a terminal detection does not recognise or to opt down
+        /// to half blocks or the placeholder. Output, CI, mode, VT and colour guards still apply (see <see cref="ImageProtocol"/>).
+        /// </summary>
+        /// <param name="protocol">The protocol the terminal supports.</param>
+        /// <returns>A new profile.</returns>
+        public TerminalProfile WithImageProtocol(ImageProtocol protocol) {
+            TerminalProfile copy = Copy();
+            copy.ImageSupport = protocol;
+            return copy;
+        }
+
         /// <inheritdoc />
         public override string ToString() {
             return Kind + " " + Width + "x" + Height + " " + Mode + " " + ColorDepth + " " + Glyphs;
@@ -302,7 +333,7 @@ namespace ConsoleMonster.Capabilities {
                 themePreference ?? ThemePreference,
                 Culture, supportsHyperlinks ?? _supportsHyperlinks) {
                 Language = Language, DefaultForeground = DefaultForeground, DefaultBackground = DefaultBackground,
-                WidthFromColumns = WidthFromColumns && (width ?? Width) == Width
+                WidthFromColumns = WidthFromColumns && (width ?? Width) == Width, ImageSupport = ImageSupport
             };
         }
     }
