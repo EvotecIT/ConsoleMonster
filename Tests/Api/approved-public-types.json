@@ -529,6 +529,7 @@
     "ConsoleMonster.Widgets.LiveTableHandle",
     "ConsoleMonster.Widgets.LiveWidget",
     "ConsoleMonster.Widgets.LogEntry",
+    "ConsoleMonster.Widgets.LogFilter",
     "ConsoleMonster.Widgets.LogHandle",
     "ConsoleMonster.Widgets.Logo",
     "ConsoleMonster.Widgets.LogRegion",

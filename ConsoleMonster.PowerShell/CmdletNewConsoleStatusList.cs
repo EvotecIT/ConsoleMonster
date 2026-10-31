@@ -8,7 +8,7 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates a checklist of items with status markers.</para>
-    /// <para type="description">Content or the pipeline accepts Key/Label/Status records and strings. Records can include Detail; strings begin as pending checklist items. InputObject also accepts a dictionary mapping labels to statuses. Layout selects a vertical List or a horizontal Strip. Statuses use the shared vocabulary: Pass, Fail, Warn, Skip, Info, Running, Pending and PowerShell's words such as Success, Warning and Error. Status is always shown with a symbol (or a [PASS]-style word in ASCII mode), never by colour alone. In a live dashboard, update items with Update-Console.</para>
+    /// <para type="description">Content or the pipeline accepts Key/Label/Status records and strings. Records can include Detail; strings begin as pending checklist items. InputObject also accepts a dictionary mapping labels to statuses. Layout selects a vertical List, a horizontal Strip of phases, or a Chain: the phases on one line that folds to fit, for a table cell or a header. In a Strip, records with ParentKey are items of that phase; the running phase fans out to them, keeping failed and running items visible and folding the rest into +N more. Statuses use the shared vocabulary: Pass, Fail, Warn, Skip, Info, Running, Pending and PowerShell's words such as Success, Warning and Error. Status is always shown with a symbol (or a [PASS]-style word in ASCII mode), never by colour alone. In a live dashboard, update items with Update-Console.</para>
     /// </summary>
     /// <example>
     ///   <para>A build checklist</para>
@@ -42,6 +42,29 @@ namespace ConsoleMonster.PowerShell {
     ///     @{ Key = 'test'; Label = 'Test'; Status = 'Pending' }
     /// } | Show-Console</code>
     /// </example>
+    /// <example>
+    /// <para>The running phase fans out to the users it is migrating</para>
+    /// <code>New-ConsoleStatusList -Layout Strip -FanOut 4 -Content {
+    ///     @{ Key = 'snapshot'; Label = 'Snapshot'; Status = 'Pass'; Detail = '12 s' }
+    ///     @{ Key = 'migrate'; Label = 'Migrate'; Status = 'Running'; Detail = '6/14' }
+    ///     @{ Key = 'verify'; Label = 'Verify' }
+    ///     'alice', 'bob', 'carol', 'dave', 'erin' | ForEach-Object { @{ ParentKey = 'migrate'; Key = $_; Status = 'Pass' } }
+    ///     @{ ParentKey = 'migrate'; Key = 'frank'; Status = 'Running'; Detail = '40%' }
+    ///     @{ ParentKey = 'migrate'; Key = 'mallory'; Status = 'Fail'; Detail = 'access denied' }
+    /// } | Show-Console</code>
+    /// </example>
+    /// <example>
+    /// <para>Pipeline stages as one line in a table column</para>
+    /// <code>$stages = { param($Build) New-ConsoleStatusList -Layout Chain -Content {
+    ///     @{ Key = 'fetch'; Label = 'Fetch'; Status = 'Pass' }
+    ///     @{ Key = 'build'; Label = 'Build'; Status = $Build }
+    ///     @{ Key = 'test'; Label = 'Test' }
+    /// } }
+    /// @(
+    ///     [pscustomobject]@{ Repository = 'ConsoleMonster'; Stages = &amp; $stages 'Running' }
+    ///     [pscustomobject]@{ Repository = 'PSPublishModule'; Stages = &amp; $stages 'Fail' }
+    /// ) | Show-ConsoleTable</code>
+    /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleStatusList")]
     [OutputType(typeof(StatusList), typeof(Phases))]
     public sealed class CmdletNewConsoleStatusList : PSCmdlet {
@@ -57,12 +80,15 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(ValueFromPipeline = true, Position = 1)]
         public PSObject? InputObject { get; set; }
 
-        /// <summary><para type="description">List stacks the items; Strip shows ordered phases.</para></summary>
-        [Parameter, ValidateSet("List", "Strip")]
+        /// <summary><para type="description">List stacks the items; Strip shows ordered phases; Chain shows the phases on one line that folds to fit.</para></summary>
+        [Parameter, ValidateSet("List", "Strip", "Chain")]
         public string Layout { get; set; } = "List";
 
         /// <summary><para type="description">Adds step counters to the Strip layout.</para></summary>
         [Parameter] public SwitchParameter StepCounter { get; set; }
+
+        /// <summary><para type="description">Rows the running phase of a Strip fans out to, including the +N more row (default 5; 0 hides items).</para></summary>
+        [Parameter, ValidateRange(0, 100)] public int FanOut { get; set; } = 5;
 
         /// <summary><para type="description">The live name (default status).</para></summary>
         [Parameter(Position = 0)]
@@ -85,10 +111,12 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void EndProcessing() {
-            bool strip = string.Equals(Layout, "Strip", System.StringComparison.OrdinalIgnoreCase);
-            if (!strip && StepCounter.IsPresent) { throw new PSArgumentException("StepCounter applies to Layout Strip."); }
+            bool chain = string.Equals(Layout, "Chain", System.StringComparison.OrdinalIgnoreCase);
+            bool strip = chain || string.Equals(Layout, "Strip", System.StringComparison.OrdinalIgnoreCase);
+            if ((!strip || chain) && StepCounter.IsPresent) { throw new PSArgumentException("StepCounter applies to Layout Strip."); }
+            if ((!strip || chain) && MyInvocation.BoundParameters.ContainsKey(nameof(FanOut))) { throw new PSArgumentException("FanOut applies to Layout Strip."); }
             if (strip && DetailColumn != null) { throw new PSArgumentException("DetailColumn applies to Layout List."); }
-            ConsoleMonster.Layout.IWidget list = strip ? (ConsoleMonster.Layout.IWidget)new Phases(WidgetId) { StepCounter = StepCounter.IsPresent } : new StatusList(WidgetId);
+            ConsoleMonster.Layout.IWidget list = strip ? (ConsoleMonster.Layout.IWidget)new Phases(WidgetId) { StepCounter = StepCounter.IsPresent, Compact = chain, FanOut = FanOut } : new StatusList(WidgetId);
             foreach (IDictionary dictionary in _dictionaries) {
                 foreach (DictionaryEntry entry in dictionary) {
                     string label = PSWidgets.ToText(entry.Key);
@@ -101,6 +129,7 @@ namespace ConsoleMonster.PowerShell {
             ScriptBlock? content = Content;
             PSItems.AddAll(this, list, PSItems.Items(content));
             PSItems.AddAll(this, list, _piped);
+            if (chain && ((Phases)list).HasItems) { throw new PSArgumentException("Items with ParentKey apply to Layout Strip."); }
             if (DetailColumn != null && list is StatusList checklist) { checklist.DetailColumn = DetailColumn; }
             WriteObject(list);
         }

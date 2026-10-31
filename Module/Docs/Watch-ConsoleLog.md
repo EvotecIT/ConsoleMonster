@@ -13,12 +13,12 @@ File lines are decoded incrementally and followed across observed truncation and
 ## SYNTAX
 ### Path (Default)
 ```powershell
-Watch-ConsoleLog [-Path] <string> [-Encoding <string>] [-Tail <int>] [-Count <long>] [-PollIntervalSeconds <double>] [-Filter <string>] [-Highlight <string>] [-TimestampFormat <string>] [-Capacity <int>] [-NoLive] [<CommonParameters>]
+Watch-ConsoleLog [-Path] <string> [-Encoding <string>] [-Tail <int>] [-Count <long>] [-PollIntervalSeconds <double>] [-Filter <string>] [-Level <string>] [-Highlight <string>] [-TimestampFormat <string>] [-Capacity <int>] [-NoLive] [<CommonParameters>]
 ```
 
 ### EventLog
 ```powershell
-Watch-ConsoleLog -LogName <string> [-Tail <int>] [-Count <long>] [-PollIntervalSeconds <double>] [-Filter <string>] [-Highlight <string>] [-TimestampFormat <string>] [-Capacity <int>] [-NoLive] [<CommonParameters>]
+Watch-ConsoleLog -LogName <string> [-Tail <int>] [-Count <long>] [-PollIntervalSeconds <double>] [-Filter <string>] [-Level <string>] [-Highlight <string>] [-TimestampFormat <string>] [-Capacity <int>] [-NoLive] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -43,6 +43,13 @@ Inspect an existing log and highlight a component
 ```
 
 Return matching lines from an existing log as strings
+
+### EXAMPLE 3
+```powershell
+Watch-ConsoleLog -LogName System -Level Warn
+```
+
+Follow only warnings and errors from the System event log
 
 ## PARAMETERS
 
@@ -112,6 +119,22 @@ Accept wildcard characters: False
 
 ### -Highlight
 Literal case-insensitive text emphasized in live output. Plain output stays unchanged.
+
+```yaml
+Type: String
+Parameter Sets: Path, EventLog
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Level
+Keeps lines at this level or worse: Warn keeps warnings and errors, Verbose drops only debug lines. Levels are read from each line, as the live view colours them.
 
 ```yaml
 Type: String
