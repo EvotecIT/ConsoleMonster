@@ -19,7 +19,7 @@ The PowerShell module includes the add-on and loads it when Markdown is requeste
 
 ## Graphics
 
-`ConsoleMonster.Graphics` exports PNG, GIF and APNG through ChartForgeX 3.1.0. It includes frame and recording exports and slide presets. See [Talks and demos](/docs/talks-and-demos/).
+`ConsoleMonster.Graphics` exports PNG, GIF and APNG through ChartForgeX 3.1.0. It includes frame and recording exports and slide presets. See [Talks and demos](/docs/talks-and-demos/). It also draws images inline with Kitty, iTerm2 or Sixel pixels, or half blocks; see [Inline images](/docs/inline-images/).
 
 ## Hosting and logging
 

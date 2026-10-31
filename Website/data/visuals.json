@@ -309,6 +309,9 @@
     "hosting": {
       "src": "/site/cards/hosting.svg"
     },
+    "inline-images-60": {
+      "src": "/site/cards/inline-images-60.svg"
+    },
     "app-live-filter-filtered-60": {
       "src": "/site/cards/app-live-filter-filtered-60.svg"
     },
