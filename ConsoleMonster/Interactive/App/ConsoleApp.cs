@@ -76,6 +76,8 @@ namespace ConsoleMonster.Interactive {
                 using (MouseReporting? mouse = MouseReporting.Open(settings.Mouse, interactive, profile, lease!.Source, live.Output != null))
                 using (LiveSession session = new LiveSession(app.Root, live)) {
                     session.Start();
+                    // Output written during the app goes into the app (its action output or log), never below the footer.
+                    session.Register(app.Log);
                     using IDisposable? handoff = settings.TerminalHandoff?.Attach(lease.Source, session, profile, cancellationToken);
                     bool eventsProcessed = false;
                     try {
@@ -106,6 +108,11 @@ namespace ConsoleMonster.Interactive {
                         }
                     }
                     if (session.Failure is Exception failure) { ExceptionDispatchInfo.Capture(failure).Throw(); }
+                    if (interactive.Capture == null) {
+                        ITerminalWriter? writer = interactive.ResolveTarget().Writer;
+                        foreach (string line in app.Log.Kept()) { writer?.Write(line + Environment.NewLine); }
+                        writer?.Flush();
+                    }
                     return values;
                 }
             }

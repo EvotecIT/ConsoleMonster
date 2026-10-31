@@ -181,6 +181,9 @@ namespace ConsoleMonster.Interactive {
             }
         }
 
+        // Output written while the app runs (a worker's Console.WriteLine) joins the action output panel.
+        internal void WriteOutput(string text, string level) => _session.Write(text, level);
+
         // Keys Handle takes before the app's focused input and key bindings.
         internal IEnumerable<KeyChord> FirstChords() {
             if (_commands.Length > 0 && _keys.Palette.HasValue) { yield return _keys.Palette.Value; }

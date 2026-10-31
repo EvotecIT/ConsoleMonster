@@ -15,6 +15,11 @@ namespace ConsoleMonster.Interactive {
         internal InputControl? Focused { get; set; }
         internal IEnumerable<InputControl> Mounted => _inputs.Keys;
         internal IReadOnlyList<Popup> Popups => _popups;
+        internal Dictionary<InputControl, int> Heights() {
+            Dictionary<InputControl, int> heights = new Dictionary<InputControl, int>();
+            foreach (KeyValuePair<InputControl, Entry> input in _inputs) { heights[input.Key] = input.Value.Bounds.Height; }
+            return heights;
+        }
         internal Rect? FocusBounds => Focused != null && _inputs.TryGetValue(Focused, out Entry? entry) ? entry.Bounds : (Rect?)null;
         internal IDisposable Begin(int x, int y, Rect clip) { _inputs.Clear(); _scrolls.Clear(); _containers.Clear(); _popups.Clear(); return new Scope(this, x, y, clip); }
         // A control asks for content drawn above the frame, anchored to where it was arranged; the app overlay paints it

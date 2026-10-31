@@ -34,10 +34,12 @@ namespace ConsoleMonster.Interactive {
                 _bounds = region.Bounds;
                 if (region.Width == 0 || region.Height == 0) { return; }
                 ConstrainInputs(region.Height);
-                int height = Math.Max(region.Height, _content.Measure(new Constraints(region.Width), context).Height);
-                CellBuffer canvas = new CellBuffer(region.Width, height);
+                int natural = _content.Measure(new Constraints(region.Width), context).Height;
+                int height = Math.Max(region.Height, natural);
                 int arrangedAt = _frameVersion ?? _focus.Version;
                 _frameVersion = null;
+                if (natural > region.Height && RenderShrunk(region, context, natural, arrangedAt)) { return; }
+                CellBuffer canvas = new CellBuffer(region.Width, height);
                 _arrangement.Focused = _focus.Current;
                 using (_arrangement.Begin(region.Bounds.X, region.Bounds.Y - _scroll, region.Bounds)) { _content.Render(new Region(canvas), context); }
                 InputControl? beforeFocus = _focus.Current;
@@ -58,6 +60,29 @@ namespace ConsoleMonster.Interactive {
                 }
                 region.Buffer.Blit(canvas, 0, _scroll, region.Width, region.Height, region.Bounds.X, region.Bounds.Y);
             }
+        }
+
+        // Content taller than the viewport first gets the viewport's height: rows shrink from the last one and panels keep
+        // their borders around less content. That is kept when every input a scrolled frame would show still gets its
+        // rows (at least its border and one line); otherwise the content keeps its height and scrolls to the focused input.
+        private bool RenderShrunk(Region region, RenderContext context, int natural, int arrangedAt) {
+            CellBuffer full = new CellBuffer(region.Width, natural);
+            _arrangement.Focused = _focus.Current;
+            using (_arrangement.Begin(region.Bounds.X, region.Bounds.Y, region.Bounds)) { _content.Render(new Region(full), context); }
+            Dictionary<InputControl, int> wanted = _arrangement.Heights();
+            CellBuffer fit = new CellBuffer(region.Width, region.Height);
+            using (_arrangement.Begin(region.Bounds.X, region.Bounds.Y, region.Bounds)) { _content.Render(new Region(fit), context); }
+            Dictionary<InputControl, int> got = _arrangement.Heights();
+            HashSet<InputControl> inputs = new HashSet<InputControl>(_focus.Controls);
+            foreach (KeyValuePair<InputControl, int> input in wanted) {
+                if (!inputs.Contains(input.Key)) { continue; }
+                if (!got.TryGetValue(input.Key, out int rows) || rows < Math.Min(input.Value, 3)) { return false; }
+            }
+            _focus.SetMounted(_arrangement.Mounted, arrangedAt);
+            _scroll = 0;
+            _lastFocus = _focus.Current; _lastSize = new Size(region.Width, region.Height); _revealRequested = false;
+            region.Buffer.Blit(fit, 0, 0, region.Width, region.Height, region.Bounds.X, region.Bounds.Y);
+            return true;
         }
 
         internal bool FocusAt(int column, int row) {

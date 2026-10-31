@@ -59,6 +59,7 @@ namespace ConsoleMonster.Interactive {
                 if (_options.Footer == null) { _defaultFooter = new FooterBar(); _footers.Add(_defaultFooter); }
                 IWidget frame = new Rows().Add(_actions.Wrap(_viewport), LayoutSize.Fraction()).Add(_options.Footer ?? _defaultFooter!, LayoutSize.Fixed(1));
                 _actions.ModalOnOverlay = true;
+                Log = new AppLog(_actions, _focus.Controls.OfType<LogViewport>().FirstOrDefault());
                 _overlay = new AppOverlay(frame, _viewport, _actions, _screens, actionClock ?? (() => toastClock.Elapsed));
                 _options.Dialogs?.AttachToasts(_overlay.ShowToast);
                 Root = _overlay;
@@ -80,6 +81,7 @@ namespace ConsoleMonster.Interactive {
         }
 
         internal IWidget Root { get; }
+        internal AppLog Log { get; } = null!;
         internal FocusManager Focus => _focus;
 
         internal CellBuffer PrepareFrame(int width, int height) => Rendering.FrameComposer.Compose(Root, width, height, _context);

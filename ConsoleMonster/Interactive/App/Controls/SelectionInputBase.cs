@@ -20,7 +20,10 @@ namespace ConsoleMonster.Interactive {
         /// <param name="key">The application-state key.</param>
         /// <param name="choices">The choices, configured before the application runs.</param>
         /// <param name="multiple">Whether more than one choice can be selected.</param>
-        protected SelectionInputBase(string key, IEnumerable<Choice> choices, bool multiple) : base(key) {
+        protected SelectionInputBase(string key, IEnumerable<Choice> choices, bool multiple) : this(key, choices, multiple, true) { }
+
+        // Without chrome for a host that already frames and titles the list (the command palette).
+        private protected SelectionInputBase(string key, IEnumerable<Choice> choices, bool multiple, bool chrome) : base(key, chrome) {
             _multiple = multiple;
             _list = new ChoiceList(choices, multiple);
             _pane = new ChoicePane(_list, new CaretSlot());
