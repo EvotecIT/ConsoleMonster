@@ -25,10 +25,12 @@ namespace ConsoleMonster.Tests.Interactive.App {
 
             log.Filter = new LogFilter(tag: "SQL-INDEX");
             Assert.Equal(new[] { "index build 40%", "slow query 2.1 s" }, Messages(log));
-            Assert.Contains("sql-index", Rows(log)[0]);
+            // One pinned tag needs no column; the state line names it.
+            Assert.StartsWith("index build 40%", Rows(log)[0].Trim());
 
             log.Filter = new LogFilter(level: "warn");
             Assert.Equal(new[] { "slow query 2.1 s", "upload failed" }, Messages(log));
+            Assert.Contains("sql-index", Rows(log)[0]);
 
             log.Filter = new LogFilter(text: "CACHE");
             Assert.Equal(new[] { "cache warm" }, Messages(log));
