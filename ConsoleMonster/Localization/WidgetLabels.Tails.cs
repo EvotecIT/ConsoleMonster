@@ -18,6 +18,12 @@ namespace ConsoleMonster.Localization {
         /// <summary>Lines received since a log panel inside an app was paused.</summary>
         public string TailNewShort { get; set; } = "{0} new";
 
+        /// <summary>Footer label for the key that scrolls a log panel back through its history.</summary>
+        public string TailKeyHistory { get; set; } = "history";
+
+        /// <summary>Footer label for the key that returns a paused log panel to its newest line.</summary>
+        public string TailKeyFollow { get; set; } = "follow";
+
         /// <summary>Before the active log filter's tag, level and text.</summary>
         public string TailFiltered { get; set; } = "Filtered:";
 

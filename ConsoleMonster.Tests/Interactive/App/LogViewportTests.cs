@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Glyphs;
 using ConsoleMonster.Input;
@@ -90,6 +91,18 @@ namespace ConsoleMonster.Tests.Interactive.App {
             }
             LogEntry entry = Assert.Single(log.Entries);
             Assert.Equal(("build", "warn", "CS0618 obsolete"), (entry.Tag, entry.Level, entry.Text));
+        }
+
+        [Fact]
+        public void AppFooterOffersHistoryAndOffersFollowOnlyWhilePaused() {
+            var log = new LogViewport("Output") { Height = 4, ShowElapsed = false };
+            for (int i = 1; i <= 20; i++) { log.Write("line " + i); }
+            ConsoleAppOptions options = AppTestHarness.Options("PageUp", out ScreenCapture capture);
+            ConsoleApp.Run(log, options: options);
+            string Footer(CellBuffer frame) => frame.ToPlainText().Split('\n').Last(line => line.Trim().Length > 0);
+            Assert.Contains("history", Footer(capture.Frames[0]));
+            Assert.DoesNotContain("follow", Footer(capture.Frames[0]));
+            Assert.Contains("follow", Footer(capture.LastFrame!));
         }
 
         private static readonly string[] Written = { "index build 40%", "cache warm", "slow query 2.1 s", "upload failed" };
