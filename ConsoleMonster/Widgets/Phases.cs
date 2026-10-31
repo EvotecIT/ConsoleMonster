@@ -11,8 +11,11 @@ using ConsoleMonster.Text;
 namespace ConsoleMonster.Widgets {
     /// <summary>
     /// A step strip for pipelines: <c>✓ Restore 2.1s  ›  ✓ Build 12s  ›  ⠹ Test 64%  ›  ○ Pack</c>. The active phase is
-    /// emphasised; phases flow onto more lines when the width is short. Live operations (Key = phase): <c>add</c> (Text =
-    /// label), <c>state</c> (State, Text = detail), <c>detail</c> (Text).
+    /// emphasised; phases flow onto more lines when the width is short. A phase can carry items (<see cref="SetItem"/>);
+    /// the running phase fans out to them under the strip (<see cref="FanOut"/>). <see cref="Compact"/> draws one line that
+    /// folds to fit, and <see cref="StepCounter"/> a numbered ledger. Live operations (Key = phase): <c>add</c> (Text =
+    /// label), <c>state</c> (State, Text = detail), <c>detail</c> (Text); for items (Key = phase, U+001F, item):
+    /// <c>item</c> (State, Text = label) and <c>item-detail</c> (Text).
     /// </summary>
     public sealed partial class Phases : LiveWidget {
         private readonly List<StatusItem> _phases = new List<StatusItem>();
@@ -61,6 +64,9 @@ namespace ConsoleMonster.Widgets {
             if (liveEvent.Key == null) {
                 return;
             }
+            if ((liveEvent.Operation == "item" || liveEvent.Operation == "item-detail") && ApplyItem(liveEvent)) {
+                return;
+            }
             switch (liveEvent.Operation) {
                 case "add":
                     Set(liveEvent.Key, StatusKind.Pending, liveEvent.Text);
@@ -89,6 +95,13 @@ namespace ConsoleMonster.Widgets {
             if (liveEvent.Operation == "state" && liveEvent.Key != null && _byKey.TryGetValue(liveEvent.Key, out StatusItem? item)) {
                 return Localization.WidgetLabels.Format(Localization.WidgetLabels.Current.Phase, Markup.Strip(item.Label)) + " " + item.Status.ToWord() + (string.IsNullOrEmpty(item.Detail) ? string.Empty : " (" + item.Detail + ")");
             }
+            if (liveEvent.Operation == "item" && liveEvent.Key != null && liveEvent.Status != null) {
+                int split = liveEvent.Key.IndexOf(ItemSeparator);
+                if (split > 0 && _byKey.TryGetValue(liveEvent.Key.Substring(0, split), out StatusItem? phase)
+                    && _phaseItems.TryGetValue(phase.Key, out List<StatusItem>? items) && items.Find(i => i.Key == liveEvent.Key.Substring(split + 1)) is StatusItem child) {
+                    return Localization.WidgetLabels.Format(Localization.WidgetLabels.Current.Phase, Markup.Strip(phase.Label)) + ": " + Markup.Strip(child.Label) + " " + child.Status.ToWord();
+                }
+            }
             return null;
         }
 
@@ -98,24 +111,38 @@ namespace ConsoleMonster.Widgets {
         /// <inheritdoc />
         public override Size Measure(Constraints constraints, RenderContext context) {
             if (StepCounter) return LedgerMeasure(constraints, context);
+            if (Compact) return new Size(Math.Min(constraints.MaxWidth, ChainLine(constraints.MaxWidth, context).Width), Math.Min(1, constraints.MaxHeight));
             int lines = Flow(constraints.MaxWidth, context).Count;
+            List<StatusItem>? items = FanOutItems(out _);
+            if (items != null) { lines += Math.Min(items.Count, _fanOut); }
             return new Size(constraints.MaxWidth, constraints.IsHeightUnbounded ? lines : Math.Min(lines, constraints.MaxHeight));
         }
 
         /// <inheritdoc />
         public override void Render(Region region, RenderContext context) {
             if (StepCounter) { LedgerRender(region, context); return; }
+            if (Compact) { if (region.Height > 0) { region.Write(0, 0, ChainLine(region.Width, context)); } return; }
             List<List<StyledLine>> lines = Flow(region.Width, context);
+            List<StatusItem>? items = FanOutItems(out int fanOutPhase);
             string separator = " " + context.Glyphs.Get(Glyph.Chevron) + " ";
             Style sepStyle = context.Style(ThemeToken.Subtle);
+            int phase = 0, fanOutX = 0;
             for (int row = 0; row < lines.Count && row < region.Height; row++) {
                 int x = 0;
-                for (int i = 0; i < lines[row].Count; i++) {
+                for (int i = 0; i < lines[row].Count; i++, phase++) {
                     if (i > 0) {
                         x = region.Write(x, row, separator, context.HasColor ? context.Style(ThemeToken.Muted) : sepStyle);
                     }
+                    // Fan-out rows hang under the marker of the phase they belong to.
+                    if (phase == fanOutPhase) { fanOutX = x; }
                     x = region.Write(x, row, lines[row][i]);
                 }
+            }
+            if (items == null) { return; }
+            int indent = Math.Max(0, Math.Min(fanOutX, region.Width - 16));
+            List<StyledLine> fan = FanOutLines(items, Math.Max(1, region.Width - indent), context);
+            for (int i = 0; i < fan.Count && lines.Count + i < region.Height; i++) {
+                region.Write(indent, lines.Count + i, fan[i]);
             }
         }
 
