@@ -45,7 +45,13 @@ namespace ConsoleMonster.Headless {
                     Thread.Sleep(10);
                     continue;
                 } catch (Exception ex) when (ex is SocketException || ex is ObjectDisposedException || ex is InvalidOperationException) { return; }
-                if (!(client.Client.RemoteEndPoint is IPEndPoint remote) || !IPAddress.IsLoopback(remote.Address)) {
+                try {
+                    if (!(client.Client.RemoteEndPoint is IPEndPoint remote) || !IPAddress.IsLoopback(remote.Address)) {
+                        client.Close();
+                        continue;
+                    }
+                } catch (SocketException) {
+                    // The peer may reset after accept, before its address can be read.
                     client.Close();
                     continue;
                 }

@@ -28,7 +28,8 @@ terminal.Send("Escape");
 AppState state = await run;
 ```
 
-`Snapshot()` returns the visible cells with their styles; `FrameRendered` reports every completed screen. Resize with
+`Snapshot()` returns the visible cells with their styles; `FrameRendered` reports each completed screen that differs
+from the previous one. Resize with
 `Resize(width, height)`; the app gets a resize event just as it would from a real window. `CompleteInput()` ends the
 input after the queued keys, so an app driven by a fixed script finishes on its own.
 
@@ -119,8 +120,8 @@ else, including a malformed line, gets an `unauthorized` error and the connectio
 | `{"cmd":"screen"}` or `{"cmd":"screen","format":"text"}` | `width`, `height`, `text` (rows joined with `\n`) |
 | `{"cmd":"screen","format":"png"}` | `width`, `height`, `png` (base64); the app must register the ConsoleMonster.Graphics PNG provider (`PngFrameExportProvider.Register()`) |
 | `{"cmd":"tree"}` | `root` (the control tree), `focus` (the focused input's key), `truncated`, `layout` |
-| `{"cmd":"keys","keys":"Down Enter"}` | none; `ScriptedInput` syntax (a key repeats at most 10000 times, and at most 100000 steps wait at a time) |
-| `{"cmd":"text","text":"Ada"}` | none; types the characters literally |
+| `{"cmd":"keys","keys":"Down Enter"}` | none; `ScriptedInput` syntax (a key repeats at most 10000 times, and at most 100000 input steps can be queued at a time) |
+| `{"cmd":"text","text":"Ada"}` | none; types characters literally, except `\n`, which sends `Enter` |
 | `{"cmd":"resize","width":100,"height":30}` | none; the app redraws at the new size on its next frame, so `wait` for expected text before reading the screen |
 | `{"cmd":"click","x":4,"y":2,"button":1}` | none; button 1 left, 2 middle, 3 right |
 | `{"cmd":"wait","text":"Done","timeout":5000}` | `found` (true or false), matched against the masked screen |
