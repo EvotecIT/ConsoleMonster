@@ -59,6 +59,8 @@ namespace ConsoleMonster.PowerShell {
                 object?[] values = rows.Select(row => row[index]).Where(value => value != null && !(value is string text && string.IsNullOrWhiteSpace(text))).ToArray();
                 bool align = values.Length > 0 && values.All(IsNumberOrDate);
                 table.AddColumn(new TableColumn(Markup.Escape(BoundedText(names[c], 48))) {
+                    // Status words and identifiers read as they do in Show-ConsoleTable (a marker before Pass, no separators in an Id).
+                    Presenter = Presenters.CellPresenters.ForColumn(names[c], values.FirstOrDefault(value => !Equals(value, "—"))),
                     Alignment = align ? HorizontalAlignment.Right : HorizontalAlignment.Left,
                     IsKey = c == key,
                     Priority = names.Count - c,
