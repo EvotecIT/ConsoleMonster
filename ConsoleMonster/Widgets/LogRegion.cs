@@ -11,7 +11,8 @@ namespace ConsoleMonster.Widgets {
     /// <summary>
     /// The newest lines of a log: lines fill from the top and, once the region is full, the newest line stays at the bottom. It is the capture target of a live session: Console.Out,
     /// Console.Error and PowerShell streams arrive here instead of writing at a random cursor position. Only warning and
-    /// error tags carry colour. Live operation: <c>write</c> (Text, State = level).
+    /// error tags carry colour; source tags get a stable series colour each. Live operation: <c>write</c> (Text, State =
+    /// level, Key = source tag).
     /// </summary>
     public sealed class LogRegion : LiveWidget, ILogTarget {
         private readonly Queue<LogEntry> _entries = new Queue<LogEntry>();
@@ -67,15 +68,24 @@ namespace ConsoleMonster.Widgets {
         /// <summary>The kept entries, oldest first.</summary>
         public IReadOnlyCollection<LogEntry> Entries => _entries;
 
+        /// <summary>Which kept entries are drawn, or null for all of them. Hidden entries stay kept and count toward <see cref="Capacity"/>.</summary>
+        public LogFilter? Filter { get; set; }
+
         /// <summary>Total lines received (including dropped ones).</summary>
         public long TotalLines { get; private set; }
+
+        // The shared tail model counts shown lines without rescanning the history on every append.
+        internal Action<LogEntry>? Appended;
+        internal Action<LogEntry>? Evicted;
+
+        internal bool Shows(LogEntry entry) => Filter == null || Filter.Matches(entry);
 
         /// <summary>Appends text; line breaks create several entries.</summary>
         /// <param name="text">The text.</param>
         /// <param name="level">The level.</param>
         /// <param name="time">Session time.</param>
         public void Write(string text, string level = "info", TimeSpan time = default) {
-            WriteLiteral(text, level, time, null);
+            WriteLiteral(text, level, time, null, null);
         }
 
         /// <summary>Appends an entry, preserving its selected rich line, level, session time and source timestamp. Caller-created multiline entries expand into lines.</summary>
@@ -84,11 +94,11 @@ namespace ConsoleMonster.Widgets {
         public void Write(LogEntry entry) {
             if (entry == null) { throw new ArgumentNullException(nameof(entry)); }
             if (entry.IsLineSlice) {
-                Append(new LogEntry(entry.Time, Level(entry.Level), entry.RichText!, entry.Text, entry.LineIndex));
+                Append(new LogEntry(entry.Time, Level(entry.Level), entry.RichText!, entry.Text, entry.LineIndex, entry.Tag));
             } else if (entry.RichText != null) {
-                Write(entry.RichText, entry.Level, entry.Time);
+                WriteRich(entry.RichText, entry.Level, entry.Time, entry.Tag);
             } else {
-                WriteLiteral(entry.Text, entry.Level, entry.Time, entry.Timestamp);
+                WriteLiteral(entry.Text, entry.Level, entry.Time, entry.Timestamp, entry.Tag);
             }
         }
 
@@ -97,12 +107,12 @@ namespace ConsoleMonster.Widgets {
         /// <param name="level">The level.</param>
         /// <param name="timestamp">The source timestamp, or null when unknown.</param>
         public void WriteTimestamped(string text, string level, DateTimeOffset? timestamp) {
-            WriteLiteral(text, level, TimeSpan.Zero, timestamp);
+            WriteLiteral(text, level, TimeSpan.Zero, timestamp, null);
         }
 
-        private void WriteLiteral(string text, string level, TimeSpan time, DateTimeOffset? timestamp) {
+        internal void WriteLiteral(string text, string level, TimeSpan time, DateTimeOffset? timestamp, string? tag) {
             foreach (string line in (text ?? string.Empty).Replace("\r\n", "\n").Replace('\r', '\n').Split('\n')) {
-                Append(new LogEntry(time, Level(level ?? "info"), line.Replace("\t", "    "), timestamp));
+                Append(new LogEntry(time, Level(level ?? "info"), line.Replace("\t", "    "), timestamp, tag));
             }
         }
 
@@ -110,7 +120,9 @@ namespace ConsoleMonster.Widgets {
         /// <param name="text">The rich text.</param>
         /// <param name="level">The level.</param>
         /// <param name="time">Session time.</param>
-        public void Write(RichText text, string level = "info", TimeSpan time = default) {
+        public void Write(RichText text, string level = "info", TimeSpan time = default) => WriteRich(text, level, time, null);
+
+        internal void WriteRich(RichText text, string level, TimeSpan time, string? tag) {
             if (text == null) {
                 throw new ArgumentNullException(nameof(text));
             }
@@ -118,20 +130,24 @@ namespace ConsoleMonster.Widgets {
             if (!Markup.Validate(markup, out _)) {
                 System.Text.StringBuilder literal = new System.Text.StringBuilder();
                 foreach (RichSegment segment in text.Segments) { literal.Append(segment.Text); }
-                Write(literal.ToString(), level, time);
+                WriteLiteral(literal.ToString(), level, time, null, tag);
                 return;
             }
             string[] lines = Markup.Strip(markup).Split('\n');
             for (int i = 0; i < lines.Length; i++) {
                 // Keep one complete source: the parser must resolve spanning tags and implicit links before slicing.
-                Append(new LogEntry(time, Level(level ?? "info"), text, lines[i], i));
+                Append(new LogEntry(time, Level(level ?? "info"), text, lines[i], i, string.IsNullOrWhiteSpace(tag) ? null : tag!.Trim()));
             }
         }
 
         private void Append(LogEntry entry) {
             _entries.Enqueue(entry);
             TotalLines++;
-            while (_entries.Count > Math.Max(1, Capacity)) { _entries.Dequeue(); }
+            Appended?.Invoke(entry);
+            while (_entries.Count > Math.Max(1, Capacity)) {
+                LogEntry evicted = _entries.Dequeue();
+                Evicted?.Invoke(evicted);
+            }
         }
 
         /// <summary>Returns a handle that writes through a dispatcher.</summary>
@@ -142,12 +158,17 @@ namespace ConsoleMonster.Widgets {
         /// <inheritdoc />
         public override void Apply(LiveEvent liveEvent) {
             if (liveEvent.Operation == "write") {
-                string text = liveEvent.Text ?? string.Empty;
-                if (liveEvent.IsMarkup) {
-                    Write(RichLines.FromEventText(text, true), liveEvent.Status ?? "info", TimeSpan.FromMilliseconds(liveEvent.Time));
-                } else {
-                    Write(text, liveEvent.Status ?? "info", TimeSpan.FromMilliseconds(liveEvent.Time));
-                }
+                Write(liveEvent);
+            }
+        }
+
+        internal void Write(LiveEvent liveEvent) {
+            string text = liveEvent.Text ?? string.Empty;
+            TimeSpan time = TimeSpan.FromMilliseconds(liveEvent.Time);
+            if (liveEvent.IsMarkup) {
+                WriteRich(RichLines.FromEventText(text, true), liveEvent.Status ?? "info", time, liveEvent.Key);
+            } else {
+                WriteLiteral(text, liveEvent.Status ?? "info", time, null, liveEvent.Key);
             }
         }
 
@@ -162,19 +183,22 @@ namespace ConsoleMonster.Widgets {
             if (liveEvent.IsMarkup) {
                 text = RichLines.FromEventText(text, true).PlainText;
             }
-            return (tag.Length > 0 ? tag + " " : string.Empty) + text;
+            string source = string.IsNullOrWhiteSpace(liveEvent.Key) ? string.Empty : "[" + liveEvent.Key!.Trim() + "] ";
+            return (tag.Length > 0 ? tag + " " : string.Empty) + source + text;
         }
 
         // Scrollback keeps the same semantic tags and literal fallback as the retained log, without clipping messages.
         internal StyledText ScrollbackText(LiveEvent liveEvent, RenderContext context) {
             string level = Level(liveEvent.Status ?? "info");
             string tag = Tag(level, context);
+            string? source = string.IsNullOrWhiteSpace(liveEvent.Key) ? null : liveEvent.Key!.Trim();
             StyledText body = RichLines.FromEventText(liveEvent.Text ?? string.Empty, liveEvent.IsMarkup).ToStyledText(context);
             List<StyledLine> lines = new List<StyledLine>();
             foreach (StyledLine line in body.Lines) {
                 List<TextSpan> spans = new List<TextSpan>();
                 if (ShowElapsed) { spans.Add(new TextSpan(NumberFormat.Clock(TimeSpan.FromMilliseconds(liveEvent.Time), true) + " ", context.Style(ThemeToken.Muted))); }
                 if (tag.Length > 0) { spans.Add(new TextSpan(tag + " ", TagStyle(level, context))); }
+                if (source != null) { spans.Add(new TextSpan(source + " ", SourceStyle(source, context))); }
                 spans.AddRange(line);
                 lines.Add(new StyledLine(spans));
             }
@@ -189,15 +213,16 @@ namespace ConsoleMonster.Widgets {
 
         // Rows the newest entries need without a height limit: one each, or their wrapped rows when Wrap is on.
         private int UnboundedRows(int width, RenderContext context) {
+            LogEntry[] all = VisibleEntries();
             if (!Wrap) {
-                return _entries.Count;
+                return all.Length;
             }
-            LogEntry[] all = _entries.ToArray();
             int count = Math.Min(all.Length, PreferredHeight);
             int levelWidth = 0;
             for (int i = all.Length - count; i < all.Length; i++) {
                 levelWidth = Math.Max(levelWidth, DisplayWidth.Measure(Tag(all[i].Level, context)));
             }
+            _sourceWidth = SourceWidth(all, all.Length, count);
             int rows = 0;
             for (int i = all.Length - 1; i >= all.Length - count && rows < PreferredHeight; i--) {
                 rows += WrapEntry(all[i], Style.Plain, Math.Max(1, width - PrefixWidth(all[i], levelWidth)), context).Count;
@@ -216,13 +241,40 @@ namespace ConsoleMonster.Widgets {
 
         private readonly StatColumn _levelColumn = new StatColumn(new ColumnFormat(HorizontalAlignment.Left));
 
+        // The source column grows to the widest tag on screen, never shrinks during a session, and caps long names.
+        private const int MaxSourceWidth = 20;
+        private readonly StatColumn _sourceColumn = new StatColumn(new ColumnFormat(HorizontalAlignment.Left));
+        private int _sourceWidth;
+        private bool _sourceSeen;
+
+        private LogEntry[] VisibleEntries() {
+            if (Filter == null || Filter.IsEmpty) {
+                return _entries.ToArray();
+            }
+            List<LogEntry> shown = new List<LogEntry>();
+            foreach (LogEntry entry in _entries) {
+                if (Filter.Matches(entry)) { shown.Add(entry); }
+            }
+            return shown.ToArray();
+        }
+
+        private int SourceWidth(LogEntry[] all, int end, int count) {
+            int widest = 0;
+            for (int i = end - count; i < end; i++) {
+                if (all[i].Tag != null) { widest = Math.Max(widest, Math.Min(MaxSourceWidth, DisplayWidth.Measure(all[i].Tag!))); }
+            }
+            // Once a session has shown a source, the column keeps its width so messages never jump sideways.
+            if (widest > 0) { _sourceSeen = true; }
+            return _sourceSeen ? _sourceColumn.Resolve(widest) : 0;
+        }
+
         /// <inheritdoc />
         public override void Render(Region region, RenderContext context) {
             if (region.Height <= 0) {
                 return;
             }
             Style muted = context.Style(ThemeToken.Muted);
-            LogEntry[] all = _entries.ToArray();
+            LogEntry[] all = VisibleEntries();
             int end = all.Length - Math.Max(0, Math.Min(ScrollOffset, Math.Max(0, all.Length - region.Height)));
             int count = Math.Min(end, region.Height);
             _timestampWidth = 0;
@@ -238,6 +290,7 @@ namespace ConsoleMonster.Widgets {
                 levelWidth = Math.Max(levelWidth, DisplayWidth.Measure(Tag(all[end - count + i].Level, context)));
             }
             levelWidth = _levelColumn.Resolve(levelWidth);
+            _sourceWidth = SourceWidth(all, end, count);
             if (Wrap) {
                 RenderWrapped(region, context, all, end, count, levelWidth, muted);
                 return;
@@ -266,12 +319,26 @@ namespace ConsoleMonster.Widgets {
                 StatColumn.Write(region, x, y, levelWidth, Tag(entry.Level, context), TagStyle(entry.Level, context), LevelColumn.Alignment, context.Ellipsis);
                 x += levelWidth + 1;
             }
+            if (_sourceWidth > 0) {
+                if (entry.Tag != null) {
+                    StatColumn.Write(region, x, y, _sourceWidth, entry.Tag, SourceStyle(entry.Tag, context), HorizontalAlignment.Left, context.Ellipsis);
+                }
+                x += _sourceWidth + 1;
+            }
             return x;
         }
 
         private int PrefixWidth(LogEntry entry, int levelWidth) {
             int x = ShowTimestamp ? (_timestampWidth > 0 ? _timestampWidth + 1 : 0) : ShowElapsed ? DisplayWidth.Measure(NumberFormat.Clock(entry.Time, true)) + 1 : 0;
-            return levelWidth > 0 ? x + levelWidth + 1 : x;
+            x = levelWidth > 0 ? x + levelWidth + 1 : x;
+            return _sourceWidth > 0 ? x + _sourceWidth + 1 : x;
+        }
+
+        // A source keeps one series colour for the whole session, so the same job reads the same in every row.
+        internal static Style SourceStyle(string source, RenderContext context) {
+            uint hash = 2166136261;
+            foreach (char c in source.ToLowerInvariant()) { hash = (hash ^ c) * 16777619; }
+            return context.Series((int)(hash % 6));
         }
 
         // Newest entries that fit as whole entries, rows filling from the top; the newest entry alone may be cut at the bottom.
@@ -356,84 +423,5 @@ namespace ConsoleMonster.Widgets {
         private static string Tag(string level, RenderContext? context = null) => LogTags.Tag(level, context);
 
         private static Style TagStyle(string level, RenderContext context) => LogTags.Style(level, context);
-    }
-
-    /// <summary>
-    /// How log levels look in ConsoleMonster (the log region, Write-ConsoleLogEntry, the logging provider of
-    /// ConsoleMonster.Extensions.Logging): the tag word with a status marker when glyphs allow ("✗ ERR", "▴ WARN",
-    /// "✓ OK"), its style, and which levels are quiet (verbose and debug text is muted).
-    /// </summary>
-    public static class LogTags {
-        /// <summary>The level as one of <see cref="LogLevels.Names"/> (info, warn, err, verbose, debug, pass, skip); unknown words are info.</summary>
-        /// <param name="level">A level name or one of PowerShell's words.</param>
-        /// <returns>The normalized level.</returns>
-        public static string Normalize(string? level) {
-            LogLevels.TryNormalize(level, out string normalized);
-            return normalized;
-        }
-
-        /// <summary>Whether text at a level is shown muted (verbose and debug).</summary>
-        /// <param name="level">A normalized level.</param>
-        /// <returns>True for quiet levels.</returns>
-        public static bool IsQuiet(string level) => level == "verbose" || level == "debug";
-
-        /// <summary>The level column's text: the tag word, with the status marker in front when the context's glyphs allow; empty for info.</summary>
-        /// <param name="level">A normalized level.</param>
-        /// <param name="context">The render context, or null for the word alone (narrated lines).</param>
-        /// <returns>The tag.</returns>
-        public static string Tag(string level, RenderContext? context = null) {
-            string word;
-            StatusKind? status = null;
-            switch (level) {
-                case "err":
-                    word = "ERR";
-                    status = StatusKind.Fail;
-                    break;
-                case "warn":
-                    word = "WARN";
-                    status = StatusKind.Warn;
-                    break;
-                case "verbose":
-                    word = "VERB";
-                    break;
-                case "debug":
-                    word = "DBG";
-                    break;
-                case "pass":
-                    word = "OK";
-                    status = StatusKind.Pass;
-                    break;
-                case "skip":
-                    word = "SKIP";
-                    status = StatusKind.Skip;
-                    break;
-                default:
-                    return string.Empty;
-            }
-            if (context == null || status == null || context.Glyphs.Tier == Capabilities.GlyphTier.Ascii) {
-                return word;
-            }
-            return context.Glyphs.StatusMarker(status.Value) + " " + word;
-        }
-
-        /// <summary>The tag's style: failure, warning or pass colours; muted for the rest.</summary>
-        /// <param name="level">A normalized level.</param>
-        /// <param name="context">The render context.</param>
-        /// <returns>The style.</returns>
-        public static Style Style(string level, RenderContext context) {
-            if (context == null) {
-                throw new ArgumentNullException(nameof(context));
-            }
-            switch (level) {
-                case "err":
-                    return context.Style(ThemeToken.Fail);
-                case "warn":
-                    return context.Style(ThemeToken.Warn);
-                case "pass":
-                    return context.Style(ThemeToken.Pass);
-                default:
-                    return context.Style(ThemeToken.Muted);
-            }
-        }
     }
 }
