@@ -1,6 +1,6 @@
 {
   "BaselineCount": 144,
-  "ExpectedCount": 91,
+  "ExpectedCount": 92,
   "Commands": [
     "Add-ConsoleRecordingMarker",
     "Assert-ConsoleOutput",
@@ -47,6 +47,7 @@
     "New-ConsoleRegion",
     "New-ConsoleRows",
     "New-ConsoleRule",
+    "New-ConsoleScreen",
     "New-ConsoleScrollView",
     "New-ConsoleSelect",
     "New-ConsoleStack",

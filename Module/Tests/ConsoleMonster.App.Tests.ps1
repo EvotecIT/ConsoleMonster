@@ -15,6 +15,36 @@ Describe 'Native console applications' {
         ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::IsAcquired | Should -BeFalse
     }
 
+    It 'groups adjacent screens into one stack driven by screen and app key binding scripts and $State.Screen' {
+        $servers = @(
+            [pscustomobject]@{ Name = 'web01'; Status = 'Pass' }
+            [pscustomobject]@{ Name = 'sql01'; Status = 'Fail' }
+        )
+        $capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(70, 16)
+        $inputSource = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new("F5 '2' Enter Down Enter F5")
+        $result = Show-ConsoleApp -Title Inventory -KeyBinding ([ordered]@{
+            F5 = 'refresh', { param($State) $State.Refreshed = 1 + $State.Refreshed }
+        }) -Content {
+            New-ConsoleScreen -Key list -Title Servers -KeyBinding ([ordered]@{
+                '1-2' = 'open', { param($Number, $State) $State.Server = $Number; $State.Screen = 'server' }
+            }) -Content { $servers | New-ConsoleTable -Property Name, Status }
+            New-ConsoleScreen -Key server -Title { $servers[$State.Server - 1].Name } -Content {
+                New-ConsoleSelect -Key Owner -Choices 'Ops', 'DBA' -Value 'Ops' -Dropdown
+            }
+        } -InputSource $inputSource -Capture $capture -PassThru
+
+        $result.Screen | Should -Be 'server'
+        $result.Server | Should -Be 2
+        $result.Owner | Should -Be 'DBA'
+        $result.Refreshed | Should -Be 2
+        $crumb = ' ' + [char]0x203A + ' '
+        $capture.LastFrame.ToPlainText() | Should -Match ('Inventory' + $crumb + 'Servers' + $crumb + 'sql01')
+        { Show-ConsoleApp -Mode Snapshot -Content {
+            New-ConsoleScreen -Key one -Content { 'one' }
+            'between'
+            New-ConsoleScreen -Key two -Content { 'two' }
+        } } | Should -Throw -ExpectedMessage '*together*'
+    }
     It 'calls back once per committed edit before the next read and returns one ordinary hashtable' {
         $edits = [System.Collections.Generic.List[object]]::new()
         $thread = [System.Threading.Thread]::CurrentThread.ManagedThreadId

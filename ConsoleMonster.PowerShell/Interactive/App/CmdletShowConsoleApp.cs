@@ -13,7 +13,7 @@ using ConsoleMonster.Styling;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Runs native input controls and dependent displays in a console application.</para>
-    /// <para type="description">Builds the layout once, then runs input synchronously on the caller's PowerShell thread. Callbacks are queued by controls and drained before input reads; dependent builders run on that same thread. Escape exits. Cancellation restores the terminal through the core runner. Use -Mode Snapshot to capture or print initialized values without interactive input. CONSOLEMONSTER_SNAPSHOT=1 also selects an initialized snapshot when no input source is supplied; CONSOLEMONSTER_INPUT supplies scripted keys centrally. Nothing is sent to the pipeline unless -PassThru requests one ordinary hashtable.</para>
+    /// <para type="description">Builds the layout once, then runs input synchronously on the caller's PowerShell thread. Callbacks are queued by controls and drained before input reads; dependent builders and key bindings run on that same thread. Adjacent New-ConsoleScreen commands make a screen stack. The footer lists the keys that work: the focused input's, the current screen's and -KeyBinding. Escape exits from the first screen. Cancellation restores the terminal through the core runner. Use -Mode Snapshot to capture or print initialized values without interactive input. CONSOLEMONSTER_SNAPSHOT=1 also selects an initialized snapshot when no input source is supplied; CONSOLEMONSTER_INPUT supplies scripted keys centrally. Nothing is sent to the pipeline unless -PassThru requests one ordinary hashtable.</para>
     /// </summary>
     /// <example>
     /// <para>Filter application data without leaving PowerShell</para>
@@ -28,31 +28,38 @@ namespace ConsoleMonster.PowerShell {
     /// } -PassThru</code>
     /// </example>
     /// <example>
+    /// <para>Add app-wide keys; the footer lists them</para>
+    /// <code>Show-ConsoleApp -Title Counter -KeyBinding ([ordered]@{
+    ///     '+' = 'add', { param($State) $State.Count = 1 + $State.Count }
+    ///     r = 'reset', { param($State) $State.Count = 0 }
+    /// }) -Content {
+    ///     New-ConsoleBinding -Content { "Count: $([int] $State.Count)" }
+    /// } -PassThru</code>
+    /// </example>
+    /// <example>
     /// <para>Print initialized values without reading keyboard input</para>
     /// <code>Show-ConsoleApp -Mode Snapshot -Content {
     ///     New-ConsoleTextInput -Key Query -Value 'web'
     ///     New-ConsoleBinding -Content { "Query: $($State.Query)" }
     /// } -PassThru</code>
     /// </example>
-    [Cmdlet(VerbsCommon.Show, "ConsoleApp", DefaultParameterSetName = "Footer")]
+    [Cmdlet(VerbsCommon.Show, "ConsoleApp")]
     [OutputType(typeof(Hashtable))]
     public sealed class CmdletShowConsoleApp : NoPipelineInputCmdlet {
         /// <summary><para type="description">Host focus, cancel and palette gestures. Set a gesture to null to release it to the app registry.</para></summary>
         [Parameter] public AppHostKeys Keys { get; set; } = new AppHostKeys();
         /// <summary><para type="description">Allows the terminal to generate Ctrl+C and Ctrl+backslash signals instead of app input events.</para></summary>
         [Parameter] public SwitchParameter SignalKeys { get; set; }
-        /// <summary><para type="description">App-thread command registry routing before the focused input. Return true when consumed.</para></summary>
-        [Parameter] public Func<AppState, InputEvent, bool>? HandleInput { get; set; }
+        /// <summary><para type="description">App-wide keys, as an ordered dictionary of key to 'label', { action }. They work after the focused input and the current screen; the action receives $State. '1-12' opens numbered items and passes the number first: param($Number, $State).</para></summary>
+        [Parameter] public object? KeyBinding { get; set; }
         /// <summary><para type="description">Child-terminal and last-output service attached for this app run.</para></summary>
         [Parameter] public TerminalHandoff? TerminalHandoff { get; set; }
         /// <summary><para type="description">Typed modal form service attached for this app run.</para></summary>
         [Parameter] public AppDialogs? Dialogs { get; set; }
         /// <summary><para type="description">App-thread action service for starting the shared worker from registry and dialog callbacks.</para></summary>
         [Parameter] public AppActions? Actions { get; set; }
-        /// <summary><para type="description">Context key bar, normally a FooterBar reading the app's command registry.</para></summary>
-        [Parameter(ParameterSetName = "Footer")] public object? Footer { get; set; }
-        /// <summary><para type="description">Dictionaries mapping key names to labels, or typed KeyHint values.</para></summary>
-        [Parameter(ParameterSetName = "Hints")] public object[]? FooterHints { get; set; }
+        /// <summary><para type="description">A custom footer widget instead of the key hints built from the app's key bindings.</para></summary>
+        [Parameter] public object? Footer { get; set; }
         /// <summary><para type="description">Optional heading above the application content.</para></summary>
         [Parameter] public object? Title { get; set; }
         /// <summary><para type="description">Text qualifying the application title.</para></summary>
@@ -128,11 +135,6 @@ namespace ConsoleMonster.PowerShell {
                 }
                 IWidget? footer = PSWidgets.AsWidget(Footer);
                 if (Footer != null && footer == null) { throw new PSArgumentException("Footer must be text or a widget."); }
-                if (FooterHints != null) {
-                    var hints = new FooterBar();
-                    foreach (KeyHint hint in PSFooterHints.Read(FooterHints)) { hints.Hints.Add(hint); }
-                    footer = hints;
-                }
                 InteractiveOptions interactive = PSInteractive.Options(this, Mode);
                 if (InputSource != null) {
                     interactive.Input = InputSource;
@@ -143,7 +145,8 @@ namespace ConsoleMonster.PowerShell {
                 if (Capture != null) { interactive.Capture = Capture; }
                 if (Profile != null) { interactive.Profile = Profile; }
                 if (Theme != null) { interactive.Theme = Theme; }
-                using (PSAppCallbacks callbacks = new PSAppCallbacks(this)) {
+                AppState state = new AppState();
+                using (PSAppCallbacks callbacks = new PSAppCallbacks(this, state)) {
                     callbacks.Attach(layout);
                     ConsoleAppOptions options = new ConsoleAppOptions {
                         Interactive = interactive,
@@ -151,12 +154,14 @@ namespace ConsoleMonster.PowerShell {
                         ReflowBelow = ReflowBelow,
                         ProcessEvents = callbacks.Drain,
                         SelectionKey = SelectionKey,
-                        Keys = Keys, SignalKeys = SignalKeys.IsPresent, HandleInput = HandleInput,
+                        Keys = Keys, SignalKeys = SignalKeys.IsPresent,
                         TerminalHandoff = TerminalHandoff, Dialogs = Dialogs, Actions = Actions, Footer = footer,
                         MinimumWidth = MinimumWidth, MinimumHeight = MinimumHeight
                     };
                     foreach (AppCommand command in Command) { options.Command.Add(command); }
-                    AppState state = ConsoleApp.Run(layout, null, options, stop.Token);
+                    foreach (KeyBinding binding in PSKeyBindings.Read(KeyBinding)) { options.KeyBindings.Add(binding); }
+                    callbacks.AttachKeys(options.KeyBindings);
+                    ConsoleApp.Run(layout, state, options, stop.Token);
                     if (PassThru.IsPresent) { WriteObject(PSAppScript.Snapshot(state), false); }
                 }
             } catch (Exception ex) when (ex is PromptUnavailableException || ex is PromptCanceledException || ex is InputClosedException) {
