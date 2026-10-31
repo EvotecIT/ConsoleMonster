@@ -19,7 +19,8 @@ namespace ConsoleMonster.PowerShell {
             get => PSModuleImport.PathFor(this);
         }
         /// <summary><para type="description">Local asciicast v2 output; omitted names are timestamped.</para></summary>
-        [Parameter(ParameterSetName = "Script")] public string? RecordingPath { get; set; }
+        [Parameter(ParameterSetName = "Script")]
+        [Parameter(ParameterSetName = "Headless")] public string? RecordingPath { get; set; }
         /// <summary><para type="description">Recording title.</para></summary>
         [Parameter] public string Title { get; set; } = "Console session";
         /// <summary><para type="description">Shell executable. The default is the current PowerShell executable.</para></summary>

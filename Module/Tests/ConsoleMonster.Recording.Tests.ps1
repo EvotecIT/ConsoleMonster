@@ -124,6 +124,27 @@
         Test-Path -LiteralPath ($cast + '.json') | Should -BeTrue
     }
 
+    It 'records an app on a headless terminal, driven by keys, with its footer and caller variables' {
+        $cast = Join-Path $TestDrive 'headless.cast'
+        $choices = 'Red', 'Green', 'Blue'
+        # Labels follow the machine's language, as they would in its console; pin English for the footer check.
+        $language = $env:CONSOLEMONSTER_LANGUAGE
+        $env:CONSOLEMONSTER_LANGUAGE = 'en'
+        try {
+            $file = Invoke-ConsoleRecording -Headless -Width 60 -Height 14 -Keys 'Down Enter wait:150 Escape' -Path $cast {
+                Show-ConsoleApp -Content {
+                    New-ConsoleSelect -Key Color -Choices $choices
+                    New-ConsoleBinding -WidgetId Picked -Content { param($State) "Picked $($State.Color)" }
+                }
+            }
+        } finally { $env:CONSOLEMONSTER_LANGUAGE = $language }
+        $file.FullName | Should -Be $cast
+        # The player keeps every screen as styled HTML rows inside its JSON data, so compare their text.
+        $screens = (Export-ConsoleRecording -RecordingPath $cast -Format Html) -replace '\\u003c.*?\\u003e|<[^>]+>', ''
+        $screens | Should -Match 'Picked Green'
+        $screens | Should -Match 'esc quit'
+    }
+
     It 'refuses an existing destination before executing the script' {
         $destination = Join-Path $TestDrive 'existing.html'
         Set-Content -LiteralPath $destination -Value 'Keep this file'
