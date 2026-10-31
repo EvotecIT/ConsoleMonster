@@ -12,6 +12,11 @@ using ConsoleMonster.Text;
 namespace ConsoleMonster.Live {
     public sealed partial class LiveSession {
         private bool _onConsole;
+        private IConsoleDriver? _driver;
+        private ITerminalTarget? _target;
+        private Sessions.RecordingTeeWriter? _recordingWriter;
+        private int _recordedWidth;
+        private int _recordedHeight;
         private volatile bool _taskbarUsed;
         private Styling.ITheme? _theme;
 
@@ -48,7 +53,16 @@ namespace ConsoleMonster.Live {
                         }
                         _context = Terminal.CreateContext(profile, _theme);
                         _streamTimestamps = _options.StreamTimestamps ?? profile.IsContinuousIntegration;
-                        _output = _options.Output ?? (_options.Mode == LiveMode.Inline ? Terminal.CreateInlineOutput(profile, targetWriter) : Terminal.CreateOutput(profile, targetWriter));
+                        _target = target;
+                        _driver = target as IConsoleDriver;
+                        ITerminalWriter? outputWriter = targetWriter;
+                        if (_options.Recorder != null) {
+                            if (_options.Output != null) { throw new ArgumentException("A recorder needs the session to create its own output; remove Output or record the output's writer."); }
+                            if (!_options.Recorder.InProcess) { throw new ArgumentException("The session recorder must be started with InProcess = true."); }
+                            _recordingWriter = new Sessions.RecordingTeeWriter(targetWriter ?? TerminalWriterFactory.Create(profile), targetWriter == null, _options.Recorder);
+                            outputWriter = _recordingWriter;
+                        }
+                        _output = _options.Output ?? (_options.Mode == LiveMode.Inline ? Terminal.CreateInlineOutput(profile, outputWriter) : Terminal.CreateOutput(profile, outputWriter));
                         _clockStart = _options.Clock?.Invoke() ?? TimeSpan.Zero;
                         _watch.Start();
                         Volatile.Write(ref _state, 1);
@@ -267,6 +281,7 @@ namespace ConsoleMonster.Live {
                         }, fatal: true);
                     }
                     if (_options.Output == null) { Attempt(() => _output?.Dispose(), fatal: true); }
+                    Attempt(() => _recordingWriter?.Dispose(), fatal: true);
                     // Final scrollback still needs VT processing. Restore the original native mode after its last write.
                     Attempt(() => _guard?.Dispose(), fatal: true);
                     _outputFinished = true;

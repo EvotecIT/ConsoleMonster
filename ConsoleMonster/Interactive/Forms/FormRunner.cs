@@ -33,7 +33,7 @@ namespace ConsoleMonster.Interactive {
                 IPromptSurface? surface = interactive.Surface;
                 bool owns = false;
                 if (surface == null) {
-                    surface = PromptHost.Resolve(context) ?? (options.Inline ? (IPromptSurface)new InlineSurface(profile, null, interactive.MaxInlineHeight ?? 30) : new ScreenSurface(profile));
+                    surface = PromptHost.Resolve(context, interactive.ResolveTarget()) ?? (options.Inline ? (IPromptSurface)new InlineSurface(profile, interactive.ResolveSurfaceWriter(), interactive.MaxInlineHeight ?? 30, interactive.ResolveSurfaceSize()) : new ScreenSurface(profile, interactive.ResolveSurfaceWriter(), interactive.ResolveSurfaceSize()));
                     owns = true;
                 }
                 FormHostView? view = null;
@@ -232,6 +232,7 @@ namespace ConsoleMonster.Interactive {
         private readonly List<Modal> _modals = new List<Modal>();
         private readonly Form _form;
         private readonly FormOptions _options;
+        private readonly Output.ITerminalTarget _target;
         private readonly IPromptSurface? _surface;
         private readonly IInputSource? _input;
         private readonly RenderContext? _context;
@@ -244,12 +245,13 @@ namespace ConsoleMonster.Interactive {
         public FormHostView(Form form, PromptLabels labels, ChoiceStore? store, bool remember, FormOptions options, IPromptSurface? surface, IInputSource? input, RenderContext? context, CancellationToken token) : base(labels) {
             _form = form;
             _options = options;
+            _target = (options.Interactive ?? InteractiveOptions.Default).ResolveTarget();
             _surface = surface;
             _input = input;
             _context = context;
             _token = token;
             Pane = new FormView(form, this, store, remember,
-                InteractiveClipboard.ForTarget((options.Interactive ?? InteractiveOptions.Default).ResolveTarget()), options.Preset);
+                InteractiveClipboard.ForTarget(_target), options.Preset);
             Pane.Submitted = result => {
                 Result = result;
                 if (_options.AfterSubmit != null && _surface != null && _context != null && _input != null) {
@@ -406,13 +408,14 @@ namespace ConsoleMonster.Interactive {
         T IMenuHost.Ask<T>(Prompt<T> prompt, CancellationToken cancellationToken) {
             InteractiveOptions o = (_options.Interactive ?? InteractiveOptions.Default).Clone();
             o.Mode = InteractionMode.Rich;
+            o.Target = _target;
             o.Input = _input;
             o.Labels = Labels;
             return prompt.Show(o, cancellationToken);
         }
 
         MenuRunResult IMenuHost.Run(MenuContext context, IWidget dashboard, Func<RunContext, MenuRunResult?> work, LiveSessionOptions? options) {
-            MenuRunResult result = RunHost.Run(this, _surface!, _surface as ScreenSurface, _input!, _context!, context, dashboard, work, options, pane => _override = pane, () => _override = null, _form.Title);
+            MenuRunResult result = RunHost.Run(this, _target, _surface!, _surface as ScreenSurface, _input!, _context!, context, dashboard, work, options, pane => _override = pane, () => _override = null, _form.Title);
             RunResult = result;
             ShowResultPane(result);
             return result;

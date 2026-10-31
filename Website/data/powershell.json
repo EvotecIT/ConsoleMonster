@@ -693,7 +693,7 @@
         },
         {
           "name": "Invoke-ConsoleRecording",
-          "synopsis": "Records a script or an interactive child shell and saves the result.",
+          "synopsis": "Records a script, an app on a headless terminal, or an interactive child shell and saves the result.",
           "url": "/powershell/commands/invoke-consolerecording/"
         },
         {

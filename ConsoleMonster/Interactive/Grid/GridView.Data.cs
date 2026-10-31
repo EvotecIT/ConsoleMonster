@@ -127,7 +127,7 @@ namespace ConsoleMonster.Interactive {
                 IPromptSurface? surface = interactive.Surface;
                 bool owns = false;
                 if (surface == null) {
-                    surface = PromptHost.Resolve(context) ?? new ScreenSurface(profile);
+                    surface = PromptHost.Resolve(context, interactive.ResolveTarget()) ?? new ScreenSurface(profile, interactive.ResolveSurfaceWriter(), interactive.ResolveSurfaceSize());
                     owns = true;
                 }
                 try {

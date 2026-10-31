@@ -109,8 +109,10 @@ namespace ConsoleMonster.Interactive {
     /// shows a run pane while the session draws the view, on the same screen or capture, then the caller shows the result.
     /// </summary>
     internal static class RunHost {
-        public static MenuRunResult Run(InteractiveView view, IPromptSurface surface, ScreenSurface? screen, IInputSource input, RenderContext appContext, MenuContext context, IWidget dashboard, Func<RunContext, MenuRunResult?> work, LiveSessionOptions? options, Action<RunPane> show, Action hide, string fallbackTitle) {
+        public static MenuRunResult Run(InteractiveView view, Output.ITerminalTarget target, IPromptSurface surface, ScreenSurface? screen, IInputSource input, RenderContext appContext, MenuContext context, IWidget dashboard, Func<RunContext, MenuRunResult?> work, LiveSessionOptions? options, Action<RunPane> show, Action hide, string fallbackTitle) {
             LiveSessionOptions o = options ?? new LiveSessionOptions();
+            // The borrowed output belongs to the hosting screen, even if the action changed the ambient terminal.
+            o.Target = target;
             o.PrintFinalState = false;
             o.Summary = null;
             if (o.Profile == null) {
@@ -131,7 +133,7 @@ namespace ConsoleMonster.Interactive {
             RunPane pane = new RunPane(dashboard, view.Labels);
             show(pane);
             LiveSession session = new LiveSession(new MenuRunView(view, pane, dashboard), o);
-            Func<RenderContext, IPromptSurface?>? previous = PromptHost.Current;
+            Func<RenderContext, Output.ITerminalTarget, IPromptSurface?>? previous = PromptHost.Current;
             PromptHost.Current = null;
             try {
                 session.Start();

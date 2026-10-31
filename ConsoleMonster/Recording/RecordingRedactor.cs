@@ -19,6 +19,22 @@ namespace ConsoleMonster.Sessions {
         private void Add(string pattern) { _patterns.Add(CustomPatterns.GetValue(pattern, CreateCustomPatternSlot).Get(pattern)); }
         private static CustomPatternSlot CreateCustomPatternSlot(string pattern) => new CustomPatternSlot();
         public string Apply(string text) => ApplyWithOffsets(text).Text;
+
+        /// <summary>The ranges of plain visible text (no control sequences) that hold a secret, for masking screen cells.</summary>
+        internal List<KeyValuePair<int, int>> MatchRanges(string plain) {
+            List<KeyValuePair<int, int>> ranges = new List<KeyValuePair<int, int>>();
+            try {
+                foreach (Regex pattern in _patterns) {
+                    foreach (Match match in pattern.Matches(plain)) {
+                        if (match.Length > 0) { ranges.Add(new KeyValuePair<int, int>(match.Index, match.Length)); }
+                    }
+                }
+            } catch (RegexMatchTimeoutException) {
+                ranges.Clear();
+                ranges.Add(new KeyValuePair<int, int>(0, plain.Length));
+            }
+            return ranges;
+        }
         public RedactedOutput ApplyWithOffsets(string text) => ApplyPrefix(text, text.Length);
 
         /// <summary>Redacts the complete lookahead, committing only a prefix that cannot split a replacement.</summary>

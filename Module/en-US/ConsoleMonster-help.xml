@@ -4941,13 +4941,13 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
       <command:verb>Invoke</command:verb>
       <command:noun>ConsoleRecording</command:noun>
       <maml:description>
-        <maml:para>Records a script or an interactive child shell and saves the result.</maml:para>
-        <maml:para>Runs the script in an isolated child process, or opens a child shell with Interactive until it exits. Caller variables and functions are not inherited. The selected shell must be pwsh or powershell. Saves a local v2 cast plus metadata, then uses the existing renderer for an HTML player, animated SVG, text, Markdown or a final-frame SVG. -InProcess explicitly selects the limited PowerShell output fallback.</maml:para>
+        <maml:para>Records a script, an app on a headless terminal, or an interactive child shell and saves the result.</maml:para>
+        <maml:para>Runs the script in an isolated child process, or opens a child shell with Interactive until it exits. Caller variables and functions are not inherited. The selected shell must be pwsh or powershell. With -Headless the script runs here, against a headless terminal of -Width by -Height cells, and -InputScript drives it (key names, quoted text, wait:250 pauses, resize:80x24); the recording holds exactly what an app shows, including its log panel, footer and dialogs, and the app ends when the keys run out. Saves a local v2 cast plus metadata, then uses the existing renderer for an HTML player, animated SVG, text, Markdown or a final-frame SVG; Export-ConsoleRecording turns the cast into GIF or APNG. -InProcess explicitly selects the limited PowerShell output fallback.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
-      <maml:para>Records a script or an interactive child shell and saves the result.</maml:para>
-      <maml:para>Runs the script in an isolated child process, or opens a child shell with Interactive until it exits. Caller variables and functions are not inherited. The selected shell must be pwsh or powershell. Saves a local v2 cast plus metadata, then uses the existing renderer for an HTML player, animated SVG, text, Markdown or a final-frame SVG. -InProcess explicitly selects the limited PowerShell output fallback.</maml:para>
+      <maml:para>Records a script, an app on a headless terminal, or an interactive child shell and saves the result.</maml:para>
+      <maml:para>Runs the script in an isolated child process, or opens a child shell with Interactive until it exits. Caller variables and functions are not inherited. The selected shell must be pwsh or powershell. With -Headless the script runs here, against a headless terminal of -Width by -Height cells, and -InputScript drives it (key names, quoted text, wait:250 pauses, resize:80x24); the recording holds exactly what an app shows, including its log panel, footer and dialogs, and the app ends when the keys run out. Saves a local v2 cast plus metadata, then uses the existing renderer for an HTML player, animated SVG, text, Markdown or a final-frame SVG; Export-ConsoleRecording turns the cast into GIF or APNG. -InProcess explicitly selects the limited PowerShell output fallback.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="Script">
@@ -5009,7 +5009,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>InProcess</maml:name>
           <maml:description>
-            <maml:para>Explicit limited fallback: PowerShell host output in this process; no native terminal capture.</maml:para>
+            <maml:para>Explicit limited fallback: PowerShell host output in this process; no native terminal capture. Not used with -Headless.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
           <dev:type>
@@ -5093,7 +5093,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Shell</maml:name>
           <maml:description>
-            <maml:para>Shell executable. The default is the current PowerShell executable.</maml:para>
+            <maml:para>Shell executable. The default is the current PowerShell executable. Not used with -Headless.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -5123,7 +5123,238 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>TimeoutSeconds</maml:name>
           <maml:description>
-            <maml:para>Maximum child lifetime in seconds.</maml:para>
+            <maml:para>Maximum child lifetime in seconds. Not used with -Headless, where the script runs in this session.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+          <dev:type>
+            <maml:name>Double</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Title</maml:name>
+          <maml:description>
+            <maml:para>Recording title.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Width</maml:name>
+          <maml:description>
+            <maml:para>Initial terminal width in cells.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+      <command:syntaxItem parameterSetName="Headless">
+        <maml:name>Invoke-ConsoleRecording</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>ChromeStyle</maml:name>
+          <maml:description>
+            <maml:para>MacOS (default), Windows, Linux or None. Choose None to hide chrome.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">WindowChromeStyle</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">MacOS</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Windows</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Linux</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>WindowChromeStyle</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>MacOS</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>FinalFrame</maml:name>
+          <maml:description>
+            <maml:para>Export the final frame as a static SVG.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Headless</maml:name>
+          <maml:description>
+            <maml:para>Runs the script in this session against a headless terminal and records what it shows. Caller variables and functions are available; only ConsoleMonster output is recorded.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Height</maml:name>
+          <maml:description>
+            <maml:para>Initial terminal height in cells.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>IdleLimitSeconds</maml:name>
+          <maml:description>
+            <maml:para>Asciicast player idle-limit hint in seconds. Source timestamps are always preserved; zero disables the hint.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+          <dev:type>
+            <maml:name>Double</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>InProcess</maml:name>
+          <maml:description>
+            <maml:para>Explicit limited fallback: PowerShell host output in this process; no native terminal capture. Not used with -Headless.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>InputScript</maml:name>
+          <maml:description>
+            <maml:para>Input for -Headless: key names (Down, Enter, Ctrl+K, F2), repeats (Down*3), quoted text, paste:"text", resize:80x24 and wait:250 pauses. Input ends after the last key.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>MaxBytes</maml:name>
+          <maml:description>
+            <maml:para>Maximum cast bytes. At the cap recording stops with a warning.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int64</command:parameterValue>
+          <dev:type>
+            <maml:name>Int64</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Path</maml:name>
+          <maml:description>
+            <maml:para>Export path for a script; Interactive writes a cast here, or uses a timestamped name when omitted.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>RecordingPath</maml:name>
+          <maml:description>
+            <maml:para>Local asciicast v2 output; omitted names are timestamped.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Redact</maml:name>
+          <maml:description>
+            <maml:para>Additional regular expressions to redact from recorded output.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+          <dev:type>
+            <maml:name>String[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>RedactionText</maml:name>
+          <maml:description>
+            <maml:para>Visible replacement for matched output (default [REDACTED]). No control characters.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>'[REDACTED]'</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+          <maml:name>ScriptBlock</maml:name>
+          <maml:description>
+            <maml:para>Script to run in the recorded PowerShell child.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">ScriptBlock</command:parameterValue>
+          <dev:type>
+            <maml:name>ScriptBlock</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Shell</maml:name>
+          <maml:description>
+            <maml:para>Shell executable. The default is the current PowerShell executable. Not used with -Headless.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Theme</maml:name>
+          <maml:description>
+            <maml:para>Export colours.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">ExportTheme</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Auto</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Dark</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Light</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">HighContrast</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>ExportTheme</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>TimeoutSeconds</maml:name>
+          <maml:description>
+            <maml:para>Maximum child lifetime in seconds. Not used with -Headless, where the script runs in this session.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
           <dev:type>
@@ -5186,7 +5417,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>InProcess</maml:name>
           <maml:description>
-            <maml:para>Explicit limited fallback: PowerShell host output in this process; no native terminal capture.</maml:para>
+            <maml:para>Explicit limited fallback: PowerShell host output in this process; no native terminal capture. Not used with -Headless.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
           <dev:type>
@@ -5258,7 +5489,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Shell</maml:name>
           <maml:description>
-            <maml:para>Shell executable. The default is the current PowerShell executable.</maml:para>
+            <maml:para>Shell executable. The default is the current PowerShell executable. Not used with -Headless.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -5270,7 +5501,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>TimeoutSeconds</maml:name>
           <maml:description>
-            <maml:para>Maximum child lifetime in seconds.</maml:para>
+            <maml:para>Maximum child lifetime in seconds. Not used with -Headless, where the script runs in this session.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
           <dev:type>
@@ -5336,6 +5567,18 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Headless</maml:name>
+        <maml:description>
+          <maml:para>Runs the script in this session against a headless terminal and records what it shows. Caller variables and functions are available; only ConsoleMonster output is recorded.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Height</maml:name>
         <maml:description>
@@ -5363,11 +5606,23 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>InProcess</maml:name>
         <maml:description>
-          <maml:para>Explicit limited fallback: PowerShell host output in this process; no native terminal capture.</maml:para>
+          <maml:para>Explicit limited fallback: PowerShell host output in this process; no native terminal capture. Not used with -Headless.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
           <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>InputScript</maml:name>
+        <maml:description>
+          <maml:para>Input for -Headless: key names (Down, Enter, Ctrl+K, F2), repeats (Down*3), quoted text, paste:"text", resize:80x24 and wait:250 pauses. Input ends after the last key.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -5459,7 +5714,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Shell</maml:name>
         <maml:description>
-          <maml:para>Shell executable. The default is the current PowerShell executable.</maml:para>
+          <maml:para>Shell executable. The default is the current PowerShell executable. Not used with -Headless.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
@@ -5489,7 +5744,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>TimeoutSeconds</maml:name>
         <maml:description>
-          <maml:para>Maximum child lifetime in seconds.</maml:para>
+          <maml:para>Maximum child lifetime in seconds. Not used with -Headless, where the script runs in this session.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
         <dev:type>
@@ -5555,6 +5810,16 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
         <dev:code>Invoke-ConsoleRecording -Interactive -Path ./session.cast -WhatIf</dev:code>
         <dev:remarks>
           <maml:para>Preview recording a child shell</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 3</maml:title>
+        <dev:code>Invoke-ConsoleRecording -Headless -Width 100 -Height 30 -InputScript 'wait:800 Down Down wait:600 Enter wait:1200 q' -Path ./app.cast -WhatIf {&#xD;
+                Show-ConsoleApp -Content { New-ConsoleSelect -Key Color -Choices Red, Green, Blue }&#xD;
+            }&#xD;
+            Export-ConsoleRecording -RecordingPath ./app.cast -Path ./app.gif -WhatIf</dev:code>
+        <dev:remarks>
+          <maml:para>Preview recording an app driven by keys, then make a GIF of it</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>

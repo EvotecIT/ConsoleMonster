@@ -15,24 +15,26 @@ namespace ConsoleMonster.Live {
     /// </summary>
     internal sealed class LivePromptSurface : IPromptSurface {
         private readonly LivePause _pause;
+        private readonly LiveSession _session;
         private readonly RenderContext _context;
         private readonly ScreenCapture? _capture;
         private int _width;
         private int _height;
 
-        private LivePromptSurface(LivePause pause, RenderContext context, ScreenCapture? capture = null) {
+        private LivePromptSurface(LiveSession session, LivePause pause, RenderContext context, ScreenCapture? capture = null) {
+            _session = session;
             _pause = pause;
             _context = context;
             _capture = capture;
             Refresh();
         }
 
-        public static IPromptSurface? TryCreate(RenderContext context, RecordingTarget? recording = null) {
-            LiveSession? session = LiveSession.Current;
+        public static IPromptSurface? TryCreate(RenderContext context, ITerminalTarget target, RecordingTarget? recording = null) {
+            LiveSession? session = LiveSession.CurrentFor(target);
             if (session == null || (recording == null ? !session.CanOverlay : !session.CanCaptureOverlay(recording))) {
                 return null;
             }
-            return new LivePromptSurface(session.Pause(), context, recording?.Screens);
+            return new LivePromptSurface(session, session.Pause(), context, recording?.Screens);
         }
 
         public int Width => Math.Max(20, Math.Min(_width - 6, 96));
@@ -44,7 +46,7 @@ namespace ConsoleMonster.Live {
         public bool Refresh() {
             int width = _capture?.Width ?? _pause.Backdrop?.Width ?? 0;
             int height = _capture?.Height ?? _pause.Backdrop?.Height ?? 0;
-            if (_capture == null && TerminalSize.TryGet(out int w, out int h) && w > 0 && h > 0) {
+            if (_capture == null && _session.TryReadWindow(out _, out _, out int w, out int h) && w > 0 && h > 0) {
                 width = w;
                 height = h;
             }

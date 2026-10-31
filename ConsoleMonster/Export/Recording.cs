@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using ConsoleMonster.Layout;
+using ConsoleMonster.Canvas;
 using ConsoleMonster.Live;
 
 namespace ConsoleMonster.Export {
@@ -103,6 +104,48 @@ namespace ConsoleMonster.Export {
                     return AsciicastWriter.Write(frames, o);
                 default:
                     throw new ArgumentException("Recordings export to Html, Svg or Asciicast.", nameof(format));
+            }
+        }
+
+        /// <summary>
+        /// Exports already composed, timed screens (from <see cref="Interactive.ScreenCapture.ToRecordedFrames"/>, a
+        /// <see cref="Headless.HeadlessTerminal"/> or <see cref="CaptureFrames"/>) as an HTML player, an animated SVG or
+        /// asciicast v3. The screen size comes from the frames; the options supply theme, title, font, window frame and looping.
+        /// For GIF and APNG use <c>SaveGraphics</c> in ConsoleMonster.Graphics.
+        /// </summary>
+        /// <param name="frames">The screens in playback order, each with its start and duration in milliseconds.</param>
+        /// <param name="format">Html, Svg or Asciicast.</param>
+        /// <param name="options">Theme, title, font, window frame and looping.</param>
+        /// <returns>The exported document.</returns>
+        public static string Export(IReadOnlyList<RecordedFrame> frames, ExportFormat format, RecordingExportOptions? options = null) {
+            if (frames == null) { throw new ArgumentNullException(nameof(frames)); }
+            if (frames.Count == 0) { throw new ArgumentException("There are no frames to export.", nameof(frames)); }
+            RecordingExportOptions o = (options ?? new RecordingExportOptions()).Clone();
+            int width = 1, height = 1;
+            foreach (RecordedFrame frame in frames) {
+                if (frame == null) { throw new ArgumentException("A frame is null.", nameof(frames)); }
+                width = Math.Max(width, frame.Frame.Width);
+                height = Math.Max(height, frame.Frame.Height);
+            }
+            o.Width = width;
+            o.Height = height;
+            o = o.Ready();
+            switch (format) {
+                case ExportFormat.Html:
+                    return HtmlPlayerWriter.Write(frames, o);
+                case ExportFormat.Svg:
+                    return AnimatedSvgWriter.Write(frames, o);
+                case ExportFormat.Asciicast:
+                    // Asciicast has one fixed canvas; clear cells outside smaller captured screens.
+                    List<RecordedFrame> normalized = new List<RecordedFrame>(frames.Count);
+                    foreach (RecordedFrame frame in frames) {
+                        CellBuffer canvas = new CellBuffer(width, height);
+                        canvas.Blit(frame.Frame, 0, 0, frame.Frame.Width, frame.Frame.Height, 0, 0);
+                        normalized.Add(new RecordedFrame(canvas, frame.Start) { Duration = frame.Duration });
+                    }
+                    return AsciicastWriter.Write(normalized, o);
+                default:
+                    throw new ArgumentException("Frames export to Html, Svg or Asciicast.", nameof(format));
             }
         }
 

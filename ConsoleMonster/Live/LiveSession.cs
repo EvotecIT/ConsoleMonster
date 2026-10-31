@@ -82,6 +82,16 @@ namespace ConsoleMonster.Live {
         /// <summary>The root widget the session renders.</summary>
         public IWidget Root => _root;
 
+        /// <summary>The most recently started running session that draws on a target (a headless terminal's app), or null.</summary>
+        internal static LiveSession? CurrentFor(ITerminalTarget target) {
+            lock (CurrentGate) {
+                for (int i = Running.Count - 1; i >= 0; i--) {
+                    if (Running[i].IsRunning && ReferenceEquals(Running[i]._target, target)) { return Running[i]; }
+                }
+            }
+            return null;
+        }
+
         /// <summary>The most recently started session that is still running, across all runspaces.</summary>
         public static LiveSession? Current {
             get {

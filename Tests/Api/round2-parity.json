@@ -2717,12 +2717,51 @@
       "CSharpType": "ConsoleMonster.Sessions.SessionRecorder",
       "Bindings": [
         {
+          "Parameter": "Headless",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "Headless",
+              "Position": -2147483648,
+              "Mandatory": true
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "HostPolicy",
+          "Reason": "Runs the script in this session against a headless terminal and records it; C# creates a HeadlessTerminal and calls Record."
+        },
+        {
+          "Parameter": "InputScript",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "Headless",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Headless.HeadlessTerminal",
+          "Member": "Send",
+          "Argument": "script",
+          "MemberKind": "Method",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Reason": "The scripted keys are queued on the headless terminal before the script runs, and input ends after them."
+        },
+        {
           "Parameter": "ChromeStyle",
           "ParameterType": "ConsoleMonster.Export.WindowChromeStyle",
           "Default": "MacOS",
           "Sets": [
             {
               "Name": "Script",
+              "Position": -2147483648,
+              "Mandatory": false
+            },
+            {
+              "Name": "Headless",
               "Position": -2147483648,
               "Mandatory": false
             }
@@ -2743,6 +2782,11 @@
           "Sets": [
             {
               "Name": "Script",
+              "Position": -2147483648,
+              "Mandatory": false
+            },
+            {
+              "Name": "Headless",
               "Position": -2147483648,
               "Mandatory": false
             }
@@ -2860,6 +2904,11 @@
               "Mandatory": true
             },
             {
+              "Name": "Headless",
+              "Position": -2147483648,
+              "Mandatory": true
+            },
+            {
               "Name": "Interactive",
               "Position": -2147483648,
               "Mandatory": false
@@ -2891,6 +2940,11 @@
           "Sets": [
             {
               "Name": "Script",
+              "Position": -2147483648,
+              "Mandatory": false
+            },
+            {
+              "Name": "Headless",
               "Position": -2147483648,
               "Mandatory": false
             }
@@ -2954,6 +3008,11 @@
               "Name": "Script",
               "Position": 0,
               "Mandatory": true
+            },
+            {
+              "Name": "Headless",
+              "Position": 0,
+              "Mandatory": true
             }
           ],
           "MemberKind": "HostPolicy",
@@ -2987,6 +3046,11 @@
           "Sets": [
             {
               "Name": "Script",
+              "Position": -2147483648,
+              "Mandatory": false
+            },
+            {
+              "Name": "Headless",
               "Position": -2147483648,
               "Mandatory": false
             }
@@ -21495,6 +21559,54 @@
       "Disposition": "CSharpOnly"
     },
     {
+      "CSharpType": "ConsoleMonster.Headless.BrowserHostOptions",
+      "Member": "Port",
+      "CSharpTypeName": "System.Int32",
+      "Reason": "The browser host is a C# hosting component for docs, demos and visual tests; it has no PowerShell command.",
+      "Alternative": "Record the app with Invoke-ConsoleRecording -Headless and publish its player, or host BrowserHost from C#.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Headless.BrowserHostOptions",
+      "Member": "Title",
+      "CSharpTypeName": "System.String",
+      "Reason": "The browser host is a C# hosting component for docs, demos and visual tests; it has no PowerShell command.",
+      "Alternative": "Record the app with Invoke-ConsoleRecording -Headless and publish its player, or host BrowserHost from C#.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Headless.DebugSocketOptions",
+      "Member": "DiscoveryFolder",
+      "CSharpTypeName": "System.String",
+      "Reason": "The debug socket is opt-in plumbing for agents, started by the app host or by environment variables; PowerShell sessions do not open sockets.",
+      "Alternative": "Set CONSOLEMONSTER_HEADLESS and CONSOLEMONSTER_DEBUG_SOCKET for the process; the discovery file uses the standard folder.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Headless.DebugSocketOptions",
+      "Member": "Port",
+      "CSharpTypeName": "System.Int32",
+      "Reason": "The debug socket is opt-in plumbing for agents, started by the app host or by environment variables; PowerShell sessions do not open sockets.",
+      "Alternative": "Set CONSOLEMONSTER_DEBUG_SOCKET to a port number, or 0 for any free port.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Headless.DebugSocketOptions",
+      "Member": "Redact",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+      "Reason": "The debug socket is opt-in plumbing for agents, started by the app host or by environment variables; PowerShell sessions do not open sockets.",
+      "Alternative": "The built-in secret patterns always apply; extra patterns are set by the C# host that starts the socket.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Headless.DebugSocketOptions",
+      "Member": "Token",
+      "CSharpTypeName": "System.String",
+      "Reason": "The debug socket is opt-in plumbing for agents, started by the app host or by environment variables; PowerShell sessions do not open sockets.",
+      "Alternative": "Set CONSOLEMONSTER_DEBUG_TOKEN, or read the generated token from the discovery file.",
+      "Disposition": "CSharpOnly"
+    },
+    {
       "CSharpType": "ConsoleMonster.Help.CommandLineHelp",
       "Member": "Commands",
       "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Help.HelpCommand]",
@@ -21838,6 +21950,14 @@
       "CSharpTypeName": "System.Func`1[System.TimeSpan]",
       "Reason": "A native monotonic clock delegate belongs to the C# run host; a PowerShell script block cannot safely serve the background run clock.",
       "Alternative": "Use the normal live clock; deterministic host fixtures can supply ConsoleMonster.Live.SimulatedClock directly.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Live.LiveSessionOptions",
+      "Member": "Recorder",
+      "CSharpTypeName": "ConsoleMonster.Sessions.SessionRecorder",
+      "Reason": "Native app hosts lend an in-process recorder to a running session; PowerShell records a whole script run instead.",
+      "Alternative": "Use Invoke-ConsoleRecording -Headless to record what a script's apps and dashboards show.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -25105,6 +25225,8 @@
     "ConsoleMonster.Frames.GroupedRows`1",
     "ConsoleMonster.Graphics.ConsoleImage",
     "ConsoleMonster.Graphics.GraphicsExportOptions",
+    "ConsoleMonster.Headless.BrowserHostOptions",
+    "ConsoleMonster.Headless.DebugSocketOptions",
     "ConsoleMonster.Interactive.AppBinding",
     "ConsoleMonster.Interactive.AppCommand",
     "ConsoleMonster.Interactive.AppInputOptions",
@@ -25335,6 +25457,8 @@
     "ConsoleMonster.Graphics.GraphicsExportOptions",
     "ConsoleMonster.Graphics.GraphicsFit",
     "ConsoleMonster.Graphics.GraphicsPreset",
+    "ConsoleMonster.Headless.BrowserHostOptions",
+    "ConsoleMonster.Headless.DebugSocketOptions",
     "ConsoleMonster.Help.CommandLineHelp",
     "ConsoleMonster.Help.HelpCommand",
     "ConsoleMonster.Help.HelpExample",

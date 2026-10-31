@@ -18,6 +18,7 @@ namespace ConsoleMonster.Interactive {
     internal sealed partial class MenuApp : InteractiveView, IViewHost, IMenuHost {
         private readonly Menu _root;
         private readonly MenuOptions _options;
+        private readonly Output.ITerminalTarget _target;
         private readonly ChoiceStore? _store;
         private readonly IInputSource _input;
         private readonly ScreenSurface? _screen;
@@ -40,13 +41,14 @@ namespace ConsoleMonster.Interactive {
         public MenuApp(Menu root, MenuOptions options, PromptLabels labels, ChoiceStore? store, IInputSource input, IPromptSurface surface, RenderContext context, MenuLayout layout, CancellationToken token) : base(labels) {
             _root = root;
             _options = options;
+            _target = (options.Interactive ?? InteractiveOptions.Default).ResolveTarget();
             _store = store;
             _input = input;
             _surface = surface;
             _screen = surface as ScreenSurface;
             _context = context;
             _token = token;
-            _copy = InteractiveClipboard.ForTarget((options.Interactive ?? InteractiveOptions.Default).ResolveTarget());
+            _copy = InteractiveClipboard.ForTarget(_target);
             Layout = layout;
             _sidebar = new MenuListPane(root, ActivateFromSidebar, labels, compact: true, context.Glyphs);
             _sidebar.List.ShowInactiveFocus = true;
@@ -73,7 +75,7 @@ namespace ConsoleMonster.Interactive {
         public void ShowModal(Modal modal) => _modals.Add(modal);
 
         public T Ask<T>(Prompt<T> prompt, CancellationToken cancellationToken) {
-            Func<RenderContext, IPromptSurface?>? previous = PromptHost.Current;
+            Func<RenderContext, Output.ITerminalTarget, IPromptSurface?>? previous = PromptHost.Current;
             PromptHost.Current = ResolvePromptSurface;
             try {
                 return prompt.Show(PromptOptions(), cancellationToken);
@@ -86,20 +88,21 @@ namespace ConsoleMonster.Interactive {
         private InteractiveOptions PromptOptions() {
             InteractiveOptions o = (_options.Interactive ?? InteractiveOptions.Default).Clone();
             o.Mode = InteractionMode.Rich;
+            o.Target = _target;
             o.Input = _input;
             o.Labels = Labels;
             return o;
         }
 
-        private IPromptSurface? ResolvePromptSurface(RenderContext context) {
-            return _screen == null ? null : new BoxedSurface(_screen, LastRendered, context);
+        private IPromptSurface? ResolvePromptSurface(RenderContext context, Output.ITerminalTarget target) {
+            return _screen == null || !ReferenceEquals(target, _target) ? null : new BoxedSurface(_screen, LastRendered, context);
         }
 
         // A run stays inside the app: the live session draws the app frame with a run pane as the content (same header,
         // sidebar and footer), on the app's own screen or capture, so nothing clears or jumps between choosing and running.
         public MenuRunResult Run(MenuContext context, IWidget dashboard, Func<RunContext, MenuRunResult?> work, LiveSessionOptions? options) {
             Location? location = null;
-            MenuRunResult result = RunHost.Run(this, _surface, _screen, _input, _context, context, dashboard, work, options, pane => {
+            MenuRunResult result = RunHost.Run(this, _target, _surface, _screen, _input, _context, context, dashboard, work, options, pane => {
                 // The breadcrumb says the app is running; the dashboard's title names the panel, so it is not said twice.
                 location = new Location(Labels.Running, pane, context.Item);
                 Push(location);
@@ -312,7 +315,7 @@ namespace ConsoleMonster.Interactive {
         }
 
         private void Invoke(MenuItem? item, Action<MenuContext> action, FormResult? form) {
-            Func<RenderContext, IPromptSurface?>? previous = PromptHost.Current;
+            Func<RenderContext, Output.ITerminalTarget, IPromptSurface?>? previous = PromptHost.Current;
             PromptHost.Current = ResolvePromptSurface;
             bool collecting = BeginOutput(item?.Label ?? _root.Title);
             try {

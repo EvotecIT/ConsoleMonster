@@ -19,10 +19,11 @@ namespace ConsoleMonster.PowerShell {
             get => PSModuleImport.PathFor(this);
         }
         /// <summary><para type="description">Local asciicast v2 output; omitted names are timestamped.</para></summary>
-        [Parameter(ParameterSetName = "Script")] public string? RecordingPath { get; set; }
+        [Parameter(ParameterSetName = "Script")]
+        [Parameter(ParameterSetName = "Headless")] public string? RecordingPath { get; set; }
         /// <summary><para type="description">Recording title.</para></summary>
         [Parameter] public string Title { get; set; } = "Console session";
-        /// <summary><para type="description">Shell executable. The default is the current PowerShell executable.</para></summary>
+        /// <summary><para type="description">Shell executable. The default is the current PowerShell executable. Not used with -Headless.</para></summary>
         [Parameter] public string? Shell { get; set; }
         /// <summary><para type="description">Initial terminal width in cells.</para></summary>
         [Parameter] [ValidateRange(0, 1000)] public int Width { get; set; }
@@ -36,9 +37,9 @@ namespace ConsoleMonster.PowerShell {
         [Parameter] [ValidateRange(1024, long.MaxValue)] public long MaxBytes { get; set; } = 64 * 1024 * 1024;
         /// <summary><para type="description">Asciicast player idle-limit hint in seconds. Source timestamps are always preserved; zero disables the hint.</para></summary>
         [Parameter] [ValidateRange(0, 86400)] public double IdleLimitSeconds { get; set; } = 2;
-        /// <summary><para type="description">Explicit limited fallback: PowerShell host output in this process; no native terminal capture.</para></summary>
+        /// <summary><para type="description">Explicit limited fallback: PowerShell host output in this process; no native terminal capture. Not used with -Headless.</para></summary>
         [Parameter] public SwitchParameter InProcess { get; set; }
-        /// <summary><para type="description">Maximum child lifetime in seconds.</para></summary>
+        /// <summary><para type="description">Maximum child lifetime in seconds. Not used with -Headless, where the script runs in this session.</para></summary>
         [Parameter] [ValidateRange(0.01, 604800)] public double TimeoutSeconds { get; set; } = 86400;
 
         /// <summary>Maps PowerShell paths and arguments into the shared recording API.</summary>
