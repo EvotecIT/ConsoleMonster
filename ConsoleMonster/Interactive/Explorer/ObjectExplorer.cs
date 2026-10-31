@@ -58,7 +58,7 @@ namespace ConsoleMonster.Interactive {
                 RenderContext context = Terminal.CreateContext(profile, actual.ResolveTheme());
                 IPromptSurface? surface = actual.Surface;
                 bool owns = surface == null;
-                surface ??= PromptHost.Resolve(context) ?? new ScreenSurface(profile, actual.ResolveSurfaceWriter(), actual.ResolveSurfaceSize());
+                surface ??= PromptHost.Resolve(context, actual.ResolveTarget()) ?? new ScreenSurface(profile, actual.ResolveSurfaceWriter(), actual.ResolveSurfaceSize());
                 try {
                     ExplorerView view = new ExplorerView(this, actual.ResolveLabels());
                     InteractionLoop.Run(view, lease.Source, surface, context, cancellationToken);

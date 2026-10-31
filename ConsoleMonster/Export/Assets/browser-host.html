@@ -26,9 +26,15 @@ main{display:flex;flex-direction:column;align-items:center;gap:10px;padding:24px
   var size = { width: 0, height: 0 };
   var named = { ArrowUp: "Up", ArrowDown: "Down", ArrowLeft: "Left", ArrowRight: "Right", Enter: "Enter", Escape: "Esc", Tab: "Tab",
     Backspace: "Backspace", Delete: "Delete", Home: "Home", End: "End", PageUp: "PageUp", PageDown: "PageDown", Insert: "Ins" };
+  var inputQueue = Promise.resolve(), inputFailed = false;
   function send(body) {
-    fetch("input?t=" + encodeURIComponent(token), { method: "POST", headers: { "Content-Type": "application/json", "X-ConsoleMonster-Token": token },
-      body: JSON.stringify(body), cache: "no-store", credentials: "omit" }).catch(function () { status.textContent = "Input was not delivered."; });
+    inputQueue = inputQueue.then(function () {
+      if (inputFailed) { return; }
+      return fetch("input?t=" + encodeURIComponent(token), { method: "POST", headers: { "Content-Type": "application/json", "X-ConsoleMonster-Token": token },
+        body: JSON.stringify(body), cache: "no-store", credentials: "omit" }).then(function (response) {
+          if (!response.ok) { throw new Error("Input rejected"); }
+        });
+    }).catch(function () { inputFailed = true; status.textContent = "Input was not delivered."; });
   }
   function chord(e, name) {
     return (e.ctrlKey ? "Ctrl+" : "") + (e.altKey ? "Alt+" : "") + (e.shiftKey ? "Shift+" : "") + name;
@@ -60,9 +66,9 @@ main{display:flex;flex-direction:column;align-items:center;gap:10px;padding:24px
     var frame = JSON.parse(message.data);
     size = { width: frame.width, height: frame.height };
     screen.innerHTML = frame.html;
-    status.textContent = "Live: click the screen and type";
+    if (!inputFailed) { status.textContent = "Live: click the screen and type"; }
   };
-  events.onerror = function () { status.textContent = "Disconnected"; };
+  events.onerror = function () { if (!inputFailed) { status.textContent = "Disconnected"; } };
   screen.focus();
 }());
 </script>

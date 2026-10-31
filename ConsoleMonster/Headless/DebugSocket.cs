@@ -52,9 +52,13 @@ namespace ConsoleMonster.Headless {
         private readonly RecordingRedactor _redactor;
         private readonly LoopbackListener _listener;
         private readonly string _token;
+        private readonly CancellationTokenSource _stopped = new CancellationTokenSource();
+        private readonly CancellationToken _stopToken;
+        private int _disposed;
 
         private DebugSocket(HeadlessTerminal terminal, DebugSocketOptions options) {
             _terminal = terminal;
+            _stopToken = _stopped.Token;
             _token = options.Token ?? LoopbackListener.NewToken();
             if (_token.Length < 16) { throw new ArgumentException("The debug socket token needs at least 16 characters.", nameof(options)); }
             _redactor = new RecordingRedactor(options.Redact);
@@ -81,7 +85,10 @@ namespace ConsoleMonster.Headless {
 
         /// <summary>Stops listening, closes open connections and removes the discovery file.</summary>
         public void Dispose() {
+            if (Interlocked.Exchange(ref _disposed, 1) != 0) { return; }
+            _stopped.Cancel();
             _listener.Dispose();
+            _stopped.Dispose();
             lock (Published) {
                 if (!Published.Remove(DiscoveryPath)) { return; }
                 try { File.Delete(DiscoveryPath); } catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException) { }

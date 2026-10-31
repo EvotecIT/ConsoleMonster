@@ -33,7 +33,7 @@ namespace ConsoleMonster.Interactive {
                 IPromptSurface? surface = interactive.Surface;
                 bool owns = false;
                 if (surface == null) {
-                    surface = PromptHost.Resolve(context) ?? (options.Inline ? (IPromptSurface)new InlineSurface(profile, interactive.ResolveSurfaceWriter(), interactive.MaxInlineHeight ?? 30, interactive.ResolveSurfaceSize()) : new ScreenSurface(profile, interactive.ResolveSurfaceWriter(), interactive.ResolveSurfaceSize()));
+                    surface = PromptHost.Resolve(context, interactive.ResolveTarget()) ?? (options.Inline ? (IPromptSurface)new InlineSurface(profile, interactive.ResolveSurfaceWriter(), interactive.MaxInlineHeight ?? 30, interactive.ResolveSurfaceSize()) : new ScreenSurface(profile, interactive.ResolveSurfaceWriter(), interactive.ResolveSurfaceSize()));
                     owns = true;
                 }
                 FormHostView? view = null;

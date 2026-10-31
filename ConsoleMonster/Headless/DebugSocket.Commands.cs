@@ -45,7 +45,7 @@ namespace ConsoleMonster.Headless {
                     string expected = Text(request, "text") ?? throw new FormatException("'text' is required.");
                     int timeout = Number(request, "timeout", 5000, 1, 600000);
                     // Matched against the masked screen, so waiting cannot reveal a masked secret one guess at a time.
-                    bool found = _terminal.TryWaitFor(frame => ScreenRedaction.Apply(frame, _redactor).ToPlainText().IndexOf(expected, StringComparison.Ordinal) >= 0, TimeSpan.FromMilliseconds(timeout), CancellationToken.None);
+                    bool found = _terminal.TryWaitFor(frame => ScreenRedaction.Apply(frame, _redactor).ToPlainText().IndexOf(expected, StringComparison.Ordinal) >= 0, TimeSpan.FromMilliseconds(timeout), _stopToken);
                     return Ok(new Dictionary<string, object?> { ["found"] = found });
                 default:
                     throw new FormatException("Unknown command '" + command + "'. Use hello, screen, tree, keys, text, resize, click or wait.");

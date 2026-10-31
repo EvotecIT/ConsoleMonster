@@ -2,14 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Export;
 using ConsoleMonster.Headless;
+using ConsoleMonster.Input;
 using ConsoleMonster.Interactive;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Sessions;
+using ConsoleMonster.Serialization;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Testing;
 using ConsoleMonster.Widgets;
@@ -22,6 +25,58 @@ namespace ConsoleMonster.Tests.Headless {
         private readonly string _folder = Path.Combine(Path.GetTempPath(), "cm-headless-" + Guid.NewGuid().ToString("N"));
 
         public HeadlessTerminalTests() { Directory.CreateDirectory(_folder); }
+
+        [Fact]
+        public void CompletedInput_HoldsItsTrailingPauseBeforeEndOfInput() {
+            using HeadlessTerminal terminal = new HeadlessTerminal(40, 10);
+            terminal.Send("Down wait:200");
+            terminal.CompleteInput();
+            Assert.NotNull(terminal.Input!.Read(TimeSpan.Zero, CancellationToken.None));
+            Assert.Null(terminal.Input.Read(TimeSpan.Zero, CancellationToken.None));
+            using CancellationTokenSource stop = new CancellationTokenSource();
+            stop.Cancel();
+            Assert.Throws<OperationCanceledException>(() => terminal.Input.Read(TimeSpan.FromSeconds(1), stop.Token));
+            Assert.Throws<InputClosedException>(() => terminal.Input.Read(TimeSpan.FromSeconds(1), CancellationToken.None));
+        }
+
+        [Fact]
+        public void Prompt_UsesOnlyTheLiveSessionOnItsOwnTarget() {
+            using HeadlessTerminal dashboard = new HeadlessTerminal(80, 24);
+            using HeadlessTerminal other = new HeadlessTerminal(60, 12);
+            List<string> dashboardFrames = new List<string>();
+            dashboard.FrameRendered += frame => { lock (dashboardFrames) { dashboardFrames.Add(frame.ToPlainText()); } };
+            using LiveSession session = new LiveSession(TextBlock.Plain("Dashboard A"), new LiveSessionOptions {
+                Target = dashboard, CaptureConsole = false, TaskbarProgress = false, HandleCancelKey = false
+            });
+            session.Start();
+            dashboard.WaitForText("Dashboard A", TimeSpan.FromSeconds(10));
+            other.Send("Enter");
+            Assert.True(new ConfirmPrompt("Only terminal B", true).Show(new InteractiveOptions { Target = other, Mode = InteractionMode.Rich }));
+            Assert.Contains("Only terminal B", other.Snapshot().ToPlainText());
+            lock (dashboardFrames) { Assert.DoesNotContain(dashboardFrames, frame => frame.Contains("Only terminal B")); }
+            dashboard.Send("Enter");
+            Assert.True(new ConfirmPrompt("Same terminal A", true).Show(new InteractiveOptions { Target = dashboard, Mode = InteractionMode.Rich }));
+            lock (dashboardFrames) { Assert.Contains(dashboardFrames, frame => frame.Contains("Same terminal A")); }
+        }
+
+        [Fact]
+        public void CapturedFrames_AsciicastClearsRowsRemovedByResize() {
+            CellBuffer large = new CellBuffer(20, 4);
+            large.Write(0, 3, "old", Style.Plain);
+            RecordedFrame[] frames = {
+                new RecordedFrame(large, 0) { Duration = 100 },
+                new RecordedFrame(new CellBuffer(10, 2), 100) { Duration = 100 },
+                new RecordedFrame(new CellBuffer(20, 4), 200) { Duration = 100 }
+            };
+            string[] lines = Recording.Export(frames, ExportFormat.Asciicast).Trim().Split('\n');
+            VtScreen screen = new VtScreen(20, 4);
+            for (int i = 1; i <= frames.Length; i++) {
+                var output = (List<object?>)MiniJson.Read(lines[i])!;
+                screen.Feed((string)output[2]!);
+                if (i == 1) { Assert.Contains("old", screen.Snapshot().ToPlainText()); }
+                else { Assert.DoesNotContain("old", screen.Snapshot().ToPlainText()); }
+            }
+        }
 
         public void Dispose() { Directory.Delete(_folder, true); }
 

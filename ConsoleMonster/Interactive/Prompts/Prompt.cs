@@ -128,14 +128,14 @@ namespace ConsoleMonster.Interactive {
                 // A separately supplied surface/capture keeps its usual standalone prompt behavior.
                 if (options.ResolveTarget() is RecordingTarget recording && recording.SkipDelays &&
                     ReferenceEquals(surface, recording.Screens.Surface)) {
-                    IPromptSurface? overlay = LivePromptSurface.TryCreate(context, recording);
+                    IPromptSurface? overlay = LivePromptSurface.TryCreate(context, options.ResolveTarget(), recording);
                     if (overlay != null) {
                         surface = overlay;
                         owns = true;
                     }
                 }
                 if (surface == null) {
-                    surface = PromptHost.Resolve(context) ?? new InlineSurface(profile, options.ResolveSurfaceWriter(), options.MaxInlineHeight, options.ResolveSurfaceSize());
+                    surface = PromptHost.Resolve(context, options.ResolveTarget()) ?? new InlineSurface(profile, options.ResolveSurfaceWriter(), options.MaxInlineHeight, options.ResolveSurfaceSize());
                     owns = true;
                 }
                 try {

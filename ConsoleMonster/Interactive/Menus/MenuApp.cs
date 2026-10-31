@@ -73,7 +73,7 @@ namespace ConsoleMonster.Interactive {
         public void ShowModal(Modal modal) => _modals.Add(modal);
 
         public T Ask<T>(Prompt<T> prompt, CancellationToken cancellationToken) {
-            Func<RenderContext, IPromptSurface?>? previous = PromptHost.Current;
+            Func<RenderContext, Output.ITerminalTarget, IPromptSurface?>? previous = PromptHost.Current;
             PromptHost.Current = ResolvePromptSurface;
             try {
                 return prompt.Show(PromptOptions(), cancellationToken);
@@ -91,8 +91,8 @@ namespace ConsoleMonster.Interactive {
             return o;
         }
 
-        private IPromptSurface? ResolvePromptSurface(RenderContext context) {
-            return _screen == null ? null : new BoxedSurface(_screen, LastRendered, context);
+        private IPromptSurface? ResolvePromptSurface(RenderContext context, Output.ITerminalTarget target) {
+            return _screen == null || !ReferenceEquals(target, (_options.Interactive ?? InteractiveOptions.Default).ResolveTarget()) ? null : new BoxedSurface(_screen, LastRendered, context);
         }
 
         // A run stays inside the app: the live session draws the app frame with a run pane as the content (same header,
@@ -312,7 +312,7 @@ namespace ConsoleMonster.Interactive {
         }
 
         private void Invoke(MenuItem? item, Action<MenuContext> action, FormResult? form) {
-            Func<RenderContext, IPromptSurface?>? previous = PromptHost.Current;
+            Func<RenderContext, Output.ITerminalTarget, IPromptSurface?>? previous = PromptHost.Current;
             PromptHost.Current = ResolvePromptSurface;
             bool collecting = BeginOutput(item?.Label ?? _root.Title);
             try {

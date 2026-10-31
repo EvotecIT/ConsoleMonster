@@ -131,7 +131,7 @@ namespace ConsoleMonster.Interactive {
             RunPane pane = new RunPane(dashboard, view.Labels);
             show(pane);
             LiveSession session = new LiveSession(new MenuRunView(view, pane, dashboard), o);
-            Func<RenderContext, IPromptSurface?>? previous = PromptHost.Current;
+            Func<RenderContext, Output.ITerminalTarget, IPromptSurface?>? previous = PromptHost.Current;
             PromptHost.Current = null;
             try {
                 session.Start();

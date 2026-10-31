@@ -69,10 +69,10 @@ namespace ConsoleMonster.Headless {
                         onRead = next.OnRead;
                         break;
                     }
-                    if (_queue.Count == 0 && _completed) { throw new InputClosedException("The headless input ended."); }
+                    if (_queue.Count == 0 && _completed && now >= _readyAt) { throw new InputClosedException("The headless input ended."); }
                     double left = timeout < TimeSpan.Zero ? 50 : timeout.TotalMilliseconds - waited.Elapsed.TotalMilliseconds;
                     if (left <= 0) { return null; }
-                    if (_queue.Count > 0) { left = Math.Min(left, Math.Max(1, (_readyAt - now) * 1000.0 / Stopwatch.Frequency)); }
+                    if (now < _readyAt) { left = Math.Min(left, Math.Max(1, (_readyAt - now) * 1000.0 / Stopwatch.Frequency)); }
                     // Short slices keep cancellation responsive without a registration per read.
                     Monitor.Wait(_gate, TimeSpan.FromMilliseconds(Math.Min(50, Math.Max(1, left))));
                 }

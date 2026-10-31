@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using ConsoleMonster.Layout;
+using ConsoleMonster.Canvas;
 using ConsoleMonster.Live;
 
 namespace ConsoleMonster.Export {
@@ -135,7 +136,14 @@ namespace ConsoleMonster.Export {
                 case ExportFormat.Svg:
                     return AnimatedSvgWriter.Write(frames, o);
                 case ExportFormat.Asciicast:
-                    return AsciicastWriter.Write(frames, o);
+                    // Asciicast has one fixed canvas; clear cells outside smaller captured screens.
+                    List<RecordedFrame> normalized = new List<RecordedFrame>(frames.Count);
+                    foreach (RecordedFrame frame in frames) {
+                        CellBuffer canvas = new CellBuffer(width, height);
+                        canvas.Blit(frame.Frame, 0, 0, frame.Frame.Width, frame.Frame.Height, 0, 0);
+                        normalized.Add(new RecordedFrame(canvas, frame.Start) { Duration = frame.Duration });
+                    }
+                    return AsciicastWriter.Write(normalized, o);
                 default:
                     throw new ArgumentException("Frames export to Html, Svg or Asciicast.", nameof(format));
             }

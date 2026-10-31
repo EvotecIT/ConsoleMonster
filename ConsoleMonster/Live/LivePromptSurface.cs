@@ -29,8 +29,8 @@ namespace ConsoleMonster.Live {
             Refresh();
         }
 
-        public static IPromptSurface? TryCreate(RenderContext context, RecordingTarget? recording = null) {
-            LiveSession? session = LiveSession.Current;
+        public static IPromptSurface? TryCreate(RenderContext context, ITerminalTarget target, RecordingTarget? recording = null) {
+            LiveSession? session = LiveSession.CurrentFor(target);
             if (session == null || (recording == null ? !session.CanOverlay : !session.CanCaptureOverlay(recording))) {
                 return null;
             }
