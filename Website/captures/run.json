@@ -3,35 +3,57 @@
   "producer": "windows",
   "complete": true,
   "scope": "produced-only",
-  "requestedSet": "live",
-  "filters": {
-    "SITEFRAMES_LIVE": "size-100x30,size-64x20,size-50x12"
-  },
+  "requestedSet": "interactive",
+  "filters": {},
   "allSetsCompleted": false,
   "files": {
-    "live/size-100x30.cast": {
+    "interactive/grid.ps7.txt": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "beb5b79dae95fe1c57e8adac6535b66d0aca566a40411976f2bb6873f00c0a39",
+      "sha256": "a029a93e486bf0f9d6c7526ccfbbfaa737b6b1da1320f4e3a9039f469f4cc0c2",
+      "screen": "dark",
+      "width": 110,
+      "height": 22
+    },
+    "interactive/multi.ps7.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "6c1e739322f3f5f290771835dc2fd35d060e14ac78b42fa241809b714834bf33",
+      "screen": "dark",
+      "width": 110,
+      "height": 20
+    },
+    "interactive/screens.ps7.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "e431c91cb652a255333723f7693da95b29263680aed2ec8aa92a0c7393e74179",
+      "screen": "dark",
+      "width": 90,
+      "height": 16
+    },
+    "interactive/select.ps7.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "0a55ae378dda469f01bf64f7dfa833f3279d2c72f0758970fb7336bf144965c4",
       "screen": "dark",
       "width": 100,
-      "height": 30
+      "height": 16
     },
-    "live/size-50x12.cast": {
+    "interactive/text.ps7.txt": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "cd260b80c845463e8aa34c443b2deafa4b3eb0fa6195df3112df0fe57860a22f",
+      "sha256": "02d84959c15965434899ffd3ba50e0356b1211f78a1e037986f97f9ce5a28017",
       "screen": "dark",
-      "width": 50,
-      "height": 12
+      "width": 90,
+      "height": 10
     },
-    "live/size-64x20.cast": {
+    "interactive/typed.ps7.txt": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "7a2378ee4222b0d178d713f9f6efd33c795cd04e94cb2ad3b57e3953ce8a2545",
+      "sha256": "5f1684cb603037f14a77221350b43cbfa8a1d990c20ebebad3ce29829c6d30b9",
       "screen": "dark",
-      "width": 64,
-      "height": 20
+      "width": 90,
+      "height": 10
     }
   }
 }

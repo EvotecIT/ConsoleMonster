@@ -461,6 +461,11 @@
           "url": "/powershell/commands/new-consolerule/"
         },
         {
+          "name": "New-ConsoleScreen",
+          "synopsis": "Creates a screen for Show-ConsoleApp: its content, its breadcrumb title and the keys that work on it.",
+          "url": "/powershell/commands/new-consolescreen/"
+        },
+        {
           "name": "New-ConsoleScrollView",
           "synopsis": "Creates a clipped vertical viewport for a small widget tree inside an app.",
           "url": "/powershell/commands/new-consolescrollview/"

@@ -1,0 +1,1201 @@
+source e59a2eec4d2b5076265c645cae06b5a5
+ Inventory › Servers
+Type a number to open a server.
+1  WEB01  Web, Warsaw
+2  SQL01  Database, Warsaw
+3  FS11  File, Berlin
+
+
+
+
+
+
+
+
+
+
+ 1-3 open  tab next  esc quit265c645cae06b5a5
+ Inventory › Servers
+Type a number to open a server.
+1  WEB01  Web, Warsaw
+2  SQL01  Database, Warsaw
+3  FS11  File, Berlin
+
+
+
+
+
+
+
+
+
+
+ 1-3 open  tab next  esc quit265c645cae06b5a5
+ Inventory › Servers
+Type a number to open a server.
+1  WEB01  Web, Warsaw
+2  SQL01  Database, Warsaw
+3  FS11  File, Berlin
+
+
+
+
+
+
+
+
+
+
+ 1-3 open  tab next  esc quit265c645cae06b5a5
+ Inventory › Servers
+Type a number to open a server.
+1  WEB01  Web, Warsaw
+2  SQL01  Database, Warsaw
+3  FS11  File, Berlin
+
+
+
+
+
+
+
+
+
+
+ 1-3 open  tab next  esc quit265c645cae06b5a5
+ Inventory › Servers
+Type a number to open a server.
+1  WEB01  Web, Warsaw
+2  SQL01  Database, Warsaw
+3  FS11  File, Berlin
+
+
+
+
+
+
+
+
+
+
+ 1-3 open  tab next  esc quit265c645cae06b5a5
+ Inventory › Servers
+Type a number to open a server.
+1  WEB01  Web, Warsaw
+2  SQL01  Database, Warsaw
+3  FS11  File, Berlin
+
+
+
+
+
+
+
+
+
+
+ 1-3 open  tab next  esc quit265c645cae06b5a5
+ Inventory › Servers
+Type a number to open a server.
+1  WEB01  Web, Warsaw
+2  SQL01  Database, Warsaw
+3  FS11  File, Berlin
+
+
+
+
+
+
+
+
+
+
+ 1-3 open  tab next  esc quit265c645cae06b5a5
+ Inventory › Servers
+Type a number to open a server.
+1  WEB01  Web, Warsaw
+2  SQL01  Database, Warsaw
+3  FS11  File, Berlin
+
+
+
+
+
+
+
+
+
+
+ 1-3 open  tab next  esc quit265c645cae06b5a5
+ Inventory › Servers
+Type a number to open a server.
+1  WEB01  Web, Warsaw
+2  SQL01  Database, Warsaw
+3  FS11  File, Berlin
+
+
+
+
+
+
+
+
+
+
+ 1-3 open  tab next  esc quit265c645cae06b5a5
+ Inventory › Servers
+Type a number to open a server.
+1  WEB01  Web, Warsaw
+2  SQL01  Database, Warsaw
+3  FS11  File, Berlin
+
+
+
+
+
+
+
+
+
+
+ 1-3 open  tab next  esc quit265c645cae06b5a5
+ Inventory › Servers
+Type a number to open a server.
+1  WEB01  Web, Warsaw
+2  SQL01  Database, Warsaw
+3  FS11  File, Berlin
+
+
+
+
+
+
+
+
+
+
+ 1-3 open  tab next  esc quit265c645cae06b5a5
+ Inventory › Servers
+Type a number to open a server.
+1  WEB01  Web, Warsaw
+2  SQL01  Database, Warsaw
+3  FS11  File, Berlin
+
+
+
+
+
+
+
+
+
+
+ 1-3 open  tab next  esc quit265c645cae06b5a5
+ Inventory › Servers
+Type a number to open a server.
+1  WEB01  Web, Warsaw
+2  SQL01  Database, Warsaw
+3  FS11  File, Berlin
+
+
+
+
+
+
+
+
+
+
+ 1-3 open  tab next  esc quit265c645cae06b5a5
+ Inventory › Servers
+Type a number to open a server.
+1  WEB01  Web, Warsaw
+2  SQL01  Database, Warsaw
+3  FS11  File, Berlin
+
+
+
+
+
+
+
+
+
+
+ 1-3 open  tab next  esc quit265c645cae06b5a5
+ Inventory › Servers
+Type a number to open a server.
+1  WEB01  Web, Warsaw
+2  SQL01  Database, Warsaw
+3  FS11  File, Berlin
+
+
+
+
+
+
+
+
+
+
+ 1-3 open  tab next  esc quit0e5f0d5782f75e22
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ▾ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+ enter open  esc back  tab next0e5f0d5782f75e22
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ▾ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+ enter open  esc back  tab next0e5f0d5782f75e22
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ▾ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+ enter open  esc back  tab next0e5f0d5782f75e22
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ▾ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+ enter open  esc back  tab next0e5f0d5782f75e22
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ▾ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+ enter open  esc back  tab next0e5f0d5782f75e22
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ▾ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+ enter open  esc back  tab next0e5f0d5782f75e22
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ▾ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+ enter open  esc back  tab next0e5f0d5782f75e22
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ▾ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+ enter open  esc back  tab next0e5f0d5782f75e22
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ▾ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+ enter open  esc back  tab next0e5f0d5782f75e22
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ▾ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+ enter open  esc back  tab next0e5f0d5782f75e22
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ▾ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+ enter open  esc back  tab next0e5f0d5782f75e22
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ▾ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+ enter open  esc back  tab next0e5f0d5782f75e22
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ▾ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+ enter open  esc back  tab next0e5f0d5782f75e22
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ▾ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+ enter open  esc back  tab nextb2b17979c7aa62cc
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ↑ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭────────────────────────────────────────────────────────────────────────────────────────╮
+│ › type to filter                                                                       │
+│ ▌ Operations                                                                           │
+│   Database team                                                                        │
+│   Help desk                                                                            │
+│                                                                                        │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+ ↑↓ move  enter select  esc close  tab nextb2b17979c7aa62cc
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ↑ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭────────────────────────────────────────────────────────────────────────────────────────╮
+│ › type to filter                                                                       │
+│ ▌ Operations                                                                           │
+│   Database team                                                                        │
+│   Help desk                                                                            │
+│                                                                                        │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+ ↑↓ move  enter select  esc close  tab nextb2b17979c7aa62cc
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ↑ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭────────────────────────────────────────────────────────────────────────────────────────╮
+│ › type to filter                                                                       │
+│ ▌ Operations                                                                           │
+│   Database team                                                                        │
+│   Help desk                                                                            │
+│                                                                                        │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+ ↑↓ move  enter select  esc close  tab nextb2b17979c7aa62cc
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ↑ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭────────────────────────────────────────────────────────────────────────────────────────╮
+│ › type to filter                                                                       │
+│ ▌ Operations                                                                           │
+│   Database team                                                                        │
+│   Help desk                                                                            │
+│                                                                                        │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+ ↑↓ move  enter select  esc close  tab nextb2b17979c7aa62cc
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ↑ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭────────────────────────────────────────────────────────────────────────────────────────╮
+│ › type to filter                                                                       │
+│ ▌ Operations                                                                           │
+│   Database team                                                                        │
+│   Help desk                                                                            │
+│                                                                                        │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+ ↑↓ move  enter select  esc close  tab nextb2b17979c7aa62cc
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ↑ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭────────────────────────────────────────────────────────────────────────────────────────╮
+│ › type to filter                                                                       │
+│ ▌ Operations                                                                           │
+│   Database team                                                                        │
+│   Help desk                                                                            │
+│                                                                                        │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+ ↑↓ move  enter select  esc close  tab nextb2b17979c7aa62cc
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ↑ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭────────────────────────────────────────────────────────────────────────────────────────╮
+│ › type to filter                                                                       │
+│ ▌ Operations                                                                           │
+│   Database team                                                                        │
+│   Help desk                                                                            │
+│                                                                                        │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+ ↑↓ move  enter select  esc close  tab nextb2b17979c7aa62cc
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ↑ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭────────────────────────────────────────────────────────────────────────────────────────╮
+│ › type to filter                                                                       │
+│ ▌ Operations                                                                           │
+│   Database team                                                                        │
+│   Help desk                                                                            │
+│                                                                                        │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+ ↑↓ move  enter select  esc close  tab nextb2b17979c7aa62cc
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ↑ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭────────────────────────────────────────────────────────────────────────────────────────╮
+│ › type to filter                                                                       │
+│ ▌ Operations                                                                           │
+│   Database team                                                                        │
+│   Help desk                                                                            │
+│                                                                                        │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+ ↑↓ move  enter select  esc close  tab nextb2b17979c7aa62cc
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ↑ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭────────────────────────────────────────────────────────────────────────────────────────╮
+│ › type to filter                                                                       │
+│ ▌ Operations                                                                           │
+│   Database team                                                                        │
+│   Help desk                                                                            │
+│                                                                                        │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+ ↑↓ move  enter select  esc close  tab next4278c0cb14821bed
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ↑ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭────────────────────────────────────────────────────────────────────────────────────────╮
+│ › type to filter                                                                       │
+│   Operations                                                                           │
+│ ▌ Database team                                                                        │
+│   Help desk                                                                            │
+│                                                                                        │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+ ↑↓ move  enter select  esc close  tab next4278c0cb14821bed
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ↑ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭────────────────────────────────────────────────────────────────────────────────────────╮
+│ › type to filter                                                                       │
+│   Operations                                                                           │
+│ ▌ Database team                                                                        │
+│   Help desk                                                                            │
+│                                                                                        │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+ ↑↓ move  enter select  esc close  tab next4278c0cb14821bed
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ↑ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭────────────────────────────────────────────────────────────────────────────────────────╮
+│ › type to filter                                                                       │
+│   Operations                                                                           │
+│ ▌ Database team                                                                        │
+│   Help desk                                                                            │
+│                                                                                        │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+ ↑↓ move  enter select  esc close  tab next4278c0cb14821bed
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ↑ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭────────────────────────────────────────────────────────────────────────────────────────╮
+│ › type to filter                                                                       │
+│   Operations                                                                           │
+│ ▌ Database team                                                                        │
+│   Help desk                                                                            │
+│                                                                                        │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+ ↑↓ move  enter select  esc close  tab next4278c0cb14821bed
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ↑ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭────────────────────────────────────────────────────────────────────────────────────────╮
+│ › type to filter                                                                       │
+│   Operations                                                                           │
+│ ▌ Database team                                                                        │
+│   Help desk                                                                            │
+│                                                                                        │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+ ↑↓ move  enter select  esc close  tab next4278c0cb14821bed
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ↑ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭────────────────────────────────────────────────────────────────────────────────────────╮
+│ › type to filter                                                                       │
+│   Operations                                                                           │
+│ ▌ Database team                                                                        │
+│   Help desk                                                                            │
+│                                                                                        │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+ ↑↓ move  enter select  esc close  tab next4278c0cb14821bed
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ↑ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭────────────────────────────────────────────────────────────────────────────────────────╮
+│ › type to filter                                                                       │
+│   Operations                                                                           │
+│ ▌ Database team                                                                        │
+│   Help desk                                                                            │
+│                                                                                        │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+ ↑↓ move  enter select  esc close  tab next4278c0cb14821bed
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ↑ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭────────────────────────────────────────────────────────────────────────────────────────╮
+│ › type to filter                                                                       │
+│   Operations                                                                           │
+│ ▌ Database team                                                                        │
+│   Help desk                                                                            │
+│                                                                                        │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+ ↑↓ move  enter select  esc close  tab next4278c0cb14821bed
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ↑ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭────────────────────────────────────────────────────────────────────────────────────────╮
+│ › type to filter                                                                       │
+│   Operations                                                                           │
+│ ▌ Database team                                                                        │
+│   Help desk                                                                            │
+│                                                                                        │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+ ↑↓ move  enter select  esc close  tab next4278c0cb14821bed
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ↑ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭────────────────────────────────────────────────────────────────────────────────────────╮
+│ › type to filter                                                                       │
+│   Operations                                                                           │
+│ ▌ Database team                                                                        │
+│   Help desk                                                                            │
+│                                                                                        │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+ ↑↓ move  enter select  esc close  tab next4278c0cb14821bed
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ —                                                                                    ↑ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭────────────────────────────────────────────────────────────────────────────────────────╮
+│ › type to filter                                                                       │
+│   Operations                                                                           │
+│ ▌ Database team                                                                        │
+│   Help desk                                                                            │
+│                                                                                        │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+ ↑↓ move  enter select  esc close  tab next1045528db23e43c9
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ Database team                                                                        ▾ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+ enter open  esc back  tab next1045528db23e43c9
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ Database team                                                                        ▾ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+ enter open  esc back  tab next1045528db23e43c9
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ Database team                                                                        ▾ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+ enter open  esc back  tab next1045528db23e43c9
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ Database team                                                                        ▾ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+ enter open  esc back  tab next1045528db23e43c9
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ Database team                                                                        ▾ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+ enter open  esc back  tab next1045528db23e43c9
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ Database team                                                                        ▾ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+ enter open  esc back  tab next1045528db23e43c9
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ Database team                                                                        ▾ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+ enter open  esc back  tab next1045528db23e43c9
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ Database team                                                                        ▾ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+ enter open  esc back  tab next1045528db23e43c9
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ Database team                                                                        ▾ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+ enter open  esc back  tab next1045528db23e43c9
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ Database team                                                                        ▾ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+ enter open  esc back  tab next1045528db23e43c9
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ Database team                                                                        ▾ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+ enter open  esc back  tab next1045528db23e43c9
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ Database team                                                                        ▾ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+ enter open  esc back  tab next1045528db23e43c9
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ Database team                                                                        ▾ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+ enter open  esc back  tab next1045528db23e43c9
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+╭─ › Owner ──────────────────────────────────────────────────────────────────────────────╮
+│ Database team                                                                        ▾ │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+ enter open  esc back  tab next265c645cae06b5a5
+ Inventory › Servers
+Type a number to open a server.
+1  WEB01  Web, Warsaw
+2  SQL01  Database, Warsaw
+3  FS11  File, Berlin
+
+
+
+
+
+
+
+
+
+
+ 1-3 open  tab next  esc quit265c645cae06b5a5
+ Inventory › Servers
+Type a number to open a server.
+1  WEB01  Web, Warsaw
+2  SQL01  Database, Warsaw
+3  FS11  File, Berlin
+
+
+
+
+
+
+
+
+
+
+ 1-3 open  tab next  esc quit265c645cae06b5a5
+ Inventory › Servers
+Type a number to open a server.
+1  WEB01  Web, Warsaw
+2  SQL01  Database, Warsaw
+3  FS11  File, Berlin
+
+
+
+
+
+
+
+
+
+
+ 1-3 open  tab next  esc quit265c645cae06b5a5
+ Inventory › Servers
+Type a number to open a server.
+1  WEB01  Web, Warsaw
+2  SQL01  Database, Warsaw
+3  FS11  File, Berlin
+
+
+
+
+
+
+
+
+
+
+ 1-3 open  tab next  esc quit265c645cae06b5a5
+ Inventory › Servers
+Type a number to open a server.
+1  WEB01  Web, Warsaw
+2  SQL01  Database, Warsaw
+3  FS11  File, Berlin
+
+
+
+
+
+
+
+
+
+
+ 1-3 open  tab next  esc quit265c645cae06b5a5
+ Inventory › Servers
+Type a number to open a server.
+1  WEB01  Web, Warsaw
+2  SQL01  Database, Warsaw
+3  FS11  File, Berlin
+
+
+
+
+
+
+
+
+
+
+ 1-3 open  tab next  esc quit265c645cae06b5a5
+ Inventory › Servers
+Type a number to open a server.
+1  WEB01  Web, Warsaw
+2  SQL01  Database, Warsaw
+3  FS11  File, Berlin
+
+
+
+
+
+
+
+
+
+
+ 1-3 open  tab next  esc quit265c645cae06b5a5
+ Inventory › Servers
+Type a number to open a server.
+1  WEB01  Web, Warsaw
+2  SQL01  Database, Warsaw
+3  FS11  File, Berlin
+
+
+
+
+
+
+
+
+
+
+ 1-3 open  tab next  esc quit265c645cae06b5a5
+ Inventory › Servers
+Type a number to open a server.
+1  WEB01  Web, Warsaw
+2  SQL01  Database, Warsaw
+3  FS11  File, Berlin
+
+
+
+
+
+
+
+
+
+
+ 1-3 open  tab next  esc quit265c645cae06b5a5
+ Inventory › Servers
+Type a number to open a server.
+1  WEB01  Web, Warsaw
+2  SQL01  Database, Warsaw
+3  FS11  File, Berlin
+
+
+
+
+
+
+
+
+
+
+ 1-3 open  tab next  esc quit265c645cae06b5a5
+ Inventory › Servers
+Type a number to open a server.
+1  WEB01  Web, Warsaw
+2  SQL01  Database, Warsaw
+3  FS11  File, Berlin
+
+
+
+
+
+
+
+
+
+
+ 1-3 open  tab next  esc quit

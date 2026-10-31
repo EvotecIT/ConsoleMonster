@@ -64,6 +64,8 @@ namespace SiteFrames.Pages {
                 "wait:1600 Enter Space Down Space Down Down Down Space Escape Down Enter Down Down Down Down wait:300 Escape Ctrl+K \"cert\" wait:300 Escape Escape r wait:300 Ctrl+Q", 120, 34, false, true, new[] { "SQL01", "3 of 11 selected", "› cert", "Equivalent command" });
             yield return new Story("wizard", "A form as a wizard", "Fields with pages become a wizard with a progress strip. Dependent fields reload their choices with a spinner, and the review page shows every answer and the equivalent command.",
                 "PageDown Enter Escape PageDown Right Down \"svc-toolbox\" Down \"Example-Pass1\" PageDown Right wait:400 Down wait:1800 Enter Enter PageDown wait:300 Escape Escape Escape Escape Escape y", 110, 30, false, true, new[] { "3 of 6 selected", "eu-central-1", "Equivalent command" });
+            yield return new Story("screens", "Screens and keys", "Two screens declared once. Type a number to open a server, pick its owner from a dropdown that opens over the content, and Escape goes back. The footer lists the keys that work on each screen, and the header shows where you are.",
+                "wait:900 '2' wait:900 Enter wait:700 Down wait:700 Enter wait:900 Escape wait:600 Escape", 90, 16, false, true);
             yield return new Story("grid", "The grid", "An Out-GridView for the console on 5.1 and 7: typing filters, F3 sorts by column, Space marks rows, Enter shows every column of a row and Ctrl+Enter returns the original objects.",
                 "\"sql\" wait:200 Backspace Backspace Backspace F3 Down Space Down Space Enter wait:200 Escape Ctrl+Enter", 110, 22, false, false);
         }

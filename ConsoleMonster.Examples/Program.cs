@@ -4,7 +4,7 @@ using ConsoleMonster.Examples.Showcases;
 namespace ConsoleMonster.Examples {
     /// <summary>
     /// Entry point for the examples and showcases. Usage: <c>ConsoleMonster.Examples &lt;name&gt;</c> where name is
-    /// <c>query</c>, <c>gallery</c>, <c>pipeline</c>, <c>patch</c>, <c>assessment</c>, <c>record</c>, <c>stress</c>, <c>widths</c>, <c>toolbox</c> (Shell app; add <c>classic</c> or <c>inline</c>), <c>fleet</c> (the complete-application showcase; add <c>--demo</c> to let it drive itself), <c>installer</c> (wizard), <c>prompts</c> (every prompt type; add a name for one), <c>overlay</c> (a prompt over a live dashboard), <c>target</c> (a library writing to an injected target) or <c>export</c> (HTML, SVG and text exports of the showcases into a folder). Terminal detection can be
+    /// <c>query</c>, <c>gallery</c>, <c>pipeline</c>, <c>patch</c>, <c>assessment</c>, <c>record</c>, <c>stress</c>, <c>widths</c>, <c>toolbox</c> (Shell app; add <c>classic</c> or <c>inline</c>), <c>fleet</c> (the complete-application showcase; add <c>--demo</c> to let it drive itself), <c>jobs</c> (screens, key bindings and the overlay layer; add <c>--once</c> for one frame), <c>installer</c> (wizard), <c>prompts</c> (every prompt type; add a name for one), <c>overlay</c> (a prompt over a live dashboard), <c>target</c> (a library writing to an injected target) or <c>export</c> (HTML, SVG and text exports of the showcases into a folder). Terminal detection can be
     /// overridden with CONSOLEMONSTER_COLOR, CONSOLEMONSTER_GLYPHS, CONSOLEMONSTER_MODE and NO_COLOR.
     /// </summary>
     public static class Program {
@@ -33,6 +33,10 @@ namespace ConsoleMonster.Examples {
                     } else {
                         FleetHealth.Show();
                     }
+                    return 0;
+                case "jobs":
+                    // Three screens, numbered navigation, a dialog, a dropdown and a live log; "jobs --once" prints one frame.
+                    JobMonitor.Run(once: Array.IndexOf(args, "--once") > 0);
                     return 0;
                 case "installer":
                     SetupWizard.Show();
@@ -129,7 +133,7 @@ namespace ConsoleMonster.Examples {
                     }
                     return 0;
                 default:
-                    Console.Error.WriteLine("Unknown example '" + name + "'. Use query, gallery, pipeline, patch, assessment, record, stress, widths, toolbox, fleet (add --demo), installer, prompts, overlay, target or export.");
+                    Console.Error.WriteLine("Unknown example '" + name + "'. Use query, gallery, pipeline, patch, assessment, record, stress, widths, toolbox, fleet (add --demo), jobs (add --once), installer, prompts, overlay, target or export.");
                     return 2;
             }
         }
