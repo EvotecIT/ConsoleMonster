@@ -106,6 +106,41 @@ namespace ConsoleMonster.Export {
             }
         }
 
+        /// <summary>
+        /// Exports already composed, timed screens (from <see cref="Interactive.ScreenCapture.ToRecordedFrames"/>, a
+        /// <see cref="Headless.HeadlessTerminal"/> or <see cref="CaptureFrames"/>) as an HTML player, an animated SVG or
+        /// asciicast v3. The screen size comes from the frames; the options supply theme, title, font, window frame and looping.
+        /// For GIF and APNG use <c>SaveGraphics</c> in ConsoleMonster.Graphics.
+        /// </summary>
+        /// <param name="frames">The screens in playback order, each with its start and duration in milliseconds.</param>
+        /// <param name="format">Html, Svg or Asciicast.</param>
+        /// <param name="options">Theme, title, font, window frame and looping.</param>
+        /// <returns>The exported document.</returns>
+        public static string Export(IReadOnlyList<RecordedFrame> frames, ExportFormat format, RecordingExportOptions? options = null) {
+            if (frames == null) { throw new ArgumentNullException(nameof(frames)); }
+            if (frames.Count == 0) { throw new ArgumentException("There are no frames to export.", nameof(frames)); }
+            RecordingExportOptions o = (options ?? new RecordingExportOptions()).Clone();
+            int width = 1, height = 1;
+            foreach (RecordedFrame frame in frames) {
+                if (frame == null) { throw new ArgumentException("A frame is null.", nameof(frames)); }
+                width = Math.Max(width, frame.Frame.Width);
+                height = Math.Max(height, frame.Frame.Height);
+            }
+            o.Width = width;
+            o.Height = height;
+            o = o.Ready();
+            switch (format) {
+                case ExportFormat.Html:
+                    return HtmlPlayerWriter.Write(frames, o);
+                case ExportFormat.Svg:
+                    return AnimatedSvgWriter.Write(frames, o);
+                case ExportFormat.Asciicast:
+                    return AsciicastWriter.Write(frames, o);
+                default:
+                    throw new ArgumentException("Frames export to Html, Svg or Asciicast.", nameof(format));
+            }
+        }
+
         /// <summary>Exports a recording file to another file (UTF-8 without a byte order mark).</summary>
         /// <param name="root">The widget tree the recording was made with.</param>
         /// <param name="recordingPath">The .jsonl recording.</param>

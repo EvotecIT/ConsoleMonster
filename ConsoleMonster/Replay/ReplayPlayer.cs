@@ -134,7 +134,7 @@ namespace ConsoleMonster.Replay {
                 IPromptSurface? surface = interactive.Surface;
                 bool owns = false;
                 if (surface == null) {
-                    surface = PromptHost.Resolve(context) ?? (options.Inline ? (IPromptSurface)new InlineSurface(profile, null, height + ReplayView.Chrome) : new ScreenSurface(profile));
+                    surface = PromptHost.Resolve(context) ?? (options.Inline ? (IPromptSurface)new InlineSurface(profile, interactive.ResolveSurfaceWriter(), height + ReplayView.Chrome, interactive.ResolveSurfaceSize()) : new ScreenSurface(profile, interactive.ResolveSurfaceWriter(), interactive.ResolveSurfaceSize()));
                     owns = true;
                 }
                 try {

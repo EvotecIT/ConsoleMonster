@@ -27,7 +27,7 @@ namespace ConsoleMonster.Interactive {
             using (InputLease lease = ConsoleInput.Acquire(interactive.Input)) {
                 Capabilities.TerminalProfile profile = interactive.ResolveProfile();
                 RenderContext context = Terminal.CreateContext(profile, interactive.ResolveTheme());
-                IPromptSurface surface = interactive.Surface ?? new ScreenSurface(profile);
+                IPromptSurface surface = interactive.Surface ?? new ScreenSurface(profile, interactive.ResolveSurfaceWriter(), interactive.ResolveSurfaceSize());
                 try {
                     MenuApp app = new MenuApp(menu, options, labels, store, lease.Source, surface, context, layout, cancellationToken);
                     try {

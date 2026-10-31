@@ -123,9 +123,7 @@ namespace ConsoleMonster.Live {
                 // Render on the dispatcher so queued block writes use the current width and theme in every output mode.
                 int width = _context!.Profile.Width;
                 if (_output?.SupportsLiveFrames == true) {
-                    int[]? window = _options.WindowSource?.Invoke();
-                    if (window != null && window.Length == 4 && window[2] > 0) { width = window[2]; }
-                    else if (_options.WindowSource == null && TerminalSize.TryGetWindow(out _, out _, out int currentWidth, out _)) { width = currentWidth; }
+                    if (TryReadWindow(out _, out _, out int currentWidth, out _) && currentWidth > 0) { width = currentWidth; }
                 }
                 CellBuffer block = FrameComposer.RenderBlock((IWidget)liveEvent.Payload!, width, _context);
                 RouteConsoleWrite(new ConsoleWriteBlock(new[] { block }));
@@ -169,15 +167,7 @@ namespace ConsoleMonster.Live {
             int height = _context.Profile.Height;
             int left = 0;
             int top = 0;
-            if (_options.WindowSource != null) {
-                int[]? window = _options.WindowSource();
-                if (window != null && window.Length == 4 && window[2] > 0 && window[3] > 0) {
-                    left = window[0];
-                    top = window[1];
-                    width = window[2];
-                    height = window[3];
-                }
-            } else if (TerminalSize.TryGetWindow(out int windowLeft, out int windowTop, out int currentWidth, out int currentHeight)) {
+            if (TryReadWindow(out int windowLeft, out int windowTop, out int currentWidth, out int currentHeight) && currentWidth > 0 && currentHeight > 0) {
                 width = currentWidth;
                 height = currentHeight;
                 left = windowLeft;
@@ -198,6 +188,11 @@ namespace ConsoleMonster.Live {
                     }
                     Interlocked.Increment(ref _resizes);
                     OnResized();
+                }
+                if (_recordingWriter != null && (width != _recordedWidth || height != _recordedHeight)) {
+                    _recordedWidth = width;
+                    _recordedHeight = height;
+                    _recordingWriter.Resize(width, height);
                 }
                 if (resized || moved || Interlocked.Exchange(ref _invalidate, 0) != 0) {
                     // Terminals reflow or scroll the old frame on resize; clear and redraw everything.
@@ -225,6 +220,23 @@ namespace ConsoleMonster.Live {
                 Interlocked.Increment(ref _framesRendered);
                 UpdateTaskbar();
             }
+        }
+
+        /// <summary>
+        /// The window the session draws into: the test source, the target's driver (the console or a headless terminal), or
+        /// the process console for other targets.
+        /// </summary>
+        internal bool TryReadWindow(out int left, out int top, out int width, out int height) {
+            if (_options.WindowSource != null) {
+                int[]? window = _options.WindowSource();
+                if (window != null && window.Length == 4) {
+                    left = window[0]; top = window[1]; width = window[2]; height = window[3];
+                    return true;
+                }
+                left = top = width = height = 0;
+                return false;
+            }
+            return _driver != null ? _driver.TryGetWindow(out left, out top, out width, out height) : TerminalSize.TryGetWindow(out left, out top, out width, out height);
         }
 
         // The terminal's progress indicator follows the widgets that report progress (see ITaskbarProgressSource).

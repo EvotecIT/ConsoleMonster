@@ -58,6 +58,19 @@ namespace ConsoleMonster.Graphics {
             GraphicsExportOptions settings = options ?? new GraphicsExportOptions();
             SaveFrames(Recording.CaptureFrames(dashboard, events, Playback(settings)), path, format, settings, cancellationToken);
         }
+        /// <summary>
+        /// Encodes already composed, timed screens (from <c>ScreenCapture.ToRecordedFrames</c>, a headless terminal or
+        /// <c>Recording.CaptureFrames</c>) to GIF or APNG; PNG writes the last frame. Each frame keeps its own duration.
+        /// </summary>
+        /// <param name="frames">The screens in playback order, each with its start and duration in milliseconds.</param>
+        /// <param name="path">The file to write; an existing file is replaced only after encoding succeeds.</param>
+        /// <param name="format">Gif, Apng or Png.</param>
+        /// <param name="options">Canvas, fonts, background and loop count.</param>
+        /// <param name="cancellationToken">Cancels encoding.</param>
+        public static void SaveGraphics(this IReadOnlyList<RecordedFrame> frames, string path, GraphicsFormat format, GraphicsExportOptions? options = null, CancellationToken cancellationToken = default) {
+            if (frames == null) { throw new ArgumentNullException(nameof(frames)); }
+            SaveFrames(frames, path, format, options ?? new GraphicsExportOptions(), cancellationToken);
+        }
         private static RecordingExportOptions Playback(GraphicsExportOptions settings) {
             settings.Validate();
             RecordingExportOptions source = settings.Playback;

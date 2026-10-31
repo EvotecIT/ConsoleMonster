@@ -50,7 +50,7 @@ namespace ConsoleMonster.Interactive {
                 bool owns = false;
                 try {
                     if (surface == null) {
-                        surface = PromptHost.Resolve(context) ?? new ScreenSurface(profile);
+                        surface = PromptHost.Resolve(context) ?? new ScreenSurface(profile, interactive.ResolveSurfaceWriter(), interactive.ResolveSurfaceSize());
                         owns = true;
                     }
                     WidgetPagerView view = new WidgetPagerView(content, title ?? LabelText.Get("Document.Title", profile.Language), interactive.ResolveLabels(), contentWidth);

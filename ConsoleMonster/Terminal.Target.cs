@@ -5,22 +5,32 @@ using ConsoleMonster.Output;
 namespace ConsoleMonster {
     public static partial class Terminal {
         private static readonly AsyncLocal<ITerminalTarget?> AmbientTarget = new AsyncLocal<ITerminalTarget?>();
-        private static ITerminalTarget _defaultTarget = ConsoleTarget.Instance;
+        private static readonly object DefaultTargetGate = new object();
+        private static ITerminalTarget? _defaultTarget;
 
         /// <summary>
         /// The target the static methods write to: the one set by <see cref="Use"/> for the current asynchronous flow, or
         /// <see cref="DefaultTarget"/>. Writes with an explicit writer, live sessions and prompts with an explicit target
         /// keep theirs.
         /// </summary>
-        public static ITerminalTarget Target => AmbientTarget.Value ?? _defaultTarget;
+        public static ITerminalTarget Target => AmbientTarget.Value ?? DefaultTarget;
 
         /// <summary>
-        /// The process-wide target when no scope is active (default <see cref="ConsoleTarget"/>). Prefer <see cref="Use"/>,
+        /// The process-wide target when no scope is active (default <see cref="ConsoleTarget"/>, or a
+        /// <see cref="Headless.HeadlessTerminal"/> when <c>CONSOLEMONSTER_HEADLESS</c> is set). Prefer <see cref="Use"/>,
         /// which affects only the current asynchronous flow; this is for hosts that own the whole process.
         /// </summary>
         public static ITerminalTarget DefaultTarget {
-            get => _defaultTarget;
-            set => _defaultTarget = value ?? throw new ArgumentNullException(nameof(value));
+            get {
+                ITerminalTarget? target = Volatile.Read(ref _defaultTarget);
+                if (target != null) { return target; }
+                // Created once, even when threads race: an environment-made headless terminal may start a debug socket.
+                lock (DefaultTargetGate) { return _defaultTarget ??= Headless.HeadlessEnvironment.CreateDefaultTarget(); }
+            }
+            set {
+                ITerminalTarget target = value ?? throw new ArgumentNullException(nameof(value));
+                lock (DefaultTargetGate) { _defaultTarget = target; }
+            }
         }
 
         /// <summary>

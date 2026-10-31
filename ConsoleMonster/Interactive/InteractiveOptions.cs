@@ -96,6 +96,19 @@ namespace ConsoleMonster.Interactive {
 
         internal ITerminalTarget ResolveTarget() => Target ?? Terminal.Target;
 
+        // Menus, forms and prompts that draw themselves use the target's writer and window; null keeps the process console.
+        internal ITerminalWriter? ResolveSurfaceWriter() {
+            ITerminalTarget target = ResolveTarget();
+            return target is ConsoleTarget ? null : target.Writer;
+        }
+
+        internal Func<int[]?>? ResolveSurfaceSize() {
+            ITerminalTarget target = ResolveTarget();
+            if (target is ConsoleTarget) { return null; }
+            if (target is IConsoleDriver driver) { return () => driver.TryGetWindow(out _, out _, out int width, out int height) ? new[] { width, height } : null; }
+            return () => { TerminalProfile profile = Terminal.GetTargetProfile(target); return new[] { profile.Width, profile.Height }; };
+        }
+
         internal ITheme ResolveTheme() => Theme ?? Terminal.Theme;
 
         /// <summary>

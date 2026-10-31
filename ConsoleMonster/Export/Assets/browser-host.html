@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta name="generator" content="ConsoleMonster">
+<title>__TITLE__</title>
+<style>
+html,body{margin:0;min-height:100%;background:#1b1b1f;color:#c9c9d1;font:14px system-ui,sans-serif}
+main{display:flex;flex-direction:column;align-items:center;gap:10px;padding:24px 16px}
+#screen{outline:none;border-radius:8px;box-shadow:0 8px 28px rgba(0,0,0,.45);cursor:default;max-width:100%;overflow:auto}
+#screen:focus-visible{box-shadow:0 0 0 2px #7aa2f7,0 8px 28px rgba(0,0,0,.45)}
+#status{font-size:12px;opacity:.7}
+</style>
+</head>
+<body>
+<main>
+<div id="screen" tabindex="0" role="application" aria-label="__TITLE__" aria-live="off"></div>
+<div id="status">Connecting…</div>
+</main>
+<script nonce="__NONCE__">
+(function () {
+  "use strict";
+  var token = "__TOKEN__", screen = document.getElementById("screen"), status = document.getElementById("status");
+  var size = { width: 0, height: 0 };
+  var named = { ArrowUp: "Up", ArrowDown: "Down", ArrowLeft: "Left", ArrowRight: "Right", Enter: "Enter", Escape: "Esc", Tab: "Tab",
+    Backspace: "Backspace", Delete: "Delete", Home: "Home", End: "End", PageUp: "PageUp", PageDown: "PageDown", Insert: "Ins" };
+  function send(body) {
+    fetch("input?t=" + encodeURIComponent(token), { method: "POST", headers: { "Content-Type": "application/json", "X-ConsoleMonster-Token": token },
+      body: JSON.stringify(body), cache: "no-store", credentials: "omit" }).catch(function () { status.textContent = "Input was not delivered."; });
+  }
+  function chord(e, name) {
+    return (e.ctrlKey ? "Ctrl+" : "") + (e.altKey ? "Alt+" : "") + (e.shiftKey ? "Shift+" : "") + name;
+  }
+  screen.addEventListener("keydown", function (e) {
+    if (e.metaKey) { return; }
+    var name = named[e.key] || (/^F([1-9]|1[0-2])$/.test(e.key) ? e.key : null);
+    if (name) { send({ keys: chord(e, name) }); }
+    else if (e.key.length === 1 && (e.ctrlKey || e.altKey)) { send({ keys: chord(e, e.key.toUpperCase()) }); }
+    else if (e.key.length === 1) { send({ text: e.key }); }
+    else { return; }
+    e.preventDefault();
+  });
+  screen.addEventListener("mousedown", function (e) {
+    var grid = screen.querySelector(".cm-screen");
+    if (!grid || !size.width) { return; }
+    var box = grid.getBoundingClientRect(), style = getComputedStyle(grid);
+    var left = box.left + parseFloat(style.paddingLeft), top = box.top + parseFloat(style.paddingTop);
+    var cellWidth = (box.width - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight)) / size.width;
+    var cellHeight = (box.height - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom)) / size.height;
+    var x = Math.floor((e.clientX - left) / cellWidth), y = Math.floor((e.clientY - top) / cellHeight);
+    if (x >= 0 && y >= 0 && x < size.width && y < size.height) { send({ click: { x: x, y: y, button: e.button === 2 ? 3 : e.button === 1 ? 2 : 1 } }); }
+    screen.focus();
+  });
+  var events = new EventSource("events?t=" + encodeURIComponent(token));
+  events.onmessage = function (message) {
+    var frame = JSON.parse(message.data);
+    size = { width: frame.width, height: frame.height };
+    screen.innerHTML = frame.html;
+    status.textContent = "Live: click the screen and type";
+  };
+  events.onerror = function () { status.textContent = "Disconnected"; };
+  screen.focus();
+}());
+</script>
+</body>
+</html>

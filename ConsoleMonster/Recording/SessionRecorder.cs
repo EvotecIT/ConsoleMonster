@@ -62,6 +62,7 @@ namespace ConsoleMonster.Sessions {
         public string Path => _writer.Path;
         /// <summary>The capture mode, also stored in the cast header and sidecar.</summary>
         public string Mode => _writer.Mode;
+        internal bool InProcess => _options.InProcess;
         /// <summary>Whether capture reached its configured byte cap.</summary>
         public bool LimitReached => _writer.LimitReached;
         /// <summary>Whether the child exited or Stop was called.</summary>

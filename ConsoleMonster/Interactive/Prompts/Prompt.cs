@@ -135,7 +135,7 @@ namespace ConsoleMonster.Interactive {
                     }
                 }
                 if (surface == null) {
-                    surface = PromptHost.Resolve(context) ?? new InlineSurface(profile, null, options.MaxInlineHeight);
+                    surface = PromptHost.Resolve(context) ?? new InlineSurface(profile, options.ResolveSurfaceWriter(), options.MaxInlineHeight, options.ResolveSurfaceSize());
                     owns = true;
                 }
                 try {
