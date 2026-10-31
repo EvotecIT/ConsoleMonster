@@ -112,6 +112,10 @@ namespace ConsoleMonster.Tests.Headless {
             Dictionary<string, object?> toggle = inputs.Single(node => (string?)node["key"] == "agree");
             Assert.DoesNotContain(inputs, node => node.ContainsKey("value"));
             Dictionary<string, object?> bounds = (Dictionary<string, object?>)toggle["bounds"]!;
+            Assert.Equal(true, tree["layout"]);
+            Dictionary<string, object?> layout = (Dictionary<string, object?>)toggle["layout"]!;
+            Assert.Equal("auto", layout["rule"]);
+            Assert.Equal(bounds["height"], ((Dictionary<string, object?>)layout["arranged"]!)["height"]);
 
             Assert.Equal(true, client.Call(new Dictionary<string, object?> { ["cmd"] = "click", ["x"] = bounds["x"], ["y"] = bounds["y"] })["ok"]);
             System.Diagnostics.Stopwatch focusWait = System.Diagnostics.Stopwatch.StartNew();

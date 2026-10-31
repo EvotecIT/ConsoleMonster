@@ -44,7 +44,7 @@ namespace ConsoleMonster.Headless {
     /// </remarks>
     public sealed partial class DebugSocket : IDisposable {
         /// <summary>The protocol version reported by <c>hello</c>.</summary>
-        public const int ProtocolVersion = 1;
+        public const int ProtocolVersion = 2;
         private const int MaxLine = 1024 * 1024;
         private const int MaxHelloLine = 4096;
         private static readonly HashSet<string> Published = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
