@@ -1,7 +1,7 @@
 # Drives a ConsoleMonster app the way a browser test drives a page. The app runs in another PowerShell process on a
 # headless terminal (no window) with the debug socket switched on; this script finds the socket through the app's
 # discovery file, types into the app, waits for its answer, reads the screen and the control tree, and quits it.
-# Agents use the same two functions to test cmon, the TestimoX CLI or any other ConsoleMonster app.
+# Agents use the same two functions to test cmon or any other ConsoleMonster app.
 Import-Module ConsoleMonster
 
 function Connect-ConsoleDebugSocket {

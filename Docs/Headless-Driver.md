@@ -95,7 +95,7 @@ The debug socket lets an agent inspect and drive a running app the way browser t
 host starts it:
 
 - in code: `DebugSocket.Start(terminal)`;
-- for an unmodified app such as `cmon` or the TestimoX CLI: set `CONSOLEMONSTER_HEADLESS=120x40` (the process runs on a
+- for an unmodified app such as `cmon`: set `CONSOLEMONSTER_HEADLESS=120x40` (the process runs on a
   headless terminal) and `CONSOLEMONSTER_DEBUG_SOCKET=0` (any free port) or a port number. `CONSOLEMONSTER_DEBUG_TOKEN`
   sets the token (at least 16 characters); otherwise a random one is generated for each run. The process removes these
   variables from its environment once it has read them, so programs it starts get a normal console and no socket.
