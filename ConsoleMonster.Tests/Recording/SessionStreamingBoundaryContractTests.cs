@@ -214,6 +214,79 @@ namespace ConsoleMonster.Tests.Sessions {
             }
         }
 
+        [Theory]
+        [InlineData(1)]
+        [InlineData(1200)] // Crosses the streaming flush threshold before the recording ends.
+        public void CursorPositionedFramesAfterAVisibleCredentialAreKept(int repaints) {
+            string folder = Path.Combine(Path.GetTempPath(), "ConsoleMonster-frame-contract-" + Guid.NewGuid().ToString("N"));
+            SessionRecordingOptions options = new SessionRecordingOptions { Path = Path.Combine(folder, "session.cast"), Width = 40, Height = 6, InProcess = true };
+            try {
+                using (SessionRecorder recorder = SessionRecorder.Start(options)) {
+                    // The value continues across a cursor-visibility toggle, as it does on screen;
+                    // a value cell positioned after its label still belongs to that label.
+                    recorder.CaptureOutput("\u001b[?2026h\u001b[2J\u001b[1;1H[deploy] token=abc\u001b[?25lxyz\u001b[?25h\u001b[2;1HStatus bar"
+                        + "\u001b[3;1HPassword:\u001b[3;12Hhunter2\u001b[?2026l");
+                    for (int i = 0; i < repaints; i++) {
+                        recorder.CaptureOutput("\u001b[?2026h\u001b[2J\u001b[1;1HCommand palette\u001b[3;5HOpen file\u001b[?2026l");
+                    }
+                    if (repaints > 1) {
+                        using (FileStream input = new FileStream(options.Path!, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                        using (StreamReader reader = new StreamReader(input, Encoding.UTF8)) {
+                            Assert.Contains("Open file", reader.ReadToEnd());
+                        }
+                    }
+                }
+                string cast = File.ReadAllText(options.Path!);
+                Assert.DoesNotContain("abc", cast);
+                Assert.DoesNotContain("xyz", cast);
+                Assert.DoesNotContain("hunter2", cast);
+                Assert.Contains("[deploy] [REDACTED]", cast);
+                Assert.Contains("Status bar", cast);
+                string screen = ConsoleExporter.ToText(SessionRecording.Read(options.Path!).FinalFrame());
+                Assert.Contains("Command palette", screen);
+                Assert.Contains("Open file", screen);
+            } finally {
+                if (Directory.Exists(folder)) { Directory.Delete(folder, true); }
+            }
+        }
+
+        [Theory]
+        [InlineData(0)] // CUP on the same row.
+        [InlineData(1)] // HVP on the same row.
+        [InlineData(2)] // VPA on the same row.
+        [InlineData(3)] // CUU clamped at the top.
+        [InlineData(4)] // CUD clamped at the bottom.
+        [InlineData(5)] // A value already wrapped to the next row.
+        [InlineData(6)] // Prior output has crossed a streaming flush.
+        [InlineData(7)] // A resize clamps the cursor before continuation.
+        public void SameRowPositioningKeepsCredentialFragmentsPrivate(int scenario) {
+            string folder = Path.Combine(Path.GetTempPath(), "ConsoleMonster-positioned-secret-" + Guid.NewGuid().ToString("N"));
+            SessionRecordingOptions options = new SessionRecordingOptions {
+                Path = Path.Combine(folder, "session.cast"), Width = scenario == 5 ? 20 : 40, Height = 6, InProcess = true
+            };
+            string movement = scenario switch {
+                1 => "\u001b[1;24f", 2 => "\u001b[1d", 3 => "\u001b[A", 4 => "\u001b[B",
+                5 => "\u001b[2;4H", 7 => "\u001b[3;24H", _ => "\u001b[1;24H"
+            };
+            try {
+                using (SessionRecorder recorder = SessionRecorder.Start(options)) {
+                    if (scenario == 6) { recorder.CaptureOutput(new string('.', 70000)); }
+                    recorder.CaptureOutput((scenario == 4 || scenario == 7 ? "\u001b[6;1H" : "\u001b[1;1H") + "password=syntheticStart");
+                    if (scenario == 7) { recorder.Resize(40, 3); }
+                    recorder.CaptureOutput(movement + "privateSuffix\u001b[2J\u001b[1;1HStatus bar" + new string('.', 70000));
+                    using (FileStream input = new FileStream(options.Path!, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    using (StreamReader reader = new StreamReader(input, Encoding.UTF8)) { AssertPrivate(reader.ReadToEnd()); }
+                }
+                AssertPrivate(File.ReadAllText(options.Path!));
+            } finally { if (Directory.Exists(folder)) { Directory.Delete(folder, true); } }
+
+            static void AssertPrivate(string cast) {
+                Assert.DoesNotContain("syntheticStart", cast);
+                Assert.DoesNotContain("privateSuffix", cast);
+                Assert.Contains("Status bar", cast);
+            }
+        }
+
         private static void AppendReads(SessionCastWriter writer, string text, int readSize) {
             for (int at = 0; at < text.Length; at += readSize) {
                 writer.Append(text.Substring(at, Math.Min(readSize, text.Length - at)));
