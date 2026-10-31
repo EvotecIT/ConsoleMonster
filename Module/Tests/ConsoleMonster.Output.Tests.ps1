@@ -122,6 +122,18 @@ $t = Get-Content (Join-Path $folder 'transcript.txt') -Raw
         Get-Result $out 'TRANSCRIPTESC' | Should -Be 'False'
     }
 
+    It 'sizes redirected output by COLUMNS and reports that width' {
+        $out = Invoke-OutputChild @'
+$env:COLUMNS = '60'
+"WIDTH=$((Get-ConsoleCapability -Refresh).Width)"
+[pscustomobject] @{ Name = 'alpha'; Note = (@('word') * 40) -join ' ' } | Show-ConsoleTable
+'@
+        Get-Result $out 'WIDTH' | Should -Be '60'
+        $table = @($out | Where-Object { $_ -match "^[$([char]0x2500)-$([char]0x257F)+|]" })
+        $table.Count | Should -BeGreaterThan 3
+        ($table | Measure-Object -Property Length -Maximum).Maximum | Should -Be 60
+    }
+
     It 'keeps PassThru returning original objects and rejects mixed widget output' {
         $out = Invoke-OutputChild @'
 $passed = @($svc | Show-ConsoleTable -PassThru | Where-Object Status -eq 'Running')

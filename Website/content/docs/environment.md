@@ -30,6 +30,8 @@ Variables are read when the profile is detected. An invalid value is ignored and
 
 Detection also reads `CI` and the variables of common CI systems (GitHub Actions, Azure Pipelines, Jenkins, GitLab, TeamCity), `TERM` (`dumb` selects plain mode), `COLORTERM` and `WT_SESSION`.
 
+Redirected output (files, pipes and CI build logs) is as wide as `COLUMNS` when it is set. Without it, PowerShell commands use the width the host reports and other programs use 100 columns; `Get-ConsoleCapability` reports the width that applies. A terminal window always uses its own width.
+
 ## The same table under overrides
 
 The script below is the same for both frames; only the environment changes. Detection reads the variables once per session, so run the script in a new one (`powershell -NoProfile -File .\format-consoletable.ps1` on Windows PowerShell 5.1), then clear the variable:

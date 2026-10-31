@@ -22,7 +22,7 @@ namespace ConsoleMonster.PowerShell {
             // owning engine avoids Table's padding, width redistribution and narrow-column hiding changing Wide's fit.
             Collection<PSObject> output = cmdlet.InvokeCommand.InvokeScript(
                 "param($records, $width) $records | Microsoft.PowerShell.Utility\\Out-String -Width $width", true,
-                System.Management.Automation.Runspaces.PipelineResultTypes.None, null, records, Terminal.GetCurrentProfile().Width);
+                System.Management.Automation.Runspaces.PipelineResultTypes.None, null, records, HostWidth.Resolve(cmdlet.Host, Terminal.GetCurrentProfile()));
             string text = output.Count == 0 ? string.Empty : Convert.ToString(output[0].BaseObject) ?? string.Empty;
             widget = TextBlock.Plain(text.Trim('\r', '\n'));
             return true;

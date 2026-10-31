@@ -127,7 +127,8 @@ namespace ConsoleMonster.Capabilities {
                 glyphReason = "ambiguous width 2";
                 decisions.Add("glyphs downgraded: ambiguous width 2");
             }
-            int width = env.IsOutputRedirected ? Dimension("COLUMNS", TerminalProfile.DefaultWidth) : Positive(env.WindowWidth, TerminalProfile.DefaultWidth);
+            int columns = env.IsOutputRedirected ? Dimension("COLUMNS", 0) : 0;
+            int width = env.IsOutputRedirected ? Positive(columns, TerminalProfile.DefaultWidth) : Positive(env.WindowWidth, TerminalProfile.DefaultWidth);
             int height = env.IsOutputRedirected ? Dimension("LINES", TerminalProfile.DefaultHeight) : Positive(env.WindowHeight, TerminalProfile.DefaultHeight);
             TerminalKind kind = DetectKind();
             bool hyperlinks = DetectHyperlinks(kind, decisions);
@@ -142,7 +143,9 @@ namespace ConsoleMonster.Capabilities {
             CultureInfo? culture = ParseCulture(Get("CONSOLEMONSTER_CULTURE"), decisions);
             decisions.Add("size: " + width.ToString(CultureInfo.InvariantCulture) + "x" + height.ToString(CultureInfo.InvariantCulture) + (env.IsOutputRedirected ? " (COLUMNS/LINES or defaults)" : " (visible window or defaults)"));
             return new TerminalProfile(color, glyphs, mode, width, height, kind, vt,
-                env.IsOutputRedirected, env.IsConsoleHandle, ci, env.ConsoleFontFace, decisions.AsReadOnly(), widths, probeWidths, themePreference, culture, hyperlinks);
+                env.IsOutputRedirected, env.IsConsoleHandle, ci, env.ConsoleFontFace, decisions.AsReadOnly(), widths, probeWidths, themePreference, culture, hyperlinks) {
+                WidthFromColumns = columns > 0
+            };
         }
 
         // CONSOLEMONSTER_CULTURE: a culture name (en-US, pl-PL), "invariant", or empty/"current" for the current culture.

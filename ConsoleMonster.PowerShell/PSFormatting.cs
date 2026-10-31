@@ -398,8 +398,8 @@ namespace ConsoleMonster.PowerShell {
             }
             // PowerShell's formatter wraps format-view output at the host's width: an explicit -Width wider than the host
             // keeps the host route, so the requested layout is not broken up.
-            int hostWidth = WidgetFormatter.HostWidth(cmdlet.Host);
-            bool fits = width <= 0 || hostWidth <= 0 || width <= hostWidth;
+            int hostWidth = HostWidth.Visible(cmdlet.Host);
+            bool fits = width <= 0 || hostWidth <= 1 || width < hostWidth;
             if (!passThru && fits && EmitsRendering(cmdlet)) {
                 // A blank line after the block, as Format-Table and the host route print.
                 cmdlet.WriteObject(new ConsoleRendering(appendBlankLine ? new Rows(widget, new TextBlock(string.Empty)) : widget, width, culture));

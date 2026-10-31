@@ -31,6 +31,15 @@ namespace ConsoleMonster {
         // capture before LiveSession.Start saves the native mode, even when its first Terminal call follows the guard.
         static Terminal() { }
 
+        /// <summary>Whether <see cref="Profile"/> was assigned rather than detected, so its size is kept as it is.</summary>
+        internal static bool HasExplicitProfile {
+            get {
+                lock (Gate) {
+                    return _explicitProfile;
+                }
+            }
+        }
+
         // Test hook: returns { width, height } of the visible window, or null when unknown. Null uses the console.
         internal static Func<int[]?>? WindowSizeSource { get; set; }
 

@@ -208,8 +208,8 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary>
         /// The profile for host output: line output, rendered with colour unless NO_COLOR, CONSOLEMONSTER_COLOR=none or plain
-        /// mode turn it off (the colours are mapped to console colours, never encoded), as wide as the host reports when no
-        /// width was given.
+        /// mode turn it off (the colours are mapped to console colours, never encoded), as wide as <see cref="HostWidth"/>
+        /// resolves when no width was given.
         /// </summary>
         /// <param name="cmdlet">The calling cmdlet.</param>
         /// <param name="profile">The detected profile.</param>
@@ -224,13 +224,7 @@ namespace ConsoleMonster.PowerShell {
             if (p.Mode == OutputMode.Interactive) {
                 p = p.WithMode(OutputMode.Stream);
             }
-            if (!explicitWidth) {
-                int width = HostWidth(cmdlet.Host);
-                if (width > 0) {
-                    p = p.WithSize(width, p.Height);
-                }
-            }
-            return p;
+            return explicitWidth ? p : p.WithSize(HostWidth.Resolve(cmdlet.Host, p), p.Height);
         }
 
         /// <summary>Writes one uncoloured line as Write-Host does (an information record tagged PSHOST).</summary>
@@ -376,20 +370,6 @@ namespace ConsoleMonster.PowerShell {
             public ConsoleColor? Background { get; }
         }
 
-
-
-        // The ISE and remoting report the client's width; jobs often have no raw UI at all.
-        private static int HostWidth(PSHost? host) {
-            try {
-                int width = host?.UI?.RawUI?.WindowSize.Width ?? 0;
-                if (width <= 0) {
-                    width = host?.UI?.RawUI?.BufferSize.Width ?? 0;
-                }
-                return width;
-            } catch (Exception) {
-                return 0;
-            }
-        }
 
         // Start-Transcript records host output but not direct console writes. The transcription state is internal to
         // PowerShell (PSHostUserInterface.TranscriptionData.Transcripts on 5.1 and 7); if it cannot be read, assume none.
