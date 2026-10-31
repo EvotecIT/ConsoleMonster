@@ -17,6 +17,7 @@ namespace ConsoleMonster.Interactive {
         private readonly Dictionary<AppBinding, AppScreen> _bindingScreens = new Dictionary<AppBinding, AppScreen>();
         private LiveSession? _session;
         private bool _hasTabs;
+        private LogRegion? _logRegion;
         private readonly List<FooterBar> _footers = new List<FooterBar>();
         private readonly FocusManager _focus;
         private readonly RenderContext _context;
@@ -59,7 +60,7 @@ namespace ConsoleMonster.Interactive {
                 if (_options.Footer == null) { _defaultFooter = new FooterBar(); _footers.Add(_defaultFooter); }
                 IWidget frame = new Rows().Add(_actions.Wrap(_viewport), LayoutSize.Fraction()).Add(_options.Footer ?? _defaultFooter!, LayoutSize.Fixed(1));
                 _actions.ModalOnOverlay = true;
-                Log = new AppLog(_actions, _focus.Controls.OfType<LogViewport>().FirstOrDefault());
+                Log = new AppLog(_actions, _focus.Controls.OfType<LogViewport>().FirstOrDefault(), _logRegion);
                 _overlay = new AppOverlay(frame, _viewport, _actions, _screens, actionClock ?? (() => toastClock.Elapsed));
                 _options.Dialogs?.AttachToasts(_overlay.ShowToast);
                 Root = _overlay;
@@ -153,9 +154,11 @@ namespace ConsoleMonster.Interactive {
 
         private bool Hidden(AppBinding binding) => _screens != null && _bindingScreens.TryGetValue(binding, out AppScreen? screen) && !_screens.IsShown(screen);
 
+        // The hold ends before the snapshot is published, so the snapshot carries the focus version that matches it.
         private void Navigated() {
-            try { ConstrainFocus(); Publish(); }
+            try { ConstrainFocus(); }
             finally { _focus.Release(); }
+            Publish();
             Invalidate();
         }
 
@@ -177,7 +180,7 @@ namespace ConsoleMonster.Interactive {
                 hints = modal != null ? _keys.Hints(modal, new KeyChord[0], false, out keepLast) : _keys.Hints(HostBindings(), HostFirst(), true, out keepLast);
                 if (app == _defaultFooter) { app.KeepLast = keepLast; }
             }
-            _overlay.Publish(_screens?.RefreshCrumbs(), app, hints, _session);
+            _overlay.Publish(_screens?.RefreshCrumbs(), app, hints, _focus.Version, _session);
         }
 
         // Host gestures as hints; the host matches them itself. With screens, "back" means the previous screen, so the
@@ -204,6 +207,7 @@ namespace ConsoleMonster.Interactive {
         private void Discover(IWidget widget, int reflowBelow, AppScreen? owner = null) {
             if (widget is FooterBar footer) { _footers.Add(footer); }
             if (widget is Tabs) { _hasTabs = true; }
+            if (widget is LogRegion region && _logRegion == null) { _logRegion = region; }
             if (widget is AppScreens screens) {
                 if (_screens != null) { throw new ArgumentException("An app has one screen stack.", nameof(widget)); }
                 _screens = screens;

@@ -30,8 +30,8 @@ namespace ConsoleMonster.Interactive {
         private readonly RegionWidget _carrier = new RegionWidget("AppFrame" + Interlocked.Increment(ref _next));
 
         // The shown screen, its crumbs and the app footer's hints, published together on the app thread.
-        internal void Publish(AppScreens.View? view, FooterBar? footer, IReadOnlyList<KeyHint>? hints, LiveSession? session) {
-            Snapshot snapshot = new Snapshot(view, footer, hints);
+        internal void Publish(AppScreens.View? view, FooterBar? footer, IReadOnlyList<KeyHint>? hints, int focusVersion, LiveSession? session) {
+            Snapshot snapshot = new Snapshot(view, footer, hints, focusVersion);
             if (session == null) { _carrier.Set(snapshot); }
             else { _carrier.Handle(session).Set(snapshot); }
         }
@@ -45,11 +45,12 @@ namespace ConsoleMonster.Interactive {
         public Size Measure(Constraints constraints, RenderContext context) => _content.Measure(constraints, context);
 
         public void Render(Region region, RenderContext context) {
-            _viewport.BeginFrame();
+            // A frame reconciles focus only against the focus the snapshot it draws was published with.
             Snapshot? snapshot = _carrier.Content as Snapshot;
+            _viewport.BeginFrame(snapshot?.FocusVersion);
             using (AppScreens.Scope(snapshot?.View))
             using (FooterBar.FrameHints(snapshot?.Footer, snapshot?.Hints))
-            using (LayoutNotes.Recording()) { _content.Render(region, context); }
+            using (LayoutNotes.Frame()) { _content.Render(region, context); }
             if (region.Width <= 0 || region.Height <= 0) { return; }
             Region body = region.Sub(0, 0, region.Width, Math.Max(0, region.Height - 1));
             List<Placed> placed = new List<Placed>();
@@ -107,9 +108,9 @@ namespace ConsoleMonster.Interactive {
 
         private static bool Contains(Rect area, InputEvent input) => input.Column >= area.X && input.Column < area.Right && input.Row >= area.Y && input.Row < area.Bottom;
 
-        private sealed class Snapshot : IWidget {
-            internal Snapshot(AppScreens.View? view, FooterBar? footer, IReadOnlyList<KeyHint>? hints) { View = view; Footer = footer; Hints = hints; }
-            internal AppScreens.View? View { get; } internal FooterBar? Footer { get; } internal IReadOnlyList<KeyHint>? Hints { get; }
+        private sealed class Snapshot : IWidget, IUnrecorded {
+            internal Snapshot(AppScreens.View? view, FooterBar? footer, IReadOnlyList<KeyHint>? hints, int focusVersion) { View = view; Footer = footer; Hints = hints; FocusVersion = focusVersion; }
+            internal AppScreens.View? View { get; } internal FooterBar? Footer { get; } internal IReadOnlyList<KeyHint>? Hints { get; } internal int FocusVersion { get; }
             public Size Measure(Constraints constraints, RenderContext context) => new Size(0, 0);
             public void Render(Region region, RenderContext context) { }
         }

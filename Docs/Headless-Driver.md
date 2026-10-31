@@ -131,7 +131,7 @@ Every successful reply has `"ok":true`. A failed one has `"ok":false`, `error` (
 
 A tree node has `type`, and when they apply `id` (the widget id), `key`, `label`, `focused`, `disabled`, `bounds`
 (`x`, `y`, `width`, `height` in screen cells) and `children`. `root` is null when no app or dashboard is running (a prompt or menu on its own has no control tree). Bounds are reported
-for input controls. The tree is read while the app runs, so it is a snapshot. `layout` is true, and a node that a row or
+for input controls. The tree is read while the app runs, so it is a snapshot. `layout` is true once an app frame has been drawn while the socket runs, and a node that a row or
 column layout placed in the last app frame has `layout`: `measured` (the `width` and `height` it asked for),
 `arranged` (the size it was given) and `rule`, which says why: `fixed 3`, `fill 1` (with `min 16` when it has a
 minimum) or `auto`, followed by `, shrunk` when it got less than it asked for or `, collapsed` when it got nothing.

@@ -68,6 +68,7 @@ namespace ConsoleMonster.Interactive {
         private bool RenderShrunk(Region region, RenderContext context, int natural, int arrangedAt) {
             CellBuffer full = new CellBuffer(region.Width, natural);
             _arrangement.Focused = _focus.Current;
+            using (LayoutNotes.Pause())
             using (_arrangement.Begin(region.Bounds.X, region.Bounds.Y, region.Bounds)) { _content.Render(new Region(full), context); }
             Dictionary<InputControl, int> wanted = _arrangement.Heights();
             CellBuffer fit = new CellBuffer(region.Width, region.Height);
@@ -78,9 +79,14 @@ namespace ConsoleMonster.Interactive {
                 if (!inputs.Contains(input.Key)) { continue; }
                 if (!got.TryGetValue(input.Key, out int rows) || rows < Math.Min(input.Value, 3)) { return false; }
             }
+            InputControl? before = _focus.Current;
             _focus.SetMounted(_arrangement.Mounted, arrangedAt);
+            if (before != _focus.Current) {
+                fit = new CellBuffer(region.Width, region.Height);
+                _arrangement.Focused = _focus.Current;
+                using (_arrangement.Begin(region.Bounds.X, region.Bounds.Y, region.Bounds)) { _content.Render(new Region(fit), context); }
+            }
             _scroll = 0;
-            _lastFocus = _focus.Current; _lastSize = new Size(region.Width, region.Height); _revealRequested = false;
             region.Buffer.Blit(fit, 0, 0, region.Width, region.Height, region.Bounds.X, region.Bounds.Y);
             return true;
         }
@@ -103,9 +109,9 @@ namespace ConsoleMonster.Interactive {
             }
         }
         internal bool ScrollBy(int rows) { lock (_gate) { return _arrangement.ScrollBy(rows); } }
-        // The overlay takes the focus version before it reads the frame snapshot, so a snapshot older than a focus change
-        // can never reconcile focus against the inputs it shows.
-        internal void BeginFrame() => _frameVersion = _focus.Version;
+        // The overlay passes the focus version its snapshot was published with, so a frame drawing an older snapshot than
+        // the current focus can never reconcile focus against the inputs it shows.
+        internal void BeginFrame(int? focusVersion) => _frameVersion = focusVersion ?? _focus.Version;
         internal InputArrangement.Popup[] Popups() { lock (_gate) { return new List<InputArrangement.Popup>(_arrangement.Popups).ToArray(); } }
         internal bool HandleContainerInput(Input.InputEvent input) { lock (_gate) { return _arrangement.HandleContainerInput(input, _focus.Current); } }
 

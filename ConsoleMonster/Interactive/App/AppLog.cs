@@ -1,34 +1,38 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
+
 using ConsoleMonster.Live;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>
     /// Where output written during a full-screen app goes (Console.WriteLine from a worker, PowerShell streams): the app's
-    /// action output panel when it has commands, else its first log viewport, else it is kept and printed after the app
-    /// restores the screen. A full-screen frame has no room below it, so such lines never land under the footer.
+    /// action output panel when it has commands, else its first log viewport or log region, else the last thousand lines
+    /// are kept and printed after the app restores the screen. A full-screen frame has no room below it, so such lines
+    /// never land under the footer.
     /// </summary>
     internal sealed class AppLog : ILogTarget {
-        private static long _next;
+        internal const string Id = "AppLog";
+        private const int KeepLimit = 1000;
         private readonly AppCommandHost _actions;
         private readonly LogViewport? _viewport;
-        private readonly List<string> _kept = new List<string>();
+        private readonly ILogTarget? _region;
+        private readonly Queue<string> _kept = new Queue<string>();
 
-        internal AppLog(AppCommandHost actions, LogViewport? viewport) {
+        internal AppLog(AppCommandHost actions, LogViewport? viewport, ILogTarget? region) {
             _actions = actions;
             _viewport = viewport;
-            WidgetId = "AppLog" + Interlocked.Increment(ref _next);
+            _region = region;
         }
 
-        public string WidgetId { get; }
+        public string WidgetId => Id;
 
         public void Apply(LiveEvent liveEvent) {
             if (liveEvent.Operation != "write" || liveEvent.Text == null) { return; }
             string level = liveEvent.Status ?? "out";
             if (_actions.HasCommands) { _actions.WriteOutput(liveEvent.Text, level); }
             else if (_viewport != null) { _viewport.Write(liveEvent.Text, level == "err" ? "error" : level == "out" ? "info" : level); }
-            else { lock (_kept) { _kept.Add(liveEvent.Text); } }
+            else if (_region != null) { _region.Apply(liveEvent); }
+            else { lock (_kept) { if (_kept.Count == KeepLimit) { _kept.Dequeue(); } _kept.Enqueue(liveEvent.Text); } }
         }
 
         public string? Describe(LiveEvent liveEvent) => null;

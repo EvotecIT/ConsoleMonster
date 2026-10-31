@@ -87,7 +87,7 @@ namespace ConsoleMonster.Headless {
             return Ok(new Dictionary<string, object?> {
                 ["root"] = root, ["focus"] = focus, ["truncated"] = budget <= 0,
                 // Nodes laid out by rows and columns in the last app frame carry their measured and arranged size and the rule.
-                ["layout"] = true
+                ["layout"] = LayoutNotes.HasFrame
             });
         }
 

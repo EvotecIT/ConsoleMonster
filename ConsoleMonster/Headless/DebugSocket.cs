@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using ConsoleMonster.Layout;
 using ConsoleMonster.Serialization;
 using ConsoleMonster.Sessions;
 
@@ -45,6 +46,7 @@ namespace ConsoleMonster.Headless {
     public sealed partial class DebugSocket : IDisposable {
         /// <summary>The protocol version reported by <c>hello</c>.</summary>
         public const int ProtocolVersion = 2;
+        private int _layoutListening;
         private const int MaxLine = 1024 * 1024;
         private const int MaxHelloLine = 4096;
         private static readonly HashSet<string> Published = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -65,6 +67,9 @@ namespace ConsoleMonster.Headless {
             _listener = new LoopbackListener(options.Port, 4, "ConsoleMonster debug socket", Serve);
             try { DiscoveryPath = WriteDiscovery(options.DiscoveryFolder); }
             catch { _listener.Dispose(); throw; }
+            // While the socket runs, app frames note why each control has its size for its tree command.
+            _layoutListening = 1;
+            LayoutNotes.Listen();
         }
 
         /// <summary>Starts a debug socket for a headless terminal.</summary>
@@ -87,6 +92,7 @@ namespace ConsoleMonster.Headless {
         public void Dispose() {
             if (Interlocked.Exchange(ref _disposed, 1) != 0) { return; }
             _stopped.Cancel();
+            if (Interlocked.Exchange(ref _layoutListening, 0) == 1) { LayoutNotes.Unlisten(); }
             _listener.Dispose();
             _stopped.Dispose();
             lock (Published) {
