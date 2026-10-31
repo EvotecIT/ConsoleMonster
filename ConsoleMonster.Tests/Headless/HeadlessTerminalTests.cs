@@ -60,6 +60,67 @@ namespace ConsoleMonster.Tests.Headless {
         }
 
         [Fact]
+        public void MenuPrompts_KeepTheTargetThatOwnsTheirScreen() {
+            using HeadlessTerminal menuTarget = new HeadlessTerminal(80, 24);
+            using HeadlessTerminal other = new HeadlessTerminal(60, 12);
+            List<string> menuFrames = new List<string>(), otherFrames = new List<string>();
+            menuTarget.FrameRendered += frame => menuFrames.Add(frame.ToPlainText());
+            other.FrameRendered += frame => otherFrames.Add(frame.ToPlainText());
+            bool otherAnswered = false, menuAnswered = false;
+            Menu menu = new Menu("Tools");
+            menu.Item("Ask", item => item.Action = context => {
+                using (Terminal.Use(other)) {
+                    otherAnswered = new ConfirmPrompt("Only terminal B", true).Show(new InteractiveOptions { Mode = InteractionMode.Rich });
+                    menuAnswered = context.Confirm("Menu question", true);
+                }
+            });
+            menu.Exit("Quit");
+            menuTarget.Send("Enter Enter Ctrl+Q");
+            other.Send("Enter");
+            using (Terminal.Use(menuTarget)) {
+                menu.Run(new MenuOptions { Layout = MenuLayout.Classic, StorageRoot = _folder,
+                    Interactive = new InteractiveOptions { Mode = InteractionMode.Rich } });
+            }
+            Assert.True(otherAnswered && menuAnswered);
+            Assert.Contains(otherFrames, frame => frame.Contains("Only terminal B"));
+            Assert.DoesNotContain(menuFrames, frame => frame.Contains("Only terminal B"));
+            Assert.Contains(menuFrames, frame => frame.Contains("Menu question"));
+            Assert.DoesNotContain(otherFrames, frame => frame.Contains("Menu question"));
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void HostedRun_PausesItsOwnTargetWhileAsking(bool formHost) {
+            using HeadlessTerminal terminal = new HeadlessTerminal(80, 24);
+            LiveSession? active = null;
+            bool asked = false, sawPausedPrompt = false;
+            terminal.FrameRendered += frame => {
+                if (frame.ToPlainText().Contains("Continue the run") && active?.IsPaused == true) { sawPausedPrompt = true; }
+            };
+            Action<MenuContext> run = context => context.Run(TextBlock.Plain("Hosted dashboard"), state => {
+                active = state.Session;
+                asked = context.Confirm("Continue the run", true);
+                return new MenuRunResult("Done");
+            }, new LiveSessionOptions { CaptureConsole = false, TaskbarProgress = false, HandleCancelKey = false });
+            InteractiveOptions interactive = new InteractiveOptions { Target = terminal, Mode = InteractionMode.Rich };
+            if (formHost) {
+                Form form = new Form("Settings") { Review = false };
+                form.Page("General").Text("name", "Name");
+                terminal.Send("Enter Enter Enter Enter");
+                form.Show(new FormOptions { Interactive = interactive, AfterSubmit = run, StorageRoot = _folder });
+            } else {
+                Menu menu = new Menu("Tools");
+                menu.Item("Run", item => item.Action = run);
+                menu.Exit("Quit");
+                terminal.Send("Enter Enter Escape Ctrl+Q");
+                menu.Run(new MenuOptions { Interactive = interactive, Layout = MenuLayout.Classic, StorageRoot = _folder });
+            }
+            Assert.True(asked);
+            Assert.True(sawPausedPrompt, "The hosted dashboard was not paused while its prompt was visible.");
+        }
+
+        [Fact]
         public void CapturedFrames_AsciicastClearsRowsRemovedByResize() {
             CellBuffer large = new CellBuffer(20, 4);
             large.Write(0, 3, "old", Style.Plain);
