@@ -265,6 +265,9 @@ Widget.TailReaderReturnedNull = Le lecteur du journal a renvoyé null.
 Widget.TailReaderReturnedNullEntry = Le lecteur du journal a renvoyé une entrée null.
 Widget.TailPauseMarker = ⏸
 Widget.TailNewLines = {0} nouvelles lignes
+Widget.TailPausedShort = En pause
+Widget.TailNewShort = {0} nouvelles
+Widget.TailFiltered = Filtré :
 
 Widget.OneWarningCount = {0} avertissement
 

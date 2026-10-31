@@ -28,6 +28,16 @@ namespace ConsoleMonster.Tests.Live.Tails {
             Assert.False(ConsoleInput.IsAcquired);
         }
 
+        [Fact]
+        public void LevelKeepsWarningsAndErrorsAndDropsQuieterLinesAtTheSource() {
+            string[] source = { "INFO started", "WARN disk 91%", "DEBUG cache hit", "ERROR backup failed", "VERBOSE probe" };
+            List<string> lines = new List<string>();
+            ConsoleLogTail.Run(() => source.Select(LogLineParser.Parse).ToList(), new LogTailOptions {
+                Live = false, Count = 1, Level = "warn", WriteLine = lines.Add, HandleCancelKey = false
+            });
+            Assert.Equal(new[] { "WARN disk 91%", "ERROR backup failed" }, lines);
+        }
+
         [Theory]
         [InlineData("plain")]
         [InlineData("redirected")]
