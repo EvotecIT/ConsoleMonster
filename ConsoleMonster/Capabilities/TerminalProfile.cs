@@ -148,6 +148,9 @@ namespace ConsoleMonster.Capabilities {
         /// <summary>Whether standard output is redirected to a file, pipe or log.</summary>
         public bool IsOutputRedirected { get; }
 
+        /// <summary>Whether <see cref="Width"/> came from <c>COLUMNS</c> for redirected output, so a host keeps it instead of its own width.</summary>
+        internal bool WidthFromColumns { get; set; }
+
         /// <summary>Whether output goes to a real Windows console handle (UTF-16 through WriteConsoleW).</summary>
         public bool IsConsoleHandle { get; }
 
@@ -237,7 +240,7 @@ namespace ConsoleMonster.Capabilities {
         public TerminalProfile WithCulture(CultureInfo? culture) {
             return new TerminalProfile(ColorDepth, Glyphs, Mode, Width, Height, Kind, SupportsVirtualTerminal, IsOutputRedirected,
                 IsConsoleHandle, IsContinuousIntegration, FontFace, Decisions, WidthProfile, ProbeWidths, ThemePreference, culture, _supportsHyperlinks) {
-                Language = Language, DefaultForeground = DefaultForeground, DefaultBackground = DefaultBackground
+                Language = Language, DefaultForeground = DefaultForeground, DefaultBackground = DefaultBackground, WidthFromColumns = WidthFromColumns
             };
         }
 
@@ -298,7 +301,8 @@ namespace ConsoleMonster.Capabilities {
                 ProbeWidths,
                 themePreference ?? ThemePreference,
                 Culture, supportsHyperlinks ?? _supportsHyperlinks) {
-                Language = Language, DefaultForeground = DefaultForeground, DefaultBackground = DefaultBackground
+                Language = Language, DefaultForeground = DefaultForeground, DefaultBackground = DefaultBackground,
+                WidthFromColumns = WidthFromColumns && (width ?? Width) == Width
             };
         }
     }

@@ -119,7 +119,7 @@ $servers | & ([Management.Automation.CmdletInfo]::new('Out-ConsoleDefault', (Get
         $text | Should -Match 'a plain string'
         $builtIn, $native = ($text -split '== built-in')[1] -split '== native'
         # Removing a custom view restores the generic record view; opting out restores PowerShell's native table.
-        $builtIn | Should -Match '[|│] srv01\s+[|│] Running\s+[|│]'
+        $builtIn | Should -Match '[|│] srv01\s+[|│] (\S+ )?Running\s+[|│]'
         $builtIn | Should -Not -Match '\[OK\]'
         $native | Should -Match 'Name\s+State\s*\n-+\s+-+'
     }

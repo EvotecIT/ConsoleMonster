@@ -106,6 +106,15 @@ namespace ConsoleMonster.Tests.Rendering {
         }
 
         [Fact]
+        public void Markup_PlainOutput_ShowsTheTargetAfterDifferentLinkText() {
+            TextBlock text = new TextBlock("see [link=https://evotec.xyz]Evo[bold]tec[/][/] and [link]https://evotec.xyz[/]");
+            TerminalProfile plain = Profile.WithMode(OutputMode.Stream).WithColorDepth(ColorDepth.None);
+            Assert.Equal("see Evotec (https://evotec.xyz) and https://evotec.xyz", Terminal.RenderText(text, plain, Theme.Dark).TrimEnd());
+            // Fixed profiles (exports, tests) keep the link on the cells for the HTML and SVG writers.
+            Assert.Equal("see Evotec and https://evotec.xyz", Terminal.RenderText(text, TerminalProfile.Fixed(100, 20), Theme.Dark).TrimEnd());
+        }
+
+        [Fact]
         public void Logs_LiteralUrlsAndPathsAndRichLabels_AreLinked() {
             LogRegion log = new LogRegion { ShowElapsed = false };
             log.Write("Saved /var/log/daily.txt; docs https://example.com/docs");

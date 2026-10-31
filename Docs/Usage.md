@@ -1137,11 +1137,14 @@ errors, `Format-*` output, other types) to PowerShell's own `Out-Default` unchan
 
 ## Emoji and symbols on every terminal
 
-Emoji and special symbols in text that goes through markup, rich text or table cells are replaced on glyph tiers
-that cannot show them, before the text is measured, so widths stay right: ✅ is √ on the Basic tier and `[OK]` on
-ASCII, ⚠️ is `!`, ❌ is `×` or `x`, ➜ is `→` or `->`, 🚀 is `»` or `>>`, and `…` and `—` become `...` and `-` on ASCII.
-The Full tier shows the text as written. `SymbolFallback.Register("🦄", "U", "[unicorn]")` adds a symbol and
-`SymbolFallback.Enabled = false` turns the replacement off.
+Your text is never rewritten. Labels, titles, table cells and log lines keep their emoji and symbols on every glyph
+tier, so redirected files and CI logs match the data you copy, diff or grep. Only ConsoleMonster's own markers,
+borders, spinners and icons follow the tier.
+
+`SymbolFallback` replaces symbols for a tier when you ask for it: ✅ is √ on the Basic tier and `[OK]` on ASCII, ⚠️ is
+`!`, ❌ is `×` or `x`, ➜ is `→` or `->`, 🚀 is `»` or `>>`, and `…` and `—` become `...` and `-` on ASCII.
+`SymbolFallback.Apply(text, tier)` does it for a string, the `Emoji` cell presenter does it for one column, and
+`SymbolFallback.Register("🦄", "U", "[unicorn]")` adds a symbol.
 
 `:shortcode:` emoji are opt-in, because colons in data must stay as they are:
 

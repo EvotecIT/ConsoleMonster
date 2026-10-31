@@ -17,6 +17,7 @@
 - Terminal exports share centred regular titles, Windows Terminal tabs, rounded body clipping and an 8 px page inset across HTML, SVG and slide graphics.
 
 #### What's new
+- Your text is never rewritten: on the Basic and ASCII glyph tiers (conhost, redirected files, CI logs) only ConsoleMonster's own borders, markers, spinners and icons fall back, while labels, table cells and log lines keep their emoji and symbols. Redirected output (files, pipes, CI logs) is as wide as `COLUMNS` when it is set, through one width rule that every PowerShell command and `Get-ConsoleCapability` share. Output that cannot make links clickable prints `text (url)`.
 - `Matrix`, reference trees and grouped streaming tables provide reusable views for cross-tab results, linked hierarchies and incrementally arriving groups.
 - The optional `ConsoleMonster.PowerShell.Display` package registers exact application types through runspace-owned leases. It preserves original pipeline objects and leaves unregistered values with native PowerShell formatting.
 - Embedded displays preserve the host's foreground and background colors, including resets and streamed footers. Automatic streams sample up to 200 rows and check a 250 ms boundary on arrivals and completion. Quick completed scopes use a collected table or an optional detailed single-record view; open streams keep one stable grid. Collection status updates on arriving rows after one second, clears before the final view and leaves native warnings and errors intact. Redirected output and transcripts never receive the status line.

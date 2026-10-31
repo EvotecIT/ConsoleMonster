@@ -31,9 +31,9 @@ namespace ConsoleMonster.Widgets {
                     label.Append(segment.IsMarkup ? Markup.Strip(segment.Text) : segment.Text);
                 }
                 if (link != null && (i + 1 == text.Segments.Count || text.Segments[i + 1].Style.Link != link)) {
-                    string address = Rendering.TextSanitizer.Clean(link);
-                    if (target == null && !string.Equals(label.ToString(), address, StringComparison.Ordinal)) {
-                        segments.Add(new RichSegment(" (" + address + ")", new RichStyle(ThemeToken.Muted), false));
+                    string? suffix = target == null ? Rendering.LinkTargets.Suffix(label.ToString(), link) : null;
+                    if (suffix != null) {
+                        segments.Add(new RichSegment(suffix, new RichStyle(ThemeToken.Muted), false));
                     }
                     label.Clear();
                 }
