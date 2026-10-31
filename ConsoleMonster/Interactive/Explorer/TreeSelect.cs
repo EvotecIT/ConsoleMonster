@@ -68,6 +68,15 @@ namespace ConsoleMonster.Interactive {
             else { return false; }
             return true;
         }
+        internal override bool Takes(KeyChord chord, RenderContext context) {
+            if (LineEditor.Takes(chord)) { return true; }
+            switch (chord.Key) {
+                case ConsoleKey.UpArrow: case ConsoleKey.DownArrow: case ConsoleKey.PageUp: case ConsoleKey.PageDown: case ConsoleKey.Enter:
+                    return true;
+                case ConsoleKey.Escape: return Read(() => !_search.IsEmpty);
+            }
+            return false;
+        }
         /// <inheritdoc />
         protected override bool HandlePointerCore(InputEvent input, RenderContext context) {
             if (input.Column < _body.X || input.Column >= _body.Right || input.Row < _body.Y || input.Row >= _body.Bottom) { return false; }

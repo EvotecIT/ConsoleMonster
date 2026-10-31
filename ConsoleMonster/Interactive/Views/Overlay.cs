@@ -40,18 +40,23 @@ namespace ConsoleMonster.Interactive {
                 return;
             }
             _background.Render(region, context);
-            if (_dim) {
+            Paint(region, _dialog, context, MaxWidth, Top, _dim);
+        }
+
+        /// <summary>Paints a dialog over whatever the region already holds: dims it, then places the dialog centred or near the top.</summary>
+        internal static void Paint(Region region, IWidget dialog, RenderContext context, int maxWidth, bool top, bool dim) {
+            if (dim) {
                 Dim(region, context);
             }
-            int width = Math.Min(region.Width - 2, MaxWidth);
+            int width = Math.Min(region.Width - 2, maxWidth);
             if (width < 10) {
                 width = region.Width;
             }
-            Size size = _dialog.Measure(new Constraints(width, Math.Max(1, region.Height - 2)), context);
-            Rect place = DialogChrome.Place(region.Width, region.Height, Math.Min(width, Math.Max(size.Width, 10)), size.Height, Top);
+            Size size = dialog.Measure(new Constraints(width, Math.Max(1, region.Height - 2)), context);
+            Rect place = DialogChrome.Place(region.Width, region.Height, Math.Min(width, Math.Max(size.Width, 10)), size.Height, top);
             Region area = region.Sub(place.X, place.Y, place.Width, place.Height);
             area.Fill(Style.Plain);
-            _dialog.Render(area, context);
+            dialog.Render(area, context);
         }
 
         internal static void Dim(Region region, RenderContext context) {

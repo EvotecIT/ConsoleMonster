@@ -16,6 +16,7 @@ namespace ConsoleMonster.Interactive {
         private bool _revealRequested = true;
         private Size _lastSize;
         private readonly InputArrangement _arrangement = new InputArrangement();
+        [ThreadStatic] private static int? _frameVersion;
 
         internal AppViewport(IWidget content, FocusManager focus, int reservedRows = 0) { _content = content; _focus = focus; _reservedRows = reservedRows; }
         public IReadOnlyList<IWidget> Children => new[] { _content };
@@ -35,10 +36,12 @@ namespace ConsoleMonster.Interactive {
                 ConstrainInputs(region.Height);
                 int height = Math.Max(region.Height, _content.Measure(new Constraints(region.Width), context).Height);
                 CellBuffer canvas = new CellBuffer(region.Width, height);
+                int arrangedAt = _frameVersion ?? _focus.Version;
+                _frameVersion = null;
                 _arrangement.Focused = _focus.Current;
                 using (_arrangement.Begin(region.Bounds.X, region.Bounds.Y - _scroll, region.Bounds)) { _content.Render(new Region(canvas), context); }
                 InputControl? beforeFocus = _focus.Current;
-                _focus.SetMounted(_arrangement.Mounted);
+                _focus.SetMounted(_arrangement.Mounted, arrangedAt);
                 int before = _scroll;
                 Rect? focused = _arrangement.FocusBounds;
                 bool reveal = _revealRequested || _focus.Current != _lastFocus || _lastSize.Width != region.Width || _lastSize.Height != region.Height;
@@ -75,6 +78,10 @@ namespace ConsoleMonster.Interactive {
             }
         }
         internal bool ScrollBy(int rows) { lock (_gate) { return _arrangement.ScrollBy(rows); } }
+        // The overlay takes the focus version before it reads the frame snapshot, so a snapshot older than a focus change
+        // can never reconcile focus against the inputs it shows.
+        internal void BeginFrame() => _frameVersion = _focus.Version;
+        internal InputArrangement.Popup[] Popups() { lock (_gate) { return new List<InputArrangement.Popup>(_arrangement.Popups).ToArray(); } }
         internal bool HandleContainerInput(Input.InputEvent input) { lock (_gate) { return _arrangement.HandleContainerInput(input, _focus.Current); } }
 
         internal void RevealFocus() {

@@ -11,10 +11,20 @@ namespace ConsoleMonster.Interactive {
         private readonly Dictionary<InputControl, Entry> _inputs = new Dictionary<InputControl, Entry>();
         private readonly List<Tuple<Widgets.ScrollView, Rect>> _scrolls = new List<Tuple<Widgets.ScrollView, Rect>>();
         private readonly List<IAppInputContainer> _containers = new List<IAppInputContainer>();
+        private readonly List<Popup> _popups = new List<Popup>();
         internal InputControl? Focused { get; set; }
         internal IEnumerable<InputControl> Mounted => _inputs.Keys;
+        internal IReadOnlyList<Popup> Popups => _popups;
         internal Rect? FocusBounds => Focused != null && _inputs.TryGetValue(Focused, out Entry? entry) ? entry.Bounds : (Rect?)null;
-        internal IDisposable Begin(int x, int y, Rect clip) { _inputs.Clear(); _scrolls.Clear(); _containers.Clear(); return new Scope(this, x, y, clip); }
+        internal IDisposable Begin(int x, int y, Rect clip) { _inputs.Clear(); _scrolls.Clear(); _containers.Clear(); _popups.Clear(); return new Scope(this, x, y, clip); }
+        // A control asks for content drawn above the frame, anchored to where it was arranged; the app overlay paints it
+        // after the content pass. Outside an app (a one-off render) there is no layer and the request is dropped.
+        internal static void RecordPopup(InputControl owner, IWidget popup) {
+            Scope? scope = _current;
+            if (scope == null || !scope.Owner._inputs.TryGetValue(owner, out Entry? entry)) { return; }
+            Rect anchor = entry.Bounds.Intersect(entry.Clip);
+            if (anchor.Width > 0 && anchor.Height > 0) { scope.Owner._popups.Add(new Popup(owner, popup, anchor)); }
+        }
         internal static void Record(IAppInputContainer container) => _current?.Owner._containers.Add(container);
         internal bool HandleContainerInput(InputEvent input, InputControl? focused) {
             for (int i = _containers.Count - 1; i >= 0; i--) { if (_containers[i].HandleContainerInput(input, focused)) { return true; } }
@@ -63,6 +73,10 @@ namespace ConsoleMonster.Interactive {
         }
         private static Rect Move(Rect bounds, int x, int y) => new Rect(bounds.X + x, bounds.Y + y, bounds.Width, bounds.Height);
         private static bool Contains(Rect area, int x, int y) => x >= area.X && x < area.Right && y >= area.Y && y < area.Bottom;
+        internal sealed class Popup {
+            internal Popup(InputControl owner, IWidget content, Rect anchor) { Owner = owner; Content = content; Anchor = anchor; }
+            internal InputControl Owner { get; } internal IWidget Content { get; } internal Rect Anchor { get; }
+        }
         private sealed class Entry {
             internal Entry(Rect bounds, Rect clip, int x, int y) { Bounds = bounds; Clip = clip; X = x; Y = y; }
             internal Rect Bounds { get; } internal Rect Clip { get; } internal int X { get; } internal int Y { get; }

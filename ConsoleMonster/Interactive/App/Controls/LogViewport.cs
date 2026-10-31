@@ -54,7 +54,9 @@ namespace ConsoleMonster.Interactive {
             else { return false; }
             return true;
         }
-        private void Scroll(int delta) => _log.ScrollOffset = Math.Max(0, Math.Min(Math.Max(0, _log.Entries.Count - 1), _log.ScrollOffset + delta));
+        internal override bool Takes(KeyChord chord, RenderContext context) => chord.Modifiers == KeyModifiers.None && (chord.Key == ConsoleKey.UpArrow || chord.Key == ConsoleKey.DownArrow
+            || chord.Key == ConsoleKey.PageUp || chord.Key == ConsoleKey.PageDown || chord.Key == ConsoleKey.Home || chord.Key == ConsoleKey.End
+            || chord.Key == ConsoleKey.LeftArrow || chord.Key == ConsoleKey.RightArrow);        private void Scroll(int delta) => _log.ScrollOffset = Math.Max(0, Math.Min(Math.Max(0, _log.Entries.Count - 1), _log.ScrollOffset + delta));
         /// <inheritdoc />
         protected override bool HandlePointerCore(InputEvent input, RenderContext context) {
             if (input.MouseAction != MouseAction.Wheel) { return false; }

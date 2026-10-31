@@ -51,6 +51,7 @@ namespace ConsoleMonster.Interactive {
             return true;
         }
 
+        internal override bool Takes(KeyChord chord, RenderContext context) => chord.Key == ConsoleKey.Enter || chord.Key == ConsoleKey.Spacebar;
         /// <inheritdoc />
         protected override bool HandlePointerCore(InputEvent input, RenderContext context) {
             bool inside = input.Column >= Bounds.X && input.Column < Bounds.Right && input.Row >= Bounds.Y && input.Row < Bounds.Bottom;
