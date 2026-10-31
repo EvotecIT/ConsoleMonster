@@ -48,7 +48,8 @@ namespace ConsoleMonster.Interactive {
             _viewport.BeginFrame();
             Snapshot? snapshot = _carrier.Content as Snapshot;
             using (AppScreens.Scope(snapshot?.View))
-            using (FooterBar.FrameHints(snapshot?.Footer, snapshot?.Hints)) { _content.Render(region, context); }
+            using (FooterBar.FrameHints(snapshot?.Footer, snapshot?.Hints))
+            using (LayoutNotes.Recording()) { _content.Render(region, context); }
             if (region.Width <= 0 || region.Height <= 0) { return; }
             Region body = region.Sub(0, 0, region.Width, Math.Max(0, region.Height - 1));
             List<Placed> placed = new List<Placed>();

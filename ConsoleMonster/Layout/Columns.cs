@@ -85,6 +85,11 @@ namespace ConsoleMonster.Layout {
                 return;
             }
             int[] widths = ComputeWidths(region.Width, region.Height, context);
+            if (LayoutNotes.IsRecording) {
+                for (int i = 0; i < _children.Count; i++) {
+                    LayoutNotes.Record(_children[i], _sizes[i], _children[i].Measure(new Constraints(region.Width, region.Height), context), new Size(widths[i], region.Height), false);
+                }
+            }
             int x = 0;
             for (int i = 0; i < _children.Count; i++) {
                 if (widths[i] > 0) {
