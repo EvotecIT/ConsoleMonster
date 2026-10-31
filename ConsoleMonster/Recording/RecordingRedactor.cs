@@ -26,26 +26,9 @@ namespace ConsoleMonster.Sessions {
             try {
                 bool[] masked = new bool[text.Length];
                 List<SourceRange> ranges = new List<SourceRange>();
-                List<List<int>> projections = new List<List<int>>();
-                // Native terminal OSC/DCS handling and VtScreen replay differ for unexpected ESCs.
-                // Protect credentials under both interpretations, as well as raw control payloads.
-                // Every rule sees the original output, never earlier replacement labels.
-                foreach (TerminalInterpretation interpretation in Interpretations) {
-                    string plain = VisibleText(text, stopAtIncomplete: false, out List<int> positions, out _, interpretation);
-                    // Equal text alone is insufficient: identical glyphs may have different source offsets.
-                    if (projections.Exists(previous => SamePositions(previous, positions))) { continue; }
-                    projections.Add(positions);
-                    int visibleStart = 0;
-                    while (visibleStart < positions.Count && positions[visibleStart] < startAt) { visibleStart++; }
-                    foreach (Regex pattern in _patterns) {
-                        foreach (Match match in pattern.Matches(plain, visibleStart)) {
-                            if (match.Length == 0) { continue; }
-                            ranges.Add(new SourceRange(positions[match.Index], positions[match.Index + match.Length - 1] + 1));
-                            for (int i = match.Index; i < match.Index + match.Length; i++) { masked[positions[i]] = true; }
-                        }
-                    }
-                }
-                foreach (Regex pattern in _patterns) {
+                MaskProjections(text, startAt, runBreaks: false, _patterns, masked, ranges);
+                MaskProjections(text, startAt, runBreaks: true, RunPatterns, masked, ranges);
+                foreach (Regex pattern in AllPatterns()) {
                     foreach (Match match in pattern.Matches(text, startAt)) {
                         if (match.Length == 0) { continue; }
                         ranges.Add(new SourceRange(match.Index, match.Index + match.Length));
@@ -69,6 +52,38 @@ namespace ConsoleMonster.Sessions {
             } catch (RegexMatchTimeoutException) {
                 const string masked = "[REDACTED: pattern timeout]";
                 return new RedactedOutput(masked, new List<int>(new int[masked.Length]), text.Length, timedOut: true);
+            }
+        }
+
+        private IEnumerable<Regex> AllPatterns() {
+            foreach (Regex pattern in RunPatterns) { yield return pattern; }
+            foreach (Regex pattern in _patterns) { yield return pattern; }
+        }
+
+        private static void MaskProjections(string text, int startAt, bool runBreaks, IEnumerable<Regex> patterns, bool[] masked, List<SourceRange> ranges) {
+            List<List<int>> projections = new List<List<int>>();
+            // Native terminal OSC/DCS handling and VtScreen replay differ for unexpected ESCs.
+            // Protect credentials under both interpretations, as well as raw control payloads.
+            // Every rule sees the original output, never earlier replacement labels.
+            foreach (TerminalInterpretation interpretation in Interpretations) {
+                string plain = VisibleText(text, stopAtIncomplete: false, out List<int> positions, out _, interpretation, runBreaks);
+                // Equal text alone is insufficient: identical glyphs may have different source offsets.
+                if (projections.Exists(previous => SamePositions(previous, positions))) { continue; }
+                projections.Add(positions);
+                int visibleStart = 0;
+                while (visibleStart < positions.Count && positions[visibleStart] < startAt) { visibleStart++; }
+                foreach (Regex pattern in patterns) {
+                    foreach (Match match in pattern.Matches(plain, visibleStart)) {
+                        int first = -1, last = -1;
+                        for (int i = match.Index; i < match.Index + match.Length; i++) {
+                            if (IsRunBreak(text, plain, positions, i)) { continue; }
+                            masked[positions[i]] = true;
+                            if (first < 0) { first = positions[i]; }
+                            last = positions[i];
+                        }
+                        if (first >= 0) { ranges.Add(new SourceRange(first, last + 1)); }
+                    }
+                }
             }
         }
 
