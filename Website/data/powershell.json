@@ -318,7 +318,7 @@
     },
     {
       "verb": "New",
-      "count": 40,
+      "count": 41,
       "commands": [
         {
           "name": "New-ConsoleActivityList",

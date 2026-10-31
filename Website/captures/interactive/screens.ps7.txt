@@ -1,4 +1,4 @@
-source afa38316379ebfaf265c645cae06b5a5
+source 9eb299c4686ec62a265c645cae06b5a5
  Inventory › Servers
 Type a number to open a server.
 1  WEB01  Web, Warsaw
@@ -526,6 +526,22 @@ SQL01 is the Database server in Warsaw.
 
 
 
+ esc back  tab nextab31149be2d97dd9
+ Inventory › Servers › SQL01
+SQL01 is the Database server in Warsaw.
+
+
+
+
+
+
+
+
+
+
+
+
+
  esc back  tab next265c645cae06b5a5
  Inventory › Servers
 Type a number to open a server.
@@ -750,7 +766,39 @@ Type a number to open a server.
 
 
 
+ 1-3 open  tab next  esc quit265c645cae06b5a5
+ Inventory › Servers
+Type a number to open a server.
+1  WEB01  Web, Warsaw
+2  SQL01  Database, Warsaw
+3  FS11  File, Berlin
+
+
+
+
+
+
+
+
+
+
  1-3 open  tab next  esc quitdca2cb4bb9c63c96
+ Inventory › Servers › FS11
+FS11 is the File server in Berlin.
+
+
+
+
+
+
+
+
+
+
+
+
+
+ esc back  tab nextdca2cb4bb9c63c96
  Inventory › Servers › FS11
 FS11 is the File server in Berlin.
 
