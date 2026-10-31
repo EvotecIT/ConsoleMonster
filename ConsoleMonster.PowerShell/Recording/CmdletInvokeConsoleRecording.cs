@@ -48,7 +48,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc/>
         protected override void EndProcessing() {
-            if (Headless.IsPresent && (InProcess.IsPresent || Shell != null)) { throw new ArgumentException("-Headless runs the script in this session; -InProcess and -Shell do not apply."); }
+            if (Headless.IsPresent && (InProcess.IsPresent || Shell != null || MyInvocation.BoundParameters.ContainsKey(nameof(TimeoutSeconds)))) { throw new ArgumentException("-Headless runs the script in this session; -InProcess, -Shell and -TimeoutSeconds do not apply. The script ends when its apps run out of input, or with Ctrl+C."); }
             string target = string.IsNullOrWhiteSpace(Path) ? "interactive recording in the current directory" : SessionState.Path.GetUnresolvedProviderPathFromPSPath(Path);
             if (!ShouldProcess(target, Interactive.IsPresent ? "Record a child shell" : "Run and record the script")) { return; }
             if (Interactive.IsPresent) { RecordInteractive(); return; }

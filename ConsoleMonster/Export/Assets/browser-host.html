@@ -35,9 +35,11 @@ main{display:flex;flex-direction:column;align-items:center;gap:10px;padding:24px
   }
   screen.addEventListener("keydown", function (e) {
     if (e.metaKey) { return; }
+    // AltGr reports Ctrl and Alt together; the character it produces is typed text, not a chord.
+    var altGraph = e.getModifierState && e.getModifierState("AltGraph");
     var name = named[e.key] || (/^F([1-9]|1[0-2])$/.test(e.key) ? e.key : null);
     if (name) { send({ keys: chord(e, name) }); }
-    else if (e.key.length === 1 && (e.ctrlKey || e.altKey)) { send({ keys: chord(e, e.key.toUpperCase()) }); }
+    else if (e.key.length === 1 && (e.ctrlKey || e.altKey) && !altGraph) { send({ keys: chord(e, e.key.toUpperCase()) }); }
     else if (e.key.length === 1) { send({ text: e.key }); }
     else { return; }
     e.preventDefault();

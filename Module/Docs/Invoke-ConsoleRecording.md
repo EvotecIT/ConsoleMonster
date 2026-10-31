@@ -140,7 +140,7 @@ Accept wildcard characters: False
 ```
 
 ### -InProcess
-Explicit limited fallback: PowerShell host output in this process; no native terminal capture.
+Explicit limited fallback: PowerShell host output in this process; no native terminal capture. Not used with -Headless.
 
 ```yaml
 Type: SwitchParameter
@@ -284,7 +284,7 @@ Accept wildcard characters: False
 ```
 
 ### -Shell
-Shell executable. The default is the current PowerShell executable.
+Shell executable. The default is the current PowerShell executable. Not used with -Headless.
 
 ```yaml
 Type: String
@@ -316,7 +316,7 @@ Accept wildcard characters: False
 ```
 
 ### -TimeoutSeconds
-Maximum child lifetime in seconds.
+Maximum child lifetime in seconds. Not used with -Headless, where the script runs in this session.
 
 ```yaml
 Type: Double

@@ -36,6 +36,7 @@ namespace ConsoleMonster.Headless {
         private readonly RecordingRedactor _redactor = new RecordingRedactor(Array.Empty<string>());
         private readonly string _token = LoopbackListener.NewToken();
         private readonly ManualResetEvent _stopped = new ManualResetEvent(false);
+        private int _disposed;
 
         private BrowserHost(HeadlessTerminal terminal, BrowserHostOptions options) {
             _terminal = terminal;
@@ -56,6 +57,7 @@ namespace ConsoleMonster.Headless {
 
         /// <summary>Stops serving and closes open pages' connections.</summary>
         public void Dispose() {
+            if (Interlocked.Exchange(ref _disposed, 1) != 0) { return; }
             _stopped.Set();
             _listener.Dispose();
             _stopped.Dispose();
@@ -84,7 +86,7 @@ namespace ConsoleMonster.Headless {
                     return;
                 }
                 try { Apply(request.Body); }
-                catch (Exception ex) when (ex is FormatException || ex is ArgumentException || ex is InvalidOperationException) { Respond(stream, 400, "text/plain", ex.Message); return; }
+                catch (Exception ex) when (ex is FormatException || ex is ArgumentException || ex is InvalidOperationException || ex is OverflowException) { Respond(stream, 400, "text/plain", ex.Message); return; }
                 Respond(stream, 204, null, null);
             } else { Respond(stream, 404, "text/plain", "Not found."); }
         }

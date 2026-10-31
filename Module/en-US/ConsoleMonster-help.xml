@@ -5009,7 +5009,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>InProcess</maml:name>
           <maml:description>
-            <maml:para>Explicit limited fallback: PowerShell host output in this process; no native terminal capture.</maml:para>
+            <maml:para>Explicit limited fallback: PowerShell host output in this process; no native terminal capture. Not used with -Headless.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
           <dev:type>
@@ -5093,7 +5093,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Shell</maml:name>
           <maml:description>
-            <maml:para>Shell executable. The default is the current PowerShell executable.</maml:para>
+            <maml:para>Shell executable. The default is the current PowerShell executable. Not used with -Headless.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -5123,7 +5123,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>TimeoutSeconds</maml:name>
           <maml:description>
-            <maml:para>Maximum child lifetime in seconds.</maml:para>
+            <maml:para>Maximum child lifetime in seconds. Not used with -Headless, where the script runs in this session.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
           <dev:type>
@@ -5228,7 +5228,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>InProcess</maml:name>
           <maml:description>
-            <maml:para>Explicit limited fallback: PowerShell host output in this process; no native terminal capture.</maml:para>
+            <maml:para>Explicit limited fallback: PowerShell host output in this process; no native terminal capture. Not used with -Headless.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
           <dev:type>
@@ -5324,7 +5324,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Shell</maml:name>
           <maml:description>
-            <maml:para>Shell executable. The default is the current PowerShell executable.</maml:para>
+            <maml:para>Shell executable. The default is the current PowerShell executable. Not used with -Headless.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -5354,7 +5354,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>TimeoutSeconds</maml:name>
           <maml:description>
-            <maml:para>Maximum child lifetime in seconds.</maml:para>
+            <maml:para>Maximum child lifetime in seconds. Not used with -Headless, where the script runs in this session.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
           <dev:type>
@@ -5417,7 +5417,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>InProcess</maml:name>
           <maml:description>
-            <maml:para>Explicit limited fallback: PowerShell host output in this process; no native terminal capture.</maml:para>
+            <maml:para>Explicit limited fallback: PowerShell host output in this process; no native terminal capture. Not used with -Headless.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
           <dev:type>
@@ -5489,7 +5489,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Shell</maml:name>
           <maml:description>
-            <maml:para>Shell executable. The default is the current PowerShell executable.</maml:para>
+            <maml:para>Shell executable. The default is the current PowerShell executable. Not used with -Headless.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -5501,7 +5501,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>TimeoutSeconds</maml:name>
           <maml:description>
-            <maml:para>Maximum child lifetime in seconds.</maml:para>
+            <maml:para>Maximum child lifetime in seconds. Not used with -Headless, where the script runs in this session.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
           <dev:type>
@@ -5606,7 +5606,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>InProcess</maml:name>
         <maml:description>
-          <maml:para>Explicit limited fallback: PowerShell host output in this process; no native terminal capture.</maml:para>
+          <maml:para>Explicit limited fallback: PowerShell host output in this process; no native terminal capture. Not used with -Headless.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
@@ -5714,7 +5714,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Shell</maml:name>
         <maml:description>
-          <maml:para>Shell executable. The default is the current PowerShell executable.</maml:para>
+          <maml:para>Shell executable. The default is the current PowerShell executable. Not used with -Headless.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
@@ -5744,7 +5744,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>TimeoutSeconds</maml:name>
         <maml:description>
-          <maml:para>Maximum child lifetime in seconds.</maml:para>
+          <maml:para>Maximum child lifetime in seconds. Not used with -Headless, where the script runs in this session.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
         <dev:type>

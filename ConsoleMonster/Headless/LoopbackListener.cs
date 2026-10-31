@@ -40,7 +40,11 @@ namespace ConsoleMonster.Headless {
             while (!_disposed) {
                 TcpClient client;
                 try { client = _listener.AcceptTcpClient(); }
-                catch (Exception ex) when (ex is SocketException || ex is ObjectDisposedException || ex is InvalidOperationException) { return; }
+                catch (SocketException) when (!_disposed) {
+                    // A connection that failed while being accepted; keep listening for the next one.
+                    Thread.Sleep(10);
+                    continue;
+                } catch (Exception ex) when (ex is SocketException || ex is ObjectDisposedException || ex is InvalidOperationException) { return; }
                 if (!(client.Client.RemoteEndPoint is IPEndPoint remote) || !IPAddress.IsLoopback(remote.Address)) {
                     client.Close();
                     continue;

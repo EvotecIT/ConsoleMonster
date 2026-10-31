@@ -152,7 +152,7 @@ namespace ConsoleMonster.Headless {
                         Volatile.Write(ref authenticated, true);
                     }
                     reply = Handle(command, request);
-                } catch (Exception ex) when (ex is FormatException || ex is ArgumentException || ex is InvalidOperationException || ex is NotSupportedException || ex is TimeoutException) {
+                } catch (Exception ex) when (ex is FormatException || ex is ArgumentException || ex is InvalidOperationException || ex is NotSupportedException || ex is TimeoutException || ex is OverflowException) {
                     // Before hello, any failure ends the connection.
                     if (!Volatile.Read(ref authenticated)) { Send(stream, Error(id, "unauthorized", "Send hello with the token from the discovery file first.")); return; }
                     reply = Error(id, "bad-request", ex.Message);
