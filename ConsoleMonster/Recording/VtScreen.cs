@@ -117,6 +117,9 @@ namespace ConsoleMonster.Sessions {
             }
         }
 
+        /// <summary>Consumes one captured code unit without allocating a string for the recording writer.</summary>
+        internal void Feed(char value) => Process(value);
+
         /// <summary>A copy of the visible screen.</summary>
         public CellBuffer Snapshot() {
             CellBuffer copy = new CellBuffer(Width, Height);

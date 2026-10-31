@@ -13,7 +13,7 @@ namespace ConsoleMonster.Sessions {
         /// place later text with cursor controls rather than newlines; with <paramref name="runBreaks"/> those
         /// controls project as a separator mapped to the control, so an open-ended value ends there.
         /// </summary>
-        private static string VisibleText(string text, bool stopAtIncomplete, out List<int> positions, out List<SourceRange> controls, TerminalInterpretation interpretation, bool runBreaks = false) {
+        private static string VisibleText(string text, bool stopAtIncomplete, out List<int> positions, out List<SourceRange> controls, TerminalInterpretation interpretation, bool runBreaks = false, IReadOnlyList<bool>? rowChanges = null) {
             controls = TerminalControls(text, out int incompleteAt, interpretation);
             int end = stopAtIncomplete && incompleteAt >= 0 ? incompleteAt : text.Length;
             StringBuilder visible = new StringBuilder(end);
@@ -22,7 +22,7 @@ namespace ConsoleMonster.Sessions {
             for (int i = 0; i < end; i++) {
                 if (controlIndex < controls.Count && i == controls[controlIndex].Start) {
                     SourceRange control = controls[controlIndex++];
-                    if (runBreaks && EndsVisibleRun(text, control)) { visible.Append(RunBreak); positions.Add(control.Start); }
+                    if (runBreaks && EndsVisibleRun(text, control, rowChanges)) { visible.Append(RunBreak); positions.Add(control.Start); }
                     i = control.End - 1;
                 } else {
                     visible.Append(text[i]); positions.Add(i);
@@ -38,16 +38,19 @@ namespace ConsoleMonster.Sessions {
         private static bool IsRunBreak(string text, string visible, List<int> positions, int index) => visible[index] != text[positions[index]];
 
         /// <summary>
-        /// Ends a visible run where following text can no longer continue it on screen: row changes and
-        /// absolute positioning (CUU, CUD, CNL, CPL, CUP, HVP, VPA, VPR, IND, NEL, RI), erasing the text
+        /// Ends a visible run where following text can no longer continue it on screen: an actual row change
+        /// from positioning (CUU, CUD, CNL, CPL, CUP, HVP, VPA, VPR, IND, NEL, RI), erasing the text
         /// before the cursor (ED/EL 1-2), reset and alternate-screen switches. Styles, cursor visibility,
         /// synchronized-update markers, column moves and save/restore keep the run, as on one line.
         /// </summary>
-        private static bool EndsVisibleRun(string text, SourceRange control) {
+        private static bool EndsVisibleRun(string text, SourceRange control, IReadOnlyList<bool>? rowChanges) {
             int length = control.End - control.Start;
             if (text[control.Start] != '\u001b' || length < 2) { return false; }
             char kind = text[control.Start + 1];
-            if (kind != '[') { return length == 2 && "cDEM".IndexOf(kind) >= 0; }
+            // The writer records this through VtScreen, including wrapping, scroll margins and resizing.
+            // Without that observation, keep the value pending rather than guess that a control moved rows.
+            bool movedRow = rowChanges != null && control.End <= rowChanges.Count && rowChanges[control.End - 1];
+            if (kind != '[') { return length == 2 && (kind == 'c' || movedRow && "DEM".IndexOf(kind) >= 0); }
             if (length < 3) { return false; }
             char final = text[control.End - 1];
             string parameters = text.Substring(control.Start + 2, length - 3);
@@ -60,7 +63,7 @@ namespace ConsoleMonster.Sessions {
                 }
                 return false;
             }
-            return "ABEFHdef".IndexOf(final) >= 0;
+            return movedRow && "ABEFHdef".IndexOf(final) >= 0;
         }
 
         /// <summary>

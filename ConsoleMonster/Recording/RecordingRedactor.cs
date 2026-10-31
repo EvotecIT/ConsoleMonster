@@ -38,12 +38,12 @@ namespace ConsoleMonster.Sessions {
         public RedactedOutput ApplyWithOffsets(string text) => ApplyPrefix(text, text.Length);
 
         /// <summary>Redacts the complete lookahead, committing only a prefix that cannot split a replacement.</summary>
-        internal RedactedOutput ApplyPrefix(string text, int sourceLength, int startAt = 0) {
+        internal RedactedOutput ApplyPrefix(string text, int sourceLength, int startAt = 0, IReadOnlyList<bool>? rowChanges = null) {
             try {
                 bool[] masked = new bool[text.Length];
                 List<SourceRange> ranges = new List<SourceRange>();
-                MaskProjections(text, startAt, runBreaks: false, _patterns, masked, ranges);
-                MaskProjections(text, startAt, runBreaks: true, RunPatterns, masked, ranges);
+                MaskProjections(text, startAt, runBreaks: false, _patterns, masked, ranges, rowChanges);
+                MaskProjections(text, startAt, runBreaks: true, RunPatterns, masked, ranges, rowChanges);
                 foreach (Regex pattern in AllPatterns()) {
                     foreach (Match match in pattern.Matches(text, startAt)) {
                         if (match.Length == 0) { continue; }
@@ -76,13 +76,13 @@ namespace ConsoleMonster.Sessions {
             foreach (Regex pattern in _patterns) { yield return pattern; }
         }
 
-        private static void MaskProjections(string text, int startAt, bool runBreaks, IEnumerable<Regex> patterns, bool[] masked, List<SourceRange> ranges) {
+        private static void MaskProjections(string text, int startAt, bool runBreaks, IEnumerable<Regex> patterns, bool[] masked, List<SourceRange> ranges, IReadOnlyList<bool>? rowChanges) {
             List<List<int>> projections = new List<List<int>>();
             // Native terminal OSC/DCS handling and VtScreen replay differ for unexpected ESCs.
             // Protect credentials under both interpretations, as well as raw control payloads.
             // Every rule sees the original output, never earlier replacement labels.
             foreach (TerminalInterpretation interpretation in Interpretations) {
-                string plain = VisibleText(text, stopAtIncomplete: false, out List<int> positions, out _, interpretation, runBreaks);
+                string plain = VisibleText(text, stopAtIncomplete: false, out List<int> positions, out _, interpretation, runBreaks, rowChanges);
                 // Equal text alone is insufficient: identical glyphs may have different source offsets.
                 if (projections.Exists(previous => SamePositions(previous, positions))) { continue; }
                 projections.Add(positions);
