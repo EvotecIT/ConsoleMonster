@@ -170,9 +170,10 @@ namespace ConsoleMonster.Widgets {
             return lines;
         }
 
-        private static StyledLine Chip(StatusItem phase, RenderContext context) {
+        // Only phase chips animate; fan-out items use the still running marker, so a spinner frame never reads as a line into the name.
+        private static StyledLine Chip(StatusItem phase, RenderContext context, bool animate = true) {
             IGlyphSet glyphs = context.Glyphs;
-            string marker = phase.Status == StatusKind.Running && glyphs.Tier != GlyphTier.Ascii
+            string marker = animate && phase.Status == StatusKind.Running && glyphs.Tier != GlyphTier.Ascii
                 ? context.Spinner()
                 : glyphs.StatusMarker(phase.Status);
             List<TextSpan> spans = new List<TextSpan> {

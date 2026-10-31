@@ -106,7 +106,7 @@ namespace ConsoleMonster.Widgets {
             for (int i = 0; i < shown.Count; i++) {
                 bool last = i == shown.Count - 1 && hidden.Count == 0;
                 List<TextSpan> spans = new List<TextSpan> { new TextSpan(glyphs.Get(last ? Glyph.TreeLast : Glyph.TreeBranch), branch) };
-                spans.AddRange(Chip(shown[i], context));
+                spans.AddRange(Chip(shown[i], context, animate: false));
                 lines.Add(TextWrapper.Truncate(new StyledLine(spans), width, context.Ellipsis));
             }
             if (hidden.Count > 0) {

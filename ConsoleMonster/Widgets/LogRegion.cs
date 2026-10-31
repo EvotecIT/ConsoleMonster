@@ -259,6 +259,8 @@ namespace ConsoleMonster.Widgets {
         }
 
         private int SourceWidth(LogEntry[] all, int end, int count) {
+            // A filter on one tag shows only that source, and the state line already names it.
+            if (Filter?.Tag != null) { return 0; }
             int widest = 0;
             for (int i = end - count; i < end; i++) {
                 if (all[i].Tag != null) { widest = Math.Max(widest, Math.Min(MaxSourceWidth, DisplayWidth.Measure(all[i].Tag!))); }
