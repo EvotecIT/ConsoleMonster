@@ -22,7 +22,7 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
         [Fact]
         public void Write_Kitty_SendsPngInOneFramedChunkAndContinuesBelowTheImage() {
             string output = Write(new ConsoleImage(Convert.FromBase64String(DotPng), "dot.png") { Width = 2 }, ImageProtocol.Kitty);
-            Assert.Equal("\r\n" + Esc + "[1A" + Esc + "7" + Esc + "_Ga=T,f=100,q=2,C=1,c=2,m=0;" + DotPng + Esc + "\\" + Esc + "8" + Esc + "[1B", output);
+            Assert.Equal("\r\n" + Esc + "[1A" + Esc + "7" + Esc + "_Ga=T,f=100,q=2,C=1,c=2,r=1,m=0;" + DotPng + Esc + "\\" + Esc + "8" + Esc + "[1B", output);
         }
 
         [Fact]
@@ -38,7 +38,7 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
                 chunks.Add(output.Substring(at + 3, end - at - 3));
                 at = output.IndexOf(Esc + "_G", end, StringComparison.Ordinal);
             }
-            Assert.StartsWith("a=T,f=100,q=2,C=1,c=8,m=1;", chunks[0]);
+            Assert.StartsWith("a=T,f=100,q=2,C=1,c=8,r=4,m=1;", chunks[0]);
             StringBuilder joined = new StringBuilder(chunks[0].Substring(chunks[0].IndexOf(';') + 1));
             for (int i = 1; i < chunks.Count; i++) {
                 string keys = i == chunks.Count - 1 ? "q=2,m=0;" : "q=2,m=1;";
@@ -143,11 +143,25 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             image.Write(TerminalProfile.Fixed(80, 6, ColorDepth.TrueColor).WithImageProtocol(ImageProtocol.Kitty), writer);
             string output = writer.ToString();
             Assert.StartsWith("\r\n\r\n\r\n\r\n\r\n" + Esc + "[5A", output);
-            Assert.Contains("c=5,", output);
+            Assert.Contains("c=5,r=5,", output);
             string payload = output.Substring(output.IndexOf(";", output.IndexOf(Esc + "_G", StringComparison.Ordinal), StringComparison.Ordinal) + 1);
             RgbaImage sent = RasterImageDecoder.Decode(Convert.FromBase64String(payload.Substring(0, payload.IndexOf(Esc, StringComparison.Ordinal))));
             Assert.Equal(100, sent.Width);
             Assert.Equal(200, sent.Height);
+        }
+
+        [Fact]
+        public void Write_Kitty_PadsThePngToTheReservedCellsSoItNeverRunsPastThem() {
+            // 560x272 at ten columns reserves three rows; the PNG is shrunk to 200x97 and padded to the cells' 10:6 shape.
+            ConsoleImage image = new ConsoleImage(new RgbaImage(560, 272, Solid(560, 272))) { Width = 10 };
+            string output = Write(image, ImageProtocol.Kitty);
+            Assert.Contains("c=10,r=3,", output);
+            string payload = output.Substring(output.IndexOf(";", output.IndexOf(Esc + "_G", StringComparison.Ordinal), StringComparison.Ordinal) + 1);
+            RgbaImage sent = RasterImageDecoder.Decode(Convert.FromBase64String(payload.Substring(0, payload.IndexOf(Esc, StringComparison.Ordinal))));
+            Assert.Equal(200, sent.Width);
+            Assert.Equal(120, sent.Height);
+            Assert.Equal(255, sent.Pixels[(96 * 200 * 4) + 3]);
+            Assert.Equal(0, sent.Pixels[(97 * 200 * 4) + 3]);
         }
 
         [Fact]

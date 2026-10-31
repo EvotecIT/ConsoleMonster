@@ -142,10 +142,10 @@ namespace ConsoleMonster.Graphics {
             Terminal.WriteEncoded(ImageSequences.Place(Encode(protocol, size), size.Height), p, writer);
         }
 
-        // The terminal keeps the aspect ratio inside the reserved cells: Sixel is drawn at its pixel size, so it is rendered
-        // at 10 pixels per column with its own height; Kitty gets only the columns and derives the rows from the PNG; iTerm2
-        // preserves the ratio inside its box. Kitty and iTerm2 PNGs keep up to twice the cell resolution (sharp on high-DPI
-        // screens); only larger images shrink before they are sent.
+        // The image never runs past the reserved cells: Sixel is drawn at its pixel size, so it is rendered at 10 pixels per
+        // column with its own height; Kitty stretches to the cells it is given, so its PNG is padded with transparency to the
+        // cells' shape; iTerm2 preserves the ratio inside its box. Kitty and iTerm2 PNGs keep up to twice the cell resolution
+        // (sharp on high-DPI screens); only larger images shrink before they are sent.
         internal string Encode(ImageProtocol protocol, Size size) {
             if (protocol == ImageProtocol.Sixel) {
                 int width = size.Width * SixelEncoder.CellWidth;
@@ -157,10 +157,27 @@ namespace ConsoleMonster.Graphics {
                 return SixelEncoder.Encode(ImageSampler.Resize(_image, Math.Max(1, width), Math.Max(1, height), keepDetail: true));
             }
             double scale = Math.Min(1, Math.Min(size.Width * SixelEncoder.CellWidth * 2.0 / _image.Width, size.Height * SixelEncoder.CellHeight * 2.0 / _image.Height));
-            byte[] png = scale < 1
-                ? ImageSampler.Resize(_image, Math.Max(1, (int)Math.Round(_image.Width * scale)), Math.Max(1, (int)Math.Round(_image.Height * scale))).ToPng()
-                : _png ?? _image.ToPng();
-            return protocol == ImageProtocol.Kitty ? ImageSequences.Kitty(png, size.Width) : ImageSequences.ITerm2(png, Name, size.Width, size.Height);
+            RgbaImage image = scale < 1
+                ? ImageSampler.Resize(_image, Math.Max(1, (int)Math.Round(_image.Width * scale)), Math.Max(1, (int)Math.Round(_image.Height * scale)))
+                : _image;
+            if (protocol == ImageProtocol.Kitty) {
+                RgbaImage boxed = Pad(image, size);
+                byte[] kitty = scale >= 1 && boxed.Width == _image.Width && boxed.Height == _image.Height ? _png ?? boxed.ToPng() : boxed.ToPng();
+                return ImageSequences.Kitty(kitty, size.Width, size.Height);
+            }
+            return ImageSequences.ITerm2(scale < 1 ? image.ToPng() : _png ?? _image.ToPng(), Name, size.Width, size.Height);
+        }
+
+        // Places the image at the top left of a transparent canvas shaped like the cells (one column to two pixel rows).
+        private static RgbaImage Pad(RgbaImage image, Size size) {
+            int width = Math.Max(image.Width, (int)Math.Ceiling((double)image.Height * size.Width / (size.Height * 2) - 1e-9));
+            int height = Math.Max(image.Height, (int)Math.Ceiling((double)image.Width * size.Height * 2 / size.Width - 1e-9));
+            if (width == image.Width && height == image.Height) { return image; }
+            byte[] canvas = new byte[width * height * 4];
+            for (int y = 0; y < image.Height; y++) {
+                Array.Copy(image.Pixels, y * image.Width * 4, canvas, y * width * 4, image.Width * 4);
+            }
+            return new RgbaImage(width, height, canvas);
         }
 
         // A cell is about twice as tall as it is wide, so one cell row covers two pixel rows for every pixel column. Half

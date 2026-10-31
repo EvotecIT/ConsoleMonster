@@ -10,16 +10,16 @@ namespace ConsoleMonster.Graphics {
         internal const int KittyChunk = 4096;
 
         // a=T transmits and displays, f=100 is PNG, q=2 suppresses replies (they would land in the shell's input),
-        // C=1 keeps the cursor still. Only c is given, so the terminal derives the rows from the PNG and keeps its aspect
-        // ratio. Continuation chunks carry only m and q, as the protocol requires.
-        internal static string Kitty(byte[] png, int columns) {
+        // C=1 keeps the cursor still, c and r fill exactly the reserved cells (the PNG is already shaped like them).
+        // Continuation chunks carry only m and q, as the protocol requires.
+        internal static string Kitty(byte[] png, int columns, int rows) {
             string data = Convert.ToBase64String(png);
             StringBuilder sb = new StringBuilder(data.Length + ((data.Length / KittyChunk) + 1) * 24);
             for (int start = 0; start < data.Length; start += KittyChunk) {
                 int length = Math.Min(KittyChunk, data.Length - start);
                 sb.Append("\u001b_G");
                 if (start == 0) {
-                    sb.Append("a=T,f=100,q=2,C=1,c=").Append(N(columns)).Append(',');
+                    sb.Append("a=T,f=100,q=2,C=1,c=").Append(N(columns)).Append(",r=").Append(N(rows)).Append(',');
                 } else {
                     sb.Append("q=2,");
                 }
