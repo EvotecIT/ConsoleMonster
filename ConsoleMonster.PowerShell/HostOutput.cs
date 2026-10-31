@@ -104,7 +104,7 @@ namespace ConsoleMonster.PowerShell {
             RenderContext context = Terminal.CreateContext(host);
             ConsoleColorMap colors = new ConsoleColorMap(context, route != HostRoute.Plain);
             List<Segment> segments = new List<Segment>();
-            IReadOnlyList<StyledLine> lines = Markup.Parse(markup, context.Theme, host.ColorDepth).Lines;
+            IReadOnlyList<StyledLine> lines = context.Markup(markup).Lines;
             for (int i = 0; i < lines.Count; i++) {
                 segments.Clear();
                 foreach (TextSpan span in lines[i]) {

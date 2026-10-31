@@ -81,7 +81,8 @@ namespace ConsoleMonster.Canvas {
 
         /// <summary>
         /// Parses markup with this context's theme and colour depth (cached). The text stays as written on every glyph tier:
-        /// only ConsoleMonster's own markers, borders and spinners follow the tier.
+        /// only ConsoleMonster's own markers, borders and spinners follow the tier. Where the output cannot carry a
+        /// hyperlink, a link whose text differs from its target is followed by the target, as <c>text (url)</c>.
         /// </summary>
         /// <param name="markup">The markup.</param>
         /// <returns>The styled text.</returns>
@@ -90,7 +91,7 @@ namespace ConsoleMonster.Canvas {
                 return StyledText.FromPlain(string.Empty);
             }
             if (!_markupCache.TryGetValue(markup, out StyledText? text)) {
-                text = Text.Markup.Parse(markup, Theme, Depth);
+                text = Rendering.LinkTargets.Show(Text.Markup.Parse(markup, Theme, Depth), this);
                 if (_markupCache.Count < 4096) {
                     _markupCache[markup] = text;
                 }
