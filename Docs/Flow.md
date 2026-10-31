@@ -71,3 +71,34 @@ A table measures embedded widgets at the allocated column width and keeps them
 when it falls back to record cards. Live events and recording replay find the
 flow through the table, just as through a panel. Widget cells use their full
 measured height; the table's default three-line limit applies to text cells.
+
+## Pipeline fan-out and chains
+
+A phase strip (`New-ConsoleStatusList -Layout Strip`, `Phases` in C#) can carry the
+items each phase works on: users being migrated, files being scanned, servers being
+patched. The running phase, or the first failed one, fans out to its items under the
+strip. When there are more items than `-FanOut` rows (default 5), failed, warning and
+running items stay visible and the last row folds the rest into `+N more`, with a count
+per status.
+
+```powershell
+New-ConsoleStatusList -Layout Strip -FanOut 4 -Content {
+    @{ Key = 'Snapshot'; Status = 'Pass'; Detail = '12s' }
+    @{ Key = 'Migrate'; Status = 'Running'; Detail = '6/9' }
+    @{ Key = 'Verify' }
+    'alice', 'bob', 'carol', 'dave' | ForEach-Object { @{ ParentKey = 'Migrate'; Key = $_; Status = 'Pass' } }
+    @{ ParentKey = 'Migrate'; Key = 'erin'; Status = 'Running'; Detail = '40%' }
+    @{ ParentKey = 'Migrate'; Key = 'frank'; Status = 'Fail'; Detail = 'access denied' }
+    'grace', 'heidi', 'ivan' | ForEach-Object { @{ ParentKey = 'Migrate'; Key = $_ } }
+} | Show-Console
+```
+
+In C#, `phases.SetItem("Migrate", "erin", StatusKind.Running, detail: "40%")` adds or
+updates an item. Live, `Update-Console migration -ParentKey Migrate -Key erin -Status Pass`
+and `phases.Handle(session).Item("Migrate", "erin", StatusKind.Pass)` do the same.
+
+`-Layout Chain` (`Compact = true`) draws the phases on one line for a table cell or a
+header: `✓ Fetch › ● Build › ○ Test`. When the line does not fit, the phases around the
+current one fold into `✓ +2 earlier` and `○ +3 more`, then into plain counts, and finally
+the current phase drops its detail. The current phase is the first failed, running or
+pending one, so a failure is never folded away.
