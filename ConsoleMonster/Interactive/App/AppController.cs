@@ -123,7 +123,9 @@ namespace ConsoleMonster.Interactive {
                 InputControl? current = _focus.Current;
                 if (current != null && !current.Enabled) { _focus.MoveNext(); current = _focus.Current; }
                 // A selector can consume Escape to clear a filter; then the screen (Back) and app bindings; an unhandled Escape quits the app.
-                bool handled = _keys.DispatchFocused(input) || (current?.HandleInput(input, _context) ?? false);
+                bool handled = _keys.DispatchFocused(input);
+                reachedKeys = handled;
+                if (!handled) { handled = current?.HandleInput(input, _context) ?? false; }
                 if (!handled) { handled = _keys.Dispatch(input); reachedKeys = true; }
                 if (!handled && AppHostKeys.Match(_options.Keys.Exit, input)) { _state.RequestExit(); }
                 else if (!handled && input.Is(ConsoleKey.Enter)) { _focus.MoveNext(); }

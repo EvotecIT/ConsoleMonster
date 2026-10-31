@@ -62,6 +62,18 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Assert.Contains("1_ open", capture.LastFrame!.ToPlainText());
         }
 
+        [Fact]
+        public void FocusedNumberedBinding_KeepsDigitsUntilAcceptanceOrFocusChanges() {
+            List<int> opened = new List<int>();
+            Button first = new Button("first", "First");
+            first.Bindings.Add(KeyBinding.Numbered("open", () => 12, opened.Add));
+            ConsoleAppOptions options = AppTestHarness.Options("'1' '2' '1' Enter '1' Tab Shift+Tab '2'", out _);
+
+            ConsoleApp.Run(new Rows(first, new Button("second", "Second")), options: options);
+
+            Assert.Equal(new[] { 12, 1, 2 }, opened);
+        }
+
         /// <summary>
         /// The footer leaves out keys the focused input takes: a text input takes typed letters and Space, and an open dropdown on a
         /// nested screen takes Escape (it closes) and Backspace (it edits the filter), so Back is not offered at all and a binding on

@@ -132,6 +132,8 @@ namespace ConsoleMonster.Interactive {
             Configure(context);
             if (Dropdown) {
                 if (input.MouseAction != MouseAction.Down || input.MouseButton != 1) { return false; }
+                Rect bounds = Bounds;
+                if (input.Column < bounds.X || input.Column >= bounds.Right || input.Row < bounds.Y || input.Row >= bounds.Bottom) { return false; }
                 _open = !_open;
                 return true;
             }

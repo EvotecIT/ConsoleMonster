@@ -25,7 +25,7 @@ namespace ConsoleMonster.Interactive {
             InputControl? focused = Focused();
             if (focused == null) { return false; }
             foreach (KeyBinding binding in focused.Bindings) {
-                if (binding.TryInvoke(input)) { return true; }
+                if (binding.TryInvoke(input)) { ForgetPending(binding); return true; }
             }
             return false;
         }
@@ -39,8 +39,7 @@ namespace ConsoleMonster.Interactive {
         }
 
         internal void ForgetPending(KeyBinding? except = null) {
-            InputControl? focused = Focused();
-            foreach (KeyBinding binding in (focused?.Bindings ?? Enumerable.Empty<KeyBinding>()).Concat(Later())) {
+            foreach (KeyBinding binding in _focus.Controls.SelectMany(control => control.Bindings).Concat(Later())) {
                 if (!ReferenceEquals(binding, except)) { binding.ForgetPending(); }
             }
         }

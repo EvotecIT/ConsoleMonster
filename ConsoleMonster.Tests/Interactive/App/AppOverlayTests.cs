@@ -40,6 +40,35 @@ namespace ConsoleMonster.Tests.Interactive.App {
 
         private static string Footer(string[] rows) => rows.Last(row => row.Trim().Length > 0).Trim();
 
+        [Fact]
+        public void Dropdown_OutsideClickClosesWithoutReopeningAndCanFocusAnotherInput() {
+            Select schedule = Schedule();
+            Button next = new Button("next", "Next");
+            Rows layout = new Rows().Add(schedule, LayoutSize.Fixed(3))
+                .Add(TextBlock.Plain("Background"), LayoutSize.Fraction()).Add(next, LayoutSize.Fixed(3));
+            using AppController app = new AppController(layout, new AppState(), Terminal.CreateContext(), 60);
+            app.PrepareFrame(80, 24);
+
+            Click(70, 18);
+            Assert.DoesNotContain("Hourly", Frame());
+            Click(5, 1);
+            Assert.Contains("Hourly", Frame());
+            Click(70, 18);
+            Assert.DoesNotContain("Hourly", Frame());
+            Click(5, 1);
+            Assert.Contains("Hourly", Frame());
+            Click(5, 21);
+            Assert.DoesNotContain("Hourly", Frame());
+            Assert.True(next.Focused);
+
+            void Click(int column, int row) {
+                app.Handle(InputEvent.Mouse(column, row), true);
+                app.Handle(InputEvent.Mouse(column, row, pressed: false), true);
+                app.Refresh(null);
+            }
+            string Frame() => app.PrepareFrame(80, 24).ToPlainText();
+        }
+
         /// <summary>A dropdown at the bottom of the screen opens upwards, where there is room.</summary>
         [Fact]
         public void Dropdown_NearTheBottom_OpensAbove() {
