@@ -97,7 +97,7 @@ namespace ConsoleMonster.Capabilities {
             IsConsoleHandle = isConsoleHandle;
             IsContinuousIntegration = isContinuousIntegration;
             FontFace = fontFace;
-            Decisions = decisions ?? NoDecisions;
+            _decisions = decisions ?? NoDecisions;
             WidthProfile = widthProfile ?? TerminalWidthProfile.Standard;
             ProbeWidths = probeWidths;
             ThemePreference = themePreference;
@@ -151,17 +151,38 @@ namespace ConsoleMonster.Capabilities {
         /// CI, plain, no-colour and 16-colour output always get <see cref="Capabilities.ImageProtocol.None"/>, a text
         /// placeholder, so image sequences never reach logs or files.
         /// </summary>
-        public ImageProtocol ImageProtocol {
-            get {
-                if (IsOutputRedirected || IsContinuousIntegration || Mode == OutputMode.Plain || ColorDepth < ColorDepth.Ansi256 || ImageSupport == ImageProtocol.None) {
-                    return ImageProtocol.None;
-                }
-                return Mode == OutputMode.Interactive && SupportsVirtualTerminal ? ImageSupport : ImageProtocol.HalfBlock;
-            }
-        }
+        public ImageProtocol ImageProtocol => ResolveImages(out _);
 
         /// <summary>The detected or configured image protocol before the output guards; half blocks unless detection found more.</summary>
         internal ImageProtocol ImageSupport { get; set; } = ImageProtocol.HalfBlock;
+
+        /// <summary>Where <see cref="ImageSupport"/> came from (an environment variable or WithImageProtocol), or null when nobody chose it.</summary>
+        internal string? ImageSource { get; set; }
+
+        // The single image decision: ImageProtocol and its Decisions line both come from here, so they cannot disagree.
+        private ImageProtocol ResolveImages(out string? guard) {
+            guard = IsOutputRedirected ? "redirected output gets the placeholder"
+                : IsContinuousIntegration ? "CI output gets the placeholder"
+                : Mode == OutputMode.Plain ? "plain mode gets the placeholder"
+                : ColorDepth == ColorDepth.None ? "no-colour output gets the placeholder"
+                : ColorDepth < ColorDepth.Ansi256 ? "16-colour output gets the placeholder"
+                : null;
+            if (guard != null || ImageSupport == ImageProtocol.None) {
+                return ImageProtocol.None;
+            }
+            if (ImageSupport != ImageProtocol.HalfBlock && !(Mode == OutputMode.Interactive && SupportsVirtualTerminal)) {
+                guard = "pixels need interactive VT output";
+                return ImageProtocol.HalfBlock;
+            }
+            return ImageSupport;
+        }
+
+        private string ImageDecision {
+            get {
+                ImageProtocol protocol = ResolveImages(out string? guard);
+                return "images: " + protocol + " (" + (guard == null ? ImageSource : guard + "; terminal: " + ImageSupport + ", " + ImageSource) + ")";
+            }
+        }
 
         /// <summary>Whether standard output is redirected to a file, pipe or log.</summary>
         public bool IsOutputRedirected { get; }
@@ -178,8 +199,14 @@ namespace ConsoleMonster.Capabilities {
         /// <summary>The console font face, when known (conhost through GetCurrentConsoleFontEx).</summary>
         public string? FontFace { get; }
 
-        /// <summary>Human-readable notes explaining how each value was chosen (shown by <c>Get-ConsoleCapability</c>).</summary>
-        public IReadOnlyList<string> Decisions { get; }
+        /// <summary>Human-readable notes explaining how each value was chosen (shown by <c>Get-ConsoleCapability</c>). The
+        /// <c>images:</c> note describes the final <see cref="ImageProtocol"/> of this profile, including its output guards.</summary>
+        public IReadOnlyList<string> Decisions => ImageSource == null ? _decisions : new List<string>(_decisions) { ImageDecision }.AsReadOnly();
+
+        /// <summary>The recorded notes without the computed image note, which copies recompute for their own output.</summary>
+        internal IReadOnlyList<string> RecordedDecisions => _decisions;
+
+        private readonly IReadOnlyList<string> _decisions;
 
         /// <summary>The configured or derived Unicode display width profile.</summary>
         public TerminalWidthProfile WidthProfile { get; }
@@ -257,9 +284,9 @@ namespace ConsoleMonster.Capabilities {
         /// <returns>The copy.</returns>
         public TerminalProfile WithCulture(CultureInfo? culture) {
             return new TerminalProfile(ColorDepth, Glyphs, Mode, Width, Height, Kind, SupportsVirtualTerminal, IsOutputRedirected,
-                IsConsoleHandle, IsContinuousIntegration, FontFace, Decisions, WidthProfile, ProbeWidths, ThemePreference, culture, _supportsHyperlinks) {
+                IsConsoleHandle, IsContinuousIntegration, FontFace, _decisions, WidthProfile, ProbeWidths, ThemePreference, culture, _supportsHyperlinks) {
                 Language = Language, DefaultForeground = DefaultForeground, DefaultBackground = DefaultBackground, WidthFromColumns = WidthFromColumns,
-                ImageSupport = ImageSupport
+                ImageSupport = ImageSupport, ImageSource = ImageSource
             };
         }
 
@@ -285,7 +312,7 @@ namespace ConsoleMonster.Capabilities {
             if (decision == null) {
                 throw new ArgumentNullException(nameof(decision));
             }
-            List<string> list = new List<string>(Decisions) { decision };
+            List<string> list = new List<string>(_decisions) { decision };
             return Copy(decisions: list);
         }
 
@@ -306,6 +333,7 @@ namespace ConsoleMonster.Capabilities {
         public TerminalProfile WithImageProtocol(ImageProtocol protocol) {
             TerminalProfile copy = Copy();
             copy.ImageSupport = protocol;
+            copy.ImageSource = "chosen with WithImageProtocol";
             return copy;
         }
 
@@ -327,13 +355,13 @@ namespace ConsoleMonster.Capabilities {
                 IsConsoleHandle,
                 IsContinuousIntegration,
                 FontFace,
-                decisions ?? Decisions,
+                decisions ?? _decisions,
                 widthProfile ?? WidthProfile,
                 ProbeWidths,
                 themePreference ?? ThemePreference,
                 Culture, supportsHyperlinks ?? _supportsHyperlinks) {
                 Language = Language, DefaultForeground = DefaultForeground, DefaultBackground = DefaultBackground,
-                WidthFromColumns = WidthFromColumns && (width ?? Width) == Width, ImageSupport = ImageSupport
+                WidthFromColumns = WidthFromColumns && (width ?? Width) == Width, ImageSupport = ImageSupport, ImageSource = ImageSource
             };
         }
     }
