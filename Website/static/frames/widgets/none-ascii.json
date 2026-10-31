@@ -71,6 +71,18 @@
     "dark": "[OK] Discover 2.1s &gt; [OK] Collect 14s &gt; [BUSY] Evaluate 64%\n[WAIT] Report",
     "light": "[OK] Discover 2.1s &gt; [OK] Collect 14s &gt; [BUSY] Evaluate 64%\n[WAIT] Report"
   },
+  "fanout": {
+    "w": 72,
+    "h": 7,
+    "dark": "[OK] Discover 2.1s &gt; [OK] Snapshot 12s &gt; [BUSY] Migrate 6/12\n[WAIT] Verify &gt; [WAIT] Report\n                                         |-- [OK] alice 1.1s\n                                         |-- [OK] bob 1.5s\n                                         |-- [BUSY] erin 40%\n                                         |-- [FAIL] frank access denied\n                                         `-- +8 more - [OK] 2 - [WAIT] 6",
+    "light": "[OK] Discover 2.1s &gt; [OK] Snapshot 12s &gt; [BUSY] Migrate 6/12\n[WAIT] Verify &gt; [WAIT] Report\n                                         |-- [OK] alice 1.1s\n                                         |-- [OK] bob 1.5s\n                                         |-- [BUSY] erin 40%\n                                         |-- [FAIL] frank access denied\n                                         `-- +8 more - [OK] 2 - [WAIT] 6"
+  },
+  "chain": {
+    "w": 60,
+    "h": 7,
+    "dark": "+-----------------+----------------------------------------+\n| Repository      | Stages                                 |\n+-----------------+----------------------------------------+\n| ConsoleMonster  | [OK] 2 &gt; [BUSY] Test &gt; [WAIT] 2        |\n| PSPublishModule | [OK] 1 &gt; [FAIL] Build &gt; [WAIT] 3       |\n| DnsClientX      | [OK] +4 earlier &gt; [OK] Publish         |\n+-----------------+----------------------------------------+",
+    "light": "+-----------------+----------------------------------------+\n| Repository      | Stages                                 |\n+-----------------+----------------------------------------+\n| ConsoleMonster  | [OK] 2 &gt; [BUSY] Test &gt; [WAIT] 2        |\n| PSPublishModule | [OK] 1 &gt; [FAIL] Build &gt; [WAIT] 3       |\n| DnsClientX      | [OK] +4 earlier &gt; [OK] Publish         |\n+-----------------+----------------------------------------+"
+  },
   "spinner": {
     "w": 60,
     "h": 3,
@@ -82,6 +94,12 @@
     "h": 5,
     "dark": "00:02      Discovered 4 domain controllers in 2 domains\n00:31 WARN DC02: replication partner DC05 last success 3h...\n00:44 ERR  DC02: USN rollback check failed (event 2095)\n00:52      Collected 186 rule inputs from DC01\n00:53 VERB Using cached schema snapshot",
     "light": "00:02      Discovered 4 domain controllers in 2 domains\n00:31 WARN DC02: replication partner DC05 last success 3h...\n00:44 ERR  DC02: USN rollback check failed (event 2095)\n00:52      Collected 186 rule inputs from DC01\n00:53 VERB Using cached schema snapshot"
+  },
+  "logtags": {
+    "w": 72,
+    "h": 3,
+    "dark": "WARN migrate         Mailbox for frank is over quota (51 GB)\nERR  migrate         frank: access denied on the target database\nWARN exchange-online Throttling: 3 requests delayed",
+    "light": "WARN migrate         Mailbox for frank is over quota (51 GB)\nERR  migrate         frank: access denied on the target database\nWARN exchange-online Throttling: 3 requests delayed"
   },
   "bar": {
     "w": 60,
