@@ -24,17 +24,12 @@ screens.Add(new AppScreen("list", "Servers", list) {
         })
     }
 });
-string[] owners = { "Operations", "Database team", "Help desk" };
-Select owner = new Select("Owner", owners.Select(name => new Choice(name))) {
-    Label = "Owner",
-    Dropdown = true
-};
 AppBinding detail = new AppBinding(s => {
     Server server = servers[s.Get("Server", 1) - 1];
     return new Rows(new TextBlock(
         $"[bold]{server.Name}[/] is the {server.Role} server in {server.Site}."));
 });
-screens.Add(new AppScreen("server", "server", new Rows(detail, owner)) {
+screens.Add(new AppScreen("server", "server", new Rows(detail)) {
     TitleSource = s => servers[s.Get("Server", 1) - 1].Name
 });
 

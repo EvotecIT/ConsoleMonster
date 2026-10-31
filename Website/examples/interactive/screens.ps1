@@ -26,7 +26,5 @@ Show-ConsoleApp -Title Inventory -Content {
             $server = $servers[$State.Server - 1]
             "[bold]$($server.Name)[/] is the $($server.Role) server in $($server.Site)."
         }
-        $owners = 'Operations', 'Database team', 'Help desk'
-        New-ConsoleSelect -Key Owner -Label Owner -Choices $owners -Dropdown
     }
 }

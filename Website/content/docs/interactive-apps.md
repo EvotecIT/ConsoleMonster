@@ -60,7 +60,7 @@ The input stretches to the width of the terminal; the table keeps its natural wi
 
 ## Screens and keys
 
-An app with more than one screen declares each screen once with `New-ConsoleScreen` (`AppScreens` in C#). Assign a screen's key to `$State.Screen` to open it; Escape or Backspace goes back, the header shows where you are, and each screen keeps its own focused input. Keys are declared with `-KeyBinding` on a screen or on the app, and the footer is built from them, so it lists exactly the keys that work. `New-ConsoleSelect -Dropdown` opens its list over the content. The [screens and keys example](/interactive/#screens) shows the whole program in PowerShell and C#, with a recording of it running.
+An app with more than one screen declares each screen once with `New-ConsoleScreen` (`AppScreens` in C#). Assign a screen's key to `$State.Screen` to open it; Escape or Backspace goes back, the header shows where you are, and each screen keeps its own focused input. Keys are declared with `-KeyBinding` on a screen or on the app, and the footer is built from them, so it lists exactly the keys that work. `New-ConsoleSelect -Dropdown` opens its list over the content. The [screens and keys example](/interactive/#screens) shows a small program in PowerShell and C#, with a recording of it running.
 
 ## Redirected output and CI
 
