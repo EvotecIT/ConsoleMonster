@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json.Nodes;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
@@ -49,7 +50,18 @@ namespace SiteFrames.Pages {
             public ITheme? Theme { get; set; }
             public ColorDepth Depth { get; set; } = ColorDepth.TrueColor;
             public GlyphTier Glyphs { get; set; } = GlyphTier.Full;
+
+            /// <summary>
+            /// Keys sent only once the screen shows a text: each step waits (up to ten seconds) for its text, then sends its
+            /// keys. When set, the capture uses these instead of <see cref="Keys"/>, which stays the same keys as one script.
+            /// </summary>
+            public (string Ready, string Keys)[]? Steps { get; set; }
+
+            public static Story Stepped(string id, string title, string summary, int width, int height, params (string Ready, string Keys)[] steps) =>
+                new Story(id, title, summary, string.Join(" ", steps.Select(step => step.Keys)), width, height, false, true) { Steps = steps };
         }
+
+        private static readonly TimeSpan StepTimeout = TimeSpan.FromSeconds(10);
 
         private static IEnumerable<Story> Stories() {
             yield return new Story("select", "Selection", "A list that filters as you type, with groups, badges, and choices that are unavailable with their reason. The answer comes back as the chosen object, not a string.",
@@ -64,8 +76,9 @@ namespace SiteFrames.Pages {
                 "wait:1600 Enter Space Down Space Down Down Down Space Escape Down Enter Down Down Down Down wait:300 Escape Ctrl+K \"cert\" wait:300 Escape Escape r wait:300 Ctrl+Q", 120, 34, false, true, new[] { "SQL01", "3 of 11 selected", "› cert", "Equivalent command" });
             yield return new Story("wizard", "A form as a wizard", "Fields with pages become a wizard with a progress strip. Dependent fields reload their choices with a spinner, and the review page shows every answer and the equivalent command.",
                 "PageDown Enter Escape PageDown Right Down \"svc-toolbox\" Down \"Example-Pass1\" PageDown Right wait:400 Down wait:1800 Enter Enter PageDown wait:300 Escape Escape Escape Escape Escape y", 110, 30, false, true, new[] { "3 of 6 selected", "eu-central-1", "Equivalent command" });
-            yield return new Story("screens", "Screens and keys", "Two screens declared once. Type a number to open a server and Escape goes back. The footer lists the keys that work on each screen, and the header shows where you are.",
-                "wait:900 '2' wait:1200 Escape wait:900 '3' wait:1200 Escape wait:700 Escape", 90, 16, false, true);
+            // Each key waits for the screen it acts on, so the PowerShell and C# twins draw the same screens on a busy machine.
+            yield return Story.Stepped("screens", "Screens and keys", "Two screens declared once. Type a number to open a server and Escape goes back. The footer lists the keys that work on each screen, and the header shows where you are.",
+                90, 16, ("Type a number", "wait:900 '2'"), ("SQL01 is the", "wait:1200 Escape"), ("Type a number", "wait:900 '3'"), ("FS11 is the", "wait:1200 Escape"), ("Type a number", "wait:700 Escape"));
             yield return new Story("grid", "The grid", "An Out-GridView for the console on 5.1 and 7: typing filters, F3 sorts by column, Space marks rows, Enter shows every column of a row and Ctrl+Enter returns the original objects.",
                 "\"sql\" wait:200 Backspace Backspace Backspace F3 Down Space Down Space Enter wait:200 Escape Ctrl+Enter", 110, 22, false, false);
         }
@@ -84,7 +97,11 @@ namespace SiteFrames.Pages {
         // must be used: a program that ends early, or waits for more keys, fails the render.
         private static ScreenCapture Capture(Site site, Story story, ITheme? theme = null) {
             ScreenCapture capture = new ScreenCapture(story.Width, story.Height, story.Inline);
-            ScriptedInput keys = new ScriptedInput(story.Keys) { Paced = true, RealTime = story.RealTime };
+            ScriptedInput keys = new ScriptedInput(story.Steps == null ? story.Keys : string.Empty) { Paced = true, RealTime = story.RealTime };
+            foreach ((string ready, string step) in story.Steps ?? Array.Empty<(string, string)>()) {
+                keys.WaitForOutput(capture, ready, StepTimeout);
+                keys.Append(step);
+            }
             InteractiveOptions options = new InteractiveOptions {
                 Mode = InteractionMode.Rich,
                 Input = keys,
@@ -116,7 +133,7 @@ namespace SiteFrames.Pages {
 
         // What a story's capture must have been made from: the twin script, the keys and the screen.
         private static string Fingerprint(Site site, Story story) {
-            string source = Site.ReadText(ScriptPath(site, story)) + "\n" + story.Keys + "\n" + story.Width + "x" + story.Height + (story.Inline ? " inline" : " screen") + (story.RealTime ? " realtime" : string.Empty);
+            string source = Site.ReadText(ScriptPath(site, story)) + "\n" + story.Keys + (story.Steps == null ? string.Empty : "\n" + string.Join("\n", story.Steps.Select(step => step.Ready))) + "\n" + story.Width + "x" + story.Height + (story.Inline ? " inline" : " screen") + (story.RealTime ? " realtime" : string.Empty);
             if (story.Area != "interactive") { source += "\n" + ThemeName(story) + " " + story.Depth + " " + story.Glyphs + " Release"; }
             return Hash(source);
         }
@@ -164,7 +181,9 @@ namespace SiteFrames.Pages {
             string q(string text) => "'" + text.Replace("'", "''") + "'";
             string driver =
                 "$cmCapture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(" + story.Width + ", " + story.Height + ", $" + (story.Inline ? "true" : "false") + ")\n" +
-                "$cmKeys = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new(" + q(story.Keys) + ")\n" +
+                "$cmKeys = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new(" + q(story.Steps == null ? story.Keys : string.Empty) + ")\n" +
+                string.Concat((story.Steps ?? Array.Empty<(string Ready, string Keys)>()).Select(step =>
+                    "$cmKeys.WaitForOutput($cmCapture, " + q(step.Ready) + ", [TimeSpan]::FromSeconds(" + StepTimeout.TotalSeconds.ToString(System.Globalization.CultureInfo.InvariantCulture) + "))\n$cmKeys.Append(" + q(step.Keys) + ")\n")) +
                 "$cmKeys.Paced = $true\n$cmKeys.RealTime = $" + (story.RealTime ? "true" : "false") + "\n" +
                 "$cmOptions = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default\n" +
                 "$cmOptions.Mode = 'Rich'\n$cmOptions.Input = $cmKeys\n$cmOptions.Capture = $cmCapture\n" +
