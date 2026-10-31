@@ -267,6 +267,8 @@ Widget.TailPauseMarker = ⏸
 Widget.TailNewLines = {0} nouvelles lignes
 Widget.TailPausedShort = En pause
 Widget.TailNewShort = {0} nouvelles
+Widget.TailKeyHistory = historique
+Widget.TailKeyFollow = suivre
 Widget.TailFiltered = Filtré :
 
 Widget.OneWarningCount = {0} avertissement

@@ -109,6 +109,15 @@ namespace ConsoleMonster.Interactive {
             return true;
         }
 
+        // The app footer lists the keys this panel handles itself: history always, and the way back to the newest line while paused.
+        internal override void AddOwnKeys(List<KeyBinding> keys, RenderContext context) {
+            Localization.WidgetLabels labels = context.Labels;
+            keys.Add(new KeyBinding(labels.TailKeyHistory, () => { }, new KeyChord(ConsoleKey.PageUp)) { Order = 1 });
+            if (!Read(() => _tail.Following)) {
+                keys.Add(new KeyBinding(labels.TailKeyFollow, () => { }, new KeyChord(ConsoleKey.End)) { Order = 2 });
+            }
+        }
+
         internal override bool Takes(KeyChord chord, RenderContext context) => chord.Modifiers == KeyModifiers.None && (chord.Key == ConsoleKey.UpArrow || chord.Key == ConsoleKey.DownArrow
             || chord.Key == ConsoleKey.PageUp || chord.Key == ConsoleKey.PageDown || chord.Key == ConsoleKey.Home || chord.Key == ConsoleKey.End
             || chord.Key == ConsoleKey.LeftArrow || chord.Key == ConsoleKey.RightArrow);
