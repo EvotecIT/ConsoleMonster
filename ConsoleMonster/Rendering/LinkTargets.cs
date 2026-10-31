@@ -25,9 +25,13 @@ namespace ConsoleMonster.Rendering {
                 ? null : " (" + address + ")";
         }
 
-        /// <summary>Adds each link's target after its label when <see cref="AsText"/> holds for the context.</summary>
+        /// <summary>
+        /// Adds each link's target after its label when <see cref="AsText"/> holds for the context. A terminal with OSC 8
+        /// also gets the target as text for a link it cannot open, such as a bare relative path (<c>docs/report.pdf</c>).
+        /// </summary>
         internal static StyledText Show(StyledText text, RenderContext context) {
-            if (!AsText(context.Profile)) {
+            bool asText = AsText(context.Profile);
+            if (!asText && !context.Profile.SupportsHyperlinks) {
                 return text;
             }
             bool changed = false;
@@ -46,7 +50,11 @@ namespace ConsoleMonster.Rendering {
                     if (i + 1 < line.Count && string.Equals(line[i + 1].Style.Link, link, StringComparison.Ordinal)) {
                         continue;
                     }
-                    string? suffix = Suffix(label.ToString(), link);
+                    // The same decision the terminal encoder makes: a target it can emit stays a clickable link, and a label
+                    // that already shows the target (a bare link split across lines) needs nothing more.
+                    string shown = label.ToString();
+                    string? suffix = asText || (!(HyperlinkTarget.IsSafe(link) || HyperlinkTarget.From(link) != null)
+                        && !(link.IndexOf('\n') >= 0 && link.IndexOf(shown.Trim(), StringComparison.Ordinal) >= 0)) ? Suffix(shown, link) : null;
                     label.Clear();
                     if (suffix == null) {
                         continue;
