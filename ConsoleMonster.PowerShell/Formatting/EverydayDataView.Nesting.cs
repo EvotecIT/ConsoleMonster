@@ -96,7 +96,7 @@ namespace ConsoleMonster.PowerShell {
         private static RecordView BuildRecord(DataRecord record, int depth, ExpansionBudget budget, bool title) {
             int key = title ? ValueShaper.TitleIndex(record.Fields.Select(field => field.Key).ToList()) : -1;
             string? heading = null;
-            if (key >= 0 && !IsNested(record.Fields[key].Value)) { heading = InlineText(record.Fields[key].Value); }
+            if (key >= 0 && !IsNested(record.Fields[key].Value)) { heading = Placeholders.Resolve(InlineText(record.Fields[key].Value), Capabilities.GlyphTier.Full); }
             else { key = -1; }
             RecordView view = new RecordView(heading == null ? null : Markup.Escape(heading)) { HideEmpty = false };
             List<KeyValuePair<string, object?>> branches = new List<KeyValuePair<string, object?>>();
@@ -109,7 +109,7 @@ namespace ConsoleMonster.PowerShell {
                 if (depth < ExpansionDepth && budget.Rows > 0 && (array || nestedBranch)) {
                     branches.Add(field);
                 } else {
-                    view.AddFieldAt(0, BoundedText(field.Key, 48), TableCell.FromValue(FormatValue(field.Value, depth + 1, budget)));
+                    view.AddFieldAt(0, BoundedText(field.Key, 48), ToCell(FormatValue(field.Value, depth + 1, budget)));
                 }
             }
             foreach (KeyValuePair<string, object?> branch in branches) {
@@ -130,19 +130,27 @@ namespace ConsoleMonster.PowerShell {
             return view;
         }
 
+        // A cell value: ConsoleMonster's placeholders (missing, cut, nested) are drawn for the glyph tier of the output.
         private static object? FormatValue(object? value, int depth, ExpansionBudget budget) {
+            object? shaped = ShapeValue(value, depth, budget);
+            return shaped is string text ? Placeholders.Cell(text) : shaped;
+        }
+
+        private static TableCell ToCell(object? value) => value as TableCell ?? TableCell.FromValue(value);
+
+        private static object? ShapeValue(object? value, int depth, ExpansionBudget budget) {
             object? raw = Unwrap(value);
-            if (raw == null) { return "—"; }
-            if (raw is string scalar) { return BoundedText(scalar); }
+            if (raw == null) { return Placeholders.Missing; }
+            if (raw is string scalar) { return BoundedText(scalar, 160, Placeholders.Ellipsis); }
             if (ValueShaper.IsScalar(raw)) { return raw; }
             if (IsRecord(value)) {
                 DataRecord record = ReadRecord(value!);
                 if (record.Count == 0) { return "(none)"; }
                 if (depth > ExpansionDepth || record.Count > InlineItemLimit || budget.Containers-- <= 0) {
-                    return "{…} " + record.Count.ToString("N0", CultureInfo.CurrentCulture) + (record.Count == 1 ? " key" : " keys");
+                    return "{" + Placeholders.Ellipsis + "} " + record.Count.ToString("N0", CultureInfo.CurrentCulture) + (record.Count == 1 ? " key" : " keys");
                 }
-                string text = string.Join(", ", record.Fields.Select(field => BoundedText(field.Key, 48) + "=" + InlineText(FormatValue(field.Value, depth + 1, budget))));
-                return BoundedText(depth > 1 ? "{" + text + "}" : text);
+                string text = string.Join(", ", record.Fields.Select(field => BoundedText(field.Key, 48, Placeholders.Ellipsis) + "=" + InlineText(ShapeValue(field.Value, depth + 1, budget))));
+                return BoundedText(depth > 1 ? "{" + text + "}" : text, 160, Placeholders.Ellipsis);
             }
             if (raw is IList list) {
                 if (list.Count == 0) { return "(none)"; }
@@ -150,26 +158,26 @@ namespace ConsoleMonster.PowerShell {
                 int count = Math.Min(list.Count, InlineItemLimit);
                 List<string> values = new List<string>();
                 for (int i = 0; i < count; i++) {
-                    values.Add(TextWrapper.Truncate(InlineText(FormatValue(list[i], depth + 1, budget)), 48));
+                    values.Add(TextWrapper.Truncate(InlineText(ShapeValue(list[i], depth + 1, budget)), 48, Placeholders.Ellipsis));
                 }
                 if (list.Count > count) { values.Add(More(list.Count - count, null)); }
                 return string.Join(", ", values);
             }
-            return raw is ICollection collection ? ItemCount(collection.Count) : "{…}";
+            return raw is ICollection collection ? ItemCount(collection.Count) : "{" + Placeholders.Ellipsis + "}";
         }
 
         // A display limit applies to text as well as containers. Bound raw input before normalizing line breaks so a
         // very large response body cannot create an unbounded record/frame. Shared TextWrapper handles display cells.
-        private static string BoundedText(string text, int cells = 160) {
+        private static string BoundedText(string text, int cells = 160, string ellipsis = TextWrapper.Ellipsis) {
             const int characterLimit = 512;
             bool shortened = text.Length > characterLimit;
             int length = Math.Min(text.Length, characterLimit);
             if (length > 0 && char.IsHighSurrogate(text[length - 1])) { length--; }
             string line = text.Substring(0, length).Replace('\r', ' ').Replace('\n', ' ');
-            return TextWrapper.Truncate(line + (shortened ? "…" : string.Empty), cells);
+            return TextWrapper.Truncate(line + (shortened ? ellipsis : string.Empty), cells, ellipsis);
         }
 
-        private static string InlineText(object? value) => value == null ? "—" : BoundedText(ValueShaper.ScalarText(value));
+        private static string InlineText(object? value) => value == null ? Placeholders.Missing : BoundedText(ValueShaper.ScalarText(value), 160, Placeholders.Ellipsis);
         private static string ItemCount(int count) => count.ToString("N0", CultureInfo.CurrentCulture) + (count == 1 ? " item" : " items");
         private static string More(int count, string? kind) {
             if (count == 1 && (kind == "rows" || kind == "fields")) { kind = kind.Substring(0, kind.Length - 1); }

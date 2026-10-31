@@ -8,18 +8,18 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a checklist of items with status markers.
 
-Content or the pipeline accepts Key/Label/Status records and strings. Records can include Detail; strings begin as pending checklist items. InputObject also accepts a dictionary mapping labels to statuses. Layout selects a vertical List or a horizontal Strip. Statuses use the shared vocabulary: Pass, Fail, Warn, Skip, Info, Running, Pending and PowerShell's words such as Success, Warning and Error. Status is always shown with a symbol (or a [PASS]-style word in ASCII mode), never by colour alone. In a live dashboard, update items with Update-Console.
+Content or the pipeline accepts Key/Label/Status records and strings. Records can include Detail; strings begin as pending checklist items. InputObject also accepts a dictionary mapping labels to statuses. Layout selects a vertical List, a horizontal Strip of phases, or a Chain: the phases on one line that folds to fit, for a table cell or a header. In a Strip, records with ParentKey are items of that phase; the running phase fans out to them, keeping failed and running items visible and folding the rest into +N more. Statuses use the shared vocabulary: Pass, Fail, Warn, Skip, Info, Running, Pending and PowerShell's words such as Success, Warning and Error. Status is always shown with a symbol (or a [PASS]-style word in ASCII mode), never by colour alone. In a live dashboard, update items with Update-Console.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleStatusList [[-WidgetId] <string>] [[-InputObject] <psobject>] [[-Content] <scriptblock>] [-Layout <string>] [-StepCounter] [-DetailColumn <ColumnFormat>] [<CommonParameters>]
+New-ConsoleStatusList [[-WidgetId] <string>] [[-InputObject] <psobject>] [[-Content] <scriptblock>] [-Layout <string>] [-StepCounter] [-FanOut <int>] [-DetailColumn <ColumnFormat>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Creates a checklist of items with status markers.
 
-Content or the pipeline accepts Key/Label/Status records and strings. Records can include Detail; strings begin as pending checklist items. InputObject also accepts a dictionary mapping labels to statuses. Layout selects a vertical List or a horizontal Strip. Statuses use the shared vocabulary: Pass, Fail, Warn, Skip, Info, Running, Pending and PowerShell's words such as Success, Warning and Error. Status is always shown with a symbol (or a [PASS]-style word in ASCII mode), never by colour alone. In a live dashboard, update items with Update-Console.
+Content or the pipeline accepts Key/Label/Status records and strings. Records can include Detail; strings begin as pending checklist items. InputObject also accepts a dictionary mapping labels to statuses. Layout selects a vertical List, a horizontal Strip of phases, or a Chain: the phases on one line that folds to fit, for a table cell or a header. In a Strip, records with ParentKey are items of that phase; the running phase fans out to them, keeping failed and running items visible and folding the rest into +N more. Statuses use the shared vocabulary: Pass, Fail, Warn, Skip, Info, Running, Pending and PowerShell's words such as Success, Warning and Error. Status is always shown with a symbol (or a [PASS]-style word in ASCII mode), never by colour alone. In a live dashboard, update items with Update-Console.
 
 ## EXAMPLES
 
@@ -68,6 +68,35 @@ New-ConsoleStatusList -Layout Strip -StepCounter -Content {
 
 Show build phases as a compact strip
 
+### EXAMPLE 6
+```powershell
+New-ConsoleStatusList -Layout Strip -FanOut 4 -Content {
+                @{ Key = 'snapshot'; Label = 'Snapshot'; Status = 'Pass'; Detail = '12 s' }
+                @{ Key = 'migrate'; Label = 'Migrate'; Status = 'Running'; Detail = '6/14' }
+                @{ Key = 'verify'; Label = 'Verify' }
+                'alice', 'bob', 'carol', 'dave', 'erin' | ForEach-Object { @{ ParentKey = 'migrate'; Key = $_; Status = 'Pass' } }
+                @{ ParentKey = 'migrate'; Key = 'frank'; Status = 'Running'; Detail = '40%' }
+                @{ ParentKey = 'migrate'; Key = 'mallory'; Status = 'Fail'; Detail = 'access denied' }
+            } | Show-Console
+```
+
+The running phase fans out to the users it is migrating
+
+### EXAMPLE 7
+```powershell
+$stages = { param($Build) New-ConsoleStatusList -Layout Chain -Content {
+    @{ Key = 'fetch'; Label = 'Fetch'; Status = 'Pass' }
+    @{ Key = 'build'; Label = 'Build'; Status = $Build }
+    @{ Key = 'test'; Label = 'Test' }
+} }
+@(
+    [pscustomobject]@{ Repository = 'ConsoleMonster'; Stages = & $stages 'Running' }
+    [pscustomobject]@{ Repository = 'PSPublishModule'; Stages = & $stages 'Fail' }
+) | Show-ConsoleTable
+```
+
+Pipeline stages as one line in a table column
+
 ## PARAMETERS
 
 ### -Content
@@ -102,6 +131,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -FanOut
+Rows the running phase of a Strip fans out to, including the +N more row (default 5; 0 hides items).
+
+```yaml
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -InputObject
 Items from the pipeline: Key/Label/Status records objects or hashtables with Label, Status and Detail.
 
@@ -119,13 +164,13 @@ Accept wildcard characters: False
 ```
 
 ### -Layout
-List stacks the items; Strip shows ordered phases.
+List stacks the items; Strip shows ordered phases; Chain shows the phases on one line that folds to fit.
 
 ```yaml
 Type: String
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: List, Strip
+Possible values: List, Strip, Chain
 
 Required: False
 Position: named

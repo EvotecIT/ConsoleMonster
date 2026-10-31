@@ -202,10 +202,19 @@ Wheel changes month; dragging beyond the month navigates at most four times per
 second. Minimum, maximum and unavailable days reject invalid commits visibly,
 including an unavailable interior day. Unattended prompts require a valid default.
 
-`LogViewport` retains a capped `LogRegion` with severity, elapsed time and literal
-messages. Up/PageUp pause following, End resumes it, and Left/Right scroll long
-lines. `CopyText()` returns retained messages for an app-owned copy/export action.
-`Write` is safe from a worker thread. No terminal output bypasses the live frame.
+`LogViewport` retains a capped `LogRegion` with severity, elapsed time, an optional source tag
+and literal messages. Each tag has its own column and a colour that stays the same for that source.
+`Filter` (`new LogFilter(tag, level, text)`) shows one source, a minimum level or matching text;
+hidden lines stay in the history and come back when the filter changes, and a new filter returns the view to the
+newest matching line. The view follows new lines.
+Up/PageUp or `Pause()` stop following: the rows on screen stay still and a `⏸ Paused · 3 new`
+line counts what arrived. End or `Follow()` jumps back to the newest line, and Left/Right scroll
+long lines. Set `Border = BoxStyle.None` when the viewport sits inside a `Panel`, so it is framed
+once; the viewport then draws no label or focus marker of its own. `CopyText()` returns retained messages for an app-owned copy/export action. `Write` is safe
+from a worker thread, and inside a running app the viewport also takes live `write` events
+addressed to its key, the route `Write-ConsoleLogEntry -WidgetId <key> -Tag <source>` uses. The
+full-screen `Watch-ConsoleLog` view runs on the same follow, pause and filter model. No terminal
+output bypasses the live frame.
 
 Run `dotnet run --project ConsoleMonster.Examples --framework net8.0 --
 fullscreen-controls` for the service-browser and operations-calendar example.

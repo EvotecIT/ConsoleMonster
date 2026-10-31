@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Management.Automation;
 using System.Runtime.CompilerServices;
 using ConsoleMonster.Styling;
@@ -130,8 +131,17 @@ namespace ConsoleMonster.PowerShell {
                         phases.Set(phaseName);
                         return true;
                     }
-                    if (StatusItemFrom(item, ref problem) is StatusItem phase) {
-                        phases.Set(phase.Key, phase.Status, phase.Label, phase.Detail);
+                    // A record with ParentKey is an item of that phase, shown when the phase fans out.
+                    string? parent = IsRecord(item) && Field(item, "ParentKey") is object owner ? PSWidgets.ToText(owner) : null;
+                    if (StatusItemFrom(item, ref problem, parent != null ? "ParentKey" : null) is StatusItem phase) {
+                        if (parent == null) {
+                            phases.Set(phase.Key, phase.Status, phase.Label, phase.Detail);
+                        } else if (phases.Items.Any(existing => existing.Key == parent)) {
+                            phases.SetItem(parent, phase.Key, phase.Status, phase.Label, phase.Detail);
+                        } else {
+                            problem = "The phase '" + parent + "' must come before its items.";
+                            return false;
+                        }
                         return true;
                     }
                     return false;
@@ -269,12 +279,12 @@ namespace ConsoleMonster.PowerShell {
             return false;
         }
 
-        private static StatusItem? StatusItemFrom(object item, ref string? problem) {
+        private static StatusItem? StatusItemFrom(object item, ref string? problem, string? extraField = null) {
             if (item is StatusItem statusItem) {
                 return statusItem;
             }
             if (IsRecord(item)) {
-                RecordFields(item, "Key Label Status Detail");
+                RecordFields(item, extraField == null ? "Key Label Status Detail" : "Key Label Status Detail " + extraField);
                 // @{ Label = 'Restore'; Status = 'Pass'; Detail = '1.6 s' } (or such an object) reads like the item cmdlet's parameters.
                 string label = PSWidgets.ToText(Field(item, "Label") ?? Field(item, "Key"));
                 if (label.Length == 0) {

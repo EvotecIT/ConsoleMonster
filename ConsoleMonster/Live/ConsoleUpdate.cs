@@ -54,7 +54,7 @@ namespace ConsoleMonster.Live {
             if (target is CellMap) { return "Index Status AppendCells Count CellCount"; }
             if (target is Lanes) { return "Key Label Detail Total Status Result Increment Complete"; }
             if (target is LiveTable) { return "Row Key RemoveRow ClearRows"; }
-            if (target is Phases) { return "Key Status Detail"; }
+            if (target is Phases) { return "Key ParentKey Label Status Detail"; }
             if (target is ProgressBar) { return "Value Total Increment Label Status"; }
             if (target is Spinner) { return "Label Detail Restart Status"; }
             if (target is StatusList) { return "Key Label Detail Status"; }
@@ -87,6 +87,13 @@ namespace ConsoleMonster.Live {
                 RequireKey(key);
                 if (node ? !flow.Nodes.Any(item => item.Key == key) : !flow.Edges.Any(item => item.Key == key)) {
                     throw new ConsoleUpdateException("ConsoleMonsterUnknownItem", "Unknown flow " + (node ? "NodeKey" : "EdgeKey") + " '" + key + "'.");
+                }
+            }
+            if (target is Phases phases) {
+                if (u.Has(nameof(u.Label)) && !u.Has(nameof(u.ParentKey))) { throw new ArgumentException("Label updates a phase item: give the phase as ParentKey."); }
+                if (u.Has(nameof(u.ParentKey))) {
+                    if (string.IsNullOrWhiteSpace(u.ParentKey) || u.ParentKey!.IndexOf(Phases.ItemSeparator) >= 0 || u.Key!.IndexOf(Phases.ItemSeparator) >= 0) { throw new ArgumentException("ParentKey and Key must be nonempty phase and item keys."); }
+                    if (!phases.Items.Any(phase => phase.Key == u.ParentKey)) { throw new ConsoleUpdateException("ConsoleMonsterUnknownItem", "Unknown phase ParentKey '" + u.ParentKey + "'."); }
                 }
             }
             if (target is ActivityList) {

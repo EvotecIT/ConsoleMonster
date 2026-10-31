@@ -140,7 +140,7 @@ namespace ConsoleMonster.PowerShell {
         [ArgumentCompleter(typeof(Binding.StatusKindCompleter))]
         public StatusKind Result { get; set; }
 
-        /// <summary><para type="description">The parent activity key.</para></summary>
+        /// <summary><para type="description">The parent activity key, or the phase an item belongs to in a phase strip (Key is then the item).</para></summary>
         [Parameter(ParameterSetName = "Fields")]
         public string? ParentKey { get; set; }
 

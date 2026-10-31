@@ -50,6 +50,11 @@ namespace ConsoleMonster.Interactive {
             set => Enabled = !value;
         }
 
+        /// <summary>The frame around a chrome control; <see cref="Glyphs.BoxStyle.None"/> draws the content alone so a surrounding panel can frame it.</summary>
+        private protected Glyphs.BoxStyle FrameBorder { get; set; } = Glyphs.BoxStyle.Rounded;
+
+        private bool Chrome => _chrome && FrameBorder != Glyphs.BoxStyle.None;
+
         /// <summary>Whether this control owns keyboard focus.</summary>
         public bool Focused {
             get { lock (_gate) { return _focused; } }
@@ -175,8 +180,8 @@ namespace ConsoleMonster.Interactive {
         public Size Measure(Constraints constraints, RenderContext context) {
             lock (_gate) {
                 constraints = constraints.Height(Math.Min(constraints.MaxHeight, _viewportHeight));
-                int extra = _chrome ? 2 + (string.IsNullOrEmpty(ValidationMessage) ? 0 : 1) : 0;
-                Size content = MeasureContent(_chrome ? constraints.Shrink(4, extra) : constraints, context);
+                int extra = Chrome ? 2 + (string.IsNullOrEmpty(ValidationMessage) ? 0 : 1) : 0;
+                Size content = MeasureContent(Chrome ? constraints.Shrink(4, extra) : constraints, context);
                 return new Size(constraints.MaxWidth, Math.Min(constraints.MaxHeight, content.Height + extra));
             }
         }
@@ -186,12 +191,13 @@ namespace ConsoleMonster.Interactive {
             lock (_gate) {
                 _bounds = region.Bounds;
                 InputArrangement.Record(this, region.Bounds);
-                if (!_chrome) { RenderContent(region, context); return; }
+                if (!Chrome) { RenderContent(region, context); return; }
                 string title = Label ?? Key;
                 if (!_enabled) { title = PromptLabels.Format(PromptLabels.For(context.Profile.Language).Disabled, title); }
                 else if (_focused) { title = InteractiveGlyphs.For(context).Pointer + " " + title; }
                 int errorRows = string.IsNullOrEmpty(ValidationMessage) ? 0 : 1;
                 Panel panel = new Panel(new Content(this), Markup.Escape(title)) {
+                    Border = FrameBorder,
                     BorderRole = _focused && _enabled ? ThemeToken.Accent : ThemeToken.Border
                 };
                 panel.Render(region.Sub(0, 0, region.Width, Math.Max(0, region.Height - errorRows)), context);
