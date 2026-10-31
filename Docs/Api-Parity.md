@@ -3,7 +3,7 @@
 
 I use the same domain names for cmdlet parameters, C# configuration and fluent calls. PowerShell keeps numeric duration parameters with units and default-off switches; C# keeps TimeSpan values and Boolean properties.
 
-The contract covers **92 commands**, **1054 parameters** and **339 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
+The contract covers **92 commands**, **1060 parameters** and **340 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
 
 Show-ConsoleTable displays tables. Show-Console -View List and Show-Console -View Tree display lists and trees. Read-* returns answers; New-ConsoleForm/Menu defines a question workflow; Show-ConsoleApp runs a persistent reactive application.
 
@@ -291,6 +291,8 @@ Native host hooks, runtime models and equivalent representations are listed indi
 | `ConsoleMonster.Interactive.LogViewport.ShowElapsed` | CSharpOnly: The retained log viewport wraps the existing bounded LogRegion without adding a second log constructor cmdlet. | Create LogViewport in PowerShell or C#, configure ShowElapsed, and embed it in Show-ConsoleApp. |
 | `ConsoleMonster.Interactive.LogViewport.ScrollOffset` | CSharpOnly: The retained log viewport wraps the existing bounded LogRegion without adding a second log constructor cmdlet. | Create LogViewport in PowerShell or C#, configure ScrollOffset, and embed it in Show-ConsoleApp. |
 | `ConsoleMonster.Interactive.LogViewport.HorizontalOffset` | CSharpOnly: The retained log viewport wraps the existing bounded LogRegion without adding a second log constructor cmdlet. | Create LogViewport in PowerShell or C#, configure HorizontalOffset, and embed it in Show-ConsoleApp. |
+| `ConsoleMonster.Interactive.LogViewport.Filter` | CSharpOnly: The retained log viewport wraps the existing bounded LogRegion without adding a second log constructor cmdlet. | Create LogViewport in PowerShell or C#, configure Filter, and embed it in Show-ConsoleApp. |
+| `ConsoleMonster.Interactive.LogViewport.Border` | CSharpOnly: The retained log viewport wraps the existing bounded LogRegion without adding a second log constructor cmdlet. | Create LogViewport in PowerShell or C#, configure Border, and embed it in Show-ConsoleApp. |
 | `ConsoleMonster.Interactive.TerminalChildOptions.FileName` | CSharpOnly: Child PTY execution is an app-thread operation on TerminalHandoff, not a standalone interactive cmdlet. | Create TerminalChildOptions in PowerShell or C# and call SuspendForChild on the attached handoff. |
 | `ConsoleMonster.Interactive.TerminalChildOptions.Arguments` | CSharpOnly: Child PTY execution is an app-thread operation on TerminalHandoff, not a standalone interactive cmdlet. | Create TerminalChildOptions in PowerShell or C# and call SuspendForChild on the attached handoff. |
 | `ConsoleMonster.Interactive.TerminalChildOptions.WorkingDirectory` | CSharpOnly: Child PTY execution is an app-thread operation on TerminalHandoff, not a standalone interactive cmdlet. | Create TerminalChildOptions in PowerShell or C# and call SuspendForChild on the attached handoff. |

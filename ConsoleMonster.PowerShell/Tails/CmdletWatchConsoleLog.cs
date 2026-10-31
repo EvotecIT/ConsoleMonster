@@ -21,6 +21,10 @@ namespace ConsoleMonster.PowerShell {
     /// <code># Requires an existing service.log file.
     /// Watch-ConsoleLog -Path ./service.log -Tail 50 -Filter ERROR -Count 1</code>
     /// </example>
+    /// <example>
+    /// <para>Follow only warnings and errors from the System event log</para>
+    /// <code>Watch-ConsoleLog -LogName System -Level Warn</code>
+    /// </example>
     [Cmdlet(VerbsCommon.Watch, "ConsoleLog", DefaultParameterSetName = "Path")]
     [OutputType(typeof(string))]
     public sealed class CmdletWatchConsoleLog : NoPipelineInputCmdlet {
@@ -63,6 +67,12 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public string? Filter { get; set; }
 
+        /// <summary><para type="description">Keeps lines at this level or worse: Warn keeps warnings and errors, Verbose drops only debug lines. Levels are read from each line, as the live view colours them.</para></summary>
+        [Parameter]
+        [Binding.LogLevelTransformation]
+        [ArgumentCompleter(typeof(Binding.LogLevelCompleter))]
+        public string? Level { get; set; }
+
         /// <summary><para type="description">Literal case-insensitive text emphasized in live output. Plain output stays unchanged.</para></summary>
         [Parameter]
         public string? Highlight { get; set; }
@@ -92,7 +102,7 @@ namespace ConsoleMonster.PowerShell {
                     bool last = MyInvocation.PipelinePosition >= MyInvocation.PipelineLength;
                     LogTailOptions options = new LogTailOptions {
                         Count = Count, PollInterval = TimeSpan.FromSeconds(PollIntervalSeconds), Capacity = Capacity,
-                        Filter = Filter, Highlight = Highlight, TimestampFormat = TimestampFormat, HandleCancelKey = false, Profile = profile,
+                        Filter = Filter, Level = Level, Highlight = Highlight, TimestampFormat = TimestampFormat, HandleCancelKey = false, Profile = profile,
                         Live = !NoLive.IsPresent && last && !HostOutput.UseHost(this, profile) && profile.Mode == OutputMode.Interactive,
                         WriteLine = text => WriteObject(text)
                     };

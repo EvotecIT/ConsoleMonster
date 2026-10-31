@@ -69,10 +69,13 @@ namespace ConsoleMonster.PowerShell {
                 string provider = Text(value, "ProviderName");
                 string message = Text(value, "Message");
                 if (string.IsNullOrEmpty(message)) { message = PSLogTailMessages.Get("MissingEventMessage"); }
-                string body = "[" + provider + "#" + Number(value, "Id").ToString(CultureInfo.InvariantCulture) + "] " + message;
+                string id = "#" + Number(value, "Id").ToString(CultureInfo.InvariantCulture);
+                string body = "[" + provider + id + "] " + message;
                 string prefix = (timestamp.HasValue ? timestamp.Value.ToString("yyyy-MM-ddTHH:mm:ss.fffzzz", CultureInfo.InvariantCulture) + " " : string.Empty)
                     + "[" + level.ToUpperInvariant() + "] ";
-                entries.Add(new TailedLogEntry(prefix + body, level, timestamp, body));
+                // The live view shows the provider in the tag column; plain output keeps the original line.
+                string tag = provider.StartsWith("Microsoft-Windows-", StringComparison.OrdinalIgnoreCase) ? provider.Substring(18) : provider;
+                entries.Add(new TailedLogEntry(prefix + body, level, timestamp, id + " " + message, tag));
                 _lastRecord = record;
                 _lastTime = timestamp;
             }
