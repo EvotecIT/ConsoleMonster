@@ -88,7 +88,8 @@ namespace ConsoleMonster.Tests.Capabilities {
         [InlineData(false)]
         public void CopiesAndFontRefresh_PreserveSupportAndLanguage(bool support) {
             TerminalEnvironment environment = new TerminalEnvironment(new Dictionary<string, string> { ["TERM"] = "xterm" });
-            TerminalProfile profile = new CapabilityDetector(environment).Detect().WithHyperlinks(support).WithLanguage(CultureInfo.GetCultureInfo("pl-PL"));
+            TerminalProfile profile = new CapabilityDetector(environment).Detect().WithHyperlinks(support).WithLanguage(CultureInfo.GetCultureInfo("pl-PL"))
+                .WithImageProtocol(ImageProtocol.Kitty);
             TerminalProfile[] copies = {
                 profile.WithSize(70, 20), profile.WithColorDepth(ColorDepth.None), profile.WithGlyphs(GlyphTier.Basic),
                 profile.WithDecision("test"), profile.WithCulture(CultureInfo.InvariantCulture), profile.WithLanguage(CultureInfo.GetCultureInfo("pl-PL")),
@@ -98,6 +99,7 @@ namespace ConsoleMonster.Tests.Capabilities {
             foreach (TerminalProfile copy in copies) {
                 Assert.Equal(support, copy.SupportsHyperlinks);
                 Assert.Equal("pl-PL", copy.Language?.Name);
+                Assert.Equal(ImageProtocol.Kitty, copy.ImageSupport);
             }
         }
 

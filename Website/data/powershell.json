@@ -318,7 +318,7 @@
     },
     {
       "verb": "New",
-      "count": 39,
+      "count": 40,
       "commands": [
         {
           "name": "New-ConsoleActivityList",
@@ -394,6 +394,11 @@
           "name": "New-ConsoleForm",
           "synopsis": "Creates a form or wizard from fields (New-ConsoleField) for Read-ConsoleForm or a menu item.",
           "url": "/powershell/commands/new-consoleform/"
+        },
+        {
+          "name": "New-ConsoleImage",
+          "synopsis": "Creates an image to place inside panels, columns and dashboards.",
+          "url": "/powershell/commands/new-consoleimage/"
         },
         {
           "name": "New-ConsoleKeyValue",
@@ -582,7 +587,7 @@
     },
     {
       "verb": "Show",
-      "count": 12,
+      "count": 13,
       "commands": [
         {
           "name": "Show-Console",
@@ -608,6 +613,11 @@
           "name": "Show-ConsoleHelp",
           "synopsis": "Shows a command's help: synopsis, highlighted syntax, a parameter table and highlighted examples.",
           "url": "/powershell/commands/show-consolehelp/"
+        },
+        {
+          "name": "Show-ConsoleImage",
+          "synopsis": "Shows an image in the console, at the size you ask for in cells.",
+          "url": "/powershell/commands/show-consoleimage/"
         },
         {
           "name": "Show-ConsoleMenu",

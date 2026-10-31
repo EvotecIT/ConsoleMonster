@@ -6817,6 +6817,127 @@
       ]
     },
     {
+      "Command": "New-ConsoleImage",
+      "Job": "New-ConsoleImage",
+      "CSharpType": "ConsoleMonster.Graphics.ConsoleImage",
+      "Bindings": [
+        {
+          "Parameter": "Bytes",
+          "ParameterType": "System.Byte[]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "Bytes",
+              "Position": -2147483648,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Graphics.ConsoleImage",
+          "Member": ".ctor",
+          "MemberKind": "Constructor",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Byte[]",
+          "Argument": "encoded"
+        },
+        {
+          "Parameter": "Height",
+          "ParameterType": "System.Int32",
+          "Default": 0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Graphics.ConsoleImage",
+          "Member": "Height",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "InputObject",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "Path",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Graphics.ConsoleImage",
+          "Member": "FromFile",
+          "MemberKind": "Method",
+          "Conversion": "ProviderPath",
+          "CSharpTypeName": "System.String",
+          "Argument": "path",
+          "Reason": "Files from Get-ChildItem or Resolve-Path and path strings are read one at a time with the shared file reader; any other pipeline object stops the command once."
+        },
+        {
+          "Parameter": "Label",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Graphics.ConsoleImage",
+          "Member": ".ctor",
+          "MemberKind": "Constructor",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Argument": "name"
+        },
+        {
+          "Parameter": "Path",
+          "ParameterType": "System.String",
+          "Default": "",
+          "Sets": [
+            {
+              "Name": "Path",
+              "Position": 0,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Graphics.ConsoleImage",
+          "Member": "FromFile",
+          "MemberKind": "Method",
+          "Conversion": "ProviderPath",
+          "CSharpTypeName": "System.String",
+          "Argument": "path",
+          "Reason": "The path is resolved against the current PowerShell location before the shared file reader decodes it."
+        },
+        {
+          "Parameter": "Width",
+          "ParameterType": "System.Int32",
+          "Default": 0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Graphics.ConsoleImage",
+          "Member": "Width",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        }
+      ]
+    },
+    {
       "Command": "New-ConsoleKeyValue",
       "Job": "New-ConsoleKeyValue",
       "CSharpType": "ConsoleMonster.Widgets.KeyValueList",
@@ -16629,6 +16750,146 @@
       ]
     },
     {
+      "Command": "Show-ConsoleImage",
+      "Job": "Show-ConsoleImage",
+      "CSharpType": "ConsoleMonster.Graphics.ConsoleImage",
+      "Bindings": [
+        {
+          "Parameter": "Bytes",
+          "ParameterType": "System.Byte[]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "Bytes",
+              "Position": -2147483648,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Graphics.ConsoleImage",
+          "Member": ".ctor",
+          "MemberKind": "Constructor",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Byte[]",
+          "Argument": "encoded"
+        },
+        {
+          "Parameter": "Height",
+          "ParameterType": "System.Int32",
+          "Default": 0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Graphics.ConsoleImage",
+          "Member": "Height",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "InputObject",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "Path",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Graphics.ConsoleImage",
+          "Member": "FromFile",
+          "MemberKind": "Method",
+          "Conversion": "ProviderPath",
+          "CSharpTypeName": "System.String",
+          "Argument": "path",
+          "Reason": "Files from Get-ChildItem or Resolve-Path and path strings are read one at a time with the shared file reader; any other pipeline object stops the command once."
+        },
+        {
+          "Parameter": "Label",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Graphics.ConsoleImage",
+          "Member": ".ctor",
+          "MemberKind": "Constructor",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Argument": "name"
+        },
+        {
+          "Parameter": "Path",
+          "ParameterType": "System.String",
+          "Default": "",
+          "Sets": [
+            {
+              "Name": "Path",
+              "Position": 0,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Graphics.ConsoleImage",
+          "Member": "FromFile",
+          "MemberKind": "Method",
+          "Conversion": "ProviderPath",
+          "CSharpTypeName": "System.String",
+          "Argument": "path",
+          "Reason": "The path is resolved against the current PowerShell location before the shared file reader decodes it."
+        },
+        {
+          "Parameter": "Protocol",
+          "ParameterType": "System.Nullable`1[ConsoleMonster.Capabilities.ImageProtocol]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Capabilities.TerminalProfile",
+          "Member": "WithImageProtocol",
+          "MemberKind": "Method",
+          "Conversion": "ProfileOverride",
+          "CSharpTypeName": "ConsoleMonster.Capabilities.ImageProtocol",
+          "Argument": "protocol",
+          "Reason": "Applied to the current profile only when given; redirected and CI output keep the placeholder."
+        },
+        {
+          "Parameter": "Width",
+          "ParameterType": "System.Int32",
+          "Default": 0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Graphics.ConsoleImage",
+          "Member": "Width",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        }
+      ]
+    },
+    {
       "Command": "Show-ConsoleMenu",
       "Job": "Show-ConsoleMenu",
       "CSharpType": "ConsoleMonster.Interactive.Menu",
@@ -24822,7 +25083,7 @@
   ],
   "SchemaVersion": 2,
   "BaselineCount": 144,
-  "ExpectedCount": 89,
+  "ExpectedCount": 91,
   "ConfigurableRoots": [
     "ConsoleMonster.Capabilities.CapabilityDetector",
     "ConsoleMonster.Changes.ChangePreviewOptions",
@@ -24842,6 +25103,7 @@
     "ConsoleMonster.Frames.DashboardFrame",
     "ConsoleMonster.Frames.Distribution",
     "ConsoleMonster.Frames.GroupedRows`1",
+    "ConsoleMonster.Graphics.ConsoleImage",
     "ConsoleMonster.Graphics.GraphicsExportOptions",
     "ConsoleMonster.Interactive.AppBinding",
     "ConsoleMonster.Interactive.AppCommand",
@@ -25017,6 +25279,7 @@
     "ConsoleMonster.Capabilities.ColorDepth",
     "ConsoleMonster.Capabilities.GlyphTier",
     "ConsoleMonster.Capabilities.ICapabilityProvider",
+    "ConsoleMonster.Capabilities.ImageProtocol",
     "ConsoleMonster.Capabilities.OutputMode",
     "ConsoleMonster.Capabilities.TerminalKind",
     "ConsoleMonster.Capabilities.TerminalProfile",
@@ -25067,6 +25330,7 @@
     "ConsoleMonster.Frames.Meter",
     "ConsoleMonster.Glyphs.BoxStyle",
     "ConsoleMonster.Glyphs.GlyphIcon",
+    "ConsoleMonster.Graphics.ConsoleImage",
     "ConsoleMonster.Graphics.GraphicsBackground",
     "ConsoleMonster.Graphics.GraphicsExportOptions",
     "ConsoleMonster.Graphics.GraphicsFit",
@@ -28166,6 +28430,10 @@
         {
           "Command": "New-ConsoleField",
           "Reason": "Field is a behavioral form definition; the form/page builder constructs the selected field kind and its validation. It is not display content."
+        },
+        {
+          "Command": "New-ConsoleImage",
+          "Reason": "The image widget lives in ConsoleMonster.Graphics with its decoder, so the dependency-free core Ui has no factory for it; C# constructs ConsoleImage directly."
         }
       ],
       "CSharpOnlyFactories": [

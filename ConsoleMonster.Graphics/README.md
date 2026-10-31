@@ -52,6 +52,24 @@ text has no dither speckles; gradients can show gentle bands. Unchanged screens
 share a delay, and changed regions use GIF sub-frames with retained disposal.
 APNG remains available for full-colour playback in applications that support it.
 
+## Inline images
+
+`ConsoleImage` draws a PNG, JPEG, GIF, BMP, TIFF or PPM image, or a ChartForgeX render, in the terminal at a size
+in cells, keeping its aspect ratio. `Write()` uses Kitty graphics, iTerm2 inline images or Sixel when the terminal
+supports them (`TerminalProfile.ImageProtocol`), half blocks on other terminals with 256 colours or more, and an
+`[image: name WxH]` placeholder in redirected, CI and no-colour output. Inside layouts and live regions it draws
+half blocks, so redraws stay exact.
+
+```csharp
+using ConsoleMonster.Graphics;
+
+ConsoleImage image = ConsoleImage.FromFile("chart.png");
+image.Width = 40;
+image.Write();
+```
+
+In PowerShell, use `Show-ConsoleImage` and `New-ConsoleImage`. See [Inline images](https://consolemonster.dev/docs/inline-images/).
+
 JetBrains Mono is embedded under the SIL Open Font License; see
 `licenses/JetBrainsMono-OFL.txt`. Installed font and emoji/CJK fallbacks depend
 on the host. Use the embedded default and fixed inputs for repeatable slides.

@@ -287,6 +287,7 @@ namespace SiteFrames {
             ChartFigures.Render(site);
             TextDiffFigures.Render(site);
             MarkdownFigures.Render(site);
+            ImageFigures.Render(site);
             ThemeFilesPage.Render(site);
             MigrationFigures.Render(site);
             AppPage.Render(site, hosts);
