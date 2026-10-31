@@ -132,6 +132,7 @@ namespace ConsoleMonster.Tests.Sessions {
         [InlineData("\u001b]0;first\a", "\u001b]0;second\a")]
         [InlineData("\u001b]0;first\u001b\\", "\u001b]0;second\u001b\\")]
         [InlineData("\u001b7", "\u001b8")]
+        [InlineData("\u001b[1;7H", "\u001b[2J")]
         [InlineData("\u001b(B", "\u001b)0")]
         [InlineData("\u001bPfirst\u001b\\", "\u001bPsecond\u001b\\")]
         public void LiteralSecret_RemainsPrivateAcrossTerminalControls(string first, string second) {

@@ -214,6 +214,42 @@ namespace ConsoleMonster.Tests.Sessions {
             }
         }
 
+        [Theory]
+        [InlineData(1)]
+        [InlineData(1200)] // Crosses the streaming flush threshold before the recording ends.
+        public void CursorPositionedFramesAfterAVisibleCredentialAreKept(int repaints) {
+            string folder = Path.Combine(Path.GetTempPath(), "ConsoleMonster-frame-contract-" + Guid.NewGuid().ToString("N"));
+            SessionRecordingOptions options = new SessionRecordingOptions { Path = Path.Combine(folder, "session.cast"), Width = 40, Height = 6, InProcess = true };
+            try {
+                using (SessionRecorder recorder = SessionRecorder.Start(options)) {
+                    // The value continues across a cursor-visibility toggle, as it does on screen;
+                    // a value cell positioned after its label still belongs to that label.
+                    recorder.CaptureOutput("\u001b[?2026h\u001b[2J\u001b[1;1H[deploy] token=abc\u001b[?25lxyz\u001b[?25h\u001b[2;1HStatus bar"
+                        + "\u001b[3;1HPassword:\u001b[3;12Hhunter2\u001b[?2026l");
+                    for (int i = 0; i < repaints; i++) {
+                        recorder.CaptureOutput("\u001b[?2026h\u001b[2J\u001b[1;1HCommand palette\u001b[3;5HOpen file\u001b[?2026l");
+                    }
+                    if (repaints > 1) {
+                        using (FileStream input = new FileStream(options.Path!, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                        using (StreamReader reader = new StreamReader(input, Encoding.UTF8)) {
+                            Assert.Contains("Open file", reader.ReadToEnd());
+                        }
+                    }
+                }
+                string cast = File.ReadAllText(options.Path!);
+                Assert.DoesNotContain("abc", cast);
+                Assert.DoesNotContain("xyz", cast);
+                Assert.DoesNotContain("hunter2", cast);
+                Assert.Contains("[deploy] [REDACTED]", cast);
+                Assert.Contains("Status bar", cast);
+                string screen = ConsoleExporter.ToText(SessionRecording.Read(options.Path!).FinalFrame());
+                Assert.Contains("Command palette", screen);
+                Assert.Contains("Open file", screen);
+            } finally {
+                if (Directory.Exists(folder)) { Directory.Delete(folder, true); }
+            }
+        }
+
         private static void AppendReads(SessionCastWriter writer, string text, int readSize) {
             for (int at = 0; at < text.Length; at += readSize) {
                 writer.Append(text.Substring(at, Math.Min(readSize, text.Length - at)));
