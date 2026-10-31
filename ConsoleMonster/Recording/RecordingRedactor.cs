@@ -24,7 +24,7 @@ namespace ConsoleMonster.Sessions {
         internal List<KeyValuePair<int, int>> MatchRanges(string plain) {
             List<KeyValuePair<int, int>> ranges = new List<KeyValuePair<int, int>>();
             try {
-                foreach (Regex pattern in _patterns) {
+                foreach (Regex pattern in AllPatterns()) {
                     foreach (Match match in pattern.Matches(plain)) {
                         if (match.Length > 0) { ranges.Add(new KeyValuePair<int, int>(match.Index, match.Length)); }
                     }
