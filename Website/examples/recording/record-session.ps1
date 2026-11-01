@@ -23,7 +23,11 @@ try {
         Height = 28
         Seed = 42
         IdleLimitSeconds = 0
-        Redact = ([regex]::Escape([Environment]::MachineName)), ([regex]::Escape($OutputDirectory))
+        Redact = @(
+            [regex]::Escape([Environment]::MachineName)
+            [regex]::Escape($OutputDirectory)
+            'demo-token'
+        )
     }
     Show-ConsolePresentation @presentationParameters
     Export-ConsoleRecording -RecordingPath $cast -Path (Join-Path $OutputDirectory 'session.html')

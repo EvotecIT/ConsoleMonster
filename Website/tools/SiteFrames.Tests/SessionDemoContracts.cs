@@ -37,6 +37,7 @@ namespace SiteFrames.Tests {
             Assert.Contains("Step 10 of 10", raw);
             Assert.Contains("\u001b[", raw);
             Assert.DoesNotContain("D:\\Dev\\", raw);
+            Assert.DoesNotContain("demo-token", raw);
             string transcript = SessionRecording.Read(path).Export(ExportFormat.Text);
             string[] transcriptLines = transcript.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
             Assert.Contains("Build report", transcriptLines);
@@ -44,7 +45,7 @@ namespace SiteFrames.Tests {
             Assert.Matches(@"Cannot find path '[^\r\n]*[/\\]missing\.json' because it does not exist\.", transcript);
             Assert.DoesNotContain("Cannot find drive", transcript);
             foreach (string result in new[] { "✓ Passed", "24 passed", "✓ Ready" }) { Assert.Contains(result, transcript); }
-            foreach (string expected in new[] { "PS demo>", "git log --oneline --graph --color -5", "Document local recording", "Build report", "24 passed", "Cannot find path", "Show-DemoToken $env:API_TOKEN", "API_TOKEN=demo-token (synthetic)" }) {
+            foreach (string expected in new[] { "PS demo>", "git log --oneline --graph --color -5", "Document local recording", "Build report", "24 passed", "Cannot find path", "Show-DemoToken $env:API_TOKEN", "API_TOKEN=[REDACTED] (synthetic)" }) {
                 Assert.Contains(expected, transcript);
             }
         }
