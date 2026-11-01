@@ -180,7 +180,7 @@ Accept wildcard characters: False
 ```
 
 ### -StepCounter
-Adds step counters to the Strip layout.
+Shows Strip phases as a numbered ledger. ParentKey items require Strip without StepCounter.
 
 ```yaml
 Type: SwitchParameter

@@ -84,7 +84,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter, ValidateSet("List", "Strip", "Chain")]
         public string Layout { get; set; } = "List";
 
-        /// <summary><para type="description">Adds step counters to the Strip layout.</para></summary>
+        /// <summary><para type="description">Shows Strip phases as a numbered ledger. ParentKey items require Strip without StepCounter.</para></summary>
         [Parameter] public SwitchParameter StepCounter { get; set; }
 
         /// <summary><para type="description">Rows the running phase of a Strip fans out to, including the +N more row (default 5; 0 hides items).</para></summary>
@@ -129,6 +129,7 @@ namespace ConsoleMonster.PowerShell {
             ScriptBlock? content = Content;
             PSItems.AddAll(this, list, PSItems.Items(content));
             PSItems.AddAll(this, list, _piped);
+            if (strip && StepCounter.IsPresent && ((Phases)list).HasItems) { throw new PSArgumentException("ParentKey items require Layout Strip without StepCounter."); }
             if (chain && ((Phases)list).HasItems) { throw new PSArgumentException("Items with ParentKey apply to Layout Strip."); }
             if (DetailColumn != null && list is StatusList checklist) { checklist.DetailColumn = DetailColumn; }
             WriteObject(list);

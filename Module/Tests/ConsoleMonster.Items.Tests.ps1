@@ -230,6 +230,15 @@ if ([regex]::Matches($text, 'leaf').Count -ne 2) { throw 'Shared content was rej
             (New-ConsoleStatusList -Layout Strip -WidgetId phases -Content { 'Restore', 'Pack' } | Get-WidgetText) | Should -Match 'Restore.*Pack'
         }
 
+        It 'rejects child items in a numbered strip instead of hiding them' {
+            {
+                New-ConsoleStatusList -Layout Strip -StepCounter -Content {
+                    @{ Key = 'migrate'; Status = 'Running' }
+                    @{ ParentKey = 'migrate'; Key = 'alice'; Status = 'Fail'; Detail = 'access denied' }
+                }
+            } | Should -Throw '*ParentKey*without StepCounter*'
+        }
+
         It 'colours bars and stacked segments with -Role' {
             $stacked = New-ConsoleChart -Content { [pscustomobject]@{ Label = 'Passed'; Value = 412; Role = 'Pass' }; [pscustomobject]@{ Label = 'Failed'; Value = 23; Role = 'Fail' } } -Type Stacked
             $stacked.Segments[0].Role | Should -Be 'Pass'
