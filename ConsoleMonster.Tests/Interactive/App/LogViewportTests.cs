@@ -105,6 +105,22 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Assert.Contains("follow", Footer(capture.LastFrame!));
         }
 
+        [Fact]
+        public void DefaultAppLogRouteRetainsTagAndTimeForTheFilteredViewport() {
+            var log = new LogViewport("Output") { ShowElapsed = false, Filter = new LogFilter(tag: "build") };
+            ConsoleAppOptions options = AppTestHarness.Options("", out ScreenCapture capture);
+            bool written = false;
+            options.ProcessEvents = _ => {
+                if (written) { return; }
+                written = true;
+                LiveSession.Current!.Post(new LiveEvent("$log", "write", key: "build", text: "ready", status: "warn", time: 1250));
+            };
+            ConsoleApp.Run(log, options: options);
+            LogEntry entry = Assert.Single(log.Entries);
+            Assert.Equal(("build", "warn", "ready", TimeSpan.FromMilliseconds(1250)), (entry.Tag, entry.Level, entry.Text, entry.Time));
+            Assert.Contains("ready", capture.LastFrame!.ToPlainText());
+        }
+
         private static readonly string[] Written = { "index build 40%", "cache warm", "slow query 2.1 s", "upload failed" };
 
         private static string[] Messages(LogViewport log) {

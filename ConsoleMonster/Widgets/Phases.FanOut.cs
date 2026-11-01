@@ -20,7 +20,7 @@ namespace ConsoleMonster.Widgets {
         /// <summary>
         /// Rows the current phase fans out to under the strip (default 5; zero hides items). The current phase is the
         /// first running one, otherwise the first failed one. When it has more items than rows, failed, warning and running
-        /// items stay visible and the last row folds the rest into <c>+N more</c> with a count per status.
+        /// items have priority for the available rows. The last row folds the remaining items into <c>+N more</c> with a count per status.
         /// </summary>
         public int FanOut {
             get => _fanOut;
@@ -42,7 +42,7 @@ namespace ConsoleMonster.Widgets {
             return this;
         }
 
-        private void SetItemCore(string phase, string key, StatusKind? status, string? label, string? detail) {
+        private void SetItemCore(string phase, string key, StatusKind? status, string? label, string? detail, bool replaceDetail = false) {
             if (!_phaseItems.TryGetValue(phase, out List<StatusItem>? items)) {
                 items = new List<StatusItem>();
                 _phaseItems[phase] = items;
@@ -54,7 +54,7 @@ namespace ConsoleMonster.Widgets {
             }
             if (status.HasValue) { item.Status = status.Value; }
             if (!string.IsNullOrEmpty(label)) { item.Label = label!; }
-            if (!string.IsNullOrEmpty(detail)) { item.Detail = detail; }
+            if (replaceDetail || !string.IsNullOrEmpty(detail)) { item.Detail = detail; }
         }
 
         // Live item events address "phase␟item"; the unit separator cannot appear in a typed key.
@@ -70,7 +70,7 @@ namespace ConsoleMonster.Widgets {
                 StatusKind? status = StatusKinds.TryParse(liveEvent.Status, out StatusKind parsed) ? parsed : (StatusKind?)null;
                 SetItemCore(phase, key, status, liveEvent.Text, null);
             } else {
-                SetItemCore(phase, key, null, null, liveEvent.Text);
+                SetItemCore(phase, key, null, null, liveEvent.Text, replaceDetail: true);
             }
             return true;
         }

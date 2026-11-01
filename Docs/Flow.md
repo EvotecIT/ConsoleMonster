@@ -78,8 +78,9 @@ A phase strip (`New-ConsoleStatusList -Layout Strip`, `Phases` in C#) can carry 
 items each phase works on: users being migrated, files being scanned, servers being
 patched. The running phase, or the first failed one, fans out to its items under the
 strip. When there are more items than `-FanOut` rows (default 5), failed, warning and
-running items stay visible and the last row folds the rest into `+N more`, with a count
-per status.
+running items have priority for the available rows. The last row folds the remaining
+items into `+N more`, with a count per status. That summary uses one of the rows, so
+urgent items can also be folded when they exceed the limit.
 
 ```powershell
 New-ConsoleStatusList -Layout Strip -FanOut 4 -Content {
@@ -101,4 +102,6 @@ and `phases.Handle(session).Item("Migrate", "erin", StatusKind.Pass)` do the sam
 header: `✓ Fetch › ● Build › ○ Test`. When the line does not fit, the phases around the
 current one fold into `✓ +2 earlier` and `○ +3 more`, then into plain counts, and finally
 the current phase drops its detail. The current phase is the first failed, running or
-pending one, so a failure is never folded away.
+pending one. At very narrow widths, surrounding counts are omitted before its label
+is shortened. Other failures can appear in a folded group's status rather than as
+individual labels.

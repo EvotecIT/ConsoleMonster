@@ -13,7 +13,8 @@ namespace ConsoleMonster.Widgets {
         /// Draws the phases as one line that folds to fit, for a table cell, a status-list detail or a header:
         /// <c>✓ Fetch › ● Build 40% › ○ Test</c>. When the line is too wide, phases around the current one (the first failed,
         /// running or pending phase) fold into <c>✓ +2 earlier</c> and <c>○ +3 more</c>, then into plain counts, and finally the
-        /// current phase drops its detail. Items and the step counter are not shown in this form.
+        /// current phase drops its detail. At very narrow widths, surrounding counts are omitted before the current
+        /// phase is shortened. Other failures can be represented by a folded group's status. Items and the step counter are not shown in this form.
         /// </summary>
         public bool Compact { get; set; }
 
@@ -27,28 +28,24 @@ namespace ConsoleMonster.Widgets {
         private StyledLine ChainLine(int width, RenderContext context) {
             if (_phases.Count == 0) { return StyledLine.Empty; }
             int current = ChainIndex();
-            StyledLine? best = null;
             // Most readable first: every phase, then neighbours folded with words, then counts, then no current detail.
             for (int level = 0; level < 4; level++) {
-                StyledLine line = Chain(current, level, context, int.MaxValue);
+                StyledLine line = Chain(current, level, context);
                 if (line.Width <= width) { return line; }
-                best = line;
             }
-            // Last resort: shorten the current phase's label so both folded sides stay readable.
+            // Keep the current phase ahead of surrounding counts when the whole chain no longer fits.
             StyledLine chip = Chip(new StatusItem(_phases[current].Key, _phases[current].Label, _phases[current].Status), context);
-            int room = width - (best!.Width - chip.Width);
-            if (room >= 4) { return Chain(current, 3, context, room); }
-            return TextWrapper.Truncate(best, width, context.Ellipsis);
+            return TextWrapper.Truncate(chip, width, context.Ellipsis);
         }
 
-        private StyledLine Chain(int current, int level, RenderContext context, int currentWidth) {
+        private StyledLine Chain(int current, int level, RenderContext context) {
             List<StyledLine> parts = new List<StyledLine>();
             if (level == 0) {
                 foreach (StatusItem phase in _phases) { parts.Add(Chip(phase, context)); }
             } else {
                 AddGroup(parts, 0, current, level, false, context);
                 StyledLine chip = level == 3 ? Chip(new StatusItem(_phases[current].Key, _phases[current].Label, _phases[current].Status), context) : Chip(_phases[current], context);
-                parts.Add(chip.Width > currentWidth ? TextWrapper.Truncate(chip, currentWidth, context.Ellipsis) : chip);
+                parts.Add(chip);
                 AddGroup(parts, current + 1, _phases.Count, level, true, context);
             }
             List<TextSpan> spans = new List<TextSpan>();

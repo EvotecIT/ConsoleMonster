@@ -51,5 +51,36 @@ namespace ConsoleMonster.Tests.Widgets {
             }
             Assert.Contains(Render(phases, 80), line => line.Contains("[BUSY] alice 40%"));
         }
+
+        [Theory]
+        [InlineData(10)]
+        [InlineData(16)]
+        [InlineData(24)]
+        [InlineData(30)]
+        public void NarrowChainKeepsTheCurrentFailureBeforeFoldedCounts(int width) {
+            Phases phases = new Phases { Compact = true }
+                .Set("prepare", StatusKind.Pass, "Prepare")
+                .Set("migrate", StatusKind.Fail, "Migrate")
+                .Set("verify", StatusKind.Pending, "Verify");
+            string line = Render(phases, width)[0];
+            Assert.StartsWith("[FAIL]", line);
+            if (width >= 14) { Assert.Contains("Migrate", line); }
+            Assert.True(line.Length <= width);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        public void ExplicitItemDetailClearReplacesThePreviousValue(string? clear) {
+            Phases phases = Pipeline().SetItem("migrate", "alice", StatusKind.Running, detail: "Old detail");
+            phases.SetItem("migrate", "alice", StatusKind.Running, detail: null);
+            Assert.Contains(Render(phases, 80), line => line.Contains("alice Old detail"));
+            foreach (LiveEvent update in ConsoleUpdate.Events(phases, new WidgetUpdate { ParentKey = "migrate", Key = "alice", Detail = clear })) {
+                phases.Apply(update);
+            }
+            string[] lines = Render(phases, 80);
+            Assert.Contains(lines, line => line.Contains("alice"));
+            Assert.DoesNotContain(lines, line => line.Contains("Old detail"));
+        }
     }
 }

@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Layout;
+using ConsoleMonster.Widgets;
 using ConsoleMonster.Output;
 using ConsoleMonster.Rendering;
 
@@ -76,6 +78,7 @@ namespace ConsoleMonster.Live {
             _options = options ?? new LiveSessionOptions();
             Discover(root);
             _updateTargets = new Dictionary<string, ILiveTarget>(_targets, StringComparer.Ordinal);
+            foreach (Phases phases in _updateTargets.Values.OfType<Phases>()) { PhaseKeys(phases); }
             _discovered = true;
         }
 
@@ -199,7 +202,7 @@ namespace ConsoleMonster.Live {
                 if (!_targets.TryAdd(target.WidgetId, target)) {
                     throw new ArgumentException(DuplicateWidgetId(target.WidgetId, _targets.TryGetValue(target.WidgetId, out ILiveTarget? existing) ? existing : null, target), nameof(target));
                 }
-                if (_discovered) { lock (_updateGate) { _additionalTargets[target.WidgetId] = target; _updateTargets[target.WidgetId] = target; } }
+                if (_discovered) { lock (_updateGate) { _additionalTargets[target.WidgetId] = target; _updateTargets[target.WidgetId] = target; if (target is Phases phases) { PhaseKeys(phases); } } }
                 if (target is ILogTarget) { lock (_logTargets) { _logTargets.Add(target); } }
                 if (_logTarget == null && target is ILogTarget && (_options.LogTarget == null || _options.LogTarget == target.WidgetId)) {
                     Volatile.Write(ref _logTarget, target);
@@ -275,10 +278,11 @@ namespace ConsoleMonster.Live {
                 if (Interlocked.CompareExchange(ref _admission, admission + 1, admission) == admission) { break; }
             }
             try {
-                if (liveEvent.Operation == "set" || liveEvent.Operation == "add" || liveEvent.Operation == "count" || liveEvent.Operation == "clear") {
+                if (liveEvent.Operation == "set" || liveEvent.Operation == "add" || liveEvent.Operation == "count" || liveEvent.Operation == "clear" || liveEvent.Operation == "state") {
                     lock (_updateGate) {
                         if ((liveEvent.Operation == "set" && liveEvent.Payload is IWidget) || liveEvent.Operation == "clear") { ProjectContent(liveEvent); }
                         ProjectCellCount(liveEvent);
+                        ProjectPhaseKey(liveEvent);
                         Enqueue(liveEvent);
                     }
                 } else { Enqueue(liveEvent); }

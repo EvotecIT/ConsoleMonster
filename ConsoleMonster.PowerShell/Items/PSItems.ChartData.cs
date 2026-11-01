@@ -71,7 +71,7 @@ namespace ConsoleMonster.PowerShell {
             return number;
         }
 
-        private static bool HasField(IDictionary dictionary, string name) {
+        internal static bool HasField(IDictionary dictionary, string name) {
             foreach (object key in dictionary.Keys) { if (string.Equals(PSWidgets.ToText(key), name, StringComparison.OrdinalIgnoreCase)) { return true; } }
             return false;
         }

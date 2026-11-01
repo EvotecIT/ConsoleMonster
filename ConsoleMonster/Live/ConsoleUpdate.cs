@@ -35,7 +35,7 @@ namespace ConsoleMonster.Live {
         }
 
         // Event creation is separate from publication so every field and payload is checked before the first enqueue.
-        internal static IReadOnlyList<LiveEvent> Events(ILiveTarget target, WidgetUpdate update, int? cellCount = null) {
+        internal static IReadOnlyList<LiveEvent> Events(ILiveTarget target, WidgetUpdate update, int? cellCount = null, ISet<string>? phaseKeys = null) {
             string allowed = Allowed(target);
             var fields = new HashSet<string>(allowed.Split(' '), StringComparer.Ordinal);
             foreach (string field in update.Bound) {
@@ -44,7 +44,7 @@ namespace ConsoleMonster.Live {
                 }
             }
             if (!update.Bound.Any()) { throw new ArgumentException("Specify at least one update field.", nameof(update)); }
-            Validate(target, update, cellCount);
+            Validate(target, update, cellCount, phaseKeys);
             return Build(target, update);
         }
 
@@ -67,7 +67,7 @@ namespace ConsoleMonster.Live {
             throw new ConsoleUpdateException("ConsoleMonsterUnsupportedUpdateTarget", "Use the raw event API for custom target " + target.GetType().FullName + ".");
         }
 
-        private static void Validate(ILiveTarget target, WidgetUpdate u, int? cellCount) {
+        private static void Validate(ILiveTarget target, WidgetUpdate u, int? cellCount, ISet<string>? phaseKeys) {
             if (u.Has(nameof(u.Value)) && u.Has(nameof(u.Increment))) { throw new ArgumentException("Value and Increment cannot be combined."); }
             if (u.Has(nameof(u.Status)) && !Enum.IsDefined(typeof(StatusKind), u.Status)) { throw new ArgumentOutOfRangeException(nameof(u.Status)); }
             if (u.Has(nameof(u.Result)) && !Enum.IsDefined(typeof(StatusKind), u.Result)) { throw new ArgumentOutOfRangeException(nameof(u.Result)); }
@@ -93,7 +93,7 @@ namespace ConsoleMonster.Live {
                 if (u.Has(nameof(u.Label)) && !u.Has(nameof(u.ParentKey))) { throw new ArgumentException("Label updates a phase item: give the phase as ParentKey."); }
                 if (u.Has(nameof(u.ParentKey))) {
                     if (string.IsNullOrWhiteSpace(u.ParentKey) || u.ParentKey!.IndexOf(Phases.ItemSeparator) >= 0 || u.Key!.IndexOf(Phases.ItemSeparator) >= 0) { throw new ArgumentException("ParentKey and Key must be nonempty phase and item keys."); }
-                    if (!phases.Items.Any(phase => phase.Key == u.ParentKey)) { throw new ConsoleUpdateException("ConsoleMonsterUnknownItem", "Unknown phase ParentKey '" + u.ParentKey + "'."); }
+                    if (!(phaseKeys?.Contains(u.ParentKey!) ?? phases.Items.Any(phase => phase.Key == u.ParentKey))) { throw new ConsoleUpdateException("ConsoleMonsterUnknownItem", "Unknown phase ParentKey '" + u.ParentKey + "'."); }
                 }
             }
             if (target is ActivityList) {
