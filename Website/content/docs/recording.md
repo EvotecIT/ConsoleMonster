@@ -51,7 +51,7 @@ This longer, real `Invoke-ConsoleRecording` capture inspects a synthetic Git rep
 
 {{< cm-session-recording >}}
 
-The [recording script](/examples/recording/record-session.ps1) uses `Show-ConsolePresentation` with a [plain PowerShell demo](/examples/recording/demo.ps1). It types commands into one real child terminal and detects readiness through OSC 133 marks, so the visible prompt can change on any operating system. The synthetic repository lives under the output folder. A synthetic token becomes `API_TOKEN=[REDACTED] (redacted)` before the cast is written. See [Talks and demos](/docs/talks-and-demos/) for directives, presenter controls and slide exports.
+The [recording script](/examples/recording/record-session.ps1) uses `Show-ConsolePresentation` with a [plain PowerShell demo](/examples/recording/demo.ps1). It types commands into one real child terminal and detects readiness through OSC 133 marks, so the visible prompt can change on any operating system. The synthetic repository lives under the output folder. The script explicitly redacts its synthetic token to `API_TOKEN=[REDACTED] (synthetic)` before the cast is written. See [Talks and demos](/docs/talks-and-demos/) for directives, presenter controls and slide exports.
 
 Download the [HTML player](/recordings/session.html), [animated SVG](/recordings/session.svg), [asciicast v2](/recordings/session.cast), [text](/recordings/session.txt), [Markdown](/recordings/session.md) or [final frame](/recordings/session-final-dark.svg). To reproduce the typed session, save both source files together in an empty folder.
 
