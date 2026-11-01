@@ -28,5 +28,16 @@ namespace ConsoleMonster.Widgets {
         /// <param name="key">The phase.</param>
         /// <param name="detail">The detail.</param>
         public void Detail(string key, string detail) => Update(new WidgetUpdate { Key = key, Detail = detail });
+
+        /// <summary>Adds or updates an item of a phase; the running phase fans out to its items.</summary>
+        /// <param name="phase">The phase key.</param>
+        /// <param name="key">The item key within the phase.</param>
+        /// <param name="status">The item status.</param>
+        /// <param name="detail">A detail, or null to keep the existing one.</param>
+        public void Item(string phase, string key, StatusKind status, string? detail = null) {
+            var update = new WidgetUpdate { ParentKey = phase, Key = key, Status = status };
+            if (detail != null) { update.Detail = detail; }
+            Update(update);
+        }
     }
 }

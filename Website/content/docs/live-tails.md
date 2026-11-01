@@ -35,7 +35,7 @@ The tail reads only completed lines, recognises each line's timestamp and level,
 
 ## Select and highlight literal text
 
-`-Filter` selects lines containing a literal, ordinal case-insensitive substring. `-Highlight` emphasizes a literal substring in the live view. Neither accepts a regular expression. Highlighting never changes plain output.
+`-Filter` selects lines containing a literal, ordinal case-insensitive substring. `-Level` keeps lines at a level or worse: `-Level Warn` keeps warnings and errors. `-Highlight` emphasizes a literal substring in the live view. None of them accepts a regular expression. Highlighting never changes plain output.
 
 ```powershell
 Watch-ConsoleLog -Path ./synthetic.log -Tail 16 -Filter ERROR -Count 1 -NoLive
@@ -50,6 +50,12 @@ On Windows, select a local log your account can read:
 
 ```powershell
 Watch-ConsoleLog -LogName Application -Tail 20 -Highlight database
+```
+
+Each event shows its provider in a tag column, in a colour that stays the same for that provider. To follow only problems:
+
+```powershell
+Watch-ConsoleLog -LogName System -Level Warn
 ```
 
 This sample uses the platform's `Get-WinEvent` command. It is documentation only: the generated evidence on this page reads the synthetic file, without querying Windows logs.

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Security;
 using System.Text;
 using System.Xml;
+using ConsoleMonster.Capabilities;
 using ConsoleMonster.Data;
 using ConsoleMonster.Presenters;
 using ConsoleMonster.Styling;
@@ -677,17 +678,20 @@ namespace ConsoleMonster.Values {
         /// <returns>The text.</returns>
         public static string Text(object? value, ShapeOptions? options = null, ShapeBudget? budget = null) {
             ShapeOptions o = options ?? new ShapeOptions();
-            return TextAt(Prepare(value, o), o, budget, 0, null);
+            return Placeholders.Resolve(TextAt(Prepare(value, o), o, budget, 0, null), GlyphTier.Full);
         }
+
+        // For drawing code that resolves ConsoleMonster's placeholders for its glyph tier.
+        internal static string ShapedText(object? value, ShapeOptions options, ShapeBudget? budget = null) => TextAt(Prepare(value, options), options, budget, 0, null);
 
         private static string TextAt(object? value, ShapeOptions options, ShapeBudget? budget, int depth, HashSet<object>? visiting) {
             switch (value) {
                 case null:
                     return string.Empty;
                 case FieldError error:
-                    return "⚠ " + error.Message;
+                    return Placeholders.Warning + " " + error.Message;
                 case BudgetExceeded _:
-                    return "…";
+                    return Placeholders.Ellipsis;
             }
             if (IsScalar(value)) {
                 return ScalarText(value, options);
@@ -728,7 +732,7 @@ namespace ConsoleMonster.Values {
             }
             string joined = string.Join(options.Separator, parts);
             int more = fields.Count - parts.Count;
-            return more > 0 ? joined + " … +" + more.ToString("N0", options.ResolvedCulture) : joined;
+            return more > 0 ? joined + " " + Placeholders.Ellipsis + " +" + more.ToString("N0", options.ResolvedCulture) : joined;
         }
 
         private static string CollectionText(IEnumerable items, ShapeOptions options, ShapeBudget? budget, int depth, HashSet<object> visiting, string? lineSeparator) {
@@ -754,7 +758,7 @@ namespace ConsoleMonster.Values {
             }
             int? total = CountOf(items);
             int remaining = total.HasValue ? Math.Max(0, total.Value - taken.Count) : (more ? -1 : 0);
-            string tail = remaining > 0 ? remaining.ToString("N0", culture) : "…";
+            string tail = remaining > 0 ? remaining.ToString("N0", culture) : Placeholders.Ellipsis;
             if (lineSeparator != null) {
                 string lines = string.Join(lineSeparator, parts);
                 return remaining != 0 ? lines + lineSeparator + "+" + tail + " more" : lines;
@@ -763,10 +767,10 @@ namespace ConsoleMonster.Values {
             if (remaining == 0) {
                 return joined;
             }
-            return options.Collections == CollectionDisplay.FirstN ? joined + " +" + tail + " more" : joined + " … +" + tail;
+            return options.Collections == CollectionDisplay.FirstN ? joined + " +" + tail + " more" : joined + " " + Placeholders.Ellipsis + " +" + tail;
         }
 
-        private const string EmptyText = "—";
+        private const string EmptyText = Placeholders.Missing;
 
         private static string ItemCount(int count, CultureInfo culture) =>
             count == 1 ? "1 item" : count.ToString("N0", culture) + " items";
@@ -846,7 +850,7 @@ namespace ConsoleMonster.Values {
                 case FieldError error:
                     return TableCell.ForStatus(StatusKind.Warn, error.Message);
                 case BudgetExceeded _:
-                    return new TableCell("[muted]…[/]");
+                    return Placeholders.Cell(Placeholders.Ellipsis, "muted");
                 case SecureString _:
                     return SecureText;
                 case byte[] _:
@@ -862,13 +866,14 @@ namespace ConsoleMonster.Values {
                 return prepared;
             }
             string text = TextAt(prepared, o, budget, 0, null);
+            // Placeholders stay apart from the data until the cell is drawn for its glyph tier.
             if (text == EmptyText) {
-                return new TableCell("[muted]" + EmptyText + "[/]");
+                return Placeholders.Cell(EmptyText, "muted");
             }
-            if (text.IndexOf('\n') >= 0) {
+            if (text.IndexOf('\n') >= 0 && !Placeholders.In(text)) {
                 return new TableCell(ConsoleMonster.Text.Markup.Escape(text));
             }
-            return text;
+            return Placeholders.Cell(text);
         }
 
         // ---------------------------------------------------------------- flatten

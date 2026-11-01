@@ -12806,12 +12806,12 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
       <command:noun>ConsoleLogRegion</command:noun>
       <maml:description>
         <maml:para>Creates a log region: the newest lines of a log, bottom-aligned.</maml:para>
-        <maml:para>Printed once, the lines come from a script block of Message/Level records calls (each with a level and a time) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry.</maml:para>
+        <maml:para>Printed once, the lines come from a script block of Message/Level records calls (each with a level, a time and an optional Tag naming its source) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry. -Tag, -Level and -Filter show part of the log; hidden lines are kept.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Creates a log region: the newest lines of a log, bottom-aligned.</maml:para>
-      <maml:para>Printed once, the lines come from a script block of Message/Level records calls (each with a level and a time) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry.</maml:para>
+      <maml:para>Printed once, the lines come from a script block of Message/Level records calls (each with a level, a time and an optional Tag naming its source) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry. -Tag, -Level and -Filter show part of the log; hidden lines are kept.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
@@ -12841,6 +12841,18 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Filter</maml:name>
+          <maml:description>
+            <maml:para>Shows only lines containing this literal text. Case does not matter.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Height</maml:name>
           <maml:description>
             <maml:para>Rows requested when printed once (default 8).</maml:para>
@@ -12865,6 +12877,18 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Level</maml:name>
+          <maml:description>
+            <maml:para>Shows only lines at this level or worse: Warn shows warnings and errors, Verbose hides only debug lines.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>LevelColumn</maml:name>
           <maml:description>
             <maml:para>Shared LevelColumn layout settings as a hashtable, for example @{ MinWidth = 6; Alignment = 'Right' }.</maml:para>
@@ -12884,6 +12908,18 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
           <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Tag</maml:name>
+          <maml:description>
+            <maml:para>Shows only lines from this source, as given by a record's Tag or Write-ConsoleLogEntry -Tag. Case does not matter.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -12940,6 +12976,18 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Filter</maml:name>
+        <maml:description>
+          <maml:para>Shows only lines containing this literal text. Case does not matter.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Height</maml:name>
         <maml:description>
           <maml:para>Rows requested when printed once (default 8).</maml:para>
@@ -12964,6 +13012,18 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Level</maml:name>
+        <maml:description>
+          <maml:para>Shows only lines at this level or worse: Warn shows warnings and errors, Verbose hides only debug lines.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>LevelColumn</maml:name>
         <maml:description>
           <maml:para>Shared LevelColumn layout settings as a hashtable, for example @{ MinWidth = 6; Alignment = 'Right' }.</maml:para>
@@ -12983,6 +13043,18 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
           <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Tag</maml:name>
+        <maml:description>
+          <maml:para>Shows only lines from this source, as given by a record's Tag or Write-ConsoleLogEntry -Tag. Case does not matter.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -13036,7 +13108,7 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
         <maml:title>EXAMPLE 1</maml:title>
         <dev:code>New-ConsoleLogRegion -Height 5 -Content {&#xD;
     [pscustomobject]@{ Message = 'Discovered 4 domain controllers in 2 domains'; Level = 'Info'; AtSeconds = 2 }&#xD;
-    [pscustomobject]@{ Message = 'DC02: USN rollback check failed (event 2095)'; Level = 'Error'; AtSeconds = 44 }&#xD;
+    [pscustomobject]@{ Message = 'DC02: USN rollback check failed (event 2095)'; Level = 'Error'; AtSeconds = 44; Tag = 'DC02' }&#xD;
     [pscustomobject]@{ Message = 'Using cached schema snapshot'; Level = 'Verbose'; AtSeconds = 53 }&#xD;
 } | Show-Console</dev:code>
         <dev:remarks>
@@ -13048,6 +13120,17 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
         <dev:code>New-ConsolePanel -Title 'Log' -Fill -Content { New-ConsoleLogRegion }</dev:code>
         <dev:remarks>
           <maml:para>A log that fills the rest of a dashboard</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 3</maml:title>
+        <dev:code>New-ConsoleLogRegion -Tag 'sql-index' -Level Warn -NoElapsed -Content {&#xD;
+    @{ Message = 'Rebuilding IX_Users_Name'; Tag = 'sql-index' }&#xD;
+    @{ Message = 'Fragmentation 41% on IX_Orders_Date'; Level = 'Warn'; Tag = 'sql-index' }&#xD;
+    @{ Message = 'Backup share is read-only'; Level = 'Error'; Tag = 'backup' }&#xD;
+} | Show-Console</dev:code>
+        <dev:remarks>
+          <maml:para>Only warnings and errors from one job</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>
@@ -18158,12 +18241,12 @@ Description and RunText.</maml:para>
       <command:noun>ConsoleStatusList</command:noun>
       <maml:description>
         <maml:para>Creates a checklist of items with status markers.</maml:para>
-        <maml:para>Content or the pipeline accepts Key/Label/Status records and strings. Records can include Detail; strings begin as pending checklist items. InputObject also accepts a dictionary mapping labels to statuses. Layout selects a vertical List or a horizontal Strip. Statuses use the shared vocabulary: Pass, Fail, Warn, Skip, Info, Running, Pending and PowerShell's words such as Success, Warning and Error. Status is always shown with a symbol (or a [PASS]-style word in ASCII mode), never by colour alone. In a live dashboard, update items with Update-Console.</maml:para>
+        <maml:para>Content or the pipeline accepts Key/Label/Status records and strings. Records can include Detail; strings begin as pending checklist items. InputObject also accepts a dictionary mapping labels to statuses. Layout selects a vertical List, a horizontal Strip of phases, or a Chain: the phases on one line that folds to fit, for a table cell or a header. In a Strip, records with ParentKey are items of that phase; the running phase fans out to them, prioritizing failed, warning and running items within FanOut rows and counting the remaining items in +N more. The summary uses one row, so urgent items can also be folded when they exceed the limit. Statuses use the shared vocabulary: Pass, Fail, Warn, Skip, Info, Running, Pending and PowerShell's words such as Success, Warning and Error. Status is always shown with a symbol (or a [PASS]-style word in ASCII mode), never by colour alone. In a live dashboard, update items with Update-Console.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Creates a checklist of items with status markers.</maml:para>
-      <maml:para>Content or the pipeline accepts Key/Label/Status records and strings. Records can include Detail; strings begin as pending checklist items. InputObject also accepts a dictionary mapping labels to statuses. Layout selects a vertical List or a horizontal Strip. Statuses use the shared vocabulary: Pass, Fail, Warn, Skip, Info, Running, Pending and PowerShell's words such as Success, Warning and Error. Status is always shown with a symbol (or a [PASS]-style word in ASCII mode), never by colour alone. In a live dashboard, update items with Update-Console.</maml:para>
+      <maml:para>Content or the pipeline accepts Key/Label/Status records and strings. Records can include Detail; strings begin as pending checklist items. InputObject also accepts a dictionary mapping labels to statuses. Layout selects a vertical List, a horizontal Strip of phases, or a Chain: the phases on one line that folds to fit, for a table cell or a header. In a Strip, records with ParentKey are items of that phase; the running phase fans out to them, prioritizing failed, warning and running items within FanOut rows and counting the remaining items in +N more. The summary uses one row, so urgent items can also be folded when they exceed the limit. Statuses use the shared vocabulary: Pass, Fail, Warn, Skip, Info, Running, Pending and PowerShell's words such as Success, Warning and Error. Status is always shown with a symbol (or a [PASS]-style word in ASCII mode), never by colour alone. In a live dashboard, update items with Update-Console.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
@@ -18192,6 +18275,18 @@ Description and RunText.</maml:para>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>FanOut</maml:name>
+          <maml:description>
+            <maml:para>Rows the running phase of a Strip fans out to, including the +N more row (default 5; 0 hides items).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="1" aliases="None">
           <maml:name>InputObject</maml:name>
           <maml:description>
@@ -18207,12 +18302,13 @@ Description and RunText.</maml:para>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Layout</maml:name>
           <maml:description>
-            <maml:para>List stacks the items; Strip shows ordered phases.</maml:para>
+            <maml:para>List stacks the items; Strip shows ordered phases; Chain shows the phases on one line that folds to fit.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <command:parameterValueGroup>
             <command:parameterValue required="false" variableLength="false">List</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Strip</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Chain</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>String</maml:name>
@@ -18223,7 +18319,7 @@ Description and RunText.</maml:para>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>StepCounter</maml:name>
           <maml:description>
-            <maml:para>Adds step counters to the Strip layout.</maml:para>
+            <maml:para>Shows Strip phases as a numbered ledger. ParentKey items require Strip without StepCounter.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
           <dev:type>
@@ -18271,6 +18367,18 @@ Description and RunText.</maml:para>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>FanOut</maml:name>
+        <maml:description>
+          <maml:para>Rows the running phase of a Strip fans out to, including the +N more row (default 5; 0 hides items).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="1" aliases="None">
         <maml:name>InputObject</maml:name>
         <maml:description>
@@ -18286,12 +18394,13 @@ Description and RunText.</maml:para>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Layout</maml:name>
         <maml:description>
-          <maml:para>List stacks the items; Strip shows ordered phases.</maml:para>
+          <maml:para>List stacks the items; Strip shows ordered phases; Chain shows the phases on one line that folds to fit.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <command:parameterValueGroup>
           <command:parameterValue required="false" variableLength="false">List</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Strip</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Chain</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>String</maml:name>
@@ -18302,7 +18411,7 @@ Description and RunText.</maml:para>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>StepCounter</maml:name>
         <maml:description>
-          <maml:para>Adds step counters to the Strip layout.</maml:para>
+          <maml:para>Shows Strip phases as a numbered ledger. ParentKey items require Strip without StepCounter.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
@@ -18392,6 +18501,35 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
             } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Show build phases as a compact strip</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 6</maml:title>
+        <dev:code>New-ConsoleStatusList -Layout Strip -FanOut 4 -Content {&#xD;
+                @{ Key = 'snapshot'; Label = 'Snapshot'; Status = 'Pass'; Detail = '12 s' }&#xD;
+                @{ Key = 'migrate'; Label = 'Migrate'; Status = 'Running'; Detail = '6/14' }&#xD;
+                @{ Key = 'verify'; Label = 'Verify' }&#xD;
+                'alice', 'bob', 'carol', 'dave', 'erin' | ForEach-Object { @{ ParentKey = 'migrate'; Key = $_; Status = 'Pass' } }&#xD;
+                @{ ParentKey = 'migrate'; Key = 'frank'; Status = 'Running'; Detail = '40%' }&#xD;
+                @{ ParentKey = 'migrate'; Key = 'mallory'; Status = 'Fail'; Detail = 'access denied' }&#xD;
+            } | Show-Console</dev:code>
+        <dev:remarks>
+          <maml:para>The running phase fans out to the users it is migrating</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 7</maml:title>
+        <dev:code>$stages = { param($Build) New-ConsoleStatusList -Layout Chain -Content {&#xD;
+                @{ Key = 'fetch'; Label = 'Fetch'; Status = 'Pass' }&#xD;
+                @{ Key = 'build'; Label = 'Build'; Status = $Build }&#xD;
+                @{ Key = 'test'; Label = 'Test' }&#xD;
+            } }&#xD;
+            @(&#xD;
+                [pscustomobject]@{ Repository = 'ConsoleMonster'; Stages = &amp; $stages 'Running' }&#xD;
+                [pscustomobject]@{ Repository = 'PSPublishModule'; Stages = &amp; $stages 'Fail' }&#xD;
+            ) | Show-ConsoleTable</dev:code>
+        <dev:remarks>
+          <maml:para>Pipeline stages as one line in a table column</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>
@@ -31703,7 +31841,7 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>ParentKey</maml:name>
           <maml:description>
-            <maml:para>The parent activity key.</maml:para>
+            <maml:para>The parent activity key, or the phase an item belongs to in a phase strip (Key is then the item).</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -32668,7 +32806,7 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>ParentKey</maml:name>
         <maml:description>
-          <maml:para>The parent activity key.</maml:para>
+          <maml:para>The parent activity key, or the phase an item belongs to in a phase strip (Key is then the item).</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
@@ -33878,6 +34016,18 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {&#xD;
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Level</maml:name>
+          <maml:description>
+            <maml:para>Keeps lines at this level or worse: Warn keeps warnings and errors, Verbose drops only debug lines. Levels are read from each line, as the live view colours them.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>NoLive</maml:name>
           <maml:description>
             <maml:para>Writes literal lines without a live screen or keyboard input.</maml:para>
@@ -33980,6 +34130,18 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {&#xD;
           <maml:name>Highlight</maml:name>
           <maml:description>
             <maml:para>Literal case-insensitive text emphasized in live output. Plain output stays unchanged.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Level</maml:name>
+          <maml:description>
+            <maml:para>Keeps lines at this level or worse: Warn keeps warnings and errors, Verbose drops only debug lines. Levels are read from each line, as the live view colours them.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -34124,6 +34286,18 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {&#xD;
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Level</maml:name>
+        <maml:description>
+          <maml:para>Keeps lines at this level or worse: Warn keeps warnings and errors, Verbose drops only debug lines. Levels are read from each line, as the live view colours them.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>LogName</maml:name>
         <maml:description>
@@ -34233,6 +34407,13 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {&#xD;
           <maml:para>Return matching lines from an existing log as strings</maml:para>
         </dev:remarks>
       </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 3</maml:title>
+        <dev:code>Watch-ConsoleLog -LogName System -Level Warn</dev:code>
+        <dev:remarks>
+          <maml:para>Follow only warnings and errors from the System event log</maml:para>
+        </dev:remarks>
+      </command:example>
     </command:examples>
     <command:relatedLinks />
   </command:command>
@@ -34302,9 +34483,21 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {&#xD;
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Tag</maml:name>
+          <maml:description>
+            <maml:para>The source of the line (a job, server or component), shown in its own column with a colour that stays the same for that source, and matched by New-ConsoleLogRegion -Tag.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>WidgetId</maml:name>
           <maml:description>
-            <maml:para>The log name; defaults to the dashboard's log region.</maml:para>
+            <maml:para>The log name; defaults to the dashboard's log region. In a running app, the key of a log viewport.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -34365,9 +34558,21 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {&#xD;
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Tag</maml:name>
+        <maml:description>
+          <maml:para>The source of the line (a job, server or component), shown in its own column with a colour that stays the same for that source, and matched by New-ConsoleLogRegion -Tag.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>WidgetId</maml:name>
         <maml:description>
-          <maml:para>The log name; defaults to the dashboard's log region.</maml:para>
+          <maml:para>The log name; defaults to the dashboard's log region. In a running app, the key of a log viewport.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
@@ -34397,6 +34602,19 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {&#xD;
             Invoke-ConsoleDashboard $dashboard { Write-ConsoleLogEntry 'DC03 responded slowly' -Level warn }</dev:code>
         <dev:remarks>
           <maml:para>Log a warning</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 2</maml:title>
+        <dev:code>$dashboard = New-ConsoleDashboard -Title 'Patching' -Content { New-ConsoleLogRegion -NoElapsed }&#xD;
+            Invoke-ConsoleDashboard $dashboard {&#xD;
+                foreach ($server in 'DC01', 'DC02', 'FS01') {&#xD;
+                    Write-ConsoleLogEntry 'Installing KB5044284' -Tag $server&#xD;
+                }&#xD;
+                Write-ConsoleLogEntry 'Reboot pending' -Level warn -Tag 'FS01'&#xD;
+            }</dev:code>
+        <dev:remarks>
+          <maml:para>Tag lines with the server they came from</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>

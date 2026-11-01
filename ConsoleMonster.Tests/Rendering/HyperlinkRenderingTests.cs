@@ -115,6 +115,15 @@ namespace ConsoleMonster.Tests.Rendering {
         }
 
         [Fact]
+        public void Markup_HyperlinkTerminal_ShowsTheTargetOfALinkItCannotOpen() {
+            TextBlock text = new TextBlock("[link=docs/report.pdf]Report[/] and [link=https://evotec.xyz]Evotec[/]");
+            Assert.Equal("Report (docs/report.pdf) and Evotec", Terminal.RenderText(text, Profile, Theme.Dark).TrimEnd());
+            // A label that is only part of the address still needs the address.
+            Assert.Equal("report (docs/report.pdf)", Terminal.RenderText(new TextBlock("[link=docs/report.pdf]report[/]"), Profile, Theme.Dark).TrimEnd());
+            Assert.Contains(Osc + "https://evotec.xyz", Terminal.RenderEncoded(text, Profile, Theme.Dark));
+        }
+
+        [Fact]
         public void Logs_LiteralUrlsAndPathsAndRichLabels_AreLinked() {
             LogRegion log = new LogRegion { ShowElapsed = false };
             log.Write("Saved /var/log/daily.txt; docs https://example.com/docs");

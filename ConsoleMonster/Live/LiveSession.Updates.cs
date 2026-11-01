@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Widgets;
 
@@ -13,6 +14,7 @@ namespace ConsoleMonster.Live {
         private Dictionary<string, ILiveTarget> _updateTargets = new Dictionary<string, ILiveTarget>(StringComparer.Ordinal);
         private readonly Dictionary<RegionWidget, IWidget?> _updateContent = new Dictionary<RegionWidget, IWidget?>();
         private readonly Dictionary<CellMap, int> _updateCellCounts = new Dictionary<CellMap, int>();
+        private readonly ConditionalWeakTable<Phases, HashSet<string>> _updatePhaseKeys = new ConditionalWeakTable<Phases, HashSet<string>>();
         private readonly Dictionary<string, ILiveTarget> _additionalTargets = new Dictionary<string, ILiveTarget>(StringComparer.Ordinal);
         private bool _discovered;
 
@@ -22,13 +24,25 @@ namespace ConsoleMonster.Live {
                     throw new ConsoleUpdateException("ConsoleMonsterUnknownWidget", "Unknown WidgetId '" + widgetId + "'. Available targets: " + string.Join(", ", _updateTargets.Keys.OrderBy(x => x, StringComparer.Ordinal)) + ".");
                 }
                 int? count = target is CellMap cells ? _updateCellCounts.TryGetValue(cells, out int projected) ? projected : cells.Count : (int?)null;
-                IReadOnlyList<LiveEvent> events = ConsoleUpdate.Events(target, update, count);
+                IReadOnlyList<LiveEvent> events = ConsoleUpdate.Events(target, update, count, target is Phases phases ? PhaseKeys(phases) : null);
                 foreach (LiveEvent item in events) { Post(item); }
             }
         }
 
         private bool TryGetUpdateTarget(string widgetId, out ILiveTarget? target) {
             lock (_updateGate) { return _updateTargets.TryGetValue(widgetId, out target); }
+        }
+
+        // Phase creation, like cell capacity, follows admitted queue order rather than rendered state.
+        private HashSet<string> PhaseKeys(Phases phases) {
+            return _updatePhaseKeys.GetValue(phases, widget => new HashSet<string>(widget.Items.Select(phase => phase.Key), StringComparer.Ordinal));
+        }
+
+        private void ProjectPhaseKey(LiveEvent item) {
+            if ((item.Operation == "add" || item.Operation == "state") && item.Key != null
+                && _updateTargets.TryGetValue(item.WidgetId, out ILiveTarget? target) && target is Phases phases) {
+                PhaseKeys(phases).Add(item.Key);
+            }
         }
 
         // The accepted queue, rather than the render thread's current state, determines available cell capacity.
@@ -68,6 +82,8 @@ namespace ConsoleMonster.Live {
             _updateTargets = next;
             var cells = new HashSet<CellMap>(next.Values.OfType<CellMap>());
             foreach (CellMap stale in _updateCellCounts.Keys.Where(item => !cells.Contains(item)).ToArray()) { _updateCellCounts.Remove(stale); }
+            // Reattaching the same widget retains admitted keys; weak keys do not keep removed widgets alive.
+            foreach (Phases current in next.Values.OfType<Phases>()) { PhaseKeys(current); }
         }
     }
 }

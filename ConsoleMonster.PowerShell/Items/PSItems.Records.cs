@@ -125,11 +125,13 @@ namespace ConsoleMonster.PowerShell {
 
         private static bool TryAddLogRecord(LogRegion log, object item) {
             if (!IsRecord(item) || Field(item, "Message") == null) { return false; }
-            RecordFields(item, "Message Level AtSeconds");
+            RecordFields(item, "Message Level AtSeconds Tag");
             if (!LogLevels.TryNormalize(PSText.PlainText(Field(item, "Level") ?? "info"), out string level)) { throw new PSArgumentException("Level must be a recognized log level."); }
             TimeSpan time = TimeSpan.FromSeconds(RecordNumber(item, "AtSeconds"));
             object message = Field(item, "Message")!;
-            log.Write(message is RichText rich ? new LogEntry(time, level, rich) : new LogEntry(time, level, PSText.PlainText(message)));
+            string? tag = Field(item, "Tag") is object source ? PSText.PlainText(source) : null;
+            if (message is RichText rich) { log.WriteRich(rich, level, time, tag); }
+            else { log.WriteLiteral(PSText.PlainText(message), level, time, null, tag); }
             return true;
         }
     }

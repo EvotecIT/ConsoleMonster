@@ -16,6 +16,9 @@ namespace ConsoleMonster.Live.Tails {
         /// <summary>Literal, ordinal case-insensitive substring required in the original line; null or empty accepts all.</summary>
         public string? Filter { get; set; }
 
+        /// <summary>The lowest level kept (debug, verbose, info, warn or err), or null for every level; warn keeps warnings and errors.</summary>
+        public string? Level { get; set; }
+
         /// <summary>Literal, ordinal case-insensitive substring emphasized in live frames; plain lines stay unchanged.</summary>
         public string? Highlight { get; set; }
 
@@ -52,6 +55,7 @@ namespace ConsoleMonster.Live.Tails {
 
         internal void Validate() {
             if (TimestampFormat != null) { DateTimeOffset.MinValue.ToString(TimestampFormat, System.Globalization.CultureInfo.InvariantCulture); }
+            _ = new Widgets.LogFilter(level: Level);
             if (Capacity < 1) { throw new ArgumentOutOfRangeException(nameof(Capacity)); }
             if (Count < 0) { throw new ArgumentOutOfRangeException(nameof(Count)); }
             if (PollInterval <= TimeSpan.Zero || PollInterval.TotalMilliseconds > int.MaxValue) {

@@ -383,7 +383,7 @@ Accept wildcard characters: False
 ```
 
 ### -ParentKey
-The parent activity key.
+The parent activity key, or the phase an item belongs to in a phase strip (Key is then the item).
 
 ```yaml
 Type: String

@@ -35,6 +35,12 @@ namespace ConsoleMonster.Widgets {
 
         internal TableRowRole? RowRole { get; private set; }
 
+        /// <summary>Markup holding ConsoleMonster's own placeholders, resolved for the glyph tier where the cell is drawn, or null.</summary>
+        internal string? PlaceholderMarkup { get; private set; }
+
+        internal static TableCell WithPlaceholders(string markup) =>
+            new TableCell(Values.Placeholders.Resolve(markup, Capabilities.GlyphTier.Full)) { PlaceholderMarkup = markup };
+
         /// <summary>Returns a copy with a cell tone, retaining the raw value, status and existing emphasis.</summary>
         /// <param name="tone">The theme role supplied by the caller; it is not inferred from the numeric value.</param>
         /// <returns>A new cell; this cell is unchanged.</returns>
@@ -44,7 +50,7 @@ namespace ConsoleMonster.Widgets {
         });
 
         internal TableCell WithRowRole(TableRowRole role) {
-            TableCell copy = HasValue ? FromValue(Value) : new TableCell(Markup);
+            TableCell copy = HasValue ? FromValue(Value) : new TableCell(Markup) { PlaceholderMarkup = PlaceholderMarkup };
             copy.Status = Status;
             copy.AssessmentSeverity = AssessmentSeverity;
             copy.RowRole = role;

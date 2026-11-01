@@ -30,7 +30,7 @@ namespace ConsoleMonster.Interactive {
             if (liveEvent.Operation != "write" || liveEvent.Text == null) { return; }
             string level = liveEvent.Status ?? "out";
             if (_actions.HasCommands) { _actions.WriteOutput(liveEvent.Text, level); }
-            else if (_viewport != null) { _viewport.Write(liveEvent.Text, level == "err" ? "error" : level == "out" ? "info" : level); }
+            else if (_viewport != null) { _viewport.Write(liveEvent.Text, level == "err" ? "error" : level == "out" ? "info" : level, TimeSpan.FromMilliseconds(liveEvent.Time), liveEvent.Key); }
             else if (_region != null) { _region.Apply(liveEvent); }
             else { lock (_kept) { if (_kept.Count == KeepLimit) { _kept.Dequeue(); } _kept.Enqueue(liveEvent.Text); } }
         }

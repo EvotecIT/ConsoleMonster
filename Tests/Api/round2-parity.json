@@ -7711,6 +7711,24 @@
           "Reason": "Evaluates a PowerShell content block, then supplies the collected widget/items to the same container or definition."
         },
         {
+          "Parameter": "Filter",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.LogFilter",
+          "Member": ".ctor",
+          "Argument": "text",
+          "MemberKind": "Constructor",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String"
+        },
+        {
           "Parameter": "Height",
           "ParameterType": "System.Int32",
           "Default": 8,
@@ -7743,6 +7761,24 @@
           "MemberKind": "HostPolicy",
           "Conversion": "PipelineCollection",
           "Reason": "Collects PowerShell pipeline records before calling the owner; C# supplies a typed sequence directly."
+        },
+        {
+          "Parameter": "Level",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.LogFilter",
+          "Member": ".ctor",
+          "Argument": "level",
+          "MemberKind": "Constructor",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String"
         },
         {
           "Parameter": "LevelColumn",
@@ -7783,6 +7819,24 @@
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "Tag",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.LogFilter",
+          "Member": ".ctor",
+          "Argument": "tag",
+          "MemberKind": "Constructor",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String"
         },
         {
           "Parameter": "WidgetId",
@@ -10469,6 +10523,26 @@
           "MemberKind": "Property",
           "Conversion": "Identity",
           "CSharpTypeName": "ConsoleMonster.Layout.ColumnFormat",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "FanOut",
+          "ParameterType": "System.Int32",
+          "Default": 5,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.Phases",
+          "Member": "FanOut",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
@@ -20643,6 +20717,26 @@
           "Static": false
         },
         {
+          "Parameter": "Level",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Live.Tails.LogTailOptions",
+          "Member": "Level",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
           "Parameter": "LogName",
           "ParameterType": "System.String",
           "Default": "",
@@ -20850,6 +20944,24 @@
           "MemberKind": "HostPolicy",
           "Conversion": "Receiver",
           "Reason": "The LiveSession receiving the event/update or lifetime operation; omission uses the owning current session."
+        },
+        {
+          "Parameter": "Tag",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.LogHandle",
+          "Member": "Write",
+          "Argument": "tag",
+          "MemberKind": "Method",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String"
         },
         {
           "Parameter": "WidgetId",
@@ -22811,6 +22923,22 @@
       "CSharpTypeName": "System.Int32",
       "Reason": "The retained log viewport wraps the existing bounded LogRegion without adding a second log constructor cmdlet.",
       "Alternative": "Create LogViewport in PowerShell or C#, configure HorizontalOffset, and embed it in Show-ConsoleApp.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.LogViewport",
+      "Member": "Filter",
+      "CSharpTypeName": "ConsoleMonster.Widgets.LogFilter",
+      "Reason": "The retained log viewport wraps the existing bounded LogRegion without adding a second log constructor cmdlet.",
+      "Alternative": "Create LogViewport in PowerShell or C#, configure Filter, and embed it in Show-ConsoleApp.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.LogViewport",
+      "Member": "Border",
+      "CSharpTypeName": "ConsoleMonster.Glyphs.BoxStyle",
+      "Reason": "The retained log viewport wraps the existing bounded LogRegion without adding a second log constructor cmdlet.",
+      "Alternative": "Create LogViewport in PowerShell or C#, configure Border, and embed it in Show-ConsoleApp.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -25836,6 +25964,7 @@
     "ConsoleMonster.Widgets.LiveTable",
     "ConsoleMonster.Widgets.LiveWidget",
     "ConsoleMonster.Widgets.LogEntry",
+    "ConsoleMonster.Widgets.LogFilter",
     "ConsoleMonster.Widgets.LogHandle",
     "ConsoleMonster.Widgets.Logo",
     "ConsoleMonster.Widgets.LogRegion",
@@ -28087,6 +28216,24 @@
       "Command": "New-ConsoleDashboard",
       "Parameter": "NoElapsed",
       "Reason": "Dashboard.DrawHeader copies Dashboard.ShowElapsed into HeaderBar.ShowElapsed; NoElapsed is the existing inverted switch for this clock."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.LogRegion",
+      "Member": "Filter",
+      "MemberId": "ConsoleMonster.Widgets.LogRegion.Filter",
+      "CSharpTypeName": "ConsoleMonster.Widgets.LogFilter",
+      "Command": "New-ConsoleLogRegion",
+      "Parameter": "Tag",
+      "Reason": "Tag, Level and Filter build one LogFilter for the region; hidden lines stay in its history."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Phases",
+      "Member": "Compact",
+      "MemberId": "ConsoleMonster.Widgets.Phases.Compact",
+      "CSharpTypeName": "System.Boolean",
+      "Command": "New-ConsoleStatusList",
+      "Parameter": "Layout",
+      "Reason": "Layout Chain builds Phases with Compact set: one line that folds to fit."
     }
   ],
   "Endings": [

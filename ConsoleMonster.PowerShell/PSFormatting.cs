@@ -285,8 +285,8 @@ namespace ConsoleMonster.PowerShell {
             IReadOnlyList<PSObject> expanded = Expand(items, shape);
             if (expanded.Count > 0 && expanded.All(item => PSShaping.IsValueLike(item, shape))) {
                 // Values have no fields: one line each, as text.
-                string lines = string.Join("\n", expanded.Select(item => Text.Markup.Escape(ValueShaper.Text(item, shape, ShapeBudget.For(shape)))));
-                return title == null ? new TextBlock(lines) : (IWidget)new Rows(new TextBlock(title), new TextBlock(lines));
+                string lines = string.Join("\n", expanded.Select(item => Text.Markup.Escape(ValueShaper.ShapedText(item, shape, ShapeBudget.For(shape)))));
+                return title == null ? Placeholders.Block(lines) : new Rows(new TextBlock(title), Placeholders.Block(lines));
             }
             RecordView view = new RecordView(title) { HideEmpty = !showEmpty };
             if (expanded.Count > 1 || groupBy != null) {
