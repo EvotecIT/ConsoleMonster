@@ -56,7 +56,7 @@ Describe 'Structured Show-Console cmdlets' {
         $alias = $item | Show-Console -View Tree -Property @{ Name = 'Name'; Expression = { 'selected-name' } } -AsWidget | Export-ConsoleFrame -Format Text
         $alias | Should -Match 'Name\s+selected-name'
         $empty = $item | Show-Console -View Tree -Property @{ Name = 'EmptyValue'; Expression = { $null } } -AsWidget | Export-ConsoleFrame -Format Text
-        $empty | Should -Match 'EmptyValue\s+\(null\)'
+        $empty | Should -Match ('EmptyValue\s+' + [char]0x2014)
     }
 
     It 'keeps collection element identities at the tree depth limit' {
