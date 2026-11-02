@@ -72,7 +72,7 @@ namespace ConsoleMonster.Tests.Rendering {
         [Theory]
         [MemberData(nameof(PrintedUriCases))]
         public void PrintedLinks_PreserveTheDestinationInReducedTiers(string entry, bool addressLabel, GlyphTier tier, string address, string encoded) {
-            string label = addressLabel ? address : "Resource";
+            string label = addressLabel ? address : "Straße";
             var rich = new RichTextBuilder().AppendLink(label, address).Build();
             IWidget widget = entry == "markup" ? new TextBlock("[link=" + address + "]" + label + "[/]")
                 : entry == "rich" ? rich
@@ -81,6 +81,7 @@ namespace ConsoleMonster.Tests.Rendering {
             var profile = TerminalProfile.Fixed(240, 12, ColorDepth.None, tier, tier == GlyphTier.Ascii ? OutputMode.Plain : OutputMode.Stream);
             string output = FrameComposer.RenderBlock(widget, 240, new RenderContext(profile, Theme.Dark)).ToPlainText();
             Assert.Contains(encoded, output);
+            if (!addressLabel) Assert.Contains(tier == GlyphTier.Ascii ? "Strasse" : "Straße", output);
             string target = Regex.Matches(output, @"https://[^\s)│]+").Cast<Match>().Select(match => match.Value).Single();
             var sourceUri = new Uri(address);
             var printedUri = new Uri(target);
@@ -89,6 +90,19 @@ namespace ConsoleMonster.Tests.Rendering {
             Assert.Equal(sourceUri.GetComponents(UriComponents.PathAndQuery | UriComponents.Fragment, UriFormat.Unescaped),
                 printedUri.GetComponents(UriComponents.PathAndQuery | UriComponents.Fragment, UriFormat.Unescaped));
             Assert.All(target, c => Assert.InRange((int)c, 0x21, 0x7e));
+        }
+
+        [Fact]
+        public void ExpandingTabLabels_KeepTheirTextAndMouseBoundsAligned() {
+            var tabs = new Tabs().Add("ßß", new TextBlock("First")).Add("Next", new TextBlock("Second"));
+            var context = new RenderContext(TerminalProfile.Fixed(30, 3, ColorDepth.None, GlyphTier.Ascii), Theme.Dark);
+            CellBuffer frame = FrameComposer.Compose(tabs, 30, 3, context);
+            Assert.StartsWith("[ssss]  Next ", frame.GetRowText(0));
+            Assert.True(((IAppInputContainer)tabs).HandleContainerInput(InputEvent.Mouse(5, 0), null));
+            Assert.Equal(0, tabs.SelectedIndex);
+            Assert.True(((IAppInputContainer)tabs).HandleContainerInput(InputEvent.Mouse(7, 0), null));
+            Assert.Equal(1, tabs.SelectedIndex);
+            Assert.StartsWith(" ssss  [Next]", FrameComposer.Compose(tabs, 30, 3, context).GetRowText(0));
         }
     }
 }

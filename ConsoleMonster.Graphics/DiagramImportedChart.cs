@@ -8,7 +8,7 @@ using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.Graphics {
     /// <summary>Applies friendly-model edits without replacing the imported chart's richer content.</summary>
-    internal sealed class DiagramImportedChart {
+    internal sealed partial class DiagramImportedChart {
         internal TopologyChart Chart { get; }
         private readonly Dictionary<DiagramGroup, TopologyGroup> _groups;
         private readonly Dictionary<DiagramLink, TopologyEdge> _links;
@@ -26,7 +26,10 @@ namespace ConsoleMonster.Graphics {
             _groups = groups.ToDictionary(pair => pair.Value, pair => chart.Groups.Single(group => group.Id == pair.Key));
             _links = model.Links.Select((link, index) => new { link, edge = chart.Edges[index] }).ToDictionary(pair => pair.link, pair => pair.edge);
             _cases = model.UseCases.Select((useCase, index) => new { useCase, scenario = chart.Scenarios[index] }).ToDictionary(pair => pair.useCase, pair => pair.scenario);
-            foreach (DiagramUseCase useCase in model.UseCases) _steps[useCase] = StepsKey(useCase);
+            foreach (DiagramUseCase useCase in model.UseCases) {
+                _steps[useCase] = StepsKey(useCase);
+                TrackSteps(useCase, _cases[useCase]);
+            }
             foreach (DiagramNode node in model.Resolve()) { _nodes[node] = chart.Nodes.Single(item => item.Id == node.Id); _kinds[node] = node.Kind; }
             foreach (DiagramLink link in model.Links) { _styles[link] = link.Style; _both[link] = link.Both; }
         }
@@ -111,25 +114,12 @@ namespace ConsoleMonster.Graphics {
                 scenario.AutoPlay = useCase.AutoPlay;
                 string steps = StepsKey(useCase);
                 if (created || _steps[useCase] != steps) {
-                    scenario.Steps.Clear();
-                    foreach (DiagramStep step in useCase.Steps) {
-                        TopologyEdge? edge = currentEdges.FirstOrDefault(item => item.SourceNodeId == step.From && item.TargetNodeId == step.To)
-                            ?? currentEdges.FirstOrDefault(item => item.SourceNodeId == step.To && item.TargetNodeId == step.From);
-                        if (edge == null) {
-                            Chart.AddEdge(NextId("diagram-step", Chart.Edges.Select(item => item.Id)), step.From, step.To);
-                            currentEdges.Add(edge = Chart.Edges.Last());
-                        }
-                        var interaction = step.Kind == DiagramStepKind.Reply ? TopologyScenarioInteraction.Response : step.Kind == DiagramStepKind.Failed ? TopologyScenarioInteraction.Failure
-                            : step.Kind == DiagramStepKind.Message ? TopologyScenarioInteraction.Message : TopologyScenarioInteraction.Request;
-                        scenario.AddMessageStep(edge.Id, interaction, step.Label, edge.SourceNodeId != step.From, configured => {
-                            if (step.Payload.Count > 0) configured.WithPayload(string.Join(Environment.NewLine, step.Payload.Select(pair => pair.Key + ": " + Convert.ToString(pair.Value, CultureInfo.CurrentCulture))));
-                        });
-                    }
+                    UpdateSteps(useCase, scenario, currentEdges);
                     _steps[useCase] = steps;
                 }
             }
             Chart.Scenarios.RemoveAll(scenario => !_cases.Any(pair => model.UseCases.Contains(pair.Key) && pair.Value == scenario));
-            foreach (DiagramUseCase useCase in _cases.Keys.Where(useCase => !model.UseCases.Contains(useCase)).ToArray()) { _cases.Remove(useCase); _steps.Remove(useCase); }
+            foreach (DiagramUseCase useCase in _cases.Keys.Where(useCase => !model.UseCases.Contains(useCase)).ToArray()) { _cases.Remove(useCase); _steps.Remove(useCase); _stepBindings.Remove(useCase); }
             // Unedited imported steps can reference richer edge routes than the friendly model creates.
             var referenced = new HashSet<string>(Chart.Scenarios.SelectMany(scenario => scenario.Steps).Where(step => step.Kind == TopologyScenarioStepKind.Edge).Select(step => step.Id), StringComparer.Ordinal);
             currentEdges.AddRange(Chart.Edges.Where(edge => referenced.Contains(edge.Id) && !currentEdges.Contains(edge)));

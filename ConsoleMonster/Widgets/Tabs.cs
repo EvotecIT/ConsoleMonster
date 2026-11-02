@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ConsoleMonster.Canvas;
+using ConsoleMonster.Glyphs;
 using ConsoleMonster.Input;
 using ConsoleMonster.Interactive;
 using ConsoleMonster.Layout;
@@ -53,7 +54,8 @@ namespace ConsoleMonster.Widgets {
             if (region.Height <= 0 || region.Width <= 0) { return; }
             int x = 0;
             for (int i = 0; i < _tabs.Count && x < region.Width; i++) {
-                string text = TextWrapper.Truncate((i == _selected ? "[" + _tabs[i].Key + "]" : " " + _tabs[i].Key + " "), region.Width - x, context.Ellipsis);
+                string label = SymbolFallback.Constrain(_tabs[i].Key, context.Glyphs.Tier);
+                string text = TextWrapper.Truncate((i == _selected ? "[" + label + "]" : " " + label + " "), region.Width - x, context.Ellipsis);
                 int width = DisplayWidth.Measure(text);
                 region.Write(x, 0, text, context.Style(i == _selected ? ThemeToken.Focus : ThemeToken.Muted));
                 _headers.Add(InputArrangement.FrameBounds(new Rect(region.Bounds.X + x, region.Bounds.Y, width, 1))); x += width + 1;

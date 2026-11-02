@@ -98,19 +98,30 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
                 .WithLayout(TopologyLayoutMode.Layered, TopologyLayoutDirection.LeftToRight)
                 .AddAutoNode("dns", "DNS", TopologyNodeKind.Generic)
                 .AddAutoNode("worker", "Worker", TopologyNodeKind.Service)
-                .AddEdge("observes", "worker", "dns", "observes", direction: VisualLinkDirection.None);
+                .AddEdge("dns", "worker", "dns", "observes", direction: VisualLinkDirection.None);
             chart.Nodes[0].Metrics["Region"] = "Warsaw";
             chart.AddScenario("inspect", "Inspect", scenario => {
                 scenario.Description = "Inspect the service";
                 scenario.Metadata["Owner"] = "Operations";
-                scenario.AddNodeStep("dns", "Check DNS");
+                scenario.AddNodeStep("dns", "Check DNS", configure: step => step.Metadata["Action"] = "Inspect");
+                scenario.AddMessageStep("dns", TopologyScenarioInteraction.Response, "Reply", true, step => {
+                    step.Description = "Keep the original response";
+                    step.DurationMilliseconds = 750;
+                    step.WithPayload("{\"answer\":\"ok\"}", TopologyScenarioPayloadFormat.Json);
+                    step.Metadata["Content-Type"] = "application/json";
+                });
             });
+            var importedSteps = chart.Scenarios[0].Steps.ToArray();
             Diagram diagram = chart.ToDiagram();
+            Assert.Equal("dns", diagram.UseCases[0].Steps[0].From);
+            Assert.Equal("dns", diagram.UseCases[0].Steps[0].To);
             Assert.Contains("Deployment context", Text(diagram, 120));
             diagram.Title = "After";
             diagram.Nodes[0].Label = "DNS service";
             diagram.Nodes.Add(new DiagramNode("Gateway"));
             diagram.Links.Add(new DiagramLink("dns", "Gateway"));
+            diagram.UseCases[0].Steps[0].Label = "Check DNS after update";
+            diagram.UseCases[0].Steps.Add(new DiagramStep("dns", "Gateway", "Query Gateway"));
             diagram.FocusNode("dns");
             diagram.Step(0);
             string text = Text(diagram, 200);
@@ -123,8 +134,32 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             Assert.Equal("inspect", diagram.ScenarioId);
             Assert.Equal("Operations", chart.Scenarios[0].Metadata["Owner"]);
             Assert.Equal(TopologyScenarioStepKind.Node, chart.Scenarios[0].Steps[0].Kind);
+            Assert.Same(importedSteps[0], chart.Scenarios[0].Steps[0]);
+            Assert.Equal("Check DNS after update", chart.Scenarios[0].Steps[0].Label);
+            Assert.Equal("Inspect", chart.Scenarios[0].Steps[0].Metadata["Action"]);
+            Assert.Same(importedSteps[1], chart.Scenarios[0].Steps[1]);
+            Assert.Equal("Keep the original response", chart.Scenarios[0].Steps[1].Description);
+            Assert.Equal(750, chart.Scenarios[0].Steps[1].DurationMilliseconds);
+            Assert.True(chart.Scenarios[0].Steps[1].Reverse);
+            Assert.Equal("{\"answer\":\"ok\"}", chart.Scenarios[0].Steps[1].Payload);
+            Assert.Equal(TopologyScenarioPayloadFormat.Json, chart.Scenarios[0].Steps[1].PayloadFormat);
+            Assert.Equal("application/json", chart.Scenarios[0].Steps[1].Metadata["Content-Type"]);
+            Assert.Equal(3, chart.Scenarios[0].Steps.Count);
+            Assert.DoesNotContain(chart.Edges, edge => edge.SourceNodeId == "dns" && edge.TargetNodeId == "dns");
+            diagram.UseCases[0].Steps[1].Payload["Payload"] = "{\"answer\":\"updated\"}";
+            diagram.UseCases[0].Steps[1].Kind = DiagramStepKind.Failed;
+            diagram.UseCases[0].Steps[0].From = diagram.UseCases[0].Steps[0].To = "Gateway";
+            Text(diagram, 200);
+            Assert.Equal(TopologyScenarioStepKind.Node, chart.Scenarios[0].Steps[0].Kind);
+            Assert.Equal("Gateway", chart.Scenarios[0].Steps[0].Id);
+            Assert.Same(importedSteps[1], chart.Scenarios[0].Steps[1]);
+            Assert.Equal("{\"answer\":\"updated\"}", chart.Scenarios[0].Steps[1].Payload);
+            Assert.Equal(TopologyScenarioPayloadFormat.Json, chart.Scenarios[0].Steps[1].PayloadFormat);
+            Assert.Equal(TopologyScenarioInteraction.Failure, chart.Scenarios[0].Steps[1].Interaction);
+            Assert.Equal("application/json", chart.Scenarios[0].Steps[1].Metadata["Content-Type"]);
+            Assert.Equal(750, chart.Scenarios[0].Steps[1].DurationMilliseconds);
             Assert.Equal(TopologyNodeKind.Generic, chart.Nodes.Single(node => node.Id == "dns").Kind);
-            Assert.Equal(VisualLinkDirection.None, chart.Edges.Single(edge => edge.Id == "observes").Direction);
+            Assert.Equal(VisualLinkDirection.None, chart.Edges.Single(edge => edge.Id == "dns").Direction);
         }
 
         [Fact]

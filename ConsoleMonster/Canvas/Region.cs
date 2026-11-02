@@ -1,4 +1,6 @@
 using System;
+using ConsoleMonster.Capabilities;
+using ConsoleMonster.Glyphs;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 
@@ -89,6 +91,9 @@ namespace ConsoleMonster.Canvas {
         public int Write(int x, int y, StyledLine line, int maxWidth = -1, Style baseStyle = default) {
             if (line == null) {
                 return x;
+            }
+            if (Buffer.GlyphTier != GlyphTier.Full) {
+                line = SymbolFallback.ForOutput(new StyledText(new[] { line }), Buffer.GlyphTier).Lines[0];
             }
             int limit = maxWidth < 0 ? Width - x : maxWidth;
             if (line.Count == 1) {

@@ -51,7 +51,7 @@ namespace ConsoleMonster.Changes {
             }
             IReadOnlyList<PropertyChange> properties = CompareObjectsCore(before, after, options);
             ObjectChange change = new ObjectChange(properties.Any(p => !p.IsCaseOnly) ? ChangeKind.Changed : ChangeKind.Unchanged, key, before, after, properties);
-            return new ChangeSet(change.Kind == ChangeKind.Unchanged && properties.Count == 0 && !options.IncludeUnchanged ? new ObjectChange[0] : new[] { change }).WithUnchanged(change.Kind == ChangeKind.Unchanged ? 1 : 0);
+            return new ChangeSet(change.Kind == ChangeKind.Unchanged && properties.Count == 0 && !options.IncludeUnchanged ? new ObjectChange[0] : new[] { change }, change.Kind == ChangeKind.Unchanged ? 1 : 0);
         }
 
         /// <summary>Compares two collections: items are matched by key and compared property by property.</summary>
@@ -429,7 +429,5 @@ namespace ConsoleMonster.Changes {
         private static bool IsNumber(object value) => value is int || value is long || value is double || value is float || value is decimal
             || value is short || value is byte || value is uint || value is ulong || value is ushort || value is sbyte;
 
-        // Unchanged objects not listed still count.
-        private static ChangeSet WithUnchanged(this ChangeSet set, int extra) => extra <= 0 ? set : new ChangeSet(set.Changes, set.Unchanged + extra);
     }
 }

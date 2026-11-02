@@ -132,7 +132,7 @@ namespace ConsoleMonster.Graphics {
             foreach (TopologyScenario scenario in chart.Scenarios) {
                 var useCase = new DiagramUseCase(scenario.Label) { Id = scenario.Id, Delay = scenario.PlaybackDelayMilliseconds, AutoPlay = scenario.AutoPlay, Loop = scenario.LoopPlayback };
                 foreach (TopologyScenarioStep step in scenario.Steps) {
-                    TopologyEdge? edge = chart.Edges.FirstOrDefault(e => e.Id == step.Id);
+                    TopologyEdge? edge = step.Kind == TopologyScenarioStepKind.Edge ? chart.Edges.FirstOrDefault(e => e.Id == step.Id) : null;
                     string from = edge == null ? step.Id : step.Reverse ? edge.TargetNodeId : edge.SourceNodeId;
                     string to = edge == null ? step.Id : step.Reverse ? edge.SourceNodeId : edge.TargetNodeId;
                     var item = new DiagramStep(from, to, step.Label ?? "") { Kind = step.Interaction == TopologyScenarioInteraction.Response ? DiagramStepKind.Reply : step.Interaction == TopologyScenarioInteraction.Failure ? DiagramStepKind.Failed : step.Interaction == TopologyScenarioInteraction.Message ? DiagramStepKind.Message : DiagramStepKind.Request };

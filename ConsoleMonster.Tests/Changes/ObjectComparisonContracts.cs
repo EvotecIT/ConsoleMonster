@@ -20,6 +20,15 @@ namespace ConsoleMonster.Tests.Changes {
             Assert.False(insensitive.HasChanges);
             Assert.Equal(1, insensitive.Unchanged);
             Assert.Equal(3, insensitive.CaseOnly);
+            foreach (bool include in new[] { false, true }) {
+                ChangeSet single = ObjectDiff.Compare((object)before[0], after[0], new DiffOptions { IncludeUnchanged = include });
+                Assert.Equal(1, single.Unchanged);
+                Assert.Equal(3, single.CaseOnly);
+                Assert.Single(single.Changes);
+                ChangeSet equal = ObjectDiff.Compare((object)before[0], before[0], new DiffOptions { IncludeUnchanged = include });
+                Assert.Equal(1, equal.Unchanged);
+                Assert.Equal(include ? 1 : 0, equal.Changes.Count);
+            }
             ObjectChange same = Assert.Single(insensitive.Changes);
             Assert.Equal(ChangeKind.Unchanged, same.Kind);
             Assert.All(same.Properties, property => Assert.True(property.IsCaseOnly));

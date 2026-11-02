@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using ConsoleMonster.Capabilities;
+using ConsoleMonster.Glyphs;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 
@@ -245,6 +247,16 @@ namespace ConsoleMonster.Presenters {
         /// <param name="context">The presenter context.</param>
         /// <returns>The presented value.</returns>
         public static PresentedValue Present(object? value, ICellPresenter? presenter, IReadOnlyList<RoleRule>? rules, PresenterContext context) {
+            PresentedValue result = PresentCore(value, presenter, rules, context);
+            if (context.Render.Glyphs.Tier == GlyphTier.Full) return result;
+            StyledLine line = SymbolFallback.ForOutput(new StyledText(new[] { result.Line }), context.Render.Glyphs.Tier).Lines[0];
+            return new PresentedValue(line, result.Alignment) {
+                Role = result.Role, Visual = result.Visual, Fraction = result.Fraction, Series = result.Series,
+                VisualWidth = result.VisualWidth, Number = result.Number, IsEmpty = result.IsEmpty
+            };
+        }
+
+        private static PresentedValue PresentCore(object? value, ICellPresenter? presenter, IReadOnlyList<RoleRule>? rules, PresenterContext context) {
             string? marker = Values.ValueDisplay.Marker(value);
             if (marker != null) {
                 return new PresentedValue(StyledLine.From(marker, context.Render.Style(ThemeToken.Muted))) { IsEmpty = PresenterValues.IsEmpty(value) };
