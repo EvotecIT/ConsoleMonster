@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Input;
 using ConsoleMonster.Interactive;
@@ -20,6 +21,40 @@ namespace ConsoleMonster.TestHost {
             if (buffer == new IntPtr(-1)) { throw new Win32Exception(Marshal.GetLastWin32Error()); }
             try {
                 if (!SetStdHandle(-11, buffer) || !SetConsoleMode(buffer, 3)) { throw new Win32Exception(Marshal.GetLastWin32Error()); }
+                if (scenario == "guard-overlap" || scenario == "guard-reentrant") {
+                    using (TerminalGuard outer = new TerminalGuard(() => { }, false)) {
+                        Terminal.GetCurrentProfile(); // The actual first-use transition from mode 3 to mode 7.
+                        if (scenario == "guard-reentrant") {
+                            using TerminalGuard inner = new TerminalGuard(() => {
+                                outer.RequestCancellation(); outer.RequestCancellation();
+                            }, false);
+                            inner.Dispose();
+                        } else {
+                            using ManualResetEventSlim entered = new ManualResetEventSlim();
+                            using ManualResetEventSlim release = new ManualResetEventSlim();
+                            using TerminalGuard inner = new TerminalGuard(() => {
+                                entered.Set();
+                                if (!release.Wait(TimeSpan.FromSeconds(10))) { throw new TimeoutException("Inner restoration was not released."); }
+                            }, false);
+                            Task disposing = Task.Run(inner.Dispose);
+                            if (!entered.Wait(TimeSpan.FromSeconds(10))) { throw new TimeoutException("Inner restoration did not start."); }
+                            Task emergency = Task.Run(() => { outer.RequestCancellation(); outer.RequestCancellation(); });
+                            try {
+                                // Hold the inner mode long enough for emergency cleanup to reach it. This arranges the
+                                // overlap; correctness is the native mode after both operations, not elapsed time.
+                                emergency.Wait(TimeSpan.FromMilliseconds(250));
+                            } finally { release.Set(); }
+                            if (!Task.WaitAll(new[] { disposing, emergency }, TimeSpan.FromSeconds(10))) {
+                                throw new TimeoutException("Concurrent restoration did not finish.");
+                            }
+                        }
+                        if (!GetConsoleMode(buffer, out uint restored) || restored != 3) {
+                            throw new InvalidOperationException("Overlapping emergency output mode was not restored: 3 -> " + restored + ".");
+                        }
+                        File.WriteAllText(receipt, "APP_MODE_OK " + scenario + " 3->3\n");
+                    }
+                    return;
+                }
                 void ExitWithReceipt() {
                     AppDomain.CurrentDomain.ProcessExit += (_, _) => {
                         string result = GetConsoleMode(buffer, out uint restored) && restored == 3

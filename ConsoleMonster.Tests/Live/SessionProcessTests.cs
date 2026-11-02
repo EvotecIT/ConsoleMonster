@@ -43,6 +43,8 @@ namespace ConsoleMonster.Tests.Live {
         [InlineData("normal")]
         [InlineData("startup")]
         [InlineData("cancel")]
+        [InlineData("guard-overlap")]
+        [InlineData("guard-reentrant")]
         [InlineData("terminate")]
         [InlineData("menu-terminate")]
         [InlineData("menu-normal")]

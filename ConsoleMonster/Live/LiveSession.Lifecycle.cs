@@ -232,10 +232,16 @@ namespace ConsoleMonster.Live {
                 // Ctrl+C, an exception or process exit: the tab and taskbar must not keep showing progress.
                 TaskbarProgress.Clear();
             }
-            lock (_outputGate) {
-                if (_restored) { return; }
-                _output?.EndLive(); // Outputs flush their writers here; there is no separate Flush contract.
-                _restored = true;
+            // A normal stopper may finish restoring the screen while an emergency guard is waiting for
+            // this lock. Observe that completion without making guard disposal wait on its own output lock.
+            while (!Volatile.Read(ref _restored)) {
+                if (!Monitor.TryEnter(_outputGate, 50)) { continue; }
+                try {
+                    if (_restored) { return; }
+                    _output?.EndLive();
+                    Volatile.Write(ref _restored, true);
+                    return;
+                } finally { Monitor.Exit(_outputGate); }
             }
         }
 
