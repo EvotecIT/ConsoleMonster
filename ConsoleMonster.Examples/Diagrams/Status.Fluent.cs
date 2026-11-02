@@ -12,7 +12,7 @@ namespace ConsoleMonster.Examples.Diagrams {
                 .Node("Printer", n => n.Kind(DiagramNodeKind.Device).Subtitle("offline").Status(StatusKind.Fail)))
             .Group("Cloud", g => g
                 .Node("Microsoft 365", n => n.Kind(DiagramNodeKind.Cloud))
-                .Node("Backup", n => n.Kind(DiagramNodeKind.Storage).Subtitle("Offsite").Status(StatusKind.Fail)))
+                .Node("Backup", n => n.Kind(DiagramNodeKind.Storage).Subtitle("Offsite").Value("last success 2 days ago").Status(StatusKind.Fail)))
             .Node("Firewall", n => n.Kind(DiagramNodeKind.Gateway))
             .Link("12 PCs", "Firewall", l => l.Label("HTTPS"))
             .Link("File server", "Backup", l => l.Label("failed 2 nights").Status(StatusKind.Fail))

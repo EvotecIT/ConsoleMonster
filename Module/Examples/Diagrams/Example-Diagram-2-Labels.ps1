@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
 Diagram ladder level 2: Labels.
 .DESCRIPTION
