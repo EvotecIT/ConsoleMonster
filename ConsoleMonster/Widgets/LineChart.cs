@@ -16,6 +16,9 @@ namespace ConsoleMonster.Widgets {
     /// </summary>
     public sealed class LineChart : LiveWidget {
         private readonly List<ChartSeries> _series = new List<ChartSeries>();
+        private const string SeriesMarks = "*+ox#%@&ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnpqrstuvwyz0123456789";
+
+        private static string SeriesMark(int index) => SeriesMarks[index % SeriesMarks.Length].ToString();
 
         /// <summary>Creates a chart.</summary>
         /// <param name="widgetId">The live name (default <c>chart</c>).</param>
@@ -162,12 +165,17 @@ namespace ConsoleMonster.Widgets {
             region.HorizontalLine(axisWidth, plotRows, region.Width - axisWidth, box.Horizontal, axis);
 
             int plotColumns = region.Width - axisWidth;
-            PixelCanvas canvas = PixelCanvas.Create(context.Profile.Glyphs, plotColumns, plotRows);
+            bool monochrome = !context.HasColor;
+            PixelCanvas canvas = monochrome ? new CharacterCanvas(plotColumns, plotRows) : PixelCanvas.Create(context.Profile.Glyphs, plotColumns, plotRows);
             int pw = canvas.PixelWidth;
             int ph = canvas.PixelHeight;
             var traceLabels = new Dictionary<int, List<TextSpan>>();
             int seriesIndex = 0;
             foreach (ChartSeries series in _series) {
+                if (monochrome) {
+                    canvas.Clear();
+                    ((CharacterCanvas)canvas).Mark = SeriesMark(seriesIndex);
+                }
                 seriesIndex++;
                 Color color = context.Style(series.Role).Color;
                 IReadOnlyList<double> values = series.Values;
@@ -191,6 +199,7 @@ namespace ConsoleMonster.Widgets {
                     prevX = px;
                     prevY = py;
                 }
+                if (monochrome) canvas.Render(region, axisWidth, 0, context);
                 if (_series.Count > 1 && prevX >= 0) {
                     int row = prevY / canvas.PixelsPerRow;
                     if (!traceLabels.TryGetValue(row, out List<TextSpan>? labels)) traceLabels[row] = labels = new List<TextSpan>();
@@ -198,7 +207,7 @@ namespace ConsoleMonster.Widgets {
                     labels.Add(new TextSpan(seriesIndex.ToString(CultureInfo.InvariantCulture), context.Style(series.Role)));
                 }
             }
-            canvas.Render(region, axisWidth, 0, context);
+            if (!monochrome) canvas.Render(region, axisWidth, 0, context);
 
             foreach (var label in traceLabels) {
                 // Traces that converge in one terminal cell share its label; none overwrites another's identity.
@@ -209,7 +218,9 @@ namespace ConsoleMonster.Widgets {
                 List<TextSpan> spans = new List<TextSpan>();
                 int index = 0;
                 foreach (ChartSeries series in _series) {
-                    string marker = _series.Count > 1 ? (++index).ToString(CultureInfo.InvariantCulture) : string.Empty;
+                    string marker = _series.Count > 1 ? (index + 1).ToString(CultureInfo.InvariantCulture) : string.Empty;
+                    if (monochrome) marker += (marker.Length > 0 ? " " : string.Empty) + SeriesMark(index);
+                    index++;
                     if (StatusKinds.TryFromToken(series.Role, out StatusKind status)) marker += (marker.Length > 0 ? " " : string.Empty) + context.Glyphs.StatusSymbol(status);
                     if (spans.Count > 0) {
                         spans.Add(new TextSpan("   "));

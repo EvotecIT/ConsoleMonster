@@ -132,7 +132,8 @@ The environment and theme precedence is documented in [Usage](Usage.md#accessibl
 11. **Meaning without colour.** Status colour is accompanied by a symbol or status text. This includes chart
     thresholds, progress columns, lanes, cell maps, calendar days, flow nodes/links and diagram nodes/links/legends.
     Hiding a numeric value or optional legend cannot remove the only status cue. Series use distinct fills or trace
-    identifiers that match their labels; accessible line/scatter charts give labelled values in series order.
+    identifiers that match their labels. Without colour, line/scatter traces use distinct ASCII marks repeated beside
+    their legend labels; accessible line/scatter charts give labelled values in series order.
     A status-bearing data bar uses a status word when `ShowRoleMarker=false`; accessible mode retains its symbol.
     Caller-supplied decorative colours and arbitrary legend text do not invent typed status semantics.
 

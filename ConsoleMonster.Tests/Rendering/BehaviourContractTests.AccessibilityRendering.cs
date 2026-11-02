@@ -54,6 +54,7 @@ namespace ConsoleMonster.Tests.Rendering {
                 var chart = new LineChart { Scatter = scene.StartsWith("scatter", StringComparison.Ordinal) };
                 if (scene.EndsWith("status", StringComparison.Ordinal)) { var series = chart.AddSeries("Disk", ThemeToken.Fail); series.Add(10, 512); series.Add(20, 512); }
                 else chart.Add("Alpha", 10).Add("Alpha", 20).Add("Beta", 30).Add("Beta", scene.EndsWith("converging", StringComparison.Ordinal) ? 20 : scene.EndsWith("quantized", StringComparison.Ordinal) ? 20.1 : 40);
+                if (scene == "line" || scene == "scatter") chart.Add("Gamma", 35).Add("Gamma", 5).Add("Delta", 5).Add("Delta", 35);
                 widget = chart;
             }
             string text = FrameComposer.RenderBlock(widget, 80, context).ToPlainText();
@@ -64,12 +65,28 @@ namespace ConsoleMonster.Tests.Rendering {
                 Assert.Contains("Alpha", text);
                 Assert.Contains("Beta", text);
             } else if ((scene.StartsWith("line", StringComparison.Ordinal) || scene.StartsWith("scatter", StringComparison.Ordinal)) && !scene.EndsWith("status", StringComparison.Ordinal)) {
-                Assert.Contains("1 Alpha", text);
-                Assert.Contains("2 Beta", text);
+                Assert.Contains(color == ColorDepth.None ? "1 * Alpha" : "1 Alpha", text);
+                Assert.Contains(color == ColorDepth.None ? "2 + Beta" : "2 Beta", text);
                 // The key must identify the traces too, not just two differently coloured identical legend symbols.
                 string plot = text.Substring(0, text.LastIndexOf('\n'));
                 Assert.Contains("1", plot);
                 Assert.Contains("2", plot);
+                if (color == ColorDepth.None) {
+                    Assert.Contains("*", plot);
+                    Assert.Contains("+", plot);
+                    if (scene == "line" || scene == "scatter") {
+                        Assert.Contains("3 o Gamma", text);
+                        Assert.Contains("4 x Delta", text);
+                        Assert.Contains("o", plot);
+                        Assert.Contains("x", plot);
+                        // At the left edge, 10/30/35/5 sit on four distinct rows of the 0..40 scale.
+                        string[] rows = plot.Split('\n');
+                        Assert.Equal('*', rows[4][3]);
+                        Assert.Equal('+', rows[2][3]);
+                        Assert.Equal('o', rows[1][3]);
+                        Assert.Equal('x', rows[5][3]);
+                    }
+                }
             } else {
                 string marker = scene == "data bar word" ? context.Labels.StatusWord(StatusKind.Fail) : tier == GlyphTier.Full ? "✗" : tier == GlyphTier.Basic ? "×" : scene == "flow" || scene == "header" ? "[FAIL]" : "x";
                 Assert.Contains(marker, text);
@@ -87,10 +104,10 @@ namespace ConsoleMonster.Tests.Rendering {
         [Theory]
         [MemberData(nameof(FocusCases))]
         public void Focus_IsVisibleAfterRemovingAllStyles(string scene, GlyphTier tier) {
-            var context = new RenderContext(TerminalProfile.Fixed(80, 24, ColorDepth.TrueColor, tier), Theme.Dark);
+            var context = new RenderContext(TerminalProfile.Fixed(80, 24, scene == "grid" ? ColorDepth.None : ColorDepth.TrueColor, tier), Theme.Dark);
             int height = scene == "compact date picker" ? 12 : 24;
             IWidget widget = scene == "tabs" ? new Tabs().Add("Alpha", new TextBlock("State")).Add("Beta", new TextBlock("State"))
-                : scene == "grid" ? new DataGrid("grid", new Grid("Rows").AddColumn("Value").AddRow("first", "alpha"))
+                : scene == "grid" ? new DataGrid("grid", new Grid("Rows").AddColumn("Value").AddRow("first", "alpha")) { StatusPresenters = true }
                 : scene == "menu choices" ? new ChoiceList(new[] { new Choice(1, "Alpha") }, false) { Focused = false, ShowInactiveFocus = true }
                 : Scenes[scene == "compact date picker" ? "date picker" : scene]();
             try {
@@ -109,7 +126,16 @@ namespace ConsoleMonster.Tests.Rendering {
                 Assert.NotEqual(before, after);
                 if (scene == "tabs") Assert.Contains("[Beta]", after);
                 else Assert.Contains(InteractiveGlyphs.For(context).Pointer, after);
-                if (scene == "grid") Assert.Matches(System.Text.RegularExpressions.Regex.Escape(InteractiveGlyphs.For(context).Pointer) + @"\s+alpha", after);
+                if (scene == "grid") {
+                    Assert.Matches(System.Text.RegularExpressions.Regex.Escape(InteractiveGlyphs.For(context).Pointer) + @"\s+alpha", after);
+                    string[] rows = after.Split('\n');
+                    int headerRow = Array.FindIndex(rows, row => row.Contains("Value"));
+                    Assert.Contains(context.Glyphs.Get(Glyph.Check), rows[headerRow]);
+                    int valueColumn = rows[headerRow].IndexOf("Value", StringComparison.Ordinal);
+                    string underline = rows[headerRow + 1];
+                    Assert.Equal(new string(' ', valueColumn - 1), underline.Substring(1, valueColumn - 1));
+                    Assert.Contains(context.Glyphs.Get(Glyph.RuleLine), underline.Substring(valueColumn));
+                }
                 if (scene.Contains("date picker")) Assert.Contains("Cursor: 2026-11-02", after);
                 if (scene == "compact date picker") {
                     Assert.Contains("Selected: 2026-11-02..2026-11-05", after);

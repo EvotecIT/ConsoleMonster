@@ -75,9 +75,9 @@ namespace ConsoleMonster.Interactive {
         private Table BuildPage(RenderContext context, int sample, int count, bool snapshot = false) {
             var table = new Table { Border = TableBorder.Minimal, CardsBelow = 0, RecordViewRows = 0, Presentation = _grid.Presentation, StableWidths = false };
             bool focusGutter = !snapshot;
-            if (focusGutter) { table.AddColumn(new TableColumn(" ") { IsKey = true, Width = 1, Priority = int.MaxValue }); }
+            if (focusGutter) { table.AddColumn(new TableColumn(" ") { IsKey = true, Width = 1, Priority = int.MaxValue, HeaderSeparator = false }); }
             bool marks = !snapshot && _grid.OutputMode == GridSelection.Multiple;
-            if (marks) { table.AddColumn(new TableColumn(StatusPresenters ? context.Glyphs.Get(Glyph.Check) : " ") { IsKey = true, Width = 1, Alignment = HorizontalAlignment.Left }); }
+            if (marks) { table.AddColumn(new TableColumn(StatusPresenters ? context.Glyphs.Get(Glyph.Check) : " ") { IsKey = true, Width = 1, Alignment = HorizontalAlignment.Left, HeaderSeparator = false }); }
             List<int> shown = ShownColumns();
             foreach (int c in shown) {
                 TableColumn source = _grid.Columns[c];
