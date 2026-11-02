@@ -315,6 +315,7 @@ namespace ConsoleMonster.Graphics {
             lock (_gate) {
                 if (reducedMotion) { _motionSuppressed = _playing; return; }
                 if (_motionSuppressed) {
+                    if (_lastPlaybackFrame.HasValue && elapsed < _lastPlaybackFrame.Value) return;
                     _playAnchor = elapsed;
                     _playFrom = (_step ?? 0) - 1;
                     _lastPlaybackFrame = elapsed;

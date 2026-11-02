@@ -50,6 +50,8 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             Assert.Equal(0, diagram.StepIndex);
             Frame(50, true); Frame(100, true);
             Assert.Equal(0, diagram.StepIndex);
+            Frame(0, false); // A resize can replay a stored context while the motion preference changes.
+            Assert.Equal(0, diagram.StepIndex);
             Frame(101, false);
             Assert.Equal(0, diagram.StepIndex);
             Frame(102, false);
