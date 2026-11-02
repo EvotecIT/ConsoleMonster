@@ -342,17 +342,41 @@
       <command:verb>Compare</command:verb>
       <command:noun>ConsoleObject</command:noun>
       <maml:description>
-        <maml:para>Compares two sets of objects and shows what was added, removed and changed, property by property.</maml:para>
-        <maml:para>Like Compare-Object, with a much better display: objects are matched by -Property (or by Id, Name, Key and similar members), then compared property by property, nested objects by path. The view shows the counts by kind and a table of the changes in the design-system tones (added in green, removed in red, changed in yellow), with line diffs of long and multi-line values; -View picks Summary, Table, SideBySide or Unified. -PassThru returns the structured changes (ConsoleMonster.Changes.ObjectChange) instead.</maml:para>
+        <maml:para>Compares object sets or shows property drift across a baseline matrix.</maml:para>
+        <maml:para>ReferenceObject and DifferenceObject are matched by Property (or Id, Key, Name and similar members), then compared by nested property path. Keys and string values compare case-insensitively by default; CaseSensitive applies to both. Case-only differences remain visible with IsCaseOnly and do not increase changed counts. Missing properties use a localized marker, distinct from present null or empty values. Normalize maps exact paths to scriptblocks receiving $_ or $PSItem; comparison uses their results while display retains the originals. Full, Summary, Table, SideBySide and Unified show two-set comparisons, including line diffs of long values. InputObject selects a baseline matrix with one property per row and one object per column. Baseline chooses a column by name or zero-based integer index; Name or NameProperty sets headings. Equal rows are hidden unless IncludeEqual is set; case-only rows remain visible. PassThru returns ObjectChange records or BaselineRow records without drawing. AsWidget returns an IWidget for Show-ConsoleApp layouts and Export-ConsoleFrame.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
-      <maml:para>Compares two sets of objects and shows what was added, removed and changed, property by property.</maml:para>
-      <maml:para>Like Compare-Object, with a much better display: objects are matched by -Property (or by Id, Name, Key and similar members), then compared property by property, nested objects by path. The view shows the counts by kind and a table of the changes in the design-system tones (added in green, removed in red, changed in yellow), with line diffs of long and multi-line values; -View picks Summary, Table, SideBySide or Unified. -PassThru returns the structured changes (ConsoleMonster.Changes.ObjectChange) instead.</maml:para>
+      <maml:para>Compares object sets or shows property drift across a baseline matrix.</maml:para>
+      <maml:para>ReferenceObject and DifferenceObject are matched by Property (or Id, Key, Name and similar members), then compared by nested property path. Keys and string values compare case-insensitively by default; CaseSensitive applies to both. Case-only differences remain visible with IsCaseOnly and do not increase changed counts. Missing properties use a localized marker, distinct from present null or empty values. Normalize maps exact paths to scriptblocks receiving $_ or $PSItem; comparison uses their results while display retains the originals. Full, Summary, Table, SideBySide and Unified show two-set comparisons, including line diffs of long values. InputObject selects a baseline matrix with one property per row and one object per column. Baseline chooses a column by name or zero-based integer index; Name or NameProperty sets headings. Equal rows are hidden unless IncludeEqual is set; case-only rows remain visible. PassThru returns ObjectChange records or BaselineRow records without drawing. AsWidget returns an IWidget for Show-ConsoleApp layouts and Export-ConsoleFrame.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="Compare">
         <maml:name>Compare-ConsoleObject</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>AsWidget</maml:name>
+          <maml:description>
+            <maml:para>Returns a composable ChangeView or BaselineView without drawing. Cannot be combined with PassThru or Question.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>CaseSensitive</maml:name>
+          <maml:description>
+            <maml:para>Compares both match keys and string values with ordinal case sensitivity. By default case-only differences remain visible but do not increase changed counts.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>CompareProperty</maml:name>
           <maml:description>
@@ -404,11 +428,23 @@
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>IncludeEqual</maml:name>
           <maml:description>
-            <maml:para>Lists unchanged objects too.</maml:para>
+            <maml:para>Lists unchanged objects or baseline rows too. Case-only differences are always visible.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Normalize</maml:name>
+          <maml:description>
+            <maml:para>A hashtable of exact property paths to comparison-only scriptblocks. Each receives its original value as $_ and $PSItem. Display and structured values remain original.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Hashtable</command:parameterValue>
+          <dev:type>
+            <maml:name>Hashtable</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -464,7 +500,7 @@
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>View</maml:name>
           <maml:description>
-            <maml:para>The view: Full (default), Summary, Table, SideBySide or Unified.</maml:para>
+            <maml:para>The view: Full (default), Summary, Table, SideBySide, Unified or Baseline (with InputObject).</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">ChangeViewMode</command:parameterValue>
           <command:parameterValueGroup>
@@ -473,6 +509,7 @@
             <command:parameterValue required="false" variableLength="false">Table</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">SideBySide</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Unified</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Baseline</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>ChangeViewMode</maml:name>
@@ -483,6 +520,18 @@
       </command:syntaxItem>
       <command:syntaxItem parameterSetName="Confirm">
         <maml:name>Compare-ConsoleObject</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>CaseSensitive</maml:name>
+          <maml:description>
+            <maml:para>Compares both match keys and string values with ordinal case sensitivity. By default case-only differences remain visible but do not increase changed counts.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>CompareProperty</maml:name>
           <maml:description>
@@ -546,11 +595,23 @@
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>IncludeEqual</maml:name>
           <maml:description>
-            <maml:para>Lists unchanged objects too.</maml:para>
+            <maml:para>Lists unchanged objects or baseline rows too. Case-only differences are always visible.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Normalize</maml:name>
+          <maml:description>
+            <maml:para>A hashtable of exact property paths to comparison-only scriptblocks. Each receives its original value as $_ and $PSItem. Display and structured values remain original.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Hashtable</command:parameterValue>
+          <dev:type>
+            <maml:name>Hashtable</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -630,7 +691,7 @@
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>View</maml:name>
           <maml:description>
-            <maml:para>The view: Full (default), Summary, Table, SideBySide or Unified.</maml:para>
+            <maml:para>The view: Full (default), Summary, Table, SideBySide, Unified or Baseline (with InputObject).</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">ChangeViewMode</command:parameterValue>
           <command:parameterValueGroup>
@@ -639,6 +700,198 @@
             <command:parameterValue required="false" variableLength="false">Table</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">SideBySide</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Unified</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Baseline</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>ChangeViewMode</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+      <command:syntaxItem parameterSetName="Baseline">
+        <maml:name>Compare-ConsoleObject</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>AsWidget</maml:name>
+          <maml:description>
+            <maml:para>Returns a composable ChangeView or BaselineView without drawing. Cannot be combined with PassThru or Question.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Baseline</maml:name>
+          <maml:description>
+            <maml:para>The reference column name or zero-based integer index. Default zero. A numeric string is a name.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+          <dev:type>
+            <maml:name>Object</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>CaseSensitive</maml:name>
+          <maml:description>
+            <maml:para>Compares both match keys and string values with ordinal case sensitivity. By default case-only differences remain visible but do not increase changed counts.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>CompareProperty</maml:name>
+          <maml:description>
+            <maml:para>The properties to compare (default all).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+          <dev:type>
+            <maml:name>String[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Depth</maml:name>
+          <maml:description>
+            <maml:para>How deep nested objects are compared (default 3).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Ignore</maml:name>
+          <maml:description>
+            <maml:para>Properties or paths (Address.City, wildcards) left out of the comparison.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+          <dev:type>
+            <maml:name>String[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>IncludeEqual</maml:name>
+          <maml:description>
+            <maml:para>Lists unchanged objects or baseline rows too. Case-only differences are always visible.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="True (ByValue)" position="named" aliases="None">
+          <maml:name>InputObject</maml:name>
+          <maml:description>
+            <maml:para>Two or more objects to compare as a baseline matrix, in column order. Accepts pipeline input.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">Object[]</command:parameterValue>
+          <dev:type>
+            <maml:name>Object[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Name</maml:name>
+          <maml:description>
+            <maml:para>One explicit column name per input object.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+          <dev:type>
+            <maml:name>String[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>NameProperty</maml:name>
+          <maml:description>
+            <maml:para>The property supplying column names. Defaults to Property or the normal Id, Key, Name discovery.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Normalize</maml:name>
+          <maml:description>
+            <maml:para>A hashtable of exact property paths to comparison-only scriptblocks. Each receives its original value as $_ and $PSItem. Display and structured values remain original.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Hashtable</command:parameterValue>
+          <dev:type>
+            <maml:name>Hashtable</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>PassThru</maml:name>
+          <maml:description>
+            <maml:para>Returns the changes as objects instead of showing them.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Property</maml:name>
+          <maml:description>
+            <maml:para>The properties that identify an object (matching key). Default: Id, Key, Name and similar members.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+          <dev:type>
+            <maml:name>String[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Title</maml:name>
+          <maml:description>
+            <maml:para>A title (markup).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+          <dev:type>
+            <maml:name>Object</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>View</maml:name>
+          <maml:description>
+            <maml:para>The view: Full (default), Summary, Table, SideBySide, Unified or Baseline (with InputObject).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">ChangeViewMode</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Full</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Summary</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Table</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">SideBySide</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Unified</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Baseline</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>ChangeViewMode</maml:name>
@@ -649,6 +902,42 @@
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>AsWidget</maml:name>
+        <maml:description>
+          <maml:para>Returns a composable ChangeView or BaselineView without drawing. Cannot be combined with PassThru or Question.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Baseline</maml:name>
+        <maml:description>
+          <maml:para>The reference column name or zero-based integer index. Default zero. A numeric string is a name.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+        <dev:type>
+          <maml:name>Object</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>CaseSensitive</maml:name>
+        <maml:description>
+          <maml:para>Compares both match keys and string values with ordinal case sensitivity. By default case-only differences remain visible but do not increase changed counts.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>CompareProperty</maml:name>
         <maml:description>
@@ -712,11 +1001,59 @@
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>IncludeEqual</maml:name>
         <maml:description>
-          <maml:para>Lists unchanged objects too.</maml:para>
+          <maml:para>Lists unchanged objects or baseline rows too. Case-only differences are always visible.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
           <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="True (ByValue)" position="named" aliases="None">
+        <maml:name>InputObject</maml:name>
+        <maml:description>
+          <maml:para>Two or more objects to compare as a baseline matrix, in column order. Accepts pipeline input.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">Object[]</command:parameterValue>
+        <dev:type>
+          <maml:name>Object[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Name</maml:name>
+        <maml:description>
+          <maml:para>One explicit column name per input object.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+        <dev:type>
+          <maml:name>String[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>NameProperty</maml:name>
+        <maml:description>
+          <maml:para>The property supplying column names. Defaults to Property or the normal Id, Key, Name discovery.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Normalize</maml:name>
+        <maml:description>
+          <maml:para>A hashtable of exact property paths to comparison-only scriptblocks. Each receives its original value as $_ and $PSItem. Display and structured values remain original.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Hashtable</command:parameterValue>
+        <dev:type>
+          <maml:name>Hashtable</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -808,7 +1145,7 @@
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>View</maml:name>
         <maml:description>
-          <maml:para>The view: Full (default), Summary, Table, SideBySide or Unified.</maml:para>
+          <maml:para>The view: Full (default), Summary, Table, SideBySide, Unified or Baseline (with InputObject).</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">ChangeViewMode</command:parameterValue>
         <command:parameterValueGroup>
@@ -817,6 +1154,7 @@
           <command:parameterValue required="false" variableLength="false">Table</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">SideBySide</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Unified</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Baseline</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>ChangeViewMode</maml:name>
@@ -836,6 +1174,26 @@
       <command:returnValue>
         <dev:type>
           <maml:name>ConsoleMonster.Changes.ObjectChange</maml:name>
+        </dev:type>
+      </command:returnValue>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>ConsoleMonster.Changes.BaselineRow</maml:name>
+        </dev:type>
+      </command:returnValue>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>ConsoleMonster.Changes.ChangeView</maml:name>
+        </dev:type>
+      </command:returnValue>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>ConsoleMonster.Changes.BaselineView</maml:name>
+        </dev:type>
+      </command:returnValue>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.Boolean</maml:name>
         </dev:type>
       </command:returnValue>
     </command:returnValues>
@@ -862,6 +1220,27 @@
             $accepted</dev:code>
         <dev:remarks>
           <maml:para>Ask before accepting a configuration change</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 3</maml:title>
+        <dev:code>$controllers = @(&#xD;
+                [pscustomobject]@{ Name = 'dc01'; Site = 'HQ'; LdapPort = 389 }&#xD;
+                [pscustomobject]@{ Name = 'dc02'; Site = 'HQ'; LdapPort = 636 }&#xD;
+                [pscustomobject]@{ Name = 'dc03'; Site = 'Branch'; LdapPort = 636 }&#xD;
+            )&#xD;
+            $controllers | Compare-ConsoleObject -View Baseline -NameProperty Name -Baseline dc02 -Ignore Name -Title 'Domain controllers'</dev:code>
+        <dev:remarks>
+          <maml:para>Compare three domain controller settings against dc02.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 4</maml:title>
+        <dev:code>$normalizers = @{ ServicePrincipalName = { $_ -replace 'dc[0-9]+', 'HOST' } }&#xD;
+            $widget = Compare-ConsoleObject -ReferenceObject $before -DifferenceObject $after -Property Name -Normalize $normalizers -AsWidget&#xD;
+            $widget | Export-ConsoleFrame -Format Html -Width 120 -Path ./comparison.html</dev:code>
+        <dev:remarks>
+          <maml:para>Normalize host-specific noise while retaining the original displayed values.</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>

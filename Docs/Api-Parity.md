@@ -3,7 +3,7 @@
 
 I use the same domain names for cmdlet parameters, C# configuration and fluent calls. PowerShell keeps numeric duration parameters with units and default-off switches; C# keeps TimeSpan values and Boolean properties.
 
-The contract covers **93 commands**, **1070 parameters** and **341 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
+The contract covers **93 commands**, **1077 parameters** and **345 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
 
 Show-ConsoleTable displays tables. Show-Console -View List and Show-Console -View Tree display lists and trees. Read-* returns answers; New-ConsoleForm/Menu defines a question workflow; Show-ConsoleApp runs a persistent reactive application.
 
@@ -616,6 +616,14 @@ Native host hooks, runtime models and equivalent representations are listed indi
 | `ConsoleMonster.Graphics.TopologyDiagram.ShowKeys` | CSharpOnly: TopologyDiagramApp.Run turns the key hints on for the keyboard view and restores them afterwards. | Get the widget with Show-ConsoleDiagram -AsWidget, set the property, and draw it with Show-ConsoleApp or Out-Console. |
 | `ConsoleMonster.Graphics.TopologyDiagram.MaxPayloadLines` | CSharpOnly: The command keeps the widget default of eight payload lines, which fits common terminal heights. | Get the widget with Show-ConsoleDiagram -AsWidget, set the property, and draw it with Show-ConsoleApp or Out-Console. |
 | `ConsoleMonster.Graphics.TopologyDiagram.MaxStepLines` | CSharpOnly: The command keeps the widget default of seven step lines around the active step. | Get the widget with Show-ConsoleDiagram -AsWidget, set the property, and draw it with Show-ConsoleApp or Out-Console. |
+| `ConsoleMonster.Localization.WidgetLabels.ChangesMissing` | CSharpOnly: Native embedding hosts can replace this comparison label independently of the language catalogue. | Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels. |
+| `ConsoleMonster.Localization.WidgetLabels.ChangesCaseOnly` | CSharpOnly: Native embedding hosts can replace this comparison label independently of the language catalogue. | Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels. |
+| `ConsoleMonster.Localization.WidgetLabels.ChangesCaseOnlyCount` | CSharpOnly: Native embedding hosts can replace this comparison label independently of the language catalogue. | Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels. |
+| `ConsoleMonster.Localization.WidgetLabels.ChangesBaseline` | CSharpOnly: Native embedding hosts can replace this comparison label independently of the language catalogue. | Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels. |
+| `ConsoleMonster.Localization.WidgetLabels.ChangesStatus` | CSharpOnly: Native embedding hosts can replace this comparison label independently of the language catalogue. | Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels. |
+| `ConsoleMonster.Localization.WidgetLabels.ChangesSame` | CSharpOnly: Native embedding hosts can replace this comparison label independently of the language catalogue. | Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels. |
+| `ConsoleMonster.Localization.WidgetLabels.ChangesDiffers` | CSharpOnly: Native embedding hosts can replace this comparison label independently of the language catalogue. | Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels. |
+| `ConsoleMonster.Localization.WidgetLabels.ChangesMissingOn` | CSharpOnly: Native embedding hosts can replace this comparison label independently of the language catalogue. | Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels. |
 
 ## .NET host integrations
 

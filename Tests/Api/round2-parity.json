@@ -195,6 +195,63 @@
       "CSharpType": "ConsoleMonster.Changes.ObjectDiff",
       "Bindings": [
         {
+          "Reason": "Returns ChangeView or BaselineView as an IWidget instead of drawing through the PowerShell host.",
+          "Conversion": "HostPolicy",
+          "MemberKind": "HostPolicy",
+          "Parameter": "AsWidget",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Sets": [
+            {
+              "Name": "Compare",
+              "Position": -2147483648,
+              "Mandatory": false
+            },
+            {
+              "Name": "Baseline",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "Default": false
+        },
+        {
+          "Reason": "An integer selects baselineIndex; a string selects baselineName using the comparison case rule.",
+          "CSharpType": "ConsoleMonster.Changes.ObjectDiff",
+          "Conversion": "NameOrIndex",
+          "Member": "CompareBaseline",
+          "MemberKind": "Method",
+          "Parameter": "Baseline",
+          "ParameterType": "System.Object",
+          "Sets": [
+            {
+              "Name": "Baseline",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "Default": null
+        },
+        {
+          "CSharpTypeName": "System.Boolean",
+          "CSharpType": "ConsoleMonster.Changes.DiffOptions",
+          "Conversion": "Identity",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Member": "CaseSensitive",
+          "MemberKind": "Property",
+          "Static": false,
+          "Parameter": "CaseSensitive",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "Default": false
+        },
+        {
           "Parameter": "CompareProperty",
           "ParameterType": "System.String[]",
           "Default": null,
@@ -240,7 +297,12 @@
           "Default": null,
           "Sets": [
             {
-              "Name": "__AllParameterSets",
+              "Name": "Compare",
+              "Position": 1,
+              "Mandatory": true
+            },
+            {
+              "Name": "Confirm",
               "Position": 1,
               "Mandatory": true
             }
@@ -310,6 +372,84 @@
           "Static": false
         },
         {
+          "CSharpTypeName": "System.Collections.Generic.IEnumerable`1[System.Object]",
+          "MemberKind": "Method",
+          "Argument": "objects",
+          "ParameterType": "System.Object[]",
+          "Parameter": "InputObject",
+          "Default": null,
+          "Conversion": "PipelineCollection",
+          "CSharpType": "ConsoleMonster.Changes.ObjectDiff",
+          "Member": "CompareBaseline",
+          "Sets": [
+            {
+              "Name": "Baseline",
+              "Position": -2147483648,
+              "Mandatory": true
+            }
+          ]
+        },
+        {
+          "CSharpTypeName": "System.Collections.Generic.IReadOnlyList`1[System.String]",
+          "MemberKind": "Method",
+          "Argument": "names",
+          "ParameterType": "System.String[]",
+          "Parameter": "Name",
+          "Default": null,
+          "Conversion": "Collection",
+          "CSharpType": "ConsoleMonster.Changes.ObjectDiff",
+          "Member": "CompareBaseline",
+          "Sets": [
+            {
+              "Name": "Baseline",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ]
+        },
+        {
+          "Default": null,
+          "MemberKind": "Property",
+          "CSharpType": "ConsoleMonster.Changes.DiffOptions",
+          "Sets": [
+            {
+              "Name": "Baseline",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "Nullable": "Unknown",
+          "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+          "ParameterType": "System.String",
+          "Writable": false,
+          "Reason": "The baseline column heading uses the same named key selection as two-set matching.",
+          "Member": "Key",
+          "Conversion": "Collection",
+          "Parameter": "NameProperty",
+          "Static": false
+        },
+        {
+          "Default": null,
+          "MemberKind": "Property",
+          "CSharpType": "ConsoleMonster.Changes.DiffOptions",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "Nullable": "Unknown",
+          "CSharpTypeName": "System.Collections.Generic.IDictionary`2[System.String,System.Func`2[System.Object,System.Object]]",
+          "ParameterType": "System.Collections.Hashtable",
+          "Writable": false,
+          "Reason": "Exact-path scriptblocks become comparison-only delegates on the owning pipeline thread.",
+          "Member": "Normalize",
+          "Conversion": "ScriptBlockDictionary",
+          "Parameter": "Normalize",
+          "Static": false
+        },
+        {
           "CSharpType": "ConsoleMonster.Changes.ChangePreviewOptions",
           "Member": "TypedWhenDestructive",
           "MemberKind": "Property",
@@ -336,6 +476,11 @@
           "Sets": [
             {
               "Name": "Compare",
+              "Position": -2147483648,
+              "Mandatory": false
+            },
+            {
+              "Name": "Baseline",
               "Position": -2147483648,
               "Mandatory": false
             }
@@ -391,7 +536,12 @@
           "Default": null,
           "Sets": [
             {
-              "Name": "__AllParameterSets",
+              "Name": "Compare",
+              "Position": 0,
+              "Mandatory": true
+            },
+            {
+              "Name": "Confirm",
               "Position": 0,
               "Mandatory": true
             }
@@ -25703,6 +25853,70 @@
       "Reason": "The command keeps the widget default of seven step lines around the active step.",
       "Alternative": "Get the widget with Show-ConsoleDiagram -AsWidget, set the property, and draw it with Show-ConsoleApp or Out-Console.",
       "Disposition": "CSharpOnly"
+    },
+    {
+      "Alternative": "Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels.",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native embedding hosts can replace this comparison label independently of the language catalogue.",
+      "Disposition": "CSharpOnly",
+      "Member": "ChangesMissing",
+      "CSharpType": "ConsoleMonster.Localization.WidgetLabels"
+    },
+    {
+      "Alternative": "Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels.",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native embedding hosts can replace this comparison label independently of the language catalogue.",
+      "Disposition": "CSharpOnly",
+      "Member": "ChangesCaseOnly",
+      "CSharpType": "ConsoleMonster.Localization.WidgetLabels"
+    },
+    {
+      "Alternative": "Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels.",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native embedding hosts can replace this comparison label independently of the language catalogue.",
+      "Disposition": "CSharpOnly",
+      "Member": "ChangesCaseOnlyCount",
+      "CSharpType": "ConsoleMonster.Localization.WidgetLabels"
+    },
+    {
+      "Alternative": "Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels.",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native embedding hosts can replace this comparison label independently of the language catalogue.",
+      "Disposition": "CSharpOnly",
+      "Member": "ChangesBaseline",
+      "CSharpType": "ConsoleMonster.Localization.WidgetLabels"
+    },
+    {
+      "Alternative": "Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels.",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native embedding hosts can replace this comparison label independently of the language catalogue.",
+      "Disposition": "CSharpOnly",
+      "Member": "ChangesStatus",
+      "CSharpType": "ConsoleMonster.Localization.WidgetLabels"
+    },
+    {
+      "Alternative": "Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels.",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native embedding hosts can replace this comparison label independently of the language catalogue.",
+      "Disposition": "CSharpOnly",
+      "Member": "ChangesSame",
+      "CSharpType": "ConsoleMonster.Localization.WidgetLabels"
+    },
+    {
+      "Alternative": "Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels.",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native embedding hosts can replace this comparison label independently of the language catalogue.",
+      "Disposition": "CSharpOnly",
+      "Member": "ChangesDiffers",
+      "CSharpType": "ConsoleMonster.Localization.WidgetLabels"
+    },
+    {
+      "Alternative": "Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels.",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native embedding hosts can replace this comparison label independently of the language catalogue.",
+      "Disposition": "CSharpOnly",
+      "Member": "ChangesMissingOn",
+      "CSharpType": "ConsoleMonster.Localization.WidgetLabels"
     }
   ],
   "SchemaVersion": 2,
@@ -25710,6 +25924,7 @@
   "ExpectedCount": 93,
   "ConfigurableRoots": [
     "ConsoleMonster.Capabilities.CapabilityDetector",
+    "ConsoleMonster.Changes.BaselineView",
     "ConsoleMonster.Changes.ChangePreviewOptions",
     "ConsoleMonster.Changes.ChangeView",
     "ConsoleMonster.Changes.DiffOptions",
@@ -25729,6 +25944,7 @@
     "ConsoleMonster.Frames.GroupedRows`1",
     "ConsoleMonster.Graphics.ConsoleImage",
     "ConsoleMonster.Graphics.GraphicsExportOptions",
+    "ConsoleMonster.Graphics.TopologyDiagram",
     "ConsoleMonster.Headless.BrowserHostOptions",
     "ConsoleMonster.Headless.DebugSocketOptions",
     "ConsoleMonster.Interactive.AppBinding",
@@ -25898,8 +26114,7 @@
     "ConsoleMonster.Widgets.TreeHierarchyOptions",
     "ConsoleMonster.Widgets.ViewHeader",
     "ConsoleMonster.Widgets.ViewHint",
-    "ConsoleMonster.Widgets.WatchView",
-    "ConsoleMonster.Graphics.TopologyDiagram"
+    "ConsoleMonster.Widgets.WatchView"
   ],
   "ConfigurableTypes": [
     "ConsoleMonster.Canvas.Cell",
@@ -25913,6 +26128,10 @@
     "ConsoleMonster.Capabilities.TerminalKind",
     "ConsoleMonster.Capabilities.TerminalProfile",
     "ConsoleMonster.Capabilities.ThemePreference",
+    "ConsoleMonster.Changes.BaselineCell",
+    "ConsoleMonster.Changes.BaselineComparison",
+    "ConsoleMonster.Changes.BaselineRow",
+    "ConsoleMonster.Changes.BaselineView",
     "ConsoleMonster.Changes.ChangeKind",
     "ConsoleMonster.Changes.ChangePreviewOptions",
     "ConsoleMonster.Changes.ChangeSet",
@@ -25964,6 +26183,7 @@
     "ConsoleMonster.Graphics.GraphicsExportOptions",
     "ConsoleMonster.Graphics.GraphicsFit",
     "ConsoleMonster.Graphics.GraphicsPreset",
+    "ConsoleMonster.Graphics.TopologyDiagram",
     "ConsoleMonster.Headless.BrowserHostOptions",
     "ConsoleMonster.Headless.DebugSocketOptions",
     "ConsoleMonster.Help.CommandLineHelp",
@@ -26241,8 +26461,7 @@
     "ConsoleMonster.Widgets.TreeValuePlacement",
     "ConsoleMonster.Widgets.ViewHeader",
     "ConsoleMonster.Widgets.ViewHint",
-    "ConsoleMonster.Widgets.WatchView",
-    "ConsoleMonster.Graphics.TopologyDiagram"
+    "ConsoleMonster.Widgets.WatchView"
   ],
   "RelatedBindings": [
     {
@@ -28463,6 +28682,15 @@
       "Command": "New-ConsoleStatusList",
       "Parameter": "Layout",
       "Reason": "Layout Chain builds Phases with Compact set: one line that folds to fit."
+    },
+    {
+      "Command": "Compare-ConsoleObject",
+      "CSharpTypeName": "System.String",
+      "Reason": "The baseline parameter set applies the same heading to BaselineView.",
+      "MemberId": "ConsoleMonster.Changes.BaselineView.Title",
+      "CSharpType": "ConsoleMonster.Changes.BaselineView",
+      "Member": "Title",
+      "Parameter": "Title"
     }
   ],
   "Endings": [

@@ -830,6 +830,87 @@ as line diffs. An added or removed object lists its compared properties one per 
 `-Ignore` takes names, paths and wildcards; `-PassThru` returns the changes as objects instead
 (`ConsoleMonster.Changes.ObjectChange`, with `Values` for added and removed objects).
 
+Keys and string values use ordinal case-insensitive comparison by default. `-CaseSensitive` applies to both.
+Case-only differences stay visible in every view and in `ObjectChange.Properties` with `IsCaseOnly = true`;
+the object remains `Unchanged` unless another property differs. They are listed even without `-IncludeEqual`,
+and the summary reports their count separately. In C#, use `DiffOptions.CaseSensitive` and `ChangeSet.CaseOnly`.
+`PropertyChange.HasBefore` and `HasAfter` distinguish missing properties from present null or empty values.
+Missing values render as `(missing)` using the current language's `WidgetLabels.ChangesMissing` label.
+Present null and empty strings retain their existing equality and blank-cell behavior.
+
+For settings collected from several machines, use a baseline matrix:
+
+```powershell
+$controllers = @(
+    [pscustomobject]@{ Name = 'dc01'; Site = 'HQ'; LdapPort = 389; GlobalCatalog = $true; DnsEnabled = $true; Security = @{ Signing = 'Required' } }
+    [pscustomobject]@{ Name = 'dc02'; Site = 'HQ'; LdapPort = 636; GlobalCatalog = $true; DnsEnabled = $true; Security = @{ Signing = 'Required' } }
+    [pscustomobject]@{ Name = 'dc03'; Site = 'Branch'; LdapPort = 389; GlobalCatalog = $false; DnsEnabled = $true; Security = @{ Signing = 'Negotiate' } }
+    [pscustomobject]@{ Name = 'dc04'; Site = 'Branch'; LdapPort = 389; GlobalCatalog = $true; Security = @{ Signing = 'Required' } }
+)
+$controllers | Compare-ConsoleObject -View Baseline -NameProperty Name -Baseline dc01 -Ignore Name -Title 'Domain controller drift'
+```
+
+The matrix has one row per property path and one column per input object. The first object is the reference by
+default; `-Baseline dc02` selects a name and `-Baseline 1` selects the second column. Numeric strings are names,
+and duplicate names require an integer index. Names follow `-CaseSensitive`. `-Name First,Second,Third,Fourth`
+supplies explicit headings; otherwise `-NameProperty`, `-Property`, or the usual key discovery supplies them.
+`-Ignore Name` omits the identifier from the compared rows while retaining it in the headings.
+Equal rows are hidden unless `-IncludeEqual` is set. Changed cells use the warning tone, properties absent on
+the reference use the added tone, and missing cells use the removed tone. The status says `same`, `differs`,
+`case only`, or `missing on N`. Narrow widths use the standard table wrapping and record-card fallback.
+`-PassThru` returns `BaselineRow` records with `Path`, ordered `Cells`, `MissingCount`, `HasDifferences`, and
+`HasCaseDifferences`. Each `BaselineCell` retains its original `Value`, `IsPresent`, `Kind`, and `IsCaseOnly`.
+
+The same matrix in C#:
+
+```csharp
+using ConsoleMonster;
+using ConsoleMonster.Changes;
+
+object[] controllers = {
+    new { Name = "dc01", Site = "HQ", LdapPort = 389, GlobalCatalog = true, DnsEnabled = true, Security = new { Signing = "Required" } },
+    new { Name = "dc02", Site = "HQ", LdapPort = 636, GlobalCatalog = true, DnsEnabled = true, Security = new { Signing = "Required" } },
+    new { Name = "dc03", Site = "Branch", LdapPort = 389, GlobalCatalog = false, DnsEnabled = true, Security = new { Signing = "Negotiate" } },
+    new { Name = "dc04", Site = "Branch", LdapPort = 389, GlobalCatalog = true, Security = new { Signing = "Required" } }
+};
+var options = new DiffOptions();
+options.Ignore.Add("Name");
+BaselineComparison comparison = ObjectDiff.CompareBaseline(controllers, options, baselineName: "dc01");
+Terminal.Write(new BaselineView(comparison) { Title = "Domain controller drift" });
+```
+
+`CompareBaseline` also accepts explicit `names` and a zero-based `baselineIndex`. `DiffOptions.Properties`,
+`Ignore`, `Depth`, `IncludeUnchanged`, `CaseSensitive`, and `Normalize` apply to both comparison modes.
+Collections within properties compare in order and retain the existing collection display, while nested records
+use dotted paths. Member reads that exhaust the comparison budget appear in `NotCompared`.
+
+Normalize known noise before comparing without replacing displayed values:
+
+```powershell
+$normalizers = @{
+    ServicePrincipalName = { $_ -replace 'dc[0-9]+', 'HOST' }
+    'Metadata.CheckedAt' = { $null }
+}
+Compare-ConsoleObject $before $after -Property Name -Normalize $normalizers
+$controllers | Compare-ConsoleObject -View Baseline -Normalize $normalizers -Ignore Name
+```
+
+Normalization keys are exact paths with case-insensitive lookup, not wildcard patterns. Scriptblocks receive
+the property value as `$_` and `$PSItem`; a collection property is passed as one value. They run synchronously
+on the calling pipeline thread. Errors propagate to the caller. C# assigns the equivalent delegate:
+`options.Normalize["Metadata.CheckedAt"] = value => null;`. Original values remain in both result models.
+Normalization does not replace match keys; select stable identity properties with `-Property` or `DiffOptions.Key`.
+
+`-AsWidget` returns a `ChangeView` or `BaselineView` without drawing. It is mutually exclusive with `-PassThru`
+and is unavailable with `-Question`. Both widgets implement `IWidget`, so they can be placed inside
+`Show-ConsoleApp` content or exported through the regular frame exporter:
+
+```powershell
+$matrix = $controllers | Compare-ConsoleObject -View Baseline -Ignore Name -AsWidget
+$matrix | Export-ConsoleFrame -Format Html -Width 120 -Path ./controller-drift.html
+Show-ConsoleApp -Title 'Settings' -Content { $matrix }
+```
+
 `Compare-ConsoleObject -Question 'Apply these changes?'` is the what-if pattern for your own functions: it shows the preview, asks, and returns `$true` or
 `$false`. Changes that remove objects ask for the number of removals to be typed (or `-TypedConfirmation` text). It
 honours the caller's `-WhatIf` (preview only, `$false`) and `-Confirm:$false` or `-Force` (no question). In C#:
