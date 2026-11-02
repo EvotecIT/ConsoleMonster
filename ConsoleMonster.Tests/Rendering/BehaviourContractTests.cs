@@ -394,6 +394,8 @@ namespace ConsoleMonster.Tests.Rendering {
             foreach (string entry in new[] { "app", "app async", "menu", "menu async", "grid", "explorer" })
                 foreach (string condition in new[] { "redirected", "CI", "noninteractive", "snapshot", "accessible environment", "accessible mode" })
                     yield return new object[] { entry, condition };
+            yield return new object[] { "app", "appendonly" };
+            yield return new object[] { "app async", "appendonly" };
         }
 
         [Fact]
@@ -465,11 +467,12 @@ namespace ConsoleMonster.Tests.Rendering {
                 Mode = condition == "snapshot" ? InteractionMode.Snapshot : condition == "accessible mode" ? InteractionMode.Accessible : InteractionMode.Rich,
                 SnapshotOutput = widget => Terminal.Write(widget)
             };
+            var appOptions = new ConsoleAppOptions { Interactive = options, Live = condition == "appendonly" ? new LiveSessionOptions { Live = false } : null };
             int actions = 0;
             var menu = new Menu("State").Item("Deploy", item => item.Action = _ => actions++);
             using (Terminal.Use(ambient)) switch (entry) {
-                case "app": ConsoleApp.Run(new TextBlock("State"), options: new ConsoleAppOptions { Interactive = options }); break;
-                case "app async": await ConsoleApp.RunAsync(new TextBlock("State"), options: new ConsoleAppOptions { Interactive = options }); break;
+                case "app": ConsoleApp.Run(new TextBlock("State"), options: appOptions); break;
+                case "app async": await ConsoleApp.RunAsync(new TextBlock("State"), options: appOptions); break;
                 case "menu": menu.Run(new MenuOptions { Interactive = options }); break;
                 case "menu async": await menu.RunAsync(new MenuOptions { Interactive = options }); break;
                 case "grid": Assert.Empty(new Grid("State").AddColumn("Name").AddRow("first", "alpha").Show(new GridOptions { Interactive = options }).Items); break;

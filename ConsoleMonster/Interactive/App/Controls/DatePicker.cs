@@ -153,7 +153,17 @@ namespace ConsoleMonster.Interactive {
                 return null;
             };
             _calendar.Render(region, context);
-            if (region.Height > 9) { region.Write(0, region.Height - 1, Text.TextWrapper.Truncate(Range ? "Space anchor · Enter select range" : "Enter select date", region.Width, context.Ellipsis), context.Style(ThemeToken.Muted)); }
+            if (region.Height > 9) {
+                string cursor = (Focused ? InteractiveGlyphs.For(context).Pointer + " " : string.Empty) + "Cursor: " + _cursor.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+                region.Write(0, region.Height - (region.Height > 10 ? 2 : 1), Text.TextWrapper.Truncate(cursor, region.Width, context.Ellipsis), context.Style(ThemeToken.Text));
+            }
+            if (region.Height > 10) {
+                string detail = selection != null ? "Selected: " + selection.Start.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) + ".." + selection.End.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+                    : _value is DateTime selected ? "Selected: " + selected.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+                    : Range ? "Space anchor · Enter select range" : "Enter select date";
+                region.Write(0, region.Height - 1, Text.TextWrapper.Truncate(detail, region.Width, context.Ellipsis), context.Style(ThemeToken.Muted));
+            }
         }
     }
 }

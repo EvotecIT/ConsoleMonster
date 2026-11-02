@@ -67,13 +67,13 @@ namespace ConsoleMonster.Widgets {
             // The right side in parts; when the row is narrow they give way in this order: the free text, the clock, then
             // the status is shortened and finally dropped, so the title always stays.
             StyledLine? status = null;
-            if (!string.IsNullOrEmpty(Detail)) {
+            if (Status.HasValue || !string.IsNullOrEmpty(Detail)) {
                 List<TextSpan> spans = new List<TextSpan>();
                 if (Status.HasValue) {
                     Style marker = context.Style(Status.Value);
                     spans.Add(new TextSpan(context.Glyphs.StatusMarker(Status.Value) + " ", hasSurface ? marker.WithBackgroundColor(surface.BackgroundColor) : marker));
                 }
-                foreach (TextSpan span in context.Markup(Detail!).Lines[0]) {
+                foreach (TextSpan span in context.Markup(Detail ?? context.Labels.StatusWord(Status!.Value)).Lines[0]) {
                     spans.Add(new TextSpan(span.Text, text.Combine(span.Style)));
                 }
                 status = new StyledLine(spans);

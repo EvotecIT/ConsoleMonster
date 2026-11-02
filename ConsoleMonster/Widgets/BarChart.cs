@@ -180,7 +180,7 @@ namespace ConsoleMonster.Widgets {
             if (!BarWidth.HasValue) return available;
             int labels = 0, values = 0;
             foreach (ChartItem item in _items) {
-                labels = Math.Max(labels, DisplayWidth.Measure(item.Label));
+                labels = Math.Max(labels, LabelLine(item, context).Width);
                 if (NumberFormat.IsFinite(item.Value)) values = Math.Max(values, DisplayWidth.Measure(ValueText(item, context)));
             }
             int gap = HasHeaders ? 2 : 1;
@@ -200,7 +200,7 @@ namespace ConsoleMonster.Widgets {
             double max = fixedMax ? Math.Max(0, Maximum!.Value) : 0;
             double min = 0;
             foreach (ChartItem item in _items) {
-                labelWidth = Math.Max(labelWidth, DisplayWidth.Measure(item.Label));
+                labelWidth = Math.Max(labelWidth, LabelLine(item, context).Width);
                 if (!SpanMissingValues || NumberFormat.IsFinite(item.Value)) valueWidth = Math.Max(valueWidth, DisplayWidth.Measure(ValueText(item, context)));
                 if (NumberFormat.IsFinite(item.Value)) numericWidth = Math.Max(numericWidth, DisplayWidth.Measure(ValueText(item, context)));
                 if (!fixedMax && NumberFormat.IsFinite(item.Value)) {
@@ -234,13 +234,13 @@ namespace ConsoleMonster.Widgets {
             for (int i = 0; i < _items.Count && i + rowOffset < region.Height; i++) {
                 int y = i + rowOffset;
                 ChartItem item = _items[i];
-                region.Write(0, y, TextWrapper.Truncate(RichLines.Line(item.LabelText, item.Label, context.Style(ThemeToken.Text), context), labelWidth, context.Ellipsis));
+                region.Write(0, y, TextWrapper.Truncate(LabelLine(item, context), labelWidth, context.Ellipsis));
                 if (SpanMissingValues && !NumberFormat.IsFinite(item.Value)) {
                     region.Write(barX, y, TextWrapper.Truncate(ValueText(item, context), Math.Max(0, region.Width - barX), context.Ellipsis), item.Status.HasValue ? context.Style(item.Status.Value) : muted);
                     continue;
                 }
                 double fraction = max <= 0 || !NumberFormat.IsFinite(item.Value) ? 0 : item.Value / max;
-                StatusKind? reached = item.Status ?? (item.Role.HasValue ? null : Threshold(item.Value));
+                StatusKind? reached = StatusFor(item);
                 ThemeToken role = item.Role ?? (reached.HasValue ? reached.Value.ToToken() : Role);
                 if (min < 0 && barWidth > 1) {
                     double scale = Math.Max(Math.Abs(min), Math.Abs(max));
@@ -262,13 +262,28 @@ namespace ConsoleMonster.Widgets {
             if (!string.IsNullOrEmpty(AxisLabel)) region.Write(0, _items.Count + rowOffset, TextWrapper.Truncate(AxisLabel!, region.Width, context.Ellipsis), muted);
         }
 
+        private StatusKind? StatusFor(ChartItem item) {
+            if (item.Status.HasValue) return item.Status;
+            if (item.Role.HasValue) return StatusKinds.TryFromToken(item.Role.Value, out StatusKind own) ? own : (StatusKind?)null;
+            return Threshold(item.Value) ?? (StatusKinds.TryFromToken(Role, out StatusKind shared) ? shared : (StatusKind?)null);
+        }
+
+        private StyledLine LabelLine(ChartItem item, RenderContext context) {
+            StyledLine label = RichLines.Line(item.LabelText, item.Label, context.Style(ThemeToken.Text), context);
+            StatusKind? status = StatusFor(item);
+            if (ShowValues || !status.HasValue) return label;
+            var spans = new List<TextSpan> { new TextSpan(context.Glyphs.StatusSymbol(status.Value) + " ", context.Style(status.Value)) };
+            spans.AddRange(label);
+            return new StyledLine(spans);
+        }
+
         private string FormatValue(double value) => NumberFormat.Compact(value) + (Unit ?? string.Empty);
 
-        // The value with a status symbol in front when it crossed a threshold and colour cannot show it (never colour alone).
+        // Threshold and explicit status always carry a symbol, independently of colour.
         private string ValueText(ChartItem item, RenderContext context) {
             string text = NumberFormat.IsFinite(item.Value) ? FormatValue(item.Value, context) : item.MissingText ?? MissingText ?? NumberFormat.Missing(context.Glyphs.Tier);
-            StatusKind? reached = item.Status ?? (item.Role.HasValue ? null : Threshold(item.Value));
-            return reached.HasValue && (item.Status.HasValue || !context.HasColor) ? context.Glyphs.StatusSymbol(reached.Value) + " " + text : text;
+            StatusKind? reached = StatusFor(item);
+            return reached.HasValue ? context.Glyphs.StatusSymbol(reached.Value) + " " + text : text;
         }
 
         // NaN and infinite values draw no bar and show a dash instead of "InfinityM".

@@ -185,9 +185,8 @@ namespace ConsoleMonster.Live {
                 if (_restored || Volatile.Read(ref _paused) != 0) {
                     return;
                 }
-                TimeSpan now = RealElapsed;
+                TimeSpan now = _watch.Elapsed;
                 if (_context.ReducedMotion && !finalState && _lastMotionFrame.HasValue && now - _lastMotionFrame.Value < TimeSpan.FromSeconds(1)) return;
-                _lastMotionFrame = now;
                 bool resized = _frame != null && (_frame.Width != width || (!(_output is InlineOutput) && _frame.Height != height));
                 bool moved = !(_output is InlineOutput) && (left != _windowLeft || top != _windowTop);
                 if (resized) {
@@ -227,6 +226,7 @@ namespace ConsoleMonster.Live {
                     _frame = RenderErrorFrame(width, height, context, ex);
                 }
                 _output.RenderFrame(_frame);
+                _lastMotionFrame = _watch.Elapsed;
                 Interlocked.Increment(ref _framesRendered);
                 UpdateTaskbar();
             }

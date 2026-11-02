@@ -7,6 +7,7 @@ namespace ConsoleMonster.Widgets {
     /// <summary>Lays out and draws progress columns: fixed widths first, flexible columns share the rest, low priorities drop when narrow.</summary>
     internal static class ProgressLayout {
         internal static int[] Arrange(IList<ProgressColumn> columns, IReadOnlyList<ProgressRow> rows, int width, RenderContext context) {
+            width = Math.Max(0, width - StatusGutter(columns, context));
             int count = columns.Count;
             int[] widths = new int[count];
             bool[] visible = new bool[count];
@@ -23,7 +24,8 @@ namespace ConsoleMonster.Widgets {
                         continue;
                     }
                     visibleCount++;
-                    if (drop < 0 || columns[i].Priority < columns[drop].Priority) {
+                    if (drop < 0 || (columns[drop].Name == "Spinner" && columns[i].Name != "Spinner")
+                        || (columns[i].Name != "Spinner" && columns[drop].Name != "Spinner" && columns[i].Priority < columns[drop].Priority)) {
                         drop = i;
                     }
                 }
@@ -65,7 +67,12 @@ namespace ConsoleMonster.Widgets {
         }
 
         internal static void Draw(Region region, int y, IList<ProgressColumn> columns, int[] widths, ProgressRow row, RenderContext context) {
-            int x = 0;
+            int x = StatusGutter(columns, context);
+            if (x > 0) {
+                Styling.StatusKind shown = row.Status == Styling.StatusKind.Running && row.Total > 0 && row.Done >= row.Total ? Styling.StatusKind.Pass : row.Status;
+                string marker = shown == Styling.StatusKind.Running ? Glyphs.GlyphSetExtensions.Spinner(context) : Glyphs.GlyphSetExtensions.StatusSymbol(context.Glyphs, shown);
+                region.Write(0, y, marker, context.Style(shown));
+            }
             int previous = -1;
             for (int i = 0; i < columns.Count; i++) {
                 if (widths[i] <= 0) {
@@ -93,6 +100,11 @@ namespace ConsoleMonster.Widgets {
                 }
             }
             return sb.ToString();
+        }
+
+        private static int StatusGutter(IList<ProgressColumn> columns, RenderContext context) {
+            foreach (ProgressColumn column in columns) if (column.Name == "Spinner") return 0;
+            return Text.DisplayWidth.Measure(Glyphs.GlyphSetExtensions.StatusSymbol(context.Glyphs, Styling.StatusKind.Fail)) + 1;
         }
 
         // One space after the spinner, two between the other columns.

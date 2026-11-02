@@ -118,7 +118,7 @@ namespace ConsoleMonster.Widgets {
 
         /// <inheritdoc />
         public override Size Measure(Constraints constraints, RenderContext context) {
-            int lines = 1 + (ShowLegend ? LegendLines(constraints.MaxWidth, context).Count : 0);
+            int lines = 1 + (ShowLegend || context.Profile.IsAccessible ? LegendLines(constraints.MaxWidth, context).Count : 0);
             return new Size(constraints.MaxWidth, constraints.IsHeightUnbounded ? lines : Math.Min(lines, constraints.MaxHeight));
         }
 
@@ -137,7 +137,7 @@ namespace ConsoleMonster.Widgets {
             if (x < region.Width) {
                 region.HorizontalLine(x, 0, region.Width - x, context.Glyphs.Get(Glyph.BarTrack), context.Style(ThemeToken.Subtle));
             }
-            if (!ShowLegend) {
+            if (!ShowLegend && !context.Profile.IsAccessible) {
                 return;
             }
             List<StyledLine> legend = LegendLines(region.Width, context);
@@ -147,7 +147,7 @@ namespace ConsoleMonster.Widgets {
         }
 
         /// <summary>Gets the exact unpadded fill glyph used for a segment in the supplied rendering context.
-        /// Custom legends can use this marker when <see cref="RenderContext.HasColor"/> is false to identify
+        /// Custom legends can use this marker at every colour depth to identify
         /// the corresponding bar fill. The built-in bar and legend use this same mapping.</summary>
         /// <param name="segmentIndex">Zero-based index in <see cref="Segments"/>, including zero-valued segments.</param>
         /// <param name="context">The rendering context, including its glyph set and color capability.</param>
@@ -158,11 +158,10 @@ namespace ConsoleMonster.Widgets {
             if (segmentIndex < 0 || segmentIndex >= _segments.Count) throw new ArgumentOutOfRangeException(nameof(segmentIndex));
             if (context == null) throw new ArgumentNullException(nameof(context));
             IGlyphSet glyphs = context.Glyphs;
+            if (!ShowLegend && _segments[segmentIndex].Role.HasValue && StatusKinds.TryFromToken(_segments[segmentIndex].Role!.Value, out StatusKind hiddenStatus))
+                return glyphs.StatusSymbol(hiddenStatus);
             if (glyphs.Tier == GlyphTier.Ascii) {
                 return segmentIndex < AsciiFills.Length ? AsciiFills[segmentIndex] : AdditionalFills[(segmentIndex - AsciiFills.Length) % AdditionalFills.Length].ToString();
-            }
-            if (context.HasColor) {
-                return glyphs.Get(Glyph.BlockFull);
             }
             Glyph[] shades = { Glyph.BlockFull, Glyph.ShadeDark, Glyph.ShadeMedium, Glyph.ShadeLight };
             return segmentIndex < shades.Length ? glyphs.Get(shades[segmentIndex]) : AdditionalFills[(segmentIndex - shades.Length) % AdditionalFills.Length].ToString();
@@ -215,6 +214,14 @@ namespace ConsoleMonster.Widgets {
             return widths;
         }
 
+        private static StyledLine SegmentLabel(ChartItem segment, RenderContext context) {
+            var spans = new List<TextSpan>();
+            if (segment.Role.HasValue && StatusKinds.TryFromToken(segment.Role.Value, out StatusKind status))
+                spans.Add(new TextSpan(context.Glyphs.StatusSymbol(status) + " ", context.Style(status)));
+            spans.AddRange(RichLines.Line(segment.LabelText, segment.Label, context.Style(ThemeToken.Text), context));
+            return new StyledLine(spans);
+        }
+
         private List<StyledLine> LegendLines(int width, RenderContext context) {
             double total = 0;
             foreach (ChartItem segment in _segments) {
@@ -230,7 +237,7 @@ namespace ConsoleMonster.Widgets {
             int labelWidth = 0;
             int countWidth = 0;
             foreach (ChartItem segment in _segments) {
-                labelWidth = Math.Max(labelWidth, DisplayWidth.Measure(segment.Label));
+                labelWidth = Math.Max(labelWidth, SegmentLabel(segment, context).Width);
                 countWidth = Math.Max(countWidth, DisplayWidth.Measure(Count(segment.Value, context)));
             }
             for (int i = 0; i < _segments.Count; i++) {
@@ -261,7 +268,7 @@ namespace ConsoleMonster.Widgets {
                 }
                 ChartItem segment = _segments[i];
                 Style textStyle = context.Style(ThemeToken.Text);
-                StyledLine label = TextWrapper.Truncate(RichLines.Line(segment.LabelText, segment.Label, textStyle, context), labelWidth, context.Ellipsis);
+                StyledLine label = TextWrapper.Truncate(SegmentLabel(segment, context), labelWidth, context.Ellipsis);
                 current.Add(new TextSpan(StatColumn.Pad(GetFillMarker(i, context), markerWidth, HorizontalAlignment.Left), context.Style(segment.Role ?? ThemeToken.Series1)));
                 // The label keeps its own colours; padding fills the column per its alignment.
                 int padding = Math.Max(0, labelWidth - label.Width);

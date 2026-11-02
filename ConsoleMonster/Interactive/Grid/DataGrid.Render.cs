@@ -74,6 +74,8 @@ namespace ConsoleMonster.Interactive {
 
         private Table BuildPage(RenderContext context, int sample, int count, bool snapshot = false) {
             var table = new Table { Border = TableBorder.Minimal, CardsBelow = 0, RecordViewRows = 0, Presentation = _grid.Presentation, StableWidths = false };
+            bool focusGutter = !snapshot;
+            if (focusGutter) { table.AddColumn(new TableColumn(" ") { IsKey = true, Width = 1, Priority = int.MaxValue }); }
             bool marks = !snapshot && _grid.OutputMode == GridSelection.Multiple;
             if (marks) { table.AddColumn(new TableColumn(StatusPresenters ? context.Glyphs.Get(Glyph.Check) : " ") { IsKey = true, Width = 1, Alignment = HorizontalAlignment.Left }); }
             List<int> shown = ShownColumns();
@@ -93,6 +95,7 @@ namespace ConsoleMonster.Interactive {
             void Add(int visibleIndex, bool resolve) {
                 GridRow row = _rows[_visible[visibleIndex]];
                 var cells = new List<TableCell>();
+                if (focusGutter) { cells.Add(new TableCell(Focused && visibleIndex == _cursor ? InteractiveGlyphs.For(context).Pointer : string.Empty)); }
                 if (marks) { cells.Add(new TableCell(_marked.Contains(row.Id) ? "[accent bold]" + check + "[/]" : string.Empty)); }
                 foreach (int c in shown) {
                     object? value = c < row.Values.Count ? row.Values[c] : System.Reflection.Missing.Value;

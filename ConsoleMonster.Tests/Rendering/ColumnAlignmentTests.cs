@@ -80,7 +80,7 @@ namespace ConsoleMonster.Tests.Rendering {
                 .Add("Failed", 11, ThemeToken.Fail)
                 .Add("Warnings", 24, ThemeToken.Warn)
                 .Add("Skipped", 10, ThemeToken.Skip);
-            string[] rows = Render(bar, 44);
+            string[] rows = Render(bar, 48);
             Assert.Equal(3, rows.Length);
             // Two columns per row; counts and percentages end at the same column in both rows.
             int CountEnd(string row, string label) {

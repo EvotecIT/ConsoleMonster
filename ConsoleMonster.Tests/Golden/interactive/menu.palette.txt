@@ -3,7 +3,7 @@
 │           ╭─ Commands ─────────────────────────── Search items, actions and presets ─╮           │
 │▌ t  Target│                                                                          │           │
 │  m  Mode  │ › rev                                                                    │           │
-│  o  Option│ ▌ [Review]                                                     Go to  r  │           │
+│  o  Option│ › [Review]                                                     Go to  r  │           │
 │  p  Preset│                                                                          │           │
 │  Run      │  ↑↓ move  enter select  esc cancel                                       │           │
 │  r  Review│                                                                          │           │

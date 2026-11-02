@@ -25,7 +25,7 @@ namespace ConsoleMonster.Presenters {
         /// <summary>Cells the bar would like.</summary>
         public int BarWidth { get; }
 
-        /// <summary>Whether a matching health role adds a marker after the numeric value (default true).</summary>
+        /// <summary>Whether a matching health role uses a symbol (default true) or its status word after the numeric value. Accessible mode keeps the symbol.</summary>
         public bool ShowRoleMarker { get; set; } = true;
 
         /// <summary>Optional spaces before the value, keeping numeric labels aligned when role markers follow them.</summary>

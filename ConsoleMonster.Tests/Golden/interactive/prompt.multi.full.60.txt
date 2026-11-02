@@ -2,7 +2,7 @@
 ? Servers
   › type to filter        0 of 4 selected
     ▾ [ ] Warsaw                      0/2
-  ▌   [ ] [FS01]                     File
+  ›   [ ] [FS01]                     File
       [ ] WEB01                       Web
     ▾ [ ] Berlin                      0/1
       [ ] PRN11                     Print
@@ -19,7 +19,7 @@
       [ ] WEB01                       Web
     ▾ [ ] Berlin                      0/1
       [ ] PRN11                     Print
-  ▌   [ ] [FS11]                     File
+  ›   [ ] [FS11]                     File
     ▾ [ ] Lab                         0/1
       [ ] LAB01                      Test
 
@@ -32,7 +32,7 @@
       [ ] WEB01                       Web
     ▾ [✓] Berlin                      1/1
       [ ] PRN11                     Print
-  ▌   [✓] [FS11]                     File
+  ›   [✓] [FS11]                     File
     ▾ [ ] Lab                         0/1
       [ ] LAB01                      Test
 

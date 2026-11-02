@@ -11,7 +11,7 @@ namespace ConsoleMonster.Interactive {
     internal static class Buttons {
         public static List<TextSpan> Spans(IReadOnlyList<string> captions, int focus, RenderContext context, bool active = true, ThemeToken? focusToken = null, int blocked = -1) {
             InteractiveGlyphs g = InteractiveGlyphs.For(context);
-            bool brackets = g.BracketFocus || !context.HasColor;
+            bool brackets = g.BracketFocus || (!context.HasColor || context.Profile.IsAccessible);
             List<TextSpan> spans = new List<TextSpan>();
             for (int i = 0; i < captions.Count; i++) {
                 if (i > 0) {
@@ -21,7 +21,7 @@ namespace ConsoleMonster.Interactive {
                 bool dimmed = i == blocked;
                 if (focused) {
                     Style style;
-                    if (!context.HasColor) {
+                    if ((!context.HasColor || context.Profile.IsAccessible)) {
                         style = dimmed ? Style.Plain : Style.Plain.With(TextDecoration.Bold);
                     } else if (dimmed) {
                         style = context.Style(focusToken ?? ThemeToken.Focus).WithColor(context.Style(ThemeToken.Muted).Color);

@@ -2,7 +2,7 @@
 ? Target server
   › type to filter
     Warsaw
-  ▌ [FS01]                     File
+  › [FS01]                     File
     WEB01                       Web
     Berlin
     PRN11                     Print
@@ -14,7 +14,7 @@
 --- frame 4
 ? Target server
   › fs
-  ▌ [FS01]  · Warsaw           File
+  › [FS01]  · Warsaw           File
     FS11  · Berlin             File
     File server · Windows Server 2…
   ↑↓ move  enter select  ? keys
@@ -22,7 +22,7 @@
 ? Target server
   › fs
     FS01  · Warsaw             File
-  ▌ [FS11]  · Berlin           File
+  › [FS11]  · Berlin           File
 
   ↑↓ move  enter select  ? keys
 --- summary

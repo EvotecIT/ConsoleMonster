@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Glyphs;
 using ConsoleMonster.Layout;
@@ -93,14 +94,26 @@ namespace ConsoleMonster.Widgets {
             }
         }
 
+        private IWidget SeriesText(RenderContext context) {
+            var rows = new Rows();
+            foreach (ChartSeries series in _series) {
+                var values = new List<string>();
+                foreach (double value in series.Values) values.Add(value.ToString("G", context.Culture) + (Unit ?? string.Empty));
+                rows.Add(new TextBlock(Markup.Escape((StatusKinds.TryFromToken(series.Role, out StatusKind state) ? context.Glyphs.StatusSymbol(state) + " " : string.Empty) + series.Label + ": " + (values.Count == 0 ? NumberFormat.Missing(context.Glyphs.Tier) : string.Join(", ", values.ToArray())))));
+            }
+            return rows;
+        }
+
         /// <inheritdoc />
         public override Size Measure(Constraints constraints, RenderContext context) {
+            if (context.Profile.IsAccessible) return SeriesText(context).Measure(constraints, context);
             int height = Math.Max(3, Height) + (_series.Count > 1 ? 1 : 0);
             return new Size(constraints.MaxWidth, constraints.IsHeightUnbounded ? height : Math.Min(height, constraints.MaxHeight));
         }
 
         /// <inheritdoc />
         public override void Render(Region region, RenderContext context) {
+            if (context.Profile.IsAccessible) { SeriesText(context).Render(region, context); return; }
             bool legend = _series.Count > 1 && region.Height >= 4;
             int plotRows = region.Height - 1 - (legend ? 1 : 0);
             if (plotRows < 1 || region.Width < 8) {
@@ -150,7 +163,10 @@ namespace ConsoleMonster.Widgets {
             PixelCanvas canvas = PixelCanvas.Create(context.Profile.Glyphs, plotColumns, plotRows);
             int pw = canvas.PixelWidth;
             int ph = canvas.PixelHeight;
+            var traceLabels = new List<(int X, int Y, string Text, Style Style)>();
+            int seriesIndex = 0;
             foreach (ChartSeries series in _series) {
+                seriesIndex++;
                 Color color = context.Style(series.Role).Color;
                 IReadOnlyList<double> values = series.Values;
                 int count = Math.Min(values.Count, pw);
@@ -173,13 +189,17 @@ namespace ConsoleMonster.Widgets {
                     prevX = px;
                     prevY = py;
                 }
+                if (_series.Count > 1 && prevX >= 0) traceLabels.Add((axisWidth + prevX / canvas.PixelsPerColumn, prevY / canvas.PixelsPerRow,
+                    seriesIndex.ToString(CultureInfo.InvariantCulture), context.Style(series.Role)));
             }
             canvas.Render(region, axisWidth, 0, context);
 
+            foreach (var label in traceLabels) region.Write(Math.Max(axisWidth, Math.Min(label.X, region.Width - label.Text.Length)), label.Y, label.Text, label.Style);
             if (legend) {
                 List<TextSpan> spans = new List<TextSpan>();
-                string marker = context.Glyphs.Tier == Capabilities.GlyphTier.Ascii ? "*" : context.Glyphs.Get(Glyph.BlockFull);
+                int index = 0;
                 foreach (ChartSeries series in _series) {
+                    string marker = (++index).ToString(CultureInfo.InvariantCulture) + (StatusKinds.TryFromToken(series.Role, out StatusKind status) ? " " + context.Glyphs.StatusSymbol(status) : string.Empty);
                     if (spans.Count > 0) {
                         spans.Add(new TextSpan("   "));
                     }
