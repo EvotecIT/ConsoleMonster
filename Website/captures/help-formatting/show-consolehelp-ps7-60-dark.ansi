@@ -4,7 +4,7 @@
 [6G[0mShow[11Gthe[15Gprofile[23Gand[27Gthe[31Gdecisions[1G
 
 [0;1;38;2;96;165;250mInputs[1G
-[3G[0;38;2;192;132;252mNone[1G
+[3G[0;38;2;192;132;252mSystem.Management.Automation.PSObject[1G
 
 [0;1;38;2;96;165;250mOutputs[1G
 [3G[0;38;2;192;132;252mConsoleMonster.Capabilities.TerminalProfile[1G
