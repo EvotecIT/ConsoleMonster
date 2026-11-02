@@ -296,6 +296,9 @@
     "profile-detected": {
       "src": "/site/cards/profile-detected.svg"
     },
+    "diagram-4-120": {
+      "src": "/site/cards/diagram-4-120.svg"
+    },
     "overrides-plain": {
       "src": "/site/cards/overrides-plain.svg"
     },
