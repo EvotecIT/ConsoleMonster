@@ -30,3 +30,12 @@ Document.TableHeaders = A table needs at least one non-null header cell.
 Document.TableRows = Each row must match the header cell count and contain non-null cells.
 Document.TableAlignments = Alignments must match the header cell count.
 Document.Self = A document cannot contain itself.
+
+Widget.ChangesMissing = (missing)
+Widget.ChangesCaseOnly = case only
+Widget.ChangesCaseOnlyCount = {0} case only
+Widget.ChangesBaseline = baseline
+Widget.ChangesStatus = Status
+Widget.ChangesSame = same
+Widget.ChangesDiffers = differs
+Widget.ChangesMissingOn = missing on {0}
