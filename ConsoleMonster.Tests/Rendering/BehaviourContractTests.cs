@@ -462,13 +462,22 @@ namespace ConsoleMonster.Tests.Rendering {
         [InlineData(OutputMode.Stream, GlyphTier.Ascii)]
         [InlineData(OutputMode.Plain, GlyphTier.Basic)]
         [InlineData(OutputMode.Stream, GlyphTier.Basic)]
+        [InlineData(OutputMode.Interactive, GlyphTier.Ascii)]
+        [InlineData(OutputMode.Interactive, GlyphTier.Basic)]
+        [InlineData(OutputMode.Interactive, GlyphTier.Full)]
         public void DirectStyledLines_EnforceTheSameDestinationRepertoire(OutputMode mode, GlyphTier tier) {
             var writer = new StringTerminalWriter();
-            var profile = TestTerminal.Profile(glyphs: tier).WithMode(mode);
-            Terminal.WriteLines(new[] { StyledLine.From(CallerText) }, profile: profile, writer: writer);
-            Assert.All(writer.ToString().Where(c => c != '\r' && c != '\n'), c => Assert.True(
+            var profile = TestTerminal.Profile(glyphs: tier).WithMode(mode).WithHyperlinks(true);
+            var line = new StyledLine(new[] { new TextSpan(CallerText, Style.Plain.WithLink("https://example.test/Łódź/東京")) });
+            var domain = new StyledLine(new[] { new TextSpan("IDN", Style.Plain.WithLink("https://例え.テスト/报告")) });
+            Terminal.WriteLines(new[] { line, domain }, profile: profile, writer: writer);
+            if (tier != GlyphTier.Full) Assert.All(writer.ToString().Where(c => c != '\r' && c != '\n' && c != '\u001b'), c => Assert.True(
                 tier == GlyphTier.Ascii ? c >= ' ' && c <= '~' : Wgl4Repertoire.Contains(c)));
             Assert.Contains("caf", writer.ToString());
+            if (mode == OutputMode.Interactive) {
+                Assert.Contains(tier == GlyphTier.Full ? "https://example.test/Łódź/東京" : "https://example.test/%C5%81%C3%B3d%C5%BA/%E6%9D%B1%E4%BA%AC", writer.ToString());
+                Assert.Contains(tier == GlyphTier.Full ? "https://例え.テスト/报告" : "https://xn--r8jz45g.xn--zckzah/%E6%8A%A5%E5%91%8A", writer.ToString());
+            }
         }
 
         [Theory]

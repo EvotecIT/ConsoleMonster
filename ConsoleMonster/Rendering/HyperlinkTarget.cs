@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text;
 
 namespace ConsoleMonster.Rendering {
     /// <summary>OSC 8 targets for terminal output, including file links. Exporters retain their own scheme policy.</summary>
@@ -71,6 +72,30 @@ namespace ConsoleMonster.Rendering {
                 return false;
             }
             return uri.Scheme == "http" || uri.Scheme == "https" || uri.Scheme == "mailto" || uri.Scheme == "ftp" || uri.Scheme == "file";
+        }
+
+        // URI percent-encoding keeps the destination while reduced tiers keep every emitted code unit in ASCII.
+        internal static string? ToAscii(string? target) {
+            if (target == null) { return null; }
+            foreach (char c in target) {
+                if (c <= 0x7f) { continue; }
+                // Domains use IDNA, while path/query text uses URI percent-encoding.
+                // Percent-encoding a Unicode hostname directly would produce an invalid authority.
+                try {
+                    Uri uri = new Uri(target, UriKind.Absolute);
+                    UriBuilder normalized = new UriBuilder(uri);
+                    if (uri.Host.Length > 0) { normalized.Host = uri.IdnHost; }
+                    target = normalized.Uri.AbsoluteUri;
+                } catch (UriFormatException) { return null; }
+                StringBuilder encoded = new StringBuilder(target.Length);
+                const string hex = "0123456789ABCDEF";
+                foreach (byte value in Encoding.UTF8.GetBytes(target)) {
+                    if (value <= 0x7f) { encoded.Append((char)value); }
+                    else { encoded.Append('%').Append(hex[value >> 4]).Append(hex[value & 15]); }
+                }
+                return encoded.ToString();
+            }
+            return target;
         }
 
         private static string EscapePath(string path) {

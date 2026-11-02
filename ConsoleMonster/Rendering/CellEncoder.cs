@@ -58,6 +58,7 @@ namespace ConsoleMonster.Rendering {
                 if (hyperlinks && !ReferenceEquals(raw, address)) {
                     raw = address;
                     target = HyperlinkTarget.IsSafe(raw) ? raw : HyperlinkTarget.From(raw);
+                    if (profile != null && profile.Glyphs != GlyphTier.Full) { target = HyperlinkTarget.ToAscii(target); }
                 }
                 if (hyperlinks && !string.Equals(link, target, StringComparison.Ordinal)) {
                     // OSC 8: open (or close, with an empty target) a hyperlink around the following cells.

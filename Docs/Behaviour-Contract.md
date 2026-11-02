@@ -55,7 +55,8 @@ structural dictionary keys remain data identities.
 - ASCII output contains printable ASCII, including caller text. Basic output stays within WGL4.
   Known symbols use their tier alternatives; unsupported graphemes become `?`. Full retains caller text.
   Reduced-tier conversion is a display operation: source values and search inputs
-  are not rewritten. Plain log-tail output keeps literal lines and applies only the repertoire restriction.
+  are not rewritten. Link destinations use IDNA hostnames and percent-encoded UTF-8 paths in reduced
+  tiers, preserving the URI. Plain log-tail output keeps literal lines and applies only the repertoire restriction.
 
 ## Layout, live state and options
 
