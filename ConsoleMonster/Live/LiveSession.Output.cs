@@ -11,7 +11,7 @@ namespace ConsoleMonster.Live {
 
         // Dispatcher-only routing: stream output is progressive; live output preserves each complete write for scrollback.
         private void RouteConsoleWrite(ConsoleWriteBlock write) {
-            if (_output != null && !_output.SupportsLiveFrames) {
+            if (_output != null && !SupportsLiveFrames) {
                 lock (_outputGate) { write.Write(_output); }
             } else {
                 _unroutedLines.Enqueue(write);
@@ -24,7 +24,7 @@ namespace ConsoleMonster.Live {
         // it serializes writer callbacks, which can themselves request a session snapshot.
         internal bool TryWriteFallback(ConsoleWriteBlock write) {
             lock (_lifecycle) {
-                if (!_renderExited && (_cleanupDeferred || _output?.SupportsLiveFrames == true)) {
+                if (!_renderExited && (_cleanupDeferred || SupportsLiveFrames)) {
                     // Live writes already wait for scrollback; user rendering can still hold _outputGate even before
                     // a stopping caller times out. Admit without waiting for it. Keeping the exit
                     // check and enqueue under _lifecycle makes this precede the render thread's final cleanup.
@@ -51,7 +51,7 @@ namespace ConsoleMonster.Live {
                 literalFallback = true;
                 text = StyledText.FromPlain(liveEvent.Text);
             }
-            if (_output != null && _output.SupportsLiveFrames && _options.Mode == LiveMode.FullScreen) {
+            if (_output != null && SupportsLiveFrames && _options.Mode == LiveMode.FullScreen) {
                 if (_captureLog == null) {
                     _captureLog = new LogRegion { PreferredHeight = 6, ShowElapsed = false, Wrap = true };
                 }

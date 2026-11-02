@@ -83,7 +83,7 @@ namespace ConsoleMonster.Glyphs {
         /// <returns>The symbol.</returns>
         public static string Spinner(this RenderContext context, long offset = 0) {
             int count = context.Glyphs.SpinnerFrames.Count;
-            return count == 0 ? context.Glyphs.Get(Glyph.Running) : context.Glyphs.SpinnerFrames[(int)((((context.Tick + offset) % count) + count) % count)];
+            return context.ReducedMotion || count == 0 ? context.Glyphs.Get(Glyph.Running) : context.Glyphs.SpinnerFrames[(int)((((context.Tick + offset) % count) + count) % count)];
         }
     }
 }

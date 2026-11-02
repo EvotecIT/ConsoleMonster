@@ -33,7 +33,8 @@ namespace ConsoleMonster.Interactive {
             if (interactive.Capture == null && interactive.ResolveMode() == InteractionMode.Rich && interactive.ResolveTarget() is RecordingTarget recording) {
                 interactive.Capture = recording.Screens;
             }
-            TerminalProfile profile = interactive.ResolveProfile();
+            TerminalProfile profile = AccessibilityPolicy.Resolve(interactive.ResolveProfile(), settings.ReducedMotion ?? settings.Live?.ReducedMotion);
+            interactive.Profile = profile;
             bool snapshot = interactive.ResolveMode() != InteractionMode.Rich || (SnapshotRequested() && interactive.Input == null && ConsoleInput.Override == null);
             cancellationToken.ThrowIfCancellationRequested();
             AppState values = state ?? new AppState();
@@ -60,6 +61,7 @@ namespace ConsoleMonster.Interactive {
                     CaptureConsole = interactive.Capture == null, TaskbarProgress = interactive.Capture == null
                 };
                 live.Profile ??= profile;
+                live.ReducedMotion = settings.ReducedMotion ?? live.ReducedMotion;
                 live.Theme ??= context.Theme;
                 live.Target ??= interactive.ResolveTarget();
                 live.PrintFinalState = false;

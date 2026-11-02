@@ -176,7 +176,9 @@ namespace ConsoleMonster.Live {
         public Exception? Failure => Volatile.Read(ref _failure);
 
         // Read after Start: the selected output, including host policy and explicit overrides, owns this capability.
-        internal bool SupportsLiveFrames => _output?.SupportsLiveFrames == true;
+        // A menu can lend a real live surface while its detected process profile is stream/redirected.
+        // Keep that explicit host contract; accessibility and Live=false still require append-only output.
+        internal bool SupportsLiveFrames => !_options.AppendOnly && _context?.Profile.IsAccessible != true && _output?.SupportsLiveFrames == true;
 
         /// <summary>
         /// A snapshot of the session's counters, the target names that received updates but do not exist, and the errors,

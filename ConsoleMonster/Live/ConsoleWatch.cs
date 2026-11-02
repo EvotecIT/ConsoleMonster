@@ -88,7 +88,7 @@ namespace ConsoleMonster.Live {
             WatchOptions o = options ?? new WatchOptions();
             WatchView view = new WatchView { Title = o.Title, PollInterval = o.PollInterval, Differences = o.Differences };
             Output.ITerminalTarget target = o.Session?.Target ?? Terminal.Target;
-            TerminalProfile profile = o.Session?.Profile ?? Terminal.GetTargetProfile(target);
+            TerminalProfile profile = Terminal.ApplyProfilePolicy(o.Session?.Profile ?? Terminal.GetTargetProfile(target));
             if (o.Session?.Culture != null) profile = profile.WithCulture(o.Session.Culture);
             Styling.ITheme theme = o.Session?.Theme ?? target.Theme ?? Terminal.Theme;
             bool interactive = profile.IsLive && !profile.IsOutputRedirected && !profile.IsContinuousIntegration

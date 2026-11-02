@@ -119,6 +119,9 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Default width below which columns stack; explicit column thresholds take precedence.</para></summary>
         [Parameter, ValidateRange(0, int.MaxValue)] public int ReflowBelow { get; set; } = 60;
 
+        /// <summary><para type="description">Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.</para></summary>
+        [Parameter] public SwitchParameter ReducedMotion { get; set; }
+
         /// <inheritdoc />
         protected override void EndProcessing() {
             CancellationTokenSource stop;
@@ -149,6 +152,7 @@ namespace ConsoleMonster.PowerShell {
                 using (PSAppCallbacks callbacks = new PSAppCallbacks(this, state)) {
                     callbacks.Attach(layout);
                     ConsoleAppOptions options = new ConsoleAppOptions {
+                        ReducedMotion = MyInvocation.BoundParameters.ContainsKey(nameof(ReducedMotion)) ? (bool?)ReducedMotion.IsPresent : null,
                         Interactive = interactive,
                         Mouse = !NoMouse.IsPresent,
                         ReflowBelow = ReflowBelow,
