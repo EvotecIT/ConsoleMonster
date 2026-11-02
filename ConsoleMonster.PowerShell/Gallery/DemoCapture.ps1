@@ -11,6 +11,7 @@ $ready = if ($null -ne $state.ready) { [string] $state.ready } elseif ($null -ne
 $keys = if ($null -ne $ready) { '' } else { $state.keys }
 $target = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Output.RecordingTarget', $true))::new($profile, $keys)
 if ($null -ne $ready) {
+    $target.Input.Append([string] $state.startKeys)
     $target.Input.WaitForOutput($target.Screens, $ready, [timespan]::FromSeconds(30))
     $target.Input.Append([string] $state.keys)
 }

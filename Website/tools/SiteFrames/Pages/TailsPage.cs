@@ -101,12 +101,12 @@ namespace SiteFrames.Pages {
                 Environment.CurrentDirectory = Path.GetDirectoryName(Example(site, "file.cs"))!;
                 TerminalProfile profile = CSharpRunner.Profile(width, Rows, ColorDepth.TrueColor, GlyphTier.Full);
                 ConsoleInput.Override = new ScriptedInput(string.Empty) { EndsQuietly = true };
-                RecordingTarget snapshot = CSharpRunner.Execute(Example(site, "file.cs"), profile, theme, null);
+                RecordingTarget snapshot = CSharpRunner.Execute(Example(site, "file.cs"), profile, theme, new ConsoleMonster.Interactive.InteractiveOptions { Input = ConsoleInput.Override });
                 CellBuffer following = FindFrames(snapshot.Output, width)["following"];
                 RecordingTarget navigation = new RecordingTarget(profile) { Theme = theme };
                 using NavigationInput input = new NavigationInput(navigation, width);
                 ConsoleInput.Override = input;
-                CSharpRunner.Execute(Example(site, "navigate.cs"), profile, theme, null, recording: navigation);
+                CSharpRunner.Execute(Example(site, "navigate.cs"), profile, theme, new ConsoleMonster.Interactive.InteractiveOptions { Input = input }, recording: navigation);
                 Dictionary<string, CellBuffer> frames = FindFrames(navigation.Output, width);
                 if (!frames.ContainsKey("paused") || !frames.ContainsKey("resumed")) {
                     throw new InvalidOperationException("tails navigation did not draw PgUp and End states.");
