@@ -1,6 +1,6 @@
 ---
 title: Test, record and drive apps
-description: Run any ConsoleMonster app, prompt or dashboard on a headless terminal to test it against golden files, record it, show it in a browser or let an agent drive it.
+description: Run any app, prompt or dashboard on a headless terminal to test it against golden files, record it, show it in a browser or let an agent drive it.
 slug: testing
 toc: true
 order: 19
