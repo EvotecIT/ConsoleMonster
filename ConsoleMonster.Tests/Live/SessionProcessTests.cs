@@ -43,6 +43,7 @@ namespace ConsoleMonster.Tests.Live {
         [InlineData("normal")]
         [InlineData("startup")]
         [InlineData("cancel")]
+        [InlineData("nested-prompt-signal")]
         [InlineData("guard-overlap")]
         [InlineData("guard-reentrant")]
         [InlineData("terminate")]

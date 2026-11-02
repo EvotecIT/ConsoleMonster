@@ -96,7 +96,8 @@ multiline prompts and a right prompt, on PowerShell 7 and Windows PowerShell 5.1
   terminated safely. Calling Stop from the dispatcher requests its loop to finish.
 - A prompt or dashboard borrowing an app's screen returns ownership to that app. It does not
   leave the outer alternate screen or release the outer input lease. The outer owner performs
-  the final shell handoff.
+  the final shell handoff. A prompt borrowing a live screen also observes that owner's cancellation,
+  including a native Ctrl+C signal while input is temporarily suspended.
 - Redirected/static output uses complete lines and does not emit interactive terminal modes.
   A writer or terminal that has disconnected cannot receive cleanup; the original failure
   remains observable rather than being replaced by an invented successful handoff.

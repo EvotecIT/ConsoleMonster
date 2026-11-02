@@ -21,6 +21,29 @@ namespace ConsoleMonster.TestHost {
             if (buffer == new IntPtr(-1)) { throw new Win32Exception(Marshal.GetLastWin32Error()); }
             try {
                 if (!SetStdHandle(-11, buffer) || !SetConsoleMode(buffer, 3)) { throw new Win32Exception(Marshal.GetLastWin32Error()); }
+                if (scenario == "nested-prompt-signal") {
+                    bool observed = false;
+                    Menu menuProbe = new Menu("Prompt signal probe");
+                    menuProbe.Item("Run", item => item.Action = context => {
+                        context.Run(new Widgets.TextBlock("Working"), run => {
+                            try {
+                                new ConfirmPrompt("Nested", true).Show(new InteractiveOptions {
+                                    Input = new SignalCancellationInput(), Mode = InteractionMode.Rich, Theme = Theme.Dark
+                                });
+                            } catch (OperationCanceledException) { observed = run.CancellationToken.IsCancellationRequested; }
+                            return new MenuRunResult("Stopped");
+                        }, new LiveSessionOptions { CaptureConsole = false, TaskbarProgress = false });
+                        context.Exit();
+                    });
+                    menuProbe.Run(new MenuOptions { ConfirmExit = false, Interactive = new InteractiveOptions {
+                        Input = new ScriptedInput("Enter"), Mode = InteractionMode.Rich, Theme = Theme.Dark
+                    } });
+                    if (!observed || !GetConsoleMode(buffer, out uint after) || after != 3) {
+                        throw new InvalidOperationException("The nested prompt did not cancel with its owner's native Ctrl+C signal.");
+                    }
+                    File.WriteAllText(receipt, "APP_MODE_OK " + scenario + " 3->3\n");
+                    return;
+                }
                 if (scenario == "guard-overlap" || scenario == "guard-reentrant") {
                     using (TerminalGuard outer = new TerminalGuard(() => { }, false)) {
                         Terminal.GetCurrentProfile(); // The actual first-use transition from mode 3 to mode 7.
@@ -125,6 +148,20 @@ namespace ConsoleMonster.TestHost {
             }
         }
 
+        private sealed class SignalCancellationInput : IInputSource {
+            public string Name => "native Ctrl+C during prompt";
+            public InputEvent? Read(TimeSpan timeout, CancellationToken cancellationToken) {
+                if (!GenerateConsoleCtrlEvent(0, 0)) { throw new Win32Exception(Marshal.GetLastWin32Error()); }
+                if (!cancellationToken.WaitHandle.WaitOne(TimeSpan.FromSeconds(5))) {
+                    throw new TimeoutException("Owner cancellation did not reach the nested prompt.");
+                }
+                cancellationToken.ThrowIfCancellationRequested();
+                return null;
+            }
+            public void Dispose() { }
+        }
+
+        [DllImport("kernel32.dll", SetLastError = true)] private static extern bool GenerateConsoleCtrlEvent(uint signal, uint group);
         [DllImport("kernel32.dll")] private static extern IntPtr GetStdHandle(int id);
         [DllImport("kernel32.dll", SetLastError = true)] private static extern bool SetStdHandle(int id, IntPtr handle);
         [DllImport("kernel32.dll", SetLastError = true)] private static extern IntPtr CreateConsoleScreenBuffer(uint access, uint share, IntPtr security, uint flags, IntPtr reserved);

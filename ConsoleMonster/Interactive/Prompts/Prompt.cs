@@ -141,6 +141,9 @@ namespace ConsoleMonster.Interactive {
                     owns = true;
                 }
                 try {
+                    using CancellationTokenSource? ownerCancellation = surface is LivePromptSurface live
+                        ? CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, live.Cancellation) : null;
+                    if (ownerCancellation != null) { cancellationToken = ownerCancellation.Token; }
                     PromptView<T> view = CreateView(labels);
                     try {
                         InteractionLoop.Run(view, lease.Source, surface, context, cancellationToken);

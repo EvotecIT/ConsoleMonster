@@ -103,6 +103,7 @@ namespace ConsoleMonster.Tests.Rendering {
         [Theory]
         [InlineData("nested prompt")]
         [InlineData("overlay setup failure")]
+        [InlineData("owning session cancelled")]
         [InlineData("full cleanup write failure")]
         [InlineData("inline cleanup write failure")]
         [InlineData("prompt cleanup write failure")]
@@ -150,6 +151,10 @@ namespace ConsoleMonster.Tests.Rendering {
                         Target = target, Profile = profile, Input = new ScriptedInput("Enter"), Mode = InteractionMode.Rich
                     }));
                     Volatile.Write(ref failWindow, 0);
+                } else if (scenario == "owning session cancelled") {
+                    Assert.ThrowsAny<OperationCanceledException>(() => new ConfirmPrompt("Nested", true).Show(new InteractiveOptions {
+                        Target = target, Profile = profile, Input = new OwnerCancellationInput(session.Cancel), Mode = InteractionMode.Rich
+                    }));
                 } else {
                     Assert.True(new ConfirmPrompt("Nested", true).Show(new InteractiveOptions {
                         Target = target, Profile = profile, Input = new ScriptedInput("Enter"), Mode = InteractionMode.Rich
@@ -158,7 +163,7 @@ namespace ConsoleMonster.Tests.Rendering {
                 // The nested lifetime did not leave the borrowed screen or retain an extra pause.
                 var active = new VtScreen(48, 12, keepScrollback: false);
                 active.Feed(text.ToString());
-                Assert.True(active.OnAlternate);
+                if (scenario != "owning session cancelled") { Assert.True(active.OnAlternate); }
                 Assert.True(session.IsPaused);
                 pause.Dispose();
                 Assert.False(session.IsPaused);
@@ -222,6 +227,18 @@ namespace ConsoleMonster.Tests.Rendering {
             // The next shell prompt starts on the empty row, with ordinary colours and no hidden suffix.
             terminal.Feed("next prompt> ");
             Assert.Equal("next prompt> ", terminal.Snapshot().GetRowText(terminal.Cursor.Y).TrimEnd() + " ");
+        }
+
+        private sealed class OwnerCancellationInput : IInputSource {
+            private readonly Action _cancel;
+            internal OwnerCancellationInput(Action cancel) { _cancel = cancel; }
+            public string Name => "owner cancellation input";
+            public InputEvent? Read(TimeSpan timeout, CancellationToken cancellationToken) {
+                _cancel();
+                cancellationToken.ThrowIfCancellationRequested();
+                throw new InvalidOperationException("The prompt did not observe its owner's cancellation.");
+            }
+            public void Dispose() { }
         }
 
         private sealed class ExitContractWriter : StringWriter {
